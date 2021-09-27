@@ -31,11 +31,8 @@ use lazy_static::lazy_static;
 use relay_codegen::JsModuleFormat;
 use relay_transforms::{
     ModuleMetadata, RefetchableDerivedFromMetadata, RefetchableMetadata, RelayDirective,
-    CHILDREN_CAN_BUBBLE_METADATA_KEY, CLIENT_EXTENSION_DIRECTIVE_NAME,
-    RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN, RELAY_RESOLVER_IMPORT_PATH_ARGUMENT_NAME,
-    RELAY_RESOLVER_METADATA_FIELD_ALIAS, RELAY_RESOLVER_METADATA_FIELD_NAME,
-    RELAY_RESOLVER_METADATA_FIELD_PARENT_TYPE, RELAY_RESOLVER_SPREAD_METADATA_DIRECTIVE_NAME,
-    REQUIRED_METADATA_KEY,
+    RelayResolverSpreadMetadata, CHILDREN_CAN_BUBBLE_METADATA_KEY, CLIENT_EXTENSION_DIRECTIVE_NAME,
+    RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN, REQUIRED_METADATA_KEY,
 };
 use schema::{EnumID, SDLSchema, ScalarID, Schema, Type, TypeReference};
 use std::hash::Hash;
@@ -420,11 +417,10 @@ impl<'a> TypeGenerator<'a> {
         type_selections: &mut Vec<TypeSelection>,
         fragment_spread: &FragmentSpread,
     ) {
-        if let Some(module_directive) = fragment_spread
-            .directives
-            .named(*RELAY_RESOLVER_SPREAD_METADATA_DIRECTIVE_NAME)
+        if let Some(resolver_spread_metadata) =
+            RelayResolverSpreadMetadata::find(&fragment_spread.directives)
         {
-            self.visit_relay_resolver_fragment(type_selections, module_directive);
+            self.visit_relay_resolver_fragment(type_selections, resolver_spread_metadata);
         } else {
             let name = fragment_spread.fragment.item;
             self.used_fragments.insert(name);
@@ -445,35 +441,20 @@ impl<'a> TypeGenerator<'a> {
     fn visit_relay_resolver_fragment(
         &mut self,
         type_selections: &mut Vec<TypeSelection>,
-        metadata_directive: &Directive,
+        resolver_spread_metadata: &RelayResolverSpreadMetadata,
     ) {
-        let field_name = expect_string_literal_directive_argument_value(
-            metadata_directive,
-            *RELAY_RESOLVER_METADATA_FIELD_NAME,
-        );
+        let field_name = resolver_spread_metadata.field_name;
 
-        let module_path = expect_string_literal_directive_argument_value(
-            metadata_directive,
-            *RELAY_RESOLVER_IMPORT_PATH_ARGUMENT_NAME,
-        );
+        let key = resolver_spread_metadata.field_alias.unwrap_or(field_name);
 
-        let field_alias = metadata_directive
-            .arguments
-            .named(*RELAY_RESOLVER_METADATA_FIELD_ALIAS)
-            .map(|arg| arg.value.item.expect_string_literal());
-
-        let key = field_alias.unwrap_or(field_name);
-
-        let parent_type = expect_string_literal_directive_argument_value(
-            metadata_directive,
-            *RELAY_RESOLVER_METADATA_FIELD_PARENT_TYPE,
-        );
-
-        let local_resolver_name =
-            to_camel_case(format!("{}_{}_resolver", parent_type, field_name)).intern();
+        let local_resolver_name = to_camel_case(format!(
+            "{}_{}_resolver",
+            resolver_spread_metadata.field_parent_type, field_name
+        ))
+        .intern();
 
         // TODO(T86853359): Support non-haste environments when generating Relay Resolver types
-        let haste_import_name = Path::new(&module_path.to_string())
+        let haste_import_name = Path::new(&resolver_spread_metadata.import_path.to_string())
             .file_stem()
             .unwrap()
             .to_string_lossy()
@@ -1509,19 +1490,6 @@ fn apply_required_directive_nullability(
             None => field_type.clone(),
         },
     }
-}
-
-fn expect_string_literal_directive_argument_value(
-    directive: &Directive,
-    argument_name: StringKey,
-) -> StringKey {
-    directive
-        .arguments
-        .named(argument_name)
-        .unwrap()
-        .value
-        .item
-        .expect_string_literal()
 }
 
 /// Converts a `String` to a camel case `String`

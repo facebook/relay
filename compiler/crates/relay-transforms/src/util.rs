@@ -16,12 +16,11 @@ use crate::{
     refetchable_fragment::RefetchableMetadata,
     relay_actor_change::RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN,
     relay_client_component::RELAY_CLIENT_COMPONENT_METADATA_KEY,
-    relay_resolvers::RELAY_RESOLVER_SPREAD_METADATA_DIRECTIVE_NAME,
     required_directive::{
         CHILDREN_CAN_BUBBLE_METADATA_KEY, REQUIRED_DIRECTIVE_NAME, REQUIRED_METADATA_KEY,
     },
-    ModuleMetadata, RefetchableDerivedFromMetadata, DIRECTIVE_SPLIT_OPERATION,
-    INTERNAL_METADATA_DIRECTIVE,
+    ModuleMetadata, RefetchableDerivedFromMetadata, RelayResolverSpreadMetadata,
+    DIRECTIVE_SPLIT_OPERATION, INTERNAL_METADATA_DIRECTIVE,
 };
 
 use graphql_ir::{
@@ -105,7 +104,7 @@ lazy_static! {
         *REQUIRED_DIRECTIVE_NAME,
         *REQUIRED_METADATA_KEY,
         *CHILDREN_CAN_BUBBLE_METADATA_KEY,
-        *RELAY_RESOLVER_SPREAD_METADATA_DIRECTIVE_NAME,
+        *RelayResolverSpreadMetadata::DIRECTIVE_NAME,
         *RELAY_CLIENT_COMPONENT_METADATA_KEY,
         *UNUSED_LOCAL_VARIABLE_DEPRECATED,
         *RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN,
@@ -121,7 +120,7 @@ lazy_static! {
         *REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY,
         *REACT_FLIGHT_LOCAL_COMPONENTS_METADATA_KEY,
         *REQUIRED_DIRECTIVE_NAME,
-        *RELAY_RESOLVER_SPREAD_METADATA_DIRECTIVE_NAME,
+        *RelayResolverSpreadMetadata::DIRECTIVE_NAME,
         *RELAY_CLIENT_COMPONENT_METADATA_KEY,
     ];
     static ref RELAY_CUSTOM_INLINE_FRAGMENT_DIRECTIVES: [StringKey; 5] = [

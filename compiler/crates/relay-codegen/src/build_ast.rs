@@ -22,15 +22,13 @@ use relay_transforms::{
     extract_connection_metadata_from_directive, extract_handle_field_directives,
     extract_values_from_handle_field_directive, generate_abstract_type_refinement_key,
     remove_directive, ConnectionConstants, ConnectionMetadata, DeferDirective, ModuleMetadata,
-    RefetchableMetadata, RelayDirective, StreamDirective, ACTION_ARGUMENT,
-    CLIENT_EXTENSION_DIRECTIVE_NAME, DEFER_STREAM_CONSTANTS, DIRECTIVE_SPLIT_OPERATION,
-    INLINE_DATA_CONSTANTS, INTERNAL_METADATA_DIRECTIVE, NO_INLINE_DIRECTIVE_NAME,
-    PATH_METADATA_ARGUMENT, REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY,
-    RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN, RELAY_CLIENT_COMPONENT_MODULE_ID_ARGUMENT_NAME,
-    RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME, RELAY_RESOLVER_IMPORT_PATH_ARGUMENT_NAME,
-    RELAY_RESOLVER_METADATA_FIELD_ALIAS, RELAY_RESOLVER_METADATA_FIELD_NAME,
-    RELAY_RESOLVER_SPREAD_METADATA_DIRECTIVE_NAME, REQUIRED_METADATA_KEY,
-    TYPE_DISCRIMINATOR_DIRECTIVE_NAME,
+    RefetchableMetadata, RelayDirective, RelayResolverSpreadMetadata, StreamDirective,
+    ACTION_ARGUMENT, CLIENT_EXTENSION_DIRECTIVE_NAME, DEFER_STREAM_CONSTANTS,
+    DIRECTIVE_SPLIT_OPERATION, INLINE_DATA_CONSTANTS, INTERNAL_METADATA_DIRECTIVE,
+    NO_INLINE_DIRECTIVE_NAME, PATH_METADATA_ARGUMENT,
+    REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY, RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN,
+    RELAY_CLIENT_COMPONENT_MODULE_ID_ARGUMENT_NAME, RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME,
+    REQUIRED_METADATA_KEY, TYPE_DISCRIMINATOR_DIRECTIVE_NAME,
 };
 use schema::{SDLSchema, Schema};
 
@@ -884,44 +882,25 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             },
         ]));
 
-        match frag_spread
-            .directives
-            .named(*RELAY_RESOLVER_SPREAD_METADATA_DIRECTIVE_NAME)
+        if let Some(resolver_spread_metadata) =
+            RelayResolverSpreadMetadata::find(&frag_spread.directives)
         {
-            Some(directive) => self.build_relay_resolver(primitive, directive),
-            None => primitive,
+            self.build_relay_resolver(primitive, resolver_spread_metadata)
+        } else {
+            primitive
         }
     }
 
     fn build_relay_resolver(
         &mut self,
         fragment_primitive: Primitive,
-        directive: &Directive,
+        relay_resolver_spread_metadata: &RelayResolverSpreadMetadata,
     ) -> Primitive {
-        let module = directive
-            .arguments
-            .named(*RELAY_RESOLVER_IMPORT_PATH_ARGUMENT_NAME)
-            .unwrap()
-            .value
-            .item
-            .expect_string_literal()
-            .to_string()
-            .intern();
+        let module = relay_resolver_spread_metadata.import_path;
 
-        let field_name = directive
-            .arguments
-            .named(*RELAY_RESOLVER_METADATA_FIELD_NAME)
-            .unwrap()
-            .value
-            .item
-            .expect_string_literal()
-            .to_string()
-            .intern();
+        let field_name = relay_resolver_spread_metadata.field_name;
 
-        let field_alias = directive
-            .arguments
-            .named(*RELAY_RESOLVER_METADATA_FIELD_ALIAS)
-            .map(|arg| arg.value.item.expect_string_literal().to_string().intern());
+        let field_alias = relay_resolver_spread_metadata.field_alias;
 
         // TODO(T86853359): Support non-haste environments when generating Relay Resolver RederAST
         let haste_import_name = Path::new(&module.to_string())

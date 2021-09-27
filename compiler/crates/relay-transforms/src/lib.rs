@@ -112,8 +112,7 @@ pub use no_inline::NO_INLINE_DIRECTIVE_NAME;
 pub use node_identifier::NodeIdentifier;
 pub use preloadable_directive::{is_operation_preloadable, should_generate_hack_preloader};
 pub use react_flight::{
-    react_flight, REACT_FLIGHT_LOCAL_COMPONENTS_METADATA_ARG_KEY,
-    REACT_FLIGHT_LOCAL_COMPONENTS_METADATA_KEY, REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY,
+    react_flight, ReactFlightLocalComponentsMetadata, REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY,
 };
 pub use refetchable_fragment::{
     transform_refetchable_fragment, RefetchableDerivedFromMetadata, RefetchableMetadata,

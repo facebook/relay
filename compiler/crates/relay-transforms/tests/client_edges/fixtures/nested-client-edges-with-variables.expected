@@ -33,7 +33,17 @@ fragment Foo_user on User {
   }
 }
 
-fragment RefetchableClientEdgeQuery_Foo_user_best_friend on User @__refetchableMetadata(__refetchableMetadata: ["ClientEdgeQuery_Foo_user_best_friend", ["node"], "id"]) {
+fragment RefetchableClientEdgeQuery_Foo_user_best_friend on User @__RefetchableMetadata
+# RefetchableMetadata {
+#     operation_name: "ClientEdgeQuery_Foo_user_best_friend",
+#     path: [
+#         "node",
+#     ],
+#     identifier_field: Some(
+#         "id",
+#     ),
+# }
+ {
   url(site: $top_level_site)
   best_friend @__clientEdge(queryName: "ClientEdgeQuery_Foo_user_best_friend__best_friend") {
     name
@@ -42,7 +52,17 @@ fragment RefetchableClientEdgeQuery_Foo_user_best_friend on User @__refetchableM
   id
 }
 
-fragment RefetchableClientEdgeQuery_Foo_user_best_friend__best_friend on User @__refetchableMetadata(__refetchableMetadata: ["ClientEdgeQuery_Foo_user_best_friend__best_friend", ["node"], "id"]) {
+fragment RefetchableClientEdgeQuery_Foo_user_best_friend__best_friend on User @__RefetchableMetadata
+# RefetchableMetadata {
+#     operation_name: "ClientEdgeQuery_Foo_user_best_friend__best_friend",
+#     path: [
+#         "node",
+#     ],
+#     identifier_field: Some(
+#         "id",
+#     ),
+# }
+ {
   name
   url(site: $nested_site)
   id

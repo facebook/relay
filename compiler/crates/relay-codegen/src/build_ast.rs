@@ -20,17 +20,16 @@ use interner::{Intern, StringKey};
 use md5::{Digest, Md5};
 use relay_transforms::{
     extract_connection_metadata_from_directive, extract_handle_field_directives,
-    extract_refetch_metadata_from_directive, extract_values_from_handle_field_directive,
-    generate_abstract_type_refinement_key, remove_directive, ConnectionConstants,
-    ConnectionMetadata, DeferDirective, RelayDirective, StreamDirective, ACTION_ARGUMENT,
-    CLIENT_EXTENSION_DIRECTIVE_NAME, DEFER_STREAM_CONSTANTS, DIRECTIVE_SPLIT_OPERATION,
-    INLINE_DATA_CONSTANTS, INTERNAL_METADATA_DIRECTIVE, MATCH_CONSTANTS, NO_INLINE_DIRECTIVE_NAME,
-    PATH_METADATA_ARGUMENT, REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY,
-    RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN, RELAY_CLIENT_COMPONENT_MODULE_ID_ARGUMENT_NAME,
-    RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME, RELAY_RESOLVER_IMPORT_PATH_ARGUMENT_NAME,
-    RELAY_RESOLVER_METADATA_FIELD_ALIAS, RELAY_RESOLVER_METADATA_FIELD_NAME,
-    RELAY_RESOLVER_SPREAD_METADATA_DIRECTIVE_NAME, REQUIRED_METADATA_KEY,
-    TYPE_DISCRIMINATOR_DIRECTIVE_NAME,
+    extract_values_from_handle_field_directive, generate_abstract_type_refinement_key,
+    remove_directive, ConnectionConstants, ConnectionMetadata, DeferDirective, RefetchableMetadata,
+    RelayDirective, StreamDirective, ACTION_ARGUMENT, CLIENT_EXTENSION_DIRECTIVE_NAME,
+    DEFER_STREAM_CONSTANTS, DIRECTIVE_SPLIT_OPERATION, INLINE_DATA_CONSTANTS,
+    INTERNAL_METADATA_DIRECTIVE, MATCH_CONSTANTS, NO_INLINE_DIRECTIVE_NAME, PATH_METADATA_ARGUMENT,
+    REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY, RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN,
+    RELAY_CLIENT_COMPONENT_MODULE_ID_ARGUMENT_NAME, RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME,
+    RELAY_RESOLVER_IMPORT_PATH_ARGUMENT_NAME, RELAY_RESOLVER_METADATA_FIELD_ALIAS,
+    RELAY_RESOLVER_METADATA_FIELD_NAME, RELAY_RESOLVER_SPREAD_METADATA_DIRECTIVE_NAME,
+    REQUIRED_METADATA_KEY, TYPE_DISCRIMINATOR_DIRECTIVE_NAME,
 };
 use schema::{SDLSchema, Schema};
 
@@ -285,9 +284,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                 value: Primitive::Bool(true),
             })
         }
-        if let Some(refetch_metadata) =
-            extract_refetch_metadata_from_directive(&fragment.directives)
-        {
+        if let Some(refetch_metadata) = RefetchableMetadata::find(&fragment.directives) {
             let refetch_connection = if let Some(connection_metadata) = connection_metadata {
                 let metadata = &connection_metadata[0]; // Validated in `transform_refetchable`
                 let connection_object = vec![
@@ -356,7 +353,8 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                         self.array(
                             refetch_metadata
                                 .path
-                                .into_iter()
+                                .iter()
+                                .copied()
                                 .map(Primitive::String)
                                 .collect(),
                         ),

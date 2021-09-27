@@ -30,7 +30,7 @@ use itertools::Itertools;
 use lazy_static::lazy_static;
 use relay_codegen::JsModuleFormat;
 use relay_transforms::{
-    extract_refetch_metadata_from_directive, RefetchableDerivedFromMetadata, RelayDirective,
+    RefetchableDerivedFromMetadata, RefetchableMetadata, RelayDirective,
     CHILDREN_CAN_BUBBLE_METADATA_KEY, CLIENT_EXTENSION_DIRECTIVE_NAME, MATCH_CONSTANTS,
     RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN, RELAY_RESOLVER_IMPORT_PATH_ARGUMENT_NAME,
     RELAY_RESOLVER_METADATA_FIELD_ALIAS, RELAY_RESOLVER_METADATA_FIELD_NAME,
@@ -196,7 +196,7 @@ impl<'a> TypeGenerator<'a> {
         };
 
         let refetchable_fragment_name =
-            RefetchableDerivedFromMetadata::from_directives(&typegen_operation.directives);
+            RefetchableDerivedFromMetadata::find(&typegen_operation.directives);
         if refetchable_fragment_name.is_some() {
             self.runtime_imports.fragment_reference = true;
         }
@@ -210,8 +210,8 @@ impl<'a> TypeGenerator<'a> {
 
         self.write_import_actor_change_point()?;
         self.write_runtime_imports()?;
-        if let Some(refetchable_fragment_name) = refetchable_fragment_name {
-            self.write_fragment_refs_for_refetchable(refetchable_fragment_name)?;
+        if let Some(refetchable_derived_from) = refetchable_fragment_name {
+            self.write_fragment_refs_for_refetchable(refetchable_derived_from.0)?;
         } else {
             self.write_fragment_imports()?;
         }
@@ -354,7 +354,7 @@ impl<'a> TypeGenerator<'a> {
         self.write_runtime_imports()?;
         self.write_relay_resolver_imports()?;
 
-        let refetchable_metadata = extract_refetch_metadata_from_directive(&node.directives);
+        let refetchable_metadata = RefetchableMetadata::find(&node.directives);
         let old_fragment_type_name = format!("{}$ref", old_fragment_type_name).intern();
         if let Some(refetchable_metadata) = refetchable_metadata {
             match self.js_module_format {

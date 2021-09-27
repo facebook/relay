@@ -23,7 +23,11 @@ query RefetchableFragmentQuery(
   $count: Int = 10
   $cursor: ID
   $id: ID!
-) @__refetchableQueryMetadata(__refetchableQueryMetadata: "PaginationFragment") {
+) @__RefetchableDerivedFromMetadata
+# RefetchableDerivedFromMetadata(
+#     "PaginationFragment",
+# )
+ {
   node(id: $id) {
     ...PaginationFragment @arguments(count: $count, cursor: $cursor)
   }
@@ -54,7 +58,17 @@ fragment PaginationFragment on Node @refetchable(queryName: "RefetchableFragment
 #         },
 #     ],
 # )
- @__refetchableMetadata(__refetchableMetadata: ["RefetchableFragmentQuery", ["node"], "id"]) {
+ @__RefetchableMetadata
+# RefetchableMetadata {
+#     operation_name: "RefetchableFragmentQuery",
+#     path: [
+#         "node",
+#     ],
+#     identifier_field: Some(
+#         "id",
+#     ),
+# }
+ {
   id
   ... on User {
     name

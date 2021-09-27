@@ -116,8 +116,8 @@ pub use react_flight::{
     REACT_FLIGHT_LOCAL_COMPONENTS_METADATA_KEY, REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY,
 };
 pub use refetchable_fragment::{
-    extract_refetch_metadata_from_directive, transform_refetchable_fragment,
-    RefetchableDerivedFromMetadata, CONSTANTS as REFETCHABLE_CONSTANTS, REFETCHABLE_NAME,
+    transform_refetchable_fragment, RefetchableDerivedFromMetadata, RefetchableMetadata,
+    CONSTANTS as REFETCHABLE_CONSTANTS, REFETCHABLE_NAME,
 };
 pub use relay_actor_change::{
     relay_actor_change_transform, RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN,

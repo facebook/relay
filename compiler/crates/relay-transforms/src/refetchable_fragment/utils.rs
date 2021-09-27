@@ -8,28 +8,27 @@
 use crate::root_variables::VariableMap;
 use common::{Diagnostic, DiagnosticsResult, NamedItem, WithLocation};
 use graphql_ir::{
-    Argument, ConstantValue, Directive, FragmentDefinition, FragmentSpread, Selection,
+    associated_data_impl, Argument, Directive, FragmentDefinition, FragmentSpread, Selection,
     ValidationMessage, Value, Variable, VariableDefinition,
 };
 use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
 use std::sync::Arc;
 
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct RefetchableMetadata {
     pub operation_name: StringKey,
     pub path: Vec<StringKey>,
     pub identifier_field: Option<StringKey>,
 }
+associated_data_impl!(RefetchableMetadata);
 
 pub struct Constants {
     pub fetchable: StringKey,
     pub field_name: StringKey,
     pub id_name: StringKey,
-    pub identifier_field_arg: StringKey,
     pub node_field_name: StringKey,
     pub node_type_name: StringKey,
-    pub refetchable_metadata_name: StringKey,
-    pub refetchable_operation_metadata_name: StringKey,
     pub viewer_field_name: StringKey,
     pub viewer_type_name: StringKey,
 }
@@ -39,11 +38,8 @@ lazy_static! {
         fetchable: "fetchable".intern(),
         field_name: "field_name".intern(),
         id_name: "id".intern(),
-        identifier_field_arg: "fragmentPathInResult".intern(),
         node_field_name: "node".intern(),
         node_type_name: "Node".intern(),
-        refetchable_metadata_name: "__refetchableMetadata".intern(),
-        refetchable_operation_metadata_name: "__refetchableQueryMetadata".intern(),
         viewer_field_name: "viewer".intern(),
         viewer_type_name: "Viewer".intern(),
     };
@@ -122,120 +118,12 @@ pub fn build_fragment_metadata_as_directive(
     metadata: RefetchableMetadata,
 ) -> Vec<Directive> {
     let mut next_directives = fragment.directives.clone();
-    // Fragment: [operation, fragmentPathInResult, identifierField]
-    next_directives.push(Directive {
-        name: WithLocation::new(fragment.name.location, CONSTANTS.refetchable_metadata_name),
-        arguments: vec![Argument {
-            name: WithLocation::new(fragment.name.location, CONSTANTS.refetchable_metadata_name),
-            value: WithLocation::new(
-                fragment.name.location,
-                Value::Constant(ConstantValue::List(vec![
-                    ConstantValue::String(metadata.operation_name),
-                    ConstantValue::List(
-                        metadata
-                            .path
-                            .into_iter()
-                            .map(ConstantValue::String)
-                            .collect(),
-                    ),
-                    if let Some(identifier) = metadata.identifier_field {
-                        ConstantValue::String(identifier)
-                    } else {
-                        ConstantValue::Null()
-                    },
-                ])),
-            ),
-        }],
-        data: None,
-    });
+    next_directives.push(metadata.into());
     next_directives
 }
 
 /// Metadata attached to generated refetch queries storing the name of the
 /// fragment the operation was derived from.
-pub struct RefetchableDerivedFromMetadata;
-impl RefetchableDerivedFromMetadata {
-    pub fn create_directive(fragment_name: WithLocation<StringKey>) -> Directive {
-        Directive {
-            name: WithLocation::new(
-                fragment_name.location,
-                CONSTANTS.refetchable_operation_metadata_name,
-            ),
-            arguments: vec![Argument {
-                name: WithLocation::new(
-                    fragment_name.location,
-                    CONSTANTS.refetchable_operation_metadata_name,
-                ),
-                value: WithLocation::new(
-                    fragment_name.location,
-                    Value::Constant(ConstantValue::String(fragment_name.item)),
-                ),
-            }],
-            data: None,
-        }
-    }
-
-    pub fn from_directives(directives: &[Directive]) -> Option<StringKey> {
-        directives
-            .named(CONSTANTS.refetchable_operation_metadata_name)
-            .map(|directive| {
-                directive
-                    .arguments
-                    .named(CONSTANTS.refetchable_operation_metadata_name)
-                    .unwrap()
-                    .value
-                    .item
-                    .expect_string_literal()
-            })
-    }
-}
-
-pub fn extract_refetch_metadata_from_directive(
-    directives: &[Directive],
-) -> Option<RefetchableMetadata> {
-    let refetchable_metadata_directive = directives.named(CONSTANTS.refetchable_metadata_name);
-    if let Some(refetchable_metadata_directive) = refetchable_metadata_directive {
-        let metadata_arg = refetchable_metadata_directive
-            .arguments
-            .named(CONSTANTS.refetchable_metadata_name)
-            .expect("Expected an argument in the refetchable metadata directive.");
-        let metadata_values = if let Value::Constant(ConstantValue::List(metadata_values)) =
-            &metadata_arg.value.item
-        {
-            metadata_values
-        } else {
-            unreachable!("Expected refetchable metadata to be a list of metadata values.")
-        };
-        debug_assert!(
-            metadata_values.len() == 3,
-            "Expected metadata value to be a list with 3 elements"
-        );
-        let operation_name = metadata_values[0]
-            .get_string_literal()
-            .expect("Expected refetchable metadata operation_name to be a string.");
-        let path = match &metadata_values[1] {
-            ConstantValue::List(list) => list
-                .iter()
-                .map(|item| {
-                    item.get_string_literal()
-                        .expect("Expected refetchable metadata path to be a list of strings.")
-                })
-                .collect::<Vec<StringKey>>(),
-            _ => unreachable!("Expected refetchable metadata path to be a list of strings."),
-        };
-        let identifier_field = match metadata_values[2] {
-            ConstantValue::String(string_val) => Some(string_val),
-            ConstantValue::Null() => None,
-            _ => unreachable!(
-                "Expected reftchable metadata identifier_field to be a nullable string."
-            ),
-        };
-        Some(RefetchableMetadata {
-            operation_name,
-            path,
-            identifier_field,
-        })
-    } else {
-        None
-    }
-}
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct RefetchableDerivedFromMetadata(pub StringKey);
+associated_data_impl!(RefetchableDerivedFromMetadata);

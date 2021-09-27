@@ -16,8 +16,6 @@ use interner::StringKey;
 use schema::{SDLSchema, Schema};
 use std::fmt::{Result, Write};
 
-const TAB_SIZE: usize = 2;
-
 pub fn print_ir(schema: &SDLSchema, definitions: &[ExecutableDefinition]) -> Vec<String> {
     definitions
         .iter()
@@ -104,7 +102,7 @@ pub fn write_selections(
     mut result: &mut impl Write,
 ) -> Result {
     let mut printer = Printer::new(&schema, &mut result, PrinterOptions::default());
-    printer.print_selections(selections, 0)
+    printer.print_selections(selections)
 }
 
 pub fn write_arguments(
@@ -149,6 +147,7 @@ struct Printer<'schema, 'writer, W: Write> {
     schema: &'schema SDLSchema,
     writer: &'writer mut W,
     options: PrinterOptions,
+    indentation: usize,
 }
 
 impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
@@ -157,6 +156,7 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
             schema,
             writer,
             options,
+            indentation: 0,
         }
     }
 
@@ -177,7 +177,7 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
         write!(self.writer, "{} {}", operation_kind, operation_name)?;
         self.print_variable_definitions(&operation.variable_definitions)?;
         self.print_directives(&operation.directives, None, None)?;
-        self.print_selections(&operation.selections, 0)
+        self.print_selections(&operation.selections)
     }
 
     fn print_fragment(mut self, fragment: &FragmentDefinition) -> Result {
@@ -194,26 +194,25 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
             None,
             Some(&fragment.variable_definitions),
         )?;
-        self.print_selections(&fragment.selections, 0)
+        self.print_selections(&fragment.selections)
     }
 
-    fn print_selections(&mut self, selections: &[Selection], indent_count: usize) -> Result {
+    fn print_selections(&mut self, selections: &[Selection]) -> Result {
         let len = selections.len();
         if len > 0 {
-            let next_indent_count = indent_count + TAB_SIZE;
-            writeln!(self.writer, " {{")?;
-            self.print_indentation(next_indent_count)?;
+            write!(self.writer, " {{")?;
+            self.indentation += 1;
+            self.next_line()?;
 
             for (i, selection) in selections.iter().enumerate() {
-                self.print_selection(selection, None, next_indent_count)?;
+                self.print_selection(selection, None)?;
                 if i != len - 1 {
-                    writeln!(self.writer)?;
-                    self.print_indentation(next_indent_count)?;
+                    self.next_line()?;
                 }
             }
 
-            writeln!(self.writer)?;
-            self.print_indentation(indent_count)?;
+            self.indentation -= 1;
+            self.next_line()?;
             write!(self.writer, "}}")?;
         } else {
             panic!(
@@ -227,23 +226,22 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
         &mut self,
         selection: &Selection,
         conditions: Option<Vec<&Condition>>,
-        indent_count: usize,
     ) -> Result {
         match selection {
             Selection::ScalarField(field) => {
                 self.print_scalar_field(field, conditions)?;
             }
             Selection::LinkedField(field) => {
-                self.print_linked_field(field, conditions, indent_count)?;
+                self.print_linked_field(field, conditions)?;
             }
             Selection::FragmentSpread(field) => {
                 self.print_fragment_spread(field, conditions)?;
             }
             Selection::InlineFragment(field) => {
-                self.print_inline_fragment(field, conditions, indent_count)?;
+                self.print_inline_fragment(field, conditions)?;
             }
             Selection::Condition(field) => {
-                self.print_condition(field, indent_count)?;
+                self.print_condition(field)?;
             }
         }
         Ok(())
@@ -264,13 +262,12 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
         &mut self,
         field: &LinkedField,
         conditions: Option<Vec<&Condition>>,
-        indent_count: usize,
     ) -> Result {
         let schema_field = self.schema.field(field.definition.item);
         self.print_alias_and_name(&field.alias, schema_field.name)?;
         self.print_arguments(&field.arguments)?;
         self.print_directives(&field.directives, conditions, None)?;
-        self.print_selections(&field.selections, indent_count)?;
+        self.print_selections(&field.selections)?;
         Ok(())
     }
 
@@ -294,7 +291,6 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
         &mut self,
         field: &InlineFragment,
         conditions: Option<Vec<&Condition>>,
-        indent_count: usize,
     ) -> Result {
         write!(self.writer, "...")?;
         if let Some(type_condition) = field.type_condition {
@@ -305,10 +301,10 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
             )?;
         };
         self.print_directives(&field.directives, conditions, None)?;
-        self.print_selections(&field.selections, indent_count)
+        self.print_selections(&field.selections)
     }
 
-    fn print_condition(&mut self, condition: &Condition, indent_count: usize) -> Result {
+    fn print_condition(&mut self, condition: &Condition) -> Result {
         let mut maybe_current_condition = Some(condition);
         let mut accum_conditions: Vec<Condition> = vec![];
         let mut is_first_selection = true;
@@ -322,13 +318,11 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
                     if is_first_selection {
                         is_first_selection = false;
                     } else {
-                        writeln!(self.writer)?;
-                        self.print_indentation(indent_count)?;
+                        self.next_line()?;
                     }
                     self.print_selection(
                         &selection,
                         Some(accum_conditions.iter().rev().collect()),
-                        indent_count,
                     )?;
                     maybe_current_condition = None;
                 }
@@ -392,9 +386,9 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
     ) -> Result {
         if !variable_definitions.is_empty() {
             write!(self.writer, "(")?;
+            self.indentation += 1;
             for var_def in variable_definitions.iter() {
-                writeln!(self.writer)?;
-                self.print_indentation(TAB_SIZE)?;
+                self.next_line()?;
                 let type_name = self.schema.get_type_string(&var_def.type_);
                 write!(self.writer, "${}: {}", var_def.name.item, type_name)?;
 
@@ -408,6 +402,7 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
 
                 self.print_directives(&var_def.directives, None, None)?;
             }
+            self.indentation -= 1;
             write!(self.writer, "\n)")?;
         }
         Ok(())
@@ -419,9 +414,9 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
     ) -> Result {
         if !argument_definitions.is_empty() {
             write!(self.writer, " @argumentDefinitions(")?;
+            self.indentation += 1;
             for arg_def in argument_definitions.iter() {
-                writeln!(self.writer)?;
-                self.print_indentation(TAB_SIZE)?;
+                self.next_line()?;
                 let type_name = self.schema.get_type_string(&arg_def.type_);
                 write!(
                     self.writer,
@@ -435,6 +430,7 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
                 }
                 write!(self.writer, "}}")?;
             }
+            self.indentation -= 1;
             write!(self.writer, "\n)")?;
         }
         Ok(())
@@ -607,9 +603,10 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
         write!(self.writer, "{}", name)
     }
 
-    fn print_indentation(&mut self, indent_count: usize) -> Result {
-        for _ in 0..indent_count {
-            write!(self.writer, " ")?;
+    fn next_line(&mut self) -> Result {
+        writeln!(self.writer)?;
+        for _ in 0..self.indentation {
+            write!(self.writer, "  ")?;
         }
         Ok(())
     }

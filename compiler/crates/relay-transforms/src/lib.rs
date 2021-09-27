@@ -123,8 +123,7 @@ pub use relay_actor_change::{
     relay_actor_change_transform, RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN,
 };
 pub use relay_client_component::{
-    relay_client_component, RELAY_CLIENT_COMPONENT_DIRECTIVE_NAME,
-    RELAY_CLIENT_COMPONENT_METADATA_KEY, RELAY_CLIENT_COMPONENT_METADATA_SPLIT_OPERATION_ARG_KEY,
+    relay_client_component, RelayClientComponentMetadata, RELAY_CLIENT_COMPONENT_DIRECTIVE_NAME,
     RELAY_CLIENT_COMPONENT_MODULE_ID_ARGUMENT_NAME, RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME,
 };
 pub use relay_directive::RelayDirective;

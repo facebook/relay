@@ -21,15 +21,16 @@ use md5::{Digest, Md5};
 use relay_transforms::{
     extract_connection_metadata_from_directive, extract_handle_field_directives,
     extract_values_from_handle_field_directive, generate_abstract_type_refinement_key,
-    remove_directive, ConnectionConstants, ConnectionMetadata, DeferDirective, RefetchableMetadata,
-    RelayDirective, StreamDirective, ACTION_ARGUMENT, CLIENT_EXTENSION_DIRECTIVE_NAME,
-    DEFER_STREAM_CONSTANTS, DIRECTIVE_SPLIT_OPERATION, INLINE_DATA_CONSTANTS,
-    INTERNAL_METADATA_DIRECTIVE, MATCH_CONSTANTS, NO_INLINE_DIRECTIVE_NAME, PATH_METADATA_ARGUMENT,
-    REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY, RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN,
-    RELAY_CLIENT_COMPONENT_MODULE_ID_ARGUMENT_NAME, RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME,
-    RELAY_RESOLVER_IMPORT_PATH_ARGUMENT_NAME, RELAY_RESOLVER_METADATA_FIELD_ALIAS,
-    RELAY_RESOLVER_METADATA_FIELD_NAME, RELAY_RESOLVER_SPREAD_METADATA_DIRECTIVE_NAME,
-    REQUIRED_METADATA_KEY, TYPE_DISCRIMINATOR_DIRECTIVE_NAME,
+    remove_directive, ConnectionConstants, ConnectionMetadata, DeferDirective, ModuleMetadata,
+    RefetchableMetadata, RelayDirective, StreamDirective, ACTION_ARGUMENT,
+    CLIENT_EXTENSION_DIRECTIVE_NAME, DEFER_STREAM_CONSTANTS, DIRECTIVE_SPLIT_OPERATION,
+    INLINE_DATA_CONSTANTS, INTERNAL_METADATA_DIRECTIVE, NO_INLINE_DIRECTIVE_NAME,
+    PATH_METADATA_ARGUMENT, REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY,
+    RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN, RELAY_CLIENT_COMPONENT_MODULE_ID_ARGUMENT_NAME,
+    RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME, RELAY_RESOLVER_IMPORT_PATH_ARGUMENT_NAME,
+    RELAY_RESOLVER_METADATA_FIELD_ALIAS, RELAY_RESOLVER_METADATA_FIELD_NAME,
+    RELAY_RESOLVER_SPREAD_METADATA_DIRECTIVE_NAME, REQUIRED_METADATA_KEY,
+    TYPE_DISCRIMINATOR_DIRECTIVE_NAME,
 };
 use schema::{SDLSchema, Schema};
 
@@ -484,11 +485,10 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                         &inline_fragment,
                         &inline_data_directive,
                     )]
-                } else if let Some(match_directive) = inline_fragment
-                    .directives
-                    .named(MATCH_CONSTANTS.custom_module_directive_name)
+                } else if let Some(module_metadata) =
+                    ModuleMetadata::find(&inline_fragment.directives)
                 {
-                    self.build_module_import_selections(match_directive, &inline_fragment)
+                    self.build_module_import_selections(module_metadata, &inline_fragment)
                 } else if inline_fragment
                     .directives
                     .named(*RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN)
@@ -1552,23 +1552,10 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
 
     fn build_module_import_selections(
         &mut self,
-        directive: &Directive,
+        module_metadata: &ModuleMetadata,
         inline_fragment: &InlineFragment,
     ) -> Vec<Primitive> {
-        let fragment_name = directive
-            .arguments
-            .named(MATCH_CONSTANTS.name_arg)
-            .unwrap()
-            .value
-            .item
-            .expect_string_literal();
-        let key = directive
-            .arguments
-            .named(MATCH_CONSTANTS.key_arg)
-            .unwrap()
-            .value
-            .item
-            .expect_string_literal();
+        let fragment_name = module_metadata.fragment_name;
         let fragment_name_str = fragment_name.lookup();
         let underscore_idx = fragment_name_str.find('_').unwrap_or_else(|| {
             panic!(
@@ -1596,7 +1583,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             },
             ObjectEntry {
                 key: CODEGEN_CONSTANTS.document_name,
-                value: Primitive::String(key),
+                value: Primitive::String(module_metadata.key),
             },
             ObjectEntry {
                 key: CODEGEN_CONSTANTS.fragment_name,

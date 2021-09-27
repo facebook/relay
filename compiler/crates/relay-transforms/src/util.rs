@@ -10,7 +10,6 @@ use crate::{
     connections::ConnectionMetadataDirective,
     handle_fields::HANDLE_FIELD_DIRECTIVE_NAME,
     inline_data_fragment::INLINE_DATA_CONSTANTS,
-    match_::MATCH_CONSTANTS,
     react_flight::{
         REACT_FLIGHT_LOCAL_COMPONENTS_METADATA_KEY, REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY,
     },
@@ -21,7 +20,8 @@ use crate::{
     required_directive::{
         CHILDREN_CAN_BUBBLE_METADATA_KEY, REQUIRED_DIRECTIVE_NAME, REQUIRED_METADATA_KEY,
     },
-    RefetchableDerivedFromMetadata, DIRECTIVE_SPLIT_OPERATION, INTERNAL_METADATA_DIRECTIVE,
+    ModuleMetadata, RefetchableDerivedFromMetadata, DIRECTIVE_SPLIT_OPERATION,
+    INTERNAL_METADATA_DIRECTIVE,
 };
 
 use graphql_ir::{
@@ -94,7 +94,7 @@ lazy_static! {
         *CLIENT_EXTENSION_DIRECTIVE_NAME,
         *ConnectionMetadataDirective::DIRECTIVE_NAME,
         *HANDLE_FIELD_DIRECTIVE_NAME,
-        MATCH_CONSTANTS.custom_module_directive_name,
+        *ModuleMetadata::DIRECTIVE_NAME,
         *DIRECTIVE_SPLIT_OPERATION,
         *RefetchableMetadata::DIRECTIVE_NAME,
         *RefetchableDerivedFromMetadata::DIRECTIVE_NAME,
@@ -126,7 +126,7 @@ lazy_static! {
     ];
     static ref RELAY_CUSTOM_INLINE_FRAGMENT_DIRECTIVES: [StringKey; 5] = [
         *CLIENT_EXTENSION_DIRECTIVE_NAME,
-        MATCH_CONSTANTS.custom_module_directive_name,
+        *ModuleMetadata::DIRECTIVE_NAME,
         INLINE_DATA_CONSTANTS.internal_directive_name,
         *RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN,
         "defer".intern(),

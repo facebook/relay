@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::{match_::MATCH_CONSTANTS, util::get_normalization_operation_name};
+use crate::{match_::MATCH_CONSTANTS, util::get_normalization_operation_name, ModuleMetadata};
 use common::{DiagnosticsResult, WithLocation};
 use graphql_ir::{
     Argument, ConstantValue, FragmentDefinition, FragmentSpread, InlineFragment, LinkedField,
@@ -167,20 +167,23 @@ impl<'program> SubscriptionTransform<'program> {
             directives: vec![],
             selections: vec![Selection::InlineFragment(Arc::new(InlineFragment {
                 type_condition,
-                directives: vec![super::build_module_metadata_as_directive(
-                    operation_name_with_suffix.intern(),
-                    format!(
-                        "{}.{}",
-                        operation.name.item,
-                        linked_field.alias_or_name(&self.program.schema).lookup()
-                    )
-                    .intern(),
-                    normalization_operation_name,
-                    operation.name.item,
-                    fragment_spread,
-                    location,
-                    false,
-                )],
+                directives: vec![
+                    ModuleMetadata {
+                        key: operation_name_with_suffix.intern(),
+                        module_id: format!(
+                            "{}.{}",
+                            operation.name.item,
+                            linked_field.alias_or_name(&self.program.schema).lookup()
+                        )
+                        .intern(),
+                        module_name: normalization_operation_name,
+                        source_document_name: operation.name.item,
+                        fragment_name: fragment_spread.fragment.item,
+                        location,
+                        no_inline: false,
+                    }
+                    .into(),
+                ],
                 selections,
             }))],
         }))];

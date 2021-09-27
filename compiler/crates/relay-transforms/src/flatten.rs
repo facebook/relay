@@ -7,8 +7,8 @@
 
 use crate::{
     handle_fields::{HANDLER_ARG_NAME, KEY_ARG_NAME},
-    match_::MATCH_CONSTANTS,
     util::{is_relay_custom_inline_fragment_directive, CustomMetadataDirectives, PointerAddress},
+    ModuleMetadata,
 };
 use graphql_ir::{
     Condition, Directive, FragmentDefinition, InlineFragment, LinkedField, OperationDefinition,
@@ -430,7 +430,7 @@ impl FlattenTransform {
                     || (inline_fragment.type_condition == Some(parent_type)
                         && inline_fragment
                             .directives
-                            .named(MATCH_CONSTANTS.custom_module_directive_name)
+                            .named(*ModuleMetadata::DIRECTIVE_NAME)
                             .is_none())
                 {
                     self.can_flatten_selections(
@@ -459,26 +459,25 @@ impl FlattenTransform {
                                 Selection::InlineFragment(node) => node,
                                 _ => unreachable!("FlattenTransform: Expected an InlineFragment."),
                             };
-                            if let Some(flattened_module_directive) = flattened_node
-                                .directives
-                                .named(MATCH_CONSTANTS.custom_module_directive_name)
+                            if let Some(flattened_module_metadata) =
+                                ModuleMetadata::find(&flattened_node.directives)
                             {
-                                if let Some(module_directive) = node
-                                    .directives
-                                    .named(MATCH_CONSTANTS.custom_module_directive_name)
+                                if let Some(module_metadata) =
+                                    ModuleMetadata::find(&node.directives)
                                 {
-                                    if !flattened_module_directive.arguments[0].location_agnostic_eq(&module_directive.arguments[0]) || // key
-                                        !flattened_module_directive.arguments[2].location_agnostic_eq(&module_directive.arguments[2]) || // module
-                                        !flattened_module_directive.arguments[4].location_agnostic_eq(&module_directive.arguments[4])
-                                    // name
+                                    if flattened_module_metadata.key != module_metadata.key
+                                        || flattened_module_metadata.module_name
+                                            != module_metadata.module_name
+                                        || flattened_module_metadata.fragment_name
+                                            != module_metadata.fragment_name
                                     {
                                         let error = Diagnostic::error(
                                             ValidationMessage::ConflictingModuleSelections,
-                                            module_directive.name.location,
+                                            module_metadata.location,
                                         )
                                         .annotate(
                                             "conflicts with",
-                                            flattened_module_directive.name.location,
+                                            flattened_module_metadata.location,
                                         );
                                         return Err(vec![error]);
                                     }

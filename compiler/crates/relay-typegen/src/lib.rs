@@ -30,8 +30,8 @@ use itertools::Itertools;
 use lazy_static::lazy_static;
 use relay_codegen::JsModuleFormat;
 use relay_transforms::{
-    RefetchableDerivedFromMetadata, RefetchableMetadata, RelayDirective,
-    CHILDREN_CAN_BUBBLE_METADATA_KEY, CLIENT_EXTENSION_DIRECTIVE_NAME, MATCH_CONSTANTS,
+    ModuleMetadata, RefetchableDerivedFromMetadata, RefetchableMetadata, RelayDirective,
+    CHILDREN_CAN_BUBBLE_METADATA_KEY, CLIENT_EXTENSION_DIRECTIVE_NAME,
     RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN, RELAY_RESOLVER_IMPORT_PATH_ARGUMENT_NAME,
     RELAY_RESOLVER_METADATA_FIELD_ALIAS, RELAY_RESOLVER_METADATA_FIELD_NAME,
     RELAY_RESOLVER_METADATA_FIELD_PARENT_TYPE, RELAY_RESOLVER_SPREAD_METADATA_DIRECTIVE_NAME,
@@ -501,14 +501,8 @@ impl<'a> TypeGenerator<'a> {
         type_selections: &mut Vec<TypeSelection>,
         inline_fragment: &InlineFragment,
     ) {
-        if let Some(module_directive) = inline_fragment
-            .directives
-            .named(MATCH_CONSTANTS.custom_module_directive_name)
-        {
-            let name = expect_string_literal_directive_argument_value(
-                module_directive,
-                MATCH_CONSTANTS.name_arg,
-            );
+        if let Some(module_metadata) = ModuleMetadata::find(&inline_fragment.directives) {
+            let name = module_metadata.fragment_name;
             type_selections.push(TypeSelection {
                 key: *FRAGMENT_PROP_NAME,
                 schema_name: None,
@@ -617,19 +611,8 @@ impl<'a> TypeGenerator<'a> {
             }
         }
 
-        if let Some(module_directive) = inline_fragment
-            .directives
-            .named(MATCH_CONSTANTS.custom_module_directive_name)
-        {
-            let directive_arg_name = expect_string_literal_directive_argument_value(
-                module_directive,
-                MATCH_CONSTANTS.name_arg,
-            );
-            let directive_arg_key = expect_string_literal_directive_argument_value(
-                module_directive,
-                MATCH_CONSTANTS.key_arg,
-            );
-
+        if let Some(module_metadata) = ModuleMetadata::find(&inline_fragment.directives) {
+            let directive_arg_name = module_metadata.fragment_name;
             if !self.match_fields.contains_key(&directive_arg_name) {
                 let match_field = self.raw_response_selections_to_babel(
                     selections
@@ -657,7 +640,7 @@ impl<'a> TypeGenerator<'a> {
                 concrete_type: None,
                 ref_: None,
                 node_selections: None,
-                document_name: Some(directive_arg_key),
+                document_name: Some(module_metadata.key),
             });
             return;
         }

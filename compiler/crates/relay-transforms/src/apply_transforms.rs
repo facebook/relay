@@ -5,6 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use crate::match_::hash_supported_argument;
+
 use super::*;
 use common::{sync::try_join, DiagnosticsResult, PerfLogEvent, PerfLogger};
 use fnv::FnvHashSet;
@@ -199,6 +201,9 @@ fn apply_reader_transforms(
     program = log_event.time("generate_data_driven_dependency_metadata", || {
         generate_data_driven_dependency_metadata(&program)
     });
+    program = log_event.time("hash_supported_argument", || {
+        hash_supported_argument(&program, &feature_flags)
+    })?;
 
     log_event.complete();
 
@@ -301,6 +306,13 @@ fn apply_normalization_transforms(
     program = log_event.time("skip_redundant_nodes", || skip_redundant_nodes(&program));
     if let Some(print_stats) = maybe_print_stats {
         print_stats("skip_redundant_nodes", &program);
+    }
+
+    program = log_event.time("hash_supported_argument", || {
+        hash_supported_argument(&program, &feature_flags)
+    })?;
+    if let Some(print_stats) = maybe_print_stats {
+        print_stats("hash_supported_argument", &program);
     }
 
     program = log_event.time("generate_test_operation_metadata", || {

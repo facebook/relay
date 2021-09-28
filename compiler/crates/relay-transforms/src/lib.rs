@@ -33,6 +33,7 @@ mod inline_data_fragment;
 mod inline_fragments;
 mod mask;
 mod match_;
+mod murmurhash;
 mod no_inline;
 mod node_identifier;
 mod preloadable_directive;

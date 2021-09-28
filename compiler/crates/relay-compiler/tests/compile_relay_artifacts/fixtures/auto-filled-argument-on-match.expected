@@ -163,10 +163,7 @@ fragment autoFilledArgumentOnMatchMarkdownUserNameRenderer_name on MarkdownUserN
         {
           "kind": "Literal",
           "name": "supported",
-          "value": [
-            "PlainUserNameRenderer",
-            "MarkdownUserNameRenderer"
-          ]
+          "value": "34hjiS"
         }
       ],
       "concreteType": null,
@@ -203,7 +200,7 @@ fragment autoFilledArgumentOnMatchMarkdownUserNameRenderer_name on MarkdownUserN
           "abstractKey": null
         }
       ],
-      "storageKey": "nameRendererForContext(context:\"HEADER\",supported:[\"PlainUserNameRenderer\",\"MarkdownUserNameRenderer\"])"
+      "storageKey": "nameRendererForContext(context:\"HEADER\",supported:\"34hjiS\")"
     }
   ],
   "type": "User",

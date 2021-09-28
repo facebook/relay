@@ -17,7 +17,7 @@ use schema_documentation::SchemaDocumentation;
 pub trait JSLanguageServer<
     TPerfLogger: PerfLogger + 'static,
     TSchemaDocumentation: SchemaDocumentation,
->
+>: Send + Sync
 {
     fn process_js_source(&self, url: &Url, text: &str);
     fn remove_js_source(&self, url: &Url);

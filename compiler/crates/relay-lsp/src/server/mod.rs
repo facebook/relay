@@ -23,7 +23,7 @@ use crate::{
     graphql_tools::GraphQLExecuteQuery,
     hover::on_hover,
     js_language_server::JSLanguageServer,
-    lsp_process_error::{LSPProcessError, LSPProcessResult},
+    lsp_process_error::LSPProcessResult,
     lsp_runtime_error::LSPRuntimeError,
     references::on_references,
     resolved_types_at_location::{on_get_resolved_types_at_location, ResolvedTypesAtLocation},
@@ -55,7 +55,7 @@ use lsp_types::{
 };
 use relay_compiler::{config::Config, NoopArtifactWriter};
 use schema_documentation::{SchemaDocumentation, SchemaDocumentationLoader};
-use std::sync::Arc;
+use std::{sync::Arc, thread};
 
 pub use crate::LSPExtraDataProvider;
 pub use lsp_state::{convert_diagnostic, LSPState, Schemas, SourcePrograms};
@@ -92,7 +92,10 @@ pub fn initialize(connection: &Connection) -> LSPProcessResult<InitializeParams>
 }
 
 /// Run the main server loop
-pub async fn run<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentation>(
+pub async fn run<
+    TPerfLogger: PerfLogger + 'static,
+    TSchemaDocumentation: SchemaDocumentation + 'static,
+>(
     connection: Connection,
     mut config: Config,
     _params: InitializeParams,
@@ -116,24 +119,44 @@ where
         connection.sender.clone(),
     ));
 
-    let lsp_state = LSPState::create_state(
+    let lsp_state = Arc::new(LSPState::create_state(
         Arc::new(config),
         Arc::clone(&perf_logger),
         extra_data_provider,
         schema_documentation_loader,
         js_resource,
         connection.sender.clone(),
-    );
+    ));
 
     loop {
         debug!("waiting for incoming messages...");
         match connection.receiver.recv() {
-            Ok(Message::Request(req)) => {
-                handle_request(&lsp_state, req, &connection.sender, &perf_logger)
-                    .map_err(LSPProcessError::from)?;
+            Ok(Message::Request(request)) => {
+                debug!("creating a task to handle request...");
+                let lsp_state_for_request = Arc::clone(&lsp_state);
+                let sender_for_request = connection.sender.clone();
+                let perf_logger_for_request = perf_logger.clone();
+                thread::spawn(move || {
+                    handle_request(
+                        lsp_state_for_request,
+                        request,
+                        sender_for_request,
+                        perf_logger_for_request,
+                    )
+                    .unwrap();
+                });
             }
             Ok(Message::Notification(notification)) => {
-                handle_notification(&lsp_state, notification, &perf_logger);
+                debug!("creating a task to handle notification...");
+                let lsp_state_for_notification = Arc::clone(&lsp_state);
+                let perf_logger_for_notification = perf_logger.clone();
+                thread::spawn(move || {
+                    handle_notification(
+                        lsp_state_for_notification,
+                        notification,
+                        perf_logger_for_notification,
+                    );
+                });
             }
             Ok(_) => {
                 // Ignore responses for now
@@ -146,14 +169,14 @@ where
 }
 
 fn handle_request<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentation>(
-    lsp_state: &LSPState<TPerfLogger, TSchemaDocumentation>,
+    lsp_state: Arc<LSPState<TPerfLogger, TSchemaDocumentation>>,
     request: lsp_server::Request,
-    sender: &Sender<Message>,
-    perf_logger: &Arc<TPerfLogger>,
+    sender: Sender<Message>,
+    perf_logger: Arc<TPerfLogger>,
 ) -> Result<(), SendError<Message>> {
     debug!("request received {:?}", request);
-    let get_server_response_bound = |req| dispatch_request(req, lsp_state);
-    let get_response = with_request_logging(perf_logger, get_server_response_bound);
+    let get_server_response_bound = |req| dispatch_request(req, &lsp_state);
+    let get_response = with_request_logging(&perf_logger, get_server_response_bound);
 
     sender.send(Message::Response(get_response(request)))
 }
@@ -234,9 +257,9 @@ fn handle_notification<
     TPerfLogger: PerfLogger + 'static,
     TSchemaDocumentation: SchemaDocumentation,
 >(
-    lsp_state: &LSPState<TPerfLogger, TSchemaDocumentation>,
+    lsp_state: Arc<LSPState<TPerfLogger, TSchemaDocumentation>>,
     notification: Notification,
-    perf_logger: &Arc<TPerfLogger>,
+    perf_logger: Arc<TPerfLogger>,
 ) {
     debug!("notification received {:?}", notification);
     let lsp_notification_event = perf_logger.create_event("lsp_message");
@@ -245,7 +268,7 @@ fn handle_notification<
     let lsp_notification_processing_time =
         lsp_notification_event.start("lsp_message_processing_time");
 
-    let notification_result = dispatch_notification(notification, lsp_state);
+    let notification_result = dispatch_notification(notification, &lsp_state);
 
     match notification_result {
         Ok(()) => {

@@ -50,7 +50,10 @@ pub use utils::position_to_offset;
 #[macro_use]
 extern crate assert_matches;
 
-pub async fn start_language_server<TPerfLogger, TSchemaDocumentation: SchemaDocumentation>(
+pub async fn start_language_server<
+    TPerfLogger,
+    TSchemaDocumentation: SchemaDocumentation + 'static,
+>(
     config: Config,
     perf_logger: Arc<TPerfLogger>,
     extra_data_provider: Box<dyn LSPExtraDataProvider + Send + Sync>,

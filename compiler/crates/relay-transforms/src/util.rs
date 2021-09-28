@@ -13,12 +13,10 @@ use crate::{
     react_flight::REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY,
     refetchable_fragment::RefetchableMetadata,
     relay_actor_change::RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN,
-    required_directive::{
-        CHILDREN_CAN_BUBBLE_METADATA_KEY, REQUIRED_DIRECTIVE_NAME, REQUIRED_METADATA_KEY,
-    },
+    required_directive::{CHILDREN_CAN_BUBBLE_METADATA_KEY, REQUIRED_DIRECTIVE_NAME},
     ModuleMetadata, ReactFlightLocalComponentsMetadata, RefetchableDerivedFromMetadata,
-    RelayClientComponentMetadata, RelayResolverSpreadMetadata, DIRECTIVE_SPLIT_OPERATION,
-    INTERNAL_METADATA_DIRECTIVE,
+    RelayClientComponentMetadata, RelayResolverSpreadMetadata, RequiredMetadataDirective,
+    DIRECTIVE_SPLIT_OPERATION, INTERNAL_METADATA_DIRECTIVE,
 };
 
 use graphql_ir::{
@@ -100,7 +98,7 @@ lazy_static! {
         *REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY,
         *ReactFlightLocalComponentsMetadata::DIRECTIVE_NAME,
         *REQUIRED_DIRECTIVE_NAME,
-        *REQUIRED_METADATA_KEY,
+        *RequiredMetadataDirective::DIRECTIVE_NAME,
         *CHILDREN_CAN_BUBBLE_METADATA_KEY,
         *RelayResolverSpreadMetadata::DIRECTIVE_NAME,
         *RelayClientComponentMetadata::DIRECTIVE_NAME,

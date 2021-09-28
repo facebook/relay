@@ -8,7 +8,12 @@ fragment EnabledActorsRendererFragment on User {
 ==================================== OUTPUT ===================================
 fragment EnabledActorsRendererFragment on User {
   id
-  profile_picture @required(action: THROW) @__required(action: "THROW", path: "profile_picture") {
+  profile_picture @required(action: THROW) @__RequiredMetadataDirective
+  # RequiredMetadataDirective {
+  #     action: Throw,
+  #     path: "profile_picture",
+  # }
+   {
     uri
   }
 }

@@ -22,13 +22,12 @@ use relay_transforms::{
     extract_connection_metadata_from_directive, extract_handle_field_directives,
     extract_values_from_handle_field_directive, generate_abstract_type_refinement_key,
     remove_directive, ConnectionConstants, ConnectionMetadata, DeferDirective, ModuleMetadata,
-    RefetchableMetadata, RelayDirective, RelayResolverSpreadMetadata, StreamDirective,
-    ACTION_ARGUMENT, CLIENT_EXTENSION_DIRECTIVE_NAME, DEFER_STREAM_CONSTANTS,
+    RefetchableMetadata, RelayDirective, RelayResolverSpreadMetadata, RequiredMetadataDirective,
+    StreamDirective, CLIENT_EXTENSION_DIRECTIVE_NAME, DEFER_STREAM_CONSTANTS,
     DIRECTIVE_SPLIT_OPERATION, INLINE_DATA_CONSTANTS, INTERNAL_METADATA_DIRECTIVE,
-    NO_INLINE_DIRECTIVE_NAME, PATH_METADATA_ARGUMENT,
-    REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY, RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN,
-    RELAY_CLIENT_COMPONENT_MODULE_ID_ARGUMENT_NAME, RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME,
-    REQUIRED_METADATA_KEY, TYPE_DISCRIMINATOR_DIRECTIVE_NAME,
+    NO_INLINE_DIRECTIVE_NAME, REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY,
+    RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN, RELAY_CLIENT_COMPONENT_MODULE_ID_ARGUMENT_NAME,
+    RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME, TYPE_DISCRIMINATOR_DIRECTIVE_NAME,
 };
 use schema::{SDLSchema, Schema};
 
@@ -545,32 +544,25 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
 
     fn build_required_field(
         &mut self,
-        required_directive: &Directive,
+        required_metadata: &RequiredMetadataDirective,
         primitive: Primitive,
     ) -> Primitive {
         Primitive::Key(self.object(vec![
-            ObjectEntry{key:
-                CODEGEN_CONSTANTS.kind,value:
-                Primitive::String(CODEGEN_CONSTANTS.required_field),
+            ObjectEntry {
+                key: CODEGEN_CONSTANTS.kind,
+                value: Primitive::String(CODEGEN_CONSTANTS.required_field),
             },
-            ObjectEntry{key:CODEGEN_CONSTANTS.field,value: primitive},
-            ObjectEntry{key:
-                CODEGEN_CONSTANTS.action,value:
-                Primitive::String(
-                    required_directive
-                    .arguments
-                    .named(*ACTION_ARGUMENT)
-                    .unwrap().value.item.get_string_literal().unwrap()
-                ),
+            ObjectEntry {
+                key: CODEGEN_CONSTANTS.field,
+                value: primitive,
             },
-            ObjectEntry{key:
-                CODEGEN_CONSTANTS.path,value:
-                Primitive::String(
-                    required_directive
-                        .arguments
-                        .named(*PATH_METADATA_ARGUMENT)
-                        .unwrap().value.item.get_string_literal().unwrap()
-                ),
+            ObjectEntry {
+                key: CODEGEN_CONSTANTS.action,
+                value: Primitive::String(required_metadata.action.into()),
+            },
+            ObjectEntry {
+                key: CODEGEN_CONSTANTS.path,
+                value: Primitive::String(required_metadata.path),
             },
         ]))
     }
@@ -619,9 +611,10 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             },
         ]));
 
-        match field.directives.named(*REQUIRED_METADATA_KEY) {
-            Some(required_directive) => self.build_required_field(required_directive, primitive),
-            None => primitive,
+        if let Some(required_metadata) = RequiredMetadataDirective::find(&field.directives) {
+            self.build_required_field(required_metadata, primitive)
+        } else {
+            primitive
         }
     }
 
@@ -747,9 +740,10 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             },
         ]));
 
-        match field.directives.named(*REQUIRED_METADATA_KEY) {
-            Some(required_directive) => self.build_required_field(required_directive, primitive),
-            None => primitive,
+        if let Some(required_metadata) = RequiredMetadataDirective::find(&field.directives) {
+            self.build_required_field(required_metadata, primitive)
+        } else {
+            primitive
         }
     }
 

@@ -31,8 +31,8 @@ use lazy_static::lazy_static;
 use relay_codegen::JsModuleFormat;
 use relay_transforms::{
     ModuleMetadata, RefetchableDerivedFromMetadata, RefetchableMetadata, RelayDirective,
-    RelayResolverSpreadMetadata, CHILDREN_CAN_BUBBLE_METADATA_KEY, CLIENT_EXTENSION_DIRECTIVE_NAME,
-    RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN, REQUIRED_METADATA_KEY,
+    RelayResolverSpreadMetadata, RequiredMetadataDirective, CHILDREN_CAN_BUBBLE_METADATA_KEY,
+    CLIENT_EXTENSION_DIRECTIVE_NAME, RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN,
 };
 use schema::{EnumID, SDLSchema, ScalarID, Schema, Type, TypeReference};
 use std::hash::Hash;
@@ -1483,7 +1483,7 @@ fn apply_required_directive_nullability(
     field_type: &TypeReference,
     directives: &[Directive],
 ) -> TypeReference {
-    match directives.named(*REQUIRED_METADATA_KEY) {
+    match directives.named(*RequiredMetadataDirective::DIRECTIVE_NAME) {
         Some(_) => field_type.non_null(),
         None => match directives.named(*CHILDREN_CAN_BUBBLE_METADATA_KEY) {
             Some(_) => field_type.with_nullable_item_type(),

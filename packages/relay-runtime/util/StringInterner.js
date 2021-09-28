@@ -8,13 +8,11 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 const internTable = new Map();
 let nextIndex = 1;
-const digits = initDigitTable();
+const digits = new Set('0123456789');
 
 // Character used as the prefix for interned strings. The specific character is
 // chosen to reduce the likelihood that non-interned input strings need to be
@@ -23,16 +21,6 @@ const INTERN_PREFIX = '\t';
 // Character used as the prefix of escaped strings. As above, this is also
 // chosen to be unlikely in normal input strings.
 const ESCAPE_PREFIX = '\v';
-
-function initDigitTable() {
-  // disable lint because digits isn't defined when this function is called
-  // eslint-disable-next-line no-shadow
-  const digits = new Set();
-  for (let i = 0; i < 10; ++i) {
-    digits.add(i.toString());
-  }
-  return digits;
-}
 
 // Escape a string so that it cannot conflict with an interned string
 function escape(str: string): string {

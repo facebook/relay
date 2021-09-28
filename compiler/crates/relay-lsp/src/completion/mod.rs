@@ -521,17 +521,12 @@ fn completion_items_for_request(
     match kind {
         CompletionKind::FragmentSpread => {
             let leaf_type = request.type_path.resolve_leaf_type(schema)?;
-            if let Some(source_program) = source_programs.get(&project_name) {
-                debug!("has source program");
-                let items = resolve_completion_items_for_fragment_spread(
-                    leaf_type,
-                    &source_program,
-                    schema,
-                );
-                Some(items)
-            } else {
-                None
-            }
+            let source_program = source_programs.get(&project_name)?;
+
+            debug!("has source program");
+            let items =
+                resolve_completion_items_for_fragment_spread(leaf_type, &source_program, schema);
+            Some(items)
         }
         CompletionKind::FieldName {
             existing_linked_field,

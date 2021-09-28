@@ -74,28 +74,28 @@ pub(crate) fn on_hover<
         state.extract_executable_document_from_text(&params.text_document_position_params, 1)?;
     let resolution_path = document.resolve((), position_span);
 
-    if let Some(schema) = state.get_schemas().get(&project_name) {
-        let source_program = state
-            .get_source_programs_ref()
-            .get(&project_name)
-            .ok_or_else(|| {
-                LSPRuntimeError::UnexpectedError("Unable to get source programs".to_string())
-            })?;
-        let schema_documentation = state.get_schema_documentation(project_name.lookup());
+    let schemas = state.get_schemas();
+    let schema = schemas
+        .get(&project_name)
+        .ok_or(LSPRuntimeError::ExpectedError)?;
 
-        get_hover(
-            &resolution_path,
-            &schema,
-            project_name,
-            state.extra_data_provider.as_ref(),
-            &schema_documentation,
-            &source_program,
-        )
-        .map(Option::Some)
-        .ok_or(LSPRuntimeError::ExpectedError)
-    } else {
-        Err(LSPRuntimeError::ExpectedError)
-    }
+    let source_programs = state.get_source_programs_ref();
+    let source_program = source_programs
+        .get(&project_name)
+        .ok_or(LSPRuntimeError::ExpectedError)?;
+
+    let schema_documentation = state.get_schema_documentation(project_name.lookup());
+
+    get_hover(
+        &resolution_path,
+        &schema,
+        project_name,
+        state.extra_data_provider.as_ref(),
+        &schema_documentation,
+        &source_program,
+    )
+    .map(Option::Some)
+    .ok_or(LSPRuntimeError::ExpectedError)
 }
 
 #[derive(Serialize)]

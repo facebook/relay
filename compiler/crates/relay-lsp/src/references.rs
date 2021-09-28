@@ -33,22 +33,19 @@ fn get_references_response(
     match node_resolution_info.kind {
         NodeKind::FragmentDefinition(fragment) => {
             let project_name = node_resolution_info.project_name;
-            if let Some(source_program) = source_programs.get(&project_name) {
-                let references = ReferenceFinder::get_references_to_fragment(
-                    &source_program,
-                    fragment.name.value,
-                )
-                .into_iter()
-                .map(|location| transform_reference_locations_to_lsp_locations(root_dir, location))
-                .collect::<Result<Vec<_>, LSPRuntimeError>>()?;
+            let source_program = source_programs
+                .get(&project_name)
+                .ok_or(LSPRuntimeError::ExpectedError)?;
 
-                Ok(references)
-            } else {
-                Err(LSPRuntimeError::UnexpectedError(format!(
-                    "Project name {} not found",
-                    project_name
-                )))
-            }
+            let references =
+                ReferenceFinder::get_references_to_fragment(&source_program, fragment.name.value)
+                    .into_iter()
+                    .map(|location| {
+                        transform_reference_locations_to_lsp_locations(root_dir, location)
+                    })
+                    .collect::<Result<Vec<_>, LSPRuntimeError>>()?;
+
+            Ok(references)
         }
         _ => Err(LSPRuntimeError::ExpectedError),
     }

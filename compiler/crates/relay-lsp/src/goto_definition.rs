@@ -46,25 +46,22 @@ fn get_goto_definition_response<'a>(
             inner: fragment_name,
             parent: IdentParent::FragmentSpreadName(_),
         }) => {
-            if let Some(source_program) = source_programs.get(&project_name) {
-                let fragment = source_program
-                    .fragment(fragment_name.value)
-                    .ok_or_else(|| {
-                        LSPRuntimeError::UnexpectedError(format!(
-                            "Could not find fragment with name {}",
-                            fragment_name
-                        ))
-                    })?;
+            let source_program = source_programs
+                .get(&project_name)
+                .ok_or(LSPRuntimeError::ExpectedError)?;
 
-                Ok(GotoDefinitionResponse::Scalar(
-                    to_lsp_location_of_graphql_literal(fragment.name.location, root_dir)?,
-                ))
-            } else {
-                Err(LSPRuntimeError::UnexpectedError(format!(
-                    "Project name {} not found",
-                    project_name
-                )))
-            }
+            let fragment = source_program
+                .fragment(fragment_name.value)
+                .ok_or_else(|| {
+                    LSPRuntimeError::UnexpectedError(format!(
+                        "Could not find fragment with name {}",
+                        fragment_name
+                    ))
+                })?;
+
+            Ok(GotoDefinitionResponse::Scalar(
+                to_lsp_location_of_graphql_literal(fragment.name.location, root_dir)?,
+            ))
         }
         ResolutionPath::Ident(IdentPath {
             inner: field_name,

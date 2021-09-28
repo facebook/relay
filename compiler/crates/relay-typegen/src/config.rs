@@ -5,9 +5,13 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use fnv::{FnvHashMap, FnvHashSet};
+use fnv::FnvBuildHasher;
+use indexmap::{IndexMap, IndexSet};
 use interner::StringKey;
 use serde::{Deserialize, Serialize};
+
+type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
+type FnvIndexSet<T> = IndexSet<T, FnvBuildHasher>;
 
 #[derive(Debug, Copy, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(deny_unknown_fields, rename_all = "lowercase")]
@@ -42,7 +46,7 @@ pub struct TypegenConfig {
     /// for the denylist or enums that contain lowercase first letters which
     /// are invalid Flow Enum values.
     #[serde(default)]
-    pub legacy_enum_style: FnvHashSet<StringKey>,
+    pub legacy_enum_style: FnvIndexSet<StringKey>,
 
     /// # For Flow type generation
     /// When set, generated input types will have the listed fields optional
@@ -59,7 +63,7 @@ pub struct TypegenConfig {
     /// A map from GraphQL scalar types to a custom JS type, example:
     /// { "Url": "String" }
     #[serde(default)]
-    pub custom_scalar_types: FnvHashMap<StringKey, StringKey>,
+    pub custom_scalar_types: FnvIndexMap<StringKey, StringKey>,
 
     /// Require all GraphQL scalar types mapping to be defined, will throw
     /// if a GraphQL scalar type doesn't have a JS type

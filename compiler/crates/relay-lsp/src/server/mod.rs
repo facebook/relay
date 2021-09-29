@@ -13,7 +13,7 @@ mod lsp_state_resources;
 
 use crate::{
     code_action::on_code_action,
-    completion::on_completion,
+    completion::{on_completion, on_resolve_completion_item},
     explore_schema_for_type::{on_explore_schema_for_type, ExploreSchemaForType},
     goto_definition::{
         on_get_source_location_of_type_definition, on_goto_definition,
@@ -49,7 +49,10 @@ use lsp_types::{
         Cancel, DidChangeTextDocument, DidCloseTextDocument, DidOpenTextDocument,
         DidSaveTextDocument, Exit,
     },
-    request::{CodeActionRequest, Completion, GotoDefinition, HoverRequest, References, Shutdown},
+    request::{
+        CodeActionRequest, Completion, GotoDefinition, HoverRequest, References,
+        ResolveCompletionItem, Shutdown,
+    },
     CodeActionProviderCapability, CompletionOptions, InitializeParams, ServerCapabilities,
     TextDocumentSyncCapability, TextDocumentSyncKind, WorkDoneProgressOptions,
 };
@@ -200,6 +203,7 @@ fn dispatch_request<
             .on_request_sync::<GotoDefinition>(on_goto_definition)?
             .on_request_sync::<References>(on_references)?
             .on_request_sync::<Completion>(on_completion)?
+            .on_request_sync::<ResolveCompletionItem>(on_resolve_completion_item)?
             .on_request_sync::<CodeActionRequest>(on_code_action)?
             .on_request_sync::<Shutdown>(on_shutdown)?
             .on_request_sync::<GraphQLExecuteQuery>(on_graphql_execute_query)?

@@ -25,7 +25,7 @@ use graphql_syntax::{
 use interner::StringKey;
 use log::debug;
 use lsp_types::{
-    request::{Completion, Request},
+    request::{Completion, Request, ResolveCompletionItem},
     CompletionItem, CompletionItemKind, CompletionResponse, Documentation, InsertTextFormat,
     MarkupContent, MarkupKind,
 };
@@ -1050,6 +1050,19 @@ pub(crate) fn on_completion<
             }
         }
     }
+}
+
+pub(crate) fn on_resolve_completion_item<
+    TPerfLogger: PerfLogger + 'static,
+    TSchemaDocumentation: SchemaDocumentation,
+>(
+    _state: &LSPState<TPerfLogger, TSchemaDocumentation>,
+    params: <ResolveCompletionItem as Request>::Params,
+) -> LSPRuntimeResult<<ResolveCompletionItem as Request>::Result> {
+    // We currently don't do anything with the selected item
+    // and we just return an input
+
+    Ok(params)
 }
 
 fn resolve_completion_items(

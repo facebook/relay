@@ -235,12 +235,14 @@ fn with_request_logging<'a, TPerfLogger: PerfLogger + 'static>(
         if response.result.is_some() {
             lsp_request_event.string("lsp_outcome", "success".to_string());
         } else if let Some(error) = &response.error {
-            lsp_request_event.string("lsp_outcome", "error".to_string());
-            if error.code != ErrorCode::RequestCanceled as i32 {
+            if error.code == ErrorCode::RequestCanceled as i32 {
+                lsp_request_event.string("lsp_outcome", "canceled".to_string());
+            } else {
+                lsp_request_event.string("lsp_outcome", "error".to_string());
                 lsp_request_event.string("lsp_error_message", error.message.to_string());
-            }
-            if let Some(data) = &error.data {
-                lsp_request_event.string("lsp_error_data", data.to_string());
+                if let Some(data) = &error.data {
+                    lsp_request_event.string("lsp_error_data", data.to_string());
+                }
             }
         }
         // N.B. we don't handle the case where the ServerResponse has neither a result nor

@@ -273,6 +273,14 @@ fn apply_normalization_transforms(
     if let Some(print_stats) = maybe_print_stats {
         print_stats("apply_fragment_arguments", &program);
     }
+
+    program = log_event.time("hash_supported_argument", || {
+        hash_supported_argument(&program, &feature_flags)
+    })?;
+    if let Some(print_stats) = maybe_print_stats {
+        print_stats("hash_supported_argument", &program);
+    }
+
     program = log_event.time("relay_early_flush", || relay_early_flush(&program))?;
     if let Some(print_stats) = maybe_print_stats {
         print_stats("relay_early_flush", &program);
@@ -306,13 +314,6 @@ fn apply_normalization_transforms(
     program = log_event.time("skip_redundant_nodes", || skip_redundant_nodes(&program));
     if let Some(print_stats) = maybe_print_stats {
         print_stats("skip_redundant_nodes", &program);
-    }
-
-    program = log_event.time("hash_supported_argument", || {
-        hash_supported_argument(&program, &feature_flags)
-    })?;
-    if let Some(print_stats) = maybe_print_stats {
-        print_stats("hash_supported_argument", &program);
     }
 
     program = log_event.time("generate_test_operation_metadata", || {

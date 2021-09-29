@@ -614,7 +614,7 @@ export default function ArtistCard(props) {
             <div className="logosHomepage">{showcase}</div>
           </div>
           <div className="more-users">
-            <Link className="button" to="users">
+            <Link className="button" to="/users">
               More Relay Users
             </Link>
           </div>

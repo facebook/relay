@@ -103,7 +103,6 @@ impl<'s> GenerateDataDrivenDependencyMetadata<'s> {
                                     );
                                 })
                                 .or_insert(ModuleEntry {
-                                    id,
                                     branches: {
                                         let mut map: FnvHashMap<String, Branch> =
                                             Default::default();
@@ -154,7 +153,6 @@ type ModuleEntries = FnvHashMap<StringKey, ModuleEntry>;
 
 #[derive(Debug)]
 struct ModuleEntry {
-    id: StringKey,
     branches: FnvHashMap<String, Branch>,
     plural: bool,
 }

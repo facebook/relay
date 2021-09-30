@@ -47,6 +47,9 @@ pub struct TypegenConfig {
     /// are invalid Flow Enum values.
     #[serde(default)]
     pub legacy_enum_style: FnvIndexSet<StringKey>,
+    /// Opt in set for Flow style enums.
+    #[serde(default)]
+    pub flow_enums: FnvIndexSet<StringKey>,
 
     /// # For Flow type generation
     /// When set, generated input types will have the listed fields optional

@@ -42,12 +42,10 @@ pub struct TypegenConfig {
     pub enum_module_suffix: Option<String>,
 
     /// # For Flow type generation
-    /// Generate enum files using Flow Enums instead of string unions except
-    /// for the denylist or enums that contain lowercase first letters which
-    /// are invalid Flow Enum values.
-    #[serde(default)]
-    pub legacy_enum_style: FnvIndexSet<StringKey>,
-    /// Opt in set for Flow style enums.
+    /// Generate enum files using Flow Enums instead of string unions for the
+    /// given GraphQL enum names.
+    /// Enums with names that start with lowercase are invalid Flow Enum values
+    /// and always generate legacy enums.
     #[serde(default)]
     pub flow_enums: FnvIndexSet<StringKey>,
 

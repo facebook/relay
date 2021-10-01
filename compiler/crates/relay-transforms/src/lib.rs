@@ -42,7 +42,6 @@ mod refetchable_fragment;
 mod relay_actor_change;
 mod relay_client_component;
 mod relay_directive;
-mod relay_early_flush;
 mod relay_resolvers;
 mod remove_base_fragments;
 mod required_directive;
@@ -127,7 +126,6 @@ pub use relay_client_component::{
     RELAY_CLIENT_COMPONENT_MODULE_ID_ARGUMENT_NAME, RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME,
 };
 pub use relay_directive::RelayDirective;
-pub use relay_early_flush::relay_early_flush;
 pub use relay_resolvers::{
     find_resolver_dependencies, relay_resolvers, RelayResolverSpreadMetadata, ResolverFieldFinder,
     RELAY_RESOLVER_DIRECTIVE_NAME, RELAY_RESOLVER_IMPORT_PATH_ARGUMENT_NAME,

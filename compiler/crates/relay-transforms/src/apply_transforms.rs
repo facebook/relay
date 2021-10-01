@@ -281,11 +281,6 @@ fn apply_normalization_transforms(
         print_stats("hash_supported_argument", &program);
     }
 
-    program = log_event.time("relay_early_flush", || relay_early_flush(&program))?;
-    if let Some(print_stats) = maybe_print_stats {
-        print_stats("relay_early_flush", &program);
-    }
-
     program = log_event.time("skip_unreachable_node", || skip_unreachable_node(&program))?;
     if let Some(print_stats) = maybe_print_stats {
         print_stats("skip_unreachable_node", &program);
@@ -353,7 +348,6 @@ fn apply_operation_text_transforms(
     log_event.time("validate_global_variables", || {
         validate_global_variables(&program)
     })?;
-    program = log_event.time("relay_early_flush", || relay_early_flush(&program))?;
     program = log_event.time("skip_split_operation", || skip_split_operation(&program));
     program = log_event.time("skip_client_extensions", || {
         skip_client_extensions(&program)

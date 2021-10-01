@@ -51,10 +51,6 @@ name = "graphql_refetchable_fragment_test"
 path = "tests/refetchable_fragment_test.rs"
 
 [[test]]
-name = "graphql_relay_early_flush_test"
-path = "tests/relay_early_flush_test.rs"
-
-[[test]]
 name = "graphql_skip_client_extensions_test"
 path = "tests/skip_client_extensions_test.rs"
 

@@ -54,6 +54,7 @@ structopt = "0.3.21"
 thiserror = "1.0.29"
 tokio = { version = "1.10", features = ["full", "test-util", "tracing"] }
 watchman_client = "0.7"
+zstd = "=0.8.0+zstd.1.4.9"
 
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }

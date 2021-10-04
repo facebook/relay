@@ -28,10 +28,24 @@ const {
 } = require('./warnings');
 const {createMockEnvironment, unwrapContainer} = require('relay-test-utils');
 
+// Apparently, in node v16 (because now they are using V8 V9.something)
+// the content of the TypeError has changed, and now some of our tests
+// stated to fail.
+// This is a temporary work-around to make test pass, but we need to
+// figure out a cleaner way of testing this.
+function cannotReadPropertyOfUndefined__DEPRECATED(propertyName: string): string {
+  if (process.version.match(/^v16\.(.+)$/)) {
+    return `Cannot read properties of undefined (reading '${propertyName}')`;
+  } else {
+    return `Cannot read property '${propertyName}' of undefined`
+  }
+}
+
 /**
  * The public interface to Relay Test Utils.
  */
 module.exports = {
+  cannotReadPropertyOfUndefined__DEPRECATED,
   createMockEnvironment,
   expectToWarn,
   expectWarningWillFire,

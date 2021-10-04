@@ -27,7 +27,7 @@ const {getSingularSelector} = require('../RelayModernSelector');
 const RelayModernStore = require('../RelayModernStore');
 const RelayRecordSource = require('../RelayRecordSource');
 const nullthrows = require('nullthrows');
-const {disallowWarnings} = require('relay-test-utils-internal');
+const {disallowWarnings, cannotReadPropertyOfUndefined__DEPRECATED} = require('relay-test-utils-internal');
 
 disallowWarnings();
 
@@ -543,7 +543,7 @@ describe('execute() a query with nested @match', () => {
 
     expect(callbacks.error).toBeCalledTimes(1);
     expect(callbacks.error.mock.calls[0][0].message).toBe(
-      "Cannot read property 'length' of undefined",
+      cannotReadPropertyOfUndefined__DEPRECATED('length'),
     );
   });
 

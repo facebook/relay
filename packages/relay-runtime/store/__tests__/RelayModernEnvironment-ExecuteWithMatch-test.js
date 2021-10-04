@@ -26,7 +26,7 @@ const {getSingularSelector} = require('../RelayModernSelector');
 const RelayModernStore = require('../RelayModernStore');
 const RelayRecordSource = require('../RelayRecordSource');
 const nullthrows = require('nullthrows');
-const {disallowWarnings} = require('relay-test-utils-internal');
+const {disallowWarnings, cannotReadPropertyOfUndefined__DEPRECATED} = require('relay-test-utils-internal');
 
 disallowWarnings();
 
@@ -575,8 +575,10 @@ describe('execute() a query with @match', () => {
     jest.runAllTimers();
 
     expect(callbacks.error).toBeCalledTimes(1);
+    console.log(process.version);
+    /// if (process.version.match(/16\./)
     expect(callbacks.error.mock.calls[0][0].message).toBe(
-      "Cannot read property 'length' of undefined",
+      cannotReadPropertyOfUndefined__DEPRECATED('length'),
     );
   });
 

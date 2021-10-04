@@ -575,8 +575,6 @@ describe('execute() a query with @match', () => {
     jest.runAllTimers();
 
     expect(callbacks.error).toBeCalledTimes(1);
-    console.log(process.version);
-    /// if (process.version.match(/16\./)
     expect(callbacks.error.mock.calls[0][0].message).toBe(
       cannotReadPropertyOfUndefined__DEPRECATED('length'),
     );

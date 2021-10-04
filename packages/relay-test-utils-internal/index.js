@@ -37,7 +37,7 @@ function cannotReadPropertyOfUndefined__DEPRECATED(propertyName: string): string
   if (process.version.match(/^v16\.(.+)$/)) {
     return `Cannot read properties of undefined (reading '${propertyName}')`;
   } else {
-    return `Cannot read property '${propertyName}' of undefined`
+    return `Cannot read property '${propertyName}' of undefined`;
   }
 }
 

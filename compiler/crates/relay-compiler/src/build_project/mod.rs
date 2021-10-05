@@ -46,6 +46,16 @@ pub use source_control::add_to_mercurial;
 use std::{collections::hash_map::Entry, path::PathBuf, sync::Arc};
 pub use validate::{validate, AdditionalValidations};
 
+type BuildProjectOutput = (
+    ProjectName,
+    Arc<SDLSchema>,
+    Programs,
+    Vec<Artifact>,
+    Arc<FnvHashSet<StringKey>>,
+);
+
+type BuildProgramsOutput = (Programs, Arc<SourceHashes>, Arc<FnvHashSet<StringKey>>);
+
 pub enum BuildProjectFailure {
     Error(BuildProjectError),
     Cancelled,
@@ -148,7 +158,7 @@ pub fn build_programs(
     schema: Arc<SDLSchema>,
     log_event: &impl PerfLogEvent,
     perf_logger: Arc<impl PerfLogger + 'static>,
-) -> Result<(Programs, Arc<SourceHashes>), BuildProjectFailure> {
+) -> Result<BuildProgramsOutput, BuildProjectFailure> {
     let project_name = project_config.name;
     let is_incremental_build = compiler_state.has_processed_changes()
         && !compiler_state.has_breaking_schema_change(project_name)
@@ -190,16 +200,17 @@ pub fn build_programs(
 
     validation_results?;
 
+    let base_fragment_names = Arc::new(base_fragment_names);
     let programs = transform_program(
         config,
         project_config,
         Arc::new(program),
-        Arc::new(base_fragment_names),
+        Arc::clone(&base_fragment_names),
         Arc::clone(&perf_logger),
         log_event,
     )?;
 
-    Ok((programs, Arc::new(source_hashes)))
+    Ok((programs, Arc::new(source_hashes), base_fragment_names))
 }
 
 pub fn build_project(
@@ -208,7 +219,7 @@ pub fn build_project(
     compiler_state: &CompilerState,
     graphql_asts: &FnvHashMap<SourceSetName, GraphQLAsts>,
     perf_logger: Arc<impl PerfLogger + 'static>,
-) -> Result<(ProjectName, Arc<SDLSchema>, Programs, Vec<Artifact>), BuildProjectFailure> {
+) -> Result<BuildProjectOutput, BuildProjectFailure> {
     let log_event = perf_logger.create_event("build_project");
     let build_time = log_event.start("build_project_time");
     let project_name = project_config.name;
@@ -230,7 +241,7 @@ pub fn build_project(
     }
 
     // Apply different transform pipelines to produce the `Programs`.
-    let (programs, source_hashes) = build_programs(
+    let (programs, source_hashes, base_fragment_names) = build_programs(
         config,
         project_config,
         compiler_state,
@@ -262,7 +273,13 @@ pub fn build_project(
 
     log_event.stop(build_time);
     log_event.complete();
-    Ok((project_config.name, schema, programs, artifacts))
+    Ok((
+        project_config.name,
+        schema,
+        programs,
+        artifacts,
+        base_fragment_names,
+    ))
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -279,6 +296,7 @@ pub async fn commit_project(
     // Dirty artifacts that should be removed if no longer in the artifacts map
     mut artifacts_to_remove: FnvHashSet<PathBuf>,
     source_control_update_status: Arc<SourceControlUpdateStatus>,
+    base_fragment_names: Arc<FnvHashSet<StringKey>>,
 ) -> Result<ArtifactMap, BuildProjectFailure> {
     let log_event = perf_logger.create_event("commit_project");
     log_event.string("project", project_config.name.to_string());
@@ -323,6 +341,7 @@ pub async fn commit_project(
                 schema,
                 &programs,
                 &artifacts,
+                base_fragment_names,
             ))
         });
     }

@@ -312,7 +312,7 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
         }
 
         let mut handles: Vec<JoinHandle<std::result::Result<_, BuildProjectFailure>>> = Vec::new();
-        for (project_name, schema, programs, artifacts) in results {
+        for (project_name, schema, programs, artifacts, base_fragment_names) in results {
             let config = Arc::clone(&config);
             let perf_logger = Arc::clone(&perf_logger);
             let artifact_map = compiler_state
@@ -347,6 +347,7 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
                         removed_definition_names,
                         dirty_artifact_paths,
                         source_control_update_status,
+                        base_fragment_names,
                     )
                     .await?,
                     schema,

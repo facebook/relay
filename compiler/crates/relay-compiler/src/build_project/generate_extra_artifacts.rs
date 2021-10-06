@@ -6,19 +6,7 @@
  */
 
 use super::{Artifact, Programs, ProjectConfig};
-use fnv::FnvHashSet;
-use interner::StringKey;
 use schema::SDLSchema;
-use std::sync::Arc;
 
-pub type GenerateExtraArtifactsFn = Box<
-    dyn Fn(
-            &ProjectConfig,
-            &SDLSchema,
-            &Programs,
-            &[Artifact],
-            Arc<FnvHashSet<StringKey>>,
-        ) -> Vec<Artifact>
-        + Send
-        + Sync,
->;
+pub type GenerateExtraArtifactsFn =
+    Box<dyn Fn(&ProjectConfig, &SDLSchema, &Programs, &[Artifact]) -> Vec<Artifact> + Send + Sync>;

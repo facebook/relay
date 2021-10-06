@@ -1001,9 +1001,10 @@ impl InMemorySchema {
                     let str_name = name.value.lookup();
                     if str_name != "skip" && str_name != "include" {
                         // TODO(T63941319) @skip and @include directives are duplicated in our schema
-                        return todo_add_location(SchemaError::DuplicateDirectiveDefinition(
-                            name.value,
-                        ));
+                        return Err(vec![Diagnostic::error(
+                            SchemaError::DuplicateDirectiveDefinition(name.value),
+                            Location::new(location_key.clone(), name.span),
+                        )]);
                     }
                 }
                 let arguments = self.build_arguments(arguments)?;

@@ -129,7 +129,7 @@ pub fn extract_executable_document_from_text(
 
 /// Maps the LSP `Position` type back to a relative span, so we can find out which syntax node(s)
 /// this request came from
-pub(crate) fn position_to_span(
+fn position_to_span(
     position: &Position,
     source: &GraphQLSource,
     index_offset: usize,
@@ -138,16 +138,19 @@ pub(crate) fn position_to_span(
         .map(|offset| Span::new(offset, offset))
 }
 
+/// Find a character position in the GraphQL source text
+/// from the Position (line, character) of the cursor in the IDE.
+/// If the Position is outside of the source text, return None.
 pub fn position_to_offset(
     position: &Position,
     index_offset: usize,
     line_index: usize,
-    text: &str,
+    graphql_source_text: &str,
 ) -> Option<u32> {
     let mut index_of_first_character_of_current_line = 0;
     let mut line_index = line_index as u32;
 
-    let mut chars = text.chars().enumerate().peekable();
+    let mut chars = graphql_source_text.chars().enumerate().peekable();
 
     while let Some((index, chr)) = chars.next() {
         let is_newline = match chr {

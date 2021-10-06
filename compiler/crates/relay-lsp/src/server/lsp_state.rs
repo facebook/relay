@@ -12,7 +12,9 @@ use crate::{
     lsp_runtime_error::LSPRuntimeResult,
     node_resolution_info::{get_node_resolution_info, NodeResolutionInfo},
     utils::extract_project_name_from_url,
-    utils::{extract_executable_definitions_from_text, extract_executable_document_from_text},
+    utils::{
+        extract_executable_definitions_from_text_document, extract_executable_document_from_text,
+    },
 };
 use common::{Diagnostic as CompilerDiagnostic, PerfLogger, SourceLocationKey, Span};
 use crossbeam::channel::Sender;
@@ -182,9 +184,12 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
 
     pub(crate) fn resolve_executable_definitions(
         &self,
-        params: &TextDocumentPositionParams,
+        text_document_uri: &Url,
     ) -> LSPRuntimeResult<Vec<ExecutableDefinition>> {
-        extract_executable_definitions_from_text(params, &self.synced_graphql_documents)
+        extract_executable_definitions_from_text_document(
+            text_document_uri,
+            &self.synced_graphql_documents,
+        )
     }
 
     pub(crate) fn root_dir(&self) -> &PathBuf {

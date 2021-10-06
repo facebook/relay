@@ -51,12 +51,12 @@ pub(crate) fn on_code_action<
         }
     }
 
+    let definitions = state.resolve_executable_definitions(&params.text_document.uri)?;
+
     let text_document_position_params = TextDocumentPositionParams {
         text_document: params.text_document,
         position: params.range.start,
     };
-    let definitions = state.resolve_executable_definitions(&text_document_position_params)?;
-
     let (document, position_span, _project_name) =
         state.extract_executable_document_from_text(&text_document_position_params, 1)?;
 

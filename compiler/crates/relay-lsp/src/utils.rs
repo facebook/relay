@@ -18,14 +18,12 @@ use log::debug;
 use lsp_types::{Position, TextDocumentPositionParams, Url};
 use relay_compiler::{compiler_state::SourceSet, FileCategorizer, FileGroup};
 
-pub fn extract_executable_definitions_from_text(
-    text_document_position: &TextDocumentPositionParams,
+pub fn extract_executable_definitions_from_text_document(
+    text_document_uri: &Url,
     graphql_source_cache: &DashMap<Url, Vec<GraphQLSource>>,
 ) -> LSPRuntimeResult<Vec<ExecutableDefinition>> {
-    let uri = &text_document_position.text_document.uri;
-
     let graphql_sources = graphql_source_cache
-        .get(uri)
+        .get(text_document_uri)
         // If the source isn't present in the source cache, then that means that
         // the source has no graphql documents.
         .ok_or(LSPRuntimeError::ExpectedError)?;
@@ -35,7 +33,7 @@ pub fn extract_executable_definitions_from_text(
         .map(|graphql_source| {
             let document = parse_executable_with_error_recovery(
                 &graphql_source.text,
-                SourceLocationKey::standalone(&uri.to_string()),
+                SourceLocationKey::standalone(&text_document_uri.to_string()),
             )
             .item;
 

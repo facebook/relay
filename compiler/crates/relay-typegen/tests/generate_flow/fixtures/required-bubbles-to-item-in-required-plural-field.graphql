@@ -1,0 +1,7 @@
+query TestQuery {
+  me {
+    neighbors @required(action: NONE) {
+      name @required(action: NONE)
+    }
+  }
+}

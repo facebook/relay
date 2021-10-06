@@ -1483,12 +1483,17 @@ fn apply_required_directive_nullability(
     field_type: &TypeReference,
     directives: &[Directive],
 ) -> TypeReference {
+    // We apply bubbling before the field's own @required directive (which may
+    // negate the effects of bubbling) because we need handle the case where
+    // null can bubble to the _items_ in a plural field which is itself
+    // @required.
+    let bubbled_type = match directives.named(*CHILDREN_CAN_BUBBLE_METADATA_KEY) {
+        Some(_) => field_type.with_nullable_item_type(),
+        None => field_type.clone(),
+    };
     match directives.named(*RequiredMetadataDirective::DIRECTIVE_NAME) {
-        Some(_) => field_type.non_null(),
-        None => match directives.named(*CHILDREN_CAN_BUBBLE_METADATA_KEY) {
-            Some(_) => field_type.with_nullable_item_type(),
-            None => field_type.clone(),
-        },
+        Some(_) => bubbled_type.non_null(),
+        None => bubbled_type,
     }
 }
 

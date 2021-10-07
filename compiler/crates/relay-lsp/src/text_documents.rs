@@ -38,7 +38,7 @@ pub(crate) fn on_did_open_text_document<
     if graphql_sources.is_empty() {
         Ok(())
     } else {
-        lsp_state.process_synced_sources(uri, graphql_sources)
+        lsp_state.process_synced_sources(&uri, graphql_sources)
     }
 }
 
@@ -91,7 +91,7 @@ pub(crate) fn on_did_change_text_document<
 
         Ok(())
     } else {
-        lsp_state.process_synced_sources(uri, graphql_sources)
+        lsp_state.process_synced_sources(&uri, graphql_sources)
     }
 }
 

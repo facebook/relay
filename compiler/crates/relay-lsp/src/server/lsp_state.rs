@@ -5,7 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::LSPExtraDataProvider;
 use crate::{
     diagnostic_reporter::{get_diagnostics_data, DiagnosticReporter},
     js_language_server::JSLanguageServer,
@@ -16,6 +15,7 @@ use crate::{
         extract_executable_definitions_from_text_document, extract_executable_document_from_text,
     },
 };
+use crate::{LSPExtraDataProvider, LSPRuntimeError};
 use common::{Diagnostic as CompilerDiagnostic, PerfLogger, SourceLocationKey, Span};
 use crossbeam::channel::Sender;
 use dashmap::{mapref::entry::Entry, DashMap};
@@ -222,18 +222,19 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
 
     pub(crate) fn process_synced_sources(
         &self,
-        url: Url,
+        url: &Url,
         sources: Vec<GraphQLSource>,
     ) -> LSPRuntimeResult<()> {
-        let project_name = self.extract_project_name_from_url(&url)?;
+        let project_name = self.extract_project_name_from_url(url)?;
 
         if let Entry::Vacant(e) = self.project_status.entry(project_name) {
             e.insert(ProjectStatus::Activated);
             self.notify_sender.notify_one();
         }
 
-        self.validate_synced_sources(url.clone(), project_name, &sources);
         self.insert_synced_sources(url, sources);
+        self.validate_synced_sources(url)?;
+
         Ok(())
     }
 
@@ -241,18 +242,22 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         extract_project_name_from_url(&self.file_categorizer, url, &self.root_dir)
     }
 
-    fn insert_synced_sources(&self, url: Url, sources: Vec<GraphQLSource>) {
-        self.synced_graphql_documents.insert(url, sources);
+    fn insert_synced_sources(&self, url: &Url, sources: Vec<GraphQLSource>) {
+        self.synced_graphql_documents.insert(url.clone(), sources);
     }
 
-    fn validate_synced_sources(
-        &self,
-        url: Url,
-        project_name: StringKey,
-        graphql_sources: &[GraphQLSource],
-    ) {
+    fn validate_synced_sources(&self, url: &Url) -> LSPRuntimeResult<()> {
         let mut diagnostics = vec![];
-        for graphql_source in graphql_sources {
+        let graphql_sources = self.synced_graphql_documents.get(url).ok_or_else(|| {
+            LSPRuntimeError::UnexpectedError(format!("Expected GraphQL sources for URL {}", url))
+        })?;
+        let project_name = self.extract_project_name_from_url(url)?;
+        let schema = self
+            .schemas
+            .get(&project_name)
+            .ok_or(LSPRuntimeError::ExpectedError)?;
+
+        for graphql_source in graphql_sources.iter() {
             let result = parse_executable_with_error_recovery(
                 &graphql_source.text,
                 SourceLocationKey::standalone(&url.to_string()),
@@ -264,46 +269,47 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                     .iter()
                     .map(|diagnostic| convert_diagnostic(graphql_source, diagnostic)),
             );
-            if let Some(schema) = self.schemas.get(&project_name) {
-                let compiler_diagnostics = match build_ir_with_extra_features(
-                    &schema,
-                    &result.item.definitions,
-                    BuilderOptions {
-                        allow_undefined_fragment_spreads: true,
-                        fragment_variables_semantic: FragmentVariablesSemantic::PassedValue,
-                        relay_mode: true,
-                        default_anonymous_operation_name: None,
-                    },
-                )
-                .and_then(|documents| {
-                    // Waiting until T101267297 is resolved to endable these.
-                    if true {
-                        return Ok(vec![]);
-                    }
-                    let mut warnings = vec![];
-                    for document in documents {
-                        // Today the only warning we check for is deprecated
-                        // fields, but in the future we could check for more
-                        // things here by making this more generic.
-                        warnings.extend(deprecated_fields_for_executable_definition(
-                            &schema, &document,
-                        )?)
-                    }
-                    Ok(warnings)
-                }) {
-                    Ok(warnings) => warnings,
-                    Err(errors) => errors,
-                };
 
-                diagnostics.extend(
-                    compiler_diagnostics
-                        .iter()
-                        .map(|diagnostic| convert_diagnostic(graphql_source, diagnostic)),
-                );
-            }
+            let compiler_diagnostics = match build_ir_with_extra_features(
+                &schema,
+                &result.item.definitions,
+                BuilderOptions {
+                    allow_undefined_fragment_spreads: true,
+                    fragment_variables_semantic: FragmentVariablesSemantic::PassedValue,
+                    relay_mode: true,
+                    default_anonymous_operation_name: None,
+                },
+            )
+            .and_then(|documents| {
+                // Waiting until T101267297 is resolved to enable these.
+                if true {
+                    return Ok(vec![]);
+                }
+                let mut warnings = vec![];
+                for document in documents {
+                    // Today the only warning we check for is deprecated
+                    // fields, but in the future we could check for more
+                    // things here by making this more generic.
+                    warnings.extend(deprecated_fields_for_executable_definition(
+                        &schema, &document,
+                    )?)
+                }
+                Ok(warnings)
+            }) {
+                Ok(warnings) => warnings,
+                Err(errors) => errors,
+            };
+
+            diagnostics.extend(
+                compiler_diagnostics
+                    .iter()
+                    .map(|diagnostic| convert_diagnostic(graphql_source, diagnostic)),
+            );
         }
         self.diagnostic_reporter
             .update_quick_diagnostics_for_url(url, diagnostics);
+
+        Ok(())
     }
 
     fn preload_documentation(&self) {

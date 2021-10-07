@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<6742d659e6ee5f724f9cb4e7474cd28f>>
+ * @generated SignedSource<<f02beeaca80acabc17b06041f998b548>>
  */
 
 mod refetchable_fragment;
@@ -45,6 +45,13 @@ fn fragment_on_node_interface_without_id() {
     let input = include_str!("refetchable_fragment/fixtures/fragment-on-node-interface-without-id.graphql");
     let expected = include_str!("refetchable_fragment/fixtures/fragment-on-node-interface-without-id.expected");
     test_fixture(transform_fixture, "fragment-on-node-interface-without-id.graphql", "refetchable_fragment/fixtures/fragment-on-node-interface-without-id.expected", input, expected);
+}
+
+#[test]
+fn fragment_on_node_with_id_argument_used_invalid() {
+    let input = include_str!("refetchable_fragment/fixtures/fragment-on-node-with-id-argument-used.invalid.graphql");
+    let expected = include_str!("refetchable_fragment/fixtures/fragment-on-node-with-id-argument-used.invalid.expected");
+    test_fixture(transform_fixture, "fragment-on-node-with-id-argument-used.invalid.graphql", "refetchable_fragment/fixtures/fragment-on-node-with-id-argument-used.invalid.expected", input, expected);
 }
 
 #[test]

@@ -12,7 +12,6 @@ use crate::build_project::{
 };
 use crate::compiler_state::{ProjectName, SourceSet};
 use crate::errors::{ConfigValidationError, Error, Result};
-use crate::rollout::Rollout;
 use crate::saved_state::SavedStateLoader;
 use crate::status_reporter::{ConsoleStatusReporter, StatusReporter};
 use async_trait::async_trait;
@@ -26,7 +25,7 @@ use persist_query::PersistError;
 use rayon::prelude::*;
 use regex::Regex;
 use relay_codegen::JsModuleFormat;
-use relay_transforms::{ConnectionInterface, FeatureFlags};
+use relay_transforms::{ConnectionInterface, FeatureFlags, Rollout};
 use relay_typegen::TypegenConfig;
 use serde::{Deserialize, Serialize};
 use sha1::{Digest, Sha1};

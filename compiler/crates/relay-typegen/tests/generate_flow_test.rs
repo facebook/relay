@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<48c9bb57189c7244fccbab5572451566>>
+ * @generated SignedSource<<a16b71bd84ea4fa531f9d86dd02cf407>>
  */
 
 mod generate_flow;
@@ -262,6 +262,13 @@ fn required_bubbles_to_item_in_plural_field() {
     let input = include_str!("generate_flow/fixtures/required-bubbles-to-item-in-plural-field.graphql");
     let expected = include_str!("generate_flow/fixtures/required-bubbles-to-item-in-plural-field.expected");
     test_fixture(transform_fixture, "required-bubbles-to-item-in-plural-field.graphql", "generate_flow/fixtures/required-bubbles-to-item-in-plural-field.expected", input, expected);
+}
+
+#[test]
+fn required_bubbles_to_item_in_required_plural_field() {
+    let input = include_str!("generate_flow/fixtures/required-bubbles-to-item-in-required-plural-field.graphql");
+    let expected = include_str!("generate_flow/fixtures/required-bubbles-to-item-in-required-plural-field.expected");
+    test_fixture(transform_fixture, "required-bubbles-to-item-in-required-plural-field.graphql", "generate_flow/fixtures/required-bubbles-to-item-in-required-plural-field.expected", input, expected);
 }
 
 #[test]

@@ -45,6 +45,7 @@ mod relay_directive;
 mod relay_resolvers;
 mod remove_base_fragments;
 mod required_directive;
+mod rollout;
 mod root_variables;
 mod skip_client_directives;
 mod skip_client_extensions;
@@ -135,6 +136,7 @@ pub use required_directive::{
     required_directive, RequiredAction, RequiredMetadataDirective, ACTION_ARGUMENT,
     CHILDREN_CAN_BUBBLE_METADATA_KEY,
 };
+pub use rollout::Rollout;
 pub use skip_client_directives::skip_client_directives;
 pub use skip_client_extensions::skip_client_extensions;
 pub use skip_null_arguments_transform::skip_null_arguments_transform;

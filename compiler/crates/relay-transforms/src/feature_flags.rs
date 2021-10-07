@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use crate::Rollout;
 use indexmap::IndexSet;
 use interner::StringKey;
 use serde::{Deserialize, Serialize};
@@ -61,6 +62,9 @@ pub enum FeatureFlag {
 
     /// Partially enabled: developers may only use this feature on the listed items (fragments, fields, types).
     Limited { allowlist: IndexSet<StringKey> },
+
+    /// Partially enabled: used for gradual rollout of the feature
+    Rollout { rollout: Rollout },
 }
 
 impl Default for FeatureFlag {
@@ -74,7 +78,8 @@ impl FeatureFlag {
         match self {
             FeatureFlag::Enabled => true,
             FeatureFlag::Limited { allowlist } => allowlist.contains(&name),
-            _ => false,
+            FeatureFlag::Rollout { rollout } => rollout.check(name.lookup()),
+            FeatureFlag::Disabled => false,
         }
     }
 
@@ -93,6 +98,7 @@ impl Display for FeatureFlag {
                 f.write_str("limited to: ")?;
                 f.write_str(&items.join(", "))
             }
+            FeatureFlag::Rollout { rollout } => write!(f, "Rollout: {:#?}", rollout),
         }
     }
 }

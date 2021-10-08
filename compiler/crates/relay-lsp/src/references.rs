@@ -108,7 +108,7 @@ pub(crate) fn on_references<
     let node_resolution_info = state.resolve_node(&params.text_document_position)?;
     let references_response = get_references_response(
         node_resolution_info,
-        state.get_source_programs_ref(),
+        &state.source_programs,
         state.root_dir(),
     )?;
     Ok(Some(references_response))

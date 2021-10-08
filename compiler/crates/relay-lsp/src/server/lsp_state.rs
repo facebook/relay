@@ -67,7 +67,7 @@ pub struct LSPState<
     file_categorizer: FileCategorizer,
     schemas: Schemas,
     schema_documentation_loader: Option<Box<dyn SchemaDocumentationLoader<TSchemaDocumentation>>>,
-    source_programs: SourcePrograms,
+    pub source_programs: SourcePrograms,
     synced_graphql_documents: DashMap<Url, Vec<GraphQLSource>>,
     pub perf_logger: Arc<TPerfLogger>,
     diagnostic_reporter: Arc<DiagnosticReporter>,
@@ -143,7 +143,6 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         // Preload schema documentation - this will warm-up schema documentation cache in the LSP Extra Data providers
         lsp_state.preload_documentation();
 
-        let source_programs = Arc::clone(&lsp_state.source_programs);
         let diagnostic_reporter = Arc::clone(&lsp_state.diagnostic_reporter);
         let notify_sender = Arc::clone(&lsp_state.notify_sender);
         let project_status = Arc::clone(&lsp_state.project_status);
@@ -152,7 +151,6 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         task::spawn(async move {
             let resources = LSPStateResources::new(
                 lsp_state_for_resources,
-                source_programs,
                 sender,
                 diagnostic_reporter,
                 notify_sender,
@@ -167,10 +165,6 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
 
     pub fn get_schemas(&self) -> Schemas {
         self.schemas.clone()
-    }
-
-    pub(crate) fn get_source_programs_ref(&self) -> &SourcePrograms {
-        &self.source_programs
     }
 
     pub(crate) fn resolve_node(

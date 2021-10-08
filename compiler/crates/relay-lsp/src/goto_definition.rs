@@ -235,7 +235,7 @@ pub(crate) fn on_goto_definition<
     let goto_definition_response = get_goto_definition_response(
         path,
         project_name,
-        state.get_source_programs_ref(),
+        &state.source_programs,
         state.root_dir(),
         state.extra_data_provider.as_ref(),
     )?;

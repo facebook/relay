@@ -1034,7 +1034,7 @@ pub(crate) fn on_completion<
                     project_name,
                     schema,
                     state.get_schema_documentation(project_name.lookup()),
-                    state.get_source_programs_ref(),
+                    &state.source_programs,
                 )
                 .unwrap_or_else(Vec::new);
                 Ok(Some(CompletionResponse::Array(items)))

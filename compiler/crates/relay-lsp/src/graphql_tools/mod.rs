@@ -221,7 +221,7 @@ fn get_query_text<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: Schem
         operation,
         fragments,
         project_config.name,
-        state.get_source_programs_ref(),
+        &state.source_programs,
     ) {
         let programs = transform_program(
             project_config,

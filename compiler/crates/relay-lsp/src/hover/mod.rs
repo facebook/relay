@@ -79,8 +79,8 @@ pub(crate) fn on_hover<
         .get(&project_name)
         .ok_or(LSPRuntimeError::ExpectedError)?;
 
-    let source_programs = state.get_source_programs_ref();
-    let source_program = source_programs
+    let source_program = state
+        .source_programs
         .get(&project_name)
         .ok_or(LSPRuntimeError::ExpectedError)?;
 

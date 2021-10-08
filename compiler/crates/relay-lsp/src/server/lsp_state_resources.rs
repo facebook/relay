@@ -35,7 +35,7 @@ use crate::{
     LSPState,
 };
 
-use super::lsp_state::{ProjectStatus, ProjectStatusMap, SourcePrograms};
+use super::lsp_state::{ProjectStatus, ProjectStatusMap};
 
 /// This structure is responsible for keeping schemas/programs in sync with the current state of the world
 pub(crate) struct LSPStateResources<
@@ -43,7 +43,6 @@ pub(crate) struct LSPStateResources<
     TSchemaDocumentation: SchemaDocumentation + 'static,
 > {
     lsp_state: Arc<LSPState<TPerfLogger, TSchemaDocumentation>>,
-    source_programs: SourcePrograms,
     notify: Arc<Notify>,
     sender: Sender<Message>,
     diagnostic_reporter: Arc<DiagnosticReporter>,
@@ -56,7 +55,6 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
     #[allow(clippy::too_many_arguments)]
     pub(crate) fn new(
         lsp_state: Arc<LSPState<TPerfLogger, TSchemaDocumentation>>,
-        source_programs: SourcePrograms,
         sender: Sender<Message>,
         diagnostic_reporter: Arc<DiagnosticReporter>,
         notify: Arc<Notify>,
@@ -64,7 +62,6 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
     ) -> Self {
         Self {
             lsp_state,
-            source_programs,
             sender,
             notify,
             diagnostic_reporter,
@@ -229,7 +226,11 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                     return false;
                 }
                 // When the source programs is empty, we need to compile all source programs once
-                if !self.source_programs.contains_key(&project_config.name) {
+                if !self
+                    .lsp_state
+                    .source_programs
+                    .contains_key(&project_config.name)
+                {
                     return true;
                 }
                 if let Some(base) = project_config.base {
@@ -330,7 +331,10 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         schema: Arc<SDLSchema>,
         log_event: &impl PerfLogEvent,
     ) -> Result<(), BuildProjectFailure> {
-        let is_incremental_build = self.source_programs.contains_key(&project_config.name)
+        let is_incremental_build = self
+            .lsp_state
+            .source_programs
+            .contains_key(&project_config.name)
             && compiler_state.has_processed_changes()
             && !compiler_state.has_breaking_schema_change(project_config.name)
             && if let Some(base) = project_config.base {
@@ -353,7 +357,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             return Err(BuildProjectFailure::Cancelled);
         }
 
-        match self.source_programs.entry(project_config.name) {
+        match self.lsp_state.source_programs.entry(project_config.name) {
             Entry::Vacant(e) => {
                 e.insert(base_program.clone());
             }

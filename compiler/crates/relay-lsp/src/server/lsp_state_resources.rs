@@ -25,6 +25,7 @@ use relay_compiler::{
 };
 use relay_transforms::FeatureFlags;
 use schema::SDLSchema;
+use schema_documentation::SchemaDocumentation;
 use tokio::{sync::Notify, task, task::JoinHandle};
 
 use crate::{
@@ -32,14 +33,18 @@ use crate::{
     lsp_process_error::{LSPProcessError, LSPProcessResult},
     status_updater::set_ready_status,
     status_updater::update_in_progress_status,
+    LSPState,
 };
 
 use super::lsp_state::{ProjectStatus, ProjectStatusMap, Schemas, SourcePrograms};
 
 /// This structure is responsible for keeping schemas/programs in sync with the current state of the world
-pub(crate) struct LSPStateResources<TPerfLogger: PerfLogger + 'static> {
+pub(crate) struct LSPStateResources<
+    TPerfLogger: PerfLogger + 'static,
+    TSchemaDocumentation: SchemaDocumentation + 'static,
+> {
+    lsp_state: Arc<LSPState<TPerfLogger, TSchemaDocumentation>>,
     config: Arc<Config>,
-    perf_logger: Arc<TPerfLogger>,
     schemas: Schemas,
     source_programs: SourcePrograms,
     notify: Arc<Notify>,
@@ -48,11 +53,13 @@ pub(crate) struct LSPStateResources<TPerfLogger: PerfLogger + 'static> {
     project_status: ProjectStatusMap,
 }
 
-impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
+impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentation + 'static>
+    LSPStateResources<TPerfLogger, TSchemaDocumentation>
+{
     #[allow(clippy::too_many_arguments)]
     pub(crate) fn new(
+        lsp_state: Arc<LSPState<TPerfLogger, TSchemaDocumentation>>,
         config: Arc<Config>,
-        perf_logger: Arc<TPerfLogger>,
         schemas: Schemas,
         source_programs: SourcePrograms,
         sender: Sender<Message>,
@@ -61,8 +68,8 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
         project_status: ProjectStatusMap,
     ) -> Self {
         Self {
+            lsp_state,
             config,
-            perf_logger,
             schemas,
             source_programs,
             sender,
@@ -83,6 +90,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
                 &self.sender,
             );
             let setup_event = self
+                .lsp_state
                 .perf_logger
                 .create_event("lsp_state_initialize_resources");
             let timer = setup_event.start("lsp_state_initialize_resources_time");
@@ -91,7 +99,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
                 .await
                 .map_err(LSPProcessError::CompilerError)?;
             let (mut compiler_state, file_source_subscription) = file_source
-                .subscribe(&setup_event, self.perf_logger.as_ref())
+                .subscribe(&setup_event, self.lsp_state.perf_logger.as_ref())
                 .await
                 .map_err(LSPProcessError::CompilerError)?;
 
@@ -149,7 +157,10 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
                     continue 'outer;
                 }
 
-                let log_event = self.perf_logger.create_event("lsp_state_watchman_event");
+                let log_event = self
+                    .lsp_state
+                    .perf_logger
+                    .create_event("lsp_state_watchman_event");
                 let log_time = log_event.start("lsp_state_watchman_event_time");
 
                 if let Err(error) = self.incremental_build(&mut compiler_state, &log_event) {
@@ -170,7 +181,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
     ) -> Result<(), Error> {
         let has_new_changes = compiler_state.merge_file_source_changes(
             &self.config,
-            self.perf_logger.as_ref(),
+            self.lsp_state.perf_logger.as_ref(),
             false,
         )?;
 
@@ -265,7 +276,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
     ) -> Result<StringKey, BuildProjectFailure> {
         self.project_status
             .insert(project_config.name, ProjectStatus::Completed);
-        let log_event = self.perf_logger.create_event("build_lsp_project");
+        let log_event = self.lsp_state.perf_logger.create_event("build_lsp_project");
         let project_name = project_config.name;
         let build_time = log_event.start("build_lsp_project_time");
         log_event.string("project", project_name.to_string());
@@ -373,7 +384,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
             project_config,
             Arc::new(base_program),
             Arc::new(base_fragment_names),
-            Arc::clone(&self.perf_logger),
+            Arc::clone(&self.lsp_state.perf_logger),
             log_event,
         )?;
         Ok(())
@@ -424,7 +435,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
     }
 
     fn log_errors(&self, log_event_name: &'static str, error: &Error) {
-        let error_event = self.perf_logger.create_event(log_event_name);
+        let error_event = self.lsp_state.perf_logger.create_event(log_event_name);
         error_event.string("error", error.to_string());
         error_event.complete();
     }

@@ -122,14 +122,14 @@ where
         connection.sender.clone(),
     ));
 
-    let lsp_state = Arc::new(LSPState::create_state(
+    let lsp_state = LSPState::create_state(
         Arc::new(config),
         Arc::clone(&perf_logger),
         extra_data_provider,
         schema_documentation_loader,
         js_resource,
         connection.sender.clone(),
-    ));
+    );
 
     loop {
         debug!("waiting for incoming messages...");

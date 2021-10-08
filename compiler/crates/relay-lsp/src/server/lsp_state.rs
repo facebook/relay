@@ -56,7 +56,10 @@ pub enum ProjectStatus {
 
 /// This structure contains all available resources that we may use in the Relay LSP message/notification
 /// handlers. Such as schema, programs, extra_data_providers, etc...
-pub struct LSPState<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentation> {
+pub struct LSPState<
+    TPerfLogger: PerfLogger + 'static,
+    TSchemaDocumentation: SchemaDocumentation + 'static,
+> {
     config: Arc<Config>,
     root_dir: PathBuf,
     root_dir_str: String,
@@ -126,32 +129,32 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         >,
         js_resource: Box<dyn JSLanguageServer<TPerfLogger, TSchemaDocumentation>>,
         sender: Sender<Message>,
-    ) -> Self {
+    ) -> Arc<Self> {
         debug!("Creating lsp_state...");
-        let lsp_state = Self::new(
+        let lsp_state = Arc::new(Self::new(
             config,
             perf_logger,
             extra_data_provider,
             schema_documentation_loader,
             js_resource,
             sender.clone(),
-        );
+        ));
 
         // Preload schema documentation - this will warm-up schema documentation cache in the LSP Extra Data providers
         lsp_state.preload_documentation();
 
         let config_clone = Arc::clone(&lsp_state.config);
-        let perf_logger_clone = Arc::clone(&lsp_state.perf_logger);
         let schemas = Arc::clone(&lsp_state.schemas);
         let source_programs = Arc::clone(&lsp_state.source_programs);
         let diagnostic_reporter = Arc::clone(&lsp_state.diagnostic_reporter);
         let notify_sender = Arc::clone(&lsp_state.notify_sender);
         let project_status = Arc::clone(&lsp_state.project_status);
+        let lsp_state_for_resources = Arc::clone(&lsp_state);
 
         task::spawn(async move {
             let resources = LSPStateResources::new(
+                lsp_state_for_resources,
                 config_clone,
-                perf_logger_clone,
                 schemas,
                 source_programs,
                 sender,

@@ -60,7 +60,7 @@ pub struct LSPState<
     TPerfLogger: PerfLogger + 'static,
     TSchemaDocumentation: SchemaDocumentation + 'static,
 > {
-    config: Arc<Config>,
+    pub config: Arc<Config>,
     root_dir: PathBuf,
     root_dir_str: String,
     pub extra_data_provider: Box<dyn LSPExtraDataProvider>,
@@ -143,7 +143,6 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         // Preload schema documentation - this will warm-up schema documentation cache in the LSP Extra Data providers
         lsp_state.preload_documentation();
 
-        let config_clone = Arc::clone(&lsp_state.config);
         let source_programs = Arc::clone(&lsp_state.source_programs);
         let diagnostic_reporter = Arc::clone(&lsp_state.diagnostic_reporter);
         let notify_sender = Arc::clone(&lsp_state.notify_sender);
@@ -153,7 +152,6 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         task::spawn(async move {
             let resources = LSPStateResources::new(
                 lsp_state_for_resources,
-                config_clone,
                 source_programs,
                 sender,
                 diagnostic_reporter,
@@ -327,10 +325,6 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         self.config
             .enabled_projects()
             .find(|project_config| project_config.name == project_name)
-    }
-
-    pub fn get_config(&self) -> Arc<Config> {
-        self.config.clone()
     }
 
     pub fn get_logger(&self) -> Arc<TPerfLogger> {

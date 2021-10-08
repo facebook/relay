@@ -225,7 +225,7 @@ fn get_query_text<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: Schem
     ) {
         let programs = transform_program(
             project_config,
-            state.get_config(),
+            Arc::clone(&state.config),
             Arc::new(operation_program),
             state.get_logger(),
         )?;

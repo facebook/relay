@@ -18,10 +18,9 @@ use lsp_server::Message;
 use rayon::iter::ParallelIterator;
 use relay_compiler::{
     build_raw_program, build_schema, compiler_state::CompilerState, compiler_state::SourceSetName,
-    config::Config, config::ProjectConfig, errors::BuildProjectError, errors::Error,
-    transform_program, validate_program, BuildProjectFailure, FileSource, FileSourceResult,
-    FileSourceSubscription, FileSourceSubscriptionNextChange, GraphQLAsts,
-    SourceControlUpdateStatus,
+    config::ProjectConfig, errors::BuildProjectError, errors::Error, transform_program,
+    validate_program, BuildProjectFailure, FileSource, FileSourceResult, FileSourceSubscription,
+    FileSourceSubscriptionNextChange, GraphQLAsts, SourceControlUpdateStatus,
 };
 use relay_transforms::FeatureFlags;
 use schema::SDLSchema;
@@ -44,7 +43,6 @@ pub(crate) struct LSPStateResources<
     TSchemaDocumentation: SchemaDocumentation + 'static,
 > {
     lsp_state: Arc<LSPState<TPerfLogger, TSchemaDocumentation>>,
-    config: Arc<Config>,
     source_programs: SourcePrograms,
     notify: Arc<Notify>,
     sender: Sender<Message>,
@@ -58,7 +56,6 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
     #[allow(clippy::too_many_arguments)]
     pub(crate) fn new(
         lsp_state: Arc<LSPState<TPerfLogger, TSchemaDocumentation>>,
-        config: Arc<Config>,
         source_programs: SourcePrograms,
         sender: Sender<Message>,
         diagnostic_reporter: Arc<DiagnosticReporter>,
@@ -67,7 +64,6 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
     ) -> Self {
         Self {
             lsp_state,
-            config,
             source_programs,
             sender,
             notify,
@@ -92,7 +88,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                 .create_event("lsp_state_initialize_resources");
             let timer = setup_event.start("lsp_state_initialize_resources_time");
 
-            let file_source = FileSource::connect(&self.config, &setup_event)
+            let file_source = FileSource::connect(&self.lsp_state.config, &setup_event)
                 .await
                 .map_err(LSPProcessError::CompilerError)?;
             let (mut compiler_state, file_source_subscription) = file_source
@@ -177,7 +173,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         log_event: &impl PerfLogEvent,
     ) -> Result<(), Error> {
         let has_new_changes = compiler_state.merge_file_source_changes(
-            &self.config,
+            &self.lsp_state.config,
             self.lsp_state.perf_logger.as_ref(),
             false,
         )?;
@@ -213,7 +209,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         let graphql_asts = log_event.time("parse_sources_time", || {
             GraphQLAsts::from_graphql_sources_map(
                 &compiler_state.graphql_sources,
-                &compiler_state.get_dirty_definitions(&self.config),
+                &compiler_state.get_dirty_definitions(&self.lsp_state.config),
             )
         })?;
 
@@ -224,6 +220,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
 
         let timer = log_event.start("build_lsp_projects");
         let build_results: Vec<_> = self
+            .lsp_state
             .config
             .par_enabled_projects()
             .filter(|project_config| {
@@ -370,14 +367,14 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         }
 
         validate_program(
-            &self.config,
+            &self.lsp_state.config,
             &FeatureFlags::default(),
             &base_program,
             log_event,
         )?;
 
         transform_program(
-            &self.config,
+            &self.lsp_state.config,
             project_config,
             Arc::new(base_program),
             Arc::new(base_fragment_names),

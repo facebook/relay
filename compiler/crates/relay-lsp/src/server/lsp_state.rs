@@ -66,7 +66,7 @@ pub struct LSPState<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: Sch
     schema_documentation_loader: Option<Box<dyn SchemaDocumentationLoader<TSchemaDocumentation>>>,
     source_programs: SourcePrograms,
     synced_graphql_documents: DashMap<Url, Vec<GraphQLSource>>,
-    perf_logger: Arc<TPerfLogger>,
+    pub perf_logger: Arc<TPerfLogger>,
     diagnostic_reporter: Arc<DiagnosticReporter>,
     notify_sender: Arc<Notify>,
     sender: Sender<Message>,

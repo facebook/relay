@@ -136,23 +136,16 @@ where
         match connection.receiver.recv() {
             Ok(Message::Request(request)) => {
                 debug!("creating a task to handle request...");
-                let lsp_state_for_request = Arc::clone(&lsp_state);
-                let perf_logger_for_request = perf_logger.clone();
+                let lsp_state = Arc::clone(&lsp_state);
                 thread::spawn(move || {
-                    handle_request(lsp_state_for_request, request, perf_logger_for_request)
-                        .unwrap();
+                    handle_request(lsp_state, request).unwrap();
                 });
             }
             Ok(Message::Notification(notification)) => {
                 debug!("creating a task to handle notification...");
-                let lsp_state_for_notification = Arc::clone(&lsp_state);
-                let perf_logger_for_notification = perf_logger.clone();
+                let lsp_state = Arc::clone(&lsp_state);
                 thread::spawn(move || {
-                    handle_notification(
-                        lsp_state_for_notification,
-                        notification,
-                        perf_logger_for_notification,
-                    );
+                    handle_notification(lsp_state, notification);
                 });
             }
             Ok(_) => {
@@ -168,11 +161,10 @@ where
 fn handle_request<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentation>(
     lsp_state: Arc<LSPState<TPerfLogger, TSchemaDocumentation>>,
     request: lsp_server::Request,
-    perf_logger: Arc<TPerfLogger>,
 ) -> Result<(), SendError<Message>> {
     debug!("request received {:?}", request);
     let get_server_response_bound = |req| dispatch_request(req, &lsp_state);
-    let get_response = with_request_logging(&perf_logger, get_server_response_bound);
+    let get_response = with_request_logging(&lsp_state.perf_logger, get_server_response_bound);
 
     lsp_state.send_message(Message::Response(get_response(request)))
 }
@@ -258,10 +250,9 @@ fn handle_notification<
 >(
     lsp_state: Arc<LSPState<TPerfLogger, TSchemaDocumentation>>,
     notification: Notification,
-    perf_logger: Arc<TPerfLogger>,
 ) {
     debug!("notification received {:?}", notification);
-    let lsp_notification_event = perf_logger.create_event("lsp_message");
+    let lsp_notification_event = lsp_state.perf_logger.create_event("lsp_message");
     lsp_notification_event.string("lsp_method", notification.method.clone());
     lsp_notification_event.string("lsp_type", "notification".to_string());
     let lsp_notification_processing_time =

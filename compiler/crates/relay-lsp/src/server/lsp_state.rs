@@ -17,7 +17,7 @@ use crate::{
 };
 use crate::{LSPExtraDataProvider, LSPRuntimeError};
 use common::{Diagnostic as CompilerDiagnostic, PerfLogger, SourceLocationKey, Span};
-use crossbeam::channel::Sender;
+use crossbeam::channel::{SendError, Sender};
 use dashmap::{mapref::entry::Entry, DashMap};
 use fnv::FnvBuildHasher;
 use graphql_ir::{
@@ -69,6 +69,7 @@ pub struct LSPState<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: Sch
     perf_logger: Arc<TPerfLogger>,
     diagnostic_reporter: Arc<DiagnosticReporter>,
     notify_sender: Arc<Notify>,
+    sender: Sender<Message>,
     project_status: ProjectStatusMap,
     pub js_resource: Box<dyn JSLanguageServer<TPerfLogger, TSchemaDocumentation>>,
 }
@@ -89,8 +90,10 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
     ) -> Self {
         let file_categorizer = FileCategorizer::from_config(&config);
         let root_dir = &config.root_dir.clone();
-        let diagnostic_reporter =
-            Arc::new(DiagnosticReporter::new(config.root_dir.clone(), sender));
+        let diagnostic_reporter = Arc::new(DiagnosticReporter::new(
+            config.root_dir.clone(),
+            sender.clone(),
+        ));
 
         Self {
             config,
@@ -107,6 +110,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             source_programs: Arc::new(DashMap::with_hasher(FnvBuildHasher::default())),
             synced_graphql_documents: Default::default(),
             js_resource,
+            sender,
         }
     }
 
@@ -349,6 +353,10 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
     pub(crate) fn get_diagnostic_for_range(&self, url: &Url, range: Range) -> Option<Diagnostic> {
         self.diagnostic_reporter
             .get_diagnostics_for_range(url, range)
+    }
+
+    pub fn send_message(&self, message: Message) -> Result<(), SendError<Message>> {
+        self.sender.send(message)
     }
 }
 

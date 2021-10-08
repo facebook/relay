@@ -37,7 +37,7 @@ use crate::{
     },
 };
 use common::{PerfLogEvent, PerfLogger};
-use crossbeam::channel::{SendError, Sender};
+use crossbeam::channel::SendError;
 use log::debug;
 pub use lsp_notification_dispatch::LSPNotificationDispatch;
 pub use lsp_request_dispatch::LSPRequestDispatch;
@@ -137,16 +137,10 @@ where
             Ok(Message::Request(request)) => {
                 debug!("creating a task to handle request...");
                 let lsp_state_for_request = Arc::clone(&lsp_state);
-                let sender_for_request = connection.sender.clone();
                 let perf_logger_for_request = perf_logger.clone();
                 thread::spawn(move || {
-                    handle_request(
-                        lsp_state_for_request,
-                        request,
-                        sender_for_request,
-                        perf_logger_for_request,
-                    )
-                    .unwrap();
+                    handle_request(lsp_state_for_request, request, perf_logger_for_request)
+                        .unwrap();
                 });
             }
             Ok(Message::Notification(notification)) => {
@@ -174,14 +168,13 @@ where
 fn handle_request<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentation>(
     lsp_state: Arc<LSPState<TPerfLogger, TSchemaDocumentation>>,
     request: lsp_server::Request,
-    sender: Sender<Message>,
     perf_logger: Arc<TPerfLogger>,
 ) -> Result<(), SendError<Message>> {
     debug!("request received {:?}", request);
     let get_server_response_bound = |req| dispatch_request(req, &lsp_state);
     let get_response = with_request_logging(&perf_logger, get_server_response_bound);
 
-    sender.send(Message::Response(get_response(request)))
+    lsp_state.send_message(Message::Response(get_response(request)))
 }
 
 fn dispatch_request<

@@ -36,7 +36,7 @@ use crate::{
     LSPState,
 };
 
-use super::lsp_state::{ProjectStatus, ProjectStatusMap, Schemas, SourcePrograms};
+use super::lsp_state::{ProjectStatus, ProjectStatusMap, SourcePrograms};
 
 /// This structure is responsible for keeping schemas/programs in sync with the current state of the world
 pub(crate) struct LSPStateResources<
@@ -45,7 +45,6 @@ pub(crate) struct LSPStateResources<
 > {
     lsp_state: Arc<LSPState<TPerfLogger, TSchemaDocumentation>>,
     config: Arc<Config>,
-    schemas: Schemas,
     source_programs: SourcePrograms,
     notify: Arc<Notify>,
     sender: Sender<Message>,
@@ -60,7 +59,6 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
     pub(crate) fn new(
         lsp_state: Arc<LSPState<TPerfLogger, TSchemaDocumentation>>,
         config: Arc<Config>,
-        schemas: Schemas,
         source_programs: SourcePrograms,
         sender: Sender<Message>,
         diagnostic_reporter: Arc<DiagnosticReporter>,
@@ -70,7 +68,6 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         Self {
             lsp_state,
             config,
-            schemas,
             source_programs,
             sender,
             notify,
@@ -302,7 +299,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         compiler_state: &CompilerState,
         project_config: &ProjectConfig,
     ) -> Result<Arc<SDLSchema>, BuildProjectFailure> {
-        match self.schemas.entry(project_config.name) {
+        match self.lsp_state.get_schemas().entry(project_config.name) {
             Entry::Vacant(e) => {
                 let schema = build_schema(compiler_state, project_config).map_err(|errors| {
                     BuildProjectFailure::Error(BuildProjectError::ValidationErrors { errors })

@@ -144,7 +144,6 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         lsp_state.preload_documentation();
 
         let config_clone = Arc::clone(&lsp_state.config);
-        let schemas = Arc::clone(&lsp_state.schemas);
         let source_programs = Arc::clone(&lsp_state.source_programs);
         let diagnostic_reporter = Arc::clone(&lsp_state.diagnostic_reporter);
         let notify_sender = Arc::clone(&lsp_state.notify_sender);
@@ -155,7 +154,6 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             let resources = LSPStateResources::new(
                 lsp_state_for_resources,
                 config_clone,
-                schemas,
                 source_programs,
                 sender,
                 diagnostic_reporter,

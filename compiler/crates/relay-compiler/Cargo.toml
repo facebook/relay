@@ -50,7 +50,7 @@ serde_bser = "0.3"
 serde_json = { version = "1.0", features = ["float_roundtrip", "unbounded_depth"] }
 sha-1 = "0.8"
 signedsource = { path = "../signedsource" }
-structopt = "0.3.21"
+structopt = "0.3.23"
 thiserror = "1.0.29"
 tokio = { version = "1.10", features = ["full", "test-util", "tracing"] }
 watchman_client = "0.7"

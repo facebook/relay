@@ -1,0 +1,9 @@
+# expected-to-throw
+
+type User {
+  id: ID
+}
+
+interface Page implements User {
+  id: ID
+}

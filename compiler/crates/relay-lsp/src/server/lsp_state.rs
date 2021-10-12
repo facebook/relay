@@ -61,6 +61,18 @@ pub trait GlobalState {
     ) -> LSPRuntimeResult<NodeResolutionInfo>;
     fn root_dir(&self) -> PathBuf;
     fn get_source_programs(&self) -> SourcePrograms;
+
+    fn process_synced_sources(
+        &self,
+        uri: &Url,
+        sources: Vec<GraphQLSource>,
+    ) -> LSPRuntimeResult<()>;
+
+    fn remove_synced_sources(&self, url: &Url);
+
+    fn can_process_js_source(&self) -> bool;
+    fn process_js_source(&self, uri: &Url, text: &str);
+    fn remove_js_source(&self, uri: &Url);
 }
 
 /// This structure contains all available resources that we may use in the Relay LSP message/notification
@@ -179,12 +191,6 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         &self.root_dir_str
     }
 
-    pub(crate) fn remove_synced_sources(&self, url: &Url) {
-        self.synced_graphql_documents.remove(url);
-        self.diagnostic_reporter
-            .clear_quick_diagnostics_for_url(url);
-    }
-
     pub(crate) fn extract_executable_document_from_text(
         &self,
         position: &TextDocumentPositionParams,
@@ -197,24 +203,6 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             &self.root_dir,
             index_offset,
         )
-    }
-
-    pub(crate) fn process_synced_sources(
-        &self,
-        url: &Url,
-        sources: Vec<GraphQLSource>,
-    ) -> LSPRuntimeResult<()> {
-        let project_name = self.extract_project_name_from_url(url)?;
-
-        if let Entry::Vacant(e) = self.project_status.entry(project_name) {
-            e.insert(ProjectStatus::Activated);
-            self.notify_sender.notify_one();
-        }
-
-        self.insert_synced_sources(url, sources);
-        self.validate_synced_sources(url)?;
-
-        Ok(())
     }
 
     pub fn extract_project_name_from_url(&self, url: &Url) -> LSPRuntimeResult<StringKey> {
@@ -381,7 +369,43 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         )
     }
 
+    fn process_synced_sources(
+        &self,
+        uri: &Url,
+        sources: Vec<GraphQLSource>,
+    ) -> LSPRuntimeResult<()> {
+        let project_name = self.extract_project_name_from_url(uri)?;
+
+        if let Entry::Vacant(e) = self.project_status.entry(project_name) {
+            e.insert(ProjectStatus::Activated);
+            self.notify_sender.notify_one();
+        }
+
+        self.insert_synced_sources(uri, sources);
+        self.validate_synced_sources(uri)?;
+
+        Ok(())
+    }
+
+    fn remove_synced_sources(&self, url: &Url) {
+        self.synced_graphql_documents.remove(url);
+        self.diagnostic_reporter
+            .clear_quick_diagnostics_for_url(url);
+    }
+
     fn get_source_programs(&self) -> SourcePrograms {
         self.source_programs.clone()
+    }
+
+    fn can_process_js_source(&self) -> bool {
+        true
+    }
+
+    fn process_js_source(&self, uri: &Url, text: &str) {
+        self.js_resource.process_js_source(uri, text)
+    }
+
+    fn remove_js_source(&self, uri: &Url) {
+        self.js_resource.remove_js_source(uri)
     }
 }

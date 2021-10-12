@@ -7,9 +7,8 @@
 
 //! Utilities related to LSP text document syncing
 
-use crate::{lsp_runtime_error::LSPRuntimeResult, server::LSPState};
+use crate::{lsp_runtime_error::LSPRuntimeResult, server::GlobalState};
 
-use common::PerfLogger;
 use lsp_types::{
     notification::{
         Cancel, DidChangeTextDocument, DidCloseTextDocument, DidOpenTextDocument,
@@ -17,21 +16,23 @@ use lsp_types::{
     },
     DidChangeTextDocumentParams, DidOpenTextDocumentParams, TextDocumentItem,
 };
-use schema_documentation::SchemaDocumentation;
 
-pub(crate) fn on_did_open_text_document<
-    TPerfLogger: PerfLogger + 'static,
-    TSchemaDocumentation: SchemaDocumentation,
->(
-    lsp_state: &LSPState<TPerfLogger, TSchemaDocumentation>,
+pub(crate) fn on_did_open_text_document(
+    lsp_state: &impl GlobalState,
     params: <DidOpenTextDocument as Notification>::Params,
 ) -> LSPRuntimeResult<()> {
     let DidOpenTextDocumentParams { text_document } = params;
     let TextDocumentItem { text, uri, .. } = text_document;
-    if !uri.path().starts_with(lsp_state.root_dir_str()) {
+    if !uri
+        .path()
+        .starts_with(lsp_state.root_dir().to_string_lossy().as_ref())
+    {
         return Ok(());
     }
-    lsp_state.js_resource.process_js_source(&uri, &text);
+
+    if lsp_state.can_process_js_source() {
+        lsp_state.process_js_source(&uri, &text);
+    }
 
     // First we check to see if this document has any GraphQL documents.
     let graphql_sources = extract_graphql::parse_chunks(&text);
@@ -43,27 +44,27 @@ pub(crate) fn on_did_open_text_document<
 }
 
 #[allow(clippy::unnecessary_wraps)]
-pub(crate) fn on_did_close_text_document<
-    TPerfLogger: PerfLogger + 'static,
-    TSchemaDocumentation: SchemaDocumentation,
->(
-    lsp_state: &LSPState<TPerfLogger, TSchemaDocumentation>,
+pub(crate) fn on_did_close_text_document(
+    lsp_state: &impl GlobalState,
     params: <DidCloseTextDocument as Notification>::Params,
 ) -> LSPRuntimeResult<()> {
     let uri = params.text_document.uri;
-    if !uri.path().starts_with(lsp_state.root_dir_str()) {
+    if !uri
+        .path()
+        .starts_with(lsp_state.root_dir().to_string_lossy().as_ref())
+    {
         return Ok(());
     }
-    lsp_state.js_resource.remove_js_source(&uri);
+
+    if lsp_state.can_process_js_source() {
+        lsp_state.remove_js_source(&uri);
+    }
     lsp_state.remove_synced_sources(&uri);
     Ok(())
 }
 
-pub(crate) fn on_did_change_text_document<
-    TPerfLogger: PerfLogger + 'static,
-    TSchemaDocumentation: SchemaDocumentation,
->(
-    lsp_state: &LSPState<TPerfLogger, TSchemaDocumentation>,
+pub(crate) fn on_did_change_text_document(
+    lsp_state: &impl GlobalState,
     params: <DidChangeTextDocument as Notification>::Params,
 ) -> LSPRuntimeResult<()> {
     let DidChangeTextDocumentParams {
@@ -71,7 +72,10 @@ pub(crate) fn on_did_change_text_document<
         text_document,
     } = params;
     let uri = text_document.uri;
-    if !uri.path().starts_with(lsp_state.root_dir_str()) {
+    if !uri
+        .path()
+        .starts_with(lsp_state.root_dir().to_string_lossy().as_ref())
+    {
         return Ok(());
     }
 
@@ -79,10 +83,10 @@ pub(crate) fn on_did_change_text_document<
     let content_change = content_changes
         .first()
         .expect("content_changes should always be non-empty");
+    if lsp_state.can_process_js_source() {
+        lsp_state.process_js_source(&uri, &content_change.text);
+    }
 
-    lsp_state
-        .js_resource
-        .process_js_source(&uri, &content_change.text);
 
     // First we check to see if this document has any GraphQL documents.
     let graphql_sources = extract_graphql::parse_chunks(&content_change.text);
@@ -96,22 +100,16 @@ pub(crate) fn on_did_change_text_document<
 }
 
 #[allow(clippy::unnecessary_wraps)]
-pub(crate) fn on_did_save_text_document<
-    TPerfLogger: PerfLogger + 'static,
-    TSchemaDocumentation: SchemaDocumentation,
->(
-    _lsp_state: &LSPState<TPerfLogger, TSchemaDocumentation>,
+pub(crate) fn on_did_save_text_document(
+    _lsp_state: &impl GlobalState,
     _params: <DidSaveTextDocument as Notification>::Params,
 ) -> LSPRuntimeResult<()> {
     Ok(())
 }
 
 #[allow(clippy::unnecessary_wraps)]
-pub(crate) fn on_cancel<
-    TPerfLogger: PerfLogger + 'static,
-    TSchemaDocumentation: SchemaDocumentation,
->(
-    _lsp_state: &LSPState<TPerfLogger, TSchemaDocumentation>,
+pub(crate) fn on_cancel(
+    _lsp_state: &impl GlobalState,
     _params: <Cancel as Notification>::Params,
 ) -> LSPRuntimeResult<()> {
     Ok(())

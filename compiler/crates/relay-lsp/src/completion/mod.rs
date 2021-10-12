@@ -9,11 +9,11 @@
 use crate::{
     lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult},
     node_resolution_info::{TypePath, TypePathItem},
+    server::GlobalState,
     server::SourcePrograms,
-    server::{GlobalState, LSPState},
     SchemaDocumentation,
 };
-use common::{Named, NamedItem, PerfLogger, Span};
+use common::{Named, NamedItem, Span};
 
 use fnv::FnvHashSet;
 use graphql_ir::{Program, VariableDefinition, DIRECTIVE_ARGUMENTS};
@@ -1018,32 +1018,28 @@ fn create_arguments_snippets<T: ArgumentLike>(
     args
 }
 
-pub(crate) fn on_completion<
-    TPerfLogger: PerfLogger + 'static,
-    TSchemaDocumentation: SchemaDocumentation,
->(
-    state: &LSPState<TPerfLogger, TSchemaDocumentation>,
+pub(crate) fn on_completion(
+    state: &impl GlobalState,
     params: <Completion as Request>::Params,
 ) -> LSPRuntimeResult<<Completion as Request>::Result> {
     match state.extract_executable_document_from_text(&params.text_document_position, 0) {
         Ok((document, position_span, project_name)) => {
-            if let Some(schema) = &state.get_schemas().get(&project_name) {
-                let items = resolve_completion_items(
-                    document,
-                    position_span,
-                    project_name,
-                    schema,
-                    state.get_schema_documentation(project_name.lookup()),
-                    &state.source_programs,
-                )
-                .unwrap_or_else(Vec::new);
-                Ok(Some(CompletionResponse::Array(items)))
-            } else {
-                Err(LSPRuntimeError::ExpectedError)
-            }
+            let schema = &state
+                .get_schema(&project_name)
+                .ok_or(LSPRuntimeError::ExpectedError)?;
+            let items = resolve_completion_items(
+                document,
+                position_span,
+                project_name,
+                schema,
+                state.get_schema_documentation(project_name.lookup()),
+                &state.get_source_programs(),
+            )
+            .unwrap_or_else(Vec::new);
+            Ok(Some(CompletionResponse::Array(items)))
         }
         Err(graphql_err) => {
-            if let Ok(response) = state.js_resource.on_complete(&params, state) {
+            if let Ok(response) = state.js_on_complete(&params) {
                 Ok(response)
             } else {
                 Err(graphql_err)
@@ -1052,11 +1048,8 @@ pub(crate) fn on_completion<
     }
 }
 
-pub(crate) fn on_resolve_completion_item<
-    TPerfLogger: PerfLogger + 'static,
-    TSchemaDocumentation: SchemaDocumentation,
->(
-    _state: &LSPState<TPerfLogger, TSchemaDocumentation>,
+pub(crate) fn on_resolve_completion_item(
+    _state: &impl GlobalState,
     params: <ResolveCompletionItem as Request>::Params,
 ) -> LSPRuntimeResult<<ResolveCompletionItem as Request>::Result> {
     // We currently don't do anything with the selected item

@@ -29,7 +29,10 @@ use graphql_syntax::{
 use interner::{Intern, StringKey};
 use log::debug;
 use lsp_server::Message;
-use lsp_types::{Diagnostic, DiagnosticTag, Range, TextDocumentPositionParams, Url};
+use lsp_types::{
+    request::{CodeActionRequest, Completion, Request},
+    Diagnostic, DiagnosticTag, Range, TextDocumentPositionParams, Url,
+};
 use relay_compiler::{
     config::{Config, ProjectConfig},
     FileCategorizer,
@@ -72,6 +75,14 @@ pub trait GlobalState {
     fn can_process_js_source(&self) -> bool;
     fn process_js_source(&self, uri: &Url, text: &str);
     fn remove_js_source(&self, uri: &Url);
+    fn js_on_complete(
+        &self,
+        params: &<Completion as Request>::Params,
+    ) -> LSPRuntimeResult<<Completion as Request>::Result>;
+    fn js_on_code_action(
+        &self,
+        params: &<CodeActionRequest as Request>::Params,
+    ) -> LSPRuntimeResult<<CodeActionRequest as Request>::Result>;
     fn extract_executable_document_from_text(
         &self,
         position: &TextDocumentPositionParams,
@@ -420,5 +431,19 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
 
     fn get_extra_data_provider(&self) -> &dyn LSPExtraDataProvider {
         self.extra_data_provider.as_ref()
+    }
+
+    fn js_on_complete(
+        &self,
+        params: &<Completion as Request>::Params,
+    ) -> LSPRuntimeResult<<Completion as Request>::Result> {
+        self.js_resource.on_complete(params, self)
+    }
+
+    fn js_on_code_action(
+        &self,
+        params: &<CodeActionRequest as Request>::Params,
+    ) -> LSPRuntimeResult<<CodeActionRequest as Request>::Result> {
+        self.js_resource.on_code_action(params, self)
     }
 }

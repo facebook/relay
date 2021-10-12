@@ -28,6 +28,7 @@ use crate::{
     references::on_references,
     resolved_types_at_location::{on_get_resolved_types_at_location, ResolvedTypesAtLocation},
     search_schema_items::{on_search_schema_items, SearchSchemaItems},
+    server::lsp_state_resources::LSPStateResources,
     shutdown::{on_exit, on_shutdown},
     status_reporter::LSPStatusReporter,
     status_updater::set_initializing_status,
@@ -59,6 +60,7 @@ use lsp_types::{
 use relay_compiler::{config::Config, NoopArtifactWriter};
 use schema_documentation::{SchemaDocumentation, SchemaDocumentationLoader};
 use std::{sync::Arc, thread};
+use tokio::task;
 
 pub use crate::LSPExtraDataProvider;
 pub use lsp_state::{convert_diagnostic, LSPState, Schemas, SourcePrograms};
@@ -122,14 +124,22 @@ where
         connection.sender.clone(),
     ));
 
-    let lsp_state = LSPState::create_state(
+    let lsp_state = Arc::new(LSPState::create_state(
         Arc::new(config),
         Arc::clone(&perf_logger),
         extra_data_provider,
         schema_documentation_loader,
         js_resource,
         connection.sender.clone(),
-    );
+    ));
+    // Watchman Subscription to handle Schema/Programs/Validation
+    let lsp_state_clone = Arc::clone(&lsp_state);
+    task::spawn(async move {
+        LSPStateResources::new(lsp_state_clone)
+            .watch()
+            .await
+            .unwrap();
+    });
 
     loop {
         debug!("waiting for incoming messages...");

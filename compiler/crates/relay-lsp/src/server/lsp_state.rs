@@ -40,9 +40,7 @@ use schema_documentation::{
     CombinedSchemaDocumentation, SchemaDocumentation, SchemaDocumentationLoader,
 };
 use std::{path::PathBuf, sync::Arc};
-use tokio::{sync::Notify, task};
-
-use super::lsp_state_resources::LSPStateResources;
+use tokio::sync::Notify;
 
 pub type Schemas = Arc<DashMap<StringKey, Arc<SDLSchema>, FnvBuildHasher>>;
 pub type SourcePrograms = Arc<DashMap<StringKey, Program, FnvBuildHasher>>;
@@ -70,10 +68,10 @@ pub struct LSPState<
     pub source_programs: SourcePrograms,
     synced_graphql_documents: DashMap<Url, Vec<GraphQLSource>>,
     pub perf_logger: Arc<TPerfLogger>,
-    diagnostic_reporter: Arc<DiagnosticReporter>,
-    notify_sender: Arc<Notify>,
-    sender: Sender<Message>,
-    project_status: ProjectStatusMap,
+    pub diagnostic_reporter: Arc<DiagnosticReporter>,
+    pub notify_sender: Arc<Notify>,
+    pub sender: Sender<Message>,
+    pub project_status: ProjectStatusMap,
     pub js_resource: Box<dyn JSLanguageServer<TPerfLogger, TSchemaDocumentation>>,
 }
 
@@ -129,35 +127,20 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         >,
         js_resource: Box<dyn JSLanguageServer<TPerfLogger, TSchemaDocumentation>>,
         sender: Sender<Message>,
-    ) -> Arc<Self> {
+    ) -> Self {
         debug!("Creating lsp_state...");
-        let lsp_state = Arc::new(Self::new(
+        let lsp_state = Self::new(
             config,
             perf_logger,
             extra_data_provider,
             schema_documentation_loader,
             js_resource,
             sender.clone(),
-        ));
+        );
 
         // Preload schema documentation - this will warm-up schema documentation cache in the LSP Extra Data providers
+        // TODO: Find a better place for this
         lsp_state.preload_documentation();
-
-        let diagnostic_reporter = Arc::clone(&lsp_state.diagnostic_reporter);
-        let notify_sender = Arc::clone(&lsp_state.notify_sender);
-        let project_status = Arc::clone(&lsp_state.project_status);
-        let lsp_state_for_resources = Arc::clone(&lsp_state);
-
-        task::spawn(async move {
-            let resources = LSPStateResources::new(
-                lsp_state_for_resources,
-                sender,
-                diagnostic_reporter,
-                notify_sender,
-                project_status,
-            );
-            resources.watch().await.unwrap();
-        });
 
         debug!("Creating lsp_state created!");
         lsp_state

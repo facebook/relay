@@ -7,9 +7,9 @@
 
 use crate::{
     lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult},
-    server::{GlobalState, LSPState},
+    server::GlobalState,
 };
-use common::{Named, PerfLogger};
+use common::Named;
 use interner::Intern;
 use lsp_types::request::Request;
 use schema::Schema;
@@ -45,18 +45,14 @@ impl Request for SearchSchemaItems {
     const METHOD: &'static str = "relay/searchSchemaItems";
 }
 
-pub(crate) fn on_search_schema_items<
-    TPerfLogger: PerfLogger + 'static,
-    TSchemaDocumentation: SchemaDocumentation,
->(
-    state: &LSPState<TPerfLogger, TSchemaDocumentation>,
+pub(crate) fn on_search_schema_items(
+    state: &impl GlobalState,
     params: SearchSchemaItemsParams,
 ) -> LSPRuntimeResult<<SearchSchemaItems as Request>::Result> {
     let filter = params.filter.map(|f| f.to_lowercase());
     let schema_name: &str = &params.schema_name;
-    let schemas = state.get_schemas();
-    let schema = schemas
-        .get(&schema_name.intern())
+    let schema = state
+        .get_schema(&schema_name.intern())
         .ok_or(LSPRuntimeError::ExpectedError)?;
     let schema_documentation = state.get_schema_documentation(schema_name);
 

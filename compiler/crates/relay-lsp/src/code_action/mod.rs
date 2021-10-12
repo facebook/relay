@@ -26,7 +26,7 @@ use crate::{
     resolution_path::{
         IdentParent, IdentPath, OperationDefinitionPath, ResolutionPath, ResolvePosition,
     },
-    server::LSPState,
+    server::{GlobalState, LSPState},
 };
 
 pub(crate) fn on_code_action<

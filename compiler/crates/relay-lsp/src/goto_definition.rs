@@ -14,8 +14,8 @@ use crate::{
         IdentParent, IdentPath, LinkedFieldPath, ResolutionPath, ResolvePosition, ScalarFieldPath,
         SelectionParent, TypeConditionPath,
     },
-    server::LSPState,
     server::SourcePrograms,
+    server::{GlobalState, LSPState},
     FieldDefinitionSourceInfo, LSPExtraDataProvider,
 };
 use common::{NamedItem, PerfLogger};

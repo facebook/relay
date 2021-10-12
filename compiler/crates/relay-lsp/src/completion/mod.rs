@@ -9,8 +9,8 @@
 use crate::{
     lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult},
     node_resolution_info::{TypePath, TypePathItem},
-    server::LSPState,
     server::SourcePrograms,
+    server::{GlobalState, LSPState},
     SchemaDocumentation,
 };
 use common::{Named, NamedItem, PerfLogger, Span};

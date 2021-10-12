@@ -7,7 +7,7 @@
 
 use crate::{
     lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult},
-    server::LSPState,
+    server::{GlobalState, LSPState},
 };
 use common::PerfLogger;
 use interner::Intern;

@@ -53,6 +53,8 @@ pub enum ProjectStatus {
 }
 
 pub trait GlobalState {
+    type TSchemaDocumentation: SchemaDocumentation;
+
     fn get_config(&self) -> Arc<Config>;
     fn get_schema(&self, project_name: &StringKey) -> Option<Arc<SDLSchema>>;
     fn resolve_node(
@@ -61,18 +63,22 @@ pub trait GlobalState {
     ) -> LSPRuntimeResult<NodeResolutionInfo>;
     fn root_dir(&self) -> PathBuf;
     fn get_source_programs(&self) -> SourcePrograms;
-
     fn process_synced_sources(
         &self,
         uri: &Url,
         sources: Vec<GraphQLSource>,
     ) -> LSPRuntimeResult<()>;
-
     fn remove_synced_sources(&self, url: &Url);
-
     fn can_process_js_source(&self) -> bool;
     fn process_js_source(&self, uri: &Url, text: &str);
     fn remove_js_source(&self, uri: &Url);
+    fn extract_executable_document_from_text(
+        &self,
+        position: &TextDocumentPositionParams,
+        index_offset: usize,
+    ) -> LSPRuntimeResult<(ExecutableDocument, Span, StringKey)>;
+    fn get_schema_documentation(&self, schema_name: &str) -> Self::TSchemaDocumentation;
+    fn get_extra_data_provider(&self) -> &dyn LSPExtraDataProvider;
 }
 
 /// This structure contains all available resources that we may use in the Relay LSP message/notification
@@ -191,20 +197,6 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         &self.root_dir_str
     }
 
-    pub(crate) fn extract_executable_document_from_text(
-        &self,
-        position: &TextDocumentPositionParams,
-        index_offset: usize,
-    ) -> LSPRuntimeResult<(ExecutableDocument, Span, StringKey)> {
-        extract_executable_document_from_text(
-            &position,
-            &self.synced_graphql_documents,
-            &self.file_categorizer,
-            &self.root_dir,
-            index_offset,
-        )
-    }
-
     pub fn extract_project_name_from_url(&self, url: &Url) -> LSPRuntimeResult<StringKey> {
         extract_project_name_from_url(&self.file_categorizer, url, &self.root_dir)
     }
@@ -295,19 +287,6 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         self.perf_logger.clone()
     }
 
-    pub fn get_schema_documentation(&self, schema_name: &str) -> impl SchemaDocumentation {
-        let primary = self
-            .schemas
-            .get(&schema_name.intern())
-            .map(|x| Arc::clone(x.value()));
-        let secondary = self
-            .schema_documentation_loader
-            .as_ref()
-            .map(|loader| loader.get_schema_documentation(schema_name));
-
-        CombinedSchemaDocumentation::new(primary, secondary)
-    }
-
     /// Given a Range return first available diagnostic message for it
     pub(crate) fn get_diagnostic_for_range(&self, url: &Url, range: Range) -> Option<Diagnostic> {
         self.diagnostic_reporter
@@ -345,6 +324,9 @@ pub fn convert_diagnostic(
 impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentation + 'static>
     GlobalState for LSPState<TPerfLogger, TSchemaDocumentation>
 {
+    type TSchemaDocumentation =
+        CombinedSchemaDocumentation<Option<Arc<SDLSchema>>, Option<Arc<TSchemaDocumentation>>>;
+
     fn get_config(&self) -> Arc<Config> {
         self.config.clone()
     }
@@ -407,5 +389,36 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
 
     fn remove_js_source(&self, uri: &Url) {
         self.js_resource.remove_js_source(uri)
+    }
+
+    fn extract_executable_document_from_text(
+        &self,
+        position: &TextDocumentPositionParams,
+        index_offset: usize,
+    ) -> LSPRuntimeResult<(ExecutableDocument, Span, StringKey)> {
+        extract_executable_document_from_text(
+            position,
+            &self.synced_graphql_documents,
+            &self.file_categorizer,
+            &self.root_dir,
+            index_offset,
+        )
+    }
+
+    fn get_schema_documentation(&self, schema_name: &str) -> Self::TSchemaDocumentation {
+        let primary = self
+            .schemas
+            .get(&schema_name.intern())
+            .map(|x| Arc::clone(x.value()));
+        let secondary = self
+            .schema_documentation_loader
+            .as_ref()
+            .map(|loader| loader.get_schema_documentation(schema_name));
+
+        CombinedSchemaDocumentation::new(primary, secondary)
+    }
+
+    fn get_extra_data_provider(&self) -> &dyn LSPExtraDataProvider {
+        self.extra_data_provider.as_ref()
     }
 }

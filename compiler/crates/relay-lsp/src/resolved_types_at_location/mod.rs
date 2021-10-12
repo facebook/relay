@@ -7,14 +7,12 @@
 
 use crate::{
     lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult},
-    server::LSPState,
+    server::GlobalState,
 };
-use common::PerfLogger;
 use lsp_types::{
     request::Request, Position, TextDocumentIdentifier, TextDocumentPositionParams, Url,
 };
 use schema::Schema;
-use schema_documentation::SchemaDocumentation;
 use serde::{Deserialize, Serialize};
 
 pub(crate) enum ResolvedTypesAtLocation {}
@@ -59,17 +57,14 @@ impl Request for ResolvedTypesAtLocation {
     const METHOD: &'static str = "relay/getResolvedTypesAtLocation";
 }
 
-pub(crate) fn on_get_resolved_types_at_location<
-    TPerfLogger: PerfLogger + 'static,
-    TSchemaDocumentation: SchemaDocumentation,
->(
-    state: &LSPState<TPerfLogger, TSchemaDocumentation>,
+pub(crate) fn on_get_resolved_types_at_location(
+    state: &impl GlobalState,
     params: <ResolvedTypesAtLocation as Request>::Params,
 ) -> LSPRuntimeResult<<ResolvedTypesAtLocation as Request>::Result> {
     if let Ok(node_resolution_info) =
         state.resolve_node(&params.to_text_document_position_params()?)
     {
-        if let Some(schema) = state.get_schemas().get(&node_resolution_info.project_name) {
+        if let Some(schema) = state.get_schema(&node_resolution_info.project_name) {
             // If type_path is empty, type_path.resolve_current_field() will panic.
             if !node_resolution_info.type_path.0.is_empty() {
                 let type_and_field = node_resolution_info

@@ -52,6 +52,17 @@ pub enum ProjectStatus {
     Completed,
 }
 
+pub trait GlobalState {
+    fn get_config(&self) -> Arc<Config>;
+    fn get_schema(&self, project_name: &StringKey) -> Option<Arc<SDLSchema>>;
+    fn resolve_node(
+        &self,
+        text_document_position: &TextDocumentPositionParams,
+    ) -> LSPRuntimeResult<NodeResolutionInfo>;
+    fn root_dir(&self) -> PathBuf;
+    fn get_source_programs(&self) -> SourcePrograms;
+}
+
 /// This structure contains all available resources that we may use in the Relay LSP message/notification
 /// handlers. Such as schema, programs, extra_data_providers, etc...
 pub struct LSPState<
@@ -148,18 +159,6 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
 
     pub fn get_schemas(&self) -> Schemas {
         self.schemas.clone()
-    }
-
-    pub(crate) fn resolve_node(
-        &self,
-        text_document_position: &TextDocumentPositionParams,
-    ) -> LSPRuntimeResult<NodeResolutionInfo> {
-        get_node_resolution_info(
-            text_document_position,
-            &self.synced_graphql_documents,
-            &self.file_categorizer,
-            &self.root_dir,
-        )
     }
 
     pub(crate) fn resolve_executable_definitions(
@@ -352,5 +351,37 @@ pub fn convert_diagnostic(
         tags: if tags.len() == 0 { None } else { Some(tags) },
         source: None,
         ..Default::default()
+    }
+}
+
+impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentation + 'static>
+    GlobalState for LSPState<TPerfLogger, TSchemaDocumentation>
+{
+    fn get_config(&self) -> Arc<Config> {
+        self.config.clone()
+    }
+
+    fn root_dir(&self) -> PathBuf {
+        self.root_dir.clone()
+    }
+
+    fn get_schema(&self, project_name: &StringKey) -> Option<Arc<SDLSchema>> {
+        self.schemas.get(project_name).as_deref().cloned()
+    }
+
+    fn resolve_node(
+        &self,
+        text_document_position: &TextDocumentPositionParams,
+    ) -> LSPRuntimeResult<NodeResolutionInfo> {
+        get_node_resolution_info(
+            text_document_position,
+            &self.synced_graphql_documents,
+            &self.file_categorizer,
+            &self.root_dir,
+        )
+    }
+
+    fn get_source_programs(&self) -> SourcePrograms {
+        self.source_programs.clone()
     }
 }

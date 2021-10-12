@@ -7,7 +7,7 @@
 
 mod create_name_suggestion;
 
-use common::{PerfLogger, Span};
+use common::Span;
 use create_name_suggestion::{
     create_default_name, create_default_name_with_index, create_impactful_name,
     create_name_wrapper, DefinitionNameSuffix,
@@ -17,7 +17,6 @@ use lsp_types::{
     request::CodeActionRequest, request::Request, CodeAction, CodeActionOrCommand, Diagnostic,
     Position, Range, TextDocumentPositionParams, TextEdit, Url, WorkspaceEdit,
 };
-use schema_documentation::SchemaDocumentation;
 use serde_json::Value;
 use std::collections::{HashMap, HashSet};
 
@@ -26,22 +25,24 @@ use crate::{
     resolution_path::{
         IdentParent, IdentPath, OperationDefinitionPath, ResolutionPath, ResolvePosition,
     },
-    server::{GlobalState, LSPState},
+    server::GlobalState,
 };
 
-pub(crate) fn on_code_action<
-    TPerfLogger: PerfLogger + 'static,
-    TSchemaDocumentation: SchemaDocumentation,
->(
-    state: &LSPState<TPerfLogger, TSchemaDocumentation>,
+pub(crate) fn on_code_action(
+    state: &impl GlobalState,
     params: <CodeActionRequest as Request>::Params,
 ) -> LSPRuntimeResult<<CodeActionRequest as Request>::Result> {
     let uri = params.text_document.uri.clone();
-    if !uri.path().starts_with(state.root_dir_str()) {
+    if !uri
+        .path()
+        .starts_with(state.root_dir().to_string_lossy().as_ref())
+    {
         return Err(LSPRuntimeError::ExpectedError);
     }
-    if let Ok(result) = state.js_resource.on_code_action(&params, state) {
-        return Ok(result);
+    if state.can_process_js_source() {
+        if let Ok(result) = state.js_on_code_action(&params) {
+            return Ok(result);
+        }
     }
 
     if let Some(diagnostic) = state.get_diagnostic_for_range(&uri, params.range) {

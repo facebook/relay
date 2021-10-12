@@ -90,6 +90,11 @@ pub trait GlobalState {
     ) -> LSPRuntimeResult<(ExecutableDocument, Span, StringKey)>;
     fn get_schema_documentation(&self, schema_name: &str) -> Self::TSchemaDocumentation;
     fn get_extra_data_provider(&self) -> &dyn LSPExtraDataProvider;
+    fn resolve_executable_definitions(
+        &self,
+        text_document_uri: &Url,
+    ) -> LSPRuntimeResult<Vec<ExecutableDefinition>>;
+    fn get_diagnostic_for_range(&self, url: &Url, range: Range) -> Option<Diagnostic>;
 }
 
 /// This structure contains all available resources that we may use in the Relay LSP message/notification
@@ -100,7 +105,6 @@ pub struct LSPState<
 > {
     pub config: Arc<Config>,
     root_dir: PathBuf,
-    root_dir_str: String,
     pub extra_data_provider: Box<dyn LSPExtraDataProvider>,
     file_categorizer: FileCategorizer,
     schemas: Schemas,
@@ -144,7 +148,6 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             notify_sender: Arc::new(Notify::new()),
             perf_logger,
             project_status: Arc::new(DashMap::with_hasher(FnvBuildHasher::default())),
-            root_dir_str: root_dir.to_string_lossy().to_string(),
             root_dir: root_dir.clone(),
             schemas: Arc::new(DashMap::with_hasher(FnvBuildHasher::default())),
             schema_documentation_loader,
@@ -188,20 +191,6 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
 
     pub fn get_schemas(&self) -> Schemas {
         self.schemas.clone()
-    }
-
-    pub(crate) fn resolve_executable_definitions(
-        &self,
-        text_document_uri: &Url,
-    ) -> LSPRuntimeResult<Vec<ExecutableDefinition>> {
-        extract_executable_definitions_from_text_document(
-            text_document_uri,
-            &self.synced_graphql_documents,
-        )
-    }
-
-    pub(crate) fn root_dir_str(&self) -> &str {
-        &self.root_dir_str
     }
 
     pub fn extract_project_name_from_url(&self, url: &Url) -> LSPRuntimeResult<StringKey> {
@@ -292,12 +281,6 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
 
     pub fn get_logger(&self) -> Arc<TPerfLogger> {
         self.perf_logger.clone()
-    }
-
-    /// Given a Range return first available diagnostic message for it
-    pub(crate) fn get_diagnostic_for_range(&self, url: &Url, range: Range) -> Option<Diagnostic> {
-        self.diagnostic_reporter
-            .get_diagnostics_for_range(url, range)
     }
 
     pub fn send_message(&self, message: Message) -> Result<(), SendError<Message>> {
@@ -441,5 +424,20 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         params: &<CodeActionRequest as Request>::Params,
     ) -> LSPRuntimeResult<<CodeActionRequest as Request>::Result> {
         self.js_resource.on_code_action(params, self)
+    }
+
+    fn resolve_executable_definitions(
+        &self,
+        text_document_uri: &Url,
+    ) -> LSPRuntimeResult<Vec<ExecutableDefinition>> {
+        extract_executable_definitions_from_text_document(
+            text_document_uri,
+            &self.synced_graphql_documents,
+        )
+    }
+
+    fn get_diagnostic_for_range(&self, url: &Url, range: Range) -> Option<Diagnostic> {
+        self.diagnostic_reporter
+            .get_diagnostics_for_range(url, range)
     }
 }

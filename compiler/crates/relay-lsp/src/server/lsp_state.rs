@@ -200,10 +200,6 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         )
     }
 
-    pub(crate) fn root_dir(&self) -> &PathBuf {
-        &self.root_dir
-    }
-
     pub(crate) fn root_dir_str(&self) -> &str {
         &self.root_dir_str
     }

@@ -18,6 +18,7 @@ use interner::Intern;
 use relay_codegen::{print_fragment, print_operation, JsModuleFormat};
 use relay_schema::build_schema_with_extensions;
 use relay_transforms::{apply_transforms, ConnectionInterface, FeatureFlags, Programs};
+use relay_typegen::{generate_fragment_type, generate_operation_type, TypegenConfig};
 use schema::SDLSchema;
 use serde::Serialize;
 use serde_json;
@@ -59,6 +60,7 @@ pub enum PlaygroundError {
     DocumentDiagnostics(Vec<WasmDiagnostic>),
     SchemaDiagnostics(Vec<WasmDiagnostic>),
     ConfigError(String),
+    TypegenConfigError(String),
 }
 
 pub type PlaygroundResult = Result<String, PlaygroundError>;
@@ -176,6 +178,60 @@ pub fn parse_to_normalization_ast_impl(
         .join("\n\n");
 
     Ok(normalization_ast_string.into())
+}
+
+#[wasm_bindgen]
+pub fn parse_to_types(
+    feature_flags_json: &str,
+    typegen_config_json: &str,
+    schema_text: &str,
+    document_text: &str,
+) -> String {
+    serialize_result(parse_to_types_impl(
+        feature_flags_json,
+        typegen_config_json,
+        schema_text,
+        document_text,
+    ))
+}
+
+pub fn parse_to_types_impl(
+    feature_flags_json: &str,
+    typegen_config_json: &str,
+    schema_text: &str,
+    document_text: &str,
+) -> PlaygroundResult {
+    let schema = Arc::new(
+        build_schema_with_extensions(&[schema_text], &Vec::<(&str, SourceLocationKey)>::new())
+            .map_err(|diagnostics| map_diagnostics(diagnostics, &InputType::Schema(schema_text)))?,
+    );
+
+    let programs = get_programs(feature_flags_json, &schema, document_text)?;
+
+    let typegen_config: TypegenConfig = serde_json::from_str(typegen_config_json)
+        .map_err(|err| PlaygroundError::TypegenConfigError(format!("{}", err)))?;
+
+    let types_string = programs
+        .typegen
+        .fragments()
+        .map(|def| generate_fragment_type(&def, &schema, JsModuleFormat::Haste, &typegen_config))
+        .chain(programs.typegen.operations().map(|typegen_operation| {
+            let normalization_operation = programs
+                .normalization
+                .operation(typegen_operation.name.item)
+                .unwrap();
+            generate_operation_type(
+                &typegen_operation,
+                normalization_operation,
+                &schema,
+                JsModuleFormat::Haste,
+                &typegen_config,
+            )
+        }))
+        .collect::<Vec<_>>()
+        .join("\n\n");
+
+    Ok(types_string.into())
 }
 
 #[wasm_bindgen]

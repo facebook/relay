@@ -93,6 +93,25 @@ describe('Ok', () => {
     expect(actual.Ok).toMatchSnapshot();
   });
 
+  test('types (flow)', () => {
+    const actual = JSON.parse(
+      playground.parse_to_types('{}', '{}', SCHEMA, DOCUMENT),
+    );
+    expect(actual.Ok).toMatchSnapshot();
+  });
+
+  test('types (typescript)', () => {
+    const actual = JSON.parse(
+      playground.parse_to_types(
+        '{}',
+        '{"language": "typescript"}',
+        SCHEMA,
+        DOCUMENT,
+      ),
+    );
+    expect(actual.Ok).toMatchSnapshot();
+  });
+
   test('parse_to_reader_ast @required', () => {
     const actual = JSON.parse(
       playground.parse_to_reader_ast(
@@ -207,6 +226,39 @@ describe('Err', () => {
             'The type `User` has no field `does_not_exist`.:<generated>:34:48\n',
         },
       ],
+    });
+  });
+
+  test('parse_to_types', () => {
+    const actual = JSON.parse(
+      playground.parse_to_types('{}', '{}', SCHEMA, INVALID_DOCUMENT),
+    );
+    expect(actual.Err).toEqual({
+      DocumentDiagnostics: [
+        {
+          column_end: 22,
+          column_start: 8,
+          line_end: 3,
+          line_start: 3,
+          message:
+            'The type `User` has no field `does_not_exist`.:<generated>:34:48\n',
+        },
+      ],
+    });
+  });
+
+  test('parse_to_types (type config error)', () => {
+    const actual = JSON.parse(
+      playground.parse_to_types(
+        '{}',
+        '{"language": "should_not_exist"}',
+        SCHEMA,
+        DOCUMENT,
+      ),
+    );
+    expect(actual.Err).toEqual({
+      TypegenConfigError:
+        'unknown variant `should_not_exist`, expected `flow` or `typescript` at line 1 column 31',
     });
   });
 

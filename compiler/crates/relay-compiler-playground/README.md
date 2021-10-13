@@ -27,7 +27,7 @@ Fix:
 
 _Note:_ Wasm-pack has a bug which has been resolved, but not yet shipped in a
 release which meanst he `files` array in the generated `package.json` file is
-missing an entry. You'll need to manually that arry to include
+missing an entry. You'll need to manually update that array to include
 `"relay_compiler_playground_bg.js"` before publishing:
 
 ```json
@@ -51,3 +51,20 @@ wasm-pack build --target nodejs # NOTE: We build for node in tests and web to pu
 yarn
 yarn test
 ```
+
+## Manually Testing
+
+Follow the steps above for "Build The Wasm Module".
+
+```bash
+cd relay-compiler-playground/pkg
+yarn link
+
+cd ~/fbsource/xplat/js/RKJSModules/Libraries/Relay/oss/__github__/website
+yarn link relay-compiler-playground
+
+# Launch the website in dev mode
+yarn start
+```
+
+Navigate to `http://localhost:3000/compiler-playground`

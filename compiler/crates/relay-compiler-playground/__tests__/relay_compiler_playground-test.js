@@ -79,6 +79,13 @@ describe('Ok', () => {
     expect(actual.Ok).toMatchSnapshot();
   });
 
+  test('parse_to_normalization_ast', () => {
+    const actual = JSON.parse(
+      playground.parse_to_normalization_ast(SCHEMA, DOCUMENT),
+    );
+    expect(actual.Ok).toMatchSnapshot();
+  });
+
   test('transform', () => {
     const actual = JSON.parse(playground.transform(SCHEMA, DOCUMENT));
     expect(actual.Ok).toMatchSnapshot();
@@ -91,9 +98,9 @@ describe('Err', () => {
     expect(actual.Err).toEqual({
       DocumentDiagnostics: [
         {
-          column_end: 0,
+          column_end: 9,
           column_start: 8,
-          line_end: 4,
+          line_end: 3,
           line_start: 3,
           message:
             'Expected a selection: field, inline fragment, or fragment spread:<generated>:34:35\n',
@@ -107,12 +114,12 @@ describe('Err', () => {
     expect(actual.Err).toEqual({
       DocumentDiagnostics: [
         {
-          column_end: 0,
+          column_end: 22,
           column_start: 8,
-          line_end: 4,
+          line_end: 3,
           line_start: 3,
           message:
-            'The type `User` has no field `does_not_exist`:<generated>:34:48\n',
+            'The type `User` has no field `does_not_exist`.:<generated>:34:48\n',
         },
       ],
     });
@@ -128,8 +135,8 @@ describe('Err', () => {
           // Schema diagnostics don't have location info :(
           column_end: 0,
           column_start: 0,
-          line_end: 1,
-          line_start: 1,
+          line_end: 0,
+          line_start: 0,
           message:
             "Reference to undefined type 'InvalidType'.:<generated>:0:0\n",
         },
@@ -144,12 +151,30 @@ describe('Err', () => {
     expect(actual.Err).toEqual({
       DocumentDiagnostics: [
         {
-          column_end: 0,
+          column_end: 22,
           column_start: 8,
-          line_end: 4,
+          line_end: 3,
           line_start: 3,
           message:
-            'The type `User` has no field `does_not_exist`:<generated>:34:48\n',
+            'The type `User` has no field `does_not_exist`.:<generated>:34:48\n',
+        },
+      ],
+    });
+  });
+
+  test('parse_to_normalization_ast', () => {
+    const actual = JSON.parse(
+      playground.parse_to_normalization_ast(SCHEMA, INVALID_DOCUMENT),
+    );
+    expect(actual.Err).toEqual({
+      DocumentDiagnostics: [
+        {
+          column_end: 22,
+          column_start: 8,
+          line_end: 3,
+          line_start: 3,
+          message:
+            'The type `User` has no field `does_not_exist`.:<generated>:34:48\n',
         },
       ],
     });
@@ -160,12 +185,12 @@ describe('Err', () => {
     expect(actual.Err).toEqual({
       DocumentDiagnostics: [
         {
-          column_end: 0,
+          column_end: 22,
           column_start: 8,
-          line_end: 4,
+          line_end: 3,
           line_start: 3,
           message:
-            'The type `User` has no field `does_not_exist`:<generated>:34:48\n',
+            'The type `User` has no field `does_not_exist`.:<generated>:34:48\n',
         },
       ],
     });

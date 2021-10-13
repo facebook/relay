@@ -131,6 +131,29 @@ pub fn parse_to_reader_ast_impl(schema_text: &str, document_text: &str) -> Playg
 }
 
 #[wasm_bindgen]
+pub fn parse_to_normalization_ast(schema_text: &str, document_text: &str) -> String {
+    serialize_result(parse_to_normalization_ast_impl(schema_text, document_text))
+}
+
+pub fn parse_to_normalization_ast_impl(schema_text: &str, document_text: &str) -> PlaygroundResult {
+    let schema = Arc::new(
+        build_schema_with_extensions(&[schema_text], &Vec::<(&str, SourceLocationKey)>::new())
+            .map_err(|diagnostics| map_diagnostics(diagnostics, &InputType::Schema(schema_text)))?,
+    );
+
+    let programs = get_programs(&schema, document_text)?;
+
+    let normalization_ast_string = programs
+        .normalization
+        .operations()
+        .map(|def| print_operation(&schema, &def, JsModuleFormat::Haste))
+        .collect::<Vec<_>>()
+        .join("\n\n");
+
+    Ok(normalization_ast_string.into())
+}
+
+#[wasm_bindgen]
 pub fn transform(schema_text: &str, document_text: &str) -> String {
     serialize_result(transform_impl(schema_text, document_text))
 }

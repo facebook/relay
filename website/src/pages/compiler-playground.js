@@ -74,10 +74,18 @@ function FillRemainingHeight({children, minHeight}) {
 }
 
 function CompilerPlayground() {
+  const [featureFlags, setFeatureFlags] = useState('{}');
+  const [typegenConfig, setTypegenConfig] = useState('{}');
   const [schemaText, setSchemaText] = useState(DEFAULT_SCHEMA);
   const [documentText, setDocumentText] = useState(DEFAULT_DOCUMENT);
   const [outputType, setOutputType] = useState('operation');
-  const results = useResults({schemaText, documentText, outputType});
+  const results = useResults({
+    schemaText,
+    documentText,
+    outputType,
+    featureFlags,
+    typegenConfig,
+  });
   const output = results.Ok ?? '';
   const schemaDiagnostics = results.Err?.SchemaDiagnostics;
   const documentDiagnostics = results.Err?.DocumentDiagnostics;
@@ -105,10 +113,12 @@ function CompilerPlayground() {
         <div style={{width: '50%'}}>
           <Tabs
             values={[
-              {value: 'operation', label: 'Transformed Operation'},
-              {value: 'ast', label: 'GraphQL Ast'},
+              {value: 'operation', label: 'Operation'},
+              {value: 'ast', label: 'AST'},
               {value: 'ir', label: 'IR'},
+              {value: 'normalization', label: 'Normalization AST'},
               {value: 'reader', label: 'Reader AST'},
+              {value: 'types', label: 'Types'},
             ]}
             selectedValue={outputType}
             setSelectedValue={selected => setOutputType(selected)}
@@ -132,14 +142,124 @@ function CompilerPlayground() {
             style={{flexGrow: 3}}
             diagnostics={documentDiagnostics}
           />
+          <PlaygroundHeading>Feature Flags</PlaygroundHeading>
+          <Config onFeatureFlagsChanged={setFeatureFlags} />
+          <TypegenConfig onTypegenConfigChanged={setTypegenConfig} />
         </div>
         <div style={{width: '50%', display: 'flex'}}>
-          <div style={{flexGrow: 1, display: 'flex'}}>
+          <div style={{flexGrow: 1, display: 'flex', flexDirection: 'column'}}>
             <Editor text={output} style={{flexGrow: 1}} />
           </div>
         </div>
       </div>
     </div>
+  );
+}
+
+function Config({onFeatureFlagsChanged}) {
+  const [required, setRequired] = useState(true);
+  const [flight, setFlight] = useState(true);
+  const [hashArgs, setHashArgs] = useState(true);
+  const [noInline, setNoInline] = useState(true);
+  const [threeDBranchArg, set3DBranchArg] = useState(true);
+  const [actorChangeSupport, setActorChangeSupport] = useState(true);
+  const [textArtifacts, setTextArtifacts] = useState(true);
+  const [clientEdges, setClientEdges] = useState(true);
+
+  useEffect(() => {
+    onFeatureFlagsChanged(
+      JSON.stringify({
+        enable_flight_transform: flight,
+        enable_required_transform: required,
+        hash_supported_argument: {kind: hashArgs ? 'enabled' : 'disabled'},
+        no_inline: {kind: noInline ? 'enabled' : 'disabled'},
+        enable_3d_branch_arg_generation: threeDBranchArg,
+        actor_change_support: {
+          kind: actorChangeSupport ? 'enabled' : 'disabled',
+        },
+        text_artifacts: {kind: textArtifacts ? 'enabled' : 'disabled'},
+        enable_client_edges: {kind: clientEdges ? 'enabled' : 'disabled'},
+      }),
+    );
+  }, [
+    required,
+    flight,
+    hashArgs,
+    noInline,
+    threeDBranchArg,
+    actorChangeSupport,
+    textArtifacts,
+    clientEdges,
+    onFeatureFlagsChanged,
+  ]);
+
+  return (
+    <div
+      style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(2, 1fr)',
+      }}>
+      <ConfigOption checked={flight} set={setRequired}>
+        Flight Transform
+      </ConfigOption>
+      <ConfigOption checked={required} set={setRequired}>
+        @required
+      </ConfigOption>
+      <ConfigOption checked={hashArgs} set={setHashArgs}>
+        Hash Supported Arguments
+      </ConfigOption>
+      <ConfigOption checked={noInline} set={setNoInline}>
+        @no_inline
+      </ConfigOption>
+      <ConfigOption checked={threeDBranchArg} set={set3DBranchArg}>
+        3D Branch Arg Generation
+      </ConfigOption>
+      <ConfigOption checked={actorChangeSupport} set={setActorChangeSupport}>
+        Actor Change Support
+      </ConfigOption>
+      <ConfigOption checked={textArtifacts} set={setTextArtifacts}>
+        Text Artifacts
+      </ConfigOption>
+      <ConfigOption checked={clientEdges} set={setClientEdges}>
+        Client Edges
+      </ConfigOption>
+    </div>
+  );
+}
+
+function TypegenConfig({onTypegenConfigChanged}) {
+  const [language, setLangauge] = useState('flow');
+  useEffect(() => {
+    onTypegenConfigChanged(
+      JSON.stringify({
+        language,
+      }),
+    );
+  }, [language, onTypegenConfigChanged]);
+
+  return (
+    <div>
+      <label>
+        Type Generation Language:
+        <select onChange={e => setLangauge(e.target.value)}>
+          <option value="flow">Flow</option>
+          <option value="typescript">TypeScript</option>
+        </select>
+      </label>
+    </div>
+  );
+}
+
+function ConfigOption({checked, set, children}) {
+  return (
+    <label style={{display: 'block'}}>
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={e => set(e.target.checked)}
+      />
+      {children}
+    </label>
   );
 }
 
@@ -176,7 +296,13 @@ function PlaygroundHeading({children}) {
   return <h3 style={{margin: 0, padding}}>{children}</h3>;
 }
 
-function useResults({schemaText, documentText, outputType}) {
+function useResults({
+  schemaText,
+  documentText,
+  outputType,
+  featureFlags,
+  typegenConfig,
+}) {
   const wasm = useWasm();
   return useMemo(() => {
     if (wasm == null) {
@@ -192,15 +318,38 @@ function useResults({schemaText, documentText, outputType}) {
         return JSON.parse(wasm.parse_to_ir(schemaText, documentText));
       }
       case 'reader': {
-        return JSON.parse(wasm.parse_to_reader_ast(schemaText, documentText));
+        return JSON.parse(
+          wasm.parse_to_reader_ast(featureFlags, schemaText, documentText),
+        );
+      }
+      case 'normalization': {
+        return JSON.parse(
+          wasm.parse_to_normalization_ast(
+            featureFlags,
+            schemaText,
+            documentText,
+          ),
+        );
       }
       case 'operation': {
-        return JSON.parse(wasm.transform(schemaText, documentText));
+        return JSON.parse(
+          wasm.transform(featureFlags, schemaText, documentText),
+        );
+      }
+      case 'types': {
+        return JSON.parse(
+          wasm.parse_to_types(
+            featureFlags,
+            typegenConfig,
+            schemaText,
+            documentText,
+          ),
+        );
       }
       default:
         throw new Error(`Unknown output type ${outputType}`);
     }
-  }, [schemaText, documentText, outputType, wasm]);
+  }, [schemaText, documentText, outputType, wasm, featureFlags, typegenConfig]);
 }
 
 // The Wasm module must be initialized async. Return `null` until the module is ready.

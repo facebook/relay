@@ -53,6 +53,31 @@ exports[`Ok parse_to_normalization_ast 1`] = `
 }"
 `;
 
+exports[`Ok parse_to_reader_ast @required 1`] = `
+"{
+  \\"argumentDefinitions\\": [],
+  \\"kind\\": \\"Fragment\\",
+  \\"metadata\\": null,
+  \\"name\\": \\"AgeFragment\\",
+  \\"selections\\": [
+    {
+      \\"kind\\": \\"RequiredField\\",
+      \\"field\\": {
+        \\"alias\\": null,
+        \\"args\\": null,
+        \\"kind\\": \\"ScalarField\\",
+        \\"name\\": \\"age\\",
+        \\"storageKey\\": null
+      },
+      \\"action\\": \\"LOG\\",
+      \\"path\\": \\"age\\"
+    }
+  ],
+  \\"type\\": \\"User\\",
+  \\"abstractKey\\": null
+}"
+`;
+
 exports[`Ok parse_to_reader_ast 1`] = `
 "{
   \\"argumentDefinitions\\": [],

@@ -58,6 +58,7 @@ impl<'a> InputType<'a> {
 pub enum PlaygroundError {
     DocumentDiagnostics(Vec<WasmDiagnostic>),
     SchemaDiagnostics(Vec<WasmDiagnostic>),
+    ConfigError(String),
 }
 
 pub type PlaygroundResult = Result<String, PlaygroundError>;
@@ -102,17 +103,29 @@ pub fn parse_to_ir_impl(schema_text: &str, document_text: &str) -> PlaygroundRes
 }
 
 #[wasm_bindgen]
-pub fn parse_to_reader_ast(schema_text: &str, document_text: &str) -> String {
-    serialize_result(parse_to_reader_ast_impl(schema_text, document_text))
+pub fn parse_to_reader_ast(
+    feature_flags_json: &str,
+    schema_text: &str,
+    document_text: &str,
+) -> String {
+    serialize_result(parse_to_reader_ast_impl(
+        feature_flags_json,
+        schema_text,
+        document_text,
+    ))
 }
 
-pub fn parse_to_reader_ast_impl(schema_text: &str, document_text: &str) -> PlaygroundResult {
+pub fn parse_to_reader_ast_impl(
+    feature_flags_json: &str,
+    schema_text: &str,
+    document_text: &str,
+) -> PlaygroundResult {
     let schema = Arc::new(
         build_schema_with_extensions(&[schema_text], &Vec::<(&str, SourceLocationKey)>::new())
             .map_err(|diagnostics| map_diagnostics(diagnostics, &InputType::Schema(schema_text)))?,
     );
 
-    let programs = get_programs(&schema, document_text)?;
+    let programs = get_programs(feature_flags_json, &schema, document_text)?;
 
     let reader_ast_string = programs
         .reader
@@ -131,17 +144,29 @@ pub fn parse_to_reader_ast_impl(schema_text: &str, document_text: &str) -> Playg
 }
 
 #[wasm_bindgen]
-pub fn parse_to_normalization_ast(schema_text: &str, document_text: &str) -> String {
-    serialize_result(parse_to_normalization_ast_impl(schema_text, document_text))
+pub fn parse_to_normalization_ast(
+    feature_flags_json: &str,
+    schema_text: &str,
+    document_text: &str,
+) -> String {
+    serialize_result(parse_to_normalization_ast_impl(
+        feature_flags_json,
+        schema_text,
+        document_text,
+    ))
 }
 
-pub fn parse_to_normalization_ast_impl(schema_text: &str, document_text: &str) -> PlaygroundResult {
+pub fn parse_to_normalization_ast_impl(
+    feature_flags_json: &str,
+    schema_text: &str,
+    document_text: &str,
+) -> PlaygroundResult {
     let schema = Arc::new(
         build_schema_with_extensions(&[schema_text], &Vec::<(&str, SourceLocationKey)>::new())
             .map_err(|diagnostics| map_diagnostics(diagnostics, &InputType::Schema(schema_text)))?,
     );
 
-    let programs = get_programs(&schema, document_text)?;
+    let programs = get_programs(feature_flags_json, &schema, document_text)?;
 
     let normalization_ast_string = programs
         .normalization
@@ -154,16 +179,24 @@ pub fn parse_to_normalization_ast_impl(schema_text: &str, document_text: &str) -
 }
 
 #[wasm_bindgen]
-pub fn transform(schema_text: &str, document_text: &str) -> String {
-    serialize_result(transform_impl(schema_text, document_text))
+pub fn transform(feature_flags_json: &str, schema_text: &str, document_text: &str) -> String {
+    serialize_result(transform_impl(
+        feature_flags_json,
+        schema_text,
+        document_text,
+    ))
 }
 
-fn transform_impl(schema_text: &str, document_text: &str) -> PlaygroundResult {
+fn transform_impl(
+    feature_flags_json: &str,
+    schema_text: &str,
+    document_text: &str,
+) -> PlaygroundResult {
     let schema = Arc::new(
         build_schema_with_extensions(&[schema_text], &Vec::<(&str, SourceLocationKey)>::new())
             .map_err(|diagnostics| map_diagnostics(diagnostics, &InputType::Schema(schema_text)))?,
     );
-    let programs = get_programs(&schema, document_text)?;
+    let programs = get_programs(feature_flags_json, &schema, document_text)?;
 
     let transformed_operations = programs
         .operation_text
@@ -187,7 +220,11 @@ fn transform_impl(schema_text: &str, document_text: &str) -> PlaygroundResult {
     Ok(output.into())
 }
 
-fn get_programs(schema: &Arc<SDLSchema>, document_text: &str) -> Result<Programs, PlaygroundError> {
+fn get_programs(
+    feature_flags_json: &str,
+    schema: &Arc<SDLSchema>,
+    document_text: &str,
+) -> Result<Programs, PlaygroundError> {
     let document = graphql_syntax::parse_executable(document_text, Generated)
         .map_err(|diagnostics| map_diagnostics(diagnostics, &InputType::Document(document_text)))?;
 
@@ -200,7 +237,8 @@ fn get_programs(schema: &Arc<SDLSchema>, document_text: &str) -> Result<Programs
     let project_name = "test_project".intern();
     let base_fragment_names = Arc::new(FnvHashSet::default());
     let connection_interface = ConnectionInterface::default();
-    let feature_flags = FeatureFlags::default();
+    let feature_flags: FeatureFlags = serde_json::from_str(feature_flags_json)
+        .map_err(|err| PlaygroundError::ConfigError(format!("{}", err)))?;
     let perf_logger = NoopPerfLogger;
 
     apply_transforms(
@@ -245,43 +283,4 @@ fn serialize_result(result: PlaygroundResult) -> String {
 #[wasm_bindgen(start)]
 pub fn start() {
     console_error_panic_hook::set_once();
-}
-
-// #[test]
-fn _disable_test() {
-    let schema_text = r#"type User {
-        name: String
-        age: Int
-        best_friend: User
-      }
-
-      type Query {
-        me: User
-      }"#;
-    let document_text = r#"query MyQuery {
-        me {
-          name
-          ...AgeFragment
-          best_friend {
-            ...AgeFragment
-          }
-        }
-      }
-
-      fragment AgeFragment on User {
-          age
-      }"#;
-    let result = serialize_result(transform_impl(schema_text, document_text));
-
-    let expected = r#"{"Ok":"query MyQuery {
-  me {
-    name
-    age
-    best_friend {
-      age
-    }
-  }
-}"}"#;
-
-    assert_eq!(result, expected)
 }

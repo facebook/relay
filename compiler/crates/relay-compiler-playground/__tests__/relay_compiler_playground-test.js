@@ -75,24 +75,54 @@ describe('Ok', () => {
   });
 
   test('parse_to_reader_ast', () => {
-    const actual = JSON.parse(playground.parse_to_reader_ast(SCHEMA, DOCUMENT));
+    const actual = JSON.parse(
+      playground.parse_to_reader_ast('{}', SCHEMA, DOCUMENT),
+    );
     expect(actual.Ok).toMatchSnapshot();
   });
 
   test('parse_to_normalization_ast', () => {
     const actual = JSON.parse(
-      playground.parse_to_normalization_ast(SCHEMA, DOCUMENT),
+      playground.parse_to_normalization_ast('{}', SCHEMA, DOCUMENT),
     );
     expect(actual.Ok).toMatchSnapshot();
   });
 
   test('transform', () => {
-    const actual = JSON.parse(playground.transform(SCHEMA, DOCUMENT));
+    const actual = JSON.parse(playground.transform('{}', SCHEMA, DOCUMENT));
+    expect(actual.Ok).toMatchSnapshot();
+  });
+
+  test('parse_to_reader_ast @required', () => {
+    const actual = JSON.parse(
+      playground.parse_to_reader_ast(
+        '{"enable_required_transform": true}',
+        SCHEMA,
+        `fragment AgeFragment on User {
+            age @required(action: LOG)
+        }`,
+      ),
+    );
     expect(actual.Ok).toMatchSnapshot();
   });
 });
 
 describe('Err', () => {
+  test('invalid config', () => {
+    const actual = JSON.parse(
+      playground.parse_to_reader_ast(
+        '{"this_key_does_not_exist": false}',
+        SCHEMA,
+        `fragment AgeFragment on User {
+            age @required(action: LOG)
+        }`,
+      ),
+    );
+    expect(actual.Err).toEqual({
+      ConfigError:
+        'unknown field `this_key_does_not_exist`, expected one of `enable_flight_transform`, `enable_required_transform`, `enable_relay_resolver_transform`, `hash_supported_argument`, `no_inline`, `enable_3d_branch_arg_generation`, `actor_change_support`, `text_artifacts`, `enable_client_edges` at line 1 column 26',
+    });
+  });
   test('parse_to_ast', () => {
     const actual = JSON.parse(playground.parse_to_ast(MALFORMED_DOCUMENT));
     expect(actual.Err).toEqual({
@@ -146,7 +176,7 @@ describe('Err', () => {
 
   test('parse_to_reader_ast', () => {
     const actual = JSON.parse(
-      playground.parse_to_reader_ast(SCHEMA, INVALID_DOCUMENT),
+      playground.parse_to_reader_ast('{}', SCHEMA, INVALID_DOCUMENT),
     );
     expect(actual.Err).toEqual({
       DocumentDiagnostics: [
@@ -164,7 +194,7 @@ describe('Err', () => {
 
   test('parse_to_normalization_ast', () => {
     const actual = JSON.parse(
-      playground.parse_to_normalization_ast(SCHEMA, INVALID_DOCUMENT),
+      playground.parse_to_normalization_ast('{}', SCHEMA, INVALID_DOCUMENT),
     );
     expect(actual.Err).toEqual({
       DocumentDiagnostics: [
@@ -181,7 +211,9 @@ describe('Err', () => {
   });
 
   test('transform', () => {
-    const actual = JSON.parse(playground.transform(SCHEMA, INVALID_DOCUMENT));
+    const actual = JSON.parse(
+      playground.transform('{}', SCHEMA, INVALID_DOCUMENT),
+    );
     expect(actual.Err).toEqual({
       DocumentDiagnostics: [
         {
@@ -191,6 +223,29 @@ describe('Err', () => {
           line_start: 3,
           message:
             'The type `User` has no field `does_not_exist`.:<generated>:34:48\n',
+        },
+      ],
+    });
+  });
+  test('parse_to_reader_ast @required', () => {
+    const actual = JSON.parse(
+      playground.parse_to_reader_ast(
+        '{"enable_required_transform": false}',
+        SCHEMA,
+        `fragment AgeFragment on User {
+            age @required(action: LOG)
+        }`,
+      ),
+    );
+    expect(actual.Err).toEqual({
+      DocumentDiagnostics: [
+        {
+          column_end: 25,
+          column_start: 16,
+          line_end: 1,
+          line_start: 1,
+          message:
+            'The @required directive is experimental and not yet supported for use in product code:<generated>:47:56\n',
         },
       ],
     });

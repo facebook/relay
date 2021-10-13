@@ -1194,6 +1194,71 @@ describe('useRefetchableFragmentNode', () => {
       ]);
     });
 
+    it('refetches with new environment when environment changes', () => {
+      const renderer = renderFragment();
+      const initialUser = {
+        id: '1',
+        name: 'Alice',
+        profile_picture: null,
+        ...createFragmentRef('1', query),
+      };
+      expectFragmentResults([{data: initialUser}]);
+
+      // Set new environment
+      const newEnvironment = createMockEnvironment();
+      newEnvironment.commitPayload(query, {
+        node: {
+          __typename: 'User',
+          id: '1',
+          name: 'Alice in a different env',
+          username: 'useralice',
+          profile_picture: null,
+        },
+      });
+      TestRenderer.act(() => {
+        setEnvironment(newEnvironment);
+      });
+
+      TestRenderer.act(() => {
+        refetch({}, {fetchPolicy: 'network-only'});
+      });
+      renderSpy.mockClear();
+
+      // Assert fragment is refetched with new environment
+      expectFragmentIsRefetching(
+        renderer,
+        {
+          refetchVariables: variables,
+          refetchQuery,
+        },
+        newEnvironment,
+      );
+
+      // Mock network response
+      TestRenderer.act(() => {
+        newEnvironment.mock.resolve(gqlRefetchQuery, {
+          data: {
+            node: {
+              __typename: 'User',
+              id: '1',
+              name: 'Alice in a different env refetched',
+              profile_picture: null,
+              username: 'useralice',
+            },
+          },
+        });
+      });
+
+      // Assert fragment is rendered with new data
+      const refetchedUser = {
+        id: '1',
+        name: 'Alice in a different env refetched',
+        profile_picture: null,
+        ...createFragmentRef('1', refetchQuery),
+      };
+      expectFragmentResults([{data: refetchedUser}]);
+    });
+
     it('resets to parent data when parent fragment ref changes', () => {
       renderFragment();
       renderSpy.mockClear();

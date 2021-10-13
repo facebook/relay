@@ -142,20 +142,6 @@ impl FileSourceResult {
         }
     }
 
-    pub fn files(&self) -> Vec<File> {
-        match self {
-            Self::Watchman(file_source_result) => file_source_result
-                .files
-                .iter()
-                .map(|file| File {
-                    name: (*file.name).clone(),
-                    exists: *file.exists,
-                })
-                .collect::<Vec<File>>(),
-            Self::External(file_source_result) => file_source_result.files.clone(),
-        }
-    }
-
     pub fn resolved_root(&self) -> PathBuf {
         match self {
             Self::Watchman(file_source_result) => file_source_result.resolved_root.path(),

@@ -9,6 +9,7 @@ use super::File;
 use super::FileGroup;
 use crate::compiler_state::{ProjectName, ProjectSet, SourceSet};
 use crate::config::{Config, SchemaLocation};
+use crate::FileSourceResult;
 use common::sync::ParallelIterator;
 use fnv::FnvHashSet;
 use log::warn;
@@ -24,7 +25,10 @@ use std::{collections::hash_map::Entry, path::Path};
 /// schema files, extensions and sources by their source set name.
 ///
 /// See `FileGroup` for all groups of files.
-pub fn categorize_files(config: &Config, files: Vec<File>) -> HashMap<FileGroup, Vec<File>> {
+pub fn categorize_files(
+    config: &Config,
+    file_source_result: &FileSourceResult,
+) -> HashMap<FileGroup, Vec<File>> {
     let categorizer = FileCategorizer::from_config(config);
 
     let mut has_disabled = false;
@@ -40,41 +44,53 @@ pub fn categorize_files(config: &Config, files: Vec<File>) -> HashMap<FileGroup,
         }
     }
 
-    let result = files
-        .par_iter()
-        .filter_map(|file| {
-            let file_group = categorizer.categorize(&file.name)?;
-            let should_skip = has_disabled
-                && match &file_group {
-                    FileGroup::Source {
-                        source_set: SourceSet::SourceSetName(name),
-                    }
-                    | FileGroup::Schema {
-                        project_set: ProjectSet::ProjectName(name),
-                    }
-                    | FileGroup::Extension {
-                        project_set: ProjectSet::ProjectName(name),
-                    }
-                    | FileGroup::Generated { project_name: name } => {
-                        !relevant_projects.contains(name)
-                    }
-                    FileGroup::Source {
-                        source_set: SourceSet::SourceSetNames(names),
-                    }
-                    | FileGroup::Schema {
-                        project_set: ProjectSet::ProjectNames(names),
-                    }
-                    | FileGroup::Extension {
-                        project_set: ProjectSet::ProjectNames(names),
-                    } => !names.iter().any(|name| relevant_projects.contains(name)),
-                };
-            if !should_skip {
-                Some((file_group, file.clone()))
-            } else {
-                None
-            }
-        })
-        .collect::<Vec<_>>();
+    let filter_map_fn = |file: File| {
+        let file_group = categorizer.categorize(&file.name)?;
+        let should_skip = has_disabled
+            && match &file_group {
+                FileGroup::Source {
+                    source_set: SourceSet::SourceSetName(name),
+                }
+                | FileGroup::Schema {
+                    project_set: ProjectSet::ProjectName(name),
+                }
+                | FileGroup::Extension {
+                    project_set: ProjectSet::ProjectName(name),
+                }
+                | FileGroup::Generated { project_name: name } => !relevant_projects.contains(name),
+                FileGroup::Source {
+                    source_set: SourceSet::SourceSetNames(names),
+                }
+                | FileGroup::Schema {
+                    project_set: ProjectSet::ProjectNames(names),
+                }
+                | FileGroup::Extension {
+                    project_set: ProjectSet::ProjectNames(names),
+                } => !names.iter().any(|name| relevant_projects.contains(name)),
+            };
+        if !should_skip {
+            Some((file_group, file))
+        } else {
+            None
+        }
+    };
+    let result = match file_source_result {
+        FileSourceResult::Watchman(file_source_result) => file_source_result
+            .files
+            .par_iter()
+            .map(|file| File {
+                name: (*file.name).clone(),
+                exists: *file.exists,
+            })
+            .filter_map(filter_map_fn)
+            .collect::<Vec<_>>(),
+        FileSourceResult::External(file_source_result) => file_source_result
+            .files
+            .par_iter()
+            .cloned()
+            .filter_map(filter_map_fn)
+            .collect::<Vec<_>>(),
+    };
     let mut categorized = HashMap::new();
     for (file_group, file) in result {
         categorized

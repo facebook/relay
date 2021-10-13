@@ -10,6 +10,7 @@ mod lsp_notification_dispatch;
 mod lsp_request_dispatch;
 mod lsp_state;
 mod lsp_state_resources;
+mod task_queue;
 
 use crate::{
     code_action::on_code_action,
@@ -28,7 +29,10 @@ use crate::{
     references::on_references,
     resolved_types_at_location::{on_get_resolved_types_at_location, ResolvedTypesAtLocation},
     search_schema_items::{on_search_schema_items, SearchSchemaItems},
-    server::lsp_state_resources::LSPStateResources,
+    server::{
+        lsp_state::handle_lsp_state_tasks, lsp_state_resources::LSPStateResources,
+        task_queue::TaskQueue,
+    },
     shutdown::{on_exit, on_shutdown},
     status_reporter::LSPStatusReporter,
     status_updater::set_initializing_status,
@@ -59,7 +63,7 @@ use lsp_types::{
 };
 use relay_compiler::{config::Config, NoopArtifactWriter};
 use schema_documentation::{SchemaDocumentation, SchemaDocumentationLoader};
-use std::{sync::Arc, thread};
+use std::sync::Arc;
 use tokio::task;
 
 pub use crate::LSPExtraDataProvider;
@@ -96,6 +100,13 @@ pub fn initialize(connection: &Connection) -> LSPProcessResult<InitializeParams>
     Ok(params)
 }
 
+#[derive(Debug)]
+pub(crate) enum Task {
+    InboundMessage(lsp_server::Message),
+    _OutboundMessage(lsp_server::Message),
+    LSPState(lsp_state::Task),
+}
+
 /// Run the main server loop
 pub async fn run<
     TPerfLogger: PerfLogger + 'static,
@@ -124,14 +135,19 @@ where
         connection.sender.clone(),
     ));
 
-    let lsp_state = Arc::new(LSPState::create_state(
+    let task_queue = TaskQueue::new(process_task, 8);
+    let task_scheduler = task_queue.get_scheduler();
+
+    let lsp_state = Arc::new(LSPState::new(
         Arc::new(config),
+        connection.sender.clone(),
+        Arc::clone(&task_scheduler),
         Arc::clone(&perf_logger),
         extra_data_provider,
         schema_documentation_loader,
         js_resource,
-        connection.sender.clone(),
     ));
+
     // Watchman Subscription to handle Schema/Programs/Validation
     let lsp_state_clone = Arc::clone(&lsp_state);
     task::spawn(async move {
@@ -141,30 +157,39 @@ where
             .unwrap();
     });
 
+    task_queue.run(Arc::clone(&lsp_state));
+
+    // Main loop that keeps connection to the client
     loop {
         debug!("waiting for incoming messages...");
-        match connection.receiver.recv() {
-            Ok(Message::Request(request)) => {
-                debug!("creating a task to handle request...");
-                let lsp_state = Arc::clone(&lsp_state);
-                thread::spawn(move || {
-                    handle_request(lsp_state, request).unwrap();
-                });
-            }
-            Ok(Message::Notification(notification)) => {
-                debug!("creating a task to handle notification...");
-                let lsp_state = Arc::clone(&lsp_state);
-                thread::spawn(move || {
-                    handle_notification(lsp_state, notification);
-                });
-            }
-            Ok(_) => {
-                // Ignore responses for now
-            }
-            Err(error) => {
-                panic!("Relay Language Server receiver error {:?}", error);
-            }
+        // Convert client LSP messages to Tasks
+        task_scheduler.schedule(connection.receiver.recv().map_or_else(
+            |err| {
+                panic!("Relay Language Server receiver error {:?}", err);
+            },
+            Task::InboundMessage,
+        ));
+    }
+}
+
+fn process_task<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentation>(
+    state: Arc<LSPState<TPerfLogger, TSchemaDocumentation>>,
+    task: Task,
+) {
+    match task {
+        Task::InboundMessage(Message::Request(request)) => {
+            handle_request(state, request).unwrap();
         }
+        Task::InboundMessage(Message::Notification(notification)) => {
+            handle_notification(state, notification);
+        }
+        Task::LSPState(lsp_task) => {
+            handle_lsp_state_tasks(state, lsp_task);
+        }
+        Task::InboundMessage(Message::Response(_)) => {
+            // TODO: handle response from the client -> cancel message, etc
+        }
+        Task::_OutboundMessage(_) => todo!(),
     }
 }
 

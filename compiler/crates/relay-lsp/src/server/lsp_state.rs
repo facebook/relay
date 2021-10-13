@@ -45,6 +45,8 @@ use schema_documentation::{
 use std::{path::PathBuf, sync::Arc};
 use tokio::sync::Notify;
 
+use super::task_queue::TaskScheduler;
+
 pub type Schemas = Arc<DashMap<StringKey, Arc<SDLSchema>, FnvBuildHasher>>;
 pub type SourcePrograms = Arc<DashMap<StringKey, Program, FnvBuildHasher>>;
 pub type ProjectStatusMap = Arc<DashMap<StringKey, ProjectStatus, FnvBuildHasher>>;
@@ -104,6 +106,8 @@ pub struct LSPState<
     TSchemaDocumentation: SchemaDocumentation + 'static,
 > {
     pub config: Arc<Config>,
+    pub sender: Sender<Message>,
+    task_scheduler: Arc<TaskScheduler<super::Task>>,
     root_dir: PathBuf,
     pub extra_data_provider: Box<dyn LSPExtraDataProvider>,
     file_categorizer: FileCategorizer,
@@ -114,7 +118,6 @@ pub struct LSPState<
     pub perf_logger: Arc<TPerfLogger>,
     pub diagnostic_reporter: Arc<DiagnosticReporter>,
     pub notify_sender: Arc<Notify>,
-    pub sender: Sender<Message>,
     pub project_status: ProjectStatusMap,
     pub js_resource: Box<dyn JSLanguageServer<TPerfLogger, TSchemaDocumentation>>,
 }
@@ -122,17 +125,18 @@ pub struct LSPState<
 impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentation>
     LSPState<TPerfLogger, TSchemaDocumentation>
 {
-    /// Private constructor
-    fn new(
+    pub(crate) fn new(
         config: Arc<Config>,
+        sender: Sender<Message>,
+        task_scheduler: Arc<TaskScheduler<super::Task>>,
         perf_logger: Arc<TPerfLogger>,
         extra_data_provider: Box<dyn LSPExtraDataProvider>,
         schema_documentation_loader: Option<
             Box<dyn SchemaDocumentationLoader<TSchemaDocumentation>>,
         >,
         js_resource: Box<dyn JSLanguageServer<TPerfLogger, TSchemaDocumentation>>,
-        sender: Sender<Message>,
     ) -> Self {
+        debug!("Creating lsp_state...");
         let file_categorizer = FileCategorizer::from_config(&config);
         let root_dir = &config.root_dir.clone();
         let diagnostic_reporter = Arc::new(DiagnosticReporter::new(
@@ -140,8 +144,10 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             sender.clone(),
         ));
 
-        Self {
+        let lsp_state = Self {
             config,
+            sender,
+            task_scheduler,
             diagnostic_reporter,
             extra_data_provider,
             file_categorizer,
@@ -154,32 +160,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             source_programs: Arc::new(DashMap::with_hasher(FnvBuildHasher::default())),
             synced_graphql_documents: Default::default(),
             js_resource,
-            sender,
-        }
-    }
-
-    /// This method is responsible for creating schema/source_programs for LSP internal state
-    /// - so the LSP can provide these to Hover/Completion/GoToDefinition requests.
-    /// It also creates a watchman subscription that is responsible for keeping these resources up-to-date.
-    pub(crate) fn create_state(
-        config: Arc<Config>,
-        perf_logger: Arc<TPerfLogger>,
-        extra_data_provider: Box<dyn LSPExtraDataProvider>,
-        schema_documentation_loader: Option<
-            Box<dyn SchemaDocumentationLoader<TSchemaDocumentation>>,
-        >,
-        js_resource: Box<dyn JSLanguageServer<TPerfLogger, TSchemaDocumentation>>,
-        sender: Sender<Message>,
-    ) -> Self {
-        debug!("Creating lsp_state...");
-        let lsp_state = Self::new(
-            config,
-            perf_logger,
-            extra_data_provider,
-            schema_documentation_loader,
-            js_resource,
-            sender.clone(),
-        );
+        };
 
         // Preload schema documentation - this will warm-up schema documentation cache in the LSP Extra Data providers
         // TODO: Find a better place for this
@@ -285,6 +266,10 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
 
     pub fn send_message(&self, message: Message) -> Result<(), SendError<Message>> {
         self.sender.send(message)
+    }
+
+    pub fn schedule_task(&self, task: Task) {
+        self.task_scheduler.schedule(super::Task::LSPState(task));
     }
 }
 
@@ -439,5 +424,30 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
     fn get_diagnostic_for_range(&self, url: &Url, range: Range) -> Option<Diagnostic> {
         self.diagnostic_reporter
             .get_diagnostics_for_range(url, range)
+    }
+}
+
+#[derive(Debug)]
+pub enum Task {
+    ValidateSyncedSource(Url),
+    ValidateSyncedSources,
+}
+
+pub(crate) fn handle_lsp_state_tasks<
+    TPerfLogger: PerfLogger + 'static,
+    TSchemaDocumentation: SchemaDocumentation + 'static,
+>(
+    state: Arc<LSPState<TPerfLogger, TSchemaDocumentation>>,
+    task: Task,
+) {
+    match task {
+        Task::ValidateSyncedSource(url) => {
+            state.validate_synced_sources(&url).ok();
+        }
+        Task::ValidateSyncedSources => {
+            for item in &state.synced_graphql_documents {
+                state.schedule_task(Task::ValidateSyncedSource(item.key().clone()));
+            }
+        }
     }
 }

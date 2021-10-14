@@ -755,6 +755,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         let environment;
         let fetch;
         let sink;
+        // $FlowFixMe[invalid-declaration]
         let variables;
 
         beforeEach(() => {

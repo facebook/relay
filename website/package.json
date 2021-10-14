@@ -6,6 +6,7 @@
     "update-spec": "spec-md spec/Connections.md > static/graphql/connections.htm && spec-md spec/ObjectIdentification.md > static/graphql/objectidentification.htm",
     "start": "docusaurus start",
     "build": "docusaurus build",
+    "serve": "docusaurus serve",
     "examples": "docusaurus-examples",
     "version": "docusaurus docs:version",
     "rename-version": "docusaurus-rename-version",

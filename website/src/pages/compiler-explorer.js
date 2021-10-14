@@ -43,9 +43,9 @@ fragment AgeFragment on User {
 
 export default function App() {
   return (
-    <Layout title="Compiler Playground">
+    <Layout title="Compiler Explorer">
       <FillRemainingHeight minHeight={600}>
-        <CompilerPlayground />
+        <CompilerExplorer />
       </FillRemainingHeight>
     </Layout>
   );
@@ -73,7 +73,7 @@ function FillRemainingHeight({children, minHeight}) {
   );
 }
 
-function CompilerPlayground() {
+function CompilerExplorer() {
   const [featureFlags, setFeatureFlags] = useState('{}');
   const [typegenConfig, setTypegenConfig] = useState('{}');
   const [schemaText, setSchemaText] = useState(DEFAULT_SCHEMA);
@@ -93,7 +93,7 @@ function CompilerPlayground() {
   const Editor = useMemo(() => {
     // Loading the Editor component causes Docusaurus' build time pre-rendering to
     // crash, so we initializie it lazily.
-    return require('../compiler-playground/Editor').default;
+    return require('../compiler-explorer/Editor').default;
   }, []);
 
   return (
@@ -108,7 +108,7 @@ function CompilerPlayground() {
       }}>
       <div style={{display: 'flex', columnGap: padding}}>
         <div style={{width: '50%', alignSelf: 'flex-end'}}>
-          <PlaygroundHeading>Schema</PlaygroundHeading>
+          <ExplorerHeading>Schema</ExplorerHeading>
         </div>
         <div style={{width: '50%'}}>
           <Tabs
@@ -135,14 +135,14 @@ function CompilerPlayground() {
             // locations here are bogus. :(
             diagnostics={schemaDiagnostics}
           />
-          <PlaygroundHeading>Document</PlaygroundHeading>
+          <ExplorerHeading>Document</ExplorerHeading>
           <Editor
             text={documentText}
             onDidChange={setDocumentText}
             style={{flexGrow: 3}}
             diagnostics={documentDiagnostics}
           />
-          <PlaygroundHeading>Feature Flags</PlaygroundHeading>
+          <ExplorerHeading>Feature Flags</ExplorerHeading>
           <Config onFeatureFlagsChanged={setFeatureFlags} />
           <TypegenConfig onTypegenConfigChanged={setTypegenConfig} />
         </div>
@@ -290,7 +290,7 @@ function Tabs({values, selectedValue, setSelectedValue}) {
 }
 
 // A heading which is intended to align well with Tabs
-function PlaygroundHeading({children}) {
+function ExplorerHeading({children}) {
   const padding =
     'var(--ifm-tabs-padding-vertical) var(--ifm-tabs-padding-horizontal)';
   return <h3 style={{margin: 0, padding}}>{children}</h3>;

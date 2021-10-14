@@ -39,7 +39,9 @@ pub use visitor::Visitor;
 
 /// Re-exported values to be used by the `associated_data_impl!` macro.
 pub mod reexport {
+    pub use crate::associated_data::AsAny;
     pub use common::{NamedItem, WithLocation};
+    pub use fnv::FnvHasher;
     pub use interner::{Intern, StringKey};
     pub use once_cell::sync::Lazy;
 }

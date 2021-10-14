@@ -15,7 +15,7 @@ use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
 use std::sync::Arc;
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct RefetchableMetadata {
     pub operation_name: StringKey,
     pub path: Vec<StringKey>,
@@ -124,6 +124,6 @@ pub fn build_fragment_metadata_as_directive(
 
 /// Metadata attached to generated refetch queries storing the name of the
 /// fragment the operation was derived from.
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct RefetchableDerivedFromMetadata(pub StringKey);
 associated_data_impl!(RefetchableDerivedFromMetadata);

@@ -31,7 +31,7 @@ lazy_static! {
     pub static ref RELAY_RESOLVER_IMPORT_PATH_ARGUMENT_NAME: StringKey = "import_path".intern();
 }
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
 struct RelayResolverFieldMetadata {
     field_parent_type: StringKey,
     import_path: StringKey,
@@ -39,7 +39,7 @@ struct RelayResolverFieldMetadata {
 }
 associated_data_impl!(RelayResolverFieldMetadata);
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct RelayResolverSpreadMetadata {
     pub field_parent_type: StringKey,
     pub import_path: StringKey,

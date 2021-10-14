@@ -30,7 +30,7 @@ lazy_static! {
     static ref INLINE_DIRECTIVE_NAME: StringKey = "inline".intern();
 }
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct RequiredMetadataDirective {
     pub action: RequiredAction,
     pub path: StringKey,
@@ -470,7 +470,7 @@ fn maybe_add_children_can_bubble_metadata_directive(
 }
 
 // Possible @required `action` enum values ordered by severity.
-#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Debug)]
+#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Debug, Hash)]
 pub enum RequiredAction {
     None,
     Log,

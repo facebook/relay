@@ -33,7 +33,7 @@ lazy_static! {
     static ref NAME: StringKey = "name".intern();
 }
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct ReactFlightLocalComponentsMetadata {
     pub components: Vec<StringKey>,
 }

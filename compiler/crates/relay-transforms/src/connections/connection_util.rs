@@ -51,12 +51,12 @@ pub fn assert_connection_selections<'s>(
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct ConnectionMetadataDirective(pub Vec<ConnectionMetadata>);
 
 associated_data_impl!(ConnectionMetadataDirective);
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct ConnectionMetadata {
     pub path: Option<Vec<StringKey>>,
     pub direction: StringKey,

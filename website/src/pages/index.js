@@ -372,7 +372,7 @@ export default function ArtistCard(props) {
                       See the{' '}
                       <a
                         href={useBaseUrl(
-                          'docs/graphql-server-specification#connections',
+                          'docs/guides/graphql-server-specification#connections',
                         )}>
                         Connections
                       </a>{' '}
@@ -403,7 +403,7 @@ export default function ArtistCard(props) {
                     <p>
                       <a
                         href={useBaseUrl(
-                          'docs/graphql-server-specification#object-identification',
+                          'docs/guides/graphql-server-specification/#object-identification',
                         )}>
                         See the Object Identification docs
                       </a>

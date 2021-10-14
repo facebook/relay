@@ -10,12 +10,14 @@
 use crate::{
     lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult},
     resolution_path::ResolvePosition,
-    server::GlobalState,
+    server::LSPState,
 };
+use common::PerfLogger;
 use lsp_types::{
     request::{HoverRequest, Request},
     LanguageString, MarkedString,
 };
+use schema_documentation::SchemaDocumentation;
 use serde::Serialize;
 
 mod with_resolution_path;
@@ -61,16 +63,25 @@ DEPRECATED version of `@arguments` directive.
     }.map(|s| MarkedString::String(s.to_string()))
 }
 
-pub(crate) fn on_hover(
-    state: &impl GlobalState,
+pub(crate) fn on_hover<
+    TPerfLogger: PerfLogger + 'static,
+    TSchemaDocumentation: SchemaDocumentation,
+>(
+    state: &LSPState<TPerfLogger, TSchemaDocumentation>,
     params: <HoverRequest as Request>::Params,
 ) -> LSPRuntimeResult<<HoverRequest as Request>::Result> {
     let (document, position_span, project_name) =
         state.extract_executable_document_from_text(&params.text_document_position_params, 1)?;
     let resolution_path = document.resolve((), position_span);
 
-    let schema = state
-        .get_schema(&project_name)
+    let schemas = state.get_schemas();
+    let schema = schemas
+        .get(&project_name)
+        .ok_or(LSPRuntimeError::ExpectedError)?;
+
+    let source_program = state
+        .source_programs
+        .get(&project_name)
         .ok_or(LSPRuntimeError::ExpectedError)?;
 
     let schema_documentation = state.get_schema_documentation(project_name.lookup());
@@ -79,12 +90,9 @@ pub(crate) fn on_hover(
         &resolution_path,
         &schema,
         project_name,
-        &*state.get_extra_data_provider(),
+        state.extra_data_provider.as_ref(),
         &schema_documentation,
-        &*state
-            .get_source_programs()
-            .get(&project_name)
-            .ok_or(LSPRuntimeError::ExpectedError)?,
+        &source_program,
     )
     .map(Option::Some)
     .ok_or(LSPRuntimeError::ExpectedError)

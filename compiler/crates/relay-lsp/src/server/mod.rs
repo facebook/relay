@@ -63,7 +63,7 @@ use std::{sync::Arc, thread};
 use tokio::task;
 
 pub use crate::LSPExtraDataProvider;
-pub use lsp_state::{convert_diagnostic, GlobalState, LSPState, Schemas, SourcePrograms};
+pub use lsp_state::{convert_diagnostic, LSPState, Schemas, SourcePrograms};
 
 use heartbeat::{on_heartbeat, HeartbeatRequest};
 

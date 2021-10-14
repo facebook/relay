@@ -12,16 +12,17 @@ use crate::{
     lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult},
     node_resolution_info::NodeKind,
     node_resolution_info::NodeResolutionInfo,
-    server::{GlobalState, SourcePrograms},
+    server::{LSPState, SourcePrograms},
     utils::span_to_range_offset,
 };
-use common::Location;
+use common::{Location, PerfLogger};
 use graphql_ir::{FragmentSpread, Program, Visitor};
 use interner::StringKey;
 use lsp_types::{
     request::{References, Request},
     Range,
 };
+use schema_documentation::SchemaDocumentation;
 use std::path::PathBuf;
 
 fn get_references_response(
@@ -97,15 +98,18 @@ impl Visitor for ReferenceFinder {
     }
 }
 
-pub(crate) fn on_references(
-    state: &impl GlobalState,
+pub(crate) fn on_references<
+    TPerfLogger: PerfLogger + 'static,
+    TSchemaDocumentation: SchemaDocumentation,
+>(
+    state: &LSPState<TPerfLogger, TSchemaDocumentation>,
     params: <References as Request>::Params,
 ) -> LSPRuntimeResult<<References as Request>::Result> {
     let node_resolution_info = state.resolve_node(&params.text_document_position)?;
     let references_response = get_references_response(
         node_resolution_info,
-        &state.get_source_programs(),
-        &state.root_dir(),
+        &state.source_programs,
+        state.root_dir(),
     )?;
     Ok(Some(references_response))
 }

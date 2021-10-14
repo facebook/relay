@@ -199,7 +199,7 @@ function Config({onFeatureFlagsChanged}) {
         display: 'grid',
         gridTemplateColumns: 'repeat(2, 1fr)',
       }}>
-      <ConfigOption checked={flight} set={setRequired}>
+      <ConfigOption checked={flight} set={setFlight}>
         Flight Transform
       </ConfigOption>
       <ConfigOption checked={required} set={setRequired}>
@@ -307,47 +307,53 @@ function useResults({
   return useMemo(() => {
     if (wasm == null) {
       // Ideally this might suspend.
-      return 'Loading...';
+      return {Ok: 'Loading...'};
     }
-    switch (outputType) {
-      case 'ast': {
-        // TODO: Should you be able to see the Schema AST?
-        return JSON.parse(wasm.parse_to_ast(documentText));
+    try {
+      switch (outputType) {
+        case 'ast': {
+          // TODO: Should you be able to see the Schema AST?
+          return JSON.parse(wasm.parse_to_ast(documentText));
+        }
+        case 'ir': {
+          return JSON.parse(wasm.parse_to_ir(schemaText, documentText));
+        }
+        case 'reader': {
+          return JSON.parse(
+            wasm.parse_to_reader_ast(featureFlags, schemaText, documentText),
+          );
+        }
+        case 'normalization': {
+          return JSON.parse(
+            wasm.parse_to_normalization_ast(
+              featureFlags,
+              schemaText,
+              documentText,
+            ),
+          );
+        }
+        case 'operation': {
+          return JSON.parse(
+            wasm.transform(featureFlags, schemaText, documentText),
+          );
+        }
+        case 'types': {
+          return JSON.parse(
+            wasm.parse_to_types(
+              featureFlags,
+              typegenConfig,
+              schemaText,
+              documentText,
+            ),
+          );
+        }
+        default:
+          throw new Error(`Unknown output type ${outputType}`);
       }
-      case 'ir': {
-        return JSON.parse(wasm.parse_to_ir(schemaText, documentText));
-      }
-      case 'reader': {
-        return JSON.parse(
-          wasm.parse_to_reader_ast(featureFlags, schemaText, documentText),
-        );
-      }
-      case 'normalization': {
-        return JSON.parse(
-          wasm.parse_to_normalization_ast(
-            featureFlags,
-            schemaText,
-            documentText,
-          ),
-        );
-      }
-      case 'operation': {
-        return JSON.parse(
-          wasm.transform(featureFlags, schemaText, documentText),
-        );
-      }
-      case 'types': {
-        return JSON.parse(
-          wasm.parse_to_types(
-            featureFlags,
-            typegenConfig,
-            schemaText,
-            documentText,
-          ),
-        );
-      }
-      default:
-        throw new Error(`Unknown output type ${outputType}`);
+    } catch (e) {
+      // We want to surface this message in the output area rather than as a
+      // diagnostic, so we return this as an `Ok`.
+      return {Ok: `Error: The compiler crashed: ${e.message}`};
     }
   }, [schemaText, documentText, outputType, wasm, featureFlags, typegenConfig]);
 }

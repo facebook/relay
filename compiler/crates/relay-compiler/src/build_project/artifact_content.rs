@@ -289,11 +289,12 @@ fn generate_operation(
     )
     .unwrap();
 
-    if is_operation_preloadable(normalization_operation) {
+    if is_operation_preloadable(normalization_operation) && id_and_text_hash.is_some() {
         writeln!(
             content,
-            "if (node.params.id != null) {{\n  require('relay-runtime').PreloadableQueryRegistry.set(node.params.id, node);\n}}\n",
-        ).unwrap();
+            "require('relay-runtime').PreloadableQueryRegistry.set((node.params/*: any*/).id, node);\n",
+        )
+        .unwrap();
     }
 
     write_export_generated_node(

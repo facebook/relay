@@ -506,7 +506,7 @@ class RelayResponseNormalizer {
           this._validateConflictingFieldsWithIdenticalId(
             record,
             storageKey,
-            fieldValue,
+            null,
           );
         }
       }

@@ -228,7 +228,7 @@ impl CompilerState {
         perf_logger: &impl PerfLogger,
     ) -> Result<Self> {
         let categorized = setup_event.time("categorize_files_time", || {
-            categorize_files(config, file_source_changes.files())
+            categorize_files(config, file_source_changes)
         });
 
         let mut result = Self {
@@ -408,7 +408,7 @@ impl CompilerState {
             let log_event = perf_logger.create_event("merge_file_source_changes");
             log_event.number("number_of_changes", file_source_changes.size());
             let categorized = log_event.time("categorize_files_time", || {
-                categorize_files(config, file_source_changes.files())
+                categorize_files(config, &file_source_changes)
             });
 
             for (category, files) in categorized {

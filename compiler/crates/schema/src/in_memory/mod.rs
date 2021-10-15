@@ -1003,7 +1003,7 @@ impl InMemorySchema {
                         // TODO(T63941319) @skip and @include directives are duplicated in our schema
                         return Err(vec![Diagnostic::error(
                             SchemaError::DuplicateDirectiveDefinition(name.value),
-                            Location::new(location_key.clone(), name.span),
+                            Location::new(*location_key, name.span),
                         )]);
                     }
                 }
@@ -1038,7 +1038,7 @@ impl InMemorySchema {
                 };
                 let interfaces = interfaces
                     .iter()
-                    .map(|name| self.build_interface_id(name.value))
+                    .map(|name| self.build_interface_id(name, location_key))
                     .collect::<DiagnosticsResult<Vec<_>>>()?;
                 let directives = self.build_directive_values(&directives);
                 self.objects.push(Object {
@@ -1068,7 +1068,7 @@ impl InMemorySchema {
                 };
                 let interfaces = interfaces
                     .iter()
-                    .map(|name| self.build_interface_id(name.value))
+                    .map(|name| self.build_interface_id(name, location_key))
                     .collect::<DiagnosticsResult<Vec<_>>>()?;
                 let directives = self.build_directive_values(&directives);
                 self.interfaces.push(Interface {
@@ -1162,7 +1162,7 @@ impl InMemorySchema {
                     let obj = self.objects.get(index).ok_or_else(|| {
                         vec![Diagnostic::error(
                             SchemaError::ExtendUndefinedType(name.value),
-                            Location::new(location_key.clone(), name.span),
+                            Location::new(*location_key, name.span),
                         )]
                     })?;
 
@@ -1182,7 +1182,7 @@ impl InMemorySchema {
 
                     let built_interfaces = interfaces
                         .iter()
-                        .map(|name| self.build_interface_id(name.value))
+                        .map(|name| self.build_interface_id(name, location_key))
                         .collect::<DiagnosticsResult<Vec<_>>>()?;
                     extend_without_duplicates(
                         &mut self.objects[index].interfaces,
@@ -1198,7 +1198,7 @@ impl InMemorySchema {
                 _ => {
                     return Err(vec![Diagnostic::error(
                         SchemaError::ExtendUndefinedType(name.value),
-                        Location::new(location_key.clone(), name.span),
+                        Location::new(*location_key, name.span),
                     )]);
                 }
             },
@@ -1213,7 +1213,7 @@ impl InMemorySchema {
                     let interface = self.interfaces.get(index).ok_or_else(|| {
                         vec![Diagnostic::error(
                             SchemaError::ExtendUndefinedType(name.value),
-                            Location::new(location_key.clone(), name.span),
+                            Location::new(*location_key, name.span),
                         )]
                     })?;
                     let field_ids = &interface.fields;
@@ -1238,7 +1238,7 @@ impl InMemorySchema {
                 _ => {
                     return Err(vec![Diagnostic::error(
                         SchemaError::ExtendUndefinedType(name.value),
-                        Location::new(location_key.clone(), name.span),
+                        Location::new(*location_key, name.span),
                     )]);
                 }
             },
@@ -1263,14 +1263,21 @@ impl InMemorySchema {
         }
     }
 
-    fn build_interface_id(&mut self, name: StringKey) -> DiagnosticsResult<InterfaceID> {
-        match self.type_map.get(&name) {
+    fn build_interface_id(
+        &mut self,
+        name: &Identifier,
+        location_key: &SourceLocationKey,
+    ) -> DiagnosticsResult<InterfaceID> {
+        match self.type_map.get(&name.value) {
             Some(Type::Interface(id)) => Ok(*id),
-            Some(non_interface_type) => todo_add_location(SchemaError::ExpectedInterfaceReference(
-                name,
-                *non_interface_type,
-            )),
-            None => todo_add_location(SchemaError::UndefinedType(name)),
+            Some(non_interface_type) => Err(vec![Diagnostic::error(
+                SchemaError::ExpectedInterfaceReference(name.value, *non_interface_type),
+                Location::new(*location_key, name.span),
+            )]),
+            None => Err(vec![Diagnostic::error(
+                SchemaError::UndefinedType(name.value),
+                Location::new(*location_key, name.span),
+            )]),
         }
     }
 

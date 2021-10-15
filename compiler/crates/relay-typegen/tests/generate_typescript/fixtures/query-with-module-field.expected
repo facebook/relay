@@ -52,8 +52,8 @@ export type Test = {
 import { FragmentRefs } from "relay-runtime";
 export type Test_user = {
   readonly plainUserRenderer: {
-    readonly __fragmentPropName?: string | null;
-    readonly __module_component?: string | null;
+    readonly __fragmentPropName: string | null;
+    readonly __module_component: string | null;
     readonly " $fragmentRefs": FragmentRefs<"Test_userRenderer">;
   } | null;
   readonly " $refType": "Test_user";

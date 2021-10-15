@@ -273,15 +273,20 @@ impl LocationAgnosticHash for Directive {
         } else if !CustomMetadataDirectives::should_skip_in_node_identifier(self.name.item) {
             self.name.location_agnostic_hash(state);
             self.arguments.location_agnostic_hash(state);
+            self.data.hash(state);
         }
     }
 }
 
 impl LocationAgnosticPartialEq for Directive {
     fn location_agnostic_eq(&self, other: &Self) -> bool {
-        self.name.location_agnostic_eq(&other.name)
-            && (self.name.item == *ModuleMetadata::DIRECTIVE_NAME
-                || self.arguments.location_agnostic_eq(&other.arguments))
+        if !self.name.location_agnostic_eq(&other.name) {
+            return false;
+        }
+        if self.name.item == *ModuleMetadata::DIRECTIVE_NAME {
+            return true;
+        }
+        self.arguments.location_agnostic_eq(&other.arguments) && self.data == other.data
     }
 }
 

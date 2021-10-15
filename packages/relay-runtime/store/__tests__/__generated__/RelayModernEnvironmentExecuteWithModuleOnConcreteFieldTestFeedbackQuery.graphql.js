@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<36f4b5466c89e0a51cb202260a5b03d9>>
+ * @generated SignedSource<<0bc497a0d4c1fc9ece3d2b6f9402299f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -25,8 +25,8 @@ export type RelayModernEnvironmentExecuteWithModuleOnConcreteFieldTestFeedbackQu
 export type RelayModernEnvironmentExecuteWithModuleOnConcreteFieldTestFeedbackQueryResponse = {|
   +node: ?{|
     +author?: ?{|
-      +__fragmentPropName?: ?string,
-      +__module_component?: ?string,
+      +__fragmentPropName: ?string,
+      +__module_component: ?string,
       +$fragmentRefs: RelayModernEnvironmentExecuteWithModuleOnConcreteFieldTestFeedbackAuthor_author$ref,
     |},
   |},

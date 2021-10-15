@@ -40,7 +40,7 @@ lazy_static! {
     static ref VIEWER_TYPE_NAME: StringKey = "Viewer".intern();
 }
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct RelayClientComponentMetadata {
     pub split_operation_filenames: Vec<StringKey>,
 }

@@ -860,7 +860,7 @@ fn get_module_directive_name_argument(
     })
 }
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct ModuleMetadata {
     pub location: Location,
     pub key: StringKey,

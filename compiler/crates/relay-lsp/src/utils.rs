@@ -60,7 +60,7 @@ pub fn extract_project_name_from_url(
 
     let project_name = if let FileGroup::Source { source_set } = file_categorizer
         .categorize(&file_path)
-        .ok_or(LSPRuntimeError::ExpectedError)?
+        .map_err(|_| LSPRuntimeError::ExpectedError)?
     {
         match source_set {
             SourceSet::SourceSetName(source) => source,

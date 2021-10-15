@@ -11,7 +11,7 @@ use graphql_ir::{Directive, FragmentDefinition, OperationDefinition};
 use relay_codegen::{build_request_params, Printer, QueryID};
 use relay_transforms::{
     is_operation_preloadable, ReactFlightLocalComponentsMetadata, RelayClientComponentMetadata,
-    DATA_DRIVEN_DEPENDENCY_METADATA_KEY, INLINE_DATA_CONSTANTS,
+    DATA_DRIVEN_DEPENDENCY_METADATA_KEY, INLINE_DIRECTIVE_NAME,
 };
 use relay_typegen::{generate_fragment_type, TypegenLanguage};
 use schema::SDLSchema;
@@ -440,7 +440,7 @@ fn generate_fragment(
 
     let reader_node_flow_type = if reader_fragment
         .directives
-        .named(INLINE_DATA_CONSTANTS.directive_name)
+        .named(*INLINE_DIRECTIVE_NAME)
         .is_some()
     {
         "ReaderInlineDataFragment"

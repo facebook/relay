@@ -21,13 +21,14 @@ use md5::{Digest, Md5};
 use relay_transforms::{
     extract_connection_metadata_from_directive, extract_handle_field_directives,
     extract_values_from_handle_field_directive, generate_abstract_type_refinement_key,
-    remove_directive, ConnectionConstants, ConnectionMetadata, DeferDirective, ModuleMetadata,
-    RefetchableMetadata, RelayDirective, RelayResolverSpreadMetadata, RequiredMetadataDirective,
-    StreamDirective, CLIENT_EXTENSION_DIRECTIVE_NAME, DEFER_STREAM_CONSTANTS,
-    DIRECTIVE_SPLIT_OPERATION, INLINE_DATA_CONSTANTS, INTERNAL_METADATA_DIRECTIVE,
-    NO_INLINE_DIRECTIVE_NAME, REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY,
-    RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN, RELAY_CLIENT_COMPONENT_MODULE_ID_ARGUMENT_NAME,
-    RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME, TYPE_DISCRIMINATOR_DIRECTIVE_NAME,
+    remove_directive, ConnectionConstants, ConnectionMetadata, DeferDirective,
+    InlineDirectiveMetadata, ModuleMetadata, RefetchableMetadata, RelayDirective,
+    RelayResolverSpreadMetadata, RequiredMetadataDirective, StreamDirective,
+    CLIENT_EXTENSION_DIRECTIVE_NAME, DEFER_STREAM_CONSTANTS, DIRECTIVE_SPLIT_OPERATION,
+    INLINE_DIRECTIVE_NAME, INTERNAL_METADATA_DIRECTIVE, NO_INLINE_DIRECTIVE_NAME,
+    REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY, RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN,
+    RELAY_CLIENT_COMPONENT_MODULE_ID_ARGUMENT_NAME, RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME,
+    TYPE_DISCRIMINATOR_DIRECTIVE_NAME,
 };
 use schema::{SDLSchema, Schema};
 
@@ -201,11 +202,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
     }
 
     fn build_fragment(&mut self, fragment: &FragmentDefinition, skip_metadata: bool) -> AstKey {
-        if fragment
-            .directives
-            .named(INLINE_DATA_CONSTANTS.directive_name)
-            .is_some()
-        {
+        if fragment.directives.named(*INLINE_DIRECTIVE_NAME).is_some() {
             return self.build_inline_data_fragment(fragment);
         }
 
@@ -472,16 +469,17 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                     .named(DEFER_STREAM_CONSTANTS.defer_name);
                 if let Some(defer) = defer {
                     vec![self.build_defer(&inline_fragment, defer)]
-                } else if let Some(inline_data_directive) = inline_fragment
-                    .directives
-                    .named(INLINE_DATA_CONSTANTS.internal_directive_name)
+                } else if let Some(inline_data_directive) =
+                    InlineDirectiveMetadata::find(&inline_fragment.directives)
                 {
                     // If inline fragment has @__inline directive (created by inline_data_fragment transform)
                     // we will return selection wrapped with InlineDataFragmentSpread
-                    vec![self.build_inline_data_fragment_spread(
-                        &inline_fragment,
-                        &inline_data_directive,
-                    )]
+                    vec![
+                        self.build_inline_data_fragment_spread(
+                            inline_fragment,
+                            inline_data_directive,
+                        ),
+                    ]
                 } else if let Some(module_metadata) =
                     ModuleMetadata::find(&inline_fragment.directives)
                 {
@@ -1580,10 +1578,9 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
     fn build_inline_data_fragment_spread(
         &mut self,
         inline_fragment: &InlineFragment,
-        directive: &Directive,
+        inline_directive_data: &InlineDirectiveMetadata,
     ) -> Primitive {
         let selections = self.build_selections(inline_fragment.selections.iter());
-        let fragment_name: StringKey = directive.arguments[0].value.item.expect_string_literal();
         Primitive::Key(self.object(vec![
             ObjectEntry {
                 key: CODEGEN_CONSTANTS.kind,
@@ -1591,7 +1588,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             },
             ObjectEntry {
                 key: CODEGEN_CONSTANTS.name,
-                value: Primitive::String(fragment_name),
+                value: Primitive::String(inline_directive_data.fragment_name),
             },
             ObjectEntry {
                 key: CODEGEN_CONSTANTS.selections,

@@ -5,14 +5,14 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{Diagnostic, DiagnosticsResult, NamedItem, WithLocation};
+use common::{Diagnostic, DiagnosticsResult, NamedItem};
 use graphql_ir::{
-    Argument, ConstantValue, Directive, FragmentSpread, InlineFragment, Program, Selection,
-    Transformed, Transformer, ValidationMessage, Value,
+    associated_data_impl, FragmentSpread, InlineFragment, Program, Selection, Transformed,
+    Transformer, ValidationMessage,
 };
 
 use interner::{Intern, StringKey};
-use lazy_static::lazy_static;
+use once_cell::sync::Lazy;
 use std::sync::Arc;
 
 pub fn inline_data_fragment(program: &Program) -> DiagnosticsResult<Program> {
@@ -28,22 +28,7 @@ pub fn inline_data_fragment(program: &Program) -> DiagnosticsResult<Program> {
     }
 }
 
-pub struct Contants {
-    /// Represents the public facing directive name @inline
-    pub directive_name: StringKey,
-    /// Internal directive name for Relay Codegen
-    pub internal_directive_name: StringKey,
-    /// Name of the `name` argument :-)
-    pub name_arg: StringKey,
-}
-
-lazy_static! {
-    pub static ref INLINE_DATA_CONSTANTS: Contants = Contants {
-        directive_name: "inline".intern(),
-        internal_directive_name: "__inline".intern(),
-        name_arg: "name".intern(),
-    };
-}
+pub const INLINE_DIRECTIVE_NAME: Lazy<StringKey> = Lazy::new(|| "inline".intern());
 
 struct InlineDataFragmentsTransform<'s> {
     program: &'s Program,
@@ -59,6 +44,12 @@ impl<'s> InlineDataFragmentsTransform<'s> {
     }
 }
 
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub struct InlineDirectiveMetadata {
+    pub fragment_name: StringKey,
+}
+associated_data_impl!(InlineDirectiveMetadata);
+
 impl<'s> Transformer for InlineDataFragmentsTransform<'s> {
     const NAME: &'static str = "InlineDataFragmentsTransform";
     const VISIT_ARGUMENTS: bool = false;
@@ -71,9 +62,7 @@ impl<'s> Transformer for InlineDataFragmentsTransform<'s> {
             .fragment(spread.fragment.item)
             .unwrap_or_else(|| panic!("was expecting to find fragment `{}`", spread.fragment.item));
 
-        let inline_directive = fragment
-            .directives
-            .named(INLINE_DATA_CONSTANTS.directive_name);
+        let inline_directive = fragment.directives.named(*INLINE_DIRECTIVE_NAME);
         if inline_directive.is_none() {
             next_fragment_spread
         } else {
@@ -133,23 +122,12 @@ impl<'s> Transformer for InlineDataFragmentsTransform<'s> {
 
             let inline_fragment = InlineFragment {
                 type_condition: None,
-                directives: vec![Directive {
-                    name: WithLocation::new(
-                        spread.fragment.location,
-                        INLINE_DATA_CONSTANTS.internal_directive_name,
-                    ),
-                    arguments: vec![Argument {
-                        name: WithLocation::new(
-                            spread.fragment.location,
-                            INLINE_DATA_CONSTANTS.name_arg,
-                        ),
-                        value: WithLocation::new(
-                            spread.fragment.location,
-                            Value::Constant(ConstantValue::String(name)),
-                        ),
-                    }],
-                    data: None,
-                }],
+                directives: vec![
+                    InlineDirectiveMetadata {
+                        fragment_name: name,
+                    }
+                    .into(),
+                ],
                 selections: vec![Selection::InlineFragment(Arc::new(InlineFragment {
                     type_condition: Some(fragment.type_condition),
                     directives: vec![],

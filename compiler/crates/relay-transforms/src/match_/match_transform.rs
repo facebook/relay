@@ -8,7 +8,7 @@
 use crate::{
     defer_stream::DEFER_STREAM_CONSTANTS,
     feature_flags::FeatureFlags,
-    inline_data_fragment::INLINE_DATA_CONSTANTS,
+    inline_data_fragment::INLINE_DIRECTIVE_NAME,
     match_::MATCH_CONSTANTS,
     no_inline::{attach_no_inline_directives_to_fragments, validate_required_no_inline_directive},
     util::get_normalization_operation_name,
@@ -291,10 +291,7 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
             let fragment = self.program.fragment(spread.fragment.item).unwrap();
 
             // Disallow @inline on fragments whose spreads are decorated with @module
-            if let Some(inline_data_directive) = fragment
-                .directives
-                .named(INLINE_DATA_CONSTANTS.directive_name)
-            {
+            if let Some(inline_data_directive) = fragment.directives.named(*INLINE_DIRECTIVE_NAME) {
                 return Err(Diagnostic::error(
                     ValidationMessage::InvalidModuleWithInline,
                     module_directive.name.location,

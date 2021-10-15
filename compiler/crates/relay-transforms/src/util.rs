@@ -9,7 +9,7 @@ use crate::{
     client_extensions::CLIENT_EXTENSION_DIRECTIVE_NAME,
     connections::ConnectionMetadataDirective,
     handle_fields::HANDLE_FIELD_DIRECTIVE_NAME,
-    inline_data_fragment::INLINE_DATA_CONSTANTS,
+    inline_data_fragment::InlineDirectiveMetadata,
     react_flight::REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY,
     refetchable_fragment::RefetchableMetadata,
     relay_actor_change::RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN,
@@ -122,7 +122,7 @@ lazy_static! {
     static ref RELAY_CUSTOM_INLINE_FRAGMENT_DIRECTIVES: [StringKey; 5] = [
         *CLIENT_EXTENSION_DIRECTIVE_NAME,
         *ModuleMetadata::DIRECTIVE_NAME,
-        INLINE_DATA_CONSTANTS.internal_directive_name,
+        *InlineDirectiveMetadata::DIRECTIVE_NAME,
         *RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN,
         "defer".intern(),
     ];

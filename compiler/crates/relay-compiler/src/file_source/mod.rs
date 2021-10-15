@@ -8,6 +8,7 @@
 mod external_file_source;
 mod extract_graphql;
 mod file_categorizer;
+mod file_filter;
 mod file_group;
 mod read_file_to_string;
 mod source_control_update_status;

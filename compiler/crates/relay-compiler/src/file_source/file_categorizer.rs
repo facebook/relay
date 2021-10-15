@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use super::file_filter::FileFilter;
 use super::File;
 use super::FileGroup;
 use crate::compiler_state::{ProjectName, ProjectSet, SourceSet};
@@ -33,77 +34,85 @@ pub fn categorize_files(
 ) -> HashMap<FileGroup, Vec<File>> {
     let categorizer = FileCategorizer::from_config(config);
 
-    let mut has_disabled = false;
-    let mut relevant_projects = FnvHashSet::default();
-    for (project_name, project_config) in &config.projects {
-        if project_config.enabled {
-            relevant_projects.insert(project_name);
-            if let Some(base_project) = &project_config.base {
-                relevant_projects.insert(base_project);
-            }
-        } else {
-            has_disabled = true;
-        }
-    }
-
-    let filter_map_fn = |file: File| {
-        let file_group = match categorizer.categorize(&file.name) {
-            Ok(file_group) => Some(file_group),
-            Err(err) => match file_source_result {
-                FileSourceResult::Watchman(_) => {
-                    panic!(
-                        "Unexpected error in file categorizer for file `{}`: {}.",
-                        file.name.to_string_lossy(),
-                        err
-                    );
-                }
-                &FileSourceResult::External(_) => None,
-            },
-        }?;
-        let should_skip = has_disabled
-            && match &file_group {
-                FileGroup::Source {
-                    source_set: SourceSet::SourceSetName(name),
-                }
-                | FileGroup::Schema {
-                    project_set: ProjectSet::ProjectName(name),
-                }
-                | FileGroup::Extension {
-                    project_set: ProjectSet::ProjectName(name),
-                }
-                | FileGroup::Generated { project_name: name } => !relevant_projects.contains(name),
-                FileGroup::Source {
-                    source_set: SourceSet::SourceSetNames(names),
-                }
-                | FileGroup::Schema {
-                    project_set: ProjectSet::ProjectNames(names),
-                }
-                | FileGroup::Extension {
-                    project_set: ProjectSet::ProjectNames(names),
-                } => !names.iter().any(|name| relevant_projects.contains(name)),
-            };
-        if !should_skip {
-            Some((file_group, file))
-        } else {
-            None
-        }
-    };
     let result = match file_source_result {
-        FileSourceResult::Watchman(file_source_result) => file_source_result
-            .files
-            .par_iter()
-            .map(|file| File {
-                name: (*file.name).clone(),
-                exists: *file.exists,
-            })
-            .filter_map(filter_map_fn)
-            .collect::<Vec<_>>(),
-        FileSourceResult::External(file_source_result) => file_source_result
-            .files
-            .par_iter()
-            .cloned()
-            .filter_map(filter_map_fn)
-            .collect::<Vec<_>>(),
+        FileSourceResult::Watchman(file_source_result) => {
+            let mut relevant_projects = FnvHashSet::default();
+            for (project_name, project_config) in &config.projects {
+                if project_config.enabled {
+                    relevant_projects.insert(project_name);
+                    if let Some(base_project) = &project_config.base {
+                        relevant_projects.insert(base_project);
+                    }
+                }
+            }
+            let has_disabled_projects = relevant_projects.len() < config.projects.len();
+            file_source_result
+                .files
+                .par_iter()
+                .map(|file| {
+                    let file = File {
+                        name: (*file.name).clone(),
+                        exists: *file.exists,
+                    };
+                    let file_group = categorizer.categorize(&file.name).unwrap_or_else(|err| {
+                        panic!(
+                            "Unexpected error in file categorizer for file `{}`: {}.",
+                            file.name.to_string_lossy(),
+                            err
+                        )
+                    });
+                    (file_group, file)
+                })
+                .filter(|(file_group, _)| {
+                    !(has_disabled_projects
+                        && match &file_group {
+                            FileGroup::Source {
+                                source_set: SourceSet::SourceSetName(name),
+                            }
+                            | FileGroup::Schema {
+                                project_set: ProjectSet::ProjectName(name),
+                            }
+                            | FileGroup::Extension {
+                                project_set: ProjectSet::ProjectName(name),
+                            }
+                            | FileGroup::Generated { project_name: name } => {
+                                !relevant_projects.contains(name)
+                            }
+                            FileGroup::Source {
+                                source_set: SourceSet::SourceSetNames(names),
+                            }
+                            | FileGroup::Schema {
+                                project_set: ProjectSet::ProjectNames(names),
+                            }
+                            | FileGroup::Extension {
+                                project_set: ProjectSet::ProjectNames(names),
+                            } => !names.iter().any(|name| relevant_projects.contains(name)),
+                        })
+                })
+                .collect::<Vec<_>>()
+        }
+        FileSourceResult::External(file_source_result) => {
+            let file_filter = FileFilter::from_config(config);
+            file_source_result
+                .files
+                .par_iter()
+                .filter(|file| file_filter.is_file_relevant(&file.name))
+                .filter_map(|file| {
+                    let file_group = categorizer
+                        .categorize(&file.name)
+                        .map_err(|err| {
+                            warn!(
+                                "Unexpected error in file categorizer for file `{}`: {}.",
+                                file.name.to_string_lossy(),
+                                err
+                            );
+                            err
+                        })
+                        .ok()?;
+                    Some((file_group, file.clone()))
+                })
+                .collect::<Vec<_>>()
+        }
     };
     let mut categorized = HashMap::new();
     for (file_group, file) in result {

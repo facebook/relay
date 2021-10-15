@@ -370,12 +370,9 @@ export default function ArtistCard(props) {
                     </p>
                     <p>
                       See the{' '}
-                      <a
-                        href={useBaseUrl(
-                          'docs/graphql-server-specification#connections',
-                        )}>
+                      <Link to="docs/guides/graphql-server-specification#connections">
                         Connections
-                      </a>{' '}
+                      </Link>{' '}
                       docs
                     </p>
                   </div>
@@ -401,12 +398,9 @@ export default function ArtistCard(props) {
                       type, built using the Node GraphQL interface.
                     </p>
                     <p>
-                      <a
-                        href={useBaseUrl(
-                          'docs/graphql-server-specification#object-identification',
-                        )}>
+                      <Link to="docs/guides/graphql-server-specification#object-identification">
                         See the Object Identification docs
-                      </a>
+                      </Link>
                     </p>
                   </div>
                 ),

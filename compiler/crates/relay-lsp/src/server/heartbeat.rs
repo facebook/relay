@@ -5,11 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::PerfLogger;
 use lsp_types::request::Request;
-use schema_documentation::SchemaDocumentation;
 
-use crate::{LSPRuntimeResult, LSPState};
+use crate::LSPRuntimeResult;
+
+use super::GlobalState;
 
 pub(crate) struct HeartbeatRequest;
 
@@ -20,11 +20,8 @@ impl Request for HeartbeatRequest {
 }
 
 #[allow(clippy::unnecessary_wraps)]
-pub(crate) fn on_heartbeat<
-    TPerfLogger: PerfLogger + 'static,
-    TSchemaDocumentation: SchemaDocumentation,
->(
-    _state: &LSPState<TPerfLogger, TSchemaDocumentation>,
+pub(crate) fn on_heartbeat(
+    _state: &impl GlobalState,
     _params: <HeartbeatRequest as Request>::Params,
 ) -> LSPRuntimeResult<<HeartbeatRequest as Request>::Result> {
     Ok("Connected.".to_string())

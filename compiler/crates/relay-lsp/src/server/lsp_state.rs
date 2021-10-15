@@ -29,7 +29,10 @@ use graphql_syntax::{
 use interner::{Intern, StringKey};
 use log::debug;
 use lsp_server::Message;
-use lsp_types::{Diagnostic, DiagnosticTag, Range, TextDocumentPositionParams, Url};
+use lsp_types::{
+    request::{CodeActionRequest, Completion, Request},
+    Diagnostic, DiagnosticTag, Range, TextDocumentPositionParams, Url,
+};
 use relay_compiler::{
     config::{Config, ProjectConfig},
     FileCategorizer,
@@ -52,6 +55,48 @@ pub enum ProjectStatus {
     Completed,
 }
 
+pub trait GlobalState {
+    type TSchemaDocumentation: SchemaDocumentation;
+
+    fn get_config(&self) -> Arc<Config>;
+    fn get_schema(&self, project_name: &StringKey) -> Option<Arc<SDLSchema>>;
+    fn resolve_node(
+        &self,
+        text_document_position: &TextDocumentPositionParams,
+    ) -> LSPRuntimeResult<NodeResolutionInfo>;
+    fn root_dir(&self) -> PathBuf;
+    fn get_source_programs(&self) -> SourcePrograms;
+    fn process_synced_sources(
+        &self,
+        uri: &Url,
+        sources: Vec<GraphQLSource>,
+    ) -> LSPRuntimeResult<()>;
+    fn remove_synced_sources(&self, url: &Url);
+    fn can_process_js_source(&self) -> bool;
+    fn process_js_source(&self, uri: &Url, text: &str);
+    fn remove_js_source(&self, uri: &Url);
+    fn js_on_complete(
+        &self,
+        params: &<Completion as Request>::Params,
+    ) -> LSPRuntimeResult<<Completion as Request>::Result>;
+    fn js_on_code_action(
+        &self,
+        params: &<CodeActionRequest as Request>::Params,
+    ) -> LSPRuntimeResult<<CodeActionRequest as Request>::Result>;
+    fn extract_executable_document_from_text(
+        &self,
+        position: &TextDocumentPositionParams,
+        index_offset: usize,
+    ) -> LSPRuntimeResult<(ExecutableDocument, Span, StringKey)>;
+    fn get_schema_documentation(&self, schema_name: &str) -> Self::TSchemaDocumentation;
+    fn get_extra_data_provider(&self) -> &dyn LSPExtraDataProvider;
+    fn resolve_executable_definitions(
+        &self,
+        text_document_uri: &Url,
+    ) -> LSPRuntimeResult<Vec<ExecutableDefinition>>;
+    fn get_diagnostic_for_range(&self, url: &Url, range: Range) -> Option<Diagnostic>;
+}
+
 /// This structure contains all available resources that we may use in the Relay LSP message/notification
 /// handlers. Such as schema, programs, extra_data_providers, etc...
 pub struct LSPState<
@@ -60,7 +105,6 @@ pub struct LSPState<
 > {
     pub config: Arc<Config>,
     root_dir: PathBuf,
-    root_dir_str: String,
     pub extra_data_provider: Box<dyn LSPExtraDataProvider>,
     file_categorizer: FileCategorizer,
     schemas: Schemas,
@@ -104,7 +148,6 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             notify_sender: Arc::new(Notify::new()),
             perf_logger,
             project_status: Arc::new(DashMap::with_hasher(FnvBuildHasher::default())),
-            root_dir_str: root_dir.to_string_lossy().to_string(),
             root_dir: root_dir.clone(),
             schemas: Arc::new(DashMap::with_hasher(FnvBuildHasher::default())),
             schema_documentation_loader,
@@ -148,74 +191,6 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
 
     pub fn get_schemas(&self) -> Schemas {
         self.schemas.clone()
-    }
-
-    pub(crate) fn resolve_node(
-        &self,
-        text_document_position: &TextDocumentPositionParams,
-    ) -> LSPRuntimeResult<NodeResolutionInfo> {
-        get_node_resolution_info(
-            text_document_position,
-            &self.synced_graphql_documents,
-            &self.file_categorizer,
-            &self.root_dir,
-        )
-    }
-
-    pub(crate) fn resolve_executable_definitions(
-        &self,
-        text_document_uri: &Url,
-    ) -> LSPRuntimeResult<Vec<ExecutableDefinition>> {
-        extract_executable_definitions_from_text_document(
-            text_document_uri,
-            &self.synced_graphql_documents,
-        )
-    }
-
-    pub(crate) fn root_dir(&self) -> &PathBuf {
-        &self.root_dir
-    }
-
-    pub(crate) fn root_dir_str(&self) -> &str {
-        &self.root_dir_str
-    }
-
-    pub(crate) fn remove_synced_sources(&self, url: &Url) {
-        self.synced_graphql_documents.remove(url);
-        self.diagnostic_reporter
-            .clear_quick_diagnostics_for_url(url);
-    }
-
-    pub(crate) fn extract_executable_document_from_text(
-        &self,
-        position: &TextDocumentPositionParams,
-        index_offset: usize,
-    ) -> LSPRuntimeResult<(ExecutableDocument, Span, StringKey)> {
-        extract_executable_document_from_text(
-            &position,
-            &self.synced_graphql_documents,
-            &self.file_categorizer,
-            &self.root_dir,
-            index_offset,
-        )
-    }
-
-    pub(crate) fn process_synced_sources(
-        &self,
-        url: &Url,
-        sources: Vec<GraphQLSource>,
-    ) -> LSPRuntimeResult<()> {
-        let project_name = self.extract_project_name_from_url(url)?;
-
-        if let Entry::Vacant(e) = self.project_status.entry(project_name) {
-            e.insert(ProjectStatus::Activated);
-            self.notify_sender.notify_one();
-        }
-
-        self.insert_synced_sources(url, sources);
-        self.validate_synced_sources(url)?;
-
-        Ok(())
     }
 
     pub fn extract_project_name_from_url(&self, url: &Url) -> LSPRuntimeResult<StringKey> {
@@ -308,25 +283,6 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         self.perf_logger.clone()
     }
 
-    pub fn get_schema_documentation(&self, schema_name: &str) -> impl SchemaDocumentation {
-        let primary = self
-            .schemas
-            .get(&schema_name.intern())
-            .map(|x| Arc::clone(x.value()));
-        let secondary = self
-            .schema_documentation_loader
-            .as_ref()
-            .map(|loader| loader.get_schema_documentation(schema_name));
-
-        CombinedSchemaDocumentation::new(primary, secondary)
-    }
-
-    /// Given a Range return first available diagnostic message for it
-    pub(crate) fn get_diagnostic_for_range(&self, url: &Url, range: Range) -> Option<Diagnostic> {
-        self.diagnostic_reporter
-            .get_diagnostics_for_range(url, range)
-    }
-
     pub fn send_message(&self, message: Message) -> Result<(), SendError<Message>> {
         self.sender.send(message)
     }
@@ -352,5 +308,136 @@ pub fn convert_diagnostic(
         tags: if tags.len() == 0 { None } else { Some(tags) },
         source: None,
         ..Default::default()
+    }
+}
+
+impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentation + 'static>
+    GlobalState for LSPState<TPerfLogger, TSchemaDocumentation>
+{
+    type TSchemaDocumentation =
+        CombinedSchemaDocumentation<Option<Arc<SDLSchema>>, Option<Arc<TSchemaDocumentation>>>;
+
+    fn get_config(&self) -> Arc<Config> {
+        self.config.clone()
+    }
+
+    fn root_dir(&self) -> PathBuf {
+        self.root_dir.clone()
+    }
+
+    fn get_schema(&self, project_name: &StringKey) -> Option<Arc<SDLSchema>> {
+        self.schemas.get(project_name).as_deref().cloned()
+    }
+
+    fn resolve_node(
+        &self,
+        text_document_position: &TextDocumentPositionParams,
+    ) -> LSPRuntimeResult<NodeResolutionInfo> {
+        get_node_resolution_info(
+            text_document_position,
+            &self.synced_graphql_documents,
+            &self.file_categorizer,
+            &self.root_dir,
+        )
+    }
+
+    fn process_synced_sources(
+        &self,
+        uri: &Url,
+        sources: Vec<GraphQLSource>,
+    ) -> LSPRuntimeResult<()> {
+        let project_name = self.extract_project_name_from_url(uri)?;
+
+        if let Entry::Vacant(e) = self.project_status.entry(project_name) {
+            e.insert(ProjectStatus::Activated);
+            self.notify_sender.notify_one();
+        }
+
+        self.insert_synced_sources(uri, sources);
+        self.validate_synced_sources(uri)?;
+
+        Ok(())
+    }
+
+    fn remove_synced_sources(&self, url: &Url) {
+        self.synced_graphql_documents.remove(url);
+        self.diagnostic_reporter
+            .clear_quick_diagnostics_for_url(url);
+    }
+
+    fn get_source_programs(&self) -> SourcePrograms {
+        self.source_programs.clone()
+    }
+
+    fn can_process_js_source(&self) -> bool {
+        true
+    }
+
+    fn process_js_source(&self, uri: &Url, text: &str) {
+        self.js_resource.process_js_source(uri, text)
+    }
+
+    fn remove_js_source(&self, uri: &Url) {
+        self.js_resource.remove_js_source(uri)
+    }
+
+    fn extract_executable_document_from_text(
+        &self,
+        position: &TextDocumentPositionParams,
+        index_offset: usize,
+    ) -> LSPRuntimeResult<(ExecutableDocument, Span, StringKey)> {
+        extract_executable_document_from_text(
+            position,
+            &self.synced_graphql_documents,
+            &self.file_categorizer,
+            &self.root_dir,
+            index_offset,
+        )
+    }
+
+    fn get_schema_documentation(&self, schema_name: &str) -> Self::TSchemaDocumentation {
+        let primary = self
+            .schemas
+            .get(&schema_name.intern())
+            .map(|x| Arc::clone(x.value()));
+        let secondary = self
+            .schema_documentation_loader
+            .as_ref()
+            .map(|loader| loader.get_schema_documentation(schema_name));
+
+        CombinedSchemaDocumentation::new(primary, secondary)
+    }
+
+    fn get_extra_data_provider(&self) -> &dyn LSPExtraDataProvider {
+        self.extra_data_provider.as_ref()
+    }
+
+    fn js_on_complete(
+        &self,
+        params: &<Completion as Request>::Params,
+    ) -> LSPRuntimeResult<<Completion as Request>::Result> {
+        self.js_resource.on_complete(params, self)
+    }
+
+    fn js_on_code_action(
+        &self,
+        params: &<CodeActionRequest as Request>::Params,
+    ) -> LSPRuntimeResult<<CodeActionRequest as Request>::Result> {
+        self.js_resource.on_code_action(params, self)
+    }
+
+    fn resolve_executable_definitions(
+        &self,
+        text_document_uri: &Url,
+    ) -> LSPRuntimeResult<Vec<ExecutableDefinition>> {
+        extract_executable_definitions_from_text_document(
+            text_document_uri,
+            &self.synced_graphql_documents,
+        )
+    }
+
+    fn get_diagnostic_for_range(&self, url: &Url, range: Range) -> Option<Diagnostic> {
+        self.diagnostic_reporter
+            .get_diagnostics_for_range(url, range)
     }
 }

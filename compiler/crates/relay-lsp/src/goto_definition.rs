@@ -14,11 +14,11 @@ use crate::{
         IdentParent, IdentPath, LinkedFieldPath, ResolutionPath, ResolvePosition, ScalarFieldPath,
         SelectionParent, TypeConditionPath,
     },
-    server::LSPState,
+    server::GlobalState,
     server::SourcePrograms,
     FieldDefinitionSourceInfo, LSPExtraDataProvider,
 };
-use common::{NamedItem, PerfLogger};
+use common::NamedItem;
 
 use interner::{Intern, StringKey};
 use lsp_types::{
@@ -27,7 +27,6 @@ use lsp_types::{
 };
 use relay_transforms::{RELAY_RESOLVER_DIRECTIVE_NAME, RELAY_RESOLVER_IMPORT_PATH_ARGUMENT_NAME};
 use schema::{SDLSchema, Schema, Type};
-use schema_documentation::SchemaDocumentation;
 use serde::{Deserialize, Serialize};
 use std::{
     path::{Path, PathBuf},
@@ -39,7 +38,7 @@ fn get_goto_definition_response<'a>(
     project_name: StringKey,
     source_programs: &SourcePrograms,
     root_dir: &Path,
-    extra_data_provider: &(dyn LSPExtraDataProvider + 'static),
+    extra_data_provider: &dyn LSPExtraDataProvider,
 ) -> LSPRuntimeResult<GotoDefinitionResponse> {
     match node_path {
         ResolutionPath::Ident(IdentPath {
@@ -135,7 +134,7 @@ fn resolve_field<'a>(
     project_name: StringKey,
     source_programs: &SourcePrograms,
     root_dir: &Path,
-    extra_data_provider: &(dyn LSPExtraDataProvider + 'static),
+    extra_data_provider: &dyn LSPExtraDataProvider,
 ) -> LSPRuntimeResult<GotoDefinitionResponse> {
     let source_program = source_programs.get(&project_name).ok_or_else(|| {
         LSPRuntimeError::UnexpectedError(format!("Project name {} not found", project_name))
@@ -221,11 +220,8 @@ fn get_relay_resolver_location(
     })
 }
 
-pub(crate) fn on_goto_definition<
-    TPerfLogger: PerfLogger + 'static,
-    TSchemaDocumentation: SchemaDocumentation,
->(
-    state: &LSPState<TPerfLogger, TSchemaDocumentation>,
+pub(crate) fn on_goto_definition(
+    state: &impl GlobalState,
     params: <GotoDefinition as Request>::Params,
 ) -> LSPRuntimeResult<<GotoDefinition as Request>::Result> {
     let (document, position_span, project_name) =
@@ -235,9 +231,9 @@ pub(crate) fn on_goto_definition<
     let goto_definition_response = get_goto_definition_response(
         path,
         project_name,
-        &state.source_programs,
-        state.root_dir(),
-        state.extra_data_provider.as_ref(),
+        &state.get_source_programs(),
+        &state.root_dir(),
+        &*state.get_extra_data_provider(),
     )?;
 
     Ok(Some(goto_definition_response))
@@ -277,15 +273,12 @@ impl Request for GetSourceLocationOfTypeDefinition {
     const METHOD: &'static str = "relay/getSourceLocationOfTypeDefinition";
 }
 
-pub(crate) fn on_get_source_location_of_type_definition<
-    TPerfLogger: PerfLogger + 'static,
-    TSchemaDocumentation: SchemaDocumentation,
->(
-    state: &LSPState<TPerfLogger, TSchemaDocumentation>,
+pub(crate) fn on_get_source_location_of_type_definition(
+    state: &impl GlobalState,
     params: <GetSourceLocationOfTypeDefinition as Request>::Params,
 ) -> LSPRuntimeResult<<GetSourceLocationOfTypeDefinition as Request>::Result> {
     let field_definition_source_info = state
-        .extra_data_provider
+        .get_extra_data_provider()
         .resolve_field_definition(params.schema_name, params.type_name, params.field_name)
         .map_err(LSPRuntimeError::UnexpectedError)?;
     Ok(GetSourceLocationOfTypeDefinitionResult {

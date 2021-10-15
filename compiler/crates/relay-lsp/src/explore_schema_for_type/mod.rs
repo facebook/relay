@@ -7,13 +7,11 @@
 
 use crate::{
     lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult},
-    server::LSPState,
+    server::GlobalState,
 };
-use common::PerfLogger;
 use interner::Intern;
 use lsp_types::request::Request;
 use schema::Schema;
-use schema_documentation::SchemaDocumentation;
 use serde::{Deserialize, Serialize};
 
 mod types;
@@ -38,18 +36,14 @@ impl Request for ExploreSchemaForType {
     const METHOD: &'static str = "relay/exploreSchemaForType";
 }
 
-pub(crate) fn on_explore_schema_for_type<
-    TPerfLogger: PerfLogger + 'static,
-    TSchemaDocumentation: SchemaDocumentation,
->(
-    state: &LSPState<TPerfLogger, TSchemaDocumentation>,
+pub(crate) fn on_explore_schema_for_type(
+    state: &impl GlobalState,
     params: <ExploreSchemaForType as Request>::Params,
 ) -> LSPRuntimeResult<<ExploreSchemaForType as Request>::Result> {
     // TODO these should not be expected errors
     let schema_name: &str = &params.schema_name;
-    let schemas = state.get_schemas();
-    let schema = schemas
-        .get(&schema_name.intern())
+    let schema = state
+        .get_schema(&schema_name.intern())
         .ok_or(LSPRuntimeError::ExpectedError)?;
 
     let type_ = if params.item == "Query" {

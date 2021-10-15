@@ -13,13 +13,11 @@
 
 'use strict';
 
+const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
+const useMutation = require('../useMutation');
 const React = require('react');
 const ReactTestRenderer = require('react-test-renderer');
-const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
-
-const useMutation = require('../useMutation');
-
-const {graphql, getRequest} = require('relay-runtime');
+const {getRequest, graphql} = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
 
 describe('useLazyLoadQueryNode', () => {

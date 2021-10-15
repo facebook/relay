@@ -59,6 +59,18 @@ pub(crate) fn set_ready_status(sender: &Sender<Message>) {
     );
 }
 
+pub(crate) fn set_error_status(sender: &Sender<Message>, error: impl std::fmt::Display) {
+    update_status(
+        "Relay: error",
+        Some(format!(
+            "The Relay extension has errors: {}. Try reloading the IDE. If the error persists, report the issue via appropriate channels.",
+            error
+        )),
+        MessageType::Error,
+        sender,
+    );
+}
+
 pub(crate) fn set_initializing_status(sender: &Sender<Message>) {
     update_in_progress_status(
         "Relay: initializing...",

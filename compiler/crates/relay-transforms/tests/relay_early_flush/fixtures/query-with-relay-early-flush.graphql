@@ -1,5 +1,0 @@
-query MyQuery @relay_early_flush {
-  node(id: "foo") {
-    id
-  }
-}

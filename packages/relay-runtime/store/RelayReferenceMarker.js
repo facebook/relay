@@ -12,19 +12,6 @@
 
 'use strict';
 
-const RelayConcreteNode = require('../util/RelayConcreteNode');
-const RelayFeatureFlags = require('../util/RelayFeatureFlags');
-const RelayModernRecord = require('./RelayModernRecord');
-const RelayStoreReactFlightUtils = require('./RelayStoreReactFlightUtils');
-const RelayStoreUtils = require('./RelayStoreUtils');
-
-const cloneRelayHandleSourceField = require('./cloneRelayHandleSourceField');
-const getOperation = require('../util/getOperation');
-const invariant = require('invariant');
-
-const {getLocalVariables} = require('./RelayConcreteVariables');
-const {generateTypeID} = require('./TypeID');
-
 import type {
   NormalizationFlightField,
   NormalizationLinkedField,
@@ -37,10 +24,21 @@ import type {
   DataIDSet,
   NormalizationSelector,
   OperationLoader,
+  ReactFlightReachableExecutableDefinitions,
   Record,
   RecordSource,
-  ReactFlightReachableExecutableDefinitions,
 } from './RelayStoreTypes';
+
+const getOperation = require('../util/getOperation');
+const RelayConcreteNode = require('../util/RelayConcreteNode');
+const RelayFeatureFlags = require('../util/RelayFeatureFlags');
+const cloneRelayHandleSourceField = require('./cloneRelayHandleSourceField');
+const {getLocalVariables} = require('./RelayConcreteVariables');
+const RelayModernRecord = require('./RelayModernRecord');
+const RelayStoreReactFlightUtils = require('./RelayStoreReactFlightUtils');
+const RelayStoreUtils = require('./RelayStoreUtils');
+const {generateTypeID} = require('./TypeID');
+const invariant = require('invariant');
 
 const {
   ACTOR_CHANGE,

@@ -11,25 +11,25 @@ use crate::lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult};
 
 pub struct LSPNotificationDispatch<'state, TState> {
     notification: lsp_server::Notification,
-    state: &'state mut TState,
+    state: &'state TState,
 }
 
 impl<'state, TState> LSPNotificationDispatch<'state, TState> {
-    pub fn new(notification: lsp_server::Notification, state: &'state mut TState) -> Self {
+    pub fn new(notification: lsp_server::Notification, state: &'state TState) -> Self {
         LSPNotificationDispatch {
             notification,
             state,
         }
     }
 
-    /// Calls handler if the LSPNotificationDispatch's notifications's method matches
+    /// Calls handler if the LSPNotificationDispatch's notification's method matches
     /// the method of TNotification. Returns a Result which will be Ok if the handler
     /// was not called, or Err if the handler was called.
     /// Thus, multiple calls to `on_notification_sync(...)?` can be chained. Doing so will
     /// cause LSPNotificationDispatch to execute the first matching handler, if any.
     pub fn on_notification_sync<TNotification: Notification>(
         self,
-        handler: fn(&mut TState, TNotification::Params) -> LSPRuntimeResult<()>,
+        handler: fn(&TState, TNotification::Params) -> LSPRuntimeResult<()>,
     ) -> Result<Self, Option<LSPRuntimeError>> {
         if self.notification.method == TNotification::METHOD {
             let params = extract_notification_params::<TNotification>(self.notification);
@@ -62,6 +62,7 @@ mod test {
         notification::{LogMessage, Notification, TelemetryEvent},
         LogMessageParams, MessageType,
     };
+    use std::sync::atomic::{AtomicI32, Ordering};
 
     use crate::lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult};
 
@@ -69,7 +70,7 @@ mod test {
 
     #[test]
     fn calls_first_matching_notification_handler() {
-        let mut state: i32 = 0;
+        let state: AtomicI32 = AtomicI32::new(0);
         let dispatch = LSPNotificationDispatch::new(
             lsp_server::Notification {
                 method: "window/logMessage".to_string(),
@@ -79,7 +80,7 @@ mod test {
                 })
                 .unwrap(),
             },
-            &mut state,
+            &state,
         );
         let dispatch = || -> Result<(), Option<LSPRuntimeError>> {
             dispatch
@@ -89,22 +90,24 @@ mod test {
         };
         let result = dispatch();
         assert!(result.is_err());
-        assert_eq!(state, 2);
+        assert_eq!(state.load(Ordering::Relaxed), 2);
     }
 
     fn telemetry_handler(
-        state: &mut i32,
+        state: &AtomicI32,
         _params: <TelemetryEvent as Notification>::Params,
     ) -> LSPRuntimeResult<()> {
-        *state = 1;
+        state.store(1, Ordering::Relaxed);
+
         Ok(())
     }
 
     fn log_message_handler(
-        state: &mut i32,
+        state: &AtomicI32,
         _params: <LogMessage as Notification>::Params,
     ) -> LSPRuntimeResult<()> {
-        *state = 2;
+        state.store(2, Ordering::Relaxed);
+
         Ok(())
     }
 }

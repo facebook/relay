@@ -12,18 +12,17 @@
 
 'use strict';
 
+import type {
+  HandleFieldPayload,
+  Handler,
+  RecordProxy,
+  RecordSourceProxy,
+} from '../../store/RelayStoreTypes';
+
 const ConnectionHandler = require('./ConnectionHandler');
 const ConnectionInterface = require('./ConnectionInterface');
-
 const invariant = require('invariant');
 const warning = require('warning');
-
-import type {
-  RecordProxy,
-  HandleFieldPayload,
-  RecordSourceProxy,
-  Handler,
-} from '../../store/RelayStoreTypes';
 
 const DeleteRecordHandler = {
   update: (store: RecordSourceProxy, payload: HandleFieldPayload) => {

@@ -14,14 +14,12 @@
 'use strict';
 
 const LazyLoadEntryPointContainer_DEPRECATED = require('../LazyLoadEntryPointContainer_DEPRECATED.react');
-const React = require('react');
-const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
-const TestRenderer = require('react-test-renderer');
-
-const invariant = require('invariant');
 const preloadQuery_DEPRECATED = require('../preloadQuery_DEPRECATED');
+const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const usePreloadedQuery = require('../usePreloadedQuery');
-
+const invariant = require('invariant');
+const React = require('react');
+const TestRenderer = require('react-test-renderer');
 const {
   Environment,
   Network,

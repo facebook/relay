@@ -13,16 +13,14 @@
 
 'use strict';
 
+import type {GraphQLTaggedNode} from 'relay-runtime';
+
+const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
+const useQueryLoader = require('../useQueryLoader');
 const React = require('react');
 const ReactTestRenderer = require('react-test-renderer');
-const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
-
-const useQueryLoader = require('../useQueryLoader');
-
-const {graphql, getRequest} = require('relay-runtime');
+const {getRequest, graphql} = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils-internal');
-
-import type {GraphQLTaggedNode} from 'relay-runtime';
 
 const query: GraphQLTaggedNode = graphql`
   query useQueryLoaderLiveQueryTestQuery($id: ID!)

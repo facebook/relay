@@ -12,12 +12,11 @@
 
 'use strict';
 
-const invariant = require('invariant');
-
-const {getType} = require('./RelayModernRecord');
-
 import type {ReactFlightPayloadData} from '../network/RelayNetworkTypes';
 import type {ReactFlightClientResponse, Record} from './RelayStoreTypes';
+
+const {getType} = require('./RelayModernRecord');
+const invariant = require('invariant');
 
 // Reachable (client) executable definitions encountered while server component
 // rendering

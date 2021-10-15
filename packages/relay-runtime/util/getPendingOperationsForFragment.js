@@ -13,10 +13,10 @@
 
 'use strict';
 
-const {getPromiseForActiveRequest} = require('../query/fetchQueryInternal');
-
 import type {IEnvironment, RequestDescriptor} from '../store/RelayStoreTypes';
 import type {ReaderFragment} from './ReaderNode';
+
+const {getPromiseForActiveRequest} = require('../query/fetchQueryInternal');
 
 function getPendingOperationsForFragment(
   environment: IEnvironment,

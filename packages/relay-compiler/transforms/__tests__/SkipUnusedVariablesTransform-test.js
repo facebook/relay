@@ -16,7 +16,6 @@
 const CompilerContext = require('../../core/CompilerContext');
 const IRPrinter = require('../../core/IRPrinter');
 const SkipUnusedVariablesTransform = require('../SkipUnusedVariablesTransform');
-
 const {
   TestSchema,
   generateTestsFromFixtures,

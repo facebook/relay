@@ -12,15 +12,14 @@
 
 'use strict';
 
-const RelayFlowGenerator = require('./RelayFlowGenerator');
+import type {PluginInterface} from '../RelayLanguagePluginInterface';
 
 const {find} = require('./FindGraphQLTags');
 const {
   formatGeneratedCommonjsModule,
   formatGeneratedESModule,
 } = require('./formatGeneratedModule');
-
-import type {PluginInterface} from '../RelayLanguagePluginInterface';
+const RelayFlowGenerator = require('./RelayFlowGenerator');
 
 module.exports = (options?: {|eagerESModules: boolean|}): PluginInterface => ({
   inputExtensions: ['js', 'jsx'],

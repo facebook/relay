@@ -13,21 +13,19 @@
 
 'use strict';
 
-const React = require('react');
-const ReactTestRenderer = require('react-test-renderer');
-const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
-
+const {loadQuery} = require('../loadQuery');
 const preloadQuery_DEPRECATED = require('../preloadQuery_DEPRECATED');
+const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const useFragment = require('../useFragment');
 const usePreloadedQuery = require('../usePreloadedQuery');
-
-const {loadQuery} = require('../loadQuery');
+const React = require('react');
 const {useEffect} = require('react');
+const ReactTestRenderer = require('react-test-renderer');
 const {
   Observable,
   createOperationDescriptor,
-  getRequest,
   getFragment,
+  getRequest,
   graphql,
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');

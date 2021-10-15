@@ -12,18 +12,6 @@
 
 'use strict';
 
-const areEqual = require('areEqual');
-const invariant = require('invariant');
-const warning = require('warning');
-
-const {getFragmentVariables} = require('./RelayConcreteVariables');
-const {
-  FRAGMENT_OWNER_KEY,
-  FRAGMENTS_KEY,
-  ID_KEY,
-  IS_WITHIN_UNMATCHED_TYPE_REFINEMENT,
-} = require('./RelayStoreUtils');
-
 import type {NormalizationSelectableNode} from '../util/NormalizationNode';
 import type {ReaderFragment} from '../util/ReaderNode';
 import type {DataID, Variables} from '../util/RelayRuntimeTypes';
@@ -34,6 +22,17 @@ import type {
   RequestDescriptor,
   SingularReaderSelector,
 } from './RelayStoreTypes';
+
+const {getFragmentVariables} = require('./RelayConcreteVariables');
+const {
+  FRAGMENT_OWNER_KEY,
+  FRAGMENTS_KEY,
+  ID_KEY,
+  IS_WITHIN_UNMATCHED_TYPE_REFINEMENT,
+} = require('./RelayStoreUtils');
+const areEqual = require('areEqual');
+const invariant = require('invariant');
+const warning = require('warning');
 
 /**
  * @public

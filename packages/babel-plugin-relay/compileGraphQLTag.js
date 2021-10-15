@@ -10,8 +10,14 @@
 
 'use strict';
 
-const crypto = require('crypto');
+import type {BabelState} from './BabelPluginRelay';
+import type {
+  DocumentNode,
+  FragmentDefinitionNode,
+  OperationDefinitionNode,
+} from 'graphql';
 
+const crypto = require('crypto');
 const {print} = require('graphql');
 const {
   dirname,
@@ -19,13 +25,6 @@ const {
   relative: relativePath,
   resolve: resolvePath,
 } = require('path');
-
-import type {BabelState} from './BabelPluginRelay';
-import type {
-  DocumentNode,
-  FragmentDefinitionNode,
-  OperationDefinitionNode,
-} from 'graphql';
 
 const GENERATED = './__generated__/';
 

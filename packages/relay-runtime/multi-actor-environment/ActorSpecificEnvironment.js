@@ -11,31 +11,24 @@
 
 'use strict';
 
-const RelayOperationTracker = require('../store/RelayOperationTracker');
-const RelayPublishQueue = require('../store/RelayPublishQueue');
-
-const defaultGetDataID = require('../store/defaultGetDataID');
-const registerEnvironmentWithDevTools = require('../util/registerEnvironmentWithDevTools');
-const wrapNetworkWithLogObserver = require('../network/wrapNetworkWithLogObserver');
-
 import type {HandlerProvider} from '../handlers/RelayDefaultHandlerProvider';
 import type {GraphQLResponse, PayloadData} from '../network/RelayNetworkTypes';
 import type {INetwork} from '../network/RelayNetworkTypes';
 import type RelayObservable from '../network/RelayObservable';
 import type {
-  OptimisticResponseConfig,
-  OptimisticUpdateFunction,
-  OperationDescriptor,
-  OperationAvailability,
-  Snapshot,
-  SelectorStoreUpdater,
-  SingularReaderSelector,
-  StoreUpdater,
-  RequiredFieldLogger,
   ExecuteMutationConfig,
   LogFunction,
-  Store,
+  OperationAvailability,
+  OperationDescriptor,
   OperationTracker,
+  OptimisticResponseConfig,
+  OptimisticUpdateFunction,
+  RequiredFieldLogger,
+  SelectorStoreUpdater,
+  SingularReaderSelector,
+  Snapshot,
+  Store,
+  StoreUpdater,
 } from '../store/RelayStoreTypes';
 import type {Disposable, RenderPolicy} from '../util/RelayRuntimeTypes';
 import type {ActorIdentifier} from './ActorIdentifier';
@@ -43,6 +36,12 @@ import type {
   IActorEnvironment,
   IMultiActorEnvironment,
 } from './MultiActorEnvironmentTypes';
+
+const wrapNetworkWithLogObserver = require('../network/wrapNetworkWithLogObserver');
+const defaultGetDataID = require('../store/defaultGetDataID');
+const RelayOperationTracker = require('../store/RelayOperationTracker');
+const RelayPublishQueue = require('../store/RelayPublishQueue');
+const registerEnvironmentWithDevTools = require('../util/registerEnvironmentWithDevTools');
 
 export type ActorSpecificEnvironmentConfig = $ReadOnly<{
   actorIdentifier: ActorIdentifier,

@@ -11,11 +11,11 @@
 
 'use strict';
 
+import type {RelayResolverTestUtilsTest$key} from './__generated__/RelayResolverTestUtilsTest.graphql';
+
 const {testResolver} = require('../RelayResolverTestUtils');
 const {graphql} = require('relay-runtime');
 const {readFragment} = require('relay-runtime/store/ResolverFragments');
-
-import type {RelayResolverTestUtilsTest$key} from './__generated__/RelayResolverTestUtilsTest.graphql';
 
 function myTestResolver(rootKey: RelayResolverTestUtilsTest$key): string {
   const user = readFragment(
@@ -34,19 +34,4 @@ test('testResolver', () => {
   const input = {name: 'Elizabeth', $refType: (null: any)};
   const actual = testResolver(myTestResolver, input);
   expect(actual).toBe('Hello Elizabeth!');
-});
-
-testResolver(
-  myTestResolver,
-  // $FlowExpectedError foo is an unexpected key
-  {
-    name: 'Elizabeth',
-    foo: 'bar',
-    $refType: (null: any),
-  },
-);
-testResolver(myTestResolver, {
-  // $FlowExpectedError Object is not a string
-  name: {},
-  $refType: (null: any),
 });

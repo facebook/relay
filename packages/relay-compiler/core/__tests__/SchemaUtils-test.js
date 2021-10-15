@@ -15,10 +15,8 @@
 
 const Schema = require('../Schema');
 const SchemaUtils = require('../SchemaUtils');
-
-const nullthrows = require('nullthrows');
-
 const {Source} = require('graphql');
+const nullthrows = require('nullthrows');
 
 test('generateIDField', () => {
   const schema = Schema.create(

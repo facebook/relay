@@ -12,13 +12,12 @@
 
 'use strict';
 
-const invariant = require('invariant');
+import type {GraphQLTaggedNode} from '../query/GraphQLTag';
+import type {FragmentReference} from './RelayStoreTypes';
 
 const {getInlineDataFragment} = require('../query/GraphQLTag');
 const {FRAGMENTS_KEY} = require('./RelayStoreUtils');
-
-import type {GraphQLTaggedNode} from '../query/GraphQLTag';
-import type {FragmentReference} from './RelayStoreTypes';
+const invariant = require('invariant');
 
 /**
  * Reads an @inline data fragment that was spread into the parent fragment.

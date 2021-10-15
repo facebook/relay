@@ -8,7 +8,12 @@ fragment EnabledActorsRendererFragment on User {
 ==================================== OUTPUT ===================================
 fragment EnabledActorsRendererFragment on User @__childrenCanBubbleNull {
   id
-  profile_picture @required(action: LOG) @__required(action: "LOG", path: "profile_picture") {
+  profile_picture @required(action: LOG) @__RequiredMetadataDirective
+  # RequiredMetadataDirective {
+  #     action: Log,
+  #     path: "profile_picture",
+  # }
+   {
     uri
   }
 }

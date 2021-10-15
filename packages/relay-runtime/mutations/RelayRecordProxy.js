@@ -12,16 +12,15 @@
 
 'use strict';
 
-const invariant = require('invariant');
-
-const {generateClientID} = require('../store/ClientID');
-const {getStableStorageKey} = require('../store/RelayStoreUtils');
-
 import type {RecordProxy} from '../store/RelayStoreTypes';
 import type {Arguments} from '../store/RelayStoreUtils';
 import type {DataID} from '../util/RelayRuntimeTypes';
 import type RelayRecordSourceMutator from './RelayRecordSourceMutator';
 import type RelayRecordSourceProxy from './RelayRecordSourceProxy';
+
+const {generateClientID} = require('../store/ClientID');
+const {getStableStorageKey} = require('../store/RelayStoreUtils');
+const invariant = require('invariant');
 
 /**
  * @internal

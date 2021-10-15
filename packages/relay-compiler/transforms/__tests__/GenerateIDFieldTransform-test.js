@@ -14,10 +14,9 @@
 'use strict';
 
 const CompilerContext = require('../../core/CompilerContext');
-const GenerateIDFieldTransform = require('../GenerateIDFieldTransform');
 const IRPrinter = require('../../core/IRPrinter');
 const RelayParser = require('../../core/RelayParser');
-
+const GenerateIDFieldTransform = require('../GenerateIDFieldTransform');
 const {
   TestSchema,
   generateTestsFromFixtures,

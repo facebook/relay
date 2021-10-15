@@ -12,24 +12,23 @@
 
 'use strict';
 
-const RelayFeatureFlags = require('../util/RelayFeatureFlags');
-const RelayReader = require('./RelayReader');
-
-const deepFreeze = require('../util/deepFreeze');
-const hasOverlappingIDs = require('./hasOverlappingIDs');
-const recycleNodesInto = require('../util/recycleNodesInto');
-
 import type {Disposable} from '../util/RelayRuntimeTypes';
 import type {
+  DataIDSet,
   LogFunction,
   OperationDescriptor,
-  DataIDSet,
   RecordSource,
   RequestDescriptor,
   Snapshot,
   StoreSubscriptions,
 } from './RelayStoreTypes';
 import type {ResolverCache} from './ResolverCache';
+
+const deepFreeze = require('../util/deepFreeze');
+const recycleNodesInto = require('../util/recycleNodesInto');
+const RelayFeatureFlags = require('../util/RelayFeatureFlags');
+const hasOverlappingIDs = require('./hasOverlappingIDs');
+const RelayReader = require('./RelayReader');
 
 type Subscription = {|
   callback: (snapshot: Snapshot) => void,

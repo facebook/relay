@@ -18,8 +18,8 @@ const {
   __internal: {fetchQuery},
   createOperationDescriptor,
   getFragment,
-  graphql,
   getRequest,
+  graphql,
 } = require('relay-runtime');
 
 describe('FragmentResource', () => {

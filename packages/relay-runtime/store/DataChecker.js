@@ -13,24 +13,6 @@
 
 'use strict';
 
-const RelayConcreteNode = require('../util/RelayConcreteNode');
-const RelayFeatureFlags = require('../util/RelayFeatureFlags');
-const RelayModernRecord = require('./RelayModernRecord');
-const RelayRecordSourceMutator = require('../mutations/RelayRecordSourceMutator');
-const RelayRecordSourceProxy = require('../mutations/RelayRecordSourceProxy');
-const RelayStoreReactFlightUtils = require('./RelayStoreReactFlightUtils');
-const RelayStoreUtils = require('./RelayStoreUtils');
-
-const cloneRelayHandleSourceField = require('./cloneRelayHandleSourceField');
-const cloneRelayScalarHandleSourceField = require('./cloneRelayScalarHandleSourceField');
-const getOperation = require('../util/getOperation');
-const invariant = require('invariant');
-
-const {isClientID} = require('./ClientID');
-const {getLocalVariables} = require('./RelayConcreteVariables');
-const {EXISTENT, UNKNOWN} = require('./RelayRecordState');
-const {generateTypeID} = require('./TypeID');
-
 import type {ActorIdentifier} from '../multi-actor-environment/ActorIdentifier';
 import type {
   NormalizationField,
@@ -52,6 +34,22 @@ import type {
   Record,
   RecordSource,
 } from './RelayStoreTypes';
+
+const RelayRecordSourceMutator = require('../mutations/RelayRecordSourceMutator');
+const RelayRecordSourceProxy = require('../mutations/RelayRecordSourceProxy');
+const getOperation = require('../util/getOperation');
+const RelayConcreteNode = require('../util/RelayConcreteNode');
+const RelayFeatureFlags = require('../util/RelayFeatureFlags');
+const {isClientID} = require('./ClientID');
+const cloneRelayHandleSourceField = require('./cloneRelayHandleSourceField');
+const cloneRelayScalarHandleSourceField = require('./cloneRelayScalarHandleSourceField');
+const {getLocalVariables} = require('./RelayConcreteVariables');
+const RelayModernRecord = require('./RelayModernRecord');
+const {EXISTENT, UNKNOWN} = require('./RelayRecordState');
+const RelayStoreReactFlightUtils = require('./RelayStoreReactFlightUtils');
+const RelayStoreUtils = require('./RelayStoreUtils');
+const {generateTypeID} = require('./TypeID');
+const invariant = require('invariant');
 
 export type Availability = {|
   +status: 'available' | 'missing',

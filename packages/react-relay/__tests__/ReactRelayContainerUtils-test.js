@@ -10,12 +10,11 @@
 
 'use strict';
 
-const React = require('react');
-
 const {
   getComponentName,
   getContainerName,
 } = require('../ReactRelayContainerUtils');
+const React = require('react');
 
 test('functional component', () => {
   function Foo() {

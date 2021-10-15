@@ -13,31 +13,17 @@
 'use strict';
 
 import type {
-  NormalizationSelection,
   NormalizationField,
+  NormalizationSelection,
 } from '../util/NormalizationNode';
 import type {ConcreteRequest} from '../util/RelayConcreteNode';
 import type {Variables} from '../util/RelayRuntimeTypes';
 
-type ValidationContext = {|
-  visitedPaths: Set<string>,
-  path: string,
-  variables: Variables,
-  missingDiff: Object,
-  extraDiff: Object,
-  moduleImportPaths: Set<string>,
-|};
-
-const warning = require('warning');
-
-// $FlowFixMe[method-unbinding] added when improving typing for this parameters
-const hasOwnProperty = Object.prototype.hasOwnProperty;
-
 const {
   ACTOR_CHANGE,
-  CONDITION,
   CLIENT_COMPONENT,
   CLIENT_EXTENSION,
+  CONDITION,
   DEFER,
   FLIGHT_FIELD,
   FRAGMENT_SPREAD,
@@ -50,6 +36,18 @@ const {
   STREAM,
   TYPE_DISCRIMINATOR,
 } = require('../util/RelayConcreteNode');
+const warning = require('warning');
+
+type ValidationContext = {|
+  visitedPaths: Set<string>,
+  path: string,
+  variables: Variables,
+  missingDiff: Object,
+  extraDiff: Object,
+  moduleImportPaths: Set<string>,
+|};
+// $FlowFixMe[method-unbinding] added when improving typing for this parameters
+const hasOwnProperty = Object.prototype.hasOwnProperty;
 
 let validateMutation = () => {};
 if (__DEV__) {

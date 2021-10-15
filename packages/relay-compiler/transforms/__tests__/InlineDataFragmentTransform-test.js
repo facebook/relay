@@ -14,12 +14,11 @@
 'use strict';
 
 const InlineDataFragmentTransform = require('../InlineDataFragmentTransform');
-
 const {CompilerContext, Printer} = require('relay-compiler');
 const {
   TestSchema,
-  parseGraphQLText,
   generateTestsFromFixtures,
+  parseGraphQLText,
 } = require('relay-test-utils-internal');
 
 const extendedSchema = TestSchema.extend([

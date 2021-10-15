@@ -12,9 +12,9 @@
 
 'use strict';
 
-const {createCompilerError} = require('../core/CompilerError');
-
 import type {Schema, TypeID} from '../core/Schema';
+
+const {createCompilerError} = require('../core/CompilerError');
 
 function generateAbstractTypeRefinementKey(
   schema: Schema,

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<28db9a3006956e6788797da27716fc83>>
+ * @generated SignedSource<<717bc876cf9a2d1fd3c00c6027336237>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -27,13 +27,13 @@ export type RelayModernEnvironmentExecuteWithMatchTestUserQueryResponse = {|
   +node: ?{|
     +nameRenderer?: ?({|
       +__typename: "PlainUserNameRenderer",
-      +__fragmentPropName?: ?string,
-      +__module_component?: ?string,
+      +__fragmentPropName: ?string,
+      +__module_component: ?string,
       +$fragmentRefs: RelayModernEnvironmentExecuteWithMatchTestPlainUserNameRenderer_name$ref,
     |} | {|
       +__typename: "MarkdownUserNameRenderer",
-      +__fragmentPropName?: ?string,
-      +__module_component?: ?string,
+      +__fragmentPropName: ?string,
+      +__module_component: ?string,
       +$fragmentRefs: RelayModernEnvironmentExecuteWithMatchTestMarkdownUserNameRenderer_name$ref,
     |} | {|
       // This will never be '%other', but we need some

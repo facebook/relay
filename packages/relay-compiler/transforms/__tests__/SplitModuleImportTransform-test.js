@@ -18,7 +18,6 @@ const IRPrinter = require('../../core/IRPrinter');
 const MatchTransform = require('../MatchTransform');
 const RelayDirectiveTransform = require('../RelayDirectiveTransform');
 const SplitModuleImportTransform = require('../SplitModuleImportTransform');
-
 const {
   TestSchema,
   generateTestsFromFixtures,

@@ -10,22 +10,20 @@
 
 'use strict';
 
-const ConnectionHandler = require('../ConnectionHandler');
-const ConnectionInterface = require('../ConnectionInterface');
-const RelayModernStore = require('../../../store/RelayModernStore');
-const RelayRecordSource = require('../../../store/RelayRecordSource');
 const RelayRecordSourceMutator = require('../../../mutations/RelayRecordSourceMutator');
 const RelayRecordSourceProxy = require('../../../mutations/RelayRecordSourceProxy');
-const RelayResponseNormalizer = require('../../../store/RelayResponseNormalizer');
-const RelayStoreUtils = require('../../../store/RelayStoreUtils');
-
+const {getRequest, graphql} = require('../../../query/GraphQLTag');
 const defaultGetDataID = require('../../../store/defaultGetDataID');
-const getRelayHandleKey = require('../../../util/getRelayHandleKey');
-
-const {graphql, getRequest} = require('../../../query/GraphQLTag');
 const {
   createNormalizationSelector,
 } = require('../../../store/RelayModernSelector');
+const RelayModernStore = require('../../../store/RelayModernStore');
+const RelayRecordSource = require('../../../store/RelayRecordSource');
+const RelayResponseNormalizer = require('../../../store/RelayResponseNormalizer');
+const RelayStoreUtils = require('../../../store/RelayStoreUtils');
+const getRelayHandleKey = require('../../../util/getRelayHandleKey');
+const ConnectionHandler = require('../ConnectionHandler');
+const ConnectionInterface = require('../ConnectionInterface');
 const {simpleClone} = require('relay-test-utils-internal');
 
 const {

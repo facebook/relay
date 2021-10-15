@@ -12,25 +12,12 @@
 
 'use strict';
 
-const RelayDeclarativeMutationConfig = require('./RelayDeclarativeMutationConfig');
-
-const invariant = require('invariant');
-const isRelayModernEnvironment = require('../store/isRelayModernEnvironment');
-const validateMutation = require('./validateMutation');
-const warning = require('warning');
-
-const {getRequest} = require('../query/GraphQLTag');
-const {generateUniqueClientID} = require('../store/ClientID');
-const {
-  createOperationDescriptor,
-} = require('../store/RelayModernOperationDescriptor');
-
 import type {PayloadError, UploadableMap} from '../network/RelayNetworkTypes';
 import type {GraphQLTaggedNode} from '../query/GraphQLTag';
 import type {
   IEnvironment,
-  SelectorStoreUpdater,
   MutationParameters,
+  SelectorStoreUpdater,
 } from '../store/RelayStoreTypes';
 import type {
   CacheConfig,
@@ -38,6 +25,17 @@ import type {
   Variables,
 } from '../util/RelayRuntimeTypes';
 import type {DeclarativeMutationConfig} from './RelayDeclarativeMutationConfig';
+
+const {getRequest} = require('../query/GraphQLTag');
+const {generateUniqueClientID} = require('../store/ClientID');
+const isRelayModernEnvironment = require('../store/isRelayModernEnvironment');
+const {
+  createOperationDescriptor,
+} = require('../store/RelayModernOperationDescriptor');
+const RelayDeclarativeMutationConfig = require('./RelayDeclarativeMutationConfig');
+const validateMutation = require('./validateMutation');
+const invariant = require('invariant');
+const warning = require('warning');
 
 export type DEPRECATED_MutationConfig<T> = {|
   configs?: Array<DeclarativeMutationConfig>,

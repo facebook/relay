@@ -11,7 +11,10 @@ use interner::StringKey;
 use schema::{FieldID, Type, TypeReference};
 use schema::{SDLSchema, Schema};
 use std::fmt;
+use std::hash::Hash;
 use std::sync::Arc;
+
+use crate::AssociatedData;
 // Definitions
 
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -316,6 +319,10 @@ pub struct Condition {
 pub struct Directive {
     pub name: WithLocation<StringKey>,
     pub arguments: Vec<Argument>,
+    /// Optional typed data that has no textual representation. This can be used
+    /// to attach arbitrary data on compiler-internal directives, such as to
+    /// pass instructions to code generation.
+    pub data: Option<Box<dyn AssociatedData>>,
 }
 impl Named for Directive {
     fn name(&self) -> StringKey {

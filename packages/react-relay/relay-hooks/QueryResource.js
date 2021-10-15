@@ -13,19 +13,7 @@
 
 'use strict';
 
-const LRUCache = require('./LRUCache');
-
-const invariant = require('invariant');
-const warning = require('warning');
-
-const {isPromise} = require('relay-runtime');
-
-const CACHE_CAPACITY = 1000;
-
-const DEFAULT_FETCH_POLICY = 'store-or-network';
-
-const DATA_RETENTION_TIMEOUT = 5 * 60 * 1000;
-
+import type {Cache} from './LRUCache';
 import type {
   Disposable,
   FetchPolicy,
@@ -40,7 +28,15 @@ import type {
   Snapshot,
   Subscription,
 } from 'relay-runtime';
-import type {Cache} from './LRUCache';
+
+const LRUCache = require('./LRUCache');
+const invariant = require('invariant');
+const {isPromise} = require('relay-runtime');
+const warning = require('warning');
+
+const CACHE_CAPACITY = 1000;
+const DEFAULT_FETCH_POLICY = 'store-or-network';
+const DATA_RETENTION_TIMEOUT = 5 * 60 * 1000;
 
 export type QueryResource = QueryResourceImpl;
 

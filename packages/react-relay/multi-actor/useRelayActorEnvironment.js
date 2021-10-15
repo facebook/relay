@@ -13,16 +13,14 @@
 
 'use strict';
 
-const ReactRelayContext = require('react-relay/ReactRelayContext');
+import type {
+  ActorIdentifier,
+  IActorEnvironment,
+} from 'relay-runtime/multi-actor-environment';
 
 const invariant = require('invariant');
-
 const {useContext} = require('react');
-
-import type {
-  IActorEnvironment,
-  ActorIdentifier,
-} from 'relay-runtime/multi-actor-environment';
+const ReactRelayContext = require('react-relay/ReactRelayContext');
 
 function useRelayActorEnvironment(
   actorIdentifier: ActorIdentifier,

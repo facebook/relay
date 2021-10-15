@@ -12,12 +12,11 @@
 
 'use strict';
 
-const IRValidator = require('../core/IRValidator');
-
-const {createUserError} = require('../core/CompilerError');
-
 import type CompilerContext from '../core/CompilerContext';
 import type {Root} from '../core/IR';
+
+const {createUserError} = require('../core/CompilerError');
+const IRValidator = require('../core/IRValidator');
 
 function visitRoot(node: Root) {
   for (const selection of node.selections) {

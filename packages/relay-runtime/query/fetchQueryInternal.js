@@ -12,11 +12,6 @@
 
 'use strict';
 
-const Observable = require('../network/RelayObservable');
-const RelayReplaySubject = require('../util/RelayReplaySubject');
-
-const invariant = require('invariant');
-
 import type {GraphQLResponse} from '../network/RelayNetworkTypes';
 import type {Subscription} from '../network/RelayObservable';
 import type {
@@ -25,6 +20,10 @@ import type {
   RequestDescriptor,
 } from '../store/RelayStoreTypes';
 import type {RequestIdentifier} from '../util/getRequestIdentifier';
+
+const Observable = require('../network/RelayObservable');
+const RelayReplaySubject = require('../util/RelayReplaySubject');
+const invariant = require('invariant');
 
 type RequestCacheEntry = {|
   +identifier: RequestIdentifier,

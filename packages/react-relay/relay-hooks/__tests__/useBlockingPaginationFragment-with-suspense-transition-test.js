@@ -13,28 +13,27 @@
 
 'use strict';
 
-const React = require('react');
-const Scheduler = require('scheduler');
-
 import type {Direction, OperationDescriptor, Variables} from 'relay-runtime';
-const {useEffect, useTransition, useMemo, useState} = React;
-const TestRenderer = require('react-test-renderer');
 
-const invariant = require('invariant');
 const useBlockingPaginationFragmentOriginal = require('../useBlockingPaginationFragment');
+const invariant = require('invariant');
+const React = require('react');
 const ReactRelayContext = require('react-relay/ReactRelayContext');
+const TestRenderer = require('react-test-renderer');
 const {
   ConnectionHandler,
   FRAGMENT_OWNER_KEY,
   FRAGMENTS_KEY,
   ID_KEY,
   createOperationDescriptor,
-  graphql,
-  getRequest,
   getFragment,
+  getRequest,
+  graphql,
 } = require('relay-runtime');
-
 const {createMockEnvironment} = require('relay-test-utils');
+const Scheduler = require('scheduler');
+
+const {useEffect, useTransition, useMemo, useState} = React;
 
 describe('useBlockingPaginationFragment with useTransition', () => {
   if (typeof useTransition !== 'function') {

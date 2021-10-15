@@ -11,17 +11,16 @@
 
 'use strict';
 
-const RelayMockPayloadGenerator = require('../RelayMockPayloadGenerator');
-
-const {
-  getRequest,
-  graphql,
-  createOperationDescriptor,
-} = require('relay-runtime');
-const {FIXTURE_TAG} = require('relay-test-utils-internal');
-
 import type {MockResolvers} from '../RelayMockPayloadGenerator';
 import type {GraphQLTaggedNode} from 'relay-runtime';
+
+const RelayMockPayloadGenerator = require('../RelayMockPayloadGenerator');
+const {
+  createOperationDescriptor,
+  getRequest,
+  graphql,
+} = require('relay-runtime');
+const {FIXTURE_TAG} = require('relay-test-utils-internal');
 
 function testGeneratedData(
   query: GraphQLTaggedNode,

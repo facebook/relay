@@ -14,7 +14,6 @@
 'use strict';
 
 const prepareEntryPoint_DEPRECATED = require('../prepareEntryPoint_DEPRECATED');
-
 const {createMockEnvironment} = require('relay-test-utils-internal');
 
 class FakeJSResource<T> {

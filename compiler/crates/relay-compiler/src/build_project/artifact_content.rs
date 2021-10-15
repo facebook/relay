@@ -10,9 +10,8 @@ use common::{NamedItem, SourceLocationKey};
 use graphql_ir::{Directive, FragmentDefinition, OperationDefinition};
 use relay_codegen::{build_request_params, Printer, QueryID};
 use relay_transforms::{
-    is_operation_preloadable, DATA_DRIVEN_DEPENDENCY_METADATA_KEY, INLINE_DATA_CONSTANTS,
-    REACT_FLIGHT_LOCAL_COMPONENTS_METADATA_ARG_KEY, REACT_FLIGHT_LOCAL_COMPONENTS_METADATA_KEY,
-    RELAY_CLIENT_COMPONENT_METADATA_KEY, RELAY_CLIENT_COMPONENT_METADATA_SPLIT_OPERATION_ARG_KEY,
+    is_operation_preloadable, ReactFlightLocalComponentsMetadata, RelayClientComponentMetadata,
+    DATA_DRIVEN_DEPENDENCY_METADATA_KEY, INLINE_DATA_CONSTANTS,
 };
 use relay_typegen::{generate_fragment_type, TypegenLanguage};
 use schema::SDLSchema;
@@ -131,62 +130,22 @@ fn write_data_driven_dependency_annotation(
 
 fn write_react_flight_server_annotation(
     content: &mut String,
-    flight_directive: &Directive,
+    flight_local_components_metadata: &ReactFlightLocalComponentsMetadata,
 ) -> Result {
-    let arg = flight_directive
-        .arguments
-        .named(*REACT_FLIGHT_LOCAL_COMPONENTS_METADATA_ARG_KEY)
-        .unwrap();
-    match &arg.value.item {
-        graphql_ir::Value::Constant(graphql_ir::ConstantValue::List(value)) => {
-            for item in value {
-                match item {
-                    graphql_ir::ConstantValue::String(value) => {
-                        writeln!(content, "// @ReactFlightServerDependency {}", value)?;
-                    }
-                    _ => panic!(
-                        "Unexpected item value for @__ReactFlightMetadata directive: {:?}",
-                        item
-                    ),
-                }
-            }
-        }
-        _ => panic!(
-            "Unexpected argument value for @__ReactFlightMetadata directive: {:?}",
-            &arg.value.item
-        ),
-    };
+    for item in &flight_local_components_metadata.components {
+        writeln!(content, "// @ReactFlightServerDependency {}", item)?;
+    }
     writeln!(content)?;
     Ok(())
 }
 
 fn write_react_flight_client_annotation(
     content: &mut String,
-    relay_client_component_metadata: &Directive,
+    relay_client_component_metadata: &RelayClientComponentMetadata,
 ) -> Result {
-    let arg = relay_client_component_metadata
-        .arguments
-        .named(*RELAY_CLIENT_COMPONENT_METADATA_SPLIT_OPERATION_ARG_KEY)
-        .unwrap();
-    match &arg.value.item {
-        graphql_ir::Value::Constant(graphql_ir::ConstantValue::List(value)) => {
-            for item in value {
-                match item {
-                    graphql_ir::ConstantValue::String(value) => {
-                        writeln!(content, "// @ReactFlightClientDependency {}", value)?;
-                    }
-                    _ => panic!(
-                        "Unexpected item value for @__RelayClientComponent directive: {:?}",
-                        item
-                    ),
-                }
-            }
-        }
-        _ => panic!(
-            "Unexpected argument value for @__RelayClientComponent directive: {:?}",
-            &arg.value.item
-        ),
-    };
+    for value in &relay_client_component_metadata.split_operation_filenames {
+        writeln!(content, "// @ReactFlightClientDependency {}", value)?;
+    }
     writeln!(content)?;
     Ok(())
 }
@@ -258,15 +217,13 @@ fn generate_operation(
         write_data_driven_dependency_annotation(&mut content, data_driven_dependency_metadata)
             .unwrap();
     }
-    let flight_metadata = operation_fragment
-        .directives
-        .named(*REACT_FLIGHT_LOCAL_COMPONENTS_METADATA_KEY);
-    if let Some(flight_metadata) = flight_metadata {
+    if let Some(flight_metadata) =
+        ReactFlightLocalComponentsMetadata::find(&operation_fragment.directives)
+    {
         write_react_flight_server_annotation(&mut content, flight_metadata).unwrap();
     }
-    let relay_client_component_metadata = operation_fragment
-        .directives
-        .named(*RELAY_CLIENT_COMPONENT_METADATA_KEY);
+    let relay_client_component_metadata =
+        RelayClientComponentMetadata::find(&operation_fragment.directives);
     if let Some(relay_client_component_metadata) = relay_client_component_metadata {
         write_react_flight_client_annotation(&mut content, relay_client_component_metadata)
             .unwrap();
@@ -468,15 +425,13 @@ fn generate_fragment(
 
         writeln!(content).unwrap();
     }
-    let flight_metadata = reader_fragment
-        .directives
-        .named(*REACT_FLIGHT_LOCAL_COMPONENTS_METADATA_KEY);
-    if let Some(flight_metadata) = flight_metadata {
+    if let Some(flight_metadata) =
+        ReactFlightLocalComponentsMetadata::find(&reader_fragment.directives)
+    {
         write_react_flight_server_annotation(&mut content, flight_metadata).unwrap();
     }
-    let relay_client_component_metadata = reader_fragment
-        .directives
-        .named(*RELAY_CLIENT_COMPONENT_METADATA_KEY);
+    let relay_client_component_metadata =
+        RelayClientComponentMetadata::find(&reader_fragment.directives);
     if let Some(relay_client_component_metadata) = relay_client_component_metadata {
         write_react_flight_client_annotation(&mut content, relay_client_component_metadata)
             .unwrap();

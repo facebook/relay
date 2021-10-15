@@ -49,7 +49,7 @@ pub(crate) fn on_search_schema_items<
     TPerfLogger: PerfLogger + 'static,
     TSchemaDocumentation: SchemaDocumentation,
 >(
-    state: &mut LSPState<TPerfLogger, TSchemaDocumentation>,
+    state: &LSPState<TPerfLogger, TSchemaDocumentation>,
     params: SearchSchemaItemsParams,
 ) -> LSPRuntimeResult<<SearchSchemaItems as Request>::Result> {
     let filter = params.filter.map(|f| f.to_lowercase());

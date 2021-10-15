@@ -5,6 +5,9 @@ playground.
 
 ## Build The Wasm Module
 
+Ensure you have wasm-pack >= 0.10.0 installed. Go
+[here](https://rustwasm.github.io/wasm-pack/installer/) if you don't.
+
 To build the wasm module:
 
 ```bash
@@ -23,25 +26,12 @@ Bump the version in `cargo.toml`. This will be used for the generated
 
 Build (see above)
 
-Fix:
+Finally, publish:
 
-_Note:_ Wasm-pack has a bug which has been resolved, but not yet shipped in a
-release which meanst he `files` array in the generated `package.json` file is
-missing an entry. You'll need to manually that arry to include
-`"relay_compiler_playground_bg.js"` before publishing:
-
-```json
-  "files": [
-    "relay_compiler_playground_bg.wasm",
-    "relay_compiler_playground_bg.js",
-    "relay_compiler_playground.js",
-    "relay_compiler_playground.d.ts"
-  ],
+```bash
+cd pkg
+npm publish
 ```
-
-More info: https://github.com/rustwasm/wasm-pack/issues/837
-
-Finally, publish: `npm publish`
 
 ## Testing
 
@@ -51,3 +41,20 @@ wasm-pack build --target nodejs # NOTE: We build for node in tests and web to pu
 yarn
 yarn test
 ```
+
+## Manually Testing
+
+Follow the steps above for "Build The Wasm Module".
+
+```bash
+cd relay-compiler-playground/pkg
+yarn link
+
+cd ~/fbsource/xplat/js/RKJSModules/Libraries/Relay/oss/__github__/website
+yarn link relay-compiler-playground
+
+# Launch the website in dev mode
+yarn start
+```
+
+Navigate to `http://localhost:3000/compiler-playground`

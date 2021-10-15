@@ -14,10 +14,9 @@
 'use strict';
 
 const CompilerContext = require('../../core/CompilerContext');
-const FilterCompilerDirectivesTransform = require('../FilterCompilerDirectivesTransform');
 const IRPrinter = require('../../core/IRPrinter');
 const RelayIRTransforms = require('../../core/RelayIRTransforms');
-
+const FilterCompilerDirectivesTransform = require('../FilterCompilerDirectivesTransform');
 const {RelayFeatureFlags} = require('relay-runtime');
 const {
   TestSchema,

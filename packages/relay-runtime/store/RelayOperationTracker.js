@@ -12,9 +12,9 @@
 
 'use strict';
 
-const invariant = require('invariant');
-
 import type {RequestDescriptor} from './RelayStoreTypes';
+
+const invariant = require('invariant');
 
 class RelayOperationTracker {
   _ownersToPendingOperations: Map<string, Map<string, RequestDescriptor>>;

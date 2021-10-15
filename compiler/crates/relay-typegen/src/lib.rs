@@ -30,12 +30,9 @@ use itertools::Itertools;
 use lazy_static::lazy_static;
 use relay_codegen::JsModuleFormat;
 use relay_transforms::{
-    extract_refetch_metadata_from_directive, RefetchableDerivedFromMetadata, RelayDirective,
-    CHILDREN_CAN_BUBBLE_METADATA_KEY, CLIENT_EXTENSION_DIRECTIVE_NAME, MATCH_CONSTANTS,
-    RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN, RELAY_RESOLVER_IMPORT_PATH_ARGUMENT_NAME,
-    RELAY_RESOLVER_METADATA_FIELD_ALIAS, RELAY_RESOLVER_METADATA_FIELD_NAME,
-    RELAY_RESOLVER_METADATA_FIELD_PARENT_TYPE, RELAY_RESOLVER_SPREAD_METADATA_DIRECTIVE_NAME,
-    REQUIRED_METADATA_KEY,
+    ModuleMetadata, RefetchableDerivedFromMetadata, RefetchableMetadata, RelayDirective,
+    RelayResolverSpreadMetadata, RequiredMetadataDirective, CHILDREN_CAN_BUBBLE_METADATA_KEY,
+    CLIENT_EXTENSION_DIRECTIVE_NAME, RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN,
 };
 use schema::{EnumID, SDLSchema, ScalarID, Schema, Type, TypeReference};
 use std::hash::Hash;
@@ -196,7 +193,7 @@ impl<'a> TypeGenerator<'a> {
         };
 
         let refetchable_fragment_name =
-            RefetchableDerivedFromMetadata::from_directives(&typegen_operation.directives);
+            RefetchableDerivedFromMetadata::find(&typegen_operation.directives);
         if refetchable_fragment_name.is_some() {
             self.runtime_imports.fragment_reference = true;
         }
@@ -210,8 +207,8 @@ impl<'a> TypeGenerator<'a> {
 
         self.write_import_actor_change_point()?;
         self.write_runtime_imports()?;
-        if let Some(refetchable_fragment_name) = refetchable_fragment_name {
-            self.write_fragment_refs_for_refetchable(refetchable_fragment_name)?;
+        if let Some(refetchable_derived_from) = refetchable_fragment_name {
+            self.write_fragment_refs_for_refetchable(refetchable_derived_from.0)?;
         } else {
             self.write_fragment_imports()?;
         }
@@ -354,7 +351,7 @@ impl<'a> TypeGenerator<'a> {
         self.write_runtime_imports()?;
         self.write_relay_resolver_imports()?;
 
-        let refetchable_metadata = extract_refetch_metadata_from_directive(&node.directives);
+        let refetchable_metadata = RefetchableMetadata::find(&node.directives);
         let old_fragment_type_name = format!("{}$ref", old_fragment_type_name).intern();
         if let Some(refetchable_metadata) = refetchable_metadata {
             match self.js_module_format {
@@ -420,11 +417,10 @@ impl<'a> TypeGenerator<'a> {
         type_selections: &mut Vec<TypeSelection>,
         fragment_spread: &FragmentSpread,
     ) {
-        if let Some(module_directive) = fragment_spread
-            .directives
-            .named(*RELAY_RESOLVER_SPREAD_METADATA_DIRECTIVE_NAME)
+        if let Some(resolver_spread_metadata) =
+            RelayResolverSpreadMetadata::find(&fragment_spread.directives)
         {
-            self.visit_relay_resolver_fragment(type_selections, module_directive);
+            self.visit_relay_resolver_fragment(type_selections, resolver_spread_metadata);
         } else {
             let name = fragment_spread.fragment.item;
             self.used_fragments.insert(name);
@@ -445,35 +441,20 @@ impl<'a> TypeGenerator<'a> {
     fn visit_relay_resolver_fragment(
         &mut self,
         type_selections: &mut Vec<TypeSelection>,
-        metadata_directive: &Directive,
+        resolver_spread_metadata: &RelayResolverSpreadMetadata,
     ) {
-        let field_name = expect_string_literal_directive_argument_value(
-            metadata_directive,
-            *RELAY_RESOLVER_METADATA_FIELD_NAME,
-        );
+        let field_name = resolver_spread_metadata.field_name;
 
-        let module_path = expect_string_literal_directive_argument_value(
-            metadata_directive,
-            *RELAY_RESOLVER_IMPORT_PATH_ARGUMENT_NAME,
-        );
+        let key = resolver_spread_metadata.field_alias.unwrap_or(field_name);
 
-        let field_alias = metadata_directive
-            .arguments
-            .named(*RELAY_RESOLVER_METADATA_FIELD_ALIAS)
-            .map(|arg| arg.value.item.expect_string_literal());
-
-        let key = field_alias.unwrap_or(field_name);
-
-        let parent_type = expect_string_literal_directive_argument_value(
-            metadata_directive,
-            *RELAY_RESOLVER_METADATA_FIELD_PARENT_TYPE,
-        );
-
-        let local_resolver_name =
-            to_camel_case(format!("{}_{}_resolver", parent_type, field_name)).intern();
+        let local_resolver_name = to_camel_case(format!(
+            "{}_{}_resolver",
+            resolver_spread_metadata.field_parent_type, field_name
+        ))
+        .intern();
 
         // TODO(T86853359): Support non-haste environments when generating Relay Resolver types
-        let haste_import_name = Path::new(&module_path.to_string())
+        let haste_import_name = Path::new(&resolver_spread_metadata.import_path.to_string())
             .file_stem()
             .unwrap()
             .to_string_lossy()
@@ -501,20 +482,14 @@ impl<'a> TypeGenerator<'a> {
         type_selections: &mut Vec<TypeSelection>,
         inline_fragment: &InlineFragment,
     ) {
-        if let Some(module_directive) = inline_fragment
-            .directives
-            .named(MATCH_CONSTANTS.custom_module_directive_name)
-        {
-            let name = expect_string_literal_directive_argument_value(
-                module_directive,
-                MATCH_CONSTANTS.name_arg,
-            );
+        if let Some(module_metadata) = ModuleMetadata::find(&inline_fragment.directives) {
+            let name = module_metadata.fragment_name;
             type_selections.push(TypeSelection {
                 key: *FRAGMENT_PROP_NAME,
                 schema_name: None,
                 value: Some(AST::Nullable(Box::new(AST::String))),
                 node_type: None,
-                conditional: true,
+                conditional: false,
                 concrete_type: None,
                 ref_: None,
                 node_selections: None,
@@ -525,7 +500,7 @@ impl<'a> TypeGenerator<'a> {
                 schema_name: None,
                 value: Some(AST::Nullable(Box::new(AST::String))),
                 node_type: None,
-                conditional: true,
+                conditional: false,
                 concrete_type: None,
                 ref_: None,
                 node_selections: None,
@@ -617,19 +592,8 @@ impl<'a> TypeGenerator<'a> {
             }
         }
 
-        if let Some(module_directive) = inline_fragment
-            .directives
-            .named(MATCH_CONSTANTS.custom_module_directive_name)
-        {
-            let directive_arg_name = expect_string_literal_directive_argument_value(
-                module_directive,
-                MATCH_CONSTANTS.name_arg,
-            );
-            let directive_arg_key = expect_string_literal_directive_argument_value(
-                module_directive,
-                MATCH_CONSTANTS.key_arg,
-            );
-
+        if let Some(module_metadata) = ModuleMetadata::find(&inline_fragment.directives) {
+            let directive_arg_name = module_metadata.fragment_name;
             if !self.match_fields.contains_key(&directive_arg_name) {
                 let match_field = self.raw_response_selections_to_babel(
                     selections
@@ -657,7 +621,7 @@ impl<'a> TypeGenerator<'a> {
                 concrete_type: None,
                 ref_: None,
                 node_selections: None,
-                document_name: Some(directive_arg_key),
+                document_name: Some(module_metadata.key),
             });
             return;
         }
@@ -1519,26 +1483,18 @@ fn apply_required_directive_nullability(
     field_type: &TypeReference,
     directives: &[Directive],
 ) -> TypeReference {
-    match directives.named(*REQUIRED_METADATA_KEY) {
-        Some(_) => field_type.non_null(),
-        None => match directives.named(*CHILDREN_CAN_BUBBLE_METADATA_KEY) {
-            Some(_) => field_type.with_nullable_item_type(),
-            None => field_type.clone(),
-        },
+    // We apply bubbling before the field's own @required directive (which may
+    // negate the effects of bubbling) because we need handle the case where
+    // null can bubble to the _items_ in a plural field which is itself
+    // @required.
+    let bubbled_type = match directives.named(*CHILDREN_CAN_BUBBLE_METADATA_KEY) {
+        Some(_) => field_type.with_nullable_item_type(),
+        None => field_type.clone(),
+    };
+    match directives.named(*RequiredMetadataDirective::DIRECTIVE_NAME) {
+        Some(_) => bubbled_type.non_null(),
+        None => bubbled_type,
     }
-}
-
-fn expect_string_literal_directive_argument_value(
-    directive: &Directive,
-    argument_name: StringKey,
-) -> StringKey {
-    directive
-        .arguments
-        .named(argument_name)
-        .unwrap()
-        .value
-        .item
-        .expect_string_literal()
 }
 
 /// Converts a `String` to a camel case `String`

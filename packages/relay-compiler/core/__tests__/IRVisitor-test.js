@@ -13,15 +13,6 @@
 
 'use strict';
 
-const IRPrinter = require('../IRPrinter');
-const RelayParser = require('../RelayParser');
-
-const {visit} = require('../IRVisitor');
-const {
-  TestSchema,
-  generateTestsFromFixtures,
-} = require('relay-test-utils-internal');
-
 import type {
   Argument,
   ArgumentDefinition,
@@ -35,6 +26,14 @@ import type {
   Root,
   Variable,
 } from '../IR';
+
+const IRPrinter = require('../IRPrinter');
+const {visit} = require('../IRVisitor');
+const RelayParser = require('../RelayParser');
+const {
+  TestSchema,
+  generateTestsFromFixtures,
+} = require('relay-test-utils-internal');
 
 type VisitNodeWithName =
   | Root

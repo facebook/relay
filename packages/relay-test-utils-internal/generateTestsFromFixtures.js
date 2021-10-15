@@ -9,8 +9,8 @@
 
 'use strict';
 
-const fs = require('fs');
 const getOutputForFixture = require('./getOutputForFixture');
+const fs = require('fs');
 const path = require('path');
 
 /* global expect,test */

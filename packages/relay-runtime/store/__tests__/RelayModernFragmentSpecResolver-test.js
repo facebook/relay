@@ -10,14 +10,13 @@
 
 'use strict';
 
+const {fetchQuery} = require('../../query/fetchQueryInternal');
 const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const RelayModernFragmentSpecResolver = require('../RelayModernFragmentSpecResolver');
-
-const {fetchQuery} = require('../../query/fetchQueryInternal');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
-const {graphql, getRequest} = require('relay-runtime');
+const {getRequest, graphql} = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils-internal');
 describe('RelayModernFragmentSpecResolver', () => {
   let UserFragment;

@@ -10,9 +10,8 @@
 
 'use strict';
 
+const {getRequest, graphql} = require('../../query/GraphQLTag');
 const readInlineData = require('../readInlineData');
-
-const {graphql, getRequest} = require('../../query/GraphQLTag');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');

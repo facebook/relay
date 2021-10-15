@@ -12,13 +12,6 @@
 
 'use strict';
 
-const NormalizationCodeGenerator = require('./NormalizationCodeGenerator');
-const ReaderCodeGenerator = require('./ReaderCodeGenerator');
-const sortObjectByKey = require('./sortObjectByKey');
-const md5 = require('../util/md5');
-const nullthrows = require('nullthrows');
-const {createCompilerError} = require('../core/CompilerError');
-
 import type {Fragment, Request, SplitOperation} from '../core/IR';
 import type {Schema} from '../core/Schema';
 import type {
@@ -26,6 +19,13 @@ import type {
   NormalizationSplitOperation,
   ReaderFragment,
 } from 'relay-runtime';
+
+const {createCompilerError} = require('../core/CompilerError');
+const md5 = require('../util/md5');
+const NormalizationCodeGenerator = require('./NormalizationCodeGenerator');
+const ReaderCodeGenerator = require('./ReaderCodeGenerator');
+const sortObjectByKey = require('./sortObjectByKey');
+const nullthrows = require('nullthrows');
 
 /**
  * @public

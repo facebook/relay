@@ -12,10 +12,10 @@
 
 'use strict';
 
-const {createUserError} = require('../core/CompilerError');
-
 import type {ArgumentDefinition, Fragment} from '../core/IR';
 import type {Schema} from '../core/Schema';
+
+const {createUserError} = require('../core/CompilerError');
 
 /**
  * Attempts to join the argument definitions for a root fragment

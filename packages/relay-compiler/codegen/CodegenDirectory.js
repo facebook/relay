@@ -12,15 +12,14 @@
 
 'use strict';
 
-const Profiler = require('../core/GraphQLCompilerProfiler');
-
-const crypto = require('crypto');
-const invariant = require('invariant');
-const path = require('path');
-
 // flowlint nonstrict-import:warn
 import type {KeepExtraFileFn} from './CodegenRunner';
 import type {SourceControl} from './SourceControl';
+
+const Profiler = require('../core/GraphQLCompilerProfiler');
+const crypto = require('crypto');
+const invariant = require('invariant');
+const path = require('path');
 
 type Changes = {|
   +deleted: Array<string>,

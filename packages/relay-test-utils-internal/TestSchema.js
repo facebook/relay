@@ -12,17 +12,16 @@
 
 'use strict';
 
+import type {Schema} from 'relay-compiler';
+
 const fs = require('fs');
-const path = require('path');
-
-const testSchemaPath = (path.join(__dirname, 'testschema.graphql'): string);
-
 const {Source} = require('graphql');
-
+const path = require('path');
 const {
   Schema: {create},
 } = require('relay-compiler');
-import type {Schema} from 'relay-compiler';
+
+const testSchemaPath = (path.join(__dirname, 'testschema.graphql'): string);
 
 module.exports = ({
   TestSchema: create(new Source(fs.readFileSync(testSchemaPath, 'utf8'))),

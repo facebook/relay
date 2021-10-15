@@ -13,11 +13,10 @@
 
 'use strict';
 
-const React = require('react');
+import type {Variables} from 'relay-runtime';
 
 const areEqual = require('areEqual');
-
-import type {Variables} from 'relay-runtime';
+const React = require('react');
 
 const {useMemo, useRef, useState} = React;
 

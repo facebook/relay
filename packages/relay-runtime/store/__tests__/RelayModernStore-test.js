@@ -13,17 +13,18 @@
 
 'use strict';
 
-const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
-const RelayModernRecord = require('../RelayModernRecord');
-const RelayModernStore = require('../RelayModernStore');
-const RelayOptimisticRecordSource = require('../RelayOptimisticRecordSource');
-const RelayRecordSource = require('../RelayRecordSource');
+import type {Disposable} from '../../util/RelayRuntimeTypes';
 
-const {graphql, getRequest, getFragment} = require('../../query/GraphQLTag');
+const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
+const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
+const RelayModernRecord = require('../RelayModernRecord');
 const {createReaderSelector} = require('../RelayModernSelector');
+const RelayModernStore = require('../RelayModernStore');
+const RelayOptimisticRecordSource = require('../RelayOptimisticRecordSource');
+const RelayRecordSource = require('../RelayRecordSource');
 const {
   INVALIDATED_AT_KEY,
   REF_KEY,
@@ -34,8 +35,6 @@ const {
   createMockEnvironment,
   simpleClone,
 } = require('relay-test-utils-internal');
-
-import type {Disposable} from '../../util/RelayRuntimeTypes';
 
 function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
   if (!value) {

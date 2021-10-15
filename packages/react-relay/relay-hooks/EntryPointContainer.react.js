@@ -13,18 +13,16 @@
 
 'use strict';
 
-const ProfilerContext = require('./ProfilerContext');
-const React = require('react');
-
-const useRelayEnvironment = require('./useRelayEnvironment');
-const warning = require('warning');
-
-const {useContext, useEffect} = require('react');
-
 import type {
   EntryPointComponent,
   PreloadedEntryPoint,
 } from './EntryPointTypes.flow';
+
+const ProfilerContext = require('./ProfilerContext');
+const useRelayEnvironment = require('./useRelayEnvironment');
+const React = require('react');
+const {useContext, useEffect} = require('react');
+const warning = require('warning');
 
 function EntryPointContainer<
   +TPreloadedQueries: {...},

@@ -11,25 +11,23 @@
 
 'use strict';
 
+const useFragmentNodeOriginal = require('../useFragmentNode');
 // eslint-disable-next-line no-unused-vars
 const React = require('react');
 const ReactRelayContext = require('react-relay/ReactRelayContext');
 const TestRenderer = require('react-test-renderer');
-
-const useFragmentNodeOriginal = require('../useFragmentNode');
-const warning = require('warning');
-
 const {
   FRAGMENT_OWNER_KEY,
   FRAGMENTS_KEY,
   ID_KEY,
-  createOperationDescriptor,
   RelayFeatureFlags,
-  getRequest,
+  createOperationDescriptor,
   getFragment,
+  getRequest,
   graphql,
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
+const warning = require('warning');
 
 let environment;
 let singularQuery;

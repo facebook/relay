@@ -12,17 +12,15 @@
 
 'use strict';
 
-const Profiler = require('./GraphQLCompilerProfiler');
-
-const invariant = require('invariant');
-
-const {createUserError} = require('./CompilerError');
-// $FlowFixMe[untyped-import] - immutable.js is not flow-typed
-const {OrderedMap: ImmutableOrderedMap} = require('immutable');
-
 import type {Reporter} from '../reporters/Reporter';
 import type {Fragment, Location, Root, SplitOperation} from './IR';
 import type {Schema} from './Schema';
+
+const {createUserError} = require('./CompilerError');
+const Profiler = require('./GraphQLCompilerProfiler');
+// $FlowFixMe[untyped-import] - immutable.js is not flow-typed
+const {OrderedMap: ImmutableOrderedMap} = require('immutable');
+const invariant = require('invariant');
 
 export type IRTransform = CompilerContext => CompilerContext;
 

@@ -18,8 +18,8 @@ use crate::{
 use common::{Diagnostic, DiagnosticsResult, NamedItem, WithLocation};
 use fnv::{FnvHashMap, FnvHashSet};
 use graphql_ir::{
-    Argument, ConstantValue, Directive, FragmentDefinition, FragmentSpread, OperationDefinition,
-    Program, Selection, Transformed, Transformer, Value,
+    associated_data_impl, Argument, ConstantValue, Directive, FragmentDefinition, FragmentSpread,
+    OperationDefinition, Program, Selection, Transformed, Transformer, Value,
 };
 use graphql_syntax::OperationKind;
 use interner::{Intern, StringKey};
@@ -32,10 +32,6 @@ lazy_static! {
     pub static ref RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME: StringKey =
         "relay_client_component_server".intern();
     pub static ref RELAY_CLIENT_COMPONENT_MODULE_ID_ARGUMENT_NAME: StringKey = "module_id".intern();
-    pub static ref RELAY_CLIENT_COMPONENT_METADATA_KEY: StringKey =
-        "__RelayClientComponentMetadata".intern();
-    pub static ref RELAY_CLIENT_COMPONENT_METADATA_SPLIT_OPERATION_ARG_KEY: StringKey =
-        "__RelayClientComponentMetadataSplitOperation".intern();
     pub static ref RELAY_CLIENT_COMPONENT_DIRECTIVE_NAME: StringKey =
         "relay_client_component".intern();
     static ref STRING_TYPE: StringKey = "String".intern();
@@ -43,6 +39,12 @@ lazy_static! {
     static ref NODE_TYPE_NAME: StringKey = "Node".intern();
     static ref VIEWER_TYPE_NAME: StringKey = "Viewer".intern();
 }
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub struct RelayClientComponentMetadata {
+    pub split_operation_filenames: Vec<StringKey>,
+}
+associated_data_impl!(RelayClientComponentMetadata);
 
 pub fn relay_client_component(
     program: &Program,
@@ -268,6 +270,7 @@ impl<'program, 'flag> RelayClientComponentTransform<'program, 'flag> {
                         module_id,
                     ))),
                 }],
+                data: None,
             };
         }
 
@@ -310,23 +313,11 @@ impl<'program, 'flag> RelayClientComponentTransform<'program, 'flag> {
     }
 
     fn generate_relay_client_component_client_metadata_directive(&mut self) -> Directive {
-        let split_operation_filenames = self
-            .split_operation_filenames
-            .drain()
-            .sorted()
-            .map(ConstantValue::String)
-            .collect();
-        Directive {
-            name: WithLocation::generated(*RELAY_CLIENT_COMPONENT_METADATA_KEY),
-            arguments: vec![Argument {
-                name: WithLocation::generated(
-                    *RELAY_CLIENT_COMPONENT_METADATA_SPLIT_OPERATION_ARG_KEY,
-                ),
-                value: WithLocation::generated(Value::Constant(ConstantValue::List(
-                    split_operation_filenames,
-                ))),
-            }],
+        let split_operation_filenames = self.split_operation_filenames.drain().sorted().collect();
+        RelayClientComponentMetadata {
+            split_operation_filenames,
         }
+        .into()
     }
 }
 

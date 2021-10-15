@@ -12,21 +12,19 @@
 
 'use strict';
 
-const IRVisitor = require('../core/IRVisitor');
-
-const getLiteralArgumentValues = require('../core/getLiteralArgumentValues');
-const inferRootArgumentDefinitions = require('../core/inferRootArgumentDefinitions');
+import type CompilerContext from '../core/CompilerContext';
+import type {Argument, Field, Fragment} from '../core/IR';
+import type {Schema} from '../core/Schema';
+import type {ReaderPaginationMetadata} from 'relay-runtime';
 
 const {
   createUserError,
   eachWithCombinedError,
 } = require('../core/CompilerError');
+const getLiteralArgumentValues = require('../core/getLiteralArgumentValues');
+const inferRootArgumentDefinitions = require('../core/inferRootArgumentDefinitions');
+const IRVisitor = require('../core/IRVisitor');
 const {buildRefetchOperation} = require('./query-generators');
-
-import type CompilerContext from '../core/CompilerContext';
-import type {Argument, Field, Fragment} from '../core/IR';
-import type {Schema} from '../core/Schema';
-import type {ReaderPaginationMetadata} from 'relay-runtime';
 
 const SCHEMA_EXTENSION = `
   directive @refetchable(

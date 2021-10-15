@@ -13,27 +13,6 @@
 
 'use strict';
 
-const ProfilerContext = require('./ProfilerContext');
-
-const invariant = require('invariant');
-const useFragmentNode = require('./useFragmentNode');
-const useIsMountedRef = require('./useIsMountedRef');
-const useQueryLoader = require('./useQueryLoader');
-const useRelayEnvironment = require('./useRelayEnvironment');
-const warning = require('warning');
-
-const {getFragmentResourceForEnvironment} = require('./FragmentResource');
-const {getQueryResourceForEnvironment} = require('./QueryResource');
-const {useCallback, useContext, useReducer} = require('react');
-const {
-  __internal: {fetchQuery},
-  createOperationDescriptor,
-  getFragmentIdentifier,
-  getRefetchMetadata,
-  getSelector,
-  getValueAtPath,
-} = require('relay-runtime');
-
 import type {LoaderFn} from './useQueryLoader';
 import type {
   Disposable,
@@ -46,6 +25,25 @@ import type {
   Variables,
   VariablesOf,
 } from 'relay-runtime';
+
+const {getFragmentResourceForEnvironment} = require('./FragmentResource');
+const ProfilerContext = require('./ProfilerContext');
+const {getQueryResourceForEnvironment} = require('./QueryResource');
+const useFragmentNode = require('./useFragmentNode');
+const useIsMountedRef = require('./useIsMountedRef');
+const useQueryLoader = require('./useQueryLoader');
+const useRelayEnvironment = require('./useRelayEnvironment');
+const invariant = require('invariant');
+const {useCallback, useContext, useReducer} = require('react');
+const {
+  __internal: {fetchQuery},
+  createOperationDescriptor,
+  getFragmentIdentifier,
+  getRefetchMetadata,
+  getSelector,
+  getValueAtPath,
+} = require('relay-runtime');
+const warning = require('warning');
 
 export type RefetchFn<
   TQuery: OperationType,
@@ -500,7 +498,7 @@ function useRefetchFunction<TQuery: OperationType>(
     //   - fragmentNode and parentFragmentRef are also captured by including
     //     fragmentIdentifier
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [fragmentIdentifier, dispatch, disposeQuery, identifierValue],
+    [fragmentIdentifier, dispatch, disposeQuery, identifierValue, loadQuery],
   );
 }
 

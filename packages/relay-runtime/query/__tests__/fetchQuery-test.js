@@ -14,12 +14,11 @@
 'use strict';
 
 const fetchQuery = require('../fetchQuery');
-
 const {
+  RelayFeatureFlags,
   createOperationDescriptor,
   getRequest,
   graphql,
-  RelayFeatureFlags,
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils-internal');
 

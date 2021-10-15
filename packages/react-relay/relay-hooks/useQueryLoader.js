@@ -13,16 +13,9 @@
 
 'use strict';
 
-const useIsMountedRef = require('./useIsMountedRef');
-const useRelayEnvironment = require('./useRelayEnvironment');
-
-const {loadQuery, useTrackLoadQueryInRender} = require('./loadQuery');
-const {useCallback, useEffect, useRef, useState} = require('react');
-const {getRequest} = require('relay-runtime');
-
 import type {
-  PreloadableConcreteRequest,
   LoadQueryOptions,
+  PreloadableConcreteRequest,
   PreloadedQuery,
 } from './EntryPointTypes.flow';
 import type {
@@ -30,6 +23,12 @@ import type {
   IEnvironment,
   OperationType,
 } from 'relay-runtime';
+
+const {loadQuery, useTrackLoadQueryInRender} = require('./loadQuery');
+const useIsMountedRef = require('./useIsMountedRef');
+const useRelayEnvironment = require('./useRelayEnvironment');
+const {useCallback, useEffect, useRef, useState} = require('react');
+const {getRequest} = require('relay-runtime');
 
 export type LoaderFn<TQuery: OperationType> = (
   variables: $ElementType<TQuery, 'variables'>,

@@ -13,9 +13,9 @@
 
 'use strict';
 
-const {useCallback, useEffect, useRef} = require('react');
-
 import type {Subscription} from 'relay-runtime';
+
+const {useCallback, useEffect, useRef} = require('react');
 
 /**
  * This hook returns a mutable React ref that holds the value of whether a

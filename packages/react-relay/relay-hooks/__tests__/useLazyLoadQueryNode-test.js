@@ -13,25 +13,23 @@
 
 'use strict';
 
-const React = require('react');
-const ReactTestRenderer = require('react-test-renderer');
-const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
+import type {FetchPolicy} from 'relay-runtime';
 
+const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const useFragmentNode = require('../useFragmentNode');
 const useLazyLoadQueryNode = require('../useLazyLoadQueryNode');
-
+const React = require('react');
+const ReactTestRenderer = require('react-test-renderer');
 const {
-  createOperationDescriptor,
-  getFragment,
   RecordSource,
   Store,
   __internal,
-  graphql,
+  createOperationDescriptor,
+  getFragment,
   getRequest,
+  graphql,
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
-
-import type {FetchPolicy} from 'relay-runtime';
 
 const defaultFetchPolicy = 'network-only';
 

@@ -12,25 +12,24 @@
 
 'use strict';
 
-const areEqual = require('areEqual');
-const deepFreeze = require('../util/deepFreeze');
-const invariant = require('invariant');
-const warning = require('warning');
+import type {ActorIdentifier} from '../multi-actor-environment/ActorIdentifier';
+import type {DataID} from '../util/RelayRuntimeTypes';
+import type {Record} from './RelayStoreTypes';
 
+const deepFreeze = require('../util/deepFreeze');
 const {isClientID} = require('./ClientID');
 const {
   ACTOR_IDENTIFIER_KEY,
   ID_KEY,
+  INVALIDATED_AT_KEY,
   REF_KEY,
   REFS_KEY,
-  TYPENAME_KEY,
-  INVALIDATED_AT_KEY,
   ROOT_ID,
+  TYPENAME_KEY,
 } = require('./RelayStoreUtils');
-
-import type {ActorIdentifier} from '../multi-actor-environment/ActorIdentifier';
-import type {DataID} from '../util/RelayRuntimeTypes';
-import type {Record} from './RelayStoreTypes';
+const areEqual = require('areEqual');
+const invariant = require('invariant');
+const warning = require('warning');
 
 /**
  * @public

@@ -47,6 +47,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
                                         )),
                                     ),
                                 }],
+                                data: None,
                             }],
                             ..operation.clone()
                         };

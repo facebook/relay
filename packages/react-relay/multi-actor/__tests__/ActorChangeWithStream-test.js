@@ -11,27 +11,25 @@
 
 'use strict';
 
-const ActorChange = require('../ActorChange');
-const React = require('react');
-const ReactTestRenderer = require('react-test-renderer');
-const RelayEnvironmentProvider = require('../../relay-hooks/RelayEnvironmentProvider');
-
-const useFragment = require('../../relay-hooks/useFragment');
-const useLazyLoadQuery = require('../../relay-hooks/useLazyLoadQuery');
-
-const {Network, graphql, Observable} = require('relay-runtime');
-const {
-  MultiActorEnvironment,
-  getActorIdentifier,
-} = require('relay-runtime/multi-actor-environment');
-const {disallowWarnings} = require('relay-test-utils-internal');
-
 import type {ActorChangeWithStreamTestFragment$key} from './__generated__/ActorChangeWithStreamTestFragment.graphql';
 import type {ActorChangeWithStreamTestQuery} from './__generated__/ActorChangeWithStreamTestQuery.graphql';
 import type {
   IActorEnvironment,
   IMultiActorEnvironment,
 } from 'relay-runtime/multi-actor-environment';
+
+const RelayEnvironmentProvider = require('../../relay-hooks/RelayEnvironmentProvider');
+const useFragment = require('../../relay-hooks/useFragment');
+const useLazyLoadQuery = require('../../relay-hooks/useLazyLoadQuery');
+const ActorChange = require('../ActorChange');
+const React = require('react');
+const ReactTestRenderer = require('react-test-renderer');
+const {Network, Observable, graphql} = require('relay-runtime');
+const {
+  MultiActorEnvironment,
+  getActorIdentifier,
+} = require('relay-runtime/multi-actor-environment');
+const {disallowWarnings} = require('relay-test-utils-internal');
 
 function ComponentWrapper(
   props: $ReadOnly<{

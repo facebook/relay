@@ -13,20 +13,20 @@
 
 'use strict';
 
+import type {FetchPolicy, Subscription} from 'relay-runtime';
+
 const {getQueryResourceForEnvironment} = require('../QueryResource');
 const {
   Observable,
+  RecordSource,
   ROOT_ID,
+  Store,
   __internal: {fetchQuery},
   createOperationDescriptor,
-  RecordSource,
-  Store,
-  graphql,
   getRequest,
+  graphql,
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils-internal');
-
-import type {Subscription} from 'relay-runtime';
 
 describe('QueryResource', () => {
   let environment;
@@ -2975,7 +2975,7 @@ describe('QueryResource', () => {
 describe('QueryResource, with an environment meant for SSR', () => {
   let environment;
   let QueryResource;
-  let fetchPolicy;
+  let fetchPolicy: ?FetchPolicy;
   let fetchObservable;
   let gqlQuery;
   let query;

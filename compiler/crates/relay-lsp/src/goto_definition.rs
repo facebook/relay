@@ -46,25 +46,22 @@ fn get_goto_definition_response<'a>(
             inner: fragment_name,
             parent: IdentParent::FragmentSpreadName(_),
         }) => {
-            if let Some(source_program) = source_programs.get(&project_name) {
-                let fragment = source_program
-                    .fragment(fragment_name.value)
-                    .ok_or_else(|| {
-                        LSPRuntimeError::UnexpectedError(format!(
-                            "Could not find fragment with name {}",
-                            fragment_name
-                        ))
-                    })?;
+            let source_program = source_programs
+                .get(&project_name)
+                .ok_or(LSPRuntimeError::ExpectedError)?;
 
-                Ok(GotoDefinitionResponse::Scalar(
-                    to_lsp_location_of_graphql_literal(fragment.name.location, root_dir)?,
-                ))
-            } else {
-                Err(LSPRuntimeError::UnexpectedError(format!(
-                    "Project name {} not found",
-                    project_name
-                )))
-            }
+            let fragment = source_program
+                .fragment(fragment_name.value)
+                .ok_or_else(|| {
+                    LSPRuntimeError::UnexpectedError(format!(
+                        "Could not find fragment with name {}",
+                        fragment_name
+                    ))
+                })?;
+
+            Ok(GotoDefinitionResponse::Scalar(
+                to_lsp_location_of_graphql_literal(fragment.name.location, root_dir)?,
+            ))
         }
         ResolutionPath::Ident(IdentPath {
             inner: field_name,
@@ -228,7 +225,7 @@ pub(crate) fn on_goto_definition<
     TPerfLogger: PerfLogger + 'static,
     TSchemaDocumentation: SchemaDocumentation,
 >(
-    state: &mut LSPState<TPerfLogger, TSchemaDocumentation>,
+    state: &LSPState<TPerfLogger, TSchemaDocumentation>,
     params: <GotoDefinition as Request>::Params,
 ) -> LSPRuntimeResult<<GotoDefinition as Request>::Result> {
     let (document, position_span, project_name) =
@@ -238,7 +235,7 @@ pub(crate) fn on_goto_definition<
     let goto_definition_response = get_goto_definition_response(
         path,
         project_name,
-        state.get_source_programs_ref(),
+        &state.source_programs,
         state.root_dir(),
         state.extra_data_provider.as_ref(),
     )?;
@@ -284,7 +281,7 @@ pub(crate) fn on_get_source_location_of_type_definition<
     TPerfLogger: PerfLogger + 'static,
     TSchemaDocumentation: SchemaDocumentation,
 >(
-    state: &mut LSPState<TPerfLogger, TSchemaDocumentation>,
+    state: &LSPState<TPerfLogger, TSchemaDocumentation>,
     params: <GetSourceLocationOfTypeDefinition as Request>::Params,
 ) -> LSPRuntimeResult<<GetSourceLocationOfTypeDefinition as Request>::Result> {
     let field_definition_source_info = state

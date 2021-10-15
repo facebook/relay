@@ -12,9 +12,9 @@
 
 'use strict';
 
-const cosmiconfig = require('cosmiconfig');
-
 import type {Config} from '../relay-compiler/bin/RelayCompilerMain';
+
+const cosmiconfig = require('cosmiconfig');
 
 const explorer = cosmiconfig('relay', {
   searchPlaces: ['relay.config.js', 'relay.config.json', 'package.json'],

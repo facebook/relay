@@ -12,15 +12,13 @@
 
 'use strict';
 
-const ASTCache = require('./ASTCache');
-
-const fs = require('fs');
-const path = require('path');
-
-const {parse, Source} = require('graphql');
-
 import type {File} from '../codegen/CodegenTypes';
 import type {DocumentNode} from 'graphql';
+
+const ASTCache = require('./ASTCache');
+const fs = require('fs');
+const {Source, parse} = require('graphql');
+const path = require('path');
 
 function parseFile(baseDir: string, file: File): ?DocumentNode {
   const text = fs.readFileSync(path.join(baseDir, file.relPath), 'utf8');

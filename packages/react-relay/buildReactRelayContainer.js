@@ -12,22 +12,20 @@
 
 'use strict';
 
-const React = require('react');
-const ReactRelayContext = require('./ReactRelayContext');
-const ReactRelayQueryRendererContext = require('./ReactRelayQueryRendererContext');
+import type {GeneratedNodeMap} from './ReactRelayTypes';
+import type {FragmentMap} from 'relay-runtime';
 
 const assertFragmentMap = require('./assertFragmentMap');
-const invariant = require('invariant');
-const readContext = require('./readContext');
-
 const {
   getComponentName,
   getContainerName,
 } = require('./ReactRelayContainerUtils');
+const ReactRelayContext = require('./ReactRelayContext');
+const ReactRelayQueryRendererContext = require('./ReactRelayQueryRendererContext');
+const readContext = require('./readContext');
+const invariant = require('invariant');
+const React = require('react');
 const {getFragment} = require('relay-runtime');
-
-import type {GeneratedNodeMap} from './ReactRelayTypes';
-import type {FragmentMap} from 'relay-runtime';
 
 type ContainerCreator = (
   Component: React$ComponentType<any>,

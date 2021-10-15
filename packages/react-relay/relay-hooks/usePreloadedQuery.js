@@ -13,24 +13,23 @@
 
 'use strict';
 
-const invariant = require('invariant');
-const useLazyLoadQueryNode = require('./useLazyLoadQueryNode');
-const useMemoOperationDescriptor = require('./useMemoOperationDescriptor');
-const useRelayEnvironment = require('./useRelayEnvironment');
-const warning = require('warning');
-
-const {useTrackLoadQueryInRender} = require('./loadQuery');
-const {useDebugValue} = require('react');
-const {
-  __internal: {fetchQueryDeduped, fetchQuery},
-} = require('relay-runtime');
-
 import type {PreloadedQuery} from './EntryPointTypes.flow';
 import type {
   GraphQLTaggedNode,
   OperationType,
   RenderPolicy,
 } from 'relay-runtime';
+
+const {useTrackLoadQueryInRender} = require('./loadQuery');
+const useLazyLoadQueryNode = require('./useLazyLoadQueryNode');
+const useMemoOperationDescriptor = require('./useMemoOperationDescriptor');
+const useRelayEnvironment = require('./useRelayEnvironment');
+const invariant = require('invariant');
+const {useDebugValue} = require('react');
+const {
+  __internal: {fetchQueryDeduped, fetchQuery},
+} = require('relay-runtime');
+const warning = require('warning');
 
 function usePreloadedQuery<TQuery: OperationType>(
   gqlQuery: GraphQLTaggedNode,

@@ -12,25 +12,24 @@
 
 'use strict';
 
+import type {ConcreteRequest} from '../util/RelayConcreteNode';
+import type {
+  CacheConfig,
+  DataID,
+  OperationType,
+  Variables,
+  VariablesOf,
+} from '../util/RelayRuntimeTypes';
+import type {OperationDescriptor, RequestDescriptor} from './RelayStoreTypes';
+
 const deepFreeze = require('../util/deepFreeze');
 const getRequestIdentifier = require('../util/getRequestIdentifier');
-
 const {getOperationVariables} = require('./RelayConcreteVariables');
 const {
   createNormalizationSelector,
   createReaderSelector,
 } = require('./RelayModernSelector');
 const {ROOT_ID} = require('./RelayStoreUtils');
-
-import type {ConcreteRequest} from '../util/RelayConcreteNode';
-import type {
-  CacheConfig,
-  DataID,
-  Variables,
-  VariablesOf,
-  OperationType,
-} from '../util/RelayRuntimeTypes';
-import type {OperationDescriptor, RequestDescriptor} from './RelayStoreTypes';
 
 /**
  * Creates an instance of the `OperationDescriptor` type defined in

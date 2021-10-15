@@ -110,6 +110,7 @@ impl<'a> Transformer for GenerateTestOperationMetadata<'a> {
                                 ))),
                             ),
                         }],
+                        data: None,
                     });
                 } else {
                     next_directives.push(directive.clone());

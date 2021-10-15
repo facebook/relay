@@ -14,41 +14,42 @@
 
 const ConnectionHandler = require('./handlers/connection/ConnectionHandler');
 const ConnectionInterface = require('./handlers/connection/ConnectionInterface');
-const GraphQLTag = require('./query/GraphQLTag');
 const MutationHandlers = require('./handlers/connection/MutationHandlers');
-const PreloadableQueryRegistry = require('./query/PreloadableQueryRegistry');
-const RelayConcreteNode = require('./util/RelayConcreteNode');
-const RelayConcreteVariables = require('./store/RelayConcreteVariables');
-const RelayDeclarativeMutationConfig = require('./mutations/RelayDeclarativeMutationConfig');
-const RelayDefaultHandleKey = require('./util/RelayDefaultHandleKey');
 const RelayDefaultHandlerProvider = require('./handlers/RelayDefaultHandlerProvider');
-const RelayError = require('./util/RelayError');
-const RelayFeatureFlags = require('./util/RelayFeatureFlags');
+const applyOptimisticMutation = require('./mutations/applyOptimisticMutation');
+const commitLocalUpdate = require('./mutations/commitLocalUpdate');
+const commitMutation = require('./mutations/commitMutation');
+const RelayDeclarativeMutationConfig = require('./mutations/RelayDeclarativeMutationConfig');
+const RelayNetwork = require('./network/RelayNetwork');
+const RelayObservable = require('./network/RelayObservable');
+const RelayQueryResponseCache = require('./network/RelayQueryResponseCache');
+const fetchQuery = require('./query/fetchQuery');
+const fetchQuery_DEPRECATED = require('./query/fetchQuery_DEPRECATED');
+const fetchQueryInternal = require('./query/fetchQueryInternal');
+const GraphQLTag = require('./query/GraphQLTag');
+const PreloadableQueryRegistry = require('./query/PreloadableQueryRegistry');
+const {
+  generateClientID,
+  generateUniqueClientID,
+  isClientID,
+} = require('./store/ClientID');
+const createFragmentSpecResolver = require('./store/createFragmentSpecResolver');
+const createRelayContext = require('./store/createRelayContext');
+const isRelayModernEnvironment = require('./store/isRelayModernEnvironment');
+const readInlineData = require('./store/readInlineData');
+const RelayConcreteVariables = require('./store/RelayConcreteVariables');
 const RelayModernEnvironment = require('./store/RelayModernEnvironment');
 const RelayModernOperationDescriptor = require('./store/RelayModernOperationDescriptor');
 const RelayModernRecord = require('./store/RelayModernRecord');
 const RelayModernSelector = require('./store/RelayModernSelector');
 const RelayModernStore = require('./store/RelayModernStore');
-const RelayNetwork = require('./network/RelayNetwork');
-const RelayObservable = require('./network/RelayObservable');
 const RelayOperationTracker = require('./store/RelayOperationTracker');
-const RelayProfiler = require('./util/RelayProfiler');
-const RelayQueryResponseCache = require('./network/RelayQueryResponseCache');
 const RelayRecordSource = require('./store/RelayRecordSource');
-const RelayReplaySubject = require('./util/RelayReplaySubject');
 const RelayStoreUtils = require('./store/RelayStoreUtils');
 const ViewerPattern = require('./store/ViewerPattern');
-
-const applyOptimisticMutation = require('./mutations/applyOptimisticMutation');
-const commitLocalUpdate = require('./mutations/commitLocalUpdate');
-const commitMutation = require('./mutations/commitMutation');
-const createFragmentSpecResolver = require('./store/createFragmentSpecResolver');
+const requestSubscription = require('./subscription/requestSubscription');
 const createPayloadFor3DField = require('./util/createPayloadFor3DField');
-const createRelayContext = require('./store/createRelayContext');
 const deepFreeze = require('./util/deepFreeze');
-const fetchQuery = require('./query/fetchQuery');
-const fetchQueryInternal = require('./query/fetchQueryInternal');
-const fetchQuery_DEPRECATED = require('./query/fetchQuery_DEPRECATED');
 const getFragmentIdentifier = require('./util/getFragmentIdentifier');
 const getPaginationMetadata = require('./util/getPaginationMetadata');
 const getPaginationVariables = require('./util/getPaginationVariables');
@@ -58,19 +59,16 @@ const getRelayHandleKey = require('./util/getRelayHandleKey');
 const getRequestIdentifier = require('./util/getRequestIdentifier');
 const getValueAtPath = require('./util/getValueAtPath');
 const isPromise = require('./util/isPromise');
-const isRelayModernEnvironment = require('./store/isRelayModernEnvironment');
 const isScalarAndEqual = require('./util/isScalarAndEqual');
-const readInlineData = require('./store/readInlineData');
 const recycleNodesInto = require('./util/recycleNodesInto');
+const RelayConcreteNode = require('./util/RelayConcreteNode');
+const RelayDefaultHandleKey = require('./util/RelayDefaultHandleKey');
+const RelayError = require('./util/RelayError');
+const RelayFeatureFlags = require('./util/RelayFeatureFlags');
+const RelayProfiler = require('./util/RelayProfiler');
+const RelayReplaySubject = require('./util/RelayReplaySubject');
 const reportMissingRequiredFields = require('./util/reportMissingRequiredFields');
-const requestSubscription = require('./subscription/requestSubscription');
 const stableCopy = require('./util/stableCopy');
-
-const {
-  generateClientID,
-  generateUniqueClientID,
-  isClientID,
-} = require('./store/ClientID');
 
 export type {ConnectionMetadata} from './handlers/connection/ConnectionHandler';
 export type {

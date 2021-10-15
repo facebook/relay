@@ -11,41 +11,41 @@
 import Code from '../core/Code.js';
 import Container from '../core/Container';
 import GridBlock from '../core/GridBlock';
+import Link from '@docusaurus/Link';
 import useBaseUrl, {useBaseUrlUtils} from '@docusaurus/useBaseUrl';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
-import Layout from '@theme/Layout';
 import useThemeContext from '@theme/hooks/useThemeContext';
+import Layout from '@theme/Layout';
 import * as React from 'react';
 import {useEffect, useRef, useState} from 'react';
+
 /* eslint-enable lint/no-value-import */
 
 function LoadQueryLink() {
   return (
-    <a href={useBaseUrl('/docs/api-reference/load-query/')}>
+    <Link to="/docs/api-reference/load-query/">
       <code>loadQuery</code>
-    </a>
+    </Link>
   );
 }
 
 function UsePreloadedQueryLink() {
   return (
-    <a href={useBaseUrl('/docs/api-reference/use-preloaded-query/')}>
+    <Link to="/docs/api-reference/use-preloaded-query/">
       <code>usePreloadedQuery</code>
-    </a>
+    </Link>
   );
 }
 
 function QueriesLink() {
-  return (
-    <a href={useBaseUrl('/docs/guided-tour/rendering/queries/')}>Queries</a>
-  );
+  return <Link to="/docs/guided-tour/rendering/queries/">Queries</Link>;
 }
 
 function UseFragmentLink() {
   return (
-    <a href={useBaseUrl('/docs/guided-tour/use-fragment/')}>
+    <Link to="/docs/api-reference/use-fragment/">
       <code>useFragment</code>
-    </a>
+    </Link>
   );
 }
 
@@ -340,8 +340,7 @@ export default function ArtistCard(props) {
                       components, and compose data requirements together.
                     </p>
                     <p>
-                      See the{' '}
-                      <a href={useBaseUrl('/docs/guided-tour/')}>guided tour</a>
+                      See the <Link to="/docs/guided-tour/">guided tour</Link>
                     </p>
                   </div>
                 ),
@@ -615,9 +614,9 @@ export default function ArtistCard(props) {
             <div className="logosHomepage">{showcase}</div>
           </div>
           <div className="more-users">
-            <a className="button" href={useBaseUrl('users')}>
+            <Link className="button" to="/users">
               More Relay Users
-            </a>
+            </Link>
           </div>
         </Container>
       </div>

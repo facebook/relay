@@ -11,16 +11,6 @@
 
 'use strict';
 
-const ActorSpecificEnvironment = require('./ActorSpecificEnvironment');
-const OperationExecutor = require('../store/OperationExecutor');
-const RelayDefaultHandlerProvider = require('../handlers/RelayDefaultHandlerProvider');
-const RelayModernStore = require('../store/RelayModernStore');
-const RelayObservable = require('../network/RelayObservable');
-const RelayRecordSource = require('../store/RelayRecordSource');
-
-const defaultGetDataID = require('../store/defaultGetDataID');
-const defaultRequiredFieldLogger = require('../store/defaultRequiredFieldLogger');
-
 import type {HandlerProvider} from '../handlers/RelayDefaultHandlerProvider';
 import type {GraphQLResponse, PayloadData} from '../network/RelayNetworkTypes';
 import type {INetwork} from '../network/RelayNetworkTypes';
@@ -53,6 +43,15 @@ import type {
   IMultiActorEnvironment,
   MultiActorStoreUpdater,
 } from './MultiActorEnvironmentTypes';
+
+const RelayDefaultHandlerProvider = require('../handlers/RelayDefaultHandlerProvider');
+const RelayObservable = require('../network/RelayObservable');
+const defaultGetDataID = require('../store/defaultGetDataID');
+const defaultRequiredFieldLogger = require('../store/defaultRequiredFieldLogger');
+const OperationExecutor = require('../store/OperationExecutor');
+const RelayModernStore = require('../store/RelayModernStore');
+const RelayRecordSource = require('../store/RelayRecordSource');
+const ActorSpecificEnvironment = require('./ActorSpecificEnvironment');
 
 export type MultiActorEnvironmentConfig = $ReadOnly<{
   createConfigNameForActor?: ?(actorIdentifier: ActorIdentifier) => string,

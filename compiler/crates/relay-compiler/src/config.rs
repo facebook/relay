@@ -12,7 +12,6 @@ use crate::build_project::{
 };
 use crate::compiler_state::{ProjectName, SourceSet};
 use crate::errors::{ConfigValidationError, Error, Result};
-use crate::rollout::Rollout;
 use crate::saved_state::SavedStateLoader;
 use crate::status_reporter::{ConsoleStatusReporter, StatusReporter};
 use async_trait::async_trait;
@@ -26,7 +25,7 @@ use persist_query::PersistError;
 use rayon::prelude::*;
 use regex::Regex;
 use relay_codegen::JsModuleFormat;
-use relay_transforms::{ConnectionInterface, FeatureFlags};
+use relay_transforms::{ConnectionInterface, FeatureFlags, Rollout};
 use relay_typegen::TypegenConfig;
 use serde::{Deserialize, Serialize};
 use sha1::{Digest, Sha1};
@@ -568,7 +567,7 @@ pub struct ProjectConfig {
     pub typegen_config: TypegenConfig,
     pub persist: Option<PersistConfig>,
     pub variable_names_comment: bool,
-    pub extra: Option<FnvIndexMap<String, String>>,
+    pub extra: serde_json::Value,
     pub feature_flags: Arc<FeatureFlags>,
     pub test_path_regex: Option<Regex>,
     pub filename_for_artifact:
@@ -747,7 +746,9 @@ struct ConfigFileProject {
     #[serde(default)]
     variable_names_comment: bool,
 
-    extra: Option<FnvIndexMap<String, String>>,
+    /// A placeholder for allowing extra information in the config file
+    #[serde(default)]
+    extra: serde_json::Value,
 
     #[serde(default)]
     feature_flags: Option<FeatureFlags>,

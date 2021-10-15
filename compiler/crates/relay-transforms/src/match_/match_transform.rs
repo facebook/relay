@@ -17,8 +17,8 @@ use crate::{
 use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, WithLocation};
 use fnv::{FnvBuildHasher, FnvHashMap};
 use graphql_ir::{
-    Argument, ConstantValue, Directive, FragmentDefinition, FragmentSpread, InlineFragment,
-    LinkedField, OperationDefinition, Program, ScalarField, Selection, Transformed,
+    associated_data_impl, Argument, ConstantValue, Directive, FragmentDefinition, FragmentSpread,
+    InlineFragment, LinkedField, OperationDefinition, Program, ScalarField, Selection, Transformed,
     TransformedValue, Transformer, ValidationMessage, Value,
 };
 use indexmap::IndexSet;
@@ -500,15 +500,18 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
                     directives: vec![],
                     selections: vec![Selection::InlineFragment(Arc::new(InlineFragment {
                         type_condition: Some(fragment.type_condition),
-                        directives: vec![build_module_metadata_as_directive(
-                            match_directive_key_argument,
-                            module_id,
-                            module_directive_name_argument,
-                            self.document_name,
-                            spread,
-                            module_directive.name.location,
-                            should_use_no_inline,
-                        )],
+                        directives: vec![
+                            ModuleMetadata {
+                                key: match_directive_key_argument,
+                                module_id,
+                                module_name: module_directive_name_argument,
+                                source_document_name: self.document_name,
+                                fragment_name: spread.fragment.item,
+                                location: module_directive.name.location,
+                                no_inline: should_use_no_inline,
+                            }
+                            .into(),
+                        ],
                         selections: vec![next_spread, operation_field, component_field],
                     }))],
                 },
@@ -857,50 +860,17 @@ fn get_module_directive_name_argument(
     })
 }
 
-pub(crate) fn build_module_metadata_as_directive(
-    match_directive_key_argument: StringKey,
-    module_id: StringKey,
-    module_directive_name_argument: StringKey,
-    source_document_name: StringKey,
-    fragment_spread: &FragmentSpread,
-    location: Location,
-    use_no_inline: bool,
-) -> Directive {
-    let mut arguments = vec![
-        build_string_literal_argument(
-            MATCH_CONSTANTS.key_arg,
-            match_directive_key_argument,
-            location,
-        ),
-        build_string_literal_argument(MATCH_CONSTANTS.js_field_id_arg, module_id, location),
-        build_string_literal_argument(
-            MATCH_CONSTANTS.js_field_module_arg,
-            module_directive_name_argument,
-            location,
-        ),
-        build_string_literal_argument(
-            MATCH_CONSTANTS.source_document_arg,
-            source_document_name,
-            location,
-        ),
-        build_string_literal_argument(
-            MATCH_CONSTANTS.name_arg,
-            fragment_spread.fragment.item,
-            location,
-        ),
-    ];
-    if use_no_inline {
-        arguments.push(Argument {
-            name: WithLocation::new(location, MATCH_CONSTANTS.no_inline_arg),
-            value: WithLocation::new(location, Value::Constant(ConstantValue::Null())),
-        })
-    }
-
-    Directive {
-        name: WithLocation::new(location, MATCH_CONSTANTS.custom_module_directive_name),
-        arguments,
-    }
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub struct ModuleMetadata {
+    pub location: Location,
+    pub key: StringKey,
+    pub module_id: StringKey,
+    pub module_name: StringKey,
+    pub source_document_name: StringKey,
+    pub fragment_name: StringKey,
+    pub no_inline: bool,
 }
+associated_data_impl!(ModuleMetadata);
 
 fn build_string_literal_argument(
     name: StringKey,

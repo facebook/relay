@@ -25,7 +25,35 @@ query NodeQuery($id: ID!) {
 ==================================== OUTPUT ===================================
 query NodeQuery(
   $id: ID!
-) @__connectionMetadata(__connectionMetadataArgument: [[null, "forward", null, null, null, null, false], [["node", "comments"], "forward", null, null, null, null, false]]) {
+) @__ConnectionMetadataDirective
+# ConnectionMetadataDirective(
+#     [
+#         ConnectionMetadata {
+#             path: None,
+#             direction: "forward",
+#             first: None,
+#             last: None,
+#             before: None,
+#             after: None,
+#             is_stream_connection: false,
+#         },
+#         ConnectionMetadata {
+#             path: Some(
+#                 [
+#                     "node",
+#                     "comments",
+#                 ],
+#             ),
+#             direction: "forward",
+#             first: None,
+#             last: None,
+#             before: None,
+#             after: None,
+#             is_stream_connection: false,
+#         },
+#     ],
+# )
+ {
   node(id: $id) {
     id
     ... on Story {

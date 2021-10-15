@@ -12,11 +12,11 @@
 
 'use strict';
 
-const {createCompilerError} = require('./CompilerError');
-
 import type {ScalarField} from '../core/IR';
-import type {CompositeTypeID, Schema, InputTypeID} from './Schema';
+import type {CompositeTypeID, InputTypeID, Schema} from './Schema';
 import type {ASTNode} from 'graphql';
+
+const {createCompilerError} = require('./CompilerError');
 
 const ID = 'id';
 

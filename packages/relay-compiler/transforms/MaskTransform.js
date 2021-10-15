@@ -12,20 +12,18 @@
 
 'use strict';
 
-const IRTransformer = require('../core/IRTransformer');
-
-const invariant = require('invariant');
-const joinArgumentDefinitions = require('../util/joinArgumentDefinitions');
-
-const {createUserError} = require('../core/CompilerError');
-
 import type CompilerContext from '../core/CompilerContext';
 import type {
+  ArgumentDefinition,
   Fragment,
   FragmentSpread,
   InlineFragment,
-  ArgumentDefinition,
 } from '../core/IR';
+
+const {createUserError} = require('../core/CompilerError');
+const IRTransformer = require('../core/IRTransformer');
+const joinArgumentDefinitions = require('../util/joinArgumentDefinitions');
+const invariant = require('invariant');
 
 type State = {reachableArguments: Array<ArgumentDefinition>, ...};
 

@@ -10,20 +10,17 @@
 
 'use strict';
 
+const {graphql} = require('../../query/GraphQLTag');
+const getRelayHandleKey = require('../../util/getRelayHandleKey');
+const defaultGetDataID = require('../defaultGetDataID');
+const normalizeRelayPayload = require('../normalizeRelayPayload');
+const {
+  createOperationDescriptor,
+} = require('../RelayModernOperationDescriptor');
 const RelayModernRecord = require('../RelayModernRecord');
 const RelayModernStore = require('../RelayModernStore');
 const RelayPublishQueue = require('../RelayPublishQueue');
 const RelayRecordSource = require('../RelayRecordSource');
-
-const defaultGetDataID = require('../defaultGetDataID');
-const getRelayHandleKey = require('../../util/getRelayHandleKey');
-const invariant = require('invariant');
-const normalizeRelayPayload = require('../normalizeRelayPayload');
-
-const {graphql} = require('../../query/GraphQLTag');
-const {
-  createOperationDescriptor,
-} = require('../RelayModernOperationDescriptor');
 const {
   ID_KEY,
   REF_KEY,
@@ -31,11 +28,12 @@ const {
   ROOT_TYPE,
   TYPENAME_KEY,
 } = require('../RelayStoreUtils');
+const invariant = require('invariant');
 const {
-  simpleClone,
   disallowWarnings,
-  expectWarningWillFire,
   expectToWarn,
+  expectWarningWillFire,
+  simpleClone,
 } = require('relay-test-utils-internal');
 
 disallowWarnings();

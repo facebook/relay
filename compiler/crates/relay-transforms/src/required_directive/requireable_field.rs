@@ -5,6 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use crate::RequiredAction;
+
 use super::{ACTION_ARGUMENT, REQUIRED_DIRECTIVE_NAME};
 use common::{Diagnostic, Location, NamedItem, WithLocation};
 use graphql_ir::{ConstantValue, Directive, LinkedField, ScalarField, ValidationMessage, Value};
@@ -13,7 +15,7 @@ use schema::SDLSchema;
 
 #[derive(Clone, Copy)]
 pub struct RequiredMetadata {
-    pub action: StringKey,
+    pub action: RequiredAction,
     pub directive_location: Location,
     pub action_location: Location,
 }
@@ -55,7 +57,7 @@ impl RequireableField for LinkedField {
 
 fn get_action_argument(
     required_directive: &Directive,
-) -> Result<WithLocation<StringKey>, Diagnostic> {
+) -> Result<WithLocation<RequiredAction>, Diagnostic> {
     let maybe_action_arg = required_directive.arguments.named(*ACTION_ARGUMENT);
     let action_arg = maybe_action_arg.ok_or_else(|| {
         Diagnostic::error(
@@ -66,9 +68,10 @@ fn get_action_argument(
 
     match &action_arg.value.item {
         Value::Constant(value) => match value {
-            ConstantValue::Enum(action) => {
-                Ok(WithLocation::new(action_arg.value.location, *action))
-            }
+            ConstantValue::Enum(action) => Ok(WithLocation::new(
+                action_arg.value.location,
+                RequiredAction::from(*action),
+            )),
             _ => Err(Diagnostic::error(
                 ValidationMessage::RequiredActionArgumentEnum,
                 action_arg.value.location,

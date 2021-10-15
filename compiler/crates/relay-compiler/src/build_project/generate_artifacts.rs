@@ -73,9 +73,10 @@ pub fn generate_artifacts(
                     },
                     source_file,
                 }
-            } else if let Some(source_name) = RefetchableDerivedFromMetadata::from_directives(
-                &operations.normalization.directives,
-            ) {
+            } else if let Some(derived_from_metadata) =
+                RefetchableDerivedFromMetadata::find(&operations.normalization.directives)
+            {
+                let source_name = derived_from_metadata.0;
                 let source_fragment = programs
                     .source
                     .fragment(source_name)

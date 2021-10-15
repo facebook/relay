@@ -13,14 +13,14 @@
 
 'use strict';
 
-const getRefetchMetadata = require('./getRefetchMetadata');
-const invariant = require('invariant');
-
 import type {
   ConcreteRequest,
   ReaderFragment,
   ReaderPaginationMetadata,
 } from 'relay-runtime';
+
+const getRefetchMetadata = require('./getRefetchMetadata');
+const invariant = require('invariant');
 
 function getPaginationMetadata(
   fragmentNode: ReaderFragment,

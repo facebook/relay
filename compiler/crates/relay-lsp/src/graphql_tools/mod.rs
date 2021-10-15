@@ -221,11 +221,11 @@ fn get_query_text<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: Schem
         operation,
         fragments,
         project_config.name,
-        state.get_source_programs_ref(),
+        &state.source_programs,
     ) {
         let programs = transform_program(
             project_config,
-            state.get_config(),
+            Arc::clone(&state.config),
             Arc::new(operation_program),
             state.get_logger(),
         )?;
@@ -244,7 +244,7 @@ pub(crate) fn on_graphql_execute_query<
     TPerfLogger: PerfLogger + 'static,
     TSchemaDocumentation: SchemaDocumentation,
 >(
-    state: &mut LSPState<TPerfLogger, TSchemaDocumentation>,
+    state: &LSPState<TPerfLogger, TSchemaDocumentation>,
     params: GraphQLExecuteQueryParams,
 ) -> LSPRuntimeResult<<GraphQLExecuteQuery as Request>::Result> {
     let project_name = if let Some(url) = &params.get_url() {

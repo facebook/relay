@@ -12,8 +12,6 @@
 
 'use strict';
 
-const {visit} = require('graphql');
-
 import type {
   Argument,
   ClientExtension,
@@ -36,6 +34,8 @@ import type {
   Stream,
   Variable,
 } from './IR';
+
+const {visit} = require('graphql');
 
 const NodeKeys = {
   Argument: ['value'],

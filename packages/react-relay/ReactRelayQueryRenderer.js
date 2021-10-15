@@ -12,20 +12,6 @@
 
 'use strict';
 
-const React = require('react');
-const ReactRelayContext = require('./ReactRelayContext');
-const ReactRelayQueryFetcher = require('./ReactRelayQueryFetcher');
-const ReactRelayQueryRendererContext = require('./ReactRelayQueryRendererContext');
-
-const areEqual = require('areEqual');
-
-const {
-  createOperationDescriptor,
-  deepFreeze,
-  getRequest,
-  RelayFeatureFlags,
-} = require('relay-runtime');
-
 import type {ReactRelayQueryRendererContext as ReactRelayQueryRendererContextType} from './ReactRelayQueryRendererContext';
 import type {
   CacheConfig,
@@ -36,6 +22,18 @@ import type {
   Snapshot,
   Variables,
 } from 'relay-runtime';
+
+const ReactRelayContext = require('./ReactRelayContext');
+const ReactRelayQueryFetcher = require('./ReactRelayQueryFetcher');
+const ReactRelayQueryRendererContext = require('./ReactRelayQueryRendererContext');
+const areEqual = require('areEqual');
+const React = require('react');
+const {
+  RelayFeatureFlags,
+  createOperationDescriptor,
+  deepFreeze,
+  getRequest,
+} = require('relay-runtime');
 type RetryCallbacks = {|
   handleDataChange:
     | null

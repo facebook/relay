@@ -12,11 +12,11 @@ use std::sync::Arc;
 
 pub use combined_schema_documentation::CombinedSchemaDocumentation;
 
-pub trait SchemaDocumentationLoader<T: SchemaDocumentation> {
+pub trait SchemaDocumentationLoader<T: SchemaDocumentation>: Send + Sync {
     fn get_schema_documentation(&self, schema_name: &str) -> Arc<T>;
 }
 
-pub trait SchemaDocumentation {
+pub trait SchemaDocumentation: Send + Sync {
     fn get_type_description(&self, _type_name: &str) -> Option<&str> {
         None
     }

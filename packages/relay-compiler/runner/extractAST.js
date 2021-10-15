@@ -12,14 +12,12 @@
 
 'use strict';
 
-const JSModuleParser = require('../core/JSModuleParser');
-
-const invariant = require('invariant');
-
-const {parse, print} = require('graphql');
-
 import type {WatchmanFile} from './types';
 import type {ASTNode, ExecutableDefinitionNode} from 'graphql';
+
+const JSModuleParser = require('../core/JSModuleParser');
+const {parse, print} = require('graphql');
+const invariant = require('invariant');
 
 export type ASTRecord<T: ASTNode> = {|
   +ast: T,

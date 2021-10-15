@@ -8,19 +8,17 @@
 use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, WithLocation};
 use fnv::{FnvHashMap, FnvHashSet};
 use graphql_ir::{
-    Argument, ConstantValue, Directive, FragmentDefinition, FragmentSpread, OperationDefinition,
-    Program, ScalarField, Selection, Transformed, Transformer, ValidationMessage, Value,
+    associated_data_impl, Argument, ConstantValue, Directive, FragmentDefinition, FragmentSpread,
+    OperationDefinition, Program, ScalarField, Selection, Transformed, Transformer,
+    ValidationMessage, Value,
 };
 use interner::{Intern, StringKey};
+use itertools::Itertools;
 use lazy_static::lazy_static;
 use schema::{Field, FieldID, Schema, Type};
 use std::sync::Arc;
 
 lazy_static! {
-    pub static ref REACT_FLIGHT_LOCAL_COMPONENTS_METADATA_KEY: StringKey =
-        "__ReactFlightMetadata".intern();
-    pub static ref REACT_FLIGHT_LOCAL_COMPONENTS_METADATA_ARG_KEY: StringKey =
-        "__ReactFlightMetadataComponent".intern();
     static ref REACT_FLIGHT_TRANSITIVE_COMPONENTS_DIRECTIVE_NAME: StringKey =
         "react_flight".intern();
     static ref REACT_FLIGHT_TRANSITIVE_COMPONENTS_DIRECTIVE_ARG: StringKey = "components".intern();
@@ -34,6 +32,12 @@ lazy_static! {
     static ref REACT_FLIGHT_EXTENSION_DIRECTIVE_NAME: StringKey = "react_flight_component".intern();
     static ref NAME: StringKey = "name".intern();
 }
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub struct ReactFlightLocalComponentsMetadata {
+    pub components: Vec<StringKey>,
+}
+associated_data_impl!(ReactFlightLocalComponentsMetadata);
 
 /// Transform to find calls to React Flight schema extension fields and rewrite them into calls
 /// to a generic `flight(component, props)` field. Also tracks which Flight fields each document
@@ -204,17 +208,10 @@ impl<'s> ReactFlightTransform<'s> {
     // Generate a metadata directive recording which server components were reachable
     // from the visited IR nodes
     fn generate_flight_local_flight_components_metadata_directive(&self) -> Directive {
-        let mut components: Vec<StringKey> = self.local_components.iter().copied().collect();
-        components.sort();
-        Directive {
-            name: WithLocation::generated(*REACT_FLIGHT_LOCAL_COMPONENTS_METADATA_KEY),
-            arguments: vec![Argument {
-                name: WithLocation::generated(*REACT_FLIGHT_LOCAL_COMPONENTS_METADATA_ARG_KEY),
-                value: WithLocation::generated(Value::Constant(ConstantValue::List(
-                    components.into_iter().map(ConstantValue::String).collect(),
-                ))),
-            }],
+        ReactFlightLocalComponentsMetadata {
+            components: self.local_components.iter().copied().sorted().collect(),
         }
+        .into()
     }
 
     // Generate a server directive recording which server components were *transitively* reachable
@@ -230,6 +227,7 @@ impl<'s> ReactFlightTransform<'s> {
                     components.into_iter().map(ConstantValue::String).collect(),
                 ))),
             }],
+            data: None,
         }
     }
 }
@@ -385,6 +383,7 @@ impl<'s> Transformer for ReactFlightTransform<'s> {
         directives.push(Directive {
             name: WithLocation::generated(*REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY),
             arguments: vec![],
+            data: None,
         });
         Transformed::Replace(Selection::ScalarField(Arc::new(ScalarField {
             alias: Some(alias),

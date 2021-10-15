@@ -11,14 +11,13 @@
 
 'use strict';
 
-const IRTransformer = require('../core/IRTransformer');
-
-const {createUserError, createCompilerError} = require('../core/CompilerError');
-const {RelayFeatureFlags} = require('relay-runtime');
-
 import type CompilerContext from '../core/CompilerContext';
 import type {ScalarField} from '../core/IR';
-import type {TypeID, InputTypeID, ScalarFieldTypeID} from '../core/Schema';
+import type {InputTypeID, ScalarFieldTypeID, TypeID} from '../core/Schema';
+
+const {createCompilerError, createUserError} = require('../core/CompilerError');
+const IRTransformer = require('../core/IRTransformer');
+const {RelayFeatureFlags} = require('relay-runtime');
 
 const FLIGHT_FIELD_COMPONENT_ARGUMENT_TYPE = 'String';
 const FLIGHT_FIELD_COMPONENT_ARGUMENT_NAME = 'component';

@@ -12,31 +12,23 @@
 
 'use strict';
 
-const CodeMarker = require('../util/CodeMarker');
-
-const argumentContainsVariables = require('../util/argumentContainsVariables');
-const generateAbstractTypeRefinementKey = require('../util/generateAbstractTypeRefinementKey');
-
-const {createCompilerError, createUserError} = require('../core/CompilerError');
-const {getStorageKey, stableCopy} = require('relay-runtime');
-
 import type {
   Argument,
-  ArgumentValue,
   ArgumentDefinition,
+  ArgumentValue,
   ClientExtension,
-  Defer,
-  Stream,
-  Metadata,
-  Fragment,
-  Selection,
   Condition,
-  LinkedField,
-  ScalarField,
+  Defer,
+  Fragment,
   FragmentSpread,
-  InlineFragment,
-  ModuleImport,
   InlineDataFragmentSpread,
+  InlineFragment,
+  LinkedField,
+  Metadata,
+  ModuleImport,
+  ScalarField,
+  Selection,
+  Stream,
 } from '../core/IR';
 import type {Schema, TypeID} from '../core/Schema';
 import type {RequiredDirectiveMetadata} from '../transforms/RequiredFieldTransform';
@@ -54,6 +46,12 @@ import type {
   ReaderSelection,
   RequiredFieldAction,
 } from 'relay-runtime';
+
+const {createCompilerError, createUserError} = require('../core/CompilerError');
+const argumentContainsVariables = require('../util/argumentContainsVariables');
+const CodeMarker = require('../util/CodeMarker');
+const generateAbstractTypeRefinementKey = require('../util/generateAbstractTypeRefinementKey');
+const {getStorageKey, stableCopy} = require('relay-runtime');
 
 /**
  * @public

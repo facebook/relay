@@ -9,10 +9,14 @@ use super::File;
 use super::FileGroup;
 use crate::compiler_state::{ProjectName, ProjectSet, SourceSet};
 use crate::config::{Config, SchemaLocation};
+use crate::FileSourceResult;
 use common::sync::ParallelIterator;
+use core::panic;
 use fnv::FnvHashSet;
+use log::warn;
 use rayon::iter::IntoParallelRefIterator;
 use relay_typegen::TypegenLanguage;
+use std::borrow::Cow;
 use std::collections::HashMap;
 use std::ffi::OsStr;
 use std::path::{Component, PathBuf};
@@ -23,7 +27,10 @@ use std::{collections::hash_map::Entry, path::Path};
 /// schema files, extensions and sources by their source set name.
 ///
 /// See `FileGroup` for all groups of files.
-pub fn categorize_files(config: &Config, files: Vec<File>) -> HashMap<FileGroup, Vec<File>> {
+pub fn categorize_files(
+    config: &Config,
+    file_source_result: &FileSourceResult,
+) -> HashMap<FileGroup, Vec<File>> {
     let categorizer = FileCategorizer::from_config(config);
 
     let mut has_disabled = false;
@@ -39,41 +46,65 @@ pub fn categorize_files(config: &Config, files: Vec<File>) -> HashMap<FileGroup,
         }
     }
 
-    let result = files
-        .par_iter()
-        .filter_map(|file| {
-            let file_group = categorizer.categorize(&file.name);
-            let should_skip = has_disabled
-                && match &file_group {
-                    FileGroup::Source {
-                        source_set: SourceSet::SourceSetName(name),
-                    }
-                    | FileGroup::Schema {
-                        project_set: ProjectSet::ProjectName(name),
-                    }
-                    | FileGroup::Extension {
-                        project_set: ProjectSet::ProjectName(name),
-                    }
-                    | FileGroup::Generated { project_name: name } => {
-                        !relevant_projects.contains(name)
-                    }
-                    FileGroup::Source {
-                        source_set: SourceSet::SourceSetNames(names),
-                    }
-                    | FileGroup::Schema {
-                        project_set: ProjectSet::ProjectNames(names),
-                    }
-                    | FileGroup::Extension {
-                        project_set: ProjectSet::ProjectNames(names),
-                    } => !names.iter().any(|name| relevant_projects.contains(name)),
-                };
-            if !should_skip {
-                Some((file_group, file.clone()))
-            } else {
-                None
-            }
-        })
-        .collect::<Vec<_>>();
+    let filter_map_fn = |file: File| {
+        let file_group = match categorizer.categorize(&file.name) {
+            Ok(file_group) => Some(file_group),
+            Err(err) => match file_source_result {
+                FileSourceResult::Watchman(_) => {
+                    panic!(
+                        "Unexpected error in file categorizer for file `{}`: {}.",
+                        file.name.to_string_lossy(),
+                        err
+                    );
+                }
+                &FileSourceResult::External(_) => None,
+            },
+        }?;
+        let should_skip = has_disabled
+            && match &file_group {
+                FileGroup::Source {
+                    source_set: SourceSet::SourceSetName(name),
+                }
+                | FileGroup::Schema {
+                    project_set: ProjectSet::ProjectName(name),
+                }
+                | FileGroup::Extension {
+                    project_set: ProjectSet::ProjectName(name),
+                }
+                | FileGroup::Generated { project_name: name } => !relevant_projects.contains(name),
+                FileGroup::Source {
+                    source_set: SourceSet::SourceSetNames(names),
+                }
+                | FileGroup::Schema {
+                    project_set: ProjectSet::ProjectNames(names),
+                }
+                | FileGroup::Extension {
+                    project_set: ProjectSet::ProjectNames(names),
+                } => !names.iter().any(|name| relevant_projects.contains(name)),
+            };
+        if !should_skip {
+            Some((file_group, file))
+        } else {
+            None
+        }
+    };
+    let result = match file_source_result {
+        FileSourceResult::Watchman(file_source_result) => file_source_result
+            .files
+            .par_iter()
+            .map(|file| File {
+                name: (*file.name).clone(),
+                exists: *file.exists,
+            })
+            .filter_map(filter_map_fn)
+            .collect::<Vec<_>>(),
+        FileSourceResult::External(file_source_result) => file_source_result
+            .files
+            .par_iter()
+            .cloned()
+            .filter_map(filter_map_fn)
+            .collect::<Vec<_>>(),
+    };
     let mut categorized = HashMap::new();
     for (file_group, file) in result {
         categorized
@@ -182,53 +213,58 @@ impl FileCategorizer {
     /// Categorizes a file. This method should be kept as cheap as possible by
     /// preprocessing the config in `from_config` and then re-using the
     /// `FileCategorizer`.
-    pub fn categorize(&self, path: &Path) -> FileGroup {
+    pub fn categorize(&self, path: &Path) -> Result<FileGroup, Cow<'static, str>> {
         if let Some(project_name) = self.generated_dir_mapping.find(path) {
-            return FileGroup::Generated { project_name };
+            return Ok(FileGroup::Generated { project_name });
         }
         let extension = path
             .extension()
-            .unwrap_or_else(|| panic!("Got unexpected path without extension: `{:?}`.", path));
+            .ok_or(Cow::Borrowed("Got unexpected path without extension."))?;
 
         if is_source_code_extension(extension) {
-            let source_set = self.source_mapping.get(path);
+            let source_set = self
+                .source_mapping
+                .find(path)
+                .ok_or(Cow::Borrowed("File is not in any source set."))?;
             if self.in_relative_generated_dir(path) {
                 if let SourceSet::SourceSetName(source_set_name) = source_set {
-                    FileGroup::Generated {
+                    Ok(FileGroup::Generated {
                         project_name: source_set_name,
-                    }
+                    })
                 } else {
-                    panic!(
+                    Err(Cow::Owned(format!(
                         "Overlapping input sources are incompatible with relative generated \
-                        directories. Got `{:?}` in a relative generated directory with source set {:?}",
-                        path, source_set
-                    );
+                        directories. Got file in a relative generated directory with source set {:?}.",
+                        source_set,
+                    )))
                 }
             } else {
-                self.validate_extension_for_source_set(&source_set, extension, &path);
-
-                FileGroup::Source { source_set }
+                let is_valid_extension =
+                    self.is_valid_extension_for_source_set(&source_set, extension, path);
+                if is_valid_extension {
+                    Ok(FileGroup::Source { source_set })
+                } else {
+                    Err(Cow::Borrowed("Invalid extension for a generated file."))
+                }
             }
         } else if extension == "graphql" {
             if let Some(project_set) = self.schema_file_mapping.get(path) {
-                FileGroup::Schema {
+                Ok(FileGroup::Schema {
                     project_set: project_set.clone(),
-                }
+                })
             } else if let Some(project_set) = self.extensions_mapping.find(path) {
-                FileGroup::Extension { project_set }
+                Ok(FileGroup::Extension { project_set })
             } else if let Some(project_set) = self.schema_dir_mapping.find(path) {
-                FileGroup::Schema { project_set }
+                Ok(FileGroup::Schema { project_set })
             } else {
-                panic!(
-                    "Expected *.graphql file `{:?}` to be either a schema or extension.",
-                    path
-                )
+                Err(Cow::Borrowed(
+                    "Expected *.graphql file to be either a schema or extension.",
+                ))
             }
         } else {
-            panic!(
-                "File categorizer encounter a file `{:?}` with unsupported extension `{:?}`.",
-                path, extension
-            )
+            Err(Cow::Borrowed(
+                "File categorizer encounter a file with unsupported extension.",
+            ))
         }
     }
 
@@ -239,20 +275,21 @@ impl FileCategorizer {
         })
     }
 
-    fn validate_extension_for_source_set(
+    fn is_valid_extension_for_source_set(
         &self,
         source_set: &SourceSet,
         extension: &OsStr,
         path: &Path,
-    ) {
+    ) -> bool {
         match source_set {
             SourceSet::SourceSetName(source_set_name) => {
                 if let Some(language) = self.source_language.get(source_set_name) {
                     if !is_valid_source_code_extension(language, extension) {
-                        panic!(
+                        warn!(
                             "Unexpected file `{:?}` for language `{:?}`.",
                             path, language
                         );
+                        return false;
                     }
                 }
             }
@@ -260,15 +297,17 @@ impl FileCategorizer {
                 for source_set_name in source_set_names {
                     if let Some(language) = self.source_language.get(source_set_name) {
                         if !is_valid_source_code_extension(language, extension) {
-                            panic!(
+                            warn!(
                                 "Unexpected file `{:?}` for language `{:?}`.",
                                 path, language
                             );
+                            return false;
                         }
                     }
                 }
             }
         }
+        true
     }
 }
 
@@ -283,15 +322,6 @@ impl<T: Clone> PathMapping<T> {
         Self(entries)
     }
 
-    fn get(&self, path: &Path) -> T {
-        self.find(path).unwrap_or_else(|| {
-            panic!(
-                "Path '{:?}' not in any of the expected directories. Available directories: {:?}",
-                path,
-                self.0.iter().map(|(prefix, _)| prefix).collect::<Vec<_>>()
-            );
-        })
-    }
     fn find(&self, path: &Path) -> Option<T> {
         self.0.iter().find_map(|(prefix, item)| {
             if path.starts_with(prefix) {
@@ -330,7 +360,8 @@ mod tests {
                         "src/js/internal": "internal",
                         "src/vendor": "public",
                         "src/custom": "with_custom_generated_dir",
-                        "src/typescript": "typescript"
+                        "src/typescript": "typescript",
+                        "src/custom_overlapping": ["with_custom_generated_dir", "overlapping_generated_dir"]
                     },
                     "projects": {
                         "public": {
@@ -346,6 +377,9 @@ mod tests {
                         "typescript": {
                             "schema": "graphql/ts_schema.graphql",
                             "language": "typescript"
+                        },
+                        "overlapping_generated_dir": {
+                            "schema": "graphql/__generated__/custom.graphql"
                         }
                     }
                 }
@@ -360,19 +394,25 @@ mod tests {
         let categorizer = FileCategorizer::from_config(&config);
 
         assert_eq!(
-            categorizer.categorize(&PathBuf::from("src/js/a.js")),
+            categorizer
+                .categorize(&PathBuf::from("src/js/a.js"))
+                .unwrap(),
             FileGroup::Source {
                 source_set: SourceSet::SourceSetName("public".intern()),
             },
         );
         assert_eq!(
-            categorizer.categorize(&PathBuf::from("src/js/nested/b.js")),
+            categorizer
+                .categorize(&PathBuf::from("src/js/nested/b.js"))
+                .unwrap(),
             FileGroup::Source {
                 source_set: SourceSet::SourceSetName("public".intern()),
             },
         );
         assert_eq!(
-            categorizer.categorize(&PathBuf::from("src/js/internal/nested/c.js")),
+            categorizer
+                .categorize(&PathBuf::from("src/js/internal/nested/c.js"))
+                .unwrap(),
             FileGroup::Source {
                 source_set: SourceSet::SourceSetName("internal".intern()),
             },
@@ -382,37 +422,49 @@ mod tests {
             // even if it has same dirname in path as custom output folder.
             // Path is only categorized as generated if it matches the absolute path
             // of the provided custom output.
-            categorizer.categorize(&PathBuf::from("src/custom/custom-generated/c.js")),
+            categorizer
+                .categorize(&PathBuf::from("src/custom/custom-generated/c.js"))
+                .unwrap(),
             FileGroup::Source {
                 source_set: SourceSet::SourceSetName("with_custom_generated_dir".intern()),
             },
         );
         assert_eq!(
-            categorizer.categorize(&PathBuf::from("src/js/internal/nested/__generated__/c.js")),
+            categorizer
+                .categorize(&PathBuf::from("src/js/internal/nested/__generated__/c.js"))
+                .unwrap(),
             FileGroup::Generated {
                 project_name: "internal".intern()
             },
         );
         assert_eq!(
-            categorizer.categorize(&PathBuf::from("graphql/custom-generated/c.js")),
+            categorizer
+                .categorize(&PathBuf::from("graphql/custom-generated/c.js"))
+                .unwrap(),
             FileGroup::Generated {
                 project_name: "with_custom_generated_dir".intern()
             },
         );
         assert_eq!(
-            categorizer.categorize(&PathBuf::from("graphql/public.graphql")),
+            categorizer
+                .categorize(&PathBuf::from("graphql/public.graphql"))
+                .unwrap(),
             FileGroup::Schema {
                 project_set: ProjectSet::ProjectName("public".intern())
             },
         );
         assert_eq!(
-            categorizer.categorize(&PathBuf::from("graphql/__generated__/internal.graphql")),
+            categorizer
+                .categorize(&PathBuf::from("graphql/__generated__/internal.graphql"))
+                .unwrap(),
             FileGroup::Schema {
                 project_set: ProjectSet::ProjectName("internal".intern())
             },
         );
         assert_eq!(
-            categorizer.categorize(&PathBuf::from("src/typescript/a.ts")),
+            categorizer
+                .categorize(&PathBuf::from("src/typescript/a.ts"))
+                .unwrap(),
             FileGroup::Source {
                 source_set: SourceSet::SourceSetName("typescript".intern()),
             },
@@ -420,24 +472,49 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(
-        expected = "File categorizer encounter a file `\"src/js/a.cpp\"` with unsupported extension `\"cpp\"`."
-    )]
     fn test_invalid_extension() {
         let config = create_test_config();
         let categorizer = FileCategorizer::from_config(&config);
-
-        categorizer.categorize(&PathBuf::from("src/js/a.cpp"));
+        assert_eq!(
+            categorizer.categorize(&PathBuf::from("src/js/a.cpp")),
+            Err(Cow::Borrowed(
+                "File categorizer encounter a file with unsupported extension."
+            ))
+        );
     }
 
     #[test]
-    #[should_panic(
-        expected = "Unexpected file `\"src/typescript/a.js\"` for language `TypeScript`."
-    )]
     fn test_extension_mismatch_panic() {
         let config = create_test_config();
         let categorizer = FileCategorizer::from_config(&config);
+        assert_eq!(
+            categorizer.categorize(&PathBuf::from("src/typescript/a.js")),
+            Err(Cow::Borrowed("Invalid extension for a generated file."))
+        );
+    }
 
-        categorizer.categorize(&PathBuf::from("src/typescript/a.js"));
+    #[test]
+    fn test_categorize_errors() {
+        let config = create_test_config();
+        let categorizer = FileCategorizer::from_config(&config);
+
+        assert_eq!(
+            categorizer.categorize(&PathBuf::from("src/js/a.graphql")),
+            Err(Cow::Borrowed(
+                "Expected *.graphql file to be either a schema or extension."
+            )),
+        );
+
+        assert_eq!(
+            categorizer.categorize(&PathBuf::from("src/js/noextension")),
+            Err(Cow::Borrowed("Got unexpected path without extension.")),
+        );
+
+        assert_eq!(
+            categorizer.categorize(&PathBuf::from("src/custom_overlapping/__generated__/c.js")),
+            Err(Cow::Borrowed(
+                "Overlapping input sources are incompatible with relative generated directories. Got file in a relative generated directory with source set SourceSetNames([\"with_custom_generated_dir\", \"overlapping_generated_dir\"])."
+            )),
+        );
     }
 }

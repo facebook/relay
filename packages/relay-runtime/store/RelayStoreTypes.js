@@ -21,17 +21,18 @@ import type {
   INetwork,
   PayloadData,
   PayloadError,
-  ReactFlightServerTree,
   ReactFlightServerError,
+  ReactFlightServerTree,
   UploadableMap,
 } from '../network/RelayNetworkTypes';
 import type RelayObservable from '../network/RelayObservable';
+import type {RequestIdentifier} from '../util/getRequestIdentifier';
 import type {
+  NormalizationArgument,
   NormalizationLinkedField,
   NormalizationRootNode,
   NormalizationScalarField,
   NormalizationSelectableNode,
-  NormalizationArgument,
 } from '../util/NormalizationNode';
 import type {ReaderFragment} from '../util/ReaderNode';
 import type {
@@ -45,7 +46,6 @@ import type {
   RenderPolicy,
   Variables,
 } from '../util/RelayRuntimeTypes';
-import type {RequestIdentifier} from '../util/getRequestIdentifier';
 import type {InvalidationState} from './RelayModernStore';
 import type RelayOperationTracker from './RelayOperationTracker';
 import type {RecordState} from './RelayRecordState';

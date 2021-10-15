@@ -14,9 +14,8 @@
 'use strict';
 
 const CompilerContext = require('../../core/CompilerContext');
-const ConnectionTransform = require('../ConnectionTransform');
 const IRPrinter = require('../../core/IRPrinter');
-
+const ConnectionTransform = require('../ConnectionTransform');
 const {
   TestSchema,
   generateTestsFromFixtures,

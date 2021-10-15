@@ -51,6 +51,7 @@ impl<'program> ClientExtensionsTransform<'program> {
         Directive {
             name: WithLocation::generated(*CLIENT_EXTENSION_DIRECTIVE_NAME),
             arguments: Default::default(),
+            data: None,
         }
     }
 }

@@ -1,0 +1,7 @@
+# expected-to-throw
+fragment RefetchableFragment on User
+  @refetchable(queryName: "RefetchableFragmentQuery") {
+  friends(after: $id) {
+    __typename
+  }
+}

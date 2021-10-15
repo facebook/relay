@@ -6,13 +6,6 @@
  */
 
 use interner::{Intern, StringKey};
-use lazy_static::lazy_static;
-
-lazy_static! {
-    pub static ref CONNECTION_METADATA_DIRECTIVE_NAME: StringKey = "__connectionMetadata".intern();
-    pub static ref CONNECTION_METADATA_ARGUMENT_NAME: StringKey =
-        "__connectionMetadataArgument".intern();
-}
 
 #[derive(Debug, Copy, Clone)]
 pub struct ConnectionConstants {

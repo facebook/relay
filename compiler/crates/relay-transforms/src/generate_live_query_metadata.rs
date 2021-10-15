@@ -111,6 +111,7 @@ impl Transformer for GenerateLiveQueryMetadata {
                                     ])),
                                 ),
                             }],
+                            data: None,
                         });
                     } else if let Some(config_id) = config_id {
                         let config_id_value = match config_id.value.item.get_string_literal() {
@@ -151,6 +152,7 @@ impl Transformer for GenerateLiveQueryMetadata {
                                     ])),
                                 ),
                             }],
+                            data: None,
                         });
                     }
 

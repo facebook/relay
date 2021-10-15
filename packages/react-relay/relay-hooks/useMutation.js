@@ -13,25 +13,24 @@
 
 'use strict';
 
-const React = require('react');
-
-const useRelayEnvironment = require('./useRelayEnvironment');
-
-const {commitMutation: defaultCommitMutation} = require('relay-runtime');
-const {useState, useEffect, useRef, useCallback} = React;
-const useIsMountedRef = require('./useIsMountedRef');
-
 import type {
-  GraphQLTaggedNode,
+  DeclarativeMutationConfig,
   Disposable,
+  GraphQLTaggedNode,
+  IEnvironment,
   MutationConfig,
   MutationParameters,
-  IEnvironment,
   PayloadError,
-  DeclarativeMutationConfig,
   SelectorStoreUpdater,
   UploadableMap,
 } from 'relay-runtime';
+
+const useIsMountedRef = require('./useIsMountedRef');
+const useRelayEnvironment = require('./useRelayEnvironment');
+const React = require('react');
+const {commitMutation: defaultCommitMutation} = require('relay-runtime');
+
+const {useState, useEffect, useRef, useCallback} = React;
 
 export type UseMutationConfig<TMutation: MutationParameters> = {|
   configs?: Array<DeclarativeMutationConfig>,

@@ -10,14 +10,13 @@
 
 'use strict';
 
-const React = require('react');
 const ReactRelayContext = require('../ReactRelayContext');
 const ReactRelayFragmentContainer = require('../ReactRelayFragmentContainer');
+const React = require('react');
 const ReactTestRenderer = require('react-test-renderer');
-
 const {
-  createReaderSelector,
   createOperationDescriptor,
+  createReaderSelector,
   graphql,
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils-internal');

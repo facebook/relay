@@ -11,11 +11,10 @@
 
 'use strict';
 
-const MultiActorEnvironment = require('../MultiActorEnvironment');
+import type {MultiActorStoreUpdater} from '../MultiActorEnvironmentTypes';
 
 const {getActorIdentifier} = require('../ActorIdentifier');
-
-import type {MultiActorStoreUpdater} from '../MultiActorEnvironmentTypes';
+const MultiActorEnvironment = require('../MultiActorEnvironment');
 
 describe('commitMultiActorUpdate', () => {
   it('commits updates to all environments', () => {

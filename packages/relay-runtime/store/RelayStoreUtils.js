@@ -12,23 +12,22 @@
 
 'use strict';
 
-const RelayConcreteNode = require('../util/RelayConcreteNode');
-
-const getRelayHandleKey = require('../util/getRelayHandleKey');
-const invariant = require('invariant');
-const stableCopy = require('../util/stableCopy');
-
 import type {
-  NormalizationHandle,
   NormalizationArgument,
   NormalizationField,
+  NormalizationHandle,
 } from '../util/NormalizationNode';
 import type {
+  ReaderActorChange,
   ReaderArgument,
   ReaderField,
-  ReaderActorChange,
 } from '../util/ReaderNode';
 import type {Variables} from '../util/RelayRuntimeTypes';
+
+const getRelayHandleKey = require('../util/getRelayHandleKey');
+const RelayConcreteNode = require('../util/RelayConcreteNode');
+const stableCopy = require('../util/stableCopy');
+const invariant = require('invariant');
 
 export type Arguments = interface {+[string]: mixed};
 

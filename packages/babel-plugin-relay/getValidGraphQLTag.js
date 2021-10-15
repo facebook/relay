@@ -10,9 +10,9 @@
 
 'use strict';
 
-const GraphQL = require('graphql');
-
 import type {DocumentNode} from 'graphql';
+
+const GraphQL = require('graphql');
 
 /**
  * Given a babel AST path to a tagged template literal, return an AST if it is

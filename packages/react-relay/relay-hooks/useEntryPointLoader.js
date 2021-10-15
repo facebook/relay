@@ -13,12 +13,6 @@
 
 'use strict';
 
-const loadEntryPoint = require('./loadEntryPoint');
-const useIsMountedRef = require('./useIsMountedRef');
-
-const {useTrackLoadQueryInRender} = require('./loadQuery');
-const {useCallback, useEffect, useRef, useState} = require('react');
-
 import type {
   EntryPoint,
   EntryPointComponent,
@@ -26,6 +20,11 @@ import type {
   IEnvironmentProvider,
   PreloadedEntryPoint,
 } from './EntryPointTypes.flow';
+
+const loadEntryPoint = require('./loadEntryPoint');
+const {useTrackLoadQueryInRender} = require('./loadQuery');
+const useIsMountedRef = require('./useIsMountedRef');
+const {useCallback, useEffect, useRef, useState} = require('react');
 
 type UseEntryPointLoaderHookReturnType<
   TEntryPointParams: {...},

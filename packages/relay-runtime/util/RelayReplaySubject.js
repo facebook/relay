@@ -12,11 +12,10 @@
 
 'use strict';
 
-const RelayObservable = require('../network/RelayObservable');
-
-const invariant = require('invariant');
-
 import type {Observer, Sink, Subscription} from '../network/RelayObservable';
+
+const RelayObservable = require('../network/RelayObservable');
+const invariant = require('invariant');
 
 type Event<T> =
   | {

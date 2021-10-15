@@ -13,30 +13,29 @@
 
 'use strict';
 
-const React = require('react');
-const Scheduler = require('scheduler');
-
-const {useMemo, useState, useEffect} = React;
-const TestRenderer = require('react-test-renderer');
-const {createMockEnvironment} = require('relay-test-utils-internal');
+import type {OperationDescriptor, Variables} from 'relay-runtime';
 
 const {useTrackLoadQueryInRender} = require('../loadQuery');
-const invariant = require('invariant');
 const useRefetchableFragmentNodeOriginal = require('../useRefetchableFragmentNode');
+const invariant = require('invariant');
+const React = require('react');
 const ReactRelayContext = require('react-relay/ReactRelayContext');
+const TestRenderer = require('react-test-renderer');
 const {
   FRAGMENT_OWNER_KEY,
   FRAGMENTS_KEY,
   ID_KEY,
-  createOperationDescriptor,
   Observable,
   __internal: {fetchQuery},
-  graphql,
-  getRequest,
+  createOperationDescriptor,
   getFragment,
+  getRequest,
+  graphql,
 } = require('relay-runtime');
+const {createMockEnvironment} = require('relay-test-utils-internal');
+const Scheduler = require('scheduler');
 
-import type {OperationDescriptor, Variables} from 'relay-runtime';
+const {useMemo, useState, useEffect} = React;
 
 describe('useRefetchableFragmentNode', () => {
   let environment;
@@ -1193,6 +1192,71 @@ describe('useRefetchableFragmentNode', () => {
           },
         },
       ]);
+    });
+
+    it('refetches with new environment when environment changes', () => {
+      const renderer = renderFragment();
+      const initialUser = {
+        id: '1',
+        name: 'Alice',
+        profile_picture: null,
+        ...createFragmentRef('1', query),
+      };
+      expectFragmentResults([{data: initialUser}]);
+
+      // Set new environment
+      const newEnvironment = createMockEnvironment();
+      newEnvironment.commitPayload(query, {
+        node: {
+          __typename: 'User',
+          id: '1',
+          name: 'Alice in a different env',
+          username: 'useralice',
+          profile_picture: null,
+        },
+      });
+      TestRenderer.act(() => {
+        setEnvironment(newEnvironment);
+      });
+
+      TestRenderer.act(() => {
+        refetch({}, {fetchPolicy: 'network-only'});
+      });
+      renderSpy.mockClear();
+
+      // Assert fragment is refetched with new environment
+      expectFragmentIsRefetching(
+        renderer,
+        {
+          refetchVariables: variables,
+          refetchQuery,
+        },
+        newEnvironment,
+      );
+
+      // Mock network response
+      TestRenderer.act(() => {
+        newEnvironment.mock.resolve(gqlRefetchQuery, {
+          data: {
+            node: {
+              __typename: 'User',
+              id: '1',
+              name: 'Alice in a different env refetched',
+              profile_picture: null,
+              username: 'useralice',
+            },
+          },
+        });
+      });
+
+      // Assert fragment is rendered with new data
+      const refetchedUser = {
+        id: '1',
+        name: 'Alice in a different env refetched',
+        profile_picture: null,
+        ...createFragmentRef('1', refetchQuery),
+      };
+      expectFragmentResults([{data: refetchedUser}]);
     });
 
     it('resets to parent data when parent fragment ref changes', () => {

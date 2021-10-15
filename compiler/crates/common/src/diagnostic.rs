@@ -5,6 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use lsp_types::{DiagnosticSeverity, DiagnosticTag};
+
 use crate::{Location, SourceLocationKey};
 use std::error::Error;
 use std::fmt;
@@ -70,6 +72,8 @@ impl Diagnostic {
         Self(Box::new(DiagnosticData {
             message: Box::new(message),
             location,
+            tags: Vec::new(),
+            severity: DiagnosticSeverity::Error,
             related_information: Vec::new(),
             data: Vec::new(),
         }))
@@ -85,8 +89,27 @@ impl Diagnostic {
         Self(Box::new(DiagnosticData {
             message: Box::new(message),
             location,
+            tags: Vec::new(),
+            severity: DiagnosticSeverity::Error,
             related_information: Vec::new(),
             data,
+        }))
+    }
+
+    /// Creates a new Diagnostic with a severity of Hint
+    /// Additional locations can be added with the `.annotate()` function.
+    pub fn hint<T: 'static + DiagnosticDisplay>(
+        message: T,
+        location: Location,
+        tags: Vec<DiagnosticTag>,
+    ) -> Self {
+        Self(Box::new(DiagnosticData {
+            message: Box::new(message),
+            location,
+            tags,
+            related_information: Vec::new(),
+            severity: DiagnosticSeverity::Hint, // TODO: Make this an argument?
+            data: Vec::new(),
         }))
     }
 
@@ -115,6 +138,14 @@ impl Diagnostic {
 
     pub fn get_data(&self) -> &[impl DiagnosticDisplay] {
         &self.0.data
+    }
+
+    pub fn severity(&self) -> DiagnosticSeverity {
+        self.0.severity
+    }
+
+    pub fn tags(&self) -> Vec<DiagnosticTag> {
+        self.0.tags.clone()
     }
 
     /// Override the location. This should only be used for exceptional situations.
@@ -182,6 +213,10 @@ struct DiagnosticData {
     /// Related diagnostic information, such as other definitions in the case of
     /// a duplicate definition error.
     related_information: Vec<DiagnosticRelatedInformation>,
+
+    tags: Vec<DiagnosticTag>,
+
+    severity: DiagnosticSeverity,
 
     /// A list with data that can be passed to the code actions
     /// `data` is used in the LSP protocol:

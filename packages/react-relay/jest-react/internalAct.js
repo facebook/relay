@@ -22,9 +22,8 @@
 
 'use strict';
 
-const Scheduler = require('scheduler/unstable_mock');
-
 const enqueueTask = require('./enqueueTask');
+const Scheduler = require('scheduler/unstable_mock');
 
 // The subset of a Promise that React APIs rely on. This resolves a value.
 // This doesn't require a return value neither from the handler nor the

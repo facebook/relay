@@ -12,14 +12,12 @@
 
 'use strict';
 
-const React = require('react');
+import type {Snapshot, Variables} from 'relay-runtime';
+
 const ReactRelayContext = require('../ReactRelayContext');
-
 const invariant = require('invariant');
-
+const React = require('react');
 const {createOperationDescriptor, getRequest} = require('relay-runtime');
-
-import type {Variables, Snapshot} from 'relay-runtime';
 
 type Props = {
   environment: $FlowFixMe,

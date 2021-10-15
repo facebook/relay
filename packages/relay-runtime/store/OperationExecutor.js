@@ -13,40 +13,17 @@
 
 'use strict';
 
-const RelayError = require('../util/RelayError');
-const RelayFeatureFlags = require('../util/RelayFeatureFlags');
-const RelayModernRecord = require('./RelayModernRecord');
-const RelayObservable = require('../network/RelayObservable');
-const RelayRecordSource = require('./RelayRecordSource');
-const RelayResponseNormalizer = require('./RelayResponseNormalizer');
-
-const generateID = require('../util/generateID');
-const getOperation = require('../util/getOperation');
-const invariant = require('invariant');
-const stableCopy = require('../util/stableCopy');
-const warning = require('warning');
-const withDuration = require('../util/withDuration');
-
-const {generateClientID, generateUniqueClientID} = require('./ClientID');
-const {getLocalVariables} = require('./RelayConcreteVariables');
-const {
-  createNormalizationSelector,
-  createReaderSelector,
-} = require('./RelayModernSelector');
-const {ROOT_TYPE, TYPENAME_KEY, getStorageKey} = require('./RelayStoreUtils');
-
 import type {ActorIdentifier} from '../multi-actor-environment/ActorIdentifier';
 import type {
   GraphQLResponse,
-  GraphQLSingularResponse,
   GraphQLResponseWithData,
+  GraphQLSingularResponse,
   ReactFlightServerTree,
 } from '../network/RelayNetworkTypes';
 import type {Sink, Subscription} from '../network/RelayObservable';
 import type {
   DeferPlaceholder,
   FollowupPayload,
-  RequestDescriptor,
   HandleFieldPayload,
   IncrementalDataPlaceholder,
   LogFunction,
@@ -58,11 +35,12 @@ import type {
   OptimisticResponseConfig,
   OptimisticUpdate,
   PublishQueue,
+  ReactFlightClientResponse,
   ReactFlightPayloadDeserializer,
   ReactFlightServerErrorHandler,
-  ReactFlightClientResponse,
   Record,
   RelayResponsePayload,
+  RequestDescriptor,
   SelectorStoreUpdater,
   Store,
   StreamPlaceholder,
@@ -74,9 +52,29 @@ import type {
   NormalizationSelectableNode,
   NormalizationSplitOperation,
 } from '../util/NormalizationNode';
-import type {DataID, Variables, Disposable} from '../util/RelayRuntimeTypes';
+import type {DataID, Disposable, Variables} from '../util/RelayRuntimeTypes';
 import type {GetDataID} from './RelayResponseNormalizer';
 import type {NormalizationOptions} from './RelayResponseNormalizer';
+
+const RelayObservable = require('../network/RelayObservable');
+const generateID = require('../util/generateID');
+const getOperation = require('../util/getOperation');
+const RelayError = require('../util/RelayError');
+const RelayFeatureFlags = require('../util/RelayFeatureFlags');
+const stableCopy = require('../util/stableCopy');
+const withDuration = require('../util/withDuration');
+const {generateClientID, generateUniqueClientID} = require('./ClientID');
+const {getLocalVariables} = require('./RelayConcreteVariables');
+const RelayModernRecord = require('./RelayModernRecord');
+const {
+  createNormalizationSelector,
+  createReaderSelector,
+} = require('./RelayModernSelector');
+const RelayRecordSource = require('./RelayRecordSource');
+const RelayResponseNormalizer = require('./RelayResponseNormalizer');
+const {ROOT_TYPE, TYPENAME_KEY, getStorageKey} = require('./RelayStoreUtils');
+const invariant = require('invariant');
+const warning = require('warning');
 
 export type ExecuteConfig = {|
   +actorIdentifier: ActorIdentifier,

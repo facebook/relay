@@ -15,11 +15,10 @@
 
 const MatchTransform = require('../../transforms/MatchTransform');
 const RelayParser = require('../RelayParser');
-
 const {
   TestSchema,
-  printAST,
   generateTestsFromFixtures,
+  printAST,
 } = require('relay-test-utils-internal');
 
 describe('RelayParser', () => {

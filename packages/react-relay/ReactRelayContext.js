@@ -11,13 +11,12 @@
 // flowlint ambiguous-object-type:error
 
 'use strict';
-const React = require('react');
+import type {RelayContext} from 'relay-runtime/store/RelayStoreTypes';
 
+const React = require('react');
 const {
   __internal: {createRelayContext},
 } = require('relay-runtime');
-
-import type {RelayContext} from 'relay-runtime/store/RelayStoreTypes';
 
 module.exports = (createRelayContext(
   React,

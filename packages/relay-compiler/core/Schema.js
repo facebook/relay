@@ -13,41 +13,41 @@
 
 'use strict';
 
+import type {Field as IRField} from './IR';
+import type {
+  DirectiveDefinitionNode,
+  DirectiveLocationEnum,
+  DocumentNode,
+  EnumTypeDefinitionNode,
+  FieldDefinitionNode,
+  InputObjectTypeDefinitionNode,
+  InterfaceTypeDefinitionNode,
+  InterfaceTypeExtensionNode,
+  ObjectTypeDefinitionNode,
+  ObjectTypeExtensionNode,
+  ScalarTypeDefinitionNode,
+  SchemaDefinitionNode,
+  Source,
+  TypeNode,
+  TypeSystemDefinitionNode,
+  TypeSystemExtensionNode,
+  UnionTypeDefinitionNode,
+  ValueNode,
+} from 'graphql';
+
 const {createCompilerError} = require('./CompilerError');
 const {isSchemaDefinitionAST} = require('./SchemaUtils');
 const {
-  GraphQLFloat,
-  GraphQLInt,
   GraphQLBoolean,
-  GraphQLString,
+  GraphQLFloat,
   GraphQLID,
+  GraphQLInt,
+  GraphQLString,
   parse,
   parseType,
   print,
   valueFromASTUntyped,
 } = require('graphql');
-
-import type {Field as IRField} from './IR';
-import type {
-  DirectiveLocationEnum,
-  DocumentNode,
-  Source,
-  TypeNode,
-  ValueNode,
-  ObjectTypeDefinitionNode,
-  InterfaceTypeDefinitionNode,
-  InputObjectTypeDefinitionNode,
-  SchemaDefinitionNode,
-  ScalarTypeDefinitionNode,
-  EnumTypeDefinitionNode,
-  UnionTypeDefinitionNode,
-  DirectiveDefinitionNode,
-  TypeSystemDefinitionNode,
-  TypeSystemExtensionNode,
-  ObjectTypeExtensionNode,
-  InterfaceTypeExtensionNode,
-  FieldDefinitionNode,
-} from 'graphql';
 
 type ExtensionNode =
   | TypeSystemDefinitionNode

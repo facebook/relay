@@ -12,18 +12,18 @@
 
 'use strict';
 
-const generateID = require('../util/generateID');
-
 import type ActorSpecificEnvironment from '../multi-actor-environment/ActorSpecificEnvironment';
 import type RelayModernEnvironment from '../store/RelayModernEnvironment';
 import type {RequestParameters} from '../util/RelayConcreteNode';
 import type {CacheConfig, Variables} from '../util/RelayRuntimeTypes';
 import type {
-  INetwork,
   GraphQLResponse,
+  INetwork,
   UploadableMap,
 } from './RelayNetworkTypes';
 import type RelayObservable from './RelayObservable';
+
+const generateID = require('../util/generateID');
 
 /**
  * Wraps the network with logging to ensure that network requests are

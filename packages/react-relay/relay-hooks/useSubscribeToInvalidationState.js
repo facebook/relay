@@ -13,11 +13,10 @@
 
 'use strict';
 
-const useRelayEnvironment = require('./useRelayEnvironment');
-
-const {useEffect, useRef} = require('react');
-
 import type {DataID, Disposable, InvalidationState} from 'relay-runtime';
+
+const useRelayEnvironment = require('./useRelayEnvironment');
+const {useEffect, useRef} = require('react');
 
 /**
  * This hook subscribes a callback to the invalidation state of the given data

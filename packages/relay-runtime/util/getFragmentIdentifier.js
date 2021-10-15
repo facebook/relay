@@ -13,19 +13,17 @@
 
 'use strict';
 
-const RelayFeatureFlags = require('./RelayFeatureFlags');
-
-const isEmptyObject = require('./isEmptyObject');
-const stableCopy = require('./stableCopy');
+import type {ReaderFragment} from './ReaderNode';
 
 const {
   getDataIDsFromFragment,
-  getVariablesFromFragment,
   getSelector,
+  getVariablesFromFragment,
 } = require('../store/RelayModernSelector');
+const isEmptyObject = require('./isEmptyObject');
+const RelayFeatureFlags = require('./RelayFeatureFlags');
+const stableCopy = require('./stableCopy');
 const {intern} = require('./StringInterner');
-
-import type {ReaderFragment} from './ReaderNode';
 
 function getFragmentIdentifier(
   fragmentNode: ReaderFragment,

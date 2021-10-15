@@ -12,22 +12,20 @@
 
 'use strict';
 
-const t = require('@babel/types');
+import type {EnumTypeID, Schema, TypeID} from '../../core/Schema';
+import type {State} from './RelayFlowGenerator';
 
 const {
   exactObjectTypeAnnotation,
   readOnlyArrayOfType,
 } = require('./RelayFlowBabelFactories');
-
-import type {Schema, TypeID, EnumTypeID} from '../../core/Schema';
+const t = require('@babel/types');
 
 export type BabelTypes = typeof t;
 export type ScalarTypeMapping = {
   [type: string]: string | (BabelTypes => BabelNode_DEPRECATED),
   ...,
 };
-
-import type {State} from './RelayFlowGenerator';
 
 function getInputObjectTypeIdentifier(schema: Schema, typeID: TypeID): string {
   return schema.getTypeString(typeID);

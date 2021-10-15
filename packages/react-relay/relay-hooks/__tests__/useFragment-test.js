@@ -13,20 +13,18 @@
 
 'use strict';
 
+const useFragmentOriginal = require('../useFragment');
 const React = require('react');
 const ReactRelayContext = require('react-relay/ReactRelayContext');
 const TestRenderer = require('react-test-renderer');
-
-const useFragmentOriginal = require('../useFragment');
-
 const {
   FRAGMENT_OWNER_KEY,
   FRAGMENTS_KEY,
   ID_KEY,
   createOperationDescriptor,
-  graphql,
-  getRequest,
   getFragment,
+  getRequest,
+  graphql,
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
 

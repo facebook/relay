@@ -12,11 +12,11 @@
 
 'use strict';
 
-const {createUserError, createCompilerError} = require('../core/CompilerError');
-const {getName} = require('./GraphQLASTUtils');
-
 import type {ExecutableDefinitionNode} from 'graphql';
 import type {Sources} from 'relay-compiler';
+
+const {createCompilerError, createUserError} = require('../core/CompilerError');
+const {getName} = require('./GraphQLASTUtils');
 
 class GraphQLNodeMap extends Map<string, ExecutableDefinitionNode> {
   static from(nodes: Iterable<ExecutableDefinitionNode>): GraphQLNodeMap {

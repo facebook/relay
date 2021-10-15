@@ -11,21 +11,21 @@
 
 'use strict';
 
-import type {PayloadData, GraphQLResponse} from '../network/RelayNetworkTypes';
+import type {GraphQLResponse, PayloadData} from '../network/RelayNetworkTypes';
 import type RelayObservable from '../network/RelayObservable';
 import type RelayPublishQueue from '../store/RelayPublishQueue';
 import type {
+  ExecuteMutationConfig,
+  IEnvironment,
   OperationAvailability,
   OperationDescriptor,
   OptimisticResponseConfig,
   OptimisticUpdateFunction,
+  RecordSourceProxy,
   SelectorStoreUpdater,
   SingularReaderSelector,
   Snapshot,
   StoreUpdater,
-  IEnvironment,
-  ExecuteMutationConfig,
-  RecordSourceProxy,
 } from '../store/RelayStoreTypes';
 import type {Disposable} from '../util/RelayRuntimeTypes';
 import type {ActorIdentifier} from './ActorIdentifier';

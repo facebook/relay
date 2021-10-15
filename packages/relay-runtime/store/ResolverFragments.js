@@ -12,16 +12,15 @@
 
 'use strict';
 
-const invariant = require('invariant');
-
-const {getFragment} = require('../query/GraphQLTag');
-const {getSelector} = require('./RelayModernSelector');
-
 import type {GraphQLTaggedNode} from '../query/GraphQLTag';
 import type {
   FragmentReference,
   SingularReaderSelector,
 } from './RelayStoreTypes';
+
+const {getFragment} = require('../query/GraphQLTag');
+const {getSelector} = require('./RelayModernSelector');
+const invariant = require('invariant');
 
 // When we call the user-supplied resolver function, it will in turn call
 // `readFragment`, but that's a global function -- it needs information

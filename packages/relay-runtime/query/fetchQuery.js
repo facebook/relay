@@ -13,17 +13,6 @@
 
 'use strict';
 
-const RelayObservable = require('../network/RelayObservable');
-
-const fetchQueryInternal = require('./fetchQueryInternal');
-const invariant = require('invariant');
-const reportMissingRequiredFields = require('../util/reportMissingRequiredFields');
-
-const {
-  createOperationDescriptor,
-} = require('../store/RelayModernOperationDescriptor');
-const {getRequest} = require('./GraphQLTag');
-
 import type {
   CacheConfig,
   FetchQueryFetchPolicy,
@@ -34,6 +23,15 @@ import type {
   Snapshot,
   VariablesOf,
 } from 'relay-runtime';
+
+const RelayObservable = require('../network/RelayObservable');
+const {
+  createOperationDescriptor,
+} = require('../store/RelayModernOperationDescriptor');
+const reportMissingRequiredFields = require('../util/reportMissingRequiredFields');
+const fetchQueryInternal = require('./fetchQueryInternal');
+const {getRequest} = require('./GraphQLTag');
+const invariant = require('invariant');
 
 /**
  * Fetches the given query and variables on the provided environment,

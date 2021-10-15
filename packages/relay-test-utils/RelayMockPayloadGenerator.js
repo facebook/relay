@@ -13,11 +13,23 @@
 
 'use strict';
 
-const invariant = require('invariant');
+import type {
+  GraphQLSingularResponse,
+  NormalizationArgument,
+  NormalizationField,
+  NormalizationLinkedField,
+  NormalizationOperation,
+  NormalizationScalarField,
+  NormalizationSelection,
+  NormalizationSplitOperation,
+  OperationDescriptor,
+  Variables,
+} from 'relay-runtime';
 
+const invariant = require('invariant');
 const {
-  TYPENAME_KEY,
   RelayConcreteNode,
+  TYPENAME_KEY,
   getModuleComponentKey,
   getModuleOperationKey,
 } = require('relay-runtime');
@@ -40,19 +52,6 @@ const {
   STREAM,
   TYPE_DISCRIMINATOR,
 } = RelayConcreteNode;
-
-import type {
-  NormalizationArgument,
-  NormalizationField,
-  NormalizationLinkedField,
-  NormalizationOperation,
-  NormalizationScalarField,
-  NormalizationSelection,
-  OperationDescriptor,
-  GraphQLSingularResponse,
-  NormalizationSplitOperation,
-  Variables,
-} from 'relay-runtime';
 
 type ValueResolver = (
   typeName: ?string,

@@ -12,30 +12,28 @@
 
 jest.mock('scheduler', () => require('scheduler/unstable_mock'));
 
-const React = require('react');
-const Scheduler = require('scheduler');
 const ReactRelayContext = require('../ReactRelayContext');
-const ReactRelayQueryRendererContext = require('../ReactRelayQueryRendererContext');
 const ReactRelayQueryRenderer = require('../ReactRelayQueryRenderer');
-const ReactTestRenderer = require('react-test-renderer');
-
+const ReactRelayQueryRendererContext = require('../ReactRelayQueryRendererContext');
 const readContext = require('../readContext');
+const React = require('react');
+const ReactTestRenderer = require('react-test-renderer');
 const {graphql} = require('relay-runtime');
-
 const {
-  createOperationDescriptor,
   Environment,
   Network,
   Observable,
   RecordSource,
-  Store,
   ROOT_ID,
+  Store,
+  createOperationDescriptor,
 } = require('relay-runtime');
 const {ROOT_TYPE} = require('relay-runtime/store/RelayStoreUtils');
 const {
   createMockEnvironment,
   simpleClone,
 } = require('relay-test-utils-internal');
+const Scheduler = require('scheduler');
 
 describe('ReactRelayQueryRenderer', () => {
   let TestQuery;

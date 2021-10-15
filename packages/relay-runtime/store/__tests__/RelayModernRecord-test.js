@@ -10,15 +10,13 @@
 
 'use strict';
 
-const RelayModernRecord = require('../RelayModernRecord');
-const RelayModernTestUtils = require('relay-test-utils-internal');
-const RelayStoreUtils = require('../RelayStoreUtils');
-
-const deepFreeze = require('../../util/deepFreeze');
-
 const {
   getActorIdentifier,
 } = require('../../multi-actor-environment/ActorIdentifier');
+const deepFreeze = require('../../util/deepFreeze');
+const RelayModernRecord = require('../RelayModernRecord');
+const RelayStoreUtils = require('../RelayStoreUtils');
+const RelayModernTestUtils = require('relay-test-utils-internal');
 
 const {ID_KEY, REF_KEY, REFS_KEY, TYPENAME_KEY} = RelayStoreUtils;
 

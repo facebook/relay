@@ -13,26 +13,26 @@
 
 'use strict';
 
-const React = require('react');
-const {useMemo, useState} = React;
-const TestRenderer = require('react-test-renderer');
+import type {OperationDescriptor} from 'relay-runtime';
+
 const {act: internalAct} = require('../../jest-react');
 const useFragmentNodeOriginal = require('../useFragmentNode');
+const React = require('react');
 const ReactRelayContext = require('react-relay/ReactRelayContext');
+const TestRenderer = require('react-test-renderer');
 const {
   FRAGMENT_OWNER_KEY,
   FRAGMENTS_KEY,
   ID_KEY,
-  createOperationDescriptor,
-  graphql,
-  getRequest,
-  getFragment,
   __internal: {fetchQuery},
+  createOperationDescriptor,
+  getFragment,
+  getRequest,
+  graphql,
 } = require('relay-runtime');
-
 const {createMockEnvironment} = require('relay-test-utils');
 
-import type {OperationDescriptor} from 'relay-runtime';
+const {useMemo, useState} = React;
 
 function assertYieldsWereCleared(_scheduler) {
   const actualYields = _scheduler.unstable_clearYields();

@@ -12,12 +12,6 @@
 
 'use strict';
 
-const IRTransformer = require('../core/IRTransformer');
-
-const generateAbstractTypeRefinementKey = require('../util/generateAbstractTypeRefinementKey');
-
-const {hasUnaliasedSelection} = require('./TransformUtils');
-
 import type CompilerContext from '../core/CompilerContext';
 import type {
   Fragment,
@@ -26,6 +20,10 @@ import type {
   ScalarField,
 } from '../core/IR';
 import type {Schema} from '../core/Schema';
+
+const IRTransformer = require('../core/IRTransformer');
+const generateAbstractTypeRefinementKey = require('../util/generateAbstractTypeRefinementKey');
+const {hasUnaliasedSelection} = require('./TransformUtils');
 
 const TYPENAME_KEY = '__typename';
 

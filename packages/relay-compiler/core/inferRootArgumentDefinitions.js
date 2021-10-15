@@ -12,12 +12,6 @@
 
 'use strict';
 
-const CompilerContext = require('./CompilerContext');
-const IRVisitor = require('./IRVisitor');
-const SchemaUtils = require('./SchemaUtils');
-
-const {createCompilerError} = require('./CompilerError');
-
 import type {
   Argument,
   ArgumentDefinition,
@@ -30,6 +24,11 @@ import type {
   SplitOperation,
   Stream,
 } from './IR';
+
+const CompilerContext = require('./CompilerContext');
+const {createCompilerError} = require('./CompilerError');
+const IRVisitor = require('./IRVisitor');
+const SchemaUtils = require('./SchemaUtils');
 
 type ArgumentMap = Map<string, ArgumentDefinition>;
 

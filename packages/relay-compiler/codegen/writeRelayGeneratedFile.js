@@ -12,15 +12,6 @@
 
 'use strict';
 
-const CodeMarker = require('../util/CodeMarker');
-
-const createPrintRequireModuleDependency = require('./createPrintRequireModuleDependency');
-const dedupeJSONStringify = require('../util/dedupeJSONStringify');
-const invariant = require('invariant');
-const md5 = require('../util/md5');
-
-const {RelayConcreteNode} = require('relay-runtime');
-
 import type {GeneratedDefinition} from '../core/IR';
 import type {Schema} from '../core/Schema';
 import type {
@@ -29,6 +20,13 @@ import type {
 } from '../language/RelayLanguagePluginInterface';
 import type CodegenDirectory from './CodegenDirectory';
 import type {GeneratedNode, RequestParameters} from 'relay-runtime';
+
+const CodeMarker = require('../util/CodeMarker');
+const dedupeJSONStringify = require('../util/dedupeJSONStringify');
+const md5 = require('../util/md5');
+const createPrintRequireModuleDependency = require('./createPrintRequireModuleDependency');
+const invariant = require('invariant');
+const {RelayConcreteNode} = require('relay-runtime');
 
 function getConcreteType(node: GeneratedNode): string {
   switch (node.kind) {

@@ -12,17 +12,16 @@
 
 'use strict';
 
-const Printer = require('../core/IRPrinter');
-const Profiler = require('../core/GraphQLCompilerProfiler');
-const RelayCodeGenerator = require('./RelayCodeGenerator');
-
-const filterContextForNode = require('../core/filterContextForNode');
-
 import type CompilerContext from '../core/CompilerContext';
 import type {IRTransform} from '../core/CompilerContext';
 import type {GeneratedDefinition} from '../core/IR';
 import type {Reporter} from '../reporters/Reporter';
 import type {GeneratedNode} from 'relay-runtime';
+
+const filterContextForNode = require('../core/filterContextForNode');
+const Profiler = require('../core/GraphQLCompilerProfiler');
+const Printer = require('../core/IRPrinter');
+const RelayCodeGenerator = require('./RelayCodeGenerator');
 
 export type RelayCompilerTransforms = {
   commonTransforms: $ReadOnlyArray<IRTransform>,

@@ -14,32 +14,31 @@
 
 /* global jest */
 
-const areEqual = require('areEqual');
-const invariant = require('invariant');
-
-const {
-  RecordSource,
-  Store,
-  QueryResponseCache,
-  Observable,
-  Environment,
-  Network,
-  createOperationDescriptor,
-  getRequest,
-} = require('relay-runtime');
-
-import type {Sink} from 'relay-runtime/network/RelayObservable';
 import type {
   CacheConfig,
   ConcreteRequest,
+  EnvironmentConfig,
   GraphQLSingularResponse,
   GraphQLTaggedNode,
   IEnvironment,
   OperationDescriptor,
   RequestParameters,
   Variables,
-  EnvironmentConfig,
 } from 'relay-runtime';
+import type {Sink} from 'relay-runtime/network/RelayObservable';
+
+const areEqual = require('areEqual');
+const invariant = require('invariant');
+const {
+  Environment,
+  Network,
+  Observable,
+  QueryResponseCache,
+  RecordSource,
+  Store,
+  createOperationDescriptor,
+  getRequest,
+} = require('relay-runtime');
 
 type PendingRequest = {|
   +request: RequestParameters,

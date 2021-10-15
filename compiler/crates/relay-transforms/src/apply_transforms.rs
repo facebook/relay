@@ -5,6 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use crate::match_::hash_supported_argument;
+
 use super::*;
 use common::{sync::try_join, DiagnosticsResult, PerfLogEvent, PerfLogger};
 use fnv::FnvHashSet;
@@ -199,6 +201,9 @@ fn apply_reader_transforms(
     program = log_event.time("generate_data_driven_dependency_metadata", || {
         generate_data_driven_dependency_metadata(&program)
     });
+    program = log_event.time("hash_supported_argument", || {
+        hash_supported_argument(&program, &feature_flags)
+    })?;
 
     log_event.complete();
 
@@ -268,9 +273,12 @@ fn apply_normalization_transforms(
     if let Some(print_stats) = maybe_print_stats {
         print_stats("apply_fragment_arguments", &program);
     }
-    program = log_event.time("relay_early_flush", || relay_early_flush(&program))?;
+
+    program = log_event.time("hash_supported_argument", || {
+        hash_supported_argument(&program, &feature_flags)
+    })?;
     if let Some(print_stats) = maybe_print_stats {
-        print_stats("relay_early_flush", &program);
+        print_stats("hash_supported_argument", &program);
     }
 
     program = log_event.time("skip_unreachable_node", || skip_unreachable_node(&program))?;
@@ -340,7 +348,6 @@ fn apply_operation_text_transforms(
     log_event.time("validate_global_variables", || {
         validate_global_variables(&program)
     })?;
-    program = log_event.time("relay_early_flush", || relay_early_flush(&program))?;
     program = log_event.time("skip_split_operation", || skip_split_operation(&program));
     program = log_event.time("skip_client_extensions", || {
         skip_client_extensions(&program)

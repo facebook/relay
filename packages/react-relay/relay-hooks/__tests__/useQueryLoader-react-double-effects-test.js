@@ -13,15 +13,13 @@
 
 'use strict';
 
-const React = require('react');
-const ReactTestRenderer = require('react-test-renderer');
+const {loadQuery} = require('../loadQuery');
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
-
 const usePreloadedQuery = require('../usePreloadedQuery');
 const useQueryLoader = require('../useQueryLoader');
-
-const {loadQuery} = require('../loadQuery');
+const React = require('react');
 const {useEffect} = require('react');
+const ReactTestRenderer = require('react-test-renderer');
 const {
   Observable,
   createOperationDescriptor,

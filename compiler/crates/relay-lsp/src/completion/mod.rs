@@ -25,7 +25,7 @@ use graphql_syntax::{
 use interner::StringKey;
 use log::debug;
 use lsp_types::{
-    request::{Completion, Request},
+    request::{Completion, Request, ResolveCompletionItem},
     CompletionItem, CompletionItemKind, CompletionResponse, Documentation, InsertTextFormat,
     MarkupContent, MarkupKind,
 };
@@ -521,17 +521,12 @@ fn completion_items_for_request(
     match kind {
         CompletionKind::FragmentSpread => {
             let leaf_type = request.type_path.resolve_leaf_type(schema)?;
-            if let Some(source_program) = source_programs.get(&project_name) {
-                debug!("has source program");
-                let items = resolve_completion_items_for_fragment_spread(
-                    leaf_type,
-                    &source_program,
-                    schema,
-                );
-                Some(items)
-            } else {
-                None
-            }
+            let source_program = source_programs.get(&project_name)?;
+
+            debug!("has source program");
+            let items =
+                resolve_completion_items_for_fragment_spread(leaf_type, &source_program, schema);
+            Some(items)
         }
         CompletionKind::FieldName {
             existing_linked_field,
@@ -1027,7 +1022,7 @@ pub(crate) fn on_completion<
     TPerfLogger: PerfLogger + 'static,
     TSchemaDocumentation: SchemaDocumentation,
 >(
-    state: &mut LSPState<TPerfLogger, TSchemaDocumentation>,
+    state: &LSPState<TPerfLogger, TSchemaDocumentation>,
     params: <Completion as Request>::Params,
 ) -> LSPRuntimeResult<<Completion as Request>::Result> {
     match state.extract_executable_document_from_text(&params.text_document_position, 0) {
@@ -1039,7 +1034,7 @@ pub(crate) fn on_completion<
                     project_name,
                     schema,
                     state.get_schema_documentation(project_name.lookup()),
-                    state.get_source_programs_ref(),
+                    &state.source_programs,
                 )
                 .unwrap_or_else(Vec::new);
                 Ok(Some(CompletionResponse::Array(items)))
@@ -1055,6 +1050,19 @@ pub(crate) fn on_completion<
             }
         }
     }
+}
+
+pub(crate) fn on_resolve_completion_item<
+    TPerfLogger: PerfLogger + 'static,
+    TSchemaDocumentation: SchemaDocumentation,
+>(
+    _state: &LSPState<TPerfLogger, TSchemaDocumentation>,
+    params: <ResolveCompletionItem as Request>::Params,
+) -> LSPRuntimeResult<<ResolveCompletionItem as Request>::Result> {
+    // We currently don't do anything with the selected item
+    // and we just return an input
+
+    Ok(params)
 }
 
 fn resolve_completion_items(

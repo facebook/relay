@@ -10,7 +10,6 @@
 'use strict';
 
 const versions = require('./versions.json');
-
 const {fbContent, isInternal} = require('internaldocs-fb-helpers');
 
 module.exports = {
@@ -345,6 +344,10 @@ module.exports = {
               '/docs/mutations',
               '/docs/next/mutations',
             ],
+          },
+          {
+            to: '/compiler-explorer',
+            from: ['/compiler-playground'],
           },
         ],
       },

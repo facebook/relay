@@ -12,30 +12,13 @@
 
 'use strict';
 
-const RelayFeatureFlags = require('../util/RelayFeatureFlags');
-
-const areEqual = require('areEqual');
-const getPendingOperationsForFragment = require('../util/getPendingOperationsForFragment');
-const invariant = require('invariant');
-const isScalarAndEqual = require('../util/isScalarAndEqual');
-const recycleNodesInto = require('../util/recycleNodesInto');
-const reportMissingRequiredFields = require('../util/reportMissingRequiredFields');
-const warning = require('warning');
-
-const {createRequestDescriptor} = require('./RelayModernOperationDescriptor');
-const {
-  areEqualSelectors,
-  createReaderSelector,
-  getSelectorsFromObject,
-} = require('./RelayModernSelector');
-
 import type {ConcreteRequest} from '../util/RelayConcreteNode';
 import type {Disposable, Variables} from '../util/RelayRuntimeTypes';
 import type {
-  IEnvironment,
   FragmentMap,
   FragmentSpecResolver,
   FragmentSpecResults,
+  IEnvironment,
   MissingRequiredFields,
   PluralReaderSelector,
   RelayContext,
@@ -43,6 +26,21 @@ import type {
   SingularReaderSelector,
   Snapshot,
 } from './RelayStoreTypes';
+
+const getPendingOperationsForFragment = require('../util/getPendingOperationsForFragment');
+const isScalarAndEqual = require('../util/isScalarAndEqual');
+const recycleNodesInto = require('../util/recycleNodesInto');
+const RelayFeatureFlags = require('../util/RelayFeatureFlags');
+const reportMissingRequiredFields = require('../util/reportMissingRequiredFields');
+const {createRequestDescriptor} = require('./RelayModernOperationDescriptor');
+const {
+  areEqualSelectors,
+  createReaderSelector,
+  getSelectorsFromObject,
+} = require('./RelayModernSelector');
+const areEqual = require('areEqual');
+const invariant = require('invariant');
+const warning = require('warning');
 
 type Props = {[key: string]: mixed, ...};
 type Resolvers = {

@@ -13,27 +13,26 @@
 
 'use strict';
 
-const React = require('react');
-const Scheduler = require('scheduler');
-
 import type {OperationDescriptor, Variables} from 'relay-runtime';
-const {useLayoutEffect, useTransition, useMemo, useState} = React;
-const TestRenderer = require('react-test-renderer');
 
 const useRefetchableFragmentNodeOriginal = require('../useRefetchableFragmentNode');
+const React = require('react');
 const ReactRelayContext = require('react-relay/ReactRelayContext');
+const TestRenderer = require('react-test-renderer');
 const {
   FRAGMENT_OWNER_KEY,
   FRAGMENTS_KEY,
   ID_KEY,
-  createOperationDescriptor,
   Observable,
-  graphql,
-  getRequest,
+  createOperationDescriptor,
   getFragment,
+  getRequest,
+  graphql,
 } = require('relay-runtime');
-
 const {createMockEnvironment} = require('relay-test-utils');
+const Scheduler = require('scheduler');
+
+const {useLayoutEffect, useTransition, useMemo, useState} = React;
 
 describe('useRefetchableFragmentNode with useTransition', () => {
   if (typeof React.useTransition !== 'function') {

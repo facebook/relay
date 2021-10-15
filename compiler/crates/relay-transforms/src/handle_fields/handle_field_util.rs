@@ -131,6 +131,7 @@ pub fn build_handle_field_directive(values: HandleFieldDirectiveValues) -> Direc
     Directive {
         name: WithLocation::generated(*HANDLE_FIELD_DIRECTIVE_NAME),
         arguments: directive_arguments,
+        data: None,
     }
 }
 

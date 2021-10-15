@@ -10,11 +10,10 @@
 
 'use strict';
 
-const RelayRecordSource = require('../../store/RelayRecordSource');
 const RelayRecordSourceMutator = require('../../mutations/RelayRecordSourceMutator');
+const RelayRecordSource = require('../../store/RelayRecordSource');
 const RelayRecordState = require('../../store/RelayRecordState');
 const RelayStoreUtils = require('../../store/RelayStoreUtils');
-
 const {simpleClone} = require('relay-test-utils-internal');
 
 const {ID_KEY, REF_KEY, REFS_KEY, TYPENAME_KEY} = RelayStoreUtils;

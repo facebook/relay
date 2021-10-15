@@ -10,14 +10,13 @@
 
 'use strict';
 
-const RelayRecordSource = require('../RelayRecordSource');
-
 const {graphql} = require('../../query/GraphQLTag');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {read} = require('../RelayReader');
-const {createReaderSelector, RelayFeatureFlags} = require('relay-runtime');
+const RelayRecordSource = require('../RelayRecordSource');
+const {RelayFeatureFlags, createReaderSelector} = require('relay-runtime');
 
 beforeEach(() => {
   RelayFeatureFlags.ENABLE_REQUIRED_DIRECTIVES = true;

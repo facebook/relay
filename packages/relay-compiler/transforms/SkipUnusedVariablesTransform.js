@@ -12,10 +12,10 @@
 
 'use strict';
 
-const inferRootArgumentDefinitions = require('../core/inferRootArgumentDefinitions');
-
 import type CompilerContext from '../core/CompilerContext';
 import type {Root} from '../core/IR';
+
+const inferRootArgumentDefinitions = require('../core/inferRootArgumentDefinitions');
 
 /**
  * Refines the argument definitions for operations to remove unused arguments

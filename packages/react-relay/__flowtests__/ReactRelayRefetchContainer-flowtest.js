@@ -12,11 +12,10 @@
 
 'use strict';
 
-const React = require('react');
-
 const {
   createContainer: createRefetchContainer,
 } = require('../ReactRelayRefetchContainer');
+const React = require('react');
 const {graphql} = require('relay-runtime');
 
 /**

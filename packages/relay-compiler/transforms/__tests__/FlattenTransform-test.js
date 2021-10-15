@@ -13,19 +13,18 @@
 
 'use strict';
 
-const CompilerContext = require('../../core/CompilerContext');
-const FlattenTransform = require('../FlattenTransform');
-const IRPrinter = require('../../core/IRPrinter');
-const MatchTransform = require('../../transforms/MatchTransform');
-const RelayDirectiveTransform = require('../RelayDirectiveTransform');
-const RelayParser = require('../../core/RelayParser');
+import type {FlattenOptions} from '../FlattenTransform';
 
+const CompilerContext = require('../../core/CompilerContext');
+const IRPrinter = require('../../core/IRPrinter');
+const RelayParser = require('../../core/RelayParser');
+const MatchTransform = require('../../transforms/MatchTransform');
+const FlattenTransform = require('../FlattenTransform');
+const RelayDirectiveTransform = require('../RelayDirectiveTransform');
 const {
   TestSchema,
   generateTestsFromFixtures,
 } = require('relay-test-utils-internal');
-
-import type {FlattenOptions} from '../FlattenTransform';
 
 describe('FlattenTransform', () => {
   function printContextTransform(

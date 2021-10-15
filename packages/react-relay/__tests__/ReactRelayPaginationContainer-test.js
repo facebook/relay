@@ -10,11 +10,10 @@
 
 'use strict';
 
-const React = require('react');
 const ReactRelayContext = require('../ReactRelayContext');
 const ReactRelayPaginationContainer = require('../ReactRelayPaginationContainer');
+const React = require('react');
 const ReactTestRenderer = require('react-test-renderer');
-
 const {
   ConnectionHandler,
   ConnectionInterface,

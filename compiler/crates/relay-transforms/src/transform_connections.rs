@@ -7,10 +7,9 @@
 
 use crate::{
     connections::{
-        assert_connection_selections, build_connection_metadata,
-        build_connection_metadata_as_directive, build_edge_selections, build_page_info_selections,
-        extract_connection_directive, get_default_filters, ConnectionConstants,
-        ConnectionInterface, ConnectionMetadata,
+        assert_connection_selections, build_connection_metadata, build_edge_selections,
+        build_page_info_selections, extract_connection_directive, get_default_filters,
+        ConnectionConstants, ConnectionInterface, ConnectionMetadata, ConnectionMetadataDirective,
     },
     defer_stream::DEFER_STREAM_CONSTANTS,
     handle_fields::{build_handle_field_directive_from_connection_directive, KEY_ARG_NAME},
@@ -136,6 +135,7 @@ impl<'s> ConnectionTransform<'s> {
                     DEFER_STREAM_CONSTANTS.stream_name,
                 ),
                 arguments,
+                data: None,
             });
         }
 
@@ -230,6 +230,7 @@ impl<'s> ConnectionTransform<'s> {
                         DEFER_STREAM_CONSTANTS.defer_name,
                     ),
                     arguments,
+                    data: None,
                 }],
             }))
         } else {
@@ -322,6 +323,14 @@ impl<'s> ConnectionTransform<'s> {
             ..connection_field.clone()
         })))
     }
+
+    fn get_metadata_directive(&mut self) -> Directive {
+        ConnectionMetadataDirective(std::mem::replace(
+            &mut self.current_connection_metadata,
+            Vec::new(),
+        ))
+        .into()
+    }
 }
 
 impl<'s> Transformer for ConnectionTransform<'s> {
@@ -349,12 +358,9 @@ impl<'s> Transformer for ConnectionTransform<'s> {
             Transformed::Replace(replaced) => replaced,
         };
 
-        let connection_metadata_directive =
-            build_connection_metadata_as_directive(&self.current_connection_metadata);
-
         transformed_operation
             .directives
-            .push(connection_metadata_directive);
+            .push(self.get_metadata_directive());
 
         Transformed::Replace(transformed_operation)
     }
@@ -379,12 +385,9 @@ impl<'s> Transformer for ConnectionTransform<'s> {
             Transformed::Replace(replaced) => replaced,
         };
 
-        let connection_metadata_directive =
-            build_connection_metadata_as_directive(&self.current_connection_metadata);
-
         transformed_fragment
             .directives
-            .push(connection_metadata_directive);
+            .push(self.get_metadata_directive());
 
         Transformed::Replace(transformed_fragment)
     }

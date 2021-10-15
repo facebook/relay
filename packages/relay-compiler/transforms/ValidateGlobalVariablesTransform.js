@@ -12,15 +12,14 @@
 
 'use strict';
 
-const inferRootArgumentDefinitions = require('../core/inferRootArgumentDefinitions');
+import type CompilerContext from '../core/CompilerContext';
+import type {ArgumentDefinition} from '../core/IR';
 
 const {
   createUserError,
   eachWithCombinedError,
 } = require('../core/CompilerError');
-
-import type CompilerContext from '../core/CompilerContext';
-import type {ArgumentDefinition} from '../core/IR';
+const inferRootArgumentDefinitions = require('../core/inferRootArgumentDefinitions');
 
 /**
  * Validates that all global variables used in operations are defined at the

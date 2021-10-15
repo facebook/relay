@@ -12,12 +12,10 @@
 // flowlint ambiguous-object-type:error
 
 'use strict';
-const RelayFeatureFlags = require('../RelayFeatureFlags');
-
+const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
 const getFragmentIdentifier = require('../getFragmentIdentifier');
+const RelayFeatureFlags = require('../RelayFeatureFlags');
 const invariant = require('invariant');
-
-const {graphql, getFragment, getRequest} = require('../../query/GraphQLTag');
 const {createOperationDescriptor} = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils-internal');
 

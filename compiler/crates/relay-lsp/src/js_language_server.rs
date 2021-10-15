@@ -17,10 +17,10 @@ use schema_documentation::SchemaDocumentation;
 pub trait JSLanguageServer<
     TPerfLogger: PerfLogger + 'static,
     TSchemaDocumentation: SchemaDocumentation,
->
+>: Send + Sync
 {
-    fn process_js_source(&mut self, url: &Url, text: &str);
-    fn remove_js_source(&mut self, url: &Url);
+    fn process_js_source(&self, url: &Url, text: &str);
+    fn remove_js_source(&self, url: &Url);
     fn on_complete(
         &self,
         params: &<Completion as Request>::Params,
@@ -39,9 +39,9 @@ pub struct NoopJSLanguageServer;
 impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentation>
     JSLanguageServer<TPerfLogger, TSchemaDocumentation> for NoopJSLanguageServer
 {
-    fn process_js_source(&mut self, _: &Url, _: &str) {}
+    fn process_js_source(&self, _: &Url, _: &str) {}
 
-    fn remove_js_source(&mut self, _: &Url) {}
+    fn remove_js_source(&self, _: &Url) {}
 
     fn on_complete(
         &self,

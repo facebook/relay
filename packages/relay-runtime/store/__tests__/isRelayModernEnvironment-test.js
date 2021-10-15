@@ -10,12 +10,10 @@
 
 'use strict';
 
+const isRelayModernEnvironment = require('../isRelayModernEnvironment');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const RelayModernStore = require('../RelayModernStore');
 const RelayRecordSource = require('../RelayRecordSource');
-
-const isRelayModernEnvironment = require('../isRelayModernEnvironment');
-
 const {disallowWarnings} = require('relay-test-utils-internal');
 
 disallowWarnings();

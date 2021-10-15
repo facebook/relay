@@ -12,17 +12,16 @@
 
 'use strict';
 
-const useRelayEnvironment = require('./useRelayEnvironment');
+import type {
+  Disposable,
+  GraphQLSubscriptionConfig,
+  IEnvironment,
+  SubscriptionParameters,
+} from 'relay-runtime';
 
+const useRelayEnvironment = require('./useRelayEnvironment');
 const {useEffect} = require('react');
 const {requestSubscription} = require('relay-runtime');
-
-import type {
-  IEnvironment,
-  GraphQLSubscriptionConfig,
-  SubscriptionParameters,
-  Disposable,
-} from 'relay-runtime';
 
 type RequestSubscriptionFn<TSubscriptionParameters: SubscriptionParameters> = (
   environment: IEnvironment,

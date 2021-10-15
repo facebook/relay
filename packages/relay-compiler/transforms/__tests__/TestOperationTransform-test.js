@@ -16,7 +16,6 @@
 const CompilerContext = require('../../core/CompilerContext');
 const RelayParser = require('../../core/RelayParser');
 const TestOperationTransform = require('../TestOperationTransform');
-
 const {
   TestSchema,
   generateTestsFromFixtures,

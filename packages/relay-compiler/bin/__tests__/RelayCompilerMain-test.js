@@ -10,15 +10,13 @@
 
 'use strict';
 
-const RelayCompilerMain = require('../RelayCompilerMain');
 const RelayFileWriter = require('../../codegen/RelayFileWriter');
-const RelayLanguagePluginJavaScript = require('../../language/javascript/RelayLanguagePluginJavaScript');
-
-const path = require('path');
-
 const {
   isAvailable: isWatchmanAvailable,
 } = require('../../core/GraphQLWatchmanClient');
+const RelayLanguagePluginJavaScript = require('../../language/javascript/RelayLanguagePluginJavaScript');
+const RelayCompilerMain = require('../RelayCompilerMain');
+const path = require('path');
 const {testSchemaPath} = require('relay-test-utils-internal');
 const {
   getCodegenRunner,

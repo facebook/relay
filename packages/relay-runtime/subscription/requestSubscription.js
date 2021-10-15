@@ -12,17 +12,6 @@
 
 'use strict';
 
-const RelayDeclarativeMutationConfig = require('../mutations/RelayDeclarativeMutationConfig');
-const RelayFeatureFlags = require('../util/RelayFeatureFlags');
-
-const warning = require('warning');
-
-const {getRequest} = require('../query/GraphQLTag');
-const {
-  createOperationDescriptor,
-} = require('../store/RelayModernOperationDescriptor');
-const {createReaderSelector} = require('../store/RelayModernSelector');
-
 import type {DeclarativeMutationConfig} from '../mutations/RelayDeclarativeMutationConfig';
 import type {GraphQLTaggedNode} from '../query/GraphQLTag';
 import type {
@@ -34,6 +23,15 @@ import type {
   Disposable,
   Variables,
 } from '../util/RelayRuntimeTypes';
+
+const RelayDeclarativeMutationConfig = require('../mutations/RelayDeclarativeMutationConfig');
+const {getRequest} = require('../query/GraphQLTag');
+const {
+  createOperationDescriptor,
+} = require('../store/RelayModernOperationDescriptor');
+const {createReaderSelector} = require('../store/RelayModernSelector');
+const RelayFeatureFlags = require('../util/RelayFeatureFlags');
+const warning = require('warning');
 
 export type SubscriptionParameters = {|
   +response: {...},

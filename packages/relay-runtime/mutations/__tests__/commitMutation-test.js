@@ -13,26 +13,24 @@
 
 'use strict';
 
+import type {GraphQLResponseWithoutData} from '../../network/RelayNetworkTypes';
+
 const ConnectionHandler = require('../../handlers/connection/ConnectionHandler');
-const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
-const RelayModernEnvironment = require('../../store/RelayModernEnvironment');
-const RelayModernStore = require('../../store/RelayModernStore');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const RelayRecordSource = require('../../store/RelayRecordSource');
-
-const commitMutation = require('../commitMutation');
-const nullthrows = require('nullthrows');
-
-const {graphql, getFragment, getRequest} = require('../../query/GraphQLTag');
+const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
+const RelayModernEnvironment = require('../../store/RelayModernEnvironment');
 const {
   createOperationDescriptor,
 } = require('../../store/RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../../store/RelayModernSelector');
+const RelayModernStore = require('../../store/RelayModernStore');
+const RelayRecordSource = require('../../store/RelayRecordSource');
 const {ROOT_ID} = require('../../store/RelayStoreUtils');
+const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
+const commitMutation = require('../commitMutation');
+const nullthrows = require('nullthrows');
 const {createMockEnvironment} = require('relay-test-utils-internal');
-
-import type {GraphQLResponseWithoutData} from '../../network/RelayNetworkTypes';
 
 describe('Configs: NODE_DELETE', () => {
   jest.resetModules();

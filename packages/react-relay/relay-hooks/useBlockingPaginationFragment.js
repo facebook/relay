@@ -13,18 +13,6 @@
 
 'use strict';
 
-const invariant = require('invariant');
-const useLoadMoreFunction = require('./useLoadMoreFunction');
-const useRefetchableFragmentNode = require('./useRefetchableFragmentNode');
-const useStaticFragmentNodeWarning = require('./useStaticFragmentNodeWarning');
-
-const {useCallback, useEffect, useRef, useState} = require('react');
-const {
-  getFragment,
-  getFragmentIdentifier,
-  getPaginationMetadata,
-} = require('relay-runtime');
-
 import type {LoadMoreFn, UseLoadMoreFunctionArgs} from './useLoadMoreFunction';
 import type {RefetchFnDynamic} from './useRefetchableFragmentNode';
 import type {
@@ -34,6 +22,17 @@ import type {
   Observer,
   OperationType,
 } from 'relay-runtime';
+
+const useLoadMoreFunction = require('./useLoadMoreFunction');
+const useRefetchableFragmentNode = require('./useRefetchableFragmentNode');
+const useStaticFragmentNodeWarning = require('./useStaticFragmentNodeWarning');
+const invariant = require('invariant');
+const {useCallback, useEffect, useRef, useState} = require('react');
+const {
+  getFragment,
+  getFragmentIdentifier,
+  getPaginationMetadata,
+} = require('relay-runtime');
 
 export type ReturnType<TQuery: OperationType, TKey, TFragmentData> = {|
   data: TFragmentData,

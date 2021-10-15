@@ -80,6 +80,7 @@ impl<'s> Transformer for GenerateSubscriptionNameMetadata<'s> {
                                     Value::Constant(ConstantValue::String(subscription_name)),
                                 ),
                             }],
+                            data: None,
                         });
 
                         Transformed::Replace(OperationDefinition {

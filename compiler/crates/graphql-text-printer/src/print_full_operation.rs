@@ -34,7 +34,7 @@ impl<'s> OperationPrinter<'s> {
     }
 
     pub fn print(&mut self, operation: &OperationDefinition) -> String {
-        let mut result = print_operation(&self.program.schema, operation);
+        let mut result = print_operation(&self.program.schema, operation, Default::default());
         self.visit_operation(operation);
         let mut fragments: Vec<(StringKey, Arc<FragmentDefinition>)> =
             self.reachable_fragments.drain().collect();
@@ -51,7 +51,7 @@ impl<'s> OperationPrinter<'s> {
         let schema = &self.program.schema;
         self.fragment_result
             .entry(fragment.name.item)
-            .or_insert_with(|| print_fragment(schema, fragment))
+            .or_insert_with(|| print_fragment(schema, fragment, Default::default()))
     }
 }
 

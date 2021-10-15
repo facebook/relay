@@ -16,10 +16,9 @@
 const mockWarning = jest.fn();
 jest.mock('warning', () => mockWarning);
 
+const useStaticFragmentNodeWarning = require('../useStaticFragmentNodeWarning');
 const React = require('react');
 const TestRenderer = require('react-test-renderer');
-
-const useStaticFragmentNodeWarning = require('../useStaticFragmentNodeWarning');
 
 const warningMessage =
   'Relay: The %s has to remain the same over the lifetime of a component. Changing ' +

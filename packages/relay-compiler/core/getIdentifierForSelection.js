@@ -12,12 +12,11 @@
 
 'use strict';
 
-const invariant = require('invariant');
-
-const {printArguments, printDirectives} = require('./IRPrinter');
-
 import type {Selection} from './IR';
 import type {Schema} from './Schema';
+
+const {printArguments, printDirectives} = require('./IRPrinter');
+const invariant = require('invariant');
 
 /**
  * Generates an identifier that is unique to a given selection: the alias for

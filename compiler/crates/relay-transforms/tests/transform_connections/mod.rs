@@ -10,7 +10,7 @@ use fixture_tests::Fixture;
 use graphql_ir::{build, Program};
 use graphql_syntax::parse_executable;
 use graphql_test_helpers::diagnostics_to_sorted_string;
-use graphql_text_printer::{print_fragment, print_operation};
+use graphql_text_printer::{print_fragment, print_operation, PrinterOptions};
 use relay_test_schema::get_test_schema;
 use relay_transforms::{transform_connections, validate_connections, ConnectionInterface};
 use std::sync::Arc;
@@ -33,13 +33,17 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
 
     let next_program = transform_connections(&program, &connection_interface);
 
+    let printer_options = PrinterOptions {
+        debug_directive_data: true,
+        ..Default::default()
+    };
     let mut printed = next_program
         .operations()
-        .map(|def| print_operation(&schema, def))
+        .map(|def| print_operation(&schema, def, printer_options.clone()))
         .chain(
             next_program
                 .fragments()
-                .map(|def| print_fragment(&schema, def)),
+                .map(|def| print_fragment(&schema, def, printer_options.clone())),
         )
         .collect::<Vec<_>>();
     printed.sort();

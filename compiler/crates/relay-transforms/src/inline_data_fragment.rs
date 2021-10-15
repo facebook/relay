@@ -148,6 +148,7 @@ impl<'s> Transformer for InlineDataFragmentsTransform<'s> {
                             Value::Constant(ConstantValue::String(name)),
                         ),
                     }],
+                    data: None,
                 }],
                 selections: vec![Selection::InlineFragment(Arc::new(InlineFragment {
                     type_condition: Some(fragment.type_condition),

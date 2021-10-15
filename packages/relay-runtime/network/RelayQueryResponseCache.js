@@ -12,14 +12,14 @@
 
 'use strict';
 
-const invariant = require('invariant');
-const stableCopy = require('../util/stableCopy');
-
 import type {Variables} from '../util/RelayRuntimeTypes';
 import type {
   GraphQLResponse,
   GraphQLSingularResponse,
 } from './RelayNetworkTypes';
+
+const stableCopy = require('../util/stableCopy');
+const invariant = require('invariant');
 
 type Response = {
   fetchTime: number,

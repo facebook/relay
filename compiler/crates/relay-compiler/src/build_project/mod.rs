@@ -46,6 +46,9 @@ pub use source_control::add_to_mercurial;
 use std::{collections::hash_map::Entry, path::PathBuf, sync::Arc};
 pub use validate::{validate, AdditionalValidations};
 
+type BuildProjectOutput = (ProjectName, Arc<SDLSchema>, Programs, Vec<Artifact>);
+type BuildProgramsOutput = (Programs, Arc<SourceHashes>);
+
 pub enum BuildProjectFailure {
     Error(BuildProjectError),
     Cancelled,
@@ -148,7 +151,7 @@ pub fn build_programs(
     schema: Arc<SDLSchema>,
     log_event: &impl PerfLogEvent,
     perf_logger: Arc<impl PerfLogger + 'static>,
-) -> Result<(Programs, Arc<SourceHashes>), BuildProjectFailure> {
+) -> Result<BuildProgramsOutput, BuildProjectFailure> {
     let project_name = project_config.name;
     let is_incremental_build = compiler_state.has_processed_changes()
         && !compiler_state.has_breaking_schema_change(project_name)
@@ -208,7 +211,7 @@ pub fn build_project(
     compiler_state: &CompilerState,
     graphql_asts: &FnvHashMap<SourceSetName, GraphQLAsts>,
     perf_logger: Arc<impl PerfLogger + 'static>,
-) -> Result<(ProjectName, Arc<SDLSchema>, Programs, Vec<Artifact>), BuildProjectFailure> {
+) -> Result<BuildProjectOutput, BuildProjectFailure> {
     let log_event = perf_logger.create_event("build_project");
     let build_time = log_event.start("build_project_time");
     let project_name = project_config.name;

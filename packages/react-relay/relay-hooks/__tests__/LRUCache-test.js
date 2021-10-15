@@ -14,7 +14,6 @@
 'use strict';
 
 const LRUCache = require('../LRUCache');
-
 const invariant = require('invariant');
 
 test('LRUCache', () => {

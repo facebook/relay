@@ -10,12 +10,11 @@
 
 'use strict';
 
-const fetchQuery = require('../fetchQuery_DEPRECATED');
-
 const {
   createOperationDescriptor,
 } = require('../../store/RelayModernOperationDescriptor');
-const {graphql, getRequest} = require('../GraphQLTag');
+const fetchQuery = require('../fetchQuery_DEPRECATED');
+const {getRequest, graphql} = require('../GraphQLTag');
 const {createMockEnvironment} = require('relay-test-utils-internal');
 
 describe('fetchQuery', () => {

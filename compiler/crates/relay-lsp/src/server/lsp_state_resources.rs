@@ -8,67 +8,48 @@
 use std::sync::{Arc, RwLock};
 
 use common::{PerfLogEvent, PerfLogger};
-use crossbeam::channel::Sender;
 use dashmap::mapref::entry::Entry;
 use fnv::FnvHashMap;
 use graphql_watchman::WatchmanFileSourceSubscriptionNextChange;
 use interner::StringKey;
 use log::debug;
-use lsp_server::Message;
 use rayon::iter::ParallelIterator;
 use relay_compiler::{
     build_raw_program, build_schema, compiler_state::CompilerState, compiler_state::SourceSetName,
-    config::Config, config::ProjectConfig, errors::BuildProjectError, errors::Error,
-    transform_program, validate_program, BuildProjectFailure, FileSource, FileSourceResult,
-    FileSourceSubscription, FileSourceSubscriptionNextChange, GraphQLAsts,
-    SourceControlUpdateStatus,
+    config::ProjectConfig, errors::BuildProjectError, errors::Error, transform_program,
+    validate_program, BuildProjectFailure, FileSource, FileSourceResult, FileSourceSubscription,
+    FileSourceSubscriptionNextChange, GraphQLAsts, SourceControlUpdateStatus,
 };
 use relay_transforms::FeatureFlags;
 use schema::SDLSchema;
+use schema_documentation::SchemaDocumentation;
 use tokio::{sync::Notify, task, task::JoinHandle};
 
 use crate::{
-    diagnostic_reporter::DiagnosticReporter,
     lsp_process_error::{LSPProcessError, LSPProcessResult},
     status_updater::set_ready_status,
     status_updater::update_in_progress_status,
+    LSPState,
 };
 
-use super::lsp_state::{ProjectStatus, ProjectStatusMap, Schemas, SourcePrograms};
+use super::lsp_state::ProjectStatus;
 
 /// This structure is responsible for keeping schemas/programs in sync with the current state of the world
-pub(crate) struct LSPStateResources<TPerfLogger: PerfLogger + 'static> {
-    config: Arc<Config>,
-    perf_logger: Arc<TPerfLogger>,
-    schemas: Schemas,
-    source_programs: SourcePrograms,
+pub(crate) struct LSPStateResources<
+    TPerfLogger: PerfLogger + 'static,
+    TSchemaDocumentation: SchemaDocumentation + 'static,
+> {
+    lsp_state: Arc<LSPState<TPerfLogger, TSchemaDocumentation>>,
     notify: Arc<Notify>,
-    sender: Sender<Message>,
-    diagnostic_reporter: Arc<DiagnosticReporter>,
-    project_status: ProjectStatusMap,
 }
 
-impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
-    #[allow(clippy::too_many_arguments)]
-    pub(crate) fn new(
-        config: Arc<Config>,
-        perf_logger: Arc<TPerfLogger>,
-        schemas: Schemas,
-        source_programs: SourcePrograms,
-        sender: Sender<Message>,
-        diagnostic_reporter: Arc<DiagnosticReporter>,
-        notify: Arc<Notify>,
-        project_status: ProjectStatusMap,
-    ) -> Self {
+impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentation + 'static>
+    LSPStateResources<TPerfLogger, TSchemaDocumentation>
+{
+    pub(crate) fn new(lsp_state: Arc<LSPState<TPerfLogger, TSchemaDocumentation>>) -> Self {
         Self {
-            config,
-            perf_logger,
-            schemas,
-            source_programs,
-            sender,
-            notify,
-            diagnostic_reporter,
-            project_status,
+            lsp_state,
+            notify: Arc::new(Notify::new()),
         }
     }
 
@@ -80,18 +61,19 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
             update_in_progress_status(
                 "Relay: watchman...",
                 Some("Sending watchman query to get source files and possible saved state"),
-                &self.sender,
+                &self.lsp_state.sender,
             );
             let setup_event = self
+                .lsp_state
                 .perf_logger
                 .create_event("lsp_state_initialize_resources");
             let timer = setup_event.start("lsp_state_initialize_resources_time");
 
-            let file_source = FileSource::connect(&self.config, &setup_event)
+            let file_source = FileSource::connect(&self.lsp_state.config, &setup_event)
                 .await
                 .map_err(LSPProcessError::CompilerError)?;
             let (mut compiler_state, file_source_subscription) = file_source
-                .subscribe(&setup_event, self.perf_logger.as_ref())
+                .subscribe(&setup_event, self.lsp_state.perf_logger.as_ref())
                 .await
                 .map_err(LSPProcessError::CompilerError)?;
 
@@ -111,16 +93,18 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
             update_in_progress_status(
                 "Relay: creating state...",
                 Some("Building schemas and source programs for LSP"),
-                &self.sender,
+                &self.lsp_state.sender,
             );
 
-            self.diagnostic_reporter.clear_regular_diagnostics();
+            self.lsp_state
+                .diagnostic_reporter
+                .clear_regular_diagnostics();
 
             // Run initial build, before entering the watch changes loop
             if let Err(error) = self.build_projects(&mut compiler_state, &setup_event) {
                 self.publish_errors(&error, "lsp_state_error");
             }
-            set_ready_status(&self.sender);
+            set_ready_status(&self.lsp_state.sender);
 
             setup_event.stop(timer);
             setup_event.complete();
@@ -137,7 +121,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
                     update_in_progress_status(
                         "Relay: hg update...",
                         Some("Waiting for source control update"),
-                        &self.sender,
+                        &self.lsp_state.sender,
                     );
                     continue 'inner;
                 }
@@ -149,13 +133,16 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
                     continue 'outer;
                 }
 
-                let log_event = self.perf_logger.create_event("lsp_state_watchman_event");
+                let log_event = self
+                    .lsp_state
+                    .perf_logger
+                    .create_event("lsp_state_watchman_event");
                 let log_time = log_event.start("lsp_state_watchman_event_time");
 
                 if let Err(error) = self.incremental_build(&mut compiler_state, &log_event) {
                     self.publish_errors(&error, "lsp_state_user_error");
                 }
-                set_ready_status(&self.sender);
+                set_ready_status(&self.lsp_state.sender);
 
                 log_event.stop(log_time);
                 log_event.complete();
@@ -169,26 +156,29 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
         log_event: &impl PerfLogEvent,
     ) -> Result<(), Error> {
         let has_new_changes = compiler_state.merge_file_source_changes(
-            &self.config,
-            self.perf_logger.as_ref(),
+            &self.lsp_state.config,
+            self.lsp_state.perf_logger.as_ref(),
             false,
         )?;
 
         // Rebuild if there are pending files or if a new project is activated
         if has_new_changes
             || self
+                .lsp_state
                 .project_status
                 .iter()
                 .any(|r| r.value() == &ProjectStatus::Activated)
         {
             debug!("LSP server detected changes...");
 
-            self.diagnostic_reporter.clear_regular_diagnostics();
+            self.lsp_state
+                .diagnostic_reporter
+                .clear_regular_diagnostics();
 
             update_in_progress_status(
                 "Relay: checking...",
                 Some("Validating changes, and updating source programs with the latest changes."),
-                &self.sender,
+                &self.lsp_state.sender,
             );
 
             self.build_projects(compiler_state, log_event)?;
@@ -205,7 +195,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
         let graphql_asts = log_event.time("parse_sources_time", || {
             GraphQLAsts::from_graphql_sources_map(
                 &compiler_state.graphql_sources,
-                &compiler_state.get_dirty_definitions(&self.config),
+                &compiler_state.get_dirty_definitions(&self.lsp_state.config),
             )
         })?;
 
@@ -216,15 +206,24 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
 
         let timer = log_event.start("build_lsp_projects");
         let build_results: Vec<_> = self
+            .lsp_state
             .config
             .par_enabled_projects()
             .filter(|project_config| {
                 // Filter inactive projects
-                if !self.project_status.contains_key(&project_config.name) {
+                if !self
+                    .lsp_state
+                    .project_status
+                    .contains_key(&project_config.name)
+                {
                     return false;
                 }
                 // When the source programs is empty, we need to compile all source programs once
-                if !self.source_programs.contains_key(&project_config.name) {
+                if !self
+                    .lsp_state
+                    .source_programs
+                    .contains_key(&project_config.name)
+                {
                     return true;
                 }
                 if let Some(base) = project_config.base {
@@ -263,9 +262,10 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
         compiler_state: &CompilerState,
         graphql_asts: &FnvHashMap<SourceSetName, GraphQLAsts>,
     ) -> Result<StringKey, BuildProjectFailure> {
-        self.project_status
+        self.lsp_state
+            .project_status
             .insert(project_config.name, ProjectStatus::Completed);
-        let log_event = self.perf_logger.create_event("build_lsp_project");
+        let log_event = self.lsp_state.perf_logger.create_event("build_lsp_project");
         let project_name = project_config.name;
         let build_time = log_event.start("build_lsp_project_time");
         log_event.string("project", project_name.to_string());
@@ -291,7 +291,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
         compiler_state: &CompilerState,
         project_config: &ProjectConfig,
     ) -> Result<Arc<SDLSchema>, BuildProjectFailure> {
-        match self.schemas.entry(project_config.name) {
+        match self.lsp_state.get_schemas().entry(project_config.name) {
             Entry::Vacant(e) => {
                 let schema = build_schema(compiler_state, project_config).map_err(|errors| {
                     BuildProjectFailure::Error(BuildProjectError::ValidationErrors { errors })
@@ -325,7 +325,10 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
         schema: Arc<SDLSchema>,
         log_event: &impl PerfLogEvent,
     ) -> Result<(), BuildProjectFailure> {
-        let is_incremental_build = self.source_programs.contains_key(&project_config.name)
+        let is_incremental_build = self
+            .lsp_state
+            .source_programs
+            .contains_key(&project_config.name)
             && compiler_state.has_processed_changes()
             && !compiler_state.has_breaking_schema_change(project_config.name)
             && if let Some(base) = project_config.base {
@@ -348,7 +351,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
             return Err(BuildProjectFailure::Cancelled);
         }
 
-        match self.source_programs.entry(project_config.name) {
+        match self.lsp_state.source_programs.entry(project_config.name) {
             Entry::Vacant(e) => {
                 e.insert(base_program.clone());
             }
@@ -362,18 +365,18 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
         }
 
         validate_program(
-            &self.config,
+            &self.lsp_state.config,
             &FeatureFlags::default(),
             &base_program,
             log_event,
         )?;
 
         transform_program(
-            &self.config,
+            &self.lsp_state.config,
             project_config,
             Arc::new(base_program),
             Arc::new(base_fragment_names),
-            Arc::clone(&self.perf_logger),
+            Arc::clone(&self.lsp_state.perf_logger),
             log_event,
         )?;
         Ok(())
@@ -424,15 +427,15 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
     }
 
     fn log_errors(&self, log_event_name: &'static str, error: &Error) {
-        let error_event = self.perf_logger.create_event(log_event_name);
+        let error_event = self.lsp_state.perf_logger.create_event(log_event_name);
         error_event.string("error", error.to_string());
         error_event.complete();
     }
 
     /// Log errors and report the diagnostics to IDE
     fn publish_errors(&self, error: &Error, log_event_name: &'static str) {
-        self.diagnostic_reporter.report_error(&error);
-        self.diagnostic_reporter.commit_diagnostics();
+        self.lsp_state.diagnostic_reporter.report_error(error);
+        self.lsp_state.diagnostic_reporter.commit_diagnostics();
         self.log_errors(log_event_name, error)
     }
 }

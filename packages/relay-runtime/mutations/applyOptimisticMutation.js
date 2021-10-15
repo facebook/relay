@@ -12,16 +12,6 @@
 
 'use strict';
 
-const RelayDeclarativeMutationConfig = require('./RelayDeclarativeMutationConfig');
-
-const invariant = require('invariant');
-const isRelayModernEnvironment = require('../store/isRelayModernEnvironment');
-
-const {getRequest} = require('../query/GraphQLTag');
-const {
-  createOperationDescriptor,
-} = require('../store/RelayModernOperationDescriptor');
-
 import type {GraphQLTaggedNode} from '../query/GraphQLTag';
 import type {
   IEnvironment,
@@ -29,6 +19,14 @@ import type {
 } from '../store/RelayStoreTypes';
 import type {Disposable, Variables} from '../util/RelayRuntimeTypes';
 import type {DeclarativeMutationConfig} from './RelayDeclarativeMutationConfig';
+
+const {getRequest} = require('../query/GraphQLTag');
+const isRelayModernEnvironment = require('../store/isRelayModernEnvironment');
+const {
+  createOperationDescriptor,
+} = require('../store/RelayModernOperationDescriptor');
+const RelayDeclarativeMutationConfig = require('./RelayDeclarativeMutationConfig');
+const invariant = require('invariant');
 
 export type OptimisticMutationConfig = {|
   configs?: ?Array<DeclarativeMutationConfig>,

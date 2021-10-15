@@ -11,10 +11,9 @@
 
 'use strict';
 
-const MultiActorEnvironment = require('../MultiActorEnvironment');
-
 const {create} = require('../../network/RelayNetwork');
 const {getActorIdentifier} = require('../ActorIdentifier');
+const MultiActorEnvironment = require('../MultiActorEnvironment');
 
 test('forActor: creates an environment', () => {
   const actorIdentifer = getActorIdentifier('actor:1234');

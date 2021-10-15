@@ -12,34 +12,13 @@
 
 'use strict';
 
-const DataChecker = require('./DataChecker');
-const RelayFeatureFlags = require('../util/RelayFeatureFlags');
-const RelayModernRecord = require('./RelayModernRecord');
-const RelayOptimisticRecordSource = require('./RelayOptimisticRecordSource');
-const RelayReader = require('./RelayReader');
-const RelayReferenceMarker = require('./RelayReferenceMarker');
-const RelayStoreReactFlightUtils = require('./RelayStoreReactFlightUtils');
-const RelayStoreSubscriptions = require('./RelayStoreSubscriptions');
-const RelayStoreUtils = require('./RelayStoreUtils');
-
-const deepFreeze = require('../util/deepFreeze');
-const defaultGetDataID = require('./defaultGetDataID');
-const invariant = require('invariant');
-const resolveImmediate = require('../util/resolveImmediate');
-
-const {
-  INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
-  assertInternalActorIndentifier,
-} = require('../multi-actor-environment/ActorIdentifier');
-const {ROOT_ID, ROOT_TYPE} = require('./RelayStoreUtils');
-const {RecordResolverCache} = require('./ResolverCache');
-
 import type {ActorIdentifier} from '../multi-actor-environment/ActorIdentifier';
 import type {DataID, Disposable} from '../util/RelayRuntimeTypes';
 import type {Availability} from './DataChecker';
 import type {GetDataID} from './RelayResponseNormalizer';
 import type {
   CheckOptions,
+  DataIDSet,
   LogFunction,
   MutableRecordSource,
   OperationAvailability,
@@ -52,9 +31,28 @@ import type {
   Snapshot,
   Store,
   StoreSubscriptions,
-  DataIDSet,
 } from './RelayStoreTypes';
 import type {ResolverCache} from './ResolverCache';
+
+const {
+  INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
+  assertInternalActorIndentifier,
+} = require('../multi-actor-environment/ActorIdentifier');
+const deepFreeze = require('../util/deepFreeze');
+const RelayFeatureFlags = require('../util/RelayFeatureFlags');
+const resolveImmediate = require('../util/resolveImmediate');
+const DataChecker = require('./DataChecker');
+const defaultGetDataID = require('./defaultGetDataID');
+const RelayModernRecord = require('./RelayModernRecord');
+const RelayOptimisticRecordSource = require('./RelayOptimisticRecordSource');
+const RelayReader = require('./RelayReader');
+const RelayReferenceMarker = require('./RelayReferenceMarker');
+const RelayStoreReactFlightUtils = require('./RelayStoreReactFlightUtils');
+const RelayStoreSubscriptions = require('./RelayStoreSubscriptions');
+const RelayStoreUtils = require('./RelayStoreUtils');
+const {ROOT_ID, ROOT_TYPE} = require('./RelayStoreUtils');
+const {RecordResolverCache} = require('./ResolverCache');
+const invariant = require('invariant');
 
 export opaque type InvalidationState = {|
   dataIDs: $ReadOnlyArray<DataID>,

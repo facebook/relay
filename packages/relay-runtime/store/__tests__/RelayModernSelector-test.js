@@ -13,9 +13,9 @@
 
 'use strict';
 
-const warning = require('warning');
+import type {OperationDescriptor} from '../RelayStoreTypes';
 
-const {graphql, getRequest, getFragment} = require('../../query/GraphQLTag');
+const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
 const {
   createOperationDescriptor,
   createRequestDescriptor,
@@ -32,8 +32,7 @@ const {
 } = require('../RelayModernSelector');
 const {ROOT_ID} = require('../RelayStoreUtils');
 const {createMockEnvironment, matchers} = require('relay-test-utils-internal');
-
-import type {OperationDescriptor} from '../RelayStoreTypes';
+const warning = require('warning');
 
 describe('RelayModernSelector', () => {
   let UserFragment;

@@ -131,6 +131,7 @@ impl<'program> ClientEdgesTransform<'program> {
                 directives.push(Directive {
                     name: WithLocation::generated(*CLIENT_EDGE_QUERY_METADATA_KEY),
                     arguments: Default::default(),
+                    data: None,
                 });
                 self.new_operations.push(OperationDefinition {
                     kind: OperationKind::Query,
@@ -182,6 +183,7 @@ impl<'program> ClientEdgesTransform<'program> {
                     client_edge_query_name,
                 ))),
             }],
+            data: None,
         });
         let new_field = LinkedField {
             directives: new_directives,
@@ -254,5 +256,6 @@ fn make_refetchable_directive(query_name: StringKey) -> Directive {
             name: WithLocation::generated(*QUERY_NAME_ARG),
             value: WithLocation::generated(Value::Constant(ConstantValue::String(query_name))),
         }],
+        data: None,
     }
 }

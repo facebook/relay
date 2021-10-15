@@ -13,22 +13,20 @@
 
 'use strict';
 
-const RelayOperationTracker = require('../RelayOperationTracker');
+import type {NormalizationRootNode} from '../../util/NormalizationNode';
 
-const invariant = require('invariant');
-
-const {getRequest, getFragment, graphql} = require('../../query/GraphQLTag');
+const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../RelayModernSelector');
+const RelayOperationTracker = require('../RelayOperationTracker');
+const invariant = require('invariant');
 const {
   MockPayloadGenerator,
   createMockEnvironment,
 } = require('relay-test-utils');
 const {disallowWarnings} = require('relay-test-utils-internal');
-
-import type {NormalizationRootNode} from '../../util/NormalizationNode';
 
 disallowWarnings();
 

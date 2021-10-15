@@ -12,55 +12,6 @@
 
 'use strict';
 
-const RelayFeatureFlags = require('../util/RelayFeatureFlags');
-const RelayModernRecord = require('./RelayModernRecord');
-
-const areEqual = require('areEqual');
-const invariant = require('invariant');
-const warning = require('warning');
-
-const {
-  ACTOR_IDENTIFIER_FIELD_NAME,
-  getActorIdentifierFromPayload,
-} = require('../multi-actor-environment/ActorUtils');
-const {
-  ACTOR_CHANGE,
-  CONDITION,
-  CLIENT_COMPONENT,
-  CLIENT_EXTENSION,
-  DEFER,
-  FLIGHT_FIELD,
-  FRAGMENT_SPREAD,
-  INLINE_FRAGMENT,
-  LINKED_FIELD,
-  LINKED_HANDLE,
-  MODULE_IMPORT,
-  SCALAR_FIELD,
-  SCALAR_HANDLE,
-  STREAM,
-  TYPE_DISCRIMINATOR,
-} = require('../util/RelayConcreteNode');
-const {generateClientID, isClientID} = require('./ClientID');
-const {getLocalVariables} = require('./RelayConcreteVariables');
-const {createNormalizationSelector} = require('./RelayModernSelector');
-const {
-  refineToReactFlightPayloadData,
-  REACT_FLIGHT_EXECUTABLE_DEFINITIONS_STORAGE_KEY,
-  REACT_FLIGHT_TREE_STORAGE_KEY,
-  REACT_FLIGHT_TYPE_NAME,
-} = require('./RelayStoreReactFlightUtils');
-const {
-  getArgumentValues,
-  getHandleStorageKey,
-  getModuleComponentKey,
-  getModuleOperationKey,
-  getStorageKey,
-  TYPENAME_KEY,
-  ROOT_ID,
-  ROOT_TYPE,
-} = require('./RelayStoreUtils');
-const {generateTypeID, TYPE_SCHEMA_TYPE} = require('./TypeID');
-
 import type {ActorIdentifier} from '../multi-actor-environment/ActorIdentifier';
 import type {PayloadData} from '../network/RelayNetworkTypes';
 import type {
@@ -86,6 +37,53 @@ import type {
   Record,
   RelayResponsePayload,
 } from './RelayStoreTypes';
+
+const {
+  ACTOR_IDENTIFIER_FIELD_NAME,
+  getActorIdentifierFromPayload,
+} = require('../multi-actor-environment/ActorUtils');
+const {
+  ACTOR_CHANGE,
+  CLIENT_COMPONENT,
+  CLIENT_EXTENSION,
+  CONDITION,
+  DEFER,
+  FLIGHT_FIELD,
+  FRAGMENT_SPREAD,
+  INLINE_FRAGMENT,
+  LINKED_FIELD,
+  LINKED_HANDLE,
+  MODULE_IMPORT,
+  SCALAR_FIELD,
+  SCALAR_HANDLE,
+  STREAM,
+  TYPE_DISCRIMINATOR,
+} = require('../util/RelayConcreteNode');
+const RelayFeatureFlags = require('../util/RelayFeatureFlags');
+const {generateClientID, isClientID} = require('./ClientID');
+const {getLocalVariables} = require('./RelayConcreteVariables');
+const RelayModernRecord = require('./RelayModernRecord');
+const {createNormalizationSelector} = require('./RelayModernSelector');
+const {
+  REACT_FLIGHT_EXECUTABLE_DEFINITIONS_STORAGE_KEY,
+  REACT_FLIGHT_TREE_STORAGE_KEY,
+  REACT_FLIGHT_TYPE_NAME,
+  refineToReactFlightPayloadData,
+} = require('./RelayStoreReactFlightUtils');
+const {
+  ROOT_ID,
+  ROOT_TYPE,
+  TYPENAME_KEY,
+  getArgumentValues,
+  getHandleStorageKey,
+  getModuleComponentKey,
+  getModuleOperationKey,
+  getStorageKey,
+} = require('./RelayStoreUtils');
+const {TYPE_SCHEMA_TYPE, generateTypeID} = require('./TypeID');
+const areEqual = require('areEqual');
+const invariant = require('invariant');
+const warning = require('warning');
 
 export type GetDataID = (
   fieldValue: interface {[string]: mixed},

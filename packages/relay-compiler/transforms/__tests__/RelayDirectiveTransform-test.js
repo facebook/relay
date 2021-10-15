@@ -14,9 +14,8 @@
 'use strict';
 
 const CompilerContext = require('../../core/CompilerContext');
-const RelayDirectiveTransform = require('../RelayDirectiveTransform');
 const RelayParser = require('../../core/RelayParser');
-
+const RelayDirectiveTransform = require('../RelayDirectiveTransform');
 const {
   TestSchema,
   generateTestsFromFixtures,

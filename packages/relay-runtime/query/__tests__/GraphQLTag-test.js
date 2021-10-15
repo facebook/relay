@@ -15,9 +15,9 @@ const {
   getPaginationFragment,
   getRefetchableFragment,
   getRequest,
+  graphql,
   isFragment,
   isRequest,
-  graphql,
 } = require('../GraphQLTag');
 
 beforeEach(() => {

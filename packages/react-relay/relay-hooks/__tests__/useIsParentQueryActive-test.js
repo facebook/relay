@@ -13,12 +13,10 @@
 
 'use strict';
 
-const React = require('react');
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
-const TestRenderer = require('react-test-renderer');
-
 const useIsParentQueryActive = require('../useIsParentQueryActive');
-
+const React = require('react');
+const TestRenderer = require('react-test-renderer');
 const {
   Environment,
   Network,

@@ -1196,6 +1196,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
                     .name
                     .name_with_location(self.location.source_location()),
                 arguments: vec![],
+                data: None,
             });
         }
         let directive_definition = match self.schema.get_directive(directive.name.value) {
@@ -1229,6 +1230,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
                 directive.name.value,
             ),
             arguments,
+            data: None,
         })
     }
 

@@ -12,16 +12,15 @@
 
 'use strict';
 
-const RelayModernFragmentSpecResolver = require('./RelayModernFragmentSpecResolver');
-
-const warning = require('warning');
-
 import type {
   FragmentMap,
   FragmentSpecResolver,
   Props,
   RelayContext,
 } from './RelayStoreTypes';
+
+const RelayModernFragmentSpecResolver = require('./RelayModernFragmentSpecResolver');
+const warning = require('warning');
 
 function createFragmentSpecResolver(
   context: RelayContext,

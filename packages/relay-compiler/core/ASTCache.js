@@ -12,13 +12,12 @@
 
 'use strict';
 
-const Profiler = require('./GraphQLCompilerProfiler');
-
-// $FlowFixMe[untyped-import] : Immutable is not typed
-const {Map: ImmutableMap} = require('immutable');
-
 import type {File} from '../codegen/CodegenTypes';
 import type {DocumentNode} from 'graphql';
+
+const Profiler = require('./GraphQLCompilerProfiler');
+// $FlowFixMe[untyped-import] : Immutable is not typed
+const {Map: ImmutableMap} = require('immutable');
 
 type ParseFn = (baseDir: string, file: File) => ?DocumentNode;
 

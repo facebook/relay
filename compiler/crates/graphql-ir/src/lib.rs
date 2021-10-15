@@ -10,6 +10,7 @@
 #![deny(clippy::all)]
 #![deny(clippy::clone_on_ref_ptr)]
 
+mod associated_data;
 mod build;
 mod constants;
 mod errors;
@@ -22,6 +23,7 @@ mod validator;
 mod visitor;
 
 pub use crate::errors::ValidationMessage;
+pub use associated_data::AssociatedData;
 pub use build::{
     build_directive, build_ir_with_extra_features, build_ir_with_relay_options as build,
     BuilderOptions, FragmentVariablesSemantic, DIRECTIVE_ARGUMENTS,
@@ -34,3 +36,12 @@ pub use suggestion_list::GraphQLSuggestions;
 pub use transform::{Transformed, TransformedMulti, TransformedValue, Transformer};
 pub use validator::Validator;
 pub use visitor::Visitor;
+
+/// Re-exported values to be used by the `associated_data_impl!` macro.
+pub mod reexport {
+    pub use crate::associated_data::AsAny;
+    pub use common::{NamedItem, WithLocation};
+    pub use fnv::FnvHasher;
+    pub use interner::{Intern, StringKey};
+    pub use once_cell::sync::Lazy;
+}

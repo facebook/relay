@@ -13,14 +13,13 @@
 
 'use strict';
 
-const useRelayEnvironment = require('./useRelayEnvironment');
-const warning = require('warning');
+import type {ReaderFragment} from 'relay-runtime';
 
 const {getFragmentResourceForEnvironment} = require('./FragmentResource');
+const useRelayEnvironment = require('./useRelayEnvironment');
 const {useEffect, useRef, useState} = require('react');
 const {getFragmentIdentifier} = require('relay-runtime');
-
-import type {ReaderFragment} from 'relay-runtime';
+const warning = require('warning');
 
 type ReturnType<TFragmentData: mixed> = {|
   data: TFragmentData,

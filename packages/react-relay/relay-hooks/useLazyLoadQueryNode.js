@@ -13,18 +13,6 @@
 
 'use strict';
 
-const ProfilerContext = require('./ProfilerContext');
-const React = require('react');
-
-const useFetchTrackingRef = require('./useFetchTrackingRef');
-const useFragmentNode = require('./useFragmentNode');
-const useRelayEnvironment = require('./useRelayEnvironment');
-
-const {
-  getQueryResourceForEnvironment,
-  getQueryCacheIdentifier,
-} = require('./QueryResource');
-
 import type {
   FetchPolicy,
   GraphQLResponse,
@@ -33,6 +21,16 @@ import type {
   OperationType,
   RenderPolicy,
 } from 'relay-runtime';
+
+const ProfilerContext = require('./ProfilerContext');
+const {
+  getQueryCacheIdentifier,
+  getQueryResourceForEnvironment,
+} = require('./QueryResource');
+const useFetchTrackingRef = require('./useFetchTrackingRef');
+const useFragmentNode = require('./useFragmentNode');
+const useRelayEnvironment = require('./useRelayEnvironment');
+const React = require('react');
 
 const {useContext, useEffect, useState, useRef} = React;
 

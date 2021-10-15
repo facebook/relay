@@ -12,18 +12,17 @@
 
 'use strict';
 
-const IRTransformer = require('../core/IRTransformer');
-
-const getNormalizationOperationName = require('../core/getNormalizationOperationName');
-
 import type CompilerContext from '../core/CompilerContext';
 import type {
-  LinkedField,
   InlineFragment,
+  LinkedField,
   ModuleImport,
   SplitOperation,
 } from '../core/IR';
 import type {CompositeTypeID} from '../core/Schema';
+
+const getNormalizationOperationName = require('../core/getNormalizationOperationName');
+const IRTransformer = require('../core/IRTransformer');
 
 type State = {|
   parentType: CompositeTypeID,

@@ -13,14 +13,12 @@
 
 'use strict';
 
-const GraphQL = require('graphql');
-const GraphQLNodeMap = require('../GraphQLNodeMap');
-
-const invariant = require('invariant');
+import type {NodeGroup} from '../GraphQLASTNodeGroup';
 
 const {forChanges, forFullBuild} = require('../GraphQLASTNodeGroup');
-
-import type {NodeGroup} from '../GraphQLASTNodeGroup';
+const GraphQLNodeMap = require('../GraphQLNodeMap');
+const GraphQL = require('graphql');
+const invariant = require('invariant');
 
 function createNodeMap(source: string) {
   const nodes = GraphQL.parse(source).definitions.map(node => {

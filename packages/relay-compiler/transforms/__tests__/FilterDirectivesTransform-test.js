@@ -14,9 +14,8 @@
 'use strict';
 
 const CompilerContext = require('../../core/CompilerContext');
-const FilterDirectivesTransform = require('../FilterDirectivesTransform');
 const IRPrinter = require('../../core/IRPrinter');
-
+const FilterDirectivesTransform = require('../FilterDirectivesTransform');
 const {
   TestSchema,
   generateTestsFromFixtures,

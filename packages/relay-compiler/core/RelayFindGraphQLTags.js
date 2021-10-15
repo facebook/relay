@@ -12,18 +12,17 @@
 
 'use strict';
 
-const RelayCompilerCache = require('../util/RelayCompilerCache');
-
-const getModuleName = require('../util/getModuleName');
-const graphql = require('graphql');
-const path = require('path');
-const util = require('util');
-
 import type {File} from '../codegen/CodegenTypes';
 import type {
   GraphQLTag,
   GraphQLTagFinder,
 } from '../language/RelayLanguagePluginInterface';
+
+const getModuleName = require('../util/getModuleName');
+const RelayCompilerCache = require('../util/RelayCompilerCache');
+const graphql = require('graphql');
+const path = require('path');
+const util = require('util');
 
 const cache = new RelayCompilerCache('RelayFindGraphQLTags', 'v1');
 

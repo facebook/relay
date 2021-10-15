@@ -19,9 +19,6 @@ pub struct MatchConstants {
     pub match_directive_name: StringKey,
     pub supported_arg: StringKey,
     pub name_arg: StringKey,
-    pub custom_module_directive_name: StringKey,
-    pub source_document_arg: StringKey,
-    pub no_inline_arg: StringKey,
 }
 
 lazy_static! {
@@ -36,8 +33,5 @@ lazy_static! {
         module_directive_name: "module".intern(),
         supported_arg: "supported".intern(),
         name_arg: "name".intern(),
-        custom_module_directive_name: "__module".intern(),
-        source_document_arg: "sourceDocument".intern(),
-        no_inline_arg: "noInline".intern(),
     };
 }

@@ -14,7 +14,6 @@
 'use strict';
 
 const preloadQuery_DEPRECATED = require('../preloadQuery_DEPRECATED');
-
 const {
   Environment,
   Network,
@@ -27,8 +26,8 @@ const {
   graphql,
 } = require('relay-runtime');
 const {
-  getActorIdentifier,
   MultiActorEnvironment,
+  getActorIdentifier,
 } = require('relay-runtime/multi-actor-environment');
 
 const query = getRequest(graphql`
@@ -756,6 +755,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         let environment;
         let fetch;
         let sink;
+        // $FlowFixMe[invalid-declaration]
         let variables;
 
         beforeEach(() => {

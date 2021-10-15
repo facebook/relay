@@ -11,13 +11,24 @@
 
 'use strict';
 
+import type {RelayResolverTestUtilsFlowTest$key} from './__generated__/RelayResolverTestUtilsFlowTest.graphql';
+
 const {testResolver} = require('../RelayResolverTestUtils');
+const {graphql} = require('relay-runtime');
+const {readFragment} = require('relay-runtime/store/ResolverFragments');
 
-import type {RelayResolverTestUtilsTest$key} from '../__tests__/__generated__/RelayResolverTestUtilsTest.graphql';
+function myTestResolver(rootKey: RelayResolverTestUtilsFlowTest$key): string {
+  const user = readFragment(
+    graphql`
+      fragment RelayResolverTestUtilsFlowTest on User {
+        name
+      }
+    `,
+    rootKey,
+  );
 
-declare function myTestResolver(
-  rootKey: RelayResolverTestUtilsTest$key,
-): string;
+  return `Hello ${user.name ?? 'stranger'}!`;
+}
 
 testResolver(myTestResolver, {
   name: 'Elizabeth',

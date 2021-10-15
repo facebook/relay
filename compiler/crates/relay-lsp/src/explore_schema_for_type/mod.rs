@@ -42,7 +42,7 @@ pub(crate) fn on_explore_schema_for_type<
     TPerfLogger: PerfLogger + 'static,
     TSchemaDocumentation: SchemaDocumentation,
 >(
-    state: &mut LSPState<TPerfLogger, TSchemaDocumentation>,
+    state: &LSPState<TPerfLogger, TSchemaDocumentation>,
     params: <ExploreSchemaForType as Request>::Params,
 ) -> LSPRuntimeResult<<ExploreSchemaForType as Request>::Result> {
     // TODO these should not be expected errors

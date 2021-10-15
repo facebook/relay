@@ -5,9 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use super::match_::MATCH_CONSTANTS;
-use crate::util::get_fragment_filename;
-use common::{NamedItem, WithLocation};
+use crate::{util::get_fragment_filename, ModuleMetadata};
+use common::WithLocation;
 use fnv::FnvHashMap;
 use graphql_ir::{
     Argument, ConstantValue, Directive, FragmentDefinition, OperationDefinition, Program,
@@ -72,20 +71,11 @@ impl<'s> GenerateDataDrivenDependencyMetadata<'s> {
                             Some(type_) => TypeReference::Named(type_),
                             None => processing_item.parent_type.clone(),
                         };
-                        let module_directive = inline_fragment
-                            .directives
-                            .named(MATCH_CONSTANTS.custom_module_directive_name);
-                        if let Some(module_directive) = module_directive {
-                            let id = get_string_literal_argument_value(
-                                &module_directive,
-                                MATCH_CONSTANTS.js_field_id_arg,
-                            )
-                            .expect("Expected id argument to exist on __module directive");
-                            let component = get_string_literal_argument_value(
-                                &module_directive,
-                                MATCH_CONSTANTS.js_field_module_arg,
-                            )
-                            .expect("Expected module argument to exist on __module directive");
+                        if let Some(module_metadata) =
+                            ModuleMetadata::find(&inline_fragment.directives)
+                        {
+                            let id = module_metadata.module_id;
+                            let component = module_metadata.module_name;
 
                             let fragment_spread = inline_fragment
                                 .selections
@@ -113,7 +103,6 @@ impl<'s> GenerateDataDrivenDependencyMetadata<'s> {
                                     );
                                 })
                                 .or_insert(ModuleEntry {
-                                    id,
                                     branches: {
                                         let mut map: FnvHashMap<String, Branch> =
                                             Default::default();
@@ -164,7 +153,6 @@ type ModuleEntries = FnvHashMap<StringKey, ModuleEntry>;
 
 #[derive(Debug)]
 struct ModuleEntry {
-    id: StringKey,
     branches: FnvHashMap<String, Branch>,
     plural: bool,
 }
@@ -283,14 +271,4 @@ impl From<ModuleEntry> for StringKey {
         )
         .intern()
     }
-}
-
-fn get_string_literal_argument_value(
-    directive: &Directive,
-    argument_name: StringKey,
-) -> Option<StringKey> {
-    directive
-        .arguments
-        .named(argument_name)
-        .map(|arg| arg.value.item.expect_string_literal())
 }

@@ -345,6 +345,10 @@ module.exports = {
               '/docs/next/mutations',
             ],
           },
+          {
+            to: '/compiler-explorer',
+            from: ['/compiler-playground'],
+          },
         ],
       },
     ],

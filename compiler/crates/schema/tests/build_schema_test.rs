@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<097aba04fdcca2d264b97ae5c608a345>>
+ * @generated SignedSource<<df661e8fe9731a860fd3cd5c9f0e0c22>>
  */
 
 mod build_schema;
@@ -45,6 +45,13 @@ fn interface_implements_interface() {
     let input = include_str!("build_schema/fixtures/interface-implements-interface.graphql");
     let expected = include_str!("build_schema/fixtures/interface-implements-interface.expected");
     test_fixture(transform_fixture, "interface-implements-interface.graphql", "build_schema/fixtures/interface-implements-interface.expected", input, expected);
+}
+
+#[test]
+fn invalid_duplicate_directive() {
+    let input = include_str!("build_schema/fixtures/invalid-duplicate-directive.graphql");
+    let expected = include_str!("build_schema/fixtures/invalid-duplicate-directive.expected");
+    test_fixture(transform_fixture, "invalid-duplicate-directive.graphql", "build_schema/fixtures/invalid-duplicate-directive.expected", input, expected);
 }
 
 #[test]

@@ -6,5 +6,10 @@ fragment EnabledActorsRendererFragment on Node {
 ==================================== OUTPUT ===================================
 fragment EnabledActorsRendererFragment on Node @__childrenCanBubbleNull {
   id
-  name @required(action: NONE) @__required(action: "NONE", path: "name")
+  name @required(action: NONE) @__RequiredMetadataDirective
+  # RequiredMetadataDirective {
+  #     action: None,
+  #     path: "name",
+  # }
+  
 }

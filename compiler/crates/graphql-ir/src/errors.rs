@@ -544,14 +544,6 @@ pub enum ValidationMessage {
     #[error("Directives on fragment spreads for @inline fragments are not yet supported")]
     InlineDataFragmentDirectivesNotSupported,
 
-    #[error("A relay_early_flush field should be defined on Query on the server schema.")]
-    UnavailableRelayEarlyFlushServerSchema,
-
-    #[error(
-        "Expected the {query_name} argument to exist in relay_early_flush on the server schema."
-    )]
-    RelayEarlyFlushSchemaWithoutQueryNameArg { query_name: StringKey },
-
     #[error("Subscription '{subscription_name}' must have a single selection")]
     GenerateSubscriptionNameSingleSelectionItem { subscription_name: StringKey },
 

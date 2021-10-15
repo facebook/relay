@@ -103,13 +103,13 @@ impl DiagnosticReporter {
             .push(diagnostic);
     }
 
-    pub fn update_quick_diagnostics_for_url(&self, url: Url, diagnostics: Vec<Diagnostic>) {
+    pub fn update_quick_diagnostics_for_url(&self, url: &Url, diagnostics: Vec<Diagnostic>) {
         match self.active_diagnostics.entry(url.clone()) {
             Entry::Occupied(mut e) => {
                 let data = e.get_mut();
                 if data.quick_diagnostics != diagnostics {
                     data.quick_diagnostics = diagnostics;
-                    self.publish_diagnostics_set(&url, data);
+                    self.publish_diagnostics_set(url, data);
                 }
             }
             Entry::Vacant(e) => {
@@ -118,7 +118,7 @@ impl DiagnosticReporter {
                         regular_diagnostics: vec![],
                         quick_diagnostics: diagnostics,
                     };
-                    self.publish_diagnostics_set(&url, &data);
+                    self.publish_diagnostics_set(url, &data);
                     e.insert(data);
                 }
             }

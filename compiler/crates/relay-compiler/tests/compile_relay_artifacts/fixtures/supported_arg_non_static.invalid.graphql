@@ -1,0 +1,12 @@
+# expected-to-throw
+
+query supportedArgNonStaticQuery($arg: String!, $args: [String!]!) {
+  me {
+    a: nameRenderer(supported: ["foo", $arg]) {
+      __typename
+    }
+    b: nameRenderer(supported: $args) {
+      __typename
+    }
+  }
+}

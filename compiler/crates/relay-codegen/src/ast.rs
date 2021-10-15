@@ -8,7 +8,7 @@
 use fnv::{FnvBuildHasher, FnvHashMap};
 use graphql_syntax::FloatValue;
 use graphql_syntax::OperationKind;
-use indexmap::IndexMap;
+use indexmap::IndexSet;
 use interner::StringKey;
 
 #[derive(Eq, PartialEq, Hash, Debug)]
@@ -79,8 +79,6 @@ impl Primitive {
     }
 }
 
-type Table = IndexMap<Ast, usize, FnvBuildHasher>;
-
 #[derive(Eq, PartialEq, Hash, Copy, Clone, Debug)]
 pub struct AstKey(usize);
 
@@ -92,22 +90,16 @@ impl AstKey {
 
 #[derive(Default)]
 pub struct AstBuilder {
-    table: Table,
+    table: IndexSet<Ast, FnvBuildHasher>,
 }
 
 impl AstBuilder {
     pub fn intern(&mut self, ast: Ast) -> AstKey {
-        if let Some(ix) = self.table.get(&ast) {
-            AstKey(*ix)
-        } else {
-            let ix = self.table.len();
-            self.table.insert(ast, ix);
-            AstKey(ix)
-        }
+        AstKey(self.table.insert_full(ast).0)
     }
 
     pub fn lookup(&self, key: AstKey) -> &Ast {
-        self.table.get_index(key.as_usize()).unwrap().0
+        self.table.get_index(key.as_usize()).unwrap()
     }
 }
 

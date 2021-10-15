@@ -110,6 +110,17 @@ impl<'config> WatchmanFileSource<'config> {
         }
 
         // Finally, do a simple full query.
+        let full_query_result = self.full_query(perf_logger_event, perf_logger).await;
+
+        perf_logger_event.stop(query_time);
+        full_query_result
+    }
+
+    pub async fn full_query(
+        &self,
+        perf_logger_event: &impl PerfLogEvent,
+        perf_logger: &impl PerfLogger,
+    ) -> Result<CompilerState> {
         let file_source_result = self.query_file_result(None).await?;
         let compiler_state = perf_logger_event.time("from_file_source_changes", || {
             CompilerState::from_file_source_changes(
@@ -119,7 +130,6 @@ impl<'config> WatchmanFileSource<'config> {
                 perf_logger,
             )
         })?;
-        perf_logger_event.stop(query_time);
         Ok(compiler_state)
     }
 

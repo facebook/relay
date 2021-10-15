@@ -33,9 +33,7 @@ use query_query_generator::QUERY_QUERY_GENERATOR;
 use schema::{SDLSchema, Schema};
 use std::{fmt::Write, sync::Arc};
 use utils::*;
-pub use utils::{
-    extract_refetch_metadata_from_directive, RefetchableDerivedFromMetadata, CONSTANTS,
-};
+pub use utils::{RefetchableDerivedFromMetadata, RefetchableMetadata, CONSTANTS};
 use viewer_query_generator::VIEWER_QUERY_GENERATOR;
 
 use self::refetchable_directive::RefetchableDirective;
@@ -75,9 +73,7 @@ pub fn transform_refetchable_fragment(
             next_program.insert_fragment(operation_result.fragment);
             if !base_fragment_names.contains(&fragment.name.item) {
                 let mut directives = refetchable_directive.directives;
-                directives.push(RefetchableDerivedFromMetadata::create_directive(
-                    fragment.name,
-                ));
+                directives.push(RefetchableDerivedFromMetadata(fragment.name.item).into());
 
                 next_program.insert_operation(Arc::new(OperationDefinition {
                     kind: OperationKind::Query,

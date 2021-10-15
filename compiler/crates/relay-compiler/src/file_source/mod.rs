@@ -8,6 +8,7 @@
 mod external_file_source;
 mod extract_graphql;
 mod file_categorizer;
+mod file_filter;
 mod file_group;
 mod read_file_to_string;
 mod source_control_update_status;
@@ -22,6 +23,7 @@ use graphql_watchman::{
     WatchmanFileSourceResult, WatchmanFileSourceSubscription,
     WatchmanFileSourceSubscriptionNextChange,
 };
+use log::warn;
 use serde::Deserialize;
 use serde_bser::value::Value;
 use std::path::PathBuf;
@@ -66,7 +68,26 @@ impl<'config> FileSource<'config> {
     ) -> Result<CompilerState> {
         match self {
             Self::Watchman(file_source) => file_source.query(perf_logger_event, perf_logger).await,
-            Self::External(file_source) => file_source.create_compiler_state(perf_logger),
+            Self::External(file_source) => {
+                let result = file_source.create_compiler_state(perf_logger);
+                if let Err(err) = &result {
+                    perf_logger_event.string(
+                        "external_file_source_create_compiler_state_error",
+                        format!("{:?}", err),
+                    );
+                    warn!(
+                        "Unable to create state from external source: {:?}. Sending a full watchman query...",
+                        err
+                    );
+                    let watchman_file_source =
+                        WatchmanFileSource::connect(file_source.config, perf_logger_event).await?;
+                    watchman_file_source
+                        .full_query(perf_logger_event, perf_logger)
+                        .await
+                } else {
+                    result
+                }
+            }
         }
     }
 
@@ -119,20 +140,6 @@ impl FileSourceResult {
         match self {
             Self::Watchman(file_source) => file_source.clock.clone(),
             Self::External(_) => unimplemented!(),
-        }
-    }
-
-    pub fn files(&self) -> Vec<File> {
-        match self {
-            Self::Watchman(file_source_result) => file_source_result
-                .files
-                .iter()
-                .map(|file| File {
-                    name: (*file.name).clone(),
-                    exists: *file.exists,
-                })
-                .collect::<Vec<File>>(),
-            Self::External(file_source_result) => file_source_result.files.clone(),
         }
     }
 

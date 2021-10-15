@@ -1,0 +1,26 @@
+==================================== INPUT ====================================
+# expected-to-throw
+
+type Query {
+  users: [User]
+}
+
+type Foo {
+  url: String
+}
+
+type User {
+  id: ID
+}
+extend type User implements Foo {
+  nickname: String
+  client: String
+}
+==================================== ERROR ====================================
+✖︎ Expected an interface type for name 'Foo', got 'Object(1)'.
+
+  <generated>:14:29
+   13 │ }
+   14 │ extend type User implements Foo {
+      │                             ^^^
+   15 │   nickname: String

@@ -131,10 +131,7 @@ fragment matchOnChildOfPlural_MarkdownUserNameRenderer_name on MarkdownUserNameR
             {
               "kind": "Literal",
               "name": "supported",
-              "value": [
-                "PlainUserNameRenderer",
-                "MarkdownUserNameRenderer"
-              ]
+              "value": "34hjiS"
             }
           ],
           "concreteType": null,
@@ -171,7 +168,7 @@ fragment matchOnChildOfPlural_MarkdownUserNameRenderer_name on MarkdownUserNameR
               "abstractKey": null
             }
           ],
-          "storageKey": "nameRenderer(supported:[\"PlainUserNameRenderer\",\"MarkdownUserNameRenderer\"])"
+          "storageKey": "nameRenderer(supported:\"34hjiS\")"
         }
       ],
       "storageKey": null

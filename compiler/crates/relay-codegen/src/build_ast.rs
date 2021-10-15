@@ -20,17 +20,14 @@ use interner::{Intern, StringKey};
 use md5::{Digest, Md5};
 use relay_transforms::{
     extract_connection_metadata_from_directive, extract_handle_field_directives,
-    extract_refetch_metadata_from_directive, extract_values_from_handle_field_directive,
-    generate_abstract_type_refinement_key, remove_directive, ConnectionConstants,
-    ConnectionMetadata, DeferDirective, RelayDirective, StreamDirective, ACTION_ARGUMENT,
-    CLIENT_EXTENSION_DIRECTIVE_NAME, DEFER_STREAM_CONSTANTS, DIRECTIVE_SPLIT_OPERATION,
-    INLINE_DATA_CONSTANTS, INTERNAL_METADATA_DIRECTIVE, MATCH_CONSTANTS, NO_INLINE_DIRECTIVE_NAME,
-    PATH_METADATA_ARGUMENT, REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY,
+    extract_values_from_handle_field_directive, generate_abstract_type_refinement_key,
+    remove_directive, ConnectionConstants, ConnectionMetadata, DeferDirective, ModuleMetadata,
+    RefetchableMetadata, RelayDirective, RelayResolverSpreadMetadata, RequiredMetadataDirective,
+    StreamDirective, CLIENT_EXTENSION_DIRECTIVE_NAME, DEFER_STREAM_CONSTANTS,
+    DIRECTIVE_SPLIT_OPERATION, INLINE_DATA_CONSTANTS, INTERNAL_METADATA_DIRECTIVE,
+    NO_INLINE_DIRECTIVE_NAME, REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY,
     RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN, RELAY_CLIENT_COMPONENT_MODULE_ID_ARGUMENT_NAME,
-    RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME, RELAY_RESOLVER_IMPORT_PATH_ARGUMENT_NAME,
-    RELAY_RESOLVER_METADATA_FIELD_ALIAS, RELAY_RESOLVER_METADATA_FIELD_NAME,
-    RELAY_RESOLVER_SPREAD_METADATA_DIRECTIVE_NAME, REQUIRED_METADATA_KEY,
-    TYPE_DISCRIMINATOR_DIRECTIVE_NAME,
+    RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME, TYPE_DISCRIMINATOR_DIRECTIVE_NAME,
 };
 use schema::{SDLSchema, Schema};
 
@@ -285,9 +282,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                 value: Primitive::Bool(true),
             })
         }
-        if let Some(refetch_metadata) =
-            extract_refetch_metadata_from_directive(&fragment.directives)
-        {
+        if let Some(refetch_metadata) = RefetchableMetadata::find(&fragment.directives) {
             let refetch_connection = if let Some(connection_metadata) = connection_metadata {
                 let metadata = &connection_metadata[0]; // Validated in `transform_refetchable`
                 let connection_object = vec![
@@ -356,7 +351,8 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                         self.array(
                             refetch_metadata
                                 .path
-                                .into_iter()
+                                .iter()
+                                .copied()
                                 .map(Primitive::String)
                                 .collect(),
                         ),
@@ -486,11 +482,10 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                         &inline_fragment,
                         &inline_data_directive,
                     )]
-                } else if let Some(match_directive) = inline_fragment
-                    .directives
-                    .named(MATCH_CONSTANTS.custom_module_directive_name)
+                } else if let Some(module_metadata) =
+                    ModuleMetadata::find(&inline_fragment.directives)
                 {
-                    self.build_module_import_selections(match_directive, &inline_fragment)
+                    self.build_module_import_selections(module_metadata, &inline_fragment)
                 } else if inline_fragment
                     .directives
                     .named(*RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN)
@@ -549,32 +544,25 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
 
     fn build_required_field(
         &mut self,
-        required_directive: &Directive,
+        required_metadata: &RequiredMetadataDirective,
         primitive: Primitive,
     ) -> Primitive {
         Primitive::Key(self.object(vec![
-            ObjectEntry{key:
-                CODEGEN_CONSTANTS.kind,value:
-                Primitive::String(CODEGEN_CONSTANTS.required_field),
+            ObjectEntry {
+                key: CODEGEN_CONSTANTS.kind,
+                value: Primitive::String(CODEGEN_CONSTANTS.required_field),
             },
-            ObjectEntry{key:CODEGEN_CONSTANTS.field,value: primitive},
-            ObjectEntry{key:
-                CODEGEN_CONSTANTS.action,value:
-                Primitive::String(
-                    required_directive
-                    .arguments
-                    .named(*ACTION_ARGUMENT)
-                    .unwrap().value.item.get_string_literal().unwrap()
-                ),
+            ObjectEntry {
+                key: CODEGEN_CONSTANTS.field,
+                value: primitive,
             },
-            ObjectEntry{key:
-                CODEGEN_CONSTANTS.path,value:
-                Primitive::String(
-                    required_directive
-                        .arguments
-                        .named(*PATH_METADATA_ARGUMENT)
-                        .unwrap().value.item.get_string_literal().unwrap()
-                ),
+            ObjectEntry {
+                key: CODEGEN_CONSTANTS.action,
+                value: Primitive::String(required_metadata.action.into()),
+            },
+            ObjectEntry {
+                key: CODEGEN_CONSTANTS.path,
+                value: Primitive::String(required_metadata.path),
             },
         ]))
     }
@@ -623,9 +611,10 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             },
         ]));
 
-        match field.directives.named(*REQUIRED_METADATA_KEY) {
-            Some(required_directive) => self.build_required_field(required_directive, primitive),
-            None => primitive,
+        if let Some(required_metadata) = RequiredMetadataDirective::find(&field.directives) {
+            self.build_required_field(required_metadata, primitive)
+        } else {
+            primitive
         }
     }
 
@@ -751,9 +740,10 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             },
         ]));
 
-        match field.directives.named(*REQUIRED_METADATA_KEY) {
-            Some(required_directive) => self.build_required_field(required_directive, primitive),
-            None => primitive,
+        if let Some(required_metadata) = RequiredMetadataDirective::find(&field.directives) {
+            self.build_required_field(required_metadata, primitive)
+        } else {
+            primitive
         }
     }
 
@@ -886,44 +876,25 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             },
         ]));
 
-        match frag_spread
-            .directives
-            .named(*RELAY_RESOLVER_SPREAD_METADATA_DIRECTIVE_NAME)
+        if let Some(resolver_spread_metadata) =
+            RelayResolverSpreadMetadata::find(&frag_spread.directives)
         {
-            Some(directive) => self.build_relay_resolver(primitive, directive),
-            None => primitive,
+            self.build_relay_resolver(primitive, resolver_spread_metadata)
+        } else {
+            primitive
         }
     }
 
     fn build_relay_resolver(
         &mut self,
         fragment_primitive: Primitive,
-        directive: &Directive,
+        relay_resolver_spread_metadata: &RelayResolverSpreadMetadata,
     ) -> Primitive {
-        let module = directive
-            .arguments
-            .named(*RELAY_RESOLVER_IMPORT_PATH_ARGUMENT_NAME)
-            .unwrap()
-            .value
-            .item
-            .expect_string_literal()
-            .to_string()
-            .intern();
+        let module = relay_resolver_spread_metadata.import_path;
 
-        let field_name = directive
-            .arguments
-            .named(*RELAY_RESOLVER_METADATA_FIELD_NAME)
-            .unwrap()
-            .value
-            .item
-            .expect_string_literal()
-            .to_string()
-            .intern();
+        let field_name = relay_resolver_spread_metadata.field_name;
 
-        let field_alias = directive
-            .arguments
-            .named(*RELAY_RESOLVER_METADATA_FIELD_ALIAS)
-            .map(|arg| arg.value.item.expect_string_literal().to_string().intern());
+        let field_alias = relay_resolver_spread_metadata.field_alias;
 
         // TODO(T86853359): Support non-haste environments when generating Relay Resolver RederAST
         let haste_import_name = Path::new(&module.to_string())
@@ -1554,23 +1525,10 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
 
     fn build_module_import_selections(
         &mut self,
-        directive: &Directive,
+        module_metadata: &ModuleMetadata,
         inline_fragment: &InlineFragment,
     ) -> Vec<Primitive> {
-        let fragment_name = directive
-            .arguments
-            .named(MATCH_CONSTANTS.name_arg)
-            .unwrap()
-            .value
-            .item
-            .expect_string_literal();
-        let key = directive
-            .arguments
-            .named(MATCH_CONSTANTS.key_arg)
-            .unwrap()
-            .value
-            .item
-            .expect_string_literal();
+        let fragment_name = module_metadata.fragment_name;
         let fragment_name_str = fragment_name.lookup();
         let underscore_idx = fragment_name_str.find('_').unwrap_or_else(|| {
             panic!(
@@ -1598,7 +1556,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             },
             ObjectEntry {
                 key: CODEGEN_CONSTANTS.document_name,
-                value: Primitive::String(key),
+                value: Primitive::String(module_metadata.key),
             },
             ObjectEntry {
                 key: CODEGEN_CONSTANTS.fragment_name,

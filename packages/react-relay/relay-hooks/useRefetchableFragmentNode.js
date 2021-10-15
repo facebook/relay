@@ -498,7 +498,7 @@ function useRefetchFunction<TQuery: OperationType>(
     //   - fragmentNode and parentFragmentRef are also captured by including
     //     fragmentIdentifier
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [fragmentIdentifier, dispatch, disposeQuery, identifierValue],
+    [fragmentIdentifier, dispatch, disposeQuery, identifierValue, loadQuery],
   );
 }
 

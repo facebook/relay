@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<65d81bbe14605159aa701bad6cbaf098>>
+ * @generated SignedSource<<d47264b447039ead4427257b50a58684>>
  */
 
 mod compile_relay_artifacts;
@@ -1242,6 +1242,20 @@ fn subscription_transform() {
     let input = include_str!("compile_relay_artifacts/fixtures/subscription-transform.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/subscription-transform.expected");
     test_fixture(transform_fixture, "subscription-transform.graphql", "compile_relay_artifacts/fixtures/subscription-transform.expected", input, expected);
+}
+
+#[test]
+fn supported_arg() {
+    let input = include_str!("compile_relay_artifacts/fixtures/supported_arg.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/supported_arg.expected");
+    test_fixture(transform_fixture, "supported_arg.graphql", "compile_relay_artifacts/fixtures/supported_arg.expected", input, expected);
+}
+
+#[test]
+fn supported_arg_non_static_invalid() {
+    let input = include_str!("compile_relay_artifacts/fixtures/supported_arg_non_static.invalid.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/supported_arg_non_static.invalid.expected");
+    test_fixture(transform_fixture, "supported_arg_non_static.invalid.graphql", "compile_relay_artifacts/fixtures/supported_arg_non_static.invalid.expected", input, expected);
 }
 
 #[test]

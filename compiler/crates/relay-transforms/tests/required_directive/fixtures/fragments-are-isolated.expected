@@ -12,7 +12,12 @@ fragment EnabledFragB on User {
 ==================================== OUTPUT ===================================
 fragment EnabledFragB on User @__childrenCanBubbleNull {
   id
-  name @required(action: LOG) @__required(action: "LOG", path: "name")
+  name @required(action: LOG) @__RequiredMetadataDirective
+  # RequiredMetadataDirective {
+  #     action: Log,
+  #     path: "name",
+  # }
+  
 }
 
 fragment FragA on User {

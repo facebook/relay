@@ -47,12 +47,32 @@ fragment Foo_node on Node {
   }
 }
 
-fragment RefetchableClientEdgeQuery_Foo_node_PhotoStory__author__best_friend on User @__refetchableMetadata(__refetchableMetadata: ["ClientEdgeQuery_Foo_node_PhotoStory__author__best_friend", ["node"], "id"]) {
+fragment RefetchableClientEdgeQuery_Foo_node_PhotoStory__author__best_friend on User @__RefetchableMetadata
+# RefetchableMetadata {
+#     operation_name: "ClientEdgeQuery_Foo_node_PhotoStory__author__best_friend",
+#     path: [
+#         "node",
+#     ],
+#     identifier_field: Some(
+#         "id",
+#     ),
+# }
+ {
   name
   id
 }
 
-fragment RefetchableClientEdgeQuery_Foo_node_Story__author__best_friend on User @__refetchableMetadata(__refetchableMetadata: ["ClientEdgeQuery_Foo_node_Story__author__best_friend", ["node"], "id"]) {
+fragment RefetchableClientEdgeQuery_Foo_node_Story__author__best_friend on User @__RefetchableMetadata
+# RefetchableMetadata {
+#     operation_name: "ClientEdgeQuery_Foo_node_Story__author__best_friend",
+#     path: [
+#         "node",
+#     ],
+#     identifier_field: Some(
+#         "id",
+#     ),
+# }
+ {
   doesViewerLike
   id
 }

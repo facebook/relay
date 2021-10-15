@@ -19,7 +19,6 @@ mod file_source;
 mod graphql_asts;
 mod red_to_green;
 mod remote_persister;
-mod rollout;
 pub mod saved_state;
 pub mod status_reporter;
 

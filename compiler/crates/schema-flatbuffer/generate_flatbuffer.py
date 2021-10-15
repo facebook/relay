@@ -10,8 +10,8 @@
 # of code.
 # Not proud of this...
 
-import subprocess
 import re
+import subprocess
 
 flatc_version = subprocess.check_output(["flatc", "--version"], text=True).strip()
 
@@ -43,8 +43,8 @@ new_header = """/*
  * \x40generated
  */
 """.format(
-        flatc_version
-    )
+    flatc_version
+)
 
 content = content.replace(old_header, new_header)
 

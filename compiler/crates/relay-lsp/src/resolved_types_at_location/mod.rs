@@ -63,7 +63,7 @@ pub(crate) fn on_get_resolved_types_at_location<
     TPerfLogger: PerfLogger + 'static,
     TSchemaDocumentation: SchemaDocumentation,
 >(
-    state: &mut LSPState<TPerfLogger, TSchemaDocumentation>,
+    state: &LSPState<TPerfLogger, TSchemaDocumentation>,
     params: <ResolvedTypesAtLocation as Request>::Params,
 ) -> LSPRuntimeResult<<ResolvedTypesAtLocation as Request>::Result> {
     if let Ok(node_resolution_info) =

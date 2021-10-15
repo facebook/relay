@@ -21,7 +21,7 @@ log = { version = "0.4.8", features = ["kv_unstable"] }
 lsp-server = "0.5.2"
 lsp-types = "0.89.0"
 percent-encoding = "2.1"
-rand = { version = "0.7", features = ["small_rng"] }
+rand = { version = "0.8", features = ["small_rng"] }
 rayon = "1.2"
 relay-compiler = { path = "../relay-compiler" }
 relay-transforms = { path = "../relay-transforms" }
@@ -29,7 +29,7 @@ schema = { path = "../schema" }
 schema-documentation = { path = "../schema-documentation" }
 schema-print = { path = "../schema-print" }
 serde = { version = "1.0.126", features = ["derive", "rc"] }
-serde_json = { version = "1.0", features = ["float_roundtrip"] }
+serde_json = { version = "1.0", features = ["float_roundtrip", "unbounded_depth"] }
 tokio = { version = "1.10", features = ["full", "test-util", "tracing"] }
 
 [dev-dependencies]

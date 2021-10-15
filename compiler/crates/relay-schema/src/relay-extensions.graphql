@@ -29,8 +29,6 @@ the `optimisticResponse` parameter to `commitMutation`.
 """
 directive @raw_response_type on QUERY | MUTATION | SUBSCRIPTION
 
-directive @relay_early_flush on QUERY
-
 directive @DEPRECATED__relay_ignore_unused_variables_error on QUERY | MUTATION | SUBSCRIPTION
 
 """

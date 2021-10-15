@@ -156,10 +156,7 @@ fragment queryWithMatchDirectiveNoInlineExperimental_MarkdownUserNameRenderer_na
                   {
                     "kind": "Literal",
                     "name": "supported",
-                    "value": [
-                      "PlainUserNameRenderer",
-                      "MarkdownUserNameRenderer"
-                    ]
+                    "value": "34hjiS"
                   }
                 ],
                 "concreteType": null,
@@ -203,7 +200,7 @@ fragment queryWithMatchDirectiveNoInlineExperimental_MarkdownUserNameRenderer_na
                     "abstractKey": null
                   }
                 ],
-                "storageKey": "nameRenderer(supported:[\"PlainUserNameRenderer\",\"MarkdownUserNameRenderer\"])"
+                "storageKey": "nameRenderer(supported:\"34hjiS\")"
               }
             ],
             "type": "User",
@@ -364,10 +361,7 @@ fragment queryWithMatchDirectiveNoInlineExperimental_PlainUserNameRenderer_name 
         {
           "kind": "Literal",
           "name": "supported",
-          "value": [
-            "PlainUserNameRenderer",
-            "MarkdownUserNameRenderer"
-          ]
+          "value": "34hjiS"
         }
       ],
       "concreteType": null,
@@ -404,7 +398,7 @@ fragment queryWithMatchDirectiveNoInlineExperimental_PlainUserNameRenderer_name 
           "abstractKey": null
         }
       ],
-      "storageKey": "nameRenderer(supported:[\"PlainUserNameRenderer\",\"MarkdownUserNameRenderer\"])"
+      "storageKey": "nameRenderer(supported:\"34hjiS\")"
     }
   ],
   "type": "User",

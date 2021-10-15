@@ -15,6 +15,12 @@ fragment ClientFragment on Viewer {
   isFbEmployee
 }
 
-fragment ServerComponentFragment on Viewer @__RelayClientComponentMetadata(__RelayClientComponentMetadataSplitOperation: ["ClientFragment$normalization.graphql"]) {
+fragment ServerComponentFragment on Viewer @__RelayClientComponentMetadata
+# RelayClientComponentMetadata {
+#     split_operation_filenames: [
+#         "ClientFragment$normalization.graphql",
+#     ],
+# }
+ {
   ...ClientFragment @relay_client_component_server(module_id: "ClientFragment$normalization.graphql")
 }

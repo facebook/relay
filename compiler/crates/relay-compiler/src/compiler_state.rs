@@ -16,7 +16,6 @@ use common::{PerfLogEvent, PerfLogger, SourceLocationKey};
 use fnv::{FnvHashMap, FnvHashSet};
 use graphql_syntax::GraphQLSource;
 use interner::StringKey;
-use io::BufReader;
 use rayon::prelude::*;
 use relay_transforms::DependencyMap;
 use schema::SDLSchema;
@@ -26,10 +25,12 @@ use std::{
     fmt,
     fs::File as FsFile,
     hash::Hash,
-    io, mem,
+    io::{BufReader, BufWriter},
+    mem,
     path::PathBuf,
     sync::{Arc, RwLock},
 };
+use zstd::stream::{read::Decoder as ZstdDecoder, write::Encoder as ZstdEncoder};
 
 /// Name of a compiler project.
 pub type ProjectName = StringKey;
@@ -227,7 +228,7 @@ impl CompilerState {
         perf_logger: &impl PerfLogger,
     ) -> Result<Self> {
         let categorized = setup_event.time("categorize_files_time", || {
-            categorize_files(config, file_source_changes.files())
+            categorize_files(config, file_source_changes)
         });
 
         let mut result = Self {
@@ -407,7 +408,7 @@ impl CompilerState {
             let log_event = perf_logger.create_event("merge_file_source_changes");
             log_event.number("number_of_changes", file_source_changes.size());
             let categorized = log_event.time("categorize_files_time", || {
-                categorize_files(config, file_source_changes.files())
+                categorize_files(config, &file_source_changes)
             });
 
             for (category, files) in categorized {
@@ -549,10 +550,15 @@ impl CompilerState {
     }
 
     pub fn serialize_to_file(&self, path: &PathBuf) -> Result<()> {
-        let writer = FsFile::create(path).map_err(|err| Error::WriteFileError {
-            file: path.clone(),
-            source: err,
-        })?;
+        let writer = FsFile::create(path)
+            .and_then(|writer| ZstdEncoder::new(writer, 12))
+            .map_err(|err| Error::WriteFileError {
+                file: path.clone(),
+                source: err,
+            })?
+            .auto_finish();
+        let writer =
+            BufWriter::with_capacity(ZstdEncoder::<FsFile>::recommended_input_size(), writer);
         bincode::serialize_into(writer, self).map_err(|err| Error::SerializationError {
             file: path.clone(),
             source: err,
@@ -560,11 +566,16 @@ impl CompilerState {
     }
 
     pub fn deserialize_from_file(path: &PathBuf) -> Result<Self> {
-        let file = FsFile::open(path).map_err(|err| Error::ReadFileError {
-            file: path.clone(),
-            source: err,
-        })?;
-        let reader = BufReader::new(file);
+        let reader = FsFile::open(path)
+            .and_then(ZstdDecoder::new)
+            .map_err(|err| Error::ReadFileError {
+                file: path.clone(),
+                source: err,
+            })?;
+        let reader = BufReader::with_capacity(
+            ZstdDecoder::<BufReader<FsFile>>::recommended_output_size(),
+            reader,
+        );
         bincode::deserialize_from(reader).map_err(|err| Error::DeserializationError {
             file: path.clone(),
             source: err,

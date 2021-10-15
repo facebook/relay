@@ -100,9 +100,7 @@ fragment multipleModulesWithKey_MarkdownUserNameRenderer_name on MarkdownUserNam
                   {
                     "kind": "Literal",
                     "name": "supported",
-                    "value": [
-                      "PlainUserNameRenderer"
-                    ]
+                    "value": "1AwQS7"
                   }
                 ],
                 "concreteType": null,
@@ -125,7 +123,7 @@ fragment multipleModulesWithKey_MarkdownUserNameRenderer_name on MarkdownUserNam
                     "abstractKey": null
                   }
                 ],
-                "storageKey": "nameRenderer(supported:[\"PlainUserNameRenderer\"])"
+                "storageKey": "nameRenderer(supported:\"1AwQS7\")"
               }
             ],
             "type": "Actor",
@@ -206,9 +204,7 @@ fragment multipleModulesWithKey_MarkdownUserNameRenderer_name on MarkdownUserNam
                   {
                     "kind": "Literal",
                     "name": "supported",
-                    "value": [
-                      "PlainUserNameRenderer"
-                    ]
+                    "value": "1AwQS7"
                   }
                 ],
                 "concreteType": null,
@@ -238,7 +234,7 @@ fragment multipleModulesWithKey_MarkdownUserNameRenderer_name on MarkdownUserNam
                     "abstractKey": null
                   }
                 ],
-                "storageKey": "nameRenderer(supported:[\"PlainUserNameRenderer\"])"
+                "storageKey": "nameRenderer(supported:\"1AwQS7\")"
               }
             ],
             "type": "Actor",

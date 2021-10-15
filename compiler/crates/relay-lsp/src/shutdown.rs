@@ -18,7 +18,7 @@ pub(crate) fn on_shutdown<
     TPerfLogger: PerfLogger + 'static,
     TSchemaDocumentation: SchemaDocumentation,
 >(
-    _state: &mut LSPState<TPerfLogger, TSchemaDocumentation>,
+    _state: &LSPState<TPerfLogger, TSchemaDocumentation>,
     _params: <Shutdown as Request>::Params,
 ) -> LSPRuntimeResult<<Shutdown as Request>::Result> {
     std::process::exit(0);
@@ -28,7 +28,7 @@ pub(crate) fn on_exit<
     TPerfLogger: PerfLogger + 'static,
     TSchemaDocumentation: SchemaDocumentation,
 >(
-    _state: &mut LSPState<TPerfLogger, TSchemaDocumentation>,
+    _state: &LSPState<TPerfLogger, TSchemaDocumentation>,
     _params: <Exit as Notification>::Params,
 ) -> LSPRuntimeResult<()> {
     std::process::exit(0);

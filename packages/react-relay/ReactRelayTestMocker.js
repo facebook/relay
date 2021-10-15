@@ -313,6 +313,7 @@ class ReactRelayTestMocker {
     );
 
     const realPayload =
+      // $FlowFixMe[incompatible-call]
       typeof payload === 'function' ? payload(toResolve.variables) : payload;
 
     // if there are errors, reject the query

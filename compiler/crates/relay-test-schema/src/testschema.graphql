@@ -52,7 +52,6 @@ type Query {
   usernames(names: [String!]!): [Actor]
   viewer: Viewer
   _mutation: Mutation
-  relay_early_flush(query_name: String): [JSDependency!]!
   fetch__User(id: ID!): User
   fetch__NonNodeStory(input_fetch_id: ID!): NonNodeStory
   nonNodeStory(id: ID!): NonNodeStory

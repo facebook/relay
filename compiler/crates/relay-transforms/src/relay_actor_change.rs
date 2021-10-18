@@ -10,7 +10,7 @@ use crate::FeatureFlag;
 use super::ValidationMessage;
 use common::{Diagnostic, DiagnosticsResult, NamedItem, WithLocation};
 use graphql_ir::{
-    Directive, InlineFragment, LinkedField, Program, ScalarField, Selection, Transformed,
+    Directive, Field, InlineFragment, LinkedField, Program, ScalarField, Selection, Transformed,
     Transformer,
 };
 use interner::{Intern, StringKey};

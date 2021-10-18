@@ -174,8 +174,8 @@ impl<'s> ValidateSelectionConflict<'s> {
                             key,
                             l_definition.name,
                             r_definition.name,
-                            l,
-                            r,
+                            *l,
+                            *r,
                         ) {
                             errors.push(err)
                         };
@@ -219,8 +219,8 @@ impl<'s> ValidateSelectionConflict<'s> {
                             key,
                             l_definition.name,
                             r_definition.name,
-                            l,
-                            r,
+                            *l,
+                            *r,
                         ) {
                             errors.push(err)
                         };

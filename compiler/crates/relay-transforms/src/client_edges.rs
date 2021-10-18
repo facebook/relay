@@ -16,7 +16,7 @@ use std::sync::Arc;
 use crate::relay_resolvers::RELAY_RESOLVER_DIRECTIVE_NAME;
 use common::{Diagnostic, DiagnosticsResult, NamedItem, WithLocation};
 use graphql_ir::{
-    Argument, ConstantValue, Directive, FragmentDefinition, InlineFragment, LinkedField,
+    Argument, ConstantValue, Directive, Field, FragmentDefinition, InlineFragment, LinkedField,
     OperationDefinition, Program, Selection, Transformed, Transformer, Value,
 };
 use schema::Schema;

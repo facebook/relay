@@ -12,7 +12,7 @@ use crate::util::{remove_directive, replace_directive};
 use common::{Diagnostic, DiagnosticsResult, NamedItem, WithLocation};
 pub use directives::{DeferDirective, StreamDirective};
 use graphql_ir::{
-    Argument, ConstantValue, Directive, FragmentDefinition, FragmentSpread, InlineFragment,
+    Argument, ConstantValue, Directive, Field, FragmentDefinition, FragmentSpread, InlineFragment,
     LinkedField, OperationDefinition, Program, ScalarField, Selection, Transformed, Transformer,
     ValidationMessage, Value,
 };

@@ -8,8 +8,8 @@
 use crate::{ValidationMessage, DIRECTIVE_SPLIT_OPERATION, INTERNAL_METADATA_DIRECTIVE};
 use common::{Diagnostic, DiagnosticsResult, NamedItem, WithLocation};
 use graphql_ir::{
-    Argument, ConstantArgument, ConstantValue, Directive, FragmentDefinition, OperationDefinition,
-    Program, Selection, Transformed, Transformer, Value,
+    Argument, ConstantArgument, ConstantValue, Directive, Field as IrField, FragmentDefinition,
+    OperationDefinition, Program, Selection, Transformed, Transformer, Value,
 };
 use indexmap::IndexMap;
 use interner::{Intern, StringKey};

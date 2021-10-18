@@ -8,7 +8,7 @@
 use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, WithLocation};
 use errors::validate;
 use graphql_ir::{
-    Argument, Directive, FragmentDefinition, LinkedField, OperationDefinition, Program,
+    Argument, Directive, Field, FragmentDefinition, LinkedField, OperationDefinition, Program,
     ScalarField, ValidationMessage, Validator,
 };
 use interner::{Intern, StringKey};

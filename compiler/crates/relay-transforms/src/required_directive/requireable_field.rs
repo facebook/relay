@@ -9,7 +9,9 @@ use crate::RequiredAction;
 
 use super::{ACTION_ARGUMENT, REQUIRED_DIRECTIVE_NAME};
 use common::{Diagnostic, Location, NamedItem, WithLocation};
-use graphql_ir::{ConstantValue, Directive, LinkedField, ScalarField, ValidationMessage, Value};
+use graphql_ir::{
+    ConstantValue, Directive, Field, LinkedField, ScalarField, ValidationMessage, Value,
+};
 use interner::StringKey;
 use schema::SDLSchema;
 

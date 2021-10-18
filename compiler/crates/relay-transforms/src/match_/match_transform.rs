@@ -17,9 +17,9 @@ use crate::{
 use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, WithLocation};
 use fnv::{FnvBuildHasher, FnvHashMap};
 use graphql_ir::{
-    associated_data_impl, Argument, ConstantValue, Directive, FragmentDefinition, FragmentSpread,
-    InlineFragment, LinkedField, OperationDefinition, Program, ScalarField, Selection, Transformed,
-    TransformedValue, Transformer, ValidationMessage, Value,
+    associated_data_impl, Argument, ConstantValue, Directive, Field, FragmentDefinition,
+    FragmentSpread, InlineFragment, LinkedField, OperationDefinition, Program, ScalarField,
+    Selection, Transformed, TransformedValue, Transformer, ValidationMessage, Value,
 };
 use indexmap::IndexSet;
 use interner::{Intern, StringKey};

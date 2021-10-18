@@ -7,6 +7,7 @@
 
 use crate::{util::CustomMetadataDirectives, ModuleMetadata};
 use common::WithLocation;
+use graphql_ir::Field;
 use graphql_ir::*;
 use interner::StringKey;
 use schema::SDLSchema;

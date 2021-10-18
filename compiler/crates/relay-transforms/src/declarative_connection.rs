@@ -7,8 +7,8 @@
 
 use common::{Diagnostic, DiagnosticsResult, NamedItem};
 use graphql_ir::{
-    FragmentDefinition, LinkedField, Program, ScalarField, Selection, Transformed, Transformer,
-    ValidationMessage,
+    Field, FragmentDefinition, LinkedField, Program, ScalarField, Selection, Transformed,
+    Transformer, ValidationMessage,
 };
 
 use crate::{

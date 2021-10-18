@@ -7,8 +7,8 @@
 
 use crate::util::PointerAddress;
 use graphql_ir::{
-    FragmentDefinition, OperationDefinition, Program, Selection, Transformed, TransformedValue,
-    Transformer,
+    Field, FragmentDefinition, OperationDefinition, Program, Selection, Transformed,
+    TransformedValue, Transformer,
 };
 use std::{cmp::Ordering, collections::HashMap};
 

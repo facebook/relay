@@ -13,7 +13,7 @@ use super::{
 use crate::root_variables::VariableMap;
 use common::{Diagnostic, DiagnosticsResult, NamedItem, WithLocation};
 use graphql_ir::{
-    Argument, FragmentDefinition, InlineFragment, LinkedField, ScalarField, Selection,
+    Argument, Field, FragmentDefinition, InlineFragment, LinkedField, ScalarField, Selection,
     ValidationMessage, Value, Variable, VariableDefinition,
 };
 use interner::StringKey;

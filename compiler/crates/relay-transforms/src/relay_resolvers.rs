@@ -11,8 +11,8 @@ use super::ValidationMessage;
 use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, WithLocation};
 use fnv::FnvHashSet;
 use graphql_ir::{
-    associated_data_impl, FragmentDefinition, FragmentSpread, OperationDefinition, Program,
-    ScalarField, Selection, Transformed, Transformer, Visitor,
+    associated_data_impl, Field as IrField, FragmentDefinition, FragmentSpread,
+    OperationDefinition, Program, ScalarField, Selection, Transformed, Transformer, Visitor,
 };
 use interner::Intern;
 use interner::StringKey;

@@ -213,6 +213,20 @@ pub trait Field {
     fn definition(&self) -> WithLocation<FieldID>;
     fn arguments(&self) -> &[Argument];
     fn directives(&self) -> &[Directive];
+    fn alias_or_name(&self, schema: &SDLSchema) -> StringKey {
+        if let Some(name) = self.alias() {
+            name.item
+        } else {
+            schema.field(self.definition().item).name
+        }
+    }
+    fn alias_or_name_location(&self) -> Location {
+        if let Some(name) = self.alias() {
+            name.location
+        } else {
+            self.definition().location
+        }
+    }
 }
 
 /// Name Arguments? SelectionSet
@@ -225,7 +239,7 @@ pub struct LinkedField {
     pub selections: Vec<Selection>,
 }
 
-impl Field for &LinkedField {
+impl Field for LinkedField {
     fn alias(&self) -> Option<WithLocation<StringKey>> {
         self.alias
     }
@@ -240,23 +254,6 @@ impl Field for &LinkedField {
 
     fn directives(&self) -> &[Directive] {
         &self.directives
-    }
-}
-
-impl LinkedField {
-    pub fn alias_or_name(&self, schema: &SDLSchema) -> StringKey {
-        if let Some(name) = self.alias {
-            name.item
-        } else {
-            schema.field(self.definition.item).name
-        }
-    }
-    pub fn alias_or_name_location(&self) -> Location {
-        if let Some(name) = self.alias {
-            name.location
-        } else {
-            self.definition.location
-        }
     }
 }
 
@@ -269,7 +266,7 @@ pub struct ScalarField {
     pub directives: Vec<Directive>,
 }
 
-impl Field for &ScalarField {
+impl Field for ScalarField {
     fn alias(&self) -> Option<WithLocation<StringKey>> {
         self.alias
     }
@@ -284,23 +281,6 @@ impl Field for &ScalarField {
 
     fn directives(&self) -> &[Directive] {
         &self.directives
-    }
-}
-
-impl ScalarField {
-    pub fn alias_or_name(&self, schema: &SDLSchema) -> StringKey {
-        if let Some(name) = self.alias {
-            name.item
-        } else {
-            schema.field(self.definition.item).name
-        }
-    }
-    pub fn alias_or_name_location(&self) -> Location {
-        if let Some(name) = self.alias {
-            name.location
-        } else {
-            self.definition.location
-        }
     }
 }
 

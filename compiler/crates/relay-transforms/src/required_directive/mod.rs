@@ -11,7 +11,7 @@ mod requireable_field;
 use super::FeatureFlags;
 use fnv::FnvHashMap;
 use graphql_ir::{
-    associated_data_impl, Directive, FragmentDefinition, InlineFragment, LinkedField,
+    associated_data_impl, Directive, Field, FragmentDefinition, InlineFragment, LinkedField,
     OperationDefinition, Program, ScalarField, Selection, Transformed, TransformedValue,
     Transformer, ValidationMessage,
 };

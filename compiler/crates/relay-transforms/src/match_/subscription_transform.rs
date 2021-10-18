@@ -8,8 +8,9 @@
 use crate::{match_::MATCH_CONSTANTS, util::get_normalization_operation_name, ModuleMetadata};
 use common::{DiagnosticsResult, WithLocation};
 use graphql_ir::{
-    Argument, ConstantValue, FragmentDefinition, FragmentSpread, InlineFragment, LinkedField,
-    OperationDefinition, Program, ScalarField, Selection, Transformed, Transformer, Value,
+    Argument, ConstantValue, Field, FragmentDefinition, FragmentSpread, InlineFragment,
+    LinkedField, OperationDefinition, Program, ScalarField, Selection, Transformed, Transformer,
+    Value,
 };
 use graphql_syntax::OperationKind;
 use interner::Intern;

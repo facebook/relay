@@ -1023,7 +1023,9 @@ pub(crate) fn on_completion(
     params: <Completion as Request>::Params,
 ) -> LSPRuntimeResult<<Completion as Request>::Result> {
     match state.extract_executable_document_from_text(&params.text_document_position, 0) {
-        Ok((document, position_span, project_name)) => {
+        Ok((document, position_span)) => {
+            let project_name = state
+                .extract_project_name_from_url(&params.text_document_position.text_document.uri)?;
             let schema = &state
                 .get_schema(&project_name)
                 .ok_or(LSPRuntimeError::ExpectedError)?;

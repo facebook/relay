@@ -58,7 +58,7 @@ pub(crate) fn on_code_action(
         text_document: params.text_document,
         position: params.range.start,
     };
-    let (document, position_span, _project_name) =
+    let (document, position_span) =
         state.extract_executable_document_from_text(&text_document_position_params, 1)?;
 
     let path = document.resolve((), position_span);

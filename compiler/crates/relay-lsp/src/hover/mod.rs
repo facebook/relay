@@ -65,9 +65,13 @@ pub(crate) fn on_hover(
     state: &impl GlobalState,
     params: <HoverRequest as Request>::Params,
 ) -> LSPRuntimeResult<<HoverRequest as Request>::Result> {
-    let (document, position_span, project_name) =
+    let (document, position_span) =
         state.extract_executable_document_from_text(&params.text_document_position_params, 1)?;
+
     let resolution_path = document.resolve((), position_span);
+
+    let project_name = state
+        .extract_project_name_from_url(&params.text_document_position_params.text_document.uri)?;
 
     let schema = state
         .get_schema(&project_name)

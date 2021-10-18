@@ -23,7 +23,7 @@ use schema_documentation::SchemaDocumentation;
 
 use crate::{
     lsp_runtime_error::LSPRuntimeResult,
-    server::{LSPState, SourcePrograms},
+    server::{GlobalState, LSPState, SourcePrograms},
     LSPRuntimeError,
 };
 use serde::{Deserialize, Serialize};

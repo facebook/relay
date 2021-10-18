@@ -58,10 +58,13 @@ pub fn extract_project_name_from_url(
         ))
     })?;
 
-    let project_name = if let FileGroup::Source { source_set } = file_categorizer
-        .categorize(&file_path)
-        .map_err(|_| LSPRuntimeError::ExpectedError)?
-    {
+    let project_name = if let FileGroup::Source { source_set } =
+        file_categorizer.categorize(file_path).map_err(|_| {
+            LSPRuntimeError::UnexpectedError(format!(
+                "Unable to categorize the file correctly: {:?}",
+                file_path
+            ))
+        })? {
         match source_set {
             SourceSet::SourceSetName(source) => source,
             SourceSet::SourceSetNames(sources) => sources[0],
@@ -78,12 +81,10 @@ pub fn extract_project_name_from_url(
 /// Return a parsed executable document for this LSP request, only if the request occurs
 /// within a GraphQL document.
 pub fn extract_executable_document_from_text(
-    text_document_position: &TextDocumentPositionParams,
     graphql_source_cache: &DashMap<Url, Vec<GraphQLSource>>,
-    file_categorizer: &FileCategorizer,
-    root_dir: &PathBuf,
+    text_document_position: &TextDocumentPositionParams,
     index_offset: usize,
-) -> LSPRuntimeResult<(ExecutableDocument, Span, StringKey)> {
+) -> LSPRuntimeResult<(ExecutableDocument, Span)> {
     let uri = &text_document_position.text_document.uri;
     let position = text_document_position.position;
 
@@ -98,8 +99,6 @@ pub fn extract_executable_document_from_text(
             position >= range.start && position <= range.end
         })
         .ok_or(LSPRuntimeError::ExpectedError)?;
-
-    let project_name = extract_project_name_from_url(file_categorizer, uri, root_dir)?;
 
     let document = parse_executable_with_error_recovery(
         &graphql_source.text,
@@ -122,7 +121,7 @@ pub fn extract_executable_document_from_text(
     // since the change event fires before completion.
     debug!("position_span: {:?}", position_span);
 
-    Ok((document, position_span, project_name))
+    Ok((document, position_span))
 }
 
 /// Maps the LSP `Position` type back to a relative span, so we can find out which syntax node(s)

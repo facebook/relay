@@ -9,7 +9,7 @@ use std::path::PathBuf;
 
 use crate::{
     lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult},
-    utils::extract_executable_document_from_text,
+    utils::{extract_executable_document_from_text, extract_project_name_from_url},
 };
 use common::Span;
 use dashmap::DashMap;
@@ -320,11 +320,9 @@ pub fn get_node_resolution_info(
     file_categorizer: &FileCategorizer,
     root_dir: &PathBuf,
 ) -> LSPRuntimeResult<NodeResolutionInfo> {
-    let (document, position_span, project_name) = extract_executable_document_from_text(
-        &text_document_position,
+    let (document, position_span) = extract_executable_document_from_text(
         graphql_source_cache,
-        file_categorizer,
-        root_dir,
+        text_document_position,
         // For hovering, offset the index by 1
         // ```
         //  field
@@ -333,6 +331,11 @@ pub fn get_node_resolution_info(
         // ```
         // so the returned cursor is on the char `f`
         1,
+    )?;
+    let project_name = extract_project_name_from_url(
+        file_categorizer,
+        &text_document_position.text_document.uri,
+        root_dir,
     )?;
 
     create_node_resolution_info(document, position_span, project_name)

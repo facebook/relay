@@ -87,14 +87,24 @@ pub trait GlobalState {
         &self,
         position: &TextDocumentPositionParams,
         index_offset: usize,
-    ) -> LSPRuntimeResult<(ExecutableDocument, Span, StringKey)>;
+    ) -> LSPRuntimeResult<(ExecutableDocument, Span)>;
+
     fn get_schema_documentation(&self, schema_name: &str) -> Self::TSchemaDocumentation;
+
     fn get_extra_data_provider(&self) -> &dyn LSPExtraDataProvider;
+
     fn resolve_executable_definitions(
         &self,
         text_document_uri: &Url,
     ) -> LSPRuntimeResult<Vec<ExecutableDefinition>>;
+
     fn get_diagnostic_for_range(&self, url: &Url, range: Range) -> Option<Diagnostic>;
+
+    /// For Relay - project_name is an human-readable identifier of a set of configurations,
+    /// source files, schema extensions, etc, that are compiled together using a single GraphQL
+    /// Schema. project_name typically the same as the schema name: facebook, intern, etc.
+    /// For Native - it may be a BuildConfigName.
+    fn extract_project_name_from_url(&self, url: &Url) -> LSPRuntimeResult<StringKey>;
 }
 
 /// This structure contains all available resources that we may use in the Relay LSP message/notification
@@ -191,10 +201,6 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
 
     pub fn get_schemas(&self) -> Schemas {
         self.schemas.clone()
-    }
-
-    pub fn extract_project_name_from_url(&self, url: &Url) -> LSPRuntimeResult<StringKey> {
-        extract_project_name_from_url(&self.file_categorizer, url, &self.root_dir)
     }
 
     fn insert_synced_sources(&self, url: &Url, sources: Vec<GraphQLSource>) {
@@ -385,12 +391,10 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         &self,
         position: &TextDocumentPositionParams,
         index_offset: usize,
-    ) -> LSPRuntimeResult<(ExecutableDocument, Span, StringKey)> {
+    ) -> LSPRuntimeResult<(ExecutableDocument, Span)> {
         extract_executable_document_from_text(
-            position,
             &self.synced_graphql_documents,
-            &self.file_categorizer,
-            &self.root_dir,
+            position,
             index_offset,
         )
     }
@@ -406,6 +410,10 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             .map(|loader| loader.get_schema_documentation(schema_name));
 
         CombinedSchemaDocumentation::new(primary, secondary)
+    }
+
+    fn extract_project_name_from_url(&self, url: &Url) -> LSPRuntimeResult<StringKey> {
+        extract_project_name_from_url(&self.file_categorizer, url, &self.root_dir)
     }
 
     fn get_extra_data_provider(&self) -> &dyn LSPExtraDataProvider {

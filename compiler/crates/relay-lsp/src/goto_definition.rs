@@ -224,9 +224,11 @@ pub(crate) fn on_goto_definition(
     state: &impl GlobalState,
     params: <GotoDefinition as Request>::Params,
 ) -> LSPRuntimeResult<<GotoDefinition as Request>::Result> {
-    let (document, position_span, project_name) =
+    let (document, position_span) =
         state.extract_executable_document_from_text(&params.text_document_position_params, 1)?;
     let path = document.resolve((), position_span);
+    let project_name = state
+        .extract_project_name_from_url(&params.text_document_position_params.text_document.uri)?;
 
     let goto_definition_response = get_goto_definition_response(
         path,

@@ -270,7 +270,7 @@ fn handle_notification<
     let lsp_notification_processing_time =
         lsp_notification_event.start("lsp_message_processing_time");
 
-    let notification_result = dispatch_notification(notification, &lsp_state);
+    let notification_result = dispatch_notification(notification, lsp_state.as_ref());
 
     match notification_result {
         Ok(()) => {
@@ -293,12 +293,9 @@ fn handle_notification<
     lsp_notification_event.complete();
 }
 
-fn dispatch_notification<
-    TPerfLogger: PerfLogger + 'static,
-    TSchemaDocumentation: SchemaDocumentation,
->(
+fn dispatch_notification(
     notification: lsp_server::Notification,
-    lsp_state: &LSPState<TPerfLogger, TSchemaDocumentation>,
+    lsp_state: &impl GlobalState,
 ) -> Result<(), Option<LSPRuntimeError>> {
     let notification = LSPNotificationDispatch::new(notification, lsp_state)
         .on_notification_sync::<DidOpenTextDocument>(on_did_open_text_document)?

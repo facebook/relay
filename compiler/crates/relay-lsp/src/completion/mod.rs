@@ -7,11 +7,11 @@
 
 //! Utilities for providing the completion language feature
 use crate::{
-    lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult},
+    lsp_runtime_error::LSPRuntimeResult,
     node_resolution_info::{TypePath, TypePathItem},
     server::GlobalState,
     server::SourcePrograms,
-    SchemaDocumentation,
+    LSPRuntimeError, SchemaDocumentation,
 };
 use common::{Named, NamedItem, Span};
 
@@ -1026,9 +1026,8 @@ pub(crate) fn on_completion(
         Ok((document, position_span)) => {
             let project_name = state
                 .extract_project_name_from_url(&params.text_document_position.text_document.uri)?;
-            let schema = &state
-                .get_schema(&project_name)
-                .ok_or(LSPRuntimeError::ExpectedError)?;
+
+            let schema = &state.get_schema(&project_name)?;
             let items = resolve_completion_items(
                 document,
                 position_span,

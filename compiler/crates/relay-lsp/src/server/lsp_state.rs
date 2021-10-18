@@ -56,7 +56,7 @@ pub trait GlobalState {
     type TSchemaDocumentation: SchemaDocumentation;
 
     fn get_config(&self) -> Arc<Config>;
-    fn get_schema(&self, project_name: &StringKey) -> Option<Arc<SDLSchema>>;
+    fn get_schema(&self, project_name: &StringKey) -> LSPRuntimeResult<Arc<SDLSchema>>;
     fn resolve_node(
         &self,
         text_document_position: &TextDocumentPositionParams,
@@ -320,8 +320,17 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         self.root_dir.clone()
     }
 
-    fn get_schema(&self, project_name: &StringKey) -> Option<Arc<SDLSchema>> {
-        self.schemas.get(project_name).as_deref().cloned()
+    fn get_schema(&self, project_name: &StringKey) -> LSPRuntimeResult<Arc<SDLSchema>> {
+        self.schemas
+            .get(project_name)
+            .as_deref()
+            .cloned()
+            .ok_or_else(|| {
+                LSPRuntimeError::UnexpectedError(format!(
+                    "get_schema: schema is missing (or not ready, yet) for the `{}` project.",
+                    project_name
+                ))
+            })
     }
 
     fn resolve_node(

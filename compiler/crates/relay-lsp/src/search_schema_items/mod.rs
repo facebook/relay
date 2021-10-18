@@ -5,10 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::{
-    lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult},
-    server::GlobalState,
-};
+use crate::{lsp_runtime_error::LSPRuntimeResult, server::GlobalState};
 use common::Named;
 use interner::Intern;
 use lsp_types::request::Request;
@@ -51,9 +48,8 @@ pub(crate) fn on_search_schema_items(
 ) -> LSPRuntimeResult<<SearchSchemaItems as Request>::Result> {
     let filter = params.filter.map(|f| f.to_lowercase());
     let schema_name: &str = &params.schema_name;
-    let schema = state
-        .get_schema(&schema_name.intern())
-        .ok_or(LSPRuntimeError::ExpectedError)?;
+    let schema = state.get_schema(&schema_name.intern())?;
+
     let schema_documentation = state.get_schema_documentation(schema_name);
 
     let objects = filter_and_transform_items(schema.objects(), &schema_documentation, &filter);

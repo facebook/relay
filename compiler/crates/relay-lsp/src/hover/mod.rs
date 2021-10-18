@@ -73,9 +73,7 @@ pub(crate) fn on_hover(
     let project_name = state
         .extract_project_name_from_url(&params.text_document_position_params.text_document.uri)?;
 
-    let schema = state
-        .get_schema(&project_name)
-        .ok_or(LSPRuntimeError::ExpectedError)?;
+    let schema = state.get_schema(&project_name)?;
 
     let schema_documentation = state.get_schema_documentation(project_name.lookup());
 

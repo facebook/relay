@@ -42,9 +42,7 @@ pub(crate) fn on_explore_schema_for_type(
 ) -> LSPRuntimeResult<<ExploreSchemaForType as Request>::Result> {
     // TODO these should not be expected errors
     let schema_name: &str = &params.schema_name;
-    let schema = state
-        .get_schema(&schema_name.intern())
-        .ok_or(LSPRuntimeError::ExpectedError)?;
+    let schema = state.get_schema(&schema_name.intern())?;
 
     let type_ = if params.item == "Query" {
         schema.query_type()

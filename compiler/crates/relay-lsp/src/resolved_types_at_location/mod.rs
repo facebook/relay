@@ -64,22 +64,22 @@ pub(crate) fn on_get_resolved_types_at_location(
     if let Ok(node_resolution_info) =
         state.resolve_node(&params.to_text_document_position_params()?)
     {
-        if let Some(schema) = state.get_schema(&node_resolution_info.project_name) {
-            // If type_path is empty, type_path.resolve_current_field() will panic.
-            if !node_resolution_info.type_path.0.is_empty() {
-                let type_and_field = node_resolution_info
-                    .type_path
-                    .resolve_current_field(&schema);
-                if let Some((_parent_type, field)) = type_and_field {
-                    let type_name = schema.get_type_name(field.type_.inner()).to_string();
-                    // TODO resolve enclosing types, not just types immediately under the cursor
-                    return Ok(ResolvedTypesAtLocationResponse {
-                        path_and_schema_name: Some(PathAndSchemaName {
-                            path: vec![type_name],
-                            schema_name: node_resolution_info.project_name.to_string(),
-                        }),
-                    });
-                }
+        let schema = state.get_schema(&node_resolution_info.project_name)?;
+
+        // If type_path is empty, type_path.resolve_current_field() will panic.
+        if !node_resolution_info.type_path.0.is_empty() {
+            let type_and_field = node_resolution_info
+                .type_path
+                .resolve_current_field(&schema);
+            if let Some((_parent_type, field)) = type_and_field {
+                let type_name = schema.get_type_name(field.type_.inner()).to_string();
+                // TODO resolve enclosing types, not just types immediately under the cursor
+                return Ok(ResolvedTypesAtLocationResponse {
+                    path_and_schema_name: Some(PathAndSchemaName {
+                        path: vec![type_name],
+                        schema_name: node_resolution_info.project_name.to_string(),
+                    }),
+                });
             }
         }
     }

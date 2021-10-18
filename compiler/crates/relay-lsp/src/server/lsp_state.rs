@@ -10,7 +10,7 @@ use crate::{
     graphql_tools::get_query_text,
     js_language_server::JSLanguageServer,
     lsp_runtime_error::LSPRuntimeResult,
-    node_resolution_info::{get_node_resolution_info, NodeResolutionInfo},
+    node_resolution_info::{create_node_resolution_info, NodeResolutionInfo},
     utils::extract_project_name_from_url,
     utils::{
         extract_executable_definitions_from_text_document, extract_executable_document_from_text,
@@ -318,12 +318,20 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         &self,
         text_document_position: &TextDocumentPositionParams,
     ) -> LSPRuntimeResult<NodeResolutionInfo> {
-        get_node_resolution_info(
-            text_document_position,
+        let (document, position_span) = extract_executable_document_from_text(
             &self.synced_graphql_documents,
-            &self.file_categorizer,
-            &self.root_dir,
-        )
+            text_document_position,
+            // For hovering, offset the index by 1
+            // ```
+            //  field
+            //  ^ hover on f
+            // ^ position returned by the client
+            // ```
+            // so the returned cursor is on the char `f`
+            1,
+        )?;
+
+        create_node_resolution_info(document, position_span)
     }
 
     fn process_synced_sources(

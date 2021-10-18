@@ -61,10 +61,10 @@ pub(crate) fn on_get_resolved_types_at_location(
     state: &impl GlobalState,
     params: <ResolvedTypesAtLocation as Request>::Params,
 ) -> LSPRuntimeResult<<ResolvedTypesAtLocation as Request>::Result> {
-    if let Ok(node_resolution_info) =
-        state.resolve_node(&params.to_text_document_position_params()?)
-    {
-        let schema = state.get_schema(&node_resolution_info.project_name)?;
+    let params = params.to_text_document_position_params()?;
+    if let Ok(node_resolution_info) = state.resolve_node(&params) {
+        let project_name = state.extract_project_name_from_url(&params.text_document.uri)?;
+        let schema = state.get_schema(&project_name)?;
 
         // If type_path is empty, type_path.resolve_current_field() will panic.
         if !node_resolution_info.type_path.0.is_empty() {
@@ -77,7 +77,7 @@ pub(crate) fn on_get_resolved_types_at_location(
                 return Ok(ResolvedTypesAtLocationResponse {
                     path_and_schema_name: Some(PathAndSchemaName {
                         path: vec![type_name],
-                        schema_name: node_resolution_info.project_name.to_string(),
+                        schema_name: project_name.to_string(),
                     }),
                 });
             }

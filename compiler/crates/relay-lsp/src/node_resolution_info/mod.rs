@@ -5,22 +5,14 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use std::path::PathBuf;
-
-use crate::{
-    lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult},
-    utils::{extract_executable_document_from_text, extract_project_name_from_url},
-};
+use crate::lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult};
 use common::Span;
-use dashmap::DashMap;
 use graphql_syntax::{
     Argument, Directive, ExecutableDefinition, ExecutableDocument, FragmentDefinition,
-    FragmentSpread, GraphQLSource, InlineFragment, LinkedField, List, OperationDefinition,
-    ScalarField, Selection, TypeCondition,
+    FragmentSpread, InlineFragment, LinkedField, List, OperationDefinition, ScalarField, Selection,
+    TypeCondition,
 };
 use interner::StringKey;
-use lsp_types::{TextDocumentPositionParams, Url};
-use relay_compiler::FileCategorizer;
 
 mod type_path;
 pub use type_path::{TypePath, TypePathItem};
@@ -45,16 +37,13 @@ pub struct NodeResolutionInfo {
     /// A list of type metadata that we can use to resolve the leaf
     /// type the request is being made against
     pub type_path: TypePath,
-    /// The project the request belongs to
-    pub project_name: StringKey,
 }
 
 impl NodeResolutionInfo {
-    fn new(project_name: StringKey, kind: NodeKind) -> Self {
+    fn new(kind: NodeKind) -> Self {
         Self {
             kind,
             type_path: Default::default(),
-            project_name,
         }
     }
 }
@@ -62,7 +51,6 @@ impl NodeResolutionInfo {
 fn build_node_resolution_for_directive(
     directives: &[Directive],
     position_span: Span,
-    project_name: StringKey,
 ) -> Option<NodeResolutionInfo> {
     let directive = directives
         .iter()
@@ -80,7 +68,6 @@ fn build_node_resolution_for_directive(
     Some(NodeResolutionInfo {
         kind: NodeKind::Directive(directive.name.value, arg_name_opt),
         type_path: Default::default(),
-        project_name,
     })
 }
 
@@ -95,10 +82,9 @@ fn type_condition_at_position(
     Some(NodeKind::TypeCondition(type_condition.type_.value))
 }
 
-fn create_node_resolution_info(
+pub(crate) fn create_node_resolution_info(
     document: ExecutableDocument,
     position_span: Span,
-    project_name: StringKey,
 ) -> LSPRuntimeResult<NodeResolutionInfo> {
     let definition = document
         .definitions
@@ -109,10 +95,8 @@ fn create_node_resolution_info(
     match definition {
         ExecutableDefinition::Operation(operation) => {
             if operation.location.contains(position_span) {
-                let mut node_resolution_info = NodeResolutionInfo::new(
-                    project_name,
-                    NodeKind::OperationDefinition(operation.clone()),
-                );
+                let mut node_resolution_info =
+                    NodeResolutionInfo::new(NodeKind::OperationDefinition(operation.clone()));
                 let OperationDefinition {
                     selections,
                     variable_definitions,
@@ -154,15 +138,11 @@ fn create_node_resolution_info(
         }
         ExecutableDefinition::Fragment(fragment) => {
             if fragment.location.contains(position_span) {
-                let mut node_resolution_info = NodeResolutionInfo::new(
-                    project_name,
-                    NodeKind::FragmentDefinition(fragment.clone()),
-                );
-                if let Some(node_resolution_info) = build_node_resolution_for_directive(
-                    &fragment.directives,
-                    position_span,
-                    project_name,
-                ) {
+                let mut node_resolution_info =
+                    NodeResolutionInfo::new(NodeKind::FragmentDefinition(fragment.clone()));
+                if let Some(node_resolution_info) =
+                    build_node_resolution_for_directive(&fragment.directives, position_span)
+                {
                     return Ok(node_resolution_info);
                 }
 
@@ -225,11 +205,9 @@ fn build_node_resolution_info_from_selections(
         .iter()
         .find(|item| item.span().contains(position_span))
     {
-        if let Some(directive_resolution_info) = build_node_resolution_for_directive(
-            item.directives(),
-            position_span,
-            node_resolution_info.project_name,
-        ) {
+        if let Some(directive_resolution_info) =
+            build_node_resolution_for_directive(item.directives(), position_span)
+        {
             node_resolution_info.kind = directive_resolution_info.kind;
             return;
         }
@@ -312,35 +290,6 @@ fn build_node_resolution_info_from_selections(
     }
 }
 
-/// Return a `NodeResolutionInfo` for this request if the request occurred
-/// within a GraphQL document.
-pub fn get_node_resolution_info(
-    text_document_position: &TextDocumentPositionParams,
-    graphql_source_cache: &DashMap<Url, Vec<GraphQLSource>>,
-    file_categorizer: &FileCategorizer,
-    root_dir: &PathBuf,
-) -> LSPRuntimeResult<NodeResolutionInfo> {
-    let (document, position_span) = extract_executable_document_from_text(
-        graphql_source_cache,
-        text_document_position,
-        // For hovering, offset the index by 1
-        // ```
-        //  field
-        //  ^ hover on f
-        // ^ position returned by the client
-        // ```
-        // so the returned cursor is on the char `f`
-        1,
-    )?;
-    let project_name = extract_project_name_from_url(
-        file_categorizer,
-        &text_document_position.text_document.uri,
-        root_dir,
-    )?;
-
-    create_node_resolution_info(document, position_span, project_name)
-}
-
 #[cfg(test)]
 mod test {
     use super::create_node_resolution_info;
@@ -359,7 +308,7 @@ mod test {
             end: pos,
         };
 
-        create_node_resolution_info(document, position_span, "test_project".intern()).unwrap()
+        create_node_resolution_info(document, position_span).unwrap()
     }
 
     #[test]
@@ -378,7 +327,6 @@ mod test {
         );
 
         assert_eq!(node_resolution_info.kind, NodeKind::FieldName);
-        assert_eq!(node_resolution_info.project_name.lookup(), "test_project");
     }
 
     #[test]
@@ -394,7 +342,7 @@ mod test {
         .unwrap();
         // Position is outside of the document
         let position_span = Span { start: 86, end: 87 };
-        let result = create_node_resolution_info(document, position_span, "test_project".intern());
+        let result = create_node_resolution_info(document, position_span);
         assert!(result.is_err());
     }
 

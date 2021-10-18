@@ -23,7 +23,7 @@ use schema_documentation::SchemaDocumentation;
 
 use crate::{
     lsp_runtime_error::LSPRuntimeResult,
-    server::{GlobalState, LSPState, SourcePrograms},
+    server::{GlobalState, LSPState},
     LSPRuntimeError,
 };
 use serde::{Deserialize, Serialize};
@@ -68,13 +68,10 @@ impl Request for GraphQLExecuteQuery {
 fn get_operation_only_program(
     operation: Arc<OperationDefinition>,
     fragments: Vec<Arc<FragmentDefinition>>,
-    project_name: StringKey,
-    programs: &SourcePrograms,
+    program: &Program,
 ) -> Option<Program> {
-    let full_program = programs.get(&project_name)?;
-
     let mut selections_to_visit: Vec<_> = vec![&operation.selections];
-    let mut next_program = Program::new(full_program.schema.clone());
+    let mut next_program = Program::new(program.schema.clone());
     next_program.insert_operation(Arc::clone(&operation));
     for fragment in fragments.iter() {
         selections_to_visit.push(&fragment.selections);
@@ -100,9 +97,8 @@ fn get_operation_only_program(
                     }
 
                     // Finally, add all missing fragment spreads from the full program
-                    let fragment = full_program
-                        .fragment(spread.fragment.item)
-                        .expect("Expect fragment to exist");
+                    let fragment = program.fragment(spread.fragment.item)?;
+
                     selections_to_visit.push(&fragment.selections);
                     next_program.insert_fragment(Arc::clone(fragment));
                 }
@@ -197,54 +193,66 @@ fn build_operation_ir_with_fragments(
     }
 }
 
-fn get_query_text<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentation>(
-    state: &LSPState<TPerfLogger, TSchemaDocumentation>,
-    original_text: String,
-    project_config: &ProjectConfig,
-    schema: Arc<SDLSchema>,
-) -> Result<String, String> {
-    let result = parse_executable_with_error_recovery(&original_text, SourceLocationKey::Generated);
-
-    if !&result.errors.is_empty() {
-        return Err(result
-            .errors
-            .iter()
-            .map(|err| format!("- {}\n", err))
-            .collect::<String>());
-    }
-
-    let (operation, fragments) =
-        build_operation_ir_with_fragments(&result.item.definitions, schema)?;
-
-    let operation_name = operation.name.item;
-    let query_text = if let Some(operation_program) = get_operation_only_program(
-        operation,
-        fragments,
-        project_config.name,
-        &state.source_programs,
-    ) {
-        let programs = transform_program(
-            project_config,
-            Arc::clone(&state.config),
-            Arc::new(operation_program),
-            state.get_logger(),
-        )?;
-
-        print_full_operation_text(programs, operation_name)
-    } else {
-        // If, for some reason we could not get the operation text from the sources
-        // we will send the original text to the server
-        original_text
-    };
-
-    Ok(query_text)
-}
-
-pub(crate) fn on_graphql_execute_query<
+pub(crate) fn get_query_text<
     TPerfLogger: PerfLogger + 'static,
     TSchemaDocumentation: SchemaDocumentation,
 >(
     state: &LSPState<TPerfLogger, TSchemaDocumentation>,
+    original_text: String,
+    project_name: &StringKey,
+) -> LSPRuntimeResult<String> {
+    let schema = state.get_schema(project_name)?;
+
+    let project_config = state
+        .config
+        .enabled_projects()
+        .find(|project_config| &project_config.name == project_name)
+        .ok_or_else(|| {
+            LSPRuntimeError::UnexpectedError(format!(
+                "Unable to get project config for project {}.",
+                project_name
+            ))
+        })?;
+
+    let result = parse_executable_with_error_recovery(&original_text, SourceLocationKey::Generated);
+
+    if !&result.errors.is_empty() {
+        return Err(LSPRuntimeError::UnexpectedError(
+            result
+                .errors
+                .iter()
+                .map(|err| format!("- {}\n", err))
+                .collect::<String>(),
+        ));
+    }
+
+    let (operation, fragments) =
+        build_operation_ir_with_fragments(&result.item.definitions, schema)
+            .map_err(LSPRuntimeError::UnexpectedError)?;
+
+    let operation_name = operation.name.item;
+    let program = state.get_program(project_name)?;
+
+    let query_text =
+        if let Some(program) = get_operation_only_program(operation, fragments, &program) {
+            let programs = transform_program(
+                project_config,
+                Arc::clone(&state.config),
+                Arc::new(program),
+                Arc::clone(&state.perf_logger),
+            )
+            .map_err(LSPRuntimeError::UnexpectedError)?;
+
+            print_full_operation_text(programs, operation_name)
+        } else {
+            original_text
+        };
+
+    Ok(query_text)
+}
+
+pub(crate) fn on_graphql_execute_query(
+    state: &impl GlobalState,
     params: GraphQLExecuteQueryParams,
 ) -> LSPRuntimeResult<<GraphQLExecuteQuery as Request>::Result> {
     let project_name = if let Some(url) = &params.get_url() {
@@ -255,26 +263,5 @@ pub(crate) fn on_graphql_execute_query<
         params.get_schema_name()
     };
 
-    let project_config = state.get_project_config_ref(project_name).ok_or_else(|| {
-        LSPRuntimeError::UnexpectedError(format!(
-            "Unable to get project config for project {}.",
-            project_name
-        ))
-    })?;
-
-    let schema = state
-        .get_schemas()
-        .get(&project_config.name)
-        .ok_or_else(|| {
-            LSPRuntimeError::UnexpectedError(format!(
-                "Unable to get schema for project {}.",
-                project_name
-            ))
-        })?
-        .clone();
-
-    let query_text = get_query_text(state, params.text, project_config, schema)
-        .map_err(LSPRuntimeError::UnexpectedError)?;
-
-    Ok(query_text)
+    state.get_full_query_text(params.text, &project_name)
 }

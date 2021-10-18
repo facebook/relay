@@ -7,6 +7,7 @@
 
 use crate::{
     diagnostic_reporter::{get_diagnostics_data, DiagnosticReporter},
+    graphql_tools::get_query_text,
     js_language_server::JSLanguageServer,
     lsp_runtime_error::LSPRuntimeResult,
     node_resolution_info::{get_node_resolution_info, NodeResolutionInfo},
@@ -30,10 +31,7 @@ use interner::{Intern, StringKey};
 use log::debug;
 use lsp_server::Message;
 use lsp_types::{Diagnostic, DiagnosticTag, Range, TextDocumentPositionParams, Url};
-use relay_compiler::{
-    config::{Config, ProjectConfig},
-    FileCategorizer,
-};
+use relay_compiler::{config::Config, FileCategorizer};
 use relay_transforms::deprecated_fields_for_executable_definition;
 use schema::SDLSchema;
 use schema_documentation::{
@@ -97,8 +95,15 @@ pub trait GlobalState {
     /// For Native - it may be a BuildConfigName.
     fn extract_project_name_from_url(&self, url: &Url) -> LSPRuntimeResult<StringKey>;
 
-    // Experimental (Relay-only) JS Language Server instance
+    /// Experimental (Relay-only) JS Language Server instance
     fn get_js_language_sever(&self) -> Option<&dyn JSLanguageServer<TState = Self>>;
+
+    /// This is powering the functionality of executing GraphQL query from the IDE
+    fn get_full_query_text(
+        &self,
+        query_text: String,
+        project_name: &StringKey,
+    ) -> LSPRuntimeResult<String>;
 }
 
 /// This structure contains all available resources that we may use in the Relay LSP message/notification
@@ -273,12 +278,6 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         }
     }
 
-    pub fn get_project_config_ref(&self, project_name: StringKey) -> Option<&ProjectConfig> {
-        self.config
-            .enabled_projects()
-            .find(|project_config| project_config.name == project_name)
-    }
-
     pub fn get_logger(&self) -> Arc<TPerfLogger> {
         self.perf_logger.clone()
     }
@@ -432,5 +431,13 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
 
     fn get_js_language_sever(&self) -> Option<&dyn JSLanguageServer<TState = Self>> {
         self.js_resource.as_deref()
+    }
+
+    fn get_full_query_text(
+        &self,
+        query_text: String,
+        project_name: &StringKey,
+    ) -> LSPRuntimeResult<String> {
+        get_query_text(self, query_text, project_name)
     }
 }

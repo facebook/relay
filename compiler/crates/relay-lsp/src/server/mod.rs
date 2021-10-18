@@ -175,19 +175,13 @@ fn handle_request<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: Schem
     request: lsp_server::Request,
 ) -> Result<(), SendError<Message>> {
     debug!("request received {:?}", request);
-    let get_server_response_bound = |req| dispatch_request(req, &lsp_state);
+    let get_server_response_bound = |req| dispatch_request(req, lsp_state.as_ref());
     let get_response = with_request_logging(&lsp_state.perf_logger, get_server_response_bound);
 
     lsp_state.send_message(Message::Response(get_response(request)))
 }
 
-fn dispatch_request<
-    TPerfLogger: PerfLogger + 'static,
-    TSchemaDocumentation: SchemaDocumentation,
->(
-    request: lsp_server::Request,
-    lsp_state: &LSPState<TPerfLogger, TSchemaDocumentation>,
-) -> ServerResponse {
+fn dispatch_request(request: lsp_server::Request, lsp_state: &impl GlobalState) -> ServerResponse {
     let get_response = || -> Result<_, ServerResponse> {
         let request = LSPRequestDispatch::new(request, lsp_state)
             .on_request_sync::<ResolvedTypesAtLocation>(on_get_resolved_types_at_location)?

@@ -126,7 +126,7 @@ where
         connection.sender.clone(),
     ));
 
-    let lsp_state = Arc::new(LSPState::create_state(
+    let lsp_state = Arc::new(LSPState::new(
         Arc::new(config),
         Arc::clone(&perf_logger),
         extra_data_provider,
@@ -134,6 +134,7 @@ where
         js_resource,
         connection.sender.clone(),
     ));
+
     // Watchman Subscription to handle Schema/Programs/Validation
     let lsp_state_clone = Arc::clone(&lsp_state);
     task::spawn(async move {

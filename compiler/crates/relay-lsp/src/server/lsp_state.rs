@@ -114,25 +114,25 @@ pub struct LSPState<
 > {
     pub config: Arc<Config>,
     root_dir: PathBuf,
-    pub extra_data_provider: Box<dyn LSPExtraDataProvider>,
+    extra_data_provider: Box<dyn LSPExtraDataProvider>,
     file_categorizer: FileCategorizer,
-    schemas: Schemas,
+    pub(crate) schemas: Schemas,
     schema_documentation_loader: Option<Box<dyn SchemaDocumentationLoader<TSchemaDocumentation>>>,
-    pub source_programs: SourcePrograms,
+    pub(crate) source_programs: SourcePrograms,
     synced_graphql_documents: DashMap<Url, Vec<GraphQLSource>>,
-    pub perf_logger: Arc<TPerfLogger>,
-    pub diagnostic_reporter: Arc<DiagnosticReporter>,
-    pub notify_sender: Arc<Notify>,
-    pub sender: Sender<Message>,
-    pub project_status: ProjectStatusMap,
-    pub js_resource: Option<Box<dyn JSLanguageServer<TState = Self>>>,
+    pub(crate) perf_logger: Arc<TPerfLogger>,
+    pub(crate) diagnostic_reporter: Arc<DiagnosticReporter>,
+    notify_sender: Arc<Notify>,
+    pub(crate) sender: Sender<Message>,
+    pub(crate) project_status: ProjectStatusMap,
+    js_resource: Option<Box<dyn JSLanguageServer<TState = Self>>>,
 }
 
 impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentation>
     LSPState<TPerfLogger, TSchemaDocumentation>
 {
     /// Private constructor
-    fn new(
+    pub fn new(
         config: Arc<Config>,
         perf_logger: Arc<TPerfLogger>,
         extra_data_provider: Box<dyn LSPExtraDataProvider>,
@@ -142,6 +142,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         js_resource: Option<Box<dyn JSLanguageServer<TState = Self>>>,
         sender: Sender<Message>,
     ) -> Self {
+        debug!("Creating lsp_state...");
         let file_categorizer = FileCategorizer::from_config(&config);
         let root_dir = &config.root_dir.clone();
         let diagnostic_reporter = Arc::new(DiagnosticReporter::new(
@@ -149,7 +150,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             sender.clone(),
         ));
 
-        Self {
+        let lsp_state = Self {
             config,
             diagnostic_reporter,
             extra_data_provider,
@@ -164,31 +165,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             synced_graphql_documents: Default::default(),
             js_resource,
             sender,
-        }
-    }
-
-    /// This method is responsible for creating schema/source_programs for LSP internal state
-    /// - so the LSP can provide these to Hover/Completion/GoToDefinition requests.
-    /// It also creates a watchman subscription that is responsible for keeping these resources up-to-date.
-    pub(crate) fn create_state(
-        config: Arc<Config>,
-        perf_logger: Arc<TPerfLogger>,
-        extra_data_provider: Box<dyn LSPExtraDataProvider>,
-        schema_documentation_loader: Option<
-            Box<dyn SchemaDocumentationLoader<TSchemaDocumentation>>,
-        >,
-        js_resource: Option<Box<dyn JSLanguageServer<TState = Self>>>,
-        sender: Sender<Message>,
-    ) -> Self {
-        debug!("Creating lsp_state...");
-        let lsp_state = Self::new(
-            config,
-            perf_logger,
-            extra_data_provider,
-            schema_documentation_loader,
-            js_resource,
-            sender.clone(),
-        );
+        };
 
         // Preload schema documentation - this will warm-up schema documentation cache in the LSP Extra Data providers
         // TODO: Find a better place for this
@@ -196,10 +173,6 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
 
         debug!("Creating lsp_state created!");
         lsp_state
-    }
-
-    pub fn get_schemas(&self) -> Schemas {
-        self.schemas.clone()
     }
 
     fn insert_synced_sources(&self, url: &Url, sources: Vec<GraphQLSource>) {
@@ -276,10 +249,6 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         for project_config in self.config.enabled_projects() {
             self.get_schema_documentation(&project_config.name.to_string());
         }
-    }
-
-    pub fn get_logger(&self) -> Arc<TPerfLogger> {
-        self.perf_logger.clone()
     }
 
     pub fn send_message(&self, message: Message) -> Result<(), SendError<Message>> {

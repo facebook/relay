@@ -291,7 +291,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         compiler_state: &CompilerState,
         project_config: &ProjectConfig,
     ) -> Result<Arc<SDLSchema>, BuildProjectFailure> {
-        match self.lsp_state.get_schemas().entry(project_config.name) {
+        match self.lsp_state.schemas.entry(project_config.name) {
             Entry::Vacant(e) => {
                 let schema = build_schema(compiler_state, project_config).map_err(|errors| {
                     BuildProjectFailure::Error(BuildProjectError::ValidationErrors { errors })

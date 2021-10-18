@@ -36,7 +36,7 @@ pub(crate) fn get_hover<'a>(
     schema_name: StringKey,
     extra_data_provider: &dyn LSPExtraDataProvider,
     schema_documentation: &impl SchemaDocumentation,
-    source_program: &Program,
+    program: &Program,
 ) -> Option<Hover> {
     let hover_behavior = get_hover_behavior_from_resolution_path(path);
     let hover_content = get_hover_contents(
@@ -45,7 +45,7 @@ pub(crate) fn get_hover<'a>(
         schema_name,
         extra_data_provider,
         schema_documentation,
-        source_program,
+        program,
     );
 
     hover_content.map(|contents| Hover {
@@ -373,7 +373,7 @@ fn get_hover_contents<'a>(
     schema_name: StringKey,
     extra_data_provider: &dyn LSPExtraDataProvider,
     schema_documentation: &impl SchemaDocumentation,
-    source_program: &Program,
+    program: &Program,
 ) -> Option<HoverContents> {
     match hover_behavior {
         HoverBehavior::OperationDefinitionName(operation_definition) => {
@@ -409,7 +409,7 @@ fn get_hover_contents<'a>(
             schema_documentation,
         ),
         HoverBehavior::FragmentSpread(fragment_spread_path) => {
-            on_hover_fragment_spread(fragment_spread_path, schema, schema_name, source_program)
+            on_hover_fragment_spread(fragment_spread_path, schema, schema_name, program)
         }
         HoverBehavior::Directive(directive_path) => on_hover_directive(directive_path, schema),
         HoverBehavior::FragmentDefinition(fragment_definition) => {
@@ -697,7 +697,7 @@ fn on_hover_fragment_spread<'a>(
     fragment_spread_path: &'a FragmentSpreadPath<'a>,
     schema: &SDLSchema,
     schema_name: StringKey,
-    source_program: &Program,
+    program: &Program,
 ) -> Option<HoverContents> {
     // TODO eventually show information about whether the fragment spread is
     // infallible, fallible, interface-on-interface, etc.
@@ -710,7 +710,7 @@ fn on_hover_fragment_spread<'a>(
     } = fragment_spread_path;
     let fragment_name = fragment_spread.name.value;
 
-    let fragment_definition = source_program.fragment(fragment_name)?;
+    let fragment_definition = program.fragment(fragment_name)?;
 
     let fragment_type_name = schema
         .get_type_name(fragment_definition.type_condition)

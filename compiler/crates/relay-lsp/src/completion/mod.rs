@@ -10,7 +10,6 @@ use crate::{
     lsp_runtime_error::LSPRuntimeResult,
     node_resolution_info::{TypePath, TypePathItem},
     server::GlobalState,
-    server::SourcePrograms,
     LSPRuntimeError, SchemaDocumentation,
 };
 use common::{Named, NamedItem, Span};
@@ -513,19 +512,16 @@ fn completion_items_for_request(
     request: CompletionRequest,
     schema: &SDLSchema,
     schema_documentation: impl SchemaDocumentation,
-    source_programs: &SourcePrograms,
+    program: &Program,
 ) -> Option<Vec<CompletionItem>> {
     let kind = request.kind;
-    let project_name = request.project_name;
     debug!("completion_items_for_request: {:?}", kind);
     match kind {
         CompletionKind::FragmentSpread => {
             let leaf_type = request.type_path.resolve_leaf_type(schema)?;
-            let source_program = source_programs.get(&project_name)?;
 
             debug!("has source program");
-            let items =
-                resolve_completion_items_for_fragment_spread(leaf_type, &source_program, schema);
+            let items = resolve_completion_items_for_fragment_spread(leaf_type, program, schema);
             Some(items)
         }
         CompletionKind::FieldName {
@@ -576,8 +572,7 @@ fn completion_items_for_request(
                 ))
             }
             ArgumentKind::ArgumentsDirective(fragment_spread_name) => {
-                let source_program = source_programs.get(&request.project_name)?;
-                let fragment = source_program.fragment(fragment_spread_name)?;
+                let fragment = program.fragment(fragment_spread_name)?;
                 Some(resolve_completion_items_for_argument_name(
                     fragment.variable_definitions.iter(),
                     schema,
@@ -599,33 +594,29 @@ fn completion_items_for_request(
             argument_name,
             kind,
         } => {
-            if let Some(source_program) = source_programs.get(&project_name) {
-                let argument_type = match kind {
-                    ArgumentKind::Field => {
-                        let (_, field) = request.type_path.resolve_current_field(schema)?;
-                        &field.arguments.named(argument_name)?.type_
-                    }
-                    ArgumentKind::ArgumentsDirective(fragment_spread_name) => {
-                        let fragment = source_program.fragment(fragment_spread_name)?;
-                        &fragment.variable_definitions.named(argument_name)?.type_
-                    }
-                    ArgumentKind::Directive(directive_name) => {
-                        &schema
-                            .get_directive(directive_name)?
-                            .arguments
-                            .named(argument_name)?
-                            .type_
-                    }
-                };
-                Some(resolve_completion_items_for_argument_value(
-                    schema,
-                    argument_type,
-                    &source_program,
-                    executable_name,
-                ))
-            } else {
-                None
-            }
+            let argument_type = match kind {
+                ArgumentKind::Field => {
+                    let (_, field) = request.type_path.resolve_current_field(schema)?;
+                    &field.arguments.named(argument_name)?.type_
+                }
+                ArgumentKind::ArgumentsDirective(fragment_spread_name) => {
+                    let fragment = program.fragment(fragment_spread_name)?;
+                    &fragment.variable_definitions.named(argument_name)?.type_
+                }
+                ArgumentKind::Directive(directive_name) => {
+                    &schema
+                        .get_directive(directive_name)?
+                        .arguments
+                        .named(argument_name)?
+                        .type_
+                }
+            };
+            Some(resolve_completion_items_for_argument_value(
+                schema,
+                argument_type,
+                program,
+                executable_name,
+            ))
         }
         CompletionKind::InlineFragmentType {
             existing_inline_fragment,
@@ -747,12 +738,12 @@ fn resolve_completion_items_for_inline_fragment_type(
 fn resolve_completion_items_for_argument_value(
     schema: &SDLSchema,
     type_: &TypeReference,
-    source_program: &Program,
+    program: &Program,
     executable_name: ExecutableName,
 ) -> Vec<CompletionItem> {
     let mut completion_items = match executable_name {
         ExecutableName::Fragment(name) => {
-            if let Some(fragment) = source_program.fragment(name) {
+            if let Some(fragment) = program.fragment(name) {
                 fragment
                     .used_global_variables
                     .iter()
@@ -767,7 +758,7 @@ fn resolve_completion_items_for_argument_value(
             }
         }
         ExecutableName::Operation(name) => {
-            if let Some(operation) = source_program.operation(name) {
+            if let Some(operation) = program.operation(name) {
                 operation
                     .variable_definitions
                     .iter()
@@ -1026,7 +1017,6 @@ pub(crate) fn on_completion(
         Ok((document, position_span)) => {
             let project_name = state
                 .extract_project_name_from_url(&params.text_document_position.text_document.uri)?;
-
             let schema = &state.get_schema(&project_name)?;
             let items = resolve_completion_items(
                 document,
@@ -1034,7 +1024,7 @@ pub(crate) fn on_completion(
                 project_name,
                 schema,
                 state.get_schema_documentation(project_name.lookup()),
-                &state.get_source_programs(),
+                &state.get_program(&project_name)?,
             )
             .unwrap_or_else(Vec::new);
             Ok(Some(CompletionResponse::Array(items)))
@@ -1076,17 +1066,12 @@ fn resolve_completion_items(
     project_name: StringKey,
     schema: &SDLSchema,
     schema_documentation: impl SchemaDocumentation,
-    source_programs: &SourcePrograms,
+    progam: &Program,
 ) -> Option<Vec<CompletionItem>> {
     let completion_request = CompletionRequestBuilder::new(project_name)
         .create_completion_request(document, position_span);
     completion_request.and_then(|completion_request| {
-        completion_items_for_request(
-            completion_request,
-            schema,
-            schema_documentation,
-            source_programs,
-        )
+        completion_items_for_request(completion_request, schema, schema_documentation, progam)
     })
 }
 

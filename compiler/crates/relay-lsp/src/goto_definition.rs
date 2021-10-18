@@ -15,11 +15,11 @@ use crate::{
         SelectionParent, TypeConditionPath,
     },
     server::GlobalState,
-    server::SourcePrograms,
     FieldDefinitionSourceInfo, LSPExtraDataProvider,
 };
 use common::NamedItem;
 
+use graphql_ir::Program;
 use interner::{Intern, StringKey};
 use lsp_types::{
     request::{GotoDefinition, Request},
@@ -36,7 +36,7 @@ use std::{
 fn get_goto_definition_response<'a>(
     node_path: ResolutionPath<'a>,
     project_name: StringKey,
-    source_programs: &SourcePrograms,
+    program: &Program,
     root_dir: &Path,
     extra_data_provider: &dyn LSPExtraDataProvider,
 ) -> LSPRuntimeResult<GotoDefinitionResponse> {
@@ -45,18 +45,12 @@ fn get_goto_definition_response<'a>(
             inner: fragment_name,
             parent: IdentParent::FragmentSpreadName(_),
         }) => {
-            let source_program = source_programs
-                .get(&project_name)
-                .ok_or(LSPRuntimeError::ExpectedError)?;
-
-            let fragment = source_program
-                .fragment(fragment_name.value)
-                .ok_or_else(|| {
-                    LSPRuntimeError::UnexpectedError(format!(
-                        "Could not find fragment with name {}",
-                        fragment_name
-                    ))
-                })?;
+            let fragment = program.fragment(fragment_name.value).ok_or_else(|| {
+                LSPRuntimeError::UnexpectedError(format!(
+                    "Could not find fragment with name {}",
+                    fragment_name
+                ))
+            })?;
 
             Ok(GotoDefinitionResponse::Scalar(
                 to_lsp_location_of_graphql_literal(fragment.name.location, root_dir)?,
@@ -73,7 +67,7 @@ fn get_goto_definition_response<'a>(
             field_name.value.to_string(),
             selection_path.parent,
             project_name,
-            source_programs,
+            program,
             root_dir,
             extra_data_provider,
         ),
@@ -88,7 +82,7 @@ fn get_goto_definition_response<'a>(
             field_name.value.to_string(),
             selection_path.parent,
             project_name,
-            source_programs,
+            program,
             root_dir,
             extra_data_provider,
         ),
@@ -132,30 +126,23 @@ fn resolve_field<'a>(
     field_name: String,
     selection_parent: SelectionParent<'a>,
     project_name: StringKey,
-    source_programs: &SourcePrograms,
+    program: &Program,
     root_dir: &Path,
     extra_data_provider: &dyn LSPExtraDataProvider,
 ) -> LSPRuntimeResult<GotoDefinitionResponse> {
-    let source_program = source_programs.get(&project_name).ok_or_else(|| {
-        LSPRuntimeError::UnexpectedError(format!("Project name {} not found", project_name))
-    })?;
-
     let parent_type = selection_parent
-        .find_parent_type(&source_program.schema)
+        .find_parent_type(&program.schema)
         .ok_or(LSPRuntimeError::ExpectedError)?;
 
     let field_name_key = field_name.intern();
 
-    if let Some(response) = get_relay_resolver_location(
-        &source_program.schema,
-        parent_type,
-        field_name_key,
-        root_dir,
-    )? {
+    if let Some(response) =
+        get_relay_resolver_location(&program.schema, parent_type, field_name_key, root_dir)?
+    {
         return Ok(response);
     }
 
-    let parent_name = source_program.schema.get_type_name(parent_type);
+    let parent_name = program.schema.get_type_name(parent_type);
 
     let provider_response = extra_data_provider.resolve_field_definition(
         project_name.to_string(),
@@ -233,7 +220,7 @@ pub(crate) fn on_goto_definition(
     let goto_definition_response = get_goto_definition_response(
         path,
         project_name,
-        &state.get_source_programs(),
+        &state.get_program(&project_name)?,
         &state.root_dir(),
         &*state.get_extra_data_provider(),
     )?;
@@ -290,11 +277,9 @@ pub(crate) fn on_get_source_location_of_type_definition(
 
 #[cfg(test)]
 mod test {
-    use std::{path::PathBuf, sync::Arc};
+    use std::path::PathBuf;
 
     use common::{SourceLocationKey, Span};
-    use dashmap::DashMap;
-    use fnv::FnvBuildHasher;
     use graphql_ir::Program;
     use graphql_syntax::{parse_executable_with_features, ParserFeatures};
     use interner::Intern;
@@ -302,8 +287,7 @@ mod test {
     use relay_test_schema::get_test_schema_with_extensions;
 
     use crate::{
-        resolution_path::ResolvePosition, server::SourcePrograms, FieldDefinitionSourceInfo,
-        LSPExtraDataProvider,
+        resolution_path::ResolvePosition, FieldDefinitionSourceInfo, LSPExtraDataProvider,
     };
 
     use super::get_goto_definition_response;
@@ -355,7 +339,6 @@ mod test {
         let resolved = document.resolve((), position_span);
 
         let project_name = "test".intern();
-        let program_map = DashMap::with_hasher(FnvBuildHasher::default());
         let program = Program::new(get_test_schema_with_extensions(
             r#"
         extend type User {
@@ -363,15 +346,13 @@ mod test {
           }
         "#,
         ));
-        program_map.insert(project_name, program);
-        let programs: SourcePrograms = Arc::new(program_map);
         let root_dir = PathBuf::from("/config/root/");
         let extra_data_provider = DummyExtraDataProvider {};
 
         let goto_definition_response = get_goto_definition_response(
             resolved,
             project_name,
-            &programs,
+            &program,
             &root_dir,
             &extra_data_provider,
         );

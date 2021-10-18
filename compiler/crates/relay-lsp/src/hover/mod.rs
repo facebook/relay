@@ -83,10 +83,7 @@ pub(crate) fn on_hover(
         project_name,
         &*state.get_extra_data_provider(),
         &schema_documentation,
-        &*state
-            .get_source_programs()
-            .get(&project_name)
-            .ok_or(LSPRuntimeError::ExpectedError)?,
+        &state.get_program(&project_name)?,
     )
     .map(Option::Some)
     .ok_or(LSPRuntimeError::ExpectedError)

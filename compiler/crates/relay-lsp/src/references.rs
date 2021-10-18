@@ -12,7 +12,7 @@ use crate::{
     lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult},
     node_resolution_info::NodeKind,
     node_resolution_info::NodeResolutionInfo,
-    server::{GlobalState, SourcePrograms},
+    server::GlobalState,
     utils::span_to_range_offset,
 };
 use common::Location;
@@ -26,18 +26,13 @@ use std::path::PathBuf;
 
 fn get_references_response(
     node_resolution_info: NodeResolutionInfo,
-    source_programs: &SourcePrograms,
+    program: &Program,
     root_dir: &PathBuf,
 ) -> LSPRuntimeResult<Vec<lsp_types::Location>> {
     match node_resolution_info.kind {
         NodeKind::FragmentDefinition(fragment) => {
-            let project_name = node_resolution_info.project_name;
-            let source_program = source_programs
-                .get(&project_name)
-                .ok_or(LSPRuntimeError::ExpectedError)?;
-
             let references =
-                ReferenceFinder::get_references_to_fragment(&source_program, fragment.name.value)
+                ReferenceFinder::get_references_to_fragment(program, fragment.name.value)
                     .into_iter()
                     .map(|location| {
                         transform_reference_locations_to_lsp_locations(root_dir, location)
@@ -104,7 +99,10 @@ pub(crate) fn on_references(
     let node_resolution_info = state.resolve_node(&params.text_document_position)?;
     let references_response = get_references_response(
         node_resolution_info,
-        &state.get_source_programs(),
+        &state
+            .get_program(&state.extract_project_name_from_url(
+                &params.text_document_position.text_document.uri,
+            )?)?,
         &state.root_dir(),
     )?;
     Ok(Some(references_response))

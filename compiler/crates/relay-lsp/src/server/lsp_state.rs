@@ -56,19 +56,26 @@ pub trait GlobalState {
     type TSchemaDocumentation: SchemaDocumentation;
 
     fn get_config(&self) -> Arc<Config>;
+
     fn get_schema(&self, project_name: &StringKey) -> LSPRuntimeResult<Arc<SDLSchema>>;
+
+    fn get_program(&self, project_name: &StringKey) -> LSPRuntimeResult<Program>;
+
     fn resolve_node(
         &self,
         text_document_position: &TextDocumentPositionParams,
     ) -> LSPRuntimeResult<NodeResolutionInfo>;
+
     fn root_dir(&self) -> PathBuf;
-    fn get_source_programs(&self) -> SourcePrograms;
+
     fn process_synced_sources(
         &self,
         uri: &Url,
         sources: Vec<GraphQLSource>,
     ) -> LSPRuntimeResult<()>;
+
     fn remove_synced_sources(&self, url: &Url);
+
     fn extract_executable_document_from_text(
         &self,
         position: &TextDocumentPositionParams,
@@ -333,6 +340,18 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             })
     }
 
+    fn get_program(&self, project_name: &StringKey) -> LSPRuntimeResult<Program> {
+        self.source_programs
+            .get(project_name)
+            .map(|p| p.value().clone())
+            .ok_or_else(|| {
+                LSPRuntimeError::UnexpectedError(format!(
+                    "get_program: program is missing (or not ready, yet) for the `{}` project.",
+                    project_name
+                ))
+            })
+    }
+
     fn resolve_node(
         &self,
         text_document_position: &TextDocumentPositionParams,
@@ -367,10 +386,6 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         self.synced_graphql_documents.remove(url);
         self.diagnostic_reporter
             .clear_quick_diagnostics_for_url(url);
-    }
-
-    fn get_source_programs(&self) -> SourcePrograms {
-        self.source_programs.clone()
     }
 
     fn extract_executable_document_from_text(

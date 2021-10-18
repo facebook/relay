@@ -7,13 +7,9 @@
 
 use std::{collections::HashMap, collections::HashSet, sync::Arc};
 
-use crate::server::SourcePrograms;
-
 use super::make_markdown_table_documentation;
 use super::resolve_completion_items;
 use common::{SourceLocationKey, Span};
-use dashmap::DashMap;
-use fnv::FnvBuildHasher;
 use graphql_ir::{build, Program};
 use graphql_syntax::{parse_executable, parse_executable_with_error_recovery};
 use interner::Intern;
@@ -22,7 +18,7 @@ use relay_test_schema::get_test_schema;
 
 fn parse_and_resolve_completion_items(
     source: &str,
-    source_programs: Option<SourcePrograms>,
+    program: Option<Program>,
 ) -> Option<Vec<CompletionItem>> {
     let pos = source.find('|').unwrap() - 1;
     let next_source = source.replace("|", "");
@@ -36,25 +32,22 @@ fn parse_and_resolve_completion_items(
         start: pos as u32,
         end: pos as u32,
     };
+    let test_schema = get_test_schema();
 
     resolve_completion_items(
         document,
         position_span,
         "test_project".intern(),
-        &get_test_schema(),
-        get_test_schema(),
-        &source_programs
-            .unwrap_or_else(|| Arc::new(DashMap::with_hasher(FnvBuildHasher::default()))),
+        &Arc::clone(&test_schema),
+        Arc::clone(&test_schema),
+        &program.unwrap_or_else(|| Program::new(Arc::clone(&test_schema))),
     )
 }
 
-fn build_source_programs(source: &str) -> SourcePrograms {
+fn build_test_program(source: &str) -> Program {
     let document = parse_executable(source, SourceLocationKey::Generated).unwrap();
     let ir = build(&get_test_schema(), &document.definitions).unwrap();
-    let program = Program::from_definitions(get_test_schema(), ir);
-    let source_programs_map = DashMap::with_hasher(FnvBuildHasher::default());
-    source_programs_map.insert("test_project".intern(), program);
-    Arc::new(source_programs_map)
+    Program::from_definitions(get_test_schema(), ir)
 }
 
 fn assert_labels(items: Vec<CompletionItem>, labels: Vec<&str>) {
@@ -305,7 +298,7 @@ fn fragment_spread_on_the_same_type() {
                ...T|
             }
         "#,
-        Some(build_source_programs(
+        Some(build_test_program(
             r#"
         fragment TestFragment on Viewer {
            __typename
@@ -328,7 +321,7 @@ fn fragment_spread_on_interface() {
                ...T|
             }
         "#,
-        Some(build_source_programs(
+        Some(build_test_program(
             r#"
         fragment TestFragment on Page {
            __typename
@@ -353,7 +346,7 @@ fn argument_value() {
                 }
             }
         "#,
-        Some(build_source_programs(
+        Some(build_test_program(
             r#"
             fragment Test on User
                 @argumentDefinitions(
@@ -380,7 +373,7 @@ fn argument_value_between_names() {
                 }
             }
         "#,
-        Some(build_source_programs(
+        Some(build_test_program(
             r#"
             fragment Test on User
                 @argumentDefinitions(

@@ -30,8 +30,8 @@ pub(crate) fn on_did_open_text_document(
         return Ok(());
     }
 
-    if lsp_state.can_process_js_source() {
-        lsp_state.process_js_source(&uri, &text);
+    if let Some(js_server) = lsp_state.get_js_language_sever() {
+        js_server.process_js_source(&uri, &text);
     }
 
     // First we check to see if this document has any GraphQL documents.
@@ -56,8 +56,8 @@ pub(crate) fn on_did_close_text_document(
         return Ok(());
     }
 
-    if lsp_state.can_process_js_source() {
-        lsp_state.remove_js_source(&uri);
+    if let Some(js_server) = lsp_state.get_js_language_sever() {
+        js_server.remove_js_source(&uri);
     }
     lsp_state.remove_synced_sources(&uri);
     Ok(())
@@ -83,8 +83,9 @@ pub(crate) fn on_did_change_text_document(
     let content_change = content_changes
         .first()
         .expect("content_changes should always be non-empty");
-    if lsp_state.can_process_js_source() {
-        lsp_state.process_js_source(&uri, &content_change.text);
+
+    if let Some(js_server) = lsp_state.get_js_language_sever() {
+        js_server.process_js_source(&uri, &content_change.text);
     }
 
 

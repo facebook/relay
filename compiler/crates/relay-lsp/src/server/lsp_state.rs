@@ -29,10 +29,7 @@ use graphql_syntax::{
 use interner::{Intern, StringKey};
 use log::debug;
 use lsp_server::Message;
-use lsp_types::{
-    request::{CodeActionRequest, Completion, Request},
-    Diagnostic, DiagnosticTag, Range, TextDocumentPositionParams, Url,
-};
+use lsp_types::{Diagnostic, DiagnosticTag, Range, TextDocumentPositionParams, Url};
 use relay_compiler::{
     config::{Config, ProjectConfig},
     FileCategorizer,
@@ -72,17 +69,6 @@ pub trait GlobalState {
         sources: Vec<GraphQLSource>,
     ) -> LSPRuntimeResult<()>;
     fn remove_synced_sources(&self, url: &Url);
-    fn can_process_js_source(&self) -> bool;
-    fn process_js_source(&self, uri: &Url, text: &str);
-    fn remove_js_source(&self, uri: &Url);
-    fn js_on_complete(
-        &self,
-        params: &<Completion as Request>::Params,
-    ) -> LSPRuntimeResult<<Completion as Request>::Result>;
-    fn js_on_code_action(
-        &self,
-        params: &<CodeActionRequest as Request>::Params,
-    ) -> LSPRuntimeResult<<CodeActionRequest as Request>::Result>;
     fn extract_executable_document_from_text(
         &self,
         position: &TextDocumentPositionParams,
@@ -105,6 +91,9 @@ pub trait GlobalState {
     /// Schema. project_name typically the same as the schema name: facebook, intern, etc.
     /// For Native - it may be a BuildConfigName.
     fn extract_project_name_from_url(&self, url: &Url) -> LSPRuntimeResult<StringKey>;
+
+    // Experimental (Relay-only) JS Language Server instance
+    fn get_js_language_sever(&self) -> Option<&dyn JSLanguageServer<TState = Self>>;
 }
 
 /// This structure contains all available resources that we may use in the Relay LSP message/notification
@@ -126,7 +115,7 @@ pub struct LSPState<
     pub notify_sender: Arc<Notify>,
     pub sender: Sender<Message>,
     pub project_status: ProjectStatusMap,
-    pub js_resource: Box<dyn JSLanguageServer<TPerfLogger, TSchemaDocumentation>>,
+    pub js_resource: Option<Box<dyn JSLanguageServer<TState = Self>>>,
 }
 
 impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentation>
@@ -140,7 +129,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         schema_documentation_loader: Option<
             Box<dyn SchemaDocumentationLoader<TSchemaDocumentation>>,
         >,
-        js_resource: Box<dyn JSLanguageServer<TPerfLogger, TSchemaDocumentation>>,
+        js_resource: Option<Box<dyn JSLanguageServer<TState = Self>>>,
         sender: Sender<Message>,
     ) -> Self {
         let file_categorizer = FileCategorizer::from_config(&config);
@@ -178,7 +167,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         schema_documentation_loader: Option<
             Box<dyn SchemaDocumentationLoader<TSchemaDocumentation>>,
         >,
-        js_resource: Box<dyn JSLanguageServer<TPerfLogger, TSchemaDocumentation>>,
+        js_resource: Option<Box<dyn JSLanguageServer<TState = Self>>>,
         sender: Sender<Message>,
     ) -> Self {
         debug!("Creating lsp_state...");
@@ -375,18 +364,6 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         self.source_programs.clone()
     }
 
-    fn can_process_js_source(&self) -> bool {
-        true
-    }
-
-    fn process_js_source(&self, uri: &Url, text: &str) {
-        self.js_resource.process_js_source(uri, text)
-    }
-
-    fn remove_js_source(&self, uri: &Url) {
-        self.js_resource.remove_js_source(uri)
-    }
-
     fn extract_executable_document_from_text(
         &self,
         position: &TextDocumentPositionParams,
@@ -420,20 +397,6 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         self.extra_data_provider.as_ref()
     }
 
-    fn js_on_complete(
-        &self,
-        params: &<Completion as Request>::Params,
-    ) -> LSPRuntimeResult<<Completion as Request>::Result> {
-        self.js_resource.on_complete(params, self)
-    }
-
-    fn js_on_code_action(
-        &self,
-        params: &<CodeActionRequest as Request>::Params,
-    ) -> LSPRuntimeResult<<CodeActionRequest as Request>::Result> {
-        self.js_resource.on_code_action(params, self)
-    }
-
     fn resolve_executable_definitions(
         &self,
         text_document_uri: &Url,
@@ -447,5 +410,9 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
     fn get_diagnostic_for_range(&self, url: &Url, range: Range) -> Option<Diagnostic> {
         self.diagnostic_reporter
             .get_diagnostics_for_range(url, range)
+    }
+
+    fn get_js_language_sever(&self) -> Option<&dyn JSLanguageServer<TState = Self>> {
+        self.js_resource.as_deref()
     }
 }

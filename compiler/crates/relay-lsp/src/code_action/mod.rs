@@ -39,8 +39,9 @@ pub(crate) fn on_code_action(
     {
         return Err(LSPRuntimeError::ExpectedError);
     }
-    if state.can_process_js_source() {
-        if let Ok(result) = state.js_on_code_action(&params) {
+
+    if let Some(js_server) = state.get_js_language_sever() {
+        if let Ok(result) = js_server.on_code_action(&params, state) {
             return Ok(result);
         }
     }

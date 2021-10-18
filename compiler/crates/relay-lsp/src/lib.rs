@@ -33,7 +33,6 @@ mod text_documents;
 mod utils;
 use common::PerfLogger;
 pub use js_language_server::JSLanguageServer;
-use js_language_server::NoopJSLanguageServer;
 use log::debug;
 pub use lsp_extra_data_provider::{FieldDefinitionSourceInfo, LSPExtraDataProvider};
 use lsp_process_error::LSPProcessResult;
@@ -58,7 +57,9 @@ pub async fn start_language_server<
     perf_logger: Arc<TPerfLogger>,
     extra_data_provider: Box<dyn LSPExtraDataProvider + Send + Sync>,
     schema_documentation_loader: Option<Box<dyn SchemaDocumentationLoader<TSchemaDocumentation>>>,
-    js_language_server: Option<Box<dyn JSLanguageServer<TPerfLogger, TSchemaDocumentation>>>,
+    js_language_server: Option<
+        Box<dyn JSLanguageServer<TState = LSPState<TPerfLogger, TSchemaDocumentation>>>,
+    >,
 ) -> LSPProcessResult<()>
 where
     TPerfLogger: PerfLogger + 'static,
@@ -74,7 +75,7 @@ where
         perf_logger,
         extra_data_provider,
         schema_documentation_loader,
-        js_language_server.unwrap_or_else(|| Box::new(NoopJSLanguageServer::default())),
+        js_language_server,
     )
     .await?;
     io_handles.join()?;

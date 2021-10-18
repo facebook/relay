@@ -8,12 +8,15 @@
 use crate::config::{Config, ProjectConfig};
 use common::{NamedItem, SourceLocationKey};
 use graphql_ir::{Directive, FragmentDefinition, OperationDefinition};
+use graphql_syntax::OperationKind;
 use relay_codegen::{build_request_params, Printer, QueryID};
 use relay_transforms::{
-    is_operation_preloadable, ReactFlightLocalComponentsMetadata, RelayClientComponentMetadata,
-    DATA_DRIVEN_DEPENDENCY_METADATA_KEY, INLINE_DIRECTIVE_NAME,
+    is_operation_preloadable, ReactFlightLocalComponentsMetadata, RefetchableMetadata,
+    RelayClientComponentMetadata, DATA_DRIVEN_DEPENDENCY_METADATA_KEY, INLINE_DIRECTIVE_NAME,
 };
-use relay_typegen::{generate_fragment_type, TypegenLanguage};
+use relay_typegen::{
+    generate_fragment_type, has_raw_response_type_directive, FlowTypegenRollout, TypegenLanguage,
+};
 use schema::SDLSchema;
 use signedsource::{sign_file, SIGNING_TOKEN};
 use std::fmt::{Result, Write};
@@ -236,13 +239,29 @@ fn generate_operation(
         writeln!(content, "/*::").unwrap();
     }
 
-    write_import_type_from(
-        &project_config.typegen_config.language,
-        &mut content,
-        "ConcreteRequest",
-        "relay-runtime",
-    )
-    .unwrap();
+    let operation_flow_type = match normalization_operation.kind {
+        OperationKind::Query => "Query",
+        OperationKind::Mutation => "Mutation",
+        OperationKind::Subscription => "Subscription",
+    };
+
+    match project_config.typegen_config.flow_typegen_rollout {
+        FlowTypegenRollout::Old => write_import_type_from(
+            &project_config.typegen_config.language,
+            &mut content,
+            "ConcreteRequest",
+            "relay-runtime",
+        )
+        .unwrap(),
+        FlowTypegenRollout::New => write_import_type_from(
+            &project_config.typegen_config.language,
+            &mut content,
+            &format!("ConcreteRequest, {}", operation_flow_type),
+            "relay-runtime",
+        )
+        .unwrap(),
+    }
+
 
     if !skip_types {
         write!(
@@ -297,10 +316,30 @@ fn generate_operation(
         .unwrap();
     }
 
+    let node_type = match project_config.typegen_config.flow_typegen_rollout {
+        FlowTypegenRollout::Old => None,
+        FlowTypegenRollout::New => Some(
+            if has_raw_response_type_directive(normalization_operation) {
+                format!(
+                    "{type}<\n  {name}Variables,\n  {name}Response,\n  {name}RawResponse,\n>",
+                    type = operation_flow_type,
+                    name = normalization_operation.name.item
+                )
+            } else {
+                format!(
+                    "{type}<\n  {name}Variables,\n  {name}Response,\n>",
+                    type = operation_flow_type,
+                    name = normalization_operation.name.item
+                )
+            },
+        ),
+    };
+
     write_export_generated_node(
         &project_config.typegen_config.language,
         &mut content,
         "node",
+        node_type,
     )
     .unwrap();
 
@@ -384,6 +423,7 @@ fn generate_split_operation(
         &project_config.typegen_config.language,
         &mut content,
         "node",
+        None,
     )
     .unwrap();
 
@@ -438,15 +478,57 @@ fn generate_fragment(
             .unwrap();
     }
 
-    let reader_node_flow_type = if reader_fragment
+    let is_inline_data_fragment = reader_fragment
         .directives
         .named(*INLINE_DIRECTIVE_NAME)
-        .is_some()
+        .is_some();
+
+    let (imported_types, reader_node_flow_type, node_type) = match project_config
+        .typegen_config
+        .flow_typegen_rollout
     {
-        "ReaderInlineDataFragment"
-    } else {
-        "ReaderFragment"
+        FlowTypegenRollout::Old => {
+            if is_inline_data_fragment {
+                ("ReaderInlineDataFragment", "ReaderInlineDataFragment", None)
+            } else {
+                ("ReaderFragment", "ReaderFragment", None)
+            }
+        }
+        FlowTypegenRollout::New => {
+            if is_inline_data_fragment {
+                (
+                    "InlineFragment, ReaderInlineDataFragment",
+                    "ReaderInlineDataFragment",
+                    Some(format!(
+                        "InlineFragment<\n  {name}$type,\n  {name}$data,\n>",
+                        name = typegen_fragment.name.item
+                    )),
+                )
+            } else if let Some(refetchable_metadata) =
+                RefetchableMetadata::find(&typegen_fragment.directives)
+            {
+                (
+                    "ReaderFragment, RefetchableFragment",
+                    "ReaderFragment",
+                    Some(format!(
+                        "RefetchableFragment<\n  {name}$type,\n  {name}$data,\n  {refetchable_name}Variables,\n>",
+                        name = typegen_fragment.name.item,
+                        refetchable_name = refetchable_metadata.operation_name
+                    )),
+                )
+            } else {
+                (
+                    "Fragment, ReaderFragment",
+                    "ReaderFragment",
+                    Some(format!(
+                        "Fragment<\n  {name}$type,\n  {name}$data,\n>",
+                        name = typegen_fragment.name.item
+                    )),
+                )
+            }
+        }
     };
+
     if project_config.typegen_config.language == TypegenLanguage::Flow {
         writeln!(content, "/*::").unwrap();
     }
@@ -454,10 +536,11 @@ fn generate_fragment(
     write_import_type_from(
         &project_config.typegen_config.language,
         &mut content,
-        reader_node_flow_type,
+        imported_types,
         "relay-runtime",
     )
     .unwrap();
+
     if !skip_types {
         write!(
             content,
@@ -493,10 +576,12 @@ fn generate_fragment(
     )
     .unwrap();
 
+
     write_export_generated_node(
         &project_config.typegen_config.language,
         &mut content,
         "node",
+        node_type,
     )
     .unwrap();
 
@@ -551,10 +636,16 @@ fn write_export_generated_node(
     language: &TypegenLanguage,
     content: &mut String,
     variable_node: &str,
+    forced_type: Option<String>,
 ) -> Result {
-    match language {
-        TypegenLanguage::Flow => writeln!(content, "module.exports = {};", variable_node),
-        TypegenLanguage::TypeScript => writeln!(content, "export default {};", variable_node),
+    match (language, forced_type) {
+        (TypegenLanguage::Flow, None) => writeln!(content, "module.exports = {};", variable_node),
+        (TypegenLanguage::Flow, Some(forced_type)) => writeln!(
+            content,
+            "module.exports = (({}/*: any*/)/*: {}*/);",
+            variable_node, forced_type
+        ),
+        (TypegenLanguage::TypeScript, _) => writeln!(content, "export default {};", variable_node),
     }
 }
 

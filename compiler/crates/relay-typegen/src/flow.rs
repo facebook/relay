@@ -5,19 +5,18 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::writer::{Prop, Writer, AST, SPREAD_KEY};
-use interner::{Intern, StringKey};
+use crate::{
+    writer::{Prop, Writer, AST, SPREAD_KEY},
+    FlowTypegenRollout, KEY_FRAGMENT_REFS, KEY_REF_TYPE,
+};
+use interner::{intern, StringKey};
 use itertools::Itertools;
-use lazy_static::lazy_static;
 use std::fmt::{Result, Write};
 
 pub struct FlowPrinter {
     result: String,
     indentation: usize,
-}
-
-lazy_static! {
-    static ref FRAGMENT_REFERENCE: StringKey = "FragmentReference".intern();
+    flow_typegen_rollout: FlowTypegenRollout,
 }
 
 impl Writer for FlowPrinter {
@@ -43,16 +42,15 @@ impl Writer for FlowPrinter {
             AST::Local3DPayload(document_name, selections) => {
                 self.write_local_3d_payload(*document_name, selections)
             }
-            AST::FragmentReference(fragments) => self.write_intersection(
-                fragments
-                    .iter()
-                    .map(|fragment| AST::FragmentReferenceType(*fragment))
-                    .collect::<Vec<_>>()
-                    .as_slice(),
-            ),
-            AST::FragmentReferenceType(fragment) => {
-                write!(&mut self.result, "{}$ref", fragment)
-            }
+            AST::FragmentReference(fragments) => self.write_fragment_references(fragments),
+            AST::FragmentReferenceType(fragment) => match self.flow_typegen_rollout {
+                FlowTypegenRollout::Old => {
+                    write!(&mut self.result, "{}$ref", fragment)
+                }
+                FlowTypegenRollout::New => {
+                    write!(&mut self.result, "{}$type", fragment)
+                }
+            },
             AST::FunctionReturnType(function_name) => {
                 self.write_function_return_type(*function_name)
             }
@@ -61,7 +59,12 @@ impl Writer for FlowPrinter {
     }
 
     fn get_runtime_fragment_import(&self) -> StringKey {
-        *FRAGMENT_REFERENCE
+        match self.flow_typegen_rollout {
+            FlowTypegenRollout::Old => intern!("FragmentReference"),
+            FlowTypegenRollout::New => {
+                intern!("FragmentType")
+            }
+        }
     }
 
     fn write_export_type(&mut self, name: StringKey, value: &AST) -> Result {
@@ -87,25 +90,37 @@ impl Writer for FlowPrinter {
         self.write_import_type(types, from)
     }
 
-    fn write_export_fragment_type(&mut self, old_name: StringKey, new_name: StringKey) -> Result {
-        writeln!(
-            &mut self.result,
-            "declare export opaque type {old_name}: FragmentReference;
-declare export opaque type {new_name}: {old_name};",
-            old_name = old_name,
-            new_name = new_name
-        )
+    fn write_export_fragment_type(
+        &mut self,
+        old_name: StringKey,
+        other_old_name: StringKey,
+        new_name: StringKey,
+    ) -> Result {
+        match self.flow_typegen_rollout {
+            FlowTypegenRollout::Old => writeln!(
+                &mut self.result,
+                "declare export opaque type {old_name}: FragmentReference;
+declare export opaque type {other_old_name}: {old_name};",
+                old_name = old_name,
+                other_old_name = other_old_name
+            ),
+            FlowTypegenRollout::New => writeln!(
+                &mut self.result,
+                "declare export opaque type {new_name}: FragmentType;",
+                new_name = new_name
+            ),
+        }
     }
 
     fn write_export_fragment_types(
         &mut self,
-        old_fragment_type_name: StringKey,
-        new_fragment_type_name: StringKey,
+        fragment_type_name_1: StringKey,
+        fragment_type_name_2: StringKey,
     ) -> Result {
         writeln!(
             &mut self.result,
             "export type {{ {}, {} }};",
-            old_fragment_type_name, new_fragment_type_name
+            fragment_type_name_1, fragment_type_name_2
         )
     }
 
@@ -115,10 +130,11 @@ declare export opaque type {new_name}: {old_name};",
 }
 
 impl FlowPrinter {
-    pub fn new() -> Self {
+    pub fn new(rollout_phase: FlowTypegenRollout) -> Self {
         Self {
             result: String::new(),
             indentation: 0,
+            flow_typegen_rollout: rollout_phase,
         }
     }
 
@@ -147,15 +163,22 @@ impl FlowPrinter {
         Ok(())
     }
 
-    fn write_intersection(&mut self, members: &[AST]) -> Result {
+    fn write_fragment_references(&mut self, fragments: &[StringKey]) -> Result {
         let mut first = true;
-        for member in members {
+        for fragment in fragments {
             if first {
                 first = false;
             } else {
                 write!(&mut self.result, " & ")?;
             }
-            self.write(member)?;
+            match self.flow_typegen_rollout {
+                FlowTypegenRollout::Old => {
+                    write!(&mut self.result, "{}$ref", fragment)?;
+                }
+                FlowTypegenRollout::New => {
+                    write!(&mut self.result, "{}$type", fragment)?;
+                }
+            }
         }
         Ok(())
     }
@@ -217,7 +240,29 @@ impl FlowPrinter {
             if prop.read_only {
                 write!(&mut self.result, "+")?;
             }
-            write!(&mut self.result, "{}", prop.key)?;
+            match self.flow_typegen_rollout {
+                FlowTypegenRollout::Old => {
+                    write!(&mut self.result, "{}", prop.key)?;
+                }
+                FlowTypegenRollout::New => {
+                    write!(
+                        &mut self.result,
+                        "{}",
+                        match self.flow_typegen_rollout {
+                            FlowTypegenRollout::Old => prop.key,
+                            FlowTypegenRollout::New => {
+                                if prop.key == *KEY_FRAGMENT_REFS {
+                                    intern!("$spreads")
+                                } else if prop.key == *KEY_REF_TYPE {
+                                    intern!("$type")
+                                } else {
+                                    prop.key
+                                }
+                            }
+                        }
+                    )?;
+                }
+            }
             if prop.optional {
                 write!(&mut self.result, "?")?;
             }
@@ -268,7 +313,7 @@ mod tests {
     use interner::Intern;
 
     fn print_type(ast: &AST) -> String {
-        let mut printer = Box::new(FlowPrinter::new());
+        let mut printer = Box::new(FlowPrinter::new(FlowTypegenRollout::New));
         printer.write(ast).unwrap();
         printer.into_string()
     }
@@ -463,7 +508,7 @@ mod tests {
 
     #[test]
     fn import_type() {
-        let mut printer = Box::new(FlowPrinter::new());
+        let mut printer = Box::new(FlowPrinter::new(FlowTypegenRollout::New));
         printer
             .write_import_type(&["A".intern(), "B".intern()], "module".intern())
             .unwrap();
@@ -475,7 +520,7 @@ mod tests {
 
     #[test]
     fn import_module() {
-        let mut printer = Box::new(FlowPrinter::new());
+        let mut printer = Box::new(FlowPrinter::new(FlowTypegenRollout::New));
         printer
             .write_import_module_default("A".intern(), "module".intern())
             .unwrap();
@@ -485,7 +530,7 @@ mod tests {
     #[test]
     fn function_return_type() {
         assert_eq!(
-            print_type(&AST::FunctionReturnType("someFunc".intern(),)),
+            print_type(&AST::FunctionReturnType("someFunc".intern())),
             "$Call<<R>((...empty[]) => R) => R, typeof someFunc>".to_string()
         );
     }

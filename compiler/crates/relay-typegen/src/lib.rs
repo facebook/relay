@@ -35,6 +35,7 @@ use relay_transforms::{
     CLIENT_EXTENSION_DIRECTIVE_NAME, RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN,
 };
 use schema::{EnumID, SDLSchema, ScalarID, Schema, Type, TypeReference};
+use serde::{Deserialize, Serialize};
 use std::hash::Hash;
 use std::{fmt::Result, path::Path};
 use writer::{Prop, AST, SPREAD_KEY};
@@ -146,7 +147,12 @@ impl<'a> TypeGenerator<'a> {
             typegen_config,
             match_fields: Default::default(),
             runtime_imports: RuntimeImports::default(),
-            writer: Self::create_writer(typegen_config),
+            writer: match &typegen_config.language {
+                TypegenLanguage::Flow => {
+                    Box::new(FlowPrinter::new(typegen_config.flow_typegen_rollout))
+                }
+                TypegenLanguage::TypeScript => Box::new(TypeScriptPrinter::new(typegen_config)),
+            },
             has_actor_change: false,
         }
     }
@@ -155,12 +161,6 @@ impl<'a> TypeGenerator<'a> {
         self.writer.into_string()
     }
 
-    fn create_writer(typegen_config: &TypegenConfig) -> Box<dyn Writer> {
-        match &typegen_config.language {
-            TypegenLanguage::Flow => Box::new(FlowPrinter::new()),
-            TypegenLanguage::TypeScript => Box::new(TypeScriptPrinter::new(typegen_config)),
-        }
-    }
 
     fn generate_operation_type(
         &mut self,
@@ -207,10 +207,17 @@ impl<'a> TypeGenerator<'a> {
 
         self.write_import_actor_change_point()?;
         self.write_runtime_imports()?;
-        if let Some(refetchable_derived_from) = refetchable_fragment_name {
-            self.write_fragment_refs_for_refetchable(refetchable_derived_from.0)?;
-        } else {
-            self.write_fragment_imports()?;
+        match self.typegen_config.flow_typegen_rollout {
+            FlowTypegenRollout::Old => {
+                if let Some(refetchable_derived_from) = refetchable_fragment_name {
+                    self.write_fragment_refs_for_refetchable(refetchable_derived_from.0)?;
+                } else {
+                    self.write_fragment_imports()?;
+                }
+            }
+            FlowTypegenRollout::New => {
+                self.write_fragment_imports()?;
+            }
         }
         self.write_relay_resolver_imports()?;
         self.write_split_raw_response_type_imports()?;
@@ -307,17 +314,18 @@ impl<'a> TypeGenerator<'a> {
             read_only: true,
             value: AST::Identifier(data_type_name),
         };
-        let old_fragment_type_name = node.name.item;
-        let new_fragment_type_name = format!("{}$fragmentType", node.name.item).intern();
+        let fragment_name = node.name.item;
         let ref_type_fragment_ref_property = Prop {
             key: *KEY_FRAGMENT_REFS,
             optional: false,
             read_only: true,
-            value: AST::FragmentReference(vec![old_fragment_type_name]),
+            value: AST::FragmentReference(vec![fragment_name]),
         };
         let is_plural_fragment = is_plural(node);
-        let mut ref_type =
-            AST::InexactObject(vec![ref_type_data_property, ref_type_fragment_ref_property]);
+        let mut ref_type = AST::InexactObject(match self.typegen_config.flow_typegen_rollout {
+            FlowTypegenRollout::Old => vec![ref_type_data_property, ref_type_fragment_ref_property],
+            FlowTypegenRollout::New => vec![ref_type_fragment_ref_property],
+        });
         if is_plural_fragment {
             ref_type = AST::ReadOnlyArray(Box::new(ref_type));
         }
@@ -327,11 +335,7 @@ impl<'a> TypeGenerator<'a> {
         let base_type = self.selections_to_babel(
             selections.into_iter(),
             unmasked,
-            if unmasked {
-                None
-            } else {
-                Some(old_fragment_type_name)
-            },
+            if unmasked { None } else { Some(fragment_name) },
         );
         let type_ = if is_plural_fragment {
             AST::ReadOnlyArray(base_type.into())
@@ -352,30 +356,53 @@ impl<'a> TypeGenerator<'a> {
         self.write_relay_resolver_imports()?;
 
         let refetchable_metadata = RefetchableMetadata::find(&node.directives);
-        let old_fragment_type_name = format!("{}$ref", old_fragment_type_name).intern();
-        if let Some(refetchable_metadata) = refetchable_metadata {
-            match self.js_module_format {
-                JsModuleFormat::CommonJS => {
-                    // TODO(T22653277) support non-haste environments when
-                    // importing fragments
-                    self.writer
-                        .write_any_type_definition(old_fragment_type_name)?;
-                    self.writer
-                        .write_any_type_definition(new_fragment_type_name)?;
+        let other_old_fragment_type_name = format!("{}$fragmentType", fragment_name).intern();
+        let old_fragment_type_name = format!("{}$ref", fragment_name).intern();
+        let new_fragment_type_name = format!("{}$type", node.name.item).intern();
+        match self.typegen_config.flow_typegen_rollout {
+            FlowTypegenRollout::Old => {
+                if let Some(refetchable_metadata) = refetchable_metadata {
+                    match self.js_module_format {
+                        JsModuleFormat::CommonJS => {
+                            self.writer
+                                .write_any_type_definition(old_fragment_type_name)?;
+                            self.writer
+                                .write_any_type_definition(other_old_fragment_type_name)?;
+                        }
+                        JsModuleFormat::Haste => {
+                            self.writer.write_import_fragment_type(
+                                &[old_fragment_type_name, other_old_fragment_type_name],
+                                format!("{}.graphql", refetchable_metadata.operation_name).intern(),
+                            )?;
+                        }
+                    }
+                    self.writer.write_export_fragment_types(
+                        old_fragment_type_name,
+                        other_old_fragment_type_name,
+                    )?;
+                } else {
+                    self.writer.write_export_fragment_type(
+                        old_fragment_type_name,
+                        other_old_fragment_type_name,
+                        new_fragment_type_name,
+                    )?;
                 }
-                JsModuleFormat::Haste => {
+            }
+            FlowTypegenRollout::New => {
+                self.writer.write_export_fragment_type(
+                    old_fragment_type_name,
+                    other_old_fragment_type_name,
+                    new_fragment_type_name,
+                )?;
+                if let Some(refetchable_metadata) = refetchable_metadata {
                     self.writer.write_import_fragment_type(
-                        &[old_fragment_type_name, new_fragment_type_name],
+                        &[format!("{}Variables", refetchable_metadata.operation_name).intern()],
                         format!("{}.graphql", refetchable_metadata.operation_name).intern(),
                     )?;
                 }
             }
-            self.writer
-                .write_export_fragment_types(old_fragment_type_name, new_fragment_type_name)?;
-        } else {
-            self.writer
-                .write_export_fragment_type(old_fragment_type_name, new_fragment_type_name)?;
         }
+
 
         self.writer.write_export_type(data_type, &type_)?;
         self.writer
@@ -1103,18 +1130,16 @@ impl<'a> TypeGenerator<'a> {
 
     fn write_fragment_imports(&mut self) -> Result {
         for used_fragment in self.used_fragments.iter().sorted() {
-            let fragment_type_name = get_old_fragment_type_name(*used_fragment);
             if !self.generated_fragments.contains(used_fragment) {
+                let fragment_type_name = match self.typegen_config.flow_typegen_rollout {
+                    FlowTypegenRollout::Old => format!("{}$ref", used_fragment).intern(),
+                    FlowTypegenRollout::New => format!("{}$type", used_fragment).intern(),
+                };
                 match self.js_module_format {
                     JsModuleFormat::CommonJS => {
-                        // if useSingleArtifactDirectory {
-                        //   importTypes([fragmentTypeName], './' + usedFragment + '.graphql');
-                        // } else {
                         self.writer.write_any_type_definition(fragment_type_name)?;
                     }
                     JsModuleFormat::Haste => {
-                        // TODO(T22653277) support non-haste environments when importing
-                        // fragments
                         self.writer.write_import_fragment_type(
                             &[fragment_type_name],
                             format!("{}.graphql", used_fragment).intern(),
@@ -1170,9 +1195,14 @@ impl<'a> TypeGenerator<'a> {
         refetchable_fragment_name: StringKey,
     ) -> Result {
         let old_fragment_type_name = format!("{}$ref", refetchable_fragment_name).intern();
-        let new_fragment_type_name = format!("{}$fragmentType", refetchable_fragment_name).intern();
-        self.writer
-            .write_export_fragment_type(old_fragment_type_name, new_fragment_type_name)
+        let other_old_fragment_type_name =
+            format!("{}$fragmentType", refetchable_fragment_name).intern();
+        let new_fragment_type_name = format!("{}$type", refetchable_fragment_name).intern();
+        self.writer.write_export_fragment_type(
+            old_fragment_type_name,
+            other_old_fragment_type_name,
+            new_fragment_type_name,
+        )
     }
 
     fn write_enum_definitions(&mut self) -> Result {
@@ -1456,11 +1486,7 @@ fn hashmap_into_values<K: Hash + Eq, V>(map: IndexMap<K, V>) -> impl Iterator<It
     map.into_iter().map(|(_, val)| val)
 }
 
-fn get_old_fragment_type_name(name: StringKey) -> StringKey {
-    format!("{}$ref", name).intern()
-}
-
-fn has_raw_response_type_directive(operation: &OperationDefinition) -> bool {
+pub fn has_raw_response_type_directive(operation: &OperationDefinition) -> bool {
     operation
         .directives
         .named(*RAW_RESPONSE_TYPE_DIRECTIVE_NAME)
@@ -1513,4 +1539,19 @@ fn to_camel_case(non_camelized_string: String) -> String {
         }
     }
     camelized_string
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, Copy)]
+#[serde(rename_all = "lowercase")]
+pub enum FlowTypegenRollout {
+    /// Original state
+    Old,
+    /// Final state
+    New,
+}
+
+impl Default for FlowTypegenRollout {
+    fn default() -> Self {
+        FlowTypegenRollout::Old
+    }
 }

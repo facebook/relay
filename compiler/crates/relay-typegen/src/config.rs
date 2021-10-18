@@ -10,6 +10,8 @@ use indexmap::{IndexMap, IndexSet};
 use interner::StringKey;
 use serde::{Deserialize, Serialize};
 
+use crate::FlowTypegenRollout;
+
 type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
 type FnvIndexSet<T> = IndexSet<T, FnvBuildHasher>;
 
@@ -70,4 +72,8 @@ pub struct TypegenConfig {
     /// if a GraphQL scalar type doesn't have a JS type
     #[serde(default)]
     pub require_custom_scalar_types: bool,
+
+    /// Work in progress new Flow type definitions
+    #[serde(default)]
+    pub flow_typegen_rollout: FlowTypegenRollout,
 }

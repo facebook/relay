@@ -55,8 +55,6 @@ pub enum ProjectStatus {
 pub trait GlobalState {
     type TSchemaDocumentation: SchemaDocumentation;
 
-    fn get_config(&self) -> Arc<Config>;
-
     fn get_schema(&self, project_name: &StringKey) -> LSPRuntimeResult<Arc<SDLSchema>>;
 
     fn get_program(&self, project_name: &StringKey) -> LSPRuntimeResult<Program>;
@@ -318,10 +316,6 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
 {
     type TSchemaDocumentation =
         CombinedSchemaDocumentation<Option<Arc<SDLSchema>>, Option<Arc<TSchemaDocumentation>>>;
-
-    fn get_config(&self) -> Arc<Config> {
-        self.config.clone()
-    }
 
     fn root_dir(&self) -> PathBuf {
         self.root_dir.clone()

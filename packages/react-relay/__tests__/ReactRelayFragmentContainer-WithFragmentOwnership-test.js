@@ -18,11 +18,9 @@ const ReactTestRenderer = require('react-test-renderer');
 const {
   createReaderSelector,
   createOperationDescriptor,
+  graphql,
 } = require('relay-runtime');
-const {
-  createMockEnvironment,
-  generateAndCompile,
-} = require('relay-test-utils-internal');
+const {createMockEnvironment} = require('relay-test-utils-internal');
 
 describe('ReactRelayFragmentContainer with fragment ownerhsip', () => {
   let TestComponent;
@@ -81,34 +79,39 @@ describe('ReactRelayFragmentContainer with fragment ownerhsip', () => {
     jest.resetModules();
 
     environment = createMockEnvironment();
-    ({UserFragment, UserQuery, UserQueryWithCond} = generateAndCompile(`
-      query UserQuery($id: ID!) {
+    UserQuery = graphql`
+      query ReactRelayFragmentContainerWithFragmentOwnershipTestUserQuery(
+        $id: ID!
+      ) {
         node(id: $id) {
-          ...UserFragment
+          ...ReactRelayFragmentContainerWithFragmentOwnershipTestUserFragment
         }
       }
-
-      query UserQueryWithCond(
+    `;
+    UserQueryWithCond = graphql`
+      query ReactRelayFragmentContainerWithFragmentOwnershipTestWithCondUserQuery(
         $id: ID!
         $condGlobal: Boolean!
       ) {
         node(id: $id) {
-          ...UserFragment @arguments(cond: $condGlobal)
+          ...ReactRelayFragmentContainerWithFragmentOwnershipTestUserFragment
+            @arguments(cond: $condGlobal)
         }
       }
-
-      fragment UserFragment on User @argumentDefinitions(
-        cond: {type: "Boolean!", defaultValue: true}
-      ) {
+    `;
+    UserFragment = graphql`
+      fragment ReactRelayFragmentContainerWithFragmentOwnershipTestUserFragment on User
+        @argumentDefinitions(cond: {type: "Boolean!", defaultValue: true}) {
         id
         name @include(if: $cond)
-        ...NestedUserFragment
+        ...ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment
       }
-
-      fragment NestedUserFragment on User {
+    `;
+    graphql`
+      fragment ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment on User {
         username
       }
-    `));
+    `;
 
     render = jest.fn(() => <div />);
     spec = {
@@ -173,7 +176,9 @@ describe('ReactRelayFragmentContainer with fragment ownerhsip', () => {
         id: '4',
         name: 'Zuck',
         __id: '4',
-        __fragments: {NestedUserFragment: {}},
+        __fragments: {
+          ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment: {},
+        },
         __fragmentOwner: ownerUser1.request,
       },
     });
@@ -184,7 +189,9 @@ describe('ReactRelayFragmentContainer with fragment ownerhsip', () => {
         id: '4',
         name: 'Zuck',
         __id: '4',
-        __fragments: {NestedUserFragment: {}},
+        __fragments: {
+          ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment: {},
+        },
         __fragmentOwner: ownerUser1.request,
       },
       missingRequiredFields: null,
@@ -222,7 +229,9 @@ describe('ReactRelayFragmentContainer with fragment ownerhsip', () => {
         // !== 'Zuck'
         name: 'Mark',
         __id: '4',
-        __fragments: {NestedUserFragment: {}},
+        __fragments: {
+          ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment: {},
+        },
         __fragmentOwner: ownerUser1.request,
       },
       seenRecords: {},
@@ -242,7 +251,9 @@ describe('ReactRelayFragmentContainer with fragment ownerhsip', () => {
         id: '4',
         name: 'Mark',
         __id: '4',
-        __fragments: {NestedUserFragment: {}},
+        __fragments: {
+          ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment: {},
+        },
         __fragmentOwner: ownerUser1.request,
       },
     });
@@ -275,7 +286,9 @@ describe('ReactRelayFragmentContainer with fragment ownerhsip', () => {
         id: '842472',
         name: 'Joe',
         __id: '842472',
-        __fragments: {NestedUserFragment: {}},
+        __fragments: {
+          ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment: {},
+        },
         __fragmentOwner: ownerUser2.request,
       },
     });
@@ -287,7 +300,9 @@ describe('ReactRelayFragmentContainer with fragment ownerhsip', () => {
         id: '842472',
         name: 'Joe',
         __id: '842472',
-        __fragments: {NestedUserFragment: {}},
+        __fragments: {
+          ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment: {},
+        },
         __fragmentOwner: ownerUser2.request,
       },
       missingRequiredFields: null,
@@ -332,7 +347,9 @@ describe('ReactRelayFragmentContainer with fragment ownerhsip', () => {
         id: '4',
         // Name is excluded since value of cond is now false
         __id: '4',
-        __fragments: {NestedUserFragment: {}},
+        __fragments: {
+          ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment: {},
+        },
         __fragmentOwner: ownerUser1WithCondVar.request,
       },
     });
@@ -343,7 +360,9 @@ describe('ReactRelayFragmentContainer with fragment ownerhsip', () => {
         id: '4',
         // Name is excluded since value of cond is now false
         __id: '4',
-        __fragments: {NestedUserFragment: {}},
+        __fragments: {
+          ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment: {},
+        },
         __fragmentOwner: ownerUser1WithCondVar.request,
       },
       missingRequiredFields: null,

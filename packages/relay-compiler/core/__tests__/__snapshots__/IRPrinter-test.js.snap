@@ -417,13 +417,13 @@ fragment UserFragment on User
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Expected a value matching type 'Environment!'. Possible values: WEB or MOBILE?'
-
-GraphQL request:4:60
-3 |   @argumentDefinitions(
-4 |     environments: {type: "[Environment!]!", defaultValue: [web]}
-  |                                                            ^
-5 |   ) {
+- Expected a value matching type 'Environment!'. Possible values: WEB or MOBILE?'
+  
+  GraphQL request:4:60
+  3 |   @argumentDefinitions(
+  4 |     environments: {type: "[Environment!]!", defaultValue: [web]}
+    |                                                            ^
+  5 |   ) {
 `;
 
 exports[`IRPrinter matches expected output: nested_conditions.graphql 1`] = `
@@ -524,13 +524,13 @@ fragment UserFragment on User {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Expected a value matching type 'Environment!'. Possible values: WEB or MOBILE?'
-
-GraphQL request:3:26
-2 | fragment UserFragment on User {
-3 |   checkins(environments: "WEB") {
-  |                          ^
-4 |     __typename
+- Expected a value matching type 'Environment!'. Possible values: WEB or MOBILE?'
+  
+  GraphQL request:3:26
+  2 | fragment UserFragment on User {
+  3 |   checkins(environments: "WEB") {
+    |                          ^
+  4 |     __typename
 `;
 
 exports[`IRPrinter matches expected output: string-enum-fragment-arg.graphql 1`] = `
@@ -587,11 +587,11 @@ fragment UserFragment on User {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Expected a value matching type 'Environment!'. Possible values: WEB or MOBILE?'
-
-GraphQL request:3:26
-2 | fragment UserFragment on User {
-3 |   checkins(environments: UNKNOWN_ENUM_VALUE) {
-  |                          ^
-4 |     __typename
+- Expected a value matching type 'Environment!'. Possible values: WEB or MOBILE?'
+  
+  GraphQL request:3:26
+  2 | fragment UserFragment on User {
+  3 |   checkins(environments: UNKNOWN_ENUM_VALUE) {
+    |                          ^
+  4 |     __typename
 `;

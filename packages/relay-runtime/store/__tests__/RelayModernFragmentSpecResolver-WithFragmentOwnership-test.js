@@ -151,6 +151,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
       {user: UserFragment},
       {foo: 'foo', bar: 42},
       jest.fn(),
+      true /* rootIsQueryRenderer */,
     );
     expect(resolver.resolve()).toEqual({
       user: null, // set to null since prop is missing
@@ -164,6 +165,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
         {user: UserFragment},
         {user: null},
         jest.fn(),
+        true /* rootIsQueryRenderer */,
       );
       expect(resolver.resolve()).toEqual({user: null});
       resolver = new RelayModernFragmentSpecResolver(
@@ -171,6 +173,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
         {user: UserFragment},
         {user: undefined},
         jest.fn(),
+        true /* rootIsQueryRenderer */,
       );
       expect(resolver.resolve()).toEqual({user: null});
     });
@@ -182,6 +185,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
         {user: UserFragment},
         {user},
         jest.fn(),
+        true /* rootIsQueryRenderer */,
       );
       expect(resolver.resolve().user).toBe(user);
     });
@@ -192,6 +196,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
         {user: UserFragment},
         {user: null},
         jest.fn(),
+        true /* rootIsQueryRenderer */,
       );
       expect(() => resolver.dispose()).not.toThrow();
     });
@@ -202,6 +207,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
         {user: UserFragment},
         {user: zuck},
         jest.fn(),
+        true /* rootIsQueryRenderer */,
       );
       expect(resolver.resolve()).toEqual({
         user: {
@@ -221,6 +227,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
         {user: UserFragment},
         {user: zuck},
         callback,
+        true /* rootIsQueryRenderer */,
       );
       setName('4', 'Mark'); // Zuck -> Mark
       expect(callback).toBeCalled();
@@ -242,6 +249,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
         {user: UserFragment},
         {user: zuck},
         callback,
+        true /* rootIsQueryRenderer */,
       );
       resolver.dispose();
       setName('4', 'Mark'); // Zuck -> Mark
@@ -269,6 +277,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
           {user: UserFragment},
           {user: zuck},
           callback,
+          true /* rootIsQueryRenderer */,
         );
       });
 
@@ -294,6 +303,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
           {user: UserFragment},
           {user: {}},
           callback,
+          true /* rootIsQueryRenderer */,
         );
         resolver.setProps({user: zuck});
         expect(callback).not.toBeCalled();
@@ -385,6 +395,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
           {user: UserFragment},
           {user: zuck},
           callback,
+          true /* rootIsQueryRenderer */,
         );
       });
 
@@ -477,6 +488,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
         {user: UsersFragment},
         {user: null},
         jest.fn(),
+        true /* rootIsQueryRenderer */,
       );
       expect(resolver.resolve()).toEqual({user: null});
       resolver = new RelayModernFragmentSpecResolver(
@@ -484,6 +496,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
         {user: UsersFragment},
         {user: undefined},
         jest.fn(),
+        true /* rootIsQueryRenderer */,
       );
       expect(resolver.resolve()).toEqual({user: null});
     });
@@ -495,6 +508,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
         {user: UsersFragment},
         {user: users},
         jest.fn(),
+        true /* rootIsQueryRenderer */,
       );
       expect(resolver.resolve().user).toBe(users);
     });
@@ -505,6 +519,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
         {user: UsersFragment},
         {user: [zuck]},
         jest.fn(),
+        true /* rootIsQueryRenderer */,
       );
       expect(resolver.resolve()).toEqual({
         user: [
@@ -526,6 +541,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
         {user: UsersFragment},
         {user: [zuck]},
         callback,
+        true /* rootIsQueryRenderer */,
       );
       setName('4', 'Mark'); // Zuck -> Mark
       expect(callback).toBeCalled();
@@ -548,6 +564,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
         {user: UsersFragment},
         {user: [zuck, beast]},
         jest.fn(),
+        true /* rootIsQueryRenderer */,
       );
 
       expect(resolver.resolve()).toEqual({
@@ -591,6 +608,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
         {user: UsersFragment},
         {user: [zuck]},
         callback,
+        true /* rootIsQueryRenderer */,
       );
       resolver.dispose();
       setName('4', 'Mark'); // Zuck -> Mark
@@ -622,6 +640,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
           {user: UsersFragment},
           {user: [zuck]},
           callback,
+          true /* rootIsQueryRenderer */,
         );
       });
 
@@ -647,6 +666,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
           {user: UsersFragment},
           {user: [{}]},
           callback,
+          true /* rootIsQueryRenderer */,
         );
         resolver.setProps({user: [zuck]});
         expect(callback).not.toBeCalled();
@@ -837,6 +857,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
           {user: UsersFragment},
           {user: [zuck]},
           callback,
+          true /* rootIsQueryRenderer */,
         );
       });
 

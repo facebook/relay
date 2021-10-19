@@ -104,33 +104,47 @@ function edgeUpdater(
       connections != null,
       'MutationHandlers: Expected connection IDs to be specified.',
     );
-    const serverEdge = record.getLinkedRecord(payload.fieldKey, payload.args);
-    if (serverEdge == null) {
+    let singleServerEdge, serverEdges;
+    try {
+      singleServerEdge = record.getLinkedRecord(payload.fieldKey, payload.args);
+    } catch {}
+    if (!singleServerEdge) {
+      try {
+        serverEdges = record.getLinkedRecords(payload.fieldKey, payload.args);
+      } catch {}
+    }
+    if (singleServerEdge == null && serverEdges == null) {
       warning(
         false,
-        'MutationHandlers: Expected the server edge to be non-null',
+        'MutationHandlers: Expected the server edge to be non-null.',
       );
       return;
     }
-    for (const connectionID of connections) {
-      const connection = store.get(connectionID);
-      if (connection == null) {
-        warning(
-          false,
-          `[Relay][Mutation] The connection with id '${connectionID}' doesn't exist.`,
-        );
+    const serverEdgeList = serverEdges ?? [singleServerEdge];
+    for (const serverEdge of serverEdgeList) {
+      if (serverEdge == null) {
         continue;
       }
-      const clientEdge = ConnectionHandler.buildConnectionEdge(
-        store,
-        connection,
-        serverEdge,
-      );
-      invariant(
-        clientEdge != null,
-        'MutationHandlers: Failed to build the edge.',
-      );
-      insertFn(connection, clientEdge);
+      for (const connectionID of connections) {
+        const connection = store.get(connectionID);
+        if (connection == null) {
+          warning(
+            false,
+            `[Relay][Mutation] The connection with id '${connectionID}' doesn't exist.`,
+          );
+          continue;
+        }
+        const clientEdge = ConnectionHandler.buildConnectionEdge(
+          store,
+          connection,
+          serverEdge,
+        );
+        invariant(
+          clientEdge != null,
+          'MutationHandlers: Failed to build the edge.',
+        );
+        insertFn(connection, clientEdge);
+      }
     }
   };
 }

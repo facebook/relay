@@ -23,13 +23,15 @@ use relay_transforms::{
     ConnectionConstants, ConnectionMetadata, DeferDirective, RelayDirective, StreamDirective,
     ACTION_ARGUMENT, CLIENT_EXTENSION_DIRECTIVE_NAME, DEFER_STREAM_CONSTANTS,
     DIRECTIVE_SPLIT_OPERATION, INLINE_DATA_CONSTANTS, INTERNAL_METADATA_DIRECTIVE, MATCH_CONSTANTS,
-    PATH_METADATA_ARGUMENT, REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY, REQUIRED_METADATA_KEY,
+    NO_INLINE_DIRECTIVE_NAME, PATH_METADATA_ARGUMENT,
+    REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY, RELAY_CLIENT_COMPONENT_MODULE_ID_ARGUMENT_NAME,
+    RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME, REQUIRED_METADATA_KEY,
     TYPE_DISCRIMINATOR_DIRECTIVE_NAME,
 };
-use schema::Schema;
+use schema::{SDLSchema, Schema};
 
 pub fn build_request_params_ast_key(
-    schema: &Schema,
+    schema: &SDLSchema,
     request_parameters: RequestParameters,
     ast_builder: &mut AstBuilder,
     operation: &OperationDefinition,
@@ -40,7 +42,7 @@ pub fn build_request_params_ast_key(
 }
 
 pub fn build_request(
-    schema: &Schema,
+    schema: &SDLSchema,
     ast_builder: &mut AstBuilder,
     operation: &OperationDefinition,
     fragment: &FragmentDefinition,
@@ -83,7 +85,7 @@ pub fn build_request_params(operation: &OperationDefinition) -> RequestParameter
 }
 
 pub fn build_operation(
-    schema: &Schema,
+    schema: &SDLSchema,
     ast_builder: &mut AstBuilder,
     operation: &OperationDefinition,
 ) -> AstKey {
@@ -92,7 +94,7 @@ pub fn build_operation(
 }
 
 pub fn build_fragment(
-    schema: &Schema,
+    schema: &SDLSchema,
     ast_builder: &mut AstBuilder,
     fragment: &FragmentDefinition,
 ) -> AstKey {
@@ -102,7 +104,7 @@ pub fn build_fragment(
 
 struct CodegenBuilder<'schema, 'builder> {
     connection_constants: ConnectionConstants,
-    schema: &'schema Schema,
+    schema: &'schema SDLSchema,
     variant: CodegenVariant,
     ast_builder: &'builder mut AstBuilder,
 }
@@ -115,7 +117,7 @@ enum CodegenVariant {
 
 impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
     fn new(
-        schema: &'schema Schema,
+        schema: &'schema SDLSchema,
         variant: CodegenVariant,
         ast_builder: &'builder mut AstBuilder,
     ) -> Self {
@@ -140,7 +142,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             Some(_split_directive) => {
                 let metadata = Primitive::Key(self.object(vec![]));
                 let selections = self.build_selections(operation.selections.iter());
-                self.object(vec![
+                let mut fields = vec![
                     ObjectEntry {
                         key: CODEGEN_CONSTANTS.kind,
                         value: Primitive::String(CODEGEN_CONSTANTS.split_operation),
@@ -157,7 +159,19 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                         key: CODEGEN_CONSTANTS.selections,
                         value: selections,
                     },
-                ])
+                ];
+                if !operation.variable_definitions.is_empty() {
+                    let argument_definitions =
+                        self.build_operation_variable_definitions(&operation.variable_definitions);
+                    fields.insert(
+                        0,
+                        ObjectEntry {
+                            key: CODEGEN_CONSTANTS.argument_definitions,
+                            value: argument_definitions,
+                        },
+                    );
+                }
+                self.object(fields)
             }
             None => {
                 let argument_definitions =
@@ -229,7 +243,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             },
             ObjectEntry {
                 key: CODEGEN_CONSTANTS.abstract_key,
-                value: if self.schema.is_abstract_type(fragment.type_condition) {
+                value: if fragment.type_condition.is_abstract_type() {
                     Primitive::String(generate_abstract_type_refinement_key(
                         self.schema,
                         fragment.type_condition,
@@ -452,7 +466,6 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
 
     fn build_selections_from_selection(&mut self, selection: &Selection) -> Vec<Primitive> {
         match selection {
-            // TODO(T63303873) Normalization handles
             Selection::Condition(condition) => vec![self.build_condition(&condition)],
             Selection::FragmentSpread(frag_spread) => {
                 vec![self.build_fragment_spread(&frag_spread)]
@@ -520,7 +533,6 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
     }
 
     fn build_scalar_field_and_handles(&mut self, field: &ScalarField) -> Vec<Primitive> {
-        // TODO(T63303873) check for skipNormalizationNode metadata
         match self.variant {
             CodegenVariant::Reader => vec![self.build_scalar_field(field)],
             CodegenVariant::Normalization => {
@@ -698,7 +710,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             },
             ObjectEntry {
                 key: CODEGEN_CONSTANTS.concrete_type,
-                value: if self.schema.is_abstract_type(schema_field.type_.inner()) {
+                value: if schema_field.type_.inner().is_abstract_type() {
                     Primitive::Null
                 } else {
                     Primitive::String(self.schema.get_type_name(schema_field.type_.inner()))
@@ -836,6 +848,20 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
     }
 
     fn build_fragment_spread(&mut self, frag_spread: &FragmentSpread) -> Primitive {
+        if frag_spread
+            .directives
+            .named(*NO_INLINE_DIRECTIVE_NAME)
+            .is_some()
+        {
+            return self.build_normalization_fragment_spread(frag_spread);
+        }
+        if frag_spread
+            .directives
+            .named(*RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME)
+            .is_some()
+        {
+            return self.build_relay_client_component_fragment_spread(frag_spread);
+        }
         let args = self.build_arguments(&frag_spread.arguments);
         Primitive::Key(self.object(vec![
             ObjectEntry {
@@ -852,6 +878,56 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             ObjectEntry {
                 key: CODEGEN_CONSTANTS.name,
                 value: Primitive::String(frag_spread.fragment.item),
+            },
+        ]))
+    }
+
+    fn build_normalization_fragment_spread(&mut self, frag_spread: &FragmentSpread) -> Primitive {
+        let args = self.build_arguments(&frag_spread.arguments);
+        Primitive::Key(self.object(vec![
+            ObjectEntry {
+                key: CODEGEN_CONSTANTS.args,
+                value: match args {
+                    None => Primitive::Null,
+                    Some(key) => Primitive::Key(key),
+                },
+            },
+            ObjectEntry {
+                key: CODEGEN_CONSTANTS.fragment,
+                value: Primitive::ModuleDependency(frag_spread.fragment.item),
+            },
+            ObjectEntry {
+                key: CODEGEN_CONSTANTS.kind,
+                value: Primitive::String(CODEGEN_CONSTANTS.fragment_spread),
+            },
+        ]))
+    }
+
+    fn build_relay_client_component_fragment_spread(
+        &mut self,
+        frag_spread: &FragmentSpread,
+    ) -> Primitive {
+        let normalization_name = frag_spread
+            .directives
+            .named(*RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME)
+            .unwrap()
+            .arguments
+            .named(*RELAY_CLIENT_COMPONENT_MODULE_ID_ARGUMENT_NAME)
+            .unwrap()
+            .value
+            .item
+            .expect_string_literal()
+            .to_string()
+            .trim_end_matches(".graphql")
+            .intern();
+        Primitive::Key(self.object(vec![
+            ObjectEntry {
+                key: CODEGEN_CONSTANTS.kind,
+                value: Primitive::String(CODEGEN_CONSTANTS.client_component),
+            },
+            ObjectEntry {
+                key: CODEGEN_CONSTANTS.fragment,
+                value: Primitive::ModuleDependency(normalization_name),
             },
         ]))
     }
@@ -1004,7 +1080,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             }
             Some(type_condition) => {
                 if self.variant == CodegenVariant::Normalization {
-                    let is_abstract_inline_fragment = self.schema.is_abstract_type(type_condition);
+                    let is_abstract_inline_fragment = type_condition.is_abstract_type();
                     if is_abstract_inline_fragment {
                         // Maintain a few invariants:
                         // - InlineFragment (and `selections` arrays generally) cannot be empty
@@ -1096,7 +1172,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                     },
                     ObjectEntry {
                         key: CODEGEN_CONSTANTS.abstract_key,
-                        value: if self.schema.is_abstract_type(type_condition) {
+                        value: if type_condition.is_abstract_type() {
                             Primitive::String(generate_abstract_type_refinement_key(
                                 self.schema,
                                 type_condition,
@@ -1227,7 +1303,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
 
     fn build_arguments(&mut self, arguments: &[Argument]) -> Option<AstKey> {
         let mut sorted_args: Vec<&Argument> = arguments.iter().map(|arg| arg).collect();
-        sorted_args.sort_unstable_by_key(|arg| arg.name.item.lookup());
+        sorted_args.sort_unstable_by_key(|arg| arg.name.item);
 
         let args = sorted_args
             .into_iter()
@@ -1393,7 +1469,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             }
             ConstantValue::Object(val_object) => {
                 let mut sorted_val_object: Vec<&_> = val_object.iter().collect();
-                sorted_val_object.sort_unstable_by_key(|arg| arg.name.item.lookup());
+                sorted_val_object.sort_unstable_by_key(|arg| arg.name.item);
 
                 let json_values = sorted_val_object
                     .into_iter()

@@ -383,12 +383,7 @@ class DataChecker {
           break;
         // $FlowFixMe[incompatible-type]
         case FRAGMENT_SPREAD:
-          invariant(
-            false,
-            'RelayAsyncLoader(): Unexpected ast kind `%s`.',
-            selection.kind,
-          );
-          // $FlowExpectedError[unreachable-code] - we need the break; for OSS linter
+          this._traverseSelections(selection.fragment.selections, dataID);
           break;
         case CLIENT_EXTENSION:
           const recordWasMissing = this._recordWasMissing;

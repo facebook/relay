@@ -9,55 +9,84 @@ use std::{collections::HashMap, path::PathBuf};
 
 use crate::lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult};
 use common::{SourceLocationKey, Span};
-use graphql_syntax::{parse_executable_with_error_recovery, ExecutableDocument, GraphQLSource};
+use graphql_syntax::{
+    parse_executable_with_error_recovery, ExecutableDefinition, ExecutableDocument, GraphQLSource,
+};
 use interner::StringKey;
-use log::info;
-use lsp_types::{Position, TextDocumentPositionParams, Url};
+use log::debug;
+use lsp_types::{Position, TextDocumentIdentifier, TextDocumentPositionParams, Url};
 use relay_compiler::{compiler_state::SourceSet, FileCategorizer, FileGroup};
 
-/// Return a `GraphQLSource` for a given position, if the position
-/// falls within a graphql literal.
-fn get_graphql_source<'a>(
-    text_document_position: &'a TextDocumentPositionParams,
+/// Return a vector of `GraphQLSource` from the document
+fn get_all_graphql_sources_from_text_document<'a>(
+    text_document: &'a TextDocumentIdentifier,
     graphql_source_cache: &'a HashMap<Url, Vec<GraphQLSource>>,
-) -> LSPRuntimeResult<&'a GraphQLSource> {
-    let TextDocumentPositionParams {
-        text_document,
-        position,
-    } = text_document_position;
-    let url = &text_document.uri;
+) -> LSPRuntimeResult<&'a Vec<GraphQLSource>> {
+    let uri = &text_document.uri;
 
     let graphql_sources = graphql_source_cache
-        .get(url)
+        .get(uri)
         // If the source isn't present in the source cache, then that means that
         // the source has no graphql documents.
         .ok_or(LSPRuntimeError::ExpectedError)?;
 
-    // We have GraphQL documents, now check if the position
-    // falls within the range of one of these documents.
-    let graphql_source = graphql_sources
-        .iter()
-        .find(|graphql_source| {
-            let range = graphql_source.to_range();
-            position >= &range.start && position <= &range.end
-        })
-        .ok_or_else(|| LSPRuntimeError::ExpectedError)?;
-
-    Ok(graphql_source)
+    Ok(graphql_sources)
 }
 
-/// Return a parsed executable document for this LSP request, only if the request occurs
-/// within a GraphQL document.
-pub fn extract_executable_document_from_text(
-    text_document_position: TextDocumentPositionParams,
+/// Return a `GraphQLSource` for a given position, if the position
+/// falls within a graphql literal.
+fn get_graphql_source_from_text_document_position<'a>(
+    text_document_position: &'a TextDocumentPositionParams,
+    graphql_source_cache: &'a HashMap<Url, Vec<GraphQLSource>>,
+) -> LSPRuntimeResult<&'a GraphQLSource> {
+    let TextDocumentPositionParams { position, .. } = text_document_position;
+
+    // We have GraphQL documents, now check if the position
+    // falls within the range of one of these documents.
+    get_all_graphql_sources_from_text_document(
+        &text_document_position.text_document,
+        graphql_source_cache,
+    )?
+    .iter()
+    .find(|graphql_source| {
+        let range = graphql_source.to_range();
+        position >= &range.start && position <= &range.end
+    })
+    .ok_or(LSPRuntimeError::ExpectedError)
+}
+
+pub fn extract_executable_definitions_from_text(
+    text_document_position: &TextDocumentPositionParams,
     graphql_source_cache: &HashMap<Url, Vec<GraphQLSource>>,
-    file_categorizer: &FileCategorizer,
-    root_dir: &PathBuf,
-    index_offset: usize,
-) -> LSPRuntimeResult<(ExecutableDocument, Span, StringKey)> {
-    let graphql_source = get_graphql_source(&text_document_position, graphql_source_cache)?;
+) -> LSPRuntimeResult<Vec<ExecutableDefinition>> {
+    let graphql_sources = get_all_graphql_sources_from_text_document(
+        &text_document_position.text_document,
+        graphql_source_cache,
+    )?;
     let url = &text_document_position.text_document.uri;
-    let position = text_document_position.position;
+
+    let definitions = graphql_sources
+        .iter()
+        .map(|graphql_source| {
+            let document = parse_executable_with_error_recovery(
+                &graphql_source.text,
+                SourceLocationKey::standalone(&url.to_string()),
+            )
+            .item;
+
+            document.definitions
+        })
+        .flatten()
+        .collect::<Vec<ExecutableDefinition>>();
+
+    Ok(definitions)
+}
+
+pub fn extract_project_name_from_url(
+    file_categorizer: &FileCategorizer,
+    url: &Url,
+    root_dir: &PathBuf,
+) -> LSPRuntimeResult<StringKey> {
     let absolute_file_path = PathBuf::from(url.path());
     let file_path = absolute_file_path.strip_prefix(root_dir).map_err(|_e| {
         LSPRuntimeError::UnexpectedError(format!(
@@ -78,6 +107,25 @@ pub fn extract_executable_document_from_text(
                 file_path
             )));
         };
+    Ok(project_name)
+}
+
+/// Return a parsed executable document for this LSP request, only if the request occurs
+/// within a GraphQL document.
+pub fn extract_executable_document_from_text(
+    text_document_position: TextDocumentPositionParams,
+    graphql_source_cache: &HashMap<Url, Vec<GraphQLSource>>,
+    file_categorizer: &FileCategorizer,
+    root_dir: &PathBuf,
+    index_offset: usize,
+) -> LSPRuntimeResult<(ExecutableDocument, Span, StringKey)> {
+    let graphql_source = get_graphql_source_from_text_document_position(
+        &text_document_position,
+        graphql_source_cache,
+    )?;
+    let url = &text_document_position.text_document.uri;
+    let position = text_document_position.position;
+    let project_name = extract_project_name_from_url(file_categorizer, url, root_dir)?;
 
     let document = parse_executable_with_error_recovery(
         &graphql_source.text,
@@ -87,7 +135,7 @@ pub fn extract_executable_document_from_text(
 
     // Now we need to take the `Position` and map that to an offset relative
     // to this GraphQL document, as the `Span`s in the document are relative.
-    info!("Successfully parsed the definitions for a target GraphQL source");
+    debug!("Successfully parsed the definitions for a target GraphQL source");
     // Map the position to a zero-length span, relative to this GraphQL source.
     let position_span =
         position_to_span(position, &graphql_source, index_offset).ok_or_else(|| {
@@ -98,7 +146,7 @@ pub fn extract_executable_document_from_text(
     // we find the position within the document. Note that the GraphQLSource will
     // already be updated *with the characters that triggered the completion request*
     // since the change event fires before completion.
-    info!("position_span: {:?}", position_span);
+    debug!("position_span: {:?}", position_span);
 
     Ok((document, position_span, project_name))
 }

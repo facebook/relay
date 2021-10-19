@@ -6,22 +6,23 @@
  */
 
 use crate::ir::{ExecutableDefinition, FragmentDefinition, OperationDefinition};
+use fnv::FnvHashMap;
 use indexmap::IndexMap;
 use interner::StringKey;
 use rayon::{iter::ParallelIterator, prelude::*};
-use schema::Schema;
+use schema::SDLSchema;
 use std::sync::Arc;
 
 /// A collection of all documents that are being compiled.
 #[derive(Debug, Clone)]
 pub struct Program {
-    pub schema: Arc<Schema>,
+    pub schema: Arc<SDLSchema>,
     fragments: IndexMap<StringKey, Arc<FragmentDefinition>>,
     operations: Vec<Arc<OperationDefinition>>,
 }
 
 impl Program {
-    pub fn new(schema: Arc<Schema>) -> Self {
+    pub fn new(schema: Arc<SDLSchema>) -> Self {
         Self {
             schema,
             fragments: Default::default(),
@@ -29,7 +30,10 @@ impl Program {
         }
     }
 
-    pub fn from_definitions(schema: Arc<Schema>, definitions: Vec<ExecutableDefinition>) -> Self {
+    pub fn from_definitions(
+        schema: Arc<SDLSchema>,
+        definitions: Vec<ExecutableDefinition>,
+    ) -> Self {
         let mut operations = Vec::new();
         let mut fragments = IndexMap::new();
         for definition in definitions {
@@ -85,6 +89,12 @@ impl Program {
         self.operations.par_iter()
     }
 
+    pub fn par_operations_mut(
+        &mut self,
+    ) -> impl ParallelIterator<Item = &mut Arc<OperationDefinition>> {
+        self.operations.par_iter_mut()
+    }
+
     pub fn fragments(&self) -> impl Iterator<Item = &Arc<FragmentDefinition>> {
         self.fragments.values()
     }
@@ -93,7 +103,39 @@ impl Program {
         self.fragments.par_values()
     }
 
+    pub fn par_fragments_mut(
+        &mut self,
+    ) -> impl ParallelIterator<Item = &mut Arc<FragmentDefinition>> {
+        self.fragments.par_values_mut()
+    }
+
     pub fn document_count(&self) -> usize {
         self.fragments.len() + self.operations.len()
+    }
+
+    pub fn merge_program(
+        &mut self,
+        other_program: Self,
+        removed_definition_names: Option<&[StringKey]>,
+    ) {
+        let mut operations: FnvHashMap<StringKey, Arc<OperationDefinition>> = self
+            .operations
+            .drain(..)
+            .map(|op| (op.name.item, op))
+            .collect();
+        for (key, fragment) in other_program.fragments {
+            self.fragments.insert(key, fragment);
+        }
+        for operation in other_program.operations {
+            operations.insert(operation.name.item, operation);
+        }
+        if let Some(removed_definition_names) = removed_definition_names {
+            for removed in removed_definition_names {
+                self.fragments.remove(removed);
+                operations.remove(removed);
+            }
+        }
+        self.operations
+            .extend(operations.into_iter().map(|(_, op)| op));
     }
 }

@@ -9759,20 +9759,20 @@ fragment Profile on User @inline {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Cannot use @relay(mask: false) on fragment spreads for fragments with directives.
-
-Source: GraphQL request (5:5)
-4:   me {
-5:     ...Profile @relay(mask: false)
-       ^
-6:   }
-
-Source: GraphQL request (9:26)
- 8: 
- 9: fragment Profile on User @inline {
-                             ^
-10:   id
-
+- Cannot use @relay(mask: false) on fragment spreads for fragments with directives.
+  
+  Source: GraphQL request (5:5)
+  4:   me {
+  5:     ...Profile @relay(mask: false)
+         ^
+  6:   }
+  
+  Source: GraphQL request (9:26)
+   8: 
+   9: fragment Profile on User @inline {
+                               ^
+  10:   id
+  
 `;
 
 exports[`compileRelayArtifacts matches expected output: inline-data-fragment.graphql 1`] = `
@@ -10122,14 +10122,14 @@ fragment Profile on User @inline {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Variables are not yet supported inside @inline fragments.
-
-Source: GraphQL request (10:24)
- 9: fragment Profile on User @inline {
-10:   profilePicture(size: $pictureSize) {
-                           ^
-11:     uri
-
+- Variables are not yet supported inside @inline fragments.
+  
+  Source: GraphQL request (10:24)
+   9: fragment Profile on User @inline {
+  10:   profilePicture(size: $pictureSize) {
+                             ^
+  11:     uri
+  
 `;
 
 exports[`compileRelayArtifacts matches expected output: inline-data-fragment-local-args.graphql 1`] = `
@@ -10159,14 +10159,14 @@ fragment Profile on User
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Variables are not yet supported inside @inline fragments.
-
-Source: GraphQL request (17:24)
-16:   @inline
-17:   @argumentDefinitions(sizeArg: {type: "[Int]", defaultValue: [50]}) {
-                           ^
-18:   profilePicture(size: $sizeArg) {
-
+- Variables are not yet supported inside @inline fragments.
+  
+  Source: GraphQL request (17:24)
+  16:   @inline
+  17:   @argumentDefinitions(sizeArg: {type: "[Int]", defaultValue: [50]}) {
+                             ^
+  18:   profilePicture(size: $sizeArg) {
+  
 `;
 
 exports[`compileRelayArtifacts matches expected output: kitchen-sink.graphql 1`] = `
@@ -10868,20 +10868,20 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Found conflicting @module selections: use a unique alias on the parent fields.
-
-Source: GraphQL request (22:7)
-21:     ...MarkdownUserNameRenderer_name
-22:       @module(name: "BarMarkdownUserNameRenderer.react")
-          ^
-23:   }
-
-Source: GraphQL request (13:7)
-12:     ...MarkdownUserNameRenderer_name
-13:       @module(name: "FooMarkdownUserNameRenderer.react")
-          ^
-14:   }
-
+- Found conflicting @module selections: use a unique alias on the parent fields.
+  
+  Source: GraphQL request (22:7)
+  21:     ...MarkdownUserNameRenderer_name
+  22:       @module(name: "BarMarkdownUserNameRenderer.react")
+            ^
+  23:   }
+  
+  Source: GraphQL request (13:7)
+  12:     ...MarkdownUserNameRenderer_name
+  13:       @module(name: "FooMarkdownUserNameRenderer.react")
+            ^
+  14:   }
+  
 `;
 
 exports[`compileRelayArtifacts matches expected output: match-on-child-of-plural.graphql 1`] = `
@@ -11138,14 +11138,14 @@ fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Expected the 'key' argument of @match to be a literal string starting with the document name, e.g. 'MatchWithVariableName_<localName>'.
-
-Source: GraphQL request (4:25)
-3:   me {
-4:     nameRenderer @match(key: "error-not-prefixed-with-document-name") {
-                           ^
-5:       ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
-
+- Expected the 'key' argument of @match to be a literal string starting with the document name, e.g. 'MatchWithVariableName_<localName>'.
+  
+  Source: GraphQL request (4:25)
+  3:   me {
+  4:     nameRenderer @match(key: "error-not-prefixed-with-document-name") {
+                             ^
+  5:       ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+  
 `;
 
 exports[`compileRelayArtifacts matches expected output: match-with-variable-key.invalid.graphql 1`] = `
@@ -11169,14 +11169,14 @@ fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Variable '$key' is never used in operation 'MatchWithVariableName'.
-
-Source: GraphQL request (2:29)
-1: # expected-to-throw
-2: query MatchWithVariableName($key: String) {
-                               ^
-3:   me {
-
+- Variable '$key' is never used in operation 'MatchWithVariableName'.
+  
+  Source: GraphQL request (2:29)
+  1: # expected-to-throw
+  2: query MatchWithVariableName($key: String) {
+                                 ^
+  3:   me {
+  
 `;
 
 exports[`compileRelayArtifacts matches expected output: missing-argument-on-field.invalid.graphql 1`] = `
@@ -11193,20 +11193,20 @@ query TestQuery {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Required argument 'capitalize: Boolean!' is missing on 'nameWithArgs' in 'TestQuery'.
-
-Source: GraphQL request (5:7)
-4:     hometown {
-5:       nameWithArgs
-         ^
-6:     }
-
-Source: GraphQL request (2:1)
-1: # expected-to-throw
-2: query TestQuery {
-   ^
-3:   node {
-
+- Required argument 'capitalize: Boolean!' is missing on 'nameWithArgs' in 'TestQuery'.
+  
+  Source: GraphQL request (5:7)
+  4:     hometown {
+  5:       nameWithArgs
+           ^
+  6:     }
+  
+  Source: GraphQL request (2:1)
+  1: # expected-to-throw
+  2: query TestQuery {
+     ^
+  3:   node {
+  
 `;
 
 exports[`compileRelayArtifacts matches expected output: module-deduping.grpahql 1`] = `
@@ -12014,20 +12014,20 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Found conflicting @module selections: use a unique alias on the parent fields.
-
-Source: GraphQL request (23:7)
-22:     ...MarkdownUserNameRenderer_name
-23:       @module(name: "BarMarkdownUserNameRenderer.react")
-          ^
-24:   }
-
-Source: GraphQL request (13:7)
-12:     ...MarkdownUserNameRenderer_name
-13:       @module(name: "FooMarkdownUserNameRenderer.react")
-          ^
-14:     ...PlainUserNameRenderer_name
-
+- Found conflicting @module selections: use a unique alias on the parent fields.
+  
+  Source: GraphQL request (23:7)
+  22:     ...MarkdownUserNameRenderer_name
+  23:       @module(name: "BarMarkdownUserNameRenderer.react")
+            ^
+  24:   }
+  
+  Source: GraphQL request (13:7)
+  12:     ...MarkdownUserNameRenderer_name
+  13:       @module(name: "FooMarkdownUserNameRenderer.react")
+            ^
+  14:     ...PlainUserNameRenderer_name
+  
 `;
 
 exports[`compileRelayArtifacts matches expected output: multiple-modules-different-component.invalid.graphql 1`] = `
@@ -12060,20 +12060,20 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Invalid @module selection: concrete type 'MarkdownUserNameRenderer' was matched multiple times at path 'node.nameRenderer' but with a different fragment or module name.
-
-Source: GraphQL request (12:9)
-11:       nameRenderer {
-12:         ...MarkdownUserNameRenderer_name
-            ^
-13:           @module(name: "OtherMarkdownUserNameRenderer.react")
-
-Source: GraphQL request (6:9)
-5:       nameRenderer {
-6:         ...MarkdownUserNameRenderer_name
-           ^
-7:           @module(name: "MarkdownUserNameRenderer.react")
-
+- Invalid @module selection: concrete type 'MarkdownUserNameRenderer' was matched multiple times at path 'node.nameRenderer' but with a different fragment or module name.
+  
+  Source: GraphQL request (12:9)
+  11:       nameRenderer {
+  12:         ...MarkdownUserNameRenderer_name
+              ^
+  13:           @module(name: "OtherMarkdownUserNameRenderer.react")
+  
+  Source: GraphQL request (6:9)
+  5:       nameRenderer {
+  6:         ...MarkdownUserNameRenderer_name
+             ^
+  7:           @module(name: "MarkdownUserNameRenderer.react")
+  
 `;
 
 exports[`compileRelayArtifacts matches expected output: multiple-modules-different-fragment.invalid.graphql 1`] = `
@@ -12113,20 +12113,20 @@ fragment OtherMarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Invalid @module selection: concrete type 'MarkdownUserNameRenderer' was matched multiple times at path 'node.nameRenderer' but with a different fragment or module name.
-
-Source: GraphQL request (12:9)
-11:       nameRenderer {
-12:         ...OtherMarkdownUserNameRenderer_name
-            ^
-13:           @module(name: "MarkdownUserNameRenderer.react")
-
-Source: GraphQL request (6:9)
-5:       nameRenderer {
-6:         ...MarkdownUserNameRenderer_name
-           ^
-7:           @module(name: "MarkdownUserNameRenderer.react")
-
+- Invalid @module selection: concrete type 'MarkdownUserNameRenderer' was matched multiple times at path 'node.nameRenderer' but with a different fragment or module name.
+  
+  Source: GraphQL request (12:9)
+  11:       nameRenderer {
+  12:         ...OtherMarkdownUserNameRenderer_name
+              ^
+  13:           @module(name: "MarkdownUserNameRenderer.react")
+  
+  Source: GraphQL request (6:9)
+  5:       nameRenderer {
+  6:         ...MarkdownUserNameRenderer_name
+             ^
+  7:           @module(name: "MarkdownUserNameRenderer.react")
+  
 `;
 
 exports[`compileRelayArtifacts matches expected output: multiple-modules-same-selections.graphql 1`] = `
@@ -12896,14 +12896,14 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Invalid @module selection: documents with multiple fields containing 3D selections must specify a unique 'key' value for each field: use 'nameRenderable @match(key: "MatchQuery_<localName>")'.
-
-Source: GraphQL request (11:7)
-10:     ... on User {
-11:       nameRenderable {
-          ^
-12:         ...MarkdownUserNameRenderer_name
-
+- Invalid @module selection: documents with multiple fields containing 3D selections must specify a unique 'key' value for each field: use 'nameRenderable @match(key: "MatchQuery_<localName>")'.
+  
+  Source: GraphQL request (11:7)
+  10:     ... on User {
+  11:       nameRenderable {
+            ^
+  12:         ...MarkdownUserNameRenderer_name
+  
 `;
 
 exports[`compileRelayArtifacts matches expected output: nested_conditions.graphql 1`] = `
@@ -15038,14 +15038,14 @@ fragment NameRendererFragment on User {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Invalid @match selection: expected at least one @module selection. Remove @match or add a '...Fragment @module()' selection.
-
-Source: GraphQL request (10:16)
- 9:   id
-10:   nameRenderer @match {
-                   ^
-11:     __typename
-
+- Invalid @match selection: expected at least one @module selection. Remove @match or add a '...Fragment @module()' selection.
+  
+  Source: GraphQL request (10:16)
+   9:   id
+  10:   nameRenderer @match {
+                     ^
+  11:     __typename
+  
 `;
 
 exports[`compileRelayArtifacts matches expected output: query-with-match-directive-with-extra-argument.graphql 1`] = `
@@ -21493,20 +21493,20 @@ fragment User_user on User
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-MaskTransform: Cannot use @relay(mask: false) on fragment spread because the fragment definition uses @argumentDefinitions.
-
-Source: GraphQL request (5:5)
-4:   me {
-5:     ...User_user @relay(mask: false)
-       ^
-6:   }
-
-Source: GraphQL request (10:24)
- 9: fragment User_user on User
-10:   @argumentDefinitions(isRelative: {type: "Boolean!", defaultValue: false}) {
-                           ^
-11:   url(relative: $isRelative)
-
+- MaskTransform: Cannot use @relay(mask: false) on fragment spread because the fragment definition uses @argumentDefinitions.
+  
+  Source: GraphQL request (5:5)
+  4:   me {
+  5:     ...User_user @relay(mask: false)
+         ^
+  6:   }
+  
+  Source: GraphQL request (10:24)
+   9: fragment User_user on User
+  10:   @argumentDefinitions(isRelative: {type: "Boolean!", defaultValue: false}) {
+                             ^
+  11:   url(relative: $isRelative)
+  
 `;
 
 exports[`compileRelayArtifacts matches expected output: unmasked-fragment-spreads-recursive.graphql 1`] = `
@@ -21864,19 +21864,19 @@ fragment ProfilePhoto on User {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Variable @arguments values are only supported when the argument is defined with @argumentDefinitions. Check the definition of fragment 'ProfilePhoto'.
-
-GraphQL request:16:36
-15 |   __typename
-16 |   ...ProfilePhoto @arguments(size: $size)
-   |                                    ^
-17 | }
-
-GraphQL request:19:1
-18 |
-19 | fragment ProfilePhoto on User {
-   | ^
-20 |   profilePicture(size: [100]) {
+- Variable @arguments values are only supported when the argument is defined with @argumentDefinitions. Check the definition of fragment 'ProfilePhoto'.
+  
+  GraphQL request:16:36
+  15 |   __typename
+  16 |   ...ProfilePhoto @arguments(size: $size)
+     |                                    ^
+  17 | }
+  
+  GraphQL request:19:1
+  18 |
+  19 | fragment ProfilePhoto on User {
+     | ^
+  20 |   profilePicture(size: [100]) {
 `;
 
 exports[`compileRelayArtifacts matches expected output: unused-fragment-argdef-unchecked.graphql 1`] = `

@@ -35,6 +35,10 @@ impl Scope {
             .collect()
     }
 
+    pub fn push_bindings(&mut self, location: Location, bindings: FnvHashMap<StringKey, Value>) {
+        self.bindings.push((location, bindings));
+    }
+
     pub fn push(
         &mut self,
         location: Location,
@@ -85,7 +89,7 @@ mod tests {
     use common::{Location, SourceLocationKey, Span, WithLocation};
     use graphql_ir::{Argument, ConstantValue, VariableDefinition};
     use interner::Intern;
-    use schema::TypeReference;
+    use schema::{Schema, TypeReference};
 
     use relay_test_schema::TEST_SCHEMA;
 

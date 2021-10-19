@@ -1,0 +1,26 @@
+==================================== INPUT ====================================
+query MyQuery(
+    $id: ID
+    $var: String
+    $var_with_default: String = "hello"
+    $var_with_null_default: String = null
+    $var_with_default_and_directive: String = "hello" @configurable
+    $var_with_default_and_multiple_directive: String = "hello" @configurable @_auto_hoisted
+) {
+    node(id: $id) {
+        __typename
+    }
+}
+==================================== OUTPUT ===================================
+query MyQuery(
+  $id: ID
+  $var: String
+  $var_with_default: String = "hello"
+  $var_with_null_default: String = null
+  $var_with_default_and_directive: String = "hello" @configurable
+  $var_with_default_and_multiple_directive: String = "hello" @configurable @_auto_hoisted
+) {
+  node(id: $id) {
+    __typename
+  }
+}

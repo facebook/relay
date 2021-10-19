@@ -17,7 +17,7 @@ use graphql_ir::{
     Validator, Value,
 };
 use interner::StringKey;
-use schema::{Field, Type, TypeReference};
+use schema::{Field, Schema, Type, TypeReference};
 
 pub fn validate_connections(
     program: &Program,
@@ -50,9 +50,7 @@ impl<'s> ConnectionValidation<'s> {
     ) -> DiagnosticsResult<Type> {
         let schema = &self.program.schema;
         let field_type = connection_schema_field.type_.nullable_type();
-        if field_type.is_list()
-            || (!schema.is_object(field_type.inner()) && !schema.is_interface(field_type.inner()))
-        {
+        if field_type.is_list() || !field_type.inner().is_object_or_interface() {
             return Err(vec![Diagnostic::error(
                 ValidationMessage::InvalidConnectionFieldType {
                     connection_directive_name: connection_directive.name.item,
@@ -177,11 +175,7 @@ impl<'s> ConnectionValidation<'s> {
         let (_, edges_type) = self.validate_selection(
             connection_field_type,
             edges_selection_name,
-            |_, edges_type| {
-                edges_type.is_list()
-                    && (schema.is_object(edges_type.inner())
-                        || schema.is_interface(edges_type.inner()))
-            },
+            |_, edges_type| edges_type.is_list() && edges_type.inner().is_object_or_interface(),
             || {
                 vec![
                     Diagnostic::error(
@@ -269,9 +263,7 @@ impl<'s> ConnectionValidation<'s> {
         let (_, page_info_type) = self.validate_selection(
             connection_field_type,
             page_info_selection_name,
-            |_, page_info_type| {
-                !page_info_type.is_list() && schema.is_object(page_info_type.inner())
-            },
+            |_, page_info_type| !page_info_type.is_list() && page_info_type.inner().is_object(),
             || {
                 vec![Diagnostic::error(
                     ValidationMessage::ExpectedConnectionToExposeValidPageInfoField {
@@ -411,8 +403,8 @@ impl<'s> ConnectionValidation<'s> {
             Some((arg, key_val)) => match key_val {
                 ConstantValue::String(string_val) => {
                     let field_alias_or_name = match connection_field.alias {
-                        Some(alias) => alias.item.lookup(),
-                        None => connection_schema_field.name.lookup(),
+                        Some(alias) => alias.item,
+                        None => connection_schema_field.name,
                     };
                     let postfix = format!("_{}", field_alias_or_name);
                     if !string_val.lookup().ends_with(postfix.as_str()) {

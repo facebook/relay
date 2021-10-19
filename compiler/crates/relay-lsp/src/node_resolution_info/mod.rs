@@ -13,8 +13,9 @@ use crate::{
 };
 use common::Span;
 use graphql_syntax::{
-    Argument, Directive, ExecutableDefinition, ExecutableDocument, FragmentSpread, GraphQLSource,
-    InlineFragment, LinkedField, List, OperationDefinition, ScalarField, Selection, TypeCondition,
+    Argument, Directive, ExecutableDefinition, ExecutableDocument, FragmentDefinition,
+    FragmentSpread, GraphQLSource, InlineFragment, LinkedField, List, OperationDefinition,
+    ScalarField, Selection, TypeCondition,
 };
 use interner::StringKey;
 use lsp_types::{TextDocumentPositionParams, Url};
@@ -25,8 +26,8 @@ pub use type_path::{TypePath, TypePathItem};
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum NodeKind {
-    OperationDefinition(Option<StringKey>),
-    FragmentDefinition(StringKey),
+    OperationDefinition(OperationDefinition),
+    FragmentDefinition(FragmentDefinition),
     FieldName,
     FieldArgument(StringKey, StringKey),
     FragmentSpread(StringKey),
@@ -109,10 +110,7 @@ fn create_node_resolution_info(
             if operation.location.contains(position_span) {
                 let mut node_resolution_info = NodeResolutionInfo::new(
                     project_name,
-                    NodeKind::OperationDefinition(match &operation.name {
-                        Some(name) => Some(name.value),
-                        None => None,
-                    }),
+                    NodeKind::OperationDefinition(operation.clone()),
                 );
                 let OperationDefinition {
                     selections,
@@ -157,7 +155,7 @@ fn create_node_resolution_info(
             if fragment.location.contains(position_span) {
                 let mut node_resolution_info = NodeResolutionInfo::new(
                     project_name,
-                    NodeKind::FragmentDefinition(fragment.name.value),
+                    NodeKind::FragmentDefinition(fragment.clone()),
                 );
                 if let Some(node_resolution_info) = build_node_resolution_for_directive(
                     &fragment.directives,
@@ -272,7 +270,6 @@ fn build_node_resolution_info_from_selections(
                     ..
                 } = node;
 
-
                 node_resolution_info.kind = NodeKind::InlineFragment;
                 if let Some(type_condition) = type_condition {
                     let type_name = type_condition.type_.value;
@@ -348,15 +345,11 @@ mod test {
     use graphql_syntax::parse_executable;
     use interner::Intern;
     use relay_test_schema::get_test_schema;
+    use schema::Schema;
 
     fn parse_and_get_node_info(source: &str, pos: u32) -> NodeResolutionInfo {
-        let document = parse_executable(
-            source,
-            SourceLocationKey::Standalone {
-                path: "/test/file".intern(),
-            },
-        )
-        .unwrap();
+        let document =
+            parse_executable(source, SourceLocationKey::standalone("/test/file")).unwrap();
 
         // Select the `uri` field
         let position_span = Span {
@@ -401,9 +394,7 @@ mod test {
                 name
             }
         "#,
-            SourceLocationKey::Standalone {
-                path: "/test/file".intern(),
-            },
+            SourceLocationKey::standalone("/test/file"),
         )
         .unwrap();
         // Position is outside of the document
@@ -424,10 +415,12 @@ mod test {
             26,
         );
 
-        assert_eq!(
-            node_resolution_info.kind,
-            NodeKind::FragmentDefinition("User_data".intern())
-        );
+        match node_resolution_info.kind {
+            NodeKind::FragmentDefinition(fragment) => {
+                assert_eq!(fragment.name.value, "User_data".intern())
+            }
+            node_kind => panic!("Unexpected node node_resolution_info.kind {:?}", node_kind),
+        }
     }
 
     #[test]

@@ -205,9 +205,11 @@ class AcceptFriendRequestMutation extends Relay.Mutation {
 
 This fat query looks like any other GraphQL query, with one important distinction. We know some of these fields to be non-scalar (like `friendEdge` and `friends`) but notice that we have not named any of their children by way of a subquery. In this way, we indicate to Relay that *anything* under those non-scalar fields may change as a result of this mutation.
 
-> Note
->
-> When designing a fat query, consider *all* of the data that might change as a result of the mutation – not just the data currently in use by your application. We don't need to worry about overfetching; this query is never executed without first intersecting it with a ‘tracked query’ of the data our application actually needs. If we omit fields in the fat query, we might observe data inconsistencies in the future when we add views with new data dependencies, or add new data dependencies to existing views.
+<blockquote>
+Note
+
+When designing a fat query, consider <em>all</em> of the data that might change as a result of the mutation – not just the data currently in use by your application. We don't need to worry about overfetching; this query is never executed without first intersecting it with a ‘tracked query’ of the data our application actually needs. If we omit fields in the fat query, we might observe data inconsistencies in the future when we add views with new data dependencies, or add new data dependencies to existing views.
+</blockquote>
 
 ## Mutator configuration
 

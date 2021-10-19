@@ -7,7 +7,7 @@
 
 use super::is_operation_preloadable;
 use crate::config::{Config, ProjectConfig};
-use common::NamedItem;
+use common::{NamedItem, SourceLocationKey};
 use graphql_ir::{Directive, FragmentDefinition, OperationDefinition};
 use relay_codegen::{build_request_params, Printer};
 use relay_transforms::{
@@ -15,7 +15,7 @@ use relay_transforms::{
     REACT_FLIGHT_LOCAL_COMPONENTS_METADATA_ARG_KEY, REACT_FLIGHT_LOCAL_COMPONENTS_METADATA_KEY,
 };
 use relay_typegen::generate_fragment_type;
-use schema::Schema;
+use schema::SDLSchema;
 use signedsource::{sign_file, SIGNING_TOKEN};
 use std::fmt::{Result, Write};
 use std::sync::Arc;
@@ -36,6 +36,7 @@ pub enum ArtifactContent {
     },
     SplitOperation {
         normalization_operation: Arc<OperationDefinition>,
+        typegen_operation: Option<Arc<OperationDefinition>>,
         source_hash: String,
     },
     Generic {
@@ -49,8 +50,13 @@ impl ArtifactContent {
         config: &Config,
         project_config: &ProjectConfig,
         printer: &mut Printer,
-        schema: &Schema,
+        schema: &SDLSchema,
+        source_file: SourceLocationKey,
     ) -> Vec<u8> {
+        let skip_types = project_config
+            .skip_types_for_artifact
+            .as_ref()
+            .map_or(false, |skip_types_fn| skip_types_fn(source_file));
         match self {
             ArtifactContent::Operation {
                 normalization_operation,
@@ -70,15 +76,19 @@ impl ArtifactContent {
                 source_hash.into(),
                 text,
                 id_and_text_hash,
+                skip_types,
             ),
             ArtifactContent::SplitOperation {
                 normalization_operation,
+                typegen_operation,
                 source_hash,
             } => generate_split_operation(
                 config,
+                project_config,
                 printer,
                 schema,
                 normalization_operation,
+                typegen_operation,
                 source_hash,
             ),
             ArtifactContent::Fragment {
@@ -93,6 +103,7 @@ impl ArtifactContent {
                 reader_fragment,
                 typegen_fragment,
                 source_hash,
+                skip_types,
             ),
             ArtifactContent::Generic { content } => content.clone(),
         }
@@ -151,13 +162,14 @@ fn generate_operation(
     config: &Config,
     project_config: &ProjectConfig,
     printer: &mut Printer,
-    schema: &Schema,
+    schema: &SDLSchema,
     normalization_operation: &OperationDefinition,
     reader_operation: &OperationDefinition,
     typegen_operation: &OperationDefinition,
     source_hash: String,
     text: &str,
     id_and_text_hash: &Option<(String, String)>,
+    skip_types: bool,
 ) -> Vec<u8> {
     let mut request_parameters = build_request_params(&normalization_operation);
     let operation_hash: Option<String> = if let Some((id, text_hash)) = id_and_text_hash {
@@ -219,15 +231,24 @@ fn generate_operation(
 
     writeln!(
         content,
-        "/*::\nimport type {{ ConcreteRequest }} from 'relay-runtime';\n{}*/\n",
-        relay_typegen::generate_operation_type(
-            typegen_operation,
-            normalization_operation,
-            schema,
-            &project_config.typegen_config,
-        )
+        "/*::
+import type {{ ConcreteRequest }} from 'relay-runtime';"
     )
     .unwrap();
+    if !skip_types {
+        write!(
+            content,
+            "{}",
+            relay_typegen::generate_operation_type(
+                typegen_operation,
+                normalization_operation,
+                schema,
+                &project_config.typegen_config,
+            )
+        )
+        .unwrap();
+    }
+    writeln!(content, "*/\n").unwrap();
     writeln!(
         content,
         "var node/*: ConcreteRequest*/ = {};\n",
@@ -256,9 +277,11 @@ fn generate_operation(
 
 fn generate_split_operation(
     config: &Config,
+    project_config: &ProjectConfig,
     printer: &mut Printer,
-    schema: &Schema,
-    node: &OperationDefinition,
+    schema: &SDLSchema,
+    normalization_operation: &OperationDefinition,
+    typegen_operation: &Option<Arc<OperationDefinition>>,
     source_hash: &str,
 ) -> Vec<u8> {
     let mut content = get_content_start(config);
@@ -274,13 +297,28 @@ fn generate_split_operation(
     writeln!(content, "'use strict';\n").unwrap();
     writeln!(
         content,
-        "/*::\nimport type {{ NormalizationSplitOperation }} from 'relay-runtime';\n\n*/\n"
+        "/*::\nimport type {{ NormalizationSplitOperation }} from 'relay-runtime';\n"
     )
     .unwrap();
+    if let Some(typegen_operation) = typegen_operation {
+        writeln!(
+            content,
+            "{}",
+            relay_typegen::generate_split_operation_type(
+                typegen_operation,
+                normalization_operation,
+                schema,
+                &project_config.typegen_config,
+            )
+        )
+        .unwrap();
+    }
+    writeln!(content, "*/\n").unwrap();
+
     writeln!(
         content,
         "var node/*: NormalizationSplitOperation*/ = {};\n",
-        printer.print_operation(schema, node)
+        printer.print_operation(schema, normalization_operation)
     )
     .unwrap();
     writeln!(content, "if (__DEV__) {{").unwrap();
@@ -294,10 +332,11 @@ fn generate_fragment(
     config: &Config,
     project_config: &ProjectConfig,
     printer: &mut Printer,
-    schema: &Schema,
+    schema: &SDLSchema,
     reader_fragment: &FragmentDefinition,
     typegen_fragment: &FragmentDefinition,
     source_hash: &str,
+    skip_types: bool,
 ) -> Vec<u8> {
     let mut content = get_content_start(config);
     writeln!(content, " * {}", SIGNING_TOKEN).unwrap();
@@ -337,11 +376,19 @@ fn generate_fragment(
     };
     writeln!(
         content,
-        "/*::\nimport type {{ {} }} from 'relay-runtime';\n{}*/\n",
-        reader_node_flow_type,
-        generate_fragment_type(typegen_fragment, schema, &project_config.typegen_config)
+        "/*::\nimport type {{ {} }} from 'relay-runtime';",
+        reader_node_flow_type
     )
     .unwrap();
+    if !skip_types {
+        write!(
+            content,
+            "{}",
+            generate_fragment_type(typegen_fragment, schema, &project_config.typegen_config)
+        )
+        .unwrap();
+    }
+    writeln!(content, "*/\n").unwrap();
     writeln!(
         content,
         "var node/*: {}*/ = {};\n",

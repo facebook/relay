@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<d7c16c29bd10615430a1b09fe261a111>>
+ * @generated SignedSource<<6238cdf7e73ffb31d3ca3900af6e8cba>>
  */
 
 mod build_schema;
@@ -31,6 +31,27 @@ fn invalid_implements_non_interface() {
     let input = include_str!("build_schema/fixtures/invalid-implements-non-interface.graphql");
     let expected = include_str!("build_schema/fixtures/invalid-implements-non-interface.expected");
     test_fixture(transform_fixture, "invalid-implements-non-interface.graphql", "build_schema/fixtures/invalid-implements-non-interface.expected", input, expected);
+}
+
+#[test]
+fn invalid_input_type() {
+    let input = include_str!("build_schema/fixtures/invalid-input-type.graphql");
+    let expected = include_str!("build_schema/fixtures/invalid-input-type.expected");
+    test_fixture(transform_fixture, "invalid-input-type.graphql", "build_schema/fixtures/invalid-input-type.expected", input, expected);
+}
+
+#[test]
+fn invalid_input_type_interface() {
+    let input = include_str!("build_schema/fixtures/invalid-input-type-interface.graphql");
+    let expected = include_str!("build_schema/fixtures/invalid-input-type-interface.expected");
+    test_fixture(transform_fixture, "invalid-input-type-interface.graphql", "build_schema/fixtures/invalid-input-type-interface.expected", input, expected);
+}
+
+#[test]
+fn invalid_input_type_union() {
+    let input = include_str!("build_schema/fixtures/invalid-input-type-union.graphql");
+    let expected = include_str!("build_schema/fixtures/invalid-input-type-union.expected");
+    test_fixture(transform_fixture, "invalid-input-type-union.graphql", "build_schema/fixtures/invalid-input-type-union.expected", input, expected);
 }
 
 #[test]

@@ -44,4 +44,9 @@ pub enum SchemaError {
     // TODO: These should be replaced with error codes or by unifying the parsers.
     #[error("Parse Error '{0}' at {1}.\nError line:'{2}'")]
     Syntax(String, String, String),
+
+    #[error(
+        "Expected a field of the input object to be a valid input object, scalar, or enum. Got '{0}'."
+    )]
+    ExpectedInputType(StringKey),
 }

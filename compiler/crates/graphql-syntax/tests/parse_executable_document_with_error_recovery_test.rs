@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<8f8c96f2f57f7a98f0ad6fc3b6c1ed4c>>
+ * @generated SignedSource<<f6f628d744f8a2180c60e8449c83b53a>>
  */
 
 mod parse_executable_document_with_error_recovery;
@@ -83,6 +83,13 @@ fn arugment_without_closing_paren() {
 }
 
 #[test]
+fn directive_without_name() {
+    let input = include_str!("parse_executable_document_with_error_recovery/fixtures/directive-without-name.graphql");
+    let expected = include_str!("parse_executable_document_with_error_recovery/fixtures/directive-without-name.expected");
+    test_fixture(transform_fixture, "directive-without-name.graphql", "parse_executable_document_with_error_recovery/fixtures/directive-without-name.expected", input, expected);
+}
+
+#[test]
 fn empty_argument_list() {
     let input = include_str!("parse_executable_document_with_error_recovery/fixtures/empty-argument-list.graphql");
     let expected = include_str!("parse_executable_document_with_error_recovery/fixtures/empty-argument-list.expected");
@@ -101,6 +108,13 @@ fn inline_fragment_without_selection() {
     let input = include_str!("parse_executable_document_with_error_recovery/fixtures/inline-fragment-without-selection.graphql");
     let expected = include_str!("parse_executable_document_with_error_recovery/fixtures/inline-fragment-without-selection.expected");
     test_fixture(transform_fixture, "inline-fragment-without-selection.graphql", "parse_executable_document_with_error_recovery/fixtures/inline-fragment-without-selection.expected", input, expected);
+}
+
+#[test]
+fn type_in_argument_value() {
+    let input = include_str!("parse_executable_document_with_error_recovery/fixtures/type-in-argument-value.graphql");
+    let expected = include_str!("parse_executable_document_with_error_recovery/fixtures/type-in-argument-value.expected");
+    test_fixture(transform_fixture, "type-in-argument-value.graphql", "parse_executable_document_with_error_recovery/fixtures/type-in-argument-value.expected", input, expected);
 }
 
 #[test]

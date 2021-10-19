@@ -80,7 +80,7 @@ pub enum Error {
         source: std::io::Error,
     },
 
-    #[error("Watchman error.")]
+    #[error("Watchman error: {source}.")]
     Watchman {
         #[from]
         source: watchman_client::Error,
@@ -111,6 +111,9 @@ pub enum Error {
 
     #[error("IO error {0}")]
     IOError(std::io::Error),
+
+    #[error("Watchman subscription canceled")]
+    WatchmanSubscriptionCanceled,
 }
 
 #[derive(Debug, Error)]

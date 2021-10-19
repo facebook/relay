@@ -10,7 +10,7 @@ use crate::config::Config;
 use crate::errors::{Error, Result};
 use crate::watchman::{
     categorize_files, extract_graphql_strings_from_file, read_to_string, Clock, FileGroup,
-    FileSourceResult, WatchmanFile,
+    FileSourceResult, SourceControlUpdateStatus, WatchmanFile,
 };
 use common::{PerfLogEvent, PerfLogger};
 use fnv::{FnvHashMap, FnvHashSet};
@@ -18,7 +18,8 @@ use graphql_syntax::GraphQLSource;
 use interner::StringKey;
 use io::BufReader;
 use rayon::prelude::*;
-use schema::Schema;
+use schema::SDLSchema;
+use schema_diff::{definitions::SchemaChange, detect_changes};
 use serde::{Deserialize, Serialize};
 use std::{
     fmt,
@@ -160,6 +161,12 @@ impl SchemaSources {
         sources.sort_by_key(|file_content| file_content.0);
         sources.iter().map(|file_content| file_content.1).collect()
     }
+
+    pub fn get_old_sources(&self) -> Vec<&String> {
+        let mut sources: Vec<_> = self.processed.iter().collect();
+        sources.sort_by_key(|file_content| file_content.0);
+        sources.iter().map(|file_content| file_content.1).collect()
+    }
 }
 #[derive(Serialize, Deserialize, Debug)]
 pub enum ArtifactMapKind {
@@ -184,7 +191,9 @@ pub struct CompilerState {
     #[serde(skip)]
     pub pending_file_source_changes: Arc<RwLock<Vec<FileSourceResult>>>,
     #[serde(skip)]
-    pub schema_cache: FnvHashMap<ProjectName, Arc<Schema>>,
+    pub schema_cache: FnvHashMap<ProjectName, Arc<SDLSchema>>,
+    #[serde(skip)]
+    pub source_control_update_status: Arc<SourceControlUpdateStatus>,
 }
 
 impl CompilerState {
@@ -208,6 +217,7 @@ impl CompilerState {
             dirty_artifact_paths: Default::default(),
             pending_file_source_changes: Default::default(),
             schema_cache: Default::default(),
+            source_control_update_status: Default::default(),
         };
 
         for (category, files) in categorized {
@@ -309,20 +319,55 @@ impl CompilerState {
                 .any(|sources| !sources.processed.is_empty())
     }
 
-    /// This is for future use. Where `has_breaking_schema_change` may return `false` for some of non-breaking changes
-    pub fn has_schema_changes(&self) -> bool {
-        // but for now it will return the same thing
-        self.has_breaking_schema_change()
+    fn is_change_safe(&self, sources: &SchemaSources) -> bool {
+        let previous = sources
+            .get_old_sources()
+            .into_iter()
+            .map(String::as_str)
+            .collect::<Vec<_>>();
+
+        let current = sources
+            .get_sources()
+            .into_iter()
+            .map(String::as_str)
+            .collect::<Vec<_>>();
+
+        let schema_change = detect_changes(&current.join("\n"), &previous.join("\n"));
+
+        if schema_change == SchemaChange::None {
+            true
+        } else {
+            match relay_schema::build_schema_with_extensions(&current, &Vec::<&str>::new()) {
+                Ok(schema) => schema_change.is_safe(&schema),
+                Err(_) => false,
+            }
+        }
     }
 
-    pub fn has_breaking_schema_change(&self) -> bool {
+    /// This method will detect any schema changes in the pending sources (for LSP Server, to invalidate schema cache)
+    pub fn has_schema_changes(&self) -> bool {
         self.extensions
             .values()
             .any(|sources| !sources.pending.is_empty())
             || self
                 .schemas
-                .values()
-                .any(|sources| !sources.pending.is_empty())
+                .iter()
+                .any(|(_, sources)| !sources.pending.is_empty())
+    }
+
+    /// This method is looking at the pending schema changes to see if they may be breaking (removed types, renamed field, etc)
+    pub fn has_breaking_schema_change(&self, project_name: StringKey) -> bool {
+        if let Some(extension) = self.extensions.get(&project_name) {
+            if !extension.pending.is_empty() {
+                return true;
+            }
+        }
+        if let Some(schema) = self.schemas.get(&project_name) {
+            if !(schema.pending.is_empty() || self.is_change_safe(schema)) {
+                return true;
+            }
+        }
+        false
     }
 
     /// Merges pending changes from the file source into the compiler state.
@@ -340,7 +385,6 @@ impl CompilerState {
             let categorized = setup_event.time("categorize_files_time", || {
                 categorize_files(config, &file_source_changes.files)
             });
-
             for (category, files) in categorized {
                 match category {
                     FileGroup::Source { source_set } => {
@@ -352,7 +396,7 @@ impl CompilerState {
                         log_event.string("source_set_name", source_set.to_string());
                         let extract_timer =
                             log_event.start("extract_graphql_strings_from_file_time");
-                        let sources = files
+                        let sources: FnvHashMap<PathBuf, Vec<GraphQLSource>> = files
                             .par_iter()
                             .map(|file| {
                                 let graphql_strings = if *file.exists {
@@ -414,6 +458,7 @@ impl CompilerState {
                 }
             }
         }
+
         Ok(has_changed)
     }
 
@@ -551,5 +596,15 @@ impl CompilerState {
             }
         };
         Ok(())
+    }
+
+    pub fn is_source_control_update_in_progress(&self) -> bool {
+        self.source_control_update_status.is_started()
+    }
+
+    /// Over the course of the build, we may need to stop current progress
+    /// as there maybe incoming file change or source control update in progress
+    pub fn should_cancel_current_build(&self) -> bool {
+        self.is_source_control_update_in_progress() || self.has_pending_file_source_changes()
     }
 }

@@ -11,7 +11,7 @@ use graphql_ir::{build, Program};
 use graphql_syntax::parse_executable;
 use graphql_test_helpers::diagnostics_to_sorted_string;
 use interner::Intern;
-use relay_codegen::{print_fragment, print_operation};
+use relay_codegen::{print_fragment, print_operation, JsModuleFormat};
 use relay_test_schema::{get_test_schema, get_test_schema_with_extensions};
 use relay_transforms::{required_directive, FeatureFlags};
 use std::sync::Arc;
@@ -33,17 +33,17 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         &program,
         &FeatureFlags {
             enable_required_transform_for_prefix: Some("".intern()),
-            enable_flight_transform: false,
+            ..Default::default()
         },
     )
     .map(|next_program| {
         next_program
             .fragments()
-            .map(|def| print_fragment(&schema, &def))
+            .map(|def| print_fragment(&schema, &def, JsModuleFormat::Haste))
             .chain(
                 next_program
                     .operations()
-                    .map(|def| print_operation(&schema, &def)),
+                    .map(|def| print_operation(&schema, &def, JsModuleFormat::Haste)),
             )
             .collect::<Vec<_>>()
             .join("\n\n")

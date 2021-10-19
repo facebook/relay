@@ -47,9 +47,7 @@ union Address @source(schema: "facebook", name: "Address") =
 ==================================== OUTPUT ===================================
 Text Schema:Schema {
  query_type: Some(
-    ObjectID(
-        0,
-    ),
+    ObjectID(0),
 )
  mutation_type: None
  subscription_type: None
@@ -477,14 +475,10 @@ Text Schema:Schema {
         name: "XIGHuman",
         is_extension: false,
         implementing_objects: [
-            ObjectID(
-                1,
-            ),
+            ObjectID(1),
         ],
         fields: [
-            FieldID(
-                2,
-            ),
+            FieldID(2),
         ],
         directives: [
             DirectiveValue {
@@ -525,12 +519,8 @@ Text Schema:Schema {
         name: "Query",
         is_extension: false,
         fields: [
-            FieldID(
-                0,
-            ),
-            FieldID(
-                1,
-            ),
+            FieldID(0),
+            FieldID(1),
         ],
         interfaces: [],
         directives: [],
@@ -539,20 +529,12 @@ Text Schema:Schema {
         name: "User",
         is_extension: false,
         fields: [
-            FieldID(
-                3,
-            ),
-            FieldID(
-                4,
-            ),
-            FieldID(
-                5,
-            ),
+            FieldID(3),
+            FieldID(4),
+            FieldID(5),
         ],
         interfaces: [
-            InterfaceID(
-                0,
-            ),
+            InterfaceID(0),
         ],
         directives: [
             DirectiveValue {
@@ -578,15 +560,9 @@ Text Schema:Schema {
         name: "MailingAddress",
         is_extension: false,
         fields: [
-            FieldID(
-                6,
-            ),
-            FieldID(
-                7,
-            ),
-            FieldID(
-                8,
-            ),
+            FieldID(6),
+            FieldID(7),
+            FieldID(8),
         ],
         interfaces: [],
         directives: [],
@@ -595,12 +571,8 @@ Text Schema:Schema {
         name: "XIGStory",
         is_extension: false,
         fields: [
-            FieldID(
-                9,
-            ),
-            FieldID(
-                10,
-            ),
+            FieldID(9),
+            FieldID(10),
         ],
         interfaces: [],
         directives: [
@@ -720,12 +692,8 @@ Text Schema:Schema {
         name: "Address",
         is_extension: false,
         members: [
-            ObjectID(
-                2,
-            ),
-            ObjectID(
-                2,
-            ),
+            ObjectID(2),
+            ObjectID(2),
         ],
         directives: [
             DirectiveValue {
@@ -935,75 +903,43 @@ fields: [
         ),
     },
     Field {
-        name: "id",
+        name: "fetch__User",
         is_extension: false,
-        arguments: [],
+        arguments: [
+            Argument {
+                name: "id",
+                type_: Named(
+                    Scalar(0),
+                ),
+                default_value: None,
+            },
+        ],
         type_: Named(
-            Scalar(0),
+            Object(2),
         ),
         directives: [],
         parent_type: Some(
-            Object(0),
+            Object(1),
         ),
     },
     Field {
-        name: "is_default",
+        name: "fetch__XIGStory",
         is_extension: false,
-        arguments: [],
+        arguments: [
+            Argument {
+                name: "id",
+                type_: Named(
+                    Scalar(0),
+                ),
+                default_value: None,
+            },
+        ],
         type_: Named(
-            Scalar(1),
+            Object(3),
         ),
         directives: [],
         parent_type: Some(
-            Object(0),
-        ),
-    },
-    Field {
-        name: "label",
-        is_extension: false,
-        arguments: [],
-        type_: Named(
-            Scalar(2),
-        ),
-        directives: [],
-        parent_type: Some(
-            Object(0),
-        ),
-    },
-    Field {
-        name: "id",
-        is_extension: false,
-        arguments: [],
-        type_: Named(
-            Scalar(0),
-        ),
-        directives: [],
-        parent_type: Some(
-            Object(0),
-        ),
-    },
-    Field {
-        name: "is_default",
-        is_extension: false,
-        arguments: [],
-        type_: Named(
-            Scalar(1),
-        ),
-        directives: [],
-        parent_type: Some(
-            Object(0),
-        ),
-    },
-    Field {
-        name: "label",
-        is_extension: false,
-        arguments: [],
-        type_: Named(
-            Scalar(2),
-        ),
-        directives: [],
-        parent_type: Some(
-            Object(0),
+            Object(1),
         ),
     },
     Field {
@@ -1015,23 +951,73 @@ fields: [
         ),
         directives: [],
         parent_type: Some(
-            Object(0),
+            Object(2),
         ),
     },
     Field {
-        name: "is_default",
+        name: "story",
         is_extension: false,
         arguments: [],
         type_: Named(
-            Scalar(1),
+            Object(3),
         ),
-        directives: [],
+        directives: [
+            DirectiveValue {
+                name: "ref_type",
+                arguments: [
+                    ArgumentValue {
+                        name: "schema",
+                        value: String(
+                            StringNode {
+                                token: Token {
+                                    span: 0:0,
+                                    kind: EndOfFile,
+                                },
+                                value: "instagram",
+                            },
+                        ),
+                    },
+                    ArgumentValue {
+                        name: "name",
+                        value: String(
+                            StringNode {
+                                token: Token {
+                                    span: 0:0,
+                                    kind: EndOfFile,
+                                },
+                                value: "Story",
+                            },
+                        ),
+                    },
+                ],
+            },
+        ],
         parent_type: Some(
-            Object(0),
+            Object(2),
         ),
     },
     Field {
-        name: "label",
+        name: "default_mailing_address",
+        is_extension: false,
+        arguments: [
+            Argument {
+                name: "country",
+                type_: Named(
+                    InputObject(0),
+                ),
+                default_value: None,
+            },
+        ],
+        type_: Named(
+            Object(0),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(2),
+        ),
+    },
+    Field {
+        name: "name",
         is_extension: false,
         arguments: [],
         type_: Named(
@@ -1039,7 +1025,31 @@ fields: [
         ),
         directives: [],
         parent_type: Some(
-            Object(0),
+            Interface(0),
+        ),
+    },
+    Field {
+        name: "id",
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Scalar(0),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(3),
+        ),
+    },
+    Field {
+        name: "name",
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Scalar(2),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(3),
         ),
     },
 ]
@@ -1094,8 +1104,12 @@ interfaces: [
     Interface {
         name: "XIGHuman",
         is_extension: false,
-        implementing_objects: [],
-        fields: [],
+        implementing_objects: [
+            ObjectID(2),
+        ],
+        fields: [
+            FieldID(8),
+        ],
         directives: [
             DirectiveValue {
                 name: "source",
@@ -1135,109 +1149,110 @@ objects: [
         name: "MailingAddress",
         is_extension: false,
         fields: [
-            FieldID(
-                0,
-            ),
-            FieldID(
-                1,
-            ),
-            FieldID(
-                2,
-            ),
+            FieldID(0),
+            FieldID(1),
+            FieldID(2),
         ],
-        interfaces: [
-            InterfaceID(
-                0,
-            ),
-            InterfaceID(
-                1,
-            ),
-            InterfaceID(
-                2,
-            ),
-        ],
+        interfaces: [],
         directives: [],
     },
     Object {
-        name: "MailingAddress",
+        name: "Query",
         is_extension: false,
         fields: [
-            FieldID(
-                0,
-            ),
-            FieldID(
-                1,
-            ),
-            FieldID(
-                2,
-            ),
+            FieldID(9),
+            FieldID(10),
         ],
-        interfaces: [
-            InterfaceID(
-                0,
-            ),
-            InterfaceID(
-                1,
-            ),
-            InterfaceID(
-                2,
-            ),
-        ],
+        interfaces: [],
         directives: [],
     },
     Object {
-        name: "MailingAddress",
+        name: "User",
         is_extension: false,
         fields: [
-            FieldID(
-                0,
-            ),
-            FieldID(
-                1,
-            ),
-            FieldID(
-                2,
-            ),
+            FieldID(3),
+            FieldID(6),
+            FieldID(7),
         ],
         interfaces: [
-            InterfaceID(
-                0,
-            ),
-            InterfaceID(
-                1,
-            ),
-            InterfaceID(
-                2,
-            ),
+            InterfaceID(0),
         ],
-        directives: [],
+        directives: [
+            DirectiveValue {
+                name: "fetchable",
+                arguments: [
+                    ArgumentValue {
+                        name: "field_name",
+                        value: String(
+                            StringNode {
+                                token: Token {
+                                    span: 0:0,
+                                    kind: EndOfFile,
+                                },
+                                value: "id",
+                            },
+                        ),
+                    },
+                ],
+            },
+        ],
     },
     Object {
-        name: "MailingAddress",
+        name: "XIGStory",
         is_extension: false,
         fields: [
-            FieldID(
-                0,
-            ),
-            FieldID(
-                1,
-            ),
-            FieldID(
-                2,
-            ),
+            FieldID(4),
+            FieldID(5),
         ],
-        interfaces: [
-            InterfaceID(
-                0,
-            ),
-            InterfaceID(
-                1,
-            ),
-            InterfaceID(
-                2,
-            ),
+        interfaces: [],
+        directives: [
+            DirectiveValue {
+                name: "fetchable",
+                arguments: [
+                    ArgumentValue {
+                        name: "field_name",
+                        value: String(
+                            StringNode {
+                                token: Token {
+                                    span: 0:0,
+                                    kind: EndOfFile,
+                                },
+                                value: "id",
+                            },
+                        ),
+                    },
+                ],
+            },
+            DirectiveValue {
+                name: "source",
+                arguments: [
+                    ArgumentValue {
+                        name: "schema",
+                        value: String(
+                            StringNode {
+                                token: Token {
+                                    span: 0:0,
+                                    kind: EndOfFile,
+                                },
+                                value: "instagram",
+                            },
+                        ),
+                    },
+                    ArgumentValue {
+                        name: "name",
+                        value: String(
+                            StringNode {
+                                token: Token {
+                                    span: 0:0,
+                                    kind: EndOfFile,
+                                },
+                                value: "Story",
+                            },
+                        ),
+                    },
+                ],
+            },
         ],
-        directives: [],
     },
 ]
 scalars: [
@@ -1301,7 +1316,10 @@ unions: [
     Union {
         name: "Address",
         is_extension: false,
-        members: [],
+        members: [
+            ObjectID(0),
+            ObjectID(0),
+        ],
         directives: [
             DirectiveValue {
                 name: "source",

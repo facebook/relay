@@ -45,7 +45,7 @@ describe('check()', () => {
       `));
 
     source = RelayRecordSource.create();
-    store = new RelayModernStore(source);
+    store = new RelayModernStore(source, {gcReleaseBufferSize: 0});
     environment = new RelayModernEnvironment({
       network: RelayNetwork.create(jest.fn()),
       store,

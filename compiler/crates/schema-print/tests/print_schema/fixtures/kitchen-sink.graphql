@@ -22,7 +22,12 @@ type User implements XIGHuman @fetchable(field_name: "id") {
   content_type(
     type: AppStoreSectionContentTypeEnum = [CONCEPTS, EARLY_ACCESS]
   ): [AppStoreSectionContentTypeEnum]
-  story(story: XIGStory = {id: 123, name: "instagram_story"}): XIGStory
+  story(story: XIGStoryInput = {id: 123, name: "instagram_story"}): XIGStory
+}
+
+input XIGStoryInput {
+  id: ID
+  name: String
 }
 
 type XIGStory

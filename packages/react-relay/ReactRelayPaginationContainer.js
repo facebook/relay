@@ -360,6 +360,7 @@ function createContainerWithFragments<
     constructor(props) {
       super(props);
       const relayContext = assertRelayContext(props.__relayContext);
+      const rootIsQueryRenderer = props.__rootIsQueryRenderer ?? false;
       this._isARequestInFlight = false;
       this._refetchSubscription = null;
       this._refetchVariables = null;
@@ -368,6 +369,7 @@ function createContainerWithFragments<
         containerName,
         fragments,
         props,
+        rootIsQueryRenderer,
         this._handleFragmentDataUpdate,
       );
       this.state = {
@@ -380,6 +382,10 @@ function createContainerWithFragments<
       this._hasFetched = false;
     }
 
+    componentDidMount() {
+      this._isUnmounted = false;
+    }
+
     /**
      * When new props are received, read data for the new props and subscribe
      * for updates. Props may be the same in which case previous data and
@@ -387,6 +393,7 @@ function createContainerWithFragments<
      */
     UNSAFE_componentWillReceiveProps(nextProps) {
       const relayContext = assertRelayContext(nextProps.__relayContext);
+      const rootIsQueryRenderer = nextProps.__rootIsQueryRenderer ?? false;
       const prevIDs = getDataIDsFromObject(fragments, this.props);
       const nextIDs = getDataIDsFromObject(fragments, nextProps);
       const prevRootVariables = getRootVariablesForFragments(
@@ -415,6 +422,7 @@ function createContainerWithFragments<
           containerName,
           fragments,
           nextProps,
+          rootIsQueryRenderer,
           this._handleFragmentDataUpdate,
         );
         this.setState({
@@ -682,7 +690,12 @@ function createContainerWithFragments<
       options: ?RefetchOptions,
     ): Subscription {
       const {environment} = assertRelayContext(this.props.__relayContext);
-      const {componentRef: _, __relayContext, ...restProps} = this.props;
+      const {
+        componentRef: _,
+        __relayContext,
+        __rootIsQueryRenderer,
+        ...restProps
+      } = this.props;
       const props = {
         ...restProps,
         ...this.state.data,
@@ -826,7 +839,12 @@ function createContainerWithFragments<
     }
 
     render() {
-      const {componentRef, __relayContext, ...props} = this.props;
+      const {
+        componentRef,
+        __relayContext,
+        __rootIsQueryRenderer,
+        ...props
+      } = this.props;
       return (
         <ReactRelayContext.Provider value={this.state.contextForChildren}>
           <Component

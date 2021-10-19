@@ -50,14 +50,14 @@ mutation CommentCreateMutation(
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Unsupported use of @appendEdge on field 'viewer', expected an edge field (a field with 'cursor' and 'node' selection).
-
-Source: GraphQL request (7:12)
-6:   commentCreate(input: $input) {
-7:     viewer @appendEdge(connections: $connections) {
-              ^
-8:       __typename
-
+- Unsupported use of @appendEdge on field 'viewer', expected an edge field (a field with 'cursor' and 'node' selection).
+  
+  Source: GraphQL request (7:12)
+  6:   commentCreate(input: $input) {
+  7:     viewer @appendEdge(connections: $connections) {
+                ^
+  8:       __typename
+  
 `;
 
 exports[`matches expected output: append-node.graphql 1`] = `
@@ -137,14 +137,14 @@ mutation CommentCreateMutation(
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Invalid use of @appendNode on scalar field '__typename'
-
-Source: GraphQL request (10:9)
- 9:       __typename
-10:         @appendNode(connections: $connections, edgeTypeName: $edgeTypeName)
-            ^
-11:     }
-
+- Invalid use of @appendNode on scalar field '__typename'
+  
+  Source: GraphQL request (10:9)
+   9:       __typename
+  10:         @appendNode(connections: $connections, edgeTypeName: $edgeTypeName)
+              ^
+  11:     }
+  
 `;
 
 exports[`matches expected output: delete-edge-from-connection.graphql 1`] = `
@@ -185,14 +185,14 @@ mutation CommentDeleteMutation(
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Invalid use of @deleteEdge on field '__typename'. Expected field to return an ID or list of ID values, got String!.
-
-Source: GraphQL request (7:16)
-6:   commentDelete(input: $input) {
-7:     __typename @deleteEdge(connections: $connections)
-                  ^
-8:   }
-
+- Invalid use of @deleteEdge on field '__typename'. Expected field to return an ID or list of ID values, got String!.
+  
+  Source: GraphQL request (7:16)
+  6:   commentDelete(input: $input) {
+  7:     __typename @deleteEdge(connections: $connections)
+                    ^
+  8:   }
+  
 `;
 
 exports[`matches expected output: delete-edge-from-connection-plural.graphql 1`] = `
@@ -268,12 +268,12 @@ mutation CommentDeleteMutation($input: CommentDeleteInput) {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Invalid use of @deleteRecord on field '__typename'. Expected field to return an ID or list of ID values, got String!.
-
-Source: GraphQL request (4:16)
-3:   commentDelete(input: $input) {
-4:     __typename @deleteRecord
-                  ^
-5:   }
-
+- Invalid use of @deleteRecord on field '__typename'. Expected field to return an ID or list of ID values, got String!.
+  
+  Source: GraphQL request (4:16)
+  3:   commentDelete(input: $input) {
+  4:     __typename @deleteRecord
+                    ^
+  5:   }
+  
 `;

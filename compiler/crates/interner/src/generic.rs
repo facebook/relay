@@ -8,7 +8,9 @@
 use crate::types::{InternKey, RawInternKey};
 use fnv::FnvHashMap;
 use parking_lot::RwLock;
+use std::hash::Hash;
 use std::mem::MaybeUninit;
+use std::num::NonZeroU32;
 use std::sync::Arc;
 
 /// An interner implementation that can be used to intern new values and lookup
@@ -20,7 +22,7 @@ pub struct InternTable<K, V: 'static> {
 impl<K, V> Default for InternTable<K, V>
 where
     K: InternKey + Clone,
-    V: std::cmp::Eq + std::hash::Hash + Clone,
+    V: Eq + Hash + Clone,
 {
     fn default() -> Self {
         Self::new()
@@ -30,7 +32,7 @@ where
 impl<K, V> InternTable<K, V>
 where
     K: InternKey + Clone,
-    V: std::cmp::Eq + std::hash::Hash + Clone,
+    V: Eq + Hash + Clone,
 {
     pub fn new() -> Self {
         Self {
@@ -70,7 +72,7 @@ const INTERN_TABLE_BUFFER_SIZE: usize = 1000;
 impl<K, V> InternTableData<K, V>
 where
     K: InternKey + Clone,
-    V: std::cmp::Eq + std::hash::Hash + Clone,
+    V: Eq + Hash + Clone,
 {
     pub fn new() -> Self {
         Self {
@@ -114,7 +116,9 @@ where
 
         // Create a key for this entry and update both the intern/lookup
         // mappings
-        let key = K::from_raw(RawInternKey::new(self.items.len()));
+        let key = K::from_raw(RawInternKey::new(unsafe {
+            NonZeroU32::new_unchecked((self.items.len() + 1) as u32)
+        }));
         self.items.push(&dest_ptr);
         self.table.insert(&dest_ptr, key.clone());
         self.buffer = Some(remaining);
@@ -122,7 +126,7 @@ where
     }
 
     pub fn lookup(&self, key: K) -> &'static V {
-        let index = key.into_raw().as_usize();
+        let index = key.into_raw().as_usize() - 1;
         self.items[index]
     }
 }

@@ -2,10 +2,10 @@
 id: subscriptions
 title: Subscriptions
 ---
-
 Relay exposes the following APIs to create subscriptions.
 
 ```javascript
+
 import { requestSubscription } from 'react-relay';
 
 type Variables = {[name: string]: any};
@@ -27,23 +27,25 @@ requestSubscription(
     cacheConfig?: CacheConfig,
   },
 ) => Disposable;
+
 ```
+
 The function returns a `Disposable` on which you could call `dispose()` to cancel the refetch.
 
 Now let's take a closer look at the `config`:
 
-* `subscription`: the `graphql` tagged subscription query.
-* `variables`: an object that contains the variables needed for the subscription.
-* `onCompleted`: a callback function executed when the subscription is closed by
-  the peer without error.
-* `onError`: a callback function executed when Relay or the server encounters an
-  error processing the subscription.
-* `onNext`: a callback function executed each time a response is received from
-  the server, with the raw GraphQL response payload.
-* `updater`: an optional function that can supply custom logic for updating the
-  in-memory Relay store based on the server response.
-* `configs`: an array containing the updater configurations. It is the same as [`configs`](./mutations#updater-configs) in `commitMutation`.
-* `cacheConfig?`: Optional object containing a set of cache configuration options
+-   `subscription`: the `graphql` tagged subscription query.
+-   `variables`: an object that contains the variables needed for the subscription.
+-   `onCompleted`: a callback function executed when the subscription is closed by
+    the peer without error.
+-   `onError`: a callback function executed when Relay or the server encounters an
+    error processing the subscription.
+-   `onNext`: a callback function executed each time a response is received from
+    the server, with the raw GraphQL response payload.
+-   `updater`: an optional function that can supply custom logic for updating the
+    in-memory Relay store based on the server response.
+-   `configs`: an array containing the updater configurations. It is the same as [`configs`](./mutations#updater-configs) in `commitMutation`.
+-   `cacheConfig?`: Optional object containing a set of cache configuration options
 
 ## Example
 
@@ -52,6 +54,7 @@ appropriate when you are only changing the properties of existing records that
 can be identified by their `id`:
 
 ```javascript
+
 import {
   requestSubscription,
   graphql,
@@ -79,10 +82,13 @@ requestSubscription(
     subscription,
     variables,
     // optional but recommended:
-    onCompleted: () => {/* server closed the subscription */},
+    onCompleted: () => {
+      // server closed the subscription
+    },
     onError: error => console.error(error),
   }
 );
+
 ```
 
 # Configure Network
@@ -90,6 +96,7 @@ requestSubscription(
 You will need to Configure your [Network](./networklayer) to handle subscriptions. The below example uses [subscriptions-transport-ws](https://github.com/apollographql/subscriptions-transport-ws):
 
 ```javascript
+
 import {
     ...
     Network,
@@ -116,6 +123,7 @@ const subscribe = (request, variables) => {
 const network = Network.create(fetchQuery, subscribe);
 
 ...
+
 ```
 
 # Updating the client on each response
@@ -125,6 +133,7 @@ Relay's in-memory cache when each subscription response is received. To do so,
 pass an `updater` function:
 
 ```javascript
+
 import { ConnectionHandler } from 'relay-runtime';
 
 requestSubscription(
@@ -150,4 +159,5 @@ requestSubscription(
     },
   },
 );
+
 ```

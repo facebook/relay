@@ -12,20 +12,22 @@
 
 'use strict';
 
+const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const RelayReader = require('./RelayReader');
 
 const deepFreeze = require('../util/deepFreeze');
 const hasOverlappingIDs = require('./hasOverlappingIDs');
-const isEmptyObject = require('../util/isEmptyObject');
 const recycleNodesInto = require('../util/recycleNodesInto');
 
 import type {Disposable} from '../util/RelayRuntimeTypes';
 import type {
+  LogFunction,
+  OperationDescriptor,
+  DataIDSet,
   RecordSource,
   RequestDescriptor,
   Snapshot,
   StoreSubscriptions,
-  UpdatedRecords,
 } from './RelayStoreTypes';
 
 type Subscription = {|
@@ -37,9 +39,11 @@ type Subscription = {|
 
 class RelayStoreSubscriptions implements StoreSubscriptions {
   _subscriptions: Set<Subscription>;
+  __log: ?LogFunction;
 
-  constructor() {
+  constructor(log?: ?LogFunction) {
     this._subscriptions = new Set();
+    this.__log = log;
   }
 
   subscribe(
@@ -65,7 +69,7 @@ class RelayStoreSubscriptions implements StoreSubscriptions {
       //   but its base has changed (we just applied a final payload): recompute
       //   a backup so that we can later restore to the state the subscription
       //   should be in.
-      // - stale=false: This subscription was restored to the same value than
+      // - stale=false: This subscription was restored to the same value as
       //   `snapshot`. That means this subscription does *not* have changes relative
       //   to its base, so the current `snapshot` is valid to use as a backup.
       if (!subscription.stale) {
@@ -103,16 +107,18 @@ class RelayStoreSubscriptions implements StoreSubscriptions {
 
   updateSubscriptions(
     source: RecordSource,
-    updatedRecordIDs: UpdatedRecords,
+    updatedRecordIDs: DataIDSet,
     updatedOwners: Array<RequestDescriptor>,
+    sourceOperation?: OperationDescriptor,
   ) {
-    const hasUpdatedRecords = !isEmptyObject(updatedRecordIDs);
+    const hasUpdatedRecords = updatedRecordIDs.size !== 0;
     this._subscriptions.forEach(subscription => {
       const owner = this._updateSubscription(
         source,
         subscription,
         updatedRecordIDs,
         hasUpdatedRecords,
+        sourceOperation,
       );
       if (owner != null) {
         updatedOwners.push(owner);
@@ -131,8 +137,9 @@ class RelayStoreSubscriptions implements StoreSubscriptions {
   _updateSubscription(
     source: RecordSource,
     subscription: Subscription,
-    updatedRecordIDs: UpdatedRecords,
+    updatedRecordIDs: DataIDSet,
     hasUpdatedRecords: boolean,
+    sourceOperation?: OperationDescriptor,
   ): ?RequestDescriptor {
     const {backup, callback, snapshot, stale} = subscription;
     const hasOverlappingUpdates =
@@ -159,6 +166,14 @@ class RelayStoreSubscriptions implements StoreSubscriptions {
     subscription.snapshot = nextSnapshot;
     subscription.stale = false;
     if (nextSnapshot.data !== snapshot.data) {
+      if (this.__log && RelayFeatureFlags.ENABLE_NOTIFY_SUBSCRIPTION) {
+        this.__log({
+          name: 'store.notify.subscription',
+          sourceOperation,
+          snapshot,
+          nextSnapshot,
+        });
+      }
       callback(nextSnapshot);
       return snapshot.selector.owner;
     }

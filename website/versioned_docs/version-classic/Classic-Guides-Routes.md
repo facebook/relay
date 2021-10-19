@@ -6,9 +6,11 @@ original_id: classic-guides-routes
 
 Routes are responsible for defining the entry points into a Relay application. But in order to understand why routes are necessary, we must first understand the difference between GraphQL queries and fragments.
 
-> Note
->
-> Relay routes don't really implement any URL routing specific logic or work with History API. In the future we will maybe rename RelayRoute to be something more like RelayQueryRoots or RelayQueryConfig. For more information around why Relay doesn't provide URL-routing features, and suggestions for such solutions, see [this post](https://medium.com/@cpojer/relay-and-routing-36b5439bad9).
+<blockquote>
+Note
+
+Relay routes don't really implement any URL routing specific logic or work with History API. In the future we will maybe rename RelayRoute to be something more like RelayQueryRoots or RelayQueryConfig. For more information around why Relay doesn't provide URL-routing features, and suggestions for such solutions, see [this post](https://medium.com/@cpojer/relay-and-routing-36b5439bad9).
+</blockquote>
 
 ## Queries vs. Fragments
 

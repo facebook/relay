@@ -28,6 +28,7 @@ const {
   CONNECTION,
   DEFER,
   FLIGHT_FIELD,
+  FRAGMENT_SPREAD,
   INLINE_FRAGMENT,
   LINKED_FIELD,
   LINKED_HANDLE,
@@ -187,11 +188,13 @@ class RelayMockPayloadGenerator {
     this._variables = options.variables;
     // $FlowFixMe[cannot-spread-indexer]
     // $FlowFixMe[cannot-spread-inexact]
+    // $FlowFixMe[incompatible-type]
     this._mockResolvers = {
       ...DEFAULT_MOCK_RESOLVERS,
       ...(options.mockResolvers ?? {}),
     };
     this._selectionMetadata = options.selectionMetadata ?? {};
+    // $FlowFixMe[incompatible-call]
     this._resolveValue = createValueResolver(this._mockResolvers);
   }
 
@@ -298,6 +301,18 @@ class RelayMockPayloadGenerator {
         case STREAM: {
           mockData = this._traverseSelections(
             selection.selections,
+            typeName,
+            isAbstractType,
+            path,
+            mockData,
+            defaultValues,
+          );
+          break;
+        }
+
+        case FRAGMENT_SPREAD: {
+          mockData = this._traverseSelections(
+            selection.fragment.selections,
             typeName,
             isAbstractType,
             path,

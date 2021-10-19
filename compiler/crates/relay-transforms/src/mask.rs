@@ -13,6 +13,7 @@ use graphql_ir::{
 };
 use indexmap::{map::Entry, IndexMap};
 use interner::StringKey;
+use schema::Schema;
 use std::ops::RangeFull;
 use std::sync::Arc;
 

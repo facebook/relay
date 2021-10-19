@@ -12,20 +12,21 @@
 // flowlint ambiguous-object-type:error
 
 'use strict';
-
 const React = require('react');
 const ReactTestRenderer = require('react-test-renderer');
 const RelayTestUtils = require('relay-test-utils-internal');
 
-const ReactRelayTestMockerTestQuery = RelayTestUtils.generateAndCompile(`
+const {getRequest, graphql} = require('relay-runtime');
+
+const ReactRelayTestMockerTestQuery = graphql`
   query ReactRelayTestMockerTestQuery {
     me {
       name
     }
   }
-`).ReactRelayTestMockerTestQuery;
+`;
 
-const ReactRelayTestMockerTestNestedQuery = RelayTestUtils.generateAndCompile(`
+const ReactRelayTestMockerTestNestedQuery = graphql`
   query ReactRelayTestMockerTestNestedQuery {
     viewer {
       actor {
@@ -35,28 +36,23 @@ const ReactRelayTestMockerTestNestedQuery = RelayTestUtils.generateAndCompile(`
       }
     }
   }
-`).ReactRelayTestMockerTestNestedQuery;
+`;
 
 const ReactRelayTestMockerTest_meFragmentDefinition = {
-  me: RelayTestUtils.generateAndCompile(`
+  me: graphql`
     fragment ReactRelayTestMockerTest_me on User {
       name
     }
-`).ReactRelayTestMockerTest_me,
+  `,
 };
 
-const ReactRelayTestMockerTestFragContainerTestQuery = RelayTestUtils.generateAndCompile(`
-
-  fragment ReactRelayTestMockerTest_me on User {
-    name
-  }
-
+const ReactRelayTestMockerTestFragContainerTestQuery = graphql`
   query ReactRelayTestMockerTestFragContainerTestQuery {
     me {
       ...ReactRelayTestMockerTest_me
     }
   }
-`).ReactRelayTestMockerTestFragContainerTestQuery;
+`;
 
 const {createMockEnvironment} = RelayTestUtils;
 const ReactRelayTestMocker = require('../ReactRelayTestMocker');
@@ -103,7 +99,7 @@ describe('ReactRelayTestMocker', () => {
 
     it('updates properly via default values', () => {
       const testQueryDefault = {
-        query: ReactRelayTestMockerTestQuery,
+        query: getRequest(ReactRelayTestMockerTestQuery),
         payload: {data: payload},
       };
 
@@ -112,7 +108,7 @@ describe('ReactRelayTestMocker', () => {
       const nestedQuery = ReactRelayTestMockerTestNestedQuery;
 
       const nestedQueryDefault = {
-        query: ReactRelayTestMockerTestNestedQuery,
+        query: getRequest(ReactRelayTestMockerTestNestedQuery),
         payload: {
           data: {
             viewer: {
@@ -212,7 +208,7 @@ describe('ReactRelayTestMocker', () => {
       expect(tree.toJSON()).toMatchSnapshot();
 
       writer.networkWrite({
-        query: ReactRelayTestMockerTestQuery,
+        query: getRequest(ReactRelayTestMockerTestQuery),
         payload: {data: payload},
       });
       jest.runAllTimers();
@@ -226,7 +222,7 @@ describe('ReactRelayTestMocker', () => {
       tree = ReactTestRenderer.create(toRender);
 
       writer.networkWrite({
-        query: ReactRelayTestMockerTestQuery,
+        query: getRequest(ReactRelayTestMockerTestQuery),
         payload: {
           data: null,
           errors: [
@@ -251,7 +247,7 @@ describe('ReactRelayTestMocker', () => {
       const q = ReactRelayTestMockerTestFragContainerTestQuery;
 
       writer.dataWrite({
-        query: ReactRelayTestMockerTestFragContainerTestQuery,
+        query: getRequest(ReactRelayTestMockerTestFragContainerTestQuery),
         payload: {data: payload},
         variables,
       });
@@ -276,7 +272,7 @@ describe('ReactRelayTestMocker', () => {
       };
 
       writer.dataWrite({
-        query: ReactRelayTestMockerTestFragContainerTestQuery,
+        query: getRequest(ReactRelayTestMockerTestFragContainerTestQuery),
         payload: {data: newPayload},
         variables,
       });

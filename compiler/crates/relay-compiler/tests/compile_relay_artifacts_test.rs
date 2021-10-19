@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<95b79a4986f3411203abd6b9984ce4c3>>
+ * @generated SignedSource<<455aa0f55db78048dbac13d74d348649>>
  */
 
 mod compile_relay_artifacts;
@@ -594,6 +594,27 @@ fn nested_conditions() {
 }
 
 #[test]
+fn no_inline_abstract_fragment() {
+    let input = include_str!("compile_relay_artifacts/fixtures/no-inline-abstract-fragment.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/no-inline-abstract-fragment.expected");
+    test_fixture(transform_fixture, "no-inline-abstract-fragment.graphql", "compile_relay_artifacts/fixtures/no-inline-abstract-fragment.expected", input, expected);
+}
+
+#[test]
+fn no_inline_fragment() {
+    let input = include_str!("compile_relay_artifacts/fixtures/no-inline-fragment.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/no-inline-fragment.expected");
+    test_fixture(transform_fixture, "no-inline-fragment.graphql", "compile_relay_artifacts/fixtures/no-inline-fragment.expected", input, expected);
+}
+
+#[test]
+fn no_inline_fragment_disallow_module() {
+    let input = include_str!("compile_relay_artifacts/fixtures/no-inline-fragment-disallow-module.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/no-inline-fragment-disallow-module.expected");
+    test_fixture(transform_fixture, "no-inline-fragment-disallow-module.graphql", "compile_relay_artifacts/fixtures/no-inline-fragment-disallow-module.expected", input, expected);
+}
+
+#[test]
 fn original_client_fields_test() {
     let input = include_str!("compile_relay_artifacts/fixtures/original-client-fields-test.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/original-client-fields-test.expected");
@@ -675,6 +696,13 @@ fn query_with_raw_response_type_directive() {
     let input = include_str!("compile_relay_artifacts/fixtures/query-with-raw-response-type-directive.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/query-with-raw-response-type-directive.expected");
     test_fixture(transform_fixture, "query-with-raw-response-type-directive.graphql", "compile_relay_artifacts/fixtures/query-with-raw-response-type-directive.expected", input, expected);
+}
+
+#[test]
+fn query_with_relay_client_component() {
+    let input = include_str!("compile_relay_artifacts/fixtures/query-with-relay-client-component.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/query-with-relay-client-component.expected");
+    test_fixture(transform_fixture, "query-with-relay-client-component.graphql", "compile_relay_artifacts/fixtures/query-with-relay-client-component.expected", input, expected);
 }
 
 #[test]

@@ -9,7 +9,7 @@ use common::SourceLocationKey;
 use fixture_tests::Fixture;
 use graphql_ir::{build, ExecutableDefinition};
 use graphql_syntax::parse_executable;
-use relay_codegen::{print_fragment, print_operation};
+use relay_codegen::{print_fragment, print_operation, JsModuleFormat};
 use relay_test_schema::TEST_SCHEMA;
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
@@ -24,10 +24,10 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
                 .iter()
                 .map(|def| match def {
                     ExecutableDefinition::Operation(operation) => {
-                        print_operation(&TEST_SCHEMA, operation)
+                        print_operation(&TEST_SCHEMA, operation, JsModuleFormat::Haste)
                     }
                     ExecutableDefinition::Fragment(fragment) => {
-                        print_fragment(&TEST_SCHEMA, fragment)
+                        print_fragment(&TEST_SCHEMA, fragment, JsModuleFormat::Haste)
                     }
                 })
                 .collect::<Vec<_>>()

@@ -525,14 +525,14 @@ query NodeQuery($id: ID!, $first: Int, $after: ID) {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Expected field 'comments' to have an 'edges' selection.
-
-Source: GraphQL request (6:7)
-5:     ... on Story {
-6:       comments(first: $first, after: $after)
-         ^
-7:         @connection(key: "NodeQuery_comments") {
-
+- Expected field 'comments' to have an 'edges' selection.
+  
+  Source: GraphQL request (6:7)
+  5:     ... on Story {
+  6:       comments(first: $first, after: $after)
+           ^
+  7:         @connection(key: "NodeQuery_comments") {
+  
 `;
 
 exports[`matches expected output: connection-missing-first-arg.invalid.graphql 1`] = `
@@ -558,14 +558,14 @@ query NodeQuery($id: ID!) {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Expected field 'comments' to have a 'first' or 'last' argument.
-
-Source: GraphQL request (6:7)
-5:     ... on Story {
-6:       comments @connection(key: "NodeQuery_comments") {
-         ^
-7:         edges {
-
+- Expected field 'comments' to have a 'first' or 'last' argument.
+  
+  Source: GraphQL request (6:7)
+  5:     ... on Story {
+  6:       comments @connection(key: "NodeQuery_comments") {
+           ^
+  7:         edges {
+  
 `;
 
 exports[`matches expected output: connection-with-aliased-edges-pageInfo.graphql 1`] = `
@@ -878,14 +878,14 @@ query NodeQuery($id: ID!) {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Expected the key argument to @connection to be of form <SomeName>_comments, got 'invalid'. For a detailed explanation, check out https://relay.dev/docs/en/pagination-container#connection
-
-Source: GraphQL request (6:44)
-5:     ... on Story {
-6:       comments(first: 10) @connection(key: "invalid") {
-                                              ^
-7:         edges {
-
+- Expected the key argument to @connection to be of form <SomeName>_comments, got 'invalid'. For a detailed explanation, check out https://relay.dev/docs/en/pagination-container#connection
+  
+  Source: GraphQL request (6:44)
+  5:     ... on Story {
+  6:       comments(first: 10) @connection(key: "invalid") {
+                                                ^
+  7:         edges {
+  
 `;
 
 exports[`matches expected output: invalid-connection-key-type.graphql 1`] = `
@@ -909,13 +909,13 @@ query NodeQuery($id: ID!) {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Expected a value matching type 'String!'.
-
-GraphQL request:6:44
-5 |     ... on Story {
-6 |       comments(first: 10) @connection(key: 10) {
-  |                                            ^
-7 |         edges {
+- Expected a value matching type 'String!'.
+  
+  GraphQL request:6:44
+  5 |     ... on Story {
+  6 |       comments(first: 10) @connection(key: 10) {
+    |                                            ^
+  7 |         edges {
 `;
 
 exports[`matches expected output: invalid-connection-with-custom-handler.graphql 1`] = `
@@ -949,13 +949,13 @@ query NodeQuery($id: ID!) {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Expected a value matching type 'String'.
-
-GraphQL request:6:75
-5 |     ... on Story {
-6 |       comments(first: 10) @connection(key: "NodeQuery_comments", handler: 10) {
-  |                                                                           ^
-7 |         edges {
+- Expected a value matching type 'String'.
+  
+  GraphQL request:6:75
+  5 |     ... on Story {
+  6 |       comments(first: 10) @connection(key: "NodeQuery_comments", handler: 10) {
+    |                                                                           ^
+  7 |         edges {
 `;
 
 exports[`matches expected output: invalid-type.graphql 1`] = `
@@ -975,14 +975,14 @@ query NodeQuery($id: ID!) {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-@connection used on invalid field 'actors'. Expected the return type to be a non-plural interface or object, got '[Actor]'.
-
-Source: GraphQL request (6:7)
-5:     ... on Story {
-6:       actors @connection {
-         ^
-7:         name
-
+- @connection used on invalid field 'actors'. Expected the return type to be a non-plural interface or object, got '[Actor]'.
+  
+  Source: GraphQL request (6:7)
+  5:     ... on Story {
+  6:       actors @connection {
+           ^
+  7:         name
+  
 `;
 
 exports[`matches expected output: stream-connection.graphql 1`] = `
@@ -1164,14 +1164,14 @@ query NodeQuery($id: ID!) {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-@stream_connection does not support aliasing the 'edges' field.
-
-Source: GraphQL request (8:9)
-7:         @stream_connection(key: "NodeQuery_comments", initial_count: 0) {
-8:         commentEdges: edges {
-           ^
-9:           node {
-
+- @stream_connection does not support aliasing the 'edges' field.
+  
+  Source: GraphQL request (8:9)
+  7:         @stream_connection(key: "NodeQuery_comments", initial_count: 0) {
+  8:         commentEdges: edges {
+             ^
+  9:           node {
+  
 `;
 
 exports[`matches expected output: stream-connection-with-aliased-pageInfo.invalid.graphql 1`] = `
@@ -1201,12 +1201,12 @@ query NodeQuery($id: ID!) {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-@stream_connection does not support aliasing the 'pageInfo' field.
-
-Source: GraphQL request (15:9)
-14:         }
-15:         commentPageInfo: pageInfo {
-            ^
-16:           hasNextPage
-
+- @stream_connection does not support aliasing the 'pageInfo' field.
+  
+  Source: GraphQL request (15:9)
+  14:         }
+  15:         commentPageInfo: pageInfo {
+              ^
+  16:           hasNextPage
+  
 `;

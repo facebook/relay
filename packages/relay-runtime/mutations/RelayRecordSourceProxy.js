@@ -23,6 +23,7 @@ const {ROOT_ID, ROOT_TYPE} = require('../store/RelayStoreUtils');
 import type {HandlerProvider} from '../handlers/RelayDefaultHandlerProvider';
 import type {GetDataID} from '../store/RelayResponseNormalizer';
 import type {
+  DataIDSet,
   HandleFieldPayload,
   RecordSource,
   RecordProxy,
@@ -42,7 +43,7 @@ class RelayRecordSourceProxy implements RecordSourceProxy {
   _proxies: {[dataID: DataID]: ?RelayRecordProxy, ...};
   _getDataID: GetDataID;
   _invalidatedStore: boolean;
-  _idsMarkedForInvalidation: Set<DataID>;
+  _idsMarkedForInvalidation: DataIDSet;
 
   constructor(
     mutator: RelayRecordSourceMutator,
@@ -156,7 +157,7 @@ class RelayRecordSourceProxy implements RecordSourceProxy {
     this._idsMarkedForInvalidation.add(dataID);
   }
 
-  getIDsMarkedForInvalidation(): Set<DataID> {
+  getIDsMarkedForInvalidation(): DataIDSet {
     return this._idsMarkedForInvalidation;
   }
 }

@@ -12,6 +12,8 @@ use interner::StringKey;
 use relay_transforms::*;
 use std::sync::Arc;
 
+use super::log_program_stats::print_stats;
+
 #[derive(Debug)]
 pub struct Programs {
     pub source: Arc<Program>,
@@ -70,6 +72,8 @@ where
                             apply_normalization_transforms(
                                 project_name,
                                 Arc::clone(&operation_program),
+                                Arc::clone(&base_fragment_names),
+                                Arc::clone(&feature_flags),
                                 Arc::clone(&perf_logger),
                             )
                         },
@@ -77,6 +81,8 @@ where
                             apply_operation_text_transforms(
                                 project_name,
                                 Arc::clone(&operation_program),
+                                Arc::clone(&base_fragment_names),
+                                Arc::clone(&feature_flags),
                                 Arc::clone(&perf_logger),
                             )
                         },
@@ -122,32 +128,25 @@ fn apply_common_transforms(
     base_fragment_names: Arc<FnvHashSet<StringKey>>,
     perf_logger: Arc<impl PerfLogger>,
 ) -> DiagnosticsResult<Arc<Program>> {
-    // JS compiler
-    // * DisallowIdAsAlias (in validate)
-    // + ConnectionTransform
-    // * RelayDirectiveTransform (in validate)
-    // + MaskTransform
-    // + MatchTransform
-    // + RefetchableFragmentTransform
-    // + DeferStreamTransform
     let log_event = perf_logger.create_event("apply_common_transforms");
     log_event.string("project", project_name.to_string());
-    let program = log_event.time("transform_connections", || {
+    let mut program = log_event.time("transform_connections", || {
         transform_connections(&program, connection_interface)
     });
-    let program = log_event.time("mask", || mask(&program));
-    let program = log_event.time("transform_defer_stream", || {
+    program = log_event.time("mask", || mask(&program));
+    program = log_event.time("transform_defer_stream", || {
         transform_defer_stream(&program)
     })?;
-    let program = log_event.time("transform_match", || transform_match(&program))?;
-    let program = log_event.time("transform_refetchable_fragment", || {
+    program = log_event.time("transform_match", || transform_match(&program))?;
+    program = log_event.time("transform_refetchable_fragment", || {
         transform_refetchable_fragment(&program, &base_fragment_names, false)
     })?;
-    let program = if feature_flags.enable_flight_transform {
-        log_event.time("react_flight", || react_flight(&program))?
-    } else {
-        program
-    };
+    if feature_flags.enable_flight_transform {
+        program = log_event.time("react_flight", || react_flight(&program))?;
+        program = log_event.time("relay_client_component", || {
+            relay_client_component(&program)
+        })?;
+    }
     perf_logger.complete_event(log_event);
 
     Ok(Arc::new(program))
@@ -162,29 +161,23 @@ fn apply_reader_transforms(
     base_fragment_names: Arc<FnvHashSet<StringKey>>,
     perf_logger: Arc<impl PerfLogger>,
 ) -> DiagnosticsResult<Arc<Program>> {
-    // JS compiler
-    // + ClientExtensionsTransform
-    // + FieldHandleTransform
-    // + InlineDataFragmentTransform
-    // + FlattenTransform, flattenAbstractTypes: true
-    // + SkipRedundantNodesTransform
     let log_event = perf_logger.create_event("apply_reader_transforms");
     log_event.string("project", project_name.to_string());
-    let program = log_event.time("required_directive", || {
+    let mut program = log_event.time("required_directive", || {
         required_directive(&program, &feature_flags)
     })?;
 
-    let program = log_event.time("client_extensions", || client_extensions(&program));
-    let program = log_event.time("handle_field_transform", || {
+    program = log_event.time("client_extensions", || client_extensions(&program));
+    program = log_event.time("handle_field_transform", || {
         handle_field_transform(&program)
     });
-    let program = log_event.time("inline_data_fragment", || inline_data_fragment(&program))?;
-    let program = log_event.time("remove_base_fragments", || {
+    program = log_event.time("inline_data_fragment", || inline_data_fragment(&program))?;
+    program = log_event.time("remove_base_fragments", || {
         remove_base_fragments(&program, base_fragment_names)
     });
-    let program = log_event.time("flatten", || flatten(&program, true))?;
-    let program = log_event.time("skip_redundant_nodes", || skip_redundant_nodes(&program));
-    let program = log_event.time("generate_data_driven_dependency_metadata", || {
+    log_event.time("flatten", || flatten(&mut program, true))?;
+    program = log_event.time("skip_redundant_nodes", || skip_redundant_nodes(&program));
+    program = log_event.time("generate_data_driven_dependency_metadata", || {
         generate_data_driven_dependency_metadata(&program)
     });
 
@@ -202,35 +195,22 @@ fn apply_operation_transforms(
     base_fragment_names: Arc<FnvHashSet<StringKey>>,
     perf_logger: Arc<impl PerfLogger>,
 ) -> DiagnosticsResult<Arc<Program>> {
-    // JS compiler
-    // + SplitModuleImportTransform
-    // * ValidateUnusedVariablesTransform (Moved to common_transforms)
-    // + ApplyFragmentArgumentTransform
-    // + ValidateGlobalVariablesTransform
-    // + GenerateIDFieldTransform
-    // * TestOperationTransform - part of relay_codegen
     let log_event = perf_logger.create_event("apply_operation_transforms");
     log_event.string("project", project_name.to_string());
 
-    let program = log_event.time("split_module_import", || {
+    let mut program = log_event.time("split_module_import", || {
         split_module_import(&program, &base_fragment_names)
     });
-    let program = log_event.time("apply_fragment_arguments", || {
-        apply_fragment_arguments(&program)
-    })?;
-    log_event.time("validate_global_variables", || {
-        validate_global_variables(&program)
-    })?;
-    let program = log_event.time("generate_id_field", || generate_id_field(&program));
-    let program = log_event.time("declarative_connection", || {
+    program = log_event.time("generate_id_field", || generate_id_field(&program));
+    program = log_event.time("declarative_connection", || {
         transform_declarative_connection(&program, connection_interface)
     })?;
 
     // TODO(T67052528): execute FB-specific transforms only if config options is provided
-    let program = log_event.time("generate_subscription_name_metadata", || {
+    program = log_event.time("generate_subscription_name_metadata", || {
         generate_subscription_name_metadata(&program)
     })?;
-    let program = log_event.time("generate_live_query_metadata", || {
+    program = log_event.time("generate_live_query_metadata", || {
         generate_live_query_metadata(&program)
     })?;
 
@@ -246,28 +226,48 @@ fn apply_operation_transforms(
 fn apply_normalization_transforms(
     project_name: StringKey,
     program: Arc<Program>,
+    base_fragment_names: Arc<FnvHashSet<StringKey>>,
+    feature_flags: Arc<FeatureFlags>,
     perf_logger: Arc<impl PerfLogger>,
 ) -> DiagnosticsResult<Arc<Program>> {
-    // JS compiler
-    // + SkipUnreachableNodeTransform
-    // + InlineFragmentsTransform
-    // + ClientExtensionsTransform
-    // + GenerateTypeNameTransform
-    // + FlattenTransform, flattenAbstractTypes: true
-    // + SkipRedundantNodesTransform
     let log_event = perf_logger.create_event("apply_normalization_transforms");
     log_event.string("project", project_name.to_string());
+    print_stats("normalization start", &program);
 
-    let program = log_event.time("relay_early_flush", || relay_early_flush(&program))?;
-    let program = log_event.time("skip_unreachable_node", || skip_unreachable_node(&program));
-    let program = log_event.time("inline_fragments", || inline_fragments(&program));
-    let program = log_event.time("client_extensions", || client_extensions(&program));
-    let program = log_event.time("generate_typename", || generate_typename(&program, true));
-    let program = log_event.time("flatten", || flatten(&program, true))?;
-    let program = log_event.time("skip_redundant_nodes", || skip_redundant_nodes(&program));
-    let program = log_event.time("generate_test_operation_metadata", || {
+    let mut program = log_event.time("apply_fragment_arguments", || {
+        apply_fragment_arguments(
+            &program,
+            true,
+            &feature_flags.no_inline,
+            &base_fragment_names,
+        )
+    })?;
+    print_stats("apply_fragment_arguments", &program);
+    program = log_event.time("relay_early_flush", || relay_early_flush(&program))?;
+    print_stats("relay_early_flush", &program);
+
+    program = log_event.time("skip_unreachable_node", || skip_unreachable_node(&program));
+    print_stats("skip_unreachable_node", &program);
+
+    program = log_event.time("inline_fragments", || inline_fragments(&program));
+    print_stats("inline_fragments", &program);
+
+    program = log_event.time("client_extensions", || client_extensions(&program));
+    print_stats("client_extensions", &program);
+
+    program = log_event.time("generate_typename", || generate_typename(&program, true));
+    print_stats("generate_typename", &program);
+
+    log_event.time("flatten", || flatten(&mut program, true))?;
+    print_stats("flatten", &program);
+
+    program = log_event.time("skip_redundant_nodes", || skip_redundant_nodes(&program));
+    print_stats("skip_redundant_nodes", &program);
+
+    program = log_event.time("generate_test_operation_metadata", || {
         generate_test_operation_metadata(&program)
     });
+    print_stats("generate_test_operation_metadata", &program);
 
     perf_logger.complete_event(log_event);
 
@@ -281,38 +281,40 @@ fn apply_normalization_transforms(
 fn apply_operation_text_transforms(
     project_name: StringKey,
     program: Arc<Program>,
+    base_fragment_names: Arc<FnvHashSet<StringKey>>,
+    feature_flags: Arc<FeatureFlags>,
     perf_logger: Arc<impl PerfLogger>,
 ) -> DiagnosticsResult<Arc<Program>> {
-    // JS compiler
-    // + SkipSplitOperationTransform
-    // * ClientExtensionsTransform (not necessary in rust)
-    // + SkipClientExtensionsTransform
-    // + SkipUnreachableNodeTransform
-    // + GenerateTypeNameTransform
-    // + FlattenTransform, flattenAbstractTypes: false
-    // * SkipHandleFieldTransform (not necessary in rust)
-    // + FilterDirectivesTransform
-    // + SkipUnusedVariablesTransform
-    // + ValidateRequiredArgumentsTransform
     let log_event = perf_logger.create_event("apply_operation_text_transforms");
     log_event.string("project", project_name.to_string());
 
-    let program = log_event.time("relay_early_flush", || relay_early_flush(&program))?;
-    let program = log_event.time("skip_split_operation", || skip_split_operation(&program));
-    let program = log_event.time("skip_client_extensions", || {
+    let mut program = log_event.time("apply_fragment_arguments", || {
+        apply_fragment_arguments(
+            &program,
+            false,
+            &feature_flags.no_inline,
+            &base_fragment_names,
+        )
+    })?;
+    log_event.time("validate_global_variables", || {
+        validate_global_variables(&program)
+    })?;
+    program = log_event.time("relay_early_flush", || relay_early_flush(&program))?;
+    program = log_event.time("skip_split_operation", || skip_split_operation(&program));
+    program = log_event.time("skip_client_extensions", || {
         skip_client_extensions(&program)
     });
-    let program = log_event.time("skip_unreachable_node", || skip_unreachable_node(&program));
-    let program = log_event.time("generate_typename", || generate_typename(&program, false));
-    let program = log_event.time("flatten", || flatten(&program, false))?;
-    let program = log_event.time("skip_unused_variables", || skip_unused_variables(&program));
-    let program = log_event.time("skip_client_directives", || {
+    program = log_event.time("skip_unreachable_node", || skip_unreachable_node(&program));
+    program = log_event.time("generate_typename", || generate_typename(&program, false));
+    log_event.time("flatten", || flatten(&mut program, false))?;
+    program = log_event.time("skip_unused_variables", || skip_unused_variables(&program));
+    program = log_event.time("skip_client_directives", || {
         skip_client_directives(&program)
     });
     log_event.time("validate_required_arguments", || {
         validate_required_arguments(&program)
     })?;
-    let program = log_event.time("unwrap_custom_directive_selection", || {
+    program = log_event.time("unwrap_custom_directive_selection", || {
         unwrap_custom_directive_selection(&program)
     });
     perf_logger.complete_event(log_event);
@@ -327,25 +329,19 @@ fn apply_typegen_transforms(
     base_fragment_names: Arc<FnvHashSet<StringKey>>,
     perf_logger: Arc<impl PerfLogger>,
 ) -> DiagnosticsResult<Arc<Program>> {
-    // JS compiler
-    // * RelayDirectiveTransform
-    // + MaskTransform
-    // + MatchTransform
-    // + FlattenTransform, flattenAbstractTypes: false
-    // + RefetchableFragmentTransform,
     let log_event = perf_logger.create_event("apply_typegen_transforms");
     log_event.string("project", project_name.to_string());
 
-    let program = log_event.time("mask", || mask(&program));
-    let program = log_event.time("transform_match", || transform_match(&program))?;
-    let program = log_event.time("required_directive", || {
+    let mut program = log_event.time("mask", || mask(&program));
+    program = log_event.time("transform_match", || transform_match(&program))?;
+    program = log_event.time("required_directive", || {
         required_directive(&program, &feature_flags)
     })?;
-    let program = log_event.time("flatten", || flatten(&program, false))?;
-    let program = log_event.time("transform_refetchable_fragment", || {
+    log_event.time("flatten", || flatten(&mut program, false))?;
+    program = log_event.time("transform_refetchable_fragment", || {
         transform_refetchable_fragment(&program, &base_fragment_names, true)
     })?;
-    let program = log_event.time("remove_base_fragments", || {
+    program = log_event.time("remove_base_fragments", || {
         remove_base_fragments(&program, base_fragment_names)
     });
     perf_logger.complete_event(log_event);

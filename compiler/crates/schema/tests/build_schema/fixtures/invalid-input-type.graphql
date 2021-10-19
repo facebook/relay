@@ -1,0 +1,16 @@
+# expected-to-throw
+
+type User {
+  id: ID
+}
+
+enum Option {
+  SOME
+  NONE
+}
+
+input InvalidInput {
+  id: String
+  enum: Option
+  user: User
+}

@@ -196,13 +196,6 @@ fragment multipleModulesWithKey_MarkdownUserNameRenderer_name on MarkdownUserNam
             "storageKey": null
           },
           {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "id",
-            "storageKey": null
-          },
-          {
             "kind": "InlineFragment",
             "selections": [
               {
@@ -285,6 +278,13 @@ fragment multipleModulesWithKey_MarkdownUserNameRenderer_name on MarkdownUserNam
             ],
             "type": "User",
             "abstractKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
           }
         ],
         "storageKey": "node(id:\"<user-id>\")"
@@ -311,8 +311,8 @@ query multipleModulesWithKey_MatchQuery {
         __typename
         ... on PlainUserNameRenderer {
           ...multipleModulesWithKey_PlainUserNameRenderer_name
-          __module_operation_multipleModulesWithKey_MatchQuery_nameRenderer: js(module: "multipleModulesWithKey_PlainUserNameRenderer_name$normalization.graphql", id: "multipleModulesWithKey_MatchQuery.node.nameRenderer")
-          __module_component_multipleModulesWithKey_MatchQuery_nameRenderer: js(module: "PlainUserNameRenderer.react", id: "multipleModulesWithKey_MatchQuery.node.nameRenderer")
+          __module_operation_multipleModulesWithKey_MatchQuery_nameRenderer: js(module: "multipleModulesWithKey_PlainUserNameRenderer_name$normalization.graphql", id: "multipleModulesWithKey_MatchQuery.node.nameRenderer", branch: "PlainUserNameRenderer")
+          __module_component_multipleModulesWithKey_MatchQuery_nameRenderer: js(module: "PlainUserNameRenderer.react", id: "multipleModulesWithKey_MatchQuery.node.nameRenderer", branch: "PlainUserNameRenderer")
         }
       }
     }
@@ -321,8 +321,8 @@ query multipleModulesWithKey_MatchQuery {
         __typename
         ... on MarkdownUserNameRenderer {
           ...multipleModulesWithKey_MarkdownUserNameRenderer_name
-          __module_operation_multipleModulesWithKey_MatchQuery: js(module: "multipleModulesWithKey_MarkdownUserNameRenderer_name$normalization.graphql", id: "multipleModulesWithKey_MatchQuery.node.nameRenderable")
-          __module_component_multipleModulesWithKey_MatchQuery: js(module: "MarkdownUserNameRenderer.react", id: "multipleModulesWithKey_MatchQuery.node.nameRenderable")
+          __module_operation_multipleModulesWithKey_MatchQuery: js(module: "multipleModulesWithKey_MarkdownUserNameRenderer_name$normalization.graphql", id: "multipleModulesWithKey_MatchQuery.node.nameRenderable", branch: "MarkdownUserNameRenderer")
+          __module_component_multipleModulesWithKey_MatchQuery: js(module: "MarkdownUserNameRenderer.react", id: "multipleModulesWithKey_MatchQuery.node.nameRenderable", branch: "MarkdownUserNameRenderer")
         }
       }
     }

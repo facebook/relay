@@ -176,7 +176,7 @@ const siteConfig = {
   baseUrl: '/',
   projectName: 'relay',
   cname: 'relay.dev',
-  users,
+  customFields: {users},
   editUrl: 'https://github.com/facebook/relay/edit/master/docs/',
   headerLinks: [
     {doc: 'introduction-to-relay', label: 'Docs'},
@@ -190,6 +190,7 @@ const siteConfig = {
   ],
   footerIcon: 'img/relay.svg',
   favicon: 'img/favicon.png',
+  gaTrackingId: 'UA-44373548-50',
   twitterImage: 'img/relay.png',
   ogImage: 'img/relay.png',
   colors: {
@@ -199,7 +200,7 @@ const siteConfig = {
     lightGrayColor: '#f7f7f7',
     darkGrayColor: '#959595',
   },
-  // See https://docusaurus.io/docs/search for more information about Aloglia
+  // See https://docusaurus.io/docs/search for more information about Algolia
   // search
   algolia: {
     apiKey: '3d7d5825d50ea36bca0e6ad06c926f06',
@@ -216,7 +217,7 @@ const siteConfig = {
   enableUpdateTime: true,
   enableUpdateBy: true,
   docsSideNavCollapsible: true,
-  scripts: ['/js/redirect.js'],
+  scripts: ['/js/redirect.js', '/js/docsRating.js'],
   onPageNav: 'separate',
 };
 

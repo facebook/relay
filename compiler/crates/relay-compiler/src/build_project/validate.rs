@@ -14,17 +14,25 @@ use relay_transforms::{
     ConnectionInterface,
 };
 
+pub type AdditionalValidations = Box<dyn Fn(&Program) -> DiagnosticsResult<()> + Sync + Send>;
+
 pub fn validate(
     program: &Program,
     connection_interface: &ConnectionInterface,
+    additional_validations: &Option<AdditionalValidations>,
 ) -> DiagnosticsResult<()> {
     try_all(vec![
         disallow_reserved_aliases(program),
-        validate_unused_variables(&program),
+        validate_unused_variables(program),
         validate_connections(program, connection_interface),
         validate_relay_directives(program),
         validate_module_names(program),
         disallow_typename_on_root(program),
+        if let Some(ref validate) = additional_validations {
+            validate(program)
+        } else {
+            Ok(())
+        },
     ])?;
 
     Ok(())

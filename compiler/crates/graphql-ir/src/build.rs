@@ -19,7 +19,7 @@ use interner::Intern;
 use interner::StringKey;
 use lazy_static::lazy_static;
 use schema::{
-    ArgumentDefinitions, Enum, FieldID, InputObject, Scalar, Schema, Type, TypeReference,
+    ArgumentDefinitions, Enum, FieldID, InputObject, SDLSchema, Scalar, Schema, Type, TypeReference,
 };
 
 lazy_static! {
@@ -68,7 +68,7 @@ pub struct BuilderOptions {
 /// a list of errors if the corpus is invalid.
 /// NOTE: Uses Relay defaults.
 pub fn build_ir_with_relay_options(
-    schema: &Schema,
+    schema: &SDLSchema,
     definitions: &[graphql_syntax::ExecutableDefinition],
 ) -> DiagnosticsResult<Vec<ExecutableDefinition>> {
     let signatures = build_signatures(schema, &definitions)?;
@@ -91,7 +91,7 @@ pub fn build_ir_with_relay_options(
 /// a list of errors if the corpus is invalid. `options` can be set to
 /// control the builder activities.
 pub fn build_ir_with_extra_features(
-    schema: &Schema,
+    schema: &SDLSchema,
     definitions: &[graphql_syntax::ExecutableDefinition],
     options: BuilderOptions,
 ) -> DiagnosticsResult<Vec<ExecutableDefinition>> {
@@ -103,7 +103,7 @@ pub fn build_ir_with_extra_features(
 }
 
 pub fn build_type_annotation(
-    schema: &Schema,
+    schema: &SDLSchema,
     annotation: &graphql_syntax::TypeAnnotation,
     location: Location,
 ) -> DiagnosticsResult<TypeReference> {
@@ -122,7 +122,7 @@ pub fn build_type_annotation(
 }
 
 pub fn build_constant_value(
-    schema: &Schema,
+    schema: &SDLSchema,
     value: &graphql_syntax::ConstantValue,
     type_: &TypeReference,
     location: Location,
@@ -143,7 +143,7 @@ pub fn build_constant_value(
 }
 
 pub fn build_variable_definitions(
-    schema: &Schema,
+    schema: &SDLSchema,
     definitions: &[graphql_syntax::VariableDefinition],
     location: Location,
 ) -> DiagnosticsResult<Vec<VariableDefinition>> {
@@ -173,7 +173,7 @@ struct VariableUsage {
 }
 
 struct Builder<'schema, 'signatures> {
-    schema: &'schema Schema,
+    schema: &'schema SDLSchema,
     signatures: &'signatures FragmentSignatures,
     location: Location,
     defined_variables: VariableDefinitions,
@@ -183,7 +183,7 @@ struct Builder<'schema, 'signatures> {
 
 impl<'schema, 'signatures> Builder<'schema, 'signatures> {
     pub fn new(
-        schema: &'schema Schema,
+        schema: &'schema SDLSchema,
         signatures: &'signatures FragmentSignatures,
         location: Location,
         options: BuilderOptions,
@@ -305,6 +305,17 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
             },
         );
         let operation_type_reference = TypeReference::Named(operation_type);
+        // assert the subscription only contains one selection
+        if let OperationKind::Subscription = kind {
+            if operation.selections.items.len() != 1 {
+                return Err(vec![Diagnostic::error(
+                    ValidationMessage::GenerateSubscriptionNameSingleSelectionItem {
+                        subscription_name: name.value,
+                    },
+                    operation.location,
+                )]);
+            }
+        }
         let selections =
             self.build_selections(&operation.selections.items, &operation_type_reference);
         let (directives, selections) = try2(directives, selections)?;
@@ -578,10 +589,17 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         let signature = match self.signatures.get(&spread.name.value) {
             Some(fragment) => fragment,
             None if self.options.allow_undefined_fragment_spreads => {
-                let directives = self.build_directives(
-                    spread.directives.iter(),
-                    DirectiveLocation::FragmentSpread,
-                )?;
+                let directives = if self.options.relay_mode {
+                    self.build_directives(
+                        spread.directives.iter().filter(|directive| {
+                            directive.name.value != *DIRECTIVE_ARGUMENTS
+                                && directive.name.value != *DIRECTIVE_UNCHECKED_ARGUMENTS
+                        }),
+                        DirectiveLocation::FragmentSpread,
+                    )?
+                } else {
+                    self.build_directives(&spread.directives, DirectiveLocation::FragmentSpread)?
+                };
                 return Ok(FragmentSpread {
                     fragment: spread_name_with_location,
                     arguments: Vec::new(),
@@ -604,16 +622,8 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
             return Err(vec![Diagnostic::error(
                 ValidationMessage::InvalidFragmentSpreadType {
                     fragment_name: spread.name.value,
-                    parent_type: self
-                        .schema
-                        .get_type_name(parent_type.inner())
-                        .lookup()
-                        .to_owned(),
-                    type_condition: self
-                        .schema
-                        .get_type_name(signature.type_condition)
-                        .lookup()
-                        .to_owned(),
+                    parent_type: self.schema.get_type_name(parent_type.inner()),
+                    type_condition: self.schema.get_type_name(signature.type_condition),
                 },
                 self.location.with_span(spread.span),
             )]);
@@ -740,16 +750,8 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
                 // no possible overlap
                 return Err(vec![Diagnostic::error(
                     ValidationMessage::InvalidInlineFragmentTypeCondition {
-                        parent_type: self
-                            .schema
-                            .get_type_name(parent_type.inner())
-                            .lookup()
-                            .to_owned(),
-                        type_condition: self
-                            .schema
-                            .get_type_name(type_condition)
-                            .lookup()
-                            .to_owned(),
+                        parent_type: self.schema.get_type_name(parent_type.inner()),
+                        type_condition: self.schema.get_type_name(type_condition),
                     },
                     self.location.with_span(fragment.span),
                 )]);
@@ -1362,7 +1364,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
             Ok(Value::Object(fields?))
         } else {
             let mut missing: Vec<StringKey> = required_fields.into_iter().map(|x| x).collect();
-            missing.sort_by_key(|x| x.lookup());
+            missing.sort();
             Err(vec![Diagnostic::error(
                 ValidationMessage::MissingRequiredFields(missing, type_definition.name),
                 self.location.with_span(object.span),
@@ -1491,7 +1493,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
             Ok(ConstantValue::Object(fields?))
         } else {
             let mut missing: Vec<StringKey> = required_fields.into_iter().map(|x| x).collect();
-            missing.sort_by_key(|x| x.lookup());
+            missing.sort();
             Err(vec![Diagnostic::error(
                 ValidationMessage::MissingRequiredFields(missing, type_definition.name),
                 self.location.with_span(object.span),

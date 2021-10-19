@@ -40,7 +40,7 @@ If you're exploring using GraphQL with Relay, we highly recommend starting with 
 
 To start we'll need an authentication token for the GitHub API (if you're using your own GraphQL endpoint, you can skip this step):
 
-* Open https://github.com/settings/tokens.
+* Open [github.com/settings/tokens](https://github.com/settings/tokens).
 * Ensure that at least the `repo` scope is selected.
 * Generate a token
 * Create a file `./your-app-name/.env.local` and add the following contents, replacing `<TOKEN>` with your authentication token:

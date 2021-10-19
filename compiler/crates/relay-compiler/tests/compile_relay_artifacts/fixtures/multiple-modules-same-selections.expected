@@ -181,13 +181,6 @@ fragment multipleModulesSameSelections_MarkdownUserNameRenderer_name on Markdown
             "storageKey": null
           },
           {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "id",
-            "storageKey": null
-          },
-          {
             "kind": "InlineFragment",
             "selections": [
               {
@@ -262,6 +255,13 @@ fragment multipleModulesSameSelections_MarkdownUserNameRenderer_name on Markdown
             ],
             "type": "User",
             "abstractKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
           }
         ],
         "storageKey": "node(id:\"<user-id>\")"
@@ -288,8 +288,8 @@ query multipleModulesSameSelections_MatchQuery {
         __typename
         ... on MarkdownUserNameRenderer {
           ...multipleModulesSameSelections_MarkdownUserNameRenderer_name
-          __module_operation_multipleModulesSameSelections_MatchQuery: js(module: "multipleModulesSameSelections_MarkdownUserNameRenderer_name$normalization.graphql", id: "multipleModulesSameSelections_MatchQuery.node.nameRenderer")
-          __module_component_multipleModulesSameSelections_MatchQuery: js(module: "MarkdownUserNameRenderer.react", id: "multipleModulesSameSelections_MatchQuery.node.nameRenderer")
+          __module_operation_multipleModulesSameSelections_MatchQuery: js(module: "multipleModulesSameSelections_MarkdownUserNameRenderer_name$normalization.graphql", id: "multipleModulesSameSelections_MatchQuery.node.nameRenderer", branch: "MarkdownUserNameRenderer")
+          __module_component_multipleModulesSameSelections_MatchQuery: js(module: "MarkdownUserNameRenderer.react", id: "multipleModulesSameSelections_MatchQuery.node.nameRenderer", branch: "MarkdownUserNameRenderer")
         }
       }
     }
@@ -298,8 +298,8 @@ query multipleModulesSameSelections_MatchQuery {
         __typename
         ... on MarkdownUserNameRenderer {
           ...multipleModulesSameSelections_MarkdownUserNameRenderer_name
-          __module_operation_multipleModulesSameSelections_MatchQuery: js(module: "multipleModulesSameSelections_MarkdownUserNameRenderer_name$normalization.graphql", id: "multipleModulesSameSelections_MatchQuery.node.nameRenderer")
-          __module_component_multipleModulesSameSelections_MatchQuery: js(module: "MarkdownUserNameRenderer.react", id: "multipleModulesSameSelections_MatchQuery.node.nameRenderer")
+          __module_operation_multipleModulesSameSelections_MatchQuery: js(module: "multipleModulesSameSelections_MarkdownUserNameRenderer_name$normalization.graphql", id: "multipleModulesSameSelections_MatchQuery.node.nameRenderer", branch: "MarkdownUserNameRenderer")
+          __module_component_multipleModulesSameSelections_MatchQuery: js(module: "MarkdownUserNameRenderer.react", id: "multipleModulesSameSelections_MatchQuery.node.nameRenderer", branch: "MarkdownUserNameRenderer")
         }
       }
     }

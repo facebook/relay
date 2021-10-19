@@ -18,6 +18,7 @@ import type {
   PayloadData,
   PayloadError,
   ReactFlightServerTree,
+  ReactFlightServerError,
   UploadableMap,
 } from '../network/RelayNetworkTypes';
 import type RelayObservable from '../network/RelayObservable';
@@ -55,7 +56,7 @@ export type Record = {[key: string]: mixed, ...};
 /**
  * A collection of records keyed by id.
  */
-export type RecordMap = {[dataID: DataID]: ?Record, ...};
+export type RecordObjectMap = {[DataID]: ?Record};
 
 export type FragmentMap = {[key: string]: ReaderFragment, ...};
 
@@ -112,7 +113,7 @@ export type MissingRequiredFields =
 export type Snapshot = {|
   +data: ?SelectorData,
   +isMissingData: boolean,
-  +seenRecords: RecordMap,
+  +seenRecords: DataIDSet,
   +selector: SingularReaderSelector,
   +missingRequiredFields: ?MissingRequiredFields,
 |};
@@ -268,7 +269,7 @@ export interface Store {
    * internal record source. Subscribers are not immediately notified - this
    * occurs when `notify()` is called.
    */
-  publish(source: RecordSource, idsMarkedForInvalidation?: Set<DataID>): void;
+  publish(source: RecordSource, idsMarkedForInvalidation?: DataIDSet): void;
 
   /**
    * Ensure that all the records necessary to fulfill the given selector are
@@ -362,8 +363,9 @@ export interface StoreSubscriptions {
    */
   updateSubscriptions(
     source: RecordSource,
-    updatedRecordIDs: UpdatedRecords,
+    updatedRecordIDs: DataIDSet,
     updatedOwners: Array<RequestDescriptor>,
+    sourceOperation?: OperationDescriptor,
   ): void;
 }
 
@@ -451,9 +453,9 @@ export type LogEvent =
       +operation: OperationDescriptor,
       // value from ProfilerContext
       +profilerContext: mixed,
-      // FetchPolicy from relay-experimental
+      // FetchPolicy from Relay Hooks
       +fetchPolicy: string,
-      // RenderPolicy from relay-experimental
+      // RenderPolicy from Relay Hooks
       +renderPolicy: string,
       +queryAvailability: OperationAvailability,
       +shouldFetch: boolean,
@@ -474,6 +476,7 @@ export type LogEvent =
       +transactionID: number,
       +params: RequestParameters,
       +variables: Variables,
+      +cacheConfig: CacheConfig,
     |}
   | {|
       +name: 'network.next',
@@ -506,15 +509,23 @@ export type LogEvent =
     |}
   | {|
       +name: 'store.gc',
-      +references: Set<DataID>,
+      +references: DataIDSet,
     |}
   | {|
       +name: 'store.notify.start',
+      +sourceOperation: ?OperationDescriptor,
     |}
   | {|
       +name: 'store.notify.complete',
-      +updatedRecordIDs: UpdatedRecords,
-      +invalidatedRecordIDs: Set<DataID>,
+      +sourceOperation: ?OperationDescriptor,
+      +updatedRecordIDs: DataIDSet,
+      +invalidatedRecordIDs: DataIDSet,
+    |}
+  | {|
+      +name: 'store.notify.subscription',
+      +sourceOperation: ?OperationDescriptor,
+      +snapshot: Snapshot,
+      +nextSnapshot: Snapshot,
     |}
   | {|
       +name: 'entrypoint.root.consume',
@@ -704,9 +715,10 @@ export type ModuleImportPointer = {
 };
 
 /**
- * A map of records affected by an update operation.
+ * A set of DataIDs used to track which IDs a read() operation observed and which IDs
+ * a publish operation updated.
  */
-export type UpdatedRecords = {[dataID: DataID]: boolean, ...};
+export type DataIDSet = Set<DataID>;
 
 /**
  * A function that updates a store (via a proxy) given the results of a "handle"
@@ -984,9 +996,19 @@ export type ReactFlightReachableQuery = {|
 |};
 
 /**
- * A user-supplied function that takes a ReactFlightServerTree, and deserializes
- * it into a ReactFlightClientResponse object.
+ * A user-supplied function that takes a ReactFlightServerTree
+ * (after successful execution on the server), and deserializes it into a
+ * ReactFlightClientResponse object.
  */
 export type ReactFlightPayloadDeserializer = (
   tree: ReactFlightServerTree,
 ) => ReactFlightClientResponse;
+
+/**
+ * An optionally user-supplied function that handles errors returned by the
+ * server's JS runtime while executing a React Server Component.
+ */
+export type ReactFlightServerErrorHandler = (
+  status: string,
+  errors: Array<ReactFlightServerError>,
+) => void;

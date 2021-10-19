@@ -18,6 +18,7 @@ mod connections;
 mod declarative_connection;
 mod dedupe_type_discriminator;
 mod defer_stream;
+mod errors;
 mod feature_flags;
 mod flatten;
 mod generate_data_driven_dependency_metadata;
@@ -31,9 +32,11 @@ mod inline_data_fragment;
 mod inline_fragments;
 mod mask;
 mod match_;
+mod no_inline;
 mod node_identifier;
 mod react_flight;
 mod refetchable_fragment;
+mod relay_client_component;
 mod relay_directive;
 mod relay_early_flush;
 mod remove_base_fragments;
@@ -59,6 +62,7 @@ lazy_static! {
     pub static ref INTERNAL_METADATA_DIRECTIVE: StringKey = "__metadata".intern();
 }
 
+pub use crate::errors::ValidationMessage;
 pub use applied_fragment_name::get_applied_fragment_name;
 pub use apply_fragment_arguments::apply_fragment_arguments;
 pub use client_extensions::{client_extensions, CLIENT_EXTENSION_DIRECTIVE_NAME};
@@ -71,7 +75,7 @@ pub use dedupe_type_discriminator::dedupe_type_discriminator;
 pub use defer_stream::{
     transform_defer_stream, DeferDirective, StreamDirective, DEFER_STREAM_CONSTANTS,
 };
-pub use feature_flags::FeatureFlags;
+pub use feature_flags::{FeatureFlags, NoInlineFeature};
 pub use flatten::flatten;
 pub use generate_data_driven_dependency_metadata::{
     generate_data_driven_dependency_metadata, DATA_DRIVEN_DEPENDENCY_METADATA_KEY,
@@ -92,6 +96,7 @@ pub use match_::{
     split_module_import, transform_match, SplitOperationMetadata, DIRECTIVE_SPLIT_OPERATION,
     MATCH_CONSTANTS,
 };
+pub use no_inline::NO_INLINE_DIRECTIVE_NAME;
 pub use node_identifier::NodeIdentifier;
 pub use react_flight::{
     react_flight, REACT_FLIGHT_LOCAL_COMPONENTS_METADATA_ARG_KEY,
@@ -100,6 +105,10 @@ pub use react_flight::{
 pub use refetchable_fragment::{
     extract_refetch_metadata_from_directive, transform_refetchable_fragment,
     RefetchableDerivedFromMetadata, CONSTANTS as REFETCHABLE_CONSTANTS,
+};
+pub use relay_client_component::{
+    relay_client_component, RELAY_CLIENT_COMPONENT_MODULE_ID_ARGUMENT_NAME,
+    RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME,
 };
 pub use relay_directive::RelayDirective;
 pub use relay_early_flush::relay_early_flush;
@@ -118,5 +127,8 @@ pub use sort_selections::sort_selections;
 pub use test_operation_metadata::generate_test_operation_metadata;
 pub use transform_connections::transform_connections;
 pub use unwrap_custom_directive_selection::unwrap_custom_directive_selection;
-pub use util::{extract_variable_name, generate_abstract_type_refinement_key, remove_directive};
+pub use util::{
+    extract_variable_name, generate_abstract_type_refinement_key, get_fragment_filename,
+    remove_directive, PointerAddress,
+};
 pub use validations::*;

@@ -17,10 +17,10 @@ const RelayOperationTracker = require('../RelayOperationTracker');
 
 const invariant = require('invariant');
 
+const {graphql, getRequest} = require('../../query/GraphQLTag');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
-const {generateAndCompile} = require('relay-test-utils-internal');
 
 describe('RelayOperationTracker', () => {
   let tracker;
@@ -31,26 +31,29 @@ describe('RelayOperationTracker', () => {
   let MutationOperation2;
   beforeEach(() => {
     tracker = new RelayOperationTracker();
-    const {Query1, Query2, Mutation1, Mutation2} = generateAndCompile(`
-      query Query1($id: ID) {
+    const Query1 = getRequest(graphql`
+      query RelayOperationTrackerTest1Query($id: ID) {
         node(id: $id) {
           id
         }
       }
-
-      query Query2($id: ID) {
+    `);
+    const Query2 = getRequest(graphql`
+      query RelayOperationTrackerTest2Query($id: ID) {
         node(id: $id) {
           __typename
         }
       }
-
-      mutation Mutation1($input: CommentCreateInput) {
+    `);
+    const Mutation1 = getRequest(graphql`
+      mutation RelayOperationTrackerTest1Mutation($input: CommentCreateInput) {
         commentCreate(input: $input) {
           __typename
         }
       }
-
-      mutation Mutation2($input: CommentDeleteInput) {
+    `);
+    const Mutation2 = getRequest(graphql`
+      mutation RelayOperationTrackerTest2Mutation($input: CommentDeleteInput) {
         commentDelete(input: $input) {
           __typename
         }
@@ -59,10 +62,12 @@ describe('RelayOperationTracker', () => {
 
     QueryOperation1 = createOperationDescriptor(Query1, {id: '1'}).request;
     QueryOperation2 = createOperationDescriptor(Query2, {id: '2'}).request;
-    MutationOperation1 = createOperationDescriptor(Mutation1, {id: '1'})
-      .request;
-    MutationOperation2 = createOperationDescriptor(Mutation2, {id: '2'})
-      .request;
+    MutationOperation1 = createOperationDescriptor(Mutation1, {
+      id: '1',
+    }).request;
+    MutationOperation2 = createOperationDescriptor(Mutation2, {
+      id: '2',
+    }).request;
   });
 
   it('should not have any pending operations affecting owners', () => {

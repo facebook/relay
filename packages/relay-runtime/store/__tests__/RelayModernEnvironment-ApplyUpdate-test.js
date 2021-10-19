@@ -18,11 +18,11 @@ const RelayModernStore = require('../RelayModernStore');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayRecordSource = require('../RelayRecordSource');
 
+const {graphql, getFragment, getRequest} = require('../../query/GraphQLTag');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../RelayModernSelector');
-const {generateAndCompile} = require('relay-test-utils-internal');
 
 describe('applyUpdate()', () => {
   let environment;
@@ -35,18 +35,20 @@ describe('applyUpdate()', () => {
   beforeEach(() => {
     jest.resetModules();
 
-    ({ParentQuery, UserFragment} = generateAndCompile(`
-        query ParentQuery {
-          me {
-            id
-            name
-          }
-        }
-        fragment UserFragment on User {
+    ParentQuery = getRequest(graphql`
+      query RelayModernEnvironmentApplyUpdateTestParentQuery {
+        me {
           id
           name
         }
-      `));
+      }
+    `);
+    UserFragment = getFragment(graphql`
+      fragment RelayModernEnvironmentApplyUpdateTestUserFragment on User {
+        id
+        name
+      }
+    `);
 
     source = RelayRecordSource.create();
     store = new RelayModernStore(source);

@@ -15,7 +15,7 @@ use crate::connections::ConnectionInterface;
 use crate::handle_fields::{build_handle_field_directive, HandleFieldDirectiveValues};
 use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
-use schema::Type;
+use schema::{Schema, Type};
 use std::sync::Arc;
 
 pub fn transform_declarative_connection(
@@ -35,14 +35,14 @@ pub fn transform_declarative_connection(
 }
 
 lazy_static! {
-    pub static ref APPEND_EDGE: StringKey = "appendEdge".intern();
-    pub static ref APPEND_NODE: StringKey = "appendNode".intern();
-    pub static ref CONNECTIONS_ARG_NAME: StringKey = "connections".intern();
-    pub static ref DELETE_RECORD: StringKey = "deleteRecord".intern();
-    pub static ref DELETE_EDGE: StringKey = "deleteEdge".intern();
-    pub static ref PREPEND_EDGE: StringKey = "prependEdge".intern();
-    pub static ref PREPEND_NODE: StringKey = "prependNode".intern();
-    pub static ref EDGE_TYPENAME_ARG: StringKey = "edgeTypeName".intern();
+    static ref APPEND_EDGE: StringKey = "appendEdge".intern();
+    static ref APPEND_NODE: StringKey = "appendNode".intern();
+    static ref CONNECTIONS_ARG_NAME: StringKey = "connections".intern();
+    static ref DELETE_RECORD: StringKey = "deleteRecord".intern();
+    static ref DELETE_EDGE: StringKey = "deleteEdge".intern();
+    static ref PREPEND_EDGE: StringKey = "prependEdge".intern();
+    static ref PREPEND_NODE: StringKey = "prependNode".intern();
+    static ref EDGE_TYPENAME_ARG: StringKey = "edgeTypeName".intern();
 }
 
 struct DeclarativeConnectionMutationTransform<'s, 'c> {

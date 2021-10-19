@@ -13,7 +13,7 @@ use graphql_ir::{
 };
 use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
-use schema::{Field, FieldID, Type};
+use schema::{Field, FieldID, Schema, Type};
 use std::sync::Arc;
 
 lazy_static! {
@@ -21,10 +21,9 @@ lazy_static! {
         "__ReactFlightMetadata".intern();
     pub static ref REACT_FLIGHT_LOCAL_COMPONENTS_METADATA_ARG_KEY: StringKey =
         "__ReactFlightMetadataComponent".intern();
-    pub static ref REACT_FLIGHT_TRANSITIVE_COMPONENTS_DIRECTIVE_NAME: StringKey =
+    static ref REACT_FLIGHT_TRANSITIVE_COMPONENTS_DIRECTIVE_NAME: StringKey =
         "react_flight".intern();
-    pub static ref REACT_FLIGHT_TRANSITIVE_COMPONENTS_DIRECTIVE_ARG: StringKey =
-        "components".intern();
+    static ref REACT_FLIGHT_TRANSITIVE_COMPONENTS_DIRECTIVE_ARG: StringKey = "components".intern();
     pub static ref REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY: StringKey =
         "__ReactFlightComponent".intern();
     static ref REACT_FLIGHT_COMPONENT_ARGUMENT_NAME: StringKey = "component".intern();
@@ -49,10 +48,9 @@ pub fn react_flight(program: &Program) -> DiagnosticsResult<Program> {
         _ => return Ok(program.clone()),
     };
     let mut transform = ReactFlightTransform::new(program, props_type, component_type);
+    let transform_result = transform.transform_program(program);
     if transform.errors.is_empty() {
-        Ok(transform
-            .transform_program(program)
-            .replace_or_else(|| program.clone()))
+        Ok(transform_result.replace_or_else(|| program.clone()))
     } else {
         Err(transform.errors)
     }
@@ -206,8 +204,8 @@ impl<'s> ReactFlightTransform<'s> {
     // Generate a metadata directive recording which server components were reachable
     // from the visited IR nodes
     fn generate_flight_local_flight_components_metadata_directive(&self) -> Directive {
-        let mut components: Vec<StringKey> = self.local_components.iter().cloned().collect();
-        components.sort_by_key(|s| s.lookup());
+        let mut components: Vec<StringKey> = self.local_components.iter().copied().collect();
+        components.sort();
         Directive {
             name: WithLocation::generated(*REACT_FLIGHT_LOCAL_COMPONENTS_METADATA_KEY),
             arguments: vec![Argument {
@@ -222,8 +220,8 @@ impl<'s> ReactFlightTransform<'s> {
     // Generate a server directive recording which server components were *transitively* reachable
     // from the visited IR nodes
     fn generate_flight_transitive_flight_components_server_directive(&self) -> Directive {
-        let mut components: Vec<StringKey> = self.transitive_components.iter().cloned().collect();
-        components.sort_by_key(|s| s.lookup());
+        let mut components: Vec<StringKey> = self.transitive_components.iter().copied().collect();
+        components.sort();
         Directive {
             name: WithLocation::generated(*REACT_FLIGHT_TRANSITIVE_COMPONENTS_DIRECTIVE_NAME),
             arguments: vec![Argument {

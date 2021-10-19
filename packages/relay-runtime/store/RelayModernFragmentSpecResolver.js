@@ -71,6 +71,7 @@ type Resolvers = {
 class RelayModernFragmentSpecResolver implements FragmentSpecResolver {
   _callback: ?() => void;
   _context: RelayContext;
+  _rootIsQueryRenderer: boolean;
   _data: Object;
   _fragments: FragmentMap;
   _props: Props;
@@ -82,6 +83,7 @@ class RelayModernFragmentSpecResolver implements FragmentSpecResolver {
     fragments: FragmentMap,
     props: Props,
     callback?: () => void,
+    rootIsQueryRenderer: boolean,
   ) {
     this._callback = callback;
     this._context = context;
@@ -90,6 +92,7 @@ class RelayModernFragmentSpecResolver implements FragmentSpecResolver {
     this._props = {};
     this._resolvers = {};
     this._stale = false;
+    this._rootIsQueryRenderer = rootIsQueryRenderer;
 
     this.setProps(props);
   }
@@ -155,6 +158,7 @@ class RelayModernFragmentSpecResolver implements FragmentSpecResolver {
           if (resolver == null) {
             resolver = new SelectorListResolver(
               this._context.environment,
+              this._rootIsQueryRenderer,
               ownedSelector,
               this._onChange,
             );
@@ -170,6 +174,7 @@ class RelayModernFragmentSpecResolver implements FragmentSpecResolver {
           if (resolver == null) {
             resolver = new SelectorResolver(
               this._context.environment,
+              this._rootIsQueryRenderer,
               ownedSelector,
               this._onChange,
             );
@@ -219,11 +224,13 @@ class SelectorResolver {
   _environment: IEnvironment;
   _isMissingData: boolean;
   _missingRequiredFields: ?MissingRequiredFields;
+  _rootIsQueryRenderer: boolean;
   _selector: SingularReaderSelector;
   _subscription: ?Disposable;
 
   constructor(
     environment: IEnvironment,
+    rootIsQueryRenderer: boolean,
     selector: SingularReaderSelector,
     callback: () => void,
   ) {
@@ -233,6 +240,7 @@ class SelectorResolver {
     this._isMissingData = snapshot.isMissingData;
     this._missingRequiredFields = snapshot.missingRequiredFields;
     this._environment = environment;
+    this._rootIsQueryRenderer = rootIsQueryRenderer;
     this._selector = selector;
     this._subscription = environment.subscribe(snapshot, this._onChange);
   }
@@ -276,14 +284,24 @@ class SelectorResolver {
           .getOperationTracker()
           .getPromiseForPendingOperationsAffectingOwner(this._selector.owner);
       if (promise != null) {
-        warning(
-          false,
-          'Relay: Relay Container for fragment `%s` suspended. When using ' +
-            'features such as @defer or @module, use `useFragment` instead ' +
-            'of a Relay Container.',
-          this._selector.node.name,
-        );
-        throw promise;
+        if (this._rootIsQueryRenderer) {
+          warning(
+            false,
+            'Relay: Relay Container for fragment `%s` has missing data and ' +
+              'would suspend. When using features such as @defer or @module, ' +
+              'use `useFragment` instead of a Relay Container.',
+            this._selector.node.name,
+          );
+        } else {
+          warning(
+            false,
+            'Relay: Relay Container for fragment `%s` suspended. When using ' +
+              'features such as @defer or @module, use `useFragment` instead ' +
+              'of a Relay Container.',
+            this._selector.node.name,
+          );
+          throw promise;
+        }
       }
     }
     if (this._missingRequiredFields != null) {
@@ -355,10 +373,12 @@ class SelectorListResolver {
   _data: Array<?SelectorData>;
   _environment: IEnvironment;
   _resolvers: Array<SelectorResolver>;
+  _rootIsQueryRenderer: boolean;
   _stale: boolean;
 
   constructor(
     environment: IEnvironment,
+    rootIsQueryRenderer: boolean,
     selector: PluralReaderSelector,
     callback: () => void,
   ) {
@@ -367,6 +387,7 @@ class SelectorListResolver {
     this._environment = environment;
     this._resolvers = [];
     this._stale = true;
+    this._rootIsQueryRenderer = rootIsQueryRenderer;
 
     this.setSelector(selector);
   }
@@ -410,6 +431,7 @@ class SelectorListResolver {
       } else {
         this._resolvers[ii] = new SelectorResolver(
           this._environment,
+          this._rootIsQueryRenderer,
           selectors[ii],
           this._onChange,
         );

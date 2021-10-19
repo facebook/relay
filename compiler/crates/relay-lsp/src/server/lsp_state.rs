@@ -122,7 +122,7 @@ pub struct LSPState<
     synced_graphql_documents: DashMap<Url, Vec<GraphQLSource>>,
     pub(crate) perf_logger: Arc<TPerfLogger>,
     pub(crate) diagnostic_reporter: Arc<DiagnosticReporter>,
-    notify_sender: Arc<Notify>,
+    pub(crate) notify_sender: Arc<Notify>,
     pub(crate) sender: Sender<Message>,
     pub(crate) project_status: ProjectStatusMap,
     js_resource: Option<Box<dyn JSLanguageServer<TState = Self>>>,

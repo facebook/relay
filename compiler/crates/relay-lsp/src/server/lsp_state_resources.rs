@@ -47,10 +47,8 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
     LSPStateResources<TPerfLogger, TSchemaDocumentation>
 {
     pub(crate) fn new(lsp_state: Arc<LSPState<TPerfLogger, TSchemaDocumentation>>) -> Self {
-        Self {
-            lsp_state,
-            notify: Arc::new(Notify::new()),
-        }
+        let notify = lsp_state.notify_sender.clone();
+        Self { lsp_state, notify }
     }
 
     /// Create an end-less loop of keeping the resources up-to-date with the source control changes

@@ -13,25 +13,26 @@
 
 'use strict';
 
-const React = require('react');
-const Scheduler = require('scheduler');
-
 import type {OperationDescriptor, Variables} from 'relay-runtime';
-const {useLayoutEffect, useTransition, useMemo, useState} = React;
-const TestRenderer = require('react-test-renderer');
 
-const invariant = require('invariant');
 const useRefetchableFragmentNodeOriginal = require('../useRefetchableFragmentNode');
+const React = require('react');
 const ReactRelayContext = require('react-relay/ReactRelayContext');
+const TestRenderer = require('react-test-renderer');
 const {
   FRAGMENT_OWNER_KEY,
   FRAGMENTS_KEY,
   ID_KEY,
-  createOperationDescriptor,
   Observable,
+  createOperationDescriptor,
+  getFragment,
+  getRequest,
+  graphql,
 } = require('relay-runtime');
+const {createMockEnvironment} = require('relay-test-utils');
+const Scheduler = require('scheduler');
 
-const PAGINATION_SUSPENSE_CONFIG = {timeoutMs: 45 * 1000};
+const {useLayoutEffect, useTransition, useMemo, useState} = React;
 
 describe('useRefetchableFragmentNode with useTransition', () => {
   if (typeof React.useTransition !== 'function') {
@@ -47,8 +48,6 @@ describe('useRefetchableFragmentNode with useTransition', () => {
     let refetchQuery;
     let variables;
     let renderPolicy;
-    let createMockEnvironment;
-    let generateAndCompile;
     let renderFragment;
     let refetch;
     let forceUpdate;
@@ -58,9 +57,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
       fragmentNode,
       fragmentRef,
     ) {
-      const [startTransition, isPending] = useTransition(
-        PAGINATION_SUSPENSE_CONFIG,
-      );
+      const [isPending, startTransition] = useTransition();
       const {
         fragmentData: data,
         ...result
@@ -125,6 +122,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
       expected,
       requestEnvironment = environment,
     ) {
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(requestEnvironment.executeWithSource).toBeCalledTimes(
         expected.requestCount,
       );
@@ -158,7 +156,9 @@ describe('useRefetchableFragmentNode with useTransition', () => {
 
       // Assert query is retained by loadQuery and
       // tentatively retained while component is suspended
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain).toBeCalledTimes(2);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain.mock.calls[0][0]).toEqual(
         expected.refetchQuery ?? refetchQuery,
       );
@@ -168,9 +168,10 @@ describe('useRefetchableFragmentNode with useTransition', () => {
       return {
         [ID_KEY]: id,
         [FRAGMENTS_KEY]: {
-          NestedUserFragment: {},
+          useRefetchableFragmentNodeWithSuspenseTransitionTestNestedUserFragment: {},
         },
         [FRAGMENT_OWNER_KEY]: owner.request,
+        __isWithinUnmatchedTypeRefinement: false,
       };
     }
 
@@ -196,58 +197,39 @@ describe('useRefetchableFragmentNode with useTransition', () => {
 
       renderPolicy = 'partial';
 
-      ({
-        createMockEnvironment,
-        generateAndCompile,
-      } = require('relay-test-utils-internal'));
-
       // Set up environment and base data
       environment = createMockEnvironment();
-      const generated = generateAndCompile(
-        `
-        fragment NestedUserFragment on User {
+
+      graphql`
+        fragment useRefetchableFragmentNodeWithSuspenseTransitionTestNestedUserFragment on User {
           username
         }
-
-        fragment UserFragmentWithArgs on User
-        @refetchable(queryName: "UserFragmentWithArgsRefetchQuery")
-        @argumentDefinitions(scaleLocal: {type: "Float!"}) {
-          id
-          name
-          profile_picture(scale: $scaleLocal) {
-            uri
+      `;
+      variables = {id: '1', scale: 16};
+      gqlQuery = getRequest(graphql`
+        query useRefetchableFragmentNodeWithSuspenseTransitionTestUserQuery(
+          $id: ID!
+          $scale: Float!
+        ) {
+          node(id: $id) {
+            ...useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragment
           }
-          ...NestedUserFragment
         }
-
-        fragment UserFragment on User
-        @refetchable(queryName: "UserFragmentRefetchQuery") {
+      `);
+      gqlRefetchQuery = require('./__generated__/useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragmentRefetchQuery.graphql');
+      gqlFragment = getFragment(graphql`
+        fragment useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragment on User
+          @refetchable(
+            queryName: "useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragmentRefetchQuery"
+          ) {
           id
           name
           profile_picture(scale: $scale) {
             uri
           }
-          ...NestedUserFragment
+          ...useRefetchableFragmentNodeWithSuspenseTransitionTestNestedUserFragment
         }
-
-        query UserQuery($id: ID!, $scale: Int!) {
-          node(id: $id) {
-            ...UserFragment
-          }
-        }
-      `,
-      );
-      variables = {id: '1', scale: 16};
-      gqlQuery = generated.UserQuery;
-      gqlRefetchQuery = generated.UserFragmentRefetchQuery;
-      gqlFragment = generated.UserFragment;
-      invariant(
-        gqlFragment.metadata?.refetch?.operation ===
-          '@@MODULE_START@@UserFragmentRefetchQuery.graphql@@MODULE_END@@',
-        'useRefetchableFragment-test: Expected refetchable fragment metadata to contain operation.',
-      );
-      // Manually set the refetchable operation for the test.
-      gqlFragment.metadata.refetch.operation = gqlRefetchQuery;
+      `);
 
       query = createOperationDescriptor(gqlQuery, variables);
       refetchQuery = createOperationDescriptor(gqlRefetchQuery, variables);
@@ -282,6 +264,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
               [fragment.name]: {},
             },
             [FRAGMENT_OWNER_KEY]: owner.request,
+            __isWithinUnmatchedTypeRefinement: false,
           }),
           [owner, fragment.name],
         );
@@ -401,7 +384,9 @@ describe('useRefetchableFragmentNode with useTransition', () => {
         expectFragmentResults([{data: refetchedUser, isPending: false}]);
 
         // Assert refetch query was retained by loadQuery and the component
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(2);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain.mock.calls[0][0]).toEqual(refetchQuery);
       });
 
@@ -459,6 +444,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
           });
 
           // Call refetch a second time
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           environment.executeWithSource.mockClear();
           const refetchVariables2 = {id: '4', scale: 16};
           const refetchQuery2 = createOperationDescriptor(
@@ -589,6 +575,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
           });
 
           // Call refetch a second time
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           environment.executeWithSource.mockClear();
           const refetchVariables2 = {id: '4', scale: 16};
           const refetchQuery2 = createOperationDescriptor(
@@ -730,6 +717,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
           });
 
           // Call refetch a second time
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           environment.executeWithSource.mockClear();
           const refetchVariables2 = {id: '4', scale: 16};
           const refetchQuery2 = createOperationDescriptor(
@@ -765,6 +753,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
 
           // Switch back to initial refetch, assert network
           // request doesn't fire again
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           environment.executeWithSource.mockClear();
           refetch(
             {id: '2'},

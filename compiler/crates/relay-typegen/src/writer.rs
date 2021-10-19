@@ -7,7 +7,7 @@
 
 use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
-use std::fmt::{Result, Write};
+use std::fmt::Result;
 
 #[derive(Debug, Clone)]
 pub enum AST {
@@ -28,13 +28,10 @@ pub enum AST {
     Number,
     Boolean,
     Any,
-    DefineType(StringKey, Box<AST>),
     FragmentReference(Vec<StringKey>),
-    ImportType(Vec<StringKey>, StringKey),
-    ImportFragmentType(Vec<StringKey>, StringKey),
-    DeclareExportFragment(StringKey, Option<StringKey>),
-    ExportFragmentList(Vec<StringKey>),
-    ExportTypeEquals(StringKey, Box<AST>),
+    FragmentReferenceType(StringKey),
+    FunctionReturnType(StringKey),
+    ActorChangePoint(Box<AST>),
 }
 
 impl AST {
@@ -64,13 +61,36 @@ lazy_static! {
 }
 
 pub trait Writer {
-    fn get_runtime_fragment_import(&self) -> StringKey {
-        "FragmentReference".intern()
-    }
+    fn into_string(self: Box<Self>) -> String;
 
     fn supports_exact_objects(&self) -> bool {
         true
     }
 
-    fn write(&mut self, writer: &mut dyn Write, ast: &AST) -> Result;
+    fn get_runtime_fragment_import(&self) -> StringKey;
+
+    fn write(&mut self, ast: &AST) -> Result;
+
+    fn write_export_type(&mut self, name: StringKey, ast: &AST) -> Result;
+
+    fn write_import_module_default(&mut self, name: StringKey, from: StringKey) -> Result;
+
+    fn write_import_type(&mut self, types: &[StringKey], from: StringKey) -> Result;
+
+    fn write_import_fragment_type(&mut self, types: &[StringKey], from: StringKey) -> Result;
+
+    fn write_export_fragment_type(
+        &mut self,
+        old_name: StringKey,
+        other_old_name: StringKey,
+        new_name: StringKey,
+    ) -> Result;
+
+    fn write_export_fragment_types(
+        &mut self,
+        fragment_type_name_1: StringKey,
+        fragment_type_name_2: StringKey,
+    ) -> Result;
+
+    fn write_any_type_definition(&mut self, name: StringKey) -> Result;
 }

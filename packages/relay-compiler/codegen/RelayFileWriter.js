@@ -12,39 +12,37 @@
 
 'use strict';
 
-const ASTConvert = require('../core/ASTConvert');
-const CodegenDirectory = require('./CodegenDirectory');
-const CompilerContext = require('../core/CompilerContext');
-const Profiler = require('../core/GraphQLCompilerProfiler');
-const RelayParser = require('../core/RelayParser');
-
-const compileRelayArtifacts = require('./compileRelayArtifacts');
-const graphql = require('graphql');
-const invariant = require('invariant');
-const md5 = require('../util/md5');
-const nullthrows = require('nullthrows');
-const path = require('path');
-const writeRelayGeneratedFile = require('./writeRelayGeneratedFile');
-
-const {
-  getReaderSourceDefinitionName,
-} = require('../core/GraphQLDerivedFromMetadata');
-const {isExecutableDefinitionAST} = require('../core/SchemaUtils');
-const {Map: ImmutableMap} = require('immutable');
-
 import type {Schema} from '../core/Schema';
+import type {ScalarTypeMapping} from '../language/javascript/RelayFlowTypeTransformers';
 import type {
   FormatModule,
   PluginInterface,
   TypeGenerator,
 } from '../language/RelayLanguagePluginInterface';
-import type {ScalarTypeMapping} from '../language/javascript/RelayFlowTypeTransformers';
 import type {Reporter} from '../reporters/Reporter';
 import type {Filesystem} from './CodegenDirectory';
-import type {SourceControl} from './SourceControl';
 import type {RelayCompilerTransforms} from './compileRelayArtifacts';
+import type {SourceControl} from './SourceControl';
 import type {DocumentNode, ValidationContext} from 'graphql';
 import type {RequestParameters} from 'relay-runtime';
+
+const ASTConvert = require('../core/ASTConvert');
+const CompilerContext = require('../core/CompilerContext');
+const Profiler = require('../core/GraphQLCompilerProfiler');
+const {
+  getReaderSourceDefinitionName,
+} = require('../core/GraphQLDerivedFromMetadata');
+const RelayParser = require('../core/RelayParser');
+const {isExecutableDefinitionAST} = require('../core/SchemaUtils');
+const md5 = require('../util/md5');
+const CodegenDirectory = require('./CodegenDirectory');
+const compileRelayArtifacts = require('./compileRelayArtifacts');
+const writeRelayGeneratedFile = require('./writeRelayGeneratedFile');
+const graphql = require('graphql');
+const {Map: ImmutableMap} = require('immutable');
+const invariant = require('invariant');
+const nullthrows = require('nullthrows');
+const path = require('path');
 
 export type GenerateExtraFiles = (
   getOutputDirectory: (path?: string) => CodegenDirectory,

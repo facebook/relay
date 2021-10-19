@@ -1,0 +1,14 @@
+{
+  "name": "relay-compiler-playground-tests",
+  "version": "0.0.1",
+  "description": "A wrapper around relay-compiler-playground used for testing.",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "author": "Facebook",
+  "license": "MIT",
+  "devDependencies": {
+    "jest": "^27.0.3"
+  }
+}

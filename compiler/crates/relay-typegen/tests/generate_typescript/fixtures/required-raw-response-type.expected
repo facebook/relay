@@ -9,18 +9,18 @@ query MyQuery @raw_response_type {
 export type MyQueryVariables = {};
 export type MyQueryResponse = {
   readonly me: {
-    readonly id: string,
-    readonly name: string,
-  }
+    readonly id: string;
+    readonly name: string;
+  };
 } | null;
 export type MyQueryRawResponse = {
   readonly me: {
-    readonly id: string,
-    readonly name: string | null,
-  } | null
+    readonly id: string;
+    readonly name: string | null;
+  } | null;
 };
 export type MyQuery = {
-  variables: MyQueryVariables,
-  response: MyQueryResponse,
-  rawResponse: MyQueryRawResponse,
+  variables: MyQueryVariables;
+  response: MyQueryResponse;
+  rawResponse: MyQueryRawResponse;
 };

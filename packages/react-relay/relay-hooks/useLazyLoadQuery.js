@@ -13,15 +13,6 @@
 
 'use strict';
 
-const useLazyLoadQueryNode = require('./useLazyLoadQueryNode');
-const useMemoOperationDescriptor = require('./useMemoOperationDescriptor');
-const useRelayEnvironment = require('./useRelayEnvironment');
-
-const {useTrackLoadQueryInRender} = require('./loadQuery');
-const {
-  __internal: {fetchQuery},
-} = require('relay-runtime');
-
 import type {
   CacheConfig,
   FetchPolicy,
@@ -30,6 +21,14 @@ import type {
   RenderPolicy,
   VariablesOf,
 } from 'relay-runtime';
+
+const {useTrackLoadQueryInRender} = require('./loadQuery');
+const useLazyLoadQueryNode = require('./useLazyLoadQueryNode');
+const useMemoOperationDescriptor = require('./useMemoOperationDescriptor');
+const useRelayEnvironment = require('./useRelayEnvironment');
+const {
+  __internal: {fetchQuery},
+} = require('relay-runtime');
 
 function useLazyLoadQuery<TQuery: OperationType>(
   gqlQuery: GraphQLTaggedNode,

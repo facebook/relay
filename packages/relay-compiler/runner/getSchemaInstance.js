@@ -12,10 +12,10 @@
 
 'use strict';
 
-const {create} = require('../core/Schema');
-
 import type {Schema} from '../core/Schema';
-import type {Source, DocumentNode} from 'graphql';
+import type {DocumentNode, Source} from 'graphql';
+
+const {create} = require('../core/Schema');
 
 const schemaCache: Map<Source, Schema> = new Map();
 

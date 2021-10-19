@@ -1,0 +1,30 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query selectionSetConflictConflictingSelectionSetsInsideListTypeQuery {
+  viewer {
+    newsFeed {
+      edges {
+        same_alias: sortKey
+      }
+      edges {
+        same_alias: cursor
+      }
+    }
+  }
+}
+==================================== ERROR ====================================
+✖︎ Field 'same_alias' is ambiguous because it references two different fields: 'sortKey' and 'cursor'
+
+  selection_set_conflict_conflicting_selection_sets_inside_list_type.graphql:6:21
+    5 │       edges {
+    6 │         same_alias: sortKey
+      │                     ^^^^^^^
+    7 │       }
+
+  ℹ︎ the other field
+
+  selection_set_conflict_conflicting_selection_sets_inside_list_type.graphql:9:21
+    8 │       edges {
+    9 │         same_alias: cursor
+      │                     ^^^^^^
+   10 │       }

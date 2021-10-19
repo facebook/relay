@@ -1,0 +1,15 @@
+fragment relayResolver_PopStarNameResolverFragment_name on User {
+  name
+}
+
+query relayResolver_Query {
+  me {
+    pop_star_name
+  }
+}
+
+# %extensions%
+
+extend type User {
+  pop_star_name: Int @relay_resolver(fragment_name: "relayResolver_PopStarNameResolverFragment_name", import_path: "./foo/bar/baz/PopStarNameResolver.js")
+}

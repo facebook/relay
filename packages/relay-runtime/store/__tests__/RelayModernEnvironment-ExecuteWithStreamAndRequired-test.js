@@ -13,18 +13,20 @@
 
 'use strict';
 
-const RelayModernEnvironment = require('../RelayModernEnvironment');
-const RelayModernStore = require('../RelayModernStore');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const RelayRecordSource = require('../RelayRecordSource');
-
+const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
+const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../RelayModernSelector');
+const RelayModernStore = require('../RelayModernStore');
+const RelayRecordSource = require('../RelayRecordSource');
 const {RelayFeatureFlags} = require('relay-runtime');
-const {generateAndCompile} = require('relay-test-utils-internal');
+const {disallowWarnings} = require('relay-test-utils-internal');
+
+disallowWarnings();
 
 describe('execute() a query with @stream and @required', () => {
   let callbacks;
@@ -37,29 +39,29 @@ describe('execute() a query with @stream and @required', () => {
   let selector;
 
   beforeEach(() => {
-    jest.resetModules();
-    jest.spyOn(console, 'warn').mockImplementation(() => undefined);
-
-    // Note: This must come after `jest.resetModules()`.
     RelayFeatureFlags.ENABLE_REQUIRED_DIRECTIVES = true;
 
-    ({FeedbackQuery: query, FeedbackFragment: fragment} = generateAndCompile(`
-        query FeedbackQuery($id: ID!, $enableStream: Boolean!) {
-          node(id: $id) {
-            ...FeedbackFragment
-          }
+    query = getRequest(graphql`
+      query RelayModernEnvironmentExecuteWithStreamAndRequiredTestFeedbackQuery(
+        $id: ID!
+        $enableStream: Boolean!
+      ) {
+        node(id: $id) {
+          ...RelayModernEnvironmentExecuteWithStreamAndRequiredTestFeedbackFragment
         }
+      }
+    `);
 
-        fragment FeedbackFragment on Feedback {
-          id
-          actors
-            @stream(label: "actors", if: $enableStream, initial_count: 0)
-            @required(action: LOG)
-          {
-            name
-          }
+    fragment = getFragment(graphql`
+      fragment RelayModernEnvironmentExecuteWithStreamAndRequiredTestFeedbackFragment on Feedback {
+        id
+        actors
+          @stream(label: "actors", if: $enableStream, initial_count: 0)
+          @required(action: LOG) {
+          name
         }
-      `));
+      }
+    `);
     const variables = {id: '1', enableStream: true};
 
     const complete = jest.fn();
@@ -108,7 +110,13 @@ describe('execute() a query with @stream and @required', () => {
     const snapshot = callback.mock.calls[0][0];
     expect(snapshot.missingRequiredFields).toEqual({
       action: 'LOG',
-      fields: [{owner: 'FeedbackFragment', path: 'actors'}],
+      fields: [
+        {
+          owner:
+            'RelayModernEnvironmentExecuteWithStreamAndRequiredTestFeedbackFragment',
+          path: 'actors',
+        },
+      ],
     });
     expect(snapshot.data).toEqual(null);
   });

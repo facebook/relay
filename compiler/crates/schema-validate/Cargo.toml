@@ -6,9 +6,6 @@ authors = ["Facebook"]
 edition = "2018"
 license = "MIT"
 
-[lib]
-path = "src/lib.rs"
-
 [[bin]]
 name = "schema_validate"
 path = "src/main.rs"
@@ -23,11 +20,11 @@ fnv = "1.0"
 interner = { path = "../interner" }
 lazy_static = "1.0"
 rayon = "1.2"
-regex = "1.4.2"
+regex = "1.5.4"
 schema = { path = "../schema" }
 schema-print = { path = "../schema-print" }
-structopt = "0.3.21"
-thiserror = "1.0"
+structopt = "0.3.23"
+thiserror = "1.0.29"
 
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }

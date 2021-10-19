@@ -1,0 +1,7 @@
+# expected-to-throw
+
+query Query($id: ID! = "12345") {
+  node(id: $id) {
+    id
+  }
+}

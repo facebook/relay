@@ -6,9 +6,6 @@ authors = ["Facebook"]
 edition = "2018"
 license = "MIT"
 
-[lib]
-path = "src/lib.rs"
-
 [[test]]
 name = "schema_test"
 path = "tests/build_schema_test.rs"
@@ -16,13 +13,15 @@ path = "tests/build_schema_test.rs"
 [dependencies]
 common = { path = "../common" }
 dashmap = { version = "4.0.2", features = ["serde"] }
-flatbuffers = "0.6"
+flatbuffers = "2.0"
 fnv = "1.0"
 graphql-syntax = { path = "../graphql-syntax" }
 interner = { path = "../interner" }
+lazy_static = "1.0"
 ouroboros = "0.8"
-thiserror = "1.0"
+schema-flatbuffer = { path = "../schema-flatbuffer" }
+thiserror = "1.0.29"
 
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }
-graphql-test-helpers = { path = "../graphql-test-helpers" }
+graphql-cli = { path = "../graphql-cli" }

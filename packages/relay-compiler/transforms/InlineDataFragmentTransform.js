@@ -12,16 +12,15 @@
 
 'use strict';
 
-const IRTransformer = require('../core/IRTransformer');
-
-const {createUserError} = require('../core/CompilerError');
-
 import type CompilerContext from '../core/CompilerContext';
 import type {
   Fragment,
   FragmentSpread,
   InlineDataFragmentSpread,
 } from '../core/IR';
+
+const {createUserError} = require('../core/CompilerError');
+const IRTransformer = require('../core/IRTransformer');
 
 const SCHEMA_EXTENSION = `
 directive @inline on FRAGMENT_DEFINITION
@@ -44,6 +43,7 @@ function inlineDataFragmentTransform(
 }
 
 function visitFragment(fragment: Fragment): Fragment {
+  // $FlowFixMe[incompatible-use]
   const transformedFragment = this.traverse(fragment);
 
   const inlineDirective = transformedFragment.directives.find(
@@ -67,10 +67,12 @@ function visitFragment(fragment: Fragment): Fragment {
 function visitFragmentSpread(
   fragmentSpread: FragmentSpread,
 ): FragmentSpread | InlineDataFragmentSpread {
+  // $FlowFixMe[incompatible-use]
   const transformedFragmentSpread: FragmentSpread = this.traverse(
     fragmentSpread,
   );
 
+  // $FlowFixMe[incompatible-use]
   const context: CompilerContext = this.getContext();
   const fragment = context.get(transformedFragmentSpread.name);
   if (
@@ -99,6 +101,7 @@ function visitFragmentSpread(
     );
   }
 
+  // $FlowFixMe[incompatible-use]
   const transformedFragment = (this.visit(fragment): Fragment);
 
   return ({

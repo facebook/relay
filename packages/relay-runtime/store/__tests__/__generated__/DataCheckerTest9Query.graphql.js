@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<f519f12aa7e3848647ac992647c213e1>>
+ * @generated SignedSource<<99350e1a35920d43658cac40c59974d8>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,12 +18,12 @@
 import type { ConcreteRequest } from 'relay-runtime';
 type DataCheckerTest6Fragment$ref = any;
 export type DataCheckerTest9QueryVariables = {|
-  id: string
+  id: string,
 |};
 export type DataCheckerTest9QueryResponse = {|
   +node: ?{|
-    +$fragmentRefs: DataCheckerTest6Fragment$ref
-  |}
+    +$fragmentRefs: DataCheckerTest6Fragment$ref,
+  |},
 |};
 export type DataCheckerTest9Query = {|
   variables: DataCheckerTest9QueryVariables,

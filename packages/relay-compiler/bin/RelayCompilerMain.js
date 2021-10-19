@@ -12,22 +12,27 @@
 
 'use strict';
 
-const CodegenRunner = require('../codegen/CodegenRunner');
-const ConsoleReporter = require('../reporters/ConsoleReporter');
-const DotGraphQLParser = require('../core/DotGraphQLParser');
-const RelayFileWriter = require('../codegen/RelayFileWriter');
-const RelayIRTransforms = require('../core/RelayIRTransforms');
-const RelayLanguagePluginJavaScript = require('../language/javascript/RelayLanguagePluginJavaScript');
-const RelaySourceModuleParser = require('../core/RelaySourceModuleParser');
-const WatchmanClient = require('../core/GraphQLWatchmanClient');
+import type {WriteFilesOptions} from '../codegen/CodegenRunner';
+import type {ScalarTypeMapping} from '../language/javascript/RelayFlowTypeTransformers';
+import type {
+  PluginInitializer,
+  PluginInterface,
+} from '../language/RelayLanguagePluginInterface';
 
+const CodegenRunner = require('../codegen/CodegenRunner');
+const RelayFileWriter = require('../codegen/RelayFileWriter');
+const DotGraphQLParser = require('../core/DotGraphQLParser');
+const WatchmanClient = require('../core/GraphQLWatchmanClient');
+const RelayIRTransforms = require('../core/RelayIRTransforms');
+const RelaySourceModuleParser = require('../core/RelaySourceModuleParser');
+const RelayLanguagePluginJavaScript = require('../language/javascript/RelayLanguagePluginJavaScript');
+const ConsoleReporter = require('../reporters/ConsoleReporter');
 const crypto = require('crypto');
 const fs = require('fs');
 const glob = require('glob');
+const {Source, buildClientSchema, printSchema} = require('graphql');
 const invariant = require('invariant');
 const path = require('path');
-
-const {buildClientSchema, Source, printSchema} = require('graphql');
 
 const {
   commonTransforms,
@@ -37,13 +42,6 @@ const {
   queryTransforms,
   schemaExtensions: relaySchemaExtensions,
 } = RelayIRTransforms;
-
-import type {ScalarTypeMapping} from '../language/javascript/RelayFlowTypeTransformers';
-import type {WriteFilesOptions} from '../codegen/CodegenRunner';
-import type {
-  PluginInitializer,
-  PluginInterface,
-} from '../language/RelayLanguagePluginInterface';
 
 export type Config = {|
   schema: string,

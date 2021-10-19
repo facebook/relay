@@ -6,13 +6,14 @@
  */
 
 use crate::no_inline::NO_INLINE_DIRECTIVE_NAME;
-use common::NamedItem;
+use common::{Diagnostic, NamedItem, WithLocation};
 use fnv::{FnvHashMap, FnvHashSet};
 use graphql_ir::{
-    FragmentDefinition, FragmentSpread, OperationDefinition, Program, Value, Variable, Visitor,
+    FragmentDefinition, FragmentSpread, OperationDefinition, Program, ValidationMessage, Value,
+    Variable, Visitor,
 };
 use interner::StringKey;
-use std::iter::FromIterator;
+use schema::{Schema, TypeReference};
 
 pub type VariableMap = FnvHashMap<StringKey, Variable>;
 type Visited = FnvHashMap<StringKey, VariableMap>;
@@ -35,8 +36,13 @@ impl<'program> InferVariablesVisitor<'program> {
 
     /// Determine the set of root variables that are transitively
     /// referenced by each fragment, ie the union of all root variables used in the
-    /// fragment and any fragments it transitively spreads.
-    pub fn infer_operation_variables(&mut self, operation: &OperationDefinition) -> VariableMap {
+    /// fragment and any fragments it transitively spreads. The type of each variable will be
+    /// the most specific type with which that variable is used (ie, the type that the variable
+    /// must have for the query to be valid).
+    pub fn infer_operation_variables(
+        &mut self,
+        operation: &OperationDefinition,
+    ) -> (VariableMap, Vec<Diagnostic>) {
         let transitive_local_variables = Default::default();
         let mut visitor = VariablesVisitor::new(
             self.program,
@@ -45,9 +51,11 @@ impl<'program> InferVariablesVisitor<'program> {
             &transitive_local_variables,
         );
         visitor.visit_operation(operation);
-        visitor.variable_map
+        (visitor.variable_map, visitor.errors)
     }
 
+    /// Similar to infer_operation_variables(), but finds root variables referenced transitively
+    /// from the given fragment.
     pub fn infer_fragment_variables(&mut self, fragment: &FragmentDefinition) -> VariableMap {
         let transitive_local_variables = Default::default();
         let mut visitor = VariablesVisitor::new(
@@ -66,6 +74,7 @@ struct VariablesVisitor<'a, 'b> {
     program: &'a Program,
     local_variables: FnvHashSet<StringKey>,
     transitive_local_variables: &'b FnvHashSet<StringKey>,
+    errors: Vec<Diagnostic>,
 }
 
 impl<'a, 'b> VariablesVisitor<'a, 'b> {
@@ -81,6 +90,7 @@ impl<'a, 'b> VariablesVisitor<'a, 'b> {
             program,
             local_variables,
             transitive_local_variables,
+            errors: Default::default(),
         }
     }
 }
@@ -103,13 +113,12 @@ impl VariablesVisitor<'_, '_> {
             self.visited_fragments
                 .insert(fragment.name.item, Default::default());
 
-            // Avoid collecting local variables usages as root varaibles
-            let local_variables = FnvHashSet::from_iter(
-                fragment
-                    .variable_definitions
-                    .iter()
-                    .map(|var| var.name.item),
-            );
+            // Avoid collecting local variables usages as root variables
+            let local_variables = fragment
+                .variable_definitions
+                .iter()
+                .map(|var| var.name.item)
+                .collect::<FnvHashSet<_>>();
             let transitive_local_variables = if fragment
                 .directives
                 .named(*NO_INLINE_DIRECTIVE_NAME)
@@ -125,7 +134,7 @@ impl VariablesVisitor<'_, '_> {
                 local_variables,
                 transitive_local_variables
                     .as_ref()
-                    .unwrap_or_else(|| &self.transitive_local_variables),
+                    .unwrap_or(&self.transitive_local_variables),
             );
             visitor.visit_fragment(fragment);
             let result = visitor.variable_map;
@@ -137,6 +146,52 @@ impl VariablesVisitor<'_, '_> {
 
     fn is_root_variable(&self, name: StringKey) -> bool {
         !self.local_variables.contains(&name) && !self.transitive_local_variables.contains(&name)
+    }
+
+    // Record that the given (root) variable was used with the given type, updating the mapping of
+    // used root variables:
+    // - If the first time the variable has been seen, add it to the variable map
+    // - If the variable has been seen before, update the type if the new type is more specific
+    //   then the type with which the variable was previously used.
+    // The net effect is that for each variable name the most specific type will be recorded along
+    // with a location that requires that type.
+    fn record_root_variable_usage(
+        &mut self,
+        name: &WithLocation<StringKey>,
+        type_: &TypeReference,
+    ) {
+        let schema = &self.program.schema;
+        let errors = &mut self.errors;
+        self.variable_map
+            .entry(name.item)
+            .and_modify(|prev_variable| {
+                // Note the use of *strict* subtype check: there's no reason to update the mapping
+                // if the types are equivalent, only if the current type is more specific than
+                // the previous type
+                let is_stricter_type =
+                    schema.is_type_strict_subtype_of(type_, &prev_variable.type_);
+                if is_stricter_type {
+                    *prev_variable = Variable {
+                        name: *name,
+                        type_: type_.clone(),
+                    };
+                } else if !schema.is_type_subtype_of(&prev_variable.type_, type_) {
+                    errors.push(
+                        Diagnostic::error(
+                            ValidationMessage::IncompatibleVariableUsage {
+                                prev_type: schema.get_type_string(&prev_variable.type_),
+                                next_type: schema.get_type_string(type_),
+                            },
+                            name.location,
+                        )
+                        .annotate("is incompatible with", prev_variable.name.location),
+                    )
+                }
+            })
+            .or_insert_with(|| Variable {
+                name: *name,
+                type_: type_.clone(),
+            });
     }
 }
 
@@ -159,12 +214,7 @@ impl<'a, 'b> Visitor for VariablesVisitor<'a, 'b> {
                 if let Value::Variable(var) = &arg.value.item {
                     if let Some(def) = fragment.variable_definitions.named(arg.name.item) {
                         if self.is_root_variable(var.name.item) {
-                            self.variable_map
-                                .entry(var.name.item)
-                                .or_insert_with(|| Variable {
-                                    name: var.name,
-                                    type_: def.type_.clone(),
-                                });
+                            self.record_root_variable_usage(&var.name, &def.type_);
                         }
                     }
                 }
@@ -175,15 +225,13 @@ impl<'a, 'b> Visitor for VariablesVisitor<'a, 'b> {
         // into this (parent) fragment's arguments.
         let referenced_fragment_variables = self.infer_fragment_variables(fragment);
         for (_, variable) in referenced_fragment_variables.into_iter() {
-            self.variable_map.insert(variable.name.item, variable);
+            self.record_root_variable_usage(&variable.name, &variable.type_);
         }
     }
 
-    fn visit_variable(&mut self, value: &Variable) {
-        if self.is_root_variable(value.name.item) {
-            self.variable_map
-                .entry(value.name.item)
-                .or_insert_with(|| value.clone());
+    fn visit_variable(&mut self, variable: &Variable) {
+        if self.is_root_variable(variable.name.item) {
+            self.record_root_variable_usage(&variable.name, &variable.type_)
         }
     }
 }

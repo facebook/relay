@@ -13,16 +13,17 @@
 
 'use strict';
 
+const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
+const useLazyLoadQueryNode = require('../useLazyLoadQueryNode');
 const React = require('react');
 const ReactTestRenderer = require('react-test-renderer');
-const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
-
-const useLazyLoadQueryNode = require('../useLazyLoadQueryNode');
-
 const {
-  createOperationDescriptor,
   __internal: {fetchQuery},
+  createOperationDescriptor,
+  getRequest,
+  graphql,
 } = require('relay-runtime');
+const {createMockEnvironment} = require('relay-test-utils');
 
 function expectToBeRendered(renderFn, readyState) {
   // Ensure useEffect is called before other timers
@@ -35,7 +36,9 @@ function expectToBeRendered(renderFn, readyState) {
 }
 
 function expectToHaveFetched(environment, query, cacheConfig) {
+  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(environment.execute).toBeCalledTimes(1);
+  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(environment.execute.mock.calls[0][0].operation).toMatchObject({
     fragment: expect.anything(),
     root: expect.anything(),
@@ -57,8 +60,6 @@ describe('useLazyLoadQueryNode-fast-refresh', () => {
   let environment;
   let gqlQuery;
   let renderFn;
-  let createMockEnvironment;
-  let generateAndCompile;
   let query;
   let variables;
 
@@ -66,27 +67,22 @@ describe('useLazyLoadQueryNode-fast-refresh', () => {
     jest.resetModules();
     jest.spyOn(console, 'warn').mockImplementationOnce(() => {});
 
-    ({
-      createMockEnvironment,
-      generateAndCompile,
-    } = require('relay-test-utils-internal'));
-
     environment = createMockEnvironment();
 
-    const generated = generateAndCompile(`
-      fragment UserFragment on User {
+    graphql`
+      fragment useLazyLoadQueryNodeFastRefreshTestUserFragment on User {
         name
       }
-
-      query UserQuery($id: ID) {
+    `;
+    gqlQuery = getRequest(graphql`
+      query useLazyLoadQueryNodeFastRefreshTestUserQuery($id: ID) {
         node(id: $id) {
           id
           name
-          ...UserFragment
+          ...useLazyLoadQueryNodeFastRefreshTestUserFragment
         }
       }
     `);
-    gqlQuery = generated.UserQuery;
     variables = {id: '1'};
     query = createOperationDescriptor(gqlQuery, variables);
     renderFn = jest.fn(result => result?.node?.name ?? 'Empty');
@@ -124,6 +120,7 @@ describe('useLazyLoadQueryNode-fast-refresh', () => {
     expect(instance.toJSON()).toEqual('Fallback');
     expectToHaveFetched(environment, query, {});
     expect(renderFn).not.toBeCalled();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     expect(environment.retain).toHaveBeenCalledTimes(1);
 
     ReactTestRenderer.act(() =>
@@ -141,6 +138,7 @@ describe('useLazyLoadQueryNode-fast-refresh', () => {
     const data = environment.lookup(query.fragment).data;
     expectToBeRendered(renderFn, data);
 
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     environment.execute.mockClear();
     renderFn.mockClear();
     function V2(props) {

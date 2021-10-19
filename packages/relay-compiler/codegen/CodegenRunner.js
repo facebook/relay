@@ -12,19 +12,6 @@
 
 'use strict';
 
-const CodegenDirectory = require('./CodegenDirectory');
-const CodegenWatcher = require('./CodegenWatcher');
-const GraphQLWatchmanClient = require('../core/GraphQLWatchmanClient');
-const Profiler = require('../core/GraphQLCompilerProfiler');
-
-const invariant = require('invariant');
-const path = require('path');
-
-const {create: createSchema} = require('../core/Schema');
-/* $FlowFixMe[untyped-import] - importing immutable, which is untyped (and flow
- * is sad about it) */
-const {Map: ImmutableMap} = require('immutable');
-
 import type ASTCache from '../core/ASTCache';
 import type {Schema} from '../core/Schema';
 import type {Reporter} from '../reporters/Reporter';
@@ -32,6 +19,17 @@ import type {CompileResult, File} from './CodegenTypes';
 import type {FileFilter, WatchmanExpression} from './CodegenWatcher';
 import type {SourceControl} from './SourceControl';
 import type {DocumentNode, Source} from 'graphql';
+
+const Profiler = require('../core/GraphQLCompilerProfiler');
+const GraphQLWatchmanClient = require('../core/GraphQLWatchmanClient');
+const {create: createSchema} = require('../core/Schema');
+const CodegenDirectory = require('./CodegenDirectory');
+const CodegenWatcher = require('./CodegenWatcher');
+/* $FlowFixMe[untyped-import] - importing immutable, which is untyped (and flow
+ * is sad about it) */
+const {Map: ImmutableMap} = require('immutable');
+const invariant = require('invariant');
+const path = require('path');
 
 export type ParserConfig = {|
   baseDir: string,

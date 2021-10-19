@@ -11,16 +11,17 @@ use graphql_ir::{build, FragmentDefinition, OperationDefinition, Program};
 use graphql_syntax::parse_executable;
 use graphql_test_helpers::diagnostics_to_sorted_string;
 use graphql_text_printer::print_full_operation;
+
 use interner::Intern;
 use relay_codegen::{
     build_request_params, print_fragment, print_operation, print_request, JsModuleFormat,
 };
-use relay_compiler::{apply_transforms, validate};
+use relay_compiler::validate;
 use relay_test_schema::{get_test_schema, get_test_schema_with_extensions};
 use relay_transforms::{
-    ConnectionInterface, FeatureFlags, NoInlineFeature, DIRECTIVE_SPLIT_OPERATION,
+    apply_transforms, ConnectionInterface, FeatureFlag, FeatureFlags, DIRECTIVE_SPLIT_OPERATION,
 };
-use std::sync::Arc;
+use std::{array, sync::Arc};
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let source_location = SourceLocationKey::standalone(fixture.file_name);
@@ -47,13 +48,26 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
 
     let connection_interface = ConnectionInterface::default();
 
-    validate(&program, &connection_interface, &None)
-        .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
+    validate(
+        &program,
+        &FeatureFlags::default(),
+        &connection_interface,
+        &None,
+    )
+    .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
 
     let feature_flags = FeatureFlags {
         enable_flight_transform: true,
-        enable_required_transform_for_prefix: Some("".intern()),
-        no_inline: NoInlineFeature::Enabled,
+        enable_required_transform: true,
+        hash_supported_argument: FeatureFlag::Limited {
+            allowlist: array::IntoIter::new(["UserNameRenderer".intern()]).collect(),
+        },
+        no_inline: FeatureFlag::Enabled,
+        enable_relay_resolver_transform: true,
+        enable_3d_branch_arg_generation: true,
+        actor_change_support: FeatureFlag::Enabled,
+        text_artifacts: FeatureFlag::Disabled,
+        enable_client_edges: FeatureFlag::Disabled,
     };
 
     // TODO pass base fragment names
@@ -63,7 +77,9 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         Default::default(),
         &connection_interface,
         Arc::new(feature_flags),
+        &None,
         Arc::new(ConsoleLogger),
+        None,
     )
     .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
 

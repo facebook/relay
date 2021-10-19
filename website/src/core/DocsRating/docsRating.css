@@ -1,0 +1,67 @@
+/**
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+/* Docs Rating Box */
+#docsRating {
+    display: block;
+    font-weight: 500;
+    flex-direction: column;
+    margin-bottom: 20px;
+    /* this should be >49px, or else components move around when you provide feedback */
+    min-height: 60px;
+}
+
+#docsRating hr {
+    border-color: #333;
+    border-bottom: 0;
+}
+
+#docsRating svg {
+    display: inline;
+    height: 1.5em;
+    width: 1.5em;
+    margin: 0 6px 0 6px;
+}
+
+#docsRating svg:hover, #docsRating svg:focus {
+    cursor: pointer;
+}
+
+#docsRating .i_thumbsup {
+    fill: #56a211;
+    transform: translateY(0.25em);
+    margin-left: 12px;
+}
+
+#docsRating .i_thumbsdown {
+    fill: #e9430f;
+    transform: scale(-1, -1) translateY(-0.25em);
+}
+
+@media only screen and (min-width: 736px) {
+    .left-column {
+        flex-direction: column;
+    }
+
+    .nav-footer .sitemap .left-column .nav-home {
+        display: inline;
+    }
+
+    .nav-footer .sitemap .left-column .links-column {
+        display: inline-block;
+    }
+}
+
+#docsRating .button {
+    appearance: none;
+    border-radius: 5px;
+    border: 1px solid var(--ifm-color-primary);
+    color: var(--ifm-color-primary);
+    background-color: transparent;
+    padding: 5px 15px;
+    margin-left: 20px;
+}

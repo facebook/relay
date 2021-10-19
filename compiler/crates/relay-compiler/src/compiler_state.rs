@@ -8,27 +8,29 @@
 use crate::artifact_map::ArtifactMap;
 use crate::config::Config;
 use crate::errors::{Error, Result};
-use crate::watchman::{
-    categorize_files, extract_graphql_strings_from_file, read_to_string, Clock, FileGroup,
-    FileSourceResult, SourceControlUpdateStatus, WatchmanFile,
+use crate::file_source::{
+    categorize_files, extract_graphql_strings_from_file, read_file_to_string, Clock, File,
+    FileGroup, FileSourceResult, SourceControlUpdateStatus,
 };
-use common::{PerfLogEvent, PerfLogger};
+use common::{PerfLogEvent, PerfLogger, SourceLocationKey};
 use fnv::{FnvHashMap, FnvHashSet};
 use graphql_syntax::GraphQLSource;
 use interner::StringKey;
-use io::BufReader;
 use rayon::prelude::*;
+use relay_transforms::DependencyMap;
 use schema::SDLSchema;
 use schema_diff::{definitions::SchemaChange, detect_changes};
 use serde::{Deserialize, Serialize};
 use std::{
     fmt,
-    fs::File,
+    fs::File as FsFile,
     hash::Hash,
-    io,
+    io::{BufReader, BufWriter},
+    mem,
     path::PathBuf,
     sync::{Arc, RwLock},
 };
+use zstd::stream::{read::Decoder as ZstdDecoder, write::Encoder as ZstdEncoder};
 
 /// Name of a compiler project.
 pub type ProjectName = StringKey;
@@ -60,7 +62,7 @@ impl ProjectSet {
 }
 
 /// Represents the name of the source set, or list of source sets
-#[derive(Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
 #[serde(untagged)]
 pub enum SourceSet {
     SourceSetName(SourceSetName),
@@ -146,7 +148,7 @@ impl Source for String {
 }
 
 impl SchemaSources {
-    pub fn get_sources(&self) -> Vec<&String> {
+    fn get_all(&self) -> Vec<(&PathBuf, &String)> {
         let mut sources: Vec<_>;
         if self.pending.is_empty() {
             sources = self.processed.iter().collect();
@@ -159,7 +161,24 @@ impl SchemaSources {
             }
         }
         sources.sort_by_key(|file_content| file_content.0);
+        sources
+    }
+    pub fn get_sources(&self) -> Vec<&String> {
+        let sources = self.get_all();
         sources.iter().map(|file_content| file_content.1).collect()
+    }
+
+    pub fn get_sources_with_location(&self) -> Vec<(&String, SourceLocationKey)> {
+        let sources = self.get_all();
+        sources
+            .iter()
+            .map(|file_content| {
+                (
+                    file_content.1,
+                    SourceLocationKey::standalone(file_content.0.to_str().unwrap()),
+                )
+            })
+            .collect()
     }
 
     pub fn get_old_sources(&self) -> Vec<&String> {
@@ -184,10 +203,15 @@ pub struct CompilerState {
     pub schemas: FnvHashMap<ProjectName, SchemaSources>,
     pub extensions: FnvHashMap<ProjectName, SchemaSources>,
     pub artifacts: FnvHashMap<ProjectName, Arc<ArtifactMapKind>>,
+    // TODO: How can I can I make this just an ImplicitDependencyMap? Currently I can't move the hashmap out of the Arc wrapper around the dirty version.
+    pub implicit_dependencies: Arc<RwLock<DependencyMap>>,
+    #[serde(with = "clock_json_string")]
     pub clock: Clock,
     pub saved_state_version: String,
     #[serde(skip)]
     pub dirty_artifact_paths: FnvHashMap<ProjectName, FnvHashSet<PathBuf>>,
+    #[serde(skip)]
+    pub pending_implicit_dependencies: Arc<RwLock<DependencyMap>>,
     #[serde(skip)]
     pub pending_file_source_changes: Arc<RwLock<Vec<FileSourceResult>>>,
     #[serde(skip)]
@@ -204,17 +228,19 @@ impl CompilerState {
         perf_logger: &impl PerfLogger,
     ) -> Result<Self> {
         let categorized = setup_event.time("categorize_files_time", || {
-            categorize_files(config, &file_source_changes.files)
+            categorize_files(config, file_source_changes)
         });
 
         let mut result = Self {
             graphql_sources: Default::default(),
             artifacts: Default::default(),
+            implicit_dependencies: Default::default(),
             extensions: Default::default(),
             schemas: Default::default(),
-            clock: file_source_changes.clock.clone(),
+            clock: file_source_changes.clock(),
             saved_state_version: config.saved_state_version.clone(),
             dirty_artifact_paths: Default::default(),
+            pending_implicit_dependencies: Default::default(),
             pending_file_source_changes: Default::default(),
             schema_cache: Default::default(),
             source_control_update_status: Default::default(),
@@ -228,21 +254,19 @@ impl CompilerState {
                     let extract_timer = log_event.start("extract_graphql_strings_from_file_time");
                     let sources = files
                         .par_iter()
-                        .filter(|file| *file.exists)
+                        .filter(|file| file.exists)
                         .filter_map(|file| {
-                            match extract_graphql_strings_from_file(
-                                &file_source_changes.resolved_root,
-                                &file,
-                            ) {
+                            match extract_graphql_strings_from_file(&file_source_changes, &file) {
                                 Ok(graphql_strings) if graphql_strings.is_empty() => None,
                                 Ok(graphql_strings) => {
-                                    Some(Ok(((*file.name).to_owned(), graphql_strings)))
+                                    Some(Ok((file.name.clone(), graphql_strings)))
                                 }
                                 Err(err) => Some(Err(err)),
                             }
                         })
                         .collect::<Result<_>>()?;
                     log_event.stop(extract_timer);
+                    log_event.complete();
                     match source_set {
                         SourceSet::SourceSetName(source_set_name) => {
                             result.set_pending_source_set(source_set_name, sources);
@@ -274,10 +298,7 @@ impl CompilerState {
                     result.artifacts.insert(
                         project_name,
                         Arc::new(ArtifactMapKind::Unconnected(
-                            files
-                                .into_iter()
-                                .map(|file| file.name.into_inner())
-                                .collect(),
+                            files.into_iter().map(|file| file.name).collect(),
                         )),
                     );
                 }
@@ -332,12 +353,15 @@ impl CompilerState {
             .map(String::as_str)
             .collect::<Vec<_>>();
 
-        let schema_change = detect_changes(&current.join("\n"), &previous.join("\n"));
+        let schema_change = detect_changes(&current, &previous);
 
         if schema_change == SchemaChange::None {
             true
         } else {
-            match relay_schema::build_schema_with_extensions(&current, &Vec::<&str>::new()) {
+            match relay_schema::build_schema_with_extensions(
+                &current,
+                &Vec::<(&str, SourceLocationKey)>::new(),
+            ) {
                 Ok(schema) => schema_change.is_safe(&schema),
                 Err(_) => false,
             }
@@ -375,16 +399,18 @@ impl CompilerState {
     pub fn merge_file_source_changes(
         &mut self,
         config: &Config,
-        setup_event: &impl PerfLogEvent,
         perf_logger: &impl PerfLogger,
         // When loading from saved state, collect dirty artifacts for recompiling their source definitions
         should_collect_changed_artifacts: bool,
     ) -> Result<bool> {
         let mut has_changed = false;
         for file_source_changes in self.pending_file_source_changes.write().unwrap().drain(..) {
-            let categorized = setup_event.time("categorize_files_time", || {
-                categorize_files(config, &file_source_changes.files)
+            let log_event = perf_logger.create_event("merge_file_source_changes");
+            log_event.number("number_of_changes", file_source_changes.size());
+            let categorized = log_event.time("categorize_files_time", || {
+                categorize_files(config, &file_source_changes)
             });
+
             for (category, files) in categorized {
                 match category {
                     FileGroup::Source { source_set } => {
@@ -399,15 +425,12 @@ impl CompilerState {
                         let sources: FnvHashMap<PathBuf, Vec<GraphQLSource>> = files
                             .par_iter()
                             .map(|file| {
-                                let graphql_strings = if *file.exists {
-                                    extract_graphql_strings_from_file(
-                                        &file_source_changes.resolved_root,
-                                        &file,
-                                    )?
+                                let graphql_strings = if file.exists {
+                                    extract_graphql_strings_from_file(&file_source_changes, &file)?
                                 } else {
                                     Vec::new()
                                 };
-                                Ok(((*file.name).to_owned(), graphql_strings))
+                                Ok((file.name.clone(), graphql_strings))
                             })
                             .collect::<Result<_>>()?;
                         log_event.stop(extract_timer);
@@ -447,13 +470,10 @@ impl CompilerState {
                         )?;
                     }
                     FileGroup::Generated { project_name } => {
-                        if !should_collect_changed_artifacts {
-                            break;
+                        if should_collect_changed_artifacts {
+                            self.dirty_artifact_paths
+                                .insert(project_name, files.into_iter().map(|f| f.name).collect());
                         }
-                        self.dirty_artifact_paths.insert(
-                            project_name,
-                            files.iter().map(|f| (*f.name).clone()).collect(),
-                        );
                     }
                 }
             }
@@ -472,7 +492,20 @@ impl CompilerState {
         for sources in self.extensions.values_mut() {
             sources.commit_pending_sources();
         }
+        self.implicit_dependencies = mem::take(&mut self.pending_implicit_dependencies);
         self.dirty_artifact_paths.clear();
+    }
+
+    pub fn complete_project_compilation(&mut self, project_name: &ProjectName) {
+        if let Some(sources) = self.graphql_sources.get_mut(project_name) {
+            sources.commit_pending_sources();
+        }
+        if let Some(sources) = self.schemas.get_mut(project_name) {
+            sources.commit_pending_sources();
+        }
+        if let Some(sources) = self.extensions.get_mut(project_name) {
+            sources.commit_pending_sources();
+        }
     }
 
     /// Calculate dirty definitions from dirty artifacts
@@ -517,28 +550,36 @@ impl CompilerState {
     }
 
     pub fn serialize_to_file(&self, path: &PathBuf) -> Result<()> {
-        let writer = File::create(path).map_err(|err| Error::WriteFileError {
+        let writer = FsFile::create(path)
+            .and_then(|writer| ZstdEncoder::new(writer, 12))
+            .map_err(|err| Error::WriteFileError {
+                file: path.clone(),
+                source: err,
+            })?
+            .auto_finish();
+        let writer =
+            BufWriter::with_capacity(ZstdEncoder::<FsFile>::recommended_input_size(), writer);
+        bincode::serialize_into(writer, self).map_err(|err| Error::SerializationError {
             file: path.clone(),
             source: err,
-        })?;
-        serde_json::to_writer(writer, self).map_err(|err| Error::SerializationError {
-            file: path.clone(),
-            source: err,
-        })?;
-        Ok(())
+        })
     }
 
     pub fn deserialize_from_file(path: &PathBuf) -> Result<Self> {
-        let file = File::open(path).map_err(|err| Error::ReadFileError {
+        let reader = FsFile::open(path)
+            .and_then(ZstdDecoder::new)
+            .map_err(|err| Error::ReadFileError {
+                file: path.clone(),
+                source: err,
+            })?;
+        let reader = BufReader::with_capacity(
+            ZstdDecoder::<BufReader<FsFile>>::recommended_output_size(),
+            reader,
+        );
+        bincode::deserialize_from(reader).map_err(|err| Error::DeserializationError {
             file: path.clone(),
             source: err,
-        })?;
-        let reader = BufReader::new(file);
-        let state = serde_json::from_reader(reader).map_err(|err| Error::DeserializationError {
-            file: path.clone(),
-            source: err,
-        })?;
-        Ok(state)
+        })
     }
 
     pub fn has_pending_file_source_changes(&self) -> bool {
@@ -564,19 +605,16 @@ impl CompilerState {
 
     fn process_schema_change(
         file_source_changes: &FileSourceResult,
-        files: Vec<WatchmanFile>,
+        files: Vec<File>,
         project_set: ProjectSet,
         source_map: &mut FnvHashMap<ProjectName, SchemaSources>,
     ) -> Result<()> {
         let mut removed_sources = vec![];
         let mut added_sources = FnvHashMap::default();
         for file in files {
-            let file_name = (*file.name).to_owned();
-            if *file.exists {
-                added_sources.insert(
-                    file_name,
-                    read_to_string(&file_source_changes.resolved_root, &file)?,
-                );
+            let file_name = file.name.clone();
+            if file.exists {
+                added_sources.insert(file_name, read_file_to_string(&file_source_changes, &file)?);
             } else {
                 removed_sources.push(file_name);
             }
@@ -606,5 +644,45 @@ impl CompilerState {
     /// as there maybe incoming file change or source control update in progress
     pub fn should_cancel_current_build(&self) -> bool {
         self.is_source_control_update_in_progress() || self.has_pending_file_source_changes()
+    }
+}
+
+/// A module to serialize a watchman Clock value via JSON.
+/// The reason is that `Clock` internally uses an untagged enum value
+/// which requires "self descriptive" serialization formats and `bincode` does not
+/// support those enums.
+mod clock_json_string {
+    use crate::file_source::Clock;
+    use serde::{
+        de::{Error, Visitor},
+        Deserializer, Serializer,
+    };
+
+    pub fn serialize<S>(clock: &Clock, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        let json_string = serde_json::to_string(clock).unwrap();
+        serializer.serialize_str(&json_string)
+    }
+
+    pub fn deserialize<'de, D>(deserializer: D) -> Result<Clock, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        deserializer.deserialize_str(JSONStringVisitor)
+    }
+
+    struct JSONStringVisitor;
+    impl<'de> Visitor<'de> for JSONStringVisitor {
+        type Value = Clock;
+
+        fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+            formatter.write_str("a JSON encoded watchman::Clock value")
+        }
+
+        fn visit_str<E: Error>(self, v: &str) -> Result<Clock, E> {
+            Ok(serde_json::from_str(v).unwrap())
+        }
     }
 }

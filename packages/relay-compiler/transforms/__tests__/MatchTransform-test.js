@@ -17,7 +17,6 @@ const CompilerContext = require('../../core/CompilerContext');
 const IRPrinter = require('../../core/IRPrinter');
 const MatchTransform = require('../MatchTransform');
 const RelayDirectiveTransform = require('../RelayDirectiveTransform');
-
 const {
   TestSchema,
   generateTestsFromFixtures,

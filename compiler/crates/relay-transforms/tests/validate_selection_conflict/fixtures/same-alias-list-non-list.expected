@@ -1,0 +1,36 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query  TestQuery {
+  node(id: 1) {
+    ...TestFragment
+  }
+}
+
+fragment TestFragment on Node {
+    ... on Feedback {
+        actor {
+            name
+        }
+    }
+    ... on Comment {
+        actor: actors {
+            name
+        }
+    }
+}
+==================================== ERROR ====================================
+✖︎ Field 'actor' is ambiguous because it references fields with different types: 'actor' with type 'Actor' and 'actors' with type '[Actor]'
+
+  same-alias-list-non-list.graphql:10:9
+    9 │     ... on Feedback {
+   10 │         actor {
+      │         ^^^^^
+   11 │             name
+
+  ℹ︎ the other field
+
+  same-alias-list-non-list.graphql:15:16
+   14 │     ... on Comment {
+   15 │         actor: actors {
+      │                ^^^^^^
+   16 │             name

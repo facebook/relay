@@ -10,15 +10,12 @@
 
 'use strict';
 
-const fetchQuery = require('../fetchQuery_DEPRECATED');
-
 const {
   createOperationDescriptor,
 } = require('../../store/RelayModernOperationDescriptor');
-const {
-  createMockEnvironment,
-  generateAndCompile,
-} = require('relay-test-utils-internal');
+const fetchQuery = require('../fetchQuery_DEPRECATED');
+const {getRequest, graphql} = require('../GraphQLTag');
+const {createMockEnvironment} = require('relay-test-utils-internal');
 
 describe('fetchQuery', () => {
   let cacheConfig;
@@ -31,8 +28,8 @@ describe('fetchQuery', () => {
     jest.resetModules();
 
     environment = createMockEnvironment();
-    ({ActorQuery: query} = generateAndCompile(`
-      query ActorQuery($fetchSize: Boolean!) {
+    query = graphql`
+      query fetchQueryDEPRECATEDTestQuery($fetchSize: Boolean!) {
         me {
           name
           profilePicture(size: 42) @include(if: $fetchSize) {
@@ -40,9 +37,9 @@ describe('fetchQuery', () => {
           }
         }
       }
-    `));
+    `;
     variables = {fetchSize: false};
-    operation = createOperationDescriptor(query, variables);
+    operation = createOperationDescriptor(getRequest(query), variables);
   });
 
   it('fetches the query', () => {

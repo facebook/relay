@@ -1,0 +1,290 @@
+==================================== INPUT ====================================
+type Foo {
+  "Single line field description"
+  line: String
+  """
+  Block field description
+  """
+  block: String
+  """
+  Multiline block field description which is so long
+  that it spans onto a second line.
+  """
+  multiline_block: String
+}
+
+extend type Foo {
+  "Single line extended field description"
+  extended_line: String
+  """
+  Block field description
+  """
+  extended_block: String
+  """
+  Multiline block field description which is so long
+  that it spans onto a second line.
+  """
+  extended_multiline_block: String
+}
+==================================== OUTPUT ===================================
+SchemaDocument {
+    location: field_description.graphql:0:530,
+    definitions: [
+        ObjectTypeDefinition(
+            ObjectTypeDefinition {
+                name: Identifier {
+                    span: 5:8,
+                    token: Token {
+                        span: 5:8,
+                        kind: Identifier,
+                    },
+                    value: "Foo",
+                },
+                interfaces: [],
+                directives: [],
+                fields: Some(
+                    List {
+                        span: 9:242,
+                        start: Token {
+                            span: 9:10,
+                            kind: OpenBrace,
+                        },
+                        items: [
+                            FieldDefinition {
+                                name: Identifier {
+                                    span: 47:51,
+                                    token: Token {
+                                        span: 47:51,
+                                        kind: Identifier,
+                                    },
+                                    value: "line",
+                                },
+                                type_: Named(
+                                    NamedTypeAnnotation {
+                                        name: Identifier {
+                                            span: 53:59,
+                                            token: Token {
+                                                span: 53:59,
+                                                kind: Identifier,
+                                            },
+                                            value: "String",
+                                        },
+                                    },
+                                ),
+                                arguments: None,
+                                directives: [],
+                                description: Some(
+                                    StringNode {
+                                        token: Token {
+                                            span: 13:44,
+                                            kind: StringLiteral,
+                                        },
+                                        value: "Single line field description",
+                                    },
+                                ),
+                            },
+                            FieldDefinition {
+                                name: Identifier {
+                                    span: 100:105,
+                                    token: Token {
+                                        span: 100:105,
+                                        kind: Identifier,
+                                    },
+                                    value: "block",
+                                },
+                                type_: Named(
+                                    NamedTypeAnnotation {
+                                        name: Identifier {
+                                            span: 107:113,
+                                            token: Token {
+                                                span: 107:113,
+                                                kind: Identifier,
+                                            },
+                                            value: "String",
+                                        },
+                                    },
+                                ),
+                                arguments: None,
+                                directives: [],
+                                description: Some(
+                                    StringNode {
+                                        token: Token {
+                                            span: 62:97,
+                                            kind: BlockStringLiteral,
+                                        },
+                                        value: "Block field description",
+                                    },
+                                ),
+                            },
+                            FieldDefinition {
+                                name: Identifier {
+                                    span: 217:232,
+                                    token: Token {
+                                        span: 217:232,
+                                        kind: Identifier,
+                                    },
+                                    value: "multiline_block",
+                                },
+                                type_: Named(
+                                    NamedTypeAnnotation {
+                                        name: Identifier {
+                                            span: 234:240,
+                                            token: Token {
+                                                span: 234:240,
+                                                kind: Identifier,
+                                            },
+                                            value: "String",
+                                        },
+                                    },
+                                ),
+                                arguments: None,
+                                directives: [],
+                                description: Some(
+                                    StringNode {
+                                        token: Token {
+                                            span: 116:214,
+                                            kind: BlockStringLiteral,
+                                        },
+                                        value: "Multiline block field description which is so long\nthat it spans onto a second line.",
+                                    },
+                                ),
+                            },
+                        ],
+                        end: Token {
+                            span: 241:242,
+                            kind: CloseBrace,
+                        },
+                    },
+                ),
+            },
+        ),
+        ObjectTypeExtension(
+            ObjectTypeExtension {
+                name: Identifier {
+                    span: 256:259,
+                    token: Token {
+                        span: 256:259,
+                        kind: Identifier,
+                    },
+                    value: "Foo",
+                },
+                interfaces: [],
+                directives: [],
+                fields: Some(
+                    List {
+                        span: 260:529,
+                        start: Token {
+                            span: 260:261,
+                            kind: OpenBrace,
+                        },
+                        items: [
+                            FieldDefinition {
+                                name: Identifier {
+                                    span: 307:320,
+                                    token: Token {
+                                        span: 307:320,
+                                        kind: Identifier,
+                                    },
+                                    value: "extended_line",
+                                },
+                                type_: Named(
+                                    NamedTypeAnnotation {
+                                        name: Identifier {
+                                            span: 322:328,
+                                            token: Token {
+                                                span: 322:328,
+                                                kind: Identifier,
+                                            },
+                                            value: "String",
+                                        },
+                                    },
+                                ),
+                                arguments: None,
+                                directives: [],
+                                description: Some(
+                                    StringNode {
+                                        token: Token {
+                                            span: 264:304,
+                                            kind: StringLiteral,
+                                        },
+                                        value: "Single line extended field description",
+                                    },
+                                ),
+                            },
+                            FieldDefinition {
+                                name: Identifier {
+                                    span: 369:383,
+                                    token: Token {
+                                        span: 369:383,
+                                        kind: Identifier,
+                                    },
+                                    value: "extended_block",
+                                },
+                                type_: Named(
+                                    NamedTypeAnnotation {
+                                        name: Identifier {
+                                            span: 385:391,
+                                            token: Token {
+                                                span: 385:391,
+                                                kind: Identifier,
+                                            },
+                                            value: "String",
+                                        },
+                                    },
+                                ),
+                                arguments: None,
+                                directives: [],
+                                description: Some(
+                                    StringNode {
+                                        token: Token {
+                                            span: 331:366,
+                                            kind: BlockStringLiteral,
+                                        },
+                                        value: "Block field description",
+                                    },
+                                ),
+                            },
+                            FieldDefinition {
+                                name: Identifier {
+                                    span: 495:519,
+                                    token: Token {
+                                        span: 495:519,
+                                        kind: Identifier,
+                                    },
+                                    value: "extended_multiline_block",
+                                },
+                                type_: Named(
+                                    NamedTypeAnnotation {
+                                        name: Identifier {
+                                            span: 521:527,
+                                            token: Token {
+                                                span: 521:527,
+                                                kind: Identifier,
+                                            },
+                                            value: "String",
+                                        },
+                                    },
+                                ),
+                                arguments: None,
+                                directives: [],
+                                description: Some(
+                                    StringNode {
+                                        token: Token {
+                                            span: 394:492,
+                                            kind: BlockStringLiteral,
+                                        },
+                                        value: "Multiline block field description which is so long\nthat it spans onto a second line.",
+                                    },
+                                ),
+                            },
+                        ],
+                        end: Token {
+                            span: 528:529,
+                            kind: CloseBrace,
+                        },
+                    },
+                ),
+            },
+        ),
+    ],
+}

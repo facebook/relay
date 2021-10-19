@@ -13,18 +13,17 @@
 
 'use strict';
 
-const CompilerContext = require('../../../core/CompilerContext');
-const RelayFlowGenerator = require('../RelayFlowGenerator');
-const RelayIRTransforms = require('../../../core/RelayIRTransforms');
+import type {TypeGeneratorOptions} from '../../RelayLanguagePluginInterface';
 
+const CompilerContext = require('../../../core/CompilerContext');
+const RelayIRTransforms = require('../../../core/RelayIRTransforms');
+const RelayFlowGenerator = require('../RelayFlowGenerator');
 const {RelayFeatureFlags} = require('relay-runtime');
 const {
   TestSchema,
   generateTestsFromFixtures,
   parseGraphQLText,
 } = require('relay-test-utils-internal');
-
-import type {TypeGeneratorOptions} from '../../RelayLanguagePluginInterface';
 
 function generate(text, options: TypeGeneratorOptions, context?) {
   const relaySchema = TestSchema.extend([

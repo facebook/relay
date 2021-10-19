@@ -35,8 +35,8 @@ export type UnionTypeTestResponse = {|
   |} | {|
     // This will never be '%other', but we need some
     // value in case none of the concrete values match.
-    +__typename: "%other"
-  |})
+    +__typename: "%other",
+  |}),
 |};
 export type UnionTypeTest = {|
   variables: UnionTypeTestVariables,
@@ -55,11 +55,11 @@ export type LinkedField = {|
   +hometown: ?{|
     +id: string,
     +profilePicture: ?{|
-      +uri: ?string
+      +uri: ?string,
     |},
   |},
   +actor: ?{|
-    +id: string
+    +id: string,
   |},
   +$refType: LinkedField$ref,
 |};

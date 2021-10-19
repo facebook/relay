@@ -14,9 +14,8 @@
 'use strict';
 
 const CompilerContext = require('../../core/CompilerContext');
-const FieldHandleTransform = require('../FieldHandleTransform');
 const IRPrinter = require('../../core/IRPrinter');
-
+const FieldHandleTransform = require('../FieldHandleTransform');
 const {
   TestSchema,
   generateTestsFromFixtures,

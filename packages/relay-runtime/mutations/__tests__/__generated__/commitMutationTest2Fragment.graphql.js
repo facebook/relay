@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<779d9db43e990b2ccb29430ce73b8ab6>>
+ * @generated SignedSource<<a03188b679bba62c440d13dc10309a5a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,7 +22,7 @@ declare export opaque type commitMutationTest2Fragment$fragmentType: commitMutat
 export type commitMutationTest2Fragment = {|
   +id: string,
   +body: ?{|
-    +text: ?string
+    +text: ?string,
   |},
   +$refType: commitMutationTest2Fragment$ref,
 |};

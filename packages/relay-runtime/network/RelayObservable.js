@@ -355,11 +355,13 @@ class RelayObservable<+T> implements Subscribable<T> {
         }
       }
 
+      // $FlowFixMe[incompatible-call]
       this.subscribe({
         start,
         next(value) {
           try {
             if (!sink.closed) {
+              // $FlowFixMe[incompatible-call]
               RelayObservable.from(fn(value)).subscribe({
                 start,
                 next: sink.next,

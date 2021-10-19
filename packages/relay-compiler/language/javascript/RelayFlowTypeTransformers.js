@@ -12,22 +12,20 @@
 
 'use strict';
 
-const t = require('@babel/types');
+import type {EnumTypeID, Schema, TypeID} from '../../core/Schema';
+import type {State} from './RelayFlowGenerator';
 
 const {
   exactObjectTypeAnnotation,
   readOnlyArrayOfType,
 } = require('./RelayFlowBabelFactories');
-
-import type {Schema, TypeID, EnumTypeID} from '../../core/Schema';
+const t = require('@babel/types');
 
 export type BabelTypes = typeof t;
 export type ScalarTypeMapping = {
   [type: string]: string | (BabelTypes => BabelNode_DEPRECATED),
   ...,
 };
-
-import type {State} from './RelayFlowGenerator';
 
 function getInputObjectTypeIdentifier(schema: Schema, typeID: TypeID): string {
   return schema.getTypeString(typeID);
@@ -38,7 +36,7 @@ function transformScalarType(
   type: TypeID,
   state: State,
   objectProps?: BabelNode_DEPRECATED,
-): mixed {
+): BabelNode_DEPRECATED {
   if (schema.isNonNull(type)) {
     return transformNonNullableScalarType(
       schema,
@@ -108,7 +106,7 @@ function transformGraphQLEnumType(
   schema: Schema,
   type: EnumTypeID,
   state: State,
-) {
+): BabelNode_DEPRECATED {
   state.usedEnums[schema.getTypeString(type)] = type;
   return t.genericTypeAnnotation(t.identifier(schema.getTypeString(type)));
 }
@@ -117,7 +115,7 @@ function transformInputType(
   schema: Schema,
   type: TypeID,
   state: State,
-): $FlowFixMe {
+): BabelNode_DEPRECATED {
   if (schema.isNonNull(type)) {
     return transformNonNullableInputType(
       schema,

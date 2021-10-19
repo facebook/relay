@@ -12,32 +12,30 @@
 
 'use strict';
 
-const IRTransformer = require('../core/IRTransformer');
-const RelayParser = require('../core/RelayParser');
-const SchemaUtils = require('../core/SchemaUtils');
-
-const getLiteralArgumentValues = require('../core/getLiteralArgumentValues');
-
-const {createCompilerError, createUserError} = require('../core/CompilerError');
-const {parse} = require('graphql');
-const {ConnectionInterface, RelayFeatureFlags} = require('relay-runtime');
-
 import type CompilerContext from '../core/CompilerContext';
 import type {
   Argument,
+  Defer,
   Directive,
   Fragment,
   Handle,
   InlineFragment,
   LinkedField,
+  Location,
   Root,
   Selection,
   Variable,
-  Location,
-  Defer,
 } from '../core/IR';
-import type {Schema, CompositeTypeID} from '../core/Schema';
+import type {CompositeTypeID, Schema} from '../core/Schema';
 import type {ConnectionMetadata} from 'relay-runtime';
+
+const {createCompilerError, createUserError} = require('../core/CompilerError');
+const getLiteralArgumentValues = require('../core/getLiteralArgumentValues');
+const IRTransformer = require('../core/IRTransformer');
+const RelayParser = require('../core/RelayParser');
+const SchemaUtils = require('../core/SchemaUtils');
+const {parse} = require('graphql');
+const {ConnectionInterface, RelayFeatureFlags} = require('relay-runtime');
 
 type Options = {
   documentName: string,
@@ -123,6 +121,7 @@ function visitFragmentOrRoot<N: Fragment | Root>(
   node: N,
   options: Options,
 ): ?N {
+  // $FlowFixMe[incompatible-use]
   const transformedNode = this.traverse(node, options);
   const connectionMetadata = options.connectionMetadata;
   if (connectionMetadata.length) {
@@ -141,6 +140,7 @@ function visitFragmentOrRoot<N: Fragment | Root>(
  * @internal
  */
 function visitLinkedField(field: LinkedField, options: Options): LinkedField {
+  // $FlowFixMe[incompatible-use]
   const context: CompilerContext = this.getContext();
   const schema = context.getSchema();
 
@@ -148,6 +148,7 @@ function visitLinkedField(field: LinkedField, options: Options): LinkedField {
 
   const isPlural = schema.isList(nullableType);
   const path = options.path.concat(isPlural ? null : field.alias || field.name);
+  // $FlowFixMe[incompatible-use]
   let transformedField: LinkedField = this.traverse(field, {
     ...options,
     path,
@@ -198,6 +199,7 @@ function visitLinkedField(field: LinkedField, options: Options): LinkedField {
   const {direction} = connectionMetadata;
   if (direction != null) {
     const selections = transformConnectionSelections(
+      // $FlowFixMe[incompatible-use]
       this.getContext(),
       transformedField,
       schema.assertCompositeType(nullableType),

@@ -12,9 +12,18 @@
 
 'use strict';
 
+import type {ConcreteRequest} from '../util/RelayConcreteNode';
+import type {
+  CacheConfig,
+  DataID,
+  OperationType,
+  Variables,
+  VariablesOf,
+} from '../util/RelayRuntimeTypes';
+import type {OperationDescriptor, RequestDescriptor} from './RelayStoreTypes';
+
 const deepFreeze = require('../util/deepFreeze');
 const getRequestIdentifier = require('../util/getRequestIdentifier');
-
 const {getOperationVariables} = require('./RelayConcreteVariables');
 const {
   createNormalizationSelector,
@@ -22,19 +31,15 @@ const {
 } = require('./RelayModernSelector');
 const {ROOT_ID} = require('./RelayStoreUtils');
 
-import type {ConcreteRequest} from '../util/RelayConcreteNode';
-import type {CacheConfig, DataID, Variables} from '../util/RelayRuntimeTypes';
-import type {OperationDescriptor, RequestDescriptor} from './RelayStoreTypes';
-
 /**
  * Creates an instance of the `OperationDescriptor` type defined in
  * `RelayStoreTypes` given an operation and some variables. The input variables
  * are filtered to exclude variables that do not match defined arguments on the
  * operation, and default values are populated for null values.
  */
-function createOperationDescriptor(
+function createOperationDescriptor<TQuery: OperationType>(
   request: ConcreteRequest,
-  variables: Variables,
+  variables: VariablesOf<TQuery>,
   cacheConfig?: ?CacheConfig,
   dataID?: DataID = ROOT_ID,
 ): OperationDescriptor {

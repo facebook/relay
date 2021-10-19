@@ -13,11 +13,9 @@
 
 'use strict';
 
+const useEntryPointLoader = require('../useEntryPointLoader');
 const React = require('react');
 const ReactTestRenderer = require('react-test-renderer');
-
-const useEntryPointLoader = require('../useEntryPointLoader');
-
 const {createMockEnvironment} = require('relay-test-utils-internal');
 
 let loadedEntryPoint;
@@ -70,6 +68,7 @@ beforeEach(() => {
       loadedEntryPoint,
       entryPointLoaderCallback,
       disposeEntryPoint,
+      // $FlowFixMe[prop-missing]
     ] = useEntryPointLoader(environmentProvider, entryPoint);
     return null;
   };
@@ -150,7 +149,7 @@ afterEach(() => {
 });
 
 it('does not dispose the entry point before the new component tree unsuspends in concurrent mode', () => {
-  if (typeof React.useTransition === 'function') {
+  if (typeof React.startTransition === 'function') {
     let resolve;
     let resolved = false;
     const suspensePromise = new Promise(
@@ -187,14 +186,11 @@ it('does not dispose the entry point before the new component tree unsuspends in
     }
 
     let transitionToSecondRoute;
-    const suspenseTransitionConfig = {
-      timeoutMs: 3000,
-    };
     function ConcurrentWrapper() {
       const [route, setRoute] = React.useState('FIRST');
 
-      const [startTransition] = React.useTransition(suspenseTransitionConfig);
-      transitionToSecondRoute = () => startTransition(() => setRoute('SECOND'));
+      transitionToSecondRoute = () =>
+        React.startTransition(() => setRoute('SECOND'));
 
       return (
         <React.Suspense fallback="fallback">
@@ -234,7 +230,7 @@ it('disposes entry point references associated with previous suspensions when mu
   // Three state changes and calls to loadEntryPoint: A, B, C, each causing suspense
   // When C unsuspends, A and B's entry points are disposed.
 
-  if (typeof React.useTransition === 'function') {
+  if (typeof React.startTransition === 'function') {
     let resolve;
     let resolved = false;
     const resolvableSuspensePromise = new Promise(
@@ -259,15 +255,11 @@ it('disposes entry point references associated with previous suspensions when mu
     }
 
     let triggerStateChange: any;
-    const suspenseTransitionConfig = {
-      timeoutMs: 3000,
-    };
     function ConcurrentWrapper() {
       const [promise, setPromise] = React.useState(null);
 
-      const [startTransition] = React.useTransition(suspenseTransitionConfig);
       triggerStateChange = (newPromise, newName) =>
-        startTransition(() => {
+        React.startTransition(() => {
           entryPointLoaderCallback({});
           setPromise(newPromise);
         });
@@ -336,7 +328,7 @@ it('disposes entry point references associated with subsequent suspensions when 
   // Three state changes and calls to loadEntryPoint: A, B, C, each causing suspense
   // When A unsuspends, B and C's entry points do not get disposed.
 
-  if (typeof React.useTransition === 'function') {
+  if (typeof React.startTransition === 'function') {
     let resolve;
     let resolved = false;
     const resolvableSuspensePromise = new Promise(
@@ -361,15 +353,11 @@ it('disposes entry point references associated with subsequent suspensions when 
     }
 
     let triggerStateChange: any;
-    const suspenseTransitionConfig = {
-      timeoutMs: 3000,
-    };
     function ConcurrentWrapper() {
       const [promise, setPromise] = React.useState(null);
 
-      const [startTransition] = React.useTransition(suspenseTransitionConfig);
       triggerStateChange = (newPromise, newName) =>
-        startTransition(() => {
+        React.startTransition(() => {
           entryPointLoaderCallback({});
           setPromise(newPromise);
         });

@@ -41,7 +41,7 @@ fn test_custom_intern() {
         name: String,
     }
 
-    intern!(User as UserKey);
+    make_intern!(User as UserKey);
 
     let key: UserKey = User {
         name: "Joe".to_owned(),

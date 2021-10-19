@@ -17,7 +17,6 @@ const CompilerContext = require('../../core/CompilerContext');
 const MatchTransform = require('../MatchTransform');
 const SkipSplitOperationTransform = require('../SkipSplitOperationTransform');
 const SplitModuleImportTransform = require('../SplitModuleImportTransform');
-
 const {
   TestSchema,
   generateTestsFromFixtures,

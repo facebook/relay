@@ -20,6 +20,9 @@ const {
   RecordSource,
   Store,
 } = require('relay-runtime');
+const {disallowWarnings} = require('relay-test-utils-internal');
+
+disallowWarnings();
 
 describe('isServer', () => {
   const fetch = () => Observable.create(() => {});

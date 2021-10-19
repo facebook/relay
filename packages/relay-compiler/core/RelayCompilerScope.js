@@ -12,8 +12,6 @@
 
 'use strict';
 
-const {createUserError, eachWithCombinedError} = require('./CompilerError');
-
 import type {
   Argument,
   ArgumentDefinition,
@@ -23,6 +21,8 @@ import type {
   Variable,
 } from './IR';
 import type {Schema} from './Schema';
+
+const {createUserError, eachWithCombinedError} = require('./CompilerError');
 /**
  * A scope is a mapping of the values for each argument defined by the nearest
  * ancestor root or fragment of a given IR selection. A scope maps argument

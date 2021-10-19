@@ -10,18 +10,17 @@
 
 'use strict';
 
+const {getRequest, graphql} = require('../../query/GraphQLTag');
 const readInlineData = require('../readInlineData');
-
-const {createOperationDescriptor, getRequest} = require('relay-runtime');
 const {
-  createMockEnvironment,
-  generateAndCompile,
-} = require('relay-test-utils-internal');
+  createOperationDescriptor,
+} = require('../RelayModernOperationDescriptor');
+const {createMockEnvironment} = require('relay-test-utils-internal');
 
-const {UserFragment, UserQuery} = generateAndCompile(`
-  query UserQuery($id: ID!) {
+const UserQuery = graphql`
+  query readInlineDataTestUserQuery($id: ID!) {
     node(id: $id) {
-      ...UserFragment # @arguments(cond: true)
+      ...readInlineDataTestUserFragment # @arguments(cond: true)
     }
     # with_name: node(id: $id) {
     #   id
@@ -31,20 +30,20 @@ const {UserFragment, UserQuery} = generateAndCompile(`
     #   ...UserFragment @arguments(cond: false)
     # }
   }
+`;
 
-  fragment UserFragment on User
-    @inline
+const UserFragment = graphql`
+  fragment readInlineDataTestUserFragment on User @inline {
     # @argumentDefinitions(cond: { type: "Boolean!", defaultValue: true })
-  {
     id
     name # @include(if: $cond)
   }
-`);
+`;
 
 test('unwrap inline fragment data', () => {
   const userRef = {
     __fragments: {
-      UserFragment: {
+      readInlineDataTestUserFragment: {
         id: '67',
         name: 'John',
       },

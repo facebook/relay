@@ -13,23 +13,13 @@
 
 'use strict';
 
-jest.mock('relay-runtime', () => {
-  const originalRuntime = jest.requireActual('relay-runtime');
-  const originalInternal = originalRuntime.__internal;
-  return {
-    ...originalRuntime,
-    __internal: {
-      ...originalInternal,
-      getPromiseForActiveRequest: jest.fn(),
-    },
-  };
-});
-
 const {getFragmentResourceForEnvironment} = require('../FragmentResource');
 const {
-  __internal: {getPromiseForActiveRequest},
+  __internal: {fetchQuery},
   createOperationDescriptor,
   getFragment,
+  getRequest,
+  graphql,
 } = require('relay-runtime');
 
 describe('FragmentResource', () => {
@@ -39,7 +29,6 @@ describe('FragmentResource', () => {
   let queryPlural;
   let FragmentResource;
   let createMockEnvironment;
-  let generateAndCompile;
   let UserQuery;
   let UserFragment;
   let UserQueryMissing;
@@ -54,63 +43,56 @@ describe('FragmentResource', () => {
 
   beforeEach(() => {
     // jest.resetModules();
-
-    ({
-      createMockEnvironment,
-      generateAndCompile,
-    } = require('relay-test-utils-internal'));
+    ({createMockEnvironment} = require('relay-test-utils-internal'));
 
     environment = createMockEnvironment();
     FragmentResource = getFragmentResourceForEnvironment(environment);
 
-    ({UserQuery, UserFragment} = generateAndCompile(
-      `
-        fragment UserFragment on User {
-          id
-          name
+    UserFragment = graphql`
+      fragment FragmentResourceTest1Fragment on User {
+        id
+        name
+      }
+    `;
+    UserQuery = getRequest(graphql`
+      query FragmentResourceTest1Query($id: ID!) {
+        node(id: $id) {
+          __typename
+          ...FragmentResourceTest1Fragment
         }
-        query UserQuery($id: ID!) {
-          node(id: $id) {
-            __typename
-            ...UserFragment
-          }
-        }
-    `,
-    ));
+      }
+    `);
 
-    ({
-      UserQuery: UserQueryMissing,
-      UserFragment: UserFragmentMissing,
-    } = generateAndCompile(
-      `
-        fragment UserFragment on User {
-          id
-          name
-          username
+    UserFragmentMissing = graphql`
+      fragment FragmentResourceTest2Fragment on User {
+        id
+        name
+        username
+      }
+    `;
+    UserQueryMissing = getRequest(graphql`
+      query FragmentResourceTest2Query($id: ID!) {
+        node(id: $id) {
+          __typename
+          ...FragmentResourceTest2Fragment
         }
-        query UserQuery($id: ID!) {
-          node(id: $id) {
-            __typename
-            ...UserFragment
-          }
-        }
-      `,
-    ));
+      }
+    `);
 
-    ({UsersQuery, UsersFragment} = generateAndCompile(
-      `
-        fragment UsersFragment on User @relay(plural: true) {
-          id
-          name
+    UsersFragment = graphql`
+      fragment FragmentResourceTest3Fragment on User @relay(plural: true) {
+        id
+        name
+      }
+    `;
+    UsersQuery = getRequest(graphql`
+      query FragmentResourceTest3Query($ids: [ID!]!) {
+        nodes(ids: $ids) {
+          __typename
+          ...FragmentResourceTest3Fragment
         }
-        query UsersQuery($ids: [ID!]!) {
-          nodes(ids: $ids) {
-            __typename
-            ...UsersFragment
-          }
-        }
-      `,
-    ));
+      }
+    `);
 
     query = createOperationDescriptor(UserQuery, variables);
     queryMissingData = createOperationDescriptor(UserQueryMissing, variables);
@@ -124,10 +106,6 @@ describe('FragmentResource', () => {
     });
   });
 
-  afterEach(() => {
-    (getPromiseForActiveRequest: any).mockReset();
-  });
-
   describe('read', () => {
     it('should read data for the fragment when all data is available', () => {
       const result = FragmentResource.read(
@@ -135,7 +113,7 @@ describe('FragmentResource', () => {
         {
           __id: '4',
           __fragments: {
-            UserFragment: {},
+            FragmentResourceTest1Fragment: {},
           },
           __fragmentOwner: query.request,
         },
@@ -151,7 +129,7 @@ describe('FragmentResource', () => {
           {
             __id: '4',
             __fragments: {
-              UsersFragment: {},
+              FragmentResourceTest3Fragment: {},
             },
             __fragmentOwner: queryPlural.request,
           },
@@ -162,19 +140,11 @@ describe('FragmentResource', () => {
     });
 
     it('should return empty array for plural fragment when plural field is empty', () => {
-      ({UsersFragment} = generateAndCompile(
-        `
-          fragment UsersFragment on User @relay(plural: true) {
-            id
-          }
-          query UsersQuery($ids: [ID!]!) {
-            nodes(ids: $ids) {
-              __typename
-              ...UsersFragment
-            }
-          }
-        `,
-      ));
+      UsersFragment = graphql`
+        fragment FragmentResourceTest7Fragment on User @relay(plural: true) {
+          id
+        }
+      `;
 
       const result = FragmentResource.read(
         getFragment(UsersFragment),
@@ -184,13 +154,33 @@ describe('FragmentResource', () => {
       expect(result.data).toEqual([]);
     });
 
+    it('should return the same empty array for multiple calls for the same plural fragment when plural field is empty', () => {
+      UsersFragment = graphql`
+        fragment FragmentResourceTest8Fragment on User @relay(plural: true) {
+          id
+        }
+      `;
+
+      const firstResult = FragmentResource.read(
+        getFragment(UsersFragment),
+        [],
+        componentDisplayName,
+      );
+      const secondResult = FragmentResource.read(
+        getFragment(UsersFragment),
+        [],
+        componentDisplayName,
+      );
+      expect(firstResult.data).toBe(secondResult.data);
+    });
+
     it('should correctly read fragment data when dataID changes', () => {
       let result = FragmentResource.read(
         getFragment(UserFragment),
         {
           __id: '4',
           __fragments: {
-            UserFragment: {},
+            FragmentResourceTest1Fragment: {},
           },
           __fragmentOwner: query.request,
         },
@@ -211,7 +201,7 @@ describe('FragmentResource', () => {
         {
           __id: '5',
           __fragments: {
-            UserFragment: {},
+            FragmentResourceTest1Fragment: {},
           },
           __fragmentOwner: query.request,
         },
@@ -221,20 +211,21 @@ describe('FragmentResource', () => {
     });
 
     it('should correctly read fragment data when variables used by fragment change', () => {
-      ({UserQuery, UserFragment} = generateAndCompile(
-        `
-          fragment UserFragment on Query {
-            node(id: $id) {
-              __typename
-              id
-              name
-            }
+      UserFragment = graphql`
+        fragment FragmentResourceTest4Fragment on Query {
+          node(id: $id) {
+            __typename
+            id
+            name
           }
-          query UserQuery($id: ID!) {
-            ...UserFragment
-          }
-        `,
-      ));
+        }
+      `;
+      UserQuery = getRequest(graphql`
+        query FragmentResourceTest4Query($id: ID!) {
+          ...FragmentResourceTest4Fragment
+        }
+      `);
+
       const prevVars = {id: '4'};
       query = createOperationDescriptor(UserQuery, prevVars);
       let result = FragmentResource.read(
@@ -242,7 +233,7 @@ describe('FragmentResource', () => {
         {
           __id: 'client:root',
           __fragments: {
-            UserFragment: {},
+            FragmentResourceTest4Fragment: {},
           },
           __fragmentOwner: query.request,
         },
@@ -267,7 +258,7 @@ describe('FragmentResource', () => {
         {
           __id: 'client:root',
           __fragments: {
-            UserFragment: {},
+            FragmentResourceTest4Fragment: {},
           },
           __fragmentOwner: query.request,
         },
@@ -282,20 +273,21 @@ describe('FragmentResource', () => {
       'should correctly read fragment data when variables used by fragment ' +
         'in @argumentDefinitions change',
       () => {
-        ({UserQuery, UserFragment} = generateAndCompile(
-          `
-          fragment UserFragment on Query @argumentDefinitions(id: {type: "ID!"}) {
+        UserFragment = graphql`
+          fragment FragmentResourceTest5Fragment on Query
+            @argumentDefinitions(id: {type: "ID!"}) {
             node(id: $id) {
               __typename
               id
               name
             }
           }
-          query UserQuery($id: ID!) {
-            ...UserFragment @arguments(id: $id)
+        `;
+        UserQuery = getRequest(graphql`
+          query FragmentResourceTest5Query($id: ID!) {
+            ...FragmentResourceTest5Fragment @arguments(id: $id)
           }
-        `,
-        ));
+        `);
         const prevVars = {id: '4'};
         query = createOperationDescriptor(UserQuery, prevVars);
         let result = FragmentResource.read(
@@ -303,7 +295,7 @@ describe('FragmentResource', () => {
           {
             __id: 'client:root',
             __fragments: {
-              UserFragment: prevVars,
+              FragmentResourceTest5Fragment: prevVars,
             },
             __fragmentOwner: query.request,
           },
@@ -328,7 +320,7 @@ describe('FragmentResource', () => {
           {
             __id: 'client:root',
             __fragments: {
-              UserFragment: nextVars,
+              FragmentResourceTest5Fragment: nextVars,
             },
             __fragmentOwner: query.request,
           },
@@ -344,21 +336,22 @@ describe('FragmentResource', () => {
       'should correctly read fragment data when fragment owner variables ' +
         'change',
       () => {
-        ({UserQuery, UserFragment} = generateAndCompile(
-          `
-          fragment UserFragment on User {
+        UserFragment = graphql`
+          fragment FragmentResourceTest6Fragment on User {
             id
             name
           }
-          query UserQuery($id: ID!, $foo: Boolean!) {
+        `;
+        UserQuery = getRequest(graphql`
+          query FragmentResourceTest6Query($id: ID!, $foo: Boolean!) {
             node(id: $id) {
               __typename
               name @include(if: $foo)
-              ...UserFragment
+              ...FragmentResourceTest6Fragment
             }
           }
-        `,
-        ));
+        `);
+
         const variablesWithFoo = {
           id: '4',
           foo: false,
@@ -371,7 +364,7 @@ describe('FragmentResource', () => {
           {
             __id: '4',
             __fragments: {
-              UserFragment: {},
+              FragmentResourceTest6Fragment: {},
             },
             __fragmentOwner: query.request,
           },
@@ -390,7 +383,7 @@ describe('FragmentResource', () => {
           {
             __id: '4',
             __fragments: {
-              UserFragment: {},
+              FragmentResourceTest6Fragment: {},
             },
             __fragmentOwner: query.request,
           },
@@ -417,12 +410,13 @@ describe('FragmentResource', () => {
     });
 
     it('should throw and cache promise if reading missing data and network request for parent query is in flight', () => {
-      (getPromiseForActiveRequest: any).mockReturnValue(Promise.resolve());
+      fetchQuery(environment, queryMissingData).subscribe({});
+
       const fragmentNode = getFragment(UserFragmentMissing);
       const fragmentRef = {
         __id: '4',
         __fragments: {
-          UserFragment: {},
+          FragmentResourceTest2Fragment: {},
         },
         __fragmentOwner: queryMissingData.request,
       };
@@ -451,17 +445,13 @@ describe('FragmentResource', () => {
     });
 
     it('should not cache or throw an error if network request for parent query errored', () => {
-      let reject = (e: Error) => {};
-      (getPromiseForActiveRequest: any).mockReturnValueOnce(
-        new Promise((_, r) => {
-          reject = r;
-        }),
-      );
+      fetchQuery(environment, queryMissingData).subscribe({error: () => {}});
+
       const fragmentNode = getFragment(UserFragmentMissing);
       const fragmentRef = {
         __id: '4',
         __fragments: {
-          UserFragment: {},
+          FragmentResourceTest2Fragment: {},
         },
         __fragmentOwner: queryMissingData.request,
       };
@@ -478,7 +468,7 @@ describe('FragmentResource', () => {
       expect(thrown).not.toBe(null);
 
       // Make the network request error
-      reject(new Error('Network Error'));
+      environment.mock.reject(queryMissingData, new Error('Network Error'));
       jest.runAllImmediates();
 
       // Try reading a fragment a second time after the parent query errored
@@ -502,7 +492,7 @@ describe('FragmentResource', () => {
           componentDisplayName,
         ),
       ).toThrow(
-        "Relay: Expected to receive an object where `...UserFragment` was spread, but the fragment reference was not found`. This is most likely the result of:\n- Forgetting to spread `UserFragment` in `TestComponent`'s parent's fragment.\n- Conditionally fetching `UserFragment` but unconditionally passing a fragment reference prop to `TestComponent`. If the parent fragment only fetches the fragment conditionally - with e.g. `@include`, `@skip`, or inside a `... on SomeType { }` spread  - then the fragment reference will not exist. In this case, pass `null` if the conditions for evaluating the fragment are not met (e.g. if the `@include(if)` value is false.)",
+        "Relay: Expected to receive an object where `...FragmentResourceTest1Fragment` was spread, but the fragment reference was not found`. This is most likely the result of:\n- Forgetting to spread `FragmentResourceTest1Fragment` in `TestComponent`'s parent's fragment.\n- Conditionally fetching `FragmentResourceTest1Fragment` but unconditionally passing a fragment reference prop to `TestComponent`. If the parent fragment only fetches the fragment conditionally - with e.g. `@include`, `@skip`, or inside a `... on SomeType { }` spread  - then the fragment reference will not exist. In this case, pass `null` if the conditions for evaluating the fragment are not met (e.g. if the `@include(if)` value is false.)",
       );
     });
   });
@@ -518,7 +508,7 @@ describe('FragmentResource', () => {
           user: {
             __id: '4',
             __fragments: {
-              UserFragment: {},
+              FragmentResourceTest1Fragment: {},
             },
             __fragmentOwner: query.request,
           },
@@ -531,7 +521,8 @@ describe('FragmentResource', () => {
     });
 
     it('should throw and cache promise if reading missing data and network request for parent query is in flight', () => {
-      (getPromiseForActiveRequest: any).mockReturnValueOnce(Promise.resolve());
+      fetchQuery(environment, queryMissingData).subscribe({});
+
       const fragmentNodes = {
         user: getFragment(UserFragmentMissing),
       };
@@ -539,7 +530,7 @@ describe('FragmentResource', () => {
         user: {
           __id: '4',
           __fragments: {
-            UserFragment: {},
+            FragmentResourceTest2Fragment: {},
           },
           __fragmentOwner: queryMissingData.request,
         },
@@ -589,16 +580,19 @@ describe('FragmentResource', () => {
         {
           __id: '4',
           __fragments: {
-            UserFragment: {},
+            FragmentResourceTest1Fragment: {},
           },
           __fragmentOwner: query.request,
         },
         componentDisplayName,
       );
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.subscribe).toHaveBeenCalledTimes(0);
 
       const disposable = FragmentResource.subscribe(result, callback);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.subscribe).toBeCalledTimes(1);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.subscribe.mock.dispose).toBeCalledTimes(0);
 
       // Update data
@@ -619,7 +613,7 @@ describe('FragmentResource', () => {
         {
           __id: '4',
           __fragments: {
-            UserFragment: {},
+            FragmentResourceTest1Fragment: {},
           },
           __fragmentOwner: query.request,
         },
@@ -628,7 +622,9 @@ describe('FragmentResource', () => {
       expect(result.data).toEqual({id: '4', name: 'Mark Updated'});
 
       disposable.dispose();
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.subscribe).toBeCalledTimes(1);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.subscribe.mock.dispose).toBeCalledTimes(1);
     });
 
@@ -638,12 +634,13 @@ describe('FragmentResource', () => {
         {
           __id: '4',
           __fragments: {
-            UserFragment: {},
+            FragmentResourceTest1Fragment: {},
           },
           __fragmentOwner: query.request,
         },
         componentDisplayName,
       );
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.subscribe).toHaveBeenCalledTimes(0);
 
       // Update data once, before subscribe has been called
@@ -656,7 +653,9 @@ describe('FragmentResource', () => {
       });
 
       const disposable = FragmentResource.subscribe(result, callback);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.subscribe).toBeCalledTimes(1);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.subscribe.mock.dispose).toBeCalledTimes(0);
 
       // Assert that callback was immediately called
@@ -668,7 +667,7 @@ describe('FragmentResource', () => {
         {
           __id: '4',
           __fragments: {
-            UserFragment: {},
+            FragmentResourceTest1Fragment: {},
           },
           __fragmentOwner: query.request,
         },
@@ -694,7 +693,7 @@ describe('FragmentResource', () => {
         {
           __id: '4',
           __fragments: {
-            UserFragment: {},
+            FragmentResourceTest1Fragment: {},
           },
           __fragmentOwner: query.request,
         },
@@ -703,7 +702,9 @@ describe('FragmentResource', () => {
       expect(result.data).toEqual({id: '4', name: 'Mark Updated 2'});
 
       disposable.dispose();
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.subscribe).toBeCalledTimes(1);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.subscribe.mock.dispose).toBeCalledTimes(1);
     });
 
@@ -713,12 +714,13 @@ describe('FragmentResource', () => {
         {
           __id: '4',
           __fragments: {
-            UserFragment: {},
+            FragmentResourceTest1Fragment: {},
           },
           __fragmentOwner: query.request,
         },
         componentDisplayName,
       );
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.subscribe).toHaveBeenCalledTimes(0);
 
       // Update data once, before subscribe has been called
@@ -731,7 +733,9 @@ describe('FragmentResource', () => {
       });
 
       const disposable = FragmentResource.subscribe(result, callback);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.subscribe).toBeCalledTimes(1);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.subscribe.mock.dispose).toBeCalledTimes(0);
 
       // Assert that callback was immediately called
@@ -743,7 +747,7 @@ describe('FragmentResource', () => {
         {
           __id: '4',
           __fragments: {
-            UserFragment: {},
+            FragmentResourceTest1Fragment: {},
           },
           __fragmentOwner: query.request,
         },
@@ -769,7 +773,7 @@ describe('FragmentResource', () => {
         {
           __id: '4',
           __fragments: {
-            UserFragment: {},
+            FragmentResourceTest1Fragment: {},
           },
           __fragmentOwner: query.request,
         },
@@ -778,7 +782,9 @@ describe('FragmentResource', () => {
       expect(result.data).toEqual({id: '4', name: 'Mark'});
 
       disposable.dispose();
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.subscribe).toBeCalledTimes(1);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.subscribe.mock.dispose).toBeCalledTimes(1);
     });
 
@@ -788,13 +794,16 @@ describe('FragmentResource', () => {
         null,
         componentDisplayName,
       );
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.subscribe).toHaveBeenCalledTimes(0);
 
       const disposable = FragmentResource.subscribe(result, callback);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.subscribe).toBeCalledTimes(0);
       expect(callback).toBeCalledTimes(0);
 
       disposable.dispose();
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.subscribe).toBeCalledTimes(0);
       expect(callback).toBeCalledTimes(0);
     });
@@ -805,13 +814,16 @@ describe('FragmentResource', () => {
         [],
         componentDisplayName,
       );
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.subscribe).toHaveBeenCalledTimes(0);
 
       const disposable = FragmentResource.subscribe(result, callback);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.subscribe).toBeCalledTimes(0);
       expect(callback).toBeCalledTimes(0);
 
       disposable.dispose();
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.subscribe).toBeCalledTimes(0);
       expect(callback).toBeCalledTimes(0);
     });
@@ -822,7 +834,7 @@ describe('FragmentResource', () => {
         const fragmentRef = {
           __id: '4',
           __fragments: {
-            UserFragment: {},
+            FragmentResourceTest1Fragment: {},
           },
           __fragmentOwner: query.request,
         };
@@ -834,14 +846,19 @@ describe('FragmentResource', () => {
           fragmentRef,
           componentDisplayName,
         );
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe).toHaveBeenCalledTimes(0);
 
         const disposable1 = FragmentResource.subscribe(result, callback1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe).toBeCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe.mock.dispose).toBeCalledTimes(0);
 
         const disposable2 = FragmentResource.subscribe(result, callback2);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe).toBeCalledTimes(2);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe.mock.dispose).toBeCalledTimes(0);
 
         // Update data once
@@ -867,7 +884,9 @@ describe('FragmentResource', () => {
 
         // Unsubscribe the second listener
         disposable2.dispose();
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe).toBeCalledTimes(2);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe.mock.dispose).toBeCalledTimes(1);
 
         // Update data again
@@ -894,6 +913,7 @@ describe('FragmentResource', () => {
         expect(result.data).toEqual({id: '4', name: 'Mark Update 2'});
 
         disposable1.dispose();
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe).toBeCalledTimes(2);
       });
     });
@@ -905,7 +925,7 @@ describe('FragmentResource', () => {
           {
             __id: '4',
             __fragments: {
-              UsersFragment: {},
+              FragmentResourceTest3Fragment: {},
             },
             __fragmentOwner: queryPlural.request,
           },
@@ -915,10 +935,13 @@ describe('FragmentResource', () => {
           fragmentRef,
           componentDisplayName,
         );
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe).toHaveBeenCalledTimes(0);
 
         const disposable = FragmentResource.subscribe(result, callback);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe).toBeCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe.mock.dispose).toBeCalledTimes(0);
 
         // Update data
@@ -942,7 +965,9 @@ describe('FragmentResource', () => {
         expect(result.data).toEqual([{id: '4', name: 'Mark Updated'}]);
 
         disposable.dispose();
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe).toBeCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe.mock.dispose).toBeCalledTimes(1);
       });
 
@@ -952,7 +977,7 @@ describe('FragmentResource', () => {
           {
             __id: '4',
             __fragments: {
-              UsersFragment: {},
+              FragmentResourceTest3Fragment: {},
             },
             __fragmentOwner: queryPlural.request,
           },
@@ -962,6 +987,7 @@ describe('FragmentResource', () => {
           fragmentRef,
           componentDisplayName,
         );
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe).toHaveBeenCalledTimes(0);
 
         // Update data once, before subscribe has been called
@@ -974,7 +1000,9 @@ describe('FragmentResource', () => {
         });
 
         const disposable = FragmentResource.subscribe(result, callback);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe).toBeCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe.mock.dispose).toBeCalledTimes(0);
 
         // Assert that callback was immediately called
@@ -1009,12 +1037,16 @@ describe('FragmentResource', () => {
         expect(result.data).toEqual([{id: '4', name: 'Mark Updated 2'}]);
 
         disposable.dispose();
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe).toBeCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe.mock.dispose).toBeCalledTimes(1);
       });
 
       it('correctly subscribes to a plural fragment with multiple records', () => {
-        queryPlural = createOperationDescriptor(UsersQuery, {ids: ['4', '5']});
+        queryPlural = createOperationDescriptor(UsersQuery, {
+          ids: ['4', '5'],
+        });
         environment.commitPayload(queryPlural, {
           nodes: [
             {
@@ -1034,14 +1066,14 @@ describe('FragmentResource', () => {
           {
             __id: '4',
             __fragments: {
-              UsersFragment: {},
+              FragmentResourceTest3Fragment: {},
             },
             __fragmentOwner: queryPlural.request,
           },
           {
             __id: '5',
             __fragments: {
-              UsersFragment: {},
+              FragmentResourceTest3Fragment: {},
             },
             __fragmentOwner: queryPlural.request,
           },
@@ -1052,10 +1084,13 @@ describe('FragmentResource', () => {
           fragmentRef,
           componentDisplayName,
         );
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe).toHaveBeenCalledTimes(0);
 
         const disposable = FragmentResource.subscribe(result, callback);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe).toBeCalledTimes(2);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe.mock.dispose).toBeCalledTimes(0);
 
         // Update data
@@ -1082,12 +1117,16 @@ describe('FragmentResource', () => {
         ]);
 
         disposable.dispose();
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe).toBeCalledTimes(2);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe.mock.dispose).toBeCalledTimes(1);
       });
 
       it('immediately notifies of data updates that were missed between calling `read` and `subscribe` when subscribing to multiple records', () => {
-        queryPlural = createOperationDescriptor(UsersQuery, {ids: ['4', '5']});
+        queryPlural = createOperationDescriptor(UsersQuery, {
+          ids: ['4', '5'],
+        });
         environment.commitPayload(queryPlural, {
           nodes: [
             {
@@ -1112,21 +1151,21 @@ describe('FragmentResource', () => {
           {
             __id: '4',
             __fragments: {
-              UsersFragment: {},
+              FragmentResourceTest3Fragment: {},
             },
             __fragmentOwner: queryPlural.request,
           },
           {
             __id: '5',
             __fragments: {
-              UsersFragment: {},
+              FragmentResourceTest3Fragment: {},
             },
             __fragmentOwner: queryPlural.request,
           },
           {
             __id: '6',
             __fragments: {
-              UsersFragment: {},
+              FragmentResourceTest3Fragment: {},
             },
             __fragmentOwner: queryPlural.request,
           },
@@ -1137,6 +1176,7 @@ describe('FragmentResource', () => {
           fragmentRef,
           componentDisplayName,
         );
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe).toHaveBeenCalledTimes(0);
 
         // Update data once, before subscribe has been called
@@ -1156,7 +1196,9 @@ describe('FragmentResource', () => {
         });
 
         const disposable = FragmentResource.subscribe(result, callback);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe).toBeCalledTimes(3);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe.mock.dispose).toBeCalledTimes(0);
 
         // Assert that callback was immediately called
@@ -1199,7 +1241,9 @@ describe('FragmentResource', () => {
         ]);
 
         disposable.dispose();
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe).toBeCalledTimes(3);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe.mock.dispose).toBeCalledTimes(1);
       });
 
@@ -1219,7 +1263,7 @@ describe('FragmentResource', () => {
           {
             __id: '4',
             __fragments: {
-              UsersFragment: {},
+              FragmentResourceTest3Fragment: {},
             },
             __fragmentOwner: queryPlural.request,
           },
@@ -1230,6 +1274,7 @@ describe('FragmentResource', () => {
           fragmentRef,
           componentDisplayName,
         );
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe).toHaveBeenCalledTimes(0);
 
         // Update data once, before subscribe has been called
@@ -1242,7 +1287,9 @@ describe('FragmentResource', () => {
         });
 
         const disposable = FragmentResource.subscribe(result, callback);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe).toBeCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe.mock.dispose).toBeCalledTimes(0);
 
         // Assert that callback was immediately called
@@ -1277,7 +1324,9 @@ describe('FragmentResource', () => {
         expect(result.data).toEqual([{id: '4', name: 'Mark'}]);
 
         disposable.dispose();
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe).toBeCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe.mock.dispose).toBeCalledTimes(1);
       });
     });
@@ -1301,21 +1350,24 @@ describe('FragmentResource', () => {
           user: {
             __id: '4',
             __fragments: {
-              UserFragment: {},
+              FragmentResourceTest1Fragment: {},
             },
             __fragmentOwner: query.request,
           },
         },
         componentDisplayName,
       );
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.subscribe).toHaveBeenCalledTimes(0);
 
       const disposable = FragmentResource.subscribeSpec(result, callback);
       expect(unsubscribe).toBeCalledTimes(0);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.subscribe).toBeCalledTimes(1);
 
       disposable.dispose();
       expect(unsubscribe).toBeCalledTimes(1);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.subscribe).toBeCalledTimes(1);
     });
 
@@ -1348,14 +1400,14 @@ describe('FragmentResource', () => {
         const userARef = {
           __id: '4',
           __fragments: {
-            UserFragment: {},
+            FragmentResourceTest1Fragment: {},
           },
           __fragmentOwner: query.request,
         };
         const userBRef = {
           __id: '5',
           __fragments: {
-            UserFragment: {},
+            FragmentResourceTest1Fragment: {},
           },
           __fragmentOwner: query.request,
         };

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<5a82a590bfdbafdc55a54e4eb1f593c7>>
+ * @generated SignedSource<<815137f3da42aa318a1566c2e943d781>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -25,9 +25,9 @@ export type RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingForConnecti
     +edges: ?$ReadOnlyArray<?{|
       +cursor: ?string,
       +node: ?{|
-        +id: string
+        +id: string,
       |},
-    |}>
+    |}>,
   |},
   +$refType: RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingForConnectionUserFriends$ref,
 |};

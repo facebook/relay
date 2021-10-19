@@ -13,33 +13,28 @@
 
 'use strict';
 
-const React = require('react');
-const ReactTestRenderer = require('react-test-renderer');
-const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
-
 const loadQueryModule = require('../loadQuery');
+const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const usePreloadedQuery = require('../usePreloadedQuery');
 const useQueryLoader = require('../useQueryLoader');
-
+const React = require('react');
+const ReactTestRenderer = require('react-test-renderer');
 const {
   Network,
   Observable,
   PreloadableQueryRegistry,
+  getRequest,
+  graphql,
 } = require('relay-runtime');
-const {
-  generateAndCompile,
-  createMockEnvironment,
-} = require('relay-test-utils-internal');
+const {createMockEnvironment} = require('relay-test-utils');
 
-import type {ConcreteRequest} from 'relay-runtime';
-
-const query: ConcreteRequest = generateAndCompile(`
-  query TestQuery($id: ID!) {
+const query = getRequest(graphql`
+  query useQueryLoaderMultipleCallsTestQuery($id: ID!) {
     node(id: $id) {
       id
     }
   }
-`).TestQuery;
+`);
 
 const preloadableConcreteRequest = {
   kind: 'PreloadableConcreteRequest',
@@ -80,6 +75,7 @@ beforeEach(() => {
     const observable = Observable.create(_sink => {
       sink = _sink;
     });
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const originalSubscribe = observable.subscribe.bind(observable);
     networkUnsubscribe = jest.fn();
     jest.spyOn(observable, 'subscribe').mockImplementation((...args) => {
@@ -94,6 +90,7 @@ beforeEach(() => {
 
   environment = createMockEnvironment({network: Network.create(fetch)});
 
+  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   const originalExecuteWithSource = environment.executeWithSource.getMockImplementation();
   executeObservable = undefined;
   executeUnsubscribe = undefined;
@@ -167,6 +164,7 @@ describe('when loading and disposing same query multiple times', () => {
       PreloadableQueryRegistry.set(ID, query);
       queryLoaderCallback(variables);
     });
+    // $FlowFixMe[incompatible-use]
     expect(instance.toJSON()).toEqual('Loading');
 
     ReactTestRenderer.act(() => {
@@ -175,6 +173,7 @@ describe('when loading and disposing same query multiple times', () => {
       jest.runAllImmediates();
     });
 
+    // $FlowFixMe[incompatible-use]
     expect(instance.toJSON()).toEqual('4');
   });
 });

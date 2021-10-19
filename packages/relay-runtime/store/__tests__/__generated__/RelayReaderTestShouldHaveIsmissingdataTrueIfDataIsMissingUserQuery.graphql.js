@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<2639d87c83519ccc6d8116142456afd5>>
+ * @generated SignedSource<<5aed5f924c2236cdd08c92a44e99561c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,8 +20,8 @@ type RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingUserProfile$ref = 
 export type RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingUserQueryVariables = {||};
 export type RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingUserQueryResponse = {|
   +me: ?{|
-    +$fragmentRefs: RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingUserProfile$ref
-  |}
+    +$fragmentRefs: RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingUserProfile$ref,
+  |},
 |};
 export type RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingUserQuery = {|
   variables: RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingUserQueryVariables,

@@ -13,18 +13,17 @@
 
 'use strict';
 
-const useRefetchableFragmentNode = require('./useRefetchableFragmentNode');
-const useStaticFragmentNodeWarning = require('./useStaticFragmentNodeWarning');
-
-const {useDebugValue} = require('react');
-const {getFragment} = require('relay-runtime');
-
 import type {RefetchFnDynamic} from './useRefetchableFragmentNode';
 import type {
+  FragmentReference,
   GraphQLTaggedNode,
   OperationType,
-  FragmentReference,
 } from 'relay-runtime';
+
+const useRefetchableFragmentNode = require('./useRefetchableFragmentNode');
+const useStaticFragmentNodeWarning = require('./useStaticFragmentNodeWarning');
+const {useDebugValue} = require('react');
+const {getFragment} = require('relay-runtime');
 
 type ReturnType<TQuery: OperationType, TKey: ?{+$data?: mixed, ...}> = [
   // NOTE: This $Call ensures that the type of the returned data is either:

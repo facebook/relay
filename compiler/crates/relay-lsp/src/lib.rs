@@ -11,39 +11,55 @@ mod client;
 mod code_action;
 mod completion;
 mod diagnostic_reporter;
-mod extension_config;
+mod explore_schema_for_type;
 mod goto_definition;
+mod graphql_tools;
 mod hover;
+mod js_language_server;
 mod location;
-mod lsp;
 mod lsp_extra_data_provider;
 pub mod lsp_process_error;
-mod lsp_runtime_error;
+pub mod lsp_runtime_error;
 mod node_resolution_info;
 mod references;
-mod resolution_path;
+pub mod resolution_path;
+mod resolved_types_at_location;
+mod search_schema_items;
 mod server;
 mod shutdown;
-mod status_reporting;
+mod status_reporter;
+mod status_updater;
 mod text_documents;
 mod utils;
-pub use crate::extension_config::ExtensionConfig;
 use common::PerfLogger;
+pub use js_language_server::JSLanguageServer;
 use log::debug;
-pub use lsp_extra_data_provider::LSPExtraDataProvider;
+pub use lsp_extra_data_provider::{FieldDefinitionSourceInfo, LSPExtraDataProvider};
 use lsp_process_error::LSPProcessResult;
+pub use lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult};
 use lsp_server::Connection;
 use relay_compiler::config::Config;
+use schema_documentation::{SchemaDocumentation, SchemaDocumentationLoader};
+pub use server::LSPNotificationDispatch;
+pub use server::LSPRequestDispatch;
+pub use server::{GlobalState, LSPState, Schemas};
 use std::sync::Arc;
+pub use utils::position_to_offset;
 #[cfg(test)]
 #[macro_use]
 extern crate assert_matches;
 
-pub async fn start_language_server<TPerfLogger>(
+pub async fn start_language_server<
+    TPerfLogger,
+    TSchemaDocumentation: SchemaDocumentation + 'static,
+>(
     config: Config,
-    extension_config: ExtensionConfig,
     perf_logger: Arc<TPerfLogger>,
     extra_data_provider: Box<dyn LSPExtraDataProvider + Send + Sync>,
+    schema_documentation_loader: Option<Box<dyn SchemaDocumentationLoader<TSchemaDocumentation>>>,
+    js_language_server: Option<
+        Box<dyn JSLanguageServer<TState = LSPState<TPerfLogger, TSchemaDocumentation>>>,
+    >,
 ) -> LSPProcessResult<()>
 where
     TPerfLogger: PerfLogger + 'static,
@@ -55,10 +71,11 @@ where
     server::run(
         connection,
         config,
-        extension_config,
         params,
         perf_logger,
         extra_data_provider,
+        schema_documentation_loader,
+        js_language_server,
     )
     .await?;
     io_handles.join()?;
@@ -88,6 +105,7 @@ mod tests {
             trace: None,
             workspace_folders: None,
             client_info: None,
+            locale: None,
         };
         client::initialize(&client, &init_params, 0);
         let params = server::initialize(&connection)?;

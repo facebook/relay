@@ -13,9 +13,9 @@
 
 'use strict';
 
-const getRequestIdentifier = require('../getRequestIdentifier');
-
 import type {RequestParameters} from '../../util/RelayConcreteNode';
+
+const getRequestIdentifier = require('../getRequestIdentifier');
 
 describe('getRequestIdentifier', () => {
   it('passes with `id`', () => {

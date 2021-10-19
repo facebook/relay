@@ -14,9 +14,8 @@
 'use strict';
 
 const CompilerContext = require('../../core/CompilerContext');
-const DisallowTypenameOnRoot = require('../DisallowTypenameOnRoot');
 const IRPrinter = require('../../core/IRPrinter');
-
+const DisallowTypenameOnRoot = require('../DisallowTypenameOnRoot');
 const {
   TestSchema,
   generateTestsFromFixtures,

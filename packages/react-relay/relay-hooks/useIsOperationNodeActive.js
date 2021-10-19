@@ -11,17 +11,15 @@
 
 'use strict';
 
-const React = require('react');
+import type {ReaderFragment} from 'relay-runtime';
 
-const invariant = require('invariant');
 const useRelayEnvironment = require('./useRelayEnvironment');
-
+const invariant = require('invariant');
+const React = require('react');
 const {
   __internal: {getObservableForActiveRequest},
   getSelector,
 } = require('relay-runtime');
-
-import type {ReaderFragment} from 'relay-runtime';
 
 const {useEffect, useState, useMemo} = React;
 

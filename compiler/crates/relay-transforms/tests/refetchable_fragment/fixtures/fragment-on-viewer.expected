@@ -16,7 +16,11 @@ fragment ProfilePicture on User {
 ==================================== OUTPUT ===================================
 query RefetchableFragmentQuery(
   $size: [Int]
-) @__refetchableQueryMetadata(__refetchableQueryMetadata: "RefetchableFragment") {
+) @__RefetchableDerivedFromMetadata
+# RefetchableDerivedFromMetadata(
+#     "RefetchableFragment",
+# )
+ {
   viewer {
     ...RefetchableFragment
   }
@@ -28,7 +32,15 @@ fragment ProfilePicture on User {
   }
 }
 
-fragment RefetchableFragment on Viewer @refetchable(queryName: "RefetchableFragmentQuery") @__refetchableMetadata(__refetchableMetadata: ["RefetchableFragmentQuery", ["viewer"], null]) {
+fragment RefetchableFragment on Viewer @refetchable(queryName: "RefetchableFragmentQuery") @__RefetchableMetadata
+# RefetchableMetadata {
+#     operation_name: "RefetchableFragmentQuery",
+#     path: [
+#         "viewer",
+#     ],
+#     identifier_field: None,
+# }
+ {
   actor {
     id
     name

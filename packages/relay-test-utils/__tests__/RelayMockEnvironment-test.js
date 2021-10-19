@@ -13,21 +13,19 @@
 
 'use strict';
 
-const React = require('react');
-const RelayEnvironmentProvider = require('../../react-relay/relay-hooks/RelayEnvironmentProvider');
-const TestRenderer = require('react-test-renderer');
-
 const preloadQuery = require('../../react-relay/relay-hooks/preloadQuery_DEPRECATED');
+const RelayEnvironmentProvider = require('../../react-relay/relay-hooks/RelayEnvironmentProvider');
 const usePreloadedQuery = require('../../react-relay/relay-hooks/usePreloadedQuery');
-
-const {MockPayloadGenerator} = require('relay-test-utils');
+const React = require('react');
+const TestRenderer = require('react-test-renderer');
+const {getRequest, graphql} = require('relay-runtime');
 const {
+  MockPayloadGenerator,
   createMockEnvironment,
-  generateAndCompile,
-} = require('relay-test-utils-internal');
+} = require('relay-test-utils');
 
-const query = generateAndCompile(`
-  query TestQuery($id: ID! = 4) {
+const query = getRequest(graphql`
+  query RelayMockEnvironmentTestQuery($id: ID!) {
     node(id: $id) {
       id
       ... on User {
@@ -35,7 +33,7 @@ const query = generateAndCompile(`
       }
     }
   }
-`).TestQuery;
+`);
 
 describe('when using queuePendingOperation, queueOperationResolver and preloadQuery in tests', () => {
   let prefetched;

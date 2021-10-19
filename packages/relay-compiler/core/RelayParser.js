@@ -12,21 +12,7 @@
 
 'use strict';
 
-const Profiler = require('./GraphQLCompilerProfiler');
-
-const orList = require('../util/orList');
-const partitionArray = require('../util/partitionArray');
-
-const {DEFAULT_HANDLE_KEY} = require('../util/DefaultHandleKey');
-const {
-  createCompilerError,
-  createUserError,
-  eachWithCombinedError,
-} = require('./CompilerError');
-const {isExecutableDefinitionAST} = require('./SchemaUtils');
-const {getFieldDefinitionLegacy} = require('./getFieldDefinition');
-const {parse: parseGraphQL, parseType, print, Source} = require('graphql');
-
+import type {GetFieldDefinitionFn} from './getFieldDefinition';
 import type {
   Argument,
   ArgumentValue,
@@ -44,17 +30,16 @@ import type {
   Variable,
 } from './IR';
 import type {
-  CompositeTypeID,
   Argument as FieldArgument,
+  CompositeTypeID,
   FieldID,
   InputTypeID,
   Schema,
   TypeID,
 } from './Schema';
-import type {GetFieldDefinitionFn} from './getFieldDefinition';
 import type {
-  ASTNode,
   ArgumentNode,
+  ASTNode,
   BooleanValueNode,
   DefinitionNode,
   DirectiveLocationEnum,
@@ -76,6 +61,19 @@ import type {
   ValueNode,
   VariableNode,
 } from 'graphql';
+
+const {DEFAULT_HANDLE_KEY} = require('../util/DefaultHandleKey');
+const orList = require('../util/orList');
+const partitionArray = require('../util/partitionArray');
+const {
+  createCompilerError,
+  createUserError,
+  eachWithCombinedError,
+} = require('./CompilerError');
+const {getFieldDefinitionLegacy} = require('./getFieldDefinition');
+const Profiler = require('./GraphQLCompilerProfiler');
+const {isExecutableDefinitionAST} = require('./SchemaUtils');
+const {Source, parse: parseGraphQL, parseType, print} = require('graphql');
 
 type ASTDefinitionNode = FragmentDefinitionNode | OperationDefinitionNode;
 type NonNullLiteralValueNode =
@@ -316,6 +314,7 @@ class RelayParser {
       const typeFromAST = this._schema.getTypeFromAST(parseType(typeString));
       if (typeFromAST == null) {
         throw createUserError(
+          // $FlowFixMe[incompatible-type]
           `Unknown type "${typeString}" referenced in the argument definitions.`,
           null,
           [arg],
@@ -324,6 +323,7 @@ class RelayParser {
       const type = this._schema.asInputType(typeFromAST);
       if (type == null) {
         throw createUserError(
+          // $FlowFixMe[incompatible-type]
           `Expected type "${typeString}" to be an input type in the "${arg.name.value}" argument definitions.`,
           null,
           [arg.value],
@@ -750,6 +750,7 @@ class GraphQLDefinitionParser {
       argumentDefinitions,
       directives,
       selections,
+      // $FlowFixMe[incompatible-return]
       type,
     };
   }

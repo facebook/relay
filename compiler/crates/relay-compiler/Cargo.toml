@@ -6,9 +6,6 @@ authors = ["Facebook"]
 edition = "2018"
 license = "MIT"
 
-[lib]
-path = "src/lib.rs"
-
 [[bin]]
 name = "relay"
 path = "src/main.rs"
@@ -18,41 +15,47 @@ name = "relay_compiler_compile_relay_artifacts_test"
 path = "tests/compile_relay_artifacts_test.rs"
 
 [dependencies]
-async-trait = "0.1.29"
+async-trait = "0.1.51"
+bincode = "1.3.3"
 common = { path = "../common" }
 dependency-analyzer = { path = "../dependency-analyzer" }
 env_logger = "0.7"
 errors = { path = "../errors" }
 extract-graphql = { path = "../extract-graphql" }
 fnv = "1.0"
-futures = { version = "0.3.5", features = ["async-await", "compat"] }
+futures = { version = "0.3.13", features = ["async-await", "compat"] }
+glob = "0.3"
 graphql-cli = { path = "../graphql-cli" }
 graphql-ir = { path = "../graphql-ir" }
 graphql-syntax = { path = "../graphql-syntax" }
 graphql-text-printer = { path = "../graphql-text-printer" }
+graphql-watchman = { path = "../graphql-watchman" }
 hex = "0.4"
+indexmap = { version = "1.7.0", features = ["rayon", "serde-1"] }
 interner = { path = "../interner" }
+js-config-loader = { path = "../js-config-loader" }
 lazy_static = "1.0"
 log = { version = "0.4.8", features = ["kv_unstable"] }
 md-5 = "0.8"
 persist-query = { path = "../persist-query" }
 rayon = "1.2"
-regex = "1.4.2"
+regex = "1.5.4"
 relay-codegen = { path = "../relay-codegen" }
 relay-schema = { path = "../relay-schema" }
 relay-transforms = { path = "../relay-transforms" }
 relay-typegen = { path = "../relay-typegen" }
 schema = { path = "../schema" }
 schema-diff = { path = "../schema-diff" }
-serde = { version = "=1.0.118", features = ["derive", "rc"] }
-serde_bser = "0.2"
-serde_json = { version = "1.0", features = ["float_roundtrip"] }
+serde = { version = "1.0.126", features = ["derive", "rc"] }
+serde_bser = "0.3"
+serde_json = { version = "1.0", features = ["float_roundtrip", "unbounded_depth"] }
 sha-1 = "0.8"
 signedsource = { path = "../signedsource" }
-structopt = "0.3.21"
-thiserror = "1.0"
-tokio = { version = "1", features = ["full", "test-util"] }
-watchman_client = "^0.6.1"
+structopt = "0.3.23"
+thiserror = "1.0.29"
+tokio = { version = "1.10", features = ["full", "test-util", "tracing"] }
+watchman_client = "0.7"
+zstd = "=0.8.0+zstd.1.4.9"
 
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }

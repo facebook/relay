@@ -32,7 +32,7 @@ query RelayClientIDFieldQuery($id: ID!) {
 }
 ==================================== OUTPUT ===================================
 export type RelayClientIDFieldQueryVariables = {|
-  id: string
+  id: string,
 |};
 export type RelayClientIDFieldQueryResponse = {|
   +__id: string,

@@ -5,9 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use super::match_::MATCH_CONSTANTS;
-use crate::util::get_fragment_filename;
-use common::{NamedItem, WithLocation};
+use crate::{util::get_fragment_filename, ModuleMetadata};
+use common::WithLocation;
 use fnv::FnvHashMap;
 use graphql_ir::{
     Argument, ConstantValue, Directive, FragmentDefinition, OperationDefinition, Program,
@@ -51,96 +50,86 @@ impl<'s> GenerateDataDrivenDependencyMetadata<'s> {
 
         let mut module_entries: ModuleEntries = Default::default();
 
-        while !processing_queue.is_empty() {
-            if let Some(processing_item) = processing_queue.pop() {
-                for selection in processing_item.selections {
-                    match selection {
-                        Selection::ScalarField(_) | Selection::FragmentSpread(_) => {}
-                        Selection::LinkedField(linked_filed) => {
-                            let field_type = &self
+        while let Some(processing_item) = processing_queue.pop() {
+            for selection in processing_item.selections {
+                match selection {
+                    Selection::ScalarField(_) | Selection::FragmentSpread(_) => {}
+                    Selection::LinkedField(linked_filed) => {
+                        let field_type = &self
+                            .program
+                            .schema
+                            .field(linked_filed.definition.item)
+                            .type_;
+                        processing_queue.push(ProcessingItem {
+                            plural: processing_item.plural || field_type.is_list(),
+                            parent_type: field_type.clone(),
+                            selections: &linked_filed.selections,
+                        });
+                    }
+                    Selection::InlineFragment(inline_fragment) => {
+                        let parent_type = match inline_fragment.type_condition {
+                            Some(type_) => TypeReference::Named(type_),
+                            None => processing_item.parent_type.clone(),
+                        };
+                        if let Some(module_metadata) =
+                            ModuleMetadata::find(&inline_fragment.directives)
+                        {
+                            let id = module_metadata.module_id;
+                            let component = module_metadata.module_name;
+
+                            let fragment_spread = inline_fragment
+                                .selections
+                                .iter()
+                                .find(|item| matches!(item, Selection::FragmentSpread(_)));
+                            // This is expected to be a fragment spread
+                            let fragment_name = match fragment_spread {
+                                Some(Selection::FragmentSpread(spread)) => spread.fragment.item,
+                                _ => panic!("Expected to have a fragment spread"),
+                            };
+
+                            let type_name = self
                                 .program
                                 .schema
-                                .field(linked_filed.definition.item)
-                                .type_;
-                            processing_queue.push(ProcessingItem {
-                                plural: processing_item.plural || field_type.is_list(),
-                                parent_type: field_type.clone(),
-                                selections: &linked_filed.selections,
-                            });
-                        }
-                        Selection::InlineFragment(inline_fragment) => {
-                            let parent_type = match inline_fragment.type_condition {
-                                Some(type_) => TypeReference::Named(type_),
-                                None => processing_item.parent_type.clone(),
-                            };
-                            let module_directive = inline_fragment
-                                .directives
-                                .named(MATCH_CONSTANTS.custom_module_directive_name);
-                            if let Some(module_directive) = module_directive {
-                                let id = get_argument_value(
-                                    &module_directive,
-                                    MATCH_CONSTANTS.js_field_id_arg,
-                                );
-                                let component = get_argument_value(
-                                    &module_directive,
-                                    MATCH_CONSTANTS.js_field_module_arg,
-                                );
-                                let fragment_spread =
-                                    inline_fragment.selections.iter().find(|item| match item {
-                                        Selection::FragmentSpread(_) => true,
-                                        _ => false,
-                                    });
-                                // This is expected to be a fragment spread
-                                let fragment_name = match fragment_spread {
-                                    Some(Selection::FragmentSpread(spread)) => spread.fragment.item,
-                                    _ => panic!("Expected to have a fragment spread"),
-                                };
-
-                                let type_name = self
-                                    .program
-                                    .schema
-                                    .get_type_string(&processing_item.parent_type);
-                                module_entries
-                                    .entry(id)
-                                    .and_modify(|module_entry| {
-                                        module_entry.branches.insert(
+                                .get_type_string(&processing_item.parent_type);
+                            module_entries
+                                .entry(id)
+                                .and_modify(|module_entry| {
+                                    module_entry.branches.insert(
+                                        type_name.clone(),
+                                        Branch {
+                                            component,
+                                            fragment: get_fragment_filename(fragment_name),
+                                        },
+                                    );
+                                })
+                                .or_insert(ModuleEntry {
+                                    branches: {
+                                        let mut map: FnvHashMap<String, Branch> =
+                                            Default::default();
+                                        map.insert(
                                             type_name.clone(),
                                             Branch {
                                                 component,
                                                 fragment: get_fragment_filename(fragment_name),
                                             },
                                         );
-                                    })
-                                    .or_insert(ModuleEntry {
-                                        id,
-                                        branches: {
-                                            let mut map: FnvHashMap<String, Branch> =
-                                                Default::default();
-                                            map.insert(
-                                                type_name.clone(),
-                                                Branch {
-                                                    component,
-                                                    fragment: get_fragment_filename(fragment_name),
-                                                },
-                                            );
-                                            map
-                                        },
-                                        plural: processing_item.plural,
-                                    });
-                            }
-                            processing_queue.push(ProcessingItem {
-                                plural: processing_item.plural,
-                                parent_type,
-                                selections: &inline_fragment.selections,
-                            });
+                                        map
+                                    },
+                                    plural: processing_item.plural,
+                                });
                         }
-                        Selection::Condition(condition) => {
-                            processing_queue.push(ProcessingItem {
-                                plural: processing_item.plural,
-                                parent_type: processing_item.parent_type.clone(),
-                                selections: &condition.selections,
-                            });
-                        }
+                        processing_queue.push(ProcessingItem {
+                            plural: processing_item.plural,
+                            parent_type,
+                            selections: &inline_fragment.selections,
+                        });
+                    }
+                    Selection::Condition(condition) => {
+                        processing_queue.push(ProcessingItem {
+                            plural: processing_item.plural,
+                            parent_type: processing_item.parent_type.clone(),
+                            selections: &condition.selections,
+                        });
                     }
                 }
             }
@@ -164,7 +153,6 @@ type ModuleEntries = FnvHashMap<StringKey, ModuleEntry>;
 
 #[derive(Debug)]
 struct ModuleEntry {
-    id: StringKey,
     branches: FnvHashMap<String, Branch>,
     plural: bool,
 }
@@ -252,6 +240,7 @@ fn create_metadata_directive(module_entries: FnvHashMap<StringKey, ModuleEntry>)
     Directive {
         name: WithLocation::generated(*DATA_DRIVEN_DEPENDENCY_METADATA_KEY),
         arguments,
+        data: None,
     }
 }
 
@@ -281,15 +270,5 @@ impl From<ModuleEntry> for StringKey {
             module_entry.plural
         )
         .intern()
-    }
-}
-
-fn get_argument_value(directive: &Directive, argument_name: StringKey) -> StringKey {
-    match directive.arguments.named(argument_name).unwrap().value.item {
-        Value::Constant(ConstantValue::String(value)) => value,
-        _ => panic!(
-            "Expected to have a constant string value for argument {}.",
-            argument_name
-        ),
     }
 }

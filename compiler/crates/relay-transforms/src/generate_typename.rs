@@ -228,6 +228,7 @@ fn generate_abstract_key_field(
             vec![Directive {
                 name: WithLocation::new(location, *TYPE_DISCRIMINATOR_DIRECTIVE_NAME),
                 arguments: vec![],
+                data: None,
             }]
         } else {
             vec![]

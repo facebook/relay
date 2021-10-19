@@ -13,9 +13,9 @@ use interner::{Intern, StringKey};
 use ouroboros::self_referencing;
 
 use crate::{
-    ArgumentDefinitions, Directive, Enum, EnumID, Field, FieldID, InputObject, InputObjectID,
-    Interface, InterfaceID, Object, ObjectID, Scalar, ScalarID, Schema, Type, TypeReference, Union,
-    UnionID,
+    Argument, ArgumentDefinitions, Directive, Enum, EnumID, Field, FieldID, InputObject,
+    InputObjectID, Interface, InterfaceID, Object, ObjectID, Scalar, ScalarID, Schema, Type,
+    TypeReference, Union, UnionID,
 };
 
 use super::FlatBufferSchema;
@@ -27,17 +27,21 @@ struct OwnedFlatBufferSchema {
 
     #[borrows(data)]
     #[covariant]
-    pub fb: FlatBufferSchema<'this>,
+    pub schema: FlatBufferSchema<'this>,
 }
 
 const CLIENTID_FIELD_ID: FieldID = FieldID(10_000_000);
 const TYPENAME_FIELD_ID: FieldID = FieldID(10_000_001);
 const FETCH_TOKEN_FIELD_ID: FieldID = FieldID(10_000_002);
+const STRONGID_FIELD_ID: FieldID = FieldID(10_000_003);
+const IS_FULFILLED_FIELD_ID: FieldID = FieldID(10_000_004);
 
 pub struct SchemaWrapper {
     clientid_field_name: StringKey,
+    strongid_field_name: StringKey,
     typename_field_name: StringKey,
     fetch_token_field_name: StringKey,
+    is_fulfilled_field_name: StringKey,
     unchecked_argument_type_sentinel: Option<TypeReference>,
 
     directives: Cache<StringKey, Option<Directive>>,
@@ -65,14 +69,16 @@ impl SchemaWrapper {
     pub fn from_vec(data: Vec<u8>) -> Self {
         let fb = OwnedFlatBufferSchemaBuilder {
             data,
-            fb_builder: |data| FlatBufferSchema::build(&data),
+            schema_builder: |data| FlatBufferSchema::build(&data),
         }
         .build();
 
         let mut result = Self {
             clientid_field_name: "__id".intern(),
+            strongid_field_name: "strong_id__".intern(),
             typename_field_name: "__typename".intern(),
             fetch_token_field_name: "__token".intern(),
+            is_fulfilled_field_name: "is_fulfilled__".intern(),
             unchecked_argument_type_sentinel: None,
             directives: Cache::new(),
             unions: Cache::new(),
@@ -95,6 +101,7 @@ impl SchemaWrapper {
             ))),
             directives: Vec::new(),
             parent_type: None,
+            description: None,
         });
         result.fields.get(CLIENTID_FIELD_ID, || Field {
             name: result.clientid_field_name,
@@ -105,6 +112,16 @@ impl SchemaWrapper {
             ))),
             directives: Vec::new(),
             parent_type: None,
+            description: None,
+        });
+        result.fields.get(STRONGID_FIELD_ID, || Field {
+            name: result.strongid_field_name,
+            is_extension: true,
+            arguments: ArgumentDefinitions::new(Default::default()),
+            type_: TypeReference::Named(result.get_type("ID".intern()).unwrap()),
+            directives: Vec::new(),
+            parent_type: None,
+            description: None,
         });
         result.fields.get(FETCH_TOKEN_FIELD_ID, || Field {
             name: result.fetch_token_field_name,
@@ -115,6 +132,25 @@ impl SchemaWrapper {
             ))),
             directives: Vec::new(),
             parent_type: None,
+            description: None,
+        });
+        result.fields.get(IS_FULFILLED_FIELD_ID, || Field {
+            name: result.is_fulfilled_field_name,
+            is_extension: true,
+            arguments: ArgumentDefinitions::new(vec![Argument {
+                name: "name".intern(),
+                type_: TypeReference::NonNull(Box::new(TypeReference::Named(
+                    result.get_type("String".intern()).unwrap(),
+                ))),
+                default_value: None,
+                description: None,
+            }]),
+            type_: TypeReference::NonNull(Box::new(TypeReference::Named(
+                result.get_type("Boolean".intern()).unwrap(),
+            ))),
+            directives: Vec::new(),
+            parent_type: None,
+            description: None,
         });
 
         result.unchecked_argument_type_sentinel = Some(TypeReference::Named(
@@ -139,26 +175,30 @@ impl SchemaWrapper {
         (vec![]).into_iter()
     }
 
-    fn fb(&self) -> &FlatBufferSchema<'_> {
-        self.fb.borrow_fb()
+    fn flatbuffer_schema(&self) -> &FlatBufferSchema<'_> {
+        self.fb.borrow_schema()
     }
 }
 
 impl Schema for SchemaWrapper {
     fn query_type(&self) -> Option<Type> {
-        Some(self.fb().query_type())
+        Some(self.flatbuffer_schema().query_type())
     }
 
     fn mutation_type(&self) -> Option<Type> {
-        self.fb().mutation_type()
+        self.flatbuffer_schema().mutation_type()
     }
 
     fn subscription_type(&self) -> Option<Type> {
-        self.fb().subscription_type()
+        self.flatbuffer_schema().subscription_type()
     }
 
     fn clientid_field(&self) -> FieldID {
         CLIENTID_FIELD_ID
+    }
+
+    fn strongid_field(&self) -> FieldID {
+        STRONGID_FIELD_ID
     }
 
     fn typename_field(&self) -> FieldID {
@@ -169,14 +209,18 @@ impl Schema for SchemaWrapper {
         FETCH_TOKEN_FIELD_ID
     }
 
+    fn is_fulfilled_field(&self) -> FieldID {
+        IS_FULFILLED_FIELD_ID
+    }
+
     fn get_type(&self, type_name: StringKey) -> Option<Type> {
-        self.fb().get_type(type_name)
+        self.flatbuffer_schema().get_type(type_name)
     }
 
     fn get_directive(&self, name: StringKey) -> Option<&Directive> {
         self.directives
             .get(name, || {
-                match (name.lookup(), self.fb().get_directive(name)) {
+                match (name.lookup(), self.flatbuffer_schema().get_directive(name)) {
                     ("defer", Some(mut directive)) | ("stream", Some(mut directive)) => {
                         let mut next_args: Vec<_> = directive.arguments.iter().cloned().collect();
                         for arg in next_args.iter_mut() {
@@ -196,31 +240,33 @@ impl Schema for SchemaWrapper {
     }
 
     fn input_object(&self, id: InputObjectID) -> &InputObject {
-        self.input_objects.get(id, || self.fb().input_object(id))
+        self.input_objects
+            .get(id, || self.flatbuffer_schema().input_object(id))
     }
 
     fn enum_(&self, id: EnumID) -> &Enum {
-        self.enums.get(id, || self.fb().enum_(id))
+        self.enums.get(id, || self.flatbuffer_schema().enum_(id))
     }
 
     fn scalar(&self, id: ScalarID) -> &Scalar {
-        self.scalars.get(id, || self.fb().scalar(id))
+        self.scalars.get(id, || self.flatbuffer_schema().scalar(id))
     }
 
     fn field(&self, id: FieldID) -> &Field {
-        self.fields.get(id, || self.fb().field(id))
+        self.fields.get(id, || self.flatbuffer_schema().field(id))
     }
 
     fn object(&self, id: ObjectID) -> &Object {
-        self.objects.get(id, || self.fb().object(id))
+        self.objects.get(id, || self.flatbuffer_schema().object(id))
     }
 
     fn union(&self, id: UnionID) -> &Union {
-        self.unions.get(id, || self.fb().union(id))
+        self.unions.get(id, || self.flatbuffer_schema().union(id))
     }
 
     fn interface(&self, id: InterfaceID) -> &Interface {
-        self.interfaces.get(id, || self.fb().interface(id))
+        self.interfaces
+            .get(id, || self.flatbuffer_schema().interface(id))
     }
 
     fn get_type_name(&self, type_: Type) -> StringKey {
@@ -277,6 +323,12 @@ impl Schema for SchemaWrapper {
             if name == self.clientid_field_name {
                 return Some(CLIENTID_FIELD_ID);
             }
+            if name == self.strongid_field_name {
+                return Some(STRONGID_FIELD_ID);
+            }
+            if name == self.is_fulfilled_field_name {
+                return Some(IS_FULFILLED_FIELD_ID);
+            }
         }
 
         let fields = match parent_type {
@@ -312,6 +364,34 @@ impl Schema for SchemaWrapper {
 
     fn snapshot_print(&self) -> String {
         todo!()
+    }
+
+    fn input_objects<'a>(&'a self) -> Box<dyn Iterator<Item = &'a InputObject> + 'a> {
+        Box::new(self.input_objects.map.iter().map(|ref_| *ref_.value()))
+    }
+
+    fn enums<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Enum> + 'a> {
+        Box::new(self.enums.map.iter().map(|ref_| *ref_.value()))
+    }
+
+    fn scalars<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Scalar> + 'a> {
+        Box::new(self.scalars.map.iter().map(|ref_| *ref_.value()))
+    }
+
+    fn fields<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Field> + 'a> {
+        Box::new(self.fields.map.iter().map(|ref_| *ref_.value()))
+    }
+
+    fn objects<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Object> + 'a> {
+        Box::new(self.objects.map.iter().map(|ref_| *ref_.value()))
+    }
+
+    fn unions<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Union> + 'a> {
+        Box::new(self.unions.map.iter().map(|ref_| *ref_.value()))
+    }
+
+    fn interfaces<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Interface> + 'a> {
+        Box::new(self.interfaces.map.iter().map(|ref_| *ref_.value()))
     }
 }
 

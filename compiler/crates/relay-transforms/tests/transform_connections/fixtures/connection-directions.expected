@@ -35,11 +35,62 @@ query NodeQuery(
   $id: ID!
   $last: Int
   $first: Int
-) @__connectionMetadata(__connectionMetadataArgument: [[["node", "forwardComments"], "forward", null, null, null, null, false], [["node", "backwardComments"], "backward", null, null, null, null, false], [["node", "mixedDirectionComments"], "bidirectional", "first", "last", null, null, false]]) {
+) @__ConnectionMetadataDirective
+# ConnectionMetadataDirective(
+#     [
+#         ConnectionMetadata {
+#             path: Some(
+#                 [
+#                     "node",
+#                     "forwardComments",
+#                 ],
+#             ),
+#             direction: "forward",
+#             first: None,
+#             last: None,
+#             before: None,
+#             after: None,
+#             is_stream_connection: false,
+#         },
+#         ConnectionMetadata {
+#             path: Some(
+#                 [
+#                     "node",
+#                     "backwardComments",
+#                 ],
+#             ),
+#             direction: "backward",
+#             first: None,
+#             last: None,
+#             before: None,
+#             after: None,
+#             is_stream_connection: false,
+#         },
+#         ConnectionMetadata {
+#             path: Some(
+#                 [
+#                     "node",
+#                     "mixedDirectionComments",
+#                 ],
+#             ),
+#             direction: "bidirectional",
+#             first: Some(
+#                 "first",
+#             ),
+#             last: Some(
+#                 "last",
+#             ),
+#             before: None,
+#             after: None,
+#             is_stream_connection: false,
+#         },
+#     ],
+# )
+ {
   node(id: $id) {
     id
     ... on Story {
-      forwardComments: comments(first: 1) @__clientField(key: "NodeQuery_forwardComments", handle: "connection") {
+      forwardComments: comments(first: 1) @__clientField(key: "NodeQuery_forwardComments", handle: "connection", filters: null, dynamicKey_UNSTABLE: null) {
         edges {
           node {
             id
@@ -58,7 +109,7 @@ query NodeQuery(
           }
         }
       }
-      backwardComments: comments(last: 2) @__clientField(key: "NodeQuery_backwardComments", handle: "connection") {
+      backwardComments: comments(last: 2) @__clientField(key: "NodeQuery_backwardComments", handle: "connection", filters: null, dynamicKey_UNSTABLE: null) {
         edges {
           node {
             id
@@ -77,7 +128,7 @@ query NodeQuery(
           }
         }
       }
-      mixedDirectionComments: comments(last: $last, first: $first) @__clientField(key: "NodeQuery_mixedDirectionComments", handle: "connection") {
+      mixedDirectionComments: comments(last: $last, first: $first) @__clientField(key: "NodeQuery_mixedDirectionComments", handle: "connection", filters: null, dynamicKey_UNSTABLE: null) {
         edges {
           node {
             id

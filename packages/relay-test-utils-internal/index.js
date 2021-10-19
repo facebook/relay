@@ -12,36 +12,53 @@
 
 'use strict';
 
+const {
+  FIXTURE_TAG,
+  generateTestsFromFixtures,
+} = require('./generateTestsFromFixtures');
 const Matchers = require('./Matchers');
-
 const parseGraphQLText = require('./parseGraphQLText');
 const printAST = require('./printAST');
 const simpleClone = require('./simpleClone');
-
-const {generateAndCompile, generateWithTransforms} = require('./TestCompiler');
 const {TestSchema, testSchemaPath} = require('./TestSchema');
 const {
-  generateTestsFromFixtures,
-  FIXTURE_TAG,
-} = require('./generateTestsFromFixtures');
+  disallowWarnings,
+  expectToWarn,
+  expectWarningWillFire,
+} = require('./warnings');
 const {createMockEnvironment, unwrapContainer} = require('relay-test-utils');
+
+// Apparently, in node v16 (because now they are using V8 V9.something)
+// the content of the TypeError has changed, and now some of our tests
+// stated to fail.
+// This is a temporary work-around to make test pass, but we need to
+// figure out a cleaner way of testing this.
+function cannotReadPropertyOfUndefined__DEPRECATED(
+  propertyName: string,
+): string {
+  if (process.version.match(/^v16\.(.+)$/)) {
+    return `Cannot read properties of undefined (reading '${propertyName}')`;
+  } else {
+    return `Cannot read property '${propertyName}' of undefined`;
+  }
+}
 
 /**
  * The public interface to Relay Test Utils.
  */
 module.exports = {
-  FIXTURE_TAG,
-
-  TestSchema,
-
+  cannotReadPropertyOfUndefined__DEPRECATED,
   createMockEnvironment,
-  generateAndCompile,
+  expectToWarn,
+  expectWarningWillFire,
+  disallowWarnings,
+  FIXTURE_TAG,
   generateTestsFromFixtures,
-  generateWithTransforms,
   matchers: Matchers,
   parseGraphQLText,
   printAST,
   simpleClone,
+  TestSchema,
   testSchemaPath,
   unwrapContainer,
 };

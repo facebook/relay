@@ -1,0 +1,34 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query selectionSetConflictConflictingNullableAndNonNullableTypesQuery {
+  viewer {
+    newsFeed {
+      edges {
+        node {
+          ... on Story {
+            same_alias: __typename
+          }
+          ... on PhotoStory {
+            same_alias: lastName
+          }
+        }
+      }
+    }
+  }
+}
+==================================== ERROR ====================================
+✖︎ Field 'same_alias' is ambiguous because it references two different fields: '__typename' and 'lastName'
+
+  selection_set_conflict_conflicting_nullable_and_non_nullable_types.graphql:8:25
+    7 │           ... on Story {
+    8 │             same_alias: __typename
+      │                         ^^^^^^^^^^
+    9 │           }
+
+  ℹ︎ the other field
+
+  selection_set_conflict_conflicting_nullable_and_non_nullable_types.graphql:11:25
+   10 │           ... on PhotoStory {
+   11 │             same_alias: lastName
+      │                         ^^^^^^^^
+   12 │           }

@@ -230,7 +230,6 @@ query streamConnection_NodeQuery($id: ID!) {
                     "if": null,
                     "kind": "Stream",
                     "label": "streamConnection_NodeQuery$stream$NodeQuery_comments",
-                    "metadata": null,
                     "selections": [
                       {
                         "alias": null,
@@ -307,8 +306,7 @@ query streamConnection_NodeQuery($id: ID!) {
                         ],
                         "storageKey": null
                       }
-                    ],
-                    "useCustomizedBatch": null
+                    ]
                   },
                   {
                     "if": null,

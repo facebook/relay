@@ -1,0 +1,47 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query selectionSetConflictMultipleConflictsWithDifferentArgsQuery {
+  root_alias: nodes(ids: [1, 2, 3]) {
+    ... on Page {
+      same_alias: actor_key
+    }
+  }
+  root_alias: nodes(ids: [1, 2]) {
+    ... on Actor {
+      same_alias: id
+    }
+  }
+}
+==================================== ERROR ====================================
+✖︎ Expected all fields on the same parent with the name or alias `root_alias` to have the same argument values after applying fragment arguments. This field has the applied argument values: (ids: [1, 2, 3])
+
+  selection_set_conflict_multiple_conflicts_with_different_args.graphql:3:15
+    2 │ query selectionSetConflictMultipleConflictsWithDifferentArgsQuery {
+    3 │   root_alias: nodes(ids: [1, 2, 3]) {
+      │               ^^^^^
+    4 │     ... on Page {
+
+  ℹ︎ which conflicts with this field with applied argument values (ids: [1, 2])
+
+  selection_set_conflict_multiple_conflicts_with_different_args.graphql:8:15
+    7 │   }
+    8 │   root_alias: nodes(ids: [1, 2]) {
+      │               ^^^^^
+    9 │     ... on Actor {
+
+
+✖︎ Field 'same_alias' is ambiguous because it references two different fields: 'actor_key' and 'id'
+
+  selection_set_conflict_multiple_conflicts_with_different_args.graphql:5:19
+    4 │     ... on Page {
+    5 │       same_alias: actor_key
+      │                   ^^^^^^^^^
+    6 │     }
+
+  ℹ︎ the other field
+
+  selection_set_conflict_multiple_conflicts_with_different_args.graphql:10:19
+    9 │     ... on Actor {
+   10 │       same_alias: id
+      │                   ^^
+   11 │     }

@@ -12,10 +12,10 @@
 
 'use strict';
 
-const {GraphQLError} = require('graphql');
-
 import type {Location} from './IR';
 import type {ASTNode, Source, SourceLocation} from 'graphql';
+
+const {GraphQLError} = require('graphql');
 
 // Combined results of multiple user errors
 export opaque type CombinedUserError: Error = Error;

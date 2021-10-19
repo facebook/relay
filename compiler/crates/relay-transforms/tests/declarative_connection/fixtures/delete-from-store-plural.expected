@@ -9,6 +9,6 @@ mutation CommentsDeleteMutation(
   $input: CommentsDeleteInput
 ) {
   commentsDelete(input: $input) {
-    deletedCommentIds @__clientField(key: "", handle: "deleteRecord")
+    deletedCommentIds @__clientField(key: "", handle: "deleteRecord", filters: null, dynamicKey_UNSTABLE: null)
   }
 }

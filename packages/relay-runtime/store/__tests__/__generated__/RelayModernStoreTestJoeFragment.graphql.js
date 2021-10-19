@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a742619f0efc5a214431f6ca1fd242b0>>
+ * @generated SignedSource<<aea33a8804c9fc355bdeb44e06a97bbe>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,7 +21,7 @@ declare export opaque type RelayModernStoreTestJoeFragment$ref: FragmentReferenc
 declare export opaque type RelayModernStoreTestJoeFragment$fragmentType: RelayModernStoreTestJoeFragment$ref;
 export type RelayModernStoreTestJoeFragment = {|
   +node: ?{|
-    +name?: ?string
+    +name?: ?string,
   |},
   +$refType: RelayModernStoreTestJoeFragment$ref,
 |};

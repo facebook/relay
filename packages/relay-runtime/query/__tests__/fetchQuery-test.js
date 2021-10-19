@@ -14,12 +14,11 @@
 'use strict';
 
 const fetchQuery = require('../fetchQuery');
-
 const {
+  RelayFeatureFlags,
   createOperationDescriptor,
   getRequest,
   graphql,
-  RelayFeatureFlags,
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils-internal');
 
@@ -40,6 +39,7 @@ describe('fetchQuery', () => {
   beforeEach(() => {
     retained = [];
     environment = createMockEnvironment();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     environment.retain.mockImplementation(obj => {
       const idx = retained.push(obj);
       return {

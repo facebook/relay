@@ -13,21 +13,23 @@
 
 'use strict';
 
-const RelayModernEnvironment = require('../RelayModernEnvironment');
-const RelayModernStore = require('../RelayModernStore');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const RelayRecordSource = require('../RelayRecordSource');
-
+const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
+const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../RelayModernSelector');
-const {generateAndCompile} = require('relay-test-utils-internal');
+const RelayModernStore = require('../RelayModernStore');
+const RelayRecordSource = require('../RelayRecordSource');
+const {disallowWarnings} = require('relay-test-utils-internal');
+
+disallowWarnings();
 
 describe('execute()', () => {
   let callbacks;
-  let commentID;
+  const commentID = 'comment-id';
   let CommentFragment;
   let CommentQuery;
   let complete;
@@ -45,39 +47,38 @@ describe('execute()', () => {
   let queryVariables;
 
   beforeEach(() => {
-    jest.resetModules();
-    commentID = 'comment-id';
-
-    ({
-      CommentCreateSubscription,
-      CommentFragment,
-      CommentQuery,
-    } = generateAndCompile(`
-        subscription CommentCreateSubscription($input: CommentCreateSubscriptionInput!) {
-          commentCreateSubscribe(input: $input) {
-            comment {
-              id
-              body {
-                text
-              }
+    CommentCreateSubscription = getRequest(graphql`
+      subscription RelayModernEnvironmentExecuteSubscriptionTestCommentCreateSubscription(
+        $input: CommentCreateSubscriptionInput!
+      ) {
+        commentCreateSubscribe(input: $input) {
+          comment {
+            id
+            body {
+              text
             }
           }
         }
-
-        fragment CommentFragment on Comment {
+      }
+    `);
+    CommentFragment = getFragment(graphql`
+      fragment RelayModernEnvironmentExecuteSubscriptionTestCommentFragment on Comment {
+        id
+        body {
+          text
+        }
+      }
+    `);
+    CommentQuery = getRequest(graphql`
+      query RelayModernEnvironmentExecuteSubscriptionTestCommentQuery(
+        $id: ID!
+      ) {
+        node(id: $id) {
           id
-          body {
-            text
-          }
+          ...RelayModernEnvironmentExecuteSubscriptionTestCommentFragment
         }
-
-        query CommentQuery($id: ID!) {
-          node(id: $id) {
-            id
-            ...CommentFragment
-          }
-        }
-      `));
+      }
+    `);
     variables = {
       input: {
         clientMutationId: '0',
@@ -179,7 +180,7 @@ describe('execute()', () => {
     expect(
       environment
         .getOperationTracker()
-        .getPromiseForPendingOperationsAffectingOwner(queryOperation.request),
+        .getPendingOperationsAffectingOwner(queryOperation.request),
     ).toBe(null);
   });
 
@@ -239,7 +240,7 @@ describe('execute()', () => {
     expect(
       environment
         .getOperationTracker()
-        .getPromiseForPendingOperationsAffectingOwner(queryOperation.request),
+        .getPendingOperationsAffectingOwner(queryOperation.request),
     ).toBe(null);
   });
 });

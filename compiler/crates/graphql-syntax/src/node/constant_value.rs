@@ -35,6 +35,12 @@ impl ConstantValue {
             ConstantValue::Object(value) => value.span,
         }
     }
+    pub fn get_string_literal(&self) -> Option<StringKey> {
+        match self {
+            ConstantValue::String(StringNode { value, .. }) => Some(*value),
+            _ => None,
+        }
+    }
 }
 
 impl fmt::Display for ConstantValue {

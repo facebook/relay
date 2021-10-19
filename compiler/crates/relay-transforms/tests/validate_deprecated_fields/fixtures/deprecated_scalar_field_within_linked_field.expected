@@ -1,0 +1,21 @@
+==================================== INPUT ====================================
+query Foo {
+  me {
+    author {
+      name
+      some_old_field
+    }
+  }
+}
+%extensions%
+extend type User {
+  some_old_field: String @deprecated
+}
+==================================== OUTPUT ===================================
+ℹ The field `User.some_old_field` is deprecated.
+
+  deprecated_scalar_field_within_linked_field.graphql:5:7
+    4 │       name
+    5 │       some_old_field
+      │       ^^^^^^^^^^^^^^
+    6 │     }

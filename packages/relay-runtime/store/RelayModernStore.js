@@ -12,30 +12,13 @@
 
 'use strict';
 
-const DataChecker = require('./DataChecker');
-const RelayFeatureFlags = require('../util/RelayFeatureFlags');
-const RelayModernRecord = require('./RelayModernRecord');
-const RelayOptimisticRecordSource = require('./RelayOptimisticRecordSource');
-const RelayProfiler = require('../util/RelayProfiler');
-const RelayReader = require('./RelayReader');
-const RelayReferenceMarker = require('./RelayReferenceMarker');
-const RelayStoreReactFlightUtils = require('./RelayStoreReactFlightUtils');
-const RelayStoreSubscriptions = require('./RelayStoreSubscriptions');
-const RelayStoreSubscriptionsUsingMapByID = require('./RelayStoreSubscriptionsUsingMapByID');
-const RelayStoreUtils = require('./RelayStoreUtils');
-
-const deepFreeze = require('../util/deepFreeze');
-const defaultGetDataID = require('./defaultGetDataID');
-const invariant = require('invariant');
-const resolveImmediate = require('../util/resolveImmediate');
-
-const {ROOT_ID, ROOT_TYPE} = require('./RelayStoreUtils');
-
+import type {ActorIdentifier} from '../multi-actor-environment/ActorIdentifier';
 import type {DataID, Disposable} from '../util/RelayRuntimeTypes';
 import type {Availability} from './DataChecker';
 import type {GetDataID} from './RelayResponseNormalizer';
 import type {
   CheckOptions,
+  DataIDSet,
   LogFunction,
   MutableRecordSource,
   OperationAvailability,
@@ -48,8 +31,28 @@ import type {
   Snapshot,
   Store,
   StoreSubscriptions,
-  DataIDSet,
 } from './RelayStoreTypes';
+import type {ResolverCache} from './ResolverCache';
+
+const {
+  INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
+  assertInternalActorIndentifier,
+} = require('../multi-actor-environment/ActorIdentifier');
+const deepFreeze = require('../util/deepFreeze');
+const RelayFeatureFlags = require('../util/RelayFeatureFlags');
+const resolveImmediate = require('../util/resolveImmediate');
+const DataChecker = require('./DataChecker');
+const defaultGetDataID = require('./defaultGetDataID');
+const RelayModernRecord = require('./RelayModernRecord');
+const RelayOptimisticRecordSource = require('./RelayOptimisticRecordSource');
+const RelayReader = require('./RelayReader');
+const RelayReferenceMarker = require('./RelayReferenceMarker');
+const RelayStoreReactFlightUtils = require('./RelayStoreReactFlightUtils');
+const RelayStoreSubscriptions = require('./RelayStoreSubscriptions');
+const RelayStoreUtils = require('./RelayStoreUtils');
+const {ROOT_ID, ROOT_TYPE} = require('./RelayStoreUtils');
+const {RecordResolverCache} = require('./ResolverCache');
+const invariant = require('invariant');
 
 export opaque type InvalidationState = {|
   dataIDs: $ReadOnlyArray<DataID>,
@@ -90,6 +93,7 @@ class RelayModernStore implements Store {
   _operationLoader: ?OperationLoader;
   _optimisticSource: ?MutableRecordSource;
   _recordSource: MutableRecordSource;
+  _resolverCache: ResolverCache;
   _releaseBuffer: Array<string>;
   _roots: Map<
     string,
@@ -103,6 +107,7 @@ class RelayModernStore implements Store {
   _shouldScheduleGC: boolean;
   _storeSubscriptions: StoreSubscriptions;
   _updatedRecordIDs: DataIDSet;
+  _shouldProcessClientComponents: ?boolean;
 
   constructor(
     source: MutableRecordSource,
@@ -113,6 +118,7 @@ class RelayModernStore implements Store {
       getDataID?: ?GetDataID,
       gcReleaseBufferSize?: ?number,
       queryCacheExpirationTime?: ?number,
+      shouldProcessClientComponents?: ?boolean,
     |},
   ) {
     // Prevent mutation of a record from outside the store.
@@ -143,11 +149,16 @@ class RelayModernStore implements Store {
     this._releaseBuffer = [];
     this._roots = new Map();
     this._shouldScheduleGC = false;
-    this._storeSubscriptions =
-      RelayFeatureFlags.ENABLE_STORE_SUBSCRIPTIONS_REFACTOR === true
-        ? new RelayStoreSubscriptionsUsingMapByID(options?.log)
-        : new RelayStoreSubscriptions(options?.log);
+    this._resolverCache = new RecordResolverCache(() =>
+      this._getMutableRecordSource(),
+    );
+    this._storeSubscriptions = new RelayStoreSubscriptions(
+      options?.log,
+      this._resolverCache,
+    );
     this._updatedRecordIDs = new Set();
+    this._shouldProcessClientComponents =
+      options?.shouldProcessClientComponents;
 
     initializeRecordSource(this._recordSource);
   }
@@ -156,12 +167,16 @@ class RelayModernStore implements Store {
     return this._optimisticSource ?? this._recordSource;
   }
 
+  _getMutableRecordSource(): MutableRecordSource {
+    return this._optimisticSource ?? this._recordSource;
+  }
+
   check(
     operation: OperationDescriptor,
     options?: CheckOptions,
   ): OperationAvailability {
     const selector = operation.root;
-    const source = this._optimisticSource ?? this._recordSource;
+    const source = this._getMutableRecordSource();
     const globalInvalidationEpoch = this._globalInvalidationEpoch;
 
     const rootEntry = this._roots.get(operation.request.identifier);
@@ -170,7 +185,7 @@ class RelayModernStore implements Store {
     // Check if store has been globally invalidated
     if (globalInvalidationEpoch != null) {
       // If so, check if the operation we're checking was last written
-      // before or after invalidation occured.
+      // before or after invalidation occurred.
       if (
         operationLastWrittenAt == null ||
         operationLastWrittenAt <= globalInvalidationEpoch
@@ -183,15 +198,29 @@ class RelayModernStore implements Store {
       }
     }
 
-    const target = options?.target ?? source;
     const handlers = options?.handlers ?? [];
+    const getSourceForActor =
+      options?.getSourceForActor ??
+      (actorIdentifier => {
+        assertInternalActorIndentifier(actorIdentifier);
+        return source;
+      });
+    const getTargetForActor =
+      options?.getTargetForActor ??
+      (actorIdentifier => {
+        assertInternalActorIndentifier(actorIdentifier);
+        return source;
+      });
+
     const operationAvailability = DataChecker.check(
-      source,
-      target,
+      getSourceForActor,
+      getTargetForActor,
+      options?.defaultActorIdentifier ?? INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
       selector,
       handlers,
       this._operationLoader,
       this._getDataID,
+      this._shouldProcessClientComponents,
     );
 
     return getAvailabilityStatus(
@@ -270,7 +299,7 @@ class RelayModernStore implements Store {
 
   lookup(selector: SingularReaderSelector): Snapshot {
     const source = this.getSource();
-    const snapshot = RelayReader.read(source, selector);
+    const snapshot = RelayReader.read(source, selector, this._resolverCache);
     if (__DEV__) {
       deepFreeze(snapshot);
     }
@@ -298,6 +327,13 @@ class RelayModernStore implements Store {
       this._globalInvalidationEpoch = this._currentWriteEpoch;
     }
 
+    if (RelayFeatureFlags.ENABLE_RELAY_RESOLVERS) {
+      // When a record is updated, we need to also handle records that depend on it,
+      // specifically Relay Resolver result records containing results based on the
+      // updated records. This both adds to updatedRecordIDs and invalidates any
+      // cached data as needed.
+      this._resolverCache.invalidateDataIDs(this._updatedRecordIDs);
+    }
     const source = this.getSource();
     const updatedOwners = [];
     this._storeSubscriptions.updateSubscriptions(
@@ -360,7 +396,7 @@ class RelayModernStore implements Store {
   }
 
   publish(source: RecordSource, idsMarkedForInvalidation?: DataIDSet): void {
-    const target = this._optimisticSource ?? this._recordSource;
+    const target = this._getMutableRecordSource();
     updateTargetFromSource(
       target,
       source,
@@ -411,6 +447,10 @@ class RelayModernStore implements Store {
 
   toJSON(): mixed {
     return 'RelayModernStore()';
+  }
+
+  getEpoch(): number {
+    return this._currentWriteEpoch;
   }
 
   // Internal API
@@ -574,6 +614,7 @@ class RelayModernStore implements Store {
           selector,
           references,
           this._operationLoader,
+          this._shouldProcessClientComponents,
         );
         // Yield for other work after each operation
         yield;
@@ -672,6 +713,7 @@ function updateTargetFromSource(
         currentWriteEpoch,
       );
       invalidatedRecordIDs.add(dataID);
+      // $FlowFixMe[incompatible-call]
       target.set(dataID, nextRecord);
     });
   }
@@ -762,9 +804,5 @@ function getAvailabilityStatus(
   // been fetched after the most recent record invalidation.
   return {status: 'available', fetchTime: operationFetchTime ?? null};
 }
-
-RelayProfiler.instrumentMethods(RelayModernStore.prototype, {
-  lookup: 'RelayModernStore.prototype.lookup',
-});
 
 module.exports = RelayModernStore;

@@ -11,10 +11,17 @@ use graphql_syntax::{
     Argument, BooleanNode, ConstantArgument, ConstantValue, DefaultValue, Directive, EnumNode,
     ExecutableDefinition, ExecutableDocument, FloatNode, FragmentDefinition, FragmentSpread,
     Identifier, InlineFragment, IntNode, LinkedField, List, ListTypeAnnotation,
-    NonNullTypeAnnotation, OperationDefinition, OperationKind, ScalarField, Selection, StringNode,
-    Token, TypeAnnotation, TypeCondition, Value, VariableDefinition, VariableIdentifier,
+    NamedTypeAnnotation, NonNullTypeAnnotation, OperationDefinition, OperationKind, ScalarField,
+    Selection, StringNode, Token, TypeAnnotation, TypeCondition, Value, VariableDefinition,
+    VariableIdentifier,
 };
-pub mod utils;
+
+mod constant_value_root;
+pub use constant_value_root::ConstantValueRoot;
+mod argument_root;
+pub use argument_root::*;
+mod selection_parent_type;
+mod variable_definition_path;
 
 /// This module resolves a position (`Span`) to a `ResolvePosition` which
 /// enumerates the types of AST nodes which have a "surface area", meaning a
@@ -118,7 +125,7 @@ pub trait ResolvePosition<'a>: Sized {
     }
 }
 
-type ExecutableDocumentPath<'a> = Path<&'a ExecutableDocument, ()>;
+pub type ExecutableDocumentPath<'a> = Path<&'a ExecutableDocument, ()>;
 
 // Clippy gets grumpy about us passing around `()`, but we need it for consistency with other implementations of `ResolvePosition`.
 #[allow(clippy::unit_arg)]
@@ -139,13 +146,13 @@ impl<'a> ResolvePosition<'a> for ExecutableDocument {
     }
 }
 
-type OperationKindPath<'a> = Path<&'a (Token, OperationKind), OperationKindParent<'a>>;
+pub type OperationKindPath<'a> = Path<&'a (Token, OperationKind), OperationKindParent<'a>>;
 
-type OperationKindParent<'a> = OperationDefinitionPath<'a>;
+pub type OperationKindParent<'a> = OperationDefinitionPath<'a>;
 
 pub type FragmentDefinitionPath<'a> = Path<&'a FragmentDefinition, FragmentDefinitionParent<'a>>;
 
-type FragmentDefinitionParent<'a> = ExecutableDefinitionPath<'a>;
+pub type FragmentDefinitionParent<'a> = ExecutableDefinitionPath<'a>;
 
 impl<'a> ResolvePosition<'a> for FragmentDefinition {
     type Parent = FragmentDefinitionParent<'a>;
@@ -199,7 +206,7 @@ impl<'a> ResolvePosition<'a> for FragmentDefinition {
     }
 }
 
-type VariableDefinitionListPath<'a> =
+pub type VariableDefinitionListPath<'a> =
     Path<&'a List<VariableDefinition>, VariableDefinitionListParent<'a>>;
 
 #[derive(Debug)]
@@ -225,8 +232,8 @@ impl<'a> ResolvePosition<'a> for List<VariableDefinition> {
     }
 }
 
-type VariableDefinitionPath<'a> = Path<&'a VariableDefinition, VariableDefinitionParent<'a>>;
-type VariableDefinitionParent<'a> = VariableDefinitionListPath<'a>;
+pub type VariableDefinitionPath<'a> = Path<&'a VariableDefinition, VariableDefinitionParent<'a>>;
+pub type VariableDefinitionParent<'a> = VariableDefinitionListPath<'a>;
 
 impl<'a> ResolvePosition<'a> for VariableDefinition {
     type Parent = VariableDefinitionParent<'a>;
@@ -268,8 +275,8 @@ impl<'a> ResolvePosition<'a> for VariableDefinition {
     }
 }
 
-type DefaultValuePath<'a> = Path<&'a DefaultValue, DefaultValueParent<'a>>;
-type DefaultValueParent<'a> = VariableDefinitionPath<'a>;
+pub type DefaultValuePath<'a> = Path<&'a DefaultValue, DefaultValueParent<'a>>;
+pub type DefaultValueParent<'a> = VariableDefinitionPath<'a>;
 
 impl<'a> ResolvePosition<'a> for DefaultValue {
     type Parent = DefaultValueParent<'a>;
@@ -292,7 +299,7 @@ impl<'a> ResolvePosition<'a> for DefaultValue {
     }
 }
 
-type TypeAnnotationPath<'a> = Path<&'a TypeAnnotation, TypeAnnotationParent<'a>>;
+pub type TypeAnnotationPath<'a> = Path<&'a TypeAnnotation, TypeAnnotationParent<'a>>;
 #[derive(Debug)]
 pub enum TypeAnnotationParent<'a> {
     VariableDefinition(VariableDefinitionPath<'a>),
@@ -304,9 +311,7 @@ impl<'a> ResolvePosition<'a> for TypeAnnotation {
 
     fn resolve(&'a self, parent: Self::Parent, position: Span) -> ResolutionPath<'a> {
         match self {
-            TypeAnnotation::Named(identifier) => {
-                identifier.resolve(IdentParent::TypeAnnotation(self.path(parent)), position)
-            }
+            TypeAnnotation::Named(named_type) => named_type.resolve(self.path(parent), position),
             TypeAnnotation::List(list) => list.resolve(Box::new(self.path(parent)), position),
             TypeAnnotation::NonNull(non_null) => {
                 non_null.resolve(Box::new(self.path(parent)), position)
@@ -319,8 +324,32 @@ impl<'a> ResolvePosition<'a> for TypeAnnotation {
     }
 }
 
-type ListTypeAnnotationPath<'a> = Path<&'a ListTypeAnnotation, Box<ListTypeAnnotationParent<'a>>>;
-type ListTypeAnnotationParent<'a> = TypeAnnotationPath<'a>;
+// Note: since a NamedTypeAnnotation contains only a single Ident, it is impossible
+// to resolve a span to a NamedTypeAnnotationPath. Instead, such a span would resolve to
+// an IdentPath whose parent is a NamedTypeAnnotationPath.
+//
+// As a consequence, the ResolutionPath enum does not contain a NamedTypeAnnotation
+// variant, and we return self.name.resolve(...) directly instead.
+impl<'a> ResolvePosition<'a> for NamedTypeAnnotation {
+    type Parent = TypeAnnotationPath<'a>;
+
+    fn resolve(&'a self, parent: Self::Parent, position: Span) -> ResolutionPath<'a> {
+        self.name.resolve(
+            IdentParent::NamedTypeAnnotation(self.path(parent)),
+            position,
+        )
+    }
+
+    fn contains(&'a self, position: Span) -> bool {
+        self.name.contains(position)
+    }
+}
+
+pub type NamedTypeAnnotationPath<'a> = Path<&'a NamedTypeAnnotation, TypeAnnotationPath<'a>>;
+
+pub type ListTypeAnnotationPath<'a> =
+    Path<&'a ListTypeAnnotation, Box<ListTypeAnnotationParent<'a>>>;
+pub type ListTypeAnnotationParent<'a> = TypeAnnotationPath<'a>;
 
 impl<'a> ResolvePosition<'a> for ListTypeAnnotation {
     type Parent = Box<ListTypeAnnotationParent<'a>>;
@@ -341,9 +370,9 @@ impl<'a> ResolvePosition<'a> for ListTypeAnnotation {
     }
 }
 
-type NonNullTypeAnnotationPath<'a> =
+pub type NonNullTypeAnnotationPath<'a> =
     Path<&'a NonNullTypeAnnotation, Box<NonNullTypeAnnotationParent<'a>>>;
-type NonNullTypeAnnotationParent<'a> = TypeAnnotationPath<'a>;
+pub type NonNullTypeAnnotationParent<'a> = TypeAnnotationPath<'a>;
 
 impl<'a> ResolvePosition<'a> for NonNullTypeAnnotation {
     type Parent = Box<NonNullTypeAnnotationParent<'a>>;
@@ -365,7 +394,7 @@ impl<'a> ResolvePosition<'a> for NonNullTypeAnnotation {
 }
 
 pub type OperationDefinitionPath<'a> = Path<&'a OperationDefinition, OperationDefinitionParent<'a>>;
-type OperationDefinitionParent<'a> = ExecutableDefinitionPath<'a>;
+pub type OperationDefinitionParent<'a> = ExecutableDefinitionPath<'a>;
 
 impl<'a> ResolvePosition<'a> for OperationDefinition {
     type Parent = OperationDefinitionParent<'a>;
@@ -418,8 +447,8 @@ impl<'a> ResolvePosition<'a> for OperationDefinition {
     }
 }
 
-type OperationPath<'a> = Path<&'a (Token, OperationKind), OperationParent<'a>>;
-type OperationParent<'a> = OperationDefinitionPath<'a>;
+pub type OperationPath<'a> = Path<&'a (Token, OperationKind), OperationParent<'a>>;
+pub type OperationParent<'a> = OperationDefinitionPath<'a>;
 
 impl<'a> ResolvePosition<'a> for (Token, OperationKind) {
     type Parent = OperationParent<'a>;
@@ -433,8 +462,9 @@ impl<'a> ResolvePosition<'a> for (Token, OperationKind) {
     }
 }
 
-type ExecutableDefinitionPath<'a> = Path<&'a ExecutableDefinition, ExecutableDefinitionParent<'a>>;
-type ExecutableDefinitionParent<'a> = ExecutableDocumentPath<'a>;
+pub type ExecutableDefinitionPath<'a> =
+    Path<&'a ExecutableDefinition, ExecutableDefinitionParent<'a>>;
+pub type ExecutableDefinitionParent<'a> = ExecutableDocumentPath<'a>;
 
 impl<'a> ResolvePosition<'a> for ExecutableDefinition {
     type Parent = ExecutableDefinitionParent<'a>;
@@ -473,7 +503,7 @@ pub enum IdentParent<'a> {
     DirectiveName(DirectivePath<'a>),
     ArgumentName(ArgumentPath<'a>),
     ArgumentValue(ArgumentPath<'a>),
-    TypeAnnotation(TypeAnnotationPath<'a>),
+    NamedTypeAnnotation(NamedTypeAnnotationPath<'a>),
     ConstantArgKey(ConstantArgPath<'a>),
 }
 
@@ -488,7 +518,7 @@ impl<'a> ResolvePosition<'a> for Identifier {
     }
 }
 
-type SelectionPath<'a> = Path<&'a Selection, SelectionParent<'a>>;
+pub type SelectionPath<'a> = Path<&'a Selection, SelectionParent<'a>>;
 #[derive(Debug)]
 pub enum SelectionParent<'a> {
     OperationDefinitionSelection(OperationDefinitionPath<'a>),
@@ -518,7 +548,7 @@ impl<'a> ResolvePosition<'a> for Selection {
 }
 
 pub type FragmentSpreadPath<'a> = Path<&'a FragmentSpread, FragmentSpreadParent<'a>>;
-type FragmentSpreadParent<'a> = SelectionPath<'a>;
+pub type FragmentSpreadParent<'a> = SelectionPath<'a>;
 
 impl<'a> ResolvePosition<'a> for FragmentSpread {
     type Parent = FragmentSpreadParent<'a>;
@@ -543,7 +573,7 @@ impl<'a> ResolvePosition<'a> for FragmentSpread {
     }
 }
 
-type DirectivePath<'a> = Path<&'a Directive, DirectiveParent<'a>>;
+pub type DirectivePath<'a> = Path<&'a Directive, DirectiveParent<'a>>;
 #[derive(Debug)]
 pub enum DirectiveParent<'a> {
     ScalarField(ScalarFieldPath<'a>),
@@ -733,7 +763,7 @@ impl<'a> ResolvePosition<'a> for TypeCondition {
     }
 }
 
-type ArgumentPath<'a> = Path<&'a Argument, ArgumentParent<'a>>;
+pub type ArgumentPath<'a> = Path<&'a Argument, ArgumentParent<'a>>;
 #[derive(Debug)]
 pub enum ArgumentParent<'a> {
     LinkedField(LinkedFieldPath<'a>),
@@ -765,7 +795,7 @@ impl<'a> ResolvePosition<'a> for Argument {
     }
 }
 
-type ValuePath<'a> = Path<&'a Value, ValueParent<'a>>;
+pub type ValuePath<'a> = Path<&'a Value, ValueParent<'a>>;
 #[derive(Debug)]
 pub enum ValueParent<'a> {
     ArgumentValue(ArgumentPath<'a>),
@@ -797,7 +827,7 @@ impl<'a> ResolvePosition<'a> for Value {
     }
 }
 
-type ConstantValuePath<'a> = Path<&'a ConstantValue, ConstantValueParent<'a>>;
+pub type ConstantValuePath<'a> = Path<&'a ConstantValue, ConstantValueParent<'a>>;
 #[derive(Debug)]
 pub enum ConstantValueParent<'a> {
     Value(ValuePath<'a>),
@@ -846,14 +876,14 @@ impl<'a> ResolvePosition<'a> for ConstantValue {
     }
 }
 
-type ConstantIntPath<'a> = Path<&'a IntNode, ConstantValuePath<'a>>;
-type ConstantFloatPath<'a> = Path<&'a FloatNode, ConstantValuePath<'a>>;
-type ConstantStringPath<'a> = Path<&'a StringNode, ConstantValuePath<'a>>;
-type ConstantBooleanPath<'a> = Path<&'a BooleanNode, ConstantValuePath<'a>>;
-type ConstantNullPath<'a> = Path<&'a Token, ConstantValuePath<'a>>;
-type ConstantEnumPath<'a> = Path<&'a EnumNode, ConstantValuePath<'a>>;
+pub type ConstantIntPath<'a> = Path<&'a IntNode, ConstantValuePath<'a>>;
+pub type ConstantFloatPath<'a> = Path<&'a FloatNode, ConstantValuePath<'a>>;
+pub type ConstantStringPath<'a> = Path<&'a StringNode, ConstantValuePath<'a>>;
+pub type ConstantBooleanPath<'a> = Path<&'a BooleanNode, ConstantValuePath<'a>>;
+pub type ConstantNullPath<'a> = Path<&'a Token, ConstantValuePath<'a>>;
+pub type ConstantEnumPath<'a> = Path<&'a EnumNode, ConstantValuePath<'a>>;
 
-type ConstantListPath<'a> = Path<&'a List<ConstantValue>, Box<ConstantValuePath<'a>>>;
+pub type ConstantListPath<'a> = Path<&'a List<ConstantValue>, Box<ConstantValuePath<'a>>>;
 impl<'a> ResolvePosition<'a> for List<ConstantValue> {
     type Parent = Box<ConstantValuePath<'a>>;
     fn resolve(&'a self, parent: Self::Parent, position: Span) -> ResolutionPath<'a> {
@@ -872,7 +902,7 @@ impl<'a> ResolvePosition<'a> for List<ConstantValue> {
     }
 }
 
-type ConstantObjPath<'a> = Path<&'a List<ConstantArgument>, Box<ConstantValuePath<'a>>>;
+pub type ConstantObjPath<'a> = Path<&'a List<ConstantArgument>, Box<ConstantValuePath<'a>>>;
 
 impl<'a> ResolvePosition<'a> for List<ConstantArgument> {
     type Parent = Box<ConstantValuePath<'a>>;
@@ -889,7 +919,7 @@ impl<'a> ResolvePosition<'a> for List<ConstantArgument> {
     }
 }
 
-type ConstantArgPath<'a> = Path<&'a ConstantArgument, ConstantObjPath<'a>>;
+pub type ConstantArgPath<'a> = Path<&'a ConstantArgument, ConstantObjPath<'a>>;
 
 impl<'a> ResolvePosition<'a> for ConstantArgument {
     type Parent = ConstantObjPath<'a>;
@@ -912,7 +942,7 @@ impl<'a> ResolvePosition<'a> for ConstantArgument {
     }
 }
 
-type VariableIdentifierPath<'a> = Path<&'a VariableIdentifier, VariableIdentifierParent<'a>>;
+pub type VariableIdentifierPath<'a> = Path<&'a VariableIdentifier, VariableIdentifierParent<'a>>;
 #[derive(Debug)]
 pub enum VariableIdentifierParent<'a> {
     Value(ValuePath<'a>),
@@ -930,7 +960,7 @@ impl<'a> ResolvePosition<'a> for VariableIdentifier {
     }
 }
 
-type ValueListPath<'a> = Path<&'a List<Value>, Box<ValuePath<'a>>>;
+pub type ValueListPath<'a> = Path<&'a List<Value>, Box<ValuePath<'a>>>;
 
 impl<'a> ResolvePosition<'a> for List<Value> {
     type Parent = Box<ValuePath<'a>>;
@@ -949,7 +979,7 @@ impl<'a> ResolvePosition<'a> for List<Value> {
     }
 }
 
-type ConstantObjectPath<'a> = Path<&'a List<Argument>, Box<ValuePath<'a>>>;
+pub type ConstantObjectPath<'a> = Path<&'a List<Argument>, Box<ValuePath<'a>>>;
 
 impl<'a> ResolvePosition<'a> for List<Argument> {
     type Parent = Box<ValuePath<'a>>;

@@ -11,7 +11,7 @@ export type FooQueryResponse = {|
   +me: {|
     +firstName: ?string,
     +lastName: ?string,
-  |}
+  |},
 |};
 export type FooQuery = {|
   variables: FooQueryVariables,

@@ -35,7 +35,7 @@ impl RedToGreen {
             let event = logger.create_event("red_to_green");
             event.number("time_to_resolve", timer.elapsed().as_millis() as usize);
             event.number("try_count", self.error_count);
-            logger.complete_event(event);
+            event.complete();
             self.error_count = 0;
             self.timer = None;
         }

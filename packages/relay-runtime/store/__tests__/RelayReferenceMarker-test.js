@@ -13,11 +13,10 @@
 
 'use strict';
 
+const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
 const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
-const RelayRecordSource = require('../RelayRecordSource');
-
-const {graphql, getRequest, getFragment} = require('../../query/GraphQLTag');
 const {createNormalizationSelector} = require('../RelayModernSelector');
+const RelayRecordSource = require('../RelayRecordSource');
 const {mark} = require('../RelayReferenceMarker');
 const {ROOT_ID} = require('../RelayStoreUtils');
 
@@ -25,8 +24,6 @@ describe('RelayReferenceMarker', () => {
   let source;
 
   beforeEach(() => {
-    jest.resetModules();
-
     const data = {
       '1': {
         __id: '1',
@@ -1436,7 +1433,7 @@ describe('RelayReferenceMarker', () => {
           __id:
             'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
           __typename: 'ReactFlightComponent',
-          queries: [
+          executableDefinitions: [
             {
               module: {
                 __dr: 'RelayFlightExampleQuery.graphql',

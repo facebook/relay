@@ -13,16 +13,30 @@
 
 'use strict';
 
-const invariant = require('invariant');
+import type {
+  GraphQLSingularResponse,
+  NormalizationArgument,
+  NormalizationField,
+  NormalizationLinkedField,
+  NormalizationOperation,
+  NormalizationScalarField,
+  NormalizationSelection,
+  NormalizationSplitOperation,
+  OperationDescriptor,
+  Variables,
+} from 'relay-runtime';
 
+const invariant = require('invariant');
 const {
-  TYPENAME_KEY,
   RelayConcreteNode,
+  TYPENAME_KEY,
   getModuleComponentKey,
   getModuleOperationKey,
 } = require('relay-runtime');
 
 const {
+  ACTOR_CHANGE,
+  CLIENT_COMPONENT,
   CLIENT_EXTENSION,
   CONDITION,
   CONNECTION,
@@ -38,19 +52,6 @@ const {
   STREAM,
   TYPE_DISCRIMINATOR,
 } = RelayConcreteNode;
-
-import type {
-  NormalizationArgument,
-  NormalizationField,
-  NormalizationLinkedField,
-  NormalizationOperation,
-  NormalizationScalarField,
-  NormalizationSelection,
-  OperationDescriptor,
-  GraphQLSingularResponse,
-  NormalizationSplitOperation,
-  Variables,
-} from 'relay-runtime';
 
 type ValueResolver = (
   typeName: ?string,
@@ -310,6 +311,7 @@ class RelayMockPayloadGenerator {
           break;
         }
 
+        case CLIENT_COMPONENT:
         case FRAGMENT_SPREAD: {
           mockData = this._traverseSelections(
             selection.fragment.selections,
@@ -496,6 +498,8 @@ class RelayMockPayloadGenerator {
           break;
         case FLIGHT_FIELD:
           throw new Error('Flight fields are not yet supported.');
+        case ACTOR_CHANGE:
+          throw new Error('ActorChange fields are not yet supported.');
         default:
           (selection: empty);
           invariant(
@@ -505,6 +509,7 @@ class RelayMockPayloadGenerator {
           );
       }
     });
+    // $FlowFixMe[incompatible-return]
     return mockData;
   }
 
@@ -749,6 +754,7 @@ class RelayMockPayloadGenerator {
       'RelayMockPayloadGenerator(): Undefined variable `%s`.',
       name,
     );
+    // $FlowFixMe[cannot-write]
     return this._variables[name];
   }
 

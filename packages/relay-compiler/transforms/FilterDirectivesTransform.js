@@ -12,10 +12,10 @@
 
 'use strict';
 
-const IRTransformer = require('../core/IRTransformer');
-
 import type CompilerContext from '../core/CompilerContext';
 import type {Directive} from '../core/IR';
+
+const IRTransformer = require('../core/IRTransformer');
 
 /**
  * A transform that removes any directives that were not present in the

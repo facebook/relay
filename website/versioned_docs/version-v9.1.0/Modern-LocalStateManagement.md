@@ -1,25 +1,24 @@
 ---
-id: version-v9.1.0-local-state-management
+id: local-state-management
 title: Local State Management
 original_id: local-state-management
 ---
-
-Relay can be used to read and write local data, and act as a single source of truth for *all* data in your client application.  
-The Relay Compiler fully supports client-side extensions of the schema, which allows you to define local fields and types.  
+Relay can be used to read and write local data, and act as a single source of truth for _all_ data in your client application.
+The Relay Compiler fully supports client-side extensions of the schema, which allows you to define local fields and types.
 
 Table of Contents:
 
-- [Extending the server schema](#extending-the-server-schema)
-- [Querying local state](#querying-local-state)
-- [Mutating local state](#mutating-local-state)
-- [Initial local state](#initial-local-state)
+-   [Extending the server schema](#extending-the-server-schema)
+-   [Querying local state](#querying-local-state)
+-   [Mutating local state](#mutating-local-state)
+-   [Initial local state](#initial-local-state)
 
 ## Extending the server schema
 
-To extend the server schema, create a new `.graphql` file inside your `--src` directory.  
+To extend the server schema, create a new `.graphql` file inside your `--src` directory.
 Let's call it `./src/clientSchema.graphql`.
 
-This schema describes what local data can be queried on the client.  
+This schema describes what local data can be queried on the client.
 It can even be used to extend an existing server schema.
 
 For example, we can create a new type called `Note`:
@@ -97,7 +96,7 @@ const Example = (props) => {
 
 ## Mutating local state
 
-All local data lives in the [Relay Store](./relay-store).  
+All local data lives in the [Relay Store](./relay-store).
 Updating local state can be done with any `updater` function.
 The `commitLocalUpdate` function is especially ideal for this, because writes to local state are usually executed outside of a mutation.
 

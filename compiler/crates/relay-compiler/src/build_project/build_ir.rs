@@ -14,6 +14,7 @@ use graphql_syntax::ExecutableDefinition;
 use graphql_text_printer::print_executable_definition_ast;
 use interner::StringKey;
 use md5::{Digest, Md5};
+use relay_transforms::DependencyMap;
 use schema::SDLSchema;
 
 pub struct BuildIRResult {
@@ -43,6 +44,7 @@ impl SourceHashes {
 
 pub fn build_ir(
     project_config: &ProjectConfig,
+    implicit_dependencies: &DependencyMap,
     schema: &SDLSchema,
     graphql_asts: &FnvHashMap<SourceSetName, GraphQLAsts>,
     is_incremental_build: bool,
@@ -89,7 +91,13 @@ pub fn build_ir(
                     .unwrap_or_default(),
             );
         }
-        let affected_ir = get_reachable_ir(ir, base_definition_names, reachable_names);
+        let affected_ir = get_reachable_ir(
+            ir,
+            base_definition_names,
+            reachable_names,
+            implicit_dependencies,
+            schema,
+        );
         Ok(BuildIRResult {
             ir: affected_ir,
             base_fragment_names,

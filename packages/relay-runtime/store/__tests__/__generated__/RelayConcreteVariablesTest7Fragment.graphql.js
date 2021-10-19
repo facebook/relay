@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<8689eb4a5d38312b294ab6785183c3e3>>
+ * @generated SignedSource<<36d8399c5ba10537b7232a56b0dd3abb>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,7 +21,7 @@ declare export opaque type RelayConcreteVariablesTest7Fragment$ref: FragmentRefe
 declare export opaque type RelayConcreteVariablesTest7Fragment$fragmentType: RelayConcreteVariablesTest7Fragment$ref;
 export type RelayConcreteVariablesTest7Fragment = {|
   +profilePicture: ?{|
-    +uri: ?string
+    +uri: ?string,
   |},
   +$refType: RelayConcreteVariablesTest7Fragment$ref,
 |};

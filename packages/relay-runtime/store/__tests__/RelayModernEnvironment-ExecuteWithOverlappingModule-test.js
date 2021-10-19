@@ -13,16 +13,18 @@
 
 'use strict';
 
-const RelayModernEnvironment = require('../RelayModernEnvironment');
-const RelayModernStore = require('../RelayModernStore');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const RelayRecordSource = require('../RelayRecordSource');
-
+const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
-const {generateAndCompile} = require('relay-test-utils-internal');
+const RelayModernStore = require('../RelayModernStore');
+const RelayRecordSource = require('../RelayRecordSource');
+const {getRequest, graphql} = require('relay-runtime');
+const {disallowWarnings} = require('relay-test-utils-internal');
+
+disallowWarnings();
 
 describe('execute() multiple queries with overlapping @module-s', () => {
   let actorOperation;
@@ -40,59 +42,66 @@ describe('execute() multiple queries with overlapping @module-s', () => {
   let variables;
 
   beforeEach(() => {
-    jest.resetModules();
-
-    ({ActorQuery: actorQuery, UserQuery: userQuery} = generateAndCompile(`
-        query ActorQuery($id: ID!) {
-          node(id: $id) {
-            ... on Actor {
-              nameRenderer {
-                # different fragment/module but matching same type
-                ...MarkdownActorNameRenderer_name
-                  @module(name: "MarkdownActorNameRenderer.react")
-              }
+    actorQuery = getRequest(graphql`
+      query RelayModernEnvironmentExecuteWithOverlappingModuleTestActorQuery(
+        $id: ID!
+      ) {
+        node(id: $id) {
+          ... on Actor {
+            nameRenderer {
+              # different fragment/module but matching same type
+              ...RelayModernEnvironmentExecuteWithOverlappingModuleTestMarkdownActorNameRenderer_name
+                @module(name: "MarkdownActorNameRenderer.react")
             }
           }
         }
+      }
+    `);
+    graphql`
+      fragment RelayModernEnvironmentExecuteWithOverlappingModuleTestPlainUserNameRenderer_name on PlainUserNameRenderer {
+        plaintext
+        data {
+          text
+        }
+      }
+    `;
 
-        query UserQuery($id: ID!) {
-          node(id: $id) {
-            ... on User {
-              nameRenderer {
-                # different fragment/module but matching same type
-                ...MarkdownUserNameRenderer_name
-                  @module(name: "MarkdownUserNameRenderer.react")
-                ...PlainUserNameRenderer_name
-                  @module(name: "PlainUserNameRenderer.react")
-              }
+    graphql`
+      fragment RelayModernEnvironmentExecuteWithOverlappingModuleTestMarkdownActorNameRenderer_name on MarkdownUserNameRenderer {
+        __typename
+        markdown
+        data {
+          markup @__clientField(handle: "markup_handler")
+        }
+      }
+    `;
+    graphql`
+      fragment RelayModernEnvironmentExecuteWithOverlappingModuleTestMarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+        __typename
+        markdown
+        data {
+          markup @__clientField(handle: "markup_handler")
+        }
+      }
+    `;
+    userQuery = getRequest(graphql`
+      query RelayModernEnvironmentExecuteWithOverlappingModuleTestQuery(
+        $id: ID!
+      ) {
+        node(id: $id) {
+          ... on User {
+            nameRenderer {
+              # different fragment/module but matching same type
+              ...RelayModernEnvironmentExecuteWithOverlappingModuleTestMarkdownUserNameRenderer_name
+                @module(name: "MarkdownUserNameRenderer.react")
+              ...RelayModernEnvironmentExecuteWithOverlappingModuleTestPlainUserNameRenderer_name
+                @module(name: "PlainUserNameRenderer.react")
             }
           }
         }
+      }
+    `);
 
-        fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
-          __typename
-          markdown
-          data {
-            markup @__clientField(handle: "markup_handler")
-          }
-        }
-
-        fragment MarkdownActorNameRenderer_name on MarkdownUserNameRenderer {
-          __typename
-          markdown
-          data {
-            markup @__clientField(handle: "markup_handler")
-          }
-        }
-
-        fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
-          plaintext
-          data {
-            text
-          }
-        }
-
-      `));
     variables = {id: '1'};
     actorOperation = createOperationDescriptor(actorQuery, variables);
     userOperation = createOperationDescriptor(userQuery, variables);
@@ -151,8 +160,9 @@ describe('execute() multiple queries with overlapping @module-s', () => {
           __typename: 'User',
           nameRenderer: {
             __typename: 'MarkdownUserNameRenderer',
-            __module_component_UserQuery: 'MarkdownUserNameRenderer.react',
-            __module_operation_UserQuery:
+            __module_component_RelayModernEnvironmentExecuteWithOverlappingModuleTestQuery:
+              'MarkdownUserNameRenderer.react',
+            __module_operation_RelayModernEnvironmentExecuteWithOverlappingModuleTestQuery:
               'MarkdownUserNameRenderer_name$normalization.graphql',
             markdown: 'markdown payload',
             data: {
@@ -175,10 +185,11 @@ describe('execute() multiple queries with overlapping @module-s', () => {
           __fragmentPropName: 'name',
 
           __fragments: {
-            MarkdownUserNameRenderer_name: {},
+            RelayModernEnvironmentExecuteWithOverlappingModuleTestMarkdownUserNameRenderer_name: {},
           },
 
           __fragmentOwner: userOperation.request,
+          __isWithinUnmatchedTypeRefinement: false,
           __module_component: 'MarkdownUserNameRenderer.react',
         },
       },
@@ -192,8 +203,9 @@ describe('execute() multiple queries with overlapping @module-s', () => {
           __typename: 'User',
           nameRenderer: {
             __typename: 'PlainUserNameRenderer',
-            __module_component_UserQuery: 'PlainUserNameRenderer.react',
-            __module_operation_UserQuery:
+            __module_component_RelayModernEnvironmentExecuteWithOverlappingModuleTestQuery:
+              'PlainUserNameRenderer.react',
+            __module_operation_RelayModernEnvironmentExecuteWithOverlappingModuleTestQuery:
               'PlainUserNameRenderer_name$normalization.graphql',
             plaintext: 'plaintext payload',
             data: {
@@ -216,10 +228,11 @@ describe('execute() multiple queries with overlapping @module-s', () => {
           __fragmentPropName: 'name',
 
           __fragments: {
-            PlainUserNameRenderer_name: {},
+            RelayModernEnvironmentExecuteWithOverlappingModuleTestPlainUserNameRenderer_name: {},
           },
 
           __fragmentOwner: userOperation.request,
+          __isWithinUnmatchedTypeRefinement: false,
           __module_component: 'PlainUserNameRenderer.react',
         },
       },
@@ -236,8 +249,9 @@ describe('execute() multiple queries with overlapping @module-s', () => {
           __typename: 'User',
           nameRenderer: {
             __typename: 'MarkdownUserNameRenderer',
-            __module_component_UserQuery: 'MarkdownUserNameRenderer.react',
-            __module_operation_UserQuery:
+            __module_component_RelayModernEnvironmentExecuteWithOverlappingModuleTestQuery:
+              'MarkdownUserNameRenderer.react',
+            __module_operation_RelayModernEnvironmentExecuteWithOverlappingModuleTestQuery:
               'MarkdownUserNameRenderer_name$normalization.graphql',
             markdown: 'markdown payload',
             data: {
@@ -260,10 +274,11 @@ describe('execute() multiple queries with overlapping @module-s', () => {
           __fragmentPropName: 'name',
 
           __fragments: {
-            MarkdownUserNameRenderer_name: {},
+            RelayModernEnvironmentExecuteWithOverlappingModuleTestMarkdownUserNameRenderer_name: {},
           },
 
           __fragmentOwner: userOperation.request,
+          __isWithinUnmatchedTypeRefinement: false,
           __module_component: 'MarkdownUserNameRenderer.react',
         },
       },
@@ -287,12 +302,14 @@ describe('execute() multiple queries with overlapping @module-s', () => {
         node: {
           id: '1',
           __typename: 'User',
+          __isActor: true,
           nameRenderer: {
             __typename: 'MarkdownUserNameRenderer',
             // different component: s/User/Actor/
-            __module_component_ActorQuery: 'MarkdownActorNameRenderer.react',
+            __module_component_RelayModernEnvironmentExecuteWithOverlappingModuleTestActorQuery:
+              'MarkdownActorNameRenderer.react',
             // different operation: s/User/Actor/
-            __module_operation_ActorQuery:
+            __module_operation_RelayModernEnvironmentExecuteWithOverlappingModuleTestActorQuery:
               'MarkdownActorNameRenderer_name$normalization.graphql',
             markdown: 'markdown payload',
             data: {
@@ -317,10 +334,11 @@ describe('execute() multiple queries with overlapping @module-s', () => {
           __fragmentPropName: 'name',
 
           __fragments: {
-            MarkdownActorNameRenderer_name: {},
+            RelayModernEnvironmentExecuteWithOverlappingModuleTestMarkdownActorNameRenderer_name: {},
           },
 
           __fragmentOwner: actorOperation.request,
+          __isWithinUnmatchedTypeRefinement: false,
           __module_component: 'MarkdownActorNameRenderer.react',
         },
       },

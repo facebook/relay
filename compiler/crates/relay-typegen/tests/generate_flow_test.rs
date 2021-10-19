@@ -4,13 +4,27 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<3caa3d3b5d39fe5a7a5e6070067aa328>>
+ * @generated SignedSource<<a16b71bd84ea4fa531f9d86dd02cf407>>
  */
 
 mod generate_flow;
 
 use generate_flow::transform_fixture;
 use fixture_tests::test_fixture;
+
+#[test]
+fn actor_change() {
+    let input = include_str!("generate_flow/fixtures/actor-change.graphql");
+    let expected = include_str!("generate_flow/fixtures/actor-change.expected");
+    test_fixture(transform_fixture, "actor-change.graphql", "generate_flow/fixtures/actor-change.expected", input, expected);
+}
+
+#[test]
+fn actor_change_with_query() {
+    let input = include_str!("generate_flow/fixtures/actor-change-with-query.graphql");
+    let expected = include_str!("generate_flow/fixtures/actor-change-with-query.expected");
+    test_fixture(transform_fixture, "actor-change-with-query.graphql", "generate_flow/fixtures/actor-change-with-query.expected", input, expected);
+}
 
 #[test]
 fn conditional() {
@@ -195,6 +209,34 @@ fn relay_client_id_field() {
 }
 
 #[test]
+fn relay_resolver() {
+    let input = include_str!("generate_flow/fixtures/relay-resolver.graphql");
+    let expected = include_str!("generate_flow/fixtures/relay-resolver.expected");
+    test_fixture(transform_fixture, "relay-resolver.graphql", "generate_flow/fixtures/relay-resolver.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_in_fragment() {
+    let input = include_str!("generate_flow/fixtures/relay-resolver-in-fragment.graphql");
+    let expected = include_str!("generate_flow/fixtures/relay-resolver-in-fragment.expected");
+    test_fixture(transform_fixture, "relay-resolver-in-fragment.graphql", "generate_flow/fixtures/relay-resolver-in-fragment.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_multiple_consumers() {
+    let input = include_str!("generate_flow/fixtures/relay-resolver-multiple-consumers.graphql");
+    let expected = include_str!("generate_flow/fixtures/relay-resolver-multiple-consumers.expected");
+    test_fixture(transform_fixture, "relay-resolver-multiple-consumers.graphql", "generate_flow/fixtures/relay-resolver-multiple-consumers.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_raw_response() {
+    let input = include_str!("generate_flow/fixtures/relay-resolver-raw-response.graphql");
+    let expected = include_str!("generate_flow/fixtures/relay-resolver-raw-response.expected");
+    test_fixture(transform_fixture, "relay-resolver-raw-response.graphql", "generate_flow/fixtures/relay-resolver-raw-response.expected", input, expected);
+}
+
+#[test]
 fn required() {
     let input = include_str!("generate_flow/fixtures/required.graphql");
     let expected = include_str!("generate_flow/fixtures/required.expected");
@@ -220,6 +262,13 @@ fn required_bubbles_to_item_in_plural_field() {
     let input = include_str!("generate_flow/fixtures/required-bubbles-to-item-in-plural-field.graphql");
     let expected = include_str!("generate_flow/fixtures/required-bubbles-to-item-in-plural-field.expected");
     test_fixture(transform_fixture, "required-bubbles-to-item-in-plural-field.graphql", "generate_flow/fixtures/required-bubbles-to-item-in-plural-field.expected", input, expected);
+}
+
+#[test]
+fn required_bubbles_to_item_in_required_plural_field() {
+    let input = include_str!("generate_flow/fixtures/required-bubbles-to-item-in-required-plural-field.graphql");
+    let expected = include_str!("generate_flow/fixtures/required-bubbles-to-item-in-required-plural-field.expected");
+    test_fixture(transform_fixture, "required-bubbles-to-item-in-required-plural-field.graphql", "generate_flow/fixtures/required-bubbles-to-item-in-required-plural-field.expected", input, expected);
 }
 
 #[test]

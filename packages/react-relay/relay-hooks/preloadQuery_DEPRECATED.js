@@ -13,18 +13,6 @@
 
 'use strict';
 
-const invariant = require('invariant');
-
-const {
-  createOperationDescriptor,
-  Environment,
-  getRequest,
-  getRequestIdentifier,
-  Observable,
-  PreloadableQueryRegistry,
-  ReplaySubject,
-} = require('relay-runtime');
-
 import type {
   PreloadableConcreteRequest,
   PreloadedQueryInner_DEPRECATED,
@@ -41,6 +29,16 @@ import type {
   OperationType,
   Subscription,
 } from 'relay-runtime';
+
+const {
+  Observable,
+  PreloadableQueryRegistry,
+  RelayFeatureFlags,
+  ReplaySubject,
+  createOperationDescriptor,
+  getRequest,
+  getRequestIdentifier,
+} = require('relay-runtime');
 
 // Expire results by this delay after they resolve.
 const DEFAULT_PREFETCH_TIMEOUT = 30 * 1000; // 30 seconds
@@ -81,10 +79,6 @@ function preloadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
   options?: ?PreloadOptions,
   environmentProviderOptions?: ?TEnvironmentProviderOptions,
 ): PreloadedQueryInner_DEPRECATED<TQuery, TEnvironmentProviderOptions> {
-  invariant(
-    environment instanceof Environment,
-    'preloadQuery(): Expected a RelayModernEnvironment',
-  );
   let _pendingQueries = pendingQueriesByEnvironment.get(environment);
   if (_pendingQueries == null) {
     _pendingQueries = new Map();
@@ -118,7 +112,23 @@ function preloadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
           }
           return () => {
             subscription?.unsubscribe();
-            cleanup(pendingQueries, queryEntry);
+            if (environment.isServer()) {
+              return;
+            }
+            if (
+              RelayFeatureFlags.DELAY_CLEANUP_OF_PENDING_PRELOAD_QUERIES ===
+              true
+            ) {
+              setTimeout(() => {
+                // Clear the cache entry after the default timeout
+                // null-check for Flow
+                if (queryEntry != null) {
+                  cleanup(pendingQueries, queryEntry);
+                }
+              }, DEFAULT_PREFETCH_TIMEOUT);
+            } else {
+              cleanup(pendingQueries, queryEntry);
+            }
           };
         })
       : null;
@@ -138,7 +148,7 @@ function preloadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
 }
 
 function preloadQueryDeduped<TQuery: OperationType>(
-  environment: Environment,
+  environment: IEnvironment,
   pendingQueries: Map<string, PendingQueryEntry>,
   preloadableRequest: GraphQLTaggedNode | PreloadableConcreteRequest<TQuery>,
   variables: VariablesOf<TQuery>,
@@ -245,7 +255,9 @@ function preloadQueryDeduped<TQuery: OperationType>(
   } else {
     nextQueryEntry = prevQueryEntry;
   }
+  // $FlowFixMe[incompatible-call]
   pendingQueries.set(cacheKey, nextQueryEntry);
+  // $FlowFixMe[incompatible-return]
   return nextQueryEntry;
 }
 

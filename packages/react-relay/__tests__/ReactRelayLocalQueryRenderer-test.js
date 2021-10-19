@@ -10,14 +10,12 @@
 
 'use strict';
 
-const React = require('react');
 const ReactRelayContext = require('../ReactRelayContext');
 const ReactRelayLocalQueryRenderer = require('../ReactRelayLocalQueryRenderer');
 const ReactRelayQueryRendererContext = require('../ReactRelayQueryRendererContext');
-const ReactTestRenderer = require('react-test-renderer');
-
 const readContext = require('../readContext');
-
+const React = require('react');
+const ReactTestRenderer = require('react-test-renderer');
 const {
   RecordSource,
   Store,

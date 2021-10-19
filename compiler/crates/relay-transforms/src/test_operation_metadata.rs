@@ -5,15 +5,16 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::{DIRECTIVE_SPLIT_OPERATION, INTERNAL_METADATA_DIRECTIVE};
-use common::{NamedItem, WithLocation};
+use crate::{ValidationMessage, DIRECTIVE_SPLIT_OPERATION, INTERNAL_METADATA_DIRECTIVE};
+use common::{Diagnostic, DiagnosticsResult, NamedItem, WithLocation};
 use graphql_ir::{
-    Argument, ConstantArgument, ConstantValue, Directive, OperationDefinition, Program, Selection,
-    Transformed, Transformer, Value,
+    Argument, ConstantArgument, ConstantValue, Directive, Field as IrField, FragmentDefinition,
+    OperationDefinition, Program, Selection, Transformed, Transformer, Value,
 };
 use indexmap::IndexMap;
 use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
+use regex::Regex;
 use schema::{EnumValue, Field, SDLSchema, Schema, Type};
 
 lazy_static! {
@@ -25,24 +26,43 @@ lazy_static! {
     static ref TYPE_KEY: StringKey = "type".intern();
 }
 
-pub fn generate_test_operation_metadata(program: &Program) -> Program {
-    let mut transformer = GenerateTestOperationMetadata::new(program);
-    transformer
+/// Transforms the @relay_test_operation directive to @__metadata thats printed
+/// as runtime data during codegen.
+/// If a `test_path_regex` is passed, only allows the directive in
+/// directories matching the regex.
+pub fn generate_test_operation_metadata(
+    program: &Program,
+    test_path_regex: &Option<Regex>,
+) -> DiagnosticsResult<Program> {
+    let mut transformer = GenerateTestOperationMetadata::new(program, test_path_regex);
+    let next_program = transformer
         .transform_program(program)
-        .replace_or_else(|| program.clone())
-}
+        .replace_or_else(|| program.clone());
 
-struct GenerateTestOperationMetadata<'s> {
-    pub program: &'s Program,
-}
-
-impl<'s> GenerateTestOperationMetadata<'s> {
-    fn new(program: &'s Program) -> Self {
-        GenerateTestOperationMetadata { program }
+    if transformer.errors.is_empty() {
+        Ok(next_program)
+    } else {
+        Err(transformer.errors)
     }
 }
 
-impl<'s> Transformer for GenerateTestOperationMetadata<'s> {
+struct GenerateTestOperationMetadata<'a> {
+    program: &'a Program,
+    test_path_regex: &'a Option<Regex>,
+    errors: Vec<Diagnostic>,
+}
+
+impl<'a> GenerateTestOperationMetadata<'a> {
+    fn new(program: &'a Program, test_path_regex: &'a Option<Regex>) -> Self {
+        GenerateTestOperationMetadata {
+            program,
+            test_path_regex,
+            errors: Vec::new(),
+        }
+    }
+}
+
+impl<'a> Transformer for GenerateTestOperationMetadata<'a> {
     const NAME: &'static str = "GenerateTestOperationMetadata";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;
@@ -51,11 +71,21 @@ impl<'s> Transformer for GenerateTestOperationMetadata<'s> {
         &mut self,
         operation: &OperationDefinition,
     ) -> Transformed<OperationDefinition> {
-        if operation
-            .directives
-            .named(*TEST_OPERATION_DIRECTIVE)
-            .is_some()
+        if let Some(test_operation_directive) =
+            operation.directives.named(*TEST_OPERATION_DIRECTIVE)
         {
+            if let Some(test_path_regex) = self.test_path_regex {
+                if !test_path_regex.is_match(operation.name.location.source_location().path()) {
+                    self.errors.push(Diagnostic::error(
+                        ValidationMessage::TestOperationOutsideTestDirectory {
+                            test_path_regex: test_path_regex.to_string(),
+                        },
+                        test_operation_directive.name.location,
+                    ));
+                    return Transformed::Keep;
+                }
+            }
+
             let mut next_directives = Vec::with_capacity(operation.directives.len());
             for directive in &operation.directives {
                 // replace @relay_test_operation with @__metadata
@@ -80,6 +110,7 @@ impl<'s> Transformer for GenerateTestOperationMetadata<'s> {
                                 ))),
                             ),
                         }],
+                        data: None,
                     });
                 } else {
                     next_directives.push(directive.clone());
@@ -93,6 +124,10 @@ impl<'s> Transformer for GenerateTestOperationMetadata<'s> {
         } else {
             Transformed::Keep
         }
+    }
+
+    fn transform_fragment(&mut self, _: &FragmentDefinition) -> Transformed<FragmentDefinition> {
+        Transformed::Keep
     }
 }
 

@@ -1,0 +1,25 @@
+fragment Foo_user on User {
+  hobbit_name
+}
+
+fragment PopStarNameResolverFragment_name on User {
+  name
+  address {
+    street
+  }
+  parents {
+    lastName
+  }
+}
+
+fragment HobbitNameResolverFragment_name on User {
+  name
+  pop_star_name
+}
+
+# %extensions%
+
+extend type User {
+  pop_star_name: String @relay_resolver(fragment_name: "PopStarNameResolverFragment_name", import_path: "PopStarNameResolver")
+  hobbit_name: String @relay_resolver(fragment_name: "HobbitNameResolverFragment_name", import_path: "HobbitNameResolver")
+}

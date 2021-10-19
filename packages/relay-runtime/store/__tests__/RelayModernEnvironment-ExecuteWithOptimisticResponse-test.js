@@ -13,18 +13,20 @@
 
 'use strict';
 
-const RelayModernEnvironment = require('../RelayModernEnvironment');
-const RelayModernStore = require('../RelayModernStore');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const RelayRecordSource = require('../RelayRecordSource');
-
+const {getRequest, graphql} = require('../../query/GraphQLTag');
+const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../RelayModernSelector');
+const RelayModernStore = require('../RelayModernStore');
+const RelayRecordSource = require('../RelayRecordSource');
 const {ROOT_ID} = require('../RelayStoreUtils');
-const {generateAndCompile} = require('relay-test-utils-internal');
+const {disallowWarnings} = require('relay-test-utils-internal');
+
+disallowWarnings();
 
 describe('execute() with network that returns optimistic response', () => {
   let callbacks;
@@ -41,18 +43,18 @@ describe('execute() with network that returns optimistic response', () => {
   let variables;
 
   beforeEach(() => {
-    jest.resetModules();
-
-    ({ActorQuery: query} = generateAndCompile(`
-        query ActorQuery($fetchSize: Boolean!) {
-          me {
-            name
-            profilePicture(size: 42) @include(if: $fetchSize) {
-              uri
-            }
+    query = getRequest(graphql`
+      query RelayModernEnvironmentExecuteWithOptimisticResponseTestActorQuery(
+        $fetchSize: Boolean!
+      ) {
+        me {
+          name
+          profilePicture(size: 42) @include(if: $fetchSize) {
+            uri
           }
         }
-      `));
+      }
+    `);
     variables = {fetchSize: false};
     operation = createOperationDescriptor(query, {
       ...variables,
@@ -334,20 +336,20 @@ describe('execute() with network that returns optimistic response', () => {
     expect(complete).toBeCalledTimes(0);
     expect(error).toBeCalledTimes(1);
     expect(error.mock.calls[0][0].message).toContain(
-      'No data returned for operation `ActorQuery`',
+      'No data returned for operation `RelayModernEnvironmentExecuteWithOptimisticResponseTestActorQuery`',
     );
     expect(callback).toBeCalledTimes(0);
   });
 
   it('does fill missing fields from server-sent optimistic response with nulls when treatMissingFieldsAsNull is enabled', () => {
-    ({ActorQuery: query} = generateAndCompile(`
-        query ActorQuery {
-          me {
-            name
-            lastName
-          }
+    query = getRequest(graphql`
+      query RelayModernEnvironmentExecuteWithOptimisticResponseTestActor2Query {
+        me {
+          name
+          lastName
         }
-      `));
+      }
+    `);
     operation = createOperationDescriptor(query, {});
 
     environment = new RelayModernEnvironment({

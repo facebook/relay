@@ -35,18 +35,19 @@ export type noInlineFragmentQueryVariables = {|
 export type noInlineFragmentQueryResponse = {|
   +me: ?{|
     +address: ?{|
-      +$fragmentRefs: noInlineFragment_address$ref
+      +$fragmentRefs: noInlineFragment_address$ref,
     |},
     +$fragmentRefs: noInlineFragment_user$ref,
-  |}
+  |},
 |};
 export type noInlineFragmentQueryRawResponse = {|
   +me: ?{|
     ...noInlineFragment_user$normalization,
-    +address: ?{| ...noInlineFragment_address$normalization
+    +address: ?{|
+      ...noInlineFragment_address$normalization,
     |},
     +id: string,
-  |}
+  |},
 |};
 export type noInlineFragmentQuery = {|
   variables: noInlineFragmentQueryVariables,

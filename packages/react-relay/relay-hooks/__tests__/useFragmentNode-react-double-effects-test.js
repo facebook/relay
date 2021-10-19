@@ -11,16 +11,20 @@
 
 'use strict';
 
+const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
+const useFragmentNode = require('../useFragmentNode');
 // eslint-disable-next-line no-unused-vars
 const React = require('react');
-const ReactTestRenderer = require('react-test-renderer');
-const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
-
-const useFragmentNode = require('../useFragmentNode');
-const warning = require('warning');
-
 const {useEffect} = require('react');
-const {createOperationDescriptor} = require('relay-runtime');
+const ReactTestRenderer = require('react-test-renderer');
+const {
+  createOperationDescriptor,
+  getFragment,
+  getRequest,
+  graphql,
+} = require('relay-runtime');
+const {createMockEnvironment} = require('relay-test-utils');
+const warning = require('warning');
 
 let environment;
 let query;
@@ -37,28 +41,23 @@ describe.skip('useFragmentNode-react-double-effects-test', () => {
     jest.spyOn(console, 'warn').mockImplementationOnce(() => {});
     renderSpy = jest.fn();
 
-    const {
-      createMockEnvironment,
-      generateAndCompile,
-    } = require('relay-test-utils-internal');
-
     // Set up environment and base data
     environment = createMockEnvironment();
-    const generated = generateAndCompile(`
-    fragment UserFragment on User  {
-      id
-      name
-    }
 
-    query UserQuery($id: ID!) {
-      node(id: $id) {
-        ...UserFragment
+    gqlQuery = getRequest(graphql`
+      query useFragmentNodeReactDoubleEffectsTestUserQuery($id: ID!) {
+        node(id: $id) {
+          ...useFragmentNodeReactDoubleEffectsTestUserFragment
+        }
       }
-    }
-  `);
+    `);
     variables = {id: '1'};
-    gqlQuery = generated.UserQuery;
-    gqlFragment = generated.UserFragment;
+    gqlFragment = getFragment(graphql`
+      fragment useFragmentNodeReactDoubleEffectsTestUserFragment on User {
+        id
+        name
+      }
+    `);
     query = createOperationDescriptor(gqlQuery, variables);
     environment.commitPayload(query, {
       node: {
@@ -142,6 +141,7 @@ describe.skip('useFragmentNode-react-double-effects-test', () => {
       'commit: Alice Updated',
     ]);
     // Assert it updates and renders with updated data
+    // $FlowFixMe[incompatible-use]
     expect(instance.toJSON()).toEqual('Alice Updated');
   });
 });

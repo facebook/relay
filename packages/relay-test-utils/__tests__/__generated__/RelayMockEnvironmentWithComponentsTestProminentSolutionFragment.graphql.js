@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<710cd9f236703951cf2982c3100e7a1d>>
+ * @generated SignedSource<<fb632ec930082c00c3c0ccb1c78e9842>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,7 +22,7 @@ declare export opaque type RelayMockEnvironmentWithComponentsTestProminentSoluti
 export type RelayMockEnvironmentWithComponentsTestProminentSolutionFragment = {|
   +name: ?string,
   +profile_picture: ?{|
-    +uri: ?string
+    +uri: ?string,
   |},
   +$refType: RelayMockEnvironmentWithComponentsTestProminentSolutionFragment$ref,
 |};

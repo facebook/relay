@@ -13,21 +13,31 @@
 
 'use strict';
 
+import type {IEnvironment} from 'relay-runtime';
+import type {
+  ActorIdentifier,
+  IActorEnvironment,
+} from 'relay-runtime/multi-actor-environment';
+
 const React = require('react');
 const ReactRelayContext = require('react-relay/ReactRelayContext');
-
-import type {IEnvironment} from 'relay-runtime';
 
 const {useMemo} = React;
 
 type Props = $ReadOnly<{|
   children: React.Node,
   environment: IEnvironment,
+  getEnvironmentForActor?: ?(
+    actorIdentifier: ActorIdentifier,
+  ) => IActorEnvironment,
 |}>;
 
 function RelayEnvironmentProvider(props: Props): React.Node {
-  const {children, environment} = props;
-  const context = useMemo(() => ({environment}), [environment]);
+  const {children, environment, getEnvironmentForActor} = props;
+  const context = useMemo(() => ({environment, getEnvironmentForActor}), [
+    environment,
+    getEnvironmentForActor,
+  ]);
   return (
     <ReactRelayContext.Provider value={context}>
       {children}

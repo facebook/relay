@@ -8,7 +8,7 @@
 use fnv::{FnvBuildHasher, FnvHashMap};
 use graphql_syntax::FloatValue;
 use graphql_syntax::OperationKind;
-use indexmap::IndexMap;
+use indexmap::IndexSet;
 use interner::StringKey;
 
 #[derive(Eq, PartialEq, Hash, Debug)]
@@ -50,7 +50,8 @@ pub enum Primitive {
     Null,
     StorageKey(StringKey, AstKey),
     RawString(String),
-    ModuleDependency(StringKey),
+    GraphQLModuleDependency(StringKey),
+    JSModuleDependency(StringKey),
 }
 
 impl Primitive {
@@ -78,8 +79,6 @@ impl Primitive {
     }
 }
 
-type Table = IndexMap<Ast, usize, FnvBuildHasher>;
-
 #[derive(Eq, PartialEq, Hash, Copy, Clone, Debug)]
 pub struct AstKey(usize);
 
@@ -91,27 +90,26 @@ impl AstKey {
 
 #[derive(Default)]
 pub struct AstBuilder {
-    table: Table,
+    table: IndexSet<Ast, FnvBuildHasher>,
 }
 
 impl AstBuilder {
     pub fn intern(&mut self, ast: Ast) -> AstKey {
-        if let Some(ix) = self.table.get(&ast) {
-            AstKey(*ix)
-        } else {
-            let ix = self.table.len();
-            self.table.insert(ast, ix);
-            AstKey(ix)
-        }
+        AstKey(self.table.insert_full(ast).0)
     }
 
     pub fn lookup(&self, key: AstKey) -> &Ast {
-        self.table.get_index(key.as_usize()).unwrap().0
+        self.table.get_index(key.as_usize()).unwrap()
     }
 }
 
-pub struct RequestParameters {
-    pub id: Option<String>,
+pub enum QueryID {
+    Persisted { id: String, text_hash: String },
+    External(StringKey),
+}
+
+pub struct RequestParameters<'a> {
+    pub id: &'a Option<QueryID>,
     pub metadata: FnvHashMap<String, String>,
     pub name: StringKey,
     pub operation_kind: OperationKind,

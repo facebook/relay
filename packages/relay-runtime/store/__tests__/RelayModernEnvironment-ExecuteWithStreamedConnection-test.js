@@ -14,18 +14,21 @@
 'use strict';
 
 const ConnectionHandler = require('../../handlers/connection/ConnectionHandler');
-const RelayModernEnvironment = require('../RelayModernEnvironment');
-const RelayModernStore = require('../RelayModernStore');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const RelayRecordSource = require('../RelayRecordSource');
-
+const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
+const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
+const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../RelayModernSelector');
+const RelayModernStore = require('../RelayModernStore');
+const RelayRecordSource = require('../RelayRecordSource');
 const {VIEWER_ID} = require('../ViewerPattern');
-const {generateAndCompile} = require('relay-test-utils-internal');
+const {disallowWarnings, expectToWarn} = require('relay-test-utils-internal');
+
+disallowWarnings();
 
 describe('execute() fetches a @stream-ed @connection', () => {
   let callback;
@@ -45,45 +48,46 @@ describe('execute() fetches a @stream-ed @connection', () => {
   let variables;
 
   beforeEach(() => {
-    jest.resetModules();
-    jest.mock('warning');
-    jest.spyOn(console, 'warn').mockImplementation(() => undefined);
-
-    ({FeedQuery: query, FeedFragment: feedFragment} = generateAndCompile(`
-        query FeedQuery($enableStream: Boolean!, $after: ID) {
-          viewer {
-            ...FeedFragment
-          }
+    query = getRequest(graphql`
+      query RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedQuery(
+        $enableStream: Boolean!
+        $after: ID
+      ) {
+        viewer {
+          ...RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment
         }
+      }
+    `);
 
-        fragment FeedFragment on Viewer {
-          newsFeed(first: 10, after: $after)
+    feedFragment = getFragment(graphql`
+      fragment RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment on Viewer {
+        newsFeed(first: 10, after: $after)
           @stream_connection(
             key: "RelayModernEnvironment_newsFeed"
             if: $enableStream
             initial_count: 0
           ) {
-            edges {
-              cursor
-              node {
-                __typename
+          edges {
+            cursor
+            node {
+              __typename
+              id
+              feedback {
                 id
-                feedback {
+                actors {
                   id
-                  actors {
-                    id
-                    name @__clientField(handle: "name_handler")
-                  }
+                  name @__clientField(handle: "name_handler")
                 }
               }
             }
-            pageInfo {
-              endCursor
-              hasNextPage
-            }
+          }
+          pageInfo {
+            endCursor
+            hasNextPage
           }
         }
-      `));
+      }
+    `);
     variables = {enableStream: true, after: null};
     operation = createOperationDescriptor(query, variables);
     selector = createReaderSelector(
@@ -168,7 +172,8 @@ describe('execute() fetches a @stream-ed @connection', () => {
           },
         },
       },
-      label: 'FeedFragment$stream$RelayModernEnvironment_newsFeed',
+      label:
+        'RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment$stream$RelayModernEnvironment_newsFeed',
       path: ['viewer', 'newsFeed', 'edges', 0],
     });
     expect(error.mock.calls.map(call => call[0].stack)).toEqual([]);
@@ -205,7 +210,8 @@ describe('execute() fetches a @stream-ed @connection', () => {
           hasNextPage: true,
         },
       },
-      label: 'FeedFragment$defer$RelayModernEnvironment_newsFeed$pageInfo',
+      label:
+        'RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment$defer$RelayModernEnvironment_newsFeed$pageInfo',
       path: ['viewer', 'newsFeed'],
     });
     expect(error.mock.calls.map(call => call[0].stack)).toEqual([]);
@@ -273,7 +279,8 @@ describe('execute() fetches a @stream-ed @connection', () => {
           },
         },
       },
-      label: 'FeedFragment$stream$RelayModernEnvironment_newsFeed',
+      label:
+        'RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment$stream$RelayModernEnvironment_newsFeed',
       path: ['viewer', 'newsFeed', 'edges', 0],
     });
     // second edge should be appended, not replace first edge
@@ -295,7 +302,8 @@ describe('execute() fetches a @stream-ed @connection', () => {
           },
         },
       },
-      label: 'FeedFragment$stream$RelayModernEnvironment_newsFeed',
+      label:
+        'RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment$stream$RelayModernEnvironment_newsFeed',
       path: ['viewer', 'newsFeed', 'edges', 1],
     });
     expect(error.mock.calls.map(call => call[0].stack)).toEqual([]);
@@ -393,7 +401,8 @@ describe('execute() fetches a @stream-ed @connection', () => {
           },
         },
       },
-      label: 'FeedFragment$stream$RelayModernEnvironment_newsFeed',
+      label:
+        'RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment$stream$RelayModernEnvironment_newsFeed',
       path: ['viewer', 'newsFeed', 'edges', 1],
     });
     expect(error.mock.calls.map(call => call[0].stack)).toEqual([]);
@@ -492,7 +501,8 @@ describe('execute() fetches a @stream-ed @connection', () => {
             },
           },
         },
-        label: 'FeedFragment$stream$RelayModernEnvironment_newsFeed',
+        label:
+          'RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment$stream$RelayModernEnvironment_newsFeed',
         path: ['viewer', 'newsFeed', 'edges', 1],
       },
       {
@@ -513,7 +523,8 @@ describe('execute() fetches a @stream-ed @connection', () => {
             },
           },
         },
-        label: 'FeedFragment$stream$RelayModernEnvironment_newsFeed',
+        label:
+          'RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment$stream$RelayModernEnvironment_newsFeed',
         path: ['viewer', 'newsFeed', 'edges', 2],
       },
     ]);
@@ -605,7 +616,8 @@ describe('execute() fetches a @stream-ed @connection', () => {
           },
         },
       },
-      label: 'FeedFragment$stream$RelayModernEnvironment_newsFeed',
+      label:
+        'RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment$stream$RelayModernEnvironment_newsFeed',
       path: ['viewer', 'newsFeed', 'edges', 1],
     });
     // first edge arrives second
@@ -628,7 +640,8 @@ describe('execute() fetches a @stream-ed @connection', () => {
             },
           },
         },
-        label: 'FeedFragment$stream$RelayModernEnvironment_newsFeed',
+        label:
+          'RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment$stream$RelayModernEnvironment_newsFeed',
         path: ['viewer', 'newsFeed', 'edges', 2],
       },
       {
@@ -649,7 +662,8 @@ describe('execute() fetches a @stream-ed @connection', () => {
             },
           },
         },
-        label: 'FeedFragment$stream$RelayModernEnvironment_newsFeed',
+        label:
+          'RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment$stream$RelayModernEnvironment_newsFeed',
         path: ['viewer', 'newsFeed', 'edges', 0],
       },
     ]);
@@ -765,7 +779,8 @@ describe('execute() fetches a @stream-ed @connection', () => {
           },
         },
       },
-      label: 'FeedFragment$stream$RelayModernEnvironment_newsFeed',
+      label:
+        'RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment$stream$RelayModernEnvironment_newsFeed',
       path: ['viewer', 'newsFeed', 'edges', 1],
     });
     // first edge arrives second
@@ -787,7 +802,8 @@ describe('execute() fetches a @stream-ed @connection', () => {
           },
         },
       },
-      label: 'FeedFragment$stream$RelayModernEnvironment_newsFeed',
+      label:
+        'RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment$stream$RelayModernEnvironment_newsFeed',
       path: ['viewer', 'newsFeed', 'edges', 0],
     });
     expect(error.mock.calls.map(call => call[0].stack)).toEqual([]);
@@ -912,7 +928,8 @@ describe('execute() fetches a @stream-ed @connection', () => {
           },
         },
       },
-      label: 'FeedFragment$stream$RelayModernEnvironment_newsFeed',
+      label:
+        'RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment$stream$RelayModernEnvironment_newsFeed',
       path: ['viewer', 'newsFeed', 'edges', 0],
     });
     // third edge should be appended, not replace first edge
@@ -934,7 +951,8 @@ describe('execute() fetches a @stream-ed @connection', () => {
           },
         },
       },
-      label: 'FeedFragment$stream$RelayModernEnvironment_newsFeed',
+      label:
+        'RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment$stream$RelayModernEnvironment_newsFeed',
       path: ['viewer', 'newsFeed', 'edges', 1],
     });
     expect(error.mock.calls.map(call => call[0].stack)).toEqual([]);
@@ -1027,7 +1045,8 @@ describe('execute() fetches a @stream-ed @connection', () => {
           hasNextPage: false, // true => false
         },
       },
-      label: 'FeedFragment$defer$RelayModernEnvironment_newsFeed$pageInfo',
+      label:
+        'RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment$defer$RelayModernEnvironment_newsFeed$pageInfo',
       path: ['viewer', 'newsFeed'],
     });
     expect(error.mock.calls.map(call => call[0].stack)).toEqual([]);
@@ -1123,41 +1142,52 @@ describe('execute() fetches a @stream-ed @connection', () => {
     variables = {enableStream: true, after: 'cursor-1'};
     operation = createOperationDescriptor(query, variables);
     environment.execute({operation}).subscribe(callbacks);
-    dataSource.next({
-      data: {
-        viewer: {
-          newsFeed: {
-            edges: [],
+    expectToWarn(
+      'Relay: Unexpected after cursor `cursor-1`, edges must be fetched from the end of the list (`null`).',
+      () => {
+        dataSource.next({
+          data: {
+            viewer: {
+              newsFeed: {
+                edges: [],
+              },
+            },
           },
-        },
+        });
       },
-    });
+    );
     jest.runAllTimers();
     next.mockClear();
     callback.mockClear();
 
-    // second edge is ignored
-    dataSource.next({
-      data: {
-        cursor: 'cursor-2',
-        node: {
-          __typename: 'Story',
-          id: '2',
-          feedback: {
-            id: 'feedback-2',
-            actors: [
-              {
-                id: 'actor-2',
-                __typename: 'User',
-                name: 'Bob',
+    expectToWarn(
+      'Relay: Unexpected after cursor `cursor-1`, edges must be fetched from the end of the list (`null`).',
+      () => {
+        // second edge is ignored
+        dataSource.next({
+          data: {
+            cursor: 'cursor-2',
+            node: {
+              __typename: 'Story',
+              id: '2',
+              feedback: {
+                id: 'feedback-2',
+                actors: [
+                  {
+                    id: 'actor-2',
+                    __typename: 'User',
+                    name: 'Bob',
+                  },
+                ],
               },
-            ],
+            },
           },
-        },
+          label:
+            'RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment$stream$RelayModernEnvironment_newsFeed',
+          path: ['viewer', 'newsFeed', 'edges', 0],
+        });
       },
-      label: 'FeedFragment$stream$RelayModernEnvironment_newsFeed',
-      path: ['viewer', 'newsFeed', 'edges', 0],
-    });
+    );
     expect(error.mock.calls.map(call => call[0].stack)).toEqual([]);
     expect(next).toBeCalledTimes(1);
     // connection not updated with new edge, the after cursor doesn't match
@@ -1171,72 +1201,53 @@ describe('execute() fetches a @stream-ed @connection', () => {
     environment.subscribe(initialSnapshot, callback);
 
     environment.execute({operation}).subscribe(callbacks);
-    dataSource.next({
-      data: {
-        viewer: {
-          newsFeed: {
-            edges: [
-              {
-                cursor: 'cursor-1',
-                node: {
-                  __typename: 'Story',
-                  id: '1',
-                  feedback: {
-                    id: 'feedback-1',
-                    actors: [
-                      {
-                        id: 'actor-1',
-                        __typename: 'User',
-                        name: 'Alice',
+    expectToWarn(
+      'RelayModernEnvironment: Operation `RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedQuery` contains @defer/@stream directives but was executed in non-streaming mode. See https://fburl.com/relay-incremental-delivery-non-streaming-warning.',
+      () => {
+        dataSource.next({
+          data: {
+            viewer: {
+              newsFeed: {
+                edges: [
+                  {
+                    cursor: 'cursor-1',
+                    node: {
+                      __typename: 'Story',
+                      id: '1',
+                      feedback: {
+                        id: 'feedback-1',
+                        actors: [
+                          {
+                            id: 'actor-1',
+                            __typename: 'User',
+                            name: 'Alice',
+                          },
+                        ],
                       },
-                    ],
+                    },
                   },
+                ],
+                pageInfo: {
+                  endCursor: 'cursor-1',
+                  hasNextPage: true,
                 },
               },
-            ],
-            pageInfo: {
-              endCursor: 'cursor-1',
-              hasNextPage: true,
             },
           },
-        },
+          extensions: {
+            is_final: true,
+          },
+        });
       },
-      extensions: {
-        is_final: true,
-      },
-    });
+    );
     jest.runAllTimers();
 
     expect(error.mock.calls.map(call => call[0].stack)).toEqual([]);
     expect(next).toBeCalledTimes(1);
-    expect(callback).toBeCalledTimes(2);
     const snapshot = callback.mock.calls[0][0];
+    expect(callback).toBeCalledTimes(1);
     expect(snapshot.isMissingData).toBe(false);
     expect(snapshot.data).toEqual({
-      newsFeed: {
-        edges: [
-          {
-            cursor: 'cursor-1',
-            node: {
-              __typename: 'Story',
-              id: '1',
-              feedback: {
-                id: 'feedback-1',
-                actors: [{id: 'actor-1', name: 'ALICE'}],
-              },
-            },
-          },
-        ],
-        pageInfo: {
-          endCursor: null, // not initially processed
-          hasNextPage: false, // not initially processed
-        },
-      },
-    });
-    expect(callback).toBeCalledTimes(2);
-    const snapshot2 = callback.mock.calls[1][0];
-    expect(snapshot2.isMissingData).toBe(false);
-    expect(snapshot2.data).toEqual({
       newsFeed: {
         edges: [
           {
@@ -1348,7 +1359,8 @@ describe('execute() fetches a @stream-ed @connection', () => {
           },
         },
       },
-      label: 'FeedFragment$stream$RelayModernEnvironment_newsFeed',
+      label:
+        'RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment$stream$RelayModernEnvironment_newsFeed',
       path: ['viewer', 'newsFeed', 'edges', 0],
     });
     expect(error.mock.calls.map(call => call[0].stack)).toEqual([]);

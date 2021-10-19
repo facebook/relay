@@ -12,11 +12,6 @@
 
 'use strict';
 
-const IRValidator = require('../core/IRValidator');
-
-const {createUserError} = require('../core/CompilerError');
-const {getFieldDefinitionStrict} = require('../core/getFieldDefinition');
-
 import type CompilerContext from '../core/CompilerContext';
 import type {
   Directive,
@@ -25,7 +20,11 @@ import type {
   Root,
   SplitOperation,
 } from '../core/IR';
-import type {Schema, TypeID, Argument} from '../core/Schema';
+import type {Argument, Schema, TypeID} from '../core/Schema';
+
+const {createUserError} = require('../core/CompilerError');
+const {getFieldDefinitionStrict} = require('../core/getFieldDefinition');
+const IRValidator = require('../core/IRValidator');
 
 type State = {|
   +rootNode: Fragment | Root | SplitOperation,
@@ -51,6 +50,7 @@ function validateRequiredArguments(context: CompilerContext): CompilerContext {
 }
 
 function visitDirective(node: Directive, {rootNode}: State): void {
+  // $FlowFixMe[incompatible-use]
   const context: CompilerContext = this.getContext();
   const directiveDef = context.getSchema().getDirective(node.name);
   if (directiveDef == null) {
@@ -65,6 +65,7 @@ function visitDirective(node: Directive, {rootNode}: State): void {
 }
 
 function visitInlineFragment(fragment, {rootNode}: State): void {
+  // $FlowFixMe[incompatible-use]
   this.traverse(fragment, {
     rootNode,
     parentType: fragment.typeCondition,
@@ -72,6 +73,7 @@ function visitInlineFragment(fragment, {rootNode}: State): void {
 }
 
 function visitField(node: Field, {parentType, rootNode}: State): void {
+  // $FlowFixMe[incompatible-use]
   const context: CompilerContext = this.getContext();
   const schema = context.getSchema();
   const definition = getFieldDefinitionStrict(schema, parentType, node.name);
@@ -94,6 +96,7 @@ function visitField(node: Field, {parentType, rootNode}: State): void {
       rootNode,
     );
   }
+  // $FlowFixMe[incompatible-use]
   this.traverse(node, {
     rootNode,
     parentType: node.type,

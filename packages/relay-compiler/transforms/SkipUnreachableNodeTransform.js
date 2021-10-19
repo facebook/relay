@@ -12,12 +12,11 @@
 
 'use strict';
 
-const IRTransformer = require('../core/IRTransformer');
-
-const invariant = require('invariant');
-
 import type CompilerContext from '../core/CompilerContext';
 import type {Condition, Fragment, Node, Selection} from '../core/IR';
+
+const IRTransformer = require('../core/IRTransformer');
+const invariant = require('invariant');
 
 type ConditionResult = 'fail' | 'pass' | 'variable';
 

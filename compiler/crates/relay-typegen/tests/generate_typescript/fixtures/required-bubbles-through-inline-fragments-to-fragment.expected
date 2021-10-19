@@ -13,16 +13,16 @@ fragment Foo on Node {
 }
 ==================================== OUTPUT ===================================
 import { FragmentRefs } from "relay-runtime";
-export type Foo = ({
-  readonly __typename: "User",
-  readonly name: string,
+export type Foo = {
+  readonly __typename: "User";
+  readonly name: string;
+  readonly " $refType": FragmentRefs<"Foo">;
 } | {
-  readonly __typename: "Comment" | "Feedback" | "Page" | "PhotoStory" | "Story"
-}) & {
-  readonly " $refType": FragmentRefs<"Foo">
+  readonly __typename: "Comment" | "Feedback" | "Page" | "PhotoStory" | "Story";
+  readonly " $refType": FragmentRefs<"Foo">;
 } | null;
 export type Foo$data = Foo;
 export type Foo$key = {
-  readonly " $data"?: Foo$data,
-  readonly " $fragmentRefs": FragmentRefs<"Foo">,
+  readonly " $data"?: Foo$data;
+  readonly " $fragmentRefs": FragmentRefs<"Foo">;
 };

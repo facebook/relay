@@ -1,0 +1,30 @@
+==================================== INPUT ====================================
+fragment ServerComponentFragment on Query {
+  ...ClientFragment @relay_client_component
+}
+
+fragment ClientFragment on Query {
+  viewer {
+    isFbEmployee
+  }
+}
+==================================== OUTPUT ===================================
+query ClientFragment$normalization @__splitOperation(derivedFrom: "ClientFragment", parentDocuments: ["ServerComponentFragment"]) {
+  ...ClientFragment
+}
+
+fragment ClientFragment on Query {
+  viewer {
+    isFbEmployee
+  }
+}
+
+fragment ServerComponentFragment on Query @__RelayClientComponentMetadata
+# RelayClientComponentMetadata {
+#     split_operation_filenames: [
+#         "ClientFragment$normalization.graphql",
+#     ],
+# }
+ {
+  ...ClientFragment @relay_client_component_server(module_id: "ClientFragment$normalization.graphql")
+}

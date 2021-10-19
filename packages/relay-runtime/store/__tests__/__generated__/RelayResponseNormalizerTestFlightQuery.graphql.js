@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<20ce7d9cb89763255d6fb47df84698d1>>
+ * @generated SignedSource<<32ae41d7adf004ff7600baf292d70d9f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,8 +24,8 @@ export type RelayResponseNormalizerTestFlightQueryVariables = {|
 |};
 export type RelayResponseNormalizerTestFlightQueryResponse = {|
   +node: ?{|
-    +flightComponent?: ?any
-  |}
+    +flightComponent?: ?any,
+  |},
 |};
 export type RelayResponseNormalizerTestFlightQuery = {|
   variables: RelayResponseNormalizerTestFlightQueryVariables,

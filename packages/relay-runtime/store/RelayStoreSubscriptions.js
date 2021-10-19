@@ -12,23 +12,23 @@
 
 'use strict';
 
-const RelayFeatureFlags = require('../util/RelayFeatureFlags');
-const RelayReader = require('./RelayReader');
-
-const deepFreeze = require('../util/deepFreeze');
-const hasOverlappingIDs = require('./hasOverlappingIDs');
-const recycleNodesInto = require('../util/recycleNodesInto');
-
 import type {Disposable} from '../util/RelayRuntimeTypes';
 import type {
+  DataIDSet,
   LogFunction,
   OperationDescriptor,
-  DataIDSet,
   RecordSource,
   RequestDescriptor,
   Snapshot,
   StoreSubscriptions,
 } from './RelayStoreTypes';
+import type {ResolverCache} from './ResolverCache';
+
+const deepFreeze = require('../util/deepFreeze');
+const recycleNodesInto = require('../util/recycleNodesInto');
+const RelayFeatureFlags = require('../util/RelayFeatureFlags');
+const hasOverlappingIDs = require('./hasOverlappingIDs');
+const RelayReader = require('./RelayReader');
 
 type Subscription = {|
   callback: (snapshot: Snapshot) => void,
@@ -40,10 +40,12 @@ type Subscription = {|
 class RelayStoreSubscriptions implements StoreSubscriptions {
   _subscriptions: Set<Subscription>;
   __log: ?LogFunction;
+  _resolverCache: ResolverCache;
 
-  constructor(log?: ?LogFunction) {
+  constructor(log?: ?LogFunction, resolverCache: ResolverCache) {
     this._subscriptions = new Set();
     this.__log = log;
+    this._resolverCache = resolverCache;
   }
 
   subscribe(
@@ -77,7 +79,11 @@ class RelayStoreSubscriptions implements StoreSubscriptions {
         return;
       }
       const snapshot = subscription.snapshot;
-      const backup = RelayReader.read(source, snapshot.selector);
+      const backup = RelayReader.read(
+        source,
+        snapshot.selector,
+        this._resolverCache,
+      );
       const nextData = recycleNodesInto(snapshot.data, backup.data);
       (backup: $FlowFixMe).data = nextData; // backup owns the snapshot and can safely mutate
       subscription.backup = backup;
@@ -150,7 +156,7 @@ class RelayStoreSubscriptions implements StoreSubscriptions {
     }
     let nextSnapshot: Snapshot =
       hasOverlappingUpdates || !backup
-        ? RelayReader.read(source, snapshot.selector)
+        ? RelayReader.read(source, snapshot.selector, this._resolverCache)
         : backup;
     const nextData = recycleNodesInto(snapshot.data, nextSnapshot.data);
     nextSnapshot = ({

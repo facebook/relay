@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b934e9f6b3a6235c384ab2ee577094d9>>
+ * @generated SignedSource<<c9d93f5488f02b903f37f84f1dd8173c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,7 +22,7 @@ declare export opaque type DataCheckerTest5MarkdownUserNameRenderer_name$fragmen
 export type DataCheckerTest5MarkdownUserNameRenderer_name = {|
   +markdown: ?string,
   +data: ?{|
-    +markup: ?string
+    +markup: ?string,
   |},
   +$refType: DataCheckerTest5MarkdownUserNameRenderer_name$ref,
 |};

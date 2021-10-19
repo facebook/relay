@@ -12,10 +12,6 @@
 
 'use strict';
 
-const invariant = require('invariant');
-
-const {getStorageKey, ROOT_TYPE} = require('../store/RelayStoreUtils');
-
 import type {
   RecordProxy,
   RecordSourceProxy,
@@ -25,6 +21,9 @@ import type {
 import type {ReaderLinkedField} from '../util/ReaderNode';
 import type {DataID} from '../util/RelayRuntimeTypes';
 import type RelayRecordSourceMutator from './RelayRecordSourceMutator';
+
+const {ROOT_TYPE, getStorageKey} = require('../store/RelayStoreUtils');
+const invariant = require('invariant');
 
 /**
  * @internal
@@ -78,10 +77,15 @@ class RelayRecordSourceSelectorProxy implements RecordSourceSelectorProxy {
     fieldName: string,
     plural: boolean,
   ): ReaderLinkedField {
-    const field = selector.node.selections.find(
+    let field = selector.node.selections.find(
       selection =>
-        selection.kind === 'LinkedField' && selection.name === fieldName,
+        (selection.kind === 'LinkedField' && selection.name === fieldName) ||
+        (selection.kind === 'RequiredField' &&
+          selection.field.name === fieldName),
     );
+    if (field && field.kind === 'RequiredField') {
+      field = field.field;
+    }
     invariant(
       field && field.kind === 'LinkedField',
       'RelayRecordSourceSelectorProxy#getRootField(): Cannot find root ' +

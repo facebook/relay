@@ -24,23 +24,23 @@ fragment FriendFragment on User {
 ==================================== OUTPUT ===================================
 import type { FriendFragment$ref } from "FriendFragment.graphql";
 export type ExampleQueryVariables = {|
-  id: string
+  id: string,
 |};
 export type ExampleQueryResponse = {|
   +node: ?{|
     +username: ?string,
     +friends?: ?{|
-      +count: ?number
+      +count: ?number,
     |},
     +$fragmentRefs: FriendFragment$ref,
-  |}
+  |},
 |};
 export type ExampleQueryRawResponse = {|
   +node: ?{|
     +__typename: string,
     +username: ?string,
     +id: string,
-  |}
+  |},
 |};
 export type ExampleQuery = {|
   variables: ExampleQueryVariables,

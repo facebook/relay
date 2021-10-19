@@ -7,6 +7,7 @@
 
 mod errors;
 
+use common::Named;
 use errors::*;
 use fnv::{FnvHashMap, FnvHashSet};
 use interner::{Intern, StringKey};
@@ -102,10 +103,8 @@ impl<'schema> ValidationContext<'schema> {
                     ValidationContextType::TypeNode(type_name),
                 );
             }
-        } else {
-            if type_name == *QUERY {
-                self.add_error(SchemaValidationError::MissingRootType(type_name));
-            }
+        } else if type_name == *QUERY {
+            self.add_error(SchemaValidationError::MissingRootType(type_name));
         }
     }
 
@@ -305,14 +304,14 @@ impl<'schema> ValidationContext<'schema> {
         }
     }
 
-    fn validate_type_with_interfaces<T: TypeWithFields>(&self, type_: &T) {
+    fn validate_type_with_interfaces<T: TypeWithFields + Named>(&self, type_: &T) {
         let mut interface_names = FnvHashSet::default();
         for interface_id in type_.interfaces().iter() {
             let interface = self.schema.interface(*interface_id);
             if interface_names.contains(&interface.name) {
                 self.report_error(
                     SchemaValidationError::DuplicateInterfaceImplementation(
-                        type_.name().clone(),
+                        type_.name(),
                         interface.name,
                     ),
                     ValidationContextType::TypeNode(type_.name()),
@@ -324,7 +323,7 @@ impl<'schema> ValidationContext<'schema> {
         }
     }
 
-    fn validate_type_implements_interface<T: TypeWithFields>(
+    fn validate_type_implements_interface<T: TypeWithFields + Named>(
         &self,
         type_: &T,
         interface: &Interface,
@@ -410,11 +409,7 @@ impl<'schema> ValidationContext<'schema> {
 
             // Assert additional arguments must not be required.
             for object_argument in object_field.arguments.iter() {
-                if interface_field
-                    .arguments
-                    .iter()
-                    .find(|arg| arg.name == object_argument.name)
-                    .is_none()
+                if !interface_field.arguments.contains(object_argument.name)
                     && object_argument.type_.is_non_null()
                 {
                     self.report_error(
@@ -490,7 +485,7 @@ impl<'schema> ValidationContext<'schema> {
         if name.len() > 1 && chars.next() == Some('_') && chars.next() == Some('_') {
             self.report_error(
                 SchemaValidationError::InvalidNamePrefix(name.to_string()),
-                context.clone(),
+                context,
             );
         }
         if !TYPE_NAME_REGEX.is_match(name) {

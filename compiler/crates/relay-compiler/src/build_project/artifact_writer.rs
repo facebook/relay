@@ -122,7 +122,7 @@ struct ArtifactUpdateRecord {
     pub data: Vec<u8>,
 }
 
-fn from_utf8<S>(slice: &Vec<u8>, s: S) -> Result<S::Ok, S::Error>
+fn from_utf8<S>(slice: &[u8], s: S) -> Result<S::Ok, S::Error>
 where
     S: Serializer,
 {
@@ -210,7 +210,7 @@ fn ensure_file_directory_exists(file_path: &PathBuf) -> io::Result<()> {
 fn content_is_different(path: &PathBuf, content: &[u8]) -> io::Result<bool> {
     if path.exists() {
         let existing_content = std::fs::read(path)?;
-        Ok(&existing_content != content)
+        Ok(existing_content != content)
     } else {
         Ok(true)
     }

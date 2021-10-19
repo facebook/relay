@@ -11,35 +11,37 @@ mod requireable_field;
 use super::FeatureFlags;
 use fnv::FnvHashMap;
 use graphql_ir::{
-    Argument, ConstantValue, Directive, FragmentDefinition, InlineFragment, LinkedField,
+    associated_data_impl, Directive, Field, FragmentDefinition, InlineFragment, LinkedField,
     OperationDefinition, Program, ScalarField, Selection, Transformed, TransformedValue,
-    Transformer, ValidationMessage, Value,
+    Transformer, ValidationMessage,
 };
-use interner::Intern;
-use interner::StringKey;
+use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
 use requireable_field::{RequireableField, RequiredMetadata};
-use std::mem;
-use std::sync::Arc;
+use std::{mem, sync::Arc};
 
 lazy_static! {
     pub static ref REQUIRED_DIRECTIVE_NAME: StringKey = "required".intern();
     pub static ref ACTION_ARGUMENT: StringKey = "action".intern();
-    pub static ref REQUIRED_METADATA_KEY: StringKey = "__required".intern();
     pub static ref CHILDREN_CAN_BUBBLE_METADATA_KEY: StringKey = "__childrenCanBubbleNull".intern();
-    pub static ref PATH_METADATA_ARGUMENT: StringKey = "path".intern();
     static ref THROW_ACTION: StringKey = "THROW".intern();
     static ref LOG_ACTION: StringKey = "LOG".intern();
     static ref NONE_ACTION: StringKey = "NONE".intern();
     static ref INLINE_DIRECTIVE_NAME: StringKey = "inline".intern();
 }
 
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub struct RequiredMetadataDirective {
+    pub action: RequiredAction,
+    pub path: StringKey,
+}
+associated_data_impl!(RequiredMetadataDirective);
+
 pub fn required_directive(
     program: &Program,
     feature_flags: &FeatureFlags,
 ) -> DiagnosticsResult<Program> {
-    let mut transform =
-        RequiredDirective::new(program, feature_flags.enable_required_transform_for_prefix);
+    let mut transform = RequiredDirective::new(program, feature_flags.enable_required_transform);
 
     let next_program = transform
         .transform_program(program)
@@ -72,12 +74,11 @@ struct RequiredDirective<'s> {
     path_required_map: FnvHashMap<StringKey, MaybeRequiredField>,
     current_node_required_children: FnvHashMap<StringKey, RequiredField>,
     required_children_map: FnvHashMap<StringKey, FnvHashMap<StringKey, RequiredField>>,
-    prefix: Option<StringKey>,
-    operation_name: Option<StringKey>,
+    enabled: bool,
 }
 
 impl<'program> RequiredDirective<'program> {
-    fn new(program: &'program Program, prefix: Option<StringKey>) -> Self {
+    fn new(program: &'program Program, enabled: bool) -> Self {
         Self {
             program,
             errors: Default::default(),
@@ -87,8 +88,7 @@ impl<'program> RequiredDirective<'program> {
             path_required_map: Default::default(),
             current_node_required_children: Default::default(),
             required_children_map: Default::default(),
-            prefix,
-            operation_name: None,
+            enabled,
         }
     }
 
@@ -97,7 +97,6 @@ impl<'program> RequiredDirective<'program> {
         self.current_node_required_children = Default::default();
         self.parent_inline_fragment_directive = None;
         self.required_children_map = Default::default();
-        self.operation_name = Default::default();
     }
 
     fn assert_not_within_abstract_inline_fragment(&mut self, directive_location: &Location) {
@@ -183,26 +182,11 @@ impl<'program> RequiredDirective<'program> {
         let field_name = field.name_with_location(&self.program.schema);
 
         if let Some(metadata) = maybe_required {
-            let supported = match &self.prefix {
-                None => false,
-                Some(prefix) => {
-                    let operation_name = self
-                        .operation_name
-                        // If we're parsing a @required directive, we are inside a fragment.
-                        .unwrap()
-                        .lookup();
-                    // TODO(T74397896): Clean up once @required is rolled out
-                    prefix
-                        .lookup()
-                        .split('|')
-                        .any(|prefix| operation_name.starts_with(prefix))
-                }
-            };
-            if !supported {
+            if !self.enabled {
                 self.errors.push(Diagnostic::error(
                     ValidationMessage::RequiredNotSupported,
                     metadata.directive_location,
-                ))
+                ));
             }
             self.assert_not_within_abstract_inline_fragment(&metadata.directive_location);
             self.assert_not_within_inline_directive(&metadata.directive_location);
@@ -229,13 +213,13 @@ impl<'program> RequiredDirective<'program> {
         &mut self,
         required_metadata: RequiredMetadata,
     ) {
-        let parent_action = RequiredAction::from(required_metadata.action);
+        let parent_action = required_metadata.action;
         for required_child in self.current_node_required_children.values() {
-            if RequiredAction::from(required_child.required.action) < parent_action {
+            if required_child.required.action < parent_action {
                 self.errors.push(
                     Diagnostic::error(
                         ValidationMessage::RequiredFieldInvalidNesting {
-                            suggested_action: required_child.required.action,
+                            suggested_action: required_child.required.action.into(),
                         },
                         required_metadata.action_location,
                     )
@@ -255,7 +239,7 @@ impl<'program> RequiredDirective<'program> {
         let previous_required_children = match self.required_children_map.get(&field_path) {
             Some(it) => it,
             _ => {
-                // We haven't seen any other instances of this field, so there's no validaiton to perform.
+                // We haven't seen any other instances of this field, so there's no validation to perform.
                 return;
             }
         };
@@ -316,7 +300,6 @@ impl<'s> Transformer for RequiredDirective<'s> {
         fragment: &FragmentDefinition,
     ) -> Transformed<FragmentDefinition> {
         self.reset_state();
-        self.operation_name = Some(fragment.name.item);
         self.parent_inline_fragment_directive = fragment
             .directives
             .named(*INLINE_DIRECTIVE_NAME)
@@ -342,7 +325,6 @@ impl<'s> Transformer for RequiredDirective<'s> {
         operation: &OperationDefinition,
     ) -> Transformed<OperationDefinition> {
         self.reset_state();
-        self.operation_name = Some(operation.name.item);
         let selections = self.transform_selections(&operation.selections);
         let directives = maybe_add_children_can_bubble_metadata_directive(
             &operation.directives,
@@ -449,26 +431,17 @@ impl<'s> Transformer for RequiredDirective<'s> {
 fn add_metadata_directive(
     directives: &[Directive],
     path_name: StringKey,
-    action: StringKey,
+    action: RequiredAction,
 ) -> Vec<Directive> {
     let mut next_directives: Vec<Directive> = Vec::with_capacity(directives.len() + 1);
-    for directive in directives.iter() {
-        next_directives.push(directive.clone());
-    }
-
-    next_directives.push(Directive {
-        name: WithLocation::generated(*REQUIRED_METADATA_KEY),
-        arguments: vec![
-            Argument {
-                name: WithLocation::generated(*ACTION_ARGUMENT),
-                value: WithLocation::generated(Value::Constant(ConstantValue::String(action))),
-            },
-            Argument {
-                name: WithLocation::generated(*PATH_METADATA_ARGUMENT),
-                value: WithLocation::generated(Value::Constant(ConstantValue::String(path_name))),
-            },
-        ],
-    });
+    next_directives.extend(directives.iter().cloned());
+    next_directives.push(
+        RequiredMetadataDirective {
+            action,
+            path: path_name,
+        }
+        .into(),
+    );
     next_directives
 }
 
@@ -478,7 +451,7 @@ fn maybe_add_children_can_bubble_metadata_directive(
 ) -> TransformedValue<Vec<Directive>> {
     let children_can_bubble = current_node_required_children
         .values()
-        .any(|child| child.required.action != *THROW_ACTION);
+        .any(|child| child.required.action != RequiredAction::Throw);
 
     if !children_can_bubble {
         return TransformedValue::Keep;
@@ -491,43 +464,35 @@ fn maybe_add_children_can_bubble_metadata_directive(
     next_directives.push(Directive {
         name: WithLocation::generated(*CHILDREN_CAN_BUBBLE_METADATA_KEY),
         arguments: vec![],
+        data: None,
     });
     TransformedValue::Replace(next_directives)
 }
 
 // Possible @required `action` enum values ordered by severity.
-#[derive(PartialEq, PartialOrd, Debug)]
+#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Debug, Hash)]
 pub enum RequiredAction {
-    NONE,
-    LOG,
-    THROW,
+    None,
+    Log,
+    Throw,
 }
 
-impl RequiredAction {
-    pub fn from_directives(directives: Vec<Directive>) -> Option<Self> {
-        directives
-            .named(*REQUIRED_METADATA_KEY)
-            .map(|required_directive| {
-                Self::from(
-                    required_directive
-                        .arguments
-                        .named(*ACTION_ARGUMENT)
-                        .unwrap()
-                        .value
-                        .item
-                        .get_string_literal()
-                        .unwrap(),
-                )
-            })
+impl Into<StringKey> for RequiredAction {
+    fn into(self) -> StringKey {
+        match self {
+            RequiredAction::None => *NONE_ACTION,
+            RequiredAction::Log => *LOG_ACTION,
+            RequiredAction::Throw => *THROW_ACTION,
+        }
     }
 }
 
 impl From<StringKey> for RequiredAction {
     fn from(action: StringKey) -> Self {
         match action {
-            _ if action == *THROW_ACTION => Self::THROW,
-            _ if action == *LOG_ACTION => Self::LOG,
-            _ if action == *NONE_ACTION => Self::NONE,
+            _ if action == *THROW_ACTION => Self::Throw,
+            _ if action == *LOG_ACTION => Self::Log,
+            _ if action == *NONE_ACTION => Self::None,
             // Actions that don't conform to the GraphQL schema should have been filtered out in IR validation.
             _ => unreachable!(),
         }

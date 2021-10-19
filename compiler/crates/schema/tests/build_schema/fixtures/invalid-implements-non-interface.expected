@@ -11,7 +11,8 @@ type Page implements User {
 ==================================== ERROR ====================================
 ✖︎ Expected an interface type for name 'User', got 'Object(0)'.
 
-  <generated>:1:1
-    1 │ # expected-to-throw
-      │ ^
-    2 │
+  <generated>:7:22
+    6 │ 
+    7 │ type Page implements User {
+      │                      ^^^^
+    8 │   id: ID

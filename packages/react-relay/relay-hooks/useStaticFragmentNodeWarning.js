@@ -13,11 +13,10 @@
 
 'use strict';
 
-const warning = require('warning');
+import type {ReaderFragment} from 'relay-runtime';
 
 const {useRef} = require('react');
-
-import type {ReaderFragment} from 'relay-runtime';
+const warning = require('warning');
 
 function useStaticFragmentNodeWarning(
   fragmentNode: ReaderFragment,

@@ -76,6 +76,7 @@ Text Schema:Schema {
                     ),
                 ),
                 default_value: None,
+                description: None,
             },
         ],
         locations: [
@@ -85,6 +86,7 @@ Text Schema:Schema {
         ],
         repeatable: false,
         is_extension: false,
+        description: None,
     },
     Directive {
         name: "skip",
@@ -97,6 +99,7 @@ Text Schema:Schema {
                     ),
                 ),
                 default_value: None,
+                description: None,
             },
         ],
         locations: [
@@ -106,6 +109,7 @@ Text Schema:Schema {
         ],
         repeatable: false,
         is_extension: false,
+        description: None,
     },
     Directive {
         name: "source",
@@ -118,6 +122,7 @@ Text Schema:Schema {
                     ),
                 ),
                 default_value: None,
+                description: None,
             },
             Argument {
                 name: "name",
@@ -127,6 +132,7 @@ Text Schema:Schema {
                     ),
                 ),
                 default_value: None,
+                description: None,
             },
         ],
         locations: [
@@ -139,6 +145,7 @@ Text Schema:Schema {
         ],
         repeatable: false,
         is_extension: false,
+        description: None,
     },
 ]
  type_map: {
@@ -194,6 +201,7 @@ Text Schema:Schema {
             },
         ],
         directives: [],
+        description: None,
     },
 ]
  fields: [
@@ -209,6 +217,7 @@ Text Schema:Schema {
                     ),
                 ),
                 default_value: None,
+                description: None,
             },
         ],
         type_: Named(
@@ -218,6 +227,7 @@ Text Schema:Schema {
         parent_type: Some(
             Object(0),
         ),
+        description: None,
     },
     Field {
         name: "nodes",
@@ -235,6 +245,7 @@ Text Schema:Schema {
                     ),
                 ),
                 default_value: None,
+                description: None,
             },
         ],
         type_: NonNull(
@@ -250,6 +261,7 @@ Text Schema:Schema {
         parent_type: Some(
             Object(0),
         ),
+        description: None,
     },
     Field {
         name: "id",
@@ -264,6 +276,7 @@ Text Schema:Schema {
         parent_type: Some(
             Interface(0),
         ),
+        description: None,
     },
     Field {
         name: "id",
@@ -278,6 +291,7 @@ Text Schema:Schema {
         parent_type: Some(
             Object(1),
         ),
+        description: None,
     },
     Field {
         name: "name",
@@ -290,6 +304,7 @@ Text Schema:Schema {
         parent_type: Some(
             Object(1),
         ),
+        description: None,
     },
     Field {
         name: "id",
@@ -302,6 +317,7 @@ Text Schema:Schema {
         parent_type: Some(
             Object(2),
         ),
+        description: None,
     },
     Field {
         name: "type",
@@ -314,6 +330,7 @@ Text Schema:Schema {
         parent_type: Some(
             Object(2),
         ),
+        description: None,
     },
     Field {
         name: "clientName",
@@ -326,6 +343,7 @@ Text Schema:Schema {
         parent_type: Some(
             Object(3),
         ),
+        description: None,
     },
     Field {
         name: "nickname",
@@ -338,6 +356,7 @@ Text Schema:Schema {
         parent_type: Some(
             Object(1),
         ),
+        description: None,
     },
     Field {
         name: "client",
@@ -350,6 +369,7 @@ Text Schema:Schema {
         parent_type: Some(
             Object(1),
         ),
+        description: None,
     },
     Field {
         name: "__typename",
@@ -362,6 +382,7 @@ Text Schema:Schema {
         ),
         directives: [],
         parent_type: None,
+        description: None,
     },
     Field {
         name: "__token",
@@ -374,6 +395,7 @@ Text Schema:Schema {
         ),
         directives: [],
         parent_type: None,
+        description: None,
     },
     Field {
         name: "__id",
@@ -386,6 +408,42 @@ Text Schema:Schema {
         ),
         directives: [],
         parent_type: None,
+        description: None,
+    },
+    Field {
+        name: "strong_id__",
+        is_extension: true,
+        arguments: [],
+        type_: Named(
+            Scalar(4),
+        ),
+        directives: [],
+        parent_type: None,
+        description: None,
+    },
+    Field {
+        name: "is_fulfilled__",
+        is_extension: true,
+        arguments: [
+            Argument {
+                name: "name",
+                type_: NonNull(
+                    Named(
+                        Scalar(8),
+                    ),
+                ),
+                default_value: None,
+                description: None,
+            },
+        ],
+        type_: NonNull(
+            Named(
+                Scalar(8),
+            ),
+        ),
+        directives: [],
+        parent_type: None,
+        description: None,
     },
 ]
  input_objects: [
@@ -400,6 +458,7 @@ Text Schema:Schema {
                     ),
                 ),
                 default_value: None,
+                description: None,
             },
             Argument {
                 name: "lon",
@@ -409,6 +468,7 @@ Text Schema:Schema {
                     ),
                 ),
                 default_value: None,
+                description: None,
             },
             Argument {
                 name: "city",
@@ -416,6 +476,7 @@ Text Schema:Schema {
                     Scalar(8),
                 ),
                 default_value: None,
+                description: None,
             },
             Argument {
                 name: "zip",
@@ -423,6 +484,7 @@ Text Schema:Schema {
                     Scalar(7),
                 ),
                 default_value: None,
+                description: None,
             },
             Argument {
                 name: "previous_cities",
@@ -434,6 +496,7 @@ Text Schema:Schema {
                     ),
                 ),
                 default_value: None,
+                description: None,
             },
         ],
         directives: [
@@ -467,6 +530,7 @@ Text Schema:Schema {
                 ],
             },
         ],
+        description: None,
     },
 ]
  interfaces: [
@@ -481,6 +545,7 @@ Text Schema:Schema {
         ],
         directives: [],
         interfaces: [],
+        description: None,
     },
 ]
  objects: [
@@ -493,6 +558,7 @@ Text Schema:Schema {
         ],
         interfaces: [],
         directives: [],
+        description: None,
     },
     Object {
         name: "User",
@@ -507,6 +573,7 @@ Text Schema:Schema {
             InterfaceID(0),
         ],
         directives: [],
+        description: None,
     },
     Object {
         name: "Page",
@@ -517,6 +584,7 @@ Text Schema:Schema {
         ],
         interfaces: [],
         directives: [],
+        description: None,
     },
     Object {
         name: "ClientType",
@@ -526,6 +594,7 @@ Text Schema:Schema {
         ],
         interfaces: [],
         directives: [],
+        description: None,
     },
 ]
  scalars: [
@@ -533,26 +602,31 @@ Text Schema:Schema {
         name: "Int",
         is_extension: false,
         directives: [],
+        description: None,
     },
     Scalar {
         name: "Float",
         is_extension: false,
         directives: [],
+        description: None,
     },
     Scalar {
         name: "String",
         is_extension: false,
         directives: [],
+        description: None,
     },
     Scalar {
         name: "Boolean",
         is_extension: false,
         directives: [],
+        description: None,
     },
     Scalar {
         name: "ID",
         is_extension: false,
         directives: [],
+        description: None,
     },
     Scalar {
         name: "URL",
@@ -588,21 +662,25 @@ Text Schema:Schema {
                 ],
             },
         ],
+        description: None,
     },
     Scalar {
         name: "Float",
         is_extension: false,
         directives: [],
+        description: None,
     },
     Scalar {
         name: "Int",
         is_extension: false,
         directives: [],
+        description: None,
     },
     Scalar {
         name: "String",
         is_extension: false,
         directives: [],
+        description: None,
     },
 ]
  unions: [
@@ -614,6 +692,7 @@ Text Schema:Schema {
             ObjectID(2),
         ],
         directives: [],
+        description: None,
     },
 ]
  }
@@ -631,6 +710,7 @@ directives: [
                     ),
                 ),
                 default_value: None,
+                description: None,
             },
         ],
         locations: [
@@ -640,6 +720,7 @@ directives: [
         ],
         repeatable: false,
         is_extension: false,
+        description: None,
     },
     Directive {
         name: "skip",
@@ -652,6 +733,7 @@ directives: [
                     ),
                 ),
                 default_value: None,
+                description: None,
             },
         ],
         locations: [
@@ -661,6 +743,7 @@ directives: [
         ],
         repeatable: false,
         is_extension: false,
+        description: None,
     },
     Directive {
         name: "source",
@@ -673,6 +756,7 @@ directives: [
                     ),
                 ),
                 default_value: None,
+                description: None,
             },
             Argument {
                 name: "name",
@@ -682,6 +766,7 @@ directives: [
                     ),
                 ),
                 default_value: None,
+                description: None,
             },
         ],
         locations: [
@@ -694,6 +779,7 @@ directives: [
         ],
         repeatable: false,
         is_extension: false,
+        description: None,
     },
 ]
 enums: [
@@ -733,6 +819,7 @@ enums: [
             },
         ],
         directives: [],
+        description: None,
     },
 ]
 fields: [
@@ -747,6 +834,7 @@ fields: [
         parent_type: Some(
             Object(1),
         ),
+        description: None,
     },
     Field {
         name: "id",
@@ -761,6 +849,7 @@ fields: [
         parent_type: Some(
             Interface(0),
         ),
+        description: None,
     },
     Field {
         name: "id",
@@ -773,6 +862,7 @@ fields: [
         parent_type: Some(
             Object(2),
         ),
+        description: None,
     },
     Field {
         name: "type",
@@ -785,6 +875,7 @@ fields: [
         parent_type: Some(
             Object(2),
         ),
+        description: None,
     },
     Field {
         name: "node",
@@ -798,6 +889,7 @@ fields: [
                     ),
                 ),
                 default_value: None,
+                description: None,
             },
         ],
         type_: Named(
@@ -807,6 +899,7 @@ fields: [
         parent_type: Some(
             Object(3),
         ),
+        description: None,
     },
     Field {
         name: "nodes",
@@ -824,6 +917,7 @@ fields: [
                     ),
                 ),
                 default_value: None,
+                description: None,
             },
         ],
         type_: NonNull(
@@ -839,6 +933,7 @@ fields: [
         parent_type: Some(
             Object(3),
         ),
+        description: None,
     },
     Field {
         name: "id",
@@ -853,6 +948,7 @@ fields: [
         parent_type: Some(
             Object(0),
         ),
+        description: None,
     },
     Field {
         name: "name",
@@ -865,6 +961,7 @@ fields: [
         parent_type: Some(
             Object(0),
         ),
+        description: None,
     },
     Field {
         name: "nickname",
@@ -877,6 +974,7 @@ fields: [
         parent_type: Some(
             Object(0),
         ),
+        description: None,
     },
     Field {
         name: "client",
@@ -889,6 +987,7 @@ fields: [
         parent_type: Some(
             Object(0),
         ),
+        description: None,
     },
 ]
 input_objects: [
@@ -903,6 +1002,7 @@ input_objects: [
                     ),
                 ),
                 default_value: None,
+                description: None,
             },
             Argument {
                 name: "lon",
@@ -912,6 +1012,7 @@ input_objects: [
                     ),
                 ),
                 default_value: None,
+                description: None,
             },
             Argument {
                 name: "city",
@@ -919,6 +1020,7 @@ input_objects: [
                     Scalar(1),
                 ),
                 default_value: None,
+                description: None,
             },
             Argument {
                 name: "zip",
@@ -926,6 +1028,7 @@ input_objects: [
                     Scalar(4),
                 ),
                 default_value: None,
+                description: None,
             },
             Argument {
                 name: "previous_cities",
@@ -937,6 +1040,7 @@ input_objects: [
                     ),
                 ),
                 default_value: None,
+                description: None,
             },
         ],
         directives: [
@@ -970,6 +1074,7 @@ input_objects: [
                 ],
             },
         ],
+        description: None,
     },
 ]
 interfaces: [
@@ -984,6 +1089,7 @@ interfaces: [
         ],
         directives: [],
         interfaces: [],
+        description: None,
     },
 ]
 objects: [
@@ -995,6 +1101,7 @@ objects: [
         ],
         interfaces: [],
         directives: [],
+        description: None,
     },
     Object {
         name: "Page",
@@ -1005,6 +1112,7 @@ objects: [
         ],
         interfaces: [],
         directives: [],
+        description: None,
     },
     Object {
         name: "Query",
@@ -1015,6 +1123,7 @@ objects: [
         ],
         interfaces: [],
         directives: [],
+        description: None,
     },
     Object {
         name: "User",
@@ -1029,6 +1138,7 @@ objects: [
             InterfaceID(0),
         ],
         directives: [],
+        description: None,
     },
 ]
 scalars: [
@@ -1036,26 +1146,31 @@ scalars: [
         name: "Boolean",
         is_extension: false,
         directives: [],
+        description: None,
     },
     Scalar {
         name: "Float",
         is_extension: false,
         directives: [],
+        description: None,
     },
     Scalar {
         name: "ID",
         is_extension: false,
         directives: [],
+        description: None,
     },
     Scalar {
         name: "Int",
         is_extension: false,
         directives: [],
+        description: None,
     },
     Scalar {
         name: "String",
         is_extension: false,
         directives: [],
+        description: None,
     },
     Scalar {
         name: "URL",
@@ -1091,6 +1206,7 @@ scalars: [
                 ],
             },
         ],
+        description: None,
     },
 ]
 unions: [
@@ -1102,6 +1218,7 @@ unions: [
             ObjectID(2),
         ],
         directives: [],
+        description: None,
     },
 ]
 }

@@ -18,26 +18,26 @@ query ScalarHandleField($id: ID!) @raw_response_type {
 }
 ==================================== OUTPUT ===================================
 export type LinkedHandleFieldVariables = {|
-  id: string
+  id: string,
 |};
 export type LinkedHandleFieldResponse = {|
   +node: ?{|
     +friends?: ?{|
-      +count: ?number
-    |}
-  |}
+      +count: ?number,
+    |},
+  |},
 |};
 export type LinkedHandleFieldRawResponse = {|
   +node: ?({|
     +__typename: "User",
     +id: string,
     +friends: ?{|
-      +count: ?number
+      +count: ?number,
     |},
   |} | {|
     +__typename: string,
     +id: string,
-  |})
+  |}),
 |};
 export type LinkedHandleField = {|
   variables: LinkedHandleFieldVariables,
@@ -46,12 +46,12 @@ export type LinkedHandleField = {|
 |};
 -------------------------------------------------------------------------------
 export type ScalarHandleFieldVariables = {|
-  id: string
+  id: string,
 |};
 export type ScalarHandleFieldResponse = {|
   +node: ?{|
-    +name?: ?string
-  |}
+    +name?: ?string,
+  |},
 |};
 export type ScalarHandleFieldRawResponse = {|
   +node: ?({|
@@ -61,7 +61,7 @@ export type ScalarHandleFieldRawResponse = {|
   |} | {|
     +__typename: string,
     +id: string,
-  |})
+  |}),
 |};
 export type ScalarHandleField = {|
   variables: ScalarHandleFieldVariables,

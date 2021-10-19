@@ -12,10 +12,10 @@
 
 'use strict';
 
+import type {SourceModuleParser} from './RelaySourceModuleParser';
+
 const FindGraphQLTags = require('../language/javascript/FindGraphQLTags');
 const RelaySourceModuleParser = require('./RelaySourceModuleParser');
-
-import type {SourceModuleParser} from './RelaySourceModuleParser';
 
 const JSModuleParser: SourceModuleParser = RelaySourceModuleParser(
   FindGraphQLTags.find,

@@ -1,0 +1,17 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment Foo on User {
+  ... on Node {
+    ... on Page {
+      __typename
+    }
+  }
+}
+==================================== ERROR ====================================
+✖︎ Invalid type 'Page' in inline fragment, this type can never occur for parent type 'User'
+
+  inline-fragment-within-wrong-parent-type.invalid.graphql:4:12
+    3 │   ... on Node {
+    4 │     ... on Page {
+      │            ^^^^
+    5 │       __typename

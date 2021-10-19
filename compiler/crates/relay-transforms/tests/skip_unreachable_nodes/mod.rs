@@ -10,5 +10,5 @@ use graphql_test_helpers::apply_transform_for_test;
 use relay_transforms::skip_unreachable_node;
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
-    apply_transform_for_test(fixture, |program| Ok(skip_unreachable_node(program)))
+    apply_transform_for_test(fixture, skip_unreachable_node)
 }

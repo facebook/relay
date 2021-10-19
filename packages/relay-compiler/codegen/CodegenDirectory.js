@@ -12,15 +12,14 @@
 
 'use strict';
 
-const Profiler = require('../core/GraphQLCompilerProfiler');
-
-const crypto = require('crypto');
-const invariant = require('invariant');
-const path = require('path');
-
 // flowlint nonstrict-import:warn
 import type {KeepExtraFileFn} from './CodegenRunner';
 import type {SourceControl} from './SourceControl';
+
+const Profiler = require('../core/GraphQLCompilerProfiler');
+const crypto = require('crypto');
+const invariant = require('invariant');
+const path = require('path');
 
 type Changes = {|
   +deleted: Array<string>,
@@ -34,7 +33,7 @@ export interface Filesystem {
   mkdirSync(path: string): void;
   readdirSync(path: string): Array<string>;
   readFileSync(path: string, encoding: string): string;
-  statSync(path: string): {isDirectory(): boolean, ...};
+  statSync(path: string): interface {isDirectory(): boolean};
   unlinkSync(path: string): void;
   writeFileSync(filename: string, data: string, options: string): void;
 }

@@ -5,8 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use common::{DiagnosticDisplay, WithDiagnosticData};
 use graphql_syntax::OperationKind;
-use interner::StringKey;
+use interner::{Intern, StringKey};
 use schema::{Type, TypeReference};
 use thiserror::Error;
 
@@ -15,23 +16,14 @@ use thiserror::Error;
 pub enum ValidationMessage {
     #[error("Duplicate definitions for '{0}'")]
     DuplicateDefinition(StringKey),
-    #[error("Unknown type '{0}'")]
-    UnknownType(StringKey),
     #[error("Undefined fragment '{0}'")]
     UndefinedFragment(StringKey),
     #[error("Expected an object, interface, or union, found '{0:?}'")]
     ExpectedCompositeType(Type),
     #[error("Expected type '{0:?}")]
     ExpectedType(TypeReference),
-    #[error("The type `{type_}` has no field `{field}`")]
-    UnknownField { type_: StringKey, field: StringKey },
     #[error("Expected no selections on scalar field `{field_name}` of type `{type_name}`")]
     InvalidSelectionsOnScalarField {
-        field_name: StringKey,
-        type_name: StringKey,
-    },
-    #[error("Expected selections on field `{field_name}` of type `{type_name}`")]
-    ExpectedSelectionsOnObjectField {
         field_name: StringKey,
         type_name: StringKey,
     },
@@ -86,15 +78,17 @@ pub enum ValidationMessage {
     )]
     VariableDefinitionsAndArgumentDirective(),
     #[error(
-        "Expected @argumentDefinitions value to have a 'type' field with a literal string value (e.g. 'type: \"Int!\"')"
+        "Expected `@argumentDefinitions` value to have a `type` field with a literal string value (e.g. `type: \"Int!\"`)"
     )]
     ExpectedArgumentDefinitionLiteralType(),
     #[error(
-        "Expected @argumentDefinitions value to be an object with 'type' and (optionally) 'defaultValue' properties"
+        "Expected `@argumentDefinitions` value to be an object with `type` and (optionally) `defaultValue` properties"
     )]
     ExpectedArgumentDefinitionToBeObject(),
     #[error("Expected '@argumentDefinitions' directive to be used on fragment definitions only.")]
     ExpectedArgumentDefinitionsDirectiveOnFragmentDefinition(),
+    #[error("Non-nullable variable '{variable_name}' has a default value.")]
+    NonNullableVariableHasDefaultValue { variable_name: StringKey },
     #[error(
         "Variable was defined as type '{defined_type}' but used where a variable of type '{used_type}' is expected."
     )]
@@ -138,9 +132,9 @@ pub enum ValidationMessage {
     InvalidDirectiveUsageUnsupportedLocation(StringKey),
 
     #[error(
-        "Invalid values passed to '@arguments', supported options include 'type' and 'defaultValue', got '{0}'"
+        "Invalid value passed to `@argumentDefinitions`, supported options include `type` and `defaultValue`, got `{0}`"
     )]
-    InvalidArgumentsKeys(String),
+    InvalidArgumentDefinitionsKey(StringKey),
 
     #[error("Unexpected arguments on `__typename` field")]
     InvalidArgumentsOnTypenameField(),
@@ -385,7 +379,9 @@ pub enum ValidationMessage {
         type_name: StringKey,
         alias_path: String,
     },
-    #[error("Found conflicting @module selections: use a unique alias on the parent fields")]
+    #[error(
+        "Each field on a given type can have only a single @module directive, but here there is more than one (perhaps within different spreads). To fix it, put each @module directive into its own aliased copy of the field with different aliases."
+    )]
     ConflictingModuleSelections,
 
     #[error(
@@ -400,7 +396,7 @@ pub enum ValidationMessage {
         directive_name: StringKey,
     },
     #[error(
-        "Invalid use of @defer on an inline fragment, @defer is only supported on fragment spreads."
+        "Invalid use of @defer on an inline fragment. Relay only supports @defer on fragment spreads."
     )]
     InvalidDeferOnInlineFragment,
 
@@ -410,11 +406,35 @@ pub enum ValidationMessage {
     #[error("Invalid use of @stream, the 'initial_count' argument is required.")]
     StreamInitialCountRequired,
 
+    #[error("Field '{field_name}' is not of list type, therefore cannot use @stream directive.")]
+    StreamFieldIsNotAList { field_name: StringKey },
+
     #[error("Variable `${variable_name}` is never used in operation `{operation_name}`")]
     UnusedVariable {
         variable_name: StringKey,
         operation_name: StringKey,
     },
+
+    #[error(
+        "Variable `${variable_name}` is never used in fragment `{fragment_name}`. `@argumentDefinitions` defines local variables, global variables are implicitly available."
+    )]
+    UnusedFragmentVariable {
+        variable_name: StringKey,
+        fragment_name: StringKey,
+    },
+
+    #[error(
+        "Variable `${variable_name}` of fragment `{fragment_name}` is marked as unused using `unusedLocalVariable_DEPRECATED: true`, but is actually used. `unusedLocalVariable_DEPRECATED: true` should be removed."
+    )]
+    UselessUnusedFragmentVariableAnnotation {
+        variable_name: StringKey,
+        fragment_name: StringKey,
+    },
+
+    #[error(
+        "`unusedLocalVariable_DEPRECATED` can only be set to a constant `true` value. Remove the `unusedLocalVariable_DEPRECATED` or update the value."
+    )]
+    InvalidUnusedFragmentVariableSuppressionArg,
 
     #[error(
         "Invalid usage of '@DEPRECATED__relay_ignore_unused_variables_error'. No unused variables found in the query '{operation_name}'."
@@ -427,22 +447,24 @@ pub enum ValidationMessage {
         variables_string: String,
     },
 
-    #[error("Expected the 'queryName' argument of @refetchable to be provided")]
-    QueryNameRequired,
-
     #[error(
         "Expected the 'queryName' argument of @refetchable to be a string, got '{query_name_value}"
     )]
     ExpectQueryNameToBeString { query_name_value: String },
 
     #[error(
-        "Duplicate definition for @refetchable operation '{query_name}' from fragments '{fragment_name}' and '{previous_fragment_name}'"
+        "Duplicate definition for @refetchable operation '{query_name}' from fragments '{first_fragment_name}' and '{second_fragment_name}'"
     )]
     DuplicateRefetchableOperation {
         query_name: StringKey,
-        fragment_name: StringKey,
-        previous_fragment_name: StringKey,
+        first_fragment_name: StringKey,
+        second_fragment_name: StringKey,
     },
+
+    #[error(
+        r#"When provided, the `directives` argument to `@refetchable` needs to be a list of literal strings. Each string should be a server directive valid on queries. Example: `@refetchable(queryName: "ExampleQuery", directives: ["@owner(name: \"an owner\")"])"#
+    )]
+    RefetchableDirectivesArgRequiresLiteralStringList,
 
     #[error(
         "Invalid use of @refetchable on fragment '{fragment_name}', only supported are fragments on:\n{descriptions}"
@@ -461,6 +483,11 @@ pub enum ValidationMessage {
         "Invalid use of @refetchable on fragment `{fragment_name}`, this fragment already has an `$id` variable in scope."
     )]
     RefetchableFragmentOnNodeWithExistingID { fragment_name: StringKey },
+
+    #[error(
+        "Invalid use of @refetchable on fragment `{fragment_name}`, fragments cannot be annotated with both @refetchable and @relay(plural: true)."
+    )]
+    InvalidRefetchableFragmentWithRelayPlural { fragment_name: StringKey },
 
     #[error(
         "Invalid use of @refetchable on fragment '{fragment_name}', check that your schema defines a `Node {{ id: ID }}` interface and has a `node(id: ID): Node` field on the query type (the id argument may also be non-null)."
@@ -516,14 +543,6 @@ pub enum ValidationMessage {
     InlineDataFragmentArgumentsNotSupported,
     #[error("Directives on fragment spreads for @inline fragments are not yet supported")]
     InlineDataFragmentDirectivesNotSupported,
-
-    #[error("A relay_early_flush field should be defined on Query on the server schema.")]
-    UnavailableRelayEarlyFlushServerSchema,
-
-    #[error(
-        "Expected the {query_name} argument to exist in relay_early_flush on the server schema."
-    )]
-    RelayEarlyFlushSchemaWithoutQueryNameArg { query_name: StringKey },
 
     #[error("Subscription '{subscription_name}' must have a single selection")]
     GenerateSubscriptionNameSingleSelectionItem { subscription_name: StringKey },
@@ -619,15 +638,7 @@ pub enum ValidationMessage {
     InvalidFlightFieldReturnType,
 
     #[error(
-        "Expected all fields on the same parent with the name or alias `{field_name}` to have the same argument values after appling fragment arguments. This field has the applied argument values: {arguments_a}"
-    )]
-    InvalidSameFieldWithDifferentArguments {
-        field_name: StringKey,
-        arguments_a: String,
-    },
-
-    #[error(
-        "Unexpected @required within inline fragment on an abstract type. At runtime we cannot know if this field is null, or if it's missing beacuse the inline fragment did not match"
+        "Unexpected @required within inline fragment on an abstract type. At runtime we cannot know if this field is null, or if it's missing because the inline fragment did not match"
     )]
     RequiredWithinAbstractInlineFragment,
 
@@ -673,6 +684,18 @@ pub enum ValidationMessage {
     )]
     LocalGlobalVariableConflict { name: StringKey },
 
+    #[error("The field `{parent_name}.{field_name}` is deprecated.{}",
+        match deprecation_reason {
+            Some(reason) => format!(" Deprecation reason: \"{}\"", reason),
+            None => "".to_string()
+        }
+    )]
+    DeprecatedField {
+        parent_name: StringKey,
+        field_name: StringKey,
+        deprecation_reason: Option<StringKey>,
+    },
+
     #[error("Missing required {}: `{}`",
         if missing_arg_names.len() > 1 { "arguments" } else { "argument" },
         missing_arg_names
@@ -701,4 +724,76 @@ pub enum ValidationMessage {
 
     #[error("Duplicate variable `{name}`")]
     DuplicateVariable { name: StringKey },
+
+    #[error(
+        "The `raw_response_type` argument should be set to `true` for the @no_inline fragment `{fragment_name}` used in the query with @raw_response_type."
+    )]
+    RequiredRawResponseTypeOnNoInline { fragment_name: StringKey },
+}
+
+#[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]
+pub enum ValidationMessageWithData {
+    #[error("Unknown type '{type_name}'.{suggestions}", suggestions = did_you_mean(suggestions))]
+    UnknownType {
+        type_name: StringKey,
+        suggestions: Vec<StringKey>,
+    },
+    #[error("The type `{type_}` has no field `{field}`.{suggestions}", suggestions = did_you_mean(suggestions))]
+    UnknownField {
+        type_: StringKey,
+        field: StringKey,
+        suggestions: Vec<StringKey>,
+    },
+    #[error("Expected selections on field `{field_name}` of type `{type_name}`")]
+    ExpectedSelectionsOnObjectField {
+        field_name: StringKey,
+        type_name: StringKey,
+    },
+}
+
+impl WithDiagnosticData for ValidationMessageWithData {
+    fn get_data(&self) -> Vec<Box<dyn DiagnosticDisplay>> {
+        match self {
+            ValidationMessageWithData::UnknownType { suggestions, .. }
+            | ValidationMessageWithData::UnknownField { suggestions, .. } => suggestions
+                .iter()
+                .map(|suggestion| into_box(*suggestion))
+                .collect::<_>(),
+            ValidationMessageWithData::ExpectedSelectionsOnObjectField { field_name, .. } => {
+                vec![Box::new(format!("{} {{ }}", field_name))]
+            }
+        }
+    }
+}
+
+fn into_box(item: StringKey) -> Box<dyn DiagnosticDisplay> {
+    Box::new(item)
+}
+
+/// Given [ A, B, C ] return ' Did you mean A, B, or C?'.
+fn did_you_mean(suggestions: &[StringKey]) -> String {
+    if suggestions.is_empty() {
+        return "".to_string();
+    }
+
+    let suggestions_string = match suggestions.len() {
+        1 => format!("`{}`", suggestions[0].lookup()),
+        2 => format!("`{}` or `{}`", suggestions[0], suggestions[1]),
+        _ => {
+            let mut suggestions = suggestions.to_vec();
+            let last_option = suggestions.pop();
+
+            format!(
+                "{}, or `{}`",
+                suggestions
+                    .iter()
+                    .map(|suggestion| format!("`{}`", suggestion.lookup()))
+                    .collect::<Vec<String>>()
+                    .join(", "),
+                last_option.unwrap_or_else(|| "".intern())
+            )
+        }
+    };
+
+    format!(" Did you mean {}?", suggestions_string)
 }

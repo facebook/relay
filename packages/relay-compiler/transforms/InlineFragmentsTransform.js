@@ -12,12 +12,11 @@
 
 'use strict';
 
-const IRTransformer = require('../core/IRTransformer');
-
-const invariant = require('invariant');
-
 import type CompilerContext from '../core/CompilerContext';
-import type {InlineFragment, Fragment, FragmentSpread} from '../core/IR';
+import type {Fragment, FragmentSpread, InlineFragment} from '../core/IR';
+
+const IRTransformer = require('../core/IRTransformer');
+const invariant = require('invariant');
 
 type FragmentVisitorCache = Map<FragmentSpread, FragmentSpread>;
 type FragmentVisitor = (fragmentSpread: FragmentSpread) => ?FragmentSpread;
@@ -48,6 +47,7 @@ function fragmentSpreadVisitor(cache: FragmentVisitorCache): FragmentVisitor {
         'arguments. Use the `ApplyFragmentArgumentTransform` before flattening',
       fragmentSpread.name,
     );
+    // $FlowFixMe[incompatible-use]
     const fragment: Fragment = this.getContext().getFragment(
       fragmentSpread.name,
       fragmentSpread.loc,
@@ -60,6 +60,7 @@ function fragmentSpreadVisitor(cache: FragmentVisitorCache): FragmentVisitor {
       selections: fragment.selections,
       typeCondition: fragment.type,
     };
+    // $FlowFixMe[incompatible-use]
     traverseResult = this.traverse(result);
     cache.set(fragmentSpread, traverseResult);
     return traverseResult;

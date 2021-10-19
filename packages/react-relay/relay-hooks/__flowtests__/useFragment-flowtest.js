@@ -11,8 +11,16 @@
 
 // flowlint ambiguous-object-type:error
 
+import type {
+  NonNullableData,
+  NonNullablePluralData,
+  NullableData,
+  NullablePluralData,
+} from './utils';
+
 import useFragment from '../useFragment';
 import {
+  fragmentData,
   fragmentInput,
   keyAnotherNonNullable,
   keyAnotherNullable,
@@ -20,13 +28,6 @@ import {
   keyNonNullablePlural,
   keyNullable,
   keyNullablePlural,
-  fragmentData,
-} from './utils';
-import type {
-  NonNullableData,
-  NonNullablePluralData,
-  NullableData,
-  NullablePluralData,
 } from './utils';
 
 /* eslint-disable react-hooks/rules-of-hooks */

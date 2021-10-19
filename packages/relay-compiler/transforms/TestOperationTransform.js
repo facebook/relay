@@ -13,11 +13,11 @@
 
 'use strict';
 
-const IRTransformer = require('../core/IRTransformer');
-
 import type CompilerContext from '../core/CompilerContext';
 import type {Root} from '../core/IR';
 import type {Schema, TypeID} from '../core/Schema';
+
+const IRTransformer = require('../core/IRTransformer');
 
 // The purpose of this directive is to add GraphQL type inform for fields in
 // the operation selection in order to use in in RelayMockPayloadGenerator
@@ -57,6 +57,7 @@ function getTypeDetails(schema: Schema, fieldType: TypeID): TypeDetails {
 }
 
 function visitRoot(node: Root) {
+  // $FlowFixMe[incompatible-use]
   const schema: Schema = this.getContext().getSchema();
   const testDirective = node.directives.find(
     directive => directive.name === 'relay_test_operation',

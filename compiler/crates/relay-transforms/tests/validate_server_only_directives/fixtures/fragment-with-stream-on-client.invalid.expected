@@ -26,10 +26,10 @@ type Foo {
 ==================================== ERROR ====================================
 ✖︎ Unexpected directive: 'stream'. This directive can only be used on fields/fragments that are fetched from the server schema, but it is used inside a client-only selection.
 
-  fragment-with-stream-on-client.invalid.graphql:11:9
+  fragment-with-stream-on-client.invalid.graphql:11:8
    10 │   id
    11 │   foos @stream(initial_count: 1, label: "StreamedActorsLabel") {
-      │         ^^^^^^
+      │        ^^^^^^^
    12 │     bar
 
   ℹ︎ related location

@@ -87,7 +87,7 @@ export type NormalizationInlineFragment = {|
 
 export type NormalizationFragmentSpread = {|
   +kind: 'FragmentSpread',
-  +fragment: NormalizationNode,
+  +fragment: NormalizationSplitOperation,
   +args: ?$ReadOnlyArray<NormalizationArgument>,
 |};
 
@@ -102,7 +102,13 @@ export type NormalizationLinkedField = {|
   +selections: $ReadOnlyArray<NormalizationSelection>,
 |};
 
+export type NormalizationActorChange = {|
+  +kind: 'ActorChange',
+  +linkedField: NormalizationLinkedField,
+|};
+
 export type NormalizationModuleImport = {|
+  +args: ?$ReadOnlyArray<NormalizationArgument>,
   +kind: 'ModuleImport',
   +documentName: string,
   +fragmentPropName: string,
@@ -154,6 +160,12 @@ export type NormalizationFlightField = {|
   +storageKey: ?string,
 |};
 
+export type NormalizationClientComponent = {|
+  +args?: ?$ReadOnlyArray<NormalizationArgument>,
+  +kind: 'ClientComponent',
+  +fragment: NormalizationNode,
+|};
+
 export type NormalizationTypeDiscriminator = {|
   +kind: 'TypeDiscriminator',
   +abstractKey: string,
@@ -161,6 +173,7 @@ export type NormalizationTypeDiscriminator = {|
 
 export type NormalizationSelection =
   | NormalizationCondition
+  | NormalizationClientComponent
   | NormalizationClientExtension
   | NormalizationDefer
   | NormalizationField
@@ -170,9 +183,11 @@ export type NormalizationSelection =
   | NormalizationInlineFragment
   | NormalizationModuleImport
   | NormalizationStream
+  | NormalizationActorChange
   | NormalizationTypeDiscriminator;
 
 export type NormalizationSplitOperation = {|
+  +argumentDefinitions?: $ReadOnlyArray<NormalizationLocalArgumentDefinition>,
   +kind: 'SplitOperation',
   +name: string,
   +metadata: ?{+[key: string]: mixed, ...},
@@ -183,8 +198,6 @@ export type NormalizationStream = {|
   +if: string | null,
   +kind: 'Stream',
   +label: string,
-  +useCustomizedBatch: string | null,
-  +metadata: ?{+[key: string]: mixed, ...},
   +selections: $ReadOnlyArray<NormalizationSelection>,
 |};
 

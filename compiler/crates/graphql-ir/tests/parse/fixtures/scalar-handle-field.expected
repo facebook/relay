@@ -21,13 +21,13 @@ fragment ScalarHandleField on User {
                     alias: None,
                     definition: WithLocation {
                         location: scalar-handle-field.graphql:39:43,
-                        item: FieldID(466),
+                        item: FieldID(469),
                     },
                     arguments: [],
                     directives: [
                         Directive {
                             name: WithLocation {
-                                location: scalar-handle-field.graphql:49:62,
+                                location: scalar-handle-field.graphql:48:62,
                                 item: "__clientField",
                             },
                             arguments: [
@@ -46,10 +46,11 @@ fragment ScalarHandleField on User {
                                     },
                                 },
                             ],
+                            data: None,
                         },
                         Directive {
                             name: WithLocation {
-                                location: scalar-handle-field.graphql:90:103,
+                                location: scalar-handle-field.graphql:89:103,
                                 item: "__clientField",
                             },
                             arguments: [
@@ -68,6 +69,7 @@ fragment ScalarHandleField on User {
                                     },
                                 },
                             ],
+                            data: None,
                         },
                     ],
                 },

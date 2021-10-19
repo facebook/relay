@@ -13,13 +13,12 @@
 
 'use strict';
 
+import type {MatchPointer} from '../MatchContainer';
+
 const MatchContainer = require('../MatchContainer');
 const React = require('react');
 const TestRenderer = require('react-test-renderer');
-
 const {FRAGMENT_OWNER_KEY, FRAGMENTS_KEY, ID_KEY} = require('relay-runtime');
-
-import type {MatchPointer} from '../MatchContainer';
 
 function createMatchPointer({
   id,

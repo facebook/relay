@@ -13,15 +13,14 @@
 
 'use strict';
 
-const invariant = require('invariant');
-const md5 = require('../util/md5');
-
-const {toASTRecord} = require('./extractAST');
-const {Source, parse} = require('graphql');
-
 import type {ASTRecord} from './extractAST';
 import type {SavedStateCollection, WatchmanFile} from './types';
 import type {ASTNode} from 'graphql';
+
+const md5 = require('../util/md5');
+const {toASTRecord} = require('./extractAST');
+const {Source, parse} = require('graphql');
+const invariant = require('invariant');
 
 export type GraphQLExtractor<T: ASTNode> = (
   baseDir: string,

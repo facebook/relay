@@ -12,11 +12,11 @@
 
 'use strict';
 
-const {getName} = require('./GraphQLASTUtils');
-
 import type {SourceChanges} from './Sources';
 import type {StrictMap} from './StrictMap';
 import type {ExecutableDefinitionNode} from 'graphql';
+
+const {getName} = require('./GraphQLASTUtils');
 
 function getChangedNodeNames<
   TProjectState: {

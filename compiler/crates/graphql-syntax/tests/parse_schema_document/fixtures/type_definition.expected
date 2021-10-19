@@ -62,17 +62,20 @@ SchemaDocument {
                                     value: "url",
                                 },
                                 type_: Named(
-                                    Identifier {
-                                        span: 32:38,
-                                        token: Token {
+                                    NamedTypeAnnotation {
+                                        name: Identifier {
                                             span: 32:38,
-                                            kind: Identifier,
+                                            token: Token {
+                                                span: 32:38,
+                                                kind: Identifier,
+                                            },
+                                            value: "String",
                                         },
-                                        value: "String",
                                     },
                                 ),
                                 arguments: None,
                                 directives: [],
+                                description: None,
                             },
                         ],
                         end: Token {
@@ -188,13 +191,15 @@ SchemaDocument {
                                     NonNullTypeAnnotation {
                                         span: 110:113,
                                         type_: Named(
-                                            Identifier {
-                                                span: 110:112,
-                                                token: Token {
+                                            NamedTypeAnnotation {
+                                                name: Identifier {
                                                     span: 110:112,
-                                                    kind: Identifier,
+                                                    token: Token {
+                                                        span: 110:112,
+                                                        kind: Identifier,
+                                                    },
+                                                    value: "ID",
                                                 },
-                                                value: "ID",
                                             },
                                         ),
                                         exclamation: Token {
@@ -205,6 +210,7 @@ SchemaDocument {
                                 ),
                                 arguments: None,
                                 directives: [],
+                                description: None,
                             },
                             FieldDefinition {
                                 name: Identifier {
@@ -219,13 +225,15 @@ SchemaDocument {
                                     NonNullTypeAnnotation {
                                         span: 142:149,
                                         type_: Named(
-                                            Identifier {
-                                                span: 142:148,
-                                                token: Token {
+                                            NamedTypeAnnotation {
+                                                name: Identifier {
                                                     span: 142:148,
-                                                    kind: Identifier,
+                                                    token: Token {
+                                                        span: 142:148,
+                                                        kind: Identifier,
+                                                    },
+                                                    value: "String",
                                                 },
-                                                value: "String",
                                             },
                                         ),
                                         exclamation: Token {
@@ -252,13 +260,15 @@ SchemaDocument {
                                                     value: "language",
                                                 },
                                                 type_: Named(
-                                                    Identifier {
-                                                        span: 131:139,
-                                                        token: Token {
+                                                    NamedTypeAnnotation {
+                                                        name: Identifier {
                                                             span: 131:139,
-                                                            kind: Identifier,
+                                                            token: Token {
+                                                                span: 131:139,
+                                                                kind: Identifier,
+                                                            },
+                                                            value: "Language",
                                                         },
-                                                        value: "Language",
                                                     },
                                                 ),
                                                 default_value: None,
@@ -272,6 +282,7 @@ SchemaDocument {
                                     },
                                 ),
                                 directives: [],
+                                description: None,
                             },
                         ],
                         end: Token {

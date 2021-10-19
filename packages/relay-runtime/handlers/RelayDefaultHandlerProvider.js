@@ -12,12 +12,11 @@
 
 'use strict';
 
+import type {Handler} from '../store/RelayStoreTypes';
+
 const ConnectionHandler = require('./connection/ConnectionHandler');
 const MutationHandlers = require('./connection/MutationHandlers');
-
 const invariant = require('invariant');
-
-import type {Handler} from '../store/RelayStoreTypes';
 export type HandlerProvider = (name: string) => ?Handler;
 
 function RelayDefaultHandlerProvider(handle: string): Handler {

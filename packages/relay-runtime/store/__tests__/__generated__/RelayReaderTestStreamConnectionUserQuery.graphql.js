@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<4b624ef89a24a22e664b26140a5df532>>
+ * @generated SignedSource<<be52c02d085ec4985272b291cf450070>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,12 +18,12 @@
 import type { ConcreteRequest } from 'relay-runtime';
 type RelayReaderTestStreamConnectionUserProfile$ref = any;
 export type RelayReaderTestStreamConnectionUserQueryVariables = {|
-  id: string
+  id: string,
 |};
 export type RelayReaderTestStreamConnectionUserQueryResponse = {|
   +node: ?{|
-    +$fragmentRefs: RelayReaderTestStreamConnectionUserProfile$ref
-  |}
+    +$fragmentRefs: RelayReaderTestStreamConnectionUserProfile$ref,
+  |},
 |};
 export type RelayReaderTestStreamConnectionUserQuery = {|
   variables: RelayReaderTestStreamConnectionUserQueryVariables,
@@ -124,7 +124,6 @@ return {
                     "if": null,
                     "kind": "Stream",
                     "label": "RelayReaderTestStreamConnectionUserProfile$stream$UserProfile_friends",
-                    "metadata": null,
                     "selections": [
                       {
                         "alias": null,
@@ -164,8 +163,7 @@ return {
                         ],
                         "storageKey": null
                       }
-                    ],
-                    "useCustomizedBatch": null
+                    ]
                   },
                   {
                     "if": null,

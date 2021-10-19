@@ -12,17 +12,15 @@
 
 'use strict';
 
-const IRTransformer = require('../core/IRTransformer');
-
 import type CompilerContext from '../core/CompilerContext';
-const IMap = require('immutable').Map;
-const partitionArray = require('../util/partitionArray');
-const getIdentifierForSelection = require('../core/getIdentifierForSelection');
-const invariant = require('invariant');
-
+import type {Fragment, Node, Root, Selection, SplitOperation} from '../core/IR';
 import type {Schema} from '../core/Schema';
 
-import type {Fragment, Node, Root, SplitOperation, Selection} from '../core/IR';
+const getIdentifierForSelection = require('../core/getIdentifierForSelection');
+const IRTransformer = require('../core/IRTransformer');
+const partitionArray = require('../util/partitionArray');
+const IMap = require('immutable').Map;
+const invariant = require('invariant');
 
 /**
  * A simplified representation of a document: keys in the map are unique
@@ -137,6 +135,7 @@ function skipRedundantNodesTransform(
 let cache = new Map();
 function visitNode<T: Fragment | Root | SplitOperation>(node: T): ?T {
   cache = new Map();
+  // $FlowFixMe[incompatible-use]
   const context: CompilerContext = this.getContext();
   return transformNode(context.getSchema(), node, new IMap()).node;
 }
@@ -234,6 +233,7 @@ function transformNode<T: Node>(
     // $FlowFixMe[escaped-generic]
     cache.set(node, result);
   }
+  // $FlowFixMe[incompatible-return]
   return result;
 }
 

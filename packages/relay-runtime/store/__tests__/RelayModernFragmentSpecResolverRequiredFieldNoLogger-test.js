@@ -11,15 +11,16 @@
 'use strict';
 
 const RelayModernFragmentSpecResolver = require('../RelayModernFragmentSpecResolver');
-
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
-const {RelayFeatureFlags} = require('relay-runtime');
 const {
-  createMockEnvironment,
-  generateAndCompile,
-} = require('relay-test-utils-internal');
+  RelayFeatureFlags,
+  getFragment,
+  getRequest,
+  graphql,
+} = require('relay-runtime');
+const {createMockEnvironment} = require('relay-test-utils');
 
 const dev = __DEV__;
 
@@ -52,17 +53,22 @@ describe('RelayModernFragmentSpecResolver', () => {
     environment = createMockEnvironment({
       // We intentionally omit `requriedFieldLogger` here.
     });
-    ({UserFragment, UserQuery} = generateAndCompile(`
-      query UserQuery($id: ID!) {
-        node(id: $id) {
-          ...UserFragment
-        }
-      }
-      fragment UserFragment on User {
+    UserFragment = getFragment(graphql`
+      fragment RelayModernFragmentSpecResolverRequiredFieldNoLoggerTestUserFragment on User {
         id
         alternate_name @required(action: LOG)
       }
-    `));
+    `);
+    UserQuery = getRequest(graphql`
+      query RelayModernFragmentSpecResolverRequiredFieldNoLoggerTestUserQuery(
+        $id: ID!
+      ) {
+        node(id: $id) {
+          ...RelayModernFragmentSpecResolverRequiredFieldNoLoggerTestUserFragment
+        }
+      }
+    `);
+
     const zuckOperation = createOperationDescriptor(UserQuery, {
       id: '4',
     });

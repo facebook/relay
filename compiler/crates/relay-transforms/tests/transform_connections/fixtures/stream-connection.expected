@@ -27,11 +27,30 @@ query NodeQuery($id: ID!) {
 ==================================== OUTPUT ===================================
 query NodeQuery(
   $id: ID!
-) @__connectionMetadata(__connectionMetadataArgument: [[["node", "comments"], "forward", null, null, null, null, true]]) {
+) @__ConnectionMetadataDirective
+# ConnectionMetadataDirective(
+#     [
+#         ConnectionMetadata {
+#             path: Some(
+#                 [
+#                     "node",
+#                     "comments",
+#                 ],
+#             ),
+#             direction: "forward",
+#             first: None,
+#             last: None,
+#             before: None,
+#             after: None,
+#             is_stream_connection: true,
+#         },
+#     ],
+# )
+ {
   node(id: $id) {
     id
     ... on Story {
-      comments(first: 10) @__clientField(key: "NodeQuery_comments", handle: "connection") {
+      comments(first: 10) @__clientField(key: "NodeQuery_comments", handle: "connection", filters: null, dynamicKey_UNSTABLE: null) {
         edges @stream(label: "NodeQuery_comments", initial_count: 0) {
           node {
             actor {

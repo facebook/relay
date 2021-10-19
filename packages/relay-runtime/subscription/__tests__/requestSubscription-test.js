@@ -13,23 +13,19 @@
 
 'use strict';
 
-const RelayModernEnvironment = require('../../store/RelayModernEnvironment');
-const RelayModernStore = require('../../store/RelayModernStore');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const RelayRecordSource = require('../../store/RelayRecordSource');
-
-const requestSubscription = require('../requestSubscription');
-
+const {getRequest, graphql} = require('../../query/GraphQLTag');
+const RelayModernEnvironment = require('../../store/RelayModernEnvironment');
 const {
   createOperationDescriptor,
 } = require('../../store/RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../../store/RelayModernSelector');
+const RelayModernStore = require('../../store/RelayModernStore');
+const RelayRecordSource = require('../../store/RelayRecordSource');
 const {ROOT_ID} = require('../../store/RelayStoreUtils');
-const {
-  createMockEnvironment,
-  generateAndCompile,
-} = require('relay-test-utils-internal');
+const requestSubscription = require('../requestSubscription');
+const {createMockEnvironment} = require('relay-test-utils-internal');
 
 describe('requestSubscription-test', () => {
   it('Config: `RANGE_ADD`', () => {
@@ -41,24 +37,25 @@ describe('requestSubscription-test', () => {
     const firstCommentId = 'comment-1';
     const firstCommentBody = 'first comment';
     const secondCommentId = 'comment-2';
-    const {FeedbackCommentQuery} = generateAndCompile(`
-			query FeedbackCommentQuery($id: ID) {
-					node(id: $id) {
-						...on Feedback {
-							comments(first: 2)@connection(key: "FeedbackCommentQuery_comments") {
-								edges {
-									node {
-                    id
-                    body {
-                      text
-                    }
-									}
-								}
-							}
-						}
-					}
-				}
-			`);
+    const FeedbackCommentQuery = getRequest(graphql`
+      query requestSubscriptionTestFeedbackCommentQuery($id: ID) {
+        node(id: $id) {
+          ... on Feedback {
+            comments(first: 2)
+              @connection(key: "FeedbackCommentQuery_comments") {
+              edges {
+                node {
+                  id
+                  body {
+                    text
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    `);
     const payload = {
       node: {
         __typename: 'Feedback',
@@ -93,8 +90,8 @@ describe('requestSubscription-test', () => {
     );
     environment.commitPayload(operationDescriptor, payload);
 
-    const {CommentCreateSubscription} = generateAndCompile(`
-      subscription CommentCreateSubscription(
+    const CommentCreateSubscription = getRequest(graphql`
+      subscription requestSubscriptionTestCommentCreateSubscription(
         $input: CommentCreateSubscriptionInput
       ) {
         commentCreateSubscribe(input: $input) {
@@ -212,22 +209,22 @@ describe('requestSubscription-test', () => {
     };
 
     beforeEach(() => {
-      ({CommentCreateSubscription} = generateAndCompile(`
-      subscription CommentCreateSubscription(
-        $input: CommentCreateSubscriptionInput
-      ) {
-        commentCreateSubscribe(input: $input) {
-          feedbackCommentEdge {
-            node {
-              id
-              body {
-                text
+      CommentCreateSubscription = getRequest(graphql`
+        subscription requestSubscriptionTest1CommentCreateSubscription(
+          $input: CommentCreateSubscriptionInput
+        ) {
+          commentCreateSubscribe(input: $input) {
+            feedbackCommentEdge {
+              node {
+                id
+                body {
+                  text
+                }
               }
             }
           }
         }
-      }
-    `));
+      `);
 
       cacheMetadata = undefined;
       const fetch = jest.fn((_query, _variables, _cacheConfig) => {
@@ -241,6 +238,7 @@ describe('requestSubscription-test', () => {
         store,
       });
     });
+
     it('with cacheConfig', () => {
       requestSubscription(environment, {
         subscription: CommentCreateSubscription,
@@ -261,5 +259,253 @@ describe('requestSubscription-test', () => {
 
       expect(cacheMetadata).toEqual(undefined);
     });
+  });
+
+  it('does not overwrite existing data', () => {
+    const ConfigsQuery = getRequest(graphql`
+      query requestSubscriptionTestConfigsQuery {
+        viewer {
+          configs {
+            edges {
+              node {
+                name
+              }
+            }
+          }
+        }
+      }
+    `);
+
+    graphql`
+      fragment requestSubscriptionTestExtraFragment on Config {
+        isEnabled
+      }
+    `;
+
+    const ConfigCreateSubscription = getRequest(graphql`
+      subscription requestSubscriptionTestConfigCreateSubscription {
+        configCreateSubscribe {
+          config {
+            name
+            ...requestSubscriptionTestExtraFragment
+          }
+        }
+      }
+    `);
+
+    const operationDescriptor = createOperationDescriptor(ConfigsQuery, {});
+    const environment = createMockEnvironment();
+    const store = environment.getStore();
+
+    environment.commitPayload(operationDescriptor, {
+      viewer: {
+        configs: {
+          edges: [],
+        },
+      },
+    });
+
+    const selector = createReaderSelector(
+      ConfigsQuery.fragment,
+      ROOT_ID,
+      {},
+      operationDescriptor.request,
+    );
+    const onNext = jest.fn();
+
+    let id = 0;
+    requestSubscription(environment, {
+      subscription: ConfigCreateSubscription,
+      variables: {},
+      updater: storeProxy => {
+        const configs = storeProxy
+          .getRoot()
+          .getLinkedRecord('viewer')
+          ?.getLinkedRecord('configs');
+        if (configs == null) {
+          throw Error('Expected edges to exist');
+        }
+        const config = storeProxy
+          .getRootField('configCreateSubscribe')
+          ?.getLinkedRecord('config');
+
+        if (config == null) {
+          throw Error('Expected config to exist');
+        }
+        const edge = storeProxy.create(String(id++), 'ConfigsConnectionEdge');
+        edge.setLinkedRecord(config, 'node');
+        const edges = configs.getLinkedRecords('edges');
+        if (edges == null) {
+          throw Error('Expected edges to exist');
+        }
+        edges.push(edge);
+        configs.setLinkedRecords(edges, 'edges');
+      },
+      onNext,
+    });
+
+    environment.mock.nextValue(ConfigCreateSubscription, {
+      data: {
+        configCreateSubscribe: {
+          config: {
+            name: 'Mark',
+          },
+        },
+      },
+    });
+    expect(store.lookup(selector).data).toEqual({
+      viewer: {
+        configs: {
+          edges: [
+            {
+              node: {
+                name: 'Mark',
+              },
+            },
+          ],
+        },
+      },
+    });
+    expect(onNext).toBeCalledTimes(1);
+    expect(onNext.mock.calls[0][0]).toEqual({
+      configCreateSubscribe: {
+        config: {
+          name: 'Mark',
+          __id: expect.any(String),
+          __fragments: {requestSubscriptionTestExtraFragment: {}},
+          __fragmentOwner: expect.any(Object),
+          // TODO T96653810: Correctly detect reading from root of mutation/subscription
+          __isWithinUnmatchedTypeRefinement: true, // should be false
+        },
+      },
+    });
+
+    environment.mock.nextValue(ConfigCreateSubscription, {
+      data: {
+        configCreateSubscribe: {
+          config: {
+            name: 'Zuck',
+          },
+        },
+      },
+    });
+    expect(store.lookup(selector).data).toEqual({
+      viewer: {
+        configs: {
+          edges: [
+            {
+              node: {
+                name: 'Mark',
+              },
+            },
+            {
+              node: {
+                name: 'Zuck',
+              },
+            },
+          ],
+        },
+      },
+    });
+    expect(onNext).toBeCalledTimes(2);
+    expect(onNext.mock.calls[1][0]).toEqual({
+      configCreateSubscribe: {
+        config: {
+          name: 'Zuck',
+          __id: expect.any(String),
+          __fragments: {requestSubscriptionTestExtraFragment: {}},
+          __fragmentOwner: expect.any(Object),
+          __isWithinUnmatchedTypeRefinement: true,
+        },
+      },
+    });
+  });
+
+  it('reads the data using the correct rootID in onNext when resources are resolved synchronously', () => {
+    const normalization = require('./__generated__/requestSubscriptionTestPlainUserNameRenderer_name$normalization.graphql');
+    const subscription = getRequest(graphql`
+      subscription requestSubscriptionTestSubscription(
+        $input: CommentCreateSubscriptionInput!
+      ) {
+        commentCreateSubscribe(input: $input) {
+          comment {
+            actor {
+              name
+              nameRenderer @match {
+                ...requestSubscriptionTestPlainUserNameRenderer_name
+                  @module(name: "PlainUserNameRenderer.react")
+              }
+            }
+          }
+        }
+      }
+    `);
+
+    graphql`
+      fragment requestSubscriptionTestPlainUserNameRenderer_name on PlainUserNameRenderer {
+        plaintext
+        data {
+          text
+        }
+      }
+    `;
+    const environment = createMockEnvironment({
+      operationLoader: {
+        load: jest.fn(moduleName => {
+          return Promise.resolve(normalization);
+        }),
+        get: () => normalization,
+      },
+    });
+
+    const onNext = jest.fn();
+    const updater = jest.fn();
+
+    requestSubscription(environment, {
+      subscription,
+      variables: {},
+      updater,
+      onNext,
+    });
+    environment.mock.nextValue(subscription, {
+      data: {
+        commentCreateSubscribe: {
+          comment: {
+            id: '1',
+            actor: {
+              id: '4',
+              name: 'actor-name',
+              __typename: 'User',
+              nameRenderer: {
+                __typename: 'PlainUserNameRenderer',
+                __module_component_requestSubscriptionTestSubscription:
+                  'MarkdownUserNameRenderer.react',
+                __module_operation_requestSubscriptionTestSubscription:
+                  'RelayModernEnvironmentExecuteSubscriptionWithMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
+                markdown: 'markdown payload',
+                data: {
+                  id: 'data-1',
+                  plaintext: 'text',
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+    jest.runAllTimers();
+
+    expect(onNext).toBeCalledTimes(1);
+    expect(onNext).toBeCalledWith({
+      commentCreateSubscribe: {
+        comment: {
+          actor: {
+            name: 'actor-name',
+            nameRenderer: expect.any(Object),
+          },
+        },
+      },
+    });
+    expect(updater).toBeCalledTimes(1);
   });
 });

@@ -12,8 +12,8 @@
 
 'use strict';
 
-const invariant = require('invariant');
 const t = require('@babel/types');
+const invariant = require('invariant');
 
 type BabelAST = BabelNode_DEPRECATED;
 

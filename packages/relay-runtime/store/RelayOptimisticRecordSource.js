@@ -12,8 +12,6 @@
 
 'use strict';
 
-const RelayRecordSource = require('./RelayRecordSource');
-
 import type {DataID} from '../util/RelayRuntimeTypes';
 import type {RecordState} from './RelayRecordState';
 import type {
@@ -21,6 +19,8 @@ import type {
   Record,
   RecordSource,
 } from './RelayStoreTypes';
+
+const RelayRecordSource = require('./RelayRecordSource');
 
 const UNPUBLISH_RECORD_SENTINEL = Object.freeze({
   __UNPUBLISH_RECORD_SENTINEL: true,

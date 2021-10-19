@@ -8,24 +8,27 @@ name: Docusaurus
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
-  publish:
-    name: Publish Website
+  build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
-      - uses: actions/setup-node@v1
+      - name: Checkout
+        uses: actions/checkout@v2.3.1
         with:
-          node-version: 12.x
-      - name: Install dependencies
-        working-directory: ./website
-        run: yarn install --frozen-lockfile
-      - name: Build and publish
-        working-directory: ./website
+          persist-credentials: false
+
+      - name: Install and Build
         run: |
-          git config --global user.email "relay-bot@users.noreply.github.com"
-          git config --global user.name "Relay Bot"
-          echo "machine github.com login relay-bot password ${{secrets.GITHUB_PUSH_TOKEN}}" > ~/.netrc
-          ORGANIZATION_NAME=$(dirname $GITHUB_REPOSITORY) GIT_USER=relay-bot yarn run publish-gh-pages
+          yarn
+          yarn build
+        working-directory: website/
+
+      - name: Deploy
+        uses: JamesIves/github-pages-deploy-action@3.7.1
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH: gh-pages
+          FOLDER: website/build
+          CLEAN: true

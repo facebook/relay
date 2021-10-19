@@ -4,13 +4,20 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<64103a09ce4d42d59d9fd84038da1826>>
+ * @generated SignedSource<<4f8b953b54af49cae4e1d41163e10f0e>>
  */
 
 mod parse_executable_document;
 
 use parse_executable_document::transform_fixture;
 use fixture_tests::test_fixture;
+
+#[test]
+fn block_string() {
+    let input = include_str!("parse_executable_document/fixtures/block_string.graphql");
+    let expected = include_str!("parse_executable_document/fixtures/block_string.expected");
+    test_fixture(transform_fixture, "block_string.graphql", "parse_executable_document/fixtures/block_string.expected", input, expected);
+}
 
 #[test]
 fn incorrect_variable_name_invalid() {

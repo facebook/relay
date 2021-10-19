@@ -13,24 +13,22 @@
 
 'use strict';
 
+import type {ArtifactMap, ArtifactState} from '../Artifacts';
+import type {ExecutableDefinitionNode} from 'graphql';
+import type {SourceChanges} from 'relay-compiler';
+
 const FSMock = require('../__mocks__/FSMock');
-
-const fs = require('fs');
-const invariant = require('invariant');
-const nullthrows = require('nullthrows');
-const path = require('path');
-
 const {
   createEmptyState,
   deserializeState,
   serializeState,
   updateState,
 } = require('../Artifacts');
+const fs = require('fs');
 const {parse} = require('graphql');
-
-import type {ArtifactState, ArtifactMap} from '../Artifacts';
-import type {ExecutableDefinitionNode} from 'graphql';
-import type {SourceChanges} from 'relay-compiler';
+const invariant = require('invariant');
+const nullthrows = require('nullthrows');
+const path = require('path');
 
 FSMock.install();
 

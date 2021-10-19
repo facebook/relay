@@ -5,14 +5,16 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::util::CUSTOM_METADATA_DIRECTIVES;
-use crate::MATCH_CONSTANTS;
+use crate::{util::CustomMetadataDirectives, ModuleMetadata};
 use common::WithLocation;
+use graphql_ir::Field;
 use graphql_ir::*;
 use interner::StringKey;
 use schema::SDLSchema;
-use std::hash::{Hash, Hasher};
-use std::sync::Arc;
+use std::{
+    hash::{Hash, Hasher},
+    sync::Arc,
+};
 
 /// An identifier that is unique to a given selection: the alias for
 /// fields, the type for inline fragments, and a summary of the condition
@@ -260,27 +262,32 @@ fn filtered_location_agnostic_eq<
 impl LocationAgnosticPartialEq for Vec<Directive> {
     fn location_agnostic_eq(&self, other: &Self) -> bool {
         filtered_location_agnostic_eq(self, other, |d| {
-            !CUSTOM_METADATA_DIRECTIVES.should_skip_in_node_identifier(d.name.item)
+            !CustomMetadataDirectives::should_skip_in_node_identifier(d.name.item)
         })
     }
 }
 
 impl LocationAgnosticHash for Directive {
     fn location_agnostic_hash<H: Hasher>(&self, state: &mut H) {
-        if self.name.item == MATCH_CONSTANTS.custom_module_directive_name {
-            MATCH_CONSTANTS.custom_module_directive_name.hash(state);
-        } else if !CUSTOM_METADATA_DIRECTIVES.should_skip_in_node_identifier(self.name.item) {
+        if self.name.item == *ModuleMetadata::DIRECTIVE_NAME {
+            (*ModuleMetadata::DIRECTIVE_NAME).hash(state);
+        } else if !CustomMetadataDirectives::should_skip_in_node_identifier(self.name.item) {
             self.name.location_agnostic_hash(state);
             self.arguments.location_agnostic_hash(state);
+            self.data.hash(state);
         }
     }
 }
 
 impl LocationAgnosticPartialEq for Directive {
     fn location_agnostic_eq(&self, other: &Self) -> bool {
-        self.name.location_agnostic_eq(&other.name)
-            && (self.name.item == MATCH_CONSTANTS.custom_module_directive_name
-                || self.arguments.location_agnostic_eq(&other.arguments))
+        if !self.name.location_agnostic_eq(&other.name) {
+            return false;
+        }
+        if self.name.item == *ModuleMetadata::DIRECTIVE_NAME {
+            return true;
+        }
+        self.arguments.location_agnostic_eq(&other.arguments) && self.data == other.data
     }
 }
 

@@ -12,18 +12,18 @@
 
 'use strict';
 
-const {RelayConcreteNode} = require('relay-runtime');
-
 import type {
   IsGeneratedFileFn,
   KeepExtraFileFn,
 } from '../codegen/CodegenRunner';
 import type {IRTransform} from '../core/CompilerContext';
-import type {GeneratedDefinition, Root, Fragment} from '../core/IR';
+import type {Fragment, GeneratedDefinition, Root} from '../core/IR';
 import type {GetFileFilter} from '../core/RelaySourceModuleParser';
 import type {Schema} from '../core/Schema';
 import type {ScalarTypeMapping} from './javascript/RelayFlowTypeTransformers';
 import type {GeneratedNode} from 'relay-runtime';
+
+const {RelayConcreteNode} = require('relay-runtime');
 
 /**
  * A language plugin allows relay-compiler to both read and write files for any

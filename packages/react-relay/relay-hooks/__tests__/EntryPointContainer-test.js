@@ -15,14 +15,11 @@
 
 jest.mock('warning');
 const EntryPointContainer = require('../EntryPointContainer.react');
-const React = require('react');
-const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
-const TestRenderer = require('react-test-renderer');
-
 const loadEntryPoint = require('../loadEntryPoint');
+const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const usePreloadedQuery = require('../usePreloadedQuery');
-const warning = require('warning');
-
+const React = require('react');
+const TestRenderer = require('react-test-renderer');
 const {
   Environment,
   Network,
@@ -30,13 +27,13 @@ const {
   PreloadableQueryRegistry,
   RecordSource,
   Store,
+  getRequest,
+  graphql,
 } = require('relay-runtime');
-const {generateAndCompile} = require('relay-test-utils-internal');
+const warning = require('warning');
 
-import type {ConcreteRequest} from 'relay-runtime';
-
-const query: ConcreteRequest = generateAndCompile(`
-  query TestQuery($id: ID!) {
+const query = getRequest(graphql`
+  query EntryPointContainerTestQuery($id: ID!) {
     node(id: $id) {
       id
       ... on User {
@@ -44,7 +41,7 @@ const query: ConcreteRequest = generateAndCompile(`
       }
     }
   }
-`).TestQuery;
+`);
 const params = {
   kind: 'PreloadableConcreteRequest',
   params: query.params,

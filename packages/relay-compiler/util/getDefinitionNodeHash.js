@@ -12,11 +12,10 @@
 
 'use strict';
 
-const md5 = require('./md5');
-
-const {print} = require('graphql');
-
 import type {ExecutableDefinitionNode} from 'graphql';
+
+const md5 = require('./md5');
+const {print} = require('graphql');
 
 function getDefinitionNodeHash(node: ExecutableDefinitionNode): string {
   return md5(print(node));

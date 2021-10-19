@@ -1,0 +1,94 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ActorChange with @defer should render a fragment for actor: should render 2 actor cards, and empty deferred message boxes. 1`] = `
+<div>
+  <div
+    className="actor"
+  >
+    <div
+      data-test-id="name-node-1"
+    >
+      Antonio Banderas
+    </div>
+    <div
+      data-test-id="deferred-message"
+    />
+  </div>
+  <div
+    className="actor"
+  >
+    <div
+      data-test-id="name-node-2"
+    >
+      Silvester Stallone
+    </div>
+    <div
+      data-test-id="deferred-message"
+    />
+  </div>
+</div>
+`;
+
+exports[`ActorChange with @defer should render a fragment for actor: should render a list of actors with the first message for Antonio 1`] = `
+<div>
+  <div
+    className="actor"
+  >
+    <div
+      data-test-id="name-node-1"
+    >
+      Antonio Banderas
+    </div>
+    <div
+      data-test-id="deferred-message"
+    >
+      Hello, Antonio!
+    </div>
+  </div>
+  <div
+    className="actor"
+  >
+    <div
+      data-test-id="name-node-2"
+    >
+      Silvester Stallone
+    </div>
+    <div
+      data-test-id="deferred-message"
+    />
+  </div>
+</div>
+`;
+
+exports[`ActorChange with @defer should render a fragment for actor: should render all messages, for all actors 1`] = `
+<div>
+  <div
+    className="actor"
+  >
+    <div
+      data-test-id="name-node-1"
+    >
+      Antonio Banderas
+    </div>
+    <div
+      data-test-id="deferred-message"
+    >
+      Hello, Antonio!
+    </div>
+  </div>
+  <div
+    className="actor"
+  >
+    <div
+      data-test-id="name-node-2"
+    >
+      Silvester Stallone
+    </div>
+    <div
+      data-test-id="deferred-message"
+    >
+      Ciao, Silvester!
+    </div>
+  </div>
+</div>
+`;

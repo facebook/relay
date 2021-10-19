@@ -13,18 +13,13 @@
 
 'use strict';
 
-const React = require('react');
-const ReactTestRenderer = require('react-test-renderer');
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
-
 const useSubscribeToInvalidationState = require('../useSubscribeToInvalidationState');
-
+const React = require('react');
 const {useEffect, useState} = require('react');
-const {RecordSource, Store, REF_KEY} = require('relay-runtime');
-const {
-  createMockEnvironment,
-  generateAndCompile,
-} = require('relay-test-utils-internal');
+const ReactTestRenderer = require('react-test-renderer');
+const {RecordSource, REF_KEY, Store} = require('relay-runtime');
+const {createMockEnvironment} = require('relay-test-utils');
 
 let environment;
 let render;
@@ -33,7 +28,6 @@ let setDataIDs;
 let setCallback;
 let disposable;
 let renderedInstance;
-let UserQuery;
 let data;
 let callback;
 
@@ -70,20 +64,7 @@ beforeEach(() => {
   };
   const source = new RecordSource(data);
   const store = new Store(source);
-  ({UserQuery} = generateAndCompile(`
-    fragment UserFragment on User {
-      name
-      profilePicture(size: $size) {
-        uri
-      }
-    }
 
-    query UserQuery($id: ID!, $size: [Int]) {
-      node(id: $id) {
-        ...UserFragment
-      }
-    }
-  `));
   environment = createMockEnvironment({store});
   callback = jest.fn();
 
@@ -341,6 +322,7 @@ it('does not re-establish subscription id data ids change but array changes', ()
   });
 
   // Assert that we didn't re-subscribe
+  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(store.subscribeToInvalidationState).toHaveBeenCalledTimes(0);
 
   // Assert that invalidating data ids from initial subscriptions

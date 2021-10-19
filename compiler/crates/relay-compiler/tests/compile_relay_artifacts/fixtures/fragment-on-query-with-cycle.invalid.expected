@@ -18,7 +18,7 @@ fragment fragmentOnQueryWithCycle_Profile on User
   ) {
   id
   name
-  profilePicture(size: $pictureSize) {
+  profilePicture(size: $pictureSize) @include(if: $includeProfile) {
     uri
   }
   friends(first: $count) {

@@ -16,7 +16,6 @@
 const CompilerContext = require('../CompilerContext');
 const IRTransformer = require('../IRTransformer');
 const IRValidator = require('../IRValidator');
-
 const {TestSchema, parseGraphQLText} = require('relay-test-utils-internal');
 
 describe('IRValidator', () => {
@@ -89,6 +88,7 @@ describe('IRValidator', () => {
           expect(node.kind).toBe(kind);
           sequence.push(kind);
           seenKinds.add(kind);
+          // $FlowFixMe[incompatible-use]
           this.traverse(node, state);
         };
       }

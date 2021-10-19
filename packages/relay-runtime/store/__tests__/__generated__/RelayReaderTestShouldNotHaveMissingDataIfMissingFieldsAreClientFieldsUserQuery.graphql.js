@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<1e3442dd120178508c0f80e0725a70fb>>
+ * @generated SignedSource<<d587d4d60b5e43959e487b9c2f96a110>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,12 +18,12 @@
 import type { ConcreteRequest } from 'relay-runtime';
 type RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserProfile$ref = any;
 export type RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserQueryVariables = {|
-  size?: ?$ReadOnlyArray<?number>
+  size?: ?$ReadOnlyArray<?number>,
 |};
 export type RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserQueryResponse = {|
   +me: ?{|
-    +$fragmentRefs: RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserProfile$ref
-  |}
+    +$fragmentRefs: RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserProfile$ref,
+  |},
 |};
 export type RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserQuery = {|
   variables: RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserQueryVariables,

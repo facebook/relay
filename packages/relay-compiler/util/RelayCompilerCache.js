@@ -13,7 +13,6 @@
 'use strict';
 
 const Profiler = require('../core/GraphQLCompilerProfiler');
-
 const crypto = require('crypto');
 const fs = require('fs');
 const os = require('os');

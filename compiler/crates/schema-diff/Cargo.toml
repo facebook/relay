@@ -6,9 +6,6 @@ authors = ["Facebook"]
 edition = "2018"
 license = "MIT"
 
-[lib]
-path = "src/lib.rs"
-
 [[test]]
 name = "schema_diff_tests"
 path = "tests/diff_schema_tests.rs"

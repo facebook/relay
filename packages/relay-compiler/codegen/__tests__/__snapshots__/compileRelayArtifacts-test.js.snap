@@ -9015,6 +9015,7 @@ Request {
                       InlineFragment {
                         selections: [
                           ModuleImport {
+                            args: null,
                             documentName: "UserFragment_with3d",
                             fragmentName: "MarkdownUserNameRenderer_name",
                             fragmentPropName: "name",
@@ -9435,7 +9436,6 @@ Request {
               Stream {
                 if: null,
                 label: "FeedbackFragment$stream$StreamedActorsLabel",
-                metadata: null,
                 selections: [
                   LinkedField {
                     alias: null,
@@ -9466,7 +9466,6 @@ Request {
                     storageKey: null,
                   },
                 ],
-                useCustomizedBatch: null,
               },
             ],
             type: "Feedback",
@@ -11306,6 +11305,7 @@ Request {
               InlineFragment {
                 selections: [
                   ModuleImport {
+                    args: null,
                     documentName: "moduleDedupingQuery",
                     fragmentName: "moduleDeduping_frag",
                     fragmentPropName: "frag",
@@ -11533,6 +11533,7 @@ Request {
                   InlineFragment {
                     selections: [
                       ModuleImport {
+                        args: null,
                         documentName: "FooNameRendererFragment",
                         fragmentName: "MarkdownUserNameRenderer_name",
                         fragmentPropName: "name",
@@ -11544,6 +11545,7 @@ Request {
                   InlineFragment {
                     selections: [
                       ModuleImport {
+                        args: null,
                         documentName: "FooNameRendererFragment",
                         fragmentName: "PlainUserNameRenderer_name",
                         fragmentPropName: "name",
@@ -11697,6 +11699,7 @@ Request {
                   InlineFragment {
                     selections: [
                       ModuleImport {
+                        args: null,
                         documentName: "BarNameRendererFragment",
                         fragmentName: "MarkdownUserNameRenderer_name",
                         fragmentPropName: "name",
@@ -12281,6 +12284,7 @@ Request {
                   InlineFragment {
                     selections: [
                       ModuleImport {
+                        args: null,
                         documentName: "MatchQuery",
                         fragmentName: "MarkdownUserNameRenderer_name",
                         fragmentPropName: "name",
@@ -12314,6 +12318,7 @@ Request {
                   InlineFragment {
                     selections: [
                       ModuleImport {
+                        args: null,
                         documentName: "MatchQuery",
                         fragmentName: "MarkdownUserNameRenderer_name",
                         fragmentPropName: "name",
@@ -12618,6 +12623,7 @@ Request {
                   InlineFragment {
                     selections: [
                       ModuleImport {
+                        args: null,
                         documentName: "MatchQuery_nameRenderer",
                         fragmentName: "PlainUserNameRenderer_name",
                         fragmentPropName: "name",
@@ -12651,6 +12657,7 @@ Request {
                   InlineFragment {
                     selections: [
                       ModuleImport {
+                        args: null,
                         documentName: "MatchQuery",
                         fragmentName: "MarkdownUserNameRenderer_name",
                         fragmentPropName: "name",
@@ -13675,6 +13682,7 @@ Request {
                       InlineFragment {
                         selections: [
                           ModuleImport {
+                            args: null,
                             documentName: "NameRendererFragment",
                             fragmentName: "MarkdownUserNameRenderer_name",
                             fragmentPropName: "name",
@@ -14346,6 +14354,7 @@ Request {
                   InlineFragment {
                     selections: [
                       ModuleImport {
+                        args: null,
                         documentName: "NameRendererFragment",
                         fragmentName: "PlainUserNameRenderer_name",
                         fragmentPropName: "name",
@@ -14357,6 +14366,7 @@ Request {
                   InlineFragment {
                     selections: [
                       ModuleImport {
+                        args: null,
                         documentName: "NameRendererFragment",
                         fragmentName: "MarkdownUserNameRenderer_name",
                         fragmentPropName: "name",
@@ -14745,6 +14755,7 @@ Request {
                   InlineFragment {
                     selections: [
                       ModuleImport {
+                        args: null,
                         documentName: "NameRendererFragment",
                         fragmentName: "PlainUserNameRenderer_name",
                         fragmentPropName: "name",
@@ -14756,6 +14767,7 @@ Request {
                   InlineFragment {
                     selections: [
                       ModuleImport {
+                        args: null,
                         documentName: "NameRendererFragment",
                         fragmentName: "MarkdownUserNameRenderer_name",
                         fragmentPropName: "name",
@@ -15177,6 +15189,7 @@ Request {
                   InlineFragment {
                     selections: [
                       ModuleImport {
+                        args: null,
                         documentName: "NameRendererFragment",
                         fragmentName: "PlainUserNameRenderer_name",
                         fragmentPropName: "name",
@@ -15188,6 +15201,7 @@ Request {
                   InlineFragment {
                     selections: [
                       ModuleImport {
+                        args: null,
                         documentName: "NameRendererFragment",
                         fragmentName: "MarkdownUserNameRenderer_name",
                         fragmentPropName: "name",
@@ -15581,6 +15595,7 @@ Request {
                   InlineFragment {
                     selections: [
                       ModuleImport {
+                        args: null,
                         documentName: "NameRendererFragment",
                         fragmentName: "PlainUserNameRenderer_name",
                         fragmentPropName: "name",
@@ -15592,6 +15607,7 @@ Request {
                   InlineFragment {
                     selections: [
                       ModuleImport {
+                        args: null,
                         documentName: "NameRendererFragment",
                         fragmentName: "MarkdownUserNameRenderer_name",
                         fragmentPropName: "name",
@@ -15971,6 +15987,7 @@ Request {
                   InlineFragment {
                     selections: [
                       ModuleImport {
+                        args: null,
                         documentName: "NameRendererFragment",
                         fragmentName: "MarkdownUserNameRenderer_name",
                         fragmentPropName: "name",
@@ -18424,7 +18441,6 @@ Request {
                   Stream {
                     if: null,
                     label: "PaginationFragment$stream$PaginationFragment_friends",
-                    metadata: null,
                     selections: [
                       LinkedField {
                         alias: null,
@@ -18465,7 +18481,6 @@ Request {
                         storageKey: null,
                       },
                     ],
-                    useCustomizedBatch: null,
                   },
                   Defer {
                     if: null,
@@ -19193,7 +19208,6 @@ Request {
                   Stream {
                     if: null,
                     label: "PaginationFragment$stream$PaginationFragment_friends",
-                    metadata: null,
                     selections: [
                       LinkedField {
                         alias: null,
@@ -19234,7 +19248,6 @@ Request {
                         storageKey: null,
                       },
                     ],
-                    useCustomizedBatch: null,
                   },
                   Defer {
                     if: null,
@@ -20527,6 +20540,193 @@ query StableLiteralsTest {
 
 `;
 
+exports[`compileRelayArtifacts matches expected output: stream-and-handle.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query streamAndHandleQuery {
+  node(id: "<id>") {
+    ...streamAndHandleFragment
+  }
+}
+
+fragment streamAndHandleFragment on Feedback {
+  actors
+    @stream(label: "actors", if: true, initial_count: 0)
+    @__clientField(handle: "actors_handler") {
+    name @__clientField(handle: "name_handler")
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+Request {
+  fragment: Fragment {
+    argumentDefinitions: [],
+    metadata: null,
+    name: "streamAndHandleQuery",
+    selections: [
+      LinkedField {
+        alias: null,
+        args: [
+          Literal {
+            name: "id",
+            value: "<id>",
+          },
+        ],
+        concreteType: null,
+        name: "node",
+        plural: false,
+        selections: [
+          FragmentSpread {
+            args: null,
+            name: "streamAndHandleFragment",
+          },
+        ],
+        storageKey: "node(id:\\"<id>\\")",
+      },
+    ],
+    type: "Query",
+    abstractKey: null,
+  },
+  operation: Operation {
+    argumentDefinitions: [],
+    name: "streamAndHandleQuery",
+    selections: [
+      LinkedField {
+        alias: null,
+        args: [
+          Literal {
+            name: "id",
+            value: "<id>",
+          },
+        ],
+        concreteType: null,
+        name: "node",
+        plural: false,
+        selections: [
+          ScalarField {
+            alias: null,
+            args: null,
+            name: "__typename",
+            storageKey: null,
+          },
+          ScalarField {
+            alias: null,
+            args: null,
+            name: "id",
+            storageKey: null,
+          },
+          InlineFragment {
+            selections: [
+              Stream {
+                if: null,
+                label: "streamAndHandleFragment$stream$actors",
+                selections: [
+                  LinkedField {
+                    alias: null,
+                    args: null,
+                    concreteType: null,
+                    name: "actors",
+                    plural: true,
+                    selections: [
+                      ScalarField {
+                        alias: null,
+                        args: null,
+                        name: "__typename",
+                        storageKey: null,
+                      },
+                      ScalarField {
+                        alias: null,
+                        args: null,
+                        name: "name",
+                        storageKey: null,
+                      },
+                      ScalarHandle {
+                        alias: null,
+                        args: null,
+                        filters: null,
+                        handle: "name_handler",
+                        key: "",
+                        name: "name",
+                      },
+                      ScalarField {
+                        alias: null,
+                        args: null,
+                        name: "id",
+                        storageKey: null,
+                      },
+                    ],
+                    storageKey: null,
+                  },
+                  LinkedHandle {
+                    alias: null,
+                    args: null,
+                    filters: null,
+                    handle: "actors_handler",
+                    key: "",
+                    name: "actors",
+                  },
+                ],
+              },
+            ],
+            type: "Feedback",
+            abstractKey: null,
+          },
+        ],
+        storageKey: "node(id:\\"<id>\\")",
+      },
+    ],
+  },
+}
+
+QUERY:
+
+query streamAndHandleQuery {
+  node(id: "<id>") {
+    __typename
+    ...streamAndHandleFragment
+    id
+  }
+}
+
+fragment streamAndHandleFragment on Feedback {
+  actors @stream(label: "streamAndHandleFragment$stream$actors", if: true, initial_count: 0) {
+    __typename
+    name
+    id
+  }
+}
+
+
+Fragment {
+  argumentDefinitions: [],
+  metadata: null,
+  name: "streamAndHandleFragment",
+  selections: [
+    Stream {
+      selections: [
+        LinkedField {
+          alias: "actors",
+          args: null,
+          concreteType: null,
+          name: "__actors_actors_handler",
+          plural: true,
+          selections: [
+            ScalarField {
+              alias: "name",
+              args: null,
+              name: "__name_name_handler",
+              storageKey: null,
+            },
+          ],
+          storageKey: null,
+        },
+      ],
+    },
+  ],
+  type: "Feedback",
+  abstractKey: null,
+}
+`;
+
 exports[`compileRelayArtifacts matches expected output: stream-connection.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query NodeQuery($id: ID!) {
@@ -20732,7 +20932,6 @@ Request {
                   Stream {
                     if: null,
                     label: "NodeQuery$stream$NodeQuery_comments",
-                    metadata: null,
                     selections: [
                       LinkedField {
                         alias: null,
@@ -20801,7 +21000,6 @@ Request {
                         storageKey: null,
                       },
                     ],
-                    useCustomizedBatch: null,
                   },
                   Defer {
                     if: null,

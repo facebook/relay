@@ -12,14 +12,13 @@
 
 'use strict';
 
-const IRTransformer = require('../core/IRTransformer');
-
-const {generateIDField} = require('../core/SchemaUtils');
-const {hasUnaliasedSelection} = require('./TransformUtils');
-
 import type CompilerContext from '../core/CompilerContext';
 import type {InlineFragment, LinkedField, ScalarField} from '../core/IR';
 import type {CompositeTypeID} from '../core/Schema';
+
+const IRTransformer = require('../core/IRTransformer');
+const {generateIDField} = require('../core/SchemaUtils');
+const {hasUnaliasedSelection} = require('./TransformUtils');
 
 const ID = 'id';
 const NODE_TYPE = 'Node';
@@ -77,6 +76,7 @@ function generateIDFieldTransform(context: CompilerContext): CompilerContext {
 }
 
 function visitLinkedField(field: LinkedField, state: State): LinkedField {
+  // $FlowFixMe[incompatible-use]
   const transformedNode = this.traverse(field, state);
 
   // If the field already has an unaliased `id` field, do nothing
@@ -84,6 +84,7 @@ function visitLinkedField(field: LinkedField, state: State): LinkedField {
     return transformedNode;
   }
 
+  // $FlowFixMe[incompatible-use]
   const context: CompilerContext = this.getContext();
   const schema = context.getSchema();
   const unmodifiedType = schema.assertCompositeType(

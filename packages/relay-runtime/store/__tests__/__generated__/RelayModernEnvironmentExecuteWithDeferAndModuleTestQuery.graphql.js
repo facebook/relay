@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<f2832fe97e2834f69d80283a47347ed1>>
+ * @generated SignedSource<<b0d684fd86e4dce1cbbf28a09107aa82>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,14 +20,14 @@
 import type { ConcreteRequest } from 'relay-runtime';
 type RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user$ref = any;
 export type RelayModernEnvironmentExecuteWithDeferAndModuleTestQueryVariables = {|
-  id: string
+  id: string,
 |};
 export type RelayModernEnvironmentExecuteWithDeferAndModuleTestQueryResponse = {|
   +node: ?{|
     +__fragmentPropName?: ?string,
     +__module_component?: ?string,
     +$fragmentRefs: RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user$ref,
-  |}
+  |},
 |};
 export type RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery = {|
   variables: RelayModernEnvironmentExecuteWithDeferAndModuleTestQueryVariables,
@@ -55,6 +55,7 @@ v2 = [
     "kind": "InlineFragment",
     "selections": [
       {
+        "args": null,
         "documentName": "RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery",
         "fragmentName": "RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user",
         "fragmentPropName": "user",

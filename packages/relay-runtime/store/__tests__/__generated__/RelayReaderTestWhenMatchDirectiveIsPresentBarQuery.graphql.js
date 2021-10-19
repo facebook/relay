@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<75340541519c0d2d713335cf7d83262b>>
+ * @generated SignedSource<<9df21e9689a75be0bb6aa8d50d53a913>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,8 +20,8 @@ type RelayReaderTestWhenMatchDirectiveIsPresentBarFragment$ref = any;
 export type RelayReaderTestWhenMatchDirectiveIsPresentBarQueryVariables = {||};
 export type RelayReaderTestWhenMatchDirectiveIsPresentBarQueryResponse = {|
   +me: ?{|
-    +$fragmentRefs: RelayReaderTestWhenMatchDirectiveIsPresentBarFragment$ref
-  |}
+    +$fragmentRefs: RelayReaderTestWhenMatchDirectiveIsPresentBarFragment$ref,
+  |},
 |};
 export type RelayReaderTestWhenMatchDirectiveIsPresentBarQuery = {|
   variables: RelayReaderTestWhenMatchDirectiveIsPresentBarQueryVariables,
@@ -105,6 +105,7 @@ var node/*: ConcreteRequest*/ = {
                 "kind": "InlineFragment",
                 "selections": [
                   {
+                    "args": null,
                     "documentName": "RelayReaderTestWhenMatchDirectiveIsPresentBarFragment",
                     "fragmentName": "RelayReaderTestWhenMatchDirectiveIsPresentPlainUserNameRenderer_name",
                     "fragmentPropName": "name",
@@ -118,6 +119,7 @@ var node/*: ConcreteRequest*/ = {
                 "kind": "InlineFragment",
                 "selections": [
                   {
+                    "args": null,
                     "documentName": "RelayReaderTestWhenMatchDirectiveIsPresentBarFragment",
                     "fragmentName": "RelayReaderTestWhenMatchDirectiveIsPresentMarkdownUserNameRenderer_name",
                     "fragmentPropName": "name",

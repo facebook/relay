@@ -26,12 +26,12 @@ subscription TestSubscription($input: FeedbackLikeInput) {
 }
 ==================================== OUTPUT ===================================
 export type ExampleQueryVariables = {|
-  id: string
+  id: string,
 |};
 export type ExampleQueryResponse = {|
   +node: ?{|
-    +id: string
-  |}
+    +id: string,
+  |},
 |};
 export type ExampleQuery = {|
   variables: ExampleQueryVariables,
@@ -44,20 +44,20 @@ export type CommentCreateInput = {|
   feedback?: ?CommentfeedbackFeedback,
 |};
 export type CommentfeedbackFeedback = {|
-  comment?: ?FeedbackcommentComment
+  comment?: ?FeedbackcommentComment,
 |};
 export type FeedbackcommentComment = {|
-  feedback?: ?CommentfeedbackFeedback
+  feedback?: ?CommentfeedbackFeedback,
 |};
 export type TestMutationVariables = {|
-  input: CommentCreateInput
+  input: CommentCreateInput,
 |};
 export type TestMutationResponse = {|
   +commentCreate: ?{|
     +comment: ?{|
-      +id: string
-    |}
-  |}
+      +id: string,
+    |},
+  |},
 |};
 export type TestMutation = {|
   variables: TestMutationVariables,
@@ -69,14 +69,14 @@ export type FeedbackLikeInput = {|
   feedbackId?: ?string,
 |};
 export type TestSubscriptionVariables = {|
-  input?: ?FeedbackLikeInput
+  input?: ?FeedbackLikeInput,
 |};
 export type TestSubscriptionResponse = {|
   +feedbackLikeSubscribe: ?{|
     +feedback: ?{|
-      +id: string
-    |}
-  |}
+      +id: string,
+    |},
+  |},
 |};
 export type TestSubscription = {|
   variables: TestSubscriptionVariables,

@@ -8,6 +8,7 @@
 use crate::build_project::{Artifact, ArtifactContent};
 use fnv::{FnvBuildHasher, FnvHashMap};
 use interner::StringKey;
+use relay_codegen::QueryID;
 use serde::{Deserialize, Serialize};
 use std::{collections::hash_map::Entry, path::PathBuf};
 
@@ -31,7 +32,10 @@ impl ArtifactMap {
             persisted_operation_id: match artifact.content {
                 ArtifactContent::Operation {
                     id_and_text_hash, ..
-                } => id_and_text_hash.map(|(id, _)| id),
+                } => match id_and_text_hash {
+                    Some(QueryID::Persisted { id, .. }) => Some(id),
+                    _ => None,
+                },
                 _ => None,
             },
         };

@@ -12,11 +12,16 @@
 // flowlint ambiguous-object-type:error
 
 'use strict';
+const RelayTestRenderer = require('../__mocks__/RelayTestRenderer');
+const {
+  createContainer: createFragmentContainer,
+} = require('../ReactRelayFragmentContainer');
+const QueryRenderer = require('../ReactRelayQueryRenderer');
+const ReactRelayTestMocker = require('../ReactRelayTestMocker');
 const React = require('react');
 const ReactTestRenderer = require('react-test-renderer');
-const RelayTestUtils = require('relay-test-utils-internal');
-
 const {getRequest, graphql} = require('relay-runtime');
+const RelayTestUtils = require('relay-test-utils-internal');
 
 const ReactRelayTestMockerTestQuery = graphql`
   query ReactRelayTestMockerTestQuery {
@@ -25,7 +30,6 @@ const ReactRelayTestMockerTestQuery = graphql`
     }
   }
 `;
-
 const ReactRelayTestMockerTestNestedQuery = graphql`
   query ReactRelayTestMockerTestNestedQuery {
     viewer {
@@ -37,7 +41,6 @@ const ReactRelayTestMockerTestNestedQuery = graphql`
     }
   }
 `;
-
 const ReactRelayTestMockerTest_meFragmentDefinition = {
   me: graphql`
     fragment ReactRelayTestMockerTest_me on User {
@@ -45,7 +48,6 @@ const ReactRelayTestMockerTest_meFragmentDefinition = {
     }
   `,
 };
-
 const ReactRelayTestMockerTestFragContainerTestQuery = graphql`
   query ReactRelayTestMockerTestFragContainerTestQuery {
     me {
@@ -53,14 +55,7 @@ const ReactRelayTestMockerTestFragContainerTestQuery = graphql`
     }
   }
 `;
-
 const {createMockEnvironment} = RelayTestUtils;
-const ReactRelayTestMocker = require('../ReactRelayTestMocker');
-const QueryRenderer = require('../ReactRelayQueryRenderer');
-const {
-  createContainer: createFragmentContainer,
-} = require('../ReactRelayFragmentContainer');
-const RelayTestRenderer = require('../__mocks__/RelayTestRenderer');
 
 describe('ReactRelayTestMocker', () => {
   describe('generateId', () => {
@@ -223,6 +218,7 @@ describe('ReactRelayTestMocker', () => {
 
       writer.networkWrite({
         query: getRequest(ReactRelayTestMockerTestQuery),
+        // $FlowFixMe[incompatible-call]
         payload: {
           data: null,
           errors: [

@@ -5,11 +5,17 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use fnv::FnvHashMap;
+use fnv::FnvBuildHasher;
+use indexmap::{IndexMap, IndexSet};
 use interner::StringKey;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Deserialize)]
+use crate::FlowTypegenRollout;
+
+type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
+type FnvIndexSet<T> = IndexSet<T, FnvBuildHasher>;
+
+#[derive(Debug, Copy, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(deny_unknown_fields, rename_all = "lowercase")]
 pub enum TypegenLanguage {
     Flow,
@@ -22,7 +28,7 @@ impl Default for TypegenLanguage {
     }
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
 pub struct TypegenConfig {
     /// The desired output language, "flow" or "typescript".
@@ -36,6 +42,14 @@ pub struct TypegenConfig {
     /// Note: an empty string is allowed and different from not setting the
     /// value, in the example above it would just import from "Foo".
     pub enum_module_suffix: Option<String>,
+
+    /// # For Flow type generation
+    /// Generate enum files using Flow Enums instead of string unions for the
+    /// given GraphQL enum names.
+    /// Enums with names that start with lowercase are invalid Flow Enum values
+    /// and always generate legacy enums.
+    #[serde(default)]
+    pub flow_enums: FnvIndexSet<StringKey>,
 
     /// # For Flow type generation
     /// When set, generated input types will have the listed fields optional
@@ -60,12 +74,16 @@ pub struct TypegenConfig {
     /// A map from GraphQL scalar types to a custom JS type, example:
     /// { "Url": "String" }
     #[serde(default)]
-    pub custom_scalar_types: FnvHashMap<StringKey, StringKey>,
+    pub custom_scalar_types: FnvIndexMap<StringKey, StringKey>,
 
-    /// Use haste style (global name) imports instead of common-js path based
-    /// style.
+    /// Require all GraphQL scalar types mapping to be defined, will throw
+    /// if a GraphQL scalar type doesn't have a JS type
     #[serde(default)]
-    pub haste: bool,
+    pub require_custom_scalar_types: bool,
+
+    /// Work in progress new Flow type definitions
+    #[serde(default)]
+    pub flow_typegen_rollout: FlowTypegenRollout,
 }
 
 // Custom impl for Default to set future proofness to true when using Default::default().
@@ -78,8 +96,10 @@ impl Default for TypegenConfig {
             use_import_type_syntax: false,
             future_proof_abstract_types: default_future_proofness(),
             future_proof_enums: default_future_proofness(),
-            custom_scalar_types: FnvHashMap::default(),
-            haste: false,
+            custom_scalar_types: FnvIndexMap::default(),
+            flow_enums: FnvIndexSet::default(),
+            require_custom_scalar_types: false,
+            flow_typegen_rollout: FlowTypegenRollout::default(),
         }
     }
 }

@@ -40,7 +40,7 @@ impl Validator for ValidateGlobalVariables<'_> {
         {
             return Ok(());
         }
-        let variables = self.visitor.infer_operation_variables(operation);
+        let (variables, _) = self.visitor.infer_operation_variables(operation);
 
         let undefined_variables: Vec<_> = variables
             .values()

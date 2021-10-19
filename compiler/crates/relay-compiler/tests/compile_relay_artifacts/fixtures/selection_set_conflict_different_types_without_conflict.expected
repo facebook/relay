@@ -1,0 +1,158 @@
+==================================== INPUT ====================================
+query selectionSetConflictDifferentTypesWithoutConflictQuery {
+  username(name: "me") {
+    ... on User {
+      same_alias: lastName
+    }
+    ... on Page {
+      same_alias: name
+    }
+  }
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "selectionSetConflictDifferentTypesWithoutConflictQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Literal",
+            "name": "name",
+            "value": "me"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "username",
+        "plural": false,
+        "selections": [
+          {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "alias": "same_alias",
+                "args": null,
+                "kind": "ScalarField",
+                "name": "lastName",
+                "storageKey": null
+              }
+            ],
+            "type": "User",
+            "abstractKey": null
+          },
+          {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "alias": "same_alias",
+                "args": null,
+                "kind": "ScalarField",
+                "name": "name",
+                "storageKey": null
+              }
+            ],
+            "type": "Page",
+            "abstractKey": null
+          }
+        ],
+        "storageKey": "username(name:\"me\")"
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [],
+    "kind": "Operation",
+    "name": "selectionSetConflictDifferentTypesWithoutConflictQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Literal",
+            "name": "name",
+            "value": "me"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "username",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "__typename",
+            "storageKey": null
+          },
+          {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "alias": "same_alias",
+                "args": null,
+                "kind": "ScalarField",
+                "name": "lastName",
+                "storageKey": null
+              }
+            ],
+            "type": "User",
+            "abstractKey": null
+          },
+          {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "alias": "same_alias",
+                "args": null,
+                "kind": "ScalarField",
+                "name": "name",
+                "storageKey": null
+              }
+            ],
+            "type": "Page",
+            "abstractKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          }
+        ],
+        "storageKey": "username(name:\"me\")"
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {},
+    "name": "selectionSetConflictDifferentTypesWithoutConflictQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query selectionSetConflictDifferentTypesWithoutConflictQuery {
+  username(name: "me") {
+    __typename
+    ... on User {
+      same_alias: lastName
+    }
+    ... on Page {
+      same_alias: name
+    }
+    id
+  }
+}

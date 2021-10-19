@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<88b468bd4c81acab46c4bb0cd4a379eb>>
+ * @generated SignedSource<<b1a7af6c794ef0eed51efcdf514d0bc0>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,7 +21,7 @@ export type ActorNameChangeInput = {|
   newName?: ?string,
 |};
 export type validateMutationTest5ChangeNameBirthdayMutationVariables = {|
-  input: ActorNameChangeInput
+  input: ActorNameChangeInput,
 |};
 export type validateMutationTest5ChangeNameBirthdayMutationResponse = {|
   +actorNameChange: ?{|
@@ -32,8 +32,8 @@ export type validateMutationTest5ChangeNameBirthdayMutationResponse = {|
         +year: ?number,
       |},
       +username?: ?string,
-    |}
-  |}
+    |},
+  |},
 |};
 export type validateMutationTest5ChangeNameBirthdayMutation = {|
   variables: validateMutationTest5ChangeNameBirthdayMutationVariables,

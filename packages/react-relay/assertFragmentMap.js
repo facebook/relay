@@ -12,9 +12,9 @@
 
 'use strict';
 
-const invariant = require('invariant');
-
 import type {GeneratedNodeMap} from './ReactRelayTypes';
+
+const invariant = require('invariant');
 
 /**
  * Fail fast if the user supplies invalid fragments as input.

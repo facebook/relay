@@ -1,0 +1,27 @@
+==================================== INPUT ====================================
+# F1
+query Q1 {
+  me {
+    ...F1
+  }
+}
+fragment F1 on User {
+  pop_star_name
+}
+
+# %definitions%
+
+fragment resolverFragment on User {
+  name
+}
+
+%extensions%
+extend type User {
+  pop_star_name: String @relay_resolver(fragment_name: "resolverFragment", import_path: "PopStarNameResolver")
+}
+==================================== OUTPUT ===================================
+Fragment: F1
+
+Fragment: resolverFragment
+
+Operation: Q1

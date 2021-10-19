@@ -12,15 +12,14 @@
 
 'use strict';
 
-const inferRootArgumentDefinitions = require('../core/inferRootArgumentDefinitions');
+import type CompilerContext from '../core/CompilerContext';
+import type {ArgumentDefinition} from '../core/IR';
 
 const {
   createUserError,
   eachWithCombinedError,
 } = require('../core/CompilerError');
-
-import type CompilerContext from '../core/CompilerContext';
-import type {ArgumentDefinition} from '../core/IR';
+const inferRootArgumentDefinitions = require('../core/inferRootArgumentDefinitions');
 
 const SCHEMA_EXTENSION =
   'directive @DEPRECATED__relay_ignore_unused_variables_error on QUERY | MUTATION | SUBSCRIPTION';

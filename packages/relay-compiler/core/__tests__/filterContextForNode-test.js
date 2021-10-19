@@ -14,10 +14,8 @@
 'use strict';
 
 const CompilerContext = require('../CompilerContext');
-const IRPrinter = require('../IRPrinter');
-
 const filterContextForNode = require('../filterContextForNode');
-
+const IRPrinter = require('../IRPrinter');
 const {
   TestSchema,
   generateTestsFromFixtures,

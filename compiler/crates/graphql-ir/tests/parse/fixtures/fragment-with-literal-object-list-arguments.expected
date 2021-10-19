@@ -155,6 +155,7 @@ fragment ChildFragment on Query
                         item: "argumentDefinitions",
                     },
                     arguments: [],
+                    data: None,
                 },
             ],
             selections: [

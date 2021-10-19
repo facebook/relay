@@ -1,0 +1,13 @@
+query supportedArgQuery {
+  me {
+    list: nameRenderer(supported: ["foo", "bar"]) {
+      __typename
+    }
+    single_item_list: nameRenderer(supported: ["foo"]) {
+      __typename
+    }
+    single_item_list_omitted: nameRenderer(supported: "foo") {
+      __typename
+    }
+  }
+}

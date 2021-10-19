@@ -12,14 +12,13 @@
 
 'use strict';
 
-const crypto = require('crypto');
-const nullthrows = require('nullthrows');
-
-const {getName} = require('./GraphQLASTUtils');
-
 import type CodegenDirectory, {Filesystem} from '../codegen/CodegenDirectory';
 import type {SourceChanges} from './Sources';
 import type {ExecutableDefinitionNode} from 'graphql';
+
+const {getName} = require('./GraphQLASTUtils');
+const crypto = require('crypto');
+const nullthrows = require('nullthrows');
 
 type Filename = string;
 

@@ -13,11 +13,10 @@
 
 'use strict';
 
-const ApplyFragmentArgumentTransform = require('../ApplyFragmentArgumentTransform');
 const CompilerContext = require('../../core/CompilerContext');
 const IRPrinter = require('../../core/IRPrinter');
 const RelayParser = require('../../core/RelayParser');
-
+const ApplyFragmentArgumentTransform = require('../ApplyFragmentArgumentTransform');
 const {
   TestSchema,
   generateTestsFromFixtures,

@@ -13,21 +13,26 @@
 
 'use strict';
 
-const RelayModernEnvironment = require('../RelayModernEnvironment');
-const RelayModernStore = require('../RelayModernStore');
+import type {NormalizationRootNode} from '../../util/NormalizationNode';
+
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const RelayRecordSource = require('../RelayRecordSource');
-
-const nullthrows = require('nullthrows');
-
+const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
+const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
+const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {getSingularSelector} = require('../RelayModernSelector');
-const {generateAndCompile} = require('relay-test-utils-internal');
+const RelayModernStore = require('../RelayModernStore');
+const RelayRecordSource = require('../RelayRecordSource');
+const nullthrows = require('nullthrows');
+const {
+  cannotReadPropertyOfUndefined__DEPRECATED,
+  disallowWarnings,
+} = require('relay-test-utils-internal');
 
-import type {NormalizationRootNode} from '../../util/NormalizationNode';
+disallowWarnings();
 
 describe('execute() a query with nested @match', () => {
   let callbacks: {|
@@ -60,47 +65,48 @@ describe('execute() a query with nested @match', () => {
   let variables;
 
   beforeEach(() => {
-    jest.resetModules();
+    markdownRendererNormalizationFragment = require('./__generated__/RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name$normalization.graphql');
+    plaintextRendererNormalizationFragment = require('./__generated__/RelayModernEnvironmentExecuteWithNestedMatchTestPlainUserNameRenderer_name$normalization.graphql');
 
-    ({
-      UserQuery: query,
-      MarkdownUserNameRenderer_name: markdownRendererFragment,
-      PlainUserNameRenderer_name: plaintextRendererFragment,
-      MarkdownUserNameRenderer_name$normalization: markdownRendererNormalizationFragment,
-      PlainUserNameRenderer_name$normalization: plaintextRendererNormalizationFragment,
-    } = generateAndCompile(`
-        query UserQuery($id: ID!) {
-          node(id: $id) {
-            ... on User {
-              outerRenderer: nameRenderer @match {
-                ...MarkdownUserNameRenderer_name
-                  @module(name: "MarkdownUserNameRenderer.react")
-              }
+    query = getRequest(graphql`
+      query RelayModernEnvironmentExecuteWithNestedMatchTestUserQuery(
+        $id: ID!
+      ) {
+        node(id: $id) {
+          ... on User {
+            outerRenderer: nameRenderer @match {
+              ...RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name
+                @module(name: "MarkdownUserNameRenderer.react")
             }
           }
         }
+      }
+    `);
 
-        fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
-          __typename
-          markdown
-          data {
-            markup @__clientField(handle: "markup_handler")
-          }
-          user {
-            innerRenderer: nameRenderer @match {
-                ...PlainUserNameRenderer_name
-                  @module(name: "PlainUserNameRenderer.react")
-            }
+    markdownRendererFragment = getFragment(graphql`
+      fragment RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+        __typename
+        markdown
+        data {
+          markup @__clientField(handle: "markup_handler")
+        }
+        user {
+          innerRenderer: nameRenderer @match {
+            ...RelayModernEnvironmentExecuteWithNestedMatchTestPlainUserNameRenderer_name
+              @module(name: "PlainUserNameRenderer.react")
           }
         }
+      }
+    `);
 
-        fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
-          plaintext
-          data {
-            text
-          }
+    plaintextRendererFragment = getFragment(graphql`
+      fragment RelayModernEnvironmentExecuteWithNestedMatchTestPlainUserNameRenderer_name on PlainUserNameRenderer {
+        plaintext
+        data {
+          text
         }
-      `));
+      }
+    `);
     variables = {id: '1'};
     operation = createOperationDescriptor(query, variables);
 
@@ -161,9 +167,10 @@ describe('execute() a query with nested @match', () => {
           __typename: 'User',
           outerRenderer: {
             __typename: 'MarkdownUserNameRenderer',
-            __module_component_UserQuery: 'MarkdownUserNameRenderer.react',
-            __module_operation_UserQuery:
-              'MarkdownUserNameRenderer_name$normalization.graphql',
+            __module_component_RelayModernEnvironmentExecuteWithNestedMatchTestUserQuery:
+              'MarkdownUserNameRenderer.react',
+            __module_operation_RelayModernEnvironmentExecuteWithNestedMatchTestUserQuery:
+              'RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
             markdown: 'markdown payload',
             data: {
               markup: '<markup/>',
@@ -172,10 +179,10 @@ describe('execute() a query with nested @match', () => {
               id: '2',
               innerRenderer: {
                 __typename: 'PlainUserNameRenderer',
-                __module_component_MarkdownUserNameRenderer_name:
+                __module_component_RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name:
                   'PlainUserNameRenderer.react',
-                __module_operation_MarkdownUserNameRenderer_name:
-                  'PlainUserNameRenderer_name$normalization.graphql',
+                __module_operation_RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name:
+                  'RelayModernEnvironmentExecuteWithNestedMatchTestPlainUserNameRenderer_name$normalization.graphql',
                 plaintext: 'plaintext payload',
                 data: {
                   text: 'plaintext!',
@@ -202,10 +209,11 @@ describe('execute() a query with nested @match', () => {
           __fragmentPropName: 'name',
 
           __fragments: {
-            MarkdownUserNameRenderer_name: {},
+            RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name: {},
           },
 
           __fragmentOwner: operation.request,
+          __isWithinUnmatchedTypeRefinement: false,
           __module_component: 'MarkdownUserNameRenderer.react',
         },
       },
@@ -236,11 +244,13 @@ describe('execute() a query with nested @match', () => {
           __typename: 'User',
           outerRenderer: {
             __typename: 'MarkdownUserNameRenderer',
-            __module_component_UserQuery: 'MarkdownUserNameRenderer.react',
-            __module_operation_UserQuery:
-              'MarkdownUserNameRenderer_name$normalization.graphql',
+            __module_component_RelayModernEnvironmentExecuteWithNestedMatchTestUserQuery:
+              'MarkdownUserNameRenderer.react',
+            __module_operation_RelayModernEnvironmentExecuteWithNestedMatchTestUserQuery:
+              'RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
             markdown: 'markdown payload',
             data: {
+              id: 'data-1',
               // NOTE: should be uppercased when normalized (by MarkupHandler)
               markup: '<markup/>',
             },
@@ -248,12 +258,13 @@ describe('execute() a query with nested @match', () => {
               id: '2',
               innerRenderer: {
                 __typename: 'PlainUserNameRenderer',
-                __module_component_MarkdownUserNameRenderer_name:
+                __module_component_RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name:
                   'PlainUserNameRenderer.react',
-                __module_operation_MarkdownUserNameRenderer_name:
-                  'PlainUserNameRenderer_name$normalizationgraphql',
+                __module_operation_RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name:
+                  'RelayModernEnvironmentExecuteWithNestedMatchTestPlainUserNameRenderer_name$normalizationgraphql',
                 plaintext: 'plaintext payload',
                 data: {
+                  id: 'data-2',
                   text: 'plaintext!',
                 },
               },
@@ -268,7 +279,7 @@ describe('execute() a query with nested @match', () => {
 
     expect(operationLoader.load).toBeCalledTimes(1);
     expect(operationLoader.load.mock.calls[0][0]).toEqual(
-      'MarkdownUserNameRenderer_name$normalization.graphql',
+      'RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
     );
 
     expect(operationCallback).toBeCalledTimes(1);
@@ -306,10 +317,11 @@ describe('execute() a query with nested @match', () => {
       user: {
         innerRenderer: {
           __fragmentOwner: operation.request,
+          __isWithinUnmatchedTypeRefinement: false,
           __fragmentPropName: 'name',
 
           __fragments: {
-            PlainUserNameRenderer_name: {},
+            RelayModernEnvironmentExecuteWithNestedMatchTestPlainUserNameRenderer_name: {},
           },
 
           __id: 'client:2:nameRenderer(supported:["PlainUserNameRenderer"])',
@@ -352,11 +364,13 @@ describe('execute() a query with nested @match', () => {
           __typename: 'User',
           outerRenderer: {
             __typename: 'MarkdownUserNameRenderer',
-            __module_component_UserQuery: 'MarkdownUserNameRenderer.react',
-            __module_operation_UserQuery:
-              'MarkdownUserNameRenderer_name$normalization.graphql',
+            __module_component_RelayModernEnvironmentExecuteWithNestedMatchTestUserQuery:
+              'MarkdownUserNameRenderer.react',
+            __module_operation_RelayModernEnvironmentExecuteWithNestedMatchTestUserQuery:
+              'RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
             markdown: 'markdown payload',
             data: {
+              id: 'data-1',
               // NOTE: should be uppercased when normalized (by MarkupHandler)
               markup: '<markup/>',
             },
@@ -364,12 +378,13 @@ describe('execute() a query with nested @match', () => {
               id: '2',
               innerRenderer: {
                 __typename: 'PlainUserNameRenderer',
-                __module_component_MarkdownUserNameRenderer_name:
+                __module_component_RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name:
                   'PlainUserNameRenderer.react',
-                __module_operation_MarkdownUserNameRenderer_name:
-                  'PlainUserNameRenderer_name$normalization.graphql',
+                __module_operation_RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name:
+                  'RelayModernEnvironmentExecuteWithNestedMatchTestPlainUserNameRenderer_name$normalization.graphql',
                 plaintext: 'plaintext payload',
                 data: {
+                  id: 'data-2',
                   text: 'plaintext!',
                 },
               },
@@ -387,7 +402,7 @@ describe('execute() a query with nested @match', () => {
 
     expect(operationLoader.load).toBeCalledTimes(1);
     expect(operationLoader.load.mock.calls[0][0]).toBe(
-      'MarkdownUserNameRenderer_name$normalization.graphql',
+      'RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
     );
     resolveFragment(markdownRendererNormalizationFragment);
     jest.runAllTimers();
@@ -398,7 +413,7 @@ describe('execute() a query with nested @match', () => {
 
     expect(operationLoader.load).toBeCalledTimes(2);
     expect(operationLoader.load.mock.calls[1][0]).toBe(
-      'PlainUserNameRenderer_name$normalization.graphql',
+      'RelayModernEnvironmentExecuteWithNestedMatchTestPlainUserNameRenderer_name$normalization.graphql',
     );
     resolveFragment(plaintextRendererNormalizationFragment);
     jest.runAllTimers();
@@ -417,11 +432,13 @@ describe('execute() a query with nested @match', () => {
           __typename: 'User',
           outerRenderer: {
             __typename: 'MarkdownUserNameRenderer',
-            __module_component_UserQuery: 'MarkdownUserNameRenderer.react',
-            __module_operation_UserQuery:
-              'MarkdownUserNameRenderer_name$normalization.graphql',
+            __module_component_RelayModernEnvironmentExecuteWithNestedMatchTestUserQuery:
+              'MarkdownUserNameRenderer.react',
+            __module_operation_RelayModernEnvironmentExecuteWithNestedMatchTestUserQuery:
+              'RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
             markdown: 'markdown payload',
             data: {
+              id: 'data-1',
               // NOTE: should be uppercased when normalized (by MarkupHandler)
               markup: '<markup/>',
             },
@@ -429,12 +446,13 @@ describe('execute() a query with nested @match', () => {
               id: '2',
               innerRenderer: {
                 __typename: 'PlainUserNameRenderer',
-                __module_component_MarkdownUserNameRenderer_name:
+                __module_component_RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name:
                   'PlainUserNameRenderer.react',
-                __module_operation_MarkdownUserNameRenderer_name:
-                  'PlainUserNameRenderer_name$normalization.graphql',
+                __module_operation_RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name:
+                  'RelayModernEnvironmentExecuteWithNestedMatchTestPlainUserNameRenderer_name$normalization.graphql',
                 plaintext: 'plaintext payload',
                 data: {
+                  id: 'data-2',
                   text: 'plaintext!',
                 },
               },
@@ -448,7 +466,7 @@ describe('execute() a query with nested @match', () => {
 
     expect(operationLoader.load).toBeCalledTimes(1);
     expect(operationLoader.load.mock.calls[0][0]).toBe(
-      'MarkdownUserNameRenderer_name$normalization.graphql',
+      'RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
     );
     resolveFragment(markdownRendererNormalizationFragment);
     jest.runAllTimers();
@@ -462,7 +480,7 @@ describe('execute() a query with nested @match', () => {
 
     expect(operationLoader.load).toBeCalledTimes(2);
     expect(operationLoader.load.mock.calls[1][0]).toBe(
-      'PlainUserNameRenderer_name$normalization.graphql',
+      'RelayModernEnvironmentExecuteWithNestedMatchTestPlainUserNameRenderer_name$normalization.graphql',
     );
     resolveFragment(plaintextRendererNormalizationFragment);
     jest.runAllTimers();
@@ -482,11 +500,13 @@ describe('execute() a query with nested @match', () => {
           __typename: 'User',
           outerRenderer: {
             __typename: 'MarkdownUserNameRenderer',
-            __module_component_UserQuery: 'MarkdownUserNameRenderer.react',
-            __module_operation_UserQuery:
-              'MarkdownUserNameRenderer_name$normalization.graphql',
+            __module_component_RelayModernEnvironmentExecuteWithNestedMatchTestUserQuery:
+              'MarkdownUserNameRenderer.react',
+            __module_operation_RelayModernEnvironmentExecuteWithNestedMatchTestUserQuery:
+              'RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
             markdown: 'markdown payload',
             data: {
+              id: 'data-1',
               // NOTE: should be uppercased when normalized (by MarkupHandler)
               markup: '<markup/>',
             },
@@ -494,12 +514,13 @@ describe('execute() a query with nested @match', () => {
               id: '2',
               innerRenderer: {
                 __typename: 'PlainUserNameRenderer',
-                __module_component_MarkdownUserNameRenderer_name:
+                __module_component_RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name:
                   'PlainUserNameRenderer.react',
-                __module_operation_MarkdownUserNameRenderer_name:
-                  'PlainUserNameRenderer_name$normalization.graphql',
+                __module_operation_RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name:
+                  'RelayModernEnvironmentExecuteWithNestedMatchTestPlainUserNameRenderer_name$normalization.graphql',
                 plaintext: 'plaintext payload',
                 data: {
+                  id: 'data-2',
                   text: 'plaintext!',
                 },
               },
@@ -511,7 +532,7 @@ describe('execute() a query with nested @match', () => {
     dataSource.next(payload);
     expect(operationLoader.load).toBeCalledTimes(1);
     expect(operationLoader.load.mock.calls[0][0]).toBe(
-      'MarkdownUserNameRenderer_name$normalization.graphql',
+      'RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
     );
     resolveFragment(markdownRendererNormalizationFragment);
 
@@ -525,7 +546,7 @@ describe('execute() a query with nested @match', () => {
 
     expect(callbacks.error).toBeCalledTimes(1);
     expect(callbacks.error.mock.calls[0][0].message).toBe(
-      "Cannot read property 'length' of undefined",
+      cannotReadPropertyOfUndefined__DEPRECATED('length'),
     );
   });
 
@@ -538,9 +559,10 @@ describe('execute() a query with nested @match', () => {
           __typename: 'User',
           outerRenderer: {
             __typename: 'MarkdownUserNameRenderer',
-            __module_component_UserQuery: 'MarkdownUserNameRenderer.react',
-            __module_operation_UserQuery:
-              'MarkdownUserNameRenderer_name$normalization.graphql',
+            __module_component_RelayModernEnvironmentExecuteWithNestedMatchTestUserQuery:
+              'MarkdownUserNameRenderer.react',
+            __module_operation_RelayModernEnvironmentExecuteWithNestedMatchTestUserQuery:
+              'RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
             markdown: 'markdown payload',
             data: {
               // NOTE: should be uppercased when normalized (by MarkupHandler)
@@ -550,10 +572,10 @@ describe('execute() a query with nested @match', () => {
               id: '2',
               innerRenderer: {
                 __typename: 'PlainUserNameRenderer',
-                __module_component_MarkdownUserNameRenderer_name:
+                __module_component_RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name:
                   'PlainUserNameRenderer.react',
-                __module_operation_MarkdownUserNameRenderer_name:
-                  'PlainUserNameRenderer_name$normalization.graphql',
+                __module_operation_RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name:
+                  'RelayModernEnvironmentExecuteWithNestedMatchTestPlainUserNameRenderer_name$normalization.graphql',
                 plaintext: 'plaintext payload',
                 data: {
                   text: 'plaintext!',
@@ -573,7 +595,7 @@ describe('execute() a query with nested @match', () => {
 
     expect(operationLoader.load).toBeCalledTimes(1);
     expect(operationLoader.load.mock.calls[0][0]).toEqual(
-      'MarkdownUserNameRenderer_name$normalization.graphql',
+      'RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
     );
     // Cancel before the fragment resolves; normalization should be skipped
     subscription.unsubscribe();
@@ -609,11 +631,13 @@ describe('execute() a query with nested @match', () => {
           __typename: 'User',
           outerRenderer: {
             __typename: 'MarkdownUserNameRenderer',
-            __module_component_UserQuery: 'MarkdownUserNameRenderer.react',
-            __module_operation_UserQuery:
-              'MarkdownUserNameRenderer_name$normalization.graphql',
+            __module_component_RelayModernEnvironmentExecuteWithNestedMatchTestUserQuery:
+              'MarkdownUserNameRenderer.react',
+            __module_operation_RelayModernEnvironmentExecuteWithNestedMatchTestUserQuery:
+              'RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
             markdown: 'markdown payload',
             data: {
+              id: 'data-1',
               // NOTE: should be uppercased when normalized (by MarkupHandler)
               markup: '<markup/>',
             },
@@ -621,12 +645,13 @@ describe('execute() a query with nested @match', () => {
               id: '2',
               innerRenderer: {
                 __typename: 'PlainUserNameRenderer',
-                __module_component_MarkdownUserNameRenderer_name:
+                __module_component_RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name:
                   'PlainUserNameRenderer.react',
-                __module_operation_MarkdownUserNameRenderer_name:
-                  'PlainUserNameRenderer_name$normalization.graphql',
+                __module_operation_RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name:
+                  'RelayModernEnvironmentExecuteWithNestedMatchTestPlainUserNameRenderer_name$normalization.graphql',
                 plaintext: 'plaintext payload',
                 data: {
+                  id: 'data-2',
                   text: 'plaintext!',
                 },
               },
@@ -644,7 +669,7 @@ describe('execute() a query with nested @match', () => {
 
     expect(operationLoader.load).toBeCalledTimes(1);
     expect(operationLoader.load.mock.calls[0][0]).toEqual(
-      'MarkdownUserNameRenderer_name$normalization.graphql',
+      'RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
     );
     resolveFragment(markdownRendererNormalizationFragment);
     jest.runAllTimers();

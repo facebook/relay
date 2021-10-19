@@ -1,0 +1,10 @@
+# expected-to-throw
+query selectionSetConflictWithFragmentQuery {
+  me {
+    same_alias: name
+    ...selectionSetConflictWithFragmentFrag
+  }
+}
+fragment selectionSetConflictWithFragmentFrag on User {
+  same_alias: id
+}

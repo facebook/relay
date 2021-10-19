@@ -1,0 +1,232 @@
+==================================== INPUT ====================================
+query supportedArgQuery {
+  me {
+    list: nameRenderer(supported: ["foo", "bar"]) {
+      __typename
+    }
+    single_item_list: nameRenderer(supported: ["foo"]) {
+      __typename
+    }
+    single_item_list_omitted: nameRenderer(supported: "foo") {
+      __typename
+    }
+  }
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "supportedArgQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "me",
+        "plural": false,
+        "selections": [
+          {
+            "alias": "list",
+            "args": [
+              {
+                "kind": "Literal",
+                "name": "supported",
+                "value": "QJLet"
+              }
+            ],
+            "concreteType": null,
+            "kind": "LinkedField",
+            "name": "nameRenderer",
+            "plural": false,
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "__typename",
+                "storageKey": null
+              }
+            ],
+            "storageKey": "nameRenderer(supported:\"QJLet\")"
+          },
+          {
+            "alias": "single_item_list",
+            "args": [
+              {
+                "kind": "Literal",
+                "name": "supported",
+                "value": "39n7hz"
+              }
+            ],
+            "concreteType": null,
+            "kind": "LinkedField",
+            "name": "nameRenderer",
+            "plural": false,
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "__typename",
+                "storageKey": null
+              }
+            ],
+            "storageKey": "nameRenderer(supported:\"39n7hz\")"
+          },
+          {
+            "alias": "single_item_list_omitted",
+            "args": [
+              {
+                "kind": "Literal",
+                "name": "supported",
+                "value": "39n7hz"
+              }
+            ],
+            "concreteType": null,
+            "kind": "LinkedField",
+            "name": "nameRenderer",
+            "plural": false,
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "__typename",
+                "storageKey": null
+              }
+            ],
+            "storageKey": "nameRenderer(supported:\"39n7hz\")"
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [],
+    "kind": "Operation",
+    "name": "supportedArgQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "me",
+        "plural": false,
+        "selections": [
+          {
+            "alias": "list",
+            "args": [
+              {
+                "kind": "Literal",
+                "name": "supported",
+                "value": "QJLet"
+              }
+            ],
+            "concreteType": null,
+            "kind": "LinkedField",
+            "name": "nameRenderer",
+            "plural": false,
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "__typename",
+                "storageKey": null
+              }
+            ],
+            "storageKey": "nameRenderer(supported:\"QJLet\")"
+          },
+          {
+            "alias": "single_item_list",
+            "args": [
+              {
+                "kind": "Literal",
+                "name": "supported",
+                "value": "39n7hz"
+              }
+            ],
+            "concreteType": null,
+            "kind": "LinkedField",
+            "name": "nameRenderer",
+            "plural": false,
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "__typename",
+                "storageKey": null
+              }
+            ],
+            "storageKey": "nameRenderer(supported:\"39n7hz\")"
+          },
+          {
+            "alias": "single_item_list_omitted",
+            "args": [
+              {
+                "kind": "Literal",
+                "name": "supported",
+                "value": "39n7hz"
+              }
+            ],
+            "concreteType": null,
+            "kind": "LinkedField",
+            "name": "nameRenderer",
+            "plural": false,
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "__typename",
+                "storageKey": null
+              }
+            ],
+            "storageKey": "nameRenderer(supported:\"39n7hz\")"
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {},
+    "name": "supportedArgQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query supportedArgQuery {
+  me {
+    list: nameRenderer(supported: ["foo", "bar"]) {
+      __typename
+    }
+    single_item_list: nameRenderer(supported: ["foo"]) {
+      __typename
+    }
+    single_item_list_omitted: nameRenderer(supported: "foo") {
+      __typename
+    }
+    id
+  }
+}

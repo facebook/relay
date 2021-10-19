@@ -13,9 +13,9 @@
 
 'use strict';
 
-const {isPromise} = require('relay-runtime');
-
 import type {Reporter} from '../reporters/Reporter';
+
+const {isPromise} = require('relay-runtime');
 
 function reportTime<T>(reporter: Reporter, message: string, fn: () => T): T {
   return reportAndReturnTime(reporter, message, fn)[0];

@@ -12,12 +12,11 @@
 
 'use strict';
 
-const GraphQLNodeMap = require('./GraphQLNodeMap');
+import type {ExecutableDefinitionNode} from 'graphql';
 
 const {getName} = require('./GraphQLASTUtils');
+const GraphQLNodeMap = require('./GraphQLNodeMap');
 const {visit} = require('graphql');
-
-import type {ExecutableDefinitionNode} from 'graphql';
 
 type DependencyMap = Map<string, Array<string>>;
 

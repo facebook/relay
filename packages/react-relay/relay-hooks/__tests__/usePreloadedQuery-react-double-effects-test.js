@@ -13,21 +13,28 @@
 
 'use strict';
 
-const React = require('react');
-const ReactTestRenderer = require('react-test-renderer');
-const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
-
+const {loadQuery} = require('../loadQuery');
 const preloadQuery_DEPRECATED = require('../preloadQuery_DEPRECATED');
+const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const useFragment = require('../useFragment');
 const usePreloadedQuery = require('../usePreloadedQuery');
-
-const {loadQuery} = require('../loadQuery');
+const React = require('react');
 const {useEffect} = require('react');
-const {Observable, createOperationDescriptor} = require('relay-runtime');
+const ReactTestRenderer = require('react-test-renderer');
+const {
+  Observable,
+  createOperationDescriptor,
+  getFragment,
+  getRequest,
+  graphql,
+} = require('relay-runtime');
+const {createMockEnvironment} = require('relay-test-utils');
 
 function expectToHaveFetched(environment, query, {count} = {}) {
+  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(environment.executeWithSource).toBeCalledTimes(count ?? 1);
   expect(
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     environment.executeWithSource.mock.calls[0][0].operation,
   ).toMatchObject({
     fragment: expect.anything(),
@@ -50,8 +57,6 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
   let gqlQuery;
   let gqlQueryWithDefer;
   let gqlFragment;
-  let createMockEnvironment;
-  let generateAndCompile;
   let query;
   let queryWithDefer;
   let variables;
@@ -71,14 +76,10 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
       };
     });
 
-    ({
-      createMockEnvironment,
-      generateAndCompile,
-    } = require('relay-test-utils-internal'));
-
     environment = createMockEnvironment();
 
     release = jest.fn();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const originalRetain = environment.retain;
     (environment: $FlowFixMe).retain = jest.fn(operation => {
       const originalDisposable = originalRetain(operation);
@@ -91,6 +92,7 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
     });
 
     cancelNetworkRequest = jest.fn();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const originalExecuteWithSource = environment.executeWithSource;
     (environment: $FlowFixMe).executeWithSource = jest.fn((...args) => {
       const originalObservable = originalExecuteWithSource(...args);
@@ -104,30 +106,29 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
       });
     });
 
-    const generated = generateAndCompile(`
-      fragment UserFragment on User {
-        firstName
-      }
-
-      query UserQuery($id: ID) {
+    gqlQuery = getRequest(graphql`
+      query usePreloadedQueryReactDoubleEffectsTestQuery($id: ID) {
         node(id: $id) {
           id
           name
-          ...UserFragment
-        }
-      }
-
-      query UserQueryWithDefer($id: ID) {
-        node(id: $id) {
-          id
-          name
-          ...UserFragment @defer
+          ...usePreloadedQueryReactDoubleEffectsTestFragment
         }
       }
     `);
-    gqlQuery = generated.UserQuery;
-    gqlQueryWithDefer = generated.UserQueryWithDefer;
-    gqlFragment = generated.UserFragment;
+    gqlQueryWithDefer = getRequest(graphql`
+      query usePreloadedQueryReactDoubleEffectsTestDeferQuery($id: ID) {
+        node(id: $id) {
+          id
+          name
+          ...usePreloadedQueryReactDoubleEffectsTestFragment @defer
+        }
+      }
+    `);
+    gqlFragment = getFragment(graphql`
+      fragment usePreloadedQueryReactDoubleEffectsTestFragment on User {
+        firstName
+      }
+    `);
     variables = {id: '1'};
     query = createOperationDescriptor(gqlQuery, variables, {force: true});
     queryWithDefer = createOperationDescriptor(gqlQueryWithDefer, variables, {
@@ -193,15 +194,21 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
         const queryRef = loadQuery(environment, gqlQuery, variables, {
           fetchPolicy: 'network-only',
         });
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.executeWithSource).toHaveBeenCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toHaveBeenCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         environment.executeWithSource.mockClear();
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         environment.retain.mockClear();
 
         const instance = render(gqlQuery, queryRef);
 
         // Assert that query is suspended
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.executeWithSource).toHaveBeenCalledTimes(0);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toHaveBeenCalledTimes(1);
         expect(renderLogs).toEqual([]);
         expect(instance.toJSON()).toEqual('Fallback');
@@ -233,7 +240,9 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
 
         // The effect setup will re-execute, so we assert that
         // a re-render is triggered to re-retain
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.executeWithSource).toHaveBeenCalledTimes(0);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toHaveBeenCalledTimes(2);
         expect(instance.toJSON()).toEqual('Alice 1');
 
@@ -259,6 +268,7 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
           jest.runAllTimers();
         });
         expect(release).toHaveBeenCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toHaveBeenCalledTimes(2);
       });
 
@@ -266,15 +276,21 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
         const queryRef = loadQuery(environment, gqlQuery, variables, {
           fetchPolicy: 'store-or-network',
         });
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.executeWithSource).toHaveBeenCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toHaveBeenCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         environment.executeWithSource.mockClear();
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         environment.retain.mockClear();
 
         const instance = render(gqlQuery, queryRef);
 
         // Assert that query is suspended
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.executeWithSource).toHaveBeenCalledTimes(0);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toHaveBeenCalledTimes(1);
         expect(renderLogs).toEqual([]);
         expect(instance.toJSON()).toEqual('Fallback');
@@ -306,7 +322,9 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
 
         // The effect setup will re-execute, so we assert that
         // a re-render is triggered to re-retain
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.executeWithSource).toHaveBeenCalledTimes(0);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toHaveBeenCalledTimes(2);
         expect(instance.toJSON()).toEqual('Alice 1');
 
@@ -332,6 +350,7 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
           jest.runAllTimers();
         });
         expect(release).toHaveBeenCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toHaveBeenCalledTimes(2);
       });
     });
@@ -355,9 +374,13 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
           });
           jest.runAllImmediates();
         });
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.executeWithSource).toHaveBeenCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toHaveBeenCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         environment.executeWithSource.mockClear();
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         environment.retain.mockClear();
 
         const instance = render(gqlQuery, queryRef);
@@ -374,7 +397,9 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
 
         // The effect setup will re-execute, so we assert that
         // a re-render is triggered to re-retain
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.executeWithSource).toHaveBeenCalledTimes(0);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toHaveBeenCalledTimes(2);
         expect(instance.toJSON()).toEqual('Alice 1');
 
@@ -400,6 +425,7 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
           jest.runAllTimers();
         });
         expect(release).toHaveBeenCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toHaveBeenCalledTimes(2);
       });
 
@@ -421,9 +447,13 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
           });
           jest.runAllImmediates();
         });
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.executeWithSource).toHaveBeenCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toHaveBeenCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         environment.executeWithSource.mockClear();
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         environment.retain.mockClear();
 
         const instance = render(gqlQuery, queryRef);
@@ -440,7 +470,9 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
 
         // The effect setup will re-execute, so we assert that
         // a re-render is triggered to re-retain
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.executeWithSource).toHaveBeenCalledTimes(0);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toHaveBeenCalledTimes(2);
         expect(instance.toJSON()).toEqual('Alice 1');
 
@@ -466,6 +498,7 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
           jest.runAllTimers();
         });
         expect(release).toHaveBeenCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toHaveBeenCalledTimes(2);
       });
     });
@@ -475,15 +508,21 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
         const queryRef = loadQuery(environment, gqlQueryWithDefer, variables, {
           fetchPolicy: 'network-only',
         });
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.executeWithSource).toHaveBeenCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toHaveBeenCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         environment.executeWithSource.mockClear();
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         environment.retain.mockClear();
 
         const instance = render(gqlQueryWithDefer, queryRef);
 
         // Assert that query is suspended
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.executeWithSource).toHaveBeenCalledTimes(0);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toHaveBeenCalledTimes(1);
         expect(renderLogs).toEqual([]);
         expect(instance.toJSON()).toEqual('Fallback');
@@ -517,8 +556,10 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
         // a re-render is triggered to re-retain.
         // Assert that after re-render: double invoke effects don't trigger
         // again, and that we don't trigger a second refetch
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.executeWithSource).toHaveBeenCalledTimes(0);
         expect(release).toHaveBeenCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toHaveBeenCalledTimes(2);
         expect(instance.toJSON()).toEqual(['Alice 1', 'Loading fragment']);
 
@@ -556,8 +597,10 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
 
         // Assert that after request completes: double invoke effects don't trigger
         // again, and that we don't trigger a second refetch
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.execute).toHaveBeenCalledTimes(0);
         expect(release).toHaveBeenCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toHaveBeenCalledTimes(2);
         expect(renderLogs).toEqual([]);
         expect(instance.toJSON()).toEqual('Alice 1');
@@ -568,6 +611,7 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
           jest.runAllTimers();
         });
         expect(release).toHaveBeenCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toHaveBeenCalledTimes(2);
       });
 
@@ -575,15 +619,21 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
         const queryRef = loadQuery(environment, gqlQueryWithDefer, variables, {
           fetchPolicy: 'store-or-network',
         });
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.executeWithSource).toHaveBeenCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toHaveBeenCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         environment.executeWithSource.mockClear();
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         environment.retain.mockClear();
 
         const instance = render(gqlQueryWithDefer, queryRef);
 
         // Assert that query is suspended
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.executeWithSource).toHaveBeenCalledTimes(0);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toHaveBeenCalledTimes(1);
         expect(renderLogs).toEqual([]);
         expect(instance.toJSON()).toEqual('Fallback');
@@ -617,8 +667,10 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
         // a re-render is triggered to re-retain.
         // Assert that after re-render: double invoke effects don't trigger
         // again, and that we don't trigger a second refetch
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.executeWithSource).toHaveBeenCalledTimes(0);
         expect(release).toHaveBeenCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toHaveBeenCalledTimes(2);
         expect(instance.toJSON()).toEqual(['Alice 1', 'Loading fragment']);
 
@@ -656,8 +708,10 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
 
         // Assert that after request completes: double invoke effects don't trigger
         // again, and that we don't trigger a second refetch
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.execute).toHaveBeenCalledTimes(0);
         expect(release).toHaveBeenCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toHaveBeenCalledTimes(2);
         expect(renderLogs).toEqual([]);
         expect(instance.toJSON()).toEqual('Alice 1');
@@ -668,6 +722,7 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
           jest.runAllTimers();
         });
         expect(release).toHaveBeenCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toHaveBeenCalledTimes(2);
       });
     });
@@ -688,11 +743,13 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
 
         // Assert that query is suspended
         expectToHaveFetched(environment, query);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toHaveBeenCalledTimes(1);
         expect(renderLogs).toEqual([]);
         expect(instance.toJSON()).toEqual('Fallback');
 
         // Resolve network response
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         environment.executeWithSource.mockClear();
         ReactTestRenderer.act(() => {
           environment.mock.resolve(gqlQuery, {
@@ -722,6 +779,7 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
         // a re-render is triggered to refetch, re-retain, and
         // re-suspend:
         expectToHaveFetched(environment, query);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toHaveBeenCalledTimes(2);
         expect(instance.toJSON()).toEqual('Fallback');
 
@@ -739,6 +797,7 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
 
         // Resolve response for second request
         renderLogs = [];
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         environment.execute.mockClear();
         ReactTestRenderer.act(() => {
           environment.mock.resolve(gqlQuery, {
@@ -756,8 +815,10 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
 
         // Assert that after refetch: double invoke effects don't trigger
         // again, and that we don't trigger a second refetch
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.execute).toHaveBeenCalledTimes(0);
         expect(release).toHaveBeenCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toHaveBeenCalledTimes(2);
         expect(renderLogs).toEqual([
           'render: Alice 2',
@@ -772,6 +833,7 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
           jest.runAllTimers();
         });
         expect(release).toHaveBeenCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toHaveBeenCalledTimes(2);
       });
 
@@ -788,11 +850,13 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
 
         // Assert that query is suspended
         expectToHaveFetched(environment, query);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toHaveBeenCalledTimes(1);
         expect(renderLogs).toEqual([]);
         expect(instance.toJSON()).toEqual('Fallback');
 
         // Resolve network response
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         environment.executeWithSource.mockClear();
         ReactTestRenderer.act(() => {
           environment.mock.resolve(gqlQuery, {
@@ -820,7 +884,9 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
 
         // The effect setup will re-execute, so we assert that
         // a re-render is triggered to re-retain
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.executeWithSource).toHaveBeenCalledTimes(0);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toHaveBeenCalledTimes(2);
         expect(instance.toJSON()).toEqual('Alice 1');
 
@@ -846,6 +912,7 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
           jest.runAllTimers();
         });
         expect(release).toHaveBeenCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toHaveBeenCalledTimes(2);
       });
     });
@@ -893,6 +960,7 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
         // Since executeWithSource is called during render, it will
         // be called twice here, and we verify the request is in flight.
         expectToHaveFetched(environment, query, {count: 2});
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toHaveBeenCalledTimes(2);
         expect(instance.toJSON()).toEqual('Fallback');
 
@@ -910,6 +978,7 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
 
         // Resolve response for second request
         renderLogs = [];
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         environment.execute.mockClear();
         ReactTestRenderer.act(() => {
           environment.mock.resolve(gqlQuery, {
@@ -927,8 +996,10 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
 
         // Assert that after refetch: double invoke effects don't trigger
         // again, and that we don't trigger a second refetch
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.execute).toHaveBeenCalledTimes(0);
         expect(release).toHaveBeenCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toHaveBeenCalledTimes(2);
         expect(renderLogs).toEqual([
           'render: Alice 2',
@@ -943,6 +1014,7 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
           jest.runAllTimers();
         });
         expect(release).toHaveBeenCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toHaveBeenCalledTimes(2);
       });
 
@@ -986,6 +1058,7 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
 
         // Execute with source is only called once, since it's called
         // during render, but a new request should not be in flight
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.executeWithSource).toHaveBeenCalledTimes(1);
         expect(
           environment.mock.isLoading(
@@ -996,6 +1069,7 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
             },
           ),
         ).toEqual(false);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toHaveBeenCalledTimes(2);
         expect(instance.toJSON()).toEqual('Alice 1');
 
@@ -1021,6 +1095,7 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
           jest.runAllTimers();
         });
         expect(release).toHaveBeenCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toHaveBeenCalledTimes(2);
       });
     });
@@ -1039,6 +1114,7 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
 
         // Assert that query is suspended
         expectToHaveFetched(environment, queryWithDefer);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toHaveBeenCalledTimes(1);
         expect(renderLogs).toEqual([]);
         expect(instance.toJSON()).toEqual('Fallback');
@@ -1061,20 +1137,26 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
         // will mount, and React double invoke effects will be triggered,
         // simulating what would happen if the component was hidden and re-shown:
 
-        // The effect cleanup will execute, so we assert that
-        // the query is disposed and the request is cancelled
+        // The effect cleanup will execute, so we assert that the query is
+        // disposed. The network request is not canceled because it is not
+        // a live query.
         expect(release).toHaveBeenCalledTimes(1);
-        expect(cancelNetworkRequest).toHaveBeenCalledTimes(1);
+        expect(cancelNetworkRequest).toHaveBeenCalledTimes(0);
 
         // The effect setup will re-execute, so we assert that
-        // a re-render is triggered to refetch, re-retain, and
-        // re-suspend:
+        // a re-render is triggered along with another retain:
 
         // Since executeWithSource is called during render, it will
-        // be called twice here, and we verify the request is in flight.
-        expectToHaveFetched(environment, queryWithDefer, {count: 2});
+        // still be called once even though we don't make a network request
+        // again.
+        expectToHaveFetched(environment, queryWithDefer, {count: 1});
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toHaveBeenCalledTimes(2);
-        expect(instance.toJSON()).toEqual(['Fallback']);
+        // Since the request is not canceled when the component is hidden,
+        // it's still underway when the component is shown again; therefore
+        // the component sees the initial part even though it's network-only,
+        // and doesn't re-suspend.
+        expect(instance.toJSON()).toEqual(['Alice 1', 'Loading fragment']);
 
         // Assert render state of component
         expect(renderLogs).toEqual([
@@ -1086,6 +1168,10 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
           // Note that render doesn't happen in between:
           'cleanup: Alice 1',
           'commit: Alice 1',
+
+          // Assert final re-render triggered by query.
+          // It does not trigger a commit since the name didn't change.
+          'render: Alice 1',
         ]);
 
         // Resolve response for second request
@@ -1106,8 +1192,10 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
 
         // Assert that after refetch: double invoke effects don't trigger
         // again, and that we don't trigger a second refetch
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.execute).toHaveBeenCalledTimes(0);
         expect(release).toHaveBeenCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toHaveBeenCalledTimes(2);
         expect(renderLogs).toEqual([
           'render: Alice 2',
@@ -1132,8 +1220,10 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
 
         // Assert that after request completes: double invoke effects don't trigger
         // again, and that we don't trigger a second refetch
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.execute).toHaveBeenCalledTimes(0);
         expect(release).toHaveBeenCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toHaveBeenCalledTimes(2);
         expect(renderLogs).toEqual([
           'render: Alice 2',
@@ -1148,6 +1238,7 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
           jest.runAllTimers();
         });
         expect(release).toHaveBeenCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toHaveBeenCalledTimes(2);
       });
 
@@ -1164,6 +1255,7 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
 
         // Assert that query is suspended
         expectToHaveFetched(environment, queryWithDefer);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toHaveBeenCalledTimes(1);
         expect(renderLogs).toEqual([]);
         expect(instance.toJSON()).toEqual('Fallback');
@@ -1189,19 +1281,18 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
         // The effect cleanup will execute, so we assert that
         // the query is disposed and the request is cancelled
         expect(release).toHaveBeenCalledTimes(1);
-        expect(cancelNetworkRequest).toHaveBeenCalledTimes(1);
+        expect(cancelNetworkRequest).toHaveBeenCalledTimes(0);
 
         // The effect setup will re-execute, so we assert that
-        // a re-render is triggered to refetch, re-retain, and
-        // re-suspend:
+        // a re-render is triggered along with another retain:
 
-        // We refetch in this case since the query wasn't fully cached
-        // after receiving only the first payload.
         // Since executeWithSource is called during render, it will
-        // be called twice here, and we verify the request is in flight.
-        expectToHaveFetched(environment, queryWithDefer, {count: 2});
+        // still be called once even though we don't make a network request
+        // again.
+        expectToHaveFetched(environment, queryWithDefer, {count: 1});
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toHaveBeenCalledTimes(2);
-        expect(instance.toJSON()).toEqual(['Fallback']);
+        expect(instance.toJSON()).toEqual(['Alice 1', 'Loading fragment']);
 
         // Assert render state of component
         expect(renderLogs).toEqual([
@@ -1213,6 +1304,10 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
           // Note that render doesn't happen in between:
           'cleanup: Alice 1',
           'commit: Alice 1',
+
+          // Assert final re-render triggered by query.
+          // It does not trigger a commit since the name didn't change.
+          'render: Alice 1',
         ]);
 
         // Resolve response for second request
@@ -1233,8 +1328,10 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
 
         // Assert that after refetch: double invoke effects don't trigger
         // again, and that we don't trigger a second refetch
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.execute).toHaveBeenCalledTimes(0);
         expect(release).toHaveBeenCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toHaveBeenCalledTimes(2);
         expect(renderLogs).toEqual([
           'render: Alice 2',
@@ -1259,8 +1356,10 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
 
         // Assert that after request completes: double invoke effects don't trigger
         // again, and that we don't trigger a second refetch
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.execute).toHaveBeenCalledTimes(0);
         expect(release).toHaveBeenCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toHaveBeenCalledTimes(2);
         expect(renderLogs).toEqual([
           'render: Alice 2',
@@ -1275,6 +1374,7 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
           jest.runAllTimers();
         });
         expect(release).toHaveBeenCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toHaveBeenCalledTimes(2);
       });
     });

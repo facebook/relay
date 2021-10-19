@@ -8,11 +8,10 @@
 #![deny(warnings)]
 #![deny(clippy::all)]
 
-use super::graphqlschema_generated::*;
 use crate::{
-    sdl::SDLSchemaImpl, Argument, ArgumentDefinitions, ArgumentValue, Directive, DirectiveValue,
-    EnumID, EnumValue, FieldID, InputObjectID, InterfaceID, ObjectID, ScalarID, Schema, Type,
-    TypeReference, UnionID,
+    in_memory::InMemorySchema, Argument, ArgumentDefinitions, ArgumentValue, Directive,
+    DirectiveValue, EnumID, EnumValue, FieldID, InputObjectID, InterfaceID, ObjectID, ScalarID,
+    Schema, Type, TypeReference, UnionID,
 };
 use flatbuffers::{FlatBufferBuilder, WIPOffset};
 use fnv::FnvHashMap;
@@ -21,28 +20,28 @@ use interner::StringKey;
 use std::collections::BTreeMap;
 use std::convert::TryInto;
 
-pub fn serialize_as_fb(schema: &SDLSchemaImpl) -> Vec<u8> {
+pub fn serialize_as_flatbuffer(schema: &InMemorySchema) -> Vec<u8> {
     let mut serializer = Serializer::new(&schema);
     serializer.serialize_schema()
 }
 
 struct Serializer<'fb, 'schema> {
-    schema: &'schema SDLSchemaImpl,
+    schema: &'schema InMemorySchema,
     bldr: FlatBufferBuilder<'fb>,
-    scalars: Vec<WIPOffset<FBScalar<'fb>>>,
-    input_objects: Vec<WIPOffset<FBInputObject<'fb>>>,
-    enums: Vec<WIPOffset<FBEnum<'fb>>>,
-    objects: Vec<WIPOffset<FBObject<'fb>>>,
-    interfaces: Vec<WIPOffset<FBInterface<'fb>>>,
-    unions: Vec<WIPOffset<FBUnion<'fb>>>,
-    fields: Vec<WIPOffset<FBField<'fb>>>,
-    types: FnvHashMap<String, WIPOffset<FBTypeMapEntry<'fb>>>,
-    type_map: FnvHashMap<StringKey, FBTypeArgs>,
-    directives: FnvHashMap<String, WIPOffset<FBDirectiveMapEntry<'fb>>>,
+    scalars: Vec<WIPOffset<schema_flatbuffer::Scalar<'fb>>>,
+    input_objects: Vec<WIPOffset<schema_flatbuffer::InputObject<'fb>>>,
+    enums: Vec<WIPOffset<schema_flatbuffer::Enum<'fb>>>,
+    objects: Vec<WIPOffset<schema_flatbuffer::Object<'fb>>>,
+    interfaces: Vec<WIPOffset<schema_flatbuffer::Interface<'fb>>>,
+    unions: Vec<WIPOffset<schema_flatbuffer::Union<'fb>>>,
+    fields: Vec<WIPOffset<schema_flatbuffer::Field<'fb>>>,
+    types: FnvHashMap<String, WIPOffset<schema_flatbuffer::TypeMapEntry<'fb>>>,
+    type_map: FnvHashMap<StringKey, schema_flatbuffer::TypeArgs>,
+    directives: FnvHashMap<String, WIPOffset<schema_flatbuffer::DirectiveMapEntry<'fb>>>,
 }
 
 impl<'fb, 'schema> Serializer<'fb, 'schema> {
-    fn new(schema: &'schema SDLSchemaImpl) -> Self {
+    fn new(schema: &'schema InMemorySchema) -> Self {
         Self {
             schema,
             bldr: FlatBufferBuilder::new(),
@@ -77,7 +76,7 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
         let (has_subscription_type, subscription_type) =
             self.get_object_id(self.schema.subscription_type());
 
-        let schema_args = FBSchemaArgs {
+        let schema_args = schema_flatbuffer::SchemaArgs {
             query_type,
             has_mutation_type,
             mutation_type,
@@ -93,8 +92,8 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
             fields: Some(self.bldr.create_vector(&self.fields)),
             directives: Some(self.bldr.create_vector(&ordered_directives)),
         };
-        let schema_offset = FBSchema::create(&mut self.bldr, &schema_args);
-        finish_fbschema_buffer(&mut self.bldr, schema_offset);
+        let schema_offset = schema_flatbuffer::Schema::create(&mut self.bldr, &schema_args);
+        schema_flatbuffer::finish_schema_buffer(&mut self.bldr, schema_offset);
         self.bldr.finished_data().to_owned()
     }
 
@@ -103,7 +102,7 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
     fn get_object_id(&mut self, type_: Option<Type>) -> (bool, u32) {
         if let Some(type_) = type_ {
             let type_args = self.get_type_args(type_);
-            assert!(type_args.kind == FBTypeKind::Object);
+            assert!(type_args.kind == schema_flatbuffer::TypeKind::Object);
             (true, type_args.object_id)
         } else {
             (false, 0)
@@ -134,22 +133,22 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
             .iter()
             .map(|location| get_mapped_location(*location))
             .collect::<Vec<_>>();
-        let args = FBDirectiveArgs {
+        let args = schema_flatbuffer::DirectiveArgs {
             name: Some(self.bldr.create_string(name)),
             is_extension: directive.is_extension,
             arguments: Some(self.bldr.create_vector(arguments)),
             locations: Some(self.bldr.create_vector(locations)),
             repeatable: directive.repeatable,
         };
-        let fb_directive = FBDirective::create(&mut self.bldr, &args);
+        let fb_directive = schema_flatbuffer::Directive::create(&mut self.bldr, &args);
 
-        let directive_map_args = FBDirectiveMapEntryArgs {
+        let directive_map_args = schema_flatbuffer::DirectiveMapEntryArgs {
             name: Some(self.bldr.create_string(name)),
             value: Some(fb_directive),
         };
         self.directives.insert(
             name.to_string(),
-            FBDirectiveMapEntry::create(&mut self.bldr, &directive_map_args),
+            schema_flatbuffer::DirectiveMapEntry::create(&mut self.bldr, &directive_map_args),
         );
     }
 
@@ -168,7 +167,7 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
         }
     }
 
-    fn get_type_args(&mut self, type_: Type) -> FBTypeArgs {
+    fn get_type_args(&mut self, type_: Type) -> schema_flatbuffer::TypeArgs {
         let name = self.schema.get_type_name(type_);
         if !self.type_map.contains_key(&name) {
             self.serialize_type(type_);
@@ -180,13 +179,18 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
         let scalar = self.schema.scalar(id);
         let name = scalar.name;
         let directives = &self.serialize_directive_values(&scalar.directives);
-        let args = FBScalarArgs {
+        let args = schema_flatbuffer::ScalarArgs {
             name: Some(self.bldr.create_string(name.lookup())),
             is_extension: scalar.is_extension,
             directives: Some(self.bldr.create_vector(directives)),
         };
-        self.add_to_type_map(self.scalars.len(), FBTypeKind::Scalar, name);
-        self.scalars.push(FBScalar::create(&mut self.bldr, &args));
+        self.add_to_type_map(
+            self.scalars.len(),
+            schema_flatbuffer::TypeKind::Scalar,
+            name,
+        );
+        self.scalars
+            .push(schema_flatbuffer::Scalar::create(&mut self.bldr, &args));
     }
 
     fn serialize_input_object(&mut self, id: InputObjectID) {
@@ -194,19 +198,20 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
         let name = input_object.name;
         // Reserve idx and add to typemap. Else we could endup in a cycle
         let idx = self.input_objects.len();
-        self.add_to_type_map(idx, FBTypeKind::InputObject, name);
-        self.input_objects.push(FBInputObject::create(
-            &mut self.bldr,
-            &FBInputObjectArgs::default(),
-        ));
+        self.add_to_type_map(idx, schema_flatbuffer::TypeKind::InputObject, name);
+        self.input_objects
+            .push(schema_flatbuffer::InputObject::create(
+                &mut self.bldr,
+                &schema_flatbuffer::InputObjectArgs::default(),
+            ));
         let items = &self.serialize_directive_values(&input_object.directives);
         let fields = &self.serialize_arguments(&input_object.fields);
-        let args = FBInputObjectArgs {
+        let args = schema_flatbuffer::InputObjectArgs {
             name: Some(self.bldr.create_string(name.lookup())),
             directives: Some(self.bldr.create_vector(items)),
             fields: Some(self.bldr.create_vector(fields)),
         };
-        self.input_objects[idx] = FBInputObject::create(&mut self.bldr, &args);
+        self.input_objects[idx] = schema_flatbuffer::InputObject::create(&mut self.bldr, &args);
     }
 
     fn serialize_enum(&mut self, id: EnumID) {
@@ -214,23 +219,26 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
         let name = enum_.name;
         let directives = &self.serialize_directive_values(&enum_.directives);
         let values = &self.serialize_enum_values(&enum_.values);
-        let args = FBEnumArgs {
+        let args = schema_flatbuffer::EnumArgs {
             name: Some(self.bldr.create_string(name.lookup())),
             is_extension: enum_.is_extension,
             directives: Some(self.bldr.create_vector(directives)),
             values: Some(self.bldr.create_vector(values)),
         };
-        self.add_to_type_map(self.enums.len(), FBTypeKind::Enum, name);
-        self.enums.push(FBEnum::create(&mut self.bldr, &args));
+        self.add_to_type_map(self.enums.len(), schema_flatbuffer::TypeKind::Enum, name);
+        self.enums
+            .push(schema_flatbuffer::Enum::create(&mut self.bldr, &args));
     }
 
     fn serialize_object(&mut self, id: ObjectID) {
         let object = self.schema.object(id);
         let name = object.name;
         let idx = self.objects.len();
-        self.add_to_type_map(idx, FBTypeKind::Object, name);
-        self.objects
-            .push(FBObject::create(&mut self.bldr, &FBObjectArgs::default()));
+        self.add_to_type_map(idx, schema_flatbuffer::TypeKind::Object, name);
+        self.objects.push(schema_flatbuffer::Object::create(
+            &mut self.bldr,
+            &schema_flatbuffer::ObjectArgs::default(),
+        ));
 
         let directives = &self.serialize_directive_values(&object.directives);
         let fields = &object
@@ -246,24 +254,24 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
                     .interface_id
             })
             .collect::<Vec<_>>();
-        let args = FBObjectArgs {
+        let args = schema_flatbuffer::ObjectArgs {
             name: Some(self.bldr.create_string(name.lookup())),
             is_extension: object.is_extension,
             directives: Some(self.bldr.create_vector(directives)),
             fields: Some(self.bldr.create_vector(fields)),
             interfaces: Some(self.bldr.create_vector(interfaces)),
         };
-        self.objects[idx] = FBObject::create(&mut self.bldr, &args);
+        self.objects[idx] = schema_flatbuffer::Object::create(&mut self.bldr, &args);
     }
 
     fn serialize_interface(&mut self, id: InterfaceID) {
         let interface = self.schema.interface(id);
         let name = interface.name;
         let idx = self.interfaces.len();
-        self.add_to_type_map(idx, FBTypeKind::Interface, name);
-        self.interfaces.push(FBInterface::create(
+        self.add_to_type_map(idx, schema_flatbuffer::TypeKind::Interface, name);
+        self.interfaces.push(schema_flatbuffer::Interface::create(
             &mut self.bldr,
-            &FBInterfaceArgs::default(),
+            &schema_flatbuffer::InterfaceArgs::default(),
         ));
 
         let directives = &self.serialize_directive_values(&interface.directives);
@@ -285,7 +293,7 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
             .iter()
             .map(|object_id| self.get_type_args(Type::Object(*object_id)).object_id)
             .collect::<Vec<_>>();
-        let args = FBInterfaceArgs {
+        let args = schema_flatbuffer::InterfaceArgs {
             name: Some(self.bldr.create_string(name.lookup())),
             is_extension: interface.is_extension,
             directives: Some(self.bldr.create_vector(directives)),
@@ -293,16 +301,18 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
             interfaces: Some(self.bldr.create_vector(interfaces)),
             implementing_objects: Some(self.bldr.create_vector(implementing_objects)),
         };
-        self.interfaces[idx] = FBInterface::create(&mut self.bldr, &args);
+        self.interfaces[idx] = schema_flatbuffer::Interface::create(&mut self.bldr, &args);
     }
 
     fn serialize_union(&mut self, id: UnionID) {
         let union = self.schema.union(id);
         let name = union.name;
         let idx = self.unions.len();
-        self.add_to_type_map(idx, FBTypeKind::Union, name);
-        self.unions
-            .push(FBUnion::create(&mut self.bldr, &FBUnionArgs::default()));
+        self.add_to_type_map(idx, schema_flatbuffer::TypeKind::Union, name);
+        self.unions.push(schema_flatbuffer::Union::create(
+            &mut self.bldr,
+            &schema_flatbuffer::UnionArgs::default(),
+        ));
 
         let directives = &self.serialize_directive_values(&union.directives);
         let members = &union
@@ -310,13 +320,13 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
             .iter()
             .map(|object_id| self.get_type_args(Type::Object(*object_id)).object_id)
             .collect::<Vec<_>>();
-        let args = FBUnionArgs {
+        let args = schema_flatbuffer::UnionArgs {
             name: Some(self.bldr.create_string(name.lookup())),
             is_extension: union.is_extension,
             members: Some(self.bldr.create_vector(members)),
             directives: Some(self.bldr.create_vector(directives)),
         };
-        self.unions[idx] = FBUnion::create(&mut self.bldr, &args);
+        self.unions[idx] = schema_flatbuffer::Union::create(&mut self.bldr, &args);
     }
 
     fn serialize_field(&mut self, id: FieldID) -> usize {
@@ -324,7 +334,7 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
         let name = field.name.lookup();
         let directives = &self.serialize_directive_values(&field.directives);
         let arguments = &self.serialize_arguments(&field.arguments);
-        let args = FBFieldArgs {
+        let args = schema_flatbuffer::FieldArgs {
             name: Some(self.bldr.create_string(name)),
             is_extension: field.is_extension,
             arguments: Some(self.bldr.create_vector(arguments)),
@@ -333,80 +343,90 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
             parent_type: match &field.parent_type {
                 Some(type_) => {
                     let args = self.get_type_args(*type_);
-                    Some(FBType::create(&mut self.bldr, &args))
+                    Some(schema_flatbuffer::Type::create(&mut self.bldr, &args))
                 }
                 _ => None,
             },
         };
-        self.fields.push(FBField::create(&mut self.bldr, &args));
+        self.fields
+            .push(schema_flatbuffer::Field::create(&mut self.bldr, &args));
         self.fields.len() - 1
     }
 
-    fn serialize_enum_values(&mut self, values: &[EnumValue]) -> Vec<WIPOffset<FBEnumValue<'fb>>> {
+    fn serialize_enum_values(
+        &mut self,
+        values: &[EnumValue],
+    ) -> Vec<WIPOffset<schema_flatbuffer::EnumValue<'fb>>> {
         values
             .iter()
             .map(|value| self.serialize_enum_value(value))
             .collect::<Vec<_>>()
     }
 
-    fn serialize_enum_value(&mut self, value: &EnumValue) -> WIPOffset<FBEnumValue<'fb>> {
+    fn serialize_enum_value(
+        &mut self,
+        value: &EnumValue,
+    ) -> WIPOffset<schema_flatbuffer::EnumValue<'fb>> {
         let directives = &self.serialize_directive_values(&value.directives);
-        let args = FBEnumValueArgs {
+        let args = schema_flatbuffer::EnumValueArgs {
             value: Some(self.bldr.create_string(value.value.lookup())),
             directives: Some(self.bldr.create_vector(directives)),
         };
-        FBEnumValue::create(&mut self.bldr, &args)
+        schema_flatbuffer::EnumValue::create(&mut self.bldr, &args)
     }
 
     fn serialize_arguments(
         &mut self,
         arguments: &ArgumentDefinitions,
-    ) -> Vec<WIPOffset<FBArgument<'fb>>> {
+    ) -> Vec<WIPOffset<schema_flatbuffer::Argument<'fb>>> {
         arguments
             .iter()
             .map(|argument| self.serialize_argument(argument))
             .collect::<Vec<_>>()
     }
 
-    fn serialize_argument(&mut self, value: &Argument) -> WIPOffset<FBArgument<'fb>> {
-        let args = FBArgumentArgs {
+    fn serialize_argument(
+        &mut self,
+        value: &Argument,
+    ) -> WIPOffset<schema_flatbuffer::Argument<'fb>> {
+        let args = schema_flatbuffer::ArgumentArgs {
             name: Some(self.bldr.create_string(&value.name.lookup())),
-            value: match &value.default_value {
-                Some(default_value) => Some(self.serialize_const_value(default_value)),
-                _ => None,
-            },
+            value: value
+                .default_value
+                .as_ref()
+                .map(|default_value| self.serialize_const_value(default_value)),
             type_: Some(self.serialize_type_reference(&value.type_)),
         };
-        FBArgument::create(&mut self.bldr, &args)
+        schema_flatbuffer::Argument::create(&mut self.bldr, &args)
     }
 
     fn serialize_type_reference(
         &mut self,
         type_: &TypeReference,
-    ) -> WIPOffset<FBTypeReference<'fb>> {
-        let mut args = FBTypeReferenceArgs::default();
+    ) -> WIPOffset<schema_flatbuffer::TypeReference<'fb>> {
+        let mut args = schema_flatbuffer::TypeReferenceArgs::default();
         match type_ {
             TypeReference::Named(type_) => {
                 let type_args = self.get_type_args(*type_);
-                args.kind = FBTypeReferenceKind::Named;
-                args.named = Some(FBType::create(&mut self.bldr, &type_args));
+                args.kind = schema_flatbuffer::TypeReferenceKind::Named;
+                args.named = Some(schema_flatbuffer::Type::create(&mut self.bldr, &type_args));
             }
             TypeReference::List(of) => {
-                args.kind = FBTypeReferenceKind::List;
+                args.kind = schema_flatbuffer::TypeReferenceKind::List;
                 args.list = Some(self.serialize_type_reference(of));
             }
             TypeReference::NonNull(of) => {
-                args.kind = FBTypeReferenceKind::NonNull;
+                args.kind = schema_flatbuffer::TypeReferenceKind::NonNull;
                 args.null = Some(self.serialize_type_reference(of));
             }
         }
-        FBTypeReference::create(&mut self.bldr, &args)
+        schema_flatbuffer::TypeReference::create(&mut self.bldr, &args)
     }
 
     fn serialize_directive_values(
         &mut self,
         directives: &[DirectiveValue],
-    ) -> Vec<WIPOffset<FBDirectiveValue<'fb>>> {
+    ) -> Vec<WIPOffset<schema_flatbuffer::DirectiveValue<'fb>>> {
         directives
             .iter()
             .map(|directive| self.serialize_directive_value(directive))
@@ -416,19 +436,19 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
     fn serialize_directive_value(
         &mut self,
         directive: &DirectiveValue,
-    ) -> WIPOffset<FBDirectiveValue<'fb>> {
+    ) -> WIPOffset<schema_flatbuffer::DirectiveValue<'fb>> {
         let argument_values = &self.serialize_argument_values(&directive.arguments);
-        let args = FBDirectiveValueArgs {
+        let args = schema_flatbuffer::DirectiveValueArgs {
             name: Some(self.bldr.create_string(directive.name.lookup())),
             arguments: Some(self.bldr.create_vector(argument_values)),
         };
-        FBDirectiveValue::create(&mut self.bldr, &args)
+        schema_flatbuffer::DirectiveValue::create(&mut self.bldr, &args)
     }
 
     fn serialize_argument_values(
         &mut self,
         argument_values: &[ArgumentValue],
-    ) -> Vec<WIPOffset<FBArgumentValue<'fb>>> {
+    ) -> Vec<WIPOffset<schema_flatbuffer::ArgumentValue<'fb>>> {
         argument_values
             .iter()
             .map(|argument_value| self.serialize_argument_value(argument_value))
@@ -438,151 +458,165 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
     fn serialize_argument_value(
         &mut self,
         argument_value: &ArgumentValue,
-    ) -> WIPOffset<FBArgumentValue<'fb>> {
-        let args = FBArgumentValueArgs {
+    ) -> WIPOffset<schema_flatbuffer::ArgumentValue<'fb>> {
+        let args = schema_flatbuffer::ArgumentValueArgs {
             name: Some(self.bldr.create_string(&argument_value.name.lookup())),
             value: Some(self.serialize_const_value(&argument_value.value)),
         };
-        FBArgumentValue::create(&mut self.bldr, &args)
+        schema_flatbuffer::ArgumentValue::create(&mut self.bldr, &args)
     }
 
-    fn serialize_const_value(&mut self, value: &ConstantValue) -> WIPOffset<FBConstValue<'fb>> {
-        let mut args = FBConstValueArgs::default();
+    fn serialize_const_value(
+        &mut self,
+        value: &ConstantValue,
+    ) -> WIPOffset<schema_flatbuffer::ConstValue<'fb>> {
+        let mut args = schema_flatbuffer::ConstValueArgs::default();
         match value {
             ConstantValue::String(value) => {
-                args.kind = FBConstValueKind::String;
+                args.kind = schema_flatbuffer::ConstValueKind::String;
                 args.string_value = Some(self.bldr.create_string(&format!("{}", value)));
             }
             ConstantValue::Int(value) => {
-                args.kind = FBConstValueKind::Int;
+                args.kind = schema_flatbuffer::ConstValueKind::Int;
                 args.int_value = Some(self.bldr.create_string(&format!("{}", value)));
             }
             ConstantValue::Float(value) => {
-                args.kind = FBConstValueKind::Float;
+                args.kind = schema_flatbuffer::ConstValueKind::Float;
                 args.float_value = Some(self.bldr.create_string(&format!("{}", value)));
             }
             ConstantValue::Boolean(value) => {
-                args.kind = FBConstValueKind::Bool;
+                args.kind = schema_flatbuffer::ConstValueKind::Bool;
                 args.bool_value = value.value;
             }
             ConstantValue::Enum(value) => {
-                args.kind = FBConstValueKind::Enum;
+                args.kind = schema_flatbuffer::ConstValueKind::Enum;
                 args.enum_value = Some(self.bldr.create_string(&format!("{}", value)));
             }
             ConstantValue::List(value) => {
-                args.kind = FBConstValueKind::List;
+                args.kind = schema_flatbuffer::ConstValueKind::List;
                 args.list_value = Some(self.serialize_list_value(value));
             }
             ConstantValue::Object(value) => {
-                args.kind = FBConstValueKind::Object;
+                args.kind = schema_flatbuffer::ConstValueKind::Object;
                 args.object_value = Some(self.serialize_object_value(value));
             }
             ConstantValue::Null(_) => {
-                args.kind = FBConstValueKind::Null;
+                args.kind = schema_flatbuffer::ConstValueKind::Null;
             }
         };
-        FBConstValue::create(&mut self.bldr, &args)
+        schema_flatbuffer::ConstValue::create(&mut self.bldr, &args)
     }
 
-    fn serialize_list_value(&mut self, list: &List<ConstantValue>) -> WIPOffset<FBListValue<'fb>> {
+    fn serialize_list_value(
+        &mut self,
+        list: &List<ConstantValue>,
+    ) -> WIPOffset<schema_flatbuffer::ListValue<'fb>> {
         let items = &list
             .items
             .iter()
             .map(|value| self.serialize_const_value(value))
             .collect::<Vec<_>>();
-        let args = FBListValueArgs {
+        let args = schema_flatbuffer::ListValueArgs {
             values: Some(self.bldr.create_vector(items)),
         };
-        FBListValue::create(&mut self.bldr, &args)
+        schema_flatbuffer::ListValue::create(&mut self.bldr, &args)
     }
 
     fn serialize_object_value(
         &mut self,
         object: &List<ConstantArgument>,
-    ) -> WIPOffset<FBObjectValue<'fb>> {
+    ) -> WIPOffset<schema_flatbuffer::ObjectValue<'fb>> {
         let items = &object
             .items
             .iter()
             .map(|value| self.serialize_object_field(value))
             .collect::<Vec<_>>();
-        let args = FBObjectValueArgs {
+        let args = schema_flatbuffer::ObjectValueArgs {
             fields: Some(self.bldr.create_vector(items)),
         };
-        FBObjectValue::create(&mut self.bldr, &args)
+        schema_flatbuffer::ObjectValue::create(&mut self.bldr, &args)
     }
 
     fn serialize_object_field(
         &mut self,
         value: &ConstantArgument,
-    ) -> WIPOffset<FBObjectField<'fb>> {
-        let args = FBObjectFieldArgs {
+    ) -> WIPOffset<schema_flatbuffer::ObjectField<'fb>> {
+        let args = schema_flatbuffer::ObjectFieldArgs {
             name: Some(self.bldr.create_string(&format!("{}", value.name))),
             value: Some(self.serialize_const_value(&value.value)),
         };
-        FBObjectField::create(&mut self.bldr, &args)
+        schema_flatbuffer::ObjectField::create(&mut self.bldr, &args)
     }
 
-    fn add_to_type_map(&mut self, id: usize, kind: FBTypeKind, name: StringKey) {
+    fn add_to_type_map(&mut self, id: usize, kind: schema_flatbuffer::TypeKind, name: StringKey) {
         let id = id.try_into().unwrap();
         let type_args = self.build_type_args(id, kind);
-        let args = FBTypeMapEntryArgs {
+        let args = schema_flatbuffer::TypeMapEntryArgs {
             name: Some(self.bldr.create_string(name.lookup())),
-            value: Some(FBType::create(&mut self.bldr, &type_args)),
+            value: Some(schema_flatbuffer::Type::create(&mut self.bldr, &type_args)),
         };
         self.types.insert(
             name.to_string(),
-            FBTypeMapEntry::create(&mut self.bldr, &args),
+            schema_flatbuffer::TypeMapEntry::create(&mut self.bldr, &args),
         );
         self.type_map.insert(name, type_args);
     }
 
-    fn build_type_args(&mut self, id: u32, kind: FBTypeKind) -> FBTypeArgs {
-        let mut type_args = FBTypeArgs::default();
+    #[allow(clippy::field_reassign_with_default)]
+    fn build_type_args(
+        &mut self,
+        id: u32,
+        kind: schema_flatbuffer::TypeKind,
+    ) -> schema_flatbuffer::TypeArgs {
+        let mut type_args = schema_flatbuffer::TypeArgs::default();
         type_args.kind = kind;
         match kind {
-            FBTypeKind::Scalar => {
+            schema_flatbuffer::TypeKind::Scalar => {
                 type_args.scalar_id = id;
             }
-            FBTypeKind::InputObject => {
+            schema_flatbuffer::TypeKind::InputObject => {
                 type_args.input_object_id = id;
             }
-            FBTypeKind::Enum => {
+            schema_flatbuffer::TypeKind::Enum => {
                 type_args.enum_id = id;
             }
-            FBTypeKind::Object => {
+            schema_flatbuffer::TypeKind::Object => {
                 type_args.object_id = id;
             }
-            FBTypeKind::Interface => {
+            schema_flatbuffer::TypeKind::Interface => {
                 type_args.interface_id = id;
             }
-            FBTypeKind::Union => {
+            schema_flatbuffer::TypeKind::Union => {
                 type_args.union_id = id;
             }
+            unknown => panic!("unknown TypeKind value: {:?}", unknown),
         }
         type_args
     }
 }
 
-fn get_mapped_location(location: DirectiveLocation) -> FBDirectiveLocation {
+fn get_mapped_location(location: DirectiveLocation) -> schema_flatbuffer::DirectiveLocation {
+    use schema_flatbuffer::DirectiveLocation as FDL;
+    use DirectiveLocation as DL;
     match location {
-        DirectiveLocation::Query => FBDirectiveLocation::Query,
-        DirectiveLocation::Mutation => FBDirectiveLocation::Mutation,
-        DirectiveLocation::Subscription => FBDirectiveLocation::Subscription,
-        DirectiveLocation::Field => FBDirectiveLocation::Field,
-        DirectiveLocation::FragmentDefinition => FBDirectiveLocation::FragmentDefinition,
-        DirectiveLocation::FragmentSpread => FBDirectiveLocation::FragmentSpread,
-        DirectiveLocation::InlineFragment => FBDirectiveLocation::InlineFragment,
-        DirectiveLocation::Schema => FBDirectiveLocation::Schema,
-        DirectiveLocation::Scalar => FBDirectiveLocation::Scalar,
-        DirectiveLocation::Object => FBDirectiveLocation::Object,
-        DirectiveLocation::FieldDefinition => FBDirectiveLocation::FieldDefinition,
-        DirectiveLocation::ArgumentDefinition => FBDirectiveLocation::ArgumentDefinition,
-        DirectiveLocation::Interface => FBDirectiveLocation::Interface,
-        DirectiveLocation::Union => FBDirectiveLocation::Union,
-        DirectiveLocation::Enum => FBDirectiveLocation::Enum,
-        DirectiveLocation::EnumValue => FBDirectiveLocation::EnumValue,
-        DirectiveLocation::InputObject => FBDirectiveLocation::InputObject,
-        DirectiveLocation::InputFieldDefinition => FBDirectiveLocation::InputFieldDefinition,
-        DirectiveLocation::VariableDefinition => FBDirectiveLocation::VariableDefinition,
+        DL::Query => FDL::Query,
+        DL::Mutation => FDL::Mutation,
+        DL::Subscription => FDL::Subscription,
+        DL::Field => FDL::Field,
+        DL::FragmentDefinition => FDL::FragmentDefinition,
+        DL::FragmentSpread => FDL::FragmentSpread,
+        DL::InlineFragment => FDL::InlineFragment,
+        DL::Schema => FDL::Schema,
+        DL::Scalar => FDL::Scalar,
+        DL::Object => FDL::Object,
+        DL::FieldDefinition => FDL::FieldDefinition,
+        DL::ArgumentDefinition => FDL::ArgumentDefinition,
+        DL::Interface => FDL::Interface,
+        DL::Union => FDL::Union,
+        DL::Enum => FDL::Enum,
+        DL::EnumValue => FDL::EnumValue,
+        DL::InputObject => FDL::InputObject,
+        DL::InputFieldDefinition => FDL::InputFieldDefinition,
+        DL::VariableDefinition => FDL::VariableDefinition,
     }
 }

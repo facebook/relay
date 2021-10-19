@@ -12,13 +12,12 @@
 
 'use strict';
 
-const IRTransformer = require('../core/IRTransformer');
-
-const getLiteralArgumentValues = require('../core/getLiteralArgumentValues');
-const invariant = require('invariant');
-
 import type CompilerContext from '../core/CompilerContext';
 import type {Fragment, FragmentSpread} from '../core/IR';
+
+const getLiteralArgumentValues = require('../core/getLiteralArgumentValues');
+const IRTransformer = require('../core/IRTransformer');
+const invariant = require('invariant');
 
 const RELAY = 'relay';
 const SCHEMA_EXTENSION = `
@@ -49,10 +48,12 @@ function visitRelayMetadata<T: Fragment | FragmentSpread>(
   return function(node) {
     const relayDirective = node.directives.find(({name}) => name === RELAY);
     if (!relayDirective) {
+      // $FlowFixMe[incompatible-use]
       return this.traverse(node);
     }
     const argValues = getLiteralArgumentValues(relayDirective.args);
     const metadata = metadataFn(argValues);
+    // $FlowFixMe[incompatible-use]
     return this.traverse({
       ...node,
       directives: node.directives.filter(

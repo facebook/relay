@@ -12,15 +12,6 @@
 
 'use strict';
 
-const CodeMarker = require('../util/CodeMarker');
-
-const createPrintRequireModuleDependency = require('./createPrintRequireModuleDependency');
-const dedupeJSONStringify = require('../util/dedupeJSONStringify');
-const invariant = require('invariant');
-const md5 = require('../util/md5');
-
-const {RelayConcreteNode} = require('relay-runtime');
-
 import type {GeneratedDefinition} from '../core/IR';
 import type {Schema} from '../core/Schema';
 import type {
@@ -29,6 +20,13 @@ import type {
 } from '../language/RelayLanguagePluginInterface';
 import type CodegenDirectory from './CodegenDirectory';
 import type {GeneratedNode, RequestParameters} from 'relay-runtime';
+
+const CodeMarker = require('../util/CodeMarker');
+const dedupeJSONStringify = require('../util/dedupeJSONStringify');
+const md5 = require('../util/md5');
+const createPrintRequireModuleDependency = require('./createPrintRequireModuleDependency');
+const invariant = require('invariant');
+const {RelayConcreteNode} = require('relay-runtime');
 
 function getConcreteType(node: GeneratedNode): string {
   switch (node.kind) {
@@ -58,7 +56,7 @@ function writeRelayGeneratedFile(
   extension: string,
   printModuleDependency: (
     moduleName: string,
-  ) => string = createPrintRequireModuleDependency(extension),
+  ) => string = createPrintRequireModuleDependency(),
   shouldRepersist: boolean,
   writeQueryParameters: (
     dir: CodegenDirectory,
@@ -125,12 +123,17 @@ function writeRelayGeneratedFile(
           }
         }
         if (id == null) {
+          // $FlowFixMe[incompatible-call]
           id = await persistQuery(docText);
         }
         nextRequestParams = {
           id,
           metadata: nextMetadata,
+          // $FlowFixMe[prop-missing]
+          // $FlowFixMe[incompatible-use]
           name: generatedNode.params.name,
+          // $FlowFixMe[prop-missing]
+          // $FlowFixMe[incompatible-use]
           operationKind: generatedNode.params.operationKind,
           text: null,
         };
@@ -139,13 +142,19 @@ function writeRelayGeneratedFile(
           cacheID: md5(docText),
           id: null,
           metadata: nextMetadata,
+          // $FlowFixMe[prop-missing]
+          // $FlowFixMe[incompatible-use]
           name: generatedNode.params.name,
+          // $FlowFixMe[prop-missing]
+          // $FlowFixMe[incompatible-use]
           operationKind: generatedNode.params.operationKind,
           text: docText,
         };
       }
+      // $FlowFixMe[incompatible-type]
       generatedNode = {
         ...generatedNode,
+        // $FlowFixMe[incompatible-type]
         params: nextRequestParams,
       };
     }
@@ -156,6 +165,7 @@ function writeRelayGeneratedFile(
       generatedNode.metadata?.derivedFrom != null
     ) {
       const {derivedFrom: _ignored, ...metadata} = generatedNode.metadata;
+      // $FlowFixMe[incompatible-type]
       generatedNode = {
         ...generatedNode,
         metadata,
@@ -175,6 +185,7 @@ function writeRelayGeneratedFile(
         printModuleDependency,
       ),
       sourceHash,
+      // $FlowFixMe[incompatible-call]
       node: generatedNode,
       schema,
     });
@@ -183,15 +194,18 @@ function writeRelayGeneratedFile(
       writeQueryParameters &&
       queryParametersFilename != null &&
       generatedNode.kind === RelayConcreteNode.REQUEST &&
+      // $FlowFixMe[incompatible-type]
       generatedNode.params.operationKind === 'query'
     ) {
       writeQueryParameters(
         codegenDir,
         queryParametersFilename,
         moduleName,
+        // $FlowFixMe[incompatible-call]
         generatedNode.params,
       );
     }
+    // $FlowFixMe[incompatible-call]
     return generatedNode;
   });
 }

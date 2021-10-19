@@ -12,9 +12,9 @@
 
 'use strict';
 
-const {getSelector} = require('relay-runtime');
-
 import type {FragmentMap, Variables} from 'relay-runtime';
+
+const {getSelector} = require('relay-runtime');
 
 function getRootVariablesForFragments<TProps: {...}>(
   fragments: FragmentMap,
@@ -32,6 +32,7 @@ function getRootVariablesForFragments<TProps: {...}>(
       selector != null && selector.kind === 'PluralReaderSelector'
         ? selector.selectors[0]?.owner.variables ?? {}
         : selector?.owner.variables ?? {};
+    // $FlowFixMe[cannot-spread-interface]
     rootVariables = {
       // $FlowFixMe[exponential-spread]
       ...rootVariables,

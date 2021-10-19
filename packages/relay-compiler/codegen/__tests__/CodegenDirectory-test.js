@@ -13,9 +13,9 @@
 
 'use strict';
 
-const CodegenDirectory = require('../CodegenDirectory');
-
 import type {Filesystem} from '../CodegenDirectory';
+
+const CodegenDirectory = require('../CodegenDirectory');
 
 class TestFilesystem implements Filesystem {
   __mockOperations = [];

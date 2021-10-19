@@ -15,12 +15,15 @@ mod location;
 mod named_item;
 mod perf_logger;
 mod span;
+pub mod sync;
 
 pub use console_logger::{print_time, ConsoleLogEvent, ConsoleLogger};
 pub use diagnostic::{
-    combined_result, diagnostics_result, Diagnostic, DiagnosticsResult, WithDiagnostics,
+    combined_result, diagnostics_result, Diagnostic, DiagnosticDisplay, DiagnosticsResult,
+    WithDiagnosticData, WithDiagnostics,
 };
 pub use location::{Location, SourceLocationKey, WithLocation};
+pub use lsp_types::{DiagnosticSeverity, DiagnosticTag};
 pub use named_item::{Named, NamedItem};
 pub use perf_logger::{NoopPerfLogger, NoopPerfLoggerEvent, PerfLogEvent, PerfLogger};
 pub use span::Span;

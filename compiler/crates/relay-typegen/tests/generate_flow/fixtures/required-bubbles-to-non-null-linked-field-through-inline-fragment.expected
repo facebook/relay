@@ -12,7 +12,7 @@ declare export opaque type SomeFragment$ref: FragmentReference;
 declare export opaque type SomeFragment$fragmentType: SomeFragment$ref;
 export type SomeFragment = {|
   +nearest_neighbor: ?{|
-    +name: string
+    +name: string,
   |},
   +$refType: SomeFragment$ref,
 |};

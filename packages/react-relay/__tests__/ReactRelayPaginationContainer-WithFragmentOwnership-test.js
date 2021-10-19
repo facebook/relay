@@ -10,20 +10,19 @@
 
 'use strict';
 
-const React = require('react');
 const ReactRelayContext = require('../ReactRelayContext');
 const ReactRelayFragmentContainer = require('../ReactRelayFragmentContainer');
 const ReactRelayPaginationContainer = require('../ReactRelayPaginationContainer');
+const React = require('react');
 const ReactTestRenderer = require('react-test-renderer');
-
 const {
   ConnectionHandler,
+  ROOT_ID,
   createNormalizationSelector,
   createOperationDescriptor,
   createReaderSelector,
   createRequestDescriptor,
   graphql,
-  ROOT_ID,
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils-internal');
 
@@ -110,7 +109,7 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
         $count: Int!
         $id: ID!
         $orderby: [String]
-        $isViewerFriend: Boolean
+        $isViewerFriend: Boolean!
       ) {
         node(id: $id) {
           id
@@ -262,6 +261,7 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
                       },
                     },
                     __fragmentOwner: ownerUser1.request,
+                    __isWithinUnmatchedTypeRefinement: false,
                   },
                 },
               ],
@@ -315,6 +315,7 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
                       },
                     },
                     __fragmentOwner: ownerUser1.request,
+                    __isWithinUnmatchedTypeRefinement: false,
                   },
                 },
               ],
@@ -368,7 +369,6 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
     });
 
     it('renders with the results of the new variables on success', () => {
-      expect.assertions(9);
       expect(render.mock.calls.length).toBe(1);
       expect(render.mock.calls[0][0].user.friends.edges.length).toBe(1);
       loadMore(1, jest.fn());
@@ -429,6 +429,7 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
               },
             },
             __fragmentOwner: expectedOwner.request,
+            __isWithinUnmatchedTypeRefinement: false,
           },
         },
         {
@@ -443,15 +444,15 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
               },
             },
             __fragmentOwner: expectedOwner.request,
+            __isWithinUnmatchedTypeRefinement: false,
           },
         },
       ]);
 
       // Assert child containers are correctly rendered
-      expect(TestChildComponent.mock.calls.length).toBe(2);
-      TestChildComponent.mock.calls.forEach((call, idx) => {
-        const user = call[0].user;
-        expect(user).toEqual({id: `node:${idx + 1}`});
+      expect(TestChildComponent.mock.calls.length).toBe(1);
+      expect(TestChildComponent.mock.calls[0][0].user).toEqual({
+        id: 'node:2',
       });
     });
 
@@ -505,6 +506,7 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
                       },
                     },
                     __fragmentOwner: ownerUser1.request,
+                    __isWithinUnmatchedTypeRefinement: false,
                   },
                 },
               ],
@@ -570,7 +572,6 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
     });
 
     it('renders with the results of the new variables on success', () => {
-      expect.assertions(8);
       expect(render.mock.calls.length).toBe(1);
       expect(render.mock.calls[0][0].user.friends.edges.length).toBe(1);
       refetchConnection(1, jest.fn());
@@ -628,6 +629,7 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
                     },
                   },
                   __fragmentOwner: expectedOwner.request,
+                  __isWithinUnmatchedTypeRefinement: false,
                 },
               },
             ],
@@ -647,8 +649,8 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
       });
 
       // Assert child containers are correctly rendered
-      expect(TestChildComponent.mock.calls.length).toBe(3);
-      expect(TestChildComponent.mock.calls[2][0].user).toEqual({
+      expect(TestChildComponent.mock.calls.length).toBe(2);
+      expect(TestChildComponent.mock.calls[1][0].user).toEqual({
         id: 'node:2',
       });
     });
@@ -801,6 +803,7 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
                     },
                   },
                   __fragmentOwner: expectedFragmentOwner.request,
+                  __isWithinUnmatchedTypeRefinement: false,
                 },
               },
             ],
@@ -882,6 +885,7 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
                     },
                   },
                   __fragmentOwner: expectedFragmentOwner.request,
+                  __isWithinUnmatchedTypeRefinement: false,
                 },
               },
             ],
@@ -970,6 +974,7 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
                     },
                   },
                   __fragmentOwner: expectedFragmentOwner.request,
+                  __isWithinUnmatchedTypeRefinement: false,
                 },
               },
               {
@@ -984,6 +989,7 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
                     },
                   },
                   __fragmentOwner: expectedFragmentOwner.request,
+                  __isWithinUnmatchedTypeRefinement: false,
                 },
               },
             ],
@@ -997,12 +1003,8 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
       });
 
       // Assert child containers are correctly rendered
-      expect(TestChildComponent.mock.calls.length).toBe(3);
-      expect(TestChildComponent.mock.calls[1][0].user).toEqual({
-        id: 'node:7',
-        name: 'user:7',
-      });
-      expect(TestChildComponent.mock.calls[2][0].user).toEqual({
+      expect(TestChildComponent.mock.calls.length).toBe(1);
+      expect(TestChildComponent.mock.calls[0][0].user).toEqual({
         id: 'node:8',
         name: 'user:8',
       });

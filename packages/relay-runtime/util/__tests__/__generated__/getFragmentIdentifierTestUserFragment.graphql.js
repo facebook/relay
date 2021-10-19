@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<4a61380eae5e885bac26c72cd19a08de>>
+ * @generated SignedSource<<513bb80b1502a5e1535b90d00c83f7dd>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,7 +24,7 @@ export type getFragmentIdentifierTestUserFragment = {|
   +id: string,
   +name: ?string,
   +profile_picture: ?{|
-    +uri: ?string
+    +uri: ?string,
   |},
   +$fragmentRefs: getFragmentIdentifierTestNestedUserFragment$ref,
   +$refType: getFragmentIdentifierTestUserFragment$ref,

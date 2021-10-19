@@ -12,15 +12,6 @@
 
 'use strict';
 
-const RelayDeclarativeMutationConfig = require('../mutations/RelayDeclarativeMutationConfig');
-
-const warning = require('warning');
-
-const {getRequest} = require('../query/GraphQLTag');
-const {
-  createOperationDescriptor,
-} = require('../store/RelayModernOperationDescriptor');
-
 import type {DeclarativeMutationConfig} from '../mutations/RelayDeclarativeMutationConfig';
 import type {GraphQLTaggedNode} from '../query/GraphQLTag';
 import type {
@@ -33,7 +24,33 @@ import type {
   Variables,
 } from '../util/RelayRuntimeTypes';
 
-export type GraphQLSubscriptionConfig<TSubscriptionPayload> = {|
+const RelayDeclarativeMutationConfig = require('../mutations/RelayDeclarativeMutationConfig');
+const {getRequest} = require('../query/GraphQLTag');
+const {
+  createOperationDescriptor,
+} = require('../store/RelayModernOperationDescriptor');
+const {createReaderSelector} = require('../store/RelayModernSelector');
+const RelayFeatureFlags = require('../util/RelayFeatureFlags');
+const warning = require('warning');
+
+export type SubscriptionParameters = {|
+  +response: {...},
+  +variables: interface {},
+  +rawResponse?: {...},
+|};
+
+export type GraphQLSubscriptionConfig<T: SubscriptionParameters> = {|
+  configs?: Array<DeclarativeMutationConfig>,
+  cacheConfig?: CacheConfig,
+  subscription: GraphQLTaggedNode,
+  variables: $ElementType<T, 'variables'>,
+  onCompleted?: ?() => void,
+  onError?: ?(error: Error) => void,
+  onNext?: ?(response: ?$ElementType<T, 'response'>) => void,
+  updater?: ?SelectorStoreUpdater,
+|};
+
+export type DEPRECATED_GraphQLSubscriptionConfig<TSubscriptionPayload> = {|
   configs?: Array<DeclarativeMutationConfig>,
   cacheConfig?: CacheConfig,
   subscription: GraphQLTaggedNode,
@@ -46,7 +63,7 @@ export type GraphQLSubscriptionConfig<TSubscriptionPayload> = {|
 
 function requestSubscription<TSubscriptionPayload>(
   environment: IEnvironment,
-  config: GraphQLSubscriptionConfig<TSubscriptionPayload>,
+  config: DEPRECATED_GraphQLSubscriptionConfig<TSubscriptionPayload>,
 ): Disposable {
   const subscription = getRequest(config.subscription);
   if (subscription.params.operationKind !== 'subscription') {
@@ -85,13 +102,29 @@ function requestSubscription<TSubscriptionPayload>(
       operation,
       updater,
     })
-    .map(() => {
-      const data = environment.lookup(operation.fragment).data;
-      // $FlowFixMe[incompatible-cast]
-      return (data: TSubscriptionPayload);
-    })
     .subscribe({
-      next: onNext,
+      next: responses => {
+        if (onNext != null) {
+          let selector = operation.fragment;
+          let nextID;
+          if (Array.isArray(responses)) {
+            nextID = responses[0]?.extensions?.__relay_subscription_root_id;
+          } else {
+            nextID = responses.extensions?.__relay_subscription_root_id;
+          }
+          if (typeof nextID === 'string') {
+            selector = createReaderSelector(
+              selector.node,
+              nextID,
+              selector.variables,
+              selector.owner,
+            );
+          }
+          const data = environment.lookup(selector).data;
+          // $FlowFixMe[incompatible-cast]
+          onNext((data: TSubscriptionPayload));
+        }
+      },
       error: onError,
       complete: onCompleted,
     });

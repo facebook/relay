@@ -12,25 +12,23 @@
 
 'use strict';
 
-const RelayModernRecord = require('../store/RelayModernRecord');
-const RelayRecordProxy = require('./RelayRecordProxy');
-
-const invariant = require('invariant');
-
-const {EXISTENT, NONEXISTENT} = require('../store/RelayRecordState');
-const {ROOT_ID, ROOT_TYPE} = require('../store/RelayStoreUtils');
-
 import type {HandlerProvider} from '../handlers/RelayDefaultHandlerProvider';
 import type {GetDataID} from '../store/RelayResponseNormalizer';
 import type {
   DataIDSet,
   HandleFieldPayload,
-  RecordSource,
   RecordProxy,
+  RecordSource,
   RecordSourceProxy,
 } from '../store/RelayStoreTypes';
 import type {DataID} from '../util/RelayRuntimeTypes';
 import type RelayRecordSourceMutator from './RelayRecordSourceMutator';
+
+const RelayModernRecord = require('../store/RelayModernRecord');
+const {EXISTENT, NONEXISTENT} = require('../store/RelayRecordState');
+const {ROOT_ID, ROOT_TYPE} = require('../store/RelayStoreUtils');
+const RelayRecordProxy = require('./RelayRecordProxy');
+const invariant = require('invariant');
 
 /**
  * @internal

@@ -19,17 +19,15 @@ fragment Test_userRenderer on PlainUserRenderer {
 ==================================== OUTPUT ===================================
 import type { Local3DPayload } from "relay-runtime";
 import type { Test_user$ref } from "Test_user.graphql";
+import type { Test_userRenderer$normalization } from "Test_userRenderer$normalization.graphql";
 export type TestVariables = {||};
 export type TestResponse = {|
   +node: ?{|
-    +$fragmentRefs: Test_user$ref
-  |}
+    +$fragmentRefs: Test_user$ref,
+  |},
 |};
 export type Test_userRenderer = {|
-  +user: ?{|
-    +username: ?string,
-    +id: string,
-  |}
+  ...Test_userRenderer$normalization,
 |};
 export type TestRawResponse = {|
   +node: ?({|
@@ -39,12 +37,13 @@ export type TestRawResponse = {|
       +__module_operation_Test_user: ?any,
       +__module_component_Test_user: ?any,
       ...Test_userRenderer,
-    |} | Local3DPayload<"Test_user", {| ...Test_userRenderer
+    |} | Local3DPayload<"Test_user", {|
+      ...Test_userRenderer,
     |}>),
   |} | {|
     +__typename: string,
     +id: string,
-  |})
+  |}),
 |};
 export type Test = {|
   variables: TestVariables,
@@ -58,8 +57,8 @@ declare export opaque type Test_user$ref: FragmentReference;
 declare export opaque type Test_user$fragmentType: Test_user$ref;
 export type Test_user = {|
   +plainUserRenderer: ?{|
-    +__fragmentPropName?: ?string,
-    +__module_component?: ?string,
+    +__fragmentPropName: ?string,
+    +__module_component: ?string,
     +$fragmentRefs: Test_userRenderer$ref,
   |},
   +$refType: Test_user$ref,
@@ -76,7 +75,7 @@ declare export opaque type Test_userRenderer$ref: FragmentReference;
 declare export opaque type Test_userRenderer$fragmentType: Test_userRenderer$ref;
 export type Test_userRenderer = {|
   +user: ?{|
-    +username: ?string
+    +username: ?string,
   |},
   +$refType: Test_userRenderer$ref,
 |};

@@ -100,9 +100,7 @@ fragment multipleModulesWithKey_MarkdownUserNameRenderer_name on MarkdownUserNam
                   {
                     "kind": "Literal",
                     "name": "supported",
-                    "value": [
-                      "PlainUserNameRenderer"
-                    ]
+                    "value": "1AwQS7"
                   }
                 ],
                 "concreteType": null,
@@ -114,6 +112,7 @@ fragment multipleModulesWithKey_MarkdownUserNameRenderer_name on MarkdownUserNam
                     "kind": "InlineFragment",
                     "selections": [
                       {
+                        "args": null,
                         "documentName": "multipleModulesWithKey_MatchQuery_nameRenderer",
                         "fragmentName": "multipleModulesWithKey_PlainUserNameRenderer_name",
                         "fragmentPropName": "PlainUserNameRenderer_name",
@@ -124,7 +123,7 @@ fragment multipleModulesWithKey_MarkdownUserNameRenderer_name on MarkdownUserNam
                     "abstractKey": null
                   }
                 ],
-                "storageKey": "nameRenderer(supported:[\"PlainUserNameRenderer\"])"
+                "storageKey": "nameRenderer(supported:\"1AwQS7\")"
               }
             ],
             "type": "Actor",
@@ -145,6 +144,7 @@ fragment multipleModulesWithKey_MarkdownUserNameRenderer_name on MarkdownUserNam
                     "kind": "InlineFragment",
                     "selections": [
                       {
+                        "args": null,
                         "documentName": "multipleModulesWithKey_MatchQuery",
                         "fragmentName": "multipleModulesWithKey_MarkdownUserNameRenderer_name",
                         "fragmentPropName": "MarkdownUserNameRenderer_name",
@@ -204,9 +204,7 @@ fragment multipleModulesWithKey_MarkdownUserNameRenderer_name on MarkdownUserNam
                   {
                     "kind": "Literal",
                     "name": "supported",
-                    "value": [
-                      "PlainUserNameRenderer"
-                    ]
+                    "value": "1AwQS7"
                   }
                 ],
                 "concreteType": null,
@@ -225,6 +223,7 @@ fragment multipleModulesWithKey_MarkdownUserNameRenderer_name on MarkdownUserNam
                     "kind": "InlineFragment",
                     "selections": [
                       {
+                        "args": null,
                         "documentName": "multipleModulesWithKey_MatchQuery_nameRenderer",
                         "fragmentName": "multipleModulesWithKey_PlainUserNameRenderer_name",
                         "fragmentPropName": "PlainUserNameRenderer_name",
@@ -235,7 +234,7 @@ fragment multipleModulesWithKey_MarkdownUserNameRenderer_name on MarkdownUserNam
                     "abstractKey": null
                   }
                 ],
-                "storageKey": "nameRenderer(supported:[\"PlainUserNameRenderer\"])"
+                "storageKey": "nameRenderer(supported:\"1AwQS7\")"
               }
             ],
             "type": "Actor",
@@ -263,6 +262,7 @@ fragment multipleModulesWithKey_MarkdownUserNameRenderer_name on MarkdownUserNam
                     "kind": "InlineFragment",
                     "selections": [
                       {
+                        "args": null,
                         "documentName": "multipleModulesWithKey_MatchQuery",
                         "fragmentName": "multipleModulesWithKey_MarkdownUserNameRenderer_name",
                         "fragmentPropName": "MarkdownUserNameRenderer_name",

@@ -1,0 +1,37 @@
+==================================== INPUT ====================================
+"""
+My Directive
+"""
+directive @my_directive on FIELD
+==================================== OUTPUT ===================================
+SchemaDocument {
+    location: directive_description.graphql:0:54,
+    definitions: [
+        DirectiveDefinition(
+            DirectiveDefinition {
+                name: Identifier {
+                    span: 32:44,
+                    token: Token {
+                        span: 32:44,
+                        kind: Identifier,
+                    },
+                    value: "my_directive",
+                },
+                arguments: None,
+                repeatable: false,
+                locations: [
+                    Field,
+                ],
+                description: Some(
+                    StringNode {
+                        token: Token {
+                            span: 0:20,
+                            kind: BlockStringLiteral,
+                        },
+                        value: "My Directive",
+                    },
+                ),
+            },
+        ),
+    ],
+}

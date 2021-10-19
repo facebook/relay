@@ -1,0 +1,36 @@
+/**
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+:root{
+  --ifm-color-primary-lightest: #FF923C;
+  --ifm-color-primary-lighter: #FF7E17;
+  --ifm-color-primary-light: #FF770B;
+  --ifm-color-primary: #f26b00;
+  --ifm-color-primary-dark: #DA6000;
+  --ifm-color-primary-darker: #CE5B00;
+  --ifm-color-primary-darkest: #A94B00;
+}
+
+div[class^="announcementBar"] {
+  height: auto;
+}
+
+div[class^="announcementBarContent"] {
+  font-size: 20px;
+  font-weight: bold;
+  padding: 8px 30px;
+}
+
+div[class^="announcementBarContent"] a {
+    text-decoration: underline;
+    display: inline-block;
+    color: var(--ifm-color-primary-lighter) !important;
+}
+
+div[class^="announcementBarContent"] a:hover {
+  color: #fff !important;
+}

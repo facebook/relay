@@ -12,7 +12,7 @@
 
 'use strict';
 
-import type {StoreUpdater, IEnvironment} from '../store/RelayStoreTypes';
+import type {IEnvironment, StoreUpdater} from '../store/RelayStoreTypes';
 
 function commitLocalUpdate(
   environment: IEnvironment,

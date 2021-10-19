@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<482876cd6a437cff4d3ad95872852a36>>
+ * @generated SignedSource<<4884ac2a7c42c70403d2089ac28d4641>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,23 +22,23 @@ export type CommentCreateInput = {|
   feedback?: ?CommentfeedbackFeedback,
 |};
 export type CommentfeedbackFeedback = {|
-  comment?: ?FeedbackcommentComment
+  comment?: ?FeedbackcommentComment,
 |};
 export type FeedbackcommentComment = {|
-  feedback?: ?CommentfeedbackFeedback
+  feedback?: ?CommentfeedbackFeedback,
 |};
 export type commitMutationTest6MutationVariables = {|
-  input: CommentCreateInput
+  input: CommentCreateInput,
 |};
 export type commitMutationTest6MutationResponse = {|
   +commentCreate: ?{|
     +comment: ?{|
       +id: string,
       +body: ?{|
-        +text: ?string
+        +text: ?string,
       |},
-    |}
-  |}
+    |},
+  |},
 |};
 export type commitMutationTest6Mutation = {|
   variables: commitMutationTest6MutationVariables,

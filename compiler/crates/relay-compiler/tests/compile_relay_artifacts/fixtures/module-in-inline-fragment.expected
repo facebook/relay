@@ -207,6 +207,7 @@ fragment moduleInInlineFragment_MarkdownUserNameRenderer_name on MarkdownUserNam
                         "storageKey": null
                       },
                       {
+                        "args": null,
                         "documentName": "moduleInInlineFragment_FooNameRendererFragment",
                         "fragmentName": "moduleInInlineFragment_MarkdownUserNameRenderer_name",
                         "fragmentPropName": "MarkdownUserNameRenderer_name",
@@ -333,6 +334,7 @@ fragment moduleInInlineFragment_MarkdownUserNameRenderer_name on MarkdownUserNam
               "storageKey": null
             },
             {
+              "args": null,
               "documentName": "moduleInInlineFragment_FooNameRendererFragment",
               "fragmentName": "moduleInInlineFragment_MarkdownUserNameRenderer_name",
               "fragmentPropName": "MarkdownUserNameRenderer_name",

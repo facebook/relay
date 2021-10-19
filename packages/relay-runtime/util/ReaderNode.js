@@ -108,7 +108,10 @@ export type ReaderClientExtension = {|
   +selections: $ReadOnlyArray<ReaderSelection>,
 |};
 
-export type ReaderField = ReaderScalarField | ReaderLinkedField;
+export type ReaderField =
+  | ReaderScalarField
+  | ReaderLinkedField
+  | ReaderRelayResolver;
 
 export type ReaderRootArgument = {|
   +kind: 'RootArgument',
@@ -133,7 +136,17 @@ export type ReaderLinkedField = {|
   +selections: $ReadOnlyArray<ReaderSelection>,
 |};
 
+export type ReaderActorChange = {|
+  +kind: 'ActorChange',
+  +alias: ?string,
+  +name: string,
+  +storageKey: ?string,
+  +args: ?$ReadOnlyArray<ReaderArgument>,
+  +fragmentSpread: ReaderFragmentSpread,
+|};
+
 export type ReaderModuleImport = {|
+  +args?: ?$ReadOnlyArray<ReaderArgument>,
   +kind: 'ModuleImport',
   +documentName: string,
   +fragmentPropName: string,
@@ -206,18 +219,32 @@ export type ReaderRequiredField = {|
   +path: string,
 |};
 
+export type ReaderRelayResolver = {|
+  +kind: 'RelayResolver',
+  +alias: ?string,
+  +name: string,
+  +fragment: ReaderFragmentSpread,
+  +resolverModule: (rootKey: {
+    +$data?: any, // flowlint-line unclear-type:off
+    +$fragmentRefs: any, // flowlint-line unclear-type:off
+    ...
+  }) => mixed,
+|};
+
 export type ReaderSelection =
   | ReaderCondition
   | ReaderClientExtension
   | ReaderDefer
   | ReaderField
+  | ReaderActorChange
   | ReaderFlightField
   | ReaderFragmentSpread
   | ReaderInlineDataFragmentSpread
   | ReaderInlineFragment
   | ReaderModuleImport
   | ReaderStream
-  | ReaderRequiredField;
+  | ReaderRequiredField
+  | ReaderRelayResolver;
 
 export type ReaderVariableArgument = {|
   +kind: 'Variable',

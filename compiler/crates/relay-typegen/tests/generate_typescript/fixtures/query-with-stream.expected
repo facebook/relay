@@ -21,41 +21,41 @@ query TestStream @raw_response_type {
 export type TestStreamVariables = {};
 export type TestStreamResponse = {
   readonly node: {
-    readonly name?: string | null,
+    readonly name?: string | null;
     readonly friends?: {
       readonly edges: ReadonlyArray<{
         readonly node: {
-          readonly id: string
-        } | null
-      } | null> | null
-    } | null,
-  } | null
+          readonly id: string;
+        } | null;
+      } | null> | null;
+    } | null;
+  } | null;
 };
 export type TestStreamRawResponse = {
   readonly node: {
-    readonly __typename: "User",
-    readonly id: string,
-    readonly name: string | null,
+    readonly __typename: "User";
+    readonly id: string;
+    readonly name: string | null;
     readonly friends: {
       readonly edges: ReadonlyArray<{
         readonly node: {
-          readonly id: string,
-          readonly __typename: "User",
-        } | null,
-        readonly cursor: string | null,
-      } | null> | null,
+          readonly id: string;
+          readonly __typename: "User";
+        } | null;
+        readonly cursor: string | null;
+      } | null> | null;
       readonly pageInfo: {
-        readonly endCursor: string | null,
-        readonly hasNextPage: boolean | null,
-      } | null,
-    } | null,
+        readonly endCursor: string | null;
+        readonly hasNextPage: boolean | null;
+      } | null;
+    } | null;
   } | {
-    readonly __typename: string,
-    readonly id: string,
-  } | null
+    readonly __typename: string;
+    readonly id: string;
+  } | null;
 };
 export type TestStream = {
-  variables: TestStreamVariables,
-  response: TestStreamResponse,
-  rawResponse: TestStreamRawResponse,
+  variables: TestStreamVariables;
+  response: TestStreamResponse;
+  rawResponse: TestStreamRawResponse;
 };

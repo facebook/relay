@@ -11,18 +11,17 @@
 
 'use strict';
 
-const cloneRelayHandleSourceField = require('../cloneRelayHandleSourceField');
 const getRelayHandleKey = require('../../util/getRelayHandleKey');
-
 const {LINKED_FIELD, LINKED_HANDLE} = require('../../util/RelayConcreteNode');
-const {generateWithTransforms} = require('relay-test-utils-internal');
+const cloneRelayHandleSourceField = require('../cloneRelayHandleSourceField');
+const {getRequest, graphql} = require('relay-runtime');
 
 describe('cloneRelayHandleSourceField()', () => {
   let selections;
 
   beforeEach(() => {
-    const {TestQuery} = generateWithTransforms(`
-      query TestQuery {
+    const TestQuery = getRequest(graphql`
+      query cloneRelayHandleSourceFieldTestTestQuery {
         me {
           address @__clientField(handle: "test") {
             street
@@ -31,16 +30,22 @@ describe('cloneRelayHandleSourceField()', () => {
       }
     `);
     // Get the selections on `me`.
+    // $FlowFixMe;
     selections = TestQuery.operation.selections[0].selections;
   });
 
   it('returns a clone of the source, with the same name as the handle', () => {
     const handleField = selections.find(node => node.kind === LINKED_HANDLE);
     const sourceField = selections.find(node => node.kind === LINKED_FIELD);
-    const clone = cloneRelayHandleSourceField(handleField, selections, {});
+    const clone = cloneRelayHandleSourceField(
+      (handleField: $FlowFixMe),
+      selections,
+      {},
+    );
 
     expect(clone.kind).toBe(LINKED_FIELD);
     expect(clone.name).toBe(getRelayHandleKey('test', null, 'address'));
+    // $FlowFixMe
     expect(clone.selections).toEqual(sourceField.selections);
   });
 
@@ -49,7 +54,7 @@ describe('cloneRelayHandleSourceField()', () => {
     selections = selections.filter(node => node.kind === LINKED_HANDLE);
 
     expect(() =>
-      cloneRelayHandleSourceField(handleField, selections, {}),
+      cloneRelayHandleSourceField((handleField: $FlowFixMe), selections, {}),
     ).toThrowError(
       'cloneRelayHandleSourceField: Expected a corresponding source field ' +
         'for handle `test`.',

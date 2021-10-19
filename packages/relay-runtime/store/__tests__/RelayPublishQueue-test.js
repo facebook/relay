@@ -10,22 +10,17 @@
 
 'use strict';
 
-const ErrorUtils = require('ErrorUtils');
-const RelayModernRecord = require('../RelayModernRecord');
-const RelayModernStore = require('../RelayModernStore');
-const RelayPublishQueue = require('../RelayPublishQueue');
-const RelayRecordSourceMapImpl = require('../RelayRecordSourceMapImpl');
-
-const defaultGetDataID = require('../defaultGetDataID');
-const getRelayHandleKey = require('../../util/getRelayHandleKey');
-const invariant = require('invariant');
-const normalizeRelayPayload = require('../normalizeRelayPayload');
-const warning = require('warning');
-
 const {graphql} = require('../../query/GraphQLTag');
+const getRelayHandleKey = require('../../util/getRelayHandleKey');
+const defaultGetDataID = require('../defaultGetDataID');
+const normalizeRelayPayload = require('../normalizeRelayPayload');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
+const RelayModernRecord = require('../RelayModernRecord');
+const RelayModernStore = require('../RelayModernStore');
+const RelayPublishQueue = require('../RelayPublishQueue');
+const RelayRecordSource = require('../RelayRecordSource');
 const {
   ID_KEY,
   REF_KEY,
@@ -33,17 +28,25 @@ const {
   ROOT_TYPE,
   TYPENAME_KEY,
 } = require('../RelayStoreUtils');
-const {simpleClone} = require('relay-test-utils-internal');
+const invariant = require('invariant');
+const {
+  disallowWarnings,
+  expectToWarn,
+  expectWarningWillFire,
+  simpleClone,
+} = require('relay-test-utils-internal');
+
+disallowWarnings();
 
 describe('RelayPublishQueue', () => {
   beforeEach(() => {
-    jest.resetModules();
-
-    ErrorUtils.applyWithGuard = jest.fn((callback, context, params) => {
-      try {
-        callback.apply(context, params);
-      } catch (guarded) {} // eslint-disable-line lint/no-unused-catch-bindings
-    });
+    global.ErrorUtils = {
+      applyWithGuard: jest.fn((callback, context, params) => {
+        try {
+          callback.apply(context, params);
+        } catch (guarded) {} // eslint-disable-line lint/no-unused-catch-bindings
+      }),
+    };
   });
 
   describe('applyUpdate()/revertUpdate()', () => {
@@ -88,7 +91,7 @@ describe('RelayPublishQueue', () => {
     };
 
     beforeEach(() => {
-      source = new RelayRecordSourceMapImpl(simpleClone(initialData));
+      source = new RelayRecordSource(simpleClone(initialData));
       store = new RelayModernStore(source);
       const mutationQuery = graphql`
         mutation RelayPublishQueueTest1Mutation($input: ActorNameChangeInput!) {
@@ -215,6 +218,9 @@ describe('RelayPublishQueue', () => {
       queue.revertUpdate(optimisticUpdate);
       let sourceData = store.getSource().toJSON();
       expect(sourceData).toEqual(initialData);
+      expectWarningWillFire(
+        'RelayPublishQueue.run was called, but the call would have been a noop.',
+      );
       queue.run();
       sourceData = store.getSource().toJSON();
       expect(sourceData).toEqual(initialData);
@@ -244,6 +250,9 @@ describe('RelayPublishQueue', () => {
       queue.revertUpdate(optimisticUpdate);
       let sourceData = store.getSource().toJSON();
       expect(sourceData).toEqual(initialData);
+      expectWarningWillFire(
+        'RelayPublishQueue.run was called, but the call would have been a noop.',
+      );
       queue.run();
       sourceData = store.getSource().toJSON();
       expect(sourceData).toEqual(initialData);
@@ -615,7 +624,7 @@ describe('RelayPublishQueue', () => {
           name: 'Mark',
         },
       };
-      source = new RelayRecordSourceMapImpl(simpleClone(initialData));
+      source = new RelayRecordSource(simpleClone(initialData));
       store = new RelayModernStore(source);
     });
 
@@ -774,9 +783,9 @@ describe('RelayPublishQueue', () => {
 
   describe('commitPayload()', () => {
     it('publishes the source to the store', () => {
-      const notify = jest.fn();
+      const notify = jest.fn(() => []);
       const publish = jest.fn();
-      const source = new RelayRecordSourceMapImpl();
+      const source = new RelayRecordSource();
       const store = {
         getSource: () => source,
         notify,
@@ -786,7 +795,7 @@ describe('RelayPublishQueue', () => {
         snapshot: jest.fn(() => []),
       };
       const queue = new RelayPublishQueue(store, null, defaultGetDataID);
-      const publishSource = new RelayRecordSourceMapImpl();
+      const publishSource = new RelayRecordSource();
       const ActorQuery = graphql`
         query RelayPublishQueueTest1Query {
           me {
@@ -807,9 +816,9 @@ describe('RelayPublishQueue', () => {
     });
 
     it('runs the provided updater before publishing', () => {
-      const notify = jest.fn();
+      const notify = jest.fn(() => []);
       const publish = jest.fn();
-      const source = new RelayRecordSourceMapImpl();
+      const source = new RelayRecordSource();
       const store = {
         getSource: () => source,
         notify,
@@ -847,6 +856,7 @@ describe('RelayPublishQueue', () => {
             __id: '4',
             __fragments: {RelayPublishQueueTest1Fragment: {}},
             __fragmentOwner: operation.request,
+            __isWithinUnmatchedTypeRefinement: false,
             name: 'Zuck',
           },
           nodes: [{name: 'Zuck'}],
@@ -857,7 +867,7 @@ describe('RelayPublishQueue', () => {
       queue.commitPayload(
         operation,
         {
-          source: new RelayRecordSourceMapImpl({
+          source: new RelayRecordSource({
             '4': {
               __id: '4',
               __typename: 'User',
@@ -901,9 +911,9 @@ describe('RelayPublishQueue', () => {
     });
 
     it('processes handle fields before publishing', () => {
-      const notify = jest.fn();
+      const notify = jest.fn(() => []);
       const publish = jest.fn();
-      const source = new RelayRecordSourceMapImpl();
+      const source = new RelayRecordSource();
       const store = {
         getSource: () => source,
         notify,
@@ -974,7 +984,7 @@ describe('RelayPublishQueue', () => {
             handle: 'handleName',
           },
         ],
-        source: new RelayRecordSourceMapImpl({
+        source: new RelayRecordSource({
           '4': {
             __id: '4',
             __typename: 'User',
@@ -1049,7 +1059,7 @@ describe('RelayPublishQueue', () => {
           name: 'mark',
         },
       };
-      const source = new RelayRecordSourceMapImpl(simpleClone(initialData));
+      const source = new RelayRecordSource(simpleClone(initialData));
       const store = new RelayModernStore(source);
       const queue = new RelayPublishQueue(store, null, defaultGetDataID);
       // Set name to 'MARK' *without* running the update
@@ -1068,7 +1078,7 @@ describe('RelayPublishQueue', () => {
       `;
       // Query payload sets name to 'zuck'
       queue.commitPayload(createOperationDescriptor(NameQuery, {id: '4'}), {
-        source: new RelayRecordSourceMapImpl({
+        source: new RelayRecordSource({
           [ROOT_ID]: {
             [ID_KEY]: ROOT_ID,
             [TYPENAME_KEY]: ROOT_TYPE,
@@ -1106,7 +1116,7 @@ describe('RelayPublishQueue', () => {
           name: 'mark',
         },
       };
-      const source = new RelayRecordSourceMapImpl(simpleClone(initialData));
+      const source = new RelayRecordSource(simpleClone(initialData));
       const store = new RelayModernStore(source);
       const queue = new RelayPublishQueue(store, null, defaultGetDataID);
       // Set name to 'MARK', running the update immediately
@@ -1126,7 +1136,7 @@ describe('RelayPublishQueue', () => {
         }
       `;
       queue.commitPayload(createOperationDescriptor(NameQuery, {id: '4'}), {
-        source: new RelayRecordSourceMapImpl({
+        source: new RelayRecordSource({
           [ROOT_ID]: {
             [ID_KEY]: ROOT_ID,
             [TYPENAME_KEY]: ROOT_TYPE,
@@ -1164,7 +1174,7 @@ describe('RelayPublishQueue', () => {
           name: 'mark',
         },
       };
-      const source = new RelayRecordSourceMapImpl(simpleClone(initialData));
+      const source = new RelayRecordSource(simpleClone(initialData));
       const store = new RelayModernStore(source);
       const queue = new RelayPublishQueue(store, null, defaultGetDataID);
       // Set name to 'MARK'
@@ -1184,7 +1194,7 @@ describe('RelayPublishQueue', () => {
       `;
       // Query payload sets name to 'zuck'
       queue.commitPayload(createOperationDescriptor(NameQuery, {id: '4'}), {
-        source: new RelayRecordSourceMapImpl({
+        source: new RelayRecordSource({
           [ROOT_ID]: {
             [ID_KEY]: ROOT_ID,
             [TYPENAME_KEY]: ROOT_TYPE,
@@ -1217,7 +1227,7 @@ describe('RelayPublishQueue', () => {
     });
 
     it('can rollback an optimistic mutation after committing an updater', () => {
-      const source = new RelayRecordSourceMapImpl({
+      const source = new RelayRecordSource({
         '84872': {
           __id: '84872',
           __typename: 'Amp',
@@ -1269,7 +1279,7 @@ describe('RelayPublishQueue', () => {
           name: 'mark',
         },
       };
-      const source = new RelayRecordSourceMapImpl(simpleClone(initialData));
+      const source = new RelayRecordSource(simpleClone(initialData));
       const store = new RelayModernStore(source);
       const queue = new RelayPublishQueue(store, null, defaultGetDataID);
       const buggyUpdater = storeProxy => {
@@ -1289,7 +1299,7 @@ describe('RelayPublishQueue', () => {
       `;
       // Query payload sets name to 'zuck'
       queue.commitPayload(createOperationDescriptor(NameQuery, {id: '4'}), {
-        source: new RelayRecordSourceMapImpl({
+        source: new RelayRecordSource({
           [ROOT_ID]: {
             [ID_KEY]: ROOT_ID,
             [TYPENAME_KEY]: ROOT_TYPE,
@@ -1319,9 +1329,9 @@ describe('RelayPublishQueue', () => {
     });
 
     it('invalidates the store if invalidated via updater', () => {
-      const notify = jest.fn();
+      const notify = jest.fn(() => []);
       const publish = jest.fn();
-      const source = new RelayRecordSourceMapImpl();
+      const source = new RelayRecordSource();
       const store = {
         getSource: () => source,
         notify,
@@ -1355,7 +1365,7 @@ describe('RelayPublishQueue', () => {
       queue.commitPayload(
         operation,
         {
-          source: new RelayRecordSourceMapImpl({
+          source: new RelayRecordSource({
             '4': {
               __id: '4',
               __typename: 'User',
@@ -1386,9 +1396,9 @@ describe('RelayPublishQueue', () => {
     });
 
     it('invalidates any ids marked as invalid via the updater', () => {
-      const notify = jest.fn();
+      const notify = jest.fn(() => []);
       const publish = jest.fn();
-      const source = new RelayRecordSourceMapImpl();
+      const source = new RelayRecordSource();
       const store = {
         getSource: () => source,
         notify,
@@ -1426,7 +1436,7 @@ describe('RelayPublishQueue', () => {
       queue.commitPayload(
         operation,
         {
-          source: new RelayRecordSourceMapImpl({
+          source: new RelayRecordSource({
             '4': {
               __id: '4',
               __typename: 'User',
@@ -1460,9 +1470,9 @@ describe('RelayPublishQueue', () => {
 
   describe('commitSource()', () => {
     it('publishes the source to the store', () => {
-      const notify = jest.fn();
+      const notify = jest.fn(() => []);
       const publish = jest.fn();
-      const store_source = new RelayRecordSourceMapImpl();
+      const store_source = new RelayRecordSource();
       const store = {
         getSource: () => store_source,
         notify,
@@ -1473,7 +1483,7 @@ describe('RelayPublishQueue', () => {
       };
       const queue = new RelayPublishQueue(store, null, defaultGetDataID);
 
-      const source = new RelayRecordSourceMapImpl();
+      const source = new RelayRecordSource();
       const user = RelayModernRecord.create('1364586419', 'User');
       RelayModernRecord.setValue(user, 'name', 'Jan');
       source.set('1364586419', user);
@@ -1494,7 +1504,7 @@ describe('RelayPublishQueue', () => {
     describe('it commits in order', () => {
       let namePayload, nameSelector, nameSource, queue, source, store;
       beforeEach(() => {
-        source = new RelayRecordSourceMapImpl({});
+        source = new RelayRecordSource({});
         store = new RelayModernStore(source);
         queue = new RelayPublishQueue(store, null, defaultGetDataID);
         const nameQuery = graphql`
@@ -1506,7 +1516,7 @@ describe('RelayPublishQueue', () => {
         `;
         nameSelector = createOperationDescriptor(nameQuery, {id: '4'});
         namePayload = {
-          source: new RelayRecordSourceMapImpl({
+          source: new RelayRecordSource({
             [ROOT_ID]: {
               [ID_KEY]: ROOT_ID,
               [TYPENAME_KEY]: ROOT_TYPE,
@@ -1520,7 +1530,7 @@ describe('RelayPublishQueue', () => {
             },
           }),
         };
-        nameSource = new RelayRecordSourceMapImpl({
+        nameSource = new RelayRecordSource({
           4: {
             [ID_KEY]: '4',
             [TYPENAME_KEY]: 'User',
@@ -1576,7 +1586,7 @@ describe('RelayPublishQueue', () => {
           name: 'mark',
         },
       };
-      const source = new RelayRecordSourceMapImpl(simpleClone(initialData));
+      const source = new RelayRecordSource(simpleClone(initialData));
       const store = new RelayModernStore(source);
       const queue = new RelayPublishQueue(store, null, defaultGetDataID);
       // Set name to 'MARK', running the update immediately
@@ -1588,7 +1598,7 @@ describe('RelayPublishQueue', () => {
       });
       queue.run();
       queue.commitSource(
-        new RelayRecordSourceMapImpl({
+        new RelayRecordSource({
           4: {
             [ID_KEY]: '4',
             [TYPENAME_KEY]: 'User',
@@ -1620,7 +1630,7 @@ describe('RelayPublishQueue', () => {
           name: 'mark',
         },
       };
-      const source = new RelayRecordSourceMapImpl(simpleClone(initialData));
+      const source = new RelayRecordSource(simpleClone(initialData));
       const store = new RelayModernStore(source);
       const queue = new RelayPublishQueue(store, null, defaultGetDataID);
       // Set name to 'MARK'
@@ -1632,7 +1642,7 @@ describe('RelayPublishQueue', () => {
       };
       queue.applyUpdate(mutation);
       queue.commitSource(
-        new RelayRecordSourceMapImpl({
+        new RelayRecordSource({
           4: {
             [ID_KEY]: '4',
             [TYPENAME_KEY]: 'User',
@@ -1661,9 +1671,9 @@ describe('RelayPublishQueue', () => {
 
   describe('commitUpdate()', () => {
     it('publishes the source to the store', () => {
-      const notify = jest.fn();
+      const notify = jest.fn(() => []);
       const publish = jest.fn();
-      const source = new RelayRecordSourceMapImpl();
+      const source = new RelayRecordSource();
       const store = {
         getSource: () => source,
         notify,
@@ -1691,9 +1701,9 @@ describe('RelayPublishQueue', () => {
     });
 
     it('invalidates the store if invalidated via updater', () => {
-      const notify = jest.fn();
+      const notify = jest.fn(() => []);
       const publish = jest.fn();
-      const source = new RelayRecordSourceMapImpl();
+      const source = new RelayRecordSource();
       const store = {
         getSource: () => source,
         notify,
@@ -1716,9 +1726,9 @@ describe('RelayPublishQueue', () => {
     });
 
     it('invalidates any ids marked as invalid via the updater', () => {
-      const notify = jest.fn();
+      const notify = jest.fn(() => []);
       const publish = jest.fn();
-      const source = new RelayRecordSourceMapImpl();
+      const source = new RelayRecordSource();
       const store = {
         getSource: () => source,
         notify,
@@ -1745,10 +1755,10 @@ describe('RelayPublishQueue', () => {
   });
 
   describe('run()', () => {
-    it('notifies the store even when no mutations have occurred', () => {
-      const notify = jest.fn();
+    it('does not notify the store if no mutations have occurred', () => {
+      const notify = jest.fn(() => []);
       const publish = jest.fn();
-      const source = new RelayRecordSourceMapImpl();
+      const source = new RelayRecordSource();
       const store = {
         getSource: () => source,
         notify,
@@ -1758,15 +1768,18 @@ describe('RelayPublishQueue', () => {
         snapshot: jest.fn(() => []),
       };
       const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+      expectWarningWillFire(
+        'RelayPublishQueue.run was called, but the call would have been a noop.',
+      );
       queue.run();
       expect(publish).not.toBeCalled();
-      expect(notify).toBeCalled();
+      expect(notify).not.toBeCalled();
     });
 
     it('notifies the store if an optimistic mutation is applied', () => {
-      const notify = jest.fn();
+      const notify = jest.fn(() => []);
       const publish = jest.fn();
-      const source = new RelayRecordSourceMapImpl();
+      const source = new RelayRecordSource();
       const store = {
         getSource: () => source,
         notify,
@@ -1787,10 +1800,10 @@ describe('RelayPublishQueue', () => {
     });
 
     it('notifies the store if an optimistic mutation is reverted', () => {
-      const notify = jest.fn();
+      const notify = jest.fn(() => []);
       const publish = jest.fn();
       const restore = jest.fn();
-      const source = new RelayRecordSourceMapImpl();
+      const source = new RelayRecordSource();
       const store = {
         getSource: () => source,
         notify,
@@ -1818,9 +1831,9 @@ describe('RelayPublishQueue', () => {
     });
 
     it('notifies the store if a server mutation is committed', () => {
-      const notify = jest.fn();
+      const notify = jest.fn(() => []);
       const publish = jest.fn();
-      const source = new RelayRecordSourceMapImpl();
+      const source = new RelayRecordSource();
       const store = {
         getSource: () => source,
         notify,
@@ -1855,10 +1868,10 @@ describe('RelayPublishQueue', () => {
 
     it('should disable CG if there are any applied optimistic updates', () => {
       const holdGC = jest.fn();
-      const source = new RelayRecordSourceMapImpl();
+      const source = new RelayRecordSource();
       const store = {
         getSource: () => source,
-        notify: jest.fn(),
+        notify: jest.fn(() => []),
         publish: jest.fn(),
         holdGC,
         restore: jest.fn(),
@@ -1877,16 +1890,19 @@ describe('RelayPublishQueue', () => {
 
     it('should not disable GC if there are no optimistic updates', () => {
       const holdGC = jest.fn();
-      const source = new RelayRecordSourceMapImpl();
+      const source = new RelayRecordSource();
       const store = {
         getSource: () => source,
-        notify: jest.fn(),
+        notify: jest.fn(() => []),
         publish: jest.fn(),
         holdGC,
         restore: jest.fn(),
         snapshot: jest.fn(() => []),
       };
       const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+      expectWarningWillFire(
+        'RelayPublishQueue.run was called, but the call would have been a noop.',
+      );
       queue.run();
       expect(holdGC).not.toBeCalled();
     });
@@ -1896,10 +1912,10 @@ describe('RelayPublishQueue', () => {
       const holdGC = jest.fn(() => ({
         dispose: disposeGC,
       }));
-      const source = new RelayRecordSourceMapImpl();
+      const source = new RelayRecordSource();
       const store = {
         getSource: () => source,
-        notify: jest.fn(),
+        notify: jest.fn(() => []),
         publish: jest.fn(),
         holdGC,
         restore: jest.fn(),
@@ -1915,7 +1931,12 @@ describe('RelayPublishQueue', () => {
       queue.run();
       expect(holdGC).toBeCalled();
       expect(disposeGC).not.toBeCalled();
-      queue.run();
+      expectToWarn(
+        'RelayPublishQueue.run was called, but the call would have been a noop.',
+        () => {
+          queue.run();
+        },
+      );
       expect(disposeGC).not.toBeCalled(); // Exactly! We should not dispose GC on each run
       // Let's revert all updates
       queue.revertAll();
@@ -1925,21 +1946,25 @@ describe('RelayPublishQueue', () => {
     });
 
     it('should warn if run() is called during a run()', () => {
-      jest.mock('warning');
-      const source = new RelayRecordSourceMapImpl();
+      const source = new RelayRecordSource();
       const store = new RelayModernStore(source);
       const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+      let runInUpdaterOnce = false;
       queue.applyUpdate({
         storeUpdater: storeProxy => {
           storeProxy.create('4', 'User');
-          queue.run();
+          if (!runInUpdaterOnce) {
+            // We need to stop calling `run` here, as every next `run` will warn again
+            // and we want to check that `expectWarningWillFire` was called only once.
+            runInUpdaterOnce = true;
+            queue.run();
+          }
         },
       });
-      queue.run();
-      expect(warning).toHaveBeenCalledWith(
-        false,
+      expectWarningWillFire(
         "A store update was detected within another store update. Please make sure new store updates aren't being executed within an updater function for a different update.",
       );
+      queue.run();
     });
   });
 });

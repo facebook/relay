@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<911fc21eb91b36226f566bf36509277d>>
+ * @generated SignedSource<<a079aa6a360fedf236018c2c3ffc00de>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,12 +18,12 @@
 import type { ConcreteRequest } from 'relay-runtime';
 type RelayReferenceMarkerTest5Fragment$ref = any;
 export type RelayReferenceMarkerTest7QueryVariables = {|
-  id: string
+  id: string,
 |};
 export type RelayReferenceMarkerTest7QueryResponse = {|
   +node: ?{|
-    +$fragmentRefs: RelayReferenceMarkerTest5Fragment$ref
-  |}
+    +$fragmentRefs: RelayReferenceMarkerTest5Fragment$ref,
+  |},
 |};
 export type RelayReferenceMarkerTest7Query = {|
   variables: RelayReferenceMarkerTest7QueryVariables,

@@ -12,23 +12,24 @@
 
 'use strict';
 
-const areEqual = require('areEqual');
-const deepFreeze = require('../util/deepFreeze');
-const invariant = require('invariant');
-const warning = require('warning');
-
-const {isClientID} = require('./ClientID');
-const {
-  ID_KEY,
-  REF_KEY,
-  REFS_KEY,
-  TYPENAME_KEY,
-  INVALIDATED_AT_KEY,
-  ROOT_ID,
-} = require('./RelayStoreUtils');
-
+import type {ActorIdentifier} from '../multi-actor-environment/ActorIdentifier';
 import type {DataID} from '../util/RelayRuntimeTypes';
 import type {Record} from './RelayStoreTypes';
+
+const deepFreeze = require('../util/deepFreeze');
+const {isClientID} = require('./ClientID');
+const {
+  ACTOR_IDENTIFIER_KEY,
+  ID_KEY,
+  INVALIDATED_AT_KEY,
+  REF_KEY,
+  REFS_KEY,
+  ROOT_ID,
+  TYPENAME_KEY,
+} = require('./RelayStoreUtils');
+const areEqual = require('areEqual');
+const invariant = require('invariant');
+const warning = require('warning');
 
 /**
  * @public
@@ -172,10 +173,14 @@ function getLinkedRecordID(record: Record, storageKey: string): ?DataID {
   invariant(
     typeof link === 'object' && link && typeof link[REF_KEY] === 'string',
     'RelayModernRecord.getLinkedRecordID(): Expected `%s.%s` to be a linked ID, ' +
-      'was `%s`.',
+      'was `%s`.%s',
     record[ID_KEY],
     storageKey,
     JSON.stringify(link),
+    typeof link === 'object' && link[REFS_KEY] !== undefined
+      ? ' It appears to be a plural linked record: did you mean to call ' +
+          'getLinkedRecords() instead of getLinkedRecord()?'
+      : '',
   );
   return link[REF_KEY];
 }
@@ -197,10 +202,14 @@ function getLinkedRecordIDs(
   invariant(
     typeof links === 'object' && Array.isArray(links[REFS_KEY]),
     'RelayModernRecord.getLinkedRecordIDs(): Expected `%s.%s` to contain an array ' +
-      'of linked IDs, got `%s`.',
+      'of linked IDs, got `%s`.%s',
     record[ID_KEY],
     storageKey,
     JSON.stringify(links),
+    typeof links === 'object' && links[REF_KEY] !== undefined
+      ? ' It appears to be a singular linked record: did you mean to call ' +
+          'getLinkedRecord() instead of getLinkedRecords()?'
+      : '',
   );
   // assume items of the array are ids
   return (links[REFS_KEY]: any);
@@ -384,6 +393,51 @@ function setLinkedRecordIDs(
   record[storageKey] = links;
 }
 
+/**
+ * @public
+ *
+ * Set the value of a field to a reference to another record in the actor specific store.
+ */
+function setActorLinkedRecordID(
+  record: Record,
+  storageKey: string,
+  actorIdentifier: ActorIdentifier,
+  linkedID: DataID,
+): void {
+  // See perf note above for why we aren't using computed property access.
+  const link = {};
+  link[REF_KEY] = linkedID;
+  link[ACTOR_IDENTIFIER_KEY] = actorIdentifier;
+  record[storageKey] = link;
+}
+
+/**
+ * @public
+ *
+ * Get link to a record and the actor identifier for the store.
+ */
+function getActorLinkedRecordID(
+  record: Record,
+  storageKey: string,
+): ?[ActorIdentifier, DataID] {
+  const link = record[storageKey];
+  if (link == null) {
+    return link;
+  }
+  invariant(
+    typeof link === 'object' &&
+      typeof link[REF_KEY] === 'string' &&
+      link[ACTOR_IDENTIFIER_KEY] != null,
+    'RelayModernRecord.getActorLinkedRecordID(): Expected `%s.%s` to be an actor specific linked ID, ' +
+      'was `%s`.',
+    record[ID_KEY],
+    storageKey,
+    JSON.stringify(link),
+  );
+
+  return [(link[ACTOR_IDENTIFIER_KEY]: any), (link[REF_KEY]: any)];
+}
+
 module.exports = {
   clone,
   copyFields,
@@ -400,4 +454,6 @@ module.exports = {
   setLinkedRecordID,
   setLinkedRecordIDs,
   update,
+  getActorLinkedRecordID,
+  setActorLinkedRecordID,
 };

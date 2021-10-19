@@ -13,9 +13,10 @@ use graphql_ir::{
 
 use interner::{Intern, StringKey};
 use schema::{FieldID, InterfaceID, ObjectID, Schema, Type};
-use std::collections::hash_map::Entry;
-use std::collections::HashMap;
-use std::sync::Arc;
+use std::{
+    collections::{hash_map::Entry, HashMap},
+    sync::Arc,
+};
 
 /// A transform that adds an `id` field on any type that has an id field but
 /// where there is no unaliased `id` selection.

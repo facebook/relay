@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<7d357b255461a73a511d25b53983d6ac>>
+ * @generated SignedSource<<f208de4b31ca1b5d18d0d6cb4521f3d3>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,15 +21,15 @@ export type FeedbackLikeInput = {|
   feedbackId?: ?string,
 |};
 export type RelayMockEnvironmentWithComponentsTestRemarkableFixSubscriptionVariables = {|
-  input?: ?FeedbackLikeInput
+  input?: ?FeedbackLikeInput,
 |};
 export type RelayMockEnvironmentWithComponentsTestRemarkableFixSubscriptionResponse = {|
   +feedbackLikeSubscribe: ?{|
     +feedback: ?{|
       +id: string,
       +doesViewerLike: ?boolean,
-    |}
-  |}
+    |},
+  |},
 |};
 export type RelayMockEnvironmentWithComponentsTestRemarkableFixSubscription = {|
   variables: RelayMockEnvironmentWithComponentsTestRemarkableFixSubscriptionVariables,

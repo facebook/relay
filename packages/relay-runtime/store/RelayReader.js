@@ -12,12 +12,35 @@
 
 'use strict';
 
-const RelayFeatureFlags = require('../util/RelayFeatureFlags');
-const RelayModernRecord = require('./RelayModernRecord');
-
-const invariant = require('invariant');
+import type {
+  ReaderActorChange,
+  ReaderFlightField,
+  ReaderFragment,
+  ReaderFragmentSpread,
+  ReaderInlineDataFragmentSpread,
+  ReaderLinkedField,
+  ReaderModuleImport,
+  ReaderNode,
+  ReaderRelayResolver,
+  ReaderRequiredField,
+  ReaderScalarField,
+  ReaderSelection,
+} from '../util/ReaderNode';
+import type {DataID, Variables} from '../util/RelayRuntimeTypes';
+import type {
+  DataIDSet,
+  MissingRequiredFields,
+  Record,
+  RecordSource,
+  RequestDescriptor,
+  SelectorData,
+  SingularReaderSelector,
+  Snapshot,
+} from './RelayStoreTypes';
+import type {ResolverCache} from './ResolverCache';
 
 const {
+  ACTOR_CHANGE,
   CLIENT_EXTENSION,
   CONDITION,
   DEFER,
@@ -27,53 +50,42 @@ const {
   INLINE_FRAGMENT,
   LINKED_FIELD,
   MODULE_IMPORT,
+  RELAY_RESOLVER,
   REQUIRED_FIELD,
   SCALAR_FIELD,
   STREAM,
 } = require('../util/RelayConcreteNode');
+const RelayFeatureFlags = require('../util/RelayFeatureFlags');
+const ClientID = require('./ClientID');
+const RelayModernRecord = require('./RelayModernRecord');
 const {getReactFlightClientResponse} = require('./RelayStoreReactFlightUtils');
 const {
-  FRAGMENTS_KEY,
   FRAGMENT_OWNER_KEY,
   FRAGMENT_PROP_NAME_KEY,
+  FRAGMENTS_KEY,
   ID_KEY,
   IS_WITHIN_UNMATCHED_TYPE_REFINEMENT,
   MODULE_COMPONENT_KEY,
   ROOT_ID,
   getArgumentValues,
-  getStorageKey,
   getModuleComponentKey,
+  getStorageKey,
 } = require('./RelayStoreUtils');
+const {NoopResolverCache} = require('./ResolverCache');
+const {withResolverContext} = require('./ResolverFragments');
 const {generateTypeID} = require('./TypeID');
-
-import type {
-  ReaderFlightField,
-  ReaderFragmentSpread,
-  ReaderInlineDataFragmentSpread,
-  ReaderLinkedField,
-  ReaderModuleImport,
-  ReaderNode,
-  ReaderRequiredField,
-  ReaderScalarField,
-  ReaderSelection,
-} from '../util/ReaderNode';
-import type {DataID, Variables} from '../util/RelayRuntimeTypes';
-import type {
-  Record,
-  RecordSource,
-  RequestDescriptor,
-  SelectorData,
-  SingularReaderSelector,
-  Snapshot,
-  MissingRequiredFields,
-  DataIDSet,
-} from './RelayStoreTypes';
+const invariant = require('invariant');
 
 function read(
   recordSource: RecordSource,
   selector: SingularReaderSelector,
+  resolverCache?: ResolverCache,
 ): Snapshot {
-  const reader = new RelayReader(recordSource, selector);
+  const reader = new RelayReader(
+    recordSource,
+    selector,
+    resolverCache ?? new NoopResolverCache(),
+  );
   return reader.read();
 }
 
@@ -89,8 +101,13 @@ class RelayReader {
   _seenRecords: DataIDSet;
   _selector: SingularReaderSelector;
   _variables: Variables;
+  _resolverCache: ResolverCache;
 
-  constructor(recordSource: RecordSource, selector: SingularReaderSelector) {
+  constructor(
+    recordSource: RecordSource,
+    selector: SingularReaderSelector,
+    resolverCache: ResolverCache,
+  ) {
     this._isMissingData = false;
     this._isWithinUnmatchedTypeRefinement = false;
     this._missingRequiredFields = null;
@@ -99,6 +116,7 @@ class RelayReader {
     this._seenRecords = new Set();
     this._selector = selector;
     this._variables = selector.variables;
+    this._resolverCache = resolverCache;
   }
 
   read(): Snapshot {
@@ -122,7 +140,18 @@ class RelayReader {
     // match, then no data is expected to be present.
     if (isDataExpectedToBePresent && abstractKey == null && record != null) {
       const recordType = RelayModernRecord.getType(record);
-      if (recordType !== node.type && dataID !== ROOT_ID) {
+      if (
+        recordType !== node.type &&
+        // The root record type is a special `__Root` type and may not match the
+        // type on the ast, so ignore type mismatches at the root.
+        // We currently detect whether we're at the root by checking against ROOT_ID,
+        // but this does not work for mutations/subscriptions which generate unique
+        // root ids. This is acceptable in practice as we don't read data for mutations/
+        // subscriptions in a situation where we would use isMissingData to decide whether
+        // to suspend or not.
+        // TODO T96653810: Correctly detect reading from root of mutation/subscription
+        dataID !== ROOT_ID
+      ) {
         isDataExpectedToBePresent = false;
       }
     }
@@ -131,12 +160,7 @@ class RelayReader {
     // then data is only expected to be present if the record type is known to
     // implement the interface. If we aren't sure whether the record implements
     // the interface, that itself constitutes "expected" data being missing.
-    if (
-      isDataExpectedToBePresent &&
-      abstractKey != null &&
-      record != null &&
-      RelayFeatureFlags.ENABLE_PRECISE_TYPE_REFINEMENT
-    ) {
+    if (isDataExpectedToBePresent && abstractKey != null && record != null) {
       const recordType = RelayModernRecord.getType(record);
       const typeID = generateTypeID(recordType);
       const typeRecord = this._recordSource.get(typeID);
@@ -192,6 +216,7 @@ class RelayReader {
       'RelayReader(): Undefined variable `%s`.',
       name,
     );
+    // $FlowFixMe[cannot-write]
     return this._variables[name];
   }
 
@@ -262,7 +287,9 @@ class RelayReader {
           }
           break;
         case CONDITION:
-          const conditionValue = this._getVariableValue(selection.condition);
+          const conditionValue = Boolean(
+            this._getVariableValue(selection.condition),
+          );
           if (conditionValue === selection.passingValue) {
             const hasExpectedData = this._traverseSelections(
               selection.selections,
@@ -289,7 +316,7 @@ class RelayReader {
                 return false;
               }
             }
-          } else if (RelayFeatureFlags.ENABLE_PRECISE_TYPE_REFINEMENT) {
+          } else {
             // Similar to the logic in read(): data is only expected to be present
             // if the record is known to conform to the interface. If we don't know
             // whether the type conforms or not, that constitutes missing data.
@@ -319,11 +346,14 @@ class RelayReader {
               // Don't know if the type implements the interface or not
               this._isMissingData = true;
             }
-          } else {
-            // legacy behavior for abstract refinements: always read even
-            // if the type doesn't conform and don't reset isMissingData
-            this._traverseSelections(selection.selections, record, data);
           }
+          break;
+        }
+        case RELAY_RESOLVER: {
+          if (!RelayFeatureFlags.ENABLE_RELAY_RESOLVERS) {
+            throw new Error('Relay Resolver fields are not yet supported.');
+          }
+          this._readResolverField(selection, record, data);
           break;
         }
         case FRAGMENT_SPREAD:
@@ -333,7 +363,11 @@ class RelayReader {
           this._readModuleImport(selection, record, data);
           break;
         case INLINE_DATA_FRAGMENT_SPREAD:
-          this._createInlineDataFragmentPointer(selection, record, data);
+          this._createInlineDataOrResolverFragmentPointer(
+            selection,
+            record,
+            data,
+          );
           break;
         case DEFER:
         case CLIENT_EXTENSION: {
@@ -367,6 +401,9 @@ class RelayReader {
             throw new Error('Flight fields are not yet supported.');
           }
           break;
+        case ACTOR_CHANGE:
+          this._readActorChange(selection, record, data);
+          break;
         default:
           (selection: empty);
           invariant(
@@ -393,6 +430,12 @@ class RelayReader {
         } else {
           return this._readLink(selection.field, record, data);
         }
+      case RELAY_RESOLVER:
+        if (!RelayFeatureFlags.ENABLE_RELAY_RESOLVERS) {
+          throw new Error('Relay Resolver fields are not yet supported.');
+        }
+        this._readResolverField(selection.field, record, data);
+        break;
       default:
         (selection.field.kind: empty);
         invariant(
@@ -401,6 +444,87 @@ class RelayReader {
           selection.kind,
         );
     }
+  }
+
+  _readResolverField(
+    field: ReaderRelayResolver,
+    record: Record,
+    data: SelectorData,
+  ): ?mixed {
+    const {resolverModule, fragment} = field;
+    const storageKey = getStorageKey(field, this._variables);
+    const resolverID = ClientID.generateClientID(
+      RelayModernRecord.getDataID(record),
+      storageKey,
+    );
+
+    // Found when reading the resolver fragment, which can happen either when
+    // evaluating the resolver and it calls readFragment, or when checking if the
+    // inputs have changed since a previous evaluation:
+    let fragmentValue;
+    let fragmentReaderSelector;
+    const fragmentSeenRecordIDs = new Set();
+
+    const getDataForResolverFragment = singularReaderSelector => {
+      if (fragmentValue != null) {
+        // It was already read when checking for input staleness; no need to read it again.
+        // Note that the variables like fragmentSeenRecordIDs in the outer closure will have
+        // already been set and will still be used in this case.
+        return fragmentValue;
+      }
+      fragmentReaderSelector = singularReaderSelector;
+      const existingSeenRecords = this._seenRecords;
+      try {
+        this._seenRecords = fragmentSeenRecordIDs;
+        const resolverFragmentData = {};
+        this._createInlineDataOrResolverFragmentPointer(
+          singularReaderSelector.node,
+          record,
+          resolverFragmentData,
+        );
+        fragmentValue = resolverFragmentData[FRAGMENTS_KEY]?.[fragment.name];
+        invariant(
+          typeof fragmentValue === 'object' && fragmentValue !== null,
+          `Expected reader data to contain a __fragments property with a property for the fragment named ${fragment.name}, but it is missing.`,
+        );
+        return fragmentValue;
+      } finally {
+        this._seenRecords = existingSeenRecords;
+      }
+    };
+    const resolverContext = {getDataForResolverFragment};
+
+    const [result, seenRecord] = this._resolverCache.readFromCacheOrEvaluate(
+      record,
+      field,
+      this._variables,
+      () => {
+        const key = {
+          __id: RelayModernRecord.getDataID(record),
+          __fragmentOwner: this._owner,
+          __fragments: {
+            [fragment.name]: {}, // Arguments to this fragment; not yet supported.
+          },
+        };
+        return withResolverContext(resolverContext, () => {
+          // $FlowFixMe[prop-missing] - resolver module's type signature is a lie
+          const resolverResult = resolverModule(key);
+          return {
+            resolverResult,
+            fragmentValue,
+            resolverID,
+            seenRecordIDs: fragmentSeenRecordIDs,
+            readerSelector: fragmentReaderSelector,
+          };
+        });
+      },
+      getDataForResolverFragment,
+    );
+    if (seenRecord != null) {
+      this._seenRecords.add(seenRecord);
+    }
+    data[storageKey] = result;
+    return result;
   }
 
   _readFlightField(
@@ -485,6 +609,42 @@ class RelayReader {
     return value;
   }
 
+  _readActorChange(
+    field: ReaderActorChange,
+    record: Record,
+    data: SelectorData,
+  ): ?mixed {
+    const applicationName = field.alias ?? field.name;
+    const storageKey = getStorageKey(field, this._variables);
+    const externalRef = RelayModernRecord.getActorLinkedRecordID(
+      record,
+      storageKey,
+    );
+
+    if (externalRef == null) {
+      data[applicationName] = externalRef;
+      if (externalRef === undefined) {
+        this._isMissingData = true;
+      }
+      return data[applicationName];
+    }
+    const [actorIdentifier, dataID] = externalRef;
+
+    const fragmentRef = {};
+    this._createFragmentPointer(
+      field.fragmentSpread,
+      {
+        __id: dataID,
+      },
+      fragmentRef,
+    );
+    data[applicationName] = {
+      __fragmentRef: fragmentRef,
+      __viewer: actorIdentifier,
+    };
+    return data[applicationName];
+  }
+
   _readPluralLink(
     field: ReaderLinkedField,
     record: Record,
@@ -567,7 +727,7 @@ class RelayReader {
       {
         kind: 'FragmentSpread',
         name: moduleImport.fragmentName,
-        args: null,
+        args: moduleImport.args,
       },
       record,
       data,
@@ -598,16 +758,13 @@ class RelayReader {
       ? getArgumentValues(fragmentSpread.args, this._variables)
       : {};
     data[FRAGMENT_OWNER_KEY] = this._owner;
-
-    if (RelayFeatureFlags.ENABLE_PRECISE_TYPE_REFINEMENT) {
-      data[
-        IS_WITHIN_UNMATCHED_TYPE_REFINEMENT
-      ] = this._isWithinUnmatchedTypeRefinement;
-    }
+    data[
+      IS_WITHIN_UNMATCHED_TYPE_REFINEMENT
+    ] = this._isWithinUnmatchedTypeRefinement;
   }
 
-  _createInlineDataFragmentPointer(
-    inlineDataFragmentSpread: ReaderInlineDataFragmentSpread,
+  _createInlineDataOrResolverFragmentPointer(
+    fragmentSpreadOrFragment: ReaderInlineDataFragmentSpread | ReaderFragment,
     record: Record,
     data: SelectorData,
   ): void {
@@ -625,12 +782,12 @@ class RelayReader {
     }
     const inlineData = {};
     this._traverseSelections(
-      inlineDataFragmentSpread.selections,
+      fragmentSpreadOrFragment.selections,
       record,
       inlineData,
     );
     // $FlowFixMe[cannot-write] - writing into read-only field
-    fragmentPointers[inlineDataFragmentSpread.name] = inlineData;
+    fragmentPointers[fragmentSpreadOrFragment.name] = inlineData;
   }
 }
 

@@ -11,8 +11,8 @@
 'use strict';
 
 const createFragmentSpecResolver = require('../createFragmentSpecResolver');
-
-const {generateAndCompile, matchers} = require('relay-test-utils-internal');
+const {getFragment, graphql} = require('relay-runtime');
+const {matchers} = require('relay-test-utils-internal');
 
 jest.mock('warning');
 
@@ -21,8 +21,8 @@ beforeEach(() => {
 });
 
 it('warns if any prop is undefined', () => {
-  const {TestComponent_test} = generateAndCompile(`
-    fragment TestComponent_test on User {
+  const TestComponent_test = getFragment(graphql`
+    fragment createFragmentSpecResolverTestTestComponent_test on User {
       id
     }
   `);

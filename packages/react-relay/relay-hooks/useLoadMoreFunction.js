@@ -13,25 +13,9 @@
 
 'use strict';
 
-const getPaginationVariables = require('./getPaginationVariables');
-const getValueAtPath = require('./getValueAtPath');
-const invariant = require('invariant');
-const useFetchTrackingRef = require('./useFetchTrackingRef');
-const useIsMountedRef = require('./useIsMountedRef');
-const useIsOperationNodeActive = require('./useIsOperationNodeActive');
-const useRelayEnvironment = require('./useRelayEnvironment');
-const warning = require('warning');
-
-const {useCallback, useEffect, useState} = require('react');
-const {
-  ConnectionInterface,
-  __internal: {fetchQuery},
-  createOperationDescriptor,
-  getSelector,
-} = require('relay-runtime');
-
 import type {
   ConcreteRequest,
+  Direction,
   Disposable,
   GraphQLResponse,
   Observer,
@@ -41,7 +25,21 @@ import type {
   VariablesOf,
 } from 'relay-runtime';
 
-export type Direction = 'forward' | 'backward';
+const useFetchTrackingRef = require('./useFetchTrackingRef');
+const useIsMountedRef = require('./useIsMountedRef');
+const useIsOperationNodeActive = require('./useIsOperationNodeActive');
+const useRelayEnvironment = require('./useRelayEnvironment');
+const invariant = require('invariant');
+const {useCallback, useEffect, useState} = require('react');
+const {
+  ConnectionInterface,
+  __internal: {fetchQuery},
+  createOperationDescriptor,
+  getPaginationVariables,
+  getSelector,
+  getValueAtPath,
+} = require('relay-runtime');
+const warning = require('warning');
 
 export type LoadMoreFn<TQuery: OperationType> = (
   count: number,
@@ -190,6 +188,7 @@ function useLoadMoreFunction<TQuery: OperationType>(
       const parentVariables = fragmentSelector.owner.variables;
       const fragmentVariables = fragmentSelector.variables;
       const extraVariables = options?.UNSTABLE_extraVariables;
+      // $FlowFixMe[cannot-spread-interface]
       const baseVariables = {
         ...parentVariables,
         ...fragmentVariables,
@@ -199,6 +198,7 @@ function useLoadMoreFunction<TQuery: OperationType>(
         count,
         cursor,
         baseVariables,
+        // $FlowFixMe[cannot-spread-interface]
         {...extraVariables},
         paginationMetadata,
       );

@@ -11,12 +11,11 @@
 
 'use strict';
 
+import type {FragmentReference, GraphQLTaggedNode} from 'relay-runtime';
+
 const useIsOperationNodeActive = require('./useIsOperationNodeActive');
 const useStaticFragmentNodeWarning = require('./useStaticFragmentNodeWarning');
-
 const {getFragment} = require('relay-runtime');
-
-import type {GraphQLTaggedNode, FragmentReference} from 'relay-runtime';
 
 function useIsParentQueryActive<
   TKey: ?{+$data?: mixed, +$fragmentRefs: FragmentReference, ...},

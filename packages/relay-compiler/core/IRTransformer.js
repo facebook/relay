@@ -12,10 +12,6 @@
 
 'use strict';
 
-const invariant = require('invariant');
-
-const {eachWithCombinedError} = require('./CompilerError');
-
 import type CompilerContext, {CompilerContextDocument} from './CompilerContext';
 import type {
   Argument,
@@ -25,9 +21,9 @@ import type {
   Directive,
   Fragment,
   FragmentSpread,
-  IR,
   InlineDataFragmentSpread,
   InlineFragment,
+  IR,
   LinkedField,
   ListValue,
   Literal,
@@ -43,6 +39,9 @@ import type {
   Stream,
   Variable,
 } from './IR';
+
+const {eachWithCombinedError} = require('./CompilerError');
+const invariant = require('invariant');
 
 type NodeVisitor<S> = {|
   Argument?: NodeVisitorFunction<Argument, S>,

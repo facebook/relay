@@ -12,18 +12,30 @@
 
 'use strict';
 
-const FlattenTransform = require('../../transforms/FlattenTransform');
+import type {IRTransform} from '../../core/CompilerContext';
+import type {
+  Directive,
+  Fragment,
+  Metadata,
+  ModuleImport,
+  Root,
+  Selection as IRSelection,
+} from '../../core/IR';
+import type {NodeVisitor} from '../../core/IRVisitor';
+import type {EnumTypeID, Schema, TypeID} from '../../core/Schema';
+import type {RequiredDirectiveMetadata} from '../../transforms/RequiredFieldTransform';
+import type {TypeGeneratorOptions} from '../RelayLanguagePluginInterface';
+
+const Profiler = require('../../core/GraphQLCompilerProfiler');
 const IRVisitor = require('../../core/IRVisitor');
+const FlattenTransform = require('../../transforms/FlattenTransform');
 const MaskTransform = require('../../transforms/MaskTransform');
 const MatchTransform = require('../../transforms/MatchTransform');
-const Profiler = require('../../core/GraphQLCompilerProfiler');
 const RefetchableFragmentTransform = require('../../transforms/RefetchableFragmentTransform');
 const RelayDirectiveTransform = require('../../transforms/RelayDirectiveTransform');
 const RequiredFieldTransform = require('../../transforms/RequiredFieldTransform');
-
 const generateAbstractTypeRefinementKey = require('../../util/generateAbstractTypeRefinementKey');
 const partitionArray = require('../../util/partitionArray');
-
 const {
   anyTypeAlias,
   declareExportOpaqueType,
@@ -42,21 +54,6 @@ const {
   transformInputType,
   transformScalarType,
 } = require('./RelayFlowTypeTransformers');
-
-import type {IRTransform} from '../../core/CompilerContext';
-import type {
-  Fragment,
-  Root,
-  Directive,
-  Metadata,
-  ModuleImport,
-  Selection as IRSelection,
-} from '../../core/IR';
-import type {NodeVisitor} from '../../core/IRVisitor';
-import type {Schema, TypeID, EnumTypeID} from '../../core/Schema';
-import type {RequiredDirectiveMetadata} from '../../transforms/RequiredFieldTransform';
-import type {TypeGeneratorOptions} from '../RelayLanguagePluginInterface';
-
 const babelGenerator = require('@babel/generator').default;
 const t = require('@babel/types');
 const invariant = require('invariant');
@@ -398,6 +395,7 @@ function createVisitor(
           exportType(node.name, exactObjectTypeAnnotation(operationTypes)),
         );
 
+        // $FlowFixMe[incompatible-call]
         return t.program(babelNodes);
       },
       Fragment(node) {

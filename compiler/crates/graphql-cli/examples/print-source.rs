@@ -16,6 +16,10 @@ const EXAMPLE: &'static str = "fragment Example on User {
 some
 more
 lines
+
+fragment Test on User {
+  photo @
+}
 ";
 
 fn main() {
@@ -35,13 +39,15 @@ fn main() {
         46..47,
         // outer {} block
         25..60,
+        // @
+        111..111,
     ];
-    let printer = SourcePrinter::new();
+    let printer = SourcePrinter::default();
     for test_case in test_cases.into_iter() {
         let mut res = String::new();
         printer
             .write_span(&mut res, &test_case.into(), &EXAMPLE)
             .unwrap();
-        println!("{}", res);
+        println!("{}\n ---------\n", res);
     }
 }

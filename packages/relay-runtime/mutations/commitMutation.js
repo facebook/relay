@@ -12,23 +12,11 @@
 
 'use strict';
 
-const RelayDeclarativeMutationConfig = require('./RelayDeclarativeMutationConfig');
-
-const invariant = require('invariant');
-const isRelayModernEnvironment = require('../store/isRelayModernEnvironment');
-const validateMutation = require('./validateMutation');
-const warning = require('warning');
-
-const {getRequest} = require('../query/GraphQLTag');
-const {generateUniqueClientID} = require('../store/ClientID');
-const {
-  createOperationDescriptor,
-} = require('../store/RelayModernOperationDescriptor');
-
 import type {PayloadError, UploadableMap} from '../network/RelayNetworkTypes';
 import type {GraphQLTaggedNode} from '../query/GraphQLTag';
 import type {
   IEnvironment,
+  MutationParameters,
   SelectorStoreUpdater,
 } from '../store/RelayStoreTypes';
 import type {
@@ -37,6 +25,17 @@ import type {
   Variables,
 } from '../util/RelayRuntimeTypes';
 import type {DeclarativeMutationConfig} from './RelayDeclarativeMutationConfig';
+
+const {getRequest} = require('../query/GraphQLTag');
+const {generateUniqueClientID} = require('../store/ClientID');
+const isRelayModernEnvironment = require('../store/isRelayModernEnvironment');
+const {
+  createOperationDescriptor,
+} = require('../store/RelayModernOperationDescriptor');
+const RelayDeclarativeMutationConfig = require('./RelayDeclarativeMutationConfig');
+const validateMutation = require('./validateMutation');
+const invariant = require('invariant');
+const warning = require('warning');
 
 export type DEPRECATED_MutationConfig<T> = {|
   configs?: Array<DeclarativeMutationConfig>,
@@ -50,12 +49,6 @@ export type DEPRECATED_MutationConfig<T> = {|
   optimisticUpdater?: ?SelectorStoreUpdater,
   optimisticResponse?: Object,
   updater?: ?SelectorStoreUpdater,
-|};
-
-export type MutationParameters = {|
-  +response: {...},
-  +variables: {...},
-  +rawResponse?: {...},
 |};
 
 export type MutationConfig<T: MutationParameters> = {|
@@ -113,6 +106,8 @@ function commitMutation<T: MutationParameters>(
   } = config;
   const operation = createOperationDescriptor(
     mutation,
+    /* $FlowFixMe[class-object-subtyping] added when improving typing for this
+     * parameters */
     variables,
     cacheConfig,
     generateUniqueClientID(),

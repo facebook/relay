@@ -13,22 +13,21 @@
 
 'use strict';
 
+import type {ConcreteRequest, GraphQLTaggedNode} from 'relay-runtime';
+
+const {loadQuery, useTrackLoadQueryInRender} = require('../loadQuery');
 // Need React require for OSS build
 // eslint-disable-next-line no-unused-vars
 const React = require('react');
 const ReactTestRenderer = require('react-test-renderer');
-
-const {loadQuery, useTrackLoadQueryInRender} = require('../loadQuery');
 const {
-  graphql,
   Network,
   Observable,
-  getRequest,
   PreloadableQueryRegistry,
+  getRequest,
+  graphql,
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils-internal');
-
-import type {GraphQLTaggedNode, ConcreteRequest} from 'relay-runtime';
 
 describe('loadQuery', () => {
   const q: GraphQLTaggedNode = graphql`
@@ -85,6 +84,7 @@ describe('loadQuery', () => {
       const observable = Observable.create(_sink => {
         sink = _sink;
       });
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       const originalSubscribe = observable.subscribe.bind(observable);
       networkUnsubscribe = jest.fn();
       jest.spyOn(observable, 'subscribe').mockImplementation((...args) => {
@@ -118,6 +118,7 @@ describe('loadQuery', () => {
         return {dispose: disposeOnloadCallback};
       });
 
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const originalExecuteWithSource = environment.executeWithSource.getMockImplementation();
     executeObservable = undefined;
     executeUnsubscribe = undefined;
@@ -163,12 +164,14 @@ describe('loadQuery', () => {
   describe('when passed a PreloadableConcreteRequest', () => {
     it('checks whether the query ast is available synchronously', () => {
       loadQuery(environment, preloadableConcreteRequest, variables);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(PreloadableQueryRegistry.get).toHaveBeenCalled();
     });
 
     describe('when the query AST is available synchronously', () => {
       it('synchronously checks whether the query can be fulfilled by the store', () => {
         loadQuery(environment, preloadableConcreteRequest, variables);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.check).toHaveBeenCalled();
       });
 
@@ -183,9 +186,11 @@ describe('loadQuery', () => {
             },
           );
           expect(fetch).not.toHaveBeenCalled();
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.executeWithSource).not.toHaveBeenCalled();
           expect(source).toEqual(undefined);
           // Query should still be retained even if we don't fetch
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.retain).toHaveBeenCalled();
         });
 
@@ -210,7 +215,9 @@ describe('loadQuery', () => {
             }
             expect(fetch).toHaveBeenCalled();
             expect(source).toBeDefined();
+            // $FlowFixMe[method-unbinding] added when improving typing for this parameters
             expect(environment.executeWithSource).toHaveBeenCalledTimes(1);
+            // $FlowFixMe[method-unbinding] added when improving typing for this parameters
             expect(environment.executeWithSource).toHaveBeenCalledWith(
               expect.objectContaining({
                 operation: expect.objectContaining({
@@ -222,6 +229,7 @@ describe('loadQuery', () => {
                 }),
               }),
             );
+            // $FlowFixMe[method-unbinding] added when improving typing for this parameters
             expect(environment.retain).toHaveBeenCalled();
 
             PreloadableQueryRegistry.set(ID, query);
@@ -260,7 +268,9 @@ describe('loadQuery', () => {
               },
             );
             expect(fetch).toHaveBeenCalled();
+            // $FlowFixMe[method-unbinding] added when improving typing for this parameters
             expect(environment.executeWithSource).toHaveBeenCalledTimes(1);
+            // $FlowFixMe[method-unbinding] added when improving typing for this parameters
             expect(environment.executeWithSource).toHaveBeenCalledWith(
               expect.objectContaining({
                 operation: expect.objectContaining({
@@ -272,6 +282,7 @@ describe('loadQuery', () => {
                 }),
               }),
             );
+            // $FlowFixMe[method-unbinding] added when improving typing for this parameters
             expect(environment.retain).toHaveBeenCalled();
             expect(executeObservable).toBeDefined();
             if (executeObservable != null) {
@@ -320,9 +331,11 @@ describe('loadQuery', () => {
             },
           );
           expect(fetch).not.toHaveBeenCalled();
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.executeWithSource).not.toHaveBeenCalled();
           expect(source).toEqual(undefined);
           // Query should still be retained even if we don't fetch
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.retain).toHaveBeenCalled();
         });
 
@@ -337,9 +350,11 @@ describe('loadQuery', () => {
             },
           );
           expect(fetch).not.toHaveBeenCalled();
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.executeWithSource).not.toHaveBeenCalled();
           expect(source).toEqual(undefined);
           // Query should still be retained even if we don't fetch
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.retain).toHaveBeenCalled();
         });
 
@@ -379,10 +394,13 @@ describe('loadQuery', () => {
         }
         expect(fetch).toHaveBeenCalled();
         expect(source).toBeDefined();
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.executeWithSource).not.toHaveBeenCalled();
 
         executeOnloadCallback(query);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.executeWithSource).toHaveBeenCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.executeWithSource).toHaveBeenCalledWith(
           expect.objectContaining({
             operation: expect.objectContaining({
@@ -394,6 +412,7 @@ describe('loadQuery', () => {
             }),
           }),
         );
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toHaveBeenCalled();
         expect(nextCallback).not.toHaveBeenCalled();
 
@@ -433,7 +452,9 @@ describe('loadQuery', () => {
         expect(executeOnloadCallback).toBeDefined();
         executeOnloadCallback(query);
 
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.executeWithSource).toHaveBeenCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.executeWithSource).toHaveBeenCalledWith(
           expect.objectContaining({
             operation: expect.objectContaining({
@@ -445,6 +466,7 @@ describe('loadQuery', () => {
             }),
           }),
         );
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toHaveBeenCalled();
         expect(executeObservable).toBeDefined();
         if (executeObservable != null) {
@@ -492,6 +514,7 @@ describe('loadQuery', () => {
           },
         );
         expect(fetch).toHaveBeenCalled();
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(PreloadableQueryRegistry.onLoad).toHaveBeenCalledTimes(1);
         expect(disposeOnloadCallback).toBeDefined();
         expect(disposeOnloadCallback).not.toHaveBeenCalled();
@@ -506,9 +529,12 @@ describe('loadQuery', () => {
 
       it('passes a callback to onLoad that calls executeWithSource', () => {
         loadQuery(environment, preloadableConcreteRequest, variables);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.executeWithSource).not.toHaveBeenCalled();
         executeOnloadCallback(query);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.executeWithSource).toHaveBeenCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.executeWithSource).toHaveBeenCalledWith(
           expect.objectContaining({
             operation: expect.objectContaining({
@@ -520,6 +546,7 @@ describe('loadQuery', () => {
             }),
           }),
         );
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toHaveBeenCalled();
       });
     });
@@ -535,9 +562,11 @@ describe('loadQuery', () => {
           },
         );
         expect(fetch).not.toHaveBeenCalled();
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.executeWithSource).not.toHaveBeenCalled();
         expect(source).toEqual(undefined);
         // Query should still be retained even if we don't fetch
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toHaveBeenCalled();
       });
 
@@ -552,9 +581,11 @@ describe('loadQuery', () => {
           },
         );
         expect(fetch).not.toHaveBeenCalled();
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.executeWithSource).not.toHaveBeenCalled();
         expect(source).toEqual(undefined);
         // Query should still be retained even if we don't fetch
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toHaveBeenCalled();
       });
 
@@ -576,6 +607,7 @@ describe('loadQuery', () => {
   describe('when passed a query AST', () => {
     it('checks whether the query can be fulfilled by the store synchronously', () => {
       loadQuery(environment, query, variables);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.check).toHaveBeenCalled();
     });
     describe('when the query can be fulfilled by the store', () => {
@@ -584,8 +616,10 @@ describe('loadQuery', () => {
           fetchPolicy: 'store-or-network',
         });
         expect(fetch).not.toHaveBeenCalled();
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.executeWithSource).not.toHaveBeenCalled();
         // Query should still be retained even if we don't fetch
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toHaveBeenCalled();
       });
 
@@ -602,7 +636,9 @@ describe('loadQuery', () => {
           }
           expect(fetch).toHaveBeenCalled();
           expect(source).toBeDefined();
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.executeWithSource).toHaveBeenCalledTimes(1);
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.executeWithSource).toHaveBeenCalledWith(
             expect.objectContaining({
               operation: expect.objectContaining({
@@ -614,6 +650,7 @@ describe('loadQuery', () => {
               }),
             }),
           );
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.retain).toHaveBeenCalled();
           expect(nextCallback).not.toHaveBeenCalled();
 
@@ -640,7 +677,9 @@ describe('loadQuery', () => {
             fetchPolicy: 'network-only',
           });
           expect(fetch).toHaveBeenCalled();
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.executeWithSource).toHaveBeenCalledTimes(1);
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.executeWithSource).toHaveBeenCalledWith(
             expect.objectContaining({
               operation: expect.objectContaining({
@@ -652,6 +691,7 @@ describe('loadQuery', () => {
               }),
             }),
           );
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.retain).toHaveBeenCalled();
           expect(executeObservable).toBeDefined();
           if (executeObservable != null) {
@@ -700,7 +740,9 @@ describe('loadQuery', () => {
         }
         expect(fetch).toHaveBeenCalled();
         expect(source).toBeDefined();
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.executeWithSource).toHaveBeenCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.executeWithSource).toHaveBeenCalledWith(
           expect.objectContaining({
             operation: expect.objectContaining({
@@ -712,6 +754,7 @@ describe('loadQuery', () => {
             }),
           }),
         );
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toHaveBeenCalled();
         expect(nextCallback).not.toHaveBeenCalled();
 
@@ -734,7 +777,9 @@ describe('loadQuery', () => {
         // This ensures that no data is written to the store
         const preloadedQuery = loadQuery(environment, query, variables);
         expect(fetch).toHaveBeenCalled();
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.executeWithSource).toHaveBeenCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toHaveBeenCalled();
         expect(executeObservable).toBeDefined();
         if (executeObservable != null) {
@@ -776,9 +821,11 @@ describe('loadQuery', () => {
           },
         );
         expect(fetch).not.toHaveBeenCalled();
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.executeWithSource).not.toHaveBeenCalled();
         expect(source).toEqual(undefined);
         // Query should still be retained even if we don't fetch
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toHaveBeenCalled();
       });
 
@@ -793,9 +840,11 @@ describe('loadQuery', () => {
           },
         );
         expect(fetch).not.toHaveBeenCalled();
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.executeWithSource).not.toHaveBeenCalled();
         expect(source).toEqual(undefined);
         // Query should still be retained even if we don't fetch
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toHaveBeenCalled();
       });
 

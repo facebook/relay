@@ -10,14 +10,13 @@
 
 'use strict';
 
-const React = require('react');
 const ReactRelayContext = require('../ReactRelayContext');
 const ReactRelayFragmentContainer = require('../ReactRelayFragmentContainer');
+const React = require('react');
 const ReactTestRenderer = require('react-test-renderer');
-
 const {
-  createReaderSelector,
   createOperationDescriptor,
+  createReaderSelector,
   graphql,
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils-internal');
@@ -180,6 +179,7 @@ describe('ReactRelayFragmentContainer with fragment ownerhsip', () => {
           ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment: {},
         },
         __fragmentOwner: ownerUser1.request,
+        __isWithinUnmatchedTypeRefinement: false,
       },
     });
     // Subscribes for updates
@@ -193,6 +193,7 @@ describe('ReactRelayFragmentContainer with fragment ownerhsip', () => {
           ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment: {},
         },
         __fragmentOwner: ownerUser1.request,
+        __isWithinUnmatchedTypeRefinement: false,
       },
       missingRequiredFields: null,
       isMissingData: false,
@@ -233,6 +234,7 @@ describe('ReactRelayFragmentContainer with fragment ownerhsip', () => {
           ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment: {},
         },
         __fragmentOwner: ownerUser1.request,
+        __isWithinUnmatchedTypeRefinement: false,
       },
       seenRecords: {},
       isMissingData: false,
@@ -255,6 +257,7 @@ describe('ReactRelayFragmentContainer with fragment ownerhsip', () => {
           ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment: {},
         },
         __fragmentOwner: ownerUser1.request,
+        __isWithinUnmatchedTypeRefinement: false,
       },
     });
   });
@@ -290,6 +293,7 @@ describe('ReactRelayFragmentContainer with fragment ownerhsip', () => {
           ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment: {},
         },
         __fragmentOwner: ownerUser2.request,
+        __isWithinUnmatchedTypeRefinement: false,
       },
     });
 
@@ -304,6 +308,7 @@ describe('ReactRelayFragmentContainer with fragment ownerhsip', () => {
           ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment: {},
         },
         __fragmentOwner: ownerUser2.request,
+        __isWithinUnmatchedTypeRefinement: false,
       },
       missingRequiredFields: null,
       isMissingData: false,
@@ -351,6 +356,7 @@ describe('ReactRelayFragmentContainer with fragment ownerhsip', () => {
           ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment: {},
         },
         __fragmentOwner: ownerUser1WithCondVar.request,
+        __isWithinUnmatchedTypeRefinement: false,
       },
     });
     // Container subscribes for updates on new props
@@ -364,6 +370,7 @@ describe('ReactRelayFragmentContainer with fragment ownerhsip', () => {
           ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment: {},
         },
         __fragmentOwner: ownerUser1WithCondVar.request,
+        __isWithinUnmatchedTypeRefinement: false,
       },
       missingRequiredFields: null,
       isMissingData: false,

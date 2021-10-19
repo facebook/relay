@@ -13,27 +13,27 @@
 
 'use strict';
 
-const React = require('react');
-const {useMemo} = React;
-const TestRenderer = require('react-test-renderer');
-
-const invariant = require('invariant');
 const useRefetchableFragmentOriginal = require('../useRefetchableFragment');
+const React = require('react');
 const ReactRelayContext = require('react-relay/ReactRelayContext');
+const TestRenderer = require('react-test-renderer');
 const {
   FRAGMENT_OWNER_KEY,
   FRAGMENTS_KEY,
   ID_KEY,
   createOperationDescriptor,
+  getFragment,
+  getRequest,
+  graphql,
 } = require('relay-runtime');
+const {createMockEnvironment} = require('relay-test-utils');
+
+const {useMemo} = React;
 
 describe('useRefetchableFragment', () => {
   let environment;
   let gqlQuery;
-  let gqlRefetchQuery;
   let gqlFragment;
-  let createMockEnvironment;
-  let generateAndCompile;
   let query;
   let variables;
   let renderFragment;
@@ -74,9 +74,10 @@ describe('useRefetchableFragment', () => {
     return {
       [ID_KEY]: id,
       [FRAGMENTS_KEY]: {
-        NestedUserFragment: {},
+        useRefetchableFragmentTestNestedUserFragment: {},
       },
       [FRAGMENT_OWNER_KEY]: owner.request,
+      __isWithinUnmatchedTypeRefinement: false,
     };
   }
 
@@ -87,47 +88,35 @@ describe('useRefetchableFragment', () => {
     jest.mock('warning');
     renderSpy = jest.fn();
 
-    ({
-      createMockEnvironment,
-      generateAndCompile,
-    } = require('relay-test-utils-internal'));
-
     // Set up environment and base data
     environment = createMockEnvironment();
-    const generated = generateAndCompile(
-      `
-        fragment NestedUserFragment on User {
-          username
-        }
+    graphql`
+      fragment useRefetchableFragmentTestNestedUserFragment on User {
+        username
+      }
+    `;
 
-        fragment UserFragment on User
-        @refetchable(queryName: "UserFragmentRefetchQuery") {
-          id
-          name
-          profile_picture(scale: $scale) {
-            uri
-          }
-          ...NestedUserFragment
-        }
-
-        query UserQuery($id: ID!, $scale: Int!) {
-          node(id: $id) {
-            ...UserFragment
-          }
-        }
-    `,
-    );
     variables = {id: '1', scale: 16};
-    gqlQuery = generated.UserQuery;
-    gqlRefetchQuery = generated.UserFragmentRefetchQuery;
-    gqlFragment = generated.UserFragment;
-    invariant(
-      gqlFragment.metadata?.refetch?.operation ===
-        '@@MODULE_START@@UserFragmentRefetchQuery.graphql@@MODULE_END@@',
-      'useRefetchableFragment-test: Expected refetchable fragment metadata to contain operation.',
-    );
-    // Manually set the refetchable operation for the test.
-    gqlFragment.metadata.refetch.operation = gqlRefetchQuery;
+    gqlQuery = getRequest(graphql`
+      query useRefetchableFragmentTestUserQuery($id: ID!, $scale: Float!) {
+        node(id: $id) {
+          ...useRefetchableFragmentTestUserFragment
+        }
+      }
+    `);
+    gqlFragment = getFragment(graphql`
+      fragment useRefetchableFragmentTestUserFragment on User
+        @refetchable(
+          queryName: "useRefetchableFragmentTestUserFragmentRefetchQuery"
+        ) {
+        id
+        name
+        profile_picture(scale: $scale) {
+          uri
+        }
+        ...useRefetchableFragmentTestNestedUserFragment
+      }
+    `);
 
     query = createOperationDescriptor(gqlQuery, variables);
     environment.commitPayload(query, {
@@ -149,11 +138,13 @@ describe('useRefetchableFragment', () => {
         // $FlowFixMe[prop-missing]
         () => ({
           [ID_KEY]:
+          // $FlowFixMe[prop-missing]
             query.request.variables.id ?? query.request.variables.nodeID,
           [FRAGMENTS_KEY]: {
             [gqlFragment.name]: {},
           },
           [FRAGMENT_OWNER_KEY]: query.request,
+          __isWithinUnmatchedTypeRefinement: false,
         }),
         [],
       );

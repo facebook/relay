@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a25819b18a99fd0d53b61c8328ed7aa4>>
+ * @generated SignedSource<<7d8855e892747a57b9a268e85e435754>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -29,7 +29,7 @@ export type RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientField
         +id: string,
         +firstName: ?string,
         +client_foo: ?{|
-          +client_name: ?string
+          +client_name: ?string,
         |},
       |},
     |}>,
@@ -39,7 +39,7 @@ export type RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientField
   +client_foo: ?{|
     +client_name: ?string,
     +profile_picture: ?{|
-      +uri: ?string
+      +uri: ?string,
     |},
   |},
   +best_friends: ?{|
@@ -55,7 +55,7 @@ export type RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientField
           +width: ?number,
         |},
       |},
-    |}>
+    |}>,
   |},
   +$refType: RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserProfile$ref,
 |};

@@ -10,17 +10,16 @@
 
 'use strict';
 
-const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
-const RelayRecordSource = require('../RelayRecordSource');
-
 const {getRequest, graphql} = require('../../query/GraphQLTag');
+const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../RelayModernSelector');
 const {read} = require('../RelayReader');
+const RelayRecordSource = require('../RelayRecordSource');
 const {ROOT_ID} = require('../RelayStoreUtils');
-const {generateTypeID, TYPE_SCHEMA_TYPE} = require('../TypeID');
+const {TYPE_SCHEMA_TYPE, generateTypeID} = require('../TypeID');
 
 describe('RelayReader', () => {
   let source;
@@ -232,7 +231,7 @@ describe('RelayReader', () => {
   it('creates fragment pointers with fragment owner when owner is provided', () => {
     const ParentQuery = graphql`
       query RelayReaderTestCreatesFragmentPointersWithFragmentOwnerWhenOwnerIsProvidedParentQuery(
-        $size: Float!
+        $size: [Int]
       ) {
         me {
           ...RelayReaderTestCreatesFragmentPointersWithFragmentOwnerWhenOwnerIsProvidedUserProfile
@@ -269,6 +268,7 @@ describe('RelayReader', () => {
         RelayReaderTestCreatesFragmentPointersWithFragmentOwnerWhenOwnerIsProvidedUserProfilePicture: {},
       },
       __fragmentOwner: owner.request,
+      __isWithinUnmatchedTypeRefinement: false,
     });
     expect(data.__fragmentOwner).toBe(owner.request);
     expect(Array.from(seenRecords.values()).sort()).toEqual(['1']);
@@ -314,6 +314,7 @@ describe('RelayReader', () => {
         },
       },
       __fragmentOwner: owner.request,
+      __isWithinUnmatchedTypeRefinement: false,
     });
     expect(Array.from(seenRecords.values()).sort()).toEqual(['1']);
   });
@@ -356,6 +357,7 @@ describe('RelayReader', () => {
         },
       },
       __fragmentOwner: owner.request,
+      __isWithinUnmatchedTypeRefinement: false,
     });
     expect(Array.from(seenRecords.values()).sort()).toEqual(['1']);
   });
@@ -662,6 +664,7 @@ describe('RelayReader', () => {
             RelayReaderTestWhenMatchDirectiveIsPresentPlainUserNameRenderer_name: {},
           },
           __fragmentOwner: owner.request,
+          __isWithinUnmatchedTypeRefinement: false,
           __fragmentPropName: 'name',
           __module_component: 'PlainUserNameRenderer.react',
         },
@@ -716,6 +719,7 @@ describe('RelayReader', () => {
             RelayReaderTestWhenMatchDirectiveIsPresentMarkdownUserNameRenderer_name: {},
           },
           __fragmentOwner: owner.request,
+          __isWithinUnmatchedTypeRefinement: false,
           __fragmentPropName: 'name',
           __module_component: 'MarkdownUserNameRenderer.react',
         },
@@ -899,6 +903,7 @@ describe('RelayReader', () => {
             RelayReaderTestWhenMatchDirectiveIsPresentNoModulePlainUserNameRenderer_name: {},
           },
           __fragmentOwner: owner.request,
+          __isWithinUnmatchedTypeRefinement: false,
           __fragmentPropName: 'name',
           __module_component: 'PlainUserNameRenderer.react',
         },
@@ -950,6 +955,7 @@ describe('RelayReader', () => {
             RelayReaderTestWhenMatchDirectiveIsPresentNoModuleMarkdownUserNameRenderer_name: {},
           },
           __fragmentOwner: owner.request,
+          __isWithinUnmatchedTypeRefinement: false,
           __fragmentPropName: 'name',
           __module_component: 'MarkdownUserNameRenderer.react',
         },
@@ -1126,7 +1132,13 @@ describe('RelayReader', () => {
 
     describe('readPluralLink', () => {
       beforeEach(() => {
+        const typeID = generateTypeID('User');
         const data = {
+          [typeID]: {
+            __id: typeID,
+            __typename: TYPE_SCHEMA_TYPE,
+            __isActor: true,
+          },
           '1': {
             __id: '1',
             id: '1',
@@ -1675,73 +1687,64 @@ describe('RelayReader', () => {
     });
   });
 
-  describe('feature ENABLE_PRECISE_TYPE_REFINEMENT', () => {
-    beforeEach(() => {
-      RelayFeatureFlags.ENABLE_PRECISE_TYPE_REFINEMENT = true;
-    });
-    afterEach(() => {
-      RelayFeatureFlags.ENABLE_PRECISE_TYPE_REFINEMENT = false;
-    });
-
-    it('does not record a dependency on type records for abstract type discriminators', () => {
-      const Query = graphql`
-        query RelayReaderTestDoesNotRecordADependencyOnTypeRecordsForAbstractTypeDiscriminatorsQuery {
-          me {
-            ...RelayReaderTestDoesNotRecordADependencyOnTypeRecordsForAbstractTypeDiscriminatorsFragment
+  it('does not record a dependency on type records for abstract type discriminators', () => {
+    const Query = graphql`
+      query RelayReaderTestDoesNotRecordADependencyOnTypeRecordsForAbstractTypeDiscriminatorsQuery {
+        me {
+          ...RelayReaderTestDoesNotRecordADependencyOnTypeRecordsForAbstractTypeDiscriminatorsFragment
+        }
+      }
+    `;
+    const Fragment = graphql`
+      fragment RelayReaderTestDoesNotRecordADependencyOnTypeRecordsForAbstractTypeDiscriminatorsFragment on Node {
+        actor {
+          ... on Entity {
+            url
           }
         }
-      `;
-      const Fragment = graphql`
-        fragment RelayReaderTestDoesNotRecordADependencyOnTypeRecordsForAbstractTypeDiscriminatorsFragment on Node {
-          actor {
-            ... on Entity {
-              url
-            }
-          }
-        }
-      `;
-      const userTypeID = generateTypeID('User');
-      const pageTypeID = generateTypeID('Page');
-      const data = {
-        '1': {
-          __id: '1',
-          __typename: 'User',
-          actor: {__ref: '2'},
-        },
-        '2': {
-          __id: '2',
-          __typename: 'Page',
-          url: 'https://...',
-        },
-        [userTypeID]: {
-          __id: userTypeID,
-          __typename: TYPE_SCHEMA_TYPE,
-          __isNode: true,
-        },
-        [pageTypeID]: {
-          __id: pageTypeID,
-          __typename: TYPE_SCHEMA_TYPE,
-          // __isEntity: true, // intentionally missing to verify that type refinement feature is on
-        },
-      };
-      source = RelayRecordSource.create(data);
-      const owner = createOperationDescriptor(Query, {});
-      const snapshot = read(
-        source,
-        createReaderSelector(Fragment, '1', {}, owner.request),
-      );
-      expect(snapshot.data).toEqual({
-        actor: {
-          url: 'https://...',
-        },
-      });
-      expect(snapshot.isMissingData).toBe(true); // missing discriminator
-      // does *not* include userTypeID/pageTypeID
-      expect(Array.from(snapshot.seenRecords.values()).sort()).toEqual([
-        '1',
-        '2',
-      ]);
+      }
+    `;
+    const userTypeID = generateTypeID('User');
+    const pageTypeID = generateTypeID('Page');
+    const data = {
+      '1': {
+        __id: '1',
+        __typename: 'User',
+        actor: {__ref: '2'},
+      },
+      '2': {
+        __id: '2',
+        __typename: 'Page',
+        url: 'https://...',
+      },
+      [userTypeID]: {
+        __id: userTypeID,
+        __typename: TYPE_SCHEMA_TYPE,
+        __isNode: true,
+      },
+      [pageTypeID]: {
+        __id: pageTypeID,
+        __typename: TYPE_SCHEMA_TYPE,
+        // __isEntity: true, // intentionally missing to verify that type refinement feature is on
+      },
+    };
+    source = RelayRecordSource.create(data);
+    const owner = createOperationDescriptor(Query, {});
+    const snapshot = read(
+      source,
+      createReaderSelector(Fragment, '1', {}, owner.request),
+    );
+    expect(snapshot.data).toEqual({
+      actor: {
+        url: 'https://...',
+      },
     });
+    expect(snapshot.isMissingData).toBe(true); // missing discriminator
+    // does *not* include userTypeID/pageTypeID
+    expect(Array.from(snapshot.seenRecords.values()).sort()).toEqual([
+      '1',
+      '2',
+    ]);
   });
 
   describe('feature ENABLE_REACT_FLIGHT_COMPONENT_FIELD', () => {
@@ -1782,7 +1785,7 @@ describe('RelayReader', () => {
           __id:
             'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
           __typename: 'ReactFlightComponent',
-          queries: [
+          executableDefinitions: [
             {
               module: {__dr: 'RelayFlightExampleQuery.graphql'},
               variables: {
@@ -1965,6 +1968,132 @@ describe('RelayReader', () => {
         'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
         'client:root',
       ]);
+    });
+  });
+
+  describe('Actor Change', () => {
+    const query = graphql`
+      query RelayReaderTestActorChangeQuery {
+        viewer {
+          actor @fb_actor_change {
+            ...RelayReaderTestActorChangeFragment
+          }
+        }
+      }
+    `;
+
+    graphql`
+      fragment RelayReaderTestActorChangeFragment on User {
+        name
+      }
+    `;
+
+    it('should read data for actor change', () => {
+      const defaultActorSource = new RelayRecordSource({
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          viewer: {__ref: 'client:root:viewer'},
+        },
+        'client:root:viewer': {
+          __id: 'client:root:viewer',
+          __typename: 'Viewer',
+          actor: {
+            __actorIdentifier: 'viewer-id',
+            __ref: 'external-id',
+          },
+        },
+      });
+
+      const owner = createOperationDescriptor(query, {});
+      const defaultRead = read(defaultActorSource, owner.fragment);
+      expect(defaultRead.isMissingData).toBe(false);
+      expect(defaultRead.data).toEqual({
+        viewer: {
+          actor: {
+            __viewer: 'viewer-id',
+            __fragmentRef: {
+              __fragmentOwner: owner.request,
+              __isWithinUnmatchedTypeRefinement: false,
+              __fragments: {
+                RelayReaderTestActorChangeFragment: {},
+              },
+              __id: 'external-id',
+            },
+          },
+        },
+      });
+    });
+
+    it('should report missing data for actor change', () => {
+      const defaultActorSource = new RelayRecordSource({
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          viewer: {__ref: 'client:root:viewer'},
+        },
+        'client:root:viewer': {
+          __id: 'client:root:viewer',
+          __typename: 'Viewer',
+        },
+      });
+
+      const owner = createOperationDescriptor(query, {});
+      const defaultRead = read(defaultActorSource, owner.fragment);
+      expect(defaultRead.isMissingData).toBe(true);
+      expect(defaultRead.data).toEqual({
+        viewer: {
+          actor: undefined,
+        },
+      });
+    });
+
+    it('should return null for actor change, if data is null', () => {
+      const defaultActorSource = new RelayRecordSource({
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          viewer: {__ref: 'client:root:viewer'},
+        },
+        'client:root:viewer': {
+          __id: 'client:root:viewer',
+          __typename: 'Viewer',
+          actor: null,
+        },
+      });
+
+      const owner = createOperationDescriptor(query, {});
+      const defaultRead = read(defaultActorSource, owner.fragment);
+      expect(defaultRead.isMissingData).toBe(false);
+      expect(defaultRead.data).toEqual({
+        viewer: {
+          actor: null,
+        },
+      });
+    });
+
+    it('should throw for actor change, if __viewer is missing or undefined', () => {
+      const defaultActorSource = new RelayRecordSource({
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          viewer: {__ref: 'client:root:viewer'},
+        },
+        'client:root:viewer': {
+          __id: 'client:root:viewer',
+          __typename: 'Viewer',
+          actor: {
+            __ref: 'external-id',
+          },
+        },
+      });
+
+      const owner = createOperationDescriptor(query, {});
+      expect(() => {
+        read(defaultActorSource, owner.fragment);
+      }).toThrow(
+        'RelayModernRecord.getActorLinkedRecordID(): Expected `client:root:viewer.actor` to be an actor specific linked ID, was `{"__ref":"external-id"}`.',
+      );
     });
   });
 });

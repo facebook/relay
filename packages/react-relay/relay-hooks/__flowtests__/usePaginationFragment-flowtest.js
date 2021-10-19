@@ -12,15 +12,6 @@
 // flowlint ambiguous-object-type:error
 
 import type {LoadMoreFn} from '../useLoadMoreFunction';
-import usePaginationFragment from '../usePaginationFragment';
-import {
-  fragmentInput,
-  fragmentData,
-  keyAnotherNonNullable,
-  keyAnotherNullable,
-  keyNonNullable,
-  keyNullable,
-} from './utils';
 import type {
   FetchFn,
   NonNullableData,
@@ -30,6 +21,16 @@ import type {
   QueryVariablesSubset,
 } from './utils';
 import type {IEnvironment, OperationType} from 'relay-runtime';
+
+import usePaginationFragment from '../usePaginationFragment';
+import {
+  fragmentData,
+  fragmentInput,
+  keyAnotherNonNullable,
+  keyAnotherNullable,
+  keyNonNullable,
+  keyNullable,
+} from './utils';
 
 type ExpectedReturnType<
   TQuery: OperationType,

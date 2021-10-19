@@ -99,6 +99,7 @@ fragment multipleModulesSameSelections_MarkdownUserNameRenderer_name on Markdown
                     "kind": "InlineFragment",
                     "selections": [
                       {
+                        "args": null,
                         "documentName": "multipleModulesSameSelections_MatchQuery",
                         "fragmentName": "multipleModulesSameSelections_MarkdownUserNameRenderer_name",
                         "fragmentPropName": "MarkdownUserNameRenderer_name",
@@ -130,6 +131,7 @@ fragment multipleModulesSameSelections_MarkdownUserNameRenderer_name on Markdown
                     "kind": "InlineFragment",
                     "selections": [
                       {
+                        "args": null,
                         "documentName": "multipleModulesSameSelections_MatchQuery",
                         "fragmentName": "multipleModulesSameSelections_MarkdownUserNameRenderer_name",
                         "fragmentPropName": "MarkdownUserNameRenderer_name",
@@ -202,6 +204,7 @@ fragment multipleModulesSameSelections_MarkdownUserNameRenderer_name on Markdown
                     "kind": "InlineFragment",
                     "selections": [
                       {
+                        "args": null,
                         "documentName": "multipleModulesSameSelections_MatchQuery",
                         "fragmentName": "multipleModulesSameSelections_MarkdownUserNameRenderer_name",
                         "fragmentPropName": "MarkdownUserNameRenderer_name",
@@ -240,6 +243,7 @@ fragment multipleModulesSameSelections_MarkdownUserNameRenderer_name on Markdown
                     "kind": "InlineFragment",
                     "selections": [
                       {
+                        "args": null,
                         "documentName": "multipleModulesSameSelections_MatchQuery",
                         "fragmentName": "multipleModulesSameSelections_MarkdownUserNameRenderer_name",
                         "fragmentPropName": "MarkdownUserNameRenderer_name",

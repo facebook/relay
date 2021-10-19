@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b640d6619c6b02e519517f890b4e212e>>
+ * @generated SignedSource<<8f8ed9a7aa03f8e25847d077e3c51fc4>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,7 +22,7 @@ declare export opaque type RelayResponseNormalizerTestPlainUserNameRenderer_name
 export type RelayResponseNormalizerTestPlainUserNameRenderer_name = {|
   +plaintext: ?string,
   +data: ?{|
-    +text: ?string
+    +text: ?string,
   |},
   +$refType: RelayResponseNormalizerTestPlainUserNameRenderer_name$ref,
 |};

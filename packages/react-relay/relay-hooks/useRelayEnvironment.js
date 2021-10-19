@@ -13,13 +13,11 @@
 
 'use strict';
 
-const ReactRelayContext = require('react-relay/ReactRelayContext');
+import type {IEnvironment} from 'relay-runtime';
 
 const invariant = require('invariant');
-
 const {useContext} = require('react');
-
-import type {IEnvironment} from 'relay-runtime';
+const ReactRelayContext = require('react-relay/ReactRelayContext');
 
 function useRelayEnvironment(): IEnvironment {
   const context = useContext(ReactRelayContext);

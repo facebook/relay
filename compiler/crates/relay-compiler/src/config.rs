@@ -12,28 +12,36 @@ use crate::build_project::{
 };
 use crate::compiler_state::{ProjectName, SourceSet};
 use crate::errors::{ConfigValidationError, Error, Result};
-use crate::rollout::Rollout;
 use crate::saved_state::SavedStateLoader;
 use crate::status_reporter::{ConsoleStatusReporter, StatusReporter};
 use async_trait::async_trait;
 use common::SourceLocationKey;
 use fmt::Debug;
-use interner::StringKey;
+use fnv::{FnvBuildHasher, FnvHashSet};
+use graphql_ir::{OperationDefinition, Program};
+use indexmap::IndexMap;
+use interner::{Intern, StringKey};
 use persist_query::PersistError;
 use rayon::prelude::*;
 use regex::Regex;
 use relay_codegen::JsModuleFormat;
-use relay_transforms::{ConnectionInterface, FeatureFlags};
+use relay_transforms::{ConnectionInterface, FeatureFlags, Rollout};
 use relay_typegen::TypegenConfig;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use sha1::{Digest, Sha1};
-use std::{
-    collections::{HashMap, HashSet},
-    fmt,
-    path::PathBuf,
-};
+use std::fmt;
+use std::path::{Path, PathBuf};
+use std::sync::Arc;
+use structopt::StructOpt;
 use watchman_client::pdu::ScmAwareClockData;
 
+type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
+
+type PostArtifactsWriter = Box<
+    dyn Fn(&Config) -> std::result::Result<(), Box<dyn std::error::Error + Send + Sync>>
+        + Send
+        + Sync,
+>;
 /// The full compiler config. This is a combination of:
 /// - the configuration file
 /// - the absolute path to the root of the compiled projects
@@ -46,15 +54,23 @@ pub struct Config {
     /// Root directory of all projects to compile. Any other paths in the
     /// compiler should be relative to this root unless otherwise noted.
     pub root_dir: PathBuf,
-    pub sources: HashMap<PathBuf, SourceSet>,
+    pub sources: FnvIndexMap<PathBuf, SourceSet>,
     pub excludes: Vec<String>,
-    pub projects: HashMap<ProjectName, ProjectConfig>,
+    pub projects: FnvIndexMap<ProjectName, ProjectConfig>,
     pub header: Vec<String>,
     pub codegen_command: Option<String>,
     /// If set, tries to initialize the compiler from the saved state file.
     pub load_saved_state_file: Option<PathBuf>,
     /// Function to generate extra
     pub generate_extra_artifacts: Option<GenerateExtraArtifactsFn>,
+    pub generate_virtual_id_file_name: Option<
+        Box<
+            dyn Fn(&ProjectConfig, &OperationDefinition, &Program) -> Option<StringKey>
+                + Send
+                + Sync,
+        >,
+    >,
+
     /// Path to which to write the output of the compilation
     pub artifact_writer: Box<dyn ArtifactWriter + Send + Sync>,
 
@@ -66,7 +82,6 @@ pub struct Config {
     pub repersist_operations: bool,
 
     pub connection_interface: ConnectionInterface,
-    pub feature_flags: FeatureFlags,
 
     pub saved_state_config: Option<ScmAwareClockData>,
     pub saved_state_loader: Option<Box<dyn SavedStateLoader + Send + Sync>>,
@@ -75,35 +90,135 @@ pub struct Config {
     /// Function that is called to save operation text (e.g. to a database) and to generate an id.
     pub operation_persister: Option<Box<dyn OperationPersister + Send + Sync>>,
 
-    pub post_artifacts_write: Option<
-        Box<
-            dyn Fn(&Config) -> std::result::Result<(), Box<dyn std::error::Error + Send + Sync>>
-                + Send
-                + Sync,
-        >,
-    >,
+    pub post_artifacts_write: Option<PostArtifactsWriter>,
 
     /// Validations that can be added to the config that will be called in addition to default
     /// validation rules.
     pub additional_validations: Option<AdditionalValidations>,
 
     pub status_reporter: Box<dyn StatusReporter + Send + Sync>,
+
+    /// We may generate some content in the artifacts that's stripped in production if __DEV__ variable is set
+    /// This config option is here to define the name of that special variable
+    pub is_dev_variable_name: Option<String>,
+
+    /// List with changed files in format "file_path,exists".
+    /// This can be used to replace watchman queries
+    pub changed_files_list: Option<PathBuf>,
+}
+
+#[derive(StructOpt)]
+#[structopt(rename_all = "camel_case")]
+pub struct CliConfig {
+    /// Path for the directory where to search for source code
+    #[structopt(long)]
+    pub src: Option<PathBuf>,
+    /// Path to schema file
+    #[structopt(long)]
+    pub schema: Option<PathBuf>,
+    /// Path to a directory, where the compiler should write artifacts
+    #[structopt(long)]
+    pub artifact_directory: Option<PathBuf>,
+}
+
+impl CliConfig {
+    pub fn is_defined(&self) -> bool {
+        self.src.is_some() || self.schema.is_some() || self.artifact_directory.is_some()
+    }
+}
+
+/// In the configs we may have a various values: with or without './' prefix at the beginning
+/// This function will use `root_dir` to construct full path, canonicalize it, and then
+/// it will remove the `root_dir` prefix.
+fn normalize_path_from_config(root_dir: PathBuf, path_from_config: PathBuf) -> PathBuf {
+    let mut src = root_dir.clone();
+    src.push(path_from_config);
+    src = src.canonicalize().unwrap();
+
+    if !src.exists() {
+        panic!("Path '{:?}' does not exits.", &src);
+    }
+
+    src.iter().skip(root_dir.iter().count()).collect()
+}
+
+impl From<CliConfig> for Config {
+    fn from(cli_config: CliConfig) -> Self {
+        let root_dir = std::env::current_dir().unwrap();
+
+        let project_config = ProjectConfig {
+            name: "default_project".intern(),
+            base: None,
+            enabled: true,
+            extensions: vec![],
+            output: cli_config
+                .artifact_directory
+                .map(|dir| normalize_path_from_config(root_dir.clone(), dir)),
+            extra_artifacts_output: None,
+            shard_output: false,
+            shard_strip_regex: None,
+            schema_location: SchemaLocation::File(normalize_path_from_config(
+                root_dir.clone(),
+                cli_config.schema.expect("Expect to have the schema path"),
+            )),
+            typegen_config: TypegenConfig::default(),
+            persist: None,
+            variable_names_comment: false,
+            extra: Default::default(),
+            test_path_regex: None,
+            feature_flags: Default::default(),
+            filename_for_artifact: None,
+            skip_types_for_artifact: None,
+            rollout: Default::default(),
+            js_module_format: Default::default(),
+        };
+
+        let mut sources = FnvIndexMap::default();
+        let src = normalize_path_from_config(
+            root_dir.clone(),
+            cli_config.src.expect("Expect to have a `src`"),
+        );
+
+        sources.insert(src, SourceSet::SourceSetName(project_config.name));
+
+        let mut projects = FnvIndexMap::default();
+        projects.insert(project_config.name, project_config);
+
+        Config {
+            name: None,
+            artifact_writer: Box::new(ArtifactFileWriter::new(None, root_dir.clone())),
+            status_reporter: Box::new(ConsoleStatusReporter::new(root_dir.clone())),
+            root_dir,
+            sources,
+            excludes: vec![],
+            projects,
+            header: vec![],
+            codegen_command: None,
+            load_saved_state_file: None,
+            generate_extra_artifacts: None,
+            generate_virtual_id_file_name: None,
+            saved_state_config: None,
+            saved_state_loader: None,
+            saved_state_version: "MISSING".to_string(),
+            connection_interface: ConnectionInterface::default(),
+            operation_persister: None,
+            compile_everything: false,
+            repersist_operations: false,
+            post_artifacts_write: None,
+            additional_validations: None,
+            is_dev_variable_name: None,
+            changed_files_list: None,
+        }
+    }
 }
 
 impl Config {
-    /// Iterator over projects that are enabled.
-    pub fn enabled_projects(&self) -> impl Iterator<Item = &ProjectConfig> {
-        self.projects
-            .values()
-            .filter(|project_config| project_config.enabled)
-    }
-
-    /// Rayon parallel iterator over projects that are enabled.
-    pub fn par_enabled_projects(&self) -> impl ParallelIterator<Item = &ProjectConfig> {
-        self.projects
-            .par_iter()
-            .map(|(_project_name, project_config)| project_config)
-            .filter(|project_config| project_config.enabled)
+    pub fn search(start_dir: &Path) -> Result<Self> {
+        match js_config_loader::search("relay", start_dir) {
+            Ok(Some(config)) => Self::from_struct(config.path, config.value, true),
+            Ok(None) => Err(Error::ConfigNotFound),
+            Err(error) => Err(Error::ConfigSearchError { error }),
+        }
     }
 
     pub fn load(config_path: PathBuf) -> Result<Self> {
@@ -132,8 +247,24 @@ impl Config {
                 config_path: config_path.clone(),
                 source: err,
             })?;
-        let projects = config_file
-            .projects
+        Self::from_struct(config_path, config_file, validate_fs)
+    }
+
+    /// `validate_fs` disables all filesystem checks for existence of files
+    fn from_struct(
+        config_path: PathBuf,
+        config_file: ConfigFile,
+        validate_fs: bool,
+    ) -> Result<Self> {
+        let mut hash = Sha1::new();
+        serde_json::to_writer(&mut hash, &config_file).unwrap();
+
+        let ConfigFile {
+            feature_flags: config_file_feature_flags,
+            projects,
+            ..
+        } = config_file;
+        let projects = projects
             .into_iter()
             .map(|(project_name, config_file_project)| {
                 let schema_location =
@@ -150,21 +281,31 @@ impl Config {
                         }),
                     }?;
 
-                let shard_strip_regex = match config_file_project.shard_strip_regex {
-                    None => Ok(None),
-                    Some(ref val) => match Regex::new(val) {
-                        Ok(val) => Ok(Some(val)),
-                        Err(error) => Err(Error::ConfigFileValidation {
-                            config_path: config_path.clone(),
-                            validation_errors: vec![
-                                ConfigValidationError::InvalidShardPathStripRegex {
-                                    project_name,
-                                    error,
-                                },
-                            ],
-                        }),
-                    },
-                }?;
+                let shard_strip_regex = config_file_project
+                    .shard_strip_regex
+                    .map(|s| Regex::new(&s))
+                    .transpose()
+                    .map_err(|error| Error::ConfigFileValidation {
+                        config_path: config_path.clone(),
+                        validation_errors: vec![ConfigValidationError::InvalidRegex {
+                            key: "shardStripRegex",
+                            project_name,
+                            error,
+                        }],
+                    })?;
+
+                let test_path_regex = config_file_project
+                    .test_path_regex
+                    .map(|s| Regex::new(&s))
+                    .transpose()
+                    .map_err(|error| Error::ConfigFileValidation {
+                        config_path: config_path.clone(),
+                        validation_errors: vec![ConfigValidationError::InvalidRegex {
+                            key: "testDirectoryRegex",
+                            project_name,
+                            error,
+                        }],
+                    })?;
 
                 let project_config = ProjectConfig {
                     name: project_name,
@@ -175,13 +316,17 @@ impl Config {
                     extra_artifacts_output: config_file_project.extra_artifacts_output,
                     shard_output: config_file_project.shard_output,
                     shard_strip_regex,
-                    schema_name: config_file_project.schema_name,
                     schema_location,
                     typegen_config: config_file_project.typegen_config,
                     persist: config_file_project.persist,
                     variable_names_comment: config_file_project.variable_names_comment,
                     extra: config_file_project.extra,
-                    feature_flags: config_file_project.feature_flags,
+                    test_path_regex,
+                    feature_flags: Arc::new(
+                        config_file_project
+                            .feature_flags
+                            .unwrap_or_else(|| config_file_feature_flags.clone()),
+                    ),
                     filename_for_artifact: None,
                     skip_types_for_artifact: None,
                     rollout: config_file_project.rollout,
@@ -189,7 +334,7 @@ impl Config {
                 };
                 Ok((project_name, project_config))
             })
-            .collect::<Result<HashMap<_, _>>>()?;
+            .collect::<Result<FnvIndexMap<_, _>>>()?;
 
         let config_file_dir = config_path.parent().unwrap();
         let root_dir = if let Some(config_root) = config_file.root {
@@ -197,9 +342,6 @@ impl Config {
         } else {
             config_file_dir.to_owned()
         };
-
-        let mut hash = Sha1::new();
-        hash.input(&config_string);
 
         let config = Self {
             name: config_file.name,
@@ -213,16 +355,18 @@ impl Config {
             codegen_command: config_file.codegen_command,
             load_saved_state_file: None,
             generate_extra_artifacts: None,
+            generate_virtual_id_file_name: None,
             saved_state_config: config_file.saved_state_config,
             saved_state_loader: None,
             saved_state_version: hex::encode(hash.result()),
             connection_interface: config_file.connection_interface,
-            feature_flags: config_file.feature_flags,
             operation_persister: None,
             compile_everything: false,
             repersist_operations: false,
             post_artifacts_write: None,
             additional_validations: None,
+            is_dev_variable_name: config_file.is_dev_variable_name,
+            changed_files_list: None,
         };
 
         let mut validation_errors = Vec::new();
@@ -240,9 +384,24 @@ impl Config {
         }
     }
 
+    /// Iterator over projects that are enabled.
+    pub fn enabled_projects(&self) -> impl Iterator<Item = &ProjectConfig> {
+        self.projects
+            .values()
+            .filter(|project_config| project_config.enabled)
+    }
+
+    /// Rayon parallel iterator over projects that are enabled.
+    pub fn par_enabled_projects(&self) -> impl ParallelIterator<Item = &ProjectConfig> {
+        self.projects
+            .par_iter()
+            .map(|(_project_name, project_config)| project_config)
+            .filter(|project_config| project_config.enabled)
+    }
+
     /// Validated internal consistency of the config.
     fn validate_consistency(&self, errors: &mut Vec<ConfigValidationError>) {
-        let mut source_set_names: HashSet<_> = Default::default();
+        let mut source_set_names = FnvHashSet::default();
         for value in self.sources.values() {
             match value {
                 SourceSet::SourceSetName(name) => {
@@ -351,7 +510,6 @@ impl fmt::Debug for Config {
             saved_state_config,
             saved_state_loader,
             connection_interface,
-            feature_flags,
             saved_state_version,
             operation_persister,
             post_artifacts_write,
@@ -387,7 +545,6 @@ impl fmt::Debug for Config {
                 &option_fn_to_string(saved_state_loader),
             )
             .field("connection_interface", connection_interface)
-            .field("feature_flags", feature_flags)
             .field("saved_state_version", saved_state_version)
             .field(
                 "post_artifacts_write",
@@ -407,12 +564,12 @@ pub struct ProjectConfig {
     pub extensions: Vec<PathBuf>,
     pub enabled: bool,
     pub schema_location: SchemaLocation,
-    pub schema_name: Option<String>,
     pub typegen_config: TypegenConfig,
     pub persist: Option<PersistConfig>,
     pub variable_names_comment: bool,
-    pub extra: Option<HashMap<String, String>>,
-    pub feature_flags: Option<FeatureFlags>,
+    pub extra: serde_json::Value,
+    pub feature_flags: Arc<FeatureFlags>,
+    pub test_path_regex: Option<Regex>,
     pub filename_for_artifact:
         Option<Box<dyn (Fn(SourceLocationKey, StringKey) -> String) + Send + Sync>>,
     pub skip_types_for_artifact: Option<Box<dyn (Fn(SourceLocationKey) -> bool) + Send + Sync>>,
@@ -432,12 +589,12 @@ impl Debug for ProjectConfig {
             extensions,
             enabled,
             schema_location,
-            schema_name,
             typegen_config,
             persist,
             variable_names_comment,
             extra,
             feature_flags,
+            test_path_regex,
             filename_for_artifact,
             skip_types_for_artifact,
             rollout,
@@ -453,12 +610,12 @@ impl Debug for ProjectConfig {
             .field("extensions", extensions)
             .field("enabled", enabled)
             .field("schema_location", schema_location)
-            .field("schema_name", schema_name)
             .field("typegen_config", typegen_config)
             .field("persist", persist)
             .field("variable_names_comment", variable_names_comment)
             .field("extra", extra)
             .field("feature_flags", feature_flags)
+            .field("test_path_regex", test_path_regex)
             .field(
                 "filename_for_artifact",
                 &if filename_for_artifact.is_some() {
@@ -488,7 +645,7 @@ pub enum SchemaLocation {
 }
 
 /// Schema of the compiler configuration JSON file.
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
 struct ConfigFile {
     /// Optional name for this config, might be used for logging or custom extra
@@ -509,7 +666,7 @@ struct ConfigFile {
     /// A mapping from directory paths (relative to the root) to a source set.
     /// If a path is a subdirectory of another path, the more specific path
     /// wins.
-    sources: HashMap<PathBuf, SourceSet>,
+    sources: IndexMap<PathBuf, SourceSet, fnv::FnvBuildHasher>,
 
     /// Glob patterns that should not be part of the sources even if they are
     /// in the source set directories.
@@ -517,7 +674,7 @@ struct ConfigFile {
     excludes: Vec<String>,
 
     /// Configuration of projects to compile.
-    projects: HashMap<ProjectName, ConfigFileProject>,
+    projects: FnvIndexMap<ProjectName, ConfigFileProject>,
 
     #[serde(default)]
     connection_interface: ConnectionInterface,
@@ -527,9 +684,12 @@ struct ConfigFile {
 
     /// Watchman saved state config.
     saved_state_config: Option<ScmAwareClockData>,
+
+    /// Then name of the global __DEV__ variable to use in generated artifacts
+    is_dev_variable_name: Option<String>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
 struct ConfigFileProject {
     /// If a base project is set, the documents of that project can be
@@ -569,9 +729,6 @@ struct ConfigFileProject {
     /// Exactly 1 of these options needs to be defined.
     schema: Option<PathBuf>,
     schema_dir: Option<PathBuf>,
-    /// For most cases, project name should be enough for schema identification. But, we may have cases when the schema_name,
-    /// may be different
-    schema_name: Option<String>,
 
     /// If this option is set, the compiler will persist queries using this
     /// config.
@@ -580,15 +737,18 @@ struct ConfigFileProject {
     #[serde(flatten)]
     typegen_config: TypegenConfig,
 
-    /// Generate Query ($Parameters files)
+    /// Optional regex to restrict @relay_test_operation to directories matching
+    /// this regex. Defaults to no limitations.
     #[serde(default)]
-    should_generate_parameters_file: bool,
+    test_path_regex: Option<String>,
 
     /// Generates a `// @relayVariables name1 name2` header in generated operation files
     #[serde(default)]
     variable_names_comment: bool,
 
-    extra: Option<HashMap<String, String>>,
+    /// A placeholder for allowing extra information in the config file
+    #[serde(default)]
+    extra: serde_json::Value,
 
     #[serde(default)]
     feature_flags: Option<FeatureFlags>,
@@ -602,14 +762,14 @@ struct ConfigFileProject {
     js_module_format: JsModuleFormat,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct PersistConfig {
     /// URL to send a POST request to to persist.
     pub url: String,
     /// The document will be in a POST parameter `text`. This map can contain
     /// additional parameters to send.
-    pub params: HashMap<String, String>,
+    pub params: FnvIndexMap<String, String>,
 }
 
 type PersistId = String;

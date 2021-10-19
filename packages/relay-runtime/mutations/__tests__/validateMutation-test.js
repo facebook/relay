@@ -14,8 +14,7 @@
 'use strict';
 
 const validateMutation = require('../validateMutation');
-
-const {getRequest, graphql, RelayFeatureFlags} = require('relay-runtime');
+const {RelayFeatureFlags, getRequest, graphql} = require('relay-runtime');
 
 jest.mock('warning', () => {
   return (dontWarn, message, ...args) => {
@@ -697,6 +696,8 @@ describe('validateOptimisticResponse', () => {
                 },
               ],
               queries: [],
+              errors: [],
+              fragments: [],
             },
           },
         },

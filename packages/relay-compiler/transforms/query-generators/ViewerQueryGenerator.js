@@ -12,15 +12,15 @@
 
 'use strict';
 
+import type {QueryGenerator, RefetchRoot} from '.';
+import type {Fragment} from '../../core/IR';
+import type {Schema} from '../../core/Schema';
+
 const {createUserError} = require('../../core/CompilerError');
 const {
   buildFragmentSpread,
   buildOperationArgumentDefinitions,
 } = require('./utils');
-
-import type {Fragment} from '../../core/IR';
-import type {Schema} from '../../core/Schema';
-import type {QueryGenerator, RefetchRoot} from '.';
 
 const VIEWER_TYPE_NAME = 'Viewer';
 const VIEWER_FIELD_NAME = 'viewer';

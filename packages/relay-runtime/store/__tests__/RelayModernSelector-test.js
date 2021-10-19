@@ -13,9 +13,9 @@
 
 'use strict';
 
-const warning = require('warning');
+import type {OperationDescriptor} from '../RelayStoreTypes';
 
-const {graphql, getRequest, getFragment} = require('../../query/GraphQLTag');
+const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
 const {
   createOperationDescriptor,
   createRequestDescriptor,
@@ -32,8 +32,7 @@ const {
 } = require('../RelayModernSelector');
 const {ROOT_ID} = require('../RelayStoreUtils');
 const {createMockEnvironment, matchers} = require('relay-test-utils-internal');
-
-import type {OperationDescriptor} from '../RelayStoreTypes';
+const warning = require('warning');
 
 describe('RelayModernSelector', () => {
   let UserFragment;
@@ -55,7 +54,7 @@ describe('RelayModernSelector', () => {
     UserQuery = getRequest(graphql`
       query RelayModernSelectorTestUserQuery(
         $id: ID!
-        $size: Int
+        $size: [Int]
         $cond: Boolean!
       ) {
         node(id: $id) {
@@ -135,7 +134,7 @@ describe('RelayModernSelector', () => {
         'RelayModernSelector: Expected value for fragment `RelayModernSelectorTestUserFragment` to be an object, got ' +
           '`[{"__fragments":{"RelayModernSelectorTestUserFragment":{},"RelayModernSelectorTestUsersFragment":{}},"__id":"4","__fragmentOwner":' +
           JSON.stringify(operationDescriptor.request) +
-          '}]`.',
+          ',"__isWithinUnmatchedTypeRefinement":false}]`.',
       );
     });
 
@@ -666,6 +665,7 @@ describe('RelayModernSelector', () => {
       );
       const clone = {
         ...selector,
+        // $FlowFixMe[cannot-spread-interface]
         variables: {...selector.variables},
       };
       expect(areEqualSelectors(selector, selector)).toBe(true);
@@ -701,6 +701,7 @@ describe('RelayModernSelector', () => {
       );
       const clone = {
         ...selector,
+        // $FlowFixMe[cannot-spread-interface]
         variables: {...selector.variables},
       };
       expect(areEqualSelectors(selector, selector)).toBe(true);

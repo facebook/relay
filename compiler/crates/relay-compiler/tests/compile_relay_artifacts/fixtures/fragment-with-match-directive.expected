@@ -157,10 +157,7 @@ fragment fragmentWithMatchDirective_MarkdownUserNameRenderer_name on MarkdownUse
         {
           "kind": "Literal",
           "name": "supported",
-          "value": [
-            "PlainUserNameRenderer",
-            "MarkdownUserNameRenderer"
-          ]
+          "value": "34hjiS"
         }
       ],
       "concreteType": null,
@@ -172,6 +169,7 @@ fragment fragmentWithMatchDirective_MarkdownUserNameRenderer_name on MarkdownUse
           "kind": "InlineFragment",
           "selections": [
             {
+              "args": null,
               "documentName": "fragmentWithMatchDirective_NameRendererFragment",
               "fragmentName": "fragmentWithMatchDirective_PlainUserNameRenderer_name",
               "fragmentPropName": "PlainUserNameRenderer_name",
@@ -185,6 +183,7 @@ fragment fragmentWithMatchDirective_MarkdownUserNameRenderer_name on MarkdownUse
           "kind": "InlineFragment",
           "selections": [
             {
+              "args": null,
               "documentName": "fragmentWithMatchDirective_NameRendererFragment",
               "fragmentName": "fragmentWithMatchDirective_MarkdownUserNameRenderer_name",
               "fragmentPropName": "MarkdownUserNameRenderer_name",
@@ -195,7 +194,7 @@ fragment fragmentWithMatchDirective_MarkdownUserNameRenderer_name on MarkdownUse
           "abstractKey": null
         }
       ],
-      "storageKey": "nameRenderer(supported:[\"PlainUserNameRenderer\",\"MarkdownUserNameRenderer\"])"
+      "storageKey": "nameRenderer(supported:\"34hjiS\")"
     }
   ],
   "type": "User",

@@ -5,23 +5,22 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::PerfLogger;
 use lsp_types::{
     notification::{Exit, Notification},
     request::{Request, Shutdown},
 };
 
-use crate::{lsp_runtime_error::LSPRuntimeResult, server::LSPState};
+use crate::{lsp_runtime_error::LSPRuntimeResult, server::GlobalState};
 
-pub(crate) fn on_shutdown<TPerfLogger: PerfLogger + 'static>(
-    _state: &mut LSPState<TPerfLogger>,
+pub(crate) fn on_shutdown(
+    _state: &impl GlobalState,
     _params: <Shutdown as Request>::Params,
 ) -> LSPRuntimeResult<<Shutdown as Request>::Result> {
     std::process::exit(0);
 }
 
-pub(crate) fn on_exit<TPerfLogger: PerfLogger + 'static>(
-    _state: &mut LSPState<TPerfLogger>,
+pub(crate) fn on_exit(
+    _state: &impl GlobalState,
     _params: <Exit as Notification>::Params,
 ) -> LSPRuntimeResult<()> {
     std::process::exit(0);

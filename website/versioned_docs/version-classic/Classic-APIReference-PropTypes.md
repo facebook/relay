@@ -1,16 +1,15 @@
 ---
-id: version-classic-classic-api-reference-relay-proptypes
+id: classic-api-reference-relay-proptypes
 title: Relay.PropTypes
 original_id: classic-api-reference-relay-proptypes
 ---
-
 Relay introduces two new classes of objects: `RelayContainer` and `Relay.Route`. `Relay.PropTypes` provides prop validators used to assert that props are of these types.
 
 ## Overview
 
-*Properties*
+_Properties_
 
-<ul class="apiIndex">
+<ul className="apiIndex">
   <li>
     <a href="#example">
       <pre>static Container: ReactPropTypeValidator</pre>
@@ -28,6 +27,7 @@ Relay introduces two new classes of objects: `RelayContainer` and `Relay.Route`.
 ## Example
 
 ```
+
 class MyApplication extends React.Component {
   static propTypes = {
     // Warns if `Component` is not a valid RelayContainer.

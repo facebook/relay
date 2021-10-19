@@ -12,10 +12,6 @@
 
 'use strict';
 
-const invariant = require('invariant');
-
-const {DEFAULT_HANDLE_KEY} = require('../util/DefaultHandleKey');
-
 import type {CompilerContextDocument} from './CompilerContext';
 import type {
   Argument,
@@ -28,6 +24,9 @@ import type {
   Selection,
 } from './IR';
 import type {Schema, TypeID} from './Schema';
+
+const {DEFAULT_HANDLE_KEY} = require('../util/DefaultHandleKey');
+const invariant = require('invariant');
 
 const INDENT = '  ';
 
@@ -303,6 +302,7 @@ function printFragmentArgumentDefinitions(
       )}`;
     }
     str += '}';
+    // $FlowFixMe[incompatible-use]
     printed.push(str);
   });
   return printed && printed.length

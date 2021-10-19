@@ -12,18 +12,17 @@
 
 'use strict';
 
-const IRTransformer = require('../core/IRTransformer');
-
-const getNormalizationOperationName = require('../core/getNormalizationOperationName');
-
 import type CompilerContext from '../core/CompilerContext';
 import type {
-  LinkedField,
   InlineFragment,
+  LinkedField,
   ModuleImport,
   SplitOperation,
 } from '../core/IR';
 import type {CompositeTypeID} from '../core/Schema';
+
+const getNormalizationOperationName = require('../core/getNormalizationOperationName');
+const IRTransformer = require('../core/IRTransformer');
 
 type State = {|
   parentType: CompositeTypeID,
@@ -51,6 +50,7 @@ function splitMatchTransform(context: CompilerContext): CompilerContext {
 }
 
 function visitLinkedField(field: LinkedField, state: State): LinkedField {
+  // $FlowFixMe[incompatible-use]
   return this.traverse(field, {
     parentType: field.type,
     splitOperations: state.splitOperations,
@@ -61,6 +61,7 @@ function visitInlineFragment(
   fragment: InlineFragment,
   state: State,
 ): InlineFragment {
+  // $FlowFixMe[incompatible-use]
   return this.traverse(fragment, {
     parentType: fragment.typeCondition,
     splitOperations: state.splitOperations,
@@ -77,6 +78,7 @@ function visitModuleImport(node: ModuleImport, state: State): ModuleImport {
     createdSplitOperation.parentSources.add(node.sourceDocument);
     return node;
   }
+  // $FlowFixMe[incompatible-use]
   const transformedNode = this.traverse(node, state);
   const splitOperation: SplitOperation = {
     kind: 'SplitOperation',

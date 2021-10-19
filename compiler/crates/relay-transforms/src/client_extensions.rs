@@ -12,8 +12,7 @@ use graphql_ir::{
     Directive, InlineFragment, LinkedField, Program, ScalarField, Selection, Transformed,
     TransformedValue, Transformer,
 };
-use interner::Intern;
-use interner::StringKey;
+use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
 use schema::Schema;
 use std::sync::Arc;
@@ -48,10 +47,11 @@ impl<'program> ClientExtensionsTransform<'program> {
     }
 
     // TODO(T63388023): Returns a typed directive
-    fn build_client_extension_directive(self: &Self) -> Directive {
+    fn build_client_extension_directive(&self) -> Directive {
         Directive {
             name: WithLocation::generated(*CLIENT_EXTENSION_DIRECTIVE_NAME),
             arguments: Default::default(),
+            data: None,
         }
     }
 }

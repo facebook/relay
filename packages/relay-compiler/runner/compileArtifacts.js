@@ -12,12 +12,6 @@
 
 'use strict';
 
-const ASTConvert = require('../core/ASTConvert');
-const CompilerContext = require('../core/CompilerContext');
-const RelayParser = require('../core/RelayParser');
-
-const compileRelayArtifacts = require('../codegen/compileRelayArtifacts');
-
 import type {ExecutableDefinitionNode, ValidationContext} from 'graphql';
 import type {
   GeneratedDefinition,
@@ -27,6 +21,11 @@ import type {
   TypeGenerator,
 } from 'relay-compiler';
 import type {GeneratedNode} from 'relay-runtime';
+
+const compileRelayArtifacts = require('../codegen/compileRelayArtifacts');
+const ASTConvert = require('../core/ASTConvert');
+const CompilerContext = require('../core/CompilerContext');
+const RelayParser = require('../core/RelayParser');
 
 export type ValidationRule = (context: ValidationContext) => $FlowFixMe;
 

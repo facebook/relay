@@ -12,10 +12,10 @@
 
 'use strict';
 
-const SignedSource = require('signedsource');
-
 import type CodegenDirectory from '../codegen/CodegenDirectory';
 import type {Schema} from '../core/Schema';
+
+const SignedSource = require('signedsource');
 
 function writeForSchema(
   schema: Schema,

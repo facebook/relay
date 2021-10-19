@@ -32,38 +32,39 @@ query RelayClientIDFieldQuery($id: ID!) {
 }
 ==================================== OUTPUT ===================================
 export type RelayClientIDFieldQueryVariables = {
-  id: string
+  id: string;
 };
 export type RelayClientIDFieldQueryResponse = {
-  readonly __id: string,
+  readonly __id: string;
   readonly me: {
-    readonly __id: string,
-    readonly __typename: string,
-    readonly id: string,
-  } | null,
-  readonly node: ({
-    readonly __typename: "Comment",
-    readonly commentBody: ({
-      readonly __typename: "PlainCommentBody",
-      readonly __id: string,
+    readonly __id: string;
+    readonly __typename: string;
+    readonly id: string;
+  } | null;
+  readonly node: {
+    readonly __typename: "Comment";
+    readonly commentBody: {
+      readonly __typename: "PlainCommentBody";
+      readonly __id: string;
       readonly text: {
-        readonly __id: string,
-        readonly __typename: string,
-        readonly text: string | null,
-      } | null,
+        readonly __id: string;
+        readonly __typename: string;
+        readonly text: string | null;
+      } | null;
+      readonly __id: string;
     } | {
-      readonly __typename: "MarkdownCommentBody"
-    }) & {
-      readonly __id: string
-    } | null,
+      readonly __typename: "MarkdownCommentBody";
+      readonly __id: string;
+    } | null;
+    readonly __id: string;
+    readonly id: string;
   } | {
-    readonly __typename: "Feedback" | "Page" | "PhotoStory" | "Story" | "User"
-  }) & {
-    readonly __id: string,
-    readonly id: string,
-  } | null,
+    readonly __typename: "Feedback" | "Page" | "PhotoStory" | "Story" | "User";
+    readonly __id: string;
+    readonly id: string;
+  } | null;
 };
 export type RelayClientIDFieldQuery = {
-  variables: RelayClientIDFieldQueryVariables,
-  response: RelayClientIDFieldQueryResponse,
+  variables: RelayClientIDFieldQueryVariables;
+  response: RelayClientIDFieldQueryResponse;
 };

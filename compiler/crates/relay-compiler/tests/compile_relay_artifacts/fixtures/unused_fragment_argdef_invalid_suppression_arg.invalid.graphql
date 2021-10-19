@@ -1,0 +1,6 @@
+# expected-to-throw
+fragment unusedFragmentArgdefInvalidSuppressionArg on User @argumentDefinitions(
+  size: { type: "Int", unusedLocalVariable_DEPRECATED: false }
+) {
+  __typename
+}

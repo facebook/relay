@@ -14,20 +14,26 @@
 'use strict';
 
 const EntryPointContainer = require('../EntryPointContainer.react');
-const React = require('react');
-const ReactTestRenderer = require('react-test-renderer');
-const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
-
 const loadEntryPoint = require('../loadEntryPoint');
+const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const useEntryPointLoader = require('../useEntryPointLoader');
 const usePreloadedQuery = require('../usePreloadedQuery');
-
+const React = require('react');
 const {useEffect} = require('react');
-const {Observable, createOperationDescriptor} = require('relay-runtime');
+const ReactTestRenderer = require('react-test-renderer');
+const {
+  Observable,
+  createOperationDescriptor,
+  getRequest,
+  graphql,
+} = require('relay-runtime');
+const {createMockEnvironment} = require('relay-test-utils');
 
 function expectToHaveFetched(environment, query, cacheConfig) {
+  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(environment.executeWithSource).toBeCalledTimes(1);
   expect(
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     environment.executeWithSource.mock.calls[0][0].operation,
   ).toMatchObject({
     fragment: expect.anything(),
@@ -53,8 +59,6 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
   let entryPointStoreOrNetwork: $FlowFixMe;
   let entryPointNetworkOnly: $FlowFixMe;
   let gqlQuery;
-  let createMockEnvironment;
-  let generateAndCompile;
   let query;
   let variables;
   let release;
@@ -74,17 +78,13 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
       };
     });
 
-    ({
-      createMockEnvironment,
-      generateAndCompile,
-    } = require('relay-test-utils-internal'));
-
     environment = createMockEnvironment();
     environmentProvider = {
       getEnvironment: () => environment,
     };
 
     release = jest.fn();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const originalRetain = environment.retain;
     (environment: $FlowFixMe).retain = jest.fn(operation => {
       const originalDisposable = originalRetain(operation);
@@ -97,6 +97,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
     });
 
     cancelNetworkRequest = jest.fn();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const originalExecuteWithSource = environment.executeWithSource;
     (environment: $FlowFixMe).executeWithSource = jest.fn((...args) => {
       const originalObservable = originalExecuteWithSource(...args);
@@ -109,21 +110,22 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
         };
       });
     });
-
-    const generated = generateAndCompile(`
-      fragment UserFragment on User {
+    graphql`
+      fragment useEntryPointLoaderReactDoubleEffectsTestUserFragment on User {
         name
       }
+    `;
 
-      query UserQuery($id: ID) {
+    gqlQuery = getRequest(graphql`
+      query useEntryPointLoaderReactDoubleEffectsTestUserQuery($id: ID) {
         node(id: $id) {
           id
           name
-          ...UserFragment
+          ...useEntryPointLoaderReactDoubleEffectsTestUserFragment
         }
       }
     `);
-    gqlQuery = generated.UserQuery;
+    // $FlowFixMe
     gqlQuery.params.cacheID = 'TestQuery';
     variables = {id: '1'};
     query = createOperationDescriptor(gqlQuery, variables);
@@ -273,7 +275,9 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
       const instance = render(entryPointStoreOrNetwork);
       expect(instance.toJSON()).toEqual('No EntryPoint loaded');
 
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.execute).toHaveBeenCalledTimes(0);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain).toHaveBeenCalledTimes(0);
       expect(release).toHaveBeenCalledTimes(0);
       expect(cancelNetworkRequest).toHaveBeenCalledTimes(0);
@@ -303,9 +307,13 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
           entryPointNetworkOnly,
           variables,
         );
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.executeWithSource).toHaveBeenCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toHaveBeenCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         environment.executeWithSource.mockClear();
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         environment.retain.mockClear();
 
         // When the component mounts, React double invoke effects
@@ -336,6 +344,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
         // - suspended component temporary retains
         // - loadEntryPoint re-retains
         // - suspended component temporary retains
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toHaveBeenCalledTimes(3);
 
         // Assert the rendered state of the loader and query components
@@ -359,6 +368,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
         ]);
 
         // Resolve network response
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         environment.executeWithSource.mockClear();
         ReactTestRenderer.act(() => {
           environment.mock.resolve(gqlQuery, {
@@ -383,6 +393,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
         // which means that it's temporary retain will be released after
         // the timeout fires.
         expect(release).toHaveBeenCalledTimes(2);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toHaveBeenCalledTimes(4);
 
         // Assert the render state after double invoked effects have
@@ -401,6 +412,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
           jest.runAllTimers();
         });
         expect(release).toHaveBeenCalledTimes(3);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toHaveBeenCalledTimes(4);
       });
 
@@ -410,9 +422,13 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
           entryPointStoreOrNetwork,
           variables,
         );
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.executeWithSource).toHaveBeenCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toHaveBeenCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         environment.executeWithSource.mockClear();
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         environment.retain.mockClear();
 
         // When the component mounts, React double invoke effects
@@ -443,6 +459,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
         // - suspended component temporary retains
         // - loadEntryPoint re-retains
         // - suspended component temporary retains
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toHaveBeenCalledTimes(3);
 
         // Assert the rendered state of the loader and query components
@@ -466,6 +483,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
         ]);
 
         // Resolve network response
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         environment.executeWithSource.mockClear();
         ReactTestRenderer.act(() => {
           environment.mock.resolve(gqlQuery, {
@@ -490,6 +508,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
         // which means that it's temporary retain will be released after
         // the timeout fires.
         expect(release).toHaveBeenCalledTimes(2);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toHaveBeenCalledTimes(4);
 
         // Assert the render state after double invoked effects have
@@ -508,6 +527,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
           jest.runAllTimers();
         });
         expect(release).toHaveBeenCalledTimes(3);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toHaveBeenCalledTimes(4);
       });
     });
@@ -532,7 +552,9 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
           });
           jest.runAllImmediates();
         });
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         environment.executeWithSource.mockClear();
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         environment.retain.mockClear();
         cancelNetworkRequest.mockClear();
         release.mockClear();
@@ -566,6 +588,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
         // - loadEntryPoint re-retains
         // - suspended component temporary retains
         // - suspended component temporary retains
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toHaveBeenCalledTimes(3);
 
         // Assert the rendered state of the loader and query components
@@ -591,6 +614,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
         ]);
 
         // Resolve network response
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         environment.executeWithSource.mockClear();
         ReactTestRenderer.act(() => {
           environment.mock.resolve(gqlQuery, {
@@ -612,6 +636,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
         // Assert that the Suspense cache temporary retain is released
         // and re-established permanently.
         expect(release).toHaveBeenCalledTimes(2);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toHaveBeenCalledTimes(3);
 
         // Assert the render state after double invoked effects have
@@ -630,6 +655,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
           jest.runAllTimers();
         });
         expect(release).toHaveBeenCalledTimes(2);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toHaveBeenCalledTimes(3);
       });
 
@@ -652,7 +678,9 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
           });
           jest.runAllImmediates();
         });
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         environment.executeWithSource.mockClear();
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         environment.retain.mockClear();
         cancelNetworkRequest.mockClear();
         release.mockClear();
@@ -675,6 +703,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
         // a re-render is triggered to re-retain the entrypoint ref's queries:
 
         // Assert that query was not refetched
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.executeWithSource).toHaveBeenCalledTimes(0);
 
         // Assert that the component consuming the query is suspended
@@ -686,6 +715,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
         // - query component temporary retains
         // - loadEntryPoint re-retains
         // - query component temporary retains
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toHaveBeenCalledTimes(3);
 
         // Assert the rendered state of the loader and query components
@@ -717,6 +747,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
           jest.runAllTimers();
         });
         expect(release).toHaveBeenCalledTimes(2);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toHaveBeenCalledTimes(3);
       });
     });
@@ -729,8 +760,11 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
         entryPointNetworkOnly,
         variables,
       );
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.executeWithSource).toHaveBeenCalledTimes(1);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain).toHaveBeenCalledTimes(1);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       environment.executeWithSource.mockClear();
 
       const instance = render(entryPointNetworkOnly, initialEntryPointRef, {
@@ -742,10 +776,13 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
       expect(queryRenderLogs).toEqual([]);
       expect(instance.toJSON()).toEqual('Outer Fallback');
       // Query is retained a second time by component using query (with a temporary retain)
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain).toHaveBeenCalledTimes(2);
 
       // Resolve network response
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       environment.executeWithSource.mockClear();
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       environment.retain.mockClear();
       ReactTestRenderer.act(() => {
         environment.mock.resolve(gqlQuery, {
@@ -780,6 +817,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
 
       // Assert that the query is re-retained by the query reference
       // and the temporary component retain
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain).toHaveBeenCalledTimes(2);
 
       // Assert the rendered state of the loader and query components
@@ -812,6 +850,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
       // Resolve second network response
       queryRenderLogs = [];
       loaderRenderLogs = [];
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       environment.executeWithSource.mockClear();
       ReactTestRenderer.act(() => {
         environment.mock.resolve(gqlQuery, {
@@ -829,7 +868,9 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
       // Assert that after refetch double invoke effects don't trigger
       // again; we shouldn't trigger a second refetch, and the query
       // should still be properly retained
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.executeWithSource).toHaveBeenCalledTimes(0);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain).toHaveBeenCalledTimes(2);
       expect(release).toHaveBeenCalledTimes(0);
 
@@ -847,6 +888,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
       ReactTestRenderer.act(() => {
         jest.runAllTimers();
       });
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain).toHaveBeenCalledTimes(2);
       expect(release).toHaveBeenCalledTimes(0);
     });
@@ -857,8 +899,11 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
         entryPointStoreOrNetwork,
         variables,
       );
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.executeWithSource).toHaveBeenCalledTimes(1);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain).toHaveBeenCalledTimes(1);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       environment.executeWithSource.mockClear();
 
       const instance = render(entryPointStoreOrNetwork, initialEntryPointRef, {
@@ -870,10 +915,13 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
       expect(queryRenderLogs).toEqual([]);
       expect(instance.toJSON()).toEqual('Outer Fallback');
       // Query is retained a second time by component using query (with a temporary retain)
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain).toHaveBeenCalledTimes(2);
 
       // Resolve network response
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       environment.executeWithSource.mockClear();
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       environment.retain.mockClear();
       ReactTestRenderer.act(() => {
         environment.mock.resolve(gqlQuery, {
@@ -902,11 +950,13 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
       // a re-render is triggered to re-retain the query ref:
 
       // Assert that the query is not refetched again
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.executeWithSource).toHaveBeenCalledTimes(0);
       expect(instance.toJSON()).toEqual('Alice 1');
 
       // Assert that the query is re-retained by the query reference
       // and the temporary component retain
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain).toHaveBeenCalledTimes(2);
 
       // Assert the rendered state of the loader and query components
@@ -945,6 +995,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
       ReactTestRenderer.act(() => {
         jest.runAllTimers();
       });
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain).toHaveBeenCalledTimes(2);
       expect(release).toHaveBeenCalledTimes(0);
     });

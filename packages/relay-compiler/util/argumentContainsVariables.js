@@ -12,7 +12,7 @@
 
 'use strict';
 
-import type {ReaderArgument, NormalizationArgument} from 'relay-runtime';
+import type {NormalizationArgument, ReaderArgument} from 'relay-runtime';
 
 function argumentContainsVariables(
   arg: ?(ReaderArgument | NormalizationArgument),

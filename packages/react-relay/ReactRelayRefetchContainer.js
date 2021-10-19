@@ -12,34 +12,12 @@
 
 'use strict';
 
-const React = require('react');
-const ReactRelayContext = require('./ReactRelayContext');
-const ReactRelayQueryFetcher = require('./ReactRelayQueryFetcher');
-
-const areEqual = require('areEqual');
-const buildReactRelayContainer = require('./buildReactRelayContainer');
-const getRootVariablesForFragments = require('./getRootVariablesForFragments');
-const warning = require('warning');
-
-const {getContainerName} = require('./ReactRelayContainerUtils');
-const {assertRelayContext} = require('./RelayContext');
-const {
-  Observable,
-  createFragmentSpecResolver,
-  createOperationDescriptor,
-  getDataIDsFromObject,
-  getRequest,
-  getSelector,
-  getVariablesFromObject,
-  isScalarAndEqual,
-} = require('relay-runtime');
-
 import type {
-  $RelayProps,
-  ObserverOrCallback,
   GeneratedNodeMap,
+  ObserverOrCallback,
   RefetchOptions,
   RelayRefetchProp,
+  $RelayProps,
 } from './ReactRelayTypes';
 import type {
   CacheConfig,
@@ -51,6 +29,25 @@ import type {
   Variables,
 } from 'relay-runtime';
 import type {FragmentSpecResolver} from 'relay-runtime';
+
+const buildReactRelayContainer = require('./buildReactRelayContainer');
+const getRootVariablesForFragments = require('./getRootVariablesForFragments');
+const {getContainerName} = require('./ReactRelayContainerUtils');
+const ReactRelayContext = require('./ReactRelayContext');
+const ReactRelayQueryFetcher = require('./ReactRelayQueryFetcher');
+const {assertRelayContext} = require('./RelayContext');
+const areEqual = require('areEqual');
+const React = require('react');
+const {
+  Observable,
+  createFragmentSpecResolver,
+  createOperationDescriptor,
+  getDataIDsFromObject,
+  getRequest,
+  getVariablesFromObject,
+  isScalarAndEqual,
+} = require('relay-runtime');
+const warning = require('warning');
 
 type ContainerProps = $FlowFixMeProps;
 
@@ -119,7 +116,7 @@ function createContainerWithFragments<
 
     componentDidMount() {
       this._isUnmounted = false;
-      this._subscribeToNewResolver();
+      this._subscribeToNewResolverAndRerenderIfStoreHasChanged();
     }
 
     componentDidUpdate(prevProps: ContainerProps, prevState: ContainerState) {
@@ -133,7 +130,9 @@ function createContainerWithFragments<
         this._queryFetcher && this._queryFetcher.dispose();
         this._refetchSubscription && this._refetchSubscription.unsubscribe();
 
-        this._subscribeToNewResolver();
+        this._subscribeToNewResolverAndRerenderIfStoreHasChanged();
+      } else {
+        this._rerenderIfStoreHasChanged();
       }
     }
 
@@ -250,16 +249,26 @@ function createContainerWithFragments<
       return false;
     }
 
-    _subscribeToNewResolver() {
+    _rerenderIfStoreHasChanged() {
       const {data, resolver} = this.state;
-
-      // Event listeners are only safe to add during the commit phase,
-      // So they won't leak if render is interrupted or errors.
-      resolver.setCallback(this._handleFragmentDataUpdate);
-
       // External values could change between render and commit.
       // Check for this case, even though it requires an extra store read.
       const maybeNewData = resolver.resolve();
+      if (data !== maybeNewData) {
+        this.setState({data: maybeNewData});
+      }
+    }
+
+    _subscribeToNewResolverAndRerenderIfStoreHasChanged() {
+      const {data, resolver} = this.state;
+      const maybeNewData = resolver.resolve();
+
+      // Event listeners are only safe to add during the commit phase,
+      // So they won't leak if render is interrupted or errors.
+      resolver.setCallback(this.props, this._handleFragmentDataUpdate);
+
+      // External values could change between render and commit.
+      // Check for this case, even though it requires an extra store read.
       if (data !== maybeNewData) {
         this.setState({data: maybeNewData});
       }
@@ -321,9 +330,11 @@ function createContainerWithFragments<
         typeof refetchVariables === 'function'
           ? refetchVariables(this._getFragmentVariables())
           : refetchVariables;
+      // $FlowFixMe[cannot-spread-interface]
       fetchVariables = {...rootVariables, ...fetchVariables};
       const fragmentVariables = renderVariables
-        ? {...fetchVariables, ...renderVariables}
+        ? // $FlowFixMe[cannot-spread-interface]
+          {...fetchVariables, ...renderVariables}
         : fetchVariables;
 
       const cacheConfig: ?CacheConfig = options

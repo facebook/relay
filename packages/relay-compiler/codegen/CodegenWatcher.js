@@ -12,14 +12,13 @@
 
 'use strict';
 
-const GraphQLWatchmanClient = require('../core/GraphQLWatchmanClient');
-const Profiler = require('../core/GraphQLCompilerProfiler');
+import type {File} from './CodegenTypes';
 
+const Profiler = require('../core/GraphQLCompilerProfiler');
+const GraphQLWatchmanClient = require('../core/GraphQLWatchmanClient');
 const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
-
-import type {File} from './CodegenTypes';
 
 const SUBSCRIPTION_NAME = 'graphql-codegen';
 const QUERY_RETRIES = 3;

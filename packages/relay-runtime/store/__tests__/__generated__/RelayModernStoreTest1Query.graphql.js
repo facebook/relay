@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<04e4a0c384fe3e8a2d6979830f55e65e>>
+ * @generated SignedSource<<8b5a92089348fe277bcd77da35020010>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,12 +19,12 @@ import type { ConcreteRequest } from 'relay-runtime';
 type RelayModernStoreTest1Fragment$ref = any;
 export type RelayModernStoreTest1QueryVariables = {|
   id: string,
-  size?: ?number,
+  size?: ?$ReadOnlyArray<?number>,
 |};
 export type RelayModernStoreTest1QueryResponse = {|
   +node: ?{|
-    +$fragmentRefs: RelayModernStoreTest1Fragment$ref
-  |}
+    +$fragmentRefs: RelayModernStoreTest1Fragment$ref,
+  |},
 |};
 export type RelayModernStoreTest1Query = {|
   variables: RelayModernStoreTest1QueryVariables,
@@ -151,18 +151,18 @@ return {
     ]
   },
   "params": {
-    "cacheID": "df666dc9676528ab01bb8203cdc91b95",
+    "cacheID": "81fbfcf28f025985d5aaf313918e4475",
     "id": null,
     "metadata": {},
     "name": "RelayModernStoreTest1Query",
     "operationKind": "query",
-    "text": "query RelayModernStoreTest1Query(\n  $id: ID!\n  $size: Int\n) {\n  node(id: $id) {\n    __typename\n    ...RelayModernStoreTest1Fragment\n    id\n  }\n}\n\nfragment RelayModernStoreTest1Fragment on User {\n  name\n  profilePicture(size: $size) {\n    uri\n  }\n}\n"
+    "text": "query RelayModernStoreTest1Query(\n  $id: ID!\n  $size: [Int]\n) {\n  node(id: $id) {\n    __typename\n    ...RelayModernStoreTest1Fragment\n    id\n  }\n}\n\nfragment RelayModernStoreTest1Fragment on User {\n  name\n  profilePicture(size: $size) {\n    uri\n  }\n}\n"
   }
 };
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "2fa71025f66a01bcc34043c37ce05e03";
+  (node/*: any*/).hash = "7fdabede719577afaae8855a27396b98";
 }
 
 module.exports = node;

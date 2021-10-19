@@ -12,13 +12,12 @@
 
 'use strict';
 
-const IRTransformer = require('../core/IRTransformer');
-
-const {createCompilerError, createUserError} = require('../core/CompilerError');
-
 import type CompilerContext from '../core/CompilerContext';
 import type {Definition, Node, Selection} from '../core/IR';
 import type {TypeID} from '../core/Schema';
+
+const {createCompilerError, createUserError} = require('../core/CompilerError');
+const IRTransformer = require('../core/IRTransformer');
 
 let cachesByNode = new Map();
 function clientExtensionTransform(context: CompilerContext): CompilerContext {
@@ -31,6 +30,7 @@ function clientExtensionTransform(context: CompilerContext): CompilerContext {
 }
 
 function traverseDefinition<T: Definition>(node: T): T {
+  // $FlowFixMe[incompatible-use]
   const compilerContext: CompilerContext = this.getContext();
 
   const schema = compilerContext.getSchema();

@@ -7,36 +7,33 @@
 
 //! Utilities for providing the completion language feature
 use crate::{
-    lsp::{CompletionItem, CompletionResponse},
-    lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult},
+    lsp_runtime_error::LSPRuntimeResult,
     node_resolution_info::{TypePath, TypePathItem},
-    server::LSPState,
+    server::GlobalState,
+    LSPRuntimeError, SchemaDocumentation,
 };
-use common::{NamedItem, PerfLogger, Span};
+use common::{Named, NamedItem, Span};
 
-use fnv::{FnvHashMap, FnvHashSet};
+use fnv::FnvHashSet;
 use graphql_ir::{Program, VariableDefinition, DIRECTIVE_ARGUMENTS};
 use graphql_syntax::{
     Argument, ConstantValue, Directive, DirectiveLocation, ExecutableDefinition,
     ExecutableDocument, FragmentSpread, InlineFragment, LinkedField, List, OperationDefinition,
     OperationKind, ScalarField, Selection, TokenKind, Value,
 };
-use interner::{Intern, StringKey};
-use lazy_static::lazy_static;
+use interner::StringKey;
 use log::debug;
-use lsp_types::request::{Completion, Request};
+use lsp_types::{
+    request::{Completion, Request, ResolveCompletionItem},
+    CompletionItem, CompletionItemKind, CompletionResponse, Documentation, InsertTextFormat,
+    MarkupContent, MarkupKind,
+};
 use schema::{
     Argument as SchemaArgument, Directive as SchemaDirective, SDLSchema, Schema, Type,
     TypeReference, TypeWithFields,
 };
-use std::{
-    iter::once,
-    sync::{Arc, RwLock},
-};
+use std::iter::once;
 
-lazy_static! {
-    static ref DEPRECATED_DIRECTIVE: StringKey = "deprecated".intern();
-}
 #[derive(Debug, Clone)]
 pub enum CompletionKind {
     FieldName {
@@ -318,7 +315,7 @@ impl CompletionRequestBuilder {
                         }
                         self.build_request_from_directives(
                             directives,
-                            DirectiveLocation::Scalar,
+                            DirectiveLocation::Field,
                             position_span,
                             type_path,
                             None,
@@ -514,42 +511,40 @@ impl CompletionRequestBuilder {
 fn completion_items_for_request(
     request: CompletionRequest,
     schema: &SDLSchema,
-    source_programs: &Arc<RwLock<FnvHashMap<StringKey, Program>>>,
+    schema_documentation: impl SchemaDocumentation,
+    program: &Program,
 ) -> Option<Vec<CompletionItem>> {
     let kind = request.kind;
-    let project_name = request.project_name;
     debug!("completion_items_for_request: {:?}", kind);
     match kind {
         CompletionKind::FragmentSpread => {
             let leaf_type = request.type_path.resolve_leaf_type(schema)?;
-            if let Some(source_program) = source_programs
-                .read()
-                .expect(
-                    "completion_items_for_request: could not acquire read lock for source_programs",
-                )
-                .get(&project_name)
-            {
-                debug!("has source program");
-                let items =
-                    resolve_completion_items_for_fragment_spread(leaf_type, source_program, schema);
-                Some(items)
-            } else {
-                None
-            }
+
+            debug!("has source program");
+            let items = resolve_completion_items_for_fragment_spread(leaf_type, program, schema);
+            Some(items)
         }
         CompletionKind::FieldName {
             existing_linked_field,
         } => match request.type_path.resolve_leaf_type(schema)? {
             Type::Interface(interface_id) => {
                 let interface = schema.interface(interface_id);
-                let items =
-                    resolve_completion_items_from_fields(interface, schema, existing_linked_field);
+                let items = resolve_completion_items_from_fields(
+                    interface,
+                    schema,
+                    schema_documentation,
+                    existing_linked_field,
+                );
                 Some(items)
             }
             Type::Object(object_id) => {
                 let object = schema.object(object_id);
-                let items =
-                    resolve_completion_items_from_fields(object, schema, existing_linked_field);
+                let items = resolve_completion_items_from_fields(
+                    object,
+                    schema,
+                    schema_documentation,
+                    existing_linked_field,
+                );
                 Some(items)
             }
             Type::Enum(_) | Type::InputObject(_) | Type::Scalar(_) | Type::Union(_) => None,
@@ -568,7 +563,7 @@ fn completion_items_for_request(
             kind,
         } => match kind {
             ArgumentKind::Field => {
-                let field = request.type_path.resolve_current_field(schema)?;
+                let (_, field) = request.type_path.resolve_current_field(schema)?;
                 Some(resolve_completion_items_for_argument_name(
                     field.arguments.iter(),
                     schema,
@@ -577,12 +572,7 @@ fn completion_items_for_request(
                 ))
             }
             ArgumentKind::ArgumentsDirective(fragment_spread_name) => {
-                let source_program = source_programs.read().expect(
-                    "completion_items_for_request: could not acquire read lock for source_programs",
-                );
-                let fragment = source_program
-                    .get(&request.project_name)?
-                    .fragment(fragment_spread_name)?;
+                let fragment = program.fragment(fragment_spread_name)?;
                 Some(resolve_completion_items_for_argument_name(
                     fragment.variable_definitions.iter(),
                     schema,
@@ -604,38 +594,29 @@ fn completion_items_for_request(
             argument_name,
             kind,
         } => {
-            if let Some(source_program) = source_programs
-                .read()
-                .expect(
-                    "completion_items_for_request: could not acquire read lock for source_programs",
-                )
-                .get(&project_name)
-            {
-                let argument_type = match kind {
-                    ArgumentKind::Field => {
-                        let field = request.type_path.resolve_current_field(schema)?;
-                        &field.arguments.named(argument_name)?.type_
-                    }
-                    ArgumentKind::ArgumentsDirective(fragment_spread_name) => {
-                        let fragment = source_program.fragment(fragment_spread_name)?;
-                        &fragment.variable_definitions.named(argument_name)?.type_
-                    }
-                    ArgumentKind::Directive(directive_name) => {
-                        &schema
-                            .get_directive(directive_name)?
-                            .arguments
-                            .named(argument_name)?
-                            .type_
-                    }
-                };
-                Some(resolve_completion_items_for_argument_value(
-                    argument_type,
-                    source_program,
-                    executable_name,
-                ))
-            } else {
-                None
-            }
+            let argument_type = match kind {
+                ArgumentKind::Field => {
+                    let (_, field) = request.type_path.resolve_current_field(schema)?;
+                    &field.arguments.named(argument_name)?.type_
+                }
+                ArgumentKind::ArgumentsDirective(fragment_spread_name) => {
+                    let fragment = program.fragment(fragment_spread_name)?;
+                    &fragment.variable_definitions.named(argument_name)?.type_
+                }
+                ArgumentKind::Directive(directive_name) => {
+                    &schema
+                        .get_directive(directive_name)?
+                        .arguments
+                        .named(argument_name)?
+                        .type_
+                }
+            };
+            Some(resolve_completion_items_for_argument_value(
+                schema,
+                argument_type,
+                program,
+                executable_name,
+            ))
         }
         CompletionKind::InlineFragmentType {
             existing_inline_fragment,
@@ -684,6 +665,7 @@ fn resolve_completion_items_for_argument_name<T: ArgumentLike>(
                     )),
                     data: None,
                     tags: None,
+                    ..Default::default()
                 }
             }
         })
@@ -746,6 +728,7 @@ fn resolve_completion_items_for_inline_fragment_type(
                 )),
                 data: None,
                 tags: None,
+                ..Default::default()
             }
         }
     })
@@ -753,13 +736,14 @@ fn resolve_completion_items_for_inline_fragment_type(
 }
 
 fn resolve_completion_items_for_argument_value(
+    schema: &SDLSchema,
     type_: &TypeReference,
-    source_program: &Program,
+    program: &Program,
     executable_name: ExecutableName,
 ) -> Vec<CompletionItem> {
-    match executable_name {
+    let mut completion_items = match executable_name {
         ExecutableName::Fragment(name) => {
-            if let Some(fragment) = source_program.fragment(name) {
+            if let Some(fragment) = program.fragment(name) {
                 fragment
                     .used_global_variables
                     .iter()
@@ -774,7 +758,7 @@ fn resolve_completion_items_for_argument_value(
             }
         }
         ExecutableName::Operation(name) => {
-            if let Some(operation) = source_program.operation(name) {
+            if let Some(operation) = program.operation(name) {
                 operation
                     .variable_definitions
                     .iter()
@@ -787,12 +771,27 @@ fn resolve_completion_items_for_argument_value(
                 vec![]
             }
         }
+    };
+
+    if !type_.is_list() {
+        if let Type::Enum(id) = type_.inner() {
+            let enum_ = schema.enum_(id);
+            completion_items.extend(
+                enum_
+                    .values
+                    .iter()
+                    .map(|value| CompletionItem::new_simple(value.value.to_string(), "".into())),
+            )
+        }
     }
+
+    completion_items
 }
 
-fn resolve_completion_items_from_fields<T: TypeWithFields>(
+fn resolve_completion_items_from_fields<T: TypeWithFields + Named>(
     type_: &T,
     schema: &SDLSchema,
+    schema_documentation: impl SchemaDocumentation,
     existing_linked_field: bool,
 ) -> Vec<CompletionItem> {
     type_
@@ -800,19 +799,12 @@ fn resolve_completion_items_from_fields<T: TypeWithFields>(
         .iter()
         .map(|field_id| {
             let field = schema.field(*field_id);
-            let name = field.name.to_string();
-            let deprecated_directive = field.directives.named(*DEPRECATED_DIRECTIVE);
-            let deprecated_reason = if let Some(deprecated_directive) = deprecated_directive {
-                if let Some(ConstantValue::String(reason)) =
-                    deprecated_directive.arguments.get(0).map(|arg| &arg.value)
-                {
-                    Some(reason.value.lookup().to_string())
-                } else {
-                    None
-                }
-            } else {
-                None
-            };
+            let field_name = field.name.to_string();
+            let deprecated = field.deprecated();
+            let is_deprecated = deprecated.is_some();
+            let deprecated_reason = deprecated
+                .and_then(|deprecated| deprecated.reason)
+                .map(|reason| reason.lookup().to_string());
             let args = create_arguments_snippets(field.arguments.iter(), schema);
             let insert_text = match (
                 existing_linked_field
@@ -820,11 +812,11 @@ fn resolve_completion_items_from_fields<T: TypeWithFields>(
                 args.is_empty(), // don't insert arguments
             ) {
                 (true, true) => None,
-                (true, false) => Some(format!("{}({})", name, args.join(", "))),
-                (false, true) => Some(format!("{} {{\n\t$1\n}}", name)),
+                (true, false) => Some(format!("{}({})", field_name, args.join(", "))),
+                (false, true) => Some(format!("{} {{\n\t$1\n}}", field_name)),
                 (false, false) => Some(format!(
                     "{}({}) {{\n\t${}\n}}",
-                    name,
+                    field_name,
                     args.join(", "),
                     args.len() + 1
                 )),
@@ -841,12 +833,37 @@ fn resolve_completion_items_from_fields<T: TypeWithFields>(
             } else {
                 (None, None)
             };
+
+            let type_description = schema_documentation
+                .get_type_description(schema.get_type_name(field.type_.inner()).lookup());
+
+            let field_description = schema_documentation
+                .get_field_description(type_.name().lookup(), field.name.lookup());
+
+            let documentation = make_markdown_table_documentation(
+                field.name.lookup(),
+                &schema.get_type_string(&field.type_),
+                field_description.unwrap_or(""),
+                type_description.unwrap_or(""),
+            );
+
+            let kind = match field.type_.inner() {
+                Type::Enum(_) => Some(CompletionItemKind::Enum),
+                Type::Interface(_) => Some(CompletionItemKind::Interface),
+                // There is no Kind for union, so we'll use interface
+                Type::Union(_) => Some(CompletionItemKind::Interface),
+                Type::Object(_) => Some(CompletionItemKind::Struct),
+                Type::InputObject(_) => Some(CompletionItemKind::Struct),
+                type_ if schema.is_string(type_) => Some(CompletionItemKind::Text),
+                _ => Some(CompletionItemKind::Value),
+            };
+
             CompletionItem {
-                label: name,
-                kind: None,
+                label: field_name,
+                kind,
                 detail: deprecated_reason,
-                documentation: None,
-                deprecated: Some(deprecated_directive.is_some()),
+                documentation: Some(documentation),
+                deprecated: Some(is_deprecated),
                 preselect: None,
                 sort_text: None,
                 filter_text: None,
@@ -857,6 +874,7 @@ fn resolve_completion_items_from_fields<T: TypeWithFields>(
                 command,
                 data: None,
                 tags: None,
+                ..Default::default()
             }
         })
         .collect()
@@ -904,6 +922,7 @@ fn resolve_completion_items_for_fragment_spread(
                         )),
                         data: None,
                         tags: None,
+                        ..Default::default()
                     }
                 });
             }
@@ -921,8 +940,6 @@ fn completion_item_from_directive(
         name, arguments, ..
     } = directive;
 
-    use crate::lsp::InsertTextFormat;
-
     // Always use the name of the directive as the label
     let label = name.to_string();
 
@@ -939,11 +956,18 @@ fn completion_item_from_directive(
         }
     };
 
+    let documentation = directive.description.map(|desc| {
+        Documentation::MarkupContent(MarkupContent {
+            kind: MarkupKind::Markdown,
+            value: desc.to_string(),
+        })
+    });
+
     CompletionItem {
         label,
         kind: None,
         detail: None,
-        documentation: None,
+        documentation,
         deprecated: None,
         preselect: None,
         sort_text: None,
@@ -959,6 +983,7 @@ fn completion_item_from_directive(
         )),
         data: None,
         tags: None,
+        ..Default::default()
     }
 }
 
@@ -984,31 +1009,55 @@ fn create_arguments_snippets<T: ArgumentLike>(
     args
 }
 
-pub(crate) fn on_completion<TPerfLogger: PerfLogger + 'static>(
-    state: &mut LSPState<TPerfLogger>,
+pub(crate) fn on_completion(
+    state: &impl GlobalState,
     params: <Completion as Request>::Params,
 ) -> LSPRuntimeResult<<Completion as Request>::Result> {
-    let (document, position_span, project_name) =
-        state.extract_executable_document_from_text(params.text_document_position, 0)?;
+    match state.extract_executable_document_from_text(&params.text_document_position, 0) {
+        Ok((document, position_span)) => {
+            let project_name = state
+                .extract_project_name_from_url(&params.text_document_position.text_document.uri)?;
+            let schema = &state.get_schema(&project_name)?;
+            let items = resolve_completion_items(
+                document,
+                position_span,
+                project_name,
+                schema,
+                state.get_schema_documentation(project_name.lookup()),
+                &state.get_program(&project_name)?,
+            )
+            .unwrap_or_else(Vec::new);
+            Ok(Some(CompletionResponse::Array(items)))
+        }
+        Err(graphql_err) => {
+            let js_server = state.get_js_language_sever().ok_or_else(|| {
+                if matches!(graphql_err, LSPRuntimeError::ExpectedError) {
+                    LSPRuntimeError::ExpectedError
+                } else {
+                    LSPRuntimeError::UnexpectedError(format!(
+                        "Unable to get completion {:?}",
+                        &graphql_err,
+                    ))
+                }
+            })?;
 
-    if let Some(schema) = state
-        .get_schemas()
-        .read()
-        .expect("on_completion: could not acquire read lock for state.get_schemas")
-        .get(&project_name)
-    {
-        let items = resolve_completion_items(
-            document,
-            position_span,
-            project_name,
-            schema,
-            state.get_source_programs_ref(),
-        )
-        .unwrap_or_else(Vec::new);
-        Ok(Some(CompletionResponse::Array(items)))
-    } else {
-        Err(LSPRuntimeError::ExpectedError)
+            if let Ok(response) = js_server.on_complete(&params, state) {
+                Ok(response)
+            } else {
+                Err(graphql_err)
+            }
+        }
     }
+}
+
+pub(crate) fn on_resolve_completion_item(
+    _state: &impl GlobalState,
+    params: <ResolveCompletionItem as Request>::Params,
+) -> LSPRuntimeResult<<ResolveCompletionItem as Request>::Result> {
+    // We currently don't do anything with the selected item
+    // and we just return an input
+
+    Ok(params)
 }
 
 fn resolve_completion_items(
@@ -1016,12 +1065,32 @@ fn resolve_completion_items(
     position_span: Span,
     project_name: StringKey,
     schema: &SDLSchema,
-    source_programs: &Arc<RwLock<FnvHashMap<StringKey, Program>>>,
+    schema_documentation: impl SchemaDocumentation,
+    progam: &Program,
 ) -> Option<Vec<CompletionItem>> {
     let completion_request = CompletionRequestBuilder::new(project_name)
         .create_completion_request(document, position_span);
     completion_request.and_then(|completion_request| {
-        completion_items_for_request(completion_request, schema, source_programs)
+        completion_items_for_request(completion_request, schema, schema_documentation, progam)
+    })
+}
+
+fn make_markdown_table_documentation(
+    field_name: &str,
+    type_name: &str,
+    field_description: &str,
+    type_description: &str,
+) -> Documentation {
+    Documentation::MarkupContent(MarkupContent {
+        kind: MarkupKind::Markdown,
+        value: [
+            format!("| **Field: {}** |", field_name),
+            "| :--- |".to_string(),
+            format!("| {} |", field_description),
+            format!("| **Type: {}** |", type_name),
+            format!("| {} |", type_description),
+        ]
+        .join("\n"),
     })
 }
 

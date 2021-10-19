@@ -7,18 +7,16 @@
 
 use crate::ir::{ExecutableDefinition, FragmentDefinition, OperationDefinition};
 use fnv::FnvHashMap;
-use indexmap::IndexMap;
 use interner::StringKey;
-use rayon::{iter::ParallelIterator, prelude::*};
 use schema::SDLSchema;
-use std::sync::Arc;
+use std::{collections::HashMap, sync::Arc};
 
 /// A collection of all documents that are being compiled.
 #[derive(Debug, Clone)]
 pub struct Program {
     pub schema: Arc<SDLSchema>,
-    fragments: IndexMap<StringKey, Arc<FragmentDefinition>>,
-    operations: Vec<Arc<OperationDefinition>>,
+    pub fragments: FnvHashMap<StringKey, Arc<FragmentDefinition>>,
+    pub operations: Vec<Arc<OperationDefinition>>,
 }
 
 impl Program {
@@ -35,7 +33,7 @@ impl Program {
         definitions: Vec<ExecutableDefinition>,
     ) -> Self {
         let mut operations = Vec::new();
-        let mut fragments = IndexMap::new();
+        let mut fragments = HashMap::default();
         for definition in definitions {
             match definition {
                 ExecutableDefinition::Operation(operation) => {
@@ -67,6 +65,10 @@ impl Program {
         self.fragments.get(&name)
     }
 
+    pub fn fragment_mut(&mut self, name: StringKey) -> Option<&mut Arc<FragmentDefinition>> {
+        self.fragments.get_mut(&name)
+    }
+
     /// Searches for an operation by name.
     ///
     /// NOTE: This is a linear search, we currently don't frequently search
@@ -85,28 +87,8 @@ impl Program {
         self.operations.iter()
     }
 
-    pub fn par_operations(&self) -> impl ParallelIterator<Item = &Arc<OperationDefinition>> {
-        self.operations.par_iter()
-    }
-
-    pub fn par_operations_mut(
-        &mut self,
-    ) -> impl ParallelIterator<Item = &mut Arc<OperationDefinition>> {
-        self.operations.par_iter_mut()
-    }
-
     pub fn fragments(&self) -> impl Iterator<Item = &Arc<FragmentDefinition>> {
         self.fragments.values()
-    }
-
-    pub fn par_fragments(&self) -> impl ParallelIterator<Item = &Arc<FragmentDefinition>> {
-        self.fragments.par_values()
-    }
-
-    pub fn par_fragments_mut(
-        &mut self,
-    ) -> impl ParallelIterator<Item = &mut Arc<FragmentDefinition>> {
-        self.fragments.par_values_mut()
     }
 
     pub fn document_count(&self) -> usize {
@@ -115,7 +97,7 @@ impl Program {
 
     pub fn merge_program(
         &mut self,
-        other_program: Self,
+        other_program: &Self,
         removed_definition_names: Option<&[StringKey]>,
     ) {
         let mut operations: FnvHashMap<StringKey, Arc<OperationDefinition>> = self
@@ -123,11 +105,12 @@ impl Program {
             .drain(..)
             .map(|op| (op.name.item, op))
             .collect();
-        for (key, fragment) in other_program.fragments {
-            self.fragments.insert(key, fragment);
+        for fragment in other_program.fragments() {
+            self.fragments
+                .insert(fragment.name.item, Arc::clone(fragment));
         }
-        for operation in other_program.operations {
-            operations.insert(operation.name.item, operation);
+        for operation in other_program.operations() {
+            operations.insert(operation.name.item, Arc::clone(operation));
         }
         if let Some(removed_definition_names) = removed_definition_names {
             for removed in removed_definition_names {

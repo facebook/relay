@@ -1,0 +1,529 @@
+/**
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ * @format
+ */
+
+html[data-theme="light"] {
+  --main-bg-color: var(--ifm-color-primary);
+  --light-bg-color: #f9f6ef;
+  --dark-bg-color: #EAEAE2;
+  --container-box-shadow: rgba(0, 0, 0, 0.9) 0px 1px 2px 0px;
+  --pre-box-shadow: rgba(0, 0, 0, 0.3) 0px 1px 2px -1px, rgba(0, 0, 0, 0.1) 0px 1px 2px -1px;
+  --pre-border-color: #EAEAEA;
+  --ifm-menu-color-background-active: transparent;
+  --ifm-menu-color-background-hover: transparent;
+  --pre-background-color: var(--light-bg-color);
+  --blockquote-background-color: #e9e3e3;
+  --ifm-blockquote-color: #3a434d;
+  --ifm-navbar-link-color: white;
+  --ifm-code-font-size: 16px;
+  --ifm-alert-color: black;
+}
+
+html[data-theme="light"] .navbar__title {
+  color: white;
+}
+
+html[data-theme="dark"] {
+  --main-bg-color: black;
+  --light-bg-color: #111;
+  --dark-bg-color: black;
+  --pre-background-color: #1A1A1A;
+  --pre-border-color: #222;
+  --blockquote-background-color: #262626;
+  --ifm-blockquote-color: var(--ifm-font-color-base);
+  --ifm-code-font-size: 16px;
+}
+
+/* Navbar */
+.navigationSlider .slidingNav ul li a {
+  font-weight: normal;
+}
+
+html[data-theme="dark"] .navbar {
+  background-color: var(--main-bg-color);
+}
+
+/* INDEX PAGE */
+/* Home header */
+.homeContainer {
+  text-align: left;
+  overflow: hidden;
+  position: relative;
+  background-color: var(--main-bg-color);
+}
+
+.homeContainer .homeWrapper {
+  padding: 10em 1em;
+}
+
+.homeBanner {
+  font-size: 20px;
+  text-align: center;
+}
+
+.homeBanner a {
+  text-decoration: underline;
+}
+
+.logo {
+  position: absolute;
+  opacity: 0.1;
+  left: 0;
+  right: 0;
+  top: -400px;
+  max-width: 1400px;
+  margin: auto;
+}
+
+.logo img {
+  transform: rotate(-26deg);
+  width: 100%;
+}
+
+.projectTitle > small {
+  font-size: 2.5rem;
+  margin: 1em 0 0.5em 0;
+  font-weight: 500;
+}
+
+.projectTitle > small:last-child {
+  margin-top: 0;
+}
+
+/* Content */
+.homePage.mainContainer {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+/* Intro section */
+.introSection {
+  padding: 3em 0;
+}
+
+.introSection .wrapper {
+  padding: 0 1em;
+}
+
+.lightBackground {
+  background-color: var(--light-bg-color);
+}
+
+.darkBackground {
+  background-color: var(--dark-bg-color);
+}
+
+html[data-theme="light"] .homePage .container {
+  box-shadow: var(--container-box-shadow);
+}
+
+.homePage .container {
+  max-width: none;
+}
+
+.footer .container {
+  box-shadow: none;
+  max-width: var(--ifm-container-width);
+}
+
+.footer {
+  background-color: var(--light-bg-color);
+}
+
+.homePage .footer {
+  background-color: var(--light-bg-color);
+}
+
+.introSection p {
+  font-size: 1.8rem;
+  width: 70%;
+}
+
+/* Example section */
+.exampleSection .wrapper {
+  padding: 64px 0;
+}
+
+.exampleSection .wrapperInner {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  grid-column-gap: 40px;
+}
+
+.exampleSection .wrapperInner > div {
+  padding: 0 1em;
+  overflow: auto;
+}
+
+.exampleSection .radiusRight {
+  border-radius: 0 60px 0 0;
+}
+
+.exampleSection .radiusLeft {
+  border-radius: 60px 0 0 0;
+}
+
+.exampleSection .wrapperInner > div:nth-child(even) pre {
+  margin-left: 3em;
+  padding-top: 0;
+}
+
+pre {
+  background-color: var(--pre-background-color);
+}
+
+pre.outerPre {
+  box-shadow: var(--pre-box-shadow);
+  border: 1px solid var(--pre-border-color);
+}
+
+.exampleSection p {
+  padding-right: 2em;
+}
+
+.exampleSection pre {
+  margin-top: 15px;
+}
+
+/* Text section */
+.textSection .wrapper {
+  padding: 4em 20px;
+}
+
+.textSection h2 {
+  margin-top: 0;
+  font-size: 2.5rem;
+}
+
+.textSection .blockElement {
+  margin: 0 30px;
+}
+
+.textSection .gridBlock > .blockElement:first-child {
+  margin-left: 0;
+}
+
+.textSection .blockContent h2 {
+  font-size: 1.5rem;
+}
+
+/* GraphQL section */
+.graphqlSection .wrapper {
+  background-position: 43.1% 0;
+  background-repeat: no-repeat;
+}
+
+.graphqlSection:after {
+  display: block;
+  content: '';
+  height: 3rem;
+  width: 100%;
+}
+
+.graphqlSection .wrapper:after {
+  display: block;
+  content: '';
+  position: absolute;
+  height: 3rem;
+  width: 2.51rem;
+  margin-left: 53%;
+  bottom: -48px;
+}
+
+/* Declarative section */
+.declarativeSection .wrapper {
+  background-position: 72.6% 0;
+  background-repeat: no-repeat;
+  padding-bottom: 8em;
+}
+
+.aheadSection .wrapper {
+  /* z-index: 1; */
+}
+
+.aheadSection .wrapper:before {
+  background-repeat: no-repeat;
+  content: '';
+  display: block;
+  width: 473px;
+  height: 173px;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+}
+
+.aheadSection:before {
+  display: block;
+  position: absolute;
+  content: '';
+  height: 40px;
+  width: 50%;
+  bottom: 133px;
+  left: 0;
+}
+
+.aheadSection .wrapper:after {
+  background-repeat: no-repeat;
+  content: '';
+  display: block;
+  width: 369px;
+  height: 128px;
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+.aheadSection:after {
+  display: block;
+  position: absolute;
+  content: '';
+  height: 40px;
+  width: 50%;
+  top: 88px;
+  right: 0;
+}
+
+.aheadSection .gridBlock {
+  position: relative;
+}
+
+.relaySection .blockElement {
+  margin: 0 55px 40px;
+}
+
+.relaySection .blockElement:nth-child(odd) {
+  margin-left: 0;
+}
+
+.relaySection .wrapper {
+  position: relative;
+  z-index: 1;
+}
+
+.relaySection .wrapper:after {
+  background-repeat: no-repeat;
+  content: '';
+  display: block;
+  width: 500px;
+  height: 131px;
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+/* User section */
+.logosHomepage {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-gap: 3em;
+  margin-bottom: 2em;
+}
+
+.logosHomepage a {
+  display: flex;
+}
+
+.logosHomepage img {
+  flex: 1;
+  max-width: 50px;
+  height: 50px;
+}
+
+.logosHomepage a div {
+  padding-left: 1em;
+}
+
+.logosHomepage a h6 {
+  font-size: 1.25rem;
+  margin: 0;
+}
+
+@media only screen and (max-width: 1499px) {
+  .homeContainer .homeWrapper {
+    padding: 6em 1em;
+  }
+
+  .logo {
+    top: -350px;
+  }
+
+  .homeContainer .homeWrapper .projectLogo {
+    padding: 2em 0px 4em;
+  }
+
+  .graphqlSection .wrapper {
+    background-position: 39.8% 0;
+  }
+
+
+  .graphqlSection .wrapper:after {
+    width: 2.53rem;
+    margin-left: 53.55%;
+  }
+
+  .declarativeSection .wrapper {
+    background-position: 81.2% 0;
+  }
+
+  .aheadSection .wrapper:after {
+    width: 181px;
+  }
+}
+
+@media only screen and (min-width: 1100px) and (max-width: 1499px) {
+  .exampleSection .wrapperInner > div:nth-child(odd) {
+    width: 298px;
+  }
+
+  .exampleSection .wrapperInner {
+    grid-template-columns: 1fr 3fr;
+  }
+}
+
+@media only screen and (max-width: 1100px) {
+  .logo {
+    top: -200px;
+  }
+
+  .graphqlSection .wrapper,
+  .declarativeSection .wrapper {
+    background: none;
+  }
+
+  .graphqlSection:after,
+  .graphqlSection .wrapper:after {
+    display: none;
+  }
+
+  .relaySection h2 {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+@media only screen and (max-width: 997px) {
+  .homeContainer .homeWrapper {
+    padding: 4em 1em;
+  }
+
+  .projectTitle > small {
+    font-size: 1.5rem;
+  }
+
+  .exampleSection .wrapperInner {
+    grid-template-columns: 1fr;
+  }
+
+  .exampleSection .radiusRight,
+  .exampleSection .radiusLeft {
+    border-radius: 0;
+  }
+
+  .textSection .wrapper {
+    padding: 2em 20px;
+  }
+
+  .exampleSection pre code {
+    font-size: 10px;
+  }
+
+  .exampleSection .wrapperInner > div:nth-child(even) pre {
+    margin-left: 0em;
+  }
+}
+
+@media only screen and (max-width: 768px) {
+  .textSection .blockElement {
+    margin: 20px 0;
+  }
+}
+
+@media only screen and (max-width: 600px) {
+  .logo {
+    display: none;
+  }
+
+  .projectTitle {
+    margin-top: 0;
+    font-size: 3rem;
+  }
+
+  .introSection p {
+    font-size: 1.2rem;
+  }
+
+  .textSection h2 {
+    font-size: 2rem;
+  }
+
+  .aheadSection .wrapper:after,
+  .aheadSection .wrapper:before,
+  .aheadSection:after,
+  .aheadSection:before,
+  .relaySection:before,
+  .relaySection .wrapper:after,
+  .relaySection:after {
+    display: none;
+  }
+
+  .logos {
+    grid-template-columns: 1fr;
+    grid-gap: 2em;
+  }
+}
+
+@media only screen and (max-width: 768px) {
+  .logosHomepage {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Additional CSS that had to be added to accommodate the transition
+   from docusaurus v1 to v2 */
+
+.exampleSection pre {
+  padding-left: 0.75em;
+}
+
+.more-users a.button {
+  color: var(--ifm-color-primary);
+  border-color: var(--ifm-color-primary);
+  border-style: solid;
+  border-width: var(--ifm-button-border-width);
+  border-radius: var(--ifm-button-border-radius);
+}
+
+.try-it {
+  padding-top: 10px;
+}
+
+.try-it a.button {
+  color: #f9f6ef;
+  border-color: #EAEAE2;
+  border-style: solid;
+  border-width: var(--ifm-button-border-width);
+  border-radius: var(--ifm-button-border-radius);
+}
+
+a.hash-link {
+  margin-left: 0;
+}
+
+.menu::-webkit-scrollbar {
+  display: none;
+}
+
+.menu {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+blockquote {
+  background-color: var(--blockquote-background-color);
+  border-radius: var(--ifm-global-radius);
+}

@@ -12,26 +12,24 @@
 
 'use strict';
 
-const IRTransformer = require('../core/IRTransformer');
-
-const partitionArray = require('../util/partitionArray');
-
-const {createUserError, createCompilerError} = require('../core/CompilerError');
-const {RelayFeatureFlags} = require('relay-runtime');
-
 import type CompilerContext from '../core/CompilerContext';
 import type {
-  LinkedField,
-  ScalarField,
   Field,
-  Location,
-  InlineFragment,
   Fragment,
-  Root,
+  InlineFragment,
+  LinkedField,
+  Location,
   Metadata,
+  Root,
+  ScalarField,
 } from '../core/IR';
 import type {Schema} from '../core/Schema';
 import type {RequiredFieldAction} from 'relay-runtime';
+
+const {createCompilerError, createUserError} = require('../core/CompilerError');
+const IRTransformer = require('../core/IRTransformer');
+const partitionArray = require('../util/partitionArray');
+const {RelayFeatureFlags} = require('relay-runtime');
 
 type Path = string;
 type Alias = string;
@@ -95,10 +93,12 @@ function requiredFieldTransform(context: CompilerContext): CompilerContext {
 }
 
 function visitFragment(fragment: Fragment, state: State) {
+  // $FlowFixMe[incompatible-use]
   return addChildrenCanBubbleMetadata(this.traverse(fragment, state), state);
 }
 
 function visitRoot(root: Root, state: State) {
+  // $FlowFixMe[incompatible-use]
   return addChildrenCanBubbleMetadata(this.traverse(root, state), state);
 }
 
@@ -110,6 +110,7 @@ function visitInlineFragment(fragment: InlineFragment, state: State) {
     state.parentAbstractInlineFragment ??
     getAbstractInlineFragment(fragment, state.schema);
 
+  // $FlowFixMe[incompatible-use]
   return this.traverse(fragment, {...state, parentAbstractInlineFragment});
 }
 
@@ -148,6 +149,7 @@ function visitLinkedField(field: LinkedField, state: State): LinkedField {
     parentAbstractInlineFragment: null,
   };
 
+  // $FlowFixMe[incompatible-use]
   let newField = this.traverse(field, newState);
 
   const pathName = path.join('.');

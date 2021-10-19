@@ -1,0 +1,5 @@
+"""Description of the schema as per https://github.com/graphql/graphql-spec/pull/466"""
+schema {
+  query: RootQueryType
+  mutation: RootMutationType
+}

@@ -15,7 +15,6 @@
 
 const CompilerContext = require('../CompilerContext');
 const IRTransformer = require('../IRTransformer');
-
 const {TestSchema, parseGraphQLText} = require('relay-test-utils-internal');
 
 describe('IRTransformer', () => {
@@ -87,6 +86,7 @@ describe('IRTransformer', () => {
         expect(node.kind).toBe(kind);
         sequence.push(kind);
         seenKinds.add(kind);
+        // $FlowFixMe[incompatible-use]
         return this.traverse(node, state);
       };
     }

@@ -1,0 +1,541 @@
+==================================== INPUT ====================================
+query queryWithModuleDirectiveAndArguments_NameRendererQuery($id: ID!, $cond: Boolean!) {
+  node(id: $id) {
+    ...queryWithModuleDirectiveAndArguments_NameRendererFragment @arguments(local_cond: false)
+  }
+}
+
+fragment queryWithModuleDirectiveAndArguments_NameRendererFragment on User
+  @argumentDefinitions(
+    local_cond: {type: "Boolean!"}
+  ){
+  id
+  nameRenderer {
+    ...queryWithModuleDirectiveAndArguments_MarkdownUserNameRenderer_name
+      @module(name: "MarkdownUserNameRenderer.react") @arguments(cond: $cond)
+    ...queryWithModuleDirectiveAndArguments_PlainUserNameRenderer_name
+      @module(name: "MarkdownUserNameRenderer.react") @arguments(cond: $local_cond)
+  }
+}
+
+fragment queryWithModuleDirectiveAndArguments_MarkdownUserNameRenderer_name on MarkdownUserNameRenderer
+  @argumentDefinitions(
+    cond: {type: "Boolean!"}
+  ) {
+  markdown
+  data @include(if: $cond) {
+    markup
+  }
+}
+
+fragment queryWithModuleDirectiveAndArguments_PlainUserNameRenderer_name on PlainUserNameRenderer
+  @argumentDefinitions(
+    cond: {type: "Boolean!"}
+  ) {
+  plaintext
+  data @include(if: $cond){
+    text
+  }
+}
+==================================== OUTPUT ===================================
+{
+  "argumentDefinitions": [
+    {
+      "defaultValue": null,
+      "kind": "LocalArgument",
+      "name": "queryWithModuleDirectiveAndArguments_MarkdownUserNameRenderer_name$cond"
+    }
+  ],
+  "kind": "SplitOperation",
+  "metadata": {},
+  "name": "queryWithModuleDirectiveAndArguments_MarkdownUserNameRenderer_name$normalization",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "markdown",
+      "storageKey": null
+    },
+    {
+      "condition": "queryWithModuleDirectiveAndArguments_MarkdownUserNameRenderer_name$cond",
+      "kind": "Condition",
+      "passingValue": true,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "concreteType": "MarkdownUserNameData",
+          "kind": "LinkedField",
+          "name": "data",
+          "plural": false,
+          "selections": [
+            {
+              "alias": null,
+              "args": null,
+              "kind": "ScalarField",
+              "name": "markup",
+              "storageKey": null
+            },
+            {
+              "alias": null,
+              "args": null,
+              "kind": "ScalarField",
+              "name": "id",
+              "storageKey": null
+            }
+          ],
+          "storageKey": null
+        }
+      ]
+    }
+  ]
+}
+
+{
+  "fragment": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "cond"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "id"
+      }
+    ],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "queryWithModuleDirectiveAndArguments_NameRendererQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "args": [
+              {
+                "kind": "Literal",
+                "name": "local_cond",
+                "value": false
+              }
+            ],
+            "kind": "FragmentSpread",
+            "name": "queryWithModuleDirectiveAndArguments_NameRendererFragment"
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "id"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "cond"
+      }
+    ],
+    "kind": "Operation",
+    "name": "queryWithModuleDirectiveAndArguments_NameRendererQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "__typename",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          },
+          {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "concreteType": null,
+                "kind": "LinkedField",
+                "name": "nameRenderer",
+                "plural": false,
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "__typename",
+                    "storageKey": null
+                  },
+                  {
+                    "kind": "InlineFragment",
+                    "selections": [
+                      {
+                        "args": [
+                          {
+                            "kind": "Variable",
+                            "name": "queryWithModuleDirectiveAndArguments_MarkdownUserNameRenderer_name$cond",
+                            "variableName": "cond"
+                          }
+                        ],
+                        "documentName": "queryWithModuleDirectiveAndArguments_NameRendererFragment",
+                        "fragmentName": "queryWithModuleDirectiveAndArguments_MarkdownUserNameRenderer_name",
+                        "fragmentPropName": "MarkdownUserNameRenderer_name",
+                        "kind": "ModuleImport"
+                      }
+                    ],
+                    "type": "MarkdownUserNameRenderer",
+                    "abstractKey": null
+                  },
+                  {
+                    "kind": "InlineFragment",
+                    "selections": [
+                      {
+                        "args": [
+                          {
+                            "kind": "Literal",
+                            "name": "queryWithModuleDirectiveAndArguments_PlainUserNameRenderer_name$cond",
+                            "value": false
+                          }
+                        ],
+                        "documentName": "queryWithModuleDirectiveAndArguments_NameRendererFragment",
+                        "fragmentName": "queryWithModuleDirectiveAndArguments_PlainUserNameRenderer_name",
+                        "fragmentPropName": "PlainUserNameRenderer_name",
+                        "kind": "ModuleImport"
+                      }
+                    ],
+                    "type": "PlainUserNameRenderer",
+                    "abstractKey": null
+                  }
+                ],
+                "storageKey": null
+              }
+            ],
+            "type": "User",
+            "abstractKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {},
+    "name": "queryWithModuleDirectiveAndArguments_NameRendererQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query queryWithModuleDirectiveAndArguments_NameRendererQuery(
+  $id: ID!
+  $cond: Boolean!
+) {
+  node(id: $id) {
+    __typename
+    ...queryWithModuleDirectiveAndArguments_NameRendererFragment_15ODkV
+    id
+  }
+}
+
+fragment queryWithModuleDirectiveAndArguments_MarkdownUserNameRenderer_name_yuQoQ on MarkdownUserNameRenderer {
+  markdown
+  data @include(if: $cond) {
+    markup
+    id
+  }
+}
+
+fragment queryWithModuleDirectiveAndArguments_NameRendererFragment_15ODkV on User {
+  id
+  nameRenderer {
+    __typename
+    ... on MarkdownUserNameRenderer {
+      ...queryWithModuleDirectiveAndArguments_MarkdownUserNameRenderer_name_yuQoQ
+      __module_operation_queryWithModuleDirectiveAndArguments_NameRendererFragment: js(module: "queryWithModuleDirectiveAndArguments_MarkdownUserNameRenderer_name$normalization.graphql", id: "queryWithModuleDirectiveAndArguments_NameRendererFragment.nameRenderer", branch: "MarkdownUserNameRenderer")
+      __module_component_queryWithModuleDirectiveAndArguments_NameRendererFragment: js(module: "MarkdownUserNameRenderer.react", id: "queryWithModuleDirectiveAndArguments_NameRendererFragment.nameRenderer", branch: "MarkdownUserNameRenderer")
+    }
+    ... on PlainUserNameRenderer {
+      ...queryWithModuleDirectiveAndArguments_PlainUserNameRenderer_name_WrdK8
+      __module_operation_queryWithModuleDirectiveAndArguments_NameRendererFragment: js(module: "queryWithModuleDirectiveAndArguments_PlainUserNameRenderer_name$normalization.graphql", id: "queryWithModuleDirectiveAndArguments_NameRendererFragment.nameRenderer", branch: "PlainUserNameRenderer")
+      __module_component_queryWithModuleDirectiveAndArguments_NameRendererFragment: js(module: "MarkdownUserNameRenderer.react", id: "queryWithModuleDirectiveAndArguments_NameRendererFragment.nameRenderer", branch: "PlainUserNameRenderer")
+    }
+  }
+}
+
+fragment queryWithModuleDirectiveAndArguments_PlainUserNameRenderer_name_WrdK8 on PlainUserNameRenderer {
+  plaintext
+}
+
+
+{
+  "argumentDefinitions": [
+    {
+      "defaultValue": null,
+      "kind": "LocalArgument",
+      "name": "queryWithModuleDirectiveAndArguments_PlainUserNameRenderer_name$cond"
+    }
+  ],
+  "kind": "SplitOperation",
+  "metadata": {},
+  "name": "queryWithModuleDirectiveAndArguments_PlainUserNameRenderer_name$normalization",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "plaintext",
+      "storageKey": null
+    },
+    {
+      "condition": "queryWithModuleDirectiveAndArguments_PlainUserNameRenderer_name$cond",
+      "kind": "Condition",
+      "passingValue": true,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "concreteType": "PlainUserNameData",
+          "kind": "LinkedField",
+          "name": "data",
+          "plural": false,
+          "selections": [
+            {
+              "alias": null,
+              "args": null,
+              "kind": "ScalarField",
+              "name": "text",
+              "storageKey": null
+            },
+            {
+              "alias": null,
+              "args": null,
+              "kind": "ScalarField",
+              "name": "id",
+              "storageKey": null
+            }
+          ],
+          "storageKey": null
+        }
+      ]
+    }
+  ]
+}
+
+{
+  "argumentDefinitions": [
+    {
+      "defaultValue": null,
+      "kind": "LocalArgument",
+      "name": "cond"
+    }
+  ],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "queryWithModuleDirectiveAndArguments_MarkdownUserNameRenderer_name",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "markdown",
+      "storageKey": null
+    },
+    {
+      "condition": "cond",
+      "kind": "Condition",
+      "passingValue": true,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "concreteType": "MarkdownUserNameData",
+          "kind": "LinkedField",
+          "name": "data",
+          "plural": false,
+          "selections": [
+            {
+              "alias": null,
+              "args": null,
+              "kind": "ScalarField",
+              "name": "markup",
+              "storageKey": null
+            }
+          ],
+          "storageKey": null
+        }
+      ]
+    }
+  ],
+  "type": "MarkdownUserNameRenderer",
+  "abstractKey": null
+}
+
+{
+  "argumentDefinitions": [
+    {
+      "kind": "RootArgument",
+      "name": "cond"
+    },
+    {
+      "defaultValue": null,
+      "kind": "LocalArgument",
+      "name": "local_cond"
+    }
+  ],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "queryWithModuleDirectiveAndArguments_NameRendererFragment",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "id",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "concreteType": null,
+      "kind": "LinkedField",
+      "name": "nameRenderer",
+      "plural": false,
+      "selections": [
+        {
+          "kind": "InlineFragment",
+          "selections": [
+            {
+              "args": [
+                {
+                  "kind": "Variable",
+                  "name": "cond",
+                  "variableName": "cond"
+                }
+              ],
+              "documentName": "queryWithModuleDirectiveAndArguments_NameRendererFragment",
+              "fragmentName": "queryWithModuleDirectiveAndArguments_MarkdownUserNameRenderer_name",
+              "fragmentPropName": "MarkdownUserNameRenderer_name",
+              "kind": "ModuleImport"
+            }
+          ],
+          "type": "MarkdownUserNameRenderer",
+          "abstractKey": null
+        },
+        {
+          "kind": "InlineFragment",
+          "selections": [
+            {
+              "args": [
+                {
+                  "kind": "Variable",
+                  "name": "cond",
+                  "variableName": "local_cond"
+                }
+              ],
+              "documentName": "queryWithModuleDirectiveAndArguments_NameRendererFragment",
+              "fragmentName": "queryWithModuleDirectiveAndArguments_PlainUserNameRenderer_name",
+              "fragmentPropName": "PlainUserNameRenderer_name",
+              "kind": "ModuleImport"
+            }
+          ],
+          "type": "PlainUserNameRenderer",
+          "abstractKey": null
+        }
+      ],
+      "storageKey": null
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}
+
+{
+  "argumentDefinitions": [
+    {
+      "defaultValue": null,
+      "kind": "LocalArgument",
+      "name": "cond"
+    }
+  ],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "queryWithModuleDirectiveAndArguments_PlainUserNameRenderer_name",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "plaintext",
+      "storageKey": null
+    },
+    {
+      "condition": "cond",
+      "kind": "Condition",
+      "passingValue": true,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "concreteType": "PlainUserNameData",
+          "kind": "LinkedField",
+          "name": "data",
+          "plural": false,
+          "selections": [
+            {
+              "alias": null,
+              "args": null,
+              "kind": "ScalarField",
+              "name": "text",
+              "storageKey": null
+            }
+          ],
+          "storageKey": null
+        }
+      ]
+    }
+  ],
+  "type": "PlainUserNameRenderer",
+  "abstractKey": null
+}

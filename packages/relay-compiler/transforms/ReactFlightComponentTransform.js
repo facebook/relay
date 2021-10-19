@@ -11,14 +11,13 @@
 
 'use strict';
 
-const IRTransformer = require('../core/IRTransformer');
-
-const {createUserError, createCompilerError} = require('../core/CompilerError');
-const {RelayFeatureFlags} = require('relay-runtime');
-
 import type CompilerContext from '../core/CompilerContext';
 import type {ScalarField} from '../core/IR';
-import type {TypeID, InputTypeID, ScalarFieldTypeID} from '../core/Schema';
+import type {InputTypeID, ScalarFieldTypeID, TypeID} from '../core/Schema';
+
+const {createCompilerError, createUserError} = require('../core/CompilerError');
+const IRTransformer = require('../core/IRTransformer');
+const {RelayFeatureFlags} = require('relay-runtime');
 
 const FLIGHT_FIELD_COMPONENT_ARGUMENT_TYPE = 'String';
 const FLIGHT_FIELD_COMPONENT_ARGUMENT_NAME = 'component';
@@ -70,6 +69,7 @@ function reactFlightComponentTransform(
 }
 
 function visitInlineFragment(fragment, state) {
+  // $FlowFixMe[incompatible-use]
   return this.traverse(fragment, {
     parentType: fragment.typeCondition ?? state.parentType,
     types: state.types,
@@ -77,11 +77,13 @@ function visitInlineFragment(fragment, state) {
 }
 
 function visitLinkedField(field, state) {
+  // $FlowFixMe[incompatible-use]
   return this.traverse(field, {parentType: field.type, types: state.types});
 }
 
 function visitScalarField(field: ScalarField, state: State): ScalarField {
   // use the return type to quickly determine if this is a flight field
+  // $FlowFixMe[incompatible-use]
   const schema = this.getContext().getSchema();
   if (schema.getRawType(field.type) !== state.types.componentType) {
     return field;

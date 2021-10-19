@@ -12,11 +12,11 @@
 
 'use strict';
 
-const invariant = require('invariant');
-const stableCopy = require('./stableCopy');
-
 import type {RequestParameters} from './RelayConcreteNode';
 import type {Variables} from './RelayRuntimeTypes';
+
+const stableCopy = require('./stableCopy');
+const invariant = require('invariant');
 
 export type RequestIdentifier = string;
 

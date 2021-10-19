@@ -5,11 +5,13 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::connections::{ConnectionConstants, ConnectionInterface};
-use crate::util::extract_variable_name;
+use crate::{
+    connections::{ConnectionConstants, ConnectionInterface},
+    util::extract_variable_name,
+};
 use common::{NamedItem, WithLocation};
 use graphql_ir::{
-    Argument, ConstantValue, Directive, InlineFragment, LinkedField, ScalarField, Selection, Value,
+    associated_data_impl, Directive, InlineFragment, LinkedField, ScalarField, Selection,
 };
 use interner::StringKey;
 use schema::{SDLSchema, Schema, Type};
@@ -49,6 +51,12 @@ pub fn assert_connection_selections<'s>(
     }
 }
 
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub struct ConnectionMetadataDirective(pub Vec<ConnectionMetadata>);
+
+associated_data_impl!(ConnectionMetadataDirective);
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct ConnectionMetadata {
     pub path: Option<Vec<StringKey>>,
     pub direction: StringKey,
@@ -106,176 +114,11 @@ pub fn build_connection_metadata(
     }
 }
 
-/// Helper that builds a Directive that holds the list of ConnectionMetadata
-/// for every @connection present in a Document (fragment or operation)
-pub fn build_connection_metadata_as_directive(
-    connection_metadata: &[ConnectionMetadata],
-    connection_constants: ConnectionConstants,
-) -> Directive {
-    let connection_metadata_values = connection_metadata
-        .iter()
-        .map(|metadata| build_connection_metadata_value(metadata))
-        .collect::<Vec<ConstantValue>>();
-    let metadata_argument = Argument {
-        name: WithLocation::generated(connection_constants.connection_metadata_argument_name),
-        value: WithLocation::generated(Value::Constant(ConstantValue::List(
-            connection_metadata_values,
-        ))),
-    };
-
-    Directive {
-        name: WithLocation::generated(connection_constants.connection_metadata_directive_name),
-        arguments: vec![metadata_argument],
-    }
-}
-
-fn build_connection_metadata_value(connection_metadata: &ConnectionMetadata) -> ConstantValue {
-    ConstantValue::List(vec![
-        match &connection_metadata.path {
-            Some(path) => ConstantValue::List(
-                path.iter()
-                    .map(|part| ConstantValue::String(*part))
-                    .collect::<Vec<_>>(),
-            ),
-            None => ConstantValue::Null(),
-        },
-        ConstantValue::String(connection_metadata.direction),
-        match connection_metadata.first {
-            Some(first) => ConstantValue::String(first),
-            None => ConstantValue::Null(),
-        },
-        match connection_metadata.last {
-            Some(last) => ConstantValue::String(last),
-            None => ConstantValue::Null(),
-        },
-        match connection_metadata.after {
-            Some(after) => ConstantValue::String(after),
-            None => ConstantValue::Null(),
-        },
-        match connection_metadata.before {
-            Some(before) => ConstantValue::String(before),
-            None => ConstantValue::Null(),
-        },
-        ConstantValue::Boolean(connection_metadata.is_stream_connection),
-    ])
-}
-
 pub fn extract_connection_metadata_from_directive(
     directives: &[Directive],
-    connection_constants: ConnectionConstants,
-) -> Option<Vec<ConnectionMetadata>> {
-    let connection_metadata_directive =
-        directives.named(connection_constants.connection_metadata_directive_name);
-
-    if let Some(connection_metadata_directive) = connection_metadata_directive {
-        debug_assert!(
-            connection_metadata_directive.arguments.len() == 1,
-            "Expected the connection metadata directive to have a single argument."
-        );
-        let metadata_arg = connection_metadata_directive
-            .arguments
-            .named(connection_constants.connection_metadata_argument_name);
-
-        if let Some(metadata_arg) = metadata_arg {
-            let metadata_values = match &metadata_arg.value.item {
-                Value::Constant(value) => match value {
-                    ConstantValue::List(list) => list,
-                    _ => unreachable!(
-                        "Expected connection metadata to be a list of metadata objects."
-                    ),
-                },
-                _ => unreachable!("Expected connection metadata to be a list of metadata objects."),
-            };
-
-            let built_metadata_values = metadata_values
-                .iter()
-                .map(|metadata_value| {
-                    let metadata_value = match &metadata_value {
-                        ConstantValue::List(list) => list,
-                        _ => unreachable!("Expected connection metadata value to be a list."),
-                    };
-
-                    debug_assert!(
-                        metadata_value.len() == 7,
-                        "Expected metadata value to be a list with 7 elements"
-                    );
-
-                    let path = match &metadata_value[0] {
-                        ConstantValue::List(list) => Some(
-                            list.iter()
-                                .map(|item| match item {
-                                    ConstantValue::String(string_val) => *string_val,
-                                    _ => unreachable!(
-                                        "Expected connection metadata path to be a list of strings."
-                                    ),
-                                })
-                                .collect::<Vec<StringKey>>(),
-                        ),
-                        ConstantValue::Null() => None,
-                        _ => unreachable!(
-                            "Expected connection metadata path to be a nullable list of strings."
-                        ),
-                    };
-                    let direction = match &metadata_value[1] {
-                        ConstantValue::String(string_val) => *string_val,
-                        _ => unreachable!("Expected connection metadata direction to be a string."),
-                    };
-                    let first = match &metadata_value[2] {
-                        ConstantValue::String(string_val) => Some(*string_val),
-                        ConstantValue::Null() => None,
-                        _ => unreachable!(
-                            "Expected connection metadata first to be a nullable string."
-                        ),
-                    };
-                    let last = match &metadata_value[3] {
-                        ConstantValue::String(string_val) => Some(*string_val),
-                        ConstantValue::Null() => None,
-                        _ => unreachable!(
-                            "Expected connection metadata last to be a nullable string."
-                        ),
-                    };
-                    let after = match &metadata_value[4] {
-                        ConstantValue::String(string_val) => Some(*string_val),
-                        ConstantValue::Null() => None,
-                        _ => unreachable!(
-                            "Expected connection metadata after to be a nullable string."
-                        ),
-                    };
-                    let before = match &metadata_value[5] {
-                        ConstantValue::String(string_val) => Some(*string_val),
-                        ConstantValue::Null() => None,
-                        _ => unreachable!(
-                            "Expected connection metadata before to be a nullable string."
-                        ),
-                    };
-                    let is_stream_connection = match &metadata_value[6] {
-                        ConstantValue::Boolean(bool_val) => *bool_val,
-                        _ => unreachable!(
-                            "Expected connection metadata is_stream_connection to be a boolean."
-                        ),
-                    };
-
-                    ConnectionMetadata {
-                        path,
-                        direction,
-                        first,
-                        last,
-                        after,
-                        before,
-                        is_stream_connection,
-                    }
-                })
-                .collect::<Vec<_>>();
-
-            Some(built_metadata_values)
-        } else {
-            unreachable!(
-                "Expected the connection metadata directive to have a single argument containing the connection metadata."
-            )
-        }
-    } else {
-        None
-    }
+) -> Option<&[ConnectionMetadata]> {
+    ConnectionMetadataDirective::find(directives)
+        .map(|connection_metadatas| connection_metadatas.0.as_slice())
 }
 
 /// Builds the selections that will be added to the edges selection

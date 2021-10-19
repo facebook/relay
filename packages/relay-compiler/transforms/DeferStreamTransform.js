@@ -12,13 +12,6 @@
 
 'use strict';
 
-const IRTransformer = require('../core/IRTransformer');
-
-const getIdentifierForArgumentValue = require('../core/getIdentifierForArgumentValue');
-const murmurHash = require('../util/murmurHash');
-
-const {createUserError} = require('../core/CompilerError');
-
 import type CompilerContext from '../core/CompilerContext';
 import type {
   Argument,
@@ -30,6 +23,11 @@ import type {
   ScalarField,
   Stream,
 } from '../core/IR';
+
+const {createUserError} = require('../core/CompilerError');
+const getIdentifierForArgumentValue = require('../core/getIdentifierForArgumentValue');
+const IRTransformer = require('../core/IRTransformer');
+const murmurHash = require('../util/murmurHash');
 
 type State = {|
   +documentName: string,
@@ -156,6 +154,7 @@ function visitScalarField(field: ScalarField, state: State): ScalarField {
       [streamDirective.loc],
     );
   }
+  // $FlowFixMe[incompatible-use]
   return this.traverse(field, state);
 }
 

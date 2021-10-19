@@ -10,10 +10,10 @@
 
 'use strict';
 
-const IRTransformer = require('../core/IRTransformer');
-
 import type CompilerContext from '../core/CompilerContext';
 import type {Directive} from '../core/IR';
+
+const IRTransformer = require('../core/IRTransformer');
 
 const COMPILE_TIME_DIRECTIVES = new Set(['required']);
 

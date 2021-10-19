@@ -14,15 +14,12 @@
 'use strict';
 
 jest.mock('warning');
-const React = require('react');
-const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
-const TestRenderer = require('react-test-renderer');
-
-const preloadQuery_DEPRECATED = require('../preloadQuery_DEPRECATED');
-const usePreloadedQuery = require('../usePreloadedQuery');
-const warning = require('warning');
-
 const {loadQuery} = require('../loadQuery');
+const preloadQuery_DEPRECATED = require('../preloadQuery_DEPRECATED');
+const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
+const usePreloadedQuery = require('../usePreloadedQuery');
+const React = require('react');
+const TestRenderer = require('react-test-renderer');
 const {
   Environment,
   Network,
@@ -30,14 +27,14 @@ const {
   PreloadableQueryRegistry,
   RecordSource,
   Store,
+  getRequest,
+  graphql,
 } = require('relay-runtime');
-const {
-  createMockEnvironment,
-  generateAndCompile,
-} = require('relay-test-utils-internal');
+const {createMockEnvironment} = require('relay-test-utils');
+const warning = require('warning');
 
-const query = generateAndCompile(`
-  query TestQuery($id: ID! = 4) {
+const query = getRequest(graphql`
+  query usePreloadedQueryTestQuery($id: ID!) {
     node(id: $id) {
       id
       ... on User {
@@ -45,7 +42,8 @@ const query = generateAndCompile(`
       }
     }
   }
-`).TestQuery;
+`);
+
 // Only queries with an ID are preloadable
 const ID = '12345';
 (query.params: $FlowFixMe).id = ID;
@@ -193,6 +191,7 @@ describe('usePreloadedQuery', () => {
       expect(dataSource).toBeDefined();
       if (dataSource) {
         dataSource.next(response);
+        // $FlowFixMe[incompatible-use]
         dataSource.complete();
       }
 
@@ -280,6 +279,7 @@ describe('usePreloadedQuery', () => {
       expect(dataSource).toBeDefined();
       if (dataSource) {
         dataSource.next(response);
+        // $FlowFixMe[incompatible-use]
         dataSource.complete();
       }
       TestRenderer.act(() => jest.runAllImmediates());
@@ -1077,6 +1077,7 @@ describe('usePreloadedQuery', () => {
         expect(dataSource).toBeDefined();
         if (dataSource) {
           dataSource.next(response);
+          // $FlowFixMe[incompatible-use]
           dataSource.complete();
         }
         TestRenderer.act(() => jest.runAllImmediates());
@@ -1130,6 +1131,7 @@ describe('usePreloadedQuery', () => {
               is_final: true,
             },
           });
+          // $FlowFixMe[incompatible-use]
           dataSource.complete();
         }
         TestRenderer.act(() => jest.runAllImmediates());
@@ -1176,6 +1178,7 @@ describe('usePreloadedQuery', () => {
         expect(dataSource).toBeDefined();
         if (dataSource) {
           dataSource.next(response);
+          // $FlowFixMe[incompatible-use]
           dataSource.complete();
         }
         TestRenderer.act(() => jest.runAllImmediates());
@@ -1229,6 +1232,7 @@ describe('usePreloadedQuery', () => {
               is_final: true,
             },
           });
+          // $FlowFixMe[incompatible-use]
           dataSource.complete();
         }
         TestRenderer.act(() => jest.runAllImmediates());

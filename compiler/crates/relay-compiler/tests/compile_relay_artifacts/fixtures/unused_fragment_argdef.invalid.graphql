@@ -1,0 +1,21 @@
+# expected-to-throw
+
+fragment unusedFragmentArgdefProfile on User @argumentDefinitions(
+  size: { type: "Int" }
+  cond: { type: "Boolean!" }
+  unusedButSuppressed: { type: "Boolean!", unusedLocalVariable_DEPRECATED: true }
+  suppressedButUsed: { type: "Boolean!", unusedLocalVariable_DEPRECATED: true }
+  unusedOne: { type: "Boolean!" }
+  unusedTwo: { type: "Boolean!" }
+) {
+  firstName @include(if: $cond)
+  lastName @include(if: $suppressedButUsed)
+  ...unusedFragmentArgdefProfilePhoto @arguments(size: $size)
+}
+
+fragment unusedFragmentArgdefProfilePhoto on User
+@argumentDefinitions(size: { type: "Int" }) {
+  profilePicture(size: [$size]) {
+    uri
+  }
+}

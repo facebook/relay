@@ -1,0 +1,6 @@
+# expected-to-throw
+fragment RefetchableFragment on User
+  @relay(plural: true)
+  @refetchable(queryName: "RefetchableFragmentQuery") {
+  id
+}

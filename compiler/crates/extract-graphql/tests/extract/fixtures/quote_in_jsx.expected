@@ -9,10 +9,4 @@
 <Test>'</Test>
 graphql`fragment on User`
 ==================================== OUTPUT ===================================
-[
-    GraphQLSource {
-        text: "fragment on User",
-        line_index: 8,
-        column_index: 8,
-    },
-]
+line: 8, column: 8, text: <fragment on User>

@@ -9,7 +9,6 @@
 
 'use strict';
 
-const babel = require('gulp-babel');
 const babelOptions = require('./scripts/getBabelOptions')({
   ast: false,
   plugins: [
@@ -31,11 +30,12 @@ const babelOptions = require('./scripts/getBabelOptions')({
 const del = require('del');
 const fs = require('fs');
 const gulp = require('gulp');
+const babel = require('gulp-babel');
 const chmod = require('gulp-chmod');
-const gulpUtil = require('gulp-util');
 const header = require('gulp-header');
-const path = require('path');
 const rename = require('gulp-rename');
+const gulpUtil = require('gulp-util');
+const path = require('path');
 const webpack = require('webpack');
 const webpackStream = require('webpack-stream');
 
@@ -48,7 +48,7 @@ if (RELEASE_COMMIT_SHA && RELEASE_COMMIT_SHA.length !== 40) {
 }
 
 const VERSION = RELEASE_COMMIT_SHA
-  ? `0.0.0-master-${RELEASE_COMMIT_SHA.substr(0, 8)}`
+  ? `0.0.0-main-${RELEASE_COMMIT_SHA.substr(0, 8)}`
   : process.env.npm_package_version;
 
 const SCRIPT_HASHBANG = '#!/usr/bin/env node\n';
@@ -383,15 +383,38 @@ const watch = gulp.series(dist, () =>
   gulp.watch(INCLUDE_GLOBS, {cwd: PACKAGES}, dist),
 );
 
+const experimentalCompiler = gulp.parallel(
+  function copyLicense() {
+    return gulp
+      .src(['LICENSE'])
+      .pipe(gulp.dest(path.join(DIST, 'relay-compiler-experimental')));
+  },
+  function copyPackageFiles() {
+    return gulp
+      .src(['package.json', 'cli.js', 'index.js'], {
+        cwd: path.join(PACKAGES, 'relay-compiler-experimental'),
+      })
+      .pipe(gulp.dest(path.join(DIST, 'relay-compiler-experimental')));
+  },
+  function copyCompilerBins() {
+    return gulp
+      .src('**', {
+        cwd: path.join('artifacts'),
+      })
+      .pipe(gulp.dest(path.join(DIST, 'relay-compiler-experimental')));
+  },
+);
+
 /**
  * Updates the package.json files `/dist/` with a version to release to npm under
- * the master tag.
+ * the main tag.
  */
-const setMasterVersion = async () => {
+const setMainVersion = async () => {
   if (!RELEASE_COMMIT_SHA) {
     throw new Error('Expected the RELEASE_COMMIT_SHA env variable to be set.');
   }
   const packages = builds.map(build => build.package);
+  packages.push('relay-compiler-experimental');
   packages.forEach(pkg => {
     const pkgJsonPath = path.join('.', 'dist', pkg, 'package.json');
     const packageJson = JSON.parse(fs.readFileSync(pkgJsonPath, 'utf8'));
@@ -421,6 +444,10 @@ const cleanbuild = gulp.series(clean, dist);
 exports.clean = clean;
 exports.dist = dist;
 exports.watch = watch;
-exports.masterrelease = gulp.series(cleanbuild, setMasterVersion);
+exports.mainrelease = gulp.series(
+  cleanbuild,
+  experimentalCompiler,
+  setMainVersion,
+);
 exports.cleanbuild = cleanbuild;
 exports.default = cleanbuild;

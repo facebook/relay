@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<d221e52988ca786ee6eb0f079013117c>>
+ * @generated SignedSource<<6e57b9caa2fbeadbc69a5c1827c9ac68>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,7 +22,7 @@ declare export opaque type RelayResponseNormalizerTest7Fragment$fragmentType: Re
 export type RelayResponseNormalizerTest7Fragment = {|
   +id: string,
   +actors: ?$ReadOnlyArray<?{|
-    +name: ?string
+    +name: ?string,
   |}>,
   +$refType: RelayResponseNormalizerTest7Fragment$ref,
 |};

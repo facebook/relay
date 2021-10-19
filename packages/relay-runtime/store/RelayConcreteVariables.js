@@ -12,11 +12,16 @@
 
 'use strict';
 
-const invariant = require('invariant');
-
-import type {NormalizationOperation} from '../util/NormalizationNode';
+import type {
+  NormalizationArgument,
+  NormalizationLocalArgumentDefinition,
+  NormalizationOperation,
+} from '../util/NormalizationNode';
 import type {ReaderFragment} from '../util/ReaderNode';
 import type {Variables} from '../util/RelayRuntimeTypes';
+
+const {getArgumentValues} = require('./RelayStoreUtils');
+const invariant = require('invariant');
 
 /**
  * Determines the variables that are in scope for a fragment given the variables
@@ -35,6 +40,7 @@ function getFragmentVariables(
     if (argumentVariables.hasOwnProperty(definition.name)) {
       return;
     }
+    // $FlowFixMe[cannot-spread-interface]
     variables = variables || {...argumentVariables};
     switch (definition.kind) {
       case 'LocalArgument':
@@ -51,9 +57,12 @@ function getFragmentVariables(
            * RelayStoreUtils.getStableVariableValue() that variable keys are all
            * present.
            */
+          // $FlowFixMe[incompatible-use]
           variables[definition.name] = undefined;
           break;
         }
+        // $FlowFixMe[incompatible-use]
+        // $FlowFixMe[cannot-write]
         variables[definition.name] = rootVariables[definition.name];
         break;
       default:
@@ -82,6 +91,7 @@ function getOperationVariables(
   const operationVariables = {};
   operation.argumentDefinitions.forEach(def => {
     let value = def.defaultValue;
+    // $FlowFixMe[cannot-write]
     if (variables[def.name] != null) {
       value = variables[def.name];
     }
@@ -90,7 +100,26 @@ function getOperationVariables(
   return operationVariables;
 }
 
+function getLocalVariables(
+  currentVariables: Variables,
+  argumentDefinitions: ?$ReadOnlyArray<NormalizationLocalArgumentDefinition>,
+  args: ?$ReadOnlyArray<NormalizationArgument>,
+): Variables {
+  if (argumentDefinitions == null) {
+    return currentVariables;
+  }
+  const nextVariables = {...currentVariables};
+  const nextArgs = args ? getArgumentValues(args, currentVariables) : {};
+  argumentDefinitions.forEach(def => {
+    // $FlowFixMe[cannot-write]
+    const value = nextArgs[def.name] ?? def.defaultValue;
+    nextVariables[def.name] = value;
+  });
+  return nextVariables;
+}
+
 module.exports = {
+  getLocalVariables,
   getFragmentVariables,
   getOperationVariables,
 };

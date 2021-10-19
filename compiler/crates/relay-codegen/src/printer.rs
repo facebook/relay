@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::ast::{Ast, AstBuilder, AstKey, ObjectEntry, Primitive, RequestParameters};
+use crate::ast::{Ast, AstBuilder, AstKey, ObjectEntry, Primitive, QueryID, RequestParameters};
 use crate::build_ast::{
     build_fragment, build_operation, build_request, build_request_params,
     build_request_params_ast_key,
@@ -43,7 +43,7 @@ pub fn print_request(
     schema: &SDLSchema,
     operation: &OperationDefinition,
     fragment: &FragmentDefinition,
-    request_parameters: RequestParameters,
+    request_parameters: RequestParameters<'_>,
     js_module_format: JsModuleFormat,
 ) -> String {
     Printer::without_dedupe(js_module_format).print_request(
@@ -57,7 +57,7 @@ pub fn print_request(
 pub fn print_request_params(
     schema: &SDLSchema,
     operation: &OperationDefinition,
-    query_id: Option<String>,
+    query_id: &Option<QueryID>,
     js_module_format: JsModuleFormat,
 ) -> String {
     let mut request_parameters = build_request_params(operation);
@@ -98,7 +98,7 @@ impl Printer {
         schema: &SDLSchema,
         operation: &OperationDefinition,
         fragment: &FragmentDefinition,
-        request_parameters: RequestParameters,
+        request_parameters: RequestParameters<'_>,
     ) -> String {
         let request_parameters =
             build_request_params_ast_key(schema, request_parameters, &mut self.builder, operation);
@@ -312,9 +312,13 @@ impl<'b> JSONPrinter<'b> {
             Primitive::StorageKey(field_name, key) => {
                 write_static_storage_key(f, &self.builder, *field_name, *key)
             }
-            Primitive::ModuleDependency(key) => match self.js_module_format {
+            Primitive::GraphQLModuleDependency(key) => match self.js_module_format {
                 JsModuleFormat::CommonJS => write!(f, "require('./{}.graphql')", key),
                 JsModuleFormat::Haste => write!(f, "require('{}.graphql')", key),
+            },
+            Primitive::JSModuleDependency(key) => match self.js_module_format {
+                JsModuleFormat::CommonJS => write!(f, "require('./{}')", key),
+                JsModuleFormat::Haste => write!(f, "require('{}')", key),
             },
         }
     }
@@ -458,6 +462,7 @@ fn write_constant_value(f: &mut String, builder: &AstBuilder, value: &Primitive)
         }
         Primitive::StorageKey(_, _) => panic!("Unexpected StorageKey"),
         Primitive::RawString(_) => panic!("Unexpected RawString"),
-        Primitive::ModuleDependency(_) => panic!("Unexpected ModuleDependency"),
+        Primitive::GraphQLModuleDependency(_) => panic!("Unexpected GraphQLModuleDependency"),
+        Primitive::JSModuleDependency(_) => panic!("Unexpected JSModuleDependency"),
     }
 }

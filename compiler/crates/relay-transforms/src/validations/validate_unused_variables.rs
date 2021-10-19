@@ -36,7 +36,7 @@ impl Validator for ValidateUnusedVariables<'_> {
     const VALIDATE_DIRECTIVES: bool = false;
 
     fn validate_operation(&mut self, operation: &OperationDefinition) -> DiagnosticsResult<()> {
-        let variables = self.visitor.infer_operation_variables(operation);
+        let (variables, _) = self.visitor.infer_operation_variables(operation);
         let unused_variables: Vec<_> = operation
             .variable_definitions
             .iter()

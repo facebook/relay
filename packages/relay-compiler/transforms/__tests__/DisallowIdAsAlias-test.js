@@ -14,9 +14,8 @@
 'use strict';
 
 const CompilerContext = require('../../core/CompilerContext');
-const DisallowIdAsAlias = require('../DisallowIdAsAlias');
 const IRPrinter = require('../../core/IRPrinter');
-
+const DisallowIdAsAlias = require('../DisallowIdAsAlias');
 const {
   TestSchema,
   generateTestsFromFixtures,

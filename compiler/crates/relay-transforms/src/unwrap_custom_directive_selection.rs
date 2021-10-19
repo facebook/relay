@@ -7,10 +7,8 @@
 
 use crate::DEFER_STREAM_CONSTANTS;
 use common::NamedItem;
-use graphql_ir::Selection;
-use graphql_ir::{FragmentSpread, InlineFragment, Program, Transformed, Transformer};
-use std::iter;
-use std::sync::Arc;
+use graphql_ir::{FragmentSpread, InlineFragment, Program, Selection, Transformed, Transformer};
+use std::{iter, sync::Arc};
 
 /// Transform to unwrap selections wrapped in a InlineFragment with custom
 /// directive for printing

@@ -13,17 +13,16 @@
 
 'use strict';
 
+const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
+const useMutation = require('../useMutation');
 const React = require('react');
 const ReactTestRenderer = require('react-test-renderer');
-const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
-
-const useMutation = require('../useMutation');
+const {getRequest, graphql} = require('relay-runtime');
+const {createMockEnvironment} = require('relay-test-utils');
 
 describe('useLazyLoadQueryNode', () => {
   let environment;
   let isInFlightFn;
-  let createMockEnvironment;
-  let generateAndCompile;
   let CommentCreateMutation;
 
   const data = {
@@ -52,15 +51,10 @@ describe('useLazyLoadQueryNode', () => {
     jest.resetModules();
     jest.spyOn(console, 'warn').mockImplementationOnce(() => {});
 
-    ({
-      createMockEnvironment,
-      generateAndCompile,
-    } = require('relay-test-utils-internal'));
-
     environment = createMockEnvironment();
 
-    ({CommentCreateMutation} = generateAndCompile(`
-      mutation CommentCreateMutation(
+    CommentCreateMutation = getRequest(graphql`
+      mutation useMutationFastRefreshTestCommentCreateMutation(
         $input: CommentCreateInput
       ) {
         commentCreate(input: $input) {
@@ -74,7 +68,8 @@ describe('useLazyLoadQueryNode', () => {
             }
           }
         }
-    }`));
+      }
+    `);
     isInFlightFn = jest.fn(val => val);
   });
 
@@ -113,6 +108,7 @@ describe('useLazyLoadQueryNode', () => {
     expect(isInFlightFn).toBeCalledWith(true);
 
     isInFlightFn.mockClear();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const operation = environment.executeMutation.mock.calls[0][0].operation;
     ReactTestRenderer.act(() => environment.mock.resolve(operation, data));
     expect(isInFlightFn).toBeCalledTimes(1);

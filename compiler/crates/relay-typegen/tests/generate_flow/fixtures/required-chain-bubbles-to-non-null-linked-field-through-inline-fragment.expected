@@ -13,8 +13,8 @@ declare export opaque type SomeFragment$fragmentType: SomeFragment$ref;
 export type SomeFragment = {|
   +nearest_neighbor: ?{|
     +profile_picture: {|
-      +uri: string
-    |}
+      +uri: string,
+    |},
   |},
   +$refType: SomeFragment$ref,
 |};

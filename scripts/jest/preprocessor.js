@@ -9,10 +9,10 @@
 
 'use strict';
 
+const getBabelOptions = require('../getBabelOptions');
 const babel = require('@babel/core');
 const createCacheKeyFunction = require('@jest/create-cache-key-function')
   .default;
-const getBabelOptions = require('../getBabelOptions');
 const path = require('path');
 
 const babelOptions = getBabelOptions({

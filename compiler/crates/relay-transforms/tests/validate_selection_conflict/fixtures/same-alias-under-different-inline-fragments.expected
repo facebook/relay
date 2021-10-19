@@ -1,0 +1,28 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query TestQuery {
+  me {
+    ... on User {
+      same_alias: lastName
+    }
+    ... on Actor {
+      same_alias: name
+    }
+  }
+}
+==================================== ERROR ====================================
+✖︎ Field 'same_alias' is ambiguous because it references two different fields: 'lastName' and 'name'
+
+  same-alias-under-different-inline-fragments.graphql:5:19
+    4 │     ... on User {
+    5 │       same_alias: lastName
+      │                   ^^^^^^^^
+    6 │     }
+
+  ℹ︎ the other field
+
+  same-alias-under-different-inline-fragments.graphql:8:19
+    7 │     ... on Actor {
+    8 │       same_alias: name
+      │                   ^^^^
+    9 │     }

@@ -13,7 +13,7 @@ use std::collections::HashMap;
 use std::fs;
 use std::fs::File;
 use std::io::prelude::*;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use structopt::StructOpt;
 
 #[derive(Debug, StructOpt)]
@@ -173,7 +173,7 @@ use fixture_tests::test_fixture;
     }
 }
 
-fn check_targets_file(test_dir: &PathBuf) {
+fn check_targets_file(test_dir: &Path) {
     let targets_path = test_dir.parent().unwrap().parent().unwrap().join("TARGETS");
     let targets_content = match std::fs::read_to_string(&targets_path) {
         Ok(content) => content,

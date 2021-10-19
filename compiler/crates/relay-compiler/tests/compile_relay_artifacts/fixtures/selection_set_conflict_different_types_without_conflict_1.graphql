@@ -1,0 +1,25 @@
+query selectionSetConflictDifferentTypesWithoutConflict1Query {
+  viewer {
+    newsFeed {
+      edges {
+        node {
+          ... on Story {
+            feedback {
+              __typename
+            }
+          }
+          ... on PhotoStory {
+            feedback {
+              __typename
+            }
+          }
+          ... on NonNodeStory {
+            feedback {
+              __typename
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -13,16 +13,18 @@
 
 'use strict';
 
-const RelayModernEnvironment = require('../RelayModernEnvironment');
-const RelayModernStore = require('../RelayModernStore');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const RelayRecordSource = require('../RelayRecordSource');
-
+const {getRequest, graphql} = require('../../query/GraphQLTag');
+const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
-const {generateAndCompile} = require('relay-test-utils-internal');
+const RelayModernStore = require('../RelayModernStore');
+const RelayRecordSource = require('../RelayRecordSource');
+const {disallowWarnings} = require('relay-test-utils-internal');
+
+disallowWarnings();
 
 // Regression test: updaters read the store using the selector used to
 // publish, which can fail if a normalization ast was passed as the
@@ -41,15 +43,13 @@ describe('execute() with handler and updater', () => {
   let subject;
 
   beforeEach(() => {
-    jest.resetModules();
-
-    ({ActorQuery: query} = generateAndCompile(`
-        query ActorQuery {
-          me {
-            name @__clientField(handle: "name_handler")
-          }
+    query = getRequest(graphql`
+      query RelayModernEnvironmentExecuteWithHandlerAndUpdaterTestActorQuery {
+        me {
+          name @__clientField(handle: "name_handler")
         }
-      `));
+      }
+    `);
     operation = createOperationDescriptor(query, {});
 
     complete = jest.fn();
@@ -77,7 +77,7 @@ describe('execute() with handler and updater', () => {
     source = RelayRecordSource.create();
     store = new RelayModernStore(source);
     environment = new RelayModernEnvironment({
-      network: RelayNetwork.create((fetch: $FlowFixMe)),
+      network: RelayNetwork.create(fetch),
       store,
       handlerProvider: name => {
         switch (name) {

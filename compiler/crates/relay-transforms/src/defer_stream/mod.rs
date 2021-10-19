@@ -12,12 +12,13 @@ use crate::util::{remove_directive, replace_directive};
 use common::{Diagnostic, DiagnosticsResult, NamedItem, WithLocation};
 pub use directives::{DeferDirective, StreamDirective};
 use graphql_ir::{
-    Argument, ConstantValue, Directive, FragmentDefinition, FragmentSpread, InlineFragment,
+    Argument, ConstantValue, Directive, Field, FragmentDefinition, FragmentSpread, InlineFragment,
     LinkedField, OperationDefinition, Program, ScalarField, Selection, Transformed, Transformer,
     ValidationMessage, Value,
 };
 use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
+use schema::Schema;
 use std::{collections::HashMap, sync::Arc};
 
 pub struct DeferStreamConstants {
@@ -141,6 +142,7 @@ impl DeferStreamTransform<'_> {
         let next_defer = Directive {
             name: defer.name,
             arguments: next_arguments,
+            data: None,
         };
 
         Ok(Transformed::Replace(Selection::InlineFragment(Arc::new(
@@ -160,6 +162,16 @@ impl DeferStreamTransform<'_> {
         linked_field: &LinkedField,
         stream: &Directive,
     ) -> Result<Transformed<Selection>, Diagnostic> {
+        let schema_field = self.program.schema.field(linked_field.definition.item);
+        if !schema_field.type_.is_list() {
+            return Err(Diagnostic::error(
+                ValidationMessage::StreamFieldIsNotAList {
+                    field_name: schema_field.name,
+                },
+                stream.name.location,
+            ));
+        }
+
         let StreamDirective {
             if_arg,
             label_arg,
@@ -236,6 +248,7 @@ impl DeferStreamTransform<'_> {
         let next_stream = Directive {
             name: stream.name,
             arguments: next_arguments,
+            data: None,
         };
 
         Ok(get_next_selection(replace_directive(
@@ -345,10 +358,10 @@ impl<'s> Transformer for DeferStreamTransform<'s> {
 
 fn is_literal_false_arg(arg: Option<&Argument>) -> bool {
     if let Some(arg) = arg {
-        match arg.value.item {
-            Value::Constant(ConstantValue::Boolean(false)) => true,
-            _ => false,
-        }
+        matches!(
+            arg.value.item,
+            Value::Constant(ConstantValue::Boolean(false))
+        )
     } else {
         false
     }

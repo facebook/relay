@@ -5,16 +5,18 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use super::is_operation_preloadable;
 use crate::config::{Config, ProjectConfig};
 use common::{NamedItem, SourceLocationKey};
 use graphql_ir::{Directive, FragmentDefinition, OperationDefinition};
-use relay_codegen::{build_request_params, Printer};
+use graphql_syntax::OperationKind;
+use relay_codegen::{build_request_params, Printer, QueryID};
 use relay_transforms::{
-    DATA_DRIVEN_DEPENDENCY_METADATA_KEY, INLINE_DATA_CONSTANTS,
-    REACT_FLIGHT_LOCAL_COMPONENTS_METADATA_ARG_KEY, REACT_FLIGHT_LOCAL_COMPONENTS_METADATA_KEY,
+    is_operation_preloadable, ReactFlightLocalComponentsMetadata, RefetchableMetadata,
+    RelayClientComponentMetadata, DATA_DRIVEN_DEPENDENCY_METADATA_KEY, INLINE_DIRECTIVE_NAME,
 };
-use relay_typegen::generate_fragment_type;
+use relay_typegen::{
+    generate_fragment_type, has_raw_response_type_directive, FlowTypegenRollout, TypegenLanguage,
+};
 use schema::SDLSchema;
 use signedsource::{sign_file, SIGNING_TOKEN};
 use std::fmt::{Result, Write};
@@ -27,7 +29,7 @@ pub enum ArtifactContent {
         typegen_operation: Arc<OperationDefinition>,
         source_hash: String,
         text: String,
-        id_and_text_hash: Option<(String, String)>,
+        id_and_text_hash: Option<QueryID>,
     },
     Fragment {
         reader_fragment: Arc<FragmentDefinition>,
@@ -129,30 +131,24 @@ fn write_data_driven_dependency_annotation(
     Ok(())
 }
 
-fn write_flight_annotation(content: &mut String, flight_directive: &Directive) -> Result {
-    let arg = flight_directive
-        .arguments
-        .named(*REACT_FLIGHT_LOCAL_COMPONENTS_METADATA_ARG_KEY)
-        .unwrap();
-    match &arg.value.item {
-        graphql_ir::Value::Constant(graphql_ir::ConstantValue::List(value)) => {
-            for item in value {
-                match item {
-                    graphql_ir::ConstantValue::String(value) => {
-                        writeln!(content, "// @ReactFlightServerDependency {}", value)?;
-                    }
-                    _ => panic!(
-                        "Unexpected item value for @__ReactFlightMetadata directive: {:?}",
-                        item
-                    ),
-                }
-            }
-        }
-        _ => panic!(
-            "Unexpected argument value for @__ReactFlightMetadata directive: {:?}",
-            &arg.value.item
-        ),
-    };
+fn write_react_flight_server_annotation(
+    content: &mut String,
+    flight_local_components_metadata: &ReactFlightLocalComponentsMetadata,
+) -> Result {
+    for item in &flight_local_components_metadata.components {
+        writeln!(content, "// @ReactFlightServerDependency {}", item)?;
+    }
+    writeln!(content)?;
+    Ok(())
+}
+
+fn write_react_flight_client_annotation(
+    content: &mut String,
+    relay_client_component_metadata: &RelayClientComponentMetadata,
+) -> Result {
+    for value in &relay_client_component_metadata.split_operation_filenames {
+        writeln!(content, "// @ReactFlightClientDependency {}", value)?;
+    }
     writeln!(content)?;
     Ok(())
 }
@@ -168,16 +164,14 @@ fn generate_operation(
     typegen_operation: &OperationDefinition,
     source_hash: String,
     text: &str,
-    id_and_text_hash: &Option<(String, String)>,
+    id_and_text_hash: &Option<QueryID>,
     skip_types: bool,
 ) -> Vec<u8> {
     let mut request_parameters = build_request_params(&normalization_operation);
-    let operation_hash: Option<String> = if let Some((id, text_hash)) = id_and_text_hash {
-        request_parameters.id = Some(id.clone());
-        Some(text_hash.clone())
+    if id_and_text_hash.is_some() {
+        request_parameters.id = id_and_text_hash;
     } else {
         request_parameters.text = Some(text.into());
-        None
     };
     let operation_fragment = FragmentDefinition {
         name: reader_operation.name,
@@ -189,19 +183,27 @@ fn generate_operation(
     };
     let mut content = get_content_start(config);
     writeln!(content, " * {}", SIGNING_TOKEN).unwrap();
-    if let Some(operation_hash) = operation_hash {
-        writeln!(content, " * @relayHash {}", operation_hash).unwrap();
+
+    if let Some(QueryID::Persisted { text_hash, .. }) = id_and_text_hash {
+        writeln!(content, " * @relayHash {}", text_hash).unwrap();
+    };
+
+    if project_config.typegen_config.language == TypegenLanguage::Flow {
+        writeln!(content, " * @flow").unwrap();
     }
-    writeln!(content, " * @flow").unwrap();
     writeln!(content, " * @lightSyntaxTransform").unwrap();
     writeln!(content, " * @nogrep").unwrap();
     if let Some(codegen_command) = &config.codegen_command {
         writeln!(content, " * @codegen-command: {}", codegen_command).unwrap();
     }
     writeln!(content, " */\n").unwrap();
-    writeln!(content, "/* eslint-disable */\n").unwrap();
-    writeln!(content, "'use strict';\n").unwrap();
-    if let Some(id) = &request_parameters.id {
+
+    write_disable_lint_header(&project_config.typegen_config.language, &mut content).unwrap();
+    if project_config.typegen_config.language == TypegenLanguage::Flow {
+        writeln!(content, "'use strict';\n").unwrap();
+    }
+
+    if let Some(QueryID::Persisted { id, .. }) = &request_parameters.id {
         writeln!(content, "// @relayRequestID {}", id).unwrap();
     }
     if project_config.variable_names_comment {
@@ -218,23 +220,49 @@ fn generate_operation(
         write_data_driven_dependency_annotation(&mut content, data_driven_dependency_metadata)
             .unwrap();
     }
-    let flight_metadata = operation_fragment
-        .directives
-        .named(*REACT_FLIGHT_LOCAL_COMPONENTS_METADATA_KEY);
-    if let Some(flight_metadata) = flight_metadata {
-        write_flight_annotation(&mut content, flight_metadata).unwrap();
+    if let Some(flight_metadata) =
+        ReactFlightLocalComponentsMetadata::find(&operation_fragment.directives)
+    {
+        write_react_flight_server_annotation(&mut content, flight_metadata).unwrap();
+    }
+    let relay_client_component_metadata =
+        RelayClientComponentMetadata::find(&operation_fragment.directives);
+    if let Some(relay_client_component_metadata) = relay_client_component_metadata {
+        write_react_flight_client_annotation(&mut content, relay_client_component_metadata)
+            .unwrap();
     }
 
     if request_parameters.id.is_some() || data_driven_dependency_metadata.is_some() {
         writeln!(content).unwrap();
     }
+    if project_config.typegen_config.language == TypegenLanguage::Flow {
+        writeln!(content, "/*::").unwrap();
+    }
 
-    writeln!(
-        content,
-        "/*::
-import type {{ ConcreteRequest }} from 'relay-runtime';"
-    )
-    .unwrap();
+    let operation_flow_type = match normalization_operation.kind {
+        OperationKind::Query => "Query",
+        OperationKind::Mutation => "Mutation",
+        OperationKind::Subscription => "Subscription",
+    };
+
+    match project_config.typegen_config.flow_typegen_rollout {
+        FlowTypegenRollout::Old => write_import_type_from(
+            &project_config.typegen_config.language,
+            &mut content,
+            "ConcreteRequest",
+            "relay-runtime",
+        )
+        .unwrap(),
+        FlowTypegenRollout::New => write_import_type_from(
+            &project_config.typegen_config.language,
+            &mut content,
+            &format!("ConcreteRequest, {}", operation_flow_type),
+            "relay-runtime",
+        )
+        .unwrap(),
+    }
+
+
     if !skip_types {
         write!(
             content,
@@ -243,35 +271,78 @@ import type {{ ConcreteRequest }} from 'relay-runtime';"
                 typegen_operation,
                 normalization_operation,
                 schema,
+                project_config.js_module_format,
                 &project_config.typegen_config,
             )
         )
         .unwrap();
     }
-    writeln!(content, "*/\n").unwrap();
-    writeln!(
-        content,
-        "var node/*: ConcreteRequest*/ = {};\n",
-        printer.print_request(
+    match project_config.typegen_config.language {
+        TypegenLanguage::Flow => {
+            writeln!(content, "*/\n").unwrap();
+        }
+        TypegenLanguage::TypeScript => {
+            writeln!(content).unwrap();
+        }
+    }
+
+    write_variable_value_with_type(
+        &project_config.typegen_config.language,
+        &mut content,
+        "node",
+        "ConcreteRequest",
+        &printer.print_request(
             schema,
             normalization_operation,
             &operation_fragment,
             request_parameters,
-        )
+        ),
     )
     .unwrap();
-    writeln!(content, "if (__DEV__) {{").unwrap();
-    writeln!(content, "  (node/*: any*/).hash = \"{}\";", source_hash).unwrap();
-    writeln!(content, "}}\n").unwrap();
-    // TODO: T67052528 - revisit this, once we move fb-specific transforms under the feature flag
-    if is_operation_preloadable(normalization_operation) {
+
+    write_source_hash(
+        config,
+        &project_config.typegen_config.language,
+        &mut content,
+        &source_hash,
+    )
+    .unwrap();
+
+    if is_operation_preloadable(normalization_operation) && id_and_text_hash.is_some() {
         writeln!(
-              content,
-              "if (node.params.id != null) {{\n  require('relay-runtime').PreloadableQueryRegistry.set(node.params.id, node);\n}}\n",
-          )
-          .unwrap();
+            content,
+            "require('relay-runtime').PreloadableQueryRegistry.set((node.params/*: any*/).id, node);\n",
+        )
+        .unwrap();
     }
-    writeln!(content, "module.exports = node;").unwrap();
+
+    let node_type = match project_config.typegen_config.flow_typegen_rollout {
+        FlowTypegenRollout::Old => None,
+        FlowTypegenRollout::New => Some(
+            if has_raw_response_type_directive(normalization_operation) {
+                format!(
+                    "{type}<\n  {name}Variables,\n  {name}Response,\n  {name}RawResponse,\n>",
+                    type = operation_flow_type,
+                    name = normalization_operation.name.item
+                )
+            } else {
+                format!(
+                    "{type}<\n  {name}Variables,\n  {name}Response,\n>",
+                    type = operation_flow_type,
+                    name = normalization_operation.name.item
+                )
+            },
+        ),
+    };
+
+    write_export_generated_node(
+        &project_config.typegen_config.language,
+        &mut content,
+        "node",
+        node_type,
+    )
+    .unwrap();
+
     sign_file(&content).into_bytes()
 }
 
@@ -286,20 +357,30 @@ fn generate_split_operation(
 ) -> Vec<u8> {
     let mut content = get_content_start(config);
     writeln!(content, " * {}", SIGNING_TOKEN).unwrap();
-    writeln!(content, " * @flow").unwrap();
+    if project_config.typegen_config.language == TypegenLanguage::Flow {
+        writeln!(content, " * @flow").unwrap();
+    }
     writeln!(content, " * @lightSyntaxTransform").unwrap();
     writeln!(content, " * @nogrep").unwrap();
     if let Some(codegen_command) = &config.codegen_command {
         writeln!(content, " * @codegen-command: {}", codegen_command).unwrap();
     }
     writeln!(content, " */\n").unwrap();
-    writeln!(content, "/* eslint-disable */\n").unwrap();
-    writeln!(content, "'use strict';\n").unwrap();
-    writeln!(
-        content,
-        "/*::\nimport type {{ NormalizationSplitOperation }} from 'relay-runtime';\n"
+    write_disable_lint_header(&project_config.typegen_config.language, &mut content).unwrap();
+    if project_config.typegen_config.language == TypegenLanguage::Flow {
+        writeln!(content, "'use strict';\n").unwrap();
+        writeln!(content, "/*::").unwrap();
+    }
+
+    write_import_type_from(
+        &project_config.typegen_config.language,
+        &mut content,
+        "NormalizationSplitOperation",
+        "relay-runtime",
     )
     .unwrap();
+    writeln!(content,).unwrap();
+
     if let Some(typegen_operation) = typegen_operation {
         writeln!(
             content,
@@ -308,26 +389,48 @@ fn generate_split_operation(
                 typegen_operation,
                 normalization_operation,
                 schema,
+                project_config.js_module_format,
                 &project_config.typegen_config,
             )
         )
         .unwrap();
     }
-    writeln!(content, "*/\n").unwrap();
+    match project_config.typegen_config.language {
+        TypegenLanguage::Flow => {
+            writeln!(content, "*/\n").unwrap();
+        }
+        TypegenLanguage::TypeScript => {
+            writeln!(content).unwrap();
+        }
+    }
 
-    writeln!(
-        content,
-        "var node/*: NormalizationSplitOperation*/ = {};\n",
-        printer.print_operation(schema, normalization_operation)
+    write_variable_value_with_type(
+        &project_config.typegen_config.language,
+        &mut content,
+        "node",
+        "NormalizationSplitOperation",
+        &printer.print_operation(schema, normalization_operation),
     )
     .unwrap();
-    writeln!(content, "if (__DEV__) {{").unwrap();
-    writeln!(content, "  (node/*: any*/).hash = \"{}\";", source_hash).unwrap();
-    writeln!(content, "}}\n").unwrap();
-    writeln!(content, "module.exports = node;").unwrap();
+    write_source_hash(
+        config,
+        &project_config.typegen_config.language,
+        &mut content,
+        &source_hash,
+    )
+    .unwrap();
+    write_export_generated_node(
+        &project_config.typegen_config.language,
+        &mut content,
+        "node",
+        None,
+    )
+    .unwrap();
+
     sign_file(&content).into_bytes()
 }
 
+#[allow(clippy::too_many_arguments)]
 fn generate_fragment(
     config: &Config,
     project_config: &ProjectConfig,
@@ -340,15 +443,20 @@ fn generate_fragment(
 ) -> Vec<u8> {
     let mut content = get_content_start(config);
     writeln!(content, " * {}", SIGNING_TOKEN).unwrap();
-    writeln!(content, " * @flow").unwrap();
+    if project_config.typegen_config.language == TypegenLanguage::Flow {
+        writeln!(content, " * @flow").unwrap();
+    }
     writeln!(content, " * @lightSyntaxTransform").unwrap();
     writeln!(content, " * @nogrep").unwrap();
     if let Some(codegen_command) = &config.codegen_command {
         writeln!(content, " * @codegen-command: {}", codegen_command).unwrap();
     }
     writeln!(content, " */\n").unwrap();
-    writeln!(content, "/* eslint-disable */\n").unwrap();
-    writeln!(content, "'use strict';\n").unwrap();
+    write_disable_lint_header(&project_config.typegen_config.language, &mut content).unwrap();
+    if project_config.typegen_config.language == TypegenLanguage::Flow {
+        writeln!(content, "'use strict';\n").unwrap();
+    }
+
     let data_driven_dependency_metadata = reader_fragment
         .directives
         .named(*DATA_DRIVEN_DEPENDENCY_METADATA_KEY);
@@ -358,49 +466,187 @@ fn generate_fragment(
 
         writeln!(content).unwrap();
     }
-    let flight_metadata = reader_fragment
-        .directives
-        .named(*REACT_FLIGHT_LOCAL_COMPONENTS_METADATA_KEY);
-    if let Some(flight_metadata) = flight_metadata {
-        write_flight_annotation(&mut content, flight_metadata).unwrap();
+    if let Some(flight_metadata) =
+        ReactFlightLocalComponentsMetadata::find(&reader_fragment.directives)
+    {
+        write_react_flight_server_annotation(&mut content, flight_metadata).unwrap();
+    }
+    let relay_client_component_metadata =
+        RelayClientComponentMetadata::find(&reader_fragment.directives);
+    if let Some(relay_client_component_metadata) = relay_client_component_metadata {
+        write_react_flight_client_annotation(&mut content, relay_client_component_metadata)
+            .unwrap();
     }
 
-    let reader_node_flow_type = if reader_fragment
+    let is_inline_data_fragment = reader_fragment
         .directives
-        .named(INLINE_DATA_CONSTANTS.directive_name)
-        .is_some()
+        .named(*INLINE_DIRECTIVE_NAME)
+        .is_some();
+
+    let (imported_types, reader_node_flow_type, node_type) = match project_config
+        .typegen_config
+        .flow_typegen_rollout
     {
-        "ReaderInlineDataFragment"
-    } else {
-        "ReaderFragment"
+        FlowTypegenRollout::Old => {
+            if is_inline_data_fragment {
+                ("ReaderInlineDataFragment", "ReaderInlineDataFragment", None)
+            } else {
+                ("ReaderFragment", "ReaderFragment", None)
+            }
+        }
+        FlowTypegenRollout::New => {
+            if is_inline_data_fragment {
+                (
+                    "InlineFragment, ReaderInlineDataFragment",
+                    "ReaderInlineDataFragment",
+                    Some(format!(
+                        "InlineFragment<\n  {name}$type,\n  {name}$data,\n>",
+                        name = typegen_fragment.name.item
+                    )),
+                )
+            } else if let Some(refetchable_metadata) =
+                RefetchableMetadata::find(&typegen_fragment.directives)
+            {
+                (
+                    "ReaderFragment, RefetchableFragment",
+                    "ReaderFragment",
+                    Some(format!(
+                        "RefetchableFragment<\n  {name}$type,\n  {name}$data,\n  {refetchable_name}Variables,\n>",
+                        name = typegen_fragment.name.item,
+                        refetchable_name = refetchable_metadata.operation_name
+                    )),
+                )
+            } else {
+                (
+                    "Fragment, ReaderFragment",
+                    "ReaderFragment",
+                    Some(format!(
+                        "Fragment<\n  {name}$type,\n  {name}$data,\n>",
+                        name = typegen_fragment.name.item
+                    )),
+                )
+            }
+        }
     };
-    writeln!(
-        content,
-        "/*::\nimport type {{ {} }} from 'relay-runtime';",
-        reader_node_flow_type
+
+    if project_config.typegen_config.language == TypegenLanguage::Flow {
+        writeln!(content, "/*::").unwrap();
+    }
+
+    write_import_type_from(
+        &project_config.typegen_config.language,
+        &mut content,
+        imported_types,
+        "relay-runtime",
     )
     .unwrap();
+
     if !skip_types {
         write!(
             content,
             "{}",
-            generate_fragment_type(typegen_fragment, schema, &project_config.typegen_config)
+            generate_fragment_type(
+                typegen_fragment,
+                schema,
+                project_config.js_module_format,
+                &project_config.typegen_config
+            )
         )
         .unwrap();
     }
-    writeln!(content, "*/\n").unwrap();
-    writeln!(
-        content,
-        "var node/*: {}*/ = {};\n",
+    match project_config.typegen_config.language {
+        TypegenLanguage::Flow => writeln!(content, "*/\n").unwrap(),
+        TypegenLanguage::TypeScript => writeln!(content).unwrap(),
+    }
+
+    write_variable_value_with_type(
+        &project_config.typegen_config.language,
+        &mut content,
+        "node",
         reader_node_flow_type,
-        printer.print_fragment(schema, reader_fragment)
+        &printer.print_fragment(schema, reader_fragment),
     )
     .unwrap();
-    writeln!(content, "if (__DEV__) {{").unwrap();
-    writeln!(content, "  (node/*: any*/).hash = \"{}\";", source_hash).unwrap();
-    writeln!(content, "}}\n").unwrap();
-    writeln!(content, "module.exports = node;").unwrap();
+
+    write_source_hash(
+        config,
+        &project_config.typegen_config.language,
+        &mut content,
+        &source_hash,
+    )
+    .unwrap();
+
+
+    write_export_generated_node(
+        &project_config.typegen_config.language,
+        &mut content,
+        "node",
+        node_type,
+    )
+    .unwrap();
+
     sign_file(&content).into_bytes()
+}
+
+fn write_variable_value_with_type(
+    language: &TypegenLanguage,
+    content: &mut String,
+    variable_name: &str,
+    type_: &str,
+    value: &str,
+) -> Result {
+    match language {
+        TypegenLanguage::Flow => writeln!(
+            content,
+            "var {}/*: {}*/ = {};\n",
+            variable_name, type_, value
+        ),
+        TypegenLanguage::TypeScript => {
+            writeln!(content, "const {}: {} = {};\n", variable_name, type_, value)
+        }
+    }
+}
+
+fn write_disable_lint_header(language: &TypegenLanguage, content: &mut String) -> Result {
+    match language {
+        TypegenLanguage::TypeScript => {
+            writeln!(content, "/* tslint:disable */")?;
+            writeln!(content, "/* eslint-disable */")?;
+            writeln!(content, "// @ts-nocheck\n")
+        }
+        TypegenLanguage::Flow => {
+            writeln!(content, "/* eslint-disable */\n")
+        }
+    }
+}
+
+fn write_import_type_from(
+    language: &TypegenLanguage,
+    content: &mut String,
+    type_: &str,
+    from: &str,
+) -> Result {
+    match language {
+        TypegenLanguage::Flow => writeln!(content, "import type {{ {} }} from '{}';", type_, from),
+        TypegenLanguage::TypeScript => writeln!(content, "import {{ {} }} from '{}';", type_, from),
+    }
+}
+
+fn write_export_generated_node(
+    language: &TypegenLanguage,
+    content: &mut String,
+    variable_node: &str,
+    forced_type: Option<String>,
+) -> Result {
+    match (language, forced_type) {
+        (TypegenLanguage::Flow, None) => writeln!(content, "module.exports = {};", variable_node),
+        (TypegenLanguage::Flow, Some(forced_type)) => writeln!(
+            content,
+            "module.exports = (({}/*: any*/)/*: {}*/);",
+            variable_node, forced_type
+        ),
+        (TypegenLanguage::TypeScript, _) => writeln!(content, "export default {};", variable_node),
+    }
 }
 
 fn get_content_start(config: &Config) -> String {
@@ -413,4 +659,35 @@ fn get_content_start(config: &Config) -> String {
         writeln!(content, " *").unwrap();
     }
     content
+}
+
+fn write_source_hash(
+    config: &Config,
+    language: &TypegenLanguage,
+    content: &mut String,
+    source_hash: &str,
+) -> Result {
+    if let Some(is_dev_variable_name) = &config.is_dev_variable_name {
+        writeln!(content, "if ({}) {{", is_dev_variable_name)?;
+        match language {
+            TypegenLanguage::Flow => {
+                writeln!(content, "  (node/*: any*/).hash = \"{}\";", source_hash)?
+            }
+            TypegenLanguage::TypeScript => {
+                writeln!(content, "  (node as any).hash = \"{}\";", source_hash)?
+            }
+        };
+        writeln!(content, "}}\n")?;
+    } else {
+        match language {
+            TypegenLanguage::Flow => {
+                writeln!(content, "(node/*: any*/).hash = \"{}\";\n", source_hash)?
+            }
+            TypegenLanguage::TypeScript => {
+                writeln!(content, "(node as any).hash = \"{}\";\n", source_hash)?
+            }
+        };
+    }
+
+    Ok(())
 }

@@ -7,10 +7,10 @@
 
 use interner::{Intern, StringKey};
 
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 /// Configuration where Relay should expect some fields in the schema.
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
 pub struct ConnectionInterface {
     pub cursor: StringKey,

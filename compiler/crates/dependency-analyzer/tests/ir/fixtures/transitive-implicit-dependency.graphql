@@ -1,0 +1,22 @@
+# F1
+query Q1 {
+  me {
+    ...F1
+  }
+}
+fragment F1 on User {
+  __typename
+}
+
+# %definitions%
+
+fragment resolverFragment on User {
+  ...resolverFragmentDependency
+}
+
+fragment resolverFragmentDependency on User {
+  name
+}
+
+%dependencies%
+F1 --> resolverFragment

@@ -71,7 +71,7 @@ export type InlineFragment = {|
   +id: string,
   +name?: ?string,
   +message?: ?{|
-    +text: ?string
+    +text: ?string,
   |},
   +$refType: InlineFragment$ref,
 |};
@@ -129,7 +129,7 @@ export type InlineFragmentWithOverlappingFields = {|
     +id: string,
     +name: ?string,
     +message?: ?{|
-      +text: ?string
+      +text: ?string,
     |},
   |},
   +name?: ?string,

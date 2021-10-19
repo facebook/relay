@@ -15,7 +15,6 @@
 
 const CompilerContext = require('../../core/CompilerContext');
 const ValidateGlobalVariablesTransform = require('../ValidateGlobalVariablesTransform');
-
 const {
   TestSchema,
   generateTestsFromFixtures,

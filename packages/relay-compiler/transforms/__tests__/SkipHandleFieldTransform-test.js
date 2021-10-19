@@ -16,7 +16,6 @@
 const CompilerContext = require('../../core/CompilerContext');
 const IRPrinter = require('../../core/IRPrinter');
 const SkipHandleFieldTransform = require('../SkipHandleFieldTransform');
-
 const {
   TestSchema,
   generateTestsFromFixtures,

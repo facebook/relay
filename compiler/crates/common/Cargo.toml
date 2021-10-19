@@ -10,4 +10,5 @@ license = "MIT"
 colored = "1.9"
 interner = { path = "../interner" }
 log = { version = "0.4.8", features = ["kv_unstable"] }
-lsp-types = "0.73.0"
+lsp-types = "0.89.0"
+rayon = "1.2"

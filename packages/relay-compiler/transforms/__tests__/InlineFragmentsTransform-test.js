@@ -16,7 +16,6 @@
 const CompilerContext = require('../../core/CompilerContext');
 const IRPrinter = require('../../core/IRPrinter');
 const InlineFragmentsTransform = require('../InlineFragmentsTransform');
-
 const {
   TestSchema,
   generateTestsFromFixtures,

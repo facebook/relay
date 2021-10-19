@@ -12,21 +12,20 @@
 
 'use strict';
 
-const React = require('react');
+import type {ReactRelayQueryRendererContext as ReactRelayQueryRendererContextType} from './ReactRelayQueryRendererContext';
+import type {GraphQLTaggedNode, IEnvironment, Variables} from 'relay-runtime';
+
 const ReactRelayContext = require('./ReactRelayContext');
 const ReactRelayQueryRendererContext = require('./ReactRelayQueryRendererContext');
-
-const {useLayoutEffect, useState, useRef, useMemo} = React;
+const areEqual = require('areEqual');
+const React = require('react');
 const {
   createOperationDescriptor,
   deepFreeze,
   getRequest,
 } = require('relay-runtime');
 
-const areEqual = require('areEqual');
-
-import type {ReactRelayQueryRendererContext as ReactRelayQueryRendererContextType} from './ReactRelayQueryRendererContext';
-import type {GraphQLTaggedNode, IEnvironment, Variables} from 'relay-runtime';
+const {useLayoutEffect, useState, useRef, useMemo} = React;
 
 type Props = {
   environment: IEnvironment,
@@ -41,7 +40,7 @@ const queryRendererContext: ReactRelayQueryRendererContextType = {
   rootIsQueryRenderer: true,
 };
 
-function useDeepCompare<T: {...}>(value: T): T {
+function useDeepCompare<T: interface {}>(value: T): T {
   const latestValue = React.useRef(value);
   if (!areEqual(latestValue.current, value)) {
     if (__DEV__) {

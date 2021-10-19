@@ -5,6 +5,16 @@ fragment EnabledFoo on User {
 }
 ==================================== OUTPUT ===================================
 fragment EnabledFoo on User @__childrenCanBubbleNull {
-  name @required(action: THROW) @__required(action: "THROW", path: "name")
-  my_name: name @required(action: LOG) @__required(action: "LOG", path: "my_name")
+  name @required(action: THROW) @__RequiredMetadataDirective
+  # RequiredMetadataDirective {
+  #     action: Throw,
+  #     path: "name",
+  # }
+  
+  my_name: name @required(action: LOG) @__RequiredMetadataDirective
+  # RequiredMetadataDirective {
+  #     action: Log,
+  #     path: "my_name",
+  # }
+  
 }

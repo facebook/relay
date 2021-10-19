@@ -12,10 +12,10 @@
 
 'use strict';
 
-const invariant = require('invariant');
-
 import type {RelayContext} from './RelayStoreTypes.js';
 import typeof {createContext} from 'react';
+
+const invariant = require('invariant');
 
 // Ideally, we'd just import the type of the react module, but this causes Flow
 // problems.
@@ -38,7 +38,7 @@ function createRelayContext(react: React): React$Context<RelayContext | null> {
   }
   invariant(
     react === firstReact,
-    '[createRelayContext]: You passing a different instance of React',
+    '[createRelayContext]: You are passing a different instance of React',
     react.version,
   );
   return relayContext;

@@ -5,10 +5,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::connections::{extract_connection_directive, ConnectionConstants, ConnectionInterface};
-use crate::handle_fields::{
-    extract_handle_field_directive_args_for_connection, CONNECTION_HANDLER_ARG_NAME,
-    DYNAMIC_KEY_ARG_NAME, FILTERS_ARG_NAME, KEY_ARG_NAME,
+use crate::{
+    connections::{extract_connection_directive, ConnectionConstants, ConnectionInterface},
+    handle_fields::{
+        extract_handle_field_directive_args_for_connection, CONNECTION_HANDLER_ARG_NAME,
+        DYNAMIC_KEY_ARG_NAME, FILTERS_ARG_NAME, KEY_ARG_NAME,
+    },
 };
 use common::{Diagnostic, DiagnosticsResult, NamedItem};
 use errors::{validate, validate_map};
@@ -461,10 +463,9 @@ impl<'s> ConnectionValidation<'s> {
         if let Some((arg, filters_val)) = constant_filters_arg {
             match filters_val {
                 ConstantValue::List(list_val) => {
-                    let non_string_value = list_val.iter().find(|val| match val {
-                        ConstantValue::String(_) => false,
-                        _ => true,
-                    });
+                    let non_string_value = list_val
+                        .iter()
+                        .find(|val| !matches!(val, ConstantValue::String(_)));
 
                     if non_string_value.is_some() {
                         return Err(vec![

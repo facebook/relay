@@ -13,17 +13,19 @@
 
 'use strict';
 
-const RelayModernEnvironment = require('../RelayModernEnvironment');
-const RelayModernStore = require('../RelayModernStore');
 const RelayNetwork = require('../../network/RelayNetwork');
-const RelayRecordSource = require('../RelayRecordSource');
-
+const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../RelayModernSelector');
+const RelayModernStore = require('../RelayModernStore');
+const RelayRecordSource = require('../RelayRecordSource');
 const {ROOT_ID} = require('../RelayStoreUtils');
-const {graphql, getRequest} = require('relay-runtime');
+const {getRequest, graphql} = require('relay-runtime');
+const {disallowWarnings} = require('relay-test-utils-internal');
+
+disallowWarnings();
 
 describe('query cache expiration time', () => {
   let environment;
@@ -39,7 +41,6 @@ describe('query cache expiration time', () => {
     fetchTime = Date.now();
     jest.spyOn(global.Date, 'now').mockImplementation(() => fetchTime);
 
-    jest.resetModules();
     ParentQuery = getRequest(graphql`
       query RelayModernEnvironmentQueryCacheExpirationTimeTestQuery {
         me {
@@ -75,6 +76,7 @@ describe('query cache expiration time', () => {
           name: 'Zuck',
         },
       });
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       const {dispose} = environment.retain(operationDescriptor);
       const snapshot = environment.lookup(
         createReaderSelector(
@@ -120,6 +122,7 @@ describe('query cache expiration time', () => {
           name: 'Zuck',
         },
       });
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       const {dispose} = environment.retain(operationDescriptor);
       const snapshot = environment.lookup(
         createReaderSelector(
@@ -160,6 +163,7 @@ describe('query cache expiration time', () => {
           name: 'Zuck',
         },
       });
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       const {dispose} = environment.retain(operationDescriptor);
       const originalFetchTime = fetchTime;
 

@@ -16,7 +16,6 @@
 const CompilerContext = require('../../core/CompilerContext');
 const IRPrinter = require('../../core/IRPrinter');
 const RequiredFieldTransform = require('../RequiredFieldTransform');
-
 const {RelayFeatureFlags} = require('relay-runtime');
 const {
   TestSchema,

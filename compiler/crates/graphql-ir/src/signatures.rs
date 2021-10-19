@@ -9,11 +9,12 @@ use crate::build::{
     build_constant_value, build_type_annotation, build_variable_definitions, ValidationLevel,
 };
 use crate::constants::ARGUMENT_DEFINITION;
-use crate::errors::ValidationMessage;
+use crate::errors::{ValidationMessage, ValidationMessageWithData};
 use crate::ir::{ConstantValue, VariableDefinition};
-use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, WithLocation};
+use crate::GraphQLSuggestions;
+use common::{Diagnostic, DiagnosticsResult, Location, WithLocation};
 use errors::{par_try_map, try2};
-use fnv::{FnvHashMap, FnvHashSet};
+use fnv::FnvHashMap;
 use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
 use schema::{SDLSchema, Schema, Type, TypeReference};
@@ -21,12 +22,8 @@ use schema::{SDLSchema, Schema, Type, TypeReference};
 lazy_static! {
     static ref TYPE: StringKey = "type".intern();
     static ref DEFAULT_VALUE: StringKey = "defaultValue".intern();
-    static ref ARGUMENTS_KEYS: FnvHashSet<StringKey> = {
-        let mut set = FnvHashSet::with_capacity_and_hasher(2, Default::default());
-        set.insert(*TYPE);
-        set.insert(*DEFAULT_VALUE);
-        set
-    };
+    pub static ref UNUSED_LOCAL_VARIABLE_DEPRECATED: StringKey =
+        "unusedLocalVariable_DEPRECATED".intern();
 }
 
 pub type FragmentSignatures = FnvHashMap<StringKey, FragmentSignature>;
@@ -38,7 +35,7 @@ pub type FragmentSignatures = FnvHashMap<StringKey, FragmentSignature>;
 /// would depend on having checked its body! Since recursive fragments
 /// are allowed, we break the cycle by first computing signatures
 /// and using these to type check fragment spreads in selections.
-#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
+#[derive(Debug, Eq, PartialEq)]
 pub struct FragmentSignature {
     pub name: WithLocation<StringKey>,
     pub variable_definitions: Vec<VariableDefinition>,
@@ -49,30 +46,29 @@ pub fn build_signatures(
     schema: &SDLSchema,
     definitions: &[graphql_syntax::ExecutableDefinition],
 ) -> DiagnosticsResult<FragmentSignatures> {
+    let suggestions = GraphQLSuggestions::new(schema);
     let mut seen_signatures: FnvHashMap<StringKey, FragmentSignature> =
         FnvHashMap::with_capacity_and_hasher(definitions.len(), Default::default());
     let signatures = par_try_map(definitions, |definition| match definition {
-        graphql_syntax::ExecutableDefinition::Fragment(fragment) => {
-            Ok(Some(build_fragment_signature(schema, &fragment)?))
-        }
+        graphql_syntax::ExecutableDefinition::Fragment(fragment) => Ok(Some(
+            build_fragment_signature(schema, &fragment, &suggestions)?,
+        )),
         graphql_syntax::ExecutableDefinition::Operation(_) => Ok(None),
     })?;
     let mut errors = Vec::new();
-    for signature in signatures {
-        if let Some(signature) = signature {
-            let previous_signature = seen_signatures.get(&signature.name.item);
-            if let Some(previous_signature) = previous_signature {
-                errors.push(
-                    Diagnostic::error(
-                        ValidationMessage::DuplicateDefinition(signature.name.item),
-                        previous_signature.name.location,
-                    )
-                    .annotate("also defined here", signature.name.location),
-                );
-                continue;
-            }
-            seen_signatures.insert(signature.name.item, signature);
+    for signature in signatures.into_iter().flatten() {
+        let previous_signature = seen_signatures.get(&signature.name.item);
+        if let Some(previous_signature) = previous_signature {
+            errors.push(
+                Diagnostic::error(
+                    ValidationMessage::DuplicateDefinition(signature.name.item),
+                    previous_signature.name.location,
+                )
+                .annotate("also defined here", signature.name.location),
+            );
+            continue;
         }
+        seen_signatures.insert(signature.name.item, signature);
     }
     if errors.is_empty() {
         Ok(seen_signatures)
@@ -84,6 +80,7 @@ pub fn build_signatures(
 fn build_fragment_signature(
     schema: &SDLSchema,
     fragment: &graphql_syntax::FragmentDefinition,
+    suggestions: &GraphQLSuggestions<'_>,
 ) -> DiagnosticsResult<FragmentSignature> {
     let type_name = fragment.type_condition.type_.value;
     let type_condition = match schema.get_type(type_name) {
@@ -97,8 +94,11 @@ fn build_fragment_signature(
             )
             .into()),
         },
-        None => Err(Diagnostic::error(
-            ValidationMessage::UnknownType(type_name),
+        None => Err(Diagnostic::error_with_data(
+            ValidationMessageWithData::UnknownType {
+                type_name,
+                suggestions: suggestions.composite_type_suggestions(type_name),
+            },
             fragment
                 .location
                 .with_span(fragment.type_condition.type_.span),
@@ -174,27 +174,39 @@ fn build_fragment_variable_definitions(
                     object,
                 )) = &variable_arg.value
                 {
+                    let mut extra_items = Vec::new();
+                    let mut type_arg = None;
+                    let mut default_arg = None;
+                    let mut unused_local_variable_arg = None;
+                    for item in &object.items {
+                        let name = item.name.value;
+                        if name == *TYPE {
+                            type_arg = Some(item);
+                        } else if name == *DEFAULT_VALUE {
+                            default_arg = Some(item);
+                        } else if name == *UNUSED_LOCAL_VARIABLE_DEPRECATED {
+                            unused_local_variable_arg = Some(item);
+                        } else {
+                            extra_items.push(item);
+                        }
+                    }
                     // Check that no extraneous keys were supplied
-                    let keys = object
-                        .items
-                        .iter()
-                        .map(|x| x.name.value)
-                        .collect::<FnvHashSet<_>>();
-                    if contains_extra_items(&keys, &ARGUMENTS_KEYS) {
-                        let mut keys = keys
-                            .difference(&ARGUMENTS_KEYS)
-                            .map(|x| x.lookup().to_owned())
-                            .collect::<Vec<_>>();
-                        keys.sort();
-                        return Err(Diagnostic::error(
-                            ValidationMessage::InvalidArgumentsKeys(keys.join(", ")),
-                            fragment.location.with_span(object.span),
-                        )
-                        .into());
+                    if !extra_items.is_empty() {
+                        return Err(extra_items
+                            .iter()
+                            .map(|item| {
+                                Diagnostic::error(
+                                    ValidationMessage::InvalidArgumentDefinitionsKey(
+                                        item.name.value,
+                                    ),
+                                    fragment.location.with_span(item.span),
+                                )
+                            })
+                            .collect());
                     }
 
                     // Convert variable type, validate that it's an input type
-                    let type_ = get_argument_type(schema, fragment.location, &object)?;
+                    let type_ = get_argument_type(schema, fragment.location, type_arg, object)?;
                     if !type_.inner().is_input_type() {
                         return Err(Diagnostic::error(
                             ValidationMessage::ExpectedFragmentArgumentToHaveInputType(
@@ -205,14 +217,44 @@ fn build_fragment_variable_definitions(
                         .into());
                     }
 
+                    let directives =
+                        if let Some(unused_local_variable_arg) = unused_local_variable_arg {
+                            if !matches!(
+                                unused_local_variable_arg,
+                                graphql_syntax::ConstantArgument {
+                                    value: graphql_syntax::ConstantValue::Boolean(
+                                        graphql_syntax::BooleanNode { value: true, .. }
+                                    ),
+                                    ..
+                                }
+                            ) {
+                                return Err(vec![Diagnostic::error(
+                                    ValidationMessage::InvalidUnusedFragmentVariableSuppressionArg,
+                                    fragment
+                                        .location
+                                        .with_span(unused_local_variable_arg.value.span()),
+                                )]);
+                            }
+                            vec![crate::Directive {
+                                name: WithLocation::new(
+                                    fragment.location.with_span(unused_local_variable_arg.span),
+                                    *UNUSED_LOCAL_VARIABLE_DEPRECATED,
+                                ),
+                                arguments: Vec::new(),
+                                data: None,
+                            }]
+                        } else {
+                            Vec::new()
+                        };
+
                     let default_value =
-                        get_default_value(schema, fragment.location, &object, &type_)?;
+                        get_default_value(schema, fragment.location, default_arg, &type_)?;
                     Ok(VariableDefinition {
                         name: variable_arg
                             .name
                             .name_with_location(fragment.location.source_location()),
                         type_,
-                        directives: Default::default(),
+                        directives,
                         default_value,
                     })
                 } else {
@@ -232,9 +274,9 @@ fn build_fragment_variable_definitions(
 fn get_argument_type(
     schema: &SDLSchema,
     location: Location,
+    type_arg: Option<&graphql_syntax::ConstantArgument>,
     object: &graphql_syntax::List<graphql_syntax::ConstantArgument>,
 ) -> DiagnosticsResult<TypeReference> {
-    let type_arg = object.items.named(*TYPE);
     let type_name_and_span = match type_arg {
         Some(graphql_syntax::ConstantArgument {
             value: graphql_syntax::ConstantValue::String(type_name_node),
@@ -278,16 +320,21 @@ fn get_argument_type(
 fn get_default_value(
     schema: &SDLSchema,
     location: Location,
-    object: &graphql_syntax::List<graphql_syntax::ConstantArgument>,
+    default_arg: Option<&graphql_syntax::ConstantArgument>,
     type_: &TypeReference,
-) -> DiagnosticsResult<Option<ConstantValue>> {
-    Ok(object
-        .items
-        .named(*DEFAULT_VALUE)
-        .map(|x| build_constant_value(schema, &x.value, &type_, location, ValidationLevel::Strict))
+) -> DiagnosticsResult<Option<WithLocation<ConstantValue>>> {
+    Ok(default_arg
+        .map(|x| {
+            let constant_value_span = x.value.span();
+            build_constant_value(schema, &x.value, &type_, location, ValidationLevel::Strict).map(
+                |constant_value| {
+                    WithLocation::from_span(
+                        location.source_location(),
+                        constant_value_span,
+                        constant_value,
+                    )
+                },
+            )
+        })
         .transpose()?)
-}
-
-fn contains_extra_items(actual: &FnvHashSet<StringKey>, expected: &FnvHashSet<StringKey>) -> bool {
-    actual.iter().any(|x| !expected.contains(x))
 }

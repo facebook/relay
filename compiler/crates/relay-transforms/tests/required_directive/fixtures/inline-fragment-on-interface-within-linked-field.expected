@@ -10,7 +10,12 @@ fragment EnabledFoo on Node {
 fragment EnabledFoo on Node {
   ... on Actor {
     address @__childrenCanBubbleNull {
-      city @required(action: LOG) @__required(action: "LOG", path: "address.city")
+      city @required(action: LOG) @__RequiredMetadataDirective
+      # RequiredMetadataDirective {
+      #     action: Log,
+      #     path: "address.city",
+      # }
+      
     }
   }
 }

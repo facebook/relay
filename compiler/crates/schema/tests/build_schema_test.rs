@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<6238cdf7e73ffb31d3ca3900af6e8cba>>
+ * @generated SignedSource<<df661e8fe9731a860fd3cd5c9f0e0c22>>
  */
 
 mod build_schema;
@@ -20,10 +20,38 @@ fn directives_for_external_types() {
 }
 
 #[test]
+fn extend_interface_before_define() {
+    let input = include_str!("build_schema/fixtures/extend-interface-before-define.graphql");
+    let expected = include_str!("build_schema/fixtures/extend-interface-before-define.expected");
+    test_fixture(transform_fixture, "extend-interface-before-define.graphql", "build_schema/fixtures/extend-interface-before-define.expected", input, expected);
+}
+
+#[test]
+fn extend_object_before_define() {
+    let input = include_str!("build_schema/fixtures/extend-object-before-define.graphql");
+    let expected = include_str!("build_schema/fixtures/extend-object-before-define.expected");
+    test_fixture(transform_fixture, "extend-object-before-define.graphql", "build_schema/fixtures/extend-object-before-define.expected", input, expected);
+}
+
+#[test]
+fn field_descriptions() {
+    let input = include_str!("build_schema/fixtures/field-descriptions.graphql");
+    let expected = include_str!("build_schema/fixtures/field-descriptions.expected");
+    test_fixture(transform_fixture, "field-descriptions.graphql", "build_schema/fixtures/field-descriptions.expected", input, expected);
+}
+
+#[test]
 fn interface_implements_interface() {
     let input = include_str!("build_schema/fixtures/interface-implements-interface.graphql");
     let expected = include_str!("build_schema/fixtures/interface-implements-interface.expected");
     test_fixture(transform_fixture, "interface-implements-interface.graphql", "build_schema/fixtures/interface-implements-interface.expected", input, expected);
+}
+
+#[test]
+fn invalid_duplicate_directive() {
+    let input = include_str!("build_schema/fixtures/invalid-duplicate-directive.graphql");
+    let expected = include_str!("build_schema/fixtures/invalid-duplicate-directive.expected");
+    test_fixture(transform_fixture, "invalid-duplicate-directive.graphql", "build_schema/fixtures/invalid-duplicate-directive.expected", input, expected);
 }
 
 #[test]

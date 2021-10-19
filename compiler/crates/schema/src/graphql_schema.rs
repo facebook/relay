@@ -24,6 +24,26 @@ pub trait Schema {
 
     fn get_type(&self, type_name: StringKey) -> Option<Type>;
 
+    fn get_possible_types(&self, type_: Type) -> Option<Vec<&Object>> {
+        match type_ {
+            Type::Union(union) => Some(
+                self.union(union)
+                    .members
+                    .iter()
+                    .map(|id| self.object(*id))
+                    .collect(),
+            ),
+            Type::Interface(interface) => Some(
+                self.interface(interface)
+                    .implementing_objects
+                    .iter()
+                    .map(|id| self.object(*id))
+                    .collect(),
+            ),
+            _ => None,
+        }
+    }
+
     fn get_directive(&self, name: StringKey) -> Option<&Directive>;
 
     fn input_object(&self, id: InputObjectID) -> &InputObject;

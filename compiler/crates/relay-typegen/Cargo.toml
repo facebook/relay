@@ -28,6 +28,7 @@ lazy_static = "1.0"
 relay-transforms = { path = "../relay-transforms" }
 schema = { path = "../schema" }
 serde = { version = "=1.0.118", features = ["derive", "rc"] }
+serde_json = "1.0.68"
 
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }

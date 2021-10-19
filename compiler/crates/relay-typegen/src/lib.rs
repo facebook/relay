@@ -160,8 +160,12 @@ impl<'a> TypeGenerator<'a> {
         let input_variables_type = self.generate_input_variables_type(typegen_operation);
 
         let selections = self.visit_selections(&typegen_operation.selections);
-        let mut response_type =
-            self.selections_to_ast(Some(typegen_operation.type_), selections, false, None);
+        let mut response_type = self.selections_to_ast(
+            Some(typegen_operation.type_),
+            selections.into_iter(),
+            false,
+            None,
+        );
 
         response_type = match typegen_operation
             .directives
@@ -174,7 +178,7 @@ impl<'a> TypeGenerator<'a> {
         let raw_response_type = if has_raw_response_type_directive(normalization_operation) {
             let raw_response_selections =
                 self.raw_response_visit_selections(&normalization_operation.selections);
-            Some(self.raw_response_selections_to_ast(raw_response_selections, None))
+            Some(self.raw_response_selections_to_ast(raw_response_selections.into_iter(), None))
         } else {
             None
         };
@@ -254,7 +258,7 @@ impl<'a> TypeGenerator<'a> {
         let raw_response_selections =
             self.raw_response_visit_selections(&normalization_operation.selections);
         let raw_response_type =
-            self.raw_response_selections_to_babel(raw_response_selections.into_iter(), None);
+            self.raw_response_selections_to_ast(raw_response_selections.into_iter(), None);
 
         self.write_runtime_imports()?;
         self.write_fragment_imports()?;
@@ -316,7 +320,7 @@ impl<'a> TypeGenerator<'a> {
 
         let base_type = self.selections_to_ast(
             Some(node.type_condition),
-            selections,
+            selections.into_iter(),
             unmasked,
             if unmasked {
                 None
@@ -735,8 +739,7 @@ impl<'a> TypeGenerator<'a> {
                                 v.is_typename() && !selection_names.contains(&v.schema_name)
                             })
                             .cloned()
-                            .chain(selections.clone().into_iter())
-                            .collect(),
+                            .chain(selections.clone().into_iter()),
                     )
                     .into_iter()
                     .map(|selection| {
@@ -813,13 +816,14 @@ impl<'a> TypeGenerator<'a> {
             }
         }
 
-        let mut selection_map = selections_to_map(hashmap_into_value_vec(base_fields), false);
+        let mut selection_map = selections_to_map(hashmap_into_values(base_fields), false);
         if !type_fields_present_for_union {
             for concrete_type_selections in by_concrete_type.values() {
                 selection_map = merge_selections(
                     selection_map,
                     selections_to_map(
-                        concrete_type_selections.into_iter().map(|mut sel| {
+                        concrete_type_selections.into_iter().map(|sel| {
+                            let mut sel = sel.clone();
                             sel.conditional = true;
                             sel
                         }),
@@ -835,8 +839,7 @@ impl<'a> TypeGenerator<'a> {
                 .values()
                 .chain(selection_map.values())
                 .filter(|selection| !type_fields_present_for_union || !selection.is_typename())
-                .cloned()
-                .collect(),
+                .cloned(),
         )
         .into_iter()
         .map(|selection| {
@@ -1011,7 +1014,7 @@ impl<'a> TypeGenerator<'a> {
         let value = if let Some(node_type) = node_type {
             let object_props = self.selections_to_ast(
                 Some(node_type.inner()),
-                hashmap_into_value_vec(node_selections.unwrap()),
+                hashmap_into_values(node_selections.unwrap()).into_iter(),
                 unmasked,
                 None,
             );
@@ -1077,7 +1080,7 @@ impl<'a> TypeGenerator<'a> {
                 Some(node_type.inner())
             };
             let object_props = self.raw_response_selections_to_ast(
-                hashmap_into_value_vec(node_selections.unwrap()),
+                hashmap_into_values(node_selections.unwrap()),
                 inner_concrete_type,
             );
             self.transform_scalar_type(&node_type, Some(object_props))

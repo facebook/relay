@@ -14,7 +14,7 @@
 
 import type {
   Disposable,
-  FragmentReference,
+  FragmentType,
   GraphQLTaggedNode,
   IEnvironment,
   Observer,
@@ -107,12 +107,12 @@ export type $RelayProps<Props, RelayPropT = RelayProp> = $ObjMap<
   $Diff<Props, { relay: RelayPropT | void, ... }>,
   & (<T: { +$refType: empty, ... }>( T) =>  T)
   & (<T: { +$refType: empty, ... }>(?T) => ?T)
-  & (<TRef: FragmentReference, T: { +$refType: TRef, ... }>(                 T ) =>                  $FragmentRef<T> )
-  & (<TRef: FragmentReference, T: { +$refType: TRef, ... }>(?                T ) => ?                $FragmentRef<T> )
-  & (<TRef: FragmentReference, T: { +$refType: TRef, ... }>( $ReadOnlyArray< T>) =>  $ReadOnlyArray< $FragmentRef<T>>)
-  & (<TRef: FragmentReference, T: { +$refType: TRef, ... }>(?$ReadOnlyArray< T>) => ?$ReadOnlyArray< $FragmentRef<T>>)
-  & (<TRef: FragmentReference, T: { +$refType: TRef, ... }>( $ReadOnlyArray<?T>) =>  $ReadOnlyArray<?$FragmentRef<T>>)
-  & (<TRef: FragmentReference, T: { +$refType: TRef, ... }>(?$ReadOnlyArray<?T>) => ?$ReadOnlyArray<?$FragmentRef<T>>)
+  & (<TFragmentType: FragmentType, T: { +$refType: TFragmentType, ... }>(                 T ) =>                  $FragmentRef<T> )
+  & (<TFragmentType: FragmentType, T: { +$refType: TFragmentType, ... }>(?                T ) => ?                $FragmentRef<T> )
+  & (<TFragmentType: FragmentType, T: { +$refType: TFragmentType, ... }>( $ReadOnlyArray< T>) =>  $ReadOnlyArray< $FragmentRef<T>>)
+  & (<TFragmentType: FragmentType, T: { +$refType: TFragmentType, ... }>(?$ReadOnlyArray< T>) => ?$ReadOnlyArray< $FragmentRef<T>>)
+  & (<TFragmentType: FragmentType, T: { +$refType: TFragmentType, ... }>( $ReadOnlyArray<?T>) =>  $ReadOnlyArray<?$FragmentRef<T>>)
+  & (<TFragmentType: FragmentType, T: { +$refType: TFragmentType, ... }>(?$ReadOnlyArray<?T>) => ?$ReadOnlyArray<?$FragmentRef<T>>)
   & (<T>(T) => T),
 >;
 

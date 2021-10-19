@@ -50,7 +50,7 @@ import type {InvalidationState} from './RelayModernStore';
 import type RelayOperationTracker from './RelayOperationTracker';
 import type {RecordState} from './RelayRecordState';
 
-export opaque type FragmentReference = empty;
+export opaque type FragmentType = empty;
 export type OperationTracker = RelayOperationTracker;
 
 export type MutationParameters = {|

@@ -13,10 +13,7 @@
 'use strict';
 
 import type {GraphQLTaggedNode} from '../query/GraphQLTag';
-import type {
-  FragmentReference,
-  SingularReaderSelector,
-} from './RelayStoreTypes';
+import type {FragmentType, SingularReaderSelector} from './RelayStoreTypes';
 
 const {getFragment} = require('../query/GraphQLTag');
 const {getSelector} = require('./RelayModernSelector');
@@ -27,10 +24,7 @@ const invariant = require('invariant');
 // about what resolver is being executed, which is supplied by putting the
 // info on this stack before we call the resolver function.
 type ResolverContext = {|
-  getDataForResolverFragment: (
-    SingularReaderSelector,
-    FragmentReference,
-  ) => mixed,
+  getDataForResolverFragment: (SingularReaderSelector, FragmentType) => mixed,
 |};
 const contextStack: Array<ResolverContext> = [];
 
@@ -53,17 +47,17 @@ function withResolverContext<T>(context: ResolverContext, cb: () => T): T {
 //   - array of nullable if the privoided ref type is an array of nullable refs
 
 declare function readFragment<
-  TKey: {+$data?: mixed, +$fragmentRefs: FragmentReference, ...},
+  TKey: {+$data?: mixed, +$fragmentRefs: FragmentType, ...},
 >(
   fragmentInput: GraphQLTaggedNode,
-  fragmentRef: TKey,
+  fragmentKey: TKey,
 ): $Call<<TFragmentData>({+$data?: TFragmentData, ...}) => TFragmentData, TKey>;
 
 declare function readFragment<
-  TKey: ?{+$data?: mixed, +$fragmentRefs: FragmentReference, ...},
+  TKey: ?{+$data?: mixed, +$fragmentRefs: FragmentType, ...},
 >(
   fragmentInput: GraphQLTaggedNode,
-  fragmentRef: TKey,
+  fragmentKey: TKey,
 ): $Call<
   <TFragmentData>(?{+$data?: TFragmentData, ...}) => ?TFragmentData,
   TKey,
@@ -72,12 +66,12 @@ declare function readFragment<
 declare function readFragment<
   TKey: $ReadOnlyArray<{
     +$data?: mixed,
-    +$fragmentRefs: FragmentReference,
+    +$fragmentRefs: FragmentType,
     ...
   }>,
 >(
   fragmentInput: GraphQLTaggedNode,
-  fragmentRef: TKey,
+  fragmentKey: TKey,
 ): $Call<
   <TFragmentData>(
     $ReadOnlyArray<{+$data?: TFragmentData, ...}>,
@@ -88,12 +82,12 @@ declare function readFragment<
 declare function readFragment<
   TKey: ?$ReadOnlyArray<{
     +$data?: mixed,
-    +$fragmentRefs: FragmentReference,
+    +$fragmentRefs: FragmentType,
     ...
   }>,
 >(
   fragmentInput: GraphQLTaggedNode,
-  fragmentRef: TKey,
+  fragmentKey: TKey,
 ): $Call<
   <TFragmentData>(
     ?$ReadOnlyArray<{+$data?: TFragmentData, ...}>,
@@ -101,10 +95,7 @@ declare function readFragment<
   TKey,
 >;
 
-function readFragment(
-  fragmentInput: GraphQLTaggedNode,
-  fragmentRef: FragmentReference,
-): mixed {
+function readFragment(fragmentInput, fragmentKey): mixed {
   if (!contextStack.length) {
     throw new Error(
       'readFragment should be called only from within a Relay Resolver function.',
@@ -112,7 +103,7 @@ function readFragment(
   }
   const context = contextStack[contextStack.length - 1];
   const fragmentNode = getFragment(fragmentInput);
-  const fragmentSelector = getSelector(fragmentNode, fragmentRef);
+  const fragmentSelector = getSelector(fragmentNode, fragmentKey);
   invariant(
     fragmentSelector != null,
     `Expected a selector for the fragment of the resolver ${fragmentNode.name}, but got null.`,
@@ -121,7 +112,7 @@ function readFragment(
     fragmentSelector.kind === 'SingularReaderSelector',
     `Expected a singular reader selector for the fragment of the resolver ${fragmentNode.name}, but it was plural.`,
   );
-  return context.getDataForResolverFragment(fragmentSelector, fragmentRef);
+  return context.getDataForResolverFragment(fragmentSelector, fragmentKey);
 }
 
 module.exports = {readFragment, withResolverContext};

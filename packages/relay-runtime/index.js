@@ -118,7 +118,9 @@ export type {RecordState} from './store/RelayRecordState';
 export type {
   ExecuteMutationConfig,
   FragmentMap,
-  FragmentReference,
+  // DEPRECATED: use FragmentType instead of FragmentReference
+  FragmentType as FragmentReference,
+  FragmentType,
   FragmentSpecResolver,
   HandleFieldPayload,
   IEnvironment,

@@ -42,7 +42,9 @@ use writer::{Prop, AST, SPREAD_KEY};
 lazy_static! {
     pub(crate) static ref KEY_DATA: StringKey = "$data".intern();
     pub(crate) static ref KEY_FRAGMENT_REFS: StringKey = "$fragmentRefs".intern();
+    pub(crate) static ref KEY_FRAGMENT_SPREADS: StringKey = "$fragmentSpreads".intern();
     pub(crate) static ref KEY_REF_TYPE: StringKey = "$refType".intern();
+    pub(crate) static ref KEY_TYPE: StringKey = "$type".intern();
     static ref ACTOR_CHANGE_POINT: StringKey = "ActorChangePoint".intern();
     static ref FRAGMENT_PROP_NAME: StringKey = "__fragmentPropName".intern();
     static ref FUTURE_ENUM_VALUE: StringKey = "%future added value".intern();
@@ -330,10 +332,16 @@ impl<'a> TypeGenerator<'a> {
             read_only: true,
             value: AST::FragmentReference(vec![fragment_name]),
         };
+        let ref_type_fragment_spreads_property = Prop {
+            key: *KEY_FRAGMENT_SPREADS,
+            optional: false,
+            read_only: true,
+            value: AST::FragmentReference(vec![fragment_name]),
+        };
         let is_plural_fragment = is_plural(node);
         let mut ref_type = AST::InexactObject(match self.flow_typegen_phase {
             FlowTypegenPhase::Old => vec![ref_type_data_property, ref_type_fragment_ref_property],
-            FlowTypegenPhase::New => vec![ref_type_fragment_ref_property],
+            FlowTypegenPhase::New => vec![ref_type_fragment_spreads_property],
         });
         if is_plural_fragment {
             ref_type = AST::ReadOnlyArray(Box::new(ref_type));
@@ -783,14 +791,17 @@ impl<'a> TypeGenerator<'a> {
             let mut typename_aliases = IndexSet::new();
             for (concrete_type, selections) in by_concrete_type {
                 types.push(
-                    group_refs(base_fields.values().cloned().chain(selections))
-                        .map(|selection| {
-                            if selection.is_typename() {
-                                typename_aliases.insert(selection.key);
-                            }
-                            self.make_prop(selection, unmasked, Some(concrete_type))
-                        })
-                        .collect(),
+                    group_refs(
+                        self.flow_typegen_phase,
+                        base_fields.values().cloned().chain(selections),
+                    )
+                    .map(|selection| {
+                        if selection.is_typename() {
+                            typename_aliases.insert(selection.key);
+                        }
+                        self.make_prop(selection, unmasked, Some(concrete_type))
+                    })
+                    .collect(),
                 );
             }
 
@@ -823,22 +834,23 @@ impl<'a> TypeGenerator<'a> {
                     true,
                 )
             }
-            let selection_map_values = group_refs(hashmap_into_values(selection_map))
-                .map(|sel| {
-                    if sel.is_typename() && sel.concrete_type.is_some() {
-                        self.make_prop(
-                            TypeSelection {
-                                conditional: false,
-                                ..sel
-                            },
-                            unmasked,
-                            sel.concrete_type,
-                        )
-                    } else {
-                        self.make_prop(sel, unmasked, None)
-                    }
-                })
-                .collect();
+            let selection_map_values =
+                group_refs(self.flow_typegen_phase, hashmap_into_values(selection_map))
+                    .map(|sel| {
+                        if sel.is_typename() && sel.concrete_type.is_some() {
+                            self.make_prop(
+                                TypeSelection {
+                                    conditional: false,
+                                    ..sel
+                                },
+                                unmasked,
+                                sel.concrete_type,
+                            )
+                        } else {
+                            self.make_prop(sel, unmasked, None)
+                        }
+                    })
+                    .collect();
             types.push(selection_map_values);
         }
 
@@ -847,12 +859,24 @@ impl<'a> TypeGenerator<'a> {
                 .into_iter()
                 .map(|mut props: Vec<Prop>| {
                     if let Some(fragment_type_name) = fragment_type_name {
-                        props.push(Prop {
-                            key: *KEY_REF_TYPE,
-                            optional: false,
-                            read_only: true,
-                            value: AST::FragmentReferenceType(fragment_type_name),
-                        });
+                        match self.flow_typegen_phase {
+                            FlowTypegenPhase::Old => {
+                                props.push(Prop {
+                                    key: *KEY_REF_TYPE,
+                                    optional: false,
+                                    read_only: true,
+                                    value: AST::FragmentReferenceType(fragment_type_name),
+                                });
+                            }
+                            FlowTypegenPhase::New => {
+                                props.push(Prop {
+                                    key: *KEY_TYPE,
+                                    optional: false,
+                                    read_only: true,
+                                    value: AST::FragmentReferenceType(fragment_type_name),
+                                });
+                            }
+                        }
                     }
                     if unmasked {
                         AST::InexactObject(props)
@@ -1463,13 +1487,24 @@ fn selections_to_map(
 
 // TODO: T85950736 Fix these clippy errors
 #[allow(clippy::while_let_on_iterator, clippy::useless_conversion)]
-fn group_refs(props: impl Iterator<Item = TypeSelection>) -> impl Iterator<Item = TypeSelection> {
+fn group_refs(
+    flow_typegen_phase: FlowTypegenPhase,
+    props: impl Iterator<Item = TypeSelection>,
+) -> impl Iterator<Item = TypeSelection> {
     let mut refs = None;
+    let mut new_refs = None;
     let mut props = props.into_iter();
     std::iter::from_fn(move || {
         while let Some(prop) = props.next() {
             if let Some(ref_) = prop.ref_ {
-                refs.get_or_insert_with(Vec::new).push(ref_);
+                match flow_typegen_phase {
+                    FlowTypegenPhase::Old => {
+                        refs.get_or_insert_with(Vec::new).push(ref_);
+                    }
+                    FlowTypegenPhase::New => {
+                        new_refs.get_or_insert_with(Vec::new).push(ref_);
+                    }
+                }
             } else {
                 return Some(prop);
             }
@@ -1477,6 +1512,19 @@ fn group_refs(props: impl Iterator<Item = TypeSelection>) -> impl Iterator<Item 
         if let Some(refs) = refs.take() {
             return Some(TypeSelection {
                 key: *KEY_FRAGMENT_REFS,
+                conditional: false,
+                value: Some(AST::FragmentReference(refs)),
+                schema_name: None,
+                node_type: None,
+                concrete_type: None,
+                ref_: None,
+                node_selections: None,
+                document_name: None,
+            });
+        }
+        if let Some(refs) = new_refs.take() {
+            return Some(TypeSelection {
+                key: *KEY_FRAGMENT_SPREADS,
                 conditional: false,
                 value: Some(AST::FragmentReference(refs)),
                 schema_name: None,

@@ -7,7 +7,7 @@
 
 use crate::{
     writer::{Prop, Writer, AST, SPREAD_KEY},
-    FlowTypegenPhase, KEY_FRAGMENT_REFS, KEY_REF_TYPE,
+    FlowTypegenPhase,
 };
 use interner::{intern, StringKey};
 use itertools::Itertools;
@@ -240,20 +240,7 @@ impl FlowPrinter {
             if prop.read_only {
                 write!(&mut self.result, "+")?;
             }
-            match self.flow_typegen_phase {
-                FlowTypegenPhase::Old => {
-                    write!(&mut self.result, "{}", prop.key)?;
-                }
-                FlowTypegenPhase::New => {
-                    if prop.key == *KEY_FRAGMENT_REFS {
-                        write!(&mut self.result, "$fragmentSpreads")?;
-                    } else if prop.key == *KEY_REF_TYPE {
-                        write!(&mut self.result, "$type")?;
-                    } else {
-                        write!(&mut self.result, "{}", prop.key)?;
-                    }
-                }
-            }
+            write!(&mut self.result, "{}", prop.key)?;
             if prop.optional {
                 write!(&mut self.result, "?")?;
             }

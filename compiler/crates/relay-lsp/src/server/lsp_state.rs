@@ -122,7 +122,7 @@ pub struct LSPState<
     synced_graphql_documents: DashMap<Url, Vec<GraphQLSource>>,
     pub(crate) perf_logger: Arc<TPerfLogger>,
     pub(crate) diagnostic_reporter: Arc<DiagnosticReporter>,
-    pub(crate) notify_sender: Arc<Notify>,
+    pub(crate) notify_lsp_state_resources: Arc<Notify>,
     pub(crate) sender: Sender<Message>,
     pub(crate) project_status: ProjectStatusMap,
     js_resource: Option<Box<dyn JSLanguageServer<TState = Self>>>,
@@ -155,7 +155,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             diagnostic_reporter,
             extra_data_provider,
             file_categorizer,
-            notify_sender: Arc::new(Notify::new()),
+            notify_lsp_state_resources: Arc::new(Notify::new()),
             perf_logger,
             project_status: Arc::new(DashMap::with_hasher(FnvBuildHasher::default())),
             root_dir: root_dir.clone(),
@@ -343,7 +343,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
 
         if let Entry::Vacant(e) = self.project_status.entry(project_name) {
             e.insert(ProjectStatus::Activated);
-            self.notify_sender.notify_one();
+            self.notify_lsp_state_resources.notify_one();
         }
 
         self.insert_synced_sources(uri, sources);

@@ -23,7 +23,7 @@ use relay_compiler::{
 use relay_transforms::FeatureFlags;
 use schema::SDLSchema;
 use schema_documentation::SchemaDocumentation;
-use tokio::{sync::Notify, task, task::JoinHandle};
+use tokio::{task, task::JoinHandle};
 
 use crate::{
     lsp_process_error::{LSPProcessError, LSPProcessResult},
@@ -40,15 +40,13 @@ pub(crate) struct LSPStateResources<
     TSchemaDocumentation: SchemaDocumentation + 'static,
 > {
     lsp_state: Arc<LSPState<TPerfLogger, TSchemaDocumentation>>,
-    notify: Arc<Notify>,
 }
 
 impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentation + 'static>
     LSPStateResources<TPerfLogger, TSchemaDocumentation>
 {
     pub(crate) fn new(lsp_state: Arc<LSPState<TPerfLogger, TSchemaDocumentation>>) -> Self {
-        let notify = lsp_state.notify_sender.clone();
-        Self { lsp_state, notify }
+        Self { lsp_state }
     }
 
     /// Create an end-less loop of keeping the resources up-to-date with the source control changes
@@ -111,7 +109,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
 
             // Here we will wait for changes from watchman
             'inner: loop {
-                self.notify.notified().await;
+                self.lsp_state.notify_lsp_state_resources.notified().await;
 
                 // Source control update started, we can ignore all pending changes, and wait for it to complete,
                 // we may change the status bar to `Source Control Update...`
@@ -386,7 +384,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         pending_file_source_changes: Arc<RwLock<Vec<FileSourceResult>>>,
         source_code_update_status: Arc<SourceControlUpdateStatus>,
     ) -> JoinHandle<()> {
-        let notify_sender = self.notify.clone();
+        let notify_sender = self.lsp_state.notify_lsp_state_resources.clone();
         task::spawn(async move {
             loop {
                 match file_source_subscription.next_change().await {

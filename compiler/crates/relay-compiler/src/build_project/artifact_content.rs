@@ -11,11 +11,12 @@ use graphql_ir::{Directive, FragmentDefinition, OperationDefinition};
 use graphql_syntax::OperationKind;
 use relay_codegen::{build_request_params, Printer, QueryID};
 use relay_transforms::{
-    is_operation_preloadable, ReactFlightLocalComponentsMetadata, RefetchableMetadata,
-    RelayClientComponentMetadata, DATA_DRIVEN_DEPENDENCY_METADATA_KEY, INLINE_DIRECTIVE_NAME,
+    is_operation_preloadable, ReactFlightLocalComponentsMetadata, RefetchableDerivedFromMetadata,
+    RefetchableMetadata, RelayClientComponentMetadata, DATA_DRIVEN_DEPENDENCY_METADATA_KEY,
+    INLINE_DIRECTIVE_NAME,
 };
 use relay_typegen::{
-    generate_fragment_type, has_raw_response_type_directive, FlowTypegenRollout, TypegenLanguage,
+    generate_fragment_type, has_raw_response_type_directive, FlowTypegenPhase, TypegenLanguage,
 };
 use schema::SDLSchema;
 use signedsource::{sign_file, SIGNING_TOKEN};
@@ -245,15 +246,22 @@ fn generate_operation(
         OperationKind::Subscription => "Subscription",
     };
 
-    match project_config.typegen_config.flow_typegen_rollout {
-        FlowTypegenRollout::Old => write_import_type_from(
+    let rollout_key = RefetchableDerivedFromMetadata::find(&typegen_operation.directives)
+        .map_or(typegen_operation.name.item, |metadata| metadata.0);
+    let flow_typegen_phase = project_config
+        .typegen_config
+        .flow_typegen
+        .phase(rollout_key);
+
+    match flow_typegen_phase {
+        FlowTypegenPhase::Old => write_import_type_from(
             &project_config.typegen_config.language,
             &mut content,
             "ConcreteRequest",
             "relay-runtime",
         )
         .unwrap(),
-        FlowTypegenRollout::New => write_import_type_from(
+        FlowTypegenPhase::New => write_import_type_from(
             &project_config.typegen_config.language,
             &mut content,
             &format!("ConcreteRequest, {}", operation_flow_type),
@@ -316,9 +324,9 @@ fn generate_operation(
         .unwrap();
     }
 
-    let node_type = match project_config.typegen_config.flow_typegen_rollout {
-        FlowTypegenRollout::Old => None,
-        FlowTypegenRollout::New => Some(
+    let node_type = match flow_typegen_phase {
+        FlowTypegenPhase::Old => None,
+        FlowTypegenPhase::New => Some(
             if has_raw_response_type_directive(normalization_operation) {
                 format!(
                     "{type}<\n  {name}Variables,\n  {name}Response,\n  {name}RawResponse,\n>",
@@ -485,16 +493,17 @@ fn generate_fragment(
 
     let (imported_types, reader_node_flow_type, node_type) = match project_config
         .typegen_config
-        .flow_typegen_rollout
+        .flow_typegen
+        .phase(typegen_fragment.name.item)
     {
-        FlowTypegenRollout::Old => {
+        FlowTypegenPhase::Old => {
             if is_inline_data_fragment {
                 ("ReaderInlineDataFragment", "ReaderInlineDataFragment", None)
             } else {
                 ("ReaderFragment", "ReaderFragment", None)
             }
         }
-        FlowTypegenRollout::New => {
+        FlowTypegenPhase::New => {
             if is_inline_data_fragment {
                 (
                     "InlineFragment, ReaderInlineDataFragment",

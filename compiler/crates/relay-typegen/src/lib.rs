@@ -18,7 +18,7 @@ use crate::flow::FlowPrinter;
 use crate::typescript::TypeScriptPrinter;
 use crate::writer::Writer;
 use common::NamedItem;
-pub use config::{TypegenConfig, TypegenLanguage};
+pub use config::{FlowTypegenPhase, TypegenConfig, TypegenLanguage};
 use fnv::FnvHashSet;
 use graphql_ir::{
     Condition, Directive, FragmentDefinition, FragmentSpread, InlineFragment, LinkedField,
@@ -35,7 +35,6 @@ use relay_transforms::{
     CLIENT_EXTENSION_DIRECTIVE_NAME, RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN,
 };
 use schema::{EnumID, SDLSchema, ScalarID, Schema, Type, TypeReference};
-use serde::{Deserialize, Serialize};
 use std::hash::Hash;
 use std::{fmt::Result, path::Path};
 use writer::{Prop, AST, SPREAD_KEY};
@@ -70,7 +69,8 @@ pub fn generate_fragment_type(
     js_module_format: JsModuleFormat,
     typegen_config: &TypegenConfig,
 ) -> String {
-    let mut generator = TypeGenerator::new(schema, js_module_format, typegen_config);
+    let mut generator =
+        TypeGenerator::new(schema, js_module_format, typegen_config, fragment.name.item);
     generator.generate_fragment_type(fragment).unwrap();
     generator.into_string()
 }
@@ -82,7 +82,9 @@ pub fn generate_operation_type(
     js_module_format: JsModuleFormat,
     typegen_config: &TypegenConfig,
 ) -> String {
-    let mut generator = TypeGenerator::new(schema, js_module_format, typegen_config);
+    let rollout_key = RefetchableDerivedFromMetadata::find(&typegen_operation.directives)
+        .map_or(typegen_operation.name.item, |metadata| metadata.0);
+    let mut generator = TypeGenerator::new(schema, js_module_format, typegen_config, rollout_key);
     generator
         .generate_operation_type(typegen_operation, normalization_operation)
         .unwrap();
@@ -96,7 +98,12 @@ pub fn generate_split_operation_type(
     js_module_format: JsModuleFormat,
     typegen_config: &TypegenConfig,
 ) -> String {
-    let mut generator = TypeGenerator::new(schema, js_module_format, typegen_config);
+    let mut generator = TypeGenerator::new(
+        schema,
+        js_module_format,
+        typegen_config,
+        typegen_operation.name.item,
+    );
     generator
         .generate_split_operation_type(typegen_operation, normalization_operation)
         .unwrap();
@@ -128,13 +135,16 @@ struct TypeGenerator<'a> {
     match_fields: IndexMap<StringKey, AST>,
     writer: Box<dyn Writer>,
     has_actor_change: bool,
+    flow_typegen_phase: FlowTypegenPhase,
 }
 impl<'a> TypeGenerator<'a> {
     fn new(
         schema: &'a SDLSchema,
         js_module_format: JsModuleFormat,
         typegen_config: &'a TypegenConfig,
+        rollout_key: StringKey,
     ) -> Self {
+        let flow_typegen_phase = typegen_config.flow_typegen.phase(rollout_key);
         Self {
             schema,
             generated_fragments: Default::default(),
@@ -148,12 +158,11 @@ impl<'a> TypeGenerator<'a> {
             match_fields: Default::default(),
             runtime_imports: RuntimeImports::default(),
             writer: match &typegen_config.language {
-                TypegenLanguage::Flow => {
-                    Box::new(FlowPrinter::new(typegen_config.flow_typegen_rollout))
-                }
+                TypegenLanguage::Flow => Box::new(FlowPrinter::new(flow_typegen_phase)),
                 TypegenLanguage::TypeScript => Box::new(TypeScriptPrinter::new(typegen_config)),
             },
             has_actor_change: false,
+            flow_typegen_phase,
         }
     }
 
@@ -207,15 +216,15 @@ impl<'a> TypeGenerator<'a> {
 
         self.write_import_actor_change_point()?;
         self.write_runtime_imports()?;
-        match self.typegen_config.flow_typegen_rollout {
-            FlowTypegenRollout::Old => {
+        match self.flow_typegen_phase {
+            FlowTypegenPhase::Old => {
                 if let Some(refetchable_derived_from) = refetchable_fragment_name {
                     self.write_fragment_refs_for_refetchable(refetchable_derived_from.0)?;
                 } else {
                     self.write_fragment_imports()?;
                 }
             }
-            FlowTypegenRollout::New => {
+            FlowTypegenPhase::New => {
                 self.write_fragment_imports()?;
             }
         }
@@ -322,9 +331,9 @@ impl<'a> TypeGenerator<'a> {
             value: AST::FragmentReference(vec![fragment_name]),
         };
         let is_plural_fragment = is_plural(node);
-        let mut ref_type = AST::InexactObject(match self.typegen_config.flow_typegen_rollout {
-            FlowTypegenRollout::Old => vec![ref_type_data_property, ref_type_fragment_ref_property],
-            FlowTypegenRollout::New => vec![ref_type_fragment_ref_property],
+        let mut ref_type = AST::InexactObject(match self.flow_typegen_phase {
+            FlowTypegenPhase::Old => vec![ref_type_data_property, ref_type_fragment_ref_property],
+            FlowTypegenPhase::New => vec![ref_type_fragment_ref_property],
         });
         if is_plural_fragment {
             ref_type = AST::ReadOnlyArray(Box::new(ref_type));
@@ -359,8 +368,8 @@ impl<'a> TypeGenerator<'a> {
         let other_old_fragment_type_name = format!("{}$fragmentType", fragment_name).intern();
         let old_fragment_type_name = format!("{}$ref", fragment_name).intern();
         let new_fragment_type_name = format!("{}$type", node.name.item).intern();
-        match self.typegen_config.flow_typegen_rollout {
-            FlowTypegenRollout::Old => {
+        match self.flow_typegen_phase {
+            FlowTypegenPhase::Old => {
                 if let Some(refetchable_metadata) = refetchable_metadata {
                     match self.js_module_format {
                         JsModuleFormat::CommonJS => {
@@ -388,7 +397,7 @@ impl<'a> TypeGenerator<'a> {
                     )?;
                 }
             }
-            FlowTypegenRollout::New => {
+            FlowTypegenPhase::New => {
                 self.writer.write_export_fragment_type(
                     old_fragment_type_name,
                     other_old_fragment_type_name,
@@ -1131,9 +1140,9 @@ impl<'a> TypeGenerator<'a> {
     fn write_fragment_imports(&mut self) -> Result {
         for used_fragment in self.used_fragments.iter().sorted() {
             if !self.generated_fragments.contains(used_fragment) {
-                let fragment_type_name = match self.typegen_config.flow_typegen_rollout {
-                    FlowTypegenRollout::Old => format!("{}$ref", used_fragment).intern(),
-                    FlowTypegenRollout::New => format!("{}$type", used_fragment).intern(),
+                let fragment_type_name = match self.flow_typegen_phase {
+                    FlowTypegenPhase::Old => format!("{}$ref", used_fragment).intern(),
+                    FlowTypegenPhase::New => format!("{}$type", used_fragment).intern(),
                 };
                 match self.js_module_format {
                     JsModuleFormat::CommonJS => {
@@ -1539,19 +1548,4 @@ fn to_camel_case(non_camelized_string: String) -> String {
         }
     }
     camelized_string
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone, Copy)]
-#[serde(rename_all = "lowercase")]
-pub enum FlowTypegenRollout {
-    /// Original state
-    Old,
-    /// Final state
-    New,
-}
-
-impl Default for FlowTypegenRollout {
-    fn default() -> Self {
-        FlowTypegenRollout::Old
-    }
 }

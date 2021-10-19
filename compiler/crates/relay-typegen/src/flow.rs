@@ -7,7 +7,7 @@
 
 use crate::{
     writer::{Prop, Writer, AST, SPREAD_KEY},
-    FlowTypegenRollout, KEY_FRAGMENT_REFS, KEY_REF_TYPE,
+    FlowTypegenPhase, KEY_FRAGMENT_REFS, KEY_REF_TYPE,
 };
 use interner::{intern, StringKey};
 use itertools::Itertools;
@@ -16,7 +16,7 @@ use std::fmt::{Result, Write};
 pub struct FlowPrinter {
     result: String,
     indentation: usize,
-    flow_typegen_rollout: FlowTypegenRollout,
+    flow_typegen_phase: FlowTypegenPhase,
 }
 
 impl Writer for FlowPrinter {
@@ -43,11 +43,11 @@ impl Writer for FlowPrinter {
                 self.write_local_3d_payload(*document_name, selections)
             }
             AST::FragmentReference(fragments) => self.write_fragment_references(fragments),
-            AST::FragmentReferenceType(fragment) => match self.flow_typegen_rollout {
-                FlowTypegenRollout::Old => {
+            AST::FragmentReferenceType(fragment) => match self.flow_typegen_phase {
+                FlowTypegenPhase::Old => {
                     write!(&mut self.result, "{}$ref", fragment)
                 }
-                FlowTypegenRollout::New => {
+                FlowTypegenPhase::New => {
                     write!(&mut self.result, "{}$type", fragment)
                 }
             },
@@ -59,9 +59,9 @@ impl Writer for FlowPrinter {
     }
 
     fn get_runtime_fragment_import(&self) -> StringKey {
-        match self.flow_typegen_rollout {
-            FlowTypegenRollout::Old => intern!("FragmentReference"),
-            FlowTypegenRollout::New => {
+        match self.flow_typegen_phase {
+            FlowTypegenPhase::Old => intern!("FragmentReference"),
+            FlowTypegenPhase::New => {
                 intern!("FragmentType")
             }
         }
@@ -96,15 +96,15 @@ impl Writer for FlowPrinter {
         other_old_name: StringKey,
         new_name: StringKey,
     ) -> Result {
-        match self.flow_typegen_rollout {
-            FlowTypegenRollout::Old => writeln!(
+        match self.flow_typegen_phase {
+            FlowTypegenPhase::Old => writeln!(
                 &mut self.result,
                 "declare export opaque type {old_name}: FragmentReference;
 declare export opaque type {other_old_name}: {old_name};",
                 old_name = old_name,
                 other_old_name = other_old_name
             ),
-            FlowTypegenRollout::New => writeln!(
+            FlowTypegenPhase::New => writeln!(
                 &mut self.result,
                 "declare export opaque type {new_name}: FragmentType;",
                 new_name = new_name
@@ -130,11 +130,11 @@ declare export opaque type {other_old_name}: {old_name};",
 }
 
 impl FlowPrinter {
-    pub fn new(rollout_phase: FlowTypegenRollout) -> Self {
+    pub fn new(flow_typegen_phase: FlowTypegenPhase) -> Self {
         Self {
             result: String::new(),
             indentation: 0,
-            flow_typegen_rollout: rollout_phase,
+            flow_typegen_phase,
         }
     }
 
@@ -171,11 +171,11 @@ impl FlowPrinter {
             } else {
                 write!(&mut self.result, " & ")?;
             }
-            match self.flow_typegen_rollout {
-                FlowTypegenRollout::Old => {
+            match self.flow_typegen_phase {
+                FlowTypegenPhase::Old => {
                     write!(&mut self.result, "{}$ref", fragment)?;
                 }
-                FlowTypegenRollout::New => {
+                FlowTypegenPhase::New => {
                     write!(&mut self.result, "{}$type", fragment)?;
                 }
             }
@@ -240,27 +240,18 @@ impl FlowPrinter {
             if prop.read_only {
                 write!(&mut self.result, "+")?;
             }
-            match self.flow_typegen_rollout {
-                FlowTypegenRollout::Old => {
+            match self.flow_typegen_phase {
+                FlowTypegenPhase::Old => {
                     write!(&mut self.result, "{}", prop.key)?;
                 }
-                FlowTypegenRollout::New => {
-                    write!(
-                        &mut self.result,
-                        "{}",
-                        match self.flow_typegen_rollout {
-                            FlowTypegenRollout::Old => prop.key,
-                            FlowTypegenRollout::New => {
-                                if prop.key == *KEY_FRAGMENT_REFS {
-                                    intern!("$fragmentSpreads")
-                                } else if prop.key == *KEY_REF_TYPE {
-                                    intern!("$type")
-                                } else {
-                                    prop.key
-                                }
-                            }
-                        }
-                    )?;
+                FlowTypegenPhase::New => {
+                    if prop.key == *KEY_FRAGMENT_REFS {
+                        write!(&mut self.result, "$fragmentSpreads")?;
+                    } else if prop.key == *KEY_REF_TYPE {
+                        write!(&mut self.result, "$type")?;
+                    } else {
+                        write!(&mut self.result, "{}", prop.key)?;
+                    }
                 }
             }
             if prop.optional {
@@ -313,7 +304,7 @@ mod tests {
     use interner::Intern;
 
     fn print_type(ast: &AST) -> String {
-        let mut printer = Box::new(FlowPrinter::new(FlowTypegenRollout::New));
+        let mut printer = Box::new(FlowPrinter::new(FlowTypegenPhase::New));
         printer.write(ast).unwrap();
         printer.into_string()
     }
@@ -508,7 +499,7 @@ mod tests {
 
     #[test]
     fn import_type() {
-        let mut printer = Box::new(FlowPrinter::new(FlowTypegenRollout::New));
+        let mut printer = Box::new(FlowPrinter::new(FlowTypegenPhase::New));
         printer
             .write_import_type(&["A".intern(), "B".intern()], "module".intern())
             .unwrap();
@@ -520,7 +511,7 @@ mod tests {
 
     #[test]
     fn import_module() {
-        let mut printer = Box::new(FlowPrinter::new(FlowTypegenRollout::New));
+        let mut printer = Box::new(FlowPrinter::new(FlowTypegenPhase::New));
         printer
             .write_import_module_default("A".intern(), "module".intern())
             .unwrap();

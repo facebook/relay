@@ -8,9 +8,8 @@
 use fnv::FnvBuildHasher;
 use indexmap::{IndexMap, IndexSet};
 use interner::StringKey;
+use relay_transforms::Rollout;
 use serde::{Deserialize, Serialize};
-
-use crate::FlowTypegenRollout;
 
 type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
 type FnvIndexSet<T> = IndexSet<T, FnvBuildHasher>;
@@ -75,5 +74,52 @@ pub struct TypegenConfig {
 
     /// Work in progress new Flow type definitions
     #[serde(default)]
-    pub flow_typegen_rollout: FlowTypegenRollout,
+    pub flow_typegen: FlowTypegenConfig,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, Copy)]
+#[serde(deny_unknown_fields, tag = "phase")]
+pub struct FlowTypegenConfig {
+    phase: FlowTypegenPhase,
+    #[serde(default)]
+    rollout: Rollout,
+}
+impl Default for FlowTypegenConfig {
+    fn default() -> Self {
+        Self {
+            phase: FlowTypegenPhase::Old,
+            rollout: Rollout::default(),
+        }
+    }
+}
+impl FlowTypegenConfig {
+    /// Returns the FlowTypegenPhase based on the config. If a `Rollout` check
+    /// is not passing, the previous phase is returned.
+    pub fn phase(self, rollout_key: StringKey) -> FlowTypegenPhase {
+        if self.rollout.check(rollout_key.lookup()) {
+            self.phase
+        } else {
+            self.phase.previous()
+        }
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, Copy)]
+pub enum FlowTypegenPhase {
+    /// Original state
+    Old,
+    /// Final state
+    New,
+}
+
+impl FlowTypegenPhase {
+    /// Returns the previous phase that should be used when the rollout
+    /// percentage check for the current phase fails.
+    fn previous(self) -> Self {
+        use FlowTypegenPhase::*;
+        match self {
+            Old => Old,
+            New => Old,
+        }
+    }
 }

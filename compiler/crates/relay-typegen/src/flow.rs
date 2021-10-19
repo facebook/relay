@@ -252,7 +252,7 @@ impl FlowPrinter {
                             FlowTypegenRollout::Old => prop.key,
                             FlowTypegenRollout::New => {
                                 if prop.key == *KEY_FRAGMENT_REFS {
-                                    intern!("$spreads")
+                                    intern!("$fragmentSpreads")
                                 } else if prop.key == *KEY_REF_TYPE {
                                     intern!("$type")
                                 } else {

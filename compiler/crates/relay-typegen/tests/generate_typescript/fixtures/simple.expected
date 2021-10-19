@@ -16,7 +16,7 @@ export type LinkedField = {
     readonly width: number | null;
     readonly height: number | null;
   } | null;
-  readonly " $refType": FragmentRefs<"LinkedField">;
+  readonly " $refType": "LinkedField";
 };
 export type LinkedField$data = LinkedField;
 export type LinkedField$key = {

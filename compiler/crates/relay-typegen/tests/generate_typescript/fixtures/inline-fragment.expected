@@ -71,7 +71,7 @@ export type InlineFragment = {
   readonly message?: {
     readonly text: string | null;
   } | null;
-  readonly " $refType": FragmentRefs<"InlineFragment">;
+  readonly " $refType": "InlineFragment";
 };
 export type InlineFragment$data = InlineFragment;
 export type InlineFragment$key = {
@@ -83,7 +83,7 @@ import { FragmentRefs } from "relay-runtime";
 export type InlineFragmentConditionalID = {
   readonly id?: string;
   readonly name?: string | null;
-  readonly " $refType": FragmentRefs<"InlineFragmentConditionalID">;
+  readonly " $refType": "InlineFragmentConditionalID";
 };
 export type InlineFragmentConditionalID$data = InlineFragmentConditionalID;
 export type InlineFragmentConditionalID$key = {
@@ -103,7 +103,7 @@ export type InlineFragmentKitchenSink = {
     readonly name?: string | null;
     readonly " $fragmentRefs": FragmentRefs<"SomeFragment">;
   } | null;
-  readonly " $refType": FragmentRefs<"InlineFragmentKitchenSink">;
+  readonly " $refType": "InlineFragmentKitchenSink";
 };
 export type InlineFragmentKitchenSink$data = InlineFragmentKitchenSink;
 export type InlineFragmentKitchenSink$key = {
@@ -121,7 +121,7 @@ export type InlineFragmentWithOverlappingFields = {
     } | null;
   } | null;
   readonly name?: string | null;
-  readonly " $refType": FragmentRefs<"InlineFragmentWithOverlappingFields">;
+  readonly " $refType": "InlineFragmentWithOverlappingFields";
 };
 export type InlineFragmentWithOverlappingFields$data = InlineFragmentWithOverlappingFields;
 export type InlineFragmentWithOverlappingFields$key = {
@@ -132,7 +132,7 @@ export type InlineFragmentWithOverlappingFields$key = {
 import { FragmentRefs } from "relay-runtime";
 export type SomeFragment = {
   readonly __typename: "User";
-  readonly " $refType": FragmentRefs<"SomeFragment">;
+  readonly " $refType": "SomeFragment";
 };
 export type SomeFragment$data = SomeFragment;
 export type SomeFragment$key = {

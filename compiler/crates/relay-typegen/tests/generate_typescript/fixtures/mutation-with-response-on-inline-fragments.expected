@@ -97,7 +97,7 @@ export type InlineFragmentWithOverlappingFields = {
     } | null;
   } | null;
   readonly name?: string | null;
-  readonly " $refType": FragmentRefs<"InlineFragmentWithOverlappingFields">;
+  readonly " $refType": "InlineFragmentWithOverlappingFields";
 };
 export type InlineFragmentWithOverlappingFields$data = InlineFragmentWithOverlappingFields;
 export type InlineFragmentWithOverlappingFields$key = {

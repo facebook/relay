@@ -16,10 +16,10 @@ import { FragmentRefs } from "relay-runtime";
 export type Foo = {
   readonly __typename: "User";
   readonly name: string;
-  readonly " $refType": FragmentRefs<"Foo">;
+  readonly " $refType": "Foo";
 } | {
   readonly __typename: "Comment" | "Feedback" | "Page" | "PhotoStory" | "Story";
-  readonly " $refType": FragmentRefs<"Foo">;
+  readonly " $refType": "Foo";
 } | null;
 export type Foo$data = Foo;
 export type Foo$key = {

@@ -161,7 +161,6 @@ impl<'a> TypeGenerator<'a> {
         self.writer.into_string()
     }
 
-
     fn generate_operation_type(
         &mut self,
         typegen_operation: &OperationDefinition,
@@ -409,7 +408,6 @@ impl<'a> TypeGenerator<'a> {
             }
         }
 
-
         self.writer.write_export_type(data_type, &type_)?;
         self.writer
             .write_export_type(data_type_name, &AST::RawType(data_type))?;
@@ -599,7 +597,12 @@ impl<'a> TypeGenerator<'a> {
             schema_name: Some(schema_name),
             node_type: None,
             value: Some(AST::Nullable(Box::new(AST::ActorChangePoint(Box::new(
-                self.selections_to_ast(Some(field.type_.inner()), linked_field_selections.into_iter(), false, None),
+                self.selections_to_ast(
+                    Some(field.type_.inner()),
+                    linked_field_selections.into_iter(),
+                    false,
+                    None,
+                ),
             ))))),
             conditional: false,
             concrete_type: None,
@@ -964,7 +967,7 @@ impl<'a> TypeGenerator<'a> {
                 key: *KEY_REF_TYPE,
                 optional: false,
                 read_only: true,
-                value: AST::FragmentReference(vec![fragment_type_name]),
+                value: AST::FragmentReferenceType(fragment_type_name),
             });
         }
 

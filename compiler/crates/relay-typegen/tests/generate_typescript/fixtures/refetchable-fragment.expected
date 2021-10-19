@@ -27,7 +27,7 @@ export type RefetchableFragment = {
   readonly fragAndField: {
     readonly uri: string | null;
   } | null;
-  readonly " $refType": FragmentRefs<"RefetchableFragment">;
+  readonly " $refType": "RefetchableFragment";
 };
 export type RefetchableFragment$data = RefetchableFragment;
 export type RefetchableFragment$key = {

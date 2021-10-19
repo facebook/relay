@@ -27,7 +27,7 @@ export type ScalarField = {
     readonly name: string | null;
     readonly service: string | null;
   } | null> | null;
-  readonly " $refType": FragmentRefs<"ScalarField">;
+  readonly " $refType": "ScalarField";
 };
 export type ScalarField$data = ScalarField;
 export type ScalarField$key = {

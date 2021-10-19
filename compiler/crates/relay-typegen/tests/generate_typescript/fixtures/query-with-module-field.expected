@@ -56,7 +56,7 @@ export type Test_user = {
     readonly __module_component: string | null;
     readonly " $fragmentRefs": FragmentRefs<"Test_userRenderer">;
   } | null;
-  readonly " $refType": FragmentRefs<"Test_user">;
+  readonly " $refType": "Test_user";
 };
 export type Test_user$data = Test_user;
 export type Test_user$key = {
@@ -69,7 +69,7 @@ export type Test_userRenderer = {
   readonly user: {
     readonly username: string | null;
   } | null;
-  readonly " $refType": FragmentRefs<"Test_userRenderer">;
+  readonly " $refType": "Test_userRenderer";
 };
 export type Test_userRenderer$data = Test_userRenderer;
 export type Test_userRenderer$key = {

@@ -98,7 +98,7 @@ export type FriendFragment = {
   readonly profilePicture2: {
     readonly test_enums: TestEnums | null;
   } | null;
-  readonly " $refType": FragmentRefs<"FriendFragment">;
+  readonly " $refType": "FriendFragment";
 };
 export type FriendFragment$data = FriendFragment;
 export type FriendFragment$key = {

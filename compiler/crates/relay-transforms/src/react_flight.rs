@@ -339,6 +339,8 @@ impl<'s> Transformer for ReactFlightTransform<'s> {
         // then make the parent's sets active again
         std::mem::swap(&mut self.local_components, &mut local_components);
         std::mem::swap(&mut self.transitive_components, &mut transitive_components);
+
+        transitive_components.extend(local_components);
         self.fragments.insert(
             spread.fragment.item,
             FragmentResult::Resolved {

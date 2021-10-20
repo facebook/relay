@@ -40,6 +40,8 @@ use schema_documentation::{
 use std::{path::PathBuf, sync::Arc};
 use tokio::sync::Notify;
 
+use super::task_queue::TaskScheduler;
+
 pub type Schemas = Arc<DashMap<StringKey, Arc<SDLSchema>, FnvBuildHasher>>;
 pub type SourcePrograms = Arc<DashMap<StringKey, Program, FnvBuildHasher>>;
 pub type ProjectStatusMap = Arc<DashMap<StringKey, ProjectStatus, FnvBuildHasher>>;
@@ -112,7 +114,9 @@ pub struct LSPState<
     TPerfLogger: PerfLogger + 'static,
     TSchemaDocumentation: SchemaDocumentation + 'static,
 > {
-    pub config: Arc<Config>,
+    pub(crate) config: Arc<Config>,
+    pub(crate) sender: Sender<Message>,
+    task_scheduler: Arc<TaskScheduler<super::Task>>,
     root_dir: PathBuf,
     extra_data_provider: Box<dyn LSPExtraDataProvider>,
     file_categorizer: FileCategorizer,
@@ -123,7 +127,6 @@ pub struct LSPState<
     pub(crate) perf_logger: Arc<TPerfLogger>,
     pub(crate) diagnostic_reporter: Arc<DiagnosticReporter>,
     pub(crate) notify_lsp_state_resources: Arc<Notify>,
-    pub(crate) sender: Sender<Message>,
     pub(crate) project_status: ProjectStatusMap,
     js_resource: Option<Box<dyn JSLanguageServer<TState = Self>>>,
 }
@@ -134,13 +137,14 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
     /// Private constructor
     pub fn new(
         config: Arc<Config>,
+        sender: Sender<Message>,
+        task_scheduler: Arc<TaskScheduler<super::Task>>,
         perf_logger: Arc<TPerfLogger>,
         extra_data_provider: Box<dyn LSPExtraDataProvider>,
         schema_documentation_loader: Option<
             Box<dyn SchemaDocumentationLoader<TSchemaDocumentation>>,
         >,
         js_resource: Option<Box<dyn JSLanguageServer<TState = Self>>>,
-        sender: Sender<Message>,
     ) -> Self {
         debug!("Creating lsp_state...");
         let file_categorizer = FileCategorizer::from_config(&config);
@@ -152,6 +156,8 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
 
         let lsp_state = Self {
             config,
+            sender,
+            task_scheduler,
             diagnostic_reporter,
             extra_data_provider,
             file_categorizer,
@@ -164,7 +170,6 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             source_programs: Arc::new(DashMap::with_hasher(FnvBuildHasher::default())),
             synced_graphql_documents: Default::default(),
             js_resource,
-            sender,
         };
 
         // Preload schema documentation - this will warm-up schema documentation cache in the LSP Extra Data providers
@@ -253,6 +258,10 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
 
     pub fn send_message(&self, message: Message) -> Result<(), SendError<Message>> {
         self.sender.send(message)
+    }
+
+    pub fn schedule_task(&self, task: Task) {
+        self.task_scheduler.schedule(super::Task::LSPState(task));
     }
 }
 
@@ -347,7 +356,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         }
 
         self.insert_synced_sources(uri, sources);
-        self.validate_synced_sources(uri)?;
+        self.schedule_task(Task::ValidateSyncedSource(uri.clone()));
 
         Ok(())
     }
@@ -416,5 +425,30 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         project_name: &StringKey,
     ) -> LSPRuntimeResult<String> {
         get_query_text(self, query_text, project_name)
+    }
+}
+
+#[derive(Debug)]
+pub enum Task {
+    ValidateSyncedSource(Url),
+    ValidateSyncedSources,
+}
+
+pub(crate) fn handle_lsp_state_tasks<
+    TPerfLogger: PerfLogger + 'static,
+    TSchemaDocumentation: SchemaDocumentation + 'static,
+>(
+    state: Arc<LSPState<TPerfLogger, TSchemaDocumentation>>,
+    task: Task,
+) {
+    match task {
+        Task::ValidateSyncedSource(url) => {
+            state.validate_synced_sources(&url).ok();
+        }
+        Task::ValidateSyncedSources => {
+            for item in &state.synced_graphql_documents {
+                state.schedule_task(Task::ValidateSyncedSource(item.key().clone()));
+            }
+        }
     }
 }

@@ -32,7 +32,7 @@ use crate::{
     LSPState,
 };
 
-use super::lsp_state::ProjectStatus;
+use super::lsp_state::{ProjectStatus, Task};
 
 /// This structure is responsible for keeping schemas/programs in sync with the current state of the world
 pub(crate) struct LSPStateResources<
@@ -49,8 +49,14 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         Self { lsp_state }
     }
 
+    pub(crate) fn watch(self) {
+        tokio::spawn(async move {
+            self.internal_watch().await.unwrap();
+        });
+    }
+
     /// Create an end-less loop of keeping the resources up-to-date with the source control changes
-    pub(crate) async fn watch(&self) -> LSPProcessResult<()> {
+    async fn internal_watch(&self) -> LSPProcessResult<()> {
         'outer: loop {
             debug!("Initializing resources for LSP server");
 
@@ -269,6 +275,9 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         let schema = log_event.time("build_schema_time", || {
             self.build_schema(compiler_state, project_config)
         })?;
+
+        // This will kick-off the validation for all synced sources
+        self.lsp_state.schedule_task(Task::ValidateSyncedSources);
 
         self.build_programs(
             project_config,

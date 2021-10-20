@@ -329,13 +329,13 @@ fn generate_operation(
         FlowTypegenPhase::New => Some(
             if has_raw_response_type_directive(normalization_operation) {
                 format!(
-                    "{type}<\n  {name}Variables,\n  {name}Response,\n  {name}RawResponse,\n>",
+                    "{type}<\n  {name}$variables,\n  {name}$data,\n  {name}$rawResponse,\n>",
                     type = operation_flow_type,
                     name = normalization_operation.name.item
                 )
             } else {
                 format!(
-                    "{type}<\n  {name}Variables,\n  {name}Response,\n>",
+                    "{type}<\n  {name}$variables,\n  {name}$data,\n>",
                     type = operation_flow_type,
                     name = normalization_operation.name.item
                 )
@@ -509,7 +509,7 @@ fn generate_fragment(
                     "InlineFragment, ReaderInlineDataFragment",
                     "ReaderInlineDataFragment",
                     Some(format!(
-                        "InlineFragment<\n  {name}$type,\n  {name}$data,\n>",
+                        "InlineFragment<\n  {name}$fragmentType,\n  {name}$data,\n>",
                         name = typegen_fragment.name.item
                     )),
                 )
@@ -520,7 +520,7 @@ fn generate_fragment(
                     "ReaderFragment, RefetchableFragment",
                     "ReaderFragment",
                     Some(format!(
-                        "RefetchableFragment<\n  {name}$type,\n  {name}$data,\n  {refetchable_name}Variables,\n>",
+                        "RefetchableFragment<\n  {name}$fragmentType,\n  {name}$data,\n  {refetchable_name}$variables,\n>",
                         name = typegen_fragment.name.item,
                         refetchable_name = refetchable_metadata.operation_name
                     )),
@@ -530,7 +530,7 @@ fn generate_fragment(
                     "Fragment, ReaderFragment",
                     "ReaderFragment",
                     Some(format!(
-                        "Fragment<\n  {name}$type,\n  {name}$data,\n>",
+                        "Fragment<\n  {name}$fragmentType,\n  {name}$data,\n>",
                         name = typegen_fragment.name.item
                     )),
                 )

@@ -48,7 +48,7 @@ impl Writer for FlowPrinter {
                     write!(&mut self.result, "{}$ref", fragment)
                 }
                 FlowTypegenPhase::New => {
-                    write!(&mut self.result, "{}$type", fragment)
+                    write!(&mut self.result, "{}$fragmentType", fragment)
                 }
             },
             AST::FunctionReturnType(function_name) => {
@@ -176,7 +176,7 @@ impl FlowPrinter {
                     write!(&mut self.result, "{}$ref", fragment)?;
                 }
                 FlowTypegenPhase::New => {
-                    write!(&mut self.result, "{}$type", fragment)?;
+                    write!(&mut self.result, "{}$fragmentType", fragment)?;
                 }
             }
         }

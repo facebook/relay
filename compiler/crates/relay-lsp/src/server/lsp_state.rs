@@ -219,6 +219,10 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                 },
             )
             .and_then(|documents| {
+                // Waiting until T101267297 is resolved to enable these.
+                if true {
+                    return Ok(vec![]);
+                }
                 let mut warnings = vec![];
                 for document in documents {
                     // Today the only warning we check for is deprecated

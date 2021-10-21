@@ -43,6 +43,7 @@ use relay_transforms::{
 };
 use schema::SDLSchema;
 pub use source_control::add_to_mercurial;
+use std::iter::FromIterator;
 use std::{collections::hash_map::Entry, path::PathBuf, sync::Arc};
 pub use validate::{validate, AdditionalValidations};
 
@@ -411,8 +412,11 @@ pub async fn commit_project(
                     match artifact_map.0.entry(definition_name) {
                         Entry::Occupied(mut entry) => {
                             let prev_records = entry.get_mut();
+                            let current_records_paths =
+                                FnvHashSet::from_iter(artifact_records.iter().map(|r| &r.path));
+
                             for prev_record in prev_records.drain(..) {
-                                if !artifact_records.iter().any(|t| t.path == prev_record.path) {
+                                if !current_records_paths.contains(&prev_record.path) {
                                     artifacts_to_remove.insert(prev_record.path);
                                 }
                             }

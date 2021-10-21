@@ -3,7 +3,7 @@
 name = "graphql-text-printer"
 version = "0.0.0"
 authors = ["Facebook"]
-edition = "2018"
+edition = "2021"
 license = "MIT"
 
 [[test]]

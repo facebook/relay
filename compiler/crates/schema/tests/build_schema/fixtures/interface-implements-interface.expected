@@ -357,7 +357,10 @@ Text Schema:Schema {
 ]
  objects: [
     Object {
-        name: "Query",
+        name: WithLocation {
+            location: <generated>:32:37,
+            item: "Query",
+        },
         is_extension: false,
         fields: [
             FieldID(0),
@@ -641,7 +644,10 @@ interfaces: [
 ]
 objects: [
     Object {
-        name: "Query",
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "Query",
+        },
         is_extension: false,
         fields: [
             FieldID(8),

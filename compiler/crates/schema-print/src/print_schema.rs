@@ -275,11 +275,11 @@ impl<'schema, 'writer, 'curent_writer> Printer<'schema, 'writer> {
 
     fn print_object(&mut self, id: ObjectID) -> Result {
         let object = self.schema.object(id);
-        write!(self.writer(), "type {}", object.name)?;
+        write!(self.writer(), "type {}", object.name.item)?;
         self.print_implementing_interfaces(&object.interfaces)?;
         self.print_directive_values(&object.directives)?;
         self.print_space()?;
-        self.print_fields(&object.fields, object.name)?;
+        self.print_fields(&object.fields, object.name.item)?;
         self.print_definition_end()
     }
 
@@ -301,7 +301,7 @@ impl<'schema, 'writer, 'curent_writer> Printer<'schema, 'writer> {
             let union_members = union_
                 .members
                 .iter()
-                .map(|id| self.schema.object(*id).name)
+                .map(|id| self.schema.object(*id).name.item)
                 .collect::<Vec<_>>()
                 .iter()
                 .join(" | ");

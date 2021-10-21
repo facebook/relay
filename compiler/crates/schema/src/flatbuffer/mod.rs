@@ -9,7 +9,7 @@ mod serialize;
 mod wrapper;
 
 use crate::definitions::{Argument, Directive, *};
-use common::Span;
+use common::{Span, WithLocation};
 use flatbuffers::{ForwardsUOffset, Vector};
 use graphql_syntax::{
     BooleanNode, ConstantArgument, ConstantValue, DirectiveLocation, EnumNode, FloatNode,
@@ -234,7 +234,7 @@ impl<'fb> FlatBufferSchema<'fb> {
         let object = self.objects.get(id.0.try_into().unwrap());
         let name = object.name()?.intern();
         let parsed_object = Object {
-            name,
+            name: WithLocation::generated(name),
             is_extension: object.is_extension(),
             fields: object.fields()?.iter().map(FieldID).collect(),
             interfaces: object.interfaces()?.iter().map(InterfaceID).collect(),

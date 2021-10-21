@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{Named, NamedItem};
+use common::{Named, NamedItem, WithLocation};
 use graphql_syntax::*;
 use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
@@ -252,7 +252,7 @@ pub struct Scalar {
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct Object {
-    pub name: StringKey,
+    pub name: WithLocation<StringKey>,
     pub is_extension: bool,
     pub fields: Vec<FieldID>,
     pub interfaces: Vec<InterfaceID>,
@@ -430,7 +430,12 @@ macro_rules! impl_named {
     };
 }
 
-impl_named!(Object);
+impl Named for Object {
+    fn name(&self) -> StringKey {
+        self.name.item
+    }
+}
+
 impl_named!(Interface);
 impl_named!(Union);
 impl_named!(Scalar);

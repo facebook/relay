@@ -234,7 +234,7 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
         let object = self.schema.object(id);
         let name = object.name;
         let idx = self.objects.len();
-        self.add_to_type_map(idx, schema_flatbuffer::TypeKind::Object, name);
+        self.add_to_type_map(idx, schema_flatbuffer::TypeKind::Object, name.item);
         self.objects.push(schema_flatbuffer::Object::create(
             &mut self.bldr,
             &schema_flatbuffer::ObjectArgs::default(),
@@ -255,7 +255,7 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
             })
             .collect::<Vec<_>>();
         let args = schema_flatbuffer::ObjectArgs {
-            name: Some(self.bldr.create_string(name.lookup())),
+            name: Some(self.bldr.create_string(name.item.lookup())),
             is_extension: object.is_extension,
             directives: Some(self.bldr.create_vector(directives)),
             fields: Some(self.bldr.create_vector(fields)),

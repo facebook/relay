@@ -685,7 +685,7 @@ fn resolve_completion_items_for_inline_fragment_type(
                     interface
                         .implementing_objects
                         .iter()
-                        .filter_map(|id| schema.get_type(schema.object(*id).name)),
+                        .filter_map(|id| schema.get_type(schema.object(*id).name.item)),
                 )
                 .collect()
         }
@@ -696,7 +696,7 @@ fn resolve_completion_items_for_inline_fragment_type(
                     union
                         .members
                         .iter()
-                        .filter_map(|id| schema.get_type(schema.object(*id).name)),
+                        .filter_map(|id| schema.get_type(schema.object(*id).name.item)),
                 )
                 .collect()
         }

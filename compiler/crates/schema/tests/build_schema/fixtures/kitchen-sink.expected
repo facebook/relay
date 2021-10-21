@@ -550,7 +550,10 @@ Text Schema:Schema {
 ]
  objects: [
     Object {
-        name: "Query",
+        name: WithLocation {
+            location: <generated>:144:149,
+            item: "Query",
+        },
         is_extension: false,
         fields: [
             FieldID(0),
@@ -561,7 +564,10 @@ Text Schema:Schema {
         description: None,
     },
     Object {
-        name: "User",
+        name: WithLocation {
+            location: <generated>:243:247,
+            item: "User",
+        },
         is_extension: false,
         fields: [
             FieldID(3),
@@ -576,7 +582,10 @@ Text Schema:Schema {
         description: None,
     },
     Object {
-        name: "Page",
+        name: WithLocation {
+            location: <generated>:299:303,
+            item: "Page",
+        },
         is_extension: false,
         fields: [
             FieldID(5),
@@ -587,7 +596,10 @@ Text Schema:Schema {
         description: None,
     },
     Object {
-        name: "ClientType",
+        name: WithLocation {
+            location: kitchen-sink.graphql:7:17,
+            item: "ClientType",
+        },
         is_extension: true,
         fields: [
             FieldID(7),
@@ -1094,7 +1106,10 @@ interfaces: [
 ]
 objects: [
     Object {
-        name: "ClientType",
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "ClientType",
+        },
         is_extension: true,
         fields: [
             FieldID(3),
@@ -1104,7 +1119,10 @@ objects: [
         description: None,
     },
     Object {
-        name: "Page",
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "Page",
+        },
         is_extension: false,
         fields: [
             FieldID(6),
@@ -1115,7 +1133,10 @@ objects: [
         description: None,
     },
     Object {
-        name: "Query",
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "Query",
+        },
         is_extension: false,
         fields: [
             FieldID(8),
@@ -1126,7 +1147,10 @@ objects: [
         description: None,
     },
     Object {
-        name: "User",
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "User",
+        },
         is_extension: false,
         fields: [
             FieldID(0),

@@ -8,7 +8,7 @@
 use crate::definitions::{Argument, Directive, *};
 use crate::errors::SchemaError;
 use crate::graphql_schema::Schema;
-use common::{Diagnostic, DiagnosticsResult, Location, SourceLocationKey};
+use common::{Diagnostic, DiagnosticsResult, Location, SourceLocationKey, WithLocation};
 use graphql_syntax::*;
 use interner::{Intern, StringKey};
 use std::collections::{BTreeMap, HashMap, HashSet};
@@ -127,7 +127,7 @@ impl Schema for InMemorySchema {
             Type::Enum(id) => self.enums[id.as_usize()].name,
             Type::InputObject(id) => self.input_objects[id.as_usize()].name,
             Type::Interface(id) => self.interfaces[id.as_usize()].name,
-            Type::Object(id) => self.objects[id.as_usize()].name,
+            Type::Object(id) => self.objects[id.as_usize()].name.item,
             Type::Scalar(id) => self.scalars[id.as_usize()].name,
             Type::Union(id) => self.unions[id.as_usize()].name,
         }
@@ -398,13 +398,17 @@ impl InMemorySchema {
     }
 
     pub fn add_object(&mut self, object: Object) -> DiagnosticsResult<ObjectID> {
-        if self.type_map.contains_key(&object.name) {
-            return todo_add_location(SchemaError::DuplicateType(object.name));
+        if self.type_map.contains_key(&object.name.item) {
+            return Err(vec![Diagnostic::error(
+                SchemaError::DuplicateType(object.name.item),
+                object.name.location,
+            )]);
         }
         let index: u32 = self.objects.len().try_into().unwrap();
         let name = object.name;
         self.objects.push(object);
-        self.type_map.insert(name, Type::Object(ObjectID(index)));
+        self.type_map
+            .insert(name.item, Type::Object(ObjectID(index)));
         Ok(ObjectID(index))
     }
 
@@ -547,7 +551,7 @@ impl InMemorySchema {
             ));
         }
         self.type_map.remove(&self.get_type_name(Type::Object(id)));
-        self.type_map.insert(object.name, Type::Object(id));
+        self.type_map.insert(object.name.item, Type::Object(id));
         self.objects[id.as_usize()] = object;
         Ok(())
     }
@@ -950,39 +954,42 @@ impl InMemorySchema {
                     match operation {
                         OperationType::Query => {
                             if let Some(prev_query_type) = self.query_type {
-                                return todo_add_location(
+                                return Err(vec![Diagnostic::error(
                                     SchemaError::DuplicateOperationDefinition(
                                         *operation,
                                         type_.value,
-                                        self.object(prev_query_type).name,
+                                        self.object(prev_query_type).name.item,
                                     ),
-                                );
+                                    Location::new(*location_key, type_.span),
+                                )]);
                             } else {
                                 self.query_type = Some(operation_id);
                             }
                         }
                         OperationType::Mutation => {
                             if let Some(prev_mutation_type) = self.mutation_type {
-                                return todo_add_location(
+                                return Err(vec![Diagnostic::error(
                                     SchemaError::DuplicateOperationDefinition(
                                         *operation,
                                         type_.value,
-                                        self.object(prev_mutation_type).name,
+                                        self.object(prev_mutation_type).name.item,
                                     ),
-                                );
+                                    Location::new(*location_key, type_.span),
+                                )]);
                             } else {
                                 self.mutation_type = Some(operation_id);
                             }
                         }
                         OperationType::Subscription => {
                             if let Some(prev_subscription_type) = self.subscription_type {
-                                return todo_add_location(
+                                return Err(vec![Diagnostic::error(
                                     SchemaError::DuplicateOperationDefinition(
                                         *operation,
                                         type_.value,
-                                        self.object(prev_subscription_type).name,
+                                        self.object(prev_subscription_type).name.item,
                                     ),
-                                );
+                                    Location::new(*location_key, type_.span),
+                                )]);
                             } else {
                                 self.subscription_type = Some(operation_id);
                             }
@@ -1042,7 +1049,7 @@ impl InMemorySchema {
                     .collect::<DiagnosticsResult<Vec<_>>>()?;
                 let directives = self.build_directive_values(&directives);
                 self.objects.push(Object {
-                    name: name.value,
+                    name: WithLocation::new(Location::new(*location_key, name.span), name.value),
                     fields,
                     is_extension,
                     interfaces,

@@ -248,7 +248,7 @@ impl<'schema> ValidationContext<'schema> {
 
         let mut member_names = FnvHashSet::default();
         for member in union.members.iter() {
-            let member_name = self.schema.object(*member).name;
+            let member_name = self.schema.object(*member).name.item;
             if member_names.contains(&member_name) {
                 self.report_error(SchemaValidationError::DuplicateMember(member_name), context);
                 continue;

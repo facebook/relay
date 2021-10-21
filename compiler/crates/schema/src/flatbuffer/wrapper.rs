@@ -274,7 +274,7 @@ impl Schema for SchemaWrapper {
             Type::Enum(id) => self.enum_(id).name,
             Type::InputObject(id) => self.input_object(id).name,
             Type::Interface(id) => self.interface(id).name,
-            Type::Object(id) => self.object(id).name,
+            Type::Object(id) => self.object(id).name.item,
             Type::Scalar(id) => self.scalar(id).name,
             Type::Union(id) => self.union(id).name,
         }

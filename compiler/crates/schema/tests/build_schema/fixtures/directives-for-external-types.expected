@@ -585,7 +585,10 @@ Text Schema:Schema {
 ]
  objects: [
     Object {
-        name: "Query",
+        name: WithLocation {
+            location: <generated>:342:347,
+            item: "Query",
+        },
         is_extension: false,
         fields: [
             FieldID(0),
@@ -596,7 +599,10 @@ Text Schema:Schema {
         description: None,
     },
     Object {
-        name: "User",
+        name: WithLocation {
+            location: <generated>:505:509,
+            item: "User",
+        },
         is_extension: false,
         fields: [
             FieldID(3),
@@ -628,7 +634,10 @@ Text Schema:Schema {
         description: None,
     },
     Object {
-        name: "MailingAddress",
+        name: WithLocation {
+            location: <generated>:702:716,
+            item: "MailingAddress",
+        },
         is_extension: false,
         fields: [
             FieldID(6),
@@ -640,7 +649,10 @@ Text Schema:Schema {
         description: None,
     },
     Object {
-        name: "XIGStory",
+        name: WithLocation {
+            location: <generated>:872:880,
+            item: "XIGStory",
+        },
         is_extension: false,
         fields: [
             FieldID(9),
@@ -1257,7 +1269,10 @@ interfaces: [
 ]
 objects: [
     Object {
-        name: "MailingAddress",
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "MailingAddress",
+        },
         is_extension: false,
         fields: [
             FieldID(0),
@@ -1269,7 +1284,10 @@ objects: [
         description: None,
     },
     Object {
-        name: "Query",
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "Query",
+        },
         is_extension: false,
         fields: [
             FieldID(9),
@@ -1280,7 +1298,10 @@ objects: [
         description: None,
     },
     Object {
-        name: "User",
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "User",
+        },
         is_extension: false,
         fields: [
             FieldID(3),
@@ -1312,7 +1333,10 @@ objects: [
         description: None,
     },
     Object {
-        name: "XIGStory",
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "XIGStory",
+        },
         is_extension: false,
         fields: [
             FieldID(4),

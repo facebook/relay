@@ -243,7 +243,7 @@ fn generate_operation(
     let operation_flow_type = match normalization_operation.kind {
         OperationKind::Query => "Query",
         OperationKind::Mutation => "Mutation",
-        OperationKind::Subscription => "Subscription",
+        OperationKind::Subscription => "GraphQLSubscription",
     };
 
     let rollout_key = RefetchableDerivedFromMetadata::find(&typegen_operation.directives)

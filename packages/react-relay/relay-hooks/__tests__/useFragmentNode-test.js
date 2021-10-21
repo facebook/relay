@@ -228,7 +228,6 @@ beforeEach(() => {
     const userRef = props.hasOwnProperty('userRef')
       ? props.userRef
       : {
-          // $FlowFixMe[prop-missing]
           [ID_KEY]: owner.request.variables.id,
           [FRAGMENTS_KEY]: {
             useFragmentNodeTestUserFragment: {},

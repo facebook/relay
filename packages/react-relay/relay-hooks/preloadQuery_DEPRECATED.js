@@ -255,9 +255,7 @@ function preloadQueryDeduped<TQuery: OperationType>(
   } else {
     nextQueryEntry = prevQueryEntry;
   }
-  // $FlowFixMe[incompatible-call]
   pendingQueries.set(cacheKey, nextQueryEntry);
-  // $FlowFixMe[incompatible-return]
   return nextQueryEntry;
 }
 

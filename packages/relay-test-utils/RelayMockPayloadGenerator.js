@@ -187,7 +187,6 @@ class RelayMockPayloadGenerator {
     +selectionMetadata: SelectionMetadata | null,
   |}) {
     this._variables = options.variables;
-    // $FlowFixMe[cannot-spread-indexer]
     // $FlowFixMe[cannot-spread-inexact]
     // $FlowFixMe[incompatible-type]
     this._mockResolvers = {
@@ -754,7 +753,6 @@ class RelayMockPayloadGenerator {
       'RelayMockPayloadGenerator(): Undefined variable `%s`.',
       name,
     );
-    // $FlowFixMe[cannot-write]
     return this._variables[name];
   }
 

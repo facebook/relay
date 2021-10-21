@@ -69,7 +69,6 @@ function reactFlightComponentTransform(
 }
 
 function visitInlineFragment(fragment, state) {
-  // $FlowFixMe[incompatible-use]
   return this.traverse(fragment, {
     parentType: fragment.typeCondition ?? state.parentType,
     types: state.types,
@@ -77,13 +76,11 @@ function visitInlineFragment(fragment, state) {
 }
 
 function visitLinkedField(field, state) {
-  // $FlowFixMe[incompatible-use]
   return this.traverse(field, {parentType: field.type, types: state.types});
 }
 
 function visitScalarField(field: ScalarField, state: State): ScalarField {
   // use the return type to quickly determine if this is a flight field
-  // $FlowFixMe[incompatible-use]
   const schema = this.getContext().getSchema();
   if (schema.getRawType(field.type) !== state.types.componentType) {
     return field;

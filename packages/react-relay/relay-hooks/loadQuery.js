@@ -298,7 +298,6 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
         fetchPolicy === 'store-only' ? null : makeNetworkRequest(params);
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       ({dispose: cancelOnLoadCallback} = PreloadableQueryRegistry.onLoad(
-        // $FlowFixMe[incompatible-call]
         queryId,
         preloadedModule => {
           cancelOnLoadCallback();

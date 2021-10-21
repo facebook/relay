@@ -125,7 +125,6 @@ describe('when loading and disposing same query multiple times', () => {
     const Inner = function({initialPreloadedQuery}) {
       [loadedQuery, queryLoaderCallback] = useQueryLoader(
         preloadableConcreteRequest,
-        // $FlowExpectedError[incompatible-call] it's ok to pass our fake preloaded query here
         initialPreloadedQuery,
       );
       return (
@@ -164,7 +163,6 @@ describe('when loading and disposing same query multiple times', () => {
       PreloadableQueryRegistry.set(ID, query);
       queryLoaderCallback(variables);
     });
-    // $FlowFixMe[incompatible-use]
     expect(instance.toJSON()).toEqual('Loading');
 
     ReactTestRenderer.act(() => {
@@ -173,7 +171,6 @@ describe('when loading and disposing same query multiple times', () => {
       jest.runAllImmediates();
     });
 
-    // $FlowFixMe[incompatible-use]
     expect(instance.toJSON()).toEqual('4');
   });
 });

@@ -395,7 +395,6 @@ function createVisitor(
           exportType(node.name, exactObjectTypeAnnotation(operationTypes)),
         );
 
-        // $FlowFixMe[incompatible-call]
         return t.program(babelNodes);
       },
       Fragment(node) {

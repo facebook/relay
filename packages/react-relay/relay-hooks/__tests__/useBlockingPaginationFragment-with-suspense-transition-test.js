@@ -408,7 +408,6 @@ describe('useBlockingPaginationFragment with useTransition', () => {
           data: userData,
         } = useBlockingPaginationFragmentWithSuspenseTransition(
           fragment,
-          // $FlowFixMe[prop-missing]
           userRef,
         );
         return <Renderer user={userData} />;

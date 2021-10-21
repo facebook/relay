@@ -123,7 +123,6 @@ function writeRelayGeneratedFile(
           }
         }
         if (id == null) {
-          // $FlowFixMe[incompatible-call]
           id = await persistQuery(docText);
         }
         nextRequestParams = {
@@ -154,7 +153,6 @@ function writeRelayGeneratedFile(
       // $FlowFixMe[incompatible-type]
       generatedNode = {
         ...generatedNode,
-        // $FlowFixMe[incompatible-type]
         params: nextRequestParams,
       };
     }

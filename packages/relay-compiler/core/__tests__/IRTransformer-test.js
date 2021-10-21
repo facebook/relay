@@ -86,7 +86,6 @@ describe('IRTransformer', () => {
         expect(node.kind).toBe(kind);
         sequence.push(kind);
         seenKinds.add(kind);
-        // $FlowFixMe[incompatible-use]
         return this.traverse(node, state);
       };
     }

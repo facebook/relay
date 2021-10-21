@@ -2156,7 +2156,6 @@ describe('check()', () => {
                 record &&
                 typeof id === 'string'
               ) {
-                // $FlowFixMe[prop-missing]
                 return `profile_${id}_${argValues.size}`;
               }
             },

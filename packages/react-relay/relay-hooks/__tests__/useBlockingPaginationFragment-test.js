@@ -391,8 +391,6 @@ describe('useBlockingPaginationFragment', () => {
       setOwner = _setOwner;
       forceUpdate = _setCount;
 
-      // $FlowFixMe[incompatible-call]
-      // $FlowFixMe[prop-missing]
       const {data: userData} = useBlockingPaginationFragment(fragment, userRef);
       return <Renderer user={userData} />;
     };

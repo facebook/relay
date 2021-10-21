@@ -88,7 +88,6 @@ describe('IRValidator', () => {
           expect(node.kind).toBe(kind);
           sequence.push(kind);
           seenKinds.add(kind);
-          // $FlowFixMe[incompatible-use]
           this.traverse(node, state);
         };
       }
@@ -98,8 +97,6 @@ describe('IRValidator', () => {
       astKinds.forEach(kind => {
         visitors[kind] = createRecorder(kind);
       });
-      /* $FlowFixMe[incompatible-call] : Cannot call `func` with `visitors`
-       * bound to `visitor` */
       func(context, visitors, node => {
         sequence.push(`${node.kind} ${node.name}`);
         return {};

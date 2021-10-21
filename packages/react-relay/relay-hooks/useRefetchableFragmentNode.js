@@ -434,7 +434,6 @@ function useRefetchFunction<TQuery: OperationType>(
       // all variables required by the fragment when calling `refetch()`.
       // We fill in any variables not passed by the call to `refetch()` with the
       // variables from the original parent fragment owner.
-      // $FlowFixMe[cannot-spread-interface]
       const refetchVariables: VariablesOf<TQuery> = {
         ...(parentVariables: $FlowFixMe),
         ...fragmentVariables,
@@ -511,7 +510,6 @@ if (__DEV__) {
       environment: IEnvironment,
     ): ?DebugIDandTypename {
       const {Record} = require('relay-runtime');
-      // $FlowFixMe[prop-missing]
       const id = memoRefetchVariables?.id;
       if (
         fragmentRefPathInResponse.length !== 1 ||

@@ -216,7 +216,6 @@ class RelayReader {
       'RelayReader(): Undefined variable `%s`.',
       name,
     );
-    // $FlowFixMe[cannot-write]
     return this._variables[name];
   }
 

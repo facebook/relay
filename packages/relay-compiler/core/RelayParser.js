@@ -750,7 +750,6 @@ class GraphQLDefinitionParser {
       argumentDefinitions,
       directives,
       selections,
-      // $FlowFixMe[incompatible-return]
       type,
     };
   }

@@ -1825,7 +1825,6 @@ describe('usePaginationFragment', () => {
         expect(callback).toBeCalledTimes(0);
 
         TestRenderer.act(() => {
-          // $FlowFixMe[incompatible-call]
           setOwner({...query});
         });
 
@@ -2345,7 +2344,6 @@ describe('usePaginationFragment', () => {
             },
           });
           TestRenderer.act(() => {
-            // $FlowFixMe[incompatible-call]
             setOwner(newQuery);
           });
 

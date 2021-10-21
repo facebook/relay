@@ -43,7 +43,6 @@ function inlineDataFragmentTransform(
 }
 
 function visitFragment(fragment: Fragment): Fragment {
-  // $FlowFixMe[incompatible-use]
   const transformedFragment = this.traverse(fragment);
 
   const inlineDirective = transformedFragment.directives.find(
@@ -67,12 +66,10 @@ function visitFragment(fragment: Fragment): Fragment {
 function visitFragmentSpread(
   fragmentSpread: FragmentSpread,
 ): FragmentSpread | InlineDataFragmentSpread {
-  // $FlowFixMe[incompatible-use]
   const transformedFragmentSpread: FragmentSpread = this.traverse(
     fragmentSpread,
   );
 
-  // $FlowFixMe[incompatible-use]
   const context: CompilerContext = this.getContext();
   const fragment = context.get(transformedFragmentSpread.name);
   if (
@@ -101,7 +98,6 @@ function visitFragmentSpread(
     );
   }
 
-  // $FlowFixMe[incompatible-use]
   const transformedFragment = (this.visit(fragment): Fragment);
 
   return ({

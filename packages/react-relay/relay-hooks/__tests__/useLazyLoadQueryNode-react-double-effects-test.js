@@ -177,7 +177,6 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     expect(environment.retain).toHaveBeenCalledTimes(1);
     expect(renderLogs).toEqual([]);
-    // $FlowFixMe[incompatible-use]
     expect(instance.toJSON()).toEqual('Fallback');
 
     // Resolve network response
@@ -213,7 +212,6 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
     expectToHaveFetched(environment, query);
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     expect(environment.retain).toHaveBeenCalledTimes(2);
-    // $FlowFixMe[incompatible-use]
     expect(instance.toJSON()).toEqual('Fallback');
 
     // Assert render state of component using the query up until
@@ -259,7 +257,6 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
       'cleanup: Alice 1',
       'commit: Alice 2',
     ]);
-    // $FlowFixMe[incompatible-use]
     expect(instance.toJSON()).toEqual('Alice 2');
 
     // Assert that query was correctly permanently retained,
@@ -315,7 +312,6 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     expect(environment.retain).toHaveBeenCalledTimes(1);
     expect(renderLogs).toEqual([]);
-    // $FlowFixMe[incompatible-use]
     expect(instance.toJSON()).toEqual('Fallback');
 
     // Resolve network response
@@ -369,7 +365,6 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
       // since the name didn't change.
       'render: Alice 1',
     ]);
-    // $FlowFixMe[incompatible-use]
     expect(instance.toJSON()).toEqual('Alice 1');
 
     // Assert that query was correctly permanently retained,
@@ -438,7 +433,6 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain).toHaveBeenCalledTimes(1);
       expect(renderLogs).toEqual([]);
-      // $FlowFixMe[incompatible-use]
       expect(instance.toJSON()).toEqual('Fallback');
 
       // Resolve network response
@@ -479,7 +473,6 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
       // it's still underway when the component is shown again; therefore
       // the component sees the initial part even though it's network-only,
       // and doesn't re-suspend.
-      // $FlowFixMe[incompatible-use]
       expect(instance.toJSON()).toEqual(['Alice 1', 'Loading fragment']);
 
       // Assert render state of component using the query up until now:
@@ -527,7 +520,6 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
         'cleanup: Alice 1',
         'commit: Alice 2',
       ]);
-      // $FlowFixMe[incompatible-use]
       expect(instance.toJSON()).toEqual(['Alice 2', 'Loading fragment']);
 
       // Resolve incremental payload for second network request
@@ -556,7 +548,6 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
         'cleanup: Alice 1',
         'commit: Alice 2',
       ]);
-      // $FlowFixMe[incompatible-use]
       expect(instance.toJSON()).toEqual('Alice 2');
 
       // Assert that query was correctly permanently retained,
@@ -624,7 +615,6 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain).toHaveBeenCalledTimes(1);
       expect(renderLogs).toEqual([]);
-      // $FlowFixMe[incompatible-use]
       expect(instance.toJSON()).toEqual('Fallback');
 
       // Resolve network response
@@ -661,7 +651,6 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
       expect(environment.execute).toBeCalledTimes(0);
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain).toHaveBeenCalledTimes(2);
-      // $FlowFixMe[incompatible-use]
       expect(instance.toJSON()).toEqual(['Alice 1', 'Loading fragment']);
 
       // Assert render state of component using the query up until
@@ -710,7 +699,6 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
         'cleanup: Alice 1',
         'commit: Alice 2',
       ]);
-      // $FlowFixMe[incompatible-use]
       expect(instance.toJSON()).toEqual(['Alice 2', 'Loading fragment']);
 
       // Resolve incremental payload for second network request
@@ -739,7 +727,6 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
         'cleanup: Alice 1',
         'commit: Alice 2',
       ]);
-      // $FlowFixMe[incompatible-use]
       expect(instance.toJSON()).toEqual('Alice 2');
 
       // Assert that query was correctly permanently retained,

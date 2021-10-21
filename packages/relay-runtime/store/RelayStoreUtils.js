@@ -186,7 +186,6 @@ function getStableVariableValue(name: string, variables: Variables): mixed {
     'getVariableValue(): Undefined variable `%s`.',
     name,
   );
-  // $FlowFixMe[cannot-write]
   return stableCopy(variables[name]);
 }
 

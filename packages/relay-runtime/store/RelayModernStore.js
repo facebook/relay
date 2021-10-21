@@ -713,7 +713,6 @@ function updateTargetFromSource(
         currentWriteEpoch,
       );
       invalidatedRecordIDs.add(dataID);
-      // $FlowFixMe[incompatible-call]
       target.set(dataID, nextRecord);
     });
   }

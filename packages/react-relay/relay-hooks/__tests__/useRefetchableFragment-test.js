@@ -135,10 +135,8 @@ describe('useRefetchableFragment', () => {
     const Container = (props: {userRef?: {...}, fragment: $FlowFixMe, ...}) => {
       // We need a render a component to run a Hook
       const artificialUserRef = useMemo(
-        // $FlowFixMe[prop-missing]
         () => ({
           [ID_KEY]:
-          // $FlowFixMe[prop-missing]
             query.request.variables.id ?? query.request.variables.nodeID,
           [FRAGMENTS_KEY]: {
             [gqlFragment.name]: {},

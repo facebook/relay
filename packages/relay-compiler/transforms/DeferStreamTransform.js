@@ -154,7 +154,6 @@ function visitScalarField(field: ScalarField, state: State): ScalarField {
       [streamDirective.loc],
     );
   }
-  // $FlowFixMe[incompatible-use]
   return this.traverse(field, state);
 }
 

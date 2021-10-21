@@ -29,7 +29,6 @@ function skipHandleFieldTransform(context: CompilerContext): CompilerContext {
 }
 
 function visitField<F: Field>(field: F): ?F {
-  // $FlowFixMe[incompatible-use]
   const transformedNode = this.traverse(field);
   if (transformedNode.handles) {
     return {

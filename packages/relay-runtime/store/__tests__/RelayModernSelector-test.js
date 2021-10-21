@@ -46,7 +46,6 @@ describe('RelayModernSelector', () => {
   let owner;
 
   beforeEach(() => {
-    // $FlowFixMe[incompatible-call]
     expect.extend(matchers);
     jest.mock('warning');
 
@@ -665,7 +664,6 @@ describe('RelayModernSelector', () => {
       );
       const clone = {
         ...selector,
-        // $FlowFixMe[cannot-spread-interface]
         variables: {...selector.variables},
       };
       expect(areEqualSelectors(selector, selector)).toBe(true);
@@ -701,7 +699,6 @@ describe('RelayModernSelector', () => {
       );
       const clone = {
         ...selector,
-        // $FlowFixMe[cannot-spread-interface]
         variables: {...selector.variables},
       };
       expect(areEqualSelectors(selector, selector)).toBe(true);

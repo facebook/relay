@@ -141,7 +141,6 @@ describe.skip('useFragmentNode-react-double-effects-test', () => {
       'commit: Alice Updated',
     ]);
     // Assert it updates and renders with updated data
-    // $FlowFixMe[incompatible-use]
     expect(instance.toJSON()).toEqual('Alice Updated');
   });
 });

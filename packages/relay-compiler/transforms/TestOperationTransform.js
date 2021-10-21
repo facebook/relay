@@ -57,7 +57,6 @@ function getTypeDetails(schema: Schema, fieldType: TypeID): TypeDetails {
 }
 
 function visitRoot(node: Root) {
-  // $FlowFixMe[incompatible-use]
   const schema: Schema = this.getContext().getSchema();
   const testDirective = node.directives.find(
     directive => directive.name === 'relay_test_operation',

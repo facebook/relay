@@ -39,7 +39,6 @@ function testResolver<D, Ret>(
   fragmentData: D,
 ): Ret {
   const readFragment = ResolverFragments.readFragment;
-  // $FlowFixMe Flow says we are not supposed to mutate this, but this is
   // a test utility, so... YOLO!!
   ResolverFragments.readFragment = () => fragmentData;
   const result = resolver(
@@ -47,7 +46,6 @@ function testResolver<D, Ret>(
     // $FlowFixMe
     null,
   );
-  // $FlowFixMe
   ResolverFragments.readFragment = readFragment;
   return result;
 }

@@ -268,7 +268,6 @@ describe('useRefetchableFragmentNode', () => {
       const artificialUserRef = useMemo(
         () => ({
           [ID_KEY]:
-          // $FlowFixMe[prop-missing]
             owner.request.variables.id ?? owner.request.variables.nodeID,
           [FRAGMENTS_KEY]: {
             [fragment.name]: {},

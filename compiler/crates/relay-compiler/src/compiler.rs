@@ -152,7 +152,7 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
                         notify_receiver,
                         &subscription_handle,
                     )
-                    .await?;
+                    .await;
                 }
                 Err(err) => {
                     self.config.status_reporter.build_errors(&err);
@@ -167,7 +167,7 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
         mut compiler_state: CompilerState,
         notify_receiver: Arc<Notify>,
         subscription_handle: &JoinHandle<()>,
-    ) -> Result<()> {
+    ) {
         let mut red_to_green = RedToGreen::new();
 
         loop {
@@ -179,7 +179,7 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
 
             if compiler_state.source_control_update_status.is_completed() {
                 subscription_handle.abort();
-                return Ok(());
+                return;
             }
 
             // Single change to file sometimes produces 2 watchman change events for the same file
@@ -192,11 +192,19 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
                 let incremental_build_time =
                     incremental_build_event.start("incremental_build_time");
 
-                let had_new_changes = compiler_state.merge_file_source_changes(
+                let had_new_changes = match compiler_state.merge_file_source_changes(
                     &self.config,
                     self.perf_logger.as_ref(),
                     false,
-                )?;
+                ) {
+                    Ok(b) => b,
+                    Err(err) => {
+                        let error_event = self.perf_logger.create_event("watch_build_error");
+                        error_event.string("error", format!("Ignored Compilation Error: {}", err));
+                        error_event.complete();
+                        return;
+                    }
+                };
 
                 if had_new_changes {
                     self.config.status_reporter.build_starts();

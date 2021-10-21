@@ -77,9 +77,9 @@ pub fn parse_chunks(input: &str) -> Vec<GraphQLSource> {
     'code: while let Some((i, c)) = it.next() {
         match c {
             'g' => {
-                for expected in ['r', 'a', 'p', 'h', 'q', 'l', '`'].iter() {
+                for expected in ['r', 'a', 'p', 'h', 'q', 'l', '`'] {
                     if let Some((_, c)) = it.next() {
-                        if c != *expected {
+                        if c != expected {
                             consume_identifier(&mut it);
                             continue 'code;
                         }

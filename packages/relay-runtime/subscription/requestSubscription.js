@@ -98,7 +98,7 @@ function requestSubscription<TSubscriptionPayload>(
     : config;
 
   const sub = environment
-    .execute({
+    .executeSubscription({
       operation,
       updater,
     })

@@ -326,6 +326,31 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
     actorEnvironment: IActorEnvironment,
     {
       operation,
+    }: {
+      operation: OperationDescriptor,
+    },
+  ): RelayObservable<GraphQLResponse> {
+    return this._execute(actorEnvironment, {
+      createSource: () =>
+        actorEnvironment
+          .getNetwork()
+          .execute(
+            operation.request.node.params,
+            operation.request.variables,
+            operation.request.cacheConfig || {},
+            null,
+          ),
+      isClientPayload: false,
+      operation,
+      optimisticConfig: null,
+      updater: null,
+    });
+  }
+
+  executeSubscription(
+    actorEnvironment: IActorEnvironment,
+    {
+      operation,
       updater,
     }: {
       operation: OperationDescriptor,

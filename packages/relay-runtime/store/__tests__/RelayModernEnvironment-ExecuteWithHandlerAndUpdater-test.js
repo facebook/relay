@@ -90,7 +90,7 @@ describe('execute() with handler and updater', () => {
 
   it('calls next() and runs updater when payloads return', () => {
     const updater = jest.fn();
-    environment.execute({operation, updater}).subscribe(callbacks);
+    environment.executeSubscription({operation, updater}).subscribe(callbacks);
     subject.next({
       data: {
         me: {

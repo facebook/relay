@@ -162,7 +162,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
       });
 
       it('calls next() and publishes the initial payload to the store', () => {
-        environment.execute({operation}).subscribe(callbacks);
+        environment.executeSubscription({operation}).subscribe(callbacks);
         dataSource.next({
           data: {
             commentCreateSubscribe: {
@@ -198,7 +198,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
       });
 
       it('processes deferred payloads', () => {
-        environment.execute({operation}).subscribe(callbacks);
+        environment.executeSubscription({operation}).subscribe(callbacks);
         dataSource.next({
           data: {
             commentCreateSubscribe: {
@@ -260,7 +260,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
       });
 
       it('calls complete() if root network request completes after deferred payload resolves', () => {
-        environment.execute({operation}).subscribe(callbacks);
+        environment.executeSubscription({operation}).subscribe(callbacks);
         dataSource.next({
           data: {
             commentCreateSubscribe: {
@@ -329,7 +329,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
       });
 
       it('calls complete() if root network request completes before deferred payload resolves', () => {
-        environment.execute({operation}).subscribe(callbacks);
+        environment.executeSubscription({operation}).subscribe(callbacks);
         dataSource.next({
           data: {
             commentCreateSubscribe: {
@@ -366,7 +366,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
       });
 
       it('calls error() if root network request errors before deferred payload resolves', () => {
-        environment.execute({operation}).subscribe(callbacks);
+        environment.executeSubscription({operation}).subscribe(callbacks);
         dataSource.next({
           data: {
             commentCreateSubscribe: {

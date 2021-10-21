@@ -443,6 +443,8 @@ function createMockEnvironment(
     fn: // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     | $PropertyType<IEnvironment, 'execute'>
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
+      | $PropertyType<IEnvironment, 'executeSubscription'>
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       | $PropertyType<IEnvironment, 'executeWithSource'>
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       | $PropertyType<IEnvironment, 'executeMutation'>,
@@ -457,6 +459,12 @@ function createMockEnvironment(
   // $FlowExpectedError[cannot-write]
   // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   environment.execute = createExecuteProxy(environment, environment.execute);
+  // $FlowExpectedError[cannot-write]
+  environment.executeSubscription = createExecuteProxy(
+    environment,
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
+    environment.executeSubscription,
+  );
   // $FlowExpectedError[cannot-write]
   environment.executeWithSource = createExecuteProxy(
     environment,
@@ -480,6 +488,7 @@ function createMockEnvironment(
     mockDisposableMethod(environment, 'subscribe');
     mockDisposableMethod(environment, 'retain');
     mockObservableMethod(environment, 'execute');
+    mockObservableMethod(environment, 'executeSubscription');
     mockObservableMethod(environment, 'executeWithSource');
     mockObservableMethod(environment, 'executeMutation');
 
@@ -541,6 +550,8 @@ function createMockEnvironment(
     environment.execute.mockClear();
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     environment.executeMutation.mockClear();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
+    environment.executeSubscription.mockClear();
 
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     store.getSource.mockClear();

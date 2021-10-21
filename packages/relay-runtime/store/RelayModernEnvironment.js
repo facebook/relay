@@ -326,13 +326,41 @@ class RelayModernEnvironment implements IEnvironment {
 
   /**
    * Returns an Observable of GraphQLResponse resulting from executing the
-   * provided Query or Subscription operation, each result of which is then
+   * provided Query operation, each result of which is then
    * normalized and committed to the publish queue.
    *
    * Note: Observables are lazy, so calling this method will do nothing until
    * the result is subscribed to: environment.execute({...}).subscribe({...}).
    */
   execute({
+    operation,
+  }: {|
+    operation: OperationDescriptor,
+  |}): RelayObservable<GraphQLResponse> {
+    return this._execute({
+      createSource: () =>
+        this._network.execute(
+          operation.request.node.params,
+          operation.request.variables,
+          operation.request.cacheConfig || {},
+          null,
+        ),
+      isClientPayload: false,
+      operation,
+      optimisticConfig: null,
+      updater: null,
+    });
+  }
+
+  /**
+   * Returns an Observable of GraphQLResponse resulting from executing the
+   * provided Subscription operation, each result of which is then
+   * normalized and committed to the publish queue.
+   *
+   * Note: Observables are lazy, so calling this method will do nothing until
+   * the result is subscribed to: environment.execute({...}).subscribe({...}).
+   */
+  executeSubscription({
     operation,
     updater,
   }: {|

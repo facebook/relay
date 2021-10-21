@@ -134,7 +134,7 @@ This is more straightforward - it is done via a call to `environment.mock.queueP
 * `console.log`, `console.log` everywhere! Recommended places:
    * component: before and after `useQueryLoader, usePreloadedQuery, loadQuery`
    * test: in `queueOperationResolver` callback
-   * library: in `RelayModernMockEnvironment.execute,`after the `const currentOperation = ...` call ([here](https://github.com/facebook/relay/blob/046f758c6b411608371d4cc2f0a594ced331864e/packages/relay-test-utils/RelayModernMockEnvironment.js#L230))
+   * library: in `RelayModernMockEnvironment.execute`, after the `const currentOperation = ...` call ([here](https://github.com/facebook/relay/blob/046f758c6b411608371d4cc2f0a594ced331864e/packages/relay-test-utils/RelayModernMockEnvironment.js#L230))
 * If `loadQuery` is not called - make sure to issue the triggering event. Depending on your component implementation it could be a user-action (like button click or key press), javascript event (via event emitter mechanisms) or a simple "delayed execution" with `useEffect`.
    * The `useEffect` case is probably easiest to miss - make sure to call `act(() => jest.runAllImmediates())` **after** rendering the component
 * If "before" `usePreloadedQuery` is hit, but "after" is not - the query suspends. This entire guide is written to resolve it - you might want to re-read it. But most likely it is either:

@@ -722,13 +722,25 @@ export interface IEnvironment {
    * responses may be returned (via `next`) over time followed by either
    * the request completing (`completed`) or an error (`error`).
    *
-   * Networks/servers that support subscriptions may choose to hold the
-   * subscription open indefinitely such that `complete` is not called.
-   *
    * Note: Observables are lazy, so calling this method will do nothing until
    * the result is subscribed to: environment.execute({...}).subscribe({...}).
    */
   execute(config: {|
+    operation: OperationDescriptor,
+  |}): RelayObservable<GraphQLResponse>;
+
+  /**
+   * Send a subscription to the server with Observer semantics: one or more
+   * responses may be returned (via `next`) over time followed by either
+   * the request completing (`completed`) or an error (`error`).
+   *
+   * Networks/servers that support subscriptions may choose to hold the
+   * subscription open indefinitely such that `complete` is not called.
+   *
+   * Note: Observables are lazy, so calling this method will do nothing until
+   * the result is subscribed to: environment.executeSubscription({...}).subscribe({...}).
+   */
+  executeSubscription(config: {|
     operation: OperationDescriptor,
     updater?: ?SelectorStoreUpdater,
   |}): RelayObservable<GraphQLResponse>;

@@ -18,6 +18,7 @@ const RelayLanguagePluginJavaScript = require('../../language/javascript/RelayLa
 const RelayCompilerMain = require('../RelayCompilerMain');
 const path = require('path');
 const {testSchemaPath} = require('relay-test-utils-internal');
+
 const {
   getCodegenRunner,
   getLanguagePlugin,

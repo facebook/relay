@@ -18,6 +18,7 @@ const {
 } = require('../RelayModernOperationDescriptor');
 const {getRequest, graphql} = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils-internal');
+
 describe('RelayModernFragmentSpecResolver', () => {
   let UserFragment;
   let UserQuery;

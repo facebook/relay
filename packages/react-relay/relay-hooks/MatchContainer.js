@@ -14,6 +14,7 @@
 'use strict';
 
 const React = require('react');
+
 const {useMemo} = React;
 
 /**

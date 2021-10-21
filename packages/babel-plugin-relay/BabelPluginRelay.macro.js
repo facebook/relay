@@ -13,6 +13,7 @@
 const compileGraphQLTag = require('./compileGraphQLTag');
 const getValidGraphQLTag = require('./getValidGraphQLTag');
 const {createMacro} = require('babel-plugin-macros');
+
 const configName = 'relay';
 
 function BabelPluginRelayMacro({references, state, babel, config}) {

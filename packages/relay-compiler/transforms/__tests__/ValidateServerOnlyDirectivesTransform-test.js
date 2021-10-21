@@ -21,6 +21,7 @@ const {
   generateTestsFromFixtures,
   parseGraphQLText,
 } = require('relay-test-utils-internal');
+
 describe('ValidateServerOnlyDirectives', () => {
   const relaySchema = TestSchema.extend(RelayIRTransforms.schemaExtensions);
 

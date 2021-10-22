@@ -6,11 +6,11 @@
  */
 
 use crate::build_project::{Artifact, ArtifactContent};
-use fnv::{FnvBuildHasher, FnvHashMap};
+use dashmap::{mapref::entry::Entry, DashMap};
 use interner::StringKey;
 use relay_codegen::QueryID;
 use serde::{Deserialize, Serialize};
-use std::{collections::hash_map::Entry, path::PathBuf};
+use std::path::PathBuf;
 
 /// Name of a fragment or operation.
 pub type DefinitionName = StringKey;
@@ -23,10 +23,10 @@ pub struct ArtifactRecord {
 }
 /// A map from DefinitionName to output artifacts records
 #[derive(Default, Serialize, Deserialize, Debug, Clone)]
-pub struct ArtifactMap(pub FnvHashMap<DefinitionName, Vec<ArtifactRecord>>);
+pub struct ArtifactMap(pub DashMap<DefinitionName, Vec<ArtifactRecord>>);
 
 impl ArtifactMap {
-    pub fn insert(&mut self, artifact: Artifact) {
+    pub fn insert(&self, artifact: Artifact) {
         let artifact_tuple = ArtifactRecord {
             path: artifact.path,
             persisted_operation_id: match artifact.content {
@@ -55,10 +55,7 @@ impl ArtifactMap {
 
 impl From<Vec<Artifact>> for ArtifactMap {
     fn from(artifacts: Vec<Artifact>) -> Self {
-        let mut map = ArtifactMap(FnvHashMap::with_capacity_and_hasher(
-            artifacts.len(),
-            FnvBuildHasher::default(),
-        ));
+        let map = ArtifactMap(DashMap::with_capacity(artifacts.len()));
         for artifact in artifacts {
             map.insert(artifact);
         }

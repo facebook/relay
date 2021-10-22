@@ -13,7 +13,8 @@ use crate::file_source::{
     FileGroup, FileSourceResult, SourceControlUpdateStatus,
 };
 use common::{PerfLogEvent, PerfLogger, SourceLocationKey};
-use fnv::{FnvHashMap, FnvHashSet};
+use dashmap::DashSet;
+use fnv::{FnvBuildHasher, FnvHashMap, FnvHashSet};
 use graphql_syntax::GraphQLSource;
 use interner::StringKey;
 use rayon::prelude::*;
@@ -209,7 +210,7 @@ pub struct CompilerState {
     pub clock: Clock,
     pub saved_state_version: String,
     #[serde(skip)]
-    pub dirty_artifact_paths: FnvHashMap<ProjectName, FnvHashSet<PathBuf>>,
+    pub dirty_artifact_paths: FnvHashMap<ProjectName, DashSet<PathBuf, FnvBuildHasher>>,
     #[serde(skip)]
     pub pending_implicit_dependencies: Arc<RwLock<DependencyMap>>,
     #[serde(skip)]
@@ -471,8 +472,10 @@ impl CompilerState {
                     }
                     FileGroup::Generated { project_name } => {
                         if should_collect_changed_artifacts {
-                            self.dirty_artifact_paths
-                                .insert(project_name, files.into_iter().map(|f| f.name).collect());
+                            let mut dashset =
+                                DashSet::with_capacity_and_hasher(files.len(), Default::default());
+                            dashset.extend(files.into_iter().map(|f| f.name));
+                            self.dirty_artifact_paths.insert(project_name, dashset);
                         }
                     }
                 }
@@ -519,17 +522,18 @@ impl CompilerState {
         let mut result = FnvHashMap::default();
         for (project_name, paths) in self.dirty_artifact_paths.iter() {
             if config.projects[project_name].enabled {
-                let mut paths = paths.clone();
+                let paths = paths.clone();
                 let artifacts = self
                     .artifacts
                     .get(&project_name)
                     .expect("Expected the artifacts map to exist.");
                 if let ArtifactMapKind::Mapping(artifacts) = &**artifacts {
                     let mut dirty_definitions = vec![];
-                    'outer: for (definition_name, artifact_records) in artifacts.0.iter() {
+                    'outer: for entry in artifacts.0.iter() {
+                        let (definition_name, artifact_records) = entry.pair();
                         let mut added = false;
                         for artifact_record in artifact_records {
-                            if paths.remove(&artifact_record.path) && !added {
+                            if paths.remove(&artifact_record.path).is_some() && !added {
                                 dirty_definitions.push(*definition_name);
                                 if paths.is_empty() {
                                     break 'outer;

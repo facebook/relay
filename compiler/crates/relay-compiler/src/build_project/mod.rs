@@ -28,15 +28,16 @@ use crate::{artifact_map::ArtifactMap, graphql_asts::GraphQLAsts};
 use build_ir::BuildIRResult;
 pub use build_ir::SourceHashes;
 pub use build_schema::build_schema;
-use common::{sync::ParallelIterator, PerfLogEvent, PerfLogger};
-use fnv::{FnvHashMap, FnvHashSet};
+use common::{sync::*, PerfLogEvent, PerfLogger};
+use dashmap::{mapref::entry::Entry, DashSet};
+use fnv::{FnvBuildHasher, FnvHashMap, FnvHashSet};
 pub use generate_artifacts::{
     create_path_for_artifact, generate_artifacts, Artifact, ArtifactContent,
 };
 use graphql_ir::Program;
 use interner::StringKey;
 use log::{debug, info, warn};
-use rayon::slice::ParallelSlice;
+use rayon::{iter::IntoParallelRefIterator, slice::ParallelSlice};
 use relay_codegen::Printer;
 use relay_transforms::{
     apply_transforms, find_resolver_dependencies, DependencyMap, FeatureFlags, Programs,
@@ -44,7 +45,7 @@ use relay_transforms::{
 use schema::SDLSchema;
 pub use source_control::add_to_mercurial;
 use std::iter::FromIterator;
-use std::{collections::hash_map::Entry, path::PathBuf, sync::Arc};
+use std::{path::PathBuf, sync::Arc};
 pub use validate::{validate, AdditionalValidations};
 
 type BuildProjectOutput = (ProjectName, Arc<SDLSchema>, Programs, Vec<Artifact>);
@@ -281,7 +282,7 @@ pub async fn commit_project(
     // Definitions that are removed from the previous artifact map
     removed_definition_names: Vec<StringKey>,
     // Dirty artifacts that should be removed if no longer in the artifacts map
-    mut artifacts_to_remove: FnvHashSet<PathBuf>,
+    mut artifacts_to_remove: DashSet<PathBuf, FnvBuildHasher>,
     source_control_update_status: Arc<SourceControlUpdateStatus>,
 ) -> Result<ArtifactMap, BuildProjectFailure> {
     let log_event = perf_logger.create_event("commit_project");
@@ -380,8 +381,8 @@ pub async fn commit_project(
             ArtifactMap::from(artifacts)
         }
         ArtifactMapKind::Mapping(artifact_map) => {
-            let mut artifact_map = artifact_map.clone();
-            let mut current_paths_map = ArtifactMap::default();
+            let artifact_map = artifact_map.clone();
+            let current_paths_map = ArtifactMap::default();
             let write_artifacts_incremental_time =
                 log_event.start("write_artifacts_incremental_time");
 
@@ -393,23 +394,24 @@ pub async fn commit_project(
                 should_stop_updating_artifacts,
                 &artifacts,
             )?;
-            for artifact in artifacts {
+            artifacts.into_par_iter().for_each(|artifact| {
                 current_paths_map.insert(artifact);
-            }
+            });
             log_event.stop(write_artifacts_incremental_time);
 
             log_event.time("update_artifact_map_time", || {
                 // All generated paths for removed definitions should be removed
                 for name in &removed_definition_names {
-                    if let Some(artifacts) = artifact_map.0.remove(&name) {
-                        for artifact in artifacts {
-                            artifacts_to_remove.insert(artifact.path);
-                        }
+                    if let Some((_, artifacts)) = artifact_map.0.remove(name) {
+                        artifacts_to_remove.extend(artifacts.into_iter().map(|a| a.path));
                     }
                 }
                 // Update the artifact map, and delete any removed artifacts
-                for (definition_name, artifact_records) in current_paths_map.0 {
-                    match artifact_map.0.entry(definition_name) {
+                current_paths_map.0.into_par_iter().for_each(
+                    |(definition_name, artifact_records)| match artifact_map
+                        .0
+                        .entry(definition_name)
+                    {
                         Entry::Occupied(mut entry) => {
                             let prev_records = entry.get_mut();
                             let current_records_paths =
@@ -420,18 +422,20 @@ pub async fn commit_project(
                                     artifacts_to_remove.insert(prev_record.path);
                                 }
                             }
-                            prev_records.extend(artifact_records.into_iter());
+                            *prev_records = artifact_records;
                         }
                         Entry::Vacant(entry) => {
                             entry.insert(artifact_records);
                         }
-                    }
-                }
+                    },
+                );
                 // Filter out any artifact that is in the artifact map
-                for artifacts in artifact_map.0.values() {
-                    for artifact in artifacts {
-                        artifacts_to_remove.remove(&artifact.path);
-                    }
+                if !artifacts_to_remove.is_empty() {
+                    artifact_map.0.par_iter().for_each(|entry| {
+                        for artifact in entry.value() {
+                            artifacts_to_remove.remove(&artifact.path);
+                        }
+                    });
                 }
             });
             let delete_artifacts_incremental_time =

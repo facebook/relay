@@ -30,7 +30,7 @@ mod shutdown;
 mod status_reporter;
 mod status_updater;
 mod text_documents;
-mod utils;
+pub mod utils;
 use common::PerfLogger;
 pub use js_language_server::JSLanguageServer;
 use log::debug;

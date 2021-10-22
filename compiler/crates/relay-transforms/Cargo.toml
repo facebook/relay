@@ -100,7 +100,7 @@ path = "tests/validate_unused_variables_test.rs"
 
 [dependencies]
 common = { path = "../common" }
-dashmap = { version = "4.0.2", features = ["serde"] }
+dashmap = { version = "4.0.2", features = ["rayon", "serde"] }
 errors = { path = "../errors" }
 fnv = "1.0"
 graphql-ir = { path = "../graphql-ir" }

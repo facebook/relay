@@ -9,7 +9,7 @@ license = "MIT"
 [dependencies]
 common = { path = "../common" }
 crossbeam = "0.8"
-dashmap = { version = "4.0.2", features = ["serde"] }
+dashmap = { version = "4.0.2", features = ["rayon", "serde"] }
 extract-graphql = { path = "../extract-graphql" }
 fnv = "1.0"
 graphql-ir = { path = "../graphql-ir" }

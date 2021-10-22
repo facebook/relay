@@ -82,7 +82,7 @@ fn type_condition_at_position(
     Some(NodeKind::TypeCondition(type_condition.type_.value))
 }
 
-pub(crate) fn create_node_resolution_info(
+pub fn create_node_resolution_info(
     document: ExecutableDocument,
     position_span: Span,
 ) -> LSPRuntimeResult<NodeResolutionInfo> {

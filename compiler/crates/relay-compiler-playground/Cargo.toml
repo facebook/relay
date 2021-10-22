@@ -2,7 +2,7 @@
 name = "relay-compiler-playground"
 version = "0.0.3"
 authors = ["Facebook"]
-edition = "2018"
+edition = "2021"
 license = "MIT"
 
 [lib]

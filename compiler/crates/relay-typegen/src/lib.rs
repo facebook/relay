@@ -330,11 +330,11 @@ impl<'a> TypeGenerator<'a> {
         if !node.type_condition.is_abstract_type() {
             let num_concrete_selections = selections
                 .iter()
-                .filter(|sel| sel.concrete_type.is_some())
+                .filter(|sel| sel.get_enclosing_concrete_type().is_some())
                 .count();
             if num_concrete_selections <= 1 {
                 for selection in selections.iter_mut().filter(|sel| sel.is_typename()) {
-                    selection.concrete_type = Some(node.type_condition);
+                    selection.set_concrete_type(node.type_condition);
                 }
             }
         }
@@ -498,17 +498,13 @@ impl<'a> TypeGenerator<'a> {
         } else {
             let name = fragment_spread.fragment.item;
             self.used_fragments.insert(name);
-            type_selections.push(TypeSelection {
-                key: format!("__fragments_{}", name).intern(),
-                schema_name: None,
-                conditional: false,
-                value: None,
-                node_type: None,
-                concrete_type: None,
-                ref_: Some(name),
-                node_selections: None,
-                document_name: None,
-            });
+            type_selections.push(TypeSelection::InlineFragmentOrFragmentSpread(
+                TypeSelectionInlineFragmentOrFragmentSpread {
+                    fragment_name: name,
+                    conditional: false,
+                    concrete_type: None,
+                },
+            ));
         }
     }
 
@@ -538,17 +534,13 @@ impl<'a> TypeGenerator<'a> {
             .entry(haste_import_name)
             .or_insert(local_resolver_name);
 
-        type_selections.push(TypeSelection {
-            key,
-            schema_name: None,
-            node_type: None,
-            value: Some(AST::FunctionReturnType(local_resolver_name)),
+        type_selections.push(TypeSelection::ScalarField(TypeSelectionScalarField {
+            field_name_or_alias: key,
+            special_field: None,
+            value: AST::FunctionReturnType(local_resolver_name),
             conditional: false,
             concrete_type: None,
-            ref_: None,
-            node_selections: None,
-            document_name: None,
-        });
+        }));
     }
 
     fn visit_inline_fragment(
@@ -558,40 +550,28 @@ impl<'a> TypeGenerator<'a> {
     ) {
         if let Some(module_metadata) = ModuleMetadata::find(&inline_fragment.directives) {
             let name = module_metadata.fragment_name;
-            type_selections.push(TypeSelection {
-                key: *FRAGMENT_PROP_NAME,
-                schema_name: None,
-                value: Some(AST::Nullable(Box::new(AST::String))),
-                node_type: None,
+            type_selections.push(TypeSelection::ScalarField(TypeSelectionScalarField {
+                field_name_or_alias: *FRAGMENT_PROP_NAME,
+                special_field: None,
+                value: AST::Nullable(Box::new(AST::String)),
                 conditional: false,
                 concrete_type: None,
-                ref_: None,
-                node_selections: None,
-                document_name: None,
-            });
-            type_selections.push(TypeSelection {
-                key: *MODULE_COMPONENT,
-                schema_name: None,
-                value: Some(AST::Nullable(Box::new(AST::String))),
-                node_type: None,
+            }));
+            type_selections.push(TypeSelection::ScalarField(TypeSelectionScalarField {
+                field_name_or_alias: *MODULE_COMPONENT,
+                special_field: None,
+                value: AST::Nullable(Box::new(AST::String)),
                 conditional: false,
                 concrete_type: None,
-                ref_: None,
-                node_selections: None,
-                document_name: None,
-            });
+            }));
             self.used_fragments.insert(name);
-            type_selections.push(TypeSelection {
-                key: format!("__fragments_{}", name).intern(),
-                schema_name: None,
-                value: None,
-                node_type: None,
-                conditional: false,
-                concrete_type: None,
-                ref_: Some(name),
-                node_selections: None,
-                document_name: None,
-            });
+            type_selections.push(TypeSelection::InlineFragmentOrFragmentSpread(
+                TypeSelectionInlineFragmentOrFragmentSpread {
+                    fragment_name: name,
+                    conditional: false,
+                    concrete_type: None,
+                },
+            ));
         } else if inline_fragment
             .directives
             .named(*RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN)
@@ -603,9 +583,9 @@ impl<'a> TypeGenerator<'a> {
             if let Some(type_condition) = inline_fragment.type_condition {
                 for selection in &mut selections {
                     if type_condition.is_abstract_type() {
-                        selection.conditional = true;
+                        selection.set_conditional(true);
                     } else {
-                        selection.concrete_type = Some(type_condition);
+                        selection.set_concrete_type(type_condition);
                     }
                 }
             }
@@ -635,19 +615,15 @@ impl<'a> TypeGenerator<'a> {
         };
 
         let linked_field_selections = self.visit_selections(&linked_field.selections);
-        type_selections.push(TypeSelection {
-            key,
-            schema_name: Some(schema_name),
-            node_type: None,
-            value: Some(AST::Nullable(Box::new(AST::ActorChangePoint(Box::new(
+        type_selections.push(TypeSelection::ScalarField(TypeSelectionScalarField {
+            field_name_or_alias: key,
+            special_field: ScalarFieldSpecialSchemaField::from_schema_name(schema_name),
+            value: AST::Nullable(Box::new(AST::ActorChangePoint(Box::new(
                 self.selections_to_babel(linked_field_selections.into_iter(), false, None),
-            ))))),
+            )))),
             conditional: false,
             concrete_type: None,
-            ref_: None,
-            node_selections: None,
-            document_name: None,
-        });
+        }));
     }
 
     fn raw_response_visit_inline_fragment(
@@ -662,47 +638,34 @@ impl<'a> TypeGenerator<'a> {
             .is_some()
         {
             for selection in &mut selections {
-                selection.conditional = true;
+                selection.set_conditional(true);
             }
         }
 
         if let Some(module_metadata) = ModuleMetadata::find(&inline_fragment.directives) {
-            let directive_arg_name = module_metadata.fragment_name;
-            if !self.match_fields.contains_key(&directive_arg_name) {
+            let fragment_name = module_metadata.fragment_name;
+            if !self.match_fields.contains_key(&fragment_name) {
                 let match_field = self.raw_response_selections_to_babel(
-                    selections
-                        .iter()
-                        .filter(|sel| sel.schema_name != Some(*JS_FIELD_NAME))
-                        .cloned(),
+                    selections.iter().filter(|sel| !sel.is_js_field()).cloned(),
                     None,
                 );
-                self.match_fields.insert(directive_arg_name, match_field);
+                self.match_fields.insert(fragment_name, match_field);
             }
 
-            type_selections.extend(
-                selections
-                    .iter()
-                    .filter(|sel| sel.schema_name == Some(*JS_FIELD_NAME))
-                    .cloned(),
-            );
+            type_selections.extend(selections.iter().filter(|sel| sel.is_js_field()).cloned());
 
-            type_selections.push(TypeSelection {
-                key: directive_arg_name,
-                schema_name: None,
-                value: None,
-                node_type: None,
+            type_selections.push(TypeSelection::ModuleDirective(ModuleDirective {
+                fragment_name,
+                document_name: module_metadata.key,
                 conditional: false,
                 concrete_type: None,
-                ref_: None,
-                node_selections: None,
-                document_name: Some(module_metadata.key),
-            });
+            }));
             return;
         }
         if let Some(type_condition) = inline_fragment.type_condition {
             if !type_condition.is_abstract_type() {
                 for selection in &mut selections {
-                    selection.concrete_type = Some(type_condition);
+                    selection.set_concrete_type(type_condition);
                 }
             }
         }
@@ -727,17 +690,13 @@ impl<'a> TypeGenerator<'a> {
         let node_type =
             apply_required_directive_nullability(&field.type_, &linked_field.directives);
 
-        type_selections.push(TypeSelection {
-            key,
-            schema_name: Some(schema_name),
-            node_type: Some(node_type),
-            value: None,
+        type_selections.push(TypeSelection::LinkedField(TypeSelectionLinkedField {
+            field_name_or_alias: key,
+            node_type,
+            node_selections: selections_to_map(selections.into_iter(), true),
             conditional: false,
             concrete_type: None,
-            ref_: None,
-            node_selections: Some(selections_to_map(selections.into_iter(), true)),
-            document_name: None,
-        });
+        }));
     }
 
     fn visit_scalar_field(
@@ -754,23 +713,19 @@ impl<'a> TypeGenerator<'a> {
         };
         let field_type =
             apply_required_directive_nullability(&field.type_, &scalar_field.directives);
-        type_selections.push(TypeSelection {
-            key,
-            schema_name: Some(schema_name),
-            node_type: None,
-            value: Some(self.transform_scalar_type(&field_type, None)),
+        type_selections.push(TypeSelection::ScalarField(TypeSelectionScalarField {
+            field_name_or_alias: key,
+            special_field: ScalarFieldSpecialSchemaField::from_schema_name(schema_name),
+            value: self.transform_scalar_type(&field_type, None),
             conditional: false,
             concrete_type: None,
-            ref_: None,
-            node_selections: None,
-            document_name: None,
-        });
+        }));
     }
 
     fn visit_condition(&mut self, type_selections: &mut Vec<TypeSelection>, condition: &Condition) {
         let mut selections = self.visit_selections(&condition.selections);
         for selection in selections.iter_mut() {
-            selection.conditional = true;
+            selection.set_conditional(true);
         }
         type_selections.append(&mut selections);
     }
@@ -785,14 +740,15 @@ impl<'a> TypeGenerator<'a> {
         let mut by_concrete_type: IndexMap<Type, Vec<TypeSelection>> = Default::default();
 
         for selection in selections {
-            if let Some(concrete_type) = selection.concrete_type {
+            if let Some(concrete_type) = selection.get_enclosing_concrete_type() {
                 by_concrete_type
                     .entry(concrete_type)
                     .or_insert_with(Vec::new)
                     .push(selection);
             } else {
+                let key = selection.get_string_key();
                 let key = TypeSelectionKey {
-                    key: selection.key,
+                    key,
                     concrete_type: None,
                 };
                 match base_fields.entry(key) {
@@ -827,7 +783,9 @@ impl<'a> TypeGenerator<'a> {
                     )
                     .map(|selection| {
                         if selection.is_typename() {
-                            typename_aliases.insert(selection.key);
+                            typename_aliases.insert(selection.get_field_name_or_alias().expect(
+                                "Just checked this exists by checking that the field is typename",
+                            ));
                         }
                         self.make_prop(selection, unmasked, Some(concrete_type))
                     })
@@ -852,33 +810,46 @@ impl<'a> TypeGenerator<'a> {
         } else {
             let mut selection_map = selections_to_map(hashmap_into_values(base_fields), false);
             for concrete_type_selections in hashmap_into_values(by_concrete_type) {
-                selection_map = merge_selections(
-                    selection_map,
+                merge_selections(
+                    &mut selection_map,
                     selections_to_map(
                         concrete_type_selections.into_iter().map(|mut sel| {
-                            sel.conditional = true;
+                            sel.set_conditional(true);
                             sel
                         }),
                         false,
                     ),
                     true,
-                )
+                );
             }
             let selection_map_values =
                 group_refs(self.flow_typegen_phase, hashmap_into_values(selection_map))
                     .map(|sel| {
-                        if sel.is_typename() && sel.concrete_type.is_some() {
-                            self.make_prop(
-                                TypeSelection {
-                                    conditional: false,
-                                    ..sel
-                                },
-                                unmasked,
-                                sel.concrete_type,
-                            )
-                        } else {
-                            self.make_prop(sel, unmasked, None)
+                        if let TypeSelection::ScalarField(ref scalar_field) = sel {
+                            if sel.is_typename() {
+                                if let Some(type_condition) = scalar_field.concrete_type {
+                                    let mut scalar_field = scalar_field.clone();
+                                    scalar_field.conditional = false;
+                                    return self.make_prop(
+                                        TypeSelection::ScalarField(scalar_field),
+                                        unmasked,
+                                        Some(type_condition),
+                                    );
+                                }
+                            }
+                        } else if let TypeSelection::LinkedField(ref linked_field) = sel {
+                            if let Some(concrete_type) = linked_field.concrete_type {
+                                let mut linked_field = linked_field.clone();
+                                linked_field.concrete_type = None;
+                                return self.make_prop(
+                                    TypeSelection::LinkedField(linked_field),
+                                    unmasked,
+                                    Some(concrete_type),
+                                );
+                            }
                         }
+
+                        self.make_prop(sel, unmasked, None)
                     })
                     .collect();
             types.push(selection_map_values);
@@ -927,7 +898,7 @@ impl<'a> TypeGenerator<'a> {
         let mut by_concrete_type: IndexMap<Type, Vec<TypeSelection>> = Default::default();
 
         for selection in selections {
-            if let Some(concrete_type) = selection.concrete_type {
+            if let Some(concrete_type) = selection.get_enclosing_concrete_type() {
                 by_concrete_type
                     .entry(concrete_type)
                     .or_insert_with(Vec::new)
@@ -948,12 +919,13 @@ impl<'a> TypeGenerator<'a> {
         if !by_concrete_type.is_empty() {
             let base_fields_map = selections_to_map(base_fields.clone().into_iter(), false);
             for (concrete_type, selections) in by_concrete_type {
-                let merged_selections: Vec<_> = hashmap_into_values(merge_selections(
-                    base_fields_map.clone(),
+                let mut base_fields_map = base_fields_map.clone();
+                merge_selections(
+                    &mut base_fields_map,
                     selections_to_map(selections.into_iter(), false),
                     false,
-                ))
-                .collect();
+                );
+                let merged_selections: Vec<_> = hashmap_into_values(base_fields_map).collect();
                 types.push(AST::ExactObject(
                     merged_selections
                         .iter()
@@ -987,18 +959,21 @@ impl<'a> TypeGenerator<'a> {
         type_selections: &[TypeSelection],
         concrete_type: Option<Type>,
     ) {
-        if let Some(module_import) = type_selections
-            .iter()
-            .find(|sel| sel.document_name.is_some())
-        {
+        if let Some(module_import) = type_selections.iter().find_map(|sel| {
+            if let TypeSelection::ModuleDirective(m) = sel {
+                Some(m)
+            } else {
+                None
+            }
+        }) {
             self.runtime_imports.local_3d_payload = true;
 
             types.push(AST::Local3DPayload(
-                module_import.document_name.unwrap(),
+                module_import.document_name,
                 Box::new(AST::ExactObject(
                     type_selections
                         .iter()
-                        .filter(|sel| sel.schema_name != Some(*JS_FIELD_NAME))
+                        .filter(|sel| !sel.is_js_field())
                         .map(|sel| self.raw_response_make_prop(sel.clone(), concrete_type))
                         .collect(),
                 )),
@@ -1012,35 +987,43 @@ impl<'a> TypeGenerator<'a> {
         unmasked: bool,
         concrete_type: Option<Type>,
     ) -> Prop {
-        let TypeSelection {
-            key,
-            schema_name,
-            value,
-            conditional,
-            node_type,
-            node_selections,
-            ..
-        } = type_selection;
-        let value = if let Some(node_type) = node_type {
-            let object_props = self.selections_to_babel(
-                hashmap_into_values(node_selections.unwrap()),
-                unmasked,
-                None,
-            );
-            self.transform_scalar_type(&node_type, Some(object_props))
-        } else if schema_name == Some(*KEY_TYPENAME) {
-            if let Some(concrete_type) = concrete_type {
-                AST::StringLiteral(self.schema.get_type_name(concrete_type))
-            } else {
-                value.unwrap()
+        let optional = type_selection.is_conditional();
+        let (key, value) = match type_selection {
+            TypeSelection::LinkedField(linked_field) => {
+                let object_props = self.selections_to_babel(
+                    hashmap_into_values(linked_field.node_selections),
+                    unmasked,
+                    None,
+                );
+                (
+                    linked_field.field_name_or_alias,
+                    self.transform_scalar_type(&linked_field.node_type, Some(object_props)),
+                )
             }
-        } else {
-            value.unwrap()
+            TypeSelection::ScalarField(scalar_field) => {
+                if scalar_field.special_field == Some(ScalarFieldSpecialSchemaField::TypeName) {
+                    if let Some(concrete_type) = concrete_type {
+                        (
+                            scalar_field.field_name_or_alias,
+                            AST::StringLiteral(self.schema.get_type_name(concrete_type)),
+                        )
+                    } else {
+                        (scalar_field.field_name_or_alias, scalar_field.value)
+                    }
+                } else {
+                    (scalar_field.field_name_or_alias, scalar_field.value)
+                }
+            }
+            _ => panic!(
+                "Unexpected TypeSelection variant in make_prop, {:?}",
+                type_selection
+            ),
         };
+
         Prop {
             key,
             read_only: true,
-            optional: conditional,
+            optional,
             value,
         }
     }
@@ -1050,53 +1033,60 @@ impl<'a> TypeGenerator<'a> {
         type_selection: TypeSelection,
         concrete_type: Option<Type>,
     ) -> Prop {
-        let TypeSelection {
-            key,
-            schema_name,
-            value,
-            conditional,
-            node_type,
-            node_selections,
-            document_name,
-            ..
-        } = type_selection;
-
-        if document_name.is_some() {
-            return Prop {
-                key: *SPREAD_KEY,
-                value: AST::Identifier(key),
-                read_only: false,
-                optional: false,
-            };
-        }
-
-        let value = if let Some(node_type) = node_type {
-            let inner_concrete_type = if node_type.is_list()
-                || node_type.is_non_null()
-                || node_type.inner().is_abstract_type()
-            {
-                None
-            } else {
-                Some(node_type.inner())
-            };
-            let object_props = self.raw_response_selections_to_babel(
-                hashmap_into_values(node_selections.unwrap()),
-                inner_concrete_type,
-            );
-            self.transform_scalar_type(&node_type, Some(object_props))
-        } else if schema_name == Some(*KEY_TYPENAME) {
-            if let Some(concrete_type) = concrete_type {
-                AST::StringLiteral(self.schema.get_type_name(concrete_type))
-            } else {
-                value.unwrap()
+        let optional = type_selection.is_conditional();
+        let (key, value) = match type_selection {
+            TypeSelection::ModuleDirective(module_directive) => {
+                return Prop {
+                    key: *SPREAD_KEY,
+                    value: AST::Identifier(module_directive.fragment_name),
+                    read_only: false,
+                    optional: false,
+                };
             }
-        } else {
-            value.unwrap()
+            TypeSelection::LinkedField(linked_field) => {
+                let node_type = linked_field.node_type;
+                let inner_concrete_type = if node_type.is_list()
+                    || node_type.is_non_null()
+                    || node_type.inner().is_abstract_type()
+                {
+                    None
+                } else {
+                    Some(node_type.inner())
+                };
+                let object_props = self.raw_response_selections_to_babel(
+                    hashmap_into_values(linked_field.node_selections),
+                    inner_concrete_type,
+                );
+                (
+                    linked_field.field_name_or_alias,
+                    self.transform_scalar_type(&node_type, Some(object_props)),
+                )
+            }
+            TypeSelection::ScalarField(scalar_field) => {
+                if scalar_field.special_field == Some(ScalarFieldSpecialSchemaField::TypeName) {
+                    if let Some(concrete_type) = concrete_type {
+                        (
+                            scalar_field.field_name_or_alias,
+                            AST::StringLiteral(self.schema.get_type_name(concrete_type)),
+                        )
+                    } else {
+                        (scalar_field.field_name_or_alias, scalar_field.value)
+                    }
+                } else {
+                    (scalar_field.field_name_or_alias, scalar_field.value)
+                }
+            }
+            TypeSelection::RawResponseFragmentSpread(f) => (*SPREAD_KEY, f.value),
+            _ => panic!(
+                "Unexpected TypeSelection variant in raw_response_make_prop {:?}",
+                type_selection
+            ),
         };
+
         Prop {
             key,
             read_only: true,
-            optional: conditional,
+            optional,
             value,
         }
     }
@@ -1379,17 +1369,13 @@ impl<'a> TypeGenerator<'a> {
                 Selection::FragmentSpread(spread) => {
                     let spread_type = spread.fragment.item;
                     self.imported_raw_response_types.insert(spread_type);
-                    type_selections.push(TypeSelection {
-                        key: *SPREAD_KEY,
-                        conditional: false,
-                        value: Some(AST::Identifier(spread_type)),
-                        schema_name: None,
-                        node_type: None,
-                        concrete_type: None,
-                        ref_: None,
-                        node_selections: None,
-                        document_name: None,
-                    })
+                    type_selections.push(TypeSelection::RawResponseFragmentSpread(
+                        RawResponseFragmentSpread {
+                            value: AST::Identifier(spread_type),
+                            conditional: false,
+                            concrete_type: None,
+                        },
+                    ))
                 }
                 Selection::InlineFragment(inline_fragment) => {
                     self.raw_response_visit_inline_fragment(&mut type_selections, inline_fragment)
@@ -1413,23 +1399,151 @@ impl<'a> TypeGenerator<'a> {
 }
 
 #[derive(Debug, Clone)]
-struct TypeSelection {
-    key: StringKey,
-    schema_name: Option<StringKey>,
-    value: Option<AST>,
-    node_type: Option<TypeReference>,
+enum TypeSelection {
+    RawResponseFragmentSpread(RawResponseFragmentSpread),
+    ModuleDirective(ModuleDirective),
+    LinkedField(TypeSelectionLinkedField),
+    ScalarField(TypeSelectionScalarField),
+    InlineFragmentOrFragmentSpread(TypeSelectionInlineFragmentOrFragmentSpread),
+}
+
+#[derive(Debug, Clone)]
+struct RawResponseFragmentSpread {
+    value: AST,
     conditional: bool,
     concrete_type: Option<Type>,
-    ref_: Option<StringKey>,
-    node_selections: Option<TypeSelectionMap>,
-    document_name: Option<StringKey>,
 }
+
 impl TypeSelection {
+    fn set_concrete_type(&mut self, type_: Type) {
+        match self {
+            TypeSelection::LinkedField(l) => l.concrete_type = Some(type_),
+            TypeSelection::ScalarField(s) => s.concrete_type = Some(type_),
+            TypeSelection::InlineFragmentOrFragmentSpread(f) => f.concrete_type = Some(type_),
+            TypeSelection::ModuleDirective(m) => m.concrete_type = Some(type_),
+            TypeSelection::RawResponseFragmentSpread(f) => f.concrete_type = Some(type_),
+        }
+    }
+
+    fn set_conditional(&mut self, conditional: bool) {
+        match self {
+            TypeSelection::LinkedField(l) => l.conditional = conditional,
+            TypeSelection::ScalarField(s) => s.conditional = conditional,
+            TypeSelection::InlineFragmentOrFragmentSpread(f) => f.conditional = conditional,
+            TypeSelection::ModuleDirective(m) => m.conditional = conditional,
+            TypeSelection::RawResponseFragmentSpread(f) => f.conditional = conditional,
+        }
+    }
+
+    fn is_conditional(&self) -> bool {
+        match self {
+            TypeSelection::LinkedField(l) => l.conditional,
+            TypeSelection::ScalarField(s) => s.conditional,
+            TypeSelection::InlineFragmentOrFragmentSpread(f) => f.conditional,
+            TypeSelection::ModuleDirective(m) => m.conditional,
+            TypeSelection::RawResponseFragmentSpread(f) => f.conditional,
+        }
+    }
+
+    fn get_enclosing_concrete_type(&self) -> Option<Type> {
+        match self {
+            TypeSelection::LinkedField(l) => l.concrete_type,
+            TypeSelection::ScalarField(s) => s.concrete_type,
+            TypeSelection::InlineFragmentOrFragmentSpread(f) => f.concrete_type,
+            TypeSelection::ModuleDirective(m) => m.concrete_type,
+            TypeSelection::RawResponseFragmentSpread(f) => f.concrete_type,
+        }
+    }
+
     fn is_typename(&self) -> bool {
-        if let Some(schema_name) = self.schema_name {
-            schema_name == *KEY_TYPENAME
+        matches!(
+            self,
+            TypeSelection::ScalarField(TypeSelectionScalarField {
+                special_field: Some(ScalarFieldSpecialSchemaField::TypeName),
+                ..
+            }),
+        )
+    }
+
+    fn is_js_field(&self) -> bool {
+        matches!(
+            self,
+            TypeSelection::ScalarField(TypeSelectionScalarField {
+                special_field: Some(ScalarFieldSpecialSchemaField::JS),
+                ..
+            }),
+        )
+    }
+
+
+    fn get_field_name_or_alias(&self) -> Option<StringKey> {
+        match self {
+            TypeSelection::LinkedField(l) => Some(l.field_name_or_alias),
+            TypeSelection::ScalarField(s) => Some(s.field_name_or_alias),
+            _ => None,
+        }
+    }
+
+    fn get_string_key(&self) -> StringKey {
+        match self {
+            TypeSelection::LinkedField(l) => l.field_name_or_alias,
+            TypeSelection::ScalarField(s) => s.field_name_or_alias,
+            TypeSelection::InlineFragmentOrFragmentSpread(i) => {
+                format!("__fragments_{}", i.fragment_name).intern()
+            }
+            TypeSelection::ModuleDirective(md) => md.fragment_name,
+            TypeSelection::RawResponseFragmentSpread(_) => *SPREAD_KEY,
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
+struct ModuleDirective {
+    fragment_name: StringKey,
+    document_name: StringKey,
+    conditional: bool,
+    concrete_type: Option<Type>,
+}
+
+#[derive(Debug, Clone)]
+struct TypeSelectionLinkedField {
+    field_name_or_alias: StringKey,
+    node_type: TypeReference,
+    node_selections: TypeSelectionMap,
+    conditional: bool,
+    concrete_type: Option<Type>,
+}
+
+#[derive(Debug, Clone)]
+struct TypeSelectionScalarField {
+    field_name_or_alias: StringKey,
+    special_field: Option<ScalarFieldSpecialSchemaField>,
+    value: AST,
+    conditional: bool,
+    concrete_type: Option<Type>,
+}
+
+#[derive(Debug, Clone)]
+struct TypeSelectionInlineFragmentOrFragmentSpread {
+    fragment_name: StringKey,
+    conditional: bool,
+    concrete_type: Option<Type>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+enum ScalarFieldSpecialSchemaField {
+    JS,
+    TypeName,
+}
+
+impl ScalarFieldSpecialSchemaField {
+    fn from_schema_name(key: StringKey) -> Option<Self> {
+        if key == *JS_FIELD_NAME {
+            Some(ScalarFieldSpecialSchemaField::JS)
+        } else if key == *KEY_TYPENAME {
+            Some(ScalarFieldSpecialSchemaField::TypeName)
         } else {
-            false
+            None
         }
     }
 }
@@ -1447,38 +1561,52 @@ fn merge_selection(
     should_set_conditional: bool,
 ) -> TypeSelection {
     if let Some(a) = a {
-        let conditional = a.conditional && b.conditional;
-        TypeSelection {
-            node_selections: a.node_selections.map(|a_node_selections| {
+        let both_are_conditional = a.is_conditional() && b.is_conditional();
+
+        let mut new_type_selection = if let TypeSelection::LinkedField(mut lf_a) = a {
+            if let TypeSelection::LinkedField(lf_b) = b {
                 merge_selections(
-                    a_node_selections,
-                    b.node_selections.unwrap(),
+                    &mut lf_a.node_selections,
+                    lf_b.node_selections,
                     should_set_conditional,
+                );
+                TypeSelection::LinkedField(lf_a)
+            } else {
+                panic!(
+                    "Invalid variants passed to merge_selection linked field a={:?} b={:?}",
+                    lf_a, b
                 )
-            }),
-            conditional,
-            ..a
-        }
+            }
+        } else if let TypeSelection::ScalarField(sf_a) = a {
+            if let TypeSelection::ScalarField(_) = b {
+                TypeSelection::ScalarField(sf_a)
+            } else {
+                panic!(
+                    "Invalid variants passed to merge_selection scalar field a={:?} b={:?}",
+                    sf_a, b
+                )
+            }
+        } else {
+            a
+        };
+
+        new_type_selection.set_conditional(both_are_conditional);
+        new_type_selection
     } else if should_set_conditional {
-        b.conditional = true;
+        b.set_conditional(true);
         b
     } else {
         b
     }
 }
 
-fn merge_selections(
-    mut a: TypeSelectionMap,
-    b: TypeSelectionMap,
-    should_set_conditional: bool,
-) -> TypeSelectionMap {
+fn merge_selections(a: &mut TypeSelectionMap, b: TypeSelectionMap, should_set_conditional: bool) {
     for (key, value) in b {
         a.insert(
             key,
             merge_selection(a.get(&key).cloned(), value, should_set_conditional),
         );
     }
-    a
 }
 
 fn is_plural(node: &FragmentDefinition) -> bool {
@@ -1491,14 +1619,15 @@ fn selections_to_map(
 ) -> TypeSelectionMap {
     let mut map: TypeSelectionMap = Default::default();
     for selection in selections {
+        let selection_key = selection.get_string_key();
         let key = if append_type {
             TypeSelectionKey {
-                key: selection.key,
-                concrete_type: selection.concrete_type,
+                key: selection_key,
+                concrete_type: selection.get_enclosing_concrete_type(),
             }
         } else {
             TypeSelectionKey {
-                key: selection.key,
+                key: selection_key,
                 concrete_type: None,
             }
         };
@@ -1526,13 +1655,16 @@ fn group_refs(
     let mut props = props.into_iter();
     std::iter::from_fn(move || {
         while let Some(prop) = props.next() {
-            if let Some(ref_) = prop.ref_ {
+            if let TypeSelection::InlineFragmentOrFragmentSpread(inline_fragment) = prop {
                 match flow_typegen_phase {
                     FlowTypegenPhase::Old => {
-                        refs.get_or_insert_with(Vec::new).push(ref_);
+                        refs.get_or_insert_with(Vec::new)
+                            .push(inline_fragment.fragment_name);
                     }
                     FlowTypegenPhase::New => {
-                        new_refs.get_or_insert_with(Vec::new).push(ref_);
+                        new_refs
+                            .get_or_insert_with(Vec::new)
+                            .push(inline_fragment.fragment_name);
                     }
                 }
             } else {
@@ -1540,30 +1672,22 @@ fn group_refs(
             }
         }
         if let Some(refs) = refs.take() {
-            return Some(TypeSelection {
-                key: *KEY_FRAGMENT_REFS,
+            return Some(TypeSelection::ScalarField(TypeSelectionScalarField {
+                field_name_or_alias: *KEY_FRAGMENT_REFS,
+                value: AST::FragmentReference(refs),
+                special_field: None,
                 conditional: false,
-                value: Some(AST::FragmentReference(refs)),
-                schema_name: None,
-                node_type: None,
                 concrete_type: None,
-                ref_: None,
-                node_selections: None,
-                document_name: None,
-            });
+            }));
         }
         if let Some(refs) = new_refs.take() {
-            return Some(TypeSelection {
-                key: *KEY_FRAGMENT_SPREADS,
+            return Some(TypeSelection::ScalarField(TypeSelectionScalarField {
+                field_name_or_alias: *KEY_FRAGMENT_SPREADS,
+                value: AST::FragmentReference(refs),
+                special_field: None,
                 conditional: false,
-                value: Some(AST::FragmentReference(refs)),
-                schema_name: None,
-                node_type: None,
                 concrete_type: None,
-                ref_: None,
-                node_selections: None,
-                document_name: None,
-            });
+            }));
         }
         None
     })

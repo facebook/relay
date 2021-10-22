@@ -12,7 +12,6 @@ use common::{Diagnostic, DiagnosticsResult, Location, SourceLocationKey, WithLoc
 use graphql_syntax::*;
 use interner::{Intern, StringKey};
 use std::collections::{BTreeMap, HashMap, HashSet};
-use std::convert::TryInto;
 
 fn todo_add_location<T>(error: SchemaError) -> DiagnosticsResult<T> {
     Err(vec![Diagnostic::error(error, Location::generated())])

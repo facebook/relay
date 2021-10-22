@@ -5,10 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use std::{
-    convert::TryInto,
-    path::{Path, PathBuf},
-};
+use std::path::{Path, PathBuf};
 
 use common::{Location, SourceLocationKey};
 use lsp_types::Url;

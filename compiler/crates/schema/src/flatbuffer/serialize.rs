@@ -18,7 +18,6 @@ use fnv::FnvHashMap;
 use graphql_syntax::{ConstantArgument, ConstantValue, DirectiveLocation, List};
 use interner::StringKey;
 use std::collections::BTreeMap;
-use std::convert::TryInto;
 
 pub fn serialize_as_flatbuffer(schema: &InMemorySchema) -> Vec<u8> {
     let mut serializer = Serializer::new(&schema);

@@ -18,7 +18,6 @@ use graphql_syntax::{
 use interner::{Intern, StringKey};
 pub use serialize::serialize_as_flatbuffer;
 use std::cmp::Ordering;
-use std::convert::TryInto;
 pub use wrapper::SchemaWrapper;
 
 #[derive(Debug)]

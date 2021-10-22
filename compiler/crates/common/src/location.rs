@@ -8,8 +8,8 @@
 use crate::span::Span;
 use core::cmp::Ordering;
 use interner::{Intern, StringKey};
+use std::fmt;
 use std::path::PathBuf;
-use std::{convert::TryInto, fmt};
 
 /// The location of a source. Could be a standalone file (e.g. test.graphql),
 /// an embedded source (GraphQL tag in a JS file) or generated code without a

@@ -18,7 +18,7 @@ use graphql_ir::{
     Selection, Transformed, TransformedValue,
 };
 use schema::SDLSchema;
-use std::{iter::Iterator, sync::Arc};
+use std::sync::Arc;
 
 /**
  * A transform that removes redundant fields and fragment spreads. Redundancy is

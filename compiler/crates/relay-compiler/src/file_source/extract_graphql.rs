@@ -10,7 +10,6 @@ use crate::errors::Result;
 use common::SourceLocationKey;
 use graphql_syntax::GraphQLSource;
 use std::{
-    convert::TryInto,
     fs,
     path::{Path, PathBuf},
 };

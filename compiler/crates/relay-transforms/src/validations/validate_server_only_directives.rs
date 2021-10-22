@@ -14,7 +14,6 @@ use graphql_ir::{
 };
 use interner::{Intern, StringKey};
 use schema::Schema;
-use std::iter::FromIterator;
 
 pub fn validate_server_only_directives(program: &Program) -> DiagnosticsResult<()> {
     let mut validator = ServerOnlyDirectivesValidation::new(program);

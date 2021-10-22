@@ -7,7 +7,6 @@
 
 pub use graphql_syntax::TypeAnnotation;
 use interner::StringKey;
-use std::convert::From;
 use std::fmt;
 
 #[derive(Eq, PartialEq, PartialOrd, Ord)]

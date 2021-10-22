@@ -1150,6 +1150,7 @@ describe('commitMutation()', () => {
   let mutation;
   let onCompleted;
   let onError;
+  let onNext;
   let variables;
 
   beforeEach(() => {
@@ -1181,6 +1182,7 @@ describe('commitMutation()', () => {
 
     onCompleted = jest.fn();
     onError = jest.fn();
+    onNext = jest.fn();
     const fetch = jest.fn((_query, _variables, _cacheConfig) => {
       return RelayObservable.create(sink => {
         dataSource = sink;
@@ -1347,6 +1349,7 @@ describe('commitMutation()', () => {
       variables,
       onCompleted,
       onError,
+      onNext,
     });
     dataSource.next(
       ({
@@ -1369,6 +1372,8 @@ describe('commitMutation()', () => {
         ],
       }: GraphQLResponseWithoutData),
     );
+    expect(onNext).toBeCalledTimes(1);
+    expect(onNext.mock.calls[0][0]).toBe(undefined);
     dataSource.next(
       ({
         data: {
@@ -1391,6 +1396,8 @@ describe('commitMutation()', () => {
       }: GraphQLResponseWithoutData),
     );
     expect(onCompleted).toBeCalledTimes(0);
+    expect(onNext).toBeCalledTimes(2);
+    expect(onNext.mock.calls[1][0]).toBe(undefined);
     dataSource.complete();
 
     expect(onCompleted).toBeCalledTimes(1);
@@ -1416,6 +1423,7 @@ describe('commitMutation()', () => {
         severity: 'ERROR',
       },
     ]);
+    expect(onNext).toBeCalledTimes(2); // from before
     expect(onError).toBeCalledTimes(0);
   });
 

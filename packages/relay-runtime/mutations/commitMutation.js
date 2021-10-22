@@ -60,6 +60,7 @@ export type MutationConfig<T: MutationParameters> = {|
     response: $ElementType<T, 'response'>,
     errors: ?Array<PayloadError>,
   ) => void,
+  onNext?: ?() => void,
   onUnsubscribe?: ?() => void,
   optimisticResponse?: $ElementType<
     {
@@ -154,6 +155,7 @@ function commitMutation<T: MutationParameters>(
             errors.push(...payload.errors);
           }
         }
+        config.onNext?.();
       },
       complete: () => {
         const {onCompleted} = config;

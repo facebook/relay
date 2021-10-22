@@ -39,6 +39,7 @@ export type UseMutationConfig<TMutation: MutationParameters> = {|
     response: $ElementType<TMutation, 'response'>,
     errors: ?Array<PayloadError>,
   ) => void,
+  onNext?: ?() => void,
   onUnsubscribe?: ?() => void,
   optimisticResponse?: $ElementType<
     {
@@ -104,15 +105,18 @@ function useMutation<TMutation: MutationParameters>(
         mutation,
         onCompleted: (response, errors) => {
           cleanup(disposable);
-          config.onCompleted && config.onCompleted(response, errors);
+          config.onCompleted?.(response, errors);
         },
         onError: error => {
           cleanup(disposable);
-          config.onError && config.onError(error);
+          config.onError?.(error);
         },
         onUnsubscribe: () => {
           cleanup(disposable);
-          config.onUnsubscribe && config.onUnsubscribe();
+          config.onUnsubscribe?.();
+        },
+        onNext: () => {
+          config.onNext?.();
         },
       });
       inFlightMutationsRef.current.add(disposable);

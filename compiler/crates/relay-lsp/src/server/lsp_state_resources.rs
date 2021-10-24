@@ -49,8 +49,14 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         Self { lsp_state }
     }
 
-    /// Create an end-less loop of keeping the resources up-to-date with the source control changes
-    pub(crate) async fn watch(&self) -> LSPProcessResult<()> {
+    pub(crate) fn watch(self) {
+        task::spawn(async move {
+            self.internal_watch().await.unwrap();
+        });
+    }
+
+    /// Create a loop of keeping the resources up-to-date with the source control changes
+    async fn internal_watch(&self) -> LSPProcessResult<()> {
         'outer: loop {
             debug!("Initializing resources for LSP server");
 

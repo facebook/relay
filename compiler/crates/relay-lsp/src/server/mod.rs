@@ -60,7 +60,6 @@ use lsp_types::{
 use relay_compiler::{config::Config, NoopArtifactWriter};
 use schema_documentation::{SchemaDocumentation, SchemaDocumentationLoader};
 use std::{sync::Arc, thread};
-use tokio::task;
 
 pub use crate::LSPExtraDataProvider;
 pub use lsp_state::{convert_diagnostic, GlobalState, LSPState, Schemas, SourcePrograms};
@@ -136,13 +135,7 @@ where
     ));
 
     // Watchman Subscription to handle Schema/Programs/Validation
-    let lsp_state_clone = Arc::clone(&lsp_state);
-    task::spawn(async move {
-        LSPStateResources::new(lsp_state_clone)
-            .watch()
-            .await
-            .unwrap();
-    });
+    LSPStateResources::new(Arc::clone(&lsp_state)).watch();
 
     loop {
         debug!("waiting for incoming messages...");

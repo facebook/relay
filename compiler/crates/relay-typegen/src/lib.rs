@@ -16,7 +16,7 @@ mod writer;
 
 use crate::flow::FlowPrinter;
 use crate::typescript::TypeScriptPrinter;
-use crate::writer::Writer;
+use crate::writer::{KeyValuePairProp, SpreadProp, Writer};
 use common::NamedItem;
 pub use config::{FlowTypegenPhase, TypegenConfig, TypegenLanguage};
 use fnv::FnvHashSet;
@@ -37,7 +37,7 @@ use relay_transforms::{
 use schema::{EnumID, SDLSchema, ScalarID, Schema, Type, TypeReference};
 use std::hash::Hash;
 use std::{fmt::Result, path::Path};
-use writer::{Prop, AST, SPREAD_KEY};
+use writer::{Prop, AST};
 
 lazy_static! {
     pub(crate) static ref KEY_DATA: StringKey = "$data".intern();
@@ -63,6 +63,7 @@ lazy_static! {
     static ref TYPE_INT: StringKey = "Int".intern();
     static ref TYPE_STRING: StringKey = "String".intern();
     static ref VARIABLES: StringKey = "variables".intern();
+    static ref SPREAD_KEY: StringKey = "\0SPREAD".intern();
 }
 
 pub fn generate_fragment_type(
@@ -245,18 +246,18 @@ impl<'a> TypeGenerator<'a> {
                 self.writer
                     .write_export_type(response_identifier, &response_type)?;
                 let mut operation_types = vec![
-                    Prop {
+                    Prop::KeyValuePair(KeyValuePairProp {
                         key: *VARIABLES,
                         read_only: false,
                         optional: false,
                         value: AST::Identifier(old_variables_identifier),
-                    },
-                    Prop {
+                    }),
+                    Prop::KeyValuePair(KeyValuePairProp {
                         key: *RESPONSE,
                         read_only: false,
                         optional: false,
                         value: AST::Identifier(response_identifier),
-                    },
+                    }),
                 ];
 
                 if let Some(raw_response_type) = raw_response_type {
@@ -267,12 +268,12 @@ impl<'a> TypeGenerator<'a> {
                         format!("{}RawResponse", typegen_operation.name.item).intern();
                     self.writer
                         .write_export_type(raw_response_identifier, &raw_response_type)?;
-                    operation_types.push(Prop {
+                    operation_types.push(Prop::KeyValuePair(KeyValuePairProp {
                         key: *KEY_RAW_RESPONSE,
                         read_only: false,
                         optional: false,
                         value: AST::Identifier(raw_response_identifier),
-                    });
+                    }));
                 }
 
                 self.writer.write_export_type(
@@ -343,25 +344,25 @@ impl<'a> TypeGenerator<'a> {
         let data_type = node.name.item;
         let data_type_name = format!("{}$data", data_type).intern();
 
-        let ref_type_data_property = Prop {
+        let ref_type_data_property = Prop::KeyValuePair(KeyValuePairProp {
             key: *KEY_DATA,
             optional: true,
             read_only: true,
             value: AST::Identifier(data_type_name),
-        };
+        });
         let fragment_name = node.name.item;
-        let ref_type_fragment_ref_property = Prop {
+        let ref_type_fragment_ref_property = Prop::KeyValuePair(KeyValuePairProp {
             key: *KEY_FRAGMENT_REFS,
             optional: false,
             read_only: true,
             value: AST::FragmentReference(vec![fragment_name]),
-        };
-        let ref_type_fragment_spreads_property = Prop {
+        });
+        let ref_type_fragment_spreads_property = Prop::KeyValuePair(KeyValuePairProp {
             key: *KEY_FRAGMENT_SPREADS,
             optional: false,
             read_only: true,
             value: AST::FragmentReference(vec![fragment_name]),
-        };
+        });
         let is_plural_fragment = is_plural(node);
         let mut ref_type = AST::InexactObject(match self.flow_typegen_phase {
             FlowTypegenPhase::Old => vec![ref_type_data_property, ref_type_fragment_ref_property],
@@ -799,11 +800,13 @@ impl<'a> TypeGenerator<'a> {
             types.push(
                 typename_aliases
                     .iter()
-                    .map(|typename_alias| Prop {
-                        key: *typename_alias,
-                        read_only: true,
-                        optional: false,
-                        value: AST::OtherTypename,
+                    .map(|typename_alias| {
+                        Prop::KeyValuePair(KeyValuePairProp {
+                            key: *typename_alias,
+                            read_only: true,
+                            optional: false,
+                            value: AST::OtherTypename,
+                        })
                     })
                     .collect(),
             );
@@ -862,20 +865,20 @@ impl<'a> TypeGenerator<'a> {
                     if let Some(fragment_type_name) = fragment_type_name {
                         match self.flow_typegen_phase {
                             FlowTypegenPhase::Old => {
-                                props.push(Prop {
+                                props.push(Prop::KeyValuePair(KeyValuePairProp {
                                     key: *KEY_REF_TYPE,
                                     optional: false,
                                     read_only: true,
                                     value: AST::FragmentReferenceType(fragment_type_name),
-                                });
+                                }));
                             }
                             FlowTypegenPhase::New => {
-                                props.push(Prop {
+                                props.push(Prop::KeyValuePair(KeyValuePairProp {
                                     key: *KEY_FRAGMENT_TYPE,
                                     optional: false,
                                     read_only: true,
                                     value: AST::FragmentReferenceType(fragment_type_name),
-                                });
+                                }));
                             }
                         }
                     }
@@ -988,43 +991,50 @@ impl<'a> TypeGenerator<'a> {
         concrete_type: Option<Type>,
     ) -> Prop {
         let optional = type_selection.is_conditional();
-        let (key, value) = match type_selection {
+        match type_selection {
             TypeSelection::LinkedField(linked_field) => {
                 let object_props = self.selections_to_babel(
                     hashmap_into_values(linked_field.node_selections),
                     unmasked,
                     None,
                 );
-                (
-                    linked_field.field_name_or_alias,
-                    self.transform_scalar_type(&linked_field.node_type, Some(object_props)),
-                )
+                Prop::KeyValuePair(KeyValuePairProp {
+                    key: linked_field.field_name_or_alias,
+                    value: self.transform_scalar_type(&linked_field.node_type, Some(object_props)),
+                    optional,
+                    read_only: true,
+                })
             }
             TypeSelection::ScalarField(scalar_field) => {
                 if scalar_field.special_field == Some(ScalarFieldSpecialSchemaField::TypeName) {
                     if let Some(concrete_type) = concrete_type {
-                        (
-                            scalar_field.field_name_or_alias,
-                            AST::StringLiteral(self.schema.get_type_name(concrete_type)),
-                        )
+                        Prop::KeyValuePair(KeyValuePairProp {
+                            key: scalar_field.field_name_or_alias,
+                            value: AST::StringLiteral(self.schema.get_type_name(concrete_type)),
+                            optional,
+                            read_only: true,
+                        })
                     } else {
-                        (scalar_field.field_name_or_alias, scalar_field.value)
+                        Prop::KeyValuePair(KeyValuePairProp {
+                            key: scalar_field.field_name_or_alias,
+                            value: scalar_field.value,
+                            optional,
+                            read_only: true,
+                        })
                     }
                 } else {
-                    (scalar_field.field_name_or_alias, scalar_field.value)
+                    Prop::KeyValuePair(KeyValuePairProp {
+                        key: scalar_field.field_name_or_alias,
+                        value: scalar_field.value,
+                        optional,
+                        read_only: true,
+                    })
                 }
             }
             _ => panic!(
                 "Unexpected TypeSelection variant in make_prop, {:?}",
                 type_selection
             ),
-        };
-
-        Prop {
-            key,
-            read_only: true,
-            optional,
-            value,
         }
     }
 
@@ -1034,15 +1044,10 @@ impl<'a> TypeGenerator<'a> {
         concrete_type: Option<Type>,
     ) -> Prop {
         let optional = type_selection.is_conditional();
-        let (key, value) = match type_selection {
-            TypeSelection::ModuleDirective(module_directive) => {
-                return Prop {
-                    key: *SPREAD_KEY,
-                    value: AST::Identifier(module_directive.fragment_name),
-                    read_only: false,
-                    optional: false,
-                };
-            }
+        match type_selection {
+            TypeSelection::ModuleDirective(module_directive) => Prop::Spread(SpreadProp {
+                value: module_directive.fragment_name,
+            }),
             TypeSelection::LinkedField(linked_field) => {
                 let node_type = linked_field.node_type;
                 let inner_concrete_type = if node_type.is_list()
@@ -1057,37 +1062,46 @@ impl<'a> TypeGenerator<'a> {
                     hashmap_into_values(linked_field.node_selections),
                     inner_concrete_type,
                 );
-                (
-                    linked_field.field_name_or_alias,
-                    self.transform_scalar_type(&node_type, Some(object_props)),
-                )
+                Prop::KeyValuePair(KeyValuePairProp {
+                    key: linked_field.field_name_or_alias,
+                    value: self.transform_scalar_type(&node_type, Some(object_props)),
+                    read_only: true,
+                    optional,
+                })
             }
             TypeSelection::ScalarField(scalar_field) => {
                 if scalar_field.special_field == Some(ScalarFieldSpecialSchemaField::TypeName) {
                     if let Some(concrete_type) = concrete_type {
-                        (
-                            scalar_field.field_name_or_alias,
-                            AST::StringLiteral(self.schema.get_type_name(concrete_type)),
-                        )
+                        Prop::KeyValuePair(KeyValuePairProp {
+                            key: scalar_field.field_name_or_alias,
+                            value: AST::StringLiteral(self.schema.get_type_name(concrete_type)),
+                            read_only: true,
+                            optional,
+                        })
                     } else {
-                        (scalar_field.field_name_or_alias, scalar_field.value)
+                        Prop::KeyValuePair(KeyValuePairProp {
+                            key: scalar_field.field_name_or_alias,
+                            value: scalar_field.value,
+                            read_only: true,
+                            optional,
+                        })
                     }
                 } else {
-                    (scalar_field.field_name_or_alias, scalar_field.value)
+                    Prop::KeyValuePair(KeyValuePairProp {
+                        key: scalar_field.field_name_or_alias,
+                        value: scalar_field.value,
+                        read_only: true,
+                        optional,
+                    })
                 }
             }
-            TypeSelection::RawResponseFragmentSpread(f) => (*SPREAD_KEY, f.value),
+            TypeSelection::RawResponseFragmentSpread(f) => {
+                Prop::Spread(SpreadProp { value: f.value })
+            }
             _ => panic!(
                 "Unexpected TypeSelection variant in raw_response_make_prop {:?}",
                 type_selection
             ),
-        };
-
-        Prop {
-            key,
-            read_only: true,
-            optional,
-            value,
         }
     }
 
@@ -1286,11 +1300,13 @@ impl<'a> TypeGenerator<'a> {
         AST::ExactObject(
             node.variable_definitions
                 .iter()
-                .map(|var_def| Prop {
-                    key: var_def.name.item,
-                    read_only: false,
-                    optional: !var_def.type_.is_non_null(),
-                    value: self.transform_input_type(&var_def.type_),
+                .map(|var_def| {
+                    Prop::KeyValuePair(KeyValuePairProp {
+                        key: var_def.name.item,
+                        read_only: false,
+                        optional: !var_def.type_.is_non_null(),
+                        value: self.transform_input_type(&var_def.type_),
+                    })
                 })
                 .collect(),
         )
@@ -1336,15 +1352,17 @@ impl<'a> TypeGenerator<'a> {
                         let props = input_object
                             .fields
                             .iter()
-                            .map(|field| Prop {
-                                key: field.name,
-                                read_only: false,
-                                optional: !field.type_.is_non_null()
-                                    || self
-                                        .typegen_config
-                                        .optional_input_fields
-                                        .contains(&field.name),
-                                value: self.transform_input_type(&field.type_),
+                            .map(|field| {
+                                Prop::KeyValuePair(KeyValuePairProp {
+                                    key: field.name,
+                                    read_only: false,
+                                    optional: !field.type_.is_non_null()
+                                        || self
+                                            .typegen_config
+                                            .optional_input_fields
+                                            .contains(&field.name),
+                                    value: self.transform_input_type(&field.type_),
+                                })
                             })
                             .collect();
                         self.generated_input_object_types.insert(
@@ -1371,7 +1389,7 @@ impl<'a> TypeGenerator<'a> {
                     self.imported_raw_response_types.insert(spread_type);
                     type_selections.push(TypeSelection::RawResponseFragmentSpread(
                         RawResponseFragmentSpread {
-                            value: AST::Identifier(spread_type),
+                            value: spread_type,
                             conditional: false,
                             concrete_type: None,
                         },
@@ -1409,7 +1427,7 @@ enum TypeSelection {
 
 #[derive(Debug, Clone)]
 struct RawResponseFragmentSpread {
-    value: AST,
+    value: StringKey,
     conditional: bool,
     concrete_type: Option<Type>,
 }

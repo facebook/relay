@@ -6,7 +6,7 @@
  */
 
 use crate::{
-    writer::{Prop, Writer, AST, SPREAD_KEY},
+    writer::{Prop, Writer, AST},
     FlowTypegenPhase,
 };
 use interner::{intern, StringKey};
@@ -219,34 +219,38 @@ impl FlowPrinter {
 
         for prop in props {
             self.write_indentation()?;
-            if prop.key == *SPREAD_KEY {
-                write!(&mut self.result, "...")?;
-                self.write(&prop.value)?;
-                writeln!(&mut self.result, ",")?;
-                continue;
-            }
-            if let AST::OtherTypename = prop.value {
-                writeln!(
-                    &mut self.result,
-                    "// This will never be '%other', but we need some"
-                )?;
-                self.write_indentation()?;
-                writeln!(
-                    &mut self.result,
-                    "// value in case none of the concrete values match."
-                )?;
-                self.write_indentation()?;
-            }
-            if prop.read_only {
-                write!(&mut self.result, "+")?;
-            }
-            write!(&mut self.result, "{}", prop.key)?;
-            if prop.optional {
-                write!(&mut self.result, "?")?;
-            }
-            write!(&mut self.result, ": ")?;
-            self.write(&prop.value)?;
-            writeln!(&mut self.result, ",")?;
+            match prop {
+                Prop::Spread(spread) => {
+                    write!(&mut self.result, "...")?;
+                    self.write(&AST::Identifier(spread.value))?;
+                    writeln!(&mut self.result, ",")?;
+                    continue;
+                }
+                Prop::KeyValuePair(key_value_pair) => {
+                    if let AST::OtherTypename = key_value_pair.value {
+                        writeln!(
+                            &mut self.result,
+                            "// This will never be '%other', but we need some"
+                        )?;
+                        self.write_indentation()?;
+                        writeln!(
+                            &mut self.result,
+                            "// value in case none of the concrete values match."
+                        )?;
+                        self.write_indentation()?;
+                    }
+                    if key_value_pair.read_only {
+                        write!(&mut self.result, "+")?;
+                    }
+                    write!(&mut self.result, "{}", key_value_pair.key)?;
+                    if key_value_pair.optional {
+                        write!(&mut self.result, "?")?;
+                    }
+                    write!(&mut self.result, ": ")?;
+                    self.write(&key_value_pair.value)?;
+                    writeln!(&mut self.result, ",")?;
+                }
+            };
         }
         if !exact {
             self.write_indentation()?;
@@ -287,6 +291,8 @@ impl FlowPrinter {
 
 #[cfg(test)]
 mod tests {
+    use crate::writer::KeyValuePairProp;
+
     use super::*;
     use interner::Intern;
 
@@ -343,12 +349,14 @@ mod tests {
         );
 
         assert_eq!(
-            print_type(&AST::ExactObject(vec![Prop {
-                key: "single".intern(),
-                optional: false,
-                read_only: false,
-                value: AST::String,
-            },])),
+            print_type(&AST::ExactObject(vec![Prop::KeyValuePair(
+                KeyValuePairProp {
+                    key: "single".intern(),
+                    optional: false,
+                    read_only: false,
+                    value: AST::String,
+                }
+            ),])),
             r"{|
   single: string,
 |}"
@@ -356,18 +364,18 @@ mod tests {
         );
         assert_eq!(
             print_type(&AST::ExactObject(vec![
-                Prop {
+                Prop::KeyValuePair(KeyValuePairProp {
                     key: "foo".intern(),
                     optional: true,
                     read_only: false,
                     value: AST::String,
-                },
-                Prop {
+                }),
+                Prop::KeyValuePair(KeyValuePairProp {
                     key: "bar".intern(),
                     optional: false,
                     read_only: true,
                     value: AST::Number,
-                },
+                }),
             ])),
             r"{|
   foo?: string,
@@ -381,31 +389,31 @@ mod tests {
     fn nested_object() {
         assert_eq!(
             print_type(&AST::ExactObject(vec![
-                Prop {
+                Prop::KeyValuePair(KeyValuePairProp {
                     key: "foo".intern(),
                     optional: true,
                     read_only: false,
                     value: AST::ExactObject(vec![
-                        Prop {
+                        Prop::KeyValuePair(KeyValuePairProp {
                             key: "nested_foo".intern(),
                             optional: true,
                             read_only: false,
                             value: AST::String,
-                        },
-                        Prop {
+                        }),
+                        Prop::KeyValuePair(KeyValuePairProp {
                             key: "nested_foo2".intern(),
                             optional: false,
                             read_only: true,
                             value: AST::Number,
-                        },
+                        }),
                     ]),
-                },
-                Prop {
+                }),
+                Prop::KeyValuePair(KeyValuePairProp {
                     key: "bar".intern(),
                     optional: false,
                     read_only: true,
                     value: AST::Number,
-                },
+                }),
             ])),
             r"{|
   foo?: {|
@@ -429,12 +437,14 @@ mod tests {
         );
 
         assert_eq!(
-            print_type(&AST::InexactObject(vec![Prop {
-                key: "single".intern(),
-                optional: false,
-                read_only: false,
-                value: AST::String,
-            },])),
+            print_type(&AST::InexactObject(vec![Prop::KeyValuePair(
+                KeyValuePairProp {
+                    key: "single".intern(),
+                    optional: false,
+                    read_only: false,
+                    value: AST::String,
+                }
+            ),])),
             r"{
   single: string,
   ...
@@ -444,18 +454,18 @@ mod tests {
 
         assert_eq!(
             print_type(&AST::InexactObject(vec![
-                Prop {
+                Prop::KeyValuePair(KeyValuePairProp {
                     key: "foo".intern(),
                     optional: false,
                     read_only: false,
                     value: AST::String,
-                },
-                Prop {
+                }),
+                Prop::KeyValuePair(KeyValuePairProp {
                     key: "bar".intern(),
                     optional: true,
                     read_only: true,
                     value: AST::Number,
-                }
+                })
             ])),
             r"{
   foo: string,
@@ -469,12 +479,14 @@ mod tests {
     #[test]
     fn other_comment() {
         assert_eq!(
-            print_type(&AST::ExactObject(vec![Prop {
-                key: "with_comment".intern(),
-                optional: false,
-                read_only: false,
-                value: AST::OtherTypename,
-            },])),
+            print_type(&AST::ExactObject(vec![Prop::KeyValuePair(
+                KeyValuePairProp {
+                    key: "with_comment".intern(),
+                    optional: false,
+                    read_only: false,
+                    value: AST::OtherTypename,
+                }
+            ),])),
             r#"{|
   // This will never be '%other', but we need some
   // value in case none of the concrete values match.

@@ -5,8 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use interner::{Intern, StringKey};
-use lazy_static::lazy_static;
+use interner::StringKey;
 use std::fmt::Result;
 
 #[derive(Debug, Clone)]
@@ -34,16 +33,22 @@ pub enum AST {
 }
 
 #[derive(Debug, Clone)]
-pub struct Prop {
+pub enum Prop {
+    KeyValuePair(KeyValuePairProp),
+    Spread(SpreadProp),
+}
+
+#[derive(Debug, Clone)]
+pub struct KeyValuePairProp {
     pub key: StringKey,
     pub value: AST,
     pub read_only: bool,
     pub optional: bool,
 }
 
-lazy_static! {
-    /// Special key for `Prop` that turns into an object spread: ...value
-    pub static ref SPREAD_KEY: StringKey = "\0SPREAD".intern();
+#[derive(Debug, Clone)]
+pub struct SpreadProp {
+    pub value: StringKey,
 }
 
 pub trait Writer {

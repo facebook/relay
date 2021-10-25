@@ -29,8 +29,12 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
 
     let mut sources = FnvHashMap::default();
     sources.insert(source_location, source);
-    let ast = parse_executable(source, source_location).unwrap();
-    let ir = build(&schema, &ast.definitions).unwrap();
+    let ast = parse_executable(source, source_location).unwrap_or_else(|e| {
+        panic!("Encountered error building AST: {:?}", e);
+    });
+    let ir = build(&schema, &ast.definitions).unwrap_or_else(|e| {
+        panic!("Encountered error building IR {:?}", e);
+    });
     let program = Program::from_definitions(Arc::clone(&schema), ir);
     let programs = apply_transforms(
         "test".intern(),

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<df661e8fe9731a860fd3cd5c9f0e0c22>>
+ * @generated SignedSource<<fc20a1b68972b881ad1b26aeb3809b59>>
  */
 
 mod build_schema;
@@ -55,6 +55,20 @@ fn invalid_duplicate_directive() {
 }
 
 #[test]
+fn invalid_duplicate_query_operation() {
+    let input = include_str!("build_schema/fixtures/invalid-duplicate-query-operation.graphql");
+    let expected = include_str!("build_schema/fixtures/invalid-duplicate-query-operation.expected");
+    test_fixture(transform_fixture, "invalid-duplicate-query-operation.graphql", "build_schema/fixtures/invalid-duplicate-query-operation.expected", input, expected);
+}
+
+#[test]
+fn invalid_extension_implements_noninterface() {
+    let input = include_str!("build_schema/fixtures/invalid-extension-implements-noninterface.graphql");
+    let expected = include_str!("build_schema/fixtures/invalid-extension-implements-noninterface.expected");
+    test_fixture(transform_fixture, "invalid-extension-implements-noninterface.graphql", "build_schema/fixtures/invalid-extension-implements-noninterface.expected", input, expected);
+}
+
+#[test]
 fn invalid_implements_non_interface() {
     let input = include_str!("build_schema/fixtures/invalid-implements-non-interface.graphql");
     let expected = include_str!("build_schema/fixtures/invalid-implements-non-interface.expected");
@@ -80,6 +94,13 @@ fn invalid_input_type_union() {
     let input = include_str!("build_schema/fixtures/invalid-input-type-union.graphql");
     let expected = include_str!("build_schema/fixtures/invalid-input-type-union.expected");
     test_fixture(transform_fixture, "invalid-input-type-union.graphql", "build_schema/fixtures/invalid-input-type-union.expected", input, expected);
+}
+
+#[test]
+fn invalid_interface_implements_noninterface() {
+    let input = include_str!("build_schema/fixtures/invalid-interface-implements-noninterface.graphql");
+    let expected = include_str!("build_schema/fixtures/invalid-interface-implements-noninterface.expected");
+    test_fixture(transform_fixture, "invalid-interface-implements-noninterface.graphql", "build_schema/fixtures/invalid-interface-implements-noninterface.expected", input, expected);
 }
 
 #[test]

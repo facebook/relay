@@ -813,7 +813,6 @@ impl InMemorySchema {
                 }
             }
         }
-
         schema.load_defaults();
 
         Ok(schema)
@@ -957,7 +956,7 @@ impl InMemorySchema {
                                     SchemaError::DuplicateOperationDefinition(
                                         *operation,
                                         type_.value,
-                                        self.object(prev_query_type).name.item,
+                                        expect_object_type_name(&self.type_map, prev_query_type),
                                     ),
                                     Location::new(*location_key, type_.span),
                                 )]);
@@ -971,7 +970,7 @@ impl InMemorySchema {
                                     SchemaError::DuplicateOperationDefinition(
                                         *operation,
                                         type_.value,
-                                        self.object(prev_mutation_type).name.item,
+                                        expect_object_type_name(&self.type_map, prev_mutation_type),
                                     ),
                                     Location::new(*location_key, type_.span),
                                 )]);
@@ -985,7 +984,10 @@ impl InMemorySchema {
                                     SchemaError::DuplicateOperationDefinition(
                                         *operation,
                                         type_.value,
-                                        self.object(prev_subscription_type).name.item,
+                                        expect_object_type_name(
+                                            &self.type_map,
+                                            prev_subscription_type,
+                                        ),
                                     ),
                                     Location::new(*location_key, type_.span),
                                 )]);
@@ -1470,6 +1472,17 @@ fn extend_without_duplicates<T: PartialEq>(
 
 fn len_of_option_list<T>(option_list: &Option<List<T>>) -> usize {
     option_list.as_ref().map_or(0, |list| list.items.len())
+}
+
+fn expect_object_type_name(type_map: &TypeMap, object_id: ObjectID) -> StringKey {
+    *type_map
+        .iter()
+        .find(|(_, type_)| match type_ {
+            Type::Object(id_) => id_ == &object_id,
+            _ => false,
+        })
+        .expect("Missing object in type_map")
+        .0
 }
 
 #[cfg(test)]

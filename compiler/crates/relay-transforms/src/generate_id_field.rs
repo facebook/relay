@@ -123,7 +123,7 @@ impl<'s> GenerateIDFieldTransform<'s> {
                 let id_field = *node_interface
                     .fields
                     .iter()
-                    .find(|&&id| schema.field(id).name == id_name)
+                    .find(|&&id| schema.field(id).name.item == id_name)
                     .expect("Expected `Node` to contain a field named `id`.");
 
                 Some(NodeInterface {
@@ -146,7 +146,7 @@ impl<'s> GenerateIDFieldTransform<'s> {
         selections.iter().any(|x| match x {
             Selection::ScalarField(child) => {
                 child.alias.is_none()
-                    && self.program.schema.field(child.definition.item).name == self.id_name
+                    && self.program.schema.field(child.definition.item).name.item == self.id_name
             }
             _ => false,
         })
@@ -158,7 +158,8 @@ impl<'s> GenerateIDFieldTransform<'s> {
             Entry::Vacant(e) => {
                 for id in fields {
                     let field = &self.program.schema.field(*id);
-                    if field.name == self.id_name && self.program.schema.is_id(field.type_.inner())
+                    if field.name.item == self.id_name
+                        && self.program.schema.is_id(field.type_.inner())
                     {
                         let result = Some(*id);
                         e.insert(result);

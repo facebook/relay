@@ -79,7 +79,7 @@ impl<'s> ConnectionTransform<'s> {
             .named_field(connection_field_type, self.connection_interface.edges)
             .expect("Expected presence of edges field to have been previously validated.");
         let edges_schema_field = schema.field(edges_schema_field_id);
-        let edges_field_name = edges_schema_field.name;
+        let edges_field_name = edges_schema_field.name.item;
         let edge_type = edges_schema_field.type_.inner();
         let mut is_aliased_edges = false;
         let mut transformed_edges_field = if let Some(alias) = edges_field.alias {
@@ -144,7 +144,7 @@ impl<'s> ConnectionTransform<'s> {
             .named_field(connection_field_type, self.connection_interface.page_info)
             .expect("Expected presence of page_info field to have been previously validated.");
         let page_info_schema_field = schema.field(page_info_schema_field_id);
-        let page_info_field_name = page_info_schema_field.name;
+        let page_info_field_name = page_info_schema_field.name.item;
         let page_info_type = page_info_schema_field.type_.inner();
         let mut page_info_ix = None;
         let mut is_aliased_page_info = false;
@@ -407,7 +407,7 @@ impl<'s> Transformer for ConnectionTransform<'s> {
             path.push(if let Some(alias) = field.alias {
                 alias.item
             } else {
-                connection_schema_field.name
+                connection_schema_field.name.item
             })
         }
 

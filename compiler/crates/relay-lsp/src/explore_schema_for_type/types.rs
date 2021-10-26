@@ -354,7 +354,7 @@ fn get_schema_explorer_field(
     filter: &Option<String>,
 ) -> Option<SchemaExplorerField> {
     let field = schema.field(field_id);
-    let field_name = field.name.to_string();
+    let field_name = field.name.item.to_string();
 
     let field_type_name = schema.get_type_name(field.type_.inner()).to_string();
 

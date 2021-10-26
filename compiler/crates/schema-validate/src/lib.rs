@@ -184,20 +184,23 @@ impl<'schema> ValidationContext<'schema> {
         for field_id in fields {
             let field = self.schema.field(*field_id);
             if field_names.contains(&field.name) {
-                self.report_error(SchemaValidationError::DuplicateField(field.name), context);
+                self.report_error(
+                    SchemaValidationError::DuplicateField(field.name.item),
+                    context,
+                );
                 continue;
             }
             field_names.insert(field.name);
 
             // Ensure they are named correctly.
-            self.validate_name(field.name, context);
+            self.validate_name(field.name.item, context);
 
             // Ensure the type is an output type
             if !is_output_type(&field.type_) {
                 self.report_error(
                     SchemaValidationError::InvalidFieldType(
                         type_name,
-                        field.name,
+                        field.name.item,
                         field.type_.clone(),
                     ),
                     context,
@@ -213,7 +216,7 @@ impl<'schema> ValidationContext<'schema> {
                 // Ensure unique arguments per directive.
                 if arg_names.contains(&argument.name) {
                     self.report_error(
-                        SchemaValidationError::DuplicateArgument(argument.name, field.name),
+                        SchemaValidationError::DuplicateArgument(argument.name, field.name.item),
                         context,
                     );
                     continue;
@@ -225,7 +228,7 @@ impl<'schema> ValidationContext<'schema> {
                     self.report_error(
                         SchemaValidationError::InvalidArgumentType(
                             type_name,
-                            field.name,
+                            field.name.item,
                             argument.name,
                             argument.type_.clone(),
                         ),
@@ -500,7 +503,7 @@ impl<'schema> ValidationContext<'schema> {
         fields
             .iter()
             .map(|id| self.schema.field(*id))
-            .map(|field| (field.name, field.clone()))
+            .map(|field| (field.name.item, field.clone()))
             .collect::<FnvHashMap<_, _>>()
     }
 

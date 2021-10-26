@@ -166,7 +166,7 @@ impl DeferStreamTransform<'_> {
         if !schema_field.type_.is_list() {
             return Err(Diagnostic::error(
                 ValidationMessage::StreamFieldIsNotAList {
-                    field_name: schema_field.name,
+                    field_name: schema_field.name.item,
                 },
                 stream.name.location,
             ));

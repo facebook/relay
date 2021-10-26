@@ -93,7 +93,7 @@ fn validate_field_alias_once(
     alias: &WithLocation<StringKey>,
     field: FieldID,
 ) -> DiagnosticsResult<()> {
-    if alias.item == reserved_alias && schema.field(field).name != reserved_alias {
+    if alias.item == reserved_alias && schema.field(field).name.item != reserved_alias {
         Err(vec![Diagnostic::error(
             ValidationMessage::DisallowReservedAliasError(reserved_alias),
             alias.location,

@@ -86,7 +86,7 @@ impl<'program> Transformer for RelayResolverSpreadTransform<'program> {
             let spread_metadata = RelayResolverSpreadMetadata {
                 field_parent_type: field_metadata.field_parent_type,
                 import_path: field_metadata.import_path,
-                field_name: self.program.schema.field(field.definition.item).name,
+                field_name: self.program.schema.field(field.definition.item).name.item,
                 field_alias: field.alias.map(|alias| alias.item),
             };
             Transformed::Replace(Selection::FragmentSpread(Arc::new(FragmentSpread {

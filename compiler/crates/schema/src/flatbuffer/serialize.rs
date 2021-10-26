@@ -330,7 +330,7 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
 
     fn serialize_field(&mut self, id: FieldID) -> usize {
         let field = self.schema.field(id);
-        let name = field.name.lookup();
+        let name = field.name.item.lookup();
         let directives = &self.serialize_directive_values(&field.directives);
         let arguments = &self.serialize_arguments(&field.arguments);
         let args = schema_flatbuffer::FieldArgs {

@@ -28,12 +28,12 @@ interface Image implements Resource & Node {
 }
 ==================================== OUTPUT ===================================
 Text Schema:Schema {
- query_type: Some(
+  query_type: Some(
     ObjectID(0),
 )
- mutation_type: None
- subscription_type: None
- directives: [
+  mutation_type: None
+  subscription_type: None
+  directives: [
     Directive {
         name: "include",
         arguments: [
@@ -81,7 +81,7 @@ Text Schema:Schema {
         description: None,
     },
 ]
- type_map: {
+  type_map: {
     "BaseNode": Interface(0),
     "Boolean": Scalar(3),
     "Float": Scalar(1),
@@ -93,10 +93,13 @@ Text Schema:Schema {
     "Resource": Interface(2),
     "String": Scalar(2),
 }
- enums: []
- fields: [
+  enums: []
+  fields: [
     Field {
-        name: "node",
+        name: WithLocation {
+            location: <generated>:42:46,
+            item: "node",
+        },
         is_extension: false,
         arguments: [],
         type_: Named(
@@ -109,7 +112,10 @@ Text Schema:Schema {
         description: None,
     },
     Field {
-        name: "id",
+        name: WithLocation {
+            location: <generated>:79:81,
+            item: "id",
+        },
         is_extension: false,
         arguments: [],
         type_: NonNull(
@@ -124,7 +130,10 @@ Text Schema:Schema {
         description: None,
     },
     Field {
-        name: "name",
+        name: WithLocation {
+            location: <generated>:129:133,
+            item: "name",
+        },
         is_extension: false,
         arguments: [],
         type_: NonNull(
@@ -139,7 +148,10 @@ Text Schema:Schema {
         description: None,
     },
     Field {
-        name: "id",
+        name: WithLocation {
+            location: <generated>:185:187,
+            item: "id",
+        },
         is_extension: false,
         arguments: [],
         type_: NonNull(
@@ -154,7 +166,10 @@ Text Schema:Schema {
         description: None,
     },
     Field {
-        name: "name",
+        name: WithLocation {
+            location: <generated>:195:199,
+            item: "name",
+        },
         is_extension: false,
         arguments: [],
         type_: NonNull(
@@ -169,7 +184,10 @@ Text Schema:Schema {
         description: None,
     },
     Field {
-        name: "url",
+        name: WithLocation {
+            location: <generated>:211:214,
+            item: "url",
+        },
         is_extension: false,
         arguments: [],
         type_: Named(
@@ -182,7 +200,10 @@ Text Schema:Schema {
         description: None,
     },
     Field {
-        name: "id",
+        name: WithLocation {
+            location: <generated>:273:275,
+            item: "id",
+        },
         is_extension: false,
         arguments: [],
         type_: NonNull(
@@ -197,7 +218,10 @@ Text Schema:Schema {
         description: None,
     },
     Field {
-        name: "url",
+        name: WithLocation {
+            location: <generated>:283:286,
+            item: "url",
+        },
         is_extension: false,
         arguments: [],
         type_: Named(
@@ -210,7 +234,10 @@ Text Schema:Schema {
         description: None,
     },
     Field {
-        name: "thumbnail",
+        name: WithLocation {
+            location: <generated>:297:306,
+            item: "thumbnail",
+        },
         is_extension: false,
         arguments: [],
         type_: Named(
@@ -223,7 +250,10 @@ Text Schema:Schema {
         description: None,
     },
     Field {
-        name: "__typename",
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "__typename",
+        },
         is_extension: false,
         arguments: [],
         type_: NonNull(
@@ -236,7 +266,10 @@ Text Schema:Schema {
         description: None,
     },
     Field {
-        name: "__token",
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "__token",
+        },
         is_extension: false,
         arguments: [],
         type_: NonNull(
@@ -249,7 +282,10 @@ Text Schema:Schema {
         description: None,
     },
     Field {
-        name: "__id",
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "__id",
+        },
         is_extension: true,
         arguments: [],
         type_: NonNull(
@@ -262,7 +298,10 @@ Text Schema:Schema {
         description: None,
     },
     Field {
-        name: "strong_id__",
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "strong_id__",
+        },
         is_extension: true,
         arguments: [],
         type_: Named(
@@ -273,7 +312,10 @@ Text Schema:Schema {
         description: None,
     },
     Field {
-        name: "is_fulfilled__",
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "is_fulfilled__",
+        },
         is_extension: true,
         arguments: [
             Argument {
@@ -297,8 +339,8 @@ Text Schema:Schema {
         description: None,
     },
 ]
- input_objects: []
- interfaces: [
+  input_objects: []
+  interfaces: [
     Interface {
         name: "BaseNode",
         is_extension: false,
@@ -355,7 +397,7 @@ Text Schema:Schema {
         description: None,
     },
 ]
- objects: [
+  objects: [
     Object {
         name: WithLocation {
             location: <generated>:32:37,
@@ -370,7 +412,7 @@ Text Schema:Schema {
         description: None,
     },
 ]
- scalars: [
+  scalars: [
     Scalar {
         name: "Int",
         is_extension: false,
@@ -402,8 +444,8 @@ Text Schema:Schema {
         description: None,
     },
 ]
- unions: []
- }
+  unions: []
+  }
 
 FlatBuffer Schema:FB Schema {
 directives: [
@@ -457,7 +499,10 @@ directives: [
 enums: []
 fields: [
     Field {
-        name: "id",
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "id",
+        },
         is_extension: false,
         arguments: [],
         type_: NonNull(
@@ -472,7 +517,10 @@ fields: [
         description: None,
     },
     Field {
-        name: "id",
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "id",
+        },
         is_extension: false,
         arguments: [],
         type_: NonNull(
@@ -487,7 +535,10 @@ fields: [
         description: None,
     },
     Field {
-        name: "url",
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "url",
+        },
         is_extension: false,
         arguments: [],
         type_: Named(
@@ -500,7 +551,10 @@ fields: [
         description: None,
     },
     Field {
-        name: "thumbnail",
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "thumbnail",
+        },
         is_extension: false,
         arguments: [],
         type_: Named(
@@ -513,7 +567,10 @@ fields: [
         description: None,
     },
     Field {
-        name: "name",
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "name",
+        },
         is_extension: false,
         arguments: [],
         type_: NonNull(
@@ -528,7 +585,10 @@ fields: [
         description: None,
     },
     Field {
-        name: "node",
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "node",
+        },
         is_extension: false,
         arguments: [],
         type_: Named(
@@ -541,7 +601,10 @@ fields: [
         description: None,
     },
     Field {
-        name: "id",
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "id",
+        },
         is_extension: false,
         arguments: [],
         type_: NonNull(
@@ -556,7 +619,10 @@ fields: [
         description: None,
     },
     Field {
-        name: "name",
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "name",
+        },
         is_extension: false,
         arguments: [],
         type_: NonNull(
@@ -571,7 +637,10 @@ fields: [
         description: None,
     },
     Field {
-        name: "url",
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "url",
+        },
         is_extension: false,
         arguments: [],
         type_: Named(

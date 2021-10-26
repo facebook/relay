@@ -568,7 +568,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
     fn build_scalar_field(&mut self, field: &ScalarField) -> Primitive {
         let schema_field = self.schema.field(field.definition.item);
         let (name, alias) =
-            self.build_field_name_and_alias(schema_field.name, field.alias, &field.directives);
+            self.build_field_name_and_alias(schema_field.name.item, field.alias, &field.directives);
         let args = self.build_arguments(&field.arguments);
         let kind = match field
             .directives
@@ -618,7 +618,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
 
     fn build_scalar_handles(&mut self, result: &mut Vec<Primitive>, field: &ScalarField) {
         let schema_field = self.schema.field(field.definition.item);
-        let field_name = schema_field.name;
+        let field_name = schema_field.name.item;
         let handle_field_directives = extract_handle_field_directives(&field.directives);
 
         for directive in handle_field_directives {
@@ -687,7 +687,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
     fn build_linked_field(&mut self, field: &LinkedField) -> Primitive {
         let schema_field = self.schema.field(field.definition.item);
         let (name, alias) =
-            self.build_field_name_and_alias(schema_field.name, field.alias, &field.directives);
+            self.build_field_name_and_alias(schema_field.name.item, field.alias, &field.directives);
         let args = self.build_arguments(&field.arguments);
         let selections = self.build_selections(field.selections.iter());
         let primitive = Primitive::Key(self.object(vec![
@@ -747,7 +747,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
 
     fn build_linked_handles(&mut self, result: &mut Vec<Primitive>, field: &LinkedField) {
         let schema_field = self.schema.field(field.definition.item);
-        let field_name = schema_field.name;
+        let field_name = schema_field.name.item;
         let handle_field_directives = extract_handle_field_directives(&field.directives);
         for directive in handle_field_directives {
             let values = extract_values_from_handle_field_directive(&directive);
@@ -1727,7 +1727,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             CodegenVariant::Reader => {
                 let schema_field = self.schema.field(linked_field.definition.item);
                 let (name, alias) = self.build_field_name_and_alias(
-                    schema_field.name,
+                    schema_field.name.item,
                     linked_field.alias,
                     &linked_field.directives,
                 );

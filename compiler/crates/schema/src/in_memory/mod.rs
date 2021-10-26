@@ -11,7 +11,7 @@ use crate::graphql_schema::Schema;
 use common::{Diagnostic, DiagnosticsResult, Location, SourceLocationKey, WithLocation};
 use graphql_syntax::*;
 use interner::{Intern, StringKey};
-use std::collections::{BTreeMap, HashMap, HashSet};
+use std::collections::{BTreeMap, HashMap};
 
 fn todo_add_location<T>(error: SchemaError) -> DiagnosticsResult<T> {
     Err(vec![Diagnostic::error(error, Location::generated())])
@@ -196,7 +196,7 @@ impl Schema for InMemorySchema {
             .iter()
             .find(|field_id| {
                 let field = &self.fields[field_id.as_usize()];
-                field.name == name
+                field.name.item == name
             })
             .cloned()
     }
@@ -244,19 +244,19 @@ impl Schema for InMemorySchema {
 
         format!(
             r#"Schema {{
- query_type: {:#?}
- mutation_type: {:#?}
- subscription_type: {:#?}
- directives: {:#?}
- type_map: {:#?}
- enums: {:#?}
- fields: {:#?}
- input_objects: {:#?}
- interfaces: {:#?}
- objects: {:#?}
- scalars: {:#?}
- unions: {:#?}
- }}"#,
+  query_type: {:#?}
+  mutation_type: {:#?}
+  subscription_type: {:#?}
+  directives: {:#?}
+  type_map: {:#?}
+  enums: {:#?}
+  fields: {:#?}
+  input_objects: {:#?}
+  interfaces: {:#?}
+  objects: {:#?}
+  scalars: {:#?}
+  unions: {:#?}
+  }}"#,
             query_type,
             mutation_type,
             subscription_type,
@@ -611,7 +611,10 @@ impl InMemorySchema {
     pub fn replace_field(&mut self, id: FieldID, field: Field) -> DiagnosticsResult<()> {
         let id = id.as_usize();
         if id >= self.fields.len() {
-            return todo_add_location(SchemaError::UnknownTypeID(id, String::from("Field")));
+            return Err(vec![Diagnostic::error(
+                SchemaError::UnknownTypeID(id, String::from("Field")),
+                field.name.location,
+            )]);
         }
         self.fields[id] = field;
         Ok(())
@@ -858,7 +861,7 @@ impl InMemorySchema {
         let typename_field_id = self.fields.len();
         self.typename_field = FieldID(typename_field_id.try_into().unwrap());
         self.fields.push(Field {
-            name: self.typename_field_name,
+            name: WithLocation::generated(self.typename_field_name),
             is_extension: false,
             arguments: ArgumentDefinitions::new(Default::default()),
             type_: TypeReference::NonNull(Box::new(TypeReference::Named(string_type))),
@@ -873,7 +876,7 @@ impl InMemorySchema {
         let fetch_token_field_id = self.fields.len();
         self.fetch_token_field = FieldID(fetch_token_field_id.try_into().unwrap());
         self.fields.push(Field {
-            name: self.fetch_token_field_name,
+            name: WithLocation::generated(self.fetch_token_field_name),
             is_extension: false,
             arguments: ArgumentDefinitions::new(Default::default()),
             type_: TypeReference::NonNull(Box::new(TypeReference::Named(id_type))),
@@ -888,7 +891,7 @@ impl InMemorySchema {
         let clientid_field_id = self.fields.len();
         self.clientid_field = FieldID(clientid_field_id.try_into().unwrap());
         self.fields.push(Field {
-            name: self.clientid_field_name,
+            name: WithLocation::generated(self.clientid_field_name),
             is_extension: true,
             arguments: ArgumentDefinitions::new(Default::default()),
             type_: TypeReference::NonNull(Box::new(TypeReference::Named(id_type))),
@@ -903,7 +906,7 @@ impl InMemorySchema {
         let strongid_field_id = self.fields.len();
         self.strongid_field = FieldID(strongid_field_id.try_into().unwrap());
         self.fields.push(Field {
-            name: self.strongid_field_name,
+            name: WithLocation::generated(self.strongid_field_name),
             is_extension: true,
             arguments: ArgumentDefinitions::new(Default::default()),
             type_: TypeReference::Named(id_type),
@@ -921,7 +924,7 @@ impl InMemorySchema {
         let is_fulfilled_field_id = self.fields.len();
         self.is_fulfilled_field = FieldID(is_fulfilled_field_id.try_into().unwrap());
         self.fields.push(Field {
-            name: self.is_fulfilled_field_name,
+            name: WithLocation::generated(self.is_fulfilled_field_name),
             is_extension: true,
             arguments: ArgumentDefinitions::new(vec![Argument {
                 name: "name".intern(),
@@ -1038,11 +1041,12 @@ impl InMemorySchema {
                 let fields = if is_extension {
                     self.build_extend_fields(
                         &fields,
-                        &mut HashSet::with_capacity(len_of_option_list(fields)),
+                        &mut HashMap::with_capacity(len_of_option_list(fields)),
+                        *location_key,
                         Some(parent_id),
                     )?
                 } else {
-                    self.build_fields(&fields, Some(parent_id))?
+                    self.build_fields(fields, *location_key, Some(parent_id))?
                 };
                 let interfaces = interfaces
                     .iter()
@@ -1068,11 +1072,12 @@ impl InMemorySchema {
                 let fields = if is_extension {
                     self.build_extend_fields(
                         &fields,
-                        &mut HashSet::with_capacity(len_of_option_list(fields)),
+                        &mut HashMap::with_capacity(len_of_option_list(fields)),
+                        *location_key,
                         Some(parent_id),
                     )?
                 } else {
-                    self.build_fields(&fields, Some(parent_id))?
+                    self.build_fields(fields, *location_key, Some(parent_id))?
                 };
                 let interfaces = interfaces
                     .iter()
@@ -1176,13 +1181,15 @@ impl InMemorySchema {
 
                     let field_ids = &obj.fields;
                     let mut existing_fields =
-                        HashSet::with_capacity(field_ids.len() + len_of_option_list(fields));
+                        HashMap::with_capacity(field_ids.len() + len_of_option_list(fields));
                     for field_id in field_ids {
-                        existing_fields.insert(self.fields[field_id.as_usize()].name);
+                        let field_name = self.fields[field_id.as_usize()].name;
+                        existing_fields.insert(field_name.item, field_name.location);
                     }
                     let client_fields = self.build_extend_fields(
                         fields,
                         &mut existing_fields,
+                        *location_key,
                         Some(Type::Object(id)),
                     )?;
 
@@ -1226,13 +1233,15 @@ impl InMemorySchema {
                     })?;
                     let field_ids = &interface.fields;
                     let mut existing_fields =
-                        HashSet::with_capacity(field_ids.len() + len_of_option_list(fields));
+                        HashMap::with_capacity(field_ids.len() + len_of_option_list(fields));
                     for field_id in field_ids {
-                        existing_fields.insert(self.fields[field_id.as_usize()].name);
+                        let field_name = self.fields[field_id.as_usize()].name;
+                        existing_fields.insert(field_name.item, field_name.location);
                     }
                     let client_fields = self.build_extend_fields(
                         fields,
                         &mut existing_fields,
+                        *location_key,
                         Some(Type::Interface(id)),
                     )?;
                     self.interfaces[index].fields.extend(client_fields);
@@ -1298,6 +1307,7 @@ impl InMemorySchema {
     fn build_fields(
         &mut self,
         field_defs: &Option<List<FieldDefinition>>,
+        field_location_key: SourceLocationKey,
         parent_type: Option<Type>,
     ) -> DiagnosticsResult<Vec<FieldID>> {
         if let Some(field_defs) = field_defs {
@@ -1310,7 +1320,10 @@ impl InMemorySchema {
                     let directives = self.build_directive_values(&field_def.directives);
                     let description = field_def.description.as_ref().map(|desc| desc.value);
                     Ok(self.build_field(Field {
-                        name: field_def.name.value,
+                        name: WithLocation::new(
+                            Location::new(field_location_key, field_def.name.span),
+                            field_def.name.value,
+                        ),
                         is_extension: false,
                         arguments,
                         type_,
@@ -1328,21 +1341,27 @@ impl InMemorySchema {
     fn build_extend_fields(
         &mut self,
         field_defs: &Option<List<FieldDefinition>>,
-        existing_fields: &mut HashSet<StringKey>,
+        existing_fields: &mut HashMap<StringKey, Location>,
+        source_location_key: SourceLocationKey,
         parent_type: Option<Type>,
     ) -> DiagnosticsResult<Vec<FieldID>> {
         if let Some(field_defs) = field_defs {
             let mut field_ids: Vec<FieldID> = Vec::with_capacity(field_defs.items.len());
             for field_def in &field_defs.items {
-                if !existing_fields.insert(field_def.name.value) {
-                    return todo_add_location(SchemaError::DuplicateField(field_def.name.value));
+                let field_name = field_def.name.value;
+                let field_location = Location::new(source_location_key, field_def.name.span);
+                if let Some(prev_location) = existing_fields.insert(field_name, field_location) {
+                    return Err(vec![
+                        Diagnostic::error(SchemaError::DuplicateField(field_name), field_location)
+                            .annotate("previously defined here", prev_location),
+                    ]);
                 }
                 let arguments = self.build_arguments(&field_def.arguments)?;
                 let directives = self.build_directive_values(&field_def.directives);
                 let type_ = self.build_type_reference(&field_def.type_)?;
                 let description = field_def.description.as_ref().map(|desc| desc.value);
                 field_ids.push(self.build_field(Field {
-                    name: field_def.name.value,
+                    name: WithLocation::new(field_location, field_name),
                     is_extension: true,
                     arguments,
                     type_,

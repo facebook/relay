@@ -81,7 +81,7 @@ fn build_refetch_operation(
             let id_field_id = *node_interface
                 .fields
                 .iter()
-                .find(|&&id| schema.field(id).name == CONSTANTS.id_name)
+                .find(|&&id| schema.field(id).name.item == CONSTANTS.id_name)
                 .expect("Expected `Node` to contain a field named `id`.");
 
             let fragment = Arc::new(FragmentDefinition {

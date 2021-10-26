@@ -173,14 +173,14 @@ impl<'schema> GraphQLSuggestions<'schema> {
                 .object(object_id)
                 .fields
                 .iter()
-                .map(|field_id| self.schema.field(*field_id).name)
+                .map(|field_id| self.schema.field(*field_id).name.item)
                 .collect(),
             Some(Type::Interface(interface_id)) => self
                 .schema
                 .interface(interface_id)
                 .fields
                 .iter()
-                .map(|field_id| self.schema.field(*field_id).name)
+                .map(|field_id| self.schema.field(*field_id).name.item)
                 .collect(),
             Some(Type::InputObject(input_id)) => self
                 .schema

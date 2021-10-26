@@ -336,10 +336,10 @@ impl<'schema, 'writer, 'curent_writer> Printer<'schema, 'writer> {
         self.print_new_line()?;
         for field_id in fields {
             let field = &self.schema.field(*field_id);
-            self.update_writer_index_for_field_start(field.name, type_name);
+            self.update_writer_index_for_field_start(field.name.item, type_name);
             self.print_space()?;
             self.print_space()?;
-            write!(self.writer(), "{}", field.name)?;
+            write!(self.writer(), "{}", field.name.item)?;
             self.print_args(&field.arguments)?;
             let type_string = self.schema.get_type_string(&field.type_);
             write!(self.writer(), ": {}", type_string)?;

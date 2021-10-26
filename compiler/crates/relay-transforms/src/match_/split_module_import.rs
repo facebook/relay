@@ -116,7 +116,7 @@ impl Transformer for SplitModuleImportTransform<'_, '_> {
                         match selection {
                             Selection::ScalarField(field) => {
                                 if field.alias.is_none()
-                                    || schema.field(field.definition.item).name
+                                    || schema.field(field.definition.item).name.item
                                         != MATCH_CONSTANTS.js_field_name
                                 {
                                     next_selections.push(selection.clone())

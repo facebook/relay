@@ -69,7 +69,7 @@ fn get_field_from_type(type_: Type, schema: &SDLSchema, field_name: StringKey) -
     }?;
     fields.iter().find_map(|field_id| {
         let field = schema.field(*field_id);
-        if field.name == field_name {
+        if field.name.item == field_name {
             Some(field)
         } else {
             None

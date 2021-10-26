@@ -172,8 +172,8 @@ impl<'s> ValidateSelectionConflict<'s> {
                     if !fields_mutually_exclusive {
                         if let Err(err) = self.validate_same_field(
                             key,
-                            l_definition.name,
-                            r_definition.name,
+                            l_definition.name.item,
+                            r_definition.name.item,
                             *l,
                             *r,
                         ) {
@@ -196,8 +196,8 @@ impl<'s> ValidateSelectionConflict<'s> {
                             Diagnostic::error(
                                 ValidationMessage::AmbiguousFieldType {
                                     response_key: key,
-                                    l_name: l_definition.name,
-                                    r_name: r_definition.name,
+                                    l_name: l_definition.name.item,
+                                    r_name: r_definition.name.item,
                                     l_type_string: self
                                         .program
                                         .schema
@@ -217,8 +217,8 @@ impl<'s> ValidateSelectionConflict<'s> {
                     if !is_parent_fields_mutually_exclusive() {
                         if let Err(err) = self.validate_same_field(
                             key,
-                            l_definition.name,
-                            r_definition.name,
+                            l_definition.name.item,
+                            r_definition.name.item,
                             *l,
                             *r,
                         ) {
@@ -229,8 +229,8 @@ impl<'s> ValidateSelectionConflict<'s> {
                             Diagnostic::error(
                                 ValidationMessage::AmbiguousFieldType {
                                     response_key: key,
-                                    l_name: l_definition.name,
-                                    r_name: r_definition.name,
+                                    l_name: l_definition.name.item,
+                                    r_name: r_definition.name.item,
                                     l_type_string: self
                                         .program
                                         .schema
@@ -251,8 +251,8 @@ impl<'s> ValidateSelectionConflict<'s> {
                         Diagnostic::error(
                             ValidationMessage::AmbiguousFieldType {
                                 response_key: key,
-                                l_name: l_definition.name,
-                                r_name: r_definition.name,
+                                l_name: l_definition.name.item,
+                                r_name: r_definition.name.item,
                                 l_type_string: self
                                     .program
                                     .schema

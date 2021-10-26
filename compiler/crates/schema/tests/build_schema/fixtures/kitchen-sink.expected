@@ -59,12 +59,12 @@ extend type User {
 }
 ==================================== OUTPUT ===================================
 Text Schema:Schema {
- query_type: Some(
+  query_type: Some(
     ObjectID(0),
 )
- mutation_type: None
- subscription_type: None
- directives: [
+  mutation_type: None
+  subscription_type: None
+  directives: [
     Directive {
         name: "include",
         arguments: [
@@ -148,7 +148,7 @@ Text Schema:Schema {
         description: None,
     },
 ]
- type_map: {
+  type_map: {
     "Actor": Union(0),
     "Boolean": Scalar(3),
     "ClientType": Object(3),
@@ -164,7 +164,7 @@ Text Schema:Schema {
     "URL": Scalar(5),
     "User": Object(1),
 }
- enums: [
+  enums: [
     Enum {
         name: "PageType",
         is_extension: false,
@@ -204,9 +204,12 @@ Text Schema:Schema {
         description: None,
     },
 ]
- fields: [
+  fields: [
     Field {
-        name: "node",
+        name: WithLocation {
+            location: <generated>:154:158,
+            item: "node",
+        },
         is_extension: false,
         arguments: [
             Argument {
@@ -230,7 +233,10 @@ Text Schema:Schema {
         description: None,
     },
     Field {
-        name: "nodes",
+        name: WithLocation {
+            location: <generated>:176:181,
+            item: "nodes",
+        },
         is_extension: false,
         arguments: [
             Argument {
@@ -264,7 +270,10 @@ Text Schema:Schema {
         description: None,
     },
     Field {
-        name: "id",
+        name: WithLocation {
+            location: <generated>:227:229,
+            item: "id",
+        },
         is_extension: false,
         arguments: [],
         type_: NonNull(
@@ -279,7 +288,10 @@ Text Schema:Schema {
         description: None,
     },
     Field {
-        name: "id",
+        name: WithLocation {
+            location: <generated>:268:270,
+            item: "id",
+        },
         is_extension: false,
         arguments: [],
         type_: NonNull(
@@ -294,7 +306,10 @@ Text Schema:Schema {
         description: None,
     },
     Field {
-        name: "name",
+        name: WithLocation {
+            location: <generated>:278:282,
+            item: "name",
+        },
         is_extension: false,
         arguments: [],
         type_: Named(
@@ -307,7 +322,10 @@ Text Schema:Schema {
         description: None,
     },
     Field {
-        name: "id",
+        name: WithLocation {
+            location: <generated>:308:310,
+            item: "id",
+        },
         is_extension: false,
         arguments: [],
         type_: Named(
@@ -320,7 +338,10 @@ Text Schema:Schema {
         description: None,
     },
     Field {
-        name: "type",
+        name: WithLocation {
+            location: <generated>:317:321,
+            item: "type",
+        },
         is_extension: false,
         arguments: [],
         type_: Named(
@@ -333,7 +354,10 @@ Text Schema:Schema {
         description: None,
     },
     Field {
-        name: "clientName",
+        name: WithLocation {
+            location: kitchen-sink.graphql:730:740,
+            item: "clientName",
+        },
         is_extension: true,
         arguments: [],
         type_: Named(
@@ -346,7 +370,10 @@ Text Schema:Schema {
         description: None,
     },
     Field {
-        name: "nickname",
+        name: WithLocation {
+            location: kitchen-sink.graphql:772:780,
+            item: "nickname",
+        },
         is_extension: true,
         arguments: [],
         type_: Named(
@@ -359,7 +386,10 @@ Text Schema:Schema {
         description: None,
     },
     Field {
-        name: "client",
+        name: WithLocation {
+            location: kitchen-sink.graphql:791:797,
+            item: "client",
+        },
         is_extension: true,
         arguments: [],
         type_: Named(
@@ -372,7 +402,10 @@ Text Schema:Schema {
         description: None,
     },
     Field {
-        name: "__typename",
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "__typename",
+        },
         is_extension: false,
         arguments: [],
         type_: NonNull(
@@ -385,7 +418,10 @@ Text Schema:Schema {
         description: None,
     },
     Field {
-        name: "__token",
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "__token",
+        },
         is_extension: false,
         arguments: [],
         type_: NonNull(
@@ -398,7 +434,10 @@ Text Schema:Schema {
         description: None,
     },
     Field {
-        name: "__id",
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "__id",
+        },
         is_extension: true,
         arguments: [],
         type_: NonNull(
@@ -411,7 +450,10 @@ Text Schema:Schema {
         description: None,
     },
     Field {
-        name: "strong_id__",
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "strong_id__",
+        },
         is_extension: true,
         arguments: [],
         type_: Named(
@@ -422,7 +464,10 @@ Text Schema:Schema {
         description: None,
     },
     Field {
-        name: "is_fulfilled__",
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "is_fulfilled__",
+        },
         is_extension: true,
         arguments: [
             Argument {
@@ -446,7 +491,7 @@ Text Schema:Schema {
         description: None,
     },
 ]
- input_objects: [
+  input_objects: [
     InputObject {
         name: "Location",
         fields: [
@@ -533,7 +578,7 @@ Text Schema:Schema {
         description: None,
     },
 ]
- interfaces: [
+  interfaces: [
     Interface {
         name: "Node",
         is_extension: false,
@@ -548,7 +593,7 @@ Text Schema:Schema {
         description: None,
     },
 ]
- objects: [
+  objects: [
     Object {
         name: WithLocation {
             location: <generated>:144:149,
@@ -597,7 +642,7 @@ Text Schema:Schema {
     },
     Object {
         name: WithLocation {
-            location: kitchen-sink.graphql:7:17,
+            location: kitchen-sink.graphql:715:725,
             item: "ClientType",
         },
         is_extension: true,
@@ -609,7 +654,7 @@ Text Schema:Schema {
         description: None,
     },
 ]
- scalars: [
+  scalars: [
     Scalar {
         name: "Int",
         is_extension: false,
@@ -695,7 +740,7 @@ Text Schema:Schema {
         description: None,
     },
 ]
- unions: [
+  unions: [
     Union {
         name: "Actor",
         is_extension: false,
@@ -707,7 +752,7 @@ Text Schema:Schema {
         description: None,
     },
 ]
- }
+  }
 
 FlatBuffer Schema:FB Schema {
 directives: [
@@ -836,7 +881,10 @@ enums: [
 ]
 fields: [
     Field {
-        name: "clientName",
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "clientName",
+        },
         is_extension: true,
         arguments: [],
         type_: Named(
@@ -849,7 +897,10 @@ fields: [
         description: None,
     },
     Field {
-        name: "id",
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "id",
+        },
         is_extension: false,
         arguments: [],
         type_: NonNull(
@@ -864,7 +915,10 @@ fields: [
         description: None,
     },
     Field {
-        name: "id",
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "id",
+        },
         is_extension: false,
         arguments: [],
         type_: Named(
@@ -877,7 +931,10 @@ fields: [
         description: None,
     },
     Field {
-        name: "type",
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "type",
+        },
         is_extension: false,
         arguments: [],
         type_: Named(
@@ -890,7 +947,10 @@ fields: [
         description: None,
     },
     Field {
-        name: "node",
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "node",
+        },
         is_extension: false,
         arguments: [
             Argument {
@@ -914,7 +974,10 @@ fields: [
         description: None,
     },
     Field {
-        name: "nodes",
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "nodes",
+        },
         is_extension: false,
         arguments: [
             Argument {
@@ -948,7 +1011,10 @@ fields: [
         description: None,
     },
     Field {
-        name: "id",
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "id",
+        },
         is_extension: false,
         arguments: [],
         type_: NonNull(
@@ -963,7 +1029,10 @@ fields: [
         description: None,
     },
     Field {
-        name: "name",
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "name",
+        },
         is_extension: false,
         arguments: [],
         type_: Named(
@@ -976,7 +1045,10 @@ fields: [
         description: None,
     },
     Field {
-        name: "nickname",
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "nickname",
+        },
         is_extension: true,
         arguments: [],
         type_: Named(
@@ -989,7 +1061,10 @@ fields: [
         description: None,
     },
     Field {
-        name: "client",
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "client",
+        },
         is_extension: true,
         arguments: [],
         type_: Named(

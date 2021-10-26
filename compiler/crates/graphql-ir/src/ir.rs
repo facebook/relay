@@ -217,7 +217,7 @@ pub trait Field {
         if let Some(name) = self.alias() {
             name.item
         } else {
-            schema.field(self.definition().item).name
+            schema.field(self.definition().item).name.item
         }
     }
     fn alias_or_name_location(&self) -> Location {

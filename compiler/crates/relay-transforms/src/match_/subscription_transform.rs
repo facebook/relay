@@ -75,7 +75,7 @@ impl<'program> SubscriptionTransform<'program> {
                         let object = self.program.schema.object(object_id);
                         for object_field_id in object.fields.iter() {
                             let object_field = self.program.schema.field(*object_field_id);
-                            if object_field.name == MATCH_CONSTANTS.js_field_name {
+                            if object_field.name.item == MATCH_CONSTANTS.js_field_name {
                                 // if we find a js field, it must be valid
                                 return self.is_valid_js_dependency(&object_field.type_).then(|| {
                                     ValidFieldResult {

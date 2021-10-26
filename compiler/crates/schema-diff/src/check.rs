@@ -90,7 +90,7 @@ fn is_object_add_safe(name: StringKey, schema: &SDLSchema) -> bool {
         if object
             .fields
             .iter()
-            .any(|id| schema.field(*id).name == *ID_FIELD_KEY)
+            .any(|id| schema.field(*id).name.item == *ID_FIELD_KEY)
             && object
                 .interfaces
                 .iter()

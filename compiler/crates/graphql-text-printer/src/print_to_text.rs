@@ -257,7 +257,7 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
         conditions: Option<Vec<&Condition>>,
     ) -> Result {
         let schema_field = self.schema.field(field.definition.item);
-        self.print_alias_and_name(&field.alias, schema_field.name)?;
+        self.print_alias_and_name(&field.alias, schema_field.name.item)?;
         self.print_arguments(&field.arguments)?;
         self.print_directives(&field.directives, conditions, None)
     }
@@ -268,7 +268,7 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
         conditions: Option<Vec<&Condition>>,
     ) -> Result {
         let schema_field = self.schema.field(field.definition.item);
-        self.print_alias_and_name(&field.alias, schema_field.name)?;
+        self.print_alias_and_name(&field.alias, schema_field.name.item)?;
         self.print_arguments(&field.arguments)?;
         self.print_directives(&field.directives, conditions, None)?;
         self.print_selections(&field.selections)?;

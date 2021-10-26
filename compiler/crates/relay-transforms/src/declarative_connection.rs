@@ -189,10 +189,11 @@ impl<'s, 'c> Transformer for DeclarativeConnectionMutationTransform<'s, 'c> {
                         if let Type::Object(id) = field_definition.type_.inner() {
                             let object = self.program.schema.object(id);
                             for field_id in &object.fields {
-                                let current_field = self.program.schema.field(*field_id);
-                                if current_field.name == self.connection_interface.cursor {
+                                let current_field_name =
+                                    self.program.schema.field(*field_id).name.item;
+                                if current_field_name == self.connection_interface.cursor {
                                     has_cursor_field = true;
-                                } else if current_field.name == self.connection_interface.node {
+                                } else if current_field_name == self.connection_interface.node {
                                     has_node_field = true;
                                 }
                             }

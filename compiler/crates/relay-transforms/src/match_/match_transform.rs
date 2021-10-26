@@ -164,7 +164,7 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
                 let object = self.program.schema.object(id);
                 let js_field_id = object.fields.iter().find(|field_id| {
                     let field = self.program.schema.field(**field_id);
-                    field.name == MATCH_CONSTANTS.js_field_name
+                    field.name.item == MATCH_CONSTANTS.js_field_name
                 });
                 if let Some(js_field_id) = js_field_id {
                     let js_field_id = *js_field_id;
@@ -592,7 +592,7 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
                 if !is_supported_string {
                     return Err(Diagnostic::error(
                         ValidationMessage::InvalidMatchNotOnNonNullListString {
-                            field_name: field_definition.name,
+                            field_name: field_definition.name.item,
                         },
                         field.definition.location,
                     ));
@@ -604,7 +604,7 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
         if !field_definition.type_.inner().is_abstract_type() {
             return Err(Diagnostic::error(
                 ValidationMessage::InvalidMatchNotOnUnionOrInterface {
-                    field_name: field_definition.name,
+                    field_name: field_definition.name.item,
                 },
                 field.definition.location,
             ));
@@ -765,7 +765,7 @@ impl Transformer for MatchTransform<'_, '_> {
     // Validate `js` field
     fn transform_scalar_field(&mut self, field: &ScalarField) -> Transformed<Selection> {
         let field_definition = self.program.schema.field(field.definition.item);
-        if field_definition.name == MATCH_CONSTANTS.js_field_name {
+        if field_definition.name.item == MATCH_CONSTANTS.js_field_name {
             match self.program.schema.get_type(MATCH_CONSTANTS.js_field_type) {
                 None => self.errors.push(Diagnostic::error(
                     ValidationMessage::MissingServerSchemaDefinition {

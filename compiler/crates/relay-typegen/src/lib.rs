@@ -608,7 +608,7 @@ impl<'a> TypeGenerator<'a> {
 
         self.has_actor_change = true;
         let field = self.schema.field(linked_field.definition.item);
-        let schema_name = field.name;
+        let schema_name = field.name.item;
         let key = if let Some(alias) = linked_field.alias {
             alias.item
         } else {
@@ -680,7 +680,7 @@ impl<'a> TypeGenerator<'a> {
         mut visit_selections_fn: impl FnMut(&mut Self, &[Selection]) -> Vec<TypeSelection>,
     ) {
         let field = self.schema.field(linked_field.definition.item);
-        let schema_name = field.name;
+        let schema_name = field.name.item;
         let key = if let Some(alias) = linked_field.alias {
             alias.item
         } else {
@@ -706,7 +706,7 @@ impl<'a> TypeGenerator<'a> {
         scalar_field: &ScalarField,
     ) {
         let field = self.schema.field(scalar_field.definition.item);
-        let schema_name = field.name;
+        let schema_name = field.name.item;
         let key = if let Some(alias) = scalar_field.alias {
             alias.item
         } else {

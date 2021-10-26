@@ -68,7 +68,7 @@ impl<'a> DeprecatedFields<'a> {
 
             self.warnings.push(Diagnostic::hint(
                 ValidationMessage::DeprecatedField {
-                    field_name: field_definition.name,
+                    field_name: field_definition.name.item,
                     parent_name,
                     deprecation_reason,
                 },

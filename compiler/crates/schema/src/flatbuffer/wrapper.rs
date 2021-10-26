@@ -7,6 +7,7 @@
 
 use std::{fmt, hash::Hash};
 
+use common::WithLocation;
 use dashmap::DashMap;
 use fnv::FnvBuildHasher;
 use interner::{Intern, StringKey};
@@ -93,7 +94,7 @@ impl SchemaWrapper {
 
         // prepopulate special fields
         result.fields.get(TYPENAME_FIELD_ID, || Field {
-            name: result.typename_field_name,
+            name: WithLocation::generated(result.typename_field_name),
             is_extension: false,
             arguments: ArgumentDefinitions::new(Default::default()),
             type_: TypeReference::NonNull(Box::new(TypeReference::Named(
@@ -104,7 +105,7 @@ impl SchemaWrapper {
             description: None,
         });
         result.fields.get(CLIENTID_FIELD_ID, || Field {
-            name: result.clientid_field_name,
+            name: WithLocation::generated(result.clientid_field_name),
             is_extension: true,
             arguments: ArgumentDefinitions::new(Default::default()),
             type_: TypeReference::NonNull(Box::new(TypeReference::Named(
@@ -115,7 +116,7 @@ impl SchemaWrapper {
             description: None,
         });
         result.fields.get(STRONGID_FIELD_ID, || Field {
-            name: result.strongid_field_name,
+            name: WithLocation::generated(result.strongid_field_name),
             is_extension: true,
             arguments: ArgumentDefinitions::new(Default::default()),
             type_: TypeReference::Named(result.get_type("ID".intern()).unwrap()),
@@ -124,7 +125,7 @@ impl SchemaWrapper {
             description: None,
         });
         result.fields.get(FETCH_TOKEN_FIELD_ID, || Field {
-            name: result.fetch_token_field_name,
+            name: WithLocation::generated(result.fetch_token_field_name),
             is_extension: false,
             arguments: ArgumentDefinitions::new(Default::default()),
             type_: TypeReference::NonNull(Box::new(TypeReference::Named(
@@ -135,7 +136,7 @@ impl SchemaWrapper {
             description: None,
         });
         result.fields.get(IS_FULFILLED_FIELD_ID, || Field {
-            name: result.is_fulfilled_field_name,
+            name: WithLocation::generated(result.is_fulfilled_field_name),
             is_extension: true,
             arguments: ArgumentDefinitions::new(vec![Argument {
                 name: "name".intern(),
@@ -353,7 +354,7 @@ impl Schema for SchemaWrapper {
             .iter()
             .find(|field_id| {
                 let field = self.field(**field_id);
-                field.name == name
+                field.name.item == name
             })
             .cloned()
     }

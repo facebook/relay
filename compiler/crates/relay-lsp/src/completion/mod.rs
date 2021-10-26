@@ -799,7 +799,7 @@ fn resolve_completion_items_from_fields<T: TypeWithFields + Named>(
         .iter()
         .map(|field_id| {
             let field = schema.field(*field_id);
-            let field_name = field.name.to_string();
+            let field_name = field.name.item.to_string();
             let deprecated = field.deprecated();
             let is_deprecated = deprecated.is_some();
             let deprecated_reason = deprecated
@@ -838,10 +838,10 @@ fn resolve_completion_items_from_fields<T: TypeWithFields + Named>(
                 .get_type_description(schema.get_type_name(field.type_.inner()).lookup());
 
             let field_description = schema_documentation
-                .get_field_description(type_.name().lookup(), field.name.lookup());
+                .get_field_description(type_.name().lookup(), field.name.item.lookup());
 
             let documentation = make_markdown_table_documentation(
-                field.name.lookup(),
+                field.name.item.lookup(),
                 &schema.get_type_string(&field.type_),
                 field_description.unwrap_or(""),
                 type_description.unwrap_or(""),

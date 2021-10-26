@@ -119,7 +119,7 @@ impl<'program, 'feature> Transformer for ActorChangeTransform<'program, 'feature
                             ValidationMessage::ActorChangeViewerShouldBeScalar {
                                 directive_name: *RELAY_ACTOR_CHANGE_DIRECTIVE,
                                 actor_change_field: *ACTOR_CHANGE_FIELD,
-                                field_name: schema_field.name,
+                                field_name: schema_field.name.item,
                                 actor_change_field_type: self
                                     .program
                                     .schema
@@ -137,7 +137,7 @@ impl<'program, 'feature> Transformer for ActorChangeTransform<'program, 'feature
                         ValidationMessage::ActorChangeExpectViewerFieldOnType {
                             directive_name: *RELAY_ACTOR_CHANGE_DIRECTIVE,
                             actor_change_field: *ACTOR_CHANGE_FIELD,
-                            field_name: schema_field.name,
+                            field_name: schema_field.name.item,
                             type_name: self.program.schema.get_type_name(field_type),
                         },
                         actor_change_directive.name.location,

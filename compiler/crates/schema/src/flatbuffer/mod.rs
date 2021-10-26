@@ -274,7 +274,7 @@ impl<'fb> FlatBufferSchema<'fb> {
     fn parse_field(&self, id: FieldID) -> Option<Field> {
         let field = self.fields.get(id.0.try_into().unwrap());
         let parsed_field = Field {
-            name: field.name()?.intern(),
+            name: WithLocation::generated(field.name()?.intern()),
             is_extension: field.is_extension(),
             arguments: self.parse_arguments(field.arguments()?)?,
             type_: self.parse_type_reference(field.type_()?)?,

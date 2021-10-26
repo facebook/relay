@@ -162,7 +162,7 @@ impl<'s> ReactFlightTransform<'s> {
             None => {
                 self.errors.push(Diagnostic::error(
                     ValidationMessage::InvalidFlightFieldNotDefinedOnType {
-                        field_name: field_definition.name,
+                        field_name: field_definition.name.item,
                     },
                     location,
                 ));
@@ -377,9 +377,7 @@ impl<'s> Transformer for ReactFlightTransform<'s> {
 
         // Rewrite into a call to the `flight` field, passing the original arguments
         // as values of the `props` argument:
-        let alias = field
-            .alias
-            .unwrap_or_else(|| WithLocation::generated(field_definition.name));
+        let alias = field.alias.unwrap_or(field_definition.name);
         let mut directives = Vec::with_capacity(field.directives.len() + 1);
         directives.extend(field.directives.iter().cloned());
         directives.push(Directive {

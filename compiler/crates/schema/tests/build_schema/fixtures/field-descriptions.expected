@@ -36,12 +36,12 @@ extend type Foo {
 }
 ==================================== OUTPUT ===================================
 Text Schema:Schema {
- query_type: Some(
+  query_type: Some(
     ObjectID(0),
 )
- mutation_type: None
- subscription_type: None
- directives: [
+  mutation_type: None
+  subscription_type: None
+  directives: [
     Directive {
         name: "include",
         arguments: [
@@ -89,7 +89,7 @@ Text Schema:Schema {
         description: None,
     },
 ]
- type_map: {
+  type_map: {
     "Boolean": Scalar(3),
     "Float": Scalar(1),
     "Foo": Object(1),
@@ -98,10 +98,13 @@ Text Schema:Schema {
     "Query": Object(0),
     "String": Scalar(2),
 }
- enums: []
- fields: [
+  enums: []
+  fields: [
     Field {
-        name: "foo",
+        name: WithLocation {
+            location: <generated>:42:45,
+            item: "foo",
+        },
         is_extension: false,
         arguments: [],
         type_: Named(
@@ -114,7 +117,10 @@ Text Schema:Schema {
         description: None,
     },
     Field {
-        name: "line",
+        name: WithLocation {
+            location: <generated>:101:105,
+            item: "line",
+        },
         is_extension: false,
         arguments: [],
         type_: Named(
@@ -129,7 +135,10 @@ Text Schema:Schema {
         ),
     },
     Field {
-        name: "block",
+        name: WithLocation {
+            location: <generated>:154:159,
+            item: "block",
+        },
         is_extension: false,
         arguments: [],
         type_: Named(
@@ -144,7 +153,10 @@ Text Schema:Schema {
         ),
     },
     Field {
-        name: "multiline_block",
+        name: WithLocation {
+            location: <generated>:271:286,
+            item: "multiline_block",
+        },
         is_extension: false,
         arguments: [],
         type_: Named(
@@ -159,7 +171,10 @@ Text Schema:Schema {
         ),
     },
     Field {
-        name: "extended_line",
+        name: WithLocation {
+            location: <generated>:361:374,
+            item: "extended_line",
+        },
         is_extension: true,
         arguments: [],
         type_: Named(
@@ -174,7 +189,10 @@ Text Schema:Schema {
         ),
     },
     Field {
-        name: "extended_block",
+        name: WithLocation {
+            location: <generated>:423:437,
+            item: "extended_block",
+        },
         is_extension: true,
         arguments: [],
         type_: Named(
@@ -189,7 +207,10 @@ Text Schema:Schema {
         ),
     },
     Field {
-        name: "extended_multiline_block",
+        name: WithLocation {
+            location: <generated>:549:573,
+            item: "extended_multiline_block",
+        },
         is_extension: true,
         arguments: [],
         type_: Named(
@@ -204,7 +225,10 @@ Text Schema:Schema {
         ),
     },
     Field {
-        name: "__typename",
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "__typename",
+        },
         is_extension: false,
         arguments: [],
         type_: NonNull(
@@ -217,7 +241,10 @@ Text Schema:Schema {
         description: None,
     },
     Field {
-        name: "__token",
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "__token",
+        },
         is_extension: false,
         arguments: [],
         type_: NonNull(
@@ -230,7 +257,10 @@ Text Schema:Schema {
         description: None,
     },
     Field {
-        name: "__id",
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "__id",
+        },
         is_extension: true,
         arguments: [],
         type_: NonNull(
@@ -243,7 +273,10 @@ Text Schema:Schema {
         description: None,
     },
     Field {
-        name: "strong_id__",
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "strong_id__",
+        },
         is_extension: true,
         arguments: [],
         type_: Named(
@@ -254,7 +287,10 @@ Text Schema:Schema {
         description: None,
     },
     Field {
-        name: "is_fulfilled__",
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "is_fulfilled__",
+        },
         is_extension: true,
         arguments: [
             Argument {
@@ -278,9 +314,9 @@ Text Schema:Schema {
         description: None,
     },
 ]
- input_objects: []
- interfaces: []
- objects: [
+  input_objects: []
+  interfaces: []
+  objects: [
     Object {
         name: WithLocation {
             location: <generated>:32:37,
@@ -313,7 +349,7 @@ Text Schema:Schema {
         description: None,
     },
 ]
- scalars: [
+  scalars: [
     Scalar {
         name: "Int",
         is_extension: false,
@@ -345,8 +381,8 @@ Text Schema:Schema {
         description: None,
     },
 ]
- unions: []
- }
+  unions: []
+  }
 
 FlatBuffer Schema:FB Schema {
 directives: [
@@ -400,7 +436,10 @@ directives: [
 enums: []
 fields: [
     Field {
-        name: "line",
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "line",
+        },
         is_extension: false,
         arguments: [],
         type_: Named(
@@ -413,7 +452,10 @@ fields: [
         description: None,
     },
     Field {
-        name: "block",
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "block",
+        },
         is_extension: false,
         arguments: [],
         type_: Named(
@@ -426,7 +468,10 @@ fields: [
         description: None,
     },
     Field {
-        name: "multiline_block",
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "multiline_block",
+        },
         is_extension: false,
         arguments: [],
         type_: Named(
@@ -439,7 +484,10 @@ fields: [
         description: None,
     },
     Field {
-        name: "extended_line",
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "extended_line",
+        },
         is_extension: true,
         arguments: [],
         type_: Named(
@@ -452,7 +500,10 @@ fields: [
         description: None,
     },
     Field {
-        name: "extended_block",
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "extended_block",
+        },
         is_extension: true,
         arguments: [],
         type_: Named(
@@ -465,7 +516,10 @@ fields: [
         description: None,
     },
     Field {
-        name: "extended_multiline_block",
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "extended_multiline_block",
+        },
         is_extension: true,
         arguments: [],
         type_: Named(
@@ -478,7 +532,10 @@ fields: [
         description: None,
     },
     Field {
-        name: "foo",
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "foo",
+        },
         is_extension: false,
         arguments: [],
         type_: Named(

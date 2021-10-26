@@ -28,7 +28,7 @@ pub fn assert_connection_selections<'s>(
     let mut page_info_selection = None;
     for (ix, selection) in selections.iter().enumerate() {
         if let Selection::LinkedField(field) = selection {
-            let field_name = schema.field(field.definition.item).name;
+            let field_name = schema.field(field.definition.item).name.item;
             if field_name == connection_interface.edges {
                 if edges_selection.is_some() {
                     unreachable!("Unexpected duplicate selection for edges")

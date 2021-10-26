@@ -564,11 +564,13 @@ fn get_scalar_or_linked_field_hover_content(
     let rendered_type_string = schema.get_type_string(&field.type_);
     let field_type_name = schema.get_type_name(field.type_.inner()).lookup();
 
-    let mut hover_contents: Vec<MarkedString> =
-        vec![MarkedString::String(format!("Field: **{}**", field.name))];
+    let mut hover_contents: Vec<MarkedString> = vec![MarkedString::String(format!(
+        "Field: **{}**",
+        field.name.item
+    ))];
 
     if let Some(field_description) =
-        schema_documentation.get_field_description(parent_type_name, field.name.lookup())
+        schema_documentation.get_field_description(parent_type_name, field.name.item.lookup())
     {
         hover_contents.push(MarkedString::String(field_description.to_string()));
     }
@@ -616,7 +618,7 @@ fn get_scalar_or_linked_field_hover_content(
                 },
                 if let Some(description) = schema_documentation.get_field_argument_description(
                     parent_type_name,
-                    field.name.lookup(),
+                    field.name.item.lookup(),
                     arg.name.lookup(),
                 ) {
                     description.to_string()

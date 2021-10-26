@@ -299,7 +299,7 @@ pub struct Interface {
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct Field {
-    pub name: StringKey,
+    pub name: WithLocation<StringKey>,
     pub is_extension: bool,
     pub arguments: ArgumentDefinitions,
     pub type_: TypeReference,
@@ -430,12 +430,18 @@ macro_rules! impl_named {
     };
 }
 
-impl Named for Object {
-    fn name(&self) -> StringKey {
-        self.name.item
-    }
+macro_rules! impl_named_for_with_location {
+    ($type_name:ident) => {
+        impl Named for $type_name {
+            fn name(&self) -> StringKey {
+                self.name.item
+            }
+        }
+    };
 }
 
+impl_named_for_with_location!(Object);
+impl_named_for_with_location!(Field);
 impl_named!(Interface);
 impl_named!(Union);
 impl_named!(Scalar);

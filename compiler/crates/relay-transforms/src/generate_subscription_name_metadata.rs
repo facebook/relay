@@ -63,8 +63,12 @@ impl<'s> Transformer for GenerateSubscriptionNameMetadata<'s> {
                 match &operation.selections[0] {
                     Selection::LinkedField(linked_field) => {
                         let mut directives = operation.directives.clone();
-                        let subscription_name =
-                            self.program.schema.field(linked_field.definition.item).name;
+                        let subscription_name = self
+                            .program
+                            .schema
+                            .field(linked_field.definition.item)
+                            .name
+                            .item;
                         directives.push(Directive {
                             name: WithLocation::new(
                                 operation.name.location,

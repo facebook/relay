@@ -28,6 +28,7 @@ import type {
   IEnvironment,
   LogFunction,
   MissingFieldHandler,
+  MutationParameters,
   OperationAvailability,
   OperationDescriptor,
   OperationLoader,
@@ -226,7 +227,9 @@ class RelayModernEnvironment implements IEnvironment {
     });
   }
 
-  applyMutation(optimisticConfig: OptimisticResponseConfig): Disposable {
+  applyMutation<TMutation: MutationParameters>(
+    optimisticConfig: OptimisticResponseConfig<TMutation>,
+  ): Disposable {
     const subscription = this._execute({
       createSource: () => RelayObservable.create(_sink => {}),
       isClientPayload: false,
@@ -360,7 +363,7 @@ class RelayModernEnvironment implements IEnvironment {
    * Note: Observables are lazy, so calling this method will do nothing until
    * the result is subscribed to: environment.execute({...}).subscribe({...}).
    */
-  executeSubscription({
+  executeSubscription<TMutation: MutationParameters>({
     operation,
     updater,
   }: {|
@@ -392,13 +395,13 @@ class RelayModernEnvironment implements IEnvironment {
    * the result is subscribed to:
    * environment.executeMutation({...}).subscribe({...}).
    */
-  executeMutation({
+  executeMutation<TMutation: MutationParameters>({
     operation,
     optimisticResponse,
     optimisticUpdater,
     updater,
     uploadables,
-  }: ExecuteMutationConfig): RelayObservable<GraphQLResponse> {
+  }: ExecuteMutationConfig<TMutation>): RelayObservable<GraphQLResponse> {
     let optimisticConfig;
     if (optimisticResponse || optimisticUpdater) {
       optimisticConfig = {
@@ -454,7 +457,7 @@ class RelayModernEnvironment implements IEnvironment {
     return `RelayModernEnvironment(${this.configName ?? ''})`;
   }
 
-  _execute({
+  _execute<TMutation: MutationParameters>({
     createSource,
     isClientPayload,
     operation,
@@ -464,7 +467,7 @@ class RelayModernEnvironment implements IEnvironment {
     createSource: () => RelayObservable<GraphQLResponse>,
     isClientPayload: boolean,
     operation: OperationDescriptor,
-    optimisticConfig: ?OptimisticResponseConfig,
+    optimisticConfig: ?OptimisticResponseConfig<TMutation>,
     updater: ?SelectorStoreUpdater,
   |}): RelayObservable<GraphQLResponse> {
     const publishQueue = this._publishQueue;

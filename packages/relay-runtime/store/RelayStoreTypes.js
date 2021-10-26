@@ -673,7 +673,9 @@ export interface IEnvironment {
    * Apply an optimistic mutation response and/or updater. The mutation can be
    * reverted by calling `dispose()` on the returned value.
    */
-  applyMutation(optimisticConfig: OptimisticResponseConfig): Disposable;
+  applyMutation<TMutation: MutationParameters>(
+    optimisticConfig: OptimisticResponseConfig<TMutation>,
+  ): Disposable;
 
   /**
    * Commit an updater to the environment. This mutation cannot be reverted and
@@ -740,7 +742,7 @@ export interface IEnvironment {
    * Note: Observables are lazy, so calling this method will do nothing until
    * the result is subscribed to: environment.executeSubscription({...}).subscribe({...}).
    */
-  executeSubscription(config: {|
+  executeSubscription<TMutation: MutationParameters>(config: {|
     operation: OperationDescriptor,
     updater?: ?SelectorStoreUpdater,
   |}): RelayObservable<GraphQLResponse>;
@@ -755,8 +757,8 @@ export interface IEnvironment {
    * the result is subscribed to:
    * environment.executeMutation({...}).subscribe({...}).
    */
-  executeMutation(
-    config: ExecuteMutationConfig,
+  executeMutation<TMutation: MutationParameters>(
+    config: ExecuteMutationConfig<TMutation>,
   ): RelayObservable<GraphQLResponse>;
 
   /**
@@ -983,21 +985,21 @@ export type SelectorStoreUpdater = (
  * A set of configs that can be used to apply an optimistic update into the
  * store.
  */
-export type OptimisticUpdate =
+export type OptimisticUpdate<TMutation: MutationParameters> =
   | OptimisticUpdateFunction
-  | OptimisticUpdateRelayPayload;
+  | OptimisticUpdateRelayPayload<TMutation>;
 
 export type OptimisticUpdateFunction = {|
   +storeUpdater: StoreUpdater,
 |};
 
-export type OptimisticUpdateRelayPayload = {|
+export type OptimisticUpdateRelayPayload<TMutation: MutationParameters> = {|
   +operation: OperationDescriptor,
   +payload: RelayResponsePayload,
   +updater: ?SelectorStoreUpdater,
 |};
 
-export type OptimisticResponseConfig = {|
+export type OptimisticResponseConfig<TMutation: MutationParameters> = {|
   +operation: OperationDescriptor,
   +response: ?PayloadData,
   +updater: ?SelectorStoreUpdater,
@@ -1068,7 +1070,7 @@ export type RelayResponsePayload = {|
 /**
  * Configuration on the executeMutation(...).
  */
-export type ExecuteMutationConfig = {|
+export type ExecuteMutationConfig<TMutation: MutationParameters> = {|
   operation: OperationDescriptor,
   optimisticUpdater?: ?SelectorStoreUpdater,
   optimisticResponse?: ?Object,
@@ -1083,12 +1085,16 @@ export interface PublishQueue {
   /**
    * Schedule applying an optimistic updates on the next `run()`.
    */
-  applyUpdate(updater: OptimisticUpdate): void;
+  applyUpdate<TMutation: MutationParameters>(
+    updater: OptimisticUpdate<TMutation>,
+  ): void;
 
   /**
    * Schedule reverting an optimistic updates on the next `run()`.
    */
-  revertUpdate(updater: OptimisticUpdate): void;
+  revertUpdate<TMutation: MutationParameters>(
+    updater: OptimisticUpdate<TMutation>,
+  ): void;
 
   /**
    * Schedule a revert of all optimistic updates on the next `run()`.
@@ -1098,7 +1104,7 @@ export interface PublishQueue {
   /**
    * Schedule applying a payload to the store on the next `run()`.
    */
-  commitPayload(
+  commitPayload<TMutation: MutationParameters>(
     operation: OperationDescriptor,
     payload: RelayResponsePayload,
     updater?: ?SelectorStoreUpdater,

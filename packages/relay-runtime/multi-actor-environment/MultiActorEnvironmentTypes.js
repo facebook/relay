@@ -17,6 +17,7 @@ import type RelayPublishQueue from '../store/RelayPublishQueue';
 import type {
   ExecuteMutationConfig,
   IEnvironment,
+  MutationParameters,
   OperationAvailability,
   OperationDescriptor,
   OptimisticResponseConfig,
@@ -138,9 +139,9 @@ export interface IMultiActorEnvironment {
    * Apply an optimistic mutation response and/or updater. The mutation can be
    * reverted by calling `dispose()` on the returned value.
    */
-  applyMutation(
+  applyMutation<TMutation: MutationParameters>(
     actorEnvironment: IActorEnvironment,
-    optimisticConfig: OptimisticResponseConfig,
+    optimisticConfig: OptimisticResponseConfig<TMutation>,
   ): Disposable;
 
   /**
@@ -201,7 +202,7 @@ export interface IMultiActorEnvironment {
    * Note: Observables are lazy, so calling this method will do nothing until
    * the result is subscribed to: environment.executeSubscription({...}).subscribe({...}).
    */
-  executeSubscription(
+  executeSubscription<TMutation: MutationParameters>(
     actorEnvironment: IActorEnvironment,
     config: {
       operation: OperationDescriptor,
@@ -219,9 +220,9 @@ export interface IMultiActorEnvironment {
    * the result is subscribed to:
    * environment.executeMutation({...}).subscribe({...}).
    */
-  executeMutation(
+  executeMutation<TMutation: MutationParameters>(
     actorEnvironment: IActorEnvironment,
-    config: ExecuteMutationConfig,
+    config: ExecuteMutationConfig<TMutation>,
   ): RelayObservable<GraphQLResponse>;
 
   /**

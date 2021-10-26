@@ -13,6 +13,7 @@
 'use strict';
 
 import type {
+  MutationParameters,
   RecordSourceSelectorProxy,
   SelectorData,
   SelectorStoreUpdater,
@@ -83,7 +84,7 @@ export type DeclarativeMutationConfig =
   | RangeDeleteConfig
   | NodeDeleteConfig;
 
-function convert(
+function convert<TMutation: MutationParameters>(
   configs: Array<DeclarativeMutationConfig>,
   request: ConcreteRequest,
   optimisticUpdater?: ?SelectorStoreUpdater,

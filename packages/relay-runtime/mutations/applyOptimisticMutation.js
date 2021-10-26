@@ -15,6 +15,7 @@
 import type {GraphQLTaggedNode} from '../query/GraphQLTag';
 import type {
   IEnvironment,
+  MutationParameters,
   SelectorStoreUpdater,
 } from '../store/RelayStoreTypes';
 import type {Disposable, Variables} from '../util/RelayRuntimeTypes';
@@ -28,7 +29,7 @@ const {
 const RelayDeclarativeMutationConfig = require('./RelayDeclarativeMutationConfig');
 const invariant = require('invariant');
 
-export type OptimisticMutationConfig = {|
+export type OptimisticMutationConfig<TMutation: MutationParameters> = {|
   configs?: ?Array<DeclarativeMutationConfig>,
   mutation: GraphQLTaggedNode,
   variables: Variables,
@@ -40,9 +41,9 @@ export type OptimisticMutationConfig = {|
  * Higher-level helper function to execute a mutation against a specific
  * environment.
  */
-function applyOptimisticMutation(
+function applyOptimisticMutation<TMutation: MutationParameters>(
   environment: IEnvironment,
-  config: OptimisticMutationConfig,
+  config: OptimisticMutationConfig<TMutation>,
 ): Disposable {
   invariant(
     isRelayModernEnvironment(environment),

@@ -18,6 +18,7 @@ import type RelayObservable from '../network/RelayObservable';
 import type {
   ExecuteMutationConfig,
   LogFunction,
+  MutationParameters,
   OperationAvailability,
   OperationDescriptor,
   OperationTracker,
@@ -112,7 +113,9 @@ class ActorSpecificEnvironment implements IActorEnvironment {
     return this._defaultRenderPolicy;
   }
 
-  applyMutation(optimisticConfig: OptimisticResponseConfig): Disposable {
+  applyMutation<TMutation: MutationParameters>(
+    optimisticConfig: OptimisticResponseConfig<TMutation>,
+  ): Disposable {
     return this.multiActorEnvironment.applyMutation(this, optimisticConfig);
   }
 
@@ -190,15 +193,15 @@ class ActorSpecificEnvironment implements IActorEnvironment {
     return this.multiActorEnvironment.execute(this, config);
   }
 
-  executeSubscription(config: {
+  executeSubscription<TMutation: MutationParameters>(config: {
     operation: OperationDescriptor,
     updater: ?SelectorStoreUpdater,
   }): RelayObservable<GraphQLResponse> {
     return this.multiActorEnvironment.executeSubscription(this, config);
   }
 
-  executeMutation(
-    options: ExecuteMutationConfig,
+  executeMutation<TMutation: MutationParameters>(
+    options: ExecuteMutationConfig<TMutation>,
   ): RelayObservable<GraphQLResponse> {
     return this.multiActorEnvironment.executeMutation(this, options);
   }

@@ -21,6 +21,7 @@ import type {
   LogFunction,
   MissingFieldHandler,
   MutableRecordSource,
+  MutationParameters,
   OperationAvailability,
   OperationDescriptor,
   OperationLoader,
@@ -273,9 +274,9 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
     });
   }
 
-  applyMutation(
+  applyMutation<TMutation: MutationParameters>(
     actorEnvironment: IActorEnvironment,
-    optimisticConfig: OptimisticResponseConfig,
+    optimisticConfig: OptimisticResponseConfig<TMutation>,
   ): Disposable {
     const subscription = this._execute(actorEnvironment, {
       createSource: () => RelayObservable.create(_sink => {}),
@@ -347,7 +348,7 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
     });
   }
 
-  executeSubscription(
+  executeSubscription<TMutation: MutationParameters>(
     actorEnvironment: IActorEnvironment,
     {
       operation,
@@ -374,7 +375,7 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
     });
   }
 
-  executeMutation(
+  executeMutation<TMutation: MutationParameters>(
     actorEnvironment: IActorEnvironment,
     {
       operation,
@@ -382,7 +383,7 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
       optimisticUpdater,
       updater,
       uploadables,
-    }: ExecuteMutationConfig,
+    }: ExecuteMutationConfig<TMutation>,
   ): RelayObservable<GraphQLResponse> {
     let optimisticConfig;
     if (optimisticResponse || optimisticUpdater) {
@@ -438,7 +439,7 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
     return this._isServer;
   }
 
-  _execute(
+  _execute<TMutation: MutationParameters>(
     actorEnvironment: IActorEnvironment,
     {
       createSource,
@@ -450,7 +451,7 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
       createSource: () => RelayObservable<GraphQLResponse>,
       isClientPayload: boolean,
       operation: OperationDescriptor,
-      optimisticConfig: ?OptimisticResponseConfig,
+      optimisticConfig: ?OptimisticResponseConfig<TMutation>,
       updater: ?SelectorStoreUpdater,
     |},
   ): RelayObservable<GraphQLResponse> {

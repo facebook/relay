@@ -16,6 +16,7 @@ import type {HandlerProvider} from '../handlers/RelayDefaultHandlerProvider';
 import type {Disposable} from '../util/RelayRuntimeTypes';
 import type {GetDataID} from './RelayResponseNormalizer';
 import type {
+  MutationParameters,
   OperationDescriptor,
   OptimisticUpdate,
   PublishQueue,
@@ -37,8 +38,11 @@ const RelayRecordSource = require('./RelayRecordSource');
 const invariant = require('invariant');
 const warning = require('warning');
 
-type PendingCommit = PendingRelayPayload | PendingRecordSource | PendingUpdater;
-type PendingRelayPayload = {|
+type PendingCommit<TMutation: MutationParameters> =
+  | PendingRelayPayload<TMutation>
+  | PendingRecordSource
+  | PendingUpdater;
+type PendingRelayPayload<TMutation: MutationParameters> = {|
   +kind: 'payload',
   +operation: OperationDescriptor,
   +payload: RelayResponsePayload,
@@ -78,12 +82,19 @@ class RelayPublishQueue implements PublishQueue {
   // updates performing a rebase.
   _pendingBackupRebase: boolean;
   // Payloads to apply or Sources to publish to the store with the next `run()`.
-  _pendingData: Set<PendingCommit>;
+  // $FlowFixMe[unclear-type] See explanation below.
+  _pendingData: Set<PendingCommit<any>>;
   // Optimistic updaters to add with the next `run()`.
-  _pendingOptimisticUpdates: Set<OptimisticUpdate>;
+  // $FlowFixMe[unclear-type] See explanation below.
+  _pendingOptimisticUpdates: Set<OptimisticUpdate<any>>;
   // Optimistic updaters that are already added and might be rerun in order to
   // rebase them.
-  _appliedOptimisticUpdates: Set<OptimisticUpdate>;
+  // $FlowFixMe[unclear-type] See explanation below.
+  _appliedOptimisticUpdates: Set<OptimisticUpdate<any>>;
+  // For _pendingOptimisticUpdates, _appliedOptimisticUpdates, and _pendingData,
+  // we want to parametrize by "any" since the type is effectively
+  // "the union of all T's that PublishQueue's methods were called with".
+
   // Garbage collection hold, should rerun gc on dispose
   _gcHold: ?Disposable;
   _isRunning: ?boolean;
@@ -107,7 +118,9 @@ class RelayPublishQueue implements PublishQueue {
   /**
    * Schedule applying an optimistic updates on the next `run()`.
    */
-  applyUpdate(updater: OptimisticUpdate): void {
+  applyUpdate<TMutation: MutationParameters>(
+    updater: OptimisticUpdate<TMutation>,
+  ): void {
     invariant(
       !this._appliedOptimisticUpdates.has(updater) &&
         !this._pendingOptimisticUpdates.has(updater),
@@ -120,7 +133,9 @@ class RelayPublishQueue implements PublishQueue {
   /**
    * Schedule reverting an optimistic updates on the next `run()`.
    */
-  revertUpdate(updater: OptimisticUpdate): void {
+  revertUpdate<TMutation: MutationParameters>(
+    updater: OptimisticUpdate<TMutation>,
+  ): void {
     if (this._pendingOptimisticUpdates.has(updater)) {
       // Reverted before it was applied
       this._pendingOptimisticUpdates.delete(updater);
@@ -142,7 +157,7 @@ class RelayPublishQueue implements PublishQueue {
   /**
    * Schedule applying a payload to the store on the next `run()`.
    */
-  commitPayload(
+  commitPayload<TMutation: MutationParameters>(
     operation: OperationDescriptor,
     payload: RelayResponsePayload,
     updater?: ?SelectorStoreUpdater,
@@ -252,7 +267,9 @@ class RelayPublishQueue implements PublishQueue {
    * _publishSourceFromPayload will return a boolean indicating if the
    * publish caused the store to be globally invalidated.
    */
-  _publishSourceFromPayload(pendingPayload: PendingRelayPayload): boolean {
+  _publishSourceFromPayload<TMutation: MutationParameters>(
+    pendingPayload: PendingRelayPayload<TMutation>,
+  ): boolean {
     const {payload, operation, updater} = pendingPayload;
     const {source, fieldPayloads} = payload;
     const mutator = new RelayRecordSourceMutator(
@@ -354,7 +371,8 @@ class RelayPublishQueue implements PublishQueue {
       this._handlerProvider,
     );
 
-    const processUpdate = optimisticUpdate => {
+    // $FlowFixMe[unclear-type] see explanation above.
+    const processUpdate = (optimisticUpdate: OptimisticUpdate<any>) => {
       if (optimisticUpdate.storeUpdater) {
         const {storeUpdater} = optimisticUpdate;
         applyWithGuard(

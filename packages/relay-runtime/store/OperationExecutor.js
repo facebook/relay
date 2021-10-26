@@ -28,6 +28,7 @@ import type {
   IncrementalDataPlaceholder,
   LogFunction,
   ModuleImportPayload,
+  MutationParameters,
   NormalizationSelector,
   OperationDescriptor,
   OperationLoader,
@@ -76,7 +77,7 @@ const {ROOT_TYPE, TYPENAME_KEY, getStorageKey} = require('./RelayStoreUtils');
 const invariant = require('invariant');
 const warning = require('warning');
 
-export type ExecuteConfig = {|
+export type ExecuteConfig<TMutation: MutationParameters> = {|
   +actorIdentifier: ActorIdentifier,
   +getDataID: GetDataID,
   +getPublishQueue: (actorIdentifier: ActorIdentifier) => PublishQueue,
@@ -86,7 +87,7 @@ export type ExecuteConfig = {|
   +operationExecutions: Map<string, ActiveState>,
   +operationLoader: ?OperationLoader,
   +operationTracker: OperationTracker,
-  +optimisticConfig: ?OptimisticResponseConfig,
+  +optimisticConfig: ?OptimisticResponseConfig<TMutation>,
   +reactFlightPayloadDeserializer?: ?ReactFlightPayloadDeserializer,
   +reactFlightServerErrorHandler?: ?ReactFlightServerErrorHandler,
   +scheduler?: ?TaskScheduler,
@@ -123,7 +124,9 @@ type IncrementalGraphQLResponse = {|
   response: GraphQLResponseWithData,
 |};
 
-function execute(config: ExecuteConfig): Executor {
+function execute<TMutation: MutationParameters>(
+  config: ExecuteConfig<TMutation>,
+): Executor<TMutation> {
   return new Executor(config);
 }
 
@@ -132,7 +135,7 @@ function execute(config: ExecuteConfig): Executor {
  * including optimistic payloads, standard payloads, resolution of match
  * dependencies, etc.
  */
-class Executor {
+class Executor<TMutation: MutationParameters> {
   _actorIdentifier: ActorIdentifier;
   _getDataID: GetDataID;
   _treatMissingFieldsAsNull: boolean;
@@ -146,7 +149,7 @@ class Executor {
   _operationLoader: ?OperationLoader;
   _operationTracker: OperationTracker;
   _operationUpdateEpochs: Map<string, number>;
-  _optimisticUpdates: null | Array<OptimisticUpdate>;
+  _optimisticUpdates: null | Array<OptimisticUpdate<TMutation>>;
   _pendingModulePayloadsCount: number;
   +_getPublishQueue: (actorIdentifier: ActorIdentifier) => PublishQueue;
   _reactFlightPayloadDeserializer: ?ReactFlightPayloadDeserializer;
@@ -189,7 +192,7 @@ class Executor {
     treatMissingFieldsAsNull,
     updater,
     log,
-  }: ExecuteConfig): void {
+  }: ExecuteConfig<TMutation>): void {
     this._actorIdentifier = actorIdentifier;
     this._getDataID = getDataID;
     this._treatMissingFieldsAsNull = treatMissingFieldsAsNull;
@@ -609,7 +612,7 @@ class Executor {
     if (response == null && updater == null) {
       return;
     }
-    const optimisticUpdates: Array<OptimisticUpdate> = [];
+    const optimisticUpdates: Array<OptimisticUpdate<TMutation>> = [];
     if (response) {
       const payload = normalizeResponse(
         response,
@@ -660,7 +663,7 @@ class Executor {
 
   _processOptimisticFollowups(
     payload: RelayResponsePayload,
-    optimisticUpdates: Array<OptimisticUpdate>,
+    optimisticUpdates: Array<OptimisticUpdate<TMutation>>,
   ): void {
     if (payload.followupPayloads && payload.followupPayloads.length) {
       const followupPayloads = payload.followupPayloads;
@@ -746,7 +749,7 @@ class Executor {
   _processOptimisticModuleImport(
     normalizationRootNode: NormalizationRootNode,
     moduleImportPayload: ModuleImportPayload,
-  ): $ReadOnlyArray<OptimisticUpdate> {
+  ): $ReadOnlyArray<OptimisticUpdate<TMutation>> {
     const operation = getOperation(normalizationRootNode);
     const optimisticUpdates = [];
     const modulePayload = this._normalizeFollowupPayload(

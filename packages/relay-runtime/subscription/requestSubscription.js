@@ -47,7 +47,7 @@ export type GraphQLSubscriptionConfig<T: SubscriptionParameters> = {|
   onCompleted?: ?() => void,
   onError?: ?(error: Error) => void,
   onNext?: ?(response: ?$ElementType<T, 'response'>) => void,
-  updater?: ?SelectorStoreUpdater,
+  updater?: ?SelectorStoreUpdater<$ElementType<T, 'response'>>,
 |};
 
 export type DEPRECATED_GraphQLSubscriptionConfig<TSubscriptionPayload> = {|
@@ -58,7 +58,7 @@ export type DEPRECATED_GraphQLSubscriptionConfig<TSubscriptionPayload> = {|
   onCompleted?: ?() => void,
   onError?: ?(error: Error) => void,
   onNext?: ?(response: ?TSubscriptionPayload) => void,
-  updater?: ?SelectorStoreUpdater,
+  updater?: ?SelectorStoreUpdater<TSubscriptionPayload>,
 |};
 
 function requestSubscription<TSubscriptionPayload>(

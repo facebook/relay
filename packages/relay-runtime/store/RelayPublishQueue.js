@@ -46,7 +46,7 @@ type PendingRelayPayload<TMutation: MutationParameters> = {|
   +kind: 'payload',
   +operation: OperationDescriptor,
   +payload: RelayResponsePayload,
-  +updater: ?SelectorStoreUpdater,
+  +updater: ?SelectorStoreUpdater<$ElementType<TMutation, 'response'>>,
 |};
 type PendingRecordSource = {|
   +kind: 'source',
@@ -160,7 +160,7 @@ class RelayPublishQueue implements PublishQueue {
   commitPayload<TMutation: MutationParameters>(
     operation: OperationDescriptor,
     payload: RelayResponsePayload,
-    updater?: ?SelectorStoreUpdater,
+    updater?: ?SelectorStoreUpdater<$ElementType<TMutation, 'response'>>,
   ): void {
     this._pendingBackupRebase = true;
     this._pendingData.add({

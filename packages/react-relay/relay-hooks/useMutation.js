@@ -49,8 +49,10 @@ export type UseMutationConfig<TMutation: MutationParameters> = {|
     },
     'rawResponse',
   >,
-  optimisticUpdater?: ?SelectorStoreUpdater,
-  updater?: ?SelectorStoreUpdater,
+  optimisticUpdater?: ?SelectorStoreUpdater<
+    $ElementType<TMutation, 'response'>,
+  >,
+  updater?: ?SelectorStoreUpdater<$ElementType<TMutation, 'response'>>,
   uploadables?: UploadableMap,
   variables: $ElementType<TMutation, 'variables'>,
 |};

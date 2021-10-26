@@ -744,7 +744,7 @@ export interface IEnvironment {
    */
   executeSubscription<TMutation: MutationParameters>(config: {|
     operation: OperationDescriptor,
-    updater?: ?SelectorStoreUpdater,
+    updater?: ?SelectorStoreUpdater<$ElementType<TMutation, 'response'>>,
   |}): RelayObservable<GraphQLResponse>;
 
   /**
@@ -974,7 +974,7 @@ export type StoreUpdater = (store: RecordSourceProxy) => void;
  * order to easily access the root fields of a query/mutation as well as a
  * second argument of the response object of the mutation.
  */
-export type SelectorStoreUpdater = (
+export type SelectorStoreUpdater<-TMutationResponse = any> = (
   store: RecordSourceSelectorProxy,
   // Actually SelectorData, but mixed is inconvenient to access deeply in
   // product code.
@@ -996,13 +996,13 @@ export type OptimisticUpdateFunction = {|
 export type OptimisticUpdateRelayPayload<TMutation: MutationParameters> = {|
   +operation: OperationDescriptor,
   +payload: RelayResponsePayload,
-  +updater: ?SelectorStoreUpdater,
+  +updater: ?SelectorStoreUpdater<$ElementType<TMutation, 'response'>>,
 |};
 
 export type OptimisticResponseConfig<TMutation: MutationParameters> = {|
   +operation: OperationDescriptor,
   +response: ?PayloadData,
-  +updater: ?SelectorStoreUpdater,
+  +updater: ?SelectorStoreUpdater<$ElementType<TMutation, 'response'>>,
 |};
 
 /**
@@ -1072,9 +1072,11 @@ export type RelayResponsePayload = {|
  */
 export type ExecuteMutationConfig<TMutation: MutationParameters> = {|
   operation: OperationDescriptor,
-  optimisticUpdater?: ?SelectorStoreUpdater,
+  optimisticUpdater?: ?SelectorStoreUpdater<
+    $ElementType<TMutation, 'response'>,
+  >,
   optimisticResponse?: ?Object,
-  updater?: ?SelectorStoreUpdater,
+  updater?: ?SelectorStoreUpdater<$ElementType<TMutation, 'response'>>,
   uploadables?: ?UploadableMap,
 |};
 
@@ -1107,7 +1109,7 @@ export interface PublishQueue {
   commitPayload<TMutation: MutationParameters>(
     operation: OperationDescriptor,
     payload: RelayResponsePayload,
-    updater?: ?SelectorStoreUpdater,
+    updater?: ?SelectorStoreUpdater<$ElementType<TMutation, 'response'>>,
   ): void;
 
   /**

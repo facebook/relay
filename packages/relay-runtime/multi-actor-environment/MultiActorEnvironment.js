@@ -355,7 +355,7 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
       updater,
     }: {
       operation: OperationDescriptor,
-      updater?: ?SelectorStoreUpdater,
+      updater?: ?SelectorStoreUpdater<$ElementType<TMutation, 'response'>>,
     },
   ): RelayObservable<GraphQLResponse> {
     return this._execute(actorEnvironment, {
@@ -452,7 +452,7 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
       isClientPayload: boolean,
       operation: OperationDescriptor,
       optimisticConfig: ?OptimisticResponseConfig<TMutation>,
-      updater: ?SelectorStoreUpdater,
+      updater: ?SelectorStoreUpdater<$ElementType<TMutation, 'response'>>,
     |},
   ): RelayObservable<GraphQLResponse> {
     return RelayObservable.create(sink => {

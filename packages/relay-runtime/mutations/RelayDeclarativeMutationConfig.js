@@ -87,11 +87,13 @@ export type DeclarativeMutationConfig =
 function convert<TMutation: MutationParameters>(
   configs: Array<DeclarativeMutationConfig>,
   request: ConcreteRequest,
-  optimisticUpdater?: ?SelectorStoreUpdater,
-  updater?: ?SelectorStoreUpdater,
+  optimisticUpdater?: ?SelectorStoreUpdater<
+    $ElementType<TMutation, 'response'>,
+  >,
+  updater?: ?SelectorStoreUpdater<$ElementType<TMutation, 'response'>>,
 ): {
-  optimisticUpdater: SelectorStoreUpdater,
-  updater: SelectorStoreUpdater,
+  optimisticUpdater: SelectorStoreUpdater<$ElementType<TMutation, 'response'>>,
+  updater: SelectorStoreUpdater<$ElementType<TMutation, 'response'>>,
   ...
 } {
   const configOptimisticUpdates = optimisticUpdater ? [optimisticUpdater] : [];
@@ -141,13 +143,13 @@ function convert<TMutation: MutationParameters>(
 function nodeDelete(
   config: NodeDeleteConfig,
   request: ConcreteRequest,
-): ?SelectorStoreUpdater {
+): ?SelectorStoreUpdater<mixed> {
   const {deletedIDFieldName} = config;
   const rootField = getRootField(request);
   if (!rootField) {
     return null;
   }
-  return (store: RecordSourceSelectorProxy, data: ?SelectorData) => {
+  return (store: RecordSourceSelectorProxy, data: ?mixed) => {
     const payload = store.getRootField(rootField);
     if (!payload) {
       return;
@@ -165,7 +167,7 @@ function nodeDelete(
 function rangeAdd(
   config: RangeAddConfig,
   request: ConcreteRequest,
-): ?SelectorStoreUpdater {
+): ?SelectorStoreUpdater<mixed> {
   const {parentID, connectionInfo, edgeName} = config;
   if (!parentID) {
     warning(
@@ -179,7 +181,7 @@ function rangeAdd(
   if (!connectionInfo || !rootField) {
     return null;
   }
-  return (store: RecordSourceSelectorProxy, data: ?SelectorData) => {
+  return (store: RecordSourceSelectorProxy, data: ?mixed) => {
     const parent = store.get(parentID);
     if (!parent) {
       return;
@@ -233,7 +235,7 @@ function rangeAdd(
 function rangeDelete(
   config: RangeDeleteConfig,
   request: ConcreteRequest,
-): ?SelectorStoreUpdater {
+): ?SelectorStoreUpdater<mixed> {
   const {
     parentID,
     connectionKeys,
@@ -252,12 +254,16 @@ function rangeDelete(
   if (!rootField) {
     return null;
   }
-  return (store: RecordSourceSelectorProxy, data: ?SelectorData) => {
+  return (store: RecordSourceSelectorProxy, data: ?mixed) => {
     if (!data) {
       return;
     }
     const deleteIDs = [];
+    // the type of data should come from a type parameter associated with ConcreteRequest,
+    // but ConcreteRequest does not contain a type parameter. Hence, we use a FlowFixMe.
+    // $FlowFixMe[incompatible-use] see above
     let deletedIDField = data[rootField];
+
     if (deletedIDField && Array.isArray(deletedIDFieldName)) {
       for (const eachField of deletedIDFieldName) {
         if (deletedIDField && typeof deletedIDField === 'object') {

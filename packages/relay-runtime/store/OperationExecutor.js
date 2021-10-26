@@ -95,7 +95,7 @@ export type ExecuteConfig<TMutation: MutationParameters> = {|
   +sink: Sink<GraphQLResponse>,
   +source: RelayObservable<GraphQLResponse>,
   +treatMissingFieldsAsNull: boolean,
-  +updater?: ?SelectorStoreUpdater,
+  +updater?: ?SelectorStoreUpdater<$ElementType<TMutation, 'response'>>,
   +log: LogFunction,
 |};
 
@@ -164,7 +164,7 @@ class Executor<TMutation: MutationParameters> {
   _state: 'started' | 'loading_incremental' | 'loading_final' | 'completed';
   +_getStore: (actorIdentifier: ActorIdentifier) => Store;
   _subscriptions: Map<number, Subscription>;
-  _updater: ?SelectorStoreUpdater;
+  _updater: ?SelectorStoreUpdater<$ElementType<TMutation, 'response'>>;
   _asyncStoreUpdateDisposable: ?Disposable;
   _completeFns: Array<() => void>;
   +_retainDisposables: Map<ActorIdentifier, Disposable>;
@@ -601,7 +601,7 @@ class Executor<TMutation: MutationParameters> {
 
   _processOptimisticResponse(
     response: ?GraphQLResponseWithData,
-    updater: ?SelectorStoreUpdater,
+    updater: ?SelectorStoreUpdater<$ElementType<TMutation, 'response'>>,
     treatMissingFieldsAsNull: boolean,
   ): void {
     invariant(

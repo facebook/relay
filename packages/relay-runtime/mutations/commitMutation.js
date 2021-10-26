@@ -37,27 +37,30 @@ const validateMutation = require('./validateMutation');
 const invariant = require('invariant');
 const warning = require('warning');
 
-export type DEPRECATED_MutationConfig<T> = {|
+export type DEPRECATED_MutationConfig<TMutationResponse> = {|
   configs?: Array<DeclarativeMutationConfig>,
   cacheConfig?: CacheConfig,
   mutation: GraphQLTaggedNode,
   variables: Variables,
   uploadables?: UploadableMap,
-  onCompleted?: ?(response: T, errors: ?Array<PayloadError>) => void,
+  onCompleted?: ?(
+    response: TMutationResponse,
+    errors: ?Array<PayloadError>,
+  ) => void,
   onError?: ?(error: Error) => void,
   onUnsubscribe?: ?() => void,
-  optimisticUpdater?: ?SelectorStoreUpdater,
+  optimisticUpdater?: ?SelectorStoreUpdater<TMutationResponse>,
   optimisticResponse?: Object,
-  updater?: ?SelectorStoreUpdater,
+  updater?: ?SelectorStoreUpdater<TMutationResponse>,
 |};
 
-export type MutationConfig<T: MutationParameters> = {|
+export type MutationConfig<TMutation: MutationParameters> = {|
   configs?: Array<DeclarativeMutationConfig>,
   cacheConfig?: CacheConfig,
   mutation: GraphQLTaggedNode,
   onError?: ?(error: Error) => void,
   onCompleted?: ?(
-    response: $ElementType<T, 'response'>,
+    response: $ElementType<TMutation, 'response'>,
     errors: ?Array<PayloadError>,
   ) => void,
   onNext?: ?() => void,
@@ -65,24 +68,26 @@ export type MutationConfig<T: MutationParameters> = {|
   optimisticResponse?: $ElementType<
     {
       +rawResponse?: {...},
-      ...T,
+      ...TMutation,
       ...
     },
     'rawResponse',
   >,
-  optimisticUpdater?: ?SelectorStoreUpdater,
-  updater?: ?SelectorStoreUpdater,
+  optimisticUpdater?: ?SelectorStoreUpdater<
+    $ElementType<TMutation, 'response'>,
+  >,
+  updater?: ?SelectorStoreUpdater<$ElementType<TMutation, 'response'>>,
   uploadables?: UploadableMap,
-  variables: $ElementType<T, 'variables'>,
+  variables: $ElementType<TMutation, 'variables'>,
 |};
 
 /**
  * Higher-level helper function to execute a mutation against a specific
  * environment.
  */
-function commitMutation<T: MutationParameters>(
+function commitMutation<TMutation: MutationParameters>(
   environment: IEnvironment,
-  config: MutationConfig<T>,
+  config: MutationConfig<TMutation>,
 ): Disposable {
   invariant(
     isRelayModernEnvironment(environment),

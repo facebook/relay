@@ -976,9 +976,7 @@ export type StoreUpdater = (store: RecordSourceProxy) => void;
  */
 export type SelectorStoreUpdater<-TMutationResponse> = (
   store: RecordSourceSelectorProxy,
-  // Actually SelectorData, but mixed is inconvenient to access deeply in
-  // product code.
-  data: $FlowFixMe,
+  data: ?TMutationResponse,
 ) => void;
 
 /**

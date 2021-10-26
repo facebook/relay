@@ -96,8 +96,12 @@ function convert<TMutation: MutationParameters>(
   updater: SelectorStoreUpdater<$ElementType<TMutation, 'response'>>,
   ...
 } {
-  const configOptimisticUpdates = optimisticUpdater ? [optimisticUpdater] : [];
-  const configUpdates = updater ? [updater] : [];
+  const configOptimisticUpdates: Array<
+    SelectorStoreUpdater<$ElementType<TMutation, 'response'>>,
+  > = optimisticUpdater ? [optimisticUpdater] : [];
+  const configUpdates: Array<
+    SelectorStoreUpdater<$ElementType<TMutation, 'response'>>,
+  > = updater ? [updater] : [];
   configs.forEach(config => {
     switch (config.type) {
       case 'NODE_DELETE':
@@ -126,13 +130,16 @@ function convert<TMutation: MutationParameters>(
   return {
     optimisticUpdater: (
       store: RecordSourceSelectorProxy,
-      data: ?SelectorData,
+      data: ?$ElementType<TMutation, 'response'>,
     ) => {
       configOptimisticUpdates.forEach(eachOptimisticUpdater => {
         eachOptimisticUpdater(store, data);
       });
     },
-    updater: (store: RecordSourceSelectorProxy, data: ?SelectorData) => {
+    updater: (
+      store: RecordSourceSelectorProxy,
+      data: ?$ElementType<TMutation, 'response'>,
+    ) => {
       configUpdates.forEach(eachUpdater => {
         eachUpdater(store, data);
       });

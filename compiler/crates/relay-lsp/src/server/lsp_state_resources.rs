@@ -26,10 +26,7 @@ use schema_documentation::SchemaDocumentation;
 use tokio::{task, task::JoinHandle};
 
 use crate::{
-    lsp_process_error::{LSPProcessError, LSPProcessResult},
-    status_updater::set_ready_status,
-    status_updater::update_in_progress_status,
-    LSPState,
+    status_updater::set_ready_status, status_updater::update_in_progress_status, LSPState,
 };
 
 use super::lsp_state::{ProjectStatus, Task};
@@ -51,12 +48,12 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
 
     pub(crate) fn watch(self) {
         tokio::spawn(async move {
-            self.internal_watch().await.unwrap();
+            self.internal_watch().await;
         });
     }
 
     /// Create an end-less loop of keeping the resources up-to-date with the source control changes
-    async fn internal_watch(&self) -> LSPProcessResult<()> {
+    async fn internal_watch(&self) {
         'outer: loop {
             debug!("Initializing resources for LSP server");
 
@@ -71,13 +68,24 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                 .create_event("lsp_state_initialize_resources");
             let timer = setup_event.start("lsp_state_initialize_resources_time");
 
-            let file_source = FileSource::connect(&self.lsp_state.config, &setup_event)
-                .await
-                .map_err(LSPProcessError::CompilerError)?;
-            let (mut compiler_state, file_source_subscription) = file_source
+            let file_source = match FileSource::connect(&self.lsp_state.config, &setup_event).await
+            {
+                Ok(f) => f,
+                Err(error) => {
+                    self.log_errors("watch_build_error", &error);
+                    continue;
+                }
+            };
+            let (mut compiler_state, file_source_subscription) = match file_source
                 .subscribe(&setup_event, self.lsp_state.perf_logger.as_ref())
                 .await
-                .map_err(LSPProcessError::CompilerError)?;
+            {
+                Ok(f) => f,
+                Err(error) => {
+                    self.log_errors("watch_build_error", &error);
+                    continue;
+                }
+            };
 
             let pending_file_source_changes =
                 Arc::clone(&compiler_state.pending_file_source_changes);

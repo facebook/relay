@@ -66,14 +66,6 @@ pub trait GlobalState {
 
     fn root_dir(&self) -> PathBuf;
 
-    fn process_synced_sources(
-        &self,
-        uri: &Url,
-        sources: Vec<GraphQLSource>,
-    ) -> LSPRuntimeResult<()>;
-
-    fn remove_synced_sources(&self, url: &Url);
-
     fn extract_executable_document_from_text(
         &self,
         position: &TextDocumentPositionParams,
@@ -106,6 +98,12 @@ pub trait GlobalState {
         query_text: String,
         project_name: &StringKey,
     ) -> LSPRuntimeResult<String>;
+
+    fn document_opened(&self, url: &Url, text: &str) -> LSPRuntimeResult<()>;
+
+    fn document_changed(&self, url: &Url, full_text: &str) -> LSPRuntimeResult<()>;
+
+    fn document_closed(&self, url: &Url) -> LSPRuntimeResult<()>;
 }
 
 /// This structure contains all available resources that we may use in the Relay LSP message/notification
@@ -259,6 +257,30 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
     pub fn schedule_task(&self, task: Task) {
         self.task_scheduler.schedule(super::Task::LSPState(task));
     }
+
+    fn process_synced_sources(
+        &self,
+        uri: &Url,
+        sources: Vec<GraphQLSource>,
+    ) -> LSPRuntimeResult<()> {
+        let project_name = self.extract_project_name_from_url(uri)?;
+
+        if let Entry::Vacant(e) = self.project_status.entry(project_name) {
+            e.insert(ProjectStatus::Activated);
+            self.notify_lsp_state_resources.notify_one();
+        }
+
+        self.insert_synced_sources(uri, sources);
+        self.schedule_task(Task::ValidateSyncedSource(uri.clone()));
+
+        Ok(())
+    }
+
+    fn remove_synced_sources(&self, url: &Url) {
+        self.synced_graphql_documents.remove(url);
+        self.diagnostic_reporter
+            .clear_quick_diagnostics_for_url(url);
+    }
 }
 
 pub fn convert_diagnostic(
@@ -339,30 +361,6 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         create_node_resolution_info(document, position_span)
     }
 
-    fn process_synced_sources(
-        &self,
-        uri: &Url,
-        sources: Vec<GraphQLSource>,
-    ) -> LSPRuntimeResult<()> {
-        let project_name = self.extract_project_name_from_url(uri)?;
-
-        if let Entry::Vacant(e) = self.project_status.entry(project_name) {
-            e.insert(ProjectStatus::Activated);
-            self.notify_lsp_state_resources.notify_one();
-        }
-
-        self.insert_synced_sources(uri, sources);
-        self.schedule_task(Task::ValidateSyncedSource(uri.clone()));
-
-        Ok(())
-    }
-
-    fn remove_synced_sources(&self, url: &Url) {
-        self.synced_graphql_documents.remove(url);
-        self.diagnostic_reporter
-            .clear_quick_diagnostics_for_url(url);
-    }
-
     fn extract_executable_document_from_text(
         &self,
         position: &TextDocumentPositionParams,
@@ -421,6 +419,43 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         project_name: &StringKey,
     ) -> LSPRuntimeResult<String> {
         get_query_text(self, query_text, project_name)
+    }
+
+    fn document_opened(&self, uri: &Url, text: &str) -> LSPRuntimeResult<()> {
+        if let Some(js_server) = self.get_js_language_sever() {
+            js_server.process_js_source(uri, text);
+        }
+
+        // First we check to see if this document has any GraphQL documents.
+        let graphql_sources = extract_graphql::parse_chunks(text);
+        if graphql_sources.is_empty() {
+            Ok(())
+        } else {
+            self.process_synced_sources(uri, graphql_sources)
+        }
+    }
+
+    fn document_changed(&self, uri: &Url, full_text: &str) -> LSPRuntimeResult<()> {
+        if let Some(js_server) = self.get_js_language_sever() {
+            js_server.process_js_source(uri, full_text);
+        }
+
+        // First we check to see if this document has any GraphQL documents.
+        let graphql_sources = extract_graphql::parse_chunks(full_text);
+        if graphql_sources.is_empty() {
+            self.remove_synced_sources(uri);
+            Ok(())
+        } else {
+            self.process_synced_sources(uri, graphql_sources)
+        }
+    }
+
+    fn document_closed(&self, uri: &Url) -> LSPRuntimeResult<()> {
+        if let Some(js_server) = self.get_js_language_sever() {
+            js_server.remove_js_source(uri);
+        }
+        self.remove_synced_sources(uri);
+        Ok(())
     }
 }
 

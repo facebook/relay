@@ -39,23 +39,24 @@ use std::hash::Hash;
 use std::{fmt::Result, path::Path};
 use writer::{Prop, AST};
 
+static REACT_RELAY_MULTI_ACTOR: &str = "react-relay/multi-actor";
+static RELAY_RUNTIME: &str = "relay-runtime";
+static LOCAL_3D_PAYLOAD: &str = "Local3DPayload";
+static ACTOR_CHANGE_POINT: &str = "ActorChangePoint";
+
 lazy_static! {
     pub(crate) static ref KEY_DATA: StringKey = "$data".intern();
     pub(crate) static ref KEY_FRAGMENT_REFS: StringKey = "$fragmentRefs".intern();
     pub(crate) static ref KEY_FRAGMENT_SPREADS: StringKey = "$fragmentSpreads".intern();
     pub(crate) static ref KEY_REF_TYPE: StringKey = "$refType".intern();
     pub(crate) static ref KEY_FRAGMENT_TYPE: StringKey = "$fragmentType".intern();
-    static ref ACTOR_CHANGE_POINT: StringKey = "ActorChangePoint".intern();
     static ref FRAGMENT_PROP_NAME: StringKey = "__fragmentPropName".intern();
     static ref FUTURE_ENUM_VALUE: StringKey = "%future added value".intern();
     static ref JS_FIELD_NAME: StringKey = "js".intern();
     static ref KEY_RAW_RESPONSE: StringKey = "rawResponse".intern();
     static ref KEY_TYPENAME: StringKey = "__typename".intern();
-    static ref LOCAL_3D_PAYLOAD: StringKey = "Local3DPayload".intern();
     static ref MODULE_COMPONENT: StringKey = "__module_component".intern();
     static ref RAW_RESPONSE_TYPE_DIRECTIVE_NAME: StringKey = "raw_response_type".intern();
-    static ref REACT_RELAY_MULTI_ACTOR: StringKey = "react-relay/multi-actor".intern();
-    static ref RELAY_RUNTIME: StringKey = "relay-runtime".intern();
     static ref RESPONSE: StringKey = "response".intern();
     static ref TYPE_BOOLEAN: StringKey = "Boolean".intern();
     static ref TYPE_FLOAT: StringKey = "Float".intern();
@@ -179,7 +180,7 @@ impl<'a> TypeGenerator<'a> {
         typegen_operation: &OperationDefinition,
         normalization_operation: &OperationDefinition,
     ) -> Result {
-        let old_variables_identifier = format!("{}Variables", typegen_operation.name.item).intern();
+        let old_variables_identifier = format!("{}Variables", typegen_operation.name.item);
 
         let input_variables_type = self.generate_input_variables_type(typegen_operation);
 
@@ -236,56 +237,48 @@ impl<'a> TypeGenerator<'a> {
 
         match self.flow_typegen_phase {
             FlowTypegenPhase::Old => {
-                let old_variables_identifier =
-                    format!("{}Variables", typegen_operation.name.item).intern();
                 self.writer
-                    .write_export_type(old_variables_identifier, &input_variables_type)?;
+                    .write_export_type(&old_variables_identifier, &input_variables_type)?;
             }
             FlowTypegenPhase::Phase1 => {
-                let new_variables_identifier =
-                    format!("{}$variables", typegen_operation.name.item).intern();
+                let new_variables_identifier = format!("{}$variables", typegen_operation.name.item);
                 self.writer
-                    .write_export_type(new_variables_identifier, &input_variables_type)?;
+                    .write_export_type(&new_variables_identifier, &input_variables_type)?;
                 self.writer.write_export_type(
-                    old_variables_identifier,
-                    &AST::Identifier(new_variables_identifier),
+                    &old_variables_identifier,
+                    &AST::Identifier(new_variables_identifier.intern()),
                 )?;
             }
             FlowTypegenPhase::Phase2 | FlowTypegenPhase::Final => {
-                let new_variables_identifier =
-                    format!("{}$variables", typegen_operation.name.item).intern();
+                let new_variables_identifier = format!("{}$variables", typegen_operation.name.item);
                 self.writer
-                    .write_export_type(new_variables_identifier, &input_variables_type)?;
+                    .write_export_type(&new_variables_identifier, &input_variables_type)?;
             }
         }
 
 
         let response_identifier = match self.flow_typegen_phase {
             FlowTypegenPhase::Old => {
-                let old_response_identifier =
-                    format!("{}Response", typegen_operation.name.item).intern();
+                let old_response_identifier = format!("{}Response", typegen_operation.name.item);
                 self.writer
-                    .write_export_type(old_response_identifier, &response_type)?;
+                    .write_export_type(&old_response_identifier, &response_type)?;
                 old_response_identifier
             }
             FlowTypegenPhase::Phase1 => {
-                let new_response_identifier =
-                    format!("{}$data", typegen_operation.name.item).intern();
-                let old_response_identifier =
-                    format!("{}Response", typegen_operation.name.item).intern();
+                let new_response_identifier = format!("{}$data", typegen_operation.name.item);
+                let old_response_identifier = format!("{}Response", typegen_operation.name.item);
                 self.writer
-                    .write_export_type(new_response_identifier, &response_type)?;
+                    .write_export_type(&new_response_identifier, &response_type)?;
                 self.writer.write_export_type(
-                    old_response_identifier,
-                    &AST::Identifier(new_response_identifier),
+                    &old_response_identifier,
+                    &AST::Identifier(new_response_identifier.as_str().intern()),
                 )?;
                 new_response_identifier
             }
             FlowTypegenPhase::Phase2 | FlowTypegenPhase::Final => {
-                let new_response_identifier =
-                    format!("{}$data", typegen_operation.name.item).intern();
+                let new_response_identifier = format!("{}$data", typegen_operation.name.item);
                 self.writer
-                    .write_export_type(new_response_identifier, &response_type)?;
+                    .write_export_type(&new_response_identifier, &response_type)?;
                 new_response_identifier
             }
         };
@@ -297,34 +290,34 @@ impl<'a> TypeGenerator<'a> {
                         key: *VARIABLES,
                         read_only: false,
                         optional: false,
-                        value: AST::Identifier(old_variables_identifier),
+                        value: AST::Identifier(old_variables_identifier.intern()),
                     }),
                     Prop::KeyValuePair(KeyValuePairProp {
                         key: *RESPONSE,
                         read_only: false,
                         optional: false,
-                        value: AST::Identifier(response_identifier),
+                        value: AST::Identifier(response_identifier.intern()),
                     }),
                 ];
 
                 if let Some(raw_response_type) = raw_response_type {
                     for (key, ast) in self.match_fields.iter() {
-                        self.writer.write_export_type(*key, &ast)?;
+                        self.writer.write_export_type(key.lookup(), ast)?;
                     }
                     let old_raw_response_identifier =
-                        format!("{}RawResponse", typegen_operation.name.item).intern();
+                        format!("{}RawResponse", typegen_operation.name.item);
                     let new_raw_response_identifier =
-                        format!("{}$rawResponse", typegen_operation.name.item).intern();
+                        format!("{}$rawResponse", typegen_operation.name.item);
 
                     if self.flow_typegen_phase == FlowTypegenPhase::Old {
                         self.writer
-                            .write_export_type(old_raw_response_identifier, &raw_response_type)?;
+                            .write_export_type(&old_raw_response_identifier, &raw_response_type)?;
                     } else {
                         self.writer
-                            .write_export_type(new_raw_response_identifier, &raw_response_type)?;
+                            .write_export_type(&new_raw_response_identifier, &raw_response_type)?;
                         self.writer.write_export_type(
-                            old_raw_response_identifier,
-                            &AST::Identifier(new_raw_response_identifier),
+                            &old_raw_response_identifier,
+                            &AST::Identifier(new_raw_response_identifier.as_str().intern()),
                         )?;
                     }
 
@@ -334,28 +327,28 @@ impl<'a> TypeGenerator<'a> {
                         optional: false,
                         value: AST::Identifier(
                             if self.flow_typegen_phase == FlowTypegenPhase::Old {
-                                old_raw_response_identifier
+                                old_raw_response_identifier.intern()
                             } else {
-                                new_raw_response_identifier
+                                new_raw_response_identifier.intern()
                             },
                         ),
                     }));
                 }
 
                 self.writer.write_export_type(
-                    typegen_operation.name.item,
+                    typegen_operation.name.item.lookup(),
                     &AST::ExactObject(operation_types),
                 )?;
             }
             FlowTypegenPhase::Phase2 | FlowTypegenPhase::Final => {
                 if let Some(raw_response_type) = raw_response_type {
                     for (key, ast) in self.match_fields.iter() {
-                        self.writer.write_export_type(*key, &ast)?;
+                        self.writer.write_export_type(key.lookup(), ast)?;
                     }
                     let raw_response_identifier =
-                        format!("{}$rawResponse", typegen_operation.name.item).intern();
+                        format!("{}$rawResponse", typegen_operation.name.item);
                     self.writer
-                        .write_export_type(raw_response_identifier, &raw_response_type)?;
+                        .write_export_type(&raw_response_identifier, &raw_response_type)?;
                 }
             }
         }
@@ -377,11 +370,11 @@ impl<'a> TypeGenerator<'a> {
         self.write_split_raw_response_type_imports()?;
         self.write_enum_definitions()?;
         for (key, ast) in self.match_fields.iter() {
-            self.writer.write_export_type(*key, &ast)?;
+            self.writer.write_export_type(key.lookup(), ast)?;
         }
 
         self.writer
-            .write_export_type(typegen_operation.name.item, &raw_response_type)?;
+            .write_export_type(typegen_operation.name.item.lookup(), &raw_response_type)?;
 
         Ok(())
     }
@@ -402,13 +395,13 @@ impl<'a> TypeGenerator<'a> {
         self.generated_fragments.insert(node.name.item);
 
         let data_type = node.name.item;
-        let data_type_name = format!("{}$data", data_type).intern();
+        let data_type_name = format!("{}$data", data_type);
 
         let ref_type_data_property = Prop::KeyValuePair(KeyValuePairProp {
             key: *KEY_DATA,
             optional: true,
             read_only: true,
-            value: AST::Identifier(data_type_name),
+            value: AST::Identifier(data_type_name.as_str().intern()),
         });
         let fragment_name = node.name.item;
         let ref_type_fragment_ref_property = Prop::KeyValuePair(KeyValuePairProp {
@@ -465,43 +458,46 @@ impl<'a> TypeGenerator<'a> {
         self.write_relay_resolver_imports()?;
 
         let refetchable_metadata = RefetchableMetadata::find(&node.directives);
-        let old_fragment_type_name = format!("{}$ref", fragment_name).intern();
-        let new_fragment_type_name = format!("{}$fragmentType", fragment_name).intern();
+        let old_fragment_type_name = format!("{}$ref", fragment_name);
+        let new_fragment_type_name = format!("{}$fragmentType", fragment_name);
         match self.flow_typegen_phase {
             FlowTypegenPhase::Old => {
                 if let Some(refetchable_metadata) = refetchable_metadata {
                     match self.js_module_format {
                         JsModuleFormat::CommonJS => {
                             self.writer
-                                .write_any_type_definition(old_fragment_type_name)?;
+                                .write_any_type_definition(&old_fragment_type_name)?;
                             self.writer
-                                .write_any_type_definition(new_fragment_type_name)?;
+                                .write_any_type_definition(&new_fragment_type_name)?;
                         }
                         JsModuleFormat::Haste => {
                             self.writer.write_import_fragment_type(
-                                &[old_fragment_type_name, new_fragment_type_name],
-                                format!("{}.graphql", refetchable_metadata.operation_name).intern(),
+                                &[&old_fragment_type_name, &new_fragment_type_name],
+                                &format!("{}.graphql", refetchable_metadata.operation_name),
                             )?;
                         }
                     }
                     self.writer.write_export_fragment_types(
-                        old_fragment_type_name,
-                        new_fragment_type_name,
+                        &old_fragment_type_name,
+                        &new_fragment_type_name,
                     )?;
                 } else {
                     self.writer.write_export_fragment_type(
-                        old_fragment_type_name,
-                        new_fragment_type_name,
+                        &old_fragment_type_name,
+                        &new_fragment_type_name,
                     )?;
                 }
             }
             FlowTypegenPhase::Phase1 | FlowTypegenPhase::Phase2 | FlowTypegenPhase::Final => {
                 self.writer
-                    .write_export_fragment_type(old_fragment_type_name, new_fragment_type_name)?;
+                    .write_export_fragment_type(&old_fragment_type_name, &new_fragment_type_name)?;
                 if let Some(refetchable_metadata) = refetchable_metadata {
                     self.writer.write_import_fragment_type(
-                        &[format!("{}$variables", refetchable_metadata.operation_name).intern()],
-                        format!("{}.graphql", refetchable_metadata.operation_name).intern(),
+                        &[&format!(
+                            "{}$variables",
+                            refetchable_metadata.operation_name
+                        )],
+                        &format!("{}.graphql", refetchable_metadata.operation_name),
                     )?;
                 }
             }
@@ -509,21 +505,23 @@ impl<'a> TypeGenerator<'a> {
 
         match self.flow_typegen_phase {
             FlowTypegenPhase::Old => {
-                self.writer.write_export_type(data_type, &type_)?;
+                self.writer.write_export_type(data_type.lookup(), &type_)?;
                 self.writer
-                    .write_export_type(data_type_name, &AST::Identifier(data_type))?;
+                    .write_export_type(&data_type_name, &AST::Identifier(data_type))?;
             }
             FlowTypegenPhase::Phase1 => {
-                self.writer.write_export_type(data_type_name, &type_)?;
-                self.writer
-                    .write_export_type(data_type, &AST::Identifier(data_type_name))?;
+                self.writer.write_export_type(&data_type_name, &type_)?;
+                self.writer.write_export_type(
+                    data_type.lookup(),
+                    &AST::Identifier(data_type_name.intern()),
+                )?;
             }
             FlowTypegenPhase::Phase2 | FlowTypegenPhase::Final => {
-                self.writer.write_export_type(data_type_name, &type_)?;
+                self.writer.write_export_type(&data_type_name, &type_)?;
             }
         }
         self.writer
-            .write_export_type(format!("{}$key", node.name.item).intern(), &ref_type)?;
+            .write_export_type(&format!("{}$key", node.name.item), &ref_type)?;
 
         Ok(())
     }
@@ -1254,21 +1252,21 @@ impl<'a> TypeGenerator<'a> {
                 local_3d_payload: true,
                 fragment_reference: true,
             } => self.writer.write_import_type(
-                &[self.writer.get_runtime_fragment_import(), *LOCAL_3D_PAYLOAD],
-                *RELAY_RUNTIME,
+                &[self.writer.get_runtime_fragment_import(), LOCAL_3D_PAYLOAD],
+                RELAY_RUNTIME,
             ),
             RuntimeImports {
                 local_3d_payload: true,
                 fragment_reference: false,
             } => self
                 .writer
-                .write_import_type(&[*LOCAL_3D_PAYLOAD], *RELAY_RUNTIME),
+                .write_import_type(&[LOCAL_3D_PAYLOAD], RELAY_RUNTIME),
             RuntimeImports {
                 local_3d_payload: false,
                 fragment_reference: true,
             } => self
                 .writer
-                .write_import_type(&[self.writer.get_runtime_fragment_import()], *RELAY_RUNTIME),
+                .write_import_type(&[self.writer.get_runtime_fragment_import()], RELAY_RUNTIME),
             RuntimeImports {
                 local_3d_payload: false,
                 fragment_reference: false,
@@ -1281,20 +1279,20 @@ impl<'a> TypeGenerator<'a> {
             if !self.generated_fragments.contains(used_fragment) {
                 let fragment_type_name = match self.flow_typegen_phase {
                     FlowTypegenPhase::Old | FlowTypegenPhase::Phase1 => {
-                        format!("{}$ref", used_fragment).intern()
+                        format!("{}$ref", used_fragment)
                     }
                     FlowTypegenPhase::Phase2 | FlowTypegenPhase::Final => {
-                        format!("{}$fragmentType", used_fragment).intern()
+                        format!("{}$fragmentType", used_fragment)
                     }
                 };
                 match self.js_module_format {
                     JsModuleFormat::CommonJS => {
-                        self.writer.write_any_type_definition(fragment_type_name)?;
+                        self.writer.write_any_type_definition(&fragment_type_name)?;
                     }
                     JsModuleFormat::Haste => {
                         self.writer.write_import_fragment_type(
-                            &[fragment_type_name],
-                            format!("{}.graphql", used_fragment).intern(),
+                            &[&fragment_type_name],
+                            &format!("{}.graphql", used_fragment),
                         )?;
                     }
                 }
@@ -1306,7 +1304,7 @@ impl<'a> TypeGenerator<'a> {
     fn write_import_actor_change_point(&mut self) -> Result {
         if self.has_actor_change {
             self.writer
-                .write_import_type(&[*ACTOR_CHANGE_POINT], *REACT_RELAY_MULTI_ACTOR)
+                .write_import_type(&[ACTOR_CHANGE_POINT], REACT_RELAY_MULTI_ACTOR)
         } else {
             Ok(())
         }
@@ -1314,7 +1312,8 @@ impl<'a> TypeGenerator<'a> {
 
     fn write_relay_resolver_imports(&mut self) -> Result {
         for (from, name) in self.imported_resolvers.iter().sorted() {
-            self.writer.write_import_module_default(*name, *from)?
+            self.writer
+                .write_import_module_default(name.lookup(), from.lookup())?
         }
         Ok(())
     }
@@ -1328,12 +1327,12 @@ impl<'a> TypeGenerator<'a> {
             match self.js_module_format {
                 JsModuleFormat::CommonJS => {
                     self.writer
-                        .write_any_type_definition(imported_raw_response_type)?;
+                        .write_any_type_definition(imported_raw_response_type.lookup())?;
                 }
                 JsModuleFormat::Haste => {
                     self.writer.write_import_fragment_type(
-                        &[imported_raw_response_type],
-                        format!("{}.graphql", imported_raw_response_type).intern(),
+                        &[imported_raw_response_type.lookup()],
+                        &format!("{}.graphql", imported_raw_response_type),
                     )?;
                 }
             }
@@ -1346,10 +1345,10 @@ impl<'a> TypeGenerator<'a> {
         &mut self,
         refetchable_fragment_name: StringKey,
     ) -> Result {
-        let old_fragment_type_name = format!("{}$ref", refetchable_fragment_name).intern();
-        let new_fragment_type_name = format!("{}$fragmentType", refetchable_fragment_name).intern();
+        let old_fragment_type_name = format!("{}$ref", refetchable_fragment_name);
+        let new_fragment_type_name = format!("{}$fragmentType", refetchable_fragment_name);
         self.writer
-            .write_export_fragment_type(old_fragment_type_name, new_fragment_type_name)
+            .write_export_fragment_type(&old_fragment_type_name, &new_fragment_type_name)
     }
 
     fn write_enum_definitions(&mut self) -> Result {
@@ -1359,8 +1358,8 @@ impl<'a> TypeGenerator<'a> {
             let enum_type = self.schema.enum_(enum_id);
             if let Some(enum_module_suffix) = &self.typegen_config.enum_module_suffix {
                 self.writer.write_import_type(
-                    &[enum_type.name],
-                    format!("{}{}", enum_type.name, enum_module_suffix).intern(),
+                    &[enum_type.name.lookup()],
+                    &format!("{}{}", enum_type.name, enum_module_suffix),
                 )?;
             } else {
                 let mut members: Vec<AST> = enum_type
@@ -1370,7 +1369,7 @@ impl<'a> TypeGenerator<'a> {
                     .collect();
                 members.push(AST::StringLiteral(*FUTURE_ENUM_VALUE));
                 self.writer
-                    .write_export_type(enum_type.name, &AST::Union(members))?;
+                    .write_export_type(enum_type.name.lookup(), &AST::Union(members))?;
             }
         }
         Ok(())
@@ -1397,7 +1396,7 @@ impl<'a> TypeGenerator<'a> {
             match input_object_type {
                 GeneratedInputObject::Resolved(input_object_type) => {
                     self.writer
-                        .write_export_type(*type_identifier, input_object_type)?;
+                        .write_export_type(type_identifier.lookup(), input_object_type)?;
                 }
                 GeneratedInputObject::Pending => panic!("expected a resolved type here"),
             }

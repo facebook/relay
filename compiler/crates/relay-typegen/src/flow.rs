@@ -9,7 +9,7 @@ use crate::{
     writer::{Prop, Writer, AST},
     FlowTypegenPhase,
 };
-use interner::{intern, StringKey};
+use interner::StringKey;
 use itertools::Itertools;
 use std::fmt::{Result, Write};
 
@@ -58,26 +58,26 @@ impl Writer for FlowPrinter {
         }
     }
 
-    fn get_runtime_fragment_import(&self) -> StringKey {
+    fn get_runtime_fragment_import(&self) -> &'static str {
         match self.flow_typegen_phase {
-            FlowTypegenPhase::Old => intern!("FragmentReference"),
+            FlowTypegenPhase::Old => "FragmentReference",
             FlowTypegenPhase::Phase1 | FlowTypegenPhase::Phase2 | FlowTypegenPhase::Final => {
-                intern!("FragmentType")
+                "FragmentType"
             }
         }
     }
 
-    fn write_export_type(&mut self, name: StringKey, value: &AST) -> Result {
+    fn write_export_type(&mut self, name: &str, value: &AST) -> Result {
         write!(&mut self.result, "export type {} = ", name)?;
         self.write(value)?;
         writeln!(&mut self.result, ";")
     }
 
-    fn write_import_module_default(&mut self, name: StringKey, from: StringKey) -> Result {
+    fn write_import_module_default(&mut self, name: &str, from: &str) -> Result {
         writeln!(&mut self.result, "import {} from \"{}\";", name, from)
     }
 
-    fn write_import_type(&mut self, types: &[StringKey], from: StringKey) -> Result {
+    fn write_import_type(&mut self, types: &[&str], from: &str) -> Result {
         writeln!(
             &mut self.result,
             "import type {{ {} }} from \"{}\";",
@@ -86,11 +86,11 @@ impl Writer for FlowPrinter {
         )
     }
 
-    fn write_import_fragment_type(&mut self, types: &[StringKey], from: StringKey) -> Result {
+    fn write_import_fragment_type(&mut self, types: &[&str], from: &str) -> Result {
         self.write_import_type(types, from)
     }
 
-    fn write_export_fragment_type(&mut self, old_name: StringKey, new_name: StringKey) -> Result {
+    fn write_export_fragment_type(&mut self, old_name: &str, new_name: &str) -> Result {
         match self.flow_typegen_phase {
             FlowTypegenPhase::Old => writeln!(
                 &mut self.result,
@@ -116,8 +116,8 @@ export type {old_name} = {new_name};",
 
     fn write_export_fragment_types(
         &mut self,
-        fragment_type_name_1: StringKey,
-        fragment_type_name_2: StringKey,
+        fragment_type_name_1: &str,
+        fragment_type_name_2: &str,
     ) -> Result {
         writeln!(
             &mut self.result,
@@ -126,7 +126,7 @@ export type {old_name} = {new_name};",
         )
     }
 
-    fn write_any_type_definition(&mut self, name: StringKey) -> Result {
+    fn write_any_type_definition(&mut self, name: &str) -> Result {
         writeln!(&mut self.result, "type {} = any;", name)
     }
 }
@@ -501,9 +501,7 @@ mod tests {
     #[test]
     fn import_type() {
         let mut printer = Box::new(FlowPrinter::new(FlowTypegenPhase::Final));
-        printer
-            .write_import_type(&["A".intern(), "B".intern()], "module".intern())
-            .unwrap();
+        printer.write_import_type(&["A", "B"], "module").unwrap();
         assert_eq!(
             printer.into_string(),
             "import type { A, B } from \"module\";\n"
@@ -513,9 +511,7 @@ mod tests {
     #[test]
     fn import_module() {
         let mut printer = Box::new(FlowPrinter::new(FlowTypegenPhase::Final));
-        printer
-            .write_import_module_default("A".intern(), "module".intern())
-            .unwrap();
+        printer.write_import_module_default("A", "module").unwrap();
         assert_eq!(printer.into_string(), "import A from \"module\";\n");
     }
 

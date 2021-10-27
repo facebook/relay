@@ -23,8 +23,8 @@ impl Writer for TypeScriptPrinter {
         self.result
     }
 
-    fn get_runtime_fragment_import(&self) -> StringKey {
-        "FragmentRefs".intern()
+    fn get_runtime_fragment_import(&self) -> &'static str {
+        "FragmentRefs"
     }
 
     fn write(&mut self, ast: &AST) -> Result {
@@ -54,17 +54,17 @@ impl Writer for TypeScriptPrinter {
         }
     }
 
-    fn write_export_type(&mut self, name: StringKey, value: &AST) -> Result {
+    fn write_export_type(&mut self, name: &str, value: &AST) -> Result {
         write!(&mut self.result, "export type {} = ", name)?;
         self.write(value)?;
         writeln!(&mut self.result, ";")
     }
 
-    fn write_import_module_default(&mut self, name: StringKey, from: StringKey) -> Result {
+    fn write_import_module_default(&mut self, name: &str, from: &str) -> Result {
         writeln!(&mut self.result, "import {} from \"{}\";", name, from)
     }
 
-    fn write_import_type(&mut self, types: &[StringKey], from: StringKey) -> Result {
+    fn write_import_type(&mut self, types: &[&str], from: &str) -> Result {
         writeln!(
             &mut self.result,
             "import {}{{ {} }} from \"{}\";",
@@ -79,23 +79,23 @@ impl Writer for TypeScriptPrinter {
     }
 
     // In TypeScript, we don't need to import "any" fragment types, these are unused.
-    fn write_any_type_definition(&mut self, _name: StringKey) -> Result {
+    fn write_any_type_definition(&mut self, _name: &str) -> Result {
         Ok(())
     }
 
     // In TypeScript, we don't export & import fragments. We just use the generic FragmentRefs type instead.
-    fn write_import_fragment_type(&mut self, _types: &[StringKey], _from: StringKey) -> Result {
+    fn write_import_fragment_type(&mut self, _types: &[&str], _from: &str) -> Result {
         Ok(())
     }
 
-    fn write_export_fragment_type(&mut self, _old_name: StringKey, _new_name: StringKey) -> Result {
+    fn write_export_fragment_type(&mut self, _old_name: &str, _new_name: &str) -> Result {
         Ok(())
     }
 
     fn write_export_fragment_types(
         &mut self,
-        _fragment_type_name_1: StringKey,
-        _fragment_type_name_2: StringKey,
+        _fragment_type_name_1: &str,
+        _fragment_type_name_2: &str,
     ) -> Result {
         Ok(())
     }
@@ -453,27 +453,21 @@ mod tests {
     #[test]
     fn import_type() {
         let mut printer = Box::new(TypeScriptPrinter::new(&TypegenConfig::default()));
-        printer
-            .write_import_type(&["A".intern(), "B".intern()], "module".intern())
-            .unwrap();
+        printer.write_import_type(&["A", "B"], "module").unwrap();
         assert_eq!(printer.into_string(), "import { A, B } from \"module\";\n");
 
         let mut printer = Box::new(TypeScriptPrinter::new(&TypegenConfig {
             use_import_type_syntax: true,
             ..Default::default()
         }));
-        printer
-            .write_import_type(&["C".intern()], "./foo".intern())
-            .unwrap();
+        printer.write_import_type(&["C"], "./foo").unwrap();
         assert_eq!(printer.into_string(), "import type { C } from \"./foo\";\n");
     }
 
     #[test]
     fn import_module() {
         let mut printer = Box::new(TypeScriptPrinter::new(&TypegenConfig::default()));
-        printer
-            .write_import_module_default("A".intern(), "module".intern())
-            .unwrap();
+        printer.write_import_module_default("A", "module").unwrap();
         assert_eq!(printer.into_string(), "import A from \"module\";\n");
     }
 

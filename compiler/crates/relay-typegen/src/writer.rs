@@ -54,25 +54,25 @@ pub struct SpreadProp {
 pub trait Writer {
     fn into_string(self: Box<Self>) -> String;
 
-    fn get_runtime_fragment_import(&self) -> StringKey;
+    fn get_runtime_fragment_import(&self) -> &'static str;
 
     fn write(&mut self, ast: &AST) -> Result;
 
-    fn write_export_type(&mut self, name: StringKey, ast: &AST) -> Result;
+    fn write_export_type(&mut self, name: &str, ast: &AST) -> Result;
 
-    fn write_import_module_default(&mut self, name: StringKey, from: StringKey) -> Result;
+    fn write_import_module_default(&mut self, name: &str, from: &str) -> Result;
 
-    fn write_import_type(&mut self, types: &[StringKey], from: StringKey) -> Result;
+    fn write_import_type(&mut self, types: &[&str], from: &str) -> Result;
 
-    fn write_import_fragment_type(&mut self, types: &[StringKey], from: StringKey) -> Result;
+    fn write_import_fragment_type(&mut self, types: &[&str], from: &str) -> Result;
 
-    fn write_export_fragment_type(&mut self, old_name: StringKey, new_name: StringKey) -> Result;
+    fn write_export_fragment_type(&mut self, old_name: &str, new_name: &str) -> Result;
 
     fn write_export_fragment_types(
         &mut self,
-        fragment_type_name_1: StringKey,
-        fragment_type_name_2: StringKey,
+        fragment_type_name_1: &str,
+        fragment_type_name_2: &str,
     ) -> Result;
 
-    fn write_any_type_definition(&mut self, name: StringKey) -> Result;
+    fn write_any_type_definition(&mut self, name: &str) -> Result;
 }

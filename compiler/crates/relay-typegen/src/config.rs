@@ -104,12 +104,19 @@ impl FlowTypegenConfig {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, Copy)]
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
 pub enum FlowTypegenPhase {
     /// Original state
     Old,
+    /// - add `export opaque type User_photo$fragmentType: FragmentType`
+    /// - `User_photo$ref` is now alias for `User_photo$fragmentType`
+    /// - exported value types are updated
+    /// - exported types are all `MyThing$fooBar` with aliases for the old values
+    Phase1,
+    /// - add $fragmentSpreads prop to $key type
+    Phase2,
     /// Final state
-    New,
+    Final,
 }
 
 impl FlowTypegenPhase {
@@ -119,7 +126,9 @@ impl FlowTypegenPhase {
         use FlowTypegenPhase::*;
         match self {
             Old => Old,
-            New => Old,
+            Phase1 => Old,
+            Phase2 => Phase1,
+            Final => Phase2,
         }
     }
 }

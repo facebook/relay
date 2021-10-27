@@ -66,12 +66,7 @@ pub trait Writer {
 
     fn write_import_fragment_type(&mut self, types: &[StringKey], from: StringKey) -> Result;
 
-    fn write_export_fragment_type(
-        &mut self,
-        old_name: StringKey,
-        other_old_name: StringKey,
-        new_name: StringKey,
-    ) -> Result;
+    fn write_export_fragment_type(&mut self, old_name: StringKey, new_name: StringKey) -> Result;
 
     fn write_export_fragment_types(
         &mut self,

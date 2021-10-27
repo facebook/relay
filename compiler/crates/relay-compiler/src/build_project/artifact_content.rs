@@ -261,13 +261,25 @@ fn generate_operation(
             "relay-runtime",
         )
         .unwrap(),
-        FlowTypegenPhase::New => write_import_type_from(
-            &project_config.typegen_config.language,
-            &mut content,
-            &format!("ConcreteRequest, {}", operation_flow_type),
-            "relay-runtime",
-        )
-        .unwrap(),
+        FlowTypegenPhase::Phase1 | FlowTypegenPhase::Phase2 | FlowTypegenPhase::Final => {
+            if skip_types {
+                write_import_type_from(
+                    &project_config.typegen_config.language,
+                    &mut content,
+                    "ConcreteRequest",
+                    "relay-runtime",
+                )
+                .unwrap()
+            } else {
+                write_import_type_from(
+                    &project_config.typegen_config.language,
+                    &mut content,
+                    &format!("ConcreteRequest, {}", operation_flow_type),
+                    "relay-runtime",
+                )
+                .unwrap()
+            }
+        }
     }
 
 
@@ -326,21 +338,27 @@ fn generate_operation(
 
     let node_type = match flow_typegen_phase {
         FlowTypegenPhase::Old => None,
-        FlowTypegenPhase::New => Some(
-            if has_raw_response_type_directive(normalization_operation) {
-                format!(
-                    "{type}<\n  {name}$variables,\n  {name}$data,\n  {name}$rawResponse,\n>",
-                    type = operation_flow_type,
-                    name = normalization_operation.name.item
-                )
+        FlowTypegenPhase::Phase1 | FlowTypegenPhase::Phase2 | FlowTypegenPhase::Final => {
+            if skip_types {
+                None
             } else {
-                format!(
-                    "{type}<\n  {name}$variables,\n  {name}$data,\n>",
-                    type = operation_flow_type,
-                    name = normalization_operation.name.item
+                Some(
+                    if has_raw_response_type_directive(normalization_operation) {
+                        format!(
+                            "{type}<\n  {name}$variables,\n  {name}$data,\n  {name}$rawResponse,\n>",
+                            type = operation_flow_type,
+                            name = normalization_operation.name.item
+                        )
+                    } else {
+                        format!(
+                            "{type}<\n  {name}$variables,\n  {name}$data,\n>",
+                            type = operation_flow_type,
+                            name = normalization_operation.name.item
+                        )
+                    },
                 )
-            },
-        ),
+            }
+        }
     };
 
     write_export_generated_node(
@@ -503,8 +521,14 @@ fn generate_fragment(
                 ("ReaderFragment", "ReaderFragment", None)
             }
         }
-        FlowTypegenPhase::New => {
-            if is_inline_data_fragment {
+        FlowTypegenPhase::Phase1 | FlowTypegenPhase::Phase2 | FlowTypegenPhase::Final => {
+            if skip_types {
+                if is_inline_data_fragment {
+                    ("ReaderInlineDataFragment", "ReaderInlineDataFragment", None)
+                } else {
+                    ("ReaderFragment", "ReaderFragment", None)
+                }
+            } else if is_inline_data_fragment {
                 (
                     "InlineFragment, ReaderInlineDataFragment",
                     "ReaderInlineDataFragment",

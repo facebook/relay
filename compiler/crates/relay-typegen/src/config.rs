@@ -113,7 +113,8 @@ pub enum FlowTypegenPhase {
     /// - exported value types are updated
     /// - exported types are all `MyThing$fooBar` with aliases for the old values
     Phase1,
-    /// - add $fragmentSpreads prop to $key type
+    /// - add $fragmentSpreads prop to Frag$key type
+    /// - use Frag$fragmentType instead of Frag$ref
     Phase2,
     /// Final state
     Final,

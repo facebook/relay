@@ -27,12 +27,12 @@ use regex::Regex;
 use relay_codegen::JsModuleFormat;
 use relay_transforms::{ConnectionInterface, FeatureFlags, Rollout};
 use relay_typegen::TypegenConfig;
+pub use relay_typegen::TypegenLanguage;
 use serde::{Deserialize, Serialize};
 use sha1::{Digest, Sha1};
-use std::fmt;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
-use structopt::StructOpt;
+use std::{fmt, vec};
 use watchman_client::pdu::ScmAwareClockData;
 
 type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
@@ -107,33 +107,16 @@ pub struct Config {
     pub changed_files_list: Option<PathBuf>,
 }
 
-#[derive(StructOpt)]
-#[structopt(rename_all = "camel_case")]
-pub struct CliConfig {
-    /// Path for the directory where to search for source code
-    #[structopt(long)]
-    pub src: Option<PathBuf>,
-    /// Path to schema file
-    #[structopt(long)]
-    pub schema: Option<PathBuf>,
-    /// Path to a directory, where the compiler should write artifacts
-    #[structopt(long)]
-    pub artifact_directory: Option<PathBuf>,
-}
-
-impl CliConfig {
-    pub fn is_defined(&self) -> bool {
-        self.src.is_some() || self.schema.is_some() || self.artifact_directory.is_some()
-    }
-}
-
 /// In the configs we may have a various values: with or without './' prefix at the beginning
 /// This function will use `root_dir` to construct full path, canonicalize it, and then
 /// it will remove the `root_dir` prefix.
 fn normalize_path_from_config(root_dir: PathBuf, path_from_config: PathBuf) -> PathBuf {
     let mut src = root_dir.clone();
     src.push(path_from_config);
-    src = src.canonicalize().unwrap();
+    src = src
+        .canonicalize()
+        .map_err(|err| format!("Unable to canonicalize file {:?}. Error: {:?}", &src, err))
+        .unwrap();
 
     if !src.exists() {
         panic!("Path '{:?}' does not exits.", &src);
@@ -142,73 +125,14 @@ fn normalize_path_from_config(root_dir: PathBuf, path_from_config: PathBuf) -> P
     src.iter().skip(root_dir.iter().count()).collect()
 }
 
-impl From<CliConfig> for Config {
-    fn from(cli_config: CliConfig) -> Self {
-        let root_dir = std::env::current_dir().unwrap();
-
-        let project_config = ProjectConfig {
-            name: "default_project".intern(),
-            base: None,
-            enabled: true,
-            extensions: vec![],
-            output: cli_config
-                .artifact_directory
-                .map(|dir| normalize_path_from_config(root_dir.clone(), dir)),
-            extra_artifacts_output: None,
-            shard_output: false,
-            shard_strip_regex: None,
-            schema_location: SchemaLocation::File(normalize_path_from_config(
-                root_dir.clone(),
-                cli_config.schema.expect("Expect to have the schema path"),
-            )),
-            typegen_config: TypegenConfig::default(),
-            persist: None,
-            variable_names_comment: false,
-            extra: Default::default(),
-            test_path_regex: None,
-            feature_flags: Default::default(),
-            filename_for_artifact: None,
-            skip_types_for_artifact: None,
-            rollout: Default::default(),
-            js_module_format: Default::default(),
-        };
-
-        let mut sources = FnvIndexMap::default();
-        let src = normalize_path_from_config(
-            root_dir.clone(),
-            cli_config.src.expect("Expect to have a `src`"),
-        );
-
-        sources.insert(src, SourceSet::SourceSetName(project_config.name));
-
-        let mut projects = FnvIndexMap::default();
-        projects.insert(project_config.name, project_config);
-
-        Config {
-            name: None,
-            artifact_writer: Box::new(ArtifactFileWriter::new(None, root_dir.clone())),
-            status_reporter: Box::new(ConsoleStatusReporter::new(root_dir.clone())),
-            root_dir,
-            sources,
-            excludes: vec![],
-            projects,
-            header: vec![],
-            codegen_command: None,
-            load_saved_state_file: None,
-            generate_extra_artifacts: None,
-            generate_virtual_id_file_name: None,
-            saved_state_config: None,
-            saved_state_loader: None,
-            saved_state_version: "MISSING".to_string(),
-            connection_interface: ConnectionInterface::default(),
-            operation_persister: None,
-            compile_everything: false,
-            repersist_operations: false,
-            post_artifacts_write: None,
-            additional_validations: None,
-            is_dev_variable_name: None,
-            changed_files_list: None,
-        }
+impl From<SingleProjectConfigFile> for Config {
+    fn from(config: SingleProjectConfigFile) -> Self {
+        Self::from_struct(
+            "/virtual/path".into(),
+            ConfigFile::SingleProject(config),
+            false,
+        )
+        .unwrap()
     }
 }
 
@@ -259,7 +183,12 @@ impl Config {
         let mut hash = Sha1::new();
         serde_json::to_writer(&mut hash, &config_file).unwrap();
 
-        let ConfigFile {
+        let config_file = match config_file {
+            ConfigFile::MultiProject(config) => *config,
+            ConfigFile::SingleProject(config) => MultiProjectConfigFile::from(config),
+        };
+
+        let MultiProjectConfigFile {
             feature_flags: config_file_feature_flags,
             projects,
             ..
@@ -645,9 +574,9 @@ pub enum SchemaLocation {
 }
 
 /// Schema of the compiler configuration JSON file.
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Default)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
-struct ConfigFile {
+struct MultiProjectConfigFile {
     /// Optional name for this config, might be used for logging or custom extra
     /// artifact generator code.
     #[serde(default)]
@@ -689,7 +618,100 @@ struct ConfigFile {
     is_dev_variable_name: Option<String>,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Serialize, Deserialize, Default)]
+#[serde(deny_unknown_fields, rename_all = "camelCase", default)]
+pub struct SingleProjectConfigFile {
+    /// Path to schema.graphql
+    pub schema: PathBuf,
+
+    /// Root directory of application code
+    pub src: PathBuf,
+
+    /// A specific directory to output all artifacts to. When enabling this '
+    /// the babel plugin needs `artifactDirectory` set as well.
+    pub artifact_directory: Option<PathBuf>,
+
+    /// Directories to include under src
+    /// default: ['**'],
+    pub include: Vec<String>,
+
+    /// Directories to ignore under src
+    /// default: ['**/node_modules/**', '**/__mocks__/**', '**/__generated__/**'],
+    pub exclude: Vec<String>,
+
+    /// Schema extensions
+    pub extensions: Vec<String>,
+
+    /// Use watchman when not in watch mode
+    pub watchman: bool,
+
+    /// This option controls whether or not a catch-all entry is added to enum type definitions
+    /// for values that may be added in the future. Enabling this means you will have to update
+    /// your application whenever the GraphQL server schema adds new enum values to prevent it
+    /// from breaking.
+    pub no_future_proof_enums: bool,
+
+    /// The name of the language plugin (?) used for input files and artifacts
+    pub language: Option<TypegenLanguage>,
+
+    /// Mappings from custom scalars in your schema to built-in GraphQL
+    /// types, for type emission purposes.
+    pub custom_scalars: FnvIndexMap<StringKey, StringKey>,
+
+    /// This option enables emitting es modules artifacts.
+    pub eager_es_modules: bool,
+}
+
+impl From<SingleProjectConfigFile> for MultiProjectConfigFile {
+    fn from(oss_config: SingleProjectConfigFile) -> MultiProjectConfigFile {
+        let root_dir = std::env::current_dir().unwrap();
+        let default_project_name = "default".intern();
+        let project_config = ConfigFileProject {
+            output: oss_config
+                .artifact_directory
+                .map(|dir| normalize_path_from_config(root_dir.clone(), dir)),
+            schema: Some(normalize_path_from_config(
+                root_dir.clone(),
+                oss_config.schema,
+            )),
+            typegen_config: TypegenConfig {
+                language: oss_config.language.unwrap_or(TypegenLanguage::TypeScript),
+                ..Default::default()
+            },
+            ..Default::default()
+        };
+
+        let mut projects = FnvIndexMap::default();
+        projects.insert(default_project_name, project_config);
+
+        let mut sources = FnvIndexMap::default();
+        let src = normalize_path_from_config(root_dir.clone(), oss_config.src);
+
+        sources.insert(src, SourceSet::SourceSetName(default_project_name));
+
+        MultiProjectConfigFile {
+            root: Some(root_dir),
+            projects,
+            sources,
+            ..Default::default()
+        }
+    }
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(untagged)]
+enum ConfigFile {
+    /// Base case configuration (mostly of OSS) where the project
+    /// have single schema, and single source directory
+    SingleProject(SingleProjectConfigFile),
+    /// Relay can support multiple projects with multiple schemas
+    /// and different options (output, typegen, etc...).
+    /// This MultiProjectConfigFile is responsible for configuring
+    /// these type of projects (complex)
+    MultiProject(Box<MultiProjectConfigFile>),
+}
+
+#[derive(Debug, Deserialize, Serialize, Default)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
 struct ConfigFileProject {
     /// If a base project is set, the documents of that project can be

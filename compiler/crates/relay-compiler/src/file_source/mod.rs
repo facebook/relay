@@ -145,11 +145,11 @@ pub enum FileSourceResult {
 }
 
 impl FileSourceResult {
-    pub fn clock(&self) -> Clock {
+    pub fn clock(&self) -> Option<Clock> {
         match self {
-            Self::Watchman(file_source) => file_source.clock.clone(),
-            Self::External(_) => unimplemented!(),
-            Self::Glob(_) => unimplemented!(),
+            Self::Watchman(file_source) => Some(file_source.clock.clone()),
+            Self::External(_) => None,
+            Self::Glob(_) => None,
         }
     }
 

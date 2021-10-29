@@ -62,9 +62,7 @@ impl<'config> WatchmanFileSource<'config> {
                 CompilerState::deserialize_from_file(&saved_state_path)
             })?;
             let query_timer = perf_logger_event.start("watchman_query_time");
-            let file_source_result = self
-                .query_file_result(Some(compiler_state.clock.clone()))
-                .await?;
+            let file_source_result = self.query_file_result(compiler_state.clock.clone()).await?;
             perf_logger_event.stop(query_timer);
             compiler_state
                 .pending_file_source_changes
@@ -145,9 +143,7 @@ impl<'config> WatchmanFileSource<'config> {
         let expression = get_watchman_expr(&self.config);
 
         let query_timer = perf_logger_event.start("watchman_query_time_before_subscribe");
-        let file_source_result = self
-            .query_file_result(Some(compiler_state.clock.clone()))
-            .await?;
+        let file_source_result = self.query_file_result(compiler_state.clock.clone()).await?;
         perf_logger_event.stop(query_timer);
 
         let query_timer = perf_logger_event.start("watchman_query_time_subscribe");
@@ -157,7 +153,7 @@ impl<'config> WatchmanFileSource<'config> {
                 &self.resolved_root,
                 SubscribeRequest {
                     expression: Some(expression),
-                    since: Some(file_source_result.clock()),
+                    since: file_source_result.clock(),
                     defer: vec!["hg.update"],
                     ..Default::default()
                 },

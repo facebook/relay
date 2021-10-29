@@ -207,7 +207,7 @@ pub struct CompilerState {
     // TODO: How can I can I make this just an ImplicitDependencyMap? Currently I can't move the hashmap out of the Arc wrapper around the dirty version.
     pub implicit_dependencies: Arc<RwLock<DependencyMap>>,
     #[serde(with = "clock_json_string")]
-    pub clock: Clock,
+    pub clock: Option<Clock>,
     pub saved_state_version: String,
     #[serde(skip)]
     pub dirty_artifact_paths: FnvHashMap<ProjectName, DashSet<PathBuf, FnvBuildHasher>>,
@@ -662,7 +662,7 @@ mod clock_json_string {
         Deserializer, Serializer,
     };
 
-    pub fn serialize<S>(clock: &Clock, serializer: S) -> Result<S::Ok, S::Error>
+    pub fn serialize<S>(clock: &Option<Clock>, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer,
     {
@@ -670,7 +670,7 @@ mod clock_json_string {
         serializer.serialize_str(&json_string)
     }
 
-    pub fn deserialize<'de, D>(deserializer: D) -> Result<Clock, D::Error>
+    pub fn deserialize<'de, D>(deserializer: D) -> Result<Option<Clock>, D::Error>
     where
         D: Deserializer<'de>,
     {
@@ -679,13 +679,13 @@ mod clock_json_string {
 
     struct JSONStringVisitor;
     impl<'de> Visitor<'de> for JSONStringVisitor {
-        type Value = Clock;
+        type Value = Option<Clock>;
 
         fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
             formatter.write_str("a JSON encoded watchman::Clock value")
         }
 
-        fn visit_str<E: Error>(self, v: &str) -> Result<Clock, E> {
+        fn visit_str<E: Error>(self, v: &str) -> Result<Option<Clock>, E> {
             Ok(serde_json::from_str(v).unwrap())
         }
     }

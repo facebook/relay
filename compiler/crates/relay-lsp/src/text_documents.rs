@@ -17,7 +17,7 @@ use lsp_types::{
     DidChangeTextDocumentParams, DidOpenTextDocumentParams, TextDocumentItem,
 };
 
-pub(crate) fn on_did_open_text_document(
+pub fn on_did_open_text_document(
     lsp_state: &impl GlobalState,
     params: <DidOpenTextDocument as Notification>::Params,
 ) -> LSPRuntimeResult<()> {
@@ -34,7 +34,7 @@ pub(crate) fn on_did_open_text_document(
 }
 
 #[allow(clippy::unnecessary_wraps)]
-pub(crate) fn on_did_close_text_document(
+pub fn on_did_close_text_document(
     lsp_state: &impl GlobalState,
     params: <DidCloseTextDocument as Notification>::Params,
 ) -> LSPRuntimeResult<()> {
@@ -49,7 +49,7 @@ pub(crate) fn on_did_close_text_document(
     lsp_state.document_closed(&uri)
 }
 
-pub(crate) fn on_did_change_text_document(
+pub fn on_did_change_text_document(
     lsp_state: &impl GlobalState,
     params: <DidChangeTextDocument as Notification>::Params,
 ) -> LSPRuntimeResult<()> {

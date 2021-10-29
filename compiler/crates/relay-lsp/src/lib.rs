@@ -29,7 +29,7 @@ mod server;
 mod shutdown;
 mod status_reporter;
 mod status_updater;
-mod text_documents;
+pub mod text_documents;
 pub mod utils;
 use common::PerfLogger;
 pub use js_language_server::JSLanguageServer;

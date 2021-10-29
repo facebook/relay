@@ -121,7 +121,7 @@ function UserComponent(props: Props) {
 
 ## @arguments and @argumentDefinitions
 
-However, in order to prevent bloating queries with global variable declarations, Relay also provides a way to declare variables that are scoped locally to a fragment using  the `@arguments` and `@argumentDefinitions` directives:
+However, in order to reutilize fragments whose variable names can differ to their corresponding ones in the query global variables declaration, Relay also provides a way to declare variables that are scoped locally to a fragment using  the `@arguments` and `@argumentDefinitions` directives:
 
 ```js
 /**

@@ -91,27 +91,11 @@ pub fn categorize_files(
                 })
                 .collect::<Vec<_>>()
         }
-        FileSourceResult::External(file_source_result) => {
-            let file_filter = FileFilter::from_config(config);
-            file_source_result
-                .files
-                .par_iter()
-                .filter(|file| file_filter.is_file_relevant(&file.name))
-                .filter_map(|file| {
-                    let file_group = categorizer
-                        .categorize(&file.name)
-                        .map_err(|err| {
-                            warn!(
-                                "Unexpected error in file categorizer for file `{}`: {}.",
-                                file.name.to_string_lossy(),
-                                err
-                            );
-                            err
-                        })
-                        .ok()?;
-                    Some((file_group, file.clone()))
-                })
-                .collect::<Vec<_>>()
+        FileSourceResult::External(result) => {
+            categorize_non_watchman_files(&categorizer, config, &result.files)
+        }
+        FileSourceResult::Glob(result) => {
+            categorize_non_watchman_files(&categorizer, config, &result.files)
         }
     };
     let mut categorized = HashMap::new();
@@ -122,6 +106,33 @@ pub fn categorize_files(
             .push(file);
     }
     categorized
+}
+
+fn categorize_non_watchman_files(
+    categorizer: &FileCategorizer,
+    config: &Config,
+    files: &[File],
+) -> Vec<(FileGroup, File)> {
+    let file_filter = FileFilter::from_config(config);
+
+    files
+        .par_iter()
+        .filter(|file| file_filter.is_file_relevant(&file.name))
+        .filter_map(|file| {
+            let file_group = categorizer
+                .categorize(&file.name)
+                .map_err(|err| {
+                    warn!(
+                        "Unexpected error in file categorizer for file `{}`: {}.",
+                        file.name.to_string_lossy(),
+                        err
+                    );
+                    err
+                })
+                .ok()?;
+            Some((file_group, file.clone()))
+        })
+        .collect::<Vec<_>>()
 }
 
 /// The FileCategorizer is created from a Config and categorizes files found by

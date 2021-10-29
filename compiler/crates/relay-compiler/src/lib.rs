@@ -32,7 +32,7 @@ pub use build_project::{
     transform_program, validate, validate_program, AdditionalValidations, Artifact,
     ArtifactContent, BuildProjectFailure, SourceHashes,
 };
-pub use config::{OperationPersister, PersistConfig};
+pub use config::{FileSourceKind, OperationPersister, PersistConfig};
 pub use file_source::{
     source_for_location, FileCategorizer, FileGroup, FileSource, FileSourceResult,
     FileSourceSubscription, FileSourceSubscriptionNextChange, FsSourceReader,

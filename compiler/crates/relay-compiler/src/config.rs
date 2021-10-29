@@ -102,9 +102,16 @@ pub struct Config {
     /// This config option is here to define the name of that special variable
     pub is_dev_variable_name: Option<String>,
 
+    /// Type of file source to use in the Compiler
+    pub file_source_config: FileSourceKind,
+}
+
+pub enum FileSourceKind {
+    Watchman,
     /// List with changed files in format "file_path,exists".
     /// This can be used to replace watchman queries
-    pub changed_files_list: Option<PathBuf>,
+    External(PathBuf),
+    Glob,
 }
 
 /// In the configs we may have a various values: with or without './' prefix at the beginning
@@ -295,7 +302,7 @@ impl Config {
             post_artifacts_write: None,
             additional_validations: None,
             is_dev_variable_name: config_file.is_dev_variable_name,
-            changed_files_list: None,
+            file_source_config: FileSourceKind::Watchman,
         };
 
         let mut validation_errors = Vec::new();

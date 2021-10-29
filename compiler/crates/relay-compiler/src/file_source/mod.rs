@@ -10,13 +10,14 @@ mod extract_graphql;
 mod file_categorizer;
 mod file_filter;
 mod file_group;
+mod glob_file_source;
 mod read_file_to_string;
 mod source_control_update_status;
 mod watchman_file_source;
 mod watchman_query_builder;
 
 use crate::compiler_state::CompilerState;
-use crate::config::Config;
+use crate::config::{Config, FileSourceKind};
 use crate::errors::{Error, Result};
 use common::{PerfLogEvent, PerfLogger};
 use graphql_watchman::{
@@ -32,6 +33,7 @@ use self::external_file_source::ExternalFileSourceResult;
 pub use self::extract_graphql::{
     extract_graphql_strings_from_file, source_for_location, FsSourceReader, SourceReader,
 };
+use self::glob_file_source::{GlobFileSource, GlobFileSourceResult};
 use external_file_source::ExternalFileSource;
 pub use file_categorizer::{categorize_files, FileCategorizer};
 pub use file_group::FileGroup;
@@ -43,6 +45,7 @@ use watchman_file_source::WatchmanFileSource;
 pub enum FileSource<'config> {
     Watchman(WatchmanFileSource<'config>),
     External(ExternalFileSource<'config>),
+    Glob(GlobFileSource<'config>),
     // TODO(T88130396):
     // Oss(OssFileSource<'config>),
 }
@@ -52,12 +55,14 @@ impl<'config> FileSource<'config> {
         config: &'config Config,
         perf_logger_event: &impl PerfLogEvent,
     ) -> Result<FileSource<'config>> {
-        if config.changed_files_list.is_some() {
-            Ok(Self::External(ExternalFileSource::new(config)))
-        } else {
-            Ok(Self::Watchman(
+        match &config.file_source_config {
+            FileSourceKind::Watchman => Ok(Self::Watchman(
                 WatchmanFileSource::connect(config, perf_logger_event).await?,
-            ))
+            )),
+            FileSourceKind::External(changed_files_list) => Ok(Self::External(
+                ExternalFileSource::new(changed_files_list.to_path_buf(), config),
+            )),
+            FileSourceKind::Glob => todo!(),
         }
     }
 
@@ -88,6 +93,7 @@ impl<'config> FileSource<'config> {
                     result
                 }
             }
+            Self::Glob(_) => todo!(),
         }
     }
 
@@ -106,8 +112,10 @@ impl<'config> FileSource<'config> {
                     FileSourceSubscription::Watchman(watchman_subscription),
                 ))
             }
-            Self::External(_) => {
-                unimplemented!("watch-mode (subscribe) is not available for external file source.")
+            Self::External(_) | Self::Glob(_) => {
+                unimplemented!(
+                    "watch-mode (subscribe) is not available for non-watchman file sources."
+                )
             }
         }
     }
@@ -131,6 +139,7 @@ impl File {
 pub enum FileSourceResult {
     Watchman(WatchmanFileSourceResult),
     External(ExternalFileSourceResult),
+    Glob(GlobFileSourceResult),
     // TODO(T88130396):
     // Oss(OssFileSourceResult<'config>)
 }
@@ -140,6 +149,7 @@ impl FileSourceResult {
         match self {
             Self::Watchman(file_source) => file_source.clock.clone(),
             Self::External(_) => unimplemented!(),
+            Self::Glob(_) => unimplemented!(),
         }
     }
 
@@ -147,6 +157,7 @@ impl FileSourceResult {
         match self {
             Self::Watchman(file_source_result) => file_source_result.resolved_root.path(),
             Self::External(file_source_result) => file_source_result.resolved_root.clone(),
+            Self::Glob(file_source_result) => file_source_result.resolved_root.clone(),
         }
     }
 
@@ -154,6 +165,7 @@ impl FileSourceResult {
         match self {
             Self::Watchman(file_source_result) => &file_source_result.saved_state_info,
             Self::External(_) => unimplemented!(),
+            Self::Glob(_) => unimplemented!(),
         }
     }
 
@@ -161,6 +173,7 @@ impl FileSourceResult {
         match self {
             Self::Watchman(file_source_result) => file_source_result.files.len(),
             Self::External(file_source_result) => file_source_result.files.len(),
+            Self::Glob(file_source_result) => file_source_result.files.len(),
         }
     }
 }

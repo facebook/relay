@@ -32,6 +32,7 @@ lazy_static! {
 pub struct ClientEdgeMetadata<'a> {
     pub backing_field: &'a Selection,
     pub selections: &'a Selection,
+    pub query_name: StringKey,
 }
 
 // Client edges consists of two parts:
@@ -52,15 +53,27 @@ impl<'a> ClientEdgeMetadata<'a> {
         fragment
             .directives
             .named(*CLIENT_EDGE_METADATA_KEY)
-            .map(|_| ClientEdgeMetadata {
-                backing_field: fragment
-                    .selections
-                    .get(0)
-                    .expect("Client Edge inline fragments have exactly two selections"),
-                selections: fragment
-                    .selections
-                    .get(1)
-                    .expect("Client Edge inline fragments have exactly two selections"),
+            .map(|directive| {
+                let query_name = directive
+                    .arguments
+                    .named(*QUERY_NAME_ARG)
+                    .expect("Client Edge metadata should have a query name")
+                    .value
+                    .item
+                    .get_string_literal()
+                    .expect("queryName is a string literal");
+
+                ClientEdgeMetadata {
+                    query_name,
+                    backing_field: fragment
+                        .selections
+                        .get(0)
+                        .expect("Client Edge inline fragments have exactly two selections"),
+                    selections: fragment
+                        .selections
+                        .get(1)
+                        .expect("Client Edge inline fragments have exactly two selections"),
+                }
             })
     }
 }

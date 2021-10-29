@@ -21,7 +21,7 @@ use md5::{Digest, Md5};
 use relay_transforms::{
     extract_connection_metadata_from_directive, extract_handle_field_directives,
     extract_values_from_handle_field_directive, generate_abstract_type_refinement_key,
-    remove_directive, ConnectionConstants, ConnectionMetadata, DeferDirective,
+    remove_directive, ClientEdgeMetadata, ConnectionConstants, ConnectionMetadata, DeferDirective,
     InlineDirectiveMetadata, ModuleMetadata, RefetchableMetadata, RelayDirective,
     RelayResolverSpreadMetadata, RequiredMetadataDirective, StreamDirective,
     CLIENT_EXTENSION_DIRECTIVE_NAME, DEFER_STREAM_CONSTANTS, DIRECTIVE_SPLIT_OPERATION,
@@ -1105,11 +1105,50 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         })
     }
 
+    fn build_client_edge(&mut self, client_edge_metadata: ClientEdgeMetadata<'_>) -> Primitive {
+        let backing_field = match client_edge_metadata.backing_field {
+            Selection::FragmentSpread(fragment_spread) => {
+                self.build_fragment_spread(fragment_spread)
+            }
+            _ => panic!(
+                "Expected Client Edge backing field to be an inline fragment representing a Relay Resolver. {:?}",
+                client_edge_metadata.backing_field
+            ),
+        };
+
+        let selections_item = match client_edge_metadata.selections {
+            Selection::LinkedField(linked_field) => self.build_linked_field(linked_field),
+            _ => panic!("Expected Client Edge selections to be a LinkedField"),
+        };
+
+        Primitive::Key(self.object(vec![
+            ObjectEntry {
+                key: CODEGEN_CONSTANTS.kind,
+                value: Primitive::String(CODEGEN_CONSTANTS.client_edge),
+            },
+            ObjectEntry {
+                key: CODEGEN_CONSTANTS.operation,
+                value: Primitive::GraphQLModuleDependency(client_edge_metadata.query_name),
+            },
+            ObjectEntry {
+                key: CODEGEN_CONSTANTS.client_edge_backing_field_key,
+                value: backing_field,
+            },
+            ObjectEntry {
+                key: CODEGEN_CONSTANTS.client_edge_selections_key,
+                value: selections_item,
+            },
+        ]))
+    }
+
     fn build_inline_fragment(&mut self, inline_frag: &InlineFragment) -> Primitive {
         match inline_frag.type_condition {
             None => {
+                if let Some(client_edge_metadata) = ClientEdgeMetadata::find(inline_frag) {
+                    self.build_client_edge(client_edge_metadata)
+                } else if
                 // TODO(T63388023): Use typed custom directives
-                if inline_frag.directives.len() == 1
+                inline_frag.directives.len() == 1
                     && inline_frag.directives[0].name.item == *CLIENT_EXTENSION_DIRECTIVE_NAME
                 {
                     let selections = self.build_selections(inline_frag.selections.iter());

@@ -67,7 +67,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         enable_3d_branch_arg_generation: true,
         actor_change_support: FeatureFlag::Enabled,
         text_artifacts: FeatureFlag::Disabled,
-        enable_client_edges: FeatureFlag::Disabled,
+        enable_client_edges: FeatureFlag::Enabled,
     };
 
     // TODO pass base fragment names

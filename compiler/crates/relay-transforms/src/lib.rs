@@ -78,7 +78,10 @@ pub use crate::errors::ValidationMessage;
 pub use applied_fragment_name::get_applied_fragment_name;
 pub use apply_fragment_arguments::apply_fragment_arguments;
 pub use apply_transforms::{apply_transforms, Programs};
-pub use client_edges::client_edges;
+pub use client_edges::{
+    client_edges, preserve_client_edge_backing_ids, preserve_client_edge_selections,
+    ClientEdgeMetadata, CLIENT_EDGE_METADATA_KEY, CLIENT_EDGE_QUERY_METADATA_KEY,
+};
 pub use client_extensions::{client_extensions, CLIENT_EXTENSION_DIRECTIVE_NAME};
 pub use connections::{
     extract_connection_metadata_from_directive, ConnectionConstants, ConnectionInterface,

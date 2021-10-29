@@ -1,0 +1,17 @@
+fragment relayResolver_BestFriendResolverFragment_name on User {
+  name
+}
+
+query relayResolver_Query {
+  me {
+    best_friend {
+      name
+    }
+  }
+}
+
+# %extensions%
+
+extend type User {
+  best_friend: User @relay_resolver(fragment_name: "relayResolver_BestFriendResolverFragment_name", import_path: "./foo/bar/baz/BestFriendResolver.js")
+}

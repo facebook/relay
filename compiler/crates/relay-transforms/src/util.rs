@@ -16,7 +16,8 @@ use crate::{
     required_directive::{CHILDREN_CAN_BUBBLE_METADATA_KEY, REQUIRED_DIRECTIVE_NAME},
     ModuleMetadata, ReactFlightLocalComponentsMetadata, RefetchableDerivedFromMetadata,
     RelayClientComponentMetadata, RelayResolverSpreadMetadata, RequiredMetadataDirective,
-    DIRECTIVE_SPLIT_OPERATION, INTERNAL_METADATA_DIRECTIVE,
+    CLIENT_EDGE_METADATA_KEY, CLIENT_EDGE_QUERY_METADATA_KEY, DIRECTIVE_SPLIT_OPERATION,
+    INTERNAL_METADATA_DIRECTIVE,
 };
 
 use graphql_ir::{
@@ -85,7 +86,7 @@ pub fn extract_variable_name(argument: Option<&Argument>) -> Option<StringKey> {
 }
 
 lazy_static! {
-    static ref CUSTOM_METADATA_DIRECTIVES: [StringKey; 18] = [
+    static ref CUSTOM_METADATA_DIRECTIVES: [StringKey; 20] = [
         *CLIENT_EXTENSION_DIRECTIVE_NAME,
         *ConnectionMetadataDirective::DIRECTIVE_NAME,
         *HANDLE_FIELD_DIRECTIVE_NAME,
@@ -99,6 +100,8 @@ lazy_static! {
         *ReactFlightLocalComponentsMetadata::DIRECTIVE_NAME,
         *REQUIRED_DIRECTIVE_NAME,
         *RequiredMetadataDirective::DIRECTIVE_NAME,
+        *CLIENT_EDGE_METADATA_KEY,
+        *CLIENT_EDGE_QUERY_METADATA_KEY,
         *CHILDREN_CAN_BUBBLE_METADATA_KEY,
         *RelayResolverSpreadMetadata::DIRECTIVE_NAME,
         *RelayClientComponentMetadata::DIRECTIVE_NAME,

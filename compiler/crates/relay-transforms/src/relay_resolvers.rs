@@ -5,15 +5,16 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::DependencyMap;
+use crate::{ClientEdgeMetadata, DependencyMap};
 
 use super::ValidationMessage;
 use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, WithLocation};
 use fnv::FnvHashSet;
 use graphql_ir::{
-    associated_data_impl, Field as IrField, FragmentDefinition, FragmentSpread,
+    associated_data_impl, Directive, Field as IrField, FragmentDefinition, FragmentSpread,
     OperationDefinition, Program, ScalarField, Selection, Transformed, Transformer, Visitor,
 };
+use graphql_ir::{InlineFragment, LinkedField};
 use interner::Intern;
 use interner::StringKey;
 use lazy_static::lazy_static;
@@ -74,6 +75,22 @@ impl<'program> RelayResolverSpreadTransform<'program> {
             errors: Default::default(),
         }
     }
+
+    fn transformed_field(&self, field: &impl IrField) -> Option<Selection> {
+        RelayResolverFieldMetadata::find(field.directives()).map(|field_metadata| {
+            let spread_metadata = RelayResolverSpreadMetadata {
+                field_parent_type: field_metadata.field_parent_type,
+                import_path: field_metadata.import_path,
+                field_name: self.program.schema.field(field.definition().item).name.item,
+                field_alias: field.alias().map(|alias| alias.item),
+            };
+            Selection::FragmentSpread(Arc::new(FragmentSpread {
+                fragment: WithLocation::generated(field_metadata.fragment_name),
+                directives: vec![spread_metadata.into()],
+                arguments: vec![],
+            }))
+        })
+    }
 }
 
 impl<'program> Transformer for RelayResolverSpreadTransform<'program> {
@@ -82,20 +99,51 @@ impl<'program> Transformer for RelayResolverSpreadTransform<'program> {
     const VISIT_DIRECTIVES: bool = false;
 
     fn transform_scalar_field(&mut self, field: &ScalarField) -> Transformed<Selection> {
-        if let Some(field_metadata) = RelayResolverFieldMetadata::find(&field.directives) {
-            let spread_metadata = RelayResolverSpreadMetadata {
-                field_parent_type: field_metadata.field_parent_type,
-                import_path: field_metadata.import_path,
-                field_name: self.program.schema.field(field.definition.item).name.item,
-                field_alias: field.alias.map(|alias| alias.item),
-            };
-            Transformed::Replace(Selection::FragmentSpread(Arc::new(FragmentSpread {
-                fragment: WithLocation::generated(field_metadata.fragment_name),
-                directives: vec![spread_metadata.into()],
-                arguments: vec![],
-            })))
-        } else {
-            Transformed::Keep
+        match self.transformed_field(field) {
+            Some(selection) => Transformed::Replace(selection),
+            None => Transformed::Keep,
+        }
+    }
+
+    fn transform_linked_field(&mut self, field: &LinkedField) -> Transformed<Selection> {
+        match self.transformed_field(field) {
+            Some(selection) => Transformed::Replace(selection),
+            None => self.default_transform_linked_field(field),
+        }
+    }
+
+    fn transform_inline_fragment(
+        &mut self,
+        fragment: &graphql_ir::InlineFragment,
+    ) -> Transformed<Selection> {
+        match ClientEdgeMetadata::find(fragment) {
+            Some(client_edge_metadata) => {
+                let backing_id_field = self
+                    .transform_selection(client_edge_metadata.backing_field)
+                    .unwrap_or_else(|| client_edge_metadata.backing_field.clone());
+
+                let selections_field = match client_edge_metadata.selections {
+                    Selection::LinkedField(linked_field) => self
+                        .default_transform_linked_field(linked_field)
+                        .unwrap_or_else(|| {
+                            Selection::LinkedField(
+                                #[allow(clippy::clone_on_ref_ptr)]
+                                linked_field.clone(),
+                            )
+                        }),
+                    _ => panic!(
+                        "Expected the Client Edges transform to always make the second selection the linked field."
+                    ),
+                };
+
+                let selections = vec![backing_id_field, selections_field];
+
+                Transformed::Replace(Selection::InlineFragment(Arc::new(InlineFragment {
+                    selections,
+                    ..fragment.clone()
+                })))
+            }
+            None => self.default_transform_inline_fragment(fragment),
         }
     }
 }
@@ -131,6 +179,54 @@ impl<'program> RelayResolverFieldTransform<'program> {
             errors: Default::default(),
         }
     }
+
+    fn extract_resolver_field_directives(
+        &mut self,
+        field: &impl IrField,
+    ) -> Option<Vec<Directive>> {
+        let field_type = self.program.schema.field(field.definition().item);
+        get_resolver_info(field_type, field.definition().location).and_then(|info| {
+            if !self.enabled {
+                self.errors.push(Diagnostic::error(
+                    ValidationMessage::RelayResolversDisabled {},
+                    field.alias_or_name_location(),
+                ));
+                return None;
+            }
+            match info {
+                Ok((fragment_name, import_path)) => {
+                    if let Some(directive) = field.directives().first() {
+                        self.errors.push(Diagnostic::error(
+                            ValidationMessage::RelayResolverUnexpectedDirective {},
+                            directive.name.location,
+                        ));
+                    }
+                    if self.program.fragment(fragment_name).is_none() {
+                        self.errors.push(Diagnostic::error(
+                            ValidationMessage::InvalidRelayResolverFragmentName { fragment_name },
+                            // We don't have locations for schema files.
+                            field.definition().location,
+                        ));
+                        return None;
+                    }
+                    let parent_type = field_type.parent_type.unwrap();
+                    let resolver_field_metadata = RelayResolverFieldMetadata {
+                        import_path,
+                        field_parent_type: self.program.schema.get_type_name(parent_type),
+                        fragment_name,
+                    };
+                    // Note that we've checked above that the field had no pre-existing directives.
+                    Some(vec![resolver_field_metadata.into()])
+                }
+                Err(diagnostics) => {
+                    for diagnostic in diagnostics {
+                        self.errors.push(diagnostic);
+                    }
+                    None
+                }
+            }
+        })
+    }
 }
 
 impl Transformer for RelayResolverFieldTransform<'_> {
@@ -139,55 +235,59 @@ impl Transformer for RelayResolverFieldTransform<'_> {
     const VISIT_DIRECTIVES: bool = false;
 
     fn transform_scalar_field(&mut self, field: &ScalarField) -> Transformed<Selection> {
-        let field_type = self.program.schema.field(field.definition.item);
-        match get_resolver_info(field_type, field.definition.location) {
-            Some(info) => {
-                if !self.enabled {
-                    self.errors.push(Diagnostic::error(
-                        ValidationMessage::RelayResolversDisabled {},
-                        field.alias_or_name_location(),
-                    ));
-                    return Transformed::Keep;
-                }
-                match info {
-                    Ok((fragment_name, import_path)) => {
-                        if let Some(directive) = field.directives.first() {
-                            self.errors.push(Diagnostic::error(
-                                ValidationMessage::RelayResolverUnexpectedDirective {},
-                                directive.name.location,
-                            ));
-                        }
-                        if self.program.fragment(fragment_name).is_none() {
-                            self.errors.push(Diagnostic::error(
-                                ValidationMessage::InvalidRelayResolverFragmentName {
-                                    fragment_name,
-                                },
-                                // We don't have locations for schema files.
-                                field.definition.location,
-                            ));
-                            return Transformed::Keep;
-                        }
-                        let parent_type = field_type.parent_type.unwrap();
-                        let resolver_field_metadata = RelayResolverFieldMetadata {
-                            import_path,
-                            field_parent_type: self.program.schema.get_type_name(parent_type),
-                            fragment_name,
-                        };
-                        Transformed::Replace(Selection::ScalarField(Arc::new(ScalarField {
-                            // Note that we've checked above that the field had no pre-existing directives.
-                            directives: vec![resolver_field_metadata.into()],
-                            ..field.clone()
-                        })))
-                    }
-                    Err(diagnostics) => {
-                        for diagnostic in diagnostics {
-                            self.errors.push(diagnostic);
-                        }
-                        Transformed::Keep
-                    }
-                }
+        self.extract_resolver_field_directives(field)
+            .map_or(Transformed::Keep, |directives| {
+                Transformed::Replace(Selection::ScalarField(Arc::new(ScalarField {
+                    directives,
+                    ..field.clone()
+                })))
+            })
+    }
+
+    fn transform_linked_field(&mut self, field: &LinkedField) -> Transformed<Selection> {
+        self.extract_resolver_field_directives(field).map_or_else(
+            || self.default_transform_linked_field(field),
+            |directives| {
+                Transformed::Replace(Selection::LinkedField(Arc::new(LinkedField {
+                    directives,
+                    ..field.clone()
+                })))
+            },
+        )
+    }
+
+    fn transform_inline_fragment(
+        &mut self,
+        fragment: &graphql_ir::InlineFragment,
+    ) -> Transformed<Selection> {
+        match ClientEdgeMetadata::find(fragment) {
+            Some(client_edge_metadata) => {
+                let backing_id_field = self
+                    .transform_selection(client_edge_metadata.backing_field)
+                    .unwrap_or_else(|| client_edge_metadata.backing_field.clone());
+
+                let selections_field = match client_edge_metadata.selections {
+                    Selection::LinkedField(linked_field) => self
+                        .default_transform_linked_field(linked_field)
+                        .unwrap_or_else(|| {
+                            Selection::LinkedField(
+                                #[allow(clippy::clone_on_ref_ptr)]
+                                linked_field.clone(),
+                            )
+                        }),
+                    _ => panic!(
+                        "Expected the Client Edges transform to always make the second selection the linked field."
+                    ),
+                };
+
+                let selections = vec![backing_id_field, selections_field];
+
+                Transformed::Replace(Selection::InlineFragment(Arc::new(InlineFragment {
+                    selections,
+                    ..fragment.clone()
+                })))
             }
-            None => Transformed::Keep,
+            None => self.default_transform_inline_fragment(fragment),
         }
     }
 }

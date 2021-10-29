@@ -152,6 +152,7 @@ fn apply_common_transforms(
         transform_refetchable_fragment(&program, &base_fragment_names, false)
     })?;
 
+    program = log_event.time("client_edges", || client_edges(&program))?;
     program = log_event.time("relay_resolvers", || {
         relay_resolvers(&program, feature_flags.enable_relay_resolver_transform)
     })?;
@@ -222,7 +223,11 @@ fn apply_operation_transforms(
     let log_event = perf_logger.create_event("apply_operation_transforms");
     log_event.string("project", project_name.to_string());
 
-    let mut program = log_event.time("split_module_import", || {
+    let mut program = log_event.time("preserve_client_edge_backing_ids", || {
+        preserve_client_edge_backing_ids(&program)
+    })?;
+
+    program = log_event.time("split_module_import", || {
         split_module_import(&program, &base_fragment_names)
     });
     program = log_event.time("generate_id_field", || generate_id_field(&program));
@@ -399,8 +404,12 @@ fn apply_typegen_transforms(
     program = log_event.time("required_directive", || {
         required_directive(&program, &feature_flags)
     })?;
+    program = log_event.time("client_edges", || client_edges(&program))?;
     program = log_event.time("relay_resolvers", || {
         relay_resolvers(&program, feature_flags.enable_relay_resolver_transform)
+    })?;
+    program = log_event.time("preserve_client_edge_selections", || {
+        preserve_client_edge_selections(&program)
     })?;
     log_event.time("flatten", || flatten(&mut program, false, false))?;
     program = log_event.time("transform_refetchable_fragment", || {

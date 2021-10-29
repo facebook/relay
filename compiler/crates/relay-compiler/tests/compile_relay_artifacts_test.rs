@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<d47264b447039ead4427257b50a58684>>
+ * @generated SignedSource<<03b3b1ca5f501ad6f1a714b49e4a6c08>>
  */
 
 mod compile_relay_artifacts;
@@ -899,6 +899,13 @@ fn relay_resolver_alias() {
     let input = include_str!("compile_relay_artifacts/fixtures/relay-resolver-alias.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/relay-resolver-alias.expected");
     test_fixture(transform_fixture, "relay-resolver-alias.graphql", "compile_relay_artifacts/fixtures/relay-resolver-alias.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_backing_client_edge() {
+    let input = include_str!("compile_relay_artifacts/fixtures/relay-resolver-backing-client-edge.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/relay-resolver-backing-client-edge.expected");
+    test_fixture(transform_fixture, "relay-resolver-backing-client-edge.graphql", "compile_relay_artifacts/fixtures/relay-resolver-backing-client-edge.expected", input, expected);
 }
 
 #[test]

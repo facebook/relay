@@ -12,7 +12,12 @@ use relay_compiler::{
     config::{Config, SingleProjectConfigFile, TypegenLanguage},
     FileSourceKind, RemotePersister,
 };
-use std::{env::current_dir, path::PathBuf, sync::Arc};
+use std::{
+    env::{self, current_dir},
+    path::PathBuf,
+    process::Command,
+    sync::Arc,
+};
 use structopt::StructOpt;
 
 #[derive(StructOpt)]
@@ -86,14 +91,23 @@ async fn main() {
         std::process::exit(1);
     });
     config.operation_persister = Some(Box::new(RemotePersister));
-    // TODO: Check if watchman is available
-    config.file_source_config = FileSourceKind::Glob;
+    config.file_source_config = if should_use_watchman() {
+        FileSourceKind::Watchman
+    } else {
+        FileSourceKind::Glob
+    };
+
+    if opt.watch && !matches!(&config.file_source_config, FileSourceKind::Watchman) {
+        panic!(
+            "Cannot run relay in watch mode if `watchman` is not available (or explicitly disabled)."
+        );
+    }
 
     let compiler = Compiler::new(Arc::new(config), Arc::new(common::NoopPerfLogger));
 
     if opt.watch {
         if let Err(err) = compiler.watch().await {
-            error!("{}", err);
+            error!("Watchman error: {}", err);
             std::process::exit(1);
         }
     } else {
@@ -107,4 +121,16 @@ async fn main() {
             }
         }
     }
+}
+
+/// Check if `watchman` is available.
+/// Additionally, this method is checking for an existence of `FORCE_NO_WATCHMAN`
+/// environment variable. If this `FORCE_NO_WATCHMAN` is set, this method will return `false`
+/// and compiler will use non-watchman file finder.
+fn should_use_watchman() -> bool {
+    let check_watchman = Command::new("watchman")
+        .args(["list-capabilities"])
+        .output();
+
+    check_watchman.is_ok() && env::var("FORCE_NO_WATCHMAN").is_err()
 }

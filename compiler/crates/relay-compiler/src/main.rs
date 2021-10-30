@@ -5,13 +5,15 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use common::ConsoleLogger;
 use env_logger::Env;
-use log::{error, info};
+use log::{error, info, Level};
 use relay_compiler::{
     compiler::Compiler,
     config::{Config, SingleProjectConfigFile, TypegenLanguage},
     FileSourceKind, RemotePersister,
 };
+use std::io::Write;
 use std::{
     env::{self, current_dir},
     path::PathBuf,
@@ -74,7 +76,16 @@ impl From<CliConfig> for SingleProjectConfigFile {
 
 #[tokio::main]
 async fn main() {
-    env_logger::from_env(Env::default().default_filter_or("info")).init();
+    env_logger::Builder::from_env(Env::default().default_filter_or("info"))
+        .format(|buf, record| {
+            let style = buf.default_level_style(record.level());
+            if record.level() == Level::Info {
+                writeln!(buf, "{}", record.args())
+            } else {
+                writeln!(buf, "[{}] {}", style.value(record.level()), record.args())
+            }
+        })
+        .init();
 
     let opt = Opt::from_args();
 
@@ -103,7 +114,7 @@ async fn main() {
         );
     }
 
-    let compiler = Compiler::new(Arc::new(config), Arc::new(common::NoopPerfLogger));
+    let compiler = Compiler::new(Arc::new(config), Arc::new(ConsoleLogger));
 
     if opt.watch {
         if let Err(err) = compiler.watch().await {

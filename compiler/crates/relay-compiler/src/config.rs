@@ -644,7 +644,7 @@ pub struct SingleProjectConfigFile {
 
     /// Directories to ignore under src
     /// default: ['**/node_modules/**', '**/__mocks__/**', '**/__generated__/**'],
-    pub exclude: Vec<String>,
+    pub excludes: Vec<String>,
 
     /// Schema extensions
     pub extensions: Vec<String>,
@@ -700,6 +700,7 @@ impl From<SingleProjectConfigFile> for MultiProjectConfigFile {
             root: Some(root_dir),
             projects,
             sources,
+            excludes: oss_config.excludes,
             ..Default::default()
         }
     }

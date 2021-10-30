@@ -10,7 +10,7 @@ use log::{error, info};
 use relay_compiler::{
     compiler::Compiler,
     config::{Config, SingleProjectConfigFile, TypegenLanguage},
-    RemotePersister,
+    FileSourceKind, RemotePersister,
 };
 use std::{env::current_dir, path::PathBuf, sync::Arc};
 use structopt::StructOpt;
@@ -86,7 +86,8 @@ async fn main() {
         std::process::exit(1);
     });
     config.operation_persister = Some(Box::new(RemotePersister));
-
+    // TODO: Check if watchman is available
+    config.file_source_config = FileSourceKind::Glob;
 
     let compiler = Compiler::new(Arc::new(config), Arc::new(common::NoopPerfLogger));
 

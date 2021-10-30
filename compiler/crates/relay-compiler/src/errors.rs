@@ -7,6 +7,7 @@
 
 use crate::compiler_state::ProjectName;
 use common::Diagnostic;
+use glob::PatternError;
 use persist_query::PersistError;
 use std::io;
 use std::path::PathBuf;
@@ -130,6 +131,9 @@ pub enum Error {
         file: PathBuf,
         source: serde_json::Error,
     },
+
+    #[error("glob pattern error: {0}")]
+    PatternError(PatternError),
 }
 
 #[derive(Debug, Error)]

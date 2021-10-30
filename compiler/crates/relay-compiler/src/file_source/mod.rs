@@ -46,8 +46,6 @@ pub enum FileSource<'config> {
     Watchman(WatchmanFileSource<'config>),
     External(ExternalFileSource<'config>),
     Glob(GlobFileSource<'config>),
-    // TODO(T88130396):
-    // Oss(OssFileSource<'config>),
 }
 
 impl<'config> FileSource<'config> {
@@ -62,7 +60,7 @@ impl<'config> FileSource<'config> {
             FileSourceKind::External(changed_files_list) => Ok(Self::External(
                 ExternalFileSource::new(changed_files_list.to_path_buf(), config),
             )),
-            FileSourceKind::Glob => todo!(),
+            FileSourceKind::Glob => Ok(Self::Glob(GlobFileSource::new(config))),
         }
     }
 
@@ -93,7 +91,7 @@ impl<'config> FileSource<'config> {
                     result
                 }
             }
-            Self::Glob(_) => todo!(),
+            Self::Glob(file_source) => file_source.create_compiler_state(perf_logger),
         }
     }
 
@@ -140,8 +138,6 @@ pub enum FileSourceResult {
     Watchman(WatchmanFileSourceResult),
     External(ExternalFileSourceResult),
     Glob(GlobFileSourceResult),
-    // TODO(T88130396):
-    // Oss(OssFileSourceResult<'config>)
 }
 
 impl FileSourceResult {

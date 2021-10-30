@@ -625,7 +625,7 @@ struct MultiProjectConfigFile {
     is_dev_variable_name: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Default)]
+#[derive(Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields, rename_all = "camelCase", default)]
 pub struct SingleProjectConfigFile {
     /// Path to schema.graphql
@@ -640,22 +640,22 @@ pub struct SingleProjectConfigFile {
 
     /// Directories to include under src
     /// default: ['**'],
-    pub include: Vec<String>,
+    /// TODO(T104508864):: Currently not supported in Rust OSS compiler
+    pub includes: Vec<String>,
 
     /// Directories to ignore under src
     /// default: ['**/node_modules/**', '**/__mocks__/**', '**/__generated__/**'],
     pub excludes: Vec<String>,
 
     /// Schema extensions
+    /// TODO(T104508864): Currently not supported in Rust OSS compiler
     pub extensions: Vec<String>,
-
-    /// Use watchman when not in watch mode
-    pub watchman: bool,
 
     /// This option controls whether or not a catch-all entry is added to enum type definitions
     /// for values that may be added in the future. Enabling this means you will have to update
     /// your application whenever the GraphQL server schema adds new enum values to prevent it
     /// from breaking.
+    /// TODO(T104508864): Currently not supported in Rust OSS compiler
     pub no_future_proof_enums: bool,
 
     /// The name of the language plugin (?) used for input files and artifacts
@@ -666,7 +666,29 @@ pub struct SingleProjectConfigFile {
     pub custom_scalars: FnvIndexMap<StringKey, StringKey>,
 
     /// This option enables emitting es modules artifacts.
+    /// TODO(T104508864): Currently not supported in Rust OSS compiler
     pub eager_es_modules: bool,
+}
+
+impl Default for SingleProjectConfigFile {
+    fn default() -> Self {
+        Self {
+            schema: Default::default(),
+            src: Default::default(),
+            artifact_directory: Default::default(),
+            includes: vec!["**".to_string()],
+            excludes: vec![
+                "**/node_modules/**".to_string(),
+                "**/__mocks__/**".to_string(),
+                "**/__generated__/**".to_string(),
+            ],
+            extensions: vec![],
+            no_future_proof_enums: false,
+            language: Some(TypegenLanguage::TypeScript),
+            custom_scalars: Default::default(),
+            eager_es_modules: false,
+        }
+    }
 }
 
 impl From<SingleProjectConfigFile> for MultiProjectConfigFile {
@@ -683,6 +705,7 @@ impl From<SingleProjectConfigFile> for MultiProjectConfigFile {
             )),
             typegen_config: TypegenConfig {
                 language: oss_config.language.unwrap_or(TypegenLanguage::TypeScript),
+                custom_scalar_types: oss_config.custom_scalars,
                 ..Default::default()
             },
             ..Default::default()

@@ -23,15 +23,14 @@
       "jsModuleFormat": "commonjs",
       "featureFlags": {
         "enable_flight_transform": true,
-        "enable_required_transform_for_prefix": "",
+        "enable_required_transform": true,
         "no_inline": {
           "kind": "enabled"
         },
         "actor_change_support": {
           "kind": "enabled"
         }
-      },
-      "haste": false
+      }
     }
   },
   "isDevVariableName": "__DEV__"

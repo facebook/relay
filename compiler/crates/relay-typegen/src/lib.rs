@@ -564,13 +564,11 @@ impl<'a> TypeGenerator<'a> {
         } else {
             let name = fragment_spread.fragment.item;
             self.used_fragments.insert(name);
-            type_selections.push(TypeSelection::InlineFragmentOrFragmentSpread(
-                TypeSelectionInlineFragmentOrFragmentSpread {
-                    fragment_name: name,
-                    conditional: false,
-                    concrete_type: None,
-                },
-            ));
+            type_selections.push(TypeSelection::FragmentSpread(TypeSelectionFragmentSpread {
+                fragment_name: name,
+                conditional: false,
+                concrete_type: None,
+            }));
         }
     }
 
@@ -631,13 +629,11 @@ impl<'a> TypeGenerator<'a> {
                 concrete_type: None,
             }));
             self.used_fragments.insert(name);
-            type_selections.push(TypeSelection::InlineFragmentOrFragmentSpread(
-                TypeSelectionInlineFragmentOrFragmentSpread {
-                    fragment_name: name,
-                    conditional: false,
-                    concrete_type: None,
-                },
-            ));
+            type_selections.push(TypeSelection::InlineFragment(TypeSelectionInlineFragment {
+                fragment_name: name,
+                conditional: false,
+                concrete_type: None,
+            }));
         } else if inline_fragment
             .directives
             .named(*RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN)
@@ -1501,7 +1497,8 @@ enum TypeSelection {
     ModuleDirective(ModuleDirective),
     LinkedField(TypeSelectionLinkedField),
     ScalarField(TypeSelectionScalarField),
-    InlineFragmentOrFragmentSpread(TypeSelectionInlineFragmentOrFragmentSpread),
+    InlineFragment(TypeSelectionInlineFragment),
+    FragmentSpread(TypeSelectionFragmentSpread),
 }
 
 #[derive(Debug, Clone)]
@@ -1516,7 +1513,8 @@ impl TypeSelection {
         match self {
             TypeSelection::LinkedField(l) => l.concrete_type = Some(type_),
             TypeSelection::ScalarField(s) => s.concrete_type = Some(type_),
-            TypeSelection::InlineFragmentOrFragmentSpread(f) => f.concrete_type = Some(type_),
+            TypeSelection::InlineFragment(f) => f.concrete_type = Some(type_),
+            TypeSelection::FragmentSpread(f) => f.concrete_type = Some(type_),
             TypeSelection::ModuleDirective(m) => m.concrete_type = Some(type_),
             TypeSelection::RawResponseFragmentSpread(f) => f.concrete_type = Some(type_),
         }
@@ -1526,7 +1524,8 @@ impl TypeSelection {
         match self {
             TypeSelection::LinkedField(l) => l.conditional = conditional,
             TypeSelection::ScalarField(s) => s.conditional = conditional,
-            TypeSelection::InlineFragmentOrFragmentSpread(f) => f.conditional = conditional,
+            TypeSelection::InlineFragment(f) => f.conditional = conditional,
+            TypeSelection::FragmentSpread(f) => f.conditional = conditional,
             TypeSelection::ModuleDirective(m) => m.conditional = conditional,
             TypeSelection::RawResponseFragmentSpread(f) => f.conditional = conditional,
         }
@@ -1536,7 +1535,8 @@ impl TypeSelection {
         match self {
             TypeSelection::LinkedField(l) => l.conditional,
             TypeSelection::ScalarField(s) => s.conditional,
-            TypeSelection::InlineFragmentOrFragmentSpread(f) => f.conditional,
+            TypeSelection::FragmentSpread(f) => f.conditional,
+            TypeSelection::InlineFragment(f) => f.conditional,
             TypeSelection::ModuleDirective(m) => m.conditional,
             TypeSelection::RawResponseFragmentSpread(f) => f.conditional,
         }
@@ -1546,7 +1546,8 @@ impl TypeSelection {
         match self {
             TypeSelection::LinkedField(l) => l.concrete_type,
             TypeSelection::ScalarField(s) => s.concrete_type,
-            TypeSelection::InlineFragmentOrFragmentSpread(f) => f.concrete_type,
+            TypeSelection::FragmentSpread(f) => f.concrete_type,
+            TypeSelection::InlineFragment(f) => f.concrete_type,
             TypeSelection::ModuleDirective(m) => m.concrete_type,
             TypeSelection::RawResponseFragmentSpread(f) => f.concrete_type,
         }
@@ -1585,9 +1586,8 @@ impl TypeSelection {
         match self {
             TypeSelection::LinkedField(l) => l.field_name_or_alias,
             TypeSelection::ScalarField(s) => s.field_name_or_alias,
-            TypeSelection::InlineFragmentOrFragmentSpread(i) => {
-                format!("__fragments_{}", i.fragment_name).intern()
-            }
+            TypeSelection::FragmentSpread(i) => format!("__fragments_{}", i.fragment_name).intern(),
+            TypeSelection::InlineFragment(i) => format!("__fragments_{}", i.fragment_name).intern(),
             TypeSelection::ModuleDirective(md) => md.fragment_name,
             TypeSelection::RawResponseFragmentSpread(_) => *SPREAD_KEY,
         }
@@ -1621,7 +1621,14 @@ struct TypeSelectionScalarField {
 }
 
 #[derive(Debug, Clone)]
-struct TypeSelectionInlineFragmentOrFragmentSpread {
+struct TypeSelectionInlineFragment {
+    fragment_name: StringKey,
+    conditional: bool,
+    concrete_type: Option<Type>,
+}
+
+#[derive(Debug, Clone)]
+struct TypeSelectionFragmentSpread {
     fragment_name: StringKey,
     conditional: bool,
     concrete_type: Option<Type>,
@@ -1752,7 +1759,26 @@ fn group_refs(
     let mut props = props.into_iter();
     std::iter::from_fn(move || {
         while let Some(prop) = props.next() {
-            if let TypeSelection::InlineFragmentOrFragmentSpread(inline_fragment) = prop {
+            if let TypeSelection::FragmentSpread(inline_fragment) = prop {
+                match flow_typegen_phase {
+                    FlowTypegenPhase::Old => {
+                        refs.get_or_insert_with(Vec::new)
+                            .push(inline_fragment.fragment_name);
+                    }
+                    FlowTypegenPhase::Phase1 | FlowTypegenPhase::Phase2 => {
+                        refs.get_or_insert_with(Vec::new)
+                            .push(inline_fragment.fragment_name);
+                        new_refs
+                            .get_or_insert_with(Vec::new)
+                            .push(inline_fragment.fragment_name);
+                    }
+                    FlowTypegenPhase::Final => {
+                        new_refs
+                            .get_or_insert_with(Vec::new)
+                            .push(inline_fragment.fragment_name);
+                    }
+                }
+            } else if let TypeSelection::InlineFragment(inline_fragment) = prop {
                 match flow_typegen_phase {
                     FlowTypegenPhase::Old => {
                         refs.get_or_insert_with(Vec::new)

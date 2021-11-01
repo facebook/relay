@@ -7,7 +7,7 @@
 
 use std::sync::{Arc, RwLock};
 
-use common::{PerfLogEvent, PerfLogger};
+use common::{FeatureFlags, PerfLogEvent, PerfLogger};
 use dashmap::mapref::entry::Entry;
 use fnv::FnvHashMap;
 use graphql_watchman::WatchmanFileSourceSubscriptionNextChange;
@@ -20,7 +20,6 @@ use relay_compiler::{
     validate_program, BuildProjectFailure, FileSource, FileSourceResult, FileSourceSubscription,
     FileSourceSubscriptionNextChange, GraphQLAsts, SourceControlUpdateStatus,
 };
-use relay_transforms::FeatureFlags;
 use schema::SDLSchema;
 use schema_documentation::SchemaDocumentation;
 use tokio::{task, task::JoinHandle};

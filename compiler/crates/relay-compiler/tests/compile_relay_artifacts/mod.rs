@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{ConsoleLogger, NamedItem, SourceLocationKey};
+use common::{ConsoleLogger, FeatureFlag, FeatureFlags, NamedItem, SourceLocationKey};
 use fixture_tests::Fixture;
 use graphql_ir::{build, FragmentDefinition, OperationDefinition, Program};
 use graphql_syntax::parse_executable;
@@ -18,9 +18,7 @@ use relay_codegen::{
 };
 use relay_compiler::validate;
 use relay_test_schema::{get_test_schema, get_test_schema_with_extensions};
-use relay_transforms::{
-    apply_transforms, ConnectionInterface, FeatureFlag, FeatureFlags, DIRECTIVE_SPLIT_OPERATION,
-};
+use relay_transforms::{apply_transforms, ConnectionInterface, DIRECTIVE_SPLIT_OPERATION};
 use std::{array, sync::Arc};
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {

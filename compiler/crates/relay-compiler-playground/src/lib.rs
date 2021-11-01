@@ -6,7 +6,7 @@
  */
 
 use common::{
-    Diagnostic, NoopPerfLogger,
+    Diagnostic, FeatureFlags, NoopPerfLogger,
     SourceLocationKey::{self, Generated},
 };
 use console_error_panic_hook;
@@ -17,7 +17,7 @@ use graphql_text_printer::{self, PrinterOptions};
 use interner::Intern;
 use relay_codegen::{print_fragment, print_operation, JsModuleFormat};
 use relay_schema::build_schema_with_extensions;
-use relay_transforms::{apply_transforms, ConnectionInterface, FeatureFlags, Programs};
+use relay_transforms::{apply_transforms, ConnectionInterface, Programs};
 use relay_typegen::{generate_fragment_type, generate_operation_type, TypegenConfig};
 use schema::SDLSchema;
 use serde::Serialize;

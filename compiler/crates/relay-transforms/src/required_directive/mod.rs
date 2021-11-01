@@ -5,10 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, WithLocation};
+use common::{Diagnostic, DiagnosticsResult, FeatureFlags, Location, NamedItem, WithLocation};
 mod requireable_field;
 
-use super::FeatureFlags;
 use fnv::FnvHashMap;
 use graphql_ir::{
     associated_data_impl, Directive, Field, FragmentDefinition, InlineFragment, LinkedField,

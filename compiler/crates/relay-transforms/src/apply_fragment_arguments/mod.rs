@@ -9,12 +9,11 @@ mod scope;
 
 use super::get_applied_fragment_name;
 use crate::{
-    feature_flags::FeatureFlag,
     match_::SplitOperationMetadata,
     no_inline::{is_raw_response_type_enabled, NO_INLINE_DIRECTIVE_NAME, PARENT_DOCUMENTS_ARG},
     util::get_normalization_operation_name,
 };
-use common::{Diagnostic, DiagnosticsResult, NamedItem, WithLocation};
+use common::{Diagnostic, DiagnosticsResult, FeatureFlag, NamedItem, WithLocation};
 use fnv::{FnvHashMap, FnvHashSet};
 use graphql_ir::{
     Condition, ConditionValue, ConstantValue, Directive, FragmentDefinition, FragmentSpread,

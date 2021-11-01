@@ -11,9 +11,11 @@
 
 mod console_logger;
 mod diagnostic;
+mod feature_flags;
 mod location;
 mod named_item;
 mod perf_logger;
+mod rollout;
 mod span;
 pub mod sync;
 
@@ -22,8 +24,10 @@ pub use diagnostic::{
     combined_result, diagnostics_result, Diagnostic, DiagnosticDisplay, DiagnosticsResult,
     WithDiagnosticData, WithDiagnostics,
 };
+pub use feature_flags::{FeatureFlag, FeatureFlags};
 pub use location::{Location, SourceLocationKey, WithLocation};
 pub use lsp_types::{DiagnosticSeverity, DiagnosticTag};
 pub use named_item::{Named, NamedItem};
 pub use perf_logger::{NoopPerfLogger, NoopPerfLoggerEvent, PerfLogEvent, PerfLogger};
+pub use rollout::Rollout;
 pub use span::Span;

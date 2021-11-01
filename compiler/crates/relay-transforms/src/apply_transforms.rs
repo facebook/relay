@@ -8,7 +8,7 @@
 use crate::match_::hash_supported_argument;
 
 use super::*;
-use common::{sync::try_join, DiagnosticsResult, PerfLogEvent, PerfLogger};
+use common::{sync::try_join, DiagnosticsResult, FeatureFlags, PerfLogEvent, PerfLogger};
 use fnv::FnvHashSet;
 use graphql_ir::Program;
 use interner::StringKey;

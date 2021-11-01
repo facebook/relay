@@ -6,16 +6,12 @@
  */
 
 use super::ValidationMessage;
+use crate::util::{get_fragment_filename, get_normalization_operation_name};
 use crate::{
     match_::SplitOperationMetadata,
     no_inline::{attach_no_inline_directives_to_fragments, validate_required_no_inline_directive},
-    FeatureFlag,
 };
-use crate::{
-    util::{get_fragment_filename, get_normalization_operation_name},
-    FeatureFlags,
-};
-use common::{Diagnostic, DiagnosticsResult, NamedItem, WithLocation};
+use common::{Diagnostic, DiagnosticsResult, FeatureFlag, FeatureFlags, NamedItem, WithLocation};
 use fnv::{FnvHashMap, FnvHashSet};
 use graphql_ir::{
     associated_data_impl, Argument, ConstantValue, Directive, FragmentDefinition, FragmentSpread,

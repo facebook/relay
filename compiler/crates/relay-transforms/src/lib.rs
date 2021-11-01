@@ -20,7 +20,6 @@ mod connections;
 mod declarative_connection;
 mod defer_stream;
 mod errors;
-mod feature_flags;
 mod flatten;
 mod generate_data_driven_dependency_metadata;
 mod generate_id_field;
@@ -45,7 +44,6 @@ mod relay_directive;
 mod relay_resolvers;
 mod remove_base_fragments;
 mod required_directive;
-mod rollout;
 mod root_variables;
 mod skip_client_directives;
 mod skip_client_extensions;
@@ -91,7 +89,6 @@ pub use declarative_connection::transform_declarative_connection;
 pub use defer_stream::{
     transform_defer_stream, DeferDirective, StreamDirective, DEFER_STREAM_CONSTANTS,
 };
-pub use feature_flags::{FeatureFlag, FeatureFlags};
 pub use flatten::flatten;
 pub use generate_data_driven_dependency_metadata::{
     generate_data_driven_dependency_metadata, DATA_DRIVEN_DEPENDENCY_METADATA_KEY,
@@ -141,7 +138,6 @@ pub use required_directive::{
     required_directive, RequiredAction, RequiredMetadataDirective, ACTION_ARGUMENT,
     CHILDREN_CAN_BUBBLE_METADATA_KEY,
 };
-pub use rollout::Rollout;
 pub use skip_client_directives::skip_client_directives;
 pub use skip_client_extensions::skip_client_extensions;
 pub use skip_null_arguments_transform::skip_null_arguments_transform;

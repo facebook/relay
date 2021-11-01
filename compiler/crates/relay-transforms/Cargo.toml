@@ -110,7 +110,6 @@ indexmap = { version = "1.7.0", features = ["rayon", "serde-1"] }
 interner = { path = "../interner" }
 itertools = "0.10.1"
 lazy_static = "1.0"
-md-5 = "0.8"
 once_cell = "1.8"
 parking_lot = "0.10.2"
 regex = "1.5.4"

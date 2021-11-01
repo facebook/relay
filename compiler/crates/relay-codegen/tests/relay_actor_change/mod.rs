@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::SourceLocationKey;
+use common::{FeatureFlag, SourceLocationKey};
 use fixture_tests::Fixture;
 use graphql_ir::{build, Program};
 use graphql_test_helpers::diagnostics_to_sorted_string;
@@ -13,7 +13,7 @@ use graphql_test_helpers::diagnostics_to_sorted_string;
 use graphql_syntax::parse_executable;
 use relay_codegen::{print_fragment, print_operation, JsModuleFormat};
 use relay_test_schema::get_test_schema;
-use relay_transforms::{relay_actor_change_transform, FeatureFlag};
+use relay_transforms::relay_actor_change_transform;
 use std::sync::Arc;
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {

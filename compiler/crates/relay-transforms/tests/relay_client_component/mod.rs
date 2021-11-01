@@ -5,9 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use common::FeatureFlags;
 use fixture_tests::Fixture;
 use graphql_test_helpers::apply_transform_for_test;
-use relay_transforms::{relay_client_component, FeatureFlags};
+use relay_transforms::relay_client_component;
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let flags = FeatureFlags::default();

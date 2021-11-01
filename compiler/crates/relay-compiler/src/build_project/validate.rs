@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::DiagnosticsResult;
+use common::{DiagnosticsResult, FeatureFlags};
 use errors::try_all;
 use graphql_ir::Program;
 use relay_transforms::{
@@ -13,7 +13,6 @@ use relay_transforms::{
     validate_connections, validate_module_names,
     validate_no_inline_fragments_with_raw_response_type, validate_relay_directives,
     validate_unused_fragment_variables, validate_unused_variables, ConnectionInterface,
-    FeatureFlags,
 };
 
 pub type AdditionalValidations =

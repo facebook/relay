@@ -8,8 +8,8 @@
 use std::sync::Arc;
 
 use super::MATCH_CONSTANTS;
-use crate::{murmurhash::murmurhash, FeatureFlag, FeatureFlags};
-use common::{Diagnostic, DiagnosticsResult, NamedItem};
+use crate::murmurhash::murmurhash;
+use common::{Diagnostic, DiagnosticsResult, FeatureFlag, FeatureFlags, NamedItem};
 use graphql_ir::{ConstantValue, LinkedField, Program, Selection, Transformed, Transformer, Value};
 use interner::Intern;
 use schema::{SDLSchema, Schema, TypeReference};

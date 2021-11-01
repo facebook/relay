@@ -28,7 +28,7 @@ use crate::{artifact_map::ArtifactMap, graphql_asts::GraphQLAsts};
 use build_ir::BuildIRResult;
 pub use build_ir::SourceHashes;
 pub use build_schema::build_schema;
-use common::{sync::*, PerfLogEvent, PerfLogger};
+use common::{sync::*, FeatureFlags, PerfLogEvent, PerfLogger};
 use dashmap::{mapref::entry::Entry, DashSet};
 use fnv::{FnvBuildHasher, FnvHashMap, FnvHashSet};
 pub use generate_artifacts::{
@@ -39,9 +39,7 @@ use interner::StringKey;
 use log::{debug, info, warn};
 use rayon::{iter::IntoParallelRefIterator, slice::ParallelSlice};
 use relay_codegen::Printer;
-use relay_transforms::{
-    apply_transforms, find_resolver_dependencies, DependencyMap, FeatureFlags, Programs,
-};
+use relay_transforms::{apply_transforms, find_resolver_dependencies, DependencyMap, Programs};
 use schema::SDLSchema;
 pub use source_control::add_to_mercurial;
 use std::iter::FromIterator;

@@ -5,10 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use common::Rollout;
 use fnv::FnvBuildHasher;
 use indexmap::{IndexMap, IndexSet};
 use interner::StringKey;
-use relay_transforms::Rollout;
 use serde::{Deserialize, Serialize};
 
 type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;

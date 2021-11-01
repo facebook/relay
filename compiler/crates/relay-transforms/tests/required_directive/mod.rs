@@ -5,11 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::DiagnosticsResult;
+use common::{DiagnosticsResult, FeatureFlags};
 use fixture_tests::Fixture;
 use graphql_ir::Program;
 use graphql_test_helpers::apply_transform_for_test;
-use relay_transforms::{required_directive, FeatureFlags};
+use relay_transforms::required_directive;
 
 fn transform(program: &Program) -> DiagnosticsResult<Program> {
     required_directive(

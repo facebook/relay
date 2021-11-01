@@ -5,10 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::FeatureFlag;
-
 use super::ValidationMessage;
-use common::{Diagnostic, DiagnosticsResult, NamedItem, WithLocation};
+use common::{Diagnostic, DiagnosticsResult, FeatureFlag, NamedItem, WithLocation};
 use graphql_ir::{
     Directive, Field, InlineFragment, LinkedField, Program, ScalarField, Selection, Transformed,
     Transformer,

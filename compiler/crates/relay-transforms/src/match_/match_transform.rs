@@ -7,14 +7,14 @@
 
 use crate::{
     defer_stream::DEFER_STREAM_CONSTANTS,
-    feature_flags::FeatureFlags,
     inline_data_fragment::INLINE_DIRECTIVE_NAME,
     match_::MATCH_CONSTANTS,
     no_inline::{attach_no_inline_directives_to_fragments, validate_required_no_inline_directive},
     util::get_normalization_operation_name,
-    FeatureFlag,
 };
-use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, WithLocation};
+use common::{
+    Diagnostic, DiagnosticsResult, FeatureFlag, FeatureFlags, Location, NamedItem, WithLocation,
+};
 use fnv::{FnvBuildHasher, FnvHashMap};
 use graphql_ir::{
     associated_data_impl, Argument, ConstantValue, Directive, Field, FragmentDefinition,

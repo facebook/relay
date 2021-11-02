@@ -66,6 +66,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         actor_change_support: FeatureFlag::Enabled,
         text_artifacts: FeatureFlag::Disabled,
         enable_client_edges: FeatureFlag::Enabled,
+        enable_provided_variables: FeatureFlag::Disabled,
     };
 
     // TODO pass base fragment names

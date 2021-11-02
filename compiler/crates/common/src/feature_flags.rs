@@ -49,6 +49,9 @@ pub struct FeatureFlags {
 
     #[serde(default)]
     pub enable_client_edges: FeatureFlag,
+
+    #[serde(default)]
+    pub enable_provided_variables: FeatureFlag,
 }
 
 #[derive(Debug, Deserialize, Clone, Serialize)]

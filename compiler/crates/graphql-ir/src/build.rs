@@ -9,7 +9,7 @@ use crate::errors::{ValidationMessage, ValidationMessageWithData};
 use crate::ir::*;
 use crate::signatures::{build_signatures, FragmentSignature, FragmentSignatures};
 use crate::{constants::ARGUMENT_DEFINITION, GraphQLSuggestions};
-use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, Span, WithLocation};
+use common::{Diagnostic, DiagnosticsResult, FeatureFlag, Location, NamedItem, Span, WithLocation};
 use core::cmp::Ordering;
 use errors::{par_try_map, try2, try3, try_map};
 use fnv::{FnvBuildHasher, FnvHashMap, FnvHashSet};
@@ -49,9 +49,11 @@ pub enum FragmentVariablesSemantic {
     PassedValue,
 }
 
-pub struct RelayMode {}
+pub struct RelayMode<'a> {
+    pub enable_provided_variables: &'a FeatureFlag,
+}
 
-pub struct BuilderOptions {
+pub struct BuilderOptions<'a> {
     /// Do not error when a fragment spread references a fragment that is not
     /// defined in the same program.
     pub allow_undefined_fragment_spreads: bool,
@@ -63,7 +65,7 @@ pub struct BuilderOptions {
     /// - Fields with a @match directive are not required to pass the non-nullable
     ///   `supported` argument.
     /// - use provided variable
-    pub relay_mode: Option<RelayMode>,
+    pub relay_mode: Option<RelayMode<'a>>,
 
     /// By default Relay doesn't allow the use of anonymous operations,
     /// but operations without name are valid, and can be executed on a server.
@@ -78,19 +80,19 @@ pub fn build_ir_with_relay_options(
     schema: &SDLSchema,
     definitions: &[graphql_syntax::ExecutableDefinition],
 ) -> DiagnosticsResult<Vec<ExecutableDefinition>> {
-    let signatures = build_signatures(schema, &definitions)?;
+    let enable_provided_variables = FeatureFlag::default();
+    let signatures = build_signatures(schema, definitions, &enable_provided_variables)?;
+    let builder_options = BuilderOptions {
+        allow_undefined_fragment_spreads: false,
+        fragment_variables_semantic: FragmentVariablesSemantic::PassedValue,
+        relay_mode: Some(RelayMode {
+            enable_provided_variables: &enable_provided_variables,
+        }),
+        default_anonymous_operation_name: None,
+    };
     par_try_map(definitions, |definition| {
-        let mut builder = Builder::new(
-            schema,
-            &signatures,
-            definition.location(),
-            &BuilderOptions {
-                allow_undefined_fragment_spreads: false,
-                fragment_variables_semantic: FragmentVariablesSemantic::PassedValue,
-                relay_mode: Some(RelayMode {}),
-                default_anonymous_operation_name: None,
-            },
-        );
+        let mut builder =
+            Builder::new(schema, &signatures, definition.location(), &builder_options);
         builder.build_definition(definition)
     })
 }
@@ -101,9 +103,13 @@ pub fn build_ir_with_relay_options(
 pub fn build_ir_with_extra_features(
     schema: &SDLSchema,
     definitions: &[graphql_syntax::ExecutableDefinition],
-    options: &BuilderOptions,
+    options: &BuilderOptions<'_>,
 ) -> DiagnosticsResult<Vec<ExecutableDefinition>> {
-    let signatures = build_signatures(schema, &definitions)?;
+    let enable_provided_variables = match &options.relay_mode {
+        Some(options) => options.enable_provided_variables,
+        None => &FeatureFlag::Disabled,
+    };
+    let signatures = build_signatures(schema, definitions, enable_provided_variables)?;
     par_try_map(definitions, |definition| {
         let mut builder = Builder::new(schema, &signatures, definition.location(), options);
         builder.build_definition(definition)
@@ -210,7 +216,7 @@ struct Builder<'schema, 'signatures, 'options> {
     location: Location,
     defined_variables: VariableDefinitions,
     used_variables: UsedVariables,
-    options: &'options BuilderOptions,
+    options: &'options BuilderOptions<'options>,
     suggestions: GraphQLSuggestions<'schema>,
 }
 
@@ -219,7 +225,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
         schema: &'schema SDLSchema,
         signatures: &'signatures FragmentSignatures,
         location: Location,
-        options: &'options BuilderOptions,
+        options: &'options BuilderOptions<'options>,
     ) -> Self {
         Self {
             schema,

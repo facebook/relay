@@ -7,7 +7,7 @@
 
 use std::{collections::HashSet, sync::Arc};
 
-use common::{PerfLogger, SourceLocationKey};
+use common::{FeatureFlag, PerfLogger, SourceLocationKey};
 use graphql_ir::{
     build_ir_with_extra_features, BuilderOptions, ExecutableDefinition, FragmentDefinition,
     FragmentVariablesSemantic, OperationDefinition, Program, Selection,
@@ -156,6 +156,7 @@ fn print_full_operation_text(programs: Programs, operation_name: StringKey) -> S
 fn build_operation_ir_with_fragments(
     definitions: &[graphql_syntax::ExecutableDefinition],
     schema: Arc<SDLSchema>,
+    enable_provided_variables: &FeatureFlag,
 ) -> Result<(Arc<OperationDefinition>, Vec<Arc<FragmentDefinition>>), String> {
     let ir = build_ir_with_extra_features(
         &schema,
@@ -163,7 +164,9 @@ fn build_operation_ir_with_fragments(
         &BuilderOptions {
             allow_undefined_fragment_spreads: true,
             fragment_variables_semantic: FragmentVariablesSemantic::PassedValue,
-            relay_mode: Some(graphql_ir::RelayMode {}),
+            relay_mode: Some(graphql_ir::RelayMode {
+                enable_provided_variables,
+            }),
             default_anonymous_operation_name: Some("anonymous".intern()),
         },
     )
@@ -226,9 +229,12 @@ pub(crate) fn get_query_text<
         ));
     }
 
-    let (operation, fragments) =
-        build_operation_ir_with_fragments(&result.item.definitions, schema)
-            .map_err(LSPRuntimeError::UnexpectedError)?;
+    let (operation, fragments) = build_operation_ir_with_fragments(
+        &result.item.definitions,
+        schema,
+        &project_config.feature_flags.enable_provided_variables,
+    )
+    .map_err(LSPRuntimeError::UnexpectedError)?;
 
     let operation_name = operation.name.item;
     let program = state.get_program(project_name)?;

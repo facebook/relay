@@ -49,7 +49,8 @@ pub enum FragmentVariablesSemantic {
     PassedValue,
 }
 
-#[derive(Clone, Copy)]
+pub struct RelayMode {}
+
 pub struct BuilderOptions {
     /// Do not error when a fragment spread references a fragment that is not
     /// defined in the same program.
@@ -61,7 +62,8 @@ pub struct BuilderOptions {
     /// Enable a Relay special cases:
     /// - Fields with a @match directive are not required to pass the non-nullable
     ///   `supported` argument.
-    pub relay_mode: bool,
+    /// - use provided variable
+    pub relay_mode: Option<RelayMode>,
 
     /// By default Relay doesn't allow the use of anonymous operations,
     /// but operations without name are valid, and can be executed on a server.
@@ -82,10 +84,10 @@ pub fn build_ir_with_relay_options(
             schema,
             &signatures,
             definition.location(),
-            BuilderOptions {
+            &BuilderOptions {
                 allow_undefined_fragment_spreads: false,
                 fragment_variables_semantic: FragmentVariablesSemantic::PassedValue,
-                relay_mode: true,
+                relay_mode: Some(RelayMode {}),
                 default_anonymous_operation_name: None,
             },
         );
@@ -99,7 +101,7 @@ pub fn build_ir_with_relay_options(
 pub fn build_ir_with_extra_features(
     schema: &SDLSchema,
     definitions: &[graphql_syntax::ExecutableDefinition],
-    options: BuilderOptions,
+    options: &BuilderOptions,
 ) -> DiagnosticsResult<Vec<ExecutableDefinition>> {
     let signatures = build_signatures(schema, &definitions)?;
     par_try_map(definitions, |definition| {
@@ -118,10 +120,10 @@ pub fn build_type_annotation(
         schema,
         &signatures,
         location,
-        BuilderOptions {
+        &BuilderOptions {
             allow_undefined_fragment_spreads: false,
             fragment_variables_semantic: FragmentVariablesSemantic::Disabled,
-            relay_mode: false,
+            relay_mode: None,
             default_anonymous_operation_name: None,
         },
     );
@@ -139,10 +141,10 @@ pub fn build_directive(
         schema,
         &signatures,
         location,
-        BuilderOptions {
+        &BuilderOptions {
             allow_undefined_fragment_spreads: false,
             fragment_variables_semantic: FragmentVariablesSemantic::Disabled,
-            relay_mode: false,
+            relay_mode: None,
             default_anonymous_operation_name: None,
         },
     );
@@ -161,10 +163,10 @@ pub fn build_constant_value(
         schema,
         &signatures,
         location,
-        BuilderOptions {
+        &BuilderOptions {
             allow_undefined_fragment_spreads: false,
             fragment_variables_semantic: FragmentVariablesSemantic::Disabled,
-            relay_mode: false,
+            relay_mode: None,
             default_anonymous_operation_name: None,
         },
     );
@@ -181,10 +183,10 @@ pub fn build_variable_definitions(
         schema,
         &signatures,
         location,
-        BuilderOptions {
+        &BuilderOptions {
             allow_undefined_fragment_spreads: false,
             fragment_variables_semantic: FragmentVariablesSemantic::Disabled,
-            relay_mode: false,
+            relay_mode: None,
             default_anonymous_operation_name: None,
         },
     );
@@ -202,22 +204,22 @@ struct VariableUsage {
     type_: TypeReference,
 }
 
-struct Builder<'schema, 'signatures> {
+struct Builder<'schema, 'signatures, 'options> {
     schema: &'schema SDLSchema,
     signatures: &'signatures FragmentSignatures,
     location: Location,
     defined_variables: VariableDefinitions,
     used_variables: UsedVariables,
-    options: BuilderOptions,
+    options: &'options BuilderOptions,
     suggestions: GraphQLSuggestions<'schema>,
 }
 
-impl<'schema, 'signatures> Builder<'schema, 'signatures> {
+impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
     pub fn new(
         schema: &'schema SDLSchema,
         signatures: &'signatures FragmentSignatures,
         location: Location,
-        options: BuilderOptions,
+        options: &'options BuilderOptions,
     ) -> Self {
         Self {
             schema,
@@ -661,7 +663,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         let signature = match self.signatures.get(&spread.name.value) {
             Some(fragment) => fragment,
             None if self.options.allow_undefined_fragment_spreads => {
-                let directives = if self.options.relay_mode {
+                let directives = if self.options.relay_mode.is_some() {
                     self.build_directives(
                         spread.directives.iter().filter(|directive| {
                             directive.name.value != *DIRECTIVE_ARGUMENTS
@@ -894,7 +896,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
             )]);
         }
         let alias = self.build_alias(&field.alias);
-        let relay_supported_arg_optional = self.options.relay_mode;
+        let relay_supported_arg_optional = self.options.relay_mode.is_some();
         let arguments = self.build_arguments(
             field.name.span,
             &field.arguments,
@@ -928,7 +930,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         let field_name = field.name.value;
         if field_name == *TYPENAME_FIELD_NAME {
             return self.build_typename_field(field);
-        } else if self.options.relay_mode && field_name == *CLIENT_ID_FIELD_NAME {
+        } else if self.options.relay_mode.is_some() && field_name == *CLIENT_ID_FIELD_NAME {
             return self.build_clientid_field(field);
         } else if field_name == *FETCH_TOKEN_FIELD_NAME {
             return self.build_fetch_token_field(field);

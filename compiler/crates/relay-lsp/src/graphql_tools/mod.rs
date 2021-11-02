@@ -160,10 +160,10 @@ fn build_operation_ir_with_fragments(
     let ir = build_ir_with_extra_features(
         &schema,
         definitions,
-        BuilderOptions {
+        &BuilderOptions {
             allow_undefined_fragment_spreads: true,
             fragment_variables_semantic: FragmentVariablesSemantic::PassedValue,
-            relay_mode: true,
+            relay_mode: Some(graphql_ir::RelayMode {}),
             default_anonymous_operation_name: Some("anonymous".intern()),
         },
     )

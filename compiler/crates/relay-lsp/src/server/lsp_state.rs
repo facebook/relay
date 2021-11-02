@@ -22,7 +22,7 @@ use crossbeam::channel::{SendError, Sender};
 use dashmap::{mapref::entry::Entry, DashMap};
 use fnv::FnvBuildHasher;
 use graphql_ir::{
-    build_ir_with_extra_features, BuilderOptions, FragmentVariablesSemantic, Program,
+    build_ir_with_extra_features, BuilderOptions, FragmentVariablesSemantic, Program, RelayMode,
 };
 use graphql_syntax::{
     parse_executable_with_error_recovery, ExecutableDefinition, ExecutableDocument, GraphQLSource,
@@ -209,10 +209,10 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             let compiler_diagnostics = match build_ir_with_extra_features(
                 &schema,
                 &result.item.definitions,
-                BuilderOptions {
+                &BuilderOptions {
                     allow_undefined_fragment_spreads: true,
                     fragment_variables_semantic: FragmentVariablesSemantic::PassedValue,
-                    relay_mode: true,
+                    relay_mode: Some(RelayMode {}),
                     default_anonymous_operation_name: None,
                 },
             )

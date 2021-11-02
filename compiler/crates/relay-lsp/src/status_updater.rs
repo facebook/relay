@@ -89,7 +89,7 @@ pub(crate) fn update_in_progress_status(
     update_status(short_message, message, MessageType::Warning, sender);
 }
 
-fn update_status(
+pub fn update_status(
     short_message: impl Into<String>,
     message: Option<impl Into<String>>,
     type_: MessageType,

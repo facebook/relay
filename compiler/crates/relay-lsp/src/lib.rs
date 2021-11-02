@@ -28,7 +28,7 @@ mod search_schema_items;
 mod server;
 mod shutdown;
 mod status_reporter;
-mod status_updater;
+pub mod status_updater;
 pub mod text_documents;
 pub mod utils;
 use common::PerfLogger;

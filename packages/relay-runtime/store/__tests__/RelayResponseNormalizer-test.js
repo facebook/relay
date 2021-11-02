@@ -1642,69 +1642,6 @@ describe('RelayResponseNormalizer', () => {
       expect(recordSource.toJSON()).toEqual(result);
     });
 
-    it('skips client fields not present in the payload but present in the store when treatMissingFieldsAsNull is true', () => {
-      const recordSource = new RelayRecordSource({
-        '1': {
-          __id: '1',
-          __typename: 'User',
-          id: '1',
-          firstName: 'Alice',
-          nickname: 'ecilA',
-        },
-        'client:root': {
-          __id: 'client:root',
-          __typename: '__Root',
-          'node(id:"1")': {__ref: '1'},
-        },
-      });
-      // TODO: This warning was detected when we started to enforce warnings in this test (D28091790). Payload needs to be updated.
-      expectWarningWillFire(
-        'RelayResponseNormalizer: Invalid record. The record contains two instances of the same id: `1` with conflicting field, firstName and its values: Alice and Bob. If two fields are different but share the same id, one field will overwrite the other.',
-      );
-      normalize(
-        recordSource,
-        createNormalizationSelector(
-          getRequest(StrippedQuery).operation,
-          ROOT_ID,
-          {
-            id: '1',
-            size: 32,
-          },
-        ),
-        payload,
-        {...defaultOptions, treatMissingFieldsAsNull: true},
-      );
-      const result = {
-        '1': {
-          __id: '1',
-          __typename: 'User',
-          id: '1',
-          firstName: 'Bob',
-          nickname: 'ecilA',
-        },
-        'client:root': {
-          __id: 'client:root',
-          __typename: '__Root',
-          'node(id:"1")': {__ref: '1'},
-        },
-      };
-      expect(recordSource.toJSON()).toEqual(result);
-      normalize(
-        recordSource,
-        createNormalizationSelector(
-          getRequest(StrippedQuery).operation,
-          ROOT_ID,
-          {
-            id: '1',
-            size: 32,
-          },
-        ),
-        payload,
-        defaultOptions,
-      );
-      expect(recordSource.toJSON()).toEqual(result);
-    });
-
     it('skips client fields not present in the payload or store', () => {
       const recordSource = new RelayRecordSource({
         '1': {
@@ -2713,6 +2650,62 @@ describe('RelayResponseNormalizer', () => {
     );
   });
 
+  it('does not warn if a single response contains the same fields with the same id', () => {
+    const BarQuery = graphql`
+      query RelayResponseNormalizerTest32Query($id: ID) {
+        node(id: $id) {
+          id
+          __typename
+          ... on User {
+            name
+            friends(first: 2) {
+              edges {
+                node {
+                  id
+                  firstName
+                }
+              }
+            }
+          }
+        }
+      }
+    `;
+
+    const payload = {
+      node: {
+        id: '1',
+        __typename: 'User',
+        name: 'Alice',
+        friends: {
+          edges: [
+            {
+              node: {
+                id: 'a',
+                firstName: 'Bob',
+              },
+            },
+            {
+              node: {
+                id: 'a',
+                firstName: 'Bob',
+              },
+            },
+          ],
+        },
+      },
+    };
+    const recordSource = new RelayRecordSource();
+    recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
+    normalize(
+      recordSource,
+      createNormalizationSelector(getRequest(BarQuery).operation, ROOT_ID, {
+        id: '1',
+      }),
+      payload,
+      defaultOptions,
+    );
+  });
+
   it('does not warn if a single response contains the same scalar array value', () => {
     const BarQuery = graphql`
       query RelayResponseNormalizerTest23Query($id: ID) {
@@ -3245,6 +3238,207 @@ describe('RelayResponseNormalizer', () => {
           __ref: '1',
         },
       },
+    });
+  });
+
+  describe('when treatMissingFieldsAsNull is true', () => {
+    it('set undefined fields to null', () => {
+      const StrippedQuery = graphql`
+        query RelayResponseNormalizerTest33Query($id: ID, $size: [Int]) {
+          node(id: $id) {
+            id
+            __typename
+            ... on User {
+              firstName
+              profilePicture(size: $size) {
+                uri
+              }
+            }
+          }
+        }
+      `;
+
+      const payload = {
+        node: {
+          id: '1',
+          __typename: 'User',
+          firstName: 'Alice',
+        },
+      };
+      const recordSource = new RelayRecordSource();
+      recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
+
+      normalize(
+        recordSource,
+        createNormalizationSelector(
+          getRequest(StrippedQuery).operation,
+          ROOT_ID,
+          {
+            id: '1',
+            size: 32,
+          },
+        ),
+        payload,
+        {...defaultOptions, treatMissingFieldsAsNull: true},
+      );
+      expect(recordSource.toJSON()).toEqual({
+        '1': {
+          __id: '1',
+          __typename: 'User',
+          id: '1',
+          firstName: 'Alice',
+          'profilePicture(size:32)': null,
+        },
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {
+            __ref: '1',
+          },
+        },
+      });
+    });
+
+    it('skips client fields not present in the payload but present in the store', () => {
+      const StrippedQuery = graphql`
+        query RelayResponseNormalizerTest34Query($id: ID) {
+          node(id: $id) {
+            id
+            __typename
+            ... on User {
+              firstName
+              nickname
+              foo {
+                bar {
+                  content
+                }
+              }
+            }
+          }
+        }
+      `;
+
+      const payload = {
+        node: {
+          id: '1',
+          __typename: 'User',
+          firstName: 'Bob',
+        },
+      };
+      const recordSource = new RelayRecordSource({
+        '1': {
+          __id: '1',
+          __typename: 'User',
+          id: '1',
+          firstName: 'Alice',
+          nickname: 'ecilA',
+        },
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {__ref: '1'},
+        },
+      });
+      // TODO: This warning was detected when we started to enforce warnings in this test (D28091790). Payload needs to be updated.
+      expectWarningWillFire(
+        'RelayResponseNormalizer: Invalid record. The record contains two instances of the same id: `1` with conflicting field, firstName and its values: Alice and Bob. If two fields are different but share the same id, one field will overwrite the other.',
+      );
+      normalize(
+        recordSource,
+        createNormalizationSelector(
+          getRequest(StrippedQuery).operation,
+          ROOT_ID,
+          {
+            id: '1',
+            size: 32,
+          },
+        ),
+        payload,
+        {...defaultOptions, treatMissingFieldsAsNull: true},
+      );
+      const result = {
+        '1': {
+          __id: '1',
+          __typename: 'User',
+          id: '1',
+          firstName: 'Bob',
+          nickname: 'ecilA',
+        },
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {__ref: '1'},
+        },
+      };
+      expect(recordSource.toJSON()).toEqual(result);
+      normalize(
+        recordSource,
+        createNormalizationSelector(
+          getRequest(StrippedQuery).operation,
+          ROOT_ID,
+          {
+            id: '1',
+            size: 32,
+          },
+        ),
+        payload,
+        defaultOptions,
+      );
+      expect(recordSource.toJSON()).toEqual(result);
+    });
+
+    it('does not warn if a single response contains the same fields with the same id', () => {
+      const BarQuery = graphql`
+        query RelayResponseNormalizerTest35Query($id: ID) {
+          node(id: $id) {
+            id
+            __typename
+            ... on User {
+              name
+              friends(first: 2) {
+                edges {
+                  node {
+                    id
+                    firstName
+                  }
+                }
+              }
+            }
+          }
+        }
+      `;
+
+      const payload = {
+        node: {
+          id: '1',
+          __typename: 'User',
+          name: 'Alice',
+          friends: {
+            edges: [
+              {
+                node: {
+                  id: 'a',
+                },
+              },
+              {
+                node: {
+                  id: 'a',
+                },
+              },
+            ],
+          },
+        },
+      };
+      const recordSource = new RelayRecordSource();
+      recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
+      normalize(
+        recordSource,
+        createNormalizationSelector(getRequest(BarQuery).operation, ROOT_ID, {
+          id: '1',
+        }),
+        payload,
+        {...defaultOptions, treatMissingFieldsAsNull: true},
+      );
     });
   });
 

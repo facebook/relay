@@ -505,7 +505,11 @@ class RelayResponseNormalizer {
           this._validateConflictingFieldsWithIdenticalId(
             record,
             storageKey,
-            fieldValue,
+            // When using `treatMissingFieldsAsNull` the conflicting validation raises a false positive
+            // because the value is set using `null` but validated using `fieldValue` which at this point
+            // will be `undefined`.
+            // Setting this to `null` matches the value that we actually set to the `fieldValue`.
+            null,
           );
         }
       }

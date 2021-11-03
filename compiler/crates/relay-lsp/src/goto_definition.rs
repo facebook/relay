@@ -8,7 +8,7 @@
 //! Utilities for providing the goto definition feature
 
 use crate::{
-    location::to_lsp_location_of_graphql_literal,
+    location::{to_lsp_location_in_graphql_file, to_lsp_location_of_graphql_literal},
     lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult},
     resolution_path::{
         IdentParent, IdentPath, LinkedFieldPath, ResolutionPath, ResolvePosition, ScalarFieldPath,
@@ -143,7 +143,7 @@ fn resolve_field<'a>(
             })?,
     );
 
-
+    // Step 1: is this field a resolver?
     if let Some(response) = get_relay_resolver_location(field, root_dir)? {
         return Ok(response);
     }
@@ -157,17 +157,22 @@ fn resolve_field<'a>(
             is_extension: field.is_extension,
         }),
     );
-    let FieldDefinitionSourceInfo {
-        file_path,
-        line_number,
-        is_local,
-    } = get_field_definition_source_info_result(provider_response)?;
-    if is_local {
-        Ok(GotoDefinitionResponse::Scalar(get_location(
-            &file_path,
-            line_number,
-        )?))
+
+    if let Ok(Some(source_info)) = provider_response {
+        // Step 2: does extra_data_provider know anything about this field?
+        if source_info.is_local {
+            Ok(GotoDefinitionResponse::Scalar(get_location(
+                &source_info.file_path,
+                source_info.line_number,
+            )?))
+        } else {
+            Err(LSPRuntimeError::ExpectedError)
+        }
+    } else if let Ok(location) = to_lsp_location_in_graphql_file(field.name.location, root_dir) {
+        // Step 3: is field a standalone graphql file?
+        Ok(GotoDefinitionResponse::Scalar(location))
     } else {
+        // Give up
         Err(LSPRuntimeError::ExpectedError)
     }
 }

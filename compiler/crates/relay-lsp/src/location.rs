@@ -45,6 +45,29 @@ pub fn to_contents_and_lsp_location_of_graphql_literal(
     }
 }
 
+pub fn to_lsp_location_in_graphql_file(
+    location: Location,
+    root_dir: &Path,
+) -> LSPRuntimeResult<lsp_types::Location> {
+    match location.source_location() {
+        SourceLocationKey::Standalone { path } => {
+            let abspath = root_dir.join(PathBuf::from(path.lookup()));
+
+            let file = std::fs::read(abspath.clone())
+                .map_err(|e| LSPRuntimeError::UnexpectedError(e.to_string()))?;
+            let file_contents = std::str::from_utf8(&file)
+                .map_err(|e| LSPRuntimeError::UnexpectedError(e.to_string()))?;
+
+            let uri = get_uri(&abspath)?;
+            let range = location.span().to_range(file_contents, 0, 0);
+            Ok(lsp_types::Location { uri, range })
+        }
+        _ => Err(LSPRuntimeError::UnexpectedError(
+            "Cannot get location of embedded or generated field in graphql file".to_string(),
+        )),
+    }
+}
+
 fn read_file_and_get_range(
     path_to_fragment: &PathBuf,
     index: usize,

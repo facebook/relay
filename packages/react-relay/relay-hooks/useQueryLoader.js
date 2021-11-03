@@ -103,12 +103,10 @@ function useQueryLoader<TQuery: OperationType>(
     PreloadedQuery<TQuery> | NullQueryReference,
   >(() => initialQueryReferenceInternal);
 
-  const [
-    previousInitialQueryReference,
-    setPreviousInitialQueryReference,
-  ] = useState<PreloadedQuery<TQuery> | NullQueryReference>(
-    () => initialQueryReferenceInternal,
-  );
+  const [previousInitialQueryReference, setPreviousInitialQueryReference] =
+    useState<PreloadedQuery<TQuery> | NullQueryReference>(
+      () => initialQueryReferenceInternal,
+    );
 
   if (initialQueryReferenceInternal !== previousInitialQueryReference) {
     // Rendering the query reference makes it "managed" by this hook, so

@@ -56,12 +56,8 @@ function refetchableFragmentTransform(
   const refetchOperations = buildRefetchMap(context);
   let nextContext = context;
   eachWithCombinedError(refetchOperations, ([refetchName, fragment]) => {
-    const {
-      identifierField,
-      path,
-      node,
-      transformedFragment,
-    } = buildRefetchOperation(schema, fragment, refetchName);
+    const {identifierField, path, node, transformedFragment} =
+      buildRefetchOperation(schema, fragment, refetchName);
     const connectionMetadata = extractConnectionMetadata(
       context.getSchema(),
       transformedFragment,

@@ -58,14 +58,12 @@ describe('useRefetchableFragmentNode with useTransition', () => {
       fragmentRef,
     ) {
       const [isPending, startTransition] = useTransition();
-      const {
-        fragmentData: data,
-        ...result
-      } = useRefetchableFragmentNodeOriginal(
-        fragmentNode,
-        fragmentRef,
-        'TestComponent',
-      );
+      const {fragmentData: data, ...result} =
+        useRefetchableFragmentNodeOriginal(
+          fragmentNode,
+          fragmentRef,
+          'TestComponent',
+        );
       refetch = (...args) => {
         let disposable = {dispose: () => {}};
         startTransition(() => {
@@ -168,7 +166,8 @@ describe('useRefetchableFragmentNode with useTransition', () => {
       return {
         [ID_KEY]: id,
         [FRAGMENTS_KEY]: {
-          useRefetchableFragmentNodeWithSuspenseTransitionTestNestedUserFragment: {},
+          useRefetchableFragmentNodeWithSuspenseTransitionTestNestedUserFragment:
+            {},
         },
         [FRAGMENT_OWNER_KEY]: owner.request,
         __isWithinUnmatchedTypeRefinement: false,
@@ -219,9 +218,9 @@ describe('useRefetchableFragmentNode with useTransition', () => {
       gqlRefetchQuery = require('./__generated__/useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragmentRefetchQuery.graphql');
       gqlFragment = getFragment(graphql`
         fragment useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragment on User
-          @refetchable(
-            queryName: "useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragmentRefetchQuery"
-          ) {
+        @refetchable(
+          queryName: "useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragmentRefetchQuery"
+        ) {
           id
           name
           profile_picture(scale: $scale) {
@@ -274,9 +273,8 @@ describe('useRefetchableFragmentNode with useTransition', () => {
 
         forceUpdate = _setCount;
 
-        const {
-          data: userData,
-        } = useRefetchableFragmentNodeWithSuspenseTransition(fragment, userRef);
+        const {data: userData} =
+          useRefetchableFragmentNodeWithSuspenseTransition(fragment, userRef);
         return <Renderer user={userData} />;
       };
 

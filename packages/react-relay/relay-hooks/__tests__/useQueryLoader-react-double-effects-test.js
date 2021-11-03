@@ -118,7 +118,7 @@ describe.skip('useQueryLoader-react-double-effects', () => {
     query = createOperationDescriptor(gqlQuery, variables);
 
     queryRenderLogs = [];
-    QueryComponent = function(props) {
+    QueryComponent = function (props) {
       const result = usePreloadedQuery(gqlQuery, (props.queryRef: $FlowFixMe));
 
       const name = result?.node?.name ?? 'Empty';
@@ -134,7 +134,7 @@ describe.skip('useQueryLoader-react-double-effects', () => {
     };
 
     loaderRenderLogs = [];
-    LoaderComponent = function(props) {
+    LoaderComponent = function (props) {
       const [queryRef, _loadQuery] = useQueryLoader(
         gqlQuery,
         props.initialQueryRef,
@@ -163,7 +163,7 @@ describe.skip('useQueryLoader-react-double-effects', () => {
       );
     };
 
-    render = function(initialQueryRef, {suspendWholeTree} = {}): $FlowFixMe {
+    render = function (initialQueryRef, {suspendWholeTree} = {}): $FlowFixMe {
       let instance;
       ReactTestRenderer.act(() => {
         instance = ReactTestRenderer.create(

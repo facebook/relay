@@ -21,8 +21,7 @@ module.exports = {
   projectName: 'relay',
   scripts: [
     {
-      src:
-        'https://widget.surveymonkey.com/collect/website/js/tRaiETqnLgj758hTBazgdx2NnQ5W6bg3p3XoJtoYjHDMWZrhV7glVKgJgKV87xxk.js',
+      src: 'https://widget.surveymonkey.com/collect/website/js/tRaiETqnLgj758hTBazgdx2NnQ5W6bg3p3XoJtoYjHDMWZrhV7glVKgJgKV87xxk.js',
       defer: true,
     },
   ],
@@ -223,7 +222,8 @@ module.exports = {
             external: [
               'current',
               ...versions.filter(
-                version => version !== 'experimental' && version !== 'classic',
+                (version) =>
+                  version !== 'experimental' && version !== 'classic',
               ),
             ],
           }),
@@ -249,7 +249,7 @@ module.exports = {
     [
       '@docusaurus/plugin-client-redirects',
       {
-        createRedirects: function(toPath) {
+        createRedirects: function (toPath) {
           if (toPath.startsWith('/docs/')) {
             const docPath = toPath.substring(6);
             const fromPaths = ['/docs/en/' + docPath];

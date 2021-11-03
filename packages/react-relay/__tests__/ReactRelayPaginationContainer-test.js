@@ -107,10 +107,10 @@ describe('ReactRelayPaginationContainer', () => {
 
     UserFragment = graphql`
       fragment ReactRelayPaginationContainerTestUserFragment on User
-        @argumentDefinitions(
-          isViewerFriendLocal: {type: "Boolean", defaultValue: false}
-          orderby: {type: "[String]"}
-        ) {
+      @argumentDefinitions(
+        isViewerFriendLocal: {type: "Boolean", defaultValue: false}
+        orderby: {type: "[String]"}
+      ) {
         id
         friends(
           after: $after
@@ -1892,22 +1892,23 @@ describe('ReactRelayPaginationContainer', () => {
       }
     }
 
-    const TestUnwrappingContainer = ReactRelayPaginationContainer.createContainer(
-      TestUnwrapping,
-      {
-        user: UserFragment,
-      },
-      {
-        direction: 'forward',
-        getConnectionFromProps,
-        getFragmentVariables: (vars, totalCount) => ({
-          ...vars,
-          count: totalCount,
-        }),
-        getVariables,
-        query: UserQuery,
-      },
-    );
+    const TestUnwrappingContainer =
+      ReactRelayPaginationContainer.createContainer(
+        TestUnwrapping,
+        {
+          user: UserFragment,
+        },
+        {
+          direction: 'forward',
+          getConnectionFromProps,
+          getFragmentVariables: (vars, totalCount) => ({
+            ...vars,
+            count: totalCount,
+          }),
+          getVariables,
+          query: UserQuery,
+        },
+      );
 
     const UnwrappedComponent = unwrapContainer(TestUnwrappingContainer);
 

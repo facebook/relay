@@ -112,7 +112,7 @@ beforeEach(() => {
     );
   }
 
-  render = function(env, mutation, commitInRender = false) {
+  render = function (env, mutation, commitInRender = false) {
     ReactTestRenderer.act(() => {
       instance = ReactTestRenderer.create(
         <Container

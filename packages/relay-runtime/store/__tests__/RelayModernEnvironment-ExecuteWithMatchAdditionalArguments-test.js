@@ -188,13 +188,13 @@ describe('execute() a query with @match with additional arguments', () => {
     expect(operationSnapshot.data).toEqual({
       node: {
         nameRendererForContext: {
-          __id:
-            'client:1:nameRendererForContext(context:"HEADER",supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+          __id: 'client:1:nameRendererForContext(context:"HEADER",supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
 
           __fragmentPropName: 'name',
 
           __fragments: {
-            RelayModernEnvironmentExecuteWithMatchAdditionalArgumentsTestMarkdownUserNameRenderer_name: {},
+            RelayModernEnvironmentExecuteWithMatchAdditionalArgumentsTestMarkdownUserNameRenderer_name:
+              {},
           },
 
           __fragmentOwner: operation.request,

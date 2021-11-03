@@ -84,42 +84,34 @@ function usePaginationFragment<
   const fragmentIdentifier = getFragmentIdentifier(fragmentNode, fragmentRef);
 
   // Backward pagination
-  const [
-    loadPrevious,
-    hasPrevious,
-    isLoadingPrevious,
-    disposeFetchPrevious,
-  ] = useLoadMore<TQuery>({
-    componentDisplayName,
-    connectionPathInFragmentData,
-    direction: 'backward',
-    fragmentData,
-    fragmentIdentifier,
-    fragmentNode,
-    fragmentRef,
-    identifierField,
-    paginationMetadata,
-    paginationRequest,
-  });
+  const [loadPrevious, hasPrevious, isLoadingPrevious, disposeFetchPrevious] =
+    useLoadMore<TQuery>({
+      componentDisplayName,
+      connectionPathInFragmentData,
+      direction: 'backward',
+      fragmentData,
+      fragmentIdentifier,
+      fragmentNode,
+      fragmentRef,
+      identifierField,
+      paginationMetadata,
+      paginationRequest,
+    });
 
   // Forward pagination
-  const [
-    loadNext,
-    hasNext,
-    isLoadingNext,
-    disposeFetchNext,
-  ] = useLoadMore<TQuery>({
-    componentDisplayName,
-    connectionPathInFragmentData,
-    direction: 'forward',
-    fragmentData,
-    fragmentIdentifier,
-    fragmentNode,
-    fragmentRef,
-    identifierField,
-    paginationMetadata,
-    paginationRequest,
-  });
+  const [loadNext, hasNext, isLoadingNext, disposeFetchNext] =
+    useLoadMore<TQuery>({
+      componentDisplayName,
+      connectionPathInFragmentData,
+      direction: 'forward',
+      fragmentData,
+      fragmentIdentifier,
+      fragmentNode,
+      fragmentRef,
+      identifierField,
+      paginationMetadata,
+      paginationRequest,
+    });
 
   const refetchPagination: RefetchFnDynamic<TQuery, TKey> = useCallback(
     (variables, options) => {

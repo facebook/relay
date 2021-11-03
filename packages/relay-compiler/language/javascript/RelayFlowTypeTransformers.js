@@ -24,7 +24,7 @@ const t = require('@babel/types');
 export type BabelTypes = typeof t;
 export type ScalarTypeMapping = {
   [type: string]: string | (BabelTypes => BabelNode_DEPRECATED),
-  ...,
+  ...
 };
 
 function getInputObjectTypeIdentifier(schema: Schema, typeID: TypeID): string {
@@ -165,9 +165,8 @@ function transformNonNullableInputType(
       return property;
     });
 
-    state.generatedInputObjectTypes[typeIdentifier] = exactObjectTypeAnnotation(
-      props,
-    );
+    state.generatedInputObjectTypes[typeIdentifier] =
+      exactObjectTypeAnnotation(props);
     return t.genericTypeAnnotation(t.identifier(typeIdentifier));
   } else {
     throw new Error(

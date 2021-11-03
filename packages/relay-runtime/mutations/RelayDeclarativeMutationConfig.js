@@ -39,7 +39,7 @@ export type RangeOperation = $Values<typeof RangeOperations>;
 
 type RangeBehaviorsFunction = (connectionArgs: {
   [name: string]: $FlowFixMe,
-  ...,
+  ...
 }) => RangeOperation;
 type RangeBehaviorsObject = {[key: string]: RangeOperation, ...};
 export type RangeBehaviors = RangeBehaviorsFunction | RangeBehaviorsObject;
@@ -243,12 +243,8 @@ function rangeDelete(
   config: RangeDeleteConfig,
   request: ConcreteRequest,
 ): ?SelectorStoreUpdater<mixed> {
-  const {
-    parentID,
-    connectionKeys,
-    pathToConnection,
-    deletedIDFieldName,
-  } = config;
+  const {parentID, connectionKeys, pathToConnection, deletedIDFieldName} =
+    config;
   if (!parentID) {
     warning(
       false,

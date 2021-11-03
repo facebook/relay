@@ -131,7 +131,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
     query = createOperationDescriptor(gqlQuery, variables);
 
     queryRenderLogs = [];
-    QueryComponent = function(props) {
+    QueryComponent = function (props) {
       const result = usePreloadedQuery(
         gqlQuery,
         (props.queries.TestQuery: $FlowFixMe),
@@ -150,7 +150,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
     };
 
     loaderRenderLogs = [];
-    LoaderComponent = function(props) {
+    LoaderComponent = function (props) {
       const [entryPointRef, _loadEntryPoint] = useEntryPointLoader(
         environmentProvider,
         props.entryPoint,
@@ -233,7 +233,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
       root: MockJSResourceReference(),
     };
 
-    render = function(
+    render = function (
       entryPoint,
       initialEntryPointRef,
       {suspendWholeTree} = {},

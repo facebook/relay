@@ -434,20 +434,21 @@ describe('RelayResponseNormalizer', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
-            __ref:
-              'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
+            {
+              __ref:
+                'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+            },
+        },
+        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
+          {
+            __id: 'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+            __typename: 'MarkdownUserNameRenderer',
+            __module_component_RelayResponseNormalizerTestFragment:
+              'MarkdownUserNameRenderer.react',
+            __module_operation_RelayResponseNormalizerTestFragment:
+              'RelayResponseNormalizerTestMarkdownUserNameRenderer_name$normalization.graphql',
           },
-        },
-        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
-          __id:
-            'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-          __typename: 'MarkdownUserNameRenderer',
-          __module_component_RelayResponseNormalizerTestFragment:
-            'MarkdownUserNameRenderer.react',
-          __module_operation_RelayResponseNormalizerTestFragment:
-            'RelayResponseNormalizerTestMarkdownUserNameRenderer_name$normalization.graphql',
-        },
         'client:root': {
           __id: 'client:root',
           __typename: '__Root',
@@ -516,20 +517,21 @@ describe('RelayResponseNormalizer', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
-            __ref:
-              'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
+            {
+              __ref:
+                'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+            },
+        },
+        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
+          {
+            __id: 'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+            __typename: 'MarkdownUserNameRenderer',
+            __module_component_RelayResponseNormalizerTestFragment:
+              'MarkdownUserNameRenderer.react',
+            __module_operation_RelayResponseNormalizerTestFragment:
+              'RelayResponseNormalizerTestMarkdownUserNameRenderer_name$normalization.graphql',
           },
-        },
-        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
-          __id:
-            'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-          __typename: 'MarkdownUserNameRenderer',
-          __module_component_RelayResponseNormalizerTestFragment:
-            'MarkdownUserNameRenderer.react',
-          __module_operation_RelayResponseNormalizerTestFragment:
-            'RelayResponseNormalizerTestMarkdownUserNameRenderer_name$normalization.graphql',
-        },
         'client:root': {
           __id: 'client:root',
           __typename: '__Root',
@@ -590,17 +592,18 @@ describe('RelayResponseNormalizer', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
-            __ref:
-              'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
+            {
+              __ref:
+                'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+            },
+        },
+        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
+          {
+            __id: 'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+            __typename: 'CustomNameRenderer',
+            // note: 'customField' data not processed, there is no selection on this type
           },
-        },
-        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
-          __id:
-            'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-          __typename: 'CustomNameRenderer',
-          // note: 'customField' data not processed, there is no selection on this type
-        },
         'client:root': {
           __id: 'client:root',
           __typename: '__Root',
@@ -633,7 +636,8 @@ describe('RelayResponseNormalizer', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': null,
+          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
+            null,
         },
         'client:root': {
           __id: 'client:root',
@@ -3534,8 +3538,7 @@ describe('RelayResponseNormalizer', () => {
               fragments: [
                 {
                   module: {
-                    __dr:
-                      'RelayResponseNormalizerTest_clientFragment$normalization.graphql',
+                    __dr: 'RelayResponseNormalizerTest_clientFragment$normalization.graphql',
                   },
                   __id: '3',
                   __typename: 'Story',
@@ -3546,8 +3549,7 @@ describe('RelayResponseNormalizer', () => {
                         __typename: 'Story',
                         name: 'React Server Components: The Musical',
                         body: {
-                          text:
-                            'Presenting a new musical from the director of Cats (2019)!',
+                          text: 'Presenting a new musical from the director of Cats (2019)!',
                         },
                       },
                     },
@@ -3651,7 +3653,8 @@ describe('RelayResponseNormalizer', () => {
             payload,
             {
               ...defaultOptions,
-              reactFlightPayloadDeserializer: dummyReactFlightPayloadDeserializer,
+              reactFlightPayloadDeserializer:
+                dummyReactFlightPayloadDeserializer,
             },
           );
         }).not.toThrow();
@@ -3708,7 +3711,8 @@ describe('RelayResponseNormalizer', () => {
             payload,
             {
               ...defaultOptions,
-              reactFlightPayloadDeserializer: dummyReactFlightPayloadDeserializer,
+              reactFlightPayloadDeserializer:
+                dummyReactFlightPayloadDeserializer,
               reactFlightServerErrorHandler,
             },
           );
@@ -3761,7 +3765,8 @@ describe('RelayResponseNormalizer', () => {
                 payload,
                 {
                   ...defaultOptions,
-                  reactFlightPayloadDeserializer: dummyReactFlightPayloadDeserializer,
+                  reactFlightPayloadDeserializer:
+                    dummyReactFlightPayloadDeserializer,
                 },
               );
             },
@@ -3835,7 +3840,8 @@ describe('RelayResponseNormalizer', () => {
             payload,
             {
               ...defaultOptions,
-              reactFlightPayloadDeserializer: dummyReactFlightPayloadDeserializer,
+              reactFlightPayloadDeserializer:
+                dummyReactFlightPayloadDeserializer,
             },
           );
         }).toThrow(/Payload did not contain a value for field/);
@@ -3871,7 +3877,8 @@ describe('RelayResponseNormalizer', () => {
               payload,
               {
                 ...defaultOptions,
-                reactFlightPayloadDeserializer: dummyReactFlightPayloadDeserializer,
+                reactFlightPayloadDeserializer:
+                  dummyReactFlightPayloadDeserializer,
               },
             );
           },
@@ -3895,8 +3902,7 @@ describe('RelayResponseNormalizer', () => {
               __typename: 'Story',
               name: 'React Server Components: The Musical',
               body: {
-                text:
-                  'Presenting a new musical from the director of Cats (2019)!',
+                text: 'Presenting a new musical from the director of Cats (2019)!',
               },
             },
           };
@@ -3991,8 +3997,7 @@ describe('RelayResponseNormalizer', () => {
               __typename: 'Story',
               name: 'React Server Components: The Musical',
               body: {
-                text:
-                  'Presenting a new musical from the director of Cats (2019)!',
+                text: 'Presenting a new musical from the director of Cats (2019)!',
               },
             },
           };

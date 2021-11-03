@@ -306,10 +306,8 @@ function getObservableForActiveRequest(
 function getRequestCache(
   environment: IEnvironment,
 ): Map<RequestIdentifier, RequestCacheEntry> {
-  const cached: ?Map<
-    RequestIdentifier,
-    RequestCacheEntry,
-  > = requestCachesByEnvironment.get(environment);
+  const cached: ?Map<RequestIdentifier, RequestCacheEntry> =
+    requestCachesByEnvironment.get(environment);
   if (cached != null) {
     return cached;
   }

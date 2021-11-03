@@ -82,12 +82,8 @@ function useLoadMoreFunction<TQuery: OperationType>(
     identifierField,
   } = args;
   const environment = useRelayEnvironment();
-  const {
-    isFetchingRef,
-    startFetch,
-    disposeFetch,
-    completeFetch,
-  } = useFetchTrackingRef();
+  const {isFetchingRef, startFetch, disposeFetch, completeFetch} =
+    useFetchTrackingRef();
   const identifierValue =
     identifierField != null &&
     fragmentData != null &&
@@ -96,9 +92,8 @@ function useLoadMoreFunction<TQuery: OperationType>(
       : null;
   const isMountedRef = useIsMountedRef();
   const [mirroredEnvironment, setMirroredEnvironment] = useState(environment);
-  const [mirroredFragmentIdentifier, setMirroredFragmentIdentifier] = useState(
-    fragmentIdentifier,
-  );
+  const [mirroredFragmentIdentifier, setMirroredFragmentIdentifier] =
+    useState(fragmentIdentifier);
 
   const isParentQueryActive = useIsOperationNodeActive(
     fragmentNode,

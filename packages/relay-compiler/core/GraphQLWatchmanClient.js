@@ -82,9 +82,7 @@ class GraphQLWatchmanClient {
     return resp.capabilities.includes(capability);
   }
 
-  async watchProject(
-    baseDir: string,
-  ): Promise<{
+  async watchProject(baseDir: string): Promise<{
     root: string,
     relativePath: string,
     ...

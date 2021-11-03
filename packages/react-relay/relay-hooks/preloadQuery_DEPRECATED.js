@@ -157,7 +157,8 @@ function preloadQueryDeduped<TQuery: OperationType>(
   let params;
   let query: ?ConcreteRequest;
   if (preloadableRequest.kind === 'PreloadableConcreteRequest') {
-    const preloadableConcreteRequest: PreloadableConcreteRequest<TQuery> = (preloadableRequest: $FlowFixMe);
+    const preloadableConcreteRequest: PreloadableConcreteRequest<TQuery> =
+      (preloadableRequest: $FlowFixMe);
     params = preloadableConcreteRequest.params;
     query = params.id != null ? PreloadableQueryRegistry.get(params.id) : null;
   } else {

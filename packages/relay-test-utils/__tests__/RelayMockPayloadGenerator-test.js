@@ -568,7 +568,7 @@ test('generate mock and verify arguments in the context', () => {
 test('generate mock for fragment with @argumentsDefinition', () => {
   graphql`
     fragment RelayMockPayloadGeneratorTest15Fragment on User
-      @argumentDefinitions(withName: {type: "Boolean!"}) {
+    @argumentDefinitions(withName: {type: "Boolean!"}) {
       id
       name @include(if: $withName)
       profile_picture(scale: $scale) {
@@ -600,7 +600,7 @@ test('generate mock for fragment with @argumentsDefinition', () => {
 test('generate mock for plural fragment', () => {
   graphql`
     fragment RelayMockPayloadGeneratorTest16Fragment on Comment
-      @relay(plural: true) {
+    @relay(plural: true) {
       id
       body {
         text
@@ -673,7 +673,7 @@ test('generate mock for with directives and handlers', () => {
   `;
   graphql`
     fragment RelayMockPayloadGeneratorTest22Fragment on User
-      @argumentDefinitions(condition: {type: "Boolean!"}) {
+    @argumentDefinitions(condition: {type: "Boolean!"}) {
       id
       name
       myActor: actor {

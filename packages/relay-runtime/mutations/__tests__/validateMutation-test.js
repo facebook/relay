@@ -191,8 +191,7 @@ describe('validateOptimisticResponse', () => {
       shouldWarn: true,
     },
     {
-      name:
-        'Logs a warning when there are unused fields in an `optimisticResponse`',
+      name: 'Logs a warning when there are unused fields in an `optimisticResponse`',
       mutation: getRequest(graphql`
         mutation validateMutationTest7ChangeNameBirthdayMutation(
           $input: ActorNameChangeInput!

@@ -272,7 +272,8 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
   let cancelOnLoadCallback;
   let queryId;
   if (preloadableRequest.kind === 'PreloadableConcreteRequest') {
-    const preloadableConcreteRequest: PreloadableConcreteRequest<TQuery> = (preloadableRequest: $FlowFixMe);
+    const preloadableConcreteRequest: PreloadableConcreteRequest<TQuery> =
+      (preloadableRequest: $FlowFixMe);
     ({params} = preloadableConcreteRequest);
 
     ({id: queryId} = params);
@@ -316,7 +317,8 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
       ));
     }
   } else {
-    const graphQlTaggedNode: GraphQLTaggedNode = (preloadableRequest: $FlowFixMe);
+    const graphQlTaggedNode: GraphQLTaggedNode =
+      (preloadableRequest: $FlowFixMe);
     const request = getRequest(graphQlTaggedNode);
     params = request.params;
     queryId = params.cacheID != null ? params.cacheID : params.id;

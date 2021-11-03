@@ -50,7 +50,7 @@ beforeEach(() => {
   // We don't care about the contents of entryPoints
   defaultEntryPoint = {};
 
-  render = function() {
+  render = function () {
     renderCount = 0;
     ReactTestRenderer.act(() => {
       instance = ReactTestRenderer.create(
@@ -62,13 +62,10 @@ beforeEach(() => {
     });
   };
 
-  Container = function({entryPoint, environmentProvider}) {
+  Container = function ({entryPoint, environmentProvider}) {
     renderCount = (renderCount || 0) + 1;
-    [
-      loadedEntryPoint,
-      entryPointLoaderCallback,
-      disposeEntryPoint,
-    ] = useEntryPointLoader(environmentProvider, entryPoint);
+    [loadedEntryPoint, entryPointLoaderCallback, disposeEntryPoint] =
+      useEntryPointLoader(environmentProvider, entryPoint);
     return null;
   };
   loadEntryPoint.mockClear();

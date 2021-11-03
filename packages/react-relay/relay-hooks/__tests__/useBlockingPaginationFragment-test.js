@@ -148,14 +148,14 @@ describe('useBlockingPaginationFragment', () => {
     `;
     gqlFragment = getFragment(graphql`
       fragment useBlockingPaginationFragmentTestUserFragment on User
-        @refetchable(
-          queryName: "useBlockingPaginationFragmentTestUserFragmentPaginationQuery"
-        )
-        @argumentDefinitions(
-          isViewerFriendLocal: {type: "Boolean", defaultValue: false}
-          orderby: {type: "[String]"}
-          scale: {type: "Float"}
-        ) {
+      @refetchable(
+        queryName: "useBlockingPaginationFragmentTestUserFragmentPaginationQuery"
+      )
+      @argumentDefinitions(
+        isViewerFriendLocal: {type: "Boolean", defaultValue: false}
+        orderby: {type: "[String]"}
+        scale: {type: "Float"}
+      ) {
         id
         name
         friends(
@@ -471,7 +471,7 @@ describe('useBlockingPaginationFragment', () => {
 
       const UserFragment = graphql`
         fragment useBlockingPaginationFragmentTest1Fragment on User
-          @relay(plural: true) {
+        @relay(plural: true) {
           id
         }
       `;
@@ -488,9 +488,9 @@ describe('useBlockingPaginationFragment', () => {
 
       const UserFragment = graphql`
         fragment useBlockingPaginationFragmentTest2Fragment on User
-          @refetchable(
-            queryName: "useBlockingPaginationFragmentTest2FragmentPaginationQuery"
-          ) {
+        @refetchable(
+          queryName: "useBlockingPaginationFragmentTest2FragmentPaginationQuery"
+        ) {
           id
           friends(
             after: $after
@@ -540,9 +540,9 @@ describe('useBlockingPaginationFragment', () => {
 
       const UserFragment = getFragment(graphql`
         fragment useBlockingPaginationFragmentTest4Fragment on User
-          @refetchable(
-            queryName: "useBlockingPaginationFragmentTest4FragmentRefetchQuery"
-          ) {
+        @refetchable(
+          queryName: "useBlockingPaginationFragmentTest4FragmentRefetchQuery"
+        ) {
           id
         }
       `);

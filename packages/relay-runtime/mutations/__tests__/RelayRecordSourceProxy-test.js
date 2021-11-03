@@ -19,14 +19,8 @@ const RelayRecordSourceMutator = require('../RelayRecordSourceMutator');
 const RelayRecordSourceProxy = require('../RelayRecordSourceProxy');
 const {simpleClone} = require('relay-test-utils-internal');
 
-const {
-  ID_KEY,
-  REF_KEY,
-  REFS_KEY,
-  ROOT_ID,
-  ROOT_TYPE,
-  TYPENAME_KEY,
-} = RelayStoreUtils;
+const {ID_KEY, REF_KEY, REFS_KEY, ROOT_ID, ROOT_TYPE, TYPENAME_KEY} =
+  RelayStoreUtils;
 
 describe('RelayRecordSourceProxy', () => {
   let baseSource;

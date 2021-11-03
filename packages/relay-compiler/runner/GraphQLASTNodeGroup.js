@@ -70,9 +70,8 @@ function forChanges(
   const baseDependencyMap = mergeMaps(baseNodes.map(buildDependencyMap));
   const dependencyMap = mergeMaps([projectDependencyMap, baseDependencyMap]);
   const invertedDependencyMap = inverseDependencyMap(dependencyMap);
-  const baseNameToNode: Map<string, ExecutableDefinitionNode> = mergeMaps(
-    baseNodes,
-  );
+  const baseNameToNode: Map<string, ExecutableDefinitionNode> =
+    mergeMaps(baseNodes);
 
   // The first step of the process is to find all ancestors of changed nodes.
   // And we perform this search on complete dependency map (project + base)

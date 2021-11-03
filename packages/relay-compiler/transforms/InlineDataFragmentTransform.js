@@ -66,9 +66,8 @@ function visitFragment(fragment: Fragment): Fragment {
 function visitFragmentSpread(
   fragmentSpread: FragmentSpread,
 ): FragmentSpread | InlineDataFragmentSpread {
-  const transformedFragmentSpread: FragmentSpread = this.traverse(
-    fragmentSpread,
-  );
+  const transformedFragmentSpread: FragmentSpread =
+    this.traverse(fragmentSpread);
 
   const context: CompilerContext = this.getContext();
   const fragment = context.get(transformedFragmentSpread.name);

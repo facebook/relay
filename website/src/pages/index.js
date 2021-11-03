@@ -87,7 +87,7 @@ const Index = () => {
   const {isDarkTheme} = useThemeContext();
 
   const showcase = siteConfig.customFields.users
-    .filter(user => {
+    .filter((user) => {
       return user.pinned;
     })
     .map((user, i) => {
@@ -618,7 +618,7 @@ export default function ArtistCard(props) {
   );
 };
 
-export default props => (
+export default (props) => (
   <Layout>
     <Index {...props} />
   </Layout>

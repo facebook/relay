@@ -188,12 +188,12 @@ describe('execute() a query with @match', () => {
     expect(operationSnapshot.data).toEqual({
       node: {
         nameRenderer: {
-          __id:
-            'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+          __id: 'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
           __typename: 'MarkdownUserNameRenderer',
           __fragmentPropName: 'name',
           __fragments: {
-            RelayModernEnvironmentExecuteWithMatchTestMarkdownUserNameRenderer_name: {},
+            RelayModernEnvironmentExecuteWithMatchTestMarkdownUserNameRenderer_name:
+              {},
           },
           __fragmentOwner: operation.request,
           __isWithinUnmatchedTypeRefinement: false,

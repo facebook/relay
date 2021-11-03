@@ -56,7 +56,7 @@ describe('getFragmentIdentifier', () => {
     `);
     gqlFragmentWithArgs = getFragment(graphql`
       fragment getFragmentIdentifierTestUserFragmentWithArgs on User
-        @argumentDefinitions(scaleLocal: {type: "Float!"}) {
+      @argumentDefinitions(scaleLocal: {type: "Float!"}) {
         id
         name
         profile_picture(scale: $scaleLocal) {
@@ -67,7 +67,7 @@ describe('getFragmentIdentifier', () => {
     `);
     gqlPluralFragment = getFragment(graphql`
       fragment getFragmentIdentifierTestUsersFragment on User
-        @relay(plural: true) {
+      @relay(plural: true) {
         id
         name
         profile_picture(scale: $scale) {
@@ -240,7 +240,7 @@ describe('getFragmentIdentifier Optimized', () => {
 
     gqlFragmentWithArgs = getFragment(graphql`
       fragment getFragmentIdentifierTest1UserFragmentWithArgs on User
-        @argumentDefinitions(scaleLocal: {type: "Float!"}) {
+      @argumentDefinitions(scaleLocal: {type: "Float!"}) {
         id
         name
         profile_picture(scale: $scaleLocal) {
@@ -251,7 +251,7 @@ describe('getFragmentIdentifier Optimized', () => {
     `);
     gqlPluralFragment = getFragment(graphql`
       fragment getFragmentIdentifierTest1UsersFragment on User
-        @relay(plural: true) {
+      @relay(plural: true) {
         id
         name
         profile_picture(scale: $scale) {

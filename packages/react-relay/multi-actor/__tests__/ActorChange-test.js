@@ -105,8 +105,9 @@ function MainComponent() {
           <div key={index}>
             <span
               className="default-store-actors"
-              data-test-id={`default-store-${edge?.node?.actor?.name ??
-                'not an actor'}`}
+              data-test-id={`default-store-${
+                edge?.node?.actor?.name ?? 'not an actor'
+              }`}
             />
             <ActorChange key={index} actorChangePoint={actorNode}>
               {(fragmentRef, actorIdentifier) => {

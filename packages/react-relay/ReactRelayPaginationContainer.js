@@ -900,12 +900,8 @@ function createContainerWithFragments<
     }
 
     render() {
-      const {
-        componentRef,
-        __relayContext,
-        __rootIsQueryRenderer,
-        ...props
-      } = this.props;
+      const {componentRef, __relayContext, __rootIsQueryRenderer, ...props} =
+        this.props;
       return (
         <ReactRelayContext.Provider value={this.state.contextForChildren}>
           <Component

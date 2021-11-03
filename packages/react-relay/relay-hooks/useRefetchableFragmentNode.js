@@ -174,11 +174,8 @@ function useRefetchableFragmentNode<
   componentDisplayName: string,
 ): ReturnType<TQuery, TKey, InternalOptions> {
   const parentEnvironment = useRelayEnvironment();
-  const {
-    refetchableRequest,
-    fragmentRefPathInResponse,
-    identifierField,
-  } = getRefetchMetadata(fragmentNode, componentDisplayName);
+  const {refetchableRequest, fragmentRefPathInResponse, identifierField} =
+    getRefetchMetadata(fragmentNode, componentDisplayName);
   const fragmentIdentifier = getFragmentIdentifier(
     fragmentNode,
     parentFragmentRef,
@@ -211,9 +208,8 @@ function useRefetchableFragmentNode<
   const shouldReset =
     environment !== mirroredEnvironment ||
     fragmentIdentifier !== mirroredFragmentIdentifier;
-  const [queryRef, loadQuery, disposeQuery] = useQueryLoader<TQuery>(
-    refetchableRequest,
-  );
+  const [queryRef, loadQuery, disposeQuery] =
+    useQueryLoader<TQuery>(refetchableRequest);
 
   let fragmentRef = parentFragmentRef;
   if (shouldReset) {

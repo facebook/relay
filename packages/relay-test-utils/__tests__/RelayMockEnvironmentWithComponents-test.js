@@ -822,7 +822,7 @@ describe('ReactRelayTestMocker with Containers', () => {
       });
       const ViewerQuery = graphql`
         query RelayMockEnvironmentWithComponentsTestOutstandingSolutionQuery
-          @relay_test_operation {
+        @relay_test_operation {
           viewer {
             actor {
               name @__clientField(handle: "hello")

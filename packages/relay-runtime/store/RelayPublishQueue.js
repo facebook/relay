@@ -307,7 +307,8 @@ class RelayPublishQueue implements PublishQueue {
       const selectorData = lookupSelector(source, selector);
       updater(recordSourceSelectorProxy, selectorData);
     }
-    const idsMarkedForInvalidation = recordSourceProxy.getIDsMarkedForInvalidation();
+    const idsMarkedForInvalidation =
+      recordSourceProxy.getIDsMarkedForInvalidation();
     this._store.publish(source, idsMarkedForInvalidation);
     return recordSourceProxy.isStoreMarkedForInvalidation();
   }
@@ -348,7 +349,8 @@ class RelayPublishQueue implements PublishQueue {
         );
         invalidatedStore =
           invalidatedStore || recordSourceProxy.isStoreMarkedForInvalidation();
-        const idsMarkedForInvalidation = recordSourceProxy.getIDsMarkedForInvalidation();
+        const idsMarkedForInvalidation =
+          recordSourceProxy.getIDsMarkedForInvalidation();
 
         this._store.publish(sink, idsMarkedForInvalidation);
       }

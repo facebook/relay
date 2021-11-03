@@ -44,7 +44,7 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
   beforeEach(() => {
     const Query1 = getRequest(graphql`
       query RelayModernEnvironmentWithOperationTrackerTest1Query($id: ID)
-        @relay_test_operation {
+      @relay_test_operation {
         node(id: $id) {
           ... on Feedback {
             id
@@ -68,7 +68,7 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
 
     const Query2 = getRequest(graphql`
       query RelayModernEnvironmentWithOperationTrackerTest2Query($id: ID)
-        @relay_test_operation {
+      @relay_test_operation {
         node(id: $id) {
           id
         }
@@ -371,7 +371,7 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
       //const {Query, Mutation, FeedbackFragment} =
       const Query = getRequest(graphql`
         query RelayModernEnvironmentWithOperationTrackerTestQuery($id: ID)
-          @relay_test_operation {
+        @relay_test_operation {
           node(id: $id) {
             ...RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment
           }

@@ -114,7 +114,7 @@ describe('ReactRelayRefetchContainer with fragment ownerhsip', () => {
     `;
     UserFragment = graphql`
       fragment ReactRelayRefetchContainerWithFragmentOwnershipTestUserFragment on User
-        @argumentDefinitions(cond: {type: "Boolean!", defaultValue: true}) {
+      @argumentDefinitions(cond: {type: "Boolean!", defaultValue: true}) {
         id
         name @include(if: $cond)
         profile_picture(scale: $scale) {
@@ -126,7 +126,7 @@ describe('ReactRelayRefetchContainer with fragment ownerhsip', () => {
     `;
     UserFriendFragment = graphql`
       fragment ReactRelayRefetchContainerWithFragmentOwnershipTestUserFriendFragment on User
-        @argumentDefinitions(cond: {type: "Boolean!", defaultValue: true}) {
+      @argumentDefinitions(cond: {type: "Boolean!", defaultValue: true}) {
         id
         username @include(if: $cond)
       }
@@ -220,9 +220,10 @@ describe('ReactRelayRefetchContainer with fragment ownerhsip', () => {
         },
         __id: '4',
         __fragments: {
-          ReactRelayRefetchContainerWithFragmentOwnershipTestUserFriendFragment: {
-            cond: true,
-          },
+          ReactRelayRefetchContainerWithFragmentOwnershipTestUserFriendFragment:
+            {
+              cond: true,
+            },
         },
         __fragmentOwner: ownerUser1.request,
         __isWithinUnmatchedTypeRefinement: false,
@@ -272,9 +273,10 @@ describe('ReactRelayRefetchContainer with fragment ownerhsip', () => {
         },
         __id: '4',
         __fragments: {
-          ReactRelayRefetchContainerWithFragmentOwnershipTestUserFriendFragment: {
-            cond: false,
-          },
+          ReactRelayRefetchContainerWithFragmentOwnershipTestUserFriendFragment:
+            {
+              cond: false,
+            },
         },
         __fragmentOwner: expectedOwner.request,
         __isWithinUnmatchedTypeRefinement: false,
@@ -298,9 +300,10 @@ describe('ReactRelayRefetchContainer with fragment ownerhsip', () => {
         },
         __id: '4',
         __fragments: {
-          ReactRelayRefetchContainerWithFragmentOwnershipTestUserFriendFragment: {
-            cond: true,
-          },
+          ReactRelayRefetchContainerWithFragmentOwnershipTestUserFriendFragment:
+            {
+              cond: true,
+            },
         },
         __fragmentOwner: ownerUser1.request,
         __isWithinUnmatchedTypeRefinement: false,
@@ -356,9 +359,10 @@ describe('ReactRelayRefetchContainer with fragment ownerhsip', () => {
         },
         __id: '4',
         __fragments: {
-          ReactRelayRefetchContainerWithFragmentOwnershipTestUserFriendFragment: {
-            cond: false,
-          },
+          ReactRelayRefetchContainerWithFragmentOwnershipTestUserFriendFragment:
+            {
+              cond: false,
+            },
         },
         __fragmentOwner: expectedOwner.request,
         __isWithinUnmatchedTypeRefinement: false,

@@ -102,14 +102,8 @@ function commitMutation<TMutation: MutationParameters>(
     throw new Error('commitMutation: Expected mutation to be of type request');
   }
   let {optimisticResponse, optimisticUpdater, updater} = config;
-  const {
-    configs,
-    cacheConfig,
-    onError,
-    onUnsubscribe,
-    variables,
-    uploadables,
-  } = config;
+  const {configs, cacheConfig, onError, onUnsubscribe, variables, uploadables} =
+    config;
   const operation = createOperationDescriptor(
     mutation,
     variables,

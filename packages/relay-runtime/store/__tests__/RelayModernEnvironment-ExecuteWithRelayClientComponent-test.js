@@ -115,8 +115,7 @@ describe('execute() with @relay_client_component', () => {
               __typename: 'Story',
               name: 'React Server Components: The Musical',
               body: {
-                text:
-                  'Presenting a new musical from the director of Cats (2019)!',
+                text: 'Presenting a new musical from the director of Cats (2019)!',
               },
             },
           },

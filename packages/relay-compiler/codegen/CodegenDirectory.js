@@ -186,9 +186,7 @@ class CodegenDirectory {
     });
   }
 
-  static getAddedRemovedFiles(
-    dirs: $ReadOnlyArray<CodegenDirectory>,
-  ): {|
+  static getAddedRemovedFiles(dirs: $ReadOnlyArray<CodegenDirectory>): {|
     +added: $ReadOnlyArray<string>,
     +removed: $ReadOnlyArray<string>,
   |} {

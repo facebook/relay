@@ -93,7 +93,7 @@ describe('ReactRelayRefetchContainer', () => {
     environment = createMockEnvironment();
     UserFragment = graphql`
       fragment ReactRelayRefetchContainerTestUserFragment on User
-        @argumentDefinitions(cond: {type: "Boolean!", defaultValue: true}) {
+      @argumentDefinitions(cond: {type: "Boolean!", defaultValue: true}) {
         id
         name @include(if: $cond)
       }

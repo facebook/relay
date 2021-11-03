@@ -120,10 +120,8 @@ function useLoadEntryPoint<
   const [entryPointReference, setEntryPointReference] = useState<
     PreloadedEntryPoint<TEntryPointComponent> | NullEntryPointReference,
   >(initialEntryPointReferenceInternal);
-  const [
-    entryPointParams,
-    setEntryPointParams,
-  ] = useState<TEntryPointParams | null>(initialEntryPointParamsInternal);
+  const [entryPointParams, setEntryPointParams] =
+    useState<TEntryPointParams | null>(initialEntryPointParamsInternal);
 
   const disposeEntryPoint = useCallback(() => {
     if (isMountedRef.current) {

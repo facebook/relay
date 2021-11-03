@@ -136,7 +136,7 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
 
   it('forces a re-render when effects are double invoked and refetches when policy is network-only', () => {
     let renderLogs = [];
-    const QueryComponent = function() {
+    const QueryComponent = function () {
       const result = useLazyLoadQuery<_>(gqlQuery, variables, {
         fetchPolicy: 'network-only',
       });
@@ -271,7 +271,7 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
 
   it('forces a re-render when effects are double invoked and does not refetch when policy is store-or-network', () => {
     const renderLogs = [];
-    const QueryComponent = function() {
+    const QueryComponent = function () {
       const result = useLazyLoadQuery<_>(gqlQuery, variables, {
         fetchPolicy: 'store-or-network',
       });
@@ -380,12 +380,12 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
   describe('with incremental delivery', () => {
     it('with incremental delivery, forces a re-render when effects are double invoked and refetches when policy is network-only', () => {
       let renderLogs = [];
-      const FragmentComponent = function(props) {
+      const FragmentComponent = function (props) {
         const data = useFragment(gqlFragment, props.user);
         return data?.firstName === undefined ? 'Missing fragment data' : null;
       };
 
-      const QueryComponent = function() {
+      const QueryComponent = function () {
         const result = useLazyLoadQuery<_>(gqlQueryWithDefer, variables, {
           fetchPolicy: 'network-only',
         });
@@ -562,12 +562,12 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
 
     it('with incremental delivery, forces a re-render when effects are double invoked and refetches when policy is store-or-network', () => {
       let renderLogs = [];
-      const FragmentComponent = function(props) {
+      const FragmentComponent = function (props) {
         const data = useFragment(gqlFragment, props.user);
         return data?.firstName === undefined ? 'Missing fragment data' : null;
       };
 
-      const QueryComponent = function() {
+      const QueryComponent = function () {
         const result = useLazyLoadQuery<_>(gqlQueryWithDefer, variables, {
           fetchPolicy: 'store-or-network',
         });

@@ -259,12 +259,13 @@ class FragmentResourceImpl {
       fragmentSelector.kind === 'PluralReaderSelector'
         ? fragmentSelector.selectors[0].owner
         : fragmentSelector.owner;
-    const networkPromiseResult = this._getAndSavePromiseForFragmentRequestInFlight(
-      fragmentIdentifier,
-      fragmentNode,
-      fragmentOwner,
-      fragmentResult,
-    );
+    const networkPromiseResult =
+      this._getAndSavePromiseForFragmentRequestInFlight(
+        fragmentIdentifier,
+        fragmentNode,
+        fragmentOwner,
+        fragmentResult,
+      );
     if (
       networkPromiseResult != null &&
       isPromise(networkPromiseResult.promise)
@@ -332,9 +333,8 @@ class FragmentResourceImpl {
 
     // 1. Check for any updates missed during render phase
     // TODO(T44066760): More efficiently detect if we missed an update
-    const [didMissUpdates, currentSnapshot] = this.checkMissedUpdates(
-      fragmentResult,
-    );
+    const [didMissUpdates, currentSnapshot] =
+      this.checkMissedUpdates(fragmentResult);
 
     // 2. If an update was missed, notify the component so it updates with
     // the latest data.
@@ -471,7 +471,7 @@ class FragmentResourceImpl {
 
   checkMissedUpdatesSpec(fragmentResults: {
     [string]: FragmentResult,
-    ...,
+    ...
   }): boolean {
     return Object.keys(fragmentResults).some(
       key => this.checkMissedUpdates(fragmentResults[key])[0],

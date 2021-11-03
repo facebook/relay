@@ -201,10 +201,8 @@ function extendASTSchema(
   });
 }
 
-const extendedSchemas: Map<
-  GraphQLSchema,
-  {[key: string]: GraphQLSchema, ...},
-> = new Map();
+const extendedSchemas: Map<GraphQLSchema, {[key: string]: GraphQLSchema, ...}> =
+  new Map();
 
 function cachedExtend(
   schema: GraphQLSchema,

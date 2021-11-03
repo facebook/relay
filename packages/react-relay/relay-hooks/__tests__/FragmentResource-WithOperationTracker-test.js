@@ -56,7 +56,7 @@ describe('FragmentResource with Operation Tracker and Missing Data', () => {
     });
     NodeQuery = getRequest(graphql`
       query FragmentResourceWithOperationTrackerTestNodeQuery($id: ID!)
-        @relay_test_operation {
+      @relay_test_operation {
         node(id: $id) {
           ...FragmentResourceWithOperationTrackerTestUserFragment
         }
@@ -64,7 +64,7 @@ describe('FragmentResource with Operation Tracker and Missing Data', () => {
     `);
     ViewerFriendsQuery = getRequest(graphql`
       query FragmentResourceWithOperationTrackerTestViewerFriendsQuery
-        @relay_test_operation {
+      @relay_test_operation {
         viewer {
           actor {
             friends(first: 1) @connection(key: "Viewer_friends") {
@@ -223,8 +223,7 @@ describe('FragmentResource with Operation Tracker and Missing Data', () => {
     environment.mock.complete(nodeOperation);
 
     const fragmentRef = {
-      __id:
-        'client:user-id-1:nameRenderer(supported:["PlainUserNameRenderer"])',
+      __id: 'client:user-id-1:nameRenderer(supported:["PlainUserNameRenderer"])',
       __fragments: {
         FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name: {},
       },
@@ -306,10 +305,10 @@ describe('FragmentResource with Operation Tracker and Missing Data', () => {
     const snapshot = FragmentResource.read(
       PlainUserNameRenderer_name,
       {
-        __id:
-          'client:user-id-1:nameRenderer(supported:["PlainUserNameRenderer"])',
+        __id: 'client:user-id-1:nameRenderer(supported:["PlainUserNameRenderer"])',
         __fragments: {
-          FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name: {},
+          FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name:
+            {},
         },
         __fragmentOwner: viewerOperation.request,
       },
@@ -379,8 +378,7 @@ describe('FragmentResource with Operation Tracker and Missing Data', () => {
     });
     expect(operationLoader.load).toBeCalledTimes(2);
     const fragmentRef = {
-      __id:
-        'client:user-id-2:nameRenderer(supported:["PlainUserNameRenderer"])',
+      __id: 'client:user-id-2:nameRenderer(supported:["PlainUserNameRenderer"])',
       __fragments: {
         FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name: {},
       },

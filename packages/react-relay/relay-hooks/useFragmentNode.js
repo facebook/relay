@@ -50,9 +50,8 @@ function useFragmentNode<TFragmentData: mixed>(
   const isListeningForUpdatesRef = useRef(true);
   function enableStoreUpdates() {
     isListeningForUpdatesRef.current = true;
-    const didMissUpdates = FragmentResource.checkMissedUpdates(
-      fragmentResult,
-    )[0];
+    const didMissUpdates =
+      FragmentResource.checkMissedUpdates(fragmentResult)[0];
     if (didMissUpdates) {
       handleDataUpdate();
     }

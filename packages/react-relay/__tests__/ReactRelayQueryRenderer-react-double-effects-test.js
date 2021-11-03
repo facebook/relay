@@ -110,7 +110,7 @@ describe.skip('ReactRelayQueryRenderer-react-double-effects', () => {
 
   it('forces a re-render and refetches query when effects are double invoked', () => {
     let renderLogs = [];
-    const QueryComponent = function({node}) {
+    const QueryComponent = function ({node}) {
       const name = node?.name ?? 'Empty';
       useEffect(() => {
         renderLogs.push(`commit: ${name}`);
@@ -123,7 +123,7 @@ describe.skip('ReactRelayQueryRenderer-react-double-effects', () => {
       return name;
     };
 
-    const QueryContainer = function(props) {
+    const QueryContainer = function (props) {
       return (
         <ReactRelayQueryRenderer
           cacheConfig={{force: true}}

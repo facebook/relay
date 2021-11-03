@@ -179,7 +179,8 @@ describe('useBlockingPaginationFragment with useTransition', () => {
       return {
         [ID_KEY]: id,
         [FRAGMENTS_KEY]: {
-          useBlockingPaginationFragmentWithSuspenseTransitionTestNestedUserFragment: {},
+          useBlockingPaginationFragmentWithSuspenseTransitionTestNestedUserFragment:
+            {},
         },
         [FRAGMENT_OWNER_KEY]: owner.request,
         __isWithinUnmatchedTypeRefinement: false,
@@ -225,13 +226,13 @@ describe('useBlockingPaginationFragment with useTransition', () => {
 
       gqlFragment = getFragment(graphql`
         fragment useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment on User
-          @refetchable(
-            queryName: "useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragmentPaginationQuery"
-          )
-          @argumentDefinitions(
-            isViewerFriendLocal: {type: "Boolean", defaultValue: false}
-            orderby: {type: "[String]"}
-          ) {
+        @refetchable(
+          queryName: "useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragmentPaginationQuery"
+        )
+        @argumentDefinitions(
+          isViewerFriendLocal: {type: "Boolean", defaultValue: false}
+          orderby: {type: "[String]"}
+        ) {
           id
           name
           friends(
@@ -404,12 +405,11 @@ describe('useBlockingPaginationFragment with useTransition', () => {
         setOwner = _setOwner;
         forceUpdate = _setCount;
 
-        const {
-          data: userData,
-        } = useBlockingPaginationFragmentWithSuspenseTransition(
-          fragment,
-          userRef,
-        );
+        const {data: userData} =
+          useBlockingPaginationFragmentWithSuspenseTransition(
+            fragment,
+            userRef,
+          );
         return <Renderer user={userData} />;
       };
 

@@ -275,7 +275,7 @@ describe('FragmentResource', () => {
       () => {
         UserFragment = graphql`
           fragment FragmentResourceTest5Fragment on Query
-            @argumentDefinitions(id: {type: "ID!"}) {
+          @argumentDefinitions(id: {type: "ID!"}) {
             node(id: $id) {
               __typename
               id

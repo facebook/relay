@@ -322,8 +322,8 @@ class RelayReader {
 
             // store flags to reset after reading
             const parentIsMissingData = this._isMissingData;
-            const parentIsWithinUnmatchedTypeRefinement = this
-              ._isWithinUnmatchedTypeRefinement;
+            const parentIsWithinUnmatchedTypeRefinement =
+              this._isWithinUnmatchedTypeRefinement;
 
             const typeName = RelayModernRecord.getType(record);
             const typeID = generateTypeID(typeName);
@@ -336,7 +336,8 @@ class RelayReader {
               parentIsWithinUnmatchedTypeRefinement ||
               implementsInterface === false;
             this._traverseSelections(selection.selections, record, data);
-            this._isWithinUnmatchedTypeRefinement = parentIsWithinUnmatchedTypeRefinement;
+            this._isWithinUnmatchedTypeRefinement =
+              parentIsWithinUnmatchedTypeRefinement;
 
             if (implementsInterface === false) {
               // Type known to not implement the interface, no data expected
@@ -533,10 +534,8 @@ class RelayReader {
   ): ?mixed {
     const applicationName = field.alias ?? field.name;
     const storageKey = getStorageKey(field, this._variables);
-    const reactFlightClientResponseRecordID = RelayModernRecord.getLinkedRecordID(
-      record,
-      storageKey,
-    );
+    const reactFlightClientResponseRecordID =
+      RelayModernRecord.getLinkedRecordID(record, storageKey);
     if (reactFlightClientResponseRecordID == null) {
       data[applicationName] = reactFlightClientResponseRecordID;
       if (reactFlightClientResponseRecordID === undefined) {
@@ -757,9 +756,8 @@ class RelayReader {
       ? getArgumentValues(fragmentSpread.args, this._variables)
       : {};
     data[FRAGMENT_OWNER_KEY] = this._owner;
-    data[
-      IS_WITHIN_UNMATCHED_TYPE_REFINEMENT
-    ] = this._isWithinUnmatchedTypeRefinement;
+    data[IS_WITHIN_UNMATCHED_TYPE_REFINEMENT] =
+      this._isWithinUnmatchedTypeRefinement;
   }
 
   _createInlineDataOrResolverFragmentPointer(

@@ -88,7 +88,7 @@ type SelectionMetadata = {
     +nullable: boolean,
     +enumValues: $ReadOnlyArray<string> | null,
   |},
-  ...,
+  ...
 };
 
 function createIdGenerator() {
@@ -144,9 +144,9 @@ function valueResolver(
         possibleDefaultValue ??
         (typeName === 'ID'
           ? DEFAULT_MOCK_RESOLVERS.ID(context, generateId)
-          : `<mock-value-for-field-"${context.alias ??
-              context.name ??
-              'undefined'}">`);
+          : `<mock-value-for-field-"${
+              context.alias ?? context.name ?? 'undefined'
+            }">`);
     }
     return mockValue;
   };
@@ -458,7 +458,8 @@ class RelayMockPayloadGenerator {
               selection.fragmentName,
             );
 
-            const splitOperation: NormalizationSplitOperation = (operation: $FlowFixMe);
+            const splitOperation: NormalizationSplitOperation =
+              (operation: $FlowFixMe);
             const {documentName} = selection;
             if (mockData == null) {
               mockData = {};
@@ -468,9 +469,8 @@ class RelayMockPayloadGenerator {
               ...mockData,
               [TYPENAME_KEY]: typeName,
               [getModuleOperationKey(documentName)]: operation.name,
-              [getModuleComponentKey(
-                documentName,
-              )]: defaultValues.__module_component,
+              [getModuleComponentKey(documentName)]:
+                defaultValues.__module_component,
               ...this._traverseSelections(
                 splitOperation.selections,
                 typeName,

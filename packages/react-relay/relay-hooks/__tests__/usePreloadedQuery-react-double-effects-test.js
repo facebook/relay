@@ -135,13 +135,13 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
       force: true,
     });
 
-    FragmentComponent = function(props) {
+    FragmentComponent = function (props) {
       const data = useFragment(gqlFragment, props.user);
       return data?.firstName === undefined ? 'Missing fragment data' : null;
     };
 
     renderLogs = [];
-    QueryComponent = function(props) {
+    QueryComponent = function (props) {
       const result = usePreloadedQuery<_>(props.queryInput, props.queryRef);
 
       const name = result?.node?.name ?? 'Empty';

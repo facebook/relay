@@ -67,7 +67,7 @@ describe('RelayModernFragmentSpecResolver', () => {
     `;
     UsersFragment = graphql`
       fragment RelayModernFragmentSpecResolverTestQueryUsersFragment on User
-        @relay(plural: true) {
+      @relay(plural: true) {
         id
         name
         profilePicture(size: $size) @include(if: $fetchSize) {

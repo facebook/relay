@@ -163,7 +163,7 @@ function cloneEventWithSets(event) {
         `);
         graphql`
           fragment RelayModernStoreTestJoeFragment on Query
-            @argumentDefinitions(id: {type: "ID"}) {
+          @argumentDefinitions(id: {type: "ID"}) {
             node(id: $id) {
               ... on User {
                 name

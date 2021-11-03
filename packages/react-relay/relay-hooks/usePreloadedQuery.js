@@ -43,13 +43,8 @@ function usePreloadedQuery<TQuery: OperationType>(
   useTrackLoadQueryInRender();
 
   const environment = useRelayEnvironment();
-  const {
-    fetchKey,
-    fetchPolicy,
-    source,
-    variables,
-    networkCacheConfig,
-  } = preloadedQuery;
+  const {fetchKey, fetchPolicy, source, variables, networkCacheConfig} =
+    preloadedQuery;
   const operation = useMemoOperationDescriptor(
     gqlQuery,
     variables,

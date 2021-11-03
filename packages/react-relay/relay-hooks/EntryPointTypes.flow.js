@@ -261,16 +261,14 @@ export type ExtractEntryPointTypeHelper = <
   EntryPoint<TEntryPointParams, TEntryPointComponent>,
 >;
 
-export type EntryPoint<
-  TEntryPointParams,
-  +TEntryPointComponent,
-> = InternalEntryPointRepresentation<
-  TEntryPointParams,
-  $PropertyType<ElementConfig<TEntryPointComponent>, 'queries'>,
-  $PropertyType<ElementConfig<TEntryPointComponent>, 'entryPoints'>,
-  $PropertyType<ElementConfig<TEntryPointComponent>, 'props'>,
-  $PropertyType<ElementConfig<TEntryPointComponent>, 'extraProps'>,
->;
+export type EntryPoint<TEntryPointParams, +TEntryPointComponent> =
+  InternalEntryPointRepresentation<
+    TEntryPointParams,
+    $PropertyType<ElementConfig<TEntryPointComponent>, 'queries'>,
+    $PropertyType<ElementConfig<TEntryPointComponent>, 'entryPoints'>,
+    $PropertyType<ElementConfig<TEntryPointComponent>, 'props'>,
+    $PropertyType<ElementConfig<TEntryPointComponent>, 'extraProps'>,
+  >;
 
 type ExtractFirstParam = <P, R>((P) => R) => P;
 type GetPreloadPropsType<T> = $ElementType<T, 'getPreloadProps'>;

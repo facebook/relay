@@ -440,7 +440,8 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
                 __isWithinUnmatchedTypeRefinement: false,
                 __fragmentPropName: 'name',
                 __fragments: {
-                  RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestPlainUserNameRenderer_name: {},
+                  RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestPlainUserNameRenderer_name:
+                    {},
                 },
                 __id: 'client:2:nameRenderer',
                 __module_component: 'PlainUserNameRenderer.react',

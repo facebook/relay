@@ -33,5 +33,5 @@ export type SavedStateCollection = $ReadOnlyArray<{|
 
 export type SavedState<TSubProjectsType> = {
   [TSubProjectsType]: SavedStateCollection,
-  ...,
+  ...
 };

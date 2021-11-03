@@ -32,10 +32,8 @@ function getPaginationMetadata(
   paginationMetadata: ReaderPaginationMetadata,
   stream: boolean,
 |} {
-  const {
-    refetchableRequest: paginationRequest,
-    refetchMetadata,
-  } = getRefetchMetadata(fragmentNode, componentDisplayName);
+  const {refetchableRequest: paginationRequest, refetchMetadata} =
+    getRefetchMetadata(fragmentNode, componentDisplayName);
 
   const paginationMetadata = refetchMetadata.connection;
   invariant(

@@ -60,6 +60,7 @@ class PreloadableQueryRegistry {
   }
 }
 
-const preloadableQueryRegistry: PreloadableQueryRegistry = new PreloadableQueryRegistry();
+const preloadableQueryRegistry: PreloadableQueryRegistry =
+  new PreloadableQueryRegistry();
 
 module.exports = preloadableQueryRegistry;

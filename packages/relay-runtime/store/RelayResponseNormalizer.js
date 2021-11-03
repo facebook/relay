@@ -766,7 +766,8 @@ class RelayResponseNormalizer {
       reactFlightClientResponse,
     );
 
-    const reachableExecutableDefinitions: Array<ReactFlightReachableExecutableDefinitions> = [];
+    const reachableExecutableDefinitions: Array<ReactFlightReachableExecutableDefinitions> =
+      [];
     for (const query of reactFlightPayload.queries) {
       if (query.response.data != null) {
         this._followupPayloads.push({

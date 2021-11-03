@@ -69,14 +69,8 @@ function requestSubscription<TSubscriptionPayload>(
   if (subscription.params.operationKind !== 'subscription') {
     throw new Error('requestSubscription: Must use Subscription operation');
   }
-  const {
-    configs,
-    onCompleted,
-    onError,
-    onNext,
-    variables,
-    cacheConfig,
-  } = config;
+  const {configs, onCompleted, onError, onNext, variables, cacheConfig} =
+    config;
   const operation = createOperationDescriptor(
     subscription,
     variables,

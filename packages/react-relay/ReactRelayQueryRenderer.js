@@ -339,7 +339,8 @@ function resetQueryStateForUpdate(
 ): $Shape<State> {
   const {query} = props;
 
-  const prevSelectionReferences = prevState.queryFetcher.getSelectionReferences();
+  const prevSelectionReferences =
+    prevState.queryFetcher.getSelectionReferences();
   prevState.queryFetcher.disposeRequest();
 
   let queryFetcher;

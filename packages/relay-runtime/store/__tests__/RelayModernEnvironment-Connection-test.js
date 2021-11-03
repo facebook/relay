@@ -74,10 +74,10 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         `);
         fragment = getFragment(graphql`
           fragment RelayModernEnvironmentConnectionTestFeedbackFragment on Feedback
-            @argumentDefinitions(
-              count: {type: "Int", defaultValue: 2}
-              cursor: {type: "ID"}
-            ) {
+          @argumentDefinitions(
+            count: {type: "Int", defaultValue: 2}
+            cursor: {type: "ID"}
+          ) {
             id
             comments(after: $cursor, first: $count, orderby: "date")
               @connection(

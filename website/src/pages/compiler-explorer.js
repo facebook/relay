@@ -122,7 +122,7 @@ function CompilerExplorer() {
               {value: 'types', label: 'Types'},
             ]}
             selectedValue={outputType}
-            setSelectedValue={selected => setOutputType(selected)}
+            setSelectedValue={(selected) => setOutputType(selected)}
           />
         </div>
       </div>
@@ -242,7 +242,7 @@ function TypegenConfig({onTypegenConfigChanged}) {
     <div>
       <label>
         Type Generation Language:
-        <select onChange={e => setLangauge(e.target.value)}>
+        <select onChange={(e) => setLangauge(e.target.value)}>
           <option value="flow">Flow</option>
           <option value="typescript">TypeScript</option>
         </select>
@@ -257,7 +257,7 @@ function ConfigOption({checked, set, children}) {
       <input
         type="checkbox"
         checked={checked}
-        onChange={e => set(e.target.checked)}
+        onChange={(e) => set(e.target.checked)}
       />
       {children}
     </label>

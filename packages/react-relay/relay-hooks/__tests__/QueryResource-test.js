@@ -81,7 +81,7 @@ describe('QueryResource', () => {
 
     gqlLiveQueryMissingData = getRequest(graphql`
       query QueryResourceTest10Query($id: ID!)
-        @live_query(polling_interval: 10000) {
+      @live_query(polling_interval: 10000) {
         node(id: $id) {
           ... on User {
             id

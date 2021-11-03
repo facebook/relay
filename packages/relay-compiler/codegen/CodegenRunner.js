@@ -264,12 +264,8 @@ class CodegenRunner {
     return Profiler.asyncContext('CodegenRunner.write', async () => {
       try {
         this._reporter.reportMessage(`\nWriting ${writerName}`);
-        const {
-          writeFiles,
-          parser,
-          baseParsers,
-          isGeneratedFile,
-        } = this.writerConfigs[writerName];
+        const {writeFiles, parser, baseParsers, isGeneratedFile} =
+          this.writerConfigs[writerName];
 
         let baseDocuments = ImmutableMap();
         if (baseParsers) {
@@ -285,10 +281,8 @@ class CodegenRunner {
           });
         }
 
-        const {
-          baseDir,
-          generatedDirectoriesWatchmanExpression,
-        } = this.parserConfigs[parser];
+        const {baseDir, generatedDirectoriesWatchmanExpression} =
+          this.parserConfigs[parser];
         let generatedDirectories = [];
         if (generatedDirectoriesWatchmanExpression) {
           const relativePaths = await CodegenWatcher.queryDirectories(

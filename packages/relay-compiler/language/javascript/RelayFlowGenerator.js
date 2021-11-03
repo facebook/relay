@@ -203,18 +203,17 @@ function selectionsToBabel(
         ),
       );
     }
-    const selectionMapValues = groupRefs(
-      Array.from(selectionMap.values()),
-    ).map(sel =>
-      isTypenameSelection(sel) && sel.concreteType
-        ? makeProp(
-            schema,
-            {...sel, conditional: false},
-            state,
-            unmasked,
-            sel.concreteType,
-          )
-        : makeProp(schema, sel, state, unmasked),
+    const selectionMapValues = groupRefs(Array.from(selectionMap.values())).map(
+      sel =>
+        isTypenameSelection(sel) && sel.concreteType
+          ? makeProp(
+              schema,
+              {...sel, conditional: false},
+              state,
+              unmasked,
+              sel.concreteType,
+            )
+          : makeProp(schema, sel, state, unmasked),
     );
     types.push(selectionMapValues);
   }
@@ -402,8 +401,9 @@ function createVisitor(
           // $FlowFixMe[incompatible-cast] : selections have already been transformed
           (node.selections: $ReadOnlyArray<$ReadOnlyArray<Selection>>),
         );
-        const numConecreteSelections = selections.filter(s => s.concreteType)
-          .length;
+        const numConecreteSelections = selections.filter(
+          s => s.concreteType,
+        ).length;
         selections = selections.map(selection => {
           if (
             numConecreteSelections <= 1 &&

@@ -60,11 +60,11 @@ const NoInlineFragment = getFragment(graphql`
 
 const InnerFragment = getFragment(graphql`
   fragment RelayModernEnvironmentNoInlineTest_inner on User
-    @argumentDefinitions(
-      cond: {type: "Boolean!"}
-      preset: {type: "PhotoSize"}
-      fileExtension: {type: "FileExtension"}
-    ) {
+  @argumentDefinitions(
+    cond: {type: "Boolean!"}
+    preset: {type: "PhotoSize"}
+    fileExtension: {type: "FileExtension"}
+  ) {
     ... @include(if: $cond) {
       profile_picture_inner: profilePicture2(
         # accesses a global directly
@@ -321,11 +321,11 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           `);
           const NoInlineFragmentWithArgs = getFragment(graphql`
             fragment RelayModernEnvironmentNoInlineTestWithArgs_noInline on Actor
-              @no_inline
-              @argumentDefinitions(
-                cond: {type: "Boolean!"}
-                fileExtension: {type: "FileExtension!", defaultValue: JPG}
-              ) {
+            @no_inline
+            @argumentDefinitions(
+              cond: {type: "Boolean!"}
+              fileExtension: {type: "FileExtension!", defaultValue: JPG}
+            ) {
               ... on User {
                 profile_picture: profilePicture2(
                   size: $size
@@ -505,8 +505,8 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
           const NoInlineFragmentNestedParent = getFragment(graphql`
             fragment RelayModernEnvironmentNoInlineTest_nestedNoInlineParent on Query
-              @no_inline
-              @argumentDefinitions(cond: {type: "Boolean!"}) {
+            @no_inline
+            @argumentDefinitions(cond: {type: "Boolean!"}) {
               mark: username(name: "Mark") {
                 ...RelayModernEnvironmentNoInlineTest_nestedNoInline
                   @arguments(cond: $global_cond)
@@ -523,8 +523,8 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           `);
           const NoInlineFragmentNested = getFragment(graphql`
             fragment RelayModernEnvironmentNoInlineTest_nestedNoInline on User
-              @no_inline
-              @argumentDefinitions(cond: {type: "Boolean!"}) {
+            @no_inline
+            @argumentDefinitions(cond: {type: "Boolean!"}) {
               ... @include(if: $cond) {
                 name
               }
@@ -679,10 +679,8 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           `);
           const NoInlineFragmentWithStream = getFragment(graphql`
             fragment RelayModernEnvironmentNoInlineTestStream_feedback on Feedback
-              @no_inline
-              @argumentDefinitions(
-                cond: {type: "Boolean!", defaultValue: true}
-              ) {
+            @no_inline
+            @argumentDefinitions(cond: {type: "Boolean!", defaultValue: true}) {
               actors @stream(label: "actors", initial_count: 0) {
                 ... @include(if: $cond) {
                   name
@@ -821,10 +819,10 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           `);
           const NoInlineFragmentWithDeferredStreamParent = getFragment(graphql`
             fragment RelayModernEnvironmentNoInlineTestDeferredStreamParent on Viewer
-              @argumentDefinitions(
-                cond: {type: "Boolean!"}
-                enableStream: {type: "Boolean"}
-              ) {
+            @argumentDefinitions(
+              cond: {type: "Boolean!"}
+              enableStream: {type: "Boolean"}
+            ) {
               ...RelayModernEnvironmentNoInlineTestDeferredStream_newsFeed
                 @arguments(cond: $cond, enableStream: $enableStream)
                 @defer(label: "FeedFragment")
@@ -832,11 +830,11 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           `);
           const NoInlineFragmentWithDeferredStream = getFragment(graphql`
             fragment RelayModernEnvironmentNoInlineTestDeferredStream_newsFeed on Viewer
-              @no_inline
-              @argumentDefinitions(
-                cond: {type: "Boolean!", defaultValue: true}
-                enableStream: {type: "Boolean", defaultValue: false}
-              ) {
+            @no_inline
+            @argumentDefinitions(
+              cond: {type: "Boolean!", defaultValue: true}
+              enableStream: {type: "Boolean", defaultValue: false}
+            ) {
               newsFeed(first: 2) {
                 edges
                   @stream(
@@ -1068,7 +1066,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         `);
         const NoInlineFragmentMarkdownUserNameRenderer = getFragment(graphql`
           fragment RelayModernEnvironmentNoInlineTestModuleMarkdownUserNameRenderer_name on MarkdownUserNameRenderer
-            @argumentDefinitions(cond: {type: "Boolean!"}) {
+          @argumentDefinitions(cond: {type: "Boolean!"}) {
             markdown @skip(if: $cond)
             data @include(if: $cond) {
               markup

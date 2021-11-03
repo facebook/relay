@@ -1198,9 +1198,7 @@ class Schema {
     return field;
   }
 
-  getFieldConfig(
-    field: FieldID,
-  ): {|
+  getFieldConfig(field: FieldID): {|
     type: TypeID,
     args: $ReadOnlyArray<Argument>,
   |} {

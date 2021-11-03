@@ -49,9 +49,10 @@ function generateTestsFromFixtures(
 
   const onlyFixtures = fixtures.filter(name => name.startsWith('only.'));
   if (onlyFixtures.length) {
-    test.skip.each(
-      fixtures.filter(name => !name.startsWith('only.')),
-    )('matches expected output: %s', () => {});
+    test.skip.each(fixtures.filter(name => !name.startsWith('only.')))(
+      'matches expected output: %s',
+      () => {},
+    );
     fixtures = onlyFixtures;
   }
   test.each(fixtures)('matches expected output: %s', file => {

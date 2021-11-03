@@ -51,12 +51,8 @@ function loadEntryPoint<
   if (queries != null) {
     const queriesPropNames = Object.keys(queries);
     queriesPropNames.forEach(queryPropName => {
-      const {
-        environmentProviderOptions,
-        options,
-        parameters,
-        variables,
-      } = queries[queryPropName];
+      const {environmentProviderOptions, options, parameters, variables} =
+        queries[queryPropName];
 
       const environment = environmentProvider.getEnvironment(
         environmentProviderOptions,
@@ -83,10 +79,8 @@ function loadEntryPoint<
       if (entryPointDescription == null) {
         return;
       }
-      const {
-        entryPoint: nestedEntryPoint,
-        entryPointParams: nestedParams,
-      } = entryPointDescription;
+      const {entryPoint: nestedEntryPoint, entryPointParams: nestedParams} =
+        entryPointDescription;
       preloadedEntryPoints[entryPointPropName] = loadEntryPoint(
         environmentProvider,
         nestedEntryPoint,

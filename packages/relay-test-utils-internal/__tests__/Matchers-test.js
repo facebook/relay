@@ -94,10 +94,10 @@ describe('toWarn()', () => {
 
   it('verifies that `warning` is called with expected arguments', () => {
     expect(
-      toWarn(() => warning(false, 'Failed %s.', 'spectacularly'), [
-        'Failed %s.',
-        'spectacularly',
-      ]),
+      toWarn(
+        () => warning(false, 'Failed %s.', 'spectacularly'),
+        ['Failed %s.', 'spectacularly'],
+      ),
     ).toPass();
   });
 
@@ -130,10 +130,10 @@ describe('toWarn()', () => {
 
   it('detects failure to call `warning` with expected arguments', () => {
     expect(
-      toWarn(() => warning(false, 'Failed %s.', 'unexpectedly'), [
-        'Failed %s.',
-        'as I have foreseen it',
-      ]),
+      toWarn(
+        () => warning(false, 'Failed %s.', 'unexpectedly'),
+        ['Failed %s.', 'as I have foreseen it'],
+      ),
     ).toFail(
       'Expected to warn: [false, "Failed %s.", "as I have foreseen it"] ' +
         'but `warning` received the following calls: [false, "Failed %s.", ' +
@@ -156,10 +156,10 @@ describe('toWarn()', () => {
 
   it('detects failure to trigger `warning` with a falsey expression', () => {
     expect(
-      toWarn(() => warning(true, 'Failed %s.', 'unexpectedly'), [
-        'Failed %s.',
-        'unexpectedly',
-      ]),
+      toWarn(
+        () => warning(true, 'Failed %s.', 'unexpectedly'),
+        ['Failed %s.', 'unexpectedly'],
+      ),
     ).toFail(
       'Expected to warn: [false, "Failed %s.", "unexpectedly"] but ' +
         '`warning` received the following calls: [true, "Failed %s.", ' +

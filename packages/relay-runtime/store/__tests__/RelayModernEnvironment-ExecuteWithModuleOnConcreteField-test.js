@@ -146,7 +146,8 @@ describe('execute() a query with @module on a field with a nullable concrete typ
           __fragmentPropName: 'author',
 
           __fragments: {
-            RelayModernEnvironmentExecuteWithModuleOnConcreteFieldTestFeedbackAuthor_author: {},
+            RelayModernEnvironmentExecuteWithModuleOnConcreteFieldTestFeedbackAuthor_author:
+              {},
           },
 
           __fragmentOwner: operation.request,

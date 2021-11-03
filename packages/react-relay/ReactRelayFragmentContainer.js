@@ -235,12 +235,8 @@ function createContainerWithFragments<
     }
 
     render() {
-      const {
-        componentRef,
-        __relayContext,
-        __rootIsQueryRenderer,
-        ...props
-      } = this.props;
+      const {componentRef, __relayContext, __rootIsQueryRenderer, ...props} =
+        this.props;
       return React.createElement(Component, {
         ...props,
         ...this.state.data,

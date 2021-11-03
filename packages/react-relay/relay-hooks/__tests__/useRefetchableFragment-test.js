@@ -106,9 +106,9 @@ describe('useRefetchableFragment', () => {
     `);
     gqlFragment = getFragment(graphql`
       fragment useRefetchableFragmentTestUserFragment on User
-        @refetchable(
-          queryName: "useRefetchableFragmentTestUserFragmentRefetchQuery"
-        ) {
+      @refetchable(
+        queryName: "useRefetchableFragmentTestUserFragmentRefetchQuery"
+      ) {
         id
         name
         profile_picture(scale: $scale) {

@@ -143,10 +143,10 @@ describe('useRefetchableFragmentNode', () => {
     `;
     gqlFragmentWithArgs = getFragment(graphql`
       fragment useRefetchableFragmentNodeTestUserFragmentWithArgs on User
-        @refetchable(
-          queryName: "useRefetchableFragmentNodeTestUserFragmentWithArgsRefetchQuery"
-        )
-        @argumentDefinitions(scaleLocal: {type: "Float!"}) {
+      @refetchable(
+        queryName: "useRefetchableFragmentNodeTestUserFragmentWithArgsRefetchQuery"
+      )
+      @argumentDefinitions(scaleLocal: {type: "Float!"}) {
         id
         name
         profile_picture(scale: $scaleLocal) {
@@ -157,9 +157,9 @@ describe('useRefetchableFragmentNode', () => {
     `);
     gqlFragment = getFragment(graphql`
       fragment useRefetchableFragmentNodeTestUserFragment on User
-        @refetchable(
-          queryName: "useRefetchableFragmentNodeTestUserFragmentRefetchQuery"
-        ) {
+      @refetchable(
+        queryName: "useRefetchableFragmentNodeTestUserFragmentRefetchQuery"
+      ) {
         id
         name
         profile_picture(scale: $scale) {
@@ -284,10 +284,8 @@ describe('useRefetchableFragmentNode', () => {
       forceUpdate = _setCount;
       setOwner = _setOwner;
 
-      const {
-        fragmentData: userData,
-        refetch: refetchInternal,
-      } = useRefetchableFragmentNode(fragment, userRef);
+      const {fragmentData: userData, refetch: refetchInternal} =
+        useRefetchableFragmentNode(fragment, userRef);
 
       if (
         props.callDuringRenderKey != null &&
@@ -362,7 +360,7 @@ describe('useRefetchableFragmentNode', () => {
 
       const UserFragment = getFragment(graphql`
         fragment useRefetchableFragmentNodeTest4Fragment on User
-          @relay(plural: true) {
+        @relay(plural: true) {
           id
         }
       `);
@@ -3383,9 +3381,9 @@ describe('useRefetchableFragmentNode', () => {
       beforeEach(() => {
         gqlFragment = getFragment(graphql`
           fragment useRefetchableFragmentNodeTest1Fragment on NonNodeStory
-            @refetchable(
-              queryName: "useRefetchableFragmentNodeTest1FragmentRefetchQuery"
-            ) {
+          @refetchable(
+            queryName: "useRefetchableFragmentNodeTest1FragmentRefetchQuery"
+          ) {
             actor {
               name
             }
@@ -3646,9 +3644,9 @@ describe('useRefetchableFragmentNode', () => {
         `;
         gqlFragment = getFragment(graphql`
           fragment useRefetchableFragmentNodeTest3Fragment on User
-            @refetchable(
-              queryName: "useRefetchableFragmentNodeTest3FragmentRefetchQuery"
-            ) {
+          @refetchable(
+            queryName: "useRefetchableFragmentNodeTest3FragmentRefetchQuery"
+          ) {
             id
             name
             profile_picture(scale: $scale) {
@@ -4004,12 +4002,9 @@ describe('useRefetchableFragmentNode', () => {
             },
           });
         });
-        expect(
-          anotherNewEnvironment
-            .getStore()
-            .getSource()
-            .get('1'),
-        ).toEqual(dataInSource);
+        expect(anotherNewEnvironment.getStore().getSource().get('1')).toEqual(
+          dataInSource,
+        );
       });
     });
   });

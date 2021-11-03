@@ -100,7 +100,7 @@ describe('ReactRelayFragmentContainer with fragment ownerhsip', () => {
     `;
     UserFragment = graphql`
       fragment ReactRelayFragmentContainerWithFragmentOwnershipTestUserFragment on User
-        @argumentDefinitions(cond: {type: "Boolean!", defaultValue: true}) {
+      @argumentDefinitions(cond: {type: "Boolean!", defaultValue: true}) {
         id
         name @include(if: $cond)
         ...ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment
@@ -176,7 +176,8 @@ describe('ReactRelayFragmentContainer with fragment ownerhsip', () => {
         name: 'Zuck',
         __id: '4',
         __fragments: {
-          ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment: {},
+          ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment:
+            {},
         },
         __fragmentOwner: ownerUser1.request,
         __isWithinUnmatchedTypeRefinement: false,
@@ -190,7 +191,8 @@ describe('ReactRelayFragmentContainer with fragment ownerhsip', () => {
         name: 'Zuck',
         __id: '4',
         __fragments: {
-          ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment: {},
+          ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment:
+            {},
         },
         __fragmentOwner: ownerUser1.request,
         __isWithinUnmatchedTypeRefinement: false,
@@ -231,7 +233,8 @@ describe('ReactRelayFragmentContainer with fragment ownerhsip', () => {
         name: 'Mark',
         __id: '4',
         __fragments: {
-          ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment: {},
+          ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment:
+            {},
         },
         __fragmentOwner: ownerUser1.request,
         __isWithinUnmatchedTypeRefinement: false,
@@ -254,7 +257,8 @@ describe('ReactRelayFragmentContainer with fragment ownerhsip', () => {
         name: 'Mark',
         __id: '4',
         __fragments: {
-          ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment: {},
+          ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment:
+            {},
         },
         __fragmentOwner: ownerUser1.request,
         __isWithinUnmatchedTypeRefinement: false,
@@ -290,7 +294,8 @@ describe('ReactRelayFragmentContainer with fragment ownerhsip', () => {
         name: 'Joe',
         __id: '842472',
         __fragments: {
-          ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment: {},
+          ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment:
+            {},
         },
         __fragmentOwner: ownerUser2.request,
         __isWithinUnmatchedTypeRefinement: false,
@@ -305,7 +310,8 @@ describe('ReactRelayFragmentContainer with fragment ownerhsip', () => {
         name: 'Joe',
         __id: '842472',
         __fragments: {
-          ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment: {},
+          ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment:
+            {},
         },
         __fragmentOwner: ownerUser2.request,
         __isWithinUnmatchedTypeRefinement: false,
@@ -353,7 +359,8 @@ describe('ReactRelayFragmentContainer with fragment ownerhsip', () => {
         // Name is excluded since value of cond is now false
         __id: '4',
         __fragments: {
-          ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment: {},
+          ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment:
+            {},
         },
         __fragmentOwner: ownerUser1WithCondVar.request,
         __isWithinUnmatchedTypeRefinement: false,
@@ -367,7 +374,8 @@ describe('ReactRelayFragmentContainer with fragment ownerhsip', () => {
         // Name is excluded since value of cond is now false
         __id: '4',
         __fragments: {
-          ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment: {},
+          ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment:
+            {},
         },
         __fragmentOwner: ownerUser1WithCondVar.request,
         __isWithinUnmatchedTypeRefinement: false,

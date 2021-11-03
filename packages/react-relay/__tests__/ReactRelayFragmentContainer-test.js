@@ -107,7 +107,7 @@ describe('ReactRelayFragmentContainer', () => {
 
     UserFragment = graphql`
       fragment ReactRelayFragmentContainerTestUserFragment on User
-        @argumentDefinitions(cond: {type: "Boolean!", defaultValue: true}) {
+      @argumentDefinitions(cond: {type: "Boolean!", defaultValue: true}) {
         id
         name @include(if: $cond)
       }
@@ -551,7 +551,7 @@ describe('ReactRelayFragmentContainer', () => {
   test('throw for @inline fragments', () => {
     const InlineUserFragment = graphql`
       fragment ReactRelayFragmentContainerTestInlineUserFragment on User
-        @inline {
+      @inline {
         id
       }
     `;

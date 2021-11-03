@@ -46,7 +46,7 @@ type SourcesState = {
     sources: [string],
     ...
   },
-  ...,
+  ...
 };
 
 class Sources<T: ASTNode> {

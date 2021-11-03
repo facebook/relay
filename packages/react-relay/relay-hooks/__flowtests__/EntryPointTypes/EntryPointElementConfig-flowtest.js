@@ -30,7 +30,8 @@ type PreloadParams = $ReadOnly<{||}>;
 type MyComponentEntryPointType = EntryPoint<PreloadParams, typeof MyComponent>;
 
 // This gets the "other props" of the component through the entrypoint's typing
-type MyComponentEntryPointProps = EntryPointElementConfig<MyComponentEntryPointType>;
+type MyComponentEntryPointProps =
+  EntryPointElementConfig<MyComponentEntryPointType>;
 
 // This gets the "other props" directly from the component's prop typings
 type OtherProps = $PropertyType<MyComponentProps, 'props'>;

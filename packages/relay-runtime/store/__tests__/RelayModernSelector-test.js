@@ -74,7 +74,7 @@ describe('RelayModernSelector', () => {
     `);
     UsersFragment = getFragment(graphql`
       fragment RelayModernSelectorTestUsersFragment on User
-        @relay(plural: true) {
+      @relay(plural: true) {
         id
         name
         profilePicture(size: $size) @include(if: $cond) {

@@ -168,8 +168,7 @@ describe('lookup()', () => {
           __id: 'client:comment:1:commentBody(supported:["PlainCommentBody"])',
           __typename: 'PlainCommentBody',
           text: {
-            __id:
-              'client:comment:1:commentBody(supported:["PlainCommentBody"]):text',
+            __id: 'client:comment:1:commentBody(supported:["PlainCommentBody"]):text',
             __typename: 'Text',
             text: 'A comment!',
           },

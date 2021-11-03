@@ -194,7 +194,8 @@ describe('execute() a query with @module', () => {
           __fragmentPropName: 'name',
 
           __fragments: {
-            RelayModernEnvironmentExecuteWithModuleWithKeyTestMarkdownUserNameRenderer_name: {},
+            RelayModernEnvironmentExecuteWithModuleWithKeyTestMarkdownUserNameRenderer_name:
+              {},
           },
 
           __fragmentOwner: operation.request,

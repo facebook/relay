@@ -37,7 +37,7 @@ function isJestProperty(t, property) {
   return t.isIdentifier(property) && jestMethods.includes(property.name);
 }
 
-module.exports = function(babel) {
+module.exports = function (babel) {
   var t = babel.types;
 
   /**

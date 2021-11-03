@@ -181,7 +181,7 @@ describe('check()', () => {
     const target = RelayRecordSource.create();
     const BarFragment = graphql`
       fragment DataCheckerTestFragment on User
-        @argumentDefinitions(size: {type: "[Int]"}) {
+      @argumentDefinitions(size: {type: "[Int]"}) {
         id
         firstName
         friends(first: 1) {
@@ -701,22 +701,23 @@ describe('check()', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
-            __ref:
-              'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
+            {
+              __ref:
+                'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+            },
+        },
+        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
+          {
+            __id: 'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+            __typename: 'PlainUserNameRenderer',
+            __module_component_DataCheckerTest4Fragment:
+              'PlainUserNameRenderer.react',
+            __module_operation_DataCheckerTest4Fragment:
+              'DataCheckerTestPlainUserNameRenderer_nameFragment$normalization.graphql',
+            plaintext: 'plain name',
+            data: {__ref: 'data'},
           },
-        },
-        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
-          __id:
-            'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-          __typename: 'PlainUserNameRenderer',
-          __module_component_DataCheckerTest4Fragment:
-            'PlainUserNameRenderer.react',
-          __module_operation_DataCheckerTest4Fragment:
-            'DataCheckerTestPlainUserNameRenderer_nameFragment$normalization.graphql',
-          plaintext: 'plain name',
-          data: {__ref: 'data'},
-        },
         'client:root': {
           __id: 'client:root',
           __typename: '__Root',
@@ -765,22 +766,23 @@ describe('check()', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
-            __ref:
-              'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
+            {
+              __ref:
+                'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+            },
+        },
+        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
+          {
+            __id: 'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+            __typename: 'MarkdownUserNameRenderer',
+            __module_component_DataCheckerTest4Fragment:
+              'MarkdownUserNameRenderer.react',
+            __module_operation_DataCheckerTest4Fragment:
+              'DataCheckerTestMarkdownUserNameRenderer_nameFragment$normalization.graphql',
+            markdown: 'markdown payload',
+            data: {__ref: 'data'},
           },
-        },
-        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
-          __id:
-            'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-          __typename: 'MarkdownUserNameRenderer',
-          __module_component_DataCheckerTest4Fragment:
-            'MarkdownUserNameRenderer.react',
-          __module_operation_DataCheckerTest4Fragment:
-            'DataCheckerTestMarkdownUserNameRenderer_nameFragment$normalization.graphql',
-          markdown: 'markdown payload',
-          data: {__ref: 'data'},
-        },
         'client:root': {
           __id: 'client:root',
           __typename: '__Root',
@@ -826,17 +828,18 @@ describe('check()', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
-            __ref:
-              'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
+            {
+              __ref:
+                'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+            },
+        },
+        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
+          {
+            __id: 'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+            __typename: 'MarkdownUserNameRenderer',
+            // NOTE: markdown/data fields are missing, data not processed.
           },
-        },
-        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
-          __id:
-            'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-          __typename: 'MarkdownUserNameRenderer',
-          // NOTE: markdown/data fields are missing, data not processed.
-        },
         'client:root': {
           __id: 'client:root',
           __typename: '__Root',
@@ -879,18 +882,19 @@ describe('check()', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
-            __ref:
-              'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
+            {
+              __ref:
+                'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+            },
+        },
+        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
+          {
+            __id: 'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+            __typename: 'MarkdownUserNameRenderer',
+            // NOTE: 'markdown' field missing
+            data: {__ref: 'data'},
           },
-        },
-        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
-          __id:
-            'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-          __typename: 'MarkdownUserNameRenderer',
-          // NOTE: 'markdown' field missing
-          data: {__ref: 'data'},
-        },
         'client:root': {
           __id: 'client:root',
           __typename: '__Root',
@@ -935,18 +939,19 @@ describe('check()', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
-            __ref:
-              'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
+            {
+              __ref:
+                'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+            },
+        },
+        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
+          {
+            __id: 'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+            __typename: 'MarkdownUserNameRenderer',
+            markdown: 'markdown text',
+            // NOTE: 'data' field missing
           },
-        },
-        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
-          __id:
-            'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-          __typename: 'MarkdownUserNameRenderer',
-          markdown: 'markdown text',
-          // NOTE: 'data' field missing
-        },
         'client:root': {
           __id: 'client:root',
           __typename: '__Root',
@@ -984,17 +989,18 @@ describe('check()', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
-            __ref:
-              'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
+            {
+              __ref:
+                'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+            },
+        },
+        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
+          {
+            __id: 'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+            __typename: 'CustomNameRenderer',
+            customField: 'custom value',
           },
-        },
-        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
-          __id:
-            'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-          __typename: 'CustomNameRenderer',
-          customField: 'custom value',
-        },
         'client:root': {
           __id: 'client:root',
           __typename: '__Root',
@@ -1031,7 +1037,8 @@ describe('check()', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': null,
+          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
+            null,
         },
         'client:root': {
           __id: 'client:root',
@@ -1712,7 +1719,7 @@ describe('check()', () => {
       const target = RelayRecordSource.create();
       const BarFragment = graphql`
         fragment DataCheckerTest8Fragment on User
-          @argumentDefinitions(size: {type: "[Int]"}) {
+        @argumentDefinitions(size: {type: "[Int]"}) {
           id
           firstName
           profilePicture(size: $size) {
@@ -1754,7 +1761,7 @@ describe('check()', () => {
       const target = RelayRecordSource.create();
       const BarFragment = graphql`
         fragment DataCheckerTest9Fragment on User
-          @argumentDefinitions(size: {type: "[Int]"}) {
+        @argumentDefinitions(size: {type: "[Int]"}) {
           id
           firstName
           profilePicture(size: $size) {
@@ -1797,7 +1804,7 @@ describe('check()', () => {
       const target = RelayRecordSource.create();
       const BarFragment = graphql`
         fragment DataCheckerTest10Fragment on User
-          @argumentDefinitions(size: {type: "[Int]"}) {
+        @argumentDefinitions(size: {type: "[Int]"}) {
           id
           firstName
           profilePicture(size: $size) {
@@ -2121,7 +2128,7 @@ describe('check()', () => {
       const target = RelayRecordSource.create();
       const BarFragment = graphql`
         fragment DataCheckerTest13Fragment on User
-          @argumentDefinitions(size: {type: "[Int]"}) {
+        @argumentDefinitions(size: {type: "[Int]"}) {
           id
           firstName
           profilePicture(size: $size) {
@@ -2192,7 +2199,7 @@ describe('check()', () => {
       const target = RelayRecordSource.create();
       const BarFragment = graphql`
         fragment DataCheckerTest14Fragment on User
-          @argumentDefinitions(size: {type: "[Int]"}) {
+        @argumentDefinitions(size: {type: "[Int]"}) {
           id
           firstName
           client_actor_field
@@ -2798,10 +2805,11 @@ describe('check()', () => {
         '1': {
           __id: '1',
           __typename: 'Story',
-          'flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})': {
-            __ref:
-              'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
-          },
+          'flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})':
+            {
+              __ref:
+                'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
+            },
           id: '1',
         },
         '2': {
@@ -2810,24 +2818,24 @@ describe('check()', () => {
           id: '2',
           name: 'Lauren',
         },
-        'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})': {
-          __id:
-            'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
-          __typename: 'ReactFlightComponent',
-          executableDefinitions: [
-            {
-              module: {
-                __dr: 'RelayFlightExampleQuery.graphql',
+        'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})':
+          {
+            __id: 'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
+            __typename: 'ReactFlightComponent',
+            executableDefinitions: [
+              {
+                module: {
+                  __dr: 'RelayFlightExampleQuery.graphql',
+                },
+                variables: {
+                  id: '2',
+                },
               },
-              variables: {
-                id: '2',
-              },
+            ],
+            tree: {
+              readRoot,
             },
-          ],
-          tree: {
-            readRoot,
           },
-        },
         'client:root': {
           __id: 'client:root',
           __typename: '__Root',
@@ -2869,17 +2877,18 @@ describe('check()', () => {
         '1': {
           __id: '1',
           __typename: 'Story',
-          'flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})': {
-            __ref:
-              'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
-          },
+          'flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})':
+            {
+              __ref:
+                'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
+            },
           id: '1',
         },
-        'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})': {
-          __id:
-            'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
-          __typename: 'ReactFlightComponent',
-        },
+        'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})':
+          {
+            __id: 'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
+            __typename: 'ReactFlightComponent',
+          },
         'client:root': {
           __id: 'client:root',
           __typename: '__Root',
@@ -2918,13 +2927,15 @@ describe('check()', () => {
         '1': {
           __id: '1',
           __typename: 'Story',
-          'flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})': {
-            __ref:
-              'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
-          },
+          'flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})':
+            {
+              __ref:
+                'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
+            },
           id: '1',
         },
-        'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})': null,
+        'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})':
+          null,
         'client:root': {
           __id: 'client:root',
           __typename: '__Root',
@@ -2963,13 +2974,15 @@ describe('check()', () => {
         '1': {
           __id: '1',
           __typename: 'Story',
-          'flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})': {
-            __ref:
-              'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
-          },
+          'flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})':
+            {
+              __ref:
+                'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
+            },
           id: '1',
         },
-        'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})': undefined,
+        'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})':
+          undefined,
         'client:root': {
           __id: 'client:root',
           __typename: '__Root',
@@ -3008,10 +3021,11 @@ describe('check()', () => {
         '1': {
           __id: '1',
           __typename: 'Story',
-          'flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})': {
-            __ref:
-              'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
-          },
+          'flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})':
+            {
+              __ref:
+                'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
+            },
           id: '1',
         },
         'client:root': {

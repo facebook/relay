@@ -448,7 +448,8 @@ class Executor<TMutation: MutationParameters> {
         error.stack;
         throw error;
       } else {
-        const responseWithData: GraphQLResponseWithData = (response: $FlowFixMe);
+        const responseWithData: GraphQLResponseWithData =
+          (response: $FlowFixMe);
         results.push(responseWithData);
       }
     });
@@ -523,10 +524,8 @@ class Executor<TMutation: MutationParameters> {
       return;
     }
 
-    const [
-      nonIncrementalResponses,
-      incrementalResponses,
-    ] = partitionGraphQLResponses(responsesWithData);
+    const [nonIncrementalResponses, incrementalResponses] =
+      partitionGraphQLResponses(responsesWithData);
     const hasNonIncrementalResponses = nonIncrementalResponses.length > 0;
 
     // In theory this doesn't preserve the ordering of the batch.
@@ -563,9 +562,8 @@ class Executor<TMutation: MutationParameters> {
     }
 
     if (incrementalResponses.length > 0) {
-      const payloadFollowups = this._processIncrementalResponses(
-        incrementalResponses,
-      );
+      const payloadFollowups =
+        this._processIncrementalResponses(incrementalResponses);
 
       this._processPayloadFollowups(payloadFollowups);
     }
@@ -578,7 +576,8 @@ class Executor<TMutation: MutationParameters> {
           __relay_subscription_root_id: this._operation.fragment.dataID,
         };
       } else {
-        responsesWithData[0].extensions.__relay_subscription_root_id = this._operation.fragment.dataID;
+        responsesWithData[0].extensions.__relay_subscription_root_id =
+          this._operation.fragment.dataID;
       }
     }
 
@@ -677,10 +676,8 @@ class Executor<TMutation: MutationParameters> {
             if (operation == null) {
               this._processAsyncOptimisticModuleImport(followupPayload);
             } else {
-              const moduleImportOptimisticUpdates = this._processOptimisticModuleImport(
-                operation,
-                followupPayload,
-              );
+              const moduleImportOptimisticUpdates =
+                this._processOptimisticModuleImport(operation, followupPayload);
               optimisticUpdates.push(...moduleImportOptimisticUpdates);
             }
             break;
@@ -775,10 +772,8 @@ class Executor<TMutation: MutationParameters> {
         if (operation == null || this._state !== 'started') {
           return;
         }
-        const moduleImportOptimisticUpdates = this._processOptimisticModuleImport(
-          operation,
-          moduleImportPayload,
-        );
+        const moduleImportOptimisticUpdates =
+          this._processOptimisticModuleImport(operation, moduleImportPayload);
         moduleImportOptimisticUpdates.forEach(update =>
           this._getPublishQueueAndSaveActor().applyUpdate(update),
         );
@@ -1180,9 +1175,8 @@ class Executor<TMutation: MutationParameters> {
     // If there were any queued responses, process them now that placeholders
     // are in place
     if (pendingResponses != null) {
-      const payloadFollowups = this._processIncrementalResponses(
-        pendingResponses,
-      );
+      const payloadFollowups =
+        this._processIncrementalResponses(pendingResponses);
       this._processPayloadFollowups(payloadFollowups);
     }
   }
@@ -1232,10 +1226,7 @@ class Executor<TMutation: MutationParameters> {
         // but Relay records paths relative to the parent of the stream node:
         // therefore we strip the last two elements just to lookup the path
         // (the item index is used later to insert the element in the list)
-        const pathKey = path
-          .slice(0, -2)
-          .map(String)
-          .join('.');
+        const pathKey = path.slice(0, -2).map(String).join('.');
         let resultForPath = resultForLabel.get(pathKey);
         if (resultForPath == null) {
           resultForPath = {kind: 'response', responses: [incrementalResponse]};

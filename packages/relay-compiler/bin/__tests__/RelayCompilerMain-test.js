@@ -19,12 +19,8 @@ const RelayCompilerMain = require('../RelayCompilerMain');
 const path = require('path');
 const {testSchemaPath} = require('relay-test-utils-internal');
 
-const {
-  getCodegenRunner,
-  getLanguagePlugin,
-  getWatchConfig,
-  main,
-} = RelayCompilerMain;
+const {getCodegenRunner, getLanguagePlugin, getWatchConfig, main} =
+  RelayCompilerMain;
 
 jest.mock('../../codegen/RelayFileWriter');
 jest.mock('../../core/GraphQLWatchmanClient');

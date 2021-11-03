@@ -29,10 +29,8 @@ function getPaginationVariables(
   extraVariables: Variables,
   paginationMetadata: ReaderPaginationMetadata,
 ): {[string]: mixed, ...} {
-  const {
-    backward: backwardMetadata,
-    forward: forwardMetadata,
-  } = paginationMetadata;
+  const {backward: backwardMetadata, forward: forwardMetadata} =
+    paginationMetadata;
 
   if (direction === 'backward') {
     invariant(

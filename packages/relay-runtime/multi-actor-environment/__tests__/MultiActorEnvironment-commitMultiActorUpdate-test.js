@@ -41,10 +41,7 @@ describe('commitMultiActorUpdate', () => {
 
     environments.forEach(env => {
       expect(environmentsCalled.includes(env)).toBe(true);
-      const testRecord = env
-        .getStore()
-        .getSource()
-        .get('foo123');
+      const testRecord = env.getStore().getSource().get('foo123');
       expect(testRecord).toBeTruthy();
       if (testRecord == null) {
         throw new Error('Test record is null.');

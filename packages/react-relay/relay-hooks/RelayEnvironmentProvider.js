@@ -34,10 +34,10 @@ type Props = $ReadOnly<{|
 
 function RelayEnvironmentProvider(props: Props): React.Node {
   const {children, environment, getEnvironmentForActor} = props;
-  const context = useMemo(() => ({environment, getEnvironmentForActor}), [
-    environment,
-    getEnvironmentForActor,
-  ]);
+  const context = useMemo(
+    () => ({environment, getEnvironmentForActor}),
+    [environment, getEnvironmentForActor],
+  );
   return (
     <ReactRelayContext.Provider value={context}>
       {children}

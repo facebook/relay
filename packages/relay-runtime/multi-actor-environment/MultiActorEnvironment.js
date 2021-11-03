@@ -161,9 +161,7 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
         handlers: [],
         defaultActorIdentifier: actorEnvironment.actorIdentifier,
         getSourceForActor: actorIdentifier => {
-          return this.forActor(actorIdentifier)
-            .getStore()
-            .getSource();
+          return this.forActor(actorIdentifier).getStore().getSource();
         },
         getTargetForActor: () => {
           return RelayRecordSource.create();
@@ -189,9 +187,7 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
       handlers,
       defaultActorIdentifier: actorEnvironment.actorIdentifier,
       getSourceForActor: actorIdentifier => {
-        return this.forActor(actorIdentifier)
-          .getStore()
-          .getSource();
+        return this.forActor(actorIdentifier).getStore().getSource();
       },
       getTargetForActor: actorIdentifier => {
         let target = targets.get(actorIdentifier);

@@ -45,7 +45,7 @@ const warning = require('warning');
 type Props = {[key: string]: mixed, ...};
 type Resolvers = {
   [key: string]: ?(SelectorListResolver | SelectorResolver),
-  ...,
+  ...
 };
 
 /**

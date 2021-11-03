@@ -98,12 +98,8 @@ function prepareEntryPoint<
   if (queries != null) {
     const queriesPropNames = Object.keys(queries);
     queriesPropNames.forEach(queryPropName => {
-      const {
-        environmentProviderOptions,
-        options,
-        parameters,
-        variables,
-      } = queries[queryPropName];
+      const {environmentProviderOptions, options, parameters, variables} =
+        queries[queryPropName];
 
       const environment = environmentProvider.getEnvironment(
         environmentProviderOptions,
@@ -126,10 +122,8 @@ function prepareEntryPoint<
       if (entryPointDescription == null) {
         return;
       }
-      const {
-        entryPoint: nestedEntryPoint,
-        entryPointParams: nestedParams,
-      } = entryPointDescription;
+      const {entryPoint: nestedEntryPoint, entryPointParams: nestedParams} =
+        entryPointDescription;
       preloadedEntryPoints[entryPointPropName] = prepareEntryPoint(
         environmentProvider,
         nestedEntryPoint,
@@ -178,23 +172,23 @@ function LazyLoadEntryPointContainer_DEPRECATED<
   // *must* be computed first to fetch the component's data-dependencies in
   // parallel with the component itself (the code).
   const entryPointParamsHash = stableStringify(entryPointParams);
-  const {
-    getComponent,
-    queries,
-    entryPoints,
-    extraProps,
-    rootModuleID,
-  } = useMemo(() => {
-    return prepareEntryPoint(
-      environmentProvider ?? {
-        getEnvironment: () => environment,
-      },
-      entryPoint,
-      entryPointParams,
-    );
-    // NOTE: stableParams encodes the information from params
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [environment, environmentProvider, getPreloadProps, entryPointParamsHash]);
+  const {getComponent, queries, entryPoints, extraProps, rootModuleID} =
+    useMemo(() => {
+      return prepareEntryPoint(
+        environmentProvider ?? {
+          getEnvironment: () => environment,
+        },
+        entryPoint,
+        entryPointParams,
+      );
+      // NOTE: stableParams encodes the information from params
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [
+      environment,
+      environmentProvider,
+      getPreloadProps,
+      entryPointParamsHash,
+    ]);
   const Component = useMemo(() => {
     return getComponent();
   }, [getComponent]);

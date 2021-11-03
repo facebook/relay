@@ -44,9 +44,10 @@ function useMemoVariables<TVariables: Variables | null>(
   // NOTE: We disable react-hooks-deps warning because we explicitly
   // don't want to memoize on object identity
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const memoVariables = useMemo(() => variables, [
-    variablesChangedGenerationRef.current,
-  ]);
+  const memoVariables = useMemo(
+    () => variables,
+    [variablesChangedGenerationRef.current],
+  );
   return [memoVariables, variablesChangedGenerationRef.current ?? 0];
 }
 

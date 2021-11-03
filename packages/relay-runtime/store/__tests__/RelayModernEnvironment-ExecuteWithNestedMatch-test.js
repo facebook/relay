@@ -209,7 +209,8 @@ describe('execute() a query with nested @match', () => {
           __fragmentPropName: 'name',
 
           __fragments: {
-            RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name: {},
+            RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name:
+              {},
           },
 
           __fragmentOwner: operation.request,
@@ -321,7 +322,8 @@ describe('execute() a query with nested @match', () => {
           __fragmentPropName: 'name',
 
           __fragments: {
-            RelayModernEnvironmentExecuteWithNestedMatchTestPlainUserNameRenderer_name: {},
+            RelayModernEnvironmentExecuteWithNestedMatchTestPlainUserNameRenderer_name:
+              {},
           },
 
           __id: 'client:2:nameRenderer(supported:["PlainUserNameRenderer"])',

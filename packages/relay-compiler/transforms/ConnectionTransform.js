@@ -498,11 +498,8 @@ function transformConnectionSelections(
   // Separately create transformed versions of edges/pageInfo so that we can
   // later replace the originals at the same point within the selection array
   let transformedEdgesSelection: ?LinkedField = edgesSelection;
-  let transformedPageInfoSelection: ?(
-    | Defer
-    | InlineFragment
-    | LinkedField
-  ) = pageInfoSelection;
+  let transformedPageInfoSelection: ?(Defer | InlineFragment | LinkedField) =
+    pageInfoSelection;
   const edgesType = schema.getFieldConfig(
     schema.expectField(nullableType, EDGES),
   ).type;

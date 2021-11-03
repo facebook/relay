@@ -32,12 +32,12 @@ function transformerWithOptions(
         plugins: [[BabelPluginRelay, options]],
       }).code;
       return prettier.format(code, {
-        singleQuote: true,
-        trailingComma: 'all',
+        bracketSameLine: true,
         bracketSpacing: false,
-        jsxBracketSameLine: true,
         parser: 'flow',
         requirePragma: false,
+        singleQuote: true,
+        trailingComma: 'all',
       });
     } finally {
       process.env.BABEL_ENV = previousEnv;

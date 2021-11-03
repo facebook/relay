@@ -15,7 +15,7 @@ use crate::{
         SelectionParent, TypeConditionPath,
     },
     server::GlobalState,
-    FieldDefinitionSourceInfo, LSPExtraDataProvider,
+    FieldDefinitionSourceInfo, FieldSchemaInfo, LSPExtraDataProvider,
 };
 use common::NamedItem;
 
@@ -26,7 +26,7 @@ use lsp_types::{
     GotoDefinitionResponse, Url,
 };
 use relay_transforms::{RELAY_RESOLVER_DIRECTIVE_NAME, RELAY_RESOLVER_IMPORT_PATH_ARGUMENT_NAME};
-use schema::{SDLSchema, Schema, Type};
+use schema::Schema;
 use serde::{Deserialize, Serialize};
 use std::{
     path::{Path, PathBuf},
@@ -103,12 +103,7 @@ fn get_goto_definition_response<'a>(
                 file_path,
                 line_number,
                 is_local,
-            } = provider_response.map_err(|e| -> LSPRuntimeError {
-                LSPRuntimeError::UnexpectedError(format!(
-                    "Error resolving field definition location: {}",
-                    e
-                ))
-            })?;
+            } = get_field_definition_source_info_result(provider_response)?;
             if is_local {
                 Ok(GotoDefinitionResponse::Scalar(get_location(
                     &file_path,
@@ -134,31 +129,39 @@ fn resolve_field<'a>(
         .find_parent_type(&program.schema)
         .ok_or(LSPRuntimeError::ExpectedError)?;
 
-    let field_name_key = field_name.intern();
+    let field_name_key = (&field_name as &str).intern();
 
-    if let Some(response) =
-        get_relay_resolver_location(&program.schema, parent_type, field_name_key, root_dir)?
-    {
+    let field = program.schema.field(
+        program
+            .schema
+            .named_field(parent_type, field_name_key)
+            .ok_or_else(|| {
+                LSPRuntimeError::UnexpectedError(format!(
+                    "Could not find field with name {}",
+                    field_name,
+                ))
+            })?,
+    );
+
+
+    if let Some(response) = get_relay_resolver_location(field, root_dir)? {
         return Ok(response);
     }
 
     let parent_name = program.schema.get_type_name(parent_type);
-
     let provider_response = extra_data_provider.resolve_field_definition(
         project_name.to_string(),
         parent_name.to_string(),
-        Some(field_name_key.to_string()),
+        Some(FieldSchemaInfo {
+            name: field.name.item.to_string(),
+            is_extension: field.is_extension,
+        }),
     );
     let FieldDefinitionSourceInfo {
         file_path,
         line_number,
         is_local,
-    } = provider_response.map_err(|e| -> LSPRuntimeError {
-        LSPRuntimeError::UnexpectedError(format!(
-            "Error resolving field definition location: {}",
-            e
-        ))
-    })?;
+    } = get_field_definition_source_info_result(provider_response)?;
     if is_local {
         Ok(GotoDefinitionResponse::Scalar(get_location(
             &file_path,
@@ -170,20 +173,10 @@ fn resolve_field<'a>(
 }
 
 fn get_relay_resolver_location(
-    schema: &SDLSchema,
-    parent_type: Type,
-    field_name: StringKey,
+    field: &schema::Field,
     root_dir: &Path,
 ) -> LSPRuntimeResult<Option<GotoDefinitionResponse>> {
-    let maybe_resolver_directive =
-        schema
-            .named_field(parent_type, field_name)
-            .and_then(|field_id| {
-                schema
-                    .field(field_id)
-                    .directives
-                    .named(*RELAY_RESOLVER_DIRECTIVE_NAME)
-            });
+    let maybe_resolver_directive = field.directives.named(*RELAY_RESOLVER_DIRECTIVE_NAME);
 
     Ok(if let Some(resolver_directive) = maybe_resolver_directive {
         let resolver_path = resolver_directive
@@ -266,13 +259,62 @@ pub(crate) fn on_get_source_location_of_type_definition(
     state: &impl GlobalState,
     params: <GetSourceLocationOfTypeDefinition as Request>::Params,
 ) -> LSPRuntimeResult<<GetSourceLocationOfTypeDefinition as Request>::Result> {
-    let field_definition_source_info = state
-        .get_extra_data_provider()
-        .resolve_field_definition(params.schema_name, params.type_name, params.field_name)
-        .map_err(LSPRuntimeError::UnexpectedError)?;
+    let schema = state.get_schema(&(&params.schema_name as &str).intern())?;
+
+    let type_ = schema
+        .get_type((&params.type_name as &str).intern())
+        .ok_or_else(|| {
+            LSPRuntimeError::UnexpectedError(format!(
+                "Could not find type with name {}",
+                &params.type_name
+            ))
+        })?;
+
+    let field_info = params
+        .field_name
+        .map(|field_name| {
+            schema
+                .named_field(type_, (&field_name as &str).intern())
+                .ok_or_else(|| {
+                    LSPRuntimeError::UnexpectedError(format!(
+                        "Could not find field with name {}",
+                        field_name
+                    ))
+                })
+        })
+        .transpose()?
+        .map(|field_id| {
+            let field = schema.field(field_id);
+            FieldSchemaInfo {
+                name: field.name.item.to_string(),
+                is_extension: field.is_extension,
+            }
+        });
+
+    // TODO add go-to-definition for client fields
+    let field_definition_source_info = get_field_definition_source_info_result(
+        state.get_extra_data_provider().resolve_field_definition(
+            params.schema_name,
+            params.type_name,
+            field_info,
+        ),
+    )?;
+
     Ok(GetSourceLocationOfTypeDefinitionResult {
         field_definition_source_info,
     })
+}
+
+fn get_field_definition_source_info_result(
+    result: Result<Option<FieldDefinitionSourceInfo>, String>,
+) -> LSPRuntimeResult<FieldDefinitionSourceInfo> {
+    result
+        .map_err(LSPRuntimeError::UnexpectedError)?
+        .ok_or_else(|| {
+            LSPRuntimeError::UnexpectedError(
+                "Expected result when resolving field definition location".to_string(),
+            )
+        })
 }
 
 #[cfg(test)]
@@ -287,7 +329,8 @@ mod test {
     use relay_test_schema::get_test_schema_with_extensions;
 
     use crate::{
-        resolution_path::ResolvePosition, FieldDefinitionSourceInfo, LSPExtraDataProvider,
+        resolution_path::ResolvePosition, FieldDefinitionSourceInfo, FieldSchemaInfo,
+        LSPExtraDataProvider,
     };
 
     use super::get_goto_definition_response;
@@ -303,8 +346,8 @@ mod test {
             &self,
             _project_name: String,
             _parent_type: String,
-            _field_name: Option<String>,
-        ) -> Result<FieldDefinitionSourceInfo, String> {
+            _field_info: Option<FieldSchemaInfo>,
+        ) -> Result<Option<FieldDefinitionSourceInfo>, String> {
             Err("Not implemented".to_string())
         }
     }

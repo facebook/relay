@@ -14,6 +14,11 @@ pub struct FieldDefinitionSourceInfo {
     pub is_local: bool,
 }
 
+pub struct FieldSchemaInfo {
+    pub name: String,
+    pub is_extension: bool,
+}
+
 /// Interface for the LSP server to handle external data sources
 pub trait LSPExtraDataProvider: Send + Sync {
     fn fetch_query_stats(&self, search_token: &str) -> Vec<String>;
@@ -21,6 +26,6 @@ pub trait LSPExtraDataProvider: Send + Sync {
         &self,
         project_name: String,
         parent_type: String,
-        field_name: Option<String>,
-    ) -> Result<FieldDefinitionSourceInfo, String>;
+        field_info: Option<FieldSchemaInfo>,
+    ) -> Result<Option<FieldDefinitionSourceInfo>, String>;
 }

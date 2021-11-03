@@ -35,7 +35,7 @@ common = { path = "../common" }
 fnv = "1.0"
 graphql-ir = { path = "../graphql-ir" }
 graphql-syntax = { path = "../graphql-syntax" }
-hex = "0.4"
+hex = "0.4.3"
 indexmap = { version = "1.7.0", features = ["rayon", "serde-1"] }
 interner = { path = "../interner" }
 lazy_static = "1.0"

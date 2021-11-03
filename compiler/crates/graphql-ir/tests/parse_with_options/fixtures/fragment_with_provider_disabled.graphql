@@ -1,0 +1,12 @@
+# expected-to-throw
+fragment TestFragment on User
+  @argumentDefinitions(
+    id: {type: "ID"}
+    size: {type: "[Int]", defaultValue: [100]}
+    # should fail due to provider arguments being a gated feature
+    foo: {type: "Boolean!", provider: "test_foo_gk.js"} 
+  ) {
+  profilePicture(size: $PictureSize) {
+    uri
+  }
+}

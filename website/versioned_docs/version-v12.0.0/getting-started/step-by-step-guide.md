@@ -157,11 +157,11 @@ First we'll add the necessary packages. Note that Relay is comprised of three ke
 ```bash
 # NPM Users
 npm install --save relay-runtime react-relay
-npm install --save-dev relay-compiler graphql babel-plugin-relay
+npm install --save-dev relay-compiler graphql@^15.0.0 babel-plugin-relay
 
 # Yarn Users
 yarn add relay-runtime react-relay
-yarn add --dev relay-compiler graphql babel-plugin-relay
+yarn add --dev relay-compiler graphql@^15.0.0 babel-plugin-relay
 ```
 
 ### 4.1 Configure Relay Compiler

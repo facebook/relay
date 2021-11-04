@@ -18,7 +18,7 @@ use graphql_ir::{InlineFragment, LinkedField};
 use interner::Intern;
 use interner::StringKey;
 use lazy_static::lazy_static;
-use schema::{ArgumentValue, Field, SDLSchema, Schema};
+use schema::{ArgumentValue, Field, FieldID, SDLSchema, Schema};
 use std::{mem, sync::Arc};
 
 pub fn relay_resolvers(program: &Program, enabled: bool) -> DiagnosticsResult<Program> {
@@ -375,6 +375,25 @@ impl<'a> ResolverFieldFinder<'a> {
                 .insert(name, mem::take(&mut self.seen_resolver_fragments));
         }
     }
+
+    fn check_for_resolver_dependencies(&mut self, field_id: FieldID) {
+        let field_type = self.schema.field(field_id);
+
+        // Find the backing resolver fragment, if any. Ignore any malformed resolver field definitions.
+        let maybe_fragment_name = field_type
+            .directives
+            .named(*RELAY_RESOLVER_DIRECTIVE_NAME)
+            .and_then(|resolver_directive| {
+                resolver_directive
+                    .arguments
+                    .named(*RELAY_RESOLVER_FRAGMENT_ARGUMENT_NAME)
+            })
+            .and_then(|arg| arg.value.get_string_literal());
+
+        if let Some(fragment_name) = maybe_fragment_name {
+            self.seen_resolver_fragments.insert(fragment_name);
+        }
+    }
 }
 
 impl<'a> Visitor for ResolverFieldFinder<'a> {
@@ -402,23 +421,13 @@ impl<'a> Visitor for ResolverFieldFinder<'a> {
         self.record_definition_dependencies(operation.name.item);
     }
 
-    // For now, all Resolver fields are scalar.
     fn visit_scalar_field(&mut self, field: &ScalarField) {
-        let field_type = self.schema.field(field.definition.item);
+        self.check_for_resolver_dependencies(field.definition.item)
+    }
 
-        // Find the backing resolver fragment, if any. Ignore any malformed resolver field definitions.
-        let maybe_fragment_name = field_type
-            .directives
-            .named(*RELAY_RESOLVER_DIRECTIVE_NAME)
-            .and_then(|resolver_directive| {
-                resolver_directive
-                    .arguments
-                    .named(*RELAY_RESOLVER_FRAGMENT_ARGUMENT_NAME)
-            })
-            .and_then(|arg| arg.value.get_string_literal());
 
-        if let Some(fragment_name) = maybe_fragment_name {
-            self.seen_resolver_fragments.insert(fragment_name);
-        }
+    fn visit_linked_field(&mut self, field: &LinkedField) {
+        self.check_for_resolver_dependencies(field.definition.item);
+        self.default_visit_linked_field(field)
     }
 }

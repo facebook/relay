@@ -638,11 +638,6 @@ pub struct SingleProjectConfigFile {
     /// the babel plugin needs `artifactDirectory` set as well.
     pub artifact_directory: Option<PathBuf>,
 
-    /// Directories to include under src
-    /// default: ['**'],
-    /// TODO(T104508864):: Currently not supported in Rust OSS compiler
-    pub includes: Vec<String>,
-
     /// Directories to ignore under src
     /// default: ['**/node_modules/**', '**/__mocks__/**', '**/__generated__/**'],
     pub excludes: Vec<String>,
@@ -675,7 +670,6 @@ impl Default for SingleProjectConfigFile {
             schema: Default::default(),
             src: Default::default(),
             artifact_directory: Default::default(),
-            includes: vec!["**".to_string()],
             excludes: vec![
                 "**/node_modules/**".to_string(),
                 "**/__mocks__/**".to_string(),

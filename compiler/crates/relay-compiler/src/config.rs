@@ -647,9 +647,8 @@ pub struct SingleProjectConfigFile {
     /// default: ['**/node_modules/**', '**/__mocks__/**', '**/__generated__/**'],
     pub excludes: Vec<String>,
 
-    /// Schema extensions
-    /// TODO(T104508864): Currently not supported in Rust OSS compiler
-    pub extensions: Vec<String>,
+    /// List of directories with schema extensions.
+    pub extensions: Vec<PathBuf>,
 
     /// This option controls whether or not a catch-all entry is added to enum type definitions
     /// for values that may be added in the future. Enabling this means you will have to update
@@ -703,6 +702,7 @@ impl From<SingleProjectConfigFile> for MultiProjectConfigFile {
                 root_dir.clone(),
                 oss_config.schema,
             )),
+            extensions: oss_config.extensions,
             typegen_config: TypegenConfig {
                 language: oss_config.language.unwrap_or(TypegenLanguage::TypeScript),
                 custom_scalar_types: oss_config.custom_scalars,

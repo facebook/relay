@@ -53,7 +53,7 @@ fragment Foo_user on User {
   }
 }
 
-fragment RefetchableClientEdgeQuery_Foo_user_best_friend on User @__RefetchableMetadata
+fragment RefetchableClientEdgeQuery_Foo_user_best_friend on User @__clientEdgeGeneratedFragment(clientEdgeSourceDocument: "Foo_user") @__RefetchableMetadata
 # RefetchableMetadata {
 #     operation_name: "ClientEdgeQuery_Foo_user_best_friend",
 #     path: [
@@ -82,7 +82,7 @@ fragment RefetchableClientEdgeQuery_Foo_user_best_friend on User @__RefetchableM
   id
 }
 
-fragment RefetchableClientEdgeQuery_Foo_user_best_friend__best_friend on User @__RefetchableMetadata
+fragment RefetchableClientEdgeQuery_Foo_user_best_friend__best_friend on User @__clientEdgeGeneratedFragment(clientEdgeSourceDocument: "Foo_user") @__RefetchableMetadata
 # RefetchableMetadata {
 #     operation_name: "ClientEdgeQuery_Foo_user_best_friend__best_friend",
 #     path: [
@@ -102,7 +102,7 @@ query ClientEdgeQuery_Foo_user_best_friend(
   $nested_site: String
   $top_level_site: String
   $id: ID!
-) @__clientEdgeQuery {
+) @__clientEdgeQuery(clientEdgeSourceDocument: "Foo_user") {
   node(id: $id) {
     ...RefetchableClientEdgeQuery_Foo_user_best_friend
   }
@@ -111,7 +111,7 @@ query ClientEdgeQuery_Foo_user_best_friend(
 query ClientEdgeQuery_Foo_user_best_friend__best_friend(
   $nested_site: String
   $id: ID!
-) @__clientEdgeQuery {
+) @__clientEdgeQuery(clientEdgeSourceDocument: "Foo_user") {
   node(id: $id) {
     ...RefetchableClientEdgeQuery_Foo_user_best_friend__best_friend
   }

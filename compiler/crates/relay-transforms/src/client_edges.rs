@@ -27,6 +27,9 @@ lazy_static! {
     // This gets attached to the generated query
     pub static ref CLIENT_EDGE_QUERY_METADATA_KEY: StringKey = "__clientEdgeQuery".intern();
     pub static ref QUERY_NAME_ARG: StringKey = "queryName".intern();
+    pub static ref CLIENT_EDGE_SOURCE_NAME: StringKey = "clientEdgeSourceDocument".intern();
+    // This gets attached to fragment which defines the selection in the generated query
+    pub static ref CLIENT_EDGE_GENERATED_FRAGMENT_KEY: StringKey = "__clientEdgeGeneratedFragment".intern();
 }
 
 pub struct ClientEdgeMetadata<'a> {
@@ -154,7 +157,16 @@ impl<'program> ClientEdgesTransform<'program> {
             variable_definitions: Vec::new(),
             used_global_variables: Vec::new(),
             type_condition: field_type,
-            directives: vec![],
+            directives: vec![Directive {
+                name: WithLocation::generated(*CLIENT_EDGE_GENERATED_FRAGMENT_KEY),
+                arguments: vec![Argument {
+                    name: WithLocation::generated(*CLIENT_EDGE_SOURCE_NAME),
+                    value: WithLocation::generated(Value::Constant(ConstantValue::String(
+                        self.document_name.expect("Expect to be within a document"),
+                    ))),
+                }],
+                data: None,
+            }],
             selections,
         };
 
@@ -178,7 +190,12 @@ impl<'program> ClientEdgesTransform<'program> {
                 let mut directives = refetchable_directive.directives;
                 directives.push(Directive {
                     name: WithLocation::generated(*CLIENT_EDGE_QUERY_METADATA_KEY),
-                    arguments: Default::default(),
+                    arguments: vec![Argument {
+                        name: WithLocation::generated(*CLIENT_EDGE_SOURCE_NAME),
+                        value: WithLocation::generated(Value::Constant(ConstantValue::String(
+                            self.document_name.expect("Expect to be within a document"),
+                        ))),
+                    }],
                     data: None,
                 });
                 self.new_operations.push(OperationDefinition {

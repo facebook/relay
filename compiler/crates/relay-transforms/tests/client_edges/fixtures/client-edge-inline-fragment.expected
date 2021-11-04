@@ -67,7 +67,7 @@ fragment Foo_node on Node {
   }
 }
 
-fragment RefetchableClientEdgeQuery_Foo_node_PhotoStory__author__best_friend on User @__RefetchableMetadata
+fragment RefetchableClientEdgeQuery_Foo_node_PhotoStory__author__best_friend on User @__clientEdgeGeneratedFragment(clientEdgeSourceDocument: "Foo_node") @__RefetchableMetadata
 # RefetchableMetadata {
 #     operation_name: "ClientEdgeQuery_Foo_node_PhotoStory__author__best_friend",
 #     path: [
@@ -82,7 +82,7 @@ fragment RefetchableClientEdgeQuery_Foo_node_PhotoStory__author__best_friend on 
   id
 }
 
-fragment RefetchableClientEdgeQuery_Foo_node_Story__author__best_friend on User @__RefetchableMetadata
+fragment RefetchableClientEdgeQuery_Foo_node_Story__author__best_friend on User @__clientEdgeGeneratedFragment(clientEdgeSourceDocument: "Foo_node") @__RefetchableMetadata
 # RefetchableMetadata {
 #     operation_name: "ClientEdgeQuery_Foo_node_Story__author__best_friend",
 #     path: [
@@ -99,7 +99,7 @@ fragment RefetchableClientEdgeQuery_Foo_node_Story__author__best_friend on User 
 
 query ClientEdgeQuery_Foo_node_PhotoStory__author__best_friend(
   $id: ID!
-) @__clientEdgeQuery {
+) @__clientEdgeQuery(clientEdgeSourceDocument: "Foo_node") {
   node(id: $id) {
     ...RefetchableClientEdgeQuery_Foo_node_PhotoStory__author__best_friend
   }
@@ -107,7 +107,7 @@ query ClientEdgeQuery_Foo_node_PhotoStory__author__best_friend(
 
 query ClientEdgeQuery_Foo_node_Story__author__best_friend(
   $id: ID!
-) @__clientEdgeQuery {
+) @__clientEdgeQuery(clientEdgeSourceDocument: "Foo_node") {
   node(id: $id) {
     ...RefetchableClientEdgeQuery_Foo_node_Story__author__best_friend
   }

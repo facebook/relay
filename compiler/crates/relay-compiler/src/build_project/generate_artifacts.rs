@@ -14,7 +14,9 @@ use graphql_ir::{FragmentDefinition, OperationDefinition};
 use graphql_text_printer::OperationPrinter;
 use interner::StringKey;
 use relay_transforms::{
-    Programs, RefetchableDerivedFromMetadata, SplitOperationMetadata, DIRECTIVE_SPLIT_OPERATION,
+    Programs, RefetchableDerivedFromMetadata, SplitOperationMetadata,
+    CLIENT_EDGE_GENERATED_FRAGMENT_KEY, CLIENT_EDGE_QUERY_METADATA_KEY, CLIENT_EDGE_SOURCE_NAME,
+    DIRECTIVE_SPLIT_OPERATION,
 };
 use relay_typegen::TypegenLanguage;
 use std::path::PathBuf;
@@ -39,7 +41,7 @@ pub fn generate_artifacts(
     let mut operation_printer = OperationPrinter::new(&programs.operation_text);
     return group_operations(programs)
         .into_iter()
-        .map(|(_, operations)| {
+        .map(|(_, operations)| -> Artifact {
             if let Some(directive) = operations
                 .normalization
                 .directives
@@ -91,6 +93,39 @@ pub fn generate_artifacts(
                     source_hash,
                     source_fragment.name.location.source_location(),
                 )
+            } else if let Some(client_edges_directive) = operations
+                .normalization
+                .directives
+                .named(*CLIENT_EDGE_QUERY_METADATA_KEY)
+            {
+                let source_name = client_edges_directive
+                    .arguments
+                    .named(*CLIENT_EDGE_SOURCE_NAME)
+                    .expect("Client edges should have a source argument")
+                    .value
+                    .item
+                    .expect_string_literal();
+
+                let source_file = programs
+                    .source
+                    .fragment(source_name)
+                    .map(|fragment| fragment.name.location.source_location())
+                    .or_else(|| {
+                        programs
+                            .source
+                            .operation(source_name)
+                            .map(|operation| operation.name.location.source_location())
+                    })
+                    .unwrap();
+                let source_hash = source_hashes.get(&source_name).cloned().unwrap();
+                generate_normalization_artifact(
+                    &mut operation_printer,
+                    source_name,
+                    project_config,
+                    &operations,
+                    source_hash,
+                    source_file,
+                )
             } else {
                 let source_hash = source_hashes
                     .get(&operations.normalization.name.item)
@@ -107,10 +142,22 @@ pub fn generate_artifacts(
             }
         })
         .chain(programs.reader.fragments().map(|reader_fragment| {
-            let source_hash = source_hashes
-                .get(&reader_fragment.name.item)
-                .cloned()
-                .unwrap();
+            let source_name = if let Some(client_edges_directive) = reader_fragment
+                .directives
+                .named(*CLIENT_EDGE_GENERATED_FRAGMENT_KEY)
+            {
+                client_edges_directive
+                    .arguments
+                    .named(*CLIENT_EDGE_SOURCE_NAME)
+                    .expect("Client edges should have a source argument")
+                    .value
+                    .item
+                    .expect_string_literal()
+            } else {
+                reader_fragment.name.item
+            };
+
+            let source_hash = source_hashes.get(&source_name).cloned().unwrap();
             generate_reader_artifact(project_config, programs, reader_fragment, source_hash)
         }))
         .collect();

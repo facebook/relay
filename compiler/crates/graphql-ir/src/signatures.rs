@@ -23,7 +23,7 @@ use schema::{SDLSchema, Schema, Type, TypeReference};
 lazy_static! {
     static ref TYPE: StringKey = "type".intern();
     static ref DEFAULT_VALUE: StringKey = "defaultValue".intern();
-    static ref PROVIDER_MODULE: StringKey = "provider".intern();
+    pub static ref PROVIDER_MODULE: StringKey = "provider".intern();
     pub static ref UNUSED_LOCAL_VARIABLE_DEPRECATED: StringKey =
         "unusedLocalVariable_DEPRECATED".intern();
 }

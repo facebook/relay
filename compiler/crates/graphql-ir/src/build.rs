@@ -7,7 +7,7 @@
 
 use crate::errors::{ValidationMessage, ValidationMessageWithData};
 use crate::ir::*;
-use crate::signatures::{build_signatures, FragmentSignature, FragmentSignatures};
+use crate::signatures::{build_signatures, FragmentSignature, FragmentSignatures, PROVIDER_MODULE};
 use crate::{constants::ARGUMENT_DEFINITION, GraphQLSuggestions};
 use common::{Diagnostic, DiagnosticsResult, FeatureFlag, Location, NamedItem, Span, WithLocation};
 use core::cmp::Ordering;
@@ -580,8 +580,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
         let mut has_invalid_arg = false;
         let mut errors = Vec::new();
         for variable_definition in &signature.variable_definitions {
-            if variable_definition.type_.is_non_null()
-                && variable_definition.default_value.is_none()
+            if variable_definition_requires_argument(variable_definition)
                 && arg_list
                     .items
                     .named(variable_definition.name.item)
@@ -757,8 +756,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
                 .variable_definitions
                 .iter()
                 .filter(|variable_definition| {
-                    variable_definition.type_.is_non_null()
-                        && variable_definition.default_value.is_none()
+                    variable_definition_requires_argument(variable_definition)
                 })
                 .map(|variable_definition| {
                     Diagnostic::error(
@@ -1817,4 +1815,13 @@ fn wrap_selection_with_condition(selection: &Selection, condition: &Directive) -
         passing_value: condition.name.item.lookup() == "include",
         selections: vec![selection.clone()],
     }))
+}
+
+fn variable_definition_requires_argument(variable_definition: &VariableDefinition) -> bool {
+    variable_definition.type_.is_non_null()
+        && variable_definition.default_value.is_none()
+        && variable_definition
+            .directives
+            .named(*PROVIDER_MODULE)
+            .is_none()
 }

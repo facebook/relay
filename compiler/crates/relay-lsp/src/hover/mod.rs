@@ -61,7 +61,7 @@ DEPRECATED version of `@arguments` directive.
     }.map(|s| MarkedString::String(s.to_string()))
 }
 
-pub(crate) fn on_hover(
+pub fn on_hover(
     state: &impl GlobalState,
     params: <HoverRequest as Request>::Params,
 ) -> LSPRuntimeResult<<HoverRequest as Request>::Result> {

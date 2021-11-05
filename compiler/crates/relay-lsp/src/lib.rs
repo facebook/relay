@@ -14,7 +14,7 @@ mod diagnostic_reporter;
 mod explore_schema_for_type;
 mod goto_definition;
 mod graphql_tools;
-mod hover;
+pub mod hover;
 pub mod js_language_server;
 mod location;
 mod lsp_extra_data_provider;

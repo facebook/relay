@@ -33,9 +33,7 @@ query QueryWithUnusedVariables($id: ID!, $unusedFirst: Int, $unusedAfter: ID) {
 }
 
 fragment ConnectionFragment on User
-  @argumentDefinitions(
-    fetchConnection: {type: "Boolean", defaultValue: false}
-  ) {
+@argumentDefinitions(fetchConnection: {type: "Boolean", defaultValue: false}) {
   # this branch will be excluded after all transforms
   # and variables $unusedFirst and $unusedAfter will be skipped, eventually
   # But this transform should not report them as unused
@@ -91,7 +89,7 @@ fragment User_data on User {
 }
 
 fragment User_data_with_args on User
-  @argumentDefinitions(foo: {type: "Boolean!"}) {
+@argumentDefinitions(foo: {type: "Boolean!"}) {
   name
   username @include(if: $foo)
 }
@@ -155,7 +153,7 @@ Encountered 2 errors:
 exports[`matches expected output: query-with-unused-variable-error-suppressed.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query QueryWithUnusedVariable($unused: ID)
-  @DEPRECATED__relay_ignore_unused_variables_error {
+@DEPRECATED__relay_ignore_unused_variables_error {
   node {
     __typename
   }
@@ -179,7 +177,7 @@ fragment User_data on User {
 
 # Here $foo is local argument, it's defined in the @argDefs
 fragment User_data_with_args on User
-  @argumentDefinitions(foo: {type: "Boolean!"}) {
+@argumentDefinitions(foo: {type: "Boolean!"}) {
   name
   username @include(if: $foo)
   ...AnotherUser_data

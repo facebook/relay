@@ -5079,10 +5079,10 @@ query PaginationQuery(
 }
 
 fragment FeedbackFragment on Feedback
-  @argumentDefinitions(
-    count: {type: "Int", defaultValue: 2}
-    cursor: {type: "ID"}
-  ) {
+@argumentDefinitions(
+  count: {type: "Int", defaultValue: 2}
+  cursor: {type: "ID"}
+) {
   id
   comments(after: $cursor, first: $count, orderby: "date")
     @connection(
@@ -5709,10 +5709,10 @@ query PaginationQuery($id: ID!, $count: Int!, $cursor: ID!) {
 }
 
 fragment FeedbackFragment on Feedback
-  @argumentDefinitions(
-    count: {type: "Int", defaultValue: 2}
-    cursor: {type: "ID"}
-  ) {
+@argumentDefinitions(
+  count: {type: "Int", defaultValue: 2}
+  cursor: {type: "ID"}
+) {
   id
   comments(after: $cursor, first: $count, orderby: "date")
     @connection(
@@ -6428,7 +6428,7 @@ fragment MyOtherViewer on Viewer {
 }
 
 fragment MyNestedViewer on Viewer
-  @argumentDefinitions(includeEmail: {type: "Boolean!", defaultValue: false}) {
+@argumentDefinitions(includeEmail: {type: "Boolean!", defaultValue: false}) {
   primaryEmail @include(if: $includeEmail)
 }
 
@@ -6595,7 +6595,7 @@ Fragment {
 exports[`compileRelayArtifacts matches expected output: fragment-on-node-interface.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment RefetchableFragment on Node
-  @refetchable(queryName: "RefetchableFragmentQuery") {
+@refetchable(queryName: "RefetchableFragmentQuery") {
   id
   ... on User {
     name
@@ -6841,7 +6841,7 @@ Fragment {
 exports[`compileRelayArtifacts matches expected output: fragment-on-non-node-fetchable-type.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment RefetchableFragment on NonNodeStory
-  @refetchable(queryName: "RefetchableFragmentQuery") {
+@refetchable(queryName: "RefetchableFragmentQuery") {
   actor {
     ...ProfilePicture
   }
@@ -7095,7 +7095,7 @@ Fragment {
 exports[`compileRelayArtifacts matches expected output: fragment-on-object-implementing-node-interface.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment RefetchableFragment on User
-  @refetchable(queryName: "RefetchableFragmentQuery") {
+@refetchable(queryName: "RefetchableFragmentQuery") {
   id
   name
   ...ProfilePicture
@@ -7327,8 +7327,8 @@ Fragment {
 exports[`compileRelayArtifacts matches expected output: fragment-on-query.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment RefetchableFragment on Query
-  @refetchable(queryName: "RefetchableFragmentQuery")
-  @argumentDefinitions(id: {type: "ID!"}) {
+@refetchable(queryName: "RefetchableFragmentQuery")
+@argumentDefinitions(id: {type: "ID!"}) {
   node(id: $id) {
     ... on User {
       id
@@ -7579,8 +7579,8 @@ exports[`compileRelayArtifacts matches expected output: fragment-on-query-with-c
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 # expected-to-throw
 fragment RefetchableFragment on Query
-  @refetchable(queryName: "RefetchableFragmentQuery")
-  @argumentDefinitions(id: {type: "ID!"}) {
+@refetchable(queryName: "RefetchableFragmentQuery")
+@argumentDefinitions(id: {type: "ID!"}) {
   node(id: $id) {
     ... on User {
       id
@@ -7591,9 +7591,7 @@ fragment RefetchableFragment on Query
 }
 
 fragment Profile on User
-  @argumentDefinitions(
-    includeProfile: {type: "Boolean!", defaultValue: false}
-  ) {
+@argumentDefinitions(includeProfile: {type: "Boolean!", defaultValue: false}) {
   id
   name
   profilePicture(size: $pictureSize) {
@@ -7617,13 +7615,13 @@ Source (derived): GraphQL request (2:1)
 1: # expected-to-throw
 2: fragment RefetchableFragment on Query
    ^
-3:   @refetchable(queryName: "RefetchableFragmentQuery")
+3: @refetchable(queryName: "RefetchableFragmentQuery")
 
 Source (derived): GraphQL request (2:1)
 1: # expected-to-throw
 2: fragment RefetchableFragment on Query
    ^
-3:   @refetchable(queryName: "RefetchableFragmentQuery")
+3: @refetchable(queryName: "RefetchableFragmentQuery")
 
 Source: GraphQL request (9:7)
  8:       name
@@ -7631,24 +7629,24 @@ Source: GraphQL request (9:7)
           ^
 10:     }
 
-Source: GraphQL request (26:9)
-25:       node {
-26:         ...Profile
+Source: GraphQL request (24:9)
+23:       node {
+24:         ...Profile
             ^
-27:       }
+25:       }
 
-Source: GraphQL request (26:9)
-25:       node {
-26:         ...Profile
+Source: GraphQL request (24:9)
+23:       node {
+24:         ...Profile
             ^
-27:       }
+25:       }
 
 `;
 
 exports[`compileRelayArtifacts matches expected output: fragment-on-viewer.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment RefetchableFragment on Viewer
-  @refetchable(queryName: "RefetchableFragmentQuery") {
+@refetchable(queryName: "RefetchableFragmentQuery") {
   actor {
     id
     name
@@ -8836,7 +8834,7 @@ query Test2 {
 }
 
 fragment UserFragment_with3d on User
-  @argumentDefinitions(use3D: {type: "Boolean!", defaultValue: false}) {
+@argumentDefinitions(use3D: {type: "Boolean!", defaultValue: false}) {
   id
   name
   ... @include(if: $use3D) {
@@ -10148,8 +10146,8 @@ fragment ParentFragment on Query {
 }
 
 fragment Profile on User
-  @inline
-  @argumentDefinitions(sizeArg: {type: "[Int]", defaultValue: [50]}) {
+@inline
+@argumentDefinitions(sizeArg: {type: "[Int]", defaultValue: [50]}) {
   profilePicture(size: $sizeArg) {
     uri
   }
@@ -10160,10 +10158,10 @@ THROWN EXCEPTION:
 
 - Variables are not yet supported inside @inline fragments.
   
-  Source: GraphQL request (17:24)
-  16:   @inline
-  17:   @argumentDefinitions(sizeArg: {type: "[Int]", defaultValue: [50]}) {
-                             ^
+  Source: GraphQL request (17:22)
+  16: @inline
+  17: @argumentDefinitions(sizeArg: {type: "[Int]", defaultValue: [50]}) {
+                           ^
   18:   profilePicture(size: $sizeArg) {
   
 `;
@@ -10181,12 +10179,12 @@ query NodeQuery($id: ID!, $cond: Boolean!, $PictureSize: [Int]!) {
 }
 
 fragment UserFragment on User
-  @argumentDefinitions(
-    after: {type: "ID"}
-    cond: {type: "Boolean!", defaultValue: false}
-    first: {type: "Int", defaultValue: 5}
-    size: {type: "[Int]"}
-  ) {
+@argumentDefinitions(
+  after: {type: "ID"}
+  cond: {type: "Boolean!", defaultValue: false}
+  first: {type: "Int", defaultValue: 5}
+  size: {type: "[Int]"}
+) {
   id
   __typename
   friends(after: $after, first: $first) {
@@ -16437,7 +16435,7 @@ query MyStory(
 exports[`compileRelayArtifacts matches expected output: refetchable-connection.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment RefetchableConnection_feedback on Feedback
-  @refetchable(queryName: "RefetchableConnectionQuery") {
+@refetchable(queryName: "RefetchableConnectionQuery") {
   id
   comments(first: $count, after: $cursor)
     @connection(key: "RefetchableConnection_comments") {
@@ -16804,7 +16802,7 @@ Fragment {
 exports[`compileRelayArtifacts matches expected output: refetchable-connection-custom-handler.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment RefetchableConnection_feedback on Feedback
-  @refetchable(queryName: "RefetchableConnectionQuery") {
+@refetchable(queryName: "RefetchableConnectionQuery") {
   id
   comments(first: $count, after: $cursor)
     @connection(key: "RefetchableConnection_comments", handler: "custom") {
@@ -17171,7 +17169,7 @@ Fragment {
 exports[`compileRelayArtifacts matches expected output: refetchable-fragment-on-node-with-missing-id.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment RefetchableFragment on Node
-  @refetchable(queryName: "RefetchableFragmentQuery") {
+@refetchable(queryName: "RefetchableFragmentQuery") {
   ... on User {
     name
     ...ProfilePicture
@@ -17416,11 +17414,11 @@ Fragment {
 exports[`compileRelayArtifacts matches expected output: refetchable-fragment-with-connection.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment PaginationFragment on Node
-  @refetchable(queryName: "RefetchableFragmentQuery")
-  @argumentDefinitions(
-    count: {type: "Int", defaultValue: 10}
-    cursor: {type: "ID"}
-  ) {
+@refetchable(queryName: "RefetchableFragmentQuery")
+@argumentDefinitions(
+  count: {type: "Int", defaultValue: 10}
+  cursor: {type: "ID"}
+) {
   id
   ... on User {
     name
@@ -17821,11 +17819,11 @@ Fragment {
 exports[`compileRelayArtifacts matches expected output: refetchable-fragment-with-connection-bidirectional.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment PaginationFragment on Node
-  @refetchable(queryName: "RefetchableFragmentQuery")
-  @argumentDefinitions(
-    count: {type: "Int", defaultValue: 10}
-    cursor: {type: "ID"}
-  ) {
+@refetchable(queryName: "RefetchableFragmentQuery")
+@argumentDefinitions(
+  count: {type: "Int", defaultValue: 10}
+  cursor: {type: "ID"}
+) {
   id
   ... on User {
     name
@@ -18299,11 +18297,11 @@ Fragment {
 exports[`compileRelayArtifacts matches expected output: refetchable-fragment-with-connection-with-stream.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment PaginationFragment on Node
-  @refetchable(queryName: "RefetchableFragmentQuery")
-  @argumentDefinitions(
-    count: {type: "Int", defaultValue: 10}
-    cursor: {type: "ID"}
-  ) {
+@refetchable(queryName: "RefetchableFragmentQuery")
+@argumentDefinitions(
+  count: {type: "Int", defaultValue: 10}
+  cursor: {type: "ID"}
+) {
   id
   ... on User {
     name
@@ -18733,12 +18731,12 @@ query TestQuery {
 }
 
 fragment PaginationFragment on Node
-  @argumentDefinitions(
-    if: {type: "Boolean", defaultValue: false}
-    count: {type: "Int", defaultValue: 10}
-    cursor: {type: "ID"}
-    initial_count: {type: "Int", defaultValue: 5}
-  ) {
+@argumentDefinitions(
+  if: {type: "Boolean", defaultValue: false}
+  count: {type: "Int", defaultValue: 10}
+  cursor: {type: "ID"}
+  initial_count: {type: "Int", defaultValue: 5}
+) {
   id
   ... on User {
     name
@@ -19102,11 +19100,11 @@ query TestQuery {
 }
 
 fragment PaginationFragment on Node
-  @argumentDefinitions(
-    count: {type: "Int", defaultValue: 10}
-    cursor: {type: "ID"}
-    initial_count: {type: "Int", defaultValue: 5}
-  ) {
+@argumentDefinitions(
+  count: {type: "Int", defaultValue: 10}
+  cursor: {type: "ID"}
+  initial_count: {type: "Int", defaultValue: 5}
+) {
   id
   ... on User {
     name
@@ -21329,10 +21327,8 @@ Source: GraphQL request (13:20)
 exports[`compileRelayArtifacts matches expected output: unmasked-fragment-spreads-dup-arguments.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment UserUtil_user on User
-  # it should not strip exisiting local variable
-  @argumentDefinitions(
-    localIsRelative: {type: "Boolean", defaultValue: false}
-  ) {
+# it should not strip exisiting local variable
+@argumentDefinitions(localIsRelative: {type: "Boolean", defaultValue: false}) {
   # it should not strip existing global variable
   profilePicture(size: $PictureSize) {
     width
@@ -21684,7 +21680,7 @@ query TestQuery {
 }
 
 fragment User_user on User
-  @argumentDefinitions(isRelative: {type: "Boolean!", defaultValue: false}) {
+@argumentDefinitions(isRelative: {type: "Boolean!", defaultValue: false}) {
   url(relative: $isRelative)
 }
 
@@ -21699,10 +21695,10 @@ THROWN EXCEPTION:
          ^
   6:   }
   
-  Source: GraphQL request (10:24)
+  Source: GraphQL request (10:22)
    9: fragment User_user on User
-  10:   @argumentDefinitions(isRelative: {type: "Boolean!", defaultValue: false}) {
-                             ^
+  10: @argumentDefinitions(isRelative: {type: "Boolean!", defaultValue: false}) {
+                           ^
   11:   url(relative: $isRelative)
   
 `;
@@ -22351,9 +22347,7 @@ query QueryWithUnusedVariables($id: ID!, $unusedFirst: Int, $unusedAfter: ID) {
 }
 
 fragment ConnectionFragment on User
-  @argumentDefinitions(
-    fetchConnection: {type: "Boolean", defaultValue: false}
-  ) {
+@argumentDefinitions(fetchConnection: {type: "Boolean", defaultValue: false}) {
   ... @include(if: $fetchConnection) {
     friends(after: $unusedAfter, first: $unusedFirst) {
       edges {

@@ -38,10 +38,10 @@ query TestQuery(
 }
 
 fragment Profile on User
-  @argumentDefinitions(
-    pictureSize: {type: "[Int]"}
-    includeFriends: {type: "Boolean!", defaultValue: false}
-  ) {
+@argumentDefinitions(
+  pictureSize: {type: "[Int]"}
+  includeFriends: {type: "Boolean!", defaultValue: false}
+) {
   id
   name
   profilePicture(size: $pictureSize) {
@@ -103,10 +103,10 @@ query TestQuery($id: ID!) {
 }
 
 fragment Profile on User
-  @argumentDefinitions(
-    pictureSize: {type: "[Int]"}
-    includeFriends: {type: "Boolean!", defaultValue: false}
-  ) {
+@argumentDefinitions(
+  pictureSize: {type: "[Int]"}
+  includeFriends: {type: "Boolean!", defaultValue: false}
+) {
   id
   name
   profilePicture(size: $pictureSize) {
@@ -223,7 +223,7 @@ query TestQuery($id: ID!) {
 }
 
 fragment ProfileFriends on User
-  @argumentDefinitions(pictureSize: {type: "[Int]", defaultValue: [128]}) {
+@argumentDefinitions(pictureSize: {type: "[Int]", defaultValue: [128]}) {
   friends(first: 10) {
     edges {
       node {
@@ -334,10 +334,10 @@ query TestQuery(
 }
 
 fragment Profile on User
-  @argumentDefinitions(
-    pictureSize: {type: "[Int]"}
-    includeFriends: {type: "Boolean!", defaultValue: false}
-  ) {
+@argumentDefinitions(
+  pictureSize: {type: "[Int]"}
+  includeFriends: {type: "Boolean!", defaultValue: false}
+) {
   id
   name
   profilePicture(size: $pictureSize) {
@@ -375,7 +375,7 @@ query TestQuery($id: ID!) {
 }
 
 fragment ProfileFriends on User
-  @argumentDefinitions(pictureSize: {type: "[Int]", defaultValue: [128]}) {
+@argumentDefinitions(pictureSize: {type: "[Int]", defaultValue: [128]}) {
   friends(first: 10) {
     edges {
       node {

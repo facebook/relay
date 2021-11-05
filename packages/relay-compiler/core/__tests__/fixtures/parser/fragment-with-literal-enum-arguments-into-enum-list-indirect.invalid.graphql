@@ -7,7 +7,7 @@ fragment ParentFragment on User {
 }
 
 fragment ChildFragment on User
-  @argumentDefinitions(environment: {type: "Environment!"}) {
+@argumentDefinitions(environment: {type: "Environment!"}) {
   # variables of a non-list type cannot flow into list types,
   # the singular -> list promotion only works for literal values
   checkins(environments: $environment) {

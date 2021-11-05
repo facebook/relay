@@ -3,7 +3,7 @@
 exports[`Snapshot tests for useAnyDirectory matches expected output: refetchable-fragment.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment RefetchableFragment on Node
-  @refetchable(queryName: "RefetchableFragmentQuery") {
+@refetchable(queryName: "RefetchableFragmentQuery") {
   id
   fragAndField: profilePicture {
     uri
@@ -2097,7 +2097,7 @@ export type FragmentSpread$key = {
 exports[`Snapshot tests for useHaste matches expected output: refetchable-fragment.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment RefetchableFragment on Node
-  @refetchable(queryName: "RefetchableFragmentQuery") {
+@refetchable(queryName: "RefetchableFragmentQuery") {
   id
   fragAndField: profilePicture {
     uri
@@ -3352,7 +3352,7 @@ export type AnotherRecursiveFragment$key = {
 exports[`Snapshot tests for useSingleDirectory matches expected output: refetchable-fragment.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment RefetchableFragment on Node
-  @refetchable(queryName: "RefetchableFragmentQuery") {
+@refetchable(queryName: "RefetchableFragmentQuery") {
   id
   fragAndField: profilePicture {
     uri

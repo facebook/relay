@@ -55,7 +55,7 @@ query EmptyQuery($id: ID!) {
 }
 
 fragment SkippedFragment on User
-  @argumentDefinitions(cond: {type: "Boolean!", defaultValue: false}) {
+@argumentDefinitions(cond: {type: "Boolean!", defaultValue: false}) {
   id @include(if: $cond)
 }
 
@@ -117,7 +117,7 @@ query EmptyQuery($id: ID!) {
 }
 
 fragment SkippedFragment on User
-  @argumentDefinitions(cond: {type: "Boolean!", defaultValue: true}) {
+@argumentDefinitions(cond: {type: "Boolean!", defaultValue: true}) {
   id @skip(if: $cond)
 }
 

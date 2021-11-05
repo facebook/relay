@@ -1,5 +1,5 @@
 # expected-to-throw
 fragment UserName on UserNameRenderable
-  @refetchable(queryName: "RefetchableFragmentQuery") {
+@refetchable(queryName: "RefetchableFragmentQuery") {
   name
 }

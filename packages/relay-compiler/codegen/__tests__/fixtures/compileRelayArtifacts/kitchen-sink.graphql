@@ -9,12 +9,12 @@ query NodeQuery($id: ID!, $cond: Boolean!, $PictureSize: [Int]!) {
 }
 
 fragment UserFragment on User
-  @argumentDefinitions(
-    after: {type: "ID"}
-    cond: {type: "Boolean!", defaultValue: false}
-    first: {type: "Int", defaultValue: 5}
-    size: {type: "[Int]"}
-  ) {
+@argumentDefinitions(
+  after: {type: "ID"}
+  cond: {type: "Boolean!", defaultValue: false}
+  first: {type: "Int", defaultValue: 5}
+  size: {type: "[Int]"}
+) {
   id
   __typename
   friends(after: $after, first: $first) {

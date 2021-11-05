@@ -6,7 +6,7 @@ fragment ParentFragment on User {
 }
 
 fragment ChildFragment on User
-  @argumentDefinitions(environments: {type: "[Environment!]!"}) {
+@argumentDefinitions(environments: {type: "[Environment!]!"}) {
   checkins(environments: $environments) {
     query
   }

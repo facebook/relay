@@ -1,5 +1,5 @@
 fragment RefetchableConnection_feedback on Feedback
-  @refetchable(queryName: "RefetchableConnectionQuery") {
+@refetchable(queryName: "RefetchableConnectionQuery") {
   id
   comments(first: $count, after: $cursor)
     @connection(key: "RefetchableConnection_comments", handler: "custom") {

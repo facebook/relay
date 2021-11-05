@@ -1,8 +1,8 @@
 fragment TestFragment on User
-  @argumentDefinitions(
-    id: {type: "ID!"}
-    size: {type: "[Int]", defaultValue: [100]}
-  ) {
+@argumentDefinitions(
+  id: {type: "ID!"}
+  size: {type: "[Int]", defaultValue: [100]}
+) {
   profilePicture(size: $PictureSize) {
     uri
   }

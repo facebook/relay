@@ -12,10 +12,10 @@ query PaginationQuery($id: ID!, $count: Int!, $cursor: ID!) {
 }
 
 fragment FeedbackFragment on Feedback
-  @argumentDefinitions(
-    count: {type: "Int", defaultValue: 2}
-    cursor: {type: "ID"}
-  ) {
+@argumentDefinitions(
+  count: {type: "Int", defaultValue: 2}
+  cursor: {type: "ID"}
+) {
   id
   comments(after: $cursor, first: $count, orderby: "date")
     @connection(

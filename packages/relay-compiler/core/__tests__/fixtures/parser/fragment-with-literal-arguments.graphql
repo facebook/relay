@@ -3,7 +3,7 @@ fragment ParentFragment on User {
 }
 
 fragment ChildFragment on User
-  @argumentDefinitions(pictureSize: {type: "[Int]"}) {
+@argumentDefinitions(pictureSize: {type: "[Int]"}) {
   profilePicture(size: $pictureSize) {
     uri
   }

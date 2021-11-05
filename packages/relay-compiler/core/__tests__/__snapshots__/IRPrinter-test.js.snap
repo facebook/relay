@@ -3,11 +3,11 @@
 exports[`IRPrinter matches expected output: basic_arg_defs.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment UserFragment on User
-  @argumentDefinitions(
-    after: {type: "ID"}
-    first: {type: "Int", defaultValue: 5}
-    size: {type: "[Int]"}
-  ) {
+@argumentDefinitions(
+  after: {type: "ID"}
+  first: {type: "Int", defaultValue: 5}
+  size: {type: "[Int]"}
+) {
   id
 }
 
@@ -301,12 +301,12 @@ query NodeQuery(
 }
 
 fragment UserFragment on User
-  @argumentDefinitions(
-    after: {type: "ID"}
-    first: {type: "Int", defaultValue: 5}
-    size: {type: "[Int]"}
-    storyType: {type: "StoryType", defaultValue: DIRECTED}
-  ) {
+@argumentDefinitions(
+  after: {type: "ID"}
+  first: {type: "Int", defaultValue: 5}
+  size: {type: "[Int]"}
+  storyType: {type: "StoryType", defaultValue: DIRECTED}
+) {
   id
   __typename
   checkins(environments: [WEB]) {
@@ -406,9 +406,9 @@ exports[`IRPrinter matches expected output: lowercase-enum-fragment-arg.invalid.
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 # expected-to-throw
 fragment UserFragment on User
-  @argumentDefinitions(
-    environments: {type: "[Environment!]!", defaultValue: [web]}
-  ) {
+@argumentDefinitions(
+  environments: {type: "[Environment!]!", defaultValue: [web]}
+) {
   checkins(environments: $environments) {
     __typename
   }
@@ -419,11 +419,11 @@ THROWN EXCEPTION:
 
 - Expected a value matching type 'Environment!'. Possible values: WEB or MOBILE?'
   
-  GraphQL request:4:60
-  3 |   @argumentDefinitions(
-  4 |     environments: {type: "[Environment!]!", defaultValue: [web]}
-    |                                                            ^
-  5 |   ) {
+  GraphQL request:4:58
+  3 | @argumentDefinitions(
+  4 |   environments: {type: "[Environment!]!", defaultValue: [web]}
+    |                                                          ^
+  5 | ) {
 `;
 
 exports[`IRPrinter matches expected output: nested_conditions.graphql 1`] = `
@@ -536,9 +536,9 @@ THROWN EXCEPTION:
 exports[`IRPrinter matches expected output: string-enum-fragment-arg.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment UserFragment on User
-  @argumentDefinitions(
-    environments: {type: "[Environment!]!", defaultValue: [WEB]}
-  ) {
+@argumentDefinitions(
+  environments: {type: "[Environment!]!", defaultValue: [WEB]}
+) {
   checkins(environments: $environments) {
     __typename
   }
@@ -558,7 +558,7 @@ fragment UserFragment on User @argumentDefinitions(
 exports[`IRPrinter matches expected output: string-enum-fragment-arg-with-complex-input.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment UserFragment on User
-  @argumentDefinitions(environments: {type: "Environment", defaultValue: WEB}) {
+@argumentDefinitions(environments: {type: "Environment", defaultValue: WEB}) {
   checkins(environments: [$environments]) {
     __typename
   }

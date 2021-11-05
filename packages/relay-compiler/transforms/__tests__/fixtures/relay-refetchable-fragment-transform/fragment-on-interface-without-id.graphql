@@ -1,4 +1,4 @@
 fragment RefetchableFragment on AllConcreteTypesImplementNode
-  @refetchable(queryName: "RefetchableFragmentQuery") {
+@refetchable(queryName: "RefetchableFragmentQuery") {
   count
 }

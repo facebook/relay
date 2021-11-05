@@ -7,7 +7,7 @@ query TestQuery($id: ID!) {
 }
 
 fragment ProfileFriends on User
-  @argumentDefinitions(pictureSize: {type: "[Int]", defaultValue: [128]}) {
+@argumentDefinitions(pictureSize: {type: "[Int]", defaultValue: [128]}) {
   friends(first: 10) {
     edges {
       node {

@@ -459,7 +459,7 @@ fragment UserFragment on User {
 }
 
 fragment UserProfileFragment on User
-  @argumentDefinitions(scale: {type: "Float"}) {
+@argumentDefinitions(scale: {type: "Float"}) {
   id
   name
   profile_picture(scale: $scale) {
@@ -475,7 +475,7 @@ Root {
     start: 0,
     end: 87,
     source: {
-      "body": "query QueryWithFragment @relay_test_operation {\\n  me {\\n    id\\n    ...UserFragment\\n  }\\n}\\n\\nfragment UserFragment on User {\\n  id\\n  emailAddresses\\n  ...UserProfileFragment @arguments(scale: 1.5)\\n}\\n\\nfragment UserProfileFragment on User\\n  @argumentDefinitions(scale: {type: \\"Float\\"}) {\\n  id\\n  name\\n  profile_picture(scale: $scale) {\\n    uri\\n  }\\n  myUserName: username\\n}\\n",
+      "body": "query QueryWithFragment @relay_test_operation {\\n  me {\\n    id\\n    ...UserFragment\\n  }\\n}\\n\\nfragment UserFragment on User {\\n  id\\n  emailAddresses\\n  ...UserProfileFragment @arguments(scale: 1.5)\\n}\\n\\nfragment UserProfileFragment on User\\n@argumentDefinitions(scale: {type: \\"Float\\"}) {\\n  id\\n  name\\n  profile_picture(scale: $scale) {\\n    uri\\n  }\\n  myUserName: username\\n}\\n",
       "name": "GraphQL request",
       "locationOffset": {
         "line": 1,
@@ -513,7 +513,7 @@ Root {
         start: 50,
         end: 85,
         source: {
-          "body": "query QueryWithFragment @relay_test_operation {\\n  me {\\n    id\\n    ...UserFragment\\n  }\\n}\\n\\nfragment UserFragment on User {\\n  id\\n  emailAddresses\\n  ...UserProfileFragment @arguments(scale: 1.5)\\n}\\n\\nfragment UserProfileFragment on User\\n  @argumentDefinitions(scale: {type: \\"Float\\"}) {\\n  id\\n  name\\n  profile_picture(scale: $scale) {\\n    uri\\n  }\\n  myUserName: username\\n}\\n",
+          "body": "query QueryWithFragment @relay_test_operation {\\n  me {\\n    id\\n    ...UserFragment\\n  }\\n}\\n\\nfragment UserFragment on User {\\n  id\\n  emailAddresses\\n  ...UserProfileFragment @arguments(scale: 1.5)\\n}\\n\\nfragment UserProfileFragment on User\\n@argumentDefinitions(scale: {type: \\"Float\\"}) {\\n  id\\n  name\\n  profile_picture(scale: $scale) {\\n    uri\\n  }\\n  myUserName: username\\n}\\n",
           "name": "GraphQL request",
           "locationOffset": {
             "line": 1,
@@ -533,7 +533,7 @@ Root {
             start: 59,
             end: 61,
             source: {
-              "body": "query QueryWithFragment @relay_test_operation {\\n  me {\\n    id\\n    ...UserFragment\\n  }\\n}\\n\\nfragment UserFragment on User {\\n  id\\n  emailAddresses\\n  ...UserProfileFragment @arguments(scale: 1.5)\\n}\\n\\nfragment UserProfileFragment on User\\n  @argumentDefinitions(scale: {type: \\"Float\\"}) {\\n  id\\n  name\\n  profile_picture(scale: $scale) {\\n    uri\\n  }\\n  myUserName: username\\n}\\n",
+              "body": "query QueryWithFragment @relay_test_operation {\\n  me {\\n    id\\n    ...UserFragment\\n  }\\n}\\n\\nfragment UserFragment on User {\\n  id\\n  emailAddresses\\n  ...UserProfileFragment @arguments(scale: 1.5)\\n}\\n\\nfragment UserProfileFragment on User\\n@argumentDefinitions(scale: {type: \\"Float\\"}) {\\n  id\\n  name\\n  profile_picture(scale: $scale) {\\n    uri\\n  }\\n  myUserName: username\\n}\\n",
               "name": "GraphQL request",
               "locationOffset": {
                 "line": 1,
@@ -552,7 +552,7 @@ Root {
             start: 66,
             end: 81,
             source: {
-              "body": "query QueryWithFragment @relay_test_operation {\\n  me {\\n    id\\n    ...UserFragment\\n  }\\n}\\n\\nfragment UserFragment on User {\\n  id\\n  emailAddresses\\n  ...UserProfileFragment @arguments(scale: 1.5)\\n}\\n\\nfragment UserProfileFragment on User\\n  @argumentDefinitions(scale: {type: \\"Float\\"}) {\\n  id\\n  name\\n  profile_picture(scale: $scale) {\\n    uri\\n  }\\n  myUserName: username\\n}\\n",
+              "body": "query QueryWithFragment @relay_test_operation {\\n  me {\\n    id\\n    ...UserFragment\\n  }\\n}\\n\\nfragment UserFragment on User {\\n  id\\n  emailAddresses\\n  ...UserProfileFragment @arguments(scale: 1.5)\\n}\\n\\nfragment UserProfileFragment on User\\n@argumentDefinitions(scale: {type: \\"Float\\"}) {\\n  id\\n  name\\n  profile_picture(scale: $scale) {\\n    uri\\n  }\\n  myUserName: username\\n}\\n",
               "name": "GraphQL request",
               "locationOffset": {
                 "line": 1,
@@ -575,7 +575,7 @@ Fragment {
     start: 89,
     end: 192,
     source: {
-      "body": "query QueryWithFragment @relay_test_operation {\\n  me {\\n    id\\n    ...UserFragment\\n  }\\n}\\n\\nfragment UserFragment on User {\\n  id\\n  emailAddresses\\n  ...UserProfileFragment @arguments(scale: 1.5)\\n}\\n\\nfragment UserProfileFragment on User\\n  @argumentDefinitions(scale: {type: \\"Float\\"}) {\\n  id\\n  name\\n  profile_picture(scale: $scale) {\\n    uri\\n  }\\n  myUserName: username\\n}\\n",
+      "body": "query QueryWithFragment @relay_test_operation {\\n  me {\\n    id\\n    ...UserFragment\\n  }\\n}\\n\\nfragment UserFragment on User {\\n  id\\n  emailAddresses\\n  ...UserProfileFragment @arguments(scale: 1.5)\\n}\\n\\nfragment UserProfileFragment on User\\n@argumentDefinitions(scale: {type: \\"Float\\"}) {\\n  id\\n  name\\n  profile_picture(scale: $scale) {\\n    uri\\n  }\\n  myUserName: username\\n}\\n",
       "name": "GraphQL request",
       "locationOffset": {
         "line": 1,
@@ -595,7 +595,7 @@ Fragment {
         start: 123,
         end: 125,
         source: {
-          "body": "query QueryWithFragment @relay_test_operation {\\n  me {\\n    id\\n    ...UserFragment\\n  }\\n}\\n\\nfragment UserFragment on User {\\n  id\\n  emailAddresses\\n  ...UserProfileFragment @arguments(scale: 1.5)\\n}\\n\\nfragment UserProfileFragment on User\\n  @argumentDefinitions(scale: {type: \\"Float\\"}) {\\n  id\\n  name\\n  profile_picture(scale: $scale) {\\n    uri\\n  }\\n  myUserName: username\\n}\\n",
+          "body": "query QueryWithFragment @relay_test_operation {\\n  me {\\n    id\\n    ...UserFragment\\n  }\\n}\\n\\nfragment UserFragment on User {\\n  id\\n  emailAddresses\\n  ...UserProfileFragment @arguments(scale: 1.5)\\n}\\n\\nfragment UserProfileFragment on User\\n@argumentDefinitions(scale: {type: \\"Float\\"}) {\\n  id\\n  name\\n  profile_picture(scale: $scale) {\\n    uri\\n  }\\n  myUserName: username\\n}\\n",
           "name": "GraphQL request",
           "locationOffset": {
             "line": 1,
@@ -616,7 +616,7 @@ Fragment {
         start: 128,
         end: 142,
         source: {
-          "body": "query QueryWithFragment @relay_test_operation {\\n  me {\\n    id\\n    ...UserFragment\\n  }\\n}\\n\\nfragment UserFragment on User {\\n  id\\n  emailAddresses\\n  ...UserProfileFragment @arguments(scale: 1.5)\\n}\\n\\nfragment UserProfileFragment on User\\n  @argumentDefinitions(scale: {type: \\"Float\\"}) {\\n  id\\n  name\\n  profile_picture(scale: $scale) {\\n    uri\\n  }\\n  myUserName: username\\n}\\n",
+          "body": "query QueryWithFragment @relay_test_operation {\\n  me {\\n    id\\n    ...UserFragment\\n  }\\n}\\n\\nfragment UserFragment on User {\\n  id\\n  emailAddresses\\n  ...UserProfileFragment @arguments(scale: 1.5)\\n}\\n\\nfragment UserProfileFragment on User\\n@argumentDefinitions(scale: {type: \\"Float\\"}) {\\n  id\\n  name\\n  profile_picture(scale: $scale) {\\n    uri\\n  }\\n  myUserName: username\\n}\\n",
           "name": "GraphQL request",
           "locationOffset": {
             "line": 1,
@@ -635,7 +635,7 @@ Fragment {
             start: 179,
             end: 189,
             source: {
-              "body": "query QueryWithFragment @relay_test_operation {\\n  me {\\n    id\\n    ...UserFragment\\n  }\\n}\\n\\nfragment UserFragment on User {\\n  id\\n  emailAddresses\\n  ...UserProfileFragment @arguments(scale: 1.5)\\n}\\n\\nfragment UserProfileFragment on User\\n  @argumentDefinitions(scale: {type: \\"Float\\"}) {\\n  id\\n  name\\n  profile_picture(scale: $scale) {\\n    uri\\n  }\\n  myUserName: username\\n}\\n",
+              "body": "query QueryWithFragment @relay_test_operation {\\n  me {\\n    id\\n    ...UserFragment\\n  }\\n}\\n\\nfragment UserFragment on User {\\n  id\\n  emailAddresses\\n  ...UserProfileFragment @arguments(scale: 1.5)\\n}\\n\\nfragment UserProfileFragment on User\\n@argumentDefinitions(scale: {type: \\"Float\\"}) {\\n  id\\n  name\\n  profile_picture(scale: $scale) {\\n    uri\\n  }\\n  myUserName: username\\n}\\n",
               "name": "GraphQL request",
               "locationOffset": {
                 "line": 1,
@@ -649,7 +649,7 @@ Fragment {
               start: 186,
               end: 189,
               source: {
-                "body": "query QueryWithFragment @relay_test_operation {\\n  me {\\n    id\\n    ...UserFragment\\n  }\\n}\\n\\nfragment UserFragment on User {\\n  id\\n  emailAddresses\\n  ...UserProfileFragment @arguments(scale: 1.5)\\n}\\n\\nfragment UserProfileFragment on User\\n  @argumentDefinitions(scale: {type: \\"Float\\"}) {\\n  id\\n  name\\n  profile_picture(scale: $scale) {\\n    uri\\n  }\\n  myUserName: username\\n}\\n",
+                "body": "query QueryWithFragment @relay_test_operation {\\n  me {\\n    id\\n    ...UserFragment\\n  }\\n}\\n\\nfragment UserFragment on User {\\n  id\\n  emailAddresses\\n  ...UserProfileFragment @arguments(scale: 1.5)\\n}\\n\\nfragment UserProfileFragment on User\\n@argumentDefinitions(scale: {type: \\"Float\\"}) {\\n  id\\n  name\\n  profile_picture(scale: $scale) {\\n    uri\\n  }\\n  myUserName: username\\n}\\n",
                 "name": "GraphQL request",
                 "locationOffset": {
                   "line": 1,
@@ -667,7 +667,7 @@ Fragment {
         start: 145,
         end: 190,
         source: {
-          "body": "query QueryWithFragment @relay_test_operation {\\n  me {\\n    id\\n    ...UserFragment\\n  }\\n}\\n\\nfragment UserFragment on User {\\n  id\\n  emailAddresses\\n  ...UserProfileFragment @arguments(scale: 1.5)\\n}\\n\\nfragment UserProfileFragment on User\\n  @argumentDefinitions(scale: {type: \\"Float\\"}) {\\n  id\\n  name\\n  profile_picture(scale: $scale) {\\n    uri\\n  }\\n  myUserName: username\\n}\\n",
+          "body": "query QueryWithFragment @relay_test_operation {\\n  me {\\n    id\\n    ...UserFragment\\n  }\\n}\\n\\nfragment UserFragment on User {\\n  id\\n  emailAddresses\\n  ...UserProfileFragment @arguments(scale: 1.5)\\n}\\n\\nfragment UserProfileFragment on User\\n@argumentDefinitions(scale: {type: \\"Float\\"}) {\\n  id\\n  name\\n  profile_picture(scale: $scale) {\\n    uri\\n  }\\n  myUserName: username\\n}\\n",
           "name": "GraphQL request",
           "locationOffset": {
             "line": 1,
@@ -686,9 +686,9 @@ Fragment {
   directives: [],
   loc: Source {
     start: 194,
-    end: 363,
+    end: 361,
     source: {
-      "body": "query QueryWithFragment @relay_test_operation {\\n  me {\\n    id\\n    ...UserFragment\\n  }\\n}\\n\\nfragment UserFragment on User {\\n  id\\n  emailAddresses\\n  ...UserProfileFragment @arguments(scale: 1.5)\\n}\\n\\nfragment UserProfileFragment on User\\n  @argumentDefinitions(scale: {type: \\"Float\\"}) {\\n  id\\n  name\\n  profile_picture(scale: $scale) {\\n    uri\\n  }\\n  myUserName: username\\n}\\n",
+      "body": "query QueryWithFragment @relay_test_operation {\\n  me {\\n    id\\n    ...UserFragment\\n  }\\n}\\n\\nfragment UserFragment on User {\\n  id\\n  emailAddresses\\n  ...UserProfileFragment @arguments(scale: 1.5)\\n}\\n\\nfragment UserProfileFragment on User\\n@argumentDefinitions(scale: {type: \\"Float\\"}) {\\n  id\\n  name\\n  profile_picture(scale: $scale) {\\n    uri\\n  }\\n  myUserName: username\\n}\\n",
       "name": "GraphQL request",
       "locationOffset": {
         "line": 1,
@@ -705,10 +705,10 @@ Fragment {
       directives: [],
       handles: null,
       loc: Source {
-        start: 282,
-        end: 284,
+        start: 280,
+        end: 282,
         source: {
-          "body": "query QueryWithFragment @relay_test_operation {\\n  me {\\n    id\\n    ...UserFragment\\n  }\\n}\\n\\nfragment UserFragment on User {\\n  id\\n  emailAddresses\\n  ...UserProfileFragment @arguments(scale: 1.5)\\n}\\n\\nfragment UserProfileFragment on User\\n  @argumentDefinitions(scale: {type: \\"Float\\"}) {\\n  id\\n  name\\n  profile_picture(scale: $scale) {\\n    uri\\n  }\\n  myUserName: username\\n}\\n",
+          "body": "query QueryWithFragment @relay_test_operation {\\n  me {\\n    id\\n    ...UserFragment\\n  }\\n}\\n\\nfragment UserFragment on User {\\n  id\\n  emailAddresses\\n  ...UserProfileFragment @arguments(scale: 1.5)\\n}\\n\\nfragment UserProfileFragment on User\\n@argumentDefinitions(scale: {type: \\"Float\\"}) {\\n  id\\n  name\\n  profile_picture(scale: $scale) {\\n    uri\\n  }\\n  myUserName: username\\n}\\n",
           "name": "GraphQL request",
           "locationOffset": {
             "line": 1,
@@ -726,10 +726,10 @@ Fragment {
       directives: [],
       handles: null,
       loc: Source {
-        start: 287,
-        end: 291,
+        start: 285,
+        end: 289,
         source: {
-          "body": "query QueryWithFragment @relay_test_operation {\\n  me {\\n    id\\n    ...UserFragment\\n  }\\n}\\n\\nfragment UserFragment on User {\\n  id\\n  emailAddresses\\n  ...UserProfileFragment @arguments(scale: 1.5)\\n}\\n\\nfragment UserProfileFragment on User\\n  @argumentDefinitions(scale: {type: \\"Float\\"}) {\\n  id\\n  name\\n  profile_picture(scale: $scale) {\\n    uri\\n  }\\n  myUserName: username\\n}\\n",
+          "body": "query QueryWithFragment @relay_test_operation {\\n  me {\\n    id\\n    ...UserFragment\\n  }\\n}\\n\\nfragment UserFragment on User {\\n  id\\n  emailAddresses\\n  ...UserProfileFragment @arguments(scale: 1.5)\\n}\\n\\nfragment UserProfileFragment on User\\n@argumentDefinitions(scale: {type: \\"Float\\"}) {\\n  id\\n  name\\n  profile_picture(scale: $scale) {\\n    uri\\n  }\\n  myUserName: username\\n}\\n",
           "name": "GraphQL request",
           "locationOffset": {
             "line": 1,
@@ -746,10 +746,10 @@ Fragment {
       args: [
         Argument {
           loc: Source {
-            start: 310,
-            end: 323,
+            start: 308,
+            end: 321,
             source: {
-              "body": "query QueryWithFragment @relay_test_operation {\\n  me {\\n    id\\n    ...UserFragment\\n  }\\n}\\n\\nfragment UserFragment on User {\\n  id\\n  emailAddresses\\n  ...UserProfileFragment @arguments(scale: 1.5)\\n}\\n\\nfragment UserProfileFragment on User\\n  @argumentDefinitions(scale: {type: \\"Float\\"}) {\\n  id\\n  name\\n  profile_picture(scale: $scale) {\\n    uri\\n  }\\n  myUserName: username\\n}\\n",
+              "body": "query QueryWithFragment @relay_test_operation {\\n  me {\\n    id\\n    ...UserFragment\\n  }\\n}\\n\\nfragment UserFragment on User {\\n  id\\n  emailAddresses\\n  ...UserProfileFragment @arguments(scale: 1.5)\\n}\\n\\nfragment UserProfileFragment on User\\n@argumentDefinitions(scale: {type: \\"Float\\"}) {\\n  id\\n  name\\n  profile_picture(scale: $scale) {\\n    uri\\n  }\\n  myUserName: username\\n}\\n",
               "name": "GraphQL request",
               "locationOffset": {
                 "line": 1,
@@ -760,10 +760,10 @@ Fragment {
           name: "scale",
           value: Variable {
             loc: Source {
-              start: 317,
-              end: 323,
+              start: 315,
+              end: 321,
               source: {
-                "body": "query QueryWithFragment @relay_test_operation {\\n  me {\\n    id\\n    ...UserFragment\\n  }\\n}\\n\\nfragment UserFragment on User {\\n  id\\n  emailAddresses\\n  ...UserProfileFragment @arguments(scale: 1.5)\\n}\\n\\nfragment UserProfileFragment on User\\n  @argumentDefinitions(scale: {type: \\"Float\\"}) {\\n  id\\n  name\\n  profile_picture(scale: $scale) {\\n    uri\\n  }\\n  myUserName: username\\n}\\n",
+                "body": "query QueryWithFragment @relay_test_operation {\\n  me {\\n    id\\n    ...UserFragment\\n  }\\n}\\n\\nfragment UserFragment on User {\\n  id\\n  emailAddresses\\n  ...UserProfileFragment @arguments(scale: 1.5)\\n}\\n\\nfragment UserProfileFragment on User\\n@argumentDefinitions(scale: {type: \\"Float\\"}) {\\n  id\\n  name\\n  profile_picture(scale: $scale) {\\n    uri\\n  }\\n  myUserName: username\\n}\\n",
                 "name": "GraphQL request",
                 "locationOffset": {
                   "line": 1,
@@ -781,10 +781,10 @@ Fragment {
       directives: [],
       handles: null,
       loc: Source {
-        start: 294,
-        end: 338,
+        start: 292,
+        end: 336,
         source: {
-          "body": "query QueryWithFragment @relay_test_operation {\\n  me {\\n    id\\n    ...UserFragment\\n  }\\n}\\n\\nfragment UserFragment on User {\\n  id\\n  emailAddresses\\n  ...UserProfileFragment @arguments(scale: 1.5)\\n}\\n\\nfragment UserProfileFragment on User\\n  @argumentDefinitions(scale: {type: \\"Float\\"}) {\\n  id\\n  name\\n  profile_picture(scale: $scale) {\\n    uri\\n  }\\n  myUserName: username\\n}\\n",
+          "body": "query QueryWithFragment @relay_test_operation {\\n  me {\\n    id\\n    ...UserFragment\\n  }\\n}\\n\\nfragment UserFragment on User {\\n  id\\n  emailAddresses\\n  ...UserProfileFragment @arguments(scale: 1.5)\\n}\\n\\nfragment UserProfileFragment on User\\n@argumentDefinitions(scale: {type: \\"Float\\"}) {\\n  id\\n  name\\n  profile_picture(scale: $scale) {\\n    uri\\n  }\\n  myUserName: username\\n}\\n",
           "name": "GraphQL request",
           "locationOffset": {
             "line": 1,
@@ -801,10 +801,10 @@ Fragment {
           directives: [],
           handles: null,
           loc: Source {
-            start: 331,
-            end: 334,
+            start: 329,
+            end: 332,
             source: {
-              "body": "query QueryWithFragment @relay_test_operation {\\n  me {\\n    id\\n    ...UserFragment\\n  }\\n}\\n\\nfragment UserFragment on User {\\n  id\\n  emailAddresses\\n  ...UserProfileFragment @arguments(scale: 1.5)\\n}\\n\\nfragment UserProfileFragment on User\\n  @argumentDefinitions(scale: {type: \\"Float\\"}) {\\n  id\\n  name\\n  profile_picture(scale: $scale) {\\n    uri\\n  }\\n  myUserName: username\\n}\\n",
+              "body": "query QueryWithFragment @relay_test_operation {\\n  me {\\n    id\\n    ...UserFragment\\n  }\\n}\\n\\nfragment UserFragment on User {\\n  id\\n  emailAddresses\\n  ...UserProfileFragment @arguments(scale: 1.5)\\n}\\n\\nfragment UserProfileFragment on User\\n@argumentDefinitions(scale: {type: \\"Float\\"}) {\\n  id\\n  name\\n  profile_picture(scale: $scale) {\\n    uri\\n  }\\n  myUserName: username\\n}\\n",
               "name": "GraphQL request",
               "locationOffset": {
                 "line": 1,
@@ -825,10 +825,10 @@ Fragment {
       directives: [],
       handles: null,
       loc: Source {
-        start: 341,
-        end: 361,
+        start: 339,
+        end: 359,
         source: {
-          "body": "query QueryWithFragment @relay_test_operation {\\n  me {\\n    id\\n    ...UserFragment\\n  }\\n}\\n\\nfragment UserFragment on User {\\n  id\\n  emailAddresses\\n  ...UserProfileFragment @arguments(scale: 1.5)\\n}\\n\\nfragment UserProfileFragment on User\\n  @argumentDefinitions(scale: {type: \\"Float\\"}) {\\n  id\\n  name\\n  profile_picture(scale: $scale) {\\n    uri\\n  }\\n  myUserName: username\\n}\\n",
+          "body": "query QueryWithFragment @relay_test_operation {\\n  me {\\n    id\\n    ...UserFragment\\n  }\\n}\\n\\nfragment UserFragment on User {\\n  id\\n  emailAddresses\\n  ...UserProfileFragment @arguments(scale: 1.5)\\n}\\n\\nfragment UserProfileFragment on User\\n@argumentDefinitions(scale: {type: \\"Float\\"}) {\\n  id\\n  name\\n  profile_picture(scale: $scale) {\\n    uri\\n  }\\n  myUserName: username\\n}\\n",
           "name": "GraphQL request",
           "locationOffset": {
             "line": 1,
@@ -845,10 +845,10 @@ Fragment {
   argumentDefinitions: [
     LocalArgumentDefinition {
       loc: Source {
-        start: 254,
-        end: 276,
+        start: 252,
+        end: 274,
         source: {
-          "body": "query QueryWithFragment @relay_test_operation {\\n  me {\\n    id\\n    ...UserFragment\\n  }\\n}\\n\\nfragment UserFragment on User {\\n  id\\n  emailAddresses\\n  ...UserProfileFragment @arguments(scale: 1.5)\\n}\\n\\nfragment UserProfileFragment on User\\n  @argumentDefinitions(scale: {type: \\"Float\\"}) {\\n  id\\n  name\\n  profile_picture(scale: $scale) {\\n    uri\\n  }\\n  myUserName: username\\n}\\n",
+          "body": "query QueryWithFragment @relay_test_operation {\\n  me {\\n    id\\n    ...UserFragment\\n  }\\n}\\n\\nfragment UserFragment on User {\\n  id\\n  emailAddresses\\n  ...UserProfileFragment @arguments(scale: 1.5)\\n}\\n\\nfragment UserProfileFragment on User\\n@argumentDefinitions(scale: {type: \\"Float\\"}) {\\n  id\\n  name\\n  profile_picture(scale: $scale) {\\n    uri\\n  }\\n  myUserName: username\\n}\\n",
           "name": "GraphQL request",
           "locationOffset": {
             "line": 1,

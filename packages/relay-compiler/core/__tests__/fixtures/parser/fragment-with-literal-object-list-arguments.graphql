@@ -6,7 +6,7 @@ fragment ParentFragment on Query {
 }
 
 fragment ChildFragment on Query
-  @argumentDefinitions(inputs: {type: "[CheckinSearchInput!]!"}) {
+@argumentDefinitions(inputs: {type: "[CheckinSearchInput!]!"}) {
   checkinSearchQuery(query: {query: "foo", inputs: $inputs}) {
     query
   }

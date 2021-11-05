@@ -17,7 +17,7 @@ fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
 }
 
 fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer
-  @argumentDefinitions(cond: {type: "Boolean!", defaultValue: false}) {
+@argumentDefinitions(cond: {type: "Boolean!", defaultValue: false}) {
   markdown
   data @include(if: $cond) {
     markup

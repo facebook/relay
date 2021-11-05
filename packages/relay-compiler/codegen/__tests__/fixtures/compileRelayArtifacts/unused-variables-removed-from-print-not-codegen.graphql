@@ -6,9 +6,7 @@ query QueryWithUnusedVariables($id: ID!, $unusedFirst: Int, $unusedAfter: ID) {
 }
 
 fragment ConnectionFragment on User
-  @argumentDefinitions(
-    fetchConnection: {type: "Boolean", defaultValue: false}
-  ) {
+@argumentDefinitions(fetchConnection: {type: "Boolean", defaultValue: false}) {
   ... @include(if: $fetchConnection) {
     friends(after: $unusedAfter, first: $unusedFirst) {
       edges {

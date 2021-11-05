@@ -10,7 +10,7 @@ query EmptyQuery($id: ID!) {
 }
 
 fragment SkippedFragment on User
-  @argumentDefinitions(cond: {type: "Boolean!", defaultValue: false}) {
+@argumentDefinitions(cond: {type: "Boolean!", defaultValue: false}) {
   id @include(if: $cond)
 }
 

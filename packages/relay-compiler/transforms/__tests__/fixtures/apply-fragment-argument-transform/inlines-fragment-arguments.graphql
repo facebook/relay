@@ -11,10 +11,10 @@ query TestQuery(
 }
 
 fragment Profile on User
-  @argumentDefinitions(
-    pictureSize: {type: "[Int]"}
-    includeFriends: {type: "Boolean!", defaultValue: false}
-  ) {
+@argumentDefinitions(
+  pictureSize: {type: "[Int]"}
+  includeFriends: {type: "Boolean!", defaultValue: false}
+) {
   id
   name
   profilePicture(size: $pictureSize) {

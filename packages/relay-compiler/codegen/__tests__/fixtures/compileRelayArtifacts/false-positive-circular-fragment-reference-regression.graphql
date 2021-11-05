@@ -17,6 +17,6 @@ fragment MyOtherViewer on Viewer {
 }
 
 fragment MyNestedViewer on Viewer
-  @argumentDefinitions(includeEmail: {type: "Boolean!", defaultValue: false}) {
+@argumentDefinitions(includeEmail: {type: "Boolean!", defaultValue: false}) {
   primaryEmail @include(if: $includeEmail)
 }

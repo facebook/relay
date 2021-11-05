@@ -1,6 +1,6 @@
 fragment RefetchableFragment on Viewer
-  @refetchable(queryName: "RefetchableFragmentQuery")
-  @argumentDefinitions(size: {type: "[Int]"}) {
+@refetchable(queryName: "RefetchableFragmentQuery")
+@argumentDefinitions(size: {type: "[Int]"}) {
   actor {
     id
     name

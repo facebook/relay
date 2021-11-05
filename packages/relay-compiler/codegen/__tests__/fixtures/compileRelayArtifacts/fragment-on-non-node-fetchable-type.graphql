@@ -1,5 +1,5 @@
 fragment RefetchableFragment on NonNodeStory
-  @refetchable(queryName: "RefetchableFragmentQuery") {
+@refetchable(queryName: "RefetchableFragmentQuery") {
   actor {
     ...ProfilePicture
   }

@@ -17,12 +17,12 @@ query NodeQuery(
 }
 
 fragment UserFragment on User
-  @argumentDefinitions(
-    after: {type: "ID"}
-    first: {type: "Int", defaultValue: 5}
-    size: {type: "[Int]"}
-    storyType: {type: "StoryType", defaultValue: DIRECTED}
-  ) {
+@argumentDefinitions(
+  after: {type: "ID"}
+  first: {type: "Int", defaultValue: 5}
+  size: {type: "[Int]"}
+  storyType: {type: "StoryType", defaultValue: DIRECTED}
+) {
   id
   __typename
   checkins(environments: [WEB]) {

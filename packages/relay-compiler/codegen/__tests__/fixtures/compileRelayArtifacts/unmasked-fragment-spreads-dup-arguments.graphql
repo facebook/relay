@@ -1,8 +1,6 @@
 fragment UserUtil_user on User
-  # it should not strip exisiting local variable
-  @argumentDefinitions(
-    localIsRelative: {type: "Boolean", defaultValue: false}
-  ) {
+# it should not strip exisiting local variable
+@argumentDefinitions(localIsRelative: {type: "Boolean", defaultValue: false}) {
   # it should not strip existing global variable
   profilePicture(size: $PictureSize) {
     width

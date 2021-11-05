@@ -31,10 +31,10 @@ exports[`RelayParser matches expected output: argumentDefinitions-with-typo.inva
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 # expected-to-throw
 fragment TestFragment on User
-  @argumentDefinitions(
-    id: {type: "ID"}
-    size: {type: "[Int]", defaultValu: [100]} # uh-oh, typo
-  ) {
+@argumentDefinitions(
+  id: {type: "ID"}
+  size: {type: "[Int]", defaultValu: [100]} # uh-oh, typo
+) {
   ...Foo @arguments(size: $size)
 }
 
@@ -43,11 +43,11 @@ THROWN EXCEPTION:
 
 - Expected definition for variable '$size' to be an object with the shape: '{type: string, defaultValue?: mixed}.
   
-  GraphQL request:5:11
-  4 |     id: {type: "ID"}
-  5 |     size: {type: "[Int]", defaultValu: [100]} # uh-oh, typo
-    |           ^
-  6 |   ) {
+  GraphQL request:5:9
+  4 |   id: {type: "ID"}
+  5 |   size: {type: "[Int]", defaultValu: [100]} # uh-oh, typo
+    |         ^
+  6 | ) {
 `;
 
 exports[`RelayParser matches expected output: client-fields.graphql 1`] = `
@@ -1637,10 +1637,10 @@ THROWN EXCEPTION:
 exports[`RelayParser matches expected output: fragment-with-arguments.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 fragment TestFragment on User
-  @argumentDefinitions(
-    id: {type: "ID!"}
-    size: {type: "[Int]", defaultValue: [100]}
-  ) {
+@argumentDefinitions(
+  id: {type: "ID!"}
+  size: {type: "[Int]", defaultValue: [100]}
+) {
   profilePicture(size: $PictureSize) {
     uri
   }
@@ -1660,9 +1660,9 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
     directives: [],
     loc: Source {
       start: 0,
-      end: 275,
+      end: 267,
       source: {
-        "body": "fragment TestFragment on User\\n  @argumentDefinitions(\\n    id: {type: \\"ID!\\"}\\n    size: {type: \\"[Int]\\", defaultValue: [100]}\\n  ) {\\n  profilePicture(size: $PictureSize) {\\n    uri\\n  }\\n  withDefaultArg: profilePicture(size: $size) {\\n    uri\\n  }\\n  ...Foo @arguments(localId: $id)\\n}\\n\\nfragment Foo on User @argumentDefinitions(localId: {type: \\"ID!\\"}) {\\n  id\\n}\\n",
+        "body": "fragment TestFragment on User\\n@argumentDefinitions(\\n  id: {type: \\"ID!\\"}\\n  size: {type: \\"[Int]\\", defaultValue: [100]}\\n) {\\n  profilePicture(size: $PictureSize) {\\n    uri\\n  }\\n  withDefaultArg: profilePicture(size: $size) {\\n    uri\\n  }\\n  ...Foo @arguments(localId: $id)\\n}\\n\\nfragment Foo on User @argumentDefinitions(localId: {type: \\"ID!\\"}) {\\n  id\\n}\\n",
         "name": "GraphQL request",
         "locationOffset": {
           "line": 1,
@@ -1678,10 +1678,10 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
         args: [
           Argument {
             loc: Source {
-              start: 146,
-              end: 164,
+              start: 138,
+              end: 156,
               source: {
-                "body": "fragment TestFragment on User\\n  @argumentDefinitions(\\n    id: {type: \\"ID!\\"}\\n    size: {type: \\"[Int]\\", defaultValue: [100]}\\n  ) {\\n  profilePicture(size: $PictureSize) {\\n    uri\\n  }\\n  withDefaultArg: profilePicture(size: $size) {\\n    uri\\n  }\\n  ...Foo @arguments(localId: $id)\\n}\\n\\nfragment Foo on User @argumentDefinitions(localId: {type: \\"ID!\\"}) {\\n  id\\n}\\n",
+                "body": "fragment TestFragment on User\\n@argumentDefinitions(\\n  id: {type: \\"ID!\\"}\\n  size: {type: \\"[Int]\\", defaultValue: [100]}\\n) {\\n  profilePicture(size: $PictureSize) {\\n    uri\\n  }\\n  withDefaultArg: profilePicture(size: $size) {\\n    uri\\n  }\\n  ...Foo @arguments(localId: $id)\\n}\\n\\nfragment Foo on User @argumentDefinitions(localId: {type: \\"ID!\\"}) {\\n  id\\n}\\n",
                 "name": "GraphQL request",
                 "locationOffset": {
                   "line": 1,
@@ -1692,10 +1692,10 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
             name: "size",
             value: Variable {
               loc: Source {
-                start: 152,
-                end: 164,
+                start: 144,
+                end: 156,
                 source: {
-                  "body": "fragment TestFragment on User\\n  @argumentDefinitions(\\n    id: {type: \\"ID!\\"}\\n    size: {type: \\"[Int]\\", defaultValue: [100]}\\n  ) {\\n  profilePicture(size: $PictureSize) {\\n    uri\\n  }\\n  withDefaultArg: profilePicture(size: $size) {\\n    uri\\n  }\\n  ...Foo @arguments(localId: $id)\\n}\\n\\nfragment Foo on User @argumentDefinitions(localId: {type: \\"ID!\\"}) {\\n  id\\n}\\n",
+                  "body": "fragment TestFragment on User\\n@argumentDefinitions(\\n  id: {type: \\"ID!\\"}\\n  size: {type: \\"[Int]\\", defaultValue: [100]}\\n) {\\n  profilePicture(size: $PictureSize) {\\n    uri\\n  }\\n  withDefaultArg: profilePicture(size: $size) {\\n    uri\\n  }\\n  ...Foo @arguments(localId: $id)\\n}\\n\\nfragment Foo on User @argumentDefinitions(localId: {type: \\"ID!\\"}) {\\n  id\\n}\\n",
                   "name": "GraphQL request",
                   "locationOffset": {
                     "line": 1,
@@ -1713,10 +1713,10 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
         directives: [],
         handles: null,
         loc: Source {
-          start: 131,
-          end: 179,
+          start: 123,
+          end: 171,
           source: {
-            "body": "fragment TestFragment on User\\n  @argumentDefinitions(\\n    id: {type: \\"ID!\\"}\\n    size: {type: \\"[Int]\\", defaultValue: [100]}\\n  ) {\\n  profilePicture(size: $PictureSize) {\\n    uri\\n  }\\n  withDefaultArg: profilePicture(size: $size) {\\n    uri\\n  }\\n  ...Foo @arguments(localId: $id)\\n}\\n\\nfragment Foo on User @argumentDefinitions(localId: {type: \\"ID!\\"}) {\\n  id\\n}\\n",
+            "body": "fragment TestFragment on User\\n@argumentDefinitions(\\n  id: {type: \\"ID!\\"}\\n  size: {type: \\"[Int]\\", defaultValue: [100]}\\n) {\\n  profilePicture(size: $PictureSize) {\\n    uri\\n  }\\n  withDefaultArg: profilePicture(size: $size) {\\n    uri\\n  }\\n  ...Foo @arguments(localId: $id)\\n}\\n\\nfragment Foo on User @argumentDefinitions(localId: {type: \\"ID!\\"}) {\\n  id\\n}\\n",
             "name": "GraphQL request",
             "locationOffset": {
               "line": 1,
@@ -1733,10 +1733,10 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
             directives: [],
             handles: null,
             loc: Source {
-              start: 172,
-              end: 175,
+              start: 164,
+              end: 167,
               source: {
-                "body": "fragment TestFragment on User\\n  @argumentDefinitions(\\n    id: {type: \\"ID!\\"}\\n    size: {type: \\"[Int]\\", defaultValue: [100]}\\n  ) {\\n  profilePicture(size: $PictureSize) {\\n    uri\\n  }\\n  withDefaultArg: profilePicture(size: $size) {\\n    uri\\n  }\\n  ...Foo @arguments(localId: $id)\\n}\\n\\nfragment Foo on User @argumentDefinitions(localId: {type: \\"ID!\\"}) {\\n  id\\n}\\n",
+                "body": "fragment TestFragment on User\\n@argumentDefinitions(\\n  id: {type: \\"ID!\\"}\\n  size: {type: \\"[Int]\\", defaultValue: [100]}\\n) {\\n  profilePicture(size: $PictureSize) {\\n    uri\\n  }\\n  withDefaultArg: profilePicture(size: $size) {\\n    uri\\n  }\\n  ...Foo @arguments(localId: $id)\\n}\\n\\nfragment Foo on User @argumentDefinitions(localId: {type: \\"ID!\\"}) {\\n  id\\n}\\n",
                 "name": "GraphQL request",
                 "locationOffset": {
                   "line": 1,
@@ -1756,10 +1756,10 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
         args: [
           Argument {
             loc: Source {
-              start: 213,
-              end: 224,
+              start: 205,
+              end: 216,
               source: {
-                "body": "fragment TestFragment on User\\n  @argumentDefinitions(\\n    id: {type: \\"ID!\\"}\\n    size: {type: \\"[Int]\\", defaultValue: [100]}\\n  ) {\\n  profilePicture(size: $PictureSize) {\\n    uri\\n  }\\n  withDefaultArg: profilePicture(size: $size) {\\n    uri\\n  }\\n  ...Foo @arguments(localId: $id)\\n}\\n\\nfragment Foo on User @argumentDefinitions(localId: {type: \\"ID!\\"}) {\\n  id\\n}\\n",
+                "body": "fragment TestFragment on User\\n@argumentDefinitions(\\n  id: {type: \\"ID!\\"}\\n  size: {type: \\"[Int]\\", defaultValue: [100]}\\n) {\\n  profilePicture(size: $PictureSize) {\\n    uri\\n  }\\n  withDefaultArg: profilePicture(size: $size) {\\n    uri\\n  }\\n  ...Foo @arguments(localId: $id)\\n}\\n\\nfragment Foo on User @argumentDefinitions(localId: {type: \\"ID!\\"}) {\\n  id\\n}\\n",
                 "name": "GraphQL request",
                 "locationOffset": {
                   "line": 1,
@@ -1770,10 +1770,10 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
             name: "size",
             value: Variable {
               loc: Source {
-                start: 219,
-                end: 224,
+                start: 211,
+                end: 216,
                 source: {
-                  "body": "fragment TestFragment on User\\n  @argumentDefinitions(\\n    id: {type: \\"ID!\\"}\\n    size: {type: \\"[Int]\\", defaultValue: [100]}\\n  ) {\\n  profilePicture(size: $PictureSize) {\\n    uri\\n  }\\n  withDefaultArg: profilePicture(size: $size) {\\n    uri\\n  }\\n  ...Foo @arguments(localId: $id)\\n}\\n\\nfragment Foo on User @argumentDefinitions(localId: {type: \\"ID!\\"}) {\\n  id\\n}\\n",
+                  "body": "fragment TestFragment on User\\n@argumentDefinitions(\\n  id: {type: \\"ID!\\"}\\n  size: {type: \\"[Int]\\", defaultValue: [100]}\\n) {\\n  profilePicture(size: $PictureSize) {\\n    uri\\n  }\\n  withDefaultArg: profilePicture(size: $size) {\\n    uri\\n  }\\n  ...Foo @arguments(localId: $id)\\n}\\n\\nfragment Foo on User @argumentDefinitions(localId: {type: \\"ID!\\"}) {\\n  id\\n}\\n",
                   "name": "GraphQL request",
                   "locationOffset": {
                     "line": 1,
@@ -1791,10 +1791,10 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
         directives: [],
         handles: null,
         loc: Source {
-          start: 182,
-          end: 239,
+          start: 174,
+          end: 231,
           source: {
-            "body": "fragment TestFragment on User\\n  @argumentDefinitions(\\n    id: {type: \\"ID!\\"}\\n    size: {type: \\"[Int]\\", defaultValue: [100]}\\n  ) {\\n  profilePicture(size: $PictureSize) {\\n    uri\\n  }\\n  withDefaultArg: profilePicture(size: $size) {\\n    uri\\n  }\\n  ...Foo @arguments(localId: $id)\\n}\\n\\nfragment Foo on User @argumentDefinitions(localId: {type: \\"ID!\\"}) {\\n  id\\n}\\n",
+            "body": "fragment TestFragment on User\\n@argumentDefinitions(\\n  id: {type: \\"ID!\\"}\\n  size: {type: \\"[Int]\\", defaultValue: [100]}\\n) {\\n  profilePicture(size: $PictureSize) {\\n    uri\\n  }\\n  withDefaultArg: profilePicture(size: $size) {\\n    uri\\n  }\\n  ...Foo @arguments(localId: $id)\\n}\\n\\nfragment Foo on User @argumentDefinitions(localId: {type: \\"ID!\\"}) {\\n  id\\n}\\n",
             "name": "GraphQL request",
             "locationOffset": {
               "line": 1,
@@ -1811,10 +1811,10 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
             directives: [],
             handles: null,
             loc: Source {
-              start: 232,
-              end: 235,
+              start: 224,
+              end: 227,
               source: {
-                "body": "fragment TestFragment on User\\n  @argumentDefinitions(\\n    id: {type: \\"ID!\\"}\\n    size: {type: \\"[Int]\\", defaultValue: [100]}\\n  ) {\\n  profilePicture(size: $PictureSize) {\\n    uri\\n  }\\n  withDefaultArg: profilePicture(size: $size) {\\n    uri\\n  }\\n  ...Foo @arguments(localId: $id)\\n}\\n\\nfragment Foo on User @argumentDefinitions(localId: {type: \\"ID!\\"}) {\\n  id\\n}\\n",
+                "body": "fragment TestFragment on User\\n@argumentDefinitions(\\n  id: {type: \\"ID!\\"}\\n  size: {type: \\"[Int]\\", defaultValue: [100]}\\n) {\\n  profilePicture(size: $PictureSize) {\\n    uri\\n  }\\n  withDefaultArg: profilePicture(size: $size) {\\n    uri\\n  }\\n  ...Foo @arguments(localId: $id)\\n}\\n\\nfragment Foo on User @argumentDefinitions(localId: {type: \\"ID!\\"}) {\\n  id\\n}\\n",
                 "name": "GraphQL request",
                 "locationOffset": {
                   "line": 1,
@@ -1833,10 +1833,10 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
         args: [
           Argument {
             loc: Source {
-              start: 260,
-              end: 272,
+              start: 252,
+              end: 264,
               source: {
-                "body": "fragment TestFragment on User\\n  @argumentDefinitions(\\n    id: {type: \\"ID!\\"}\\n    size: {type: \\"[Int]\\", defaultValue: [100]}\\n  ) {\\n  profilePicture(size: $PictureSize) {\\n    uri\\n  }\\n  withDefaultArg: profilePicture(size: $size) {\\n    uri\\n  }\\n  ...Foo @arguments(localId: $id)\\n}\\n\\nfragment Foo on User @argumentDefinitions(localId: {type: \\"ID!\\"}) {\\n  id\\n}\\n",
+                "body": "fragment TestFragment on User\\n@argumentDefinitions(\\n  id: {type: \\"ID!\\"}\\n  size: {type: \\"[Int]\\", defaultValue: [100]}\\n) {\\n  profilePicture(size: $PictureSize) {\\n    uri\\n  }\\n  withDefaultArg: profilePicture(size: $size) {\\n    uri\\n  }\\n  ...Foo @arguments(localId: $id)\\n}\\n\\nfragment Foo on User @argumentDefinitions(localId: {type: \\"ID!\\"}) {\\n  id\\n}\\n",
                 "name": "GraphQL request",
                 "locationOffset": {
                   "line": 1,
@@ -1847,10 +1847,10 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
             name: "localId",
             value: Variable {
               loc: Source {
-                start: 269,
-                end: 272,
+                start: 261,
+                end: 264,
                 source: {
-                  "body": "fragment TestFragment on User\\n  @argumentDefinitions(\\n    id: {type: \\"ID!\\"}\\n    size: {type: \\"[Int]\\", defaultValue: [100]}\\n  ) {\\n  profilePicture(size: $PictureSize) {\\n    uri\\n  }\\n  withDefaultArg: profilePicture(size: $size) {\\n    uri\\n  }\\n  ...Foo @arguments(localId: $id)\\n}\\n\\nfragment Foo on User @argumentDefinitions(localId: {type: \\"ID!\\"}) {\\n  id\\n}\\n",
+                  "body": "fragment TestFragment on User\\n@argumentDefinitions(\\n  id: {type: \\"ID!\\"}\\n  size: {type: \\"[Int]\\", defaultValue: [100]}\\n) {\\n  profilePicture(size: $PictureSize) {\\n    uri\\n  }\\n  withDefaultArg: profilePicture(size: $size) {\\n    uri\\n  }\\n  ...Foo @arguments(localId: $id)\\n}\\n\\nfragment Foo on User @argumentDefinitions(localId: {type: \\"ID!\\"}) {\\n  id\\n}\\n",
                   "name": "GraphQL request",
                   "locationOffset": {
                     "line": 1,
@@ -1866,10 +1866,10 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
         ],
         metadata: null,
         loc: Source {
-          start: 242,
-          end: 273,
+          start: 234,
+          end: 265,
           source: {
-            "body": "fragment TestFragment on User\\n  @argumentDefinitions(\\n    id: {type: \\"ID!\\"}\\n    size: {type: \\"[Int]\\", defaultValue: [100]}\\n  ) {\\n  profilePicture(size: $PictureSize) {\\n    uri\\n  }\\n  withDefaultArg: profilePicture(size: $size) {\\n    uri\\n  }\\n  ...Foo @arguments(localId: $id)\\n}\\n\\nfragment Foo on User @argumentDefinitions(localId: {type: \\"ID!\\"}) {\\n  id\\n}\\n",
+            "body": "fragment TestFragment on User\\n@argumentDefinitions(\\n  id: {type: \\"ID!\\"}\\n  size: {type: \\"[Int]\\", defaultValue: [100]}\\n) {\\n  profilePicture(size: $PictureSize) {\\n    uri\\n  }\\n  withDefaultArg: profilePicture(size: $size) {\\n    uri\\n  }\\n  ...Foo @arguments(localId: $id)\\n}\\n\\nfragment Foo on User @argumentDefinitions(localId: {type: \\"ID!\\"}) {\\n  id\\n}\\n",
             "name": "GraphQL request",
             "locationOffset": {
               "line": 1,
@@ -1885,10 +1885,10 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
     argumentDefinitions: [
       LocalArgumentDefinition {
         loc: Source {
-          start: 58,
-          end: 75,
+          start: 54,
+          end: 71,
           source: {
-            "body": "fragment TestFragment on User\\n  @argumentDefinitions(\\n    id: {type: \\"ID!\\"}\\n    size: {type: \\"[Int]\\", defaultValue: [100]}\\n  ) {\\n  profilePicture(size: $PictureSize) {\\n    uri\\n  }\\n  withDefaultArg: profilePicture(size: $size) {\\n    uri\\n  }\\n  ...Foo @arguments(localId: $id)\\n}\\n\\nfragment Foo on User @argumentDefinitions(localId: {type: \\"ID!\\"}) {\\n  id\\n}\\n",
+            "body": "fragment TestFragment on User\\n@argumentDefinitions(\\n  id: {type: \\"ID!\\"}\\n  size: {type: \\"[Int]\\", defaultValue: [100]}\\n) {\\n  profilePicture(size: $PictureSize) {\\n    uri\\n  }\\n  withDefaultArg: profilePicture(size: $size) {\\n    uri\\n  }\\n  ...Foo @arguments(localId: $id)\\n}\\n\\nfragment Foo on User @argumentDefinitions(localId: {type: \\"ID!\\"}) {\\n  id\\n}\\n",
             "name": "GraphQL request",
             "locationOffset": {
               "line": 1,
@@ -1902,10 +1902,10 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
       },
       LocalArgumentDefinition {
         loc: Source {
-          start: 80,
-          end: 122,
+          start: 74,
+          end: 116,
           source: {
-            "body": "fragment TestFragment on User\\n  @argumentDefinitions(\\n    id: {type: \\"ID!\\"}\\n    size: {type: \\"[Int]\\", defaultValue: [100]}\\n  ) {\\n  profilePicture(size: $PictureSize) {\\n    uri\\n  }\\n  withDefaultArg: profilePicture(size: $size) {\\n    uri\\n  }\\n  ...Foo @arguments(localId: $id)\\n}\\n\\nfragment Foo on User @argumentDefinitions(localId: {type: \\"ID!\\"}) {\\n  id\\n}\\n",
+            "body": "fragment TestFragment on User\\n@argumentDefinitions(\\n  id: {type: \\"ID!\\"}\\n  size: {type: \\"[Int]\\", defaultValue: [100]}\\n) {\\n  profilePicture(size: $PictureSize) {\\n    uri\\n  }\\n  withDefaultArg: profilePicture(size: $size) {\\n    uri\\n  }\\n  ...Foo @arguments(localId: $id)\\n}\\n\\nfragment Foo on User @argumentDefinitions(localId: {type: \\"ID!\\"}) {\\n  id\\n}\\n",
             "name": "GraphQL request",
             "locationOffset": {
               "line": 1,
@@ -1921,10 +1921,10 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
       },
       RootArgumentDefinition {
         loc: Source {
-          start: 152,
-          end: 164,
+          start: 144,
+          end: 156,
           source: {
-            "body": "fragment TestFragment on User\\n  @argumentDefinitions(\\n    id: {type: \\"ID!\\"}\\n    size: {type: \\"[Int]\\", defaultValue: [100]}\\n  ) {\\n  profilePicture(size: $PictureSize) {\\n    uri\\n  }\\n  withDefaultArg: profilePicture(size: $size) {\\n    uri\\n  }\\n  ...Foo @arguments(localId: $id)\\n}\\n\\nfragment Foo on User @argumentDefinitions(localId: {type: \\"ID!\\"}) {\\n  id\\n}\\n",
+            "body": "fragment TestFragment on User\\n@argumentDefinitions(\\n  id: {type: \\"ID!\\"}\\n  size: {type: \\"[Int]\\", defaultValue: [100]}\\n) {\\n  profilePicture(size: $PictureSize) {\\n    uri\\n  }\\n  withDefaultArg: profilePicture(size: $size) {\\n    uri\\n  }\\n  ...Foo @arguments(localId: $id)\\n}\\n\\nfragment Foo on User @argumentDefinitions(localId: {type: \\"ID!\\"}) {\\n  id\\n}\\n",
             "name": "GraphQL request",
             "locationOffset": {
               "line": 1,
@@ -1940,10 +1940,10 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
   Fragment {
     directives: [],
     loc: Source {
-      start: 277,
-      end: 351,
+      start: 269,
+      end: 343,
       source: {
-        "body": "fragment TestFragment on User\\n  @argumentDefinitions(\\n    id: {type: \\"ID!\\"}\\n    size: {type: \\"[Int]\\", defaultValue: [100]}\\n  ) {\\n  profilePicture(size: $PictureSize) {\\n    uri\\n  }\\n  withDefaultArg: profilePicture(size: $size) {\\n    uri\\n  }\\n  ...Foo @arguments(localId: $id)\\n}\\n\\nfragment Foo on User @argumentDefinitions(localId: {type: \\"ID!\\"}) {\\n  id\\n}\\n",
+        "body": "fragment TestFragment on User\\n@argumentDefinitions(\\n  id: {type: \\"ID!\\"}\\n  size: {type: \\"[Int]\\", defaultValue: [100]}\\n) {\\n  profilePicture(size: $PictureSize) {\\n    uri\\n  }\\n  withDefaultArg: profilePicture(size: $size) {\\n    uri\\n  }\\n  ...Foo @arguments(localId: $id)\\n}\\n\\nfragment Foo on User @argumentDefinitions(localId: {type: \\"ID!\\"}) {\\n  id\\n}\\n",
         "name": "GraphQL request",
         "locationOffset": {
           "line": 1,
@@ -1960,10 +1960,10 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
         directives: [],
         handles: null,
         loc: Source {
-          start: 347,
-          end: 349,
+          start: 339,
+          end: 341,
           source: {
-            "body": "fragment TestFragment on User\\n  @argumentDefinitions(\\n    id: {type: \\"ID!\\"}\\n    size: {type: \\"[Int]\\", defaultValue: [100]}\\n  ) {\\n  profilePicture(size: $PictureSize) {\\n    uri\\n  }\\n  withDefaultArg: profilePicture(size: $size) {\\n    uri\\n  }\\n  ...Foo @arguments(localId: $id)\\n}\\n\\nfragment Foo on User @argumentDefinitions(localId: {type: \\"ID!\\"}) {\\n  id\\n}\\n",
+            "body": "fragment TestFragment on User\\n@argumentDefinitions(\\n  id: {type: \\"ID!\\"}\\n  size: {type: \\"[Int]\\", defaultValue: [100]}\\n) {\\n  profilePicture(size: $PictureSize) {\\n    uri\\n  }\\n  withDefaultArg: profilePicture(size: $size) {\\n    uri\\n  }\\n  ...Foo @arguments(localId: $id)\\n}\\n\\nfragment Foo on User @argumentDefinitions(localId: {type: \\"ID!\\"}) {\\n  id\\n}\\n",
             "name": "GraphQL request",
             "locationOffset": {
               "line": 1,
@@ -1980,10 +1980,10 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
     argumentDefinitions: [
       LocalArgumentDefinition {
         loc: Source {
-          start: 319,
-          end: 341,
+          start: 311,
+          end: 333,
           source: {
-            "body": "fragment TestFragment on User\\n  @argumentDefinitions(\\n    id: {type: \\"ID!\\"}\\n    size: {type: \\"[Int]\\", defaultValue: [100]}\\n  ) {\\n  profilePicture(size: $PictureSize) {\\n    uri\\n  }\\n  withDefaultArg: profilePicture(size: $size) {\\n    uri\\n  }\\n  ...Foo @arguments(localId: $id)\\n}\\n\\nfragment Foo on User @argumentDefinitions(localId: {type: \\"ID!\\"}) {\\n  id\\n}\\n",
+            "body": "fragment TestFragment on User\\n@argumentDefinitions(\\n  id: {type: \\"ID!\\"}\\n  size: {type: \\"[Int]\\", defaultValue: [100]}\\n) {\\n  profilePicture(size: $PictureSize) {\\n    uri\\n  }\\n  withDefaultArg: profilePicture(size: $size) {\\n    uri\\n  }\\n  ...Foo @arguments(localId: $id)\\n}\\n\\nfragment Foo on User @argumentDefinitions(localId: {type: \\"ID!\\"}) {\\n  id\\n}\\n",
             "name": "GraphQL request",
             "locationOffset": {
               "line": 1,
@@ -2004,7 +2004,7 @@ exports[`RelayParser matches expected output: fragment-with-arguments-invalid-ty
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 # expected-to-throw
 fragment TestFragment on User
-  @argumentDefinitions(myArg: {type: "UnknownType"}) {
+@argumentDefinitions(myArg: {type: "UnknownType"}) {
   profilePicture(size: $PictureSize) {
     uri
   }
@@ -2019,10 +2019,10 @@ THROWN EXCEPTION:
 
 - Unknown type "UnknownType" referenced in the argument definitions.
   
-  GraphQL request:3:24
+  GraphQL request:3:22
   2 | fragment TestFragment on User
-  3 |   @argumentDefinitions(myArg: {type: "UnknownType"}) {
-    |                        ^
+  3 | @argumentDefinitions(myArg: {type: "UnknownType"}) {
+    |                      ^
   4 |   profilePicture(size: $PictureSize) {
 `;
 
@@ -2033,7 +2033,7 @@ fragment ParentFragment on User {
 }
 
 fragment ChildFragment on User
-  @argumentDefinitions(pictureSize: {type: "[Int]"}) {
+@argumentDefinitions(pictureSize: {type: "[Int]"}) {
   profilePicture(size: $pictureSize) {
     uri
   }
@@ -2047,7 +2047,7 @@ fragment ChildFragment on User
       start: 0,
       end: 84,
       source: {
-        "body": "fragment ParentFragment on User {\\n  ...ChildFragment @arguments(pictureSize: [42])\\n}\\n\\nfragment ChildFragment on User\\n  @argumentDefinitions(pictureSize: {type: \\"[Int]\\"}) {\\n  profilePicture(size: $pictureSize) {\\n    uri\\n  }\\n}\\n",
+        "body": "fragment ParentFragment on User {\\n  ...ChildFragment @arguments(pictureSize: [42])\\n}\\n\\nfragment ChildFragment on User\\n@argumentDefinitions(pictureSize: {type: \\"[Int]\\"}) {\\n  profilePicture(size: $pictureSize) {\\n    uri\\n  }\\n}\\n",
         "name": "GraphQL request",
         "locationOffset": {
           "line": 1,
@@ -2065,7 +2065,7 @@ fragment ChildFragment on User
               start: 64,
               end: 81,
               source: {
-                "body": "fragment ParentFragment on User {\\n  ...ChildFragment @arguments(pictureSize: [42])\\n}\\n\\nfragment ChildFragment on User\\n  @argumentDefinitions(pictureSize: {type: \\"[Int]\\"}) {\\n  profilePicture(size: $pictureSize) {\\n    uri\\n  }\\n}\\n",
+                "body": "fragment ParentFragment on User {\\n  ...ChildFragment @arguments(pictureSize: [42])\\n}\\n\\nfragment ChildFragment on User\\n@argumentDefinitions(pictureSize: {type: \\"[Int]\\"}) {\\n  profilePicture(size: $pictureSize) {\\n    uri\\n  }\\n}\\n",
                 "name": "GraphQL request",
                 "locationOffset": {
                   "line": 1,
@@ -2079,7 +2079,7 @@ fragment ChildFragment on User
                 start: 77,
                 end: 81,
                 source: {
-                  "body": "fragment ParentFragment on User {\\n  ...ChildFragment @arguments(pictureSize: [42])\\n}\\n\\nfragment ChildFragment on User\\n  @argumentDefinitions(pictureSize: {type: \\"[Int]\\"}) {\\n  profilePicture(size: $pictureSize) {\\n    uri\\n  }\\n}\\n",
+                  "body": "fragment ParentFragment on User {\\n  ...ChildFragment @arguments(pictureSize: [42])\\n}\\n\\nfragment ChildFragment on User\\n@argumentDefinitions(pictureSize: {type: \\"[Int]\\"}) {\\n  profilePicture(size: $pictureSize) {\\n    uri\\n  }\\n}\\n",
                   "name": "GraphQL request",
                   "locationOffset": {
                     "line": 1,
@@ -2099,7 +2099,7 @@ fragment ChildFragment on User
           start: 36,
           end: 82,
           source: {
-            "body": "fragment ParentFragment on User {\\n  ...ChildFragment @arguments(pictureSize: [42])\\n}\\n\\nfragment ChildFragment on User\\n  @argumentDefinitions(pictureSize: {type: \\"[Int]\\"}) {\\n  profilePicture(size: $pictureSize) {\\n    uri\\n  }\\n}\\n",
+            "body": "fragment ParentFragment on User {\\n  ...ChildFragment @arguments(pictureSize: [42])\\n}\\n\\nfragment ChildFragment on User\\n@argumentDefinitions(pictureSize: {type: \\"[Int]\\"}) {\\n  profilePicture(size: $pictureSize) {\\n    uri\\n  }\\n}\\n",
             "name": "GraphQL request",
             "locationOffset": {
               "line": 1,
@@ -2118,9 +2118,9 @@ fragment ChildFragment on User
     directives: [],
     loc: Source {
       start: 86,
-      end: 224,
+      end: 222,
       source: {
-        "body": "fragment ParentFragment on User {\\n  ...ChildFragment @arguments(pictureSize: [42])\\n}\\n\\nfragment ChildFragment on User\\n  @argumentDefinitions(pictureSize: {type: \\"[Int]\\"}) {\\n  profilePicture(size: $pictureSize) {\\n    uri\\n  }\\n}\\n",
+        "body": "fragment ParentFragment on User {\\n  ...ChildFragment @arguments(pictureSize: [42])\\n}\\n\\nfragment ChildFragment on User\\n@argumentDefinitions(pictureSize: {type: \\"[Int]\\"}) {\\n  profilePicture(size: $pictureSize) {\\n    uri\\n  }\\n}\\n",
         "name": "GraphQL request",
         "locationOffset": {
           "line": 1,
@@ -2136,10 +2136,10 @@ fragment ChildFragment on User
         args: [
           Argument {
             loc: Source {
-              start: 189,
-              end: 207,
+              start: 187,
+              end: 205,
               source: {
-                "body": "fragment ParentFragment on User {\\n  ...ChildFragment @arguments(pictureSize: [42])\\n}\\n\\nfragment ChildFragment on User\\n  @argumentDefinitions(pictureSize: {type: \\"[Int]\\"}) {\\n  profilePicture(size: $pictureSize) {\\n    uri\\n  }\\n}\\n",
+                "body": "fragment ParentFragment on User {\\n  ...ChildFragment @arguments(pictureSize: [42])\\n}\\n\\nfragment ChildFragment on User\\n@argumentDefinitions(pictureSize: {type: \\"[Int]\\"}) {\\n  profilePicture(size: $pictureSize) {\\n    uri\\n  }\\n}\\n",
                 "name": "GraphQL request",
                 "locationOffset": {
                   "line": 1,
@@ -2150,10 +2150,10 @@ fragment ChildFragment on User
             name: "size",
             value: Variable {
               loc: Source {
-                start: 195,
-                end: 207,
+                start: 193,
+                end: 205,
                 source: {
-                  "body": "fragment ParentFragment on User {\\n  ...ChildFragment @arguments(pictureSize: [42])\\n}\\n\\nfragment ChildFragment on User\\n  @argumentDefinitions(pictureSize: {type: \\"[Int]\\"}) {\\n  profilePicture(size: $pictureSize) {\\n    uri\\n  }\\n}\\n",
+                  "body": "fragment ParentFragment on User {\\n  ...ChildFragment @arguments(pictureSize: [42])\\n}\\n\\nfragment ChildFragment on User\\n@argumentDefinitions(pictureSize: {type: \\"[Int]\\"}) {\\n  profilePicture(size: $pictureSize) {\\n    uri\\n  }\\n}\\n",
                   "name": "GraphQL request",
                   "locationOffset": {
                     "line": 1,
@@ -2171,10 +2171,10 @@ fragment ChildFragment on User
         directives: [],
         handles: null,
         loc: Source {
-          start: 174,
-          end: 222,
+          start: 172,
+          end: 220,
           source: {
-            "body": "fragment ParentFragment on User {\\n  ...ChildFragment @arguments(pictureSize: [42])\\n}\\n\\nfragment ChildFragment on User\\n  @argumentDefinitions(pictureSize: {type: \\"[Int]\\"}) {\\n  profilePicture(size: $pictureSize) {\\n    uri\\n  }\\n}\\n",
+            "body": "fragment ParentFragment on User {\\n  ...ChildFragment @arguments(pictureSize: [42])\\n}\\n\\nfragment ChildFragment on User\\n@argumentDefinitions(pictureSize: {type: \\"[Int]\\"}) {\\n  profilePicture(size: $pictureSize) {\\n    uri\\n  }\\n}\\n",
             "name": "GraphQL request",
             "locationOffset": {
               "line": 1,
@@ -2191,10 +2191,10 @@ fragment ChildFragment on User
             directives: [],
             handles: null,
             loc: Source {
-              start: 215,
-              end: 218,
+              start: 213,
+              end: 216,
               source: {
-                "body": "fragment ParentFragment on User {\\n  ...ChildFragment @arguments(pictureSize: [42])\\n}\\n\\nfragment ChildFragment on User\\n  @argumentDefinitions(pictureSize: {type: \\"[Int]\\"}) {\\n  profilePicture(size: $pictureSize) {\\n    uri\\n  }\\n}\\n",
+                "body": "fragment ParentFragment on User {\\n  ...ChildFragment @arguments(pictureSize: [42])\\n}\\n\\nfragment ChildFragment on User\\n@argumentDefinitions(pictureSize: {type: \\"[Int]\\"}) {\\n  profilePicture(size: $pictureSize) {\\n    uri\\n  }\\n}\\n",
                 "name": "GraphQL request",
                 "locationOffset": {
                   "line": 1,
@@ -2214,10 +2214,10 @@ fragment ChildFragment on User
     argumentDefinitions: [
       LocalArgumentDefinition {
         loc: Source {
-          start: 140,
-          end: 168,
+          start: 138,
+          end: 166,
           source: {
-            "body": "fragment ParentFragment on User {\\n  ...ChildFragment @arguments(pictureSize: [42])\\n}\\n\\nfragment ChildFragment on User\\n  @argumentDefinitions(pictureSize: {type: \\"[Int]\\"}) {\\n  profilePicture(size: $pictureSize) {\\n    uri\\n  }\\n}\\n",
+            "body": "fragment ParentFragment on User {\\n  ...ChildFragment @arguments(pictureSize: [42])\\n}\\n\\nfragment ChildFragment on User\\n@argumentDefinitions(pictureSize: {type: \\"[Int]\\"}) {\\n  profilePicture(size: $pictureSize) {\\n    uri\\n  }\\n}\\n",
             "name": "GraphQL request",
             "locationOffset": {
               "line": 1,
@@ -2244,7 +2244,7 @@ fragment ParentFragment on Query {
 }
 
 fragment ChildFragment on Query
-  @argumentDefinitions(environment: {type: "Environment!"}) {
+@argumentDefinitions(environment: {type: "Environment!"}) {
   settings(environment: $environment) {
     cache_id
   }
@@ -2258,7 +2258,7 @@ fragment ChildFragment on Query
       start: 0,
       end: 152,
       source: {
-        "body": "fragment ParentFragment on Query {\\n  mobile_settings: settings(environment: MOBILE) {\\n    cache_id\\n  }\\n  ...ChildFragment @arguments(environment: WEB)\\n}\\n\\nfragment ChildFragment on Query\\n  @argumentDefinitions(environment: {type: \\"Environment!\\"}) {\\n  settings(environment: $environment) {\\n    cache_id\\n  }\\n}\\n",
+        "body": "fragment ParentFragment on Query {\\n  mobile_settings: settings(environment: MOBILE) {\\n    cache_id\\n  }\\n  ...ChildFragment @arguments(environment: WEB)\\n}\\n\\nfragment ChildFragment on Query\\n@argumentDefinitions(environment: {type: \\"Environment!\\"}) {\\n  settings(environment: $environment) {\\n    cache_id\\n  }\\n}\\n",
         "name": "GraphQL request",
         "locationOffset": {
           "line": 1,
@@ -2277,7 +2277,7 @@ fragment ChildFragment on Query
               start: 63,
               end: 82,
               source: {
-                "body": "fragment ParentFragment on Query {\\n  mobile_settings: settings(environment: MOBILE) {\\n    cache_id\\n  }\\n  ...ChildFragment @arguments(environment: WEB)\\n}\\n\\nfragment ChildFragment on Query\\n  @argumentDefinitions(environment: {type: \\"Environment!\\"}) {\\n  settings(environment: $environment) {\\n    cache_id\\n  }\\n}\\n",
+                "body": "fragment ParentFragment on Query {\\n  mobile_settings: settings(environment: MOBILE) {\\n    cache_id\\n  }\\n  ...ChildFragment @arguments(environment: WEB)\\n}\\n\\nfragment ChildFragment on Query\\n@argumentDefinitions(environment: {type: \\"Environment!\\"}) {\\n  settings(environment: $environment) {\\n    cache_id\\n  }\\n}\\n",
                 "name": "GraphQL request",
                 "locationOffset": {
                   "line": 1,
@@ -2291,7 +2291,7 @@ fragment ChildFragment on Query
                 start: 76,
                 end: 82,
                 source: {
-                  "body": "fragment ParentFragment on Query {\\n  mobile_settings: settings(environment: MOBILE) {\\n    cache_id\\n  }\\n  ...ChildFragment @arguments(environment: WEB)\\n}\\n\\nfragment ChildFragment on Query\\n  @argumentDefinitions(environment: {type: \\"Environment!\\"}) {\\n  settings(environment: $environment) {\\n    cache_id\\n  }\\n}\\n",
+                  "body": "fragment ParentFragment on Query {\\n  mobile_settings: settings(environment: MOBILE) {\\n    cache_id\\n  }\\n  ...ChildFragment @arguments(environment: WEB)\\n}\\n\\nfragment ChildFragment on Query\\n@argumentDefinitions(environment: {type: \\"Environment!\\"}) {\\n  settings(environment: $environment) {\\n    cache_id\\n  }\\n}\\n",
                   "name": "GraphQL request",
                   "locationOffset": {
                     "line": 1,
@@ -2311,7 +2311,7 @@ fragment ChildFragment on Query
           start: 37,
           end: 102,
           source: {
-            "body": "fragment ParentFragment on Query {\\n  mobile_settings: settings(environment: MOBILE) {\\n    cache_id\\n  }\\n  ...ChildFragment @arguments(environment: WEB)\\n}\\n\\nfragment ChildFragment on Query\\n  @argumentDefinitions(environment: {type: \\"Environment!\\"}) {\\n  settings(environment: $environment) {\\n    cache_id\\n  }\\n}\\n",
+            "body": "fragment ParentFragment on Query {\\n  mobile_settings: settings(environment: MOBILE) {\\n    cache_id\\n  }\\n  ...ChildFragment @arguments(environment: WEB)\\n}\\n\\nfragment ChildFragment on Query\\n@argumentDefinitions(environment: {type: \\"Environment!\\"}) {\\n  settings(environment: $environment) {\\n    cache_id\\n  }\\n}\\n",
             "name": "GraphQL request",
             "locationOffset": {
               "line": 1,
@@ -2331,7 +2331,7 @@ fragment ChildFragment on Query
               start: 90,
               end: 98,
               source: {
-                "body": "fragment ParentFragment on Query {\\n  mobile_settings: settings(environment: MOBILE) {\\n    cache_id\\n  }\\n  ...ChildFragment @arguments(environment: WEB)\\n}\\n\\nfragment ChildFragment on Query\\n  @argumentDefinitions(environment: {type: \\"Environment!\\"}) {\\n  settings(environment: $environment) {\\n    cache_id\\n  }\\n}\\n",
+                "body": "fragment ParentFragment on Query {\\n  mobile_settings: settings(environment: MOBILE) {\\n    cache_id\\n  }\\n  ...ChildFragment @arguments(environment: WEB)\\n}\\n\\nfragment ChildFragment on Query\\n@argumentDefinitions(environment: {type: \\"Environment!\\"}) {\\n  settings(environment: $environment) {\\n    cache_id\\n  }\\n}\\n",
                 "name": "GraphQL request",
                 "locationOffset": {
                   "line": 1,
@@ -2353,7 +2353,7 @@ fragment ChildFragment on Query
               start: 133,
               end: 149,
               source: {
-                "body": "fragment ParentFragment on Query {\\n  mobile_settings: settings(environment: MOBILE) {\\n    cache_id\\n  }\\n  ...ChildFragment @arguments(environment: WEB)\\n}\\n\\nfragment ChildFragment on Query\\n  @argumentDefinitions(environment: {type: \\"Environment!\\"}) {\\n  settings(environment: $environment) {\\n    cache_id\\n  }\\n}\\n",
+                "body": "fragment ParentFragment on Query {\\n  mobile_settings: settings(environment: MOBILE) {\\n    cache_id\\n  }\\n  ...ChildFragment @arguments(environment: WEB)\\n}\\n\\nfragment ChildFragment on Query\\n@argumentDefinitions(environment: {type: \\"Environment!\\"}) {\\n  settings(environment: $environment) {\\n    cache_id\\n  }\\n}\\n",
                 "name": "GraphQL request",
                 "locationOffset": {
                   "line": 1,
@@ -2367,7 +2367,7 @@ fragment ChildFragment on Query
                 start: 146,
                 end: 149,
                 source: {
-                  "body": "fragment ParentFragment on Query {\\n  mobile_settings: settings(environment: MOBILE) {\\n    cache_id\\n  }\\n  ...ChildFragment @arguments(environment: WEB)\\n}\\n\\nfragment ChildFragment on Query\\n  @argumentDefinitions(environment: {type: \\"Environment!\\"}) {\\n  settings(environment: $environment) {\\n    cache_id\\n  }\\n}\\n",
+                  "body": "fragment ParentFragment on Query {\\n  mobile_settings: settings(environment: MOBILE) {\\n    cache_id\\n  }\\n  ...ChildFragment @arguments(environment: WEB)\\n}\\n\\nfragment ChildFragment on Query\\n@argumentDefinitions(environment: {type: \\"Environment!\\"}) {\\n  settings(environment: $environment) {\\n    cache_id\\n  }\\n}\\n",
                   "name": "GraphQL request",
                   "locationOffset": {
                     "line": 1,
@@ -2385,7 +2385,7 @@ fragment ChildFragment on Query
           start: 105,
           end: 150,
           source: {
-            "body": "fragment ParentFragment on Query {\\n  mobile_settings: settings(environment: MOBILE) {\\n    cache_id\\n  }\\n  ...ChildFragment @arguments(environment: WEB)\\n}\\n\\nfragment ChildFragment on Query\\n  @argumentDefinitions(environment: {type: \\"Environment!\\"}) {\\n  settings(environment: $environment) {\\n    cache_id\\n  }\\n}\\n",
+            "body": "fragment ParentFragment on Query {\\n  mobile_settings: settings(environment: MOBILE) {\\n    cache_id\\n  }\\n  ...ChildFragment @arguments(environment: WEB)\\n}\\n\\nfragment ChildFragment on Query\\n@argumentDefinitions(environment: {type: \\"Environment!\\"}) {\\n  settings(environment: $environment) {\\n    cache_id\\n  }\\n}\\n",
             "name": "GraphQL request",
             "locationOffset": {
               "line": 1,
@@ -2404,9 +2404,9 @@ fragment ChildFragment on Query
     directives: [],
     loc: Source {
       start: 154,
-      end: 306,
+      end: 304,
       source: {
-        "body": "fragment ParentFragment on Query {\\n  mobile_settings: settings(environment: MOBILE) {\\n    cache_id\\n  }\\n  ...ChildFragment @arguments(environment: WEB)\\n}\\n\\nfragment ChildFragment on Query\\n  @argumentDefinitions(environment: {type: \\"Environment!\\"}) {\\n  settings(environment: $environment) {\\n    cache_id\\n  }\\n}\\n",
+        "body": "fragment ParentFragment on Query {\\n  mobile_settings: settings(environment: MOBILE) {\\n    cache_id\\n  }\\n  ...ChildFragment @arguments(environment: WEB)\\n}\\n\\nfragment ChildFragment on Query\\n@argumentDefinitions(environment: {type: \\"Environment!\\"}) {\\n  settings(environment: $environment) {\\n    cache_id\\n  }\\n}\\n",
         "name": "GraphQL request",
         "locationOffset": {
           "line": 1,
@@ -2422,10 +2422,10 @@ fragment ChildFragment on Query
         args: [
           Argument {
             loc: Source {
-              start: 259,
-              end: 284,
+              start: 257,
+              end: 282,
               source: {
-                "body": "fragment ParentFragment on Query {\\n  mobile_settings: settings(environment: MOBILE) {\\n    cache_id\\n  }\\n  ...ChildFragment @arguments(environment: WEB)\\n}\\n\\nfragment ChildFragment on Query\\n  @argumentDefinitions(environment: {type: \\"Environment!\\"}) {\\n  settings(environment: $environment) {\\n    cache_id\\n  }\\n}\\n",
+                "body": "fragment ParentFragment on Query {\\n  mobile_settings: settings(environment: MOBILE) {\\n    cache_id\\n  }\\n  ...ChildFragment @arguments(environment: WEB)\\n}\\n\\nfragment ChildFragment on Query\\n@argumentDefinitions(environment: {type: \\"Environment!\\"}) {\\n  settings(environment: $environment) {\\n    cache_id\\n  }\\n}\\n",
                 "name": "GraphQL request",
                 "locationOffset": {
                   "line": 1,
@@ -2436,10 +2436,10 @@ fragment ChildFragment on Query
             name: "environment",
             value: Variable {
               loc: Source {
-                start: 272,
-                end: 284,
+                start: 270,
+                end: 282,
                 source: {
-                  "body": "fragment ParentFragment on Query {\\n  mobile_settings: settings(environment: MOBILE) {\\n    cache_id\\n  }\\n  ...ChildFragment @arguments(environment: WEB)\\n}\\n\\nfragment ChildFragment on Query\\n  @argumentDefinitions(environment: {type: \\"Environment!\\"}) {\\n  settings(environment: $environment) {\\n    cache_id\\n  }\\n}\\n",
+                  "body": "fragment ParentFragment on Query {\\n  mobile_settings: settings(environment: MOBILE) {\\n    cache_id\\n  }\\n  ...ChildFragment @arguments(environment: WEB)\\n}\\n\\nfragment ChildFragment on Query\\n@argumentDefinitions(environment: {type: \\"Environment!\\"}) {\\n  settings(environment: $environment) {\\n    cache_id\\n  }\\n}\\n",
                   "name": "GraphQL request",
                   "locationOffset": {
                     "line": 1,
@@ -2457,10 +2457,10 @@ fragment ChildFragment on Query
         directives: [],
         handles: null,
         loc: Source {
-          start: 250,
-          end: 304,
+          start: 248,
+          end: 302,
           source: {
-            "body": "fragment ParentFragment on Query {\\n  mobile_settings: settings(environment: MOBILE) {\\n    cache_id\\n  }\\n  ...ChildFragment @arguments(environment: WEB)\\n}\\n\\nfragment ChildFragment on Query\\n  @argumentDefinitions(environment: {type: \\"Environment!\\"}) {\\n  settings(environment: $environment) {\\n    cache_id\\n  }\\n}\\n",
+            "body": "fragment ParentFragment on Query {\\n  mobile_settings: settings(environment: MOBILE) {\\n    cache_id\\n  }\\n  ...ChildFragment @arguments(environment: WEB)\\n}\\n\\nfragment ChildFragment on Query\\n@argumentDefinitions(environment: {type: \\"Environment!\\"}) {\\n  settings(environment: $environment) {\\n    cache_id\\n  }\\n}\\n",
             "name": "GraphQL request",
             "locationOffset": {
               "line": 1,
@@ -2477,10 +2477,10 @@ fragment ChildFragment on Query
             directives: [],
             handles: null,
             loc: Source {
-              start: 292,
-              end: 300,
+              start: 290,
+              end: 298,
               source: {
-                "body": "fragment ParentFragment on Query {\\n  mobile_settings: settings(environment: MOBILE) {\\n    cache_id\\n  }\\n  ...ChildFragment @arguments(environment: WEB)\\n}\\n\\nfragment ChildFragment on Query\\n  @argumentDefinitions(environment: {type: \\"Environment!\\"}) {\\n  settings(environment: $environment) {\\n    cache_id\\n  }\\n}\\n",
+                "body": "fragment ParentFragment on Query {\\n  mobile_settings: settings(environment: MOBILE) {\\n    cache_id\\n  }\\n  ...ChildFragment @arguments(environment: WEB)\\n}\\n\\nfragment ChildFragment on Query\\n@argumentDefinitions(environment: {type: \\"Environment!\\"}) {\\n  settings(environment: $environment) {\\n    cache_id\\n  }\\n}\\n",
                 "name": "GraphQL request",
                 "locationOffset": {
                   "line": 1,
@@ -2500,10 +2500,10 @@ fragment ChildFragment on Query
     argumentDefinitions: [
       LocalArgumentDefinition {
         loc: Source {
-          start: 209,
-          end: 244,
+          start: 207,
+          end: 242,
           source: {
-            "body": "fragment ParentFragment on Query {\\n  mobile_settings: settings(environment: MOBILE) {\\n    cache_id\\n  }\\n  ...ChildFragment @arguments(environment: WEB)\\n}\\n\\nfragment ChildFragment on Query\\n  @argumentDefinitions(environment: {type: \\"Environment!\\"}) {\\n  settings(environment: $environment) {\\n    cache_id\\n  }\\n}\\n",
+            "body": "fragment ParentFragment on Query {\\n  mobile_settings: settings(environment: MOBILE) {\\n    cache_id\\n  }\\n  ...ChildFragment @arguments(environment: WEB)\\n}\\n\\nfragment ChildFragment on Query\\n@argumentDefinitions(environment: {type: \\"Environment!\\"}) {\\n  settings(environment: $environment) {\\n    cache_id\\n  }\\n}\\n",
             "name": "GraphQL request",
             "locationOffset": {
               "line": 1,
@@ -2530,7 +2530,7 @@ fragment ParentFragment on User {
 }
 
 fragment ChildFragment on User
-  @argumentDefinitions(environments: {type: "[Environment!]!"}) {
+@argumentDefinitions(environments: {type: "[Environment!]!"}) {
   checkins(environments: $environments) {
     query
   }
@@ -2544,7 +2544,7 @@ fragment ChildFragment on User
       start: 0,
       end: 152,
       source: {
-        "body": "fragment ParentFragment on User {\\n  mobile_checkins: checkins(environments: [MOBILE]) {\\n    query\\n  }\\n  ...ChildFragment @arguments(environments: WEB)\\n}\\n\\nfragment ChildFragment on User\\n  @argumentDefinitions(environments: {type: \\"[Environment!]!\\"}) {\\n  checkins(environments: $environments) {\\n    query\\n  }\\n}\\n",
+        "body": "fragment ParentFragment on User {\\n  mobile_checkins: checkins(environments: [MOBILE]) {\\n    query\\n  }\\n  ...ChildFragment @arguments(environments: WEB)\\n}\\n\\nfragment ChildFragment on User\\n@argumentDefinitions(environments: {type: \\"[Environment!]!\\"}) {\\n  checkins(environments: $environments) {\\n    query\\n  }\\n}\\n",
         "name": "GraphQL request",
         "locationOffset": {
           "line": 1,
@@ -2563,7 +2563,7 @@ fragment ChildFragment on User
               start: 62,
               end: 84,
               source: {
-                "body": "fragment ParentFragment on User {\\n  mobile_checkins: checkins(environments: [MOBILE]) {\\n    query\\n  }\\n  ...ChildFragment @arguments(environments: WEB)\\n}\\n\\nfragment ChildFragment on User\\n  @argumentDefinitions(environments: {type: \\"[Environment!]!\\"}) {\\n  checkins(environments: $environments) {\\n    query\\n  }\\n}\\n",
+                "body": "fragment ParentFragment on User {\\n  mobile_checkins: checkins(environments: [MOBILE]) {\\n    query\\n  }\\n  ...ChildFragment @arguments(environments: WEB)\\n}\\n\\nfragment ChildFragment on User\\n@argumentDefinitions(environments: {type: \\"[Environment!]!\\"}) {\\n  checkins(environments: $environments) {\\n    query\\n  }\\n}\\n",
                 "name": "GraphQL request",
                 "locationOffset": {
                   "line": 1,
@@ -2577,7 +2577,7 @@ fragment ChildFragment on User
                 start: 76,
                 end: 84,
                 source: {
-                  "body": "fragment ParentFragment on User {\\n  mobile_checkins: checkins(environments: [MOBILE]) {\\n    query\\n  }\\n  ...ChildFragment @arguments(environments: WEB)\\n}\\n\\nfragment ChildFragment on User\\n  @argumentDefinitions(environments: {type: \\"[Environment!]!\\"}) {\\n  checkins(environments: $environments) {\\n    query\\n  }\\n}\\n",
+                  "body": "fragment ParentFragment on User {\\n  mobile_checkins: checkins(environments: [MOBILE]) {\\n    query\\n  }\\n  ...ChildFragment @arguments(environments: WEB)\\n}\\n\\nfragment ChildFragment on User\\n@argumentDefinitions(environments: {type: \\"[Environment!]!\\"}) {\\n  checkins(environments: $environments) {\\n    query\\n  }\\n}\\n",
                   "name": "GraphQL request",
                   "locationOffset": {
                     "line": 1,
@@ -2599,7 +2599,7 @@ fragment ChildFragment on User
           start: 36,
           end: 101,
           source: {
-            "body": "fragment ParentFragment on User {\\n  mobile_checkins: checkins(environments: [MOBILE]) {\\n    query\\n  }\\n  ...ChildFragment @arguments(environments: WEB)\\n}\\n\\nfragment ChildFragment on User\\n  @argumentDefinitions(environments: {type: \\"[Environment!]!\\"}) {\\n  checkins(environments: $environments) {\\n    query\\n  }\\n}\\n",
+            "body": "fragment ParentFragment on User {\\n  mobile_checkins: checkins(environments: [MOBILE]) {\\n    query\\n  }\\n  ...ChildFragment @arguments(environments: WEB)\\n}\\n\\nfragment ChildFragment on User\\n@argumentDefinitions(environments: {type: \\"[Environment!]!\\"}) {\\n  checkins(environments: $environments) {\\n    query\\n  }\\n}\\n",
             "name": "GraphQL request",
             "locationOffset": {
               "line": 1,
@@ -2619,7 +2619,7 @@ fragment ChildFragment on User
               start: 92,
               end: 97,
               source: {
-                "body": "fragment ParentFragment on User {\\n  mobile_checkins: checkins(environments: [MOBILE]) {\\n    query\\n  }\\n  ...ChildFragment @arguments(environments: WEB)\\n}\\n\\nfragment ChildFragment on User\\n  @argumentDefinitions(environments: {type: \\"[Environment!]!\\"}) {\\n  checkins(environments: $environments) {\\n    query\\n  }\\n}\\n",
+                "body": "fragment ParentFragment on User {\\n  mobile_checkins: checkins(environments: [MOBILE]) {\\n    query\\n  }\\n  ...ChildFragment @arguments(environments: WEB)\\n}\\n\\nfragment ChildFragment on User\\n@argumentDefinitions(environments: {type: \\"[Environment!]!\\"}) {\\n  checkins(environments: $environments) {\\n    query\\n  }\\n}\\n",
                 "name": "GraphQL request",
                 "locationOffset": {
                   "line": 1,
@@ -2641,7 +2641,7 @@ fragment ChildFragment on User
               start: 132,
               end: 149,
               source: {
-                "body": "fragment ParentFragment on User {\\n  mobile_checkins: checkins(environments: [MOBILE]) {\\n    query\\n  }\\n  ...ChildFragment @arguments(environments: WEB)\\n}\\n\\nfragment ChildFragment on User\\n  @argumentDefinitions(environments: {type: \\"[Environment!]!\\"}) {\\n  checkins(environments: $environments) {\\n    query\\n  }\\n}\\n",
+                "body": "fragment ParentFragment on User {\\n  mobile_checkins: checkins(environments: [MOBILE]) {\\n    query\\n  }\\n  ...ChildFragment @arguments(environments: WEB)\\n}\\n\\nfragment ChildFragment on User\\n@argumentDefinitions(environments: {type: \\"[Environment!]!\\"}) {\\n  checkins(environments: $environments) {\\n    query\\n  }\\n}\\n",
                 "name": "GraphQL request",
                 "locationOffset": {
                   "line": 1,
@@ -2655,7 +2655,7 @@ fragment ChildFragment on User
                 start: 146,
                 end: 149,
                 source: {
-                  "body": "fragment ParentFragment on User {\\n  mobile_checkins: checkins(environments: [MOBILE]) {\\n    query\\n  }\\n  ...ChildFragment @arguments(environments: WEB)\\n}\\n\\nfragment ChildFragment on User\\n  @argumentDefinitions(environments: {type: \\"[Environment!]!\\"}) {\\n  checkins(environments: $environments) {\\n    query\\n  }\\n}\\n",
+                  "body": "fragment ParentFragment on User {\\n  mobile_checkins: checkins(environments: [MOBILE]) {\\n    query\\n  }\\n  ...ChildFragment @arguments(environments: WEB)\\n}\\n\\nfragment ChildFragment on User\\n@argumentDefinitions(environments: {type: \\"[Environment!]!\\"}) {\\n  checkins(environments: $environments) {\\n    query\\n  }\\n}\\n",
                   "name": "GraphQL request",
                   "locationOffset": {
                     "line": 1,
@@ -2673,7 +2673,7 @@ fragment ChildFragment on User
           start: 104,
           end: 150,
           source: {
-            "body": "fragment ParentFragment on User {\\n  mobile_checkins: checkins(environments: [MOBILE]) {\\n    query\\n  }\\n  ...ChildFragment @arguments(environments: WEB)\\n}\\n\\nfragment ChildFragment on User\\n  @argumentDefinitions(environments: {type: \\"[Environment!]!\\"}) {\\n  checkins(environments: $environments) {\\n    query\\n  }\\n}\\n",
+            "body": "fragment ParentFragment on User {\\n  mobile_checkins: checkins(environments: [MOBILE]) {\\n    query\\n  }\\n  ...ChildFragment @arguments(environments: WEB)\\n}\\n\\nfragment ChildFragment on User\\n@argumentDefinitions(environments: {type: \\"[Environment!]!\\"}) {\\n  checkins(environments: $environments) {\\n    query\\n  }\\n}\\n",
             "name": "GraphQL request",
             "locationOffset": {
               "line": 1,
@@ -2692,9 +2692,9 @@ fragment ChildFragment on User
     directives: [],
     loc: Source {
       start: 154,
-      end: 308,
+      end: 306,
       source: {
-        "body": "fragment ParentFragment on User {\\n  mobile_checkins: checkins(environments: [MOBILE]) {\\n    query\\n  }\\n  ...ChildFragment @arguments(environments: WEB)\\n}\\n\\nfragment ChildFragment on User\\n  @argumentDefinitions(environments: {type: \\"[Environment!]!\\"}) {\\n  checkins(environments: $environments) {\\n    query\\n  }\\n}\\n",
+        "body": "fragment ParentFragment on User {\\n  mobile_checkins: checkins(environments: [MOBILE]) {\\n    query\\n  }\\n  ...ChildFragment @arguments(environments: WEB)\\n}\\n\\nfragment ChildFragment on User\\n@argumentDefinitions(environments: {type: \\"[Environment!]!\\"}) {\\n  checkins(environments: $environments) {\\n    query\\n  }\\n}\\n",
         "name": "GraphQL request",
         "locationOffset": {
           "line": 1,
@@ -2710,10 +2710,10 @@ fragment ChildFragment on User
         args: [
           Argument {
             loc: Source {
-              start: 262,
-              end: 289,
+              start: 260,
+              end: 287,
               source: {
-                "body": "fragment ParentFragment on User {\\n  mobile_checkins: checkins(environments: [MOBILE]) {\\n    query\\n  }\\n  ...ChildFragment @arguments(environments: WEB)\\n}\\n\\nfragment ChildFragment on User\\n  @argumentDefinitions(environments: {type: \\"[Environment!]!\\"}) {\\n  checkins(environments: $environments) {\\n    query\\n  }\\n}\\n",
+                "body": "fragment ParentFragment on User {\\n  mobile_checkins: checkins(environments: [MOBILE]) {\\n    query\\n  }\\n  ...ChildFragment @arguments(environments: WEB)\\n}\\n\\nfragment ChildFragment on User\\n@argumentDefinitions(environments: {type: \\"[Environment!]!\\"}) {\\n  checkins(environments: $environments) {\\n    query\\n  }\\n}\\n",
                 "name": "GraphQL request",
                 "locationOffset": {
                   "line": 1,
@@ -2724,10 +2724,10 @@ fragment ChildFragment on User
             name: "environments",
             value: Variable {
               loc: Source {
-                start: 276,
-                end: 289,
+                start: 274,
+                end: 287,
                 source: {
-                  "body": "fragment ParentFragment on User {\\n  mobile_checkins: checkins(environments: [MOBILE]) {\\n    query\\n  }\\n  ...ChildFragment @arguments(environments: WEB)\\n}\\n\\nfragment ChildFragment on User\\n  @argumentDefinitions(environments: {type: \\"[Environment!]!\\"}) {\\n  checkins(environments: $environments) {\\n    query\\n  }\\n}\\n",
+                  "body": "fragment ParentFragment on User {\\n  mobile_checkins: checkins(environments: [MOBILE]) {\\n    query\\n  }\\n  ...ChildFragment @arguments(environments: WEB)\\n}\\n\\nfragment ChildFragment on User\\n@argumentDefinitions(environments: {type: \\"[Environment!]!\\"}) {\\n  checkins(environments: $environments) {\\n    query\\n  }\\n}\\n",
                   "name": "GraphQL request",
                   "locationOffset": {
                     "line": 1,
@@ -2745,10 +2745,10 @@ fragment ChildFragment on User
         directives: [],
         handles: null,
         loc: Source {
-          start: 253,
-          end: 306,
+          start: 251,
+          end: 304,
           source: {
-            "body": "fragment ParentFragment on User {\\n  mobile_checkins: checkins(environments: [MOBILE]) {\\n    query\\n  }\\n  ...ChildFragment @arguments(environments: WEB)\\n}\\n\\nfragment ChildFragment on User\\n  @argumentDefinitions(environments: {type: \\"[Environment!]!\\"}) {\\n  checkins(environments: $environments) {\\n    query\\n  }\\n}\\n",
+            "body": "fragment ParentFragment on User {\\n  mobile_checkins: checkins(environments: [MOBILE]) {\\n    query\\n  }\\n  ...ChildFragment @arguments(environments: WEB)\\n}\\n\\nfragment ChildFragment on User\\n@argumentDefinitions(environments: {type: \\"[Environment!]!\\"}) {\\n  checkins(environments: $environments) {\\n    query\\n  }\\n}\\n",
             "name": "GraphQL request",
             "locationOffset": {
               "line": 1,
@@ -2765,10 +2765,10 @@ fragment ChildFragment on User
             directives: [],
             handles: null,
             loc: Source {
-              start: 297,
-              end: 302,
+              start: 295,
+              end: 300,
               source: {
-                "body": "fragment ParentFragment on User {\\n  mobile_checkins: checkins(environments: [MOBILE]) {\\n    query\\n  }\\n  ...ChildFragment @arguments(environments: WEB)\\n}\\n\\nfragment ChildFragment on User\\n  @argumentDefinitions(environments: {type: \\"[Environment!]!\\"}) {\\n  checkins(environments: $environments) {\\n    query\\n  }\\n}\\n",
+                "body": "fragment ParentFragment on User {\\n  mobile_checkins: checkins(environments: [MOBILE]) {\\n    query\\n  }\\n  ...ChildFragment @arguments(environments: WEB)\\n}\\n\\nfragment ChildFragment on User\\n@argumentDefinitions(environments: {type: \\"[Environment!]!\\"}) {\\n  checkins(environments: $environments) {\\n    query\\n  }\\n}\\n",
                 "name": "GraphQL request",
                 "locationOffset": {
                   "line": 1,
@@ -2788,10 +2788,10 @@ fragment ChildFragment on User
     argumentDefinitions: [
       LocalArgumentDefinition {
         loc: Source {
-          start: 208,
-          end: 247,
+          start: 206,
+          end: 245,
           source: {
-            "body": "fragment ParentFragment on User {\\n  mobile_checkins: checkins(environments: [MOBILE]) {\\n    query\\n  }\\n  ...ChildFragment @arguments(environments: WEB)\\n}\\n\\nfragment ChildFragment on User\\n  @argumentDefinitions(environments: {type: \\"[Environment!]!\\"}) {\\n  checkins(environments: $environments) {\\n    query\\n  }\\n}\\n",
+            "body": "fragment ParentFragment on User {\\n  mobile_checkins: checkins(environments: [MOBILE]) {\\n    query\\n  }\\n  ...ChildFragment @arguments(environments: WEB)\\n}\\n\\nfragment ChildFragment on User\\n@argumentDefinitions(environments: {type: \\"[Environment!]!\\"}) {\\n  checkins(environments: $environments) {\\n    query\\n  }\\n}\\n",
             "name": "GraphQL request",
             "locationOffset": {
               "line": 1,
@@ -2819,7 +2819,7 @@ fragment ParentFragment on User {
 }
 
 fragment ChildFragment on User
-  @argumentDefinitions(environment: {type: "Environment!"}) {
+@argumentDefinitions(environment: {type: "Environment!"}) {
   # variables of a non-list type cannot flow into list types,
   # the singular -> list promotion only works for literal values
   checkins(environments: $environment) {
@@ -2833,10 +2833,10 @@ THROWN EXCEPTION:
 
 - Variable '$environment' was defined as type 'Environment!' but used in a location expecting the type '[Environment!]!'
   
-  GraphQL request:10:24
+  GraphQL request:10:22
    9 | fragment ChildFragment on User
-  10 |   @argumentDefinitions(environment: {type: "Environment!"}) {
-     |                        ^
+  10 | @argumentDefinitions(environment: {type: "Environment!"}) {
+     |                      ^
   11 |   # variables of a non-list type cannot flow into list types,
   
   GraphQL request:13:26
@@ -2856,7 +2856,7 @@ fragment ParentFragment on User {
 }
 
 fragment ChildFragment on User
-  @argumentDefinitions(environments: {type: "[Environment!]!"}) {
+@argumentDefinitions(environments: {type: "[Environment!]!"}) {
   checkins(environments: $environments) {
     query
   }
@@ -2870,7 +2870,7 @@ fragment ChildFragment on User
       start: 0,
       end: 154,
       source: {
-        "body": "fragment ParentFragment on User {\\n  mobile_checkins: checkins(environments: [MOBILE]) {\\n    query\\n  }\\n  ...ChildFragment @arguments(environments: [WEB])\\n}\\n\\nfragment ChildFragment on User\\n  @argumentDefinitions(environments: {type: \\"[Environment!]!\\"}) {\\n  checkins(environments: $environments) {\\n    query\\n  }\\n}\\n",
+        "body": "fragment ParentFragment on User {\\n  mobile_checkins: checkins(environments: [MOBILE]) {\\n    query\\n  }\\n  ...ChildFragment @arguments(environments: [WEB])\\n}\\n\\nfragment ChildFragment on User\\n@argumentDefinitions(environments: {type: \\"[Environment!]!\\"}) {\\n  checkins(environments: $environments) {\\n    query\\n  }\\n}\\n",
         "name": "GraphQL request",
         "locationOffset": {
           "line": 1,
@@ -2889,7 +2889,7 @@ fragment ChildFragment on User
               start: 62,
               end: 84,
               source: {
-                "body": "fragment ParentFragment on User {\\n  mobile_checkins: checkins(environments: [MOBILE]) {\\n    query\\n  }\\n  ...ChildFragment @arguments(environments: [WEB])\\n}\\n\\nfragment ChildFragment on User\\n  @argumentDefinitions(environments: {type: \\"[Environment!]!\\"}) {\\n  checkins(environments: $environments) {\\n    query\\n  }\\n}\\n",
+                "body": "fragment ParentFragment on User {\\n  mobile_checkins: checkins(environments: [MOBILE]) {\\n    query\\n  }\\n  ...ChildFragment @arguments(environments: [WEB])\\n}\\n\\nfragment ChildFragment on User\\n@argumentDefinitions(environments: {type: \\"[Environment!]!\\"}) {\\n  checkins(environments: $environments) {\\n    query\\n  }\\n}\\n",
                 "name": "GraphQL request",
                 "locationOffset": {
                   "line": 1,
@@ -2903,7 +2903,7 @@ fragment ChildFragment on User
                 start: 76,
                 end: 84,
                 source: {
-                  "body": "fragment ParentFragment on User {\\n  mobile_checkins: checkins(environments: [MOBILE]) {\\n    query\\n  }\\n  ...ChildFragment @arguments(environments: [WEB])\\n}\\n\\nfragment ChildFragment on User\\n  @argumentDefinitions(environments: {type: \\"[Environment!]!\\"}) {\\n  checkins(environments: $environments) {\\n    query\\n  }\\n}\\n",
+                  "body": "fragment ParentFragment on User {\\n  mobile_checkins: checkins(environments: [MOBILE]) {\\n    query\\n  }\\n  ...ChildFragment @arguments(environments: [WEB])\\n}\\n\\nfragment ChildFragment on User\\n@argumentDefinitions(environments: {type: \\"[Environment!]!\\"}) {\\n  checkins(environments: $environments) {\\n    query\\n  }\\n}\\n",
                   "name": "GraphQL request",
                   "locationOffset": {
                     "line": 1,
@@ -2925,7 +2925,7 @@ fragment ChildFragment on User
           start: 36,
           end: 101,
           source: {
-            "body": "fragment ParentFragment on User {\\n  mobile_checkins: checkins(environments: [MOBILE]) {\\n    query\\n  }\\n  ...ChildFragment @arguments(environments: [WEB])\\n}\\n\\nfragment ChildFragment on User\\n  @argumentDefinitions(environments: {type: \\"[Environment!]!\\"}) {\\n  checkins(environments: $environments) {\\n    query\\n  }\\n}\\n",
+            "body": "fragment ParentFragment on User {\\n  mobile_checkins: checkins(environments: [MOBILE]) {\\n    query\\n  }\\n  ...ChildFragment @arguments(environments: [WEB])\\n}\\n\\nfragment ChildFragment on User\\n@argumentDefinitions(environments: {type: \\"[Environment!]!\\"}) {\\n  checkins(environments: $environments) {\\n    query\\n  }\\n}\\n",
             "name": "GraphQL request",
             "locationOffset": {
               "line": 1,
@@ -2945,7 +2945,7 @@ fragment ChildFragment on User
               start: 92,
               end: 97,
               source: {
-                "body": "fragment ParentFragment on User {\\n  mobile_checkins: checkins(environments: [MOBILE]) {\\n    query\\n  }\\n  ...ChildFragment @arguments(environments: [WEB])\\n}\\n\\nfragment ChildFragment on User\\n  @argumentDefinitions(environments: {type: \\"[Environment!]!\\"}) {\\n  checkins(environments: $environments) {\\n    query\\n  }\\n}\\n",
+                "body": "fragment ParentFragment on User {\\n  mobile_checkins: checkins(environments: [MOBILE]) {\\n    query\\n  }\\n  ...ChildFragment @arguments(environments: [WEB])\\n}\\n\\nfragment ChildFragment on User\\n@argumentDefinitions(environments: {type: \\"[Environment!]!\\"}) {\\n  checkins(environments: $environments) {\\n    query\\n  }\\n}\\n",
                 "name": "GraphQL request",
                 "locationOffset": {
                   "line": 1,
@@ -2967,7 +2967,7 @@ fragment ChildFragment on User
               start: 132,
               end: 151,
               source: {
-                "body": "fragment ParentFragment on User {\\n  mobile_checkins: checkins(environments: [MOBILE]) {\\n    query\\n  }\\n  ...ChildFragment @arguments(environments: [WEB])\\n}\\n\\nfragment ChildFragment on User\\n  @argumentDefinitions(environments: {type: \\"[Environment!]!\\"}) {\\n  checkins(environments: $environments) {\\n    query\\n  }\\n}\\n",
+                "body": "fragment ParentFragment on User {\\n  mobile_checkins: checkins(environments: [MOBILE]) {\\n    query\\n  }\\n  ...ChildFragment @arguments(environments: [WEB])\\n}\\n\\nfragment ChildFragment on User\\n@argumentDefinitions(environments: {type: \\"[Environment!]!\\"}) {\\n  checkins(environments: $environments) {\\n    query\\n  }\\n}\\n",
                 "name": "GraphQL request",
                 "locationOffset": {
                   "line": 1,
@@ -2981,7 +2981,7 @@ fragment ChildFragment on User
                 start: 146,
                 end: 151,
                 source: {
-                  "body": "fragment ParentFragment on User {\\n  mobile_checkins: checkins(environments: [MOBILE]) {\\n    query\\n  }\\n  ...ChildFragment @arguments(environments: [WEB])\\n}\\n\\nfragment ChildFragment on User\\n  @argumentDefinitions(environments: {type: \\"[Environment!]!\\"}) {\\n  checkins(environments: $environments) {\\n    query\\n  }\\n}\\n",
+                  "body": "fragment ParentFragment on User {\\n  mobile_checkins: checkins(environments: [MOBILE]) {\\n    query\\n  }\\n  ...ChildFragment @arguments(environments: [WEB])\\n}\\n\\nfragment ChildFragment on User\\n@argumentDefinitions(environments: {type: \\"[Environment!]!\\"}) {\\n  checkins(environments: $environments) {\\n    query\\n  }\\n}\\n",
                   "name": "GraphQL request",
                   "locationOffset": {
                     "line": 1,
@@ -3001,7 +3001,7 @@ fragment ChildFragment on User
           start: 104,
           end: 152,
           source: {
-            "body": "fragment ParentFragment on User {\\n  mobile_checkins: checkins(environments: [MOBILE]) {\\n    query\\n  }\\n  ...ChildFragment @arguments(environments: [WEB])\\n}\\n\\nfragment ChildFragment on User\\n  @argumentDefinitions(environments: {type: \\"[Environment!]!\\"}) {\\n  checkins(environments: $environments) {\\n    query\\n  }\\n}\\n",
+            "body": "fragment ParentFragment on User {\\n  mobile_checkins: checkins(environments: [MOBILE]) {\\n    query\\n  }\\n  ...ChildFragment @arguments(environments: [WEB])\\n}\\n\\nfragment ChildFragment on User\\n@argumentDefinitions(environments: {type: \\"[Environment!]!\\"}) {\\n  checkins(environments: $environments) {\\n    query\\n  }\\n}\\n",
             "name": "GraphQL request",
             "locationOffset": {
               "line": 1,
@@ -3020,9 +3020,9 @@ fragment ChildFragment on User
     directives: [],
     loc: Source {
       start: 156,
-      end: 310,
+      end: 308,
       source: {
-        "body": "fragment ParentFragment on User {\\n  mobile_checkins: checkins(environments: [MOBILE]) {\\n    query\\n  }\\n  ...ChildFragment @arguments(environments: [WEB])\\n}\\n\\nfragment ChildFragment on User\\n  @argumentDefinitions(environments: {type: \\"[Environment!]!\\"}) {\\n  checkins(environments: $environments) {\\n    query\\n  }\\n}\\n",
+        "body": "fragment ParentFragment on User {\\n  mobile_checkins: checkins(environments: [MOBILE]) {\\n    query\\n  }\\n  ...ChildFragment @arguments(environments: [WEB])\\n}\\n\\nfragment ChildFragment on User\\n@argumentDefinitions(environments: {type: \\"[Environment!]!\\"}) {\\n  checkins(environments: $environments) {\\n    query\\n  }\\n}\\n",
         "name": "GraphQL request",
         "locationOffset": {
           "line": 1,
@@ -3038,10 +3038,10 @@ fragment ChildFragment on User
         args: [
           Argument {
             loc: Source {
-              start: 264,
-              end: 291,
+              start: 262,
+              end: 289,
               source: {
-                "body": "fragment ParentFragment on User {\\n  mobile_checkins: checkins(environments: [MOBILE]) {\\n    query\\n  }\\n  ...ChildFragment @arguments(environments: [WEB])\\n}\\n\\nfragment ChildFragment on User\\n  @argumentDefinitions(environments: {type: \\"[Environment!]!\\"}) {\\n  checkins(environments: $environments) {\\n    query\\n  }\\n}\\n",
+                "body": "fragment ParentFragment on User {\\n  mobile_checkins: checkins(environments: [MOBILE]) {\\n    query\\n  }\\n  ...ChildFragment @arguments(environments: [WEB])\\n}\\n\\nfragment ChildFragment on User\\n@argumentDefinitions(environments: {type: \\"[Environment!]!\\"}) {\\n  checkins(environments: $environments) {\\n    query\\n  }\\n}\\n",
                 "name": "GraphQL request",
                 "locationOffset": {
                   "line": 1,
@@ -3052,10 +3052,10 @@ fragment ChildFragment on User
             name: "environments",
             value: Variable {
               loc: Source {
-                start: 278,
-                end: 291,
+                start: 276,
+                end: 289,
                 source: {
-                  "body": "fragment ParentFragment on User {\\n  mobile_checkins: checkins(environments: [MOBILE]) {\\n    query\\n  }\\n  ...ChildFragment @arguments(environments: [WEB])\\n}\\n\\nfragment ChildFragment on User\\n  @argumentDefinitions(environments: {type: \\"[Environment!]!\\"}) {\\n  checkins(environments: $environments) {\\n    query\\n  }\\n}\\n",
+                  "body": "fragment ParentFragment on User {\\n  mobile_checkins: checkins(environments: [MOBILE]) {\\n    query\\n  }\\n  ...ChildFragment @arguments(environments: [WEB])\\n}\\n\\nfragment ChildFragment on User\\n@argumentDefinitions(environments: {type: \\"[Environment!]!\\"}) {\\n  checkins(environments: $environments) {\\n    query\\n  }\\n}\\n",
                   "name": "GraphQL request",
                   "locationOffset": {
                     "line": 1,
@@ -3073,10 +3073,10 @@ fragment ChildFragment on User
         directives: [],
         handles: null,
         loc: Source {
-          start: 255,
-          end: 308,
+          start: 253,
+          end: 306,
           source: {
-            "body": "fragment ParentFragment on User {\\n  mobile_checkins: checkins(environments: [MOBILE]) {\\n    query\\n  }\\n  ...ChildFragment @arguments(environments: [WEB])\\n}\\n\\nfragment ChildFragment on User\\n  @argumentDefinitions(environments: {type: \\"[Environment!]!\\"}) {\\n  checkins(environments: $environments) {\\n    query\\n  }\\n}\\n",
+            "body": "fragment ParentFragment on User {\\n  mobile_checkins: checkins(environments: [MOBILE]) {\\n    query\\n  }\\n  ...ChildFragment @arguments(environments: [WEB])\\n}\\n\\nfragment ChildFragment on User\\n@argumentDefinitions(environments: {type: \\"[Environment!]!\\"}) {\\n  checkins(environments: $environments) {\\n    query\\n  }\\n}\\n",
             "name": "GraphQL request",
             "locationOffset": {
               "line": 1,
@@ -3093,10 +3093,10 @@ fragment ChildFragment on User
             directives: [],
             handles: null,
             loc: Source {
-              start: 299,
-              end: 304,
+              start: 297,
+              end: 302,
               source: {
-                "body": "fragment ParentFragment on User {\\n  mobile_checkins: checkins(environments: [MOBILE]) {\\n    query\\n  }\\n  ...ChildFragment @arguments(environments: [WEB])\\n}\\n\\nfragment ChildFragment on User\\n  @argumentDefinitions(environments: {type: \\"[Environment!]!\\"}) {\\n  checkins(environments: $environments) {\\n    query\\n  }\\n}\\n",
+                "body": "fragment ParentFragment on User {\\n  mobile_checkins: checkins(environments: [MOBILE]) {\\n    query\\n  }\\n  ...ChildFragment @arguments(environments: [WEB])\\n}\\n\\nfragment ChildFragment on User\\n@argumentDefinitions(environments: {type: \\"[Environment!]!\\"}) {\\n  checkins(environments: $environments) {\\n    query\\n  }\\n}\\n",
                 "name": "GraphQL request",
                 "locationOffset": {
                   "line": 1,
@@ -3116,10 +3116,10 @@ fragment ChildFragment on User
     argumentDefinitions: [
       LocalArgumentDefinition {
         loc: Source {
-          start: 210,
-          end: 249,
+          start: 208,
+          end: 247,
           source: {
-            "body": "fragment ParentFragment on User {\\n  mobile_checkins: checkins(environments: [MOBILE]) {\\n    query\\n  }\\n  ...ChildFragment @arguments(environments: [WEB])\\n}\\n\\nfragment ChildFragment on User\\n  @argumentDefinitions(environments: {type: \\"[Environment!]!\\"}) {\\n  checkins(environments: $environments) {\\n    query\\n  }\\n}\\n",
+            "body": "fragment ParentFragment on User {\\n  mobile_checkins: checkins(environments: [MOBILE]) {\\n    query\\n  }\\n  ...ChildFragment @arguments(environments: [WEB])\\n}\\n\\nfragment ChildFragment on User\\n@argumentDefinitions(environments: {type: \\"[Environment!]!\\"}) {\\n  checkins(environments: $environments) {\\n    query\\n  }\\n}\\n",
             "name": "GraphQL request",
             "locationOffset": {
               "line": 1,
@@ -3146,7 +3146,7 @@ fragment ParentFragment on Query {
 }
 
 fragment ChildFragment on Query
-  @argumentDefinitions(query: {type: "CheckinSearchInput!"}) {
+@argumentDefinitions(query: {type: "CheckinSearchInput!"}) {
   checkinSearchQuery(query: $query) {
     query
   }
@@ -3160,7 +3160,7 @@ fragment ChildFragment on Query
       start: 0,
       end: 169,
       source: {
-        "body": "fragment ParentFragment on Query {\\n  mobile_checkins: checkinSearchQuery(query: {query: \\"mobile\\"}) {\\n    query\\n  }\\n  ...ChildFragment @arguments(query: {query: \\"web\\"})\\n}\\n\\nfragment ChildFragment on Query\\n  @argumentDefinitions(query: {type: \\"CheckinSearchInput!\\"}) {\\n  checkinSearchQuery(query: $query) {\\n    query\\n  }\\n}\\n",
+        "body": "fragment ParentFragment on Query {\\n  mobile_checkins: checkinSearchQuery(query: {query: \\"mobile\\"}) {\\n    query\\n  }\\n  ...ChildFragment @arguments(query: {query: \\"web\\"})\\n}\\n\\nfragment ChildFragment on Query\\n@argumentDefinitions(query: {type: \\"CheckinSearchInput!\\"}) {\\n  checkinSearchQuery(query: $query) {\\n    query\\n  }\\n}\\n",
         "name": "GraphQL request",
         "locationOffset": {
           "line": 1,
@@ -3179,7 +3179,7 @@ fragment ChildFragment on Query
               start: 73,
               end: 97,
               source: {
-                "body": "fragment ParentFragment on Query {\\n  mobile_checkins: checkinSearchQuery(query: {query: \\"mobile\\"}) {\\n    query\\n  }\\n  ...ChildFragment @arguments(query: {query: \\"web\\"})\\n}\\n\\nfragment ChildFragment on Query\\n  @argumentDefinitions(query: {type: \\"CheckinSearchInput!\\"}) {\\n  checkinSearchQuery(query: $query) {\\n    query\\n  }\\n}\\n",
+                "body": "fragment ParentFragment on Query {\\n  mobile_checkins: checkinSearchQuery(query: {query: \\"mobile\\"}) {\\n    query\\n  }\\n  ...ChildFragment @arguments(query: {query: \\"web\\"})\\n}\\n\\nfragment ChildFragment on Query\\n@argumentDefinitions(query: {type: \\"CheckinSearchInput!\\"}) {\\n  checkinSearchQuery(query: $query) {\\n    query\\n  }\\n}\\n",
                 "name": "GraphQL request",
                 "locationOffset": {
                   "line": 1,
@@ -3193,7 +3193,7 @@ fragment ChildFragment on Query
                 start: 80,
                 end: 97,
                 source: {
-                  "body": "fragment ParentFragment on Query {\\n  mobile_checkins: checkinSearchQuery(query: {query: \\"mobile\\"}) {\\n    query\\n  }\\n  ...ChildFragment @arguments(query: {query: \\"web\\"})\\n}\\n\\nfragment ChildFragment on Query\\n  @argumentDefinitions(query: {type: \\"CheckinSearchInput!\\"}) {\\n  checkinSearchQuery(query: $query) {\\n    query\\n  }\\n}\\n",
+                  "body": "fragment ParentFragment on Query {\\n  mobile_checkins: checkinSearchQuery(query: {query: \\"mobile\\"}) {\\n    query\\n  }\\n  ...ChildFragment @arguments(query: {query: \\"web\\"})\\n}\\n\\nfragment ChildFragment on Query\\n@argumentDefinitions(query: {type: \\"CheckinSearchInput!\\"}) {\\n  checkinSearchQuery(query: $query) {\\n    query\\n  }\\n}\\n",
                   "name": "GraphQL request",
                   "locationOffset": {
                     "line": 1,
@@ -3215,7 +3215,7 @@ fragment ChildFragment on Query
           start: 37,
           end: 114,
           source: {
-            "body": "fragment ParentFragment on Query {\\n  mobile_checkins: checkinSearchQuery(query: {query: \\"mobile\\"}) {\\n    query\\n  }\\n  ...ChildFragment @arguments(query: {query: \\"web\\"})\\n}\\n\\nfragment ChildFragment on Query\\n  @argumentDefinitions(query: {type: \\"CheckinSearchInput!\\"}) {\\n  checkinSearchQuery(query: $query) {\\n    query\\n  }\\n}\\n",
+            "body": "fragment ParentFragment on Query {\\n  mobile_checkins: checkinSearchQuery(query: {query: \\"mobile\\"}) {\\n    query\\n  }\\n  ...ChildFragment @arguments(query: {query: \\"web\\"})\\n}\\n\\nfragment ChildFragment on Query\\n@argumentDefinitions(query: {type: \\"CheckinSearchInput!\\"}) {\\n  checkinSearchQuery(query: $query) {\\n    query\\n  }\\n}\\n",
             "name": "GraphQL request",
             "locationOffset": {
               "line": 1,
@@ -3235,7 +3235,7 @@ fragment ChildFragment on Query
               start: 105,
               end: 110,
               source: {
-                "body": "fragment ParentFragment on Query {\\n  mobile_checkins: checkinSearchQuery(query: {query: \\"mobile\\"}) {\\n    query\\n  }\\n  ...ChildFragment @arguments(query: {query: \\"web\\"})\\n}\\n\\nfragment ChildFragment on Query\\n  @argumentDefinitions(query: {type: \\"CheckinSearchInput!\\"}) {\\n  checkinSearchQuery(query: $query) {\\n    query\\n  }\\n}\\n",
+                "body": "fragment ParentFragment on Query {\\n  mobile_checkins: checkinSearchQuery(query: {query: \\"mobile\\"}) {\\n    query\\n  }\\n  ...ChildFragment @arguments(query: {query: \\"web\\"})\\n}\\n\\nfragment ChildFragment on Query\\n@argumentDefinitions(query: {type: \\"CheckinSearchInput!\\"}) {\\n  checkinSearchQuery(query: $query) {\\n    query\\n  }\\n}\\n",
                 "name": "GraphQL request",
                 "locationOffset": {
                   "line": 1,
@@ -3257,7 +3257,7 @@ fragment ChildFragment on Query
               start: 145,
               end: 166,
               source: {
-                "body": "fragment ParentFragment on Query {\\n  mobile_checkins: checkinSearchQuery(query: {query: \\"mobile\\"}) {\\n    query\\n  }\\n  ...ChildFragment @arguments(query: {query: \\"web\\"})\\n}\\n\\nfragment ChildFragment on Query\\n  @argumentDefinitions(query: {type: \\"CheckinSearchInput!\\"}) {\\n  checkinSearchQuery(query: $query) {\\n    query\\n  }\\n}\\n",
+                "body": "fragment ParentFragment on Query {\\n  mobile_checkins: checkinSearchQuery(query: {query: \\"mobile\\"}) {\\n    query\\n  }\\n  ...ChildFragment @arguments(query: {query: \\"web\\"})\\n}\\n\\nfragment ChildFragment on Query\\n@argumentDefinitions(query: {type: \\"CheckinSearchInput!\\"}) {\\n  checkinSearchQuery(query: $query) {\\n    query\\n  }\\n}\\n",
                 "name": "GraphQL request",
                 "locationOffset": {
                   "line": 1,
@@ -3271,7 +3271,7 @@ fragment ChildFragment on Query
                 start: 152,
                 end: 166,
                 source: {
-                  "body": "fragment ParentFragment on Query {\\n  mobile_checkins: checkinSearchQuery(query: {query: \\"mobile\\"}) {\\n    query\\n  }\\n  ...ChildFragment @arguments(query: {query: \\"web\\"})\\n}\\n\\nfragment ChildFragment on Query\\n  @argumentDefinitions(query: {type: \\"CheckinSearchInput!\\"}) {\\n  checkinSearchQuery(query: $query) {\\n    query\\n  }\\n}\\n",
+                  "body": "fragment ParentFragment on Query {\\n  mobile_checkins: checkinSearchQuery(query: {query: \\"mobile\\"}) {\\n    query\\n  }\\n  ...ChildFragment @arguments(query: {query: \\"web\\"})\\n}\\n\\nfragment ChildFragment on Query\\n@argumentDefinitions(query: {type: \\"CheckinSearchInput!\\"}) {\\n  checkinSearchQuery(query: $query) {\\n    query\\n  }\\n}\\n",
                   "name": "GraphQL request",
                   "locationOffset": {
                     "line": 1,
@@ -3291,7 +3291,7 @@ fragment ChildFragment on Query
           start: 117,
           end: 167,
           source: {
-            "body": "fragment ParentFragment on Query {\\n  mobile_checkins: checkinSearchQuery(query: {query: \\"mobile\\"}) {\\n    query\\n  }\\n  ...ChildFragment @arguments(query: {query: \\"web\\"})\\n}\\n\\nfragment ChildFragment on Query\\n  @argumentDefinitions(query: {type: \\"CheckinSearchInput!\\"}) {\\n  checkinSearchQuery(query: $query) {\\n    query\\n  }\\n}\\n",
+            "body": "fragment ParentFragment on Query {\\n  mobile_checkins: checkinSearchQuery(query: {query: \\"mobile\\"}) {\\n    query\\n  }\\n  ...ChildFragment @arguments(query: {query: \\"web\\"})\\n}\\n\\nfragment ChildFragment on Query\\n@argumentDefinitions(query: {type: \\"CheckinSearchInput!\\"}) {\\n  checkinSearchQuery(query: $query) {\\n    query\\n  }\\n}\\n",
             "name": "GraphQL request",
             "locationOffset": {
               "line": 1,
@@ -3310,9 +3310,9 @@ fragment ChildFragment on Query
     directives: [],
     loc: Source {
       start: 171,
-      end: 319,
+      end: 317,
       source: {
-        "body": "fragment ParentFragment on Query {\\n  mobile_checkins: checkinSearchQuery(query: {query: \\"mobile\\"}) {\\n    query\\n  }\\n  ...ChildFragment @arguments(query: {query: \\"web\\"})\\n}\\n\\nfragment ChildFragment on Query\\n  @argumentDefinitions(query: {type: \\"CheckinSearchInput!\\"}) {\\n  checkinSearchQuery(query: $query) {\\n    query\\n  }\\n}\\n",
+        "body": "fragment ParentFragment on Query {\\n  mobile_checkins: checkinSearchQuery(query: {query: \\"mobile\\"}) {\\n    query\\n  }\\n  ...ChildFragment @arguments(query: {query: \\"web\\"})\\n}\\n\\nfragment ChildFragment on Query\\n@argumentDefinitions(query: {type: \\"CheckinSearchInput!\\"}) {\\n  checkinSearchQuery(query: $query) {\\n    query\\n  }\\n}\\n",
         "name": "GraphQL request",
         "locationOffset": {
           "line": 1,
@@ -3328,10 +3328,10 @@ fragment ChildFragment on Query
         args: [
           Argument {
             loc: Source {
-              start: 287,
-              end: 300,
+              start: 285,
+              end: 298,
               source: {
-                "body": "fragment ParentFragment on Query {\\n  mobile_checkins: checkinSearchQuery(query: {query: \\"mobile\\"}) {\\n    query\\n  }\\n  ...ChildFragment @arguments(query: {query: \\"web\\"})\\n}\\n\\nfragment ChildFragment on Query\\n  @argumentDefinitions(query: {type: \\"CheckinSearchInput!\\"}) {\\n  checkinSearchQuery(query: $query) {\\n    query\\n  }\\n}\\n",
+                "body": "fragment ParentFragment on Query {\\n  mobile_checkins: checkinSearchQuery(query: {query: \\"mobile\\"}) {\\n    query\\n  }\\n  ...ChildFragment @arguments(query: {query: \\"web\\"})\\n}\\n\\nfragment ChildFragment on Query\\n@argumentDefinitions(query: {type: \\"CheckinSearchInput!\\"}) {\\n  checkinSearchQuery(query: $query) {\\n    query\\n  }\\n}\\n",
                 "name": "GraphQL request",
                 "locationOffset": {
                   "line": 1,
@@ -3342,10 +3342,10 @@ fragment ChildFragment on Query
             name: "query",
             value: Variable {
               loc: Source {
-                start: 294,
-                end: 300,
+                start: 292,
+                end: 298,
                 source: {
-                  "body": "fragment ParentFragment on Query {\\n  mobile_checkins: checkinSearchQuery(query: {query: \\"mobile\\"}) {\\n    query\\n  }\\n  ...ChildFragment @arguments(query: {query: \\"web\\"})\\n}\\n\\nfragment ChildFragment on Query\\n  @argumentDefinitions(query: {type: \\"CheckinSearchInput!\\"}) {\\n  checkinSearchQuery(query: $query) {\\n    query\\n  }\\n}\\n",
+                  "body": "fragment ParentFragment on Query {\\n  mobile_checkins: checkinSearchQuery(query: {query: \\"mobile\\"}) {\\n    query\\n  }\\n  ...ChildFragment @arguments(query: {query: \\"web\\"})\\n}\\n\\nfragment ChildFragment on Query\\n@argumentDefinitions(query: {type: \\"CheckinSearchInput!\\"}) {\\n  checkinSearchQuery(query: $query) {\\n    query\\n  }\\n}\\n",
                   "name": "GraphQL request",
                   "locationOffset": {
                     "line": 1,
@@ -3363,10 +3363,10 @@ fragment ChildFragment on Query
         directives: [],
         handles: null,
         loc: Source {
-          start: 268,
-          end: 317,
+          start: 266,
+          end: 315,
           source: {
-            "body": "fragment ParentFragment on Query {\\n  mobile_checkins: checkinSearchQuery(query: {query: \\"mobile\\"}) {\\n    query\\n  }\\n  ...ChildFragment @arguments(query: {query: \\"web\\"})\\n}\\n\\nfragment ChildFragment on Query\\n  @argumentDefinitions(query: {type: \\"CheckinSearchInput!\\"}) {\\n  checkinSearchQuery(query: $query) {\\n    query\\n  }\\n}\\n",
+            "body": "fragment ParentFragment on Query {\\n  mobile_checkins: checkinSearchQuery(query: {query: \\"mobile\\"}) {\\n    query\\n  }\\n  ...ChildFragment @arguments(query: {query: \\"web\\"})\\n}\\n\\nfragment ChildFragment on Query\\n@argumentDefinitions(query: {type: \\"CheckinSearchInput!\\"}) {\\n  checkinSearchQuery(query: $query) {\\n    query\\n  }\\n}\\n",
             "name": "GraphQL request",
             "locationOffset": {
               "line": 1,
@@ -3383,10 +3383,10 @@ fragment ChildFragment on Query
             directives: [],
             handles: null,
             loc: Source {
-              start: 308,
-              end: 313,
+              start: 306,
+              end: 311,
               source: {
-                "body": "fragment ParentFragment on Query {\\n  mobile_checkins: checkinSearchQuery(query: {query: \\"mobile\\"}) {\\n    query\\n  }\\n  ...ChildFragment @arguments(query: {query: \\"web\\"})\\n}\\n\\nfragment ChildFragment on Query\\n  @argumentDefinitions(query: {type: \\"CheckinSearchInput!\\"}) {\\n  checkinSearchQuery(query: $query) {\\n    query\\n  }\\n}\\n",
+                "body": "fragment ParentFragment on Query {\\n  mobile_checkins: checkinSearchQuery(query: {query: \\"mobile\\"}) {\\n    query\\n  }\\n  ...ChildFragment @arguments(query: {query: \\"web\\"})\\n}\\n\\nfragment ChildFragment on Query\\n@argumentDefinitions(query: {type: \\"CheckinSearchInput!\\"}) {\\n  checkinSearchQuery(query: $query) {\\n    query\\n  }\\n}\\n",
                 "name": "GraphQL request",
                 "locationOffset": {
                   "line": 1,
@@ -3406,10 +3406,10 @@ fragment ChildFragment on Query
     argumentDefinitions: [
       LocalArgumentDefinition {
         loc: Source {
-          start: 226,
-          end: 262,
+          start: 224,
+          end: 260,
           source: {
-            "body": "fragment ParentFragment on Query {\\n  mobile_checkins: checkinSearchQuery(query: {query: \\"mobile\\"}) {\\n    query\\n  }\\n  ...ChildFragment @arguments(query: {query: \\"web\\"})\\n}\\n\\nfragment ChildFragment on Query\\n  @argumentDefinitions(query: {type: \\"CheckinSearchInput!\\"}) {\\n  checkinSearchQuery(query: $query) {\\n    query\\n  }\\n}\\n",
+            "body": "fragment ParentFragment on Query {\\n  mobile_checkins: checkinSearchQuery(query: {query: \\"mobile\\"}) {\\n    query\\n  }\\n  ...ChildFragment @arguments(query: {query: \\"web\\"})\\n}\\n\\nfragment ChildFragment on Query\\n@argumentDefinitions(query: {type: \\"CheckinSearchInput!\\"}) {\\n  checkinSearchQuery(query: $query) {\\n    query\\n  }\\n}\\n",
             "name": "GraphQL request",
             "locationOffset": {
               "line": 1,
@@ -3436,7 +3436,7 @@ fragment ParentFragment on Query {
 }
 
 fragment ChildFragment on Query
-  @argumentDefinitions(inputs: {type: "[CheckinSearchInput!]!"}) {
+@argumentDefinitions(inputs: {type: "[CheckinSearchInput!]!"}) {
   checkinSearchQuery(query: {query: "foo", inputs: $inputs}) {
     query
   }
@@ -3450,7 +3450,7 @@ fragment ChildFragment on Query
       start: 0,
       end: 172,
       source: {
-        "body": "fragment ParentFragment on Query {\\n  mobile_checkins: checkinSearchQuery(query: {query: \\"mobile\\"}) {\\n    query\\n  }\\n  ...ChildFragment @arguments(inputs: [{query: \\"web\\"}])\\n}\\n\\nfragment ChildFragment on Query\\n  @argumentDefinitions(inputs: {type: \\"[CheckinSearchInput!]!\\"}) {\\n  checkinSearchQuery(query: {query: \\"foo\\", inputs: $inputs}) {\\n    query\\n  }\\n}\\n",
+        "body": "fragment ParentFragment on Query {\\n  mobile_checkins: checkinSearchQuery(query: {query: \\"mobile\\"}) {\\n    query\\n  }\\n  ...ChildFragment @arguments(inputs: [{query: \\"web\\"}])\\n}\\n\\nfragment ChildFragment on Query\\n@argumentDefinitions(inputs: {type: \\"[CheckinSearchInput!]!\\"}) {\\n  checkinSearchQuery(query: {query: \\"foo\\", inputs: $inputs}) {\\n    query\\n  }\\n}\\n",
         "name": "GraphQL request",
         "locationOffset": {
           "line": 1,
@@ -3469,7 +3469,7 @@ fragment ChildFragment on Query
               start: 73,
               end: 97,
               source: {
-                "body": "fragment ParentFragment on Query {\\n  mobile_checkins: checkinSearchQuery(query: {query: \\"mobile\\"}) {\\n    query\\n  }\\n  ...ChildFragment @arguments(inputs: [{query: \\"web\\"}])\\n}\\n\\nfragment ChildFragment on Query\\n  @argumentDefinitions(inputs: {type: \\"[CheckinSearchInput!]!\\"}) {\\n  checkinSearchQuery(query: {query: \\"foo\\", inputs: $inputs}) {\\n    query\\n  }\\n}\\n",
+                "body": "fragment ParentFragment on Query {\\n  mobile_checkins: checkinSearchQuery(query: {query: \\"mobile\\"}) {\\n    query\\n  }\\n  ...ChildFragment @arguments(inputs: [{query: \\"web\\"}])\\n}\\n\\nfragment ChildFragment on Query\\n@argumentDefinitions(inputs: {type: \\"[CheckinSearchInput!]!\\"}) {\\n  checkinSearchQuery(query: {query: \\"foo\\", inputs: $inputs}) {\\n    query\\n  }\\n}\\n",
                 "name": "GraphQL request",
                 "locationOffset": {
                   "line": 1,
@@ -3483,7 +3483,7 @@ fragment ChildFragment on Query
                 start: 80,
                 end: 97,
                 source: {
-                  "body": "fragment ParentFragment on Query {\\n  mobile_checkins: checkinSearchQuery(query: {query: \\"mobile\\"}) {\\n    query\\n  }\\n  ...ChildFragment @arguments(inputs: [{query: \\"web\\"}])\\n}\\n\\nfragment ChildFragment on Query\\n  @argumentDefinitions(inputs: {type: \\"[CheckinSearchInput!]!\\"}) {\\n  checkinSearchQuery(query: {query: \\"foo\\", inputs: $inputs}) {\\n    query\\n  }\\n}\\n",
+                  "body": "fragment ParentFragment on Query {\\n  mobile_checkins: checkinSearchQuery(query: {query: \\"mobile\\"}) {\\n    query\\n  }\\n  ...ChildFragment @arguments(inputs: [{query: \\"web\\"}])\\n}\\n\\nfragment ChildFragment on Query\\n@argumentDefinitions(inputs: {type: \\"[CheckinSearchInput!]!\\"}) {\\n  checkinSearchQuery(query: {query: \\"foo\\", inputs: $inputs}) {\\n    query\\n  }\\n}\\n",
                   "name": "GraphQL request",
                   "locationOffset": {
                     "line": 1,
@@ -3505,7 +3505,7 @@ fragment ChildFragment on Query
           start: 37,
           end: 114,
           source: {
-            "body": "fragment ParentFragment on Query {\\n  mobile_checkins: checkinSearchQuery(query: {query: \\"mobile\\"}) {\\n    query\\n  }\\n  ...ChildFragment @arguments(inputs: [{query: \\"web\\"}])\\n}\\n\\nfragment ChildFragment on Query\\n  @argumentDefinitions(inputs: {type: \\"[CheckinSearchInput!]!\\"}) {\\n  checkinSearchQuery(query: {query: \\"foo\\", inputs: $inputs}) {\\n    query\\n  }\\n}\\n",
+            "body": "fragment ParentFragment on Query {\\n  mobile_checkins: checkinSearchQuery(query: {query: \\"mobile\\"}) {\\n    query\\n  }\\n  ...ChildFragment @arguments(inputs: [{query: \\"web\\"}])\\n}\\n\\nfragment ChildFragment on Query\\n@argumentDefinitions(inputs: {type: \\"[CheckinSearchInput!]!\\"}) {\\n  checkinSearchQuery(query: {query: \\"foo\\", inputs: $inputs}) {\\n    query\\n  }\\n}\\n",
             "name": "GraphQL request",
             "locationOffset": {
               "line": 1,
@@ -3525,7 +3525,7 @@ fragment ChildFragment on Query
               start: 105,
               end: 110,
               source: {
-                "body": "fragment ParentFragment on Query {\\n  mobile_checkins: checkinSearchQuery(query: {query: \\"mobile\\"}) {\\n    query\\n  }\\n  ...ChildFragment @arguments(inputs: [{query: \\"web\\"}])\\n}\\n\\nfragment ChildFragment on Query\\n  @argumentDefinitions(inputs: {type: \\"[CheckinSearchInput!]!\\"}) {\\n  checkinSearchQuery(query: {query: \\"foo\\", inputs: $inputs}) {\\n    query\\n  }\\n}\\n",
+                "body": "fragment ParentFragment on Query {\\n  mobile_checkins: checkinSearchQuery(query: {query: \\"mobile\\"}) {\\n    query\\n  }\\n  ...ChildFragment @arguments(inputs: [{query: \\"web\\"}])\\n}\\n\\nfragment ChildFragment on Query\\n@argumentDefinitions(inputs: {type: \\"[CheckinSearchInput!]!\\"}) {\\n  checkinSearchQuery(query: {query: \\"foo\\", inputs: $inputs}) {\\n    query\\n  }\\n}\\n",
                 "name": "GraphQL request",
                 "locationOffset": {
                   "line": 1,
@@ -3547,7 +3547,7 @@ fragment ChildFragment on Query
               start: 145,
               end: 169,
               source: {
-                "body": "fragment ParentFragment on Query {\\n  mobile_checkins: checkinSearchQuery(query: {query: \\"mobile\\"}) {\\n    query\\n  }\\n  ...ChildFragment @arguments(inputs: [{query: \\"web\\"}])\\n}\\n\\nfragment ChildFragment on Query\\n  @argumentDefinitions(inputs: {type: \\"[CheckinSearchInput!]!\\"}) {\\n  checkinSearchQuery(query: {query: \\"foo\\", inputs: $inputs}) {\\n    query\\n  }\\n}\\n",
+                "body": "fragment ParentFragment on Query {\\n  mobile_checkins: checkinSearchQuery(query: {query: \\"mobile\\"}) {\\n    query\\n  }\\n  ...ChildFragment @arguments(inputs: [{query: \\"web\\"}])\\n}\\n\\nfragment ChildFragment on Query\\n@argumentDefinitions(inputs: {type: \\"[CheckinSearchInput!]!\\"}) {\\n  checkinSearchQuery(query: {query: \\"foo\\", inputs: $inputs}) {\\n    query\\n  }\\n}\\n",
                 "name": "GraphQL request",
                 "locationOffset": {
                   "line": 1,
@@ -3561,7 +3561,7 @@ fragment ChildFragment on Query
                 start: 153,
                 end: 169,
                 source: {
-                  "body": "fragment ParentFragment on Query {\\n  mobile_checkins: checkinSearchQuery(query: {query: \\"mobile\\"}) {\\n    query\\n  }\\n  ...ChildFragment @arguments(inputs: [{query: \\"web\\"}])\\n}\\n\\nfragment ChildFragment on Query\\n  @argumentDefinitions(inputs: {type: \\"[CheckinSearchInput!]!\\"}) {\\n  checkinSearchQuery(query: {query: \\"foo\\", inputs: $inputs}) {\\n    query\\n  }\\n}\\n",
+                  "body": "fragment ParentFragment on Query {\\n  mobile_checkins: checkinSearchQuery(query: {query: \\"mobile\\"}) {\\n    query\\n  }\\n  ...ChildFragment @arguments(inputs: [{query: \\"web\\"}])\\n}\\n\\nfragment ChildFragment on Query\\n@argumentDefinitions(inputs: {type: \\"[CheckinSearchInput!]!\\"}) {\\n  checkinSearchQuery(query: {query: \\"foo\\", inputs: $inputs}) {\\n    query\\n  }\\n}\\n",
                   "name": "GraphQL request",
                   "locationOffset": {
                     "line": 1,
@@ -3583,7 +3583,7 @@ fragment ChildFragment on Query
           start: 117,
           end: 170,
           source: {
-            "body": "fragment ParentFragment on Query {\\n  mobile_checkins: checkinSearchQuery(query: {query: \\"mobile\\"}) {\\n    query\\n  }\\n  ...ChildFragment @arguments(inputs: [{query: \\"web\\"}])\\n}\\n\\nfragment ChildFragment on Query\\n  @argumentDefinitions(inputs: {type: \\"[CheckinSearchInput!]!\\"}) {\\n  checkinSearchQuery(query: {query: \\"foo\\", inputs: $inputs}) {\\n    query\\n  }\\n}\\n",
+            "body": "fragment ParentFragment on Query {\\n  mobile_checkins: checkinSearchQuery(query: {query: \\"mobile\\"}) {\\n    query\\n  }\\n  ...ChildFragment @arguments(inputs: [{query: \\"web\\"}])\\n}\\n\\nfragment ChildFragment on Query\\n@argumentDefinitions(inputs: {type: \\"[CheckinSearchInput!]!\\"}) {\\n  checkinSearchQuery(query: {query: \\"foo\\", inputs: $inputs}) {\\n    query\\n  }\\n}\\n",
             "name": "GraphQL request",
             "locationOffset": {
               "line": 1,
@@ -3602,9 +3602,9 @@ fragment ChildFragment on Query
     directives: [],
     loc: Source {
       start: 174,
-      end: 351,
+      end: 349,
       source: {
-        "body": "fragment ParentFragment on Query {\\n  mobile_checkins: checkinSearchQuery(query: {query: \\"mobile\\"}) {\\n    query\\n  }\\n  ...ChildFragment @arguments(inputs: [{query: \\"web\\"}])\\n}\\n\\nfragment ChildFragment on Query\\n  @argumentDefinitions(inputs: {type: \\"[CheckinSearchInput!]!\\"}) {\\n  checkinSearchQuery(query: {query: \\"foo\\", inputs: $inputs}) {\\n    query\\n  }\\n}\\n",
+        "body": "fragment ParentFragment on Query {\\n  mobile_checkins: checkinSearchQuery(query: {query: \\"mobile\\"}) {\\n    query\\n  }\\n  ...ChildFragment @arguments(inputs: [{query: \\"web\\"}])\\n}\\n\\nfragment ChildFragment on Query\\n@argumentDefinitions(inputs: {type: \\"[CheckinSearchInput!]!\\"}) {\\n  checkinSearchQuery(query: {query: \\"foo\\", inputs: $inputs}) {\\n    query\\n  }\\n}\\n",
         "name": "GraphQL request",
         "locationOffset": {
           "line": 1,
@@ -3620,10 +3620,10 @@ fragment ChildFragment on Query
         args: [
           Argument {
             loc: Source {
-              start: 294,
-              end: 332,
+              start: 292,
+              end: 330,
               source: {
-                "body": "fragment ParentFragment on Query {\\n  mobile_checkins: checkinSearchQuery(query: {query: \\"mobile\\"}) {\\n    query\\n  }\\n  ...ChildFragment @arguments(inputs: [{query: \\"web\\"}])\\n}\\n\\nfragment ChildFragment on Query\\n  @argumentDefinitions(inputs: {type: \\"[CheckinSearchInput!]!\\"}) {\\n  checkinSearchQuery(query: {query: \\"foo\\", inputs: $inputs}) {\\n    query\\n  }\\n}\\n",
+                "body": "fragment ParentFragment on Query {\\n  mobile_checkins: checkinSearchQuery(query: {query: \\"mobile\\"}) {\\n    query\\n  }\\n  ...ChildFragment @arguments(inputs: [{query: \\"web\\"}])\\n}\\n\\nfragment ChildFragment on Query\\n@argumentDefinitions(inputs: {type: \\"[CheckinSearchInput!]!\\"}) {\\n  checkinSearchQuery(query: {query: \\"foo\\", inputs: $inputs}) {\\n    query\\n  }\\n}\\n",
                 "name": "GraphQL request",
                 "locationOffset": {
                   "line": 1,
@@ -3634,10 +3634,10 @@ fragment ChildFragment on Query
             name: "query",
             value: ObjectValue {
               loc: Source {
-                start: 301,
-                end: 332,
+                start: 299,
+                end: 330,
                 source: {
-                  "body": "fragment ParentFragment on Query {\\n  mobile_checkins: checkinSearchQuery(query: {query: \\"mobile\\"}) {\\n    query\\n  }\\n  ...ChildFragment @arguments(inputs: [{query: \\"web\\"}])\\n}\\n\\nfragment ChildFragment on Query\\n  @argumentDefinitions(inputs: {type: \\"[CheckinSearchInput!]!\\"}) {\\n  checkinSearchQuery(query: {query: \\"foo\\", inputs: $inputs}) {\\n    query\\n  }\\n}\\n",
+                  "body": "fragment ParentFragment on Query {\\n  mobile_checkins: checkinSearchQuery(query: {query: \\"mobile\\"}) {\\n    query\\n  }\\n  ...ChildFragment @arguments(inputs: [{query: \\"web\\"}])\\n}\\n\\nfragment ChildFragment on Query\\n@argumentDefinitions(inputs: {type: \\"[CheckinSearchInput!]!\\"}) {\\n  checkinSearchQuery(query: {query: \\"foo\\", inputs: $inputs}) {\\n    query\\n  }\\n}\\n",
                   "name": "GraphQL request",
                   "locationOffset": {
                     "line": 1,
@@ -3648,10 +3648,10 @@ fragment ChildFragment on Query
               fields: [
                 ObjectFieldValue {
                   loc: Source {
-                    start: 302,
-                    end: 314,
+                    start: 300,
+                    end: 312,
                     source: {
-                      "body": "fragment ParentFragment on Query {\\n  mobile_checkins: checkinSearchQuery(query: {query: \\"mobile\\"}) {\\n    query\\n  }\\n  ...ChildFragment @arguments(inputs: [{query: \\"web\\"}])\\n}\\n\\nfragment ChildFragment on Query\\n  @argumentDefinitions(inputs: {type: \\"[CheckinSearchInput!]!\\"}) {\\n  checkinSearchQuery(query: {query: \\"foo\\", inputs: $inputs}) {\\n    query\\n  }\\n}\\n",
+                      "body": "fragment ParentFragment on Query {\\n  mobile_checkins: checkinSearchQuery(query: {query: \\"mobile\\"}) {\\n    query\\n  }\\n  ...ChildFragment @arguments(inputs: [{query: \\"web\\"}])\\n}\\n\\nfragment ChildFragment on Query\\n@argumentDefinitions(inputs: {type: \\"[CheckinSearchInput!]!\\"}) {\\n  checkinSearchQuery(query: {query: \\"foo\\", inputs: $inputs}) {\\n    query\\n  }\\n}\\n",
                       "name": "GraphQL request",
                       "locationOffset": {
                         "line": 1,
@@ -3662,10 +3662,10 @@ fragment ChildFragment on Query
                   name: "query",
                   value: Literal {
                     loc: Source {
-                      start: 309,
-                      end: 314,
+                      start: 307,
+                      end: 312,
                       source: {
-                        "body": "fragment ParentFragment on Query {\\n  mobile_checkins: checkinSearchQuery(query: {query: \\"mobile\\"}) {\\n    query\\n  }\\n  ...ChildFragment @arguments(inputs: [{query: \\"web\\"}])\\n}\\n\\nfragment ChildFragment on Query\\n  @argumentDefinitions(inputs: {type: \\"[CheckinSearchInput!]!\\"}) {\\n  checkinSearchQuery(query: {query: \\"foo\\", inputs: $inputs}) {\\n    query\\n  }\\n}\\n",
+                        "body": "fragment ParentFragment on Query {\\n  mobile_checkins: checkinSearchQuery(query: {query: \\"mobile\\"}) {\\n    query\\n  }\\n  ...ChildFragment @arguments(inputs: [{query: \\"web\\"}])\\n}\\n\\nfragment ChildFragment on Query\\n@argumentDefinitions(inputs: {type: \\"[CheckinSearchInput!]!\\"}) {\\n  checkinSearchQuery(query: {query: \\"foo\\", inputs: $inputs}) {\\n    query\\n  }\\n}\\n",
                         "name": "GraphQL request",
                         "locationOffset": {
                           "line": 1,
@@ -3678,10 +3678,10 @@ fragment ChildFragment on Query
                 },
                 ObjectFieldValue {
                   loc: Source {
-                    start: 316,
-                    end: 331,
+                    start: 314,
+                    end: 329,
                     source: {
-                      "body": "fragment ParentFragment on Query {\\n  mobile_checkins: checkinSearchQuery(query: {query: \\"mobile\\"}) {\\n    query\\n  }\\n  ...ChildFragment @arguments(inputs: [{query: \\"web\\"}])\\n}\\n\\nfragment ChildFragment on Query\\n  @argumentDefinitions(inputs: {type: \\"[CheckinSearchInput!]!\\"}) {\\n  checkinSearchQuery(query: {query: \\"foo\\", inputs: $inputs}) {\\n    query\\n  }\\n}\\n",
+                      "body": "fragment ParentFragment on Query {\\n  mobile_checkins: checkinSearchQuery(query: {query: \\"mobile\\"}) {\\n    query\\n  }\\n  ...ChildFragment @arguments(inputs: [{query: \\"web\\"}])\\n}\\n\\nfragment ChildFragment on Query\\n@argumentDefinitions(inputs: {type: \\"[CheckinSearchInput!]!\\"}) {\\n  checkinSearchQuery(query: {query: \\"foo\\", inputs: $inputs}) {\\n    query\\n  }\\n}\\n",
                       "name": "GraphQL request",
                       "locationOffset": {
                         "line": 1,
@@ -3692,10 +3692,10 @@ fragment ChildFragment on Query
                   name: "inputs",
                   value: Variable {
                     loc: Source {
-                      start: 324,
-                      end: 331,
+                      start: 322,
+                      end: 329,
                       source: {
-                        "body": "fragment ParentFragment on Query {\\n  mobile_checkins: checkinSearchQuery(query: {query: \\"mobile\\"}) {\\n    query\\n  }\\n  ...ChildFragment @arguments(inputs: [{query: \\"web\\"}])\\n}\\n\\nfragment ChildFragment on Query\\n  @argumentDefinitions(inputs: {type: \\"[CheckinSearchInput!]!\\"}) {\\n  checkinSearchQuery(query: {query: \\"foo\\", inputs: $inputs}) {\\n    query\\n  }\\n}\\n",
+                        "body": "fragment ParentFragment on Query {\\n  mobile_checkins: checkinSearchQuery(query: {query: \\"mobile\\"}) {\\n    query\\n  }\\n  ...ChildFragment @arguments(inputs: [{query: \\"web\\"}])\\n}\\n\\nfragment ChildFragment on Query\\n@argumentDefinitions(inputs: {type: \\"[CheckinSearchInput!]!\\"}) {\\n  checkinSearchQuery(query: {query: \\"foo\\", inputs: $inputs}) {\\n    query\\n  }\\n}\\n",
                         "name": "GraphQL request",
                         "locationOffset": {
                           "line": 1,
@@ -3716,10 +3716,10 @@ fragment ChildFragment on Query
         directives: [],
         handles: null,
         loc: Source {
-          start: 275,
-          end: 349,
+          start: 273,
+          end: 347,
           source: {
-            "body": "fragment ParentFragment on Query {\\n  mobile_checkins: checkinSearchQuery(query: {query: \\"mobile\\"}) {\\n    query\\n  }\\n  ...ChildFragment @arguments(inputs: [{query: \\"web\\"}])\\n}\\n\\nfragment ChildFragment on Query\\n  @argumentDefinitions(inputs: {type: \\"[CheckinSearchInput!]!\\"}) {\\n  checkinSearchQuery(query: {query: \\"foo\\", inputs: $inputs}) {\\n    query\\n  }\\n}\\n",
+            "body": "fragment ParentFragment on Query {\\n  mobile_checkins: checkinSearchQuery(query: {query: \\"mobile\\"}) {\\n    query\\n  }\\n  ...ChildFragment @arguments(inputs: [{query: \\"web\\"}])\\n}\\n\\nfragment ChildFragment on Query\\n@argumentDefinitions(inputs: {type: \\"[CheckinSearchInput!]!\\"}) {\\n  checkinSearchQuery(query: {query: \\"foo\\", inputs: $inputs}) {\\n    query\\n  }\\n}\\n",
             "name": "GraphQL request",
             "locationOffset": {
               "line": 1,
@@ -3736,10 +3736,10 @@ fragment ChildFragment on Query
             directives: [],
             handles: null,
             loc: Source {
-              start: 340,
-              end: 345,
+              start: 338,
+              end: 343,
               source: {
-                "body": "fragment ParentFragment on Query {\\n  mobile_checkins: checkinSearchQuery(query: {query: \\"mobile\\"}) {\\n    query\\n  }\\n  ...ChildFragment @arguments(inputs: [{query: \\"web\\"}])\\n}\\n\\nfragment ChildFragment on Query\\n  @argumentDefinitions(inputs: {type: \\"[CheckinSearchInput!]!\\"}) {\\n  checkinSearchQuery(query: {query: \\"foo\\", inputs: $inputs}) {\\n    query\\n  }\\n}\\n",
+                "body": "fragment ParentFragment on Query {\\n  mobile_checkins: checkinSearchQuery(query: {query: \\"mobile\\"}) {\\n    query\\n  }\\n  ...ChildFragment @arguments(inputs: [{query: \\"web\\"}])\\n}\\n\\nfragment ChildFragment on Query\\n@argumentDefinitions(inputs: {type: \\"[CheckinSearchInput!]!\\"}) {\\n  checkinSearchQuery(query: {query: \\"foo\\", inputs: $inputs}) {\\n    query\\n  }\\n}\\n",
                 "name": "GraphQL request",
                 "locationOffset": {
                   "line": 1,
@@ -3759,10 +3759,10 @@ fragment ChildFragment on Query
     argumentDefinitions: [
       LocalArgumentDefinition {
         loc: Source {
-          start: 229,
-          end: 269,
+          start: 227,
+          end: 267,
           source: {
-            "body": "fragment ParentFragment on Query {\\n  mobile_checkins: checkinSearchQuery(query: {query: \\"mobile\\"}) {\\n    query\\n  }\\n  ...ChildFragment @arguments(inputs: [{query: \\"web\\"}])\\n}\\n\\nfragment ChildFragment on Query\\n  @argumentDefinitions(inputs: {type: \\"[CheckinSearchInput!]!\\"}) {\\n  checkinSearchQuery(query: {query: \\"foo\\", inputs: $inputs}) {\\n    query\\n  }\\n}\\n",
+            "body": "fragment ParentFragment on Query {\\n  mobile_checkins: checkinSearchQuery(query: {query: \\"mobile\\"}) {\\n    query\\n  }\\n  ...ChildFragment @arguments(inputs: [{query: \\"web\\"}])\\n}\\n\\nfragment ChildFragment on Query\\n@argumentDefinitions(inputs: {type: \\"[CheckinSearchInput!]!\\"}) {\\n  checkinSearchQuery(query: {query: \\"foo\\", inputs: $inputs}) {\\n    query\\n  }\\n}\\n",
             "name": "GraphQL request",
             "locationOffset": {
               "line": 1,
@@ -3845,10 +3845,10 @@ exports[`RelayParser matches expected output: fragment-with-unnecessary-unchecke
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 # expected-to-throw
 fragment TestFragment on User
-  @argumentDefinitions(
-    id: {type: "ID!"}
-    size: {type: "[Int]", defaultValue: [100]}
-  ) {
+@argumentDefinitions(
+  id: {type: "ID!"}
+  size: {type: "[Int]", defaultValue: [100]}
+) {
   profilePicture(size: $PictureSize) {
     uri
   }

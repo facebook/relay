@@ -16,7 +16,7 @@ query Test2 {
 }
 
 fragment UserFragment_with3d on User
-  @argumentDefinitions(use3D: {type: "Boolean!", defaultValue: false}) {
+@argumentDefinitions(use3D: {type: "Boolean!", defaultValue: false}) {
   id
   name
   ... @include(if: $use3D) {

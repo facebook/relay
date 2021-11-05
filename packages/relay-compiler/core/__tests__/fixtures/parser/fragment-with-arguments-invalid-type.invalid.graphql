@@ -1,6 +1,6 @@
 # expected-to-throw
 fragment TestFragment on User
-  @argumentDefinitions(myArg: {type: "UnknownType"}) {
+@argumentDefinitions(myArg: {type: "UnknownType"}) {
   profilePicture(size: $PictureSize) {
     uri
   }

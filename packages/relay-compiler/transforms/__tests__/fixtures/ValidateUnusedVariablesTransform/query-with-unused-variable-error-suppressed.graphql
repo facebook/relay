@@ -1,5 +1,5 @@
 query QueryWithUnusedVariable($unused: ID)
-  @DEPRECATED__relay_ignore_unused_variables_error {
+@DEPRECATED__relay_ignore_unused_variables_error {
   node {
     __typename
   }

@@ -1,5 +1,5 @@
 fragment RefetchableFragment on User
-  @refetchable(queryName: "RefetchableFragmentQuery") {
+@refetchable(queryName: "RefetchableFragmentQuery") {
   __id: id
   name
   ...ProfilePicture

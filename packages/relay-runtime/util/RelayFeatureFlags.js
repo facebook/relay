@@ -31,6 +31,7 @@ type FeatureFlags = {|
   ENABLE_QUERY_RENDERER_OFFSCREEN_SUPPORT: boolean,
   MAX_DATA_ID_LENGTH: ?number,
   STRING_INTERN_LEVEL: number,
+  USE_REACT_CACHE: boolean,
 |};
 
 const RelayFeatureFlags: FeatureFlags = {
@@ -50,6 +51,7 @@ const RelayFeatureFlags: FeatureFlags = {
   ENABLE_QUERY_RENDERER_OFFSCREEN_SUPPORT: false,
   MAX_DATA_ID_LENGTH: null,
   STRING_INTERN_LEVEL: 0,
+  USE_REACT_CACHE: false,
 };
 
 module.exports = RelayFeatureFlags;

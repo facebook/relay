@@ -18,7 +18,7 @@ use crate::flow::FlowPrinter;
 use crate::typescript::TypeScriptPrinter;
 use crate::writer::{KeyValuePairProp, SpreadProp, Writer};
 use common::NamedItem;
-pub use config::{FlowTypegenPhase, TypegenConfig, TypegenLanguage};
+pub use config::{FlowTypegenConfig, FlowTypegenPhase, TypegenConfig, TypegenLanguage};
 use fnv::FnvHashSet;
 use graphql_ir::{
     Condition, Directive, FragmentDefinition, FragmentSpread, InlineFragment, LinkedField,
@@ -1363,7 +1363,11 @@ impl<'a> TypeGenerator<'a> {
                     .iter()
                     .map(|enum_value| AST::StringLiteral(enum_value.value))
                     .collect();
-                members.push(AST::StringLiteral(*FUTURE_ENUM_VALUE));
+
+                if !self.typegen_config.flow_typegen.no_future_proof_enums {
+                    members.push(AST::StringLiteral(*FUTURE_ENUM_VALUE));
+                }
+
                 self.writer
                     .write_export_type(enum_type.name.lookup(), &AST::Union(members))?;
             }

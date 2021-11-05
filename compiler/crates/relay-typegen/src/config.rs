@@ -80,18 +80,28 @@ pub struct TypegenConfig {
 #[derive(Debug, Serialize, Deserialize, Clone, Copy)]
 #[serde(deny_unknown_fields, tag = "phase")]
 pub struct FlowTypegenConfig {
-    phase: FlowTypegenPhase,
+    /// This option controls whether or not a catch-all entry is added to enum type definitions
+    /// for values that may be added in the future. Enabling this means you will have to update
+    /// your application whenever the GraphQL server schema adds new enum values to prevent it
+    /// from breaking.
     #[serde(default)]
-    rollout: Rollout,
+    pub no_future_proof_enums: bool,
+
+    pub phase: FlowTypegenPhase,
+    #[serde(default)]
+    pub rollout: Rollout,
 }
+
 impl Default for FlowTypegenConfig {
     fn default() -> Self {
         Self {
+            no_future_proof_enums: false,
             phase: FlowTypegenPhase::Old,
             rollout: Rollout::default(),
         }
     }
 }
+
 impl FlowTypegenConfig {
     /// Returns the FlowTypegenPhase based on the config. If a `Rollout` check
     /// is not passing, the previous phase is returned.

@@ -26,8 +26,8 @@ use rayon::prelude::*;
 use regex::Regex;
 use relay_codegen::JsModuleFormat;
 use relay_transforms::ConnectionInterface;
-use relay_typegen::TypegenConfig;
 pub use relay_typegen::TypegenLanguage;
+use relay_typegen::{FlowTypegenConfig, TypegenConfig};
 use serde::{Deserialize, Serialize};
 use sha1::{Digest, Sha1};
 use std::path::{Path, PathBuf};
@@ -700,6 +700,10 @@ impl From<SingleProjectConfigFile> for MultiProjectConfigFile {
             typegen_config: TypegenConfig {
                 language: oss_config.language.unwrap_or(TypegenLanguage::TypeScript),
                 custom_scalar_types: oss_config.custom_scalars,
+                flow_typegen: FlowTypegenConfig {
+                    no_future_proof_enums: oss_config.no_future_proof_enums,
+                    ..Default::default()
+                },
                 ..Default::default()
             },
             ..Default::default()

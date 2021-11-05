@@ -13,10 +13,7 @@ use graphql_ir::{
     build_ir_with_extra_features, BuilderOptions, FragmentVariablesSemantic, RelayMode,
 };
 use graphql_syntax::{parse_executable_with_features, ParserFeatures};
-use indexmap::IndexSet;
-use interner::StringKey;
 use relay_test_schema::TEST_SCHEMA;
-use std::str::FromStr;
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let source_location = SourceLocationKey::standalone(fixture.file_name);
@@ -27,14 +24,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let mut sources = FnvHashMap::default();
     sources.insert(source_location, fixture.content);
 
-
-    let mut allowed_argnames = IndexSet::new();
-    allowed_argnames.insert(StringKey::from_str("arg_with_enabled_provider0").unwrap());
-    allowed_argnames.insert(StringKey::from_str("arg_with_enabled_provider1").unwrap());
-
-    let enable_provided_variables = FeatureFlag::Limited {
-        allowlist: allowed_argnames,
-    };
+    let enable_provided_variables = FeatureFlag::Enabled;
     let builder_options = BuilderOptions {
         allow_undefined_fragment_spreads: false,
         fragment_variables_semantic: FragmentVariablesSemantic::PassedValue,

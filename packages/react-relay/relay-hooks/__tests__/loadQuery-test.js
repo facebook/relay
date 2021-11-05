@@ -118,8 +118,9 @@ describe('loadQuery', () => {
         return {dispose: disposeOnloadCallback};
       });
 
-    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
-    const originalExecuteWithSource = environment.executeWithSource.getMockImplementation();
+    const originalExecuteWithSource =
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
+      environment.executeWithSource.getMockImplementation();
     executeObservable = undefined;
     executeUnsubscribe = undefined;
 
@@ -127,18 +128,16 @@ describe('loadQuery', () => {
       .spyOn(environment, 'executeWithSource')
       .mockImplementation((...params) => {
         executeObservable = originalExecuteWithSource(...params);
-        const originalSubscribe = executeObservable.subscribe.bind(
-          executeObservable,
-        );
+        const originalSubscribe =
+          executeObservable.subscribe.bind(executeObservable);
         jest
           .spyOn(executeObservable, 'subscribe')
           .mockImplementation(subscriptionCallbacks => {
             const executeSubscription = originalSubscribe(
               subscriptionCallbacks,
             );
-            const originalUnsubscribe = executeSubscription.unsubscribe.bind(
-              executeSubscription,
-            );
+            const originalUnsubscribe =
+              executeSubscription.unsubscribe.bind(executeSubscription);
             executeUnsubscribe = jest.fn(originalUnsubscribe);
             return {unsubscribe: executeUnsubscribe};
           });

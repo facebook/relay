@@ -90,8 +90,9 @@ beforeEach(() => {
 
   environment = createMockEnvironment({network: Network.create(fetch)});
 
-  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
-  const originalExecuteWithSource = environment.executeWithSource.getMockImplementation();
+  const originalExecuteWithSource =
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
+    environment.executeWithSource.getMockImplementation();
   executeObservable = undefined;
   executeUnsubscribe = undefined;
 
@@ -99,9 +100,8 @@ beforeEach(() => {
     .spyOn(environment, 'executeWithSource')
     .mockImplementation((...params) => {
       executeObservable = originalExecuteWithSource(...params);
-      const originalSubscribe = executeObservable.subscribe.bind(
-        executeObservable,
-      );
+      const originalSubscribe =
+        executeObservable.subscribe.bind(executeObservable);
       jest
         .spyOn(executeObservable, 'subscribe')
         .mockImplementation(subscriptionCallbacks => {
@@ -118,11 +118,11 @@ describe('when loading and disposing same query multiple times', () => {
     let loadedQuery;
     let queryLoaderCallback;
 
-    const QueryRenderer = function({queryRef}) {
+    const QueryRenderer = function ({queryRef}) {
       const data = usePreloadedQuery(query, queryRef);
       return data.node.id;
     };
-    const Inner = function({initialPreloadedQuery}) {
+    const Inner = function ({initialPreloadedQuery}) {
       [loadedQuery, queryLoaderCallback] = useQueryLoader(
         preloadableConcreteRequest,
         initialPreloadedQuery,
@@ -135,7 +135,7 @@ describe('when loading and disposing same query multiple times', () => {
         </React.Suspense>
       );
     };
-    const Container = function({initialPreloadedQuery = undefined}) {
+    const Container = function ({initialPreloadedQuery = undefined}) {
       return (
         <RelayEnvironmentProvider environment={environment}>
           <Inner initialPreloadedQuery={initialPreloadedQuery} />

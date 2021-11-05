@@ -16,7 +16,8 @@ use relay_transforms::{
     INLINE_DIRECTIVE_NAME,
 };
 use relay_typegen::{
-    generate_fragment_type, has_raw_response_type_directive, FlowTypegenPhase, TypegenLanguage,
+    generate_fragment_type, has_raw_response_type_directive, FlowTypegenPhase, TypegenConfig,
+    TypegenLanguage,
 };
 use schema::SDLSchema;
 use signedsource::{sign_file, SIGNING_TOKEN};
@@ -362,7 +363,7 @@ fn generate_operation(
     };
 
     write_export_generated_node(
-        &project_config.typegen_config.language,
+        &project_config.typegen_config,
         &mut content,
         "node",
         node_type,
@@ -445,13 +446,8 @@ fn generate_split_operation(
         &source_hash,
     )
     .unwrap();
-    write_export_generated_node(
-        &project_config.typegen_config.language,
-        &mut content,
-        "node",
-        None,
-    )
-    .unwrap();
+    write_export_generated_node(&project_config.typegen_config, &mut content, "node", None)
+        .unwrap();
 
     sign_file(&content).into_bytes()
 }
@@ -611,7 +607,7 @@ fn generate_fragment(
 
 
     write_export_generated_node(
-        &project_config.typegen_config.language,
+        &project_config.typegen_config,
         &mut content,
         "node",
         node_type,
@@ -666,19 +662,27 @@ fn write_import_type_from(
 }
 
 fn write_export_generated_node(
-    language: &TypegenLanguage,
+    typegen_config: &TypegenConfig,
     content: &mut String,
     variable_node: &str,
     forced_type: Option<String>,
 ) -> Result {
-    match (language, forced_type) {
-        (TypegenLanguage::Flow, None) => writeln!(content, "module.exports = {};", variable_node),
-        (TypegenLanguage::Flow, Some(forced_type)) => writeln!(
-            content,
-            "module.exports = (({}/*: any*/)/*: {}*/);",
-            variable_node, forced_type
-        ),
-        (TypegenLanguage::TypeScript, _) => writeln!(content, "export default {};", variable_node),
+    if typegen_config.eager_es_modules {
+        writeln!(content, "export default {};", variable_node)
+    } else {
+        match (typegen_config.language, forced_type) {
+            (TypegenLanguage::Flow, None) => {
+                writeln!(content, "module.exports = {};", variable_node)
+            }
+            (TypegenLanguage::Flow, Some(forced_type)) => writeln!(
+                content,
+                "module.exports = (({}/*: any*/)/*: {}*/);",
+                variable_node, forced_type
+            ),
+            (TypegenLanguage::TypeScript, _) => {
+                writeln!(content, "export default {};", variable_node)
+            }
+        }
     }
 }
 

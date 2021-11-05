@@ -649,7 +649,6 @@ pub struct SingleProjectConfigFile {
     /// for values that may be added in the future. Enabling this means you will have to update
     /// your application whenever the GraphQL server schema adds new enum values to prevent it
     /// from breaking.
-    /// TODO(T104508864): Currently not supported in Rust OSS compiler
     pub no_future_proof_enums: bool,
 
     /// The name of the language plugin (?) used for input files and artifacts
@@ -660,7 +659,6 @@ pub struct SingleProjectConfigFile {
     pub custom_scalars: FnvIndexMap<StringKey, StringKey>,
 
     /// This option enables emitting es modules artifacts.
-    /// TODO(T104508864): Currently not supported in Rust OSS compiler
     pub eager_es_modules: bool,
 }
 
@@ -700,6 +698,7 @@ impl From<SingleProjectConfigFile> for MultiProjectConfigFile {
             typegen_config: TypegenConfig {
                 language: oss_config.language.unwrap_or(TypegenLanguage::TypeScript),
                 custom_scalar_types: oss_config.custom_scalars,
+                eager_es_modules: oss_config.eager_es_modules,
                 flow_typegen: FlowTypegenConfig {
                     no_future_proof_enums: oss_config.no_future_proof_enums,
                     ..Default::default()

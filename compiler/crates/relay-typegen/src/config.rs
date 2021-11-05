@@ -75,6 +75,10 @@ pub struct TypegenConfig {
     /// Work in progress new Flow type definitions
     #[serde(default)]
     pub flow_typegen: FlowTypegenConfig,
+
+    /// This option enables emitting es modules artifacts.
+    #[serde(default)]
+    pub eager_es_modules: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Copy)]

@@ -1,0 +1,38 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query selectionSetConflictInconsistentStreamUsage2Query {
+  me {
+    ... on User {
+      friends {
+        ... on FriendsConnection {
+          edges @stream(label: "hdijf", initial_count: 1) {
+            node {
+              name
+            }
+          }
+        }
+        edges @stream(label: "hkjdf", initial_count: 2) {
+          node {
+            id
+          }
+        }
+      }
+    }
+  }
+}
+==================================== ERROR ====================================
+✖︎ Field 'edges' is marked with @stream in multiple places. Please use an alias to distinguish them'
+
+  selection_set_conflict_inconsistent_stream_usage_2.graphql:7:11
+    6 │         ... on FriendsConnection {
+    7 │           edges @stream(label: "hdijf", initial_count: 1) {
+      │           ^^^^^
+    8 │             node {
+
+  ℹ︎ the other field
+
+  selection_set_conflict_inconsistent_stream_usage_2.graphql:13:9
+   12 │         }
+   13 │         edges @stream(label: "hkjdf", initial_count: 2) {
+      │         ^^^^^
+   14 │           node {

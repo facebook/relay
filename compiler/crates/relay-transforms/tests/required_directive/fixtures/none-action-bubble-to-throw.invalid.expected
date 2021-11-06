@@ -1,0 +1,23 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment EnabledFoo on User {
+  address @required(action: THROW) {
+    city @required(action: NONE)
+  }
+}
+==================================== ERROR ====================================
+✖︎ A @required field may not have an `action` less severe than that of its @required parent. This @required directive should probably have `action: NONE`
+
+  none-action-bubble-to-throw.invalid.graphql:3:29
+    2 │ fragment EnabledFoo on User {
+    3 │   address @required(action: THROW) {
+      │                             ^^^^^
+    4 │     city @required(action: NONE)
+
+  ℹ︎ so that it can match its parent
+
+  none-action-bubble-to-throw.invalid.graphql:4:28
+    3 │   address @required(action: THROW) {
+    4 │     city @required(action: NONE)
+      │                            ^^^^
+    5 │   }

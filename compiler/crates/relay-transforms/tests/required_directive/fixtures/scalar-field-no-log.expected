@@ -1,0 +1,15 @@
+==================================== INPUT ====================================
+fragment EnabledActorsRendererFragment on Node {
+  id
+  name @required(action: NONE)
+}
+==================================== OUTPUT ===================================
+fragment EnabledActorsRendererFragment on Node @__childrenCanBubbleNull {
+  id
+  name @required(action: NONE) @__RequiredMetadataDirective
+  # RequiredMetadataDirective {
+  #     action: None,
+  #     path: "name",
+  # }
+  
+}

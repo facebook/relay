@@ -1,0 +1,15 @@
+==================================== INPUT ====================================
+# expected-to-throw
+mutation CommentDeleteMutation($input: CommentDeleteInput) {
+  commentDelete(input: $input) {
+    __typename @deleteRecord
+  }
+}
+==================================== ERROR ====================================
+✖︎ Invalid use of @deleteRecord on field '__typename'. Expected field type 'ID', got 'String!'.
+
+  delete-on-unspported-type.invalid.graphql:4:16
+    3 │   commentDelete(input: $input) {
+    4 │     __typename @deleteRecord
+      │                ^^^^^^^^^^^^^
+    5 │   }

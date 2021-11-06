@@ -1,156 +1,278 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
  * @flow
+ * @emails oncall+relay
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
-const RelayCore = require('RelayCore');
-const RelayDefaultHandlerProvider = require('RelayDefaultHandlerProvider');
-const RelayPublishQueue = require('RelayPublishQueue');
-
-const deferrableFragmentKey = require('deferrableFragmentKey');
-const invariant = require('invariant');
-const normalizePayload = require('normalizePayload');
-const normalizeRelayPayload = require('normalizeRelayPayload');
-const warning = require('warning');
-
-const {getOperationVariables} = require('RelayConcreteVariables');
-const {createOperationSelector} = require('RelayModernOperationSelector');
-
-import type {CacheConfig, Disposable} from '../util/RelayRuntimeTypes';
-import type {HandlerProvider} from 'RelayDefaultHandlerProvider';
+import type {HandlerProvider} from '../handlers/RelayDefaultHandlerProvider';
+import type {ActorIdentifier} from '../multi-actor-environment/ActorIdentifier';
 import type {
-  ExecutePayload,
-  Network,
+  GraphQLResponse,
+  INetwork,
   PayloadData,
-  PayloadError,
-  UploadableMap,
-} from 'RelayNetworkTypes';
-import type RelayObservable from 'RelayObservable';
+} from '../network/RelayNetworkTypes';
+import type {Disposable, RenderPolicy} from '../util/RelayRuntimeTypes';
+import type {ActiveState, TaskScheduler} from './OperationExecutor';
+import type {GetDataID} from './RelayResponseNormalizer';
 import type {
-  Environment,
-  OperationSelector,
-  OptimisticUpdate,
-  Selector,
+  ExecuteMutationConfig,
+  IEnvironment,
+  LogFunction,
+  MissingFieldHandler,
+  MutationParameters,
+  OperationAvailability,
+  OperationDescriptor,
+  OperationLoader,
+  OperationTracker,
+  OptimisticResponseConfig,
+  OptimisticUpdateFunction,
+  PublishQueue,
+  ReactFlightPayloadDeserializer,
+  ReactFlightServerErrorHandler,
+  RequiredFieldLogger,
   SelectorStoreUpdater,
+  SingularReaderSelector,
   Snapshot,
   Store,
   StoreUpdater,
-  UnstableEnvironmentCore,
-} from 'RelayStoreTypes';
+} from './RelayStoreTypes';
 
-export type EnvironmentConfig = {
-  configName?: string,
-  handlerProvider?: HandlerProvider,
-  network: Network,
-  store: Store,
-};
+const RelayDefaultHandlerProvider = require('../handlers/RelayDefaultHandlerProvider');
+const {
+  INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
+  assertInternalActorIndentifier,
+} = require('../multi-actor-environment/ActorIdentifier');
+const RelayObservable = require('../network/RelayObservable');
+const wrapNetworkWithLogObserver = require('../network/wrapNetworkWithLogObserver');
+const RelayOperationTracker = require('../store/RelayOperationTracker');
+const registerEnvironmentWithDevTools = require('../util/registerEnvironmentWithDevTools');
+const RelayFeatureFlags = require('../util/RelayFeatureFlags');
+const defaultGetDataID = require('./defaultGetDataID');
+const defaultRequiredFieldLogger = require('./defaultRequiredFieldLogger');
+const OperationExecutor = require('./OperationExecutor');
+const RelayPublishQueue = require('./RelayPublishQueue');
+const RelayRecordSource = require('./RelayRecordSource');
+const invariant = require('invariant');
 
-class RelayModernEnvironment implements Environment {
-  _network: Network;
-  _publishQueue: RelayPublishQueue;
+export type EnvironmentConfig = {|
+  +configName?: string,
+  +handlerProvider?: ?HandlerProvider,
+  +treatMissingFieldsAsNull?: boolean,
+  +log?: ?LogFunction,
+  +operationLoader?: ?OperationLoader,
+  +reactFlightPayloadDeserializer?: ?ReactFlightPayloadDeserializer,
+  +reactFlightServerErrorHandler?: ?ReactFlightServerErrorHandler,
+  +network: INetwork,
+  +scheduler?: ?TaskScheduler,
+  +store: Store,
+  +missingFieldHandlers?: ?$ReadOnlyArray<MissingFieldHandler>,
+  +operationTracker?: ?OperationTracker,
+  +getDataID?: ?GetDataID,
+  +UNSTABLE_defaultRenderPolicy?: ?RenderPolicy,
+  +options?: mixed,
+  +isServer?: boolean,
+  +requiredFieldLogger?: ?RequiredFieldLogger,
+  +shouldProcessClientComponents?: ?boolean,
+|};
+
+class RelayModernEnvironment implements IEnvironment {
+  __log: LogFunction;
+  +_defaultRenderPolicy: RenderPolicy;
+  _operationLoader: ?OperationLoader;
+  _reactFlightPayloadDeserializer: ?ReactFlightPayloadDeserializer;
+  _reactFlightServerErrorHandler: ?ReactFlightServerErrorHandler;
+  _shouldProcessClientComponents: ?boolean;
+  _network: INetwork;
+  _publishQueue: PublishQueue;
+  _scheduler: ?TaskScheduler;
   _store: Store;
   configName: ?string;
-  unstable_internal: UnstableEnvironmentCore;
-  _deferrableSelections: Set<string> = new Set();
+  _missingFieldHandlers: ?$ReadOnlyArray<MissingFieldHandler>;
+  _operationTracker: OperationTracker;
+  _getDataID: GetDataID;
+  _treatMissingFieldsAsNull: boolean;
+  _operationExecutions: Map<string, ActiveState>;
+  +options: mixed;
+  +_isServer: boolean;
+  requiredFieldLogger: RequiredFieldLogger;
 
   constructor(config: EnvironmentConfig) {
     this.configName = config.configName;
-    const handlerProvider = config.handlerProvider
-      ? config.handlerProvider
-      : RelayDefaultHandlerProvider;
-    this._network = config.network;
-    this._publishQueue = new RelayPublishQueue(config.store, handlerProvider);
+    this._treatMissingFieldsAsNull = config.treatMissingFieldsAsNull === true;
+    const operationLoader = config.operationLoader;
+    const reactFlightPayloadDeserializer =
+      config.reactFlightPayloadDeserializer;
+    const reactFlightServerErrorHandler = config.reactFlightServerErrorHandler;
+    if (__DEV__) {
+      if (operationLoader != null) {
+        invariant(
+          typeof operationLoader === 'object' &&
+            typeof operationLoader.get === 'function' &&
+            typeof operationLoader.load === 'function',
+          'RelayModernEnvironment: Expected `operationLoader` to be an object ' +
+            'with get() and load() functions, got `%s`.',
+          operationLoader,
+        );
+      }
+      if (reactFlightPayloadDeserializer != null) {
+        invariant(
+          typeof reactFlightPayloadDeserializer === 'function',
+          'RelayModernEnvironment: Expected `reactFlightPayloadDeserializer` ' +
+            ' to be a function, got `%s`.',
+          reactFlightPayloadDeserializer,
+        );
+      }
+    }
+    this.__log = config.log ?? emptyFunction;
+    this.requiredFieldLogger =
+      config.requiredFieldLogger ?? defaultRequiredFieldLogger;
+    this._defaultRenderPolicy =
+      config.UNSTABLE_defaultRenderPolicy ??
+      RelayFeatureFlags.ENABLE_PARTIAL_RENDERING_DEFAULT === true
+        ? 'partial'
+        : 'full';
+    this._operationLoader = operationLoader;
+    this._operationExecutions = new Map();
+    this._network = wrapNetworkWithLogObserver(this, config.network);
+    this._getDataID = config.getDataID ?? defaultGetDataID;
+    this._publishQueue = new RelayPublishQueue(
+      config.store,
+      config.handlerProvider ?? RelayDefaultHandlerProvider,
+      this._getDataID,
+    );
+    this._scheduler = config.scheduler ?? null;
     this._store = config.store;
-    this.unstable_internal = RelayCore;
+    this.options = config.options;
+    this._isServer = config.isServer ?? false;
 
-    (this: any).__setNet = newNet => (this._network = newNet);
+    (this: any).__setNet = newNet =>
+      (this._network = wrapNetworkWithLogObserver(this, newNet));
+
+    if (__DEV__) {
+      const {inspect} = require('./StoreInspector');
+      (this: any).DEBUG_inspect = (dataID: ?string) => inspect(this, dataID);
+    }
+
+    this._missingFieldHandlers = config.missingFieldHandlers;
+    this._operationTracker =
+      config.operationTracker ?? new RelayOperationTracker();
+    this._reactFlightPayloadDeserializer = reactFlightPayloadDeserializer;
+    this._reactFlightServerErrorHandler = reactFlightServerErrorHandler;
+    this._shouldProcessClientComponents = config.shouldProcessClientComponents;
 
     // Register this Relay Environment with Relay DevTools if it exists.
     // Note: this must always be the last step in the constructor.
-    const _global =
-      typeof global !== 'undefined'
-        ? global
-        : typeof window !== 'undefined'
-          ? window
-          : undefined;
-    const devToolsHook = _global && _global.__RELAY_DEVTOOLS_HOOK__;
-    if (devToolsHook) {
-      devToolsHook.registerEnvironment(this);
-    }
+    registerEnvironmentWithDevTools(this);
   }
 
   getStore(): Store {
     return this._store;
   }
 
-  getNetwork(): Network {
+  getNetwork(): INetwork {
     return this._network;
   }
 
-  applyUpdate(optimisticUpdate: OptimisticUpdate): Disposable {
+  getOperationTracker(): RelayOperationTracker {
+    return this._operationTracker;
+  }
+
+  isRequestActive(requestIdentifier: string): boolean {
+    const activeState = this._operationExecutions.get(requestIdentifier);
+    return activeState === 'active';
+  }
+
+  UNSTABLE_getDefaultRenderPolicy(): RenderPolicy {
+    return this._defaultRenderPolicy;
+  }
+
+  applyUpdate(optimisticUpdate: OptimisticUpdateFunction): Disposable {
     const dispose = () => {
-      this._publishQueue.revertUpdate(optimisticUpdate);
-      this._publishQueue.run();
+      this._scheduleUpdates(() => {
+        this._publishQueue.revertUpdate(optimisticUpdate);
+        this._publishQueue.run();
+      });
     };
-    this._publishQueue.applyUpdate(optimisticUpdate);
-    this._publishQueue.run();
+    this._scheduleUpdates(() => {
+      this._publishQueue.applyUpdate(optimisticUpdate);
+      this._publishQueue.run();
+    });
     return {dispose};
   }
 
-  revertUpdate(update: OptimisticUpdate): void {
-    this._publishQueue.revertUpdate(update);
-    this._publishQueue.run();
-  }
-
-  replaceUpdate(update: OptimisticUpdate, newUpdate: OptimisticUpdate): void {
-    this._publishQueue.revertUpdate(update);
-    this._publishQueue.applyUpdate(newUpdate);
-    this._publishQueue.run();
-  }
-
-  applyMutation({
-    operation,
-    optimisticResponse,
-    optimisticUpdater,
-  }: {
-    operation: OperationSelector,
-    optimisticUpdater?: ?SelectorStoreUpdater,
-    optimisticResponse?: Object,
-  }): Disposable {
-    return this.applyUpdate({
-      operation,
-      selectorStoreUpdater: optimisticUpdater,
-      response: optimisticResponse || null,
+  revertUpdate(update: OptimisticUpdateFunction): void {
+    this._scheduleUpdates(() => {
+      this._publishQueue.revertUpdate(update);
+      this._publishQueue.run();
     });
   }
 
-  check(readSelector: Selector): boolean {
-    return this._store.check(readSelector);
+  replaceUpdate(
+    update: OptimisticUpdateFunction,
+    newUpdate: OptimisticUpdateFunction,
+  ): void {
+    this._scheduleUpdates(() => {
+      this._publishQueue.revertUpdate(update);
+      this._publishQueue.applyUpdate(newUpdate);
+      this._publishQueue.run();
+    });
   }
 
-  commitPayload(
-    operationSelector: OperationSelector,
-    payload: PayloadData,
-  ): void {
-    // Do not handle stripped nulls when commiting a payload
-    const relayPayload = normalizeRelayPayload(operationSelector.root, payload);
-    this._publishQueue.commitPayload(operationSelector, relayPayload);
-    this._publishQueue.run();
+  applyMutation<TMutation: MutationParameters>(
+    optimisticConfig: OptimisticResponseConfig<TMutation>,
+  ): Disposable {
+    const subscription = this._execute({
+      createSource: () => RelayObservable.create(_sink => {}),
+      isClientPayload: false,
+      operation: optimisticConfig.operation,
+      optimisticConfig,
+      updater: null,
+    }).subscribe({});
+    return {
+      dispose: () => subscription.unsubscribe(),
+    };
+  }
+
+  check(operation: OperationDescriptor): OperationAvailability {
+    if (
+      this._missingFieldHandlers == null ||
+      this._missingFieldHandlers.length === 0
+    ) {
+      return this._store.check(operation);
+    }
+    return this._checkSelectorAndHandleMissingFields(
+      operation,
+      this._missingFieldHandlers,
+    );
+  }
+
+  commitPayload(operation: OperationDescriptor, payload: PayloadData): void {
+    this._execute({
+      createSource: () => RelayObservable.from({data: payload}),
+      isClientPayload: true,
+      operation: operation,
+      optimisticConfig: null,
+      updater: null,
+    }).subscribe({});
   }
 
   commitUpdate(updater: StoreUpdater): void {
-    this._publishQueue.commitUpdate(updater);
-    this._publishQueue.run();
+    this._scheduleUpdates(() => {
+      this._publishQueue.commitUpdate(updater);
+      this._publishQueue.run();
+    });
   }
 
-  lookup(readSelector: Selector): Snapshot {
+  lookup(readSelector: SingularReaderSelector): Snapshot {
     return this._store.lookup(readSelector);
   }
 
@@ -161,21 +283,53 @@ class RelayModernEnvironment implements Environment {
     return this._store.subscribe(snapshot, callback);
   }
 
-  retain(selector: Selector): Disposable {
-    return this._store.retain(selector);
+  retain(operation: OperationDescriptor): Disposable {
+    return this._store.retain(operation);
   }
 
-  isSelectorLoading(selector: Selector): boolean {
-    const key = deferrableFragmentKey(
-      selector.dataID,
-      selector.node.name,
-      selector.variables,
-    );
-    return this._deferrableSelections.has(key);
+  isServer(): boolean {
+    return this._isServer;
   }
+
+  _checkSelectorAndHandleMissingFields(
+    operation: OperationDescriptor,
+    handlers: $ReadOnlyArray<MissingFieldHandler>,
+  ): OperationAvailability {
+    const target = RelayRecordSource.create();
+    const source = this._store.getSource();
+    const result = this._store.check(operation, {
+      handlers,
+      defaultActorIdentifier: INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
+      getSourceForActor(actorIdentifier: ActorIdentifier) {
+        assertInternalActorIndentifier(actorIdentifier);
+        return source;
+      },
+      getTargetForActor(actorIdentifier: ActorIdentifier) {
+        assertInternalActorIndentifier(actorIdentifier);
+        return target;
+      },
+    });
+    if (target.size() > 0) {
+      this._scheduleUpdates(() => {
+        this._publishQueue.commitSource(target);
+        this._publishQueue.run();
+      });
+    }
+    return result;
+  }
+
+  _scheduleUpdates(task: () => void) {
+    const scheduler = this._scheduler;
+    if (scheduler != null) {
+      scheduler.schedule(task);
+    } else {
+      task();
+    }
+  }
+
   /**
-   * Returns an Observable of ExecutePayload resulting from executing the
-   * provided Query or Subscription operation, each result of which is then
+   * Returns an Observable of GraphQLResponse resulting from executing the
+   * provided Query operation, each result of which is then
    * normalized and committed to the publish queue.
    *
    * Note: Observables are lazy, so calling this method will do nothing until
@@ -183,78 +337,56 @@ class RelayModernEnvironment implements Environment {
    */
   execute({
     operation,
-    cacheConfig,
-    updater,
-  }: {
-    operation: OperationSelector,
-    cacheConfig?: ?CacheConfig,
-    updater?: ?SelectorStoreUpdater,
-  }): RelayObservable<ExecutePayload> {
-    let optimisticResponse;
-    return this._network
-      .execute(operation.node, operation.variables, cacheConfig || {})
-      .do({
-        next: executePayload => {
-          const responsePayload = normalizePayload(executePayload);
-          const {source, fieldPayloads, deferrableSelections} = responsePayload;
-          for (const selectionKey of deferrableSelections || new Set()) {
-            this._deferrableSelections.add(selectionKey);
-          }
-          if (executePayload.isOptimistic) {
-            invariant(
-              optimisticResponse == null,
-              'environment.execute: only support one optimistic respnose per ' +
-                'execute.',
-            );
-            optimisticResponse = {
-              source: source,
-              fieldPayloads: fieldPayloads,
-            };
-            this._publishQueue.applyUpdate(optimisticResponse);
-            this._publishQueue.run();
-          } else {
-            if (optimisticResponse) {
-              this._publishQueue.revertUpdate(optimisticResponse);
-              optimisticResponse = undefined;
-            }
-            const writeSelector = createOperationSelector(
-              operation.node,
-              executePayload.variables,
-              executePayload.operation,
-            );
-            if (executePayload.operation.kind === 'DeferrableOperation') {
-              const fragmentKey = deferrableFragmentKey(
-                executePayload.variables[
-                  executePayload.operation.rootFieldVariable
-                ],
-                executePayload.operation.fragmentName,
-                getOperationVariables(
-                  executePayload.operation,
-                  executePayload.variables,
-                ),
-              );
-              this._deferrableSelections.delete(fragmentKey);
-            }
-            this._publishQueue.commitPayload(
-              writeSelector,
-              responsePayload,
-              updater,
-            );
-            this._publishQueue.run();
-          }
-        },
-      })
-      .finally(() => {
-        if (optimisticResponse) {
-          this._publishQueue.revertUpdate(optimisticResponse);
-          optimisticResponse = undefined;
-          this._publishQueue.run();
-        }
-      });
+  }: {|
+    operation: OperationDescriptor,
+  |}): RelayObservable<GraphQLResponse> {
+    return this._execute({
+      createSource: () =>
+        this._network.execute(
+          operation.request.node.params,
+          operation.request.variables,
+          operation.request.cacheConfig || {},
+          null,
+        ),
+      isClientPayload: false,
+      operation,
+      optimisticConfig: null,
+      updater: null,
+    });
   }
 
   /**
-   * Returns an Observable of ExecutePayload resulting from executing the
+   * Returns an Observable of GraphQLResponse resulting from executing the
+   * provided Subscription operation, each result of which is then
+   * normalized and committed to the publish queue.
+   *
+   * Note: Observables are lazy, so calling this method will do nothing until
+   * the result is subscribed to: environment.execute({...}).subscribe({...}).
+   */
+  executeSubscription<TMutation: MutationParameters>({
+    operation,
+    updater,
+  }: {|
+    operation: OperationDescriptor,
+    updater?: ?SelectorStoreUpdater<$ElementType<TMutation, 'response'>>,
+  |}): RelayObservable<GraphQLResponse> {
+    return this._execute({
+      createSource: () =>
+        this._network.execute(
+          operation.request.node.params,
+          operation.request.variables,
+          operation.request.cacheConfig || {},
+          null,
+        ),
+      isClientPayload: false,
+      operation,
+      optimisticConfig: null,
+      updater,
+    });
+  }
+
+  /**
+   * Returns an Observable of GraphQLResponse resulting from executing the
    * provided Mutation operation, the result of which is then normalized and
    * committed to the publish queue along with an optional optimistic response
    * or updater.
@@ -263,191 +395,115 @@ class RelayModernEnvironment implements Environment {
    * the result is subscribed to:
    * environment.executeMutation({...}).subscribe({...}).
    */
-  executeMutation({
+  executeMutation<TMutation: MutationParameters>({
     operation,
     optimisticResponse,
     optimisticUpdater,
     updater,
     uploadables,
-  }: {|
-    operation: OperationSelector,
-    optimisticUpdater?: ?SelectorStoreUpdater,
-    optimisticResponse?: ?Object,
-    updater?: ?SelectorStoreUpdater,
-    uploadables?: ?UploadableMap,
-  |}): RelayObservable<ExecutePayload> {
-    let optimisticUpdate;
+  }: ExecuteMutationConfig<TMutation>): RelayObservable<GraphQLResponse> {
+    let optimisticConfig;
     if (optimisticResponse || optimisticUpdater) {
-      optimisticUpdate = {
+      optimisticConfig = {
         operation: operation,
-        selectorStoreUpdater: optimisticUpdater,
-        response: optimisticResponse || null,
+        response: optimisticResponse,
+        updater: optimisticUpdater,
       };
     }
+    return this._execute({
+      createSource: () =>
+        this._network.execute(
+          operation.request.node.params,
+          operation.request.variables,
+          {
+            ...operation.request.cacheConfig,
+            force: true,
+          },
+          uploadables,
+        ),
+      isClientPayload: false,
+      operation,
+      optimisticConfig,
+      updater,
+    });
+  }
 
-    return this._network
-      .execute(operation.node, operation.variables, {force: true}, uploadables)
-      .do({
-        start: () => {
-          if (optimisticUpdate) {
-            this._publishQueue.applyUpdate(optimisticUpdate);
-            this._publishQueue.run();
-          }
+  /**
+   * Returns an Observable of GraphQLResponse resulting from executing the
+   * provided Query or Subscription operation responses, the result of which is
+   * then normalized and committed to the publish queue.
+   *
+   * Note: Observables are lazy, so calling this method will do nothing until
+   * the result is subscribed to:
+   * environment.executeWithSource({...}).subscribe({...}).
+   */
+  executeWithSource({
+    operation,
+    source,
+  }: {|
+    operation: OperationDescriptor,
+    source: RelayObservable<GraphQLResponse>,
+  |}): RelayObservable<GraphQLResponse> {
+    return this._execute({
+      createSource: () => source,
+      isClientPayload: false,
+      operation,
+      optimisticConfig: null,
+      updater: null,
+    });
+  }
+
+  toJSON(): mixed {
+    return `RelayModernEnvironment(${this.configName ?? ''})`;
+  }
+
+  _execute<TMutation: MutationParameters>({
+    createSource,
+    isClientPayload,
+    operation,
+    optimisticConfig,
+    updater,
+  }: {|
+    createSource: () => RelayObservable<GraphQLResponse>,
+    isClientPayload: boolean,
+    operation: OperationDescriptor,
+    optimisticConfig: ?OptimisticResponseConfig<TMutation>,
+    updater: ?SelectorStoreUpdater<$ElementType<TMutation, 'response'>>,
+  |}): RelayObservable<GraphQLResponse> {
+    const publishQueue = this._publishQueue;
+    const store = this._store;
+    return RelayObservable.create(sink => {
+      const executor = OperationExecutor.execute({
+        actorIdentifier: INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
+        getDataID: this._getDataID,
+        isClientPayload,
+        log: this.__log,
+        operation,
+        operationExecutions: this._operationExecutions,
+        operationLoader: this._operationLoader,
+        operationTracker: this._operationTracker,
+        optimisticConfig,
+        getPublishQueue(actorIdentifier: ActorIdentifier) {
+          assertInternalActorIndentifier(actorIdentifier);
+          return publishQueue;
         },
-        next: payload => {
-          if (optimisticUpdate) {
-            this._publishQueue.revertUpdate(optimisticUpdate);
-            optimisticUpdate = undefined;
-          }
-          this._publishQueue.commitPayload(
-            operation,
-            normalizePayload(payload),
-            updater,
-          );
-          this._publishQueue.run();
+        reactFlightPayloadDeserializer: this._reactFlightPayloadDeserializer,
+        reactFlightServerErrorHandler: this._reactFlightServerErrorHandler,
+        scheduler: this._scheduler,
+        shouldProcessClientComponents: this._shouldProcessClientComponents,
+        sink,
+        // NOTE: Some product tests expect `Network.execute` to be called only
+        //       when the Observable is executed.
+        source: createSource(),
+        getStore(actorIdentifier: ActorIdentifier) {
+          assertInternalActorIndentifier(actorIdentifier);
+          return store;
         },
-        error: error => {
-          if (optimisticUpdate) {
-            this._publishQueue.revertUpdate(optimisticUpdate);
-            optimisticUpdate = undefined;
-            this._publishQueue.run();
-          }
-        },
-        unsubscribe: () => {
-          if (optimisticUpdate) {
-            this._publishQueue.revertUpdate(optimisticUpdate);
-            optimisticUpdate = undefined;
-            this._publishQueue.run();
-          }
-        },
+        treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
+        updater,
       });
-  }
-
-  /**
-   * @deprecated Use Environment.execute().subscribe()
-   */
-  sendQuery({
-    cacheConfig,
-    onCompleted,
-    onError,
-    onNext,
-    operation,
-  }: {
-    cacheConfig?: ?CacheConfig,
-    onCompleted?: ?() => void,
-    onError?: ?(error: Error) => void,
-    onNext?: ?(payload: ExecutePayload) => void,
-    operation: OperationSelector,
-  }): Disposable {
-    warning(
-      false,
-      'environment.sendQuery() is deprecated. Update to the latest ' +
-        'version of react-relay, and use environment.execute().',
-    );
-    return this.execute({operation, cacheConfig}).subscribeLegacy({
-      onNext,
-      onError,
-      onCompleted,
+      return () => executor.cancel();
     });
-  }
-
-  /**
-   * @deprecated Use Environment.execute().subscribe()
-   */
-  streamQuery({
-    cacheConfig,
-    onCompleted,
-    onError,
-    onNext,
-    operation,
-  }: {
-    cacheConfig?: ?CacheConfig,
-    onCompleted?: ?() => void,
-    onError?: ?(error: Error) => void,
-    onNext?: ?(payload: ExecutePayload) => void,
-    operation: OperationSelector,
-  }): Disposable {
-    warning(
-      false,
-      'environment.streamQuery() is deprecated. Update to the latest ' +
-        'version of react-relay, and use environment.execute().',
-    );
-    return this.execute({operation, cacheConfig}).subscribeLegacy({
-      onNext,
-      onError,
-      onCompleted,
-    });
-  }
-
-  /**
-   * @deprecated Use Environment.executeMutation().subscribe()
-   */
-  sendMutation({
-    onCompleted,
-    onError,
-    operation,
-    optimisticResponse,
-    optimisticUpdater,
-    updater,
-    uploadables,
-  }: {
-    onCompleted?: ?(errors: ?Array<PayloadError>) => void,
-    onError?: ?(error: Error) => void,
-    operation: OperationSelector,
-    optimisticUpdater?: ?SelectorStoreUpdater,
-    optimisticResponse?: Object,
-    updater?: ?SelectorStoreUpdater,
-    uploadables?: UploadableMap,
-  }): Disposable {
-    warning(
-      false,
-      'environment.sendMutation() is deprecated. Update to the latest ' +
-        'version of react-relay, and use environment.executeMutation().',
-    );
-    return this.executeMutation({
-      operation,
-      optimisticResponse,
-      optimisticUpdater,
-      updater,
-      uploadables,
-    }).subscribeLegacy({
-      // NOTE: sendMutation has a non-standard use of onCompleted() by passing
-      // it a value. When switching to use executeMutation(), the next()
-      // Observer should be used to preserve behavior.
-      onNext: payload => {
-        onCompleted && onCompleted(payload.response.errors);
-      },
-      onError,
-      onCompleted,
-    });
-  }
-
-  /**
-   * @deprecated Use Environment.execute().subscribe()
-   */
-  sendSubscription({
-    onCompleted,
-    onNext,
-    onError,
-    operation,
-    updater,
-  }: {
-    onCompleted?: ?(errors: ?Array<PayloadError>) => void,
-    onNext?: ?(payload: ExecutePayload) => void,
-    onError?: ?(error: Error) => void,
-    operation: OperationSelector,
-    updater?: ?SelectorStoreUpdater,
-  }): Disposable {
-    warning(
-      false,
-      'environment.sendSubscription() is deprecated. Update to the latest ' +
-        'version of react-relay, and use environment.execute().',
-    );
-    return this.execute({
-      operation,
-      updater,
-      cacheConfig: {force: true},
-    }).subscribeLegacy({onNext, onError, onCompleted});
   }
 }
 
@@ -455,5 +511,7 @@ class RelayModernEnvironment implements Environment {
 // realm-specific instanceof check, and to aid in module tree-shaking to
 // avoid requiring all of RelayRuntime just to detect its environment.
 (RelayModernEnvironment: any).prototype['@@RelayModernEnvironment'] = true;
+
+function emptyFunction() {}
 
 module.exports = RelayModernEnvironment;

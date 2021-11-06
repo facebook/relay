@@ -1,0 +1,60 @@
+==================================== INPUT ====================================
+fragment clientInlineFragments_Foo_user on User {
+  id
+  foo {
+    ... on ClientNamed {
+      client_name
+    }
+  }
+}
+
+# %extensions%
+
+extend type User {
+  foo: ClientNamed
+}
+
+interface ClientNamed {
+  client_name: String
+}
+==================================== OUTPUT ===================================
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "clientInlineFragments_Foo_user",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "id",
+      "storageKey": null
+    },
+    {
+      "kind": "ClientExtension",
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "concreteType": null,
+          "kind": "LinkedField",
+          "name": "foo",
+          "plural": false,
+          "selections": [
+            {
+              "alias": null,
+              "args": null,
+              "kind": "ScalarField",
+              "name": "client_name",
+              "storageKey": null
+            }
+          ],
+          "storageKey": null
+        }
+      ]
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}

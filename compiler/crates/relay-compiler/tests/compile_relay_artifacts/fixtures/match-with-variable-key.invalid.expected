@@ -1,0 +1,24 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query matchWithVariableKey_MatchWithVariableNameQuery($key: String) {
+  me {
+    nameRenderer @match(key: $key) {
+      ...matchWithVariableKey_PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+    }
+  }
+}
+
+fragment matchWithVariableKey_PlainUserNameRenderer_name on PlainUserNameRenderer {
+  plaintext
+  data {
+    text
+  }
+}
+==================================== ERROR ====================================
+✖︎ Expected the 'key' argument of @match to be a literal string starting with the document name, e.g. 'matchWithVariableKey_MatchWithVariableNameQuery_<localName>'.
+
+  match-with-variable-key.invalid.graphql:4:30
+    3 │   me {
+    4 │     nameRenderer @match(key: $key) {
+      │                              ^^^^
+    5 │       ...matchWithVariableKey_PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")

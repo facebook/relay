@@ -1,0 +1,8 @@
+mutation deleteEdgePluralMutation(
+  $input: CommentsDeleteInput
+  $connections: [ID!]!
+) {
+  commentsDelete(input: $input) {
+    deletedCommentIds @deleteEdge(connections: $connections)
+  }
+}

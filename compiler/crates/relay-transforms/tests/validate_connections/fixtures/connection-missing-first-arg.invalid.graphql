@@ -1,0 +1,17 @@
+# expected-to-throw
+query NodeQuery($id: ID!) {
+  node(id: $id) {
+    id
+    ... on Story {
+      comments @connection(key: "NodeQuery_comments") {
+        edges {
+          node {
+            actor {
+              name
+            }
+          }
+        }
+      }
+    }
+  }
+}

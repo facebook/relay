@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -10,28 +10,17 @@
 
 'use strict';
 
-const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
-const RelayModernTestUtils = require('RelayModernTestUtils');
-const RelayRecordSourceMutator = require('RelayRecordSourceMutator');
-const RelayRecordState = require('RelayRecordState');
-const RelayStoreUtils = require('RelayStoreUtils');
+const RelayRecordSourceMutator = require('../../mutations/RelayRecordSourceMutator');
+const RelayRecordSource = require('../../store/RelayRecordSource');
+const RelayRecordState = require('../../store/RelayRecordState');
+const RelayStoreUtils = require('../../store/RelayStoreUtils');
+const {simpleClone} = require('relay-test-utils-internal');
 
-const simpleClone = require('simpleClone');
-
-const {
-  ID_KEY,
-  REF_KEY,
-  REFS_KEY,
-  TYPENAME_KEY,
-  UNPUBLISH_RECORD_SENTINEL,
-  UNPUBLISH_FIELD_SENTINEL,
-} = RelayStoreUtils;
+const {ID_KEY, REF_KEY, REFS_KEY, TYPENAME_KEY} = RelayStoreUtils;
 const {EXISTENT, NONEXISTENT, UNKNOWN} = RelayRecordState;
 
 describe('RelayRecordSourceMutator', () => {
   let backupData;
-  let backupMutator;
-  let backupSource;
   let baseData;
   let baseSource;
   let initialData;
@@ -40,8 +29,6 @@ describe('RelayRecordSourceMutator', () => {
   let sinkSource;
 
   beforeEach(() => {
-    expect.extend(RelayModernTestUtils.matchers);
-
     initialData = {
       4: {
         [ID_KEY]: '4',
@@ -87,58 +74,114 @@ describe('RelayRecordSourceMutator', () => {
     backupData = {};
     sinkData = {};
     baseData = simpleClone(initialData);
-    baseSource = new RelayInMemoryRecordSource(baseData);
-    backupSource = new RelayInMemoryRecordSource(backupData);
-    sinkSource = new RelayInMemoryRecordSource(sinkData);
-    mutator = new RelayRecordSourceMutator(baseSource, sinkSource);
-    backupMutator = new RelayRecordSourceMutator(
-      baseSource,
-      sinkSource,
-      backupSource,
-    );
+    baseSource = new RelayRecordSource(baseData);
+    sinkSource = new RelayRecordSource(sinkData);
+    mutator = new RelayRecordSourceMutator(baseSource, sinkSource, []);
+  });
+
+  describe('unstable_getRawRecordWithChanges', () => {
+    it('returns newly created records', () => {
+      mutator.create('sea', 'Page');
+      mutator.setValue('sea', 'name', 'Seattle');
+      const record = mutator.unstable_getRawRecordWithChanges('sea');
+      expect(record).toEqual({
+        [ID_KEY]: 'sea',
+        [TYPENAME_KEY]: 'Page',
+        name: 'Seattle',
+      });
+      expect(Object.isFrozen(record)).toBe(true);
+    });
+
+    it('returns newly created records that are deleted in the base', () => {
+      mutator.create('deleted', 'Page');
+      mutator.setValue('deleted', 'name', 'Somewhere');
+      const record = mutator.unstable_getRawRecordWithChanges('deleted');
+      expect(record).toEqual({
+        [ID_KEY]: 'deleted',
+        [TYPENAME_KEY]: 'Page',
+        name: 'Somewhere',
+      });
+      expect(Object.isFrozen(record)).toBe(true);
+    });
+
+    it('returns updated records', () => {
+      mutator.setValue('nyc', 'alias', 'NYC');
+      mutator.setValue('nyc', 'timezone', 'EAST');
+      const record = mutator.unstable_getRawRecordWithChanges('nyc');
+      expect(record).toEqual({
+        [ID_KEY]: 'nyc', // existing field
+        [TYPENAME_KEY]: 'Page', // existing field
+        name: 'New York', // existing field
+        alias: 'NYC', // added
+        timezone: 'EAST', // updated
+      });
+      expect(Object.isFrozen(record)).toBe(true);
+    });
+
+    it('returns existing (unmodified) records', () => {
+      const record = mutator.unstable_getRawRecordWithChanges('nyc');
+      expect(record).toEqual({
+        [ID_KEY]: 'nyc',
+        [TYPENAME_KEY]: 'Page',
+        name: 'New York',
+        timezone: 'East Time Zone',
+      });
+      expect(Object.isFrozen(record)).toBe(true);
+    });
+
+    it('returns undefined for unknown records', () => {
+      const record = mutator.unstable_getRawRecordWithChanges('<unknown>');
+      expect(record).toEqual(undefined);
+    });
+
+    it('returns null for already deleted records', () => {
+      const record = mutator.unstable_getRawRecordWithChanges('deleted');
+      expect(record).toEqual(null);
+    });
+
+    it('returns null for newly deleted records', () => {
+      mutator.delete('mpk');
+      const record = mutator.unstable_getRawRecordWithChanges('mpk');
+      expect(record).toEqual(null);
+    });
   });
 
   describe('copyFields()', () => {
     it('throws if the source does not exist', () => {
-      expect(() => mutator.copyFields('unfetched', '4')).toFailInvariant(
+      expect(() => mutator.copyFields('unfetched', '4')).toThrowError(
         'RelayRecordSourceMutator#copyFields(): Cannot copy fields from ' +
           'non-existent record `unfetched`.',
       );
     });
 
     it('copies fields between existing records', () => {
-      backupMutator.copyFields('sf', 'mpk');
-      expect(sinkData).toEqual({
+      mutator.copyFields('sf', 'mpk');
+      expect(sinkSource.toJSON()).toEqual({
         mpk: {
           [ID_KEY]: 'mpk',
           [TYPENAME_KEY]: 'Page',
           name: 'San Francisco',
         },
       });
-      expect(Object.keys(backupData)).toEqual(['mpk']);
-      expect(backupData.mpk).toBe(baseData.mpk);
     });
 
     it('copies fields from an existing record to a created record', () => {
-      backupMutator.create('seattle', 'Page');
-      backupMutator.copyFields('sf', 'seattle');
-      expect(sinkData).toEqual({
+      mutator.create('seattle', 'Page');
+      mutator.copyFields('sf', 'seattle');
+      expect(sinkSource.toJSON()).toEqual({
         seattle: {
           [ID_KEY]: 'seattle',
           [TYPENAME_KEY]: 'Page',
           name: 'San Francisco',
         },
       });
-      expect(backupData).toEqual({
-        seattle: UNPUBLISH_RECORD_SENTINEL,
-      });
     });
 
     it('copies fields from a created record to an existing record', () => {
-      backupMutator.create('seattle', 'Page');
-      backupMutator.setValue('seattle', 'name', 'Seattle');
-      backupMutator.copyFields('seattle', 'sf');
-      expect(sinkData).toEqual({
+      mutator.create('seattle', 'Page');
+      mutator.setValue('seattle', 'name', 'Seattle');
+      mutator.copyFields('seattle', 'sf');
+      expect(sinkSource.toJSON()).toEqual({
         seattle: {
           [ID_KEY]: 'seattle',
           [TYPENAME_KEY]: 'Page',
@@ -150,14 +193,11 @@ describe('RelayRecordSourceMutator', () => {
           name: 'Seattle',
         },
       });
-      expect(Object.keys(backupData)).toEqual(['seattle', 'sf']);
-      expect(backupData.sf).toBe(baseData.sf);
-      expect(backupData.seattle).toEqual(UNPUBLISH_RECORD_SENTINEL);
     });
 
     it('copies new fields and create sentinel', () => {
-      backupMutator.copyFields('nyc', 'sf');
-      expect(sinkData).toEqual({
+      mutator.copyFields('nyc', 'sf');
+      expect(sinkSource.toJSON()).toEqual({
         sf: {
           [ID_KEY]: 'sf',
           [TYPENAME_KEY]: 'Page',
@@ -165,17 +205,12 @@ describe('RelayRecordSourceMutator', () => {
           timezone: 'East Time Zone',
         },
       });
-      expect(Object.keys(backupData)).toEqual(['sf']);
-      expect(backupData.sf).toEqual({
-        ...baseData.sf,
-        timezone: UNPUBLISH_FIELD_SENTINEL,
-      });
     });
 
     it('copies fields from a modified record to an existing record', () => {
-      backupMutator.setLinkedRecordID('mpk', 'mayor', 'beast');
-      backupMutator.copyFields('mpk', 'sf');
-      expect(sinkData).toEqual({
+      mutator.setLinkedRecordID('mpk', 'mayor', 'beast');
+      mutator.copyFields('mpk', 'sf');
+      expect(sinkSource.toJSON()).toEqual({
         mpk: {
           [ID_KEY]: 'mpk',
           [TYPENAME_KEY]: 'Page',
@@ -188,15 +223,6 @@ describe('RelayRecordSourceMutator', () => {
           name: 'Menlo Park',
         },
       });
-      expect(Object.keys(backupData)).toEqual(['mpk', 'sf']);
-      expect(backupData.mpk).toEqual({
-        ...baseData.mpk,
-        mayor: UNPUBLISH_FIELD_SENTINEL,
-      });
-      expect(backupData.sf).toEqual({
-        ...baseData.sf,
-        mayor: UNPUBLISH_FIELD_SENTINEL,
-      });
     });
   });
 
@@ -205,7 +231,7 @@ describe('RelayRecordSourceMutator', () => {
       const sourceRecord = initialData['4'];
       expect(() =>
         mutator.copyFieldsFromRecord(sourceRecord, 'unfetched'),
-      ).toFailInvariant(
+      ).toThrowError(
         'RelayRecordSourceMutator: Cannot modify non-existent record ' +
           '`unfetched`.',
       );
@@ -213,16 +239,14 @@ describe('RelayRecordSourceMutator', () => {
 
     it('copies fields to existing records', () => {
       const sourceRecord = initialData.sf;
-      backupMutator.copyFieldsFromRecord(sourceRecord, 'mpk');
-      expect(sinkData).toEqual({
+      mutator.copyFieldsFromRecord(sourceRecord, 'mpk');
+      expect(sinkSource.toJSON()).toEqual({
         mpk: {
           [ID_KEY]: 'mpk',
           [TYPENAME_KEY]: 'Page',
           name: 'San Francisco',
         },
       });
-      expect(Object.keys(backupData)).toEqual(['mpk']);
-      expect(backupData.mpk).toBe(baseData.mpk);
     });
 
     it('copies new fields to existing records', () => {
@@ -231,40 +255,33 @@ describe('RelayRecordSourceMutator', () => {
         [TYPENAME_KEY]: 'Page',
         state: 'California',
       };
-      backupMutator.copyFieldsFromRecord(sourceRecord, 'sf');
-      expect(sinkData).toEqual({
+      mutator.copyFieldsFromRecord(sourceRecord, 'sf');
+      expect(sinkSource.toJSON()).toEqual({
         sf: {
           [ID_KEY]: 'sf',
           [TYPENAME_KEY]: 'Page',
-          name: 'San Francisco',
           state: 'California',
         },
-      });
-      expect(Object.keys(backupData)).toEqual(['sf']);
-      expect(backupData.sf).toEqual({
-        ...baseData.sf,
-        state: UNPUBLISH_FIELD_SENTINEL,
       });
     });
 
     it('copies fields from to a created record', () => {
       const sourceRecord = initialData.sf;
-      backupMutator.create('seattle', 'Page');
-      backupMutator.copyFieldsFromRecord(sourceRecord, 'seattle');
-      expect(sinkData).toEqual({
+      mutator.create('seattle', 'Page');
+      mutator.copyFieldsFromRecord(sourceRecord, 'seattle');
+      expect(sinkSource.toJSON()).toEqual({
         seattle: {
           [ID_KEY]: 'seattle',
           [TYPENAME_KEY]: 'Page',
           name: 'San Francisco',
         },
       });
-      expect(backupData.seattle).toBe(UNPUBLISH_RECORD_SENTINEL);
     });
   });
 
   describe('create()', () => {
     it('throws if the record already exists', () => {
-      expect(() => mutator.create('4', 'User')).toFailInvariant(
+      expect(() => mutator.create('4', 'User')).toThrowError(
         'RelayRecordSourceMutator#create(): Cannot create a record with id ' +
           '`4`, this record already exists.',
       );
@@ -272,7 +289,7 @@ describe('RelayRecordSourceMutator', () => {
 
     it('throws if the record was previously created', () => {
       mutator.create('842472', 'User');
-      expect(() => mutator.create('842472', 'User')).toFailInvariant(
+      expect(() => mutator.create('842472', 'User')).toThrowError(
         'RelayRecordSourceMutator#create(): Cannot create a record with id ' +
           '`842472`, this record already exists.',
       );
@@ -285,14 +302,13 @@ describe('RelayRecordSourceMutator', () => {
       expect(mutator.getValue('842472', 'name')).toBe('Joe');
       expect(sinkSource.has('842472')).toBe(true);
       expect(baseData).toEqual(initialData);
-      expect(sinkData).toEqual({
+      expect(sinkSource.toJSON()).toEqual({
         842472: {
           [ID_KEY]: '842472',
           [TYPENAME_KEY]: 'User',
           name: 'Joe',
         },
       });
-      expect(backupData).toEqual({});
     });
 
     it('creates previously deleted records', () => {
@@ -302,14 +318,13 @@ describe('RelayRecordSourceMutator', () => {
       expect(mutator.getValue('deleted', 'name')).toBe('Zombie');
       expect(sinkSource.has('deleted')).toBe(true);
       expect(baseData).toEqual(initialData);
-      expect(sinkData).toEqual({
+      expect(sinkSource.toJSON()).toEqual({
         deleted: {
           [ID_KEY]: 'deleted',
           [TYPENAME_KEY]: 'User',
           name: 'Zombie',
         },
       });
-      expect(backupData).toEqual({});
     });
 
     it('creates newly deleted records', () => {
@@ -320,7 +335,7 @@ describe('RelayRecordSourceMutator', () => {
       expect(mutator.getValue('842472', 'name')).toBe('Joe');
       expect(sinkSource.has('842472')).toBe(true);
       expect(baseData).toEqual(initialData);
-      expect(sinkData).toEqual({
+      expect(sinkSource.toJSON()).toEqual({
         842472: {
           [ID_KEY]: '842472',
           [TYPENAME_KEY]: 'User',
@@ -331,17 +346,14 @@ describe('RelayRecordSourceMutator', () => {
     });
 
     it('creates an "unpublish" backup record', () => {
-      backupMutator.create('842472', 'User');
+      mutator.create('842472', 'User');
       expect(sinkSource.has('842472')).toBe(true);
       expect(baseData).toEqual(initialData);
-      expect(sinkData).toEqual({
+      expect(sinkSource.toJSON()).toEqual({
         842472: {
           [ID_KEY]: '842472',
           [TYPENAME_KEY]: 'User',
         },
-      });
-      expect(backupData).toEqual({
-        842472: UNPUBLISH_RECORD_SENTINEL,
       });
     });
   });
@@ -363,14 +375,6 @@ describe('RelayRecordSourceMutator', () => {
       expect(baseSource.get('4')).toBe(mark);
       expect(baseSource.get('4')).toEqual(initialData['4']);
       expect(backupData).toEqual({});
-    });
-
-    it('makes a backup record reference in the backup source', () => {
-      const mark = baseSource.get('4');
-      backupMutator.delete('4');
-      const backup = backupSource.get('4');
-      expect(backup).toBe(mark); // Same record (referential equality).
-      expect(backup).toEqual(initialData['4']); // And not mutated.
     });
   });
 
@@ -433,7 +437,7 @@ describe('RelayRecordSourceMutator', () => {
       mutator.setValue('4', 'name', 'Marcus');
       expect(mutator.getValue('4', 'name')).toBe('Marcus');
       expect(baseData).toEqual(initialData);
-      expect(sinkData).toEqual({
+      expect(sinkSource.toJSON()).toEqual({
         4: {
           [ID_KEY]: '4',
           [TYPENAME_KEY]: 'User',
@@ -442,28 +446,11 @@ describe('RelayRecordSourceMutator', () => {
       });
       expect(backupData).toEqual({});
     });
-
-    it('creates a backup of the record', () => {
-      const mark = baseSource.get('4');
-      backupMutator.setValue('4', 'name', 'Marcus');
-      expect(baseData).toEqual(initialData);
-      expect(sinkData).toEqual({
-        4: {
-          [ID_KEY]: '4',
-          [TYPENAME_KEY]: 'User',
-          name: 'Marcus',
-        },
-      });
-      const backup = backupSource.get('4');
-      expect(backup).toBe(mark); // Same record (referential equality).
-      expect(backup).toEqual(initialData['4']); // And not mutated.
-    });
-
     it('mutates multiple fields on a record', () => {
       mutator.setValue('4', 'name', 'Marcus');
       mutator.setValue('4', 'address{"location":"WORK"}', '1601 Willow Road');
       expect(baseData).toEqual(initialData);
-      expect(sinkData).toEqual({
+      expect(sinkSource.toJSON()).toEqual({
         4: {
           [ID_KEY]: '4',
           [TYPENAME_KEY]: 'User',
@@ -477,7 +464,7 @@ describe('RelayRecordSourceMutator', () => {
       mutator.setValue('4', 'name', 'Marcus');
       mutator.setValue('beast', 'name', 'Dog');
       expect(baseData).toEqual(initialData);
-      expect(sinkData).toEqual({
+      expect(sinkSource.toJSON()).toEqual({
         4: {
           [ID_KEY]: '4',
           [TYPENAME_KEY]: 'User',
@@ -495,7 +482,7 @@ describe('RelayRecordSourceMutator', () => {
       mutator.setValue('4', 'name', 'Marcus');
       mutator.setValue('4', 'name', 'Zuck');
       expect(baseData).toEqual(initialData);
-      expect(sinkData).toEqual({
+      expect(sinkSource.toJSON()).toEqual({
         4: {
           [ID_KEY]: '4',
           [TYPENAME_KEY]: 'User',
@@ -509,7 +496,7 @@ describe('RelayRecordSourceMutator', () => {
       mutator.setValue('4', 'name', 'Marcus');
       mutator.setValue('4', 'name', 'Mark');
       expect(baseData).toEqual(initialData);
-      expect(sinkData).toEqual({
+      expect(sinkSource.toJSON()).toEqual({
         4: {
           [ID_KEY]: '4',
           [TYPENAME_KEY]: 'User',
@@ -544,7 +531,7 @@ describe('RelayRecordSourceMutator', () => {
       mutator.setLinkedRecordID('4', 'hometown', 'beast');
       expect(mutator.getLinkedRecordID('4', 'hometown')).toBe('beast');
       expect(baseData).toEqual(initialData);
-      expect(sinkData).toEqual({
+      expect(sinkSource.toJSON()).toEqual({
         4: {
           [ID_KEY]: '4',
           [TYPENAME_KEY]: 'User',
@@ -554,27 +541,11 @@ describe('RelayRecordSourceMutator', () => {
       expect(backupData).toEqual({});
     });
 
-    it('creates a backup of the record', () => {
-      const mark = baseSource.get('4');
-      backupMutator.setLinkedRecordID('4', 'hometown', 'beast');
-      expect(baseData).toEqual(initialData);
-      expect(sinkData).toEqual({
-        4: {
-          [ID_KEY]: '4',
-          [TYPENAME_KEY]: 'User',
-          hometown: {[REF_KEY]: 'beast'},
-        },
-      });
-      const backup = backupSource.get('4');
-      expect(backup).toBe(mark); // Same record (referential equality).
-      expect(backup).toEqual(initialData['4']); // And not mutated.
-    });
-
     it('sets multiple linked record IDs on a record', () => {
       mutator.setLinkedRecordID('4', 'hometown', 'beast');
       mutator.setLinkedRecordID('4', 'pet', 'mpk');
       expect(baseData).toEqual(initialData);
-      expect(sinkData).toEqual({
+      expect(sinkSource.toJSON()).toEqual({
         4: {
           [ID_KEY]: '4',
           [TYPENAME_KEY]: 'User',
@@ -588,7 +559,7 @@ describe('RelayRecordSourceMutator', () => {
       mutator.setLinkedRecordID('4', 'hometown', 'beast');
       mutator.setLinkedRecordID('660361306', 'hometown', 'mpk');
       expect(baseData).toEqual(initialData);
-      expect(sinkData).toEqual({
+      expect(sinkSource.toJSON()).toEqual({
         4: {
           [ID_KEY]: '4',
           [TYPENAME_KEY]: 'User',
@@ -606,7 +577,7 @@ describe('RelayRecordSourceMutator', () => {
       mutator.setLinkedRecordID('4', 'hometown', 'beast');
       mutator.setLinkedRecordID('4', 'hometown', 'sf');
       expect(baseData).toEqual(initialData);
-      expect(sinkData).toEqual({
+      expect(sinkSource.toJSON()).toEqual({
         4: {
           [ID_KEY]: '4',
           [TYPENAME_KEY]: 'User',
@@ -620,7 +591,7 @@ describe('RelayRecordSourceMutator', () => {
       mutator.setLinkedRecordID('4', 'hometown', 'sf');
       mutator.setLinkedRecordID('4', 'hometown', 'mpk');
       expect(baseData).toEqual(initialData);
-      expect(sinkData).toEqual({
+      expect(sinkSource.toJSON()).toEqual({
         4: {
           [ID_KEY]: '4',
           [TYPENAME_KEY]: 'User',
@@ -663,7 +634,7 @@ describe('RelayRecordSourceMutator', () => {
         'mpk',
       ]);
       expect(baseData).toEqual(initialData);
-      expect(sinkData).toEqual({
+      expect(sinkSource.toJSON()).toEqual({
         4: {
           [ID_KEY]: '4',
           [TYPENAME_KEY]: 'User',
@@ -673,27 +644,11 @@ describe('RelayRecordSourceMutator', () => {
       expect(backupData).toEqual({});
     });
 
-    it('creates a backup of modified records', () => {
-      const mark = baseSource.get('4');
-      backupMutator.setLinkedRecordIDs('4', 'administeredPages', ['mpk']);
-      expect(baseData).toEqual(initialData);
-      expect(sinkData).toEqual({
-        4: {
-          [ID_KEY]: '4',
-          [TYPENAME_KEY]: 'User',
-          administeredPages: {[REFS_KEY]: ['mpk']},
-        },
-      });
-      const backup = backupSource.get('4');
-      expect(backup).toBe(mark); // Same record (referential equality).
-      expect(backup).toEqual(initialData['4']); // And not mutated.
-    });
-
     it('sets multiple lists of linked record IDs on a record', () => {
       mutator.setLinkedRecordIDs('4', 'administeredPages', ['mpk']);
       mutator.setLinkedRecordIDs('4', 'blockedPages', []);
       expect(baseData).toEqual(initialData);
-      expect(sinkData).toEqual({
+      expect(sinkSource.toJSON()).toEqual({
         4: {
           [ID_KEY]: '4',
           [TYPENAME_KEY]: 'User',
@@ -707,7 +662,7 @@ describe('RelayRecordSourceMutator', () => {
       mutator.setLinkedRecordIDs('4', 'administeredPages', ['mpk']);
       mutator.setLinkedRecordIDs('660361306', 'blockedPages', ['mpk', 'beast']);
       expect(baseData).toEqual(initialData);
-      expect(sinkData).toEqual({
+      expect(sinkSource.toJSON()).toEqual({
         4: {
           [ID_KEY]: '4',
           [TYPENAME_KEY]: 'User',
@@ -725,7 +680,7 @@ describe('RelayRecordSourceMutator', () => {
       mutator.setLinkedRecordIDs('4', 'administeredPages', ['mpk']);
       mutator.setLinkedRecordIDs('4', 'administeredPages', ['beast', 'mpk']);
       expect(baseData).toEqual(initialData);
-      expect(sinkData).toEqual({
+      expect(sinkSource.toJSON()).toEqual({
         4: {
           [ID_KEY]: '4',
           [TYPENAME_KEY]: 'User',
@@ -739,7 +694,7 @@ describe('RelayRecordSourceMutator', () => {
       mutator.setLinkedRecordIDs('4', 'administeredPages', ['mpk']);
       mutator.setLinkedRecordIDs('4', 'administeredPages', ['beast']);
       expect(baseData).toEqual(initialData);
-      expect(sinkData).toEqual({
+      expect(sinkSource.toJSON()).toEqual({
         4: {
           [ID_KEY]: '4',
           [TYPENAME_KEY]: 'User',
@@ -767,7 +722,7 @@ describe('RelayRecordSourceMutator', () => {
       mutator.setLinkedRecordIDs('4', 'blockedPages', []);
       mutator.setLinkedRecordIDs('660361306', 'blockedPages', ['mpk', 'beast']);
       expect(baseData).toEqual(initialData);
-      expect(sinkData).toEqual({
+      expect(sinkSource.toJSON()).toEqual({
         4: {
           [ID_KEY]: '4',
           [TYPENAME_KEY]: 'User',
@@ -791,62 +746,6 @@ describe('RelayRecordSourceMutator', () => {
         },
       });
       expect(backupData).toEqual({});
-    });
-
-    it('combines the effect of multiple operations with a backup', () => {
-      const mark = baseSource.get('4');
-      const greg = baseSource.get('660361306');
-      backupMutator.setValue('4', 'name', 'Marcus');
-      backupMutator.setValue('4', 'name', 'Marcus Jr.'); // Overwrite.
-      backupMutator.setValue(
-        '4',
-        'address{"location":"WORK"}',
-        '1601 Willow Road',
-      );
-      backupMutator.setValue('beast', 'name', 'Dog');
-      backupMutator.setLinkedRecordID('4', 'hometown', 'beast');
-      backupMutator.setLinkedRecordID('4', 'pet', 'mpk');
-      backupMutator.setLinkedRecordID('4', 'pet', 'beast'); // Reset to original.
-      backupMutator.setLinkedRecordID('660361306', 'hometown', 'mpk');
-      backupMutator.setLinkedRecordIDs('4', 'administeredPages', ['mpk']);
-      backupMutator.setLinkedRecordIDs('4', 'blockedPages', []);
-      backupMutator.setLinkedRecordIDs('660361306', 'blockedPages', [
-        'mpk',
-        'beast',
-      ]);
-      expect(baseData).toEqual(initialData);
-      expect(sinkData).toEqual({
-        4: {
-          [ID_KEY]: '4',
-          [TYPENAME_KEY]: 'User',
-          'address{"location":"WORK"}': '1601 Willow Road',
-          administeredPages: {[REFS_KEY]: ['mpk']},
-          blockedPages: {[REFS_KEY]: []},
-          hometown: {[REF_KEY]: 'beast'},
-          name: 'Marcus Jr.',
-          pet: {[REF_KEY]: 'beast'},
-        },
-        660361306: {
-          [ID_KEY]: '660361306',
-          [TYPENAME_KEY]: 'User',
-          blockedPages: {[REFS_KEY]: ['mpk', 'beast']},
-          hometown: {[REF_KEY]: 'mpk'},
-        },
-        beast: {
-          [ID_KEY]: 'beast',
-          [TYPENAME_KEY]: 'Page',
-          name: 'Dog',
-        },
-      });
-      const markBackup = backupSource.get('4');
-      expect(markBackup).toBe(mark); // Same record (referential equality).
-      expect(markBackup).toEqual(initialData['4']); // And not mutated.
-      const gregBackup = backupSource.get('660361306');
-      expect(gregBackup).toEqual({
-        ...greg,
-        blockedPages: UNPUBLISH_FIELD_SENTINEL,
-        hometown: UNPUBLISH_FIELD_SENTINEL,
-      });
     });
   });
 });

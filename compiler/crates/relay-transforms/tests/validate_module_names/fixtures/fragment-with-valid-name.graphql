@@ -1,0 +1,11 @@
+fragment fragmentWithValidName_fragment on User {
+    name
+}
+
+fragment fragmentWithValidNameFragment on User {
+    name
+}
+
+fragment fragmentWithValidName on User {
+    name
+}

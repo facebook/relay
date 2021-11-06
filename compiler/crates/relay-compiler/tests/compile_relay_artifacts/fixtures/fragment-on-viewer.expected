@@ -1,0 +1,265 @@
+==================================== INPUT ====================================
+fragment fragmentOnViewer_RefetchableFragment on Viewer
+  @refetchable(queryName: "RefetchableFragmentQuery") {
+  actor {
+    id
+    name
+    ...fragmentOnViewer_ProfilePicture
+  }
+}
+
+fragment fragmentOnViewer_ProfilePicture on User {
+  profilePicture(size: $size) {
+    uri
+  }
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "size"
+      }
+    ],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "RefetchableFragmentQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "Viewer",
+        "kind": "LinkedField",
+        "name": "viewer",
+        "plural": false,
+        "selections": [
+          {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "fragmentOnViewer_RefetchableFragment"
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "size"
+      }
+    ],
+    "kind": "Operation",
+    "name": "RefetchableFragmentQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "Viewer",
+        "kind": "LinkedField",
+        "name": "viewer",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "concreteType": null,
+            "kind": "LinkedField",
+            "name": "actor",
+            "plural": false,
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "__typename",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "id",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "name",
+                "storageKey": null
+              },
+              {
+                "kind": "InlineFragment",
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": [
+                      {
+                        "kind": "Variable",
+                        "name": "size",
+                        "variableName": "size"
+                      }
+                    ],
+                    "concreteType": "Image",
+                    "kind": "LinkedField",
+                    "name": "profilePicture",
+                    "plural": false,
+                    "selections": [
+                      {
+                        "alias": null,
+                        "args": null,
+                        "kind": "ScalarField",
+                        "name": "uri",
+                        "storageKey": null
+                      }
+                    ],
+                    "storageKey": null
+                  }
+                ],
+                "type": "User",
+                "abstractKey": null
+              }
+            ],
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {},
+    "name": "RefetchableFragmentQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query RefetchableFragmentQuery(
+  $size: [Int]
+) {
+  viewer {
+    ...fragmentOnViewer_RefetchableFragment
+  }
+}
+
+fragment fragmentOnViewer_ProfilePicture on User {
+  profilePicture(size: $size) {
+    uri
+  }
+}
+
+fragment fragmentOnViewer_RefetchableFragment on Viewer {
+  actor {
+    __typename
+    id
+    name
+    ...fragmentOnViewer_ProfilePicture
+  }
+}
+
+
+{
+  "argumentDefinitions": [
+    {
+      "kind": "RootArgument",
+      "name": "size"
+    }
+  ],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "fragmentOnViewer_ProfilePicture",
+  "selections": [
+    {
+      "alias": null,
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "size",
+          "variableName": "size"
+        }
+      ],
+      "concreteType": "Image",
+      "kind": "LinkedField",
+      "name": "profilePicture",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "uri",
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}
+
+{
+  "argumentDefinitions": [
+    {
+      "kind": "RootArgument",
+      "name": "size"
+    }
+  ],
+  "kind": "Fragment",
+  "metadata": {
+    "refetch": {
+      "connection": null,
+      "fragmentPathInResult": [
+        "viewer"
+      ],
+      "operation": require('RefetchableFragmentQuery.graphql')
+    }
+  },
+  "name": "fragmentOnViewer_RefetchableFragment",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "concreteType": null,
+      "kind": "LinkedField",
+      "name": "actor",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "id",
+          "storageKey": null
+        },
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "name",
+          "storageKey": null
+        },
+        {
+          "args": null,
+          "kind": "FragmentSpread",
+          "name": "fragmentOnViewer_ProfilePicture"
+        }
+      ],
+      "storageKey": null
+    }
+  ],
+  "type": "Viewer",
+  "abstractKey": null
+}

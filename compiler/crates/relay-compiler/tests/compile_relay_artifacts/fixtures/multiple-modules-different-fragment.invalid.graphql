@@ -1,0 +1,31 @@
+# expected-to-throw
+query multipleModulesDifferentFragment_MatchQuery {
+  node(id: "<user-id>") {
+    ... on Actor {
+      nameRenderer {
+        ...multipleModulesDifferentFragment_MarkdownUserNameRenderer_name
+          @module(name: "MarkdownUserNameRenderer.react")
+      }
+    }
+    ... on User {
+      nameRenderer {
+        ...multipleModulesDifferentFragment_OtherMarkdownUserNameRenderer_name
+          @module(name: "MarkdownUserNameRenderer.react")
+      }
+    }
+  }
+}
+
+fragment multipleModulesDifferentFragment_MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+  }
+}
+
+fragment multipleModulesDifferentFragment_OtherMarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+  }
+}

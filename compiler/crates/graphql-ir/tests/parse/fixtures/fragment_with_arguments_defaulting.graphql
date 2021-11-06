@@ -1,0 +1,14 @@
+fragment TestFragment on Query @argumentDefinitions(
+  # show that setting a default value allows this `ID` to be passed to `ID!`
+  defaultedID: {type: "ID", defaultValue: ""}
+) {
+  ...F2 @arguments(nonnullID: $defaultedID)
+}
+
+fragment F2 on Query @argumentDefinitions(
+  nonnullID: {type: "ID!"}
+) {
+  node_id_required(id: $nonnullID) {
+    __typename
+  }
+}

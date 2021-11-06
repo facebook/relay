@@ -1,0 +1,15 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment ScalarHandleField on User {
+  name {
+    id
+  }
+}
+==================================== ERROR ====================================
+✖︎ Expected no selections on scalar field `name` of type `User`
+
+  scalar-field-with-selection.graphql:3:3
+    2 │ fragment ScalarHandleField on User {
+    3 │   name {
+      │   ^^^^
+    4 │     id

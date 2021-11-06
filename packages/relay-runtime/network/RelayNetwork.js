@@ -1,30 +1,31 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
+ * @flow strict-local
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
-const RelayObservable = require('RelayObservable');
-
-const invariant = require('invariant');
-
-const {convertFetch, convertSubscribe} = require('ConvertToExecuteFunction');
-
+import type {RequestParameters} from '../util/RelayConcreteNode';
 import type {CacheConfig, Variables} from '../util/RelayRuntimeTypes';
-import type {RequestNode} from 'RelayConcreteNode';
 import type {
   FetchFunction,
-  Network,
-  ExecutePayload,
+  GraphQLResponse,
+  INetwork,
+  LogRequestInfoFunction,
   SubscribeFunction,
   UploadableMap,
-} from 'RelayNetworkTypes';
+} from './RelayNetworkTypes';
+import type RelayObservable from './RelayObservable';
+
+const {convertFetch} = require('./ConvertToExecuteFunction');
+const invariant = require('invariant');
 
 /**
  * Creates an implementation of the `Network` interface defined in
@@ -32,23 +33,21 @@ import type {
  */
 function create(
   fetchFn: FetchFunction,
-  subscribeFn?: SubscribeFunction,
-): Network {
+  subscribe?: SubscribeFunction,
+): INetwork {
   // Convert to functions that returns RelayObservable.
   const observeFetch = convertFetch(fetchFn);
-  const observeSubscribe = subscribeFn
-    ? convertSubscribe(subscribeFn)
-    : undefined;
 
   function execute(
-    request: RequestNode,
+    request: RequestParameters,
     variables: Variables,
     cacheConfig: CacheConfig,
     uploadables?: ?UploadableMap,
-  ): RelayObservable<ExecutePayload> {
+    logRequestInfo: ?LogRequestInfoFunction,
+  ): RelayObservable<GraphQLResponse> {
     if (request.operationKind === 'subscription') {
       invariant(
-        observeSubscribe,
+        subscribe,
         'RelayNetwork: This network layer does not support Subscriptions. ' +
           'To use Subscriptions, provide a custom network layer.',
       );
@@ -57,7 +56,7 @@ function create(
         !uploadables,
         'RelayNetwork: Cannot provide uploadables while subscribing.',
       );
-      return observeSubscribe(request, variables, cacheConfig);
+      return subscribe(request, variables, cacheConfig);
     }
 
     const pollInterval = cacheConfig.poll;
@@ -69,7 +68,13 @@ function create(
       return observeFetch(request, variables, {force: true}).poll(pollInterval);
     }
 
-    return observeFetch(request, variables, cacheConfig, uploadables);
+    return observeFetch(
+      request,
+      variables,
+      cacheConfig,
+      uploadables,
+      logRequestInfo,
+    );
   }
 
   return {execute};

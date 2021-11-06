@@ -1,0 +1,48 @@
+==================================== INPUT ====================================
+fragment RefetchableFragment on User
+  @refetchable(queryName: "RefetchableFragmentQuery") {
+  id
+  name
+  ...ProfilePicture
+}
+
+fragment ProfilePicture on User {
+  profilePicture(size: $size) {
+    uri
+  }
+}
+==================================== OUTPUT ===================================
+query RefetchableFragmentQuery(
+  $size: [Int]
+  $id: ID!
+) @__RefetchableDerivedFromMetadata
+# RefetchableDerivedFromMetadata(
+#     "RefetchableFragment",
+# )
+ {
+  node(id: $id) {
+    ...RefetchableFragment
+  }
+}
+
+fragment ProfilePicture on User {
+  profilePicture(size: $size) {
+    uri
+  }
+}
+
+fragment RefetchableFragment on User @refetchable(queryName: "RefetchableFragmentQuery") @__RefetchableMetadata
+# RefetchableMetadata {
+#     operation_name: "RefetchableFragmentQuery",
+#     path: [
+#         "node",
+#     ],
+#     identifier_field: Some(
+#         "id",
+#     ),
+# }
+ {
+  id
+  name
+  ...ProfilePicture
+}

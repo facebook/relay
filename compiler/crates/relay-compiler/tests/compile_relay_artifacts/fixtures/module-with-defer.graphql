@@ -1,0 +1,20 @@
+query moduleWithDefer_MultipleNameRendererQuery($id: ID!) {
+  node(id: $id) {
+    ...moduleWithDefer_FooNameRendererFragment
+  }
+}
+
+fragment moduleWithDefer_FooNameRendererFragment on User {
+  id
+  nameRenderer {
+    ...moduleWithDefer_MarkdownUserNameRenderer_name
+        @module(name: "FooMarkdownUserNameRenderer.react") @defer
+  }
+}
+
+fragment moduleWithDefer_MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+  }
+}

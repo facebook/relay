@@ -1,0 +1,47 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query NodeQuery($id: ID!, $first: Int, $after: ID) {
+  node(id: $id) {
+    id
+    ... on User {
+      badConnection(first: $first, after: $after) @connection(key: "NodeQuery_badConnection") {
+        edges
+      }
+    }
+  }
+}
+
+# %extensions%
+extend type User {
+  badConnection(after: ID, before: ID, first: Int, last: Int): BadConnection
+}
+
+type BadConnection {
+  count: Int
+  edges: [Int]
+  pageInfo: BadConnectionPageInfo
+}
+
+type BadConnectionEdge {
+  cursor: String
+  node: BadConnectionNode
+}
+
+type BadConnectionNode {
+  id: ID
+}
+
+type BadConnectionPageInfo {
+  hasPrevPage: Boolean
+  hasNextPage: Boolean
+  endCursor: String
+  startCursor: String
+}
+==================================== ERROR ====================================
+✖︎ Expected 'badConnection' to have a 'edges' selection.
+
+  connection-invalid-edges-list-type.invalid.graphql:6:7
+    5 │     ... on User {
+    6 │       badConnection(first: $first, after: $after) @connection(key: "NodeQuery_badConnection") {
+      │       ^^^^^^^^^^^^^
+    7 │         edges

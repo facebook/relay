@@ -1,0 +1,138 @@
+==================================== INPUT ====================================
+mutation Mutation(
+  $variable: ID = null @some_directive
+) {
+  field
+}
+==================================== OUTPUT ===================================
+ExecutableDocument {
+    span: 0:72,
+    definitions: [
+        OperationDefinition {
+            location: variable-definition-with-directive.graphql:0:71,
+            operation: Some(
+                (
+                    Token {
+                        span: 0:8,
+                        kind: Identifier,
+                    },
+                    Mutation,
+                ),
+            ),
+            name: Some(
+                Identifier {
+                    span: 9:17,
+                    token: Token {
+                        span: 9:17,
+                        kind: Identifier,
+                    },
+                    value: "Mutation",
+                },
+            ),
+            variable_definitions: Some(
+                List {
+                    span: 17:59,
+                    start: Token {
+                        span: 17:18,
+                        kind: OpenParen,
+                    },
+                    items: [
+                        VariableDefinition {
+                            span: 21:57,
+                            name: VariableIdentifier {
+                                span: 21:30,
+                                token: Token {
+                                    span: 22:30,
+                                    kind: Identifier,
+                                },
+                                name: "variable",
+                            },
+                            colon: Token {
+                                span: 30:31,
+                                kind: Colon,
+                            },
+                            type_: Named(
+                                NamedTypeAnnotation {
+                                    name: Identifier {
+                                        span: 32:34,
+                                        token: Token {
+                                            span: 32:34,
+                                            kind: Identifier,
+                                        },
+                                        value: "ID",
+                                    },
+                                },
+                            ),
+                            default_value: Some(
+                                DefaultValue {
+                                    span: 35:41,
+                                    equals: Token {
+                                        span: 35:36,
+                                        kind: Equals,
+                                    },
+                                    value: Null(
+                                        Token {
+                                            span: 37:41,
+                                            kind: Identifier,
+                                        },
+                                    ),
+                                },
+                            ),
+                            directives: [
+                                Directive {
+                                    span: 42:57,
+                                    at: Token {
+                                        span: 42:43,
+                                        kind: At,
+                                    },
+                                    name: Identifier {
+                                        span: 43:57,
+                                        token: Token {
+                                            span: 43:57,
+                                            kind: Identifier,
+                                        },
+                                        value: "some_directive",
+                                    },
+                                    arguments: None,
+                                },
+                            ],
+                        },
+                    ],
+                    end: Token {
+                        span: 58:59,
+                        kind: CloseParen,
+                    },
+                },
+            ),
+            directives: [],
+            selections: List {
+                span: 60:71,
+                start: Token {
+                    span: 60:61,
+                    kind: OpenBrace,
+                },
+                items: [
+                    ScalarField {
+                        span: 64:69,
+                        alias: None,
+                        name: Identifier {
+                            span: 64:69,
+                            token: Token {
+                                span: 64:69,
+                                kind: Identifier,
+                            },
+                            value: "field",
+                        },
+                        arguments: None,
+                        directives: [],
+                    },
+                ],
+                end: Token {
+                    span: 70:71,
+                    kind: CloseBrace,
+                },
+            },
+        },
+    ],
+}
+Errors:

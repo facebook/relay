@@ -1,0 +1,28 @@
+fragment Bar on Node {
+  # Since __typename is omitted here, we will end up with a single object type
+  # rather than a union type. Even though `name` is @required, it will still be
+  # nullable in the collapsed object's type since the object may not match `User`.
+  ... on User {
+    name @required(action: LOG)
+  }
+  ... on Comment {
+    body {
+      text
+    }
+  }
+}
+
+fragment Foo on Node {
+  __typename
+  ... on User {
+    # Ideally this would only cause the `__typename == 'User'` case to become
+    # nullable, but currently it just makes the entire union type nullable. Not
+    # ideal, but tollerable.
+    name @required(action: LOG)
+  }
+  ... on Comment {
+    body {
+      text
+    }
+  }
+}

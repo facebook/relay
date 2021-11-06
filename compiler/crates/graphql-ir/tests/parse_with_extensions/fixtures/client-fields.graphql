@@ -1,0 +1,46 @@
+query BestFriendsQuery($id: ID!) {
+  node(id: $id) {
+    ...BestFriends
+  }
+}
+
+fragment BestFriends on User {
+  # this is the only field that is part of the base schema
+  id
+  # fields defined in type extensions are skipped
+  best_friends {
+    edges {
+      cursor
+      node {
+        id
+      }
+    }
+    pageInfo {
+      hasNextPage
+    }
+  }
+  ... on User {
+    foo {
+      # fragments on extension types are skipped
+      ...FooFragment
+      ... on Foo {
+        id
+      }
+    }
+  }
+}
+
+fragment FooFragment on Foo {
+  id
+}
+
+# %extensions%
+
+extend type User {
+  best_friends: FriendsConnection
+  foo: Foo
+}
+
+type Foo {
+  id: ID!
+}

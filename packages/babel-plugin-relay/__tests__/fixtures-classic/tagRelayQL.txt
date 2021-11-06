@@ -1,8 +1,0 @@
-var RelayQL = require('react-relay/RelayQL');
-var x = RelayQL`
-  query {
-    node(id: 123) {
-      id
-    }
-  }
-`;

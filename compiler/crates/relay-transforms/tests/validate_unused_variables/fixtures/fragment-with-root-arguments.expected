@@ -1,0 +1,18 @@
+==================================== INPUT ====================================
+query QueryWithId($id: ID) {
+  node(id: $id) {
+    ... on User {
+      name
+    }
+  }
+}
+
+query QueryWithCondition($shouldIncludeName: Boolean!) {
+  node {
+    ... on User {
+      name @include(if: $shouldIncludeName)
+    }
+  }
+}
+==================================== OUTPUT ===================================
+OK

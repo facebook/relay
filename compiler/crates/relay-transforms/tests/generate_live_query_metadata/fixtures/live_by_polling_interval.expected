@@ -1,0 +1,28 @@
+==================================== INPUT ====================================
+query NodeQuery($id: ID!) @live_query(polling_interval: 1000) {
+  node(id: $id) {
+    id
+    ... on User {
+      birthdate {
+        day
+        month
+        year
+      }
+    }
+  }
+}
+==================================== OUTPUT ===================================
+query NodeQuery(
+  $id: ID!
+) @live_query(polling_interval: 1000) @__metadata(live: {polling_interval: 1000}) {
+  node(id: $id) {
+    id
+    ... on User {
+      birthdate {
+        day
+        month
+        year
+      }
+    }
+  }
+}

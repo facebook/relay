@@ -1,0 +1,12 @@
+mutation SimpleMutation @relay_test_operation {
+  commentCreate(input: null) {
+    feedback {
+      id
+      actor {
+        ... on Actor {
+          name
+        }
+      }
+    }
+  }
+}

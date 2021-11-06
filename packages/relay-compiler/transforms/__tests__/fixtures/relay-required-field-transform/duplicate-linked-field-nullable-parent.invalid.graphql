@@ -1,0 +1,16 @@
+# expected-to-throw
+fragment Foo on User {
+  ... on User {
+    hometown {
+      name @required(action: LOG)
+      address {
+        __typename
+      }
+    }
+  }
+  hometown {
+    address {
+      __typename
+    }
+  }
+}

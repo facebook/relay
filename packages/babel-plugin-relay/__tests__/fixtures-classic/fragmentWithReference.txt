@@ -1,2 +1,0 @@
-var Relay = require('react-relay');
-var x = Relay.QL`fragment on Node { ${reference} }`;

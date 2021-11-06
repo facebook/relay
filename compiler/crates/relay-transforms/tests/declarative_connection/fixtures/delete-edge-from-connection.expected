@@ -1,0 +1,18 @@
+==================================== INPUT ====================================
+mutation CommentDeleteMutation(
+  $input: CommentDeleteInput
+  $connections: [ID!]!
+) {
+  commentDelete(input: $input) {
+    deletedCommentId @deleteEdge(connections: $connections)
+  }
+}
+==================================== OUTPUT ===================================
+mutation CommentDeleteMutation(
+  $input: CommentDeleteInput
+  $connections: [ID!]!
+) {
+  commentDelete(input: $input) {
+    deletedCommentId @deleteEdge(connections: $connections) @__clientField(key: "", handle: "deleteEdge", filters: null, dynamicKey_UNSTABLE: null, handleArgs: {connections: $connections})
+  }
+}

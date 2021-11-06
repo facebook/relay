@@ -1,0 +1,21 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query NodeQuery($id: ID!, $first: Int, $after: ID) {
+  node(id: $id) {
+    id
+    ... on Story {
+      comments(first: $first, after: $after)
+        @connection(key: "NodeQuery_comments") {
+        count
+      }
+    }
+  }
+}
+==================================== ERROR ====================================
+✖︎ Expected 'comments' to have a 'edges' selection.
+
+  connection-missing-edges-selection.invalid.graphql:6:7
+    5 │     ... on Story {
+    6 │       comments(first: $first, after: $after)
+      │       ^^^^^^^^
+    7 │         @connection(key: "NodeQuery_comments") {

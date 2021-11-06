@@ -1,0 +1,58 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query moduleOverlapWithinDocument_MultipleNameRendererQuery($id: ID!) {
+  node(id: $id) {
+    ...moduleOverlapWithinDocument_FooNameRendererFragment
+    ...moduleOverlapWithinDocument_BarNameRendererFragment
+  }
+}
+
+fragment moduleOverlapWithinDocument_FooNameRendererFragment on User {
+  id
+  nameRenderer {
+    ...moduleOverlapWithinDocument_MarkdownUserNameRenderer_name
+      @module(name: "FooMarkdownUserNameRenderer.react")
+    ...moduleOverlapWithinDocument_PlainUserNameRenderer_name
+      @module(name: "FooPlainUserNameRenderer.react")
+  }
+}
+
+fragment moduleOverlapWithinDocument_BarNameRendererFragment on User {
+  # same field alias as above and using standalone @module, so this should
+  # flatten with the above selections even though the supported types are
+  # different
+  nameRenderer {
+    ...moduleOverlapWithinDocument_MarkdownUserNameRenderer_name
+      @module(name: "BarMarkdownUserNameRenderer.react")
+  }
+}
+
+fragment moduleOverlapWithinDocument_PlainUserNameRenderer_name on PlainUserNameRenderer {
+  plaintext
+  data {
+    text
+  }
+}
+
+fragment moduleOverlapWithinDocument_MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+  }
+}
+==================================== ERROR ====================================
+✖︎ Each field on a given type can have only a single @module directive, but here there is more than one (perhaps within different spreads). To fix it, put each @module directive into its own aliased copy of the field with different aliases.
+
+  module-overlap-within-document.invalid.graphql:25:7
+   24 │     ...moduleOverlapWithinDocument_MarkdownUserNameRenderer_name
+   25 │       @module(name: "BarMarkdownUserNameRenderer.react")
+      │       ^^^^^^^
+   26 │   }
+
+  ℹ︎ conflicts with
+
+  module-overlap-within-document.invalid.graphql:13:7
+   12 │     ...moduleOverlapWithinDocument_MarkdownUserNameRenderer_name
+   13 │       @module(name: "FooMarkdownUserNameRenderer.react")
+      │       ^^^^^^^
+   14 │     ...moduleOverlapWithinDocument_PlainUserNameRenderer_name

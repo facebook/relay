@@ -1,0 +1,237 @@
+==================================== INPUT ====================================
+query queryWithRelayClientComponent_Query($id: ID!, $size: [Int]) {
+  node(id: $id) {
+    id
+    ...queryWithRelayClientComponent_ClientComponentFragment
+      @relay_client_component
+  }
+}
+
+fragment queryWithRelayClientComponent_ClientComponentFragment on User {
+  name
+  profilePicture(size: $size) {
+    uri
+  }
+}
+==================================== OUTPUT ===================================
+{
+  "kind": "SplitOperation",
+  "metadata": {},
+  "name": "queryWithRelayClientComponent_ClientComponentFragment$normalization",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "name",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "size",
+          "variableName": "size"
+        }
+      ],
+      "concreteType": "Image",
+      "kind": "LinkedField",
+      "name": "profilePicture",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "uri",
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    }
+  ]
+}
+
+{
+  "fragment": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "id"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "size"
+      }
+    ],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "queryWithRelayClientComponent_Query",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          },
+          {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "queryWithRelayClientComponent_ClientComponentFragment"
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "id"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "size"
+      }
+    ],
+    "kind": "Operation",
+    "name": "queryWithRelayClientComponent_Query",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "__typename",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          },
+          {
+            "args": null,
+            "fragment": require('queryWithRelayClientComponent_ClientComponentFragment$normalization.graphql'),
+            "kind": "ClientComponent"
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {},
+    "name": "queryWithRelayClientComponent_Query",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query queryWithRelayClientComponent_Query(
+  $id: ID!
+  $size: [Int]
+) {
+  node(id: $id) {
+    __typename
+    id
+    ...queryWithRelayClientComponent_ClientComponentFragment @relay_client_component_server(module_id: "queryWithRelayClientComponent_ClientComponentFragment$normalization.graphql")
+  }
+}
+
+fragment queryWithRelayClientComponent_ClientComponentFragment on User {
+  name
+  profilePicture(size: $size) {
+    uri
+  }
+}
+
+
+{
+  "argumentDefinitions": [
+    {
+      "kind": "RootArgument",
+      "name": "size"
+    }
+  ],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "queryWithRelayClientComponent_ClientComponentFragment",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "name",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "size",
+          "variableName": "size"
+        }
+      ],
+      "concreteType": "Image",
+      "kind": "LinkedField",
+      "name": "profilePicture",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "uri",
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}

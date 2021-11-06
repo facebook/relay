@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -10,30 +10,14 @@
 
 'use strict';
 
+const {getFragmentScope, getRootScope} = require('../RelayCompilerScope');
+const {TestSchema} = require('relay-test-utils-internal');
+
 describe('scope', () => {
-  let GraphQL;
-  let RelayCompilerScope;
-  let RelayTestSchema;
+  const schema = TestSchema;
 
-  let GraphQLNonNull;
-  let getFragmentScope;
-  let getRootScope;
-  let optionalIntType;
-  let requiredIntType;
-
-  beforeEach(() => {
-    jest.resetModules();
-
-    GraphQL = require('graphql');
-    RelayCompilerScope = require('RelayCompilerScope');
-    RelayTestSchema = require('RelayTestSchema');
-
-    ({GraphQLNonNull} = GraphQL);
-    ({getFragmentScope, getRootScope} = RelayCompilerScope);
-
-    optionalIntType = RelayTestSchema.getType('Int');
-    requiredIntType = new GraphQLNonNull(optionalIntType);
-  });
+  const optionalIntType = schema.expectIntType();
+  const requiredIntType = schema.getNonNullType(schema.expectIntType());
 
   describe('getRootScope()', () => {
     it('creates variables for optional definitions with defaults', () => {
@@ -109,12 +93,20 @@ describe('scope', () => {
       const outerScope = {
         outerSize: {kind: 'Variable', name: 'var'},
       };
-      const fragmentName = 'FragmentName';
+      const fragmentSpread = {
+        args: calls,
+        directives: [],
+        kind: 'FragmentSpread',
+        loc: {kind: 'Unknown'},
+        metadata: null,
+        name: '<name>',
+      };
       const innerScope = getFragmentScope(
+        schema,
         definitions,
         calls,
         outerScope,
-        fragmentName,
+        fragmentSpread,
       );
       expect(innerScope).toEqual({
         size: outerScope.outerSize,
@@ -147,12 +139,20 @@ describe('scope', () => {
       const outerScope = {
         outerSize: {kind: 'Literal', value: 42},
       };
-      const fragmentName = 'FragmentName';
+      const fragmentSpread = {
+        args: calls,
+        directives: [],
+        kind: 'FragmentSpread',
+        loc: {kind: 'Unknown'},
+        metadata: null,
+        name: '<name>',
+      };
       const innerScope = getFragmentScope(
+        schema,
         definitions,
         calls,
         outerScope,
-        fragmentName,
+        fragmentSpread,
       );
       expect(innerScope).toEqual({
         size: outerScope.outerSize,
@@ -184,12 +184,20 @@ describe('scope', () => {
         },
       ];
       const outerScope = {};
-      const fragmentName = 'FragmentName';
+      const fragmentSpread = {
+        args: calls,
+        directives: [],
+        kind: 'FragmentSpread',
+        loc: {kind: 'Unknown'},
+        metadata: null,
+        name: '<name>',
+      };
       const innerScope = getFragmentScope(
+        schema,
         definitions,
         calls,
         outerScope,
-        fragmentName,
+        fragmentSpread,
       );
       expect(innerScope).toEqual({
         size: literal,
@@ -214,12 +222,20 @@ describe('scope', () => {
       ];
       const calls = [];
       const outerScope = {};
-      const fragmentName = 'FragmentName';
+      const fragmentSpread = {
+        args: calls,
+        directives: [],
+        kind: 'FragmentSpread',
+        loc: {kind: 'Unknown'},
+        metadata: null,
+        name: '<name>',
+      };
       const innerScope = getFragmentScope(
+        schema,
         definitions,
         calls,
         outerScope,
-        fragmentName,
+        fragmentSpread,
       );
       expect(innerScope).toEqual({
         size: literal,
@@ -243,13 +259,23 @@ describe('scope', () => {
       ];
       const calls = [];
       const outerScope = {};
-      const fragmentName = 'FragmentName';
+      const fragmentSpread = {
+        args: calls,
+        directives: [],
+        kind: 'FragmentSpread',
+        loc: {kind: 'Unknown'},
+        metadata: null,
+        name: '<name>',
+      };
       expect(() => {
-        getFragmentScope(definitions, calls, outerScope, fragmentName);
-      }).toThrow(
-        'RelayCompilerScope: No value found for required argument ' +
-          '`$size: Int!` in `FragmentName`.',
-      );
+        getFragmentScope(
+          schema,
+          definitions,
+          calls,
+          outerScope,
+          fragmentSpread,
+        );
+      }).toThrowErrorMatchingSnapshot();
     });
 
     /**
@@ -268,16 +294,25 @@ describe('scope', () => {
       ];
       const calls = [];
       const outerScope = {};
-      const fragmentName = 'FragmentName';
+      const fragmentSpread = {
+        args: calls,
+        directives: [],
+        kind: 'FragmentSpread',
+        loc: {kind: 'Unknown'},
+        metadata: null,
+        name: '<name>',
+      };
       const innerScope = getFragmentScope(
+        schema,
         definitions,
         calls,
         outerScope,
-        fragmentName,
+        fragmentSpread,
       );
       expect(innerScope).toEqual({
         size: {
           kind: 'Variable',
+          type: requiredIntType,
           variableName: 'size',
         },
       });
@@ -309,14 +344,73 @@ describe('scope', () => {
         },
       ];
       const outerScope = {};
-      const fragmentName = 'FragmentName';
+      const fragmentSpread = {
+        args: calls,
+        directives: [],
+        kind: 'FragmentSpread',
+        loc: {kind: 'Unknown'},
+        metadata: null,
+        name: '<name>',
+      };
       expect(() => {
-        getFragmentScope(definitions, calls, outerScope, fragmentName);
-      }).toThrow(
-        'RelayCompilerScope: Unexpected argument for global variable `size` ' +
-          'for `FragmentName`. @arguments may only be provided for ' +
-          "variables defined in the fragment's @argumentDefinitions list.",
+        getFragmentScope(
+          schema,
+          definitions,
+          calls,
+          outerScope,
+          fragmentSpread,
+        );
+      }).toThrowErrorMatchingSnapshot();
+    });
+
+    /**
+     * defs: size: Int = 42
+     * args: unknown: 42
+     * parentScope: n/a
+     * => {size: 42} // ignore unknown variables
+     */
+    it('ignores unknown arguments', () => {
+      const definitions = [
+        {
+          kind: 'LocalArgumentDefinition',
+          name: 'size',
+          type: requiredIntType,
+          defaultValue: 42,
+        },
+      ];
+      const calls = [
+        {
+          kind: 'Argument',
+          name: 'unknown',
+          value: {
+            kind: 'Literal',
+            value: 42,
+          },
+          type: requiredIntType,
+        },
+      ];
+      const outerScope = {};
+      const fragmentSpread = {
+        args: calls,
+        directives: [],
+        kind: 'FragmentSpread',
+        loc: {kind: 'Unknown'},
+        metadata: null,
+        name: '<name>',
+      };
+      const innerScope = getFragmentScope(
+        schema,
+        definitions,
+        calls,
+        outerScope,
+        fragmentSpread,
       );
+      expect(innerScope).toEqual({
+        size: {
+          kind: 'Literal',
+          value: 42,
+        },
+      });
     });
   });
 });

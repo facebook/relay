@@ -1,0 +1,48 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query NodeQuery($id: ID!) {
+  node(id: $id) {
+    id
+    ... on Story {
+      clientComments(first: 10)
+        @stream_connection(
+          key: "NodeQuery_clientComments"
+          initial_count: 0
+          label: "comments"
+        ) {
+        edges {
+          node {
+            actor {
+              name
+            }
+          }
+        }
+        pageInfo {
+          endCursor
+          hasNextPage
+        }
+      }
+    }
+  }
+}
+
+# %extensions%
+extend type Story {
+  clientComments(first: Int, last: Int, orderby: String): CommentsConnection
+}
+==================================== ERROR ====================================
+✖︎ Unexpected directive: 'stream_connection'. This directive can only be used on fields/fragments that are fetched from the server schema, but it is used inside a client-only selection.
+
+  stream-connection-on-client.invalid.graphql:7:9
+    6 │       clientComments(first: 10)
+    7 │         @stream_connection(
+      │         ^^^^^^^^^^^^^^^^^^
+    8 │           key: "NodeQuery_clientComments"
+
+  ℹ︎ related location
+
+  stream-connection-on-client.invalid.graphql:6:7
+    5 │     ... on Story {
+    6 │       clientComments(first: 10)
+      │       ^^^^^^^^^^^^^^
+    7 │         @stream_connection(

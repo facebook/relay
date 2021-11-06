@@ -1,0 +1,63 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment fragmentOnQueryWithCycle_RefetchableFragment on Query
+  @refetchable(queryName: "RefetchableFragmentQuery")
+  @argumentDefinitions(id: {type: "ID!"}) {
+  node(id: $id) {
+    ... on User {
+      id
+      name
+      ...fragmentOnQueryWithCycle_Profile @arguments(includeProfile: true)
+    }
+  }
+}
+
+fragment fragmentOnQueryWithCycle_Profile on User
+  @argumentDefinitions(
+    includeProfile: {type: "Boolean!", defaultValue: false}
+  ) {
+  id
+  name
+  profilePicture(size: $pictureSize) @include(if: $includeProfile) {
+    uri
+  }
+  friends(first: $count) {
+    edges {
+      node {
+        ...fragmentOnQueryWithCycle_Profile
+      }
+    }
+  }
+}
+==================================== ERROR ====================================
+✖︎ Found a circular reference from fragment 'fragmentOnQueryWithCycle_Profile'.
+
+  fragment-on-query-with-cycle.invalid.graphql:26:12
+   25 │       node {
+   26 │         ...fragmentOnQueryWithCycle_Profile
+      │            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   27 │       }
+
+  ℹ︎ other member of the cycle
+
+  fragment-on-query-with-cycle.invalid.graphql:2:10
+    1 │ # expected-to-throw
+    2 │ fragment fragmentOnQueryWithCycle_RefetchableFragment on Query
+      │          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    3 │   @refetchable(queryName: "RefetchableFragmentQuery")
+
+  ℹ︎ other member of the cycle
+
+  fragment-on-query-with-cycle.invalid.graphql:9:10
+    8 │       name
+    9 │       ...fragmentOnQueryWithCycle_Profile @arguments(includeProfile: true)
+      │          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   10 │     }
+
+  ℹ︎ other member of the cycle
+
+  fragment-on-query-with-cycle.invalid.graphql:26:12
+   25 │       node {
+   26 │         ...fragmentOnQueryWithCycle_Profile
+      │            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   27 │       }

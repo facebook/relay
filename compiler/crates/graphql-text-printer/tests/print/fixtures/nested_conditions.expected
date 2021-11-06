@@ -1,0 +1,58 @@
+==================================== INPUT ====================================
+fragment QueryFragment on Query {
+  viewer {
+    ... @include(if: $sentinel) {
+      account_user {
+        name
+        ... @skip(if: $bar) @include(if: $foo) {
+          alternate_name
+          canViewerComment
+        }
+      }
+      ... @skip(if: $foo) {
+        actor {
+          name
+        }
+      }
+    }
+  }
+}
+
+fragment QueryFragment2 on Query {
+  viewer {
+    ... @include(if: $sentinel) @skip(if: $foo) {
+      account_user @include(if: $bar) {
+        name
+      }
+    }
+  }
+}
+==================================== OUTPUT ===================================
+fragment QueryFragment on Query {
+  viewer {
+    ... @include(if: $sentinel) {
+      account_user {
+        name
+        ... @skip(if: $bar) @include(if: $foo) {
+          alternate_name
+          canViewerComment
+        }
+      }
+      ... @skip(if: $foo) {
+        actor {
+          name
+        }
+      }
+    }
+  }
+}
+
+fragment QueryFragment2 on Query {
+  viewer {
+    ... @skip(if: $foo) @include(if: $sentinel) {
+      account_user @include(if: $bar) {
+        name
+      }
+    }
+  }
+}

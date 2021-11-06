@@ -1,0 +1,12 @@
+#expected-to-throw
+query QueryWithUnusedVariable($unused: ID) {
+  node {
+    __typename
+  }
+}
+
+query QueryWithUnusedVariables($also_unused: ID, $another_unused: String) {
+  node {
+    __typename
+  }
+}

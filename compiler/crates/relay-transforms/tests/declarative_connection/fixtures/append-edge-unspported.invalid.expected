@@ -1,0 +1,20 @@
+==================================== INPUT ====================================
+# expected-to-throw
+mutation CommentCreateMutation(
+  $connections: [ID!]!
+  $input: CommentCreateInput
+) {
+  commentCreate(input: $input) {
+    viewer @appendEdge(connections: $connections) {
+      __typename
+    }
+  }
+}
+==================================== ERROR ====================================
+✖︎ Unsupported use of @appendEdge on field 'viewer', expected an edge field (a field with 'cursor' and 'node' selection).
+
+  append-edge-unspported.invalid.graphql:7:12
+    6 │   commentCreate(input: $input) {
+    7 │     viewer @appendEdge(connections: $connections) {
+      │            ^^^^^^^^^^^
+    8 │       __typename

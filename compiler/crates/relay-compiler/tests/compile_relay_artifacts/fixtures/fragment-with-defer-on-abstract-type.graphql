@@ -1,0 +1,15 @@
+query fragmentWithDeferOnAbstractType_QueryWithFragmentWithDeferQuery {
+  node(id: "my-id") {
+    ...fragmentWithDeferOnAbstractType_NodeFragment @defer(label: "node")
+  }
+}
+
+fragment fragmentWithDeferOnAbstractType_NodeFragment on Node {
+  id
+  ... on User {
+    name
+  }
+  ... on Page {
+    websites
+  }
+}

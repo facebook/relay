@@ -1,0 +1,11 @@
+# expected-to-throw
+fragment ActorsRendererFragment on Node {
+  id
+  actors @match {
+    ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+  }
+}
+
+fragment PlainUserNameRenderer_name on Actor {
+  __typename
+}

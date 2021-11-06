@@ -1,0 +1,35 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query QueryWithFragmentWithStream($id: ID!) {
+  node(id: $id) {
+    id
+    ...FeedbackFragment
+  }
+}
+
+fragment FeedbackFragment on Feedback {
+  id
+  actors @stream(initial_count: 1, label: "actors") {
+    name
+  }
+  otherActors: actors @stream(initial_count: 1, label: "actors") {
+    # invalid: duplicate label
+    name
+  }
+}
+==================================== ERROR ====================================
+✖︎ Invalid use of @defer, the provided label is not unique. Specify a unique 'label' as a literal string.
+
+  fragment-with-stream-duplicate-label.invalid.graphql:11:10
+   10 │   id
+   11 │   actors @stream(initial_count: 1, label: "actors") {
+      │          ^^^^^^^
+   12 │     name
+
+  ℹ︎ related location
+
+  fragment-with-stream-duplicate-label.invalid.graphql:14:23
+   13 │   }
+   14 │   otherActors: actors @stream(initial_count: 1, label: "actors") {
+      │                       ^^^^^^^
+   15 │     # invalid: duplicate label

@@ -1,0 +1,15 @@
+query abstractTypeRefinement_AbstractTypeRefinementQuery {
+  node(id: "4") {
+    ... on Named {
+      name_from_query: name
+    }
+    ...abstractTypeRefinement_ActorFragment
+  }
+}
+
+fragment abstractTypeRefinement_ActorFragment on Actor {
+  username
+  ... on Named {
+    name_from_fragment: name
+  }
+}

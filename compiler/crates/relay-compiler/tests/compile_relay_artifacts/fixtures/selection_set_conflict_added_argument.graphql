@@ -1,0 +1,11 @@
+# expected-to-throw
+query selectionSetConflictAddedArgumentQuery {
+  me {
+    profile_picture(scale: 1.5) {
+      width
+    }
+    profile_picture(scale: 1.0, media_type: "image/jpeg") {
+      width
+    }
+  }
+}

@@ -1,0 +1,21 @@
+# expected-to-throw
+query NodeQuery($id: ID!) {
+  node(id: $id) {
+    id
+    ... on Story {
+      comments(first: 10)
+        @stream_connection(key: "NodeQuery_comments", initial_count: 0) {
+        edges {
+          node {
+            actor {
+              name
+            }
+          }
+        }
+        commentPageInfo: pageInfo {
+          hasNextPage
+        }
+      }
+    }
+  }
+}

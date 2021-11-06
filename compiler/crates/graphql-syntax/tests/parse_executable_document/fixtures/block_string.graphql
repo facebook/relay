@@ -1,0 +1,28 @@
+query {
+  some_field(some_arg: """Here is a string. It's very long so
+    we've wrapped it in a block string and let it span multiple
+    lines""")
+
+  another_field(some_arg: """Here is a string. It's very long so
+    we've wrapped it in a block string and let it span multiple
+    lines.
+      but some lines are more indented
+    """)
+
+  yet_another_field(some_arg: """Here is a string. It's very long so
+    we've wrapped it in a block string and let it span multiple
+    lines, and for some reason there are trailing lines
+
+
+
+
+    """)
+
+  i_cant_believe_its_another_field(
+    some_arg: """
+      Because block strings typically represent freeform text,
+      it is considered easier to read if they begin and end with an empty line.
+    """
+  )
+
+}

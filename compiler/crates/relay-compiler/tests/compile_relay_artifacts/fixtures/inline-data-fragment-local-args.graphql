@@ -1,0 +1,20 @@
+# expected-to-throw
+fragment inlineDataFragmentLocalArgsFragment on Query {
+  usingLiteralPassedValue: me {
+    ...inlineDataFragmentLocalArgsProfile @arguments(sizeArg: [100])
+  }
+  usingGlobalPassedValue: me {
+    ...inlineDataFragmentLocalArgsProfile @arguments(sizeArg: $globalSizeVar)
+  }
+  usingDefaultValue: me {
+    ...inlineDataFragmentLocalArgsProfile
+  }
+}
+
+fragment inlineDataFragmentLocalArgsProfile on User
+  @inline
+  @argumentDefinitions(sizeArg: {type: "[Int]", defaultValue: [50]}) {
+  profilePicture(size: $sizeArg) {
+    uri
+  }
+}

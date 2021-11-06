@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -8,45 +8,40 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
-const RelayConnectionHandler = require('RelayConnectionHandler');
-
-const warning = require('warning');
-
-import type {DataID, Variables} from '../util/RelayRuntimeTypes';
-import type {RequestNode} from 'RelayConcreteNode';
 import type {
+  MutationParameters,
   RecordSourceSelectorProxy,
+  SelectorData,
   SelectorStoreUpdater,
-} from 'RelayStoreTypes';
-import type {SelectorData} from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
-import type {RelayConcreteNode} from 'react-relay/classic/query/RelayQL';
+} from '../store/RelayStoreTypes';
+import type {ConcreteRequest} from '../util/RelayConcreteNode';
+import type {Variables} from '../util/RelayRuntimeTypes';
+
+const ConnectionHandler = require('../handlers/connection/ConnectionHandler');
+const warning = require('warning');
 
 const MutationTypes = Object.freeze({
   RANGE_ADD: 'RANGE_ADD',
   RANGE_DELETE: 'RANGE_DELETE',
   NODE_DELETE: 'NODE_DELETE',
-  FIELDS_CHANGE: 'FIELDS_CHANGE',
-  REQUIRED_CHILDREN: 'REQUIRED_CHILDREN',
 });
 export type MutationType = $Values<typeof MutationTypes>;
 
 const RangeOperations = Object.freeze({
   APPEND: 'append',
-  IGNORE: 'ignore',
   PREPEND: 'prepend',
-  REFETCH: 'refetch', // legacy only
-  REMOVE: 'remove', // legacy only
 });
 export type RangeOperation = $Values<typeof RangeOperations>;
 
 type RangeBehaviorsFunction = (connectionArgs: {
   [name: string]: $FlowFixMe,
+  ...
 }) => RangeOperation;
-type RangeBehaviorsObject = {
-  [key: string]: RangeOperation,
-};
+type RangeBehaviorsObject = {[key: string]: RangeOperation, ...};
 export type RangeBehaviors = RangeBehaviorsFunction | RangeBehaviorsObject;
 
 type RangeAddConfig = {|
@@ -84,36 +79,29 @@ type NodeDeleteConfig = {|
   deletedIDFieldName: string,
 |};
 
-// Unused in Relay Modern
-type LegacyFieldsChangeConfig = {|
-  type: 'FIELDS_CHANGE',
-  fieldIDs: {[fieldName: string]: DataID | Array<DataID>},
-|};
-
-// Unused in Relay Modern
-type LegacyRequiredChildrenConfig = {|
-  type: 'REQUIRED_CHILDREN',
-  children: Array<RelayConcreteNode>,
-|};
-
 export type DeclarativeMutationConfig =
   | RangeAddConfig
   | RangeDeleteConfig
-  | NodeDeleteConfig
-  | LegacyFieldsChangeConfig
-  | LegacyRequiredChildrenConfig;
+  | NodeDeleteConfig;
 
-function convert(
+function convert<TMutation: MutationParameters>(
   configs: Array<DeclarativeMutationConfig>,
-  request: RequestNode,
-  optimisticUpdater?: ?SelectorStoreUpdater,
-  updater?: ?SelectorStoreUpdater,
+  request: ConcreteRequest,
+  optimisticUpdater?: ?SelectorStoreUpdater<
+    $ElementType<TMutation, 'response'>,
+  >,
+  updater?: ?SelectorStoreUpdater<$ElementType<TMutation, 'response'>>,
 ): {
-  optimisticUpdater: SelectorStoreUpdater,
-  updater: SelectorStoreUpdater,
+  optimisticUpdater: SelectorStoreUpdater<$ElementType<TMutation, 'response'>>,
+  updater: SelectorStoreUpdater<$ElementType<TMutation, 'response'>>,
+  ...
 } {
-  const configOptimisticUpdates = optimisticUpdater ? [optimisticUpdater] : [];
-  const configUpdates = updater ? [updater] : [];
+  const configOptimisticUpdates: Array<
+    SelectorStoreUpdater<$ElementType<TMutation, 'response'>>,
+  > = optimisticUpdater ? [optimisticUpdater] : [];
+  const configUpdates: Array<
+    SelectorStoreUpdater<$ElementType<TMutation, 'response'>>,
+  > = updater ? [updater] : [];
   configs.forEach(config => {
     switch (config.type) {
       case 'NODE_DELETE':
@@ -142,13 +130,16 @@ function convert(
   return {
     optimisticUpdater: (
       store: RecordSourceSelectorProxy,
-      data: ?SelectorData,
+      data: ?$ElementType<TMutation, 'response'>,
     ) => {
       configOptimisticUpdates.forEach(eachOptimisticUpdater => {
         eachOptimisticUpdater(store, data);
       });
     },
-    updater: (store: RecordSourceSelectorProxy, data: ?SelectorData) => {
+    updater: (
+      store: RecordSourceSelectorProxy,
+      data: ?$ElementType<TMutation, 'response'>,
+    ) => {
       configUpdates.forEach(eachUpdater => {
         eachUpdater(store, data);
       });
@@ -158,14 +149,14 @@ function convert(
 
 function nodeDelete(
   config: NodeDeleteConfig,
-  request: RequestNode,
-): ?SelectorStoreUpdater {
+  request: ConcreteRequest,
+): ?SelectorStoreUpdater<mixed> {
   const {deletedIDFieldName} = config;
   const rootField = getRootField(request);
   if (!rootField) {
     return null;
   }
-  return (store: RecordSourceSelectorProxy, data: ?SelectorData) => {
+  return (store: RecordSourceSelectorProxy, data: ?mixed) => {
     const payload = store.getRootField(rootField);
     if (!payload) {
       return;
@@ -182,8 +173,8 @@ function nodeDelete(
 
 function rangeAdd(
   config: RangeAddConfig,
-  request: RequestNode,
-): ?SelectorStoreUpdater {
+  request: ConcreteRequest,
+): ?SelectorStoreUpdater<mixed> {
   const {parentID, connectionInfo, edgeName} = config;
   if (!parentID) {
     warning(
@@ -197,7 +188,7 @@ function rangeAdd(
   if (!connectionInfo || !rootField) {
     return null;
   }
-  return (store: RecordSourceSelectorProxy, data: ?SelectorData) => {
+  return (store: RecordSourceSelectorProxy, data: ?mixed) => {
     const parent = store.get(parentID);
     if (!parent) {
       return;
@@ -211,7 +202,7 @@ function rangeAdd(
       if (!serverEdge) {
         continue;
       }
-      const connection = RelayConnectionHandler.getConnection(
+      const connection = ConnectionHandler.getConnection(
         parent,
         info.key,
         info.filters,
@@ -219,7 +210,7 @@ function rangeAdd(
       if (!connection) {
         continue;
       }
-      const clientEdge = RelayConnectionHandler.buildConnectionEdge(
+      const clientEdge = ConnectionHandler.buildConnectionEdge(
         store,
         connection,
         serverEdge,
@@ -229,20 +220,17 @@ function rangeAdd(
       }
       switch (info.rangeBehavior) {
         case 'append':
-          RelayConnectionHandler.insertEdgeAfter(connection, clientEdge);
-          break;
-        case 'ignore':
-          // Do nothing
+          ConnectionHandler.insertEdgeAfter(connection, clientEdge);
           break;
         case 'prepend':
-          RelayConnectionHandler.insertEdgeBefore(connection, clientEdge);
+          ConnectionHandler.insertEdgeBefore(connection, clientEdge);
           break;
         default:
           warning(
             false,
             'RelayDeclarativeMutationConfig: RANGE_ADD range behavior `%s` ' +
               'will not work as expected in RelayModern, supported range ' +
-              "behaviors are 'append', 'prepend', and 'ignore'.",
+              "behaviors are 'append', 'prepend'.",
             info.rangeBehavior,
           );
           break;
@@ -253,14 +241,10 @@ function rangeAdd(
 
 function rangeDelete(
   config: RangeDeleteConfig,
-  request: RequestNode,
-): ?SelectorStoreUpdater {
-  const {
-    parentID,
-    connectionKeys,
-    pathToConnection,
-    deletedIDFieldName,
-  } = config;
+  request: ConcreteRequest,
+): ?SelectorStoreUpdater<mixed> {
+  const {parentID, connectionKeys, pathToConnection, deletedIDFieldName} =
+    config;
   if (!parentID) {
     warning(
       false,
@@ -273,12 +257,16 @@ function rangeDelete(
   if (!rootField) {
     return null;
   }
-  return (store: RecordSourceSelectorProxy, data: ?SelectorData) => {
+  return (store: RecordSourceSelectorProxy, data: ?mixed) => {
     if (!data) {
       return;
     }
     const deleteIDs = [];
+    // the type of data should come from a type parameter associated with ConcreteRequest,
+    // but ConcreteRequest does not contain a type parameter. Hence, we use a FlowFixMe.
+    // $FlowFixMe[incompatible-use] see above
     let deletedIDField = data[rootField];
+
     if (deletedIDField && Array.isArray(deletedIDFieldName)) {
       for (const eachField of deletedIDFieldName) {
         if (deletedIDField && typeof deletedIDField === 'object') {
@@ -334,7 +322,7 @@ function deleteNode(
   deleteIDs: Array<string>,
 ): void {
   warning(
-    connectionKeys,
+    connectionKeys != null,
     'RelayDeclarativeMutationConfig: RANGE_DELETE must provide a ' +
       'connectionKeys',
   );
@@ -369,20 +357,20 @@ function deleteNode(
     return;
   }
   for (const key of connectionKeys) {
-    const connection = RelayConnectionHandler.getConnection(
+    const connection = ConnectionHandler.getConnection(
       recordProxy,
       key.key,
       key.filters,
     );
     if (connection) {
       deleteIDs.forEach(deleteID => {
-        RelayConnectionHandler.deleteNode(connection, deleteID);
+        ConnectionHandler.deleteNode(connection, deleteID);
       });
     }
   }
 }
 
-function getRootField(request: RequestNode): ?string {
+function getRootField(request: ConcreteRequest): ?string {
   if (
     request.fragment.selections &&
     request.fragment.selections.length > 0 &&

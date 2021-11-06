@@ -1,0 +1,19 @@
+==================================== INPUT ====================================
+fragment EnabledActorsRendererFragment on User {
+  id
+  profile_picture @required(action: LOG) {
+    uri
+  }
+}
+==================================== OUTPUT ===================================
+fragment EnabledActorsRendererFragment on User @__childrenCanBubbleNull {
+  id
+  profile_picture @required(action: LOG) @__RequiredMetadataDirective
+  # RequiredMetadataDirective {
+  #     action: Log,
+  #     path: "profile_picture",
+  # }
+   {
+    uri
+  }
+}

@@ -1,0 +1,212 @@
+==================================== INPUT ====================================
+query streamAndHandleQuery {
+  node(id: "<id>") {
+    ...streamAndHandleFragment
+  }
+}
+
+fragment streamAndHandleFragment on Feedback {
+  actors
+    @stream(label: "actors", if: true, initial_count: 0)
+    @__clientField(handle: "actors_handler") {
+    name @__clientField(handle: "name_handler")
+  }
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "streamAndHandleQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Literal",
+            "name": "id",
+            "value": "<id>"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "streamAndHandleFragment"
+          }
+        ],
+        "storageKey": "node(id:\"<id>\")"
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [],
+    "kind": "Operation",
+    "name": "streamAndHandleQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Literal",
+            "name": "id",
+            "value": "<id>"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "__typename",
+            "storageKey": null
+          },
+          {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "if": null,
+                "kind": "Stream",
+                "label": "streamAndHandleFragment$stream$actors",
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "concreteType": null,
+                    "kind": "LinkedField",
+                    "name": "actors",
+                    "plural": true,
+                    "selections": [
+                      {
+                        "alias": null,
+                        "args": null,
+                        "kind": "ScalarField",
+                        "name": "__typename",
+                        "storageKey": null
+                      },
+                      {
+                        "alias": null,
+                        "args": null,
+                        "kind": "ScalarField",
+                        "name": "name",
+                        "storageKey": null
+                      },
+                      {
+                        "alias": null,
+                        "args": null,
+                        "filters": null,
+                        "handle": "name_handler",
+                        "key": "",
+                        "kind": "ScalarHandle",
+                        "name": "name"
+                      },
+                      {
+                        "alias": null,
+                        "args": null,
+                        "kind": "ScalarField",
+                        "name": "id",
+                        "storageKey": null
+                      }
+                    ],
+                    "storageKey": null
+                  },
+                  {
+                    "alias": null,
+                    "args": null,
+                    "filters": null,
+                    "handle": "actors_handler",
+                    "key": "",
+                    "kind": "LinkedHandle",
+                    "name": "actors"
+                  }
+                ]
+              }
+            ],
+            "type": "Feedback",
+            "abstractKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          }
+        ],
+        "storageKey": "node(id:\"<id>\")"
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {},
+    "name": "streamAndHandleQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query streamAndHandleQuery {
+  node(id: "<id>") {
+    __typename
+    ...streamAndHandleFragment
+    id
+  }
+}
+
+fragment streamAndHandleFragment on Feedback {
+  actors @stream(label: "streamAndHandleFragment$stream$actors", if: true, initial_count: 0) {
+    __typename
+    name
+    id
+  }
+}
+
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "streamAndHandleFragment",
+  "selections": [
+    {
+      "kind": "Stream",
+      "selections": [
+        {
+          "alias": "actors",
+          "args": null,
+          "concreteType": null,
+          "kind": "LinkedField",
+          "name": "__actors_actors_handler",
+          "plural": true,
+          "selections": [
+            {
+              "alias": "name",
+              "args": null,
+              "kind": "ScalarField",
+              "name": "__name_name_handler",
+              "storageKey": null
+            }
+          ],
+          "storageKey": null
+        }
+      ]
+    }
+  ],
+  "type": "Feedback",
+  "abstractKey": null
+}

@@ -1,0 +1,107 @@
+==================================== INPUT ====================================
+fragment PaginationFragment on Node
+  @refetchable(queryName: "RefetchableFragmentQuery")
+  @argumentDefinitions(
+    count: {type: "Int", defaultValue: 10}
+    cursor: {type: "ID"}
+  ) {
+  id
+  ... on User {
+    name
+    friends(
+      after: $cursor
+      first: $count
+      before: $beforeCursor
+      last: $lastCount
+    ) @connection(key: "PaginationFragment_friends") {
+      edges {
+        node {
+          id
+        }
+      }
+    }
+  }
+}
+==================================== OUTPUT ===================================
+query RefetchableFragmentQuery(
+  $beforeCursor: ID
+  $count: Int = 10
+  $cursor: ID
+  $lastCount: Int
+  $id: ID!
+) @__RefetchableDerivedFromMetadata
+# RefetchableDerivedFromMetadata(
+#     "PaginationFragment",
+# )
+ {
+  node(id: $id) {
+    ...PaginationFragment @arguments(count: $count, cursor: $cursor)
+  }
+}
+
+fragment PaginationFragment on Node @refetchable(queryName: "RefetchableFragmentQuery") @argumentDefinitions(
+  count: {type: "Int", defaultValue: 10}
+  cursor: {type: "ID"}
+) @__ConnectionMetadataDirective
+# ConnectionMetadataDirective(
+#     [
+#         ConnectionMetadata {
+#             path: Some(
+#                 [
+#                     "friends",
+#                 ],
+#             ),
+#             direction: "bidirectional",
+#             first: Some(
+#                 "count",
+#             ),
+#             last: Some(
+#                 "lastCount",
+#             ),
+#             before: Some(
+#                 "beforeCursor",
+#             ),
+#             after: Some(
+#                 "cursor",
+#             ),
+#             is_stream_connection: false,
+#         },
+#     ],
+# )
+ @__RefetchableMetadata
+# RefetchableMetadata {
+#     operation_name: "RefetchableFragmentQuery",
+#     path: [
+#         "node",
+#     ],
+#     identifier_field: Some(
+#         "id",
+#     ),
+# }
+ {
+  id
+  ... on User {
+    name
+    friends(after: $cursor, first: $count, before: $beforeCursor, last: $lastCount) @__clientField(key: "PaginationFragment_friends", handle: "connection", filters: null, dynamicKey_UNSTABLE: null) {
+      edges {
+        node {
+          id
+        }
+        ... on FriendsEdge {
+          cursor
+          node {
+            __typename
+          }
+        }
+      }
+      pageInfo {
+        ... on PageInfo {
+          endCursor
+          hasNextPage
+          hasPreviousPage
+          startCursor
+        }
+      }
+    }
+  }
+}

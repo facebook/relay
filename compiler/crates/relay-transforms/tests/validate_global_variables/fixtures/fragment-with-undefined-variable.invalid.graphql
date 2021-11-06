@@ -1,0 +1,10 @@
+#expected-to-throw
+query QueryWithUnusedVariable {
+  node {
+    ...UserFragment
+  }
+}
+
+fragment UserFragment on User {
+  name @include(if: $shouldIncludeName)
+}

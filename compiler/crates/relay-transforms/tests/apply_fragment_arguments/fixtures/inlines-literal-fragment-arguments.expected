@@ -1,0 +1,58 @@
+==================================== INPUT ====================================
+query TestQuery($id: ID!) {
+  node(id: $id) {
+    id
+    ...Profile @arguments(pictureSize: [128], includeFriends: true)
+  }
+}
+
+fragment Profile on User
+  @argumentDefinitions(
+    pictureSize: {type: "[Int]"}
+    includeFriends: {type: "Boolean!", defaultValue: false}
+  ) {
+  id
+  name
+  profilePicture(size: $pictureSize) {
+    uri
+  }
+  friends(first: 10) @include(if: $includeFriends) {
+    edges {
+      node {
+        ...Profile @arguments(pictureSize: $pictureSize)
+      }
+    }
+  }
+}
+==================================== OUTPUT ===================================
+query TestQuery(
+  $id: ID!
+) {
+  node(id: $id) {
+    id
+    ...Profile_4cg4Po
+  }
+}
+
+fragment Profile_17y1Ti on User {
+  id
+  name
+  profilePicture(size: [128]) {
+    uri
+  }
+}
+
+fragment Profile_4cg4Po on User {
+  id
+  name
+  profilePicture(size: [128]) {
+    uri
+  }
+  friends(first: 10) {
+    edges {
+      node {
+        ...Profile_17y1Ti
+      }
+    }
+  }
+}

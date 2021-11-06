@@ -1,0 +1,20 @@
+# Q1, F2
+query Q1 {
+  me {
+    id
+  }
+}
+query Q2 {
+  me {
+    ...F1
+  }
+}
+fragment F1 on User {
+  ...F2
+}
+fragment F2 on User {
+  ...F3
+}
+fragment F3 on User {
+  name
+}

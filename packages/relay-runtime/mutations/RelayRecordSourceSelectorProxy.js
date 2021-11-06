@@ -1,27 +1,29 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
+ * @flow strict-local
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
-const invariant = require('invariant');
-
-const {getStorageKey} = require('RelayStoreUtils');
-
-import type {DataID} from '../util/RelayRuntimeTypes';
-import type {ConcreteLinkedField} from 'RelayConcreteNode';
 import type {
   RecordProxy,
-  Selector,
   RecordSourceProxy,
   RecordSourceSelectorProxy,
-} from 'RelayStoreTypes';
+  SingularReaderSelector,
+} from '../store/RelayStoreTypes';
+import type {ReaderLinkedField} from '../util/ReaderNode';
+import type {DataID} from '../util/RelayRuntimeTypes';
+import type RelayRecordSourceMutator from './RelayRecordSourceMutator';
+
+const {ROOT_TYPE, getStorageKey} = require('../store/RelayStoreUtils');
+const invariant = require('invariant');
 
 /**
  * @internal
@@ -32,10 +34,16 @@ import type {
  * arguments to pass to e.g. `getRoot().getLinkedRecord()`.
  */
 class RelayRecordSourceSelectorProxy implements RecordSourceSelectorProxy {
+  __mutator: RelayRecordSourceMutator;
   __recordSource: RecordSourceProxy;
-  _readSelector: Selector;
+  _readSelector: SingularReaderSelector;
 
-  constructor(recordSource: RecordSourceProxy, readSelector: Selector) {
+  constructor(
+    mutator: RelayRecordSourceMutator,
+    recordSource: RecordSourceProxy,
+    readSelector: SingularReaderSelector,
+  ) {
+    this.__mutator = mutator;
     this.__recordSource = recordSource;
     this._readSelector = readSelector;
   }
@@ -56,15 +64,28 @@ class RelayRecordSourceSelectorProxy implements RecordSourceSelectorProxy {
     return this.__recordSource.getRoot();
   }
 
+  getOperationRoot(): RecordProxy {
+    let root = this.__recordSource.get(this._readSelector.dataID);
+    if (!root) {
+      root = this.__recordSource.create(this._readSelector.dataID, ROOT_TYPE);
+    }
+    return root;
+  }
+
   _getRootField(
-    selector: Selector,
+    selector: SingularReaderSelector,
     fieldName: string,
     plural: boolean,
-  ): ConcreteLinkedField {
-    const field = selector.node.selections.find(
+  ): ReaderLinkedField {
+    let field = selector.node.selections.find(
       selection =>
-        selection.kind === 'LinkedField' && selection.name === fieldName,
+        (selection.kind === 'LinkedField' && selection.name === fieldName) ||
+        (selection.kind === 'RequiredField' &&
+          selection.field.name === fieldName),
     );
+    if (field && field.kind === 'RequiredField') {
+      field = field.field;
+    }
     invariant(
       field && field.kind === 'LinkedField',
       'RelayRecordSourceSelectorProxy#getRootField(): Cannot find root ' +
@@ -85,13 +106,17 @@ class RelayRecordSourceSelectorProxy implements RecordSourceSelectorProxy {
   getRootField(fieldName: string): ?RecordProxy {
     const field = this._getRootField(this._readSelector, fieldName, false);
     const storageKey = getStorageKey(field, this._readSelector.variables);
-    return this.getRoot().getLinkedRecord(storageKey);
+    return this.getOperationRoot().getLinkedRecord(storageKey);
   }
 
   getPluralRootField(fieldName: string): ?Array<?RecordProxy> {
     const field = this._getRootField(this._readSelector, fieldName, true);
     const storageKey = getStorageKey(field, this._readSelector.variables);
-    return this.getRoot().getLinkedRecords(storageKey);
+    return this.getOperationRoot().getLinkedRecords(storageKey);
+  }
+
+  invalidateStore(): void {
+    this.__recordSource.invalidateStore();
   }
 }
 

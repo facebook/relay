@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -17,21 +17,12 @@ const path = require('path');
  * file names in require statements.
  */
 
-/**
- * Rewrites module string literals according to the `map` and `prefix` options.
- * This allows other npm packages to be published and used directly without
- * being a part of the same build.
- */
 function mapModule(state, module) {
   var moduleMap = state.opts.map || {};
   if (moduleMap.hasOwnProperty(module)) {
     return moduleMap[module];
   }
-  // Jest understands the haste module system, so leave modules intact.
-  if (process.env.NODE_ENV === 'test') {
-    return;
-  }
-  return './' + path.basename(module);
+  return null;
 }
 
 var jestMethods = [
@@ -43,14 +34,14 @@ var jestMethods = [
 ];
 
 function isJestProperty(t, property) {
-  return t.isIdentifier(property) && jestMethods.indexOf(property.name) !== -1;
+  return t.isIdentifier(property) && jestMethods.includes(property.name);
 }
 
-module.exports = function(babel) {
+module.exports = function (babel) {
   var t = babel.types;
 
   /**
-   * Transforms `require('Foo')` and `require.requireActual('Foo')`.
+   * Transforms `require('Foo')` and `jest.requireActual('Foo')`.
    */
   function transformRequireCall(path, state) {
     var calleePath = path.get('callee');

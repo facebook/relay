@@ -1,0 +1,20 @@
+==================================== INPUT ====================================
+fragment NonNullFragment on User {
+  firstName
+  lastName @required(action: NONE)
+}
+==================================== OUTPUT ===================================
+import type { FragmentReference } from "relay-runtime";
+declare export opaque type NonNullFragment$ref: FragmentReference;
+declare export opaque type NonNullFragment$fragmentType: NonNullFragment$ref;
+export type NonNullFragment = ?{|
+  +firstName: ?string,
+  +lastName: string,
+  +$refType: NonNullFragment$ref,
+|};
+export type NonNullFragment$data = NonNullFragment;
+export type NonNullFragment$key = {
+  +$data?: NonNullFragment$data,
+  +$fragmentRefs: NonNullFragment$ref,
+  ...
+};

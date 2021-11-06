@@ -1,0 +1,37 @@
+{
+  "root": "..",
+  "name": "tests",
+  "sources": {
+    "packages": "tests"
+  },
+  "excludes": [
+    "**/node_modules/**"
+  ],
+  "header": [
+    "Copyright (c) Facebook, Inc. and its affiliates.",
+    "",
+    "This source code is licensed under the MIT license found in the",
+    "LICENSE file in the root directory of this source tree."
+  ],
+  "projects": {
+    "tests": {
+      "enumModuleSuffix": null,
+      "schema": "packages/relay-test-utils-internal/testschema.graphql",
+      "extensions": [
+        "packages/relay-test-utils-internal/schema-extensions"
+      ],
+      "jsModuleFormat": "commonjs",
+      "featureFlags": {
+        "enable_flight_transform": true,
+        "enable_required_transform": true,
+        "no_inline": {
+          "kind": "enabled"
+        },
+        "actor_change_support": {
+          "kind": "enabled"
+        }
+      }
+    }
+  },
+  "isDevVariableName": "__DEV__"
+}

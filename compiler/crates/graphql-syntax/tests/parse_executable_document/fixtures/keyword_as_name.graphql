@@ -1,0 +1,3 @@
+query KeywordAsName {
+  search_results(query: "test")
+}

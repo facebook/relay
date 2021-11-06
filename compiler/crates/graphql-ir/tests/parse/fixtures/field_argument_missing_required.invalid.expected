@@ -1,0 +1,15 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query TestQuery {
+  username { # missing required `name` argument
+    __typename
+  }
+}
+==================================== ERROR ====================================
+✖︎ Missing required argument: `name`
+
+  field_argument_missing_required.invalid.graphql:3:3
+    2 │ query TestQuery {
+    3 │   username { # missing required `name` argument
+      │   ^^^^^^^^
+    4 │     __typename

@@ -1,0 +1,192 @@
+==================================== INPUT ====================================
+fragment clientConditions_Foo_user on User {
+  id
+  name @include(if: $shouldInclude)
+
+  client_nickname @include(if: $shouldInclude)
+
+  foo {
+    ... on ClientNamed @include(if: $shouldInclude) {
+      client_name
+      client_name_2
+    }
+  }
+
+  ... on Actor @include(if: $shouldInclude) {
+    client_actor_field
+    address {
+      city
+      client_street_address_field(arg: $arg) # nested client field
+    }
+  }
+}
+
+# %extensions%
+
+extend type User {
+  client_nickname: String
+  client_actor_field: String
+  foo: ClientNamed
+}
+
+extend type StreetAddress {
+  client_street_address_field(arg: String): String
+}
+
+extend interface Actor {
+  client_actor_field: String
+}
+
+extend type Page {
+  client_actor_field: String
+}
+
+interface ClientNamed {
+  client_name: String
+  client_name_2: String
+}
+==================================== OUTPUT ===================================
+{
+  "argumentDefinitions": [
+    {
+      "kind": "RootArgument",
+      "name": "arg"
+    },
+    {
+      "kind": "RootArgument",
+      "name": "shouldInclude"
+    }
+  ],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "clientConditions_Foo_user",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "id",
+      "storageKey": null
+    },
+    {
+      "condition": "shouldInclude",
+      "kind": "Condition",
+      "passingValue": true,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "name",
+          "storageKey": null
+        },
+        {
+          "kind": "ClientExtension",
+          "selections": [
+            {
+              "alias": null,
+              "args": null,
+              "kind": "ScalarField",
+              "name": "client_nickname",
+              "storageKey": null
+            }
+          ]
+        },
+        {
+          "kind": "InlineFragment",
+          "selections": [
+            {
+              "alias": null,
+              "args": null,
+              "concreteType": "StreetAddress",
+              "kind": "LinkedField",
+              "name": "address",
+              "plural": false,
+              "selections": [
+                {
+                  "alias": null,
+                  "args": null,
+                  "kind": "ScalarField",
+                  "name": "city",
+                  "storageKey": null
+                },
+                {
+                  "kind": "ClientExtension",
+                  "selections": [
+                    {
+                      "alias": null,
+                      "args": [
+                        {
+                          "kind": "Variable",
+                          "name": "arg",
+                          "variableName": "arg"
+                        }
+                      ],
+                      "kind": "ScalarField",
+                      "name": "client_street_address_field",
+                      "storageKey": null
+                    }
+                  ]
+                }
+              ],
+              "storageKey": null
+            },
+            {
+              "kind": "ClientExtension",
+              "selections": [
+                {
+                  "alias": null,
+                  "args": null,
+                  "kind": "ScalarField",
+                  "name": "client_actor_field",
+                  "storageKey": null
+                }
+              ]
+            }
+          ],
+          "type": "Actor",
+          "abstractKey": "__isActor"
+        }
+      ]
+    },
+    {
+      "kind": "ClientExtension",
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "concreteType": null,
+          "kind": "LinkedField",
+          "name": "foo",
+          "plural": false,
+          "selections": [
+            {
+              "condition": "shouldInclude",
+              "kind": "Condition",
+              "passingValue": true,
+              "selections": [
+                {
+                  "alias": null,
+                  "args": null,
+                  "kind": "ScalarField",
+                  "name": "client_name",
+                  "storageKey": null
+                },
+                {
+                  "alias": null,
+                  "args": null,
+                  "kind": "ScalarField",
+                  "name": "client_name_2",
+                  "storageKey": null
+                }
+              ]
+            }
+          ],
+          "storageKey": null
+        }
+      ]
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}

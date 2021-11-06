@@ -1,0 +1,215 @@
+==================================== INPUT ====================================
+query complexArgumentsInList_CheckinSearchQuery(
+  $queryText: String!
+  $searchInputText: String
+  $searchInput: CheckinSearchInput
+  $searchInputLast: CheckinSearchInput!
+) {
+  checkinSearchQuery(
+    query: {
+      query: $queryText
+      inputs: [{query: $searchInputText}, $searchInput, null, $searchInputLast]
+    }
+  ) {
+    query
+  }
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "queryText"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "searchInput"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "searchInputLast"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "searchInputText"
+      }
+    ],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "complexArgumentsInList_CheckinSearchQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "fields": [
+              {
+                "items": [
+                  {
+                    "fields": [
+                      {
+                        "kind": "Variable",
+                        "name": "query",
+                        "variableName": "searchInputText"
+                      }
+                    ],
+                    "kind": "ObjectValue",
+                    "name": "inputs.0"
+                  },
+                  {
+                    "kind": "Variable",
+                    "name": "inputs.1",
+                    "variableName": "searchInput"
+                  },
+                  null,
+                  {
+                    "kind": "Variable",
+                    "name": "inputs.3",
+                    "variableName": "searchInputLast"
+                  }
+                ],
+                "kind": "ListValue",
+                "name": "inputs"
+              },
+              {
+                "kind": "Variable",
+                "name": "query",
+                "variableName": "queryText"
+              }
+            ],
+            "kind": "ObjectValue",
+            "name": "query"
+          }
+        ],
+        "concreteType": "CheckinSearchResult",
+        "kind": "LinkedField",
+        "name": "checkinSearchQuery",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "query",
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "queryText"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "searchInputText"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "searchInput"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "searchInputLast"
+      }
+    ],
+    "kind": "Operation",
+    "name": "complexArgumentsInList_CheckinSearchQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "fields": [
+              {
+                "items": [
+                  {
+                    "fields": [
+                      {
+                        "kind": "Variable",
+                        "name": "query",
+                        "variableName": "searchInputText"
+                      }
+                    ],
+                    "kind": "ObjectValue",
+                    "name": "inputs.0"
+                  },
+                  {
+                    "kind": "Variable",
+                    "name": "inputs.1",
+                    "variableName": "searchInput"
+                  },
+                  null,
+                  {
+                    "kind": "Variable",
+                    "name": "inputs.3",
+                    "variableName": "searchInputLast"
+                  }
+                ],
+                "kind": "ListValue",
+                "name": "inputs"
+              },
+              {
+                "kind": "Variable",
+                "name": "query",
+                "variableName": "queryText"
+              }
+            ],
+            "kind": "ObjectValue",
+            "name": "query"
+          }
+        ],
+        "concreteType": "CheckinSearchResult",
+        "kind": "LinkedField",
+        "name": "checkinSearchQuery",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "query",
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {},
+    "name": "complexArgumentsInList_CheckinSearchQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query complexArgumentsInList_CheckinSearchQuery(
+  $queryText: String!
+  $searchInputText: String
+  $searchInput: CheckinSearchInput
+  $searchInputLast: CheckinSearchInput!
+) {
+  checkinSearchQuery(query: {query: $queryText, inputs: [{query: $searchInputText}, $searchInput, $searchInputLast]}) {
+    query
+  }
+}

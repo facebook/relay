@@ -1,0 +1,8 @@
+mutation CommentDeleteMutation(
+  $input: CommentDeleteInput
+  $connections: [ID!]!
+) {
+  commentDelete(input: $input) {
+    deletedCommentId @deleteEdge(connections: $connections)
+  }
+}

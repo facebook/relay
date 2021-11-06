@@ -1,0 +1,28 @@
+query QueryWithFragmentWithDefer {
+  me {
+    id
+    ...UserFragment @defer(label: "DeferredFragmentLabel")
+  }
+}
+
+fragment UserFragment on User {
+  id
+  emailAddresses
+  foo {
+    ...DeferredFragment
+  }
+}
+
+fragment DeferredFragment on ClientUser {
+  clientname
+}
+
+# %extensions%
+extend type User {
+  foo: ClientUser
+}
+
+interface ClientUser {
+  id: String
+  clientname: String
+}

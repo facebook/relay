@@ -1,0 +1,21 @@
+fragment relayResolverBackingClientEdge_best_friend_resolver on User {
+  actor_key
+}
+
+query relayResolverBackingClientEdgeQuery {
+  me {
+    best_friend {
+      name
+    }
+  }
+}
+
+# %extensions%
+
+extend type User {
+  best_friend: User
+    @relay_resolver(
+      fragment_name: "relayResolverBackingClientEdge_best_friend_resolver"
+      import_path: "./foo/bar/baz/BestFriendResolver.js"
+    )
+}

@@ -1,0 +1,12 @@
+==================================== INPUT ====================================
+fragment UserFragment on User {
+  checkins(environments: "WEB") {
+    __typename
+  }
+}
+==================================== OUTPUT ===================================
+fragment UserFragment on User {
+  checkins(environments: "WEB") {
+    __typename
+  }
+}

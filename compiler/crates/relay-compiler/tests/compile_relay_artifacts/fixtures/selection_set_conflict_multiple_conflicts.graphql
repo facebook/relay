@@ -1,0 +1,13 @@
+# expected-to-throw
+query selectionSetConflictMultipleConflictsQuery {
+  me {
+    same_alias: id
+    same_alias: name
+    same_alias: profile_picture {
+      size: width
+    }
+    same_alias: profile_picture {
+      size: height
+    }
+  }
+}

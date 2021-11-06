@@ -1,0 +1,19 @@
+mutation Test($input: UpdateAllSeenStateInput) @raw_response_type {
+  viewerNotificationsUpdateAllSeenState(input: $input) {
+    stories {
+      foos {
+        bar
+      }
+    }
+  }
+}
+
+#%extensions%
+
+extend type Story {
+  foos: [Foo]
+}
+
+type Foo {
+  bar: String
+}

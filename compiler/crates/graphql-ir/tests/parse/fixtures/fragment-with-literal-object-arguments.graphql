@@ -1,0 +1,13 @@
+fragment ParentFragment on Query {
+  mobile_checkins: checkinSearchQuery(query: {query: "mobile"}) {
+    query
+  }
+  ...ChildFragment @arguments(query: {query: "web"})
+}
+
+fragment ChildFragment on Query
+  @argumentDefinitions(query: {type: "CheckinSearchInput!"}) {
+  checkinSearchQuery(query: $query) {
+    query
+  }
+}

@@ -1,0 +1,84 @@
+==================================== INPUT ====================================
+query noInlineFragmentQuery(
+  $global: Float
+  $shadowed_global: Float
+  $global_from_parent: Float
+) @raw_response_type {
+  me {
+    ...noInlineFragment_user
+    address {
+      # intentionally spread a fragment where there is a concrete type
+      # that does not have an `id` so that the spread is the only selection
+      # this should output an empty object type
+      ...noInlineFragment_address
+    }
+  }
+}
+
+fragment noInlineFragment_address on StreetAddress @no_inline {
+  city
+}
+
+fragment noInlineFragment_user on User @no_inline {
+  name
+}
+==================================== OUTPUT ===================================
+import type { noInlineFragment_address$ref } from "noInlineFragment_address.graphql";
+import type { noInlineFragment_user$ref } from "noInlineFragment_user.graphql";
+import type { noInlineFragment_address$normalization } from "noInlineFragment_address$normalization.graphql";
+import type { noInlineFragment_user$normalization } from "noInlineFragment_user$normalization.graphql";
+export type noInlineFragmentQueryVariables = {|
+  global?: ?number,
+  shadowed_global?: ?number,
+  global_from_parent?: ?number,
+|};
+export type noInlineFragmentQueryResponse = {|
+  +me: ?{|
+    +address: ?{|
+      +$fragmentRefs: noInlineFragment_address$ref,
+    |},
+    +$fragmentRefs: noInlineFragment_user$ref,
+  |},
+|};
+export type noInlineFragmentQueryRawResponse = {|
+  +me: ?{|
+    ...noInlineFragment_user$normalization,
+    +address: ?{|
+      ...noInlineFragment_address$normalization,
+    |},
+    +id: string,
+  |},
+|};
+export type noInlineFragmentQuery = {|
+  variables: noInlineFragmentQueryVariables,
+  response: noInlineFragmentQueryResponse,
+  rawResponse: noInlineFragmentQueryRawResponse,
+|};
+-------------------------------------------------------------------------------
+import type { FragmentReference } from "relay-runtime";
+declare export opaque type noInlineFragment_address$ref: FragmentReference;
+declare export opaque type noInlineFragment_address$fragmentType: noInlineFragment_address$ref;
+export type noInlineFragment_address = {|
+  +city: ?string,
+  +$refType: noInlineFragment_address$ref,
+|};
+export type noInlineFragment_address$data = noInlineFragment_address;
+export type noInlineFragment_address$key = {
+  +$data?: noInlineFragment_address$data,
+  +$fragmentRefs: noInlineFragment_address$ref,
+  ...
+};
+-------------------------------------------------------------------------------
+import type { FragmentReference } from "relay-runtime";
+declare export opaque type noInlineFragment_user$ref: FragmentReference;
+declare export opaque type noInlineFragment_user$fragmentType: noInlineFragment_user$ref;
+export type noInlineFragment_user = {|
+  +name: ?string,
+  +$refType: noInlineFragment_user$ref,
+|};
+export type noInlineFragment_user$data = noInlineFragment_user;
+export type noInlineFragment_user$key = {
+  +$data?: noInlineFragment_user$data,
+  +$fragmentRefs: noInlineFragment_user$ref,
+  ...
+};

@@ -1,0 +1,19 @@
+query NodeQuery($id: ID!) {
+  node(id: $id) {
+    id
+    ... on Story {
+      comments(first: 10) @connection(key: "NodeQuery_comments") {
+        commentEdges: edges {
+          node {
+            actor {
+              name
+            }
+          }
+        }
+        commentPageInfo: pageInfo {
+          hasNextPage
+        }
+      }
+    }
+  }
+}

@@ -68,6 +68,43 @@ query DontSkipNestedFieldsAcrossFragments {
 
 `;
 
+exports[`SkipRedundantNodesTransform matches expected output: dont-skip-with-inline-on-diffent-types.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query DontSkipWithInlineFragmentOnDifferentTypes {
+  viewer {
+    actor {
+      ... on Actor {
+        id
+      }
+      ... on User {
+        id # we currently don't skip this
+        hometown {
+          name
+        }
+      }
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+query DontSkipWithInlineFragmentOnDifferentTypes {
+  viewer {
+    actor {
+      ... on Actor {
+        id
+      }
+      ... on User {
+        id
+        hometown {
+          name
+        }
+      }
+    }
+  }
+}
+
+`;
+
 exports[`SkipRedundantNodesTransform matches expected output: skip-nested-linked-fields.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query SkipNestedLinkedFields {
@@ -148,9 +185,110 @@ query SkipNestedFields {
 
 `;
 
+exports[`SkipRedundantNodesTransform matches expected output: skips-with-client-extensions.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query SkipWithClientExtensions {
+  viewer {
+    actor {
+      ... on Actor {
+        clientName
+        clientUser {
+          name
+        }
+        clientName
+        clientUser {
+          ... on User {
+            name
+          }
+        }
+      }
+    }
+  }
+}
+
+extend interface Actor {
+  clientName: String
+  clientUser: User
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+query SkipWithClientExtensions {
+  viewer {
+    actor {
+      ... on Actor {
+        clientName
+        clientUser {
+          name
+        }
+      }
+    }
+  }
+}
+
+`;
+
+exports[`SkipRedundantNodesTransform matches expected output: skips-with-fragment.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment ProfilePicture on User {
+  profile_picture(scale: 1) {
+    uri
+  }
+}
+
+query UserQuery {
+  viewer {
+    actor {
+      ...ProfilePicture
+      friends {
+        edges {
+          node {
+            ... on User {
+              id
+              # In this case - even that we have the profile picture in
+              # ...ProfilePicture we still will use \`profile_picture\` with
+              # scale = 2 in final query
+              profile_picture(scale: 2) {
+                uri
+              }
+              ...ProfilePicture
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+query UserQuery {
+  viewer {
+    actor {
+      friends {
+        edges {
+          node {
+            ... on User {
+              id
+              profile_picture(scale: 2) {
+                uri
+              }
+            }
+          }
+        }
+      }
+      ... on User {
+        profile_picture(scale: 1) {
+          uri
+        }
+      }
+    }
+  }
+}
+
+`;
+
 exports[`SkipRedundantNodesTransform matches expected output: skips-with-outer-fields-first.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-query SkipWithOuterFieldFirst($cond: Boolean, $notCond: Boolean) {
+query SkipWithOuterFieldFirst($cond: Boolean!, $notCond: Boolean!) {
   viewer {
     actor {
       id
@@ -173,8 +311,8 @@ query SkipWithOuterFieldFirst($cond: Boolean, $notCond: Boolean) {
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 query SkipWithOuterFieldFirst(
-  $cond: Boolean
-  $notCond: Boolean
+  $cond: Boolean!
+  $notCond: Boolean!
 ) {
   viewer {
     actor {

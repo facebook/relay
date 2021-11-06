@@ -1,0 +1,22 @@
+query fragmentWithDeferArguments_QueryWithFragmentWithDeferQuery {
+  me {
+    id
+    ...fragmentWithDeferArguments_UserFragment
+  }
+}
+
+fragment fragmentWithDeferArguments_UserFragment on User {
+  id
+  emailAddresses
+  ...fragmentWithDeferArguments_DeferredFragment
+    @defer(label: "DeferredFragmentLabel")
+    @arguments(scale: 1.5)
+}
+
+fragment fragmentWithDeferArguments_DeferredFragment on User @argumentDefinitions(scale: {type: "Float"}) {
+  id
+  name
+  profile_picture(scale: $scale) {
+    uri
+  }
+}

@@ -1,0 +1,48 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query matchFieldOverlapAcrossDocuments_MultipleNameRendererQuery($id: ID!) {
+  node(id: $id) {
+    ...matchFieldOverlapAcrossDocuments_FooNameRendererFragment
+    ...matchFieldOverlapAcrossDocuments_BarNameRendererFragment
+  }
+}
+
+fragment matchFieldOverlapAcrossDocuments_FooNameRendererFragment on User {
+  id
+  nameRenderer @match {
+    ...matchFieldOverlapAcrossDocuments_MarkdownUserNameRenderer_name
+      @module(name: "FooMarkdownUserNameRenderer.react")
+  }
+}
+
+fragment matchFieldOverlapAcrossDocuments_BarNameRendererFragment on User {
+  # same field and supported types as above but different selections:
+  # should flatten together
+  nameRenderer @match {
+    ...matchFieldOverlapAcrossDocuments_MarkdownUserNameRenderer_name
+      @module(name: "BarMarkdownUserNameRenderer.react")
+  }
+}
+
+fragment matchFieldOverlapAcrossDocuments_MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+  }
+}
+==================================== ERROR ====================================
+✖︎ Each field on a given type can have only a single @module directive, but here there is more than one (perhaps within different spreads). To fix it, put each @module directive into its own aliased copy of the field with different aliases.
+
+  match-field-overlap-across-documents.graphql:22:7
+   21 │     ...matchFieldOverlapAcrossDocuments_MarkdownUserNameRenderer_name
+   22 │       @module(name: "BarMarkdownUserNameRenderer.react")
+      │       ^^^^^^^
+   23 │   }
+
+  ℹ︎ conflicts with
+
+  match-field-overlap-across-documents.graphql:13:7
+   12 │     ...matchFieldOverlapAcrossDocuments_MarkdownUserNameRenderer_name
+   13 │       @module(name: "FooMarkdownUserNameRenderer.react")
+      │       ^^^^^^^
+   14 │   }

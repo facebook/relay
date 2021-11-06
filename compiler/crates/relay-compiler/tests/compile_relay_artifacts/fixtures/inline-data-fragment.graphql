@@ -1,0 +1,26 @@
+query inlineDataFragment_TestQuery {
+  ...inlineDataFragment_ParentFragment
+}
+
+fragment inlineDataFragment_ParentFragment on Query {
+  me {
+    # No refinement needed, field and fragment are both User.
+    ...inlineDataFragment_Profile
+    profilePicture(size: 100) {
+      uri
+      height
+    }
+  }
+
+  username(name: "test") {
+    # Should refine from type Actor to User.
+    ...inlineDataFragment_Profile
+  }
+}
+
+fragment inlineDataFragment_Profile on User @inline {
+  profilePicture(size: 100) {
+    uri
+    width
+  }
+}

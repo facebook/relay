@@ -1,0 +1,25 @@
+fragment clientLinkedFields_Foo_user on User {
+  id
+
+  client_friends {
+    edges {
+      client_friend_edge_field # nested client field, should not create new ClientExtension node
+      node {
+        id
+      }
+    }
+    pageInfo {
+      hasNextPage
+    }
+  }
+}
+
+# %extensions%
+
+extend type User {
+  client_friends: FriendsConnection
+}
+
+extend type FriendsEdge {
+  client_friend_edge_field: String
+}

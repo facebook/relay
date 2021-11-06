@@ -1,0 +1,20 @@
+query selectionSetConflictDifferentReturnTypesForFieldButSameShapeQuery {
+  viewer {
+    newsFeed {
+      edges{
+        node {
+          ... on PhotoStory {
+            body {
+              __typename
+            }
+          }
+          ... on Story {
+            body {
+              __typename
+            }
+          }
+        }
+      }
+    }
+  }
+}

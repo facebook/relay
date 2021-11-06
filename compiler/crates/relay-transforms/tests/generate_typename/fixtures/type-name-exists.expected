@@ -1,0 +1,92 @@
+==================================== INPUT ====================================
+query EasyTypeNameExistsQuery {
+  viewer {
+    newsFeed(first: 10) {
+      edges {
+        node {
+          id
+          __typename
+          message {
+            text
+          }
+          ...NonNodeStory_feedUnit
+        }
+      }
+    }
+  }
+}
+
+fragment NonNodeStory_feedUnit on FeedUnit {
+  __typename
+  id
+  actor {
+    name
+    __typename
+  }
+}
+
+query TypeNameExistsWithFlattenTransformQuery {
+  node(id: "123") {
+    comments(first: 10) {
+      edges {
+        node {
+          id
+          ...CommentFragment_comment
+        }
+      }
+    }
+  }
+}
+
+fragment CommentFragment_comment on Comment {
+  body {
+    text
+  }
+}
+==================================== OUTPUT ===================================
+query EasyTypeNameExistsQuery {
+  viewer {
+    newsFeed(first: 10) {
+      edges {
+        node {
+          id
+          __typename
+          message {
+            text
+          }
+          ...NonNodeStory_feedUnit
+        }
+      }
+    }
+  }
+}
+
+query TypeNameExistsWithFlattenTransformQuery {
+  node(id: "123") {
+    __typename
+    comments(first: 10) {
+      edges {
+        node {
+          id
+          ...CommentFragment_comment
+        }
+      }
+    }
+  }
+}
+
+fragment CommentFragment_comment on Comment {
+  body {
+    text
+  }
+}
+
+fragment NonNodeStory_feedUnit on FeedUnit {
+  __isFeedUnit: __typename
+  __typename
+  id
+  actor {
+    name
+    __typename
+  }
+}

@@ -1,0 +1,319 @@
+==================================== INPUT ====================================
+query moduleWithDefer_MultipleNameRendererQuery($id: ID!) {
+  node(id: $id) {
+    ...moduleWithDefer_FooNameRendererFragment
+  }
+}
+
+fragment moduleWithDefer_FooNameRendererFragment on User {
+  id
+  nameRenderer {
+    ...moduleWithDefer_MarkdownUserNameRenderer_name
+        @module(name: "FooMarkdownUserNameRenderer.react") @defer
+  }
+}
+
+fragment moduleWithDefer_MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+  }
+}
+==================================== OUTPUT ===================================
+{
+  "kind": "SplitOperation",
+  "metadata": {},
+  "name": "moduleWithDefer_MarkdownUserNameRenderer_name$normalization",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "markdown",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "concreteType": "MarkdownUserNameData",
+      "kind": "LinkedField",
+      "name": "data",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "markup",
+          "storageKey": null
+        },
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "id",
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    }
+  ]
+}
+
+{
+  "fragment": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "id"
+      }
+    ],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "moduleWithDefer_MultipleNameRendererQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "moduleWithDefer_FooNameRendererFragment"
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "id"
+      }
+    ],
+    "kind": "Operation",
+    "name": "moduleWithDefer_MultipleNameRendererQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "__typename",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          },
+          {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "concreteType": null,
+                "kind": "LinkedField",
+                "name": "nameRenderer",
+                "plural": false,
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "__typename",
+                    "storageKey": null
+                  },
+                  {
+                    "if": null,
+                    "kind": "Defer",
+                    "label": "moduleWithDefer_FooNameRendererFragment$defer$moduleWithDefer_MarkdownUserNameRenderer_name",
+                    "selections": [
+                      {
+                        "kind": "InlineFragment",
+                        "selections": [
+                          {
+                            "args": null,
+                            "documentName": "moduleWithDefer_FooNameRendererFragment",
+                            "fragmentName": "moduleWithDefer_MarkdownUserNameRenderer_name",
+                            "fragmentPropName": "MarkdownUserNameRenderer_name",
+                            "kind": "ModuleImport"
+                          }
+                        ],
+                        "type": "MarkdownUserNameRenderer",
+                        "abstractKey": null
+                      }
+                    ]
+                  }
+                ],
+                "storageKey": null
+              }
+            ],
+            "type": "User",
+            "abstractKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {},
+    "name": "moduleWithDefer_MultipleNameRendererQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query moduleWithDefer_MultipleNameRendererQuery(
+  $id: ID!
+) {
+  node(id: $id) {
+    __typename
+    ...moduleWithDefer_FooNameRendererFragment
+    id
+  }
+}
+
+fragment moduleWithDefer_FooNameRendererFragment on User {
+  id
+  nameRenderer {
+    __typename
+    ... @defer(label: "moduleWithDefer_FooNameRendererFragment$defer$moduleWithDefer_MarkdownUserNameRenderer_name") {
+      ... on MarkdownUserNameRenderer {
+        ...moduleWithDefer_MarkdownUserNameRenderer_name
+        __module_operation_moduleWithDefer_FooNameRendererFragment: js(module: "moduleWithDefer_MarkdownUserNameRenderer_name$normalization.graphql", id: "moduleWithDefer_FooNameRendererFragment.nameRenderer", branch: "MarkdownUserNameRenderer")
+        __module_component_moduleWithDefer_FooNameRendererFragment: js(module: "FooMarkdownUserNameRenderer.react", id: "moduleWithDefer_FooNameRendererFragment.nameRenderer", branch: "MarkdownUserNameRenderer")
+      }
+    }
+  }
+}
+
+fragment moduleWithDefer_MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+    id
+  }
+}
+
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "moduleWithDefer_FooNameRendererFragment",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "id",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "concreteType": null,
+      "kind": "LinkedField",
+      "name": "nameRenderer",
+      "plural": false,
+      "selections": [
+        {
+          "kind": "Defer",
+          "selections": [
+            {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "args": null,
+                  "documentName": "moduleWithDefer_FooNameRendererFragment",
+                  "fragmentName": "moduleWithDefer_MarkdownUserNameRenderer_name",
+                  "fragmentPropName": "MarkdownUserNameRenderer_name",
+                  "kind": "ModuleImport"
+                }
+              ],
+              "type": "MarkdownUserNameRenderer",
+              "abstractKey": null
+            }
+          ]
+        }
+      ],
+      "storageKey": null
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "moduleWithDefer_MarkdownUserNameRenderer_name",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "markdown",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "concreteType": "MarkdownUserNameData",
+      "kind": "LinkedField",
+      "name": "data",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "markup",
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    }
+  ],
+  "type": "MarkdownUserNameRenderer",
+  "abstractKey": null
+}

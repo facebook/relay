@@ -1,0 +1,27 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment User on User {
+  ...UserProfile
+}
+
+fragment UserProfile on User @inline {
+  profilePicture(size: $ProfilePicture_SIZE) {
+    uri
+  }
+}
+==================================== ERROR ====================================
+✖︎ Variables are not yet supported inside @inline fragments.
+
+  variables.invalid.graphql:6:10
+    5 │ 
+    6 │ fragment UserProfile on User @inline {
+      │          ^^^^^^^^^^^
+    7 │   profilePicture(size: $ProfilePicture_SIZE) {
+
+  ℹ︎ Variable used:
+
+  variables.invalid.graphql:7:24
+    6 │ fragment UserProfile on User @inline {
+    7 │   profilePicture(size: $ProfilePicture_SIZE) {
+      │                        ^^^^^^^^^^^^^^^^^^^^
+    8 │     uri

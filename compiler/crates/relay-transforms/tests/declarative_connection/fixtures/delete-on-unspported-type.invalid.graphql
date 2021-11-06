@@ -1,0 +1,6 @@
+# expected-to-throw
+mutation CommentDeleteMutation($input: CommentDeleteInput) {
+  commentDelete(input: $input) {
+    __typename @deleteRecord
+  }
+}

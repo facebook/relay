@@ -1,0 +1,40 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query multipleModulesWithoutKey_MatchQuery {
+  node(id: "<user-id>") {
+    ... on Actor {
+      nameRenderer {
+        ...multipleModulesWithoutKey_PlainUserNameRenderer_name
+          @module(name: "PlainUserNameRenderer.react")
+      }
+    }
+    ... on User {
+      nameRenderable {
+        ...multipleModulesWithoutKey_MarkdownUserNameRenderer_name
+          @module(name: "MarkdownUserNameRenderer.react")
+      }
+    }
+  }
+}
+
+fragment multipleModulesWithoutKey_PlainUserNameRenderer_name on PlainUserNameRenderer {
+  plaintext
+  data {
+    text
+  }
+}
+
+fragment multipleModulesWithoutKey_MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+  }
+}
+==================================== ERROR ====================================
+✖︎ Invalid @module selection: documents with multiple fields containing 3D selections must specify a unique 'key' value for each field: use 'nameRenderable @match(key: "multipleModulesWithoutKey_MatchQuery_<localName>")'.
+
+  multiple-modules-without-key.invalid.graphql:11:7
+   10 │     ... on User {
+   11 │       nameRenderable {
+      │       ^^^^^^^^^^^^^^
+   12 │         ...multipleModulesWithoutKey_MarkdownUserNameRenderer_name

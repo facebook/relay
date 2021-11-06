@@ -1,0 +1,9 @@
+# expected-to-throw
+
+query missingArgumentOnDirectiveViewerQuery {
+  node {
+    body @customDirective {
+      text
+    }
+  }
+}

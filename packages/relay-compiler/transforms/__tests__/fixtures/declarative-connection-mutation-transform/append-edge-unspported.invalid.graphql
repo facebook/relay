@@ -1,0 +1,11 @@
+# expected-to-throw
+mutation CommentCreateMutation(
+  $connections: [ID!]!
+  $input: CommentCreateInput
+) {
+  commentCreate(input: $input) {
+    viewer @appendEdge(connections: $connections) {
+      __typename
+    }
+  }
+}

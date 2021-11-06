@@ -1,0 +1,41 @@
+query deferIfArgumentsQuery (
+  $valueFromQuery: Boolean
+) {
+  ...deferIfArguments_F1 @arguments(
+    setToValue: $valueFromQuery
+    setToTrue: true
+    setToFalse: false
+  )
+}
+
+
+fragment deferIfArguments_F1 on Query @argumentDefinitions(
+  defaultsToTrue: {type: "Boolean", defaultValue: true}
+  defaultsToFalse: {type: "Boolean", defaultValue: false}
+  setToValue: {type: "Boolean", defaultValue: false}
+  setToTrue: {type: "Boolean", defaultValue: false}
+  setToFalse: {type: "Boolean", defaultValue: false}
+) {
+  withDefaultTrue: me {
+    ...deferIfArguments_F2 @defer(if: $defaultsToTrue, label: "defaultTrue")
+  }
+  withDefaultFalse: me {
+    ...deferIfArguments_F2 @defer(if: $defaultsToFalse, label: "defaultFalse")
+  }
+  setToTrue: me {
+    ...deferIfArguments_F2 @defer(if: $setToTrue, label: "setToTrue")
+  }
+  setToFalse: me {
+    ...deferIfArguments_F2 @defer(if: $setToFalse, label: "setToFalse")
+  }
+  withValueFromQueryDirectly: me {
+    ...deferIfArguments_F2 @defer(if: $valueFromQuery, label: "fromQueryDirectly")
+  }
+  withValueFromQueryViaArgDef: me {
+    ...deferIfArguments_F2 @defer(if: $setToValue, label: "fromQueryViaArg")
+  }
+}
+
+fragment deferIfArguments_F2 on User {
+  name
+}

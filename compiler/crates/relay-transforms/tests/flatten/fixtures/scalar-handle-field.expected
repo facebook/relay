@@ -1,0 +1,15 @@
+==================================== INPUT ====================================
+fragment ScalarHandleField on User {
+  name @__clientField(handle: "clientName")
+  ... on User {
+    # should be de-duped
+    name @__clientField(handle: "clientName")
+    ... on User {
+      name @__clientField(handle: "otherClientName")
+    }
+  }
+}
+==================================== OUTPUT ===================================
+fragment ScalarHandleField on User {
+  name @__clientField(handle: "clientName") @__clientField(handle: "otherClientName")
+}

@@ -1,0 +1,24 @@
+# expected-to-throw
+query MatchQuery {
+  node(id: "<user-id>") {
+    ... on Actor {
+      nameRenderer {
+        ...MarkdownUserNameRenderer_name
+          @module(name: "MarkdownUserNameRenderer.react")
+      }
+    }
+    ... on User {
+      nameRenderer {
+        ...MarkdownUserNameRenderer_name
+          @module(name: "OtherMarkdownUserNameRenderer.react")
+      }
+    }
+  }
+}
+
+fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+  }
+}

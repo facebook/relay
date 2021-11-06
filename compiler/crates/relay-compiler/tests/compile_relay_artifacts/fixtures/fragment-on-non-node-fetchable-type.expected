@@ -1,0 +1,303 @@
+==================================== INPUT ====================================
+fragment fragmentOnNonNodeFetchableType_RefetchableFragment on NonNodeStory
+  @refetchable(queryName: "RefetchableFragmentQuery") {
+  actor {
+    ...fragmentOnNonNodeFetchableType_ProfilePicture
+  }
+}
+
+fragment fragmentOnNonNodeFetchableType_ProfilePicture on User {
+  profilePicture(size: $size) {
+    uri
+  }
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "id"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "size"
+      }
+    ],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "RefetchableFragmentQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "input_fetch_id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": "NonNodeStory",
+        "kind": "LinkedField",
+        "name": "fetch__NonNodeStory",
+        "plural": false,
+        "selections": [
+          {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "fragmentOnNonNodeFetchableType_RefetchableFragment"
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "size"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "id"
+      }
+    ],
+    "kind": "Operation",
+    "name": "RefetchableFragmentQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "input_fetch_id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": "NonNodeStory",
+        "kind": "LinkedField",
+        "name": "fetch__NonNodeStory",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "concreteType": null,
+            "kind": "LinkedField",
+            "name": "actor",
+            "plural": false,
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "__typename",
+                "storageKey": null
+              },
+              {
+                "kind": "InlineFragment",
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": [
+                      {
+                        "kind": "Variable",
+                        "name": "size",
+                        "variableName": "size"
+                      }
+                    ],
+                    "concreteType": "Image",
+                    "kind": "LinkedField",
+                    "name": "profilePicture",
+                    "plural": false,
+                    "selections": [
+                      {
+                        "alias": null,
+                        "args": null,
+                        "kind": "ScalarField",
+                        "name": "uri",
+                        "storageKey": null
+                      }
+                    ],
+                    "storageKey": null
+                  }
+                ],
+                "type": "User",
+                "abstractKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "id",
+                "storageKey": null
+              }
+            ],
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "fetch_id",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "__token",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {},
+    "name": "RefetchableFragmentQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query RefetchableFragmentQuery(
+  $size: [Int]
+  $id: ID!
+) {
+  fetch__NonNodeStory(input_fetch_id: $id) {
+    ...fragmentOnNonNodeFetchableType_RefetchableFragment
+    id
+  }
+}
+
+fragment fragmentOnNonNodeFetchableType_ProfilePicture on User {
+  profilePicture(size: $size) {
+    uri
+  }
+}
+
+fragment fragmentOnNonNodeFetchableType_RefetchableFragment on NonNodeStory {
+  actor {
+    __typename
+    ...fragmentOnNonNodeFetchableType_ProfilePicture
+    id
+  }
+  fetch_id
+  __token
+}
+
+
+{
+  "argumentDefinitions": [
+    {
+      "kind": "RootArgument",
+      "name": "size"
+    }
+  ],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "fragmentOnNonNodeFetchableType_ProfilePicture",
+  "selections": [
+    {
+      "alias": null,
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "size",
+          "variableName": "size"
+        }
+      ],
+      "concreteType": "Image",
+      "kind": "LinkedField",
+      "name": "profilePicture",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "uri",
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}
+
+{
+  "argumentDefinitions": [
+    {
+      "kind": "RootArgument",
+      "name": "size"
+    }
+  ],
+  "kind": "Fragment",
+  "metadata": {
+    "refetch": {
+      "connection": null,
+      "fragmentPathInResult": [
+        "fetch__NonNodeStory"
+      ],
+      "operation": require('RefetchableFragmentQuery.graphql'),
+      "identifierField": "fetch_id"
+    }
+  },
+  "name": "fragmentOnNonNodeFetchableType_RefetchableFragment",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "concreteType": null,
+      "kind": "LinkedField",
+      "name": "actor",
+      "plural": false,
+      "selections": [
+        {
+          "args": null,
+          "kind": "FragmentSpread",
+          "name": "fragmentOnNonNodeFetchableType_ProfilePicture"
+        }
+      ],
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "fetch_id",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "__token",
+      "storageKey": null
+    }
+  ],
+  "type": "NonNodeStory",
+  "abstractKey": null
+}

@@ -1,0 +1,23 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query EnabledUserQuery {
+  me @required(action: NONE) @required(action: THROW) {
+    id
+  }
+}
+==================================== ERROR ====================================
+✖︎ The directive `@required` can only be used once at this location.
+
+  required-with-different-actions.invalid.graphql:3:30
+    2 │ query EnabledUserQuery {
+    3 │   me @required(action: NONE) @required(action: THROW) {
+      │                              ^^^^^^^^^
+    4 │     id
+
+  ℹ︎ previously used here
+
+  required-with-different-actions.invalid.graphql:3:6
+    2 │ query EnabledUserQuery {
+    3 │   me @required(action: NONE) @required(action: THROW) {
+      │      ^^^^^^^^^
+    4 │     id

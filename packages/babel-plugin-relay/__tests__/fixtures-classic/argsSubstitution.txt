@@ -1,7 +1,0 @@
-var foo = Relay.QL`
-  query Args {
-    node(id: ${userID}) {
-      id
-    }
-  }
-`;

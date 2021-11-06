@@ -1,12 +1,12 @@
 ---
-id: version-classic-classic-api-reference-relay-ql
+id: classic-api-reference-relay-ql
 title: Relay.QL
 original_id: classic-api-reference-relay-ql
 ---
-
 Relay fragments, mutations, and queries must be specified using ES6 template literals tagged with `Relay.QL`. For example:
 
 ```
+
 var fragment = Relay.QL`
   fragment on User {
     name
@@ -20,17 +20,17 @@ To execute this code, Relay needs access to the schema - which can be too large 
 
 `Relay.QL` objects are used by the following APIs:
 
-<ul class="apiIndex">
+<ul className="apiIndex">
   <li>
-    <pre>() => Relay.QL`fragment on ...`</pre>
+    <pre>() =&gt; Relay.QL`fragment on ...`</pre>
     Specify the data dependencies of a `Relay.Container` as GraphQL fragments.
   </li>
   <li>
-    <pre>(Component) => Relay.QL`query ...`</pre>
+    <pre>(Component) =&gt; Relay.QL`query ...`</pre>
     Specify the queries of a `Relay.Route`.
   </li>
   <li>
-    <pre>Relay.QL`mutation { fieldName }`</pre>
+    <pre>Relay.QL`mutation {"{"} fieldName {"}"}`</pre>
     Specify the mutation field in a `Relay.Mutation`.
   </li>
   <li>
@@ -39,19 +39,19 @@ To execute this code, Relay needs access to the schema - which can be too large 
   </li>
 </ul>
 
-
 ## Fragment Composition
 
 Fragments can be composed in one of two ways:
 
-- Composing child component fragments in a parent fragment.
-- Composing fragments defined as local variables.
+-   Composing child component fragments in a parent fragment.
+-   Composing fragments defined as local variables.
 
 ### Container.getFragment()
 
-Composing the fragments of child components is discussed in detail in the [Containers Guide](classic-guides-containers.html), but here's a quick example:
+Composing the fragments of child components is discussed in detail in the [Containers Guide](./classic-guides-containers), but here's a quick example:
 
-```{5}
+```{"{"}5{"}"}
+
 Relay.createContainer(Foo, {
   fragments: {
     bar: () => Relay.QL`
@@ -67,7 +67,8 @@ Relay.createContainer(Foo, {
 
 Fragments may also compose other fragments that are assigned to local variables:
 
-```{3-7,14,21}
+```{"{"}3-7,14,21{"}"}
+
 // An inline fragment - useful in small quantities, but best not to share
 // between modules.
 var userFragment = Relay.QL`
@@ -99,13 +100,14 @@ Relay.createContainer(Story, {
 });
 ```
 
-Note that it is *highly* recommended that `Relay.Container`s define their own fragments and avoid sharing inline `var fragment = Relay.QL...` values between containers or files. If you find yourself wanting to share inline fragments, it's likely a sign that it's time to refactor and introduce a new container.
+Note that it is _highly_ recommended that `Relay.Container`s define their own fragments and avoid sharing inline `var fragment = Relay.QL...` values between containers or files. If you find yourself wanting to share inline fragments, it's likely a sign that it's time to refactor and introduce a new container.
 
 ### Conditional fields
 
 You can conditionally include or skip a field based on the value of a boolean variable.
 
-```{4,9}
+```{"{"}4,9{"}"}
+
 Relay.createContainer(Story, {
   initialVariables: {
     numCommentsToShow: 10,
@@ -137,7 +139,8 @@ In order to resolve a fragment into an array of objects you have to use the `@re
 
 This will inform `Relay.QL` that this particular field is an array. This will also allow you to use a plural name for the fragment (i.e. `bars` instead of `bar`).
 
-```{4,9}
+```{"{"}4,9{"}"}
+
 Relay.createContainer(Story, {
   fragments: {
     bars: () => Relay.QL`

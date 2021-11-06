@@ -1,0 +1,22 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment EnabledFragment on Node @inline {
+  id
+  name @required(action: LOG)
+}
+==================================== ERROR ====================================
+✖︎ @required is not supported within @inline fragments.
+
+  inline-directive.invalid.graphql:4:8
+    3 │   id
+    4 │   name @required(action: LOG)
+      │        ^^^^^^^^^
+    5 │ }
+
+  ℹ︎ The fragment is annotated as @inline here.
+
+  inline-directive.invalid.graphql:2:34
+    1 │ # expected-to-throw
+    2 │ fragment EnabledFragment on Node @inline {
+      │                                  ^^^^^^^
+    3 │   id

@@ -1,0 +1,98 @@
+==================================== INPUT ====================================
+fragment NameRendererFragment on User {
+  id
+  nameRenderable @match {
+    ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+    ...MarkdownUserNameRenderer_name
+      @module(name: "MarkdownUserNameRenderer.react")
+  }
+}
+
+fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+  plaintext
+  data {
+    text
+  }
+}
+
+fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+  }
+}
+
+query MatchQuery {
+  viewer {
+    actor {
+      ...NameRendererFragment
+    }
+  }
+  user: node(id: "<user-id>") {
+    # There is no actual test for skipping redundant nodes here.
+    # We need this test, just for make sure we're not
+    # regressing this case using `cache`
+    ... on Actor {
+      ... on User {
+        nameRenderable {
+          ...MarkdownUserNameRenderer_name
+            @module(name: "MarkdownUserNameRenderer.react")
+        }
+      }
+    }
+    ... on User {
+      nameRenderable {
+        ...MarkdownUserNameRenderer_name
+          @module(name: "MarkdownUserNameRenderer.react")
+      }
+    }
+  }
+}
+==================================== OUTPUT ===================================
+query MatchQuery {
+  viewer {
+    actor {
+      ... on User {
+        id
+        nameRenderable @match {
+          ... on PlainUserNameRenderer @module(name: "PlainUserNameRenderer.react") {
+            plaintext
+            data {
+              text
+            }
+          }
+          ... on MarkdownUserNameRenderer @module(name: "MarkdownUserNameRenderer.react") {
+            markdown
+            data {
+              markup
+            }
+          }
+        }
+      }
+    }
+  }
+  user: node(id: "<user-id>") {
+    ... on Actor {
+      ... on User {
+        nameRenderable {
+          ... on MarkdownUserNameRenderer @module(name: "MarkdownUserNameRenderer.react") {
+            markdown
+            data {
+              markup
+            }
+          }
+        }
+      }
+    }
+    ... on User {
+      nameRenderable {
+        ... on MarkdownUserNameRenderer @module(name: "MarkdownUserNameRenderer.react") {
+          markdown
+          data {
+            markup
+          }
+        }
+      }
+    }
+  }
+}

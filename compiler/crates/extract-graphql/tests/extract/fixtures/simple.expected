@@ -1,0 +1,15 @@
+==================================== INPUT ====================================
+function MyComponent() {
+  useFragment(graphql`
+    fragment Test on User {
+      __typename
+    }
+  `, user)
+  return <div>Test</div>;
+}
+==================================== OUTPUT ===================================
+line: 1, column: 22, text: <
+    fragment Test on User {
+      __typename
+    }
+  >

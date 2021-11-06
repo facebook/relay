@@ -1,0 +1,12 @@
+query NodeQuery($id: ID!) @live_query(polling_interval: 1000) {
+  node(id: $id) {
+    id
+    ... on User {
+      birthdate {
+        day
+        month
+        year
+      }
+    }
+  }
+}

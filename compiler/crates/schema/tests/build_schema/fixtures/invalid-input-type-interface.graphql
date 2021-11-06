@@ -1,0 +1,9 @@
+# expected-to-throw
+
+interface Node {
+  id: ID
+}
+input InvalidInput {
+  value: String
+  node: Node
+}

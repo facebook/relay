@@ -1,0 +1,8 @@
+fragment Foo on Node {
+  __typename
+  ... on User {
+    ... on User {
+      name @required(action: LOG)
+    }
+  }
+}

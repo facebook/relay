@@ -1,0 +1,31 @@
+mutation CommentCreateMutation(
+  $input: CommentCreateInput!
+  $first: Int
+  $orderBy: [String!]
+) @raw_response_type {
+  commentCreate(input: $input) {
+    comment {
+      friends(first: $first, orderby: $orderBy) {
+        edges {
+          node {
+            lastName
+            ...FriendFragment
+          }
+        }
+      }
+    }
+  }
+}
+
+fragment FriendFragment on User {
+  name
+  lastName
+  feedback {
+    ...FeedbackFragment
+  }
+}
+
+fragment FeedbackFragment on Feedback {
+  id
+  name
+}

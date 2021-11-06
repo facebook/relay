@@ -1,0 +1,7 @@
+mutation CommentCreateMutation($input: CommentCreateInput!) {
+  commentCreate(input: $input) @required(action: LOG) {
+    comment @required(action: LOG) {
+      id @required(action: LOG)
+    }
+  }
+}

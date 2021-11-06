@@ -1,0 +1,24 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query QueryWithFragmentWithStream($id: ID!, $initialCount: Int) {
+  node(id: $id) {
+    id
+    ...FeedbackFragment
+  }
+}
+
+fragment FeedbackFragment on Feedback {
+  id
+  actors @stream(label: "StreamedActorsLabel") {
+    # invalid: missing initial_count
+    name
+  }
+}
+==================================== ERROR ====================================
+✖︎ Missing required argument: `initial_count`
+
+  fragment-with-stream-missing-initial-count-arg.invalid.graphql:11:11
+   10 │   id
+   11 │   actors @stream(label: "StreamedActorsLabel") {
+      │           ^^^^^^
+   12 │     # invalid: missing initial_count

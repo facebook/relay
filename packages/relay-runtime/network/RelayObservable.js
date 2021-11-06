@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -8,12 +8,11 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
-const isPromise = require('isPromise');
-
-import type {Disposable} from '../util/RelayRuntimeTypes';
-import type {LegacyObserver} from 'RelayNetworkTypes';
+const isPromise = require('../util/isPromise');
 
 /**
  * A Subscription object is returned from .subscribe(), which can be
@@ -23,6 +22,13 @@ export type Subscription = {|
   +unsubscribe: () => void,
   +closed: boolean,
 |};
+
+type SubscriptionFn = {
+  (): mixed,
+  +unsubscribe?: void,
+  +closed?: void,
+  ...
+};
 
 /**
  * An Observer is an object of optional callback functions provided to
@@ -41,7 +47,7 @@ export type Observer<-T> = {|
  * The methods are to be called to trigger each event. It also contains a closed
  * field to see if the resulting subscription has closed.
  */
-type Sink<-T> = {|
+export type Sink<-T> = {|
   +next: T => void,
   +error: (Error, isUncaughtThrownError?: boolean) => void,
   +complete: () => void,
@@ -54,7 +60,7 @@ type Sink<-T> = {|
  * and may return either a cleanup function or a Subscription instance (for use
  * when composing Observables).
  */
-type Source<+T> = (Sink<T>) => void | Subscription | (() => mixed);
+export type Source<+T> = (Sink<T>) => void | Subscription | SubscriptionFn;
 
 /**
  * A Subscribable is an interface describing any object which can be subscribed.
@@ -140,30 +146,8 @@ class RelayObservable<+T> implements Subscribable<T> {
     return isObservable(obj)
       ? fromObservable(obj)
       : isPromise(obj)
-        ? fromPromise(obj)
-        : fromValue(obj);
-  }
-
-  /**
-   * Creates a RelayObservable, given a function which expects a legacy
-   * Relay Observer as the last argument and which returns a Disposable.
-   *
-   * To support migration to Observable, the function may ignore the
-   * legacy Relay observer and directly return an Observable instead.
-   */
-  static fromLegacy<V>(
-    callback: (LegacyObserver<V>) => Disposable | RelayObservable<V>,
-  ): RelayObservable<V> {
-    return RelayObservable.create(sink => {
-      const result = callback({
-        onNext: sink.next,
-        onError: sink.error,
-        onCompleted: sink.complete,
-      });
-      return isObservable(result)
-        ? result.subscribe(sink)
-        : () => result.dispose();
-    });
+      ? fromPromise(obj)
+      : fromValue(obj);
   }
 
   /**
@@ -202,6 +186,30 @@ class RelayObservable<+T> implements Subscribable<T> {
   }
 
   /**
+   * Returns a new Observable which first yields values from this Observable,
+   * then yields values from the next Observable. This is useful for chaining
+   * together Observables of finite length.
+   */
+  concat<U>(next: RelayObservable<U>): RelayObservable<T | U> {
+    return RelayObservable.create(sink => {
+      let current;
+      this.subscribe({
+        start(subscription) {
+          current = subscription;
+        },
+        next: sink.next,
+        error: sink.error,
+        complete() {
+          current = next.subscribe(sink);
+        },
+      });
+      return () => {
+        current && current.unsubscribe();
+      };
+    });
+  }
+
+  /**
    * Returns a new Observable which returns the same values as this one, but
    * modified so that the provided Observer is called to perform a side-effects
    * for all events emitted by the source.
@@ -215,7 +223,7 @@ class RelayObservable<+T> implements Subscribable<T> {
   do(observer: Observer<T>): RelayObservable<T> {
     return RelayObservable.create(sink => {
       const both = (action: any) =>
-        function() {
+        function () {
           try {
             observer[action] && observer[action].apply(observer, arguments);
           } catch (error) {
@@ -303,25 +311,27 @@ class RelayObservable<+T> implements Subscribable<T> {
   }
 
   /**
-   * Supports subscription of a legacy Relay Observer, returning a Disposable.
-   */
-  subscribeLegacy(legacyObserver: LegacyObserver<T>): Disposable {
-    const subscription = this.subscribe({
-      next: legacyObserver.onNext,
-      error: legacyObserver.onError,
-      complete: legacyObserver.onCompleted,
-    });
-    return {
-      dispose: subscription.unsubscribe,
-    };
-  }
-
-  /**
    * Returns a new Observerable where each value has been transformed by
    * the mapping function.
    */
   map<U>(fn: T => U): RelayObservable<U> {
-    return this.mergeMap(value => fromValue(fn(value)));
+    return RelayObservable.create(sink => {
+      const subscription = this.subscribe({
+        complete: sink.complete,
+        error: sink.error,
+        next: value => {
+          try {
+            const mapValue = fn(value);
+            sink.next(mapValue);
+          } catch (error) {
+            sink.error(error, true /* isUncaughtThrownError */);
+          }
+        },
+      });
+      return () => {
+        subscription.unsubscribe();
+      };
+    });
   }
 
   /**
@@ -411,17 +421,19 @@ class RelayObservable<+T> implements Subscribable<T> {
   /**
    * Returns a Promise which resolves when this Observable yields a first value
    * or when it completes with no value.
+   *
+   * NOTE: The source Observable is *NOT* canceled when the returned Promise
+   * resolves. The Observable is always run to completion.
    */
   toPromise(): Promise<T | void> {
     return new Promise((resolve, reject) => {
-      let subscription;
+      let resolved = false;
       this.subscribe({
-        start(sub) {
-          subscription = sub;
-        },
         next(val) {
-          resolve(val);
-          subscription.unsubscribe();
+          if (!resolved) {
+            resolved = true;
+            resolve(val);
+          }
         },
         error: reject,
         complete: resolve,

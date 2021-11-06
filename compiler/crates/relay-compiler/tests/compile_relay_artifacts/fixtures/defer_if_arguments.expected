@@ -1,0 +1,506 @@
+==================================== INPUT ====================================
+query deferIfArgumentsQuery (
+  $valueFromQuery: Boolean
+) {
+  ...deferIfArguments_F1 @arguments(
+    setToValue: $valueFromQuery
+    setToTrue: true
+    setToFalse: false
+  )
+}
+
+
+fragment deferIfArguments_F1 on Query @argumentDefinitions(
+  defaultsToTrue: {type: "Boolean", defaultValue: true}
+  defaultsToFalse: {type: "Boolean", defaultValue: false}
+  setToValue: {type: "Boolean", defaultValue: false}
+  setToTrue: {type: "Boolean", defaultValue: false}
+  setToFalse: {type: "Boolean", defaultValue: false}
+) {
+  withDefaultTrue: me {
+    ...deferIfArguments_F2 @defer(if: $defaultsToTrue, label: "defaultTrue")
+  }
+  withDefaultFalse: me {
+    ...deferIfArguments_F2 @defer(if: $defaultsToFalse, label: "defaultFalse")
+  }
+  setToTrue: me {
+    ...deferIfArguments_F2 @defer(if: $setToTrue, label: "setToTrue")
+  }
+  setToFalse: me {
+    ...deferIfArguments_F2 @defer(if: $setToFalse, label: "setToFalse")
+  }
+  withValueFromQueryDirectly: me {
+    ...deferIfArguments_F2 @defer(if: $valueFromQuery, label: "fromQueryDirectly")
+  }
+  withValueFromQueryViaArgDef: me {
+    ...deferIfArguments_F2 @defer(if: $setToValue, label: "fromQueryViaArg")
+  }
+}
+
+fragment deferIfArguments_F2 on User {
+  name
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "valueFromQuery"
+      }
+    ],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "deferIfArgumentsQuery",
+    "selections": [
+      {
+        "args": [
+          {
+            "kind": "Literal",
+            "name": "setToFalse",
+            "value": false
+          },
+          {
+            "kind": "Literal",
+            "name": "setToTrue",
+            "value": true
+          },
+          {
+            "kind": "Variable",
+            "name": "setToValue",
+            "variableName": "valueFromQuery"
+          }
+        ],
+        "kind": "FragmentSpread",
+        "name": "deferIfArguments_F1"
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "valueFromQuery"
+      }
+    ],
+    "kind": "Operation",
+    "name": "deferIfArgumentsQuery",
+    "selections": [
+      {
+        "alias": "withDefaultTrue",
+        "args": null,
+        "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "me",
+        "plural": false,
+        "selections": [
+          {
+            "if": null,
+            "kind": "Defer",
+            "label": "deferIfArguments_F1$defer$defaultTrue",
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "name",
+                "storageKey": null
+              }
+            ]
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      },
+      {
+        "alias": "withDefaultFalse",
+        "args": null,
+        "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "me",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "name",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      },
+      {
+        "alias": "setToTrue",
+        "args": null,
+        "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "me",
+        "plural": false,
+        "selections": [
+          {
+            "if": null,
+            "kind": "Defer",
+            "label": "deferIfArguments_F1$defer$setToTrue",
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "name",
+                "storageKey": null
+              }
+            ]
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      },
+      {
+        "alias": "setToFalse",
+        "args": null,
+        "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "me",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "name",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      },
+      {
+        "alias": "withValueFromQueryDirectly",
+        "args": null,
+        "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "me",
+        "plural": false,
+        "selections": [
+          {
+            "if": "valueFromQuery",
+            "kind": "Defer",
+            "label": "deferIfArguments_F1$defer$fromQueryDirectly",
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "name",
+                "storageKey": null
+              }
+            ]
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      },
+      {
+        "alias": "withValueFromQueryViaArgDef",
+        "args": null,
+        "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "me",
+        "plural": false,
+        "selections": [
+          {
+            "if": "valueFromQuery",
+            "kind": "Defer",
+            "label": "deferIfArguments_F1$defer$fromQueryViaArg",
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "name",
+                "storageKey": null
+              }
+            ]
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {},
+    "name": "deferIfArgumentsQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query deferIfArgumentsQuery(
+  $valueFromQuery: Boolean
+) {
+  ...deferIfArguments_F1_39RTKZ
+}
+
+fragment deferIfArguments_F1_39RTKZ on Query {
+  withDefaultTrue: me {
+    ...deferIfArguments_F2 @defer(label: "deferIfArguments_F1$defer$defaultTrue", if: true)
+    id
+  }
+  withDefaultFalse: me {
+    ...deferIfArguments_F2
+    id
+  }
+  setToTrue: me {
+    ...deferIfArguments_F2 @defer(label: "deferIfArguments_F1$defer$setToTrue", if: true)
+    id
+  }
+  setToFalse: me {
+    ...deferIfArguments_F2
+    id
+  }
+  withValueFromQueryDirectly: me {
+    ...deferIfArguments_F2 @defer(label: "deferIfArguments_F1$defer$fromQueryDirectly", if: $valueFromQuery)
+    id
+  }
+  withValueFromQueryViaArgDef: me {
+    ...deferIfArguments_F2 @defer(label: "deferIfArguments_F1$defer$fromQueryViaArg", if: $valueFromQuery)
+    id
+  }
+}
+
+fragment deferIfArguments_F2 on User {
+  name
+}
+
+
+{
+  "argumentDefinitions": [
+    {
+      "defaultValue": false,
+      "kind": "LocalArgument",
+      "name": "defaultsToFalse"
+    },
+    {
+      "defaultValue": true,
+      "kind": "LocalArgument",
+      "name": "defaultsToTrue"
+    },
+    {
+      "defaultValue": false,
+      "kind": "LocalArgument",
+      "name": "setToFalse"
+    },
+    {
+      "defaultValue": false,
+      "kind": "LocalArgument",
+      "name": "setToTrue"
+    },
+    {
+      "defaultValue": false,
+      "kind": "LocalArgument",
+      "name": "setToValue"
+    },
+    {
+      "kind": "RootArgument",
+      "name": "valueFromQuery"
+    }
+  ],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "deferIfArguments_F1",
+  "selections": [
+    {
+      "alias": "withDefaultTrue",
+      "args": null,
+      "concreteType": "User",
+      "kind": "LinkedField",
+      "name": "me",
+      "plural": false,
+      "selections": [
+        {
+          "kind": "Defer",
+          "selections": [
+            {
+              "args": null,
+              "kind": "FragmentSpread",
+              "name": "deferIfArguments_F2"
+            }
+          ]
+        }
+      ],
+      "storageKey": null
+    },
+    {
+      "alias": "withDefaultFalse",
+      "args": null,
+      "concreteType": "User",
+      "kind": "LinkedField",
+      "name": "me",
+      "plural": false,
+      "selections": [
+        {
+          "kind": "Defer",
+          "selections": [
+            {
+              "args": null,
+              "kind": "FragmentSpread",
+              "name": "deferIfArguments_F2"
+            }
+          ]
+        }
+      ],
+      "storageKey": null
+    },
+    {
+      "alias": "setToTrue",
+      "args": null,
+      "concreteType": "User",
+      "kind": "LinkedField",
+      "name": "me",
+      "plural": false,
+      "selections": [
+        {
+          "kind": "Defer",
+          "selections": [
+            {
+              "args": null,
+              "kind": "FragmentSpread",
+              "name": "deferIfArguments_F2"
+            }
+          ]
+        }
+      ],
+      "storageKey": null
+    },
+    {
+      "alias": "setToFalse",
+      "args": null,
+      "concreteType": "User",
+      "kind": "LinkedField",
+      "name": "me",
+      "plural": false,
+      "selections": [
+        {
+          "kind": "Defer",
+          "selections": [
+            {
+              "args": null,
+              "kind": "FragmentSpread",
+              "name": "deferIfArguments_F2"
+            }
+          ]
+        }
+      ],
+      "storageKey": null
+    },
+    {
+      "alias": "withValueFromQueryDirectly",
+      "args": null,
+      "concreteType": "User",
+      "kind": "LinkedField",
+      "name": "me",
+      "plural": false,
+      "selections": [
+        {
+          "kind": "Defer",
+          "selections": [
+            {
+              "args": null,
+              "kind": "FragmentSpread",
+              "name": "deferIfArguments_F2"
+            }
+          ]
+        }
+      ],
+      "storageKey": null
+    },
+    {
+      "alias": "withValueFromQueryViaArgDef",
+      "args": null,
+      "concreteType": "User",
+      "kind": "LinkedField",
+      "name": "me",
+      "plural": false,
+      "selections": [
+        {
+          "kind": "Defer",
+          "selections": [
+            {
+              "args": null,
+              "kind": "FragmentSpread",
+              "name": "deferIfArguments_F2"
+            }
+          ]
+        }
+      ],
+      "storageKey": null
+    }
+  ],
+  "type": "Query",
+  "abstractKey": null
+}
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "deferIfArguments_F2",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "name",
+      "storageKey": null
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}

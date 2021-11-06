@@ -1,0 +1,111 @@
+==================================== INPUT ====================================
+fragment Test on User {
+  photo(size: $
+    # comment between $ and variable identifier
+    photoSize
+  )
+}
+==================================== OUTPUT ===================================
+ExecutableDocument {
+    span: 0:108,
+    definitions: [
+        FragmentDefinition {
+            location: space_in_variable.graphql:0:107,
+            fragment: Token {
+                span: 0:8,
+                kind: Identifier,
+            },
+            name: Identifier {
+                span: 9:13,
+                token: Token {
+                    span: 9:13,
+                    kind: Identifier,
+                },
+                value: "Test",
+            },
+            variable_definitions: None,
+            type_condition: TypeCondition {
+                span: 14:21,
+                on: Token {
+                    span: 14:16,
+                    kind: Identifier,
+                },
+                type_: Identifier {
+                    span: 17:21,
+                    token: Token {
+                        span: 17:21,
+                        kind: Identifier,
+                    },
+                    value: "User",
+                },
+            },
+            directives: [],
+            selections: List {
+                span: 22:107,
+                start: Token {
+                    span: 22:23,
+                    kind: OpenBrace,
+                },
+                items: [
+                    ScalarField {
+                        span: 26:105,
+                        alias: None,
+                        name: Identifier {
+                            span: 26:31,
+                            token: Token {
+                                span: 26:31,
+                                kind: Identifier,
+                            },
+                            value: "photo",
+                        },
+                        arguments: Some(
+                            List {
+                                span: 31:105,
+                                start: Token {
+                                    span: 31:32,
+                                    kind: OpenParen,
+                                },
+                                items: [
+                                    Argument {
+                                        span: 32:101,
+                                        name: Identifier {
+                                            span: 32:36,
+                                            token: Token {
+                                                span: 32:36,
+                                                kind: Identifier,
+                                            },
+                                            value: "size",
+                                        },
+                                        colon: Token {
+                                            span: 36:37,
+                                            kind: Colon,
+                                        },
+                                        value: Variable(
+                                            VariableIdentifier {
+                                                span: 38:101,
+                                                token: Token {
+                                                    span: 92:101,
+                                                    kind: Identifier,
+                                                },
+                                                name: "photoSize",
+                                            },
+                                        ),
+                                    },
+                                ],
+                                end: Token {
+                                    span: 104:105,
+                                    kind: CloseParen,
+                                },
+                            },
+                        ),
+                        directives: [],
+                    },
+                ],
+                end: Token {
+                    span: 106:107,
+                    kind: CloseBrace,
+                },
+            },
+        },
+    ],
+}

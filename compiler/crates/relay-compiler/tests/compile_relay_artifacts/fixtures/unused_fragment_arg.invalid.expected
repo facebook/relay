@@ -1,0 +1,32 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query QueryWithUnusedFragmentArgument($id: ID!) {
+  node(id: $id) {
+    ...Profile
+  }
+}
+
+fragment Profile on User {
+  id
+  name
+  ...ProfilePhotoWrapper @arguments(size: $size)
+}
+
+fragment ProfilePhotoWrapper on User @argumentDefinitions(size: {type: "Int"}) {
+  __typename
+  ...ProfilePhoto @arguments(size: $size)
+}
+
+fragment ProfilePhoto on User {
+  profilePicture(size: [100]) {
+    uri
+  }
+}
+==================================== ERROR ====================================
+✖︎ Unknown argument 'size'
+
+  unused_fragment_arg.invalid.graphql:16:30
+   15 │   __typename
+   16 │   ...ProfilePhoto @arguments(size: $size)
+      │                              ^^^^^^^^^^^
+   17 │ }

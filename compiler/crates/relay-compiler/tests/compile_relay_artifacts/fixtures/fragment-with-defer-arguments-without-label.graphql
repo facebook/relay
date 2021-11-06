@@ -1,0 +1,23 @@
+# expected-to-throw
+
+query fragmentWithDeferArgumentsWithoutLabel_QueryWithFragmentWithDeferQuery {
+  me {
+    id
+    ...fragmentWithDeferArgumentsWithoutLabel_UserFragment
+  }
+}
+
+fragment fragmentWithDeferArgumentsWithoutLabel_UserFragment on User {
+  id
+  emailAddresses
+  ...fragmentWithDeferArgumentsWithoutLabel_DeferredFragment @defer @arguments(scale: 1.5)
+  ...fragmentWithDeferArgumentsWithoutLabel_DeferredFragment @defer @arguments(scale: 2)
+}
+
+fragment fragmentWithDeferArgumentsWithoutLabel_DeferredFragment on User @argumentDefinitions(scale: {type: "Float"}) {
+  id
+  name
+  profile_picture(scale: $scale) {
+    uri
+  }
+}

@@ -1,0 +1,209 @@
+==================================== INPUT ====================================
+query abstractTypeRefinement_AbstractTypeRefinementQuery {
+  node(id: "4") {
+    ... on Named {
+      name_from_query: name
+    }
+    ...abstractTypeRefinement_ActorFragment
+  }
+}
+
+fragment abstractTypeRefinement_ActorFragment on Actor {
+  username
+  ... on Named {
+    name_from_fragment: name
+  }
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "abstractTypeRefinement_AbstractTypeRefinementQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Literal",
+            "name": "id",
+            "value": "4"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "alias": "name_from_query",
+                "args": null,
+                "kind": "ScalarField",
+                "name": "name",
+                "storageKey": null
+              }
+            ],
+            "type": "Named",
+            "abstractKey": "__isNamed"
+          },
+          {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "abstractTypeRefinement_ActorFragment"
+          }
+        ],
+        "storageKey": "node(id:\"4\")"
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [],
+    "kind": "Operation",
+    "name": "abstractTypeRefinement_AbstractTypeRefinementQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Literal",
+            "name": "id",
+            "value": "4"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "__typename",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          },
+          {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "alias": "name_from_query",
+                "args": null,
+                "kind": "ScalarField",
+                "name": "name",
+                "storageKey": null
+              }
+            ],
+            "type": "Named",
+            "abstractKey": "__isNamed"
+          },
+          {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "username",
+                "storageKey": null
+              },
+              {
+                "kind": "InlineFragment",
+                "selections": [
+                  {
+                    "alias": "name_from_fragment",
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "name",
+                    "storageKey": null
+                  }
+                ],
+                "type": "Named",
+                "abstractKey": "__isNamed"
+              }
+            ],
+            "type": "Actor",
+            "abstractKey": "__isActor"
+          }
+        ],
+        "storageKey": "node(id:\"4\")"
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {},
+    "name": "abstractTypeRefinement_AbstractTypeRefinementQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query abstractTypeRefinement_AbstractTypeRefinementQuery {
+  node(id: "4") {
+    __typename
+    ... on Named {
+      __isNamed: __typename
+      name_from_query: name
+    }
+    ...abstractTypeRefinement_ActorFragment
+    id
+  }
+}
+
+fragment abstractTypeRefinement_ActorFragment on Actor {
+  __isActor: __typename
+  username
+  ... on Named {
+    __isNamed: __typename
+    name_from_fragment: name
+  }
+}
+
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "abstractTypeRefinement_ActorFragment",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "username",
+      "storageKey": null
+    },
+    {
+      "kind": "InlineFragment",
+      "selections": [
+        {
+          "alias": "name_from_fragment",
+          "args": null,
+          "kind": "ScalarField",
+          "name": "name",
+          "storageKey": null
+        }
+      ],
+      "type": "Named",
+      "abstractKey": "__isNamed"
+    }
+  ],
+  "type": "Actor",
+  "abstractKey": "__isActor"
+}

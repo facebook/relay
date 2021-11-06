@@ -1,0 +1,36 @@
+==================================== INPUT ====================================
+query TestQuery($cond: Boolean!) {
+  viewer {
+    actor {
+      id @skip(if: $cond)
+      ... on User @include(if: $cond) {
+        name @include(if: true) @skip(if: false)
+        firstName @include(if: true) @skip(if: false)
+      }
+      ...UserFragment @include(if: $cond)
+    }
+  }
+}
+
+fragment UserFragment on User {
+  name
+}
+==================================== OUTPUT ===================================
+query TestQuery(
+  $cond: Boolean!
+) {
+  viewer {
+    actor {
+      id @skip(if: $cond)
+      ... on User @include(if: $cond) {
+        name
+        firstName
+      }
+      ...UserFragment @include(if: $cond)
+    }
+  }
+}
+
+fragment UserFragment on User {
+  name
+}

@@ -1,7 +1,0 @@
-mutation InputHasArray($input: UpdateAllSeenStateInput) {
-  viewerNotificationsUpdateAllSeenState(input: $input) {
-    stories {
-      actorCount
-    }
-  }
-}

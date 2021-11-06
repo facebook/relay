@@ -1,0 +1,36 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query sameFieldsWithDifferentArgs_MeQuery {
+  me {
+    name
+    address {
+      city
+    }
+    ...sameFieldsWithDifferentArgs_NestedFragment
+    ...sameFieldsWithDifferentArgs_NestedFragment2
+  }
+}
+
+fragment sameFieldsWithDifferentArgs_NestedFragment on User {
+  firstName(if: false, unless: true)
+}
+
+fragment sameFieldsWithDifferentArgs_NestedFragment2 on User {
+  firstName(if: false, unless: false)
+}
+==================================== ERROR ====================================
+✖︎ Expected all fields on the same parent with the name or alias `firstName` to have the same argument values after applying fragment arguments. This field has the applied argument values: (if: false, unless: true)
+
+  same-fields-with-different-args.invalid.graphql:14:3
+   13 │ fragment sameFieldsWithDifferentArgs_NestedFragment on User {
+   14 │   firstName(if: false, unless: true)
+      │   ^^^^^^^^^
+   15 │ }
+
+  ℹ︎ which conflicts with this field with applied argument values (if: false, unless: false)
+
+  same-fields-with-different-args.invalid.graphql:18:3
+   17 │ fragment sameFieldsWithDifferentArgs_NestedFragment2 on User {
+   18 │   firstName(if: false, unless: false)
+      │   ^^^^^^^^^
+   19 │ }

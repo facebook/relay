@@ -1,0 +1,20 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment RefetchableFragment on Query
+  @refetchable
+  @argumentDefinitions(id: {type: "ID!"}) {
+  node(id: $id) {
+    ... on User {
+      id
+      name
+    }
+  }
+}
+==================================== ERROR ====================================
+✖︎ Missing required argument: `queryName`
+
+  fragment-on-query-without-query-name.invalid.graphql:3:4
+    2 │ fragment RefetchableFragment on Query
+    3 │   @refetchable
+      │    ^^^^^^^^^^^
+    4 │   @argumentDefinitions(id: {type: "ID!"}) {

@@ -1,0 +1,12 @@
+# expected-to-throw
+query QueryWithFragmentWithStream($id: ID!, $label: String!) {
+  node(id: $id) {
+    id
+    ...UserFragment
+  }
+}
+
+fragment UserFragment on User {
+  id
+  name @stream(initial_count: 1, label: $label)
+}

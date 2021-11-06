@@ -1,16 +1,15 @@
 ---
-id: version-classic-classic-api-reference-relay-renderer
+id: classic-api-reference-relay-renderer
 title: Relay.Renderer
 original_id: classic-api-reference-relay-renderer
 ---
-
 **Relay.Renderer** is a replacement for `Relay.RootContainer` that composes a `Relay.ReadyStateRenderer` and performs data fetching for a given `queryConfig`.
 
 ## Overview
 
-*Props*
+_Props_
 
-<ul class="apiIndex">
+<ul className="apiIndex">
   <li>
     <a href="#container">
       <pre>Container</pre>
@@ -53,7 +52,9 @@ original_id: classic-api-reference-relay-renderer
 ### Container
 
 ```
+
 Container: RelayContainer
+
 ```
 
 Must be a valid `RelayContainer`. Relay will attempt to fulfill its data requirements before rendering it.
@@ -61,7 +62,9 @@ Must be a valid `RelayContainer`. Relay will attempt to fulfill its data require
 ### forceFetch
 
 ```
+
 forceFetch: boolean
+
 ```
 
 If supplied and set to true, a request for data will always be made to the server regardless of whether data on the client is available already.
@@ -69,7 +72,9 @@ If supplied and set to true, a request for data will always be made to the serve
 ### QueryConfig
 
 ```
+
 queryConfig: RelayRoute
+
 ```
 
 Either an instance of `Relay.Route` or an object with the `name`, `queries`, and optionally the `params` properties.
@@ -77,7 +82,9 @@ Either an instance of `Relay.Route` or an object with the `name`, `queries`, and
 ### Environment
 
 ```
+
 environment: RelayEnvironment
+
 ```
 
 An object that conforms to the `Relay.Environment` interface, such as `Relay.Store`.
@@ -85,6 +92,7 @@ An object that conforms to the `Relay.Environment` interface, such as `Relay.Sto
 ### render
 
 ```
+
 render({
   props: ?{[propName: string]: mixed},
   done: boolean,
@@ -92,6 +100,7 @@ render({
   retry: ?Function,
   stale: boolean
 }): ?React$Element
+
 ```
 
 If the render callback is not supplied, the default behavior is to render the container if data is available, the existing view if one exists, or nothing.
@@ -100,7 +109,8 @@ If the callback returns `undefined`, the previously rendered view (or nothing if
 
 #### Example
 
-```{4-6}
+```{"{"}4-6{"}"}
+
 // In this example, `ErrorComponent` and `LoadingComponent`
 // simply display a static error message / loading indicator.
 <Relay.Renderer
@@ -117,11 +127,13 @@ If the callback returns `undefined`, the previously rendered view (or nothing if
         }
       }}
 />
+
 ```
 
 ### onReadyStateChange
 
 ```
+
 onReadyStateChange(
   readyState: {
     aborted: boolean;
@@ -132,8 +144,9 @@ onReadyStateChange(
     stale: boolean;
   }
 ): void
+
 ```
 
 This callback prop is called as the various events of data resolution occur.
 
-See also: [Ready State](guides-ready-state.html)
+See also: [Ready State](./classic-guides-ready-state)

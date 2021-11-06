@@ -1,0 +1,8 @@
+# expected-to-throw
+
+query Test {
+  # this is a union
+  maybeNode {
+    doesNotExist @fixme_fat_interface
+  }
+}

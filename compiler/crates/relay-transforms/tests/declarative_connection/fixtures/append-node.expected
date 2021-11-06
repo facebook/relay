@@ -1,0 +1,25 @@
+==================================== INPUT ====================================
+mutation CommentCreateMutation(
+  $connections: [ID!]!
+  $edgeTypeName: String!
+  $input: CommentCreateInput
+) {
+  commentCreate(input: $input) {
+    comment
+      @appendNode(connections: $connections, edgeTypeName: $edgeTypeName) {
+      id
+    }
+  }
+}
+==================================== OUTPUT ===================================
+mutation CommentCreateMutation(
+  $connections: [ID!]!
+  $edgeTypeName: String!
+  $input: CommentCreateInput
+) {
+  commentCreate(input: $input) {
+    comment @__clientField(key: "", handle: "appendNode", filters: null, dynamicKey_UNSTABLE: null, handleArgs: {connections: $connections, edgeTypeName: $edgeTypeName}) {
+      id
+    }
+  }
+}

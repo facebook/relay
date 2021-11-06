@@ -1,0 +1,12 @@
+fragment fragmentOnObjectImplementingNodeInterface_RefetchableFragment on User
+  @refetchable(queryName: "RefetchableFragmentQuery") {
+  id
+  name
+  ...fragmentOnObjectImplementingNodeInterface_ProfilePicture
+}
+
+fragment fragmentOnObjectImplementingNodeInterface_ProfilePicture on User {
+  profilePicture(size: $size) {
+    uri
+  }
+}

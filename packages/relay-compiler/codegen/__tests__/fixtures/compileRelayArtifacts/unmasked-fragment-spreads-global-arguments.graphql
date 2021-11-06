@@ -1,7 +1,4 @@
-query TestQuery(
-  $ProfilePicture_SIZE: [Int]
-  $isRelative: Boolean
-) {
+query TestQuery($ProfilePicture_SIZE: [Int], $isRelative: Boolean) {
   me {
     ...UserProfile_user
   }

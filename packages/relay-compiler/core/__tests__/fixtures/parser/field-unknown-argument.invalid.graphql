@@ -1,0 +1,6 @@
+# expected-to-throw
+query TestQuery {
+  task(task_id: 123) {
+    title
+  }
+}

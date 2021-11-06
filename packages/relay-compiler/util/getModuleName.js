@@ -1,12 +1,14 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
+ * @flow strict
  * @format
  */
+
+// flowlint ambiguous-object-type:error
 
 'use strict';
 
@@ -18,15 +20,12 @@ function getModuleName(filePath: string): string {
   let filename = path.basename(filePath, path.extname(filePath));
 
   // index.js -> index (when extension has multiple segments)
-  filename = filename.replace(/(?:\.\w+)+/, '');
+  // index.react -> index (when extension has multiple segments)
+  filename = filename.replace(/(\.(?!ios|android)[_a-zA-Z0-9\\-]+)+/g, '');
 
   // /path/to/button/index.js -> button
   let moduleName =
     filename === 'index' ? path.basename(path.dirname(filePath)) : filename;
-
-  // Example.ios -> Example
-  // Example.product.android -> Example
-  moduleName = moduleName.replace(/(?:\.\w+)+/, '');
 
   // foo-bar -> fooBar
   // Relay compatibility mode splits on _, so we can't use that here.

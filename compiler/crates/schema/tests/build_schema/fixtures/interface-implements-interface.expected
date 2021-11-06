@@ -1,0 +1,762 @@
+==================================== INPUT ====================================
+schema {
+  query: Query
+}
+
+type Query {
+  node: Node
+}
+
+interface BaseNode {
+  id: ID!
+}
+
+interface Node implements BaseNode {
+  name: String!
+}
+
+interface Resource implements Node {
+  id: ID!
+  name: String!
+  url: String
+}
+
+interface Image implements Resource & Node {
+  id: ID!
+  url: String
+  thumbnail: String
+}
+==================================== OUTPUT ===================================
+Text Schema:Schema {
+  query_type: Some(
+    ObjectID(0),
+)
+  mutation_type: None
+  subscription_type: None
+  directives: [
+    Directive {
+        name: "include",
+        arguments: [
+            Argument {
+                name: "if",
+                type_: NonNull(
+                    Named(
+                        Scalar(3),
+                    ),
+                ),
+                default_value: None,
+                description: None,
+            },
+        ],
+        locations: [
+            Field,
+            FragmentSpread,
+            InlineFragment,
+        ],
+        repeatable: false,
+        is_extension: false,
+        description: None,
+    },
+    Directive {
+        name: "skip",
+        arguments: [
+            Argument {
+                name: "if",
+                type_: NonNull(
+                    Named(
+                        Scalar(3),
+                    ),
+                ),
+                default_value: None,
+                description: None,
+            },
+        ],
+        locations: [
+            Field,
+            FragmentSpread,
+            InlineFragment,
+        ],
+        repeatable: false,
+        is_extension: false,
+        description: None,
+    },
+]
+  type_map: {
+    "BaseNode": Interface(0),
+    "Boolean": Scalar(3),
+    "Float": Scalar(1),
+    "ID": Scalar(4),
+    "Image": Interface(3),
+    "Int": Scalar(0),
+    "Node": Interface(1),
+    "Query": Object(0),
+    "Resource": Interface(2),
+    "String": Scalar(2),
+}
+  enums: []
+  fields: [
+    Field {
+        name: WithLocation {
+            location: <generated>:42:46,
+            item: "node",
+        },
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Interface(1),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(0),
+        ),
+        description: None,
+    },
+    Field {
+        name: WithLocation {
+            location: <generated>:79:81,
+            item: "id",
+        },
+        is_extension: false,
+        arguments: [],
+        type_: NonNull(
+            Named(
+                Scalar(4),
+            ),
+        ),
+        directives: [],
+        parent_type: Some(
+            Interface(0),
+        ),
+        description: None,
+    },
+    Field {
+        name: WithLocation {
+            location: <generated>:129:133,
+            item: "name",
+        },
+        is_extension: false,
+        arguments: [],
+        type_: NonNull(
+            Named(
+                Scalar(2),
+            ),
+        ),
+        directives: [],
+        parent_type: Some(
+            Interface(1),
+        ),
+        description: None,
+    },
+    Field {
+        name: WithLocation {
+            location: <generated>:185:187,
+            item: "id",
+        },
+        is_extension: false,
+        arguments: [],
+        type_: NonNull(
+            Named(
+                Scalar(4),
+            ),
+        ),
+        directives: [],
+        parent_type: Some(
+            Interface(2),
+        ),
+        description: None,
+    },
+    Field {
+        name: WithLocation {
+            location: <generated>:195:199,
+            item: "name",
+        },
+        is_extension: false,
+        arguments: [],
+        type_: NonNull(
+            Named(
+                Scalar(2),
+            ),
+        ),
+        directives: [],
+        parent_type: Some(
+            Interface(2),
+        ),
+        description: None,
+    },
+    Field {
+        name: WithLocation {
+            location: <generated>:211:214,
+            item: "url",
+        },
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Scalar(2),
+        ),
+        directives: [],
+        parent_type: Some(
+            Interface(2),
+        ),
+        description: None,
+    },
+    Field {
+        name: WithLocation {
+            location: <generated>:273:275,
+            item: "id",
+        },
+        is_extension: false,
+        arguments: [],
+        type_: NonNull(
+            Named(
+                Scalar(4),
+            ),
+        ),
+        directives: [],
+        parent_type: Some(
+            Interface(3),
+        ),
+        description: None,
+    },
+    Field {
+        name: WithLocation {
+            location: <generated>:283:286,
+            item: "url",
+        },
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Scalar(2),
+        ),
+        directives: [],
+        parent_type: Some(
+            Interface(3),
+        ),
+        description: None,
+    },
+    Field {
+        name: WithLocation {
+            location: <generated>:297:306,
+            item: "thumbnail",
+        },
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Scalar(2),
+        ),
+        directives: [],
+        parent_type: Some(
+            Interface(3),
+        ),
+        description: None,
+    },
+    Field {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "__typename",
+        },
+        is_extension: false,
+        arguments: [],
+        type_: NonNull(
+            Named(
+                Scalar(2),
+            ),
+        ),
+        directives: [],
+        parent_type: None,
+        description: None,
+    },
+    Field {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "__token",
+        },
+        is_extension: false,
+        arguments: [],
+        type_: NonNull(
+            Named(
+                Scalar(4),
+            ),
+        ),
+        directives: [],
+        parent_type: None,
+        description: None,
+    },
+    Field {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "__id",
+        },
+        is_extension: true,
+        arguments: [],
+        type_: NonNull(
+            Named(
+                Scalar(4),
+            ),
+        ),
+        directives: [],
+        parent_type: None,
+        description: None,
+    },
+    Field {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "strong_id__",
+        },
+        is_extension: true,
+        arguments: [],
+        type_: Named(
+            Scalar(4),
+        ),
+        directives: [],
+        parent_type: None,
+        description: None,
+    },
+    Field {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "is_fulfilled__",
+        },
+        is_extension: true,
+        arguments: [
+            Argument {
+                name: "name",
+                type_: NonNull(
+                    Named(
+                        Scalar(2),
+                    ),
+                ),
+                default_value: None,
+                description: None,
+            },
+        ],
+        type_: NonNull(
+            Named(
+                Scalar(2),
+            ),
+        ),
+        directives: [],
+        parent_type: None,
+        description: None,
+    },
+]
+  input_objects: []
+  interfaces: [
+    Interface {
+        name: "BaseNode",
+        is_extension: false,
+        implementing_objects: [],
+        fields: [
+            FieldID(1),
+        ],
+        directives: [],
+        interfaces: [],
+        description: None,
+    },
+    Interface {
+        name: "Node",
+        is_extension: false,
+        implementing_objects: [],
+        fields: [
+            FieldID(2),
+        ],
+        directives: [],
+        interfaces: [
+            InterfaceID(0),
+        ],
+        description: None,
+    },
+    Interface {
+        name: "Resource",
+        is_extension: false,
+        implementing_objects: [],
+        fields: [
+            FieldID(3),
+            FieldID(4),
+            FieldID(5),
+        ],
+        directives: [],
+        interfaces: [
+            InterfaceID(1),
+        ],
+        description: None,
+    },
+    Interface {
+        name: "Image",
+        is_extension: false,
+        implementing_objects: [],
+        fields: [
+            FieldID(6),
+            FieldID(7),
+            FieldID(8),
+        ],
+        directives: [],
+        interfaces: [
+            InterfaceID(2),
+            InterfaceID(1),
+        ],
+        description: None,
+    },
+]
+  objects: [
+    Object {
+        name: WithLocation {
+            location: <generated>:32:37,
+            item: "Query",
+        },
+        is_extension: false,
+        fields: [
+            FieldID(0),
+        ],
+        interfaces: [],
+        directives: [],
+        description: None,
+    },
+]
+  scalars: [
+    Scalar {
+        name: "Int",
+        is_extension: false,
+        directives: [],
+        description: None,
+    },
+    Scalar {
+        name: "Float",
+        is_extension: false,
+        directives: [],
+        description: None,
+    },
+    Scalar {
+        name: "String",
+        is_extension: false,
+        directives: [],
+        description: None,
+    },
+    Scalar {
+        name: "Boolean",
+        is_extension: false,
+        directives: [],
+        description: None,
+    },
+    Scalar {
+        name: "ID",
+        is_extension: false,
+        directives: [],
+        description: None,
+    },
+]
+  unions: []
+  }
+
+FlatBuffer Schema:FB Schema {
+directives: [
+    Directive {
+        name: "include",
+        arguments: [
+            Argument {
+                name: "if",
+                type_: NonNull(
+                    Named(
+                        Scalar(1),
+                    ),
+                ),
+                default_value: None,
+                description: None,
+            },
+        ],
+        locations: [
+            Field,
+            FragmentSpread,
+            InlineFragment,
+        ],
+        repeatable: false,
+        is_extension: false,
+        description: None,
+    },
+    Directive {
+        name: "skip",
+        arguments: [
+            Argument {
+                name: "if",
+                type_: NonNull(
+                    Named(
+                        Scalar(1),
+                    ),
+                ),
+                default_value: None,
+                description: None,
+            },
+        ],
+        locations: [
+            Field,
+            FragmentSpread,
+            InlineFragment,
+        ],
+        repeatable: false,
+        is_extension: false,
+        description: None,
+    },
+]
+enums: []
+fields: [
+    Field {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "id",
+        },
+        is_extension: false,
+        arguments: [],
+        type_: NonNull(
+            Named(
+                Scalar(0),
+            ),
+        ),
+        directives: [],
+        parent_type: Some(
+            Interface(0),
+        ),
+        description: None,
+    },
+    Field {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "id",
+        },
+        is_extension: false,
+        arguments: [],
+        type_: NonNull(
+            Named(
+                Scalar(0),
+            ),
+        ),
+        directives: [],
+        parent_type: Some(
+            Interface(1),
+        ),
+        description: None,
+    },
+    Field {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "url",
+        },
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Scalar(3),
+        ),
+        directives: [],
+        parent_type: Some(
+            Interface(1),
+        ),
+        description: None,
+    },
+    Field {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "thumbnail",
+        },
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Scalar(3),
+        ),
+        directives: [],
+        parent_type: Some(
+            Interface(1),
+        ),
+        description: None,
+    },
+    Field {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "name",
+        },
+        is_extension: false,
+        arguments: [],
+        type_: NonNull(
+            Named(
+                Scalar(3),
+            ),
+        ),
+        directives: [],
+        parent_type: Some(
+            Interface(3),
+        ),
+        description: None,
+    },
+    Field {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "node",
+        },
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Interface(3),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(0),
+        ),
+        description: None,
+    },
+    Field {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "id",
+        },
+        is_extension: false,
+        arguments: [],
+        type_: NonNull(
+            Named(
+                Scalar(0),
+            ),
+        ),
+        directives: [],
+        parent_type: Some(
+            Interface(2),
+        ),
+        description: None,
+    },
+    Field {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "name",
+        },
+        is_extension: false,
+        arguments: [],
+        type_: NonNull(
+            Named(
+                Scalar(3),
+            ),
+        ),
+        directives: [],
+        parent_type: Some(
+            Interface(2),
+        ),
+        description: None,
+    },
+    Field {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "url",
+        },
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Scalar(3),
+        ),
+        directives: [],
+        parent_type: Some(
+            Interface(2),
+        ),
+        description: None,
+    },
+]
+input_objects: []
+interfaces: [
+    Interface {
+        name: "BaseNode",
+        is_extension: false,
+        implementing_objects: [],
+        fields: [
+            FieldID(0),
+        ],
+        directives: [],
+        interfaces: [],
+        description: None,
+    },
+    Interface {
+        name: "Image",
+        is_extension: false,
+        implementing_objects: [],
+        fields: [
+            FieldID(1),
+            FieldID(2),
+            FieldID(3),
+        ],
+        directives: [],
+        interfaces: [
+            InterfaceID(2),
+            InterfaceID(3),
+        ],
+        description: None,
+    },
+    Interface {
+        name: "Node",
+        is_extension: false,
+        implementing_objects: [],
+        fields: [
+            FieldID(7),
+        ],
+        directives: [],
+        interfaces: [
+            InterfaceID(0),
+        ],
+        description: None,
+    },
+    Interface {
+        name: "Resource",
+        is_extension: false,
+        implementing_objects: [],
+        fields: [
+            FieldID(4),
+            FieldID(5),
+            FieldID(6),
+        ],
+        directives: [],
+        interfaces: [
+            InterfaceID(3),
+        ],
+        description: None,
+    },
+]
+objects: [
+    Object {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "Query",
+        },
+        is_extension: false,
+        fields: [
+            FieldID(8),
+        ],
+        interfaces: [],
+        directives: [],
+        description: None,
+    },
+]
+scalars: [
+    Scalar {
+        name: "Boolean",
+        is_extension: false,
+        directives: [],
+        description: None,
+    },
+    Scalar {
+        name: "Float",
+        is_extension: false,
+        directives: [],
+        description: None,
+    },
+    Scalar {
+        name: "ID",
+        is_extension: false,
+        directives: [],
+        description: None,
+    },
+    Scalar {
+        name: "Int",
+        is_extension: false,
+        directives: [],
+        description: None,
+    },
+    Scalar {
+        name: "String",
+        is_extension: false,
+        directives: [],
+        description: None,
+    },
+]
+unions: []
+}

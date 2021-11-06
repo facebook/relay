@@ -1,0 +1,5 @@
+fragment SomeFragment on User {
+  neighbors {
+    name @required(action: THROW)
+  }
+}

@@ -1,0 +1,4 @@
+fragment User_fragment on User {
+  id: id
+  __typename
+}

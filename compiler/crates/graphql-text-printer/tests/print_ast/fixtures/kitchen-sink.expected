@@ -1,0 +1,132 @@
+==================================== INPUT ====================================
+query NodeQuery(
+  $cond: Boolean! = false
+  $id: ID!
+  $size: [Int] = [32]
+  $query: CheckinSearchInput!
+) {
+  node(id: $id) {
+    id
+    ... on User @include(if: $cond) {
+      name
+    }
+    ...UserFragment @include(if: $cond) @arguments(size: $size)
+  }
+  checkinSearchQuery(query: $query) {
+    query
+  }
+}
+
+fragment UserFragment on User
+  @argumentDefinitions(
+    after: {type: "ID"}
+    first: {type: "Int", defaultValue: 5}
+    size: {type: "[Int]"}
+    storyType: {type: "StoryType", defaultValue: DIRECTED}
+    # storyType_invalid_string: {type: "StoryType", defaultValue: "DIRECTED"}
+    # storyType_invalid_lowercase: {type: "StoryType", defaultValue: directed}
+  ) {
+  id
+  __typename
+  checkins(environments: [WEB]) {
+    __typename
+  }
+  nakedEnum: checkins(environments: WEB) {
+    __typename
+  }
+  friends(after: $after, first: $first, traits: [HELPFUL]) {
+    count
+  }
+  secondFriends: friends(first: 10) {
+    count
+  }
+  name @include(if: $cond)
+  otherName: name @customDirective(level: 3)
+  thumbnail: profilePicture2(
+    size: 32
+    cropPosition: CENTER
+    fileExtension: PNG
+    # TODO add support for custom scalars
+    # additionalParameters: {filter: "Boston"}
+    options: {newName: null}
+  ) {
+    height
+    width
+    src: uri
+  }
+  profilePicture(size: $size) @include(if: $cond) @skip(if: $foo) {
+    height
+    width
+    src: uri
+  }
+  storySearch(query: {type: DIRECTED}) {
+    id
+  }
+  ... @include(if: $cond) @skip(if: $foo) {
+    address {
+      city
+    }
+    alternate_name
+  }
+
+  ... @include(if: $cond) {
+    address {
+      city
+    }
+  }
+}
+==================================== OUTPUT ===================================
+query NodeQuery($cond: Boolean! = false, $id: ID!, $size: [Int] = [32], $query: CheckinSearchInput!) {
+  node(id: $id) {
+    id
+    ... on User @include(if: $cond) {
+      name
+    }
+    ...UserFragment @include(if: $cond) @arguments(size: $size)
+  }
+  checkinSearchQuery(query: $query) {
+    query
+  }
+}
+fragment UserFragment on User @argumentDefinitions(after: {type: "ID"}, first: {type: "Int", defaultValue: 5}, size: {type: "[Int]"}, storyType: {type: "StoryType", defaultValue: DIRECTED}) {
+  id
+  __typename
+  checkins(environments: [WEB]) {
+    __typename
+  }
+  nakedEnum: checkins(environments: WEB) {
+    __typename
+  }
+  friends(after: $after, first: $first, traits: [HELPFUL]) {
+    count
+  }
+  secondFriends: friends(first: 10) {
+    count
+  }
+  name @include(if: $cond)
+  otherName: name @customDirective(level: 3)
+  thumbnail: profilePicture2(size: 32, cropPosition: CENTER, fileExtension: PNG, options: {newName: null}) {
+    height
+    width
+    src: uri
+  }
+  profilePicture(size: $size) @include(if: $cond) @skip(if: $foo) {
+    height
+    width
+    src: uri
+  }
+  storySearch(query: {type: DIRECTED}) {
+    id
+  }
+  ... @include(if: $cond) @skip(if: $foo) {
+    address {
+      city
+    }
+    alternate_name
+  }
+  ... @include(if: $cond) {
+    address {
+      city
+    }
+  }
+}

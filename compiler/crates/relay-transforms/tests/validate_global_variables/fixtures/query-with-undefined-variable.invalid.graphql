@@ -1,0 +1,9 @@
+#expected-to-throw
+query QueryWithUnusedVariable {
+  node(id: $id) {
+    id
+  }
+  node2: node(id: $id2) {
+    id
+  }
+}

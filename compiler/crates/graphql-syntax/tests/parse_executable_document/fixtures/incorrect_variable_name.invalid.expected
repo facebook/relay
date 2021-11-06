@@ -1,0 +1,13 @@
+==================================== INPUT ====================================
+# expected-to-throw
+{
+    image(size: $100)
+}
+==================================== ERROR ====================================
+✖︎ Expected a valid variable name after $ (alphabetic character followed by any number of alphabetic, number and _ characters)
+
+  incorrect_variable_name.invalid.graphql:3:18
+    2 │ {
+    3 │     image(size: $100)
+      │                  ^^^
+    4 │ }

@@ -1,0 +1,22 @@
+==================================== INPUT ====================================
+query QueryWithStream($id: ID!) {
+  node(id: $id) {
+    ... on Feedback {
+      actors @stream(initial_count: 1, label: "StreamedActorsLabel") {
+        name
+      }
+    }
+  }
+}
+==================================== OUTPUT ===================================
+query QueryWithStream(
+  $id: ID!
+) {
+  node(id: $id) {
+    ... on Feedback {
+      actors @stream(label: "QueryWithStream$stream$StreamedActorsLabel", initial_count: 1) {
+        name
+      }
+    }
+  }
+}

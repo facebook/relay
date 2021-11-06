@@ -1,0 +1,118 @@
+==================================== INPUT ====================================
+fragment NullableIDFirstFragment on Query {
+  ...NullableIDFragment @relay(mask: false)
+  ...NonNullIDFragment @relay(mask: false)
+}
+
+fragment NonNullableIDFirstFragment on Query {
+  ...NonNullIDFragment @relay(mask: false)
+  ...NullableIDFragment @relay(mask: false)
+}
+
+fragment NullableIDFragment on Query {
+  node(id: $id) {
+    id
+  }
+}
+
+fragment NonNullIDFragment on Query {
+  node_id_required(id: $id) {
+    id
+  }
+}
+==================================== OUTPUT ===================================
+fragment NonNullIDFragment on Query {
+  node_id_required(id: $id) {
+    id
+  }
+}
+[
+    VariableDefinition {
+        name: WithLocation {
+            location: mask-mixed-null.graphql:403:406,
+            item: "id",
+        },
+        type_: NonNull(
+            Named(
+                Scalar(4),
+            ),
+        ),
+        default_value: None,
+        directives: [],
+    },
+]
+
+fragment NonNullableIDFirstFragment on Query {
+  ... on Query {
+    node_id_required(id: $id) {
+      id
+    }
+  }
+  ... on Query {
+    node(id: $id) {
+      id
+    }
+  }
+}
+[
+    VariableDefinition {
+        name: WithLocation {
+            location: mask-mixed-null.graphql:403:406,
+            item: "id",
+        },
+        type_: NonNull(
+            Named(
+                Scalar(4),
+            ),
+        ),
+        default_value: None,
+        directives: [],
+    },
+]
+
+fragment NullableIDFirstFragment on Query {
+  ... on Query {
+    node(id: $id) {
+      id
+    }
+  }
+  ... on Query {
+    node_id_required(id: $id) {
+      id
+    }
+  }
+}
+[
+    VariableDefinition {
+        name: WithLocation {
+            location: mask-mixed-null.graphql:403:406,
+            item: "id",
+        },
+        type_: NonNull(
+            Named(
+                Scalar(4),
+            ),
+        ),
+        default_value: None,
+        directives: [],
+    },
+]
+
+fragment NullableIDFragment on Query {
+  node(id: $id) {
+    id
+  }
+}
+[
+    VariableDefinition {
+        name: WithLocation {
+            location: mask-mixed-null.graphql:321:324,
+            item: "id",
+        },
+        type_: Named(
+            Scalar(4),
+        ),
+        default_value: None,
+        directives: [],
+    },
+]

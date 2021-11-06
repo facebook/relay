@@ -1,0 +1,133 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`MatchContainer calls load again when re-rendered, even with the same component 1`] = `
+<div>
+  <h1>
+    User
+  </h1>
+  <pre>
+    {
+  "otherProp": "hello!",
+  "user": {
+    "__id": "0",
+    "__fragments": {
+      "UserFragment": {}
+    },
+    "__fragmentOwner": null
+  }
+}
+  </pre>
+</div>
+`;
+
+exports[`MatchContainer loads and renders dynamic components 1`] = `
+<div>
+  <h1>
+    User
+  </h1>
+  <pre>
+    {
+  "otherProp": "hello!",
+  "user": {
+    "__id": "4",
+    "__fragments": {
+      "UserFragment": {}
+    },
+    "__fragmentOwner": null
+  }
+}
+  </pre>
+</div>
+`;
+
+exports[`MatchContainer passes the same child props when the match values does not change 1`] = `
+<div>
+  <h1>
+    User
+  </h1>
+  <pre>
+    {
+  "otherProp": "hello!",
+  "user": {
+    "__id": "4",
+    "__fragments": {
+      "UserFragment": {}
+    },
+    "__fragmentOwner": null
+  }
+}
+  </pre>
+</div>
+`;
+
+exports[`MatchContainer reloads if new props have a different component 1`] = `
+<div>
+  <h1>
+    Actor
+  </h1>
+  <pre>
+    {
+  "otherProp": "hello!",
+  "actor": {
+    "__id": "4",
+    "__fragments": {
+      "ActorFragment": {}
+    },
+    "__fragmentOwner": null
+  }
+}
+  </pre>
+</div>
+`;
+
+exports[`MatchContainer renders null if the match value is null and no fallback is provided 1`] = `null`;
+
+exports[`MatchContainer renders the fallback if the match object is empty 1`] = `
+<div>
+  fallback
+</div>
+`;
+
+exports[`MatchContainer renders the fallback if the match object is missing expected fields 1`] = `
+<div>
+  fallback
+</div>
+`;
+
+exports[`MatchContainer renders the fallback if the match value is null 1`] = `
+<div>
+  fallback
+</div>
+`;
+
+exports[`MatchContainer renders the fallback if the match value is undefined 1`] = `
+<div>
+  fallback
+</div>
+`;
+
+exports[`MatchContainer transitions from fallback when new props have a component 1`] = `
+<div>
+  <h1>
+    Actor
+  </h1>
+  <pre>
+    {
+  "otherProp": "hello!",
+  "actor": {
+    "__id": "4",
+    "__fragments": {
+      "ActorFragment": {}
+    },
+    "__fragmentOwner": null
+  }
+}
+  </pre>
+</div>
+`;
+
+exports[`MatchContainer transitions to fallback when new props have a null component 1`] = `
+<div>
+  fallback
+</div>
+`;

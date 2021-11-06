@@ -1,0 +1,14 @@
+# expected-to-throw
+query incompatibleVariableUsageAcrossDocumentsQuery($id: ID) {
+    node(id: $id) {
+        __typename
+    }
+    me {
+        ...incompatibleVariableUsageAcrossDocumentsFragment
+    }
+}
+
+
+fragment incompatibleVariableUsageAcrossDocumentsFragment on User {
+    url(site: $id)
+}

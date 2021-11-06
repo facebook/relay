@@ -1,0 +1,6 @@
+query MyQuery @raw_response_type {
+  me @required(action: LOG) {
+    id @required(action: LOG)
+    name @required(action: LOG)
+  }
+}

@@ -1,0 +1,27 @@
+==================================== INPUT ====================================
+query NodeQuery($id: ID!, $orderBy: String) {
+  node(id: $id) {
+    id
+    ... on Story {
+      comments(first: 10, orderby: $orderBy)
+        @connection(key: "NodeQuery_comments", filters: ["orderby", "first"]) {
+        edges {
+          node {
+            actor {
+              name
+              friends(first: 10) @connection(key: "NodeQuery_friends") {
+                edges {
+                  node {
+                    name
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+==================================== OUTPUT ===================================
+OK

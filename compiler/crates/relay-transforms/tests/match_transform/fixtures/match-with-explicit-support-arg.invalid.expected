@@ -1,0 +1,34 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment NameRendererFragment on User {
+  id
+  nameRenderer(
+    supported: ["PlainUserNameRenderer", "MarkdownUserNameRenderer"]
+  ) @match {
+    ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+    ...MarkdownUserNameRenderer_name
+      @module(name: "MarkdownUserNameRenderer.react")
+  }
+}
+
+fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+  plaintext
+  data {
+    text
+  }
+}
+
+fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+  }
+}
+==================================== ERROR ====================================
+✖︎ Invalid @match selection: the 'supported' argument is automatically added and cannot be supplied explicitly.'
+
+  match-with-explicit-support-arg.invalid.graphql:5:5
+    4 │   nameRenderer(
+    5 │     supported: ["PlainUserNameRenderer", "MarkdownUserNameRenderer"]
+      │     ^^^^^^^^^
+    6 │   ) @match {

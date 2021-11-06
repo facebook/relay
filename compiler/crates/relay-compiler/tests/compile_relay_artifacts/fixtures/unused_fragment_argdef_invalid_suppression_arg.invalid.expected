@@ -1,0 +1,15 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment unusedFragmentArgdefInvalidSuppressionArg on User @argumentDefinitions(
+  size: { type: "Int", unusedLocalVariable_DEPRECATED: false }
+) {
+  __typename
+}
+==================================== ERROR ====================================
+✖︎ `unusedLocalVariable_DEPRECATED` can only be set to a constant `true` value. Remove the `unusedLocalVariable_DEPRECATED` or update the value.
+
+  unused_fragment_argdef_invalid_suppression_arg.invalid.graphql:3:56
+    2 │ fragment unusedFragmentArgdefInvalidSuppressionArg on User @argumentDefinitions(
+    3 │   size: { type: "Int", unusedLocalVariable_DEPRECATED: false }
+      │                                                        ^^^^^
+    4 │ ) {

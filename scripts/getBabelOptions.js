@@ -1,39 +1,43 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @noformat
+ * @format
  */
 
 'use strict';
 
-module.exports = function(options) {
+module.exports = function (options) {
   options = Object.assign(
     {
       env: 'production',
-      moduleMap: {},
       plugins: [],
     },
-    options
+    options,
   );
 
   const fbjsPreset = require('babel-preset-fbjs/configure')({
     autoImport: options.autoImport || false,
     objectAssign: false,
-    inlineRequires: true,
     stripDEV: options.env === 'production',
   });
 
-  // The module rewrite transform needs to be positioned relative to fbjs's
-  // many other transforms.
-  fbjsPreset.presets[0].plugins.push([
-    require('./rewrite-modules'),
-    {
-      map: Object.assign({}, require('fbjs/module-map'), options.moduleMap),
-    },
-  ]);
+  fbjsPreset.presets.push({
+    plugins: [
+      [
+        require('./rewrite-modules'),
+        {
+          map: {
+            Promise: 'promise-polyfill',
+            areEqual: 'fbjs/lib/areEqual',
+            warning: 'fbjs/lib/warning',
+          },
+        },
+      ],
+    ],
+  });
 
   if (options.postPlugins) {
     fbjsPreset.presets.push({
@@ -42,7 +46,7 @@ module.exports = function(options) {
   }
 
   return {
-    plugins: options.plugins.concat('transform-es2015-spread'),
+    plugins: options.plugins.concat('@babel/plugin-transform-spread'),
     presets: [fbjsPreset],
   };
 };

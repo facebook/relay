@@ -1,0 +1,2991 @@
+==================================== INPUT ====================================
+# source: https://github.com/graphql/graphql-js/blob/5d109ec32f60b593b721037cd2944d2c07420006/src/__fixtures__/schema-kitchen-sink.graphql
+
+"""This is a description of the schema as a whole."""
+schema {
+  query: QueryType
+  mutation: MutationType
+}
+
+"""
+This is a description
+of the `Foo` type.
+"""
+type Foo implements Bar & Baz & Two {
+  "Description of the `one` field."
+  one: Type
+  """
+  This is a description of the `two` field.
+  """
+  two(
+    """
+    This is a description of the `argument` argument.
+    """
+    argument: InputType!
+  ): Type
+  """This is a description of the `three` field."""
+  three(argument: InputType, other: String): Int
+  four(argument: String = "string"): String
+  five(argument: [String] = ["string", "string"]): String
+  six(argument: InputType = {key: "value"}): Type
+  seven(argument: Int = null): Type
+}
+
+type AnnotatedObject @onObject(arg: "value") {
+  annotatedField(arg: Type = "default" @onArgumentDefinition): Type @onField
+}
+
+type UndefinedType
+
+extend type Foo {
+  seven(argument: [String]): Type
+}
+
+extend type Foo @onType
+
+interface Bar {
+  one: Type
+  four(argument: String = "string"): String
+}
+
+interface AnnotatedInterface @onInterface {
+  annotatedField(arg: Type @onArgumentDefinition): Type @onField
+}
+
+interface UndefinedInterface
+
+extend interface Bar implements Two {
+  two(argument: InputType!): Type
+}
+
+extend interface Bar @onInterface
+
+interface Baz implements Bar & Two {
+  one: Type
+  two(argument: InputType!): Type
+  four(argument: String = "string"): String
+}
+
+union Feed =
+  | Story
+  | Article
+  | Advert
+
+union AnnotatedUnion @onUnion = A | B
+
+union AnnotatedUnionTwo @onUnion = | A | B
+
+union UndefinedUnion
+
+extend union Feed = Photo | Video
+
+extend union Feed @onUnion
+
+scalar CustomScalar
+
+scalar AnnotatedScalar @onScalar
+
+extend scalar CustomScalar @onScalar
+
+enum Site {
+  """
+  This is a description of the `DESKTOP` value
+  """
+  DESKTOP
+
+  """This is a description of the `MOBILE` value"""
+  MOBILE
+
+  "This is a description of the `WEB` value"
+  WEB
+}
+
+enum AnnotatedEnum @onEnum {
+  ANNOTATED_VALUE @onEnumValue
+  OTHER_VALUE
+}
+
+enum UndefinedEnum
+
+extend enum Site {
+  VR
+}
+
+extend enum Site @onEnum
+
+input InputType {
+  key: String!
+  answer: Int = 42
+}
+
+input AnnotatedInput @onInputObject {
+  annotatedField: Type @onInputFieldDefinition
+}
+
+input UndefinedInput
+
+extend input InputType {
+  other: Float = 1.23e4 @onInputFieldDefinition
+}
+
+extend input InputType @onInputObject
+
+"""
+This is a description of the `@skip` directive
+"""
+directive @skip(
+  """This is a description of the `if` argument"""
+  if: Boolean! @onArgumentDefinition
+) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+directive @include(if: Boolean!)
+  on FIELD
+   | FRAGMENT_SPREAD
+   | INLINE_FRAGMENT
+
+directive @include2(if: Boolean!) on
+  | FIELD
+  | FRAGMENT_SPREAD
+  | INLINE_FRAGMENT
+
+directive @myRepeatableDir(name: String!) repeatable on
+  | OBJECT
+  | INTERFACE
+
+extend schema @onSchema
+
+extend schema @onSchema {
+  subscription: SubscriptionType
+}
+==================================== OUTPUT ===================================
+SchemaDocument {
+    location: schema_kitchen_sink.graphql:140:3016,
+    definitions: [
+        SchemaDefinition(
+            SchemaDefinition {
+                directives: [],
+                operation_types: List {
+                    span: 201:248,
+                    start: Token {
+                        span: 201:202,
+                        kind: OpenBrace,
+                    },
+                    items: [
+                        OperationTypeDefinition {
+                            operation: Query,
+                            type_: Identifier {
+                                span: 212:221,
+                                token: Token {
+                                    span: 212:221,
+                                    kind: Identifier,
+                                },
+                                value: "QueryType",
+                            },
+                        },
+                        OperationTypeDefinition {
+                            operation: Mutation,
+                            type_: Identifier {
+                                span: 234:246,
+                                token: Token {
+                                    span: 234:246,
+                                    kind: Identifier,
+                                },
+                                value: "MutationType",
+                            },
+                        },
+                    ],
+                    end: Token {
+                        span: 247:248,
+                        kind: CloseBrace,
+                    },
+                },
+            },
+        ),
+        ObjectTypeDefinition(
+            ObjectTypeDefinition {
+                name: Identifier {
+                    span: 304:307,
+                    token: Token {
+                        span: 304:307,
+                        kind: Identifier,
+                    },
+                    value: "Foo",
+                },
+                interfaces: [
+                    Identifier {
+                        span: 319:322,
+                        token: Token {
+                            span: 319:322,
+                            kind: Identifier,
+                        },
+                        value: "Bar",
+                    },
+                    Identifier {
+                        span: 325:328,
+                        token: Token {
+                            span: 325:328,
+                            kind: Identifier,
+                        },
+                        value: "Baz",
+                    },
+                    Identifier {
+                        span: 331:334,
+                        token: Token {
+                            span: 331:334,
+                            kind: Identifier,
+                        },
+                        value: "Two",
+                    },
+                ],
+                directives: [],
+                fields: Some(
+                    List {
+                        span: 335:843,
+                        start: Token {
+                            span: 335:336,
+                            kind: OpenBrace,
+                        },
+                        items: [
+                            FieldDefinition {
+                                name: Identifier {
+                                    span: 375:378,
+                                    token: Token {
+                                        span: 375:378,
+                                        kind: Identifier,
+                                    },
+                                    value: "one",
+                                },
+                                type_: Named(
+                                    NamedTypeAnnotation {
+                                        name: Identifier {
+                                            span: 380:384,
+                                            token: Token {
+                                                span: 380:384,
+                                                kind: Identifier,
+                                            },
+                                            value: "Type",
+                                        },
+                                    },
+                                ),
+                                arguments: None,
+                                directives: [],
+                                description: Some(
+                                    StringNode {
+                                        token: Token {
+                                            span: 339:372,
+                                            kind: StringLiteral,
+                                        },
+                                        value: "Description of the `one` field.",
+                                    },
+                                ),
+                            },
+                            FieldDefinition {
+                                name: Identifier {
+                                    span: 443:446,
+                                    token: Token {
+                                        span: 443:446,
+                                        kind: Identifier,
+                                    },
+                                    value: "two",
+                                },
+                                type_: Named(
+                                    NamedTypeAnnotation {
+                                        name: Identifier {
+                                            span: 548:552,
+                                            token: Token {
+                                                span: 548:552,
+                                                kind: Identifier,
+                                            },
+                                            value: "Type",
+                                        },
+                                    },
+                                ),
+                                arguments: Some(
+                                    List {
+                                        span: 446:546,
+                                        start: Token {
+                                            span: 446:447,
+                                            kind: OpenParen,
+                                        },
+                                        items: [
+                                            InputValueDefinition {
+                                                name: Identifier {
+                                                    span: 522:530,
+                                                    token: Token {
+                                                        span: 522:530,
+                                                        kind: Identifier,
+                                                    },
+                                                    value: "argument",
+                                                },
+                                                type_: NonNull(
+                                                    NonNullTypeAnnotation {
+                                                        span: 532:542,
+                                                        type_: Named(
+                                                            NamedTypeAnnotation {
+                                                                name: Identifier {
+                                                                    span: 532:541,
+                                                                    token: Token {
+                                                                        span: 532:541,
+                                                                        kind: Identifier,
+                                                                    },
+                                                                    value: "InputType",
+                                                                },
+                                                            },
+                                                        ),
+                                                        exclamation: Token {
+                                                            span: 541:542,
+                                                            kind: Exclamation,
+                                                        },
+                                                    },
+                                                ),
+                                                default_value: None,
+                                                directives: [],
+                                            },
+                                        ],
+                                        end: Token {
+                                            span: 545:546,
+                                            kind: CloseParen,
+                                        },
+                                    },
+                                ),
+                                directives: [],
+                                description: Some(
+                                    StringNode {
+                                        token: Token {
+                                            span: 387:440,
+                                            kind: BlockStringLiteral,
+                                        },
+                                        value: "This is a description of the `two` field.",
+                                    },
+                                ),
+                            },
+                            FieldDefinition {
+                                name: Identifier {
+                                    span: 607:612,
+                                    token: Token {
+                                        span: 607:612,
+                                        kind: Identifier,
+                                    },
+                                    value: "three",
+                                },
+                                type_: Named(
+                                    NamedTypeAnnotation {
+                                        name: Identifier {
+                                            span: 650:653,
+                                            token: Token {
+                                                span: 650:653,
+                                                kind: Identifier,
+                                            },
+                                            value: "Int",
+                                        },
+                                    },
+                                ),
+                                arguments: Some(
+                                    List {
+                                        span: 612:648,
+                                        start: Token {
+                                            span: 612:613,
+                                            kind: OpenParen,
+                                        },
+                                        items: [
+                                            InputValueDefinition {
+                                                name: Identifier {
+                                                    span: 613:621,
+                                                    token: Token {
+                                                        span: 613:621,
+                                                        kind: Identifier,
+                                                    },
+                                                    value: "argument",
+                                                },
+                                                type_: Named(
+                                                    NamedTypeAnnotation {
+                                                        name: Identifier {
+                                                            span: 623:632,
+                                                            token: Token {
+                                                                span: 623:632,
+                                                                kind: Identifier,
+                                                            },
+                                                            value: "InputType",
+                                                        },
+                                                    },
+                                                ),
+                                                default_value: None,
+                                                directives: [],
+                                            },
+                                            InputValueDefinition {
+                                                name: Identifier {
+                                                    span: 634:639,
+                                                    token: Token {
+                                                        span: 634:639,
+                                                        kind: Identifier,
+                                                    },
+                                                    value: "other",
+                                                },
+                                                type_: Named(
+                                                    NamedTypeAnnotation {
+                                                        name: Identifier {
+                                                            span: 641:647,
+                                                            token: Token {
+                                                                span: 641:647,
+                                                                kind: Identifier,
+                                                            },
+                                                            value: "String",
+                                                        },
+                                                    },
+                                                ),
+                                                default_value: None,
+                                                directives: [],
+                                            },
+                                        ],
+                                        end: Token {
+                                            span: 647:648,
+                                            kind: CloseParen,
+                                        },
+                                    },
+                                ),
+                                directives: [],
+                                description: Some(
+                                    StringNode {
+                                        token: Token {
+                                            span: 555:604,
+                                            kind: BlockStringLiteral,
+                                        },
+                                        value: "This is a description of the `three` field.",
+                                    },
+                                ),
+                            },
+                            FieldDefinition {
+                                name: Identifier {
+                                    span: 656:660,
+                                    token: Token {
+                                        span: 656:660,
+                                        kind: Identifier,
+                                    },
+                                    value: "four",
+                                },
+                                type_: Named(
+                                    NamedTypeAnnotation {
+                                        name: Identifier {
+                                            span: 691:697,
+                                            token: Token {
+                                                span: 691:697,
+                                                kind: Identifier,
+                                            },
+                                            value: "String",
+                                        },
+                                    },
+                                ),
+                                arguments: Some(
+                                    List {
+                                        span: 660:689,
+                                        start: Token {
+                                            span: 660:661,
+                                            kind: OpenParen,
+                                        },
+                                        items: [
+                                            InputValueDefinition {
+                                                name: Identifier {
+                                                    span: 661:669,
+                                                    token: Token {
+                                                        span: 661:669,
+                                                        kind: Identifier,
+                                                    },
+                                                    value: "argument",
+                                                },
+                                                type_: Named(
+                                                    NamedTypeAnnotation {
+                                                        name: Identifier {
+                                                            span: 671:677,
+                                                            token: Token {
+                                                                span: 671:677,
+                                                                kind: Identifier,
+                                                            },
+                                                            value: "String",
+                                                        },
+                                                    },
+                                                ),
+                                                default_value: Some(
+                                                    String(
+                                                        StringNode {
+                                                            token: Token {
+                                                                span: 680:688,
+                                                                kind: StringLiteral,
+                                                            },
+                                                            value: "string",
+                                                        },
+                                                    ),
+                                                ),
+                                                directives: [],
+                                            },
+                                        ],
+                                        end: Token {
+                                            span: 688:689,
+                                            kind: CloseParen,
+                                        },
+                                    },
+                                ),
+                                directives: [],
+                                description: None,
+                            },
+                            FieldDefinition {
+                                name: Identifier {
+                                    span: 700:704,
+                                    token: Token {
+                                        span: 700:704,
+                                        kind: Identifier,
+                                    },
+                                    value: "five",
+                                },
+                                type_: Named(
+                                    NamedTypeAnnotation {
+                                        name: Identifier {
+                                            span: 749:755,
+                                            token: Token {
+                                                span: 749:755,
+                                                kind: Identifier,
+                                            },
+                                            value: "String",
+                                        },
+                                    },
+                                ),
+                                arguments: Some(
+                                    List {
+                                        span: 704:747,
+                                        start: Token {
+                                            span: 704:705,
+                                            kind: OpenParen,
+                                        },
+                                        items: [
+                                            InputValueDefinition {
+                                                name: Identifier {
+                                                    span: 705:713,
+                                                    token: Token {
+                                                        span: 705:713,
+                                                        kind: Identifier,
+                                                    },
+                                                    value: "argument",
+                                                },
+                                                type_: List(
+                                                    ListTypeAnnotation {
+                                                        span: 715:723,
+                                                        open: Token {
+                                                            span: 715:716,
+                                                            kind: OpenBracket,
+                                                        },
+                                                        type_: Named(
+                                                            NamedTypeAnnotation {
+                                                                name: Identifier {
+                                                                    span: 716:722,
+                                                                    token: Token {
+                                                                        span: 716:722,
+                                                                        kind: Identifier,
+                                                                    },
+                                                                    value: "String",
+                                                                },
+                                                            },
+                                                        ),
+                                                        close: Token {
+                                                            span: 722:723,
+                                                            kind: CloseBracket,
+                                                        },
+                                                    },
+                                                ),
+                                                default_value: Some(
+                                                    List(
+                                                        List {
+                                                            span: 726:746,
+                                                            start: Token {
+                                                                span: 726:727,
+                                                                kind: OpenBracket,
+                                                            },
+                                                            items: [
+                                                                String(
+                                                                    StringNode {
+                                                                        token: Token {
+                                                                            span: 727:735,
+                                                                            kind: StringLiteral,
+                                                                        },
+                                                                        value: "string",
+                                                                    },
+                                                                ),
+                                                                String(
+                                                                    StringNode {
+                                                                        token: Token {
+                                                                            span: 737:745,
+                                                                            kind: StringLiteral,
+                                                                        },
+                                                                        value: "string",
+                                                                    },
+                                                                ),
+                                                            ],
+                                                            end: Token {
+                                                                span: 745:746,
+                                                                kind: CloseBracket,
+                                                            },
+                                                        },
+                                                    ),
+                                                ),
+                                                directives: [],
+                                            },
+                                        ],
+                                        end: Token {
+                                            span: 746:747,
+                                            kind: CloseParen,
+                                        },
+                                    },
+                                ),
+                                directives: [],
+                                description: None,
+                            },
+                            FieldDefinition {
+                                name: Identifier {
+                                    span: 758:761,
+                                    token: Token {
+                                        span: 758:761,
+                                        kind: Identifier,
+                                    },
+                                    value: "six",
+                                },
+                                type_: Named(
+                                    NamedTypeAnnotation {
+                                        name: Identifier {
+                                            span: 801:805,
+                                            token: Token {
+                                                span: 801:805,
+                                                kind: Identifier,
+                                            },
+                                            value: "Type",
+                                        },
+                                    },
+                                ),
+                                arguments: Some(
+                                    List {
+                                        span: 761:799,
+                                        start: Token {
+                                            span: 761:762,
+                                            kind: OpenParen,
+                                        },
+                                        items: [
+                                            InputValueDefinition {
+                                                name: Identifier {
+                                                    span: 762:770,
+                                                    token: Token {
+                                                        span: 762:770,
+                                                        kind: Identifier,
+                                                    },
+                                                    value: "argument",
+                                                },
+                                                type_: Named(
+                                                    NamedTypeAnnotation {
+                                                        name: Identifier {
+                                                            span: 772:781,
+                                                            token: Token {
+                                                                span: 772:781,
+                                                                kind: Identifier,
+                                                            },
+                                                            value: "InputType",
+                                                        },
+                                                    },
+                                                ),
+                                                default_value: Some(
+                                                    Object(
+                                                        List {
+                                                            span: 784:798,
+                                                            start: Token {
+                                                                span: 784:785,
+                                                                kind: OpenBrace,
+                                                            },
+                                                            items: [
+                                                                ConstantArgument {
+                                                                    span: 785:797,
+                                                                    name: Identifier {
+                                                                        span: 785:788,
+                                                                        token: Token {
+                                                                            span: 785:788,
+                                                                            kind: Identifier,
+                                                                        },
+                                                                        value: "key",
+                                                                    },
+                                                                    colon: Token {
+                                                                        span: 788:789,
+                                                                        kind: Colon,
+                                                                    },
+                                                                    value: String(
+                                                                        StringNode {
+                                                                            token: Token {
+                                                                                span: 790:797,
+                                                                                kind: StringLiteral,
+                                                                            },
+                                                                            value: "value",
+                                                                        },
+                                                                    ),
+                                                                },
+                                                            ],
+                                                            end: Token {
+                                                                span: 797:798,
+                                                                kind: CloseBrace,
+                                                            },
+                                                        },
+                                                    ),
+                                                ),
+                                                directives: [],
+                                            },
+                                        ],
+                                        end: Token {
+                                            span: 798:799,
+                                            kind: CloseParen,
+                                        },
+                                    },
+                                ),
+                                directives: [],
+                                description: None,
+                            },
+                            FieldDefinition {
+                                name: Identifier {
+                                    span: 808:813,
+                                    token: Token {
+                                        span: 808:813,
+                                        kind: Identifier,
+                                    },
+                                    value: "seven",
+                                },
+                                type_: Named(
+                                    NamedTypeAnnotation {
+                                        name: Identifier {
+                                            span: 837:841,
+                                            token: Token {
+                                                span: 837:841,
+                                                kind: Identifier,
+                                            },
+                                            value: "Type",
+                                        },
+                                    },
+                                ),
+                                arguments: Some(
+                                    List {
+                                        span: 813:835,
+                                        start: Token {
+                                            span: 813:814,
+                                            kind: OpenParen,
+                                        },
+                                        items: [
+                                            InputValueDefinition {
+                                                name: Identifier {
+                                                    span: 814:822,
+                                                    token: Token {
+                                                        span: 814:822,
+                                                        kind: Identifier,
+                                                    },
+                                                    value: "argument",
+                                                },
+                                                type_: Named(
+                                                    NamedTypeAnnotation {
+                                                        name: Identifier {
+                                                            span: 824:827,
+                                                            token: Token {
+                                                                span: 824:827,
+                                                                kind: Identifier,
+                                                            },
+                                                            value: "Int",
+                                                        },
+                                                    },
+                                                ),
+                                                default_value: Some(
+                                                    Null(
+                                                        Token {
+                                                            span: 830:834,
+                                                            kind: Identifier,
+                                                        },
+                                                    ),
+                                                ),
+                                                directives: [],
+                                            },
+                                        ],
+                                        end: Token {
+                                            span: 834:835,
+                                            kind: CloseParen,
+                                        },
+                                    },
+                                ),
+                                directives: [],
+                                description: None,
+                            },
+                        ],
+                        end: Token {
+                            span: 842:843,
+                            kind: CloseBrace,
+                        },
+                    },
+                ),
+            },
+        ),
+        ObjectTypeDefinition(
+            ObjectTypeDefinition {
+                name: Identifier {
+                    span: 850:865,
+                    token: Token {
+                        span: 850:865,
+                        kind: Identifier,
+                    },
+                    value: "AnnotatedObject",
+                },
+                interfaces: [],
+                directives: [
+                    ConstantDirective {
+                        span: 866:889,
+                        at: Token {
+                            span: 866:867,
+                            kind: At,
+                        },
+                        name: Identifier {
+                            span: 867:875,
+                            token: Token {
+                                span: 867:875,
+                                kind: Identifier,
+                            },
+                            value: "onObject",
+                        },
+                        arguments: Some(
+                            List {
+                                span: 875:889,
+                                start: Token {
+                                    span: 875:876,
+                                    kind: OpenParen,
+                                },
+                                items: [
+                                    ConstantArgument {
+                                        span: 876:888,
+                                        name: Identifier {
+                                            span: 876:879,
+                                            token: Token {
+                                                span: 876:879,
+                                                kind: Identifier,
+                                            },
+                                            value: "arg",
+                                        },
+                                        colon: Token {
+                                            span: 879:880,
+                                            kind: Colon,
+                                        },
+                                        value: String(
+                                            StringNode {
+                                                token: Token {
+                                                    span: 881:888,
+                                                    kind: StringLiteral,
+                                                },
+                                                value: "value",
+                                            },
+                                        ),
+                                    },
+                                ],
+                                end: Token {
+                                    span: 888:889,
+                                    kind: CloseParen,
+                                },
+                            },
+                        ),
+                    },
+                ],
+                fields: Some(
+                    List {
+                        span: 890:970,
+                        start: Token {
+                            span: 890:891,
+                            kind: OpenBrace,
+                        },
+                        items: [
+                            FieldDefinition {
+                                name: Identifier {
+                                    span: 894:908,
+                                    token: Token {
+                                        span: 894:908,
+                                        kind: Identifier,
+                                    },
+                                    value: "annotatedField",
+                                },
+                                type_: Named(
+                                    NamedTypeAnnotation {
+                                        name: Identifier {
+                                            span: 955:959,
+                                            token: Token {
+                                                span: 955:959,
+                                                kind: Identifier,
+                                            },
+                                            value: "Type",
+                                        },
+                                    },
+                                ),
+                                arguments: Some(
+                                    List {
+                                        span: 908:953,
+                                        start: Token {
+                                            span: 908:909,
+                                            kind: OpenParen,
+                                        },
+                                        items: [
+                                            InputValueDefinition {
+                                                name: Identifier {
+                                                    span: 909:912,
+                                                    token: Token {
+                                                        span: 909:912,
+                                                        kind: Identifier,
+                                                    },
+                                                    value: "arg",
+                                                },
+                                                type_: Named(
+                                                    NamedTypeAnnotation {
+                                                        name: Identifier {
+                                                            span: 914:918,
+                                                            token: Token {
+                                                                span: 914:918,
+                                                                kind: Identifier,
+                                                            },
+                                                            value: "Type",
+                                                        },
+                                                    },
+                                                ),
+                                                default_value: Some(
+                                                    String(
+                                                        StringNode {
+                                                            token: Token {
+                                                                span: 921:930,
+                                                                kind: StringLiteral,
+                                                            },
+                                                            value: "default",
+                                                        },
+                                                    ),
+                                                ),
+                                                directives: [
+                                                    ConstantDirective {
+                                                        span: 931:952,
+                                                        at: Token {
+                                                            span: 931:932,
+                                                            kind: At,
+                                                        },
+                                                        name: Identifier {
+                                                            span: 932:952,
+                                                            token: Token {
+                                                                span: 932:952,
+                                                                kind: Identifier,
+                                                            },
+                                                            value: "onArgumentDefinition",
+                                                        },
+                                                        arguments: None,
+                                                    },
+                                                ],
+                                            },
+                                        ],
+                                        end: Token {
+                                            span: 952:953,
+                                            kind: CloseParen,
+                                        },
+                                    },
+                                ),
+                                directives: [
+                                    ConstantDirective {
+                                        span: 960:968,
+                                        at: Token {
+                                            span: 960:961,
+                                            kind: At,
+                                        },
+                                        name: Identifier {
+                                            span: 961:968,
+                                            token: Token {
+                                                span: 961:968,
+                                                kind: Identifier,
+                                            },
+                                            value: "onField",
+                                        },
+                                        arguments: None,
+                                    },
+                                ],
+                                description: None,
+                            },
+                        ],
+                        end: Token {
+                            span: 969:970,
+                            kind: CloseBrace,
+                        },
+                    },
+                ),
+            },
+        ),
+        ObjectTypeDefinition(
+            ObjectTypeDefinition {
+                name: Identifier {
+                    span: 977:990,
+                    token: Token {
+                        span: 977:990,
+                        kind: Identifier,
+                    },
+                    value: "UndefinedType",
+                },
+                interfaces: [],
+                directives: [],
+                fields: None,
+            },
+        ),
+        ObjectTypeExtension(
+            ObjectTypeExtension {
+                name: Identifier {
+                    span: 1004:1007,
+                    token: Token {
+                        span: 1004:1007,
+                        kind: Identifier,
+                    },
+                    value: "Foo",
+                },
+                interfaces: [],
+                directives: [],
+                fields: Some(
+                    List {
+                        span: 1008:1045,
+                        start: Token {
+                            span: 1008:1009,
+                            kind: OpenBrace,
+                        },
+                        items: [
+                            FieldDefinition {
+                                name: Identifier {
+                                    span: 1012:1017,
+                                    token: Token {
+                                        span: 1012:1017,
+                                        kind: Identifier,
+                                    },
+                                    value: "seven",
+                                },
+                                type_: Named(
+                                    NamedTypeAnnotation {
+                                        name: Identifier {
+                                            span: 1039:1043,
+                                            token: Token {
+                                                span: 1039:1043,
+                                                kind: Identifier,
+                                            },
+                                            value: "Type",
+                                        },
+                                    },
+                                ),
+                                arguments: Some(
+                                    List {
+                                        span: 1017:1037,
+                                        start: Token {
+                                            span: 1017:1018,
+                                            kind: OpenParen,
+                                        },
+                                        items: [
+                                            InputValueDefinition {
+                                                name: Identifier {
+                                                    span: 1018:1026,
+                                                    token: Token {
+                                                        span: 1018:1026,
+                                                        kind: Identifier,
+                                                    },
+                                                    value: "argument",
+                                                },
+                                                type_: List(
+                                                    ListTypeAnnotation {
+                                                        span: 1028:1036,
+                                                        open: Token {
+                                                            span: 1028:1029,
+                                                            kind: OpenBracket,
+                                                        },
+                                                        type_: Named(
+                                                            NamedTypeAnnotation {
+                                                                name: Identifier {
+                                                                    span: 1029:1035,
+                                                                    token: Token {
+                                                                        span: 1029:1035,
+                                                                        kind: Identifier,
+                                                                    },
+                                                                    value: "String",
+                                                                },
+                                                            },
+                                                        ),
+                                                        close: Token {
+                                                            span: 1035:1036,
+                                                            kind: CloseBracket,
+                                                        },
+                                                    },
+                                                ),
+                                                default_value: None,
+                                                directives: [],
+                                            },
+                                        ],
+                                        end: Token {
+                                            span: 1036:1037,
+                                            kind: CloseParen,
+                                        },
+                                    },
+                                ),
+                                directives: [],
+                                description: None,
+                            },
+                        ],
+                        end: Token {
+                            span: 1044:1045,
+                            kind: CloseBrace,
+                        },
+                    },
+                ),
+            },
+        ),
+        ObjectTypeExtension(
+            ObjectTypeExtension {
+                name: Identifier {
+                    span: 1059:1062,
+                    token: Token {
+                        span: 1059:1062,
+                        kind: Identifier,
+                    },
+                    value: "Foo",
+                },
+                interfaces: [],
+                directives: [
+                    ConstantDirective {
+                        span: 1063:1070,
+                        at: Token {
+                            span: 1063:1064,
+                            kind: At,
+                        },
+                        name: Identifier {
+                            span: 1064:1070,
+                            token: Token {
+                                span: 1064:1070,
+                                kind: Identifier,
+                            },
+                            value: "onType",
+                        },
+                        arguments: None,
+                    },
+                ],
+                fields: None,
+            },
+        ),
+        InterfaceTypeDefinition(
+            InterfaceTypeDefinition {
+                name: Identifier {
+                    span: 1082:1085,
+                    token: Token {
+                        span: 1082:1085,
+                        kind: Identifier,
+                    },
+                    value: "Bar",
+                },
+                interfaces: [],
+                directives: [],
+                fields: Some(
+                    List {
+                        span: 1086:1145,
+                        start: Token {
+                            span: 1086:1087,
+                            kind: OpenBrace,
+                        },
+                        items: [
+                            FieldDefinition {
+                                name: Identifier {
+                                    span: 1090:1093,
+                                    token: Token {
+                                        span: 1090:1093,
+                                        kind: Identifier,
+                                    },
+                                    value: "one",
+                                },
+                                type_: Named(
+                                    NamedTypeAnnotation {
+                                        name: Identifier {
+                                            span: 1095:1099,
+                                            token: Token {
+                                                span: 1095:1099,
+                                                kind: Identifier,
+                                            },
+                                            value: "Type",
+                                        },
+                                    },
+                                ),
+                                arguments: None,
+                                directives: [],
+                                description: None,
+                            },
+                            FieldDefinition {
+                                name: Identifier {
+                                    span: 1102:1106,
+                                    token: Token {
+                                        span: 1102:1106,
+                                        kind: Identifier,
+                                    },
+                                    value: "four",
+                                },
+                                type_: Named(
+                                    NamedTypeAnnotation {
+                                        name: Identifier {
+                                            span: 1137:1143,
+                                            token: Token {
+                                                span: 1137:1143,
+                                                kind: Identifier,
+                                            },
+                                            value: "String",
+                                        },
+                                    },
+                                ),
+                                arguments: Some(
+                                    List {
+                                        span: 1106:1135,
+                                        start: Token {
+                                            span: 1106:1107,
+                                            kind: OpenParen,
+                                        },
+                                        items: [
+                                            InputValueDefinition {
+                                                name: Identifier {
+                                                    span: 1107:1115,
+                                                    token: Token {
+                                                        span: 1107:1115,
+                                                        kind: Identifier,
+                                                    },
+                                                    value: "argument",
+                                                },
+                                                type_: Named(
+                                                    NamedTypeAnnotation {
+                                                        name: Identifier {
+                                                            span: 1117:1123,
+                                                            token: Token {
+                                                                span: 1117:1123,
+                                                                kind: Identifier,
+                                                            },
+                                                            value: "String",
+                                                        },
+                                                    },
+                                                ),
+                                                default_value: Some(
+                                                    String(
+                                                        StringNode {
+                                                            token: Token {
+                                                                span: 1126:1134,
+                                                                kind: StringLiteral,
+                                                            },
+                                                            value: "string",
+                                                        },
+                                                    ),
+                                                ),
+                                                directives: [],
+                                            },
+                                        ],
+                                        end: Token {
+                                            span: 1134:1135,
+                                            kind: CloseParen,
+                                        },
+                                    },
+                                ),
+                                directives: [],
+                                description: None,
+                            },
+                        ],
+                        end: Token {
+                            span: 1144:1145,
+                            kind: CloseBrace,
+                        },
+                    },
+                ),
+            },
+        ),
+        InterfaceTypeDefinition(
+            InterfaceTypeDefinition {
+                name: Identifier {
+                    span: 1157:1175,
+                    token: Token {
+                        span: 1157:1175,
+                        kind: Identifier,
+                    },
+                    value: "AnnotatedInterface",
+                },
+                interfaces: [],
+                directives: [
+                    ConstantDirective {
+                        span: 1176:1188,
+                        at: Token {
+                            span: 1176:1177,
+                            kind: At,
+                        },
+                        name: Identifier {
+                            span: 1177:1188,
+                            token: Token {
+                                span: 1177:1188,
+                                kind: Identifier,
+                            },
+                            value: "onInterface",
+                        },
+                        arguments: None,
+                    },
+                ],
+                fields: Some(
+                    List {
+                        span: 1189:1257,
+                        start: Token {
+                            span: 1189:1190,
+                            kind: OpenBrace,
+                        },
+                        items: [
+                            FieldDefinition {
+                                name: Identifier {
+                                    span: 1193:1207,
+                                    token: Token {
+                                        span: 1193:1207,
+                                        kind: Identifier,
+                                    },
+                                    value: "annotatedField",
+                                },
+                                type_: Named(
+                                    NamedTypeAnnotation {
+                                        name: Identifier {
+                                            span: 1242:1246,
+                                            token: Token {
+                                                span: 1242:1246,
+                                                kind: Identifier,
+                                            },
+                                            value: "Type",
+                                        },
+                                    },
+                                ),
+                                arguments: Some(
+                                    List {
+                                        span: 1207:1240,
+                                        start: Token {
+                                            span: 1207:1208,
+                                            kind: OpenParen,
+                                        },
+                                        items: [
+                                            InputValueDefinition {
+                                                name: Identifier {
+                                                    span: 1208:1211,
+                                                    token: Token {
+                                                        span: 1208:1211,
+                                                        kind: Identifier,
+                                                    },
+                                                    value: "arg",
+                                                },
+                                                type_: Named(
+                                                    NamedTypeAnnotation {
+                                                        name: Identifier {
+                                                            span: 1213:1217,
+                                                            token: Token {
+                                                                span: 1213:1217,
+                                                                kind: Identifier,
+                                                            },
+                                                            value: "Type",
+                                                        },
+                                                    },
+                                                ),
+                                                default_value: None,
+                                                directives: [
+                                                    ConstantDirective {
+                                                        span: 1218:1239,
+                                                        at: Token {
+                                                            span: 1218:1219,
+                                                            kind: At,
+                                                        },
+                                                        name: Identifier {
+                                                            span: 1219:1239,
+                                                            token: Token {
+                                                                span: 1219:1239,
+                                                                kind: Identifier,
+                                                            },
+                                                            value: "onArgumentDefinition",
+                                                        },
+                                                        arguments: None,
+                                                    },
+                                                ],
+                                            },
+                                        ],
+                                        end: Token {
+                                            span: 1239:1240,
+                                            kind: CloseParen,
+                                        },
+                                    },
+                                ),
+                                directives: [
+                                    ConstantDirective {
+                                        span: 1247:1255,
+                                        at: Token {
+                                            span: 1247:1248,
+                                            kind: At,
+                                        },
+                                        name: Identifier {
+                                            span: 1248:1255,
+                                            token: Token {
+                                                span: 1248:1255,
+                                                kind: Identifier,
+                                            },
+                                            value: "onField",
+                                        },
+                                        arguments: None,
+                                    },
+                                ],
+                                description: None,
+                            },
+                        ],
+                        end: Token {
+                            span: 1256:1257,
+                            kind: CloseBrace,
+                        },
+                    },
+                ),
+            },
+        ),
+        InterfaceTypeDefinition(
+            InterfaceTypeDefinition {
+                name: Identifier {
+                    span: 1269:1287,
+                    token: Token {
+                        span: 1269:1287,
+                        kind: Identifier,
+                    },
+                    value: "UndefinedInterface",
+                },
+                interfaces: [],
+                directives: [],
+                fields: None,
+            },
+        ),
+        InterfaceTypeExtension(
+            InterfaceTypeExtension {
+                name: Identifier {
+                    span: 1306:1309,
+                    token: Token {
+                        span: 1306:1309,
+                        kind: Identifier,
+                    },
+                    value: "Bar",
+                },
+                interfaces: [
+                    Identifier {
+                        span: 1321:1324,
+                        token: Token {
+                            span: 1321:1324,
+                            kind: Identifier,
+                        },
+                        value: "Two",
+                    },
+                ],
+                directives: [],
+                fields: Some(
+                    List {
+                        span: 1325:1362,
+                        start: Token {
+                            span: 1325:1326,
+                            kind: OpenBrace,
+                        },
+                        items: [
+                            FieldDefinition {
+                                name: Identifier {
+                                    span: 1329:1332,
+                                    token: Token {
+                                        span: 1329:1332,
+                                        kind: Identifier,
+                                    },
+                                    value: "two",
+                                },
+                                type_: Named(
+                                    NamedTypeAnnotation {
+                                        name: Identifier {
+                                            span: 1356:1360,
+                                            token: Token {
+                                                span: 1356:1360,
+                                                kind: Identifier,
+                                            },
+                                            value: "Type",
+                                        },
+                                    },
+                                ),
+                                arguments: Some(
+                                    List {
+                                        span: 1332:1354,
+                                        start: Token {
+                                            span: 1332:1333,
+                                            kind: OpenParen,
+                                        },
+                                        items: [
+                                            InputValueDefinition {
+                                                name: Identifier {
+                                                    span: 1333:1341,
+                                                    token: Token {
+                                                        span: 1333:1341,
+                                                        kind: Identifier,
+                                                    },
+                                                    value: "argument",
+                                                },
+                                                type_: NonNull(
+                                                    NonNullTypeAnnotation {
+                                                        span: 1343:1353,
+                                                        type_: Named(
+                                                            NamedTypeAnnotation {
+                                                                name: Identifier {
+                                                                    span: 1343:1352,
+                                                                    token: Token {
+                                                                        span: 1343:1352,
+                                                                        kind: Identifier,
+                                                                    },
+                                                                    value: "InputType",
+                                                                },
+                                                            },
+                                                        ),
+                                                        exclamation: Token {
+                                                            span: 1352:1353,
+                                                            kind: Exclamation,
+                                                        },
+                                                    },
+                                                ),
+                                                default_value: None,
+                                                directives: [],
+                                            },
+                                        ],
+                                        end: Token {
+                                            span: 1353:1354,
+                                            kind: CloseParen,
+                                        },
+                                    },
+                                ),
+                                directives: [],
+                                description: None,
+                            },
+                        ],
+                        end: Token {
+                            span: 1361:1362,
+                            kind: CloseBrace,
+                        },
+                    },
+                ),
+            },
+        ),
+        InterfaceTypeExtension(
+            InterfaceTypeExtension {
+                name: Identifier {
+                    span: 1381:1384,
+                    token: Token {
+                        span: 1381:1384,
+                        kind: Identifier,
+                    },
+                    value: "Bar",
+                },
+                interfaces: [],
+                directives: [
+                    ConstantDirective {
+                        span: 1385:1397,
+                        at: Token {
+                            span: 1385:1386,
+                            kind: At,
+                        },
+                        name: Identifier {
+                            span: 1386:1397,
+                            token: Token {
+                                span: 1386:1397,
+                                kind: Identifier,
+                            },
+                            value: "onInterface",
+                        },
+                        arguments: None,
+                    },
+                ],
+                fields: None,
+            },
+        ),
+        InterfaceTypeDefinition(
+            InterfaceTypeDefinition {
+                name: Identifier {
+                    span: 1409:1412,
+                    token: Token {
+                        span: 1409:1412,
+                        kind: Identifier,
+                    },
+                    value: "Baz",
+                },
+                interfaces: [
+                    Identifier {
+                        span: 1424:1427,
+                        token: Token {
+                            span: 1424:1427,
+                            kind: Identifier,
+                        },
+                        value: "Bar",
+                    },
+                    Identifier {
+                        span: 1430:1433,
+                        token: Token {
+                            span: 1430:1433,
+                            kind: Identifier,
+                        },
+                        value: "Two",
+                    },
+                ],
+                directives: [],
+                fields: Some(
+                    List {
+                        span: 1434:1527,
+                        start: Token {
+                            span: 1434:1435,
+                            kind: OpenBrace,
+                        },
+                        items: [
+                            FieldDefinition {
+                                name: Identifier {
+                                    span: 1438:1441,
+                                    token: Token {
+                                        span: 1438:1441,
+                                        kind: Identifier,
+                                    },
+                                    value: "one",
+                                },
+                                type_: Named(
+                                    NamedTypeAnnotation {
+                                        name: Identifier {
+                                            span: 1443:1447,
+                                            token: Token {
+                                                span: 1443:1447,
+                                                kind: Identifier,
+                                            },
+                                            value: "Type",
+                                        },
+                                    },
+                                ),
+                                arguments: None,
+                                directives: [],
+                                description: None,
+                            },
+                            FieldDefinition {
+                                name: Identifier {
+                                    span: 1450:1453,
+                                    token: Token {
+                                        span: 1450:1453,
+                                        kind: Identifier,
+                                    },
+                                    value: "two",
+                                },
+                                type_: Named(
+                                    NamedTypeAnnotation {
+                                        name: Identifier {
+                                            span: 1477:1481,
+                                            token: Token {
+                                                span: 1477:1481,
+                                                kind: Identifier,
+                                            },
+                                            value: "Type",
+                                        },
+                                    },
+                                ),
+                                arguments: Some(
+                                    List {
+                                        span: 1453:1475,
+                                        start: Token {
+                                            span: 1453:1454,
+                                            kind: OpenParen,
+                                        },
+                                        items: [
+                                            InputValueDefinition {
+                                                name: Identifier {
+                                                    span: 1454:1462,
+                                                    token: Token {
+                                                        span: 1454:1462,
+                                                        kind: Identifier,
+                                                    },
+                                                    value: "argument",
+                                                },
+                                                type_: NonNull(
+                                                    NonNullTypeAnnotation {
+                                                        span: 1464:1474,
+                                                        type_: Named(
+                                                            NamedTypeAnnotation {
+                                                                name: Identifier {
+                                                                    span: 1464:1473,
+                                                                    token: Token {
+                                                                        span: 1464:1473,
+                                                                        kind: Identifier,
+                                                                    },
+                                                                    value: "InputType",
+                                                                },
+                                                            },
+                                                        ),
+                                                        exclamation: Token {
+                                                            span: 1473:1474,
+                                                            kind: Exclamation,
+                                                        },
+                                                    },
+                                                ),
+                                                default_value: None,
+                                                directives: [],
+                                            },
+                                        ],
+                                        end: Token {
+                                            span: 1474:1475,
+                                            kind: CloseParen,
+                                        },
+                                    },
+                                ),
+                                directives: [],
+                                description: None,
+                            },
+                            FieldDefinition {
+                                name: Identifier {
+                                    span: 1484:1488,
+                                    token: Token {
+                                        span: 1484:1488,
+                                        kind: Identifier,
+                                    },
+                                    value: "four",
+                                },
+                                type_: Named(
+                                    NamedTypeAnnotation {
+                                        name: Identifier {
+                                            span: 1519:1525,
+                                            token: Token {
+                                                span: 1519:1525,
+                                                kind: Identifier,
+                                            },
+                                            value: "String",
+                                        },
+                                    },
+                                ),
+                                arguments: Some(
+                                    List {
+                                        span: 1488:1517,
+                                        start: Token {
+                                            span: 1488:1489,
+                                            kind: OpenParen,
+                                        },
+                                        items: [
+                                            InputValueDefinition {
+                                                name: Identifier {
+                                                    span: 1489:1497,
+                                                    token: Token {
+                                                        span: 1489:1497,
+                                                        kind: Identifier,
+                                                    },
+                                                    value: "argument",
+                                                },
+                                                type_: Named(
+                                                    NamedTypeAnnotation {
+                                                        name: Identifier {
+                                                            span: 1499:1505,
+                                                            token: Token {
+                                                                span: 1499:1505,
+                                                                kind: Identifier,
+                                                            },
+                                                            value: "String",
+                                                        },
+                                                    },
+                                                ),
+                                                default_value: Some(
+                                                    String(
+                                                        StringNode {
+                                                            token: Token {
+                                                                span: 1508:1516,
+                                                                kind: StringLiteral,
+                                                            },
+                                                            value: "string",
+                                                        },
+                                                    ),
+                                                ),
+                                                directives: [],
+                                            },
+                                        ],
+                                        end: Token {
+                                            span: 1516:1517,
+                                            kind: CloseParen,
+                                        },
+                                    },
+                                ),
+                                directives: [],
+                                description: None,
+                            },
+                        ],
+                        end: Token {
+                            span: 1526:1527,
+                            kind: CloseBrace,
+                        },
+                    },
+                ),
+            },
+        ),
+        UnionTypeDefinition(
+            UnionTypeDefinition {
+                name: Identifier {
+                    span: 1535:1539,
+                    token: Token {
+                        span: 1535:1539,
+                        kind: Identifier,
+                    },
+                    value: "Feed",
+                },
+                directives: [],
+                members: [
+                    Identifier {
+                        span: 1546:1551,
+                        token: Token {
+                            span: 1546:1551,
+                            kind: Identifier,
+                        },
+                        value: "Story",
+                    },
+                    Identifier {
+                        span: 1556:1563,
+                        token: Token {
+                            span: 1556:1563,
+                            kind: Identifier,
+                        },
+                        value: "Article",
+                    },
+                    Identifier {
+                        span: 1568:1574,
+                        token: Token {
+                            span: 1568:1574,
+                            kind: Identifier,
+                        },
+                        value: "Advert",
+                    },
+                ],
+            },
+        ),
+        UnionTypeDefinition(
+            UnionTypeDefinition {
+                name: Identifier {
+                    span: 1582:1596,
+                    token: Token {
+                        span: 1582:1596,
+                        kind: Identifier,
+                    },
+                    value: "AnnotatedUnion",
+                },
+                directives: [
+                    ConstantDirective {
+                        span: 1597:1605,
+                        at: Token {
+                            span: 1597:1598,
+                            kind: At,
+                        },
+                        name: Identifier {
+                            span: 1598:1605,
+                            token: Token {
+                                span: 1598:1605,
+                                kind: Identifier,
+                            },
+                            value: "onUnion",
+                        },
+                        arguments: None,
+                    },
+                ],
+                members: [
+                    Identifier {
+                        span: 1608:1609,
+                        token: Token {
+                            span: 1608:1609,
+                            kind: Identifier,
+                        },
+                        value: "A",
+                    },
+                    Identifier {
+                        span: 1612:1613,
+                        token: Token {
+                            span: 1612:1613,
+                            kind: Identifier,
+                        },
+                        value: "B",
+                    },
+                ],
+            },
+        ),
+        UnionTypeDefinition(
+            UnionTypeDefinition {
+                name: Identifier {
+                    span: 1621:1638,
+                    token: Token {
+                        span: 1621:1638,
+                        kind: Identifier,
+                    },
+                    value: "AnnotatedUnionTwo",
+                },
+                directives: [
+                    ConstantDirective {
+                        span: 1639:1647,
+                        at: Token {
+                            span: 1639:1640,
+                            kind: At,
+                        },
+                        name: Identifier {
+                            span: 1640:1647,
+                            token: Token {
+                                span: 1640:1647,
+                                kind: Identifier,
+                            },
+                            value: "onUnion",
+                        },
+                        arguments: None,
+                    },
+                ],
+                members: [
+                    Identifier {
+                        span: 1652:1653,
+                        token: Token {
+                            span: 1652:1653,
+                            kind: Identifier,
+                        },
+                        value: "A",
+                    },
+                    Identifier {
+                        span: 1656:1657,
+                        token: Token {
+                            span: 1656:1657,
+                            kind: Identifier,
+                        },
+                        value: "B",
+                    },
+                ],
+            },
+        ),
+        UnionTypeDefinition(
+            UnionTypeDefinition {
+                name: Identifier {
+                    span: 1665:1679,
+                    token: Token {
+                        span: 1665:1679,
+                        kind: Identifier,
+                    },
+                    value: "UndefinedUnion",
+                },
+                directives: [],
+                members: [],
+            },
+        ),
+        UnionTypeExtension(
+            UnionTypeExtension {
+                name: Identifier {
+                    span: 1694:1698,
+                    token: Token {
+                        span: 1694:1698,
+                        kind: Identifier,
+                    },
+                    value: "Feed",
+                },
+                directives: [],
+                members: [
+                    Identifier {
+                        span: 1701:1706,
+                        token: Token {
+                            span: 1701:1706,
+                            kind: Identifier,
+                        },
+                        value: "Photo",
+                    },
+                    Identifier {
+                        span: 1709:1714,
+                        token: Token {
+                            span: 1709:1714,
+                            kind: Identifier,
+                        },
+                        value: "Video",
+                    },
+                ],
+            },
+        ),
+        UnionTypeExtension(
+            UnionTypeExtension {
+                name: Identifier {
+                    span: 1729:1733,
+                    token: Token {
+                        span: 1729:1733,
+                        kind: Identifier,
+                    },
+                    value: "Feed",
+                },
+                directives: [
+                    ConstantDirective {
+                        span: 1734:1742,
+                        at: Token {
+                            span: 1734:1735,
+                            kind: At,
+                        },
+                        name: Identifier {
+                            span: 1735:1742,
+                            token: Token {
+                                span: 1735:1742,
+                                kind: Identifier,
+                            },
+                            value: "onUnion",
+                        },
+                        arguments: None,
+                    },
+                ],
+                members: [],
+            },
+        ),
+        ScalarTypeDefinition(
+            ScalarTypeDefinition {
+                name: Identifier {
+                    span: 1751:1763,
+                    token: Token {
+                        span: 1751:1763,
+                        kind: Identifier,
+                    },
+                    value: "CustomScalar",
+                },
+                directives: [],
+            },
+        ),
+        ScalarTypeDefinition(
+            ScalarTypeDefinition {
+                name: Identifier {
+                    span: 1772:1787,
+                    token: Token {
+                        span: 1772:1787,
+                        kind: Identifier,
+                    },
+                    value: "AnnotatedScalar",
+                },
+                directives: [
+                    ConstantDirective {
+                        span: 1788:1797,
+                        at: Token {
+                            span: 1788:1789,
+                            kind: At,
+                        },
+                        name: Identifier {
+                            span: 1789:1797,
+                            token: Token {
+                                span: 1789:1797,
+                                kind: Identifier,
+                            },
+                            value: "onScalar",
+                        },
+                        arguments: None,
+                    },
+                ],
+            },
+        ),
+        ScalarTypeExtension(
+            ScalarTypeExtension {
+                name: Identifier {
+                    span: 1813:1825,
+                    token: Token {
+                        span: 1813:1825,
+                        kind: Identifier,
+                    },
+                    value: "CustomScalar",
+                },
+                directives: [
+                    ConstantDirective {
+                        span: 1826:1835,
+                        at: Token {
+                            span: 1826:1827,
+                            kind: At,
+                        },
+                        name: Identifier {
+                            span: 1827:1835,
+                            token: Token {
+                                span: 1827:1835,
+                                kind: Identifier,
+                            },
+                            value: "onScalar",
+                        },
+                        arguments: None,
+                    },
+                ],
+            },
+        ),
+        EnumTypeDefinition(
+            EnumTypeDefinition {
+                name: Identifier {
+                    span: 1842:1846,
+                    token: Token {
+                        span: 1842:1846,
+                        kind: Identifier,
+                    },
+                    value: "Site",
+                },
+                directives: [],
+                values: Some(
+                    List {
+                        span: 1847:2033,
+                        start: Token {
+                            span: 1847:1848,
+                            kind: OpenBrace,
+                        },
+                        items: [
+                            EnumValueDefinition {
+                                name: Identifier {
+                                    span: 1910:1917,
+                                    token: Token {
+                                        span: 1910:1917,
+                                        kind: Identifier,
+                                    },
+                                    value: "DESKTOP",
+                                },
+                                directives: [],
+                            },
+                            EnumValueDefinition {
+                                name: Identifier {
+                                    span: 1973:1979,
+                                    token: Token {
+                                        span: 1973:1979,
+                                        kind: Identifier,
+                                    },
+                                    value: "MOBILE",
+                                },
+                                directives: [],
+                            },
+                            EnumValueDefinition {
+                                name: Identifier {
+                                    span: 2028:2031,
+                                    token: Token {
+                                        span: 2028:2031,
+                                        kind: Identifier,
+                                    },
+                                    value: "WEB",
+                                },
+                                directives: [],
+                            },
+                        ],
+                        end: Token {
+                            span: 2032:2033,
+                            kind: CloseBrace,
+                        },
+                    },
+                ),
+            },
+        ),
+        EnumTypeDefinition(
+            EnumTypeDefinition {
+                name: Identifier {
+                    span: 2040:2053,
+                    token: Token {
+                        span: 2040:2053,
+                        kind: Identifier,
+                    },
+                    value: "AnnotatedEnum",
+                },
+                directives: [
+                    ConstantDirective {
+                        span: 2054:2061,
+                        at: Token {
+                            span: 2054:2055,
+                            kind: At,
+                        },
+                        name: Identifier {
+                            span: 2055:2061,
+                            token: Token {
+                                span: 2055:2061,
+                                kind: Identifier,
+                            },
+                            value: "onEnum",
+                        },
+                        arguments: None,
+                    },
+                ],
+                values: Some(
+                    List {
+                        span: 2062:2110,
+                        start: Token {
+                            span: 2062:2063,
+                            kind: OpenBrace,
+                        },
+                        items: [
+                            EnumValueDefinition {
+                                name: Identifier {
+                                    span: 2066:2081,
+                                    token: Token {
+                                        span: 2066:2081,
+                                        kind: Identifier,
+                                    },
+                                    value: "ANNOTATED_VALUE",
+                                },
+                                directives: [
+                                    ConstantDirective {
+                                        span: 2082:2094,
+                                        at: Token {
+                                            span: 2082:2083,
+                                            kind: At,
+                                        },
+                                        name: Identifier {
+                                            span: 2083:2094,
+                                            token: Token {
+                                                span: 2083:2094,
+                                                kind: Identifier,
+                                            },
+                                            value: "onEnumValue",
+                                        },
+                                        arguments: None,
+                                    },
+                                ],
+                            },
+                            EnumValueDefinition {
+                                name: Identifier {
+                                    span: 2097:2108,
+                                    token: Token {
+                                        span: 2097:2108,
+                                        kind: Identifier,
+                                    },
+                                    value: "OTHER_VALUE",
+                                },
+                                directives: [],
+                            },
+                        ],
+                        end: Token {
+                            span: 2109:2110,
+                            kind: CloseBrace,
+                        },
+                    },
+                ),
+            },
+        ),
+        EnumTypeDefinition(
+            EnumTypeDefinition {
+                name: Identifier {
+                    span: 2117:2130,
+                    token: Token {
+                        span: 2117:2130,
+                        kind: Identifier,
+                    },
+                    value: "UndefinedEnum",
+                },
+                directives: [],
+                values: None,
+            },
+        ),
+        EnumTypeExtension(
+            EnumTypeExtension {
+                name: Identifier {
+                    span: 2144:2148,
+                    token: Token {
+                        span: 2144:2148,
+                        kind: Identifier,
+                    },
+                    value: "Site",
+                },
+                directives: [],
+                values: Some(
+                    List {
+                        span: 2149:2157,
+                        start: Token {
+                            span: 2149:2150,
+                            kind: OpenBrace,
+                        },
+                        items: [
+                            EnumValueDefinition {
+                                name: Identifier {
+                                    span: 2153:2155,
+                                    token: Token {
+                                        span: 2153:2155,
+                                        kind: Identifier,
+                                    },
+                                    value: "VR",
+                                },
+                                directives: [],
+                            },
+                        ],
+                        end: Token {
+                            span: 2156:2157,
+                            kind: CloseBrace,
+                        },
+                    },
+                ),
+            },
+        ),
+        EnumTypeExtension(
+            EnumTypeExtension {
+                name: Identifier {
+                    span: 2171:2175,
+                    token: Token {
+                        span: 2171:2175,
+                        kind: Identifier,
+                    },
+                    value: "Site",
+                },
+                directives: [
+                    ConstantDirective {
+                        span: 2176:2183,
+                        at: Token {
+                            span: 2176:2177,
+                            kind: At,
+                        },
+                        name: Identifier {
+                            span: 2177:2183,
+                            token: Token {
+                                span: 2177:2183,
+                                kind: Identifier,
+                            },
+                            value: "onEnum",
+                        },
+                        arguments: None,
+                    },
+                ],
+                values: None,
+            },
+        ),
+        InputObjectTypeDefinition(
+            InputObjectTypeDefinition {
+                name: Identifier {
+                    span: 2191:2200,
+                    token: Token {
+                        span: 2191:2200,
+                        kind: Identifier,
+                    },
+                    value: "InputType",
+                },
+                directives: [],
+                fields: Some(
+                    List {
+                        span: 2201:2238,
+                        start: Token {
+                            span: 2201:2202,
+                            kind: OpenBrace,
+                        },
+                        items: [
+                            InputValueDefinition {
+                                name: Identifier {
+                                    span: 2205:2208,
+                                    token: Token {
+                                        span: 2205:2208,
+                                        kind: Identifier,
+                                    },
+                                    value: "key",
+                                },
+                                type_: NonNull(
+                                    NonNullTypeAnnotation {
+                                        span: 2210:2217,
+                                        type_: Named(
+                                            NamedTypeAnnotation {
+                                                name: Identifier {
+                                                    span: 2210:2216,
+                                                    token: Token {
+                                                        span: 2210:2216,
+                                                        kind: Identifier,
+                                                    },
+                                                    value: "String",
+                                                },
+                                            },
+                                        ),
+                                        exclamation: Token {
+                                            span: 2216:2217,
+                                            kind: Exclamation,
+                                        },
+                                    },
+                                ),
+                                default_value: None,
+                                directives: [],
+                            },
+                            InputValueDefinition {
+                                name: Identifier {
+                                    span: 2220:2226,
+                                    token: Token {
+                                        span: 2220:2226,
+                                        kind: Identifier,
+                                    },
+                                    value: "answer",
+                                },
+                                type_: Named(
+                                    NamedTypeAnnotation {
+                                        name: Identifier {
+                                            span: 2228:2231,
+                                            token: Token {
+                                                span: 2228:2231,
+                                                kind: Identifier,
+                                            },
+                                            value: "Int",
+                                        },
+                                    },
+                                ),
+                                default_value: Some(
+                                    Int(
+                                        IntNode {
+                                            token: Token {
+                                                span: 2234:2236,
+                                                kind: IntegerLiteral,
+                                            },
+                                            value: 42,
+                                        },
+                                    ),
+                                ),
+                                directives: [],
+                            },
+                        ],
+                        end: Token {
+                            span: 2237:2238,
+                            kind: CloseBrace,
+                        },
+                    },
+                ),
+            },
+        ),
+        InputObjectTypeDefinition(
+            InputObjectTypeDefinition {
+                name: Identifier {
+                    span: 2246:2260,
+                    token: Token {
+                        span: 2246:2260,
+                        kind: Identifier,
+                    },
+                    value: "AnnotatedInput",
+                },
+                directives: [
+                    ConstantDirective {
+                        span: 2261:2275,
+                        at: Token {
+                            span: 2261:2262,
+                            kind: At,
+                        },
+                        name: Identifier {
+                            span: 2262:2275,
+                            token: Token {
+                                span: 2262:2275,
+                                kind: Identifier,
+                            },
+                            value: "onInputObject",
+                        },
+                        arguments: None,
+                    },
+                ],
+                fields: Some(
+                    List {
+                        span: 2276:2326,
+                        start: Token {
+                            span: 2276:2277,
+                            kind: OpenBrace,
+                        },
+                        items: [
+                            InputValueDefinition {
+                                name: Identifier {
+                                    span: 2280:2294,
+                                    token: Token {
+                                        span: 2280:2294,
+                                        kind: Identifier,
+                                    },
+                                    value: "annotatedField",
+                                },
+                                type_: Named(
+                                    NamedTypeAnnotation {
+                                        name: Identifier {
+                                            span: 2296:2300,
+                                            token: Token {
+                                                span: 2296:2300,
+                                                kind: Identifier,
+                                            },
+                                            value: "Type",
+                                        },
+                                    },
+                                ),
+                                default_value: None,
+                                directives: [
+                                    ConstantDirective {
+                                        span: 2301:2324,
+                                        at: Token {
+                                            span: 2301:2302,
+                                            kind: At,
+                                        },
+                                        name: Identifier {
+                                            span: 2302:2324,
+                                            token: Token {
+                                                span: 2302:2324,
+                                                kind: Identifier,
+                                            },
+                                            value: "onInputFieldDefinition",
+                                        },
+                                        arguments: None,
+                                    },
+                                ],
+                            },
+                        ],
+                        end: Token {
+                            span: 2325:2326,
+                            kind: CloseBrace,
+                        },
+                    },
+                ),
+            },
+        ),
+        InputObjectTypeDefinition(
+            InputObjectTypeDefinition {
+                name: Identifier {
+                    span: 2334:2348,
+                    token: Token {
+                        span: 2334:2348,
+                        kind: Identifier,
+                    },
+                    value: "UndefinedInput",
+                },
+                directives: [],
+                fields: None,
+            },
+        ),
+        InputObjectTypeExtension(
+            InputObjectTypeExtension {
+                name: Identifier {
+                    span: 2363:2372,
+                    token: Token {
+                        span: 2363:2372,
+                        kind: Identifier,
+                    },
+                    value: "InputType",
+                },
+                directives: [],
+                fields: Some(
+                    List {
+                        span: 2373:2424,
+                        start: Token {
+                            span: 2373:2374,
+                            kind: OpenBrace,
+                        },
+                        items: [
+                            InputValueDefinition {
+                                name: Identifier {
+                                    span: 2377:2382,
+                                    token: Token {
+                                        span: 2377:2382,
+                                        kind: Identifier,
+                                    },
+                                    value: "other",
+                                },
+                                type_: Named(
+                                    NamedTypeAnnotation {
+                                        name: Identifier {
+                                            span: 2384:2389,
+                                            token: Token {
+                                                span: 2384:2389,
+                                                kind: Identifier,
+                                            },
+                                            value: "Float",
+                                        },
+                                    },
+                                ),
+                                default_value: Some(
+                                    Float(
+                                        FloatNode {
+                                            token: Token {
+                                                span: 2392:2398,
+                                                kind: FloatLiteral,
+                                            },
+                                            value: 12300,
+                                            source_value: "1.23e4",
+                                        },
+                                    ),
+                                ),
+                                directives: [
+                                    ConstantDirective {
+                                        span: 2399:2422,
+                                        at: Token {
+                                            span: 2399:2400,
+                                            kind: At,
+                                        },
+                                        name: Identifier {
+                                            span: 2400:2422,
+                                            token: Token {
+                                                span: 2400:2422,
+                                                kind: Identifier,
+                                            },
+                                            value: "onInputFieldDefinition",
+                                        },
+                                        arguments: None,
+                                    },
+                                ],
+                            },
+                        ],
+                        end: Token {
+                            span: 2423:2424,
+                            kind: CloseBrace,
+                        },
+                    },
+                ),
+            },
+        ),
+        InputObjectTypeExtension(
+            InputObjectTypeExtension {
+                name: Identifier {
+                    span: 2439:2448,
+                    token: Token {
+                        span: 2439:2448,
+                        kind: Identifier,
+                    },
+                    value: "InputType",
+                },
+                directives: [
+                    ConstantDirective {
+                        span: 2449:2463,
+                        at: Token {
+                            span: 2449:2450,
+                            kind: At,
+                        },
+                        name: Identifier {
+                            span: 2450:2463,
+                            token: Token {
+                                span: 2450:2463,
+                                kind: Identifier,
+                            },
+                            value: "onInputObject",
+                        },
+                        arguments: None,
+                    },
+                ],
+                fields: None,
+            },
+        ),
+        DirectiveDefinition(
+            DirectiveDefinition {
+                name: Identifier {
+                    span: 2531:2535,
+                    token: Token {
+                        span: 2531:2535,
+                        kind: Identifier,
+                    },
+                    value: "skip",
+                },
+                arguments: Some(
+                    List {
+                        span: 2535:2626,
+                        start: Token {
+                            span: 2535:2536,
+                            kind: OpenParen,
+                        },
+                        items: [
+                            InputValueDefinition {
+                                name: Identifier {
+                                    span: 2590:2592,
+                                    token: Token {
+                                        span: 2590:2592,
+                                        kind: Identifier,
+                                    },
+                                    value: "if",
+                                },
+                                type_: NonNull(
+                                    NonNullTypeAnnotation {
+                                        span: 2594:2602,
+                                        type_: Named(
+                                            NamedTypeAnnotation {
+                                                name: Identifier {
+                                                    span: 2594:2601,
+                                                    token: Token {
+                                                        span: 2594:2601,
+                                                        kind: Identifier,
+                                                    },
+                                                    value: "Boolean",
+                                                },
+                                            },
+                                        ),
+                                        exclamation: Token {
+                                            span: 2601:2602,
+                                            kind: Exclamation,
+                                        },
+                                    },
+                                ),
+                                default_value: None,
+                                directives: [
+                                    ConstantDirective {
+                                        span: 2603:2624,
+                                        at: Token {
+                                            span: 2603:2604,
+                                            kind: At,
+                                        },
+                                        name: Identifier {
+                                            span: 2604:2624,
+                                            token: Token {
+                                                span: 2604:2624,
+                                                kind: Identifier,
+                                            },
+                                            value: "onArgumentDefinition",
+                                        },
+                                        arguments: None,
+                                    },
+                                ],
+                            },
+                        ],
+                        end: Token {
+                            span: 2625:2626,
+                            kind: CloseParen,
+                        },
+                    },
+                ),
+                repeatable: false,
+                locations: [
+                    Field,
+                    FragmentSpread,
+                    InlineFragment,
+                ],
+                description: Some(
+                    StringNode {
+                        token: Token {
+                            span: 2465:2519,
+                            kind: BlockStringLiteral,
+                        },
+                        value: "This is a description of the `@skip` directive",
+                    },
+                ),
+            },
+        ),
+        DirectiveDefinition(
+            DirectiveDefinition {
+                name: Identifier {
+                    span: 2684:2691,
+                    token: Token {
+                        span: 2684:2691,
+                        kind: Identifier,
+                    },
+                    value: "include",
+                },
+                arguments: Some(
+                    List {
+                        span: 2691:2705,
+                        start: Token {
+                            span: 2691:2692,
+                            kind: OpenParen,
+                        },
+                        items: [
+                            InputValueDefinition {
+                                name: Identifier {
+                                    span: 2692:2694,
+                                    token: Token {
+                                        span: 2692:2694,
+                                        kind: Identifier,
+                                    },
+                                    value: "if",
+                                },
+                                type_: NonNull(
+                                    NonNullTypeAnnotation {
+                                        span: 2696:2704,
+                                        type_: Named(
+                                            NamedTypeAnnotation {
+                                                name: Identifier {
+                                                    span: 2696:2703,
+                                                    token: Token {
+                                                        span: 2696:2703,
+                                                        kind: Identifier,
+                                                    },
+                                                    value: "Boolean",
+                                                },
+                                            },
+                                        ),
+                                        exclamation: Token {
+                                            span: 2703:2704,
+                                            kind: Exclamation,
+                                        },
+                                    },
+                                ),
+                                default_value: None,
+                                directives: [],
+                            },
+                        ],
+                        end: Token {
+                            span: 2704:2705,
+                            kind: CloseParen,
+                        },
+                    },
+                ),
+                repeatable: false,
+                locations: [
+                    Field,
+                    FragmentSpread,
+                    InlineFragment,
+                ],
+                description: None,
+            },
+        ),
+        DirectiveDefinition(
+            DirectiveDefinition {
+                name: Identifier {
+                    span: 2771:2779,
+                    token: Token {
+                        span: 2771:2779,
+                        kind: Identifier,
+                    },
+                    value: "include2",
+                },
+                arguments: Some(
+                    List {
+                        span: 2779:2793,
+                        start: Token {
+                            span: 2779:2780,
+                            kind: OpenParen,
+                        },
+                        items: [
+                            InputValueDefinition {
+                                name: Identifier {
+                                    span: 2780:2782,
+                                    token: Token {
+                                        span: 2780:2782,
+                                        kind: Identifier,
+                                    },
+                                    value: "if",
+                                },
+                                type_: NonNull(
+                                    NonNullTypeAnnotation {
+                                        span: 2784:2792,
+                                        type_: Named(
+                                            NamedTypeAnnotation {
+                                                name: Identifier {
+                                                    span: 2784:2791,
+                                                    token: Token {
+                                                        span: 2784:2791,
+                                                        kind: Identifier,
+                                                    },
+                                                    value: "Boolean",
+                                                },
+                                            },
+                                        ),
+                                        exclamation: Token {
+                                            span: 2791:2792,
+                                            kind: Exclamation,
+                                        },
+                                    },
+                                ),
+                                default_value: None,
+                                directives: [],
+                            },
+                        ],
+                        end: Token {
+                            span: 2792:2793,
+                            kind: CloseParen,
+                        },
+                    },
+                ),
+                repeatable: false,
+                locations: [
+                    Field,
+                    FragmentSpread,
+                    InlineFragment,
+                ],
+                description: None,
+            },
+        ),
+        DirectiveDefinition(
+            DirectiveDefinition {
+                name: Identifier {
+                    span: 2859:2874,
+                    token: Token {
+                        span: 2859:2874,
+                        kind: Identifier,
+                    },
+                    value: "myRepeatableDir",
+                },
+                arguments: Some(
+                    List {
+                        span: 2874:2889,
+                        start: Token {
+                            span: 2874:2875,
+                            kind: OpenParen,
+                        },
+                        items: [
+                            InputValueDefinition {
+                                name: Identifier {
+                                    span: 2875:2879,
+                                    token: Token {
+                                        span: 2875:2879,
+                                        kind: Identifier,
+                                    },
+                                    value: "name",
+                                },
+                                type_: NonNull(
+                                    NonNullTypeAnnotation {
+                                        span: 2881:2888,
+                                        type_: Named(
+                                            NamedTypeAnnotation {
+                                                name: Identifier {
+                                                    span: 2881:2887,
+                                                    token: Token {
+                                                        span: 2881:2887,
+                                                        kind: Identifier,
+                                                    },
+                                                    value: "String",
+                                                },
+                                            },
+                                        ),
+                                        exclamation: Token {
+                                            span: 2887:2888,
+                                            kind: Exclamation,
+                                        },
+                                    },
+                                ),
+                                default_value: None,
+                                directives: [],
+                            },
+                        ],
+                        end: Token {
+                            span: 2888:2889,
+                            kind: CloseParen,
+                        },
+                    },
+                ),
+                repeatable: true,
+                locations: [
+                    Object,
+                    Interface,
+                ],
+                description: None,
+            },
+        ),
+        SchemaExtension(
+            SchemaExtension {
+                directives: [
+                    ConstantDirective {
+                        span: 2944:2953,
+                        at: Token {
+                            span: 2944:2945,
+                            kind: At,
+                        },
+                        name: Identifier {
+                            span: 2945:2953,
+                            token: Token {
+                                span: 2945:2953,
+                                kind: Identifier,
+                            },
+                            value: "onSchema",
+                        },
+                        arguments: None,
+                    },
+                ],
+                operation_types: None,
+            },
+        ),
+        SchemaExtension(
+            SchemaExtension {
+                directives: [
+                    ConstantDirective {
+                        span: 2969:2978,
+                        at: Token {
+                            span: 2969:2970,
+                            kind: At,
+                        },
+                        name: Identifier {
+                            span: 2970:2978,
+                            token: Token {
+                                span: 2970:2978,
+                                kind: Identifier,
+                            },
+                            value: "onSchema",
+                        },
+                        arguments: None,
+                    },
+                ],
+                operation_types: Some(
+                    List {
+                        span: 2979:3015,
+                        start: Token {
+                            span: 2979:2980,
+                            kind: OpenBrace,
+                        },
+                        items: [
+                            OperationTypeDefinition {
+                                operation: Subscription,
+                                type_: Identifier {
+                                    span: 2997:3013,
+                                    token: Token {
+                                        span: 2997:3013,
+                                        kind: Identifier,
+                                    },
+                                    value: "SubscriptionType",
+                                },
+                            },
+                        ],
+                        end: Token {
+                            span: 3014:3015,
+                            kind: CloseBrace,
+                        },
+                    },
+                ),
+            },
+        ),
+    ],
+}

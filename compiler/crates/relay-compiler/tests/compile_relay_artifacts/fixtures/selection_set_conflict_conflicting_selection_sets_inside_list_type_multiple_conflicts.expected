@@ -1,0 +1,31 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query selectionSetConflictConflictingSelectionSetsInsideListTypeMultipleConflictsQuery {
+  viewer {
+    newsFeed {
+      edges {
+        same_alias: showBeeper
+        same_alias: sortKey
+      }
+      edges {
+        same_alias: cursor
+      }
+    }
+  }
+}
+==================================== ERROR ====================================
+✖︎ Field 'same_alias' is ambiguous because it references two different fields: 'showBeeper' and 'sortKey'
+
+  selection_set_conflict_conflicting_selection_sets_inside_list_type_multiple_conflicts.graphql:6:21
+    5 │       edges {
+    6 │         same_alias: showBeeper
+      │                     ^^^^^^^^^^
+    7 │         same_alias: sortKey
+
+  ℹ︎ the other field
+
+  selection_set_conflict_conflicting_selection_sets_inside_list_type_multiple_conflicts.graphql:7:21
+    6 │         same_alias: showBeeper
+    7 │         same_alias: sortKey
+      │                     ^^^^^^^
+    8 │       }

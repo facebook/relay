@@ -1,0 +1,23 @@
+query noInlineFragmentQuery(
+  $global: Float
+  $shadowed_global: Float
+  $global_from_parent: Float
+) @raw_response_type {
+  me {
+    ...noInlineFragment_user
+    address {
+      # intentionally spread a fragment where there is a concrete type
+      # that does not have an `id` so that the spread is the only selection
+      # this should output an empty object type
+      ...noInlineFragment_address
+    }
+  }
+}
+
+fragment noInlineFragment_address on StreetAddress @no_inline {
+  city
+}
+
+fragment noInlineFragment_user on User @no_inline {
+  name
+}

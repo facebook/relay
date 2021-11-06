@@ -1,0 +1,460 @@
+==================================== INPUT ====================================
+query multipleModulesWithKey_MatchQuery {
+  node(id: "<user-id>") {
+    ... on Actor {
+      nameRenderer @match(key: "multipleModulesWithKey_MatchQuery_nameRenderer") {
+        ...multipleModulesWithKey_PlainUserNameRenderer_name
+          @module(name: "PlainUserNameRenderer.react")
+      }
+    }
+    ... on User {
+      nameRenderable {
+        ...multipleModulesWithKey_MarkdownUserNameRenderer_name
+          @module(name: "MarkdownUserNameRenderer.react")
+      }
+    }
+  }
+}
+
+fragment multipleModulesWithKey_PlainUserNameRenderer_name on PlainUserNameRenderer {
+  plaintext
+  data {
+    text
+  }
+}
+
+fragment multipleModulesWithKey_MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+  }
+}
+==================================== OUTPUT ===================================
+{
+  "kind": "SplitOperation",
+  "metadata": {},
+  "name": "multipleModulesWithKey_MarkdownUserNameRenderer_name$normalization",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "markdown",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "concreteType": "MarkdownUserNameData",
+      "kind": "LinkedField",
+      "name": "data",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "markup",
+          "storageKey": null
+        },
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "id",
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    }
+  ]
+}
+
+{
+  "fragment": {
+    "argumentDefinitions": [],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "multipleModulesWithKey_MatchQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Literal",
+            "name": "id",
+            "value": "<user-id>"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "alias": null,
+                "args": [
+                  {
+                    "kind": "Literal",
+                    "name": "supported",
+                    "value": "1AwQS7"
+                  }
+                ],
+                "concreteType": null,
+                "kind": "LinkedField",
+                "name": "nameRenderer",
+                "plural": false,
+                "selections": [
+                  {
+                    "kind": "InlineFragment",
+                    "selections": [
+                      {
+                        "args": null,
+                        "documentName": "multipleModulesWithKey_MatchQuery_nameRenderer",
+                        "fragmentName": "multipleModulesWithKey_PlainUserNameRenderer_name",
+                        "fragmentPropName": "PlainUserNameRenderer_name",
+                        "kind": "ModuleImport"
+                      }
+                    ],
+                    "type": "PlainUserNameRenderer",
+                    "abstractKey": null
+                  }
+                ],
+                "storageKey": "nameRenderer(supported:\"1AwQS7\")"
+              }
+            ],
+            "type": "Actor",
+            "abstractKey": "__isActor"
+          },
+          {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "concreteType": null,
+                "kind": "LinkedField",
+                "name": "nameRenderable",
+                "plural": false,
+                "selections": [
+                  {
+                    "kind": "InlineFragment",
+                    "selections": [
+                      {
+                        "args": null,
+                        "documentName": "multipleModulesWithKey_MatchQuery",
+                        "fragmentName": "multipleModulesWithKey_MarkdownUserNameRenderer_name",
+                        "fragmentPropName": "MarkdownUserNameRenderer_name",
+                        "kind": "ModuleImport"
+                      }
+                    ],
+                    "type": "MarkdownUserNameRenderer",
+                    "abstractKey": null
+                  }
+                ],
+                "storageKey": null
+              }
+            ],
+            "type": "User",
+            "abstractKey": null
+          }
+        ],
+        "storageKey": "node(id:\"<user-id>\")"
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [],
+    "kind": "Operation",
+    "name": "multipleModulesWithKey_MatchQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Literal",
+            "name": "id",
+            "value": "<user-id>"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "__typename",
+            "storageKey": null
+          },
+          {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "alias": null,
+                "args": [
+                  {
+                    "kind": "Literal",
+                    "name": "supported",
+                    "value": "1AwQS7"
+                  }
+                ],
+                "concreteType": null,
+                "kind": "LinkedField",
+                "name": "nameRenderer",
+                "plural": false,
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "__typename",
+                    "storageKey": null
+                  },
+                  {
+                    "kind": "InlineFragment",
+                    "selections": [
+                      {
+                        "args": null,
+                        "documentName": "multipleModulesWithKey_MatchQuery_nameRenderer",
+                        "fragmentName": "multipleModulesWithKey_PlainUserNameRenderer_name",
+                        "fragmentPropName": "PlainUserNameRenderer_name",
+                        "kind": "ModuleImport"
+                      }
+                    ],
+                    "type": "PlainUserNameRenderer",
+                    "abstractKey": null
+                  }
+                ],
+                "storageKey": "nameRenderer(supported:\"1AwQS7\")"
+              }
+            ],
+            "type": "Actor",
+            "abstractKey": "__isActor"
+          },
+          {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "concreteType": null,
+                "kind": "LinkedField",
+                "name": "nameRenderable",
+                "plural": false,
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "__typename",
+                    "storageKey": null
+                  },
+                  {
+                    "kind": "InlineFragment",
+                    "selections": [
+                      {
+                        "args": null,
+                        "documentName": "multipleModulesWithKey_MatchQuery",
+                        "fragmentName": "multipleModulesWithKey_MarkdownUserNameRenderer_name",
+                        "fragmentPropName": "MarkdownUserNameRenderer_name",
+                        "kind": "ModuleImport"
+                      }
+                    ],
+                    "type": "MarkdownUserNameRenderer",
+                    "abstractKey": null
+                  }
+                ],
+                "storageKey": null
+              }
+            ],
+            "type": "User",
+            "abstractKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          }
+        ],
+        "storageKey": "node(id:\"<user-id>\")"
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {},
+    "name": "multipleModulesWithKey_MatchQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query multipleModulesWithKey_MatchQuery {
+  node(id: "<user-id>") {
+    __typename
+    ... on Actor {
+      __isActor: __typename
+      nameRenderer(supported: ["PlainUserNameRenderer"]) {
+        __typename
+        ... on PlainUserNameRenderer {
+          ...multipleModulesWithKey_PlainUserNameRenderer_name
+          __module_operation_multipleModulesWithKey_MatchQuery_nameRenderer: js(module: "multipleModulesWithKey_PlainUserNameRenderer_name$normalization.graphql", id: "multipleModulesWithKey_MatchQuery.node.nameRenderer", branch: "PlainUserNameRenderer")
+          __module_component_multipleModulesWithKey_MatchQuery_nameRenderer: js(module: "PlainUserNameRenderer.react", id: "multipleModulesWithKey_MatchQuery.node.nameRenderer", branch: "PlainUserNameRenderer")
+        }
+      }
+    }
+    ... on User {
+      nameRenderable {
+        __typename
+        ... on MarkdownUserNameRenderer {
+          ...multipleModulesWithKey_MarkdownUserNameRenderer_name
+          __module_operation_multipleModulesWithKey_MatchQuery: js(module: "multipleModulesWithKey_MarkdownUserNameRenderer_name$normalization.graphql", id: "multipleModulesWithKey_MatchQuery.node.nameRenderable", branch: "MarkdownUserNameRenderer")
+          __module_component_multipleModulesWithKey_MatchQuery: js(module: "MarkdownUserNameRenderer.react", id: "multipleModulesWithKey_MatchQuery.node.nameRenderable", branch: "MarkdownUserNameRenderer")
+        }
+      }
+    }
+    id
+  }
+}
+
+fragment multipleModulesWithKey_MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+    id
+  }
+}
+
+fragment multipleModulesWithKey_PlainUserNameRenderer_name on PlainUserNameRenderer {
+  plaintext
+  data {
+    text
+    id
+  }
+}
+
+
+{
+  "kind": "SplitOperation",
+  "metadata": {},
+  "name": "multipleModulesWithKey_PlainUserNameRenderer_name$normalization",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "plaintext",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "concreteType": "PlainUserNameData",
+      "kind": "LinkedField",
+      "name": "data",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "text",
+          "storageKey": null
+        },
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "id",
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    }
+  ]
+}
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "multipleModulesWithKey_MarkdownUserNameRenderer_name",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "markdown",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "concreteType": "MarkdownUserNameData",
+      "kind": "LinkedField",
+      "name": "data",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "markup",
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    }
+  ],
+  "type": "MarkdownUserNameRenderer",
+  "abstractKey": null
+}
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "multipleModulesWithKey_PlainUserNameRenderer_name",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "plaintext",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "concreteType": "PlainUserNameData",
+      "kind": "LinkedField",
+      "name": "data",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "text",
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    }
+  ],
+  "type": "PlainUserNameRenderer",
+  "abstractKey": null
+}

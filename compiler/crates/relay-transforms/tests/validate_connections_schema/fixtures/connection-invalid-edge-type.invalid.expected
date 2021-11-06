@@ -1,0 +1,77 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query NodeQuery($id: ID!, $first: Int, $after: ID) {
+  node(id: $id) {
+    id
+    ... on User {
+      badConnection(first: $first, after: $after) @connection(key: "NodeQuery_badConnection") {
+        edges {
+          cursor {
+            id
+          }
+          node
+        }
+      }
+    }
+  }
+}
+
+# %extensions%
+extend type User {
+  badConnection(after: ID, before: ID, first: Int, last: Int): BadConnection
+}
+
+type BadConnection {
+  count: Int
+  edges: [BadConnectionEdge]
+  pageInfo: BadConnectionPageInfo
+}
+
+type BadConnectionEdge {
+  cursor: BadConnectionNode
+  node: Int
+}
+
+type BadConnectionNode {
+  id: ID
+}
+
+type BadConnectionPageInfo {
+  hasPreviousPage: Boolean
+  hasNextPage: Boolean
+  endCursor: String
+  startCursor: String
+}
+==================================== ERROR ====================================
+✖︎ @connection used on invalid field 'badConnection'. Expected the field type 'BadConnection' to expose a 'edges { cursor }' field that returns a scalar.
+
+  connection-invalid-edge-type.invalid.graphql:6:7
+    5 │     ... on User {
+    6 │       badConnection(first: $first, after: $after) @connection(key: "NodeQuery_badConnection") {
+      │       ^^^^^^^^^^^^^
+    7 │         edges {
+
+  ℹ︎ field with invalid type
+
+  connection-invalid-edge-type.invalid.graphql:7:9
+    6 │       badConnection(first: $first, after: $after) @connection(key: "NodeQuery_badConnection") {
+    7 │         edges {
+      │         ^^^^^
+    8 │           cursor {
+
+
+✖︎ @connection used on invalid field 'badConnection'. Expected the field type 'BadConnection' to expose a 'edges { node }' field that returns an object, interface or union.
+
+  connection-invalid-edge-type.invalid.graphql:6:7
+    5 │     ... on User {
+    6 │       badConnection(first: $first, after: $after) @connection(key: "NodeQuery_badConnection") {
+      │       ^^^^^^^^^^^^^
+    7 │         edges {
+
+  ℹ︎ field with invalid type
+
+  connection-invalid-edge-type.invalid.graphql:7:9
+    6 │       badConnection(first: $first, after: $after) @connection(key: "NodeQuery_badConnection") {
+    7 │         edges {
+      │         ^^^^^
+    8 │           cursor {

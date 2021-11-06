@@ -1,0 +1,8 @@
+function MyComponent() {
+  useFragment(graphql`
+    fragment Test on User {
+      __typename
+    }
+  `, user)
+  return <div>Test</div>;
+}

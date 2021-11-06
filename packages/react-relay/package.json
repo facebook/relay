@@ -1,27 +1,29 @@
 {
   "name": "react-relay",
   "description": "A framework for building GraphQL-driven React applications.",
-  "version": "1.6.0",
+  "version": "12.0.0",
   "keywords": [
     "graphql",
     "relay",
     "react"
   ],
   "license": "MIT",
-  "homepage": "https://facebook.github.io/relay/",
+  "homepage": "https://relay.dev",
   "bugs": "https://github.com/facebook/relay/issues",
   "repository": "facebook/relay",
   "dependencies": {
-    "babel-runtime": "^6.23.0",
-    "fbjs": "0.8.16",
-    "prop-types": "^15.5.8",
-    "relay-runtime": "1.6.0"
+    "@babel/runtime": "^7.0.0",
+    "fbjs": "^3.0.0",
+    "invariant": "^2.2.4",
+    "nullthrows": "^1.1.1",
+    "relay-runtime": "12.0.0"
   },
   "peerDependencies": {
-    "react": "^16.3.0"
+    "react": "^16.9.0 || ^17"
   },
   "directories": {
     "": "./"
   },
+  "main": "index.js",
   "haste_commonjs": true
 }

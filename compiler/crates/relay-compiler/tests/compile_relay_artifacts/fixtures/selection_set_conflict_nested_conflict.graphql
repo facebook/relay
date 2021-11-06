@@ -1,0 +1,13 @@
+# expected-to-throw
+query selectionSetConflictNestedConflictQuery {
+  me {
+    profile_picture {
+      same_alias: width
+    }
+  }
+  me {
+    profile_picture {
+      same_alias: height
+    }
+  }
+}

@@ -1,0 +1,4 @@
+# expected-to-throw
+fragment LinkedHandleField on User {
+  friends(first: 10)
+}

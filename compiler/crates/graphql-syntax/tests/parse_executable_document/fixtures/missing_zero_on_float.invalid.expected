@@ -1,0 +1,17 @@
+==================================== INPUT ====================================
+# expected-to-throw
+{
+    friends(
+        arg: .5
+    ) {
+        count
+    }
+}
+==================================== ERROR ====================================
+✖︎ Invalid float literal, fractional float literals require a leading 0, e.g. 0.5 instead of .5
+
+  missing_zero_on_float.invalid.graphql:4:14
+    3 │     friends(
+    4 │         arg: .5
+      │              ^^
+    5 │     ) {

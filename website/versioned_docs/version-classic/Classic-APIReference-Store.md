@@ -1,16 +1,15 @@
 ---
-id: version-classic-classic-api-reference-relay-store
+id: classic-api-reference-relay-store
 title: Relay.Store
 original_id: classic-api-reference-relay-store
 ---
-
 The Relay `Store` provides an API for dispatching mutations to the server.
 
 ## Overview
 
-*Methods*
+_Methods_
 
-<ul class="apiIndex">
+<ul className="apiIndex">
   <li>
     <a href="#commitupdate-static-method">
       <pre>static commitUpdate(mutation, callbacks)</pre>
@@ -35,6 +34,7 @@ active `Relay.Environment`.
 ### commitUpdate (static method)
 
 ```
+
 static commitUpdate(mutation: RelayMutation, callbacks: {
   onFailure?: (transaction: RelayMutationTransaction) => void;
   onSuccess?: (response: Object) => void;
@@ -49,16 +49,16 @@ type Transaction = {
 The `commitUpdate` method is analogous to dispatching an action in Flux. Relay processes
 the mutation as follows:
 
-- If the mutation defines an optimistic payload - a set of data to apply locally while waiting for the server response - Relay applies this change and updates any affected React components (note that optimistic updates do not overwrite known server data in the cache).
-- If the mutation would not 'collide' (overlap) with other pending mutations - as specified by its `getCollisionKey` implementation - it is sent to the server. If it would conflict, it is enqueued until conflicting mutations have completed.
-- When the server response is received, one of the callbacks is invoked:
-  - `onSuccess` is called if the mutation succeeded.
-  - `onFailure` is called if the mutation failed.
-
+-   If the mutation defines an optimistic payload - a set of data to apply locally while waiting for the server response - Relay applies this change and updates any affected React components (note that optimistic updates do not overwrite known server data in the cache).
+-   If the mutation would not 'collide' (overlap) with other pending mutations - as specified by its `getCollisionKey` implementation - it is sent to the server. If it would conflict, it is enqueued until conflicting mutations have completed.
+-   When the server response is received, one of the callbacks is invoked:
+    -   `onSuccess` is called if the mutation succeeded.
+    -   `onFailure` is called if the mutation failed.
 
 #### Example
 
 ```
+
 var onSuccess = () => {
   console.log('Mutation successful!');
 };
@@ -74,22 +74,25 @@ Relay.Store.commitUpdate(mutation, {onFailure, onSuccess});
 ### applyUpdate (static method)
 
 ```
+
 static applyUpdate(mutation: RelayMutation, callbacks: {
   onFailure?: (transaction: RelayMutationTransaction) => void;
   onSuccess?: (response: Object) => void;
 }): RelayMutationTransaction
+
 ```
 
 The `applyUpdate` adds a mutation just like `update`, but does not commit it. It returns a `RelayMutationTransaction` that can be committed or rollbacked.
 
 When the transaction is committed and the response is received from the server, one of the callbacks is invoked:
-  - `onSuccess` is called if the mutation succeeded.
-  - `onFailure` is called if the mutation failed.
 
+-   `onSuccess` is called if the mutation succeeded.
+-   `onFailure` is called if the mutation failed.
 
 #### Example
 
 ```
+
 var onSuccess = () => {
   console.log('Mutation successful!');
 };

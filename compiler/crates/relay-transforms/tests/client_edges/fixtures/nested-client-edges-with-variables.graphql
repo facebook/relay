@@ -1,0 +1,19 @@
+fragment Foo_user on User {
+  best_friend {
+    url(site: $top_level_site)
+    best_friend {
+      name
+      url(site: $nested_site)
+    }
+  }
+}
+
+fragment BestFriendResolverFragment_name on User {
+  __typename
+}
+
+# %extensions%
+
+extend type User {
+  best_friend: User @relay_resolver(fragment_name: "BestFriendResolverFragment_name", import_path: "BestFriendResolver")
+}

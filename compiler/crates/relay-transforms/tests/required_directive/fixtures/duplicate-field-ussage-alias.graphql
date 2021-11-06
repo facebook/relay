@@ -1,0 +1,4 @@
+fragment EnabledFoo on User {
+  name @required(action: THROW)
+  my_name: name @required(action: LOG)
+}

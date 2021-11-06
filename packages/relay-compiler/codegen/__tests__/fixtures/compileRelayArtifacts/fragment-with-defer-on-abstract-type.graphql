@@ -1,0 +1,15 @@
+query QueryWithFragmentWithDefer {
+  node(id: "my-id") {
+    ...NodeFragment @defer(label: "node")
+  }
+}
+
+fragment NodeFragment on Node {
+  id
+  ... on User {
+    name
+  }
+  ... on Page {
+    websites
+  }
+}

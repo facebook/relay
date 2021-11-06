@@ -1,0 +1,31 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ReactRelayTestMocker write properly updates a component wrapped in a fragment container 1`] = `
+<div>
+  My name is test name
+</div>
+`;
+
+exports[`ReactRelayTestMocker write properly updates a component wrapped in a fragment container 2`] = `
+<div>
+  My name is new name
+</div>
+`;
+
+exports[`ReactRelayTestMocker write updates the store properly via network 1`] = `
+<div>
+  Loading....
+</div>
+`;
+
+exports[`ReactRelayTestMocker write updates the store properly via network 2`] = `
+<div>
+  My name is test name
+</div>
+`;
+
+exports[`ReactRelayTestMocker write updates the store properly via network 3`] = `
+<div>
+  Something went wrong: Uh oh
+</div>
+`;

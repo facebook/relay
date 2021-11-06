@@ -1,0 +1,204 @@
+==================================== INPUT ====================================
+query redundantSelectionInInlineFragmentsQuery {
+  node(id: "1") {
+    ... on Story {
+      __typename
+    }
+    ...redundantSelectionInInlineFragments_interface_concrete
+    ...redundantSelectionInInlineFragments_interface
+  }
+}
+
+fragment redundantSelectionInInlineFragments_interface on MaybeNodeInterface {
+  name
+}
+
+fragment redundantSelectionInInlineFragments_interface_concrete on MaybeNodeInterface {
+  ... on Story {
+    name
+  }
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "redundantSelectionInInlineFragmentsQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Literal",
+            "name": "id",
+            "value": "1"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "__typename",
+                "storageKey": null
+              }
+            ],
+            "type": "Story",
+            "abstractKey": null
+          },
+          {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "redundantSelectionInInlineFragments_interface_concrete"
+          },
+          {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "redundantSelectionInInlineFragments_interface"
+          }
+        ],
+        "storageKey": "node(id:\"1\")"
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [],
+    "kind": "Operation",
+    "name": "redundantSelectionInInlineFragmentsQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Literal",
+            "name": "id",
+            "value": "1"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "__typename",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          },
+          {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "name",
+                "storageKey": null
+              }
+            ],
+            "type": "MaybeNodeInterface",
+            "abstractKey": "__isMaybeNodeInterface"
+          }
+        ],
+        "storageKey": "node(id:\"1\")"
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {},
+    "name": "redundantSelectionInInlineFragmentsQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query redundantSelectionInInlineFragmentsQuery {
+  node(id: "1") {
+    __typename
+    ... on Story {
+      __typename
+    }
+    ...redundantSelectionInInlineFragments_interface_concrete
+    ...redundantSelectionInInlineFragments_interface
+    id
+  }
+}
+
+fragment redundantSelectionInInlineFragments_interface on MaybeNodeInterface {
+  __isMaybeNodeInterface: __typename
+  name
+}
+
+fragment redundantSelectionInInlineFragments_interface_concrete on MaybeNodeInterface {
+  __isMaybeNodeInterface: __typename
+  ... on Story {
+    name
+  }
+}
+
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "redundantSelectionInInlineFragments_interface",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "name",
+      "storageKey": null
+    }
+  ],
+  "type": "MaybeNodeInterface",
+  "abstractKey": "__isMaybeNodeInterface"
+}
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "redundantSelectionInInlineFragments_interface_concrete",
+  "selections": [
+    {
+      "kind": "InlineFragment",
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "name",
+          "storageKey": null
+        }
+      ],
+      "type": "Story",
+      "abstractKey": null
+    }
+  ],
+  "type": "MaybeNodeInterface",
+  "abstractKey": "__isMaybeNodeInterface"
+}

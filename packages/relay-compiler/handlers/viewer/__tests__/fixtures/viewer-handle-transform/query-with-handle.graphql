@@ -1,7 +1,0 @@
-query ViewerQuery {
-  viewer @__clientField(handle: "otherViewer") @__clientField(handle: "viewer") {
-    actor {
-      id
-    }
-  }
-}

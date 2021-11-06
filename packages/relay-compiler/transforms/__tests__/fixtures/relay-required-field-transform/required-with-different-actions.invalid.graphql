@@ -1,0 +1,6 @@
+# expected-to-throw
+query UserQuery {
+  me @required(action: NONE) @required(action: THROW) {
+    id
+  }
+}

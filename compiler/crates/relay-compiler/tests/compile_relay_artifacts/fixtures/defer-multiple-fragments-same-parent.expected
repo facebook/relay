@@ -1,0 +1,389 @@
+==================================== INPUT ====================================
+query deferMultipleFragmentsSameParent_QueryWithMultipeDeferredFragmentsOnSameParentQuery($id: ID!) {
+  feedback: node(id: $id) {
+    id
+    ...deferMultipleFragmentsSameParent_FeedbackComments_feedback @defer
+    ...deferMultipleFragmentsSameParent_FeedbackText_feedback @defer
+  }
+}
+
+fragment deferMultipleFragmentsSameParent_FeedbackComments_feedback on Feedback {
+  comments(first: 10) {
+    edges {
+      node {
+        id
+      }
+    }
+    pageInfo {
+      hasNextPage
+    }
+  }
+}
+
+fragment deferMultipleFragmentsSameParent_FeedbackText_feedback on Feedback {
+  body {
+    text
+  }
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "id"
+      }
+    ],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "deferMultipleFragmentsSameParent_QueryWithMultipeDeferredFragmentsOnSameParentQuery",
+    "selections": [
+      {
+        "alias": "feedback",
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          },
+          {
+            "kind": "Defer",
+            "selections": [
+              {
+                "args": null,
+                "kind": "FragmentSpread",
+                "name": "deferMultipleFragmentsSameParent_FeedbackComments_feedback"
+              }
+            ]
+          },
+          {
+            "kind": "Defer",
+            "selections": [
+              {
+                "args": null,
+                "kind": "FragmentSpread",
+                "name": "deferMultipleFragmentsSameParent_FeedbackText_feedback"
+              }
+            ]
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "id"
+      }
+    ],
+    "kind": "Operation",
+    "name": "deferMultipleFragmentsSameParent_QueryWithMultipeDeferredFragmentsOnSameParentQuery",
+    "selections": [
+      {
+        "alias": "feedback",
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "__typename",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          },
+          {
+            "if": null,
+            "kind": "Defer",
+            "label": "deferMultipleFragmentsSameParent_QueryWithMultipeDeferredFragmentsOnSameParentQuery$defer$deferMultipleFragmentsSameParent_FeedbackComments_feedback",
+            "selections": [
+              {
+                "kind": "InlineFragment",
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": [
+                      {
+                        "kind": "Literal",
+                        "name": "first",
+                        "value": 10
+                      }
+                    ],
+                    "concreteType": "CommentsConnection",
+                    "kind": "LinkedField",
+                    "name": "comments",
+                    "plural": false,
+                    "selections": [
+                      {
+                        "alias": null,
+                        "args": null,
+                        "concreteType": "CommentsEdge",
+                        "kind": "LinkedField",
+                        "name": "edges",
+                        "plural": true,
+                        "selections": [
+                          {
+                            "alias": null,
+                            "args": null,
+                            "concreteType": "Comment",
+                            "kind": "LinkedField",
+                            "name": "node",
+                            "plural": false,
+                            "selections": [
+                              {
+                                "alias": null,
+                                "args": null,
+                                "kind": "ScalarField",
+                                "name": "id",
+                                "storageKey": null
+                              }
+                            ],
+                            "storageKey": null
+                          }
+                        ],
+                        "storageKey": null
+                      },
+                      {
+                        "alias": null,
+                        "args": null,
+                        "concreteType": "PageInfo",
+                        "kind": "LinkedField",
+                        "name": "pageInfo",
+                        "plural": false,
+                        "selections": [
+                          {
+                            "alias": null,
+                            "args": null,
+                            "kind": "ScalarField",
+                            "name": "hasNextPage",
+                            "storageKey": null
+                          }
+                        ],
+                        "storageKey": null
+                      }
+                    ],
+                    "storageKey": "comments(first:10)"
+                  }
+                ],
+                "type": "Feedback",
+                "abstractKey": null
+              }
+            ]
+          },
+          {
+            "if": null,
+            "kind": "Defer",
+            "label": "deferMultipleFragmentsSameParent_QueryWithMultipeDeferredFragmentsOnSameParentQuery$defer$deferMultipleFragmentsSameParent_FeedbackText_feedback",
+            "selections": [
+              {
+                "kind": "InlineFragment",
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "concreteType": "Text",
+                    "kind": "LinkedField",
+                    "name": "body",
+                    "plural": false,
+                    "selections": [
+                      {
+                        "alias": null,
+                        "args": null,
+                        "kind": "ScalarField",
+                        "name": "text",
+                        "storageKey": null
+                      }
+                    ],
+                    "storageKey": null
+                  }
+                ],
+                "type": "Feedback",
+                "abstractKey": null
+              }
+            ]
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {},
+    "name": "deferMultipleFragmentsSameParent_QueryWithMultipeDeferredFragmentsOnSameParentQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query deferMultipleFragmentsSameParent_QueryWithMultipeDeferredFragmentsOnSameParentQuery(
+  $id: ID!
+) {
+  feedback: node(id: $id) {
+    __typename
+    id
+    ...deferMultipleFragmentsSameParent_FeedbackComments_feedback @defer(label: "deferMultipleFragmentsSameParent_QueryWithMultipeDeferredFragmentsOnSameParentQuery$defer$deferMultipleFragmentsSameParent_FeedbackComments_feedback")
+    ...deferMultipleFragmentsSameParent_FeedbackText_feedback @defer(label: "deferMultipleFragmentsSameParent_QueryWithMultipeDeferredFragmentsOnSameParentQuery$defer$deferMultipleFragmentsSameParent_FeedbackText_feedback")
+  }
+}
+
+fragment deferMultipleFragmentsSameParent_FeedbackComments_feedback on Feedback {
+  comments(first: 10) {
+    edges {
+      node {
+        id
+      }
+    }
+    pageInfo {
+      hasNextPage
+    }
+  }
+}
+
+fragment deferMultipleFragmentsSameParent_FeedbackText_feedback on Feedback {
+  body {
+    text
+  }
+}
+
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "deferMultipleFragmentsSameParent_FeedbackComments_feedback",
+  "selections": [
+    {
+      "alias": null,
+      "args": [
+        {
+          "kind": "Literal",
+          "name": "first",
+          "value": 10
+        }
+      ],
+      "concreteType": "CommentsConnection",
+      "kind": "LinkedField",
+      "name": "comments",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "concreteType": "CommentsEdge",
+          "kind": "LinkedField",
+          "name": "edges",
+          "plural": true,
+          "selections": [
+            {
+              "alias": null,
+              "args": null,
+              "concreteType": "Comment",
+              "kind": "LinkedField",
+              "name": "node",
+              "plural": false,
+              "selections": [
+                {
+                  "alias": null,
+                  "args": null,
+                  "kind": "ScalarField",
+                  "name": "id",
+                  "storageKey": null
+                }
+              ],
+              "storageKey": null
+            }
+          ],
+          "storageKey": null
+        },
+        {
+          "alias": null,
+          "args": null,
+          "concreteType": "PageInfo",
+          "kind": "LinkedField",
+          "name": "pageInfo",
+          "plural": false,
+          "selections": [
+            {
+              "alias": null,
+              "args": null,
+              "kind": "ScalarField",
+              "name": "hasNextPage",
+              "storageKey": null
+            }
+          ],
+          "storageKey": null
+        }
+      ],
+      "storageKey": "comments(first:10)"
+    }
+  ],
+  "type": "Feedback",
+  "abstractKey": null
+}
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "deferMultipleFragmentsSameParent_FeedbackText_feedback",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "concreteType": "Text",
+      "kind": "LinkedField",
+      "name": "body",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "text",
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    }
+  ],
+  "type": "Feedback",
+  "abstractKey": null
+}

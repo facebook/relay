@@ -1,0 +1,19 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment TestFragment on User
+  @argumentDefinitions(myArg: {type: "UnknownType"}) {
+  profilePicture(size: $PictureSize) {
+    uri
+  }
+  withDefaultArg: profilePicture(size: $size) {
+    uri
+  }
+  ...Foo @arguments(localId: $myArg)
+}
+==================================== ERROR ====================================
+✖︎ Unknown type 'UnknownType'.
+
+  fragment-with-arguments-invalid-type.invalid.graphql:1:1
+    1 │ # expected-to-throw
+      │ ^^^^^^^^^^^
+    2 │ fragment TestFragment on User

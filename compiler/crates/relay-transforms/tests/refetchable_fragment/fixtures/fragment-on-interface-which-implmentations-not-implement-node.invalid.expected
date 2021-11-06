@@ -1,0 +1,18 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment UserName on UserNameRenderable
+  @refetchable(queryName: "RefetchableFragmentQuery") {
+  name
+}
+==================================== ERROR ====================================
+✖︎ Invalid use of @refetchable on fragment 'UserName', only supported are fragments on:
+ - the Viewer type
+ - the Query type
+ - the Node interface or types implementing the Node interface
+ - @fetchable type
+
+  fragment-on-interface-which-implmentations-not-implement-node.invalid.graphql:2:10
+    1 │ # expected-to-throw
+    2 │ fragment UserName on UserNameRenderable
+      │          ^^^^^^^^
+    3 │   @refetchable(queryName: "RefetchableFragmentQuery") {

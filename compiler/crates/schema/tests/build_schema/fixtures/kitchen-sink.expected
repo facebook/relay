@@ -1,0 +1,1323 @@
+==================================== INPUT ====================================
+directive @source(schema: String!, name: String!) on ENUM | INPUT_OBJECT | INTERFACE | OBJECT | SCALAR | UNION
+
+schema {
+  query: Query
+}
+
+type Query {
+  node(id: ID!): Node
+  nodes(ids: [ID!]!): [Node!]!
+}
+
+interface Node {
+  id: ID!
+}
+
+type User implements Node {
+  id: ID!
+  name: String
+}
+
+type Page {
+  id: ID
+  type: PageType
+}
+
+enum PageType {
+  DEAULT @deprecated(reason: "No longer supported")
+  PUBLIC
+  PRIVATE
+}
+
+union Actor = User | Page
+
+scalar URL @source(schema: "facebook", name: "ID")
+
+input Location @source(schema: "facebook", name: "Location") {
+  lat: Float!
+  lon: Float!
+  city: String
+  zip: Int
+  previous_cities: [String!]
+}
+
+scalar Float
+
+scalar Int
+
+scalar String
+
+# %extensions%
+
+type ClientType {
+  clientName: String
+}
+extend type User {
+  nickname: String
+  client: ClientType
+}
+==================================== OUTPUT ===================================
+Text Schema:Schema {
+  query_type: Some(
+    ObjectID(0),
+)
+  mutation_type: None
+  subscription_type: None
+  directives: [
+    Directive {
+        name: "include",
+        arguments: [
+            Argument {
+                name: "if",
+                type_: NonNull(
+                    Named(
+                        Scalar(3),
+                    ),
+                ),
+                default_value: None,
+                description: None,
+            },
+        ],
+        locations: [
+            Field,
+            FragmentSpread,
+            InlineFragment,
+        ],
+        repeatable: false,
+        is_extension: false,
+        description: None,
+    },
+    Directive {
+        name: "skip",
+        arguments: [
+            Argument {
+                name: "if",
+                type_: NonNull(
+                    Named(
+                        Scalar(3),
+                    ),
+                ),
+                default_value: None,
+                description: None,
+            },
+        ],
+        locations: [
+            Field,
+            FragmentSpread,
+            InlineFragment,
+        ],
+        repeatable: false,
+        is_extension: false,
+        description: None,
+    },
+    Directive {
+        name: "source",
+        arguments: [
+            Argument {
+                name: "schema",
+                type_: NonNull(
+                    Named(
+                        Scalar(8),
+                    ),
+                ),
+                default_value: None,
+                description: None,
+            },
+            Argument {
+                name: "name",
+                type_: NonNull(
+                    Named(
+                        Scalar(8),
+                    ),
+                ),
+                default_value: None,
+                description: None,
+            },
+        ],
+        locations: [
+            Enum,
+            InputObject,
+            Interface,
+            Object,
+            Scalar,
+            Union,
+        ],
+        repeatable: false,
+        is_extension: false,
+        description: None,
+    },
+]
+  type_map: {
+    "Actor": Union(0),
+    "Boolean": Scalar(3),
+    "ClientType": Object(3),
+    "Float": Scalar(6),
+    "ID": Scalar(4),
+    "Int": Scalar(7),
+    "Location": InputObject(0),
+    "Node": Interface(0),
+    "Page": Object(2),
+    "PageType": Enum(0),
+    "Query": Object(0),
+    "String": Scalar(8),
+    "URL": Scalar(5),
+    "User": Object(1),
+}
+  enums: [
+    Enum {
+        name: "PageType",
+        is_extension: false,
+        values: [
+            EnumValue {
+                value: "DEAULT",
+                directives: [
+                    DirectiveValue {
+                        name: "deprecated",
+                        arguments: [
+                            ArgumentValue {
+                                name: "reason",
+                                value: String(
+                                    StringNode {
+                                        token: Token {
+                                            span: 380:401,
+                                            kind: StringLiteral,
+                                        },
+                                        value: "No longer supported",
+                                    },
+                                ),
+                            },
+                        ],
+                    },
+                ],
+            },
+            EnumValue {
+                value: "PUBLIC",
+                directives: [],
+            },
+            EnumValue {
+                value: "PRIVATE",
+                directives: [],
+            },
+        ],
+        directives: [],
+        description: None,
+    },
+]
+  fields: [
+    Field {
+        name: WithLocation {
+            location: <generated>:154:158,
+            item: "node",
+        },
+        is_extension: false,
+        arguments: [
+            Argument {
+                name: "id",
+                type_: NonNull(
+                    Named(
+                        Scalar(4),
+                    ),
+                ),
+                default_value: None,
+                description: None,
+            },
+        ],
+        type_: Named(
+            Interface(0),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(0),
+        ),
+        description: None,
+    },
+    Field {
+        name: WithLocation {
+            location: <generated>:176:181,
+            item: "nodes",
+        },
+        is_extension: false,
+        arguments: [
+            Argument {
+                name: "ids",
+                type_: NonNull(
+                    List(
+                        NonNull(
+                            Named(
+                                Scalar(4),
+                            ),
+                        ),
+                    ),
+                ),
+                default_value: None,
+                description: None,
+            },
+        ],
+        type_: NonNull(
+            List(
+                NonNull(
+                    Named(
+                        Interface(0),
+                    ),
+                ),
+            ),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(0),
+        ),
+        description: None,
+    },
+    Field {
+        name: WithLocation {
+            location: <generated>:227:229,
+            item: "id",
+        },
+        is_extension: false,
+        arguments: [],
+        type_: NonNull(
+            Named(
+                Scalar(4),
+            ),
+        ),
+        directives: [],
+        parent_type: Some(
+            Interface(0),
+        ),
+        description: None,
+    },
+    Field {
+        name: WithLocation {
+            location: <generated>:268:270,
+            item: "id",
+        },
+        is_extension: false,
+        arguments: [],
+        type_: NonNull(
+            Named(
+                Scalar(4),
+            ),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(1),
+        ),
+        description: None,
+    },
+    Field {
+        name: WithLocation {
+            location: <generated>:278:282,
+            item: "name",
+        },
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Scalar(8),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(1),
+        ),
+        description: None,
+    },
+    Field {
+        name: WithLocation {
+            location: <generated>:308:310,
+            item: "id",
+        },
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Scalar(4),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(2),
+        ),
+        description: None,
+    },
+    Field {
+        name: WithLocation {
+            location: <generated>:317:321,
+            item: "type",
+        },
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Enum(0),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(2),
+        ),
+        description: None,
+    },
+    Field {
+        name: WithLocation {
+            location: kitchen-sink.graphql:730:740,
+            item: "clientName",
+        },
+        is_extension: true,
+        arguments: [],
+        type_: Named(
+            Scalar(8),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(3),
+        ),
+        description: None,
+    },
+    Field {
+        name: WithLocation {
+            location: kitchen-sink.graphql:772:780,
+            item: "nickname",
+        },
+        is_extension: true,
+        arguments: [],
+        type_: Named(
+            Scalar(8),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(1),
+        ),
+        description: None,
+    },
+    Field {
+        name: WithLocation {
+            location: kitchen-sink.graphql:791:797,
+            item: "client",
+        },
+        is_extension: true,
+        arguments: [],
+        type_: Named(
+            Object(3),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(1),
+        ),
+        description: None,
+    },
+    Field {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "__typename",
+        },
+        is_extension: false,
+        arguments: [],
+        type_: NonNull(
+            Named(
+                Scalar(8),
+            ),
+        ),
+        directives: [],
+        parent_type: None,
+        description: None,
+    },
+    Field {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "__token",
+        },
+        is_extension: false,
+        arguments: [],
+        type_: NonNull(
+            Named(
+                Scalar(4),
+            ),
+        ),
+        directives: [],
+        parent_type: None,
+        description: None,
+    },
+    Field {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "__id",
+        },
+        is_extension: true,
+        arguments: [],
+        type_: NonNull(
+            Named(
+                Scalar(4),
+            ),
+        ),
+        directives: [],
+        parent_type: None,
+        description: None,
+    },
+    Field {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "strong_id__",
+        },
+        is_extension: true,
+        arguments: [],
+        type_: Named(
+            Scalar(4),
+        ),
+        directives: [],
+        parent_type: None,
+        description: None,
+    },
+    Field {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "is_fulfilled__",
+        },
+        is_extension: true,
+        arguments: [
+            Argument {
+                name: "name",
+                type_: NonNull(
+                    Named(
+                        Scalar(8),
+                    ),
+                ),
+                default_value: None,
+                description: None,
+            },
+        ],
+        type_: NonNull(
+            Named(
+                Scalar(8),
+            ),
+        ),
+        directives: [],
+        parent_type: None,
+        description: None,
+    },
+]
+  input_objects: [
+    InputObject {
+        name: "Location",
+        fields: [
+            Argument {
+                name: "lat",
+                type_: NonNull(
+                    Named(
+                        Scalar(6),
+                    ),
+                ),
+                default_value: None,
+                description: None,
+            },
+            Argument {
+                name: "lon",
+                type_: NonNull(
+                    Named(
+                        Scalar(6),
+                    ),
+                ),
+                default_value: None,
+                description: None,
+            },
+            Argument {
+                name: "city",
+                type_: Named(
+                    Scalar(8),
+                ),
+                default_value: None,
+                description: None,
+            },
+            Argument {
+                name: "zip",
+                type_: Named(
+                    Scalar(7),
+                ),
+                default_value: None,
+                description: None,
+            },
+            Argument {
+                name: "previous_cities",
+                type_: List(
+                    NonNull(
+                        Named(
+                            Scalar(8),
+                        ),
+                    ),
+                ),
+                default_value: None,
+                description: None,
+            },
+        ],
+        directives: [
+            DirectiveValue {
+                name: "source",
+                arguments: [
+                    ArgumentValue {
+                        name: "schema",
+                        value: String(
+                            StringNode {
+                                token: Token {
+                                    span: 535:545,
+                                    kind: StringLiteral,
+                                },
+                                value: "facebook",
+                            },
+                        ),
+                    },
+                    ArgumentValue {
+                        name: "name",
+                        value: String(
+                            StringNode {
+                                token: Token {
+                                    span: 553:563,
+                                    kind: StringLiteral,
+                                },
+                                value: "Location",
+                            },
+                        ),
+                    },
+                ],
+            },
+        ],
+        description: None,
+    },
+]
+  interfaces: [
+    Interface {
+        name: "Node",
+        is_extension: false,
+        implementing_objects: [
+            ObjectID(1),
+        ],
+        fields: [
+            FieldID(2),
+        ],
+        directives: [],
+        interfaces: [],
+        description: None,
+    },
+]
+  objects: [
+    Object {
+        name: WithLocation {
+            location: <generated>:144:149,
+            item: "Query",
+        },
+        is_extension: false,
+        fields: [
+            FieldID(0),
+            FieldID(1),
+        ],
+        interfaces: [],
+        directives: [],
+        description: None,
+    },
+    Object {
+        name: WithLocation {
+            location: <generated>:243:247,
+            item: "User",
+        },
+        is_extension: false,
+        fields: [
+            FieldID(3),
+            FieldID(4),
+            FieldID(8),
+            FieldID(9),
+        ],
+        interfaces: [
+            InterfaceID(0),
+        ],
+        directives: [],
+        description: None,
+    },
+    Object {
+        name: WithLocation {
+            location: <generated>:299:303,
+            item: "Page",
+        },
+        is_extension: false,
+        fields: [
+            FieldID(5),
+            FieldID(6),
+        ],
+        interfaces: [],
+        directives: [],
+        description: None,
+    },
+    Object {
+        name: WithLocation {
+            location: kitchen-sink.graphql:715:725,
+            item: "ClientType",
+        },
+        is_extension: true,
+        fields: [
+            FieldID(7),
+        ],
+        interfaces: [],
+        directives: [],
+        description: None,
+    },
+]
+  scalars: [
+    Scalar {
+        name: "Int",
+        is_extension: false,
+        directives: [],
+        description: None,
+    },
+    Scalar {
+        name: "Float",
+        is_extension: false,
+        directives: [],
+        description: None,
+    },
+    Scalar {
+        name: "String",
+        is_extension: false,
+        directives: [],
+        description: None,
+    },
+    Scalar {
+        name: "Boolean",
+        is_extension: false,
+        directives: [],
+        description: None,
+    },
+    Scalar {
+        name: "ID",
+        is_extension: false,
+        directives: [],
+        description: None,
+    },
+    Scalar {
+        name: "URL",
+        is_extension: false,
+        directives: [
+            DirectiveValue {
+                name: "source",
+                arguments: [
+                    ArgumentValue {
+                        name: "schema",
+                        value: String(
+                            StringNode {
+                                token: Token {
+                                    span: 479:489,
+                                    kind: StringLiteral,
+                                },
+                                value: "facebook",
+                            },
+                        ),
+                    },
+                    ArgumentValue {
+                        name: "name",
+                        value: String(
+                            StringNode {
+                                token: Token {
+                                    span: 497:501,
+                                    kind: StringLiteral,
+                                },
+                                value: "ID",
+                            },
+                        ),
+                    },
+                ],
+            },
+        ],
+        description: None,
+    },
+    Scalar {
+        name: "Float",
+        is_extension: false,
+        directives: [],
+        description: None,
+    },
+    Scalar {
+        name: "Int",
+        is_extension: false,
+        directives: [],
+        description: None,
+    },
+    Scalar {
+        name: "String",
+        is_extension: false,
+        directives: [],
+        description: None,
+    },
+]
+  unions: [
+    Union {
+        name: "Actor",
+        is_extension: false,
+        members: [
+            ObjectID(1),
+            ObjectID(2),
+        ],
+        directives: [],
+        description: None,
+    },
+]
+  }
+
+FlatBuffer Schema:FB Schema {
+directives: [
+    Directive {
+        name: "include",
+        arguments: [
+            Argument {
+                name: "if",
+                type_: NonNull(
+                    Named(
+                        Scalar(2),
+                    ),
+                ),
+                default_value: None,
+                description: None,
+            },
+        ],
+        locations: [
+            Field,
+            FragmentSpread,
+            InlineFragment,
+        ],
+        repeatable: false,
+        is_extension: false,
+        description: None,
+    },
+    Directive {
+        name: "skip",
+        arguments: [
+            Argument {
+                name: "if",
+                type_: NonNull(
+                    Named(
+                        Scalar(2),
+                    ),
+                ),
+                default_value: None,
+                description: None,
+            },
+        ],
+        locations: [
+            Field,
+            FragmentSpread,
+            InlineFragment,
+        ],
+        repeatable: false,
+        is_extension: false,
+        description: None,
+    },
+    Directive {
+        name: "source",
+        arguments: [
+            Argument {
+                name: "schema",
+                type_: NonNull(
+                    Named(
+                        Scalar(1),
+                    ),
+                ),
+                default_value: None,
+                description: None,
+            },
+            Argument {
+                name: "name",
+                type_: NonNull(
+                    Named(
+                        Scalar(1),
+                    ),
+                ),
+                default_value: None,
+                description: None,
+            },
+        ],
+        locations: [
+            Enum,
+            InputObject,
+            Interface,
+            Object,
+            Scalar,
+            Union,
+        ],
+        repeatable: false,
+        is_extension: false,
+        description: None,
+    },
+]
+enums: [
+    Enum {
+        name: "PageType",
+        is_extension: false,
+        values: [
+            EnumValue {
+                value: "DEAULT",
+                directives: [
+                    DirectiveValue {
+                        name: "deprecated",
+                        arguments: [
+                            ArgumentValue {
+                                name: "reason",
+                                value: String(
+                                    StringNode {
+                                        token: Token {
+                                            span: 0:0,
+                                            kind: EndOfFile,
+                                        },
+                                        value: "No longer supported",
+                                    },
+                                ),
+                            },
+                        ],
+                    },
+                ],
+            },
+            EnumValue {
+                value: "PUBLIC",
+                directives: [],
+            },
+            EnumValue {
+                value: "PRIVATE",
+                directives: [],
+            },
+        ],
+        directives: [],
+        description: None,
+    },
+]
+fields: [
+    Field {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "clientName",
+        },
+        is_extension: true,
+        arguments: [],
+        type_: Named(
+            Scalar(1),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(1),
+        ),
+        description: None,
+    },
+    Field {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "id",
+        },
+        is_extension: false,
+        arguments: [],
+        type_: NonNull(
+            Named(
+                Scalar(0),
+            ),
+        ),
+        directives: [],
+        parent_type: Some(
+            Interface(0),
+        ),
+        description: None,
+    },
+    Field {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "id",
+        },
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Scalar(0),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(2),
+        ),
+        description: None,
+    },
+    Field {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "type",
+        },
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Enum(0),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(2),
+        ),
+        description: None,
+    },
+    Field {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "node",
+        },
+        is_extension: false,
+        arguments: [
+            Argument {
+                name: "id",
+                type_: NonNull(
+                    Named(
+                        Scalar(0),
+                    ),
+                ),
+                default_value: None,
+                description: None,
+            },
+        ],
+        type_: Named(
+            Interface(0),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(3),
+        ),
+        description: None,
+    },
+    Field {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "nodes",
+        },
+        is_extension: false,
+        arguments: [
+            Argument {
+                name: "ids",
+                type_: NonNull(
+                    List(
+                        NonNull(
+                            Named(
+                                Scalar(0),
+                            ),
+                        ),
+                    ),
+                ),
+                default_value: None,
+                description: None,
+            },
+        ],
+        type_: NonNull(
+            List(
+                NonNull(
+                    Named(
+                        Interface(0),
+                    ),
+                ),
+            ),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(3),
+        ),
+        description: None,
+    },
+    Field {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "id",
+        },
+        is_extension: false,
+        arguments: [],
+        type_: NonNull(
+            Named(
+                Scalar(0),
+            ),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(0),
+        ),
+        description: None,
+    },
+    Field {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "name",
+        },
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Scalar(1),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(0),
+        ),
+        description: None,
+    },
+    Field {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "nickname",
+        },
+        is_extension: true,
+        arguments: [],
+        type_: Named(
+            Scalar(1),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(0),
+        ),
+        description: None,
+    },
+    Field {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "client",
+        },
+        is_extension: true,
+        arguments: [],
+        type_: Named(
+            Object(1),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(0),
+        ),
+        description: None,
+    },
+]
+input_objects: [
+    InputObject {
+        name: "Location",
+        fields: [
+            Argument {
+                name: "lat",
+                type_: NonNull(
+                    Named(
+                        Scalar(3),
+                    ),
+                ),
+                default_value: None,
+                description: None,
+            },
+            Argument {
+                name: "lon",
+                type_: NonNull(
+                    Named(
+                        Scalar(3),
+                    ),
+                ),
+                default_value: None,
+                description: None,
+            },
+            Argument {
+                name: "city",
+                type_: Named(
+                    Scalar(1),
+                ),
+                default_value: None,
+                description: None,
+            },
+            Argument {
+                name: "zip",
+                type_: Named(
+                    Scalar(4),
+                ),
+                default_value: None,
+                description: None,
+            },
+            Argument {
+                name: "previous_cities",
+                type_: List(
+                    NonNull(
+                        Named(
+                            Scalar(1),
+                        ),
+                    ),
+                ),
+                default_value: None,
+                description: None,
+            },
+        ],
+        directives: [
+            DirectiveValue {
+                name: "source",
+                arguments: [
+                    ArgumentValue {
+                        name: "schema",
+                        value: String(
+                            StringNode {
+                                token: Token {
+                                    span: 0:0,
+                                    kind: EndOfFile,
+                                },
+                                value: "facebook",
+                            },
+                        ),
+                    },
+                    ArgumentValue {
+                        name: "name",
+                        value: String(
+                            StringNode {
+                                token: Token {
+                                    span: 0:0,
+                                    kind: EndOfFile,
+                                },
+                                value: "Location",
+                            },
+                        ),
+                    },
+                ],
+            },
+        ],
+        description: None,
+    },
+]
+interfaces: [
+    Interface {
+        name: "Node",
+        is_extension: false,
+        implementing_objects: [
+            ObjectID(0),
+        ],
+        fields: [
+            FieldID(5),
+        ],
+        directives: [],
+        interfaces: [],
+        description: None,
+    },
+]
+objects: [
+    Object {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "ClientType",
+        },
+        is_extension: true,
+        fields: [
+            FieldID(3),
+        ],
+        interfaces: [],
+        directives: [],
+        description: None,
+    },
+    Object {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "Page",
+        },
+        is_extension: false,
+        fields: [
+            FieldID(6),
+            FieldID(7),
+        ],
+        interfaces: [],
+        directives: [],
+        description: None,
+    },
+    Object {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "Query",
+        },
+        is_extension: false,
+        fields: [
+            FieldID(8),
+            FieldID(9),
+        ],
+        interfaces: [],
+        directives: [],
+        description: None,
+    },
+    Object {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "User",
+        },
+        is_extension: false,
+        fields: [
+            FieldID(0),
+            FieldID(1),
+            FieldID(2),
+            FieldID(4),
+        ],
+        interfaces: [
+            InterfaceID(0),
+        ],
+        directives: [],
+        description: None,
+    },
+]
+scalars: [
+    Scalar {
+        name: "Boolean",
+        is_extension: false,
+        directives: [],
+        description: None,
+    },
+    Scalar {
+        name: "Float",
+        is_extension: false,
+        directives: [],
+        description: None,
+    },
+    Scalar {
+        name: "ID",
+        is_extension: false,
+        directives: [],
+        description: None,
+    },
+    Scalar {
+        name: "Int",
+        is_extension: false,
+        directives: [],
+        description: None,
+    },
+    Scalar {
+        name: "String",
+        is_extension: false,
+        directives: [],
+        description: None,
+    },
+    Scalar {
+        name: "URL",
+        is_extension: false,
+        directives: [
+            DirectiveValue {
+                name: "source",
+                arguments: [
+                    ArgumentValue {
+                        name: "schema",
+                        value: String(
+                            StringNode {
+                                token: Token {
+                                    span: 0:0,
+                                    kind: EndOfFile,
+                                },
+                                value: "facebook",
+                            },
+                        ),
+                    },
+                    ArgumentValue {
+                        name: "name",
+                        value: String(
+                            StringNode {
+                                token: Token {
+                                    span: 0:0,
+                                    kind: EndOfFile,
+                                },
+                                value: "ID",
+                            },
+                        ),
+                    },
+                ],
+            },
+        ],
+        description: None,
+    },
+]
+unions: [
+    Union {
+        name: "Actor",
+        is_extension: false,
+        members: [
+            ObjectID(0),
+            ObjectID(2),
+        ],
+        directives: [],
+        description: None,
+    },
+]
+}

@@ -1,0 +1,28 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query selectionSetConflictDifferentTypesWithConflictDifferentShapeQuery {
+  username(name: "me") {
+    ... on User {
+      same_alias: id
+    }
+    ... on Page {
+      same_alias: actorCount
+    }
+  }
+}
+==================================== ERROR ====================================
+✖︎ Field 'same_alias' is ambiguous because it references fields with different types: 'id' with type 'ID!' and 'actorCount' with type 'Int'
+
+  selection_set_conflict_different_types_with_conflict_different_shape.graphql:5:19
+    4 │     ... on User {
+    5 │       same_alias: id
+      │                   ^^
+    6 │     }
+
+  ℹ︎ the other field
+
+  selection_set_conflict_different_types_with_conflict_different_shape.graphql:8:19
+    7 │     ... on Page {
+    8 │       same_alias: actorCount
+      │                   ^^^^^^^^^^
+    9 │     }

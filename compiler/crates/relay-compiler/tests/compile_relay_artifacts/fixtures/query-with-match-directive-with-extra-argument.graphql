@@ -1,0 +1,28 @@
+query queryWithMatchDirectiveWithExtraArgument_NameRendererQuery($id: ID!) {
+  node(id: $id) {
+    ...queryWithMatchDirectiveWithExtraArgument_NameRendererFragment
+  }
+}
+
+fragment queryWithMatchDirectiveWithExtraArgument_NameRendererFragment on User {
+  id
+  nameRendererForContext(context: HEADER) @match {
+    ...queryWithMatchDirectiveWithExtraArgument_PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+    ...queryWithMatchDirectiveWithExtraArgument_MarkdownUserNameRenderer_name
+      @module(name: "MarkdownUserNameRenderer.react")
+  }
+}
+
+fragment queryWithMatchDirectiveWithExtraArgument_PlainUserNameRenderer_name on PlainUserNameRenderer {
+  plaintext
+  data {
+    text
+  }
+}
+
+fragment queryWithMatchDirectiveWithExtraArgument_MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+  }
+}

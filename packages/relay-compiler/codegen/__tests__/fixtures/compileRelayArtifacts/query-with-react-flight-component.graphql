@@ -1,0 +1,17 @@
+# note that $count is unused except as an argument to the flight field
+query MyStory($id: ID!, $count: Int!) {
+  node(id: $id) {
+    ... on Story {
+      flightComponent(condition: true, count: $count, id: $id)
+    }
+  }
+}
+
+extend type Story {
+  flightComponent(
+    condition: Boolean!
+    count: Int!
+    id: ID!
+  ): ReactFlightComponent
+    @react_flight_component(name: "FlightComponent.server")
+}

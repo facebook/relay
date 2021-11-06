@@ -1,0 +1,137 @@
+==================================== INPUT ====================================
+query Foo {
+  me {
+    ...Foo_user
+  }
+}
+
+fragment Foo_user on User {
+  id
+
+  ... on Actor {
+    client_actor_field
+    address {
+      city
+      client_street_address_field(arg: $arg) # nested client field
+    }
+  }
+}
+
+# %extensions%
+extend type StreetAddress {
+  client_street_address_field(arg: String): String
+}
+
+extend type User {
+  client_actor_field: String
+}
+
+extend interface Actor {
+  client_actor_field: String
+}
+
+extend type Page {
+  client_actor_field: String
+}
+==================================== OUTPUT ===================================
+{
+  "argumentDefinitions": [
+    {
+      "kind": "RootArgument",
+      "name": "arg"
+    }
+  ],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "Foo_user",
+  "selections": [
+    {
+      "kind": "InlineFragment",
+      "selections": [
+        {
+          "kind": "ClientExtension",
+          "selections": [
+            {
+              "alias": null,
+              "args": null,
+              "kind": "ScalarField",
+              "name": "client_actor_field",
+              "storageKey": null
+            }
+          ]
+        },
+        {
+          "alias": null,
+          "args": null,
+          "concreteType": "StreetAddress",
+          "kind": "LinkedField",
+          "name": "address",
+          "plural": false,
+          "selections": [
+            {
+              "kind": "ClientExtension",
+              "selections": [
+                {
+                  "alias": null,
+                  "args": [
+                    {
+                      "kind": "Variable",
+                      "name": "arg",
+                      "variableName": "arg"
+                    }
+                  ],
+                  "kind": "ScalarField",
+                  "name": "client_street_address_field",
+                  "storageKey": null
+                }
+              ]
+            },
+            {
+              "alias": null,
+              "args": null,
+              "kind": "ScalarField",
+              "name": "city",
+              "storageKey": null
+            }
+          ],
+          "storageKey": null
+        }
+      ],
+      "type": "Actor",
+      "abstractKey": "__isActor"
+    },
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "id",
+      "storageKey": null
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}
+
+{
+  "argumentDefinitions": [],
+  "kind": "Operation",
+  "name": "Foo",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "concreteType": "User",
+      "kind": "LinkedField",
+      "name": "me",
+      "plural": false,
+      "selections": [
+        {
+          "args": null,
+          "kind": "FragmentSpread",
+          "name": "Foo_user"
+        }
+      ],
+      "storageKey": null
+    }
+  ]
+}

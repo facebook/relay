@@ -1,0 +1,32 @@
+==================================== INPUT ====================================
+query SkipWithOuterFieldFirst($cond: Boolean!, $notCond: Boolean!) {
+  viewer {
+    actor {
+      id
+      ... on User {
+        id # skip: fetched by parent
+      }
+      # Note that this fragment would also be flattend by the
+      # FlattenTransform since the outer/inner types match
+      ... on Actor @include(if: $cond) @skip(if: $notCond) {
+        id # skip: fetched by parent
+        # Note that this fragment would also be flattend by the
+        # FlattenTransform since the outer/inner types match
+        ... on Actor @include(if: $cond) {
+          id # skip: fetched by parent
+        }
+      }
+    }
+  }
+}
+==================================== OUTPUT ===================================
+query SkipWithOuterFieldFirst(
+  $cond: Boolean!
+  $notCond: Boolean!
+) {
+  viewer {
+    actor {
+      id
+    }
+  }
+}

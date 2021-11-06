@@ -1,0 +1,251 @@
+==================================== INPUT ====================================
+fragment matchOnChildOfPlural_ActorsRendererFragmentQuery on Node {
+  id
+  actors {
+    nameRenderer @match {
+      ...matchOnChildOfPlural_PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+      ...matchOnChildOfPlural_MarkdownUserNameRenderer_name
+        @module(name: "MarkdownUserNameRenderer.react")
+    }
+  }
+}
+
+fragment matchOnChildOfPlural_PlainUserNameRenderer_name on PlainUserNameRenderer {
+  plaintext
+  data {
+    text
+  }
+}
+
+fragment matchOnChildOfPlural_MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+  }
+}
+==================================== OUTPUT ===================================
+{
+  "kind": "SplitOperation",
+  "metadata": {},
+  "name": "matchOnChildOfPlural_MarkdownUserNameRenderer_name$normalization",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "markdown",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "concreteType": "MarkdownUserNameData",
+      "kind": "LinkedField",
+      "name": "data",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "markup",
+          "storageKey": null
+        },
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "id",
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    }
+  ]
+}
+
+{
+  "kind": "SplitOperation",
+  "metadata": {},
+  "name": "matchOnChildOfPlural_PlainUserNameRenderer_name$normalization",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "plaintext",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "concreteType": "PlainUserNameData",
+      "kind": "LinkedField",
+      "name": "data",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "text",
+          "storageKey": null
+        },
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "id",
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    }
+  ]
+}
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "matchOnChildOfPlural_ActorsRendererFragmentQuery",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "id",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "concreteType": null,
+      "kind": "LinkedField",
+      "name": "actors",
+      "plural": true,
+      "selections": [
+        {
+          "alias": null,
+          "args": [
+            {
+              "kind": "Literal",
+              "name": "supported",
+              "value": "34hjiS"
+            }
+          ],
+          "concreteType": null,
+          "kind": "LinkedField",
+          "name": "nameRenderer",
+          "plural": false,
+          "selections": [
+            {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "args": null,
+                  "documentName": "matchOnChildOfPlural_ActorsRendererFragmentQuery",
+                  "fragmentName": "matchOnChildOfPlural_PlainUserNameRenderer_name",
+                  "fragmentPropName": "PlainUserNameRenderer_name",
+                  "kind": "ModuleImport"
+                }
+              ],
+              "type": "PlainUserNameRenderer",
+              "abstractKey": null
+            },
+            {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "args": null,
+                  "documentName": "matchOnChildOfPlural_ActorsRendererFragmentQuery",
+                  "fragmentName": "matchOnChildOfPlural_MarkdownUserNameRenderer_name",
+                  "fragmentPropName": "MarkdownUserNameRenderer_name",
+                  "kind": "ModuleImport"
+                }
+              ],
+              "type": "MarkdownUserNameRenderer",
+              "abstractKey": null
+            }
+          ],
+          "storageKey": "nameRenderer(supported:\"34hjiS\")"
+        }
+      ],
+      "storageKey": null
+    }
+  ],
+  "type": "Node",
+  "abstractKey": "__isNode"
+}
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "matchOnChildOfPlural_MarkdownUserNameRenderer_name",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "markdown",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "concreteType": "MarkdownUserNameData",
+      "kind": "LinkedField",
+      "name": "data",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "markup",
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    }
+  ],
+  "type": "MarkdownUserNameRenderer",
+  "abstractKey": null
+}
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "matchOnChildOfPlural_PlainUserNameRenderer_name",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "plaintext",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "concreteType": "PlainUserNameData",
+      "kind": "LinkedField",
+      "name": "data",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "text",
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    }
+  ],
+  "type": "PlainUserNameRenderer",
+  "abstractKey": null
+}

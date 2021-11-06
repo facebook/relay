@@ -1,0 +1,19 @@
+# expected-to-throw
+query selectionSetConflictConflictingListAndNonListTypesQuery {
+  viewer {
+    newsFeed {
+      edges {
+        node {
+          ... on Story {
+            same_alias: actors {
+              id
+            }
+          }
+          ... on PhotoStory {
+            same_alias: actorCount
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,24 @@
+# expected-to-throw
+query QueryWithFragmentWithDefer {
+  me {
+    id
+    ...UserFragment
+  }
+}
+
+fragment UserFragment on User {
+  id
+  emailAddresses
+  ...DeferredFragment @defer(label: "deferred")
+  ...OtherDeferredFragment @defer(label: "deferred")
+}
+
+fragment DeferredFragment on User {
+  id
+  name
+}
+
+fragment OtherDeferredFragment on User {
+  id
+  name
+}

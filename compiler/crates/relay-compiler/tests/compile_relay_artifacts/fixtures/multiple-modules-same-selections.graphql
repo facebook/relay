@@ -1,0 +1,23 @@
+query multipleModulesSameSelections_MatchQuery {
+  node(id: "<user-id>") {
+    ... on Actor {
+      nameRenderer {
+        ...multipleModulesSameSelections_MarkdownUserNameRenderer_name
+          @module(name: "MarkdownUserNameRenderer.react")
+      }
+    }
+    ... on User {
+      nameRenderer {
+        ...multipleModulesSameSelections_MarkdownUserNameRenderer_name
+          @module(name: "MarkdownUserNameRenderer.react")
+      }
+    }
+  }
+}
+
+fragment multipleModulesSameSelections_MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+  }
+}

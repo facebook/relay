@@ -1,0 +1,1665 @@
+==================================== INPUT ====================================
+query queryName($foo: ComplexType, $site: Site = MOBILE) @onQuery {
+  whoever123is: node(id: [-12, 345]) {
+    id
+    ... on User @onInlineFragment {
+      field2 {
+        id
+        alias: field1(first: 10, after: $foo) @include(if: $foo) {
+          id
+          ...frag @onFragmentSpread
+        }
+      }
+    }
+    ... @skip(unless: $foo) {
+      id
+    }
+    ... {
+      id
+    }
+  }
+}
+
+mutation likeStory @onMutation {
+  like(story: 123) @onField {
+    story {
+      id @onField
+    }
+  }
+}
+
+subscription StoryLikeSubscription($input: StoryLikeSubscribeInput)
+  @onSubscription {
+  storyLikeSubscribe(input: $input) {
+    story {
+      likers {
+        count
+      }
+      likeSentence {
+        text
+      }
+    }
+  }
+}
+
+# fragment frag on Friend @onFragmentDefinition {
+#   foo(size: $size, bar: $b, obj: {key: "value", block: """
+
+#       block string uses \"""
+
+#   """})
+# }
+fragment frag on Friend @onFragmentDefinition {
+  foo(size: $size, bar: $b, obj: {key: "value", block: "todo: block string!"})
+  id
+  __typename
+}
+
+{
+  unnamed(truthy: true, falsy: false, nullish: null)
+  query
+}
+
+query {
+  __typename
+}
+==================================== OUTPUT ===================================
+ExecutableDocument {
+    span: 0:1124,
+    definitions: [
+        OperationDefinition {
+            location: kitchen-sink.graphql:0:391,
+            operation: Some(
+                (
+                    Token {
+                        span: 0:5,
+                        kind: Identifier,
+                    },
+                    Query,
+                ),
+            ),
+            name: Some(
+                Identifier {
+                    span: 6:15,
+                    token: Token {
+                        span: 6:15,
+                        kind: Identifier,
+                    },
+                    value: "queryName",
+                },
+            ),
+            variable_definitions: Some(
+                List {
+                    span: 15:56,
+                    start: Token {
+                        span: 15:16,
+                        kind: OpenParen,
+                    },
+                    items: [
+                        VariableDefinition {
+                            span: 16:33,
+                            name: VariableIdentifier {
+                                span: 16:20,
+                                token: Token {
+                                    span: 17:20,
+                                    kind: Identifier,
+                                },
+                                name: "foo",
+                            },
+                            colon: Token {
+                                span: 20:21,
+                                kind: Colon,
+                            },
+                            type_: Named(
+                                NamedTypeAnnotation {
+                                    name: Identifier {
+                                        span: 22:33,
+                                        token: Token {
+                                            span: 22:33,
+                                            kind: Identifier,
+                                        },
+                                        value: "ComplexType",
+                                    },
+                                },
+                            ),
+                            default_value: None,
+                            directives: [],
+                        },
+                        VariableDefinition {
+                            span: 35:55,
+                            name: VariableIdentifier {
+                                span: 35:40,
+                                token: Token {
+                                    span: 36:40,
+                                    kind: Identifier,
+                                },
+                                name: "site",
+                            },
+                            colon: Token {
+                                span: 40:41,
+                                kind: Colon,
+                            },
+                            type_: Named(
+                                NamedTypeAnnotation {
+                                    name: Identifier {
+                                        span: 42:46,
+                                        token: Token {
+                                            span: 42:46,
+                                            kind: Identifier,
+                                        },
+                                        value: "Site",
+                                    },
+                                },
+                            ),
+                            default_value: Some(
+                                DefaultValue {
+                                    span: 47:55,
+                                    equals: Token {
+                                        span: 47:48,
+                                        kind: Equals,
+                                    },
+                                    value: Enum(
+                                        EnumNode {
+                                            token: Token {
+                                                span: 49:55,
+                                                kind: Identifier,
+                                            },
+                                            value: "MOBILE",
+                                        },
+                                    ),
+                                },
+                            ),
+                            directives: [],
+                        },
+                    ],
+                    end: Token {
+                        span: 55:56,
+                        kind: CloseParen,
+                    },
+                },
+            ),
+            directives: [
+                Directive {
+                    span: 57:65,
+                    at: Token {
+                        span: 57:58,
+                        kind: At,
+                    },
+                    name: Identifier {
+                        span: 58:65,
+                        token: Token {
+                            span: 58:65,
+                            kind: Identifier,
+                        },
+                        value: "onQuery",
+                    },
+                    arguments: None,
+                },
+            ],
+            selections: List {
+                span: 66:391,
+                start: Token {
+                    span: 66:67,
+                    kind: OpenBrace,
+                },
+                items: [
+                    LinkedField {
+                        span: 70:389,
+                        alias: Some(
+                            Alias {
+                                span: 70:88,
+                                alias: Identifier {
+                                    span: 70:82,
+                                    token: Token {
+                                        span: 70:82,
+                                        kind: Identifier,
+                                    },
+                                    value: "whoever123is",
+                                },
+                                colon: Token {
+                                    span: 82:83,
+                                    kind: Colon,
+                                },
+                            },
+                        ),
+                        name: Identifier {
+                            span: 84:88,
+                            token: Token {
+                                span: 84:88,
+                                kind: Identifier,
+                            },
+                            value: "node",
+                        },
+                        arguments: Some(
+                            List {
+                                span: 88:104,
+                                start: Token {
+                                    span: 88:89,
+                                    kind: OpenParen,
+                                },
+                                items: [
+                                    Argument {
+                                        span: 89:103,
+                                        name: Identifier {
+                                            span: 89:91,
+                                            token: Token {
+                                                span: 89:91,
+                                                kind: Identifier,
+                                            },
+                                            value: "id",
+                                        },
+                                        colon: Token {
+                                            span: 91:92,
+                                            kind: Colon,
+                                        },
+                                        value: Constant(
+                                            List(
+                                                List {
+                                                    span: 93:103,
+                                                    start: Token {
+                                                        span: 93:94,
+                                                        kind: OpenBracket,
+                                                    },
+                                                    items: [
+                                                        Int(
+                                                            IntNode {
+                                                                token: Token {
+                                                                    span: 94:97,
+                                                                    kind: IntegerLiteral,
+                                                                },
+                                                                value: -12,
+                                                            },
+                                                        ),
+                                                        Int(
+                                                            IntNode {
+                                                                token: Token {
+                                                                    span: 99:102,
+                                                                    kind: IntegerLiteral,
+                                                                },
+                                                                value: 345,
+                                                            },
+                                                        ),
+                                                    ],
+                                                    end: Token {
+                                                        span: 102:103,
+                                                        kind: CloseBracket,
+                                                    },
+                                                },
+                                            ),
+                                        ),
+                                    },
+                                ],
+                                end: Token {
+                                    span: 103:104,
+                                    kind: CloseParen,
+                                },
+                            },
+                        ),
+                        directives: [],
+                        selections: List {
+                            span: 105:389,
+                            start: Token {
+                                span: 105:106,
+                                kind: OpenBrace,
+                            },
+                            items: [
+                                ScalarField {
+                                    span: 111:113,
+                                    alias: None,
+                                    name: Identifier {
+                                        span: 111:113,
+                                        token: Token {
+                                            span: 111:113,
+                                            kind: Identifier,
+                                        },
+                                        value: "id",
+                                    },
+                                    arguments: None,
+                                    directives: [],
+                                },
+                                InlineFragment {
+                                    span: 118:315,
+                                    spread: Token {
+                                        span: 118:121,
+                                        kind: Spread,
+                                    },
+                                    type_condition: Some(
+                                        TypeCondition {
+                                            span: 122:129,
+                                            on: Token {
+                                                span: 122:124,
+                                                kind: Identifier,
+                                            },
+                                            type_: Identifier {
+                                                span: 125:129,
+                                                token: Token {
+                                                    span: 125:129,
+                                                    kind: Identifier,
+                                                },
+                                                value: "User",
+                                            },
+                                        },
+                                    ),
+                                    directives: [
+                                        Directive {
+                                            span: 130:147,
+                                            at: Token {
+                                                span: 130:131,
+                                                kind: At,
+                                            },
+                                            name: Identifier {
+                                                span: 131:147,
+                                                token: Token {
+                                                    span: 131:147,
+                                                    kind: Identifier,
+                                                },
+                                                value: "onInlineFragment",
+                                            },
+                                            arguments: None,
+                                        },
+                                    ],
+                                    selections: List {
+                                        span: 148:315,
+                                        start: Token {
+                                            span: 148:149,
+                                            kind: OpenBrace,
+                                        },
+                                        items: [
+                                            LinkedField {
+                                                span: 156:309,
+                                                alias: None,
+                                                name: Identifier {
+                                                    span: 156:162,
+                                                    token: Token {
+                                                        span: 156:162,
+                                                        kind: Identifier,
+                                                    },
+                                                    value: "field2",
+                                                },
+                                                arguments: None,
+                                                directives: [],
+                                                selections: List {
+                                                    span: 163:309,
+                                                    start: Token {
+                                                        span: 163:164,
+                                                        kind: OpenBrace,
+                                                    },
+                                                    items: [
+                                                        ScalarField {
+                                                            span: 173:175,
+                                                            alias: None,
+                                                            name: Identifier {
+                                                                span: 173:175,
+                                                                token: Token {
+                                                                    span: 173:175,
+                                                                    kind: Identifier,
+                                                                },
+                                                                value: "id",
+                                                            },
+                                                            arguments: None,
+                                                            directives: [],
+                                                        },
+                                                        LinkedField {
+                                                            span: 184:301,
+                                                            alias: Some(
+                                                                Alias {
+                                                                    span: 184:197,
+                                                                    alias: Identifier {
+                                                                        span: 184:189,
+                                                                        token: Token {
+                                                                            span: 184:189,
+                                                                            kind: Identifier,
+                                                                        },
+                                                                        value: "alias",
+                                                                    },
+                                                                    colon: Token {
+                                                                        span: 189:190,
+                                                                        kind: Colon,
+                                                                    },
+                                                                },
+                                                            ),
+                                                            name: Identifier {
+                                                                span: 191:197,
+                                                                token: Token {
+                                                                    span: 191:197,
+                                                                    kind: Identifier,
+                                                                },
+                                                                value: "field1",
+                                                            },
+                                                            arguments: Some(
+                                                                List {
+                                                                    span: 197:221,
+                                                                    start: Token {
+                                                                        span: 197:198,
+                                                                        kind: OpenParen,
+                                                                    },
+                                                                    items: [
+                                                                        Argument {
+                                                                            span: 198:207,
+                                                                            name: Identifier {
+                                                                                span: 198:203,
+                                                                                token: Token {
+                                                                                    span: 198:203,
+                                                                                    kind: Identifier,
+                                                                                },
+                                                                                value: "first",
+                                                                            },
+                                                                            colon: Token {
+                                                                                span: 203:204,
+                                                                                kind: Colon,
+                                                                            },
+                                                                            value: Constant(
+                                                                                Int(
+                                                                                    IntNode {
+                                                                                        token: Token {
+                                                                                            span: 205:207,
+                                                                                            kind: IntegerLiteral,
+                                                                                        },
+                                                                                        value: 10,
+                                                                                    },
+                                                                                ),
+                                                                            ),
+                                                                        },
+                                                                        Argument {
+                                                                            span: 209:220,
+                                                                            name: Identifier {
+                                                                                span: 209:214,
+                                                                                token: Token {
+                                                                                    span: 209:214,
+                                                                                    kind: Identifier,
+                                                                                },
+                                                                                value: "after",
+                                                                            },
+                                                                            colon: Token {
+                                                                                span: 214:215,
+                                                                                kind: Colon,
+                                                                            },
+                                                                            value: Variable(
+                                                                                VariableIdentifier {
+                                                                                    span: 216:220,
+                                                                                    token: Token {
+                                                                                        span: 217:220,
+                                                                                        kind: Identifier,
+                                                                                    },
+                                                                                    name: "foo",
+                                                                                },
+                                                                            ),
+                                                                        },
+                                                                    ],
+                                                                    end: Token {
+                                                                        span: 220:221,
+                                                                        kind: CloseParen,
+                                                                    },
+                                                                },
+                                                            ),
+                                                            directives: [
+                                                                Directive {
+                                                                    span: 222:240,
+                                                                    at: Token {
+                                                                        span: 222:223,
+                                                                        kind: At,
+                                                                    },
+                                                                    name: Identifier {
+                                                                        span: 223:230,
+                                                                        token: Token {
+                                                                            span: 223:230,
+                                                                            kind: Identifier,
+                                                                        },
+                                                                        value: "include",
+                                                                    },
+                                                                    arguments: Some(
+                                                                        List {
+                                                                            span: 230:240,
+                                                                            start: Token {
+                                                                                span: 230:231,
+                                                                                kind: OpenParen,
+                                                                            },
+                                                                            items: [
+                                                                                Argument {
+                                                                                    span: 231:239,
+                                                                                    name: Identifier {
+                                                                                        span: 231:233,
+                                                                                        token: Token {
+                                                                                            span: 231:233,
+                                                                                            kind: Identifier,
+                                                                                        },
+                                                                                        value: "if",
+                                                                                    },
+                                                                                    colon: Token {
+                                                                                        span: 233:234,
+                                                                                        kind: Colon,
+                                                                                    },
+                                                                                    value: Variable(
+                                                                                        VariableIdentifier {
+                                                                                            span: 235:239,
+                                                                                            token: Token {
+                                                                                                span: 236:239,
+                                                                                                kind: Identifier,
+                                                                                            },
+                                                                                            name: "foo",
+                                                                                        },
+                                                                                    ),
+                                                                                },
+                                                                            ],
+                                                                            end: Token {
+                                                                                span: 239:240,
+                                                                                kind: CloseParen,
+                                                                            },
+                                                                        },
+                                                                    ),
+                                                                },
+                                                            ],
+                                                            selections: List {
+                                                                span: 241:301,
+                                                                start: Token {
+                                                                    span: 241:242,
+                                                                    kind: OpenBrace,
+                                                                },
+                                                                items: [
+                                                                    ScalarField {
+                                                                        span: 253:255,
+                                                                        alias: None,
+                                                                        name: Identifier {
+                                                                            span: 253:255,
+                                                                            token: Token {
+                                                                                span: 253:255,
+                                                                                kind: Identifier,
+                                                                            },
+                                                                            value: "id",
+                                                                        },
+                                                                        arguments: None,
+                                                                        directives: [],
+                                                                    },
+                                                                    FragmentSpread {
+                                                                        span: 266:291,
+                                                                        spread: Token {
+                                                                            span: 266:269,
+                                                                            kind: Spread,
+                                                                        },
+                                                                        name: Identifier {
+                                                                            span: 269:273,
+                                                                            token: Token {
+                                                                                span: 269:273,
+                                                                                kind: Identifier,
+                                                                            },
+                                                                            value: "frag",
+                                                                        },
+                                                                        directives: [
+                                                                            Directive {
+                                                                                span: 274:291,
+                                                                                at: Token {
+                                                                                    span: 274:275,
+                                                                                    kind: At,
+                                                                                },
+                                                                                name: Identifier {
+                                                                                    span: 275:291,
+                                                                                    token: Token {
+                                                                                        span: 275:291,
+                                                                                        kind: Identifier,
+                                                                                    },
+                                                                                    value: "onFragmentSpread",
+                                                                                },
+                                                                                arguments: None,
+                                                                            },
+                                                                        ],
+                                                                    },
+                                                                ],
+                                                                end: Token {
+                                                                    span: 300:301,
+                                                                    kind: CloseBrace,
+                                                                },
+                                                            },
+                                                        },
+                                                    ],
+                                                    end: Token {
+                                                        span: 308:309,
+                                                        kind: CloseBrace,
+                                                    },
+                                                },
+                                            },
+                                        ],
+                                        end: Token {
+                                            span: 314:315,
+                                            kind: CloseBrace,
+                                        },
+                                    },
+                                },
+                                InlineFragment {
+                                    span: 320:360,
+                                    spread: Token {
+                                        span: 320:323,
+                                        kind: Spread,
+                                    },
+                                    type_condition: None,
+                                    directives: [
+                                        Directive {
+                                            span: 324:343,
+                                            at: Token {
+                                                span: 324:325,
+                                                kind: At,
+                                            },
+                                            name: Identifier {
+                                                span: 325:329,
+                                                token: Token {
+                                                    span: 325:329,
+                                                    kind: Identifier,
+                                                },
+                                                value: "skip",
+                                            },
+                                            arguments: Some(
+                                                List {
+                                                    span: 329:343,
+                                                    start: Token {
+                                                        span: 329:330,
+                                                        kind: OpenParen,
+                                                    },
+                                                    items: [
+                                                        Argument {
+                                                            span: 330:342,
+                                                            name: Identifier {
+                                                                span: 330:336,
+                                                                token: Token {
+                                                                    span: 330:336,
+                                                                    kind: Identifier,
+                                                                },
+                                                                value: "unless",
+                                                            },
+                                                            colon: Token {
+                                                                span: 336:337,
+                                                                kind: Colon,
+                                                            },
+                                                            value: Variable(
+                                                                VariableIdentifier {
+                                                                    span: 338:342,
+                                                                    token: Token {
+                                                                        span: 339:342,
+                                                                        kind: Identifier,
+                                                                    },
+                                                                    name: "foo",
+                                                                },
+                                                            ),
+                                                        },
+                                                    ],
+                                                    end: Token {
+                                                        span: 342:343,
+                                                        kind: CloseParen,
+                                                    },
+                                                },
+                                            ),
+                                        },
+                                    ],
+                                    selections: List {
+                                        span: 344:360,
+                                        start: Token {
+                                            span: 344:345,
+                                            kind: OpenBrace,
+                                        },
+                                        items: [
+                                            ScalarField {
+                                                span: 352:354,
+                                                alias: None,
+                                                name: Identifier {
+                                                    span: 352:354,
+                                                    token: Token {
+                                                        span: 352:354,
+                                                        kind: Identifier,
+                                                    },
+                                                    value: "id",
+                                                },
+                                                arguments: None,
+                                                directives: [],
+                                            },
+                                        ],
+                                        end: Token {
+                                            span: 359:360,
+                                            kind: CloseBrace,
+                                        },
+                                    },
+                                },
+                                InlineFragment {
+                                    span: 365:385,
+                                    spread: Token {
+                                        span: 365:368,
+                                        kind: Spread,
+                                    },
+                                    type_condition: None,
+                                    directives: [],
+                                    selections: List {
+                                        span: 369:385,
+                                        start: Token {
+                                            span: 369:370,
+                                            kind: OpenBrace,
+                                        },
+                                        items: [
+                                            ScalarField {
+                                                span: 377:379,
+                                                alias: None,
+                                                name: Identifier {
+                                                    span: 377:379,
+                                                    token: Token {
+                                                        span: 377:379,
+                                                        kind: Identifier,
+                                                    },
+                                                    value: "id",
+                                                },
+                                                arguments: None,
+                                                directives: [],
+                                            },
+                                        ],
+                                        end: Token {
+                                            span: 384:385,
+                                            kind: CloseBrace,
+                                        },
+                                    },
+                                },
+                            ],
+                            end: Token {
+                                span: 388:389,
+                                kind: CloseBrace,
+                            },
+                        },
+                    },
+                ],
+                end: Token {
+                    span: 390:391,
+                    kind: CloseBrace,
+                },
+            },
+        },
+        OperationDefinition {
+            location: kitchen-sink.graphql:393:497,
+            operation: Some(
+                (
+                    Token {
+                        span: 393:401,
+                        kind: Identifier,
+                    },
+                    Mutation,
+                ),
+            ),
+            name: Some(
+                Identifier {
+                    span: 402:411,
+                    token: Token {
+                        span: 402:411,
+                        kind: Identifier,
+                    },
+                    value: "likeStory",
+                },
+            ),
+            variable_definitions: None,
+            directives: [
+                Directive {
+                    span: 412:423,
+                    at: Token {
+                        span: 412:413,
+                        kind: At,
+                    },
+                    name: Identifier {
+                        span: 413:423,
+                        token: Token {
+                            span: 413:423,
+                            kind: Identifier,
+                        },
+                        value: "onMutation",
+                    },
+                    arguments: None,
+                },
+            ],
+            selections: List {
+                span: 424:497,
+                start: Token {
+                    span: 424:425,
+                    kind: OpenBrace,
+                },
+                items: [
+                    LinkedField {
+                        span: 428:495,
+                        alias: None,
+                        name: Identifier {
+                            span: 428:432,
+                            token: Token {
+                                span: 428:432,
+                                kind: Identifier,
+                            },
+                            value: "like",
+                        },
+                        arguments: Some(
+                            List {
+                                span: 432:444,
+                                start: Token {
+                                    span: 432:433,
+                                    kind: OpenParen,
+                                },
+                                items: [
+                                    Argument {
+                                        span: 433:443,
+                                        name: Identifier {
+                                            span: 433:438,
+                                            token: Token {
+                                                span: 433:438,
+                                                kind: Identifier,
+                                            },
+                                            value: "story",
+                                        },
+                                        colon: Token {
+                                            span: 438:439,
+                                            kind: Colon,
+                                        },
+                                        value: Constant(
+                                            Int(
+                                                IntNode {
+                                                    token: Token {
+                                                        span: 440:443,
+                                                        kind: IntegerLiteral,
+                                                    },
+                                                    value: 123,
+                                                },
+                                            ),
+                                        ),
+                                    },
+                                ],
+                                end: Token {
+                                    span: 443:444,
+                                    kind: CloseParen,
+                                },
+                            },
+                        ),
+                        directives: [
+                            Directive {
+                                span: 445:453,
+                                at: Token {
+                                    span: 445:446,
+                                    kind: At,
+                                },
+                                name: Identifier {
+                                    span: 446:453,
+                                    token: Token {
+                                        span: 446:453,
+                                        kind: Identifier,
+                                    },
+                                    value: "onField",
+                                },
+                                arguments: None,
+                            },
+                        ],
+                        selections: List {
+                            span: 454:495,
+                            start: Token {
+                                span: 454:455,
+                                kind: OpenBrace,
+                            },
+                            items: [
+                                LinkedField {
+                                    span: 460:491,
+                                    alias: None,
+                                    name: Identifier {
+                                        span: 460:465,
+                                        token: Token {
+                                            span: 460:465,
+                                            kind: Identifier,
+                                        },
+                                        value: "story",
+                                    },
+                                    arguments: None,
+                                    directives: [],
+                                    selections: List {
+                                        span: 466:491,
+                                        start: Token {
+                                            span: 466:467,
+                                            kind: OpenBrace,
+                                        },
+                                        items: [
+                                            ScalarField {
+                                                span: 474:485,
+                                                alias: None,
+                                                name: Identifier {
+                                                    span: 474:476,
+                                                    token: Token {
+                                                        span: 474:476,
+                                                        kind: Identifier,
+                                                    },
+                                                    value: "id",
+                                                },
+                                                arguments: None,
+                                                directives: [
+                                                    Directive {
+                                                        span: 477:485,
+                                                        at: Token {
+                                                            span: 477:478,
+                                                            kind: At,
+                                                        },
+                                                        name: Identifier {
+                                                            span: 478:485,
+                                                            token: Token {
+                                                                span: 478:485,
+                                                                kind: Identifier,
+                                                            },
+                                                            value: "onField",
+                                                        },
+                                                        arguments: None,
+                                                    },
+                                                ],
+                                            },
+                                        ],
+                                        end: Token {
+                                            span: 490:491,
+                                            kind: CloseBrace,
+                                        },
+                                    },
+                                },
+                            ],
+                            end: Token {
+                                span: 494:495,
+                                kind: CloseBrace,
+                            },
+                        },
+                    },
+                ],
+                end: Token {
+                    span: 496:497,
+                    kind: CloseBrace,
+                },
+            },
+        },
+        OperationDefinition {
+            location: kitchen-sink.graphql:499:727,
+            operation: Some(
+                (
+                    Token {
+                        span: 499:511,
+                        kind: Identifier,
+                    },
+                    Subscription,
+                ),
+            ),
+            name: Some(
+                Identifier {
+                    span: 512:533,
+                    token: Token {
+                        span: 512:533,
+                        kind: Identifier,
+                    },
+                    value: "StoryLikeSubscription",
+                },
+            ),
+            variable_definitions: Some(
+                List {
+                    span: 533:566,
+                    start: Token {
+                        span: 533:534,
+                        kind: OpenParen,
+                    },
+                    items: [
+                        VariableDefinition {
+                            span: 534:565,
+                            name: VariableIdentifier {
+                                span: 534:540,
+                                token: Token {
+                                    span: 535:540,
+                                    kind: Identifier,
+                                },
+                                name: "input",
+                            },
+                            colon: Token {
+                                span: 540:541,
+                                kind: Colon,
+                            },
+                            type_: Named(
+                                NamedTypeAnnotation {
+                                    name: Identifier {
+                                        span: 542:565,
+                                        token: Token {
+                                            span: 542:565,
+                                            kind: Identifier,
+                                        },
+                                        value: "StoryLikeSubscribeInput",
+                                    },
+                                },
+                            ),
+                            default_value: None,
+                            directives: [],
+                        },
+                    ],
+                    end: Token {
+                        span: 565:566,
+                        kind: CloseParen,
+                    },
+                },
+            ),
+            directives: [
+                Directive {
+                    span: 569:584,
+                    at: Token {
+                        span: 569:570,
+                        kind: At,
+                    },
+                    name: Identifier {
+                        span: 570:584,
+                        token: Token {
+                            span: 570:584,
+                            kind: Identifier,
+                        },
+                        value: "onSubscription",
+                    },
+                    arguments: None,
+                },
+            ],
+            selections: List {
+                span: 585:727,
+                start: Token {
+                    span: 585:586,
+                    kind: OpenBrace,
+                },
+                items: [
+                    LinkedField {
+                        span: 589:725,
+                        alias: None,
+                        name: Identifier {
+                            span: 589:607,
+                            token: Token {
+                                span: 589:607,
+                                kind: Identifier,
+                            },
+                            value: "storyLikeSubscribe",
+                        },
+                        arguments: Some(
+                            List {
+                                span: 607:622,
+                                start: Token {
+                                    span: 607:608,
+                                    kind: OpenParen,
+                                },
+                                items: [
+                                    Argument {
+                                        span: 608:621,
+                                        name: Identifier {
+                                            span: 608:613,
+                                            token: Token {
+                                                span: 608:613,
+                                                kind: Identifier,
+                                            },
+                                            value: "input",
+                                        },
+                                        colon: Token {
+                                            span: 613:614,
+                                            kind: Colon,
+                                        },
+                                        value: Variable(
+                                            VariableIdentifier {
+                                                span: 615:621,
+                                                token: Token {
+                                                    span: 616:621,
+                                                    kind: Identifier,
+                                                },
+                                                name: "input",
+                                            },
+                                        ),
+                                    },
+                                ],
+                                end: Token {
+                                    span: 621:622,
+                                    kind: CloseParen,
+                                },
+                            },
+                        ),
+                        directives: [],
+                        selections: List {
+                            span: 623:725,
+                            start: Token {
+                                span: 623:624,
+                                kind: OpenBrace,
+                            },
+                            items: [
+                                LinkedField {
+                                    span: 629:721,
+                                    alias: None,
+                                    name: Identifier {
+                                        span: 629:634,
+                                        token: Token {
+                                            span: 629:634,
+                                            kind: Identifier,
+                                        },
+                                        value: "story",
+                                    },
+                                    arguments: None,
+                                    directives: [],
+                                    selections: List {
+                                        span: 635:721,
+                                        start: Token {
+                                            span: 635:636,
+                                            kind: OpenBrace,
+                                        },
+                                        items: [
+                                            LinkedField {
+                                                span: 643:673,
+                                                alias: None,
+                                                name: Identifier {
+                                                    span: 643:649,
+                                                    token: Token {
+                                                        span: 643:649,
+                                                        kind: Identifier,
+                                                    },
+                                                    value: "likers",
+                                                },
+                                                arguments: None,
+                                                directives: [],
+                                                selections: List {
+                                                    span: 650:673,
+                                                    start: Token {
+                                                        span: 650:651,
+                                                        kind: OpenBrace,
+                                                    },
+                                                    items: [
+                                                        ScalarField {
+                                                            span: 660:665,
+                                                            alias: None,
+                                                            name: Identifier {
+                                                                span: 660:665,
+                                                                token: Token {
+                                                                    span: 660:665,
+                                                                    kind: Identifier,
+                                                                },
+                                                                value: "count",
+                                                            },
+                                                            arguments: None,
+                                                            directives: [],
+                                                        },
+                                                    ],
+                                                    end: Token {
+                                                        span: 672:673,
+                                                        kind: CloseBrace,
+                                                    },
+                                                },
+                                            },
+                                            LinkedField {
+                                                span: 680:715,
+                                                alias: None,
+                                                name: Identifier {
+                                                    span: 680:692,
+                                                    token: Token {
+                                                        span: 680:692,
+                                                        kind: Identifier,
+                                                    },
+                                                    value: "likeSentence",
+                                                },
+                                                arguments: None,
+                                                directives: [],
+                                                selections: List {
+                                                    span: 693:715,
+                                                    start: Token {
+                                                        span: 693:694,
+                                                        kind: OpenBrace,
+                                                    },
+                                                    items: [
+                                                        ScalarField {
+                                                            span: 703:707,
+                                                            alias: None,
+                                                            name: Identifier {
+                                                                span: 703:707,
+                                                                token: Token {
+                                                                    span: 703:707,
+                                                                    kind: Identifier,
+                                                                },
+                                                                value: "text",
+                                                            },
+                                                            arguments: None,
+                                                            directives: [],
+                                                        },
+                                                    ],
+                                                    end: Token {
+                                                        span: 714:715,
+                                                        kind: CloseBrace,
+                                                    },
+                                                },
+                                            },
+                                        ],
+                                        end: Token {
+                                            span: 720:721,
+                                            kind: CloseBrace,
+                                        },
+                                    },
+                                },
+                            ],
+                            end: Token {
+                                span: 724:725,
+                                kind: CloseBrace,
+                            },
+                        },
+                    },
+                ],
+                end: Token {
+                    span: 726:727,
+                    kind: CloseBrace,
+                },
+            },
+        },
+        FragmentDefinition {
+            location: kitchen-sink.graphql:887:1033,
+            fragment: Token {
+                span: 887:895,
+                kind: Identifier,
+            },
+            name: Identifier {
+                span: 896:900,
+                token: Token {
+                    span: 896:900,
+                    kind: Identifier,
+                },
+                value: "frag",
+            },
+            variable_definitions: None,
+            type_condition: TypeCondition {
+                span: 901:910,
+                on: Token {
+                    span: 901:903,
+                    kind: Identifier,
+                },
+                type_: Identifier {
+                    span: 904:910,
+                    token: Token {
+                        span: 904:910,
+                        kind: Identifier,
+                    },
+                    value: "Friend",
+                },
+            },
+            directives: [
+                Directive {
+                    span: 911:932,
+                    at: Token {
+                        span: 911:912,
+                        kind: At,
+                    },
+                    name: Identifier {
+                        span: 912:932,
+                        token: Token {
+                            span: 912:932,
+                            kind: Identifier,
+                        },
+                        value: "onFragmentDefinition",
+                    },
+                    arguments: None,
+                },
+            ],
+            selections: List {
+                span: 933:1033,
+                start: Token {
+                    span: 933:934,
+                    kind: OpenBrace,
+                },
+                items: [
+                    ScalarField {
+                        span: 937:1013,
+                        alias: None,
+                        name: Identifier {
+                            span: 937:940,
+                            token: Token {
+                                span: 937:940,
+                                kind: Identifier,
+                            },
+                            value: "foo",
+                        },
+                        arguments: Some(
+                            List {
+                                span: 940:1013,
+                                start: Token {
+                                    span: 940:941,
+                                    kind: OpenParen,
+                                },
+                                items: [
+                                    Argument {
+                                        span: 941:952,
+                                        name: Identifier {
+                                            span: 941:945,
+                                            token: Token {
+                                                span: 941:945,
+                                                kind: Identifier,
+                                            },
+                                            value: "size",
+                                        },
+                                        colon: Token {
+                                            span: 945:946,
+                                            kind: Colon,
+                                        },
+                                        value: Variable(
+                                            VariableIdentifier {
+                                                span: 947:952,
+                                                token: Token {
+                                                    span: 948:952,
+                                                    kind: Identifier,
+                                                },
+                                                name: "size",
+                                            },
+                                        ),
+                                    },
+                                    Argument {
+                                        span: 954:961,
+                                        name: Identifier {
+                                            span: 954:957,
+                                            token: Token {
+                                                span: 954:957,
+                                                kind: Identifier,
+                                            },
+                                            value: "bar",
+                                        },
+                                        colon: Token {
+                                            span: 957:958,
+                                            kind: Colon,
+                                        },
+                                        value: Variable(
+                                            VariableIdentifier {
+                                                span: 959:961,
+                                                token: Token {
+                                                    span: 960:961,
+                                                    kind: Identifier,
+                                                },
+                                                name: "b",
+                                            },
+                                        ),
+                                    },
+                                    Argument {
+                                        span: 963:1012,
+                                        name: Identifier {
+                                            span: 963:966,
+                                            token: Token {
+                                                span: 963:966,
+                                                kind: Identifier,
+                                            },
+                                            value: "obj",
+                                        },
+                                        colon: Token {
+                                            span: 966:967,
+                                            kind: Colon,
+                                        },
+                                        value: Constant(
+                                            Object(
+                                                List {
+                                                    span: 968:1012,
+                                                    start: Token {
+                                                        span: 968:969,
+                                                        kind: OpenBrace,
+                                                    },
+                                                    items: [
+                                                        ConstantArgument {
+                                                            span: 969:981,
+                                                            name: Identifier {
+                                                                span: 969:972,
+                                                                token: Token {
+                                                                    span: 969:972,
+                                                                    kind: Identifier,
+                                                                },
+                                                                value: "key",
+                                                            },
+                                                            colon: Token {
+                                                                span: 972:973,
+                                                                kind: Colon,
+                                                            },
+                                                            value: String(
+                                                                StringNode {
+                                                                    token: Token {
+                                                                        span: 974:981,
+                                                                        kind: StringLiteral,
+                                                                    },
+                                                                    value: "value",
+                                                                },
+                                                            ),
+                                                        },
+                                                        ConstantArgument {
+                                                            span: 983:1011,
+                                                            name: Identifier {
+                                                                span: 983:988,
+                                                                token: Token {
+                                                                    span: 983:988,
+                                                                    kind: Identifier,
+                                                                },
+                                                                value: "block",
+                                                            },
+                                                            colon: Token {
+                                                                span: 988:989,
+                                                                kind: Colon,
+                                                            },
+                                                            value: String(
+                                                                StringNode {
+                                                                    token: Token {
+                                                                        span: 990:1011,
+                                                                        kind: StringLiteral,
+                                                                    },
+                                                                    value: "todo: block string!",
+                                                                },
+                                                            ),
+                                                        },
+                                                    ],
+                                                    end: Token {
+                                                        span: 1011:1012,
+                                                        kind: CloseBrace,
+                                                    },
+                                                },
+                                            ),
+                                        ),
+                                    },
+                                ],
+                                end: Token {
+                                    span: 1012:1013,
+                                    kind: CloseParen,
+                                },
+                            },
+                        ),
+                        directives: [],
+                    },
+                    ScalarField {
+                        span: 1016:1018,
+                        alias: None,
+                        name: Identifier {
+                            span: 1016:1018,
+                            token: Token {
+                                span: 1016:1018,
+                                kind: Identifier,
+                            },
+                            value: "id",
+                        },
+                        arguments: None,
+                        directives: [],
+                    },
+                    ScalarField {
+                        span: 1021:1031,
+                        alias: None,
+                        name: Identifier {
+                            span: 1021:1031,
+                            token: Token {
+                                span: 1021:1031,
+                                kind: Identifier,
+                            },
+                            value: "__typename",
+                        },
+                        arguments: None,
+                        directives: [],
+                    },
+                ],
+                end: Token {
+                    span: 1032:1033,
+                    kind: CloseBrace,
+                },
+            },
+        },
+        OperationDefinition {
+            location: kitchen-sink.graphql:1035:1099,
+            operation: None,
+            name: None,
+            variable_definitions: None,
+            directives: [],
+            selections: List {
+                span: 1035:1099,
+                start: Token {
+                    span: 1035:1036,
+                    kind: OpenBrace,
+                },
+                items: [
+                    ScalarField {
+                        span: 1039:1089,
+                        alias: None,
+                        name: Identifier {
+                            span: 1039:1046,
+                            token: Token {
+                                span: 1039:1046,
+                                kind: Identifier,
+                            },
+                            value: "unnamed",
+                        },
+                        arguments: Some(
+                            List {
+                                span: 1046:1089,
+                                start: Token {
+                                    span: 1046:1047,
+                                    kind: OpenParen,
+                                },
+                                items: [
+                                    Argument {
+                                        span: 1047:1059,
+                                        name: Identifier {
+                                            span: 1047:1053,
+                                            token: Token {
+                                                span: 1047:1053,
+                                                kind: Identifier,
+                                            },
+                                            value: "truthy",
+                                        },
+                                        colon: Token {
+                                            span: 1053:1054,
+                                            kind: Colon,
+                                        },
+                                        value: Constant(
+                                            Boolean(
+                                                BooleanNode {
+                                                    token: Token {
+                                                        span: 1055:1059,
+                                                        kind: Identifier,
+                                                    },
+                                                    value: true,
+                                                },
+                                            ),
+                                        ),
+                                    },
+                                    Argument {
+                                        span: 1061:1073,
+                                        name: Identifier {
+                                            span: 1061:1066,
+                                            token: Token {
+                                                span: 1061:1066,
+                                                kind: Identifier,
+                                            },
+                                            value: "falsy",
+                                        },
+                                        colon: Token {
+                                            span: 1066:1067,
+                                            kind: Colon,
+                                        },
+                                        value: Constant(
+                                            Boolean(
+                                                BooleanNode {
+                                                    token: Token {
+                                                        span: 1068:1073,
+                                                        kind: Identifier,
+                                                    },
+                                                    value: false,
+                                                },
+                                            ),
+                                        ),
+                                    },
+                                    Argument {
+                                        span: 1075:1088,
+                                        name: Identifier {
+                                            span: 1075:1082,
+                                            token: Token {
+                                                span: 1075:1082,
+                                                kind: Identifier,
+                                            },
+                                            value: "nullish",
+                                        },
+                                        colon: Token {
+                                            span: 1082:1083,
+                                            kind: Colon,
+                                        },
+                                        value: Constant(
+                                            Null(
+                                                Token {
+                                                    span: 1084:1088,
+                                                    kind: Identifier,
+                                                },
+                                            ),
+                                        ),
+                                    },
+                                ],
+                                end: Token {
+                                    span: 1088:1089,
+                                    kind: CloseParen,
+                                },
+                            },
+                        ),
+                        directives: [],
+                    },
+                    ScalarField {
+                        span: 1092:1097,
+                        alias: None,
+                        name: Identifier {
+                            span: 1092:1097,
+                            token: Token {
+                                span: 1092:1097,
+                                kind: Identifier,
+                            },
+                            value: "query",
+                        },
+                        arguments: None,
+                        directives: [],
+                    },
+                ],
+                end: Token {
+                    span: 1098:1099,
+                    kind: CloseBrace,
+                },
+            },
+        },
+        OperationDefinition {
+            location: kitchen-sink.graphql:1101:1123,
+            operation: Some(
+                (
+                    Token {
+                        span: 1101:1106,
+                        kind: Identifier,
+                    },
+                    Query,
+                ),
+            ),
+            name: None,
+            variable_definitions: None,
+            directives: [],
+            selections: List {
+                span: 1107:1123,
+                start: Token {
+                    span: 1107:1108,
+                    kind: OpenBrace,
+                },
+                items: [
+                    ScalarField {
+                        span: 1111:1121,
+                        alias: None,
+                        name: Identifier {
+                            span: 1111:1121,
+                            token: Token {
+                                span: 1111:1121,
+                                kind: Identifier,
+                            },
+                            value: "__typename",
+                        },
+                        arguments: None,
+                        directives: [],
+                    },
+                ],
+                end: Token {
+                    span: 1122:1123,
+                    kind: CloseBrace,
+                },
+            },
+        },
+    ],
+}

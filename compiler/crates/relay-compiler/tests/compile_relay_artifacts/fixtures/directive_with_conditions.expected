@@ -1,0 +1,187 @@
+==================================== INPUT ====================================
+query directiveWithConditions_TestQuery($foo: Boolean!, $bar: Boolean!) {
+  viewer {
+    account_user {
+      alternate_name
+        @skip(if: $bar)
+        @include(if: $foo)
+        @customDirective(level: 1)
+      canViewerComment
+        @include(if: $foo)
+        @customDirective(level: 2)
+        @skip(if: $bar)
+    }
+  }
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "bar"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "foo"
+      }
+    ],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "directiveWithConditions_TestQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "Viewer",
+        "kind": "LinkedField",
+        "name": "viewer",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "concreteType": "User",
+            "kind": "LinkedField",
+            "name": "account_user",
+            "plural": false,
+            "selections": [
+              {
+                "condition": "foo",
+                "kind": "Condition",
+                "passingValue": true,
+                "selections": [
+                  {
+                    "condition": "bar",
+                    "kind": "Condition",
+                    "passingValue": false,
+                    "selections": [
+                      {
+                        "alias": null,
+                        "args": null,
+                        "kind": "ScalarField",
+                        "name": "alternate_name",
+                        "storageKey": null
+                      },
+                      {
+                        "alias": null,
+                        "args": null,
+                        "kind": "ScalarField",
+                        "name": "canViewerComment",
+                        "storageKey": null
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "foo"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "bar"
+      }
+    ],
+    "kind": "Operation",
+    "name": "directiveWithConditions_TestQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "Viewer",
+        "kind": "LinkedField",
+        "name": "viewer",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "concreteType": "User",
+            "kind": "LinkedField",
+            "name": "account_user",
+            "plural": false,
+            "selections": [
+              {
+                "condition": "foo",
+                "kind": "Condition",
+                "passingValue": true,
+                "selections": [
+                  {
+                    "condition": "bar",
+                    "kind": "Condition",
+                    "passingValue": false,
+                    "selections": [
+                      {
+                        "alias": null,
+                        "args": null,
+                        "kind": "ScalarField",
+                        "name": "alternate_name",
+                        "storageKey": null
+                      },
+                      {
+                        "alias": null,
+                        "args": null,
+                        "kind": "ScalarField",
+                        "name": "canViewerComment",
+                        "storageKey": null
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "id",
+                "storageKey": null
+              }
+            ],
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {},
+    "name": "directiveWithConditions_TestQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query directiveWithConditions_TestQuery(
+  $foo: Boolean!
+  $bar: Boolean!
+) {
+  viewer {
+    account_user {
+      alternate_name @skip(if: $bar) @include(if: $foo) @customDirective(level: 1)
+      canViewerComment @skip(if: $bar) @include(if: $foo) @customDirective(level: 2)
+      id
+    }
+  }
+}

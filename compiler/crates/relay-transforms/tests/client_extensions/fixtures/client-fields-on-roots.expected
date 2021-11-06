@@ -1,0 +1,53 @@
+==================================== INPUT ====================================
+query FooQuery($id: ID!, $arg: String) {
+  client_root_field
+
+  node(id: $id) {
+    id
+  }
+}
+
+mutation FooMutation {
+  client_root_field
+}
+
+subscription FooSubscription {
+  client_root_field
+}
+
+# %extensions%
+extend type Query {
+  client_root_field: String
+}
+
+extend type Mutation {
+  client_root_field: String
+}
+
+extend type Subscription {
+  client_root_field: String
+}
+==================================== OUTPUT ===================================
+mutation FooMutation {
+  ... @__clientExtension {
+    client_root_field
+  }
+}
+
+query FooQuery(
+  $id: ID!
+  $arg: String
+) {
+  node(id: $id) {
+    id
+  }
+  ... @__clientExtension {
+    client_root_field
+  }
+}
+
+subscription FooSubscription {
+  ... @__clientExtension {
+    client_root_field
+  }
+}

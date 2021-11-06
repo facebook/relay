@@ -1,0 +1,13 @@
+# expected-to-throw
+subscription MultipleSelectionSubscription($feedback_input: FeedbackLikeInput, $comment_input: CommentCreateSubscriptionInput) {
+  feedbackLikeSubscribe(input: $feedback_input) {
+    feedback {
+      id
+    }
+  }
+  commentCreateSubscribe(input: $comment_input) {
+    comment {
+      id
+    }
+  }
+}

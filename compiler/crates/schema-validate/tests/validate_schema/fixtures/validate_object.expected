@@ -1,0 +1,92 @@
+==================================== INPUT ====================================
+directive @fetchable(field_name: String) on OBJECT
+
+interface Hominid {
+  pet: Canine
+  friends(location: Location): [Hominid]
+}
+
+interface Canine {
+  owner: Human
+  name: String
+}
+
+type Pet implements Canine @fetchable(field_name: "id") {
+  id: ID
+  owner: Human
+  type: PetType
+  fur: FurType
+}
+
+type OtherPet @fetchable(field_name: "id") {
+  id: ID
+  owner: Human
+  type: PetType
+  fur: FurType
+}
+
+type Human implements Hominid @fetchable(field_name: "id") {
+  id: ID
+  pet: OtherPet
+  friends(location: Location, radius: Int!, Country: String): [Human]
+  location: Location
+  other_friends(location: Location, location: Location): [Human]
+}
+
+type Query {
+  fetch__Human(id: ID!): Human
+  user: Human
+}
+
+enum PetType {
+  DOG
+  CAT
+}
+
+input Location {
+  lat: String
+  lon: String
+}
+
+union FurType = Hair | Fur
+
+union EmptyFurType
+
+union InvalidFurType = Hair | Fur
+
+type Hair {
+  color: String
+}
+
+type Fur {
+  color: String
+}
+==================================== OUTPUT ===================================
+Type EmptyFurType with definition:
+	union EmptyFurType
+had errors:
+	* Union type must define one or more member types.
+
+Type Human with definition:
+	type Human implements Hominid @fetchable(field_name: "id") {
+  id: ID
+  pet: OtherPet
+  friends(location: Location, radius: Int!, Country: String): [Human]
+  location: Location
+  other_friends(location: Location, location: Location): [Human]
+}
+had errors:
+	* Duplicate argument 'location' found on field/directive 'other_friends'.
+	* Interface field 'Hominid.pet' expects type 'Canine' but 'Human.pet' is of type 'OtherPet'.
+	* Object field 'Human.friends' includes required argument 'radius' that is missing from the Interface field 'Hominid.friends'.
+	* The type of 'Human.location' must be Output Type but got: 'Named(InputObject(0))'.
+
+Type Pet with definition:
+	type Pet implements Canine @fetchable(field_name: "id") {
+  id: ID
+  owner: Human
+  type: PetType
+  fur: FurType
+}
+had errors:
+	* Interface field 'Canine.name' expected but 'Pet' does not provide it.

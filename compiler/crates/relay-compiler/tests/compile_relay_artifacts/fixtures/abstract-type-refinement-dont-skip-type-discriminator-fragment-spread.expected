@@ -1,0 +1,180 @@
+==================================== INPUT ====================================
+query abstractTypeRefinementDontSkipTypeDiscriminatorFragmentSpread_AbstractTypeRefinementQuery {
+  node(id: "4") {
+    # After inlining even though `id` will be skipped:
+    #  - Printed query should still select __isNode and __isActor
+    #  - Normalization ast should include inline fragments with abstractKeys for Node and Actor
+    ...abstractTypeRefinementDontSkipTypeDiscriminatorFragmentSpread_ActorFragment
+  }
+}
+
+fragment abstractTypeRefinementDontSkipTypeDiscriminatorFragmentSpread_ActorFragment on Actor {
+  username
+  ...abstractTypeRefinementDontSkipTypeDiscriminatorFragmentSpread_NodeFragment
+}
+
+fragment abstractTypeRefinementDontSkipTypeDiscriminatorFragmentSpread_NodeFragment on Node {
+  id
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "abstractTypeRefinementDontSkipTypeDiscriminatorFragmentSpread_AbstractTypeRefinementQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Literal",
+            "name": "id",
+            "value": "4"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "abstractTypeRefinementDontSkipTypeDiscriminatorFragmentSpread_ActorFragment"
+          }
+        ],
+        "storageKey": "node(id:\"4\")"
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [],
+    "kind": "Operation",
+    "name": "abstractTypeRefinementDontSkipTypeDiscriminatorFragmentSpread_AbstractTypeRefinementQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Literal",
+            "name": "id",
+            "value": "4"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "__typename",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          },
+          {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "username",
+                "storageKey": null
+              },
+              {
+                "kind": "TypeDiscriminator",
+                "abstractKey": "__isNode"
+              }
+            ],
+            "type": "Actor",
+            "abstractKey": "__isActor"
+          }
+        ],
+        "storageKey": "node(id:\"4\")"
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {},
+    "name": "abstractTypeRefinementDontSkipTypeDiscriminatorFragmentSpread_AbstractTypeRefinementQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query abstractTypeRefinementDontSkipTypeDiscriminatorFragmentSpread_AbstractTypeRefinementQuery {
+  node(id: "4") {
+    __typename
+    ...abstractTypeRefinementDontSkipTypeDiscriminatorFragmentSpread_ActorFragment
+    id
+  }
+}
+
+fragment abstractTypeRefinementDontSkipTypeDiscriminatorFragmentSpread_ActorFragment on Actor {
+  __isActor: __typename
+  username
+  ...abstractTypeRefinementDontSkipTypeDiscriminatorFragmentSpread_NodeFragment
+}
+
+fragment abstractTypeRefinementDontSkipTypeDiscriminatorFragmentSpread_NodeFragment on Node {
+  __isNode: __typename
+  id
+}
+
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "abstractTypeRefinementDontSkipTypeDiscriminatorFragmentSpread_ActorFragment",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "username",
+      "storageKey": null
+    },
+    {
+      "args": null,
+      "kind": "FragmentSpread",
+      "name": "abstractTypeRefinementDontSkipTypeDiscriminatorFragmentSpread_NodeFragment"
+    }
+  ],
+  "type": "Actor",
+  "abstractKey": "__isActor"
+}
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "abstractTypeRefinementDontSkipTypeDiscriminatorFragmentSpread_NodeFragment",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "id",
+      "storageKey": null
+    }
+  ],
+  "type": "Node",
+  "abstractKey": "__isNode"
+}

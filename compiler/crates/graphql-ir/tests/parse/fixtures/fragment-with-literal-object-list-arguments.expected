@@ -1,0 +1,235 @@
+==================================== INPUT ====================================
+fragment ParentFragment on Query {
+  mobile_checkins: checkinSearchQuery(query: {query: "mobile"}) {
+    query
+  }
+  ...ChildFragment @arguments(inputs: [{query: "web"}])
+}
+
+fragment ChildFragment on Query
+  @argumentDefinitions(inputs: {type: "[CheckinSearchInput!]!"}) {
+  checkinSearchQuery(query: {query: "foo", inputs: $inputs}) {
+    query
+  }
+}
+==================================== OUTPUT ===================================
+[
+    Fragment(
+        FragmentDefinition {
+            name: WithLocation {
+                location: fragment-with-literal-object-list-arguments.graphql:9:23,
+                item: "ParentFragment",
+            },
+            variable_definitions: [],
+            used_global_variables: [],
+            type_condition: Object(0),
+            directives: [],
+            selections: [
+                LinkedField {
+                    alias: Some(
+                        WithLocation {
+                            location: fragment-with-literal-object-list-arguments.graphql:37:52,
+                            item: "mobile_checkins",
+                        },
+                    ),
+                    definition: WithLocation {
+                        location: fragment-with-literal-object-list-arguments.graphql:54:72,
+                        item: FieldID(0),
+                    },
+                    arguments: [
+                        Argument {
+                            name: WithLocation {
+                                location: fragment-with-literal-object-list-arguments.graphql:73:78,
+                                item: "query",
+                            },
+                            value: WithLocation {
+                                location: fragment-with-literal-object-list-arguments.graphql:80:97,
+                                item: Constant(
+                                    Object(
+                                        [
+                                            ConstantArgument {
+                                                name: WithLocation {
+                                                    location: fragment-with-literal-object-list-arguments.graphql:81:86,
+                                                    item: "query",
+                                                },
+                                                value: WithLocation {
+                                                    location: fragment-with-literal-object-list-arguments.graphql:88:96,
+                                                    item: String(
+                                                        "mobile",
+                                                    ),
+                                                },
+                                            },
+                                        ],
+                                    ),
+                                ),
+                            },
+                        },
+                    ],
+                    directives: [],
+                    selections: [
+                        ScalarField {
+                            alias: None,
+                            definition: WithLocation {
+                                location: fragment-with-literal-object-list-arguments.graphql:105:110,
+                                item: FieldID(57),
+                            },
+                            arguments: [],
+                            directives: [],
+                        },
+                    ],
+                },
+                FragmentSpread {
+                    fragment: WithLocation {
+                        location: fragment-with-literal-object-list-arguments.graphql:120:133,
+                        item: "ChildFragment",
+                    },
+                    arguments: [
+                        Argument {
+                            name: WithLocation {
+                                location: fragment-with-literal-object-list-arguments.graphql:145:151,
+                                item: "inputs",
+                            },
+                            value: WithLocation {
+                                location: fragment-with-literal-object-list-arguments.graphql:153:169,
+                                item: Constant(
+                                    List(
+                                        [
+                                            Object(
+                                                [
+                                                    ConstantArgument {
+                                                        name: WithLocation {
+                                                            location: fragment-with-literal-object-list-arguments.graphql:155:160,
+                                                            item: "query",
+                                                        },
+                                                        value: WithLocation {
+                                                            location: fragment-with-literal-object-list-arguments.graphql:162:167,
+                                                            item: String(
+                                                                "web",
+                                                            ),
+                                                        },
+                                                    },
+                                                ],
+                                            ),
+                                        ],
+                                    ),
+                                ),
+                            },
+                        },
+                    ],
+                    directives: [],
+                },
+            ],
+        },
+    ),
+    Fragment(
+        FragmentDefinition {
+            name: WithLocation {
+                location: fragment-with-literal-object-list-arguments.graphql:183:196,
+                item: "ChildFragment",
+            },
+            variable_definitions: [
+                VariableDefinition {
+                    name: WithLocation {
+                        location: fragment-with-literal-object-list-arguments.graphql:229:235,
+                        item: "inputs",
+                    },
+                    type_: NonNull(
+                        List(
+                            NonNull(
+                                Named(
+                                    InputObject(16),
+                                ),
+                            ),
+                        ),
+                    ),
+                    default_value: None,
+                    directives: [],
+                },
+            ],
+            used_global_variables: [],
+            type_condition: Object(0),
+            directives: [
+                Directive {
+                    name: WithLocation {
+                        location: fragment-with-literal-object-list-arguments.graphql:209:228,
+                        item: "argumentDefinitions",
+                    },
+                    arguments: [],
+                    data: None,
+                },
+            ],
+            selections: [
+                LinkedField {
+                    alias: None,
+                    definition: WithLocation {
+                        location: fragment-with-literal-object-list-arguments.graphql:275:293,
+                        item: FieldID(0),
+                    },
+                    arguments: [
+                        Argument {
+                            name: WithLocation {
+                                location: fragment-with-literal-object-list-arguments.graphql:294:299,
+                                item: "query",
+                            },
+                            value: WithLocation {
+                                location: fragment-with-literal-object-list-arguments.graphql:301:332,
+                                item: Object(
+                                    [
+                                        Argument {
+                                            name: WithLocation {
+                                                location: fragment-with-literal-object-list-arguments.graphql:302:307,
+                                                item: "query",
+                                            },
+                                            value: WithLocation {
+                                                location: fragment-with-literal-object-list-arguments.graphql:309:314,
+                                                item: Constant(
+                                                    String(
+                                                        "foo",
+                                                    ),
+                                                ),
+                                            },
+                                        },
+                                        Argument {
+                                            name: WithLocation {
+                                                location: fragment-with-literal-object-list-arguments.graphql:316:322,
+                                                item: "inputs",
+                                            },
+                                            value: WithLocation {
+                                                location: fragment-with-literal-object-list-arguments.graphql:324:331,
+                                                item: Variable(
+                                                    Variable {
+                                                        name: WithLocation {
+                                                            location: fragment-with-literal-object-list-arguments.graphql:324:331,
+                                                            item: "inputs",
+                                                        },
+                                                        type_: List(
+                                                            Named(
+                                                                InputObject(16),
+                                                            ),
+                                                        ),
+                                                    },
+                                                ),
+                                            },
+                                        },
+                                    ],
+                                ),
+                            },
+                        },
+                    ],
+                    directives: [],
+                    selections: [
+                        ScalarField {
+                            alias: None,
+                            definition: WithLocation {
+                                location: fragment-with-literal-object-list-arguments.graphql:340:345,
+                                item: FieldID(57),
+                            },
+                            arguments: [],
+                            directives: [],
+                        },
+                    ],
+                },
+            ],
+        },
+    ),
+]

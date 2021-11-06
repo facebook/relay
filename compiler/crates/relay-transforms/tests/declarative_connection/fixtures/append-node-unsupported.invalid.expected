@@ -1,0 +1,22 @@
+==================================== INPUT ====================================
+# expected-to-throw
+mutation CommentCreateMutation(
+  $connections: [ID!]!
+  $edgeTypeName: String!
+  $input: CommentCreateInput
+) {
+  commentCreate(input: $input) {
+    viewer {
+      __typename
+        @appendNode(connections: $connections, edgeTypeName: $edgeTypeName)
+    }
+  }
+}
+==================================== ERROR ====================================
+✖︎ Invalid use of @appendNode on scalar field '__typename'.
+
+  append-node-unsupported.invalid.graphql:9:7
+    8 │     viewer {
+    9 │       __typename
+      │       ^^^^^^^^^^
+   10 │         @appendNode(connections: $connections, edgeTypeName: $edgeTypeName)

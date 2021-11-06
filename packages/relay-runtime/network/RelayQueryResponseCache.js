@@ -1,24 +1,30 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
+ * @flow strict-local
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
-const invariant = require('invariant');
-const stableCopy = require('stableCopy');
-
 import type {Variables} from '../util/RelayRuntimeTypes';
-import type {GraphQLResponse} from 'RelayNetworkTypes';
+import type {
+  GraphQLResponse,
+  GraphQLSingularResponse,
+} from './RelayNetworkTypes';
+
+const stableCopy = require('../util/stableCopy');
+const invariant = require('invariant');
 
 type Response = {
   fetchTime: number,
   payload: GraphQLResponse,
+  ...
 };
 
 /**
@@ -31,7 +37,7 @@ class RelayQueryResponseCache {
   _size: number;
   _ttl: number;
 
-  constructor({size, ttl}: {size: number, ttl: number}) {
+  constructor({size, ttl}: {size: number, ttl: number, ...}) {
     invariant(
       size > 0,
       'RelayQueryResponseCache: Expected the max cache size to be > 0, got ' +
@@ -60,7 +66,30 @@ class RelayQueryResponseCache {
       }
     });
     const response = this._responses.get(cacheKey);
-    return response != null ? response.payload : null;
+    if (response == null) {
+      return null;
+    }
+    if (Array.isArray(response.payload)) {
+      return response.payload.map(
+        payload =>
+          // $FlowFixMe[incompatible-cast]
+          ({
+            ...payload,
+            extensions: {
+              ...payload.extensions,
+              cacheTimestamp: response.fetchTime,
+            },
+          }: GraphQLSingularResponse),
+      );
+    }
+    // $FlowFixMe[incompatible-cast]
+    return ({
+      ...response.payload,
+      extensions: {
+        ...response.payload.extensions,
+        cacheTimestamp: response.fetchTime,
+      },
+    }: GraphQLSingularResponse);
   }
 
   set(queryID: string, variables: Variables, payload: GraphQLResponse): void {

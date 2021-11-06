@@ -1,0 +1,36 @@
+query connectionWithDynamicKey_FeedbackQuery($id: ID!, $commentsKey: String) {
+  node(id: $id) {
+    ...connectionWithDynamicKey_FeedbackFragment
+  }
+}
+
+query connectionWithDynamicKey_PaginationQuery(
+  $id: ID!
+  $commentsKey: String
+  $count: Int!
+  $cursor: ID!
+) {
+  node(id: $id) {
+    ...connectionWithDynamicKey_FeedbackFragment @arguments(count: $count, cursor: $cursor)
+  }
+}
+
+fragment connectionWithDynamicKey_FeedbackFragment on Feedback
+  @argumentDefinitions(
+    count: {type: "Int", defaultValue: 2}
+    cursor: {type: "ID"}
+  ) {
+  id
+  comments(after: $cursor, first: $count, orderby: "date")
+    @connection(
+      key: "FeedbackFragment_comments"
+      dynamicKey_UNSTABLE: $commentsKey
+      filters: ["orderby"]
+    ) {
+    edges {
+      node {
+        id
+      }
+    }
+  }
+}

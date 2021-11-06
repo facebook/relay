@@ -1,0 +1,5 @@
+query explicitNullDefaultValue_TestQuery($id: ID = null) {
+  node(id: $id) {
+    __typename
+  }
+}

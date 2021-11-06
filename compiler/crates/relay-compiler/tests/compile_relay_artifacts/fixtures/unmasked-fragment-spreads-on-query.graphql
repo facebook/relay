@@ -1,0 +1,9 @@
+query unmaskedFragmentSpreadsOnQuery_TestQuery($isRelative: Boolean) {
+  me {
+    ...unmaskedFragmentSpreadsOnQuery_UserUtil_user @relay(mask: false)
+  }
+}
+
+fragment unmaskedFragmentSpreadsOnQuery_UserUtil_user on User {
+  url(relative: $isRelative)
+}

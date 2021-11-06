@@ -1,0 +1,306 @@
+==================================== INPUT ====================================
+query queryWithModuleDirective_NameRendererQuery($id: ID!) {
+  node(id: $id) {
+    ...queryWithModuleDirective_NameRendererFragment
+  }
+}
+
+fragment queryWithModuleDirective_NameRendererFragment on User {
+  id
+  nameRenderer {
+    # note: intentionally no @match here
+    ...queryWithModuleDirective_MarkdownUserNameRenderer_name
+      @module(name: "MarkdownUserNameRenderer.react")
+  }
+}
+
+fragment queryWithModuleDirective_MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+  }
+}
+==================================== OUTPUT ===================================
+{
+  "kind": "SplitOperation",
+  "metadata": {},
+  "name": "queryWithModuleDirective_MarkdownUserNameRenderer_name$normalization",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "markdown",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "concreteType": "MarkdownUserNameData",
+      "kind": "LinkedField",
+      "name": "data",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "markup",
+          "storageKey": null
+        },
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "id",
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    }
+  ]
+}
+
+{
+  "fragment": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "id"
+      }
+    ],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "queryWithModuleDirective_NameRendererQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "queryWithModuleDirective_NameRendererFragment"
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "id"
+      }
+    ],
+    "kind": "Operation",
+    "name": "queryWithModuleDirective_NameRendererQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "__typename",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          },
+          {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "concreteType": null,
+                "kind": "LinkedField",
+                "name": "nameRenderer",
+                "plural": false,
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "__typename",
+                    "storageKey": null
+                  },
+                  {
+                    "kind": "InlineFragment",
+                    "selections": [
+                      {
+                        "args": null,
+                        "documentName": "queryWithModuleDirective_NameRendererFragment",
+                        "fragmentName": "queryWithModuleDirective_MarkdownUserNameRenderer_name",
+                        "fragmentPropName": "MarkdownUserNameRenderer_name",
+                        "kind": "ModuleImport"
+                      }
+                    ],
+                    "type": "MarkdownUserNameRenderer",
+                    "abstractKey": null
+                  }
+                ],
+                "storageKey": null
+              }
+            ],
+            "type": "User",
+            "abstractKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {},
+    "name": "queryWithModuleDirective_NameRendererQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query queryWithModuleDirective_NameRendererQuery(
+  $id: ID!
+) {
+  node(id: $id) {
+    __typename
+    ...queryWithModuleDirective_NameRendererFragment
+    id
+  }
+}
+
+fragment queryWithModuleDirective_MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+    id
+  }
+}
+
+fragment queryWithModuleDirective_NameRendererFragment on User {
+  id
+  nameRenderer {
+    __typename
+    ... on MarkdownUserNameRenderer {
+      ...queryWithModuleDirective_MarkdownUserNameRenderer_name
+      __module_operation_queryWithModuleDirective_NameRendererFragment: js(module: "queryWithModuleDirective_MarkdownUserNameRenderer_name$normalization.graphql", id: "queryWithModuleDirective_NameRendererFragment.nameRenderer", branch: "MarkdownUserNameRenderer")
+      __module_component_queryWithModuleDirective_NameRendererFragment: js(module: "MarkdownUserNameRenderer.react", id: "queryWithModuleDirective_NameRendererFragment.nameRenderer", branch: "MarkdownUserNameRenderer")
+    }
+  }
+}
+
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "queryWithModuleDirective_MarkdownUserNameRenderer_name",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "markdown",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "concreteType": "MarkdownUserNameData",
+      "kind": "LinkedField",
+      "name": "data",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "markup",
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    }
+  ],
+  "type": "MarkdownUserNameRenderer",
+  "abstractKey": null
+}
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "queryWithModuleDirective_NameRendererFragment",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "id",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "concreteType": null,
+      "kind": "LinkedField",
+      "name": "nameRenderer",
+      "plural": false,
+      "selections": [
+        {
+          "kind": "InlineFragment",
+          "selections": [
+            {
+              "args": null,
+              "documentName": "queryWithModuleDirective_NameRendererFragment",
+              "fragmentName": "queryWithModuleDirective_MarkdownUserNameRenderer_name",
+              "fragmentPropName": "MarkdownUserNameRenderer_name",
+              "kind": "ModuleImport"
+            }
+          ],
+          "type": "MarkdownUserNameRenderer",
+          "abstractKey": null
+        }
+      ],
+      "storageKey": null
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}

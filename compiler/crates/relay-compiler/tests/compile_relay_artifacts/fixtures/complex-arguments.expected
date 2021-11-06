@@ -1,0 +1,116 @@
+==================================== INPUT ====================================
+query complexArguments_TestQuery($date: String) {
+  items(filter: {date: $date}) {
+    date
+  }
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "date"
+      }
+    ],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "complexArguments_TestQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "fields": [
+              {
+                "kind": "Variable",
+                "name": "date",
+                "variableName": "date"
+              }
+            ],
+            "kind": "ObjectValue",
+            "name": "filter"
+          }
+        ],
+        "concreteType": "ItemFilterResult",
+        "kind": "LinkedField",
+        "name": "items",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "date",
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "date"
+      }
+    ],
+    "kind": "Operation",
+    "name": "complexArguments_TestQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "fields": [
+              {
+                "kind": "Variable",
+                "name": "date",
+                "variableName": "date"
+              }
+            ],
+            "kind": "ObjectValue",
+            "name": "filter"
+          }
+        ],
+        "concreteType": "ItemFilterResult",
+        "kind": "LinkedField",
+        "name": "items",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "date",
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {},
+    "name": "complexArguments_TestQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query complexArguments_TestQuery(
+  $date: String
+) {
+  items(filter: {date: $date}) {
+    date
+  }
+}

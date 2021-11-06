@@ -1,0 +1,20 @@
+fragment Foo_user on User {
+  id
+
+  client_foo {
+    client_name
+    profile_picture(scale: 2) {
+      uri
+    }
+  }
+}
+
+# %extensions%
+extend type User {
+  client_foo: Foo
+}
+
+type Foo {
+  client_name: String
+  profile_picture(scale: Float): Image
+}

@@ -1,0 +1,21 @@
+==================================== INPUT ====================================
+query CommentQuery {
+  node(id: "comment") {
+    ... on Comment {
+      actors {
+        id
+      }
+    }
+  }
+}
+==================================== OUTPUT ===================================
+query CommentQuery {
+  node(id: "comment") {
+    ... on Comment {
+      actors {
+        id
+      }
+    }
+    id
+  }
+}

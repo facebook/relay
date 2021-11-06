@@ -1,0 +1,15 @@
+# expected-to-throw
+query sameFieldsWithDifferentArgsVariables_MeQuery(
+  $globalArg: String!
+) {
+  me {
+    ...sameFieldsWithDifferentArgsVariablesFragment @arguments(arg: "A")
+    ...sameFieldsWithDifferentArgsVariablesFragment @arguments(arg: $globalArg)
+  }
+}
+
+fragment sameFieldsWithDifferentArgsVariablesFragment on User @argumentDefinitions(
+  arg: {type: "String!"}
+) {
+  url(site: $arg)
+}

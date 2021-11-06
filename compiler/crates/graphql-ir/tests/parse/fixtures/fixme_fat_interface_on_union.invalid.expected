@@ -1,0 +1,17 @@
+==================================== INPUT ====================================
+# expected-to-throw
+
+query Test {
+  # this is a union
+  maybeNode {
+    doesNotExist @fixme_fat_interface
+  }
+}
+==================================== ERROR ====================================
+✖︎ The type `MaybeNode` has no field `doesNotExist`.
+
+  fixme_fat_interface_on_union.invalid.graphql:6:5
+    5 │   maybeNode {
+    6 │     doesNotExist @fixme_fat_interface
+      │     ^^^^^^^^^^^^
+    7 │   }

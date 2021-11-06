@@ -1,0 +1,12 @@
+# expected-to-throw
+query QueryWithRelayClientComponent {
+  me {
+    tasks {
+      ...ClientFragmentOnNonNode @relay_client_component
+    }
+  }
+}
+
+fragment ClientFragmentOnNonNode on Task {
+  title
+}

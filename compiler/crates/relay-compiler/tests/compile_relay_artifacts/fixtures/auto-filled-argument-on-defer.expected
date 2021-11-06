@@ -1,0 +1,196 @@
+==================================== INPUT ====================================
+query autoFilledArgumentOnDeferQuery {
+  me {
+    id
+    ...autoFilledArgumentOnDeferUserFragment
+  }
+}
+
+fragment autoFilledArgumentOnDeferUserFragment on User {
+  id
+  emailAddresses
+  ...autoFilledArgumentOnDeferDeferredFragment @defer
+}
+
+fragment autoFilledArgumentOnDeferDeferredFragment on User {
+  id
+  name
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "autoFilledArgumentOnDeferQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "me",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          },
+          {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "autoFilledArgumentOnDeferUserFragment"
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [],
+    "kind": "Operation",
+    "name": "autoFilledArgumentOnDeferQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "me",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "emailAddresses",
+            "storageKey": null
+          },
+          {
+            "if": null,
+            "kind": "Defer",
+            "label": "autoFilledArgumentOnDeferUserFragment$defer$autoFilledArgumentOnDeferDeferredFragment",
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "id",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "name",
+                "storageKey": null
+              }
+            ]
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {},
+    "name": "autoFilledArgumentOnDeferQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query autoFilledArgumentOnDeferQuery {
+  me {
+    id
+    ...autoFilledArgumentOnDeferUserFragment
+  }
+}
+
+fragment autoFilledArgumentOnDeferDeferredFragment on User {
+  id
+  name
+}
+
+fragment autoFilledArgumentOnDeferUserFragment on User {
+  id
+  emailAddresses
+  ...autoFilledArgumentOnDeferDeferredFragment @defer(label: "autoFilledArgumentOnDeferUserFragment$defer$autoFilledArgumentOnDeferDeferredFragment")
+}
+
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "autoFilledArgumentOnDeferDeferredFragment",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "id",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "name",
+      "storageKey": null
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "autoFilledArgumentOnDeferUserFragment",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "id",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "emailAddresses",
+      "storageKey": null
+    },
+    {
+      "kind": "Defer",
+      "selections": [
+        {
+          "args": null,
+          "kind": "FragmentSpread",
+          "name": "autoFilledArgumentOnDeferDeferredFragment"
+        }
+      ]
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}

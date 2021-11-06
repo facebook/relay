@@ -1,0 +1,6 @@
+query Test {
+  # this is a union
+  maybeNode {
+    id @fixme_fat_interface
+  }
+}

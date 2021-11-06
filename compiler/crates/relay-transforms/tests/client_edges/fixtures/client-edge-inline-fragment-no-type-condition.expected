@@ -1,0 +1,106 @@
+==================================== INPUT ====================================
+fragment Foo_user on User {
+  ... @skip(if: $some_var) {
+    best_friend {
+      doesViewerLike
+    }
+  }
+  ... @include(if: $some_var) {
+    best_friend {
+      name
+    }
+  }
+}
+
+fragment BestFriendResolverFragment_name on User {
+  __typename
+}
+
+# %extensions%
+
+extend type User {
+  best_friend: User @relay_resolver(fragment_name: "BestFriendResolverFragment_name", import_path: "BestFriendResolver")
+}
+==================================== OUTPUT ===================================
+fragment BestFriendResolverFragment_name on User {
+  __typename
+}
+
+fragment Foo_user on User {
+  ... @skip(if: $some_var) {
+    ... @__clientEdge(queryName: "ClientEdgeQuery_Foo_user_best_friend") {
+      ...BestFriendResolverFragment_name @__RelayResolverSpreadMetadata
+      # RelayResolverSpreadMetadata {
+      #     field_parent_type: "User",
+      #     import_path: "BestFriendResolver",
+      #     field_name: "best_friend",
+      #     field_alias: None,
+      # }
+      
+      best_friend {
+        doesViewerLike
+      }
+    }
+  }
+  ... @include(if: $some_var) {
+    ... @__clientEdge(queryName: "ClientEdgeQuery_Foo_user_best_friend_1") {
+      ...BestFriendResolverFragment_name @__RelayResolverSpreadMetadata
+      # RelayResolverSpreadMetadata {
+      #     field_parent_type: "User",
+      #     import_path: "BestFriendResolver",
+      #     field_name: "best_friend",
+      #     field_alias: None,
+      # }
+      
+      best_friend {
+        name
+      }
+    }
+  }
+}
+
+fragment RefetchableClientEdgeQuery_Foo_user_best_friend on User @__clientEdgeGeneratedFragment(clientEdgeSourceDocument: "Foo_user") @__RefetchableMetadata
+# RefetchableMetadata {
+#     operation_name: "ClientEdgeQuery_Foo_user_best_friend",
+#     path: [
+#         "node",
+#     ],
+#     identifier_field: Some(
+#         "id",
+#     ),
+# }
+ {
+  doesViewerLike
+  id
+}
+
+fragment RefetchableClientEdgeQuery_Foo_user_best_friend_1 on User @__clientEdgeGeneratedFragment(clientEdgeSourceDocument: "Foo_user") @__RefetchableMetadata
+# RefetchableMetadata {
+#     operation_name: "ClientEdgeQuery_Foo_user_best_friend_1",
+#     path: [
+#         "node",
+#     ],
+#     identifier_field: Some(
+#         "id",
+#     ),
+# }
+ {
+  name
+  id
+}
+
+query ClientEdgeQuery_Foo_user_best_friend(
+  $id: ID!
+) @__clientEdgeQuery(clientEdgeSourceDocument: "Foo_user") {
+  node(id: $id) {
+    ...RefetchableClientEdgeQuery_Foo_user_best_friend
+  }
+}
+
+query ClientEdgeQuery_Foo_user_best_friend_1(
+  $id: ID!
+) @__clientEdgeQuery(clientEdgeSourceDocument: "Foo_user") {
+  node(id: $id) {
+    ...RefetchableClientEdgeQuery_Foo_user_best_friend_1
+  }
+}

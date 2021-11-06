@@ -1,0 +1,15 @@
+fragment argumentOnLinkedFieldSomeComment on Comment {
+  commentBody(supported: "Mark") {
+    ... on PlainCommentBody {
+      text {
+        text
+      }
+    }
+  }
+}
+
+query argumentOnLinkedFieldViewerQuery {
+  node {
+    ...argumentOnLinkedFieldSomeComment
+  }
+}

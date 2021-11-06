@@ -1,0 +1,154 @@
+==================================== INPUT ====================================
+query NodeQuery($id: ID!, $last: Int, $first: Int) {
+  node(id: $id) {
+    id
+    ... on Story {
+      forwardComments: comments(first: 1)
+        @connection(key: "NodeQuery_forwardComments") {
+        edges {
+          node {
+            id
+          }
+        }
+      }
+      backwardComments: comments(last: 2)
+        @connection(key: "NodeQuery_backwardComments") {
+        edges {
+          node {
+            id
+          }
+        }
+      }
+      mixedDirectionComments: comments(last: $last, first: $first)
+        @connection(key: "NodeQuery_mixedDirectionComments") {
+        edges {
+          node {
+            id
+          }
+        }
+      }
+    }
+  }
+}
+==================================== OUTPUT ===================================
+query NodeQuery(
+  $id: ID!
+  $last: Int
+  $first: Int
+) @__ConnectionMetadataDirective
+# ConnectionMetadataDirective(
+#     [
+#         ConnectionMetadata {
+#             path: Some(
+#                 [
+#                     "node",
+#                     "forwardComments",
+#                 ],
+#             ),
+#             direction: "forward",
+#             first: None,
+#             last: None,
+#             before: None,
+#             after: None,
+#             is_stream_connection: false,
+#         },
+#         ConnectionMetadata {
+#             path: Some(
+#                 [
+#                     "node",
+#                     "backwardComments",
+#                 ],
+#             ),
+#             direction: "backward",
+#             first: None,
+#             last: None,
+#             before: None,
+#             after: None,
+#             is_stream_connection: false,
+#         },
+#         ConnectionMetadata {
+#             path: Some(
+#                 [
+#                     "node",
+#                     "mixedDirectionComments",
+#                 ],
+#             ),
+#             direction: "bidirectional",
+#             first: Some(
+#                 "first",
+#             ),
+#             last: Some(
+#                 "last",
+#             ),
+#             before: None,
+#             after: None,
+#             is_stream_connection: false,
+#         },
+#     ],
+# )
+ {
+  node(id: $id) {
+    id
+    ... on Story {
+      forwardComments: comments(first: 1) @__clientField(key: "NodeQuery_forwardComments", handle: "connection", filters: null, dynamicKey_UNSTABLE: null) {
+        edges {
+          node {
+            id
+          }
+          ... on CommentsEdge {
+            cursor
+            node {
+              __typename
+            }
+          }
+        }
+        pageInfo {
+          ... on PageInfo {
+            endCursor
+            hasNextPage
+          }
+        }
+      }
+      backwardComments: comments(last: 2) @__clientField(key: "NodeQuery_backwardComments", handle: "connection", filters: null, dynamicKey_UNSTABLE: null) {
+        edges {
+          node {
+            id
+          }
+          ... on CommentsEdge {
+            cursor
+            node {
+              __typename
+            }
+          }
+        }
+        pageInfo {
+          ... on PageInfo {
+            hasPreviousPage
+            startCursor
+          }
+        }
+      }
+      mixedDirectionComments: comments(last: $last, first: $first) @__clientField(key: "NodeQuery_mixedDirectionComments", handle: "connection", filters: null, dynamicKey_UNSTABLE: null) {
+        edges {
+          node {
+            id
+          }
+          ... on CommentsEdge {
+            cursor
+            node {
+              __typename
+            }
+          }
+        }
+        pageInfo {
+          ... on PageInfo {
+            endCursor
+            hasNextPage
+            hasPreviousPage
+            startCursor
+          }
+        }
+      }
+    }
+  }
+}

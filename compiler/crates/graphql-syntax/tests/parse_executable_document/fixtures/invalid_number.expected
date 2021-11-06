@@ -1,0 +1,15 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query TestQuery {
+    friends(first: 1.23.4) {
+        count
+    }
+}
+==================================== ERROR ====================================
+✖︎ Invalid number value, expected an int or float
+
+  invalid_number.graphql:3:20
+    2 │ query TestQuery {
+    3 │     friends(first: 1.23.4) {
+      │                    ^^^^^
+    4 │         count

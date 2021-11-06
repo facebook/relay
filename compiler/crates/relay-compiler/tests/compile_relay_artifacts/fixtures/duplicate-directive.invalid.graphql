@@ -1,0 +1,11 @@
+# expected-to-throw
+
+query duplicateDirectiveQuery @preloadable @preloadable {
+    viewer {
+        __typename
+    }
+}
+
+fragment duplicateDirectiveOnField on User {
+    name @customDirective(level: 1) @customDirective(level: 2)
+}

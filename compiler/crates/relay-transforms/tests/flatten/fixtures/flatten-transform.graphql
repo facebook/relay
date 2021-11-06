@@ -1,0 +1,22 @@
+fragment UserFragment on User {
+  name
+  address {
+    city
+  }
+  ...NestedFragment
+  ... on User {
+    name
+    address {
+      street
+    }
+    ...NestedFragment2
+  }
+}
+
+fragment NestedFragment on User {
+  name
+}
+
+fragment NestedFragment2 on User {
+  name
+}

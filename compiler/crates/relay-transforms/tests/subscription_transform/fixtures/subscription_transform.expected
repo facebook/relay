@@ -1,0 +1,39 @@
+==================================== INPUT ====================================
+subscription CommentCreateSubscription(
+  $input: CommentCreateSubscriptionInput!
+) {
+  commentCreateSubscribe(input: $input) {
+    ...CommentCreate_CommentCreateResponsePayload
+  }
+}
+
+fragment CommentCreate_CommentCreateResponsePayload on CommentCreateResponsePayload {
+  __typename
+}
+==================================== OUTPUT ===================================
+subscription CommentCreateSubscription(
+  $input: CommentCreateSubscriptionInput!
+) {
+  commentCreateSubscribe(input: $input) {
+    ... on CommentCreateResponsePayload {
+      ... on CommentCreateResponsePayload @__ModuleMetadata
+      # ModuleMetadata {
+      #     location: subscription_transform.graphql:88:110,
+      #     key: "CommentCreateSubscription__subscription",
+      #     module_id: "CommentCreateSubscription.commentCreateSubscribe",
+      #     module_name: "CommentCreate_CommentCreateResponsePayload$normalization.graphql",
+      #     source_document_name: "CommentCreateSubscription",
+      #     fragment_name: "CommentCreate_CommentCreateResponsePayload",
+      #     no_inline: false,
+      # }
+       {
+        ...CommentCreate_CommentCreateResponsePayload
+        __module_operation_CommentCreateSubscription__subscription: js(module: "CommentCreate_CommentCreateResponsePayload$normalization.graphql")
+      }
+    }
+  }
+}
+
+fragment CommentCreate_CommentCreateResponsePayload on CommentCreateResponsePayload {
+  __typename
+}

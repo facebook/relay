@@ -1,0 +1,378 @@
+==================================== INPUT ====================================
+query streamConnectionConditionalQuery($id: ID!, $cond: Boolean!) {
+  node(id: $id) {
+    id
+    ... on Story {
+      comments(first: 10)
+      @stream_connection(
+        use_customized_batch: $cond
+        if: $cond
+        initial_count: 0
+        key: "NodeQuery_comments"
+      ) {
+        edges {
+          node {
+            __typename
+          }
+        }
+      }
+    }
+  }
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "cond"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "id"
+      }
+    ],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "streamConnectionConditionalQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          },
+          {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "alias": "comments",
+                "args": null,
+                "concreteType": "CommentsConnection",
+                "kind": "LinkedField",
+                "name": "__NodeQuery_comments_connection",
+                "plural": false,
+                "selections": [
+                  {
+                    "kind": "Stream",
+                    "selections": [
+                      {
+                        "alias": null,
+                        "args": null,
+                        "concreteType": "CommentsEdge",
+                        "kind": "LinkedField",
+                        "name": "edges",
+                        "plural": true,
+                        "selections": [
+                          {
+                            "alias": null,
+                            "args": null,
+                            "concreteType": "Comment",
+                            "kind": "LinkedField",
+                            "name": "node",
+                            "plural": false,
+                            "selections": [
+                              {
+                                "alias": null,
+                                "args": null,
+                                "kind": "ScalarField",
+                                "name": "__typename",
+                                "storageKey": null
+                              }
+                            ],
+                            "storageKey": null
+                          },
+                          {
+                            "alias": null,
+                            "args": null,
+                            "kind": "ScalarField",
+                            "name": "cursor",
+                            "storageKey": null
+                          }
+                        ],
+                        "storageKey": null
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "Defer",
+                    "selections": [
+                      {
+                        "alias": null,
+                        "args": null,
+                        "concreteType": "PageInfo",
+                        "kind": "LinkedField",
+                        "name": "pageInfo",
+                        "plural": false,
+                        "selections": [
+                          {
+                            "alias": null,
+                            "args": null,
+                            "kind": "ScalarField",
+                            "name": "endCursor",
+                            "storageKey": null
+                          },
+                          {
+                            "alias": null,
+                            "args": null,
+                            "kind": "ScalarField",
+                            "name": "hasNextPage",
+                            "storageKey": null
+                          }
+                        ],
+                        "storageKey": null
+                      }
+                    ]
+                  }
+                ],
+                "storageKey": null
+              }
+            ],
+            "type": "Story",
+            "abstractKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "id"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "cond"
+      }
+    ],
+    "kind": "Operation",
+    "name": "streamConnectionConditionalQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "__typename",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          },
+          {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "alias": null,
+                "args": [
+                  {
+                    "kind": "Literal",
+                    "name": "first",
+                    "value": 10
+                  }
+                ],
+                "concreteType": "CommentsConnection",
+                "kind": "LinkedField",
+                "name": "comments",
+                "plural": false,
+                "selections": [
+                  {
+                    "if": "cond",
+                    "kind": "Stream",
+                    "label": "streamConnectionConditionalQuery$stream$NodeQuery_comments",
+                    "selections": [
+                      {
+                        "alias": null,
+                        "args": null,
+                        "concreteType": "CommentsEdge",
+                        "kind": "LinkedField",
+                        "name": "edges",
+                        "plural": true,
+                        "selections": [
+                          {
+                            "alias": null,
+                            "args": null,
+                            "concreteType": "Comment",
+                            "kind": "LinkedField",
+                            "name": "node",
+                            "plural": false,
+                            "selections": [
+                              {
+                                "alias": null,
+                                "args": null,
+                                "kind": "ScalarField",
+                                "name": "__typename",
+                                "storageKey": null
+                              },
+                              {
+                                "alias": null,
+                                "args": null,
+                                "kind": "ScalarField",
+                                "name": "id",
+                                "storageKey": null
+                              }
+                            ],
+                            "storageKey": null
+                          },
+                          {
+                            "alias": null,
+                            "args": null,
+                            "kind": "ScalarField",
+                            "name": "cursor",
+                            "storageKey": null
+                          }
+                        ],
+                        "storageKey": null
+                      }
+                    ]
+                  },
+                  {
+                    "if": "cond",
+                    "kind": "Defer",
+                    "label": "streamConnectionConditionalQuery$defer$NodeQuery_comments$pageInfo",
+                    "selections": [
+                      {
+                        "alias": null,
+                        "args": null,
+                        "concreteType": "PageInfo",
+                        "kind": "LinkedField",
+                        "name": "pageInfo",
+                        "plural": false,
+                        "selections": [
+                          {
+                            "alias": null,
+                            "args": null,
+                            "kind": "ScalarField",
+                            "name": "endCursor",
+                            "storageKey": null
+                          },
+                          {
+                            "alias": null,
+                            "args": null,
+                            "kind": "ScalarField",
+                            "name": "hasNextPage",
+                            "storageKey": null
+                          }
+                        ],
+                        "storageKey": null
+                      }
+                    ]
+                  }
+                ],
+                "storageKey": "comments(first:10)"
+              },
+              {
+                "alias": null,
+                "args": [
+                  {
+                    "kind": "Literal",
+                    "name": "first",
+                    "value": 10
+                  }
+                ],
+                "filters": null,
+                "handle": "connection",
+                "key": "NodeQuery_comments",
+                "kind": "LinkedHandle",
+                "name": "comments"
+              }
+            ],
+            "type": "Story",
+            "abstractKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {
+      "connection": [
+        {
+          "count": null,
+          "cursor": null,
+          "direction": "forward",
+          "path": [
+            "node",
+            "comments"
+          ],
+          "stream": true
+        }
+      ]
+    },
+    "name": "streamConnectionConditionalQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query streamConnectionConditionalQuery(
+  $id: ID!
+  $cond: Boolean!
+) {
+  node(id: $id) {
+    __typename
+    id
+    ... on Story {
+      comments(first: 10) {
+        edges @stream(label: "streamConnectionConditionalQuery$stream$NodeQuery_comments", if: $cond, initial_count: 0, use_customized_batch: $cond) {
+          node {
+            __typename
+            id
+          }
+          cursor
+        }
+        ... @defer(label: "streamConnectionConditionalQuery$defer$NodeQuery_comments$pageInfo", if: $cond) {
+          pageInfo {
+            endCursor
+            hasNextPage
+          }
+        }
+      }
+    }
+  }
+}

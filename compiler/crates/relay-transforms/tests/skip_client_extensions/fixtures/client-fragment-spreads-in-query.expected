@@ -1,0 +1,38 @@
+==================================== INPUT ====================================
+query FooQuery($id: ID!) {
+  node(id: $id) {
+    ...Foo_user
+  }
+}
+
+fragment Foo_user on User {
+  id
+  foo {
+    ...ClientTypeFragment
+  }
+}
+
+fragment ClientTypeFragment on ClientType {
+  client_field
+}
+
+# %extensions%
+extend type User {
+  foo: ClientType
+}
+
+type ClientType {
+  client_field: String
+}
+==================================== OUTPUT ===================================
+fragment Foo_user on User {
+  id
+}
+
+query FooQuery(
+  $id: ID!
+) {
+  node(id: $id) {
+    ...Foo_user
+  }
+}

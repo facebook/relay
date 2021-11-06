@@ -1,0 +1,13 @@
+query StableLiteralsTest {
+  me {
+    # Note: these object fields are not defined in alphabetical order.
+    # The generated artifacts will be produced in alphabetical order.
+    storyCommentSearch(query: {text: "foo", limit: 2, offset: 10}) {
+      id
+    }
+
+    aliased: storyCommentSearch(query: {text: "foo", limit: 2, offset: 10}) {
+      id
+    }
+  }
+}

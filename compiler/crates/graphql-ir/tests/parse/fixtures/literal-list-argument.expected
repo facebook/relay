@@ -1,0 +1,100 @@
+==================================== INPUT ====================================
+query LiteralListArgumentQuery {
+  route(waypoints: [{lat: "0.0", lon: "0.0"}]) {
+    steps {
+      note
+    }
+  }
+}
+==================================== OUTPUT ===================================
+[
+    Operation(
+        OperationDefinition {
+            kind: Query,
+            name: WithLocation {
+                location: literal-list-argument.graphql:6:30,
+                item: "LiteralListArgumentQuery",
+            },
+            type_: Object(0),
+            variable_definitions: [],
+            directives: [],
+            selections: [
+                LinkedField {
+                    alias: None,
+                    definition: WithLocation {
+                        location: literal-list-argument.graphql:35:40,
+                        item: FieldID(2),
+                    },
+                    arguments: [
+                        Argument {
+                            name: WithLocation {
+                                location: literal-list-argument.graphql:41:50,
+                                item: "waypoints",
+                            },
+                            value: WithLocation {
+                                location: literal-list-argument.graphql:52:78,
+                                item: Constant(
+                                    List(
+                                        [
+                                            Object(
+                                                [
+                                                    ConstantArgument {
+                                                        name: WithLocation {
+                                                            location: literal-list-argument.graphql:54:57,
+                                                            item: "lat",
+                                                        },
+                                                        value: WithLocation {
+                                                            location: literal-list-argument.graphql:59:64,
+                                                            item: String(
+                                                                "0.0",
+                                                            ),
+                                                        },
+                                                    },
+                                                    ConstantArgument {
+                                                        name: WithLocation {
+                                                            location: literal-list-argument.graphql:66:69,
+                                                            item: "lon",
+                                                        },
+                                                        value: WithLocation {
+                                                            location: literal-list-argument.graphql:71:76,
+                                                            item: String(
+                                                                "0.0",
+                                                            ),
+                                                        },
+                                                    },
+                                                ],
+                                            ),
+                                        ],
+                                    ),
+                                ),
+                            },
+                        },
+                    ],
+                    directives: [],
+                    selections: [
+                        LinkedField {
+                            alias: None,
+                            definition: WithLocation {
+                                location: literal-list-argument.graphql:86:91,
+                                item: FieldID(30),
+                            },
+                            arguments: [],
+                            directives: [],
+                            selections: [
+                                ScalarField {
+                                    alias: None,
+                                    definition: WithLocation {
+                                        location: literal-list-argument.graphql:100:104,
+                                        item: FieldID(33),
+                                    },
+                                    arguments: [],
+                                    directives: [],
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
+        },
+    ),
+]

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -8,29 +8,27 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
-const RelayModernRecord = require('RelayModernRecord');
-const RelayRecordProxy = require('RelayRecordProxy');
-const RelayRecordSourceSelectorProxy = require('RelayRecordSourceSelectorProxy');
-
-const invariant = require('invariant');
-const normalizeRelayPayload = require('normalizeRelayPayload');
-
-const {EXISTENT, NONEXISTENT} = require('RelayRecordState');
-const {ROOT_ID, ROOT_TYPE} = require('RelayStoreUtils');
-
-import type {DataID} from '../util/RelayRuntimeTypes';
-import type {HandlerProvider} from 'RelayDefaultHandlerProvider';
-import type RelayRecordSourceMutator from 'RelayRecordSourceMutator';
+import type {HandlerProvider} from '../handlers/RelayDefaultHandlerProvider';
+import type {GetDataID} from '../store/RelayResponseNormalizer';
 import type {
+  DataIDSet,
   HandleFieldPayload,
-  RecordSource,
   RecordProxy,
+  RecordSource,
   RecordSourceProxy,
-  RecordSourceSelectorProxy,
-  OperationSelector,
-} from 'RelayStoreTypes';
+} from '../store/RelayStoreTypes';
+import type {DataID} from '../util/RelayRuntimeTypes';
+import type RelayRecordSourceMutator from './RelayRecordSourceMutator';
+
+const RelayModernRecord = require('../store/RelayModernRecord');
+const {EXISTENT, NONEXISTENT} = require('../store/RelayRecordState');
+const {ROOT_ID, ROOT_TYPE} = require('../store/RelayStoreUtils');
+const RelayRecordProxy = require('./RelayRecordProxy');
+const invariant = require('invariant');
 
 /**
  * @internal
@@ -40,15 +38,22 @@ import type {
 class RelayRecordSourceProxy implements RecordSourceProxy {
   _handlerProvider: ?HandlerProvider;
   __mutator: RelayRecordSourceMutator;
-  _proxies: {[dataID: DataID]: ?RelayRecordProxy};
+  _proxies: {[dataID: DataID]: ?RelayRecordProxy, ...};
+  _getDataID: GetDataID;
+  _invalidatedStore: boolean;
+  _idsMarkedForInvalidation: DataIDSet;
 
   constructor(
     mutator: RelayRecordSourceMutator,
+    getDataID: GetDataID,
     handlerProvider?: ?HandlerProvider,
   ) {
     this.__mutator = mutator;
     this._handlerProvider = handlerProvider || null;
     this._proxies = {};
+    this._getDataID = getDataID;
+    this._invalidatedStore = false;
+    this._idsMarkedForInvalidation = new Set();
   }
 
   publishSource(
@@ -65,7 +70,6 @@ class RelayRecordSourceProxy implements RecordSourceProxy {
             this.create(dataID, RelayModernRecord.getType(sourceRecord));
           }
           this.__mutator.copyFieldsFromRecord(sourceRecord, dataID);
-          delete this._proxies[dataID];
         }
       } else if (status === NONEXISTENT) {
         this.delete(dataID);
@@ -84,21 +88,6 @@ class RelayRecordSourceProxy implements RecordSourceProxy {
         handler.update(this, fieldPayload);
       });
     }
-  }
-
-  commitPayload(
-    operation: OperationSelector,
-    response: ?Object,
-  ): RecordSourceSelectorProxy {
-    if (!response) {
-      return new RelayRecordSourceSelectorProxy(this, operation.fragment);
-    }
-    const {source, fieldPayloads} = normalizeRelayPayload(
-      operation.root,
-      response,
-    );
-    this.publishSource(source, fieldPayloads);
-    return new RelayRecordSourceSelectorProxy(this, operation.fragment);
   }
 
   create(dataID: DataID, typeName: string): RecordProxy {
@@ -146,9 +135,28 @@ class RelayRecordSourceProxy implements RecordSourceProxy {
     invariant(
       root && root.getType() === ROOT_TYPE,
       'RelayRecordSourceProxy#getRoot(): Expected the source to contain a ' +
-        'root record.',
+        'root record, %s.',
+      root == null
+        ? 'no root record found'
+        : `found a root record of type \`${root.getType()}\``,
     );
     return root;
+  }
+
+  invalidateStore(): void {
+    this._invalidatedStore = true;
+  }
+
+  isStoreMarkedForInvalidation(): boolean {
+    return this._invalidatedStore;
+  }
+
+  markIDForInvalidation(dataID: DataID): void {
+    this._idsMarkedForInvalidation.add(dataID);
+  }
+
+  getIDsMarkedForInvalidation(): DataIDSet {
+    return this._idsMarkedForInvalidation;
   }
 }
 

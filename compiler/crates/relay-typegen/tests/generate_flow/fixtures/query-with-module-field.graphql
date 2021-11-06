@@ -1,0 +1,17 @@
+query Test @raw_response_type {
+  node(id: "1") {
+    ...Test_user
+  }
+}
+
+fragment Test_user on User {
+  plainUserRenderer {
+    ...Test_userRenderer @module(name: "Renderer.react")
+  }
+}
+
+fragment Test_userRenderer on PlainUserRenderer {
+  user {
+    username
+  }
+}

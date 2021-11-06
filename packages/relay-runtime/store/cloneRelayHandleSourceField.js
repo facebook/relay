@@ -1,30 +1,28 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
+ * @flow strict-local
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
-const RelayConcreteNode = require('RelayConcreteNode');
+import type {
+  NormalizationLinkedField,
+  NormalizationSelection,
+} from '../util/NormalizationNode';
+import type {NormalizationLinkedHandle} from '../util/NormalizationNode';
+import type {Variables} from '../util/RelayRuntimeTypes';
 
+const {LINKED_FIELD} = require('../util/RelayConcreteNode');
+const {getHandleStorageKey} = require('./RelayStoreUtils');
 const areEqual = require('areEqual');
 const invariant = require('invariant');
-
-const {getHandleStorageKey} = require('RelayStoreUtils');
-
-import type {Variables} from '../util/RelayRuntimeTypes';
-import type {
-  ConcreteLinkedField,
-  ConcreteLinkedHandle,
-  ConcreteSelection,
-} from 'RelayConcreteNode';
-
-const {LINKED_FIELD} = RelayConcreteNode;
 
 /**
  * @private
@@ -34,10 +32,10 @@ const {LINKED_FIELD} = RelayConcreteNode;
  * copying its selections into the clone.
  */
 function cloneRelayHandleSourceField(
-  handleField: ConcreteLinkedHandle,
-  selections: Array<ConcreteSelection>,
+  handleField: NormalizationLinkedHandle,
+  selections: $ReadOnlyArray<NormalizationSelection>,
   variables: Variables,
-): ConcreteLinkedField {
+): NormalizationLinkedField {
   const sourceField = selections.find(
     source =>
       source.kind === LINKED_FIELD &&
@@ -52,13 +50,16 @@ function cloneRelayHandleSourceField(
     handleField.handle,
   );
   const handleKey = getHandleStorageKey(handleField, variables);
-  const clonedField = {
-    ...sourceField,
-    args: null,
+  return {
+    kind: 'LinkedField',
+    alias: sourceField.alias,
     name: handleKey,
     storageKey: handleKey,
+    args: null,
+    concreteType: sourceField.concreteType,
+    plural: sourceField.plural,
+    selections: sourceField.selections,
   };
-  return clonedField;
 }
 
 module.exports = cloneRelayHandleSourceField;

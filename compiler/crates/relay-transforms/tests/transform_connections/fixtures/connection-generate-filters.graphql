@@ -1,0 +1,25 @@
+query NodeQuery($id: ID!, $orderBy: String, $traits: [PersonalityTraits]) {
+  node(id: $id) {
+    id
+    ... on Story {
+      comments(first: 10, orderby: $orderBy)
+        @connection(key: "NodeQuery_comments") {
+        edges {
+          node {
+            actor {
+              name
+              friends(first: 10, isViewerFriend: true, traits: $traits)
+                @connection(key: "NodeQuery_friends") {
+                edges {
+                  node {
+                    name
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

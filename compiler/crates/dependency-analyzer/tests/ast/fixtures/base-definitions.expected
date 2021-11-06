@@ -1,0 +1,31 @@
+==================================== INPUT ====================================
+query Q1 {
+  me {
+    ...F1
+  }
+}
+fragment F1 on User {
+  ...F2
+}
+fragment F2 on User {
+  ...B1
+}
+
+# %definitions%
+
+fragment B1 on User {
+  name
+}
+query QUnrelated {
+  ...BUnrelated
+}
+fragment BUnrelated on User {
+  name
+}
+==================================== OUTPUT ===================================
+B1
+F1
+F2
+Q1
+========== Base definitions ==========
+B1

@@ -1,0 +1,15 @@
+# expected-to-throw
+query QueryWithFragmentWithStream($id: ID!, $initialCount: Int) {
+  node(id: $id) {
+    id
+    ...FeedbackFragment
+  }
+}
+
+fragment FeedbackFragment on Feedback {
+  id
+  actors @stream(label: "StreamedActorsLabel") {
+    # invalid: missing initial_count
+    name
+  }
+}

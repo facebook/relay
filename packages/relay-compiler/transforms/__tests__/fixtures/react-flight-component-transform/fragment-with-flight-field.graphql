@@ -1,0 +1,12 @@
+fragment MyStory_item on Story {
+  flightComponent(condition: true, count: 10, id: "4")
+}
+
+extend type Story {
+  flightComponent(
+    condition: Boolean!
+    count: Int!
+    id: ID!
+  ): ReactFlightComponent
+    @react_flight_component(name: "FlightComponent.server")
+}

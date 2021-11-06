@@ -1,0 +1,15 @@
+# expected-to-throw
+fragment F1 on User {
+  ...Foo @arguments(width: $myArg) @arguments(height: $myArg)
+}
+
+fragment F2 on User {
+  ...Foo @uncheckedArguments_DEPRECATED(width: $myArg) @arguments(height: $myArg)
+}
+
+fragment Foo on User @argumentDefinitions(
+  width: {type: "Int"},
+  height: {type: "Int"}
+) {
+  __typename
+}

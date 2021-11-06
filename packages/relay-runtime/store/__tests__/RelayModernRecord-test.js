@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -10,11 +10,13 @@
 
 'use strict';
 
-const RelayModernRecord = require('RelayModernRecord');
-const RelayModernTestUtils = require('RelayModernTestUtils');
-const RelayStoreUtils = require('RelayStoreUtils');
-
-const deepFreeze = require('deepFreeze');
+const {
+  getActorIdentifier,
+} = require('../../multi-actor-environment/ActorIdentifier');
+const deepFreeze = require('../../util/deepFreeze');
+const RelayModernRecord = require('../RelayModernRecord');
+const RelayStoreUtils = require('../RelayStoreUtils');
+const RelayModernTestUtils = require('relay-test-utils-internal');
 
 const {ID_KEY, REF_KEY, REFS_KEY, TYPENAME_KEY} = RelayStoreUtils;
 
@@ -103,7 +105,7 @@ describe('RelayModernRecord', () => {
     it('throws if the field is actually a scalar', () => {
       expect(() =>
         RelayModernRecord.getLinkedRecordIDs(record, 'name'),
-      ).toFailInvariant(
+      ).toThrowError(
         'RelayModernRecord.getLinkedRecordIDs(): Expected `4.name` to contain ' +
           'an array of linked IDs, got `"Mark"`.',
       );
@@ -112,7 +114,7 @@ describe('RelayModernRecord', () => {
     it('throws if the field is a singular link', () => {
       expect(() =>
         RelayModernRecord.getLinkedRecordIDs(record, 'hometown'),
-      ).toFailInvariant(
+      ).toThrowError(
         'RelayModernRecord.getLinkedRecordIDs(): Expected `4.hometown` to contain ' +
           'an array of linked IDs, got `{"__ref":"mpk"}`.',
       );
@@ -204,9 +206,7 @@ describe('RelayModernRecord', () => {
     });
 
     it('throws on encountering a linked record', () => {
-      expect(() =>
-        RelayModernRecord.getValue(record, 'hometown'),
-      ).toFailInvariant(
+      expect(() => RelayModernRecord.getValue(record, 'hometown')).toThrowError(
         'RelayModernRecord.getValue(): Expected a scalar (non-link) value for ' +
           '`4.hometown` but found a linked record.',
       );
@@ -215,7 +215,7 @@ describe('RelayModernRecord', () => {
     it('throws on encountering a plural linked record', () => {
       expect(() =>
         RelayModernRecord.getValue(record, 'friends{"first":10}'),
-      ).toFailInvariant(
+      ).toThrowError(
         'RelayModernRecord.getValue(): Expected a scalar (non-link) value for ' +
           '`4.friends{"first":10}` but found plural linked records.',
       );
@@ -228,7 +228,204 @@ describe('RelayModernRecord', () => {
       RelayModernRecord.freeze(record);
       expect(() => {
         RelayModernRecord.setValue(record, 'pet', 'Beast');
-      }).toThrowTypeError();
+      }).toThrow(TypeError);
+    });
+  });
+
+  describe('update()', () => {
+    it('returns the first record if there are no changes', () => {
+      const prev = RelayModernRecord.create('4', 'User');
+      RelayModernRecord.setValue(prev, 'name', 'Zuck');
+      const next = RelayModernRecord.clone(prev);
+      const updated = RelayModernRecord.update(prev, next);
+      expect(updated).toBe(prev);
+      expect(updated).not.toBe(next);
+      expect(updated).toEqual({
+        [ID_KEY]: '4',
+        [TYPENAME_KEY]: 'User',
+        name: 'Zuck',
+      });
+    });
+
+    it('returns a new record if there are changes', () => {
+      const prev = RelayModernRecord.create('4', 'User');
+      const next = RelayModernRecord.clone(prev);
+      RelayModernRecord.setValue(next, 'name', 'Zuck');
+      const updated = RelayModernRecord.update(prev, next);
+      expect(updated).not.toBe(prev);
+      expect(updated).not.toBe(next);
+      expect(updated).toEqual({
+        [ID_KEY]: '4',
+        [TYPENAME_KEY]: 'User',
+        name: 'Zuck',
+      });
+    });
+
+    it('warns if __id does not match', () => {
+      jest.mock('warning');
+      const prev = RelayModernRecord.create('4', 'User');
+      const next = RelayModernRecord.create('5', 'User');
+      expect(() => RelayModernRecord.update(prev, next)).toWarn([
+        'RelayModernRecord: Invalid record update, expected both versions ' +
+          'of the record to have the same id, got `%s` and `%s`.',
+        '4',
+        '5',
+      ]);
+    });
+
+    it('warns if __typename does not match', () => {
+      jest.mock('warning');
+      const prev = RelayModernRecord.create('42', 'Number');
+      const next = RelayModernRecord.create('42', 'MeaningOfLife');
+      expect(() => RelayModernRecord.update(prev, next)).toWarn([
+        'RelayModernRecord: Invalid record update, expected both versions ' +
+          'of record `%s` to have the same `%s` but got conflicting types ' +
+          '`%s` and `%s`. The GraphQL server likely violated the globally ' +
+          'unique id requirement by returning the same id for different objects.',
+        '42',
+        '__typename',
+        'Number',
+        'MeaningOfLife',
+      ]);
+    });
+
+    it('does not warn if __typename does not match on client record', () => {
+      jest.mock('warning');
+      const prev = RelayModernRecord.create('client:42', 'Number');
+      const next = RelayModernRecord.create('client:42', 'MeaningOfLife');
+      expect(() => RelayModernRecord.update(prev, next)).not.toWarn();
+    });
+  });
+
+  describe('merge()', () => {
+    it('returns a new record even if there are no changes', () => {
+      const prev = RelayModernRecord.create('4', 'User');
+      RelayModernRecord.setValue(prev, 'name', 'Zuck');
+      const next = RelayModernRecord.clone(prev);
+      const updated = RelayModernRecord.merge(prev, next);
+      expect(updated).not.toBe(prev);
+      expect(updated).not.toBe(next);
+      expect(updated).toEqual({
+        [ID_KEY]: '4',
+        [TYPENAME_KEY]: 'User',
+        name: 'Zuck',
+      });
+    });
+
+    it('returns a new record if there are changes', () => {
+      const prev = RelayModernRecord.create('4', 'User');
+      const next = RelayModernRecord.clone(prev);
+      RelayModernRecord.setValue(next, 'name', 'Zuck');
+      const updated = RelayModernRecord.merge(prev, next);
+      expect(updated).not.toBe(prev);
+      expect(updated).not.toBe(next);
+      expect(updated).toEqual({
+        [ID_KEY]: '4',
+        [TYPENAME_KEY]: 'User',
+        name: 'Zuck',
+      });
+    });
+
+    it('warns if __id does not match', () => {
+      jest.mock('warning');
+      const prev = RelayModernRecord.create('4', 'User');
+      const next = RelayModernRecord.create('5', 'User');
+      expect(() => RelayModernRecord.merge(prev, next)).toWarn([
+        'RelayModernRecord: Invalid record merge, expected both versions of ' +
+          'the record to have the same id, got `%s` and `%s`.',
+        '4',
+        '5',
+      ]);
+    });
+
+    it('warns if __typename does not match', () => {
+      jest.mock('warning');
+      const prev = RelayModernRecord.create('42', 'Number');
+      const next = RelayModernRecord.create('42', 'MeaningOfLife');
+      expect(() => RelayModernRecord.merge(prev, next)).toWarn([
+        'RelayModernRecord: Invalid record merge, expected both versions of ' +
+          'record `%s` to have the same `%s` but got conflicting types `%s` ' +
+          'and `%s`. The GraphQL server likely violated the globally unique ' +
+          'id requirement by returning the same id for different objects.',
+        '42',
+        '__typename',
+        'Number',
+        'MeaningOfLife',
+      ]);
+    });
+
+    it('does not warn if __typename does not match on client record', () => {
+      jest.mock('warning');
+      const prev = RelayModernRecord.create('client:42', 'Number');
+      const next = RelayModernRecord.create('client:42', 'MeaningOfLife');
+      expect(() => RelayModernRecord.merge(prev, next)).not.toWarn();
+    });
+  });
+
+  describe('setValue()', () => {
+    it('warns if updating to a different __id', () => {
+      jest.mock('warning');
+      const record = RelayModernRecord.create('4', 'User');
+      expect(() => RelayModernRecord.setValue(record, ID_KEY, 'not-4')).toWarn([
+        'RelayModernRecord: Invalid field update, expected both versions of ' +
+          'the record to have the same id, got `%s` and `%s`.',
+        '4',
+        'not-4',
+      ]);
+    });
+
+    it('warns if updating to a different __typename', () => {
+      jest.mock('warning');
+      const record = RelayModernRecord.create('4', 'User');
+      expect(() =>
+        RelayModernRecord.setValue(record, TYPENAME_KEY, 'not-User'),
+      ).toWarn([
+        'RelayModernRecord: Invalid field update, expected both versions of ' +
+          'record `%s` to have the same `%s` but got conflicting types `%s` ' +
+          'and `%s`. The GraphQL server likely violated the globally unique ' +
+          'id requirement by returning the same id for different objects.',
+        '4',
+        '__typename',
+        'User',
+        'not-User',
+      ]);
+    });
+
+    it('does not warn if updating the __typename of a client record', () => {
+      jest.mock('warning');
+      const record = RelayModernRecord.create('client:4', 'User');
+      expect(() =>
+        RelayModernRecord.setValue(record, TYPENAME_KEY, 'not-User'),
+      ).not.toWarn();
+    });
+  });
+
+  describe('ActorChange Records', () => {
+    it('should set/get value for the multi actor record', () => {
+      const record = RelayModernRecord.create('1234', 'User');
+      const actorID = getActorIdentifier('actor-1234');
+      RelayModernRecord.setActorLinkedRecordID(
+        record,
+        'name',
+        getActorIdentifier('actor-1234'),
+        'Antonio',
+      );
+      expect(RelayModernRecord.getActorLinkedRecordID(record, 'name')).toEqual([
+        actorID,
+        'Antonio',
+      ]);
+    });
+
+    it('should throw if unable to get actorID for the record', () => {
+      const record = RelayModernRecord.create('1234', 'User');
+      RelayModernRecord.setLinkedRecordID(record, 'name', 'ref-1');
+
+      expect(() =>
+        RelayModernRecord.getActorLinkedRecordID(record, 'name'),
+      ).toThrowError(
+        'RelayModernRecord.getActorLinkedRecordID(): Expected `1234.name`' +
+          ' to be an actor specific linked ID, was `{"__ref":"ref-1"}`',
+      );
     });
   });
 });

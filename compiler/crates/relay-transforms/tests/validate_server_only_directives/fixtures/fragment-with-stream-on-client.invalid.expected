@@ -1,0 +1,41 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query QueryWithFragmentWithStream($id: ID!) {
+  node(id: $id) {
+    id
+    ...FeedbackFragment
+  }
+}
+
+fragment FeedbackFragment on Feedback {
+  id
+  foos @stream(initial_count: 1, label: "StreamedActorsLabel") {
+    bar
+  }
+}
+
+# %extensions%
+
+extend type Feedback {
+  foos: [Foo]
+}
+
+type Foo {
+  bar: String
+}
+==================================== ERROR ====================================
+✖︎ Unexpected directive: 'stream'. This directive can only be used on fields/fragments that are fetched from the server schema, but it is used inside a client-only selection.
+
+  fragment-with-stream-on-client.invalid.graphql:11:8
+   10 │   id
+   11 │   foos @stream(initial_count: 1, label: "StreamedActorsLabel") {
+      │        ^^^^^^^
+   12 │     bar
+
+  ℹ︎ related location
+
+  fragment-with-stream-on-client.invalid.graphql:11:3
+   10 │   id
+   11 │   foos @stream(initial_count: 1, label: "StreamedActorsLabel") {
+      │   ^^^^
+   12 │     bar

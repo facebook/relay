@@ -1,0 +1,12 @@
+==================================== INPUT ====================================
+fragment UserFragment on User {
+  checkins(environments: UNKNOWN_ENUM_VALUE) {
+    __typename
+  }
+}
+==================================== OUTPUT ===================================
+fragment UserFragment on User {
+  checkins(environments: UNKNOWN_ENUM_VALUE) {
+    __typename
+  }
+}

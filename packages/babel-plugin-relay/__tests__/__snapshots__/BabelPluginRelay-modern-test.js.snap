@@ -1,0 +1,282 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`matches expected output: fragment.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+/**
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+'use strict';
+
+const {graphql} = require('relay-runtime');
+
+const testFragment = graphql\`
+  fragment TestFragment on User {
+    __typename
+  }
+\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+/**
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+'use strict';
+
+var _TestFragment;
+
+const {graphql} = require('relay-runtime');
+
+const testFragment =
+  _TestFragment !== void 0
+    ? _TestFragment
+    : (_TestFragment = require('./__generated__/TestFragment.graphql'));
+
+`;
+
+exports[`matches expected output: memoize-inner-scope.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+/**
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+'use strict';
+
+function SomeTopLevelView() {
+  const _graphql = 'unrelated';
+
+  return (
+    <View>
+      <QueryRenderer
+        environment={RelayEnvironment}
+        query={graphql\`
+          query ExampleQuery($id: ID!) {
+            node(id: $id) {
+              ...ProfilePic_user
+            }
+          }
+        \`}
+        variables={{id: '12345'}}
+      />
+    </View>
+  );
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+/**
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+'use strict';
+
+var _ExampleQuery;
+
+function SomeTopLevelView() {
+  const _graphql = 'unrelated';
+  return (
+    <View>
+      <QueryRenderer
+        environment={RelayEnvironment}
+        query={
+          _ExampleQuery !== void 0
+            ? _ExampleQuery
+            : (_ExampleQuery = require('./__generated__/ExampleQuery.graphql'))
+        }
+        variables={{
+          id: '12345',
+        }}
+      />
+    </View>
+  );
+}
+
+`;
+
+exports[`matches expected output: mutation.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+/**
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+'use strict';
+
+const {graphql} = require('relay-runtime');
+
+const testMutation = graphql\`
+  mutation TestMutation($input: CommentCreateInput!) {
+    commentCreate(input: $input) {
+      __typename
+    }
+  }
+\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+/**
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+'use strict';
+
+var _TestMutation;
+
+const {graphql} = require('relay-runtime');
+
+const testMutation =
+  _TestMutation !== void 0
+    ? _TestMutation
+    : (_TestMutation = require('./__generated__/TestMutation.graphql'));
+
+`;
+
+exports[`matches expected output: query.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+/**
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+'use strict';
+
+const {graphql} = require('relay-runtime');
+
+const testQuery = graphql\`
+  query TestQuery {
+    __typename
+  }
+\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+/**
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+'use strict';
+
+var _TestQuery;
+
+const {graphql} = require('relay-runtime');
+
+const testQuery =
+  _TestQuery !== void 0
+    ? _TestQuery
+    : (_TestQuery = require('./__generated__/TestQuery.graphql'));
+
+`;
+
+exports[`matches expected output: too-many-fragments.error.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+/**
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+'use strict';
+
+const RelayCompatContainer = require('RelayCompatContainer');
+const graphql = require('graphql');
+
+const CompatProfile = () => null;
+
+module.exports = RelayCompatContainer.createContainer(CompatProfile, {
+  user: graphql\`
+    fragment CompatProfile_user on User {
+      name
+    }
+
+    fragment CompatProfile_viewer on User {
+      name
+    }
+  \`,
+});
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Error: /test.js: BabelPluginRelay: Expected exactly one definition per graphql tag.
+`;
+
+exports[`matches expected output: unexpected-fragment.error.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+/**
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+'use strict';
+
+const {graphql} = require('relay-runtime');
+
+const testMutation = graphql\`
+  mutation CompatCommentCreateMutation($input: CommentCreateInput!) {
+    commentCreate(input: $input) {
+      viewer {
+        actor {
+          id
+          ...CompatProfilePic_user
+        }
+      }
+    }
+  }
+
+  fragment Whoopsie_key on User {
+    name
+  }
+\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Error: /test.js: BabelPluginRelay: Expected exactly one definition per graphql tag.
+`;
+
+exports[`matches expected output: unexpected-operation.error.txt 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+/**
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+'use strict';
+
+const {graphql} = require('relay-runtime');
+
+const testFragment = graphql\`
+  fragment CompatProfile_user on User {
+    name
+  }
+
+  query Whoopsie {
+    name
+  }
+\`;
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Error: /test.js: BabelPluginRelay: Expected exactly one definition per graphql tag.
+`;

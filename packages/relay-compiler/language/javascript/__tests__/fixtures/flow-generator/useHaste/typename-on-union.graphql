@@ -1,0 +1,80 @@
+fragment TypenameInside on Actor {
+  ... on User {
+    __typename
+    firstName
+  }
+  ... on Page {
+    __typename
+    username
+  }
+}
+
+fragment TypenameOutside on Actor {
+  __typename
+  ... on User {
+    firstName
+  }
+  ... on Page {
+    username
+  }
+}
+
+fragment TypenameOutsideWithAbstractType on Node {
+  __typename
+  ... on User {
+    firstName
+    address {
+      street # only here
+      city # common
+    }
+  }
+  ... on Actor {
+    username
+    address {
+      city # common
+      country # only here
+    }
+  }
+}
+
+fragment TypenameWithoutSpreads on User {
+  __typename
+  firstName
+}
+
+fragment TypenameWithoutSpreadsAbstractType on Node {
+  __typename
+  id
+}
+
+fragment TypenameWithCommonSelections on Actor {
+  __typename
+  name
+  ... on User {
+    firstName
+  }
+  ... on Page {
+    username
+  }
+}
+
+fragment TypenameAlias on Actor {
+  _typeAlias: __typename
+  ... on User {
+    firstName
+  }
+  ... on Page {
+    username
+  }
+}
+
+fragment TypenameAliases on Actor {
+  _typeAlias1: __typename
+  _typeAlias2: __typename
+  ... on User {
+    firstName
+  }
+  ... on Page {
+    username
+  }
+}

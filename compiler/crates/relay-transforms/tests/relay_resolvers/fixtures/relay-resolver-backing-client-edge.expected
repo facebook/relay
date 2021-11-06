@@ -1,0 +1,39 @@
+==================================== INPUT ====================================
+fragment Foo_user on User {
+  best_friend {
+    name
+  }
+}
+
+fragment BestFriendResolverFragment on User {
+  id
+}
+
+# %extensions%
+
+extend type User {
+  best_friend: User
+    @relay_resolver(
+      fragment_name: "BestFriendResolverFragment"
+      import_path: "BestFriendResolver"
+    )
+}
+==================================== OUTPUT ===================================
+fragment BestFriendResolverFragment on User {
+  id
+}
+
+fragment Foo_user on User {
+  ...BestFriendResolverFragment @__RelayResolverSpreadMetadata
+  # RelayResolverSpreadMetadata {
+  #     field_parent_type: "User",
+  #     import_path: "BestFriendResolver",
+  #     field_name: "best_friend",
+  #     field_alias: None,
+  # }
+  
+}
+
+# Implicit Dependencies:
+#
+# Foo_user --> {BestFriendResolverFragment}

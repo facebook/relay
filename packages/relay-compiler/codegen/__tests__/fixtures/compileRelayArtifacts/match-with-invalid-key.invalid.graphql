@@ -1,0 +1,15 @@
+# expected-to-throw
+query MatchWithVariableName {
+  me {
+    nameRenderer @match(key: "error-not-prefixed-with-document-name") {
+      ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+    }
+  }
+}
+
+fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+  plaintext
+  data {
+    text
+  }
+}

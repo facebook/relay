@@ -1,0 +1,188 @@
+==================================== INPUT ====================================
+query constantVariableMatchesConstantValue_TestQuery($id: ID!) {
+  ...constantVariableMatchesConstantValue_F @arguments(userID: $id)
+  node(
+    # type of this $id is `ID` inferred from schema type of the id argument
+    id: $id
+  ) {
+    __typename
+  }
+}
+
+fragment constantVariableMatchesConstantValue_F on Query @argumentDefinitions(
+  userID: {type: "ID!"}
+) {
+  node(id:
+    # type of this $id is `ID!` via the @argDefs
+    $userID
+  ) {
+    id
+  }
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "id"
+      }
+    ],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "constantVariableMatchesConstantValue_TestQuery",
+    "selections": [
+      {
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "userID",
+            "variableName": "id"
+          }
+        ],
+        "kind": "FragmentSpread",
+        "name": "constantVariableMatchesConstantValue_F"
+      },
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "__typename",
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "id"
+      }
+    ],
+    "kind": "Operation",
+    "name": "constantVariableMatchesConstantValue_TestQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "__typename",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {},
+    "name": "constantVariableMatchesConstantValue_TestQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query constantVariableMatchesConstantValue_TestQuery(
+  $id: ID!
+) {
+  ...constantVariableMatchesConstantValue_F_3kBhXp
+  node(id: $id) {
+    __typename
+    id
+  }
+}
+
+fragment constantVariableMatchesConstantValue_F_3kBhXp on Query {
+  node(id: $id) {
+    __typename
+    id
+  }
+}
+
+
+{
+  "argumentDefinitions": [
+    {
+      "defaultValue": null,
+      "kind": "LocalArgument",
+      "name": "userID"
+    }
+  ],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "constantVariableMatchesConstantValue_F",
+  "selections": [
+    {
+      "alias": null,
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "id",
+          "variableName": "userID"
+        }
+      ],
+      "concreteType": null,
+      "kind": "LinkedField",
+      "name": "node",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "id",
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    }
+  ],
+  "type": "Query",
+  "abstractKey": null
+}

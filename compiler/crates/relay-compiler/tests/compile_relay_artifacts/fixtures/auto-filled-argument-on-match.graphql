@@ -1,0 +1,23 @@
+fragment autoFilledArgumentOnMatchNameRendererFragment on User {
+  id
+  nameRendererForContext(context: HEADER) @match {
+    ...autoFilledArgumentOnMatchPlainUserNameRenderer_name
+      @module(name: "PlainUserNameRenderer.react")
+    ...autoFilledArgumentOnMatchMarkdownUserNameRenderer_name
+      @module(name: "MarkdownUserNameRenderer.react")
+  }
+}
+
+fragment autoFilledArgumentOnMatchPlainUserNameRenderer_name on PlainUserNameRenderer {
+  plaintext
+  data {
+    text
+  }
+}
+
+fragment autoFilledArgumentOnMatchMarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+  }
+}

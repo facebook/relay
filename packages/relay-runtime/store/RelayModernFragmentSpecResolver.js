@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -8,32 +8,45 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
-const invariant = require('invariant');
-const isScalarAndEqual = require('isScalarAndEqual');
-
-const {
-  areEqualSelectors,
-  getSelectorsFromObject,
-} = require('RelayModernSelector');
-
+import type {ConcreteRequest} from '../util/RelayConcreteNode';
 import type {Disposable, Variables} from '../util/RelayRuntimeTypes';
 import type {
-  Environment,
   FragmentMap,
-  RelayContext,
-  Selector,
-  Snapshot,
-} from 'RelayStoreTypes';
-import type {
   FragmentSpecResolver,
   FragmentSpecResults,
+  IEnvironment,
+  MissingRequiredFields,
+  PluralReaderSelector,
+  RelayContext,
   SelectorData,
-} from 'react-relay/classic/environment/RelayCombinedEnvironmentTypes';
+  SingularReaderSelector,
+  Snapshot,
+} from './RelayStoreTypes';
 
-type Props = {[key: string]: mixed};
-type Resolvers = {[key: string]: ?(SelectorListResolver | SelectorResolver)};
+const getPendingOperationsForFragment = require('../util/getPendingOperationsForFragment');
+const isScalarAndEqual = require('../util/isScalarAndEqual');
+const recycleNodesInto = require('../util/recycleNodesInto');
+const RelayFeatureFlags = require('../util/RelayFeatureFlags');
+const reportMissingRequiredFields = require('../util/reportMissingRequiredFields');
+const {createRequestDescriptor} = require('./RelayModernOperationDescriptor');
+const {
+  areEqualSelectors,
+  createReaderSelector,
+  getSelectorsFromObject,
+} = require('./RelayModernSelector');
+const areEqual = require('areEqual');
+const invariant = require('invariant');
+const warning = require('warning');
+
+type Props = {[key: string]: mixed, ...};
+type Resolvers = {
+  [key: string]: ?(SelectorListResolver | SelectorResolver),
+  ...
+};
 
 /**
  * A utility for resolving and subscribing to the results of a fragment spec
@@ -57,6 +70,7 @@ type Resolvers = {[key: string]: ?(SelectorListResolver | SelectorResolver)};
 class RelayModernFragmentSpecResolver implements FragmentSpecResolver {
   _callback: ?() => void;
   _context: RelayContext;
+  _rootIsQueryRenderer: boolean;
   _data: Object;
   _fragments: FragmentMap;
   _props: Props;
@@ -68,14 +82,16 @@ class RelayModernFragmentSpecResolver implements FragmentSpecResolver {
     fragments: FragmentMap,
     props: Props,
     callback?: () => void,
+    rootIsQueryRenderer: boolean,
   ) {
     this._callback = callback;
     this._context = context;
     this._data = {};
     this._fragments = fragments;
-    this._props = props;
+    this._props = {};
     this._resolvers = {};
     this._stale = false;
+    this._rootIsQueryRenderer = rootIsQueryRenderer;
 
     this.setProps(props);
   }
@@ -120,43 +136,33 @@ class RelayModernFragmentSpecResolver implements FragmentSpecResolver {
     return this._data;
   }
 
-  isLoading(): boolean {
-    for (const key in this._resolvers) {
-      if (
-        this._resolvers.hasOwnProperty(key) &&
-        this._resolvers[key] &&
-        this._resolvers[key].isLoading()
-      ) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  setCallback(callback: () => void): void {
+  setCallback(props: Props, callback: () => void): void {
     this._callback = callback;
+    if (RelayFeatureFlags.ENABLE_CONTAINERS_SUBSCRIBE_ON_COMMIT === true) {
+      this.setProps(props);
+    }
   }
 
   setProps(props: Props): void {
-    const selectors = getSelectorsFromObject(
-      this._context.variables,
-      this._fragments,
-      props,
-    );
-    for (const key in selectors) {
-      if (selectors.hasOwnProperty(key)) {
-        const selector = selectors[key];
+    this._props = {};
+    const ownedSelectors = getSelectorsFromObject(this._fragments, props);
+
+    for (const key in ownedSelectors) {
+      if (ownedSelectors.hasOwnProperty(key)) {
+        const ownedSelector = ownedSelectors[key];
         let resolver = this._resolvers[key];
-        if (selector == null) {
+        if (ownedSelector == null) {
           if (resolver != null) {
             resolver.dispose();
           }
           resolver = null;
-        } else if (Array.isArray(selector)) {
+        } else if (ownedSelector.kind === 'PluralReaderSelector') {
           if (resolver == null) {
             resolver = new SelectorListResolver(
               this._context.environment,
-              selector,
+              this._rootIsQueryRenderer,
+              ownedSelector,
+              this._callback != null,
               this._onChange,
             );
           } else {
@@ -165,13 +171,15 @@ class RelayModernFragmentSpecResolver implements FragmentSpecResolver {
               'RelayModernFragmentSpecResolver: Expected prop `%s` to always be an array.',
               key,
             );
-            resolver.setSelectors(selector);
+            resolver.setSelector(ownedSelector);
           }
         } else {
           if (resolver == null) {
             resolver = new SelectorResolver(
               this._context.environment,
-              selector,
+              this._rootIsQueryRenderer,
+              ownedSelector,
+              this._callback != null,
               this._onChange,
             );
           } else {
@@ -180,22 +188,22 @@ class RelayModernFragmentSpecResolver implements FragmentSpecResolver {
               'RelayModernFragmentSpecResolver: Expected prop `%s` to always be an object.',
               key,
             );
-            resolver.setSelector(selector);
+            resolver.setSelector(ownedSelector);
           }
         }
+        this._props[key] = props[key];
         this._resolvers[key] = resolver;
       }
     }
-    this._props = props;
     this._stale = true;
   }
 
-  setVariables(variables: Variables): void {
+  setVariables(variables: Variables, request: ConcreteRequest): void {
     for (const key in this._resolvers) {
       if (this._resolvers.hasOwnProperty(key)) {
         const resolver = this._resolvers[key];
         if (resolver) {
-          resolver.setVariables(variables);
+          resolver.setVariables(variables, request);
         }
       }
     }
@@ -217,21 +225,35 @@ class RelayModernFragmentSpecResolver implements FragmentSpecResolver {
 class SelectorResolver {
   _callback: () => void;
   _data: ?SelectorData;
-  _environment: Environment;
-  _selector: Selector;
+  _environment: IEnvironment;
+  _isMissingData: boolean;
+  _missingRequiredFields: ?MissingRequiredFields;
+  _rootIsQueryRenderer: boolean;
+  _selector: SingularReaderSelector;
   _subscription: ?Disposable;
 
   constructor(
-    environment: Environment,
-    selector: Selector,
+    environment: IEnvironment,
+    rootIsQueryRenderer: boolean,
+    selector: SingularReaderSelector,
+    subscribeOnConstruction: boolean,
     callback: () => void,
   ) {
     const snapshot = environment.lookup(selector);
     this._callback = callback;
     this._data = snapshot.data;
+    this._isMissingData = snapshot.isMissingData;
+    this._missingRequiredFields = snapshot.missingRequiredFields;
     this._environment = environment;
+    this._rootIsQueryRenderer = rootIsQueryRenderer;
     this._selector = selector;
-    this._subscription = environment.subscribe(snapshot, this._onChange);
+    if (RelayFeatureFlags.ENABLE_CONTAINERS_SUBSCRIBE_ON_COMMIT === true) {
+      if (subscribeOnConstruction) {
+        this._subscription = environment.subscribe(snapshot, this._onChange);
+      }
+    } else {
+      this._subscription = environment.subscribe(snapshot, this._onChange);
+    }
   }
 
   dispose(): void {
@@ -242,10 +264,76 @@ class SelectorResolver {
   }
 
   resolve(): ?Object {
+    if (this._isMissingData === true) {
+      // NOTE: This branch exists to handle the case in which:
+      // - A RelayModern container is rendered as a descendant of a Relay Hook
+      //   root using a "partial" renderPolicy (this means that eargerly
+      //   reading any cached data that is available instead of blocking
+      //   at the root until the whole query is fetched).
+      // - A parent Relay Hook didnt' suspend earlier on data being fetched,
+      //   either because the fragment data for the parent was available, or
+      //   the parent fragment didn't have any data dependencies.
+      // Even though our Flow types reflect the possiblity of null data, there
+      // might still be cases where it's not handled at runtime becuase the
+      // Flow types are being ignored, or simply not being used (for example,
+      // the case reported here: https://fburl.com/srnbucf8, was due to
+      // misuse of Flow types here: https://fburl.com/g3m0mqqh).
+      // Additionally, even though the null data might be handled without a
+      // runtime error, we might not suspend when we intended to if a parent
+      // Relay Hook (e.g. that is using @defer) decided not to suspend becuase
+      // it's immediate data was already available (even if it was deferred),
+      // or it didn't actually need any data (was just spreading other fragments).
+      // This should eventually go away with something like @optional, where we only
+      // suspend at specific boundaries depending on whether the boundary
+      // can be fulfilled or not.
+      const pendingOperationsResult = getPendingOperationsForFragment(
+        this._environment,
+        this._selector.node,
+        this._selector.owner,
+      );
+      const promise: void | Promise<void> = pendingOperationsResult?.promise;
+      if (promise != null) {
+        if (this._rootIsQueryRenderer) {
+          warning(
+            false,
+            'Relay: Relay Container for fragment `%s` has missing data and ' +
+              'would suspend. When using features such as @defer or @module, ' +
+              'use `useFragment` instead of a Relay Container.',
+            this._selector.node.name,
+          );
+        } else {
+          const pendingOperations =
+            pendingOperationsResult?.pendingOperations ?? [];
+          warning(
+            false,
+            'Relay: Relay Container for fragment `%s` suspended. When using ' +
+              'features such as @defer or @module, use `useFragment` instead ' +
+              'of a Relay Container.',
+            this._selector.node.name,
+          );
+          this._environment.__log({
+            name: 'suspense.fragment',
+            data: this._data,
+            fragment: this._selector.node,
+            isRelayHooks: false,
+            isMissingData: this._isMissingData,
+            isPromiseCached: false,
+            pendingOperations,
+          });
+          throw promise;
+        }
+      }
+    }
+    if (this._missingRequiredFields != null) {
+      reportMissingRequiredFields(
+        this._environment,
+        this._missingRequiredFields,
+      );
+    }
     return this._data;
   }
 
-  setSelector(selector: Selector): void {
+  setSelector(selector: SingularReaderSelector): void {
     if (
       this._subscription != null &&
       areEqualSelectors(selector, this._selector)
@@ -254,25 +342,45 @@ class SelectorResolver {
     }
     this.dispose();
     const snapshot = this._environment.lookup(selector);
-    this._data = snapshot.data;
+    this._data = recycleNodesInto(this._data, snapshot.data);
+    this._isMissingData = snapshot.isMissingData;
+    this._missingRequiredFields = snapshot.missingRequiredFields;
     this._selector = selector;
     this._subscription = this._environment.subscribe(snapshot, this._onChange);
   }
 
-  setVariables(variables: Variables): void {
-    const selector = {
-      ...this._selector,
+  setVariables(variables: Variables, request: ConcreteRequest): void {
+    if (areEqual(variables, this._selector.variables)) {
+      // If we're not actually setting new variables, we don't actually want
+      // to create a new fragment owner, since areEqualSelectors relies on
+      // owner identity.
+      // In fact, we don't even need to try to attempt to set a new selector.
+      // When fragment ownership is not enabled, setSelector will also bail
+      // out since the selector doesn't really change, so we're doing it here
+      // earlier.
+      return;
+    }
+    // NOTE: We manually create the request descriptor here instead of
+    // calling createOperationDescriptor() because we want to set a
+    // descriptor with *unaltered* variables as the fragment owner.
+    // This is a hack that allows us to preserve existing (broken)
+    // behavior of RelayModern containers while using fragment ownership
+    // to propagate variables instead of Context.
+    // For more details, see the summary of D13999308
+    const requestDescriptor = createRequestDescriptor(request, variables);
+    const selector = createReaderSelector(
+      this._selector.node,
+      this._selector.dataID,
       variables,
-    };
+      requestDescriptor,
+    );
     this.setSelector(selector);
-  }
-
-  isLoading(): boolean {
-    return this._environment.isSelectorLoading(this._selector);
   }
 
   _onChange = (snapshot: Snapshot): void => {
     this._data = snapshot.data;
+    this._isMissingData = snapshot.isMissingData;
+    this._missingRequiredFields = snapshot.missingRequiredFields;
     this._callback();
   };
 }
@@ -283,13 +391,17 @@ class SelectorResolver {
 class SelectorListResolver {
   _callback: () => void;
   _data: Array<?SelectorData>;
-  _environment: Environment;
+  _environment: IEnvironment;
   _resolvers: Array<SelectorResolver>;
+  _rootIsQueryRenderer: boolean;
   _stale: boolean;
+  _subscribeOnConstruction: boolean;
 
   constructor(
-    environment: Environment,
-    selectors: Array<Selector>,
+    environment: IEnvironment,
+    rootIsQueryRenderer: boolean,
+    selector: PluralReaderSelector,
+    subscribeOnConstruction: boolean,
     callback: () => void,
   ) {
     this._callback = callback;
@@ -297,8 +409,10 @@ class SelectorListResolver {
     this._environment = environment;
     this._resolvers = [];
     this._stale = true;
+    this._rootIsQueryRenderer = rootIsQueryRenderer;
+    this._subscribeOnConstruction = subscribeOnConstruction;
 
-    this.setSelectors(selectors);
+    this.setSelector(selector);
   }
 
   dispose(): void {
@@ -328,7 +442,8 @@ class SelectorListResolver {
     return this._data;
   }
 
-  setSelectors(selectors: Array<Selector>): void {
+  setSelector(selector: PluralReaderSelector): void {
+    const {selectors} = selector;
     while (this._resolvers.length > selectors.length) {
       const resolver = this._resolvers.pop();
       resolver.dispose();
@@ -339,7 +454,9 @@ class SelectorListResolver {
       } else {
         this._resolvers[ii] = new SelectorResolver(
           this._environment,
+          this._rootIsQueryRenderer,
           selectors[ii],
+          this._subscribeOnConstruction,
           this._onChange,
         );
       }
@@ -347,13 +464,11 @@ class SelectorListResolver {
     this._stale = true;
   }
 
-  setVariables(variables: Variables): void {
-    this._resolvers.forEach(resolver => resolver.setVariables(variables));
+  setVariables(variables: Variables, request: ConcreteRequest): void {
+    this._resolvers.forEach(resolver =>
+      resolver.setVariables(variables, request),
+    );
     this._stale = true;
-  }
-
-  isLoading(): boolean {
-    return this._resolvers.some(resolver => resolver.isLoading());
   }
 
   _onChange = (data: ?Object): void => {

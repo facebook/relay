@@ -1,0 +1,18 @@
+==================================== INPUT ====================================
+fragment Foo on MyNewType {
+  some_old_user {
+    name
+  }
+}
+%extensions%
+type MyNewType {
+  some_old_user: User @deprecated
+}
+==================================== OUTPUT ===================================
+ℹ The field `MyNewType.some_old_user` is deprecated.
+
+  deprecated_linked_field.graphql:2:3
+    1 │ fragment Foo on MyNewType {
+    2 │   some_old_user {
+      │   ^^^^^^^^^^^^^
+    3 │     name

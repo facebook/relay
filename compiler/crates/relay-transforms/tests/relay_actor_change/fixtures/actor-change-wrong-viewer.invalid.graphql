@@ -1,0 +1,11 @@
+# expected-to-throw
+
+fragment TestFragment on Query {
+  wrongViewer @fb_actor_change {
+    ...WrongViewerFragment
+  }
+}
+
+fragment WrongViewerFragment on WithWrongViewer {
+  __typename
+}

@@ -1,0 +1,16 @@
+# expected-to-throw
+query QueryWithFragmentWithDefer {
+  me {
+    id
+    ...UserFragment @defer(label: "DeferredFragmentLabel")
+  }
+}
+
+fragment UserFragment on User {
+  clientField
+}
+
+# %extensions%
+extend type User {
+  clientField: String
+}

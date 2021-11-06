@@ -1,0 +1,619 @@
+==================================== INPUT ====================================
+schema {
+  query: Query
+}
+
+type Query {
+  foo: Foo
+}
+
+type Foo {
+  "Single line field description"
+  line: String
+  """
+  Block field description
+  """
+  block: String
+  """
+  Multiline block field description which is so long
+  that it spans onto a second line.
+  """
+  multiline_block: String
+}
+
+extend type Foo {
+  "Single line extended field description"
+  extended_line: String
+  """
+  Block field description
+  """
+  extended_block: String
+  """
+  Multiline block field description which is so long
+  that it spans onto a second line.
+  """
+  extended_multiline_block: String
+}
+==================================== OUTPUT ===================================
+Text Schema:Schema {
+  query_type: Some(
+    ObjectID(0),
+)
+  mutation_type: None
+  subscription_type: None
+  directives: [
+    Directive {
+        name: "include",
+        arguments: [
+            Argument {
+                name: "if",
+                type_: NonNull(
+                    Named(
+                        Scalar(3),
+                    ),
+                ),
+                default_value: None,
+                description: None,
+            },
+        ],
+        locations: [
+            Field,
+            FragmentSpread,
+            InlineFragment,
+        ],
+        repeatable: false,
+        is_extension: false,
+        description: None,
+    },
+    Directive {
+        name: "skip",
+        arguments: [
+            Argument {
+                name: "if",
+                type_: NonNull(
+                    Named(
+                        Scalar(3),
+                    ),
+                ),
+                default_value: None,
+                description: None,
+            },
+        ],
+        locations: [
+            Field,
+            FragmentSpread,
+            InlineFragment,
+        ],
+        repeatable: false,
+        is_extension: false,
+        description: None,
+    },
+]
+  type_map: {
+    "Boolean": Scalar(3),
+    "Float": Scalar(1),
+    "Foo": Object(1),
+    "ID": Scalar(4),
+    "Int": Scalar(0),
+    "Query": Object(0),
+    "String": Scalar(2),
+}
+  enums: []
+  fields: [
+    Field {
+        name: WithLocation {
+            location: <generated>:42:45,
+            item: "foo",
+        },
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Object(1),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(0),
+        ),
+        description: None,
+    },
+    Field {
+        name: WithLocation {
+            location: <generated>:101:105,
+            item: "line",
+        },
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Scalar(2),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(1),
+        ),
+        description: Some(
+            "Single line field description",
+        ),
+    },
+    Field {
+        name: WithLocation {
+            location: <generated>:154:159,
+            item: "block",
+        },
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Scalar(2),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(1),
+        ),
+        description: Some(
+            "Block field description",
+        ),
+    },
+    Field {
+        name: WithLocation {
+            location: <generated>:271:286,
+            item: "multiline_block",
+        },
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Scalar(2),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(1),
+        ),
+        description: Some(
+            "Multiline block field description which is so long\nthat it spans onto a second line.",
+        ),
+    },
+    Field {
+        name: WithLocation {
+            location: <generated>:361:374,
+            item: "extended_line",
+        },
+        is_extension: true,
+        arguments: [],
+        type_: Named(
+            Scalar(2),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(1),
+        ),
+        description: Some(
+            "Single line extended field description",
+        ),
+    },
+    Field {
+        name: WithLocation {
+            location: <generated>:423:437,
+            item: "extended_block",
+        },
+        is_extension: true,
+        arguments: [],
+        type_: Named(
+            Scalar(2),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(1),
+        ),
+        description: Some(
+            "Block field description",
+        ),
+    },
+    Field {
+        name: WithLocation {
+            location: <generated>:549:573,
+            item: "extended_multiline_block",
+        },
+        is_extension: true,
+        arguments: [],
+        type_: Named(
+            Scalar(2),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(1),
+        ),
+        description: Some(
+            "Multiline block field description which is so long\nthat it spans onto a second line.",
+        ),
+    },
+    Field {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "__typename",
+        },
+        is_extension: false,
+        arguments: [],
+        type_: NonNull(
+            Named(
+                Scalar(2),
+            ),
+        ),
+        directives: [],
+        parent_type: None,
+        description: None,
+    },
+    Field {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "__token",
+        },
+        is_extension: false,
+        arguments: [],
+        type_: NonNull(
+            Named(
+                Scalar(4),
+            ),
+        ),
+        directives: [],
+        parent_type: None,
+        description: None,
+    },
+    Field {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "__id",
+        },
+        is_extension: true,
+        arguments: [],
+        type_: NonNull(
+            Named(
+                Scalar(4),
+            ),
+        ),
+        directives: [],
+        parent_type: None,
+        description: None,
+    },
+    Field {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "strong_id__",
+        },
+        is_extension: true,
+        arguments: [],
+        type_: Named(
+            Scalar(4),
+        ),
+        directives: [],
+        parent_type: None,
+        description: None,
+    },
+    Field {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "is_fulfilled__",
+        },
+        is_extension: true,
+        arguments: [
+            Argument {
+                name: "name",
+                type_: NonNull(
+                    Named(
+                        Scalar(2),
+                    ),
+                ),
+                default_value: None,
+                description: None,
+            },
+        ],
+        type_: NonNull(
+            Named(
+                Scalar(2),
+            ),
+        ),
+        directives: [],
+        parent_type: None,
+        description: None,
+    },
+]
+  input_objects: []
+  interfaces: []
+  objects: [
+    Object {
+        name: WithLocation {
+            location: <generated>:32:37,
+            item: "Query",
+        },
+        is_extension: false,
+        fields: [
+            FieldID(0),
+        ],
+        interfaces: [],
+        directives: [],
+        description: None,
+    },
+    Object {
+        name: WithLocation {
+            location: <generated>:59:62,
+            item: "Foo",
+        },
+        is_extension: false,
+        fields: [
+            FieldID(1),
+            FieldID(2),
+            FieldID(3),
+            FieldID(4),
+            FieldID(5),
+            FieldID(6),
+        ],
+        interfaces: [],
+        directives: [],
+        description: None,
+    },
+]
+  scalars: [
+    Scalar {
+        name: "Int",
+        is_extension: false,
+        directives: [],
+        description: None,
+    },
+    Scalar {
+        name: "Float",
+        is_extension: false,
+        directives: [],
+        description: None,
+    },
+    Scalar {
+        name: "String",
+        is_extension: false,
+        directives: [],
+        description: None,
+    },
+    Scalar {
+        name: "Boolean",
+        is_extension: false,
+        directives: [],
+        description: None,
+    },
+    Scalar {
+        name: "ID",
+        is_extension: false,
+        directives: [],
+        description: None,
+    },
+]
+  unions: []
+  }
+
+FlatBuffer Schema:FB Schema {
+directives: [
+    Directive {
+        name: "include",
+        arguments: [
+            Argument {
+                name: "if",
+                type_: NonNull(
+                    Named(
+                        Scalar(0),
+                    ),
+                ),
+                default_value: None,
+                description: None,
+            },
+        ],
+        locations: [
+            Field,
+            FragmentSpread,
+            InlineFragment,
+        ],
+        repeatable: false,
+        is_extension: false,
+        description: None,
+    },
+    Directive {
+        name: "skip",
+        arguments: [
+            Argument {
+                name: "if",
+                type_: NonNull(
+                    Named(
+                        Scalar(0),
+                    ),
+                ),
+                default_value: None,
+                description: None,
+            },
+        ],
+        locations: [
+            Field,
+            FragmentSpread,
+            InlineFragment,
+        ],
+        repeatable: false,
+        is_extension: false,
+        description: None,
+    },
+]
+enums: []
+fields: [
+    Field {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "line",
+        },
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Scalar(2),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(0),
+        ),
+        description: None,
+    },
+    Field {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "block",
+        },
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Scalar(2),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(0),
+        ),
+        description: None,
+    },
+    Field {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "multiline_block",
+        },
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Scalar(2),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(0),
+        ),
+        description: None,
+    },
+    Field {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "extended_line",
+        },
+        is_extension: true,
+        arguments: [],
+        type_: Named(
+            Scalar(2),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(0),
+        ),
+        description: None,
+    },
+    Field {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "extended_block",
+        },
+        is_extension: true,
+        arguments: [],
+        type_: Named(
+            Scalar(2),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(0),
+        ),
+        description: None,
+    },
+    Field {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "extended_multiline_block",
+        },
+        is_extension: true,
+        arguments: [],
+        type_: Named(
+            Scalar(2),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(0),
+        ),
+        description: None,
+    },
+    Field {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "foo",
+        },
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Object(0),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(1),
+        ),
+        description: None,
+    },
+]
+input_objects: []
+interfaces: []
+objects: [
+    Object {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "Foo",
+        },
+        is_extension: false,
+        fields: [
+            FieldID(0),
+            FieldID(1),
+            FieldID(2),
+            FieldID(3),
+            FieldID(4),
+            FieldID(5),
+        ],
+        interfaces: [],
+        directives: [],
+        description: None,
+    },
+    Object {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "Query",
+        },
+        is_extension: false,
+        fields: [
+            FieldID(6),
+        ],
+        interfaces: [],
+        directives: [],
+        description: None,
+    },
+]
+scalars: [
+    Scalar {
+        name: "Boolean",
+        is_extension: false,
+        directives: [],
+        description: None,
+    },
+    Scalar {
+        name: "Float",
+        is_extension: false,
+        directives: [],
+        description: None,
+    },
+    Scalar {
+        name: "ID",
+        is_extension: false,
+        directives: [],
+        description: None,
+    },
+    Scalar {
+        name: "Int",
+        is_extension: false,
+        directives: [],
+        description: None,
+    },
+    Scalar {
+        name: "String",
+        is_extension: false,
+        directives: [],
+        description: None,
+    },
+]
+unions: []
+}

@@ -1,0 +1,35 @@
+==================================== INPUT ====================================
+fragment MyFragment on Node {
+  id
+  name @required(action: LOG)
+}
+==================================== OUTPUT ===================================
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "MyFragment",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "id",
+      "storageKey": null
+    },
+    {
+      "kind": "RequiredField",
+      "field": {
+        "alias": null,
+        "args": null,
+        "kind": "ScalarField",
+        "name": "name",
+        "storageKey": null
+      },
+      "action": "LOG",
+      "path": "name"
+    }
+  ],
+  "type": "Node",
+  "abstractKey": "__isNode"
+}

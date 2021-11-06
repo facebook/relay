@@ -1,29 +1,41 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
+ * @flow strict-local
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
-const RelayConnectionHandler = require('RelayConnectionHandler');
-const RelayViewerHandler = require('RelayViewerHandler');
+import type {Handler} from '../store/RelayStoreTypes';
 
+const ConnectionHandler = require('./connection/ConnectionHandler');
+const MutationHandlers = require('./connection/MutationHandlers');
 const invariant = require('invariant');
 
-import type {Handler} from 'RelayStoreTypes';
 export type HandlerProvider = (name: string) => ?Handler;
 
 function RelayDefaultHandlerProvider(handle: string): Handler {
   switch (handle) {
     case 'connection':
-      return RelayConnectionHandler;
-    case 'viewer':
-      return RelayViewerHandler;
+      return ConnectionHandler;
+    case 'deleteRecord':
+      return MutationHandlers.DeleteRecordHandler;
+    case 'deleteEdge':
+      return MutationHandlers.DeleteEdgeHandler;
+    case 'appendEdge':
+      return MutationHandlers.AppendEdgeHandler;
+    case 'prependEdge':
+      return MutationHandlers.PrependEdgeHandler;
+    case 'appendNode':
+      return MutationHandlers.AppendNodeHandler;
+    case 'prependNode':
+      return MutationHandlers.PrependNodeHandler;
   }
   invariant(
     false,

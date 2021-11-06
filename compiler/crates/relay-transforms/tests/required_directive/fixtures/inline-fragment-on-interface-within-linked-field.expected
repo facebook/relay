@@ -1,0 +1,21 @@
+==================================== INPUT ====================================
+fragment EnabledFoo on Node {
+  ... on Actor {
+    address {
+      city @required(action: LOG)
+    }
+  }
+}
+==================================== OUTPUT ===================================
+fragment EnabledFoo on Node {
+  ... on Actor {
+    address @__childrenCanBubbleNull {
+      city @required(action: LOG) @__RequiredMetadataDirective
+      # RequiredMetadataDirective {
+      #     action: Log,
+      #     path: "address.city",
+      # }
+      
+    }
+  }
+}

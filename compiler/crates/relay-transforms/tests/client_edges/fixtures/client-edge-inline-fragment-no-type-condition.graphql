@@ -1,0 +1,22 @@
+fragment Foo_user on User {
+  ... @skip(if: $some_var) {
+    best_friend {
+      doesViewerLike
+    }
+  }
+  ... @include(if: $some_var) {
+    best_friend {
+      name
+    }
+  }
+}
+
+fragment BestFriendResolverFragment_name on User {
+  __typename
+}
+
+# %extensions%
+
+extend type User {
+  best_friend: User @relay_resolver(fragment_name: "BestFriendResolverFragment_name", import_path: "BestFriendResolver")
+}

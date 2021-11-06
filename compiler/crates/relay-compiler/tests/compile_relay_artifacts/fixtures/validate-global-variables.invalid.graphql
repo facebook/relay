@@ -1,0 +1,15 @@
+# expected-to-throw
+query validateGlobalVariablesQuery($condition: Boolean) {
+  me {
+    ...validateGlobalVariables_user
+  }
+}
+
+fragment validateGlobalVariables_user on User {
+  id
+  firstName(if: $condition) # OK: nullable value flows into nullable arg
+  # ERROR: nullable values flows into non-nullable arg
+  ... @include(if: $condition) {
+    lastName
+  }
+}

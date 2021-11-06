@@ -1,0 +1,7 @@
+fragment FlowRefetchableFragment on Node
+  @refetchable(queryName: "FlowRefetchableFragmentQuery") {
+  id
+  ... on User {
+    name
+  }
+}

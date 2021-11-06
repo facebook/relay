@@ -1,0 +1,41 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query multipleModulesDifferentComponent_MatchQuery {
+  node(id: "<user-id>") {
+    ... on Actor {
+      nameRenderer {
+        ...multipleModulesDifferentComponent_MarkdownUserNameRenderer_name
+          @module(name: "MarkdownUserNameRenderer.react")
+      }
+    }
+    ... on User {
+      nameRenderer {
+        ...multipleModulesDifferentComponent_MarkdownUserNameRenderer_name
+          @module(name: "OtherMarkdownUserNameRenderer.react")
+      }
+    }
+  }
+}
+
+fragment multipleModulesDifferentComponent_MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+  }
+}
+==================================== ERROR ====================================
+✖︎ Invalid @module selection: concrete type 'MarkdownUserNameRenderer' was matched multiple times at path 'node.nameRenderer' but with a different fragment or module name.
+
+  multiple-modules-different-component.invalid.graphql:12:12
+   11 │       nameRenderer {
+   12 │         ...multipleModulesDifferentComponent_MarkdownUserNameRenderer_name
+      │            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   13 │           @module(name: "OtherMarkdownUserNameRenderer.react")
+
+  ℹ︎ related location
+
+  multiple-modules-different-component.invalid.graphql:6:12
+    5 │       nameRenderer {
+    6 │         ...multipleModulesDifferentComponent_MarkdownUserNameRenderer_name
+      │            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    7 │           @module(name: "MarkdownUserNameRenderer.react")

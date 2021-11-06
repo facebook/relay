@@ -1,0 +1,22 @@
+# expected-to-throw
+
+fragment conflictingSelectionsWithDefer1_fragment on Query {
+  node(id: 4) {
+    ... on User {
+      name
+    }
+  }
+}
+
+fragment conflictingSelectionsWithDefer2_fragment on Query {
+  node(id: 5) {
+    ... on User {
+      name
+    }
+  }
+}
+
+query conflictingSelectionsWithDeferQuery {
+  ...conflictingSelectionsWithDefer1_fragment @defer
+  ...conflictingSelectionsWithDefer2_fragment @defer
+}

@@ -1,0 +1,42 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`SkipSplitOperationTransform matches expected output: skip-split-operations.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+# the output of this transform should not contain any SplitOperations
+fragment NameRendererFragment on User {
+  id
+  nameRenderer @match {
+    ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+    ...MarkdownUserNameRenderer_name
+      @module(name: "MarkdownUserNameRenderer.react")
+  }
+}
+
+fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+  plaintext
+  data {
+    text
+  }
+}
+
+fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+{
+  "kind": "Fragment",
+  "name": "NameRendererFragment"
+}
+{
+  "kind": "Fragment",
+  "name": "PlainUserNameRenderer_name"
+}
+{
+  "kind": "Fragment",
+  "name": "MarkdownUserNameRenderer_name"
+}
+`;

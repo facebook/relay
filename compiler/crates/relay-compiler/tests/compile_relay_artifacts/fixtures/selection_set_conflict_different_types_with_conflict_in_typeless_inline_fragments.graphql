@@ -1,0 +1,17 @@
+# expected-to-throw
+query selectionSetConflictDifferentTypesWithConflictInTypelessInlineFragmentsQuery {
+  me {
+    ...selectionSetConflictDifferentTypesWithConflictInTypelessInlineFragmentsFrag1
+    ...selectionSetConflictDifferentTypesWithConflictInTypelessInlineFragmentsFrag2
+  }
+}
+fragment selectionSetConflictDifferentTypesWithConflictInTypelessInlineFragmentsFrag1 on User {
+  ... @include(if: true) {
+    same_alias: id
+  }
+}
+fragment selectionSetConflictDifferentTypesWithConflictInTypelessInlineFragmentsFrag2 on Actor {
+  ... @skip(if: false) {
+    same_alias: name
+  }
+}

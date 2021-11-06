@@ -1,0 +1,61 @@
+==================================== INPUT ====================================
+fragment RefetchableFragment on Viewer
+  @refetchable(queryName: "RefetchableFragmentQuery")
+  @argumentDefinitions(size: {type: "[Int]"}) {
+  actor {
+    id
+    name
+    ...ProfilePicture @arguments(size: $size)
+  }
+}
+
+fragment ProfilePicture on User @argumentDefinitions(size: {type: "[Int]"}) {
+  pic: profilePicture(size: $size) {
+    uri
+  }
+  profilePicture(size: $rootSize) {
+    uri
+  }
+}
+==================================== OUTPUT ===================================
+query RefetchableFragmentQuery(
+  $rootSize: [Int]
+  $size: [Int]
+) @__RefetchableDerivedFromMetadata
+# RefetchableDerivedFromMetadata(
+#     "RefetchableFragment",
+# )
+ {
+  viewer {
+    ...RefetchableFragment @arguments(size: $size)
+  }
+}
+
+fragment ProfilePicture on User @argumentDefinitions(
+  size: {type: "[Int]"}
+) {
+  pic: profilePicture(size: $size) {
+    uri
+  }
+  profilePicture(size: $rootSize) {
+    uri
+  }
+}
+
+fragment RefetchableFragment on Viewer @refetchable(queryName: "RefetchableFragmentQuery") @argumentDefinitions(
+  size: {type: "[Int]"}
+) @__RefetchableMetadata
+# RefetchableMetadata {
+#     operation_name: "RefetchableFragmentQuery",
+#     path: [
+#         "viewer",
+#     ],
+#     identifier_field: None,
+# }
+ {
+  actor {
+    id
+    name
+    ...ProfilePicture @arguments(size: $size)
+  }
+}

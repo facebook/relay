@@ -1,16 +1,15 @@
 ---
-id: version-classic-classic-interfaces-relay-network-layer
+id: classic-interfaces-relay-network-layer
 title: RelayNetworkLayer
 original_id: classic-interfaces-relay-network-layer
 ---
-
 Custom network layers that must conform to the `RelayNetworkLayer` interface.
 
 ## Overview
 
-*Methods*
+_Methods_
 
-<ul class="apiIndex">
+<ul className="apiIndex">
   <li>
     <a href="#sendmutation">
       <pre>sendMutation(mutationRequest)</pre>
@@ -28,13 +27,14 @@ Custom network layers that must conform to the `RelayNetworkLayer` interface.
   </li>
 </ul>
 
-
 ## Methods
 
 ### sendMutation
 
 ```
+
 sendMutation(mutationRequest: RelayMutationRequest): ?Promise
+
 ```
 
 Implement this method to send mutations to the server. When the server response is obtained, this method must either call `mutationRequest.resolve` with the response data, or `mutationRequest.reject` with an `Error` object.
@@ -44,6 +44,7 @@ This method can optionally return a promise in order to facilitate proper error 
 #### Example
 
 ```
+
 sendMutation(mutationRequest) {
   return fetch(...).then(result => {
     if (result.errors) {
@@ -55,12 +56,14 @@ sendMutation(mutationRequest) {
 }
 ```
 
-See [RelayMutationRequest](interfaces-relay-mutation-request.html) for methods available on the argument object.
+See [RelayMutationRequest](./classic-interfaces-relay-mutation-request) for methods available on the argument object.
 
 ### sendQueries
 
 ```
+
 sendQueries(queryRequests: Array<RelayQueryRequest>): ?Promise
+
 ```
 
 Implement this method to send queries to the server. For each query request, when the server response is received, this method must either call `resolve` with the response data, or `reject` with an `Error` object.
@@ -72,6 +75,7 @@ This method can optionally return a promise in order to facilitate proper error 
 #### Example
 
 ```
+
 sendQueries(queryRequests) {
   return Promise.all(queryRequests.map(
     queryRequest => fetch(...).then(result => {
@@ -85,12 +89,14 @@ sendQueries(queryRequests) {
 }
 ```
 
-See [RelayQueryRequest](interfaces-relay-query-request.html) for methods available on the argument objects.
+See [RelayQueryRequest](./classic-interfaces-relay-query-request) for methods available on the argument objects.
 
 ### supports
 
 ```
+
 supports(...options: Array<string>): boolean
+
 ```
 
 Implement this method to return true when the supplied options are supported by this network layer. This is used to declare which features the network layer supports.
@@ -100,6 +106,7 @@ In the future, advanced capabilities in Relay may be dependent on the network la
 #### Example
 
 ```
+
 supports(...options) {
   return options.every(option => {
     if (option === 'future-feature') {

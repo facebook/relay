@@ -1,0 +1,19 @@
+# expected-to-throw
+
+fragment conflictingSelectionsWithNoInline_fragment on Query @no_inline {
+  node(id: 4) {
+    ... on User {
+      name
+    }
+  }
+}
+
+
+query conflictingSelectionsWithNoInlineQuery {
+  ...conflictingSelectionsWithNoInline_fragment
+  node(id: 5) {
+    ... on User {
+      name
+    }
+  }
+}

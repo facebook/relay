@@ -1,0 +1,30 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query NodeQuery($id: ID!) {
+  node(id: $id) {
+    id
+    ... on Story {
+      comments(first: 10)
+        @stream_connection(key: "NodeQuery_comments", initial_count: 0) {
+        edges {
+          node {
+            actor {
+              name
+            }
+          }
+        }
+        commentPageInfo: pageInfo {
+          hasNextPage
+        }
+      }
+    }
+  }
+}
+==================================== ERROR ====================================
+✖︎ @stream_connection does not support aliasing the 'pageInfo' field.
+
+  stream-connection-with-aliased-page-info.invalid.graphql:15:26
+   14 │         }
+   15 │         commentPageInfo: pageInfo {
+      │                          ^^^^^^^^
+   16 │           hasNextPage

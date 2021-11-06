@@ -1,0 +1,15 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query InvalidQueryArgument($user: User!) {
+  node(id: $user) {
+    name
+  }
+}
+==================================== ERROR ====================================
+✖︎ Expected variable definition to have an input type (scalar, enum, or input object), found type 'User'
+
+  invalid-argument-type.invalid.graphql:2:35
+    1 │ # expected-to-throw
+    2 │ query InvalidQueryArgument($user: User!) {
+      │                                   ^^^^
+    3 │   node(id: $user) {

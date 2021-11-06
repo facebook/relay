@@ -1,0 +1,375 @@
+==================================== INPUT ====================================
+query unmaskedFragmentSpreadsRecursive_TestQuery(
+  $ProfilePicture_SIZE: [Int]
+  $isRelative: Boolean
+  $showFirstName: Boolean
+) {
+  me {
+    ...unmaskedFragmentSpreadsRecursive_UserProfile_user
+  }
+}
+
+fragment unmaskedFragmentSpreadsRecursive_UserProfile_user on User {
+  firstName(if: $showFirstName)
+  ...unmaskedFragmentSpreadsRecursive_UserUtil_user @relay(mask: false)
+}
+
+fragment unmaskedFragmentSpreadsRecursive_UserUtil_user on User {
+  profilePicture(size: $ProfilePicture_SIZE) {
+    width
+    height
+  }
+  ...unmaskedFragmentSpreadsRecursive_UserUtil2_user @relay(mask: false)
+}
+
+fragment unmaskedFragmentSpreadsRecursive_UserUtil2_user on User {
+  url(relative: $isRelative)
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "ProfilePicture_SIZE"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "isRelative"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "showFirstName"
+      }
+    ],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "unmaskedFragmentSpreadsRecursive_TestQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "me",
+        "plural": false,
+        "selections": [
+          {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "unmaskedFragmentSpreadsRecursive_UserProfile_user"
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "ProfilePicture_SIZE"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "isRelative"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "showFirstName"
+      }
+    ],
+    "kind": "Operation",
+    "name": "unmaskedFragmentSpreadsRecursive_TestQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "me",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": [
+              {
+                "kind": "Variable",
+                "name": "if",
+                "variableName": "showFirstName"
+              }
+            ],
+            "kind": "ScalarField",
+            "name": "firstName",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": [
+              {
+                "kind": "Variable",
+                "name": "size",
+                "variableName": "ProfilePicture_SIZE"
+              }
+            ],
+            "concreteType": "Image",
+            "kind": "LinkedField",
+            "name": "profilePicture",
+            "plural": false,
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "width",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "height",
+                "storageKey": null
+              }
+            ],
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": [
+              {
+                "kind": "Variable",
+                "name": "relative",
+                "variableName": "isRelative"
+              }
+            ],
+            "kind": "ScalarField",
+            "name": "url",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {},
+    "name": "unmaskedFragmentSpreadsRecursive_TestQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query unmaskedFragmentSpreadsRecursive_TestQuery(
+  $ProfilePicture_SIZE: [Int]
+  $isRelative: Boolean
+  $showFirstName: Boolean
+) {
+  me {
+    ...unmaskedFragmentSpreadsRecursive_UserProfile_user
+    id
+  }
+}
+
+fragment unmaskedFragmentSpreadsRecursive_UserProfile_user on User {
+  firstName(if: $showFirstName)
+  profilePicture(size: $ProfilePicture_SIZE) {
+    width
+    height
+  }
+  url(relative: $isRelative)
+}
+
+
+{
+  "argumentDefinitions": [
+    {
+      "kind": "RootArgument",
+      "name": "ProfilePicture_SIZE"
+    },
+    {
+      "kind": "RootArgument",
+      "name": "isRelative"
+    },
+    {
+      "kind": "RootArgument",
+      "name": "showFirstName"
+    }
+  ],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "unmaskedFragmentSpreadsRecursive_UserProfile_user",
+  "selections": [
+    {
+      "alias": null,
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "if",
+          "variableName": "showFirstName"
+        }
+      ],
+      "kind": "ScalarField",
+      "name": "firstName",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "size",
+          "variableName": "ProfilePicture_SIZE"
+        }
+      ],
+      "concreteType": "Image",
+      "kind": "LinkedField",
+      "name": "profilePicture",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "width",
+          "storageKey": null
+        },
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "height",
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "relative",
+          "variableName": "isRelative"
+        }
+      ],
+      "kind": "ScalarField",
+      "name": "url",
+      "storageKey": null
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}
+
+{
+  "argumentDefinitions": [
+    {
+      "kind": "RootArgument",
+      "name": "isRelative"
+    }
+  ],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "unmaskedFragmentSpreadsRecursive_UserUtil2_user",
+  "selections": [
+    {
+      "alias": null,
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "relative",
+          "variableName": "isRelative"
+        }
+      ],
+      "kind": "ScalarField",
+      "name": "url",
+      "storageKey": null
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}
+
+{
+  "argumentDefinitions": [
+    {
+      "kind": "RootArgument",
+      "name": "ProfilePicture_SIZE"
+    },
+    {
+      "kind": "RootArgument",
+      "name": "isRelative"
+    }
+  ],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "unmaskedFragmentSpreadsRecursive_UserUtil_user",
+  "selections": [
+    {
+      "alias": null,
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "size",
+          "variableName": "ProfilePicture_SIZE"
+        }
+      ],
+      "concreteType": "Image",
+      "kind": "LinkedField",
+      "name": "profilePicture",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "width",
+          "storageKey": null
+        },
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "height",
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "relative",
+          "variableName": "isRelative"
+        }
+      ],
+      "kind": "ScalarField",
+      "name": "url",
+      "storageKey": null
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}

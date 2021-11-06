@@ -2,10 +2,7 @@
 
 exports[`FilterDirectivesTransform matches expected output: directives.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-query SampleQuery(
-  $gk: Boolean!
-  $id: ID!
-) {
+query SampleQuery($gk: Boolean!, $id: ID!) {
   node(id: $id) {
     ... on User {
       # The @exampleFilteredDirective directive is defined as an extension, so

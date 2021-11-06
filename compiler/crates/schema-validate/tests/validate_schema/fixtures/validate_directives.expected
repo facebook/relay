@@ -1,0 +1,52 @@
+==================================== INPUT ====================================
+directive @__fetchable(field_name: String) on OBJECT
+
+directive @fetchable(__field_name: String) on OBJECT
+
+directive @fetchableOther(field_name: String, field_name: Int) on OBJECT
+
+directive @__fetchableOther(field_name: String, field_name: Int) on OBJECT
+
+interface Hominid {
+  pet: Pet
+}
+
+interface Canine {
+  owner: Human
+}
+
+type Pet implements Canine @fetchable(field_name: "id") {
+  id: ID
+  owner: Human
+}
+
+type Human implements Hominid @fetchable(field_name: "id") {
+  id: ID
+  pet: Pet
+}
+
+type Query {
+  fetch__Human(id: ID!): Human
+  user: Human
+}
+==================================== OUTPUT ===================================
+Directive __fetchable with definition:
+	directive @__fetchable(field_name: String) on OBJECT
+had errors:
+	* Name '__fetchable' must not begin with '__', which is reserved by GraphQL introspection.
+
+Directive __fetchableOther with definition:
+	directive @__fetchableOther(field_name: String, field_name: Int) on OBJECT
+had errors:
+	* Duplicate argument 'field_name' found on field/directive '__fetchableOther'.
+	* Name '__fetchableOther' must not begin with '__', which is reserved by GraphQL introspection.
+
+Directive fetchable with definition:
+	directive @fetchable(__field_name: String) on OBJECT
+had errors:
+	* Name '__field_name' must not begin with '__', which is reserved by GraphQL introspection.
+
+Directive fetchableOther with definition:
+	directive @fetchableOther(field_name: String, field_name: Int) on OBJECT
+had errors:
+	* Duplicate argument 'field_name' found on field/directive 'fetchableOther'.

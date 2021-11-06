@@ -1,0 +1,40 @@
+==================================== INPUT ====================================
+query NotASubscription {
+  node(id: "foo") {
+    id
+  }
+}
+
+subscription TestVanillaSubscription($input: FeedbackLikeInput) {
+  feedbackLikeSubscribe(input: $input) {
+    clientSubscriptionId
+  }
+}
+
+subscription TestSubscriptionWithAlias($input: FeedbackLikeInput) {
+  aliased: feedbackLikeSubscribe(input: $input) {
+    clientSubscriptionId
+  }
+}
+==================================== OUTPUT ===================================
+query NotASubscription {
+  node(id: "foo") {
+    id
+  }
+}
+
+subscription TestSubscriptionWithAlias(
+  $input: FeedbackLikeInput
+) @__metadata(subscriptionName: "feedbackLikeSubscribe") {
+  aliased: feedbackLikeSubscribe(input: $input) {
+    clientSubscriptionId
+  }
+}
+
+subscription TestVanillaSubscription(
+  $input: FeedbackLikeInput
+) @__metadata(subscriptionName: "feedbackLikeSubscribe") {
+  feedbackLikeSubscribe(input: $input) {
+    clientSubscriptionId
+  }
+}

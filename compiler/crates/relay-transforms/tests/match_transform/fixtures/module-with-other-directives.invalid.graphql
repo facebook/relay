@@ -1,0 +1,23 @@
+# expected-to-throw
+fragment NameRendererFragment on User {
+  id
+  nameRenderer {
+    ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react") @stream
+    ...MarkdownUserNameRenderer_name
+      @module(name: "MarkdownUserNameRenderer.react") @stream
+  }
+}
+
+fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+  plaintext
+  data {
+    text
+  }
+}
+
+fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+  }
+}

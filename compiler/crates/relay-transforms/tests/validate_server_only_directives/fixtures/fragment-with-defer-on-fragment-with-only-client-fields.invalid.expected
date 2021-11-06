@@ -1,0 +1,33 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query QueryWithFragmentWithDefer {
+  me {
+    id
+    ...UserFragment @defer(label: "DeferredFragmentLabel")
+  }
+}
+
+fragment UserFragment on User {
+  clientField
+}
+
+# %extensions%
+extend type User {
+  clientField: String
+}
+==================================== ERROR ====================================
+✖︎ Unexpected directive: 'defer'. This directive can only be used on fields/fragments that are fetched from the server schema, but it is used inside a client-only selection.
+
+  fragment-with-defer-on-fragment-with-only-client-fields.invalid.graphql:5:21
+    4 │     id
+    5 │     ...UserFragment @defer(label: "DeferredFragmentLabel")
+      │                     ^^^^^^
+    6 │   }
+
+  ℹ︎ related location
+
+  fragment-with-defer-on-fragment-with-only-client-fields.invalid.graphql:9:10
+    8 │ 
+    9 │ fragment UserFragment on User {
+      │          ^^^^^^^^^^^^
+   10 │   clientField

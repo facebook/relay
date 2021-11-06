@@ -1,0 +1,6 @@
+# expected-to-throw
+mutation LikeMutation($feedbackId: ID!) {
+  feedbackLikeStrict(input: {feedbackId: $feedbackId}) {
+    __typename
+  }
+}

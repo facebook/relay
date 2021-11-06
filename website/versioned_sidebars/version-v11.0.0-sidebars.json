@@ -1,0 +1,432 @@
+{
+  "version-v11.0.0/docs": [
+    {
+      "collapsed": true,
+      "type": "category",
+      "label": "Getting Started",
+      "items": [
+        {
+          "type": "doc",
+          "id": "version-v11.0.0/getting-started/introduction"
+        },
+        {
+          "type": "doc",
+          "id": "version-v11.0.0/getting-started/prerequisites"
+        },
+        {
+          "type": "doc",
+          "id": "version-v11.0.0/getting-started/installation-and-setup"
+        },
+        {
+          "type": "doc",
+          "id": "version-v11.0.0/getting-started/step-by-step-guide"
+        }
+      ]
+    },
+    {
+      "collapsed": true,
+      "type": "category",
+      "label": "A Guided Tour",
+      "items": [
+        {
+          "type": "doc",
+          "id": "version-v11.0.0/guided-tour/introduction"
+        },
+        {
+          "type": "doc",
+          "id": "version-v11.0.0/guided-tour/workflow"
+        },
+        {
+          "collapsed": true,
+          "type": "category",
+          "label": "Rendering Data Basics",
+          "items": [
+            {
+              "type": "doc",
+              "id": "version-v11.0.0/guided-tour/rendering/queries"
+            },
+            {
+              "type": "doc",
+              "id": "version-v11.0.0/guided-tour/rendering/fragments"
+            },
+            {
+              "type": "doc",
+              "id": "version-v11.0.0/guided-tour/rendering/variables"
+            },
+            {
+              "type": "doc",
+              "id": "version-v11.0.0/guided-tour/rendering/loading-states"
+            },
+            {
+              "type": "doc",
+              "id": "version-v11.0.0/guided-tour/rendering/error-states"
+            },
+            {
+              "type": "doc",
+              "id": "version-v11.0.0/guided-tour/rendering/environment"
+            }
+          ]
+        },
+        {
+          "collapsed": true,
+          "type": "category",
+          "label": "Reusing Cached Data for Rendering",
+          "items": [
+            {
+              "type": "doc",
+              "id": "version-v11.0.0/guided-tour/reusing-cached-data/introduction"
+            },
+            {
+              "type": "doc",
+              "id": "version-v11.0.0/guided-tour/reusing-cached-data/fetch-policies"
+            },
+            {
+              "type": "doc",
+              "id": "version-v11.0.0/guided-tour/reusing-cached-data/availability-of-data"
+            },
+            {
+              "type": "doc",
+              "id": "version-v11.0.0/guided-tour/reusing-cached-data/presence-of-data"
+            },
+            {
+              "type": "doc",
+              "id": "version-v11.0.0/guided-tour/reusing-cached-data/staleness-of-data"
+            },
+            {
+              "type": "doc",
+              "id": "version-v11.0.0/guided-tour/reusing-cached-data/rendering-partially-cached-data"
+            },
+            {
+              "type": "doc",
+              "id": "version-v11.0.0/guided-tour/reusing-cached-data/filling-in-missing-data"
+            }
+          ]
+        },
+        {
+          "collapsed": true,
+          "type": "category",
+          "label": "Refreshing and Refetching",
+          "items": [
+            {
+              "type": "doc",
+              "id": "version-v11.0.0/guided-tour/refetching/introduction"
+            },
+            {
+              "type": "doc",
+              "id": "version-v11.0.0/guided-tour/refetching/refreshing-queries"
+            },
+            {
+              "type": "doc",
+              "id": "version-v11.0.0/guided-tour/refetching/refetching-queries-with-different-data"
+            },
+            {
+              "type": "doc",
+              "id": "version-v11.0.0/guided-tour/refetching/refreshing-fragments"
+            },
+            {
+              "type": "doc",
+              "id": "version-v11.0.0/guided-tour/refetching/refetching-fragments-with-different-data"
+            }
+          ]
+        },
+        {
+          "collapsed": true,
+          "type": "category",
+          "label": "Rendering List Data and Pagination",
+          "items": [
+            {
+              "type": "doc",
+              "id": "version-v11.0.0/guided-tour/list-data/connections"
+            },
+            {
+              "type": "doc",
+              "id": "version-v11.0.0/guided-tour/list-data/rendering-connections"
+            },
+            {
+              "type": "doc",
+              "id": "version-v11.0.0/guided-tour/list-data/pagination"
+            },
+            {
+              "type": "doc",
+              "id": "version-v11.0.0/guided-tour/list-data/streaming-pagination"
+            },
+            {
+              "type": "doc",
+              "id": "version-v11.0.0/guided-tour/list-data/refetching-connections"
+            },
+            {
+              "type": "doc",
+              "id": "version-v11.0.0/guided-tour/list-data/updating-connections"
+            },
+            {
+              "type": "doc",
+              "id": "version-v11.0.0/guided-tour/list-data/advanced-pagination"
+            }
+          ]
+        },
+        {
+          "collapsed": true,
+          "type": "category",
+          "label": "Updating Data",
+          "items": [
+            {
+              "type": "doc",
+              "id": "version-v11.0.0/guided-tour/updating-data/introduction"
+            },
+            {
+              "type": "doc",
+              "id": "version-v11.0.0/guided-tour/updating-data/graphql-mutations"
+            },
+            {
+              "type": "doc",
+              "id": "version-v11.0.0/guided-tour/updating-data/graphql-subscriptions"
+            },
+            {
+              "type": "doc",
+              "id": "version-v11.0.0/guided-tour/updating-data/local-data-updates"
+            },
+            {
+              "type": "doc",
+              "id": "version-v11.0.0/guided-tour/updating-data/client-only-data"
+            }
+          ]
+        },
+        {
+          "collapsed": true,
+          "type": "category",
+          "label": "Managing Data Outside React",
+          "items": [
+            {
+              "type": "doc",
+              "id": "version-v11.0.0/guided-tour/managing-data-outside-react/retaining-queries"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "collapsed": true,
+      "type": "category",
+      "label": "API Reference",
+      "items": [
+        {
+          "collapsed": true,
+          "type": "category",
+          "label": "Relay Hooks",
+          "items": [
+            {
+              "type": "doc",
+              "id": "version-v11.0.0/api-reference/hooks/relay-environment-provider"
+            },
+            {
+              "type": "doc",
+              "id": "version-v11.0.0/api-reference/hooks/use-relay-environment"
+            },
+            {
+              "type": "doc",
+              "id": "version-v11.0.0/api-reference/hooks/use-preloaded-query"
+            },
+            {
+              "type": "doc",
+              "id": "version-v11.0.0/api-reference/hooks/use-query-loader"
+            },
+            {
+              "type": "doc",
+              "id": "version-v11.0.0/api-reference/hooks/load-query"
+            },
+            {
+              "type": "doc",
+              "id": "version-v11.0.0/api-reference/hooks/use-lazy-load-query"
+            },
+            {
+              "type": "doc",
+              "id": "version-v11.0.0/api-reference/hooks/use-fragment"
+            },
+            {
+              "type": "doc",
+              "id": "version-v11.0.0/api-reference/hooks/use-refetchable-fragment"
+            },
+            {
+              "type": "doc",
+              "id": "version-v11.0.0/api-reference/hooks/use-pagination-fragment"
+            },
+            {
+              "type": "doc",
+              "id": "version-v11.0.0/api-reference/hooks/use-mutation"
+            },
+            {
+              "type": "doc",
+              "id": "version-v11.0.0/api-reference/hooks/use-subscription"
+            }
+          ]
+        },
+        {
+          "collapsed": true,
+          "type": "category",
+          "label": "Entrypoint APIs",
+          "items": [
+            {
+              "type": "doc",
+              "id": "version-v11.0.0/api-reference/entrypoint-apis/use-entrypoint-loader"
+            },
+            {
+              "type": "doc",
+              "id": "version-v11.0.0/api-reference/entrypoint-apis/load-entrypoint"
+            },
+            {
+              "type": "doc",
+              "id": "version-v11.0.0/api-reference/entrypoint-apis/entrypoint-container"
+            }
+          ]
+        },
+        {
+          "collapsed": true,
+          "type": "category",
+          "label": "Relay Runtime",
+          "items": [
+            {
+              "type": "doc",
+              "id": "version-v11.0.0/api-reference/relay-runtime/fetch-query"
+            },
+            {
+              "type": "doc",
+              "id": "version-v11.0.0/api-reference/relay-runtime/store"
+            },
+            {
+              "type": "doc",
+              "id": "version-v11.0.0/api-reference/relay-runtime/commit-mutation"
+            },
+            {
+              "type": "doc",
+              "id": "version-v11.0.0/api-reference/relay-runtime/request-subscription"
+            }
+          ]
+        },
+        {
+          "type": "doc",
+          "id": "version-v11.0.0/api-reference/graphql/graphql-directives"
+        },
+        {
+          "type": "doc",
+          "id": "version-v11.0.0/api-reference/legacy-apis/legacy-apis"
+        }
+      ]
+    },
+    {
+      "collapsed": true,
+      "type": "category",
+      "label": "Guides",
+      "items": [
+        {
+          "type": "doc",
+          "id": "version-v11.0.0/guides/graphql-server-specification"
+        },
+        {
+          "type": "doc",
+          "id": "version-v11.0.0/guides/compiler"
+        },
+        {
+          "type": "doc",
+          "id": "version-v11.0.0/guides/type-emission"
+        },
+        {
+          "type": "doc",
+          "id": "version-v11.0.0/guides/persisted-queries"
+        },
+        {
+          "type": "doc",
+          "id": "version-v11.0.0/guides/network-layer"
+        },
+        {
+          "type": "doc",
+          "id": "version-v11.0.0/guides/client-schema-extensions"
+        },
+        {
+          "type": "doc",
+          "id": "version-v11.0.0/guides/testing-relay-components"
+        },
+        {
+          "type": "doc",
+          "id": "version-v11.0.0/guides/testing-relay-with-preloaded-queries"
+        }
+      ]
+    },
+    {
+      "collapsed": true,
+      "type": "category",
+      "label": "Migration and Compatibility",
+      "items": [
+        {
+          "type": "doc",
+          "id": "version-v11.0.0/migration-and-compatibility/upgrading-to-relay-hooks"
+        },
+        {
+          "type": "doc",
+          "id": "version-v11.0.0/migration-and-compatibility/suspense-compatibility"
+        },
+        {
+          "type": "doc",
+          "id": "version-v11.0.0/migration-and-compatibility/relay-hooks-and-legacy-container-apis"
+        }
+      ]
+    },
+    {
+      "collapsed": true,
+      "type": "category",
+      "label": "Debugging",
+      "items": [
+        {
+          "type": "doc",
+          "id": "version-v11.0.0/debugging/relay-devtools"
+        },
+        {
+          "type": "doc",
+          "id": "version-v11.0.0/debugging/inconsistent-typename-error"
+        },
+        {
+          "type": "doc",
+          "id": "version-v11.0.0/debugging/declarative-mutation-directives"
+        }
+      ]
+    },
+    {
+      "collapsed": true,
+      "type": "category",
+      "label": "Principles and Architecture",
+      "items": [
+        {
+          "type": "doc",
+          "id": "version-v11.0.0/principles-and-architecture/thinking-in-graphql"
+        },
+        {
+          "type": "doc",
+          "id": "version-v11.0.0/principles-and-architecture/thinking-in-relay"
+        },
+        {
+          "type": "doc",
+          "id": "version-v11.0.0/principles-and-architecture/architecture-overview"
+        },
+        {
+          "type": "doc",
+          "id": "version-v11.0.0/principles-and-architecture/compiler-architecture"
+        },
+        {
+          "type": "doc",
+          "id": "version-v11.0.0/principles-and-architecture/runtime-architecture"
+        },
+        {
+          "type": "doc",
+          "id": "version-v11.0.0/principles-and-architecture/videos"
+        }
+      ]
+    },
+    {
+      "type": "doc",
+      "id": "version-v11.0.0/community/learning-resources"
+    },
+    {
+      "type": "doc",
+      "id": "version-v11.0.0/glossary/glossary"
+    }
+  ]
+}

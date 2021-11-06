@@ -1,0 +1,71 @@
+==================================== INPUT ====================================
+query EnumValueQuery {
+  me {
+    profilePicture(preset: LARGE) {
+      uri
+    }
+  }
+}
+==================================== OUTPUT ===================================
+[
+    Operation(
+        OperationDefinition {
+            kind: Query,
+            name: WithLocation {
+                location: enum-values.graphql:6:20,
+                item: "EnumValueQuery",
+            },
+            type_: Object(0),
+            variable_definitions: [],
+            directives: [],
+            selections: [
+                LinkedField {
+                    alias: None,
+                    definition: WithLocation {
+                        location: enum-values.graphql:25:27,
+                        item: FieldID(8),
+                    },
+                    arguments: [],
+                    directives: [],
+                    selections: [
+                        LinkedField {
+                            alias: None,
+                            definition: WithLocation {
+                                location: enum-values.graphql:34:48,
+                                item: FieldID(477),
+                            },
+                            arguments: [
+                                Argument {
+                                    name: WithLocation {
+                                        location: enum-values.graphql:49:55,
+                                        item: "preset",
+                                    },
+                                    value: WithLocation {
+                                        location: enum-values.graphql:57:62,
+                                        item: Constant(
+                                            Enum(
+                                                "LARGE",
+                                            ),
+                                        ),
+                                    },
+                                },
+                            ],
+                            directives: [],
+                            selections: [
+                                ScalarField {
+                                    alias: None,
+                                    definition: WithLocation {
+                                        location: enum-values.graphql:72:75,
+                                        item: FieldID(185),
+                                    },
+                                    arguments: [],
+                                    directives: [],
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
+        },
+    ),
+]

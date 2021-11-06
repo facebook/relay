@@ -1,0 +1,216 @@
+==================================== INPUT ====================================
+fragment nestedConditions_QueryFragment on Query {
+  viewer {
+    ... @include(if: $sentinel) {
+      account_user {
+        name
+        ... @skip(if: $bar) @include(if: $foo) {
+          alternate_name
+          canViewerComment
+        }
+      }
+      ... @skip(if: $foo) {
+        actor {
+          name
+        }
+      }
+    }
+  }
+}
+
+fragment nestedConditions_QueryFragment2 on Query {
+  viewer {
+    ... @include(if: $sentinel) @skip(if: $foo) {
+      account_user @include(if: $bar) {
+        name
+      }
+    }
+  }
+}
+==================================== OUTPUT ===================================
+{
+  "argumentDefinitions": [
+    {
+      "kind": "RootArgument",
+      "name": "bar"
+    },
+    {
+      "kind": "RootArgument",
+      "name": "foo"
+    },
+    {
+      "kind": "RootArgument",
+      "name": "sentinel"
+    }
+  ],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "nestedConditions_QueryFragment",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "concreteType": "Viewer",
+      "kind": "LinkedField",
+      "name": "viewer",
+      "plural": false,
+      "selections": [
+        {
+          "condition": "sentinel",
+          "kind": "Condition",
+          "passingValue": true,
+          "selections": [
+            {
+              "alias": null,
+              "args": null,
+              "concreteType": "User",
+              "kind": "LinkedField",
+              "name": "account_user",
+              "plural": false,
+              "selections": [
+                {
+                  "alias": null,
+                  "args": null,
+                  "kind": "ScalarField",
+                  "name": "name",
+                  "storageKey": null
+                },
+                {
+                  "condition": "foo",
+                  "kind": "Condition",
+                  "passingValue": true,
+                  "selections": [
+                    {
+                      "condition": "bar",
+                      "kind": "Condition",
+                      "passingValue": false,
+                      "selections": [
+                        {
+                          "alias": null,
+                          "args": null,
+                          "kind": "ScalarField",
+                          "name": "alternate_name",
+                          "storageKey": null
+                        },
+                        {
+                          "alias": null,
+                          "args": null,
+                          "kind": "ScalarField",
+                          "name": "canViewerComment",
+                          "storageKey": null
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "storageKey": null
+            },
+            {
+              "condition": "foo",
+              "kind": "Condition",
+              "passingValue": false,
+              "selections": [
+                {
+                  "alias": null,
+                  "args": null,
+                  "concreteType": null,
+                  "kind": "LinkedField",
+                  "name": "actor",
+                  "plural": false,
+                  "selections": [
+                    {
+                      "alias": null,
+                      "args": null,
+                      "kind": "ScalarField",
+                      "name": "name",
+                      "storageKey": null
+                    }
+                  ],
+                  "storageKey": null
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "storageKey": null
+    }
+  ],
+  "type": "Query",
+  "abstractKey": null
+}
+
+{
+  "argumentDefinitions": [
+    {
+      "kind": "RootArgument",
+      "name": "bar"
+    },
+    {
+      "kind": "RootArgument",
+      "name": "foo"
+    },
+    {
+      "kind": "RootArgument",
+      "name": "sentinel"
+    }
+  ],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "nestedConditions_QueryFragment2",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "concreteType": "Viewer",
+      "kind": "LinkedField",
+      "name": "viewer",
+      "plural": false,
+      "selections": [
+        {
+          "condition": "sentinel",
+          "kind": "Condition",
+          "passingValue": true,
+          "selections": [
+            {
+              "condition": "foo",
+              "kind": "Condition",
+              "passingValue": false,
+              "selections": [
+                {
+                  "condition": "bar",
+                  "kind": "Condition",
+                  "passingValue": true,
+                  "selections": [
+                    {
+                      "alias": null,
+                      "args": null,
+                      "concreteType": "User",
+                      "kind": "LinkedField",
+                      "name": "account_user",
+                      "plural": false,
+                      "selections": [
+                        {
+                          "alias": null,
+                          "args": null,
+                          "kind": "ScalarField",
+                          "name": "name",
+                          "storageKey": null
+                        }
+                      ],
+                      "storageKey": null
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "storageKey": null
+    }
+  ],
+  "type": "Query",
+  "abstractKey": null
+}

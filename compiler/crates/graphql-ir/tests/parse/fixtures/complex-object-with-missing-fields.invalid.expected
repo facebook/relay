@@ -1,0 +1,15 @@
+==================================== INPUT ====================================
+# expected-to-throw
+mutation LikeMutation($feedbackId: ID!) {
+  feedbackLikeStrict(input: {feedbackId: $feedbackId}) {
+    __typename
+  }
+}
+==================================== ERROR ====================================
+✖︎ Missing required fields '["clientMutationId", "userID"]' of type 'FeedbackLikeInputStrict'
+
+  complex-object-with-missing-fields.invalid.graphql:3:29
+    2 │ mutation LikeMutation($feedbackId: ID!) {
+    3 │   feedbackLikeStrict(input: {feedbackId: $feedbackId}) {
+      │                             ^^^^^^^^^^^^^^^^^^^^^^^^^
+    4 │     __typename

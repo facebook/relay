@@ -1,0 +1,26 @@
+fragment TestFragment on User {
+  ... @defer {
+    lastName
+  }
+  ... @defer {
+    firstName
+  }
+  ... @defer(label: "123", if: false) {
+    lastName
+  }
+  ... @defer(label: "123", if: false) {
+    firstName
+  }
+  ... @defer(label: "123", if: true) {
+    lastName
+  }
+  ... @defer(label: "123", if: false) {
+    firstName
+  }
+  ... @serverInlineDirective {
+    lastName
+  }
+  ... @serverInlineDirective {
+    firstName
+  }
+}

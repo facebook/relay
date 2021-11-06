@@ -1,0 +1,6 @@
+# expected-to-throw
+query TestQuery {
+  task(number: 9.75) { # should be an Int
+    title
+  }
+}

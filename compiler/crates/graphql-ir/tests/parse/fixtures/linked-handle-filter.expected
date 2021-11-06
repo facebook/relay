@@ -1,0 +1,125 @@
+==================================== INPUT ====================================
+fragment LinkedHandleField on User {
+  friends(first: 10)
+    @__clientField(handle: "clientFriends", filters: ["first"])
+    @__clientField(handle: "otherFriends") {
+    count
+  }
+}
+==================================== OUTPUT ===================================
+[
+    Fragment(
+        FragmentDefinition {
+            name: WithLocation {
+                location: linked-handle-filter.graphql:9:26,
+                item: "LinkedHandleField",
+            },
+            variable_definitions: [],
+            used_global_variables: [],
+            type_condition: Object(67),
+            directives: [],
+            selections: [
+                LinkedField {
+                    alias: None,
+                    definition: WithLocation {
+                        location: linked-handle-filter.graphql:39:46,
+                        item: FieldID(461),
+                    },
+                    arguments: [
+                        Argument {
+                            name: WithLocation {
+                                location: linked-handle-filter.graphql:47:52,
+                                item: "first",
+                            },
+                            value: WithLocation {
+                                location: linked-handle-filter.graphql:54:56,
+                                item: Constant(
+                                    Int(
+                                        10,
+                                    ),
+                                ),
+                            },
+                        },
+                    ],
+                    directives: [
+                        Directive {
+                            name: WithLocation {
+                                location: linked-handle-filter.graphql:62:76,
+                                item: "__clientField",
+                            },
+                            arguments: [
+                                Argument {
+                                    name: WithLocation {
+                                        location: linked-handle-filter.graphql:77:83,
+                                        item: "handle",
+                                    },
+                                    value: WithLocation {
+                                        location: linked-handle-filter.graphql:85:100,
+                                        item: Constant(
+                                            String(
+                                                "clientFriends",
+                                            ),
+                                        ),
+                                    },
+                                },
+                                Argument {
+                                    name: WithLocation {
+                                        location: linked-handle-filter.graphql:102:109,
+                                        item: "filters",
+                                    },
+                                    value: WithLocation {
+                                        location: linked-handle-filter.graphql:111:120,
+                                        item: Constant(
+                                            List(
+                                                [
+                                                    String(
+                                                        "first",
+                                                    ),
+                                                ],
+                                            ),
+                                        ),
+                                    },
+                                },
+                            ],
+                            data: None,
+                        },
+                        Directive {
+                            name: WithLocation {
+                                location: linked-handle-filter.graphql:126:140,
+                                item: "__clientField",
+                            },
+                            arguments: [
+                                Argument {
+                                    name: WithLocation {
+                                        location: linked-handle-filter.graphql:141:147,
+                                        item: "handle",
+                                    },
+                                    value: WithLocation {
+                                        location: linked-handle-filter.graphql:149:163,
+                                        item: Constant(
+                                            String(
+                                                "otherFriends",
+                                            ),
+                                        ),
+                                    },
+                                },
+                            ],
+                            data: None,
+                        },
+                    ],
+                    selections: [
+                        ScalarField {
+                            alias: None,
+                            definition: WithLocation {
+                                location: linked-handle-filter.graphql:171:176,
+                                item: FieldID(179),
+                            },
+                            arguments: [],
+                            directives: [],
+                        },
+                    ],
+                },
+            ],
+        },
+    ),
+]

@@ -1,0 +1,12 @@
+# expected-to-throw
+query missingArgumentOnLinkedFieldOnAbstractTypeViewerQuery {
+  node {
+    commentBody @fixme_fat_interface {
+      ... on PlainCommentBody {
+        text {
+          text
+        }
+      }
+    }
+  }
+}

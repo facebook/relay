@@ -1,0 +1,11 @@
+query MyQuery($id: ID) {
+  my_alias: node(id: $id) {
+    id
+    ... on User {
+      name
+      likers(first: 5) {
+        count
+      }
+    }
+  }
+}

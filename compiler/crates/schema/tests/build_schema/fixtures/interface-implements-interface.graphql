@@ -1,0 +1,27 @@
+schema {
+  query: Query
+}
+
+type Query {
+  node: Node
+}
+
+interface BaseNode {
+  id: ID!
+}
+
+interface Node implements BaseNode {
+  name: String!
+}
+
+interface Resource implements Node {
+  id: ID!
+  name: String!
+  url: String
+}
+
+interface Image implements Resource & Node {
+  id: ID!
+  url: String
+  thumbnail: String
+}

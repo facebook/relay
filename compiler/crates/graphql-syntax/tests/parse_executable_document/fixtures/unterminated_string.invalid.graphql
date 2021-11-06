@@ -1,0 +1,8 @@
+# expected-to-throw
+{
+    friends(
+        arg: "unterminated string
+    ) {
+        count
+    }
+}

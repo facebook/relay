@@ -1,0 +1,32 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query NodeQuery($id: ID!) {
+  node(id: $id) {
+    id
+    ... on Story {
+      comments(first: 10) @connection(key: "invalid") {
+        edges {
+          node {
+            id
+          }
+        }
+      }
+    }
+  }
+}
+==================================== ERROR ====================================
+✖︎ Expected the key argument to @connection to be of form '<SomeName>__comments', got 'invalid'. For a detailed explanation, check out https://relay.dev/docs/en/pagination-container#connection
+
+  connection-invalid-key-name.invalid.graphql:6:44
+    5 │     ... on Story {
+    6 │       comments(first: 10) @connection(key: "invalid") {
+      │                                            ^^^^^^^^^
+    7 │         edges {
+
+  ℹ︎ related location
+
+  connection-invalid-key-name.invalid.graphql:6:7
+    5 │     ... on Story {
+    6 │       comments(first: 10) @connection(key: "invalid") {
+      │       ^^^^^^^^
+    7 │         edges {

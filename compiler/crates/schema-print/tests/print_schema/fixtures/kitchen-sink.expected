@@ -1,0 +1,185 @@
+==================================== INPUT ====================================
+directive @source(schema: String, name: String) on OBJECT | INTERFACE | ENUM
+directive @ref_type(schema: String, name: String) on FIELD_DEFINITION
+directive @extern_type(schema: String, name: String) on INTERFACE
+directive @fetchable(field_name: String) on OBJECT
+
+schema {
+  query: Query
+}
+
+type Query {
+  fetch__User(id: ID): User
+  fetch__XIGStory(id: ID): XIGStory
+}
+
+interface XIGHuman @source(schema: "instagram", name: "Human") {
+  name: String
+}
+
+type User implements XIGHuman @fetchable(field_name: "id") {
+  id: ID
+  story(id: ID = 1): XIGStory @ref_type(schema: "instagram", name: "Story")
+  content_type(
+    type: AppStoreSectionContentTypeEnum = [CONCEPTS, EARLY_ACCESS]
+  ): [AppStoreSectionContentTypeEnum]
+  story(story: XIGStoryInput = {id: 123, name: "instagram_story"}): XIGStory
+}
+
+input XIGStoryInput {
+  id: ID
+  name: String
+}
+
+type XIGStory
+  @fetchable(field_name: "id")
+  @source(schema: "instagram", name: "Story") {
+  id: ID
+  name: String
+}
+
+union Actor @source(schema: "instagram", name: "Story") = User | Page
+
+enum AppStoreSectionContentTypeEnum
+  @source(schema: "instagram", name: "Story") {
+  DEFAULT @deprecated(reason: "test")
+  CONCEPTS
+  EARLY_ACCESS
+}
+
+input AppVersions @source(schema: "instagram", name: "Story") {
+  app_id: ID!
+  version_code: Int
+}
+
+type Page {
+  id: ID
+}
+
+scalar ID @source(schema: "instagram", name: "Story")
+
+interface BaseNode {
+  id: ID!
+}
+
+interface Node implements BaseNode {
+  name: String!
+}
+
+interface Resource implements Node {
+  id: ID!
+  name: String!
+  url: String
+}
+
+interface Image implements Resource & Node {
+  id: ID!
+  url: String
+  thumbnail: String
+}
+==================================== OUTPUT ===================================
+directive @extern_type(schema: String, name: String) on INTERFACE
+
+directive @fetchable(field_name: String) on OBJECT
+
+directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+directive @ref_type(schema: String, name: String) on FIELD_DEFINITION
+
+directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+directive @source(schema: String, name: String) on OBJECT | INTERFACE | ENUM
+
+directive @extern_type(schema: String, name: String) on INTERFACE
+
+directive @fetchable(field_name: String) on OBJECT
+
+directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+directive @ref_type(schema: String, name: String) on FIELD_DEFINITION
+
+directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+directive @source(schema: String, name: String) on OBJECT | INTERFACE | ENUM
+
+union Actor @source(schema: "instagram", name: "Story") = User | Page
+
+enum AppStoreSectionContentTypeEnum @source(schema: "instagram", name: "Story") {
+  DEFAULT @deprecated(reason: "test")
+  CONCEPTS
+  EARLY_ACCESS
+}
+
+input AppVersions @source(schema: "instagram", name: "Story") {
+  app_id: ID!
+  version_code: Int
+}
+
+interface BaseNode {
+  id: ID!
+}
+
+scalar Boolean
+
+interface Image implements Resource & Node {
+  id: ID!
+  url: String
+  thumbnail: String
+}
+
+scalar Int
+
+scalar String
+
+type User implements XIGHuman @fetchable(field_name: "id") {
+  id: ID
+  story(id: ID = 1): XIGStory @ref_type(schema: "instagram", name: "Story")
+  content_type(type: AppStoreSectionContentTypeEnum = [CONCEPTS, EARLY_ACCESS]): [AppStoreSectionContentTypeEnum]
+  story(story: XIGStoryInput = {id: 123, name: "instagram_story"}): XIGStory
+}
+
+interface XIGHuman @source(schema: "instagram", name: "Human") {
+  name: String
+}
+
+input XIGStoryInput {
+  id: ID
+  name: String
+}
+
+
+=======Shard=======
+
+scalar Float
+
+scalar ID @source(schema: "instagram", name: "Story")
+
+interface Node implements BaseNode {
+  name: String!
+}
+
+type Page {
+  id: ID
+}
+
+interface Resource implements Node {
+  id: ID!
+  name: String!
+  url: String
+}
+
+type XIGStory @fetchable(field_name: "id") @source(schema: "instagram", name: "Story") {
+  id: ID
+  name: String
+}
+
+
+=======Shard=======
+
+type Query {
+
+=======Shard=======
+
+  fetch__User(id: ID): User
+  fetch__XIGStory(id: ID): XIGStory
+}

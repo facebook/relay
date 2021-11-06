@@ -1,0 +1,186 @@
+==================================== INPUT ====================================
+fragment ParentFragment on User {
+  mobile_checkins: checkins(environments: [MOBILE]) {
+    query
+  }
+  ...ChildFragment @arguments(environments: WEB)
+}
+
+fragment ChildFragment on User
+  @argumentDefinitions(environments: {type: "[Environment!]!"}) {
+  checkins(environments: $environments) {
+    query
+  }
+}
+==================================== OUTPUT ===================================
+[
+    Fragment(
+        FragmentDefinition {
+            name: WithLocation {
+                location: fragment-with-literal-enum-arguments-into-enum-list.graphql:9:23,
+                item: "ParentFragment",
+            },
+            variable_definitions: [],
+            used_global_variables: [],
+            type_condition: Object(67),
+            directives: [],
+            selections: [
+                LinkedField {
+                    alias: Some(
+                        WithLocation {
+                            location: fragment-with-literal-enum-arguments-into-enum-list.graphql:36:51,
+                            item: "mobile_checkins",
+                        },
+                    ),
+                    definition: WithLocation {
+                        location: fragment-with-literal-enum-arguments-into-enum-list.graphql:53:61,
+                        item: FieldID(454),
+                    },
+                    arguments: [
+                        Argument {
+                            name: WithLocation {
+                                location: fragment-with-literal-enum-arguments-into-enum-list.graphql:62:74,
+                                item: "environments",
+                            },
+                            value: WithLocation {
+                                location: fragment-with-literal-enum-arguments-into-enum-list.graphql:76:84,
+                                item: Constant(
+                                    List(
+                                        [
+                                            Enum(
+                                                "MOBILE",
+                                            ),
+                                        ],
+                                    ),
+                                ),
+                            },
+                        },
+                    ],
+                    directives: [],
+                    selections: [
+                        ScalarField {
+                            alias: None,
+                            definition: WithLocation {
+                                location: fragment-with-literal-enum-arguments-into-enum-list.graphql:92:97,
+                                item: FieldID(57),
+                            },
+                            arguments: [],
+                            directives: [],
+                        },
+                    ],
+                },
+                FragmentSpread {
+                    fragment: WithLocation {
+                        location: fragment-with-literal-enum-arguments-into-enum-list.graphql:107:120,
+                        item: "ChildFragment",
+                    },
+                    arguments: [
+                        Argument {
+                            name: WithLocation {
+                                location: fragment-with-literal-enum-arguments-into-enum-list.graphql:132:144,
+                                item: "environments",
+                            },
+                            value: WithLocation {
+                                location: fragment-with-literal-enum-arguments-into-enum-list.graphql:146:149,
+                                item: Constant(
+                                    Enum(
+                                        "WEB",
+                                    ),
+                                ),
+                            },
+                        },
+                    ],
+                    directives: [],
+                },
+            ],
+        },
+    ),
+    Fragment(
+        FragmentDefinition {
+            name: WithLocation {
+                location: fragment-with-literal-enum-arguments-into-enum-list.graphql:163:176,
+                item: "ChildFragment",
+            },
+            variable_definitions: [
+                VariableDefinition {
+                    name: WithLocation {
+                        location: fragment-with-literal-enum-arguments-into-enum-list.graphql:208:220,
+                        item: "environments",
+                    },
+                    type_: NonNull(
+                        List(
+                            NonNull(
+                                Named(
+                                    Enum(1),
+                                ),
+                            ),
+                        ),
+                    ),
+                    default_value: None,
+                    directives: [],
+                },
+            ],
+            used_global_variables: [],
+            type_condition: Object(67),
+            directives: [
+                Directive {
+                    name: WithLocation {
+                        location: fragment-with-literal-enum-arguments-into-enum-list.graphql:188:207,
+                        item: "argumentDefinitions",
+                    },
+                    arguments: [],
+                    data: None,
+                },
+            ],
+            selections: [
+                LinkedField {
+                    alias: None,
+                    definition: WithLocation {
+                        location: fragment-with-literal-enum-arguments-into-enum-list.graphql:253:261,
+                        item: FieldID(454),
+                    },
+                    arguments: [
+                        Argument {
+                            name: WithLocation {
+                                location: fragment-with-literal-enum-arguments-into-enum-list.graphql:262:274,
+                                item: "environments",
+                            },
+                            value: WithLocation {
+                                location: fragment-with-literal-enum-arguments-into-enum-list.graphql:276:289,
+                                item: Variable(
+                                    Variable {
+                                        name: WithLocation {
+                                            location: fragment-with-literal-enum-arguments-into-enum-list.graphql:276:289,
+                                            item: "environments",
+                                        },
+                                        type_: NonNull(
+                                            List(
+                                                NonNull(
+                                                    Named(
+                                                        Enum(1),
+                                                    ),
+                                                ),
+                                            ),
+                                        ),
+                                    },
+                                ),
+                            },
+                        },
+                    ],
+                    directives: [],
+                    selections: [
+                        ScalarField {
+                            alias: None,
+                            definition: WithLocation {
+                                location: fragment-with-literal-enum-arguments-into-enum-list.graphql:297:302,
+                                item: FieldID(57),
+                            },
+                            arguments: [],
+                            directives: [],
+                        },
+                    ],
+                },
+            ],
+        },
+    ),
+]

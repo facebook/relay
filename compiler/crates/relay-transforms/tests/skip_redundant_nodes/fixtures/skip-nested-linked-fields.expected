@@ -1,0 +1,36 @@
+==================================== INPUT ====================================
+query SkipNestedLinkedFields {
+  viewer {
+    actor {
+      hometown {
+        name
+      }
+      ... on User {
+        hometown {
+          name # skip: fetched by parent
+        }
+      }
+      ... on User {
+        hometown {
+          id # keep: not yet fetched
+          name # skip: fetched by parent
+        }
+      }
+    }
+  }
+}
+==================================== OUTPUT ===================================
+query SkipNestedLinkedFields {
+  viewer {
+    actor {
+      hometown {
+        name
+      }
+      ... on User {
+        hometown {
+          id
+        }
+      }
+    }
+  }
+}

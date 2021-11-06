@@ -1,0 +1,161 @@
+==================================== INPUT ====================================
+fragment relayResolver_PopStarNameResolverFragment_name on User {
+  name
+}
+
+query relayResolver_Query {
+  node(id: "SOME_ID") {
+    ... on User {
+      pop_star_name
+    }
+  }
+}
+
+# %extensions%
+
+extend type User {
+  pop_star_name: String @relay_resolver(fragment_name: "relayResolver_PopStarNameResolverFragment_name", import_path: "./path/to/PopStarNameResolver.js")
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "relayResolver_Query",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Literal",
+            "name": "id",
+            "value": "SOME_ID"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "alias": null,
+                "fragment": {
+                  "args": null,
+                  "kind": "FragmentSpread",
+                  "name": "relayResolver_PopStarNameResolverFragment_name"
+                },
+                "kind": "RelayResolver",
+                "name": "pop_star_name",
+                "resolverModule": require('PopStarNameResolver')
+              }
+            ],
+            "type": "User",
+            "abstractKey": null
+          }
+        ],
+        "storageKey": "node(id:\"SOME_ID\")"
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [],
+    "kind": "Operation",
+    "name": "relayResolver_Query",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Literal",
+            "name": "id",
+            "value": "SOME_ID"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "__typename",
+            "storageKey": null
+          },
+          {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "name",
+                "storageKey": null
+              }
+            ],
+            "type": "User",
+            "abstractKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          }
+        ],
+        "storageKey": "node(id:\"SOME_ID\")"
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {},
+    "name": "relayResolver_Query",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query relayResolver_Query {
+  node(id: "SOME_ID") {
+    __typename
+    ... on User {
+      ...relayResolver_PopStarNameResolverFragment_name
+    }
+    id
+  }
+}
+
+fragment relayResolver_PopStarNameResolverFragment_name on User {
+  name
+}
+
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "relayResolver_PopStarNameResolverFragment_name",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "name",
+      "storageKey": null
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}

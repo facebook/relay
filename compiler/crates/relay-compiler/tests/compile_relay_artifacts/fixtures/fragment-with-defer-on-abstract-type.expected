@@ -1,0 +1,216 @@
+==================================== INPUT ====================================
+query fragmentWithDeferOnAbstractType_QueryWithFragmentWithDeferQuery {
+  node(id: "my-id") {
+    ...fragmentWithDeferOnAbstractType_NodeFragment @defer(label: "node")
+  }
+}
+
+fragment fragmentWithDeferOnAbstractType_NodeFragment on Node {
+  id
+  ... on User {
+    name
+  }
+  ... on Page {
+    websites
+  }
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "fragmentWithDeferOnAbstractType_QueryWithFragmentWithDeferQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Literal",
+            "name": "id",
+            "value": "my-id"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "kind": "Defer",
+            "selections": [
+              {
+                "args": null,
+                "kind": "FragmentSpread",
+                "name": "fragmentWithDeferOnAbstractType_NodeFragment"
+              }
+            ]
+          }
+        ],
+        "storageKey": "node(id:\"my-id\")"
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [],
+    "kind": "Operation",
+    "name": "fragmentWithDeferOnAbstractType_QueryWithFragmentWithDeferQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Literal",
+            "name": "id",
+            "value": "my-id"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "__typename",
+            "storageKey": null
+          },
+          {
+            "if": null,
+            "kind": "Defer",
+            "label": "fragmentWithDeferOnAbstractType_QueryWithFragmentWithDeferQuery$defer$node",
+            "selections": [
+              {
+                "kind": "TypeDiscriminator",
+                "abstractKey": "__isNode"
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "id",
+                "storageKey": null
+              },
+              {
+                "kind": "InlineFragment",
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "name",
+                    "storageKey": null
+                  }
+                ],
+                "type": "User",
+                "abstractKey": null
+              },
+              {
+                "kind": "InlineFragment",
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "websites",
+                    "storageKey": null
+                  }
+                ],
+                "type": "Page",
+                "abstractKey": null
+              }
+            ]
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          }
+        ],
+        "storageKey": "node(id:\"my-id\")"
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {},
+    "name": "fragmentWithDeferOnAbstractType_QueryWithFragmentWithDeferQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query fragmentWithDeferOnAbstractType_QueryWithFragmentWithDeferQuery {
+  node(id: "my-id") {
+    __typename
+    ...fragmentWithDeferOnAbstractType_NodeFragment @defer(label: "fragmentWithDeferOnAbstractType_QueryWithFragmentWithDeferQuery$defer$node")
+    id
+  }
+}
+
+fragment fragmentWithDeferOnAbstractType_NodeFragment on Node {
+  __isNode: __typename
+  id
+  ... on User {
+    name
+  }
+  ... on Page {
+    websites
+  }
+}
+
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "fragmentWithDeferOnAbstractType_NodeFragment",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "id",
+      "storageKey": null
+    },
+    {
+      "kind": "InlineFragment",
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "name",
+          "storageKey": null
+        }
+      ],
+      "type": "User",
+      "abstractKey": null
+    },
+    {
+      "kind": "InlineFragment",
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "websites",
+          "storageKey": null
+        }
+      ],
+      "type": "Page",
+      "abstractKey": null
+    }
+  ],
+  "type": "Node",
+  "abstractKey": "__isNode"
+}

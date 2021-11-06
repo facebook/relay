@@ -1,0 +1,15 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment EnabledFoo on Node {
+  ... on Actor {
+    name @required(action: LOG)
+  }
+}
+==================================== ERROR ====================================
+✖︎ Unexpected @required within inline fragment on an abstract type. At runtime we cannot know if this field is null, or if it's missing because the inline fragment did not match
+
+  inline-fragment-on-interface.invalid.graphql:4:10
+    3 │   ... on Actor {
+    4 │     name @required(action: LOG)
+      │          ^^^^^^^^^
+    5 │   }

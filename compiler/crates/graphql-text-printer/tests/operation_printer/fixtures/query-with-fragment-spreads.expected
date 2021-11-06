@@ -1,0 +1,38 @@
+==================================== INPUT ====================================
+fragment UserFragment on User {
+  name
+  likers(first: 5) {
+    count
+  }
+}
+
+query MyQuery($id: ID) {
+  node(id: $id) {
+    ...ActorFragment
+    ...UserFragment
+  }
+}
+
+fragment ActorFragment on Actor {
+  id
+}
+==================================== OUTPUT ===================================
+query MyQuery(
+  $id: ID
+) {
+  node(id: $id) {
+    ...ActorFragment
+    ...UserFragment
+  }
+}
+
+fragment ActorFragment on Actor {
+  id
+}
+
+fragment UserFragment on User {
+  name
+  likers(first: 5) {
+    count
+  }
+}

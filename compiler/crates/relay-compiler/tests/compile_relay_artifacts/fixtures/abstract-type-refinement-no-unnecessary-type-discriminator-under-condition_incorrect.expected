@@ -1,0 +1,300 @@
+==================================== INPUT ====================================
+mutation abstractTypeRefinementNoUnnecessaryTypeDiscriminatorUnderConditionIncorrect_ChangeNameMutation($input: ActorNameChangeInput!, $myVar: Boolean!) {
+  actorNameChange(input: $input) {
+    actor {
+      ... @include(if: $myVar) {
+        ... on Page {
+          username
+        }
+      }
+      ... @skip(if: $myVar) {
+        ... on Page {
+          canViewerLike
+        }
+      }
+      ... {
+        ... on Page {
+          canViewerLike
+        }
+        lastName
+      }
+    }
+  }
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "input"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "myVar"
+      }
+    ],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "abstractTypeRefinementNoUnnecessaryTypeDiscriminatorUnderConditionIncorrect_ChangeNameMutation",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "input",
+            "variableName": "input"
+          }
+        ],
+        "concreteType": "ActorNameChangePayload",
+        "kind": "LinkedField",
+        "name": "actorNameChange",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "concreteType": null,
+            "kind": "LinkedField",
+            "name": "actor",
+            "plural": false,
+            "selections": [
+              {
+                "condition": "myVar",
+                "kind": "Condition",
+                "passingValue": true,
+                "selections": [
+                  {
+                    "kind": "InlineFragment",
+                    "selections": [
+                      {
+                        "alias": null,
+                        "args": null,
+                        "kind": "ScalarField",
+                        "name": "username",
+                        "storageKey": null
+                      }
+                    ],
+                    "type": "Page",
+                    "abstractKey": null
+                  }
+                ]
+              },
+              {
+                "condition": "myVar",
+                "kind": "Condition",
+                "passingValue": false,
+                "selections": [
+                  {
+                    "kind": "InlineFragment",
+                    "selections": [
+                      {
+                        "alias": null,
+                        "args": null,
+                        "kind": "ScalarField",
+                        "name": "canViewerLike",
+                        "storageKey": null
+                      }
+                    ],
+                    "type": "Page",
+                    "abstractKey": null
+                  }
+                ]
+              },
+              {
+                "kind": "InlineFragment",
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "canViewerLike",
+                    "storageKey": null
+                  }
+                ],
+                "type": "Page",
+                "abstractKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "lastName",
+                "storageKey": null
+              }
+            ],
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "type": "Mutation",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "input"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "myVar"
+      }
+    ],
+    "kind": "Operation",
+    "name": "abstractTypeRefinementNoUnnecessaryTypeDiscriminatorUnderConditionIncorrect_ChangeNameMutation",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "input",
+            "variableName": "input"
+          }
+        ],
+        "concreteType": "ActorNameChangePayload",
+        "kind": "LinkedField",
+        "name": "actorNameChange",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "concreteType": null,
+            "kind": "LinkedField",
+            "name": "actor",
+            "plural": false,
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "__typename",
+                "storageKey": null
+              },
+              {
+                "kind": "TypeDiscriminator",
+                "abstractKey": "__isActor"
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "lastName",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "id",
+                "storageKey": null
+              },
+              {
+                "condition": "myVar",
+                "kind": "Condition",
+                "passingValue": true,
+                "selections": [
+                  {
+                    "kind": "InlineFragment",
+                    "selections": [
+                      {
+                        "alias": null,
+                        "args": null,
+                        "kind": "ScalarField",
+                        "name": "username",
+                        "storageKey": null
+                      }
+                    ],
+                    "type": "Page",
+                    "abstractKey": null
+                  }
+                ]
+              },
+              {
+                "condition": "myVar",
+                "kind": "Condition",
+                "passingValue": false,
+                "selections": [
+                  {
+                    "kind": "InlineFragment",
+                    "selections": [
+                      {
+                        "alias": null,
+                        "args": null,
+                        "kind": "ScalarField",
+                        "name": "canViewerLike",
+                        "storageKey": null
+                      }
+                    ],
+                    "type": "Page",
+                    "abstractKey": null
+                  }
+                ]
+              },
+              {
+                "kind": "InlineFragment",
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "canViewerLike",
+                    "storageKey": null
+                  }
+                ],
+                "type": "Page",
+                "abstractKey": null
+              }
+            ],
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {},
+    "name": "abstractTypeRefinementNoUnnecessaryTypeDiscriminatorUnderConditionIncorrect_ChangeNameMutation",
+    "operationKind": "mutation",
+    "text": null
+  }
+}
+
+QUERY:
+
+mutation abstractTypeRefinementNoUnnecessaryTypeDiscriminatorUnderConditionIncorrect_ChangeNameMutation(
+  $input: ActorNameChangeInput!
+  $myVar: Boolean!
+) {
+  actorNameChange(input: $input) {
+    actor {
+      __typename
+      __isActor: __typename @include(if: $myVar)
+      ... on Page @include(if: $myVar) {
+        username
+      }
+      __isActor: __typename @skip(if: $myVar)
+      ... on Page @skip(if: $myVar) {
+        canViewerLike
+      }
+      __isActor: __typename
+      ... on Page {
+        canViewerLike
+      }
+      lastName
+      id
+    }
+  }
+}

@@ -1,0 +1,11 @@
+subscription SubscriptionWithValidNameSubscription {
+    feedbackLikeSubscribe(input: null) {
+        clientMutationId
+    }
+}
+
+subscription SubscriptionWithValidNameSecondSubscription {
+    feedbackLikeSubscribe(input: null) {
+        clientMutationId
+    }
+}

@@ -1,0 +1,156 @@
+==================================== INPUT ====================================
+fragment TestFragment on User
+  @argumentDefinitions(
+    id: {type: "ID"}
+    size: {type: "[Int]", defaultValue: [100]}
+    arg_with_enabled_provider0: {type: "Boolean!", provider: "test_foo_gk.js"} 
+  ) {
+  profilePicture(size: $PictureSize) {
+    uri
+  }
+}
+==================================== OUTPUT ===================================
+[
+    Fragment(
+        FragmentDefinition {
+            name: WithLocation {
+                location: fragment_with_valid_provider.graphql:9:21,
+                item: "TestFragment",
+            },
+            variable_definitions: [
+                VariableDefinition {
+                    name: WithLocation {
+                        location: fragment_with_valid_provider.graphql:58:60,
+                        item: "id",
+                    },
+                    type_: Named(
+                        Scalar(4),
+                    ),
+                    default_value: None,
+                    directives: [],
+                },
+                VariableDefinition {
+                    name: WithLocation {
+                        location: fragment_with_valid_provider.graphql:79:83,
+                        item: "size",
+                    },
+                    type_: List(
+                        Named(
+                            Scalar(0),
+                        ),
+                    ),
+                    default_value: Some(
+                        WithLocation {
+                            location: fragment_with_valid_provider.graphql:115:120,
+                            item: List(
+                                [
+                                    Int(
+                                        100,
+                                    ),
+                                ],
+                            ),
+                        },
+                    ),
+                    directives: [],
+                },
+                VariableDefinition {
+                    name: WithLocation {
+                        location: fragment_with_valid_provider.graphql:126:152,
+                        item: "arg_with_enabled_provider0",
+                    },
+                    type_: NonNull(
+                        Named(
+                            Scalar(3),
+                        ),
+                    ),
+                    default_value: None,
+                    directives: [
+                        Directive {
+                            name: WithLocation {
+                                location: fragment_with_valid_provider.graphql:173:199,
+                                item: "provider",
+                            },
+                            arguments: [],
+                            data: Some(
+                                ProvidedArgument {
+                                    module_name: "test_foo_gk.js",
+                                },
+                            ),
+                        },
+                    ],
+                },
+            ],
+            used_global_variables: [
+                VariableDefinition {
+                    name: WithLocation {
+                        location: fragment_with_valid_provider.graphql:231:243,
+                        item: "PictureSize",
+                    },
+                    type_: List(
+                        Named(
+                            Scalar(0),
+                        ),
+                    ),
+                    default_value: None,
+                    directives: [],
+                },
+            ],
+            type_condition: Object(67),
+            directives: [
+                Directive {
+                    name: WithLocation {
+                        location: fragment_with_valid_provider.graphql:33:52,
+                        item: "argumentDefinitions",
+                    },
+                    arguments: [],
+                    data: None,
+                },
+            ],
+            selections: [
+                LinkedField {
+                    alias: None,
+                    definition: WithLocation {
+                        location: fragment_with_valid_provider.graphql:210:224,
+                        item: FieldID(477),
+                    },
+                    arguments: [
+                        Argument {
+                            name: WithLocation {
+                                location: fragment_with_valid_provider.graphql:225:229,
+                                item: "size",
+                            },
+                            value: WithLocation {
+                                location: fragment_with_valid_provider.graphql:231:243,
+                                item: Variable(
+                                    Variable {
+                                        name: WithLocation {
+                                            location: fragment_with_valid_provider.graphql:231:243,
+                                            item: "PictureSize",
+                                        },
+                                        type_: List(
+                                            Named(
+                                                Scalar(0),
+                                            ),
+                                        ),
+                                    },
+                                ),
+                            },
+                        },
+                    ],
+                    directives: [],
+                    selections: [
+                        ScalarField {
+                            alias: None,
+                            definition: WithLocation {
+                                location: fragment_with_valid_provider.graphql:251:254,
+                                item: FieldID(185),
+                            },
+                            arguments: [],
+                            directives: [],
+                        },
+                    ],
+                },
+            ],
+        },
+    ),
+]

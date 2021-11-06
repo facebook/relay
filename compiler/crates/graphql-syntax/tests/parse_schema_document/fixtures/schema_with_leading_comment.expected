@@ -1,0 +1,52 @@
+==================================== INPUT ====================================
+"""Description of the schema as per https://github.com/graphql/graphql-spec/pull/466"""
+schema {
+  query: RootQueryType
+  mutation: RootMutationType
+}
+==================================== OUTPUT ===================================
+SchemaDocument {
+    location: schema_with_leading_comment.graphql:0:151,
+    definitions: [
+        SchemaDefinition(
+            SchemaDefinition {
+                directives: [],
+                operation_types: List {
+                    span: 95:150,
+                    start: Token {
+                        span: 95:96,
+                        kind: OpenBrace,
+                    },
+                    items: [
+                        OperationTypeDefinition {
+                            operation: Query,
+                            type_: Identifier {
+                                span: 106:119,
+                                token: Token {
+                                    span: 106:119,
+                                    kind: Identifier,
+                                },
+                                value: "RootQueryType",
+                            },
+                        },
+                        OperationTypeDefinition {
+                            operation: Mutation,
+                            type_: Identifier {
+                                span: 132:148,
+                                token: Token {
+                                    span: 132:148,
+                                    kind: Identifier,
+                                },
+                                value: "RootMutationType",
+                            },
+                        },
+                    ],
+                    end: Token {
+                        span: 149:150,
+                        kind: CloseBrace,
+                    },
+                },
+            },
+        ),
+    ],
+}

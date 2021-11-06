@@ -1,0 +1,12 @@
+# expected-to-throw
+
+query unmaskedFragmentSpreadsLocalArguments_TestQuery {
+  me {
+    ...unmaskedFragmentSpreadsLocalArguments_User_user @relay(mask: false)
+  }
+}
+
+fragment unmaskedFragmentSpreadsLocalArguments_User_user on User
+  @argumentDefinitions(isRelative: {type: "Boolean!", defaultValue: false}) {
+  url(relative: $isRelative)
+}

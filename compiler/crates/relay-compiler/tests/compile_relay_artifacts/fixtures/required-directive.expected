@@ -1,0 +1,35 @@
+==================================== INPUT ====================================
+fragment requiredDirective_Foo_user on User {
+  id
+  name @required(action: THROW)
+}
+==================================== OUTPUT ===================================
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "requiredDirective_Foo_user",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "id",
+      "storageKey": null
+    },
+    {
+      "kind": "RequiredField",
+      "field": {
+        "alias": null,
+        "args": null,
+        "kind": "ScalarField",
+        "name": "name",
+        "storageKey": null
+      },
+      "action": "THROW",
+      "path": "name"
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}

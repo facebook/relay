@@ -1,0 +1,21 @@
+# expected-to-throw
+
+query refetchableWithArgumentsConflictingQuery($site: String) {
+  node(id: "x") {
+    ...refetchableWithArgumentsConflictingF1 @arguments(site: $site)
+  }
+}
+
+fragment refetchableWithArgumentsConflictingF1 on Node
+  @argumentDefinitions(site: {type: "String"})
+  @refetchable(queryName: "refetchableWithArgumentsConflictingRefetchQuery")
+{
+  # local $site
+  p1: url(site: $site)
+  ...refetchableWithArgumentsConflictingF2
+}
+
+fragment refetchableWithArgumentsConflictingF2 on Node {
+  # global $site
+  p2: url(site: $site)
+}

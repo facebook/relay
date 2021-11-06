@@ -1,0 +1,6 @@
+#expected-to-throw
+mutation MutationWithAnotherNameMutation {
+    commentCreate(input: null) {
+        clientMutationId
+    }
+}

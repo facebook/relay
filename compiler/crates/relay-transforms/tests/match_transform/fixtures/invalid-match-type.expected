@@ -1,0 +1,28 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment NameRendererFragment on User {
+  id
+  nameRenderer @match {
+    ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+    ...User_user @module(name: "User.react")
+  }
+}
+
+fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+  plaintext
+  data {
+    text
+  }
+}
+
+fragment User_user on User {
+  __typename
+}
+==================================== ERROR ====================================
+✖︎ Invalid fragment spread 'User_user', the type of this fragment ('User') can never occur for parent type 'UserNameRenderer'
+
+  invalid-match-type.graphql:6:5
+    5 │     ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+    6 │     ...User_user @module(name: "User.react")
+      │     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    7 │   }

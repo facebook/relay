@@ -1,0 +1,87 @@
+==================================== INPUT ====================================
+fragment clientFieldsOfClientType_Foo_user on User {
+  id
+
+  client_foo {
+    client_name
+    profile_picture(scale: 2) {
+      uri
+    }
+  }
+}
+
+# %extensions%
+
+extend type User {
+  client_foo: Foo
+}
+
+type Foo {
+  client_name: String
+  profile_picture(scale: Float): Image
+}
+==================================== OUTPUT ===================================
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "clientFieldsOfClientType_Foo_user",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "id",
+      "storageKey": null
+    },
+    {
+      "kind": "ClientExtension",
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "concreteType": "Foo",
+          "kind": "LinkedField",
+          "name": "client_foo",
+          "plural": false,
+          "selections": [
+            {
+              "alias": null,
+              "args": null,
+              "kind": "ScalarField",
+              "name": "client_name",
+              "storageKey": null
+            },
+            {
+              "alias": null,
+              "args": [
+                {
+                  "kind": "Literal",
+                  "name": "scale",
+                  "value": 2
+                }
+              ],
+              "concreteType": "Image",
+              "kind": "LinkedField",
+              "name": "profile_picture",
+              "plural": false,
+              "selections": [
+                {
+                  "alias": null,
+                  "args": null,
+                  "kind": "ScalarField",
+                  "name": "uri",
+                  "storageKey": null
+                }
+              ],
+              "storageKey": "profile_picture(scale:2)"
+            }
+          ],
+          "storageKey": null
+        }
+      ]
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}

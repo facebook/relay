@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -10,12 +10,14 @@
 
 'use strict';
 
-const RelayModernFragmentSpecResolver = require('RelayModernFragmentSpecResolver');
-const RelayModernTestUtils = require('RelayModernTestUtils');
-
-const {createMockEnvironment} = require('RelayModernMockEnvironment');
-const {createOperationSelector} = require('RelayModernOperationSelector');
-const {ROOT_ID} = require('RelayStoreUtils');
+const {fetchQuery} = require('../../query/fetchQueryInternal');
+const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
+const RelayModernFragmentSpecResolver = require('../RelayModernFragmentSpecResolver');
+const {
+  createOperationDescriptor,
+} = require('../RelayModernOperationDescriptor');
+const {getRequest, graphql} = require('relay-runtime');
+const {createMockEnvironment} = require('relay-test-utils-internal');
 
 describe('RelayModernFragmentSpecResolver', () => {
   let UserFragment;
@@ -24,7 +26,9 @@ describe('RelayModernFragmentSpecResolver', () => {
   let context;
   let environment;
   let zuck;
+  let zuckOperation;
   let beast;
+  let beastOperation;
   let variables;
 
   function setName(id, name) {
@@ -51,71 +55,66 @@ describe('RelayModernFragmentSpecResolver', () => {
   }
 
   beforeEach(() => {
-    expect.extend(RelayModernTestUtils.matchers);
-
     environment = createMockEnvironment();
-    ({UserFragment, UserQuery, UsersFragment} = environment.mock.compile(
-      `
-      query UserQuery($id: ID! $size: Int $fetchSize: Boolean!) {
+    UserFragment = graphql`
+      fragment RelayModernFragmentSpecResolverTestQueryUserFragment on User {
+        id
+        name
+        profilePicture(size: $size) @include(if: $fetchSize) {
+          uri
+        }
+      }
+    `;
+    UsersFragment = graphql`
+      fragment RelayModernFragmentSpecResolverTestQueryUsersFragment on User
+      @relay(plural: true) {
+        id
+        name
+        profilePicture(size: $size) @include(if: $fetchSize) {
+          uri
+        }
+      }
+    `;
+
+    UserQuery = getRequest(graphql`
+      query RelayModernFragmentSpecResolverTestQuery(
+        $id: ID!
+        $size: [Int]
+        $fetchSize: Boolean!
+      ) {
         node(id: $id) {
-          ...UserFragment
-          ...UsersFragment
+          ...RelayModernFragmentSpecResolverTestQueryUserFragment
+          ...RelayModernFragmentSpecResolverTestQueryUsersFragment
         }
       }
-      fragment UserFragment on User {
-        id
-        name
-        profilePicture(size: $size) @include(if: $fetchSize) {
-          uri
-        }
-      }
-      fragment UsersFragment on User @relay(plural: true) {
-        id
-        name
-        profilePicture(size: $size) @include(if: $fetchSize) {
-          uri
-        }
-      }
-    `,
-    ));
-    environment.commitPayload(
-      createOperationSelector(UserQuery, {
-        fetchSize: false,
+    `);
+
+    zuckOperation = createOperationDescriptor(UserQuery, {
+      fetchSize: false,
+      id: '4',
+      size: null,
+    });
+    beastOperation = createOperationDescriptor(UserQuery, {
+      fetchSize: false,
+      id: 'beast',
+      size: null,
+    });
+    environment.commitPayload(zuckOperation, {
+      node: {
         id: '4',
-        size: null,
-      }),
-      {
-        node: {
-          id: '4',
-          __typename: 'User',
-          name: 'Zuck',
-        },
+        __typename: 'User',
+        name: 'Zuck',
       },
-    );
-    environment.commitPayload(
-      createOperationSelector(UserQuery, {
-        fetchSize: false,
+    });
+    environment.commitPayload(beastOperation, {
+      node: {
         id: 'beast',
-        size: null,
-      }),
-      {
-        node: {
-          id: 'beast',
-          __typename: 'User',
-          name: 'Beast',
-        },
+        __typename: 'User',
+        name: 'Beast',
       },
-    );
-    zuck = environment.lookup({
-      dataID: ROOT_ID,
-      node: UserQuery.fragment,
-      variables: {id: '4'},
-    }).data.node;
-    beast = environment.lookup({
-      dataID: ROOT_ID,
-      node: UserQuery.fragment,
-      variables: {id: 'beast'},
-    }).data.node;
+    });
+    zuck = environment.lookup(zuckOperation.fragment).data.node;
+    beast = environment.lookup(beastOperation.fragment).data.node;
 
     variables = {
       fetchSize: false,
@@ -131,6 +130,7 @@ describe('RelayModernFragmentSpecResolver', () => {
       {user: UserFragment},
       {foo: 'foo', bar: 42},
       jest.fn(),
+      true /* rootIsQueryRenderer */,
     );
     expect(resolver.resolve()).toEqual({
       user: null, // set to null since prop is missing
@@ -144,6 +144,7 @@ describe('RelayModernFragmentSpecResolver', () => {
         {user: UserFragment},
         {user: null},
         jest.fn(),
+        true /* rootIsQueryRenderer */,
       );
       expect(resolver.resolve()).toEqual({user: null});
       resolver = new RelayModernFragmentSpecResolver(
@@ -151,6 +152,7 @@ describe('RelayModernFragmentSpecResolver', () => {
         {user: UserFragment},
         {user: undefined},
         jest.fn(),
+        true /* rootIsQueryRenderer */,
       );
       expect(resolver.resolve()).toEqual({user: null});
     });
@@ -162,6 +164,7 @@ describe('RelayModernFragmentSpecResolver', () => {
         {user: UserFragment},
         {user},
         jest.fn(),
+        true /* rootIsQueryRenderer */,
       );
       expect(resolver.resolve().user).toBe(user);
     });
@@ -172,6 +175,7 @@ describe('RelayModernFragmentSpecResolver', () => {
         {user: UserFragment},
         {user: null},
         jest.fn(),
+        true /* rootIsQueryRenderer */,
       );
       expect(() => resolver.dispose()).not.toThrow();
     });
@@ -182,6 +186,7 @@ describe('RelayModernFragmentSpecResolver', () => {
         {user: UserFragment},
         {user: zuck},
         jest.fn(),
+        true /* rootIsQueryRenderer */,
       );
       expect(resolver.resolve()).toEqual({
         user: {
@@ -198,6 +203,7 @@ describe('RelayModernFragmentSpecResolver', () => {
         {user: UserFragment},
         {user: zuck},
         callback,
+        true /* rootIsQueryRenderer */,
       );
       setName('4', 'Mark'); // Zuck -> Mark
       expect(callback).toBeCalled();
@@ -216,6 +222,7 @@ describe('RelayModernFragmentSpecResolver', () => {
         {user: UserFragment},
         {user: zuck},
         callback,
+        true /* rootIsQueryRenderer */,
       );
       resolver.dispose();
       setName('4', 'Mark'); // Zuck -> Mark
@@ -239,6 +246,7 @@ describe('RelayModernFragmentSpecResolver', () => {
           {user: UserFragment},
           {user: zuck},
           callback,
+          true /* rootIsQueryRenderer */,
         );
       });
 
@@ -264,6 +272,7 @@ describe('RelayModernFragmentSpecResolver', () => {
           {user: UserFragment},
           {user: {}},
           callback,
+          true /* rootIsQueryRenderer */,
         );
         resolver.setProps({user: zuck});
         expect(callback).not.toBeCalled();
@@ -340,6 +349,7 @@ describe('RelayModernFragmentSpecResolver', () => {
           {user: UserFragment},
           {user: zuck},
           callback,
+          true /* rootIsQueryRenderer */,
         );
       });
 
@@ -349,10 +359,13 @@ describe('RelayModernFragmentSpecResolver', () => {
         environment.lookup.mockClear();
         environment.subscribe.mockClear();
 
-        resolver.setVariables({
-          fetchSize: false,
-          size: null,
-        });
+        resolver.setVariables(
+          {
+            fetchSize: false,
+            size: null,
+          },
+          UserQuery,
+        );
         expect(dispose).not.toBeCalled();
         expect(environment.lookup).not.toBeCalled();
         expect(environment.subscribe).not.toBeCalled();
@@ -363,10 +376,13 @@ describe('RelayModernFragmentSpecResolver', () => {
         const dispose = environment.subscribe.mock.dispose;
         setPhotoUri('4', 1, 'https://4.jpg');
         expect(dispose).not.toBeCalled();
-        resolver.setVariables({
-          fetchSize: true,
-          size: 1,
-        });
+        resolver.setVariables(
+          {
+            fetchSize: true,
+            size: 1,
+          },
+          UserQuery,
+        );
         expect(callback).not.toBeCalled();
         expect(dispose).toBeCalled();
         expect(resolver.resolve()).toEqual({
@@ -382,10 +398,13 @@ describe('RelayModernFragmentSpecResolver', () => {
 
       it('calls callback when fragment data changes', () => {
         setPhotoUri('4', 1, 'https://4.jpg');
-        resolver.setVariables({
-          fetchSize: true,
-          size: 1,
-        });
+        resolver.setVariables(
+          {
+            fetchSize: true,
+            size: 1,
+          },
+          UserQuery,
+        );
         expect(callback).not.toBeCalled();
         setPhotoUri('4', 1, 'https://zuck.jpg');
         expect(callback).toBeCalled();
@@ -409,6 +428,7 @@ describe('RelayModernFragmentSpecResolver', () => {
         {user: UsersFragment},
         {user: null},
         jest.fn(),
+        true /* rootIsQueryRenderer */,
       );
       expect(resolver.resolve()).toEqual({user: null});
       resolver = new RelayModernFragmentSpecResolver(
@@ -416,6 +436,7 @@ describe('RelayModernFragmentSpecResolver', () => {
         {user: UsersFragment},
         {user: undefined},
         jest.fn(),
+        true /* rootIsQueryRenderer */,
       );
       expect(resolver.resolve()).toEqual({user: null});
     });
@@ -427,6 +448,7 @@ describe('RelayModernFragmentSpecResolver', () => {
         {user: UsersFragment},
         {user: users},
         jest.fn(),
+        true /* rootIsQueryRenderer */,
       );
       expect(resolver.resolve().user).toBe(users);
     });
@@ -437,6 +459,7 @@ describe('RelayModernFragmentSpecResolver', () => {
         {user: UsersFragment},
         {user: [zuck]},
         jest.fn(),
+        true /* rootIsQueryRenderer */,
       );
       expect(resolver.resolve()).toEqual({
         user: [
@@ -455,6 +478,7 @@ describe('RelayModernFragmentSpecResolver', () => {
         {user: UsersFragment},
         {user: [zuck]},
         callback,
+        true /* rootIsQueryRenderer */,
       );
       setName('4', 'Mark'); // Zuck -> Mark
       expect(callback).toBeCalled();
@@ -474,6 +498,7 @@ describe('RelayModernFragmentSpecResolver', () => {
         {user: UsersFragment},
         {user: [zuck, beast]},
         jest.fn(),
+        true /* rootIsQueryRenderer */,
       );
 
       expect(resolver.resolve()).toEqual({
@@ -508,6 +533,7 @@ describe('RelayModernFragmentSpecResolver', () => {
         {user: UsersFragment},
         {user: [zuck]},
         callback,
+        true /* rootIsQueryRenderer */,
       );
       resolver.dispose();
       setName('4', 'Mark'); // Zuck -> Mark
@@ -533,6 +559,7 @@ describe('RelayModernFragmentSpecResolver', () => {
           {user: UsersFragment},
           {user: [zuck]},
           callback,
+          true /* rootIsQueryRenderer */,
         );
       });
 
@@ -558,6 +585,7 @@ describe('RelayModernFragmentSpecResolver', () => {
           {user: UsersFragment},
           {user: [{}]},
           callback,
+          true /* rootIsQueryRenderer */,
         );
         resolver.setProps({user: [zuck]});
         expect(callback).not.toBeCalled();
@@ -706,6 +734,7 @@ describe('RelayModernFragmentSpecResolver', () => {
           {user: UsersFragment},
           {user: [zuck]},
           callback,
+          true /* rootIsQueryRenderer */,
         );
       });
 
@@ -715,10 +744,13 @@ describe('RelayModernFragmentSpecResolver', () => {
         environment.lookup.mockClear();
         environment.subscribe.mockClear();
 
-        resolver.setVariables({
-          fetchSize: false,
-          size: null,
-        });
+        resolver.setVariables(
+          {
+            fetchSize: false,
+            size: null,
+          },
+          UserQuery,
+        );
         expect(dispose).not.toBeCalled();
         expect(environment.lookup).not.toBeCalled();
         expect(environment.subscribe).not.toBeCalled();
@@ -729,10 +761,13 @@ describe('RelayModernFragmentSpecResolver', () => {
         const dispose = environment.subscribe.mock.dispose;
         setPhotoUri('4', 1, 'https://4.jpg');
         expect(dispose).not.toBeCalled();
-        resolver.setVariables({
-          fetchSize: true,
-          size: 1,
-        });
+        resolver.setVariables(
+          {
+            fetchSize: true,
+            size: 1,
+          },
+          UserQuery,
+        );
         expect(callback).not.toBeCalled();
         expect(dispose).toBeCalled();
         expect(resolver.resolve()).toEqual({
@@ -750,10 +785,13 @@ describe('RelayModernFragmentSpecResolver', () => {
 
       it('calls callback when fragment data changes', () => {
         setPhotoUri('4', 1, 'https://4.jpg');
-        resolver.setVariables({
-          fetchSize: true,
-          size: 1,
-        });
+        resolver.setVariables(
+          {
+            fetchSize: true,
+            size: 1,
+          },
+          UserQuery,
+        );
         expect(callback).not.toBeCalled();
         setPhotoUri('4', 1, 'https://zuck.jpg');
         expect(callback).toBeCalled();
@@ -768,6 +806,163 @@ describe('RelayModernFragmentSpecResolver', () => {
             },
           ],
         });
+      });
+    });
+  });
+
+  describe('suspense compatibility', () => {
+    describe('when data is missing and query is in progress', () => {
+      beforeEach(() => {
+        jest.mock('warning');
+        setName('4', undefined);
+        fetchQuery(environment, zuckOperation).subscribe({});
+      });
+      it('only warns but does not suspend if resolver is under a QueryRenderer root', () => {
+        const warning = require('warning');
+        warning.mockClear();
+        const resolver = new RelayModernFragmentSpecResolver(
+          context,
+          {user: UserFragment},
+          {user: zuck},
+          jest.fn(),
+          true /* rootIsQueryRenderer */,
+        );
+        expect(resolver.resolve()).toEqual({
+          user: {
+            id: '4',
+            name: undefined,
+          },
+        });
+        expect(warning).toHaveBeenCalledTimes(1);
+        expect(warning.mock.calls[0][1]).toContain(
+          'has missing data and would suspend',
+        );
+      });
+
+      it('warns and suspends if resolver is NOT under QueryRenderer root (i.e. root is a Relay Hooks query)', () => {
+        const warning = require('warning');
+        warning.mockClear();
+        const resolver = new RelayModernFragmentSpecResolver(
+          context,
+          {user: UserFragment},
+          {user: zuck},
+          jest.fn(),
+          false /* rootIsQueryRenderer */,
+        );
+        let promise;
+        try {
+          resolver.resolve();
+        } catch (e) {
+          promise = e;
+        }
+        expect(promise).toBeDefined();
+        expect(promise.then).toBeDefined();
+        expect(warning).toHaveBeenCalledTimes(1);
+        expect(warning.mock.calls[0][1]).toContain('suspended');
+      });
+    });
+
+    describe('when data is missing and operation that affects query is in progress', () => {
+      let AffectingQuery;
+      beforeEach(() => {
+        jest.mock('warning');
+
+        AffectingQuery = getRequest(graphql`
+          query RelayModernFragmentSpecResolverTestAffectingQuery(
+            $id: ID!
+            $size: [Int]
+            $fetchSize: Boolean!
+          ) {
+            node(id: $id) {
+              ...RelayModernFragmentSpecResolverTestQueryUserFragment
+              ...RelayModernFragmentSpecResolverTestQueryUsersFragment
+            }
+          }
+        `);
+        const affectingQueryOperation = createOperationDescriptor(
+          AffectingQuery,
+          {
+            fetchSize: false,
+            id: '4',
+            size: null,
+          },
+        );
+
+        fetchQuery(environment, affectingQueryOperation).subscribe({});
+      });
+
+      it('only warns but does not suspend if resolver is under a QueryRenderer root', () => {
+        const warning = require('warning');
+        warning.mockClear();
+        const resolver = new RelayModernFragmentSpecResolver(
+          context,
+          {user: UserFragment},
+          {user: zuck},
+          jest.fn(),
+          true /* rootIsQueryRenderer */,
+        );
+
+        // Process a payload on the affecting query so we know it affects
+        // the current fragment
+        environment.mock.nextValue(AffectingQuery, {
+          data: {
+            node: {
+              id: '4',
+              __typename: 'User',
+              name: 'Some value',
+            },
+          },
+        });
+        setName('4', undefined); // Keep this field missing
+        warning.mockClear();
+
+        expect(resolver.resolve()).toEqual({
+          user: {
+            id: '4',
+            name: undefined,
+          },
+        });
+        expect(warning).toHaveBeenCalledTimes(1);
+        expect(warning.mock.calls[0][1]).toContain(
+          'has missing data and would suspend',
+        );
+      });
+
+      it('warns and suspends if resolver is NOT under QueryRenderer root (i.e. root is a Relay Hooks query)', () => {
+        const warning = require('warning');
+        warning.mockClear();
+        const resolver = new RelayModernFragmentSpecResolver(
+          context,
+          {user: UserFragment},
+          {user: zuck},
+          jest.fn(),
+          false /* rootIsQueryRenderer */,
+        );
+
+        // Process a payload on the affecting query so we know it affects
+        // the current fragment
+        environment.mock.nextValue(AffectingQuery, {
+          data: {
+            node: {
+              id: '4',
+              __typename: 'User',
+              name: 'Some value',
+            },
+          },
+        });
+        setName('4', undefined); // Keep this field missing
+        warning.mockClear();
+
+        let promise;
+        try {
+          resolver.resolve();
+        } catch (e) {
+          promise = e;
+        }
+        expect(promise).toBeDefined();
+        expect(promise.then).toBeDefined();
+        expect(warning).toHaveBeenCalledTimes(1);
+        expect(warning.mock.calls[0][1]).toContain('suspended');
       });
     });
   });

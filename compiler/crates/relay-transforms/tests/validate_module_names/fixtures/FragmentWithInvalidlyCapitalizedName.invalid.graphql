@@ -1,0 +1,4 @@
+#expected-to-throw
+fragment fragmentWithInvalidlyCapitalizedName on User {
+    name
+}

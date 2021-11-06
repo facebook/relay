@@ -1,0 +1,30 @@
+==================================== INPUT ====================================
+fragment TestFragment on User {
+  traits # This is a list of enums.
+}
+==================================== OUTPUT ===================================
+[
+    Fragment(
+        FragmentDefinition {
+            name: WithLocation {
+                location: list-of-enums.graphql:9:21,
+                item: "TestFragment",
+            },
+            variable_definitions: [],
+            used_global_variables: [],
+            type_condition: Object(67),
+            directives: [],
+            selections: [
+                ScalarField {
+                    alias: None,
+                    definition: WithLocation {
+                        location: list-of-enums.graphql:34:40,
+                        item: FieldID(486),
+                    },
+                    arguments: [],
+                    directives: [],
+                },
+            ],
+        },
+    ),
+]

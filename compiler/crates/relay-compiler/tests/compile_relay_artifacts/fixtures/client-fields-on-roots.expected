@@ -1,0 +1,290 @@
+==================================== INPUT ====================================
+query clientFieldsOnRoots_FooQuery($id: ID!) {
+  client_root_field
+
+  node(id: $id) {
+    id
+  }
+}
+
+mutation clientFieldsOnRoots_FooMutation($input: UnfriendInput) {
+  client_root_field
+  unfriend(input: $input) {
+    clientMutationId
+  }
+}
+
+# not working with generate_subscription_name_metadata
+# subscription FooSubscription($input: FeedbackLikeInput) {
+#   client_root_field
+#   feedbackLikeSubscribe(input: $input) {
+#     clientSubscriptionId
+#   }
+# }
+
+# %extensions%
+
+extend type Query {
+  client_root_field: String
+}
+
+extend type Mutation {
+  client_root_field: String
+}
+
+# extend type Subscription {
+#   client_root_field: String
+# }
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "input"
+      }
+    ],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "clientFieldsOnRoots_FooMutation",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "input",
+            "variableName": "input"
+          }
+        ],
+        "concreteType": "UnfriendResponsePayload",
+        "kind": "LinkedField",
+        "name": "unfriend",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "clientMutationId",
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      },
+      {
+        "kind": "ClientExtension",
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "client_root_field",
+            "storageKey": null
+          }
+        ]
+      }
+    ],
+    "type": "Mutation",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "input"
+      }
+    ],
+    "kind": "Operation",
+    "name": "clientFieldsOnRoots_FooMutation",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "input",
+            "variableName": "input"
+          }
+        ],
+        "concreteType": "UnfriendResponsePayload",
+        "kind": "LinkedField",
+        "name": "unfriend",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "clientMutationId",
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      },
+      {
+        "kind": "ClientExtension",
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "client_root_field",
+            "storageKey": null
+          }
+        ]
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {},
+    "name": "clientFieldsOnRoots_FooMutation",
+    "operationKind": "mutation",
+    "text": null
+  }
+}
+
+QUERY:
+
+mutation clientFieldsOnRoots_FooMutation(
+  $input: UnfriendInput
+) {
+  unfriend(input: $input) {
+    clientMutationId
+  }
+}
+
+
+{
+  "fragment": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "id"
+      }
+    ],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "clientFieldsOnRoots_FooQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      },
+      {
+        "kind": "ClientExtension",
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "client_root_field",
+            "storageKey": null
+          }
+        ]
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "id"
+      }
+    ],
+    "kind": "Operation",
+    "name": "clientFieldsOnRoots_FooQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "__typename",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      },
+      {
+        "kind": "ClientExtension",
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "client_root_field",
+            "storageKey": null
+          }
+        ]
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {},
+    "name": "clientFieldsOnRoots_FooQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query clientFieldsOnRoots_FooQuery(
+  $id: ID!
+) {
+  node(id: $id) {
+    __typename
+    id
+  }
+}

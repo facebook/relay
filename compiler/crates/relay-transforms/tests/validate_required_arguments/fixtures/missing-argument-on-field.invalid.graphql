@@ -1,0 +1,8 @@
+# expected-to-throw
+query missingArgumentOnFieldTestQuery {
+  node {
+    hometown {
+      nameWithArgs
+    }
+  }
+}

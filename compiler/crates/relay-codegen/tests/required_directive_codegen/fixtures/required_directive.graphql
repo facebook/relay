@@ -1,0 +1,4 @@
+fragment MyFragment on Node {
+  id
+  name @required(action: LOG)
+}

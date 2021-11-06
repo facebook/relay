@@ -1,0 +1,483 @@
+==================================== INPUT ====================================
+query streamIfArgumentsQuery($valueFromQuery: Boolean) {
+  me {
+    ...streamIfArgumentsFragment
+      @arguments(
+        setToValue: $valueFromQuery
+        setToTrue: true
+        setToFalse: false
+      )
+  }
+}
+
+fragment streamIfArgumentsFragment on User
+@argumentDefinitions(
+  defaultsToTrue: { type: "Boolean", defaultValue: true }
+  defaultsToFalse: { type: "Boolean", defaultValue: false }
+  setToValue: { type: "Boolean", defaultValue: false }
+  setToTrue: { type: "Boolean", defaultValue: false }
+  setToFalse: { type: "Boolean", defaultValue: false }
+) {
+  withDefaultTrue: tasks
+    @stream(initial_count: 1, if: $defaultsToTrue, label: "defaultTrue") {
+    __typename
+  }
+  withDefaultFalse: tasks
+    @stream(initial_count: 1, if: $defaultsToFalse, label: "defaultFalse") {
+    __typename
+  }
+  setToTrue: tasks
+    @stream(initial_count: 1, if: $setToTrue, label: "setToTrue") {
+    __typename
+  }
+  setToFalse: tasks
+    @stream(initial_count: 1, if: $setToFalse, label: "setToFalse") {
+    __typename
+  }
+  withValueFromQueryDirectly: tasks
+    @stream(initial_count: 1, if: $valueFromQuery, label: "fromQueryDirectly") {
+    __typename
+  }
+  withValueFromQueryViaArgDef: tasks
+    @stream(initial_count: 1, if: $setToValue, label: "fromQueryViaArg") {
+    __typename
+  }
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "valueFromQuery"
+      }
+    ],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "streamIfArgumentsQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "me",
+        "plural": false,
+        "selections": [
+          {
+            "args": [
+              {
+                "kind": "Literal",
+                "name": "setToFalse",
+                "value": false
+              },
+              {
+                "kind": "Literal",
+                "name": "setToTrue",
+                "value": true
+              },
+              {
+                "kind": "Variable",
+                "name": "setToValue",
+                "variableName": "valueFromQuery"
+              }
+            ],
+            "kind": "FragmentSpread",
+            "name": "streamIfArgumentsFragment"
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "valueFromQuery"
+      }
+    ],
+    "kind": "Operation",
+    "name": "streamIfArgumentsQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "me",
+        "plural": false,
+        "selections": [
+          {
+            "if": null,
+            "kind": "Stream",
+            "label": "streamIfArgumentsFragment$stream$defaultTrue",
+            "selections": [
+              {
+                "alias": "withDefaultTrue",
+                "args": null,
+                "concreteType": "Task",
+                "kind": "LinkedField",
+                "name": "tasks",
+                "plural": true,
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "__typename",
+                    "storageKey": null
+                  }
+                ],
+                "storageKey": null
+              }
+            ]
+          },
+          {
+            "alias": "withDefaultFalse",
+            "args": null,
+            "concreteType": "Task",
+            "kind": "LinkedField",
+            "name": "tasks",
+            "plural": true,
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "__typename",
+                "storageKey": null
+              }
+            ],
+            "storageKey": null
+          },
+          {
+            "if": null,
+            "kind": "Stream",
+            "label": "streamIfArgumentsFragment$stream$setToTrue",
+            "selections": [
+              {
+                "alias": "setToTrue",
+                "args": null,
+                "concreteType": "Task",
+                "kind": "LinkedField",
+                "name": "tasks",
+                "plural": true,
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "__typename",
+                    "storageKey": null
+                  }
+                ],
+                "storageKey": null
+              }
+            ]
+          },
+          {
+            "alias": "setToFalse",
+            "args": null,
+            "concreteType": "Task",
+            "kind": "LinkedField",
+            "name": "tasks",
+            "plural": true,
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "__typename",
+                "storageKey": null
+              }
+            ],
+            "storageKey": null
+          },
+          {
+            "if": "valueFromQuery",
+            "kind": "Stream",
+            "label": "streamIfArgumentsFragment$stream$fromQueryDirectly",
+            "selections": [
+              {
+                "alias": "withValueFromQueryDirectly",
+                "args": null,
+                "concreteType": "Task",
+                "kind": "LinkedField",
+                "name": "tasks",
+                "plural": true,
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "__typename",
+                    "storageKey": null
+                  }
+                ],
+                "storageKey": null
+              }
+            ]
+          },
+          {
+            "if": "valueFromQuery",
+            "kind": "Stream",
+            "label": "streamIfArgumentsFragment$stream$fromQueryViaArg",
+            "selections": [
+              {
+                "alias": "withValueFromQueryViaArgDef",
+                "args": null,
+                "concreteType": "Task",
+                "kind": "LinkedField",
+                "name": "tasks",
+                "plural": true,
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "__typename",
+                    "storageKey": null
+                  }
+                ],
+                "storageKey": null
+              }
+            ]
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {},
+    "name": "streamIfArgumentsQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query streamIfArgumentsQuery(
+  $valueFromQuery: Boolean
+) {
+  me {
+    ...streamIfArgumentsFragment_39RTKZ
+    id
+  }
+}
+
+fragment streamIfArgumentsFragment_39RTKZ on User {
+  withDefaultTrue: tasks @stream(label: "streamIfArgumentsFragment$stream$defaultTrue", if: true, initial_count: 1) {
+    __typename
+  }
+  withDefaultFalse: tasks {
+    __typename
+  }
+  setToTrue: tasks @stream(label: "streamIfArgumentsFragment$stream$setToTrue", if: true, initial_count: 1) {
+    __typename
+  }
+  setToFalse: tasks {
+    __typename
+  }
+  withValueFromQueryDirectly: tasks @stream(label: "streamIfArgumentsFragment$stream$fromQueryDirectly", if: $valueFromQuery, initial_count: 1) {
+    __typename
+  }
+  withValueFromQueryViaArgDef: tasks @stream(label: "streamIfArgumentsFragment$stream$fromQueryViaArg", if: $valueFromQuery, initial_count: 1) {
+    __typename
+  }
+}
+
+
+{
+  "argumentDefinitions": [
+    {
+      "defaultValue": false,
+      "kind": "LocalArgument",
+      "name": "defaultsToFalse"
+    },
+    {
+      "defaultValue": true,
+      "kind": "LocalArgument",
+      "name": "defaultsToTrue"
+    },
+    {
+      "defaultValue": false,
+      "kind": "LocalArgument",
+      "name": "setToFalse"
+    },
+    {
+      "defaultValue": false,
+      "kind": "LocalArgument",
+      "name": "setToTrue"
+    },
+    {
+      "defaultValue": false,
+      "kind": "LocalArgument",
+      "name": "setToValue"
+    },
+    {
+      "kind": "RootArgument",
+      "name": "valueFromQuery"
+    }
+  ],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "streamIfArgumentsFragment",
+  "selections": [
+    {
+      "kind": "Stream",
+      "selections": [
+        {
+          "alias": "withDefaultTrue",
+          "args": null,
+          "concreteType": "Task",
+          "kind": "LinkedField",
+          "name": "tasks",
+          "plural": true,
+          "selections": [
+            {
+              "alias": null,
+              "args": null,
+              "kind": "ScalarField",
+              "name": "__typename",
+              "storageKey": null
+            }
+          ],
+          "storageKey": null
+        }
+      ]
+    },
+    {
+      "kind": "Stream",
+      "selections": [
+        {
+          "alias": "withDefaultFalse",
+          "args": null,
+          "concreteType": "Task",
+          "kind": "LinkedField",
+          "name": "tasks",
+          "plural": true,
+          "selections": [
+            {
+              "alias": null,
+              "args": null,
+              "kind": "ScalarField",
+              "name": "__typename",
+              "storageKey": null
+            }
+          ],
+          "storageKey": null
+        }
+      ]
+    },
+    {
+      "kind": "Stream",
+      "selections": [
+        {
+          "alias": "setToTrue",
+          "args": null,
+          "concreteType": "Task",
+          "kind": "LinkedField",
+          "name": "tasks",
+          "plural": true,
+          "selections": [
+            {
+              "alias": null,
+              "args": null,
+              "kind": "ScalarField",
+              "name": "__typename",
+              "storageKey": null
+            }
+          ],
+          "storageKey": null
+        }
+      ]
+    },
+    {
+      "kind": "Stream",
+      "selections": [
+        {
+          "alias": "setToFalse",
+          "args": null,
+          "concreteType": "Task",
+          "kind": "LinkedField",
+          "name": "tasks",
+          "plural": true,
+          "selections": [
+            {
+              "alias": null,
+              "args": null,
+              "kind": "ScalarField",
+              "name": "__typename",
+              "storageKey": null
+            }
+          ],
+          "storageKey": null
+        }
+      ]
+    },
+    {
+      "kind": "Stream",
+      "selections": [
+        {
+          "alias": "withValueFromQueryDirectly",
+          "args": null,
+          "concreteType": "Task",
+          "kind": "LinkedField",
+          "name": "tasks",
+          "plural": true,
+          "selections": [
+            {
+              "alias": null,
+              "args": null,
+              "kind": "ScalarField",
+              "name": "__typename",
+              "storageKey": null
+            }
+          ],
+          "storageKey": null
+        }
+      ]
+    },
+    {
+      "kind": "Stream",
+      "selections": [
+        {
+          "alias": "withValueFromQueryViaArgDef",
+          "args": null,
+          "concreteType": "Task",
+          "kind": "LinkedField",
+          "name": "tasks",
+          "plural": true,
+          "selections": [
+            {
+              "alias": null,
+              "args": null,
+              "kind": "ScalarField",
+              "name": "__typename",
+              "storageKey": null
+            }
+          ],
+          "storageKey": null
+        }
+      ]
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}

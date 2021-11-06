@@ -1,0 +1,9 @@
+query multipleConditions_TestQuery($foo: Boolean!, $bar: Boolean!) {
+  viewer {
+    account_user {
+      name
+      alternate_name @skip(if: $bar) @include(if: $foo)
+      canViewerComment @include(if: $foo) @skip(if: $bar)
+    }
+  }
+}

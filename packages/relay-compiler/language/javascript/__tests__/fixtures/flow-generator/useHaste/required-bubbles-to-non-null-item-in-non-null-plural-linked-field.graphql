@@ -1,0 +1,5 @@
+fragment SomeFragment on User {
+  parents {
+    name @required(action: LOG)
+  }
+}

@@ -1,0 +1,54 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query LiteralObjectArgument1 {
+  checkinSearchQuery(
+    query: {
+      unknownField: "Facebook" # error: unknown field
+    }
+  ) {
+    query
+  }
+}
+
+query LiteralObjectArgument2 {
+  checkinSearchQuery(
+    query: {
+      query: FACEBOOK # error: enum not string
+    }
+  ) {
+    query
+  }
+}
+
+query LiteralObjectArgument3 {
+  checkinSearchQuery(query: FACEBOOK) {
+    # error: enum not object
+    query
+  }
+}
+==================================== ERROR ====================================
+✖︎ The type `CheckinSearchInput` has no field `unknownField`.
+
+  literal-object-argument.invalid.graphql:5:7
+    4 │     query: {
+    5 │       unknownField: "Facebook" # error: unknown field
+      │       ^^^^^^^^^^^^
+    6 │     }
+
+
+✖︎ Expected a value of type 'String'
+
+  literal-object-argument.invalid.graphql:15:14
+   14 │     query: {
+   15 │       query: FACEBOOK # error: enum not string
+      │              ^^^^^^^^
+   16 │     }
+
+
+✖︎ Expected a value of type 'CheckinSearchInput'
+
+  literal-object-argument.invalid.graphql:23:29
+   22 │ query LiteralObjectArgument3 {
+   23 │   checkinSearchQuery(query: FACEBOOK) {
+      │                             ^^^^^^^^
+   24 │     # error: enum not object

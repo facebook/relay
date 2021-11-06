@@ -1,0 +1,33 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment EnabledFoo on User {
+  ... on User {
+    hometown {
+      name @required(action: LOG)
+      address {
+        __typename
+      }
+    }
+  }
+  hometown {
+    address {
+      __typename
+    }
+  }
+}
+==================================== ERROR ====================================
+✖︎ @required fields must be included in all instances of their parent. The field 'name` is marked as @required here
+
+  duplicate-linked-field-nullable-parent.invalid.graphql:5:7
+    4 │     hometown {
+    5 │       name @required(action: LOG)
+      │       ^^^^
+    6 │       address {
+
+  ℹ︎ but is missing from
+
+  duplicate-linked-field-nullable-parent.invalid.graphql:11:3
+   10 │   }
+   11 │   hometown {
+      │   ^^^^^^^^
+   12 │     address {

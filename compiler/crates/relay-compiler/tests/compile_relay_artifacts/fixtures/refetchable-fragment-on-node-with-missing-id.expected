@@ -1,0 +1,279 @@
+==================================== INPUT ====================================
+fragment refetchableFragmentOnNodeWithMissingId_RefetchableFragment on Node
+  @refetchable(queryName: "RefetchableFragmentQuery") {
+  ... on User {
+    name
+    ...refetchableFragmentOnNodeWithMissingId_ProfilePicture
+  }
+}
+
+fragment refetchableFragmentOnNodeWithMissingId_ProfilePicture on User {
+  profilePicture(size: $size) {
+    uri
+  }
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "id"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "size"
+      }
+    ],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "RefetchableFragmentQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "refetchableFragmentOnNodeWithMissingId_RefetchableFragment"
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "size"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "id"
+      }
+    ],
+    "kind": "Operation",
+    "name": "RefetchableFragmentQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "__typename",
+            "storageKey": null
+          },
+          {
+            "kind": "TypeDiscriminator",
+            "abstractKey": "__isNode"
+          },
+          {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "name",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": [
+                  {
+                    "kind": "Variable",
+                    "name": "size",
+                    "variableName": "size"
+                  }
+                ],
+                "concreteType": "Image",
+                "kind": "LinkedField",
+                "name": "profilePicture",
+                "plural": false,
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "uri",
+                    "storageKey": null
+                  }
+                ],
+                "storageKey": null
+              }
+            ],
+            "type": "User",
+            "abstractKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {},
+    "name": "RefetchableFragmentQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query RefetchableFragmentQuery(
+  $size: [Int]
+  $id: ID!
+) {
+  node(id: $id) {
+    __typename
+    ...refetchableFragmentOnNodeWithMissingId_RefetchableFragment
+    id
+  }
+}
+
+fragment refetchableFragmentOnNodeWithMissingId_ProfilePicture on User {
+  profilePicture(size: $size) {
+    uri
+  }
+}
+
+fragment refetchableFragmentOnNodeWithMissingId_RefetchableFragment on Node {
+  __isNode: __typename
+  ... on User {
+    name
+    ...refetchableFragmentOnNodeWithMissingId_ProfilePicture
+  }
+  id
+}
+
+
+{
+  "argumentDefinitions": [
+    {
+      "kind": "RootArgument",
+      "name": "size"
+    }
+  ],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "refetchableFragmentOnNodeWithMissingId_ProfilePicture",
+  "selections": [
+    {
+      "alias": null,
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "size",
+          "variableName": "size"
+        }
+      ],
+      "concreteType": "Image",
+      "kind": "LinkedField",
+      "name": "profilePicture",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "uri",
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}
+
+{
+  "argumentDefinitions": [
+    {
+      "kind": "RootArgument",
+      "name": "size"
+    }
+  ],
+  "kind": "Fragment",
+  "metadata": {
+    "refetch": {
+      "connection": null,
+      "fragmentPathInResult": [
+        "node"
+      ],
+      "operation": require('RefetchableFragmentQuery.graphql'),
+      "identifierField": "id"
+    }
+  },
+  "name": "refetchableFragmentOnNodeWithMissingId_RefetchableFragment",
+  "selections": [
+    {
+      "kind": "InlineFragment",
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "name",
+          "storageKey": null
+        },
+        {
+          "args": null,
+          "kind": "FragmentSpread",
+          "name": "refetchableFragmentOnNodeWithMissingId_ProfilePicture"
+        }
+      ],
+      "type": "User",
+      "abstractKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "id",
+      "storageKey": null
+    }
+  ],
+  "type": "Node",
+  "abstractKey": "__isNode"
+}

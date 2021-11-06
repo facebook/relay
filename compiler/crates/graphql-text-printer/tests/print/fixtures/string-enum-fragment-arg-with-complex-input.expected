@@ -1,0 +1,16 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment UserFragment on User
+  @argumentDefinitions(
+    environment1: {type: "Environment", defaultValue: WEB}
+    environment2: {type: "Environment", defaultValue: "MOBILE"}
+  ) {
+  checkins(environments: [$environment1]) {
+    __typename
+  }
+  other_checkins: checkins(environments: [$environment2]) {
+    __typename
+  }
+}
+==================================== ERROR ====================================
+Diagnostic(DiagnosticData { message: ExpectedEnumValueGotString("Environment"), location: string-enum-fragment-arg-with-complex-input.graphql:187:195, related_information: [], tags: [], severity: Error, data: [] })

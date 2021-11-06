@@ -1,0 +1,26 @@
+==================================== INPUT ====================================
+fragment Foo_user on User {
+  id
+
+  client_nickname # client field
+  friends {
+    count
+    client_friends_connection_field # nested client field
+  }
+}
+
+# %extensions%
+extend type User {
+  client_nickname: String
+}
+
+extend type FriendsConnection {
+  client_friends_connection_field: String
+}
+==================================== OUTPUT ===================================
+fragment Foo_user on User {
+  id
+  friends {
+    count
+  }
+}

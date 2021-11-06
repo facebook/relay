@@ -1,26 +1,34 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
+ * @flow strict-local
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
-import type {UpdatedRecords, Snapshot} from 'RelayStoreTypes';
+import type {DataIDSet} from './RelayStoreTypes';
+
+const ITERATOR_KEY = Symbol.iterator;
 
 function hasOverlappingIDs(
-  snapshot: Snapshot,
-  updatedRecordIDs: UpdatedRecords,
+  seenRecords: DataIDSet,
+  updatedRecordIDs: DataIDSet,
 ): boolean {
-  const keys = Object.keys(snapshot.seenRecords);
-  for (let ii = 0; ii < keys.length; ii++) {
-    if (updatedRecordIDs.hasOwnProperty(keys[ii])) {
+  // $FlowFixMe: Set is an iterable type, accessing its iterator is allowed.
+  const iterator = seenRecords[ITERATOR_KEY]();
+  let next = iterator.next();
+  while (!next.done) {
+    const key = next.value;
+    if (updatedRecordIDs.has(key)) {
       return true;
     }
+    next = iterator.next();
   }
   return false;
 }

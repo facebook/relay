@@ -1,80 +1,99 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
+ * @flow strict-local
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
-import type {
-  CacheConfig,
-  Disposable,
-  Variables,
-} from '../util/RelayRuntimeTypes';
-import type {ConcreteOperation, RequestNode} from 'RelayConcreteNode';
-import type RelayObservable, {ObservableFromValue} from 'RelayObservable';
+import type {RequestParameters} from '../util/RelayConcreteNode';
+import type {CacheConfig, Variables} from '../util/RelayRuntimeTypes';
+import type RelayObservable, {ObservableFromValue} from './RelayObservable';
 
 /**
  * An interface for fetching the data for one or more (possibly interdependent)
  * queries.
  */
-export type Network = {|
-  execute: ExecuteFunction,
-|};
+export interface INetwork {
+  +execute: ExecuteFunction;
+}
 
-export type PayloadData = {[key: string]: mixed};
+export type LogRequestInfoFunction = mixed => void;
 
-export type PayloadError = {
+export type PayloadData = interface {[key: string]: mixed};
+
+export type PayloadError = interface {
   message: string,
   locations?: Array<{
     line: number,
     column: number,
+    ...
   }>,
+  // Not officially part of the spec, but used at Facebook
+  severity?: 'CRITICAL' | 'ERROR' | 'WARNING',
 };
+
+export type PayloadExtensions = {[key: string]: mixed, ...};
 
 /**
  * The shape of a GraphQL response as dictated by the
- * [spec](http://facebook.github.io/graphql/#sec-Response)
+ * [spec](https://spec.graphql.org/June2018/#sec-Response-Format).
  */
-export type GraphQLResponse =
-  | {
-      data: PayloadData,
-      errors?: Array<PayloadError>,
-    }
-  | {
-      data?: ?PayloadData,
-      errors: Array<PayloadError>,
-    };
-
-/**
- * The data returned from Relay's execute function, which includes both the
- * raw GraphQL network response as well as any related client metadata.
- */
-export type ExecutePayload = {|
-  // The operation executed
-  operation: ConcreteOperation,
-  // The variables which were used during this execution.
-  variables: Variables,
-  // The response from GraphQL execution
-  response: GraphQLResponse,
-  // Default is false
-  isOptimistic?: boolean,
+export type GraphQLResponseWithData = {|
+  +data: PayloadData,
+  +errors?: Array<PayloadError>,
+  +extensions?: PayloadExtensions,
+  +label?: string,
+  +path?: Array<string | number>,
 |};
+
+export type GraphQLResponseWithoutData = {|
+  +data?: ?PayloadData,
+  +errors: Array<PayloadError>,
+  +extensions?: PayloadExtensions,
+  +label?: string,
+  +path?: Array<string | number>,
+|};
+
+export type GraphQLResponseWithExtensionsOnly = {|
+  // Per https://spec.graphql.org/June2018/#sec-Errors
+  // > If the data entry in the response is not present, the errors entry
+  // > in the response must not be empty. It must contain at least one error
+  // This means a payload has to have either a data key or an errors key:
+  // but the spec leaves room for the combination of data: null plus extensions
+  // since `data: null` is a *required* output if there was an error during
+  // execution, but the inverse is not described in the sepc: `data: null`
+  // does not necessarily indicate that there was an error.
+  +data: null,
+  +extensions: PayloadExtensions,
+|};
+
+export type GraphQLSingularResponse =
+  | GraphQLResponseWithData
+  | GraphQLResponseWithExtensionsOnly
+  | GraphQLResponseWithoutData;
+
+export type GraphQLResponse =
+  | GraphQLSingularResponse
+  | $ReadOnlyArray<GraphQLSingularResponse>;
 
 /**
  * A function that returns an Observable representing the response of executing
  * a GraphQL operation.
  */
 export type ExecuteFunction = (
-  request: RequestNode,
+  request: RequestParameters,
   variables: Variables,
   cacheConfig: CacheConfig,
   uploadables?: ?UploadableMap,
-) => RelayObservable<ExecutePayload>;
+  logRequestInfo?: ?LogRequestInfoFunction,
+) => RelayObservable<GraphQLResponse>;
 
 /**
  * A function that executes a GraphQL operation with request/response semantics.
@@ -83,37 +102,64 @@ export type ExecuteFunction = (
  * a composed ExecutePayload object supporting additional metadata.
  */
 export type FetchFunction = (
-  request: RequestNode,
+  request: RequestParameters,
   variables: Variables,
   cacheConfig: CacheConfig,
   uploadables: ?UploadableMap,
-) => ObservableFromValue<ExecutePayload> | ObservableFromValue<GraphQLResponse>;
+  logRequestInfo?: ?LogRequestInfoFunction,
+) => ObservableFromValue<GraphQLResponse>;
 
 /**
- * A function that executes a GraphQL subscription operation, returning one or
+ * A function that executes a GraphQL subscription operation, returning zero or
  * more raw server responses over time.
- *
- * May return an Observable, otherwise must call the callbacks found in the
- * fourth parameter.
  */
 export type SubscribeFunction = (
-  request: RequestNode,
+  request: RequestParameters,
   variables: Variables,
   cacheConfig: CacheConfig,
-  observer?: LegacyObserver<GraphQLResponse>,
-) =>
-  | RelayObservable<ExecutePayload>
-  | RelayObservable<GraphQLResponse>
-  | Disposable;
+) => RelayObservable<GraphQLResponse>;
 
-// $FlowFixMe this is compatible with classic api see D4658012
 export type Uploadable = File | Blob;
-// $FlowFixMe this is compatible with classic api see D4658012
-export type UploadableMap = {[key: string]: Uploadable};
+export type UploadableMap = interface {[key: string]: Uploadable};
 
-// Supports legacy SubscribeFunction definitions. Do not use in new code.
-export type LegacyObserver<-T> = {|
-  +onCompleted?: ?() => void,
-  +onError?: ?(error: Error) => void,
-  +onNext?: ?(data: T) => void,
+/**
+ * React Flight tree created on the server.
+ */
+export type ReactFlightServerTree = mixed;
+export type ReactFlightPayloadQuery = {|
+  +id: mixed,
+  +module: mixed,
+  +response: GraphQLSingularResponse,
+  +variables: Variables,
+|};
+export type ReactFlightPayloadFragment = {|
+  +__id: string,
+  +__typename: string,
+  +module: mixed,
+  +response: GraphQLSingularResponse,
+  +variables: Variables,
+|};
+export type ReactFlightServerError = {
+  +message: string,
+  +stack: string,
+  ...
+};
+/**
+ * Data that is returned by a Flight compliant GraphQL server.
+ *
+ * - status: string representing status of the server response.
+ * - tree: React Server Components written into a row protocol that can be later
+ *         read on the client. If this is null, this indicates that no rows were
+ *         were written on the server.
+ * - queries: an array of queries that the server preloaded for the client.
+ * - errors: an array of errors that were encountered while rendering the
+ *           Server Component.
+ * - fragments: an array of fragments that the server preloaded for the client.
+ */
+export type ReactFlightPayloadData = {|
+  +status: string,
+  +tree: ?Array<ReactFlightServerTree>,
+  +queries: Array<ReactFlightPayloadQuery>,
+  +errors: Array<ReactFlightServerError>,
+  +fragments: Array<ReactFlightPayloadFragment>,
 |};

@@ -1,0 +1,22 @@
+==================================== INPUT ====================================
+fragment UserFragment on User
+  @argumentDefinitions(
+    environment1: {type: "Environment", defaultValue: WEB}
+    environment2: {type: "Environment", defaultValue: "MOBILE"}
+  ) {
+  checkins(environments: [$environment1]) {
+    __typename
+  }
+  other_checkins: checkins(environments: [$environment2]) {
+    __typename
+  }
+}
+==================================== OUTPUT ===================================
+fragment UserFragment on User @argumentDefinitions(environment1: {type: "Environment", defaultValue: WEB}, environment2: {type: "Environment", defaultValue: "MOBILE"}) {
+  checkins(environments: [$environment1]) {
+    __typename
+  }
+  other_checkins: checkins(environments: [$environment2]) {
+    __typename
+  }
+}

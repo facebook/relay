@@ -1,0 +1,18 @@
+# expected-to-throw
+query QueryWithFragmentWithDefer($label: String!) {
+  me {
+    id
+    ...UserFragment
+  }
+}
+
+fragment UserFragment on User {
+  id
+  emailAddresses
+  ...DeferredFragment @defer(label: $label)
+}
+
+fragment DeferredFragment on User {
+  id
+  name
+}

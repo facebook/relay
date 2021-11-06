@@ -1,0 +1,29 @@
+==================================== INPUT ====================================
+# expected-to-throw
+
+schema {
+  query: Query
+}
+
+type Query {
+  foo: MyType
+}
+
+# Invalid accoring to spec:
+# > The named type must already be defined and must be an Interface type.
+# -- https://spec.graphql.org/June2018/#InterfaceTypeExtension
+extend type MyType {
+  will_this_crash: Int
+}
+
+type MyType {
+  is_this_cool: Boolean
+}
+==================================== ERROR ====================================
+✖︎ Cannot extend type 'MyType', the type is not defined on the server schema.
+
+  <generated>:14:13
+   13 │ # -- https://spec.graphql.org/June2018/#InterfaceTypeExtension
+   14 │ extend type MyType {
+      │             ^^^^^^
+   15 │   will_this_crash: Int

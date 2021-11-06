@@ -1,48 +1,51 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
  * @emails oncall+relay
+ * @flow strict-local
  * @format
  */
 
 'use strict';
 
-const RelayConcreteNode = require('RelayConcreteNode');
-const RelayModernTestUtils = require('RelayModernTestUtils');
-
-const cloneRelayHandleSourceField = require('cloneRelayHandleSourceField');
-const getRelayHandleKey = require('getRelayHandleKey');
-
-const {generateWithTransforms, matchers} = RelayModernTestUtils;
-const {LINKED_FIELD, LINKED_HANDLE} = RelayConcreteNode;
+const getRelayHandleKey = require('../../util/getRelayHandleKey');
+const {LINKED_FIELD, LINKED_HANDLE} = require('../../util/RelayConcreteNode');
+const cloneRelayHandleSourceField = require('../cloneRelayHandleSourceField');
+const {getRequest, graphql} = require('relay-runtime');
 
 describe('cloneRelayHandleSourceField()', () => {
   let selections;
 
   beforeEach(() => {
-    expect.extend(matchers);
-    const input = generateWithTransforms(
-      `
-      fragment A on User {
-        address @__clientField(handle: "test") {
-          street
+    const TestQuery = getRequest(graphql`
+      query cloneRelayHandleSourceFieldTestTestQuery {
+        me {
+          address @__clientField(handle: "test") {
+            street
+          }
         }
       }
-    `,
-    );
-    selections = input.A.selections;
+    `);
+    // Get the selections on `me`.
+    // $FlowFixMe;
+    selections = TestQuery.operation.selections[0].selections;
   });
 
   it('returns a clone of the source, with the same name as the handle', () => {
     const handleField = selections.find(node => node.kind === LINKED_HANDLE);
     const sourceField = selections.find(node => node.kind === LINKED_FIELD);
-    const clone = cloneRelayHandleSourceField(handleField, selections);
+    const clone = cloneRelayHandleSourceField(
+      (handleField: $FlowFixMe),
+      selections,
+      {},
+    );
 
     expect(clone.kind).toBe(LINKED_FIELD);
     expect(clone.name).toBe(getRelayHandleKey('test', null, 'address'));
+    // $FlowFixMe
     expect(clone.selections).toEqual(sourceField.selections);
   });
 
@@ -51,8 +54,8 @@ describe('cloneRelayHandleSourceField()', () => {
     selections = selections.filter(node => node.kind === LINKED_HANDLE);
 
     expect(() =>
-      cloneRelayHandleSourceField(handleField, selections),
-    ).toFailInvariant(
+      cloneRelayHandleSourceField((handleField: $FlowFixMe), selections, {}),
+    ).toThrowError(
       'cloneRelayHandleSourceField: Expected a corresponding source field ' +
         'for handle `test`.',
     );

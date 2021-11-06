@@ -1,0 +1,15 @@
+fragment SomeComment on Comment {
+  commentBody(supported: "Mark") {
+    ... on PlainCommentBody {
+      text {
+        text
+      }
+    }
+  }
+}
+
+query ViewerQuery {
+  node {
+    ...SomeComment
+  }
+}

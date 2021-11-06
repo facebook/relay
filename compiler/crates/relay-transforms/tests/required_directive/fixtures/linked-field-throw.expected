@@ -1,0 +1,19 @@
+==================================== INPUT ====================================
+fragment EnabledActorsRendererFragment on User {
+  id
+  profile_picture @required(action: THROW) {
+    uri
+  }
+}
+==================================== OUTPUT ===================================
+fragment EnabledActorsRendererFragment on User {
+  id
+  profile_picture @required(action: THROW) @__RequiredMetadataDirective
+  # RequiredMetadataDirective {
+  #     action: Throw,
+  #     path: "profile_picture",
+  # }
+   {
+    uri
+  }
+}

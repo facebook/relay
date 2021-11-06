@@ -1,0 +1,29 @@
+fragment clientFieldsInInlineFragments_Foo_user on User {
+  id
+
+  ... on Actor {
+    client_actor_field
+    address {
+      city
+      client_street_address_field(arg: $arg) # nested client field
+    }
+  }
+}
+
+# %extensions%
+
+extend type StreetAddress {
+  client_street_address_field(arg: String): String
+}
+
+extend type User {
+  client_actor_field: String
+}
+
+extend interface Actor {
+  client_actor_field: String
+}
+
+extend type Page {
+  client_actor_field: String
+}

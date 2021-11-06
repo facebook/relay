@@ -1,0 +1,15 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment Foo on EnabledUserNameRenderer {
+  ... on UserNameRenderer {
+    __typename @required(action: LOG)
+  }
+}
+==================================== ERROR ====================================
+✖︎ Unknown type 'EnabledUserNameRenderer'. Did you mean `PlainUserNameRenderer`, `UserNameRenderer`, `MarkdownUserNameRenderer`, or `PlainUserRenderer`?
+
+  inline-fragment-on-union.invalid.graphql:2:17
+    1 │ # expected-to-throw
+    2 │ fragment Foo on EnabledUserNameRenderer {
+      │                 ^^^^^^^^^^^^^^^^^^^^^^^
+    3 │   ... on UserNameRenderer {

@@ -1,0 +1,52 @@
+query Q1 {
+  me {
+    ...F1
+  }
+}
+
+fragment F1 on User {
+  ... on User {
+    ...F2
+  }
+  ...B2
+}
+
+fragment F2 on User {
+  name
+}
+
+# %definitions%
+
+fragment B1 on User {
+  name
+  ...B2
+}
+
+query QUnrelated {
+  ...BUnrelated
+}
+
+fragment BUnrelated1 on User {
+  name
+}
+
+# %definitions%
+
+fragment B2 on User {
+  name
+  ... on User {
+    ...B5
+  }
+}
+
+query QUnrelated2 {
+  ...B5
+}
+
+fragment B5 on User {
+  name
+}
+
+fragment BUnrelated2 on User {
+  name
+}

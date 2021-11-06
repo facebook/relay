@@ -1,0 +1,30 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query selectionSetConflictDifferentTypesWithConflictQuery {
+  me {
+    ...selectionSetConflictDifferentTypesWithConflictFrag1
+    ...selectionSetConflictDifferentTypesWithConflictFrag2
+  }
+}
+fragment selectionSetConflictDifferentTypesWithConflictFrag1 on User {
+  same_alias: id
+}
+fragment selectionSetConflictDifferentTypesWithConflictFrag2 on Actor {
+  same_alias: name
+}
+==================================== ERROR ====================================
+✖︎ Field 'same_alias' is ambiguous because it references two different fields: 'id' and 'name'
+
+  selection_set_conflict_different_types_with_conflict.graphql:9:15
+    8 │ fragment selectionSetConflictDifferentTypesWithConflictFrag1 on User {
+    9 │   same_alias: id
+      │               ^^
+   10 │ }
+
+  ℹ︎ the other field
+
+  selection_set_conflict_different_types_with_conflict.graphql:12:15
+   11 │ fragment selectionSetConflictDifferentTypesWithConflictFrag2 on Actor {
+   12 │   same_alias: name
+      │               ^^^^
+   13 │ }

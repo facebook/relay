@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -10,25 +10,26 @@
 
 'use strict';
 
-const RelayEnvironment = require('react-relay/classic/store/RelayEnvironment');
-const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
-const RelayMarkSweepStore = require('RelayMarkSweepStore');
-const RelayModernEnvironment = require('RelayModernEnvironment');
+const isRelayModernEnvironment = require('../isRelayModernEnvironment');
+const RelayModernEnvironment = require('../RelayModernEnvironment');
+const RelayModernStore = require('../RelayModernStore');
+const RelayRecordSource = require('../RelayRecordSource');
+const {disallowWarnings} = require('relay-test-utils-internal');
 
-const isRelayModernEnvironment = require('isRelayModernEnvironment');
+disallowWarnings();
 
 describe('isRelayModernEnvironment()', () => {
   it('returns true for `RelayModernEnvironment` instances', () => {
-    const source = new RelayInMemoryRecordSource();
-    const store = new RelayMarkSweepStore(source);
+    const source = RelayRecordSource.create();
+    const store = new RelayModernStore(source);
     const fetch = jest.fn();
     const environment = new RelayModernEnvironment({fetch, store});
     expect(isRelayModernEnvironment(environment)).toBe(true);
   });
 
   it('returns false for classic RelayEnvironment instances', () => {
-    const environment = new RelayEnvironment();
-    expect(isRelayModernEnvironment(environment)).toBe(false);
+    const notARelayModernEnvironment = {};
+    expect(isRelayModernEnvironment(notARelayModernEnvironment)).toBe(false);
   });
 
   it('returns false for plain objects that conform to the interface', () => {

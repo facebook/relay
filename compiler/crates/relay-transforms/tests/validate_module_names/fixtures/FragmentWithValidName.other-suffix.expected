@@ -1,0 +1,14 @@
+==================================== INPUT ====================================
+fragment FragmentWithValidName_fragment on User {
+    name
+}
+
+fragment FragmentWithValidNameFragment on User {
+    name
+}
+
+fragment FragmentWithValidName on User {
+    name
+}
+==================================== OUTPUT ===================================
+OK

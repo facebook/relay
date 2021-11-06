@@ -1,0 +1,17 @@
+query LinkedHandleField($id: ID!) @raw_response_type {
+  node(id: $id) {
+    ... on User {
+      friends(first: 10) @__clientField(handle: "clientFriends") {
+        count
+      }
+    }
+  }
+}
+
+query ScalarHandleField($id: ID!) @raw_response_type {
+  node(id: $id) {
+    ... on User {
+      name @__clientField(handle: "clientName")
+    }
+  }
+}

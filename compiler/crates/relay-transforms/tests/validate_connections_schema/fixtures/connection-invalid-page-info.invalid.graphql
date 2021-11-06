@@ -1,0 +1,43 @@
+# expected-to-throw
+query NodeQuery($id: ID!, $first: Int, $after: ID) {
+  node(id: $id) {
+    id
+    ... on User {
+      badConnection(first: $first, after: $after) @connection(key: "NodeQuery_badConnection") {
+        edges {
+          cursor
+          node {
+            id
+          }
+        }
+      }
+    }
+  }
+}
+
+# %extensions%
+extend type User {
+  badConnection(after: ID, before: ID, first: Int, last: Int): BadConnection
+}
+
+type BadConnection {
+  count: Int
+  edges: [BadConnectionEdge]
+  pageInfo: BadConnectionPageInfo
+}
+
+type BadConnectionEdge {
+  cursor: String
+  node: BadConnectionNode
+}
+
+type BadConnectionNode {
+  id: ID
+}
+
+type BadConnectionPageInfo {
+  hasWrongPage: Boolean
+  hasNextPage: Boolean
+  badCursor: String
+  startCursor: String
+}

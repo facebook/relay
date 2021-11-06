@@ -1,0 +1,30 @@
+==================================== INPUT ====================================
+query QueryWithFragmentWithStream($id: ID!) {
+  node(id: $id) {
+    id
+    ...FeedbackFragment
+  }
+}
+
+fragment FeedbackFragment on Feedback {
+  id
+  actors @stream(initial_count: 1, label: "StreamedActorsLabel") {
+    name
+  }
+}
+==================================== OUTPUT ===================================
+query QueryWithFragmentWithStream(
+  $id: ID!
+) {
+  node(id: $id) {
+    id
+    ...FeedbackFragment
+  }
+}
+
+fragment FeedbackFragment on Feedback {
+  id
+  actors @stream(label: "FeedbackFragment$stream$StreamedActorsLabel", initial_count: 1) {
+    name
+  }
+}

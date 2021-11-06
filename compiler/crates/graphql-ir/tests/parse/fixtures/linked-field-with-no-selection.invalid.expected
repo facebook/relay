@@ -1,0 +1,13 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment LinkedHandleField on User {
+  friends(first: 10)
+}
+==================================== ERROR ====================================
+✖︎ Expected selections on field `friends` of type `User`
+
+  linked-field-with-no-selection.invalid.graphql:3:3
+    2 │ fragment LinkedHandleField on User {
+    3 │   friends(first: 10)
+      │   ^^^^^^^
+    4 │ }

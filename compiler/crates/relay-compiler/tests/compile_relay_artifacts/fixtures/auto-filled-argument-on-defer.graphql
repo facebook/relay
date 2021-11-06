@@ -1,0 +1,17 @@
+query autoFilledArgumentOnDeferQuery {
+  me {
+    id
+    ...autoFilledArgumentOnDeferUserFragment
+  }
+}
+
+fragment autoFilledArgumentOnDeferUserFragment on User {
+  id
+  emailAddresses
+  ...autoFilledArgumentOnDeferDeferredFragment @defer
+}
+
+fragment autoFilledArgumentOnDeferDeferredFragment on User {
+  id
+  name
+}

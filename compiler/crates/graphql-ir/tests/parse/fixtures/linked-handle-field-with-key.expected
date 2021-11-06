@@ -1,0 +1,97 @@
+==================================== INPUT ====================================
+fragment LinkedHandleField on User {
+  friends(first: 10)
+    @__clientField(handle: "clientFriends", key: "LinkedHandleField_friends") {
+    count
+  }
+}
+==================================== OUTPUT ===================================
+[
+    Fragment(
+        FragmentDefinition {
+            name: WithLocation {
+                location: linked-handle-field-with-key.graphql:9:26,
+                item: "LinkedHandleField",
+            },
+            variable_definitions: [],
+            used_global_variables: [],
+            type_condition: Object(67),
+            directives: [],
+            selections: [
+                LinkedField {
+                    alias: None,
+                    definition: WithLocation {
+                        location: linked-handle-field-with-key.graphql:39:46,
+                        item: FieldID(461),
+                    },
+                    arguments: [
+                        Argument {
+                            name: WithLocation {
+                                location: linked-handle-field-with-key.graphql:47:52,
+                                item: "first",
+                            },
+                            value: WithLocation {
+                                location: linked-handle-field-with-key.graphql:54:56,
+                                item: Constant(
+                                    Int(
+                                        10,
+                                    ),
+                                ),
+                            },
+                        },
+                    ],
+                    directives: [
+                        Directive {
+                            name: WithLocation {
+                                location: linked-handle-field-with-key.graphql:62:76,
+                                item: "__clientField",
+                            },
+                            arguments: [
+                                Argument {
+                                    name: WithLocation {
+                                        location: linked-handle-field-with-key.graphql:77:83,
+                                        item: "handle",
+                                    },
+                                    value: WithLocation {
+                                        location: linked-handle-field-with-key.graphql:85:100,
+                                        item: Constant(
+                                            String(
+                                                "clientFriends",
+                                            ),
+                                        ),
+                                    },
+                                },
+                                Argument {
+                                    name: WithLocation {
+                                        location: linked-handle-field-with-key.graphql:102:105,
+                                        item: "key",
+                                    },
+                                    value: WithLocation {
+                                        location: linked-handle-field-with-key.graphql:107:134,
+                                        item: Constant(
+                                            String(
+                                                "LinkedHandleField_friends",
+                                            ),
+                                        ),
+                                    },
+                                },
+                            ],
+                            data: None,
+                        },
+                    ],
+                    selections: [
+                        ScalarField {
+                            alias: None,
+                            definition: WithLocation {
+                                location: linked-handle-field-with-key.graphql:142:147,
+                                item: FieldID(179),
+                            },
+                            arguments: [],
+                            directives: [],
+                        },
+                    ],
+                },
+            ],
+        },
+    ),
+]

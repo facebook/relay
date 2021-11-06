@@ -1,0 +1,94 @@
+==================================== INPUT ====================================
+fragment UserProfile on User {
+  profilePicture(size: $ProfilePicture_SIZE) {
+    ...InlineDataFragment
+    ...AnotherInlineDataFragment @include(if: $cond)
+  }
+  smallPic: profilePicture(size: 20) {
+    ...InlineDataFragment
+  }
+}
+
+fragment InlineDataFragment on Image @inline {
+  uri
+  ...AnotherInlineDataFragment
+}
+
+fragment AnotherInlineDataFragment on Image @inline {
+  uri
+  width
+}
+==================================== OUTPUT ===================================
+fragment AnotherInlineDataFragment on Image @inline {
+  uri
+  width
+}
+
+fragment InlineDataFragment on Image @inline {
+  uri
+  ... @__InlineDirectiveMetadata
+  # InlineDirectiveMetadata {
+  #     fragment_name: "AnotherInlineDataFragment",
+  # }
+   {
+    ... on Image {
+      uri
+      width
+    }
+  }
+}
+
+fragment UserProfile on User {
+  profilePicture(size: $ProfilePicture_SIZE) {
+    ... @__InlineDirectiveMetadata
+    # InlineDirectiveMetadata {
+    #     fragment_name: "InlineDataFragment",
+    # }
+     {
+      ... on Image {
+        uri
+        ... @__InlineDirectiveMetadata
+        # InlineDirectiveMetadata {
+        #     fragment_name: "AnotherInlineDataFragment",
+        # }
+         {
+          ... on Image {
+            uri
+            width
+          }
+        }
+      }
+    }
+    ... @include(if: $cond) @__InlineDirectiveMetadata
+    # InlineDirectiveMetadata {
+    #     fragment_name: "AnotherInlineDataFragment",
+    # }
+     {
+      ... on Image {
+        uri
+        width
+      }
+    }
+  }
+  smallPic: profilePicture(size: 20) {
+    ... @__InlineDirectiveMetadata
+    # InlineDirectiveMetadata {
+    #     fragment_name: "InlineDataFragment",
+    # }
+     {
+      ... on Image {
+        uri
+        ... @__InlineDirectiveMetadata
+        # InlineDirectiveMetadata {
+        #     fragment_name: "AnotherInlineDataFragment",
+        # }
+         {
+          ... on Image {
+            uri
+            width
+          }
+        }
+      }
+    }
+  }
+}

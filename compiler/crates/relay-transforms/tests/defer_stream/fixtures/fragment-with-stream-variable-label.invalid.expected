@@ -1,0 +1,23 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query QueryWithFragmentWithStream($id: ID!, $label: String!) {
+  node(id: $id) {
+    id
+    ...FeedbackFragment
+  }
+}
+
+fragment FeedbackFragment on Feedback {
+  id
+  actors @stream(initial_count: 1, label: $label) {
+    name
+  }
+}
+==================================== ERROR ====================================
+✖︎ Expected the 'label' value to @stream to be a string literal if provided.
+
+  fragment-with-stream-variable-label.invalid.graphql:11:10
+   10 │   id
+   11 │   actors @stream(initial_count: 1, label: $label) {
+      │          ^^^^^^^
+   12 │     name

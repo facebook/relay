@@ -1,0 +1,30 @@
+# expected-to-throw
+fragment fragmentOnQueryWithCycle_RefetchableFragment on Query
+  @refetchable(queryName: "RefetchableFragmentQuery")
+  @argumentDefinitions(id: {type: "ID!"}) {
+  node(id: $id) {
+    ... on User {
+      id
+      name
+      ...fragmentOnQueryWithCycle_Profile @arguments(includeProfile: true)
+    }
+  }
+}
+
+fragment fragmentOnQueryWithCycle_Profile on User
+  @argumentDefinitions(
+    includeProfile: {type: "Boolean!", defaultValue: false}
+  ) {
+  id
+  name
+  profilePicture(size: $pictureSize) @include(if: $includeProfile) {
+    uri
+  }
+  friends(first: $count) {
+    edges {
+      node {
+        ...fragmentOnQueryWithCycle_Profile
+      }
+    }
+  }
+}

@@ -1,0 +1,20 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment TestFragment on User
+  @argumentDefinitions(
+    id: {type: "ID"}
+    size: {type: "[Int]", defaultValue: [100]}
+    arg_with_enabled_provider0: {type: "Boolean", provider: 5} 
+  ) {
+  profilePicture(size: $PictureSize) {
+    uri
+  }
+}
+==================================== ERROR ====================================
+✖︎ Expected the 'provider' value to @argumentDefinitions to be a string literal if provided.
+
+  fragment_with_invalid_type_provider.graphql:6:61
+    5 │     size: {type: "[Int]", defaultValue: [100]}
+    6 │     arg_with_enabled_provider0: {type: "Boolean", provider: 5} 
+      │                                                             ^
+    7 │   ) {

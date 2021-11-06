@@ -1,0 +1,15 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment InlineFragment on Node {
+  ... on Image {
+    url
+  }
+}
+==================================== ERROR ====================================
+✖︎ Invalid type 'Image' in inline fragment, this type can never occur for parent type 'Node'
+
+  inline-fragment-on-wrong-type.invalid.graphql:3:10
+    2 │ fragment InlineFragment on Node {
+    3 │   ... on Image {
+      │          ^^^^^
+    4 │     url

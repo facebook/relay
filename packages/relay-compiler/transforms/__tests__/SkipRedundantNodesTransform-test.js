@@ -1,33 +1,46 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
+ * @flow strict-local
  * @format
  * @emails oncall+relay
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
-const GraphQLCompilerContext = require('GraphQLCompilerContext');
-const GraphQLIRPrinter = require('GraphQLIRPrinter');
-const RelayParser = require('RelayParser');
-const RelayTestSchema = require('RelayTestSchema');
-const SkipRedundantNodesTransform = require('SkipRedundantNodesTransform');
-
-const {generateTestsFromFixtures} = require('RelayModernTestUtils');
+const CompilerContext = require('../../core/CompilerContext');
+const IRPrinter = require('../../core/IRPrinter');
+const InlineFragmentsTransform = require('../InlineFragmentsTransform');
+const MatchTransform = require('../MatchTransform');
+const RelayDirectiveTransform = require('../RelayDirectiveTransform');
+const SkipRedundantNodesTransform = require('../SkipRedundantNodesTransform');
+const {
+  TestSchema,
+  generateTestsFromFixtures,
+  parseGraphQLText,
+} = require('relay-test-utils-internal');
 
 describe('SkipRedundantNodesTransform', () => {
+  const extendedSchema = TestSchema.extend([MatchTransform.SCHEMA_EXTENSION]);
   generateTestsFromFixtures(
     `${__dirname}/fixtures/skip-redundant-nodes-transform`,
     text => {
-      const ast = RelayParser.parse(RelayTestSchema, text);
-      return new GraphQLCompilerContext(RelayTestSchema)
-        .addAll(ast)
-        .applyTransforms([SkipRedundantNodesTransform.transform])
+      const {definitions} = parseGraphQLText(extendedSchema, text);
+      return new CompilerContext(extendedSchema)
+        .addAll(definitions)
+        .applyTransforms([
+          RelayDirectiveTransform.transform,
+          MatchTransform.transform,
+          InlineFragmentsTransform.transform,
+          SkipRedundantNodesTransform.transform,
+        ])
         .documents()
-        .map(GraphQLIRPrinter.print)
+        .map(doc => IRPrinter.print(extendedSchema, doc))
         .join('\n');
     },
   );

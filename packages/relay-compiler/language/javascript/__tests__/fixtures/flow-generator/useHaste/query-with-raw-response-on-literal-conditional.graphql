@@ -1,0 +1,22 @@
+query ExampleQuery($id: ID!) @raw_response_type {
+  node(id: $id) {
+    username
+    ...FriendFragment
+    ... @include(if: false) {
+      friends(first: 0) {
+        count
+      }
+    }
+  }
+}
+
+fragment FriendFragment on User {
+  ... @include(if: false) {
+    name
+    lastName
+    feedback {
+      id
+      name
+    }
+  }
+}

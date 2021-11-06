@@ -1,0 +1,8 @@
+# noop because this expects a fragment spread
+subscription CommentCreateSubscription(
+  $input: CommentCreateSubscriptionInput!
+) {
+  commentCreateSubscribe(input: $input) {
+    __typename
+  }
+}

@@ -1,0 +1,28 @@
+fragment nestedConditions_QueryFragment on Query {
+  viewer {
+    ... @include(if: $sentinel) {
+      account_user {
+        name
+        ... @skip(if: $bar) @include(if: $foo) {
+          alternate_name
+          canViewerComment
+        }
+      }
+      ... @skip(if: $foo) {
+        actor {
+          name
+        }
+      }
+    }
+  }
+}
+
+fragment nestedConditions_QueryFragment2 on Query {
+  viewer {
+    ... @include(if: $sentinel) @skip(if: $foo) {
+      account_user @include(if: $bar) {
+        name
+      }
+    }
+  }
+}

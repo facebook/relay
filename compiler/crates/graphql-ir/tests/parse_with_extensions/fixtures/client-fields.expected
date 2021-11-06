@@ -1,0 +1,279 @@
+==================================== INPUT ====================================
+query BestFriendsQuery($id: ID!) {
+  node(id: $id) {
+    ...BestFriends
+  }
+}
+
+fragment BestFriends on User {
+  # this is the only field that is part of the base schema
+  id
+  # fields defined in type extensions are skipped
+  best_friends {
+    edges {
+      cursor
+      node {
+        id
+      }
+    }
+    pageInfo {
+      hasNextPage
+    }
+  }
+  ... on User {
+    foo {
+      # fragments on extension types are skipped
+      ...FooFragment
+      ... on Foo {
+        id
+      }
+    }
+  }
+}
+
+fragment FooFragment on Foo {
+  id
+}
+
+# %extensions%
+
+extend type User {
+  best_friends: FriendsConnection
+  foo: Foo
+}
+
+type Foo {
+  id: ID!
+}
+==================================== OUTPUT ===================================
+[
+    Operation(
+        OperationDefinition {
+            kind: Query,
+            name: WithLocation {
+                location: client-fields.graphql:6:22,
+                item: "BestFriendsQuery",
+            },
+            type_: Object(0),
+            variable_definitions: [
+                VariableDefinition {
+                    name: WithLocation {
+                        location: client-fields.graphql:23:26,
+                        item: "id",
+                    },
+                    type_: NonNull(
+                        Named(
+                            Scalar(4),
+                        ),
+                    ),
+                    default_value: None,
+                    directives: [],
+                },
+            ],
+            directives: [],
+            selections: [
+                LinkedField {
+                    alias: None,
+                    definition: WithLocation {
+                        location: client-fields.graphql:37:41,
+                        item: FieldID(9),
+                    },
+                    arguments: [
+                        Argument {
+                            name: WithLocation {
+                                location: client-fields.graphql:42:44,
+                                item: "id",
+                            },
+                            value: WithLocation {
+                                location: client-fields.graphql:46:49,
+                                item: Variable(
+                                    Variable {
+                                        name: WithLocation {
+                                            location: client-fields.graphql:46:49,
+                                            item: "id",
+                                        },
+                                        type_: Named(
+                                            Scalar(4),
+                                        ),
+                                    },
+                                ),
+                            },
+                        },
+                    ],
+                    directives: [],
+                    selections: [
+                        FragmentSpread {
+                            fragment: WithLocation {
+                                location: client-fields.graphql:60:71,
+                                item: "BestFriends",
+                            },
+                            arguments: [],
+                            directives: [],
+                        },
+                    ],
+                },
+            ],
+        },
+    ),
+    Fragment(
+        FragmentDefinition {
+            name: WithLocation {
+                location: client-fields.graphql:88:99,
+                item: "BestFriends",
+            },
+            variable_definitions: [],
+            used_global_variables: [],
+            type_condition: Object(67),
+            directives: [],
+            selections: [
+                ScalarField {
+                    alias: None,
+                    definition: WithLocation {
+                        location: client-fields.graphql:171:173,
+                        item: FieldID(463),
+                    },
+                    arguments: [],
+                    directives: [],
+                },
+                LinkedField {
+                    alias: None,
+                    definition: WithLocation {
+                        location: client-fields.graphql:226:238,
+                        item: FieldID(520),
+                    },
+                    arguments: [],
+                    directives: [],
+                    selections: [
+                        LinkedField {
+                            alias: None,
+                            definition: WithLocation {
+                                location: client-fields.graphql:245:250,
+                                item: FieldID(180),
+                            },
+                            arguments: [],
+                            directives: [],
+                            selections: [
+                                ScalarField {
+                                    alias: None,
+                                    definition: WithLocation {
+                                        location: client-fields.graphql:259:265,
+                                        item: FieldID(182),
+                                    },
+                                    arguments: [],
+                                    directives: [],
+                                },
+                                LinkedField {
+                                    alias: None,
+                                    definition: WithLocation {
+                                        location: client-fields.graphql:272:276,
+                                        item: FieldID(183),
+                                    },
+                                    arguments: [],
+                                    directives: [],
+                                    selections: [
+                                        ScalarField {
+                                            alias: None,
+                                            definition: WithLocation {
+                                                location: client-fields.graphql:287:289,
+                                                item: FieldID(463),
+                                            },
+                                            arguments: [],
+                                            directives: [],
+                                        },
+                                    ],
+                                },
+                            ],
+                        },
+                        LinkedField {
+                            alias: None,
+                            definition: WithLocation {
+                                location: client-fields.graphql:308:316,
+                                item: FieldID(181),
+                            },
+                            arguments: [],
+                            directives: [],
+                            selections: [
+                                ScalarField {
+                                    alias: None,
+                                    definition: WithLocation {
+                                        location: client-fields.graphql:325:336,
+                                        item: FieldID(299),
+                                    },
+                                    arguments: [],
+                                    directives: [],
+                                },
+                            ],
+                        },
+                    ],
+                },
+                InlineFragment {
+                    type_condition: Some(
+                        Object(67),
+                    ),
+                    directives: [],
+                    selections: [
+                        LinkedField {
+                            alias: None,
+                            definition: WithLocation {
+                                location: client-fields.graphql:367:370,
+                                item: FieldID(521),
+                            },
+                            arguments: [],
+                            directives: [],
+                            selections: [
+                                FragmentSpread {
+                                    fragment: WithLocation {
+                                        location: client-fields.graphql:431:442,
+                                        item: "FooFragment",
+                                    },
+                                    arguments: [],
+                                    directives: [],
+                                },
+                                InlineFragment {
+                                    type_condition: Some(
+                                        Object(76),
+                                    ),
+                                    directives: [],
+                                    selections: [
+                                        ScalarField {
+                                            alias: None,
+                                            definition: WithLocation {
+                                                location: client-fields.graphql:470:472,
+                                                item: FieldID(522),
+                                            },
+                                            arguments: [],
+                                            directives: [],
+                                        },
+                                    ],
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
+        },
+    ),
+    Fragment(
+        FragmentDefinition {
+            name: WithLocation {
+                location: client-fields.graphql:503:514,
+                item: "FooFragment",
+            },
+            variable_definitions: [],
+            used_global_variables: [],
+            type_condition: Object(76),
+            directives: [],
+            selections: [
+                ScalarField {
+                    alias: None,
+                    definition: WithLocation {
+                        location: client-fields.graphql:526:528,
+                        item: FieldID(522),
+                    },
+                    arguments: [],
+                    directives: [],
+                },
+            ],
+        },
+    ),
+]

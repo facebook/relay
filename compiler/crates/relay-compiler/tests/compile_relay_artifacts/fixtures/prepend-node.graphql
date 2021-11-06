@@ -1,0 +1,12 @@
+mutation prependNodeCommentCreateMutation(
+  $connections: [ID!]!
+  $edgeTypeName: String!
+  $input: CommentCreateInput
+) {
+  commentCreate(input: $input) {
+    comment
+      @prependNode(connections: $connections, edgeTypeName: $edgeTypeName) {
+      id
+    }
+  }
+}

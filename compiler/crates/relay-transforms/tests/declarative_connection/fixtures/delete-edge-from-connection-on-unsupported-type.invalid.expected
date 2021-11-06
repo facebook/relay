@@ -1,0 +1,18 @@
+==================================== INPUT ====================================
+# expected-to-throw
+mutation CommentDeleteMutation(
+  $input: CommentDeleteInput
+  $connections: [ID!]!
+) {
+  commentDelete(input: $input) {
+    __typename @deleteEdge(connections: $connections)
+  }
+}
+==================================== ERROR ====================================
+✖︎ Invalid use of @deleteEdge on field '__typename'. Expected field type 'ID', got 'String!'.
+
+  delete-edge-from-connection-on-unsupported-type.invalid.graphql:7:16
+    6 │   commentDelete(input: $input) {
+    7 │     __typename @deleteEdge(connections: $connections)
+      │                ^^^^^^^^^^^
+    8 │   }

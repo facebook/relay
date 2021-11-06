@@ -1,0 +1,26 @@
+# expected-to-throw
+fragment PaginationFragment on Node
+  @refetchable(queryName: "RefetchableFragmentQuery")
+  @argumentDefinitions(
+    count: {type: "Int", defaultValue: 10}
+    cursor: {type: "ID"}
+  ) {
+  id
+  ... on User {
+    name
+    friends(first: 1) {
+      edges {
+        node {
+          friends(after: $cursor, first: $count)
+            @connection(key: "PaginationFragment_friends") {
+            edges {
+              node {
+                id
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

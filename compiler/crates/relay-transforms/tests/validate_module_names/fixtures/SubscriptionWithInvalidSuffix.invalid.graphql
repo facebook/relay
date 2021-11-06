@@ -1,0 +1,5 @@
+subscription SubscriptionWithInvalidSuffixMutation {
+    feedbackLikeSubscribe(input: null) {
+        clientMutationId
+    }
+}

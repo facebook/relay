@@ -1,0 +1,40 @@
+==================================== INPUT ====================================
+query EnabledFooQuery {
+  viewer @required(action: LOG) {
+    actor @required(action: LOG) {
+      address @required(action: LOG) {
+        country @required(action: LOG)
+      }
+    }
+  }
+}
+==================================== OUTPUT ===================================
+query EnabledFooQuery @__childrenCanBubbleNull {
+  viewer @required(action: LOG) @__RequiredMetadataDirective
+  # RequiredMetadataDirective {
+  #     action: Log,
+  #     path: "viewer",
+  # }
+   @__childrenCanBubbleNull {
+    actor @required(action: LOG) @__RequiredMetadataDirective
+    # RequiredMetadataDirective {
+    #     action: Log,
+    #     path: "viewer.actor",
+    # }
+     @__childrenCanBubbleNull {
+      address @required(action: LOG) @__RequiredMetadataDirective
+      # RequiredMetadataDirective {
+      #     action: Log,
+      #     path: "viewer.actor.address",
+      # }
+       @__childrenCanBubbleNull {
+        country @required(action: LOG) @__RequiredMetadataDirective
+        # RequiredMetadataDirective {
+        #     action: Log,
+        #     path: "viewer.actor.address.country",
+        # }
+        
+      }
+    }
+  }
+}

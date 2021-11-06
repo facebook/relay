@@ -1,0 +1,53 @@
+==================================== INPUT ====================================
+fragment ActorFragment on User {
+  name
+  profilePicture {
+    uri
+    width
+    height
+  }
+}
+
+fragment ViewerFragment on Viewer {
+  actor @fb_actor_change {
+    ...ActorFragment
+  }
+}
+==================================== OUTPUT ===================================
+import type { FragmentReference } from "relay-runtime";
+declare export opaque type ActorFragment$ref: FragmentReference;
+declare export opaque type ActorFragment$fragmentType: ActorFragment$ref;
+export type ActorFragment = {|
+  +name: ?string,
+  +profilePicture: ?{|
+    +uri: ?string,
+    +width: ?number,
+    +height: ?number,
+  |},
+  +$refType: ActorFragment$ref,
+|};
+export type ActorFragment$data = ActorFragment;
+export type ActorFragment$key = {
+  +$data?: ActorFragment$data,
+  +$fragmentRefs: ActorFragment$ref,
+  ...
+};
+-------------------------------------------------------------------------------
+import type { ActorChangePoint } from "react-relay/multi-actor";
+import type { ActorFragment$ref } from "ActorFragment.graphql";
+import type { FragmentReference } from "relay-runtime";
+declare export opaque type ViewerFragment$ref: FragmentReference;
+declare export opaque type ViewerFragment$fragmentType: ViewerFragment$ref;
+export type ViewerFragment = {|
+  +actor: ?ActorChangePoint<{|
+    +actor_key: string,
+    +$fragmentRefs: ActorFragment$ref,
+  |}>,
+  +$refType: ViewerFragment$ref,
+|};
+export type ViewerFragment$data = ViewerFragment;
+export type ViewerFragment$key = {
+  +$data?: ViewerFragment$data,
+  +$fragmentRefs: ViewerFragment$ref,
+  ...
+};

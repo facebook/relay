@@ -19,11 +19,13 @@ fragment BestFriends on User {
       hasNextPage
     }
   }
-  ... on Node {
-   # fragments on extension types are skipped
-    ...FooFragment
-    ... on Foo {
-      id
+  ... on User {
+    foo {
+      # fragments on extension types are skipped
+      ...FooFragment
+      ... on Foo {
+        id
+      }
     }
   }
 }
@@ -34,6 +36,7 @@ fragment FooFragment on Foo {
 
 extend type User {
   best_friends: FriendsConnection
+  foo: Foo
 }
 
 type Foo {

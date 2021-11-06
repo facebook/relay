@@ -1,0 +1,27 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query QueryWithFragmentWithDefer($label: String!) {
+  me {
+    id
+    ...UserFragment
+  }
+}
+
+fragment UserFragment on User {
+  id
+  emailAddresses
+  ...DeferredFragment @defer(label: $label)
+}
+
+fragment DeferredFragment on User {
+  id
+  name
+}
+==================================== ERROR ====================================
+✖︎ Expected the 'label' value to @defer to be a string literal if provided.
+
+  fragment-with-variable-label.invalid.graphql:12:23
+   11 │   emailAddresses
+   12 │   ...DeferredFragment @defer(label: $label)
+      │                       ^^^^^^
+   13 │ }

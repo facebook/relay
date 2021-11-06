@@ -1,0 +1,17 @@
+query fragmentWithDeferInStream_QueryWithFragmentWithStreamQuery($id: ID!) {
+  node(id: $id) {
+    id
+    ...fragmentWithDeferInStream_FeedbackFragment
+  }
+}
+
+fragment fragmentWithDeferInStream_FeedbackFragment on Feedback {
+  id
+  actors @stream(initial_count: 1, label: "StreamedActorsLabel") {
+    ...fragmentWithDeferInStream_ActorFragment @defer
+  }
+}
+
+fragment fragmentWithDeferInStream_ActorFragment on Actor {
+  name
+}

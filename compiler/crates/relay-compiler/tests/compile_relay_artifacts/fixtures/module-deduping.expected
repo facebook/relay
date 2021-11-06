@@ -1,0 +1,215 @@
+==================================== INPUT ====================================
+query moduleDedupingQuery($cond: Boolean!) {
+  me {
+    nameRenderer {
+      ...moduleDeduping_frag @module(name: "Component.react")
+      ... @include(if: $cond) {
+        ...moduleDeduping_frag @module(name: "Component.react")
+        ...moduleDeduping_frag @module(name: "Component.react")
+      }
+    }
+  }
+}
+
+fragment moduleDeduping_frag on PlainUserNameRenderer {
+  __typename
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "cond"
+      }
+    ],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "moduleDedupingQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "me",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "concreteType": null,
+            "kind": "LinkedField",
+            "name": "nameRenderer",
+            "plural": false,
+            "selections": [
+              {
+                "kind": "InlineFragment",
+                "selections": [
+                  {
+                    "args": null,
+                    "documentName": "moduleDedupingQuery",
+                    "fragmentName": "moduleDeduping_frag",
+                    "fragmentPropName": "frag",
+                    "kind": "ModuleImport"
+                  }
+                ],
+                "type": "PlainUserNameRenderer",
+                "abstractKey": null
+              }
+            ],
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "cond"
+      }
+    ],
+    "kind": "Operation",
+    "name": "moduleDedupingQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "me",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "concreteType": null,
+            "kind": "LinkedField",
+            "name": "nameRenderer",
+            "plural": false,
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "__typename",
+                "storageKey": null
+              },
+              {
+                "kind": "InlineFragment",
+                "selections": [
+                  {
+                    "args": null,
+                    "documentName": "moduleDedupingQuery",
+                    "fragmentName": "moduleDeduping_frag",
+                    "fragmentPropName": "frag",
+                    "kind": "ModuleImport"
+                  }
+                ],
+                "type": "PlainUserNameRenderer",
+                "abstractKey": null
+              },
+              {
+                "condition": "cond",
+                "kind": "Condition",
+                "passingValue": true,
+                "selections": [
+                  {
+                    "kind": "TypeDiscriminator",
+                    "abstractKey": "__isUserNameRenderer"
+                  }
+                ]
+              }
+            ],
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {},
+    "name": "moduleDedupingQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query moduleDedupingQuery(
+  $cond: Boolean!
+) {
+  me {
+    nameRenderer {
+      __typename
+      ... on PlainUserNameRenderer {
+        ...moduleDeduping_frag
+        __module_operation_moduleDedupingQuery: js(module: "moduleDeduping_frag$normalization.graphql", id: "moduleDedupingQuery.me.nameRenderer", branch: "PlainUserNameRenderer")
+        __module_component_moduleDedupingQuery: js(module: "Component.react", id: "moduleDedupingQuery.me.nameRenderer", branch: "PlainUserNameRenderer")
+      }
+      __isUserNameRenderer: __typename @include(if: $cond)
+      ... on PlainUserNameRenderer @include(if: $cond) {
+        ...moduleDeduping_frag
+        __module_operation_moduleDedupingQuery: js(module: "moduleDeduping_frag$normalization.graphql", id: "moduleDedupingQuery.me.nameRenderer", branch: "PlainUserNameRenderer")
+        __module_component_moduleDedupingQuery: js(module: "Component.react", id: "moduleDedupingQuery.me.nameRenderer", branch: "PlainUserNameRenderer")
+      }
+    }
+    id
+  }
+}
+
+fragment moduleDeduping_frag on PlainUserNameRenderer {
+  __typename
+}
+
+
+{
+  "kind": "SplitOperation",
+  "metadata": {},
+  "name": "moduleDeduping_frag$normalization",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "__typename",
+      "storageKey": null
+    }
+  ]
+}
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "moduleDeduping_frag",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "__typename",
+      "storageKey": null
+    }
+  ],
+  "type": "PlainUserNameRenderer",
+  "abstractKey": null
+}

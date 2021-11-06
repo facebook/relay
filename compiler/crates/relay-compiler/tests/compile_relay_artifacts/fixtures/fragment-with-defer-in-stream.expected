@@ -1,0 +1,264 @@
+==================================== INPUT ====================================
+query fragmentWithDeferInStream_QueryWithFragmentWithStreamQuery($id: ID!) {
+  node(id: $id) {
+    id
+    ...fragmentWithDeferInStream_FeedbackFragment
+  }
+}
+
+fragment fragmentWithDeferInStream_FeedbackFragment on Feedback {
+  id
+  actors @stream(initial_count: 1, label: "StreamedActorsLabel") {
+    ...fragmentWithDeferInStream_ActorFragment @defer
+  }
+}
+
+fragment fragmentWithDeferInStream_ActorFragment on Actor {
+  name
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "id"
+      }
+    ],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "fragmentWithDeferInStream_QueryWithFragmentWithStreamQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          },
+          {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "fragmentWithDeferInStream_FeedbackFragment"
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "id"
+      }
+    ],
+    "kind": "Operation",
+    "name": "fragmentWithDeferInStream_QueryWithFragmentWithStreamQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "__typename",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          },
+          {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "if": null,
+                "kind": "Stream",
+                "label": "fragmentWithDeferInStream_FeedbackFragment$stream$StreamedActorsLabel",
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "concreteType": null,
+                    "kind": "LinkedField",
+                    "name": "actors",
+                    "plural": true,
+                    "selections": [
+                      {
+                        "alias": null,
+                        "args": null,
+                        "kind": "ScalarField",
+                        "name": "__typename",
+                        "storageKey": null
+                      },
+                      {
+                        "if": null,
+                        "kind": "Defer",
+                        "label": "fragmentWithDeferInStream_FeedbackFragment$defer$fragmentWithDeferInStream_ActorFragment",
+                        "selections": [
+                          {
+                            "kind": "TypeDiscriminator",
+                            "abstractKey": "__isActor"
+                          },
+                          {
+                            "alias": null,
+                            "args": null,
+                            "kind": "ScalarField",
+                            "name": "name",
+                            "storageKey": null
+                          }
+                        ]
+                      },
+                      {
+                        "alias": null,
+                        "args": null,
+                        "kind": "ScalarField",
+                        "name": "id",
+                        "storageKey": null
+                      }
+                    ],
+                    "storageKey": null
+                  }
+                ]
+              }
+            ],
+            "type": "Feedback",
+            "abstractKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {},
+    "name": "fragmentWithDeferInStream_QueryWithFragmentWithStreamQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query fragmentWithDeferInStream_QueryWithFragmentWithStreamQuery(
+  $id: ID!
+) {
+  node(id: $id) {
+    __typename
+    id
+    ...fragmentWithDeferInStream_FeedbackFragment
+  }
+}
+
+fragment fragmentWithDeferInStream_ActorFragment on Actor {
+  __isActor: __typename
+  name
+}
+
+fragment fragmentWithDeferInStream_FeedbackFragment on Feedback {
+  id
+  actors @stream(label: "fragmentWithDeferInStream_FeedbackFragment$stream$StreamedActorsLabel", initial_count: 1) {
+    __typename
+    ...fragmentWithDeferInStream_ActorFragment @defer(label: "fragmentWithDeferInStream_FeedbackFragment$defer$fragmentWithDeferInStream_ActorFragment")
+    id
+  }
+}
+
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "fragmentWithDeferInStream_ActorFragment",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "name",
+      "storageKey": null
+    }
+  ],
+  "type": "Actor",
+  "abstractKey": "__isActor"
+}
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "fragmentWithDeferInStream_FeedbackFragment",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "id",
+      "storageKey": null
+    },
+    {
+      "kind": "Stream",
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "concreteType": null,
+          "kind": "LinkedField",
+          "name": "actors",
+          "plural": true,
+          "selections": [
+            {
+              "kind": "Defer",
+              "selections": [
+                {
+                  "args": null,
+                  "kind": "FragmentSpread",
+                  "name": "fragmentWithDeferInStream_ActorFragment"
+                }
+              ]
+            }
+          ],
+          "storageKey": null
+        }
+      ]
+    }
+  ],
+  "type": "Feedback",
+  "abstractKey": null
+}

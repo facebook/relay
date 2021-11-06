@@ -1,0 +1,277 @@
+==================================== INPUT ====================================
+fragment ParentFragment on User {
+  ...ChildFragment1 @arguments(pictureSize: [42])
+  ...ChildFragment2
+}
+
+fragment ChildFragment1 on User
+  @argumentDefinitions(
+    pictureSize: {type: "[Int]"}
+    arg_with_enabled_provider0: {type: "Boolean!", provider: "foo_gk_module.js"}
+  ) {
+
+  profilePicture(size: $pictureSize) {
+    uri @include(if: $arg_with_enabled_provider0)
+  }
+}
+
+fragment ChildFragment2 on User
+  @argumentDefinitions(
+    arg_with_enabled_provider0: {type: "Boolean!", provider: "foo_gk_module.js"}
+  ) {
+
+  traits @include(if: $arg_with_enabled_provider0)
+}
+==================================== OUTPUT ===================================
+[
+    Fragment(
+        FragmentDefinition {
+            name: WithLocation {
+                location: use_fragment_spread_with_provider.graphql:9:23,
+                item: "ParentFragment",
+            },
+            variable_definitions: [],
+            used_global_variables: [],
+            type_condition: Object(67),
+            directives: [],
+            selections: [
+                FragmentSpread {
+                    fragment: WithLocation {
+                        location: use_fragment_spread_with_provider.graphql:39:53,
+                        item: "ChildFragment1",
+                    },
+                    arguments: [
+                        Argument {
+                            name: WithLocation {
+                                location: use_fragment_spread_with_provider.graphql:65:76,
+                                item: "pictureSize",
+                            },
+                            value: WithLocation {
+                                location: use_fragment_spread_with_provider.graphql:78:82,
+                                item: Constant(
+                                    List(
+                                        [
+                                            Int(
+                                                42,
+                                            ),
+                                        ],
+                                    ),
+                                ),
+                            },
+                        },
+                    ],
+                    directives: [],
+                },
+                FragmentSpread {
+                    fragment: WithLocation {
+                        location: use_fragment_spread_with_provider.graphql:89:103,
+                        item: "ChildFragment2",
+                    },
+                    arguments: [],
+                    directives: [],
+                },
+            ],
+        },
+    ),
+    Fragment(
+        FragmentDefinition {
+            name: WithLocation {
+                location: use_fragment_spread_with_provider.graphql:116:130,
+                item: "ChildFragment1",
+            },
+            variable_definitions: [
+                VariableDefinition {
+                    name: WithLocation {
+                        location: use_fragment_spread_with_provider.graphql:167:178,
+                        item: "pictureSize",
+                    },
+                    type_: List(
+                        Named(
+                            Scalar(0),
+                        ),
+                    ),
+                    default_value: None,
+                    directives: [],
+                },
+                VariableDefinition {
+                    name: WithLocation {
+                        location: use_fragment_spread_with_provider.graphql:200:226,
+                        item: "arg_with_enabled_provider0",
+                    },
+                    type_: NonNull(
+                        Named(
+                            Scalar(3),
+                        ),
+                    ),
+                    default_value: None,
+                    directives: [
+                        Directive {
+                            name: WithLocation {
+                                location: use_fragment_spread_with_provider.graphql:247:275,
+                                item: "provider",
+                            },
+                            arguments: [],
+                            data: Some(
+                                ProvidedArgument {
+                                    module_name: "foo_gk_module.js",
+                                },
+                            ),
+                        },
+                    ],
+                },
+            ],
+            used_global_variables: [],
+            type_condition: Object(67),
+            directives: [
+                Directive {
+                    name: WithLocation {
+                        location: use_fragment_spread_with_provider.graphql:142:161,
+                        item: "argumentDefinitions",
+                    },
+                    arguments: [],
+                    data: None,
+                },
+            ],
+            selections: [
+                LinkedField {
+                    alias: None,
+                    definition: WithLocation {
+                        location: use_fragment_spread_with_provider.graphql:286:300,
+                        item: FieldID(477),
+                    },
+                    arguments: [
+                        Argument {
+                            name: WithLocation {
+                                location: use_fragment_spread_with_provider.graphql:301:305,
+                                item: "size",
+                            },
+                            value: WithLocation {
+                                location: use_fragment_spread_with_provider.graphql:307:319,
+                                item: Variable(
+                                    Variable {
+                                        name: WithLocation {
+                                            location: use_fragment_spread_with_provider.graphql:307:319,
+                                            item: "pictureSize",
+                                        },
+                                        type_: List(
+                                            Named(
+                                                Scalar(0),
+                                            ),
+                                        ),
+                                    },
+                                ),
+                            },
+                        },
+                    ],
+                    directives: [],
+                    selections: [
+                        Condition {
+                            selections: [
+                                ScalarField {
+                                    alias: None,
+                                    definition: WithLocation {
+                                        location: use_fragment_spread_with_provider.graphql:327:330,
+                                        item: FieldID(185),
+                                    },
+                                    arguments: [],
+                                    directives: [],
+                                },
+                            ],
+                            value: Variable(
+                                Variable {
+                                    name: WithLocation {
+                                        location: use_fragment_spread_with_provider.graphql:344:371,
+                                        item: "arg_with_enabled_provider0",
+                                    },
+                                    type_: NonNull(
+                                        Named(
+                                            Scalar(3),
+                                        ),
+                                    ),
+                                },
+                            ),
+                            passing_value: true,
+                        },
+                    ],
+                },
+            ],
+        },
+    ),
+    Fragment(
+        FragmentDefinition {
+            name: WithLocation {
+                location: use_fragment_spread_with_provider.graphql:389:403,
+                item: "ChildFragment2",
+            },
+            variable_definitions: [
+                VariableDefinition {
+                    name: WithLocation {
+                        location: use_fragment_spread_with_provider.graphql:440:466,
+                        item: "arg_with_enabled_provider0",
+                    },
+                    type_: NonNull(
+                        Named(
+                            Scalar(3),
+                        ),
+                    ),
+                    default_value: None,
+                    directives: [
+                        Directive {
+                            name: WithLocation {
+                                location: use_fragment_spread_with_provider.graphql:487:515,
+                                item: "provider",
+                            },
+                            arguments: [],
+                            data: Some(
+                                ProvidedArgument {
+                                    module_name: "foo_gk_module.js",
+                                },
+                            ),
+                        },
+                    ],
+                },
+            ],
+            used_global_variables: [],
+            type_condition: Object(67),
+            directives: [
+                Directive {
+                    name: WithLocation {
+                        location: use_fragment_spread_with_provider.graphql:415:434,
+                        item: "argumentDefinitions",
+                    },
+                    arguments: [],
+                    data: None,
+                },
+            ],
+            selections: [
+                Condition {
+                    selections: [
+                        ScalarField {
+                            alias: None,
+                            definition: WithLocation {
+                                location: use_fragment_spread_with_provider.graphql:526:532,
+                                item: FieldID(486),
+                            },
+                            arguments: [],
+                            directives: [],
+                        },
+                    ],
+                    value: Variable(
+                        Variable {
+                            name: WithLocation {
+                                location: use_fragment_spread_with_provider.graphql:546:573,
+                                item: "arg_with_enabled_provider0",
+                            },
+                            type_: NonNull(
+                                Named(
+                                    Scalar(3),
+                                ),
+                            ),
+                        },
+                    ),
+                    passing_value: true,
+                },
+            ],
+        },
+    ),
+]

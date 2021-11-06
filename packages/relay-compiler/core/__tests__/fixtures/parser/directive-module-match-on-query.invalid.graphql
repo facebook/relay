@@ -1,0 +1,6 @@
+# expected-to-throw
+query TestQuery($id: ID!) @module @match {
+  foo: node(id: $id) {
+    id
+  }
+}

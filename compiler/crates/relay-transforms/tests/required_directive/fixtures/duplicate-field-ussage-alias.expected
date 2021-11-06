@@ -1,0 +1,20 @@
+==================================== INPUT ====================================
+fragment EnabledFoo on User {
+  name @required(action: THROW)
+  my_name: name @required(action: LOG)
+}
+==================================== OUTPUT ===================================
+fragment EnabledFoo on User @__childrenCanBubbleNull {
+  name @required(action: THROW) @__RequiredMetadataDirective
+  # RequiredMetadataDirective {
+  #     action: Throw,
+  #     path: "name",
+  # }
+  
+  my_name: name @required(action: LOG) @__RequiredMetadataDirective
+  # RequiredMetadataDirective {
+  #     action: Log,
+  #     path: "my_name",
+  # }
+  
+}

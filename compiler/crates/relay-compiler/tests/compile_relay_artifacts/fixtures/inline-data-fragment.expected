@@ -1,0 +1,371 @@
+==================================== INPUT ====================================
+query inlineDataFragment_TestQuery {
+  ...inlineDataFragment_ParentFragment
+}
+
+fragment inlineDataFragment_ParentFragment on Query {
+  me {
+    # No refinement needed, field and fragment are both User.
+    ...inlineDataFragment_Profile
+    profilePicture(size: 100) {
+      uri
+      height
+    }
+  }
+
+  username(name: "test") {
+    # Should refine from type Actor to User.
+    ...inlineDataFragment_Profile
+  }
+}
+
+fragment inlineDataFragment_Profile on User @inline {
+  profilePicture(size: 100) {
+    uri
+    width
+  }
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "inlineDataFragment_TestQuery",
+    "selections": [
+      {
+        "args": null,
+        "kind": "FragmentSpread",
+        "name": "inlineDataFragment_ParentFragment"
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [],
+    "kind": "Operation",
+    "name": "inlineDataFragment_TestQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "me",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": [
+              {
+                "kind": "Literal",
+                "name": "size",
+                "value": 100
+              }
+            ],
+            "concreteType": "Image",
+            "kind": "LinkedField",
+            "name": "profilePicture",
+            "plural": false,
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "uri",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "width",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "height",
+                "storageKey": null
+              }
+            ],
+            "storageKey": "profilePicture(size:100)"
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      },
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Literal",
+            "name": "name",
+            "value": "test"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "username",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "__typename",
+            "storageKey": null
+          },
+          {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "alias": null,
+                "args": [
+                  {
+                    "kind": "Literal",
+                    "name": "size",
+                    "value": 100
+                  }
+                ],
+                "concreteType": "Image",
+                "kind": "LinkedField",
+                "name": "profilePicture",
+                "plural": false,
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "uri",
+                    "storageKey": null
+                  },
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "width",
+                    "storageKey": null
+                  }
+                ],
+                "storageKey": "profilePicture(size:100)"
+              }
+            ],
+            "type": "User",
+            "abstractKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          }
+        ],
+        "storageKey": "username(name:\"test\")"
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {},
+    "name": "inlineDataFragment_TestQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query inlineDataFragment_TestQuery {
+  ...inlineDataFragment_ParentFragment
+}
+
+fragment inlineDataFragment_ParentFragment on Query {
+  me {
+    ...inlineDataFragment_Profile
+    profilePicture(size: 100) {
+      uri
+      height
+    }
+    id
+  }
+  username(name: "test") {
+    __typename
+    ...inlineDataFragment_Profile
+    id
+  }
+}
+
+fragment inlineDataFragment_Profile on User {
+  profilePicture(size: 100) {
+    uri
+    width
+  }
+}
+
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "inlineDataFragment_ParentFragment",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "concreteType": "User",
+      "kind": "LinkedField",
+      "name": "me",
+      "plural": false,
+      "selections": [
+        {
+          "kind": "InlineDataFragmentSpread",
+          "name": "inlineDataFragment_Profile",
+          "selections": [
+            {
+              "alias": null,
+              "args": [
+                {
+                  "kind": "Literal",
+                  "name": "size",
+                  "value": 100
+                }
+              ],
+              "concreteType": "Image",
+              "kind": "LinkedField",
+              "name": "profilePicture",
+              "plural": false,
+              "selections": [
+                {
+                  "alias": null,
+                  "args": null,
+                  "kind": "ScalarField",
+                  "name": "uri",
+                  "storageKey": null
+                },
+                {
+                  "alias": null,
+                  "args": null,
+                  "kind": "ScalarField",
+                  "name": "width",
+                  "storageKey": null
+                }
+              ],
+              "storageKey": "profilePicture(size:100)"
+            }
+          ]
+        },
+        {
+          "alias": null,
+          "args": [
+            {
+              "kind": "Literal",
+              "name": "size",
+              "value": 100
+            }
+          ],
+          "concreteType": "Image",
+          "kind": "LinkedField",
+          "name": "profilePicture",
+          "plural": false,
+          "selections": [
+            {
+              "alias": null,
+              "args": null,
+              "kind": "ScalarField",
+              "name": "uri",
+              "storageKey": null
+            },
+            {
+              "alias": null,
+              "args": null,
+              "kind": "ScalarField",
+              "name": "height",
+              "storageKey": null
+            }
+          ],
+          "storageKey": "profilePicture(size:100)"
+        }
+      ],
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": [
+        {
+          "kind": "Literal",
+          "name": "name",
+          "value": "test"
+        }
+      ],
+      "concreteType": null,
+      "kind": "LinkedField",
+      "name": "username",
+      "plural": false,
+      "selections": [
+        {
+          "kind": "InlineDataFragmentSpread",
+          "name": "inlineDataFragment_Profile",
+          "selections": [
+            {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "alias": null,
+                  "args": [
+                    {
+                      "kind": "Literal",
+                      "name": "size",
+                      "value": 100
+                    }
+                  ],
+                  "concreteType": "Image",
+                  "kind": "LinkedField",
+                  "name": "profilePicture",
+                  "plural": false,
+                  "selections": [
+                    {
+                      "alias": null,
+                      "args": null,
+                      "kind": "ScalarField",
+                      "name": "uri",
+                      "storageKey": null
+                    },
+                    {
+                      "alias": null,
+                      "args": null,
+                      "kind": "ScalarField",
+                      "name": "width",
+                      "storageKey": null
+                    }
+                  ],
+                  "storageKey": "profilePicture(size:100)"
+                }
+              ],
+              "type": "User",
+              "abstractKey": null
+            }
+          ]
+        }
+      ],
+      "storageKey": "username(name:\"test\")"
+    }
+  ],
+  "type": "Query",
+  "abstractKey": null
+}
+
+{
+  "kind": "InlineDataFragment",
+  "name": "inlineDataFragment_Profile"
+}

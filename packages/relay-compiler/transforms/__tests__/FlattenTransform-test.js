@@ -1,56 +1,64 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
+ * @flow strict-local
  * @format
  * @emails oncall+relay
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
-const FlattenTransform = require('FlattenTransform');
-const GraphQLCompilerContext = require('GraphQLCompilerContext');
-const GraphQLIRPrinter = require('GraphQLIRPrinter');
-const RelayParser = require('RelayParser');
-const RelayRelayDirectiveTransform = require('RelayRelayDirectiveTransform');
-const RelayTestSchema = require('RelayTestSchema');
+import type {FlattenOptions} from '../FlattenTransform';
 
-const {generateTestsFromFixtures} = require('RelayModernTestUtils');
-
-import type {FlattenOptions} from 'FlattenTransform';
+const CompilerContext = require('../../core/CompilerContext');
+const IRPrinter = require('../../core/IRPrinter');
+const RelayParser = require('../../core/RelayParser');
+const MatchTransform = require('../../transforms/MatchTransform');
+const FlattenTransform = require('../FlattenTransform');
+const RelayDirectiveTransform = require('../RelayDirectiveTransform');
+const {
+  TestSchema,
+  generateTestsFromFixtures,
+} = require('relay-test-utils-internal');
 
 describe('FlattenTransform', () => {
   function printContextTransform(
     options: FlattenOptions,
   ): (text: string) => string {
     return text => {
-      const {transformASTSchema} = require('ASTConvert');
-      const extendedSchema = transformASTSchema(RelayTestSchema, [
-        RelayRelayDirectiveTransform.SCHEMA_EXTENSION,
+      const extendedSchema = TestSchema.extend([
+        MatchTransform.SCHEMA_EXTENSION,
+        RelayDirectiveTransform.SCHEMA_EXTENSION,
       ]);
-      return new GraphQLCompilerContext(RelayTestSchema, extendedSchema)
+      return new CompilerContext(extendedSchema)
         .addAll(RelayParser.parse(extendedSchema, text))
-        .applyTransforms([FlattenTransform.transformWithOptions(options)])
+        .applyTransforms([
+          MatchTransform.transform,
+          FlattenTransform.transformWithOptions(options),
+        ])
         .documents()
-        .map(doc => GraphQLIRPrinter.print(doc))
+        .map(doc => IRPrinter.print(extendedSchema, doc))
         .join('\n');
     };
   }
 
   generateTestsFromFixtures(
     `${__dirname}/fixtures/flatten-transform`,
-    printContextTransform({}),
-  );
-
-  generateTestsFromFixtures(
-    `${__dirname}/fixtures/flatten-transform-option-flatten-inline`,
-    printContextTransform({flattenInlineFragments: true}),
+    printContextTransform({isForCodegen: false}),
   );
 
   generateTestsFromFixtures(
     `${__dirname}/fixtures/flatten-transform-errors`,
-    printContextTransform({flattenInlineFragments: true}),
+    printContextTransform({isForCodegen: false}),
+  );
+
+  generateTestsFromFixtures(
+    `${__dirname}/fixtures/flatten-transform-option-flatten-abstract`,
+    printContextTransform({isForCodegen: true}),
   );
 });

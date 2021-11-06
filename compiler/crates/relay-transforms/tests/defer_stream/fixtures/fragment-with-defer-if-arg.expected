@@ -1,0 +1,38 @@
+==================================== INPUT ====================================
+query QueryWithFragmentWithDefer($enableDefer: Boolean) {
+  me {
+    id
+    ...UserFragment
+  }
+}
+
+fragment UserFragment on User {
+  id
+  emailAddresses
+  ...DeferredFragment @defer(label: "DeferredFragmentLabel", if: $enableDefer)
+}
+
+fragment DeferredFragment on User {
+  id
+  name
+}
+==================================== OUTPUT ===================================
+query QueryWithFragmentWithDefer(
+  $enableDefer: Boolean
+) {
+  me {
+    id
+    ...UserFragment
+  }
+}
+
+fragment DeferredFragment on User {
+  id
+  name
+}
+
+fragment UserFragment on User {
+  id
+  emailAddresses
+  ...DeferredFragment @defer(label: "UserFragment$defer$DeferredFragmentLabel", if: $enableDefer)
+}

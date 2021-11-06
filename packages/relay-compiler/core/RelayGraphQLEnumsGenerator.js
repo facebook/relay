@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -8,51 +8,46 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
+
+import type CodegenDirectory from '../codegen/CodegenDirectory';
+import type {Schema} from '../core/Schema';
 
 const SignedSource = require('signedsource');
 
-const {GraphQLEnumType} = require('graphql');
-
-import type CodegenDirectory from 'CodegenDirectory';
-import type {GraphQLSchema} from 'graphql';
-
 function writeForSchema(
-  schema: GraphQLSchema,
-  licenseHeader: Array<string>,
+  schema: Schema,
+  licenseHeader: $ReadOnlyArray<string>,
   codegenDir: CodegenDirectory,
-  moduleName: string,
+  getModuleName: (enumName: string) => string,
 ): void {
-  const typeMap = schema.getTypeMap();
-  const stableTypeNames = Object.keys(typeMap).sort();
-  const types = [];
-  for (const name of stableTypeNames) {
-    const type = typeMap[name];
-    if (type instanceof GraphQLEnumType) {
-      const values = type.getValues().map(({value}) => value);
-      values.sort();
-      types.push(
-        `export type ${name} =\n  | '` +
-          values.join("'\n  | '") +
-          "'\n  | '%future added value';",
-      );
-    }
-  }
-
-  const content =
+  const header =
     '/**\n' +
     licenseHeader.map(line => ` * ${line}\n`).join('') +
     ' *\n' +
     ` * ${SignedSource.getSigningToken()}\n` +
-    ' * @flow\n' +
+    ' * @flow strict\n' +
     ' */\n' +
-    '\n' +
-    // use Flow comment to avoid long Babel compile times
-    '/*::\n' +
-    types.join('\n\n') +
-    '\n*/\n';
+    '\n';
 
-  codegenDir.writeFile(moduleName + '.js', SignedSource.signFile(content));
+  const enumTypes = schema.getTypes().filter(type => schema.isEnum(type));
+
+  for (const type of enumTypes) {
+    const enumType = schema.assertEnumType(type);
+    const name = schema.getTypeString(type);
+    const values = [...schema.getEnumValues(enumType)].sort();
+    const enumFileContent =
+      header +
+      `export type ${name} =\n  | '` +
+      values.join("'\n  | '") +
+      "'\n  | '%future added value';\n";
+    codegenDir.writeFile(
+      `${getModuleName(name)}.js`,
+      SignedSource.signFile(enumFileContent),
+    );
+  }
 }
 
 module.exports = {

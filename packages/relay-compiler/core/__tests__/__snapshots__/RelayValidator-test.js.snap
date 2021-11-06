@@ -1,8 +1,0 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`id alias validation 1`] = `"RelayValidator: Relay does not allow aliasing fields to \`id\`. This name is reserved for the globally unique \`id\` field on \`Node\`."`;
-
-exports[`non-scalar leaf 1`] = `
-"You supplied a GraphQL document with validation errors:
-test.graphql: Field \\"friends\\" of type \\"FriendsConnection\\" must have a selection of subfields. Did you mean \\"friends { ... }\\"?"
-`;

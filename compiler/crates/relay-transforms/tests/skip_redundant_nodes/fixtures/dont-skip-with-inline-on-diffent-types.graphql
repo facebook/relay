@@ -1,0 +1,15 @@
+query DontSkipWithInlineFragmentOnDifferentTypes {
+  viewer {
+    actor {
+      ... on Actor {
+        id
+      }
+      ... on User {
+        id # we currently don't skip this
+        hometown {
+          name
+        }
+      }
+    }
+  }
+}

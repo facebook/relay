@@ -1,0 +1,9 @@
+# expected-to-throw
+subscription TestSubscriptionWithMultipleSelections($input: FeedbackLikeInput) {
+  feedbackLikeSubscribe(input: $input) {
+    clientSubscriptionId
+  }
+  aliased: feedbackLikeSubscribe(input: $input) {
+    clientSubscriptionId
+  }
+}

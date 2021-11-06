@@ -1,0 +1,160 @@
+==================================== INPUT ====================================
+scalar Foo
+
+"""
+Definition with comment
+"""
+type User {
+  id: ID!
+}
+
+fragment F on User {
+  id
+}
+==================================== OUTPUT ===================================
+Document {
+    location: mixed.graphql:0:97,
+    definitions: [
+        TypeSystemDefinition(
+            ScalarTypeDefinition(
+                ScalarTypeDefinition {
+                    name: Identifier {
+                        span: 7:10,
+                        token: Token {
+                            span: 7:10,
+                            kind: Identifier,
+                        },
+                        value: "Foo",
+                    },
+                    directives: [],
+                },
+            ),
+        ),
+        TypeSystemDefinition(
+            ObjectTypeDefinition(
+                ObjectTypeDefinition {
+                    name: Identifier {
+                        span: 49:53,
+                        token: Token {
+                            span: 49:53,
+                            kind: Identifier,
+                        },
+                        value: "User",
+                    },
+                    interfaces: [],
+                    directives: [],
+                    fields: Some(
+                        List {
+                            span: 54:67,
+                            start: Token {
+                                span: 54:55,
+                                kind: OpenBrace,
+                            },
+                            items: [
+                                FieldDefinition {
+                                    name: Identifier {
+                                        span: 58:60,
+                                        token: Token {
+                                            span: 58:60,
+                                            kind: Identifier,
+                                        },
+                                        value: "id",
+                                    },
+                                    type_: NonNull(
+                                        NonNullTypeAnnotation {
+                                            span: 62:65,
+                                            type_: Named(
+                                                NamedTypeAnnotation {
+                                                    name: Identifier {
+                                                        span: 62:64,
+                                                        token: Token {
+                                                            span: 62:64,
+                                                            kind: Identifier,
+                                                        },
+                                                        value: "ID",
+                                                    },
+                                                },
+                                            ),
+                                            exclamation: Token {
+                                                span: 64:65,
+                                                kind: Exclamation,
+                                            },
+                                        },
+                                    ),
+                                    arguments: None,
+                                    directives: [],
+                                    description: None,
+                                },
+                            ],
+                            end: Token {
+                                span: 66:67,
+                                kind: CloseBrace,
+                            },
+                        },
+                    ),
+                },
+            ),
+        ),
+        ExecutableDefinition(
+            FragmentDefinition {
+                location: mixed.graphql:69:96,
+                fragment: Token {
+                    span: 69:77,
+                    kind: Identifier,
+                },
+                name: Identifier {
+                    span: 78:79,
+                    token: Token {
+                        span: 78:79,
+                        kind: Identifier,
+                    },
+                    value: "F",
+                },
+                variable_definitions: None,
+                type_condition: TypeCondition {
+                    span: 80:87,
+                    on: Token {
+                        span: 80:82,
+                        kind: Identifier,
+                    },
+                    type_: Identifier {
+                        span: 83:87,
+                        token: Token {
+                            span: 83:87,
+                            kind: Identifier,
+                        },
+                        value: "User",
+                    },
+                },
+                directives: [],
+                selections: List {
+                    span: 88:96,
+                    start: Token {
+                        span: 88:89,
+                        kind: OpenBrace,
+                    },
+                    items: [
+                        ScalarField {
+                            span: 92:94,
+                            alias: None,
+                            name: Identifier {
+                                span: 92:94,
+                                token: Token {
+                                    span: 92:94,
+                                    kind: Identifier,
+                                },
+                                value: "id",
+                            },
+                            arguments: None,
+                            directives: [],
+                        },
+                    ],
+                    end: Token {
+                        span: 95:96,
+                        kind: CloseBrace,
+                    },
+                },
+            },
+        ),
+    ],
+}

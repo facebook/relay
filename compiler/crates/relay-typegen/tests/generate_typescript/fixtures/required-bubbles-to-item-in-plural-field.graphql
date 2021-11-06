@@ -1,0 +1,7 @@
+fragment NonNullFragment on User {
+  firstName
+  screennames {
+    name
+    service @required(action: LOG)
+  }
+}

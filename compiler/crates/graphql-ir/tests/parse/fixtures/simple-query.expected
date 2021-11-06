@@ -1,0 +1,83 @@
+==================================== INPUT ====================================
+query TestQuery($id: ID!) {
+  foo: node(id: $id) {
+    id
+  }
+}
+==================================== OUTPUT ===================================
+[
+    Operation(
+        OperationDefinition {
+            kind: Query,
+            name: WithLocation {
+                location: simple-query.graphql:6:15,
+                item: "TestQuery",
+            },
+            type_: Object(0),
+            variable_definitions: [
+                VariableDefinition {
+                    name: WithLocation {
+                        location: simple-query.graphql:16:19,
+                        item: "id",
+                    },
+                    type_: NonNull(
+                        Named(
+                            Scalar(4),
+                        ),
+                    ),
+                    default_value: None,
+                    directives: [],
+                },
+            ],
+            directives: [],
+            selections: [
+                LinkedField {
+                    alias: Some(
+                        WithLocation {
+                            location: simple-query.graphql:30:33,
+                            item: "foo",
+                        },
+                    ),
+                    definition: WithLocation {
+                        location: simple-query.graphql:35:39,
+                        item: FieldID(9),
+                    },
+                    arguments: [
+                        Argument {
+                            name: WithLocation {
+                                location: simple-query.graphql:40:42,
+                                item: "id",
+                            },
+                            value: WithLocation {
+                                location: simple-query.graphql:44:47,
+                                item: Variable(
+                                    Variable {
+                                        name: WithLocation {
+                                            location: simple-query.graphql:44:47,
+                                            item: "id",
+                                        },
+                                        type_: Named(
+                                            Scalar(4),
+                                        ),
+                                    },
+                                ),
+                            },
+                        },
+                    ],
+                    directives: [],
+                    selections: [
+                        ScalarField {
+                            alias: None,
+                            definition: WithLocation {
+                                location: simple-query.graphql:55:57,
+                                item: FieldID(220),
+                            },
+                            arguments: [],
+                            directives: [],
+                        },
+                    ],
+                },
+            ],
+        },
+    ),
+]

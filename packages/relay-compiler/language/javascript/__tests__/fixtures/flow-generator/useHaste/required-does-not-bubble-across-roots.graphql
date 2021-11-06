@@ -1,0 +1,33 @@
+query QueryA {
+  me @required(action: LOG) {
+    id @required(action: LOG)
+  }
+}
+
+fragment FragmentA on User {
+  id @required(action: LOG)
+}
+
+fragment FragmentB on Node {
+  id
+}
+
+query QueryB {
+  me {
+    id
+  }
+}
+
+fragment FragmentC on User {
+  id @required(action: LOG)
+}
+
+fragment FragmentD on Node {
+  id
+}
+
+query QueryC {
+  me @required(action: LOG) {
+    id @required(action: LOG)
+  }
+}

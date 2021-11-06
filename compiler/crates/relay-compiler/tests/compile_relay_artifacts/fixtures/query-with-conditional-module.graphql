@@ -1,0 +1,22 @@
+query queryWithConditionalModule_NameRendererQuery($id: ID!, $fetchModule: Boolean!) {
+  node(id: $id) {
+    ...queryWithConditionalModule_NameRendererFragment
+  }
+}
+
+fragment queryWithConditionalModule_NameRendererFragment on User {
+  id
+  nameRenderer {
+    # note: intentionally no @match here
+    ...queryWithConditionalModule_MarkdownUserNameRenderer_name
+      @include(if: $fetchModule)
+      @module(name: "MarkdownUserNameRenderer.react")
+  }
+}
+
+fragment queryWithConditionalModule_MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+  }
+}

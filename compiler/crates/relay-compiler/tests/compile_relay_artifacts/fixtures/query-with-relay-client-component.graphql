@@ -1,0 +1,14 @@
+query queryWithRelayClientComponent_Query($id: ID!, $size: [Int]) {
+  node(id: $id) {
+    id
+    ...queryWithRelayClientComponent_ClientComponentFragment
+      @relay_client_component
+  }
+}
+
+fragment queryWithRelayClientComponent_ClientComponentFragment on User {
+  name
+  profilePicture(size: $size) {
+    uri
+  }
+}

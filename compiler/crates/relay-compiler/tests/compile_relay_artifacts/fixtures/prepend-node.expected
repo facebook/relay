@@ -1,0 +1,176 @@
+==================================== INPUT ====================================
+mutation prependNodeCommentCreateMutation(
+  $connections: [ID!]!
+  $edgeTypeName: String!
+  $input: CommentCreateInput
+) {
+  commentCreate(input: $input) {
+    comment
+      @prependNode(connections: $connections, edgeTypeName: $edgeTypeName) {
+      id
+    }
+  }
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "connections"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "edgeTypeName"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "input"
+      }
+    ],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "prependNodeCommentCreateMutation",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "input",
+            "variableName": "input"
+          }
+        ],
+        "concreteType": "CommentCreateResponsePayload",
+        "kind": "LinkedField",
+        "name": "commentCreate",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "concreteType": "Comment",
+            "kind": "LinkedField",
+            "name": "comment",
+            "plural": false,
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "id",
+                "storageKey": null
+              }
+            ],
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "type": "Mutation",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "connections"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "edgeTypeName"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "input"
+      }
+    ],
+    "kind": "Operation",
+    "name": "prependNodeCommentCreateMutation",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "input",
+            "variableName": "input"
+          }
+        ],
+        "concreteType": "CommentCreateResponsePayload",
+        "kind": "LinkedField",
+        "name": "commentCreate",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "concreteType": "Comment",
+            "kind": "LinkedField",
+            "name": "comment",
+            "plural": false,
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "id",
+                "storageKey": null
+              }
+            ],
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "filters": null,
+            "handle": "prependNode",
+            "key": "",
+            "kind": "LinkedHandle",
+            "name": "comment",
+            "handleArgs": [
+              {
+                "kind": "Variable",
+                "name": "connections",
+                "variableName": "connections"
+              },
+              {
+                "kind": "Variable",
+                "name": "edgeTypeName",
+                "variableName": "edgeTypeName"
+              }
+            ]
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {},
+    "name": "prependNodeCommentCreateMutation",
+    "operationKind": "mutation",
+    "text": null
+  }
+}
+
+QUERY:
+
+mutation prependNodeCommentCreateMutation(
+  $input: CommentCreateInput
+) {
+  commentCreate(input: $input) {
+    comment {
+      id
+    }
+  }
+}

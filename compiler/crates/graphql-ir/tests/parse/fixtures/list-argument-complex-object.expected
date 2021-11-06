@@ -1,0 +1,127 @@
+==================================== INPUT ====================================
+query ListArgumentQuery($waypoint: WayPoint!) {
+  route(waypoints: [$waypoint, {lat: "0.0", lon: "0.0"}]) {
+    steps {
+      note
+    }
+  }
+}
+==================================== OUTPUT ===================================
+[
+    Operation(
+        OperationDefinition {
+            kind: Query,
+            name: WithLocation {
+                location: list-argument-complex-object.graphql:6:23,
+                item: "ListArgumentQuery",
+            },
+            type_: Object(0),
+            variable_definitions: [
+                VariableDefinition {
+                    name: WithLocation {
+                        location: list-argument-complex-object.graphql:24:33,
+                        item: "waypoint",
+                    },
+                    type_: NonNull(
+                        Named(
+                            InputObject(0),
+                        ),
+                    ),
+                    default_value: None,
+                    directives: [],
+                },
+            ],
+            directives: [],
+            selections: [
+                LinkedField {
+                    alias: None,
+                    definition: WithLocation {
+                        location: list-argument-complex-object.graphql:50:55,
+                        item: FieldID(2),
+                    },
+                    arguments: [
+                        Argument {
+                            name: WithLocation {
+                                location: list-argument-complex-object.graphql:56:65,
+                                item: "waypoints",
+                            },
+                            value: WithLocation {
+                                location: list-argument-complex-object.graphql:67:104,
+                                item: List(
+                                    [
+                                        Variable(
+                                            Variable {
+                                                name: WithLocation {
+                                                    location: list-argument-complex-object.graphql:68:77,
+                                                    item: "waypoint",
+                                                },
+                                                type_: NonNull(
+                                                    Named(
+                                                        InputObject(0),
+                                                    ),
+                                                ),
+                                            },
+                                        ),
+                                        Constant(
+                                            Object(
+                                                [
+                                                    ConstantArgument {
+                                                        name: WithLocation {
+                                                            location: list-argument-complex-object.graphql:80:83,
+                                                            item: "lat",
+                                                        },
+                                                        value: WithLocation {
+                                                            location: list-argument-complex-object.graphql:85:90,
+                                                            item: String(
+                                                                "0.0",
+                                                            ),
+                                                        },
+                                                    },
+                                                    ConstantArgument {
+                                                        name: WithLocation {
+                                                            location: list-argument-complex-object.graphql:92:95,
+                                                            item: "lon",
+                                                        },
+                                                        value: WithLocation {
+                                                            location: list-argument-complex-object.graphql:97:102,
+                                                            item: String(
+                                                                "0.0",
+                                                            ),
+                                                        },
+                                                    },
+                                                ],
+                                            ),
+                                        ),
+                                    ],
+                                ),
+                            },
+                        },
+                    ],
+                    directives: [],
+                    selections: [
+                        LinkedField {
+                            alias: None,
+                            definition: WithLocation {
+                                location: list-argument-complex-object.graphql:112:117,
+                                item: FieldID(30),
+                            },
+                            arguments: [],
+                            directives: [],
+                            selections: [
+                                ScalarField {
+                                    alias: None,
+                                    definition: WithLocation {
+                                        location: list-argument-complex-object.graphql:126:130,
+                                        item: FieldID(33),
+                                    },
+                                    arguments: [],
+                                    directives: [],
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
+        },
+    ),
+]

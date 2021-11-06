@@ -1,0 +1,14 @@
+==================================== INPUT ====================================
+mutation CommentDeleteMutation($input: CommentDeleteInput) {
+  commentDelete(input: $input) {
+    deletedCommentId @deleteRecord
+  }
+}
+==================================== OUTPUT ===================================
+mutation CommentDeleteMutation(
+  $input: CommentDeleteInput
+) {
+  commentDelete(input: $input) {
+    deletedCommentId @__clientField(key: "", handle: "deleteRecord", filters: null, dynamicKey_UNSTABLE: null)
+  }
+}

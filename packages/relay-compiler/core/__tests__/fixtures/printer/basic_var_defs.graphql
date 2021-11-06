@@ -1,0 +1,14 @@
+query MyQuery($id: ID, $count: Int! = 5, $envs: [Environment!]! = [WEB]) {
+  my_alias: node(id: $id) {
+    id
+    ... on User {
+      name
+      likers(first: $count) {
+        count
+      }
+      checkins(environments: $envs) {
+        query
+      }
+    }
+  }
+}

@@ -1,0 +1,17 @@
+query NotASubscription {
+  node(id: "foo") {
+    id
+  }
+}
+
+subscription TestVanillaSubscription($input: FeedbackLikeInput) {
+  feedbackLikeSubscribe(input: $input) {
+    clientSubscriptionId
+  }
+}
+
+subscription TestSubscriptionWithAlias($input: FeedbackLikeInput) {
+  aliased: feedbackLikeSubscribe(input: $input) {
+    clientSubscriptionId
+  }
+}

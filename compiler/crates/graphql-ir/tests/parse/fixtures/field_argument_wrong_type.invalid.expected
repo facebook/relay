@@ -1,0 +1,15 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query TestQuery {
+  task(number: 9.75) { # should be an Int
+    title
+  }
+}
+==================================== ERROR ====================================
+✖︎ Expected a value of type 'Int'
+
+  field_argument_wrong_type.invalid.graphql:3:16
+    2 │ query TestQuery {
+    3 │   task(number: 9.75) { # should be an Int
+      │                ^^^^
+    4 │     title

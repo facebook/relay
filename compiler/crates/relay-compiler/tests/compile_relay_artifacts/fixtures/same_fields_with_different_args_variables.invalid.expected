@@ -1,0 +1,32 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query sameFieldsWithDifferentArgsVariables_MeQuery(
+  $globalArg: String!
+) {
+  me {
+    ...sameFieldsWithDifferentArgsVariablesFragment @arguments(arg: "A")
+    ...sameFieldsWithDifferentArgsVariablesFragment @arguments(arg: $globalArg)
+  }
+}
+
+fragment sameFieldsWithDifferentArgsVariablesFragment on User @argumentDefinitions(
+  arg: {type: "String!"}
+) {
+  url(site: $arg)
+}
+==================================== ERROR ====================================
+✖︎ Expected all fields on the same parent with the name or alias `url` to have the same argument values after applying fragment arguments. This field has the applied argument values: (site: "A")
+
+  same_fields_with_different_args_variables.invalid.graphql:14:3
+   13 │ ) {
+   14 │   url(site: $arg)
+      │   ^^^
+   15 │ }
+
+  ℹ︎ which conflicts with this field with applied argument values (site: $globalArg)
+
+  same_fields_with_different_args_variables.invalid.graphql:14:3
+   13 │ ) {
+   14 │   url(site: $arg)
+      │   ^^^
+   15 │ }

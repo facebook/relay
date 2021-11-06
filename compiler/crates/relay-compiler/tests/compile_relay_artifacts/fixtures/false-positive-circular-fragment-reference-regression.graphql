@@ -1,0 +1,22 @@
+query falsePositiveCircularFragmentReferenceRegression_TestQuery {
+  viewer {
+    ...falsePositiveCircularFragmentReferenceRegression_MyViewer
+    ...falsePositiveCircularFragmentReferenceRegression_MyOtherViewer
+    actor {
+      name
+    }
+  }
+}
+
+fragment falsePositiveCircularFragmentReferenceRegression_MyViewer on Viewer {
+  ...falsePositiveCircularFragmentReferenceRegression_MyNestedViewer
+}
+
+fragment falsePositiveCircularFragmentReferenceRegression_MyOtherViewer on Viewer {
+  ...falsePositiveCircularFragmentReferenceRegression_MyNestedViewer
+}
+
+fragment falsePositiveCircularFragmentReferenceRegression_MyNestedViewer on Viewer
+  @argumentDefinitions(includeEmail: {type: "Boolean!", defaultValue: false}) {
+  primaryEmail @include(if: $includeEmail)
+}

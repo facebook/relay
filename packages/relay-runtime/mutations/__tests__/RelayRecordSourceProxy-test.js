@@ -1,104 +1,80 @@
 /**
- * Copyright (c) 2013-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
  * @format
+ * @flow strict-local
  * @emails oncall+relay
  */
 
 'use strict';
 
-const RelayInMemoryRecordSource = require('RelayInMemoryRecordSource');
-const RelayModernTestUtils = require('RelayModernTestUtils');
-const RelayRecordProxy = require('RelayRecordProxy');
-const RelayRecordSourceMutator = require('RelayRecordSourceMutator');
-const RelayRecordSourceProxy = require('RelayRecordSourceProxy');
-const RelayStoreUtils = require('RelayStoreUtils');
+const defaultGetDataID = require('../../store/defaultGetDataID');
+const RelayRecordSource = require('../../store/RelayRecordSource');
+const RelayStoreUtils = require('../../store/RelayStoreUtils');
+const RelayRecordProxy = require('../RelayRecordProxy');
+const RelayRecordSourceMutator = require('../RelayRecordSourceMutator');
+const RelayRecordSourceProxy = require('../RelayRecordSourceProxy');
+const {simpleClone} = require('relay-test-utils-internal');
 
-const simpleClone = require('simpleClone');
-
-const {createOperationSelector} = require('RelayModernOperationSelector');
-
-const {
-  ID_KEY,
-  REF_KEY,
-  REFS_KEY,
-  ROOT_ID,
-  ROOT_TYPE,
-  TYPENAME_KEY,
-  UNPUBLISH_FIELD_SENTINEL,
-} = RelayStoreUtils;
+const {ID_KEY, REF_KEY, REFS_KEY, ROOT_ID, ROOT_TYPE, TYPENAME_KEY} =
+  RelayStoreUtils;
 
 describe('RelayRecordSourceProxy', () => {
-  let backupData;
-  let backupSource;
-  let baseData;
   let baseSource;
-  let initialData;
   let mutator;
   let store;
-  let sinkData;
   let sinkSource;
+  const initialData = {
+    '4': {
+      [ID_KEY]: '4',
+      [TYPENAME_KEY]: 'User',
+      'address(location:"WORK")': '1 Hacker Way',
+      administeredPages: {[REFS_KEY]: ['beast']},
+      blockedPages: {[REFS_KEY]: ['mpk']},
+      hometown: {[REF_KEY]: 'mpk'},
+      name: 'Mark',
+      pet: {[REF_KEY]: 'beast'},
+    },
+    '660361306': {
+      [ID_KEY]: '660361306',
+      [TYPENAME_KEY]: 'User',
+      administeredPages: {
+        [REFS_KEY]: ['mpk'],
+      },
+      status: 'alive',
+    },
+    beast: {
+      [ID_KEY]: 'beast',
+      [TYPENAME_KEY]: 'Page',
+      name: 'Beast',
+      owner: {[REF_KEY]: '4'},
+    },
+    deleted: null,
+    mpk: {
+      [ID_KEY]: 'mpk',
+      [TYPENAME_KEY]: 'Page',
+      name: 'Menlo Park',
+    },
+    sf: {
+      [ID_KEY]: 'sf',
+      [TYPENAME_KEY]: 'Page',
+      name: 'San Francisco',
+    },
+    [ROOT_ID]: {
+      [ID_KEY]: ROOT_ID,
+      [TYPENAME_KEY]: ROOT_TYPE,
+    },
+  };
 
   beforeEach(() => {
     jest.resetModules();
-    expect.extend(RelayModernTestUtils.matchers);
-
-    initialData = {
-      4: {
-        [ID_KEY]: '4',
-        [TYPENAME_KEY]: 'User',
-        'address(location:"WORK")': '1 Hacker Way',
-        administeredPages: {[REFS_KEY]: ['beast']},
-        blockedPages: {[REFS_KEY]: ['mpk']},
-        hometown: {[REF_KEY]: 'mpk'},
-        name: 'Mark',
-        pet: {[REF_KEY]: 'beast'},
-      },
-      660361306: {
-        [ID_KEY]: '660361306',
-        [TYPENAME_KEY]: 'User',
-        administeredPages: {
-          [REFS_KEY]: ['mpk'],
-        },
-        status: 'alive',
-      },
-      beast: {
-        [ID_KEY]: 'beast',
-        [TYPENAME_KEY]: 'Page',
-        name: 'Beast',
-        owner: {[REF_KEY]: '4'},
-      },
-      deleted: null,
-      mpk: {
-        [ID_KEY]: 'mpk',
-        [TYPENAME_KEY]: 'Page',
-        name: 'Menlo Park',
-      },
-      sf: {
-        [ID_KEY]: 'sf',
-        [TYPENAME_KEY]: 'Page',
-        name: 'San Francisco',
-      },
-      [ROOT_ID]: {
-        [ID_KEY]: ROOT_ID,
-        [TYPENAME_KEY]: ROOT_TYPE,
-      },
-    };
-    backupData = {};
-    sinkData = {};
-    baseData = simpleClone(initialData);
-    baseSource = new RelayInMemoryRecordSource(baseData);
-    backupSource = new RelayInMemoryRecordSource(backupData);
-    sinkSource = new RelayInMemoryRecordSource(sinkData);
-    mutator = new RelayRecordSourceMutator(
-      baseSource,
-      sinkSource,
-      backupSource,
-    );
-    store = new RelayRecordSourceProxy(mutator);
+    baseSource = new RelayRecordSource(simpleClone(initialData));
+    sinkSource = new RelayRecordSource({});
+    mutator = new RelayRecordSourceMutator(baseSource, sinkSource);
+    store = new RelayRecordSourceProxy(mutator, defaultGetDataID);
   });
 
   describe('get()', () => {
@@ -112,6 +88,9 @@ describe('RelayRecordSourceProxy', () => {
 
     it('returns a writer for defined records', () => {
       const record = store.get('4');
+      if (record == null) {
+        throw new Error('Exepcted to find record with id 4');
+      }
       expect(record.getDataID()).toBe('4');
       expect(record instanceof RelayRecordProxy).toBe(true);
     });
@@ -133,28 +112,41 @@ describe('RelayRecordSourceProxy', () => {
     });
 
     it('synthesizes a root if it does not exist', () => {
-      delete backupData[ROOT_ID];
-      delete baseData[ROOT_ID];
-      delete sinkData[ROOT_ID];
+      baseSource.remove(ROOT_ID);
+      sinkSource.remove(ROOT_ID);
       const root = store.getRoot();
       expect(root instanceof RelayRecordProxy).toBe(true);
       expect(root.getDataID()).toBe(ROOT_ID);
-      expect(sinkData[ROOT_ID]).toEqual({
+      expect(sinkSource.toJSON()[ROOT_ID]).toEqual({
         [ID_KEY]: ROOT_ID,
         [TYPENAME_KEY]: ROOT_TYPE,
       });
+    });
+
+    it('throws if the root is of a different type', () => {
+      const root = baseSource.get(ROOT_ID);
+      expect(root).not.toBeUndefined();
+      if (root != null) {
+        // Flow
+        root.__typename = 'User';
+      }
+      expect(() => {
+        store.getRoot();
+      }).toThrow(
+        'RelayRecordSourceProxy#getRoot(): Expected the source to contain a root record, found a root record of type `User`.',
+      );
     });
   });
 
   describe('delete()', () => {
     it('deletes records that are in the source', () => {
       store.delete('4');
-      expect(sinkData['4']).toBe(null);
+      expect(sinkSource.toJSON()['4']).toBe(null);
     });
 
     it('marks unknown records as deleted', () => {
       store.delete('unfetched');
-      expect(sinkData.unfetched).toBe(null);
+      expect(sinkSource.toJSON().unfetched).toBe(null);
     });
 
     it('get() returns null for deleted records', () => {
@@ -163,7 +155,7 @@ describe('RelayRecordSourceProxy', () => {
     });
 
     it('throws if the root is deleted', () => {
-      expect(() => store.delete(ROOT_ID)).toFailInvariant(
+      expect(() => store.delete(ROOT_ID)).toThrowError(
         'RelayRecordSourceProxy#delete(): Cannot delete the root record.',
       );
     });
@@ -173,114 +165,20 @@ describe('RelayRecordSourceProxy', () => {
     it('copies fields', () => {
       const sf = store.get('sf');
       const mpk = store.get('mpk');
+      if (sf == null) {
+        throw new Error('Exepcted to find record with id sf');
+      }
+      if (mpk == null) {
+        throw new Error('Exepcted to find record with id mpk');
+      }
       sf.copyFieldsFrom(mpk);
-      expect(sinkData).toEqual({
+      expect(sinkSource.toJSON()).toEqual({
         sf: {
           [ID_KEY]: 'sf',
           [TYPENAME_KEY]: 'Page',
           name: 'Menlo Park',
         },
       });
-    });
-  });
-
-  describe('commitPayload()', () => {
-    const {generateAndCompile} = RelayModernTestUtils;
-    it('override current fields ', () => {
-      const {Query} = generateAndCompile(
-        `
-        query Query {
-          node(id: "sf") {
-            id
-            __typename
-            name
-          }
-        }
-      `,
-      );
-      const operationSelector = createOperationSelector(Query, {});
-      const rawPayload = {
-        node: {
-          id: 'sf',
-          __typename: 'Page',
-          name: 'SF',
-        },
-      };
-      store.commitPayload(operationSelector, rawPayload);
-      expect(sinkData.sf).toEqual({
-        [ID_KEY]: 'sf',
-        [TYPENAME_KEY]: 'Page',
-        id: 'sf',
-        name: 'SF',
-      });
-    });
-
-    it('applies new records ', () => {
-      const {Query} = generateAndCompile(
-        `
-        query Query {
-          node(id: "seattle") {
-            id
-            __typename
-            name
-          }
-        }
-      `,
-      );
-      const operationSelector = createOperationSelector(Query, {});
-      const rawPayload = {
-        node: {
-          id: 'seattle',
-          __typename: 'Page',
-          name: 'Seattle',
-        },
-      };
-      store.commitPayload(operationSelector, rawPayload);
-      expect(sinkData.seattle).toEqual({
-        [ID_KEY]: 'seattle',
-        [TYPENAME_KEY]: 'Page',
-        id: 'seattle',
-        name: 'Seattle',
-      });
-    });
-
-    it('calls handler with field payload', () => {
-      const handlerFunction = jest.fn();
-      const handlers = {
-        handlerName: {update: handlerFunction},
-      };
-      const handlerProvider = name => handlers[name];
-      store = new RelayRecordSourceProxy(mutator, handlerProvider);
-
-      const {Query} = generateAndCompile(
-        `
-        query Query {
-          node(id: "sf") {
-            id
-            __typename
-            name @__clientField(handle: "handlerName")
-          }
-        }
-      `,
-      );
-      const operationSelector = createOperationSelector(Query, {});
-      const rawPayload = {
-        node: {
-          id: 'sf',
-          __typename: 'Page',
-          name: 'SF',
-        },
-      };
-      store.commitPayload(operationSelector, rawPayload);
-
-      const fieldPayload = {
-        args: {},
-        dataID: 'sf',
-        fieldKey: 'name',
-        handle: 'handlerName',
-        handleKey: '__name_handlerName',
-      };
-      expect(handlerFunction).toBeCalledWith(store, fieldPayload);
     });
   });
 
@@ -291,7 +189,7 @@ describe('RelayRecordSourceProxy', () => {
       expect(store.get('842472')).toBe(joe);
       expect(joe.getDataID()).toBe('842472');
       expect(joe.getType()).toBe('User');
-      expect(sinkData['842472']).toEqual({
+      expect(sinkSource.toJSON()['842472']).toEqual({
         [ID_KEY]: '842472',
         [TYPENAME_KEY]: 'User',
       });
@@ -309,7 +207,7 @@ describe('RelayRecordSourceProxy', () => {
     it('throws if a duplicate record is created', () => {
       expect(() => {
         store.create('4', 'User');
-      }).toFailInvariant(
+      }).toThrowError(
         'RelayRecordSourceMutator#create(): Cannot create a record with id ' +
           '`4`, this record already exists.',
       );
@@ -345,9 +243,26 @@ describe('RelayRecordSourceProxy', () => {
 
       expect(() => {
         user.setValue({day: 1, month: 1, year: 1970}, 'birthdate');
-      }).toFailInvariant(
+      }).toThrowError(
         'RelayRecordProxy#setValue(): Expected a scalar or array of scalars, ' +
           'got `{"day":1,"month":1,"year":1970}`.',
+      );
+    });
+  });
+
+  describe('getLinkedRecord and getLinkedRecords', () => {
+    it('throws if singular/plural is wrong', () => {
+      const zuck = store.get('4');
+      if (zuck == null) {
+        throw new Error('Exepcted to find record with id 4');
+      }
+      expect(() => zuck.getLinkedRecords('hometown')).toThrow(
+        'It appears to be a singular linked record: did you mean to call ' +
+          'getLinkedRecord() instead of getLinkedRecords()',
+      );
+      expect(() => zuck.getLinkedRecord('blockedPages')).toThrow(
+        'It appears to be a plural linked record: did you mean to call ' +
+          'getLinkedRecords() instead of getLinkedRecord()?',
       );
     });
   });
@@ -355,46 +270,115 @@ describe('RelayRecordSourceProxy', () => {
   describe('getOrCreateLinkedRecord', () => {
     it('retrieves a record if it already exists', () => {
       const zuck = store.get('4');
-      expect(zuck.getOrCreateLinkedRecord('hometown').getValue('name')).toBe(
-        'Menlo Park',
-      );
+      if (zuck == null) {
+        throw new Error('Exepcted to find record with id 4');
+      }
+      expect(
+        zuck.getOrCreateLinkedRecord('hometown', 'Page').getValue('name'),
+      ).toBe('Menlo Park');
     });
 
     it('creates a record if it does not already exist', () => {
       const greg = store.get('660361306');
+      if (greg == null) {
+        throw new Error('Exepcted to find record with id 6603613064');
+      }
       expect(greg.getLinkedRecord('hometown')).toBe(undefined);
 
       greg
         .getOrCreateLinkedRecord('hometown', 'Page')
         .setValue('Adelaide', 'name');
 
-      expect(greg.getLinkedRecord('hometown').getValue('name')).toBe(
-        'Adelaide',
-      );
+      expect(
+        greg.getOrCreateLinkedRecord('hometown', 'Page').getValue('name'),
+      ).toBe('Adelaide');
+    });
+
+    it('links to existing client records if the field was unset', () => {
+      const greg = store.get('660361306');
+      if (greg == null) {
+        throw new Error('Exepcted to find record with id 6603613064');
+      }
+      expect(greg.getLinkedRecord('hometown')).toBe(undefined);
+
+      const hometown = greg.getOrCreateLinkedRecord('hometown', 'Page');
+      hometown.setValue('Adelaide', 'name');
+      // unset the field but don't delete the newly created record
+      greg.setValue(null, 'hometown');
+      const hometown2 = greg.getOrCreateLinkedRecord('hometown', 'Page');
+
+      expect(hometown2).toBe(hometown);
+      expect(hometown2.getValue('name')).toBe('Adelaide');
+      expect(
+        greg.getOrCreateLinkedRecord('hometown', 'Page').getValue('name'),
+      ).toBe('Adelaide');
+    });
+  });
+
+  describe('record invalidation', () => {
+    it('correctly marks store as invalid', () => {
+      store.invalidateStore();
+      expect(store.isStoreMarkedForInvalidation()).toBe(true);
+    });
+
+    it('correctly marks individual records invalid', () => {
+      const user = store.create('c1', 'User');
+
+      user.invalidateRecord();
+      // Assert that id is correctly marked for invalidation
+      expect(Array.from(store.getIDsMarkedForInvalidation())).toEqual(['c1']);
+
+      user.invalidateRecord();
+      expect(Array.from(store.getIDsMarkedForInvalidation())).toEqual(['c1']);
+
+      const sameUser = store.get('c1');
+      if (!sameUser) {
+        throw new Error('Expected to find record with id c1');
+      }
+      sameUser.invalidateRecord();
+      expect(Array.from(store.getIDsMarkedForInvalidation())).toEqual(['c1']);
+
+      const otherUser = store.create('c2', 'User');
+      otherUser.invalidateRecord();
+      expect(Array.from(store.getIDsMarkedForInvalidation())).toEqual([
+        'c1',
+        'c2',
+      ]);
     });
   });
 
   it('combines operations', () => {
-    const markBackup = baseSource.get('4');
     const mark = store.get('4');
+    if (mark == null) {
+      throw new Error('Exepcted to find record with id 4');
+    }
     mark.setValue('Marcus', 'name');
     mark.setValue('Marcus Jr.', 'name');
     mark.setValue('1601 Willow Road', 'address', {location: 'WORK'});
     const beast = store.get('beast');
+    if (beast == null) {
+      throw new Error('Exepcted to find record with id beast');
+    }
     beast.setValue('Dog', 'name');
     mark.setLinkedRecord(beast, 'hometown');
     const mpk = store.get('mpk');
+    if (mpk == null) {
+      throw new Error('Exepcted to find record with id mpk');
+    }
     mark.setLinkedRecord(mpk, 'pet');
     mark.setLinkedRecord(beast, 'pet');
     const greg = store.get('660361306');
+    if (greg == null) {
+      throw new Error('Exepcted to find record with id 6603613064');
+    }
     greg.setLinkedRecord(mpk, 'hometown');
     mark.setLinkedRecords([mpk], 'administeredPages');
     mark.setLinkedRecords([], 'blockedPages');
     greg.setLinkedRecords([mpk, beast], 'blockedPages');
 
-    expect(baseData).toEqual(initialData);
-    expect(sinkData).toEqual({
-      4: {
+    expect(baseSource.toJSON()).toEqual(initialData);
+    expect(sinkSource.toJSON()).toEqual({
+      '4': {
         [ID_KEY]: '4',
         [TYPENAME_KEY]: 'User',
         'address(location:"WORK")': '1601 Willow Road',
@@ -404,7 +388,7 @@ describe('RelayRecordSourceProxy', () => {
         name: 'Marcus Jr.',
         pet: {[REF_KEY]: 'beast'},
       },
-      660361306: {
+      '660361306': {
         [ID_KEY]: '660361306',
         [TYPENAME_KEY]: 'User',
         blockedPages: {[REFS_KEY]: ['mpk', 'beast']},
@@ -415,13 +399,6 @@ describe('RelayRecordSourceProxy', () => {
         [TYPENAME_KEY]: 'Page',
         name: 'Dog',
       },
-    });
-    expect(backupSource.get('4')).toBe(markBackup); // Same record (referential equality).
-    expect(backupSource.get('4')).toEqual(initialData['4']); // And not mutated.
-    expect(backupSource.get('660361306')).toEqual({
-      ...initialData['660361306'],
-      blockedPages: UNPUBLISH_FIELD_SENTINEL,
-      hometown: UNPUBLISH_FIELD_SENTINEL,
     });
   });
 });

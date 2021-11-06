@@ -1,0 +1,69 @@
+==================================== INPUT ====================================
+query NullValuesQuery {
+  items(filter: {date: null}) {
+    date
+  }
+}
+==================================== OUTPUT ===================================
+[
+    Operation(
+        OperationDefinition {
+            kind: Query,
+            name: WithLocation {
+                location: null-values.graphql:6:21,
+                item: "NullValuesQuery",
+            },
+            type_: Object(0),
+            variable_definitions: [],
+            directives: [],
+            selections: [
+                LinkedField {
+                    alias: None,
+                    definition: WithLocation {
+                        location: null-values.graphql:26:31,
+                        item: FieldID(3),
+                    },
+                    arguments: [
+                        Argument {
+                            name: WithLocation {
+                                location: null-values.graphql:32:38,
+                                item: "filter",
+                            },
+                            value: WithLocation {
+                                location: null-values.graphql:40:52,
+                                item: Constant(
+                                    Object(
+                                        [
+                                            ConstantArgument {
+                                                name: WithLocation {
+                                                    location: null-values.graphql:41:45,
+                                                    item: "date",
+                                                },
+                                                value: WithLocation {
+                                                    location: null-values.graphql:47:51,
+                                                    item: Null,
+                                                },
+                                            },
+                                        ],
+                                    ),
+                                ),
+                            },
+                        },
+                    ],
+                    directives: [],
+                    selections: [
+                        ScalarField {
+                            alias: None,
+                            definition: WithLocation {
+                                location: null-values.graphql:60:64,
+                                item: FieldID(497),
+                            },
+                            arguments: [],
+                            directives: [],
+                        },
+                    ],
+                },
+            ],
+        },
+    ),
+]

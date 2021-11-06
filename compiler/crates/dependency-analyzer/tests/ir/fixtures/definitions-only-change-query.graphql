@@ -1,0 +1,13 @@
+# Q2
+query Q1 {
+  me {
+    id
+    name
+  }
+}
+
+query Q2 {
+  me {
+    id
+  }
+}

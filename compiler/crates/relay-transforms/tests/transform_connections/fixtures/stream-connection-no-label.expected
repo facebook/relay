@@ -1,0 +1,76 @@
+==================================== INPUT ====================================
+query NodeQuery($id: ID!) {
+  node(id: $id) {
+    id
+    ... on Story {
+      comments(first: 10)
+        @stream_connection(key: "NodeQuery_comments", initial_count: 0) {
+        edges {
+          node {
+            actor {
+              name
+            }
+          }
+        }
+        pageInfo {
+          endCursor
+          hasNextPage
+        }
+      }
+    }
+  }
+}
+==================================== OUTPUT ===================================
+query NodeQuery(
+  $id: ID!
+) @__ConnectionMetadataDirective
+# ConnectionMetadataDirective(
+#     [
+#         ConnectionMetadata {
+#             path: Some(
+#                 [
+#                     "node",
+#                     "comments",
+#                 ],
+#             ),
+#             direction: "forward",
+#             first: None,
+#             last: None,
+#             before: None,
+#             after: None,
+#             is_stream_connection: true,
+#         },
+#     ],
+# )
+ {
+  node(id: $id) {
+    id
+    ... on Story {
+      comments(first: 10) @__clientField(key: "NodeQuery_comments", handle: "connection", filters: null, dynamicKey_UNSTABLE: null) {
+        edges @stream(label: "NodeQuery_comments", initial_count: 0) {
+          node {
+            actor {
+              name
+            }
+          }
+          ... on CommentsEdge {
+            cursor
+            node {
+              __typename
+            }
+          }
+        }
+        ... @defer(label: "NodeQuery$defer$NodeQuery_comments$pageInfo") {
+          pageInfo {
+            endCursor
+            hasNextPage
+            ... on PageInfo {
+              endCursor
+              hasNextPage
+            }
+          }
+        }
+      }
+    }
+  }
+}

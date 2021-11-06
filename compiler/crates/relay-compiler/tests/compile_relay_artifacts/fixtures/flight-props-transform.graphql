@@ -1,0 +1,79 @@
+query flightPropsTransform_StoryQuery(
+  $condition: Boolean!
+  $count: Int!
+  $id: ID!
+) {
+  node(id: $id) {
+    ...flightPropsTransform_story
+  }
+}
+
+fragment flightPropsTransform_story on Story {
+  ...flightPropsTransform_storyHeader
+  StoryAttachments
+  StoryComments(condition: $condition, count: $count)
+  ...flightPropsTransform_storyFooter
+}
+
+query flightPropsTransform_StoryHeaderQuery(
+  $id: ID!
+) {
+  node(id: $id) {
+    ...flightPropsTransform_storyHeader
+  }
+}
+
+fragment flightPropsTransform_storyHeader on Story {
+  ...flightPropsTransform_storyTitle
+  ...flightPropsTransform_storyAuthor
+}
+
+query flightPropsTransform_StoryTitleQuery(
+  $id: ID!
+) {
+  node(id: $id) {
+    ...flightPropsTransform_storyTitle
+  }
+}
+
+fragment flightPropsTransform_storyTitle on Story {
+  StoryTitle
+}
+
+fragment flightPropsTransform_storyAuthor on Story {
+  StoryAuthor
+}
+
+fragment flightPropsTransform_storyFooter on Story {
+  StoryFooter
+}
+
+query flightPropsTransform_StoryCommentsQuery(
+  $condition: Boolean!
+  $count: Int!
+  $id: ID!
+) {
+  node(id: $id) {
+    ... on Story {
+      StoryComments(condition: $condition, count: $count)
+    }
+  }
+}
+
+# %extensions% #
+directive @react_flight_component(name: String!) on FIELD_DEFINITION
+
+extend type Story {
+  StoryComments(
+    condition: Boolean!
+    count: Int!
+  ): ReactFlightComponent @react_flight_component(name: "StoryComments.server")
+
+  StoryTitle: ReactFlightComponent @react_flight_component(name: "StoryTitle.server")
+
+  StoryAuthor: ReactFlightComponent @react_flight_component(name: "StoryAuthor.server")
+
+  StoryFooter: ReactFlightComponent @react_flight_component(name: "StoryFooter.server")
+
+  StoryAttachments: ReactFlightComponent @react_flight_component(name: "StoryAttachments.server")
+}

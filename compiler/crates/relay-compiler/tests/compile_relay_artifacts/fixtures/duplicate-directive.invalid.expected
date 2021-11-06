@@ -1,0 +1,45 @@
+==================================== INPUT ====================================
+# expected-to-throw
+
+query duplicateDirectiveQuery @preloadable @preloadable {
+    viewer {
+        __typename
+    }
+}
+
+fragment duplicateDirectiveOnField on User {
+    name @customDirective(level: 1) @customDirective(level: 2)
+}
+==================================== ERROR ====================================
+✖︎ The directive `@customDirective` can only be used once at this location.
+
+  duplicate-directive.invalid.graphql:10:37
+    9 │ fragment duplicateDirectiveOnField on User {
+   10 │     name @customDirective(level: 1) @customDirective(level: 2)
+      │                                     ^^^^^^^^^^^^^^^^
+   11 │ }
+
+  ℹ︎ previously used here
+
+  duplicate-directive.invalid.graphql:10:10
+    9 │ fragment duplicateDirectiveOnField on User {
+   10 │     name @customDirective(level: 1) @customDirective(level: 2)
+      │          ^^^^^^^^^^^^^^^^
+   11 │ }
+
+
+✖︎ The directive `@preloadable` can only be used once at this location.
+
+  duplicate-directive.invalid.graphql:3:44
+    2 │ 
+    3 │ query duplicateDirectiveQuery @preloadable @preloadable {
+      │                                            ^^^^^^^^^^^^
+    4 │     viewer {
+
+  ℹ︎ previously used here
+
+  duplicate-directive.invalid.graphql:3:31
+    2 │ 
+    3 │ query duplicateDirectiveQuery @preloadable @preloadable {
+      │                               ^^^^^^^^^^^^
+    4 │     viewer {

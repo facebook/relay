@@ -1,0 +1,34 @@
+==================================== INPUT ====================================
+fragment RefetchableFragment on AllConcreteTypesImplementNode
+  @refetchable(queryName: "RefetchableFragmentQuery") {
+  count
+}
+==================================== OUTPUT ===================================
+query RefetchableFragmentQuery(
+  $id: ID!
+) @__RefetchableDerivedFromMetadata
+# RefetchableDerivedFromMetadata(
+#     "RefetchableFragment",
+# )
+ {
+  node(id: $id) {
+    ...RefetchableFragment
+  }
+}
+
+fragment RefetchableFragment on AllConcreteTypesImplementNode @refetchable(queryName: "RefetchableFragmentQuery") @__RefetchableMetadata
+# RefetchableMetadata {
+#     operation_name: "RefetchableFragmentQuery",
+#     path: [
+#         "node",
+#     ],
+#     identifier_field: Some(
+#         "id",
+#     ),
+# }
+ {
+  count
+  ... on Node {
+    id
+  }
+}

@@ -1,0 +1,27 @@
+==================================== INPUT ====================================
+query TestQuery {
+  node(id: "test") {
+    __typename
+    ...Profile @arguments(scale: 2)
+  }
+}
+
+fragment Profile on User
+  @argumentDefinitions(scale: {type: "Float", defaultValue: 2}) {
+  profile_picture(scale: $scale) {
+    uri
+  }
+}
+==================================== OUTPUT ===================================
+query TestQuery {
+  node(id: "test") {
+    __typename
+    ...Profile_42I9Ds
+  }
+}
+
+fragment Profile_42I9Ds on User {
+  profile_picture(scale: 2) {
+    uri
+  }
+}

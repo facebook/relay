@@ -1,0 +1,53 @@
+==================================== INPUT ====================================
+query Test {
+  # this is a union
+  maybeNode {
+    id @fixme_fat_interface
+  }
+}
+==================================== OUTPUT ===================================
+[
+    Operation(
+        OperationDefinition {
+            kind: Query,
+            name: WithLocation {
+                location: fixme_fat_interface_on_union.graphql:6:10,
+                item: "Test",
+            },
+            type_: Object(0),
+            variable_definitions: [],
+            directives: [],
+            selections: [
+                LinkedField {
+                    alias: None,
+                    definition: WithLocation {
+                        location: fixme_fat_interface_on_union.graphql:35:44,
+                        item: FieldID(5),
+                    },
+                    arguments: [],
+                    directives: [],
+                    selections: [
+                        ScalarField {
+                            alias: None,
+                            definition: WithLocation {
+                                location: fixme_fat_interface_on_union.graphql:51:53,
+                                item: FieldID(383),
+                            },
+                            arguments: [],
+                            directives: [
+                                Directive {
+                                    name: WithLocation {
+                                        location: fixme_fat_interface_on_union.graphql:54:74,
+                                        item: "fixme_fat_interface",
+                                    },
+                                    arguments: [],
+                                    data: None,
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
+        },
+    ),
+]

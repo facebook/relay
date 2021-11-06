@@ -1,0 +1,19 @@
+# expected-to-throw
+query sameFieldsWithDifferentArgs_MeQuery {
+  me {
+    name
+    address {
+      city
+    }
+    ...sameFieldsWithDifferentArgs_NestedFragment
+    ...sameFieldsWithDifferentArgs_NestedFragment2
+  }
+}
+
+fragment sameFieldsWithDifferentArgs_NestedFragment on User {
+  firstName(if: false, unless: true)
+}
+
+fragment sameFieldsWithDifferentArgs_NestedFragment2 on User {
+  firstName(if: false, unless: false)
+}

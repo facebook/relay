@@ -1,6 +1,0 @@
-fragment TestFragment on User @argumentDefinitions(
-  id: {type: "ID", nonNull: true}
-  size: {type: "[Int]", defaultValu: [100]} # uh-oh, typo
-) {
-  ...Foo @arguments(size: $size)
-}

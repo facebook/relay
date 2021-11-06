@@ -1,0 +1,106 @@
+==================================== INPUT ====================================
+query NodeQuery($id: ID!, $orderBy: String, $traits: [PersonalityTraits]) {
+  node(id: $id) {
+    id
+    ... on Story {
+      comments(first: 10, orderby: $orderBy)
+        @connection(key: "NodeQuery_comments") {
+        edges {
+          node {
+            actor {
+              name
+              friends(first: 10, isViewerFriend: true, traits: $traits)
+                @connection(key: "NodeQuery_friends") {
+                edges {
+                  node {
+                    name
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+==================================== OUTPUT ===================================
+query NodeQuery(
+  $id: ID!
+  $orderBy: String
+  $traits: [PersonalityTraits]
+) @__ConnectionMetadataDirective
+# ConnectionMetadataDirective(
+#     [
+#         ConnectionMetadata {
+#             path: None,
+#             direction: "forward",
+#             first: None,
+#             last: None,
+#             before: None,
+#             after: None,
+#             is_stream_connection: false,
+#         },
+#         ConnectionMetadata {
+#             path: Some(
+#                 [
+#                     "node",
+#                     "comments",
+#                 ],
+#             ),
+#             direction: "forward",
+#             first: None,
+#             last: None,
+#             before: None,
+#             after: None,
+#             is_stream_connection: false,
+#         },
+#     ],
+# )
+ {
+  node(id: $id) {
+    id
+    ... on Story {
+      comments(first: 10, orderby: $orderBy) @__clientField(key: "NodeQuery_comments", handle: "connection", filters: ["orderby"], dynamicKey_UNSTABLE: null) {
+        edges {
+          node {
+            actor {
+              name
+              friends(first: 10, isViewerFriend: true, traits: $traits) @__clientField(key: "NodeQuery_friends", handle: "connection", filters: ["isViewerFriend", "traits"], dynamicKey_UNSTABLE: null) {
+                edges {
+                  node {
+                    name
+                  }
+                  ... on FriendsEdge {
+                    cursor
+                    node {
+                      __typename
+                    }
+                  }
+                }
+                pageInfo {
+                  ... on PageInfo {
+                    endCursor
+                    hasNextPage
+                  }
+                }
+              }
+            }
+          }
+          ... on CommentsEdge {
+            cursor
+            node {
+              __typename
+            }
+          }
+        }
+        pageInfo {
+          ... on PageInfo {
+            endCursor
+            hasNextPage
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,17 @@
+query AbstractTypeRefinement {
+  node(id: "4") {
+    # After inlining even though `id` will be skipped:
+    #  - Printed query should still select __isNode and __isActor
+    #  - Normalization ast should include inline fragments with abstractKeys for Node and Actor
+    ...ActorFragment
+  }
+}
+
+fragment ActorFragment on Actor {
+  username
+  ...NodeFragment
+}
+
+fragment NodeFragment on Node {
+  id
+}

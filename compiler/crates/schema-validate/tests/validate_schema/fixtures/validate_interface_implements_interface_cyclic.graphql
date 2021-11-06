@@ -1,0 +1,32 @@
+interface BaseNode1 implements BaseNode2 & Resource {
+  id: ID!
+}
+
+interface BaseNode2 implements BaseNode1 {
+  id: ID!
+}
+
+interface BaseNode implements BaseNode2 {
+  id: ID!
+}
+
+interface Node implements BaseNode & BaseNode1 {
+  name: String!
+}
+
+interface Resource implements Node {
+  id: ID!
+  name: String!
+  url: String
+}
+
+type Image implements Resource & Node & BaseNode & BaseNode1 & BaseNode2 {
+  id: ID!
+  name: String!
+  url: String
+  thumbnail: String
+}
+
+type Query {
+  image: Image
+}

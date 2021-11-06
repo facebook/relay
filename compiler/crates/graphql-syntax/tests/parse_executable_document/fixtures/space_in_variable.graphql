@@ -1,0 +1,6 @@
+fragment Test on User {
+  photo(size: $
+    # comment between $ and variable identifier
+    photoSize
+  )
+}

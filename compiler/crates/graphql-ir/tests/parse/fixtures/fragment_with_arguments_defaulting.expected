@@ -1,0 +1,171 @@
+==================================== INPUT ====================================
+fragment TestFragment on Query @argumentDefinitions(
+  # show that setting a default value allows this `ID` to be passed to `ID!`
+  defaultedID: {type: "ID", defaultValue: ""}
+) {
+  ...F2 @arguments(nonnullID: $defaultedID)
+}
+
+fragment F2 on Query @argumentDefinitions(
+  nonnullID: {type: "ID!"}
+) {
+  node_id_required(id: $nonnullID) {
+    __typename
+  }
+}
+==================================== OUTPUT ===================================
+[
+    Fragment(
+        FragmentDefinition {
+            name: WithLocation {
+                location: fragment_with_arguments_defaulting.graphql:9:21,
+                item: "TestFragment",
+            },
+            variable_definitions: [
+                VariableDefinition {
+                    name: WithLocation {
+                        location: fragment_with_arguments_defaulting.graphql:132:143,
+                        item: "defaultedID",
+                    },
+                    type_: Named(
+                        Scalar(4),
+                    ),
+                    default_value: Some(
+                        WithLocation {
+                            location: fragment_with_arguments_defaulting.graphql:172:174,
+                            item: String(
+                                "",
+                            ),
+                        },
+                    ),
+                    directives: [],
+                },
+            ],
+            used_global_variables: [],
+            type_condition: Object(0),
+            directives: [
+                Directive {
+                    name: WithLocation {
+                        location: fragment_with_arguments_defaulting.graphql:32:51,
+                        item: "argumentDefinitions",
+                    },
+                    arguments: [],
+                    data: None,
+                },
+            ],
+            selections: [
+                FragmentSpread {
+                    fragment: WithLocation {
+                        location: fragment_with_arguments_defaulting.graphql:185:187,
+                        item: "F2",
+                    },
+                    arguments: [
+                        Argument {
+                            name: WithLocation {
+                                location: fragment_with_arguments_defaulting.graphql:199:208,
+                                item: "nonnullID",
+                            },
+                            value: WithLocation {
+                                location: fragment_with_arguments_defaulting.graphql:210:222,
+                                item: Variable(
+                                    Variable {
+                                        name: WithLocation {
+                                            location: fragment_with_arguments_defaulting.graphql:210:222,
+                                            item: "defaultedID",
+                                        },
+                                        type_: NonNull(
+                                            Named(
+                                                Scalar(4),
+                                            ),
+                                        ),
+                                    },
+                                ),
+                            },
+                        },
+                    ],
+                    directives: [],
+                },
+            ],
+        },
+    ),
+    Fragment(
+        FragmentDefinition {
+            name: WithLocation {
+                location: fragment_with_arguments_defaulting.graphql:236:238,
+                item: "F2",
+            },
+            variable_definitions: [
+                VariableDefinition {
+                    name: WithLocation {
+                        location: fragment_with_arguments_defaulting.graphql:272:281,
+                        item: "nonnullID",
+                    },
+                    type_: NonNull(
+                        Named(
+                            Scalar(4),
+                        ),
+                    ),
+                    default_value: None,
+                    directives: [],
+                },
+            ],
+            used_global_variables: [],
+            type_condition: Object(0),
+            directives: [
+                Directive {
+                    name: WithLocation {
+                        location: fragment_with_arguments_defaulting.graphql:249:268,
+                        item: "argumentDefinitions",
+                    },
+                    arguments: [],
+                    data: None,
+                },
+            ],
+            selections: [
+                LinkedField {
+                    alias: None,
+                    definition: WithLocation {
+                        location: fragment_with_arguments_defaulting.graphql:303:319,
+                        item: FieldID(10),
+                    },
+                    arguments: [
+                        Argument {
+                            name: WithLocation {
+                                location: fragment_with_arguments_defaulting.graphql:320:322,
+                                item: "id",
+                            },
+                            value: WithLocation {
+                                location: fragment_with_arguments_defaulting.graphql:324:334,
+                                item: Variable(
+                                    Variable {
+                                        name: WithLocation {
+                                            location: fragment_with_arguments_defaulting.graphql:324:334,
+                                            item: "nonnullID",
+                                        },
+                                        type_: NonNull(
+                                            Named(
+                                                Scalar(4),
+                                            ),
+                                        ),
+                                    },
+                                ),
+                            },
+                        },
+                    ],
+                    directives: [],
+                    selections: [
+                        ScalarField {
+                            alias: None,
+                            definition: WithLocation {
+                                location: fragment_with_arguments_defaulting.graphql:342:352,
+                                item: FieldID(520),
+                            },
+                            arguments: [],
+                            directives: [],
+                        },
+                    ],
+                },
+            ],
+        },
+    ),
+]

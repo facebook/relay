@@ -1,0 +1,17 @@
+fragment UserFragment on User {
+  ... @include(if: $conditional) {
+    ...NestedFragment
+  }
+  name
+  ... @include(if: $conditional) {
+    ...NestedFragment2
+  }
+}
+
+fragment NestedFragment on User {
+  name
+}
+
+fragment NestedFragment2 on User {
+  name
+}

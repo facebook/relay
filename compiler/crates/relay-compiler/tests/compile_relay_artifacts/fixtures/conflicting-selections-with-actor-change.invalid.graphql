@@ -1,0 +1,22 @@
+# expected-to-throw
+
+query conflictingSelectionsWithActorChangeQuery {
+  ...conflictingSelectionsWithActorChange2_fragment
+  ...conflictingSelectionsWithActorChange3_fragment
+}
+
+fragment conflictingSelectionsWithActorChange1_fragment on Actor {
+  name
+}
+
+fragment conflictingSelectionsWithActorChange2_fragment on Query {
+  username(name: "Alice") @fb_actor_change {
+    ...conflictingSelectionsWithActorChange1_fragment
+  }
+}
+
+fragment conflictingSelectionsWithActorChange3_fragment on Query {
+  username(name: "Bob") @fb_actor_change {
+    ...conflictingSelectionsWithActorChange1_fragment
+  }
+}

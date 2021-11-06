@@ -1,0 +1,7 @@
+# expected-to-throw
+fragment EnabledFoo on User {
+  name
+  ... on User {
+    name @required(action: LOG)
+  }
+}

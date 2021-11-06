@@ -1,0 +1,6 @@
+# expected-to-throw
+query TestQuery {
+  me {
+    name @customDirective(level: "not an Int!")
+  }
+}

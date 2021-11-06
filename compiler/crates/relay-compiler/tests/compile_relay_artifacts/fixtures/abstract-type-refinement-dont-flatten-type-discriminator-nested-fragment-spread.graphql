@@ -1,0 +1,18 @@
+query abstractTypeRefinementDontFlattenTypeDiscriminatorNestedFragmentSpread_AbstractTypeRefinementQuery {
+  node(id: "4") {
+    # Nested fragments will be inlined:
+    #  - Printed query should select __isNode
+    #  - Normalization ast should include inline fragment with abstractKey
+    #  - Other fields and inline fragments should be deduped/flattened as normal
+    ...abstractTypeRefinementDontFlattenTypeDiscriminatorNestedFragmentSpread_NodeFragment
+  }
+}
+
+fragment abstractTypeRefinementDontFlattenTypeDiscriminatorNestedFragmentSpread_NodeFragment on Node {
+  id
+  ...abstractTypeRefinementDontFlattenTypeDiscriminatorNestedFragmentSpread_OtherNodeFragment
+}
+
+fragment abstractTypeRefinementDontFlattenTypeDiscriminatorNestedFragmentSpread_OtherNodeFragment on Node {
+  id
+}

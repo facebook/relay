@@ -1,0 +1,6 @@
+# expected-to-throw
+query TestQuery {
+  username { # missing required `name` argument
+    __typename
+  }
+}

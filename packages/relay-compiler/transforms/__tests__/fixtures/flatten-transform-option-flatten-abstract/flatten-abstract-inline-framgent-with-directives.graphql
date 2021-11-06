@@ -1,0 +1,24 @@
+fragment TestFragment on Actor {
+  ... @defer {
+    lastName
+  }
+  ... @defer {
+    firstName
+  }
+  ... @defer(label: "123") {
+    lastName
+  }
+  ... @defer(label: "123") {
+    firstName
+  }
+  lastName
+  firstName
+  ... on Actor {
+    ... on Actor @defer {
+      lastName
+    }
+    ... on Actor @defer {
+      firstName
+    }
+  }
+}

@@ -1,0 +1,17 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query missingArgumentOnFieldTestQuery {
+  node {
+    hometown {
+      nameWithArgs
+    }
+  }
+}
+==================================== ERROR ====================================
+✖︎ Missing required argument: `capitalize`
+
+  missing-argument-on-field.invalid.graphql:5:7
+    4 │     hometown {
+    5 │       nameWithArgs
+      │       ^^^^^^^^^^^^
+    6 │     }

@@ -1,0 +1,22 @@
+# expected-to-throw
+query TestQuery($id: ID!, $pictureSize: [Int] = [128]) {
+  node(id: $id) {
+    id
+    ...Profile
+  }
+}
+
+fragment Profile on User {
+  id
+  name
+  profilePicture(size: $pictureSize) {
+    uri
+  }
+  friends(first: 10) {
+    edges {
+      node {
+        ...Profile
+      }
+    }
+  }
+}

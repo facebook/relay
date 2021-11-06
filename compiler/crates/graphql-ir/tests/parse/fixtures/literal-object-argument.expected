@@ -1,0 +1,71 @@
+==================================== INPUT ====================================
+query LiteralObjectArgument {
+  checkinSearchQuery(query: {query: "Facebook"}) {
+    query
+  }
+}
+==================================== OUTPUT ===================================
+[
+    Operation(
+        OperationDefinition {
+            kind: Query,
+            name: WithLocation {
+                location: literal-object-argument.graphql:6:27,
+                item: "LiteralObjectArgument",
+            },
+            type_: Object(0),
+            variable_definitions: [],
+            directives: [],
+            selections: [
+                LinkedField {
+                    alias: None,
+                    definition: WithLocation {
+                        location: literal-object-argument.graphql:32:50,
+                        item: FieldID(0),
+                    },
+                    arguments: [
+                        Argument {
+                            name: WithLocation {
+                                location: literal-object-argument.graphql:51:56,
+                                item: "query",
+                            },
+                            value: WithLocation {
+                                location: literal-object-argument.graphql:58:77,
+                                item: Constant(
+                                    Object(
+                                        [
+                                            ConstantArgument {
+                                                name: WithLocation {
+                                                    location: literal-object-argument.graphql:59:64,
+                                                    item: "query",
+                                                },
+                                                value: WithLocation {
+                                                    location: literal-object-argument.graphql:66:76,
+                                                    item: String(
+                                                        "Facebook",
+                                                    ),
+                                                },
+                                            },
+                                        ],
+                                    ),
+                                ),
+                            },
+                        },
+                    ],
+                    directives: [],
+                    selections: [
+                        ScalarField {
+                            alias: None,
+                            definition: WithLocation {
+                                location: literal-object-argument.graphql:85:90,
+                                item: FieldID(57),
+                            },
+                            arguments: [],
+                            directives: [],
+                        },
+                    ],
+                },
+            ],
+        },
+    ),
+]

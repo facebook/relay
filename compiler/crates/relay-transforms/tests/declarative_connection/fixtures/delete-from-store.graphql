@@ -1,0 +1,5 @@
+mutation CommentDeleteMutation($input: CommentDeleteInput) {
+  commentDelete(input: $input) {
+    deletedCommentId @deleteRecord
+  }
+}

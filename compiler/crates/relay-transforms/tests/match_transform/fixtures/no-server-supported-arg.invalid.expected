@@ -1,0 +1,37 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment ActorsRendererFragment on Node {
+  id
+  actors @match {
+    ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+  }
+}
+
+fragment PlainUserNameRenderer_name on Actor {
+  __typename
+}
+==================================== ERROR ====================================
+✖︎ @match on a field without the `supported` argument is a no-op, please remove the `@match`.
+
+  no-server-supported-arg.invalid.graphql:4:10
+    3 │   id
+    4 │   actors @match {
+      │          ^^^^^^
+    5 │     ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+
+
+✖︎ @module used on invalid fragment spread '...PlainUserNameRenderer_name'. @module may only be used with fragments on a concrete (object) type, but the fragment has abstract type 'Actor'.
+
+  no-server-supported-arg.invalid.graphql:5:8
+    4 │   actors @match {
+    5 │     ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+      │        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    6 │   }
+
+  ℹ︎ related location
+
+  no-server-supported-arg.invalid.graphql:9:10
+    8 │ 
+    9 │ fragment PlainUserNameRenderer_name on Actor {
+      │          ^^^^^^^^^^^^^^^^^^^^^^^^^^
+   10 │   __typename

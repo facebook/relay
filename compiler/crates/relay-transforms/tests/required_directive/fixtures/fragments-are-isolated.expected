@@ -1,0 +1,26 @@
+==================================== INPUT ====================================
+fragment FragA on User {
+  id
+  name
+}
+
+fragment EnabledFragB on User {
+  id
+  # This does not match FragA.name, but that should be fine.
+  name @required(action: LOG)
+}
+==================================== OUTPUT ===================================
+fragment EnabledFragB on User @__childrenCanBubbleNull {
+  id
+  name @required(action: LOG) @__RequiredMetadataDirective
+  # RequiredMetadataDirective {
+  #     action: Log,
+  #     path: "name",
+  # }
+  
+}
+
+fragment FragA on User {
+  id
+  name
+}

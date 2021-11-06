@@ -1,0 +1,41 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query QueryWithFragmentWithDefer {
+  me {
+    id
+    ...UserFragment
+  }
+}
+
+fragment UserFragment on User {
+  id
+  emailAddresses
+  ...DeferredFragment @defer(label: "deferred")
+  ...OtherDeferredFragment @defer(label: "deferred")
+}
+
+fragment DeferredFragment on User {
+  id
+  name
+}
+
+fragment OtherDeferredFragment on User {
+  id
+  name
+}
+==================================== ERROR ====================================
+✖︎ Invalid use of @defer, the provided label is not unique. Specify a unique 'label' as a literal string.
+
+  fragment-with-defer-duplicate-label.invalid.graphql:12:23
+   11 │   emailAddresses
+   12 │   ...DeferredFragment @defer(label: "deferred")
+      │                       ^^^^^^
+   13 │   ...OtherDeferredFragment @defer(label: "deferred")
+
+  ℹ︎ related location
+
+  fragment-with-defer-duplicate-label.invalid.graphql:13:28
+   12 │   ...DeferredFragment @defer(label: "deferred")
+   13 │   ...OtherDeferredFragment @defer(label: "deferred")
+      │                            ^^^^^^
+   14 │ }

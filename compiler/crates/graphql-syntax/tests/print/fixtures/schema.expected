@@ -1,0 +1,158 @@
+==================================== INPUT ====================================
+directive @source(schema: String, name: String) on OBJECT | INTERFACE | ENUM
+directive @ref_type(schema: String, name: String) on FIELD_DEFINITION
+directive @extern_type(schema: String, name: String) on INTERFACE
+directive @fetchable(field_name: String) on OBJECT
+
+schema {
+  query: Query
+}
+
+extend schema {
+  mutation: Mutation
+}
+
+type Query {
+  fetch__User(id: ID): User
+  fetch__XIGStory(id: ID): XIGStory
+}
+
+type Mutation {
+  success: boolean
+}
+
+interface XIGHuman @source(schema: "instagram", name: "Human") {
+  name: String
+}
+
+extend interface XIGHuman {
+  nickname: String
+}
+
+extend interface XIGHuman @ref_type(schema: "instagram", name: "Story")
+
+type User implements XIGHuman @fetchable(field_name: "id") {
+  id: ID
+  story(id: ID = 1): XIGStory @ref_type(schema: "instagram", name: "Story")
+  content_type(
+    type: AppStoreSectionContentTypeEnum = [CONCEPTS, EARLY_ACCESS]
+  ): [AppStoreSectionContentTypeEnum]
+  story(story: XIGStory = {id: 123, name: "instagram_story"}): XIGStory
+}
+
+extend type User @fetchable(field_name: "id") {
+  nickname: String
+}
+
+type XIGStory
+  @fetchable(field_name: "id")
+  @source(schema: "instagram", name: "Story") {
+  id: ID
+  name: String
+}
+
+union Actor @source(schema: "instagram", name: "Story") = User | Page
+
+extend union Actor
+
+enum AppStoreSectionContentTypeEnum
+  @source(schema: "instagram", name: "Story") {
+  DEFAULT @deprecated(reason: "test")
+  CONCEPTS
+  EARLY_ACCESS
+}
+
+extend enum AppStoreSectionContentTypeEnum
+
+input AppVersions @source(schema: "instagram", name: "Story") {
+  app_id: ID!
+  version_code: Int
+}
+
+extend input AppVersions
+
+type Page {
+  id: ID
+}
+
+scalar ID @source(schema: "instagram", name: "Story")
+
+extend scalar ID
+==================================== OUTPUT ===================================
+directive @source(schema: String, name: String) on OBJECT | INTERFACE | ENUM
+
+directive @ref_type(schema: String, name: String) on FIELD_DEFINITION
+
+directive @extern_type(schema: String, name: String) on INTERFACE
+
+directive @fetchable(field_name: String) on OBJECT
+
+schema {
+  query: Query
+}
+
+extend schema {
+  mutation: Mutation
+}
+
+type Query {
+  fetch__User(id: ID): User
+  fetch__XIGStory(id: ID): XIGStory
+}
+
+type Mutation {
+  success: boolean
+}
+
+interface XIGHuman @source(schema: "instagram", name: "Human") {
+  name: String
+}
+
+extend interface XIGHuman {
+  nickname: String
+}
+
+extend interface XIGHuman @ref_type(schema: "instagram", name: "Story")
+
+type User implements XIGHuman @fetchable(field_name: "id") {
+  id: ID
+  story(id: ID = 1): XIGStory @ref_type(schema: "instagram", name: "Story")
+  content_type(type: AppStoreSectionContentTypeEnum = [CONCEPTS, EARLY_ACCESS]): [AppStoreSectionContentTypeEnum]
+  story(story: XIGStory = {id: 123, name: "instagram_story"}): XIGStory
+}
+
+extend type User @fetchable(field_name: "id") {
+  nickname: String
+}
+
+type XIGStory @fetchable(field_name: "id") @source(schema: "instagram", name: "Story") {
+  id: ID
+  name: String
+}
+
+union Actor @source(schema: "instagram", name: "Story") = User | Page
+
+extend union Actor
+
+enum AppStoreSectionContentTypeEnum @source(schema: "instagram", name: "Story") {
+  DEFAULT @deprecated(reason: "test")
+  CONCEPTS
+  EARLY_ACCESS
+}
+
+extend enum AppStoreSectionContentTypeEnum
+
+input AppVersions @source(schema: "instagram", name: "Story") {
+  app_id: ID!
+  version_code: Int
+}
+
+extend input AppVersions
+
+type Page {
+  id: ID
+}
+
+scalar ID @source(schema: "instagram", name: "Story")
+
+extend scalar ID

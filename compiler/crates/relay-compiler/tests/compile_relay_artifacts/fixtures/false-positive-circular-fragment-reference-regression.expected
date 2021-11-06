@@ -1,0 +1,209 @@
+==================================== INPUT ====================================
+query falsePositiveCircularFragmentReferenceRegression_TestQuery {
+  viewer {
+    ...falsePositiveCircularFragmentReferenceRegression_MyViewer
+    ...falsePositiveCircularFragmentReferenceRegression_MyOtherViewer
+    actor {
+      name
+    }
+  }
+}
+
+fragment falsePositiveCircularFragmentReferenceRegression_MyViewer on Viewer {
+  ...falsePositiveCircularFragmentReferenceRegression_MyNestedViewer
+}
+
+fragment falsePositiveCircularFragmentReferenceRegression_MyOtherViewer on Viewer {
+  ...falsePositiveCircularFragmentReferenceRegression_MyNestedViewer
+}
+
+fragment falsePositiveCircularFragmentReferenceRegression_MyNestedViewer on Viewer
+  @argumentDefinitions(includeEmail: {type: "Boolean!", defaultValue: false}) {
+  primaryEmail @include(if: $includeEmail)
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "falsePositiveCircularFragmentReferenceRegression_TestQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "Viewer",
+        "kind": "LinkedField",
+        "name": "viewer",
+        "plural": false,
+        "selections": [
+          {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "falsePositiveCircularFragmentReferenceRegression_MyViewer"
+          },
+          {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "falsePositiveCircularFragmentReferenceRegression_MyOtherViewer"
+          },
+          {
+            "alias": null,
+            "args": null,
+            "concreteType": null,
+            "kind": "LinkedField",
+            "name": "actor",
+            "plural": false,
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "name",
+                "storageKey": null
+              }
+            ],
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [],
+    "kind": "Operation",
+    "name": "falsePositiveCircularFragmentReferenceRegression_TestQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "Viewer",
+        "kind": "LinkedField",
+        "name": "viewer",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "concreteType": null,
+            "kind": "LinkedField",
+            "name": "actor",
+            "plural": false,
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "__typename",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "name",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "id",
+                "storageKey": null
+              }
+            ],
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {},
+    "name": "falsePositiveCircularFragmentReferenceRegression_TestQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query falsePositiveCircularFragmentReferenceRegression_TestQuery {
+  viewer {
+    actor {
+      __typename
+      name
+      id
+    }
+  }
+}
+
+
+{
+  "argumentDefinitions": [
+    {
+      "defaultValue": false,
+      "kind": "LocalArgument",
+      "name": "includeEmail"
+    }
+  ],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "falsePositiveCircularFragmentReferenceRegression_MyNestedViewer",
+  "selections": [
+    {
+      "condition": "includeEmail",
+      "kind": "Condition",
+      "passingValue": true,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "primaryEmail",
+          "storageKey": null
+        }
+      ]
+    }
+  ],
+  "type": "Viewer",
+  "abstractKey": null
+}
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "falsePositiveCircularFragmentReferenceRegression_MyOtherViewer",
+  "selections": [
+    {
+      "args": null,
+      "kind": "FragmentSpread",
+      "name": "falsePositiveCircularFragmentReferenceRegression_MyNestedViewer"
+    }
+  ],
+  "type": "Viewer",
+  "abstractKey": null
+}
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "falsePositiveCircularFragmentReferenceRegression_MyViewer",
+  "selections": [
+    {
+      "args": null,
+      "kind": "FragmentSpread",
+      "name": "falsePositiveCircularFragmentReferenceRegression_MyNestedViewer"
+    }
+  ],
+  "type": "Viewer",
+  "abstractKey": null
+}

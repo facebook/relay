@@ -1,0 +1,5 @@
+fragment UserFragment on User {
+  checkins(environments: "WEB") {
+    __typename
+  }
+}

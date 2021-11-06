@@ -1,0 +1,14 @@
+# expected-to-throw
+query TestQuery {
+  username(name: "me") {
+    ... on User {
+      same_alias: name
+    }
+    ... on Actor {
+      same_alias: name
+    }
+    ... on Page {
+       same_alias: lastName
+    }
+  }
+}

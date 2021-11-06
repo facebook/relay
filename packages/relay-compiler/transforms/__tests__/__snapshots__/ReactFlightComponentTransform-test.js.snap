@@ -1,0 +1,55 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ReactFlightComponentTransform matches expected output: fragment-with-flight-field.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment MyStory_item on Story {
+  flightComponent(condition: true, count: 10, id: "4")
+}
+
+extend type Story {
+  flightComponent(
+    condition: Boolean!
+    count: Int!
+    id: ID!
+  ): ReactFlightComponent
+    @react_flight_component(name: "FlightComponent.server")
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+fragment MyStory_item on Story {
+  flightComponent(condition: true, count: 10, id: "4")
+}
+
+`;
+
+exports[`ReactFlightComponentTransform matches expected output: query-with-flight-field.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query MyStory($id: ID!) {
+  node(id: $id) {
+    ... on Story {
+      flightComponent(condition: true, count: 10, id: $id)
+    }
+  }
+}
+
+extend type Story {
+  flightComponent(
+    condition: Boolean!
+    count: Int!
+    id: ID!
+  ): ReactFlightComponent
+    @react_flight_component(name: "FlightComponent.server")
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+query MyStory(
+  $id: ID!
+) {
+  node(id: $id) {
+    ... on Story {
+      flightComponent(condition: true, count: 10, id: $id)
+    }
+  }
+}
+
+`;

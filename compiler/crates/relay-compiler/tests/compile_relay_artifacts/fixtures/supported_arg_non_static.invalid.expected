@@ -1,0 +1,30 @@
+==================================== INPUT ====================================
+# expected-to-throw
+
+query supportedArgNonStaticQuery($arg: String!, $args: [String!]!) {
+  me {
+    a: nameRenderer(supported: ["foo", $arg]) {
+      __typename
+    }
+    b: nameRenderer(supported: $args) {
+      __typename
+    }
+  }
+}
+==================================== ERROR ====================================
+✖︎ Variables cannot be passed to the `supported` argument for data driven dependency fields, please use literal values like `"ExampleValue"`.
+
+  supported_arg_non_static.invalid.graphql:5:32
+    4 │   me {
+    5 │     a: nameRenderer(supported: ["foo", $arg]) {
+      │                                ^^^^^^^^^^^^^
+    6 │       __typename
+
+
+✖︎ Variables cannot be passed to the `supported` argument for data driven dependency fields, please use literal values like `"ExampleValue"`.
+
+  supported_arg_non_static.invalid.graphql:8:32
+    7 │     }
+    8 │     b: nameRenderer(supported: $args) {
+      │                                ^^^^^
+    9 │       __typename

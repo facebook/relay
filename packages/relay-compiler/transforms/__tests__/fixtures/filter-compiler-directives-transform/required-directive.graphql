@@ -1,0 +1,18 @@
+query SampleQuery($id: ID!) {
+  node(id: $id) {
+    ...MyFragment
+  }
+}
+
+fragment MyFragment on User {
+  ...RequiredFragment
+  ...NotRequiredFragment
+}
+
+fragment RequiredFragment on User {
+  name @required(action: THROW)
+}
+
+fragment NotRequiredFragment on User {
+  name
+}

@@ -1,0 +1,26 @@
+# expected-to-throw
+query TestQuery {
+  me {
+    ...TestFragment
+  }
+}
+
+fragment TestFragment on User {
+  nameRenderer {
+    ...frag1
+    ...frag2
+
+  }
+}
+
+fragment frag1 on PlainUserNameRenderer {
+  data {
+    text
+  }
+}
+
+fragment frag2 on CustomNameRenderer {
+  data: user {
+    text: canViewerLike
+  }
+}

@@ -1,0 +1,18 @@
+==================================== INPUT ====================================
+query SingleValueArrayQuery {
+  route(waypoints: {lat: "123", lon: "456"}) {
+    steps {
+      lat
+      lon
+    }
+  }
+}
+==================================== OUTPUT ===================================
+query SingleValueArrayQuery {
+  route(waypoints: {lat: "123", lon: "456"}) {
+    steps {
+      lat
+      lon
+    }
+  }
+}

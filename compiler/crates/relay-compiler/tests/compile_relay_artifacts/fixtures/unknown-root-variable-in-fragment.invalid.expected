@@ -1,0 +1,31 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query unknownRootVariableInFragmentQuery($id: ID!) {
+  node(id: $id) {
+    id
+    ...unknownRootVariableInFragmentProfile @relay(mask: false)
+  }
+}
+
+fragment unknownRootVariableInFragmentProfile on User {
+  id
+  name
+  # includeFriends is not defined on the referencing query, should error
+  ... @include(if: $includeFriends) {
+    friends(first: 10) {
+      edges {
+        node {
+          id
+        }
+      }
+    }
+  }
+}
+==================================== ERROR ====================================
+✖︎ Operation 'unknownRootVariableInFragmentQuery' references undefined variable: '$includeFriends'.
+
+  unknown-root-variable-in-fragment.invalid.graphql:13:20
+   12 │   # includeFriends is not defined on the referencing query, should error
+   13 │   ... @include(if: $includeFriends) {
+      │                    ^^^^^^^^^^^^^^^
+   14 │     friends(first: 10) {

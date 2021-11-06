@@ -1,0 +1,63 @@
+==================================== INPUT ====================================
+fragment Example on User {
+  friends(first: $friendsFirst, after: $friendsAfter)
+    @connection(key: "Example_friends") {
+    edges {
+      node {
+        profilePicture(preset: $preset) {
+          uri
+        }
+      }
+    }
+    pageInfo {
+      endCursor
+    }
+  }
+}
+==================================== OUTPUT ===================================
+fragment Example on User @__ConnectionMetadataDirective
+# ConnectionMetadataDirective(
+#     [
+#         ConnectionMetadata {
+#             path: Some(
+#                 [
+#                     "friends",
+#                 ],
+#             ),
+#             direction: "forward",
+#             first: Some(
+#                 "friendsFirst",
+#             ),
+#             last: None,
+#             before: None,
+#             after: Some(
+#                 "friendsAfter",
+#             ),
+#             is_stream_connection: false,
+#         },
+#     ],
+# )
+ {
+  friends(first: $friendsFirst, after: $friendsAfter) @__clientField(key: "Example_friends", handle: "connection", filters: null, dynamicKey_UNSTABLE: null) {
+    edges {
+      node {
+        profilePicture(preset: $preset) {
+          uri
+        }
+      }
+      ... on FriendsEdge {
+        cursor
+        node {
+          __typename
+        }
+      }
+    }
+    pageInfo {
+      endCursor
+      ... on PageInfo {
+        endCursor
+        hasNextPage
+      }
+    }
+  }
+}

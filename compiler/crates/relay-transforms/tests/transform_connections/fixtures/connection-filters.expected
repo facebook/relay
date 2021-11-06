@@ -1,0 +1,104 @@
+==================================== INPUT ====================================
+query NodeQuery($id: ID!, $orderBy: String) {
+  node(id: $id) {
+    id
+    ... on Story {
+      comments(first: 10, orderby: $orderBy)
+        @connection(key: "NodeQuery_comments", filters: ["orderby", "first"]) {
+        edges {
+          node {
+            actor {
+              name
+              friends(first: 10) @connection(key: "NodeQuery_friends") {
+                edges {
+                  node {
+                    name
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+==================================== OUTPUT ===================================
+query NodeQuery(
+  $id: ID!
+  $orderBy: String
+) @__ConnectionMetadataDirective
+# ConnectionMetadataDirective(
+#     [
+#         ConnectionMetadata {
+#             path: None,
+#             direction: "forward",
+#             first: None,
+#             last: None,
+#             before: None,
+#             after: None,
+#             is_stream_connection: false,
+#         },
+#         ConnectionMetadata {
+#             path: Some(
+#                 [
+#                     "node",
+#                     "comments",
+#                 ],
+#             ),
+#             direction: "forward",
+#             first: None,
+#             last: None,
+#             before: None,
+#             after: None,
+#             is_stream_connection: false,
+#         },
+#     ],
+# )
+ {
+  node(id: $id) {
+    id
+    ... on Story {
+      comments(first: 10, orderby: $orderBy) @__clientField(key: "NodeQuery_comments", handle: "connection", filters: ["orderby", "first"], dynamicKey_UNSTABLE: null) {
+        edges {
+          node {
+            actor {
+              name
+              friends(first: 10) @__clientField(key: "NodeQuery_friends", handle: "connection", filters: null, dynamicKey_UNSTABLE: null) {
+                edges {
+                  node {
+                    name
+                  }
+                  ... on FriendsEdge {
+                    cursor
+                    node {
+                      __typename
+                    }
+                  }
+                }
+                pageInfo {
+                  ... on PageInfo {
+                    endCursor
+                    hasNextPage
+                  }
+                }
+              }
+            }
+          }
+          ... on CommentsEdge {
+            cursor
+            node {
+              __typename
+            }
+          }
+        }
+        pageInfo {
+          ... on PageInfo {
+            endCursor
+            hasNextPage
+          }
+        }
+      }
+    }
+  }
+}

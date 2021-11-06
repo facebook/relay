@@ -1,0 +1,23 @@
+fragment refetchableFragmentWithConnectionBidirectional_PaginationFragment on Node
+  @refetchable(queryName: "RefetchableFragmentQuery")
+  @argumentDefinitions(
+    count: {type: "Int", defaultValue: 10}
+    cursor: {type: "ID"}
+  ) {
+  id
+  ... on User {
+    name
+    friends(
+      after: $cursor
+      first: $count
+      before: $beforeCursor
+      last: $lastCount
+    ) @connection(key: "PaginationFragment_friends") {
+      edges {
+        node {
+          id
+        }
+      }
+    }
+  }
+}

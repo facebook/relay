@@ -1,0 +1,17 @@
+# expected-to-throw
+query ParentQuery($id: ID) {
+  ...NullableIDListFragment @relay(mask: false)
+  ...NullableIDFragment @relay(mask: false)
+}
+
+fragment NullableIDFragment on Query {
+  node(id: $id) {
+    id
+  }
+}
+
+fragment NullableIDListFragment on Query {
+  nodes(ids: $id) {
+    id
+  }
+}

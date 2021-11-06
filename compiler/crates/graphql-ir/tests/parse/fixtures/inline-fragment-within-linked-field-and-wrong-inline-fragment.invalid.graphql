@@ -1,0 +1,11 @@
+# expected-to-throw
+
+fragment Foo on User {
+  neighbors {
+    ... on Node {
+      ... on Page {
+        __typename
+      }
+    }
+  }
+}

@@ -1,0 +1,55 @@
+query originalClientFieldsTest_BestFriendsQuery($id: ID!) {
+  node(id: $id) {
+    ...originalClientFieldsTest_BestFriends
+    ...originalClientFieldsTest_OnlyClientFields
+  }
+  named {
+    # fragments on extension types are skipped
+    ...originalClientFieldsTest_FooFragment
+    ... on Foo {
+      name
+    }
+  }
+}
+
+# This fragment disappears because all selections are removed
+fragment originalClientFieldsTest_OnlyClientFields on User {
+  best_friends {
+    __typename
+  }
+}
+
+fragment originalClientFieldsTest_BestFriends on User {
+  # this is the only field that is part of the base schema
+  ...originalClientFieldsTest_NodeFragment
+  # fields defined in type extensions are skipped
+  best_friends {
+    edges {
+      cursor
+      node {
+        id
+      }
+    }
+    pageInfo {
+      hasNextPage
+    }
+  }
+}
+
+fragment originalClientFieldsTest_NodeFragment on Node {
+  id
+}
+
+fragment originalClientFieldsTest_FooFragment on Foo {
+  name
+}
+
+# %extensions%
+
+extend type User {
+  best_friends: FriendsConnection
+}
+
+type Foo implements Named {
+  name: String
+}

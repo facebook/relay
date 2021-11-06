@@ -1,0 +1,25 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query QueryWithFragmentWithDefer {
+  me {
+    id
+    ...UserFragment
+  }
+}
+
+fragment UserFragment on User {
+  id
+  emailAddresses
+  ... on User @defer(label: "DeferredFragmentLabel") {
+    id
+    name
+  }
+}
+==================================== ERROR ====================================
+✖︎ Invalid use of @defer on an inline fragment. Relay only supports @defer on fragment spreads.
+
+  inline-fragment-with-defer.invalid.graphql:12:15
+   11 │   emailAddresses
+   12 │   ... on User @defer(label: "DeferredFragmentLabel") {
+      │               ^^^^^^
+   13 │     id

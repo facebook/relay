@@ -1,0 +1,15 @@
+==================================== INPUT ====================================
+fragment EnabledActorsRendererFragment on Node {
+  id
+  name @required(action: THROW)
+}
+==================================== OUTPUT ===================================
+fragment EnabledActorsRendererFragment on Node {
+  id
+  name @required(action: THROW) @__RequiredMetadataDirective
+  # RequiredMetadataDirective {
+  #     action: Throw,
+  #     path: "name",
+  # }
+  
+}

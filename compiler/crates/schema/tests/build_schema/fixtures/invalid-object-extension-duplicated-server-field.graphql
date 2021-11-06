@@ -1,0 +1,11 @@
+# expected-to-throw
+
+type User {
+  name: String
+}
+
+# %extensions%
+
+extend type User {
+  name: ID
+}

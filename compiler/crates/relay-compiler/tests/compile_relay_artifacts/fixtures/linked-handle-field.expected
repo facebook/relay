@@ -1,0 +1,185 @@
+==================================== INPUT ====================================
+query linkedHandleField_LinkedHandleFieldQuery($id: ID!) {
+  node(id: $id) {
+    ... on User {
+      friends(first: 10) @__clientField(handle: "clientFriends") {
+        count
+      }
+    }
+  }
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "id"
+      }
+    ],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "linkedHandleField_LinkedHandleFieldQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "alias": "friends",
+                "args": null,
+                "concreteType": "FriendsConnection",
+                "kind": "LinkedField",
+                "name": "__friends_clientFriends",
+                "plural": false,
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "count",
+                    "storageKey": null
+                  }
+                ],
+                "storageKey": null
+              }
+            ],
+            "type": "User",
+            "abstractKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "id"
+      }
+    ],
+    "kind": "Operation",
+    "name": "linkedHandleField_LinkedHandleFieldQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "__typename",
+            "storageKey": null
+          },
+          {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "alias": null,
+                "args": [
+                  {
+                    "kind": "Literal",
+                    "name": "first",
+                    "value": 10
+                  }
+                ],
+                "concreteType": "FriendsConnection",
+                "kind": "LinkedField",
+                "name": "friends",
+                "plural": false,
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "count",
+                    "storageKey": null
+                  }
+                ],
+                "storageKey": "friends(first:10)"
+              },
+              {
+                "alias": null,
+                "args": [
+                  {
+                    "kind": "Literal",
+                    "name": "first",
+                    "value": 10
+                  }
+                ],
+                "filters": null,
+                "handle": "clientFriends",
+                "key": "",
+                "kind": "LinkedHandle",
+                "name": "friends"
+              }
+            ],
+            "type": "User",
+            "abstractKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {},
+    "name": "linkedHandleField_LinkedHandleFieldQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query linkedHandleField_LinkedHandleFieldQuery(
+  $id: ID!
+) {
+  node(id: $id) {
+    __typename
+    ... on User {
+      friends(first: 10) {
+        count
+      }
+    }
+    id
+  }
+}

@@ -201,7 +201,7 @@ fn build_fragment_variable_definitions(
                         } else if name == *UNUSED_LOCAL_VARIABLE_DEPRECATED {
                             unused_local_variable_arg = Some(item);
                         } else if name == *PROVIDER_MODULE {
-                            if !enable_provided_variables.is_enabled_for(variable_name.value) {
+                            if !enable_provided_variables.is_enabled_for(fragment.name.value) {
                                 return Err(vec![Diagnostic::error(
                                     format!("Invalid usage of provided variable: this feature is gated and currently set to {}",
                                                     enable_provided_variables),

@@ -162,38 +162,37 @@ fragment RefetchableClientEdgeQuery_relayResolverBackingClientEdgeQuery_me__best
         "plural": false,
         "selections": [
           {
-            "alias": null,
-            "fragment": {
-              "args": null,
-              "kind": "FragmentSpread",
-              "name": "relayResolverBackingClientEdge_best_friend_resolver"
-            },
-            "kind": "RelayResolver",
-            "name": "best_friend",
-            "resolverModule": require('BestFriendResolver')
-          },
-          {
-            "kind": "ClientExtension",
-            "selections": [
-              {
-                "alias": null,
+            "kind": "ClientEdge",
+            "operation": require('ClientEdgeQuery_relayResolverBackingClientEdgeQuery_me__best_friend.graphql'),
+            "backingField": {
+              "alias": null,
+              "fragment": {
                 "args": null,
-                "concreteType": "User",
-                "kind": "LinkedField",
-                "name": "best_friend",
-                "plural": false,
-                "selections": [
-                  {
-                    "alias": null,
-                    "args": null,
-                    "kind": "ScalarField",
-                    "name": "name",
-                    "storageKey": null
-                  }
-                ],
-                "storageKey": null
-              }
-            ]
+                "kind": "FragmentSpread",
+                "name": "relayResolverBackingClientEdge_best_friend_resolver"
+              },
+              "kind": "RelayResolver",
+              "name": "best_friend",
+              "resolverModule": require('BestFriendResolver')
+            },
+            "linkedField": {
+              "alias": null,
+              "args": null,
+              "concreteType": "User",
+              "kind": "LinkedField",
+              "name": "best_friend",
+              "plural": false,
+              "selections": [
+                {
+                  "alias": null,
+                  "args": null,
+                  "kind": "ScalarField",
+                  "name": "name",
+                  "storageKey": null
+                }
+              ],
+              "storageKey": null
+            }
           }
         ],
         "storageKey": null

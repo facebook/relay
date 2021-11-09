@@ -123,11 +123,12 @@ lazy_static! {
         *RelayResolverSpreadMetadata::DIRECTIVE_NAME,
         *RelayClientComponentMetadata::DIRECTIVE_NAME,
     ];
-    static ref RELAY_CUSTOM_INLINE_FRAGMENT_DIRECTIVES: [StringKey; 5] = [
+    static ref RELAY_CUSTOM_INLINE_FRAGMENT_DIRECTIVES: [StringKey; 6] = [
         *CLIENT_EXTENSION_DIRECTIVE_NAME,
         *ModuleMetadata::DIRECTIVE_NAME,
         *InlineDirectiveMetadata::DIRECTIVE_NAME,
         *RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN,
+        *CLIENT_EDGE_METADATA_KEY,
         "defer".intern(),
     ];
 }

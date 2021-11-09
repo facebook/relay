@@ -675,7 +675,7 @@ impl Default for SingleProjectConfigFile {
             ],
             extensions: vec![],
             no_future_proof_enums: false,
-            language: Some(TypegenLanguage::TypeScript),
+            language: Some(TypegenLanguage::default()),
             custom_scalars: Default::default(),
             eager_es_modules: false,
         }

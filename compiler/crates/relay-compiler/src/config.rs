@@ -643,7 +643,7 @@ pub struct SingleProjectConfigFile {
     pub excludes: Vec<String>,
 
     /// List of directories with schema extensions.
-    pub extensions: Vec<PathBuf>,
+    pub schema_extensions: Vec<PathBuf>,
 
     /// This option controls whether or not a catch-all entry is added to enum type definitions
     /// for values that may be added in the future. Enabling this means you will have to update
@@ -678,7 +678,7 @@ impl Default for SingleProjectConfigFile {
                 "**/__mocks__/**".to_string(),
                 "**/__generated__/**".to_string(),
             ],
-            extensions: vec![],
+            schema_extensions: vec![],
             no_future_proof_enums: false,
             language: Some(TypegenLanguage::default()),
             custom_scalars: Default::default(),
@@ -700,7 +700,7 @@ impl From<SingleProjectConfigFile> for MultiProjectConfigFile {
                 root_dir.clone(),
                 oss_config.schema,
             )),
-            extensions: oss_config.extensions,
+            extensions: oss_config.schema_extensions,
             persist: oss_config.persist_config,
             typegen_config: TypegenConfig {
                 language: oss_config.language.unwrap_or(TypegenLanguage::TypeScript),

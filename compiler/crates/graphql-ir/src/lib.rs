@@ -31,7 +31,7 @@ pub use build::{
 pub use constants::ARGUMENT_DEFINITION;
 pub use ir::*;
 pub use program::Program;
-pub use signatures::UNUSED_LOCAL_VARIABLE_DEPRECATED;
+pub use signatures::{PROVIDER_MODULE, UNUSED_LOCAL_VARIABLE_DEPRECATED};
 pub use suggestion_list::GraphQLSuggestions;
 pub use transform::{Transformed, TransformedMulti, TransformedValue, Transformer};
 pub use validator::Validator;

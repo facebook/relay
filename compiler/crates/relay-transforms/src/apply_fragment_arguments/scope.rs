@@ -5,10 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{Location, NamedItem};
+use common::{Location, NamedItem, WithLocation};
 use fnv::FnvHashMap;
-use graphql_ir::{Argument, ConstantValue, FragmentDefinition, Value};
-use interner::StringKey;
+use graphql_ir::{Argument, ConstantValue, FragmentDefinition, Value, Variable};
+use interner::{Intern, StringKey};
 
 #[derive(Default, Debug)]
 pub struct Scope {
@@ -48,8 +48,13 @@ impl Scope {
         let mut bindings = FnvHashMap::default();
         for variable_definition in &fragment.variable_definitions {
             let arg_name = variable_definition.name.item;
+            let is_provided = variable_definition
+                .directives
+                .named(*graphql_ir::PROVIDER_MODULE)
+                .is_some();
             let arg_value = match arguments.named(arg_name) {
                 Some(arg_from_spread) => {
+                    assert!(!is_provided, "validation step failed"); // TODO remove after feature is stable
                     if arg_from_spread.value.item == Value::Constant(ConstantValue::Null()) {
                         if let Some(default_value) = &variable_definition.default_value {
                             Value::Constant(default_value.item.clone())
@@ -62,7 +67,16 @@ impl Scope {
                 }
                 None => {
                     if let Some(default_value) = &variable_definition.default_value {
+                        assert!(!is_provided, "validation step failed"); // TODO remove after feature is stable
                         Value::Constant(default_value.item.clone())
+                    } else if is_provided {
+                        Value::Variable(Variable {
+                            name: WithLocation::new(
+                                variable_definition.name.location,
+                                format_provided_variable(fragment.name.item, arg_name),
+                            ),
+                            type_: variable_definition.type_.clone(),
+                        })
                     } else {
                         Value::Constant(ConstantValue::Null())
                     }
@@ -80,6 +94,15 @@ impl Scope {
         );
         self.bindings.pop();
     }
+}
+
+pub fn format_provided_variable(fragment_name: StringKey, arg_name: StringKey) -> StringKey {
+    // __ prefix indicates Relay internal variable
+    format!("__{}__{}", fragment_name, arg_name).intern()
+}
+
+pub fn format_local_variable(fragment_name: StringKey, arg_name: StringKey) -> StringKey {
+    format!("{}${}", fragment_name, arg_name).intern()
 }
 
 #[cfg(test)]

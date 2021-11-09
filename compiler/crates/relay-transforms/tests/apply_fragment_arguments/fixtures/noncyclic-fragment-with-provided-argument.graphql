@@ -1,0 +1,20 @@
+query TestQuery($id: ID) {
+  node(id: $id) {
+    ...Profile @arguments(get_friends: true)
+  }
+}
+
+fragment Profile on User
+    @argumentDefinitions(
+    get_friends: {type: "Boolean!", defaultValue: false}
+    foo_gk: {type: "Boolean!", provider: "foo_gk_module.js"})
+{
+    name @include(if: $foo_gk)
+    friends(first: 10) @include(if: $get_friends) {
+      edges {
+        node {
+          ...Profile
+        }
+      }
+    }
+}

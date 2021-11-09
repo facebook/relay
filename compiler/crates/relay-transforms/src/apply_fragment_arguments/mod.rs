@@ -18,11 +18,12 @@ use fnv::{FnvHashMap, FnvHashSet};
 use graphql_ir::{
     Condition, ConditionValue, ConstantValue, Directive, FragmentDefinition, FragmentSpread,
     InlineFragment, OperationDefinition, Program, Selection, Transformed, TransformedMulti,
-    TransformedValue, Transformer, ValidationMessage, Value, Variable,
+    TransformedValue, Transformer, ValidationMessage, Value, Variable, VariableDefinition,
 };
 use graphql_syntax::OperationKind;
 use interner::{Intern, StringKey};
-use scope::Scope;
+use itertools::Itertools;
+use scope::{format_local_variable, format_provided_variable, Scope};
 use std::sync::Arc;
 
 /// A transform that converts a set of documents containing fragments/fragment
@@ -36,6 +37,7 @@ use std::sync::Arc;
 ///   arguments.
 /// - Field & directive argument variables are replaced with the value of those
 ///   variables in context.
+/// - Definitions of provided variables are added to the root operation.
 /// - All nodes are cloned with updated children.
 ///
 /// The transform also handles statically passing/failing Condition nodes:
@@ -58,6 +60,7 @@ pub fn apply_fragment_arguments(
         is_normalization,
         no_inline_feature,
         program,
+        provided_variables: Default::default(),
         scope: Default::default(),
         split_operations: Default::default(),
     };
@@ -100,6 +103,7 @@ struct ApplyFragmentArgumentsTransform<'flags, 'program, 'base_fragments> {
     is_normalization: bool,
     no_inline_feature: &'flags FeatureFlag,
     program: &'program Program,
+    provided_variables: FnvHashMap<StringKey, VariableDefinition>,
     scope: Scope,
     split_operations: FnvHashMap<StringKey, OperationDefinition>,
 }
@@ -114,7 +118,36 @@ impl Transformer for ApplyFragmentArgumentsTransform<'_, '_, '_> {
         operation: &OperationDefinition,
     ) -> Transformed<OperationDefinition> {
         self.scope = Scope::root_scope();
-        self.default_transform_operation(operation)
+        self.provided_variables = Default::default();
+        let transform_result = self.default_transform_operation(operation);
+        if self.provided_variables.is_empty() {
+            transform_result
+        } else {
+            match transform_result {
+                Transformed::Keep => {
+                    let mut new_operation = operation.clone();
+                    new_operation.variable_definitions.append(
+                        &mut self
+                            .provided_variables
+                            .drain()
+                            .map(|(_, definition)| definition)
+                            .collect_vec(),
+                    );
+                    Transformed::Replace(new_operation)
+                }
+                Transformed::Replace(mut new_operation) => {
+                    new_operation.variable_definitions.append(
+                        &mut self
+                            .provided_variables
+                            .drain()
+                            .map(|(_, definition)| definition)
+                            .collect_vec(),
+                    );
+                    Transformed::Replace(new_operation)
+                }
+                Transformed::Delete => Transformed::Delete,
+            }
+        }
     }
 
     fn transform_fragment(
@@ -344,6 +377,30 @@ impl ApplyFragmentArgumentsTransform<'_, '_, '_> {
         self.split_operations.insert(fragment.name.item, operation);
     }
 
+    fn extract_provided_variables(&mut self, fragment: &FragmentDefinition) {
+        let provided_arguments =
+            fragment
+                .variable_definitions
+                .iter()
+                .filter(|variable_definition| {
+                    variable_definition
+                        .directives
+                        .named(*graphql_ir::PROVIDER_MODULE)
+                        .is_some()
+                });
+        for definition in provided_arguments {
+            let clobbered_name = format_provided_variable(fragment.name.item, definition.name.item);
+            let clobbered_definition = VariableDefinition {
+                name: WithLocation::new(definition.name.location, clobbered_name),
+                type_: definition.type_.clone(),
+                default_value: definition.default_value.clone(),
+                directives: definition.directives.clone(),
+            };
+            self.provided_variables
+                .insert(clobbered_name, clobbered_definition);
+        }
+    }
+
     fn apply_fragment(
         &mut self,
         spread: &FragmentSpread,
@@ -379,6 +436,8 @@ impl ApplyFragmentArgumentsTransform<'_, '_, '_> {
 
         self.scope
             .push(spread.fragment.location, &transformed_arguments, fragment);
+
+        self.extract_provided_variables(fragment);
 
         let selections = self
             .transform_selections(&fragment.selections)
@@ -478,8 +537,4 @@ fn no_inline_fragment_scope(fragment: &FragmentDefinition) -> Scope {
     let mut scope = Scope::root_scope();
     scope.push_bindings(fragment.name.location, bindings);
     scope
-}
-
-fn format_local_variable(fragment_name: StringKey, arg_name: StringKey) -> StringKey {
-    format!("{}${}", fragment_name, arg_name).intern()
 }

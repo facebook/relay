@@ -660,6 +660,11 @@ pub struct SingleProjectConfigFile {
 
     /// This option enables emitting es modules artifacts.
     pub eager_es_modules: bool,
+
+    /// Query Persist Configuration
+    /// It contains URL and addition parameters that will be included
+    /// with the request (think API_KEY, APP_ID, etc...)
+    pub persist_config: Option<PersistConfig>,
 }
 
 impl Default for SingleProjectConfigFile {
@@ -678,6 +683,7 @@ impl Default for SingleProjectConfigFile {
             language: Some(TypegenLanguage::default()),
             custom_scalars: Default::default(),
             eager_es_modules: false,
+            persist_config: None,
         }
     }
 }
@@ -695,6 +701,7 @@ impl From<SingleProjectConfigFile> for MultiProjectConfigFile {
                 oss_config.schema,
             )),
             extensions: oss_config.extensions,
+            persist: oss_config.persist_config,
             typegen_config: TypegenConfig {
                 language: oss_config.language.unwrap_or(TypegenLanguage::TypeScript),
                 custom_scalar_types: oss_config.custom_scalars,

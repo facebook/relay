@@ -157,7 +157,7 @@ impl FileCategorizer {
 
         let mut extensions_map: HashMap<PathBuf, ProjectSet> = Default::default();
         for (&project_name, project_config) in &config.projects {
-            for extension_dir in &project_config.extensions {
+            for extension_dir in &project_config.schema_extensions {
                 match extensions_map.entry(extension_dir.clone()) {
                     Entry::Vacant(entry) => {
                         entry.insert(ProjectSet::ProjectName(project_name));

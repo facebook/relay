@@ -64,7 +64,7 @@ fn get_extra_roots(config: &Config, enabled_projects: &FnvHashSet<StringKey>) ->
         if !enabled_projects.contains(&project_config.name) {
             continue;
         }
-        roots.extend(&project_config.extensions);
+        roots.extend(&project_config.schema_extensions);
         if let Some(output_dir) = &project_config.output {
             roots.push(output_dir);
         }

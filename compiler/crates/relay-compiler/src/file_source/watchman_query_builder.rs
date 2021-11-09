@@ -125,7 +125,7 @@ fn get_extension_roots(config: &Config) -> Vec<PathBuf> {
     config
         .projects
         .values()
-        .flat_map(|project_config| project_config.extensions.iter().cloned())
+        .flat_map(|project_config| project_config.schema_extensions.iter().cloned())
         .collect()
 }
 

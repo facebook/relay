@@ -17,7 +17,7 @@
     "tests": {
       "enumModuleSuffix": null,
       "schema": "packages/relay-test-utils-internal/testschema.graphql",
-      "extensions": [
+      "schemaExtensions": [
         "packages/relay-test-utils-internal/schema-extensions"
       ],
       "jsModuleFormat": "commonjs",

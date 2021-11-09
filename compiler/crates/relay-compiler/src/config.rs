@@ -247,7 +247,7 @@ impl Config {
                     name: project_name,
                     base: config_file_project.base,
                     enabled: true,
-                    extensions: config_file_project.extensions,
+                    schema_extensions: config_file_project.schema_extensions,
                     output: config_file_project.output,
                     extra_artifacts_output: config_file_project.extra_artifacts_output,
                     shard_output: config_file_project.shard_output,
@@ -497,7 +497,7 @@ pub struct ProjectConfig {
     pub extra_artifacts_output: Option<PathBuf>,
     pub shard_output: bool,
     pub shard_strip_regex: Option<Regex>,
-    pub extensions: Vec<PathBuf>,
+    pub schema_extensions: Vec<PathBuf>,
     pub enabled: bool,
     pub schema_location: SchemaLocation,
     pub typegen_config: TypegenConfig,
@@ -522,7 +522,7 @@ impl Debug for ProjectConfig {
             extra_artifacts_output,
             shard_output,
             shard_strip_regex,
-            extensions,
+            schema_extensions,
             enabled,
             schema_location,
             typegen_config,
@@ -543,7 +543,7 @@ impl Debug for ProjectConfig {
             .field("extra_artifacts_output", extra_artifacts_output)
             .field("shard_output", shard_output)
             .field("shard_strip_regex", shard_strip_regex)
-            .field("extensions", extensions)
+            .field("schema_extensions", schema_extensions)
             .field("enabled", enabled)
             .field("schema_location", schema_location)
             .field("typegen_config", typegen_config)
@@ -700,7 +700,7 @@ impl From<SingleProjectConfigFile> for MultiProjectConfigFile {
                 root_dir.clone(),
                 oss_config.schema,
             )),
-            extensions: oss_config.schema_extensions,
+            schema_extensions: oss_config.schema_extensions,
             persist: oss_config.persist_config,
             typegen_config: TypegenConfig {
                 language: oss_config.language.unwrap_or(TypegenLanguage::TypeScript),
@@ -779,7 +779,7 @@ struct ConfigFileProject {
 
     /// Directory containing *.graphql files with schema extensions.
     #[serde(default)]
-    extensions: Vec<PathBuf>,
+    schema_extensions: Vec<PathBuf>,
 
     /// Path to the schema.graphql or a directory containing a schema broken up
     /// in multiple *.graphql files.

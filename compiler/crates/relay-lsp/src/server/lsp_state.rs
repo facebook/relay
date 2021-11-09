@@ -15,6 +15,7 @@ use crate::{
     utils::{
         extract_executable_definitions_from_text_document, extract_executable_document_from_text,
     },
+    ContentConsumerType,
 };
 use crate::{LSPExtraDataProvider, LSPRuntimeError};
 use common::{Diagnostic as CompilerDiagnostic, PerfLogger, SourceLocationKey, Span};
@@ -104,6 +105,11 @@ pub trait GlobalState {
     fn document_changed(&self, url: &Url, full_text: &str) -> LSPRuntimeResult<()>;
 
     fn document_closed(&self, url: &Url) -> LSPRuntimeResult<()>;
+
+    /// To distinguish content, that we show to consumers
+    /// we may need to know who's our current consumer.
+    /// This is mostly for hover handler (where we render markup)
+    fn get_content_consumer_type(&self) -> ContentConsumerType;
 }
 
 /// This structure contains all available resources that we may use in the Relay LSP message/notification
@@ -471,6 +477,10 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         }
         self.remove_synced_sources(uri);
         Ok(())
+    }
+
+    fn get_content_consumer_type(&self) -> ContentConsumerType {
+        ContentConsumerType::Relay
     }
 }
 

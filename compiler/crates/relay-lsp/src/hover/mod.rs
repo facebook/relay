@@ -21,6 +21,8 @@ use serde::Serialize;
 mod with_resolution_path;
 use with_resolution_path::get_hover;
 
+pub use self::with_resolution_path::ContentConsumerType;
+
 fn graphql_marked_string(value: String) -> MarkedString {
     MarkedString::LanguageString(LanguageString {
         language: "graphql".to_string(),
@@ -84,6 +86,7 @@ pub fn on_hover(
         &*state.get_extra_data_provider(),
         &schema_documentation,
         &state.get_program(&project_name)?,
+        state.get_content_consumer_type(),
     )
     .map(Option::Some)
     .ok_or(LSPRuntimeError::ExpectedError)

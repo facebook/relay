@@ -186,6 +186,12 @@ module.exports = {
         infoLink: 'https://swissdevjobs.ch/jobs/JavaScript/All',
         pinned: false,
       },
+      {
+        caption: 'Atlassian',
+        image: '/img/logos/vertical-logo-gradient-blue-atlassian.svg',
+        infoLink: 'https://www.atlassian.com/',
+        pinned: false,
+      },
     ],
   },
   onBrokenLinks: 'throw',

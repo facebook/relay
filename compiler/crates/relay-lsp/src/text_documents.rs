@@ -82,7 +82,7 @@ pub(crate) fn on_did_save_text_document(
 }
 
 #[allow(clippy::unnecessary_wraps)]
-pub(crate) fn on_cancel(
+pub fn on_cancel(
     _lsp_state: &impl GlobalState,
     _params: <Cancel as Notification>::Params,
 ) -> LSPRuntimeResult<()> {

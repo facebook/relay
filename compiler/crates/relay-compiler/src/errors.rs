@@ -134,6 +134,14 @@ pub enum Error {
 
     #[error("glob pattern error: {0}")]
     PatternError(PatternError),
+
+    #[error(
+        "Saved state versions mismatch. Saved state: {saved_state_version}, config: {config_version}."
+    )]
+    SavedStateVersionMismatch {
+        saved_state_version: String,
+        config_version: String,
+    },
 }
 
 #[derive(Debug, Error)]

@@ -58,9 +58,17 @@ impl<'config> ExternalFileSource<'config> {
 
     pub fn create_compiler_state(&self, perf_logger: &impl PerfLogger) -> Result<CompilerState> {
         let load_saved_state_file = self.config.load_saved_state_file.as_ref().unwrap();
-        let root_dir = &self.config.root_dir;
-
         let mut compiler_state = CompilerState::deserialize_from_file(&load_saved_state_file)?;
+        if std::env::var("RELAY_COMPILER_IGNORE_SAVED_STATE_VERSION").is_err()
+            && compiler_state.saved_state_version != self.config.saved_state_version
+        {
+            return Err(Error::SavedStateVersionMismatch {
+                saved_state_version: compiler_state.saved_state_version,
+                config_version: self.config.saved_state_version.clone(),
+            });
+        }
+
+        let root_dir = &self.config.root_dir;
         compiler_state
             .pending_file_source_changes
             .write()

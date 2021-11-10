@@ -11,6 +11,7 @@
 // flowlint ambiguous-object-type:error
 
 'use strict';
+import type {ScalarField} from '../core/IR';
 
 import type {
   Argument,
@@ -373,7 +374,7 @@ function generateTypeDiscriminator(
   };
 }
 
-function generateScalarField(node): Array<NormalizationSelection> {
+function generateScalarField(node: ScalarField): Array<NormalizationSelection> {
   // flowlint-next-line sketchy-null-mixed:off
   if (node.metadata?.skipNormalizationNode) {
     return [];

@@ -100,7 +100,7 @@ describe('IRVisitor', () => {
           },
           Literal: {
             leave(node: Literal) {
-              const mutator = value => {
+              const mutator = (value: mixed) => {
                 // Keep enums valid
                 if (value === 'WEB') {
                   return 'MOBILE';

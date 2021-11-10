@@ -10,6 +10,7 @@
  */
 
 'use strict';
+import type {LinkedField, InlineFragment} from '../core/IR';
 
 import type CompilerContext from '../core/CompilerContext';
 import type {ScalarField} from '../core/IR';
@@ -68,14 +69,26 @@ function reactFlightComponentTransform(
   );
 }
 
-function visitInlineFragment(fragment, state) {
+function visitInlineFragment(
+  fragment: InlineFragment,
+  state: $TEMPORARY$object<{
+    parentType: TypeID,
+    types: {componentType: ScalarFieldTypeID, propsType: InputTypeID},
+  }>,
+) {
   return this.traverse(fragment, {
     parentType: fragment.typeCondition ?? state.parentType,
     types: state.types,
   });
 }
 
-function visitLinkedField(field, state) {
+function visitLinkedField(
+  field: LinkedField,
+  state: $TEMPORARY$object<{
+    parentType: TypeID,
+    types: {componentType: ScalarFieldTypeID, propsType: InputTypeID},
+  }>,
+) {
   return this.traverse(field, {parentType: field.type, types: state.types});
 }
 

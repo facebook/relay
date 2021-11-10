@@ -12,6 +12,15 @@
 // flowlint ambiguous-object-type:error
 
 'use strict';
+import type {
+  Variables,
+  CacheConfig,
+} from 'relay-runtime/util/RelayRuntimeTypes';
+import type {RequestParameters} from 'relay-runtime/util/RelayConcreteNode';
+import type {
+  RecordSourceProxy,
+  HandleFieldPayload,
+} from 'relay-runtime/store/RelayStoreTypes';
 
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
@@ -97,7 +106,7 @@ describe('execute() a query with nested @stream', () => {
     );
 
     const NameHandler = {
-      update(storeProxy, payload) {
+      update(storeProxy: RecordSourceProxy, payload: HandleFieldPayload) {
         const record = storeProxy.get(payload.dataID);
         if (record != null) {
           const markup = record.getValue(payload.fieldKey);
@@ -113,7 +122,11 @@ describe('execute() a query with nested @stream', () => {
     error = jest.fn();
     next = jest.fn();
     callbacks = {complete, error, next};
-    fetch = (_query, _variables, _cacheConfig) => {
+    fetch = (
+      _query: RequestParameters,
+      _variables: Variables,
+      _cacheConfig: CacheConfig,
+    ) => {
       return RelayObservable.create(sink => {
         dataSource = sink;
       });

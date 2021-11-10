@@ -11,6 +11,7 @@
 // flowlint ambiguous-object-type:error
 
 'use strict';
+import type {Subscription} from './RelayObservable';
 
 import type ActorSpecificEnvironment from '../multi-actor-environment/ActorSpecificEnvironment';
 import type RelayModernEnvironment from '../store/RelayModernEnvironment';
@@ -46,7 +47,7 @@ function wrapNetworkWithLogObserver(
     ): RelayObservable<GraphQLResponse> {
       const networkRequestId = generateID();
       const logObserver = {
-        start: subscription => {
+        start: (subscription: Subscription) => {
           env.__log({
             name: 'network.start',
             networkRequestId,
@@ -55,14 +56,14 @@ function wrapNetworkWithLogObserver(
             cacheConfig,
           });
         },
-        next: response => {
+        next: (response: GraphQLResponse) => {
           env.__log({
             name: 'network.next',
             networkRequestId,
             response,
           });
         },
-        error: error => {
+        error: (error: Error) => {
           env.__log({
             name: 'network.error',
             networkRequestId,
@@ -82,7 +83,7 @@ function wrapNetworkWithLogObserver(
           });
         },
       };
-      const logRequestInfo = info => {
+      const logRequestInfo = (info: mixed) => {
         env.__log({
           name: 'network.info',
           networkRequestId,

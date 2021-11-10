@@ -10,6 +10,15 @@
  */
 
 'use strict';
+import type {
+  Variables,
+  CacheConfig,
+} from 'relay-runtime/util/RelayRuntimeTypes';
+import type {RequestParameters} from 'relay-runtime/util/RelayConcreteNode';
+import type {
+  UploadableMap,
+  LogRequestInfoFunction,
+} from 'relay-runtime/network/RelayNetworkTypes';
 
 import type {ActorChangeWithDeferTestDeferFragment$key} from './__generated__/ActorChangeWithDeferTestDeferFragment.graphql';
 import type {ActorChangeWithDeferTestFragment$key} from './__generated__/ActorChangeWithDeferTestFragment.graphql';
@@ -153,7 +162,15 @@ describe('ActorChange with @defer', () => {
   });
 
   it('should render a fragment for actor', () => {
-    fetchFnForActor = (...args) => {
+    fetchFnForActor = (
+      ...args: Array<?(
+        | LogRequestInfoFunction
+        | UploadableMap
+        | RequestParameters
+        | Variables
+        | CacheConfig
+      )>
+    ) => {
       return Observable.create(sink => {
         dataSource = sink;
       });

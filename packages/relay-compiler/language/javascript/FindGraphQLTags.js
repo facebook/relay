@@ -95,13 +95,13 @@ function getSourceLocationOffset(quasi) {
   };
 }
 
-function invariant(condition, msg, ...args) {
+function invariant(condition, msg: any, ...args) {
   if (!condition) {
     throw new Error(util.format(msg, ...args));
   }
 }
 
-function visit(node, visitors) {
+function visit(node: any | BabelNodeFile, visitors) {
   // $FlowFixMe Discovered when typing babel
   const fn = visitors[node.type];
   if (fn != null) {
@@ -111,7 +111,7 @@ function visit(node, visitors) {
   traverse(node, visitors);
 }
 
-function traverse(node, visitors) {
+function traverse(node: any | BabelNodeFile, visitors) {
   for (const key in node) {
     if (IGNORED_KEYS[key]) {
       continue;

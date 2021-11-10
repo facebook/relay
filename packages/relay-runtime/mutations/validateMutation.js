@@ -51,7 +51,11 @@ const hasOwnProperty = Object.prototype.hasOwnProperty;
 
 let validateMutation = () => {};
 if (__DEV__) {
-  const addFieldToDiff = (path: string, diff: Object, isScalar) => {
+  const addFieldToDiff = (
+    path: string,
+    diff: Object,
+    isScalar: void | boolean,
+  ) => {
     let deepLoc = diff;
     path.split('.').forEach((key, index, arr) => {
       if (deepLoc[key] == null) {

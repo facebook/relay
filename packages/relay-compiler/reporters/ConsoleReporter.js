@@ -74,7 +74,7 @@ class ConsoleReporter implements Reporter {
   }
 }
 
-function leftPad(len, str) {
+function leftPad(len: number, str: string) {
   return new Array(len - str.length + 1).join(' ') + str;
 }
 

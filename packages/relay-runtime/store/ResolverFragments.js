@@ -95,7 +95,10 @@ declare function readFragment<
   TKey,
 >;
 
-function readFragment(fragmentInput, fragmentKey): mixed {
+function readFragment(
+  fragmentInput: GraphQLTaggedNode,
+  fragmentKey: FragmentType,
+): mixed {
   if (!contextStack.length) {
     throw new Error(
       'readFragment should be called only from within a Relay Resolver function.',

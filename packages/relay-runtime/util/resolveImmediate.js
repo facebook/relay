@@ -21,7 +21,7 @@ function resolveImmediate(callback: () => void) {
   resolvedPromise.then(callback).catch(throwNext);
 }
 
-function throwNext(error) {
+function throwNext(error: $FlowFixMe) {
   setTimeout(() => {
     throw error;
   }, 0);

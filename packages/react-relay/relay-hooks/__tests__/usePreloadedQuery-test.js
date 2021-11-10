@@ -86,7 +86,7 @@ let fetch;
 class ErrorBoundary extends React.Component<$FlowFixMe, $FlowFixMe> {
   state: {|error: mixed|} = {error: null};
 
-  componentDidCatch(error) {
+  componentDidCatch(error: Error) {
     this.setState({error});
   }
 

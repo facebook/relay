@@ -10,6 +10,15 @@
  */
 
 'use strict';
+import type {
+  Variables,
+  CacheConfig,
+} from 'relay-runtime/util/RelayRuntimeTypes';
+import type {RequestParameters} from 'relay-runtime/util/RelayConcreteNode';
+import type {
+  UploadableMap,
+  LogRequestInfoFunction,
+} from 'relay-runtime/network/RelayNetworkTypes';
 
 import type {ActorChangeWithStreamTestFragment$key} from './__generated__/ActorChangeWithStreamTestFragment.graphql';
 import type {ActorChangeWithStreamTestQuery} from './__generated__/ActorChangeWithStreamTestQuery.graphql';
@@ -141,7 +150,15 @@ describe('ActorChange with @stream', () => {
   });
 
   it('should render a fragment for actor', () => {
-    fetchFnForActor = (...args) => {
+    fetchFnForActor = (
+      ...args: Array<?(
+        | LogRequestInfoFunction
+        | UploadableMap
+        | RequestParameters
+        | Variables
+        | CacheConfig
+      )>
+    ) => {
       return Observable.create(sink => {
         dataSource = sink;
       });

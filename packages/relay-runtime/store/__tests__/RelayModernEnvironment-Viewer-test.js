@@ -12,6 +12,11 @@
 // flowlint ambiguous-object-type:error
 
 'use strict';
+import type {
+  Variables,
+  CacheConfig,
+} from 'relay-runtime/util/RelayRuntimeTypes';
+import type {RequestParameters} from 'relay-runtime/util/RelayConcreteNode';
 
 const commitMutation = require('../../mutations/commitMutation');
 const RelayNetwork = require('../../network/RelayNetwork');
@@ -65,7 +70,11 @@ describe('Mutations on viewer', () => {
 
     onCompleted = jest.fn();
     onError = jest.fn();
-    const fetch = (_query, _variables, _cacheConfig) => {
+    const fetch = (
+      _query: RequestParameters,
+      _variables: Variables,
+      _cacheConfig: CacheConfig,
+    ) => {
       return RelayObservable.create(sink => {
         dataSource = sink;
       });

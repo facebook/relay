@@ -32,7 +32,7 @@ function dedupeJSONStringify(jsonValue: mixed): string {
   // equivalent values have the *same reference* to the same metadata. Note that
   // the hashes generated are not exactly JSON, but still identify equivalent
   // values. Runs in linear time due to hashing in a bottom-up recursion.
-  function collectMetadata(value): string {
+  function collectMetadata(value: mixed): string {
     if (value == null || typeof value !== 'object') {
       // $FlowFixMe[incompatible-return] - JSON.stringify can return undefined
       return JSON.stringify(value);
@@ -67,7 +67,7 @@ function dedupeJSONStringify(jsonValue: mixed): string {
 
   // Using top-down recursion, linearly scan the JSON tree to determine which
   // values should be deduplicated.
-  function collectDuplicates(value) {
+  function collectDuplicates(value: mixed) {
     if (value == null || typeof value !== 'object') {
       return;
     }
@@ -93,7 +93,11 @@ function dedupeJSONStringify(jsonValue: mixed): string {
   }
 
   // Stringify JS, replacing duplicates with variable references.
-  function printJSCode(isDupedVar, depth, value): string {
+  function printJSCode(
+    isDupedVar: boolean,
+    depth: string,
+    value: mixed,
+  ): string {
     if (value == null || typeof value !== 'object') {
       // $FlowFixMe[incompatible-return] : JSON.stringify can return undefined
       return JSON.stringify(value);

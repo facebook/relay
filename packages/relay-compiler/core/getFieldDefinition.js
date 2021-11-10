@@ -11,6 +11,10 @@
 // flowlint ambiguous-object-type:error
 
 'use strict';
+import type {
+  DirectiveNode,
+  ArgumentNode,
+} from '../../../../../../node_modules/graphql/language/ast.js';
 
 import type {FieldID, Schema, TypeID} from './Schema';
 import type {FieldNode} from 'graphql';
@@ -140,7 +144,7 @@ function getFieldDefinitionLegacyImpl(
 /**
  * @private
  */
-function getName(ast): string {
+function getName(ast: ArgumentNode | DirectiveNode): string {
   const name = ast.name ? ast.name.value : null;
   if (typeof name !== 'string') {
     throw createCompilerError("Expected ast node to have a 'name'.", null, [

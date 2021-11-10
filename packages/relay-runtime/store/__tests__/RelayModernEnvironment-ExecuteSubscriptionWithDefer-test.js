@@ -12,6 +12,10 @@
 // flowlint ambiguous-object-type:error
 
 'use strict';
+import type {
+  RecordSourceProxy,
+  HandleFieldPayload,
+} from 'relay-runtime/store/RelayStoreTypes';
 
 const {
   MultiActorEnvironment,
@@ -103,7 +107,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         );
 
         const NameHandler = {
-          update(storeProxy, payload) {
+          update(storeProxy: RecordSourceProxy, payload: HandleFieldPayload) {
             const record = storeProxy.get(payload.dataID);
             if (record != null) {
               const markup = record.getValue(payload.fieldKey);
@@ -129,7 +133,9 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         );
         source = RelayRecordSource.create();
         store = new RelayModernStore(source);
-        const handlerProvider = name => {
+        const handlerProvider = (
+          name: string | $TEMPORARY$string<'name_handler'>,
+        ) => {
           switch (name) {
             case 'name_handler':
               return NameHandler;

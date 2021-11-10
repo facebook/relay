@@ -83,7 +83,7 @@ function buildWatchExpression(config: {
 }
 
 function getFilepathsFromGlob(
-  baseDir,
+  baseDir: string,
   config: {
     extensions: Array<string>,
     include: Array<string>,

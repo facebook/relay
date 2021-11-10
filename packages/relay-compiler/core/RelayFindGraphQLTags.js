@@ -106,7 +106,7 @@ function validateTemplate(
 }
 
 // TODO: Not sure why this is defined here rather than imported, is it so that it doesn’t get stripped in prod?
-function invariant(condition, msg, ...args) {
+function invariant(condition, msg: $FlowFixMeEmpty, ...args) {
   if (!condition) {
     throw new Error(util.format(msg, ...args));
   }

@@ -11,6 +11,7 @@
 // flowlint ambiguous-object-type:error
 
 'use strict';
+import type {InlineFragment} from '../core/IR';
 
 import type CompilerContext from '../core/CompilerContext';
 import type {
@@ -63,7 +64,10 @@ function visitDirective(node: Directive, {rootNode}: State): void {
   );
 }
 
-function visitInlineFragment(fragment, {rootNode}: State): void {
+function visitInlineFragment(
+  fragment: InlineFragment,
+  {rootNode}: State,
+): void {
   this.traverse(fragment, {
     rootNode,
     parentType: fragment.typeCondition,

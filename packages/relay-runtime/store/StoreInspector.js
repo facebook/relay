@@ -56,7 +56,7 @@ if (__DEV__) {
     const keyStyle = {style: 'rgb(136, 19, 145)'};
     const nullStyle = {style: 'color: #777'};
 
-    const reference = (object, config) => {
+    const reference = (object, config: void) => {
       return object == null
         ? ['span', nullStyle, 'undefined']
         : ['object', {object, config}];
@@ -100,7 +100,7 @@ if (__DEV__) {
         }
         return renderRecordHeader(obj);
       },
-      hasBody(obj) {
+      hasBody(obj: $FlowFixMeEmpty) {
         return true;
       },
       body(obj) {

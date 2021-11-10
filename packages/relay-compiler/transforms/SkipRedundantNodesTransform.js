@@ -11,6 +11,17 @@
 // flowlint ambiguous-object-type:error
 
 'use strict';
+import type {
+  Stream,
+  ModuleImport,
+  LinkedField,
+  InlineFragment,
+  InlineDataFragmentSpread,
+  FragmentSpread,
+  Defer,
+  Condition,
+  ClientExtension,
+} from '../core/IR';
 
 import type CompilerContext from '../core/CompilerContext';
 import type {Fragment, Node, Root, Selection, SplitOperation} from '../core/IR';
@@ -241,8 +252,19 @@ function transformNode<T: Node>(
 function sortSelections(
   selections: $ReadOnlyArray<Selection>,
 ): $ReadOnlyArray<Selection> {
-  const isScalarOrLinkedField = selection =>
-    selection.kind === 'ScalarField' || selection.kind === 'LinkedField';
+  const isScalarOrLinkedField = (
+    selection:
+      | Condition
+      | FragmentSpread
+      | Defer
+      | Stream
+      | InlineDataFragmentSpread
+      | InlineFragment
+      | ClientExtension
+      | LinkedField
+      | ModuleImport
+      | Selection,
+  ) => selection.kind === 'ScalarField' || selection.kind === 'LinkedField';
   const [scalarsAndLinkedFields, rest] = partitionArray(
     selections,
     isScalarOrLinkedField,

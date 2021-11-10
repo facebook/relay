@@ -17,7 +17,7 @@ const FindGraphQLTags = require('../../language/javascript/FindGraphQLTags');
 const RelayFindGraphQLTags = require('../RelayFindGraphQLTags');
 
 describe('RelayFindGraphQLTags', () => {
-  function find(text, absPath: string = '/path/to/FindGraphQLTags.js') {
+  function find(text: string, absPath: string = '/path/to/FindGraphQLTags.js') {
     return RelayFindGraphQLTags.find(FindGraphQLTags.find, text, absPath);
   }
 

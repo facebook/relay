@@ -215,7 +215,7 @@ function writeAll({
     });
 
     const allOutputDirectories: Map<string, CodegenDirectory> = new Map();
-    const addCodegenDir = dirPath => {
+    const addCodegenDir = (dirPath: string) => {
       const codegenDir = new CodegenDirectory(dirPath, {
         onlyValidate: onlyValidate,
         filesystem: writerConfig.filesystem,
@@ -233,7 +233,7 @@ function writeAll({
       configOutputDirectory = addCodegenDir(writerConfig.outputDir);
     }
 
-    const getGeneratedDirectory = definitionName => {
+    const getGeneratedDirectory = (definitionName: string) => {
       if (configOutputDirectory) {
         return configOutputDirectory;
       }

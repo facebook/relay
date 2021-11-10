@@ -52,7 +52,10 @@ function buildReactRelayContainer<TBase: React$ComponentType<any>>(
   const Container = createContainerWithFragments(ComponentClass, fragments);
   Container.displayName = containerName;
 
-  function forwardRef(props, ref) {
+  function forwardRef(
+    props: any,
+    ref: ((null | any) => mixed) | {current: null | any, ...},
+  ) {
     const context = readContext(ReactRelayContext);
     invariant(
       context != null,

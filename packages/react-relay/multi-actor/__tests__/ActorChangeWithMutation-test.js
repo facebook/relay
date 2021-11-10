@@ -10,6 +10,16 @@
  */
 
 'use strict';
+import type {
+  Variables,
+  CacheConfig,
+} from 'relay-runtime/util/RelayRuntimeTypes';
+import type {RequestParameters} from 'relay-runtime/util/RelayConcreteNode';
+import type {
+  UploadableMap,
+  LogRequestInfoFunction,
+} from 'relay-runtime/network/RelayNetworkTypes';
+import type {ActorIdentifier} from '../../../relay-runtime/multi-actor-environment/ActorIdentifier';
 
 import type {ActorChangeWithMutationTestFragment$key} from './__generated__/ActorChangeWithMutationTestFragment.graphql';
 import type {ActorChangeWithMutationTestMutation} from './__generated__/ActorChangeWithMutationTestMutation.graphql';
@@ -175,7 +185,16 @@ describe('ActorChange', () => {
   let dataSource;
 
   beforeEach(() => {
-    fetchFnForActor = (...args) => {
+    fetchFnForActor = (
+      ...args: Array<?(
+        | ActorIdentifier
+        | LogRequestInfoFunction
+        | UploadableMap
+        | RequestParameters
+        | Variables
+        | CacheConfig
+      )>
+    ) => {
       return Observable.create(sink => {
         dataSource = sink;
       });

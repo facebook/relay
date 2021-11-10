@@ -11,6 +11,7 @@
 // flowlint ambiguous-object-type:error
 
 'use strict';
+import type {ObjectFieldNode} from '../../../../../../node_modules/graphql/language/ast.js';
 
 import type {GetFieldDefinitionFn} from './getFieldDefinition';
 import type {
@@ -1654,7 +1655,17 @@ function applyConditions(
 /**
  * @private
  */
-function getName(ast): string {
+function getName(
+  ast:
+    | ObjectFieldNode
+    | ArgumentNode
+    | DirectiveNode
+    | FieldNode
+    | FragmentDefinitionNode
+    | FragmentSpreadNode
+    | OperationDefinitionNode
+    | VariableNode,
+): string {
   const name = ast.name?.value;
   if (typeof name !== 'string') {
     throw createCompilerError("Expected ast node to have a 'name'.", null, [

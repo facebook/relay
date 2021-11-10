@@ -122,7 +122,7 @@ describe('fetchQuery', () => {
   it('handles error correctly', () => {
     let calledError = false;
     const observer = {
-      error: error => {
+      error: (error: Error) => {
         calledError = true;
         expect(error.message).toEqual('Oops');
         expect(retained.length).toEqual(0);

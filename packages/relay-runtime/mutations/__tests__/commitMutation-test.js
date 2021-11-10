@@ -12,6 +12,7 @@
 // flowlint ambiguous-object-type:error
 
 'use strict';
+import type {RecordSourceSelectorProxy} from 'relay-runtime/store/RelayStoreTypes';
 
 import type {GraphQLResponseWithoutData} from '../../network/RelayNetworkTypes';
 
@@ -880,7 +881,7 @@ describe('Configs: RANGE_ADD', () => {
   });
 
   it('does not overwrite previous edge when appended multiple times in updater function', () => {
-    updater = updaterStore => {
+    updater = (updaterStore: $FlowFixMe | RecordSourceSelectorProxy) => {
       payload = updaterStore.getRootField('commentCreate');
       const newEdge = nullthrows(payload).getLinkedRecord(
         'feedbackCommentEdge',

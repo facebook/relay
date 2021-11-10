@@ -64,7 +64,7 @@ module.exports = function BabelPluginRelay(context: {
   }
 
   const visitor = {
-    TaggedTemplateExpression(path, state) {
+    TaggedTemplateExpression(path: any, state: BabelState) {
       // Convert graphql`` literals
       const ast = getValidGraphQLTag(path);
       if (ast) {

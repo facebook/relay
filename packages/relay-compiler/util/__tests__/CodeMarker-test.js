@@ -21,7 +21,7 @@ test('replaces code in JSON', () => {
     module: CodeMarker.moduleDependency('MyModule'),
     module2: CodeMarker.moduleDependency('MyOtherModule'),
   });
-  const printRequire = moduleName => `require('${moduleName}')`;
+  const printRequire = (moduleName: string) => `require('${moduleName}')`;
   expect(CodeMarker.postProcess(json, printRequire)).toBe(
     [
       '{',
@@ -32,7 +32,7 @@ test('replaces code in JSON', () => {
     ].join(''),
   );
 
-  const printImport = moduleName => `import('${moduleName}')`;
+  const printImport = (moduleName: string) => `import('${moduleName}')`;
   expect(CodeMarker.postProcess(json, printImport)).toBe(
     [
       '{',

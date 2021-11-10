@@ -354,10 +354,10 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           taskID = 0;
           tasks = new Map();
           scheduler = {
-            cancel: id => {
+            cancel: (id: string) => {
               tasks.delete(id);
             },
-            schedule: task => {
+            schedule: (task: () => void) => {
               const id = String(taskID++);
               tasks.set(id, task);
               return id;

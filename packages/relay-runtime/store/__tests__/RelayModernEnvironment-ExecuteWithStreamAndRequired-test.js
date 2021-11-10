@@ -12,6 +12,11 @@
 // flowlint ambiguous-object-type:error
 
 'use strict';
+import type {
+  Variables,
+  CacheConfig,
+} from 'relay-runtime/util/RelayRuntimeTypes';
+import type {RequestParameters} from 'relay-runtime/util/RelayConcreteNode';
 
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
@@ -72,7 +77,11 @@ describe('execute() a query with @stream and @required', () => {
     selector = createReaderSelector(fragment, '1', {}, operation.request);
     callbacks = {complete, error, next};
 
-    fetch = (_query, _variables, _cacheConfig) => {
+    fetch = (
+      _query: RequestParameters,
+      _variables: Variables,
+      _cacheConfig: CacheConfig,
+    ) => {
       return RelayObservable.create(sink => {
         dataSource = sink;
       });

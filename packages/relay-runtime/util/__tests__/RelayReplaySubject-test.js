@@ -41,7 +41,7 @@ function createObserver(): Observer {
   };
 }
 
-function clearObserver(observer) {
+function clearObserver(observer: Observer) {
   observer.complete.mockClear();
   observer.error.mockClear();
   observer.next.mockClear();

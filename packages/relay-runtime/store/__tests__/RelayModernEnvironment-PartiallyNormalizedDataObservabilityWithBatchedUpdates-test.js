@@ -12,6 +12,11 @@
 // flowlint ambiguous-object-type:error
 
 'use strict';
+import type {
+  Variables,
+  CacheConfig,
+} from 'relay-runtime/util/RelayRuntimeTypes';
+import type {RequestParameters} from 'relay-runtime/util/RelayConcreteNode';
 
 import type {NormalizationRootNode} from '../../util/NormalizationNode';
 
@@ -64,7 +69,11 @@ describe('execute() a query with @module if the module fragment is available syn
   let observationSnapshot;
 
   beforeEach(() => {
-    const fetch = (_query, _variables, _cacheConfig) => {
+    const fetch = (
+      _query: RequestParameters,
+      _variables: Variables,
+      _cacheConfig: CacheConfig,
+    ) => {
       return RelayObservable.create(sink => {
         dataSource = sink;
       });
@@ -179,7 +188,11 @@ describe('execute() a query with @module in @defer if the deferred fragment and 
 
   beforeEach(() => {
     jest.resetModules();
-    const fetch = (_query, _variables, _cacheConfig) => {
+    const fetch = (
+      _query: RequestParameters,
+      _variables: Variables,
+      _cacheConfig: CacheConfig,
+    ) => {
       return RelayObservable.create(sink => {
         dataSource = sink;
       });
@@ -314,7 +327,11 @@ describe('execute() a query with nested @module fragments, where the inner @modu
 
   beforeEach(() => {
     jest.resetModules();
-    const fetch = (_query, _variables, _cacheConfig) => {
+    const fetch = (
+      _query: RequestParameters,
+      _variables: Variables,
+      _cacheConfig: CacheConfig,
+    ) => {
       return RelayObservable.create(sink => {
         dataSource = sink;
       });

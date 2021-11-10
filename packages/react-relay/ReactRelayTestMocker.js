@@ -140,7 +140,11 @@ class ReactRelayTestMocker {
    * their components behave under error conditions.
    */
   _mockNetworkLayer(env: IEnvironment): IEnvironment {
-    const fetch = (request, variables, cacheConfig) => {
+    const fetch = (
+      request: RequestParameters,
+      variables: Variables,
+      cacheConfig: CacheConfig,
+    ) => {
       let resolve;
       let reject;
       const promise = new Promise((res, rej) => {

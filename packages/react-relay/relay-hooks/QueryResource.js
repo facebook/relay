@@ -164,7 +164,7 @@ function createCacheEntry(
     getValue() {
       return currentValue;
     },
-    setValue(val) {
+    setValue(val: QueryResult | Promise<void> | Error) {
       currentValue = val;
     },
     getRetainCount() {

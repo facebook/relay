@@ -16,7 +16,7 @@
 const FindGraphQLTags = require('../FindGraphQLTags');
 
 describe('FindGraphQLTags', () => {
-  function find(text) {
+  function find(text: string) {
     return FindGraphQLTags.find(text).map(tag => tag.template);
   }
 

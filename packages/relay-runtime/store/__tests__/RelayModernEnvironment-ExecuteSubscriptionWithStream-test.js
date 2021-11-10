@@ -12,6 +12,10 @@
 // flowlint ambiguous-object-type:error
 
 'use strict';
+import type {
+  RecordSourceProxy,
+  HandleFieldPayload,
+} from 'relay-runtime/store/RelayStoreTypes';
 
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
@@ -93,7 +97,7 @@ describe('executeSubscrption() with @stream', () => {
     queryOperation = createOperationDescriptor(feedbackQuery, queryVariables);
 
     const NameHandler = {
-      update(storeProxy, payload) {
+      update(storeProxy: RecordSourceProxy, payload: HandleFieldPayload) {
         const record = storeProxy.get(payload.dataID);
         if (record != null) {
           const markup = record.getValue(payload.fieldKey);

@@ -16,7 +16,7 @@ const {createMacro} = require('babel-plugin-macros');
 
 const configName = 'relay';
 
-function BabelPluginRelayMacro({references, state, babel, config}) {
+function BabelPluginRelayMacro({references, state, babel, config}: any) {
   const {types: t} = babel;
   Object.keys(references).forEach(referenceKey => {
     references[referenceKey].forEach(reference => {

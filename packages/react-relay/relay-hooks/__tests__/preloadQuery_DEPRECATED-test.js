@@ -12,6 +12,7 @@
 // flowlint ambiguous-object-type:error
 
 'use strict';
+import type {GraphQLResponse} from 'relay-runtime/network/RelayNetworkTypes';
 
 const preloadQuery_DEPRECATED = require('../preloadQuery_DEPRECATED');
 const {
@@ -110,8 +111,8 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           const events = [];
           const observer = {
             complete: () => events.push('complete'),
-            error: error => events.push('error', error),
-            next: resp => events.push('next', resp),
+            error: (error: Error) => events.push('error', error),
+            next: (resp: GraphQLResponse) => events.push('next', resp),
           };
           return [events, observer];
         }

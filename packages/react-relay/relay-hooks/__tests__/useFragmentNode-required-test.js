@@ -10,6 +10,8 @@
  */
 
 'use strict';
+import type {RequestDescriptor} from 'relay-runtime/store/RelayStoreTypes';
+import type {ReaderFragment} from '../../../relay-runtime/util/ReaderNode';
 
 const useFragmentNodeOriginal = require('../useFragmentNode');
 // eslint-disable-next-line no-unused-vars
@@ -34,7 +36,17 @@ let singularQuery;
 let renderSingularFragment;
 let renderSpy;
 
-function useFragmentNode(fragmentNode, fragmentRef) {
+function useFragmentNode(
+  fragmentNode: ReaderFragment,
+  fragmentRef: $TEMPORARY$object<{
+    __fragmentOwner: RequestDescriptor,
+    __fragments: $TEMPORARY$object<{
+      useFragmentNodeRequiredTestUserFragment: $TEMPORARY$object<{...}>,
+    }>,
+    __id: any,
+    __isWithinUnmatchedTypeRefinement: boolean,
+  }>,
+) {
   const result = useFragmentNodeOriginal(
     fragmentNode,
     fragmentRef,
@@ -82,7 +94,9 @@ beforeEach(() => {
     },
   });
 
-  const ContextProvider = ({children}) => {
+  const ContextProvider = ({
+    children,
+  }: any | $TEMPORARY$object<{children: React.Node}>) => {
     return (
       <ReactRelayContext.Provider value={{environment}}>
         {children}

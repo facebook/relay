@@ -11,6 +11,13 @@
 // flowlint ambiguous-object-type:error
 
 'use strict';
+import type {
+  UnknownLocation,
+  SourceLocation,
+  Location,
+  GeneratedLocation,
+  DerivedLocation,
+} from '../core/IR';
 
 import type CompilerContext from '../core/CompilerContext';
 import type {
@@ -94,7 +101,17 @@ function visitTransformedDirective(node: Defer | Stream, state: State): void {
   this.traverse(node, state);
 }
 
-function throwError(directiveName, directiveLoc, clientExtensionLoc) {
+function throwError(
+  directiveName: string,
+  directiveLoc: Location,
+  clientExtensionLoc:
+    | null
+    | SourceLocation
+    | GeneratedLocation
+    | DerivedLocation
+    | UnknownLocation
+    | Location,
+) {
   throw createUserError(
     `Unexpected directive: ${directiveName}. ` +
       'This directive can only be used on fields/fragments that are ' +

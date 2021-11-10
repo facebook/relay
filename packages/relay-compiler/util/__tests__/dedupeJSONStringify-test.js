@@ -15,7 +15,13 @@
 
 const dedupeJSONStringify = require('../dedupeJSONStringify');
 
-function trimIndentation(str) {
+function trimIndentation(
+  str:
+    | string
+    | $TEMPORARY$string<'1'>
+    | $TEMPORARY$string<'false'>
+    | $TEMPORARY$string<'null'>,
+) {
   const match = str.match(/( +)[^\n]*$/);
   return !match
     ? str
@@ -25,7 +31,14 @@ function trimIndentation(str) {
         .join('\n');
 }
 
-function runTest(data, expected) {
+function runTest(
+  data,
+  expected:
+    | string
+    | $TEMPORARY$string<'1'>
+    | $TEMPORARY$string<'false'>
+    | $TEMPORARY$string<'null'>,
+) {
   const encoded = dedupeJSONStringify(data);
   expect(encoded).toBe(trimIndentation(expected));
   // eslint-disable-next-line no-eval

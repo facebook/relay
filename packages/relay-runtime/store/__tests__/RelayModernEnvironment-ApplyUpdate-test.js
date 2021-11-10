@@ -12,6 +12,7 @@
 // flowlint ambiguous-object-type:error
 
 'use strict';
+import type {RecordSourceProxy} from 'relay-runtime/store/RelayStoreTypes';
 
 const {
   MultiActorEnvironment,
@@ -137,7 +138,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
         callback.mockClear();
         const updater = {
-          storeUpdater: proxyStore => {
+          storeUpdater: (proxyStore: RecordSourceProxy) => {
             const zuck = proxyStore.create('4', 'User');
             zuck.setValue('4', 'id');
           },
@@ -238,10 +239,10 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           taskID = 0;
           tasks = new Map();
           scheduler = {
-            cancel: id => {
+            cancel: (id: string) => {
               tasks.delete(id);
             },
-            schedule: task => {
+            schedule: (task: () => void) => {
               const id = String(taskID++);
               tasks.set(id, task);
               return id;
@@ -341,7 +342,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
           callback.mockClear();
           const updater = {
-            storeUpdater: proxyStore => {
+            storeUpdater: (proxyStore: RecordSourceProxy) => {
               const zuck = proxyStore.create('4', 'User');
               zuck.setValue('4', 'id');
             },

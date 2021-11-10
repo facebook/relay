@@ -107,12 +107,12 @@ function deleteFileOneChanges(): SourceChanges<ExecutableDefinitionNode> {
   };
 }
 
-function relativePathResolver(relativePath) {
+function relativePathResolver(relativePath: string) {
   return path.join('base', 'dir', relativePath);
 }
 
 describe('serialization', () => {
-  function testRoundTripSerialization(state) {
+  function testRoundTripSerialization(state: ArtifactState) {
     const json = JSON.stringify(serializeState(state));
     const deserializedState = deserializeState(JSON.parse(json));
     expect(deserializedState).toEqual(state);

@@ -8,9 +8,7 @@
 //! Utilities for providing the hover feature
 
 use crate::{
-    lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult},
-    resolution_path::ResolvePosition,
-    server::GlobalState,
+    lsp_runtime_error::LSPRuntimeResult, resolution_path::ResolvePosition, server::GlobalState,
 };
 use lsp_types::{
     request::{HoverRequest, Request},
@@ -79,7 +77,7 @@ pub fn on_hover(
 
     let schema_documentation = state.get_schema_documentation(project_name.lookup());
 
-    get_hover(
+    Ok(get_hover(
         &resolution_path,
         &schema,
         project_name,
@@ -87,9 +85,7 @@ pub fn on_hover(
         &schema_documentation,
         &state.get_program(&project_name)?,
         state.get_content_consumer_type(),
-    )
-    .map(Option::Some)
-    .ok_or(LSPRuntimeError::ExpectedError)
+    ))
 }
 
 #[derive(Serialize)]

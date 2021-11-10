@@ -7,7 +7,10 @@
 
 use common::{ConsoleLogger, FeatureFlag, FeatureFlags, NamedItem, SourceLocationKey};
 use fixture_tests::Fixture;
-use graphql_ir::{build, FragmentDefinition, OperationDefinition, Program};
+use graphql_ir::{
+    build_ir_with_extra_features, BuilderOptions, FragmentDefinition, FragmentVariablesSemantic,
+    OperationDefinition, Program, RelayMode,
+};
 use graphql_syntax::parse_executable;
 use graphql_test_helpers::diagnostics_to_sorted_string;
 use graphql_text_printer::print_full_operation;
@@ -40,7 +43,19 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
 
     let ast = parse_executable(base, source_location)
         .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
-    let ir = build(&schema, &ast.definitions)
+    let ir_result = build_ir_with_extra_features(
+        &schema,
+        &ast.definitions,
+        &BuilderOptions {
+            allow_undefined_fragment_spreads: false,
+            fragment_variables_semantic: FragmentVariablesSemantic::PassedValue,
+            relay_mode: Some(RelayMode {
+                enable_provided_variables: &FeatureFlag::Enabled,
+            }),
+            default_anonymous_operation_name: None,
+        },
+    );
+    let ir = ir_result
         .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
     let program = Program::from_definitions(Arc::clone(&schema), ir);
 
@@ -66,7 +81,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         actor_change_support: FeatureFlag::Enabled,
         text_artifacts: FeatureFlag::Disabled,
         enable_client_edges: FeatureFlag::Enabled,
-        enable_provided_variables: FeatureFlag::Disabled,
+        enable_provided_variables: FeatureFlag::Enabled,
     };
 
     // TODO pass base fragment names

@@ -21,7 +21,8 @@ use crate::{
 };
 
 use graphql_ir::{
-    Argument, Directive, Value, ARGUMENT_DEFINITION, UNUSED_LOCAL_VARIABLE_DEPRECATED,
+    Argument, Directive, Value, ARGUMENT_DEFINITION, PROVIDER_MODULE,
+    UNUSED_LOCAL_VARIABLE_DEPRECATED,
 };
 use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
@@ -86,7 +87,7 @@ pub fn extract_variable_name(argument: Option<&Argument>) -> Option<StringKey> {
 }
 
 lazy_static! {
-    static ref CUSTOM_METADATA_DIRECTIVES: [StringKey; 21] = [
+    static ref CUSTOM_METADATA_DIRECTIVES: [StringKey; 22] = [
         *CLIENT_EXTENSION_DIRECTIVE_NAME,
         *ConnectionMetadataDirective::DIRECTIVE_NAME,
         *HANDLE_FIELD_DIRECTIVE_NAME,
@@ -108,6 +109,7 @@ lazy_static! {
         *RelayClientComponentMetadata::DIRECTIVE_NAME,
         *UNUSED_LOCAL_VARIABLE_DEPRECATED,
         *RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN,
+        *PROVIDER_MODULE,
     ];
     static ref DIRECTIVES_SKIPPED_IN_NODE_IDENTIFIER: [StringKey; 12] = [
         *CLIENT_EXTENSION_DIRECTIVE_NAME,

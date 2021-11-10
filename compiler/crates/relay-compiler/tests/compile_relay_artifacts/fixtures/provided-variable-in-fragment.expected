@@ -1,0 +1,248 @@
+==================================== INPUT ====================================
+query providedVariableInFragment_Query($id: ID!) {
+    node(id: $id) {
+        ...providedVariableInFragment_Fragment1
+        ...providedVariableInFragment_Fragment2
+    }
+}
+
+fragment providedVariableInFragment_Fragment1 on User
+  @argumentDefinitions(foo_gk: {type: "Boolean!", provider: "foo_gk_module.js"})
+{
+    name @include(if: $foo_gk)
+}
+
+fragment providedVariableInFragment_Fragment2 on User
+  @argumentDefinitions(bar_gk: {type: "Boolean!", provider: "bar_gk_module.js"})
+{
+    username @skip(if: $bar_gk)
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "id"
+      }
+    ],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "providedVariableInFragment_Query",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "providedVariableInFragment_Fragment1"
+          },
+          {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "providedVariableInFragment_Fragment2"
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "id"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "__providedVariableInFragment_Fragment1__foo_gk"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "__providedVariableInFragment_Fragment2__bar_gk"
+      }
+    ],
+    "kind": "Operation",
+    "name": "providedVariableInFragment_Query",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "__typename",
+            "storageKey": null
+          },
+          {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "condition": "__providedVariableInFragment_Fragment1__foo_gk",
+                "kind": "Condition",
+                "passingValue": true,
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "name",
+                    "storageKey": null
+                  }
+                ]
+              },
+              {
+                "condition": "__providedVariableInFragment_Fragment2__bar_gk",
+                "kind": "Condition",
+                "passingValue": false,
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "username",
+                    "storageKey": null
+                  }
+                ]
+              }
+            ],
+            "type": "User",
+            "abstractKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {},
+    "name": "providedVariableInFragment_Query",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query providedVariableInFragment_Query(
+  $id: ID!
+  $__providedVariableInFragment_Fragment1__foo_gk: Boolean!
+  $__providedVariableInFragment_Fragment2__bar_gk: Boolean!
+) {
+  node(id: $id) {
+    __typename
+    ...providedVariableInFragment_Fragment1
+    ...providedVariableInFragment_Fragment2
+    id
+  }
+}
+
+fragment providedVariableInFragment_Fragment1 on User {
+  name @include(if: $__providedVariableInFragment_Fragment1__foo_gk)
+}
+
+fragment providedVariableInFragment_Fragment2 on User {
+  username @skip(if: $__providedVariableInFragment_Fragment2__bar_gk)
+}
+
+
+{
+  "argumentDefinitions": [
+    {
+      "defaultValue": null,
+      "kind": "LocalArgument",
+      "name": "foo_gk"
+    }
+  ],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "providedVariableInFragment_Fragment1",
+  "selections": [
+    {
+      "condition": "foo_gk",
+      "kind": "Condition",
+      "passingValue": true,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "name",
+          "storageKey": null
+        }
+      ]
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}
+
+{
+  "argumentDefinitions": [
+    {
+      "defaultValue": null,
+      "kind": "LocalArgument",
+      "name": "bar_gk"
+    }
+  ],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "providedVariableInFragment_Fragment2",
+  "selections": [
+    {
+      "condition": "bar_gk",
+      "kind": "Condition",
+      "passingValue": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "username",
+          "storageKey": null
+        }
+      ]
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}

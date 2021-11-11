@@ -16,10 +16,10 @@
 const CompilerContext = require('../CompilerContext');
 const filterContextForNode = require('../filterContextForNode');
 const IRPrinter = require('../IRPrinter');
+const {TestSchema} = require('../../test-utils/TestSchema');
+const parseGraphQLText = require('../../test-utils/parseGraphQLText');
 const {
-  TestSchema,
   generateTestsFromFixtures,
-  parseGraphQLText,
 } = require('relay-test-utils-internal');
 
 const MAIN_QUERY_NAME = 'MainQuery';

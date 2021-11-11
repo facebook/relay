@@ -13,7 +13,7 @@
 
 'use strict';
 
-const {TestSchema} = require('relay-test-utils-internal');
+const {TestSchema} = require('../../test-utils/TestSchema');
 
 describe('CompilerContext', () => {
   let CompilerContext;

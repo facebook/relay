@@ -16,10 +16,10 @@
 const CompilerContext = require('../../core/CompilerContext');
 const RelayIRTransforms = require('../../core/RelayIRTransforms');
 const validateRelayRequiredArguments = require('../ValidateRequiredArgumentsTransform');
+const {TestSchema} = require('../../test-utils/TestSchema');
+const parseGraphQLText = require('../../test-utils/parseGraphQLText');
 const {
-  TestSchema,
   generateTestsFromFixtures,
-  parseGraphQLText,
 } = require('relay-test-utils-internal');
 
 describe('validateRelayRequiredArguments-test', () => {

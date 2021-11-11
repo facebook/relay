@@ -14,7 +14,7 @@
 import type {
   DirectiveNode,
   ArgumentNode,
-} from '../../../../../../node_modules/graphql/language/ast.js';
+} from 'graphql/language/ast';
 
 import type {FieldID, Schema, TypeID} from './Schema';
 import type {FieldNode} from 'graphql';

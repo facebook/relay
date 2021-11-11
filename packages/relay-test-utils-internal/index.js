@@ -17,10 +17,8 @@ const {
   generateTestsFromFixtures,
 } = require('./generateTestsFromFixtures');
 const Matchers = require('./Matchers');
-const parseGraphQLText = require('./parseGraphQLText');
 const printAST = require('./printAST');
 const simpleClone = require('./simpleClone');
-const {TestSchema, testSchemaPath} = require('./TestSchema');
 const {
   disallowWarnings,
   expectToWarn,
@@ -55,10 +53,7 @@ module.exports = {
   FIXTURE_TAG,
   generateTestsFromFixtures,
   matchers: Matchers,
-  parseGraphQLText,
   printAST,
   simpleClone,
-  TestSchema,
-  testSchemaPath,
   unwrapContainer,
 };

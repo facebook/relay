@@ -18,10 +18,10 @@ const IRPrinter = require('../../core/IRPrinter');
 const ConnectionTransform = require('../ConnectionTransform');
 const RefetchableFragmentTransform = require('../RefetchableFragmentTransform');
 const RelayDirectiveTransform = require('../RelayDirectiveTransform');
+const {TestSchema} = require('../../test-utils/TestSchema');
+const parseGraphQLText = require('../../test-utils/parseGraphQLText');
 const {
-  TestSchema,
   generateTestsFromFixtures,
-  parseGraphQLText,
 } = require('relay-test-utils-internal');
 
 describe('RefetchableFragmentTransform', () => {

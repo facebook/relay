@@ -11,7 +11,7 @@
 'use strict';
 
 const {getFragmentScope, getRootScope} = require('../RelayCompilerScope');
-const {TestSchema} = require('relay-test-utils-internal');
+const {TestSchema} = require('../../test-utils/TestSchema');
 
 describe('scope', () => {
   const schema = TestSchema;

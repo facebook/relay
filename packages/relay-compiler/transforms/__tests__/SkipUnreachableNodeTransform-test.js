@@ -17,8 +17,8 @@ const CompilerContext = require('../../core/CompilerContext');
 const IRPrinter = require('../../core/IRPrinter');
 const RelayParser = require('../../core/RelayParser');
 const SkipUnreachableNodeTransform = require('../SkipUnreachableNodeTransform');
+const {TestSchema} = require('../../test-utils/TestSchema');
 const {
-  TestSchema,
   generateTestsFromFixtures,
 } = require('relay-test-utils-internal');
 

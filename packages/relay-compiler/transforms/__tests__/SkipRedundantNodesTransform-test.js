@@ -19,10 +19,10 @@ const InlineFragmentsTransform = require('../InlineFragmentsTransform');
 const MatchTransform = require('../MatchTransform');
 const RelayDirectiveTransform = require('../RelayDirectiveTransform');
 const SkipRedundantNodesTransform = require('../SkipRedundantNodesTransform');
+const {TestSchema} = require('../../test-utils/TestSchema');
+const parseGraphQLText = require('../../test-utils/parseGraphQLText');
 const {
-  TestSchema,
   generateTestsFromFixtures,
-  parseGraphQLText,
 } = require('relay-test-utils-internal');
 
 describe('SkipRedundantNodesTransform', () => {

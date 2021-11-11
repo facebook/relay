@@ -17,7 +17,7 @@ const {
 const RelayLanguagePluginJavaScript = require('../../language/javascript/RelayLanguagePluginJavaScript');
 const RelayCompilerMain = require('../RelayCompilerMain');
 const path = require('path');
-const {testSchemaPath} = require('relay-test-utils-internal');
+const {testSchemaPath} = require('../../test-utils/TestSchema');
 
 const {getCodegenRunner, getLanguagePlugin, getWatchConfig, main} =
   RelayCompilerMain;
@@ -26,6 +26,7 @@ jest.mock('../../codegen/RelayFileWriter');
 jest.mock('../../core/GraphQLWatchmanClient');
 
 isWatchmanAvailable.mockImplementation(() => Promise.resolve(true));
+
 
 describe('RelayCompilerMain', () => {
   let config;

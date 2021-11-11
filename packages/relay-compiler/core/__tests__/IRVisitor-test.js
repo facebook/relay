@@ -30,8 +30,9 @@ import type {
 const IRPrinter = require('../IRPrinter');
 const {visit} = require('../IRVisitor');
 const RelayParser = require('../RelayParser');
+const {TestSchema} = require('../../test-utils/TestSchema');
+const parseGraphQLText = require('../../test-utils/parseGraphQLText');
 const {
-  TestSchema,
   generateTestsFromFixtures,
 } = require('relay-test-utils-internal');
 

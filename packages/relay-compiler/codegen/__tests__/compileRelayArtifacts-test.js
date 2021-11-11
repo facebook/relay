@@ -18,10 +18,11 @@ const RelayIRTransforms = require('../../core/RelayIRTransforms');
 const CodeMarker = require('../../util/CodeMarker');
 const compileRelayArtifacts = require('../compileRelayArtifacts');
 const {RelayFeatureFlags} = require('relay-runtime');
+const {TestSchema} = require('../../test-utils/TestSchema');
+const parseGraphQLText = require('../../test-utils/parseGraphQLText');
+
 const {
-  TestSchema,
   generateTestsFromFixtures,
-  parseGraphQLText,
   printAST,
 } = require('relay-test-utils-internal');
 

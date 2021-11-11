@@ -21,8 +21,8 @@ const RelayParser = require('../../core/RelayParser');
 const MatchTransform = require('../../transforms/MatchTransform');
 const FlattenTransform = require('../FlattenTransform');
 const RelayDirectiveTransform = require('../RelayDirectiveTransform');
+const {TestSchema} = require('../../test-utils/TestSchema');
 const {
-  TestSchema,
   generateTestsFromFixtures,
 } = require('relay-test-utils-internal');
 

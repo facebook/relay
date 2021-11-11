@@ -16,9 +16,6 @@
     "invariant": "^2.2.4",
     "relay-runtime": "12.0.0"
   },
-  "peerDependencies": {
-    "graphql": "^15.0.0"
-  },
   "directories": {
     "": "./"
   },

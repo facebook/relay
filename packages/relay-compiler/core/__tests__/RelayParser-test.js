@@ -15,8 +15,9 @@
 
 const MatchTransform = require('../../transforms/MatchTransform');
 const RelayParser = require('../RelayParser');
+const {TestSchema} = require('../../test-utils/TestSchema');
+const parseGraphQLText = require('../../test-utils/parseGraphQLText');
 const {
-  TestSchema,
   generateTestsFromFixtures,
   printAST,
 } = require('relay-test-utils-internal');

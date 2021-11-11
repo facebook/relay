@@ -11,7 +11,7 @@
 // flowlint ambiguous-object-type:error
 
 'use strict';
-import type {ObjectFieldNode} from '../../../../../../node_modules/graphql/language/ast.js';
+import type {ObjectFieldNode} from 'graphql/language/ast.js';
 
 import type {GetFieldDefinitionFn} from './getFieldDefinition';
 import type {

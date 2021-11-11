@@ -62,6 +62,7 @@ export type Config = {|
   repersist: boolean,
   artifactDirectory?: ?string,
   customScalars?: ScalarTypeMapping,
+  config: string,
 |};
 
 function buildWatchExpression(config: {

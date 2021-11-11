@@ -354,15 +354,13 @@ impl<T: Clone> PathMapping<T> {
 }
 
 fn is_source_code_extension(extension: &OsStr) -> bool {
-    extension == "js" || extension == "ts" || extension == "tsx"
+    extension == "js" || extension == "jsx" || extension == "ts" || extension == "tsx"
 }
 
 fn is_valid_source_code_extension(typegen_language: &TypegenLanguage, extension: &OsStr) -> bool {
-    match (typegen_language, extension.to_str()) {
-        (TypegenLanguage::Flow, Some("js")) => true,
-        (TypegenLanguage::TypeScript, Some("ts")) => true,
-        (TypegenLanguage::TypeScript, Some("tsx")) => true,
-        _ => false,
+    match typegen_language {
+        TypegenLanguage::TypeScript => is_source_code_extension(extension),
+        TypegenLanguage::Flow => extension == "js" || extension == "jsx",
     }
 }
 
@@ -508,7 +506,7 @@ mod tests {
         let config = create_test_config();
         let categorizer = FileCategorizer::from_config(&config);
         assert_eq!(
-            categorizer.categorize(&PathBuf::from("src/typescript/a.js")),
+            categorizer.categorize(&PathBuf::from("src/js/a.ts")),
             Err(Cow::Borrowed("Invalid extension for a generated file."))
         );
     }

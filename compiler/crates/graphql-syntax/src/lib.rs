@@ -54,9 +54,7 @@ pub fn parse_executable(
     source: &str,
     source_location: SourceLocationKey,
 ) -> DiagnosticsResult<ExecutableDocument> {
-    let features = ParserFeatures::default();
-    let parser = Parser::new(source, source_location, features);
-    parser.parse_executable_document().into()
+    parse_executable_with_error_recovery(source, source_location).into()
 }
 
 /// Parses a GraphQL document that's restricted to executable definitions,
@@ -70,6 +68,17 @@ pub fn parse_executable_with_error_recovery(
     parser.parse_executable_document()
 }
 
+/// Parses a GraphQL document that's restricted to executable definitions,
+/// with error recovery and customed ParserFeatures.
+pub fn parse_executable_with_error_recovery_and_parser_features(
+    source: &str,
+    source_location: SourceLocationKey,
+    features: ParserFeatures,
+) -> WithDiagnostics<ExecutableDocument> {
+    let parser = Parser::new(source, source_location, features);
+    parser.parse_executable_document()
+}
+
 /// Parses a GraphQL document that's restricted to executable executable
 /// definitions with custom feature flags passed as `features`.
 pub fn parse_executable_with_features(
@@ -77,8 +86,8 @@ pub fn parse_executable_with_features(
     source_location: SourceLocationKey,
     features: ParserFeatures,
 ) -> DiagnosticsResult<ExecutableDocument> {
-    let parser = Parser::new(source, source_location, features);
-    parser.parse_executable_document().into()
+    parse_executable_with_error_recovery_and_parser_features(source, source_location, features)
+        .into()
 }
 
 /// Parses a GraphQL document that's restricted to type system definitions

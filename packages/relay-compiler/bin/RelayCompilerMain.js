@@ -206,6 +206,7 @@ async function main(defaultConfig: Config) {
   config = await getWatchConfig(config);
 
   // Use function from module.exports to be able to mock it for tests
+  // $FlowFixMe[cannot-read]
   const codegenRunner = module.exports.getCodegenRunner(config);
 
   const result = config.watch
@@ -253,6 +254,7 @@ async function getWatchConfig(config: Config): Promise<Config> {
       );
       return {...config, watch: false, watchman: false};
     }
+    // $FlowFixMe[cannot-read]
     if (!module.exports.hasWatchmanRootFile(config.src)) {
       throw new Error(
         `

@@ -9,7 +9,10 @@ use crate::errors::{ValidationMessage, ValidationMessageWithData};
 use crate::ir::*;
 use crate::signatures::{build_signatures, FragmentSignature, FragmentSignatures, PROVIDER_MODULE};
 use crate::{constants::ARGUMENT_DEFINITION, GraphQLSuggestions};
-use common::{Diagnostic, DiagnosticsResult, FeatureFlag, Location, NamedItem, Span, WithLocation};
+use common::{
+    Diagnostic, DiagnosticsResult, FeatureFlag, FeatureFlags, Location, NamedItem, Span,
+    WithLocation,
+};
 use core::cmp::Ordering;
 use errors::{par_try_map, try2, try3, try_map};
 use fnv::{FnvBuildHasher, FnvHashMap, FnvHashSet};
@@ -76,25 +79,37 @@ pub struct BuilderOptions<'a> {
 /// Converts a self-contained corpus of definitions into typed IR, or returns
 /// a list of errors if the corpus is invalid.
 /// NOTE: Uses Relay defaults.
-pub fn build_ir_with_relay_options(
+pub fn build_ir_with_relay_feature_flags(
     schema: &SDLSchema,
     definitions: &[graphql_syntax::ExecutableDefinition],
+    feature_flags: &FeatureFlags,
 ) -> DiagnosticsResult<Vec<ExecutableDefinition>> {
-    let enable_provided_variables = FeatureFlag::default();
-    let signatures = build_signatures(schema, definitions, &enable_provided_variables)?;
     let builder_options = BuilderOptions {
         allow_undefined_fragment_spreads: false,
         fragment_variables_semantic: FragmentVariablesSemantic::PassedValue,
         relay_mode: Some(RelayMode {
-            enable_provided_variables: &enable_provided_variables,
+            enable_provided_variables: &feature_flags.enable_provided_variables,
         }),
         default_anonymous_operation_name: None,
     };
-    par_try_map(definitions, |definition| {
-        let mut builder =
-            Builder::new(schema, &signatures, definition.location(), &builder_options);
-        builder.build_definition(definition)
-    })
+
+    build_ir_with_extra_features(schema, definitions, &builder_options)
+}
+
+pub fn build_ir(
+    schema: &SDLSchema,
+    definitions: &[graphql_syntax::ExecutableDefinition],
+) -> DiagnosticsResult<Vec<ExecutableDefinition>> {
+    build_ir_with_extra_features(
+        schema,
+        definitions,
+        &BuilderOptions {
+            allow_undefined_fragment_spreads: false,
+            fragment_variables_semantic: FragmentVariablesSemantic::PassedValue,
+            relay_mode: None,
+            default_anonymous_operation_name: None,
+        },
+    )
 }
 
 /// Converts a self-contained corpus of definitions into typed IR, or returns

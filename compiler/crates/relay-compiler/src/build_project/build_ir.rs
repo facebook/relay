@@ -77,7 +77,11 @@ pub fn build_ir(
     } = get_reachable_ast(project_asts, base_project_asts);
 
     let source_hashes = SourceHashes::from_definitions(&reachable_ast);
-    let ir = graphql_ir::build(&schema, &reachable_ast)?;
+    let ir = graphql_ir::build_ir_with_relay_feature_flags(
+        schema,
+        &reachable_ast,
+        &project_config.feature_flags,
+    )?;
     if is_incremental_build {
         let mut reachable_names = graphql_asts
             .get(&project_config.name)

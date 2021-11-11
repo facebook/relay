@@ -27,10 +27,11 @@ const warning = require('warning');
 // The type of a graphql`...` tagged template expression.
 export type GraphQLTaggedNode =
   | ReaderFragment
+  | ReaderInlineDataFragment
   | ConcreteRequest
   | {
       // This is this case when we `require()` a generated ES6 module
-      default: ReaderFragment | ConcreteRequest,
+      default: ReaderFragment | ReaderInlineDataFragment | ConcreteRequest,
       ...
     };
 
@@ -50,7 +51,7 @@ function graphql(strings: Array<string>): GraphQLTaggedNode {
 
 function getNode(
   taggedNode: GraphQLTaggedNode,
-): ReaderFragment | ConcreteRequest {
+): ReaderFragment | ReaderInlineDataFragment | ConcreteRequest {
   let node = taggedNode;
   if (typeof node === 'function') {
     node = (node(): ReaderFragment | ConcreteRequest);

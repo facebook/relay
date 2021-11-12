@@ -13,10 +13,10 @@
 
 'use strict';
 
+const {TestSchema} = require('../../test-utils/TestSchema');
 const MatchTransform = require('../../transforms/MatchTransform');
 const RelayParser = require('../RelayParser');
 const {
-  TestSchema,
   generateTestsFromFixtures,
   printAST,
 } = require('relay-test-utils-internal');

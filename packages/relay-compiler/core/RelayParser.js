@@ -11,8 +11,6 @@
 // flowlint ambiguous-object-type:error
 
 'use strict';
-import type {ObjectFieldNode} from '../../../../../../node_modules/graphql/language/ast.js';
-
 import type {GetFieldDefinitionFn} from './getFieldDefinition';
 import type {
   Argument,
@@ -62,6 +60,7 @@ import type {
   ValueNode,
   VariableNode,
 } from 'graphql';
+import type {ObjectFieldNode} from 'graphql/language/ast.js';
 
 const {DEFAULT_HANDLE_KEY} = require('../util/DefaultHandleKey');
 const orList = require('../util/orList');

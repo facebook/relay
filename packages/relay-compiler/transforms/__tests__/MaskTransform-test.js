@@ -15,13 +15,11 @@
 
 const CompilerContext = require('../../core/CompilerContext');
 const IRPrinter = require('../../core/IRPrinter');
+const parseGraphQLText = require('../../test-utils/parseGraphQLText');
+const {TestSchema} = require('../../test-utils/TestSchema');
 const MaskTransform = require('../MaskTransform');
 const RelayDirectiveTransform = require('../RelayDirectiveTransform');
-const {
-  TestSchema,
-  generateTestsFromFixtures,
-  parseGraphQLText,
-} = require('relay-test-utils-internal');
+const {generateTestsFromFixtures} = require('relay-test-utils-internal');
 
 describe('MaskTransform', () => {
   const extendedSchema = TestSchema.extend([

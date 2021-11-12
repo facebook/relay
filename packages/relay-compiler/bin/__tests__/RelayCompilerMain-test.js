@@ -15,9 +15,9 @@ const {
   isAvailable: isWatchmanAvailable,
 } = require('../../core/GraphQLWatchmanClient');
 const RelayLanguagePluginJavaScript = require('../../language/javascript/RelayLanguagePluginJavaScript');
+const {testSchemaPath} = require('../../test-utils/TestSchema');
 const RelayCompilerMain = require('../RelayCompilerMain');
 const path = require('path');
-const {testSchemaPath} = require('relay-test-utils-internal');
 
 const {getCodegenRunner, getLanguagePlugin, getWatchConfig, main} =
   RelayCompilerMain;

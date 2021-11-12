@@ -13,13 +13,11 @@
 
 'use strict';
 
+const {TestSchema} = require('../../test-utils/TestSchema');
 const CompilerContext = require('../CompilerContext');
 const IRPrinter = require('../IRPrinter');
 const RelayParser = require('../RelayParser');
-const {
-  TestSchema,
-  generateTestsFromFixtures,
-} = require('relay-test-utils-internal');
+const {generateTestsFromFixtures} = require('relay-test-utils-internal');
 
 describe('IRPrinter', () => {
   generateTestsFromFixtures(`${__dirname}/fixtures/printer`, text => {

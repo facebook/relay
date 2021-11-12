@@ -15,12 +15,10 @@
 
 const CompilerContext = require('../../core/CompilerContext');
 const IRPrinter = require('../../core/IRPrinter');
+const parseGraphQLText = require('../../test-utils/parseGraphQLText');
+const {TestSchema} = require('../../test-utils/TestSchema');
 const FilterDirectivesTransform = require('../FilterDirectivesTransform');
-const {
-  TestSchema,
-  generateTestsFromFixtures,
-  parseGraphQLText,
-} = require('relay-test-utils-internal');
+const {generateTestsFromFixtures} = require('relay-test-utils-internal');
 
 describe('FilterDirectivesTransform', () => {
   generateTestsFromFixtures(

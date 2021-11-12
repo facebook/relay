@@ -15,12 +15,12 @@
 
 const CompilerContext = require('../../core/CompilerContext');
 const IRPrinter = require('../../core/IRPrinter');
+const parseGraphQLText = require('../../test-utils/parseGraphQLText');
+const {TestSchema} = require('../../test-utils/TestSchema');
 const RequiredFieldTransform = require('../RequiredFieldTransform');
 const {RelayFeatureFlags} = require('relay-runtime');
 const {
-  TestSchema,
   generateTestsFromFixtures,
-  parseGraphQLText,
   printAST,
 } = require('relay-test-utils-internal');
 

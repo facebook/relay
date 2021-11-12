@@ -16,12 +16,10 @@
 const CompilerContext = require('../../core/CompilerContext');
 const IRPrinter = require('../../core/IRPrinter');
 const RelayParser = require('../../core/RelayParser');
+const {TestSchema} = require('../../test-utils/TestSchema');
 const ReactFlightComponentTransform = require('../ReactFlightComponentTransform');
 const {RelayFeatureFlags} = require('relay-runtime');
-const {
-  TestSchema,
-  generateTestsFromFixtures,
-} = require('relay-test-utils-internal');
+const {generateTestsFromFixtures} = require('relay-test-utils-internal');
 
 describe('ReactFlightComponentTransform', () => {
   beforeAll(() => {

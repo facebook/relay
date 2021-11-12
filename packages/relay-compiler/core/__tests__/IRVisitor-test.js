@@ -27,13 +27,11 @@ import type {
   Variable,
 } from '../IR';
 
+const {TestSchema} = require('../../test-utils/TestSchema');
 const IRPrinter = require('../IRPrinter');
 const {visit} = require('../IRVisitor');
 const RelayParser = require('../RelayParser');
-const {
-  TestSchema,
-  generateTestsFromFixtures,
-} = require('relay-test-utils-internal');
+const {generateTestsFromFixtures} = require('relay-test-utils-internal');
 
 type VisitNodeWithName =
   | Root

@@ -15,13 +15,11 @@
 
 const CompilerContext = require('../../core/CompilerContext');
 const IRPrinter = require('../../core/IRPrinter');
+const parseGraphQLText = require('../../test-utils/parseGraphQLText');
+const {TestSchema} = require('../../test-utils/TestSchema');
 const ClientExtensionsTransform = require('../ClientExtensionsTransform');
 const SkipClientExtensionsTransform = require('../SkipClientExtensionsTransform');
-const {
-  TestSchema,
-  generateTestsFromFixtures,
-  parseGraphQLText,
-} = require('relay-test-utils-internal');
+const {generateTestsFromFixtures} = require('relay-test-utils-internal');
 
 describe('SkipClientExtensionsTransform', () => {
   generateTestsFromFixtures(

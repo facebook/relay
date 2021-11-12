@@ -15,11 +15,11 @@
 
 const CompilerContext = require('../../core/CompilerContext');
 const RelayParser = require('../../core/RelayParser');
+const {TestSchema} = require('../../test-utils/TestSchema');
 const FlattenTransform = require('../FlattenTransform');
 const GenerateTypeNameTransform = require('../GenerateTypeNameTransform');
 const InlineFragmentsTransform = require('../InlineFragmentsTransform');
 const {
-  TestSchema,
   generateTestsFromFixtures,
   printAST,
 } = require('relay-test-utils-internal');

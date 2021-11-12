@@ -14,12 +14,10 @@
 'use strict';
 
 const CompilerContext = require('../../core/CompilerContext');
+const parseGraphQLText = require('../../test-utils/parseGraphQLText');
+const {TestSchema} = require('../../test-utils/TestSchema');
 const ValidateGlobalVariablesTransform = require('../ValidateGlobalVariablesTransform');
-const {
-  TestSchema,
-  generateTestsFromFixtures,
-  parseGraphQLText,
-} = require('relay-test-utils-internal');
+const {generateTestsFromFixtures} = require('relay-test-utils-internal');
 
 generateTestsFromFixtures(
   `${__dirname}/fixtures/ValidateGlobalVariablesTransform`,

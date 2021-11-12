@@ -100,7 +100,7 @@ if (__DEV__) {
         }
         return renderRecordHeader(obj);
       },
-      hasBody(obj: $FlowFixMeEmpty) {
+      hasBody(obj: $FlowFixMe) {
         return true;
       },
       body(obj) {

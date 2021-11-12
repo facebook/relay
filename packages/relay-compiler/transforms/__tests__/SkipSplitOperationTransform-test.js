@@ -14,14 +14,12 @@
 'use strict';
 
 const CompilerContext = require('../../core/CompilerContext');
+const parseGraphQLText = require('../../test-utils/parseGraphQLText');
+const {TestSchema} = require('../../test-utils/TestSchema');
 const MatchTransform = require('../MatchTransform');
 const SkipSplitOperationTransform = require('../SkipSplitOperationTransform');
 const SplitModuleImportTransform = require('../SplitModuleImportTransform');
-const {
-  TestSchema,
-  generateTestsFromFixtures,
-  parseGraphQLText,
-} = require('relay-test-utils-internal');
+const {generateTestsFromFixtures} = require('relay-test-utils-internal');
 
 describe('SkipSplitOperationTransform', () => {
   const extendedSchema = TestSchema.extend([MatchTransform.SCHEMA_EXTENSION]);

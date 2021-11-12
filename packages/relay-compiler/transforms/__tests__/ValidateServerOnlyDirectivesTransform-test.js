@@ -15,12 +15,10 @@
 
 const CompilerContext = require('../../core/CompilerContext');
 const RelayIRTransforms = require('../../core/RelayIRTransforms');
+const parseGraphQLText = require('../../test-utils/parseGraphQLText');
+const {TestSchema} = require('../../test-utils/TestSchema');
 const validateRelayServerOnlyDirectives = require('../ValidateServerOnlyDirectivesTransform');
-const {
-  TestSchema,
-  generateTestsFromFixtures,
-  parseGraphQLText,
-} = require('relay-test-utils-internal');
+const {generateTestsFromFixtures} = require('relay-test-utils-internal');
 
 describe('ValidateServerOnlyDirectives', () => {
   const relaySchema = TestSchema.extend(RelayIRTransforms.schemaExtensions);

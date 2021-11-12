@@ -16,13 +16,11 @@
 const CompilerContext = require('../../core/CompilerContext');
 const IRPrinter = require('../../core/IRPrinter');
 const RelayIRTransforms = require('../../core/RelayIRTransforms');
+const parseGraphQLText = require('../../test-utils/parseGraphQLText');
+const {TestSchema} = require('../../test-utils/TestSchema');
 const FilterCompilerDirectivesTransform = require('../FilterCompilerDirectivesTransform');
 const {RelayFeatureFlags} = require('relay-runtime');
-const {
-  TestSchema,
-  generateTestsFromFixtures,
-  parseGraphQLText,
-} = require('relay-test-utils-internal');
+const {generateTestsFromFixtures} = require('relay-test-utils-internal');
 
 describe('FilterCompilerDirectivesTransform', () => {
   beforeEach(() => {

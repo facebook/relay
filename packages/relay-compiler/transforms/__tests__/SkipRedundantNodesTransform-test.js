@@ -15,15 +15,13 @@
 
 const CompilerContext = require('../../core/CompilerContext');
 const IRPrinter = require('../../core/IRPrinter');
+const parseGraphQLText = require('../../test-utils/parseGraphQLText');
+const {TestSchema} = require('../../test-utils/TestSchema');
 const InlineFragmentsTransform = require('../InlineFragmentsTransform');
 const MatchTransform = require('../MatchTransform');
 const RelayDirectiveTransform = require('../RelayDirectiveTransform');
 const SkipRedundantNodesTransform = require('../SkipRedundantNodesTransform');
-const {
-  TestSchema,
-  generateTestsFromFixtures,
-  parseGraphQLText,
-} = require('relay-test-utils-internal');
+const {generateTestsFromFixtures} = require('relay-test-utils-internal');
 
 describe('SkipRedundantNodesTransform', () => {
   const extendedSchema = TestSchema.extend([MatchTransform.SCHEMA_EXTENSION]);

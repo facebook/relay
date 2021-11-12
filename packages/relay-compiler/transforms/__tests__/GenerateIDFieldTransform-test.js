@@ -16,11 +16,9 @@
 const CompilerContext = require('../../core/CompilerContext');
 const IRPrinter = require('../../core/IRPrinter');
 const RelayParser = require('../../core/RelayParser');
+const {TestSchema} = require('../../test-utils/TestSchema');
 const GenerateIDFieldTransform = require('../GenerateIDFieldTransform');
-const {
-  TestSchema,
-  generateTestsFromFixtures,
-} = require('relay-test-utils-internal');
+const {generateTestsFromFixtures} = require('relay-test-utils-internal');
 
 describe('GenerateIDFieldTransform', () => {
   generateTestsFromFixtures(

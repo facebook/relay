@@ -13,14 +13,12 @@
 
 'use strict';
 
+const parseGraphQLText = require('../../test-utils/parseGraphQLText');
+const {TestSchema} = require('../../test-utils/TestSchema');
 const CompilerContext = require('../CompilerContext');
 const filterContextForNode = require('../filterContextForNode');
 const IRPrinter = require('../IRPrinter');
-const {
-  TestSchema,
-  generateTestsFromFixtures,
-  parseGraphQLText,
-} = require('relay-test-utils-internal');
+const {generateTestsFromFixtures} = require('relay-test-utils-internal');
 
 const MAIN_QUERY_NAME = 'MainQuery';
 

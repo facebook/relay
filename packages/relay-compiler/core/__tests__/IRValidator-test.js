@@ -13,10 +13,11 @@
 
 'use strict';
 
+const parseGraphQLText = require('../../test-utils/parseGraphQLText');
+const {TestSchema} = require('../../test-utils/TestSchema');
 const CompilerContext = require('../CompilerContext');
 const IRTransformer = require('../IRTransformer');
 const IRValidator = require('../IRValidator');
-const {TestSchema, parseGraphQLText} = require('relay-test-utils-internal');
 
 describe('IRValidator', () => {
   it('should have same behavior as the IRTransformer', () => {

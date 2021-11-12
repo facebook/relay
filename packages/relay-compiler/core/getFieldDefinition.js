@@ -11,13 +11,9 @@
 // flowlint ambiguous-object-type:error
 
 'use strict';
-import type {
-  DirectiveNode,
-  ArgumentNode,
-} from '../../../../../../node_modules/graphql/language/ast.js';
-
 import type {FieldID, Schema, TypeID} from './Schema';
 import type {FieldNode} from 'graphql';
+import type {ArgumentNode, DirectiveNode} from 'graphql/language/ast';
 
 const {createCompilerError} = require('./CompilerError');
 const {SchemaMetaFieldDef, TypeMetaFieldDef} = require('graphql');

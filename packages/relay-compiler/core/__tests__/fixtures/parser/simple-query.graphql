@@ -1,5 +1,0 @@
-query TestQuery($id: ID!) {
-  foo: node(id: $id) {
-    id
-  }
-}

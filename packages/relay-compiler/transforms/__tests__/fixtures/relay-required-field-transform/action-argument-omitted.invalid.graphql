@@ -1,4 +1,0 @@
-# expected-to-throw
-fragment Foo on User {
-  name @required
-}

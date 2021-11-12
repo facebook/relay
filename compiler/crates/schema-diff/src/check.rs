@@ -70,7 +70,7 @@ impl SchemaChange {
 }
 
 lazy_static! {
-    static ref ID_FIELD_KEY: StringKey = "id".intern();
+    static ref ID_FIELD_KEY: StringKey = "_id".intern();
     static ref JS_FIELD_KEY: StringKey = "js".intern();
     static ref NODE_INTERFACE_KEY: StringKey = "Node".intern();
 }

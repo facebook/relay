@@ -1,9 +1,0 @@
-fragment UserProfile on User {
-  profilePicture {
-    ...PhotoFragment @relay(mask: false)
-  }
-}
-
-fragment PhotoFragment on Image {
-  uri
-}

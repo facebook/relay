@@ -1,8 +1,0 @@
-fragment UserFragment on User
-@argumentDefinitions(
-  after: {type: "ID"}
-  first: {type: "Int", defaultValue: 5}
-  size: {type: "[Int]"}
-) {
-  id
-}

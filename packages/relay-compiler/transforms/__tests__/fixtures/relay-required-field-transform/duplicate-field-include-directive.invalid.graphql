@@ -1,9 +1,0 @@
-# expected-to-throw
-fragment Foo on User {
-  ... on User @include(if: true) {
-    name
-  }
-  ... on User {
-    name @required(action: THROW)
-  }
-}

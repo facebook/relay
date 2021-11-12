@@ -167,30 +167,6 @@ const builds = [
     ],
   },
   {
-    package: 'relay-compiler',
-    exports: {
-      index: 'index.js',
-    },
-    bundles: [
-      {
-        entry: 'index.js',
-        output: 'relay-compiler',
-        libraryName: 'RelayCompiler',
-        libraryTarget: 'commonjs2',
-        target: 'node',
-        noMinify: true, // Note: uglify can't yet handle modern JS
-      },
-    ],
-    bins: [
-      {
-        entry: 'RelayCompilerBin.js',
-        output: 'relay-compiler',
-        libraryTarget: 'commonjs2',
-        target: 'node',
-      },
-    ],
-  },
-  {
     package: 'relay-runtime',
     exports: {
       index: 'index.js',
@@ -328,23 +304,6 @@ const exportsFiles = gulp.series(
   ),
 );
 
-const binsTasks = [];
-builds.forEach((build) => {
-  if (build.bins) {
-    build.bins.forEach((bin) => {
-      binsTasks.push(function binsTask() {
-        return gulp
-          .src(path.join(DIST, build.package, 'lib', 'bin', bin.entry))
-          .pipe(buildDist(bin.output, bin, /* isProduction */ false))
-          .pipe(header(SCRIPT_HASHBANG + PRODUCTION_HEADER))
-          .pipe(chmod(0o755))
-          .pipe(gulp.dest(path.join(DIST, build.package, 'bin')));
-      });
-    });
-  }
-});
-const bins = gulp.series(binsTasks);
-
 const bundlesTasks = [];
 builds.forEach((build) => {
   build.bundles.forEach((bundle) => {
@@ -378,30 +337,30 @@ builds.forEach((build) => {
 const bundlesMin = gulp.series(bundlesMinTasks);
 
 const clean = () => del(DIST);
-const dist = gulp.series(exportsFiles, bins, bundles, bundlesMin);
+const dist = gulp.series(exportsFiles, bundles, bundlesMin);
 const watch = gulp.series(dist, () =>
   gulp.watch(INCLUDE_GLOBS, {cwd: PACKAGES}, dist),
 );
 
-const experimentalCompiler = gulp.parallel(
+const relayCompiler = gulp.parallel(
   function copyLicense() {
     return gulp
       .src(['LICENSE'])
-      .pipe(gulp.dest(path.join(DIST, 'relay-compiler-experimental')));
+      .pipe(gulp.dest(path.join(DIST, 'relay-compiler')));
   },
   function copyPackageFiles() {
     return gulp
       .src(['package.json', 'cli.js', 'index.js'], {
-        cwd: path.join(PACKAGES, 'relay-compiler-experimental'),
+        cwd: path.join(PACKAGES, 'relay-compiler'),
       })
-      .pipe(gulp.dest(path.join(DIST, 'relay-compiler-experimental')));
+      .pipe(gulp.dest(path.join(DIST, 'relay-compiler')));
   },
   function copyCompilerBins() {
     return gulp
       .src('**', {
         cwd: path.join('artifacts'),
       })
-      .pipe(gulp.dest(path.join(DIST, 'relay-compiler-experimental')));
+      .pipe(gulp.dest(path.join(DIST, 'relay-compiler')));
   },
 );
 
@@ -414,7 +373,7 @@ const setMainVersion = async () => {
     throw new Error('Expected the RELEASE_COMMIT_SHA env variable to be set.');
   }
   const packages = builds.map((build) => build.package);
-  packages.push('relay-compiler-experimental');
+  packages.push('relay-compiler');
   packages.forEach((pkg) => {
     const pkgJsonPath = path.join('.', 'dist', pkg, 'package.json');
     const packageJson = JSON.parse(fs.readFileSync(pkgJsonPath, 'utf8'));
@@ -444,10 +403,6 @@ const cleanbuild = gulp.series(clean, dist);
 exports.clean = clean;
 exports.dist = dist;
 exports.watch = watch;
-exports.mainrelease = gulp.series(
-  cleanbuild,
-  experimentalCompiler,
-  setMainVersion,
-);
+exports.mainrelease = gulp.series(cleanbuild, relayCompiler, setMainVersion);
 exports.cleanbuild = cleanbuild;
 exports.default = cleanbuild;

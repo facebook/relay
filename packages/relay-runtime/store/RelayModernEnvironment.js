@@ -368,7 +368,7 @@ class RelayModernEnvironment implements IEnvironment {
     updater,
   }: {|
     operation: OperationDescriptor,
-    updater?: ?SelectorStoreUpdater<$ElementType<TMutation, 'response'>>,
+    updater?: ?SelectorStoreUpdater<TMutation['response']>,
   |}): RelayObservable<GraphQLResponse> {
     return this._execute({
       createSource: () =>
@@ -468,7 +468,7 @@ class RelayModernEnvironment implements IEnvironment {
     isClientPayload: boolean,
     operation: OperationDescriptor,
     optimisticConfig: ?OptimisticResponseConfig<TMutation>,
-    updater: ?SelectorStoreUpdater<$ElementType<TMutation, 'response'>>,
+    updater: ?SelectorStoreUpdater<TMutation['response']>,
   |}): RelayObservable<GraphQLResponse> {
     const publishQueue = this._publishQueue;
     const store = this._store;

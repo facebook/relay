@@ -60,25 +60,20 @@ export type MutationConfig<TMutation: MutationParameters> = {|
   mutation: GraphQLTaggedNode,
   onError?: ?(error: Error) => void,
   onCompleted?: ?(
-    response: $ElementType<TMutation, 'response'>,
+    response: TMutation['response'],
     errors: ?Array<PayloadError>,
   ) => void,
   onNext?: ?() => void,
   onUnsubscribe?: ?() => void,
-  optimisticResponse?: $ElementType<
-    {
-      +rawResponse?: {...},
-      ...TMutation,
-      ...
-    },
-    'rawResponse',
-  >,
-  optimisticUpdater?: ?SelectorStoreUpdater<
-    $ElementType<TMutation, 'response'>,
-  >,
-  updater?: ?SelectorStoreUpdater<$ElementType<TMutation, 'response'>>,
+  optimisticResponse?: {
+    +rawResponse?: {...},
+    ...TMutation,
+    ...
+  }['rawResponse'],
+  optimisticUpdater?: ?SelectorStoreUpdater<TMutation['response']>,
+  updater?: ?SelectorStoreUpdater<TMutation['response']>,
   uploadables?: UploadableMap,
-  variables: $ElementType<TMutation, 'variables'>,
+  variables: TMutation['variables'],
 |};
 
 /**

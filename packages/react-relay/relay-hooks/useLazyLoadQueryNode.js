@@ -48,7 +48,7 @@ function useLazyLoadQueryNode<TQuery: OperationType>({
   fetchPolicy?: ?FetchPolicy,
   fetchKey?: ?string | ?number,
   renderPolicy?: ?RenderPolicy,
-|}): $ElementType<TQuery, 'response'> {
+|}): TQuery['response'] {
   const environment = useRelayEnvironment();
   const profilerContext = useContext(ProfilerContext);
   const QueryResource = getQueryResourceForEnvironment(environment);

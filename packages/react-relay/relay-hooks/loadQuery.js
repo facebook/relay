@@ -57,7 +57,7 @@ function useTrackLoadQueryInRender() {
 function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
   environment: IEnvironment,
   preloadableRequest: GraphQLTaggedNode | PreloadableConcreteRequest<TQuery>,
-  variables: $ElementType<TQuery, 'variables'>,
+  variables: TQuery['variables'],
   options?: ?LoadQueryOptions,
   environmentProviderOptions?: ?TEnvironmentProviderOptions,
 ): PreloadedQueryInner<TQuery, TEnvironmentProviderOptions> {

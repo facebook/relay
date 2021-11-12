@@ -65,7 +65,7 @@ let nextId = 0;
 
 class ReactRelayTestMocker {
   _environment: IEnvironment;
-  _defaults: {[string]: $PropertyType<NetworkWriteConfig, 'payload'>, ...} = {};
+  _defaults: {[string]: NetworkWriteConfig['payload'], ...} = {};
   _pendingFetches: Array<PendingFetch> = [];
 
   constructor(env: IEnvironment) {

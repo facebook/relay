@@ -441,13 +441,13 @@ function createMockEnvironment(
   const createExecuteProxy = (
     env: IEnvironment,
     fn: // $FlowFixMe[method-unbinding] added when improving typing for this parameters
-    | $PropertyType<IEnvironment, 'execute'>
+    | IEnvironment['execute']
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
-      | $PropertyType<IEnvironment, 'executeSubscription'>
+      | IEnvironment['executeSubscription']
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
-      | $PropertyType<IEnvironment, 'executeWithSource'>
+      | IEnvironment['executeWithSource']
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
-      | $PropertyType<IEnvironment, 'executeMutation'>,
+      | IEnvironment['executeMutation'],
   ) => {
     return (...argumentsList) => {
       const [{operation}] = argumentsList;

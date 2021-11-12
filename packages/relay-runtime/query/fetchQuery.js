@@ -118,7 +118,7 @@ function fetchQuery<TQuery: OperationType>(
     fetchPolicy?: FetchQueryFetchPolicy,
     networkCacheConfig?: CacheConfig,
   |}>,
-): RelayObservable<$ElementType<TQuery, 'response'>> {
+): RelayObservable<TQuery['response']> {
   const queryNode = getRequest(query);
   invariant(
     queryNode.params.operationKind === 'query',
@@ -163,7 +163,7 @@ function fetchQuery<TQuery: OperationType>(
 function getNetworkObservable<TQuery: OperationType>(
   environment: IEnvironment,
   operation: OperationDescriptor,
-): RelayObservable<$ElementType<TQuery, 'response'>> {
+): RelayObservable<TQuery['response']> {
   return fetchQueryInternal
     .fetchQuery(environment, operation)
     .map(() => environment.lookup(operation.fragment));

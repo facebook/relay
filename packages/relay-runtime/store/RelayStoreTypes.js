@@ -744,7 +744,7 @@ export interface IEnvironment {
    */
   executeSubscription<TMutation: MutationParameters>(config: {|
     operation: OperationDescriptor,
-    updater?: ?SelectorStoreUpdater<$ElementType<TMutation, 'response'>>,
+    updater?: ?SelectorStoreUpdater<TMutation['response']>,
   |}): RelayObservable<GraphQLResponse>;
 
   /**
@@ -994,13 +994,13 @@ export type OptimisticUpdateFunction = {|
 export type OptimisticUpdateRelayPayload<TMutation: MutationParameters> = {|
   +operation: OperationDescriptor,
   +payload: RelayResponsePayload,
-  +updater: ?SelectorStoreUpdater<$ElementType<TMutation, 'response'>>,
+  +updater: ?SelectorStoreUpdater<TMutation['response']>,
 |};
 
 export type OptimisticResponseConfig<TMutation: MutationParameters> = {|
   +operation: OperationDescriptor,
   +response: ?PayloadData,
-  +updater: ?SelectorStoreUpdater<$ElementType<TMutation, 'response'>>,
+  +updater: ?SelectorStoreUpdater<TMutation['response']>,
 |};
 
 /**
@@ -1070,11 +1070,9 @@ export type RelayResponsePayload = {|
  */
 export type ExecuteMutationConfig<TMutation: MutationParameters> = {|
   operation: OperationDescriptor,
-  optimisticUpdater?: ?SelectorStoreUpdater<
-    $ElementType<TMutation, 'response'>,
-  >,
+  optimisticUpdater?: ?SelectorStoreUpdater<TMutation['response']>,
   optimisticResponse?: ?Object,
-  updater?: ?SelectorStoreUpdater<$ElementType<TMutation, 'response'>>,
+  updater?: ?SelectorStoreUpdater<TMutation['response']>,
   uploadables?: ?UploadableMap,
 |};
 
@@ -1107,7 +1105,7 @@ export interface PublishQueue {
   commitPayload<TMutation: MutationParameters>(
     operation: OperationDescriptor,
     payload: RelayResponsePayload,
-    updater?: ?SelectorStoreUpdater<$ElementType<TMutation, 'response'>>,
+    updater?: ?SelectorStoreUpdater<TMutation['response']>,
   ): void;
 
   /**

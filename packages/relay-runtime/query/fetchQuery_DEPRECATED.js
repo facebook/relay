@@ -30,9 +30,9 @@ const {getRequest} = require('./GraphQLTag');
 function fetchQuery_DEPRECATED<T: OperationType>(
   environment: IEnvironment,
   taggedNode: GraphQLTaggedNode,
-  variables: $PropertyType<T, 'variables'>,
+  variables: T['variables'],
   cacheConfig?: ?CacheConfig,
-): Promise<$PropertyType<T, 'response'>> {
+): Promise<T['response']> {
   const query = getRequest(taggedNode);
   if (query.params.operationKind !== 'query') {
     throw new Error('fetchQuery: Expected query operation');

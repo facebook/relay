@@ -34,7 +34,7 @@ type MyComponentEntryPointProps =
   EntryPointElementConfig<MyComponentEntryPointType>;
 
 // This gets the "other props" directly from the component's prop typings
-type OtherProps = $PropertyType<MyComponentProps, 'props'>;
+type OtherProps = MyComponentProps['props'];
 
 // We want to make sure that `OtherProps` and `MyComponentEntryPointProps` are exactly the same.
 opaque type __SUBTYPE_CHECK_1__: OtherProps = MyComponentEntryPointProps;

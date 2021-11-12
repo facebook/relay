@@ -33,9 +33,7 @@ export type OptimisticMutationConfig<TMutation: MutationParameters> = {|
   configs?: ?Array<DeclarativeMutationConfig>,
   mutation: GraphQLTaggedNode,
   variables: Variables,
-  optimisticUpdater?: ?SelectorStoreUpdater<
-    $ElementType<TMutation, 'response'>,
-  >,
+  optimisticUpdater?: ?SelectorStoreUpdater<TMutation['response']>,
   optimisticResponse?: Object,
 |};
 

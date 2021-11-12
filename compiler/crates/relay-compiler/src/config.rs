@@ -28,7 +28,9 @@ use relay_codegen::JsModuleFormat;
 use relay_transforms::ConnectionInterface;
 pub use relay_typegen::TypegenLanguage;
 use relay_typegen::{FlowTypegenConfig, TypegenConfig};
-use serde::{Deserialize, Serialize};
+use serde::de::Error as DeError;
+use serde::{Deserialize, Deserializer, Serialize};
+use serde_json::Value;
 use sha1::{Digest, Sha1};
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
@@ -733,7 +735,7 @@ impl From<SingleProjectConfigFile> for MultiProjectConfigFile {
     }
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize)]
 #[serde(untagged)]
 enum ConfigFile {
     /// Base case configuration (mostly of OSS) where the project
@@ -744,6 +746,30 @@ enum ConfigFile {
     /// This MultiProjectConfigFile is responsible for configuring
     /// these type of projects (complex)
     MultiProject(Box<MultiProjectConfigFile>),
+}
+
+impl<'de> Deserialize<'de> for ConfigFile {
+    fn deserialize<D: Deserializer<'de>>(deserializer: D) -> std::result::Result<Self, D::Error> {
+        let value = Value::deserialize(deserializer)?;
+        match MultiProjectConfigFile::deserialize(value.clone()) {
+            Ok(config) => Ok(ConfigFile::MultiProject(Box::new(config))),
+            Err(multi_project_error) => match SingleProjectConfigFile::deserialize(value) {
+                Ok(single_project_config) => Ok(ConfigFile::SingleProject(single_project_config)),
+                Err(single_project_error) => {
+                    let error_message = format!(
+                        r#"The config file cannot be parsed as a multi-project config file due to:
+- {:?}.
+
+It also cannot be a single project config file due to:
+- {:?}."#,
+                        multi_project_error, single_project_error
+                    );
+
+                    Err(DeError::custom(error_message))
+                }
+            },
+        }
+    }
 }
 
 #[derive(Debug, Deserialize, Serialize, Default)]

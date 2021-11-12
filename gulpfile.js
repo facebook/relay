@@ -289,23 +289,6 @@ const exportsFiles = gulp.series(
   ),
 );
 
-const binsTasks = [];
-builds.forEach((build) => {
-  if (build.bins) {
-    build.bins.forEach((bin) => {
-      binsTasks.push(function binsTask() {
-        return gulp
-          .src(path.join(DIST, build.package, 'lib', 'bin', bin.entry))
-          .pipe(buildDist(bin.output, bin, /* isProduction */ false))
-          .pipe(header(SCRIPT_HASHBANG + PRODUCTION_HEADER))
-          .pipe(chmod(0o755))
-          .pipe(gulp.dest(path.join(DIST, build.package, 'bin')));
-      });
-    });
-  }
-});
-const bins = gulp.series(binsTasks);
-
 const bundlesTasks = [];
 builds.forEach((build) => {
   build.bundles.forEach((bundle) => {
@@ -339,7 +322,7 @@ builds.forEach((build) => {
 const bundlesMin = gulp.series(bundlesMinTasks);
 
 const clean = () => del(DIST);
-const dist = gulp.series(exportsFiles, bins, bundles, bundlesMin);
+const dist = gulp.series(exportsFiles, bundles, bundlesMin);
 const watch = gulp.series(dist, () =>
   gulp.watch(INCLUDE_GLOBS, {cwd: PACKAGES}, dist),
 );

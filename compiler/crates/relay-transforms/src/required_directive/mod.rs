@@ -18,6 +18,8 @@ use lazy_static::lazy_static;
 use requireable_field::{RequireableField, RequiredMetadata};
 use std::{borrow::Cow, mem, sync::Arc};
 
+use crate::DirectiveFinder;
+
 lazy_static! {
     pub static ref REQUIRED_DIRECTIVE_NAME: StringKey = "required".intern();
     pub static ref ACTION_ARGUMENT: StringKey = "action".intern();
@@ -73,6 +75,7 @@ struct RequiredDirective<'s> {
     current_node_required_children: FnvHashMap<StringKey, RequiredField>,
     required_children_map: FnvHashMap<StringKey, FnvHashMap<StringKey, RequiredField>>,
     enabled: bool,
+    required_directive_visitor: RequiredDirectiveVisitor<'s>,
 }
 
 impl<'program> RequiredDirective<'program> {
@@ -87,6 +90,10 @@ impl<'program> RequiredDirective<'program> {
             current_node_required_children: Default::default(),
             required_children_map: Default::default(),
             enabled,
+            required_directive_visitor: RequiredDirectiveVisitor {
+                program,
+                visited_fragments: Default::default(),
+            },
         }
     }
 
@@ -297,6 +304,9 @@ impl<'s> Transformer for RequiredDirective<'s> {
         &mut self,
         fragment: &FragmentDefinition,
     ) -> Transformed<FragmentDefinition> {
+        if !self.required_directive_visitor.visit_fragment(fragment) {
+            return Transformed::Keep;
+        }
         self.reset_state();
         self.parent_inline_fragment_directive = fragment
             .directives
@@ -322,6 +332,12 @@ impl<'s> Transformer for RequiredDirective<'s> {
         &mut self,
         operation: &OperationDefinition,
     ) -> Transformed<OperationDefinition> {
+        if !self
+            .required_directive_visitor
+            .find(operation.selections.iter().collect())
+        {
+            return Transformed::Keep;
+        }
         self.reset_state();
         let selections = self.transform_selections(&operation.selections);
         let directives = maybe_add_children_can_bubble_metadata_directive(
@@ -504,5 +520,37 @@ impl From<StringKey> for RequiredAction {
             // Actions that don't conform to the GraphQL schema should have been filtered out in IR validation.
             _ => unreachable!(),
         }
+    }
+}
+
+struct RequiredDirectiveVisitor<'s> {
+    program: &'s Program,
+    visited_fragments: FnvHashMap<StringKey, bool>,
+}
+
+impl<'s> DirectiveFinder for RequiredDirectiveVisitor<'s> {
+    fn visit_directive(&self, directive: &Directive) -> bool {
+        directive.name.item == *REQUIRED_DIRECTIVE_NAME
+    }
+
+    fn visit_fragment_spread(&mut self, fragment_spread: &graphql_ir::FragmentSpread) -> bool {
+        let fragment = self
+            .program
+            .fragment(fragment_spread.fragment.item)
+            .unwrap();
+        self.visit_fragment(fragment)
+    }
+}
+
+impl<'s> RequiredDirectiveVisitor<'s> {
+    fn visit_fragment(&mut self, fragment: &FragmentDefinition) -> bool {
+        if let Some(val) = self.visited_fragments.get(&fragment.name.item) {
+            return *val;
+        }
+        // Avoid dead loop in self-referencing fragments
+        self.visited_fragments.insert(fragment.name.item, false);
+        let result = self.find(fragment.selections.iter().collect());
+        self.visited_fragments.insert(fragment.name.item, result);
+        result
     }
 }

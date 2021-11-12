@@ -19,6 +19,7 @@ mod client_extensions;
 mod connections;
 mod declarative_connection;
 mod defer_stream;
+mod directive_finder;
 mod errors;
 mod flatten;
 mod generate_data_driven_dependency_metadata;
@@ -58,7 +59,6 @@ mod unwrap_custom_directive_selection;
 mod util;
 mod validate_operation_variables;
 mod validations;
-
 use fnv::{FnvHashMap, FnvHashSet};
 use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
@@ -90,6 +90,7 @@ pub use declarative_connection::transform_declarative_connection;
 pub use defer_stream::{
     transform_defer_stream, DeferDirective, StreamDirective, DEFER_STREAM_CONSTANTS,
 };
+pub use directive_finder::DirectiveFinder;
 pub use flatten::flatten;
 pub use generate_data_driven_dependency_metadata::{
     generate_data_driven_dependency_metadata, DATA_DRIVEN_DEPENDENCY_METADATA_KEY,

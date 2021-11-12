@@ -12,8 +12,6 @@
 
 'use strict';
 
-import type {Config} from '../relay-compiler/bin/RelayCompilerMain';
-
 const cosmiconfig = require('cosmiconfig');
 
 const explorer = cosmiconfig('relay', {
@@ -29,7 +27,7 @@ const explorer = cosmiconfig('relay', {
   },
 });
 
-function loadConfig(): ?Config {
+function loadConfig(): $FlowFixMe {
   const result = explorer.searchSync();
   if (result) {
     return result.config;

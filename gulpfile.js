@@ -197,21 +197,6 @@ const builds = [
     ],
   },
   {
-    package: 'relay-config',
-    exports: {
-      index: 'index.js',
-    },
-    bundles: [
-      {
-        entry: 'index.js',
-        output: 'relay-config',
-        libraryName: 'RelayConfig',
-        target: 'node',
-        noMinify: true, // Note: uglify can't yet handle modern JS
-      },
-    ],
-  },
-  {
     package: 'relay-test-utils-internal',
     exports: {
       index: 'index.js',
@@ -359,7 +344,7 @@ const watch = gulp.series(dist, () =>
   gulp.watch(INCLUDE_GLOBS, {cwd: PACKAGES}, dist),
 );
 
-const rustCompiler = gulp.parallel(
+const relayCompiler = gulp.parallel(
   function copyLicense() {
     return gulp
       .src(['LICENSE'])
@@ -422,7 +407,7 @@ exports.dist = dist;
 exports.watch = watch;
 exports.mainrelease = gulp.series(
   cleanbuild,
-  rustCompiler,
+  relayCompiler,
   setMainVersion,
 );
 exports.cleanbuild = cleanbuild;

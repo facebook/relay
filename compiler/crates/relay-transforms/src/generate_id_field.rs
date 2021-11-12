@@ -114,7 +114,7 @@ impl<'s> Transformer for GenerateIDFieldTransform<'s> {
 
 impl<'s> GenerateIDFieldTransform<'s> {
     fn new(program: &'s Program) -> Self {
-        let id_name = "id".intern();
+        let id_name = "_id".intern();
 
         let schema = &program.schema;
         let node_interface = match schema.get_type("Node".intern()) {
@@ -124,7 +124,7 @@ impl<'s> GenerateIDFieldTransform<'s> {
                     .fields
                     .iter()
                     .find(|&&id| schema.field(id).name.item == id_name)
-                    .expect("Expected `Node` to contain a field named `id`.");
+                    .expect("Expected `Node` to contain a field named `_id`.");
 
                 Some(NodeInterface {
                     id: node_interface_id,

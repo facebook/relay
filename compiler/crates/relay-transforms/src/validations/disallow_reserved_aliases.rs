@@ -25,7 +25,7 @@ impl<'program> DisallowReservedAliases<'program> {
     fn new(program: &'program Program) -> Self {
         Self {
             program,
-            reserved_aliases: vec!["id".intern(), "__typename".intern(), "__id".intern()],
+            reserved_aliases: vec!["_id".intern(), "__typename".intern(), "__id".intern()],
         }
     }
 }

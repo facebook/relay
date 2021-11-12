@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<ca077712c35d918f3512110dcac713dd>>
+ * @generated SignedSource<<8299662582ae1d793f05b980be26623e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,7 +20,7 @@ import type { FragmentReference } from "relay-runtime";
 declare export opaque type Component_node$ref: FragmentReference;
 declare export opaque type Component_node$fragmentType: Component_node$ref;
 export type Component_node = {|
-  +id: string,
+  +_id: string,
   +$refType: Component_node$ref,
 |};
 export type Component_node$data = Component_node;
@@ -41,7 +41,7 @@ var node/*: ReaderFragment*/ = {
       "alias": null,
       "args": null,
       "kind": "ScalarField",
-      "name": "id",
+      "name": "_id",
       "storageKey": null
     }
   ],
@@ -49,8 +49,6 @@ var node/*: ReaderFragment*/ = {
   "abstractKey": "__isNode"
 };
 
-if (__DEV__) {
-  (node/*: any*/).hash = "c1076fdf6414be9f597194edf35d01a0";
-}
+(node/*: any*/).hash = "3ade66f248d95607a4894213db92b2f5";
 
 module.exports = node;

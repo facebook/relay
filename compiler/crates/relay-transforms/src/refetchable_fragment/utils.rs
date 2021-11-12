@@ -37,7 +37,7 @@ lazy_static! {
     pub static ref CONSTANTS: Constants = Constants {
         fetchable: "fetchable".intern(),
         field_name: "field_name".intern(),
-        id_name: "id".intern(),
+        id_name: "_id".intern(),
         node_field_name: "node".intern(),
         node_type_name: "Node".intern(),
         viewer_field_name: "viewer".intern(),

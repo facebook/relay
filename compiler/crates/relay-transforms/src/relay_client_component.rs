@@ -31,7 +31,7 @@ lazy_static! {
     pub static ref RELAY_CLIENT_COMPONENT_DIRECTIVE_NAME: StringKey =
         "relay_client_component".intern();
     static ref STRING_TYPE: StringKey = "String".intern();
-    static ref ID_FIELD_NAME: StringKey = "id".intern();
+    static ref ID_FIELD_NAME: StringKey = "_id".intern();
     static ref NODE_TYPE_NAME: StringKey = "Node".intern();
     static ref VIEWER_TYPE_NAME: StringKey = "Viewer".intern();
 }

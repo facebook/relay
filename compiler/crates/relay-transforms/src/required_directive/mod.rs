@@ -5,9 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{Diagnostic, DiagnosticsResult, FeatureFlags, Location, NamedItem, WithLocation};
 mod requireable_field;
-
+use common::{Diagnostic, DiagnosticsResult, FeatureFlags, Location, NamedItem, WithLocation};
 use fnv::FnvHashMap;
 use graphql_ir::{
     associated_data_impl, Directive, Field, FragmentDefinition, InlineFragment, LinkedField,
@@ -17,7 +16,7 @@ use graphql_ir::{
 use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
 use requireable_field::{RequireableField, RequiredMetadata};
-use std::{mem, sync::Arc};
+use std::{borrow::Cow, mem, sync::Arc};
 
 lazy_static! {
     pub static ref REQUIRED_DIRECTIVE_NAME: StringKey = "required".intern();
@@ -366,11 +365,13 @@ impl<'s> Transformer for RequiredDirective<'s> {
         let path_name = self.path.join(".").intern();
 
         let maybe_required_metadata = self.get_required_metadata(field, path_name);
-        let mut next_directives = match maybe_required_metadata {
-            Some(required_metadata) => {
-                add_metadata_directive(&field.directives, path_name, required_metadata.action)
-            }
-            None => field.directives.clone(),
+        let next_directives = match maybe_required_metadata {
+            Some(required_metadata) => Cow::from(add_metadata_directive(
+                &field.directives,
+                path_name,
+                required_metadata.action,
+            )),
+            None => Cow::from(&field.directives),
         };
 
         // Once we've handled our own directive, take the parent's required
@@ -388,11 +389,10 @@ impl<'s> Transformer for RequiredDirective<'s> {
             self.assert_compatible_required_children_severity(required_metadata);
         }
 
-        next_directives = maybe_add_children_can_bubble_metadata_directive(
+        let next_directives_with_metadata = maybe_add_children_can_bubble_metadata_directive(
             &next_directives,
             &self.current_node_required_children,
-        )
-        .replace_or_else(|| next_directives.clone());
+        );
 
         self.within_abstract_inline_fragment = previous_abstract_fragment;
 
@@ -405,11 +405,20 @@ impl<'s> Transformer for RequiredDirective<'s> {
             .insert(path_name, required_children);
 
         self.path.pop();
-        Transformed::Replace(Selection::LinkedField(Arc::new(LinkedField {
-            directives: next_directives,
-            selections: selections.replace_or_else(|| field.selections.clone()),
-            ..field.clone()
-        })))
+
+        if selections.should_keep()
+            && next_directives_with_metadata.should_keep()
+            && maybe_required_metadata.is_none()
+        {
+            Transformed::Keep
+        } else {
+            Transformed::Replace(Selection::LinkedField(Arc::new(LinkedField {
+                directives: next_directives_with_metadata
+                    .replace_or_else(|| next_directives.into()),
+                selections: selections.replace_or_else(|| field.selections.clone()),
+                ..field.clone()
+            })))
+        }
     }
 
     fn transform_inline_fragment(&mut self, fragment: &InlineFragment) -> Transformed<Selection> {

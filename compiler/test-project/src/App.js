@@ -8,28 +8,9 @@
  */
 
 graphql`
-  query AppQuery($count: Int, $cursor: ID) {
-    node(_id: "test") {
+  query AppQuery {
+    node(id: "test") {
       ...Component_node
-    }
-    me {
-      ...AppFriendsListComponent_user
     }
   }
 `;
-
-graphql`
-      fragment AppFriendsListComponent_user on User
-      @refetchable(queryName: "FriendsListPaginationQuery") {
-        name
-        friends(first: $count, after: $cursor)
-        @connection(key: "FriendsList_user_friends") {
-          edges {
-            node {
-              name
-            }
-          }
-        }
-      }
-    `,
-

@@ -22,7 +22,7 @@ For this example we'll start with a standard install of [Create React App](https
 npx create-react-app your-app-name
 
 # Yarn
-yarn create react-app your-app-name
+yarn create-react-app your-app-name
 ```
 
 At this point we should be able to change to the app's directory and run it:

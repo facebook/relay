@@ -157,9 +157,9 @@ pub fn build_programs(
 ) -> Result<BuildProgramsOutput, BuildProjectFailure> {
     let project_name = project_config.name;
     let is_incremental_build = compiler_state.has_processed_changes()
-        && !compiler_state.has_breaking_schema_change(project_name)
+        && !compiler_state.has_breaking_schema_change(project_name, project_config)
         && if let Some(base) = project_config.base {
-            !compiler_state.has_breaking_schema_change(base)
+            !compiler_state.has_breaking_schema_change(base, project_config)
         } else {
             true
         };

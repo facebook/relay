@@ -86,8 +86,7 @@ fn build_refetch_operation(
                 .fields
                 .iter()
                 .find(|&&id| schema.field(id).name.item == id_name)
-                // TODO: Fix this error message
-                .expect("Expected `Node` to contain a field named `id`.");
+                .expect(&format!("Expected `Node` to contain a field named `{:}`.", id_name).to_string());
 
             let fragment = Arc::new(FragmentDefinition {
                 directives: build_fragment_metadata_as_directive(

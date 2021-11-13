@@ -6,7 +6,7 @@
  */
 
 use crate::artifact_map::ArtifactMap;
-use crate::config::Config;
+use crate::config::{Config, ProjectConfig};
 use crate::errors::{Error, Result};
 use crate::file_source::{
     categorize_files, extract_graphql_strings_from_file, read_file_to_string, Clock, File,
@@ -341,7 +341,7 @@ impl CompilerState {
                 .any(|sources| !sources.processed.is_empty())
     }
 
-    fn is_change_safe(&self, sources: &SchemaSources) -> bool {
+    fn is_change_safe(&self, sources: &SchemaSources, project_config: &ProjectConfig) -> bool {
         let previous = sources
             .get_old_sources()
             .into_iter()
@@ -363,7 +363,7 @@ impl CompilerState {
                 &current,
                 &Vec::<(&str, SourceLocationKey)>::new(),
             ) {
-                Ok(schema) => schema_change.is_safe(&schema),
+                Ok(schema) => schema_change.is_safe(&schema, project_config.node_interface_id_field),
                 Err(_) => false,
             }
         }
@@ -381,14 +381,14 @@ impl CompilerState {
     }
 
     /// This method is looking at the pending schema changes to see if they may be breaking (removed types, renamed field, etc)
-    pub fn has_breaking_schema_change(&self, project_name: StringKey) -> bool {
+    pub fn has_breaking_schema_change(&self, project_name: StringKey, project_config: &ProjectConfig) -> bool {
         if let Some(extension) = self.extensions.get(&project_name) {
             if !extension.pending.is_empty() {
                 return true;
             }
         }
         if let Some(schema) = self.schemas.get(&project_name) {
-            if !(schema.pending.is_empty() || self.is_change_safe(schema)) {
+            if !(schema.pending.is_empty() || self.is_change_safe(schema, project_config)) {
                 return true;
             }
         }

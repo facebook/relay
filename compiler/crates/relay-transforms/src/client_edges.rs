@@ -79,8 +79,8 @@ impl<'a> ClientEdgeMetadata<'a> {
             })
     }
 }
-pub fn client_edges(program: &Program) -> DiagnosticsResult<Program> {
-    let mut transform = ClientEdgesTransform::new(program);
+pub fn client_edges(program: &Program, node_interface_id_field: Option<StringKey>) -> DiagnosticsResult<Program> {
+    let mut transform = ClientEdgesTransform::new(program, node_interface_id_field);
     let mut next_program = transform
         .transform_program(program)
         .replace_or_else(|| program.clone());
@@ -106,12 +106,14 @@ struct ClientEdgesTransform<'program> {
     new_fragments: Vec<Arc<FragmentDefinition>>,
     new_operations: Vec<OperationDefinition>,
     errors: Vec<Diagnostic>,
+    node_interface_id_field: Option<StringKey>,
 }
 
 impl<'program> ClientEdgesTransform<'program> {
-    fn new(program: &'program Program) -> Self {
+    fn new(program: &'program Program, node_interface_id_field: Option<StringKey>) -> Self {
         Self {
             program,
+            node_interface_id_field,
             path: Default::default(),
             query_names: Default::default(),
             document_name: Default::default(),
@@ -169,7 +171,7 @@ impl<'program> ClientEdgesTransform<'program> {
             selections,
         };
 
-        let mut transformer = RefetchableFragment::new(self.program, false);
+        let mut transformer = RefetchableFragment::new(self.program, false, self.node_interface_id_field);
 
         let refetchable_fragment = transformer
             .transform_refetch_fragment_with_refetchable_directive(

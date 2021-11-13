@@ -42,6 +42,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         Default::default(),
         &ConnectionInterface::default(),
         Arc::new(FeatureFlags::default()),
+        None,
         &None,
         Arc::new(ConsoleLogger),
         None,

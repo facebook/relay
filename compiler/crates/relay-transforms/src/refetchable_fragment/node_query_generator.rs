@@ -16,16 +16,19 @@ use graphql_ir::{
     Argument, Field, FragmentDefinition, InlineFragment, LinkedField, ScalarField, Selection,
     ValidationMessage, Value, Variable, VariableDefinition,
 };
-use intern::string_key::StringKey;
+use intern::string_key::{Intern,StringKey};
 use schema::{Argument as ArgumentDef, FieldID, InterfaceID, SDLSchema, Schema, Type};
 use std::sync::Arc;
 
 fn build_refetch_operation(
     schema: &SDLSchema,
+    node_interface_id_field: Option<StringKey>,
     fragment: &Arc<FragmentDefinition>,
     query_name: StringKey,
     variables_map: &VariableMap,
 ) -> DiagnosticsResult<Option<RefetchRoot>> {
+    let id_name = node_interface_id_field.unwrap_or("id".intern());
+
     let node_interface_id = schema.get_type(CONSTANTS.node_type_name).and_then(|type_| {
         if let Type::Interface(id) = type_ {
             Some(id)
@@ -33,6 +36,7 @@ fn build_refetch_operation(
             None
         }
     });
+
     match node_interface_id {
         None => Ok(None),
         Some(node_interface_id) => {
@@ -71,7 +75,7 @@ fn build_refetch_operation(
 
             // Check if the fragment type have an `id` field
             let should_generate_inline_fragment_on_node = schema
-                .named_field(fragment.type_condition, CONSTANTS.id_name)
+                .named_field(fragment.type_condition, id_name)
                 .is_none();
 
             let query_type = schema.query_type().unwrap();
@@ -81,7 +85,8 @@ fn build_refetch_operation(
             let id_field_id = *node_interface
                 .fields
                 .iter()
-                .find(|&&id| schema.field(id).name.item == CONSTANTS.id_name)
+                .find(|&&id| schema.field(id).name.item == id_name)
+                // TODO: Fix this error message
                 .expect("Expected `Node` to contain a field named `id`.");
 
             let fragment = Arc::new(FragmentDefinition {
@@ -90,7 +95,7 @@ fn build_refetch_operation(
                     RefetchableMetadata {
                         operation_name: query_name,
                         path: vec![CONSTANTS.node_field_name],
-                        identifier_field: Some(CONSTANTS.id_name),
+                        identifier_field: Some(id_name),
                     },
                 ),
                 used_global_variables: build_used_global_variables(
@@ -99,6 +104,7 @@ fn build_refetch_operation(
                 )?,
                 variable_definitions: fragment.variable_definitions.clone(),
                 selections: enforce_selections_with_id_field(
+                    node_interface_id_field,
                     fragment,
                     schema,
                     id_field_id,
@@ -111,7 +117,7 @@ fn build_refetch_operation(
                 ..fragment.as_ref().clone()
             });
             let mut variable_definitions = build_operation_variable_definitions(&fragment);
-            if let Some(id_argument) = variable_definitions.named(CONSTANTS.id_name) {
+            if let Some(id_argument) = variable_definitions.named(id_name) {
                 return Err(vec![Diagnostic::error(
                     ValidationMessage::RefetchableFragmentOnNodeWithExistingID {
                         fragment_name: fragment.name.item,
@@ -121,7 +127,7 @@ fn build_refetch_operation(
             }
 
             variable_definitions.push(VariableDefinition {
-                name: WithLocation::new(fragment.name.location, CONSTANTS.id_name),
+                name: WithLocation::new(fragment.name.location, id_name),
                 type_: id_arg.type_.non_null(),
                 default_value: None,
                 directives: vec![],
@@ -136,7 +142,7 @@ fn build_refetch_operation(
                         value: WithLocation::new(
                             fragment.name.location,
                             Value::Variable(Variable {
-                                name: WithLocation::new(fragment.name.location, CONSTANTS.id_name),
+                                name: WithLocation::new(fragment.name.location, id_name),
                                 type_: id_arg.type_.non_null(),
                             }),
                         ),
@@ -174,15 +180,17 @@ fn get_node_field_id_and_id_arg<'s>(
 }
 
 fn enforce_selections_with_id_field(
+    node_interface_id_field: Option<StringKey>,
     fragment: &FragmentDefinition,
     schema: &SDLSchema,
     id_field_id: FieldID,
     node_interface_id: Option<InterfaceID>,
 ) -> Vec<Selection> {
+    let id_name = node_interface_id_field.unwrap_or("id".intern());
     let mut next_selections = fragment.selections.clone();
     let has_id_field = next_selections.iter().any(|sel| {
         if let Selection::ScalarField(field) = sel {
-            field.alias_or_name(schema) == CONSTANTS.id_name
+            field.alias_or_name(schema) == id_name
                 && schema.field(field.definition.item).type_ == schema.field(id_field_id).type_
         } else {
             false

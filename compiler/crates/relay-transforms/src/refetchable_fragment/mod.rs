@@ -54,13 +54,14 @@ pub use self::refetchable_directive::REFETCHABLE_NAME;
 ///    Fragment to Root IR nodes.
 pub fn transform_refetchable_fragment(
     program: &Program,
+    node_interface_id_field: Option<StringKey>,
     base_fragment_names: &'_ StringKeySet,
     for_typegen: bool,
 ) -> DiagnosticsResult<Program> {
     let mut next_program = Program::new(Arc::clone(&program.schema));
     let query_type = program.schema.query_type().unwrap();
 
-    let mut transformer = RefetchableFragment::new(program, for_typegen);
+    let mut transformer = RefetchableFragment::new(program, for_typegen, node_interface_id_field);
 
     for operation in program.operations() {
         next_program.insert_operation(Arc::clone(operation));
@@ -102,15 +103,17 @@ pub struct RefetchableFragment<'program> {
     existing_refetch_operations: ExistingRefetchOperations,
     for_typegen: bool,
     program: &'program Program,
+    node_interface_id_field: Option<StringKey>,
 }
 
 impl<'program> RefetchableFragment<'program> {
-    pub fn new(program: &'program Program, for_typegen: bool) -> Self {
+    pub fn new(program: &'program Program, for_typegen: bool, node_interface_id_field: Option<StringKey>) -> Self {
         RefetchableFragment {
             connection_constants: Default::default(),
             existing_refetch_operations: Default::default(),
             for_typegen,
             program,
+            node_interface_id_field,
         }
     }
 
@@ -145,6 +148,7 @@ impl<'program> RefetchableFragment<'program> {
         for generator in GENERATORS.iter() {
             if let Some(refetch_root) = (generator.build_refetch_operation)(
                 &self.program.schema,
+                self.node_interface_id_field,
                 fragment,
                 refetchable_directive.query_name.item,
                 &variables_map,
@@ -294,6 +298,7 @@ impl<'program> RefetchableFragment<'program> {
 
 type BuildRefetchOperationFn = fn(
     schema: &SDLSchema,
+    node_interface_id_field: Option<StringKey>,
     fragment: &Arc<FragmentDefinition>,
     query_name: StringKey,
     variables_map: &VariableMap,

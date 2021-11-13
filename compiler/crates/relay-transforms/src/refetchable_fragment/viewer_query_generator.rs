@@ -19,6 +19,7 @@ use std::sync::Arc;
 
 fn build_refetch_operation(
     schema: &SDLSchema,
+    _node_interface_id_field: Option<StringKey>,
     fragment: &Arc<FragmentDefinition>,
     query_name: StringKey,
     variables_map: &VariableMap,

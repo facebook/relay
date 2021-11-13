@@ -310,6 +310,7 @@ fn get_programs(
         base_fragment_names,
         &connection_interface,
         Arc::new(feature_flags),
+        None,
         &None,
         Arc::new(perf_logger),
         None,

@@ -224,6 +224,14 @@ pub(crate) fn on_goto_definition(
         &*state.get_extra_data_provider(),
     )?;
 
+    // For some lsp-clients, such as clients relying on org.eclipse.lsp4j,
+    // (see https://javadoc.io/static/org.eclipse.lsp4j/org.eclipse.lsp4j/0.8.1/org/eclipse/lsp4j/services/TextDocumentService.html)
+    // the definition response should be vector of location or locationlink.
+    // Therefore, let's convert the GotoDefinitionResponse::Scalar into Vector
+    if let GotoDefinitionResponse::Scalar(l) = goto_definition_response {
+        return Ok(Some(GotoDefinitionResponse::Array(vec![l])));
+    }
+
     Ok(Some(goto_definition_response))
 }
 

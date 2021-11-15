@@ -8,7 +8,7 @@
 //! Utilities for providing the goto definition feature
 
 use crate::{
-    location::{to_lsp_location_in_graphql_file, to_lsp_location_of_graphql_literal},
+    location::{read_graphql_file_and_get_range, to_lsp_location_of_graphql_literal},
     lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult},
     resolution_path::{
         IdentParent, IdentPath, LinkedFieldPath, ResolutionPath, ResolvePosition, ScalarFieldPath,
@@ -168,7 +168,8 @@ fn resolve_field<'a>(
         } else {
             Err(LSPRuntimeError::ExpectedError)
         }
-    } else if let Ok(location) = to_lsp_location_in_graphql_file(field.name.location, root_dir) {
+    } else if let Ok((_, location)) = read_graphql_file_and_get_range(field.name.location, root_dir)
+    {
         // Step 3: is field a standalone graphql file?
         Ok(GotoDefinitionResponse::Scalar(location))
     } else {

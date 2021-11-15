@@ -28,27 +28,21 @@ pub fn to_contents_and_lsp_location_of_graphql_literal(
             let path_to_fragment = root_dir.join(PathBuf::from(path.lookup()));
             let uri = get_uri(&path_to_fragment)?;
             let (file_contents, range) =
-                read_file_and_get_range(&path_to_fragment, index.try_into().unwrap())?;
+                read_embedded_file_and_get_range(&path_to_fragment, index.try_into().unwrap())?;
 
             Ok((file_contents, lsp_types::Location { uri, range }))
         }
-        SourceLocationKey::Standalone { path } => {
-            let path_to_fragment = root_dir.join(PathBuf::from(path.lookup()));
-            let uri = get_uri(&path_to_fragment)?;
-            let (file_contents, range) = read_file_and_get_range(&path_to_fragment, 0)?;
-
-            Ok((file_contents, lsp_types::Location { uri, range }))
-        }
+        SourceLocationKey::Standalone { .. } => read_graphql_file_and_get_range(location, root_dir),
         SourceLocationKey::Generated => Err(LSPRuntimeError::UnexpectedError(
             "Cannot get location of a generated artifact".to_string(),
         )),
     }
 }
 
-pub fn to_lsp_location_in_graphql_file(
+pub fn read_graphql_file_and_get_range(
     location: Location,
     root_dir: &Path,
-) -> LSPRuntimeResult<lsp_types::Location> {
+) -> LSPRuntimeResult<(String, lsp_types::Location)> {
     match location.source_location() {
         SourceLocationKey::Standalone { path } => {
             let abspath = root_dir.join(PathBuf::from(path.lookup()));
@@ -60,7 +54,7 @@ pub fn to_lsp_location_in_graphql_file(
 
             let uri = get_uri(&abspath)?;
             let range = location.span().to_range(file_contents, 0, 0);
-            Ok(lsp_types::Location { uri, range })
+            Ok((file_contents.to_owned(), lsp_types::Location { uri, range }))
         }
         _ => Err(LSPRuntimeError::UnexpectedError(
             "Cannot get location of embedded or generated field in graphql file".to_string(),
@@ -68,7 +62,7 @@ pub fn to_lsp_location_in_graphql_file(
     }
 }
 
-fn read_file_and_get_range(
+fn read_embedded_file_and_get_range(
     path_to_fragment: &PathBuf,
     index: usize,
 ) -> LSPRuntimeResult<(String, lsp_types::Range)> {

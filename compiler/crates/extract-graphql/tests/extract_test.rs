@@ -55,6 +55,13 @@ fn simple() {
 }
 
 #[test]
+fn tabbed() {
+    let input = include_str!("extract/fixtures/tabbed.js");
+    let expected = include_str!("extract/fixtures/tabbed.expected");
+    test_fixture(transform_fixture, "tabbed.js", "extract/fixtures/tabbed.expected", input, expected);
+}
+
+#[test]
 fn template_literal() {
     let input = include_str!("extract/fixtures/template_literal.js");
     let expected = include_str!("extract/fixtures/template_literal.expected");

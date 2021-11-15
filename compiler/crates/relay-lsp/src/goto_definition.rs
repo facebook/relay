@@ -206,7 +206,7 @@ fn get_relay_resolver_location(
     })
 }
 
-pub(crate) fn on_goto_definition(
+pub fn on_goto_definition(
     state: &impl GlobalState,
     params: <GotoDefinition as Request>::Params,
 ) -> LSPRuntimeResult<<GotoDefinition as Request>::Result> {

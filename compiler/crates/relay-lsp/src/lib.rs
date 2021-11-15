@@ -12,7 +12,7 @@ mod code_action;
 mod completion;
 mod diagnostic_reporter;
 mod explore_schema_for_type;
-mod goto_definition;
+pub mod goto_definition;
 mod graphql_tools;
 pub mod hover;
 pub mod js_language_server;

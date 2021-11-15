@@ -360,14 +360,6 @@ module.exports = {
     ],
   ],
   themeConfig: {
-    announcementBar: {
-      id: 'survey-2021-announcement', // Any value that will identify this message.
-      content:
-        'We want to hear from you! <a href="https://surveys.savanta.com/survey/selfserve/21e3/210643?list=2" target="_blank" rel="noopener noreferrer">Take the 2021 React Community Survey!</a>',
-      backgroundColor: '#20232a', // Defaults to `#fff`.
-      textColor: '#fff', // Defaults to `#000`.
-      isCloseable: true, // Defaults to `true`.
-    },
     navbar: {
       title: 'Relay',
       style: 'primary',

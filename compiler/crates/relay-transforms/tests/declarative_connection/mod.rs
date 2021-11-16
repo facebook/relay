@@ -11,6 +11,6 @@ use relay_transforms::{transform_declarative_connection, ConnectionInterface};
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     apply_transform_for_test(fixture, |program| {
-        transform_declarative_connection(&program, &ConnectionInterface::default())
+        transform_declarative_connection(program, &ConnectionInterface::default())
     })
 }

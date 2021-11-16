@@ -27,8 +27,8 @@ use std::{array, sync::Arc};
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let source_location = SourceLocationKey::standalone(fixture.file_name);
 
-    if fixture.content.find("%TODO%").is_some() {
-        if fixture.content.find("expected-to-throw").is_some() {
+    if fixture.content.contains("%TODO%") {
+        if fixture.content.contains("expected-to-throw") {
             return Err("TODO".to_string());
         }
         return Ok("TODO".to_string());
@@ -129,7 +129,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
                     directives: reader_operation.directives.clone(),
                     type_condition: reader_operation.type_,
                 };
-                let request_parameters = build_request_params(&operation);
+                let request_parameters = build_request_params(operation);
                 format!(
                     "{}\n\nQUERY:\n\n{}",
                     print_request(

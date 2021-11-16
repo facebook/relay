@@ -58,12 +58,9 @@ impl<'config> GlobFileSource<'config> {
 
     fn should_include_file(&self, name: &Path) -> bool {
         matches!(
-            name.extension().and_then(|extension| {
-                Some(
-                    self.expected_file_extensions
-                        .contains(extension.to_str().unwrap()),
-                )
-            }),
+            name.extension().map(|extension| self
+                .expected_file_extensions
+                .contains(extension.to_str().unwrap())),
             Some(true)
         )
     }

@@ -488,7 +488,7 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
             if should_use_no_inline {
                 self.no_inline_fragments
                     .entry(fragment.name.item)
-                    .or_insert_with(|| vec![])
+                    .or_insert_with(std::vec::Vec::new)
                     .push(self.document_name);
             }
             Ok(Transformed::Replace(Selection::InlineFragment(Arc::new(

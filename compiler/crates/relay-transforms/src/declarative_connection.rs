@@ -117,11 +117,8 @@ impl<'s, 'c> Transformer for DeclarativeConnectionMutationTransform<'s, 'c> {
                             key: "".intern(),
                             dynamic_key: None,
                             filters: None,
-                            handle_args: if let Some(connections_arg) = connections_arg {
-                                Some(vec![connections_arg.clone()])
-                            } else {
-                                None
-                            },
+                            handle_args: connections_arg
+                                .map(|connections_arg| vec![connections_arg.clone()]),
                         });
                     let mut next_directives: Vec<_> = field
                         .directives

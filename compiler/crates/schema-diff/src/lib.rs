@@ -347,7 +347,7 @@ fn diff(current: Vec<TypeSystemDefinition>, previous: Vec<TypeSystemDefinition>)
                         members,
                         ..
                     })) => {
-                        let (added, removed) = compare_string_keys(&members, previous_members);
+                        let (added, removed) = compare_string_keys(members, previous_members);
                         if !added.is_empty() || !removed.is_empty() {
                             changes.push(DefinitionChange::UnionChanged {
                                 name: name.value,

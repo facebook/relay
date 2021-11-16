@@ -104,7 +104,7 @@ impl<'a> Transformer for GenerateTestOperationMetadata<'a> {
                                 operation.name.location,
                                 Value::Constant(ConstantValue::Object(From::from(
                                     RelayTestOperationMetadata::new(
-                                        &self.program,
+                                        self.program,
                                         &operation.selections,
                                     ),
                                 ))),

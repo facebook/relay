@@ -33,11 +33,11 @@ impl NodeIdentifier {
         match selection {
             Selection::LinkedField(node) => NodeIdentifier::LinkedField(LinkedFieldIdentifier {
                 alias_or_name: node.alias_or_name(schema),
-                node: Arc::clone(&node),
+                node: Arc::clone(node),
             }),
             Selection::ScalarField(node) => NodeIdentifier::ScalarField(ScalarFieldIdentifier {
                 alias_or_name: node.alias_or_name(schema),
-                node: Arc::clone(&node),
+                node: Arc::clone(node),
             }),
             Selection::InlineFragment(node) => NodeIdentifier::InlineFragment(Arc::clone(node)),
             Selection::FragmentSpread(node) => NodeIdentifier::FragmentSpread(Arc::clone(node)),

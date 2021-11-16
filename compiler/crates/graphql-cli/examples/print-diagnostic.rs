@@ -8,7 +8,7 @@
 use common::{Diagnostic, Location, SourceLocationKey, Span};
 use graphql_cli::DiagnosticPrinter;
 
-const EXAMPLE: &'static str = "fragment Example on User {
+const EXAMPLE: &str = "fragment Example on User {
   photo(size: 40) {
     url
   }

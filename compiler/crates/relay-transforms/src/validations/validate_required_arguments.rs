@@ -115,11 +115,13 @@ impl ValidateRequiredArguments<'_> {
         root_name_with_location: WithLocation<StringKey>,
     ) -> DiagnosticsResult<()> {
         if !argument_defintinitions.is_empty() {
-            let arg_names: Vec<_> = arguments.iter().map(|arg| arg.name.item).collect();
             for def in argument_defintinitions.iter() {
                 if def.type_.is_non_null()
                     && def.default_value.is_none()
-                    && !arg_names.contains(&def.name)
+                    && !arguments
+                        .iter()
+                        .map(|arg| arg.name.item)
+                        .any(|x| x == def.name)
                 {
                     return Err(vec![
                         Diagnostic::error(

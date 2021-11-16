@@ -781,13 +781,13 @@ impl InMemorySchema {
 
         for document in schema_documents {
             for definition in &document.definitions {
-                schema.add_definition(&definition, &document.location.source_location(), false)?;
+                schema.add_definition(definition, &document.location.source_location(), false)?;
             }
         }
 
         for document in client_schema_documents {
             for definition in &document.definitions {
-                schema.add_definition(&definition, &document.location.source_location(), true)?;
+                schema.add_definition(definition, &document.location.source_location(), true)?;
             }
         }
 
@@ -1040,7 +1040,7 @@ impl InMemorySchema {
                 let parent_id = Type::Object(ObjectID(self.objects.len() as u32));
                 let fields = if is_extension {
                     self.build_extend_fields(
-                        &fields,
+                        fields,
                         &mut HashMap::with_capacity(len_of_option_list(fields)),
                         *location_key,
                         Some(parent_id),
@@ -1052,7 +1052,7 @@ impl InMemorySchema {
                     .iter()
                     .map(|name| self.build_interface_id(name, location_key))
                     .collect::<DiagnosticsResult<Vec<_>>>()?;
-                let directives = self.build_directive_values(&directives);
+                let directives = self.build_directive_values(directives);
                 self.objects.push(Object {
                     name: WithLocation::new(Location::new(*location_key, name.span), name.value),
                     fields,
@@ -1071,7 +1071,7 @@ impl InMemorySchema {
                 let parent_id = Type::Interface(InterfaceID(self.interfaces.len() as u32));
                 let fields = if is_extension {
                     self.build_extend_fields(
-                        &fields,
+                        fields,
                         &mut HashMap::with_capacity(len_of_option_list(fields)),
                         *location_key,
                         Some(parent_id),
@@ -1083,7 +1083,7 @@ impl InMemorySchema {
                     .iter()
                     .map(|name| self.build_interface_id(name, location_key))
                     .collect::<DiagnosticsResult<Vec<_>>>()?;
-                let directives = self.build_directive_values(&directives);
+                let directives = self.build_directive_values(directives);
                 self.interfaces.push(Interface {
                     name: name.value,
                     implementing_objects: vec![],
@@ -1103,7 +1103,7 @@ impl InMemorySchema {
                     .iter()
                     .map(|name| self.build_object_id(name.value))
                     .collect::<DiagnosticsResult<Vec<_>>>()?;
-                let directives = self.build_directive_values(&directives);
+                let directives = self.build_directive_values(directives);
                 self.unions.push(Union {
                     name: name.value,
                     is_extension,
@@ -1118,7 +1118,7 @@ impl InMemorySchema {
                 directives,
             }) => {
                 let fields = self.build_arguments(fields)?;
-                let directives = self.build_directive_values(&directives);
+                let directives = self.build_directive_values(directives);
                 self.input_objects.push(InputObject {
                     name: name.value,
                     fields,
@@ -1131,7 +1131,7 @@ impl InMemorySchema {
                 directives,
                 values,
             }) => {
-                let directives = self.build_directive_values(&directives);
+                let directives = self.build_directive_values(directives);
                 let values = if let Some(values) = values {
                     values
                         .items
@@ -1156,7 +1156,7 @@ impl InMemorySchema {
                 name,
                 directives,
             }) => {
-                let directives = self.build_directive_values(&directives);
+                let directives = self.build_directive_values(directives);
                 self.scalars.push(Scalar {
                     name: name.value,
                     is_extension,
@@ -1204,7 +1204,7 @@ impl InMemorySchema {
                         built_interfaces,
                     );
 
-                    let built_directives = self.build_directive_values(&directives);
+                    let built_directives = self.build_directive_values(directives);
                     extend_without_duplicates(
                         &mut self.objects[index].directives,
                         built_directives,
@@ -1246,7 +1246,7 @@ impl InMemorySchema {
                     )?;
                     self.interfaces[index].fields.extend(client_fields);
 
-                    let built_directives = self.build_directive_values(&directives);
+                    let built_directives = self.build_directive_values(directives);
                     extend_without_duplicates(
                         &mut self.interfaces[index].directives,
                         built_directives,

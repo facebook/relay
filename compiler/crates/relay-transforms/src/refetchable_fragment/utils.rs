@@ -75,7 +75,7 @@ pub fn build_operation_variable_definitions(
         .chain(fragment.variable_definitions.iter())
         .cloned()
         .collect();
-    result.sort_unstable_by(|l, r| l.name.item.lookup().cmp(&r.name.item.lookup()));
+    result.sort_unstable_by(|l, r| l.name.item.lookup().cmp(r.name.item.lookup()));
     result
 }
 

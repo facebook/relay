@@ -20,7 +20,7 @@ use interner::StringKey;
 use std::collections::BTreeMap;
 
 pub fn serialize_as_flatbuffer(schema: &InMemorySchema) -> Vec<u8> {
-    let mut serializer = Serializer::new(&schema);
+    let mut serializer = Serializer::new(schema);
     serializer.serialize_schema()
 }
 
@@ -389,7 +389,7 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
         value: &Argument,
     ) -> WIPOffset<schema_flatbuffer::Argument<'fb>> {
         let args = schema_flatbuffer::ArgumentArgs {
-            name: Some(self.bldr.create_string(&value.name.lookup())),
+            name: Some(self.bldr.create_string(value.name.lookup())),
             value: value
                 .default_value
                 .as_ref()
@@ -459,7 +459,7 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
         argument_value: &ArgumentValue,
     ) -> WIPOffset<schema_flatbuffer::ArgumentValue<'fb>> {
         let args = schema_flatbuffer::ArgumentValueArgs {
-            name: Some(self.bldr.create_string(&argument_value.name.lookup())),
+            name: Some(self.bldr.create_string(argument_value.name.lookup())),
             value: Some(self.serialize_const_value(&argument_value.value)),
         };
         schema_flatbuffer::ArgumentValue::create(&mut self.bldr, &args)

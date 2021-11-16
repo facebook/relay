@@ -550,7 +550,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
             // Now, let's look into selection directives, and split them into two
             // categories: conditions and other directives
             let (conditions, directives) =
-                split_conditions_and_directives(&next_selection.directives());
+                split_conditions_and_directives(next_selection.directives());
 
             // If conditions are empty -> return the original selection
             if conditions.is_empty() {
@@ -765,7 +765,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
             } else {
                 ValidationLevel::Strict
             };
-            self.build_fragment_spread_arguments(&signature, &arg_list, validation_level)
+            self.build_fragment_spread_arguments(signature, arg_list, validation_level)
         } else {
             let errors: Vec<_> = signature
                 .variable_definitions
@@ -1362,7 +1362,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
         // variables
         if let graphql_syntax::Value::Constant(constant) = value {
             return Ok(Value::Constant(self.build_constant_value(
-                &constant,
+                constant,
                 type_,
                 ValidationLevel::Strict,
             )?));

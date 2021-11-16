@@ -257,7 +257,7 @@ fn build_node_resolution_info_from_selections(
                         .add_type(TypePathItem::InlineFragment { type_name });
 
                     if let Some(node_kind) =
-                        type_condition_at_position(&type_condition, position_span)
+                        type_condition_at_position(type_condition, position_span)
                     {
                         node_resolution_info.kind = node_kind;
                     } else {

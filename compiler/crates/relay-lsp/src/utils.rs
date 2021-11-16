@@ -89,7 +89,7 @@ pub fn extract_executable_document_from_text(
     let position = text_document_position.position;
 
     let graphql_sources = graphql_source_cache
-        .get(&uri)
+        .get(uri)
         .ok_or(LSPRuntimeError::ExpectedError)?;
 
     let graphql_source = graphql_sources
@@ -111,7 +111,7 @@ pub fn extract_executable_document_from_text(
     debug!("Successfully parsed the definitions for a target GraphQL source");
     // Map the position to a zero-length span, relative to this GraphQL source.
     let position_span =
-        position_to_span(&position, &graphql_source, index_offset).ok_or_else(|| {
+        position_to_span(&position, graphql_source, index_offset).ok_or_else(|| {
             LSPRuntimeError::UnexpectedError("Failed to map positions to spans".to_string())
         })?;
 

@@ -89,7 +89,7 @@ pub fn parse_chunks(input: &str) -> Vec<GraphQLSource> {
                 let line_index = it.line_index;
                 let column_index = it.column_index;
                 let mut has_visited_first_char = false;
-                while let Some((i, c)) = it.next() {
+                for (i, c) in &mut it {
                     match c {
                         '`' => {
                             let end = i;

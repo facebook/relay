@@ -99,7 +99,7 @@ impl<'a> Transformer for HashSupportedArgumentTransform<'a> {
 
         supported_arg.value.item = Value::Constant(ConstantValue::String(hash.intern()));
 
-        return Transformed::Replace(Selection::LinkedField(new_field));
+        Transformed::Replace(Selection::LinkedField(new_field))
     }
 }
 
@@ -134,7 +134,7 @@ impl<'a> HashSupportedArgumentTransform<'a> {
                 return self.schema.is_string(*item_type_name);
             }
         }
-        return false;
+        false
     }
 }
 

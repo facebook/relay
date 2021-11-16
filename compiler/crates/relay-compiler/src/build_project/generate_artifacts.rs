@@ -313,7 +313,7 @@ fn group_operations(programs: &Programs) -> FnvHashMap<StringKey, OperationGroup
             (
                 normalization_operation.name.item,
                 OperationGroup {
-                    normalization: &normalization_operation,
+                    normalization: normalization_operation,
                     operation_text: None,
                     reader: None,
                     typegen: None,

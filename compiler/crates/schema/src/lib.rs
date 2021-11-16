@@ -60,7 +60,7 @@ pub fn build_schema_with_extensions<T: AsRef<str>, U: AsRef<str>>(
     for (extension_sdl, location_key) in extension_sdls {
         client_schema_documents.push(graphql_syntax::parse_schema_document(
             extension_sdl.as_ref(),
-            location_key.clone(),
+            *location_key,
         )?);
     }
 

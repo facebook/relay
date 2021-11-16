@@ -169,7 +169,7 @@ fn generate_operation(
     id_and_text_hash: &Option<QueryID>,
     skip_types: bool,
 ) -> Vec<u8> {
-    let mut request_parameters = build_request_params(&normalization_operation);
+    let mut request_parameters = build_request_params(normalization_operation);
     if id_and_text_hash.is_some() {
         request_parameters.id = id_and_text_hash;
     } else {
@@ -443,7 +443,7 @@ fn generate_split_operation(
         config,
         &project_config.typegen_config.language,
         &mut content,
-        &source_hash,
+        source_hash,
     )
     .unwrap();
     write_export_generated_node(&project_config.typegen_config, &mut content, "node", None)
@@ -601,7 +601,7 @@ fn generate_fragment(
         config,
         &project_config.typegen_config.language,
         &mut content,
-        &source_hash,
+        source_hash,
     )
     .unwrap();
 

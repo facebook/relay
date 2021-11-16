@@ -432,7 +432,7 @@ impl<'a> TypeGenerator<'a> {
             ref_type = AST::ReadOnlyArray(Box::new(ref_type));
         }
 
-        let unmasked = RelayDirective::is_unmasked_fragment_definition(&node);
+        let unmasked = RelayDirective::is_unmasked_fragment_definition(node);
 
         let base_type = self.selections_to_babel(
             selections.into_iter(),
@@ -639,7 +639,7 @@ impl<'a> TypeGenerator<'a> {
             .named(*RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN)
             .is_some()
         {
-            self.visit_actor_change(type_selections, &inline_fragment);
+            self.visit_actor_change(type_selections, inline_fragment);
         } else {
             let mut selections = self.visit_selections(&inline_fragment.selections);
             if let Some(type_condition) = inline_fragment.type_condition {

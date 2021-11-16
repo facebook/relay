@@ -331,7 +331,7 @@ impl<'schema> ValidationContext<'schema> {
         type_: &T,
         interface: &Interface,
     ) {
-        let object_field_map = self.field_map(&type_.fields());
+        let object_field_map = self.field_map(type_.fields());
         let interface_field_map = self.field_map(&interface.fields);
         let context = ValidationContextType::TypeNode(type_.name());
 
@@ -532,7 +532,7 @@ impl<'schema> ValidationContext<'schema> {
                     builder,
                     "Type {} with definition:\n\t{}\nhad errors:",
                     type_name,
-                    print_type(&self.schema, self.schema.get_type(*type_name).unwrap()).trim_end()
+                    print_type(self.schema, self.schema.get_type(*type_name).unwrap()).trim_end()
                 )
                 .unwrap(),
                 ValidationContextType::DirectiveNode(directive_name) => writeln!(
@@ -540,7 +540,7 @@ impl<'schema> ValidationContext<'schema> {
                     "Directive {} with definition:\n\t{}\nhad errors:",
                     directive_name,
                     print_directive(
-                        &self.schema,
+                        self.schema,
                         self.schema.get_directive(*directive_name).unwrap()
                     )
                     .trim_end()

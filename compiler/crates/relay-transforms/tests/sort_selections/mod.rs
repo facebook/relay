@@ -11,7 +11,7 @@ use relay_transforms::sort_selections;
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     apply_transform_for_test(fixture, |program| {
-        let next_program = sort_selections(&program);
+        let next_program = sort_selections(program);
         assert_eq!(
             next_program.fragments().count(),
             program.fragments().count()

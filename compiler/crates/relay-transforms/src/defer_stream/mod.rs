@@ -111,7 +111,7 @@ impl DeferStreamTransform<'_> {
             ))));
         }
 
-        let label_value = get_literal_string_argument(&defer, label_arg)?;
+        let label_value = get_literal_string_argument(defer, label_arg)?;
         let label = label_value
             .unwrap_or_else(|| get_applied_fragment_name(spread.fragment.item, &spread.arguments));
         let transformed_label = transform_label(
@@ -207,7 +207,7 @@ impl DeferStreamTransform<'_> {
             ));
         }
 
-        let label_value = get_literal_string_argument(&stream, label_arg)?;
+        let label_value = get_literal_string_argument(stream, label_arg)?;
         let label = label_value.unwrap_or_else(|| {
             get_applied_fragment_name(
                 linked_field.alias_or_name(&self.program.schema),

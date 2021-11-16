@@ -181,8 +181,8 @@ impl<'s> ValidateSelectionConflict<'s> {
                         };
                     }
                     if has_same_type_reference_wrapping(&l_definition.type_, &r_definition.type_) {
-                        let mut l_fields = self.validate_linked_field_selections(&l)?;
-                        let r_fields = self.validate_linked_field_selections(&r)?;
+                        let mut l_fields = self.validate_linked_field_selections(l)?;
+                        let r_fields = self.validate_linked_field_selections(r)?;
 
                         if let Err(errs) = self.validate_and_merge_fields(
                             Arc::make_mut(&mut l_fields),
@@ -346,7 +346,7 @@ impl<'s> ValidateSelectionConflict<'s> {
                 field_name,
                 arguments_a: graphql_text_printer::print_arguments(
                     &self.program.schema,
-                    &arguments_a,
+                    arguments_a,
                     graphql_text_printer::PrinterOptions::default(),
                 ),
             },
@@ -357,7 +357,7 @@ impl<'s> ValidateSelectionConflict<'s> {
                 "which conflicts with this field with applied argument values {}",
                 graphql_text_printer::print_arguments(
                     &self.program.schema,
-                    &arguments_b,
+                    arguments_b,
                     graphql_text_printer::PrinterOptions::default()
                 ),
             ),
@@ -371,7 +371,7 @@ fn has_same_type_reference_wrapping(l: &TypeReference, r: &TypeReference) -> boo
         (TypeReference::Named(_), TypeReference::Named(_)) => true,
         (TypeReference::NonNull(l), TypeReference::NonNull(r))
         | (TypeReference::List(l), TypeReference::List(r)) => {
-            has_same_type_reference_wrapping(&l, &r)
+            has_same_type_reference_wrapping(l, r)
         }
         _ => false,
     }
@@ -434,11 +434,9 @@ mod ignoring_type_and_location {
             let mut matched = vec![false; len];
             for l in a {
                 for i in 0..len {
-                    if !matched[i] {
-                        if eq(l, &b[i]) {
-                            matched[i] = true;
-                            break;
-                        }
+                    if !matched[i] && eq(l, &b[i]) {
+                        matched[i] = true;
+                        break;
                     }
                 }
             }

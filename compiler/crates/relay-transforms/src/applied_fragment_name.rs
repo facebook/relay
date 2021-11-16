@@ -11,7 +11,7 @@ use graphql_ir::Argument;
 use interner::{Intern, StringKey};
 
 pub fn get_applied_fragment_name(spread_name: StringKey, args: &[Argument]) -> StringKey {
-    let arguments_hash = hash_arguments(&args);
+    let arguments_hash = hash_arguments(args);
     match arguments_hash {
         Some(hash) => format!("{}_{}", spread_name, hash).intern(),
         None => spread_name,

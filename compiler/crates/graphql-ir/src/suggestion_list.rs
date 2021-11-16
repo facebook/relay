@@ -46,7 +46,7 @@ impl<'a> LexicalDistance<'a> {
             return Some(1);
         }
 
-        let distance = damerau_levenshtein(&self.input, option);
+        let distance = damerau_levenshtein(self.input, option);
         if distance <= threshold {
             Some(distance)
         } else {

@@ -45,7 +45,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
                 directives: def.directives.clone(),
                 type_condition: def.type_,
             };
-            let request_parameters = build_request_params(&def);
+            let request_parameters = build_request_params(def);
             printer.print_request(&schema, def, &operation_fragment, request_parameters)
         })
         .collect::<Vec<_>>();

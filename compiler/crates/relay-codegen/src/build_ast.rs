@@ -459,16 +459,16 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
 
     fn build_selections_from_selection(&mut self, selection: &Selection) -> Vec<Primitive> {
         match selection {
-            Selection::Condition(condition) => vec![self.build_condition(&condition)],
+            Selection::Condition(condition) => vec![self.build_condition(condition)],
             Selection::FragmentSpread(frag_spread) => {
-                vec![self.build_fragment_spread(&frag_spread)]
+                vec![self.build_fragment_spread(frag_spread)]
             }
             Selection::InlineFragment(inline_fragment) => {
                 let defer = inline_fragment
                     .directives
                     .named(DEFER_STREAM_CONSTANTS.defer_name);
                 if let Some(defer) = defer {
-                    vec![self.build_defer(&inline_fragment, defer)]
+                    vec![self.build_defer(inline_fragment, defer)]
                 } else if let Some(inline_data_directive) =
                     InlineDirectiveMetadata::find(&inline_fragment.directives)
                 {
@@ -483,22 +483,22 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                 } else if let Some(module_metadata) =
                     ModuleMetadata::find(&inline_fragment.directives)
                 {
-                    self.build_module_import_selections(module_metadata, &inline_fragment)
+                    self.build_module_import_selections(module_metadata, inline_fragment)
                 } else if inline_fragment
                     .directives
                     .named(*RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN)
                     .is_some()
                 {
-                    vec![self.build_actor_change(&inline_fragment)]
+                    vec![self.build_actor_change(inline_fragment)]
                 } else {
-                    vec![self.build_inline_fragment(&inline_fragment)]
+                    vec![self.build_inline_fragment(inline_fragment)]
                 }
             }
             Selection::LinkedField(field) => {
                 let stream = field.directives.named(DEFER_STREAM_CONSTANTS.stream_name);
 
                 match stream {
-                    Some(stream) => vec![self.build_stream(&field, stream)],
+                    Some(stream) => vec![self.build_stream(field, stream)],
                     None => self.build_linked_field_and_handles(field),
                 }
             }
@@ -622,7 +622,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         let handle_field_directives = extract_handle_field_directives(&field.directives);
 
         for directive in handle_field_directives {
-            let values = extract_values_from_handle_field_directive(&directive);
+            let values = extract_values_from_handle_field_directive(directive);
             let filters = match values.filters {
                 None => Primitive::Null,
                 Some(strs) => {
@@ -750,7 +750,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         let field_name = schema_field.name.item;
         let handle_field_directives = extract_handle_field_directives(&field.directives);
         for directive in handle_field_directives {
-            let values = extract_values_from_handle_field_directive(&directive);
+            let values = extract_values_from_handle_field_directive(directive);
 
             let dynamic_key = match &values.dynamic_key {
                 Some(val) => self.build_argument(CODEGEN_CONSTANTS.dynamic_key_argument, val),
@@ -827,7 +827,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                         handle_field_directive, other_handle_field_directive
                     );
                 }
-                let values = extract_values_from_handle_field_directive(&handle_field_directive);
+                let values = extract_values_from_handle_field_directive(handle_field_directive);
                 alias = alias.or(Some(name));
                 name = if values.key == CODEGEN_CONSTANTS.default_handle_key {
                     format!("__{}_{}", name, values.handle).intern()
@@ -1397,14 +1397,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
 
     fn build_argument(&mut self, arg_name: StringKey, arg_value: &Value) -> Option<AstKey> {
         match arg_value {
-            Value::Constant(const_val) => {
-                if let Some(concrete_const_val) = self.build_constant_argument(arg_name, &const_val)
-                {
-                    Some(concrete_const_val)
-                } else {
-                    None
-                }
-            }
+            Value::Constant(const_val) => self.build_constant_argument(arg_name, const_val),
             Value::Variable(variable) => {
                 let name = Primitive::String(arg_name);
                 let variable_name = Primitive::String(variable.name.item);
@@ -1669,7 +1662,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         // add connection metadata
         let connection_metadata = extract_connection_metadata_from_directive(&operation.directives);
         if let Some(connection_metadata) = connection_metadata {
-            metadata_items.push(self.build_connection_metadata(&connection_metadata))
+            metadata_items.push(self.build_connection_metadata(connection_metadata))
         }
 
         // add request parameters metadata
@@ -1777,7 +1770,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                     .find(|item| matches!(item, Selection::FragmentSpread(_)))
                     .unwrap();
                 let fragment_spread_key =
-                    self.build_selections_from_selection(&fragment_spread)[0].assert_key();
+                    self.build_selections_from_selection(fragment_spread)[0].assert_key();
 
                 Primitive::Key(self.object(vec![
                     ObjectEntry {

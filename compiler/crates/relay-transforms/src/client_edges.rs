@@ -170,7 +170,7 @@ impl<'program> ClientEdgesTransform<'program> {
             selections,
         };
 
-        let mut transformer = RefetchableFragment::new(&self.program, false);
+        let mut transformer = RefetchableFragment::new(self.program, false);
 
         let refetchable_fragment = transformer
             .transform_refetch_fragment_with_refetchable_directive(

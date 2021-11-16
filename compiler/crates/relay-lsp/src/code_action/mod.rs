@@ -190,7 +190,7 @@ fn create_code_actions(
                     return None;
                 }
 
-                Some(create_code_action(title, name.clone(), &url, range))
+                Some(create_code_action(title, name.clone(), url, range))
             } else {
                 None
             }
@@ -202,11 +202,11 @@ fn get_code_action_range(range: Range, span: &Span) -> Range {
     Range {
         start: Position {
             line: range.start.line,
-            character: (span.start - 1).into(),
+            character: (span.start - 1),
         },
         end: Position {
             line: range.start.line,
-            character: (span.end - 1).into(),
+            character: (span.end - 1),
         },
     }
 }

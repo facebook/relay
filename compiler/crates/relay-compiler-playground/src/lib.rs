@@ -9,10 +9,10 @@ use common::{
     Diagnostic, FeatureFlags, NoopPerfLogger,
     SourceLocationKey::{self, Generated},
 };
-use console_error_panic_hook;
+
 use fnv::FnvHashSet;
 use graphql_ir::Program;
-use graphql_syntax;
+
 use graphql_text_printer::{self, PrinterOptions};
 use interner::Intern;
 use relay_codegen::{print_fragment, print_operation, JsModuleFormat};
@@ -21,7 +21,7 @@ use relay_transforms::{apply_transforms, ConnectionInterface, Programs};
 use relay_typegen::{generate_fragment_type, generate_operation_type, TypegenConfig};
 use schema::SDLSchema;
 use serde::Serialize;
-use serde_json;
+
 use std::sync::Arc;
 
 use wasm_bindgen::prelude::*;
@@ -75,7 +75,7 @@ pub fn parse_to_ast_impl(document_text: &str) -> PlaygroundResult {
         .map(|document| format!("{:?}", document))
         .map_err(|diagnostics| map_diagnostics(diagnostics, &InputType::Document(document_text)))?;
 
-    Ok(serialized_document.into())
+    Ok(serialized_document)
 }
 
 #[wasm_bindgen]
@@ -100,8 +100,7 @@ pub fn parse_to_ir_impl(schema_text: &str, document_text: &str) -> PlaygroundRes
         .iter()
         .map(|definition| format!("{:?}", definition))
         .collect::<Vec<String>>()
-        .join("\n")
-        .into())
+        .join("\n"))
 }
 
 #[wasm_bindgen]
@@ -132,17 +131,17 @@ pub fn parse_to_reader_ast_impl(
     let reader_ast_string = programs
         .reader
         .fragments()
-        .map(|def| print_fragment(&schema, &def, JsModuleFormat::Haste))
+        .map(|def| print_fragment(&schema, def, JsModuleFormat::Haste))
         .chain(
             programs
                 .reader
                 .operations()
-                .map(|def| print_operation(&schema, &def, JsModuleFormat::Haste)),
+                .map(|def| print_operation(&schema, def, JsModuleFormat::Haste)),
         )
         .collect::<Vec<_>>()
         .join("\n\n");
 
-    Ok(reader_ast_string.into())
+    Ok(reader_ast_string)
 }
 
 #[wasm_bindgen]
@@ -173,11 +172,11 @@ pub fn parse_to_normalization_ast_impl(
     let normalization_ast_string = programs
         .normalization
         .operations()
-        .map(|def| print_operation(&schema, &def, JsModuleFormat::Haste))
+        .map(|def| print_operation(&schema, def, JsModuleFormat::Haste))
         .collect::<Vec<_>>()
         .join("\n\n");
 
-    Ok(normalization_ast_string.into())
+    Ok(normalization_ast_string)
 }
 
 #[wasm_bindgen]
@@ -214,14 +213,14 @@ pub fn parse_to_types_impl(
     let types_string = programs
         .typegen
         .fragments()
-        .map(|def| generate_fragment_type(&def, &schema, JsModuleFormat::Haste, &typegen_config))
+        .map(|def| generate_fragment_type(def, &schema, JsModuleFormat::Haste, &typegen_config))
         .chain(programs.typegen.operations().map(|typegen_operation| {
             let normalization_operation = programs
                 .normalization
                 .operation(typegen_operation.name.item)
                 .unwrap();
             generate_operation_type(
-                &typegen_operation,
+                typegen_operation,
                 normalization_operation,
                 &schema,
                 JsModuleFormat::Haste,
@@ -231,7 +230,7 @@ pub fn parse_to_types_impl(
         .collect::<Vec<_>>()
         .join("\n\n");
 
-    Ok(types_string.into())
+    Ok(types_string)
 }
 
 #[wasm_bindgen]
@@ -273,7 +272,7 @@ fn transform_impl(
         .join("\n");
 
     let output = transformed_operations + "\n\n" + &transformed_fragments;
-    Ok(output.into())
+    Ok(output)
 }
 
 fn get_programs(
@@ -285,7 +284,7 @@ fn get_programs(
         .map_err(|diagnostics| map_diagnostics(diagnostics, &InputType::Document(document_text)))?;
 
 
-    let ir = graphql_ir::build(&schema, &document.definitions)
+    let ir = graphql_ir::build(schema, &document.definitions)
         .map_err(|diagnostics| map_diagnostics(diagnostics, &InputType::Document(document_text)))?;
 
     let program = Program::from_definitions(schema.clone(), ir);

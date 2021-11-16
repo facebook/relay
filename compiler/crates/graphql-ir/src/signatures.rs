@@ -380,7 +380,7 @@ fn get_default_value(
     default_arg
         .map(|x| {
             let constant_value_span = x.value.span();
-            build_constant_value(schema, &x.value, &type_, location, ValidationLevel::Strict).map(
+            build_constant_value(schema, &x.value, type_, location, ValidationLevel::Strict).map(
                 |constant_value| {
                     WithLocation::from_span(
                         location.source_location(),

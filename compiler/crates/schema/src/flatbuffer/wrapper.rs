@@ -70,7 +70,7 @@ impl SchemaWrapper {
     pub fn from_vec(data: Vec<u8>) -> Self {
         let fb = OwnedFlatBufferSchemaBuilder {
             data,
-            schema_builder: |data| FlatBufferSchema::build(&data),
+            schema_builder: |data| FlatBufferSchema::build(data),
         }
         .build();
 

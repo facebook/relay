@@ -176,7 +176,7 @@ impl Config {
     /// `validate_fs` disables all filesystem checks for existence of files
     fn from_string(config_path: PathBuf, config_string: &str, validate_fs: bool) -> Result<Self> {
         let config_file: ConfigFile =
-            serde_json::from_str(&config_string).map_err(|err| Error::ConfigFileParse {
+            serde_json::from_str(config_string).map_err(|err| Error::ConfigFileParse {
                 config_path: config_path.clone(),
                 source: err,
             })?;

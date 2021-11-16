@@ -257,7 +257,7 @@ impl CompilerState {
                         .par_iter()
                         .filter(|file| file.exists)
                         .filter_map(|file| {
-                            match extract_graphql_strings_from_file(&file_source_changes, &file) {
+                            match extract_graphql_strings_from_file(file_source_changes, file) {
                                 Ok(graphql_strings) if graphql_strings.is_empty() => None,
                                 Ok(graphql_strings) => {
                                     Some(Ok((file.name.clone(), graphql_strings)))
@@ -427,7 +427,7 @@ impl CompilerState {
                             .par_iter()
                             .map(|file| {
                                 let graphql_strings = if file.exists {
-                                    extract_graphql_strings_from_file(&file_source_changes, &file)?
+                                    extract_graphql_strings_from_file(&file_source_changes, file)?
                                 } else {
                                     Vec::new()
                                 };
@@ -525,7 +525,7 @@ impl CompilerState {
                 let paths = paths.clone();
                 let artifacts = self
                     .artifacts
-                    .get(&project_name)
+                    .get(project_name)
                     .expect("Expected the artifacts map to exist.");
                 if let ArtifactMapKind::Mapping(artifacts) = &**artifacts {
                     let mut dirty_definitions = vec![];
@@ -618,7 +618,7 @@ impl CompilerState {
         for file in files {
             let file_name = file.name.clone();
             if file.exists {
-                added_sources.insert(file_name, read_file_to_string(&file_source_changes, &file)?);
+                added_sources.insert(file_name, read_file_to_string(file_source_changes, &file)?);
             } else {
                 removed_sources.push(file_name);
             }

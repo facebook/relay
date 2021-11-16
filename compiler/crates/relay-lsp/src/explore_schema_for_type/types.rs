@@ -121,7 +121,7 @@ pub(crate) fn get_full_schema_explorer_type_reference(
     count: Option<usize>,
 ) -> SchemaExplorerTypeReference<SchemaExplorerSchemaType> {
     let description = documentation
-        .get_type_description(&type_name)
+        .get_type_description(type_name)
         .map(|description| description.to_string());
 
     let schema_explorer_schema_type = match type_ {

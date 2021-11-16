@@ -113,22 +113,22 @@ pub fn print_type(schema: &SDLSchema, type_: Type) -> String {
 }
 
 fn write_schema_definition(schema: &SDLSchema, result: &mut Vec<String>) -> Result {
-    let mut printer = Printer::new(&schema, result);
+    let mut printer = Printer::new(schema, result);
     printer.print_schema_definition()
 }
 
 fn write_directives(schema: &SDLSchema, result: &mut Vec<String>) -> Result {
-    let mut printer = Printer::new(&schema, result);
+    let mut printer = Printer::new(schema, result);
     printer.print_directives()
 }
 
 fn write_directive(schema: &SDLSchema, result: &mut Vec<String>, directive: &Directive) -> Result {
-    let mut printer = Printer::new(&schema, result);
+    let mut printer = Printer::new(schema, result);
     printer.print_directive(directive)
 }
 
 fn write_types(schema: &SDLSchema, result: &mut Vec<String>) -> Result {
-    let mut printer = Printer::new(&schema, result);
+    let mut printer = Printer::new(schema, result);
     printer.print_types()
 }
 
@@ -138,12 +138,12 @@ fn write_types_as_shards<'a>(
     shard_count: usize,
     type_shards: &'a mut FnvHashMap<StringKey, Vec<String>>,
 ) -> Result {
-    let mut printer = Printer::new_with_shards(&schema, shards, shard_count, Some(type_shards));
+    let mut printer = Printer::new_with_shards(schema, shards, shard_count, Some(type_shards));
     printer.print_types()
 }
 
 fn write_type(schema: &SDLSchema, result: &mut Vec<String>, type_: Type) -> Result {
-    let mut printer = Printer::new(&schema, result);
+    let mut printer = Printer::new(schema, result);
     printer.print_type(type_)
 }
 

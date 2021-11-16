@@ -215,7 +215,7 @@ impl FileCategorizer {
             .projects
             .iter()
             .map(|(project_name, project_config)| {
-                (project_name.clone(), project_config.typegen_config.language)
+                (*project_name, project_config.typegen_config.language)
             })
             .collect::<HashMap<_, _>>();
 

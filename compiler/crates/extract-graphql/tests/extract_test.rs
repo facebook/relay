@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<78987ed12f342dc432df8f20ac3ce0a1>>
+ * @generated SignedSource<<086945d0bc53fb513aa25d0a33ab369c>>
  */
 
 mod extract;
@@ -52,6 +52,13 @@ fn simple() {
     let input = include_str!("extract/fixtures/simple.flow");
     let expected = include_str!("extract/fixtures/simple.expected");
     test_fixture(transform_fixture, "simple.flow", "extract/fixtures/simple.expected", input, expected);
+}
+
+#[test]
+fn tabbed() {
+    let input = include_str!("extract/fixtures/tabbed.js");
+    let expected = include_str!("extract/fixtures/tabbed.expected");
+    test_fixture(transform_fixture, "tabbed.js", "extract/fixtures/tabbed.expected", input, expected);
 }
 
 #[test]

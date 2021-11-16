@@ -97,7 +97,7 @@ pub fn parse_chunks(input: &str) -> Vec<GraphQLSource> {
                             res.push(GraphQLSource::new(text, line_index, column_index));
                             continue 'code;
                         }
-                        ' ' | '\n' | '\r' => {}
+                        ' ' | '\n' | '\r' | '\t' => {}
                         'a'..='z' | 'A'..='Z' | '#' => {
                             if !has_visited_first_char {
                                 has_visited_first_char = true;

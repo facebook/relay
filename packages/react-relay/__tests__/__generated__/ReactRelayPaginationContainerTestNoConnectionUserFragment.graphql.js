@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<31e1e5d0bce8731a52774daa27e4a2b9>>
+ * @generated SignedSource<<8921aaa9b645bc25faf5f31497ff5b28>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,11 +15,11 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type ReactRelayPaginationContainerTestNoConnectionUserFragment$ref: FragmentReference;
-declare export opaque type ReactRelayPaginationContainerTestNoConnectionUserFragment$fragmentType: ReactRelayPaginationContainerTestNoConnectionUserFragment$ref;
-export type ReactRelayPaginationContainerTestNoConnectionUserFragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type ReactRelayPaginationContainerTestNoConnectionUserFragment$fragmentType: FragmentType;
+export type ReactRelayPaginationContainerTestNoConnectionUserFragment$ref = ReactRelayPaginationContainerTestNoConnectionUserFragment$fragmentType;
+export type ReactRelayPaginationContainerTestNoConnectionUserFragment$data = {|
   +friends: ?{|
     +edges: ?$ReadOnlyArray<?{|
       +node: ?{|
@@ -31,12 +31,14 @@ export type ReactRelayPaginationContainerTestNoConnectionUserFragment = {|
       +hasNextPage: ?boolean,
     |},
   |},
-  +$refType: ReactRelayPaginationContainerTestNoConnectionUserFragment$ref,
+  +$refType: ReactRelayPaginationContainerTestNoConnectionUserFragment$fragmentType,
+  +$fragmentType: ReactRelayPaginationContainerTestNoConnectionUserFragment$fragmentType,
 |};
-export type ReactRelayPaginationContainerTestNoConnectionUserFragment$data = ReactRelayPaginationContainerTestNoConnectionUserFragment;
+export type ReactRelayPaginationContainerTestNoConnectionUserFragment = ReactRelayPaginationContainerTestNoConnectionUserFragment$data;
 export type ReactRelayPaginationContainerTestNoConnectionUserFragment$key = {
   +$data?: ReactRelayPaginationContainerTestNoConnectionUserFragment$data,
-  +$fragmentRefs: ReactRelayPaginationContainerTestNoConnectionUserFragment$ref,
+  +$fragmentRefs: ReactRelayPaginationContainerTestNoConnectionUserFragment$fragmentType,
+  +$fragmentSpreads: ReactRelayPaginationContainerTestNoConnectionUserFragment$fragmentType,
   ...
 };
 */
@@ -150,4 +152,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "eb45ef2f80d883efa532e1585f97b9f6";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  ReactRelayPaginationContainerTestNoConnectionUserFragment$fragmentType,
+  ReactRelayPaginationContainerTestNoConnectionUserFragment$data,
+>*/);

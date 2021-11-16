@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<ff300d677460c4cb539e80577284edc6>>
+ * @generated SignedSource<<24e511bbd32ac5d7e1d2a11f5bf270ce>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,16 +15,18 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-export type GraphQLTagTest1QueryVariables = {||};
-export type GraphQLTagTest1QueryResponse = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+export type GraphQLTagTest1Query$variables = {||};
+export type GraphQLTagTest1QueryVariables = GraphQLTagTest1Query$variables;
+export type GraphQLTagTest1Query$data = {|
   +me: ?{|
     +id: string,
   |},
 |};
+export type GraphQLTagTest1QueryResponse = GraphQLTagTest1Query$data;
 export type GraphQLTagTest1Query = {|
   variables: GraphQLTagTest1QueryVariables,
-  response: GraphQLTagTest1QueryResponse,
+  response: GraphQLTagTest1Query$data,
 |};
 */
 
@@ -81,4 +83,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "3aba6197bd5a1f5de4eccaa2ec627ae3";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  GraphQLTagTest1Query$variables,
+  GraphQLTagTest1Query$data,
+>*/);

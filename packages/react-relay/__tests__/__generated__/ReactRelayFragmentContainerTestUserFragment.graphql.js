@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<d5fd7dfca53a94e8c2c6d7a486f4349e>>
+ * @generated SignedSource<<3fb6269cdd50b56d1f47b1f6cb9a8c9f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,19 +15,21 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type ReactRelayFragmentContainerTestUserFragment$ref: FragmentReference;
-declare export opaque type ReactRelayFragmentContainerTestUserFragment$fragmentType: ReactRelayFragmentContainerTestUserFragment$ref;
-export type ReactRelayFragmentContainerTestUserFragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type ReactRelayFragmentContainerTestUserFragment$fragmentType: FragmentType;
+export type ReactRelayFragmentContainerTestUserFragment$ref = ReactRelayFragmentContainerTestUserFragment$fragmentType;
+export type ReactRelayFragmentContainerTestUserFragment$data = {|
   +id: string,
   +name?: ?string,
-  +$refType: ReactRelayFragmentContainerTestUserFragment$ref,
+  +$refType: ReactRelayFragmentContainerTestUserFragment$fragmentType,
+  +$fragmentType: ReactRelayFragmentContainerTestUserFragment$fragmentType,
 |};
-export type ReactRelayFragmentContainerTestUserFragment$data = ReactRelayFragmentContainerTestUserFragment;
+export type ReactRelayFragmentContainerTestUserFragment = ReactRelayFragmentContainerTestUserFragment$data;
 export type ReactRelayFragmentContainerTestUserFragment$key = {
   +$data?: ReactRelayFragmentContainerTestUserFragment$data,
-  +$fragmentRefs: ReactRelayFragmentContainerTestUserFragment$ref,
+  +$fragmentRefs: ReactRelayFragmentContainerTestUserFragment$fragmentType,
+  +$fragmentSpreads: ReactRelayFragmentContainerTestUserFragment$fragmentType,
   ...
 };
 */
@@ -74,4 +76,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "ca03eeae7ce7ae5acb7539decc004c17";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  ReactRelayFragmentContainerTestUserFragment$fragmentType,
+  ReactRelayFragmentContainerTestUserFragment$data,
+>*/);

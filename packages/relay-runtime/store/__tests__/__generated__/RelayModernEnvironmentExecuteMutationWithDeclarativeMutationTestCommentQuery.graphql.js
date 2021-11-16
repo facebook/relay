@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<85b76e67ba828e501b1d7342e3cc2d33>>
+ * @generated SignedSource<<11d3569600db60f2ab2cbd2de5f1f3ae>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,11 +15,12 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestCommentQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestCommentQuery$variables = {|
   id: string,
 |};
-export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestCommentQueryResponse = {|
+export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestCommentQueryVariables = RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestCommentQuery$variables;
+export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestCommentQuery$data = {|
   +node: ?{|
     +id: string,
     +body: ?{|
@@ -27,9 +28,10 @@ export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestComm
     |},
   |},
 |};
+export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestCommentQueryResponse = RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestCommentQuery$data;
 export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestCommentQuery = {|
   variables: RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestCommentQueryVariables,
-  response: RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestCommentQueryResponse,
+  response: RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestCommentQuery$data,
 |};
 */
 
@@ -140,4 +142,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "0e04c1b933c48a9099dab4b416fdd37e";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestCommentQuery$variables,
+  RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestCommentQuery$data,
+>*/);

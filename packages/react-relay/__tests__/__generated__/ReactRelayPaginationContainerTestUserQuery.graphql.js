@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<bf79788059cdb8733de7e983b417bc9c>>
+ * @generated SignedSource<<de5ec43354ff202bb1946e63b30c625c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,25 +15,28 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type ReactRelayPaginationContainerTestUserFragment$ref = any;
-export type ReactRelayPaginationContainerTestUserQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type ReactRelayPaginationContainerTestUserFragment$fragmentType = any;
+export type ReactRelayPaginationContainerTestUserQuery$variables = {|
   after?: ?string,
   count: number,
   id: string,
   orderby?: ?$ReadOnlyArray<?string>,
   isViewerFriend?: ?boolean,
 |};
-export type ReactRelayPaginationContainerTestUserQueryResponse = {|
+export type ReactRelayPaginationContainerTestUserQueryVariables = ReactRelayPaginationContainerTestUserQuery$variables;
+export type ReactRelayPaginationContainerTestUserQuery$data = {|
   +node: ?{|
     +id: string,
     +__typename: string,
-    +$fragmentRefs: ReactRelayPaginationContainerTestUserFragment$ref,
+    +$fragmentRefs: ReactRelayPaginationContainerTestUserFragment$fragmentType,
+    +$fragmentSpreads: ReactRelayPaginationContainerTestUserFragment$fragmentType,
   |},
 |};
+export type ReactRelayPaginationContainerTestUserQueryResponse = ReactRelayPaginationContainerTestUserQuery$data;
 export type ReactRelayPaginationContainerTestUserQuery = {|
   variables: ReactRelayPaginationContainerTestUserQueryVariables,
-  response: ReactRelayPaginationContainerTestUserQueryResponse,
+  response: ReactRelayPaginationContainerTestUserQuery$data,
 |};
 */
 
@@ -277,4 +280,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "50a3bd82c5fad5ead1ce004df8427725";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  ReactRelayPaginationContainerTestUserQuery$variables,
+  ReactRelayPaginationContainerTestUserQuery$data,
+>*/);

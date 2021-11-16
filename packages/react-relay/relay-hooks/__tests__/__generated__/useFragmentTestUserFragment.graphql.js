@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<82e54033f8bb23983d08c89926151d93>>
+ * @generated SignedSource<<e4e94a89a102630514736dd491bd9785>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,21 +15,24 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-type useFragmentTestNestedUserFragment$ref = any;
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type useFragmentTestUserFragment$ref: FragmentReference;
-declare export opaque type useFragmentTestUserFragment$fragmentType: useFragmentTestUserFragment$ref;
-export type useFragmentTestUserFragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+type useFragmentTestNestedUserFragment$fragmentType = any;
+import type { FragmentType } from "relay-runtime";
+declare export opaque type useFragmentTestUserFragment$fragmentType: FragmentType;
+export type useFragmentTestUserFragment$ref = useFragmentTestUserFragment$fragmentType;
+export type useFragmentTestUserFragment$data = {|
   +id: string,
   +name: ?string,
-  +$fragmentRefs: useFragmentTestNestedUserFragment$ref,
-  +$refType: useFragmentTestUserFragment$ref,
+  +$fragmentRefs: useFragmentTestNestedUserFragment$fragmentType,
+  +$fragmentSpreads: useFragmentTestNestedUserFragment$fragmentType,
+  +$refType: useFragmentTestUserFragment$fragmentType,
+  +$fragmentType: useFragmentTestUserFragment$fragmentType,
 |};
-export type useFragmentTestUserFragment$data = useFragmentTestUserFragment;
+export type useFragmentTestUserFragment = useFragmentTestUserFragment$data;
 export type useFragmentTestUserFragment$key = {
   +$data?: useFragmentTestUserFragment$data,
-  +$fragmentRefs: useFragmentTestUserFragment$ref,
+  +$fragmentRefs: useFragmentTestUserFragment$fragmentType,
+  +$fragmentSpreads: useFragmentTestUserFragment$fragmentType,
   ...
 };
 */
@@ -68,4 +71,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "45f2552f2832b58188e8749182fe8fb6";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  useFragmentTestUserFragment$fragmentType,
+  useFragmentTestUserFragment$data,
+>*/);

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b900173c362c9f8998e6c68571fb316e>>
+ * @generated SignedSource<<30a93ec876fc18118436bfd7e808d3da>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,13 +15,14 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-export type RelayStoreUtilsTest4QueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+export type RelayStoreUtilsTest4Query$variables = {|
   count: number,
   cursor?: ?string,
   dynamicKey: string,
 |};
-export type RelayStoreUtilsTest4QueryResponse = {|
+export type RelayStoreUtilsTest4QueryVariables = RelayStoreUtilsTest4Query$variables;
+export type RelayStoreUtilsTest4Query$data = {|
   +me: ?{|
     +friends: ?{|
       +edges: ?$ReadOnlyArray<?{|
@@ -32,9 +33,10 @@ export type RelayStoreUtilsTest4QueryResponse = {|
     |},
   |},
 |};
+export type RelayStoreUtilsTest4QueryResponse = RelayStoreUtilsTest4Query$data;
 export type RelayStoreUtilsTest4Query = {|
   variables: RelayStoreUtilsTest4QueryVariables,
-  response: RelayStoreUtilsTest4QueryResponse,
+  response: RelayStoreUtilsTest4Query$data,
 |};
 */
 
@@ -245,4 +247,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "c1393b767a24cb0d54f4292c0bce6429";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayStoreUtilsTest4Query$variables,
+  RelayStoreUtilsTest4Query$data,
+>*/);

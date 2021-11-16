@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<2aa456b2f1478222264a23ee76a296f1>>
+ * @generated SignedSource<<a2b2d2f099a2fa55a1c66dc4ef15bb4b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,9 +15,9 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type useBlockingPaginationFragmentTestUserFragment$ref = any;
-export type useBlockingPaginationFragmentTestUserQueryWithoutIDQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type useBlockingPaginationFragmentTestUserFragment$fragmentType = any;
+export type useBlockingPaginationFragmentTestUserQueryWithoutIDQuery$variables = {|
   after?: ?string,
   first?: ?number,
   before?: ?string,
@@ -25,16 +25,19 @@ export type useBlockingPaginationFragmentTestUserQueryWithoutIDQueryVariables = 
   orderby?: ?$ReadOnlyArray<?string>,
   isViewerFriend?: ?boolean,
 |};
-export type useBlockingPaginationFragmentTestUserQueryWithoutIDQueryResponse = {|
+export type useBlockingPaginationFragmentTestUserQueryWithoutIDQueryVariables = useBlockingPaginationFragmentTestUserQueryWithoutIDQuery$variables;
+export type useBlockingPaginationFragmentTestUserQueryWithoutIDQuery$data = {|
   +viewer: ?{|
     +actor: ?{|
-      +$fragmentRefs: useBlockingPaginationFragmentTestUserFragment$ref,
+      +$fragmentRefs: useBlockingPaginationFragmentTestUserFragment$fragmentType,
+      +$fragmentSpreads: useBlockingPaginationFragmentTestUserFragment$fragmentType,
     |},
   |},
 |};
+export type useBlockingPaginationFragmentTestUserQueryWithoutIDQueryResponse = useBlockingPaginationFragmentTestUserQueryWithoutIDQuery$data;
 export type useBlockingPaginationFragmentTestUserQueryWithoutIDQuery = {|
   variables: useBlockingPaginationFragmentTestUserQueryWithoutIDQueryVariables,
-  response: useBlockingPaginationFragmentTestUserQueryWithoutIDQueryResponse,
+  response: useBlockingPaginationFragmentTestUserQueryWithoutIDQuery$data,
 |};
 */
 
@@ -338,4 +341,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "f5f7783184358dbce0a1bd2544fdddd4";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  useBlockingPaginationFragmentTestUserQueryWithoutIDQuery$variables,
+  useBlockingPaginationFragmentTestUserQueryWithoutIDQuery$data,
+>*/);

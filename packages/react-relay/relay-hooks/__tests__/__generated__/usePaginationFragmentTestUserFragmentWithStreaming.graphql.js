@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<fcab32836aa54731a212f23f4f3fc5e5>>
+ * @generated SignedSource<<aceefb3ceaaa13459377a911d4df5ba6>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,13 +15,13 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-type usePaginationFragmentTestNestedUserFragment$ref = any;
-import type { FragmentReference } from "relay-runtime";
-type usePaginationFragmentTestUserFragmentWithStreaming$ref = any;
-type usePaginationFragmentTestUserFragmentWithStreaming$fragmentType = any;
-export type { usePaginationFragmentTestUserFragmentWithStreaming$ref, usePaginationFragmentTestUserFragmentWithStreaming$fragmentType };
-export type usePaginationFragmentTestUserFragmentWithStreaming = {|
+import type { ReaderFragment, RefetchableFragment } from 'relay-runtime';
+type usePaginationFragmentTestNestedUserFragment$fragmentType = any;
+import type { FragmentType } from "relay-runtime";
+declare export opaque type usePaginationFragmentTestUserFragmentWithStreaming$fragmentType: FragmentType;
+export type usePaginationFragmentTestUserFragmentWithStreaming$ref = usePaginationFragmentTestUserFragmentWithStreaming$fragmentType;
+type usePaginationFragmentTestUserFragmentStreamingPaginationQuery$variables = any;
+export type usePaginationFragmentTestUserFragmentWithStreaming$data = {|
   +id: string,
   +name: ?string,
   +friends: ?{|
@@ -29,16 +29,19 @@ export type usePaginationFragmentTestUserFragmentWithStreaming = {|
       +node: ?{|
         +id: string,
         +name: ?string,
-        +$fragmentRefs: usePaginationFragmentTestNestedUserFragment$ref,
+        +$fragmentRefs: usePaginationFragmentTestNestedUserFragment$fragmentType,
+        +$fragmentSpreads: usePaginationFragmentTestNestedUserFragment$fragmentType,
       |},
     |}>,
   |},
-  +$refType: usePaginationFragmentTestUserFragmentWithStreaming$ref,
+  +$refType: usePaginationFragmentTestUserFragmentWithStreaming$fragmentType,
+  +$fragmentType: usePaginationFragmentTestUserFragmentWithStreaming$fragmentType,
 |};
-export type usePaginationFragmentTestUserFragmentWithStreaming$data = usePaginationFragmentTestUserFragmentWithStreaming;
+export type usePaginationFragmentTestUserFragmentWithStreaming = usePaginationFragmentTestUserFragmentWithStreaming$data;
 export type usePaginationFragmentTestUserFragmentWithStreaming$key = {
   +$data?: usePaginationFragmentTestUserFragmentWithStreaming$data,
-  +$fragmentRefs: usePaginationFragmentTestUserFragmentWithStreaming$ref,
+  +$fragmentRefs: usePaginationFragmentTestUserFragmentWithStreaming$fragmentType,
+  +$fragmentSpreads: usePaginationFragmentTestUserFragmentWithStreaming$fragmentType,
   ...
 };
 */
@@ -253,4 +256,8 @@ if (__DEV__) {
   (node/*: any*/).hash = "900742a3cc02637acec82fdf889079ab";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: RefetchableFragment<
+  usePaginationFragmentTestUserFragmentWithStreaming$fragmentType,
+  usePaginationFragmentTestUserFragmentWithStreaming$data,
+  usePaginationFragmentTestUserFragmentStreamingPaginationQuery$variables,
+>*/);

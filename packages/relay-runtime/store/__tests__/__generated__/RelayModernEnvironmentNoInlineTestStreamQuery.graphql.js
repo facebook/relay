@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<ecf2ed40b22c7105f1518304d071a11d>>
+ * @generated SignedSource<<f2d5f9fad8328fdf5528d674fce180e2>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,19 +15,22 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernEnvironmentNoInlineTestStream_feedback$ref = any;
-export type RelayModernEnvironmentNoInlineTestStreamQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayModernEnvironmentNoInlineTestStream_feedback$fragmentType = any;
+export type RelayModernEnvironmentNoInlineTestStreamQuery$variables = {|
   cond: boolean,
 |};
-export type RelayModernEnvironmentNoInlineTestStreamQueryResponse = {|
+export type RelayModernEnvironmentNoInlineTestStreamQueryVariables = RelayModernEnvironmentNoInlineTestStreamQuery$variables;
+export type RelayModernEnvironmentNoInlineTestStreamQuery$data = {|
   +node: ?{|
-    +$fragmentRefs: RelayModernEnvironmentNoInlineTestStream_feedback$ref,
+    +$fragmentRefs: RelayModernEnvironmentNoInlineTestStream_feedback$fragmentType,
+    +$fragmentSpreads: RelayModernEnvironmentNoInlineTestStream_feedback$fragmentType,
   |},
 |};
+export type RelayModernEnvironmentNoInlineTestStreamQueryResponse = RelayModernEnvironmentNoInlineTestStreamQuery$data;
 export type RelayModernEnvironmentNoInlineTestStreamQuery = {|
   variables: RelayModernEnvironmentNoInlineTestStreamQueryVariables,
-  response: RelayModernEnvironmentNoInlineTestStreamQueryResponse,
+  response: RelayModernEnvironmentNoInlineTestStreamQuery$data,
 |};
 */
 
@@ -138,4 +141,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "07e00f103682c152c4770a0e200cd6e7";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentNoInlineTestStreamQuery$variables,
+  RelayModernEnvironmentNoInlineTestStreamQuery$data,
+>*/);

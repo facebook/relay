@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<2ae502ddfb83270d0e5c5ed5eeca7ff4>>
+ * @generated SignedSource<<a3eadfc588dadf3f9238698afa487206>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,9 +15,10 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-export type commitMutationTest3QueryVariables = {||};
-export type commitMutationTest3QueryResponse = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+export type commitMutationTest3Query$variables = {||};
+export type commitMutationTest3QueryVariables = commitMutationTest3Query$variables;
+export type commitMutationTest3Query$data = {|
   +viewer: ?{|
     +actor: ?{|
       +friends?: ?{|
@@ -30,9 +31,10 @@ export type commitMutationTest3QueryResponse = {|
     |},
   |},
 |};
+export type commitMutationTest3QueryResponse = commitMutationTest3Query$data;
 export type commitMutationTest3Query = {|
   variables: commitMutationTest3QueryVariables,
-  response: commitMutationTest3QueryResponse,
+  response: commitMutationTest3Query$data,
 |};
 */
 
@@ -252,4 +254,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "7a02d40aa4245312a2f1189bb1049b15";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  commitMutationTest3Query$variables,
+  commitMutationTest3Query$data,
+>*/);

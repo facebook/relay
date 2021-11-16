@@ -492,13 +492,19 @@ impl<'a> TypeGenerator<'a> {
                 self.writer
                     .write_export_fragment_type(&old_fragment_type_name, &new_fragment_type_name)?;
                 if let Some(refetchable_metadata) = refetchable_metadata {
-                    self.writer.write_import_fragment_type(
-                        &[&format!(
-                            "{}$variables",
-                            refetchable_metadata.operation_name
-                        )],
-                        &format!("{}.graphql", refetchable_metadata.operation_name),
-                    )?;
+                    let variables_name =
+                        format!("{}$variables", refetchable_metadata.operation_name);
+                    match self.js_module_format {
+                        JsModuleFormat::CommonJS => {
+                            self.writer.write_any_type_definition(&variables_name)?;
+                        }
+                        JsModuleFormat::Haste => {
+                            self.writer.write_import_fragment_type(
+                                &[&variables_name],
+                                &format!("{}.graphql", refetchable_metadata.operation_name),
+                            )?;
+                        }
+                    }
                 }
             }
         }

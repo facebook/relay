@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<5a9fff9e285763b2c28089b636e8504d>>
+ * @generated SignedSource<<c625532bdf21b77e7b7ec1743bf35d47>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,22 +15,24 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type useRefetchableFragmentNodeTestUserFragment$ref: FragmentReference;
-declare export opaque type useRefetchableFragmentNodeTestUserFragment$fragmentType: useRefetchableFragmentNodeTestUserFragment$ref;
-export type useRefetchableFragmentNodeTestUserFragmentRefetchQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+type useRefetchableFragmentNodeTestUserFragment$fragmentType = any;
+export type useRefetchableFragmentNodeTestUserFragmentRefetchQuery$variables = {|
   scale?: ?number,
   id: string,
 |};
-export type useRefetchableFragmentNodeTestUserFragmentRefetchQueryResponse = {|
+export type useRefetchableFragmentNodeTestUserFragmentRefetchQueryVariables = useRefetchableFragmentNodeTestUserFragmentRefetchQuery$variables;
+export type useRefetchableFragmentNodeTestUserFragmentRefetchQuery$data = {|
   +node: ?{|
-    +$fragmentRefs: useRefetchableFragmentNodeTestUserFragment$ref,
+    +$fragmentRefs: useRefetchableFragmentNodeTestUserFragment$fragmentType,
+    +$fragmentSpreads: useRefetchableFragmentNodeTestUserFragment$fragmentType,
   |},
 |};
+export type useRefetchableFragmentNodeTestUserFragmentRefetchQueryResponse = useRefetchableFragmentNodeTestUserFragmentRefetchQuery$data;
 export type useRefetchableFragmentNodeTestUserFragmentRefetchQuery = {|
   variables: useRefetchableFragmentNodeTestUserFragmentRefetchQueryVariables,
-  response: useRefetchableFragmentNodeTestUserFragmentRefetchQueryResponse,
+  response: useRefetchableFragmentNodeTestUserFragmentRefetchQuery$data,
 |};
 */
 
@@ -178,4 +180,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "05ecfc568de9d9914217013ff67f7014";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  useRefetchableFragmentNodeTestUserFragmentRefetchQuery$variables,
+  useRefetchableFragmentNodeTestUserFragmentRefetchQuery$data,
+>*/);

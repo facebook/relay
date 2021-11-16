@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b860f51f9070b2abea432e5508b90944>>
+ * @generated SignedSource<<6f1ee9ab77c9f0e4490f36fb19061171>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,31 +18,35 @@
 // @dataDrivenDependency FragmentResourceWithOperationTrackerTestUserFragment.plainNameRenderer {"branches":{"PlainUserNameRenderer":{"component":"PlainUserNameRenderer.react","fragment":"FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name$normalization.graphql"}},"plural":false}
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-type FragmentResourceWithOperationTrackerTestMarkdownUserNameRenderer_name$ref = any;
-type FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name$ref = any;
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type FragmentResourceWithOperationTrackerTestUserFragment$ref: FragmentReference;
-declare export opaque type FragmentResourceWithOperationTrackerTestUserFragment$fragmentType: FragmentResourceWithOperationTrackerTestUserFragment$ref;
-export type FragmentResourceWithOperationTrackerTestUserFragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+type FragmentResourceWithOperationTrackerTestMarkdownUserNameRenderer_name$fragmentType = any;
+type FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name$fragmentType = any;
+import type { FragmentType } from "relay-runtime";
+declare export opaque type FragmentResourceWithOperationTrackerTestUserFragment$fragmentType: FragmentType;
+export type FragmentResourceWithOperationTrackerTestUserFragment$ref = FragmentResourceWithOperationTrackerTestUserFragment$fragmentType;
+export type FragmentResourceWithOperationTrackerTestUserFragment$data = {|
   +id: string,
   +name: ?string,
   +nameRenderer: ?{|
     +__fragmentPropName?: ?string,
     +__module_component?: ?string,
-    +$fragmentRefs: FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name$ref & FragmentResourceWithOperationTrackerTestMarkdownUserNameRenderer_name$ref,
+    +$fragmentRefs: FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name$fragmentType & FragmentResourceWithOperationTrackerTestMarkdownUserNameRenderer_name$fragmentType,
+    +$fragmentSpreads: FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name$fragmentType & FragmentResourceWithOperationTrackerTestMarkdownUserNameRenderer_name$fragmentType,
   |},
   +plainNameRenderer: ?{|
     +__fragmentPropName?: ?string,
     +__module_component?: ?string,
-    +$fragmentRefs: FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name$ref,
+    +$fragmentRefs: FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name$fragmentType,
+    +$fragmentSpreads: FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name$fragmentType,
   |},
-  +$refType: FragmentResourceWithOperationTrackerTestUserFragment$ref,
+  +$refType: FragmentResourceWithOperationTrackerTestUserFragment$fragmentType,
+  +$fragmentType: FragmentResourceWithOperationTrackerTestUserFragment$fragmentType,
 |};
-export type FragmentResourceWithOperationTrackerTestUserFragment$data = FragmentResourceWithOperationTrackerTestUserFragment;
+export type FragmentResourceWithOperationTrackerTestUserFragment = FragmentResourceWithOperationTrackerTestUserFragment$data;
 export type FragmentResourceWithOperationTrackerTestUserFragment$key = {
   +$data?: FragmentResourceWithOperationTrackerTestUserFragment$data,
-  +$fragmentRefs: FragmentResourceWithOperationTrackerTestUserFragment$ref,
+  +$fragmentRefs: FragmentResourceWithOperationTrackerTestUserFragment$fragmentType,
+  +$fragmentSpreads: FragmentResourceWithOperationTrackerTestUserFragment$fragmentType,
   ...
 };
 */
@@ -157,4 +161,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "b3d16c15af5579c578a209cce953b3e2";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  FragmentResourceWithOperationTrackerTestUserFragment$fragmentType,
+  FragmentResourceWithOperationTrackerTestUserFragment$data,
+>*/);

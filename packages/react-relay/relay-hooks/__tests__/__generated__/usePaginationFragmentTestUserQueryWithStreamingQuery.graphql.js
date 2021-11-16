@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<1bfbf4d386bd2f1171bb5acc23f9da3e>>
+ * @generated SignedSource<<baea4a7e498a7d8ec2bf24dd231bed66>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,9 +15,9 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type usePaginationFragmentTestUserFragmentWithStreaming$ref = any;
-export type usePaginationFragmentTestUserQueryWithStreamingQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type usePaginationFragmentTestUserFragmentWithStreaming$fragmentType = any;
+export type usePaginationFragmentTestUserQueryWithStreamingQuery$variables = {|
   id: string,
   after?: ?string,
   first?: ?number,
@@ -26,14 +26,17 @@ export type usePaginationFragmentTestUserQueryWithStreamingQueryVariables = {|
   orderby?: ?$ReadOnlyArray<?string>,
   isViewerFriend?: ?boolean,
 |};
-export type usePaginationFragmentTestUserQueryWithStreamingQueryResponse = {|
+export type usePaginationFragmentTestUserQueryWithStreamingQueryVariables = usePaginationFragmentTestUserQueryWithStreamingQuery$variables;
+export type usePaginationFragmentTestUserQueryWithStreamingQuery$data = {|
   +node: ?{|
-    +$fragmentRefs: usePaginationFragmentTestUserFragmentWithStreaming$ref,
+    +$fragmentRefs: usePaginationFragmentTestUserFragmentWithStreaming$fragmentType,
+    +$fragmentSpreads: usePaginationFragmentTestUserFragmentWithStreaming$fragmentType,
   |},
 |};
+export type usePaginationFragmentTestUserQueryWithStreamingQueryResponse = usePaginationFragmentTestUserQueryWithStreamingQuery$data;
 export type usePaginationFragmentTestUserQueryWithStreamingQuery = {|
   variables: usePaginationFragmentTestUserQueryWithStreamingQueryVariables,
-  response: usePaginationFragmentTestUserQueryWithStreamingQueryResponse,
+  response: usePaginationFragmentTestUserQueryWithStreamingQuery$data,
 |};
 */
 
@@ -343,4 +346,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "3804d84962fa5c729fa01498dc7e4224";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  usePaginationFragmentTestUserQueryWithStreamingQuery$variables,
+  usePaginationFragmentTestUserQueryWithStreamingQuery$data,
+>*/);

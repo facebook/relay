@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<c895476d2f77c656e1fa5ca467399035>>
+ * @generated SignedSource<<35b69f656d19b8e5d7dd3dab0af1c265>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,21 +15,23 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayModernEnvironmentExecuteWithRelayClientComponentTest_clientFragment$ref: FragmentReference;
-declare export opaque type RelayModernEnvironmentExecuteWithRelayClientComponentTest_clientFragment$fragmentType: RelayModernEnvironmentExecuteWithRelayClientComponentTest_clientFragment$ref;
-export type RelayModernEnvironmentExecuteWithRelayClientComponentTest_clientFragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayModernEnvironmentExecuteWithRelayClientComponentTest_clientFragment$fragmentType: FragmentType;
+export type RelayModernEnvironmentExecuteWithRelayClientComponentTest_clientFragment$ref = RelayModernEnvironmentExecuteWithRelayClientComponentTest_clientFragment$fragmentType;
+export type RelayModernEnvironmentExecuteWithRelayClientComponentTest_clientFragment$data = {|
   +name: ?string,
   +body: ?{|
     +text: ?string,
   |},
-  +$refType: RelayModernEnvironmentExecuteWithRelayClientComponentTest_clientFragment$ref,
+  +$refType: RelayModernEnvironmentExecuteWithRelayClientComponentTest_clientFragment$fragmentType,
+  +$fragmentType: RelayModernEnvironmentExecuteWithRelayClientComponentTest_clientFragment$fragmentType,
 |};
-export type RelayModernEnvironmentExecuteWithRelayClientComponentTest_clientFragment$data = RelayModernEnvironmentExecuteWithRelayClientComponentTest_clientFragment;
+export type RelayModernEnvironmentExecuteWithRelayClientComponentTest_clientFragment = RelayModernEnvironmentExecuteWithRelayClientComponentTest_clientFragment$data;
 export type RelayModernEnvironmentExecuteWithRelayClientComponentTest_clientFragment$key = {
   +$data?: RelayModernEnvironmentExecuteWithRelayClientComponentTest_clientFragment$data,
-  +$fragmentRefs: RelayModernEnvironmentExecuteWithRelayClientComponentTest_clientFragment$ref,
+  +$fragmentRefs: RelayModernEnvironmentExecuteWithRelayClientComponentTest_clientFragment$fragmentType,
+  +$fragmentSpreads: RelayModernEnvironmentExecuteWithRelayClientComponentTest_clientFragment$fragmentType,
   ...
 };
 */
@@ -74,4 +76,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "18679cc241c9b27229ab29e32aad5597";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayModernEnvironmentExecuteWithRelayClientComponentTest_clientFragment$fragmentType,
+  RelayModernEnvironmentExecuteWithRelayClientComponentTest_clientFragment$data,
+>*/);

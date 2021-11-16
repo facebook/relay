@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<02dbfa9d5c94934e8f7126efea687cb5>>
+ * @generated SignedSource<<253dfdad9eb9cf6d4d8af6e51b085e63>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,18 +15,20 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayReaderRequiredFieldsTest1Fragment$ref: FragmentReference;
-declare export opaque type RelayReaderRequiredFieldsTest1Fragment$fragmentType: RelayReaderRequiredFieldsTest1Fragment$ref;
-export type RelayReaderRequiredFieldsTest1Fragment = ?{|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayReaderRequiredFieldsTest1Fragment$fragmentType: FragmentType;
+export type RelayReaderRequiredFieldsTest1Fragment$ref = RelayReaderRequiredFieldsTest1Fragment$fragmentType;
+export type RelayReaderRequiredFieldsTest1Fragment$data = ?{|
   +lastName: string,
-  +$refType: RelayReaderRequiredFieldsTest1Fragment$ref,
+  +$refType: RelayReaderRequiredFieldsTest1Fragment$fragmentType,
+  +$fragmentType: RelayReaderRequiredFieldsTest1Fragment$fragmentType,
 |};
-export type RelayReaderRequiredFieldsTest1Fragment$data = RelayReaderRequiredFieldsTest1Fragment;
+export type RelayReaderRequiredFieldsTest1Fragment = RelayReaderRequiredFieldsTest1Fragment$data;
 export type RelayReaderRequiredFieldsTest1Fragment$key = {
   +$data?: RelayReaderRequiredFieldsTest1Fragment$data,
-  +$fragmentRefs: RelayReaderRequiredFieldsTest1Fragment$ref,
+  +$fragmentRefs: RelayReaderRequiredFieldsTest1Fragment$fragmentType,
+  +$fragmentSpreads: RelayReaderRequiredFieldsTest1Fragment$fragmentType,
   ...
 };
 */
@@ -58,4 +60,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "5c895b4bf852db5d7ba990fef64eee3f";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayReaderRequiredFieldsTest1Fragment$fragmentType,
+  RelayReaderRequiredFieldsTest1Fragment$data,
+>*/);

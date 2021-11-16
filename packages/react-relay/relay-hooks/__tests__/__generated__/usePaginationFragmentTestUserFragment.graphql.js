@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<3627488ef7fe80e9e2175e20364ce735>>
+ * @generated SignedSource<<a2d6debad244baf5dbc4c1f40bd5167d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,13 +15,13 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-type usePaginationFragmentTestNestedUserFragment$ref = any;
-import type { FragmentReference } from "relay-runtime";
-type usePaginationFragmentTestUserFragment$ref = any;
-type usePaginationFragmentTestUserFragment$fragmentType = any;
-export type { usePaginationFragmentTestUserFragment$ref, usePaginationFragmentTestUserFragment$fragmentType };
-export type usePaginationFragmentTestUserFragment = {|
+import type { ReaderFragment, RefetchableFragment } from 'relay-runtime';
+type usePaginationFragmentTestNestedUserFragment$fragmentType = any;
+import type { FragmentType } from "relay-runtime";
+declare export opaque type usePaginationFragmentTestUserFragment$fragmentType: FragmentType;
+export type usePaginationFragmentTestUserFragment$ref = usePaginationFragmentTestUserFragment$fragmentType;
+type usePaginationFragmentTestUserFragmentPaginationQuery$variables = any;
+export type usePaginationFragmentTestUserFragment$data = {|
   +id: string,
   +name: ?string,
   +friends: ?{|
@@ -29,16 +29,19 @@ export type usePaginationFragmentTestUserFragment = {|
       +node: ?{|
         +id: string,
         +name: ?string,
-        +$fragmentRefs: usePaginationFragmentTestNestedUserFragment$ref,
+        +$fragmentRefs: usePaginationFragmentTestNestedUserFragment$fragmentType,
+        +$fragmentSpreads: usePaginationFragmentTestNestedUserFragment$fragmentType,
       |},
     |}>,
   |},
-  +$refType: usePaginationFragmentTestUserFragment$ref,
+  +$refType: usePaginationFragmentTestUserFragment$fragmentType,
+  +$fragmentType: usePaginationFragmentTestUserFragment$fragmentType,
 |};
-export type usePaginationFragmentTestUserFragment$data = usePaginationFragmentTestUserFragment;
+export type usePaginationFragmentTestUserFragment = usePaginationFragmentTestUserFragment$data;
 export type usePaginationFragmentTestUserFragment$key = {
   +$data?: usePaginationFragmentTestUserFragment$data,
-  +$fragmentRefs: usePaginationFragmentTestUserFragment$ref,
+  +$fragmentRefs: usePaginationFragmentTestUserFragment$fragmentType,
+  +$fragmentSpreads: usePaginationFragmentTestUserFragment$fragmentType,
   ...
 };
 */
@@ -242,4 +245,8 @@ if (__DEV__) {
   (node/*: any*/).hash = "fe5dabc8eef251e3032e850d1c26f222";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: RefetchableFragment<
+  usePaginationFragmentTestUserFragment$fragmentType,
+  usePaginationFragmentTestUserFragment$data,
+  usePaginationFragmentTestUserFragmentPaginationQuery$variables,
+>*/);

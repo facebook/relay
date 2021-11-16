@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<9788ccaeb52bddc713c1eb99c95a46e2>>
+ * @generated SignedSource<<acf713738740a84dd15b108163b10c17>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,11 +15,11 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type ReactRelayPaginationContainerReactDoubleEffectsTestUserFragment$ref: FragmentReference;
-declare export opaque type ReactRelayPaginationContainerReactDoubleEffectsTestUserFragment$fragmentType: ReactRelayPaginationContainerReactDoubleEffectsTestUserFragment$ref;
-export type ReactRelayPaginationContainerReactDoubleEffectsTestUserFragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type ReactRelayPaginationContainerReactDoubleEffectsTestUserFragment$fragmentType: FragmentType;
+export type ReactRelayPaginationContainerReactDoubleEffectsTestUserFragment$ref = ReactRelayPaginationContainerReactDoubleEffectsTestUserFragment$fragmentType;
+export type ReactRelayPaginationContainerReactDoubleEffectsTestUserFragment$data = {|
   +id: string,
   +name: ?string,
   +friends: ?{|
@@ -29,12 +29,14 @@ export type ReactRelayPaginationContainerReactDoubleEffectsTestUserFragment = {|
       |},
     |}>,
   |},
-  +$refType: ReactRelayPaginationContainerReactDoubleEffectsTestUserFragment$ref,
+  +$refType: ReactRelayPaginationContainerReactDoubleEffectsTestUserFragment$fragmentType,
+  +$fragmentType: ReactRelayPaginationContainerReactDoubleEffectsTestUserFragment$fragmentType,
 |};
-export type ReactRelayPaginationContainerReactDoubleEffectsTestUserFragment$data = ReactRelayPaginationContainerReactDoubleEffectsTestUserFragment;
+export type ReactRelayPaginationContainerReactDoubleEffectsTestUserFragment = ReactRelayPaginationContainerReactDoubleEffectsTestUserFragment$data;
 export type ReactRelayPaginationContainerReactDoubleEffectsTestUserFragment$key = {
   +$data?: ReactRelayPaginationContainerReactDoubleEffectsTestUserFragment$data,
-  +$fragmentRefs: ReactRelayPaginationContainerReactDoubleEffectsTestUserFragment$ref,
+  +$fragmentRefs: ReactRelayPaginationContainerReactDoubleEffectsTestUserFragment$fragmentType,
+  +$fragmentSpreads: ReactRelayPaginationContainerReactDoubleEffectsTestUserFragment$fragmentType,
   ...
 };
 */
@@ -160,4 +162,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "6acef6ac357c40134d0599c7879d1a48";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  ReactRelayPaginationContainerReactDoubleEffectsTestUserFragment$fragmentType,
+  ReactRelayPaginationContainerReactDoubleEffectsTestUserFragment$data,
+>*/);

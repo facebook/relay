@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<69c79979858a0c564564e4e37dd1f083>>
+ * @generated SignedSource<<98e56ed20da70574c2c2987d48b8e75a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,23 +15,26 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type useBlockingPaginationFragmentTestUserFragment$ref = any;
-export type useBlockingPaginationFragmentTestUserQueryWithLiteralArgsQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type useBlockingPaginationFragmentTestUserFragment$fragmentType = any;
+export type useBlockingPaginationFragmentTestUserQueryWithLiteralArgsQuery$variables = {|
   id: string,
   after?: ?string,
   first?: ?number,
   before?: ?string,
   last?: ?number,
 |};
-export type useBlockingPaginationFragmentTestUserQueryWithLiteralArgsQueryResponse = {|
+export type useBlockingPaginationFragmentTestUserQueryWithLiteralArgsQueryVariables = useBlockingPaginationFragmentTestUserQueryWithLiteralArgsQuery$variables;
+export type useBlockingPaginationFragmentTestUserQueryWithLiteralArgsQuery$data = {|
   +node: ?{|
-    +$fragmentRefs: useBlockingPaginationFragmentTestUserFragment$ref,
+    +$fragmentRefs: useBlockingPaginationFragmentTestUserFragment$fragmentType,
+    +$fragmentSpreads: useBlockingPaginationFragmentTestUserFragment$fragmentType,
   |},
 |};
+export type useBlockingPaginationFragmentTestUserQueryWithLiteralArgsQueryResponse = useBlockingPaginationFragmentTestUserQueryWithLiteralArgsQuery$data;
 export type useBlockingPaginationFragmentTestUserQueryWithLiteralArgsQuery = {|
   variables: useBlockingPaginationFragmentTestUserQueryWithLiteralArgsQueryVariables,
-  response: useBlockingPaginationFragmentTestUserQueryWithLiteralArgsQueryResponse,
+  response: useBlockingPaginationFragmentTestUserQueryWithLiteralArgsQuery$data,
 |};
 */
 
@@ -315,4 +318,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "48433b64c70ecbb519ed6a7d45ec3952";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  useBlockingPaginationFragmentTestUserQueryWithLiteralArgsQuery$variables,
+  useBlockingPaginationFragmentTestUserQueryWithLiteralArgsQuery$data,
+>*/);

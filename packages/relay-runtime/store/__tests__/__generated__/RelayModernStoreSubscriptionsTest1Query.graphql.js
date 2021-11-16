@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<f04674abb2be1f10fd3370ea358c960d>>
+ * @generated SignedSource<<e67a164fe1d08ff42618159bfef2170a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,19 +15,22 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernStoreSubscriptionsTest1Fragment$ref = any;
-export type RelayModernStoreSubscriptionsTest1QueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayModernStoreSubscriptionsTest1Fragment$fragmentType = any;
+export type RelayModernStoreSubscriptionsTest1Query$variables = {|
   size?: ?$ReadOnlyArray<?number>,
 |};
-export type RelayModernStoreSubscriptionsTest1QueryResponse = {|
+export type RelayModernStoreSubscriptionsTest1QueryVariables = RelayModernStoreSubscriptionsTest1Query$variables;
+export type RelayModernStoreSubscriptionsTest1Query$data = {|
   +me: ?{|
-    +$fragmentRefs: RelayModernStoreSubscriptionsTest1Fragment$ref,
+    +$fragmentRefs: RelayModernStoreSubscriptionsTest1Fragment$fragmentType,
+    +$fragmentSpreads: RelayModernStoreSubscriptionsTest1Fragment$fragmentType,
   |},
 |};
+export type RelayModernStoreSubscriptionsTest1QueryResponse = RelayModernStoreSubscriptionsTest1Query$data;
 export type RelayModernStoreSubscriptionsTest1Query = {|
   variables: RelayModernStoreSubscriptionsTest1QueryVariables,
-  response: RelayModernStoreSubscriptionsTest1QueryResponse,
+  response: RelayModernStoreSubscriptionsTest1Query$data,
 |};
 */
 
@@ -145,4 +148,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "6a870e1efbbf7359cfbdb0f5f6d8848e";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernStoreSubscriptionsTest1Query$variables,
+  RelayModernStoreSubscriptionsTest1Query$data,
+>*/);

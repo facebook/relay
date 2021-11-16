@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<918b18494617b6295a54f0303e77997e>>
+ * @generated SignedSource<<bc3b33e98081335b544f77e4c645c8a0>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,18 +15,20 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type useLazyLoadQueryNodeFastRefreshTestUserFragment$ref: FragmentReference;
-declare export opaque type useLazyLoadQueryNodeFastRefreshTestUserFragment$fragmentType: useLazyLoadQueryNodeFastRefreshTestUserFragment$ref;
-export type useLazyLoadQueryNodeFastRefreshTestUserFragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type useLazyLoadQueryNodeFastRefreshTestUserFragment$fragmentType: FragmentType;
+export type useLazyLoadQueryNodeFastRefreshTestUserFragment$ref = useLazyLoadQueryNodeFastRefreshTestUserFragment$fragmentType;
+export type useLazyLoadQueryNodeFastRefreshTestUserFragment$data = {|
   +name: ?string,
-  +$refType: useLazyLoadQueryNodeFastRefreshTestUserFragment$ref,
+  +$refType: useLazyLoadQueryNodeFastRefreshTestUserFragment$fragmentType,
+  +$fragmentType: useLazyLoadQueryNodeFastRefreshTestUserFragment$fragmentType,
 |};
-export type useLazyLoadQueryNodeFastRefreshTestUserFragment$data = useLazyLoadQueryNodeFastRefreshTestUserFragment;
+export type useLazyLoadQueryNodeFastRefreshTestUserFragment = useLazyLoadQueryNodeFastRefreshTestUserFragment$data;
 export type useLazyLoadQueryNodeFastRefreshTestUserFragment$key = {
   +$data?: useLazyLoadQueryNodeFastRefreshTestUserFragment$data,
-  +$fragmentRefs: useLazyLoadQueryNodeFastRefreshTestUserFragment$ref,
+  +$fragmentRefs: useLazyLoadQueryNodeFastRefreshTestUserFragment$fragmentType,
+  +$fragmentSpreads: useLazyLoadQueryNodeFastRefreshTestUserFragment$fragmentType,
   ...
 };
 */
@@ -53,4 +55,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "8e11c134c00f9c403402ed2888eaa8d8";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  useLazyLoadQueryNodeFastRefreshTestUserFragment$fragmentType,
+  useLazyLoadQueryNodeFastRefreshTestUserFragment$data,
+>*/);

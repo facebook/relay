@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<f5897da017446f060d849cbd266b9566>>
+ * @generated SignedSource<<14fbe2c084fbc4dc6a146daff475df1a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,24 +17,28 @@
 // @dataDrivenDependency RelayModernEnvironmentCommitPayloadTest6ActorQuery.me.nameRenderer {"branches":{"MarkdownUserNameRenderer":{"component":"MarkdownUserNameRenderer.react","fragment":"RelayModernEnvironmentCommitPayloadTest6MarkdownUserNameRenderer_name$normalization.graphql"}},"plural":false}
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernEnvironmentCommitPayloadTest6MarkdownUserNameRenderer_name$ref = any;
-type RelayModernEnvironmentCommitPayloadTest6UserFragment$ref = any;
-export type RelayModernEnvironmentCommitPayloadTest6ActorQueryVariables = {||};
-export type RelayModernEnvironmentCommitPayloadTest6ActorQueryResponse = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayModernEnvironmentCommitPayloadTest6MarkdownUserNameRenderer_name$fragmentType = any;
+type RelayModernEnvironmentCommitPayloadTest6UserFragment$fragmentType = any;
+export type RelayModernEnvironmentCommitPayloadTest6ActorQuery$variables = {||};
+export type RelayModernEnvironmentCommitPayloadTest6ActorQueryVariables = RelayModernEnvironmentCommitPayloadTest6ActorQuery$variables;
+export type RelayModernEnvironmentCommitPayloadTest6ActorQuery$data = {|
   +me: ?{|
     +name: ?string,
     +nameRenderer: ?{|
       +__fragmentPropName?: ?string,
       +__module_component?: ?string,
-      +$fragmentRefs: RelayModernEnvironmentCommitPayloadTest6MarkdownUserNameRenderer_name$ref,
+      +$fragmentRefs: RelayModernEnvironmentCommitPayloadTest6MarkdownUserNameRenderer_name$fragmentType,
+      +$fragmentSpreads: RelayModernEnvironmentCommitPayloadTest6MarkdownUserNameRenderer_name$fragmentType,
     |},
-    +$fragmentRefs: RelayModernEnvironmentCommitPayloadTest6UserFragment$ref,
+    +$fragmentRefs: RelayModernEnvironmentCommitPayloadTest6UserFragment$fragmentType,
+    +$fragmentSpreads: RelayModernEnvironmentCommitPayloadTest6UserFragment$fragmentType,
   |},
 |};
+export type RelayModernEnvironmentCommitPayloadTest6ActorQueryResponse = RelayModernEnvironmentCommitPayloadTest6ActorQuery$data;
 export type RelayModernEnvironmentCommitPayloadTest6ActorQuery = {|
   variables: RelayModernEnvironmentCommitPayloadTest6ActorQueryVariables,
-  response: RelayModernEnvironmentCommitPayloadTest6ActorQueryResponse,
+  response: RelayModernEnvironmentCommitPayloadTest6ActorQuery$data,
 |};
 */
 
@@ -180,4 +184,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "a6b604953d655581e78c5617d1c01e66";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentCommitPayloadTest6ActorQuery$variables,
+  RelayModernEnvironmentCommitPayloadTest6ActorQuery$data,
+>*/);

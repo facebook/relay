@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<8c1ed24938510d73bd1911a678d68daa>>
+ * @generated SignedSource<<3ded99fa304dcf8c724df2c8efb3ffed>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,23 +15,25 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type GraphQLTagTest6UserFragment$ref: FragmentReference;
-declare export opaque type GraphQLTagTest6UserFragment$fragmentType: GraphQLTagTest6UserFragment$ref;
-export type GraphQLTagTestUserFragment4RefetchQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+type GraphQLTagTest6UserFragment$fragmentType = any;
+export type GraphQLTagTestUserFragment4RefetchQuery$variables = {|
   after?: ?string,
   first?: ?number,
   id: string,
 |};
-export type GraphQLTagTestUserFragment4RefetchQueryResponse = {|
+export type GraphQLTagTestUserFragment4RefetchQueryVariables = GraphQLTagTestUserFragment4RefetchQuery$variables;
+export type GraphQLTagTestUserFragment4RefetchQuery$data = {|
   +node: ?{|
-    +$fragmentRefs: GraphQLTagTest6UserFragment$ref,
+    +$fragmentRefs: GraphQLTagTest6UserFragment$fragmentType,
+    +$fragmentSpreads: GraphQLTagTest6UserFragment$fragmentType,
   |},
 |};
+export type GraphQLTagTestUserFragment4RefetchQueryResponse = GraphQLTagTestUserFragment4RefetchQuery$data;
 export type GraphQLTagTestUserFragment4RefetchQuery = {|
   variables: GraphQLTagTestUserFragment4RefetchQueryVariables,
-  response: GraphQLTagTestUserFragment4RefetchQueryResponse,
+  response: GraphQLTagTestUserFragment4RefetchQuery$data,
 |};
 */
 
@@ -239,4 +241,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "10a776f9a2114f43f6ada6ebe6adc273";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  GraphQLTagTestUserFragment4RefetchQuery$variables,
+  GraphQLTagTestUserFragment4RefetchQuery$data,
+>*/);

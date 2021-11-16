@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<48da12ef79e79ae34177495d07933845>>
+ * @generated SignedSource<<2889f37acb97350c94961061401b5deb>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,20 +15,23 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type MultiActorEnvironmentExecuteMutationTestCommentFragment$ref = any;
-export type MultiActorEnvironmentExecuteMutationTestCommentQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type MultiActorEnvironmentExecuteMutationTestCommentFragment$fragmentType = any;
+export type MultiActorEnvironmentExecuteMutationTestCommentQuery$variables = {|
   id: string,
 |};
-export type MultiActorEnvironmentExecuteMutationTestCommentQueryResponse = {|
+export type MultiActorEnvironmentExecuteMutationTestCommentQueryVariables = MultiActorEnvironmentExecuteMutationTestCommentQuery$variables;
+export type MultiActorEnvironmentExecuteMutationTestCommentQuery$data = {|
   +node: ?{|
     +id: string,
-    +$fragmentRefs: MultiActorEnvironmentExecuteMutationTestCommentFragment$ref,
+    +$fragmentRefs: MultiActorEnvironmentExecuteMutationTestCommentFragment$fragmentType,
+    +$fragmentSpreads: MultiActorEnvironmentExecuteMutationTestCommentFragment$fragmentType,
   |},
 |};
+export type MultiActorEnvironmentExecuteMutationTestCommentQueryResponse = MultiActorEnvironmentExecuteMutationTestCommentQuery$data;
 export type MultiActorEnvironmentExecuteMutationTestCommentQuery = {|
   variables: MultiActorEnvironmentExecuteMutationTestCommentQueryVariables,
-  response: MultiActorEnvironmentExecuteMutationTestCommentQueryResponse,
+  response: MultiActorEnvironmentExecuteMutationTestCommentQuery$data,
 |};
 */
 
@@ -149,4 +152,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "dd845fc72f2a9b2b232f69a75bfae3f7";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  MultiActorEnvironmentExecuteMutationTestCommentQuery$variables,
+  MultiActorEnvironmentExecuteMutationTestCommentQuery$data,
+>*/);

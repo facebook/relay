@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<fb7b9e8454719e08080b51ed5f65aa09>>
+ * @generated SignedSource<<8da29b042d8835abe9d6f70584472565>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,18 +15,20 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type useQueryLoaderReactDoubleEffectsTestUserFragment$ref: FragmentReference;
-declare export opaque type useQueryLoaderReactDoubleEffectsTestUserFragment$fragmentType: useQueryLoaderReactDoubleEffectsTestUserFragment$ref;
-export type useQueryLoaderReactDoubleEffectsTestUserFragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type useQueryLoaderReactDoubleEffectsTestUserFragment$fragmentType: FragmentType;
+export type useQueryLoaderReactDoubleEffectsTestUserFragment$ref = useQueryLoaderReactDoubleEffectsTestUserFragment$fragmentType;
+export type useQueryLoaderReactDoubleEffectsTestUserFragment$data = {|
   +name: ?string,
-  +$refType: useQueryLoaderReactDoubleEffectsTestUserFragment$ref,
+  +$refType: useQueryLoaderReactDoubleEffectsTestUserFragment$fragmentType,
+  +$fragmentType: useQueryLoaderReactDoubleEffectsTestUserFragment$fragmentType,
 |};
-export type useQueryLoaderReactDoubleEffectsTestUserFragment$data = useQueryLoaderReactDoubleEffectsTestUserFragment;
+export type useQueryLoaderReactDoubleEffectsTestUserFragment = useQueryLoaderReactDoubleEffectsTestUserFragment$data;
 export type useQueryLoaderReactDoubleEffectsTestUserFragment$key = {
   +$data?: useQueryLoaderReactDoubleEffectsTestUserFragment$data,
-  +$fragmentRefs: useQueryLoaderReactDoubleEffectsTestUserFragment$ref,
+  +$fragmentRefs: useQueryLoaderReactDoubleEffectsTestUserFragment$fragmentType,
+  +$fragmentSpreads: useQueryLoaderReactDoubleEffectsTestUserFragment$fragmentType,
   ...
 };
 */
@@ -53,4 +55,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "72c07efb1c002b4aee506ebf63936270";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  useQueryLoaderReactDoubleEffectsTestUserFragment$fragmentType,
+  useQueryLoaderReactDoubleEffectsTestUserFragment$data,
+>*/);

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<7ca3405bd58411b025f0527d4f0cdb43>>
+ * @generated SignedSource<<d62834dbe2e23660dbd741e652eff1f0>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,25 +17,28 @@
 // @dataDrivenDependency RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment.nameRenderer {"branches":{"MarkdownUserNameRenderer":{"component":"MarkdownUserNameRenderer.react","fragment":"RelayReaderTestWhenMatchDirectiveIsPresentNoModuleMarkdownUserNameRenderer_name$normalization.graphql"},"PlainUserNameRenderer":{"component":"PlainUserNameRenderer.react","fragment":"RelayReaderTestWhenMatchDirectiveIsPresentNoModulePlainUserNameRenderer_name$normalization.graphql"}},"plural":false}
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-type RelayReaderTestWhenMatchDirectiveIsPresentNoModuleMarkdownUserNameRenderer_name$ref = any;
-type RelayReaderTestWhenMatchDirectiveIsPresentNoModulePlainUserNameRenderer_name$ref = any;
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment$ref: FragmentReference;
-declare export opaque type RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment$fragmentType: RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment$ref;
-export type RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+type RelayReaderTestWhenMatchDirectiveIsPresentNoModuleMarkdownUserNameRenderer_name$fragmentType = any;
+type RelayReaderTestWhenMatchDirectiveIsPresentNoModulePlainUserNameRenderer_name$fragmentType = any;
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment$fragmentType: FragmentType;
+export type RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment$ref = RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment$fragmentType;
+export type RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment$data = {|
   +id: string,
   +nameRenderer: ?{|
     +__fragmentPropName?: ?string,
     +__module_component?: ?string,
-    +$fragmentRefs: RelayReaderTestWhenMatchDirectiveIsPresentNoModulePlainUserNameRenderer_name$ref & RelayReaderTestWhenMatchDirectiveIsPresentNoModuleMarkdownUserNameRenderer_name$ref,
+    +$fragmentRefs: RelayReaderTestWhenMatchDirectiveIsPresentNoModulePlainUserNameRenderer_name$fragmentType & RelayReaderTestWhenMatchDirectiveIsPresentNoModuleMarkdownUserNameRenderer_name$fragmentType,
+    +$fragmentSpreads: RelayReaderTestWhenMatchDirectiveIsPresentNoModulePlainUserNameRenderer_name$fragmentType & RelayReaderTestWhenMatchDirectiveIsPresentNoModuleMarkdownUserNameRenderer_name$fragmentType,
   |},
-  +$refType: RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment$ref,
+  +$refType: RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment$fragmentType,
+  +$fragmentType: RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment$fragmentType,
 |};
-export type RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment$data = RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment;
+export type RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment = RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment$data;
 export type RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment$key = {
   +$data?: RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment$data,
-  +$fragmentRefs: RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment$ref,
+  +$fragmentRefs: RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment$fragmentType,
+  +$fragmentSpreads: RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment$fragmentType,
   ...
 };
 */
@@ -101,4 +104,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "3171d1e6bd288204b1bbcf964f679bb0";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment$fragmentType,
+  RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment$data,
+>*/);

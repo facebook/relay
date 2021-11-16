@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<16b35dcfeba2eb03933d64241f7bc444>>
+ * @generated SignedSource<<4e366a3ef3a1c7a49546d678f46d3fe7>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,20 +15,23 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type FragmentResourceRequiredFieldTestUserFragment$ref = any;
-export type FragmentResourceRequiredFieldTestUserQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type FragmentResourceRequiredFieldTestUserFragment$fragmentType = any;
+export type FragmentResourceRequiredFieldTestUserQuery$variables = {|
   id: string,
 |};
-export type FragmentResourceRequiredFieldTestUserQueryResponse = {|
+export type FragmentResourceRequiredFieldTestUserQueryVariables = FragmentResourceRequiredFieldTestUserQuery$variables;
+export type FragmentResourceRequiredFieldTestUserQuery$data = {|
   +node: ?{|
     +__typename: string,
-    +$fragmentRefs: FragmentResourceRequiredFieldTestUserFragment$ref,
+    +$fragmentRefs: FragmentResourceRequiredFieldTestUserFragment$fragmentType,
+    +$fragmentSpreads: FragmentResourceRequiredFieldTestUserFragment$fragmentType,
   |},
 |};
+export type FragmentResourceRequiredFieldTestUserQueryResponse = FragmentResourceRequiredFieldTestUserQuery$data;
 export type FragmentResourceRequiredFieldTestUserQuery = {|
   variables: FragmentResourceRequiredFieldTestUserQueryVariables,
-  response: FragmentResourceRequiredFieldTestUserQueryResponse,
+  response: FragmentResourceRequiredFieldTestUserQuery$data,
 |};
 */
 
@@ -145,4 +148,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "d8c62e66c365d6179520bf2a12a9f8ac";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  FragmentResourceRequiredFieldTestUserQuery$variables,
+  FragmentResourceRequiredFieldTestUserQuery$data,
+>*/);

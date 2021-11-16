@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<e2c91a90e83b85cdbd386077f8d217ac>>
+ * @generated SignedSource<<9d6306cf83c0575e9f97e88470ef4f20>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,20 +15,23 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type getFragmentIdentifierTest1UserFragmentWithArgs$ref = any;
-export type getFragmentIdentifierTest1UserQueryWithArgsQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type getFragmentIdentifierTest1UserFragmentWithArgs$fragmentType = any;
+export type getFragmentIdentifierTest1UserQueryWithArgsQuery$variables = {|
   id: string,
   scale: number,
 |};
-export type getFragmentIdentifierTest1UserQueryWithArgsQueryResponse = {|
+export type getFragmentIdentifierTest1UserQueryWithArgsQueryVariables = getFragmentIdentifierTest1UserQueryWithArgsQuery$variables;
+export type getFragmentIdentifierTest1UserQueryWithArgsQuery$data = {|
   +node: ?{|
-    +$fragmentRefs: getFragmentIdentifierTest1UserFragmentWithArgs$ref,
+    +$fragmentRefs: getFragmentIdentifierTest1UserFragmentWithArgs$fragmentType,
+    +$fragmentSpreads: getFragmentIdentifierTest1UserFragmentWithArgs$fragmentType,
   |},
 |};
+export type getFragmentIdentifierTest1UserQueryWithArgsQueryResponse = getFragmentIdentifierTest1UserQueryWithArgsQuery$data;
 export type getFragmentIdentifierTest1UserQueryWithArgsQuery = {|
   variables: getFragmentIdentifierTest1UserQueryWithArgsQueryVariables,
-  response: getFragmentIdentifierTest1UserQueryWithArgsQueryResponse,
+  response: getFragmentIdentifierTest1UserQueryWithArgsQuery$data,
 |};
 */
 
@@ -178,4 +181,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "2c6734517dd2de88716f70f4c2a3b59e";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  getFragmentIdentifierTest1UserQueryWithArgsQuery$variables,
+  getFragmentIdentifierTest1UserQueryWithArgsQuery$data,
+>*/);

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b9538a55caade1086912ee180ad40e8f>>
+ * @generated SignedSource<<059eee09f723c885011388ed39ecca27>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,21 +15,24 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type ReactRelayLocalQueryRendererTestUserFragment$ref = any;
-export type ReactRelayLocalQueryRendererTestUserQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type ReactRelayLocalQueryRendererTestUserFragment$fragmentType = any;
+export type ReactRelayLocalQueryRendererTestUserQuery$variables = {|
   id?: ?string,
 |};
-export type ReactRelayLocalQueryRendererTestUserQueryResponse = {|
+export type ReactRelayLocalQueryRendererTestUserQueryVariables = ReactRelayLocalQueryRendererTestUserQuery$variables;
+export type ReactRelayLocalQueryRendererTestUserQuery$data = {|
   +node: ?{|
     +id: string,
     +lastName?: ?string,
-    +$fragmentRefs: ReactRelayLocalQueryRendererTestUserFragment$ref,
+    +$fragmentRefs: ReactRelayLocalQueryRendererTestUserFragment$fragmentType,
+    +$fragmentSpreads: ReactRelayLocalQueryRendererTestUserFragment$fragmentType,
   |},
 |};
+export type ReactRelayLocalQueryRendererTestUserQueryResponse = ReactRelayLocalQueryRendererTestUserQuery$data;
 export type ReactRelayLocalQueryRendererTestUserQuery = {|
   variables: ReactRelayLocalQueryRendererTestUserQueryVariables,
-  response: ReactRelayLocalQueryRendererTestUserQueryResponse,
+  response: ReactRelayLocalQueryRendererTestUserQuery$data,
 |};
 */
 
@@ -155,4 +158,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "f46ad8fa64eb4b5933ed039b4cc94e16";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  ReactRelayLocalQueryRendererTestUserQuery$variables,
+  ReactRelayLocalQueryRendererTestUserQuery$data,
+>*/);

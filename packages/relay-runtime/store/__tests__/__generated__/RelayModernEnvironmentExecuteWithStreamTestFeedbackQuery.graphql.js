@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<de8d6f630c80657e61e184c1d4db0c40>>
+ * @generated SignedSource<<621926f9c0440b3b8588787dd9fd3e0a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,20 +15,23 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernEnvironmentExecuteWithStreamTestFeedbackFragment$ref = any;
-export type RelayModernEnvironmentExecuteWithStreamTestFeedbackQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayModernEnvironmentExecuteWithStreamTestFeedbackFragment$fragmentType = any;
+export type RelayModernEnvironmentExecuteWithStreamTestFeedbackQuery$variables = {|
   id: string,
   enableStream: boolean,
 |};
-export type RelayModernEnvironmentExecuteWithStreamTestFeedbackQueryResponse = {|
+export type RelayModernEnvironmentExecuteWithStreamTestFeedbackQueryVariables = RelayModernEnvironmentExecuteWithStreamTestFeedbackQuery$variables;
+export type RelayModernEnvironmentExecuteWithStreamTestFeedbackQuery$data = {|
   +node: ?{|
-    +$fragmentRefs: RelayModernEnvironmentExecuteWithStreamTestFeedbackFragment$ref,
+    +$fragmentRefs: RelayModernEnvironmentExecuteWithStreamTestFeedbackFragment$fragmentType,
+    +$fragmentSpreads: RelayModernEnvironmentExecuteWithStreamTestFeedbackFragment$fragmentType,
   |},
 |};
+export type RelayModernEnvironmentExecuteWithStreamTestFeedbackQueryResponse = RelayModernEnvironmentExecuteWithStreamTestFeedbackQuery$data;
 export type RelayModernEnvironmentExecuteWithStreamTestFeedbackQuery = {|
   variables: RelayModernEnvironmentExecuteWithStreamTestFeedbackQueryVariables,
-  response: RelayModernEnvironmentExecuteWithStreamTestFeedbackQueryResponse,
+  response: RelayModernEnvironmentExecuteWithStreamTestFeedbackQuery$data,
 |};
 */
 
@@ -176,4 +179,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "91e0270ce8d4cdca76615d176c0e0c7c";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentExecuteWithStreamTestFeedbackQuery$variables,
+  RelayModernEnvironmentExecuteWithStreamTestFeedbackQuery$data,
+>*/);

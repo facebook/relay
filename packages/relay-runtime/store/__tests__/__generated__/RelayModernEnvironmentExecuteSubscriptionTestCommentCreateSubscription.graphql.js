@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<e0a2e24052b5cf2da5b6621dd027ab80>>
+ * @generated SignedSource<<0aaff0ce54c88083a4a5c7fc976d3a6a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,16 +15,17 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
+import type { ConcreteRequest, GraphQLSubscription } from 'relay-runtime';
 export type CommentCreateSubscriptionInput = {|
   clientSubscriptionId?: ?string,
   feedbackId?: ?string,
   text?: ?string,
 |};
-export type RelayModernEnvironmentExecuteSubscriptionTestCommentCreateSubscriptionVariables = {|
+export type RelayModernEnvironmentExecuteSubscriptionTestCommentCreateSubscription$variables = {|
   input: CommentCreateSubscriptionInput,
 |};
-export type RelayModernEnvironmentExecuteSubscriptionTestCommentCreateSubscriptionResponse = {|
+export type RelayModernEnvironmentExecuteSubscriptionTestCommentCreateSubscriptionVariables = RelayModernEnvironmentExecuteSubscriptionTestCommentCreateSubscription$variables;
+export type RelayModernEnvironmentExecuteSubscriptionTestCommentCreateSubscription$data = {|
   +commentCreateSubscribe: ?{|
     +comment: ?{|
       +id: string,
@@ -34,9 +35,10 @@ export type RelayModernEnvironmentExecuteSubscriptionTestCommentCreateSubscripti
     |},
   |},
 |};
+export type RelayModernEnvironmentExecuteSubscriptionTestCommentCreateSubscriptionResponse = RelayModernEnvironmentExecuteSubscriptionTestCommentCreateSubscription$data;
 export type RelayModernEnvironmentExecuteSubscriptionTestCommentCreateSubscription = {|
   variables: RelayModernEnvironmentExecuteSubscriptionTestCommentCreateSubscriptionVariables,
-  response: RelayModernEnvironmentExecuteSubscriptionTestCommentCreateSubscriptionResponse,
+  response: RelayModernEnvironmentExecuteSubscriptionTestCommentCreateSubscription$data,
 |};
 */
 
@@ -137,4 +139,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "3e6ba24bf317bd29cad3c6f53895fd9f";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: GraphQLSubscription<
+  RelayModernEnvironmentExecuteSubscriptionTestCommentCreateSubscription$variables,
+  RelayModernEnvironmentExecuteSubscriptionTestCommentCreateSubscription$data,
+>*/);

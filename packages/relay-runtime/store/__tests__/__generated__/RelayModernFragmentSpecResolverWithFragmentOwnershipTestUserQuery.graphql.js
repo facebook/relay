@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b716d7fc9b2f0b2ced1d2b595112bd31>>
+ * @generated SignedSource<<e48e8014f4ede40cac75bd49665f7b34>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,22 +15,25 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserFragment$ref = any;
-type RelayModernFragmentSpecResolverWithFragmentOwnershipTestUsersFragment$ref = any;
-export type RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserFragment$fragmentType = any;
+type RelayModernFragmentSpecResolverWithFragmentOwnershipTestUsersFragment$fragmentType = any;
+export type RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserQuery$variables = {|
   id: string,
   size?: ?$ReadOnlyArray<?number>,
   fetchSize: boolean,
 |};
-export type RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserQueryResponse = {|
+export type RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserQueryVariables = RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserQuery$variables;
+export type RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserQuery$data = {|
   +node: ?{|
-    +$fragmentRefs: RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserFragment$ref & RelayModernFragmentSpecResolverWithFragmentOwnershipTestUsersFragment$ref,
+    +$fragmentRefs: RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserFragment$fragmentType & RelayModernFragmentSpecResolverWithFragmentOwnershipTestUsersFragment$fragmentType,
+    +$fragmentSpreads: RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserFragment$fragmentType & RelayModernFragmentSpecResolverWithFragmentOwnershipTestUsersFragment$fragmentType,
   |},
 |};
+export type RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserQueryResponse = RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserQuery$data;
 export type RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserQuery = {|
   variables: RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserQueryVariables,
-  response: RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserQueryResponse,
+  response: RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserQuery$data,
 |};
 */
 
@@ -197,4 +200,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "0ac3466c6ebc673ebbcfbbf5e1fead2b";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserQuery$variables,
+  RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserQuery$data,
+>*/);

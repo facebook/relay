@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b57a795d7a8f1593456517c2c8d67d79>>
+ * @generated SignedSource<<20628a465517b8d7e1f2b7c9df229a1e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,19 +15,22 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayMockEnvironmentWithComponentsTestNoticeableResultFragment$ref = any;
-export type RelayMockEnvironmentWithComponentsTestWorldClassAwesomenessQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayMockEnvironmentWithComponentsTestNoticeableResultFragment$fragmentType = any;
+export type RelayMockEnvironmentWithComponentsTestWorldClassAwesomenessQuery$variables = {|
   id: string,
 |};
-export type RelayMockEnvironmentWithComponentsTestWorldClassAwesomenessQueryResponse = {|
+export type RelayMockEnvironmentWithComponentsTestWorldClassAwesomenessQueryVariables = RelayMockEnvironmentWithComponentsTestWorldClassAwesomenessQuery$variables;
+export type RelayMockEnvironmentWithComponentsTestWorldClassAwesomenessQuery$data = {|
   +feedback: ?{|
-    +$fragmentRefs: RelayMockEnvironmentWithComponentsTestNoticeableResultFragment$ref,
+    +$fragmentRefs: RelayMockEnvironmentWithComponentsTestNoticeableResultFragment$fragmentType,
+    +$fragmentSpreads: RelayMockEnvironmentWithComponentsTestNoticeableResultFragment$fragmentType,
   |},
 |};
+export type RelayMockEnvironmentWithComponentsTestWorldClassAwesomenessQueryResponse = RelayMockEnvironmentWithComponentsTestWorldClassAwesomenessQuery$data;
 export type RelayMockEnvironmentWithComponentsTestWorldClassAwesomenessQuery = {|
   variables: RelayMockEnvironmentWithComponentsTestWorldClassAwesomenessQueryVariables,
-  response: RelayMockEnvironmentWithComponentsTestWorldClassAwesomenessQueryResponse,
+  response: RelayMockEnvironmentWithComponentsTestWorldClassAwesomenessQuery$data,
 |};
 */
 
@@ -153,4 +156,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "ac58d11ae357d8162d5c45b77ca2c4a1";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayMockEnvironmentWithComponentsTestWorldClassAwesomenessQuery$variables,
+  RelayMockEnvironmentWithComponentsTestWorldClassAwesomenessQuery$data,
+>*/);

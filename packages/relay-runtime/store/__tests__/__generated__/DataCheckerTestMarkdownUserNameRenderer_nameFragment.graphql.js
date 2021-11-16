@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<3ea1f5a2fa2af2b14d8e50b8396f934b>>
+ * @generated SignedSource<<9b624a675d04fbf8ee922f01c0712c05>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,21 +15,23 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type DataCheckerTestMarkdownUserNameRenderer_nameFragment$ref: FragmentReference;
-declare export opaque type DataCheckerTestMarkdownUserNameRenderer_nameFragment$fragmentType: DataCheckerTestMarkdownUserNameRenderer_nameFragment$ref;
-export type DataCheckerTestMarkdownUserNameRenderer_nameFragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type DataCheckerTestMarkdownUserNameRenderer_nameFragment$fragmentType: FragmentType;
+export type DataCheckerTestMarkdownUserNameRenderer_nameFragment$ref = DataCheckerTestMarkdownUserNameRenderer_nameFragment$fragmentType;
+export type DataCheckerTestMarkdownUserNameRenderer_nameFragment$data = {|
   +markdown: ?string,
   +data: ?{|
     +markup: ?string,
   |},
-  +$refType: DataCheckerTestMarkdownUserNameRenderer_nameFragment$ref,
+  +$refType: DataCheckerTestMarkdownUserNameRenderer_nameFragment$fragmentType,
+  +$fragmentType: DataCheckerTestMarkdownUserNameRenderer_nameFragment$fragmentType,
 |};
-export type DataCheckerTestMarkdownUserNameRenderer_nameFragment$data = DataCheckerTestMarkdownUserNameRenderer_nameFragment;
+export type DataCheckerTestMarkdownUserNameRenderer_nameFragment = DataCheckerTestMarkdownUserNameRenderer_nameFragment$data;
 export type DataCheckerTestMarkdownUserNameRenderer_nameFragment$key = {
   +$data?: DataCheckerTestMarkdownUserNameRenderer_nameFragment$data,
-  +$fragmentRefs: DataCheckerTestMarkdownUserNameRenderer_nameFragment$ref,
+  +$fragmentRefs: DataCheckerTestMarkdownUserNameRenderer_nameFragment$fragmentType,
+  +$fragmentSpreads: DataCheckerTestMarkdownUserNameRenderer_nameFragment$fragmentType,
   ...
 };
 */
@@ -74,4 +76,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "820d8b5dec3d3a5e954443aaa7c73b0d";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  DataCheckerTestMarkdownUserNameRenderer_nameFragment$fragmentType,
+  DataCheckerTestMarkdownUserNameRenderer_nameFragment$data,
+>*/);

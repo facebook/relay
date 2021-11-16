@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<8a2b354cd1e3a55e03b5425cc288cc20>>
+ * @generated SignedSource<<f1c2dae652cdb6035660f07c97bfb5c8>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,11 +15,12 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
+import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { ActorChangePoint } from "react-relay/multi-actor";
-type ActorChangeWithDeferTestFragment$ref = any;
-export type ActorChangeWithDeferTestQueryVariables = {||};
-export type ActorChangeWithDeferTestQueryResponse = {|
+type ActorChangeWithDeferTestFragment$fragmentType = any;
+export type ActorChangeWithDeferTestQuery$variables = {||};
+export type ActorChangeWithDeferTestQueryVariables = ActorChangeWithDeferTestQuery$variables;
+export type ActorChangeWithDeferTestQuery$data = {|
   +viewer: ?{|
     +newsFeed: ?{|
       +edges: ?$ReadOnlyArray<?{|
@@ -30,15 +31,17 @@ export type ActorChangeWithDeferTestQueryResponse = {|
         |},
         +actor_node: ?ActorChangePoint<{|
           +actor_key: string,
-          +$fragmentRefs: ActorChangeWithDeferTestFragment$ref,
+          +$fragmentRefs: ActorChangeWithDeferTestFragment$fragmentType,
+          +$fragmentSpreads: ActorChangeWithDeferTestFragment$fragmentType,
         |}>,
       |}>,
     |},
   |},
 |};
+export type ActorChangeWithDeferTestQueryResponse = ActorChangeWithDeferTestQuery$data;
 export type ActorChangeWithDeferTestQuery = {|
   variables: ActorChangeWithDeferTestQueryVariables,
-  response: ActorChangeWithDeferTestQueryResponse,
+  response: ActorChangeWithDeferTestQuery$data,
 |};
 */
 
@@ -282,4 +285,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "5140be47d96491c09c1d7e9dac4df2ee";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  ActorChangeWithDeferTestQuery$variables,
+  ActorChangeWithDeferTestQuery$data,
+>*/);

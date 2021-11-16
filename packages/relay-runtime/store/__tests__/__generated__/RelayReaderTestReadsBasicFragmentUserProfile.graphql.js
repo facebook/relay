@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<5fc4e702d77d99686582ef09a7ded1d7>>
+ * @generated SignedSource<<6a538e9bab2d50b6a8dae5a330490512>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,20 +15,23 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-type RelayReaderTestReadsBasicFragmentUserProfilePicture$ref = any;
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayReaderTestReadsBasicFragmentUserProfile$ref: FragmentReference;
-declare export opaque type RelayReaderTestReadsBasicFragmentUserProfile$fragmentType: RelayReaderTestReadsBasicFragmentUserProfile$ref;
-export type RelayReaderTestReadsBasicFragmentUserProfile = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+type RelayReaderTestReadsBasicFragmentUserProfilePicture$fragmentType = any;
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayReaderTestReadsBasicFragmentUserProfile$fragmentType: FragmentType;
+export type RelayReaderTestReadsBasicFragmentUserProfile$ref = RelayReaderTestReadsBasicFragmentUserProfile$fragmentType;
+export type RelayReaderTestReadsBasicFragmentUserProfile$data = {|
   +id: string,
-  +$fragmentRefs: RelayReaderTestReadsBasicFragmentUserProfilePicture$ref,
-  +$refType: RelayReaderTestReadsBasicFragmentUserProfile$ref,
+  +$fragmentRefs: RelayReaderTestReadsBasicFragmentUserProfilePicture$fragmentType,
+  +$fragmentSpreads: RelayReaderTestReadsBasicFragmentUserProfilePicture$fragmentType,
+  +$refType: RelayReaderTestReadsBasicFragmentUserProfile$fragmentType,
+  +$fragmentType: RelayReaderTestReadsBasicFragmentUserProfile$fragmentType,
 |};
-export type RelayReaderTestReadsBasicFragmentUserProfile$data = RelayReaderTestReadsBasicFragmentUserProfile;
+export type RelayReaderTestReadsBasicFragmentUserProfile = RelayReaderTestReadsBasicFragmentUserProfile$data;
 export type RelayReaderTestReadsBasicFragmentUserProfile$key = {
   +$data?: RelayReaderTestReadsBasicFragmentUserProfile$data,
-  +$fragmentRefs: RelayReaderTestReadsBasicFragmentUserProfile$ref,
+  +$fragmentRefs: RelayReaderTestReadsBasicFragmentUserProfile$fragmentType,
+  +$fragmentSpreads: RelayReaderTestReadsBasicFragmentUserProfile$fragmentType,
   ...
 };
 */
@@ -85,4 +88,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "8d1b7989c67d3231e4ebdef30d598249";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayReaderTestReadsBasicFragmentUserProfile$fragmentType,
+  RelayReaderTestReadsBasicFragmentUserProfile$data,
+>*/);

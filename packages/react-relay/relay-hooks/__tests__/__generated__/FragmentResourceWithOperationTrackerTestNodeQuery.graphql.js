@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<aa3a0d3b3e67f596c56c748defab3f09>>
+ * @generated SignedSource<<a8ce2c742ae34f7c85189126c3ea148e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,19 +15,22 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type FragmentResourceWithOperationTrackerTestUserFragment$ref = any;
-export type FragmentResourceWithOperationTrackerTestNodeQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type FragmentResourceWithOperationTrackerTestUserFragment$fragmentType = any;
+export type FragmentResourceWithOperationTrackerTestNodeQuery$variables = {|
   id: string,
 |};
-export type FragmentResourceWithOperationTrackerTestNodeQueryResponse = {|
+export type FragmentResourceWithOperationTrackerTestNodeQueryVariables = FragmentResourceWithOperationTrackerTestNodeQuery$variables;
+export type FragmentResourceWithOperationTrackerTestNodeQuery$data = {|
   +node: ?{|
-    +$fragmentRefs: FragmentResourceWithOperationTrackerTestUserFragment$ref,
+    +$fragmentRefs: FragmentResourceWithOperationTrackerTestUserFragment$fragmentType,
+    +$fragmentSpreads: FragmentResourceWithOperationTrackerTestUserFragment$fragmentType,
   |},
 |};
+export type FragmentResourceWithOperationTrackerTestNodeQueryResponse = FragmentResourceWithOperationTrackerTestNodeQuery$data;
 export type FragmentResourceWithOperationTrackerTestNodeQuery = {|
   variables: FragmentResourceWithOperationTrackerTestNodeQueryVariables,
-  response: FragmentResourceWithOperationTrackerTestNodeQueryResponse,
+  response: FragmentResourceWithOperationTrackerTestNodeQuery$data,
 |};
 */
 
@@ -290,4 +293,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "ff9181396332978f08da32b08199e7df";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  FragmentResourceWithOperationTrackerTestNodeQuery$variables,
+  FragmentResourceWithOperationTrackerTestNodeQuery$data,
+>*/);

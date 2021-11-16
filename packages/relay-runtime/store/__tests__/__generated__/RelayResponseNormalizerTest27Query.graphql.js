@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a03bfaa34bb4c9153986a206b09842dc>>
+ * @generated SignedSource<<0885c80abe68a10b2a549aa73d39f5b1>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,11 +15,12 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-export type RelayResponseNormalizerTest27QueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+export type RelayResponseNormalizerTest27Query$variables = {|
   id?: ?string,
 |};
-export type RelayResponseNormalizerTest27QueryResponse = {|
+export type RelayResponseNormalizerTest27QueryVariables = RelayResponseNormalizerTest27Query$variables;
+export type RelayResponseNormalizerTest27Query$data = {|
   +node: ?{|
     +id: string,
     +__typename: string,
@@ -33,9 +34,10 @@ export type RelayResponseNormalizerTest27QueryResponse = {|
     |}>,
   |},
 |};
+export type RelayResponseNormalizerTest27QueryResponse = RelayResponseNormalizerTest27Query$data;
 export type RelayResponseNormalizerTest27Query = {|
   variables: RelayResponseNormalizerTest27QueryVariables,
-  response: RelayResponseNormalizerTest27QueryResponse,
+  response: RelayResponseNormalizerTest27Query$data,
 |};
 */
 
@@ -145,4 +147,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "95dfa21dba65765df5d21078e4246564";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayResponseNormalizerTest27Query$variables,
+  RelayResponseNormalizerTest27Query$data,
+>*/);

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<036e42bc0ecdb335b13dc775c94f0aca>>
+ * @generated SignedSource<<aa6bcf2c5759b2b2f93a9a6057269ac5>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,23 +15,26 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayMockEnvironmentWithComponentsTestRobustAwesomenessFragment$ref = any;
-export type RelayMockEnvironmentWithComponentsTestNoticeableSuccessQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayMockEnvironmentWithComponentsTestRobustAwesomenessFragment$fragmentType = any;
+export type RelayMockEnvironmentWithComponentsTestNoticeableSuccessQuery$variables = {|
   id?: ?string,
   first?: ?number,
   cursor?: ?string,
 |};
-export type RelayMockEnvironmentWithComponentsTestNoticeableSuccessQueryResponse = {|
+export type RelayMockEnvironmentWithComponentsTestNoticeableSuccessQueryVariables = RelayMockEnvironmentWithComponentsTestNoticeableSuccessQuery$variables;
+export type RelayMockEnvironmentWithComponentsTestNoticeableSuccessQuery$data = {|
   +user: ?{|
     +id: string,
     +name: ?string,
-    +$fragmentRefs: RelayMockEnvironmentWithComponentsTestRobustAwesomenessFragment$ref,
+    +$fragmentRefs: RelayMockEnvironmentWithComponentsTestRobustAwesomenessFragment$fragmentType,
+    +$fragmentSpreads: RelayMockEnvironmentWithComponentsTestRobustAwesomenessFragment$fragmentType,
   |},
 |};
+export type RelayMockEnvironmentWithComponentsTestNoticeableSuccessQueryResponse = RelayMockEnvironmentWithComponentsTestNoticeableSuccessQuery$data;
 export type RelayMockEnvironmentWithComponentsTestNoticeableSuccessQuery = {|
   variables: RelayMockEnvironmentWithComponentsTestNoticeableSuccessQueryVariables,
-  response: RelayMockEnvironmentWithComponentsTestNoticeableSuccessQueryResponse,
+  response: RelayMockEnvironmentWithComponentsTestNoticeableSuccessQuery$data,
 |};
 */
 
@@ -267,4 +270,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "4ec459264098ec6a6d713fd7cd3c81c3";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayMockEnvironmentWithComponentsTestNoticeableSuccessQuery$variables,
+  RelayMockEnvironmentWithComponentsTestNoticeableSuccessQuery$data,
+>*/);

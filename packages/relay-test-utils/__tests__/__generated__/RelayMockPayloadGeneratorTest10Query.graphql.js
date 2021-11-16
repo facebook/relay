@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<badab75928886d4f06dba00bac69237a>>
+ * @generated SignedSource<<ceea9cfea837d69aef1300916aca4683>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,17 +15,20 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayMockPayloadGeneratorTest10Fragment$ref = any;
-export type RelayMockPayloadGeneratorTest10QueryVariables = {||};
-export type RelayMockPayloadGeneratorTest10QueryResponse = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayMockPayloadGeneratorTest10Fragment$fragmentType = any;
+export type RelayMockPayloadGeneratorTest10Query$variables = {||};
+export type RelayMockPayloadGeneratorTest10QueryVariables = RelayMockPayloadGeneratorTest10Query$variables;
+export type RelayMockPayloadGeneratorTest10Query$data = {|
   +node: ?{|
-    +$fragmentRefs: RelayMockPayloadGeneratorTest10Fragment$ref,
+    +$fragmentRefs: RelayMockPayloadGeneratorTest10Fragment$fragmentType,
+    +$fragmentSpreads: RelayMockPayloadGeneratorTest10Fragment$fragmentType,
   |},
 |};
+export type RelayMockPayloadGeneratorTest10QueryResponse = RelayMockPayloadGeneratorTest10Query$data;
 export type RelayMockPayloadGeneratorTest10Query = {|
   variables: RelayMockPayloadGeneratorTest10QueryVariables,
-  response: RelayMockPayloadGeneratorTest10QueryResponse,
+  response: RelayMockPayloadGeneratorTest10Query$data,
 |};
 */
 
@@ -188,4 +191,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "1c2a05dc735392e60f599f20acecbd4f";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayMockPayloadGeneratorTest10Query$variables,
+  RelayMockPayloadGeneratorTest10Query$data,
+>*/);

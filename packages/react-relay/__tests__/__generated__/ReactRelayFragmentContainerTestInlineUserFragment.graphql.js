@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<c9bbfd9d40130bf0ba5fa1d46977990d>>
+ * @generated SignedSource<<dc2a420242dbce86fea1bd690d8793d5>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,18 +15,20 @@
 'use strict';
 
 /*::
-import type { ReaderInlineDataFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type ReactRelayFragmentContainerTestInlineUserFragment$ref: FragmentReference;
-declare export opaque type ReactRelayFragmentContainerTestInlineUserFragment$fragmentType: ReactRelayFragmentContainerTestInlineUserFragment$ref;
-export type ReactRelayFragmentContainerTestInlineUserFragment = {|
+import type { InlineFragment, ReaderInlineDataFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type ReactRelayFragmentContainerTestInlineUserFragment$fragmentType: FragmentType;
+export type ReactRelayFragmentContainerTestInlineUserFragment$ref = ReactRelayFragmentContainerTestInlineUserFragment$fragmentType;
+export type ReactRelayFragmentContainerTestInlineUserFragment$data = {|
   +id: string,
-  +$refType: ReactRelayFragmentContainerTestInlineUserFragment$ref,
+  +$refType: ReactRelayFragmentContainerTestInlineUserFragment$fragmentType,
+  +$fragmentType: ReactRelayFragmentContainerTestInlineUserFragment$fragmentType,
 |};
-export type ReactRelayFragmentContainerTestInlineUserFragment$data = ReactRelayFragmentContainerTestInlineUserFragment;
+export type ReactRelayFragmentContainerTestInlineUserFragment = ReactRelayFragmentContainerTestInlineUserFragment$data;
 export type ReactRelayFragmentContainerTestInlineUserFragment$key = {
   +$data?: ReactRelayFragmentContainerTestInlineUserFragment$data,
-  +$fragmentRefs: ReactRelayFragmentContainerTestInlineUserFragment$ref,
+  +$fragmentRefs: ReactRelayFragmentContainerTestInlineUserFragment$fragmentType,
+  +$fragmentSpreads: ReactRelayFragmentContainerTestInlineUserFragment$fragmentType,
   ...
 };
 */
@@ -40,4 +42,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "79a8de44a6a06befa843c6acbecd87cf";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: InlineFragment<
+  ReactRelayFragmentContainerTestInlineUserFragment$fragmentType,
+  ReactRelayFragmentContainerTestInlineUserFragment$data,
+>*/);

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<ad492f68bcc6dc7b243381e5ed4134de>>
+ * @generated SignedSource<<1d0ab1f2450734c03da135a407600001>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,23 +15,25 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayMockPayloadGeneratorTest6Fragment$ref: FragmentReference;
-declare export opaque type RelayMockPayloadGeneratorTest6Fragment$fragmentType: RelayMockPayloadGeneratorTest6Fragment$ref;
-export type RelayMockPayloadGeneratorTest6Fragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayMockPayloadGeneratorTest6Fragment$fragmentType: FragmentType;
+export type RelayMockPayloadGeneratorTest6Fragment$ref = RelayMockPayloadGeneratorTest6Fragment$fragmentType;
+export type RelayMockPayloadGeneratorTest6Fragment$data = {|
   +id: string,
   +name: ?string,
   +author: ?{|
     +id: string,
     +name: ?string,
   |},
-  +$refType: RelayMockPayloadGeneratorTest6Fragment$ref,
+  +$refType: RelayMockPayloadGeneratorTest6Fragment$fragmentType,
+  +$fragmentType: RelayMockPayloadGeneratorTest6Fragment$fragmentType,
 |};
-export type RelayMockPayloadGeneratorTest6Fragment$data = RelayMockPayloadGeneratorTest6Fragment;
+export type RelayMockPayloadGeneratorTest6Fragment = RelayMockPayloadGeneratorTest6Fragment$data;
 export type RelayMockPayloadGeneratorTest6Fragment$key = {
   +$data?: RelayMockPayloadGeneratorTest6Fragment$data,
-  +$fragmentRefs: RelayMockPayloadGeneratorTest6Fragment$ref,
+  +$fragmentRefs: RelayMockPayloadGeneratorTest6Fragment$fragmentType,
+  +$fragmentSpreads: RelayMockPayloadGeneratorTest6Fragment$fragmentType,
   ...
 };
 */
@@ -82,4 +84,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "1e280daa71370d7df24f3518c24dfcb7";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayMockPayloadGeneratorTest6Fragment$fragmentType,
+  RelayMockPayloadGeneratorTest6Fragment$data,
+>*/);

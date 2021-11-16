@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<5eb850d8ef0c4c682e46ff7a1c08b11a>>
+ * @generated SignedSource<<5e2ca96b684588528370e8bf5752611b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,20 +15,23 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type getFragmentIdentifierTestUserFragmentWithArgs$ref = any;
-export type getFragmentIdentifierTestUserQueryWithArgsQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type getFragmentIdentifierTestUserFragmentWithArgs$fragmentType = any;
+export type getFragmentIdentifierTestUserQueryWithArgsQuery$variables = {|
   id: string,
   scale: number,
 |};
-export type getFragmentIdentifierTestUserQueryWithArgsQueryResponse = {|
+export type getFragmentIdentifierTestUserQueryWithArgsQueryVariables = getFragmentIdentifierTestUserQueryWithArgsQuery$variables;
+export type getFragmentIdentifierTestUserQueryWithArgsQuery$data = {|
   +node: ?{|
-    +$fragmentRefs: getFragmentIdentifierTestUserFragmentWithArgs$ref,
+    +$fragmentRefs: getFragmentIdentifierTestUserFragmentWithArgs$fragmentType,
+    +$fragmentSpreads: getFragmentIdentifierTestUserFragmentWithArgs$fragmentType,
   |},
 |};
+export type getFragmentIdentifierTestUserQueryWithArgsQueryResponse = getFragmentIdentifierTestUserQueryWithArgsQuery$data;
 export type getFragmentIdentifierTestUserQueryWithArgsQuery = {|
   variables: getFragmentIdentifierTestUserQueryWithArgsQueryVariables,
-  response: getFragmentIdentifierTestUserQueryWithArgsQueryResponse,
+  response: getFragmentIdentifierTestUserQueryWithArgsQuery$data,
 |};
 */
 
@@ -178,4 +181,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "146115816909f480fcbd194b3816899f";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  getFragmentIdentifierTestUserQueryWithArgsQuery$variables,
+  getFragmentIdentifierTestUserQueryWithArgsQuery$data,
+>*/);

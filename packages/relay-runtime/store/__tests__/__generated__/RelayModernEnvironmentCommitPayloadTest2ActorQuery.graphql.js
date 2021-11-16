@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<3d931ff8657e63a998fa219fcd1cfa53>>
+ * @generated SignedSource<<a622d6e496b471df8331104d55ddfc64>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,9 +15,10 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-export type RelayModernEnvironmentCommitPayloadTest2ActorQueryVariables = {||};
-export type RelayModernEnvironmentCommitPayloadTest2ActorQueryResponse = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+export type RelayModernEnvironmentCommitPayloadTest2ActorQuery$variables = {||};
+export type RelayModernEnvironmentCommitPayloadTest2ActorQueryVariables = RelayModernEnvironmentCommitPayloadTest2ActorQuery$variables;
+export type RelayModernEnvironmentCommitPayloadTest2ActorQuery$data = {|
   +me: ?{|
     +name: ?string,
     +birthdate: ?{|
@@ -27,9 +28,10 @@ export type RelayModernEnvironmentCommitPayloadTest2ActorQueryResponse = {|
     |},
   |},
 |};
+export type RelayModernEnvironmentCommitPayloadTest2ActorQueryResponse = RelayModernEnvironmentCommitPayloadTest2ActorQuery$data;
 export type RelayModernEnvironmentCommitPayloadTest2ActorQuery = {|
   variables: RelayModernEnvironmentCommitPayloadTest2ActorQueryVariables,
-  response: RelayModernEnvironmentCommitPayloadTest2ActorQueryResponse,
+  response: RelayModernEnvironmentCommitPayloadTest2ActorQuery$data,
 |};
 */
 
@@ -140,4 +142,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "84c121348a77eed6c5bd156f7d6f136e";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentCommitPayloadTest2ActorQuery$variables,
+  RelayModernEnvironmentCommitPayloadTest2ActorQuery$data,
+>*/);

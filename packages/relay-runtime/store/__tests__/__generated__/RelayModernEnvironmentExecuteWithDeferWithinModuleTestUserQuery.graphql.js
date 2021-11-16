@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<e39e811345d09777147f5153da138a7e>>
+ * @generated SignedSource<<1d106436b774dd89616eb087de6295bd>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,29 +18,33 @@
 // @dataDrivenDependency RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQuery.viewer.actor {"branches":{"User":{"component":"Actor.react","fragment":"RelayModernEnvironmentExecuteWithDeferWithinModuleTestActor_actor$normalization.graphql"}},"plural":false}
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernEnvironmentExecuteWithDeferWithinModuleTestActor_actor$ref = any;
-type RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user$ref = any;
-export type RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayModernEnvironmentExecuteWithDeferWithinModuleTestActor_actor$fragmentType = any;
+type RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user$fragmentType = any;
+export type RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQuery$variables = {|
   id: string,
 |};
-export type RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQueryResponse = {|
+export type RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQueryVariables = RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQuery$variables;
+export type RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQuery$data = {|
   +node: ?{|
     +__fragmentPropName?: ?string,
     +__module_component?: ?string,
-    +$fragmentRefs: RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user$ref,
+    +$fragmentRefs: RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user$fragmentType,
+    +$fragmentSpreads: RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user$fragmentType,
   |},
   +viewer: ?{|
     +actor: ?{|
       +__fragmentPropName?: ?string,
       +__module_component?: ?string,
-      +$fragmentRefs: RelayModernEnvironmentExecuteWithDeferWithinModuleTestActor_actor$ref,
+      +$fragmentRefs: RelayModernEnvironmentExecuteWithDeferWithinModuleTestActor_actor$fragmentType,
+      +$fragmentSpreads: RelayModernEnvironmentExecuteWithDeferWithinModuleTestActor_actor$fragmentType,
     |},
   |},
 |};
+export type RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQueryResponse = RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQuery$data;
 export type RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQuery = {|
   variables: RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQueryVariables,
-  response: RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQueryResponse,
+  response: RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQuery$data,
 |};
 */
 
@@ -209,4 +213,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "6fc860d6ca313fa0941c63838338854b";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQuery$variables,
+  RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQuery$data,
+>*/);

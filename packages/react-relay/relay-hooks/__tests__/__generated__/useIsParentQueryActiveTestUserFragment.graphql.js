@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<c8bd891c01119c24cd53e92280366545>>
+ * @generated SignedSource<<337b0a9a33b02aa9364754dce730e6af>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,19 +15,21 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type useIsParentQueryActiveTestUserFragment$ref: FragmentReference;
-declare export opaque type useIsParentQueryActiveTestUserFragment$fragmentType: useIsParentQueryActiveTestUserFragment$ref;
-export type useIsParentQueryActiveTestUserFragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type useIsParentQueryActiveTestUserFragment$fragmentType: FragmentType;
+export type useIsParentQueryActiveTestUserFragment$ref = useIsParentQueryActiveTestUserFragment$fragmentType;
+export type useIsParentQueryActiveTestUserFragment$data = {|
   +id: string,
   +name: ?string,
-  +$refType: useIsParentQueryActiveTestUserFragment$ref,
+  +$refType: useIsParentQueryActiveTestUserFragment$fragmentType,
+  +$fragmentType: useIsParentQueryActiveTestUserFragment$fragmentType,
 |};
-export type useIsParentQueryActiveTestUserFragment$data = useIsParentQueryActiveTestUserFragment;
+export type useIsParentQueryActiveTestUserFragment = useIsParentQueryActiveTestUserFragment$data;
 export type useIsParentQueryActiveTestUserFragment$key = {
   +$data?: useIsParentQueryActiveTestUserFragment$data,
-  +$fragmentRefs: useIsParentQueryActiveTestUserFragment$ref,
+  +$fragmentRefs: useIsParentQueryActiveTestUserFragment$fragmentType,
+  +$fragmentSpreads: useIsParentQueryActiveTestUserFragment$fragmentType,
   ...
 };
 */
@@ -61,4 +63,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "f103e250b237cd41de7e9157b3bd6591";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  useIsParentQueryActiveTestUserFragment$fragmentType,
+  useIsParentQueryActiveTestUserFragment$data,
+>*/);

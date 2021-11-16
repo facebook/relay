@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<6187dfd404abba08db1928c5be66b971>>
+ * @generated SignedSource<<95680d27eecaf103740cc2ad9b07f958>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,22 +15,24 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayModernSelectorTestUsersFragment$ref: FragmentReference;
-declare export opaque type RelayModernSelectorTestUsersFragment$fragmentType: RelayModernSelectorTestUsersFragment$ref;
-export type RelayModernSelectorTestUsersFragment = $ReadOnlyArray<{|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayModernSelectorTestUsersFragment$fragmentType: FragmentType;
+export type RelayModernSelectorTestUsersFragment$ref = RelayModernSelectorTestUsersFragment$fragmentType;
+export type RelayModernSelectorTestUsersFragment$data = $ReadOnlyArray<{|
   +id: string,
   +name: ?string,
   +profilePicture?: ?{|
     +uri: ?string,
   |},
-  +$refType: RelayModernSelectorTestUsersFragment$ref,
+  +$refType: RelayModernSelectorTestUsersFragment$fragmentType,
+  +$fragmentType: RelayModernSelectorTestUsersFragment$fragmentType,
 |}>;
-export type RelayModernSelectorTestUsersFragment$data = RelayModernSelectorTestUsersFragment;
+export type RelayModernSelectorTestUsersFragment = RelayModernSelectorTestUsersFragment$data;
 export type RelayModernSelectorTestUsersFragment$key = $ReadOnlyArray<{
   +$data?: RelayModernSelectorTestUsersFragment$data,
-  +$fragmentRefs: RelayModernSelectorTestUsersFragment$ref,
+  +$fragmentRefs: RelayModernSelectorTestUsersFragment$fragmentType,
+  +$fragmentSpreads: RelayModernSelectorTestUsersFragment$fragmentType,
   ...
 }>;
 */
@@ -106,4 +108,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "d73b00ba28b8f1fef091fd0fe810235d";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayModernSelectorTestUsersFragment$fragmentType,
+  RelayModernSelectorTestUsersFragment$data,
+>*/);

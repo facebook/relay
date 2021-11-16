@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<5087d44bab8714c9d70a97391bed96a3>>
+ * @generated SignedSource<<e87ea976419a230c749cf352bf8a761f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,15 +15,16 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
+import type { ConcreteRequest, Mutation } from 'relay-runtime';
 export type ActorNameChangeInput = {|
   clientMutationId?: ?string,
   newName?: ?string,
 |};
-export type validateMutationTest8ChangeNameBirthdayWithNameMutationVariables = {|
+export type validateMutationTest8ChangeNameBirthdayWithNameMutation$variables = {|
   input: ActorNameChangeInput,
 |};
-export type validateMutationTest8ChangeNameBirthdayWithNameMutationResponse = {|
+export type validateMutationTest8ChangeNameBirthdayWithNameMutationVariables = validateMutationTest8ChangeNameBirthdayWithNameMutation$variables;
+export type validateMutationTest8ChangeNameBirthdayWithNameMutation$data = {|
   +actorNameChange: ?{|
     +actor: ?{|
       +name: ?string,
@@ -36,9 +37,10 @@ export type validateMutationTest8ChangeNameBirthdayWithNameMutationResponse = {|
     |},
   |},
 |};
+export type validateMutationTest8ChangeNameBirthdayWithNameMutationResponse = validateMutationTest8ChangeNameBirthdayWithNameMutation$data;
 export type validateMutationTest8ChangeNameBirthdayWithNameMutation = {|
   variables: validateMutationTest8ChangeNameBirthdayWithNameMutationVariables,
-  response: validateMutationTest8ChangeNameBirthdayWithNameMutationResponse,
+  response: validateMutationTest8ChangeNameBirthdayWithNameMutation$data,
 |};
 */
 
@@ -215,4 +217,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "57015c0d678f83a028c13ab9e1e0c164";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Mutation<
+  validateMutationTest8ChangeNameBirthdayWithNameMutation$variables,
+  validateMutationTest8ChangeNameBirthdayWithNameMutation$data,
+>*/);

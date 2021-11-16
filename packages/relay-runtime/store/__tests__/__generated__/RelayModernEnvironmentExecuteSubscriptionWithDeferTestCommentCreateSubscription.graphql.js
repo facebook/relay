@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<263690bc960e4163e7ead314aa9a9fcc>>
+ * @generated SignedSource<<6466128abd85f0283084a5217aaa6c08>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,27 +15,30 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentFragment$ref = any;
+import type { ConcreteRequest, GraphQLSubscription } from 'relay-runtime';
+type RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentFragment$fragmentType = any;
 export type CommentCreateSubscriptionInput = {|
   clientSubscriptionId?: ?string,
   feedbackId?: ?string,
   text?: ?string,
 |};
-export type RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentCreateSubscriptionVariables = {|
+export type RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentCreateSubscription$variables = {|
   input: CommentCreateSubscriptionInput,
 |};
-export type RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentCreateSubscriptionResponse = {|
+export type RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentCreateSubscriptionVariables = RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentCreateSubscription$variables;
+export type RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentCreateSubscription$data = {|
   +commentCreateSubscribe: ?{|
     +comment: ?{|
       +id: string,
-      +$fragmentRefs: RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentFragment$ref,
+      +$fragmentRefs: RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentFragment$fragmentType,
+      +$fragmentSpreads: RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentFragment$fragmentType,
     |},
   |},
 |};
+export type RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentCreateSubscriptionResponse = RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentCreateSubscription$data;
 export type RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentCreateSubscription = {|
   variables: RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentCreateSubscriptionVariables,
-  response: RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentCreateSubscriptionResponse,
+  response: RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentCreateSubscription$data,
 |};
 */
 
@@ -196,4 +199,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "a073626b1c5a53d43db57b61c0e02d57";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: GraphQLSubscription<
+  RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentCreateSubscription$variables,
+  RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentCreateSubscription$data,
+>*/);

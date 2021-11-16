@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<d1c65486c077574cd69dbf63b61b7b74>>
+ * @generated SignedSource<<8a18ff8cc5805a186f360e4839073ca7>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,18 +15,20 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayModernEnvironmentExecuteWithStreamWithHandlerTestActorFragment$ref: FragmentReference;
-declare export opaque type RelayModernEnvironmentExecuteWithStreamWithHandlerTestActorFragment$fragmentType: RelayModernEnvironmentExecuteWithStreamWithHandlerTestActorFragment$ref;
-export type RelayModernEnvironmentExecuteWithStreamWithHandlerTestActorFragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayModernEnvironmentExecuteWithStreamWithHandlerTestActorFragment$fragmentType: FragmentType;
+export type RelayModernEnvironmentExecuteWithStreamWithHandlerTestActorFragment$ref = RelayModernEnvironmentExecuteWithStreamWithHandlerTestActorFragment$fragmentType;
+export type RelayModernEnvironmentExecuteWithStreamWithHandlerTestActorFragment$data = {|
   +name: ?string,
-  +$refType: RelayModernEnvironmentExecuteWithStreamWithHandlerTestActorFragment$ref,
+  +$refType: RelayModernEnvironmentExecuteWithStreamWithHandlerTestActorFragment$fragmentType,
+  +$fragmentType: RelayModernEnvironmentExecuteWithStreamWithHandlerTestActorFragment$fragmentType,
 |};
-export type RelayModernEnvironmentExecuteWithStreamWithHandlerTestActorFragment$data = RelayModernEnvironmentExecuteWithStreamWithHandlerTestActorFragment;
+export type RelayModernEnvironmentExecuteWithStreamWithHandlerTestActorFragment = RelayModernEnvironmentExecuteWithStreamWithHandlerTestActorFragment$data;
 export type RelayModernEnvironmentExecuteWithStreamWithHandlerTestActorFragment$key = {
   +$data?: RelayModernEnvironmentExecuteWithStreamWithHandlerTestActorFragment$data,
-  +$fragmentRefs: RelayModernEnvironmentExecuteWithStreamWithHandlerTestActorFragment$ref,
+  +$fragmentRefs: RelayModernEnvironmentExecuteWithStreamWithHandlerTestActorFragment$fragmentType,
+  +$fragmentSpreads: RelayModernEnvironmentExecuteWithStreamWithHandlerTestActorFragment$fragmentType,
   ...
 };
 */
@@ -53,4 +55,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "19647d402a1baa808f96cc3699c2b452";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayModernEnvironmentExecuteWithStreamWithHandlerTestActorFragment$fragmentType,
+  RelayModernEnvironmentExecuteWithStreamWithHandlerTestActorFragment$data,
+>*/);

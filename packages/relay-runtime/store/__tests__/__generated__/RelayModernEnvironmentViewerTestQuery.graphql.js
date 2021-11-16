@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<d4f904ba8ab290f931a330d8c46fd028>>
+ * @generated SignedSource<<940d4a0e721e624a567b9d2fba7359e5>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,18 +15,20 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-export type RelayModernEnvironmentViewerTestQueryVariables = {||};
-export type RelayModernEnvironmentViewerTestQueryResponse = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+export type RelayModernEnvironmentViewerTestQuery$variables = {||};
+export type RelayModernEnvironmentViewerTestQueryVariables = RelayModernEnvironmentViewerTestQuery$variables;
+export type RelayModernEnvironmentViewerTestQuery$data = {|
   +viewer: ?{|
     +marketplace_settings: ?{|
       +categories: ?$ReadOnlyArray<?string>,
     |},
   |},
 |};
+export type RelayModernEnvironmentViewerTestQueryResponse = RelayModernEnvironmentViewerTestQuery$data;
 export type RelayModernEnvironmentViewerTestQuery = {|
   variables: RelayModernEnvironmentViewerTestQueryVariables,
-  response: RelayModernEnvironmentViewerTestQueryResponse,
+  response: RelayModernEnvironmentViewerTestQuery$data,
 |};
 */
 
@@ -94,4 +96,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "2d8f31179e51dbb804c2c7db7bb1d972";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentViewerTestQuery$variables,
+  RelayModernEnvironmentViewerTestQuery$data,
+>*/);

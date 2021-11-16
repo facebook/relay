@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<8bbd7d692779d031dab7f404f696d69b>>
+ * @generated SignedSource<<22d5ebdc31d8aaa3bc932ddf386bcc41>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,24 +17,27 @@
 // @dataDrivenDependency RelayModernEnvironmentExecuteWithMatchAdditionalArgumentsTestUserQuery.node.nameRendererForContext {"branches":{"MarkdownUserNameRenderer":{"component":"MarkdownUserNameRenderer.react","fragment":"RelayModernEnvironmentExecuteWithMatchAdditionalArgumentsTestMarkdownUserNameRenderer_name$normalization.graphql"},"PlainUserNameRenderer":{"component":"PlainUserNameRenderer.react","fragment":"RelayModernEnvironmentExecuteWithMatchAdditionalArgumentsTestPlainUserNameRenderer_name$normalization.graphql"}},"plural":false}
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernEnvironmentExecuteWithMatchAdditionalArgumentsTestMarkdownUserNameRenderer_name$ref = any;
-type RelayModernEnvironmentExecuteWithMatchAdditionalArgumentsTestPlainUserNameRenderer_name$ref = any;
-export type RelayModernEnvironmentExecuteWithMatchAdditionalArgumentsTestUserQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayModernEnvironmentExecuteWithMatchAdditionalArgumentsTestMarkdownUserNameRenderer_name$fragmentType = any;
+type RelayModernEnvironmentExecuteWithMatchAdditionalArgumentsTestPlainUserNameRenderer_name$fragmentType = any;
+export type RelayModernEnvironmentExecuteWithMatchAdditionalArgumentsTestUserQuery$variables = {|
   id: string,
 |};
-export type RelayModernEnvironmentExecuteWithMatchAdditionalArgumentsTestUserQueryResponse = {|
+export type RelayModernEnvironmentExecuteWithMatchAdditionalArgumentsTestUserQueryVariables = RelayModernEnvironmentExecuteWithMatchAdditionalArgumentsTestUserQuery$variables;
+export type RelayModernEnvironmentExecuteWithMatchAdditionalArgumentsTestUserQuery$data = {|
   +node: ?{|
     +nameRendererForContext?: ?{|
       +__fragmentPropName?: ?string,
       +__module_component?: ?string,
-      +$fragmentRefs: RelayModernEnvironmentExecuteWithMatchAdditionalArgumentsTestPlainUserNameRenderer_name$ref & RelayModernEnvironmentExecuteWithMatchAdditionalArgumentsTestMarkdownUserNameRenderer_name$ref,
+      +$fragmentRefs: RelayModernEnvironmentExecuteWithMatchAdditionalArgumentsTestPlainUserNameRenderer_name$fragmentType & RelayModernEnvironmentExecuteWithMatchAdditionalArgumentsTestMarkdownUserNameRenderer_name$fragmentType,
+      +$fragmentSpreads: RelayModernEnvironmentExecuteWithMatchAdditionalArgumentsTestPlainUserNameRenderer_name$fragmentType & RelayModernEnvironmentExecuteWithMatchAdditionalArgumentsTestMarkdownUserNameRenderer_name$fragmentType,
     |},
   |},
 |};
+export type RelayModernEnvironmentExecuteWithMatchAdditionalArgumentsTestUserQueryResponse = RelayModernEnvironmentExecuteWithMatchAdditionalArgumentsTestUserQuery$data;
 export type RelayModernEnvironmentExecuteWithMatchAdditionalArgumentsTestUserQuery = {|
   variables: RelayModernEnvironmentExecuteWithMatchAdditionalArgumentsTestUserQueryVariables,
-  response: RelayModernEnvironmentExecuteWithMatchAdditionalArgumentsTestUserQueryResponse,
+  response: RelayModernEnvironmentExecuteWithMatchAdditionalArgumentsTestUserQuery$data,
 |};
 */
 
@@ -208,4 +211,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "af24ed1b794e762b81d50cc1c51d755f";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentExecuteWithMatchAdditionalArgumentsTestUserQuery$variables,
+  RelayModernEnvironmentExecuteWithMatchAdditionalArgumentsTestUserQuery$data,
+>*/);

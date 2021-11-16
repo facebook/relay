@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<1e1186d92e901dacf9af9ca121a09ff4>>
+ * @generated SignedSource<<8fc28f754b76643d185060f05ade778d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,15 +15,16 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-export type ConnectionHandlerTestConnectionQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+export type ConnectionHandlerTestConnectionQuery$variables = {|
   id: string,
   before?: ?string,
   count?: ?number,
   after?: ?string,
   orderby?: ?$ReadOnlyArray<?string>,
 |};
-export type ConnectionHandlerTestConnectionQueryResponse = {|
+export type ConnectionHandlerTestConnectionQueryVariables = ConnectionHandlerTestConnectionQuery$variables;
+export type ConnectionHandlerTestConnectionQuery$data = {|
   +node: ?{|
     +friends?: ?{|
       +count: ?number,
@@ -42,9 +43,10 @@ export type ConnectionHandlerTestConnectionQueryResponse = {|
     |},
   |},
 |};
+export type ConnectionHandlerTestConnectionQueryResponse = ConnectionHandlerTestConnectionQuery$data;
 export type ConnectionHandlerTestConnectionQuery = {|
   variables: ConnectionHandlerTestConnectionQueryVariables,
-  response: ConnectionHandlerTestConnectionQueryResponse,
+  response: ConnectionHandlerTestConnectionQuery$data,
 |};
 */
 
@@ -312,4 +314,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "0dda113c23c6abae873e5b369d657031";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  ConnectionHandlerTestConnectionQuery$variables,
+  ConnectionHandlerTestConnectionQuery$data,
+>*/);

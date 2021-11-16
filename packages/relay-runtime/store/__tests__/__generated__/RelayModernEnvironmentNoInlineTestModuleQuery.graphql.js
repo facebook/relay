@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<58c053c24f44923cb9cc2af6d78a4a65>>
+ * @generated SignedSource<<6e70a40b19e94a5f08cd1a3e02bbdbd6>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,23 +17,26 @@
 // @dataDrivenDependency RelayModernEnvironmentNoInlineTestModuleQuery.node.nameRenderer {"branches":{"MarkdownUserNameRenderer":{"component":"MarkdownUserNameRenderer.react","fragment":"RelayModernEnvironmentNoInlineTestModuleMarkdownUserNameRenderer_name$normalization.graphql"}},"plural":false}
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernEnvironmentNoInlineTestModuleMarkdownUserNameRenderer_name$ref = any;
-export type RelayModernEnvironmentNoInlineTestModuleQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayModernEnvironmentNoInlineTestModuleMarkdownUserNameRenderer_name$fragmentType = any;
+export type RelayModernEnvironmentNoInlineTestModuleQuery$variables = {|
   cond: boolean,
 |};
-export type RelayModernEnvironmentNoInlineTestModuleQueryResponse = {|
+export type RelayModernEnvironmentNoInlineTestModuleQueryVariables = RelayModernEnvironmentNoInlineTestModuleQuery$variables;
+export type RelayModernEnvironmentNoInlineTestModuleQuery$data = {|
   +node: ?{|
     +nameRenderer?: ?{|
       +__fragmentPropName?: ?string,
       +__module_component?: ?string,
-      +$fragmentRefs: RelayModernEnvironmentNoInlineTestModuleMarkdownUserNameRenderer_name$ref,
+      +$fragmentRefs: RelayModernEnvironmentNoInlineTestModuleMarkdownUserNameRenderer_name$fragmentType,
+      +$fragmentSpreads: RelayModernEnvironmentNoInlineTestModuleMarkdownUserNameRenderer_name$fragmentType,
     |},
   |},
 |};
+export type RelayModernEnvironmentNoInlineTestModuleQueryResponse = RelayModernEnvironmentNoInlineTestModuleQuery$data;
 export type RelayModernEnvironmentNoInlineTestModuleQuery = {|
   variables: RelayModernEnvironmentNoInlineTestModuleQueryVariables,
-  response: RelayModernEnvironmentNoInlineTestModuleQueryResponse,
+  response: RelayModernEnvironmentNoInlineTestModuleQuery$data,
 |};
 */
 
@@ -200,4 +203,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "3b51939e7e4a114f33a177e515088bdb";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentNoInlineTestModuleQuery$variables,
+  RelayModernEnvironmentNoInlineTestModuleQuery$data,
+>*/);

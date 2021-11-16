@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<4ab5f52f2eafc65da25c42ff27fc6808>>
+ * @generated SignedSource<<9a99cb5f2fb5f011b0f7eaabaf41cfac>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,22 +15,25 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-type RelayModernEnvironmentNoInlineTest_inner$ref = any;
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayModernEnvironmentNoInlineTestWithArgs_noInline$ref: FragmentReference;
-declare export opaque type RelayModernEnvironmentNoInlineTestWithArgs_noInline$fragmentType: RelayModernEnvironmentNoInlineTestWithArgs_noInline$ref;
-export type RelayModernEnvironmentNoInlineTestWithArgs_noInline = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+type RelayModernEnvironmentNoInlineTest_inner$fragmentType = any;
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayModernEnvironmentNoInlineTestWithArgs_noInline$fragmentType: FragmentType;
+export type RelayModernEnvironmentNoInlineTestWithArgs_noInline$ref = RelayModernEnvironmentNoInlineTestWithArgs_noInline$fragmentType;
+export type RelayModernEnvironmentNoInlineTestWithArgs_noInline$data = {|
   +profile_picture?: ?{|
     +uri: ?string,
   |},
-  +$fragmentRefs: RelayModernEnvironmentNoInlineTest_inner$ref,
-  +$refType: RelayModernEnvironmentNoInlineTestWithArgs_noInline$ref,
+  +$fragmentRefs: RelayModernEnvironmentNoInlineTest_inner$fragmentType,
+  +$fragmentSpreads: RelayModernEnvironmentNoInlineTest_inner$fragmentType,
+  +$refType: RelayModernEnvironmentNoInlineTestWithArgs_noInline$fragmentType,
+  +$fragmentType: RelayModernEnvironmentNoInlineTestWithArgs_noInline$fragmentType,
 |};
-export type RelayModernEnvironmentNoInlineTestWithArgs_noInline$data = RelayModernEnvironmentNoInlineTestWithArgs_noInline;
+export type RelayModernEnvironmentNoInlineTestWithArgs_noInline = RelayModernEnvironmentNoInlineTestWithArgs_noInline$data;
 export type RelayModernEnvironmentNoInlineTestWithArgs_noInline$key = {
   +$data?: RelayModernEnvironmentNoInlineTestWithArgs_noInline$data,
-  +$fragmentRefs: RelayModernEnvironmentNoInlineTestWithArgs_noInline$ref,
+  +$fragmentRefs: RelayModernEnvironmentNoInlineTestWithArgs_noInline$fragmentType,
+  +$fragmentSpreads: RelayModernEnvironmentNoInlineTestWithArgs_noInline$fragmentType,
   ...
 };
 */
@@ -130,4 +133,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "8541107c8da22deef0a7e355409ab1d0";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayModernEnvironmentNoInlineTestWithArgs_noInline$fragmentType,
+  RelayModernEnvironmentNoInlineTestWithArgs_noInline$data,
+>*/);

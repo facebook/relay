@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<0b87c439b2f85d71ecfc61f0146375ac>>
+ * @generated SignedSource<<a49631d3025a59efea3cc9bdf8300644>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,24 +15,26 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
+import type { ConcreteRequest, Mutation } from 'relay-runtime';
 export type ActorNameChangeInput = {|
   clientMutationId?: ?string,
   newName?: ?string,
 |};
-export type RelayPublishQueueTest2MutationVariables = {|
+export type RelayPublishQueueTest2Mutation$variables = {|
   input: ActorNameChangeInput,
 |};
-export type RelayPublishQueueTest2MutationResponse = {|
+export type RelayPublishQueueTest2MutationVariables = RelayPublishQueueTest2Mutation$variables;
+export type RelayPublishQueueTest2Mutation$data = {|
   +changeName: ?{|
     +actor: ?{|
       +name: ?string,
     |},
   |},
 |};
+export type RelayPublishQueueTest2MutationResponse = RelayPublishQueueTest2Mutation$data;
 export type RelayPublishQueueTest2Mutation = {|
   variables: RelayPublishQueueTest2MutationVariables,
-  response: RelayPublishQueueTest2MutationResponse,
+  response: RelayPublishQueueTest2Mutation$data,
 |};
 */
 
@@ -152,4 +154,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "db89137a4953b4b3ad82707843fce73b";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Mutation<
+  RelayPublishQueueTest2Mutation$variables,
+  RelayPublishQueueTest2Mutation$data,
+>*/);

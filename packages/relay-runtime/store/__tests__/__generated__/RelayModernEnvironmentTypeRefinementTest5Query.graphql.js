@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<6ab34f0e5b24bdcbb133874fcf0d9f57>>
+ * @generated SignedSource<<b76e5be28232d7cc04c86201e195736c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,17 +15,20 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernEnvironmentTypeRefinementTest9Fragment$ref = any;
-export type RelayModernEnvironmentTypeRefinementTest5QueryVariables = {||};
-export type RelayModernEnvironmentTypeRefinementTest5QueryResponse = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayModernEnvironmentTypeRefinementTest9Fragment$fragmentType = any;
+export type RelayModernEnvironmentTypeRefinementTest5Query$variables = {||};
+export type RelayModernEnvironmentTypeRefinementTest5QueryVariables = RelayModernEnvironmentTypeRefinementTest5Query$variables;
+export type RelayModernEnvironmentTypeRefinementTest5Query$data = {|
   +userOrPage: ?{|
-    +$fragmentRefs: RelayModernEnvironmentTypeRefinementTest9Fragment$ref,
+    +$fragmentRefs: RelayModernEnvironmentTypeRefinementTest9Fragment$fragmentType,
+    +$fragmentSpreads: RelayModernEnvironmentTypeRefinementTest9Fragment$fragmentType,
   |},
 |};
+export type RelayModernEnvironmentTypeRefinementTest5QueryResponse = RelayModernEnvironmentTypeRefinementTest5Query$data;
 export type RelayModernEnvironmentTypeRefinementTest5Query = {|
   variables: RelayModernEnvironmentTypeRefinementTest5QueryVariables,
-  response: RelayModernEnvironmentTypeRefinementTest5QueryResponse,
+  response: RelayModernEnvironmentTypeRefinementTest5Query$data,
 |};
 */
 
@@ -149,4 +152,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "44a6f6a48ad431517c8ff66ac7b1e475";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentTypeRefinementTest5Query$variables,
+  RelayModernEnvironmentTypeRefinementTest5Query$data,
+>*/);

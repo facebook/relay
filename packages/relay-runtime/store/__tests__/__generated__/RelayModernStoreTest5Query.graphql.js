@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<9307576c97440486b2b366f8cfba562f>>
+ * @generated SignedSource<<0a0401f85d1a47e59057bf9b63cf7059>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,19 +15,22 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernStoreTest6Fragment$ref = any;
-export type RelayModernStoreTest5QueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayModernStoreTest6Fragment$fragmentType = any;
+export type RelayModernStoreTest5Query$variables = {|
   size?: ?$ReadOnlyArray<?number>,
 |};
-export type RelayModernStoreTest5QueryResponse = {|
+export type RelayModernStoreTest5QueryVariables = RelayModernStoreTest5Query$variables;
+export type RelayModernStoreTest5Query$data = {|
   +me: ?{|
-    +$fragmentRefs: RelayModernStoreTest6Fragment$ref,
+    +$fragmentRefs: RelayModernStoreTest6Fragment$fragmentType,
+    +$fragmentSpreads: RelayModernStoreTest6Fragment$fragmentType,
   |},
 |};
+export type RelayModernStoreTest5QueryResponse = RelayModernStoreTest5Query$data;
 export type RelayModernStoreTest5Query = {|
   variables: RelayModernStoreTest5QueryVariables,
-  response: RelayModernStoreTest5QueryResponse,
+  response: RelayModernStoreTest5Query$data,
 |};
 */
 
@@ -145,4 +148,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "947477a0d26945cfdd5000605f8edc07";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernStoreTest5Query$variables,
+  RelayModernStoreTest5Query$data,
+>*/);

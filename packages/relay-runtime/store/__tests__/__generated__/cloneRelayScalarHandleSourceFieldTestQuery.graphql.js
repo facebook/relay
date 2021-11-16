@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<8afc96b6416bccc21735ceafee78770a>>
+ * @generated SignedSource<<f720f4ffb7bbe6d2179e966619c2c9e7>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,18 +15,20 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-export type cloneRelayScalarHandleSourceFieldTestQueryVariables = {||};
-export type cloneRelayScalarHandleSourceFieldTestQueryResponse = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+export type cloneRelayScalarHandleSourceFieldTestQuery$variables = {||};
+export type cloneRelayScalarHandleSourceFieldTestQueryVariables = cloneRelayScalarHandleSourceFieldTestQuery$variables;
+export type cloneRelayScalarHandleSourceFieldTestQuery$data = {|
   +me: ?{|
     +address: ?{|
       +street: ?string,
     |},
   |},
 |};
+export type cloneRelayScalarHandleSourceFieldTestQueryResponse = cloneRelayScalarHandleSourceFieldTestQuery$data;
 export type cloneRelayScalarHandleSourceFieldTestQuery = {|
   variables: cloneRelayScalarHandleSourceFieldTestQueryVariables,
-  response: cloneRelayScalarHandleSourceFieldTestQueryResponse,
+  response: cloneRelayScalarHandleSourceFieldTestQuery$data,
 |};
 */
 
@@ -137,4 +139,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "3550000f29a16d6c56f9ec8bd39e313c";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  cloneRelayScalarHandleSourceFieldTestQuery$variables,
+  cloneRelayScalarHandleSourceFieldTestQuery$data,
+>*/);

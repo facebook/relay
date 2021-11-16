@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<8ae15c36c70e1c894d6102e7326ff890>>
+ * @generated SignedSource<<af056e58f58feed08489f48a5efddb05>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,17 +15,20 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayReaderRequiredFieldsTest5Fragment$ref = any;
-export type RelayReaderRequiredFieldsTest23QueryVariables = {||};
-export type RelayReaderRequiredFieldsTest23QueryResponse = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayReaderRequiredFieldsTest5Fragment$fragmentType = any;
+export type RelayReaderRequiredFieldsTest23Query$variables = {||};
+export type RelayReaderRequiredFieldsTest23QueryVariables = RelayReaderRequiredFieldsTest23Query$variables;
+export type RelayReaderRequiredFieldsTest23Query$data = {|
   +me: ?{|
-    +$fragmentRefs: RelayReaderRequiredFieldsTest5Fragment$ref,
+    +$fragmentRefs: RelayReaderRequiredFieldsTest5Fragment$fragmentType,
+    +$fragmentSpreads: RelayReaderRequiredFieldsTest5Fragment$fragmentType,
   |},
 |};
+export type RelayReaderRequiredFieldsTest23QueryResponse = RelayReaderRequiredFieldsTest23Query$data;
 export type RelayReaderRequiredFieldsTest23Query = {|
   variables: RelayReaderRequiredFieldsTest23QueryVariables,
-  response: RelayReaderRequiredFieldsTest23QueryResponse,
+  response: RelayReaderRequiredFieldsTest23Query$data,
 |};
 */
 
@@ -110,4 +113,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "87cd5c3a576d7d9481983ee2468af663";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayReaderRequiredFieldsTest23Query$variables,
+  RelayReaderRequiredFieldsTest23Query$data,
+>*/);

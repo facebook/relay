@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<8f711ea417e64de5165534a4e1652a7c>>
+ * @generated SignedSource<<cc93f0dd1c1f30b00d3cd2aed41e0e6a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,15 +15,16 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
+import type { ConcreteRequest, Mutation } from 'relay-runtime';
 export type FeedbackLikeInput = {|
   clientMutationId?: ?string,
   feedbackId?: ?string,
 |};
-export type validateMutationTest19FeedbackLikeMutationVariables = {|
+export type validateMutationTest19FeedbackLikeMutation$variables = {|
   input?: ?FeedbackLikeInput,
 |};
-export type validateMutationTest19FeedbackLikeMutationResponse = {|
+export type validateMutationTest19FeedbackLikeMutationVariables = validateMutationTest19FeedbackLikeMutation$variables;
+export type validateMutationTest19FeedbackLikeMutation$data = {|
   +feedbackLike: ?{|
     +feedback: ?{|
       +doesViewerLike: ?boolean,
@@ -31,9 +32,10 @@ export type validateMutationTest19FeedbackLikeMutationResponse = {|
     |},
   |},
 |};
+export type validateMutationTest19FeedbackLikeMutationResponse = validateMutationTest19FeedbackLikeMutation$data;
 export type validateMutationTest19FeedbackLikeMutation = {|
   variables: validateMutationTest19FeedbackLikeMutationVariables,
-  response: validateMutationTest19FeedbackLikeMutationResponse,
+  response: validateMutationTest19FeedbackLikeMutation$data,
 |};
 */
 
@@ -160,4 +162,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "cb1650d795ec969789e398422323459a";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Mutation<
+  validateMutationTest19FeedbackLikeMutation$variables,
+  validateMutationTest19FeedbackLikeMutation$data,
+>*/);

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<90a1b14a962677b09e6cad044a289e5d>>
+ * @generated SignedSource<<bc02eafca570118d5f25517b8adc1a28>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,21 +15,23 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayModernEnvironmentExecuteWithNestedMatchTestPlainUserNameRenderer_name$ref: FragmentReference;
-declare export opaque type RelayModernEnvironmentExecuteWithNestedMatchTestPlainUserNameRenderer_name$fragmentType: RelayModernEnvironmentExecuteWithNestedMatchTestPlainUserNameRenderer_name$ref;
-export type RelayModernEnvironmentExecuteWithNestedMatchTestPlainUserNameRenderer_name = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayModernEnvironmentExecuteWithNestedMatchTestPlainUserNameRenderer_name$fragmentType: FragmentType;
+export type RelayModernEnvironmentExecuteWithNestedMatchTestPlainUserNameRenderer_name$ref = RelayModernEnvironmentExecuteWithNestedMatchTestPlainUserNameRenderer_name$fragmentType;
+export type RelayModernEnvironmentExecuteWithNestedMatchTestPlainUserNameRenderer_name$data = {|
   +plaintext: ?string,
   +data: ?{|
     +text: ?string,
   |},
-  +$refType: RelayModernEnvironmentExecuteWithNestedMatchTestPlainUserNameRenderer_name$ref,
+  +$refType: RelayModernEnvironmentExecuteWithNestedMatchTestPlainUserNameRenderer_name$fragmentType,
+  +$fragmentType: RelayModernEnvironmentExecuteWithNestedMatchTestPlainUserNameRenderer_name$fragmentType,
 |};
-export type RelayModernEnvironmentExecuteWithNestedMatchTestPlainUserNameRenderer_name$data = RelayModernEnvironmentExecuteWithNestedMatchTestPlainUserNameRenderer_name;
+export type RelayModernEnvironmentExecuteWithNestedMatchTestPlainUserNameRenderer_name = RelayModernEnvironmentExecuteWithNestedMatchTestPlainUserNameRenderer_name$data;
 export type RelayModernEnvironmentExecuteWithNestedMatchTestPlainUserNameRenderer_name$key = {
   +$data?: RelayModernEnvironmentExecuteWithNestedMatchTestPlainUserNameRenderer_name$data,
-  +$fragmentRefs: RelayModernEnvironmentExecuteWithNestedMatchTestPlainUserNameRenderer_name$ref,
+  +$fragmentRefs: RelayModernEnvironmentExecuteWithNestedMatchTestPlainUserNameRenderer_name$fragmentType,
+  +$fragmentSpreads: RelayModernEnvironmentExecuteWithNestedMatchTestPlainUserNameRenderer_name$fragmentType,
   ...
 };
 */
@@ -74,4 +76,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "dd2b6c85ca9c2117be434b42864ff560";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayModernEnvironmentExecuteWithNestedMatchTestPlainUserNameRenderer_name$fragmentType,
+  RelayModernEnvironmentExecuteWithNestedMatchTestPlainUserNameRenderer_name$data,
+>*/);

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<5aed5f924c2236cdd08c92a44e99561c>>
+ * @generated SignedSource<<b9db1046e2c886a85f62ac4b36d96ef2>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,17 +15,20 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingUserProfile$ref = any;
-export type RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingUserQueryVariables = {||};
-export type RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingUserQueryResponse = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingUserProfile$fragmentType = any;
+export type RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingUserQuery$variables = {||};
+export type RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingUserQueryVariables = RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingUserQuery$variables;
+export type RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingUserQuery$data = {|
   +me: ?{|
-    +$fragmentRefs: RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingUserProfile$ref,
+    +$fragmentRefs: RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingUserProfile$fragmentType,
+    +$fragmentSpreads: RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingUserProfile$fragmentType,
   |},
 |};
+export type RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingUserQueryResponse = RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingUserQuery$data;
 export type RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingUserQuery = {|
   variables: RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingUserQueryVariables,
-  response: RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingUserQueryResponse,
+  response: RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingUserQuery$data,
 |};
 */
 
@@ -103,4 +106,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "b8bb895c4bc3c32d92456c0798ef49ed";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingUserQuery$variables,
+  RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingUserQuery$data,
+>*/);

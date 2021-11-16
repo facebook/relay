@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<f8e7d913e6bb4a2fa353b6e1c8972952>>
+ * @generated SignedSource<<cbebea20d177d21b1c817f07070f2fcf>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,19 +15,22 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernFragmentSpecResolverRequiredFieldTestUserFragment$ref = any;
-export type RelayModernFragmentSpecResolverRequiredFieldTestUserQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayModernFragmentSpecResolverRequiredFieldTestUserFragment$fragmentType = any;
+export type RelayModernFragmentSpecResolverRequiredFieldTestUserQuery$variables = {|
   id: string,
 |};
-export type RelayModernFragmentSpecResolverRequiredFieldTestUserQueryResponse = {|
+export type RelayModernFragmentSpecResolverRequiredFieldTestUserQueryVariables = RelayModernFragmentSpecResolverRequiredFieldTestUserQuery$variables;
+export type RelayModernFragmentSpecResolverRequiredFieldTestUserQuery$data = {|
   +node: ?{|
-    +$fragmentRefs: RelayModernFragmentSpecResolverRequiredFieldTestUserFragment$ref,
+    +$fragmentRefs: RelayModernFragmentSpecResolverRequiredFieldTestUserFragment$fragmentType,
+    +$fragmentSpreads: RelayModernFragmentSpecResolverRequiredFieldTestUserFragment$fragmentType,
   |},
 |};
+export type RelayModernFragmentSpecResolverRequiredFieldTestUserQueryResponse = RelayModernFragmentSpecResolverRequiredFieldTestUserQuery$data;
 export type RelayModernFragmentSpecResolverRequiredFieldTestUserQuery = {|
   variables: RelayModernFragmentSpecResolverRequiredFieldTestUserQueryVariables,
-  response: RelayModernFragmentSpecResolverRequiredFieldTestUserQueryResponse,
+  response: RelayModernFragmentSpecResolverRequiredFieldTestUserQuery$data,
 |};
 */
 
@@ -142,4 +145,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "7a8f1c7d05c71461bd82aa5538c96b3c";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernFragmentSpecResolverRequiredFieldTestUserQuery$variables,
+  RelayModernFragmentSpecResolverRequiredFieldTestUserQuery$data,
+>*/);

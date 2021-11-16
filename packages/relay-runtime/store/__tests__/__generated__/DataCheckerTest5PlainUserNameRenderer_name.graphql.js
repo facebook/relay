@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<5cd5b257c12121572bbc69ef6f03e66b>>
+ * @generated SignedSource<<bb8a140418802017783747d09b03a464>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,21 +15,23 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type DataCheckerTest5PlainUserNameRenderer_name$ref: FragmentReference;
-declare export opaque type DataCheckerTest5PlainUserNameRenderer_name$fragmentType: DataCheckerTest5PlainUserNameRenderer_name$ref;
-export type DataCheckerTest5PlainUserNameRenderer_name = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type DataCheckerTest5PlainUserNameRenderer_name$fragmentType: FragmentType;
+export type DataCheckerTest5PlainUserNameRenderer_name$ref = DataCheckerTest5PlainUserNameRenderer_name$fragmentType;
+export type DataCheckerTest5PlainUserNameRenderer_name$data = {|
   +plaintext: ?string,
   +data: ?{|
     +text: ?string,
   |},
-  +$refType: DataCheckerTest5PlainUserNameRenderer_name$ref,
+  +$refType: DataCheckerTest5PlainUserNameRenderer_name$fragmentType,
+  +$fragmentType: DataCheckerTest5PlainUserNameRenderer_name$fragmentType,
 |};
-export type DataCheckerTest5PlainUserNameRenderer_name$data = DataCheckerTest5PlainUserNameRenderer_name;
+export type DataCheckerTest5PlainUserNameRenderer_name = DataCheckerTest5PlainUserNameRenderer_name$data;
 export type DataCheckerTest5PlainUserNameRenderer_name$key = {
   +$data?: DataCheckerTest5PlainUserNameRenderer_name$data,
-  +$fragmentRefs: DataCheckerTest5PlainUserNameRenderer_name$ref,
+  +$fragmentRefs: DataCheckerTest5PlainUserNameRenderer_name$fragmentType,
+  +$fragmentSpreads: DataCheckerTest5PlainUserNameRenderer_name$fragmentType,
   ...
 };
 */
@@ -74,4 +76,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "ac8ff6d1542a39373dd84ad4f75d4898";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  DataCheckerTest5PlainUserNameRenderer_name$fragmentType,
+  DataCheckerTest5PlainUserNameRenderer_name$data,
+>*/);

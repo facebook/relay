@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<799422d6a32a878a368af61303362923>>
+ * @generated SignedSource<<bccc539ca2af6211ea1bd14158ee67c9>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,25 +15,28 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
+import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { ActorChangePoint } from "react-relay/multi-actor";
-type ActorChangeWithStreamTestFragment$ref = any;
-export type ActorChangeWithStreamTestQueryVariables = {||};
-export type ActorChangeWithStreamTestQueryResponse = {|
+type ActorChangeWithStreamTestFragment$fragmentType = any;
+export type ActorChangeWithStreamTestQuery$variables = {||};
+export type ActorChangeWithStreamTestQueryVariables = ActorChangeWithStreamTestQuery$variables;
+export type ActorChangeWithStreamTestQuery$data = {|
   +viewer: ?{|
     +newsFeed: ?{|
       +edges: ?$ReadOnlyArray<?{|
         +node: ?ActorChangePoint<{|
           +actor_key: string,
-          +$fragmentRefs: ActorChangeWithStreamTestFragment$ref,
+          +$fragmentRefs: ActorChangeWithStreamTestFragment$fragmentType,
+          +$fragmentSpreads: ActorChangeWithStreamTestFragment$fragmentType,
         |}>,
       |}>,
     |},
   |},
 |};
+export type ActorChangeWithStreamTestQueryResponse = ActorChangeWithStreamTestQuery$data;
 export type ActorChangeWithStreamTestQuery = {|
   variables: ActorChangeWithStreamTestQueryVariables,
-  response: ActorChangeWithStreamTestQueryResponse,
+  response: ActorChangeWithStreamTestQuery$data,
 |};
 */
 
@@ -248,4 +251,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "d36707add9f4e27149d6e1bf38a04360";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  ActorChangeWithStreamTestQuery$variables,
+  ActorChangeWithStreamTestQuery$data,
+>*/);

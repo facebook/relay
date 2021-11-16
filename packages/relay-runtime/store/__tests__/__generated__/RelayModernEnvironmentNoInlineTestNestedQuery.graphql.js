@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<f14f2657ce1ad5fbe9b32f2e659f9b13>>
+ * @generated SignedSource<<1c2e1c670c56b8faef932f96ff587d80>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,17 +15,20 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernEnvironmentNoInlineTest_nestedNoInlineParent$ref = any;
-export type RelayModernEnvironmentNoInlineTestNestedQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayModernEnvironmentNoInlineTest_nestedNoInlineParent$fragmentType = any;
+export type RelayModernEnvironmentNoInlineTestNestedQuery$variables = {|
   global_cond: boolean,
 |};
-export type RelayModernEnvironmentNoInlineTestNestedQueryResponse = {|
-  +$fragmentRefs: RelayModernEnvironmentNoInlineTest_nestedNoInlineParent$ref,
+export type RelayModernEnvironmentNoInlineTestNestedQueryVariables = RelayModernEnvironmentNoInlineTestNestedQuery$variables;
+export type RelayModernEnvironmentNoInlineTestNestedQuery$data = {|
+  +$fragmentRefs: RelayModernEnvironmentNoInlineTest_nestedNoInlineParent$fragmentType,
+  +$fragmentSpreads: RelayModernEnvironmentNoInlineTest_nestedNoInlineParent$fragmentType,
 |};
+export type RelayModernEnvironmentNoInlineTestNestedQueryResponse = RelayModernEnvironmentNoInlineTestNestedQuery$data;
 export type RelayModernEnvironmentNoInlineTestNestedQuery = {|
   variables: RelayModernEnvironmentNoInlineTestNestedQueryVariables,
-  response: RelayModernEnvironmentNoInlineTestNestedQueryResponse,
+  response: RelayModernEnvironmentNoInlineTestNestedQuery$data,
 |};
 */
 
@@ -93,4 +96,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "cecbcd722b6b7ecf0d3af5c336814547";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentNoInlineTestNestedQuery$variables,
+  RelayModernEnvironmentNoInlineTestNestedQuery$data,
+>*/);

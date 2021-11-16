@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<7bdbc5a9ccf76321c6fb06c16a3201a1>>
+ * @generated SignedSource<<ad265efc8955ce757aec94a2d0bd419a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,20 +15,23 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment$ref = any;
-export type RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment$fragmentType = any;
+export type RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedQuery$variables = {|
   enableStream: boolean,
   after?: ?string,
 |};
-export type RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedQueryResponse = {|
+export type RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedQueryVariables = RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedQuery$variables;
+export type RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedQuery$data = {|
   +viewer: ?{|
-    +$fragmentRefs: RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment$ref,
+    +$fragmentRefs: RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment$fragmentType,
+    +$fragmentSpreads: RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment$fragmentType,
   |},
 |};
+export type RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedQueryResponse = RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedQuery$data;
 export type RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedQuery = {|
   variables: RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedQueryVariables,
-  response: RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedQueryResponse,
+  response: RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedQuery$data,
 |};
 */
 
@@ -267,4 +270,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "82b74c724400cf33ab9135fc73b2301a";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedQuery$variables,
+  RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedQuery$data,
+>*/);

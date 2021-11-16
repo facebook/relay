@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<ac4add924111d68079150ea7c9f35500>>
+ * @generated SignedSource<<ba36769da64b079fc2cb65dd1af60373>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,20 +15,22 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type FragmentResourceRequiredFieldTestUserFragment$ref: FragmentReference;
-declare export opaque type FragmentResourceRequiredFieldTestUserFragment$fragmentType: FragmentResourceRequiredFieldTestUserFragment$ref;
-export type FragmentResourceRequiredFieldTestUserFragment = ?{|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type FragmentResourceRequiredFieldTestUserFragment$fragmentType: FragmentType;
+export type FragmentResourceRequiredFieldTestUserFragment$ref = FragmentResourceRequiredFieldTestUserFragment$fragmentType;
+export type FragmentResourceRequiredFieldTestUserFragment$data = ?{|
   +id: string,
   +name: string,
   +alternate_name: string,
-  +$refType: FragmentResourceRequiredFieldTestUserFragment$ref,
+  +$refType: FragmentResourceRequiredFieldTestUserFragment$fragmentType,
+  +$fragmentType: FragmentResourceRequiredFieldTestUserFragment$fragmentType,
 |};
-export type FragmentResourceRequiredFieldTestUserFragment$data = FragmentResourceRequiredFieldTestUserFragment;
+export type FragmentResourceRequiredFieldTestUserFragment = FragmentResourceRequiredFieldTestUserFragment$data;
 export type FragmentResourceRequiredFieldTestUserFragment$key = {
   +$data?: FragmentResourceRequiredFieldTestUserFragment$data,
-  +$fragmentRefs: FragmentResourceRequiredFieldTestUserFragment$ref,
+  +$fragmentRefs: FragmentResourceRequiredFieldTestUserFragment$fragmentType,
+  +$fragmentSpreads: FragmentResourceRequiredFieldTestUserFragment$fragmentType,
   ...
 };
 */
@@ -79,4 +81,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "0c0aef0e7704a8313459923e0528a5e5";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  FragmentResourceRequiredFieldTestUserFragment$fragmentType,
+  FragmentResourceRequiredFieldTestUserFragment$data,
+>*/);

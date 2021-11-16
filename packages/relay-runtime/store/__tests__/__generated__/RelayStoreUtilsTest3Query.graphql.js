@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<bacaaf6b903bdaf0680db17f0a49238b>>
+ * @generated SignedSource<<9113bfd99968d8c6f705d3a3e364bff2>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,18 +15,20 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-export type RelayStoreUtilsTest3QueryVariables = {||};
-export type RelayStoreUtilsTest3QueryResponse = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+export type RelayStoreUtilsTest3Query$variables = {||};
+export type RelayStoreUtilsTest3QueryVariables = RelayStoreUtilsTest3Query$variables;
+export type RelayStoreUtilsTest3Query$data = {|
   +me: ?{|
     +profile_picture: ?{|
       +uri: ?string,
     |},
   |},
 |};
+export type RelayStoreUtilsTest3QueryResponse = RelayStoreUtilsTest3Query$data;
 export type RelayStoreUtilsTest3Query = {|
   variables: RelayStoreUtilsTest3QueryVariables,
-  response: RelayStoreUtilsTest3QueryResponse,
+  response: RelayStoreUtilsTest3Query$data,
 |};
 */
 
@@ -141,4 +143,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "71c0909b2a64f3fef914d02dc95dd6fd";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayStoreUtilsTest3Query$variables,
+  RelayStoreUtilsTest3Query$data,
+>*/);

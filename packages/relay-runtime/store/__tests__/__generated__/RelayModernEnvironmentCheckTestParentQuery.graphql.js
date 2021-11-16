@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<dd72847a4d9c6c875f40f37865e6c643>>
+ * @generated SignedSource<<2f10e9e5272ff25ed2918d062d784359>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,11 +15,12 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-export type RelayModernEnvironmentCheckTestParentQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+export type RelayModernEnvironmentCheckTestParentQuery$variables = {|
   size: $ReadOnlyArray<?number>,
 |};
-export type RelayModernEnvironmentCheckTestParentQueryResponse = {|
+export type RelayModernEnvironmentCheckTestParentQueryVariables = RelayModernEnvironmentCheckTestParentQuery$variables;
+export type RelayModernEnvironmentCheckTestParentQuery$data = {|
   +me: ?{|
     +id: string,
     +name: ?string,
@@ -28,9 +29,10 @@ export type RelayModernEnvironmentCheckTestParentQueryResponse = {|
     |},
   |},
 |};
+export type RelayModernEnvironmentCheckTestParentQueryResponse = RelayModernEnvironmentCheckTestParentQuery$data;
 export type RelayModernEnvironmentCheckTestParentQuery = {|
   variables: RelayModernEnvironmentCheckTestParentQueryVariables,
-  response: RelayModernEnvironmentCheckTestParentQueryResponse,
+  response: RelayModernEnvironmentCheckTestParentQuery$data,
 |};
 */
 
@@ -125,4 +127,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "5ba6084e5dd0f64ebddb6badda51b744";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentCheckTestParentQuery$variables,
+  RelayModernEnvironmentCheckTestParentQuery$data,
+>*/);

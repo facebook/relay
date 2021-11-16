@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<8869bb64ad21c4e55de471c6d362967d>>
+ * @generated SignedSource<<613b8a22501c70551c847a3411628531>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,21 +15,24 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type usePreloadedQueryReactDoubleEffectsTestFragment$ref = any;
-export type usePreloadedQueryReactDoubleEffectsTestDeferQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type usePreloadedQueryReactDoubleEffectsTestFragment$fragmentType = any;
+export type usePreloadedQueryReactDoubleEffectsTestDeferQuery$variables = {|
   id?: ?string,
 |};
-export type usePreloadedQueryReactDoubleEffectsTestDeferQueryResponse = {|
+export type usePreloadedQueryReactDoubleEffectsTestDeferQueryVariables = usePreloadedQueryReactDoubleEffectsTestDeferQuery$variables;
+export type usePreloadedQueryReactDoubleEffectsTestDeferQuery$data = {|
   +node: ?{|
     +id: string,
     +name: ?string,
-    +$fragmentRefs: usePreloadedQueryReactDoubleEffectsTestFragment$ref,
+    +$fragmentRefs: usePreloadedQueryReactDoubleEffectsTestFragment$fragmentType,
+    +$fragmentSpreads: usePreloadedQueryReactDoubleEffectsTestFragment$fragmentType,
   |},
 |};
+export type usePreloadedQueryReactDoubleEffectsTestDeferQueryResponse = usePreloadedQueryReactDoubleEffectsTestDeferQuery$data;
 export type usePreloadedQueryReactDoubleEffectsTestDeferQuery = {|
   variables: usePreloadedQueryReactDoubleEffectsTestDeferQueryVariables,
-  response: usePreloadedQueryReactDoubleEffectsTestDeferQueryResponse,
+  response: usePreloadedQueryReactDoubleEffectsTestDeferQuery$data,
 |};
 */
 
@@ -160,4 +163,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "6338c0f9d862dcd893716ffc9df2e626";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  usePreloadedQueryReactDoubleEffectsTestDeferQuery$variables,
+  usePreloadedQueryReactDoubleEffectsTestDeferQuery$data,
+>*/);

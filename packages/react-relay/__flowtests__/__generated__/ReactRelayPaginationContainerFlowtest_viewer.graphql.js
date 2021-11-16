@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<327dc7ccd50822a21f8284e9c50b2bbc>>
+ * @generated SignedSource<<286715cd93d8b150ae76ee0fa8b7b797>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,11 +15,11 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type ReactRelayPaginationContainerFlowtest_viewer$ref: FragmentReference;
-declare export opaque type ReactRelayPaginationContainerFlowtest_viewer$fragmentType: ReactRelayPaginationContainerFlowtest_viewer$ref;
-export type ReactRelayPaginationContainerFlowtest_viewer = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type ReactRelayPaginationContainerFlowtest_viewer$fragmentType: FragmentType;
+export type ReactRelayPaginationContainerFlowtest_viewer$ref = ReactRelayPaginationContainerFlowtest_viewer$fragmentType;
+export type ReactRelayPaginationContainerFlowtest_viewer$data = {|
   +account_user: ?{|
     +friends: ?{|
       +edges: ?$ReadOnlyArray<?{|
@@ -29,12 +29,14 @@ export type ReactRelayPaginationContainerFlowtest_viewer = {|
       |}>,
     |},
   |},
-  +$refType: ReactRelayPaginationContainerFlowtest_viewer$ref,
+  +$refType: ReactRelayPaginationContainerFlowtest_viewer$fragmentType,
+  +$fragmentType: ReactRelayPaginationContainerFlowtest_viewer$fragmentType,
 |};
-export type ReactRelayPaginationContainerFlowtest_viewer$data = ReactRelayPaginationContainerFlowtest_viewer;
+export type ReactRelayPaginationContainerFlowtest_viewer = ReactRelayPaginationContainerFlowtest_viewer$data;
 export type ReactRelayPaginationContainerFlowtest_viewer$key = {
   +$data?: ReactRelayPaginationContainerFlowtest_viewer$data,
-  +$fragmentRefs: ReactRelayPaginationContainerFlowtest_viewer$ref,
+  +$fragmentRefs: ReactRelayPaginationContainerFlowtest_viewer$fragmentType,
+  +$fragmentSpreads: ReactRelayPaginationContainerFlowtest_viewer$fragmentType,
   ...
 };
 */
@@ -158,4 +160,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "0db8995009ebfee6165f6bbaa465d13f";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  ReactRelayPaginationContainerFlowtest_viewer$fragmentType,
+  ReactRelayPaginationContainerFlowtest_viewer$data,
+>*/);

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<efdd00dcc8131b398db9f3dc83d194a1>>
+ * @generated SignedSource<<66fbf5fb6e1b974bafbd80fc15d657b1>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,20 +15,23 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type requestSubscriptionTestExtraFragment$ref = any;
-export type requestSubscriptionTestConfigCreateSubscriptionVariables = {||};
-export type requestSubscriptionTestConfigCreateSubscriptionResponse = {|
+import type { ConcreteRequest, GraphQLSubscription } from 'relay-runtime';
+type requestSubscriptionTestExtraFragment$fragmentType = any;
+export type requestSubscriptionTestConfigCreateSubscription$variables = {||};
+export type requestSubscriptionTestConfigCreateSubscriptionVariables = requestSubscriptionTestConfigCreateSubscription$variables;
+export type requestSubscriptionTestConfigCreateSubscription$data = {|
   +configCreateSubscribe: ?{|
     +config: ?{|
       +name: ?string,
-      +$fragmentRefs: requestSubscriptionTestExtraFragment$ref,
+      +$fragmentRefs: requestSubscriptionTestExtraFragment$fragmentType,
+      +$fragmentSpreads: requestSubscriptionTestExtraFragment$fragmentType,
     |},
   |},
 |};
+export type requestSubscriptionTestConfigCreateSubscriptionResponse = requestSubscriptionTestConfigCreateSubscription$data;
 export type requestSubscriptionTestConfigCreateSubscription = {|
   variables: requestSubscriptionTestConfigCreateSubscriptionVariables,
-  response: requestSubscriptionTestConfigCreateSubscriptionResponse,
+  response: requestSubscriptionTestConfigCreateSubscription$data,
 |};
 */
 
@@ -134,4 +137,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "6b2edf520dcf571dde1465c394f0a52e";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: GraphQLSubscription<
+  requestSubscriptionTestConfigCreateSubscription$variables,
+  requestSubscriptionTestConfigCreateSubscription$data,
+>*/);

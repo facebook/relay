@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<fb5baa3185563ecbe9a1466abf11c3f9>>
+ * @generated SignedSource<<c712a0fd8067cea45eb1ddf908a25377>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,19 +15,22 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernEnvironmentExecuteWithNestedStreamTestFeedFragment$ref = any;
-export type RelayModernEnvironmentExecuteWithNestedStreamTestFeedQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayModernEnvironmentExecuteWithNestedStreamTestFeedFragment$fragmentType = any;
+export type RelayModernEnvironmentExecuteWithNestedStreamTestFeedQuery$variables = {|
   enableStream: boolean,
 |};
-export type RelayModernEnvironmentExecuteWithNestedStreamTestFeedQueryResponse = {|
+export type RelayModernEnvironmentExecuteWithNestedStreamTestFeedQueryVariables = RelayModernEnvironmentExecuteWithNestedStreamTestFeedQuery$variables;
+export type RelayModernEnvironmentExecuteWithNestedStreamTestFeedQuery$data = {|
   +viewer: ?{|
-    +$fragmentRefs: RelayModernEnvironmentExecuteWithNestedStreamTestFeedFragment$ref,
+    +$fragmentRefs: RelayModernEnvironmentExecuteWithNestedStreamTestFeedFragment$fragmentType,
+    +$fragmentSpreads: RelayModernEnvironmentExecuteWithNestedStreamTestFeedFragment$fragmentType,
   |},
 |};
+export type RelayModernEnvironmentExecuteWithNestedStreamTestFeedQueryResponse = RelayModernEnvironmentExecuteWithNestedStreamTestFeedQuery$data;
 export type RelayModernEnvironmentExecuteWithNestedStreamTestFeedQuery = {|
   variables: RelayModernEnvironmentExecuteWithNestedStreamTestFeedQueryVariables,
-  response: RelayModernEnvironmentExecuteWithNestedStreamTestFeedQueryResponse,
+  response: RelayModernEnvironmentExecuteWithNestedStreamTestFeedQuery$data,
 |};
 */
 
@@ -217,4 +220,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "0320449c8b7bac4f9ee4a98105c83e53";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentExecuteWithNestedStreamTestFeedQuery$variables,
+  RelayModernEnvironmentExecuteWithNestedStreamTestFeedQuery$data,
+>*/);

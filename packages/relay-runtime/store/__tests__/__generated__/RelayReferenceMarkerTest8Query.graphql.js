@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<7e362042cf5d740f4ff3d89556165e56>>
+ * @generated SignedSource<<afbf472f34783c41cd42488c6fd8588e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,19 +15,22 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayReferenceMarkerTest6Fragment$ref = any;
-export type RelayReferenceMarkerTest8QueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayReferenceMarkerTest6Fragment$fragmentType = any;
+export type RelayReferenceMarkerTest8Query$variables = {|
   id: string,
 |};
-export type RelayReferenceMarkerTest8QueryResponse = {|
+export type RelayReferenceMarkerTest8QueryVariables = RelayReferenceMarkerTest8Query$variables;
+export type RelayReferenceMarkerTest8Query$data = {|
   +node: ?{|
-    +$fragmentRefs: RelayReferenceMarkerTest6Fragment$ref,
+    +$fragmentRefs: RelayReferenceMarkerTest6Fragment$fragmentType,
+    +$fragmentSpreads: RelayReferenceMarkerTest6Fragment$fragmentType,
   |},
 |};
+export type RelayReferenceMarkerTest8QueryResponse = RelayReferenceMarkerTest8Query$data;
 export type RelayReferenceMarkerTest8Query = {|
   variables: RelayReferenceMarkerTest8QueryVariables,
-  response: RelayReferenceMarkerTest8QueryResponse,
+  response: RelayReferenceMarkerTest8Query$data,
 |};
 */
 
@@ -157,4 +160,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "30e3b31096520d2b76871a970230f544";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayReferenceMarkerTest8Query$variables,
+  RelayReferenceMarkerTest8Query$data,
+>*/);

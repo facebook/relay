@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<9214fda1ce101b3bbdd1b98bb9be170c>>
+ * @generated SignedSource<<90020c7401313691b886f293c4497a50>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,19 +15,21 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type useLazyLoadQueryNodeTestDeferFragment$ref: FragmentReference;
-declare export opaque type useLazyLoadQueryNodeTestDeferFragment$fragmentType: useLazyLoadQueryNodeTestDeferFragment$ref;
-export type useLazyLoadQueryNodeTestDeferFragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type useLazyLoadQueryNodeTestDeferFragment$fragmentType: FragmentType;
+export type useLazyLoadQueryNodeTestDeferFragment$ref = useLazyLoadQueryNodeTestDeferFragment$fragmentType;
+export type useLazyLoadQueryNodeTestDeferFragment$data = {|
   +id: string,
   +name: ?string,
-  +$refType: useLazyLoadQueryNodeTestDeferFragment$ref,
+  +$refType: useLazyLoadQueryNodeTestDeferFragment$fragmentType,
+  +$fragmentType: useLazyLoadQueryNodeTestDeferFragment$fragmentType,
 |};
-export type useLazyLoadQueryNodeTestDeferFragment$data = useLazyLoadQueryNodeTestDeferFragment;
+export type useLazyLoadQueryNodeTestDeferFragment = useLazyLoadQueryNodeTestDeferFragment$data;
 export type useLazyLoadQueryNodeTestDeferFragment$key = {
   +$data?: useLazyLoadQueryNodeTestDeferFragment$data,
-  +$fragmentRefs: useLazyLoadQueryNodeTestDeferFragment$ref,
+  +$fragmentRefs: useLazyLoadQueryNodeTestDeferFragment$fragmentType,
+  +$fragmentSpreads: useLazyLoadQueryNodeTestDeferFragment$fragmentType,
   ...
 };
 */
@@ -61,4 +63,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "2d48898c3a90b822fb98b540f990f3ad";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  useLazyLoadQueryNodeTestDeferFragment$fragmentType,
+  useLazyLoadQueryNodeTestDeferFragment$data,
+>*/);

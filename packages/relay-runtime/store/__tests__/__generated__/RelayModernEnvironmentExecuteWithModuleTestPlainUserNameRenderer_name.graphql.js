@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<511d451def2b5ce943671814a11ca724>>
+ * @generated SignedSource<<74f29ee343c087a8fdf7c0469973a170>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,21 +15,23 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayModernEnvironmentExecuteWithModuleTestPlainUserNameRenderer_name$ref: FragmentReference;
-declare export opaque type RelayModernEnvironmentExecuteWithModuleTestPlainUserNameRenderer_name$fragmentType: RelayModernEnvironmentExecuteWithModuleTestPlainUserNameRenderer_name$ref;
-export type RelayModernEnvironmentExecuteWithModuleTestPlainUserNameRenderer_name = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayModernEnvironmentExecuteWithModuleTestPlainUserNameRenderer_name$fragmentType: FragmentType;
+export type RelayModernEnvironmentExecuteWithModuleTestPlainUserNameRenderer_name$ref = RelayModernEnvironmentExecuteWithModuleTestPlainUserNameRenderer_name$fragmentType;
+export type RelayModernEnvironmentExecuteWithModuleTestPlainUserNameRenderer_name$data = {|
   +plaintext: ?string,
   +data: ?{|
     +text: ?string,
   |},
-  +$refType: RelayModernEnvironmentExecuteWithModuleTestPlainUserNameRenderer_name$ref,
+  +$refType: RelayModernEnvironmentExecuteWithModuleTestPlainUserNameRenderer_name$fragmentType,
+  +$fragmentType: RelayModernEnvironmentExecuteWithModuleTestPlainUserNameRenderer_name$fragmentType,
 |};
-export type RelayModernEnvironmentExecuteWithModuleTestPlainUserNameRenderer_name$data = RelayModernEnvironmentExecuteWithModuleTestPlainUserNameRenderer_name;
+export type RelayModernEnvironmentExecuteWithModuleTestPlainUserNameRenderer_name = RelayModernEnvironmentExecuteWithModuleTestPlainUserNameRenderer_name$data;
 export type RelayModernEnvironmentExecuteWithModuleTestPlainUserNameRenderer_name$key = {
   +$data?: RelayModernEnvironmentExecuteWithModuleTestPlainUserNameRenderer_name$data,
-  +$fragmentRefs: RelayModernEnvironmentExecuteWithModuleTestPlainUserNameRenderer_name$ref,
+  +$fragmentRefs: RelayModernEnvironmentExecuteWithModuleTestPlainUserNameRenderer_name$fragmentType,
+  +$fragmentSpreads: RelayModernEnvironmentExecuteWithModuleTestPlainUserNameRenderer_name$fragmentType,
   ...
 };
 */
@@ -74,4 +76,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "b26eedaf9a301741f224ad486c5af66f";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayModernEnvironmentExecuteWithModuleTestPlainUserNameRenderer_name$fragmentType,
+  RelayModernEnvironmentExecuteWithModuleTestPlainUserNameRenderer_name$data,
+>*/);

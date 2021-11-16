@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<678774e3cb4c7989ed077ab08edce4b6>>
+ * @generated SignedSource<<7efa165c4d188d159909dad74637187c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,24 +15,27 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
+import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { ActorChangePoint } from "react-relay/multi-actor";
-type RelayResponseNormalizerTestActorChangeFragment$ref = any;
-export type RelayResponseNormalizerTestActorChangeWithAliasQueryVariables = {||};
-export type RelayResponseNormalizerTestActorChangeWithAliasQueryResponse = {|
+type RelayResponseNormalizerTestActorChangeFragment$fragmentType = any;
+export type RelayResponseNormalizerTestActorChangeWithAliasQuery$variables = {||};
+export type RelayResponseNormalizerTestActorChangeWithAliasQueryVariables = RelayResponseNormalizerTestActorChangeWithAliasQuery$variables;
+export type RelayResponseNormalizerTestActorChangeWithAliasQuery$data = {|
   +viewer: ?{|
     +me: ?{|
       +name: ?string,
     |},
     +actor: ?ActorChangePoint<{|
       +actor_key: string,
-      +$fragmentRefs: RelayResponseNormalizerTestActorChangeFragment$ref,
+      +$fragmentRefs: RelayResponseNormalizerTestActorChangeFragment$fragmentType,
+      +$fragmentSpreads: RelayResponseNormalizerTestActorChangeFragment$fragmentType,
     |}>,
   |},
 |};
+export type RelayResponseNormalizerTestActorChangeWithAliasQueryResponse = RelayResponseNormalizerTestActorChangeWithAliasQuery$data;
 export type RelayResponseNormalizerTestActorChangeWithAliasQuery = {|
   variables: RelayResponseNormalizerTestActorChangeWithAliasQueryVariables,
-  response: RelayResponseNormalizerTestActorChangeWithAliasQueryResponse,
+  response: RelayResponseNormalizerTestActorChangeWithAliasQuery$data,
 |};
 */
 
@@ -182,4 +185,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "4d26736797149779b0919c716b985847";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayResponseNormalizerTestActorChangeWithAliasQuery$variables,
+  RelayResponseNormalizerTestActorChangeWithAliasQuery$data,
+>*/);

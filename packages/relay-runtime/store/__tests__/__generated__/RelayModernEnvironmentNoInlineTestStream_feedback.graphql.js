@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<48cf47a24bdcca8c39a58719285f0f42>>
+ * @generated SignedSource<<17abaa7995614729c5e92367c3afb72c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,20 +15,22 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayModernEnvironmentNoInlineTestStream_feedback$ref: FragmentReference;
-declare export opaque type RelayModernEnvironmentNoInlineTestStream_feedback$fragmentType: RelayModernEnvironmentNoInlineTestStream_feedback$ref;
-export type RelayModernEnvironmentNoInlineTestStream_feedback = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayModernEnvironmentNoInlineTestStream_feedback$fragmentType: FragmentType;
+export type RelayModernEnvironmentNoInlineTestStream_feedback$ref = RelayModernEnvironmentNoInlineTestStream_feedback$fragmentType;
+export type RelayModernEnvironmentNoInlineTestStream_feedback$data = {|
   +actors: ?$ReadOnlyArray<?{|
     +name?: ?string,
   |}>,
-  +$refType: RelayModernEnvironmentNoInlineTestStream_feedback$ref,
+  +$refType: RelayModernEnvironmentNoInlineTestStream_feedback$fragmentType,
+  +$fragmentType: RelayModernEnvironmentNoInlineTestStream_feedback$fragmentType,
 |};
-export type RelayModernEnvironmentNoInlineTestStream_feedback$data = RelayModernEnvironmentNoInlineTestStream_feedback;
+export type RelayModernEnvironmentNoInlineTestStream_feedback = RelayModernEnvironmentNoInlineTestStream_feedback$data;
 export type RelayModernEnvironmentNoInlineTestStream_feedback$key = {
   +$data?: RelayModernEnvironmentNoInlineTestStream_feedback$data,
-  +$fragmentRefs: RelayModernEnvironmentNoInlineTestStream_feedback$ref,
+  +$fragmentRefs: RelayModernEnvironmentNoInlineTestStream_feedback$fragmentType,
+  +$fragmentSpreads: RelayModernEnvironmentNoInlineTestStream_feedback$fragmentType,
   ...
 };
 */
@@ -84,4 +86,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "bdd5b05983f66ac33ad0d5b7cbf1179c";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayModernEnvironmentNoInlineTestStream_feedback$fragmentType,
+  RelayModernEnvironmentNoInlineTestStream_feedback$data,
+>*/);

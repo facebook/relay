@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<0ed0f02436d092845a657308d7a83b12>>
+ * @generated SignedSource<<c7da86d79dfdecfb2397e05d5ca87c36>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,11 +15,12 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-export type RelayModernEnvironmentWithOperationTrackerTest1QueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+export type RelayModernEnvironmentWithOperationTrackerTest1Query$variables = {|
   id?: ?string,
 |};
-export type RelayModernEnvironmentWithOperationTrackerTest1QueryResponse = {|
+export type RelayModernEnvironmentWithOperationTrackerTest1QueryVariables = RelayModernEnvironmentWithOperationTrackerTest1Query$variables;
+export type RelayModernEnvironmentWithOperationTrackerTest1Query$data = {|
   +node: ?{|
     +id?: string,
     +body?: ?{|
@@ -37,9 +38,10 @@ export type RelayModernEnvironmentWithOperationTrackerTest1QueryResponse = {|
     |},
   |},
 |};
+export type RelayModernEnvironmentWithOperationTrackerTest1QueryResponse = RelayModernEnvironmentWithOperationTrackerTest1Query$data;
 export type RelayModernEnvironmentWithOperationTrackerTest1Query = {|
   variables: RelayModernEnvironmentWithOperationTrackerTest1QueryVariables,
-  response: RelayModernEnvironmentWithOperationTrackerTest1QueryResponse,
+  response: RelayModernEnvironmentWithOperationTrackerTest1Query$data,
 |};
 */
 
@@ -268,4 +270,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "1b496533e1c1dd63b5800177b6a2c5f4";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentWithOperationTrackerTest1Query$variables,
+  RelayModernEnvironmentWithOperationTrackerTest1Query$data,
+>*/);

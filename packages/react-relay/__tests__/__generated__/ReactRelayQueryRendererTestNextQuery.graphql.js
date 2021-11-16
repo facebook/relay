@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<31f14a6ef857d59ea8fad502001be404>>
+ * @generated SignedSource<<7e299bfd8270bae61efbdcab2f748fd0>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,18 +15,20 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-export type ReactRelayQueryRendererTestNextQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+export type ReactRelayQueryRendererTestNextQuery$variables = {|
   id: string,
 |};
-export type ReactRelayQueryRendererTestNextQueryResponse = {|
+export type ReactRelayQueryRendererTestNextQueryVariables = ReactRelayQueryRendererTestNextQuery$variables;
+export type ReactRelayQueryRendererTestNextQuery$data = {|
   +node: ?{|
     +name?: ?string,
   |},
 |};
+export type ReactRelayQueryRendererTestNextQueryResponse = ReactRelayQueryRendererTestNextQuery$data;
 export type ReactRelayQueryRendererTestNextQuery = {|
   variables: ReactRelayQueryRendererTestNextQueryVariables,
-  response: ReactRelayQueryRendererTestNextQueryResponse,
+  response: ReactRelayQueryRendererTestNextQuery$data,
 |};
 */
 
@@ -131,4 +133,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "2653367ac12aeab05ef739c0c9cf766f";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  ReactRelayQueryRendererTestNextQuery$variables,
+  ReactRelayQueryRendererTestNextQuery$data,
+>*/);

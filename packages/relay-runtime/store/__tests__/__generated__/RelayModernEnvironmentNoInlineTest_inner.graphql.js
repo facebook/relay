@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<059c962f937e72a6c2c98e72501caa1c>>
+ * @generated SignedSource<<c7887a9694eadd59211307276291016b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,20 +15,22 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayModernEnvironmentNoInlineTest_inner$ref: FragmentReference;
-declare export opaque type RelayModernEnvironmentNoInlineTest_inner$fragmentType: RelayModernEnvironmentNoInlineTest_inner$ref;
-export type RelayModernEnvironmentNoInlineTest_inner = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayModernEnvironmentNoInlineTest_inner$fragmentType: FragmentType;
+export type RelayModernEnvironmentNoInlineTest_inner$ref = RelayModernEnvironmentNoInlineTest_inner$fragmentType;
+export type RelayModernEnvironmentNoInlineTest_inner$data = {|
   +profile_picture_inner?: ?{|
     +uri: ?string,
   |},
-  +$refType: RelayModernEnvironmentNoInlineTest_inner$ref,
+  +$refType: RelayModernEnvironmentNoInlineTest_inner$fragmentType,
+  +$fragmentType: RelayModernEnvironmentNoInlineTest_inner$fragmentType,
 |};
-export type RelayModernEnvironmentNoInlineTest_inner$data = RelayModernEnvironmentNoInlineTest_inner;
+export type RelayModernEnvironmentNoInlineTest_inner = RelayModernEnvironmentNoInlineTest_inner$data;
 export type RelayModernEnvironmentNoInlineTest_inner$key = {
   +$data?: RelayModernEnvironmentNoInlineTest_inner$data,
-  +$fragmentRefs: RelayModernEnvironmentNoInlineTest_inner$ref,
+  +$fragmentRefs: RelayModernEnvironmentNoInlineTest_inner$fragmentType,
+  +$fragmentSpreads: RelayModernEnvironmentNoInlineTest_inner$fragmentType,
   ...
 };
 */
@@ -109,4 +111,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "94488d2ae2c4b79e35879d38212fcf35";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayModernEnvironmentNoInlineTest_inner$fragmentType,
+  RelayModernEnvironmentNoInlineTest_inner$data,
+>*/);

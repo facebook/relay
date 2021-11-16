@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<fd24962469a6b37cbf4c1b1036d1ea45>>
+ * @generated SignedSource<<240d5b92a7e78411deb30912a81a6098>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,15 +15,18 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernEnvironmentConditionalSelectionsTestQueryUnconditionalFragment$ref = any;
-export type RelayModernEnvironmentConditionalSelectionsTestUnconditionalQueryVariables = {||};
-export type RelayModernEnvironmentConditionalSelectionsTestUnconditionalQueryResponse = {|
-  +$fragmentRefs: RelayModernEnvironmentConditionalSelectionsTestQueryUnconditionalFragment$ref,
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayModernEnvironmentConditionalSelectionsTestQueryUnconditionalFragment$fragmentType = any;
+export type RelayModernEnvironmentConditionalSelectionsTestUnconditionalQuery$variables = {||};
+export type RelayModernEnvironmentConditionalSelectionsTestUnconditionalQueryVariables = RelayModernEnvironmentConditionalSelectionsTestUnconditionalQuery$variables;
+export type RelayModernEnvironmentConditionalSelectionsTestUnconditionalQuery$data = {|
+  +$fragmentRefs: RelayModernEnvironmentConditionalSelectionsTestQueryUnconditionalFragment$fragmentType,
+  +$fragmentSpreads: RelayModernEnvironmentConditionalSelectionsTestQueryUnconditionalFragment$fragmentType,
 |};
+export type RelayModernEnvironmentConditionalSelectionsTestUnconditionalQueryResponse = RelayModernEnvironmentConditionalSelectionsTestUnconditionalQuery$data;
 export type RelayModernEnvironmentConditionalSelectionsTestUnconditionalQuery = {|
   variables: RelayModernEnvironmentConditionalSelectionsTestUnconditionalQueryVariables,
-  response: RelayModernEnvironmentConditionalSelectionsTestUnconditionalQueryResponse,
+  response: RelayModernEnvironmentConditionalSelectionsTestUnconditionalQuery$data,
 |};
 */
 
@@ -125,4 +128,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "3c52fbe71844689c6c28f33c6ff75a9d";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentConditionalSelectionsTestUnconditionalQuery$variables,
+  RelayModernEnvironmentConditionalSelectionsTestUnconditionalQuery$data,
+>*/);

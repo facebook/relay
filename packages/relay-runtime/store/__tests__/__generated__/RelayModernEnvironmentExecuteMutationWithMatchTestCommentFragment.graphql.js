@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<c5416d95e6b62fcb971a850762d2ed20>>
+ * @generated SignedSource<<910c06365e917a522d1fd27cf37e3e33>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,28 +17,31 @@
 // @dataDrivenDependency RelayModernEnvironmentExecuteMutationWithMatchTestCommentFragment.actor.nameRenderer {"branches":{"MarkdownUserNameRenderer":{"component":"MarkdownUserNameRenderer.react","fragment":"RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name$normalization.graphql"},"PlainUserNameRenderer":{"component":"PlainUserNameRenderer.react","fragment":"RelayModernEnvironmentExecuteMutationWithMatchTestPlainUserNameRenderer_name$normalization.graphql"}},"plural":false}
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-type RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name$ref = any;
-type RelayModernEnvironmentExecuteMutationWithMatchTestPlainUserNameRenderer_name$ref = any;
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayModernEnvironmentExecuteMutationWithMatchTestCommentFragment$ref: FragmentReference;
-declare export opaque type RelayModernEnvironmentExecuteMutationWithMatchTestCommentFragment$fragmentType: RelayModernEnvironmentExecuteMutationWithMatchTestCommentFragment$ref;
-export type RelayModernEnvironmentExecuteMutationWithMatchTestCommentFragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+type RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name$fragmentType = any;
+type RelayModernEnvironmentExecuteMutationWithMatchTestPlainUserNameRenderer_name$fragmentType = any;
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayModernEnvironmentExecuteMutationWithMatchTestCommentFragment$fragmentType: FragmentType;
+export type RelayModernEnvironmentExecuteMutationWithMatchTestCommentFragment$ref = RelayModernEnvironmentExecuteMutationWithMatchTestCommentFragment$fragmentType;
+export type RelayModernEnvironmentExecuteMutationWithMatchTestCommentFragment$data = {|
   +id: string,
   +actor: ?{|
     +name: ?string,
     +nameRenderer: ?{|
       +__fragmentPropName?: ?string,
       +__module_component?: ?string,
-      +$fragmentRefs: RelayModernEnvironmentExecuteMutationWithMatchTestPlainUserNameRenderer_name$ref & RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name$ref,
+      +$fragmentRefs: RelayModernEnvironmentExecuteMutationWithMatchTestPlainUserNameRenderer_name$fragmentType & RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name$fragmentType,
+      +$fragmentSpreads: RelayModernEnvironmentExecuteMutationWithMatchTestPlainUserNameRenderer_name$fragmentType & RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name$fragmentType,
     |},
   |},
-  +$refType: RelayModernEnvironmentExecuteMutationWithMatchTestCommentFragment$ref,
+  +$refType: RelayModernEnvironmentExecuteMutationWithMatchTestCommentFragment$fragmentType,
+  +$fragmentType: RelayModernEnvironmentExecuteMutationWithMatchTestCommentFragment$fragmentType,
 |};
-export type RelayModernEnvironmentExecuteMutationWithMatchTestCommentFragment$data = RelayModernEnvironmentExecuteMutationWithMatchTestCommentFragment;
+export type RelayModernEnvironmentExecuteMutationWithMatchTestCommentFragment = RelayModernEnvironmentExecuteMutationWithMatchTestCommentFragment$data;
 export type RelayModernEnvironmentExecuteMutationWithMatchTestCommentFragment$key = {
   +$data?: RelayModernEnvironmentExecuteMutationWithMatchTestCommentFragment$data,
-  +$fragmentRefs: RelayModernEnvironmentExecuteMutationWithMatchTestCommentFragment$ref,
+  +$fragmentRefs: RelayModernEnvironmentExecuteMutationWithMatchTestCommentFragment$fragmentType,
+  +$fragmentSpreads: RelayModernEnvironmentExecuteMutationWithMatchTestCommentFragment$fragmentType,
   ...
 };
 */
@@ -131,4 +134,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "f1ff7fec552839f61ccff1a73226c40e";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayModernEnvironmentExecuteMutationWithMatchTestCommentFragment$fragmentType,
+  RelayModernEnvironmentExecuteMutationWithMatchTestCommentFragment$data,
+>*/);

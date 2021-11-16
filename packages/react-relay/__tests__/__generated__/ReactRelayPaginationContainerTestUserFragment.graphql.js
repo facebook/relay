@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<408985d740bf8fa0ea92cc4fb60825a4>>
+ * @generated SignedSource<<2a38de5c8aab7e1e1e68e864514a0a02>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,11 +15,11 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type ReactRelayPaginationContainerTestUserFragment$ref: FragmentReference;
-declare export opaque type ReactRelayPaginationContainerTestUserFragment$fragmentType: ReactRelayPaginationContainerTestUserFragment$ref;
-export type ReactRelayPaginationContainerTestUserFragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type ReactRelayPaginationContainerTestUserFragment$fragmentType: FragmentType;
+export type ReactRelayPaginationContainerTestUserFragment$ref = ReactRelayPaginationContainerTestUserFragment$fragmentType;
+export type ReactRelayPaginationContainerTestUserFragment$data = {|
   +id: string,
   +friends: ?{|
     +edges: ?$ReadOnlyArray<?{|
@@ -28,12 +28,14 @@ export type ReactRelayPaginationContainerTestUserFragment = {|
       |},
     |}>,
   |},
-  +$refType: ReactRelayPaginationContainerTestUserFragment$ref,
+  +$refType: ReactRelayPaginationContainerTestUserFragment$fragmentType,
+  +$fragmentType: ReactRelayPaginationContainerTestUserFragment$fragmentType,
 |};
-export type ReactRelayPaginationContainerTestUserFragment$data = ReactRelayPaginationContainerTestUserFragment;
+export type ReactRelayPaginationContainerTestUserFragment = ReactRelayPaginationContainerTestUserFragment$data;
 export type ReactRelayPaginationContainerTestUserFragment$key = {
   +$data?: ReactRelayPaginationContainerTestUserFragment$data,
-  +$fragmentRefs: ReactRelayPaginationContainerTestUserFragment$ref,
+  +$fragmentRefs: ReactRelayPaginationContainerTestUserFragment$fragmentType,
+  +$fragmentSpreads: ReactRelayPaginationContainerTestUserFragment$fragmentType,
   ...
 };
 */
@@ -177,4 +179,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "5a4b52b20fc7018629cb08c0607e6dbc";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  ReactRelayPaginationContainerTestUserFragment$fragmentType,
+  ReactRelayPaginationContainerTestUserFragment$data,
+>*/);

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<beb02d2a282d23a76357b6cdf85b6877>>
+ * @generated SignedSource<<ffd8f2bacab3fca03687f4d38ecf6c12>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,22 +15,24 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
+import type { ConcreteRequest, Mutation } from 'relay-runtime';
 export type CommentsDeleteInput = {|
   clientMutationId?: ?string,
   commentIds?: ?$ReadOnlyArray<?string>,
 |};
-export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestDeleteCommentsMutationVariables = {|
+export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestDeleteCommentsMutation$variables = {|
   input?: ?CommentsDeleteInput,
 |};
-export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestDeleteCommentsMutationResponse = {|
+export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestDeleteCommentsMutationVariables = RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestDeleteCommentsMutation$variables;
+export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestDeleteCommentsMutation$data = {|
   +commentsDelete: ?{|
     +deletedCommentIds: ?$ReadOnlyArray<?string>,
   |},
 |};
+export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestDeleteCommentsMutationResponse = RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestDeleteCommentsMutation$data;
 export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestDeleteCommentsMutation = {|
   variables: RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestDeleteCommentsMutationVariables,
-  response: RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestDeleteCommentsMutationResponse,
+  response: RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestDeleteCommentsMutation$data,
 |};
 */
 
@@ -123,4 +125,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "b5238896d960787f8900c1bc830b1d71";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Mutation<
+  RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestDeleteCommentsMutation$variables,
+  RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestDeleteCommentsMutation$data,
+>*/);

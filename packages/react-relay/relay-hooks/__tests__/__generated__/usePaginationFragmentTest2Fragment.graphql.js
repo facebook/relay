@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<adccf5e7cfa2758944748041ca91d881>>
+ * @generated SignedSource<<a75b22d5484b128b2e846163f78ed52a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,18 +15,20 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type usePaginationFragmentTest2Fragment$ref: FragmentReference;
-declare export opaque type usePaginationFragmentTest2Fragment$fragmentType: usePaginationFragmentTest2Fragment$ref;
-export type usePaginationFragmentTest2Fragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type usePaginationFragmentTest2Fragment$fragmentType: FragmentType;
+export type usePaginationFragmentTest2Fragment$ref = usePaginationFragmentTest2Fragment$fragmentType;
+export type usePaginationFragmentTest2Fragment$data = {|
   +id: string,
-  +$refType: usePaginationFragmentTest2Fragment$ref,
+  +$refType: usePaginationFragmentTest2Fragment$fragmentType,
+  +$fragmentType: usePaginationFragmentTest2Fragment$fragmentType,
 |};
-export type usePaginationFragmentTest2Fragment$data = usePaginationFragmentTest2Fragment;
+export type usePaginationFragmentTest2Fragment = usePaginationFragmentTest2Fragment$data;
 export type usePaginationFragmentTest2Fragment$key = {
   +$data?: usePaginationFragmentTest2Fragment$data,
-  +$fragmentRefs: usePaginationFragmentTest2Fragment$ref,
+  +$fragmentRefs: usePaginationFragmentTest2Fragment$fragmentType,
+  +$fragmentSpreads: usePaginationFragmentTest2Fragment$fragmentType,
   ...
 };
 */
@@ -53,4 +55,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "0d49cc95e691d8661dc700c5625776da";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  usePaginationFragmentTest2Fragment$fragmentType,
+  usePaginationFragmentTest2Fragment$data,
+>*/);

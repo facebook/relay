@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b6ee4e7a20a473bf17221231151803b3>>
+ * @generated SignedSource<<c3e29816497a0cba070492f488c68501>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,11 +15,11 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayMockPayloadGeneratorTest12Fragment$ref: FragmentReference;
-declare export opaque type RelayMockPayloadGeneratorTest12Fragment$fragmentType: RelayMockPayloadGeneratorTest12Fragment$ref;
-export type RelayMockPayloadGeneratorTest12Fragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayMockPayloadGeneratorTest12Fragment$fragmentType: FragmentType;
+export type RelayMockPayloadGeneratorTest12Fragment$ref = RelayMockPayloadGeneratorTest12Fragment$fragmentType;
+export type RelayMockPayloadGeneratorTest12Fragment$data = {|
   +id: string,
   +name: ?string,
   +body: ?{|
@@ -49,12 +49,14 @@ export type RelayMockPayloadGeneratorTest12Fragment = {|
       |},
     |},
   |},
-  +$refType: RelayMockPayloadGeneratorTest12Fragment$ref,
+  +$refType: RelayMockPayloadGeneratorTest12Fragment$fragmentType,
+  +$fragmentType: RelayMockPayloadGeneratorTest12Fragment$fragmentType,
 |};
-export type RelayMockPayloadGeneratorTest12Fragment$data = RelayMockPayloadGeneratorTest12Fragment;
+export type RelayMockPayloadGeneratorTest12Fragment = RelayMockPayloadGeneratorTest12Fragment$data;
 export type RelayMockPayloadGeneratorTest12Fragment$key = {
   +$data?: RelayMockPayloadGeneratorTest12Fragment$data,
-  +$fragmentRefs: RelayMockPayloadGeneratorTest12Fragment$ref,
+  +$fragmentRefs: RelayMockPayloadGeneratorTest12Fragment$fragmentType,
+  +$fragmentSpreads: RelayMockPayloadGeneratorTest12Fragment$fragmentType,
   ...
 };
 */
@@ -227,4 +229,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "a7a7b02e898e4af94210f0a1ec5dfa47";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayMockPayloadGeneratorTest12Fragment$fragmentType,
+  RelayMockPayloadGeneratorTest12Fragment$data,
+>*/);

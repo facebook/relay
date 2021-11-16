@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<cc72da76bd6eb18006d8845a496acd23>>
+ * @generated SignedSource<<89143cfe0f25ffb7a09c13a58d9fffff>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,21 +15,24 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayResponseNormalizerTest5Fragment$ref = any;
-export type RelayResponseNormalizerTest9QueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayResponseNormalizerTest5Fragment$fragmentType = any;
+export type RelayResponseNormalizerTest9Query$variables = {|
   id: string,
 |};
-export type RelayResponseNormalizerTest9QueryResponse = {|
+export type RelayResponseNormalizerTest9QueryVariables = RelayResponseNormalizerTest9Query$variables;
+export type RelayResponseNormalizerTest9Query$data = {|
   +node: ?{|
     +actors?: ?$ReadOnlyArray<?{|
-      +$fragmentRefs: RelayResponseNormalizerTest5Fragment$ref,
+      +$fragmentRefs: RelayResponseNormalizerTest5Fragment$fragmentType,
+      +$fragmentSpreads: RelayResponseNormalizerTest5Fragment$fragmentType,
     |}>,
   |},
 |};
+export type RelayResponseNormalizerTest9QueryResponse = RelayResponseNormalizerTest9Query$data;
 export type RelayResponseNormalizerTest9Query = {|
   variables: RelayResponseNormalizerTest9QueryVariables,
-  response: RelayResponseNormalizerTest9QueryResponse,
+  response: RelayResponseNormalizerTest9Query$data,
 |};
 */
 
@@ -189,4 +192,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "f2dffeabae2388e74241a6adde2168d4";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayResponseNormalizerTest9Query$variables,
+  RelayResponseNormalizerTest9Query$data,
+>*/);

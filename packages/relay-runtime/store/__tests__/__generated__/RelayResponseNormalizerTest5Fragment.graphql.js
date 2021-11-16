@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<62904fa433afac4764cb5754bc6f7343>>
+ * @generated SignedSource<<4ac2b1a5b8193996517a6e0a21d4bb6b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,18 +15,20 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayResponseNormalizerTest5Fragment$ref: FragmentReference;
-declare export opaque type RelayResponseNormalizerTest5Fragment$fragmentType: RelayResponseNormalizerTest5Fragment$ref;
-export type RelayResponseNormalizerTest5Fragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayResponseNormalizerTest5Fragment$fragmentType: FragmentType;
+export type RelayResponseNormalizerTest5Fragment$ref = RelayResponseNormalizerTest5Fragment$fragmentType;
+export type RelayResponseNormalizerTest5Fragment$data = {|
   +name: ?string,
-  +$refType: RelayResponseNormalizerTest5Fragment$ref,
+  +$refType: RelayResponseNormalizerTest5Fragment$fragmentType,
+  +$fragmentType: RelayResponseNormalizerTest5Fragment$fragmentType,
 |};
-export type RelayResponseNormalizerTest5Fragment$data = RelayResponseNormalizerTest5Fragment;
+export type RelayResponseNormalizerTest5Fragment = RelayResponseNormalizerTest5Fragment$data;
 export type RelayResponseNormalizerTest5Fragment$key = {
   +$data?: RelayResponseNormalizerTest5Fragment$data,
-  +$fragmentRefs: RelayResponseNormalizerTest5Fragment$ref,
+  +$fragmentRefs: RelayResponseNormalizerTest5Fragment$fragmentType,
+  +$fragmentSpreads: RelayResponseNormalizerTest5Fragment$fragmentType,
   ...
 };
 */
@@ -53,4 +55,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "0f913929d59d51798f881b608c35497e";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayResponseNormalizerTest5Fragment$fragmentType,
+  RelayResponseNormalizerTest5Fragment$data,
+>*/);

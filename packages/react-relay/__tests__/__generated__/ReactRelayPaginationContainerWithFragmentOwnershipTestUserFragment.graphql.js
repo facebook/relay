@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<f16c254d97f666d68aff9d8477aebd32>>
+ * @generated SignedSource<<4f513b771d7309a5e491c4f44bc83bc7>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,27 +15,30 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-type ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment$ref = any;
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment$ref: FragmentReference;
-declare export opaque type ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment$fragmentType: ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment$ref;
-export type ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+type ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment$fragmentType = any;
+import type { FragmentType } from "relay-runtime";
+declare export opaque type ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment$fragmentType: FragmentType;
+export type ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment$ref = ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment$fragmentType;
+export type ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment$data = {|
   +id: string,
   +friends: ?{|
     +edges: ?$ReadOnlyArray<?{|
       +node: ?{|
         +id: string,
-        +$fragmentRefs: ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment$ref,
+        +$fragmentRefs: ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment$fragmentType,
+        +$fragmentSpreads: ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment$fragmentType,
       |},
     |}>,
   |},
-  +$refType: ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment$ref,
+  +$refType: ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment$fragmentType,
+  +$fragmentType: ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment$fragmentType,
 |};
-export type ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment$data = ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment;
+export type ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment = ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment$data;
 export type ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment$key = {
   +$data?: ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment$data,
-  +$fragmentRefs: ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment$ref,
+  +$fragmentRefs: ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment$fragmentType,
+  +$fragmentSpreads: ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment$fragmentType,
   ...
 };
 */
@@ -190,4 +193,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "25074f275d8cdaa1298ea0d300df1a98";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment$fragmentType,
+  ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment$data,
+>*/);

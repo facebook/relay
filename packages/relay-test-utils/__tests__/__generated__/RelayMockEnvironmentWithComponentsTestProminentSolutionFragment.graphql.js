@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<fb632ec930082c00c3c0ccb1c78e9842>>
+ * @generated SignedSource<<6381dc39c7c36cd81fb332dc93c8efef>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,21 +15,23 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayMockEnvironmentWithComponentsTestProminentSolutionFragment$ref: FragmentReference;
-declare export opaque type RelayMockEnvironmentWithComponentsTestProminentSolutionFragment$fragmentType: RelayMockEnvironmentWithComponentsTestProminentSolutionFragment$ref;
-export type RelayMockEnvironmentWithComponentsTestProminentSolutionFragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayMockEnvironmentWithComponentsTestProminentSolutionFragment$fragmentType: FragmentType;
+export type RelayMockEnvironmentWithComponentsTestProminentSolutionFragment$ref = RelayMockEnvironmentWithComponentsTestProminentSolutionFragment$fragmentType;
+export type RelayMockEnvironmentWithComponentsTestProminentSolutionFragment$data = {|
   +name: ?string,
   +profile_picture: ?{|
     +uri: ?string,
   |},
-  +$refType: RelayMockEnvironmentWithComponentsTestProminentSolutionFragment$ref,
+  +$refType: RelayMockEnvironmentWithComponentsTestProminentSolutionFragment$fragmentType,
+  +$fragmentType: RelayMockEnvironmentWithComponentsTestProminentSolutionFragment$fragmentType,
 |};
-export type RelayMockEnvironmentWithComponentsTestProminentSolutionFragment$data = RelayMockEnvironmentWithComponentsTestProminentSolutionFragment;
+export type RelayMockEnvironmentWithComponentsTestProminentSolutionFragment = RelayMockEnvironmentWithComponentsTestProminentSolutionFragment$data;
 export type RelayMockEnvironmentWithComponentsTestProminentSolutionFragment$key = {
   +$data?: RelayMockEnvironmentWithComponentsTestProminentSolutionFragment$data,
-  +$fragmentRefs: RelayMockEnvironmentWithComponentsTestProminentSolutionFragment$ref,
+  +$fragmentRefs: RelayMockEnvironmentWithComponentsTestProminentSolutionFragment$fragmentType,
+  +$fragmentSpreads: RelayMockEnvironmentWithComponentsTestProminentSolutionFragment$fragmentType,
   ...
 };
 */
@@ -85,4 +87,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "c2b81707cf4c3d10cee30467951ddf99";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayMockEnvironmentWithComponentsTestProminentSolutionFragment$fragmentType,
+  RelayMockEnvironmentWithComponentsTestProminentSolutionFragment$data,
+>*/);

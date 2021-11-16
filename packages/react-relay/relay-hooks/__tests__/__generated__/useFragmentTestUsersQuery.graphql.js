@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<ec162cdaa185f554e07f0fd29a80ec5b>>
+ * @generated SignedSource<<a7dad1b5d80ebaeb8a2695d62921a8a9>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,19 +15,22 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type useFragmentTestUsersFragment$ref = any;
-export type useFragmentTestUsersQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type useFragmentTestUsersFragment$fragmentType = any;
+export type useFragmentTestUsersQuery$variables = {|
   ids: $ReadOnlyArray<string>,
 |};
-export type useFragmentTestUsersQueryResponse = {|
+export type useFragmentTestUsersQueryVariables = useFragmentTestUsersQuery$variables;
+export type useFragmentTestUsersQuery$data = {|
   +nodes: ?$ReadOnlyArray<?{|
-    +$fragmentRefs: useFragmentTestUsersFragment$ref,
+    +$fragmentRefs: useFragmentTestUsersFragment$fragmentType,
+    +$fragmentSpreads: useFragmentTestUsersFragment$fragmentType,
   |}>,
 |};
+export type useFragmentTestUsersQueryResponse = useFragmentTestUsersQuery$data;
 export type useFragmentTestUsersQuery = {|
   variables: useFragmentTestUsersQueryVariables,
-  response: useFragmentTestUsersQueryResponse,
+  response: useFragmentTestUsersQuery$data,
 |};
 */
 
@@ -142,4 +145,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "52a64c5a6af260759a0739fc8faca4e1";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  useFragmentTestUsersQuery$variables,
+  useFragmentTestUsersQuery$data,
+>*/);

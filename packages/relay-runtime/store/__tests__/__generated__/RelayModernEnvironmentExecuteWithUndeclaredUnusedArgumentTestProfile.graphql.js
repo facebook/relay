@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<c0b70a44571ca05c65ab7c5f41439535>>
+ * @generated SignedSource<<d7a7444956a1c11869ac4dd3fb7089e8>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,21 +15,24 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-type RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfilePhotoWrapper$ref = any;
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfile$ref: FragmentReference;
-declare export opaque type RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfile$fragmentType: RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfile$ref;
-export type RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfile = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+type RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfilePhotoWrapper$fragmentType = any;
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfile$fragmentType: FragmentType;
+export type RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfile$ref = RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfile$fragmentType;
+export type RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfile$data = {|
   +id: string,
   +name: ?string,
-  +$fragmentRefs: RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfilePhotoWrapper$ref,
-  +$refType: RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfile$ref,
+  +$fragmentRefs: RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfilePhotoWrapper$fragmentType,
+  +$fragmentSpreads: RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfilePhotoWrapper$fragmentType,
+  +$refType: RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfile$fragmentType,
+  +$fragmentType: RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfile$fragmentType,
 |};
-export type RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfile$data = RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfile;
+export type RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfile = RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfile$data;
 export type RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfile$key = {
   +$data?: RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfile$data,
-  +$fragmentRefs: RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfile$ref,
+  +$fragmentRefs: RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfile$fragmentType,
+  +$fragmentSpreads: RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfile$fragmentType,
   ...
 };
 */
@@ -79,4 +82,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "1f320a4cef6478336086b37f5db239ee";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfile$fragmentType,
+  RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfile$data,
+>*/);

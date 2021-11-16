@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<9e9afc44628a38a875a4a10f71b32a7b>>
+ * @generated SignedSource<<9648a6cb92637e186605d5e8887b6ce4>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,9 +15,9 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type usePaginationFragmentTestUserFragment$ref = any;
-export type usePaginationFragmentTestUserQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type usePaginationFragmentTestUserFragment$fragmentType = any;
+export type usePaginationFragmentTestUserQuery$variables = {|
   id: string,
   after?: ?string,
   first?: ?number,
@@ -26,14 +26,17 @@ export type usePaginationFragmentTestUserQueryVariables = {|
   orderby?: ?$ReadOnlyArray<?string>,
   isViewerFriend?: ?boolean,
 |};
-export type usePaginationFragmentTestUserQueryResponse = {|
+export type usePaginationFragmentTestUserQueryVariables = usePaginationFragmentTestUserQuery$variables;
+export type usePaginationFragmentTestUserQuery$data = {|
   +node: ?{|
-    +$fragmentRefs: usePaginationFragmentTestUserFragment$ref,
+    +$fragmentRefs: usePaginationFragmentTestUserFragment$fragmentType,
+    +$fragmentSpreads: usePaginationFragmentTestUserFragment$fragmentType,
   |},
 |};
+export type usePaginationFragmentTestUserQueryResponse = usePaginationFragmentTestUserQuery$data;
 export type usePaginationFragmentTestUserQuery = {|
   variables: usePaginationFragmentTestUserQueryVariables,
-  response: usePaginationFragmentTestUserQueryResponse,
+  response: usePaginationFragmentTestUserQuery$data,
 |};
 */
 
@@ -329,4 +332,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "e6459baa3fc32eef6945070272ab0a92";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  usePaginationFragmentTestUserQuery$variables,
+  usePaginationFragmentTestUserQuery$data,
+>*/);

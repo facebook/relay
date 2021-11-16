@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<8ca9a310b5224b1c087d39cf93c54891>>
+ * @generated SignedSource<<e3fc04f2db86f5c4a649ada5b25f777e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,21 +15,23 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayMockPayloadGeneratorTest1MarkdownUserNameRenderer_name$ref: FragmentReference;
-declare export opaque type RelayMockPayloadGeneratorTest1MarkdownUserNameRenderer_name$fragmentType: RelayMockPayloadGeneratorTest1MarkdownUserNameRenderer_name$ref;
-export type RelayMockPayloadGeneratorTest1MarkdownUserNameRenderer_name = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayMockPayloadGeneratorTest1MarkdownUserNameRenderer_name$fragmentType: FragmentType;
+export type RelayMockPayloadGeneratorTest1MarkdownUserNameRenderer_name$ref = RelayMockPayloadGeneratorTest1MarkdownUserNameRenderer_name$fragmentType;
+export type RelayMockPayloadGeneratorTest1MarkdownUserNameRenderer_name$data = {|
   +markdown: ?string,
   +data: ?{|
     +markup: ?string,
   |},
-  +$refType: RelayMockPayloadGeneratorTest1MarkdownUserNameRenderer_name$ref,
+  +$refType: RelayMockPayloadGeneratorTest1MarkdownUserNameRenderer_name$fragmentType,
+  +$fragmentType: RelayMockPayloadGeneratorTest1MarkdownUserNameRenderer_name$fragmentType,
 |};
-export type RelayMockPayloadGeneratorTest1MarkdownUserNameRenderer_name$data = RelayMockPayloadGeneratorTest1MarkdownUserNameRenderer_name;
+export type RelayMockPayloadGeneratorTest1MarkdownUserNameRenderer_name = RelayMockPayloadGeneratorTest1MarkdownUserNameRenderer_name$data;
 export type RelayMockPayloadGeneratorTest1MarkdownUserNameRenderer_name$key = {
   +$data?: RelayMockPayloadGeneratorTest1MarkdownUserNameRenderer_name$data,
-  +$fragmentRefs: RelayMockPayloadGeneratorTest1MarkdownUserNameRenderer_name$ref,
+  +$fragmentRefs: RelayMockPayloadGeneratorTest1MarkdownUserNameRenderer_name$fragmentType,
+  +$fragmentSpreads: RelayMockPayloadGeneratorTest1MarkdownUserNameRenderer_name$fragmentType,
   ...
 };
 */
@@ -74,4 +76,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "2054b4305b85ec22227225d7bbb81827";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayMockPayloadGeneratorTest1MarkdownUserNameRenderer_name$fragmentType,
+  RelayMockPayloadGeneratorTest1MarkdownUserNameRenderer_name$data,
+>*/);

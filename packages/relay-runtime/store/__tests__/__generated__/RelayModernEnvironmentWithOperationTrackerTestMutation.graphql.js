@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<ab32b5cdd04da17f622de3434ab95b79>>
+ * @generated SignedSource<<e69cef9e10b1b57c14cf3e4eb1ad8687>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,8 +15,8 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment$ref = any;
+import type { ConcreteRequest, Mutation } from 'relay-runtime';
+type RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment$fragmentType = any;
 export type CommentCreateInput = {|
   clientMutationId?: ?string,
   feedbackId?: ?string,
@@ -28,19 +28,22 @@ export type CommentfeedbackFeedback = {|
 export type FeedbackcommentComment = {|
   feedback?: ?CommentfeedbackFeedback,
 |};
-export type RelayModernEnvironmentWithOperationTrackerTestMutationVariables = {|
+export type RelayModernEnvironmentWithOperationTrackerTestMutation$variables = {|
   input?: ?CommentCreateInput,
 |};
-export type RelayModernEnvironmentWithOperationTrackerTestMutationResponse = {|
+export type RelayModernEnvironmentWithOperationTrackerTestMutationVariables = RelayModernEnvironmentWithOperationTrackerTestMutation$variables;
+export type RelayModernEnvironmentWithOperationTrackerTestMutation$data = {|
   +commentCreate: ?{|
     +feedback: ?{|
-      +$fragmentRefs: RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment$ref,
+      +$fragmentRefs: RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment$fragmentType,
+      +$fragmentSpreads: RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment$fragmentType,
     |},
   |},
 |};
+export type RelayModernEnvironmentWithOperationTrackerTestMutationResponse = RelayModernEnvironmentWithOperationTrackerTestMutation$data;
 export type RelayModernEnvironmentWithOperationTrackerTestMutation = {|
   variables: RelayModernEnvironmentWithOperationTrackerTestMutationVariables,
-  response: RelayModernEnvironmentWithOperationTrackerTestMutationResponse,
+  response: RelayModernEnvironmentWithOperationTrackerTestMutation$data,
 |};
 */
 
@@ -362,4 +365,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "a992f5cbffecf3ebece24d038d91c0a2";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Mutation<
+  RelayModernEnvironmentWithOperationTrackerTestMutation$variables,
+  RelayModernEnvironmentWithOperationTrackerTestMutation$data,
+>*/);

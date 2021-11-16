@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<713bfba9717046b5de96c3132c59fb0c>>
+ * @generated SignedSource<<5262a75f1906be15c5a889fa96eb842a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,17 +15,20 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfile$ref = any;
-export type RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserQueryVariables = {||};
-export type RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserQueryResponse = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfile$fragmentType = any;
+export type RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserQuery$variables = {||};
+export type RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserQueryVariables = RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserQuery$variables;
+export type RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserQuery$data = {|
   +me: ?{|
-    +$fragmentRefs: RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfile$ref,
+    +$fragmentRefs: RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfile$fragmentType,
+    +$fragmentSpreads: RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfile$fragmentType,
   |},
 |};
+export type RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserQueryResponse = RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserQuery$data;
 export type RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserQuery = {|
   variables: RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserQueryVariables,
-  response: RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserQueryResponse,
+  response: RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserQuery$data,
 |};
 */
 
@@ -114,4 +117,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "7a9eaa1476798159533ae048a3ff048a";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserQuery$variables,
+  RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserQuery$data,
+>*/);

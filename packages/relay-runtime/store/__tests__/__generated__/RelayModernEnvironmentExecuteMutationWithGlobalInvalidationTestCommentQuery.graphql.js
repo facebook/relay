@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<6e049c5642a98bd104ca6b537ebf765a>>
+ * @generated SignedSource<<f3f5fc2d75db87b418fa4c4aa352542c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,20 +15,23 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCommentFragment$ref = any;
-export type RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCommentQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCommentFragment$fragmentType = any;
+export type RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCommentQuery$variables = {|
   id: string,
 |};
-export type RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCommentQueryResponse = {|
+export type RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCommentQueryVariables = RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCommentQuery$variables;
+export type RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCommentQuery$data = {|
   +node: ?{|
     +id: string,
-    +$fragmentRefs: RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCommentFragment$ref,
+    +$fragmentRefs: RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCommentFragment$fragmentType,
+    +$fragmentSpreads: RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCommentFragment$fragmentType,
   |},
 |};
+export type RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCommentQueryResponse = RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCommentQuery$data;
 export type RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCommentQuery = {|
   variables: RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCommentQueryVariables,
-  response: RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCommentQueryResponse,
+  response: RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCommentQuery$data,
 |};
 */
 
@@ -149,4 +152,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "7f5195e44dbcc52111a870ea10a689a9";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCommentQuery$variables,
+  RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCommentQuery$data,
+>*/);

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<58d83a60e21f723a2a61d3fc5483175f>>
+ * @generated SignedSource<<72321fe5a4696985e926d539015b5ecb>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,21 +15,24 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type QueryResourceTest6Fragment$ref = any;
-export type QueryResourceTest8QueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type QueryResourceTest6Fragment$fragmentType = any;
+export type QueryResourceTest8Query$variables = {|
   id: string,
 |};
-export type QueryResourceTest8QueryResponse = {|
+export type QueryResourceTest8QueryVariables = QueryResourceTest8Query$variables;
+export type QueryResourceTest8Query$data = {|
   +node: ?{|
     +__typename: string,
     +id: string,
-    +$fragmentRefs: QueryResourceTest6Fragment$ref,
+    +$fragmentRefs: QueryResourceTest6Fragment$fragmentType,
+    +$fragmentSpreads: QueryResourceTest6Fragment$fragmentType,
   |},
 |};
+export type QueryResourceTest8QueryResponse = QueryResourceTest8Query$data;
 export type QueryResourceTest8Query = {|
   variables: QueryResourceTest8QueryVariables,
-  response: QueryResourceTest8QueryResponse,
+  response: QueryResourceTest8Query$data,
 |};
 */
 
@@ -154,4 +157,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "6e87df11edb8826c7aad49628ee3bb71";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  QueryResourceTest8Query$variables,
+  QueryResourceTest8Query$data,
+>*/);

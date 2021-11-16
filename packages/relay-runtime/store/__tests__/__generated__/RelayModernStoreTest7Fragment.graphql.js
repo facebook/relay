@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<addcb1a2c3343cfd7b4aa9182fee0831>>
+ * @generated SignedSource<<f8e45fe58930f88b85c0bb82c1fa3db4>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,21 +15,23 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayModernStoreTest7Fragment$ref: FragmentReference;
-declare export opaque type RelayModernStoreTest7Fragment$fragmentType: RelayModernStoreTest7Fragment$ref;
-export type RelayModernStoreTest7Fragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayModernStoreTest7Fragment$fragmentType: FragmentType;
+export type RelayModernStoreTest7Fragment$ref = RelayModernStoreTest7Fragment$fragmentType;
+export type RelayModernStoreTest7Fragment$data = {|
   +name: ?string,
   +profilePicture: ?{|
     +uri: ?string,
   |},
-  +$refType: RelayModernStoreTest7Fragment$ref,
+  +$refType: RelayModernStoreTest7Fragment$fragmentType,
+  +$fragmentType: RelayModernStoreTest7Fragment$fragmentType,
 |};
-export type RelayModernStoreTest7Fragment$data = RelayModernStoreTest7Fragment;
+export type RelayModernStoreTest7Fragment = RelayModernStoreTest7Fragment$data;
 export type RelayModernStoreTest7Fragment$key = {
   +$data?: RelayModernStoreTest7Fragment$data,
-  +$fragmentRefs: RelayModernStoreTest7Fragment$ref,
+  +$fragmentRefs: RelayModernStoreTest7Fragment$fragmentType,
+  +$fragmentSpreads: RelayModernStoreTest7Fragment$fragmentType,
   ...
 };
 */
@@ -85,4 +87,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "ca81038ceb34f4d6f3e512a3b6a21712";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayModernStoreTest7Fragment$fragmentType,
+  RelayModernStoreTest7Fragment$data,
+>*/);

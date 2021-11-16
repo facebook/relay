@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<8fa3624ad7b8ad85922d7ceac81e6745>>
+ * @generated SignedSource<<dfff8ea4077a0b73db21727be3d68d2b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,18 +15,20 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayReaderTestWhenMatchDirectiveIsPresentPlainUserNameRenderer_name$ref: FragmentReference;
-declare export opaque type RelayReaderTestWhenMatchDirectiveIsPresentPlainUserNameRenderer_name$fragmentType: RelayReaderTestWhenMatchDirectiveIsPresentPlainUserNameRenderer_name$ref;
-export type RelayReaderTestWhenMatchDirectiveIsPresentPlainUserNameRenderer_name = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayReaderTestWhenMatchDirectiveIsPresentPlainUserNameRenderer_name$fragmentType: FragmentType;
+export type RelayReaderTestWhenMatchDirectiveIsPresentPlainUserNameRenderer_name$ref = RelayReaderTestWhenMatchDirectiveIsPresentPlainUserNameRenderer_name$fragmentType;
+export type RelayReaderTestWhenMatchDirectiveIsPresentPlainUserNameRenderer_name$data = {|
   +plaintext: ?string,
-  +$refType: RelayReaderTestWhenMatchDirectiveIsPresentPlainUserNameRenderer_name$ref,
+  +$refType: RelayReaderTestWhenMatchDirectiveIsPresentPlainUserNameRenderer_name$fragmentType,
+  +$fragmentType: RelayReaderTestWhenMatchDirectiveIsPresentPlainUserNameRenderer_name$fragmentType,
 |};
-export type RelayReaderTestWhenMatchDirectiveIsPresentPlainUserNameRenderer_name$data = RelayReaderTestWhenMatchDirectiveIsPresentPlainUserNameRenderer_name;
+export type RelayReaderTestWhenMatchDirectiveIsPresentPlainUserNameRenderer_name = RelayReaderTestWhenMatchDirectiveIsPresentPlainUserNameRenderer_name$data;
 export type RelayReaderTestWhenMatchDirectiveIsPresentPlainUserNameRenderer_name$key = {
   +$data?: RelayReaderTestWhenMatchDirectiveIsPresentPlainUserNameRenderer_name$data,
-  +$fragmentRefs: RelayReaderTestWhenMatchDirectiveIsPresentPlainUserNameRenderer_name$ref,
+  +$fragmentRefs: RelayReaderTestWhenMatchDirectiveIsPresentPlainUserNameRenderer_name$fragmentType,
+  +$fragmentSpreads: RelayReaderTestWhenMatchDirectiveIsPresentPlainUserNameRenderer_name$fragmentType,
   ...
 };
 */
@@ -53,4 +55,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "b9c5673e4b3f21f63a8efe831dfea528";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayReaderTestWhenMatchDirectiveIsPresentPlainUserNameRenderer_name$fragmentType,
+  RelayReaderTestWhenMatchDirectiveIsPresentPlainUserNameRenderer_name$data,
+>*/);

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<52e49b6c4b5ba36dff44c6a9f04ebb5f>>
+ * @generated SignedSource<<7dd30816c84de7977c6d650fc8e2508f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,21 +15,24 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-type ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment$ref = any;
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type ReactRelayFragmentContainerWithFragmentOwnershipTestUserFragment$ref: FragmentReference;
-declare export opaque type ReactRelayFragmentContainerWithFragmentOwnershipTestUserFragment$fragmentType: ReactRelayFragmentContainerWithFragmentOwnershipTestUserFragment$ref;
-export type ReactRelayFragmentContainerWithFragmentOwnershipTestUserFragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+type ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment$fragmentType = any;
+import type { FragmentType } from "relay-runtime";
+declare export opaque type ReactRelayFragmentContainerWithFragmentOwnershipTestUserFragment$fragmentType: FragmentType;
+export type ReactRelayFragmentContainerWithFragmentOwnershipTestUserFragment$ref = ReactRelayFragmentContainerWithFragmentOwnershipTestUserFragment$fragmentType;
+export type ReactRelayFragmentContainerWithFragmentOwnershipTestUserFragment$data = {|
   +id: string,
   +name?: ?string,
-  +$fragmentRefs: ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment$ref,
-  +$refType: ReactRelayFragmentContainerWithFragmentOwnershipTestUserFragment$ref,
+  +$fragmentRefs: ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment$fragmentType,
+  +$fragmentSpreads: ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment$fragmentType,
+  +$refType: ReactRelayFragmentContainerWithFragmentOwnershipTestUserFragment$fragmentType,
+  +$fragmentType: ReactRelayFragmentContainerWithFragmentOwnershipTestUserFragment$fragmentType,
 |};
-export type ReactRelayFragmentContainerWithFragmentOwnershipTestUserFragment$data = ReactRelayFragmentContainerWithFragmentOwnershipTestUserFragment;
+export type ReactRelayFragmentContainerWithFragmentOwnershipTestUserFragment = ReactRelayFragmentContainerWithFragmentOwnershipTestUserFragment$data;
 export type ReactRelayFragmentContainerWithFragmentOwnershipTestUserFragment$key = {
   +$data?: ReactRelayFragmentContainerWithFragmentOwnershipTestUserFragment$data,
-  +$fragmentRefs: ReactRelayFragmentContainerWithFragmentOwnershipTestUserFragment$ref,
+  +$fragmentRefs: ReactRelayFragmentContainerWithFragmentOwnershipTestUserFragment$fragmentType,
+  +$fragmentSpreads: ReactRelayFragmentContainerWithFragmentOwnershipTestUserFragment$fragmentType,
   ...
 };
 */
@@ -81,4 +84,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "a6f390ce39a0736709e18601023d1a20";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  ReactRelayFragmentContainerWithFragmentOwnershipTestUserFragment$fragmentType,
+  ReactRelayFragmentContainerWithFragmentOwnershipTestUserFragment$data,
+>*/);

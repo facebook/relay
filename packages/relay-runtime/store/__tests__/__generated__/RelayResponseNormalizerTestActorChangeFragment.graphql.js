@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<81c30d7d831e11c14fd4a6f8d8b2f5c6>>
+ * @generated SignedSource<<80fe7d5d98253c38759a1304438ce4f8>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,18 +15,20 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayResponseNormalizerTestActorChangeFragment$ref: FragmentReference;
-declare export opaque type RelayResponseNormalizerTestActorChangeFragment$fragmentType: RelayResponseNormalizerTestActorChangeFragment$ref;
-export type RelayResponseNormalizerTestActorChangeFragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayResponseNormalizerTestActorChangeFragment$fragmentType: FragmentType;
+export type RelayResponseNormalizerTestActorChangeFragment$ref = RelayResponseNormalizerTestActorChangeFragment$fragmentType;
+export type RelayResponseNormalizerTestActorChangeFragment$data = {|
   +name: ?string,
-  +$refType: RelayResponseNormalizerTestActorChangeFragment$ref,
+  +$refType: RelayResponseNormalizerTestActorChangeFragment$fragmentType,
+  +$fragmentType: RelayResponseNormalizerTestActorChangeFragment$fragmentType,
 |};
-export type RelayResponseNormalizerTestActorChangeFragment$data = RelayResponseNormalizerTestActorChangeFragment;
+export type RelayResponseNormalizerTestActorChangeFragment = RelayResponseNormalizerTestActorChangeFragment$data;
 export type RelayResponseNormalizerTestActorChangeFragment$key = {
   +$data?: RelayResponseNormalizerTestActorChangeFragment$data,
-  +$fragmentRefs: RelayResponseNormalizerTestActorChangeFragment$ref,
+  +$fragmentRefs: RelayResponseNormalizerTestActorChangeFragment$fragmentType,
+  +$fragmentSpreads: RelayResponseNormalizerTestActorChangeFragment$fragmentType,
   ...
 };
 */
@@ -53,4 +55,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "7293585078e62a27bf079936a4b80599";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayResponseNormalizerTestActorChangeFragment$fragmentType,
+  RelayResponseNormalizerTestActorChangeFragment$data,
+>*/);

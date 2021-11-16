@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a46386a1c1fd2c8bbdd81ca4a468d268>>
+ * @generated SignedSource<<f7436ac2f364aec6e2bf083e05f465d8>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,17 +15,20 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type FragmentResourceTest5Fragment$ref = any;
-export type FragmentResourceTest5QueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type FragmentResourceTest5Fragment$fragmentType = any;
+export type FragmentResourceTest5Query$variables = {|
   id: string,
 |};
-export type FragmentResourceTest5QueryResponse = {|
-  +$fragmentRefs: FragmentResourceTest5Fragment$ref,
+export type FragmentResourceTest5QueryVariables = FragmentResourceTest5Query$variables;
+export type FragmentResourceTest5Query$data = {|
+  +$fragmentRefs: FragmentResourceTest5Fragment$fragmentType,
+  +$fragmentSpreads: FragmentResourceTest5Fragment$fragmentType,
 |};
+export type FragmentResourceTest5QueryResponse = FragmentResourceTest5Query$data;
 export type FragmentResourceTest5Query = {|
   variables: FragmentResourceTest5QueryVariables,
-  response: FragmentResourceTest5QueryResponse,
+  response: FragmentResourceTest5Query$data,
 |};
 */
 
@@ -115,4 +118,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "be68ee38c8948a00cd84421c4d976d0b";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  FragmentResourceTest5Query$variables,
+  FragmentResourceTest5Query$data,
+>*/);

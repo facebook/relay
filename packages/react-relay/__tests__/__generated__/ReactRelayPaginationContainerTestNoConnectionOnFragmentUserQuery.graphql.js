@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<af3c818a6b014a34c35085f0811ef3bc>>
+ * @generated SignedSource<<54c25fce1d3d390c7beddd5735c03523>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,27 +15,31 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type ReactRelayPaginationContainerTestNoConnectionOnFragmentUserFragment$ref = any;
-type ReactRelayPaginationContainerTestNoConnectionOnFragmentViewerFragment$ref = any;
-export type ReactRelayPaginationContainerTestNoConnectionOnFragmentUserQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type ReactRelayPaginationContainerTestNoConnectionOnFragmentUserFragment$fragmentType = any;
+type ReactRelayPaginationContainerTestNoConnectionOnFragmentViewerFragment$fragmentType = any;
+export type ReactRelayPaginationContainerTestNoConnectionOnFragmentUserQuery$variables = {|
   after?: ?string,
   count: number,
   id: string,
   orderby?: ?$ReadOnlyArray<?string>,
 |};
-export type ReactRelayPaginationContainerTestNoConnectionOnFragmentUserQueryResponse = {|
+export type ReactRelayPaginationContainerTestNoConnectionOnFragmentUserQueryVariables = ReactRelayPaginationContainerTestNoConnectionOnFragmentUserQuery$variables;
+export type ReactRelayPaginationContainerTestNoConnectionOnFragmentUserQuery$data = {|
   +viewer: ?{|
-    +$fragmentRefs: ReactRelayPaginationContainerTestNoConnectionOnFragmentViewerFragment$ref,
+    +$fragmentRefs: ReactRelayPaginationContainerTestNoConnectionOnFragmentViewerFragment$fragmentType,
+    +$fragmentSpreads: ReactRelayPaginationContainerTestNoConnectionOnFragmentViewerFragment$fragmentType,
   |},
   +node: ?{|
     +id: string,
-    +$fragmentRefs: ReactRelayPaginationContainerTestNoConnectionOnFragmentUserFragment$ref,
+    +$fragmentRefs: ReactRelayPaginationContainerTestNoConnectionOnFragmentUserFragment$fragmentType,
+    +$fragmentSpreads: ReactRelayPaginationContainerTestNoConnectionOnFragmentUserFragment$fragmentType,
   |},
 |};
+export type ReactRelayPaginationContainerTestNoConnectionOnFragmentUserQueryResponse = ReactRelayPaginationContainerTestNoConnectionOnFragmentUserQuery$data;
 export type ReactRelayPaginationContainerTestNoConnectionOnFragmentUserQuery = {|
   variables: ReactRelayPaginationContainerTestNoConnectionOnFragmentUserQueryVariables,
-  response: ReactRelayPaginationContainerTestNoConnectionOnFragmentUserQueryResponse,
+  response: ReactRelayPaginationContainerTestNoConnectionOnFragmentUserQuery$data,
 |};
 */
 
@@ -289,4 +293,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "16cf027e832c7432065f4965429431c0";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  ReactRelayPaginationContainerTestNoConnectionOnFragmentUserQuery$variables,
+  ReactRelayPaginationContainerTestNoConnectionOnFragmentUserQuery$data,
+>*/);

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<33eb078b99076f9647176706d721bbf8>>
+ * @generated SignedSource<<82ac8a1763cf68195ffa478ca555abc1>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,17 +15,20 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type ReactRelayTestMockerTest_me$ref = any;
-export type ReactRelayTestMockerTestFragContainerTestQueryVariables = {||};
-export type ReactRelayTestMockerTestFragContainerTestQueryResponse = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type ReactRelayTestMockerTest_me$fragmentType = any;
+export type ReactRelayTestMockerTestFragContainerTestQuery$variables = {||};
+export type ReactRelayTestMockerTestFragContainerTestQueryVariables = ReactRelayTestMockerTestFragContainerTestQuery$variables;
+export type ReactRelayTestMockerTestFragContainerTestQuery$data = {|
   +me: ?{|
-    +$fragmentRefs: ReactRelayTestMockerTest_me$ref,
+    +$fragmentRefs: ReactRelayTestMockerTest_me$fragmentType,
+    +$fragmentSpreads: ReactRelayTestMockerTest_me$fragmentType,
   |},
 |};
+export type ReactRelayTestMockerTestFragContainerTestQueryResponse = ReactRelayTestMockerTestFragContainerTestQuery$data;
 export type ReactRelayTestMockerTestFragContainerTestQuery = {|
   variables: ReactRelayTestMockerTestFragContainerTestQueryVariables,
-  response: ReactRelayTestMockerTestFragContainerTestQueryResponse,
+  response: ReactRelayTestMockerTestFragContainerTestQuery$data,
 |};
 */
 
@@ -103,4 +106,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "5eed738e34526a06a552a9102d84fbfe";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  ReactRelayTestMockerTestFragContainerTestQuery$variables,
+  ReactRelayTestMockerTestFragContainerTestQuery$data,
+>*/);

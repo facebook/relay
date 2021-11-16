@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<8fa91348be7ede379308b42728d40c52>>
+ * @generated SignedSource<<3a530322930124e666bf818bbe36e841>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,24 +15,27 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-type useFragmentNodeTestNestedUserFragment$ref = any;
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type useFragmentNodeTestUsersFragment$ref: FragmentReference;
-declare export opaque type useFragmentNodeTestUsersFragment$fragmentType: useFragmentNodeTestUsersFragment$ref;
-export type useFragmentNodeTestUsersFragment = $ReadOnlyArray<{|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+type useFragmentNodeTestNestedUserFragment$fragmentType = any;
+import type { FragmentType } from "relay-runtime";
+declare export opaque type useFragmentNodeTestUsersFragment$fragmentType: FragmentType;
+export type useFragmentNodeTestUsersFragment$ref = useFragmentNodeTestUsersFragment$fragmentType;
+export type useFragmentNodeTestUsersFragment$data = $ReadOnlyArray<{|
   +id: string,
   +name: ?string,
   +profile_picture: ?{|
     +uri: ?string,
   |},
-  +$fragmentRefs: useFragmentNodeTestNestedUserFragment$ref,
-  +$refType: useFragmentNodeTestUsersFragment$ref,
+  +$fragmentRefs: useFragmentNodeTestNestedUserFragment$fragmentType,
+  +$fragmentSpreads: useFragmentNodeTestNestedUserFragment$fragmentType,
+  +$refType: useFragmentNodeTestUsersFragment$fragmentType,
+  +$fragmentType: useFragmentNodeTestUsersFragment$fragmentType,
 |}>;
-export type useFragmentNodeTestUsersFragment$data = useFragmentNodeTestUsersFragment;
+export type useFragmentNodeTestUsersFragment = useFragmentNodeTestUsersFragment$data;
 export type useFragmentNodeTestUsersFragment$key = $ReadOnlyArray<{
   +$data?: useFragmentNodeTestUsersFragment$data,
-  +$fragmentRefs: useFragmentNodeTestUsersFragment$ref,
+  +$fragmentRefs: useFragmentNodeTestUsersFragment$fragmentType,
+  +$fragmentSpreads: useFragmentNodeTestUsersFragment$fragmentType,
   ...
 }>;
 */
@@ -102,4 +105,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "21820b2b5754dc640e5b08199a2a0498";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  useFragmentNodeTestUsersFragment$fragmentType,
+  useFragmentNodeTestUsersFragment$data,
+>*/);

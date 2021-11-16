@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<776ac7ff7be47feb7f473880295dd055>>
+ * @generated SignedSource<<aa22b57fe7c7b3d771e73543048722ff>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,19 +15,21 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayMockPayloadGeneratorTest30Fragment$ref: FragmentReference;
-declare export opaque type RelayMockPayloadGeneratorTest30Fragment$fragmentType: RelayMockPayloadGeneratorTest30Fragment$ref;
-export type RelayMockPayloadGeneratorTest30Fragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayMockPayloadGeneratorTest30Fragment$fragmentType: FragmentType;
+export type RelayMockPayloadGeneratorTest30Fragment$ref = RelayMockPayloadGeneratorTest30Fragment$fragmentType;
+export type RelayMockPayloadGeneratorTest30Fragment$data = {|
   +id: string,
   +userName: ?string,
-  +$refType: RelayMockPayloadGeneratorTest30Fragment$ref,
+  +$refType: RelayMockPayloadGeneratorTest30Fragment$fragmentType,
+  +$fragmentType: RelayMockPayloadGeneratorTest30Fragment$fragmentType,
 |};
-export type RelayMockPayloadGeneratorTest30Fragment$data = RelayMockPayloadGeneratorTest30Fragment;
+export type RelayMockPayloadGeneratorTest30Fragment = RelayMockPayloadGeneratorTest30Fragment$data;
 export type RelayMockPayloadGeneratorTest30Fragment$key = {
   +$data?: RelayMockPayloadGeneratorTest30Fragment$data,
-  +$fragmentRefs: RelayMockPayloadGeneratorTest30Fragment$ref,
+  +$fragmentRefs: RelayMockPayloadGeneratorTest30Fragment$fragmentType,
+  +$fragmentSpreads: RelayMockPayloadGeneratorTest30Fragment$fragmentType,
   ...
 };
 */
@@ -61,4 +63,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "3677bb2a7a0b0d2733643212c412e05d";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayMockPayloadGeneratorTest30Fragment$fragmentType,
+  RelayMockPayloadGeneratorTest30Fragment$data,
+>*/);

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<e5641d6b7b604cb1a40a138abaa66dd6>>
+ * @generated SignedSource<<5ded837137a552ced7852c69f97424ee>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,20 +15,22 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment$ref: FragmentReference;
-declare export opaque type RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment$fragmentType: RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment$ref;
-export type RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment$fragmentType: FragmentType;
+export type RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment$ref = RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment$fragmentType;
+export type RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment$data = {|
   +viewedBy: ?$ReadOnlyArray<?{|
     +name: ?string,
   |}>,
-  +$refType: RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment$ref,
+  +$refType: RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment$fragmentType,
+  +$fragmentType: RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment$fragmentType,
 |};
-export type RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment$data = RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment;
+export type RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment = RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment$data;
 export type RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment$key = {
   +$data?: RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment$data,
-  +$fragmentRefs: RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment$ref,
+  +$fragmentRefs: RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment$fragmentType,
+  +$fragmentSpreads: RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment$fragmentType,
   ...
 };
 */
@@ -76,4 +78,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "8a916d37ab47ea699ca21a1212af0c7f";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment$fragmentType,
+  RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment$data,
+>*/);

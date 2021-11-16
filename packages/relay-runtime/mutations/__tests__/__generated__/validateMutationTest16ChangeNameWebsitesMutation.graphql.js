@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<d524b55a17ea6343fbf40be6521019e6>>
+ * @generated SignedSource<<769588c7a49a89179d0121ac12c0268e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,24 +15,26 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
+import type { ConcreteRequest, Mutation } from 'relay-runtime';
 export type ActorNameChangeInput = {|
   clientMutationId?: ?string,
   newName?: ?string,
 |};
-export type validateMutationTest16ChangeNameWebsitesMutationVariables = {|
+export type validateMutationTest16ChangeNameWebsitesMutation$variables = {|
   input: ActorNameChangeInput,
 |};
-export type validateMutationTest16ChangeNameWebsitesMutationResponse = {|
+export type validateMutationTest16ChangeNameWebsitesMutationVariables = validateMutationTest16ChangeNameWebsitesMutation$variables;
+export type validateMutationTest16ChangeNameWebsitesMutation$data = {|
   +actorNameChange: ?{|
     +actor: ?{|
       +websites: ?$ReadOnlyArray<?string>,
     |},
   |},
 |};
+export type validateMutationTest16ChangeNameWebsitesMutationResponse = validateMutationTest16ChangeNameWebsitesMutation$data;
 export type validateMutationTest16ChangeNameWebsitesMutation = {|
   variables: validateMutationTest16ChangeNameWebsitesMutationVariables,
-  response: validateMutationTest16ChangeNameWebsitesMutationResponse,
+  response: validateMutationTest16ChangeNameWebsitesMutation$data,
 |};
 */
 
@@ -152,4 +154,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "55ab419f1d441f3c273ae1ab5e4c6007";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Mutation<
+  validateMutationTest16ChangeNameWebsitesMutation$variables,
+  validateMutationTest16ChangeNameWebsitesMutation$data,
+>*/);

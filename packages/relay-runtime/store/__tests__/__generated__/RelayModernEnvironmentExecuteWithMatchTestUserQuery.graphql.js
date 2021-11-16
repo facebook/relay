@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<717bc876cf9a2d1fd3c00c6027336237>>
+ * @generated SignedSource<<161b6be63e2c46607dd7f381227b3f21>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,24 +17,27 @@
 // @dataDrivenDependency RelayModernEnvironmentExecuteWithMatchTestUserQuery.node.nameRenderer {"branches":{"MarkdownUserNameRenderer":{"component":"MarkdownUserNameRenderer.react","fragment":"RelayModernEnvironmentExecuteWithMatchTestMarkdownUserNameRenderer_name$normalization.graphql"},"PlainUserNameRenderer":{"component":"PlainUserNameRenderer.react","fragment":"RelayModernEnvironmentExecuteWithMatchTestPlainUserNameRenderer_name$normalization.graphql"}},"plural":false}
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernEnvironmentExecuteWithMatchTestMarkdownUserNameRenderer_name$ref = any;
-type RelayModernEnvironmentExecuteWithMatchTestPlainUserNameRenderer_name$ref = any;
-export type RelayModernEnvironmentExecuteWithMatchTestUserQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayModernEnvironmentExecuteWithMatchTestMarkdownUserNameRenderer_name$fragmentType = any;
+type RelayModernEnvironmentExecuteWithMatchTestPlainUserNameRenderer_name$fragmentType = any;
+export type RelayModernEnvironmentExecuteWithMatchTestUserQuery$variables = {|
   id: string,
 |};
-export type RelayModernEnvironmentExecuteWithMatchTestUserQueryResponse = {|
+export type RelayModernEnvironmentExecuteWithMatchTestUserQueryVariables = RelayModernEnvironmentExecuteWithMatchTestUserQuery$variables;
+export type RelayModernEnvironmentExecuteWithMatchTestUserQuery$data = {|
   +node: ?{|
     +nameRenderer?: ?({|
       +__typename: "PlainUserNameRenderer",
       +__fragmentPropName: ?string,
       +__module_component: ?string,
-      +$fragmentRefs: RelayModernEnvironmentExecuteWithMatchTestPlainUserNameRenderer_name$ref,
+      +$fragmentRefs: RelayModernEnvironmentExecuteWithMatchTestPlainUserNameRenderer_name$fragmentType,
+      +$fragmentSpreads: RelayModernEnvironmentExecuteWithMatchTestPlainUserNameRenderer_name$fragmentType,
     |} | {|
       +__typename: "MarkdownUserNameRenderer",
       +__fragmentPropName: ?string,
       +__module_component: ?string,
-      +$fragmentRefs: RelayModernEnvironmentExecuteWithMatchTestMarkdownUserNameRenderer_name$ref,
+      +$fragmentRefs: RelayModernEnvironmentExecuteWithMatchTestMarkdownUserNameRenderer_name$fragmentType,
+      +$fragmentSpreads: RelayModernEnvironmentExecuteWithMatchTestMarkdownUserNameRenderer_name$fragmentType,
     |} | {|
       // This will never be '%other', but we need some
       // value in case none of the concrete values match.
@@ -42,9 +45,10 @@ export type RelayModernEnvironmentExecuteWithMatchTestUserQueryResponse = {|
     |}),
   |},
 |};
+export type RelayModernEnvironmentExecuteWithMatchTestUserQueryResponse = RelayModernEnvironmentExecuteWithMatchTestUserQuery$data;
 export type RelayModernEnvironmentExecuteWithMatchTestUserQuery = {|
   variables: RelayModernEnvironmentExecuteWithMatchTestUserQueryVariables,
-  response: RelayModernEnvironmentExecuteWithMatchTestUserQueryResponse,
+  response: RelayModernEnvironmentExecuteWithMatchTestUserQuery$data,
 |};
 */
 
@@ -192,4 +196,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "922f598c144a800d783146ff0fe0676a";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentExecuteWithMatchTestUserQuery$variables,
+  RelayModernEnvironmentExecuteWithMatchTestUserQuery$data,
+>*/);

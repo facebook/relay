@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a194c68f417d0275e0e67ac709ad9829>>
+ * @generated SignedSource<<c13b11474069611a858e7bacae18bdb7>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,17 +15,20 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayReaderTestReadScalarProfile$ref = any;
-export type RelayReaderTestReadScalarUserQueryVariables = {||};
-export type RelayReaderTestReadScalarUserQueryResponse = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayReaderTestReadScalarProfile$fragmentType = any;
+export type RelayReaderTestReadScalarUserQuery$variables = {||};
+export type RelayReaderTestReadScalarUserQueryVariables = RelayReaderTestReadScalarUserQuery$variables;
+export type RelayReaderTestReadScalarUserQuery$data = {|
   +me: ?{|
-    +$fragmentRefs: RelayReaderTestReadScalarProfile$ref,
+    +$fragmentRefs: RelayReaderTestReadScalarProfile$fragmentType,
+    +$fragmentSpreads: RelayReaderTestReadScalarProfile$fragmentType,
   |},
 |};
+export type RelayReaderTestReadScalarUserQueryResponse = RelayReaderTestReadScalarUserQuery$data;
 export type RelayReaderTestReadScalarUserQuery = {|
   variables: RelayReaderTestReadScalarUserQueryVariables,
-  response: RelayReaderTestReadScalarUserQueryResponse,
+  response: RelayReaderTestReadScalarUserQuery$data,
 |};
 */
 
@@ -96,4 +99,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "e60a1a946af376c16ef0358a6effba9d";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayReaderTestReadScalarUserQuery$variables,
+  RelayReaderTestReadScalarUserQuery$data,
+>*/);

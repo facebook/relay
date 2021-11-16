@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<2e2dcb8a1962007c6e47cf711ff837b1>>
+ * @generated SignedSource<<1e9fa4ce70a99c6a360a1819faf7263f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,16 +15,18 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-export type RelayReaderRequiredFieldsTest12QueryVariables = {||};
-export type RelayReaderRequiredFieldsTest12QueryResponse = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+export type RelayReaderRequiredFieldsTest12Query$variables = {||};
+export type RelayReaderRequiredFieldsTest12QueryVariables = RelayReaderRequiredFieldsTest12Query$variables;
+export type RelayReaderRequiredFieldsTest12Query$data = {|
   +maybeNodeInterface: ?{|
     +name?: string,
   |},
 |};
+export type RelayReaderRequiredFieldsTest12QueryResponse = RelayReaderRequiredFieldsTest12Query$data;
 export type RelayReaderRequiredFieldsTest12Query = {|
   variables: RelayReaderRequiredFieldsTest12QueryVariables,
-  response: RelayReaderRequiredFieldsTest12QueryResponse,
+  response: RelayReaderRequiredFieldsTest12Query$data,
 |};
 */
 
@@ -134,4 +136,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "0f4f82089cbe09323a0ea5925a8a4051";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayReaderRequiredFieldsTest12Query$variables,
+  RelayReaderRequiredFieldsTest12Query$data,
+>*/);

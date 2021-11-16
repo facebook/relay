@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b81a5ea60f1727b4e46c9c2f3078f14f>>
+ * @generated SignedSource<<97cb239e50008dd5049d42d06841e36a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,19 +17,21 @@
 // @ReactFlightServerDependency FlightComponent.server
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-export type RelayReferenceMarkerTestFlightQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+export type RelayReferenceMarkerTestFlightQuery$variables = {|
   id: string,
   count: number,
 |};
-export type RelayReferenceMarkerTestFlightQueryResponse = {|
+export type RelayReferenceMarkerTestFlightQueryVariables = RelayReferenceMarkerTestFlightQuery$variables;
+export type RelayReferenceMarkerTestFlightQuery$data = {|
   +node: ?{|
     +flightComponent?: ?any,
   |},
 |};
+export type RelayReferenceMarkerTestFlightQueryResponse = RelayReferenceMarkerTestFlightQuery$data;
 export type RelayReferenceMarkerTestFlightQuery = {|
   variables: RelayReferenceMarkerTestFlightQueryVariables,
-  response: RelayReferenceMarkerTestFlightQueryResponse,
+  response: RelayReferenceMarkerTestFlightQuery$data,
 |};
 */
 
@@ -167,4 +169,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "09d7f9c41cf97f8858a39193930a2f54";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayReferenceMarkerTestFlightQuery$variables,
+  RelayReferenceMarkerTestFlightQuery$data,
+>*/);

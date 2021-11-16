@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<e591b67799dd9d5d5cafd1340550e9ef>>
+ * @generated SignedSource<<581473d148019c94191e4befd57ba60d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,21 +15,23 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type fetchQueryInternalTestPlainFragment_name$ref: FragmentReference;
-declare export opaque type fetchQueryInternalTestPlainFragment_name$fragmentType: fetchQueryInternalTestPlainFragment_name$ref;
-export type fetchQueryInternalTestPlainFragment_name = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type fetchQueryInternalTestPlainFragment_name$fragmentType: FragmentType;
+export type fetchQueryInternalTestPlainFragment_name$ref = fetchQueryInternalTestPlainFragment_name$fragmentType;
+export type fetchQueryInternalTestPlainFragment_name$data = {|
   +plaintext: ?string,
   +data: ?{|
     +text: ?string,
   |},
-  +$refType: fetchQueryInternalTestPlainFragment_name$ref,
+  +$refType: fetchQueryInternalTestPlainFragment_name$fragmentType,
+  +$fragmentType: fetchQueryInternalTestPlainFragment_name$fragmentType,
 |};
-export type fetchQueryInternalTestPlainFragment_name$data = fetchQueryInternalTestPlainFragment_name;
+export type fetchQueryInternalTestPlainFragment_name = fetchQueryInternalTestPlainFragment_name$data;
 export type fetchQueryInternalTestPlainFragment_name$key = {
   +$data?: fetchQueryInternalTestPlainFragment_name$data,
-  +$fragmentRefs: fetchQueryInternalTestPlainFragment_name$ref,
+  +$fragmentRefs: fetchQueryInternalTestPlainFragment_name$fragmentType,
+  +$fragmentSpreads: fetchQueryInternalTestPlainFragment_name$fragmentType,
   ...
 };
 */
@@ -74,4 +76,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "28987f688adc6c61dc29867c5efdef79";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  fetchQueryInternalTestPlainFragment_name$fragmentType,
+  fetchQueryInternalTestPlainFragment_name$data,
+>*/);

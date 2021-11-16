@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<2da107e10a48c0e14fd401b06b6c1f7b>>
+ * @generated SignedSource<<04f613add251250c82ecab344c316bc7>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,23 +15,26 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type usePaginationFragmentTestUserFragment$ref = any;
-export type usePaginationFragmentTestUserQueryWithLiteralArgsQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type usePaginationFragmentTestUserFragment$fragmentType = any;
+export type usePaginationFragmentTestUserQueryWithLiteralArgsQuery$variables = {|
   id: string,
   after?: ?string,
   first?: ?number,
   before?: ?string,
   last?: ?number,
 |};
-export type usePaginationFragmentTestUserQueryWithLiteralArgsQueryResponse = {|
+export type usePaginationFragmentTestUserQueryWithLiteralArgsQueryVariables = usePaginationFragmentTestUserQueryWithLiteralArgsQuery$variables;
+export type usePaginationFragmentTestUserQueryWithLiteralArgsQuery$data = {|
   +node: ?{|
-    +$fragmentRefs: usePaginationFragmentTestUserFragment$ref,
+    +$fragmentRefs: usePaginationFragmentTestUserFragment$fragmentType,
+    +$fragmentSpreads: usePaginationFragmentTestUserFragment$fragmentType,
   |},
 |};
+export type usePaginationFragmentTestUserQueryWithLiteralArgsQueryResponse = usePaginationFragmentTestUserQueryWithLiteralArgsQuery$data;
 export type usePaginationFragmentTestUserQueryWithLiteralArgsQuery = {|
   variables: usePaginationFragmentTestUserQueryWithLiteralArgsQueryVariables,
-  response: usePaginationFragmentTestUserQueryWithLiteralArgsQueryResponse,
+  response: usePaginationFragmentTestUserQueryWithLiteralArgsQuery$data,
 |};
 */
 
@@ -315,4 +318,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "a7568b8997ebfad20088741629afcfa9";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  usePaginationFragmentTestUserQueryWithLiteralArgsQuery$variables,
+  usePaginationFragmentTestUserQueryWithLiteralArgsQuery$data,
+>*/);

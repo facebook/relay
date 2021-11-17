@@ -226,8 +226,8 @@ export type ReaderRelayResolver = {|
   +fragment: ReaderFragmentSpread,
   +resolverModule: (rootKey: {
     +$data?: any, // flowlint-line unclear-type:off
-    +$fragmentRefs: any, // flowlint-line unclear-type:off
     +$fragmentSpreads: any, // flowlint-line unclear-type:off
+    +$fragmentRefs: any, // flowlint-line unclear-type:off
     ...
   }) => mixed,
 |};

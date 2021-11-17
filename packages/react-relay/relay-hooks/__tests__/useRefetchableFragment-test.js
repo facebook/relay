@@ -43,6 +43,7 @@ describe('useRefetchableFragment', () => {
   function useRefetchableFragment(fragmentNode, fragmentRef) {
     const [data, refetch] = useRefetchableFragmentOriginal(
       fragmentNode,
+      // $FlowFixMe[incompatible-call]
       // $FlowFixMe[prop-missing]
       fragmentRef,
     );

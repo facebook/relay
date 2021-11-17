@@ -28,7 +28,7 @@ declare function readInlineData<
   TData,
   TKey: {
     +$data?: TData,
-    +$fragmentRefs: TFragmentType,
+    +$fragmentSpreads: TFragmentType,
     ...
   },
 >(
@@ -40,7 +40,7 @@ declare function readInlineData<
   TData,
   TKey: ?{
     +$data?: TData,
-    +$fragmentRefs: TFragmentType,
+    +$fragmentSpreads: TFragmentType,
     ...
   },
 >(

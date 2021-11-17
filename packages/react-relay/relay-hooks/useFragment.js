@@ -13,7 +13,7 @@
 
 'use strict';
 
-import type {FragmentReference, GraphQLTaggedNode} from 'relay-runtime';
+import type {FragmentType, GraphQLTaggedNode} from 'relay-runtime';
 
 const {useTrackLoadQueryInRender} = require('./loadQuery');
 const useFragmentNode = require('./useFragmentNode');
@@ -29,14 +29,14 @@ const {getFragment} = require('relay-runtime');
 //   - array of nullable if the privoided ref type is an array of nullable refs
 
 declare function useFragment<
-  TKey: {+$data?: mixed, +$fragmentRefs: FragmentReference, ...},
+  TKey: {+$data?: mixed, +$fragmentSpreads: FragmentType, ...},
 >(
   fragmentInput: GraphQLTaggedNode,
   fragmentRef: TKey,
 ): $Call<<TFragmentData>({+$data?: TFragmentData, ...}) => TFragmentData, TKey>;
 
 declare function useFragment<
-  TKey: ?{+$data?: mixed, +$fragmentRefs: FragmentReference, ...},
+  TKey: ?{+$data?: mixed, +$fragmentSpreads: FragmentType, ...},
 >(
   fragmentInput: GraphQLTaggedNode,
   fragmentRef: TKey,
@@ -48,7 +48,7 @@ declare function useFragment<
 declare function useFragment<
   TKey: $ReadOnlyArray<{
     +$data?: mixed,
-    +$fragmentRefs: FragmentReference,
+    +$fragmentSpreads: FragmentType,
     ...
   }>,
 >(
@@ -64,7 +64,7 @@ declare function useFragment<
 declare function useFragment<
   TKey: ?$ReadOnlyArray<{
     +$data?: mixed,
-    +$fragmentRefs: FragmentReference,
+    +$fragmentSpreads: FragmentType,
     ...
   }>,
 >(

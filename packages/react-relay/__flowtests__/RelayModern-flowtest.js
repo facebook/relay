@@ -128,22 +128,22 @@ const PluralTestFragment = createFragmentContainer(PluralTest, {
 });
 
 declare var aUserRef: {
-  +$fragmentRefs: RelayModernFlowtest_user$ref,
+  +$fragmentSpreads: RelayModernFlowtest_user$ref,
   ...
 };
 
 declare var oneOfUsersRef: {
-  +$fragmentRefs: RelayModernFlowtest_users$ref,
+  +$fragmentSpreads: RelayModernFlowtest_users$ref,
   ...
 };
 
 declare var usersRef: $ReadOnlyArray<{
-  +$fragmentRefs: RelayModernFlowtest_users$ref,
+  +$fragmentSpreads: RelayModernFlowtest_users$ref,
   ...
 }>;
 
 declare var nonUserRef: {
-  +$fragmentRefs: {thing: true, ...},
+  +$fragmentSpreads: {thing: true, ...},
   ...
 };
 
@@ -210,7 +210,7 @@ function cb(): void {}
 />;
 
 declare var aComplexUserRef: {
-  +$fragmentRefs: {thing1: true, ...} & RelayModernFlowtest_user$ref & {
+  +$fragmentSpreads: {thing1: true, ...} & RelayModernFlowtest_user$ref & {
       thing2: true,
       ...
     },

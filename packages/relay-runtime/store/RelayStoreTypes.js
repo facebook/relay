@@ -805,7 +805,7 @@ export interface IEnvironment {
 export type ModuleImportPointer = {
   +__fragmentPropName: ?string,
   +__module_component: mixed,
-  +$fragmentRefs: mixed,
+  +$fragmentSpreads: mixed,
   ...
 };
 

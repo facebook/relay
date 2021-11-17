@@ -45,6 +45,14 @@ impl Intern for &str {
     }
 }
 
+impl Intern for &String {
+    type Key = StringKey;
+
+    fn intern(self) -> Self::Key {
+        StringKey(BYTES_TABLE.intern(self.as_bytes()))
+    }
+}
+
 /// Interned bytes
 #[derive(Copy, Clone, Eq, Ord, Hash, PartialEq, PartialOrd)]
 pub struct BytesKey(RawInternKey);

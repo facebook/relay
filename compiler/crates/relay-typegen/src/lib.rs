@@ -226,7 +226,7 @@ impl<'a> TypeGenerator<'a> {
                     self.write_fragment_imports()?;
                 }
             }
-            FlowTypegenPhase::Phase1 | FlowTypegenPhase::Phase2 | FlowTypegenPhase::Final => {
+            _ => {
                 self.write_fragment_imports()?;
             }
         }
@@ -240,7 +240,7 @@ impl<'a> TypeGenerator<'a> {
                 self.writer
                     .write_export_type(&old_variables_identifier, &input_variables_type)?;
             }
-            FlowTypegenPhase::Phase1 | FlowTypegenPhase::Phase2 => {
+            FlowTypegenPhase::Phase1 | FlowTypegenPhase::Phase2 | FlowTypegenPhase::Phase3 => {
                 let new_variables_identifier = format!("{}$variables", typegen_operation.name.item);
                 self.writer
                     .write_export_type(&new_variables_identifier, &input_variables_type)?;
@@ -264,7 +264,7 @@ impl<'a> TypeGenerator<'a> {
                     .write_export_type(&old_response_identifier, &response_type)?;
                 old_response_identifier
             }
-            FlowTypegenPhase::Phase1 | FlowTypegenPhase::Phase2 => {
+            FlowTypegenPhase::Phase1 | FlowTypegenPhase::Phase2 | FlowTypegenPhase::Phase3 => {
                 let new_response_identifier = format!("{}$data", typegen_operation.name.item);
                 let old_response_identifier = format!("{}Response", typegen_operation.name.item);
                 self.writer
@@ -284,7 +284,10 @@ impl<'a> TypeGenerator<'a> {
         };
 
         match self.flow_typegen_phase {
-            FlowTypegenPhase::Old | FlowTypegenPhase::Phase1 | FlowTypegenPhase::Phase2 => {
+            FlowTypegenPhase::Old
+            | FlowTypegenPhase::Phase1
+            | FlowTypegenPhase::Phase2
+            | FlowTypegenPhase::Phase3 => {
                 let mut operation_types = vec![
                     Prop::KeyValuePair(KeyValuePairProp {
                         key: *VARIABLES,
@@ -404,12 +407,14 @@ impl<'a> TypeGenerator<'a> {
             value: AST::Identifier(data_type_name.as_str().intern()),
         });
         let fragment_name = node.name.item;
-        let ref_type_fragment_ref_property = Prop::KeyValuePair(KeyValuePairProp {
-            key: *KEY_FRAGMENT_REFS,
-            optional: false,
-            read_only: true,
-            value: AST::FragmentReference(vec![fragment_name]),
-        });
+        let ref_type_fragment_ref_property = || {
+            Prop::KeyValuePair(KeyValuePairProp {
+                key: *KEY_FRAGMENT_REFS,
+                optional: false,
+                read_only: true,
+                value: AST::FragmentReference(vec![fragment_name]),
+            })
+        };
         let ref_type_fragment_spreads_property = Prop::KeyValuePair(KeyValuePairProp {
             key: *KEY_FRAGMENT_SPREADS,
             optional: false,
@@ -419,14 +424,19 @@ impl<'a> TypeGenerator<'a> {
         let is_plural_fragment = is_plural(node);
         let mut ref_type = AST::InexactObject(match self.flow_typegen_phase {
             FlowTypegenPhase::Old | FlowTypegenPhase::Phase1 => {
-                vec![ref_type_data_property, ref_type_fragment_ref_property]
+                vec![ref_type_data_property, ref_type_fragment_ref_property()]
             }
             FlowTypegenPhase::Phase2 => vec![
                 ref_type_data_property,
-                ref_type_fragment_ref_property,
+                ref_type_fragment_ref_property(),
                 ref_type_fragment_spreads_property,
             ],
-            FlowTypegenPhase::Final => vec![ref_type_fragment_spreads_property],
+            FlowTypegenPhase::Phase3 => {
+                vec![ref_type_data_property, ref_type_fragment_spreads_property]
+            }
+            FlowTypegenPhase::Final => {
+                vec![ref_type_fragment_spreads_property]
+            }
         });
         if is_plural_fragment {
             ref_type = AST::ReadOnlyArray(Box::new(ref_type));
@@ -488,7 +498,7 @@ impl<'a> TypeGenerator<'a> {
                     )?;
                 }
             }
-            FlowTypegenPhase::Phase1 | FlowTypegenPhase::Phase2 | FlowTypegenPhase::Final => {
+            _ => {
                 self.writer
                     .write_export_fragment_type(&old_fragment_type_name, &new_fragment_type_name)?;
                 if let Some(refetchable_metadata) = refetchable_metadata {
@@ -515,7 +525,7 @@ impl<'a> TypeGenerator<'a> {
                 self.writer
                     .write_export_type(&data_type_name, &AST::Identifier(data_type))?;
             }
-            FlowTypegenPhase::Phase1 | FlowTypegenPhase::Phase2 => {
+            FlowTypegenPhase::Phase1 | FlowTypegenPhase::Phase2 | FlowTypegenPhase::Phase3 => {
                 self.writer.write_export_type(&data_type_name, &type_)?;
                 self.writer.write_export_type(
                     data_type.lookup(),
@@ -953,7 +963,7 @@ impl<'a> TypeGenerator<'a> {
                                     value: AST::FragmentReferenceType(fragment_type_name),
                                 }));
                             }
-                            FlowTypegenPhase::Final => {
+                            FlowTypegenPhase::Phase3 | FlowTypegenPhase::Final => {
                                 props.push(Prop::KeyValuePair(KeyValuePairProp {
                                     key: *KEY_FRAGMENT_TYPE,
                                     optional: false,
@@ -1283,7 +1293,7 @@ impl<'a> TypeGenerator<'a> {
                     FlowTypegenPhase::Old | FlowTypegenPhase::Phase1 => {
                         format!("{}$ref", used_fragment)
                     }
-                    FlowTypegenPhase::Phase2 | FlowTypegenPhase::Final => {
+                    _ => {
                         format!("{}$fragmentType", used_fragment)
                     }
                 };
@@ -1775,7 +1785,9 @@ fn group_refs(
                         refs.get_or_insert_with(Vec::new)
                             .push(inline_fragment.fragment_name);
                     }
-                    FlowTypegenPhase::Phase1 | FlowTypegenPhase::Phase2 => {
+                    FlowTypegenPhase::Phase1
+                    | FlowTypegenPhase::Phase2
+                    | FlowTypegenPhase::Phase3 => {
                         refs.get_or_insert_with(Vec::new)
                             .push(inline_fragment.fragment_name);
                         new_refs
@@ -1794,7 +1806,9 @@ fn group_refs(
                         refs.get_or_insert_with(Vec::new)
                             .push(inline_fragment.fragment_name);
                     }
-                    FlowTypegenPhase::Phase1 | FlowTypegenPhase::Phase2 => {
+                    FlowTypegenPhase::Phase1
+                    | FlowTypegenPhase::Phase2
+                    | FlowTypegenPhase::Phase3 => {
                         refs.get_or_insert_with(Vec::new)
                             .push(inline_fragment.fragment_name);
                         new_refs

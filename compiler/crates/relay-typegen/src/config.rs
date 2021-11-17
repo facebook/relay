@@ -130,6 +130,9 @@ pub enum FlowTypegenPhase {
     /// - add $fragmentSpreads prop to Frag$key type
     /// - use Frag$fragmentType instead of Frag$ref
     Phase2,
+    /// - remove $fragmentRefs from Frag$key type
+    /// - remove $refType from Frag$data
+    Phase3,
     /// Final state
     Final,
 }
@@ -143,7 +146,8 @@ impl FlowTypegenPhase {
             Old => Old,
             Phase1 => Old,
             Phase2 => Phase1,
-            Final => Phase2,
+            Phase3 => Phase2,
+            Final => Phase3,
         }
     }
 }

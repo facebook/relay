@@ -262,7 +262,7 @@ fn generate_operation(
             "relay-runtime",
         )
         .unwrap(),
-        FlowTypegenPhase::Phase1 | FlowTypegenPhase::Phase2 | FlowTypegenPhase::Final => {
+        _ => {
             if skip_types {
                 write_import_type_from(
                     &project_config.typegen_config.language,
@@ -339,7 +339,7 @@ fn generate_operation(
 
     let node_type = match flow_typegen_phase {
         FlowTypegenPhase::Old => None,
-        FlowTypegenPhase::Phase1 | FlowTypegenPhase::Phase2 | FlowTypegenPhase::Final => {
+        _ => {
             if skip_types {
                 None
             } else {
@@ -517,7 +517,7 @@ fn generate_fragment(
                 ("ReaderFragment", "ReaderFragment", None)
             }
         }
-        FlowTypegenPhase::Phase1 | FlowTypegenPhase::Phase2 | FlowTypegenPhase::Final => {
+        _ => {
             if skip_types {
                 if is_inline_data_fragment {
                     ("ReaderInlineDataFragment", "ReaderInlineDataFragment", None)

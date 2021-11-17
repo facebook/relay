@@ -47,7 +47,7 @@ impl Writer for FlowPrinter {
                 FlowTypegenPhase::Old | FlowTypegenPhase::Phase1 => {
                     write!(&mut self.result, "{}$ref", fragment)
                 }
-                FlowTypegenPhase::Phase2 | FlowTypegenPhase::Final => {
+                _ => {
                     write!(&mut self.result, "{}$fragmentType", fragment)
                 }
             },
@@ -61,9 +61,7 @@ impl Writer for FlowPrinter {
     fn get_runtime_fragment_import(&self) -> &'static str {
         match self.flow_typegen_phase {
             FlowTypegenPhase::Old => "FragmentReference",
-            FlowTypegenPhase::Phase1 | FlowTypegenPhase::Phase2 | FlowTypegenPhase::Final => {
-                "FragmentType"
-            }
+            _ => "FragmentType",
         }
     }
 
@@ -99,13 +97,15 @@ declare export opaque type {new_name}: {old_name};",
                 old_name = old_name,
                 new_name = new_name
             ),
-            FlowTypegenPhase::Phase1 | FlowTypegenPhase::Phase2 => writeln!(
-                &mut self.result,
-                "declare export opaque type {new_name}: FragmentType;
+            FlowTypegenPhase::Phase1 | FlowTypegenPhase::Phase2 | FlowTypegenPhase::Phase3 => {
+                writeln!(
+                    &mut self.result,
+                    "declare export opaque type {new_name}: FragmentType;
 export type {old_name} = {new_name};",
-                old_name = old_name,
-                new_name = new_name,
-            ),
+                    old_name = old_name,
+                    new_name = new_name,
+                )
+            }
             FlowTypegenPhase::Final => writeln!(
                 &mut self.result,
                 "declare export opaque type {new_name}: FragmentType;",
@@ -177,7 +177,7 @@ impl FlowPrinter {
                 FlowTypegenPhase::Old | FlowTypegenPhase::Phase1 => {
                     write!(&mut self.result, "{}$ref", fragment)?;
                 }
-                FlowTypegenPhase::Phase2 | FlowTypegenPhase::Final => {
+                _ => {
                     write!(&mut self.result, "{}$fragmentType", fragment)?;
                 }
             }

@@ -17,8 +17,8 @@ query TestDefer @raw_response_type {
   }
 }
 ==================================== OUTPUT ===================================
-export type TestDeferVariables = {||};
-export type TestDeferResponse = {|
+export type TestDefer$variables = {||};
+export type TestDefer$data = {|
   +node: ?{|
     +name?: ?string,
     +friends?: ?{|
@@ -32,7 +32,7 @@ export type TestDeferResponse = {|
     |},
   |},
 |};
-export type TestDeferRawResponse = {|
+export type TestDefer$rawResponse = {|
   +node: ?({|
     +__typename: "User",
     +id: string,
@@ -59,9 +59,4 @@ export type TestDeferRawResponse = {|
     +__typename: string,
     +id: string,
   |}),
-|};
-export type TestDefer = {|
-  variables: TestDeferVariables,
-  response: TestDeferResponse,
-  rawResponse: TestDeferRawResponse,
 |};

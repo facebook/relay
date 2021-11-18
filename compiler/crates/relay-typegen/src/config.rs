@@ -100,7 +100,7 @@ impl Default for FlowTypegenConfig {
     fn default() -> Self {
         Self {
             no_future_proof_enums: false,
-            phase: FlowTypegenPhase::Old,
+            phase: FlowTypegenPhase::Final,
             rollout: Rollout::default(),
         }
     }

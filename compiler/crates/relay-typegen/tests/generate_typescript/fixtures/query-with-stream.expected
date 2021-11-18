@@ -18,8 +18,8 @@ query TestStream @raw_response_type {
   }
 }
 ==================================== OUTPUT ===================================
-export type TestStreamVariables = {};
-export type TestStreamResponse = {
+export type TestStream$variables = {};
+export type TestStream$data = {
   readonly node: {
     readonly name?: string | null;
     readonly friends?: {
@@ -31,7 +31,7 @@ export type TestStreamResponse = {
     } | null;
   } | null;
 };
-export type TestStreamRawResponse = {
+export type TestStream$rawResponse = {
   readonly node: {
     readonly __typename: "User";
     readonly id: string;
@@ -53,9 +53,4 @@ export type TestStreamRawResponse = {
     readonly __typename: string;
     readonly id: string;
   } | null;
-};
-export type TestStream = {
-  variables: TestStreamVariables;
-  response: TestStreamResponse;
-  rawResponse: TestStreamRawResponse;
 };

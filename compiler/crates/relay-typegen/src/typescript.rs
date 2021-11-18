@@ -7,7 +7,7 @@
 
 use crate::writer::{Prop, Writer, AST};
 use crate::TypegenConfig;
-use crate::{KEY_DATA, KEY_FRAGMENT_REFS, KEY_REF_TYPE};
+use crate::{KEY_DATA, KEY_FRAGMENT_REFS, KEY_FRAGMENT_SPREADS, KEY_FRAGMENT_TYPE, KEY_REF_TYPE};
 use interner::{Intern, StringKey};
 use itertools::Itertools;
 use std::fmt::{Result, Write};
@@ -192,19 +192,16 @@ impl TypeScriptPrinter {
                     if key_value_pair.read_only {
                         write!(&mut self.result, "readonly ")?;
                     }
-                    write!(
-                        &mut self.result,
-                        "{}",
-                        if key_value_pair.key == *KEY_FRAGMENT_REFS {
-                            format!("\" {}\"", *KEY_FRAGMENT_REFS).intern()
-                        } else if key_value_pair.key == *KEY_REF_TYPE {
-                            format!("\" {}\"", *KEY_REF_TYPE).intern()
-                        } else if key_value_pair.key == *KEY_DATA {
-                            format!("\" {}\"", *KEY_DATA).intern()
-                        } else {
-                            key_value_pair.key
-                        }
-                    )?;
+                    if key_value_pair.key == *KEY_FRAGMENT_REFS
+                        || key_value_pair.key == *KEY_FRAGMENT_SPREADS
+                        || key_value_pair.key == *KEY_REF_TYPE
+                        || key_value_pair.key == *KEY_FRAGMENT_TYPE
+                        || key_value_pair.key == *KEY_DATA
+                    {
+                        write!(&mut self.result, "\" {}\"", key_value_pair.key)?;
+                    } else {
+                        write!(&mut self.result, "{}", key_value_pair.key)?;
+                    }
                     if key_value_pair.optional {
                         write!(&mut self.result, "?")?;
                     }

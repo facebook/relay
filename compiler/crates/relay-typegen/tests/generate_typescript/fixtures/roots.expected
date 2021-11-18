@@ -25,17 +25,13 @@ subscription TestSubscription($input: FeedbackLikeInput) {
   }
 }
 ==================================== OUTPUT ===================================
-export type ExampleQueryVariables = {
+export type ExampleQuery$variables = {
   id: string;
 };
-export type ExampleQueryResponse = {
+export type ExampleQuery$data = {
   readonly node: {
     readonly id: string;
   } | null;
-};
-export type ExampleQuery = {
-  variables: ExampleQueryVariables;
-  response: ExampleQueryResponse;
 };
 -------------------------------------------------------------------------------
 export type CommentCreateInput = {
@@ -49,47 +45,38 @@ export type CommentfeedbackFeedback = {
 export type FeedbackcommentComment = {
   feedback?: CommentfeedbackFeedback | null;
 };
-export type TestMutationVariables = {
+export type TestMutation$variables = {
   input: CommentCreateInput;
 };
-export type TestMutationResponse = {
+export type TestMutation$data = {
   readonly commentCreate: {
     readonly comment: {
       readonly id: string;
     } | null;
   } | null;
 };
-export type TestMutation = {
-  variables: TestMutationVariables;
-  response: TestMutationResponse;
-};
 -------------------------------------------------------------------------------
 export type FeedbackLikeInput = {
   clientMutationId?: string | null;
   feedbackId?: string | null;
 };
-export type TestSubscriptionVariables = {
+export type TestSubscription$variables = {
   input?: FeedbackLikeInput | null;
 };
-export type TestSubscriptionResponse = {
+export type TestSubscription$data = {
   readonly feedbackLikeSubscribe: {
     readonly feedback: {
       readonly id: string;
     } | null;
   } | null;
 };
-export type TestSubscription = {
-  variables: TestSubscriptionVariables;
-  response: TestSubscriptionResponse;
-};
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
-export type ExampleFragment = {
+export type ExampleFragment$data = {
   readonly id: string;
-  readonly " $refType": "ExampleFragment";
+  readonly " $fragmentType": "ExampleFragment";
 };
-export type ExampleFragment$data = ExampleFragment;
 export type ExampleFragment$key = {
   readonly " $data"?: ExampleFragment$data;
-  readonly " $fragmentRefs": FragmentRefs<"ExampleFragment">;
+  readonly " $fragmentSpreads": FragmentRefs<"ExampleFragment">;
 };

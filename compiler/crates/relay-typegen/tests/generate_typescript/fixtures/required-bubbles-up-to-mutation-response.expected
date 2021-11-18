@@ -18,17 +18,13 @@ export type CommentfeedbackFeedback = {
 export type FeedbackcommentComment = {
   feedback?: CommentfeedbackFeedback | null;
 };
-export type CommentCreateMutationVariables = {
+export type CommentCreateMutation$variables = {
   input: CommentCreateInput;
 };
-export type CommentCreateMutationResponse = {
+export type CommentCreateMutation$data = {
   readonly commentCreate: {
     readonly comment: {
       readonly id: string;
     };
   };
 } | null;
-export type CommentCreateMutation = {
-  variables: CommentCreateMutationVariables;
-  response: CommentCreateMutationResponse;
-};

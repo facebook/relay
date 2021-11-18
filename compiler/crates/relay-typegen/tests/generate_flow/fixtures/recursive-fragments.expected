@@ -6,17 +6,15 @@ fragment FragmentSpread on Node {
   }
 }
 ==================================== OUTPUT ===================================
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type FragmentSpread$ref: FragmentReference;
-declare export opaque type FragmentSpread$fragmentType: FragmentSpread$ref;
-export type FragmentSpread = {|
+import type { FragmentType } from "relay-runtime";
+declare export opaque type FragmentSpread$fragmentType: FragmentType;
+export type FragmentSpread$data = {|
   +id: string,
-  +$fragmentRefs: FragmentSpread$ref,
-  +$refType: FragmentSpread$ref,
+  +$fragmentSpreads: FragmentSpread$fragmentType,
+  +$fragmentType: FragmentSpread$fragmentType,
 |};
-export type FragmentSpread$data = FragmentSpread;
 export type FragmentSpread$key = {
   +$data?: FragmentSpread$data,
-  +$fragmentRefs: FragmentSpread$ref,
+  +$fragmentSpreads: FragmentSpread$fragmentType,
   ...
 };

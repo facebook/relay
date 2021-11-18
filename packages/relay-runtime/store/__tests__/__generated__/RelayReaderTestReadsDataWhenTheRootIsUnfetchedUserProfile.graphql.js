@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b56c8052c125c13d6a69841f3d267dea>>
+ * @generated SignedSource<<32bf84ca21b45455db1071a8bebeb765>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,13 +21,11 @@ declare export opaque type RelayReaderTestReadsDataWhenTheRootIsUnfetchedUserPro
 export type RelayReaderTestReadsDataWhenTheRootIsUnfetchedUserProfile$ref = RelayReaderTestReadsDataWhenTheRootIsUnfetchedUserProfile$fragmentType;
 export type RelayReaderTestReadsDataWhenTheRootIsUnfetchedUserProfile$data = {|
   +name: ?string,
-  +$refType: RelayReaderTestReadsDataWhenTheRootIsUnfetchedUserProfile$fragmentType,
   +$fragmentType: RelayReaderTestReadsDataWhenTheRootIsUnfetchedUserProfile$fragmentType,
 |};
 export type RelayReaderTestReadsDataWhenTheRootIsUnfetchedUserProfile = RelayReaderTestReadsDataWhenTheRootIsUnfetchedUserProfile$data;
 export type RelayReaderTestReadsDataWhenTheRootIsUnfetchedUserProfile$key = {
   +$data?: RelayReaderTestReadsDataWhenTheRootIsUnfetchedUserProfile$data,
-  +$fragmentRefs: RelayReaderTestReadsDataWhenTheRootIsUnfetchedUserProfile$fragmentType,
   +$fragmentSpreads: RelayReaderTestReadsDataWhenTheRootIsUnfetchedUserProfile$fragmentType,
   ...
 };

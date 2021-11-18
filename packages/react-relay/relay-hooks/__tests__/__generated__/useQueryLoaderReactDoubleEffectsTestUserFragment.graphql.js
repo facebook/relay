@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<8da29b042d8835abe9d6f70584472565>>
+ * @generated SignedSource<<2a69ddca140bd19def3f54ef8e161f14>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,13 +21,11 @@ declare export opaque type useQueryLoaderReactDoubleEffectsTestUserFragment$frag
 export type useQueryLoaderReactDoubleEffectsTestUserFragment$ref = useQueryLoaderReactDoubleEffectsTestUserFragment$fragmentType;
 export type useQueryLoaderReactDoubleEffectsTestUserFragment$data = {|
   +name: ?string,
-  +$refType: useQueryLoaderReactDoubleEffectsTestUserFragment$fragmentType,
   +$fragmentType: useQueryLoaderReactDoubleEffectsTestUserFragment$fragmentType,
 |};
 export type useQueryLoaderReactDoubleEffectsTestUserFragment = useQueryLoaderReactDoubleEffectsTestUserFragment$data;
 export type useQueryLoaderReactDoubleEffectsTestUserFragment$key = {
   +$data?: useQueryLoaderReactDoubleEffectsTestUserFragment$data,
-  +$fragmentRefs: useQueryLoaderReactDoubleEffectsTestUserFragment$fragmentType,
   +$fragmentSpreads: useQueryLoaderReactDoubleEffectsTestUserFragment$fragmentType,
   ...
 };

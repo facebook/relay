@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<e8fd24c65a447b5de245dd9730bf3b5b>>
+ * @generated SignedSource<<c4d15a967db503f1a31cb94dd73b70a3>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,13 +23,11 @@ export type RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfile
   +profilePicture: ?{|
     +uri: ?string,
   |},
-  +$refType: RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfilePhoto$fragmentType,
   +$fragmentType: RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfilePhoto$fragmentType,
 |};
 export type RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfilePhoto = RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfilePhoto$data;
 export type RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfilePhoto$key = {
   +$data?: RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfilePhoto$data,
-  +$fragmentRefs: RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfilePhoto$fragmentType,
   +$fragmentSpreads: RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfilePhoto$fragmentType,
   ...
 };

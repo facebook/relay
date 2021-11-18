@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<f2ba6586ee4a7cb24f79e3edeadfaaa5>>
+ * @generated SignedSource<<3e5b08687eef0a0d8a159546ecd90f8c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,13 +21,11 @@ declare export opaque type RelayReaderTestReadsDataWhenTheRootIsDeletedUserProfi
 export type RelayReaderTestReadsDataWhenTheRootIsDeletedUserProfile$ref = RelayReaderTestReadsDataWhenTheRootIsDeletedUserProfile$fragmentType;
 export type RelayReaderTestReadsDataWhenTheRootIsDeletedUserProfile$data = {|
   +name: ?string,
-  +$refType: RelayReaderTestReadsDataWhenTheRootIsDeletedUserProfile$fragmentType,
   +$fragmentType: RelayReaderTestReadsDataWhenTheRootIsDeletedUserProfile$fragmentType,
 |};
 export type RelayReaderTestReadsDataWhenTheRootIsDeletedUserProfile = RelayReaderTestReadsDataWhenTheRootIsDeletedUserProfile$data;
 export type RelayReaderTestReadsDataWhenTheRootIsDeletedUserProfile$key = {
   +$data?: RelayReaderTestReadsDataWhenTheRootIsDeletedUserProfile$data,
-  +$fragmentRefs: RelayReaderTestReadsDataWhenTheRootIsDeletedUserProfile$fragmentType,
   +$fragmentSpreads: RelayReaderTestReadsDataWhenTheRootIsDeletedUserProfile$fragmentType,
   ...
 };

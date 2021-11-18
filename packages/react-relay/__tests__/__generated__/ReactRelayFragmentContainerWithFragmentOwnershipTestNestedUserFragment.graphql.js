@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<1d7bdf5d09b71a60ae1ad1854aa2a661>>
+ * @generated SignedSource<<97e5d9f6aa78145b13a9115a2f94aab6>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,13 +21,11 @@ declare export opaque type ReactRelayFragmentContainerWithFragmentOwnershipTestN
 export type ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment$ref = ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment$fragmentType;
 export type ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment$data = {|
   +username: ?string,
-  +$refType: ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment$fragmentType,
   +$fragmentType: ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment$fragmentType,
 |};
 export type ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment = ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment$data;
 export type ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment$key = {
   +$data?: ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment$data,
-  +$fragmentRefs: ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment$fragmentType,
   +$fragmentSpreads: ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment$fragmentType,
   ...
 };

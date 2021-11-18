@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<92671c6d4ed5e864abe9ef74e9f00ea4>>
+ * @generated SignedSource<<f26e33d40da732d15f20506038d27b0b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,13 +21,11 @@ declare export opaque type usePaginationFragmentTest1Fragment$fragmentType: Frag
 export type usePaginationFragmentTest1Fragment$ref = usePaginationFragmentTest1Fragment$fragmentType;
 export type usePaginationFragmentTest1Fragment$data = $ReadOnlyArray<{|
   +id: string,
-  +$refType: usePaginationFragmentTest1Fragment$fragmentType,
   +$fragmentType: usePaginationFragmentTest1Fragment$fragmentType,
 |}>;
 export type usePaginationFragmentTest1Fragment = usePaginationFragmentTest1Fragment$data;
 export type usePaginationFragmentTest1Fragment$key = $ReadOnlyArray<{
   +$data?: usePaginationFragmentTest1Fragment$data,
-  +$fragmentRefs: usePaginationFragmentTest1Fragment$fragmentType,
   +$fragmentSpreads: usePaginationFragmentTest1Fragment$fragmentType,
   ...
 }>;

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<dfff8ea4077a0b73db21727be3d68d2b>>
+ * @generated SignedSource<<a6486687a589821fb658bea7ba48f585>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,13 +21,11 @@ declare export opaque type RelayReaderTestWhenMatchDirectiveIsPresentPlainUserNa
 export type RelayReaderTestWhenMatchDirectiveIsPresentPlainUserNameRenderer_name$ref = RelayReaderTestWhenMatchDirectiveIsPresentPlainUserNameRenderer_name$fragmentType;
 export type RelayReaderTestWhenMatchDirectiveIsPresentPlainUserNameRenderer_name$data = {|
   +plaintext: ?string,
-  +$refType: RelayReaderTestWhenMatchDirectiveIsPresentPlainUserNameRenderer_name$fragmentType,
   +$fragmentType: RelayReaderTestWhenMatchDirectiveIsPresentPlainUserNameRenderer_name$fragmentType,
 |};
 export type RelayReaderTestWhenMatchDirectiveIsPresentPlainUserNameRenderer_name = RelayReaderTestWhenMatchDirectiveIsPresentPlainUserNameRenderer_name$data;
 export type RelayReaderTestWhenMatchDirectiveIsPresentPlainUserNameRenderer_name$key = {
   +$data?: RelayReaderTestWhenMatchDirectiveIsPresentPlainUserNameRenderer_name$data,
-  +$fragmentRefs: RelayReaderTestWhenMatchDirectiveIsPresentPlainUserNameRenderer_name$fragmentType,
   +$fragmentSpreads: RelayReaderTestWhenMatchDirectiveIsPresentPlainUserNameRenderer_name$fragmentType,
   ...
 };

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<c0ddac28f2974f2c010c6446efb0fcf5>>
+ * @generated SignedSource<<0561059e4348d1f4dd1a3cb4b7dd1cee>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,13 +24,11 @@ export type RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingAddress$dat
   +address: ?{|
     +city: ?string,
   |},
-  +$refType: RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingAddress$fragmentType,
   +$fragmentType: RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingAddress$fragmentType,
 |};
 export type RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingAddress = RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingAddress$data;
 export type RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingAddress$key = {
   +$data?: RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingAddress$data,
-  +$fragmentRefs: RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingAddress$fragmentType,
   +$fragmentSpreads: RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingAddress$fragmentType,
   ...
 };

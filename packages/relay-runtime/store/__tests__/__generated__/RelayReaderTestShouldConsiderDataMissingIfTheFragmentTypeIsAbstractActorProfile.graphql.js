@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<006499cdd512b65c519a72115238199b>>
+ * @generated SignedSource<<6c2bb67e248c6b1f3db2361ac4ccaf85>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,13 +21,11 @@ declare export opaque type RelayReaderTestShouldConsiderDataMissingIfTheFragment
 export type RelayReaderTestShouldConsiderDataMissingIfTheFragmentTypeIsAbstractActorProfile$ref = RelayReaderTestShouldConsiderDataMissingIfTheFragmentTypeIsAbstractActorProfile$fragmentType;
 export type RelayReaderTestShouldConsiderDataMissingIfTheFragmentTypeIsAbstractActorProfile$data = {|
   +name: ?string,
-  +$refType: RelayReaderTestShouldConsiderDataMissingIfTheFragmentTypeIsAbstractActorProfile$fragmentType,
   +$fragmentType: RelayReaderTestShouldConsiderDataMissingIfTheFragmentTypeIsAbstractActorProfile$fragmentType,
 |};
 export type RelayReaderTestShouldConsiderDataMissingIfTheFragmentTypeIsAbstractActorProfile = RelayReaderTestShouldConsiderDataMissingIfTheFragmentTypeIsAbstractActorProfile$data;
 export type RelayReaderTestShouldConsiderDataMissingIfTheFragmentTypeIsAbstractActorProfile$key = {
   +$data?: RelayReaderTestShouldConsiderDataMissingIfTheFragmentTypeIsAbstractActorProfile$data,
-  +$fragmentRefs: RelayReaderTestShouldConsiderDataMissingIfTheFragmentTypeIsAbstractActorProfile$fragmentType,
   +$fragmentSpreads: RelayReaderTestShouldConsiderDataMissingIfTheFragmentTypeIsAbstractActorProfile$fragmentType,
   ...
 };

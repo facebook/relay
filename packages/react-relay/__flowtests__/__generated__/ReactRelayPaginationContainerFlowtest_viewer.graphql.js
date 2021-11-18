@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<286715cd93d8b150ae76ee0fa8b7b797>>
+ * @generated SignedSource<<2d73f66797fb376dd27de9625c67deac>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -29,13 +29,11 @@ export type ReactRelayPaginationContainerFlowtest_viewer$data = {|
       |}>,
     |},
   |},
-  +$refType: ReactRelayPaginationContainerFlowtest_viewer$fragmentType,
   +$fragmentType: ReactRelayPaginationContainerFlowtest_viewer$fragmentType,
 |};
 export type ReactRelayPaginationContainerFlowtest_viewer = ReactRelayPaginationContainerFlowtest_viewer$data;
 export type ReactRelayPaginationContainerFlowtest_viewer$key = {
   +$data?: ReactRelayPaginationContainerFlowtest_viewer$data,
-  +$fragmentRefs: ReactRelayPaginationContainerFlowtest_viewer$fragmentType,
   +$fragmentSpreads: ReactRelayPaginationContainerFlowtest_viewer$fragmentType,
   ...
 };

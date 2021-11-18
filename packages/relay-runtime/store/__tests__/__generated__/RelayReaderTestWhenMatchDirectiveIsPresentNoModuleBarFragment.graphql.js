@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<d62834dbe2e23660dbd741e652eff1f0>>
+ * @generated SignedSource<<93b74d305eb15f35a0ad16fa62c2fb24>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -31,13 +31,11 @@ export type RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment$data =
     +$fragmentRefs: RelayReaderTestWhenMatchDirectiveIsPresentNoModulePlainUserNameRenderer_name$fragmentType & RelayReaderTestWhenMatchDirectiveIsPresentNoModuleMarkdownUserNameRenderer_name$fragmentType,
     +$fragmentSpreads: RelayReaderTestWhenMatchDirectiveIsPresentNoModulePlainUserNameRenderer_name$fragmentType & RelayReaderTestWhenMatchDirectiveIsPresentNoModuleMarkdownUserNameRenderer_name$fragmentType,
   |},
-  +$refType: RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment$fragmentType,
   +$fragmentType: RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment$fragmentType,
 |};
 export type RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment = RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment$data;
 export type RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment$key = {
   +$data?: RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment$data,
-  +$fragmentRefs: RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment$fragmentType,
   +$fragmentSpreads: RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment$fragmentType,
   ...
 };

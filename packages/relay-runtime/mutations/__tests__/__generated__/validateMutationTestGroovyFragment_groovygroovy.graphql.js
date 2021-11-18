@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<3c1cb5b3cb324b67ad7a898b0de950ea>>
+ * @generated SignedSource<<27b8c6c2e5ffe23e74a1d4cb07a13823>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,13 +21,11 @@ declare export opaque type validateMutationTestGroovyFragment_groovygroovy$fragm
 export type validateMutationTestGroovyFragment_groovygroovy$ref = validateMutationTestGroovyFragment_groovygroovy$fragmentType;
 export type validateMutationTestGroovyFragment_groovygroovy$data = {|
   +doesViewerLike: ?boolean,
-  +$refType: validateMutationTestGroovyFragment_groovygroovy$fragmentType,
   +$fragmentType: validateMutationTestGroovyFragment_groovygroovy$fragmentType,
 |};
 export type validateMutationTestGroovyFragment_groovygroovy = validateMutationTestGroovyFragment_groovygroovy$data;
 export type validateMutationTestGroovyFragment_groovygroovy$key = {
   +$data?: validateMutationTestGroovyFragment_groovygroovy$data,
-  +$fragmentRefs: validateMutationTestGroovyFragment_groovygroovy$fragmentType,
   +$fragmentSpreads: validateMutationTestGroovyFragment_groovygroovy$fragmentType,
   ...
 };

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<4908d7ef167b4dcc4b535e749eacf8d7>>
+ * @generated SignedSource<<3e807d756d8703951cc5b78e04bb2cd9>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,13 +21,11 @@ declare export opaque type RelayModernEnvironmentExecuteWithModuleOnConcreteFiel
 export type RelayModernEnvironmentExecuteWithModuleOnConcreteFieldTestFeedbackAuthor_author$ref = RelayModernEnvironmentExecuteWithModuleOnConcreteFieldTestFeedbackAuthor_author$fragmentType;
 export type RelayModernEnvironmentExecuteWithModuleOnConcreteFieldTestFeedbackAuthor_author$data = {|
   +name: ?string,
-  +$refType: RelayModernEnvironmentExecuteWithModuleOnConcreteFieldTestFeedbackAuthor_author$fragmentType,
   +$fragmentType: RelayModernEnvironmentExecuteWithModuleOnConcreteFieldTestFeedbackAuthor_author$fragmentType,
 |};
 export type RelayModernEnvironmentExecuteWithModuleOnConcreteFieldTestFeedbackAuthor_author = RelayModernEnvironmentExecuteWithModuleOnConcreteFieldTestFeedbackAuthor_author$data;
 export type RelayModernEnvironmentExecuteWithModuleOnConcreteFieldTestFeedbackAuthor_author$key = {
   +$data?: RelayModernEnvironmentExecuteWithModuleOnConcreteFieldTestFeedbackAuthor_author$data,
-  +$fragmentRefs: RelayModernEnvironmentExecuteWithModuleOnConcreteFieldTestFeedbackAuthor_author$fragmentType,
   +$fragmentSpreads: RelayModernEnvironmentExecuteWithModuleOnConcreteFieldTestFeedbackAuthor_author$fragmentType,
   ...
 };

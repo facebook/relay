@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<ac64c2d706507b7697630c75f9618570>>
+ * @generated SignedSource<<b64a4114b219d0bb1c7bf0cb8e335937>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,13 +24,11 @@ export type FragmentResourceWithOperationTrackerTestMarkdownUserNameRenderer_nam
   +data: ?{|
     +markup: ?string,
   |},
-  +$refType: FragmentResourceWithOperationTrackerTestMarkdownUserNameRenderer_name$fragmentType,
   +$fragmentType: FragmentResourceWithOperationTrackerTestMarkdownUserNameRenderer_name$fragmentType,
 |};
 export type FragmentResourceWithOperationTrackerTestMarkdownUserNameRenderer_name = FragmentResourceWithOperationTrackerTestMarkdownUserNameRenderer_name$data;
 export type FragmentResourceWithOperationTrackerTestMarkdownUserNameRenderer_name$key = {
   +$data?: FragmentResourceWithOperationTrackerTestMarkdownUserNameRenderer_name$data,
-  +$fragmentRefs: FragmentResourceWithOperationTrackerTestMarkdownUserNameRenderer_name$fragmentType,
   +$fragmentSpreads: FragmentResourceWithOperationTrackerTestMarkdownUserNameRenderer_name$fragmentType,
   ...
 };

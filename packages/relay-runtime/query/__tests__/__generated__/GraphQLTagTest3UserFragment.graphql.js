@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a11cc7d54c9743b933b62c52b7af1069>>
+ * @generated SignedSource<<9a5f99a5f5c4c3e26d68eb772a4803b1>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -30,13 +30,11 @@ export type GraphQLTagTest3UserFragment$data = {|
       |},
     |}>,
   |},
-  +$refType: GraphQLTagTest3UserFragment$fragmentType,
   +$fragmentType: GraphQLTagTest3UserFragment$fragmentType,
 |};
 export type GraphQLTagTest3UserFragment = GraphQLTagTest3UserFragment$data;
 export type GraphQLTagTest3UserFragment$key = {
   +$data?: GraphQLTagTest3UserFragment$data,
-  +$fragmentRefs: GraphQLTagTest3UserFragment$fragmentType,
   +$fragmentSpreads: GraphQLTagTest3UserFragment$fragmentType,
   ...
 };

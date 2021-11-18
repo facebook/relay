@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<be76864120a4f65f990eb64aad77d720>>
+ * @generated SignedSource<<e491078e589ff04ac41171bd43979aa8>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,13 +24,11 @@ export type RelayResponseNormalizerTest11Fragment$data = {|
   +actors: ?$ReadOnlyArray<?{|
     +name: ?string,
   |}>,
-  +$refType: RelayResponseNormalizerTest11Fragment$fragmentType,
   +$fragmentType: RelayResponseNormalizerTest11Fragment$fragmentType,
 |};
 export type RelayResponseNormalizerTest11Fragment = RelayResponseNormalizerTest11Fragment$data;
 export type RelayResponseNormalizerTest11Fragment$key = {
   +$data?: RelayResponseNormalizerTest11Fragment$data,
-  +$fragmentRefs: RelayResponseNormalizerTest11Fragment$fragmentType,
   +$fragmentSpreads: RelayResponseNormalizerTest11Fragment$fragmentType,
   ...
 };

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<3fb6269cdd50b56d1f47b1f6cb9a8c9f>>
+ * @generated SignedSource<<c881efb15ad2ba7a3ce2d530274de63e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,13 +22,11 @@ export type ReactRelayFragmentContainerTestUserFragment$ref = ReactRelayFragment
 export type ReactRelayFragmentContainerTestUserFragment$data = {|
   +id: string,
   +name?: ?string,
-  +$refType: ReactRelayFragmentContainerTestUserFragment$fragmentType,
   +$fragmentType: ReactRelayFragmentContainerTestUserFragment$fragmentType,
 |};
 export type ReactRelayFragmentContainerTestUserFragment = ReactRelayFragmentContainerTestUserFragment$data;
 export type ReactRelayFragmentContainerTestUserFragment$key = {
   +$data?: ReactRelayFragmentContainerTestUserFragment$data,
-  +$fragmentRefs: ReactRelayFragmentContainerTestUserFragment$fragmentType,
   +$fragmentSpreads: ReactRelayFragmentContainerTestUserFragment$fragmentType,
   ...
 };

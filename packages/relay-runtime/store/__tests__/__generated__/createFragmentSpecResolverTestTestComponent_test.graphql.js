@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<295ad11f090cca77b0af354289e9dece>>
+ * @generated SignedSource<<fe2644c493ad949346f7d20eba734976>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,13 +21,11 @@ declare export opaque type createFragmentSpecResolverTestTestComponent_test$frag
 export type createFragmentSpecResolverTestTestComponent_test$ref = createFragmentSpecResolverTestTestComponent_test$fragmentType;
 export type createFragmentSpecResolverTestTestComponent_test$data = {|
   +id: string,
-  +$refType: createFragmentSpecResolverTestTestComponent_test$fragmentType,
   +$fragmentType: createFragmentSpecResolverTestTestComponent_test$fragmentType,
 |};
 export type createFragmentSpecResolverTestTestComponent_test = createFragmentSpecResolverTestTestComponent_test$data;
 export type createFragmentSpecResolverTestTestComponent_test$key = {
   +$data?: createFragmentSpecResolverTestTestComponent_test$data,
-  +$fragmentRefs: createFragmentSpecResolverTestTestComponent_test$fragmentType,
   +$fragmentSpreads: createFragmentSpecResolverTestTestComponent_test$fragmentType,
   ...
 };

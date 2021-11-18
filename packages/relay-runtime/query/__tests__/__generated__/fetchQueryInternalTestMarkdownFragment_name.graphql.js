@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<fcae042811e88083b5a607eba5931425>>
+ * @generated SignedSource<<831d7982bd7bfe7ff2651f597ea755c7>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -25,13 +25,11 @@ export type fetchQueryInternalTestMarkdownFragment_name$data = {|
     +markup: ?string,
   |},
   +__typename: "MarkdownUserNameRenderer",
-  +$refType: fetchQueryInternalTestMarkdownFragment_name$fragmentType,
   +$fragmentType: fetchQueryInternalTestMarkdownFragment_name$fragmentType,
 |};
 export type fetchQueryInternalTestMarkdownFragment_name = fetchQueryInternalTestMarkdownFragment_name$data;
 export type fetchQueryInternalTestMarkdownFragment_name$key = {
   +$data?: fetchQueryInternalTestMarkdownFragment_name$data,
-  +$fragmentRefs: fetchQueryInternalTestMarkdownFragment_name$fragmentType,
   +$fragmentSpreads: fetchQueryInternalTestMarkdownFragment_name$fragmentType,
   ...
 };

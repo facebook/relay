@@ -43,14 +43,9 @@ impl Writer for FlowPrinter {
                 self.write_local_3d_payload(*document_name, selections)
             }
             AST::FragmentReference(fragments) => self.write_fragment_references(fragments),
-            AST::FragmentReferenceType(fragment) => match self.flow_typegen_phase {
-                FlowTypegenPhase::Old | FlowTypegenPhase::Phase1 => {
-                    write!(&mut self.result, "{}$ref", fragment)
-                }
-                _ => {
-                    write!(&mut self.result, "{}$fragmentType", fragment)
-                }
-            },
+            AST::FragmentReferenceType(fragment) => {
+                write!(&mut self.result, "{}$fragmentType", fragment)
+            }
             AST::FunctionReturnType(function_name) => {
                 self.write_function_return_type(*function_name)
             }
@@ -59,10 +54,7 @@ impl Writer for FlowPrinter {
     }
 
     fn get_runtime_fragment_import(&self) -> &'static str {
-        match self.flow_typegen_phase {
-            FlowTypegenPhase::Old => "FragmentReference",
-            _ => "FragmentType",
-        }
+        "FragmentType"
     }
 
     fn write_export_type(&mut self, name: &str, value: &AST) -> Result {
@@ -90,17 +82,7 @@ impl Writer for FlowPrinter {
 
     fn write_export_fragment_type(&mut self, old_name: &str, new_name: &str) -> Result {
         match self.flow_typegen_phase {
-            FlowTypegenPhase::Old => writeln!(
-                &mut self.result,
-                "declare export opaque type {old_name}: FragmentReference;
-declare export opaque type {new_name}: {old_name};",
-                old_name = old_name,
-                new_name = new_name
-            ),
-            FlowTypegenPhase::Phase1
-            | FlowTypegenPhase::Phase2
-            | FlowTypegenPhase::Phase3
-            | FlowTypegenPhase::Phase4 => {
+            FlowTypegenPhase::Phase3 | FlowTypegenPhase::Phase4 => {
                 writeln!(
                     &mut self.result,
                     "declare export opaque type {new_name}: FragmentType;
@@ -176,14 +158,7 @@ impl FlowPrinter {
             } else {
                 write!(&mut self.result, " & ")?;
             }
-            match self.flow_typegen_phase {
-                FlowTypegenPhase::Old | FlowTypegenPhase::Phase1 => {
-                    write!(&mut self.result, "{}$ref", fragment)?;
-                }
-                _ => {
-                    write!(&mut self.result, "{}$fragmentType", fragment)?;
-                }
-            }
+            write!(&mut self.result, "{}$fragmentType", fragment)?;
         }
         Ok(())
     }

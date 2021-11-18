@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<ee3b9d2b116ee2a5b71a41fc7eeeef5e>>
+ * @generated SignedSource<<9ea30158fb2ba5956496de5403cbd5cc>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,13 +21,11 @@ declare export opaque type requestSubscriptionTestExtraFragment$fragmentType: Fr
 export type requestSubscriptionTestExtraFragment$ref = requestSubscriptionTestExtraFragment$fragmentType;
 export type requestSubscriptionTestExtraFragment$data = {|
   +isEnabled: ?boolean,
-  +$refType: requestSubscriptionTestExtraFragment$fragmentType,
   +$fragmentType: requestSubscriptionTestExtraFragment$fragmentType,
 |};
 export type requestSubscriptionTestExtraFragment = requestSubscriptionTestExtraFragment$data;
 export type requestSubscriptionTestExtraFragment$key = {
   +$data?: requestSubscriptionTestExtraFragment$data,
-  +$fragmentRefs: requestSubscriptionTestExtraFragment$fragmentType,
   +$fragmentSpreads: requestSubscriptionTestExtraFragment$fragmentType,
   ...
 };

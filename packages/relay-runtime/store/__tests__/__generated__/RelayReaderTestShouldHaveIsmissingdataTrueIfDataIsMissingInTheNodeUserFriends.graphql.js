@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<d4059d54206c0ace74f2bcd94f075f31>>
+ * @generated SignedSource<<40130c74380fd0ba7a40f4a410da39a7>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -30,13 +30,11 @@ export type RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingInTheNodeUs
       |},
     |}>,
   |},
-  +$refType: RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingInTheNodeUserFriends$fragmentType,
   +$fragmentType: RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingInTheNodeUserFriends$fragmentType,
 |};
 export type RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingInTheNodeUserFriends = RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingInTheNodeUserFriends$data;
 export type RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingInTheNodeUserFriends$key = {
   +$data?: RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingInTheNodeUserFriends$data,
-  +$fragmentRefs: RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingInTheNodeUserFriends$fragmentType,
   +$fragmentSpreads: RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingInTheNodeUserFriends$fragmentType,
   ...
 };

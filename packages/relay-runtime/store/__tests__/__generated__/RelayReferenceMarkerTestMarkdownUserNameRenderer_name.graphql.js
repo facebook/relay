@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<292cede192237f9dc8bd62fc0d0b4718>>
+ * @generated SignedSource<<f6c2699f52eb554f13cc44dbb04beb92>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,13 +24,11 @@ export type RelayReferenceMarkerTestMarkdownUserNameRenderer_name$data = {|
   +data: ?{|
     +markup: ?string,
   |},
-  +$refType: RelayReferenceMarkerTestMarkdownUserNameRenderer_name$fragmentType,
   +$fragmentType: RelayReferenceMarkerTestMarkdownUserNameRenderer_name$fragmentType,
 |};
 export type RelayReferenceMarkerTestMarkdownUserNameRenderer_name = RelayReferenceMarkerTestMarkdownUserNameRenderer_name$data;
 export type RelayReferenceMarkerTestMarkdownUserNameRenderer_name$key = {
   +$data?: RelayReferenceMarkerTestMarkdownUserNameRenderer_name$data,
-  +$fragmentRefs: RelayReferenceMarkerTestMarkdownUserNameRenderer_name$fragmentType,
   +$fragmentSpreads: RelayReferenceMarkerTestMarkdownUserNameRenderer_name$fragmentType,
   ...
 };

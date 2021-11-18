@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<ac8c45daea8e4909c42d980f6332ce70>>
+ * @generated SignedSource<<a27e98f64e2eeb266d65f748559f4b3c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,13 +23,11 @@ export type RelayMockPayloadGeneratorTest18Fragment$data = {|
   +id: string,
   +name: ?string,
   +username: ?string,
-  +$refType: RelayMockPayloadGeneratorTest18Fragment$fragmentType,
   +$fragmentType: RelayMockPayloadGeneratorTest18Fragment$fragmentType,
 |};
 export type RelayMockPayloadGeneratorTest18Fragment = RelayMockPayloadGeneratorTest18Fragment$data;
 export type RelayMockPayloadGeneratorTest18Fragment$key = {
   +$data?: RelayMockPayloadGeneratorTest18Fragment$data,
-  +$fragmentRefs: RelayMockPayloadGeneratorTest18Fragment$fragmentType,
   +$fragmentSpreads: RelayMockPayloadGeneratorTest18Fragment$fragmentType,
   ...
 };

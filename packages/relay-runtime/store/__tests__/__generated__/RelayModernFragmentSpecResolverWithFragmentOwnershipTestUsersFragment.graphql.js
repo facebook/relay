@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<258e02650490344a7af62ce57e4a983d>>
+ * @generated SignedSource<<e750889a1bcf445568527b0bf1681857>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -28,13 +28,11 @@ export type RelayModernFragmentSpecResolverWithFragmentOwnershipTestUsersFragmen
   |},
   +$fragmentRefs: RelayModernFragmentSpecResolverWithFragmentOwnershipTestNestedUserFragment$fragmentType,
   +$fragmentSpreads: RelayModernFragmentSpecResolverWithFragmentOwnershipTestNestedUserFragment$fragmentType,
-  +$refType: RelayModernFragmentSpecResolverWithFragmentOwnershipTestUsersFragment$fragmentType,
   +$fragmentType: RelayModernFragmentSpecResolverWithFragmentOwnershipTestUsersFragment$fragmentType,
 |}>;
 export type RelayModernFragmentSpecResolverWithFragmentOwnershipTestUsersFragment = RelayModernFragmentSpecResolverWithFragmentOwnershipTestUsersFragment$data;
 export type RelayModernFragmentSpecResolverWithFragmentOwnershipTestUsersFragment$key = $ReadOnlyArray<{
   +$data?: RelayModernFragmentSpecResolverWithFragmentOwnershipTestUsersFragment$data,
-  +$fragmentRefs: RelayModernFragmentSpecResolverWithFragmentOwnershipTestUsersFragment$fragmentType,
   +$fragmentSpreads: RelayModernFragmentSpecResolverWithFragmentOwnershipTestUsersFragment$fragmentType,
   ...
 }>;

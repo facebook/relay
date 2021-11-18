@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<67c81632203e6e7fe1a5ca6bf9e215d5>>
+ * @generated SignedSource<<f23035482041930abf679df936b05548>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -25,13 +25,11 @@ export type RelayModernEnvironmentExecuteWithOverlappingModuleTestMarkdownUserNa
     +markup: ?string,
   |},
   +__typename: "MarkdownUserNameRenderer",
-  +$refType: RelayModernEnvironmentExecuteWithOverlappingModuleTestMarkdownUserNameRenderer_name$fragmentType,
   +$fragmentType: RelayModernEnvironmentExecuteWithOverlappingModuleTestMarkdownUserNameRenderer_name$fragmentType,
 |};
 export type RelayModernEnvironmentExecuteWithOverlappingModuleTestMarkdownUserNameRenderer_name = RelayModernEnvironmentExecuteWithOverlappingModuleTestMarkdownUserNameRenderer_name$data;
 export type RelayModernEnvironmentExecuteWithOverlappingModuleTestMarkdownUserNameRenderer_name$key = {
   +$data?: RelayModernEnvironmentExecuteWithOverlappingModuleTestMarkdownUserNameRenderer_name$data,
-  +$fragmentRefs: RelayModernEnvironmentExecuteWithOverlappingModuleTestMarkdownUserNameRenderer_name$fragmentType,
   +$fragmentSpreads: RelayModernEnvironmentExecuteWithOverlappingModuleTestMarkdownUserNameRenderer_name$fragmentType,
   ...
 };

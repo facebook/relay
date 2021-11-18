@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<f06e18aa4f387c41b633a5c4c5fdccc6>>
+ * @generated SignedSource<<01ca1a9591f654f6e69a8902cb8b797f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,13 +24,11 @@ export type commitMutationTest1Fragment$data = {|
   +body: ?{|
     +text: ?string,
   |},
-  +$refType: commitMutationTest1Fragment$fragmentType,
   +$fragmentType: commitMutationTest1Fragment$fragmentType,
 |};
 export type commitMutationTest1Fragment = commitMutationTest1Fragment$data;
 export type commitMutationTest1Fragment$key = {
   +$data?: commitMutationTest1Fragment$data,
-  +$fragmentRefs: commitMutationTest1Fragment$fragmentType,
   +$fragmentSpreads: commitMutationTest1Fragment$fragmentType,
   ...
 };

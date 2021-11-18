@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<ef59e32e819e734854d57871dd20406c>>
+ * @generated SignedSource<<caa615b97dbc563b964176816882386d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,13 +21,11 @@ declare export opaque type useFragmentNodeTestNestedUserFragment$fragmentType: F
 export type useFragmentNodeTestNestedUserFragment$ref = useFragmentNodeTestNestedUserFragment$fragmentType;
 export type useFragmentNodeTestNestedUserFragment$data = {|
   +username: ?string,
-  +$refType: useFragmentNodeTestNestedUserFragment$fragmentType,
   +$fragmentType: useFragmentNodeTestNestedUserFragment$fragmentType,
 |};
 export type useFragmentNodeTestNestedUserFragment = useFragmentNodeTestNestedUserFragment$data;
 export type useFragmentNodeTestNestedUserFragment$key = {
   +$data?: useFragmentNodeTestNestedUserFragment$data,
-  +$fragmentRefs: useFragmentNodeTestNestedUserFragment$fragmentType,
   +$fragmentSpreads: useFragmentNodeTestNestedUserFragment$fragmentType,
   ...
 };

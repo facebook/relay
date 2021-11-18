@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<e5509d6a8c9ee32c08a4f7a6628f143c>>
+ * @generated SignedSource<<352f3e2ebc8f00d3ef69826984e485e8>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,13 +21,11 @@ declare export opaque type RelayModernStoreTest4Fragment$fragmentType: FragmentT
 export type RelayModernStoreTest4Fragment$ref = RelayModernStoreTest4Fragment$fragmentType;
 export type RelayModernStoreTest4Fragment$data = {|
   +username: ?string,
-  +$refType: RelayModernStoreTest4Fragment$fragmentType,
   +$fragmentType: RelayModernStoreTest4Fragment$fragmentType,
 |};
 export type RelayModernStoreTest4Fragment = RelayModernStoreTest4Fragment$data;
 export type RelayModernStoreTest4Fragment$key = {
   +$data?: RelayModernStoreTest4Fragment$data,
-  +$fragmentRefs: RelayModernStoreTest4Fragment$fragmentType,
   +$fragmentSpreads: RelayModernStoreTest4Fragment$fragmentType,
   ...
 };

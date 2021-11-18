@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<bdec352157606826985b15cfc72c623c>>
+ * @generated SignedSource<<652c1a4a339d28f60bc7902c21cc92fa>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -29,13 +29,11 @@ export type useRefetchableFragmentTestUserFragment$data = {|
   |},
   +$fragmentRefs: useRefetchableFragmentTestNestedUserFragment$fragmentType,
   +$fragmentSpreads: useRefetchableFragmentTestNestedUserFragment$fragmentType,
-  +$refType: useRefetchableFragmentTestUserFragment$fragmentType,
   +$fragmentType: useRefetchableFragmentTestUserFragment$fragmentType,
 |};
 export type useRefetchableFragmentTestUserFragment = useRefetchableFragmentTestUserFragment$data;
 export type useRefetchableFragmentTestUserFragment$key = {
   +$data?: useRefetchableFragmentTestUserFragment$data,
-  +$fragmentRefs: useRefetchableFragmentTestUserFragment$fragmentType,
   +$fragmentSpreads: useRefetchableFragmentTestUserFragment$fragmentType,
   ...
 };

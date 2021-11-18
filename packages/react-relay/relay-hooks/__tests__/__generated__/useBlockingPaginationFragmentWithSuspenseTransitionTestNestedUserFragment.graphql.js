@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<86d738be33bf0994aa8be9f606c00e39>>
+ * @generated SignedSource<<3f9b14e1c82f19035910b5e2d2c71d0d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,13 +21,11 @@ declare export opaque type useBlockingPaginationFragmentWithSuspenseTransitionTe
 export type useBlockingPaginationFragmentWithSuspenseTransitionTestNestedUserFragment$ref = useBlockingPaginationFragmentWithSuspenseTransitionTestNestedUserFragment$fragmentType;
 export type useBlockingPaginationFragmentWithSuspenseTransitionTestNestedUserFragment$data = {|
   +username: ?string,
-  +$refType: useBlockingPaginationFragmentWithSuspenseTransitionTestNestedUserFragment$fragmentType,
   +$fragmentType: useBlockingPaginationFragmentWithSuspenseTransitionTestNestedUserFragment$fragmentType,
 |};
 export type useBlockingPaginationFragmentWithSuspenseTransitionTestNestedUserFragment = useBlockingPaginationFragmentWithSuspenseTransitionTestNestedUserFragment$data;
 export type useBlockingPaginationFragmentWithSuspenseTransitionTestNestedUserFragment$key = {
   +$data?: useBlockingPaginationFragmentWithSuspenseTransitionTestNestedUserFragment$data,
-  +$fragmentRefs: useBlockingPaginationFragmentWithSuspenseTransitionTestNestedUserFragment$fragmentType,
   +$fragmentSpreads: useBlockingPaginationFragmentWithSuspenseTransitionTestNestedUserFragment$fragmentType,
   ...
 };

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<fefb58d3cf61f72fd6b7cd664df074c4>>
+ * @generated SignedSource<<d47c9cd1328d259c20d497785c7b66b9>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,13 +21,11 @@ declare export opaque type RelayReaderTestWhenMatchDirectiveIsPresentNoModulePla
 export type RelayReaderTestWhenMatchDirectiveIsPresentNoModulePlainUserNameRenderer_name$ref = RelayReaderTestWhenMatchDirectiveIsPresentNoModulePlainUserNameRenderer_name$fragmentType;
 export type RelayReaderTestWhenMatchDirectiveIsPresentNoModulePlainUserNameRenderer_name$data = {|
   +plaintext: ?string,
-  +$refType: RelayReaderTestWhenMatchDirectiveIsPresentNoModulePlainUserNameRenderer_name$fragmentType,
   +$fragmentType: RelayReaderTestWhenMatchDirectiveIsPresentNoModulePlainUserNameRenderer_name$fragmentType,
 |};
 export type RelayReaderTestWhenMatchDirectiveIsPresentNoModulePlainUserNameRenderer_name = RelayReaderTestWhenMatchDirectiveIsPresentNoModulePlainUserNameRenderer_name$data;
 export type RelayReaderTestWhenMatchDirectiveIsPresentNoModulePlainUserNameRenderer_name$key = {
   +$data?: RelayReaderTestWhenMatchDirectiveIsPresentNoModulePlainUserNameRenderer_name$data,
-  +$fragmentRefs: RelayReaderTestWhenMatchDirectiveIsPresentNoModulePlainUserNameRenderer_name$fragmentType,
   +$fragmentSpreads: RelayReaderTestWhenMatchDirectiveIsPresentNoModulePlainUserNameRenderer_name$fragmentType,
   ...
 };

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<79811fcbb8959ca2b285495ed30cc26e>>
+ * @generated SignedSource<<91d97efda5eaaa2f60bdb3e2e5147304>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -30,13 +30,11 @@ export type usePaginationFragmentTestStoryFragment$data = {|
   |},
   +fetch_id: string,
   +__token: string,
-  +$refType: usePaginationFragmentTestStoryFragment$fragmentType,
   +$fragmentType: usePaginationFragmentTestStoryFragment$fragmentType,
 |};
 export type usePaginationFragmentTestStoryFragment = usePaginationFragmentTestStoryFragment$data;
 export type usePaginationFragmentTestStoryFragment$key = {
   +$data?: usePaginationFragmentTestStoryFragment$data,
-  +$fragmentRefs: usePaginationFragmentTestStoryFragment$fragmentType,
   +$fragmentSpreads: usePaginationFragmentTestStoryFragment$fragmentType,
   ...
 };

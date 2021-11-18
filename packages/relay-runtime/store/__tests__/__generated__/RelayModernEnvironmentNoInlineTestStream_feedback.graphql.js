@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<17abaa7995614729c5e92367c3afb72c>>
+ * @generated SignedSource<<f115443d08bdd268bdfd9157a154eddd>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,13 +23,11 @@ export type RelayModernEnvironmentNoInlineTestStream_feedback$data = {|
   +actors: ?$ReadOnlyArray<?{|
     +name?: ?string,
   |}>,
-  +$refType: RelayModernEnvironmentNoInlineTestStream_feedback$fragmentType,
   +$fragmentType: RelayModernEnvironmentNoInlineTestStream_feedback$fragmentType,
 |};
 export type RelayModernEnvironmentNoInlineTestStream_feedback = RelayModernEnvironmentNoInlineTestStream_feedback$data;
 export type RelayModernEnvironmentNoInlineTestStream_feedback$key = {
   +$data?: RelayModernEnvironmentNoInlineTestStream_feedback$data,
-  +$fragmentRefs: RelayModernEnvironmentNoInlineTestStream_feedback$fragmentType,
   +$fragmentSpreads: RelayModernEnvironmentNoInlineTestStream_feedback$fragmentType,
   ...
 };

@@ -34,7 +34,6 @@ test('testResolver', () => {
   const input = {
     name: 'Elizabeth',
     $fragmentType: (null: any),
-    $refType: (null: any),
   };
   const actual = testResolver(myTestResolver, input);
   expect(actual).toBe('Hello Elizabeth!');

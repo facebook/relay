@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<906a745cffbc39f59ce2f781b18f779e>>
+ * @generated SignedSource<<6c037f62da4c93a2e13a1444412cb5b7>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -31,13 +31,11 @@ export type DataCheckerTest4Fragment$data = {|
     +$fragmentRefs: DataCheckerTestPlainUserNameRenderer_nameFragment$fragmentType & DataCheckerTestMarkdownUserNameRenderer_nameFragment$fragmentType,
     +$fragmentSpreads: DataCheckerTestPlainUserNameRenderer_nameFragment$fragmentType & DataCheckerTestMarkdownUserNameRenderer_nameFragment$fragmentType,
   |},
-  +$refType: DataCheckerTest4Fragment$fragmentType,
   +$fragmentType: DataCheckerTest4Fragment$fragmentType,
 |};
 export type DataCheckerTest4Fragment = DataCheckerTest4Fragment$data;
 export type DataCheckerTest4Fragment$key = {
   +$data?: DataCheckerTest4Fragment$data,
-  +$fragmentRefs: DataCheckerTest4Fragment$fragmentType,
   +$fragmentSpreads: DataCheckerTest4Fragment$fragmentType,
   ...
 };

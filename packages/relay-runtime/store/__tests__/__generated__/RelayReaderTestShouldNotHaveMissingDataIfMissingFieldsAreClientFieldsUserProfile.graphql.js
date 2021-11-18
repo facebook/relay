@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<8dc0594ecd9e5042a30687faf5927b5c>>
+ * @generated SignedSource<<458285f5f40216367a323def2d47f530>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -57,13 +57,11 @@ export type RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientField
       |},
     |}>,
   |},
-  +$refType: RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserProfile$fragmentType,
   +$fragmentType: RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserProfile$fragmentType,
 |};
 export type RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserProfile = RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserProfile$data;
 export type RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserProfile$key = {
   +$data?: RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserProfile$data,
-  +$fragmentRefs: RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserProfile$fragmentType,
   +$fragmentSpreads: RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserProfile$fragmentType,
   ...
 };

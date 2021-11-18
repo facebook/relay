@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<c01827caee8e26d42e2f2a4842d70579>>
+ * @generated SignedSource<<4b9d02de56ab3ee106773bb082ab1307>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,13 +21,11 @@ declare export opaque type RelayReaderTestReadScalarProfile$fragmentType: Fragme
 export type RelayReaderTestReadScalarProfile$ref = RelayReaderTestReadScalarProfile$fragmentType;
 export type RelayReaderTestReadScalarProfile$data = {|
   +id: string,
-  +$refType: RelayReaderTestReadScalarProfile$fragmentType,
   +$fragmentType: RelayReaderTestReadScalarProfile$fragmentType,
 |};
 export type RelayReaderTestReadScalarProfile = RelayReaderTestReadScalarProfile$data;
 export type RelayReaderTestReadScalarProfile$key = {
   +$data?: RelayReaderTestReadScalarProfile$data,
-  +$fragmentRefs: RelayReaderTestReadScalarProfile$fragmentType,
   +$fragmentSpreads: RelayReaderTestReadScalarProfile$fragmentType,
   ...
 };

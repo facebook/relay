@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<1112109431f52e270db01fe771531262>>
+ * @generated SignedSource<<6451af36369b71ee28159252d6eee299>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,13 +23,11 @@ export type RelayModernEnvironmentExecuteWithDeferWithinModuleTestActor_actor$re
 export type RelayModernEnvironmentExecuteWithDeferWithinModuleTestActor_actor$data = {|
   +$fragmentRefs: RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user$fragmentType,
   +$fragmentSpreads: RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user$fragmentType,
-  +$refType: RelayModernEnvironmentExecuteWithDeferWithinModuleTestActor_actor$fragmentType,
   +$fragmentType: RelayModernEnvironmentExecuteWithDeferWithinModuleTestActor_actor$fragmentType,
 |};
 export type RelayModernEnvironmentExecuteWithDeferWithinModuleTestActor_actor = RelayModernEnvironmentExecuteWithDeferWithinModuleTestActor_actor$data;
 export type RelayModernEnvironmentExecuteWithDeferWithinModuleTestActor_actor$key = {
   +$data?: RelayModernEnvironmentExecuteWithDeferWithinModuleTestActor_actor$data,
-  +$fragmentRefs: RelayModernEnvironmentExecuteWithDeferWithinModuleTestActor_actor$fragmentType,
   +$fragmentSpreads: RelayModernEnvironmentExecuteWithDeferWithinModuleTestActor_actor$fragmentType,
   ...
 };

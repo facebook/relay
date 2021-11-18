@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<81da5432503882afccd36a787f598b8a>>
+ * @generated SignedSource<<3d3ce2da956cc1e8772a5955e36dece6>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,13 +21,11 @@ declare export opaque type RelayReaderTestWhenMatchDirectiveIsPresentMarkdownUse
 export type RelayReaderTestWhenMatchDirectiveIsPresentMarkdownUserNameRenderer_name$ref = RelayReaderTestWhenMatchDirectiveIsPresentMarkdownUserNameRenderer_name$fragmentType;
 export type RelayReaderTestWhenMatchDirectiveIsPresentMarkdownUserNameRenderer_name$data = {|
   +markdown: ?string,
-  +$refType: RelayReaderTestWhenMatchDirectiveIsPresentMarkdownUserNameRenderer_name$fragmentType,
   +$fragmentType: RelayReaderTestWhenMatchDirectiveIsPresentMarkdownUserNameRenderer_name$fragmentType,
 |};
 export type RelayReaderTestWhenMatchDirectiveIsPresentMarkdownUserNameRenderer_name = RelayReaderTestWhenMatchDirectiveIsPresentMarkdownUserNameRenderer_name$data;
 export type RelayReaderTestWhenMatchDirectiveIsPresentMarkdownUserNameRenderer_name$key = {
   +$data?: RelayReaderTestWhenMatchDirectiveIsPresentMarkdownUserNameRenderer_name$data,
-  +$fragmentRefs: RelayReaderTestWhenMatchDirectiveIsPresentMarkdownUserNameRenderer_name$fragmentType,
   +$fragmentSpreads: RelayReaderTestWhenMatchDirectiveIsPresentMarkdownUserNameRenderer_name$fragmentType,
   ...
 };

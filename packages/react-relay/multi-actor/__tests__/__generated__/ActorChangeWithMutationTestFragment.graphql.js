@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<42e3acd12eaa16f1bb9da3875e2c73f7>>
+ * @generated SignedSource<<c6b2bb13e4ba16e56d77e51fe8ac89f4>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -25,13 +25,11 @@ export type ActorChangeWithMutationTestFragment$data = {|
     +id: string,
     +name: ?string,
   |},
-  +$refType: ActorChangeWithMutationTestFragment$fragmentType,
   +$fragmentType: ActorChangeWithMutationTestFragment$fragmentType,
 |};
 export type ActorChangeWithMutationTestFragment = ActorChangeWithMutationTestFragment$data;
 export type ActorChangeWithMutationTestFragment$key = {
   +$data?: ActorChangeWithMutationTestFragment$data,
-  +$fragmentRefs: ActorChangeWithMutationTestFragment$fragmentType,
   +$fragmentSpreads: ActorChangeWithMutationTestFragment$fragmentType,
   ...
 };

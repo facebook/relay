@@ -32,7 +32,6 @@ function myTestResolver(rootKey: RelayResolverTestUtilsFlowTest$key): string {
 
 testResolver(myTestResolver, {
   name: 'Elizabeth',
-  $refType: (null: any),
   $fragmentType: (null: any),
 });
 
@@ -49,6 +48,5 @@ testResolver(
 testResolver(myTestResolver, {
   // $FlowExpectedError Object is not a string
   name: {},
-  $refType: (null: any),
   $fragmentType: (null: any),
 });

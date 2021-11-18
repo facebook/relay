@@ -11,13 +11,11 @@ use graphql_ir::{Directive, FragmentDefinition, OperationDefinition};
 use graphql_syntax::OperationKind;
 use relay_codegen::{build_request_params, Printer, QueryID};
 use relay_transforms::{
-    is_operation_preloadable, ReactFlightLocalComponentsMetadata, RefetchableDerivedFromMetadata,
-    RefetchableMetadata, RelayClientComponentMetadata, DATA_DRIVEN_DEPENDENCY_METADATA_KEY,
-    INLINE_DIRECTIVE_NAME,
+    is_operation_preloadable, ReactFlightLocalComponentsMetadata, RefetchableMetadata,
+    RelayClientComponentMetadata, DATA_DRIVEN_DEPENDENCY_METADATA_KEY, INLINE_DIRECTIVE_NAME,
 };
 use relay_typegen::{
-    generate_fragment_type, has_raw_response_type_directive, FlowTypegenPhase, TypegenConfig,
-    TypegenLanguage,
+    generate_fragment_type, has_raw_response_type_directive, TypegenConfig, TypegenLanguage,
 };
 use schema::SDLSchema;
 use signedsource::{sign_file, SIGNING_TOKEN};
@@ -247,40 +245,22 @@ fn generate_operation(
         OperationKind::Subscription => "GraphQLSubscription",
     };
 
-    let rollout_key = RefetchableDerivedFromMetadata::find(&typegen_operation.directives)
-        .map_or(typegen_operation.name.item, |metadata| metadata.0);
-    let flow_typegen_phase = project_config
-        .typegen_config
-        .flow_typegen
-        .phase(rollout_key);
-
-    match flow_typegen_phase {
-        FlowTypegenPhase::Old => write_import_type_from(
+    if skip_types {
+        write_import_type_from(
             &project_config.typegen_config.language,
             &mut content,
             "ConcreteRequest",
             "relay-runtime",
         )
-        .unwrap(),
-        _ => {
-            if skip_types {
-                write_import_type_from(
-                    &project_config.typegen_config.language,
-                    &mut content,
-                    "ConcreteRequest",
-                    "relay-runtime",
-                )
-                .unwrap()
-            } else {
-                write_import_type_from(
-                    &project_config.typegen_config.language,
-                    &mut content,
-                    &format!("ConcreteRequest, {}", operation_flow_type),
-                    "relay-runtime",
-                )
-                .unwrap()
-            }
-        }
+        .unwrap()
+    } else {
+        write_import_type_from(
+            &project_config.typegen_config.language,
+            &mut content,
+            &format!("ConcreteRequest, {}", operation_flow_type),
+            "relay-runtime",
+        )
+        .unwrap()
     }
 
 
@@ -337,29 +317,24 @@ fn generate_operation(
         .unwrap();
     }
 
-    let node_type = match flow_typegen_phase {
-        FlowTypegenPhase::Old => None,
-        _ => {
-            if skip_types {
-                None
-            } else {
-                Some(
-                    if has_raw_response_type_directive(normalization_operation) {
-                        format!(
-                            "{type}<\n  {name}$variables,\n  {name}$data,\n  {name}$rawResponse,\n>",
-                            type = operation_flow_type,
-                            name = normalization_operation.name.item
-                        )
-                    } else {
-                        format!(
-                            "{type}<\n  {name}$variables,\n  {name}$data,\n>",
-                            type = operation_flow_type,
-                            name = normalization_operation.name.item
-                        )
-                    },
+    let node_type = if skip_types {
+        None
+    } else {
+        Some(
+            if has_raw_response_type_directive(normalization_operation) {
+                format!(
+                    "{type}<\n  {name}$variables,\n  {name}$data,\n  {name}$rawResponse,\n>",
+                    type = operation_flow_type,
+                    name = normalization_operation.name.item
                 )
-            }
-        }
+            } else {
+                format!(
+                    "{type}<\n  {name}$variables,\n  {name}$data,\n>",
+                    type = operation_flow_type,
+                    name = normalization_operation.name.item
+                )
+            },
+        )
     };
 
     write_export_generated_node(
@@ -505,57 +480,42 @@ fn generate_fragment(
         .named(*INLINE_DIRECTIVE_NAME)
         .is_some();
 
-    let (imported_types, reader_node_flow_type, node_type) = match project_config
-        .typegen_config
-        .flow_typegen
-        .phase(typegen_fragment.name.item)
+    let (imported_types, reader_node_flow_type, node_type) = if skip_types {
+        if is_inline_data_fragment {
+            ("ReaderInlineDataFragment", "ReaderInlineDataFragment", None)
+        } else {
+            ("ReaderFragment", "ReaderFragment", None)
+        }
+    } else if is_inline_data_fragment {
+        (
+            "InlineFragment, ReaderInlineDataFragment",
+            "ReaderInlineDataFragment",
+            Some(format!(
+                "InlineFragment<\n  {name}$fragmentType,\n  {name}$data,\n>",
+                name = typegen_fragment.name.item
+            )),
+        )
+    } else if let Some(refetchable_metadata) =
+        RefetchableMetadata::find(&typegen_fragment.directives)
     {
-        FlowTypegenPhase::Old => {
-            if is_inline_data_fragment {
-                ("ReaderInlineDataFragment", "ReaderInlineDataFragment", None)
-            } else {
-                ("ReaderFragment", "ReaderFragment", None)
-            }
-        }
-        _ => {
-            if skip_types {
-                if is_inline_data_fragment {
-                    ("ReaderInlineDataFragment", "ReaderInlineDataFragment", None)
-                } else {
-                    ("ReaderFragment", "ReaderFragment", None)
-                }
-            } else if is_inline_data_fragment {
-                (
-                    "InlineFragment, ReaderInlineDataFragment",
-                    "ReaderInlineDataFragment",
-                    Some(format!(
-                        "InlineFragment<\n  {name}$fragmentType,\n  {name}$data,\n>",
-                        name = typegen_fragment.name.item
-                    )),
-                )
-            } else if let Some(refetchable_metadata) =
-                RefetchableMetadata::find(&typegen_fragment.directives)
-            {
-                (
-                    "ReaderFragment, RefetchableFragment",
-                    "ReaderFragment",
-                    Some(format!(
-                        "RefetchableFragment<\n  {name}$fragmentType,\n  {name}$data,\n  {refetchable_name}$variables,\n>",
-                        name = typegen_fragment.name.item,
-                        refetchable_name = refetchable_metadata.operation_name
-                    )),
-                )
-            } else {
-                (
-                    "Fragment, ReaderFragment",
-                    "ReaderFragment",
-                    Some(format!(
-                        "Fragment<\n  {name}$fragmentType,\n  {name}$data,\n>",
-                        name = typegen_fragment.name.item
-                    )),
-                )
-            }
-        }
+        (
+            "ReaderFragment, RefetchableFragment",
+            "ReaderFragment",
+            Some(format!(
+                "RefetchableFragment<\n  {name}$fragmentType,\n  {name}$data,\n  {refetchable_name}$variables,\n>",
+                name = typegen_fragment.name.item,
+                refetchable_name = refetchable_metadata.operation_name
+            )),
+        )
+    } else {
+        (
+            "Fragment, ReaderFragment",
+            "ReaderFragment",
+            Some(format!(
+                "Fragment<\n  {name}$fragmentType,\n  {name}$data,\n>",
+                name = typegen_fragment.name.item
+            )),
+        )
     };
 
     if project_config.typegen_config.language == TypegenLanguage::Flow {

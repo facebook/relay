@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<1e7442c9caa5060b8626db89b6473546>>
+ * @generated SignedSource<<95de2197b21c1fe12780db93f1a8e2f5>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,13 +24,11 @@ export type RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommen
   +body: ?{|
     +text: ?string,
   |},
-  +$refType: RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentFragment$fragmentType,
   +$fragmentType: RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentFragment$fragmentType,
 |};
 export type RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentFragment = RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentFragment$data;
 export type RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentFragment$key = {
   +$data?: RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentFragment$data,
-  +$fragmentRefs: RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentFragment$fragmentType,
   +$fragmentSpreads: RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentFragment$fragmentType,
   ...
 };

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<4b48870d736cd7be8510cdf4d2b18ee9>>
+ * @generated SignedSource<<fecd077ad1e7b8883288559ccbf12143>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,13 +21,11 @@ declare export opaque type useEntryPointLoaderReactDoubleEffectsTestUserFragment
 export type useEntryPointLoaderReactDoubleEffectsTestUserFragment$ref = useEntryPointLoaderReactDoubleEffectsTestUserFragment$fragmentType;
 export type useEntryPointLoaderReactDoubleEffectsTestUserFragment$data = {|
   +name: ?string,
-  +$refType: useEntryPointLoaderReactDoubleEffectsTestUserFragment$fragmentType,
   +$fragmentType: useEntryPointLoaderReactDoubleEffectsTestUserFragment$fragmentType,
 |};
 export type useEntryPointLoaderReactDoubleEffectsTestUserFragment = useEntryPointLoaderReactDoubleEffectsTestUserFragment$data;
 export type useEntryPointLoaderReactDoubleEffectsTestUserFragment$key = {
   +$data?: useEntryPointLoaderReactDoubleEffectsTestUserFragment$data,
-  +$fragmentRefs: useEntryPointLoaderReactDoubleEffectsTestUserFragment$fragmentType,
   +$fragmentSpreads: useEntryPointLoaderReactDoubleEffectsTestUserFragment$fragmentType,
   ...
 };

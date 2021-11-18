@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b12578ae87267757443fe6795255062c>>
+ * @generated SignedSource<<88137405f8de7a0ced4a2af2bbf32a29>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,13 +23,11 @@ export type ReactRelayFragmentContainerFlowtest_viewer2$data = {|
   +actor: ?{|
     +id: string,
   |},
-  +$refType: ReactRelayFragmentContainerFlowtest_viewer2$fragmentType,
   +$fragmentType: ReactRelayFragmentContainerFlowtest_viewer2$fragmentType,
 |};
 export type ReactRelayFragmentContainerFlowtest_viewer2 = ReactRelayFragmentContainerFlowtest_viewer2$data;
 export type ReactRelayFragmentContainerFlowtest_viewer2$key = {
   +$data?: ReactRelayFragmentContainerFlowtest_viewer2$data,
-  +$fragmentRefs: ReactRelayFragmentContainerFlowtest_viewer2$fragmentType,
   +$fragmentSpreads: ReactRelayFragmentContainerFlowtest_viewer2$fragmentType,
   ...
 };

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<d96818062b858348fe58eb6c0f2404af>>
+ * @generated SignedSource<<418899048d150d270e7b98305669a3cd>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,13 +23,11 @@ export type RelayMockEnvironmentWithComponentsTestUsefulAwesomenessFragment$data
   +id: string,
   +name: ?string,
   +websites: ?$ReadOnlyArray<?string>,
-  +$refType: RelayMockEnvironmentWithComponentsTestUsefulAwesomenessFragment$fragmentType,
   +$fragmentType: RelayMockEnvironmentWithComponentsTestUsefulAwesomenessFragment$fragmentType,
 |};
 export type RelayMockEnvironmentWithComponentsTestUsefulAwesomenessFragment = RelayMockEnvironmentWithComponentsTestUsefulAwesomenessFragment$data;
 export type RelayMockEnvironmentWithComponentsTestUsefulAwesomenessFragment$key = {
   +$data?: RelayMockEnvironmentWithComponentsTestUsefulAwesomenessFragment$data,
-  +$fragmentRefs: RelayMockEnvironmentWithComponentsTestUsefulAwesomenessFragment$fragmentType,
   +$fragmentSpreads: RelayMockEnvironmentWithComponentsTestUsefulAwesomenessFragment$fragmentType,
   ...
 };

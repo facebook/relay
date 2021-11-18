@@ -240,7 +240,10 @@ impl<'a> TypeGenerator<'a> {
                 self.writer
                     .write_export_type(&old_variables_identifier, &input_variables_type)?;
             }
-            FlowTypegenPhase::Phase1 | FlowTypegenPhase::Phase2 | FlowTypegenPhase::Phase3 => {
+            FlowTypegenPhase::Phase1
+            | FlowTypegenPhase::Phase2
+            | FlowTypegenPhase::Phase3
+            | FlowTypegenPhase::Phase4 => {
                 let new_variables_identifier = format!("{}$variables", typegen_operation.name.item);
                 self.writer
                     .write_export_type(&new_variables_identifier, &input_variables_type)?;
@@ -264,7 +267,10 @@ impl<'a> TypeGenerator<'a> {
                     .write_export_type(&old_response_identifier, &response_type)?;
                 old_response_identifier
             }
-            FlowTypegenPhase::Phase1 | FlowTypegenPhase::Phase2 | FlowTypegenPhase::Phase3 => {
+            FlowTypegenPhase::Phase1
+            | FlowTypegenPhase::Phase2
+            | FlowTypegenPhase::Phase3
+            | FlowTypegenPhase::Phase4 => {
                 let new_response_identifier = format!("{}$data", typegen_operation.name.item);
                 let old_response_identifier = format!("{}Response", typegen_operation.name.item);
                 self.writer
@@ -287,7 +293,8 @@ impl<'a> TypeGenerator<'a> {
             FlowTypegenPhase::Old
             | FlowTypegenPhase::Phase1
             | FlowTypegenPhase::Phase2
-            | FlowTypegenPhase::Phase3 => {
+            | FlowTypegenPhase::Phase3
+            | FlowTypegenPhase::Phase4 => {
                 let mut operation_types = vec![
                     Prop::KeyValuePair(KeyValuePairProp {
                         key: *VARIABLES,
@@ -431,7 +438,7 @@ impl<'a> TypeGenerator<'a> {
                 ref_type_fragment_ref_property(),
                 ref_type_fragment_spreads_property,
             ],
-            FlowTypegenPhase::Phase3 | FlowTypegenPhase::Final => {
+            _ => {
                 vec![ref_type_data_property, ref_type_fragment_spreads_property]
             }
         });
@@ -522,7 +529,10 @@ impl<'a> TypeGenerator<'a> {
                 self.writer
                     .write_export_type(&data_type_name, &AST::Identifier(data_type))?;
             }
-            FlowTypegenPhase::Phase1 | FlowTypegenPhase::Phase2 | FlowTypegenPhase::Phase3 => {
+            FlowTypegenPhase::Phase1
+            | FlowTypegenPhase::Phase2
+            | FlowTypegenPhase::Phase3
+            | FlowTypegenPhase::Phase4 => {
                 self.writer.write_export_type(&data_type_name, &type_)?;
                 self.writer.write_export_type(
                     data_type.lookup(),
@@ -960,7 +970,9 @@ impl<'a> TypeGenerator<'a> {
                                     value: AST::FragmentReferenceType(fragment_type_name),
                                 }));
                             }
-                            FlowTypegenPhase::Phase3 | FlowTypegenPhase::Final => {
+                            FlowTypegenPhase::Phase3
+                            | FlowTypegenPhase::Phase4
+                            | FlowTypegenPhase::Final => {
                                 props.push(Prop::KeyValuePair(KeyValuePairProp {
                                     key: *KEY_FRAGMENT_TYPE,
                                     optional: false,
@@ -1791,7 +1803,7 @@ fn group_refs(
                             .get_or_insert_with(Vec::new)
                             .push(inline_fragment.fragment_name);
                     }
-                    FlowTypegenPhase::Final => {
+                    _ => {
                         new_refs
                             .get_or_insert_with(Vec::new)
                             .push(inline_fragment.fragment_name);
@@ -1812,7 +1824,7 @@ fn group_refs(
                             .get_or_insert_with(Vec::new)
                             .push(inline_fragment.fragment_name);
                     }
-                    FlowTypegenPhase::Final => {
+                    _ => {
                         new_refs
                             .get_or_insert_with(Vec::new)
                             .push(inline_fragment.fragment_name);

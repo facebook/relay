@@ -97,7 +97,10 @@ declare export opaque type {new_name}: {old_name};",
                 old_name = old_name,
                 new_name = new_name
             ),
-            FlowTypegenPhase::Phase1 | FlowTypegenPhase::Phase2 | FlowTypegenPhase::Phase3 => {
+            FlowTypegenPhase::Phase1
+            | FlowTypegenPhase::Phase2
+            | FlowTypegenPhase::Phase3
+            | FlowTypegenPhase::Phase4 => {
                 writeln!(
                     &mut self.result,
                     "declare export opaque type {new_name}: FragmentType;

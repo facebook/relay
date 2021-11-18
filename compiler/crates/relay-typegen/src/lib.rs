@@ -431,11 +431,8 @@ impl<'a> TypeGenerator<'a> {
                 ref_type_fragment_ref_property(),
                 ref_type_fragment_spreads_property,
             ],
-            FlowTypegenPhase::Phase3 => {
+            FlowTypegenPhase::Phase3 | FlowTypegenPhase::Final => {
                 vec![ref_type_data_property, ref_type_fragment_spreads_property]
-            }
-            FlowTypegenPhase::Final => {
-                vec![ref_type_fragment_spreads_property]
             }
         });
         if is_plural_fragment {

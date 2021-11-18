@@ -57,7 +57,7 @@ type PendingUpdater = {|
   +updater: StoreUpdater,
 |};
 
-const _global =
+const _global: typeof global =
   typeof global !== 'undefined'
     ? global
     : typeof window !== 'undefined'

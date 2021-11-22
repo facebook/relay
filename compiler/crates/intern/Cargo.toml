@@ -21,7 +21,3 @@ smallvec = { version = "1.6.1", features = ["serde", "specialization", "union"] 
 [dev-dependencies]
 bincode = "1.3.3"
 rand = { version = "0.8", features = ["small_rng"] }
-
-[features]
-memory_consistency_assert = []
-

@@ -312,7 +312,7 @@ mod tests {
 }
 
 /// Publish diagnostics to the client
-fn publish_diagnostic(
+pub fn publish_diagnostic(
     diagnostic_params: PublishDiagnosticsParams,
     sender: &Sender<Message>,
 ) -> LSPProcessResult<()> {

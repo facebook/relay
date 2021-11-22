@@ -10,13 +10,13 @@
 mod client;
 mod code_action;
 mod completion;
-mod diagnostic_reporter;
+pub mod diagnostic_reporter;
 mod explore_schema_for_type;
 pub mod goto_definition;
 mod graphql_tools;
 pub mod hover;
 pub mod js_language_server;
-mod location;
+pub mod location;
 mod lsp_extra_data_provider;
 pub mod lsp_process_error;
 pub mod lsp_runtime_error;

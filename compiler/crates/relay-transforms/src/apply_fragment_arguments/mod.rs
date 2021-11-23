@@ -21,6 +21,7 @@ use graphql_ir::{
     TransformedValue, Transformer, ValidationMessage, Value, Variable, VariableDefinition,
 };
 use graphql_syntax::OperationKind;
+use indexmap::IndexMap;
 use interner::{Intern, StringKey};
 use itertools::Itertools;
 use scope::{format_local_variable, format_provided_variable, Scope};
@@ -103,7 +104,7 @@ struct ApplyFragmentArgumentsTransform<'flags, 'program, 'base_fragments> {
     is_normalization: bool,
     no_inline_feature: &'flags FeatureFlag,
     program: &'program Program,
-    provided_variables: FnvHashMap<StringKey, VariableDefinition>,
+    provided_variables: IndexMap<StringKey, VariableDefinition>,
     scope: Scope,
     split_operations: FnvHashMap<StringKey, OperationDefinition>,
 }
@@ -129,7 +130,7 @@ impl Transformer for ApplyFragmentArgumentsTransform<'_, '_, '_> {
                     new_operation.variable_definitions.append(
                         &mut self
                             .provided_variables
-                            .drain()
+                            .drain(..)
                             .map(|(_, definition)| definition)
                             .collect_vec(),
                     );
@@ -139,7 +140,7 @@ impl Transformer for ApplyFragmentArgumentsTransform<'_, '_, '_> {
                     new_operation.variable_definitions.append(
                         &mut self
                             .provided_variables
-                            .drain()
+                            .drain(..)
                             .map(|(_, definition)| definition)
                             .collect_vec(),
                     );

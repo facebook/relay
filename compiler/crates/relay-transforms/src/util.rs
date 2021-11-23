@@ -170,3 +170,8 @@ pub fn get_fragment_filename(fragment_name: StringKey) -> StringKey {
     )
     .intern()
 }
+
+pub fn format_provided_variable_name(fragment_name: StringKey, arg_name: StringKey) -> StringKey {
+    // __ prefix indicates Relay internal variable
+    format!("__{}__{}", fragment_name, arg_name).intern()
+}

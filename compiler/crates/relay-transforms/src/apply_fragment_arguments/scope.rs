@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use crate::util::format_provided_variable_name;
 use common::{Location, NamedItem, WithLocation};
 use fnv::FnvHashMap;
 use graphql_ir::{Argument, ConstantValue, FragmentDefinition, Value, Variable};
@@ -73,7 +74,7 @@ impl Scope {
                         Value::Variable(Variable {
                             name: WithLocation::new(
                                 variable_definition.name.location,
-                                format_provided_variable(fragment.name.item, arg_name),
+                                format_provided_variable_name(fragment.name.item, arg_name),
                             ),
                             type_: variable_definition.type_.clone(),
                         })
@@ -94,11 +95,6 @@ impl Scope {
         );
         self.bindings.pop();
     }
-}
-
-pub fn format_provided_variable(fragment_name: StringKey, arg_name: StringKey) -> StringKey {
-    // __ prefix indicates Relay internal variable
-    format!("__{}__{}", fragment_name, arg_name).intern()
 }
 
 pub fn format_local_variable(fragment_name: StringKey, arg_name: StringKey) -> StringKey {

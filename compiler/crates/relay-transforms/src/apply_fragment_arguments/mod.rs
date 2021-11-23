@@ -11,7 +11,7 @@ use super::get_applied_fragment_name;
 use crate::{
     match_::SplitOperationMetadata,
     no_inline::{is_raw_response_type_enabled, NO_INLINE_DIRECTIVE_NAME, PARENT_DOCUMENTS_ARG},
-    util::get_normalization_operation_name,
+    util::{format_provided_variable_name, get_normalization_operation_name},
 };
 use common::{Diagnostic, DiagnosticsResult, FeatureFlag, NamedItem, WithLocation};
 use fnv::{FnvHashMap, FnvHashSet};
@@ -24,7 +24,7 @@ use graphql_syntax::OperationKind;
 use indexmap::IndexMap;
 use interner::{Intern, StringKey};
 use itertools::Itertools;
-use scope::{format_local_variable, format_provided_variable, Scope};
+use scope::{format_local_variable, Scope};
 use std::sync::Arc;
 
 /// A transform that converts a set of documents containing fragments/fragment
@@ -390,7 +390,8 @@ impl ApplyFragmentArgumentsTransform<'_, '_, '_> {
                         .is_some()
                 });
         for definition in provided_arguments {
-            let clobbered_name = format_provided_variable(fragment.name.item, definition.name.item);
+            let clobbered_name =
+                format_provided_variable_name(fragment.name.item, definition.name.item);
             let clobbered_definition = VariableDefinition {
                 name: WithLocation::new(definition.name.location, clobbered_name),
                 type_: definition.type_.clone(),

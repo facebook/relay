@@ -65,7 +65,7 @@ impl<T: for<'de> Deserialize<'de> + 'static> Loader<T> for JsLoader {
             .arg(r#"process.stdout.write(JSON.stringify(require(process.argv[1])))"#)
             .arg(&path)
             .output()
-            .expect("failed to execute process");
+            .expect("failed to execute process. Make sure you have Node installed.");
 
         if output.status.success() {
             let value = serde_json::from_slice::<T>(&output.stdout);

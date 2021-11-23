@@ -188,9 +188,8 @@ fragment providedVariableInFragment_Fragment2 on User {
 {
   "argumentDefinitions": [
     {
-      "defaultValue": null,
-      "kind": "LocalArgument",
-      "name": "foo_gk"
+      "kind": "RootArgument",
+      "name": "__providedVariableInFragment_Fragment1__foo_gk"
     }
   ],
   "kind": "Fragment",
@@ -198,7 +197,7 @@ fragment providedVariableInFragment_Fragment2 on User {
   "name": "providedVariableInFragment_Fragment1",
   "selections": [
     {
-      "condition": "foo_gk",
+      "condition": "__providedVariableInFragment_Fragment1__foo_gk",
       "kind": "Condition",
       "passingValue": true,
       "selections": [
@@ -219,9 +218,8 @@ fragment providedVariableInFragment_Fragment2 on User {
 {
   "argumentDefinitions": [
     {
-      "defaultValue": null,
-      "kind": "LocalArgument",
-      "name": "bar_gk"
+      "kind": "RootArgument",
+      "name": "__providedVariableInFragment_Fragment2__bar_gk"
     }
   ],
   "kind": "Fragment",
@@ -229,7 +227,7 @@ fragment providedVariableInFragment_Fragment2 on User {
   "name": "providedVariableInFragment_Fragment2",
   "selections": [
     {
-      "condition": "bar_gk",
+      "condition": "__providedVariableInFragment_Fragment2__bar_gk",
       "kind": "Condition",
       "passingValue": false,
       "selections": [

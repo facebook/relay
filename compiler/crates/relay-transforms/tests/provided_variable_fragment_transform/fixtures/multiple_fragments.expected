@@ -1,0 +1,40 @@
+==================================== INPUT ====================================
+fragment ProfilePictureFragment on User 
+  @argumentDefinitions(profilePictureScale: {type: "[Int]", provider: "profilePictureScaleProvider.js"})
+{
+    profilePicture(size: $profilePictureScale) {
+        uri
+    }
+}
+
+fragment UserIDFragment on Actor 
+  @argumentDefinitions(includeId: {type: "Boolean!", provider: "includeIdrovider.js"})
+{
+    id @include(if: $includeId)
+}
+
+fragment UserDataFragment on User {
+    name
+    ...ProfilePictureFragment
+    actor {
+        ...UserIDFragment
+    }
+}
+==================================== OUTPUT ===================================
+fragment ProfilePictureFragment on User {
+  profilePicture(size: $__ProfilePictureFragment__profilePictureScale) {
+    uri
+  }
+}
+
+fragment UserDataFragment on User {
+  name
+  ...ProfilePictureFragment
+  actor {
+    ...UserIDFragment
+  }
+}
+
+fragment UserIDFragment on Actor {
+  id @include(if: $__UserIDFragment__includeId)
+}

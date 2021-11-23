@@ -37,6 +37,7 @@ mod murmurhash;
 mod no_inline;
 mod node_identifier;
 mod preloadable_directive;
+mod provided_variable_fragment_transform;
 mod react_flight;
 mod refetchable_fragment;
 mod relay_actor_change;
@@ -116,6 +117,7 @@ pub use match_::{
 pub use no_inline::NO_INLINE_DIRECTIVE_NAME;
 pub use node_identifier::NodeIdentifier;
 pub use preloadable_directive::{is_operation_preloadable, should_generate_hack_preloader};
+pub use provided_variable_fragment_transform::provided_variable_fragment_transform;
 pub use react_flight::{
     react_flight, ReactFlightLocalComponentsMetadata, REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY,
 };

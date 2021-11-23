@@ -192,6 +192,9 @@ fn apply_reader_transforms(
     program = log_event.time("handle_field_transform", || {
         handle_field_transform(&program)
     });
+    program = log_event.time("provided_variable_fragment_transform", || {
+        provided_variable_fragment_transform(&program)
+    });
     program = log_event.time("inline_data_fragment", || inline_data_fragment(&program))?;
     program = log_event.time("skip_unreachable_node", || skip_unreachable_node(&program))?;
     program = log_event.time("remove_base_fragments", || {

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<086945d0bc53fb513aa25d0a33ab369c>>
+ * @generated SignedSource<<a59d0b450eec17b68fc78646befcd68d>>
  */
 
 mod extract;
@@ -45,6 +45,13 @@ fn quote_in_jsx() {
     let input = include_str!("extract/fixtures/quote_in_jsx.js");
     let expected = include_str!("extract/fixtures/quote_in_jsx.expected");
     test_fixture(transform_fixture, "quote_in_jsx.js", "extract/fixtures/quote_in_jsx.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver() {
+    let input = include_str!("extract/fixtures/relay_resolver.js");
+    let expected = include_str!("extract/fixtures/relay_resolver.expected");
+    test_fixture(transform_fixture, "relay_resolver.js", "extract/fixtures/relay_resolver.expected", input, expected);
 }
 
 #[test]

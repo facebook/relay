@@ -17,6 +17,9 @@ module.exports = {
   tagline: 'The GraphQL client that scales with you.',
   url: 'https://relay.dev',
   baseUrl: '/',
+  onBrokenLinks: 'throw',
+  onBrokenMarkdownLinks: 'warn',
+  trailingSlash: true,
   organizationName: 'facebook',
   projectName: 'relay',
   scripts: [

@@ -28,7 +28,7 @@ fetchQuery(environment, query, variables)
 
 ## Arguments
 
--   `environment`: The [Relay Environment](./relay-environment)
+-   `environment`: The [Relay Environment](Modern-RelayEnvironment.md)
 -   `query`: The `graphql` tagged query. **Note:** `relay-compiler` enforces the query to be named as `<FileName>Query`.
 -   `variables`: Object containing set of variables to pass to the GraphQL query, i.e. a mapping from variable name to value.
 

@@ -43,7 +43,7 @@ Now let's take a closer look at the `config`:
     the server, with the raw GraphQL response payload.
 -   `updater`: an optional function that can supply custom logic for updating the
     in-memory Relay store based on the server response.
--   `configs`: an array containing the updater configurations. It is the same as [`configs`](./mutations#updater-configs) in `commitMutation`.
+-   `configs`: an array containing the updater configurations. It is the same as [`configs`](Modern-Mutations.md#updater-configs) in `commitMutation`.
 -   `cacheConfig?`: Optional object containing a set of cache configuration options
 
 ## Example
@@ -90,7 +90,7 @@ requestSubscription(
 
 # Configure Network
 
-You will need to Configure your [Network](./network-layer) to handle subscriptions. The below example uses [subscriptions-transport-ws](https://github.com/apollographql/subscriptions-transport-ws):
+You will need to Configure your [Network](Modern-NetworkLayer.md) to handle subscriptions. The below example uses [subscriptions-transport-ws](https://github.com/apollographql/subscriptions-transport-ws):
 
 ```javascript
 import {

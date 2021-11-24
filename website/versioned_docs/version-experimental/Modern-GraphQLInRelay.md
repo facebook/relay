@@ -96,7 +96,7 @@ fragment TodoApp_app on App {
 
 ### `@inline`
 
-By default, Relay will only expose the data for fields explicitly requested by a [component's fragment](./a-guided-tour-of-relay#fragments), which is known as [data masking](./thinking-in-relay#data-masking). Fragment data is unmasked for use in React components by `useFragment`. However, you may want to use fragment data in non-React functions that are called from React.
+By default, Relay will only expose the data for fields explicitly requested by a [component's fragment](./a-guided-tour-of-relay#fragments), which is known as [data masking](./PrinciplesAndArchitecture-ThinkingInRelay.md#data-masking). Fragment data is unmasked for use in React components by `useFragment`. However, you may want to use fragment data in non-React functions that are called from React.
 
 Non-React functions can also take advantage of data masking. A fragment can be defined with the `@inline` directive and stored in a local variable. The non-React function can then "unmask" the data using the `readInlineData` function.
 
@@ -148,7 +148,7 @@ export default createFragmentContainer(MyComponent, {
 
 ### `@relay(mask: Boolean)`
 
-Relay by default will only expose the data for fields explicitly requested by a [fragment](./a-guided-tour-of-relay#fragments), which is known as [data masking](./thinking-in-relay#data-masking).
+Relay by default will only expose the data for fields explicitly requested by a [fragment](./a-guided-tour-of-relay#fragments), which is known as [data masking](./PrinciplesAndArchitecture-ThinkingInRelay.md#data-masking).
 
 However, `@relay(mask: false)` can be used to prevent data masking; when including a fragment and annotating it with `@relay(mask: false)`, its data will be available to the parent, recursively including the data from the fields of the referenced fragment.
 

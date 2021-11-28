@@ -427,7 +427,9 @@ At its simplest, we can consider Haste as a single directory that contains all m
 
 ## Language plugins
 
--   Flow: This is the default and builtin language plugin. You can explicitly enable it like so:
+### Flow Language Plugin
+  
+This is the default and builtin language plugin. You can explicitly enable it like so:
 
 ```shell
 $ relay-compiler --language javascript […]
@@ -440,7 +442,9 @@ $ yarn add --dev relay-compiler-language-js-flow-uncommented
 $ relay-compiler --language js-flow-uncommented […]
 ```
 
--   [TypeScript](https://github.com/relay-tools/relay-compiler-language-typescript): This is a language plugin for the TypeScript language maintained by the community. Install and enable it like so:
+### [TypeScript Language Plugin](https://github.com/relay-tools/relay-compiler-language-typescript): 
+  
+[relay-compiler-language-typescript](https://github.com/relay-tools/relay-compiler-language-typescript) is a language plugin for the TypeScript language maintained by the community. Install and enable it like so:
 
 ```shell
 $ yarn add --dev relay-compiler-language-typescript @types/react-relay @types/relay-runtime

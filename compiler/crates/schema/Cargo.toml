@@ -16,7 +16,7 @@ dashmap = { version = "4.0.2", features = ["rayon", "serde"] }
 flatbuffers = "2.0"
 fnv = "1.0"
 graphql-syntax = { path = "../graphql-syntax" }
-interner = { path = "../interner" }
+intern = { path = "../intern" }
 lazy_static = "1.0"
 ouroboros = "0.8"
 schema-flatbuffer = { path = "../schema-flatbuffer" }

@@ -12,7 +12,7 @@ path = "tests/print_schema_test.rs"
 
 [dependencies]
 fnv = "1.0"
-interner = { path = "../interner" }
+intern = { path = "../intern" }
 itertools = "0.10.1"
 schema = { path = "../schema" }
 

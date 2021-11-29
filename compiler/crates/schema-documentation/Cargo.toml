@@ -7,5 +7,5 @@ edition = "2021"
 license = "MIT"
 
 [dependencies]
-interner = { path = "../interner" }
+intern = { path = "../intern" }
 schema = { path = "../schema" }

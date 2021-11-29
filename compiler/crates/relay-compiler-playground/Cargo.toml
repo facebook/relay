@@ -21,7 +21,7 @@ relay-typegen = { path = "../relay-typegen" }
 relay-schema = { path = "../relay-schema" }
 relay-transforms = { path = "../relay-transforms" }
 common = { path = "../common" }
-interner = { path = "../interner" }
+intern = { path = "../intern" }
 fnv = "1.0"
 serde = { version = "1.0.126", features = ["derive", "rc"] }
 serde_json = { version = "1.0", features = ["float_roundtrip"] }

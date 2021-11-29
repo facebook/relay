@@ -168,6 +168,10 @@ fn apply_common_transforms(
         relay_actor_change_transform(&program, &feature_flags.actor_change_support)
     })?;
 
+    program = log_event.time("provided_variable_fragment_transform", || {
+        provided_variable_fragment_transform(&program)
+    });
+
     log_event.complete();
 
     Ok(Arc::new(program))
@@ -191,9 +195,6 @@ fn apply_reader_transforms(
     program = log_event.time("client_extensions", || client_extensions(&program));
     program = log_event.time("handle_field_transform", || {
         handle_field_transform(&program)
-    });
-    program = log_event.time("provided_variable_fragment_transform", || {
-        provided_variable_fragment_transform(&program)
     });
     program = log_event.time("inline_data_fragment", || inline_data_fragment(&program))?;
     program = log_event.time("skip_unreachable_node", || skip_unreachable_node(&program))?;

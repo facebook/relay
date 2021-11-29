@@ -11,7 +11,7 @@ use super::get_applied_fragment_name;
 use crate::{
     match_::SplitOperationMetadata,
     no_inline::{is_raw_response_type_enabled, NO_INLINE_DIRECTIVE_NAME, PARENT_DOCUMENTS_ARG},
-    util::{format_provided_variable_name, get_normalization_operation_name},
+    util::get_normalization_operation_name,
 };
 use common::{Diagnostic, DiagnosticsResult, FeatureFlag, NamedItem, WithLocation};
 use fnv::{FnvHashMap, FnvHashSet};
@@ -381,7 +381,7 @@ impl ApplyFragmentArgumentsTransform<'_, '_, '_> {
     fn extract_provided_variables(&mut self, fragment: &FragmentDefinition) {
         let provided_arguments =
             fragment
-                .variable_definitions
+                .used_global_variables
                 .iter()
                 .filter(|variable_definition| {
                     variable_definition
@@ -390,16 +390,8 @@ impl ApplyFragmentArgumentsTransform<'_, '_, '_> {
                         .is_some()
                 });
         for definition in provided_arguments {
-            let clobbered_name =
-                format_provided_variable_name(fragment.name.item, definition.name.item);
-            let clobbered_definition = VariableDefinition {
-                name: WithLocation::new(definition.name.location, clobbered_name),
-                type_: definition.type_.clone(),
-                default_value: definition.default_value.clone(),
-                directives: definition.directives.clone(),
-            };
             self.provided_variables
-                .insert(clobbered_name, clobbered_definition);
+                .insert(fragment.name.item, definition.clone());
         }
     }
 

@@ -115,7 +115,7 @@ impl Visitor for ReferenceFinder {
     }
 }
 
-pub(crate) fn on_references(
+pub fn on_references(
     state: &impl GlobalState,
     params: <References as Request>::Params,
 ) -> LSPRuntimeResult<<References as Request>::Result> {

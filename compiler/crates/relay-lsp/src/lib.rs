@@ -21,7 +21,7 @@ mod lsp_extra_data_provider;
 pub mod lsp_process_error;
 pub mod lsp_runtime_error;
 pub mod node_resolution_info;
-mod references;
+pub mod references;
 pub mod resolution_path;
 mod resolved_types_at_location;
 mod search_schema_items;

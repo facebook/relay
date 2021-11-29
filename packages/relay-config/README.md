@@ -1,5 +1,7 @@
 ## Relay Config
 
+**Only works with Relay 12 and below, Relay 13 does not use this format**
+
 Handles the config which would traditionally be passed into the relay-compiler via the CLI command-line, or inside the babel plugin config.
 
 To use this package, first install it: `yarn add relay-config`, then create a `relay.config.js` which includes fields the relay-compiler CLI describes:

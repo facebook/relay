@@ -11,7 +11,7 @@ use super::MATCH_CONSTANTS;
 use crate::murmurhash::murmurhash;
 use common::{Diagnostic, DiagnosticsResult, FeatureFlag, FeatureFlags, NamedItem};
 use graphql_ir::{ConstantValue, LinkedField, Program, Selection, Transformed, Transformer, Value};
-use interner::Intern;
+use intern::string_key::Intern;
 use schema::{SDLSchema, Schema, TypeReference};
 use thiserror::Error;
 

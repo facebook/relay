@@ -8,7 +8,7 @@
 use crate::refetchable_fragment::{RefetchableFragment, REFETCHABLE_NAME};
 use fnv::FnvHashMap;
 use graphql_syntax::OperationKind;
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey};
 use lazy_static::lazy_static;
 use schema::Type;
 use std::sync::Arc;

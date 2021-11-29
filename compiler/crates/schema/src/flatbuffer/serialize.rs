@@ -16,7 +16,7 @@ use crate::{
 use flatbuffers::{FlatBufferBuilder, WIPOffset};
 use fnv::FnvHashMap;
 use graphql_syntax::{ConstantArgument, ConstantValue, DirectiveLocation, List};
-use interner::StringKey;
+use intern::string_key::StringKey;
 use std::collections::BTreeMap;
 
 pub fn serialize_as_flatbuffer(schema: &InMemorySchema) -> Vec<u8> {

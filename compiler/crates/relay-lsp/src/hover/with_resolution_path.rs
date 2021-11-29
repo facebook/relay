@@ -8,7 +8,7 @@
 use graphql_ir::{Program, Value};
 use graphql_syntax::{FragmentDefinition, Identifier, OperationDefinition, VariableDefinition};
 use graphql_text_printer::print_value;
-use interner::StringKey;
+use intern::string_key::StringKey;
 use lsp_types::{Hover, HoverContents, MarkedString};
 use schema::{SDLSchema, Schema};
 use schema_documentation::SchemaDocumentation;

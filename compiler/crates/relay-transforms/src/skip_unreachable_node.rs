@@ -16,7 +16,7 @@ use graphql_ir::{
     LinkedField, Program, Selection, Transformed, TransformedMulti, TransformedValue, Transformer,
     Value,
 };
-use interner::StringKey;
+use intern::string_key::StringKey;
 use std::sync::Arc;
 
 pub fn skip_unreachable_node(program: &Program) -> DiagnosticsResult<Program> {

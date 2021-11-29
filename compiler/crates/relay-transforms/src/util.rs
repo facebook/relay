@@ -24,7 +24,7 @@ use graphql_ir::{
     Argument, Directive, Value, ARGUMENT_DEFINITION, PROVIDER_MODULE,
     UNUSED_LOCAL_VARIABLE_DEPRECATED,
 };
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey};
 use lazy_static::lazy_static;
 use schema::{SDLSchema, Schema, Type};
 

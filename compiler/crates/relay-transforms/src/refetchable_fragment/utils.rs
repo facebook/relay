@@ -11,7 +11,7 @@ use graphql_ir::{
     associated_data_impl, Argument, Directive, FragmentDefinition, FragmentSpread, Selection,
     ValidationMessage, Value, Variable, VariableDefinition,
 };
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey};
 use lazy_static::lazy_static;
 use std::sync::Arc;
 

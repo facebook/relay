@@ -10,7 +10,7 @@ use super::constant_value::{ConstantValue, StringNode};
 use super::primitive::*;
 use super::type_annotation::TypeAnnotation;
 use common::Span;
-use interner::StringKey;
+use intern::string_key::StringKey;
 use std::fmt;
 
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]

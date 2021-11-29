@@ -16,7 +16,7 @@ use common::{PerfLogEvent, PerfLogger, SourceLocationKey};
 use dashmap::DashSet;
 use fnv::{FnvBuildHasher, FnvHashMap, FnvHashSet};
 use graphql_syntax::GraphQLSource;
-use interner::StringKey;
+use intern::string_key::StringKey;
 use rayon::prelude::*;
 use relay_transforms::DependencyMap;
 use schema::SDLSchema;

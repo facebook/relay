@@ -7,7 +7,7 @@
 
 use common::{DiagnosticDisplay, WithDiagnosticData};
 use graphql_syntax::OperationKind;
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey};
 use schema::{Type, TypeReference};
 use thiserror::Error;
 

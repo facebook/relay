@@ -8,7 +8,7 @@
 use super::constant_value::ConstantArgument;
 use super::primitive::*;
 use common::{Named, Span};
-use interner::StringKey;
+use intern::string_key::StringKey;
 
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct ConstantDirective {

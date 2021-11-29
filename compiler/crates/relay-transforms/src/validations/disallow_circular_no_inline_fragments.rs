@@ -11,7 +11,7 @@ use fnv::FnvHashMap;
 use graphql_ir::{
     FragmentDefinition, FragmentSpread, OperationDefinition, Program, ValidationMessage, Validator,
 };
-use interner::StringKey;
+use intern::string_key::StringKey;
 
 pub fn disallow_circular_no_inline_fragments(program: &Program) -> DiagnosticsResult<()> {
     let mut validator = DisallowCircularNoInlineFragments::new(program);

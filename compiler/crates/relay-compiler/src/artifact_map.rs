@@ -7,7 +7,7 @@
 
 use crate::build_project::{Artifact, ArtifactContent};
 use dashmap::{mapref::entry::Entry, DashMap};
-use interner::StringKey;
+use intern::string_key::StringKey;
 use relay_codegen::QueryID;
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;

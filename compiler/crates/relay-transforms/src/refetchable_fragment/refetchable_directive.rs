@@ -8,7 +8,7 @@
 use common::{Diagnostic, DiagnosticsResult, Location, SourceLocationKey, WithLocation};
 use graphql_ir::{ConstantValue, Directive, ValidationMessage, Value};
 use graphql_text_printer::print_value;
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey};
 use lazy_static::lazy_static;
 use schema::SDLSchema;
 

@@ -8,7 +8,7 @@
 use schema_diff::definitions::*;
 use schema_diff::*;
 
-use interner::Intern;
+use intern::string_key::Intern;
 use schema::build_schema;
 
 fn diff(current: &str, previous: &str) -> SchemaChange {

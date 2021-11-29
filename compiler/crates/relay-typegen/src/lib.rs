@@ -26,7 +26,7 @@ use graphql_ir::{
     OperationDefinition, ScalarField, Selection,
 };
 use indexmap::{map::Entry, IndexMap, IndexSet};
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey};
 use itertools::Itertools;
 use lazy_static::lazy_static;
 use relay_codegen::JsModuleFormat;

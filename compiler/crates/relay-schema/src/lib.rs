@@ -12,7 +12,7 @@
 #![deny(clippy::all)]
 
 use common::{DiagnosticsResult, SourceLocationKey};
-use interner::intern;
+use intern::intern;
 use schema::{ArgumentDefinitions, SDLSchema, TypeReference};
 use std::iter::once;
 

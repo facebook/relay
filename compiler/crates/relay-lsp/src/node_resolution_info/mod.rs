@@ -12,7 +12,7 @@ use graphql_syntax::{
     FragmentSpread, InlineFragment, LinkedField, List, OperationDefinition, ScalarField, Selection,
     TypeCondition,
 };
-use interner::StringKey;
+use intern::string_key::StringKey;
 
 mod type_path;
 pub use type_path::{TypePath, TypePathItem};
@@ -296,7 +296,7 @@ mod test {
     use super::{NodeKind, NodeResolutionInfo};
     use common::{SourceLocationKey, Span};
     use graphql_syntax::parse_executable;
-    use interner::Intern;
+    use intern::string_key::Intern;
 
     fn parse_and_get_node_info(source: &str, pos: u32) -> NodeResolutionInfo {
         let document =

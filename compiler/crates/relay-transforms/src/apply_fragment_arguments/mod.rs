@@ -22,7 +22,7 @@ use graphql_ir::{
 };
 use graphql_syntax::OperationKind;
 use indexmap::IndexMap;
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey};
 use itertools::Itertools;
 use scope::{format_local_variable, Scope};
 use std::sync::Arc;

@@ -20,7 +20,7 @@ use std::{
     collections::{HashMap, HashSet},
     fmt::{self, Formatter},
     hash::Hash,
-    str::Utf8Error,
+    str::{FromStr, Utf8Error},
 };
 
 intern_struct! {
@@ -65,7 +65,7 @@ pub type BytesIdSet = HashSet<BytesId, BuildIdHasher<u32>>;
 /// An opaque token corresponding to an interned &str.
 ///
 /// You can recover the str with id.as_str() or using format!.
-#[derive(Debug, Copy, Clone, Hash, Eq, PartialEq, Ord, PartialOrd)]
+#[derive(Copy, Clone, Hash, Eq, PartialEq, Ord, PartialOrd)]
 #[derive(Serialize, Deserialize)]
 #[repr(transparent)]
 pub struct StringId(BytesId);
@@ -110,8 +110,14 @@ impl fmt::Display for StringId {
     }
 }
 
+impl fmt::Debug for StringId {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        f.write_str(self.as_str())
+    }
+}
+
 // Describes types that can be viewed as a `[u8]`.
-pub trait IntoUtf8Bytes {
+pub trait IntoUtf8Bytes: Sized {
     type Bytes: Into<SmallBytes> + Borrow<[u8]>;
     /// Convert into utf-8 encoded bytes while preserving the
     /// ownedness of the underlying storage if possible.
@@ -143,6 +149,21 @@ impl IntoUtf8Bytes for String {
     type Bytes = Vec<u8>;
     fn into_bytes(self) -> Vec<u8> {
         From::from(self)
+    }
+}
+
+impl<'a> IntoUtf8Bytes for &'a String {
+    type Bytes = &'a [u8];
+    fn into_bytes(self) -> &'a [u8] {
+        self.as_ref()
+    }
+}
+
+impl FromStr for StringId {
+    type Err = std::convert::Infallible;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Ok(intern(s))
     }
 }
 
@@ -192,7 +213,7 @@ impl CowStringId<'_> {
     }
 }
 
-impl std::fmt::Display for CowStringId<'_> {
+impl fmt::Display for CowStringId<'_> {
     fn fmt(&self, fmt: &mut Formatter<'_>) -> std::fmt::Result {
         self.as_str().fmt(fmt)
     }
@@ -237,6 +258,9 @@ macro_rules! string_id {
             $crate::string::Lazy::new(|| $crate::string::intern($value));
         *INSTANCE
     }};
+    ($_:expr) => {
+        compile_error!("string_id! macro can only be used with string literals.")
+    };
 }
 
 /// Statically declare some interned bytes.
@@ -247,6 +271,9 @@ macro_rules! bytes_id {
             $crate::string::Lazy::new(|| $crate::string::intern_bytes($value as &[u8]));
         *INSTANCE
     }};
+    ($_:expr) => {
+        compile_error!("bytes_id! macro can only be used with literals.")
+    };
 }
 
 #[cfg(test)]

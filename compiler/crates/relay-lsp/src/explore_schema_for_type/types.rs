@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use interner::StringKey;
+use intern::string_key::StringKey;
 use schema::{
     DirectiveValue, EnumID, FieldID, InputObjectID, InterfaceID, ObjectID, SDLSchema, ScalarID,
     Schema, Type, UnionID,

@@ -12,7 +12,7 @@ use graphql_ir::{
     ScalarField, Selection, Value, VariableDefinition,
 };
 use graphql_syntax::OperationKind;
-use interner::StringKey;
+use intern::string_key::StringKey;
 use schema::{SDLSchema, Schema};
 use std::fmt::{Result, Write};
 

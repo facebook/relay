@@ -12,7 +12,7 @@ use graphql_ir::{
     Directive, FragmentDefinition, FragmentSpread, LinkedField, Program, ScalarField,
     ValidationMessage, Validator,
 };
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey};
 use schema::Schema;
 
 pub fn validate_server_only_directives(program: &Program) -> DiagnosticsResult<()> {

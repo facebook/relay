@@ -6,7 +6,7 @@
  */
 
 use crate::node::{ConstantArgument, ConstantDirective, FieldDefinition, InputValueDefinition};
-use interner::StringKey;
+use intern::string_key::StringKey;
 
 impl FieldDefinition {
     pub fn argument_named(&self, field_name: StringKey) -> Option<&InputValueDefinition> {

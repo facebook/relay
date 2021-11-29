@@ -61,7 +61,7 @@ mod util;
 mod validate_operation_variables;
 mod validations;
 use fnv::{FnvHashMap, FnvHashSet};
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey};
 use lazy_static::lazy_static;
 
 lazy_static! {

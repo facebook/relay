@@ -20,7 +20,7 @@ use fmt::Debug;
 use fnv::{FnvBuildHasher, FnvHashSet};
 use graphql_ir::{OperationDefinition, Program};
 use indexmap::IndexMap;
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey};
 use persist_query::PersistError;
 use rayon::prelude::*;
 use regex::Regex;

@@ -265,7 +265,7 @@ pub fn get_diagnostics_data(diagnostic: &CompilerDiagnostic) -> Option<Value> {
 mod tests {
     use super::DiagnosticReporter;
     use common::{Diagnostic, Location, SourceLocationKey, Span};
-    use interner::Intern;
+    use intern::string_key::Intern;
     use relay_compiler::SourceReader;
     use std::env;
     use std::path::PathBuf;

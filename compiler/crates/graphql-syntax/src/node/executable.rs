@@ -11,7 +11,7 @@ use super::primitive::*;
 use super::type_annotation::*;
 use super::value::*;
 use common::{Location, Span};
-use interner::StringKey;
+use intern::string_key::StringKey;
 use std::fmt;
 
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]

@@ -85,7 +85,8 @@ macro_rules! associated_data_impl {
         impl $name {
             pub const DIRECTIVE_NAME: $crate::reexport::Lazy<$crate::reexport::StringKey> =
                 $crate::reexport::Lazy::new(|| {
-                    $crate::reexport::Intern::intern(concat!("__", stringify!($name)))
+                    use $crate::reexport::string_key::Intern;
+                    concat!("__", stringify!($name)).intern()
                 });
 
             #[allow(dead_code)]

@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey};
 
 #[derive(Debug, Copy, Clone)]
 pub struct ConnectionConstants {

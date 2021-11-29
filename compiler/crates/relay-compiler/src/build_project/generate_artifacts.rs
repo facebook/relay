@@ -12,7 +12,7 @@ use common::{NamedItem, SourceLocationKey};
 use fnv::FnvHashMap;
 use graphql_ir::{FragmentDefinition, OperationDefinition};
 use graphql_text_printer::OperationPrinter;
-use interner::StringKey;
+use intern::string_key::StringKey;
 use relay_transforms::{
     Programs, RefetchableDerivedFromMetadata, SplitOperationMetadata,
     CLIENT_EDGE_GENERATED_FRAGMENT_KEY, CLIENT_EDGE_QUERY_METADATA_KEY, CLIENT_EDGE_SOURCE_NAME,

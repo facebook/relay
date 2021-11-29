@@ -7,7 +7,7 @@
 
 use common::{Diagnostic, DiagnosticsResult, NamedItem};
 use graphql_ir::{ConstantValue, Directive, OperationDefinition, Value};
-use interner::intern;
+use intern::intern;
 
 /// Check, if the operation is @preloadable.
 pub fn is_operation_preloadable(operation: &OperationDefinition) -> bool {

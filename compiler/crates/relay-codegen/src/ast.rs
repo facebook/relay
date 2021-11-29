@@ -9,7 +9,7 @@ use fnv::{FnvBuildHasher, FnvHashMap};
 use graphql_syntax::FloatValue;
 use graphql_syntax::OperationKind;
 use indexmap::IndexSet;
-use interner::StringKey;
+use intern::string_key::StringKey;
 
 #[derive(Eq, PartialEq, Hash, Debug)]
 pub struct ObjectEntry {

@@ -9,7 +9,7 @@ use crate::util::format_provided_variable_name;
 use common::{Location, NamedItem, WithLocation};
 use fnv::FnvHashMap;
 use graphql_ir::{Argument, ConstantValue, FragmentDefinition, Value, Variable};
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey};
 
 #[derive(Default, Debug)]
 pub struct Scope {
@@ -107,7 +107,7 @@ mod tests {
 
     use common::{Location, SourceLocationKey, Span, WithLocation};
     use graphql_ir::{Argument, ConstantValue, VariableDefinition};
-    use interner::Intern;
+    use intern::string_key::Intern;
     use schema::{Schema, TypeReference};
 
     use relay_test_schema::TEST_SCHEMA;

@@ -10,7 +10,7 @@ mod errors;
 use common::Named;
 use errors::*;
 use fnv::{FnvHashMap, FnvHashSet};
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey};
 use lazy_static::lazy_static;
 use rayon::prelude::*;
 use regex::Regex;

@@ -20,7 +20,7 @@ use schema::SDLSchema;
 
 use fnv::{FnvBuildHasher, FnvHashSet};
 use indexmap::IndexMap;
-use interner::StringKey;
+use intern::string_key::StringKey;
 use std::fmt::{Result as FmtResult, Write};
 
 pub fn print_operation(

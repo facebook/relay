@@ -6,7 +6,7 @@
  */
 
 use fixture_tests::Fixture;
-use interner::Intern;
+use intern::string_key::Intern;
 use schema::build_schema;
 use schema_print::{print_directives, print_types_directives_as_shards};
 

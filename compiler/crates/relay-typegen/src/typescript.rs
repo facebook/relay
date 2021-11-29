@@ -8,7 +8,7 @@
 use crate::writer::{Prop, Writer, AST};
 use crate::TypegenConfig;
 use crate::{KEY_DATA, KEY_FRAGMENT_REFS, KEY_FRAGMENT_SPREADS, KEY_FRAGMENT_TYPE};
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey};
 use itertools::Itertools;
 use std::fmt::{Result, Write};
 
@@ -248,7 +248,7 @@ mod tests {
     use crate::writer::KeyValuePairProp;
 
     use super::*;
-    use interner::Intern;
+    use intern::string_key::Intern;
 
     fn print_type(ast: &AST) -> String {
         print_type_with_config(ast, &Default::default())

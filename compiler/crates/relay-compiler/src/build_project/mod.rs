@@ -35,7 +35,7 @@ pub use generate_artifacts::{
     create_path_for_artifact, generate_artifacts, Artifact, ArtifactContent,
 };
 use graphql_ir::Program;
-use interner::StringKey;
+use intern::string_key::StringKey;
 use log::{debug, info, warn};
 use rayon::{iter::IntoParallelRefIterator, slice::ParallelSlice};
 use relay_codegen::Printer;

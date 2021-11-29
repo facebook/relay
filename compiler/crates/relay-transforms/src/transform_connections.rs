@@ -19,7 +19,7 @@ use graphql_ir::{
     Argument, ConstantValue, Directive, FragmentDefinition, InlineFragment, LinkedField,
     OperationDefinition, Program, Selection, Transformed, Transformer, Value,
 };
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey};
 use schema::Schema;
 use std::sync::Arc;
 

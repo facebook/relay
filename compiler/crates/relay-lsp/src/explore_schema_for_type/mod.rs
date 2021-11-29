@@ -9,7 +9,7 @@ use crate::{
     lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult},
     server::GlobalState,
 };
-use interner::Intern;
+use intern::string_key::Intern;
 use lsp_types::request::Request;
 use schema::Schema;
 use serde::{Deserialize, Serialize};

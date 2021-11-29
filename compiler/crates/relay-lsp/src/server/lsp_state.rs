@@ -28,7 +28,7 @@ use graphql_ir::{
 use graphql_syntax::{
     parse_executable_with_error_recovery, ExecutableDefinition, ExecutableDocument, GraphQLSource,
 };
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey};
 use log::debug;
 use lsp_server::Message;
 use lsp_types::{Diagnostic, DiagnosticTag, Range, TextDocumentPositionParams, Url};

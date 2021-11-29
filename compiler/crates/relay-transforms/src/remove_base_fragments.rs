@@ -9,7 +9,7 @@ use graphql_ir::{FragmentDefinition, OperationDefinition};
 
 use fnv::FnvHashSet;
 use graphql_ir::{Program, Transformed, Transformer};
-use interner::StringKey;
+use intern::string_key::StringKey;
 use std::sync::Arc;
 
 /// This transform removes the given list of base fragments from the Program.

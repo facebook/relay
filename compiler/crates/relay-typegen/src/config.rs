@@ -8,7 +8,7 @@
 use common::Rollout;
 use fnv::FnvBuildHasher;
 use indexmap::{IndexMap, IndexSet};
-use interner::StringKey;
+use intern::string_key::StringKey;
 use serde::{Deserialize, Serialize};
 
 type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;

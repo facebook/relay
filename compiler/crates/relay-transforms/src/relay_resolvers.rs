@@ -15,8 +15,8 @@ use graphql_ir::{
     OperationDefinition, Program, ScalarField, Selection, Transformed, Transformer, Visitor,
 };
 use graphql_ir::{InlineFragment, LinkedField};
-use interner::Intern;
-use interner::StringKey;
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
 use lazy_static::lazy_static;
 use schema::{ArgumentValue, Field, FieldID, SDLSchema, Schema};
 use std::{mem, sync::Arc};

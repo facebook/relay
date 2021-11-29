@@ -21,7 +21,7 @@ use graphql_syntax::{
     InputObjectTypeDefinition, InputValueDefinition, InterfaceTypeDefinition, List,
     ObjectTypeDefinition, ScalarTypeDefinition, TypeSystemDefinition, UnionTypeDefinition,
 };
-use interner::StringKey;
+use intern::string_key::StringKey;
 
 fn add_definition(changes: &mut Vec<DefinitionChange>, def: &TypeSystemDefinition) -> bool {
     use DefinitionChange::*;

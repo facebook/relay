@@ -10,7 +10,7 @@ use crate::errors::SchemaError;
 use crate::graphql_schema::Schema;
 use common::{Diagnostic, DiagnosticsResult, Location, SourceLocationKey, WithLocation};
 use graphql_syntax::*;
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey};
 use std::collections::{BTreeMap, HashMap};
 
 fn todo_add_location<T>(error: SchemaError) -> DiagnosticsResult<T> {

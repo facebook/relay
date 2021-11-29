@@ -21,7 +21,7 @@ use graphql_syntax::{
     ExecutableDocument, FragmentSpread, InlineFragment, LinkedField, List, OperationDefinition,
     OperationKind, ScalarField, Selection, TokenKind, Value,
 };
-use interner::StringKey;
+use intern::string_key::StringKey;
 use log::debug;
 use lsp_types::{
     request::{Completion, Request, ResolveCompletionItem},

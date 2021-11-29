@@ -367,7 +367,7 @@ fn is_valid_source_code_extension(typegen_language: &TypegenLanguage, extension:
 #[cfg(test)]
 mod tests {
     use super::*;
-    use interner::Intern;
+    use intern::string_key::Intern;
 
     fn create_test_config() -> Config {
         Config::from_string_for_test(

@@ -18,7 +18,7 @@ use graphql_ir::{
     Argument, ConstantValue, Directive, LinkedField, Program, Selection, ValidationMessage,
     Validator, Value,
 };
-use interner::StringKey;
+use intern::string_key::StringKey;
 use schema::{Field, Schema, Type, TypeReference};
 
 pub fn validate_connections(

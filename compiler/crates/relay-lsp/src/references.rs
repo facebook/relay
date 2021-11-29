@@ -17,7 +17,7 @@ use crate::{
 };
 use common::Location as IRLocation;
 use graphql_ir::{FragmentSpread, Program, Visitor};
-use interner::StringKey;
+use intern::string_key::StringKey;
 use lsp_types::{
     request::{References, Request},
     Location as LSPLocation, Range,

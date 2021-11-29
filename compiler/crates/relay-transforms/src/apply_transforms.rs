@@ -11,7 +11,7 @@ use super::*;
 use common::{sync::try_join, DiagnosticsResult, FeatureFlags, PerfLogEvent, PerfLogger};
 use fnv::FnvHashSet;
 use graphql_ir::Program;
-use interner::StringKey;
+use intern::string_key::StringKey;
 use regex::Regex;
 use std::sync::Arc;
 

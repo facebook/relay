@@ -18,8 +18,8 @@ use errors::{par_try_map, try2, try3, try_map};
 use fnv::{FnvBuildHasher, FnvHashMap, FnvHashSet};
 use graphql_syntax::{DirectiveLocation, Identifier, List, OperationKind, Token, TokenKind};
 use indexmap::IndexMap;
-use interner::Intern;
-use interner::StringKey;
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
 use lazy_static::lazy_static;
 use schema::{
     ArgumentDefinitions, Enum, FieldID, InputObject, SDLSchema, Scalar, Schema, Type, TypeReference,

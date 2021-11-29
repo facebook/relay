@@ -11,7 +11,7 @@ use graphql_ir::{
     Argument, Directive, Field, FragmentDefinition, LinkedField, OperationDefinition, Program,
     ScalarField, ValidationMessage, Validator,
 };
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey};
 use lazy_static::lazy_static;
 use schema::{ArgumentDefinitions, Schema};
 

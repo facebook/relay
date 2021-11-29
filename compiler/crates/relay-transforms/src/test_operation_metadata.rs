@@ -12,7 +12,7 @@ use graphql_ir::{
     OperationDefinition, Program, Selection, Transformed, Transformer, Value,
 };
 use indexmap::IndexMap;
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey};
 use lazy_static::lazy_static;
 use regex::Regex;
 use schema::{EnumValue, Field, SDLSchema, Schema, Type};

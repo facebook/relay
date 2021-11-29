@@ -9,7 +9,7 @@ use crate::{util::CustomMetadataDirectives, ModuleMetadata};
 use common::WithLocation;
 use graphql_ir::Field;
 use graphql_ir::*;
-use interner::StringKey;
+use intern::string_key::StringKey;
 use schema::SDLSchema;
 use std::{
     hash::{Hash, Hasher},

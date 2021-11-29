@@ -7,7 +7,7 @@
 
 use crate::Rollout;
 use indexmap::IndexSet;
-use interner::StringKey;
+use intern::string_key::StringKey;
 use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Formatter, Result};
 

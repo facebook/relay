@@ -7,7 +7,7 @@
 
 use crate::span::Span;
 use core::cmp::Ordering;
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey};
 use std::fmt;
 use std::path::PathBuf;
 

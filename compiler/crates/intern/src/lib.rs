@@ -45,7 +45,7 @@
 //!
 //! Simply import `intern::string` and go to town:
 //! ```
-//! use intern::string::{self, StringId};
+//! use intern::string_key::{self, StringId};
 //!
 //! let a: StringId = string::intern("a");
 //! let b = string::intern("b");
@@ -126,6 +126,7 @@ pub mod path;
 mod sharded_set;
 mod small_bytes;
 pub mod string;
+pub mod string_key;
 #[doc(hidden)]
 pub use crate::atomic_arena::Zero;
 #[doc(inline)]

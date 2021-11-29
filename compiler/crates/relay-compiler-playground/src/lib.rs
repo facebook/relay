@@ -14,7 +14,7 @@ use fnv::FnvHashSet;
 use graphql_ir::Program;
 
 use graphql_text_printer::{self, PrinterOptions};
-use interner::Intern;
+use intern::string_key::Intern;
 use relay_codegen::{print_fragment, print_operation, JsModuleFormat};
 use relay_schema::build_schema_with_extensions;
 use relay_transforms::{apply_transforms, ConnectionInterface, Programs};

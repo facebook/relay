@@ -11,7 +11,7 @@ use common::{Location, WithLocation};
 use graphql_ir::{
     Argument, Directive, LinkedField, Program, ScalarField, Selection, Transformed, Transformer,
 };
-use interner::Intern;
+use intern::string_key::Intern;
 use std::sync::Arc;
 
 /// This transform applies field argument updates for client handle fields:

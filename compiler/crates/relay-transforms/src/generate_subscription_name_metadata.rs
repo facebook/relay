@@ -12,7 +12,7 @@ use graphql_ir::{
     Transformer, ValidationMessage, Value,
 };
 use graphql_syntax::OperationKind;
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey};
 use lazy_static::lazy_static;
 use schema::Schema;
 

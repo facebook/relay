@@ -7,7 +7,7 @@
 
 use crate::definitions::Type;
 use graphql_syntax::OperationType;
-use interner::StringKey;
+use intern::string_key::StringKey;
 use thiserror::Error;
 
 pub type Result<T> = std::result::Result<T, SchemaError>;

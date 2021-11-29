@@ -10,7 +10,7 @@ use std::{fmt, hash::Hash};
 use common::WithLocation;
 use dashmap::DashMap;
 use fnv::FnvBuildHasher;
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey};
 use ouroboros::self_referencing;
 
 use crate::{

@@ -11,7 +11,7 @@ use crate::lexer::TokenKind;
 use crate::node::*;
 use crate::syntax_error::SyntaxError;
 use common::{Diagnostic, DiagnosticsResult, Location, SourceLocationKey, Span, WithDiagnostics};
-use interner::Intern;
+use intern::string_key::Intern;
 use logos::Logos;
 
 type ParseResult<T> = Result<T, ()>;

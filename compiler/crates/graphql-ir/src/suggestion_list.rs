@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use interner::StringKey;
+use intern::string_key::StringKey;
 use schema::{SDLSchema, Schema, Type};
 use strsim::damerau_levenshtein;
 
@@ -198,7 +198,7 @@ impl<'schema> GraphQLSuggestions<'schema> {
 #[cfg(test)]
 mod tests {
     use super::suggestion_list;
-    use interner::Intern;
+    use intern::string_key::Intern;
 
     #[test]
     fn test_suggestion_list_empty_input() {

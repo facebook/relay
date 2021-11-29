@@ -43,6 +43,6 @@ pub mod reexport {
     pub use crate::associated_data::AsAny;
     pub use common::{NamedItem, WithLocation};
     pub use fnv::FnvHasher;
-    pub use interner::{Intern, StringKey};
+    pub use intern::string_key::{self, Intern, StringKey};
     pub use once_cell::sync::Lazy;
 }

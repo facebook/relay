@@ -7,7 +7,7 @@
 
 use common::{Location, Named, WithLocation};
 use graphql_syntax::{FloatValue, OperationKind};
-use interner::StringKey;
+use intern::string_key::StringKey;
 use schema::{FieldID, Type, TypeReference};
 use schema::{SDLSchema, Schema};
 use std::fmt;

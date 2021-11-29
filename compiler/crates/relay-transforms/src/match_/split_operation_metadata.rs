@@ -8,7 +8,7 @@
 use common::{NamedItem, WithLocation};
 use fnv::FnvHashSet;
 use graphql_ir::{Argument, ConstantValue, Directive, Value};
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey};
 use lazy_static::lazy_static;
 
 lazy_static! {

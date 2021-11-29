@@ -8,7 +8,7 @@
 use fnv::{FnvHashMap, FnvHashSet};
 
 use graphql_ir::*;
-use interner::StringKey;
+use intern::string_key::StringKey;
 use relay_transforms::{DependencyMap, ResolverFieldFinder};
 use schema::SDLSchema;
 use std::collections::hash_map::Entry;

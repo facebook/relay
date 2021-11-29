@@ -6,7 +6,7 @@
  */
 
 use crate::definitions::{Directive, *};
-use interner::StringKey;
+use intern::string_key::StringKey;
 use std::fmt::{Result as FormatResult, Write};
 
 pub trait Schema {

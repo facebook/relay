@@ -13,7 +13,7 @@ use super::{
 use crate::root_variables::VariableMap;
 use common::DiagnosticsResult;
 use graphql_ir::FragmentDefinition;
-use interner::StringKey;
+use intern::string_key::StringKey;
 use schema::{SDLSchema, Schema};
 use std::sync::Arc;
 

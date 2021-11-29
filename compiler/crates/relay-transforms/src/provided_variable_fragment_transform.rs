@@ -13,7 +13,7 @@ use graphql_ir::{
     FragmentDefinition, Program, Transformed, TransformedValue, Transformer, Variable,
     VariableDefinition,
 };
-use interner::StringKey;
+use intern::string_key::StringKey;
 use itertools::Itertools;
 
 /// This transform applies provided variables in each fragment.

@@ -11,7 +11,7 @@ use graphql_ir::{
     FragmentDefinition, OperationDefinition, Program, ValidationMessage, Validator, Variable,
     UNUSED_LOCAL_VARIABLE_DEPRECATED,
 };
-use interner::StringKey;
+use intern::string_key::StringKey;
 
 /// Validates that there are no unused fragment variables on fragments.
 ///

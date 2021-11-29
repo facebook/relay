@@ -7,7 +7,7 @@
 
 use crate::{lsp_runtime_error::LSPRuntimeResult, server::GlobalState};
 use common::Named;
-use interner::Intern;
+use intern::string_key::Intern;
 use lsp_types::request::Request;
 use schema::Schema;
 use schema_documentation::SchemaDocumentation;

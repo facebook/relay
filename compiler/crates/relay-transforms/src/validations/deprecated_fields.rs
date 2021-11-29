@@ -11,7 +11,7 @@ use common::{Diagnostic, DiagnosticTag, DiagnosticsResult, NamedItem, WithLocati
 use graphql_ir::{
     ExecutableDefinition, LinkedField, Program, ScalarField, ValidationMessage, Validator, Value,
 };
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey};
 use lazy_static::lazy_static;
 use schema::{FieldID, SDLSchema, Schema};
 

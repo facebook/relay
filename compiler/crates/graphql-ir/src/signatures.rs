@@ -16,7 +16,7 @@ use crate::GraphQLSuggestions;
 use common::{Diagnostic, DiagnosticsResult, FeatureFlag, Location, WithLocation};
 use errors::{par_try_map, try2};
 use fnv::FnvHashMap;
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey};
 use lazy_static::lazy_static;
 use schema::{SDLSchema, Schema, Type, TypeReference};
 

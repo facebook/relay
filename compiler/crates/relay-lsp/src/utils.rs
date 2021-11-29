@@ -13,7 +13,7 @@ use dashmap::DashMap;
 use graphql_syntax::{
     parse_executable_with_error_recovery, ExecutableDefinition, ExecutableDocument, GraphQLSource,
 };
-use interner::StringKey;
+use intern::string_key::StringKey;
 use log::debug;
 use lsp_types::{Position, TextDocumentPositionParams, Url};
 use relay_compiler::{compiler_state::SourceSet, FileCategorizer, FileGroup};

@@ -8,7 +8,7 @@
 use super::hash_arguments;
 
 use graphql_ir::Argument;
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey};
 
 pub fn get_applied_fragment_name(spread_name: StringKey, args: &[Argument]) -> StringKey {
     let arguments_hash = hash_arguments(args);

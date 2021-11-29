@@ -11,7 +11,7 @@ use common::{FeatureFlags, PerfLogEvent, PerfLogger};
 use dashmap::mapref::entry::Entry;
 use fnv::FnvHashMap;
 use graphql_watchman::WatchmanFileSourceSubscriptionNextChange;
-use interner::StringKey;
+use intern::string_key::StringKey;
 use log::debug;
 use rayon::iter::ParallelIterator;
 use relay_compiler::{

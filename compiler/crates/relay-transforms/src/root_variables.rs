@@ -12,7 +12,7 @@ use graphql_ir::{
     FragmentDefinition, FragmentSpread, OperationDefinition, Program, ValidationMessage, Value,
     Variable, Visitor,
 };
-use interner::StringKey;
+use intern::string_key::StringKey;
 use schema::{Schema, TypeReference};
 
 pub type VariableMap = FnvHashMap<StringKey, Variable>;

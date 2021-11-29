@@ -15,7 +15,7 @@ use crate::{
     connections::ConnectionInterface,
     handle_fields::{build_handle_field_directive, HandleFieldDirectiveValues},
 };
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey};
 use lazy_static::lazy_static;
 use schema::{Schema, Type};
 use std::sync::Arc;

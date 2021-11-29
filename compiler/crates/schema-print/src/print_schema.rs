@@ -6,7 +6,7 @@
  */
 
 use fnv::FnvHashMap;
-use interner::StringKey;
+use intern::string_key::StringKey;
 use itertools::Itertools;
 use schema::*;
 use std::fmt::{Result, Write};

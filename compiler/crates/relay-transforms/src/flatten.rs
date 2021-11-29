@@ -14,7 +14,7 @@ use graphql_ir::{
     Condition, Directive, FragmentDefinition, InlineFragment, LinkedField, OperationDefinition,
     Program, Selection, TransformedValue, ValidationMessage,
 };
-use interner::StringKey;
+use intern::string_key::StringKey;
 use schema::{Schema, Type};
 
 use crate::node_identifier::{LocationAgnosticPartialEq, NodeIdentifier};

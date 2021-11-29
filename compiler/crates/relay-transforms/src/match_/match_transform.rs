@@ -22,7 +22,7 @@ use graphql_ir::{
     Selection, Transformed, TransformedValue, Transformer, ValidationMessage, Value,
 };
 use indexmap::IndexSet;
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey};
 use schema::{FieldID, ScalarID, Schema, Type, TypeReference};
 use std::{
     hash::{Hash, Hasher},

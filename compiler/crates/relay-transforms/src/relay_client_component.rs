@@ -18,7 +18,7 @@ use graphql_ir::{
     OperationDefinition, Program, Selection, Transformed, Transformer, Value,
 };
 use graphql_syntax::OperationKind;
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey};
 use itertools::Itertools;
 use lazy_static::lazy_static;
 use schema::{InterfaceID, Schema, Type};

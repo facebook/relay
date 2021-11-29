@@ -9,7 +9,7 @@ use crate::{
     writer::{Prop, Writer, AST},
     FlowTypegenPhase,
 };
-use interner::StringKey;
+use intern::string_key::StringKey;
 use itertools::Itertools;
 use std::fmt::{Result, Write};
 
@@ -274,7 +274,7 @@ mod tests {
     use crate::writer::KeyValuePairProp;
 
     use super::*;
-    use interner::Intern;
+    use intern::string_key::Intern;
 
     fn print_type(ast: &AST) -> String {
         let mut printer = Box::new(FlowPrinter::new(FlowTypegenPhase::Final));

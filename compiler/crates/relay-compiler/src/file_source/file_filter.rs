@@ -7,7 +7,7 @@
 
 use fnv::FnvHashSet;
 use glob::Pattern;
-use interner::StringKey;
+use intern::string_key::StringKey;
 
 use crate::{
     compiler_state::SourceSet,

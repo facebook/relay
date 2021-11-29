@@ -15,7 +15,7 @@ use crate::{
     server::GlobalState,
     utils::span_to_range_offset,
 };
-use common::Location as IRLocation;
+use common::{Location as IRLocation, SourceLocationKey};
 use graphql_ir::{FragmentSpread, Program, Visitor};
 use intern::string_key::StringKey;
 use lsp_types::{
@@ -68,6 +68,12 @@ fn transform_ir_location_to_lsp_location(
     let (graphql_literal_text, lsp_location_of_graphql_literal) =
         read_contents_and_get_lsp_location_of_graphql_literal(node_ir_location, root_dir)?;
 
+    // Case 1: for the standalone file, the lsp_location_of_graphql_literal is the result of what we need
+    if let SourceLocationKey::Standalone { .. } = node_ir_location.source_location() {
+        return Ok(lsp_location_of_graphql_literal);
+    }
+
+    // Case 2: for the embedded source, the lsp_location_of_graphql_literal should be swifted by the span range.
     let range_offset = span_to_range_offset(*node_ir_location.span(), &graphql_literal_text)
         .ok_or(LSPRuntimeError::ExpectedError)?;
 

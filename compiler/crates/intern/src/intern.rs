@@ -422,7 +422,8 @@ impl<Id: InternId> From<Id> for InternSerdes<Id> {
 
 impl<Id> Serialize for InternSerdes<Id>
 where
-    Id: InternId<Intern: Serialize>,
+    Id: InternId,
+    Id::Intern: Serialize,
 {
     fn serialize<S: Serializer>(&self, s: S) -> Result<S::Ok, S::Error> {
         // strip the actual type off self's internal Ref.

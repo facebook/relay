@@ -116,8 +116,7 @@
 //! and drop a context during serialization, you must create and drop it at the
 //! same point during deserialization and vice versa.
 
-#![feature(vec_into_raw_parts, associated_type_bounds, const_fn_trait_bound)]
-#![feature(build_hasher_simple_hash_one)]
+#![feature(const_fn_trait_bound)]
 mod atomic_arena;
 #[doc(hidden)]
 pub mod idhasher;

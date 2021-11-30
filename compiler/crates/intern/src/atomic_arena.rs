@@ -9,7 +9,7 @@ use parking_lot::Mutex;
 use std::cell::UnsafeCell;
 use std::fmt::{self, Debug, Display};
 use std::marker::PhantomData;
-use std::mem::MaybeUninit;
+use std::mem::{ManuallyDrop, MaybeUninit};
 use std::num::NonZeroU32;
 use std::ptr::{self, NonNull};
 use std::sync::atomic::{AtomicPtr, AtomicU32, Ordering};
@@ -285,8 +285,10 @@ impl<'a, T> AtomicArena<'a, T> {
         // https://doc.rust-lang.org/std/vec/struct.Vec.html#guarantees
         // notes that "Vec::with_capacity(n), will produce a Vec with
         // exactly the requested capacity".
-        let v: Vec<MaybeUninit<T>> = Vec::with_capacity(cap);
-        let (ptr, len, acap) = v.into_raw_parts();
+        let mut v: ManuallyDrop<Vec<MaybeUninit<T>>> = ManuallyDrop::new(Vec::with_capacity(cap));
+        let len = v.len();
+        let acap = v.capacity();
+        let ptr = v.as_mut_ptr();
         // Ensure with_capacity has obeyed its guarantee.
         memory_consistency_assert!(acap == cap || std::mem::size_of::<T>() == 0);
         memory_consistency_assert_eq!(len, 0);

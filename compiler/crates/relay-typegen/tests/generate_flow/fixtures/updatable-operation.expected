@@ -1,0 +1,15 @@
+==================================== INPUT ====================================
+query UpdatableQuery @updatable {
+  me {
+    actorCount
+    name
+  }
+}
+==================================== OUTPUT ===================================
+export type UpdatableQuery$variables = {||};
+export type UpdatableQuery$data = {|
+  +me: ?{|
+    actorCount: ?number,
+    name: ?string,
+  |},
+|};

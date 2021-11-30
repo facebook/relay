@@ -36,6 +36,7 @@ pub enum AST {
 pub enum Prop {
     KeyValuePair(KeyValuePairProp),
     Spread(SpreadProp),
+    GetterSetterPair(GetterSetterPairProp),
 }
 
 #[derive(Debug, Clone)]
@@ -49,6 +50,13 @@ pub struct KeyValuePairProp {
 #[derive(Debug, Clone)]
 pub struct SpreadProp {
     pub value: StringKey,
+}
+
+#[derive(Debug, Clone)]
+pub struct GetterSetterPairProp {
+    pub key: StringKey,
+    pub getter_return_value: AST,
+    pub setter_parameter: AST,
 }
 
 pub trait Writer {

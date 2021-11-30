@@ -16,7 +16,7 @@ mod writer;
 
 use crate::flow::FlowPrinter;
 use crate::typescript::TypeScriptPrinter;
-use crate::writer::{KeyValuePairProp, SpreadProp, Writer};
+use crate::writer::{GetterSetterPairProp, KeyValuePairProp, SpreadProp, Writer};
 use common::NamedItem;
 use config::FlowTypegenPhase;
 pub use config::{FlowTypegenConfig, TypegenConfig, TypegenLanguage};
@@ -34,6 +34,7 @@ use relay_transforms::{
     ModuleMetadata, RefetchableDerivedFromMetadata, RefetchableMetadata, RelayDirective,
     RelayResolverSpreadMetadata, RequiredMetadataDirective, CHILDREN_CAN_BUBBLE_METADATA_KEY,
     CLIENT_EXTENSION_DIRECTIVE_NAME, RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN,
+    UPDATABLE_DIRECTIVE_NAME,
 };
 use schema::{EnumID, SDLSchema, ScalarID, Schema, Type, TypeReference};
 use std::hash::Hash;
@@ -55,6 +56,9 @@ lazy_static! {
     static ref JS_FIELD_NAME: StringKey = "js".intern();
     static ref KEY_RAW_RESPONSE: StringKey = "rawResponse".intern();
     static ref KEY_TYPENAME: StringKey = "__typename".intern();
+    static ref KEY_ID: StringKey = "id".intern();
+    static ref KEY_NODE: StringKey = "node".intern();
+    static ref KEY_NODES: StringKey = "nodes".intern();
     static ref MODULE_COMPONENT: StringKey = "__module_component".intern();
     static ref RAW_RESPONSE_TYPE_DIRECTIVE_NAME: StringKey = "raw_response_type".intern();
     static ref RESPONSE: StringKey = "response".intern();
@@ -140,6 +144,7 @@ struct TypeGenerator<'a> {
     writer: Box<dyn Writer>,
     has_actor_change: bool,
     flow_typegen_phase: FlowTypegenPhase,
+    is_updatable_operation: bool,
 }
 impl<'a> TypeGenerator<'a> {
     fn new(
@@ -167,6 +172,7 @@ impl<'a> TypeGenerator<'a> {
             },
             has_actor_change: false,
             flow_typegen_phase,
+            is_updatable_operation: false,
         }
     }
 
@@ -174,13 +180,17 @@ impl<'a> TypeGenerator<'a> {
         self.writer.into_string()
     }
 
-
     fn generate_operation_type(
         &mut self,
         typegen_operation: &OperationDefinition,
         normalization_operation: &OperationDefinition,
     ) -> Result {
         let old_variables_identifier = format!("{}Variables", typegen_operation.name.item);
+
+        self.is_updatable_operation = typegen_operation
+            .directives
+            .named(*UPDATABLE_DIRECTIVE_NAME)
+            .is_some();
 
         let input_variables_type = self.generate_input_variables_type(typegen_operation);
 
@@ -322,6 +332,7 @@ impl<'a> TypeGenerator<'a> {
                 }
             }
         }
+        self.is_updatable_operation = false;
         Ok(())
     }
 
@@ -965,20 +976,90 @@ impl<'a> TypeGenerator<'a> {
         unmasked: bool,
         concrete_type: Option<Type>,
     ) -> Prop {
+        let is_updatable_operation = self.is_updatable_operation;
         let optional = type_selection.is_conditional();
+        if is_updatable_operation && optional {
+            panic!(
+                "Within updatable operations, we should never generate optional fields! This indicates a bug in Relay. type_selection: {:?}",
+                type_selection
+            );
+        }
+
         match type_selection {
             TypeSelection::LinkedField(linked_field) => {
-                let object_props = self.selections_to_babel(
-                    hashmap_into_values(linked_field.node_selections),
-                    unmasked,
-                    None,
-                );
-                Prop::KeyValuePair(KeyValuePairProp {
-                    key: linked_field.field_name_or_alias,
-                    value: self.transform_scalar_type(&linked_field.node_type, Some(object_props)),
-                    optional,
-                    read_only: true,
-                })
+                let linked_field_is_updatable =
+                    is_updatable_operation && linked_field.contains_fragment_spread();
+                let key = linked_field.field_name_or_alias;
+
+                if linked_field_is_updatable {
+                    // TODO check whether the field is `node` or `nodes` on `Query`. If so, it should not be
+                    // updatable.
+
+                    let (just_fragments, no_fragments) =
+                        extract_fragments(linked_field.node_selections);
+
+                    let getter_object_props =
+                        self.selections_to_babel(no_fragments.into_iter(), unmasked, None);
+                    let getter_return_value = self
+                        .transform_scalar_type(&linked_field.node_type, Some(getter_object_props));
+
+                    let mut setter_parameter = AST::Union(vec![
+                        // Old
+                        AST::InexactObject(vec![Prop::KeyValuePair(KeyValuePairProp {
+                            key: *KEY_FRAGMENT_REFS,
+                            value: AST::Union(
+                                just_fragments
+                                    .iter()
+                                    .map(|fragment| {
+                                        AST::FragmentReferenceType(fragment.fragment_name)
+                                    })
+                                    .collect(),
+                            ),
+                            read_only: true,
+                            optional: false,
+                        })]),
+                        // New
+                        AST::InexactObject(vec![Prop::KeyValuePair(KeyValuePairProp {
+                            key: *KEY_FRAGMENT_SPREADS,
+                            value: AST::Union(
+                                just_fragments
+                                    .iter()
+                                    .map(|fragment| {
+                                        AST::FragmentReferenceType(fragment.fragment_name)
+                                    })
+                                    .collect(),
+                            ),
+                            read_only: true,
+                            optional: false,
+                        })]),
+                    ]);
+                    if linked_field.node_type.is_list() {
+                        setter_parameter = AST::ReadOnlyArray(Box::new(setter_parameter));
+                    } else {
+                        setter_parameter = AST::Nullable(Box::new(setter_parameter));
+                    }
+
+                    Prop::GetterSetterPair(GetterSetterPairProp {
+                        key,
+                        getter_return_value,
+                        setter_parameter,
+                    })
+                } else {
+                    let object_props = self.selections_to_babel(
+                        hashmap_into_values(linked_field.node_selections),
+                        unmasked,
+                        None,
+                    );
+                    let value =
+                        self.transform_scalar_type(&linked_field.node_type, Some(object_props));
+
+                    Prop::KeyValuePair(KeyValuePairProp {
+                        key,
+                        value,
+                        optional,
+                        read_only: true,
+                    })
+                }
             }
             TypeSelection::ScalarField(scalar_field) => {
                 if scalar_field.special_field == Some(ScalarFieldSpecialSchemaField::TypeName) {
@@ -1002,7 +1083,11 @@ impl<'a> TypeGenerator<'a> {
                         key: scalar_field.field_name_or_alias,
                         value: scalar_field.value,
                         optional,
-                        read_only: true,
+                        // all fields outside of updatable operations are read-only, and within updatable operations,
+                        // the typename field (handled above) and id fields are read-only.
+                        read_only: !is_updatable_operation
+                            || scalar_field.special_field
+                                == Some(ScalarFieldSpecialSchemaField::Id),
                     })
                 }
             }
@@ -1498,6 +1583,14 @@ struct TypeSelectionLinkedField {
     concrete_type: Option<Type>,
 }
 
+impl TypeSelectionLinkedField {
+    fn contains_fragment_spread(&self) -> bool {
+        self.node_selections
+            .iter()
+            .any(|(_, type_selection)| matches!(type_selection, TypeSelection::FragmentSpread(_)))
+    }
+}
+
 #[derive(Debug, Clone)]
 struct TypeSelectionScalarField {
     field_name_or_alias: StringKey,
@@ -1525,6 +1618,7 @@ struct TypeSelectionFragmentSpread {
 enum ScalarFieldSpecialSchemaField {
     JS,
     TypeName,
+    Id,
 }
 
 impl ScalarFieldSpecialSchemaField {
@@ -1533,6 +1627,8 @@ impl ScalarFieldSpecialSchemaField {
             Some(ScalarFieldSpecialSchemaField::JS)
         } else if key == *KEY_TYPENAME {
             Some(ScalarFieldSpecialSchemaField::TypeName)
+        } else if key == *KEY_ID {
+            Some(ScalarFieldSpecialSchemaField::Id)
         } else {
             None
         }
@@ -1759,4 +1855,22 @@ fn to_camel_case(non_camelized_string: String) -> String {
         }
     }
     camelized_string
+}
+
+fn extract_fragments(
+    all_selections: IndexMap<TypeSelectionKey, TypeSelection>,
+) -> (Vec<TypeSelectionFragmentSpread>, Vec<TypeSelection>) {
+    let mut fragments = Vec::with_capacity(all_selections.len());
+    let mut non_fragments = Vec::with_capacity(all_selections.len());
+
+    for (_, type_selection) in all_selections {
+        match type_selection {
+            TypeSelection::FragmentSpread(f) => {
+                fragments.push(f);
+            }
+            _ => non_fragments.push(type_selection),
+        }
+    }
+
+    (fragments, non_fragments)
 }

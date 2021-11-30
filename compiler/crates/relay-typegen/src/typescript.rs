@@ -208,6 +208,11 @@ impl TypeScriptPrinter {
                     self.write(&key_value_pair.value)?;
                     writeln!(&mut self.result, ";")?;
                 }
+                Prop::GetterSetterPair(_) => {
+                    panic!(
+                        "Getters and setters with different types are not implemented in typescript. See https://github.com/microsoft/TypeScript/issues/43662"
+                    );
+                }
             }
         }
         self.indentation -= 1;

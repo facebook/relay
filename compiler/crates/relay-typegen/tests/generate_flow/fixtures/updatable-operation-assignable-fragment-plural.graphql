@@ -1,0 +1,14 @@
+query UpdatableQuery @updatable {
+  node(id: 4) {
+    ... on User {
+      __typename
+      parents {
+        ...Updatable_user
+      }
+    }
+  }
+}
+
+fragment Updatable_user on User @assignable {
+  __typename
+}

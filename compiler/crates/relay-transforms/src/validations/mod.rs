@@ -37,4 +37,4 @@ pub use validate_selection_conflict::validate_selection_conflict;
 pub use validate_server_only_directives::validate_server_only_directives;
 pub use validate_unused_fragment_variables::validate_unused_fragment_variables;
 pub use validate_unused_variables::validate_unused_variables;
-pub use validate_updatable_directive::validate_updatable_directive;
+pub use validate_updatable_directive::{validate_updatable_directive, UPDATABLE_DIRECTIVE_NAME};

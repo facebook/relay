@@ -14,6 +14,7 @@
 mod applied_fragment_name;
 mod apply_fragment_arguments;
 mod apply_transforms;
+mod assignable_fragment_spread;
 mod client_edges;
 mod client_extensions;
 mod connections;
@@ -77,6 +78,7 @@ pub use crate::errors::ValidationMessage;
 pub use applied_fragment_name::get_applied_fragment_name;
 pub use apply_fragment_arguments::apply_fragment_arguments;
 pub use apply_transforms::{apply_transforms, Programs};
+pub use assignable_fragment_spread::transform_assignable_fragment_spreads;
 pub use client_edges::{
     client_edges, preserve_client_edge_backing_ids, preserve_client_edge_selections,
     ClientEdgeMetadata, CLIENT_EDGE_GENERATED_FRAGMENT_KEY, CLIENT_EDGE_METADATA_KEY,

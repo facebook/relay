@@ -1,0 +1,24 @@
+==================================== INPUT ====================================
+query TestQuery {
+  node(id: "4") {
+    ...Assignable_node
+  }
+}
+
+fragment Assignable_node on Node @assignable {
+  __typename
+}
+==================================== OUTPUT ===================================
+query TestQuery {
+  node(id: "4") {
+    ... on Node {
+      ...Assignable_node
+      __isAssignable_node: __typename
+    }
+    __id
+  }
+}
+
+fragment Assignable_node on Node @assignable {
+  __typename
+}

@@ -1,0 +1,9 @@
+query TestQuery {
+  me {
+    ...Assignable_user
+  }
+}
+
+fragment Assignable_user on User @assignable {
+  __typename
+}

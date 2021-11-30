@@ -153,6 +153,7 @@ fn apply_common_transforms(
     })?;
 
     program = log_event.time("client_edges", || client_edges(&program))?;
+
     program = log_event.time("relay_resolvers", || {
         relay_resolvers(&program, feature_flags.enable_relay_resolver_transform)
     })?;
@@ -196,11 +197,17 @@ fn apply_reader_transforms(
     program = log_event.time("handle_field_transform", || {
         handle_field_transform(&program)
     });
+
+    program = log_event.time("transform_assignable_fragment_spreads", || {
+        transform_assignable_fragment_spreads(&program)
+    })?;
+
     program = log_event.time("inline_data_fragment", || inline_data_fragment(&program))?;
     program = log_event.time("skip_unreachable_node", || skip_unreachable_node(&program))?;
     program = log_event.time("remove_base_fragments", || {
         remove_base_fragments(&program, base_fragment_names)
     });
+
     log_event.time("flatten", || flatten(&mut program, true, false))?;
     program = log_event.time("skip_redundant_nodes", || skip_redundant_nodes(&program));
     program = log_event.time("generate_data_driven_dependency_metadata", || {
@@ -409,6 +416,9 @@ fn apply_typegen_transforms(
         required_directive(&program, &feature_flags)
     })?;
     program = log_event.time("client_edges", || client_edges(&program))?;
+    program = log_event.time("transform_assignable_fragment_spreads", || {
+        transform_assignable_fragment_spreads(&program)
+    })?;
     program = log_event.time("relay_resolvers", || {
         relay_resolvers(&program, feature_flags.enable_relay_resolver_transform)
     })?;

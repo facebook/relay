@@ -292,6 +292,16 @@ pub struct Condition {
     pub passing_value: bool,
 }
 
+impl Condition {
+    pub fn directive_name(&self) -> &'static str {
+        if self.passing_value {
+            "include"
+        } else {
+            "skip"
+        }
+    }
+}
+
 // Associated Types
 
 /// @ Name Arguments?

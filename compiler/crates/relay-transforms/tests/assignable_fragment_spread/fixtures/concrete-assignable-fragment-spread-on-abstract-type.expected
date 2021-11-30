@@ -1,0 +1,21 @@
+==================================== INPUT ====================================
+query TestQuery {
+  node(id: "4") {
+    ...Assignable_user
+  }
+}
+
+fragment Assignable_user on User @assignable {
+  __typename
+}
+==================================== OUTPUT ===================================
+query TestQuery {
+  node(id: "4") {
+    ...Assignable_user
+    __id
+  }
+}
+
+fragment Assignable_user on User @assignable {
+  __typename
+}

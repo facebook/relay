@@ -1,0 +1,10 @@
+# expected-to-throw
+query TestQuery($include: Boolean!) {
+  me {
+    ...Assignable_user @skip(if: $include)
+  }
+}
+
+fragment Assignable_user on User @assignable {
+  __typename
+}

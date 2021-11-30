@@ -799,7 +799,7 @@ pub enum ValidationMessage {
     )]
     RequiredRawResponseTypeOnNoInline { fragment_name: StringKey },
 
-    // Updatable
+    // Updatable queries and fragments
     #[error("The @updatable directive is yet allowed on fragments.")]
     UpdatableNotAllowedOnFragments,
 
@@ -888,6 +888,7 @@ pub enum ValidationMessage {
         operation_or_fragment_name: StringKey,
     },
 
+    // Assignable fragments
     #[error(
         "Assignable fragments should contain only a single, unaliased __typename field with no directives."
     )]
@@ -900,6 +901,19 @@ pub enum ValidationMessage {
 
     #[error("No fields can have an alias that start with two underscores.")]
     NoDoubleUnderscoreAlias,
+
+    #[error("Top-level spreads of assignable fragments are not supported.")]
+    AssignableNoTopLevelFragmentSpreads,
+
+    #[error(
+        "The @{disallowed_directive_name} directive is not allowed on assignable fragment spreads."
+    )]
+    AssignableFragmentSpreadNoOtherDirectives {
+        disallowed_directive_name: StringKey,
+    },
+
+    #[error("Assignable fragments cannot appear within inline fragments")]
+    AssignableFragmentSpreadNotWithinInlineFragment,
 }
 
 #[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]

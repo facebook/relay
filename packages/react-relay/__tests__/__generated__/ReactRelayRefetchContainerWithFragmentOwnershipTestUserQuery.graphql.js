@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<9c97634eeeafcdd9b74a97f2938af378>>
+ * @generated SignedSource<<7f158c8b6c6bb09443e494650c733532>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,7 +24,6 @@ export type ReactRelayRefetchContainerWithFragmentOwnershipTestUserQuery$variabl
 export type ReactRelayRefetchContainerWithFragmentOwnershipTestUserQueryVariables = ReactRelayRefetchContainerWithFragmentOwnershipTestUserQuery$variables;
 export type ReactRelayRefetchContainerWithFragmentOwnershipTestUserQuery$data = {|
   +node: ?{|
-    +$fragmentRefs: ReactRelayRefetchContainerWithFragmentOwnershipTestUserFragment$fragmentType,
     +$fragmentSpreads: ReactRelayRefetchContainerWithFragmentOwnershipTestUserFragment$fragmentType,
   |},
 |};

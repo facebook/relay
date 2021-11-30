@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<82db9c124d22583b1ee5ea438c95b670>>
+ * @generated SignedSource<<698da7af806f3d815a831c6775fc1ddb>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -25,7 +25,6 @@ export type RelayModernStoreTest3Fragment$data = {|
   +profilePicture: ?{|
     +uri: ?string,
   |},
-  +$fragmentRefs: RelayModernStoreTest4Fragment$fragmentType,
   +$fragmentSpreads: RelayModernStoreTest4Fragment$fragmentType,
   +$fragmentType: RelayModernStoreTest3Fragment$fragmentType,
 |};

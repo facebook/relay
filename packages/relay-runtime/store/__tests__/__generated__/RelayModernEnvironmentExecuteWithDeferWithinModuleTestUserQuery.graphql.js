@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<1d106436b774dd89616eb087de6295bd>>
+ * @generated SignedSource<<a9f81093550104db605b2122fef144f5>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -29,14 +29,12 @@ export type RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQuery$data
   +node: ?{|
     +__fragmentPropName?: ?string,
     +__module_component?: ?string,
-    +$fragmentRefs: RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user$fragmentType,
     +$fragmentSpreads: RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user$fragmentType,
   |},
   +viewer: ?{|
     +actor: ?{|
       +__fragmentPropName?: ?string,
       +__module_component?: ?string,
-      +$fragmentRefs: RelayModernEnvironmentExecuteWithDeferWithinModuleTestActor_actor$fragmentType,
       +$fragmentSpreads: RelayModernEnvironmentExecuteWithDeferWithinModuleTestActor_actor$fragmentType,
     |},
   |},

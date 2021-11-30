@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<d20bfcdba88cc6b2f188761fbbffac3e>>
+ * @generated SignedSource<<03817d0943542ab3f51b10411a93f99d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,7 +22,6 @@ export type RelayReaderTestShouldNotConsiderDataMissingIfTheFragmentTypeDoesNotM
 export type RelayReaderTestShouldNotConsiderDataMissingIfTheFragmentTypeDoesNotMatchTheDataActorQuery$data = {|
   +viewer: ?{|
     +actor: ?{|
-      +$fragmentRefs: RelayReaderTestShouldNotConsiderDataMissingIfTheFragmentTypeDoesNotMatchTheDataUserProfile$fragmentType,
       +$fragmentSpreads: RelayReaderTestShouldNotConsiderDataMissingIfTheFragmentTypeDoesNotMatchTheDataUserProfile$fragmentType,
     |},
   |},

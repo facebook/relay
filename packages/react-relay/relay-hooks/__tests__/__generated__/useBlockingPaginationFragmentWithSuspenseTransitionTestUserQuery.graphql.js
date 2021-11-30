@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<23581577195a73ad0df70a2c9fe60d7a>>
+ * @generated SignedSource<<a93f0c7aff64a317a06695bcdb7fcab7>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -30,7 +30,6 @@ export type useBlockingPaginationFragmentWithSuspenseTransitionTestUserQueryVari
 export type useBlockingPaginationFragmentWithSuspenseTransitionTestUserQuery$data = {|
   +node: ?{|
     +actor: ?{|
-      +$fragmentRefs: useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment$fragmentType,
       +$fragmentSpreads: useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment$fragmentType,
     |},
   |},

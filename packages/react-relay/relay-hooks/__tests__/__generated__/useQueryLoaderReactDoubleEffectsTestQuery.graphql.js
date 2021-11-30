@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<cef357a7cb28f2ef45474382e2d3a26e>>
+ * @generated SignedSource<<d29966d3ae726c72066e07a8c4dbedb8>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -25,7 +25,6 @@ export type useQueryLoaderReactDoubleEffectsTestQuery$data = {|
   +node: ?{|
     +id: string,
     +name: ?string,
-    +$fragmentRefs: useQueryLoaderReactDoubleEffectsTestUserFragment$fragmentType,
     +$fragmentSpreads: useQueryLoaderReactDoubleEffectsTestUserFragment$fragmentType,
   |},
 |};

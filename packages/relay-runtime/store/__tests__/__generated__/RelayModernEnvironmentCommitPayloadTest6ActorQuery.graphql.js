@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<14fbe2c084fbc4dc6a146daff475df1a>>
+ * @generated SignedSource<<e412bec2180d785b11b9bdbfef2ff53e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -28,10 +28,8 @@ export type RelayModernEnvironmentCommitPayloadTest6ActorQuery$data = {|
     +nameRenderer: ?{|
       +__fragmentPropName?: ?string,
       +__module_component?: ?string,
-      +$fragmentRefs: RelayModernEnvironmentCommitPayloadTest6MarkdownUserNameRenderer_name$fragmentType,
       +$fragmentSpreads: RelayModernEnvironmentCommitPayloadTest6MarkdownUserNameRenderer_name$fragmentType,
     |},
-    +$fragmentRefs: RelayModernEnvironmentCommitPayloadTest6UserFragment$fragmentType,
     +$fragmentSpreads: RelayModernEnvironmentCommitPayloadTest6UserFragment$fragmentType,
   |},
 |};

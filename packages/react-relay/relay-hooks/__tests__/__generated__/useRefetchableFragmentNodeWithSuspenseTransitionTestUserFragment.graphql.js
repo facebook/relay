@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<eaa8ad731ed02ad96e73accc62f05ed2>>
+ * @generated SignedSource<<e0ad5f59cc05f6d9f7ce50696f5b0d54>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -27,7 +27,6 @@ export type useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragment$dat
   +profile_picture: ?{|
     +uri: ?string,
   |},
-  +$fragmentRefs: useRefetchableFragmentNodeWithSuspenseTransitionTestNestedUserFragment$fragmentType,
   +$fragmentSpreads: useRefetchableFragmentNodeWithSuspenseTransitionTestNestedUserFragment$fragmentType,
   +$fragmentType: useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragment$fragmentType,
 |};

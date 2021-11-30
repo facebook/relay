@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<42b61fe40683e9ed032882bcb54c3eb6>>
+ * @generated SignedSource<<34e57606efea098fe93bf69ce48b078d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -25,7 +25,6 @@ export type ActorChangeWithDeferTestFragment$data = {|
   +actor: ?{|
     +name: ?string,
   |},
-  +$fragmentRefs: ActorChangeWithDeferTestDeferFragment$fragmentType,
   +$fragmentSpreads: ActorChangeWithDeferTestDeferFragment$fragmentType,
   +$fragmentType: ActorChangeWithDeferTestFragment$fragmentType,
 |};

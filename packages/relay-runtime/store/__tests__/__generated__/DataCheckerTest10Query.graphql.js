@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<6de8d550cdbf067dcd31a71bac76ef21>>
+ * @generated SignedSource<<2b88947fd4917310ef1f81ef1e61a345>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -26,7 +26,6 @@ export type DataCheckerTest10Query$data = {|
       +edges: ?$ReadOnlyArray<?{|
         +node: ?ActorChangePoint<{|
           +actor_key: string,
-          +$fragmentRefs: DataCheckerTest20Fragment$fragmentType,
           +$fragmentSpreads: DataCheckerTest20Fragment$fragmentType,
         |}>,
       |}>,

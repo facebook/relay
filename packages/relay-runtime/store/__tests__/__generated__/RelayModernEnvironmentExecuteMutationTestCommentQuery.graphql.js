@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<adaf1aea404b524241ac3e3f4ac116f4>>
+ * @generated SignedSource<<0cf07d4837ee7feffb33bc98ed1667cd>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,7 +24,6 @@ export type RelayModernEnvironmentExecuteMutationTestCommentQueryVariables = Rel
 export type RelayModernEnvironmentExecuteMutationTestCommentQuery$data = {|
   +node: ?{|
     +id: string,
-    +$fragmentRefs: RelayModernEnvironmentExecuteMutationTestCommentFragment$fragmentType,
     +$fragmentSpreads: RelayModernEnvironmentExecuteMutationTestCommentFragment$fragmentType,
   |},
 |};

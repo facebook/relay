@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<bf29f70816f38d0f5864fff9eac6a4df>>
+ * @generated SignedSource<<1920c75285410337181cf096ccf5858c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,7 +23,6 @@ export type RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientField
 export type RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserQueryVariables = RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserQuery$variables;
 export type RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserQuery$data = {|
   +me: ?{|
-    +$fragmentRefs: RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserProfile$fragmentType,
     +$fragmentSpreads: RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserProfile$fragmentType,
   |},
 |};

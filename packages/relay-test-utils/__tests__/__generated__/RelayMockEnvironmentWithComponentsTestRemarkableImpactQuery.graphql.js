@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<55528f41e7874ba60b387f9bbd9a31a6>>
+ * @generated SignedSource<<fa7094ecb2dd2325cac0316ae9d62ab6>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,7 +23,6 @@ export type RelayMockEnvironmentWithComponentsTestRemarkableImpactQuery$variable
 export type RelayMockEnvironmentWithComponentsTestRemarkableImpactQueryVariables = RelayMockEnvironmentWithComponentsTestRemarkableImpactQuery$variables;
 export type RelayMockEnvironmentWithComponentsTestRemarkableImpactQuery$data = {|
   +feedback: ?{|
-    +$fragmentRefs: RelayMockEnvironmentWithComponentsTestImpactfulAwesomenessFragment$fragmentType,
     +$fragmentSpreads: RelayMockEnvironmentWithComponentsTestImpactfulAwesomenessFragment$fragmentType,
   |},
 |};

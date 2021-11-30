@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a54283e18558e383283b822fc0156e77>>
+ * @generated SignedSource<<9c978079066cc44cf5c230e75eed0de2>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,7 +21,6 @@ export type RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarQuery$variables
 export type RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarQueryVariables = RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarQuery$variables;
 export type RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarQuery$data = {|
   +me: ?{|
-    +$fragmentRefs: RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment$fragmentType,
     +$fragmentSpreads: RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment$fragmentType,
   |},
 |};

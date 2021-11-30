@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<3ad151d01f63796d7d0dff812c352225>>
+ * @generated SignedSource<<5229229bd038c244abab5bc435602403>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,7 +24,6 @@ export type RelayModernEnvironmentNoInlineTest_noInline$data = {|
   +profile_picture?: ?{|
     +uri: ?string,
   |},
-  +$fragmentRefs: RelayModernEnvironmentNoInlineTest_inner$fragmentType,
   +$fragmentSpreads: RelayModernEnvironmentNoInlineTest_inner$fragmentType,
   +$fragmentType: RelayModernEnvironmentNoInlineTest_noInline$fragmentType,
 |};

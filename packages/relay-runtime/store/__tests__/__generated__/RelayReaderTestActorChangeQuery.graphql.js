@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<321b16712963f111bba8ddd077e52d30>>
+ * @generated SignedSource<<8dd2841c77f22da917131b3edc8e7e9a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,7 +24,6 @@ export type RelayReaderTestActorChangeQuery$data = {|
   +viewer: ?{|
     +actor: ?ActorChangePoint<{|
       +actor_key: string,
-      +$fragmentRefs: RelayReaderTestActorChangeFragment$fragmentType,
       +$fragmentSpreads: RelayReaderTestActorChangeFragment$fragmentType,
     |}>,
   |},

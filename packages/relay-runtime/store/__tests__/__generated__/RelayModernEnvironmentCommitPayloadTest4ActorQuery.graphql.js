@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<6bffaa920ed62aa6cb9f6aac5ade0507>>
+ * @generated SignedSource<<74dd296288c176c0b3a65524defe66f2>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,7 +22,6 @@ export type RelayModernEnvironmentCommitPayloadTest4ActorQueryVariables = RelayM
 export type RelayModernEnvironmentCommitPayloadTest4ActorQuery$data = {|
   +me: ?{|
     +name: ?string,
-    +$fragmentRefs: RelayModernEnvironmentCommitPayloadTest4UserFragment$fragmentType,
     +$fragmentSpreads: RelayModernEnvironmentCommitPayloadTest4UserFragment$fragmentType,
   |},
 |};

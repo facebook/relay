@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<5d9f4860f5cbde94f1d988029192f212>>
+ * @generated SignedSource<<519b36209a60e31591e6d4e58c67befa>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,15 +22,12 @@ declare export opaque type RelayModernEnvironmentNoInlineTest_nestedNoInlinePare
 export type RelayModernEnvironmentNoInlineTest_nestedNoInlineParent$ref = RelayModernEnvironmentNoInlineTest_nestedNoInlineParent$fragmentType;
 export type RelayModernEnvironmentNoInlineTest_nestedNoInlineParent$data = {|
   +mark: ?{|
-    +$fragmentRefs: RelayModernEnvironmentNoInlineTest_nestedNoInline$fragmentType,
     +$fragmentSpreads: RelayModernEnvironmentNoInlineTest_nestedNoInline$fragmentType,
   |},
   +zuck: ?{|
-    +$fragmentRefs: RelayModernEnvironmentNoInlineTest_nestedNoInline$fragmentType,
     +$fragmentSpreads: RelayModernEnvironmentNoInlineTest_nestedNoInline$fragmentType,
   |},
   +joe: ?{|
-    +$fragmentRefs: RelayModernEnvironmentNoInlineTest_nestedNoInline$fragmentType,
     +$fragmentSpreads: RelayModernEnvironmentNoInlineTest_nestedNoInline$fragmentType,
   |},
   +$fragmentType: RelayModernEnvironmentNoInlineTest_nestedNoInlineParent$fragmentType,

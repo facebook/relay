@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<d4521c58c6f4eb2fe8f18d7b9e63cc95>>
+ * @generated SignedSource<<a9a1ff5942df1609d3252d88887750d9>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -36,7 +36,6 @@ export type requestSubscriptionTestSubscription$data = {|
         +nameRenderer: ?{|
           +__fragmentPropName?: ?string,
           +__module_component?: ?string,
-          +$fragmentRefs: requestSubscriptionTestPlainUserNameRenderer_name$fragmentType,
           +$fragmentSpreads: requestSubscriptionTestPlainUserNameRenderer_name$fragmentType,
         |},
       |},

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<2942ab0342132ce74042e0ab98090fdf>>
+ * @generated SignedSource<<4263ccdca612c1d960a8f1823cbc9ee5>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -26,7 +26,6 @@ export type useFragmentNodeTestUsersFragment$data = $ReadOnlyArray<{|
   +profile_picture: ?{|
     +uri: ?string,
   |},
-  +$fragmentRefs: useFragmentNodeTestNestedUserFragment$fragmentType,
   +$fragmentSpreads: useFragmentNodeTestNestedUserFragment$fragmentType,
   +$fragmentType: useFragmentNodeTestUsersFragment$fragmentType,
 |}>;

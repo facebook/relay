@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<95d8ac71417d949e845d6c36fe86201f>>
+ * @generated SignedSource<<cf447b75955687545df2aaac65e4e27c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -30,7 +30,6 @@ export type usePaginationFragmentTestUserQueryNestedFragmentQueryVariables = use
 export type usePaginationFragmentTestUserQueryNestedFragmentQuery$data = {|
   +node: ?{|
     +actor: ?{|
-      +$fragmentRefs: usePaginationFragmentTestUserFragment$fragmentType,
       +$fragmentSpreads: usePaginationFragmentTestUserFragment$fragmentType,
     |},
   |},

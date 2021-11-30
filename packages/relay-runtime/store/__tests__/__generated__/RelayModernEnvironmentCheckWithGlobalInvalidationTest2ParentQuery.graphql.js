@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<6a1b44a6536b0782635d4fe8c2e1d6d2>>
+ * @generated SignedSource<<738f147c04e0aec2c0158b03f10e4122>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -25,7 +25,6 @@ export type RelayModernEnvironmentCheckWithGlobalInvalidationTest2ParentQuery$da
   +me: ?{|
     +id: string,
     +name: ?string,
-    +$fragmentRefs: RelayModernEnvironmentCheckWithGlobalInvalidationTestUserFragment$fragmentType,
     +$fragmentSpreads: RelayModernEnvironmentCheckWithGlobalInvalidationTestUserFragment$fragmentType,
   |},
 |};

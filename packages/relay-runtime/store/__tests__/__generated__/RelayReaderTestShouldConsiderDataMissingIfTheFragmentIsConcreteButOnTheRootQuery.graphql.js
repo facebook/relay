@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<3b724a50bfac290a2028cf075433f9a1>>
+ * @generated SignedSource<<7ce3cb184fcf7b3ede852a6d53ee5373>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,7 +20,6 @@ type RelayReaderTestShouldConsiderDataMissingIfTheFragmentIsConcreteButOnTheRoot
 export type RelayReaderTestShouldConsiderDataMissingIfTheFragmentIsConcreteButOnTheRootQuery$variables = {||};
 export type RelayReaderTestShouldConsiderDataMissingIfTheFragmentIsConcreteButOnTheRootQueryVariables = RelayReaderTestShouldConsiderDataMissingIfTheFragmentIsConcreteButOnTheRootQuery$variables;
 export type RelayReaderTestShouldConsiderDataMissingIfTheFragmentIsConcreteButOnTheRootQuery$data = {|
-  +$fragmentRefs: RelayReaderTestShouldConsiderDataMissingIfTheFragmentIsConcreteButOnTheRootRootFragment$fragmentType,
   +$fragmentSpreads: RelayReaderTestShouldConsiderDataMissingIfTheFragmentIsConcreteButOnTheRootRootFragment$fragmentType,
 |};
 export type RelayReaderTestShouldConsiderDataMissingIfTheFragmentIsConcreteButOnTheRootQueryResponse = RelayReaderTestShouldConsiderDataMissingIfTheFragmentIsConcreteButOnTheRootQuery$data;

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<6d200ea43990d80b7b11cebe2c89e5aa>>
+ * @generated SignedSource<<17028ebf6dfce81aaa174b292be974b5>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,7 +22,6 @@ declare export opaque type RelayReaderTestCreatesFragmentPointersWithVariableArg
 export type RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfile$ref = RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfile$fragmentType;
 export type RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfile$data = {|
   +id: string,
-  +$fragmentRefs: RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfilePicture$fragmentType,
   +$fragmentSpreads: RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfilePicture$fragmentType,
   +$fragmentType: RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfile$fragmentType,
 |};

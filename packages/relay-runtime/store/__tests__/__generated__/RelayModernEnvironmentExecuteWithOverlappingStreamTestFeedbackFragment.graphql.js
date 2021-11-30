@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<3c687ae08facabab1fd6f9c24ace52bc>>
+ * @generated SignedSource<<620bba960d772c0e7ef61e2864f38b06>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -25,7 +25,6 @@ export type RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackFragme
   +actors: ?$ReadOnlyArray<?{|
     +name: ?string,
   |}>,
-  +$fragmentRefs: RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment$fragmentType,
   +$fragmentSpreads: RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment$fragmentType,
   +$fragmentType: RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackFragment$fragmentType,
 |};

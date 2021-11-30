@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<4e366a3ef3a1c7a49546d678f46d3fe7>>
+ * @generated SignedSource<<2fd80eebbf2ce2641a92082945a1ce8f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,7 +24,6 @@ export type FragmentResourceRequiredFieldTestUserQueryVariables = FragmentResour
 export type FragmentResourceRequiredFieldTestUserQuery$data = {|
   +node: ?{|
     +__typename: string,
-    +$fragmentRefs: FragmentResourceRequiredFieldTestUserFragment$fragmentType,
     +$fragmentSpreads: FragmentResourceRequiredFieldTestUserFragment$fragmentType,
   |},
 |};

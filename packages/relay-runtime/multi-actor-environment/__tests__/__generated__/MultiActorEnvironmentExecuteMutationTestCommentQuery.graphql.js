@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<2889f37acb97350c94961061401b5deb>>
+ * @generated SignedSource<<af3041169878a5ceed01a2a8e575bb9e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,7 +24,6 @@ export type MultiActorEnvironmentExecuteMutationTestCommentQueryVariables = Mult
 export type MultiActorEnvironmentExecuteMutationTestCommentQuery$data = {|
   +node: ?{|
     +id: string,
-    +$fragmentRefs: MultiActorEnvironmentExecuteMutationTestCommentFragment$fragmentType,
     +$fragmentSpreads: MultiActorEnvironmentExecuteMutationTestCommentFragment$fragmentType,
   |},
 |};

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<66fbf5fb6e1b974bafbd80fc15d657b1>>
+ * @generated SignedSource<<3c926e98935889539873547e23374abb>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,7 +23,6 @@ export type requestSubscriptionTestConfigCreateSubscription$data = {|
   +configCreateSubscribe: ?{|
     +config: ?{|
       +name: ?string,
-      +$fragmentRefs: requestSubscriptionTestExtraFragment$fragmentType,
       +$fragmentSpreads: requestSubscriptionTestExtraFragment$fragmentType,
     |},
   |},

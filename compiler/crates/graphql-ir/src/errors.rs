@@ -897,6 +897,9 @@ pub enum ValidationMessage {
     AssignableDisallowOtherDirectives {
         disallowed_directive_name: StringKey,
     },
+
+    #[error("No fields can have an alias that start with two underscores.")]
+    NoDoubleUnderscoreAlias,
 }
 
 #[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]

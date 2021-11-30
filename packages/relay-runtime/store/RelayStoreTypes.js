@@ -26,6 +26,7 @@ import type {
   UploadableMap,
 } from '../network/RelayNetworkTypes';
 import type RelayObservable from '../network/RelayObservable';
+import type {GraphQLTaggedNode} from '../query/GraphQLTag';
 import type {RequestIdentifier} from '../util/getRequestIdentifier';
 import type {
   NormalizationArgument,
@@ -43,6 +44,7 @@ import type {
   CacheConfig,
   DataID,
   Disposable,
+  OperationType,
   RenderPolicy,
   Variables,
 } from '../util/RelayRuntimeTypes';
@@ -448,6 +450,10 @@ export interface RecordSourceProxy {
   get(dataID: DataID): ?RecordProxy;
   getRoot(): RecordProxy;
   invalidateStore(): void;
+  readUpdatableQuery_EXPERIMENTAL<TQuery: OperationType>(
+    query: GraphQLTaggedNode,
+    variables: TQuery['variables'],
+  ): TQuery['response'];
 }
 
 export interface ReadOnlyRecordSourceProxy {

@@ -887,6 +887,16 @@ pub enum ValidationMessage {
         outer_type_plural: &'static str,
         operation_or_fragment_name: StringKey,
     },
+
+    #[error(
+        "Assignable fragments should contain only a single, unaliased __typename field with no directives."
+    )]
+    AssignableOnlyUnaliasedTypenameFieldWithNoDirectives,
+
+    #[error("The @{disallowed_directive_name} directive is not allowed on assignable fragments.")]
+    AssignableDisallowOtherDirectives {
+        disallowed_directive_name: StringKey,
+    },
 }
 
 #[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]

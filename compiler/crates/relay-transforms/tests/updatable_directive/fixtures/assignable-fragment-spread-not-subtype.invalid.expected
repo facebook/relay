@@ -1,0 +1,36 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment AssignableFragmentSpreads_node on Node @assignable {
+  __typename	
+}
+
+query TestQuery @updatable {
+  node(id: 4) {
+    ... on Feedback {
+      comments {
+        edges {
+          node {
+            ...AssignableFragmentSpreads_node
+          }
+        }
+      }
+    }
+  }
+}
+==================================== ERROR ====================================
+✖︎ Within updatable operations, each inline fragment spread must contain an unaliased typename field. However, within node, there are inline fragments without typename fields.
+
+  assignable-fragment-spread-not-subtype.invalid.graphql:7:3
+    6 │ query TestQuery @updatable {
+    7 │   node(id: 4) {
+      │   ^^^^
+    8 │     ... on Feedback {
+
+
+✖︎ Within updatable operations, if an assignable fragment is spread on a linked field, the fragment's type (`Node`) must be equal to or a subtype of the field's type (`Comment`).
+
+  assignable-fragment-spread-not-subtype.invalid.graphql:12:16
+   11 │           node {
+   12 │             ...AssignableFragmentSpreads_node
+      │                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   13 │           }

@@ -1,0 +1,28 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment Test_page on Page {
+  __typename
+}
+
+query TestQuery @updatable {
+  node(id: 4) {
+    ...Test_page @customDirective(level: 1)
+  }
+}
+==================================== ERROR ====================================
+✖︎ Only fragments decorated with the @assignable directive can be spread within updatable operations. You can try adding the @assignable directive to the fragment Test_page.
+
+  directive-fragment-spread.invalid.graphql:8:8
+    7 │   node(id: 4) {
+    8 │     ...Test_page @customDirective(level: 1)
+      │        ^^^^^^^^^
+    9 │   }
+
+
+✖︎ The @customDirective directive is not allowed in updatable operations.
+
+  directive-fragment-spread.invalid.graphql:8:18
+    7 │   node(id: 4) {
+    8 │     ...Test_page @customDirective(level: 1)
+      │                  ^^^^^^^^^^^^^^^^
+    9 │   }

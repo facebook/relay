@@ -222,3 +222,21 @@ directive @relay_resolver(
   fragment_name: String!
   import_path: String!
 ) on FIELD_DEFINITION
+
+"""
+(Relay Only)
+
+Marks a given query or fragment as updatable.
+
+[Read More](https://fb.quip.com/4FZaADvkQPPl)
+"""
+directive @updatable on QUERY | FRAGMENT_DEFINITION
+
+"""
+(Relay Only)
+
+Marks a given fragment as assignable.
+
+[Read More](https://fb.quip.com/4FZaADvkQPPl)
+"""
+directive @assignable on FRAGMENT_DEFINITION

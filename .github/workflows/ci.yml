@@ -110,7 +110,7 @@ jobs:
       - uses: actions/upload-artifact@v2
         with:
           name: ${{ matrix.target.artifact-name }}
-          path: compiler/target/release/${{ matrix.target.build-name }}
+          path: compiler/target/${{ matrix.target.target }}/release/${{ matrix.target.build-name }}
 
   main-release:
     name: Publish main tag to npm

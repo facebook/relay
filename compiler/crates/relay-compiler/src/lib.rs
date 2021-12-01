@@ -19,6 +19,7 @@ mod file_source;
 mod graphql_asts;
 mod red_to_green;
 mod remote_persister;
+mod file_persister;
 pub mod saved_state;
 pub mod status_reporter;
 
@@ -40,3 +41,4 @@ pub use file_source::{
 };
 pub use graphql_asts::GraphQLAsts;
 pub use remote_persister::RemotePersister;
+pub use file_persister::FilePersister;

@@ -12,6 +12,8 @@ use crate::build_project::{
 };
 use crate::compiler_state::{ProjectName, SourceSet};
 use crate::errors::{ConfigValidationError, Error, Result};
+use crate::remote_persister::{RemotePersistConfig, RemotePersister};
+use crate::file_persister::{FilePersistConfig, FilePersister};
 use crate::saved_state::SavedStateLoader;
 use crate::status_reporter::{ConsoleStatusReporter, StatusReporter};
 use async_trait::async_trait;
@@ -88,9 +90,6 @@ pub struct Config {
     pub saved_state_config: Option<ScmAwareClockData>,
     pub saved_state_loader: Option<Box<dyn SavedStateLoader + Send + Sync>>,
     pub saved_state_version: String,
-
-    /// Function that is called to save operation text (e.g. to a database) and to generate an id.
-    pub operation_persister: Option<Box<dyn OperationPersister + Send + Sync>>,
 
     pub post_artifacts_write: Option<PostArtifactsWriter>,
 
@@ -202,6 +201,14 @@ impl Config {
             projects,
             ..
         } = config_file;
+
+        let config_file_dir = config_path.parent().unwrap();
+        let root_dir = if let Some(config_root) = config_file.root {
+            config_file_dir.join(config_root).canonicalize().unwrap()
+        } else {
+            config_file_dir.to_owned()
+        };
+
         let projects = projects
             .into_iter()
             .map(|(project_name, config_file_project)| {
@@ -245,6 +252,19 @@ impl Config {
                         }],
                     })?;
 
+                let operation_persister: Option<Box<dyn OperationPersister + Send + Sync>> =
+                    match config_file_project.persist {
+                        Some(config) => match config {
+                            PersistConfig::Remote(remote_config) => {
+                                Some(Box::new(RemotePersister::new(remote_config)))
+                            },
+                            PersistConfig::File(file_config) => {
+                                Some(Box::new(FilePersister::new(file_config.file_path, root_dir.clone())))
+                            }
+                        },
+                        _ => None,
+                    };
+
                 let project_config = ProjectConfig {
                     name: project_name,
                     base: config_file_project.base,
@@ -256,7 +276,7 @@ impl Config {
                     shard_strip_regex,
                     schema_location,
                     typegen_config: config_file_project.typegen_config,
-                    persist: config_file_project.persist,
+                    operation_persister: operation_persister,
                     variable_names_comment: config_file_project.variable_names_comment,
                     extra: config_file_project.extra,
                     test_path_regex,
@@ -273,13 +293,6 @@ impl Config {
                 Ok((project_name, project_config))
             })
             .collect::<Result<FnvIndexMap<_, _>>>()?;
-
-        let config_file_dir = config_path.parent().unwrap();
-        let root_dir = if let Some(config_root) = config_file.root {
-            config_file_dir.join(config_root).canonicalize().unwrap()
-        } else {
-            config_file_dir.to_owned()
-        };
 
         let config = Self {
             name: config_file.name,
@@ -298,7 +311,6 @@ impl Config {
             saved_state_loader: None,
             saved_state_version: hex::encode(hash.result()),
             connection_interface: config_file.connection_interface,
-            operation_persister: None,
             compile_everything: false,
             repersist_operations: false,
             post_artifacts_write: None,
@@ -449,7 +461,6 @@ impl fmt::Debug for Config {
             saved_state_loader,
             connection_interface,
             saved_state_version,
-            operation_persister,
             post_artifacts_write,
             ..
         } = self;
@@ -470,10 +481,6 @@ impl fmt::Debug for Config {
             .field("codegen_command", codegen_command)
             .field("load_saved_state_file", load_saved_state_file)
             .field("saved_state_config", saved_state_config)
-            .field(
-                "operation_persister",
-                &option_fn_to_string(operation_persister),
-            )
             .field(
                 "generate_extra_artifacts",
                 &option_fn_to_string(generate_extra_artifacts),
@@ -503,7 +510,7 @@ pub struct ProjectConfig {
     pub enabled: bool,
     pub schema_location: SchemaLocation,
     pub typegen_config: TypegenConfig,
-    pub persist: Option<PersistConfig>,
+    pub operation_persister: Option<Box<dyn OperationPersister + Send + Sync>>,
     pub variable_names_comment: bool,
     pub extra: serde_json::Value,
     pub feature_flags: Arc<FeatureFlags>,
@@ -528,7 +535,7 @@ impl Debug for ProjectConfig {
             enabled,
             schema_location,
             typegen_config,
-            persist,
+            operation_persister,
             variable_names_comment,
             extra,
             feature_flags,
@@ -538,6 +545,11 @@ impl Debug for ProjectConfig {
             rollout,
             js_module_format,
         } = self;
+
+        fn option_fn_to_string<T>(option: &Option<T>) -> &'static str {
+            if option.is_some() { "Some(Fn)" } else { "None" }
+        }
+
         f.debug_struct("ProjectConfig")
             .field("name", name)
             .field("base", base)
@@ -549,7 +561,10 @@ impl Debug for ProjectConfig {
             .field("enabled", enabled)
             .field("schema_location", schema_location)
             .field("typegen_config", typegen_config)
-            .field("persist", persist)
+            .field(
+                "operation_persister",
+                &option_fn_to_string(operation_persister),
+            )
             .field("variable_names_comment", variable_names_comment)
             .field("extra", extra)
             .field("feature_flags", feature_flags)
@@ -845,14 +860,11 @@ struct ConfigFileProject {
     js_module_format: JsModuleFormat,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
-pub struct PersistConfig {
-    /// URL to send a POST request to to persist.
-    pub url: String,
-    /// The document will be in a POST parameter `text`. This map can contain
-    /// additional parameters to send.
-    pub params: FnvIndexMap<String, String>,
+#[derive(Serialize, Deserialize, Debug)]
+#[serde(untagged)]
+pub enum PersistConfig {
+    Remote(RemotePersistConfig),
+    File(FilePersistConfig),
 }
 
 type PersistId = String;
@@ -862,7 +874,6 @@ pub trait OperationPersister {
     async fn persist_artifact(
         &self,
         artifact_text: String,
-        project_config: &PersistConfig,
     ) -> std::result::Result<PersistId, PersistError>;
 
     fn worker_count(&self) -> usize;

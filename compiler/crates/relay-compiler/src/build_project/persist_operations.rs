@@ -7,7 +7,7 @@
 
 use crate::{
     config::{Config, ProjectConfig},
-    config::{OperationPersister, PersistConfig},
+    config::{OperationPersister},
     errors::BuildProjectError,
     Artifact, ArtifactContent,
 };
@@ -29,7 +29,6 @@ lazy_static! {
 pub async fn persist_operations(
     artifacts: &mut [Artifact],
     root_dir: &PathBuf,
-    persist_config: &PersistConfig,
     config: &Config,
     project_config: &ProjectConfig,
     operation_persister: &'_ (dyn OperationPersister + Send + Sync),
@@ -68,7 +67,7 @@ pub async fn persist_operations(
                         let text = text.clone();
                         Some(async move {
                             operation_persister
-                                .persist_artifact(text, persist_config)
+                                .persist_artifact(text)
                                 .await
                                 .map(|id| {
                                     *id_and_text_hash = Some(QueryID::Persisted { id, text_hash });

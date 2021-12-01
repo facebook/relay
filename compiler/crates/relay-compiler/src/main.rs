@@ -11,7 +11,7 @@ use log::{error, info, Level};
 use relay_compiler::{
     compiler::Compiler,
     config::{Config, SingleProjectConfigFile, TypegenLanguage},
-    FileSourceKind, RemotePersister,
+    FileSourceKind,
 };
 use std::io::Write;
 use std::{
@@ -101,7 +101,6 @@ async fn main() {
         error!("{}", err);
         std::process::exit(1);
     });
-    config.operation_persister = Some(Box::new(RemotePersister));
     config.file_source_config = if should_use_watchman() {
         FileSourceKind::Watchman
     } else {

@@ -179,8 +179,8 @@ export type {
   NormalizationSplitOperation,
   NormalizationStream,
   NormalizationTypeDiscriminator,
+  NormalizationOperation,
 } from './util/NormalizationNode';
-export type {NormalizationOperation} from './util/NormalizationNode';
 export type {
   ReaderArgument,
   ReaderArgumentDefinition,

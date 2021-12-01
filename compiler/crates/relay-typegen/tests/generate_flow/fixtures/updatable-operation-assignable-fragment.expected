@@ -13,13 +13,10 @@ import type { Updatable_viewer$fragmentType } from "Updatable_viewer.graphql";
 export type UpdatableQuery$variables = {||};
 export type UpdatableQuery$data = {|
   get viewer(): ?{||},
-  set viewer(value: ?({
-    +$fragmentRefs: Updatable_viewer$fragmentType,
-    ...
-  } | {
+  set viewer(value: ?{
     +$fragmentSpreads: Updatable_viewer$fragmentType,
     ...
-  })): void,
+  }): void,
 |};
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";

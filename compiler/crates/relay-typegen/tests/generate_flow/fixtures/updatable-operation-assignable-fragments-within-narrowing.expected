@@ -36,13 +36,10 @@ export type UpdatableQuery$data = {|
       // value in case none of the concrete values match.
       +__typename: "%other",
     |}),
-    set actor(value: ?({
-      +$fragmentRefs: Updatable_user$fragmentType | Updatable_page$fragmentType,
-      ...
-    } | {
+    set actor(value: ?{
       +$fragmentSpreads: Updatable_user$fragmentType | Updatable_page$fragmentType,
       ...
-    })): void,
+    }): void,
   |},
 |};
 -------------------------------------------------------------------------------

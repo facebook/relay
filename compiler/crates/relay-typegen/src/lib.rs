@@ -1003,22 +1003,7 @@ impl<'a> TypeGenerator<'a> {
                     let getter_return_value = self
                         .transform_scalar_type(&linked_field.node_type, Some(getter_object_props));
 
-                    let mut setter_parameter = AST::Union(vec![
-                        // Old
-                        AST::InexactObject(vec![Prop::KeyValuePair(KeyValuePairProp {
-                            key: *KEY_FRAGMENT_REFS,
-                            value: AST::Union(
-                                just_fragments
-                                    .iter()
-                                    .map(|fragment| {
-                                        AST::FragmentReferenceType(fragment.fragment_name)
-                                    })
-                                    .collect(),
-                            ),
-                            read_only: true,
-                            optional: false,
-                        })]),
-                        // New
+                    let mut setter_parameter =
                         AST::InexactObject(vec![Prop::KeyValuePair(KeyValuePairProp {
                             key: *KEY_FRAGMENT_SPREADS,
                             value: AST::Union(
@@ -1031,8 +1016,7 @@ impl<'a> TypeGenerator<'a> {
                             ),
                             read_only: true,
                             optional: false,
-                        })]),
-                    ]);
+                        })]);
                     if linked_field.node_type.is_list() {
                         setter_parameter = AST::ReadOnlyArray(Box::new(setter_parameter));
                     } else {

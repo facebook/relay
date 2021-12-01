@@ -27,13 +27,10 @@ export type UpdatableQuery$data = {|
       lastName: ?string,
       name: ?string,
     |},
-    set actor(value: ?({
-      +$fragmentRefs: Updatable_user$fragmentType | Updatable_page$fragmentType,
-      ...
-    } | {
+    set actor(value: ?{
       +$fragmentSpreads: Updatable_user$fragmentType | Updatable_page$fragmentType,
       ...
-    })): void,
+    }): void,
   |},
 |};
 -------------------------------------------------------------------------------

@@ -116,7 +116,6 @@
 //! and drop a context during serialization, you must create and drop it at the
 //! same point during deserialization and vice versa.
 
-#![feature(const_fn_trait_bound)]
 mod atomic_arena;
 #[doc(hidden)]
 pub mod idhasher;

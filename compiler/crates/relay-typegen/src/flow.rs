@@ -82,7 +82,7 @@ impl Writer for FlowPrinter {
 
     fn write_export_fragment_type(&mut self, old_name: &str, new_name: &str) -> Result {
         match self.flow_typegen_phase {
-            FlowTypegenPhase::Phase3 | FlowTypegenPhase::Phase4 => {
+            FlowTypegenPhase::Phase4 => {
                 writeln!(
                     &mut self.result,
                     "declare export opaque type {new_name}: FragmentType;

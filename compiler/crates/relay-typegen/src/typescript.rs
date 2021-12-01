@@ -7,7 +7,7 @@
 
 use crate::writer::{Prop, Writer, AST};
 use crate::TypegenConfig;
-use crate::{KEY_DATA, KEY_FRAGMENT_REFS, KEY_FRAGMENT_SPREADS, KEY_FRAGMENT_TYPE};
+use crate::{KEY_DATA, KEY_FRAGMENT_SPREADS, KEY_FRAGMENT_TYPE};
 use intern::string_key::{Intern, StringKey};
 use itertools::Itertools;
 use std::fmt::{Result, Write};
@@ -192,8 +192,7 @@ impl TypeScriptPrinter {
                     if key_value_pair.read_only {
                         write!(&mut self.result, "readonly ")?;
                     }
-                    if key_value_pair.key == *KEY_FRAGMENT_REFS
-                        || key_value_pair.key == *KEY_FRAGMENT_SPREADS
+                    if key_value_pair.key == *KEY_FRAGMENT_SPREADS
                         || key_value_pair.key == *KEY_FRAGMENT_TYPE
                         || key_value_pair.key == *KEY_DATA
                     {

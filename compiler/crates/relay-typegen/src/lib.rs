@@ -48,7 +48,6 @@ static ACTOR_CHANGE_POINT: &str = "ActorChangePoint";
 
 lazy_static! {
     pub(crate) static ref KEY_DATA: StringKey = "$data".intern();
-    pub(crate) static ref KEY_FRAGMENT_REFS: StringKey = "$fragmentRefs".intern();
     static ref KEY_FRAGMENT_SPREADS: StringKey = "$fragmentSpreads".intern();
     pub(crate) static ref KEY_FRAGMENT_TYPE: StringKey = "$fragmentType".intern();
     static ref FRAGMENT_PROP_NAME: StringKey = "__fragmentPropName".intern();
@@ -235,7 +234,7 @@ impl<'a> TypeGenerator<'a> {
         self.write_input_object_types()?;
 
         match self.flow_typegen_phase {
-            FlowTypegenPhase::Phase3 | FlowTypegenPhase::Phase4 => {
+            FlowTypegenPhase::Phase4 => {
                 let new_variables_identifier = format!("{}$variables", typegen_operation.name.item);
                 self.writer
                     .write_export_type(&new_variables_identifier, &input_variables_type)?;
@@ -253,7 +252,7 @@ impl<'a> TypeGenerator<'a> {
 
 
         let response_identifier = match self.flow_typegen_phase {
-            FlowTypegenPhase::Phase3 | FlowTypegenPhase::Phase4 => {
+            FlowTypegenPhase::Phase4 => {
                 let new_response_identifier = format!("{}$data", typegen_operation.name.item);
                 let old_response_identifier = format!("{}Response", typegen_operation.name.item);
                 self.writer
@@ -273,7 +272,7 @@ impl<'a> TypeGenerator<'a> {
         };
 
         match self.flow_typegen_phase {
-            FlowTypegenPhase::Phase3 | FlowTypegenPhase::Phase4 => {
+            FlowTypegenPhase::Phase4 => {
                 let mut operation_types = vec![
                     Prop::KeyValuePair(KeyValuePairProp {
                         key: *VARIABLES,
@@ -446,7 +445,7 @@ impl<'a> TypeGenerator<'a> {
         }
 
         match self.flow_typegen_phase {
-            FlowTypegenPhase::Phase3 | FlowTypegenPhase::Phase4 => {
+            FlowTypegenPhase::Phase4 => {
                 self.writer.write_export_type(&data_type_name, &type_)?;
                 self.writer.write_export_type(
                     data_type.lookup(),
@@ -776,19 +775,16 @@ impl<'a> TypeGenerator<'a> {
             let mut typename_aliases = IndexSet::new();
             for (concrete_type, selections) in by_concrete_type {
                 types.push(
-                    group_refs(
-                        self.flow_typegen_phase,
-                        base_fields.values().cloned().chain(selections),
-                    )
-                    .map(|selection| {
-                        if selection.is_typename() {
-                            typename_aliases.insert(selection.get_field_name_or_alias().expect(
+                    group_refs(base_fields.values().cloned().chain(selections))
+                        .map(|selection| {
+                            if selection.is_typename() {
+                                typename_aliases.insert(selection.get_field_name_or_alias().expect(
                                 "Just checked this exists by checking that the field is typename",
                             ));
-                        }
-                        self.make_prop(selection, unmasked, Some(concrete_type))
-                    })
-                    .collect(),
+                            }
+                            self.make_prop(selection, unmasked, Some(concrete_type))
+                        })
+                        .collect(),
                 );
             }
 
@@ -823,36 +819,35 @@ impl<'a> TypeGenerator<'a> {
                     true,
                 );
             }
-            let selection_map_values =
-                group_refs(self.flow_typegen_phase, hashmap_into_values(selection_map))
-                    .map(|sel| {
-                        if let TypeSelection::ScalarField(ref scalar_field) = sel {
-                            if sel.is_typename() {
-                                if let Some(type_condition) = scalar_field.concrete_type {
-                                    let mut scalar_field = scalar_field.clone();
-                                    scalar_field.conditional = false;
-                                    return self.make_prop(
-                                        TypeSelection::ScalarField(scalar_field),
-                                        unmasked,
-                                        Some(type_condition),
-                                    );
-                                }
-                            }
-                        } else if let TypeSelection::LinkedField(ref linked_field) = sel {
-                            if let Some(concrete_type) = linked_field.concrete_type {
-                                let mut linked_field = linked_field.clone();
-                                linked_field.concrete_type = None;
+            let selection_map_values = group_refs(hashmap_into_values(selection_map))
+                .map(|sel| {
+                    if let TypeSelection::ScalarField(ref scalar_field) = sel {
+                        if sel.is_typename() {
+                            if let Some(type_condition) = scalar_field.concrete_type {
+                                let mut scalar_field = scalar_field.clone();
+                                scalar_field.conditional = false;
                                 return self.make_prop(
-                                    TypeSelection::LinkedField(linked_field),
+                                    TypeSelection::ScalarField(scalar_field),
                                     unmasked,
-                                    Some(concrete_type),
+                                    Some(type_condition),
                                 );
                             }
                         }
+                    } else if let TypeSelection::LinkedField(ref linked_field) = sel {
+                        if let Some(concrete_type) = linked_field.concrete_type {
+                            let mut linked_field = linked_field.clone();
+                            linked_field.concrete_type = None;
+                            return self.make_prop(
+                                TypeSelection::LinkedField(linked_field),
+                                unmasked,
+                                Some(concrete_type),
+                            );
+                        }
+                    }
 
-                        self.make_prop(sel, unmasked, None)
-                    })
-                    .collect();
+                    self.make_prop(sel, unmasked, None)
+                })
+                .collect();
             types.push(selection_map_values);
         }
 
@@ -1717,59 +1712,24 @@ fn selections_to_map(
 
 // TODO: T85950736 Fix these clippy errors
 #[allow(clippy::while_let_on_iterator, clippy::useless_conversion)]
-fn group_refs(
-    flow_typegen_phase: FlowTypegenPhase,
-    props: impl Iterator<Item = TypeSelection>,
-) -> impl Iterator<Item = TypeSelection> {
-    let mut refs = None;
-    let mut new_refs = None;
+fn group_refs(props: impl Iterator<Item = TypeSelection>) -> impl Iterator<Item = TypeSelection> {
+    let mut fragment_spreads = None;
     let mut props = props.into_iter();
     std::iter::from_fn(move || {
         while let Some(prop) = props.next() {
             if let TypeSelection::FragmentSpread(inline_fragment) = prop {
-                match flow_typegen_phase {
-                    FlowTypegenPhase::Phase3 => {
-                        refs.get_or_insert_with(Vec::new)
-                            .push(inline_fragment.fragment_name);
-                        new_refs
-                            .get_or_insert_with(Vec::new)
-                            .push(inline_fragment.fragment_name);
-                    }
-                    _ => {
-                        new_refs
-                            .get_or_insert_with(Vec::new)
-                            .push(inline_fragment.fragment_name);
-                    }
-                }
+                fragment_spreads
+                    .get_or_insert_with(Vec::new)
+                    .push(inline_fragment.fragment_name);
             } else if let TypeSelection::InlineFragment(inline_fragment) = prop {
-                match flow_typegen_phase {
-                    FlowTypegenPhase::Phase3 => {
-                        refs.get_or_insert_with(Vec::new)
-                            .push(inline_fragment.fragment_name);
-                        new_refs
-                            .get_or_insert_with(Vec::new)
-                            .push(inline_fragment.fragment_name);
-                    }
-                    _ => {
-                        new_refs
-                            .get_or_insert_with(Vec::new)
-                            .push(inline_fragment.fragment_name);
-                    }
-                }
+                fragment_spreads
+                    .get_or_insert_with(Vec::new)
+                    .push(inline_fragment.fragment_name);
             } else {
                 return Some(prop);
             }
         }
-        if let Some(refs) = refs.take() {
-            return Some(TypeSelection::ScalarField(TypeSelectionScalarField {
-                field_name_or_alias: *KEY_FRAGMENT_REFS,
-                value: AST::FragmentReference(refs),
-                special_field: None,
-                conditional: false,
-                concrete_type: None,
-            }));
-        }
-        if let Some(refs) = new_refs.take() {
+        if let Some(refs) = fragment_spreads.take() {
             return Some(TypeSelection::ScalarField(TypeSelectionScalarField {
                 field_name_or_alias: *KEY_FRAGMENT_SPREADS,
                 value: AST::FragmentReference(refs),

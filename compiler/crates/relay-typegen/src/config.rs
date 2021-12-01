@@ -120,9 +120,6 @@ impl FlowTypegenConfig {
 
 #[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
 pub enum FlowTypegenPhase {
-    /// - remove $fragmentRefs from Frag$key type
-    /// - remove $refType from Frag$data
-    Phase3,
     /// - remove $fragmentRefs for spreads
     /// - remove $refType from Frag$data
     Phase4,
@@ -136,8 +133,7 @@ impl FlowTypegenPhase {
     fn previous(self) -> Self {
         use FlowTypegenPhase::*;
         match self {
-            Phase3 => Phase3,
-            Phase4 => Phase3,
+            Phase4 => Phase4,
             Final => Phase4,
         }
     }

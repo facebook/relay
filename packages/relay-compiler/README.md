@@ -80,6 +80,11 @@ yarn relay --config ./relay.json
   - `params`            The document will be in a `POST`
                         parameter `text`. This map can contain additional
                         parameters to send.                             [object]
+  - `filePath`          Relative path to JSON file where you want queries to be
+                        locally persisted to. Note that if you set this
+                        property you cannot also have the `url` or `params`
+                        properties set.
+                                                                        [string]
 
 ### CLI configuration
 

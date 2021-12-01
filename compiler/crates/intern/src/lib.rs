@@ -45,7 +45,7 @@
 //!
 //! Simply import `intern::string` and go to town:
 //! ```
-//! use intern::string_key::{self, StringId};
+//! use intern::string::{self, StringId};
 //!
 //! let a: StringId = string::intern("a");
 //! let b = string::intern("b");

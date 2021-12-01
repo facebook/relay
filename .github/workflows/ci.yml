@@ -90,7 +90,7 @@ jobs:
             os: macos-latest
             build-name: relay
             artifact-name: relay-compiler-macos-arm64
-          - target: x86_64-pc-windows-gnu
+          - target: x86_64-pc-windows-msvc
             os: windows-latest
             build-name: relay.exe
             artifact-name: relay-compiler-win-x64

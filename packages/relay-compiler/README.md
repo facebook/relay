@@ -12,7 +12,7 @@ The simplest way to configure relay is to add a new `relay` section to your
 At minimum, the relay config must specify where to find source files (i.e. files
 containing `graphql` literals) and the GraphQL schema for the project.
 
-```json
+```
 // adding new section to package json
 {
   ...
@@ -49,6 +49,14 @@ or with yarn
 ```shell
 yarn relay --config ./relay.json
 ```
+
+## File Finder
+Relay compiler uses [`watchman`](https://facebook.github.io/watchman/) to find
+file souces, and "listen" to the file  changes in the "watch" mode.
+If `watchman` is not available, the compiler will
+use [glob](https://docs.rs/glob/latest/glob/) to query the filesystem for files.
+
+## Configuration
 
 ### Supported compiler configuration options
 

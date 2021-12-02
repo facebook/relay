@@ -256,6 +256,7 @@ function cloneEventWithSets(event) {
           },
           seenRecords: new Set(Object.keys(data)),
           missingRequiredFields: null,
+          missingClientEdges: null,
           isMissingData: false,
         });
       });
@@ -308,6 +309,7 @@ function cloneEventWithSets(event) {
           },
           seenRecords: new Set(Object.keys(data)),
           missingRequiredFields: null,
+          missingClientEdges: null,
           isMissingData: false,
         });
         expect(snapshot.data?.__fragmentOwner).toBe(owner.request);
@@ -363,6 +365,7 @@ function cloneEventWithSets(event) {
           },
           seenRecords: new Set(['client:2', '4']),
           missingRequiredFields: null,
+          missingClientEdges: null,
           isMissingData: false,
         });
       });
@@ -633,6 +636,7 @@ function cloneEventWithSets(event) {
         expect(callback.mock.calls[0][0]).toEqual({
           ...snapshot,
           missingRequiredFields: null,
+          missingClientEdges: null,
           isMissingData: false,
           data: {
             name: 'Zuck',
@@ -676,6 +680,7 @@ function cloneEventWithSets(event) {
             profilePicture: undefined,
           },
           missingRequiredFields: null,
+          missingClientEdges: null,
           isMissingData: true,
           seenRecords: new Set(Object.keys(nextSource.toJSON())),
         });
@@ -715,6 +720,7 @@ function cloneEventWithSets(event) {
             profilePicture: undefined,
           },
           missingRequiredFields: null,
+          missingClientEdges: null,
           isMissingData: true,
           seenRecords: new Set(['842472']),
         });

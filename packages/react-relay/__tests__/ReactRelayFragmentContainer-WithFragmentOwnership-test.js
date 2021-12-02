@@ -198,6 +198,7 @@ describe('ReactRelayFragmentContainer with fragment ownerhsip', () => {
         __isWithinUnmatchedTypeRefinement: false,
       },
       missingRequiredFields: null,
+      missingClientEdges: null,
       isMissingData: false,
       seenRecords: expect.any(Object),
       selector: createReaderSelector(
@@ -317,6 +318,7 @@ describe('ReactRelayFragmentContainer with fragment ownerhsip', () => {
         __isWithinUnmatchedTypeRefinement: false,
       },
       missingRequiredFields: null,
+      missingClientEdges: null,
       isMissingData: false,
       seenRecords: expect.any(Object),
       selector: createReaderSelector(
@@ -381,6 +383,7 @@ describe('ReactRelayFragmentContainer with fragment ownerhsip', () => {
         __isWithinUnmatchedTypeRefinement: false,
       },
       missingRequiredFields: null,
+      missingClientEdges: null,
       isMissingData: false,
       seenRecords: expect.any(Object),
       selector: createReaderSelector(

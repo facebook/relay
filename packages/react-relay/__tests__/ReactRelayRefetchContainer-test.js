@@ -271,6 +271,7 @@ describe('ReactRelayRefetchContainer', () => {
       },
       isMissingData: false,
       missingRequiredFields: null,
+      missingClientEdges: null,
       seenRecords: expect.any(Object),
       selector: createReaderSelector(
         UserFragment,
@@ -361,6 +362,7 @@ describe('ReactRelayRefetchContainer', () => {
       },
       isMissingData: false,
       missingRequiredFields: null,
+      missingClientEdges: null,
       seenRecords: expect.any(Object),
       selector: createReaderSelector(
         UserFragment,
@@ -412,6 +414,7 @@ describe('ReactRelayRefetchContainer', () => {
       },
       isMissingData: false,
       missingRequiredFields: null,
+      missingClientEdges: null,
       seenRecords: expect.any(Object),
       selector: createReaderSelector(
         UserFragment,
@@ -487,6 +490,7 @@ describe('ReactRelayRefetchContainer', () => {
         // Name is excluded since value of cond is now false
       },
       missingRequiredFields: null,
+      missingClientEdges: null,
       isMissingData: false,
       seenRecords: expect.any(Object),
       selector: createReaderSelector(

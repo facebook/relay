@@ -1,7 +1,7 @@
 {
   "name": "relay-config",
   "description": "Config parser for Relay applications.",
-  "version": "12.0.0",
+  "version": "13.0.0-rc.0",
   "keywords": [
     "graphql",
     "relay"

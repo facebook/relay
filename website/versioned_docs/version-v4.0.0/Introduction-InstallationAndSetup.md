@@ -61,7 +61,7 @@ module.exports = {
 
 ## Set up relay-compiler
 
-Relay's ahead-of-time compilation requires the [Relay Compiler](./graphql-in-relay#relay-compiler), which you can install via `yarn` or `npm`:
+Relay's ahead-of-time compilation requires the [Relay Compiler](Modern-GraphQLInRelay.md#relay-compiler), which you can install via `yarn` or `npm`:
 
 ```sh
 
@@ -101,7 +101,7 @@ yarn run relay --watch
 
 ```
 
-For more details, check out our [Relay Compiler docs](./graphql-in-relay#relay-compiler).
+For more details, check out our [Relay Compiler docs](Modern-GraphQLInRelay.md#relay-compiler).
 
 ## JavaScript environment requirements
 

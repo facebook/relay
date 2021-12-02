@@ -16,6 +16,10 @@ export type RefetchableFragmentQuery$data = {
     readonly " $fragmentSpreads": FragmentRefs<"RefetchableFragment">;
   } | null;
 };
+export type RefetchableFragmentQuery = {
+  variables: RefetchableFragmentQuery$variables;
+  response: RefetchableFragmentQuery$data;
+};
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
 export type RefetchableFragment$data = {

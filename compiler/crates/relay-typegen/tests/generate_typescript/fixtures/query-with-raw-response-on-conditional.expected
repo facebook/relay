@@ -41,6 +41,10 @@ export type ExampleQuery$rawResponse = {
     readonly id: string;
   } | null;
 };
+export type ExampleQuery = {
+  variables: ExampleQuery$variables;
+  response: ExampleQuery$data;
+};
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
 export type FriendFragment$data = {

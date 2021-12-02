@@ -38,6 +38,10 @@ export type UnionTypeTest$data = {
     readonly __typename: "%other";
   } | null;
 };
+export type UnionTypeTest = {
+  variables: UnionTypeTest$variables;
+  response: UnionTypeTest$data;
+};
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
 export type LinkedField$data = {

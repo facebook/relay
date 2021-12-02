@@ -329,6 +329,29 @@ impl<'a> TypeGenerator<'a> {
                     self.writer
                         .write_export_type(&raw_response_identifier, &raw_response_type)?;
                 }
+
+                if self.typegen_config.language == TypegenLanguage::TypeScript {
+                    let new_variables_identifier =
+                        format!("{}$variables", typegen_operation.name.item);
+                    let operation_types = vec![
+                        Prop::KeyValuePair(KeyValuePairProp {
+                            key: *VARIABLES,
+                            read_only: false,
+                            optional: false,
+                            value: AST::Identifier(new_variables_identifier.intern()),
+                        }),
+                        Prop::KeyValuePair(KeyValuePairProp {
+                            key: *RESPONSE,
+                            read_only: false,
+                            optional: false,
+                            value: AST::Identifier(response_identifier.intern()),
+                        }),
+                    ];
+                    self.writer.write_export_type(
+                        typegen_operation.name.item.lookup(),
+                        &AST::ExactObject(operation_types),
+                    )?;
+                }
             }
         }
         self.is_updatable_operation = false;

@@ -45,3 +45,7 @@ export type Test$rawResponse = {
     } | null> | null;
   } | null;
 };
+export type Test = {
+  variables: Test$variables;
+  response: Test$data;
+};

@@ -29,3 +29,7 @@ export type InputHasArray$rawResponse = {
     } | null> | null;
   } | null;
 };
+export type InputHasArray = {
+  variables: InputHasArray$variables;
+  response: InputHasArray$data;
+};

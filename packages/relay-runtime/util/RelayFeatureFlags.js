@@ -14,7 +14,7 @@
 
 import type {Disposable} from '../util/RelayRuntimeTypes';
 
-type FeatureFlags = {|
+export type FeatureFlags = {|
   DELAY_CLEANUP_OF_PENDING_PRELOAD_QUERIES: boolean,
   ENABLE_VARIABLE_CONNECTION_KEY: boolean,
   ENABLE_PARTIAL_RENDERING_DEFAULT: boolean,

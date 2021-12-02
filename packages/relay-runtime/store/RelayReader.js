@@ -450,7 +450,7 @@ class RelayReader {
     field: ReaderRelayResolver,
     record: Record,
     data: SelectorData,
-  ): ?mixed {
+  ): void {
     const {resolverModule, fragment} = field;
     const storageKey = getStorageKey(field, this._variables);
     const resolverID = ClientID.generateClientID(
@@ -523,8 +523,9 @@ class RelayReader {
     if (seenRecord != null) {
       this._seenRecords.add(seenRecord);
     }
-    data[storageKey] = result;
-    return result;
+
+    const applicationName = field.alias ?? field.name;
+    data[applicationName] = result;
   }
 
   _readFlightField(

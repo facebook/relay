@@ -666,7 +666,9 @@ The size of the release buffer is configured with the `gcReleaseBufferSize` para
 
 ## @required
 
-An experimental directive.
+A Relay directive that makes handling potentially `null` values more egonomic.
+
+See also [the @required guide](../guides/required-directive/).
 
 ## Request
 

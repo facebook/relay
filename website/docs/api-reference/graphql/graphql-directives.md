@@ -76,6 +76,12 @@ fragment TodoApp_app on App {
 }
 ```
 
+## @required
+
+`@required` is a directive you can add to fields in your Relay queries to declare how null values should be handled at runtime.
+
+See also [the @required guide](../../guides/required-directive/).
+
 ## `@inline`
 
 The hooks APIs that Relay exposes allow you to read data from the store only during the render phase. In order to read data from outside of the render phase (or from outside of React), Relay exposes the `@inline` directive. The data from a fragment annotated with `@inline` can be read using `readInlineData`.

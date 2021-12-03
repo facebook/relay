@@ -157,7 +157,5 @@ jobs:
             npm publish "$pkg" ${TAG}
           done
         env:
-          TAG: ${{ 
-            github.ref == "refs/heads/main" && "--tag=main" || 
-            (github.ref_type == 'tag' && startsWith(github.ref_name, "v") && contains(github.ref_name, "-rc.") && "--tag=dev") || "" }}
+          TAG: ${{ github.ref == "refs/heads/main" && "--tag=main" || ((github.ref_type == 'tag' && startsWith(github.ref_name, "v") && contains(github.ref_name, "-rc.") && "--tag=dev") || "" )}}
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}

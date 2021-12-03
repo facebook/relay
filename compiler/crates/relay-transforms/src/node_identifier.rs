@@ -269,8 +269,8 @@ impl LocationAgnosticPartialEq for Vec<Directive> {
 
 impl LocationAgnosticHash for Directive {
     fn location_agnostic_hash<H: Hasher>(&self, state: &mut H) {
-        if self.name.item == *ModuleMetadata::DIRECTIVE_NAME {
-            (*ModuleMetadata::DIRECTIVE_NAME).hash(state);
+        if self.name.item == ModuleMetadata::directive_name() {
+            (ModuleMetadata::directive_name()).hash(state);
         } else if !CustomMetadataDirectives::should_skip_in_node_identifier(self.name.item) {
             self.name.location_agnostic_hash(state);
             self.arguments.location_agnostic_hash(state);
@@ -284,7 +284,7 @@ impl LocationAgnosticPartialEq for Directive {
         if !self.name.location_agnostic_eq(&other.name) {
             return false;
         }
-        if self.name.item == *ModuleMetadata::DIRECTIVE_NAME {
+        if self.name.item == ModuleMetadata::directive_name() {
             return true;
         }
         self.arguments.location_agnostic_eq(&other.arguments) && self.data == other.data

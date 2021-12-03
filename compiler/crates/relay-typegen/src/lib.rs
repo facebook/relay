@@ -1800,7 +1800,7 @@ fn apply_required_directive_nullability(
         Some(_) => field_type.with_nullable_item_type(),
         None => field_type.clone(),
     };
-    match directives.named(*RequiredMetadataDirective::DIRECTIVE_NAME) {
+    match directives.named(RequiredMetadataDirective::directive_name()) {
         Some(_) => bubbled_type.non_null(),
         None => bubbled_type,
     }

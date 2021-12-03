@@ -146,7 +146,7 @@ jobs:
           RELEASE_COMMIT_SHA: ${{ github.sha }} 
 
       - name: Build release version
-        if: github.ref_type == 'tag' && startsWith(github.ref_name, "v")
+        if: github.ref_type == 'tag' && startsWith(github.ref_name, 'v')
         run: yarn gulp release
         env:
           npm_package_version: ${{ github.ref_name }}
@@ -157,5 +157,5 @@ jobs:
             npm publish "$pkg" ${TAG}
           done
         env:
-          TAG: ${{ github.ref == "refs/heads/main" && "--tag=main" || ((github.ref_type == 'tag' && startsWith(github.ref_name, "v") && contains(github.ref_name, "-rc.") && "--tag=dev") || "" )}}
+          TAG: ${{ github.ref == 'refs/heads/main' && '--tag=main' || ((github.ref_type == 'tag' && startsWith(github.ref_name, 'v') && contains(github.ref_name, '-rc.') && '--tag=dev') || '' )}}
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}

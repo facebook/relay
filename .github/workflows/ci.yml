@@ -105,7 +105,7 @@ jobs:
           path: compiler/target/release/${{ matrix.target.build-name }}
 
   main-release:
-    name: Publish main tag to npm
+    name: Publish to NPM
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.repository == 'facebook/relay'
     needs: [js-tests, js-lint, typecheck, rust-tests, build-compiler]
@@ -156,5 +156,5 @@ jobs:
             npm publish "$pkg" ${TAG}
           done
         env:
-          TAG: ${{ github.ref == 'refs/heads/main' && '--tag=main' || ((github.ref_type == 'tag' && startsWith(github.ref_name, 'v') && contains(github.ref_name, '-rc.') && '--tag=dev') || '' )}}
+          TAG: ${{ github.ref == 'refs/heads/main' && '--tag=main' || ((contains(github.ref_name, '-rc.') && '--tag=dev') || '' )}}
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}

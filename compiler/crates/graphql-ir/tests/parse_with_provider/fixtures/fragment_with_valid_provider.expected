@@ -68,11 +68,11 @@ fragment TestFragment on User
                         Directive {
                             name: WithLocation {
                                 location: fragment_with_valid_provider.graphql:173:199,
-                                item: "provider",
+                                item: "__ProvidedVariableMetadata",
                             },
                             arguments: [],
                             data: Some(
-                                ProvidedArgument {
+                                ProvidedVariableMetadata {
                                     module_name: "test_foo_gk.js",
                                 },
                             ),

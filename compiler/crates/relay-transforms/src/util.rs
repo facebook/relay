@@ -21,7 +21,7 @@ use crate::{
 };
 
 use graphql_ir::{
-    Argument, Directive, Value, ARGUMENT_DEFINITION, PROVIDER_MODULE,
+    Argument, Directive, ProvidedVariableMetadata, Value, ARGUMENT_DEFINITION,
     UNUSED_LOCAL_VARIABLE_DEPRECATED,
 };
 use intern::string_key::{Intern, StringKey};
@@ -109,7 +109,7 @@ lazy_static! {
         RelayClientComponentMetadata::directive_name(),
         *UNUSED_LOCAL_VARIABLE_DEPRECATED,
         *RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN,
-        *PROVIDER_MODULE,
+        ProvidedVariableMetadata::directive_name(),
     ];
     static ref DIRECTIVES_SKIPPED_IN_NODE_IDENTIFIER: [StringKey; 12] = [
         *CLIENT_EXTENSION_DIRECTIVE_NAME,

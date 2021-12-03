@@ -17,8 +17,9 @@ use common::{Diagnostic, DiagnosticsResult, FeatureFlag, NamedItem, WithLocation
 use fnv::{FnvHashMap, FnvHashSet};
 use graphql_ir::{
     Condition, ConditionValue, ConstantValue, Directive, FragmentDefinition, FragmentSpread,
-    InlineFragment, OperationDefinition, Program, Selection, Transformed, TransformedMulti,
-    TransformedValue, Transformer, ValidationMessage, Value, Variable, VariableDefinition,
+    InlineFragment, OperationDefinition, Program, ProvidedVariableMetadata, Selection, Transformed,
+    TransformedMulti, TransformedValue, Transformer, ValidationMessage, Value, Variable,
+    VariableDefinition,
 };
 use graphql_syntax::OperationKind;
 use indexmap::IndexMap;
@@ -386,7 +387,7 @@ impl ApplyFragmentArgumentsTransform<'_, '_, '_> {
                 .filter(|variable_definition| {
                     variable_definition
                         .directives
-                        .named(*graphql_ir::PROVIDER_MODULE)
+                        .named(ProvidedVariableMetadata::directive_name())
                         .is_some()
                 });
         for definition in provided_arguments {

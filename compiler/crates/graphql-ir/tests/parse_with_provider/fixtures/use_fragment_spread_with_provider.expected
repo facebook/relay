@@ -108,11 +108,11 @@ fragment ChildFragment2 on User
                         Directive {
                             name: WithLocation {
                                 location: use_fragment_spread_with_provider.graphql:247:275,
-                                item: "provider",
+                                item: "__ProvidedVariableMetadata",
                             },
                             arguments: [],
                             data: Some(
-                                ProvidedArgument {
+                                ProvidedVariableMetadata {
                                     module_name: "foo_gk_module.js",
                                 },
                             ),
@@ -219,11 +219,11 @@ fragment ChildFragment2 on User
                         Directive {
                             name: WithLocation {
                                 location: use_fragment_spread_with_provider.graphql:487:515,
-                                item: "provider",
+                                item: "__ProvidedVariableMetadata",
                             },
                             arguments: [],
                             data: Some(
-                                ProvidedArgument {
+                                ProvidedVariableMetadata {
                                     module_name: "foo_gk_module.js",
                                 },
                             ),

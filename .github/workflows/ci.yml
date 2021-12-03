@@ -107,7 +107,7 @@ jobs:
   main-release:
     name: Publish main tag to npm
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.repository == 'facebook/relay' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'push' && github.repository == 'facebook/relay'
     needs: [js-tests, js-lint, typecheck, rust-tests, build-compiler]
     steps:
       - uses: actions/checkout@v2
@@ -138,12 +138,26 @@ jobs:
         run: |
           chmod +x linux-x64/relay
           chmod +x macos-x64/relay
-      - name: Build main version
-        run:  RELEASE_COMMIT_SHA=${{github.sha}} yarn gulp mainrelease
+
+      - name: Build latest (main) version
+        if: github.ref == 'refs/heads/main'
+        run: yarn gulp mainrelease
+        env:
+          RELEASE_COMMIT_SHA: ${{ github.sha }} 
+
+      - name: Build release version
+        if: github.ref_type == 'tag' && startsWith(github.ref_name, "v")
+        run: yarn gulp release
+        evn:
+          npm_package_version: ${{ github.ref_name }}
+
       - name: Publish to npm
         run: |
           for pkg in dist/*; do
-            npm publish "$pkg" --tag main
+            npm publish "$pkg" ${TAG}
           done
         env:
+          TAG: ${{ 
+            github.ref == "refs/heads/main" && "--tag=main" || 
+            (github.ref_type == 'tag' && startsWith(github.ref_name, "v") && contains(github.ref_name, "-rc.") && "--tag=dev") || "" }}
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}

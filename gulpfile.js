@@ -404,5 +404,6 @@ exports.clean = clean;
 exports.dist = dist;
 exports.watch = watch;
 exports.mainrelease = gulp.series(cleanbuild, relayCompiler, setMainVersion);
+exports.release = gulp.series(cleanbuild, relayCompiler);
 exports.cleanbuild = cleanbuild;
 exports.default = cleanbuild;

@@ -148,7 +148,7 @@ jobs:
       - name: Build release version
         if: github.ref_type == 'tag' && startsWith(github.ref_name, "v")
         run: yarn gulp release
-        evn:
+        env:
           npm_package_version: ${{ github.ref_name }}
 
       - name: Publish to npm

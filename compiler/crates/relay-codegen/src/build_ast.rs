@@ -9,6 +9,7 @@ use std::path::Path;
 
 use crate::ast::{Ast, AstBuilder, AstKey, ObjectEntry, Primitive, QueryID, RequestParameters};
 use crate::constants::CODEGEN_CONSTANTS;
+use crate::object;
 use common::{NamedItem, WithLocation};
 use graphql_ir::{
     Argument, Condition, ConditionValue, ConstantValue, Directive, FragmentDefinition,
@@ -56,24 +57,12 @@ pub fn build_request(
     let mut fragment_builder = CodegenBuilder::new(schema, CodegenVariant::Reader, ast_builder);
     let fragment = Primitive::Key(fragment_builder.build_fragment(fragment, true));
 
-    ast_builder.intern(Ast::Object(vec![
-        ObjectEntry {
-            key: CODEGEN_CONSTANTS.fragment,
-            value: fragment,
-        },
-        ObjectEntry {
-            key: CODEGEN_CONSTANTS.kind,
-            value: Primitive::String(CODEGEN_CONSTANTS.request),
-        },
-        ObjectEntry {
-            key: CODEGEN_CONSTANTS.operation,
-            value: operation,
-        },
-        ObjectEntry {
-            key: CODEGEN_CONSTANTS.params,
-            value: Primitive::Key(request_parameters),
-        },
-    ]))
+    ast_builder.intern(Ast::Object(object! {
+        fragment: fragment,
+        kind: Primitive::String(CODEGEN_CONSTANTS.request),
+        operation: operation,
+        params: Primitive::Key(request_parameters),
+    }))
 }
 
 pub fn build_request_params(operation: &OperationDefinition) -> RequestParameters<'_> {
@@ -144,24 +133,12 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             Some(_split_directive) => {
                 let metadata = Primitive::Key(self.object(vec![]));
                 let selections = self.build_selections(operation.selections.iter());
-                let mut fields = vec![
-                    ObjectEntry {
-                        key: CODEGEN_CONSTANTS.kind,
-                        value: Primitive::String(CODEGEN_CONSTANTS.split_operation),
-                    },
-                    ObjectEntry {
-                        key: CODEGEN_CONSTANTS.metadata,
-                        value: metadata,
-                    },
-                    ObjectEntry {
-                        key: CODEGEN_CONSTANTS.name,
-                        value: Primitive::String(operation.name.item),
-                    },
-                    ObjectEntry {
-                        key: CODEGEN_CONSTANTS.selections,
-                        value: selections,
-                    },
-                ];
+                let mut fields = object! {
+                    kind: Primitive::String(CODEGEN_CONSTANTS.split_operation),
+                    metadata: metadata,
+                    name: Primitive::String(operation.name.item),
+                    selections: selections,
+                };
                 if !operation.variable_definitions.is_empty() {
                     let argument_definitions =
                         self.build_operation_variable_definitions(&operation.variable_definitions);
@@ -179,24 +156,12 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                 let argument_definitions =
                     self.build_operation_variable_definitions(&operation.variable_definitions);
                 let selections = self.build_selections(operation.selections.iter());
-                self.object(vec![
-                    ObjectEntry {
-                        key: CODEGEN_CONSTANTS.argument_definitions,
-                        value: argument_definitions,
-                    },
-                    ObjectEntry {
-                        key: CODEGEN_CONSTANTS.kind,
-                        value: Primitive::String(CODEGEN_CONSTANTS.operation_value),
-                    },
-                    ObjectEntry {
-                        key: CODEGEN_CONSTANTS.name,
-                        value: Primitive::String(operation.name.item),
-                    },
-                    ObjectEntry {
-                        key: CODEGEN_CONSTANTS.selections,
-                        value: selections,
-                    },
-                ])
+                self.object(object! {
+                    argument_definitions: argument_definitions,
+                    kind: Primitive::String(CODEGEN_CONSTANTS.operation_value),
+                    name: Primitive::String(operation.name.item),
+                    selections: selections,
+                })
             }
         }
     }
@@ -282,57 +247,48 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         if let Some(refetch_metadata) = RefetchableMetadata::find(&fragment.directives) {
             let refetch_connection = if let Some(connection_metadata) = connection_metadata {
                 let metadata = &connection_metadata[0]; // Validated in `transform_refetchable`
-                let connection_object = vec![
-                    ObjectEntry {
-                        key: CODEGEN_CONSTANTS.forward,
-                        value: if let Some(first) = metadata.first {
-                            Primitive::Key(self.object(vec![
-                                ObjectEntry {
-                                    key: CODEGEN_CONSTANTS.count,
-                                    value: Primitive::String(first),
-                                },
-                                ObjectEntry {
-                                    key: CODEGEN_CONSTANTS.cursor,
-                                    value: Primitive::string_or_null(metadata.after),
-                                },
-                            ]))
-                        } else {
-                            Primitive::Null
-                        },
+                let connection_object = object! {
+                    forward: if let Some(first) = metadata.first {
+                        Primitive::Key(self.object(vec![
+                            ObjectEntry {
+                                key: CODEGEN_CONSTANTS.count,
+                                value: Primitive::String(first),
+                            },
+                            ObjectEntry {
+                                key: CODEGEN_CONSTANTS.cursor,
+                                value: Primitive::string_or_null(metadata.after),
+                            },
+                        ]))
+                    } else {
+                        Primitive::Null
                     },
-                    ObjectEntry {
-                        key: CODEGEN_CONSTANTS.backward,
-                        value: if let Some(last) = metadata.last {
-                            Primitive::Key(self.object(vec![
-                                ObjectEntry {
-                                    key: CODEGEN_CONSTANTS.count,
-                                    value: Primitive::String(last),
-                                },
-                                ObjectEntry {
-                                    key: CODEGEN_CONSTANTS.cursor,
-                                    value: Primitive::string_or_null(metadata.before),
-                                },
-                            ]))
-                        } else {
-                            Primitive::Null
-                        },
+                    backward: if let Some(last) = metadata.last {
+                        Primitive::Key(self.object(vec![
+                            ObjectEntry {
+                                key: CODEGEN_CONSTANTS.count,
+                                value: Primitive::String(last),
+                            },
+                            ObjectEntry {
+                                key: CODEGEN_CONSTANTS.cursor,
+                                value: Primitive::string_or_null(metadata.before),
+                            },
+                        ]))
+                    } else {
+                        Primitive::Null
                     },
-                    ObjectEntry {
-                        key: CODEGEN_CONSTANTS.path,
-                        value: Primitive::Key(
-                            self.array(
-                                metadata
-                                    .path
-                                    .as_ref()
-                                    .expect("Expected path to exist")
-                                    .iter()
-                                    .cloned()
-                                    .map(Primitive::String)
-                                    .collect(),
-                            ),
+                    path: Primitive::Key(
+                        self.array(
+                            metadata
+                                .path
+                                .as_ref()
+                                .expect("Expected path to exist")
+                                .iter()
+                                .cloned()
+                                .map(Primitive::String)
+                                .collect(),
                         ),
-                    },
-                ];
+                    ),
+                };
                 Primitive::Key(self.object(connection_object))
             } else {
                 Primitive::Null

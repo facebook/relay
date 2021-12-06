@@ -17,6 +17,23 @@ pub struct ObjectEntry {
     pub value: Primitive,
 }
 
+/// A helper for creating Vec<ObjectEntry>
+/// For now, field names are defined in `CODEGEN_CONSTANTS
+#[macro_export]
+macro_rules! object {
+    { $( $key:ident: $value:expr, )* } => ({
+        use crate::constants::CODEGEN_CONSTANTS;
+        vec![
+            $(
+                ObjectEntry {
+                    key: CODEGEN_CONSTANTS.$key,
+                    value: $value,
+                },
+            )*
+        ]
+    })
+}
+
 /// An interned codegen AST
 #[derive(Eq, PartialEq, Hash, Debug)]
 pub enum Ast {

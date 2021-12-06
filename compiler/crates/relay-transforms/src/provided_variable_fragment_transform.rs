@@ -20,6 +20,7 @@ use itertools::Itertools;
 ///     [provided_variable_name] --> __[fragment_name]__[provided_variable_name]
 ///  - Remove provided variables from (local) argument definitions
 ///  - Add provided variables to list of used global variables
+/// apply_fragment_arguments depends on provide_variable_fragment_transform
 pub fn provided_variable_fragment_transform(program: &Program) -> Program {
     let mut transform = ProvidedVariableFragmentTransform::new();
     transform

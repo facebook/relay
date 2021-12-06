@@ -392,7 +392,7 @@ impl ApplyFragmentArgumentsTransform<'_, '_, '_> {
                 });
         for definition in provided_arguments {
             self.provided_variables
-                .insert(fragment.name.item, definition.clone());
+                .insert(definition.name.item, definition.clone());
         }
     }
 

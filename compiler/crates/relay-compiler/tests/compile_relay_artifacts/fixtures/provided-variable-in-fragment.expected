@@ -7,9 +7,12 @@ query providedVariableInFragment_Query($id: ID!) {
 }
 
 fragment providedVariableInFragment_Fragment1 on User
-  @argumentDefinitions(foo_gk: {type: "Boolean!", provider: "foo_gk_module.js"})
+  @argumentDefinitions(
+    foo_gk: {type: "Boolean!", provider: "foo_gk_module.js"}
+    foobar_gk: {type: "Boolean!", provider: "foobar_gk_module.js"})
 {
     name @include(if: $foo_gk)
+    alternate_name @include(if: $foobar_gk)
 }
 
 fragment providedVariableInFragment_Fragment2 on User
@@ -78,6 +81,11 @@ fragment providedVariableInFragment_Fragment2 on User
       {
         "defaultValue": null,
         "kind": "LocalArgument",
+        "name": "__providedVariableInFragment_Fragment1__foobar_gk"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
         "name": "__providedVariableInFragment_Fragment2__bar_gk"
       }
     ],
@@ -118,6 +126,20 @@ fragment providedVariableInFragment_Fragment2 on User
                     "args": null,
                     "kind": "ScalarField",
                     "name": "name",
+                    "storageKey": null
+                  }
+                ]
+              },
+              {
+                "condition": "__providedVariableInFragment_Fragment1__foobar_gk",
+                "kind": "Condition",
+                "passingValue": true,
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "alternate_name",
                     "storageKey": null
                   }
                 ]
@@ -166,6 +188,7 @@ QUERY:
 query providedVariableInFragment_Query(
   $id: ID!
   $__providedVariableInFragment_Fragment1__foo_gk: Boolean!
+  $__providedVariableInFragment_Fragment1__foobar_gk: Boolean!
   $__providedVariableInFragment_Fragment2__bar_gk: Boolean!
 ) {
   node(id: $id) {
@@ -178,6 +201,7 @@ query providedVariableInFragment_Query(
 
 fragment providedVariableInFragment_Fragment1 on User {
   name @include(if: $__providedVariableInFragment_Fragment1__foo_gk)
+  alternate_name @include(if: $__providedVariableInFragment_Fragment1__foobar_gk)
 }
 
 fragment providedVariableInFragment_Fragment2 on User {
@@ -190,6 +214,10 @@ fragment providedVariableInFragment_Fragment2 on User {
     {
       "kind": "RootArgument",
       "name": "__providedVariableInFragment_Fragment1__foo_gk"
+    },
+    {
+      "kind": "RootArgument",
+      "name": "__providedVariableInFragment_Fragment1__foobar_gk"
     }
   ],
   "kind": "Fragment",
@@ -206,6 +234,20 @@ fragment providedVariableInFragment_Fragment2 on User {
           "args": null,
           "kind": "ScalarField",
           "name": "name",
+          "storageKey": null
+        }
+      ]
+    },
+    {
+      "condition": "__providedVariableInFragment_Fragment1__foobar_gk",
+      "kind": "Condition",
+      "passingValue": true,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "alternate_name",
           "storageKey": null
         }
       ]

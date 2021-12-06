@@ -46,7 +46,7 @@ export type TestStream$rawResponse = {|
       |}>,
       +pageInfo: ?{|
         +endCursor: ?string,
-        +hasNextPage: ?boolean,
+        +hasNextPage: ?CustomBoolean,
       |},
     |},
   |} | {|

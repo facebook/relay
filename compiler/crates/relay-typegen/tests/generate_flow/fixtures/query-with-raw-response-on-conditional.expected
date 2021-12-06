@@ -19,7 +19,7 @@ fragment FriendFragment on User {
 import type { FriendFragment$fragmentType } from "FriendFragment.graphql";
 export type ExampleQuery$variables = {|
   id: string,
-  condition: boolean,
+  condition: CustomBoolean,
 |};
 export type ExampleQuery$data = {|
   +node: ?{|

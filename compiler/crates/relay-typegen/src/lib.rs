@@ -1228,16 +1228,14 @@ impl<'a> TypeGenerator<'a> {
 
     fn transform_graphql_scalar_type(&mut self, scalar: ScalarID) -> AST {
         let scalar_name = self.schema.scalar(scalar).name;
-        if scalar_name == *TYPE_ID || scalar_name == *TYPE_STRING {
+        if let Some(&custom_scalar) = self.typegen_config.custom_scalar_types.get(&scalar_name) {
+            AST::RawType(custom_scalar)
+        } else if scalar_name == *TYPE_ID || scalar_name == *TYPE_STRING {
             AST::String
         } else if scalar_name == *TYPE_FLOAT || scalar_name == *TYPE_INT {
             AST::Number
         } else if scalar_name == *TYPE_BOOLEAN {
             AST::Boolean
-        } else if let Some(&custom_scalar) =
-            self.typegen_config.custom_scalar_types.get(&scalar_name)
-        {
-            AST::RawType(custom_scalar)
         } else {
             if self.typegen_config.require_custom_scalar_types {
                 panic!(

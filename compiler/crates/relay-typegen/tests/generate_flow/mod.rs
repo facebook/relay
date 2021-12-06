@@ -7,15 +7,18 @@
 
 use common::{ConsoleLogger, FeatureFlag, FeatureFlags, SourceLocationKey};
 use fixture_tests::Fixture;
-use fnv::FnvHashMap;
+use fnv::{FnvBuildHasher, FnvHashMap};
 use graphql_ir::{build, Program};
 use graphql_syntax::parse_executable;
+use indexmap::IndexMap;
 use intern::string_key::Intern;
 use relay_codegen::JsModuleFormat;
 use relay_test_schema::{get_test_schema, get_test_schema_with_extensions};
 use relay_transforms::{apply_transforms, ConnectionInterface};
 use relay_typegen::{self, TypegenConfig, TypegenLanguage};
 use std::sync::Arc;
+
+type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let parts = fixture.content.split("%extensions%").collect::<Vec<_>>();
@@ -56,8 +59,11 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
 
     let js_module_format = JsModuleFormat::Haste;
     let has_unified_output = false;
+    let mut custom_scalar_types = FnvIndexMap::default();
+    custom_scalar_types.insert("Boolean".intern(), "CustomBoolean".intern());
     let typegen_config = TypegenConfig {
         language: TypegenLanguage::Flow,
+        custom_scalar_types,
         ..Default::default()
     };
 

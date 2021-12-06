@@ -14,12 +14,13 @@ pub use directives::{DeferDirective, StreamDirective};
 use graphql_ir::{
     Argument, ConstantValue, Directive, Field, FragmentDefinition, FragmentSpread, InlineFragment,
     LinkedField, OperationDefinition, Program, ScalarField, Selection, Transformed, Transformer,
-    ValidationMessage, Value,
+    Value,
 };
 use intern::string_key::{Intern, StringKey};
 use lazy_static::lazy_static;
 use schema::Schema;
 use std::{collections::HashMap, sync::Arc};
+use thiserror::Error;
 
 pub struct DeferStreamConstants {
     pub defer_name: StringKey,
@@ -394,4 +395,34 @@ fn get_literal_string_argument(
     } else {
         Ok(None)
     }
+}
+
+#[derive(Debug, Error)]
+enum ValidationMessage {
+    #[error(
+        "Invalid use of @{directive_name}, the provided label is not unique. Specify a unique 'label' as a literal string."
+    )]
+    LabelNotUniqueForDeferStream { directive_name: StringKey },
+
+    #[error("Field '{field_name}' is not of list type, therefore cannot use @stream directive.")]
+    StreamFieldIsNotAList { field_name: StringKey },
+
+    #[error("Invalid use of @stream, the 'initial_count' argument is required.")]
+    StreamInitialCountRequired,
+
+    #[error(
+        "Invalid use of @defer on an inline fragment. Relay only supports @defer on fragment spreads."
+    )]
+    InvalidDeferOnInlineFragment,
+
+    #[error("Invalid use of @stream on scalar field '{field_name}'")]
+    InvalidStreamOnScalarField { field_name: StringKey },
+
+    #[error(
+        "Expected the '{arg_name}' value to @{directive_name} to be a string literal if provided."
+    )]
+    LiteralStringArgumentExpectedForDirective {
+        arg_name: StringKey,
+        directive_name: StringKey,
+    },
 }

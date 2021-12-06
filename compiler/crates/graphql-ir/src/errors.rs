@@ -334,9 +334,6 @@ pub enum ValidationMessage {
         next_arg_type: String,
     },
 
-    #[error("Found a circular reference from fragment '{fragment_name}'.")]
-    CircularFragmentReference { fragment_name: StringKey },
-
     #[error("'{name}' should be defined on the server schema.")]
     MissingServerSchemaDefinition { name: StringKey },
 
@@ -438,31 +435,12 @@ pub enum ValidationMessage {
     ConflictingModuleSelections,
 
     #[error(
-        "Invalid use of @{directive_name}, the provided label is not unique. Specify a unique 'label' as a literal string."
-    )]
-    LabelNotUniqueForDeferStream { directive_name: StringKey },
-
-    #[error(
         "Expected the '{arg_name}' value to @{directive_name} to be a string literal if provided."
     )]
     LiteralStringArgumentExpectedForDirective {
         arg_name: StringKey,
         directive_name: StringKey,
     },
-
-    #[error(
-        "Invalid use of @defer on an inline fragment. Relay only supports @defer on fragment spreads."
-    )]
-    InvalidDeferOnInlineFragment,
-
-    #[error("Invalid use of @stream on scalar field '{field_name}'")]
-    InvalidStreamOnScalarField { field_name: StringKey },
-
-    #[error("Invalid use of @stream, the 'initial_count' argument is required.")]
-    StreamInitialCountRequired,
-
-    #[error("Field '{field_name}' is not of list type, therefore cannot use @stream directive.")]
-    StreamFieldIsNotAList { field_name: StringKey },
 
     #[error("Variable `${variable_name}` is never used in operation `{operation_name}`")]
     UnusedVariable {
@@ -624,64 +602,6 @@ pub enum ValidationMessage {
 
     #[error("The directive `@{name}` can only be used once at this location.")]
     RepeatedNonRepeatableDirective { name: StringKey },
-
-    #[error("Invalid use of @{directive_name} on scalar field '{field_name}'.")]
-    ConnectionMutationDirectiveOnScalarField {
-        directive_name: StringKey,
-        field_name: StringKey,
-    },
-
-    #[error(
-        "Invalid use of @{directive_name} on field '{field_name}'. Expected field type 'ID', got '{current_type}'."
-    )]
-    DeleteRecordDirectiveOnUnsupportedType {
-        directive_name: StringKey,
-        field_name: StringKey,
-        current_type: String,
-    },
-
-    #[error("Invalid use of @{directive_name} on linked field '{field_name}'.")]
-    DeleteRecordDirectiveOnLinkedField {
-        directive_name: StringKey,
-        field_name: StringKey,
-    },
-
-    #[error("Expected the 'connections' argument to be defined on @{directive_name}.")]
-    ConnectionsArgumentRequired { directive_name: StringKey },
-
-    #[error(
-        "Unsupported use of @{directive_name} on field '{field_name}', expected an edge field (a field with 'cursor' and 'node' selection)."
-    )]
-    EdgeDirectiveOnUnsupportedType {
-        directive_name: StringKey,
-        field_name: StringKey,
-    },
-
-    #[error(
-        "Invalid use of @{edge_directive_name} and @{node_directive_name} on field '{field_name}' - these directives cannot be used together."
-    )]
-    ConflictingEdgeAndNodeDirectives {
-        edge_directive_name: StringKey,
-        node_directive_name: StringKey,
-        field_name: StringKey,
-    },
-
-    #[error(
-        "Unsupported use of @{directive_name} on field '${field_name}', 'edgeTypeName' argument must be provided."
-    )]
-    NodeDirectiveMissesRequiredEdgeTypeName {
-        directive_name: StringKey,
-        field_name: StringKey,
-    },
-
-    #[error(
-        "Unsupported use of @{directive_name} on field '{field_name}'. Expected an object, union or interface, but got '{current_type}'."
-    )]
-    NodeDirectiveOnUnsupportedType {
-        directive_name: StringKey,
-        field_name: StringKey,
-        current_type: String,
-    },
 
     #[error(
         "Expected 'flight' field schema definition to specify its component name with @react_flight_component"

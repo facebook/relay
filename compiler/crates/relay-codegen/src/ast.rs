@@ -21,10 +21,13 @@ pub struct ObjectEntry {
 /// For now, field names are defined in `CODEGEN_CONSTANTS
 #[macro_export]
 macro_rules! object {
-    { $( $key:ident: $value:expr, )* } => ({
+    { $ ( $(:$func: expr,)* $key:ident: $value:expr,)* } => ({
         use crate::constants::CODEGEN_CONSTANTS;
         vec![
             $(
+                $(
+                    $func,
+                )*
                 ObjectEntry {
                     key: CODEGEN_CONSTANTS.$key,
                     value: $value,

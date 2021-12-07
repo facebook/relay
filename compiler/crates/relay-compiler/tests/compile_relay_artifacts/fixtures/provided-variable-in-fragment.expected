@@ -179,7 +179,21 @@ fragment providedVariableInFragment_Fragment2 on User
     "metadata": {},
     "name": "providedVariableInFragment_Query",
     "operationKind": "query",
-    "text": null
+    "text": null,
+    "providedVariables": [
+      {
+        "name": "__providedVariableInFragment_Fragment1__foo_gk",
+        "provider": require('foo_gk_module.js')
+      },
+      {
+        "name": "__providedVariableInFragment_Fragment1__foobar_gk",
+        "provider": require('foobar_gk_module.js')
+      },
+      {
+        "name": "__providedVariableInFragment_Fragment2__bar_gk",
+        "provider": require('bar_gk_module.js')
+      }
+    ]
   }
 }
 

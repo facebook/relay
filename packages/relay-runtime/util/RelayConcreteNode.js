@@ -48,6 +48,7 @@ export type RequestParameters =
       // common fields
       +name: string,
       +operationKind: 'mutation' | 'query' | 'subscription',
+      +providedVariables?: {|name: string, provider: {|get: () => mixed|}|}[],
       +metadata: {[key: string]: mixed, ...},
     |}
   | {|
@@ -57,6 +58,7 @@ export type RequestParameters =
       // common fields
       +name: string,
       +operationKind: 'mutation' | 'query' | 'subscription',
+      +providedVariables?: {|name: string, provider: {|get: () => mixed|}|}[],
       +metadata: {[key: string]: mixed, ...},
     |};
 

@@ -13,8 +13,8 @@ use crate::object;
 use common::{NamedItem, WithLocation};
 use graphql_ir::{
     Argument, Condition, ConditionValue, ConstantValue, Directive, FragmentDefinition,
-    FragmentSpread, InlineFragment, LinkedField, OperationDefinition, ScalarField, Selection,
-    Value, VariableDefinition,
+    FragmentSpread, InlineFragment, LinkedField, OperationDefinition, ProvidedVariableMetadata,
+    ScalarField, Selection, Value, VariableDefinition,
 };
 use graphql_syntax::OperationKind;
 use intern::string_key::{Intern, StringKey};
@@ -1350,6 +1350,34 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         ]))
     }
 
+    fn build_operation_provided_variables(
+        &mut self,
+        variable_definitions: &[VariableDefinition],
+    ) -> Option<Primitive> {
+        let var_defs = variable_definitions
+            .iter()
+            .filter_map(|def| {
+                let provider_module = ProvidedVariableMetadata::find(&def.directives)?.module_name;
+                Some(Primitive::Key(self.object(vec![
+                    ObjectEntry {
+                        key: CODEGEN_CONSTANTS.name,
+                        value: Primitive::String(def.name.item),
+                    },
+                    ObjectEntry {
+                        key: CODEGEN_CONSTANTS.provider,
+                        value: Primitive::JSModuleDependency(provider_module),
+                    },
+                ])))
+            })
+            .collect::<Vec<_>>();
+
+        if var_defs.is_empty() {
+            None
+        } else {
+            Some(Primitive::Key(self.array(var_defs)))
+        }
+    }
+
     fn build_request_parameters(
         &mut self,
         operation: &OperationDefinition,
@@ -1425,7 +1453,10 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             },
         };
 
-        let params_object = if let Some(text) = request_parameters.text {
+        let provided_variables =
+            self.build_operation_provided_variables(&operation.variable_definitions);
+
+        let mut params_object = if let Some(text) = request_parameters.text {
             vec![
                 ObjectEntry {
                     key: CODEGEN_CONSTANTS.cache_id,
@@ -1452,6 +1483,13 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                 },
             ]
         };
+
+        if let Some(provider_ast) = provided_variables {
+            params_object.push(ObjectEntry {
+                key: CODEGEN_CONSTANTS.provided_variables,
+                value: provider_ast,
+            });
+        }
 
         self.object(params_object)
     }

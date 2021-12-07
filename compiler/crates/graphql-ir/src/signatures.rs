@@ -32,7 +32,7 @@ pub type FragmentSignatures = FnvHashMap<StringKey, FragmentSignature>;
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct ProvidedVariableMetadata {
-    module_name: StringKey,
+    pub module_name: StringKey,
 }
 
 associated_data_impl!(ProvidedVariableMetadata);

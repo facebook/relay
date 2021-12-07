@@ -28,21 +28,32 @@ The relay compiler supports persisted queries. This is useful because:
 
 ## Usage on the client
 
-### The `--persist-output` flag
+### The `persistConfig` option
 
-In your `npm` script in `package.json`, run the relay compiler using the `--persist-output` flag:
+In your relay configiration section in `package.json` you'll need specify
+"persistConfig".
 
-```javascript
+```
 "scripts": {
-  "relay": "relay-compiler --src ./src --schema ./schema.graphql --persist-output ./path/to/persisted-queries.json"
+  "relay": "relay-compiler",
+  "relay-persisting": "node relayLocalPersisting.js"
+},
+"relay": {
+  "src": "./src",
+  "schema": "./schema.graphq",
+  "persistConfig": {
+    "url": "http://localhost:2999",
+    "params": {}
+  }
 }
 ```
 
-The `--persist-output` flag does 2 things:
+Specifiying `persistConfig` in the config will do the folling:
 
 1.  It converts all query and mutation operation texts to md5 hashes.
 
-    For example without `--persist-output`, a generated `ConcreteRequest` might look like below:
+    For example without `persistConfig`, a generated `ConcreteRequest` might look
+    like below:
 
     ```javascript
     const node/*: ConcreteRequest*/ = (function(){
@@ -59,7 +70,7 @@ The `--persist-output` flag does 2 things:
 
     ```
 
-    With `--persist-output <path>` this becomes:
+    With `persistConfig` this becomes:
 
     ```javascript
     const node/*: ConcreteRequest*/ = (function(){
@@ -68,7 +79,8 @@ The `--persist-output` flag does 2 things:
       "kind": "Request",
       "operationKind": "query",
       "name": "TodoItemRefetchQuery",
-      "id": "3be4abb81fa595e25eb725b2c6a87508", // NOTE: id is now an md5 hash of the query text
+      "id": "3be4abb81fa595e25eb725b2c6a87508", // NOTE: id is now an md5 hash
+      // of the query text
       "text": null, // NOTE: text is null now
       //... excluded for brevity
     };
@@ -76,23 +88,115 @@ The `--persist-output` flag does 2 things:
 
     ```
 
-2.  It generates a JSON file at the `<path>` you specify containing a mapping from query ids
-    to the corresponding operation texts.
+2.  It will sent an HTTP POST request with `text` parameter to the
+specified `url`.
+You can also add additional request body parameters to via `params` option.
 
-```javascript
+```
 "scripts": {
-  "relay": "relay-compiler --src ./src --schema ./schema.graphql --persist-output ./src/queryMaps/queryMap.json"
+  "relay": "relay-compiler"
+},
+"relay": {
+  "src": "./src",
+  "schema": "./schema.graphq",
+  "persistConfig": {
+    "url": "http://localhost:2999",
+    "params": {}
+  }
 }
 ```
 
-The example above writes the complete query map file to `./src/queryMaps/queryMap.json`. You need to ensure all the directories
-leading to the `queryMap.json` file exist.
+### Example implemetation of `relayLocalPersisting.js`
+
+A simple persist server that will save query text to the `queryMap.json` file.
+
+
+```javascript
+const http = require('http');
+const crypto = require('crypto');
+const fs = require('fs');
+
+function md5(input) {
+  return crypto.createHash('md5').update(input).digest('hex');
+}
+
+class QueryMap {
+  constructor(fileMapName) {
+    this._fileMapName = fileMapName;
+    this._queryMap = new Map(JSON.parse(fs.readFileSync(this._fileMapName)));
+  }
+
+  _flush() {
+    const data = JSON.stringify(Array.from(this._queryMap.entries()));
+    fs.writeFileSync(this._fileMapName, data);
+  }
+
+  saveQuery(text) {
+    const id = md5(text);
+    this._queryMap.set(id, text);
+    this._flush();
+    return id;
+  }
+}
+
+const queryMap = new QueryMap('./queryMap.json');
+
+async function requestListener(req, res) {
+  if (req.method === 'POST') {
+    const buffers = [];
+    for await (const chunk of req) {
+      buffers.push(chunk);
+    }
+    const data = Buffer.concat(buffers).toString();
+    res.writeHead(200, {
+      'Content-Type': 'application/json'
+    });
+    try {
+      if (req.headers['content-type'] !== 'application/x-www-form-urlencoded') {
+        throw new Error(
+          'Only "application/x-www-form-urlencoded" requests are supported.'
+        );
+      }
+      const text = new URLSearchParams(data).get('text');
+      if (text == null) {
+        throw new Error('Expected to have `text` parameter in the POST.');
+      }
+      const id = queryMap.saveQuery(text);
+      res.end(JSON.stringify({"id": id}));
+    } catch (e) {
+      console.error(e);
+      res.writeHead(400);
+      res.end(`Unable to save query: ${e}.`);
+    }
+  } else {
+    res.writeHead(400);
+    res.end("Request is not supported.")
+  }
+}
+
+const PORT = 2999;
+const server = http.createServer(requestListener);
+server.listen(PORT);
+
+console.log(`Relay persisting server listening on ${PORT} port.`);
+```
+
+The example above writes the complete query map file to `./queryMap.json`.
+To use this, you'll need to update `package.json`:
+
+
+```
+"scripts": {
+  "persist-server": "node ./relayLocalPersisting.js",
+  "relay": "relay-compiler"
+}
+```
 
 </OssOnly>
 
 ### Network layer changes
 
-You'll need to modify your network layer fetch implementation to pass a doc_id parameter in the POST body instead of a query parameter:
+You'll need to modify your network layer fetch implementation to pass a `doc_id` parameter in the POST body instead of a query parameter:
 
 ```javascript
 function fetchQuery(operation, variables,) {
@@ -124,7 +228,9 @@ Your server should then look up the query referenced by `doc_id` when responding
 <OssOnly>
 
 To execute client requests that send persisted queries instead of query text, your server will need to be able
-to lookup the query text corresponding to each id. Typically this will involve saving the output of the `--persist-output <path>` JSON file to a database or some other storage mechanism, and retrieving the corresponding text for the ID specified by a client.
+to lookup the query text corresponding to each id. Typically this will involve saving the output of the `queryMap.json` JSON file to a database or some other storage mechanism, and retrieving the corresponding text for the ID specified by a client.
+
+Additionally, your implementation of `relayLocalPersisting.js` could directly save queries to the database or other storage.
 
 For universal applications where the client and server code are in one project, this is not an issue since you can place
 the query map file in a common location accessible to both the client and the server.
@@ -137,7 +243,8 @@ to push the query map at compile time to a location accessible by your server:
 ```javascript
 "scripts": {
   "push-queries": "node ./pushQueries.js",
-  "relay": "relay-compiler --src ./src --schema ./schema.graphql --persist-output <path> && npm run push-queries"
+  "persist-server": "node ./relayLocalPersisting.js",
+  "relay": "relay-compiler && npm run push-queries"
 }
 ```
 
@@ -159,14 +266,14 @@ requiring the client and server to interact to exchange the query maps.
 Once your server has access to the query map, you can perform the mapping. The solution varies depending on the server and
 database technologies you use, so we'll just cover the most common and basic example here.
 
-If you use `express-graphql` and have access to the query map file, you can import the `--persist-output` JSON file directly and
+If you use `express-graphql` and have access to the query map file, you can import it directly and
 perform the matching using the `matchQueryMiddleware` from [relay-compiler-plus](https://github.com/yusinto/relay-compiler-plus).
 
 ```javascript
 import Express from 'express';
 import expressGraphql from 'express-graphql';
 import {matchQueryMiddleware} from 'relay-compiler-plus';
-import queryMapJson from './path/to/persisted-queries.json';
+import queryMapJson from './path/to/queryMap.json';
 
 const app = Express();
 
@@ -175,9 +282,9 @@ app.use('/graphql',
   expressGraphql({schema}));
 ```
 
-## Using `--persist-output` and `--watch`
+## Using `persistConfig` and `--watch`
 
-It is possible to continuously generate the query map files by using the `--persist-output` and `--watch` options simultaneously.
+It is possible to continuously generate the query map files by using the `persistConfig` and `--watch` options simultaneously.
 This only makes sense for universal applications i.e. if your client and server code are in a single project
 and you run them both together on localhost during development. Furthermore, in order for the server to pick up changes
 to the `queryMap.json`, you'll need to have server side hot-reloading set up. The details on how to set this up

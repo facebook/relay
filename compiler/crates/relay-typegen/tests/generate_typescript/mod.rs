@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{ConsoleLogger, FeatureFlags, SourceLocationKey};
+use common::{ConsoleLogger, FeatureFlag, FeatureFlags, SourceLocationKey};
 use fixture_tests::Fixture;
 use fnv::FnvHashMap;
 use graphql_ir::{build, Program};
@@ -41,10 +41,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         Arc::new(program),
         Default::default(),
         &ConnectionInterface::default(),
-        Arc::new(FeatureFlags {
-            enable_required_transform: true,
-            ..Default::default()
-        }),
+        Arc::new(FeatureFlags::default()),
         &None,
         Arc::new(ConsoleLogger),
         None,

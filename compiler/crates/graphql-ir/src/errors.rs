@@ -660,11 +660,6 @@ pub enum ValidationMessage {
     )]
     RequiredFieldInvalidNesting { suggested_action: StringKey },
 
-    #[error(
-        "The @required directive is experimental and not yet supported for use in product code"
-    )]
-    RequiredNotSupported,
-
     #[error("Module-provided variable ('{argument_name}') may not declare a default value")]
     ProvidedVariableIncompatibleWithDefaultValue { argument_name: StringKey },
 

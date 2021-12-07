@@ -158,7 +158,6 @@ function CompilerExplorer() {
 }
 
 function Config({onFeatureFlagsChanged}) {
-  const [required, setRequired] = useState(true);
   const [flight, setFlight] = useState(true);
   const [hashArgs, setHashArgs] = useState(true);
   const [noInline, setNoInline] = useState(true);
@@ -171,7 +170,6 @@ function Config({onFeatureFlagsChanged}) {
     onFeatureFlagsChanged(
       JSON.stringify({
         enable_flight_transform: flight,
-        enable_required_transform: required,
         hash_supported_argument: {kind: hashArgs ? 'enabled' : 'disabled'},
         no_inline: {kind: noInline ? 'enabled' : 'disabled'},
         enable_3d_branch_arg_generation: threeDBranchArg,
@@ -183,7 +181,6 @@ function Config({onFeatureFlagsChanged}) {
       }),
     );
   }, [
-    required,
     flight,
     hashArgs,
     noInline,
@@ -202,9 +199,6 @@ function Config({onFeatureFlagsChanged}) {
       }}>
       <ConfigOption checked={flight} set={setFlight}>
         Flight Transform
-      </ConfigOption>
-      <ConfigOption checked={required} set={setRequired}>
-        @required
       </ConfigOption>
       <ConfigOption checked={hashArgs} set={setHashArgs}>
         Hash Supported Arguments

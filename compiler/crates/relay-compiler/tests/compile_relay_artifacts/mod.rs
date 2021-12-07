@@ -71,7 +71,6 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
 
     let feature_flags = FeatureFlags {
         enable_flight_transform: true,
-        enable_required_transform: true,
         hash_supported_argument: FeatureFlag::Limited {
             allowlist: array::IntoIter::new(["UserNameRenderer".intern()]).collect(),
         },

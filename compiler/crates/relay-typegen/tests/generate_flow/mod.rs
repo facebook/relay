@@ -45,7 +45,6 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         Default::default(),
         &ConnectionInterface::default(),
         Arc::new(FeatureFlags {
-            enable_required_transform: true,
             no_inline: FeatureFlag::Enabled,
             enable_relay_resolver_transform: true,
             actor_change_support: FeatureFlag::Enabled,

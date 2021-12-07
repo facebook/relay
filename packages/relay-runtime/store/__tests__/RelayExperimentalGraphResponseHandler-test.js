@@ -14,6 +14,7 @@
 import type {MutableRecordSource} from '../RelayStoreTypes';
 import type {GraphQLTaggedNode, PayloadData, Variables} from 'relay-runtime';
 
+const defaultGetDataID = require('../defaultGetDataID');
 const {
   handleGraphModeResponse,
 } = require('../RelayExperimentalGraphResponseHandler');
@@ -26,6 +27,11 @@ const {ROOT_ID} = require('../RelayStoreUtils');
 const {graphql} = require('relay-runtime');
 const {getRequest} = require('relay-runtime/query/GraphQLTag');
 
+const defaultOptions = {
+  getDataID: defaultGetDataID,
+  treatMissingFieldsAsNull: false,
+};
+
 function applyTransform(
   query: GraphQLTaggedNode,
   response: PayloadData,
@@ -36,7 +42,11 @@ function applyTransform(
     ROOT_ID,
     variables,
   );
-  const graphModeResponse = normalizeResponse(response, selector);
+  const graphModeResponse = normalizeResponse(
+    response,
+    selector,
+    defaultOptions,
+  );
 
   const recordSource = new RelayRecordSource();
 

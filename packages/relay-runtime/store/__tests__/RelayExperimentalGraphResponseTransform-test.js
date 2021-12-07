@@ -15,6 +15,7 @@ import type {GraphModeChunk} from '../RelayExperimentalGraphResponseTransform';
 import type {PayloadData, Variables} from 'relay-runtime';
 import type {GraphQLTaggedNode} from 'relay-runtime/query/GraphQLTag';
 
+const defaultGetDataID = require('../defaultGetDataID');
 const {
   normalizeResponse,
 } = require('../RelayExperimentalGraphResponseTransform');
@@ -24,6 +25,11 @@ const {
   createNormalizationSelector,
 } = require('relay-runtime/store/RelayModernSelector');
 const {ROOT_ID} = require('relay-runtime/store/RelayStoreUtils');
+
+const defaultOptions = {
+  getDataID: defaultGetDataID,
+  treatMissingFieldsAsNull: false,
+};
 
 function applyTransform(
   query: GraphQLTaggedNode,
@@ -35,7 +41,7 @@ function applyTransform(
     ROOT_ID,
     variables,
   );
-  return Array.from(normalizeResponse(response, selector));
+  return Array.from(normalizeResponse(response, selector, defaultOptions));
 }
 
 test('Basic', () => {
@@ -553,6 +559,112 @@ test('Fragment Spread (gets inlined into `InlineFragment`)', () => {
         "__id": "client:root",
         "__typename": "__Root",
         "node(id:\\"10\\")": Object {
+          "__id": 0,
+        },
+      },
+      Object {
+        "$kind": "Complete",
+      },
+    ]
+  `);
+});
+
+test('Fragment Spread @no_inline', () => {
+  graphql`
+    fragment RelayExperimentalGraphResponseTransformTest_no_inline_user_name on User
+    @no_inline {
+      name
+    }
+  `;
+  const query = graphql`
+    query RelayExperimentalGraphResponseTransformTestFragmentSpreadNoInlineQuery {
+      node(id: "10") {
+        ...RelayExperimentalGraphResponseTransformTest_no_inline_user_name
+      }
+    }
+  `;
+  const response = {
+    node: {
+      __typename: 'User',
+      name: 'Elizabeth',
+      id: '10',
+    },
+  };
+
+  const actual = applyTransform(query, response, {});
+
+  expect(actual).toMatchInlineSnapshot(`
+    Array [
+      Object {
+        "$kind": "Record",
+        "$streamID": 0,
+        "__id": "10",
+        "__typename": "User",
+        "id": "10",
+        "name": "Elizabeth",
+      },
+      Object {
+        "$kind": "Record",
+        "$streamID": 1,
+        "__id": "client:root",
+        "__typename": "__Root",
+        "node(id:\\"10\\")": Object {
+          "__id": 0,
+        },
+      },
+      Object {
+        "$kind": "Complete",
+      },
+    ]
+  `);
+});
+
+test('Traverses when @defer is disabled', () => {
+  graphql`
+    fragment RelayExperimentalGraphResponseTransformTest_condition on User {
+      name
+    }
+  `;
+  const query = graphql`
+    query RelayExperimentalGraphResponseTransformTestConditionQuery(
+      $id: ID!
+      $enableDefer: Boolean!
+    ) {
+      node(id: $id) {
+        ...RelayExperimentalGraphResponseTransformTest_condition
+          @defer(label: "TestFragment", if: $enableDefer)
+      }
+    }
+  `;
+  const response = {
+    node: {
+      __typename: 'User',
+      name: 'Elizabeth',
+      id: '10',
+    },
+  };
+
+  const actual = applyTransform(query, response, {
+    id: '1',
+    enableDefer: false,
+  });
+
+  expect(actual).toMatchInlineSnapshot(`
+    Array [
+      Object {
+        "$kind": "Record",
+        "$streamID": 0,
+        "__id": "10",
+        "__typename": "User",
+        "id": "10",
+        "name": "Elizabeth",
+      },
+      Object {
+        "$kind": "Record",
+        "$streamID": 1,
+        "__id": "client:root",
+        "__typename": "__Root",
+        "node(id:\\"1\\")": Object {
           "__id": 0,
         },
       },

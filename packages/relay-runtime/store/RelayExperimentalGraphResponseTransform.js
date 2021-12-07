@@ -9,6 +9,9 @@
  * @format
  */
 
+import type {ActorIdentifier} from '../multi-actor-environment/ActorIdentifier';
+import type {NormalizationOptions} from './RelayResponseNormalizer';
+import type {IncrementalDataPlaceholder} from './RelayStoreTypes';
 import type {
   DataID,
   NormalizationField,
@@ -22,15 +25,20 @@ import type {
 } from 'relay-runtime/util/NormalizationNode';
 import type {Variables} from 'relay-runtime/util/RelayRuntimeTypes';
 
+const {getLocalVariables} = require('./RelayConcreteVariables');
+const {createNormalizationSelector} = require('./RelayModernSelector');
 const invariant = require('invariant');
 const {generateClientID} = require('relay-runtime');
-const defaultGetDataID = require('relay-runtime/store/defaultGetDataID');
 const {
   ROOT_TYPE,
   TYPENAME_KEY,
   getStorageKey,
 } = require('relay-runtime/store/RelayStoreUtils');
 const {
+  CLIENT_EXTENSION,
+  CONDITION,
+  DEFER,
+  FRAGMENT_SPREAD,
   INLINE_FRAGMENT,
   LINKED_FIELD,
   SCALAR_FIELD,
@@ -118,24 +126,31 @@ export type GraphModeResponse = Iterable<GraphModeChunk>;
 export function normalizeResponse(
   response: PayloadData,
   selector: NormalizationSelector,
+  options: NormalizationOptions,
 ): GraphModeResponse {
   const {node, variables, dataID} = selector;
-  const normalizer = new GraphModeNormalizer(variables);
+  const normalizer = new GraphModeNormalizer(variables, options);
   return normalizer.normalizeResponse(node, dataID, response);
 }
 
 class GraphModeNormalizer {
   _cacheKeyToStreamID: Map<string, number>;
   _sentFields: Map<string, Set<string>>;
+  _getDataId: GetDataID;
   _nextStreamID: number;
   _getDataID: GetDataID;
   _variables: Variables;
-  constructor(variables: Variables) {
+  _path: Array<string>;
+  _incrementalPlaceholders: Array<IncrementalDataPlaceholder>;
+  _actorIdentifier: ?ActorIdentifier;
+  constructor(variables: Variables, options: NormalizationOptions) {
+    this._actorIdentifier = options.actorIdentifier;
+    this._path = options.path ? [...options.path] : [];
+    this._getDataID = options.getDataID;
     this._cacheKeyToStreamID = new Map();
     this._sentFields = new Map();
     this._nextStreamID = 0;
     this._variables = variables;
-    this._getDataID = defaultGetDataID;
   }
 
   _getStreamID() {
@@ -166,6 +181,15 @@ class GraphModeNormalizer {
   // can expriment with different approaches here.
   _getStorageKey(selection: NormalizationField) {
     return getStorageKey(selection, this._variables);
+  }
+
+  _getVariableValue(name: string): mixed {
+    invariant(
+      this._variables.hasOwnProperty(name),
+      'Unexpected undefined variable `%s`.',
+      name,
+    );
+    return this._variables[name];
   }
 
   *normalizeResponse(
@@ -232,6 +256,8 @@ class GraphModeNormalizer {
 
           const storageKey = this._getStorageKey(selection);
 
+          this._path.push(responseKey);
+
           const fieldValue = yield* this._traverseLinkedField(
             selection.plural,
             fieldData,
@@ -239,6 +265,8 @@ class GraphModeNormalizer {
             selection,
             parentID,
           );
+
+          this._path.pop();
 
           // TODO: We could also opt to confirm that this matches the previously
           // seen value.
@@ -285,6 +313,72 @@ class GraphModeNormalizer {
           );
           break;
         }
+        case FRAGMENT_SPREAD: {
+          const prevVariables = this._variables;
+          this._variables = getLocalVariables(
+            this._variables,
+            selection.fragment.argumentDefinitions,
+            selection.args,
+          );
+          yield* this._traverseSelections(
+            selection.fragment,
+            data,
+            parentFields,
+            parentID,
+            sentFields,
+          );
+          this._variables = prevVariables;
+          break;
+        }
+        case CONDITION:
+          const conditionValue = Boolean(
+            this._getVariableValue(selection.condition),
+          );
+          if (conditionValue === selection.passingValue) {
+            yield* this._traverseSelections(
+              selection,
+              data,
+              parentFields,
+              parentID,
+              sentFields,
+            );
+          }
+          break;
+        case DEFER:
+          const isDeferred =
+            selection.if === null || this._getVariableValue(selection.if);
+          if (isDeferred === false) {
+            // If defer is disabled there will be no additional response chunk:
+            // normalize the data already present.
+            yield* this._traverseSelections(
+              selection,
+              data,
+              parentFields,
+              parentID,
+              sentFields,
+            );
+          } else {
+            // Otherwise data *for this selection* should not be present: enqueue
+            // metadata to process the subsequent response chunk.
+            this._incrementalPlaceholders.push({
+              kind: 'defer',
+              data,
+              label: selection.label,
+              path: [...this._path],
+              selector: createNormalizationSelector(
+                selection,
+                parentID,
+                this._variables,
+              ),
+              typeName: this._getObjectType(data),
+              actorIdentifier: this._actorIdentifier,
+            });
+          }
+          break;
+        case CLIENT_EXTENSION:
+          // Since we are only expecting to handle server responses, we can skip
+          // over client extensions.
+          break;
         default:
           throw new Error(`Unexpected selection type: ${selection.kind}`);
       }
@@ -311,6 +405,7 @@ class GraphModeNormalizer {
 
       const fieldValue = [];
       for (const [i, itemData] of fieldData.entries()) {
+        this._path.push(String(i));
         const itemValue = yield* this._traverseLinkedField(
           false,
           itemData,
@@ -319,6 +414,7 @@ class GraphModeNormalizer {
           parentID,
           i,
         );
+        this._path.pop();
         fieldValue.push(itemValue);
       }
 

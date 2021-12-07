@@ -62,7 +62,7 @@ The Relay Compiler is responsible for generating code as part of a build step wh
 
 <OssOnly>
 
-To use the Relay Compiler, you need either a `.graphql` or `.json` [GraphQL Schema](https://graphql.org/learn/schema/) file, describing your GraphQL server's API. Typically these files are local representations of a server source of truth and are not edited directly. For example, we might have a `schema.graphql` like:
+To use the Relay Compiler, you need a `.graphql` [GraphQL Schema](https://graphql.org/learn/schema/) file, describing your GraphQL server's API. Typically these files are local representations of a server source of truth and are not edited directly. For example, we might have a `schema.graphql` like:
 
 ```graphql
 schema {

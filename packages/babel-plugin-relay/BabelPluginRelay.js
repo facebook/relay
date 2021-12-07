@@ -12,13 +12,25 @@
 
 const compileGraphQLTag = require('./compileGraphQLTag');
 const getValidGraphQLTag = require('./getValidGraphQLTag');
+const cosmiconfig = require('cosmiconfig');
+
+const configExplorer = cosmiconfig('relay', {
+  searchPlaces: ['relay.config.js', 'relay.config.json', 'package.json'],
+  loaders: {
+    '.json': cosmiconfig.loadJson,
+    '.yaml': cosmiconfig.loadYaml,
+    '.yml': cosmiconfig.loadYaml,
+    '.js': cosmiconfig.loadJs,
+    '.es6': cosmiconfig.loadJs,
+    noExt: cosmiconfig.loadYaml,
+  },
+});
 
 let RelayConfig;
-try {
-  // eslint-disable-next-line no-eval
-  RelayConfig = eval('require')('relay-config');
-  // eslint-disable-next-line lint/no-unused-catch-bindings
-} catch (_) {}
+const result = configExplorer.searchSync();
+if (result) {
+  RelayConfig = result.config;
+}
 
 export type RelayPluginOptions = {
   // The command to run to compile Relay files, used for error messages.
@@ -77,8 +89,7 @@ module.exports = function BabelPluginRelay(context: {
   return {
     visitor: {
       Program(path, state) {
-        const config = RelayConfig && RelayConfig.loadConfig();
-        path.traverse(visitor, {...state, opts: {...config, ...state.opts}});
+        path.traverse(visitor, {...state, opts: {...RelayConfig, ...state.opts}});
       },
     },
   };

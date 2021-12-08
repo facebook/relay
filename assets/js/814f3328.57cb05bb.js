@@ -1,1 +1,0 @@
-(self.webpackChunk=self.webpackChunk||[]).push([[52535],{66353:e=>{"use strict";e.exports=JSON.parse('{"title":"Recent posts","items":[{"title":"Introducing Relay Hooks","permalink":"/blog/2021/03/09/introducing-relay-hooks"}]}')}}]);

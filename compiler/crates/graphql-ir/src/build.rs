@@ -7,7 +7,9 @@
 
 use crate::errors::{ValidationMessage, ValidationMessageWithData};
 use crate::ir::*;
-use crate::signatures::{build_signatures, FragmentSignature, FragmentSignatures, PROVIDER_MODULE};
+use crate::signatures::{
+    build_signatures, FragmentSignature, FragmentSignatures, ProvidedVariableMetadata,
+};
 use crate::{constants::ARGUMENT_DEFINITION, GraphQLSuggestions};
 use common::{
     Diagnostic, DiagnosticsResult, FeatureFlag, FeatureFlags, Location, NamedItem, Span,
@@ -1837,6 +1839,6 @@ fn variable_definition_requires_argument(variable_definition: &VariableDefinitio
         && variable_definition.default_value.is_none()
         && variable_definition
             .directives
-            .named(*PROVIDER_MODULE)
+            .named(ProvidedVariableMetadata::directive_name())
             .is_none()
 }

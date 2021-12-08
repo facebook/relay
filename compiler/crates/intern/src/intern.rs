@@ -45,7 +45,7 @@ pub trait InternId: 'static + Eq + Copy {
 
     /// Return the static intern table for this type, which encapsulates the
     /// mapping from `InternId`s to their corresponding data.
-    fn table() -> &'static InternTable<Self>;
+    fn table() -> &'static InternTable<Self, Self::Intern>;
 
     /// Wrap and unwrap references.
     #[doc(hidden)]
@@ -140,7 +140,7 @@ pub trait InternId: 'static + Eq + Copy {
 /// this implementation as it's used internally for the intern process itself.
 #[derive(Debug, Copy, Clone)]
 #[repr(transparent)]
-pub struct AsInterned<Id: InternId>(pub Id);
+pub struct AsInterned<Id>(pub Id);
 
 impl<Id: InternId> Hash for AsInterned<Id> {
     fn hash<H: Hasher>(&self, h: &mut H) {
@@ -185,15 +185,15 @@ type Shards<Id> = ShardedSet<AsInterned<Id>, std::hash::BuildHasherDefault<fnv::
 
 /// An `InternTable` manages all the storage associated with the `Id`.
 #[derive(Default)]
-pub struct InternTable<Id: InternId> {
-    shards: OnceCell<Shards<Id>>,            // Allocated lazily.
-    arena: AtomicArena<'static, Id::Intern>, // Static.
-    serdes_type_index: AtomicU32,            // Initialized lazily.
+pub struct InternTable<Id, Type> {
+    shards: OnceCell<Shards<Id>>,      // Allocated lazily.
+    arena: AtomicArena<'static, Type>, // Static.
+    serdes_type_index: AtomicU32,      // Initialized lazily.
 }
 
 static NEXT_SERDES_TYPE_INDEX: AtomicU32 = AtomicU32::new(1);
 
-impl<Id: InternId> InternTable<Id> {
+impl<Id, Type> InternTable<Id, Type> {
     /// Create new `InternTable`
     #[doc(hidden)]
     pub const fn new() -> Self {
@@ -207,7 +207,7 @@ impl<Id: InternId> InternTable<Id> {
     /// Create new `InternTable` with a distinguished constant as the first
     /// interned value.
     #[doc(hidden)]
-    pub const fn with_zero(z: &'static atomic_arena::Zero<Id::Intern>) -> Self {
+    pub const fn with_zero(z: &'static atomic_arena::Zero<Type>) -> Self {
         InternTable {
             shards: OnceCell::new(),
             arena: AtomicArena::with_zero(z),
@@ -225,7 +225,9 @@ impl<Id: InternId> InternTable<Id> {
     pub fn is_empty(&self) -> bool {
         self.arena.is_empty()
     }
+}
 
+impl<Id: InternId> InternTable<Id, Id::Intern> {
     /// The methods from here on are internal and private.
     fn shards(&'static self) -> &Shards<Id> {
         self.shards.get_or_init(|| {
@@ -309,7 +311,7 @@ impl<Id: InternId> InternTable<Id> {
     }
 }
 
-impl<Id: InternId> Debug for InternTable<Id> {
+impl<Id, Type> Debug for InternTable<Id, Type> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "InternTable[{} entries]", self.len())
     }
@@ -639,8 +641,8 @@ macro_rules! intern_struct {
             }
 
             #[inline]
-            fn table() -> &'static $crate::intern::InternTable<$Name> {
-                static TABLE: $crate::intern::InternTable<$Name> =
+            fn table() -> &'static $crate::intern::InternTable<$Name, $T> {
+                static TABLE: $crate::intern::InternTable<$Name, $T> =
                     intern_struct!(@TABLE($T, ($($Z, $ze)?)));
                 &TABLE
             }

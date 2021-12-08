@@ -22,8 +22,8 @@ fragment Profile on User
 ==================================== OUTPUT ===================================
 query TestQuery(
   $id: ID
-  $__Profile__foo_gk: Boolean! @provider
-  # ProvidedArgument {
+  $__Profile__foo_gk: Boolean! @__ProvidedVariableMetadata
+  # ProvidedVariableMetadata {
   #     module_name: "foo_gk_module.js",
   # }
   

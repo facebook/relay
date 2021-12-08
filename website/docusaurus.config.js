@@ -17,6 +17,7 @@ module.exports = {
   tagline: 'The GraphQL client that scales with you.',
   url: 'https://relay.dev',
   baseUrl: '/',
+  trailingSlash: true,
   organizationName: 'facebook',
   projectName: 'relay',
   scripts: [
@@ -318,11 +319,7 @@ module.exports = {
           },
           {
             to: '/docs/guides/type-emission/',
-            from: [
-              '/docs/en/type-emission',
-              '/docs/v3.0.0/type-emission',
-              '/docs/type-emission',
-            ],
+            from: ['/docs/en/type-emission', '/docs/type-emission'],
           },
           {
             to: '/docs/guides/client-schema-extensions/',

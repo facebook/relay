@@ -8,10 +8,9 @@
 use crate::util::format_provided_variable_name;
 use common::{NamedItem, WithLocation};
 use fnv::FnvHashSet;
-use graphql_ir::PROVIDER_MODULE;
 use graphql_ir::{
-    FragmentDefinition, Program, Transformed, TransformedValue, Transformer, Variable,
-    VariableDefinition,
+    FragmentDefinition, Program, ProvidedVariableMetadata, Transformed, TransformedValue,
+    Transformer, Variable, VariableDefinition,
 };
 use intern::string_key::StringKey;
 use itertools::Itertools;
@@ -21,6 +20,7 @@ use itertools::Itertools;
 ///     [provided_variable_name] --> __[fragment_name]__[provided_variable_name]
 ///  - Remove provided variables from (local) argument definitions
 ///  - Add provided variables to list of used global variables
+/// apply_fragment_arguments depends on provide_variable_fragment_transform
 pub fn provided_variable_fragment_transform(program: &Program) -> Program {
     let mut transform = ProvidedVariableFragmentTransform::new();
     transform
@@ -44,7 +44,11 @@ impl ProvidedVariableFragmentTransform {
         fragment
             .variable_definitions
             .iter()
-            .filter(|def| def.directives.named(*PROVIDER_MODULE).is_none())
+            .filter(|def| {
+                def.directives
+                    .named(ProvidedVariableMetadata::directive_name())
+                    .is_none()
+            })
             .cloned()
             .collect_vec()
     }
@@ -52,7 +56,11 @@ impl ProvidedVariableFragmentTransform {
     fn get_global_variables(&self, fragment: &FragmentDefinition) -> Vec<VariableDefinition> {
         let mut new_globals = fragment.used_global_variables.clone();
         new_globals.extend(fragment.variable_definitions.iter().filter_map(|def| {
-            if def.directives.named(*PROVIDER_MODULE).is_some() {
+            if def
+                .directives
+                .named(ProvidedVariableMetadata::directive_name())
+                .is_some()
+            {
                 Some(VariableDefinition {
                     name: WithLocation {
                         item: format_provided_variable_name(fragment.name.item, def.name.item),
@@ -97,7 +105,11 @@ impl<'s> Transformer for ProvidedVariableFragmentTransform {
     ) -> Transformed<FragmentDefinition> {
         let provided_variable_names =
             FnvHashSet::from_iter(fragment.variable_definitions.iter().filter_map(|def| {
-                if def.directives.named(*PROVIDER_MODULE).is_some() {
+                if def
+                    .directives
+                    .named(ProvidedVariableMetadata::directive_name())
+                    .is_some()
+                {
                     Some(def.name.item)
                 } else {
                     None

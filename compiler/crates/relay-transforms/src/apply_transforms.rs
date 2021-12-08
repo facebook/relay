@@ -189,9 +189,7 @@ fn apply_reader_transforms(
 ) -> DiagnosticsResult<Arc<Program>> {
     let log_event = perf_logger.create_event("apply_reader_transforms");
     log_event.string("project", project_name.to_string());
-    let mut program = log_event.time("required_directive", || {
-        required_directive(&program, &feature_flags)
-    })?;
+    let mut program = log_event.time("required_directive", || required_directive(&program))?;
 
     program = log_event.time("client_extensions", || client_extensions(&program));
     program = log_event.time("handle_field_transform", || {
@@ -412,9 +410,7 @@ fn apply_typegen_transforms(
     program = log_event.time("transform_subscriptions", || {
         transform_subscriptions(&program)
     })?;
-    program = log_event.time("required_directive", || {
-        required_directive(&program, &feature_flags)
-    })?;
+    program = log_event.time("required_directive", || required_directive(&program))?;
     program = log_event.time("client_edges", || client_edges(&program))?;
     program = log_event.time("transform_assignable_fragment_spreads", || {
         transform_assignable_fragment_spreads(&program)

@@ -13,3 +13,7 @@ export type FooQuery$data = {
     readonly lastName: string | null;
   };
 };
+export type FooQuery = {
+  variables: FooQuery$variables;
+  response: FooQuery$data;
+};

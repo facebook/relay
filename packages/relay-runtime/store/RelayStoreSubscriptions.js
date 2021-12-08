@@ -101,6 +101,7 @@ class RelayStoreSubscriptions implements StoreSubscriptions {
         subscription.snapshot = {
           data: subscription.snapshot.data,
           isMissingData: backup.isMissingData,
+          missingClientEdges: backup.missingClientEdges,
           seenRecords: backup.seenRecords,
           selector: backup.selector,
           missingRequiredFields: backup.missingRequiredFields,
@@ -162,6 +163,7 @@ class RelayStoreSubscriptions implements StoreSubscriptions {
     nextSnapshot = ({
       data: nextData,
       isMissingData: nextSnapshot.isMissingData,
+      missingClientEdges: nextSnapshot.missingClientEdges,
       seenRecords: nextSnapshot.seenRecords,
       selector: nextSnapshot.selector,
       missingRequiredFields: nextSnapshot.missingRequiredFields,

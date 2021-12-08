@@ -81,6 +81,10 @@ export type TestMutation$rawResponse = {
     } | null;
   } | null;
 };
+export type TestMutation = {
+  variables: TestMutation$variables;
+  response: TestMutation$data;
+};
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
 export type InlineFragmentWithOverlappingFields$data = {

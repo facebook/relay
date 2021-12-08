@@ -333,6 +333,7 @@ describe('ReactRelayPaginationContainer', () => {
       data: expect.any(Object),
       isMissingData: false,
       missingRequiredFields: null,
+      missingClientEdges: null,
       seenRecords: expect.any(Object),
       selector: createReaderSelector(
         UserFragment,
@@ -437,6 +438,7 @@ describe('ReactRelayPaginationContainer', () => {
       data: expect.any(Object),
       isMissingData: false,
       missingRequiredFields: null,
+      missingClientEdges: null,
       seenRecords: expect.any(Object),
       selector: createReaderSelector(
         UserFragment,
@@ -501,6 +503,7 @@ describe('ReactRelayPaginationContainer', () => {
       data: expect.any(Object),
       isMissingData: false,
       missingRequiredFields: null,
+      missingClientEdges: null,
       seenRecords: expect.any(Object),
       selector: createReaderSelector(
         UserFragment,
@@ -596,6 +599,7 @@ describe('ReactRelayPaginationContainer', () => {
       data: expect.any(Object),
       isMissingData: false,
       missingRequiredFields: null,
+      missingClientEdges: null,
       seenRecords: expect.any(Object),
       selector: createReaderSelector(
         UserFragment,

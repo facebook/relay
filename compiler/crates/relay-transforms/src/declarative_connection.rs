@@ -5,20 +5,20 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{Diagnostic, DiagnosticsResult, NamedItem};
-use graphql_ir::{
-    Field, FragmentDefinition, LinkedField, Program, ScalarField, Selection, Transformed,
-    Transformer, ValidationMessage,
-};
-
 use crate::{
     connections::ConnectionInterface,
     handle_fields::{build_handle_field_directive, HandleFieldDirectiveValues},
+};
+use common::{Diagnostic, DiagnosticsResult, NamedItem};
+use graphql_ir::{
+    Field, FragmentDefinition, LinkedField, Program, ScalarField, Selection, Transformed,
+    Transformer,
 };
 use intern::string_key::{Intern, StringKey};
 use lazy_static::lazy_static;
 use schema::{Schema, Type};
 use std::sync::Arc;
+use thiserror::Error;
 
 pub fn transform_declarative_connection(
     program: &Program,
@@ -317,4 +317,65 @@ impl<'s, 'c> Transformer for DeclarativeConnectionMutationTransform<'s, 'c> {
             }
         }
     }
+}
+
+#[derive(Debug, Error)]
+enum ValidationMessage {
+    #[error(
+        "Unsupported use of @{directive_name} on field '${field_name}', 'edgeTypeName' argument must be provided."
+    )]
+    NodeDirectiveMissesRequiredEdgeTypeName {
+        directive_name: StringKey,
+        field_name: StringKey,
+    },
+
+    #[error("Invalid use of @{directive_name} on scalar field '{field_name}'.")]
+    ConnectionMutationDirectiveOnScalarField {
+        directive_name: StringKey,
+        field_name: StringKey,
+    },
+
+    #[error(
+        "Invalid use of @{directive_name} on field '{field_name}'. Expected field type 'ID', got '{current_type}'."
+    )]
+    DeleteRecordDirectiveOnUnsupportedType {
+        directive_name: StringKey,
+        field_name: StringKey,
+        current_type: String,
+    },
+
+    #[error("Invalid use of @{directive_name} on linked field '{field_name}'.")]
+    DeleteRecordDirectiveOnLinkedField {
+        directive_name: StringKey,
+        field_name: StringKey,
+    },
+
+    #[error(
+        "Invalid use of @{edge_directive_name} and @{node_directive_name} on field '{field_name}' - these directives cannot be used together."
+    )]
+    ConflictingEdgeAndNodeDirectives {
+        edge_directive_name: StringKey,
+        node_directive_name: StringKey,
+        field_name: StringKey,
+    },
+
+    #[error("Expected the 'connections' argument to be defined on @{directive_name}.")]
+    ConnectionsArgumentRequired { directive_name: StringKey },
+
+    #[error(
+        "Unsupported use of @{directive_name} on field '{field_name}', expected an edge field (a field with 'cursor' and 'node' selection)."
+    )]
+    EdgeDirectiveOnUnsupportedType {
+        directive_name: StringKey,
+        field_name: StringKey,
+    },
+
+    #[error(
+        "Unsupported use of @{directive_name} on field '{field_name}'. Expected an object, union or interface, but got '{current_type}'."
+    )]
+    NodeDirectiveOnUnsupportedType {
+        directive_name: StringKey,
+        field_name: StringKey,
+        current_type: String,
+    },
 }

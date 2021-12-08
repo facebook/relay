@@ -213,7 +213,9 @@ pub fn parse_to_types_impl(
     let types_string = programs
         .typegen
         .fragments()
-        .map(|def| generate_fragment_type(def, &schema, JsModuleFormat::Haste, &typegen_config))
+        .map(|def| {
+            generate_fragment_type(def, &schema, JsModuleFormat::Haste, false, &typegen_config)
+        })
         .chain(programs.typegen.operations().map(|typegen_operation| {
             let normalization_operation = programs
                 .normalization
@@ -224,6 +226,7 @@ pub fn parse_to_types_impl(
                 normalization_operation,
                 &schema,
                 JsModuleFormat::Haste,
+                false,
                 &typegen_config,
             )
         }))

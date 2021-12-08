@@ -12,13 +12,7 @@ use graphql_test_helpers::apply_transform_for_test;
 use relay_transforms::required_directive;
 
 fn transform(program: &Program) -> DiagnosticsResult<Program> {
-    required_directive(
-        program,
-        &FeatureFlags {
-            enable_required_transform: true,
-            ..Default::default()
-        },
-    )
+    required_directive(program)
 }
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {

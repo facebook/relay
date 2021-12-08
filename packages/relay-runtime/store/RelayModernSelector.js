@@ -16,6 +16,7 @@ import type {NormalizationSelectableNode} from '../util/NormalizationNode';
 import type {ReaderFragment} from '../util/ReaderNode';
 import type {DataID, Variables} from '../util/RelayRuntimeTypes';
 import type {
+  ClientEdgeTraversalPath,
   NormalizationSelector,
   PluralReaderSelector,
   ReaderSelector,
@@ -25,6 +26,7 @@ import type {
 
 const {getFragmentVariables} = require('./RelayConcreteVariables');
 const {
+  CLIENT_EDGE_TRAVERSAL_PATH,
   FRAGMENT_OWNER_KEY,
   FRAGMENTS_KEY,
   ID_KEY,
@@ -79,6 +81,7 @@ function getSingularSelector(
   const mixedOwner = item[FRAGMENT_OWNER_KEY];
   const isWithinUnmatchedTypeRefinement =
     item[IS_WITHIN_UNMATCHED_TYPE_REFINEMENT] === true;
+  const mixedClientEdgeTraversalPath = item[CLIENT_EDGE_TRAVERSAL_PATH];
   if (
     typeof dataID === 'string' &&
     typeof fragments === 'object' &&
@@ -86,22 +89,28 @@ function getSingularSelector(
     typeof fragments[fragment.name] === 'object' &&
     fragments[fragment.name] !== null &&
     typeof mixedOwner === 'object' &&
-    mixedOwner !== null
+    mixedOwner !== null &&
+    (mixedClientEdgeTraversalPath == null ||
+      Array.isArray(mixedClientEdgeTraversalPath))
   ) {
     const owner: RequestDescriptor = (mixedOwner: $FlowFixMe);
-    const argumentVariables = fragments[fragment.name];
+    const clientEdgeTraversalPath: ?ClientEdgeTraversalPath =
+      (mixedClientEdgeTraversalPath: $FlowFixMe);
 
+    const argumentVariables = fragments[fragment.name];
     const fragmentVariables = getFragmentVariables(
       fragment,
       owner.variables,
       argumentVariables,
     );
+
     return createReaderSelector(
       fragment,
       dataID,
       fragmentVariables,
       owner,
       isWithinUnmatchedTypeRefinement,
+      clientEdgeTraversalPath,
     );
   }
 
@@ -418,11 +427,13 @@ function createReaderSelector(
   variables: Variables,
   request: RequestDescriptor,
   isWithinUnmatchedTypeRefinement: boolean = false,
+  clientEdgeTraversalPath: ?ClientEdgeTraversalPath,
 ): SingularReaderSelector {
   return {
     kind: 'SingularReaderSelector',
     dataID,
     isWithinUnmatchedTypeRefinement,
+    clientEdgeTraversalPath: clientEdgeTraversalPath ?? null,
     node: fragment,
     variables,
     owner: request,

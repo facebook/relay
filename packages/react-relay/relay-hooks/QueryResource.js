@@ -30,13 +30,13 @@ import type {
 } from 'relay-runtime';
 
 const LRUCache = require('./LRUCache');
+const SuspenseResource = require('./SuspenseResource');
 const invariant = require('invariant');
-const {isPromise} = require('relay-runtime');
+const {RelayFeatureFlags, isPromise} = require('relay-runtime');
 const warning = require('warning');
 
 const CACHE_CAPACITY = 1000;
 const DEFAULT_FETCH_POLICY = 'store-or-network';
-const DATA_RETENTION_TIMEOUT = 5 * 60 * 1000;
 
 export type QueryResource = QueryResourceImpl;
 
@@ -59,7 +59,7 @@ type QueryResourceCacheEntry = {|
   permanentRetain(environment: IEnvironment): Disposable,
   releaseTemporaryRetain(): void,
 |};
-opaque type QueryResult: {
+export opaque type QueryResult: {
   fragmentNode: ReaderFragment,
   fragmentRef: mixed,
   ...
@@ -119,6 +119,106 @@ function getQueryResult(
 let nextID = 200000;
 
 function createCacheEntry(
+  cacheIdentifier: string,
+  operation: OperationDescriptor,
+  operationAvailability: ?OperationAvailability,
+  value: Error | Promise<void> | QueryResult,
+  networkSubscription: ?Subscription,
+  onDispose: QueryResourceCacheEntry => void,
+): QueryResourceCacheEntry {
+  // There should be no behavior difference between createCacheEntry_new and
+  // createCacheEntry_old, and it doesn't directly relate to Client Edges.
+  // It was just a refactoring that was needed for Client Edges but that
+  // is behind the feature flag just in case there is any accidental breakage.
+  if (RelayFeatureFlags.REFACTOR_SUSPENSE_RESOURCE) {
+    return createCacheEntry_new(
+      cacheIdentifier,
+      operation,
+      operationAvailability,
+      value,
+      networkSubscription,
+      onDispose,
+    );
+  } else {
+    return createCacheEntry_old(
+      cacheIdentifier,
+      operation,
+      operationAvailability,
+      value,
+      networkSubscription,
+      onDispose,
+    );
+  }
+}
+
+function createCacheEntry_new(
+  cacheIdentifier: string,
+  operation: OperationDescriptor,
+  operationAvailability: ?OperationAvailability,
+  value: Error | Promise<void> | QueryResult,
+  networkSubscription: ?Subscription,
+  onDispose: QueryResourceCacheEntry => void,
+): QueryResourceCacheEntry {
+  const isLiveQuery = operationIsLiveQuery(operation);
+
+  let currentValue: Error | Promise<void> | QueryResult = value;
+  let currentNetworkSubscription: ?Subscription = networkSubscription;
+
+  const suspenseResource = new SuspenseResource(environment => {
+    const retention = environment.retain(operation);
+    return {
+      dispose: () => {
+        // Normally if this entry never commits, the request would've ended by the
+        // time this timeout expires and the temporary retain is released. However,
+        // we need to do this for live queries which remain open indefinitely.
+        if (isLiveQuery && currentNetworkSubscription != null) {
+          currentNetworkSubscription.unsubscribe();
+        }
+        retention.dispose();
+        onDispose(cacheEntry);
+      },
+    };
+  });
+
+  const cacheEntry = {
+    cacheIdentifier,
+    id: nextID++,
+    processedPayloadsCount: 0,
+    operationAvailability,
+    getValue() {
+      return currentValue;
+    },
+    setValue(val: QueryResult | Promise<void> | Error) {
+      currentValue = val;
+    },
+    getRetainCount() {
+      return suspenseResource.getRetainCount();
+    },
+    getNetworkSubscription() {
+      return currentNetworkSubscription;
+    },
+    setNetworkSubscription(subscription: ?Subscription) {
+      if (isLiveQuery && currentNetworkSubscription != null) {
+        currentNetworkSubscription.unsubscribe();
+      }
+      currentNetworkSubscription = subscription;
+    },
+    temporaryRetain(environment: IEnvironment): Disposable {
+      return suspenseResource.temporaryRetain(environment);
+    },
+    permanentRetain(environment: IEnvironment): Disposable {
+      return suspenseResource.permanentRetain(environment);
+    },
+    releaseTemporaryRetain() {
+      suspenseResource.releaseTemporaryRetain();
+    },
+  };
+
+  return cacheEntry;
+}
+
+const DATA_RETENTION_TIMEOUT = 5 * 60 * 1000;
+function createCacheEntry_old(
   cacheIdentifier: string,
   operation: OperationDescriptor,
   operationAvailability: ?OperationAvailability,
@@ -432,8 +532,14 @@ class QueryResourceImpl {
   }
 
   _clearCacheEntry = (cacheEntry: QueryResourceCacheEntry): void => {
-    if (cacheEntry.getRetainCount() <= 0) {
+    // The new code does this retainCount <= 0 check within SuspenseResource
+    // before calling _clearCacheEntry, whereas with the old code we do it here.
+    if (RelayFeatureFlags.REFACTOR_SUSPENSE_RESOURCE) {
       this._cache.delete(cacheEntry.cacheIdentifier);
+    } else {
+      if (cacheEntry.getRetainCount() <= 0) {
+        this._cache.delete(cacheEntry.cacheIdentifier);
+      }
     }
   };
 

@@ -52,7 +52,7 @@ export type TestDefer$rawResponse = {|
       |}>,
       +pageInfo: ?{|
         +endCursor: ?string,
-        +hasNextPage: ?boolean,
+        +hasNextPage: ?CustomBoolean,
       |},
     |},
   |} | {|

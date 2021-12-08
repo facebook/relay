@@ -17,8 +17,8 @@ use common::{Diagnostic, DiagnosticsResult, FeatureFlag, NamedItem, WithLocation
 use fnv::{FnvHashMap, FnvHashSet};
 use graphql_ir::{
     Condition, ConditionValue, ConstantValue, Directive, FragmentDefinition, FragmentSpread,
-    InlineFragment, OperationDefinition, Program, Selection, Transformed, TransformedMulti,
-    TransformedValue, Transformer, ValidationMessage, Value, Variable, VariableDefinition,
+    InlineFragment, OperationDefinition, Program, ProvidedVariableMetadata, Selection, Transformed,
+    TransformedMulti, TransformedValue, Transformer, Value, Variable, VariableDefinition,
 };
 use graphql_syntax::OperationKind;
 use indexmap::IndexMap;
@@ -26,6 +26,7 @@ use intern::string_key::{Intern, StringKey};
 use itertools::Itertools;
 use scope::{format_local_variable, Scope};
 use std::sync::Arc;
+use thiserror::Error;
 
 /// A transform that converts a set of documents containing fragments/fragment
 /// spreads *with* arguments to one where all arguments have been inlined. This
@@ -386,12 +387,12 @@ impl ApplyFragmentArgumentsTransform<'_, '_, '_> {
                 .filter(|variable_definition| {
                     variable_definition
                         .directives
-                        .named(*graphql_ir::PROVIDER_MODULE)
+                        .named(ProvidedVariableMetadata::directive_name())
                         .is_some()
                 });
         for definition in provided_arguments {
             self.provided_variables
-                .insert(fragment.name.item, definition.clone());
+                .insert(definition.name.item, definition.clone());
         }
     }
 
@@ -531,4 +532,10 @@ fn no_inline_fragment_scope(fragment: &FragmentDefinition) -> Scope {
     let mut scope = Scope::root_scope();
     scope.push_bindings(fragment.name.location, bindings);
     scope
+}
+
+#[derive(Debug, Error)]
+enum ValidationMessage {
+    #[error("Found a circular reference from fragment '{fragment_name}'.")]
+    CircularFragmentReference { fragment_name: StringKey },
 }

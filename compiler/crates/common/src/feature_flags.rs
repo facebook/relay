@@ -18,9 +18,6 @@ pub struct FeatureFlags {
     pub enable_flight_transform: bool,
 
     #[serde(default)]
-    pub enable_required_transform: bool,
-
-    #[serde(default)]
     pub enable_relay_resolver_transform: bool,
 
     /// Enable hashing of the `supported` argument of 3D fields. Partial

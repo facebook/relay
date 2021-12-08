@@ -54,3 +54,7 @@ export type TestStream$rawResponse = {
     readonly id: string;
   } | null;
 };
+export type TestStream = {
+  variables: TestStream$variables;
+  response: TestStream$data;
+};

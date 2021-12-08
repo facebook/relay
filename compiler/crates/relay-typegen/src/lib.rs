@@ -48,7 +48,6 @@ static ACTOR_CHANGE_POINT: &str = "ActorChangePoint";
 
 lazy_static! {
     pub(crate) static ref KEY_DATA: StringKey = "$data".intern();
-    pub(crate) static ref KEY_FRAGMENT_REFS: StringKey = "$fragmentRefs".intern();
     static ref KEY_FRAGMENT_SPREADS: StringKey = "$fragmentSpreads".intern();
     pub(crate) static ref KEY_FRAGMENT_TYPE: StringKey = "$fragmentType".intern();
     static ref FRAGMENT_PROP_NAME: StringKey = "__fragmentPropName".intern();
@@ -75,10 +74,16 @@ pub fn generate_fragment_type(
     fragment: &FragmentDefinition,
     schema: &SDLSchema,
     js_module_format: JsModuleFormat,
+    has_unified_output: bool,
     typegen_config: &TypegenConfig,
 ) -> String {
-    let mut generator =
-        TypeGenerator::new(schema, js_module_format, typegen_config, fragment.name.item);
+    let mut generator = TypeGenerator::new(
+        schema,
+        js_module_format,
+        has_unified_output,
+        typegen_config,
+        fragment.name.item,
+    );
     generator.generate_fragment_type(fragment).unwrap();
     generator.into_string()
 }
@@ -88,11 +93,18 @@ pub fn generate_operation_type(
     normalization_operation: &OperationDefinition,
     schema: &SDLSchema,
     js_module_format: JsModuleFormat,
+    has_unified_output: bool,
     typegen_config: &TypegenConfig,
 ) -> String {
     let rollout_key = RefetchableDerivedFromMetadata::find(&typegen_operation.directives)
         .map_or(typegen_operation.name.item, |metadata| metadata.0);
-    let mut generator = TypeGenerator::new(schema, js_module_format, typegen_config, rollout_key);
+    let mut generator = TypeGenerator::new(
+        schema,
+        js_module_format,
+        has_unified_output,
+        typegen_config,
+        rollout_key,
+    );
     generator
         .generate_operation_type(typegen_operation, normalization_operation)
         .unwrap();
@@ -104,11 +116,13 @@ pub fn generate_split_operation_type(
     normalization_operation: &OperationDefinition,
     schema: &SDLSchema,
     js_module_format: JsModuleFormat,
+    has_unified_output: bool,
     typegen_config: &TypegenConfig,
 ) -> String {
     let mut generator = TypeGenerator::new(
         schema,
         js_module_format,
+        has_unified_output,
         typegen_config,
         typegen_operation.name.item,
     );
@@ -139,6 +153,7 @@ struct TypeGenerator<'a> {
     used_fragments: FnvHashSet<StringKey>,
     typegen_config: &'a TypegenConfig,
     js_module_format: JsModuleFormat,
+    has_unified_output: bool,
     runtime_imports: RuntimeImports,
     match_fields: IndexMap<StringKey, AST>,
     writer: Box<dyn Writer>,
@@ -150,6 +165,7 @@ impl<'a> TypeGenerator<'a> {
     fn new(
         schema: &'a SDLSchema,
         js_module_format: JsModuleFormat,
+        has_unified_output: bool,
         typegen_config: &'a TypegenConfig,
         rollout_key: StringKey,
     ) -> Self {
@@ -163,6 +179,7 @@ impl<'a> TypeGenerator<'a> {
             used_enums: Default::default(),
             used_fragments: Default::default(),
             js_module_format,
+            has_unified_output,
             typegen_config,
             match_fields: Default::default(),
             runtime_imports: RuntimeImports::default(),
@@ -235,7 +252,7 @@ impl<'a> TypeGenerator<'a> {
         self.write_input_object_types()?;
 
         match self.flow_typegen_phase {
-            FlowTypegenPhase::Phase3 | FlowTypegenPhase::Phase4 => {
+            FlowTypegenPhase::Phase4 => {
                 let new_variables_identifier = format!("{}$variables", typegen_operation.name.item);
                 self.writer
                     .write_export_type(&new_variables_identifier, &input_variables_type)?;
@@ -253,7 +270,7 @@ impl<'a> TypeGenerator<'a> {
 
 
         let response_identifier = match self.flow_typegen_phase {
-            FlowTypegenPhase::Phase3 | FlowTypegenPhase::Phase4 => {
+            FlowTypegenPhase::Phase4 => {
                 let new_response_identifier = format!("{}$data", typegen_operation.name.item);
                 let old_response_identifier = format!("{}Response", typegen_operation.name.item);
                 self.writer
@@ -273,7 +290,7 @@ impl<'a> TypeGenerator<'a> {
         };
 
         match self.flow_typegen_phase {
-            FlowTypegenPhase::Phase3 | FlowTypegenPhase::Phase4 => {
+            FlowTypegenPhase::Phase4 => {
                 let mut operation_types = vec![
                     Prop::KeyValuePair(KeyValuePairProp {
                         key: *VARIABLES,
@@ -329,6 +346,29 @@ impl<'a> TypeGenerator<'a> {
                         format!("{}$rawResponse", typegen_operation.name.item);
                     self.writer
                         .write_export_type(&raw_response_identifier, &raw_response_type)?;
+                }
+
+                if self.typegen_config.language == TypegenLanguage::TypeScript {
+                    let new_variables_identifier =
+                        format!("{}$variables", typegen_operation.name.item);
+                    let operation_types = vec![
+                        Prop::KeyValuePair(KeyValuePairProp {
+                            key: *VARIABLES,
+                            read_only: false,
+                            optional: false,
+                            value: AST::Identifier(new_variables_identifier.intern()),
+                        }),
+                        Prop::KeyValuePair(KeyValuePairProp {
+                            key: *RESPONSE,
+                            read_only: false,
+                            optional: false,
+                            value: AST::Identifier(response_identifier.intern()),
+                        }),
+                    ];
+                    self.writer.write_export_type(
+                        typegen_operation.name.item.lookup(),
+                        &AST::ExactObject(operation_types),
+                    )?;
                 }
             }
         }
@@ -434,7 +474,14 @@ impl<'a> TypeGenerator<'a> {
             let variables_name = format!("{}$variables", refetchable_metadata.operation_name);
             match self.js_module_format {
                 JsModuleFormat::CommonJS => {
-                    self.writer.write_any_type_definition(&variables_name)?;
+                    if self.has_unified_output {
+                        self.writer.write_import_fragment_type(
+                            &[&variables_name],
+                            &format!("./{}.graphql", refetchable_metadata.operation_name),
+                        )?;
+                    } else {
+                        self.writer.write_any_type_definition(&variables_name)?;
+                    }
                 }
                 JsModuleFormat::Haste => {
                     self.writer.write_import_fragment_type(
@@ -446,7 +493,7 @@ impl<'a> TypeGenerator<'a> {
         }
 
         match self.flow_typegen_phase {
-            FlowTypegenPhase::Phase3 | FlowTypegenPhase::Phase4 => {
+            FlowTypegenPhase::Phase4 => {
                 self.writer.write_export_type(&data_type_name, &type_)?;
                 self.writer.write_export_type(
                     data_type.lookup(),
@@ -776,19 +823,16 @@ impl<'a> TypeGenerator<'a> {
             let mut typename_aliases = IndexSet::new();
             for (concrete_type, selections) in by_concrete_type {
                 types.push(
-                    group_refs(
-                        self.flow_typegen_phase,
-                        base_fields.values().cloned().chain(selections),
-                    )
-                    .map(|selection| {
-                        if selection.is_typename() {
-                            typename_aliases.insert(selection.get_field_name_or_alias().expect(
+                    group_refs(base_fields.values().cloned().chain(selections))
+                        .map(|selection| {
+                            if selection.is_typename() {
+                                typename_aliases.insert(selection.get_field_name_or_alias().expect(
                                 "Just checked this exists by checking that the field is typename",
                             ));
-                        }
-                        self.make_prop(selection, unmasked, Some(concrete_type))
-                    })
-                    .collect(),
+                            }
+                            self.make_prop(selection, unmasked, Some(concrete_type))
+                        })
+                        .collect(),
                 );
             }
 
@@ -823,36 +867,35 @@ impl<'a> TypeGenerator<'a> {
                     true,
                 );
             }
-            let selection_map_values =
-                group_refs(self.flow_typegen_phase, hashmap_into_values(selection_map))
-                    .map(|sel| {
-                        if let TypeSelection::ScalarField(ref scalar_field) = sel {
-                            if sel.is_typename() {
-                                if let Some(type_condition) = scalar_field.concrete_type {
-                                    let mut scalar_field = scalar_field.clone();
-                                    scalar_field.conditional = false;
-                                    return self.make_prop(
-                                        TypeSelection::ScalarField(scalar_field),
-                                        unmasked,
-                                        Some(type_condition),
-                                    );
-                                }
-                            }
-                        } else if let TypeSelection::LinkedField(ref linked_field) = sel {
-                            if let Some(concrete_type) = linked_field.concrete_type {
-                                let mut linked_field = linked_field.clone();
-                                linked_field.concrete_type = None;
+            let selection_map_values = group_refs(hashmap_into_values(selection_map))
+                .map(|sel| {
+                    if let TypeSelection::ScalarField(ref scalar_field) = sel {
+                        if sel.is_typename() {
+                            if let Some(type_condition) = scalar_field.concrete_type {
+                                let mut scalar_field = scalar_field.clone();
+                                scalar_field.conditional = false;
                                 return self.make_prop(
-                                    TypeSelection::LinkedField(linked_field),
+                                    TypeSelection::ScalarField(scalar_field),
                                     unmasked,
-                                    Some(concrete_type),
+                                    Some(type_condition),
                                 );
                             }
                         }
+                    } else if let TypeSelection::LinkedField(ref linked_field) = sel {
+                        if let Some(concrete_type) = linked_field.concrete_type {
+                            let mut linked_field = linked_field.clone();
+                            linked_field.concrete_type = None;
+                            return self.make_prop(
+                                TypeSelection::LinkedField(linked_field),
+                                unmasked,
+                                Some(concrete_type),
+                            );
+                        }
+                    }
 
-                        self.make_prop(sel, unmasked, None)
-                    })
-                    .collect();
+                    self.make_prop(sel, unmasked, None)
+                })
+                .collect();
             types.push(selection_map_values);
         }
 
@@ -1185,16 +1228,14 @@ impl<'a> TypeGenerator<'a> {
 
     fn transform_graphql_scalar_type(&mut self, scalar: ScalarID) -> AST {
         let scalar_name = self.schema.scalar(scalar).name;
-        if scalar_name == *TYPE_ID || scalar_name == *TYPE_STRING {
+        if let Some(&custom_scalar) = self.typegen_config.custom_scalar_types.get(&scalar_name) {
+            AST::RawType(custom_scalar)
+        } else if scalar_name == *TYPE_ID || scalar_name == *TYPE_STRING {
             AST::String
         } else if scalar_name == *TYPE_FLOAT || scalar_name == *TYPE_INT {
             AST::Number
         } else if scalar_name == *TYPE_BOOLEAN {
             AST::Boolean
-        } else if let Some(&custom_scalar) =
-            self.typegen_config.custom_scalar_types.get(&scalar_name)
-        {
-            AST::RawType(custom_scalar)
         } else {
             if self.typegen_config.require_custom_scalar_types {
                 panic!(
@@ -1245,7 +1286,14 @@ impl<'a> TypeGenerator<'a> {
                 let fragment_type_name = format!("{}$fragmentType", used_fragment);
                 match self.js_module_format {
                     JsModuleFormat::CommonJS => {
-                        self.writer.write_any_type_definition(&fragment_type_name)?;
+                        if self.has_unified_output {
+                            self.writer.write_import_fragment_type(
+                                &[&fragment_type_name],
+                                &format!("./{}.graphql", used_fragment),
+                            )?;
+                        } else {
+                            self.writer.write_any_type_definition(&fragment_type_name)?;
+                        }
                     }
                     JsModuleFormat::Haste => {
                         self.writer.write_import_fragment_type(
@@ -1284,8 +1332,15 @@ impl<'a> TypeGenerator<'a> {
         for &imported_raw_response_type in self.imported_raw_response_types.iter().sorted() {
             match self.js_module_format {
                 JsModuleFormat::CommonJS => {
-                    self.writer
-                        .write_any_type_definition(imported_raw_response_type.lookup())?;
+                    if self.has_unified_output {
+                        self.writer.write_import_fragment_type(
+                            &[imported_raw_response_type.lookup()],
+                            &format!("./{}.graphql", imported_raw_response_type),
+                        )?;
+                    } else {
+                        self.writer
+                            .write_any_type_definition(imported_raw_response_type.lookup())?;
+                    }
                 }
                 JsModuleFormat::Haste => {
                     self.writer.write_import_fragment_type(
@@ -1717,59 +1772,24 @@ fn selections_to_map(
 
 // TODO: T85950736 Fix these clippy errors
 #[allow(clippy::while_let_on_iterator, clippy::useless_conversion)]
-fn group_refs(
-    flow_typegen_phase: FlowTypegenPhase,
-    props: impl Iterator<Item = TypeSelection>,
-) -> impl Iterator<Item = TypeSelection> {
-    let mut refs = None;
-    let mut new_refs = None;
+fn group_refs(props: impl Iterator<Item = TypeSelection>) -> impl Iterator<Item = TypeSelection> {
+    let mut fragment_spreads = None;
     let mut props = props.into_iter();
     std::iter::from_fn(move || {
         while let Some(prop) = props.next() {
             if let TypeSelection::FragmentSpread(inline_fragment) = prop {
-                match flow_typegen_phase {
-                    FlowTypegenPhase::Phase3 => {
-                        refs.get_or_insert_with(Vec::new)
-                            .push(inline_fragment.fragment_name);
-                        new_refs
-                            .get_or_insert_with(Vec::new)
-                            .push(inline_fragment.fragment_name);
-                    }
-                    _ => {
-                        new_refs
-                            .get_or_insert_with(Vec::new)
-                            .push(inline_fragment.fragment_name);
-                    }
-                }
+                fragment_spreads
+                    .get_or_insert_with(Vec::new)
+                    .push(inline_fragment.fragment_name);
             } else if let TypeSelection::InlineFragment(inline_fragment) = prop {
-                match flow_typegen_phase {
-                    FlowTypegenPhase::Phase3 => {
-                        refs.get_or_insert_with(Vec::new)
-                            .push(inline_fragment.fragment_name);
-                        new_refs
-                            .get_or_insert_with(Vec::new)
-                            .push(inline_fragment.fragment_name);
-                    }
-                    _ => {
-                        new_refs
-                            .get_or_insert_with(Vec::new)
-                            .push(inline_fragment.fragment_name);
-                    }
-                }
+                fragment_spreads
+                    .get_or_insert_with(Vec::new)
+                    .push(inline_fragment.fragment_name);
             } else {
                 return Some(prop);
             }
         }
-        if let Some(refs) = refs.take() {
-            return Some(TypeSelection::ScalarField(TypeSelectionScalarField {
-                field_name_or_alias: *KEY_FRAGMENT_REFS,
-                value: AST::FragmentReference(refs),
-                special_field: None,
-                conditional: false,
-                concrete_type: None,
-            }));
-        }
-        if let Some(refs) = new_refs.take() {
+        if let Some(refs) = fragment_spreads.take() {
             return Some(TypeSelection::ScalarField(TypeSelectionScalarField {
                 field_name_or_alias: *KEY_FRAGMENT_SPREADS,
                 value: AST::FragmentReference(refs),
@@ -1817,7 +1837,7 @@ fn apply_required_directive_nullability(
         Some(_) => field_type.with_nullable_item_type(),
         None => field_type.clone(),
     };
-    match directives.named(*RequiredMetadataDirective::DIRECTIVE_NAME) {
+    match directives.named(RequiredMetadataDirective::directive_name()) {
         Some(_) => bubbled_type.non_null(),
         None => bubbled_type,
     }

@@ -157,11 +157,11 @@ First we'll add the necessary packages. Note that Relay is comprised of three ke
 ```bash
 # NPM Users
 npm install --save relay-runtime react-relay
-npm install --save-dev relay-compiler graphql babel-plugin-relay
+npm install --save-dev relay-compiler babel-plugin-relay
 
 # Yarn Users
 yarn add relay-runtime react-relay
-yarn add --dev relay-compiler graphql babel-plugin-relay
+yarn add --dev relay-compiler babel-plugin-relay
 ```
 
 ### 4.1 Configure Relay Compiler
@@ -186,9 +186,13 @@ Now that we have a schema we can modify `package.json` to run the compiler first
     ...
     "start": "yarn run relay && react-scripts start",
     "build": "yarn run relay && react-scripts build",
-    "relay": "yarn run relay-compiler --schema schema.graphql --src ./src/ --watchman false $@"
+    "relay": "yarn run relay-compiler $@"
     ...
   },
+  "relay": {
+    "src": "./src/",
+    "schema": "./schema.graphql"
+  }
   ...
 }
 ```

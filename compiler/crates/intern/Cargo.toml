@@ -16,7 +16,7 @@ parking_lot = "0.10.2"
 serde = { version = "1.0.126", features = ["derive", "rc"] }
 serde_bytes = "0.11"
 serde_derive = "1.0"
-smallvec = { version = "1.6.1", features = ["serde"] }
+smallvec = { version = "1.6.1", features = ["serde", "union"] }
 
 [dev-dependencies]
 bincode = "1.3.3"

@@ -22,19 +22,25 @@ Install React and Relay using `yarn` or `npm`:
 yarn add react react-dom react-relay
 ```
 
-## Set up Relay with a single config file
+## Set up the compiler
 
-The below configuration of `babel-plugin-relay` and `relay-compiler` can be applied using a single configuration file by
-using the `relay-config` package. Besides unifying all Relay configuration in a single place, other tooling can leverage
-this to provide zero-config setup (e.g. [vscode-apollo-relay](https://github.com/relay-tools/vscode-apollo-relay)).
-
-Install the package:
+Relay's ahead-of-time compilation requires the [Relay Compiler](../../guides/compiler/), which you can install via `yarn` or `npm`:
 
 ```sh
-yarn add --dev relay-config
+yarn add --dev relay-compiler
 ```
 
-And create the configuration file:
+This installs the bin script `relay-compiler` in your node_modules folder. It's recommended to run this from a `yarn`/`npm` script by adding a script to your `package.json` file:
+
+```js
+"scripts": {
+  "relay": "relay-compiler"
+}
+```
+
+## Compiler configuration
+
+Create the configuration file:
 
 ```javascript
 // relay.config.js
@@ -47,9 +53,13 @@ module.exports = {
 }
 ```
 
+This configuration also can be specificied in `"relay"` section of the `package.json` file.
+For more details, and configuration options see: [Relay Compiler Configuration](https://github.com/facebook/relay/tree/main/packages/relay-compiler)
+
+
 ## Set up babel-plugin-relay
 
-Relay Modern requires a Babel plugin to convert GraphQL to runtime artifacts:
+Relay requires a Babel plugin to convert GraphQL to runtime artifacts:
 
 ```sh
 yarn add --dev babel-plugin-relay graphql
@@ -75,46 +85,9 @@ Alternatively, instead of using `babel-plugin-relay`, you can use Relay with [ba
 const graphql = require('babel-plugin-relay/macro');
 ```
 
-If you need to configure `babel-plugin-relay` further (e.g. to enable `compat` mode), you can do so by [specifying the options in a number of ways](https://github.com/kentcdodds/babel-plugin-macros/blob/main/other/docs/user.md#config-experimental).
+## Running the compiler
 
-For example:
-
-```javascript
-// babel-plugin-macros.config.js
-module.exports = {
-  // ...
-  // Other macros config
-  relay: {
-    compat: true,
-  },
-}
-```
-
-## Set up relay-compiler
-
-Relay's ahead-of-time compilation requires the [Relay Compiler](../../guides/compiler/), which you can install via `yarn` or `npm`:
-
-```sh
-yarn add --dev relay-compiler
-```
-
-This installs the bin script `relay-compiler` in your node_modules folder. It's recommended to run this from a `yarn`/`npm` script by adding a script to your `package.json` file:
-
-```js
-"scripts": {
-  "relay": "relay-compiler --src ./src --schema ./schema.graphql"
-}
-```
-
-or if you are using jsx:
-
-```js
-"scripts": {
-  "relay": "relay-compiler --src ./src --schema ./schema.graphql --extensions js jsx"
-}
-```
-
-Then, after making edits to your application files, just run the `relay` script to generate new compiled artifacts:
+After making edits to your application files, just run the `relay` script to generate new compiled artifacts:
 
 ```sh
 yarn run relay
@@ -130,10 +103,10 @@ For more details, check out our [Relay Compiler docs](../../guides/compiler/).
 
 ## JavaScript environment requirements
 
-The Relay Modern packages distributed on NPM use the widely-supported ES5
+The Relay packages distributed on NPM use the widely-supported ES5
 version of JavaScript to support as many browser environments as possible.
 
-However, Relay Modern expects modern JavaScript global types (`Map`, `Set`,
+However, Relay expects modern JavaScript global types (`Map`, `Set`,
 `Promise`, `Object.assign`) to be defined. If you support older browsers and
 devices which may not yet provide these natively, consider including a global
 polyfill in your bundled application, such as [core-js][] or

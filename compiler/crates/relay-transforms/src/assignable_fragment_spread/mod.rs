@@ -115,7 +115,7 @@ enum PathSegment {
 }
 
 impl<'s> Transformer for AssignableFragmentSpread<'s> {
-    const NAME: &'static str = "RequiredDirectiveTransform";
+    const NAME: &'static str = "AssignableFragmentTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;
 

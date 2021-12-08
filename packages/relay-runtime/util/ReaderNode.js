@@ -232,8 +232,16 @@ export type ReaderRelayResolver = {|
   }) => mixed,
 |};
 
+export type ReaderClientEdge = {|
+  +kind: 'ClientEdge',
+  +linkedField: ReaderLinkedField,
+  +operation: ConcreteRequest,
+  +backingField: ReaderRelayResolver | ReaderClientExtension,
+|};
+
 export type ReaderSelection =
   | ReaderCondition
+  | ReaderClientEdge
   | ReaderClientExtension
   | ReaderDefer
   | ReaderField

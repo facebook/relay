@@ -35,7 +35,7 @@ import type {
   NormalizationScalarField,
   NormalizationSelectableNode,
 } from '../util/NormalizationNode';
-import type {ReaderFragment} from '../util/ReaderNode';
+import type {ReaderClientEdge, ReaderFragment} from '../util/ReaderNode';
 import type {
   ConcreteRequest,
   RequestParameters,
@@ -82,6 +82,7 @@ export type SingularReaderSelector = {|
   +kind: 'SingularReaderSelector',
   +dataID: DataID,
   +isWithinUnmatchedTypeRefinement: boolean,
+  +clientEdgeTraversalPath: ClientEdgeTraversalPath | null,
   +node: ReaderFragment,
   +owner: RequestDescriptor,
   +variables: Variables,
@@ -120,12 +121,26 @@ export type MissingRequiredFields =
   | {|action: 'THROW', field: MissingRequiredField|}
   | {|action: 'LOG', fields: Array<MissingRequiredField>|};
 
+export type ClientEdgeTraversalInfo = {|
+  +readerClientEdge: ReaderClientEdge,
+  +clientEdgeDestinationID: DataID,
+|};
+
+export type ClientEdgeTraversalPath =
+  $ReadOnlyArray<ClientEdgeTraversalInfo | null>;
+
+export type MissingClientEdgeRequestInfo = {|
+  +request: ConcreteRequest,
+  +clientEdgeDestinationID: DataID,
+|};
+
 /**
  * A representation of a selector and its results at a particular point in time.
  */
 export type Snapshot = {|
   +data: ?SelectorData,
   +isMissingData: boolean,
+  +missingClientEdges: null | $ReadOnlyArray<MissingClientEdgeRequestInfo>,
   +seenRecords: DataIDSet,
   +selector: SingularReaderSelector,
   +missingRequiredFields: ?MissingRequiredFields,

@@ -60,3 +60,7 @@ export type TestDefer$rawResponse = {
     readonly id: string;
   } | null;
 };
+export type TestDefer = {
+  variables: TestDefer$variables;
+  response: TestDefer$data;
+};

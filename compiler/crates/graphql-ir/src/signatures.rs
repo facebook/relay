@@ -23,7 +23,7 @@ use schema::{SDLSchema, Schema, Type, TypeReference};
 lazy_static! {
     static ref TYPE: StringKey = "type".intern();
     static ref DEFAULT_VALUE: StringKey = "defaultValue".intern();
-    pub static ref PROVIDER_MODULE: StringKey = "provider".intern();
+    static ref PROVIDER: StringKey = "provider".intern();
     pub static ref UNUSED_LOCAL_VARIABLE_DEPRECATED: StringKey =
         "unusedLocalVariable_DEPRECATED".intern();
 }
@@ -31,11 +31,11 @@ lazy_static! {
 pub type FragmentSignatures = FnvHashMap<StringKey, FragmentSignature>;
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-struct ProvidedArgument {
-    module_name: StringKey,
+pub struct ProvidedVariableMetadata {
+    pub module_name: StringKey,
 }
 
-associated_data_impl!(ProvidedArgument);
+associated_data_impl!(ProvidedVariableMetadata);
 
 /// Describes the public API of a fragment, excluding its selections.
 /// When translating ASTs to IR, fragment spread arguments must be
@@ -200,7 +200,7 @@ fn build_fragment_variable_definitions(
                             default_arg = Some(item);
                         } else if name == *UNUSED_LOCAL_VARIABLE_DEPRECATED {
                             unused_local_variable_arg = Some(item);
-                        } else if name == *PROVIDER_MODULE {
+                        } else if name == *PROVIDER {
                             if !enable_provided_variables.is_enabled_for(fragment.name.value) {
                                 return Err(vec![Diagnostic::error(
                                     format!("Invalid usage of provided variable: this feature is gated and currently set to {}",
@@ -271,28 +271,27 @@ fn build_fragment_variable_definitions(
                             if let graphql_syntax::ConstantValue::String(provider_module_name) = &provider_arg.value {
                                 if let Some(default_arg_) = default_arg {
                                     return Err(vec![Diagnostic::error(
-                                        ValidationMessage::ProvidedVariableIncompatibleWithDefaultValue{argument_name: variable_name.value}, 
+                                        ValidationMessage::ProvidedVariableIncompatibleWithDefaultValue{argument_name: variable_name.value},
                                         fragment
                                             .location
                                             .with_span(provider_arg.span),
-                                    ).annotate("Default value declared here", 
+                                    ).annotate("Default value declared here",
                                     fragment
                                     .location
                                     .with_span(default_arg_.span))]);
                                 }
-
                                 directives.push(crate::Directive {
                                     name: WithLocation::new(
                                         fragment.location.with_span(provider_arg.span),
-                                        *PROVIDER_MODULE,
+                                        ProvidedVariableMetadata::directive_name(),
                                     ),
                                     arguments: Vec::new(),
-                                    data: Some(Box::new(ProvidedArgument{module_name: provider_module_name.value})),
+                                    data: Some(Box::new(ProvidedVariableMetadata{module_name: provider_module_name.value})),
                                 });
 
                             } else{
                                 return Err(vec![Diagnostic::error(
-                                    ValidationMessage::LiteralStringArgumentExpectedForDirective{arg_name: *PROVIDER_MODULE, directive_name: *ARGUMENT_DEFINITION },
+                                    ValidationMessage::LiteralStringArgumentExpectedForDirective{arg_name: *PROVIDER, directive_name: *ARGUMENT_DEFINITION },
                                     fragment
                                         .location
                                         .with_span(provider_arg.value.span()),

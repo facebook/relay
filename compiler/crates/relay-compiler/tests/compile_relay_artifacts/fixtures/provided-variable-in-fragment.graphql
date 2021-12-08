@@ -6,9 +6,12 @@ query providedVariableInFragment_Query($id: ID!) {
 }
 
 fragment providedVariableInFragment_Fragment1 on User
-  @argumentDefinitions(foo_gk: {type: "Boolean!", provider: "foo_gk_module.js"})
+  @argumentDefinitions(
+    foo_gk: {type: "Boolean!", provider: "foo_gk_module.js"}
+    foobar_gk: {type: "Boolean!", provider: "foobar_gk_module.js"})
 {
     name @include(if: $foo_gk)
+    alternate_name @include(if: $foobar_gk)
 }
 
 fragment providedVariableInFragment_Fragment2 on User

@@ -12,6 +12,7 @@
 
 'use strict';
 
+const describeWithFeatureFlags = require('./describeWithFeatureFlags');
 const {
   FIXTURE_TAG,
   generateTestsFromFixtures,
@@ -47,6 +48,7 @@ function cannotReadPropertyOfUndefined__DEPRECATED(
 module.exports = {
   cannotReadPropertyOfUndefined__DEPRECATED,
   createMockEnvironment,
+  describeWithFeatureFlags,
   expectToWarn,
   expectWarningWillFire,
   disallowWarnings,

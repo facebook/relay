@@ -16,7 +16,7 @@ use graphql_ir::{
     Argument, Field, FragmentDefinition, InlineFragment, LinkedField, ScalarField, Selection,
     ValidationMessage, Value, Variable, VariableDefinition,
 };
-use interner::StringKey;
+use intern::string_key::StringKey;
 use schema::{Argument as ArgumentDef, FieldID, InterfaceID, SDLSchema, Schema, Type};
 use std::sync::Arc;
 

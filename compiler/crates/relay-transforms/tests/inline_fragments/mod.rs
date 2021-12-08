@@ -11,7 +11,7 @@ use relay_transforms::inline_fragments;
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     apply_transform_for_test(fixture, |program| {
-        let next_program = inline_fragments(&program);
+        let next_program = inline_fragments(program);
         assert_eq!(next_program.fragments().count(), 0);
         assert_eq!(
             next_program.operations().count(),

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<06b2914424646baaebb5d99df418aa00>>
+ * @generated SignedSource<<01ca1a9591f654f6e69a8902cb8b797f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,21 +15,21 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type commitMutationTest1Fragment$ref: FragmentReference;
-declare export opaque type commitMutationTest1Fragment$fragmentType: commitMutationTest1Fragment$ref;
-export type commitMutationTest1Fragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type commitMutationTest1Fragment$fragmentType: FragmentType;
+export type commitMutationTest1Fragment$ref = commitMutationTest1Fragment$fragmentType;
+export type commitMutationTest1Fragment$data = {|
   +id: string,
   +body: ?{|
     +text: ?string,
   |},
-  +$refType: commitMutationTest1Fragment$ref,
+  +$fragmentType: commitMutationTest1Fragment$fragmentType,
 |};
-export type commitMutationTest1Fragment$data = commitMutationTest1Fragment;
+export type commitMutationTest1Fragment = commitMutationTest1Fragment$data;
 export type commitMutationTest1Fragment$key = {
   +$data?: commitMutationTest1Fragment$data,
-  +$fragmentRefs: commitMutationTest1Fragment$ref,
+  +$fragmentSpreads: commitMutationTest1Fragment$fragmentType,
   ...
 };
 */
@@ -74,4 +74,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "5531c772eb51f5d19ad21d26c583105b";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  commitMutationTest1Fragment$fragmentType,
+  commitMutationTest1Fragment$data,
+>*/);

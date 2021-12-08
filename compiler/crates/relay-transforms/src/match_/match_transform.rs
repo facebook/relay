@@ -22,7 +22,7 @@ use graphql_ir::{
     Selection, Transformed, TransformedValue, Transformer, ValidationMessage, Value,
 };
 use indexmap::IndexSet;
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey};
 use schema::{FieldID, ScalarID, Schema, Type, TypeReference};
 use std::{
     hash::{Hash, Hasher},
@@ -488,7 +488,7 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
             if should_use_no_inline {
                 self.no_inline_fragments
                     .entry(fragment.name.item)
-                    .or_insert_with(|| vec![])
+                    .or_insert_with(std::vec::Vec::new)
                     .push(self.document_name);
             }
             Ok(Transformed::Replace(Selection::InlineFragment(Arc::new(

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<9afbb39766750ca1de620ba0ceea8b49>>
+ * @generated SignedSource<<8f0a24e10b2a4b238acbf796bd4e2e16>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,20 +15,22 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackFragment$ref = any;
-export type RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackFragment$fragmentType = any;
+export type RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackQuery$variables = {|
   id: string,
   enableStream: boolean,
 |};
-export type RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackQueryResponse = {|
+export type RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackQueryVariables = RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackQuery$variables;
+export type RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackQuery$data = {|
   +node: ?{|
-    +$fragmentRefs: RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackFragment$ref,
+    +$fragmentSpreads: RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackFragment$fragmentType,
   |},
 |};
+export type RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackQueryResponse = RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackQuery$data;
 export type RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackQuery = {|
   variables: RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackQueryVariables,
-  response: RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackQueryResponse,
+  response: RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackQuery$data,
 |};
 */
 
@@ -219,4 +221,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "f23e7dbdffffaa06c49725c9cceca25c";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackQuery$variables,
+  RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackQuery$data,
+>*/);

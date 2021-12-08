@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<34c98269581d518f199bc35ca0e7cc17>>
+ * @generated SignedSource<<d4f8d9ca129d0616e8c45e85805b7187>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,19 +15,21 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type useRefetchableFragmentNodeTestUserFragmentWithArgs$ref = any;
-export type useRefetchableFragmentNodeTestUserQueryWithLiteralArgsQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type useRefetchableFragmentNodeTestUserFragmentWithArgs$fragmentType = any;
+export type useRefetchableFragmentNodeTestUserQueryWithLiteralArgsQuery$variables = {|
   id: string,
 |};
-export type useRefetchableFragmentNodeTestUserQueryWithLiteralArgsQueryResponse = {|
+export type useRefetchableFragmentNodeTestUserQueryWithLiteralArgsQueryVariables = useRefetchableFragmentNodeTestUserQueryWithLiteralArgsQuery$variables;
+export type useRefetchableFragmentNodeTestUserQueryWithLiteralArgsQuery$data = {|
   +node: ?{|
-    +$fragmentRefs: useRefetchableFragmentNodeTestUserFragmentWithArgs$ref,
+    +$fragmentSpreads: useRefetchableFragmentNodeTestUserFragmentWithArgs$fragmentType,
   |},
 |};
+export type useRefetchableFragmentNodeTestUserQueryWithLiteralArgsQueryResponse = useRefetchableFragmentNodeTestUserQueryWithLiteralArgsQuery$data;
 export type useRefetchableFragmentNodeTestUserQueryWithLiteralArgsQuery = {|
   variables: useRefetchableFragmentNodeTestUserQueryWithLiteralArgsQueryVariables,
-  response: useRefetchableFragmentNodeTestUserQueryWithLiteralArgsQueryResponse,
+  response: useRefetchableFragmentNodeTestUserQueryWithLiteralArgsQuery$data,
 |};
 */
 
@@ -172,4 +174,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "09f9c5bc18c5bfc0ded57db2a09602a9";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  useRefetchableFragmentNodeTestUserQueryWithLiteralArgsQuery$variables,
+  useRefetchableFragmentNodeTestUserQueryWithLiteralArgsQuery$data,
+>*/);

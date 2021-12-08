@@ -202,6 +202,7 @@ function getModuleOperationKey(documentName: string): string {
  */
 const RelayStoreUtils = {
   ACTOR_IDENTIFIER_KEY: '__actorIdentifier',
+  CLIENT_EDGE_TRAVERSAL_PATH: '__clientEdgeTraversalPath',
   FRAGMENTS_KEY: '__fragments',
   FRAGMENT_OWNER_KEY: '__fragmentOwner',
   FRAGMENT_PROP_NAME_KEY: '__fragmentPropName',

@@ -26,6 +26,7 @@ import type {
   UploadableMap,
 } from '../network/RelayNetworkTypes';
 import type RelayObservable from '../network/RelayObservable';
+import type {GraphQLTaggedNode} from '../query/GraphQLTag';
 import type {RequestIdentifier} from '../util/getRequestIdentifier';
 import type {
   NormalizationArgument,
@@ -34,7 +35,7 @@ import type {
   NormalizationScalarField,
   NormalizationSelectableNode,
 } from '../util/NormalizationNode';
-import type {ReaderFragment} from '../util/ReaderNode';
+import type {ReaderClientEdge, ReaderFragment} from '../util/ReaderNode';
 import type {
   ConcreteRequest,
   RequestParameters,
@@ -43,6 +44,7 @@ import type {
   CacheConfig,
   DataID,
   Disposable,
+  OperationType,
   RenderPolicy,
   Variables,
 } from '../util/RelayRuntimeTypes';
@@ -80,6 +82,7 @@ export type SingularReaderSelector = {|
   +kind: 'SingularReaderSelector',
   +dataID: DataID,
   +isWithinUnmatchedTypeRefinement: boolean,
+  +clientEdgeTraversalPath: ClientEdgeTraversalPath | null,
   +node: ReaderFragment,
   +owner: RequestDescriptor,
   +variables: Variables,
@@ -118,12 +121,26 @@ export type MissingRequiredFields =
   | {|action: 'THROW', field: MissingRequiredField|}
   | {|action: 'LOG', fields: Array<MissingRequiredField>|};
 
+export type ClientEdgeTraversalInfo = {|
+  +readerClientEdge: ReaderClientEdge,
+  +clientEdgeDestinationID: DataID,
+|};
+
+export type ClientEdgeTraversalPath =
+  $ReadOnlyArray<ClientEdgeTraversalInfo | null>;
+
+export type MissingClientEdgeRequestInfo = {|
+  +request: ConcreteRequest,
+  +clientEdgeDestinationID: DataID,
+|};
+
 /**
  * A representation of a selector and its results at a particular point in time.
  */
 export type Snapshot = {|
   +data: ?SelectorData,
   +isMissingData: boolean,
+  +missingClientEdges: null | $ReadOnlyArray<MissingClientEdgeRequestInfo>,
   +seenRecords: DataIDSet,
   +selector: SingularReaderSelector,
   +missingRequiredFields: ?MissingRequiredFields,
@@ -448,6 +465,10 @@ export interface RecordSourceProxy {
   get(dataID: DataID): ?RecordProxy;
   getRoot(): RecordProxy;
   invalidateStore(): void;
+  readUpdatableQuery_EXPERIMENTAL<TQuery: OperationType>(
+    query: GraphQLTaggedNode,
+    variables: TQuery['variables'],
+  ): TQuery['response'];
 }
 
 export interface ReadOnlyRecordSourceProxy {
@@ -805,7 +826,7 @@ export interface IEnvironment {
 export type ModuleImportPointer = {
   +__fragmentPropName: ?string,
   +__module_component: mixed,
-  +$fragmentRefs: mixed,
+  +$fragmentSpreads: mixed,
   ...
 };
 

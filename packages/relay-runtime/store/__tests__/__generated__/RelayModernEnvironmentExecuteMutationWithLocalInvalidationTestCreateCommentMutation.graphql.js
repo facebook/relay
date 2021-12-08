@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<89c07aafa45999a6271b4c8082a0b8a8>>
+ * @generated SignedSource<<9cd5605ccf763097fc8801af848f8d23>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,7 +15,7 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
+import type { ConcreteRequest, Mutation } from 'relay-runtime';
 export type CommentCreateInput = {|
   clientMutationId?: ?string,
   feedbackId?: ?string,
@@ -27,10 +27,11 @@ export type CommentfeedbackFeedback = {|
 export type FeedbackcommentComment = {|
   feedback?: ?CommentfeedbackFeedback,
 |};
-export type RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCreateCommentMutationVariables = {|
+export type RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCreateCommentMutation$variables = {|
   input: CommentCreateInput,
 |};
-export type RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCreateCommentMutationResponse = {|
+export type RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCreateCommentMutationVariables = RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCreateCommentMutation$variables;
+export type RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCreateCommentMutation$data = {|
   +commentCreate: ?{|
     +comment: ?{|
       +id: string,
@@ -40,9 +41,10 @@ export type RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCreate
     |},
   |},
 |};
+export type RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCreateCommentMutationResponse = RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCreateCommentMutation$data;
 export type RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCreateCommentMutation = {|
   variables: RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCreateCommentMutationVariables,
-  response: RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCreateCommentMutationResponse,
+  response: RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCreateCommentMutation$data,
 |};
 */
 
@@ -141,4 +143,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "1f5beacf0f37e8f35e267806fb1d442c";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Mutation<
+  RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCreateCommentMutation$variables,
+  RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCreateCommentMutation$data,
+>*/);

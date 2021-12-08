@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<6b4b5fd9e9b4ddabe6bc2948e03e41d3>>
+ * @generated SignedSource<<bef5c649c9ee9407fce983508e5002fc>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,22 +15,24 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernSelectorTestUserFragment$ref = any;
-type RelayModernSelectorTestUsersFragment$ref = any;
-export type RelayModernSelectorTestUserQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayModernSelectorTestUserFragment$fragmentType = any;
+type RelayModernSelectorTestUsersFragment$fragmentType = any;
+export type RelayModernSelectorTestUserQuery$variables = {|
   id: string,
   size?: ?$ReadOnlyArray<?number>,
   cond: boolean,
 |};
-export type RelayModernSelectorTestUserQueryResponse = {|
+export type RelayModernSelectorTestUserQueryVariables = RelayModernSelectorTestUserQuery$variables;
+export type RelayModernSelectorTestUserQuery$data = {|
   +node: ?{|
-    +$fragmentRefs: RelayModernSelectorTestUserFragment$ref & RelayModernSelectorTestUsersFragment$ref,
+    +$fragmentSpreads: RelayModernSelectorTestUserFragment$fragmentType & RelayModernSelectorTestUsersFragment$fragmentType,
   |},
 |};
+export type RelayModernSelectorTestUserQueryResponse = RelayModernSelectorTestUserQuery$data;
 export type RelayModernSelectorTestUserQuery = {|
   variables: RelayModernSelectorTestUserQueryVariables,
-  response: RelayModernSelectorTestUserQueryResponse,
+  response: RelayModernSelectorTestUserQuery$data,
 |};
 */
 
@@ -190,4 +192,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "afbaf504a28e027de34401ff4a82e567";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernSelectorTestUserQuery$variables,
+  RelayModernSelectorTestUserQuery$data,
+>*/);

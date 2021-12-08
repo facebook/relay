@@ -12,7 +12,7 @@ use graphql_ir::{
     Argument, ConstantValue, Directive, FragmentDefinition, OperationDefinition, Program,
     Selection, Transformed, Transformer, Value,
 };
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey};
 use lazy_static::lazy_static;
 use schema::{Schema, TypeReference};
 

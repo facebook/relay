@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<74f8d399c3e3f4ddab80ea627072ad91>>
+ * @generated SignedSource<<a4a0d6a15819bb930fb8c73246926d0d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,18 +15,20 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-export type loadQuerySourceBehaviorTestQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+export type loadQuerySourceBehaviorTestQuery$variables = {|
   id: string,
 |};
-export type loadQuerySourceBehaviorTestQueryResponse = {|
+export type loadQuerySourceBehaviorTestQueryVariables = loadQuerySourceBehaviorTestQuery$variables;
+export type loadQuerySourceBehaviorTestQuery$data = {|
   +node: ?{|
     +id: string,
   |},
 |};
+export type loadQuerySourceBehaviorTestQueryResponse = loadQuerySourceBehaviorTestQuery$data;
 export type loadQuerySourceBehaviorTestQuery = {|
   variables: loadQuerySourceBehaviorTestQueryVariables,
-  response: loadQuerySourceBehaviorTestQueryResponse,
+  response: loadQuerySourceBehaviorTestQuery$data,
 |};
 */
 
@@ -117,4 +119,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "c88d2ce9a02241ff654cc6feeb95ae05";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  loadQuerySourceBehaviorTestQuery$variables,
+  loadQuerySourceBehaviorTestQuery$data,
+>*/);

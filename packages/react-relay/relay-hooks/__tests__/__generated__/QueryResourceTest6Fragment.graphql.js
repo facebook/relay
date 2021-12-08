@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<d0c8616dfcdb7dab74f6263f7b57572a>>
+ * @generated SignedSource<<0144de3693784597230fac828fd78ab7>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,19 +15,19 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type QueryResourceTest6Fragment$ref: FragmentReference;
-declare export opaque type QueryResourceTest6Fragment$fragmentType: QueryResourceTest6Fragment$ref;
-export type QueryResourceTest6Fragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type QueryResourceTest6Fragment$fragmentType: FragmentType;
+export type QueryResourceTest6Fragment$ref = QueryResourceTest6Fragment$fragmentType;
+export type QueryResourceTest6Fragment$data = {|
   +id: string,
   +username: ?string,
-  +$refType: QueryResourceTest6Fragment$ref,
+  +$fragmentType: QueryResourceTest6Fragment$fragmentType,
 |};
-export type QueryResourceTest6Fragment$data = QueryResourceTest6Fragment;
+export type QueryResourceTest6Fragment = QueryResourceTest6Fragment$data;
 export type QueryResourceTest6Fragment$key = {
   +$data?: QueryResourceTest6Fragment$data,
-  +$fragmentRefs: QueryResourceTest6Fragment$ref,
+  +$fragmentSpreads: QueryResourceTest6Fragment$fragmentType,
   ...
 };
 */
@@ -61,4 +61,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "32748ac19d95e3410e42ccafd031dbc2";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  QueryResourceTest6Fragment$fragmentType,
+  QueryResourceTest6Fragment$data,
+>*/);

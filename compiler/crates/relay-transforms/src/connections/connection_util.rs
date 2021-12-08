@@ -13,7 +13,7 @@ use common::{NamedItem, WithLocation};
 use graphql_ir::{
     associated_data_impl, Directive, InlineFragment, LinkedField, ScalarField, Selection,
 };
-use interner::StringKey;
+use intern::string_key::StringKey;
 use schema::{SDLSchema, Schema, Type};
 
 /// Helper to assert and extract the expected selections for a connection

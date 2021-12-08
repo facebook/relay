@@ -11,7 +11,7 @@ use super::MATCH_CONSTANTS;
 use crate::murmurhash::murmurhash;
 use common::{Diagnostic, DiagnosticsResult, FeatureFlag, FeatureFlags, NamedItem};
 use graphql_ir::{ConstantValue, LinkedField, Program, Selection, Transformed, Transformer, Value};
-use interner::Intern;
+use intern::string_key::Intern;
 use schema::{SDLSchema, Schema, TypeReference};
 use thiserror::Error;
 
@@ -99,7 +99,7 @@ impl<'a> Transformer for HashSupportedArgumentTransform<'a> {
 
         supported_arg.value.item = Value::Constant(ConstantValue::String(hash.intern()));
 
-        return Transformed::Replace(Selection::LinkedField(new_field));
+        Transformed::Replace(Selection::LinkedField(new_field))
     }
 }
 
@@ -134,7 +134,7 @@ impl<'a> HashSupportedArgumentTransform<'a> {
                 return self.schema.is_string(*item_type_name);
             }
         }
-        return false;
+        false
     }
 }
 

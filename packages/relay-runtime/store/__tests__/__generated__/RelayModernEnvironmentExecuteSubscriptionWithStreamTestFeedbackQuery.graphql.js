@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<9d017ac0330758d99d54c065dc2fa873>>
+ * @generated SignedSource<<cf3129ca0b39b02814386a5dc71cd8ac>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,20 +15,22 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernEnvironmentExecuteSubscriptionWithStreamTestFeedbackFragment$ref = any;
-export type RelayModernEnvironmentExecuteSubscriptionWithStreamTestFeedbackQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayModernEnvironmentExecuteSubscriptionWithStreamTestFeedbackFragment$fragmentType = any;
+export type RelayModernEnvironmentExecuteSubscriptionWithStreamTestFeedbackQuery$variables = {|
   id: string,
 |};
-export type RelayModernEnvironmentExecuteSubscriptionWithStreamTestFeedbackQueryResponse = {|
+export type RelayModernEnvironmentExecuteSubscriptionWithStreamTestFeedbackQueryVariables = RelayModernEnvironmentExecuteSubscriptionWithStreamTestFeedbackQuery$variables;
+export type RelayModernEnvironmentExecuteSubscriptionWithStreamTestFeedbackQuery$data = {|
   +node: ?{|
     +id: string,
-    +$fragmentRefs: RelayModernEnvironmentExecuteSubscriptionWithStreamTestFeedbackFragment$ref,
+    +$fragmentSpreads: RelayModernEnvironmentExecuteSubscriptionWithStreamTestFeedbackFragment$fragmentType,
   |},
 |};
+export type RelayModernEnvironmentExecuteSubscriptionWithStreamTestFeedbackQueryResponse = RelayModernEnvironmentExecuteSubscriptionWithStreamTestFeedbackQuery$data;
 export type RelayModernEnvironmentExecuteSubscriptionWithStreamTestFeedbackQuery = {|
   variables: RelayModernEnvironmentExecuteSubscriptionWithStreamTestFeedbackQueryVariables,
-  response: RelayModernEnvironmentExecuteSubscriptionWithStreamTestFeedbackQueryResponse,
+  response: RelayModernEnvironmentExecuteSubscriptionWithStreamTestFeedbackQuery$data,
 |};
 */
 
@@ -168,4 +170,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "1e9ff23e175d055a8cf9262725de7afa";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentExecuteSubscriptionWithStreamTestFeedbackQuery$variables,
+  RelayModernEnvironmentExecuteSubscriptionWithStreamTestFeedbackQuery$data,
+>*/);

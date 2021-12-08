@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<71f28f0c3d8692d3af0cc5897abc8759>>
+ * @generated SignedSource<<328d31f400cdb8abd116e4eb63de8e07>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,9 +15,9 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type useBlockingPaginationFragmentTestUserFragment$ref = any;
-export type useBlockingPaginationFragmentTestUserQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type useBlockingPaginationFragmentTestUserFragment$fragmentType = any;
+export type useBlockingPaginationFragmentTestUserQuery$variables = {|
   id: string,
   after?: ?string,
   first?: ?number,
@@ -26,14 +26,16 @@ export type useBlockingPaginationFragmentTestUserQueryVariables = {|
   orderby?: ?$ReadOnlyArray<?string>,
   isViewerFriend?: ?boolean,
 |};
-export type useBlockingPaginationFragmentTestUserQueryResponse = {|
+export type useBlockingPaginationFragmentTestUserQueryVariables = useBlockingPaginationFragmentTestUserQuery$variables;
+export type useBlockingPaginationFragmentTestUserQuery$data = {|
   +node: ?{|
-    +$fragmentRefs: useBlockingPaginationFragmentTestUserFragment$ref,
+    +$fragmentSpreads: useBlockingPaginationFragmentTestUserFragment$fragmentType,
   |},
 |};
+export type useBlockingPaginationFragmentTestUserQueryResponse = useBlockingPaginationFragmentTestUserQuery$data;
 export type useBlockingPaginationFragmentTestUserQuery = {|
   variables: useBlockingPaginationFragmentTestUserQueryVariables,
-  response: useBlockingPaginationFragmentTestUserQueryResponse,
+  response: useBlockingPaginationFragmentTestUserQuery$data,
 |};
 */
 
@@ -329,4 +331,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "24a79476464a446cf23640ec65b6850f";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  useBlockingPaginationFragmentTestUserQuery$variables,
+  useBlockingPaginationFragmentTestUserQuery$data,
+>*/);

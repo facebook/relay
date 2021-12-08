@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<5072d8ca068b264a2817c64c8f781038>>
+ * @generated SignedSource<<3cdd32119a12a9cb71333f8dbe7bcbcb>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,18 +15,18 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayModernEnvironmentCommitPayloadTest6UserFragment$ref: FragmentReference;
-declare export opaque type RelayModernEnvironmentCommitPayloadTest6UserFragment$fragmentType: RelayModernEnvironmentCommitPayloadTest6UserFragment$ref;
-export type RelayModernEnvironmentCommitPayloadTest6UserFragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayModernEnvironmentCommitPayloadTest6UserFragment$fragmentType: FragmentType;
+export type RelayModernEnvironmentCommitPayloadTest6UserFragment$ref = RelayModernEnvironmentCommitPayloadTest6UserFragment$fragmentType;
+export type RelayModernEnvironmentCommitPayloadTest6UserFragment$data = {|
   +username: ?string,
-  +$refType: RelayModernEnvironmentCommitPayloadTest6UserFragment$ref,
+  +$fragmentType: RelayModernEnvironmentCommitPayloadTest6UserFragment$fragmentType,
 |};
-export type RelayModernEnvironmentCommitPayloadTest6UserFragment$data = RelayModernEnvironmentCommitPayloadTest6UserFragment;
+export type RelayModernEnvironmentCommitPayloadTest6UserFragment = RelayModernEnvironmentCommitPayloadTest6UserFragment$data;
 export type RelayModernEnvironmentCommitPayloadTest6UserFragment$key = {
   +$data?: RelayModernEnvironmentCommitPayloadTest6UserFragment$data,
-  +$fragmentRefs: RelayModernEnvironmentCommitPayloadTest6UserFragment$ref,
+  +$fragmentSpreads: RelayModernEnvironmentCommitPayloadTest6UserFragment$fragmentType,
   ...
 };
 */
@@ -53,4 +53,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "c20e4517b435c60b8b2305e016dd86b0";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayModernEnvironmentCommitPayloadTest6UserFragment$fragmentType,
+  RelayModernEnvironmentCommitPayloadTest6UserFragment$data,
+>*/);

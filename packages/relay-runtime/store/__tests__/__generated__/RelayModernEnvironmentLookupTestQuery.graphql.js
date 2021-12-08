@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<4aea3d42754ceb9fb4038eda06d35300>>
+ * @generated SignedSource<<6b7819ca0feb9f11829c3bf465970989>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,11 +15,12 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-export type RelayModernEnvironmentLookupTestQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+export type RelayModernEnvironmentLookupTestQuery$variables = {|
   id: string,
 |};
-export type RelayModernEnvironmentLookupTestQueryResponse = {|
+export type RelayModernEnvironmentLookupTestQueryVariables = RelayModernEnvironmentLookupTestQuery$variables;
+export type RelayModernEnvironmentLookupTestQuery$data = {|
   +__id: string,
   +me: ?{|
     +__id: string,
@@ -41,9 +42,10 @@ export type RelayModernEnvironmentLookupTestQueryResponse = {|
     |},
   |},
 |};
+export type RelayModernEnvironmentLookupTestQueryResponse = RelayModernEnvironmentLookupTestQuery$data;
 export type RelayModernEnvironmentLookupTestQuery = {|
   variables: RelayModernEnvironmentLookupTestQueryVariables,
-  response: RelayModernEnvironmentLookupTestQueryResponse,
+  response: RelayModernEnvironmentLookupTestQuery$data,
 |};
 */
 
@@ -206,4 +208,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "bea49102c3069567ca430f28d38ba916";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentLookupTestQuery$variables,
+  RelayModernEnvironmentLookupTestQuery$data,
+>*/);

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a00884a62103e7a1d35ddb5107156e07>>
+ * @generated SignedSource<<26ea12d34e8351c6686c1f4c446d369d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,20 +15,20 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayMockPayloadGeneratorTest26Fragment$ref: FragmentReference;
-declare export opaque type RelayMockPayloadGeneratorTest26Fragment$fragmentType: RelayMockPayloadGeneratorTest26Fragment$ref;
-export type RelayMockPayloadGeneratorTest26Fragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayMockPayloadGeneratorTest26Fragment$fragmentType: FragmentType;
+export type RelayMockPayloadGeneratorTest26Fragment$ref = RelayMockPayloadGeneratorTest26Fragment$fragmentType;
+export type RelayMockPayloadGeneratorTest26Fragment$data = {|
   +uri: ?string,
   +width: ?number,
   +height: ?number,
-  +$refType: RelayMockPayloadGeneratorTest26Fragment$ref,
+  +$fragmentType: RelayMockPayloadGeneratorTest26Fragment$fragmentType,
 |};
-export type RelayMockPayloadGeneratorTest26Fragment$data = RelayMockPayloadGeneratorTest26Fragment;
+export type RelayMockPayloadGeneratorTest26Fragment = RelayMockPayloadGeneratorTest26Fragment$data;
 export type RelayMockPayloadGeneratorTest26Fragment$key = {
   +$data?: RelayMockPayloadGeneratorTest26Fragment$data,
-  +$fragmentRefs: RelayMockPayloadGeneratorTest26Fragment$ref,
+  +$fragmentSpreads: RelayMockPayloadGeneratorTest26Fragment$fragmentType,
   ...
 };
 */
@@ -69,4 +69,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "52a0092377065d6b742aa9c2a1825484";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayMockPayloadGeneratorTest26Fragment$fragmentType,
+  RelayMockPayloadGeneratorTest26Fragment$data,
+>*/);

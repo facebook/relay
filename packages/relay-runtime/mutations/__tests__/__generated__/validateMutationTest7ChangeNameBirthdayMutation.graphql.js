@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<de6dc88e254fbad8def00db5a1250049>>
+ * @generated SignedSource<<af27eb7c9fa1f44282505f365649a921>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,15 +15,16 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
+import type { ConcreteRequest, Mutation } from 'relay-runtime';
 export type ActorNameChangeInput = {|
   clientMutationId?: ?string,
   newName?: ?string,
 |};
-export type validateMutationTest7ChangeNameBirthdayMutationVariables = {|
+export type validateMutationTest7ChangeNameBirthdayMutation$variables = {|
   input: ActorNameChangeInput,
 |};
-export type validateMutationTest7ChangeNameBirthdayMutationResponse = {|
+export type validateMutationTest7ChangeNameBirthdayMutationVariables = validateMutationTest7ChangeNameBirthdayMutation$variables;
+export type validateMutationTest7ChangeNameBirthdayMutation$data = {|
   +actorNameChange: ?{|
     +actor: ?{|
       +birthdate?: ?{|
@@ -35,9 +36,10 @@ export type validateMutationTest7ChangeNameBirthdayMutationResponse = {|
     |},
   |},
 |};
+export type validateMutationTest7ChangeNameBirthdayMutationResponse = validateMutationTest7ChangeNameBirthdayMutation$data;
 export type validateMutationTest7ChangeNameBirthdayMutation = {|
   variables: validateMutationTest7ChangeNameBirthdayMutationVariables,
-  response: validateMutationTest7ChangeNameBirthdayMutationResponse,
+  response: validateMutationTest7ChangeNameBirthdayMutation$data,
 |};
 */
 
@@ -205,4 +207,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "5b57fac42b5dc59d5b54535a5a02ba96";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Mutation<
+  validateMutationTest7ChangeNameBirthdayMutation$variables,
+  validateMutationTest7ChangeNameBirthdayMutation$data,
+>*/);

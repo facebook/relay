@@ -14,14 +14,14 @@ use std::fmt::{Result, Write};
 
 pub fn print_operation_ast(node: &OperationDefinition) -> String {
     let mut printer: Printer = Default::default();
-    printer.print_operation(&node).unwrap();
+    printer.print_operation(node).unwrap();
 
     printer.output
 }
 
 pub fn print_fragment_ast(node: &FragmentDefinition) -> String {
     let mut printer: Printer = Default::default();
-    printer.print_fragment(&node).unwrap();
+    printer.print_fragment(node).unwrap();
 
     printer.output
 }
@@ -105,7 +105,7 @@ impl Printer {
 
     fn print_directives(&mut self, directives: &[Directive]) -> Result {
         for directive in directives {
-            self.print_directive(&directive)?;
+            self.print_directive(directive)?;
         }
 
         Ok(())

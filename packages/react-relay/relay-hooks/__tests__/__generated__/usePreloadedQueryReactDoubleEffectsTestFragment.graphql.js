@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a5f9769ed5a4410eb83b95e520150ee4>>
+ * @generated SignedSource<<6f84758a72e292a3ba53ae7e64041246>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,18 +15,18 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type usePreloadedQueryReactDoubleEffectsTestFragment$ref: FragmentReference;
-declare export opaque type usePreloadedQueryReactDoubleEffectsTestFragment$fragmentType: usePreloadedQueryReactDoubleEffectsTestFragment$ref;
-export type usePreloadedQueryReactDoubleEffectsTestFragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type usePreloadedQueryReactDoubleEffectsTestFragment$fragmentType: FragmentType;
+export type usePreloadedQueryReactDoubleEffectsTestFragment$ref = usePreloadedQueryReactDoubleEffectsTestFragment$fragmentType;
+export type usePreloadedQueryReactDoubleEffectsTestFragment$data = {|
   +firstName: ?string,
-  +$refType: usePreloadedQueryReactDoubleEffectsTestFragment$ref,
+  +$fragmentType: usePreloadedQueryReactDoubleEffectsTestFragment$fragmentType,
 |};
-export type usePreloadedQueryReactDoubleEffectsTestFragment$data = usePreloadedQueryReactDoubleEffectsTestFragment;
+export type usePreloadedQueryReactDoubleEffectsTestFragment = usePreloadedQueryReactDoubleEffectsTestFragment$data;
 export type usePreloadedQueryReactDoubleEffectsTestFragment$key = {
   +$data?: usePreloadedQueryReactDoubleEffectsTestFragment$data,
-  +$fragmentRefs: usePreloadedQueryReactDoubleEffectsTestFragment$ref,
+  +$fragmentSpreads: usePreloadedQueryReactDoubleEffectsTestFragment$fragmentType,
   ...
 };
 */
@@ -53,4 +53,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "a43d250232fe13605245eff128073c51";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  usePreloadedQueryReactDoubleEffectsTestFragment$fragmentType,
+  usePreloadedQueryReactDoubleEffectsTestFragment$data,
+>*/);

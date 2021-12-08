@@ -27,7 +27,7 @@ impl PerfLogEvent for ConsoleLogEvent {
     }
     fn stop(&self, timer: Self::Timer) {
         let (name, time) = timer;
-        print_time(&name, time);
+        print_time(name, time);
     }
     fn complete(self) {}
 }

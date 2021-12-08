@@ -27,10 +27,10 @@ query RelayClientIDFieldQuery($id: ID!) {
   }
 }
 ==================================== OUTPUT ===================================
-export type RelayClientIDFieldQueryVariables = {
+export type RelayClientIDFieldQuery$variables = {
   id: string;
 };
-export type RelayClientIDFieldQueryResponse = {
+export type RelayClientIDFieldQuery$data = {
   readonly __id: string;
   readonly me: {
     readonly __id: string;
@@ -53,6 +53,6 @@ export type RelayClientIDFieldQueryResponse = {
   } | null;
 };
 export type RelayClientIDFieldQuery = {
-  variables: RelayClientIDFieldQueryVariables;
-  response: RelayClientIDFieldQueryResponse;
+  variables: RelayClientIDFieldQuery$variables;
+  response: RelayClientIDFieldQuery$data;
 };

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<7fab0fffdf45aaa49341c42ce46740d8>>
+ * @generated SignedSource<<049cd2e2c6b8da542f0cd9d2a0f06c2c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,11 +15,11 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment$ref: FragmentReference;
-declare export opaque type RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment$fragmentType: RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment$ref;
-export type RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment = ?{|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment$fragmentType: FragmentType;
+export type RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment$ref = RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment$fragmentType;
+export type RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment$data = ?{|
   +id: string,
   +comments: {|
     +edges: ?$ReadOnlyArray<?{|
@@ -28,12 +28,12 @@ export type RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment = ?{
       |},
     |}>,
   |},
-  +$refType: RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment$ref,
+  +$fragmentType: RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment$fragmentType,
 |};
-export type RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment$data = RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment;
+export type RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment = RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment$data;
 export type RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment$key = {
   +$data?: RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment$data,
-  +$fragmentRefs: RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment$ref,
+  +$fragmentSpreads: RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment$fragmentType,
   ...
 };
 */
@@ -169,4 +169,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "bccfa87744c99b7482a52d28d18716d0";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment$fragmentType,
+  RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment$data,
+>*/);

@@ -12,7 +12,7 @@ use graphql_ir::{
     Selection, Transformed, Transformer, VariableDefinition,
 };
 use indexmap::{map::Entry, IndexMap};
-use interner::StringKey;
+use intern::string_key::StringKey;
 use schema::Schema;
 use std::{ops::RangeFull, sync::Arc};
 

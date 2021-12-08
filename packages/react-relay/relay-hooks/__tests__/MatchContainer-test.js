@@ -28,7 +28,7 @@ function createMatchPointer({
   module,
 }): MatchPointer {
   const pointer = {
-    $fragmentRefs: {},
+    $fragmentSpreads: {},
     [ID_KEY]: id,
     [FRAGMENTS_KEY]: {},
     [FRAGMENT_OWNER_KEY]: null,

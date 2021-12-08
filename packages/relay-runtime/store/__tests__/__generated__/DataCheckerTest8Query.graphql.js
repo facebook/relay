@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a97f8b5010f53cd1193b18994298ad2c>>
+ * @generated SignedSource<<02f611b35e82aa0f5fb0e10842efa202>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,18 +15,20 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-export type DataCheckerTest8QueryVariables = {||};
-export type DataCheckerTest8QueryResponse = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+export type DataCheckerTest8Query$variables = {||};
+export type DataCheckerTest8QueryVariables = DataCheckerTest8Query$variables;
+export type DataCheckerTest8Query$data = {|
   +me: ?{|
     +profilePicture: ?{|
       +uri: ?string,
     |},
   |},
 |};
+export type DataCheckerTest8QueryResponse = DataCheckerTest8Query$data;
 export type DataCheckerTest8Query = {|
   variables: DataCheckerTest8QueryVariables,
-  response: DataCheckerTest8QueryResponse,
+  response: DataCheckerTest8Query$data,
 |};
 */
 
@@ -139,4 +141,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "3a2b120bf24a1511e80aef6f40bdd1d4";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  DataCheckerTest8Query$variables,
+  DataCheckerTest8Query$data,
+>*/);

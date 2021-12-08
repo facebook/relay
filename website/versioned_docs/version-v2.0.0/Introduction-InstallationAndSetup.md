@@ -37,7 +37,7 @@ Please note that the `"relay"` plugin should run before other plugins or
 presets to ensure the `graphql` template literals are correctly transformed. See
 Babel's [documentation on this topic](https://babeljs.io/docs/plugins/#pluginpreset-ordering).
 
-See the [Migration Setup](./migration-setup) guide if upgrading an existing Relay app.
+See the [Migration Setup](./Modern-MigrationSetup.md) guide if upgrading an existing Relay app.
 
 Alternatively, instead of using `babel-plugin-relay`, you can use Relay with [babel-plugin-macros](https://github.com/kentcdodds/babel-plugin-macros). After installing `babel-plugin-macros` and adding it to your Babel config:
 
@@ -47,7 +47,7 @@ const graphql = require('babel-plugin-relay/macro');
 
 ## Set up relay-compiler
 
-Relay's ahead-of-time compilation requires the [Relay Compiler](./graphql-in-relay#relay-compiler), which you can install via `yarn` or `npm`:
+Relay's ahead-of-time compilation requires the [Relay Compiler](Modern-GraphQLInRelay.md#relay-compiler), which you can install via `yarn` or `npm`:
 
 ```sh
 
@@ -87,7 +87,7 @@ yarn run relay --watch
 
 ```
 
-For more details, check out our [Relay Compiler docs](./graphql-in-relay#relay-compiler).
+For more details, check out our [Relay Compiler docs](Modern-GraphQLInRelay.md#relay-compiler).
 
 ## JavaScript environment requirements
 

@@ -7,15 +7,18 @@
 
 use common::{ConsoleLogger, FeatureFlag, FeatureFlags, SourceLocationKey};
 use fixture_tests::Fixture;
-use fnv::FnvHashMap;
+use fnv::{FnvBuildHasher, FnvHashMap};
 use graphql_ir::{build, Program};
 use graphql_syntax::parse_executable;
-use interner::Intern;
+use indexmap::IndexMap;
+use intern::string_key::Intern;
 use relay_codegen::JsModuleFormat;
 use relay_test_schema::{get_test_schema, get_test_schema_with_extensions};
 use relay_transforms::{apply_transforms, ConnectionInterface};
 use relay_typegen::{self, TypegenConfig, TypegenLanguage};
 use std::sync::Arc;
+
+type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let parts = fixture.content.split("%extensions%").collect::<Vec<_>>();
@@ -42,7 +45,6 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         Default::default(),
         &ConnectionInterface::default(),
         Arc::new(FeatureFlags {
-            enable_required_transform: true,
             no_inline: FeatureFlag::Enabled,
             enable_relay_resolver_transform: true,
             actor_change_support: FeatureFlag::Enabled,
@@ -55,8 +57,12 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     .unwrap();
 
     let js_module_format = JsModuleFormat::Haste;
+    let has_unified_output = false;
+    let mut custom_scalar_types = FnvIndexMap::default();
+    custom_scalar_types.insert("Boolean".intern(), "CustomBoolean".intern());
     let typegen_config = TypegenConfig {
         language: TypegenLanguage::Flow,
+        custom_scalar_types,
         ..Default::default()
     };
 
@@ -72,6 +78,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
             normalization_operation,
             &schema,
             js_module_format,
+            has_unified_output,
             &typegen_config,
         )
     });
@@ -79,7 +86,13 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let mut fragments: Vec<_> = programs.typegen.fragments().collect();
     fragments.sort_by_key(|frag| frag.name.item);
     let fragment_strings = fragments.into_iter().map(|frag| {
-        relay_typegen::generate_fragment_type(frag, &schema, js_module_format, &typegen_config)
+        relay_typegen::generate_fragment_type(
+            frag,
+            &schema,
+            js_module_format,
+            has_unified_output,
+            &typegen_config,
+        )
     });
 
     let mut result: Vec<String> = operation_strings.collect();

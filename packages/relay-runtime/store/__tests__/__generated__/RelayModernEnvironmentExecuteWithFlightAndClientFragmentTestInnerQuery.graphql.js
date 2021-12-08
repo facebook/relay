@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<0e330b9eac986dda5c408c67389cf851>>
+ * @generated SignedSource<<2f80773ed428fe492b07f480aae2af80>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,19 +17,21 @@
 // @ReactFlightClientDependency RelayModernEnvironmentExecuteWithFlightAndClientFragmentTest_clientFragment$normalization.graphql
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernEnvironmentExecuteWithFlightAndClientFragmentTest_clientFragment$ref = any;
-export type RelayModernEnvironmentExecuteWithFlightAndClientFragmentTestInnerQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayModernEnvironmentExecuteWithFlightAndClientFragmentTest_clientFragment$fragmentType = any;
+export type RelayModernEnvironmentExecuteWithFlightAndClientFragmentTestInnerQuery$variables = {|
   id: string,
 |};
-export type RelayModernEnvironmentExecuteWithFlightAndClientFragmentTestInnerQueryResponse = {|
+export type RelayModernEnvironmentExecuteWithFlightAndClientFragmentTestInnerQueryVariables = RelayModernEnvironmentExecuteWithFlightAndClientFragmentTestInnerQuery$variables;
+export type RelayModernEnvironmentExecuteWithFlightAndClientFragmentTestInnerQuery$data = {|
   +node: ?{|
-    +$fragmentRefs: RelayModernEnvironmentExecuteWithFlightAndClientFragmentTest_clientFragment$ref,
+    +$fragmentSpreads: RelayModernEnvironmentExecuteWithFlightAndClientFragmentTest_clientFragment$fragmentType,
   |},
 |};
+export type RelayModernEnvironmentExecuteWithFlightAndClientFragmentTestInnerQueryResponse = RelayModernEnvironmentExecuteWithFlightAndClientFragmentTestInnerQuery$data;
 export type RelayModernEnvironmentExecuteWithFlightAndClientFragmentTestInnerQuery = {|
   variables: RelayModernEnvironmentExecuteWithFlightAndClientFragmentTestInnerQueryVariables,
-  response: RelayModernEnvironmentExecuteWithFlightAndClientFragmentTestInnerQueryResponse,
+  response: RelayModernEnvironmentExecuteWithFlightAndClientFragmentTestInnerQuery$data,
 |};
 */
 
@@ -128,4 +130,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "337f43907f43a7d61eed932a0bf7f0d2";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentExecuteWithFlightAndClientFragmentTestInnerQuery$variables,
+  RelayModernEnvironmentExecuteWithFlightAndClientFragmentTestInnerQuery$data,
+>*/);

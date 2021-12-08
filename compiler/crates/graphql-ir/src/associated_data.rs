@@ -75,7 +75,7 @@ macro_rules! associated_data_impl {
         impl Into<$crate::Directive> for $name {
             fn into(self) -> $crate::Directive {
                 $crate::Directive {
-                    name: $crate::reexport::WithLocation::generated(*Self::DIRECTIVE_NAME),
+                    name: $crate::reexport::WithLocation::generated(Self::directive_name()),
                     arguments: Vec::new(),
                     data: Some(Box::new(self)),
                 }
@@ -83,15 +83,19 @@ macro_rules! associated_data_impl {
         }
 
         impl $name {
-            pub const DIRECTIVE_NAME: $crate::reexport::Lazy<$crate::reexport::StringKey> =
-                $crate::reexport::Lazy::new(|| {
-                    $crate::reexport::Intern::intern(concat!("__", stringify!($name)))
-                });
+            pub fn directive_name() -> $crate::reexport::StringKey {
+                static DIRECTIVE_NAME: $crate::reexport::Lazy<$crate::reexport::StringKey> =
+                    $crate::reexport::Lazy::new(|| {
+                        use $crate::reexport::string_key::Intern;
+                        concat!("__", stringify!($name)).intern()
+                    });
+                return *DIRECTIVE_NAME;
+            }
 
             #[allow(dead_code)]
             pub fn find(directives: &[$crate::Directive]) -> Option<&Self> {
                 use $crate::reexport::NamedItem;
-                directives.named(*Self::DIRECTIVE_NAME).map(|directive| {
+                directives.named(Self::directive_name()).map(|directive| {
                     directive
                         .data
                         .as_ref()

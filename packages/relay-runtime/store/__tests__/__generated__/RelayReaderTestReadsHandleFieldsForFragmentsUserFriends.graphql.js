@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<2faaa1562b4e439da2112e5b5982102c>>
+ * @generated SignedSource<<3652a064057d2d666b5286f1f86abf4a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,11 +15,11 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayReaderTestReadsHandleFieldsForFragmentsUserFriends$ref: FragmentReference;
-declare export opaque type RelayReaderTestReadsHandleFieldsForFragmentsUserFriends$fragmentType: RelayReaderTestReadsHandleFieldsForFragmentsUserFriends$ref;
-export type RelayReaderTestReadsHandleFieldsForFragmentsUserFriends = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayReaderTestReadsHandleFieldsForFragmentsUserFriends$fragmentType: FragmentType;
+export type RelayReaderTestReadsHandleFieldsForFragmentsUserFriends$ref = RelayReaderTestReadsHandleFieldsForFragmentsUserFriends$fragmentType;
+export type RelayReaderTestReadsHandleFieldsForFragmentsUserFriends$data = {|
   +friends: ?{|
     +edges: ?$ReadOnlyArray<?{|
       +cursor: ?string,
@@ -29,12 +29,12 @@ export type RelayReaderTestReadsHandleFieldsForFragmentsUserFriends = {|
       |},
     |}>,
   |},
-  +$refType: RelayReaderTestReadsHandleFieldsForFragmentsUserFriends$ref,
+  +$fragmentType: RelayReaderTestReadsHandleFieldsForFragmentsUserFriends$fragmentType,
 |};
-export type RelayReaderTestReadsHandleFieldsForFragmentsUserFriends$data = RelayReaderTestReadsHandleFieldsForFragmentsUserFriends;
+export type RelayReaderTestReadsHandleFieldsForFragmentsUserFriends = RelayReaderTestReadsHandleFieldsForFragmentsUserFriends$data;
 export type RelayReaderTestReadsHandleFieldsForFragmentsUserFriends$key = {
   +$data?: RelayReaderTestReadsHandleFieldsForFragmentsUserFriends$data,
-  +$fragmentRefs: RelayReaderTestReadsHandleFieldsForFragmentsUserFriends$ref,
+  +$fragmentSpreads: RelayReaderTestReadsHandleFieldsForFragmentsUserFriends$fragmentType,
   ...
 };
 */
@@ -108,4 +108,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "e45a7509609fa1b14dd78b33161d82f0";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayReaderTestReadsHandleFieldsForFragmentsUserFriends$fragmentType,
+  RelayReaderTestReadsHandleFieldsForFragmentsUserFriends$data,
+>*/);

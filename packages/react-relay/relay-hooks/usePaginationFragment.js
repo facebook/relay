@@ -16,7 +16,7 @@
 import type {LoadMoreFn, UseLoadMoreFunctionArgs} from './useLoadMoreFunction';
 import type {RefetchFnDynamic} from './useRefetchableFragmentNode';
 import type {
-  FragmentReference,
+  FragmentType,
   GraphQLResponse,
   GraphQLTaggedNode,
   Observer,
@@ -46,7 +46,7 @@ export type ReturnType<TQuery: OperationType, TKey, TFragmentData> = {|
 
 function usePaginationFragment<
   TQuery: OperationType,
-  TKey: ?{+$data?: mixed, +$fragmentRefs: FragmentReference, ...},
+  TKey: ?{+$data?: mixed, +$fragmentSpreads: FragmentType, ...},
 >(
   fragmentInput: GraphQLTaggedNode,
   parentFragmentRef: TKey,

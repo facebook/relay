@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<599d378cd10935f90bafd4a8973af769>>
+ * @generated SignedSource<<591b7fc6f70fbd77fc8f891605dc56c1>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,22 +15,22 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type fetchQueryInternalTestMarkdown1Fragment_name$ref: FragmentReference;
-declare export opaque type fetchQueryInternalTestMarkdown1Fragment_name$fragmentType: fetchQueryInternalTestMarkdown1Fragment_name$ref;
-export type fetchQueryInternalTestMarkdown1Fragment_name = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type fetchQueryInternalTestMarkdown1Fragment_name$fragmentType: FragmentType;
+export type fetchQueryInternalTestMarkdown1Fragment_name$ref = fetchQueryInternalTestMarkdown1Fragment_name$fragmentType;
+export type fetchQueryInternalTestMarkdown1Fragment_name$data = {|
   +markdown: ?string,
   +data: ?{|
     +markup: ?string,
   |},
   +__typename: "MarkdownUserNameRenderer",
-  +$refType: fetchQueryInternalTestMarkdown1Fragment_name$ref,
+  +$fragmentType: fetchQueryInternalTestMarkdown1Fragment_name$fragmentType,
 |};
-export type fetchQueryInternalTestMarkdown1Fragment_name$data = fetchQueryInternalTestMarkdown1Fragment_name;
+export type fetchQueryInternalTestMarkdown1Fragment_name = fetchQueryInternalTestMarkdown1Fragment_name$data;
 export type fetchQueryInternalTestMarkdown1Fragment_name$key = {
   +$data?: fetchQueryInternalTestMarkdown1Fragment_name$data,
-  +$fragmentRefs: fetchQueryInternalTestMarkdown1Fragment_name$ref,
+  +$fragmentSpreads: fetchQueryInternalTestMarkdown1Fragment_name$fragmentType,
   ...
 };
 */
@@ -82,4 +82,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "c23b64d2c536a5ff15a088b0ad49e3b9";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  fetchQueryInternalTestMarkdown1Fragment_name$fragmentType,
+  fetchQueryInternalTestMarkdown1Fragment_name$data,
+>*/);

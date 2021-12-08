@@ -11,7 +11,7 @@ use graphql_ir::{
     Transformer, ValidationMessage,
 };
 
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey};
 use once_cell::sync::Lazy;
 use std::sync::Arc;
 

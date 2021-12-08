@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<34ee674459516e2709f06159012da4ff>>
+ * @generated SignedSource<<46f6c902b3faffa86b3ad621c5fde513>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,21 +15,21 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name$ref: FragmentReference;
-declare export opaque type FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name$fragmentType: FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name$ref;
-export type FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name$fragmentType: FragmentType;
+export type FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name$ref = FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name$fragmentType;
+export type FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name$data = {|
   +plaintext: ?string,
   +data: ?{|
     +text: ?string,
   |},
-  +$refType: FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name$ref,
+  +$fragmentType: FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name$fragmentType,
 |};
-export type FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name$data = FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name;
+export type FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name = FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name$data;
 export type FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name$key = {
   +$data?: FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name$data,
-  +$fragmentRefs: FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name$ref,
+  +$fragmentSpreads: FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name$fragmentType,
   ...
 };
 */
@@ -74,4 +74,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "aa92095fcf2c3db87d7a7db7efd439d9";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name$fragmentType,
+  FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name$data,
+>*/);

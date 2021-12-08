@@ -14,7 +14,7 @@ use graphql_ir::{
     Condition, Directive, FragmentDefinition, InlineFragment, LinkedField, OperationDefinition,
     Program, Selection, TransformedValue, ValidationMessage,
 };
-use interner::StringKey;
+use intern::string_key::StringKey;
 use schema::{Schema, Type};
 
 use crate::node_identifier::{LocationAgnosticPartialEq, NodeIdentifier};
@@ -430,7 +430,7 @@ impl FlattenTransform {
                     || (inline_fragment.type_condition == Some(parent_type)
                         && inline_fragment
                             .directives
-                            .named(*ModuleMetadata::DIRECTIVE_NAME)
+                            .named(ModuleMetadata::directive_name())
                             .is_none())
                 {
                     self.can_flatten_selections(

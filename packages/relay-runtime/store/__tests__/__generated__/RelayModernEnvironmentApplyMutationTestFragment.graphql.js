@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<68818a68795bb02008d9f9b11708dc77>>
+ * @generated SignedSource<<79a2eca9be5c2fb4df6f0bb0379ce39c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,21 +15,21 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayModernEnvironmentApplyMutationTestFragment$ref: FragmentReference;
-declare export opaque type RelayModernEnvironmentApplyMutationTestFragment$fragmentType: RelayModernEnvironmentApplyMutationTestFragment$ref;
-export type RelayModernEnvironmentApplyMutationTestFragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayModernEnvironmentApplyMutationTestFragment$fragmentType: FragmentType;
+export type RelayModernEnvironmentApplyMutationTestFragment$ref = RelayModernEnvironmentApplyMutationTestFragment$fragmentType;
+export type RelayModernEnvironmentApplyMutationTestFragment$data = {|
   +id: string,
   +body: ?{|
     +text: ?string,
   |},
-  +$refType: RelayModernEnvironmentApplyMutationTestFragment$ref,
+  +$fragmentType: RelayModernEnvironmentApplyMutationTestFragment$fragmentType,
 |};
-export type RelayModernEnvironmentApplyMutationTestFragment$data = RelayModernEnvironmentApplyMutationTestFragment;
+export type RelayModernEnvironmentApplyMutationTestFragment = RelayModernEnvironmentApplyMutationTestFragment$data;
 export type RelayModernEnvironmentApplyMutationTestFragment$key = {
   +$data?: RelayModernEnvironmentApplyMutationTestFragment$data,
-  +$fragmentRefs: RelayModernEnvironmentApplyMutationTestFragment$ref,
+  +$fragmentSpreads: RelayModernEnvironmentApplyMutationTestFragment$fragmentType,
   ...
 };
 */
@@ -74,4 +74,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "d2674d63012707069f7de0e0e3449a02";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayModernEnvironmentApplyMutationTestFragment$fragmentType,
+  RelayModernEnvironmentApplyMutationTestFragment$data,
+>*/);

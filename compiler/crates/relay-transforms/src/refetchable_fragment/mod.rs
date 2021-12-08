@@ -27,7 +27,7 @@ use graphql_ir::{
     VariableDefinition,
 };
 use graphql_syntax::OperationKind;
-use interner::StringKey;
+use intern::string_key::StringKey;
 use node_query_generator::NODE_QUERY_GENERATOR;
 use query_query_generator::QUERY_QUERY_GENERATOR;
 use schema::{SDLSchema, Schema};

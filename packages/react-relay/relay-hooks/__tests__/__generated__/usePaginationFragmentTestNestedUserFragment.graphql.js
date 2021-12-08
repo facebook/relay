@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<c683adf63b372eea5b94ca3d2889c7fa>>
+ * @generated SignedSource<<9c02b0e889a02937745a8b00ecc2ba17>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,18 +15,18 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type usePaginationFragmentTestNestedUserFragment$ref: FragmentReference;
-declare export opaque type usePaginationFragmentTestNestedUserFragment$fragmentType: usePaginationFragmentTestNestedUserFragment$ref;
-export type usePaginationFragmentTestNestedUserFragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type usePaginationFragmentTestNestedUserFragment$fragmentType: FragmentType;
+export type usePaginationFragmentTestNestedUserFragment$ref = usePaginationFragmentTestNestedUserFragment$fragmentType;
+export type usePaginationFragmentTestNestedUserFragment$data = {|
   +username: ?string,
-  +$refType: usePaginationFragmentTestNestedUserFragment$ref,
+  +$fragmentType: usePaginationFragmentTestNestedUserFragment$fragmentType,
 |};
-export type usePaginationFragmentTestNestedUserFragment$data = usePaginationFragmentTestNestedUserFragment;
+export type usePaginationFragmentTestNestedUserFragment = usePaginationFragmentTestNestedUserFragment$data;
 export type usePaginationFragmentTestNestedUserFragment$key = {
   +$data?: usePaginationFragmentTestNestedUserFragment$data,
-  +$fragmentRefs: usePaginationFragmentTestNestedUserFragment$ref,
+  +$fragmentSpreads: usePaginationFragmentTestNestedUserFragment$fragmentType,
   ...
 };
 */
@@ -53,4 +53,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "d9264b58ca5ba023a29d467288406def";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  usePaginationFragmentTestNestedUserFragment$fragmentType,
+  usePaginationFragmentTestNestedUserFragment$data,
+>*/);

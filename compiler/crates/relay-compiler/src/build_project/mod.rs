@@ -35,7 +35,7 @@ pub use generate_artifacts::{
     create_path_for_artifact, generate_artifacts, Artifact, ArtifactContent,
 };
 use graphql_ir::Program;
-use interner::StringKey;
+use intern::string_key::StringKey;
 use log::{debug, info, warn};
 use rayon::{iter::IntoParallelRefIterator, slice::ParallelSlice};
 use relay_codegen::Printer;
@@ -79,7 +79,7 @@ pub fn build_raw_program(
     } = log_event.time("build_ir_time", || {
         build_ir::build_ir(
             project_config,
-            &implicit_dependencies,
+            implicit_dependencies,
             &schema,
             graphql_asts,
             is_incremental_build,
@@ -178,7 +178,7 @@ pub fn build_programs(
     let (validation_results, _) = rayon::join(
         || {
             // Call validation rules that go beyond type checking.
-            validate_program(&config, &project_config.feature_flags, &program, log_event)
+            validate_program(config, &project_config.feature_flags, &program, log_event)
         },
         || {
             find_resolver_dependencies(
@@ -221,7 +221,7 @@ pub fn build_project(
     // Construct a schema instance including project specific extensions.
     let schema = log_event
         .time("build_schema_time", || {
-            Ok(build_schema(compiler_state, project_config)?)
+            build_schema(compiler_state, project_config)
         })
         .map_err(|errors| {
             BuildProjectFailure::Error(BuildProjectError::ValidationErrors { errors })
@@ -298,7 +298,7 @@ pub async fn commit_project(
             persist_operations::persist_operations(
                 &mut artifacts,
                 &config.root_dir,
-                &persist_config,
+                persist_config,
                 config,
                 project_config,
                 operation_persister.as_ref(),

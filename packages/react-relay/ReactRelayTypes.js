@@ -94,7 +94,7 @@ export type RefetchOptions = {|
  *
  */
 export type $FragmentRef<T> = {
-  +$fragmentRefs: T['$refType'],
+  +$fragmentSpreads: T['$fragmentType'],
   ...
 };
 
@@ -105,14 +105,14 @@ export type $FragmentRef<T> = {
 // prettier-ignore
 export type $RelayProps<Props, RelayPropT = RelayProp> = $ObjMap<
   $Diff<Props, { relay: RelayPropT | void, ... }>,
-  & (<T: { +$refType: empty, ... }>( T) =>  T)
-  & (<T: { +$refType: empty, ... }>(?T) => ?T)
-  & (<TFragmentType: FragmentType, T: { +$refType: TFragmentType, ... }>(                 T ) =>                  $FragmentRef<T> )
-  & (<TFragmentType: FragmentType, T: { +$refType: TFragmentType, ... }>(?                T ) => ?                $FragmentRef<T> )
-  & (<TFragmentType: FragmentType, T: { +$refType: TFragmentType, ... }>( $ReadOnlyArray< T>) =>  $ReadOnlyArray< $FragmentRef<T>>)
-  & (<TFragmentType: FragmentType, T: { +$refType: TFragmentType, ... }>(?$ReadOnlyArray< T>) => ?$ReadOnlyArray< $FragmentRef<T>>)
-  & (<TFragmentType: FragmentType, T: { +$refType: TFragmentType, ... }>( $ReadOnlyArray<?T>) =>  $ReadOnlyArray<?$FragmentRef<T>>)
-  & (<TFragmentType: FragmentType, T: { +$refType: TFragmentType, ... }>(?$ReadOnlyArray<?T>) => ?$ReadOnlyArray<?$FragmentRef<T>>)
+  & (<T: { +$fragmentType: empty, ... }>( T) =>  T)
+  & (<T: { +$fragmentType: empty, ... }>(?T) => ?T)
+  & (<TFragmentType: FragmentType, T: { +$fragmentType: TFragmentType, ... }>(                 T ) =>                  $FragmentRef<T> )
+  & (<TFragmentType: FragmentType, T: { +$fragmentType: TFragmentType, ... }>(?                T ) => ?                $FragmentRef<T> )
+  & (<TFragmentType: FragmentType, T: { +$fragmentType: TFragmentType, ... }>( $ReadOnlyArray< T>) =>  $ReadOnlyArray< $FragmentRef<T>>)
+  & (<TFragmentType: FragmentType, T: { +$fragmentType: TFragmentType, ... }>(?$ReadOnlyArray< T>) => ?$ReadOnlyArray< $FragmentRef<T>>)
+  & (<TFragmentType: FragmentType, T: { +$fragmentType: TFragmentType, ... }>( $ReadOnlyArray<?T>) =>  $ReadOnlyArray<?$FragmentRef<T>>)
+  & (<TFragmentType: FragmentType, T: { +$fragmentType: TFragmentType, ... }>(?$ReadOnlyArray<?T>) => ?$ReadOnlyArray<?$FragmentRef<T>>)
   & (<T>(T) => T),
 >;
 

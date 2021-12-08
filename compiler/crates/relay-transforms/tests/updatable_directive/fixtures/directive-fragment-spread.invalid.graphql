@@ -1,0 +1,10 @@
+# expected-to-throw
+fragment Test_page on Page {
+  __typename
+}
+
+query TestQuery @updatable {
+  node(id: 4) {
+    ...Test_page @customDirective(level: 1)
+  }
+}

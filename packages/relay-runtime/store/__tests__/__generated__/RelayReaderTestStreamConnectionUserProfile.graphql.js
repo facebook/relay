@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<8e238970143d427f26580b4511f53a3e>>
+ * @generated SignedSource<<d0a8f1e0fa9abec219451d1e9a07d599>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,11 +15,11 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayReaderTestStreamConnectionUserProfile$ref: FragmentReference;
-declare export opaque type RelayReaderTestStreamConnectionUserProfile$fragmentType: RelayReaderTestStreamConnectionUserProfile$ref;
-export type RelayReaderTestStreamConnectionUserProfile = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayReaderTestStreamConnectionUserProfile$fragmentType: FragmentType;
+export type RelayReaderTestStreamConnectionUserProfile$ref = RelayReaderTestStreamConnectionUserProfile$fragmentType;
+export type RelayReaderTestStreamConnectionUserProfile$data = {|
   +friends: ?{|
     +edges: ?$ReadOnlyArray<?{|
       +node: ?{|
@@ -27,12 +27,12 @@ export type RelayReaderTestStreamConnectionUserProfile = {|
       |},
     |}>,
   |},
-  +$refType: RelayReaderTestStreamConnectionUserProfile$ref,
+  +$fragmentType: RelayReaderTestStreamConnectionUserProfile$fragmentType,
 |};
-export type RelayReaderTestStreamConnectionUserProfile$data = RelayReaderTestStreamConnectionUserProfile;
+export type RelayReaderTestStreamConnectionUserProfile = RelayReaderTestStreamConnectionUserProfile$data;
 export type RelayReaderTestStreamConnectionUserProfile$key = {
   +$data?: RelayReaderTestStreamConnectionUserProfile$data,
-  +$fragmentRefs: RelayReaderTestStreamConnectionUserProfile$ref,
+  +$fragmentSpreads: RelayReaderTestStreamConnectionUserProfile$fragmentType,
   ...
 };
 */
@@ -153,4 +153,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "a9c46314fbe83e2527090da1e7208239";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayReaderTestStreamConnectionUserProfile$fragmentType,
+  RelayReaderTestStreamConnectionUserProfile$data,
+>*/);

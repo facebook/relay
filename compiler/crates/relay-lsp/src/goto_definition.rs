@@ -20,7 +20,7 @@ use crate::{
 use common::NamedItem;
 
 use graphql_ir::Program;
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey};
 use lsp_types::{
     request::{GotoDefinition, Request},
     GotoDefinitionResponse, Url,
@@ -338,7 +338,7 @@ mod test {
     use common::{SourceLocationKey, Span};
     use graphql_ir::Program;
     use graphql_syntax::{parse_executable_with_features, ParserFeatures};
-    use interner::Intern;
+    use intern::string_key::Intern;
     use lsp_types::{GotoDefinitionResponse, Location};
     use relay_test_schema::get_test_schema_with_extensions;
 

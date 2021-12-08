@@ -16,7 +16,7 @@ use graphql_ir::{
     ConstantValue, Directive, FragmentDefinition, FragmentSpread, OperationDefinition, Program,
     ValidationMessage, Validator, Value, VariableDefinition,
 };
-use interner::StringKey;
+use intern::string_key::StringKey;
 use schema::Schema;
 
 pub fn validate_relay_directives(program: &Program) -> DiagnosticsResult<()> {

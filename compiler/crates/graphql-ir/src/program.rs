@@ -7,7 +7,7 @@
 
 use crate::ir::{ExecutableDefinition, FragmentDefinition, OperationDefinition};
 use fnv::FnvHashMap;
-use interner::StringKey;
+use intern::string_key::StringKey;
 use schema::SDLSchema;
 use std::{collections::HashMap, sync::Arc};
 

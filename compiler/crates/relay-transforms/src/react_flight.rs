@@ -12,7 +12,7 @@ use graphql_ir::{
     OperationDefinition, Program, ScalarField, Selection, Transformed, Transformer,
     ValidationMessage, Value,
 };
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey};
 use itertools::Itertools;
 use lazy_static::lazy_static;
 use schema::{Field, FieldID, Schema, Type};

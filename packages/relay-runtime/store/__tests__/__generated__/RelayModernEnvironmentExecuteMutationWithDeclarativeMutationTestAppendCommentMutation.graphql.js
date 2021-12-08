@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<f7b614f1e5ed83e945bb0011c20a1036>>
+ * @generated SignedSource<<6a77d0b59b59849ccee40c45674d792e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,7 +15,7 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
+import type { ConcreteRequest, Mutation } from 'relay-runtime';
 export type CommentCreateInput = {|
   clientMutationId?: ?string,
   feedbackId?: ?string,
@@ -27,21 +27,23 @@ export type CommentfeedbackFeedback = {|
 export type FeedbackcommentComment = {|
   feedback?: ?CommentfeedbackFeedback,
 |};
-export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestAppendCommentMutationVariables = {|
+export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestAppendCommentMutation$variables = {|
   connections: $ReadOnlyArray<string>,
   edgeTypeName: string,
   input?: ?CommentCreateInput,
 |};
-export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestAppendCommentMutationResponse = {|
+export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestAppendCommentMutationVariables = RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestAppendCommentMutation$variables;
+export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestAppendCommentMutation$data = {|
   +commentCreate: ?{|
     +comment: ?{|
       +id: string,
     |},
   |},
 |};
+export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestAppendCommentMutationResponse = RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestAppendCommentMutation$data;
 export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestAppendCommentMutation = {|
   variables: RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestAppendCommentMutationVariables,
-  response: RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestAppendCommentMutationResponse,
+  response: RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestAppendCommentMutation$data,
 |};
 */
 
@@ -167,4 +169,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "505cc37a555b53ab612fd196f0902846";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Mutation<
+  RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestAppendCommentMutation$variables,
+  RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestAppendCommentMutation$data,
+>*/);

@@ -7,7 +7,9 @@
 
 use crate::errors::{ValidationMessage, ValidationMessageWithData};
 use crate::ir::*;
-use crate::signatures::{build_signatures, FragmentSignature, FragmentSignatures, PROVIDER_MODULE};
+use crate::signatures::{
+    build_signatures, FragmentSignature, FragmentSignatures, ProvidedVariableMetadata,
+};
 use crate::{constants::ARGUMENT_DEFINITION, GraphQLSuggestions};
 use common::{
     Diagnostic, DiagnosticsResult, FeatureFlag, FeatureFlags, Location, NamedItem, Span,
@@ -18,8 +20,8 @@ use errors::{par_try_map, try2, try3, try_map};
 use fnv::{FnvBuildHasher, FnvHashMap, FnvHashSet};
 use graphql_syntax::{DirectiveLocation, Identifier, List, OperationKind, Token, TokenKind};
 use indexmap::IndexMap;
-use interner::Intern;
-use interner::StringKey;
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
 use lazy_static::lazy_static;
 use schema::{
     ArgumentDefinitions, Enum, FieldID, InputObject, SDLSchema, Scalar, Schema, Type, TypeReference,
@@ -550,7 +552,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
             // Now, let's look into selection directives, and split them into two
             // categories: conditions and other directives
             let (conditions, directives) =
-                split_conditions_and_directives(&next_selection.directives());
+                split_conditions_and_directives(next_selection.directives());
 
             // If conditions are empty -> return the original selection
             if conditions.is_empty() {
@@ -765,7 +767,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
             } else {
                 ValidationLevel::Strict
             };
-            self.build_fragment_spread_arguments(&signature, &arg_list, validation_level)
+            self.build_fragment_spread_arguments(signature, arg_list, validation_level)
         } else {
             let errors: Vec<_> = signature
                 .variable_definitions
@@ -1362,7 +1364,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
         // variables
         if let graphql_syntax::Value::Constant(constant) = value {
             return Ok(Value::Constant(self.build_constant_value(
-                &constant,
+                constant,
                 type_,
                 ValidationLevel::Strict,
             )?));
@@ -1837,6 +1839,6 @@ fn variable_definition_requires_argument(variable_definition: &VariableDefinitio
         && variable_definition.default_value.is_none()
         && variable_definition
             .directives
-            .named(*PROVIDER_MODULE)
+            .named(ProvidedVariableMetadata::directive_name())
             .is_none()
 }

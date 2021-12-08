@@ -1,0 +1,50 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query TestQuery @updatable {
+  node(id: 4) {
+    ... on Page {
+      name
+    }
+    ... on Comment {
+      firstName
+    }
+    ... on Comment {
+      emailAddresses
+    }
+  }
+}
+==================================== ERROR ====================================
+✖︎ Within updatable operations, a single linked field cannot have multiple inline fragments with the same type condition. However, within node, there were multiple inline fragments narrowing the type to `Comment`.
+
+  inline-fragment-redundant.invalid.graphql:3:3
+    2 │ query TestQuery @updatable {
+    3 │   node(id: 4) {
+      │   ^^^^
+    4 │     ... on Page {
+
+
+✖︎ Within updatable operations, each inline fragment spread must contain an unaliased typename field. However, within node, there are inline fragments without typename fields.
+
+  inline-fragment-redundant.invalid.graphql:3:3
+    2 │ query TestQuery @updatable {
+    3 │   node(id: 4) {
+      │   ^^^^
+    4 │     ... on Page {
+
+
+✖︎ Within updatable operations, each inline fragment spread must contain an unaliased typename field. However, within node, there are inline fragments without typename fields.
+
+  inline-fragment-redundant.invalid.graphql:3:3
+    2 │ query TestQuery @updatable {
+    3 │   node(id: 4) {
+      │   ^^^^
+    4 │     ... on Page {
+
+
+✖︎ Within updatable operations, each inline fragment spread must contain an unaliased typename field. However, within node, there are inline fragments without typename fields.
+
+  inline-fragment-redundant.invalid.graphql:3:3
+    2 │ query TestQuery @updatable {
+    3 │   node(id: 4) {
+      │   ^^^^
+    4 │     ... on Page {

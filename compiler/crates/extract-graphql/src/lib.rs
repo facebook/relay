@@ -13,6 +13,27 @@ use graphql_syntax::GraphQLSource;
 use std::iter::Peekable;
 use std::str::CharIndices;
 
+pub struct RelayResolverMetadataSource {
+    pub text: String,
+    pub line_index: usize,
+    pub column_index: usize,
+}
+
+impl RelayResolverMetadataSource {
+    pub fn new(text: impl Into<String>, line_index: usize, column_index: usize) -> Self {
+        RelayResolverMetadataSource {
+            text: text.into(),
+            line_index,
+            column_index,
+        }
+    }
+}
+
+pub enum JavaScriptSourceFeature {
+    GraphQLSource(GraphQLSource),
+    RelayResolverMetadataSource(RelayResolverMetadataSource),
+}
+
 /// A wrapper around a peekable char iterator that tracks
 /// the column and line indicies.
 pub struct CharReader<'a> {
@@ -29,12 +50,6 @@ impl<'a> CharReader<'a> {
             line_index: 0,
             column_index: 0,
         }
-    }
-
-    // Manually implement `peek` since `Peekable` would call next()
-    // and increment the line/column indicies
-    fn peek(&mut self) -> Option<&(usize, char)> {
-        self.chars.peek()
     }
 }
 
@@ -66,10 +81,10 @@ impl<'a> Iterator for CharReader<'a> {
     }
 }
 
-/// Extract graphql`text` literals from JS-like code. This should work for Flow
-/// or TypeScript alike.
-pub fn parse_chunks(input: &str) -> Vec<GraphQLSource> {
-    if !input.contains("graphql`") {
+/// Extract graphql`text` literals and @RelayResolver comments from JS-like code.
+// This should work for Flow or TypeScript alike.
+pub fn extract(input: &str) -> Vec<JavaScriptSourceFeature> {
+    if !input.contains("graphql`") && !input.contains("@RelayResolver") {
         return vec![];
     }
     let mut res = vec![];
@@ -89,15 +104,19 @@ pub fn parse_chunks(input: &str) -> Vec<GraphQLSource> {
                 let line_index = it.line_index;
                 let column_index = it.column_index;
                 let mut has_visited_first_char = false;
-                while let Some((i, c)) = it.next() {
+                for (i, c) in &mut it {
                     match c {
                         '`' => {
                             let end = i;
                             let text = &input[start + 8..end];
-                            res.push(GraphQLSource::new(text, line_index, column_index));
+                            res.push(JavaScriptSourceFeature::GraphQLSource(GraphQLSource::new(
+                                text,
+                                line_index,
+                                column_index,
+                            )));
                             continue 'code;
                         }
-                        ' ' | '\n' | '\r' => {}
+                        ' ' | '\n' | '\r' | '\t' => {}
                         'a'..='z' | 'A'..='Z' | '#' => {
                             if !has_visited_first_char {
                                 has_visited_first_char = true;
@@ -116,7 +135,7 @@ pub fn parse_chunks(input: &str) -> Vec<GraphQLSource> {
             }
             // Skip over template literals. Unfortunately, this isn't enough to
             // deal with nested template literals and runs a risk of skipping
-            // over too much code.
+            // over too much code -- so it is disabled.
             //   '`' => {
             //       while let Some((_, c)) = it.next() {
             //           match c {
@@ -132,15 +151,43 @@ pub fn parse_chunks(input: &str) -> Vec<GraphQLSource> {
             //   }
             '"' => consume_string(&mut it, '"'),
             '\'' => consume_string(&mut it, '\''),
-            '/' => match it.next() {
-                Some((_, '/')) => {
-                    consume_line_comment(&mut it);
+            '/' => {
+                match it.next() {
+                    Some((_, '/')) => {
+                        consume_line_comment(&mut it);
+                    }
+                    Some((_, '*')) => {
+                        let start = i;
+                        let line_index = it.line_index;
+                        let column_index = it.column_index;
+                        let mut prev_c = ' '; // arbitrary character other than *
+                        let mut first = true;
+                        for (i, c) in &mut it {
+                            // Hack for template literals containing /*, see D21256605:
+                            if first && c == '`' {
+                                break;
+                            }
+                            first = false;
+                            if prev_c == '*' && c == '/' {
+                                let end = i;
+                                let text = &input[start + 2..end - 1];
+                                if text.contains("@RelayResolver") {
+                                    res.push(JavaScriptSourceFeature::RelayResolverMetadataSource(
+                                        RelayResolverMetadataSource::new(
+                                            text,
+                                            line_index,
+                                            column_index,
+                                        ),
+                                    ));
+                                }
+                                continue 'code;
+                            }
+                            prev_c = c;
+                        }
+                    }
+                    _ => {}
                 }
-                Some((_, '*')) => {
-                    consume_block_comment(&mut it);
-                }
-                _ => {}
-            },
+            }
             _ => {}
         };
     }
@@ -169,22 +216,6 @@ fn consume_line_comment(it: &mut CharReader<'_>) {
     }
 }
 
-fn consume_block_comment(it: &mut CharReader<'_>) {
-    let mut first = true;
-    while let Some((_, c)) = it.next() {
-        if first && c == '`' {
-            break;
-        }
-        first = false;
-        if c == '*' {
-            if let Some((_, '/')) = it.peek() {
-                it.next();
-                break;
-            }
-        }
-    }
-}
-
 fn consume_string(it: &mut CharReader<'_>, quote: char) {
     while let Some((_, c)) = it.next() {
         match c {
@@ -201,4 +232,16 @@ fn consume_string(it: &mut CharReader<'_>, quote: char) {
             _ => {}
         }
     }
+}
+
+// Returns graphql`` literals only. Temporary until all callsites understand
+// both graphql and relay resolvers.
+pub fn parse_chunks(input: &str) -> Vec<GraphQLSource> {
+    extract(input)
+        .into_iter()
+        .flat_map(|feature| match feature {
+            JavaScriptSourceFeature::GraphQLSource(gql) => Some(gql),
+            _ => None,
+        })
+        .collect()
 }

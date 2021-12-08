@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<f9e4b74db8e114ca5ba58099ac4a9146>>
+ * @generated SignedSource<<7cc00ec68e10992c23afbb354689be60>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,9 +15,9 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type usePaginationFragmentTestUserFragment$ref = any;
-export type usePaginationFragmentTestUserQueryWithoutIDQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type usePaginationFragmentTestUserFragment$fragmentType = any;
+export type usePaginationFragmentTestUserQueryWithoutIDQuery$variables = {|
   after?: ?string,
   first?: ?number,
   before?: ?string,
@@ -25,16 +25,18 @@ export type usePaginationFragmentTestUserQueryWithoutIDQueryVariables = {|
   orderby?: ?$ReadOnlyArray<?string>,
   isViewerFriend?: ?boolean,
 |};
-export type usePaginationFragmentTestUserQueryWithoutIDQueryResponse = {|
+export type usePaginationFragmentTestUserQueryWithoutIDQueryVariables = usePaginationFragmentTestUserQueryWithoutIDQuery$variables;
+export type usePaginationFragmentTestUserQueryWithoutIDQuery$data = {|
   +viewer: ?{|
     +actor: ?{|
-      +$fragmentRefs: usePaginationFragmentTestUserFragment$ref,
+      +$fragmentSpreads: usePaginationFragmentTestUserFragment$fragmentType,
     |},
   |},
 |};
+export type usePaginationFragmentTestUserQueryWithoutIDQueryResponse = usePaginationFragmentTestUserQueryWithoutIDQuery$data;
 export type usePaginationFragmentTestUserQueryWithoutIDQuery = {|
   variables: usePaginationFragmentTestUserQueryWithoutIDQueryVariables,
-  response: usePaginationFragmentTestUserQueryWithoutIDQueryResponse,
+  response: usePaginationFragmentTestUserQueryWithoutIDQuery$data,
 |};
 */
 
@@ -338,4 +340,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "a2f6785e8ec3b4ea3f01ac2e5f4dc287";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  usePaginationFragmentTestUserQueryWithoutIDQuery$variables,
+  usePaginationFragmentTestUserQueryWithoutIDQuery$data,
+>*/);

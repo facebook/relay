@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<0302079f6fe4427f783b147b61477154>>
+ * @generated SignedSource<<0d9434afe84db06bfba4120de469fe1f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,16 +15,17 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
+import type { ConcreteRequest, GraphQLSubscription } from 'relay-runtime';
 export type CommentCreateSubscriptionInput = {|
   clientSubscriptionId?: ?string,
   feedbackId?: ?string,
   text?: ?string,
 |};
-export type requestSubscriptionTest1CommentCreateSubscriptionVariables = {|
+export type requestSubscriptionTest1CommentCreateSubscription$variables = {|
   input?: ?CommentCreateSubscriptionInput,
 |};
-export type requestSubscriptionTest1CommentCreateSubscriptionResponse = {|
+export type requestSubscriptionTest1CommentCreateSubscriptionVariables = requestSubscriptionTest1CommentCreateSubscription$variables;
+export type requestSubscriptionTest1CommentCreateSubscription$data = {|
   +commentCreateSubscribe: ?{|
     +feedbackCommentEdge: ?{|
       +node: ?{|
@@ -36,9 +37,10 @@ export type requestSubscriptionTest1CommentCreateSubscriptionResponse = {|
     |},
   |},
 |};
+export type requestSubscriptionTest1CommentCreateSubscriptionResponse = requestSubscriptionTest1CommentCreateSubscription$data;
 export type requestSubscriptionTest1CommentCreateSubscription = {|
   variables: requestSubscriptionTest1CommentCreateSubscriptionVariables,
-  response: requestSubscriptionTest1CommentCreateSubscriptionResponse,
+  response: requestSubscriptionTest1CommentCreateSubscription$data,
 |};
 */
 
@@ -150,4 +152,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "c3126efbf06bf76d4074616bcaa9bd4a";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: GraphQLSubscription<
+  requestSubscriptionTest1CommentCreateSubscription$variables,
+  requestSubscriptionTest1CommentCreateSubscription$data,
+>*/);

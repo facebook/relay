@@ -47,14 +47,14 @@ function withResolverContext<T>(context: ResolverContext, cb: () => T): T {
 //   - array of nullable if the privoided ref type is an array of nullable refs
 
 declare function readFragment<
-  TKey: {+$data?: mixed, +$fragmentRefs: FragmentType, ...},
+  TKey: {+$data?: mixed, +$fragmentSpreads: FragmentType, ...},
 >(
   fragmentInput: GraphQLTaggedNode,
   fragmentKey: TKey,
 ): $Call<<TFragmentData>({+$data?: TFragmentData, ...}) => TFragmentData, TKey>;
 
 declare function readFragment<
-  TKey: ?{+$data?: mixed, +$fragmentRefs: FragmentType, ...},
+  TKey: ?{+$data?: mixed, +$fragmentSpreads: FragmentType, ...},
 >(
   fragmentInput: GraphQLTaggedNode,
   fragmentKey: TKey,
@@ -66,7 +66,7 @@ declare function readFragment<
 declare function readFragment<
   TKey: $ReadOnlyArray<{
     +$data?: mixed,
-    +$fragmentRefs: FragmentType,
+    +$fragmentSpreads: FragmentType,
     ...
   }>,
 >(
@@ -82,7 +82,7 @@ declare function readFragment<
 declare function readFragment<
   TKey: ?$ReadOnlyArray<{
     +$data?: mixed,
-    +$fragmentRefs: FragmentType,
+    +$fragmentSpreads: FragmentType,
     ...
   }>,
 >(

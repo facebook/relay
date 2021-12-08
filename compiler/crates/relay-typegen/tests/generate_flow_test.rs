@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<cfbc9099cb78e5e7215843e0dc051446>>
+ * @generated SignedSource<<3b62b439c79c669be0873043aec3100e>>
  */
 
 mod generate_flow;
@@ -416,4 +416,53 @@ fn unmasked_fragment_spreads() {
     let input = include_str!("generate_flow/fixtures/unmasked-fragment-spreads.graphql");
     let expected = include_str!("generate_flow/fixtures/unmasked-fragment-spreads.expected");
     test_fixture(transform_fixture, "unmasked-fragment-spreads.graphql", "generate_flow/fixtures/unmasked-fragment-spreads.expected", input, expected);
+}
+
+#[test]
+fn updatable_operation() {
+    let input = include_str!("generate_flow/fixtures/updatable-operation.graphql");
+    let expected = include_str!("generate_flow/fixtures/updatable-operation.expected");
+    test_fixture(transform_fixture, "updatable-operation.graphql", "generate_flow/fixtures/updatable-operation.expected", input, expected);
+}
+
+#[test]
+fn updatable_operation_assignable_fragment() {
+    let input = include_str!("generate_flow/fixtures/updatable-operation-assignable-fragment.graphql");
+    let expected = include_str!("generate_flow/fixtures/updatable-operation-assignable-fragment.expected");
+    test_fixture(transform_fixture, "updatable-operation-assignable-fragment.graphql", "generate_flow/fixtures/updatable-operation-assignable-fragment.expected", input, expected);
+}
+
+#[test]
+fn updatable_operation_assignable_fragment_plural() {
+    let input = include_str!("generate_flow/fixtures/updatable-operation-assignable-fragment-plural.graphql");
+    let expected = include_str!("generate_flow/fixtures/updatable-operation-assignable-fragment-plural.expected");
+    test_fixture(transform_fixture, "updatable-operation-assignable-fragment-plural.graphql", "generate_flow/fixtures/updatable-operation-assignable-fragment-plural.expected", input, expected);
+}
+
+#[test]
+fn updatable_operation_assignable_fragments_within_narrowing() {
+    let input = include_str!("generate_flow/fixtures/updatable-operation-assignable-fragments-within-narrowing.graphql");
+    let expected = include_str!("generate_flow/fixtures/updatable-operation-assignable-fragments-within-narrowing.expected");
+    test_fixture(transform_fixture, "updatable-operation-assignable-fragments-within-narrowing.graphql", "generate_flow/fixtures/updatable-operation-assignable-fragments-within-narrowing.expected", input, expected);
+}
+
+#[test]
+fn updatable_operation_multiple_assignable_fragments() {
+    let input = include_str!("generate_flow/fixtures/updatable-operation-multiple-assignable-fragments.graphql");
+    let expected = include_str!("generate_flow/fixtures/updatable-operation-multiple-assignable-fragments.expected");
+    test_fixture(transform_fixture, "updatable-operation-multiple-assignable-fragments.graphql", "generate_flow/fixtures/updatable-operation-multiple-assignable-fragments.expected", input, expected);
+}
+
+#[test]
+fn updatable_operation_special_fields() {
+    let input = include_str!("generate_flow/fixtures/updatable-operation-special-fields.graphql");
+    let expected = include_str!("generate_flow/fixtures/updatable-operation-special-fields.expected");
+    test_fixture(transform_fixture, "updatable-operation-special-fields.graphql", "generate_flow/fixtures/updatable-operation-special-fields.expected", input, expected);
+}
+
+#[test]
+fn updatable_operation_type_refinement() {
+    let input = include_str!("generate_flow/fixtures/updatable-operation-type-refinement.graphql");
+    let expected = include_str!("generate_flow/fixtures/updatable-operation-type-refinement.expected");
+    test_fixture(transform_fixture, "updatable-operation-type-refinement.graphql", "generate_flow/fixtures/updatable-operation-type-refinement.expected", input, expected);
 }

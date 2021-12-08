@@ -39,19 +39,19 @@ export type CommentfeedbackFeedback = {
 export type FeedbackcommentComment = {
   feedback?: CommentfeedbackFeedback | null;
 };
-export type TestMutationVariables = {
+export type TestMutation$variables = {
   input: CommentCreateInput;
 };
-export type TestMutationResponse = {
+export type TestMutation$data = {
   readonly commentCreate: {
     readonly viewer: {
       readonly actor: {
-        readonly " $fragmentRefs": FragmentRefs<"InlineFragmentWithOverlappingFields">;
+        readonly " $fragmentSpreads": FragmentRefs<"InlineFragmentWithOverlappingFields">;
       } | null;
     } | null;
   } | null;
 };
-export type TestMutationRawResponse = {
+export type TestMutation$rawResponse = {
   readonly commentCreate: {
     readonly viewer: {
       readonly actor: {
@@ -82,13 +82,12 @@ export type TestMutationRawResponse = {
   } | null;
 };
 export type TestMutation = {
-  variables: TestMutationVariables;
-  response: TestMutationResponse;
-  rawResponse: TestMutationRawResponse;
+  variables: TestMutation$variables;
+  response: TestMutation$data;
 };
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
-export type InlineFragmentWithOverlappingFields = {
+export type InlineFragmentWithOverlappingFields$data = {
   readonly hometown?: {
     readonly id: string;
     readonly name: string | null;
@@ -97,10 +96,9 @@ export type InlineFragmentWithOverlappingFields = {
     } | null;
   } | null;
   readonly name?: string | null;
-  readonly " $refType": "InlineFragmentWithOverlappingFields";
+  readonly " $fragmentType": "InlineFragmentWithOverlappingFields";
 };
-export type InlineFragmentWithOverlappingFields$data = InlineFragmentWithOverlappingFields;
 export type InlineFragmentWithOverlappingFields$key = {
   readonly " $data"?: InlineFragmentWithOverlappingFields$data;
-  readonly " $fragmentRefs": FragmentRefs<"InlineFragmentWithOverlappingFields">;
+  readonly " $fragmentSpreads": FragmentRefs<"InlineFragmentWithOverlappingFields">;
 };

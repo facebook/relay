@@ -12,7 +12,7 @@ use graphql_ir::{
     FragmentDefinition, FragmentSpread, OperationDefinition, Program, ValidationMessage, Value,
     Variable, Visitor,
 };
-use interner::StringKey;
+use intern::string_key::StringKey;
 use schema::{Schema, TypeReference};
 
 pub type VariableMap = FnvHashMap<StringKey, Variable>;
@@ -134,7 +134,7 @@ impl VariablesVisitor<'_, '_> {
                 local_variables,
                 transitive_local_variables
                     .as_ref()
-                    .unwrap_or(&self.transitive_local_variables),
+                    .unwrap_or(self.transitive_local_variables),
             );
             visitor.visit_fragment(fragment);
             let result = visitor.variable_map;

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<63abd0b62d741dd6b7b2d09a95d2580f>>
+ * @generated SignedSource<<0ac08b534ad24974ccd434458a71e8af>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,22 +15,22 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayModernSelectorTestUserFragment$ref: FragmentReference;
-declare export opaque type RelayModernSelectorTestUserFragment$fragmentType: RelayModernSelectorTestUserFragment$ref;
-export type RelayModernSelectorTestUserFragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayModernSelectorTestUserFragment$fragmentType: FragmentType;
+export type RelayModernSelectorTestUserFragment$ref = RelayModernSelectorTestUserFragment$fragmentType;
+export type RelayModernSelectorTestUserFragment$data = {|
   +id: string,
   +name: ?string,
   +profilePicture?: ?{|
     +uri: ?string,
   |},
-  +$refType: RelayModernSelectorTestUserFragment$ref,
+  +$fragmentType: RelayModernSelectorTestUserFragment$fragmentType,
 |};
-export type RelayModernSelectorTestUserFragment$data = RelayModernSelectorTestUserFragment;
+export type RelayModernSelectorTestUserFragment = RelayModernSelectorTestUserFragment$data;
 export type RelayModernSelectorTestUserFragment$key = {
   +$data?: RelayModernSelectorTestUserFragment$data,
-  +$fragmentRefs: RelayModernSelectorTestUserFragment$ref,
+  +$fragmentSpreads: RelayModernSelectorTestUserFragment$fragmentType,
   ...
 };
 */
@@ -104,4 +104,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "e53a184895ce3ac8e27f03b268afa0e3";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayModernSelectorTestUserFragment$fragmentType,
+  RelayModernSelectorTestUserFragment$data,
+>*/);

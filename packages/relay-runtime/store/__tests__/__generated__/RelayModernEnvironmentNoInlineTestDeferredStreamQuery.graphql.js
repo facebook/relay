@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<8af171c86958460dc592a193ff3f7e52>>
+ * @generated SignedSource<<364ff4649df50d2eaab85e73e5abc0e9>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,20 +15,22 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernEnvironmentNoInlineTestDeferredStreamParent$ref = any;
-export type RelayModernEnvironmentNoInlineTestDeferredStreamQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayModernEnvironmentNoInlineTestDeferredStreamParent$fragmentType = any;
+export type RelayModernEnvironmentNoInlineTestDeferredStreamQuery$variables = {|
   cond: boolean,
   enableStream?: ?boolean,
 |};
-export type RelayModernEnvironmentNoInlineTestDeferredStreamQueryResponse = {|
+export type RelayModernEnvironmentNoInlineTestDeferredStreamQueryVariables = RelayModernEnvironmentNoInlineTestDeferredStreamQuery$variables;
+export type RelayModernEnvironmentNoInlineTestDeferredStreamQuery$data = {|
   +viewer: ?{|
-    +$fragmentRefs: RelayModernEnvironmentNoInlineTestDeferredStreamParent$ref,
+    +$fragmentSpreads: RelayModernEnvironmentNoInlineTestDeferredStreamParent$fragmentType,
   |},
 |};
+export type RelayModernEnvironmentNoInlineTestDeferredStreamQueryResponse = RelayModernEnvironmentNoInlineTestDeferredStreamQuery$data;
 export type RelayModernEnvironmentNoInlineTestDeferredStreamQuery = {|
   variables: RelayModernEnvironmentNoInlineTestDeferredStreamQueryVariables,
-  response: RelayModernEnvironmentNoInlineTestDeferredStreamQueryResponse,
+  response: RelayModernEnvironmentNoInlineTestDeferredStreamQuery$data,
 |};
 */
 
@@ -140,4 +142,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "bbd7ede751091238fba6e4da25d3237b";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentNoInlineTestDeferredStreamQuery$variables,
+  RelayModernEnvironmentNoInlineTestDeferredStreamQuery$data,
+>*/);

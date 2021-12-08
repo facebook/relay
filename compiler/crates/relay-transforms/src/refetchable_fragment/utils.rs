@@ -11,7 +11,7 @@ use graphql_ir::{
     associated_data_impl, Argument, Directive, FragmentDefinition, FragmentSpread, Selection,
     ValidationMessage, Value, Variable, VariableDefinition,
 };
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey};
 use lazy_static::lazy_static;
 use std::sync::Arc;
 
@@ -75,7 +75,7 @@ pub fn build_operation_variable_definitions(
         .chain(fragment.variable_definitions.iter())
         .cloned()
         .collect();
-    result.sort_unstable_by(|l, r| l.name.item.lookup().cmp(&r.name.item.lookup()));
+    result.sort_unstable_by(|l, r| l.name.item.lookup().cmp(r.name.item.lookup()));
     result
 }
 

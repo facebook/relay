@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<afaf0c5be3139c4c3e35eeab22f785b9>>
+ * @generated SignedSource<<4b7710a988a5a6aeabbabe95fb7bd173>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,18 +15,18 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type getFragmentIdentifierTestNestedUserFragment$ref: FragmentReference;
-declare export opaque type getFragmentIdentifierTestNestedUserFragment$fragmentType: getFragmentIdentifierTestNestedUserFragment$ref;
-export type getFragmentIdentifierTestNestedUserFragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type getFragmentIdentifierTestNestedUserFragment$fragmentType: FragmentType;
+export type getFragmentIdentifierTestNestedUserFragment$ref = getFragmentIdentifierTestNestedUserFragment$fragmentType;
+export type getFragmentIdentifierTestNestedUserFragment$data = {|
   +username: ?string,
-  +$refType: getFragmentIdentifierTestNestedUserFragment$ref,
+  +$fragmentType: getFragmentIdentifierTestNestedUserFragment$fragmentType,
 |};
-export type getFragmentIdentifierTestNestedUserFragment$data = getFragmentIdentifierTestNestedUserFragment;
+export type getFragmentIdentifierTestNestedUserFragment = getFragmentIdentifierTestNestedUserFragment$data;
 export type getFragmentIdentifierTestNestedUserFragment$key = {
   +$data?: getFragmentIdentifierTestNestedUserFragment$data,
-  +$fragmentRefs: getFragmentIdentifierTestNestedUserFragment$ref,
+  +$fragmentSpreads: getFragmentIdentifierTestNestedUserFragment$fragmentType,
   ...
 };
 */
@@ -53,4 +53,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "75c693cc47597efb281a82456e21fd4d";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  getFragmentIdentifierTestNestedUserFragment$fragmentType,
+  getFragmentIdentifierTestNestedUserFragment$data,
+>*/);

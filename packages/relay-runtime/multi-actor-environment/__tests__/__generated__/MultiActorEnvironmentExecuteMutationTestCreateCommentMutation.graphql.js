@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<4b1283bdf7005212889b755be55aa9cc>>
+ * @generated SignedSource<<151ad570c96795a82f2b5a714931e4aa>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,7 +15,7 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
+import type { ConcreteRequest, Mutation } from 'relay-runtime';
 export type CommentCreateInput = {|
   clientMutationId?: ?string,
   feedbackId?: ?string,
@@ -27,10 +27,11 @@ export type CommentfeedbackFeedback = {|
 export type FeedbackcommentComment = {|
   feedback?: ?CommentfeedbackFeedback,
 |};
-export type MultiActorEnvironmentExecuteMutationTestCreateCommentMutationVariables = {|
+export type MultiActorEnvironmentExecuteMutationTestCreateCommentMutation$variables = {|
   input: CommentCreateInput,
 |};
-export type MultiActorEnvironmentExecuteMutationTestCreateCommentMutationResponse = {|
+export type MultiActorEnvironmentExecuteMutationTestCreateCommentMutationVariables = MultiActorEnvironmentExecuteMutationTestCreateCommentMutation$variables;
+export type MultiActorEnvironmentExecuteMutationTestCreateCommentMutation$data = {|
   +commentCreate: ?{|
     +comment: ?{|
       +id: string,
@@ -40,9 +41,10 @@ export type MultiActorEnvironmentExecuteMutationTestCreateCommentMutationRespons
     |},
   |},
 |};
+export type MultiActorEnvironmentExecuteMutationTestCreateCommentMutationResponse = MultiActorEnvironmentExecuteMutationTestCreateCommentMutation$data;
 export type MultiActorEnvironmentExecuteMutationTestCreateCommentMutation = {|
   variables: MultiActorEnvironmentExecuteMutationTestCreateCommentMutationVariables,
-  response: MultiActorEnvironmentExecuteMutationTestCreateCommentMutationResponse,
+  response: MultiActorEnvironmentExecuteMutationTestCreateCommentMutation$data,
 |};
 */
 
@@ -141,4 +143,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "539386332425cbe8c263e699decf8325";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Mutation<
+  MultiActorEnvironmentExecuteMutationTestCreateCommentMutation$variables,
+  MultiActorEnvironmentExecuteMutationTestCreateCommentMutation$data,
+>*/);

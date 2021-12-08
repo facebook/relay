@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<abd8cd0395d4666c3f10cc946bfda161>>
+ * @generated SignedSource<<00c215d5b3b309a789417d90a29ba098>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,21 +15,22 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type useRefetchableFragmentNodeTest1Fragment$ref: FragmentReference;
-declare export opaque type useRefetchableFragmentNodeTest1Fragment$fragmentType: useRefetchableFragmentNodeTest1Fragment$ref;
-export type useRefetchableFragmentNodeTest1FragmentRefetchQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+type useRefetchableFragmentNodeTest1Fragment$fragmentType = any;
+export type useRefetchableFragmentNodeTest1FragmentRefetchQuery$variables = {|
   id: string,
 |};
-export type useRefetchableFragmentNodeTest1FragmentRefetchQueryResponse = {|
+export type useRefetchableFragmentNodeTest1FragmentRefetchQueryVariables = useRefetchableFragmentNodeTest1FragmentRefetchQuery$variables;
+export type useRefetchableFragmentNodeTest1FragmentRefetchQuery$data = {|
   +fetch__NonNodeStory: ?{|
-    +$fragmentRefs: useRefetchableFragmentNodeTest1Fragment$ref,
+    +$fragmentSpreads: useRefetchableFragmentNodeTest1Fragment$fragmentType,
   |},
 |};
+export type useRefetchableFragmentNodeTest1FragmentRefetchQueryResponse = useRefetchableFragmentNodeTest1FragmentRefetchQuery$data;
 export type useRefetchableFragmentNodeTest1FragmentRefetchQuery = {|
   variables: useRefetchableFragmentNodeTest1FragmentRefetchQueryVariables,
-  response: useRefetchableFragmentNodeTest1FragmentRefetchQueryResponse,
+  response: useRefetchableFragmentNodeTest1FragmentRefetchQuery$data,
 |};
 */
 
@@ -157,4 +158,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "5edfb0ad9be0c72a1ba5d714bff331ae";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  useRefetchableFragmentNodeTest1FragmentRefetchQuery$variables,
+  useRefetchableFragmentNodeTest1FragmentRefetchQuery$data,
+>*/);

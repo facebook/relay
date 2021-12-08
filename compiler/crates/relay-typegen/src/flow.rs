@@ -9,7 +9,7 @@ use crate::{
     writer::{Prop, Writer, AST},
     FlowTypegenPhase,
 };
-use interner::StringKey;
+use intern::string_key::StringKey;
 use itertools::Itertools;
 use std::fmt::{Result, Write};
 
@@ -43,14 +43,9 @@ impl Writer for FlowPrinter {
                 self.write_local_3d_payload(*document_name, selections)
             }
             AST::FragmentReference(fragments) => self.write_fragment_references(fragments),
-            AST::FragmentReferenceType(fragment) => match self.flow_typegen_phase {
-                FlowTypegenPhase::Old | FlowTypegenPhase::Phase1 => {
-                    write!(&mut self.result, "{}$ref", fragment)
-                }
-                FlowTypegenPhase::Phase2 | FlowTypegenPhase::Final => {
-                    write!(&mut self.result, "{}$fragmentType", fragment)
-                }
-            },
+            AST::FragmentReferenceType(fragment) => {
+                write!(&mut self.result, "{}$fragmentType", fragment)
+            }
             AST::FunctionReturnType(function_name) => {
                 self.write_function_return_type(*function_name)
             }
@@ -59,12 +54,7 @@ impl Writer for FlowPrinter {
     }
 
     fn get_runtime_fragment_import(&self) -> &'static str {
-        match self.flow_typegen_phase {
-            FlowTypegenPhase::Old => "FragmentReference",
-            FlowTypegenPhase::Phase1 | FlowTypegenPhase::Phase2 | FlowTypegenPhase::Final => {
-                "FragmentType"
-            }
-        }
+        "FragmentType"
     }
 
     fn write_export_type(&mut self, name: &str, value: &AST) -> Result {
@@ -92,20 +82,15 @@ impl Writer for FlowPrinter {
 
     fn write_export_fragment_type(&mut self, old_name: &str, new_name: &str) -> Result {
         match self.flow_typegen_phase {
-            FlowTypegenPhase::Old => writeln!(
-                &mut self.result,
-                "declare export opaque type {old_name}: FragmentReference;
-declare export opaque type {new_name}: {old_name};",
-                old_name = old_name,
-                new_name = new_name
-            ),
-            FlowTypegenPhase::Phase1 | FlowTypegenPhase::Phase2 => writeln!(
-                &mut self.result,
-                "declare export opaque type {new_name}: FragmentType;
+            FlowTypegenPhase::Phase4 => {
+                writeln!(
+                    &mut self.result,
+                    "declare export opaque type {new_name}: FragmentType;
 export type {old_name} = {new_name};",
-                old_name = old_name,
-                new_name = new_name,
-            ),
+                    old_name = old_name,
+                    new_name = new_name,
+                )
+            }
             FlowTypegenPhase::Final => writeln!(
                 &mut self.result,
                 "declare export opaque type {new_name}: FragmentType;",
@@ -173,14 +158,7 @@ impl FlowPrinter {
             } else {
                 write!(&mut self.result, " & ")?;
             }
-            match self.flow_typegen_phase {
-                FlowTypegenPhase::Old | FlowTypegenPhase::Phase1 => {
-                    write!(&mut self.result, "{}$ref", fragment)?;
-                }
-                FlowTypegenPhase::Phase2 | FlowTypegenPhase::Final => {
-                    write!(&mut self.result, "{}$fragmentType", fragment)?;
-                }
-            }
+            write!(&mut self.result, "{}$fragmentType", fragment)?;
         }
         Ok(())
     }
@@ -252,6 +230,22 @@ impl FlowPrinter {
                     self.write(&key_value_pair.value)?;
                     writeln!(&mut self.result, ",")?;
                 }
+                Prop::GetterSetterPair(getter_setter_pair) => {
+                    // Write the getter
+                    write!(&mut self.result, "get ")?;
+                    self.write(&AST::Identifier(getter_setter_pair.key))?;
+                    write!(&mut self.result, "(): ")?;
+                    self.write(&getter_setter_pair.getter_return_value)?;
+                    writeln!(&mut self.result, ",")?;
+
+                    // Write the setter
+                    self.write_indentation()?;
+                    write!(&mut self.result, "set ")?;
+                    self.write(&AST::Identifier(getter_setter_pair.key))?;
+                    write!(&mut self.result, "(value: ")?;
+                    self.write(&getter_setter_pair.setter_parameter)?;
+                    writeln!(&mut self.result, "): void,")?;
+                }
             };
         }
         if !exact {
@@ -296,7 +290,7 @@ mod tests {
     use crate::writer::KeyValuePairProp;
 
     use super::*;
-    use interner::Intern;
+    use intern::string_key::Intern;
 
     fn print_type(ast: &AST) -> String {
         let mut printer = Box::new(FlowPrinter::new(FlowTypegenPhase::Final));

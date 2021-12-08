@@ -11,7 +11,7 @@ common = { path = "../common" }
 fnv = "1.0"
 graphql-ir = { path = "../graphql-ir" }
 indexmap = { version = "1.7.0", features = ["rayon", "serde-1"] }
-interner = { path = "../interner" }
+intern = { path = "../intern" }
 itertools = "0.10.1"
 lazy_static = "1.0"
 relay-codegen = { path = "../relay-codegen" }

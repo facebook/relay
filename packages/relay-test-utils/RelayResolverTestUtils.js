@@ -18,14 +18,14 @@ const ResolverFragments = require('relay-runtime/store/ResolverFragments');
  * the data that will be returned from `readFragment` and it will return the
  * value that the resolver would derive.
  *
- * *Note:* Relay fragment data includes a special `$refType` key which is
+ * *Note:* Relay fragment data includes a special `$fragmentType` key which is
  * impossible for non-Relay code to construct. In tests you can work around
  * this by passing `null` with a Flow supression:
  *
  * ```
  * const fragmentData = {
  *   // Other fields here...
- *   $refType: (null: any)
+ *   $fragmentType: (null: any)
  * };
  *
  * const actual = testResolver(resolverFunc, fragmentData);

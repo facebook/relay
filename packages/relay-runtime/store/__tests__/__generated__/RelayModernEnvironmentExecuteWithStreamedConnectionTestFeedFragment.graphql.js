@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<261db3861a500959f79f8679f059c6d4>>
+ * @generated SignedSource<<b23b8a824311e05259dbbef0b0fa8774>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,11 +15,11 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment$ref: FragmentReference;
-declare export opaque type RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment$fragmentType: RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment$ref;
-export type RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment$fragmentType: FragmentType;
+export type RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment$ref = RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment$fragmentType;
+export type RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment$data = {|
   +newsFeed: ?{|
     +edges: ?$ReadOnlyArray<?{|
       +cursor: ?string,
@@ -40,12 +40,12 @@ export type RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment 
       +hasNextPage: ?boolean,
     |},
   |},
-  +$refType: RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment$ref,
+  +$fragmentType: RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment$fragmentType,
 |};
-export type RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment$data = RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment;
+export type RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment = RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment$data;
 export type RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment$key = {
   +$data?: RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment$data,
-  +$fragmentRefs: RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment$ref,
+  +$fragmentSpreads: RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment$fragmentType,
   ...
 };
 */
@@ -209,4 +209,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "89c54479a6a4b0bcce2086df209a357f";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment$fragmentType,
+  RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment$data,
+>*/);

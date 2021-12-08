@@ -1,0 +1,23 @@
+query UpdatableQuery @updatable {
+  me {
+    actor {
+      ... on User {
+        __typename
+        ...Updatable_user
+      }
+      ... on Page {
+        __typename
+        ...Updatable_page
+      }
+    }
+  }
+}
+
+fragment Updatable_user on User @assignable {
+  __typename
+}
+
+fragment Updatable_page on Page @assignable {
+  __typename
+}
+

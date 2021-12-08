@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<f208de4b31ca1b5d18d0d6cb4521f3d3>>
+ * @generated SignedSource<<305d1a8a00dff6f6b7e780f9b5e3f54e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,15 +15,16 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
+import type { ConcreteRequest, GraphQLSubscription } from 'relay-runtime';
 export type FeedbackLikeInput = {|
   clientMutationId?: ?string,
   feedbackId?: ?string,
 |};
-export type RelayMockEnvironmentWithComponentsTestRemarkableFixSubscriptionVariables = {|
+export type RelayMockEnvironmentWithComponentsTestRemarkableFixSubscription$variables = {|
   input?: ?FeedbackLikeInput,
 |};
-export type RelayMockEnvironmentWithComponentsTestRemarkableFixSubscriptionResponse = {|
+export type RelayMockEnvironmentWithComponentsTestRemarkableFixSubscriptionVariables = RelayMockEnvironmentWithComponentsTestRemarkableFixSubscription$variables;
+export type RelayMockEnvironmentWithComponentsTestRemarkableFixSubscription$data = {|
   +feedbackLikeSubscribe: ?{|
     +feedback: ?{|
       +id: string,
@@ -31,9 +32,10 @@ export type RelayMockEnvironmentWithComponentsTestRemarkableFixSubscriptionRespo
     |},
   |},
 |};
+export type RelayMockEnvironmentWithComponentsTestRemarkableFixSubscriptionResponse = RelayMockEnvironmentWithComponentsTestRemarkableFixSubscription$data;
 export type RelayMockEnvironmentWithComponentsTestRemarkableFixSubscription = {|
   variables: RelayMockEnvironmentWithComponentsTestRemarkableFixSubscriptionVariables,
-  response: RelayMockEnvironmentWithComponentsTestRemarkableFixSubscriptionResponse,
+  response: RelayMockEnvironmentWithComponentsTestRemarkableFixSubscription$data,
 |};
 */
 
@@ -123,4 +125,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "682950a31d9df2be2d3759baf5d0e9fc";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: GraphQLSubscription<
+  RelayMockEnvironmentWithComponentsTestRemarkableFixSubscription$variables,
+  RelayMockEnvironmentWithComponentsTestRemarkableFixSubscription$data,
+>*/);

@@ -19,7 +19,7 @@ use graphql_ir::{
     Argument, ConstantValue, Directive, FragmentDefinition, InlineFragment, LinkedField,
     OperationDefinition, Program, Selection, Transformed, Transformer, Value,
 };
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey};
 use schema::Schema;
 use std::sync::Arc;
 
@@ -187,7 +187,7 @@ impl<'s> ConnectionTransform<'s> {
             .push(build_page_info_selections(
                 schema,
                 page_info_type,
-                &connection_metadata,
+                connection_metadata,
                 self.connection_constants,
                 self.connection_interface,
             ));
@@ -299,19 +299,19 @@ impl<'s> ConnectionTransform<'s> {
         connection_directive: &Directive,
     ) -> Transformed<Selection> {
         let connection_metadata = build_connection_metadata(
-            &connection_field,
+            connection_field,
             self.connection_constants,
             &self.current_path,
             connection_directive.name.item
                 == self.connection_constants.stream_connection_directive_name,
         );
         let next_connection_selections = self.transform_connection_selections(
-            &connection_field,
+            connection_field,
             &connection_metadata,
-            &connection_directive,
+            connection_directive,
         );
         let next_connection_directives =
-            self.transform_connection_directives(&connection_field, &connection_directive);
+            self.transform_connection_directives(connection_field, connection_directive);
 
         // Include the connection metadata from this linked field to
         // attach to the current root document (fragment or operation)
@@ -325,11 +325,7 @@ impl<'s> ConnectionTransform<'s> {
     }
 
     fn get_metadata_directive(&mut self) -> Directive {
-        ConnectionMetadataDirective(std::mem::replace(
-            &mut self.current_connection_metadata,
-            Vec::new(),
-        ))
-        .into()
+        ConnectionMetadataDirective(std::mem::take(&mut self.current_connection_metadata)).into()
     }
 }
 

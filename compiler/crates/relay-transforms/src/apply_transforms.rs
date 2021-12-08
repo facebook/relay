@@ -11,7 +11,7 @@ use super::*;
 use common::{sync::try_join, DiagnosticsResult, FeatureFlags, PerfLogEvent, PerfLogger};
 use fnv::FnvHashSet;
 use graphql_ir::Program;
-use interner::StringKey;
+use intern::string_key::StringKey;
 use regex::Regex;
 use std::sync::Arc;
 
@@ -153,6 +153,7 @@ fn apply_common_transforms(
     })?;
 
     program = log_event.time("client_edges", || client_edges(&program))?;
+
     program = log_event.time("relay_resolvers", || {
         relay_resolvers(&program, feature_flags.enable_relay_resolver_transform)
     })?;
@@ -167,6 +168,10 @@ fn apply_common_transforms(
     program = log_event.time("relay_actor_change_transform", || {
         relay_actor_change_transform(&program, &feature_flags.actor_change_support)
     })?;
+
+    program = log_event.time("provided_variable_fragment_transform", || {
+        provided_variable_fragment_transform(&program)
+    });
 
     log_event.complete();
 
@@ -184,19 +189,23 @@ fn apply_reader_transforms(
 ) -> DiagnosticsResult<Arc<Program>> {
     let log_event = perf_logger.create_event("apply_reader_transforms");
     log_event.string("project", project_name.to_string());
-    let mut program = log_event.time("required_directive", || {
-        required_directive(&program, &feature_flags)
-    })?;
+    let mut program = log_event.time("required_directive", || required_directive(&program))?;
 
     program = log_event.time("client_extensions", || client_extensions(&program));
     program = log_event.time("handle_field_transform", || {
         handle_field_transform(&program)
     });
+
+    program = log_event.time("transform_assignable_fragment_spreads", || {
+        transform_assignable_fragment_spreads(&program)
+    })?;
+
     program = log_event.time("inline_data_fragment", || inline_data_fragment(&program))?;
     program = log_event.time("skip_unreachable_node", || skip_unreachable_node(&program))?;
     program = log_event.time("remove_base_fragments", || {
         remove_base_fragments(&program, base_fragment_names)
     });
+
     log_event.time("flatten", || flatten(&mut program, true, false))?;
     program = log_event.time("skip_redundant_nodes", || skip_redundant_nodes(&program));
     program = log_event.time("generate_data_driven_dependency_metadata", || {
@@ -401,10 +410,11 @@ fn apply_typegen_transforms(
     program = log_event.time("transform_subscriptions", || {
         transform_subscriptions(&program)
     })?;
-    program = log_event.time("required_directive", || {
-        required_directive(&program, &feature_flags)
-    })?;
+    program = log_event.time("required_directive", || required_directive(&program))?;
     program = log_event.time("client_edges", || client_edges(&program))?;
+    program = log_event.time("transform_assignable_fragment_spreads", || {
+        transform_assignable_fragment_spreads(&program)
+    })?;
     program = log_event.time("relay_resolvers", || {
         relay_resolvers(&program, feature_flags.enable_relay_resolver_transform)
     })?;

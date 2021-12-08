@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<9cf13db81a07c6ef1afe90bebff42e5c>>
+ * @generated SignedSource<<81a74975ebee10b972f144a3b5bd5b54>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,22 +15,22 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type DataCheckerTest13Fragment$ref: FragmentReference;
-declare export opaque type DataCheckerTest13Fragment$fragmentType: DataCheckerTest13Fragment$ref;
-export type DataCheckerTest13Fragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type DataCheckerTest13Fragment$fragmentType: FragmentType;
+export type DataCheckerTest13Fragment$ref = DataCheckerTest13Fragment$fragmentType;
+export type DataCheckerTest13Fragment$data = {|
   +id: string,
   +firstName: ?string,
   +profilePicture: ?{|
     +uri: ?string,
   |},
-  +$refType: DataCheckerTest13Fragment$ref,
+  +$fragmentType: DataCheckerTest13Fragment$fragmentType,
 |};
-export type DataCheckerTest13Fragment$data = DataCheckerTest13Fragment;
+export type DataCheckerTest13Fragment = DataCheckerTest13Fragment$data;
 export type DataCheckerTest13Fragment$key = {
   +$data?: DataCheckerTest13Fragment$data,
-  +$fragmentRefs: DataCheckerTest13Fragment$ref,
+  +$fragmentSpreads: DataCheckerTest13Fragment$fragmentType,
   ...
 };
 */
@@ -94,4 +94,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "50733bf1cfc37963b99595be89d0cb01";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  DataCheckerTest13Fragment$fragmentType,
+  DataCheckerTest13Fragment$data,
+>*/);

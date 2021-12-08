@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<c7a70ce4b8e1aa57fbb0d769c8ab3fc0>>
+ * @generated SignedSource<<154fb62746c91997077965999cf22ae8>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,11 +15,12 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-export type requestSubscriptionTestFeedbackCommentQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+export type requestSubscriptionTestFeedbackCommentQuery$variables = {|
   id?: ?string,
 |};
-export type requestSubscriptionTestFeedbackCommentQueryResponse = {|
+export type requestSubscriptionTestFeedbackCommentQueryVariables = requestSubscriptionTestFeedbackCommentQuery$variables;
+export type requestSubscriptionTestFeedbackCommentQuery$data = {|
   +node: ?{|
     +comments?: ?{|
       +edges: ?$ReadOnlyArray<?{|
@@ -33,9 +34,10 @@ export type requestSubscriptionTestFeedbackCommentQueryResponse = {|
     |},
   |},
 |};
+export type requestSubscriptionTestFeedbackCommentQueryResponse = requestSubscriptionTestFeedbackCommentQuery$data;
 export type requestSubscriptionTestFeedbackCommentQuery = {|
   variables: requestSubscriptionTestFeedbackCommentQueryVariables,
-  response: requestSubscriptionTestFeedbackCommentQueryResponse,
+  response: requestSubscriptionTestFeedbackCommentQuery$data,
 |};
 */
 
@@ -264,4 +266,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "996046673b6bc26bab075ef2da371fd3";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  requestSubscriptionTestFeedbackCommentQuery$variables,
+  requestSubscriptionTestFeedbackCommentQuery$data,
+>*/);

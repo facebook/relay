@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<16dd5e19494a4227245329eab27fa780>>
+ * @generated SignedSource<<306183576aedf34dda8aadc7a7bf25b9>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,21 +15,21 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-type RelayModernEnvironmentTypeRefinementTest4Fragment$ref = any;
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayModernEnvironmentTypeRefinementTest3Fragment$ref: FragmentReference;
-declare export opaque type RelayModernEnvironmentTypeRefinementTest3Fragment$fragmentType: RelayModernEnvironmentTypeRefinementTest3Fragment$ref;
-export type RelayModernEnvironmentTypeRefinementTest3Fragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+type RelayModernEnvironmentTypeRefinementTest4Fragment$fragmentType = any;
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayModernEnvironmentTypeRefinementTest3Fragment$fragmentType: FragmentType;
+export type RelayModernEnvironmentTypeRefinementTest3Fragment$ref = RelayModernEnvironmentTypeRefinementTest3Fragment$fragmentType;
+export type RelayModernEnvironmentTypeRefinementTest3Fragment$data = {|
   +id: string,
   +lastName: ?string,
-  +$fragmentRefs: RelayModernEnvironmentTypeRefinementTest4Fragment$ref,
-  +$refType: RelayModernEnvironmentTypeRefinementTest3Fragment$ref,
+  +$fragmentSpreads: RelayModernEnvironmentTypeRefinementTest4Fragment$fragmentType,
+  +$fragmentType: RelayModernEnvironmentTypeRefinementTest3Fragment$fragmentType,
 |};
-export type RelayModernEnvironmentTypeRefinementTest3Fragment$data = RelayModernEnvironmentTypeRefinementTest3Fragment;
+export type RelayModernEnvironmentTypeRefinementTest3Fragment = RelayModernEnvironmentTypeRefinementTest3Fragment$data;
 export type RelayModernEnvironmentTypeRefinementTest3Fragment$key = {
   +$data?: RelayModernEnvironmentTypeRefinementTest3Fragment$data,
-  +$fragmentRefs: RelayModernEnvironmentTypeRefinementTest3Fragment$ref,
+  +$fragmentSpreads: RelayModernEnvironmentTypeRefinementTest3Fragment$fragmentType,
   ...
 };
 */
@@ -68,4 +68,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "f0bb895c71278e149eba4c305ca1cfcf";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayModernEnvironmentTypeRefinementTest3Fragment$fragmentType,
+  RelayModernEnvironmentTypeRefinementTest3Fragment$data,
+>*/);

@@ -10,7 +10,7 @@ use fnv::FnvHashMap;
 use graphql_ir::{
     FragmentDefinition, FragmentSpread, OperationDefinition, Program, ScalarField, Visitor,
 };
-use interner::StringKey;
+use intern::string_key::StringKey;
 use std::sync::Arc;
 
 pub fn print_full_operation(program: &Program, operation: &OperationDefinition) -> String {

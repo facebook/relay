@@ -13,6 +13,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "ahash"
+version = "0.7.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "43bb833f0bf979d8475d38fbf09ed3b8a55e1885fe93ad3f93239fc6a4f17b98"
+dependencies = [
+ "getrandom",
+ "once_cell",
+ "version_check",
+]
+
+[[package]]
 name = "aho-corasick"
 version = "0.7.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -205,7 +216,7 @@ version = "0.0.0"
 dependencies = [
  "colored",
  "indexmap",
- "interner",
+ "intern",
  "log",
  "lsp-types",
  "md-5",
@@ -328,7 +339,7 @@ dependencies = [
  "fnv",
  "graphql-ir",
  "graphql-syntax",
- "interner",
+ "intern",
  "relay-test-schema",
  "relay-transforms",
  "schema",
@@ -587,7 +598,7 @@ dependencies = [
  "graphql-cli",
  "graphql-syntax",
  "indexmap",
- "interner",
+ "intern",
  "lazy_static",
  "once_cell",
  "relay-test-schema",
@@ -603,7 +614,7 @@ dependencies = [
  "common",
  "fixture-tests",
  "graphql-cli",
- "interner",
+ "intern",
  "logos",
  "lsp-types",
  "serde",
@@ -632,7 +643,7 @@ dependencies = [
  "fnv",
  "graphql-ir",
  "graphql-syntax",
- "interner",
+ "intern",
  "relay-test-schema",
  "schema",
 ]
@@ -671,6 +682,10 @@ name = "hashbrown"
 version = "0.11.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ab5ef0d4909ef3724cc8cce6ccc8572c5c817592e9285f5464f8e86f8bd3726e"
+dependencies = [
+ "ahash",
+ "serde",
+]
 
 [[package]]
 name = "heck"
@@ -805,6 +820,23 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "61124eeebbd69b8190558df225adf7e4caafce0d743919e5d6b19652314ec5ec"
 dependencies = [
  "cfg-if 1.0.0",
+]
+
+[[package]]
+name = "intern"
+version = "0.0.0"
+dependencies = [
+ "bincode",
+ "fnv",
+ "hashbrown",
+ "indexmap",
+ "once_cell",
+ "parking_lot 0.10.2",
+ "rand",
+ "serde",
+ "serde_bytes",
+ "serde_derive",
+ "smallvec",
 ]
 
 [[package]]
@@ -1376,7 +1408,7 @@ dependencies = [
  "graphql-test-helpers",
  "hex",
  "indexmap",
- "interner",
+ "intern",
  "lazy_static",
  "md-5",
  "relay-test-schema",
@@ -1409,7 +1441,7 @@ dependencies = [
  "graphql-watchman",
  "hex",
  "indexmap",
- "interner",
+ "intern",
  "js-config-loader",
  "lazy_static",
  "log",
@@ -1450,7 +1482,7 @@ dependencies = [
  "graphql-syntax",
  "graphql-text-printer",
  "graphql-watchman",
- "interner",
+ "intern",
  "log",
  "lsp-server",
  "lsp-types",
@@ -1473,7 +1505,7 @@ name = "relay-schema"
 version = "0.0.0"
 dependencies = [
  "common",
- "interner",
+ "intern",
  "schema",
 ]
 
@@ -1502,7 +1534,7 @@ dependencies = [
  "graphql-test-helpers",
  "graphql-text-printer",
  "indexmap",
- "interner",
+ "intern",
  "itertools",
  "lazy_static",
  "once_cell",
@@ -1524,7 +1556,7 @@ dependencies = [
  "graphql-ir",
  "graphql-syntax",
  "indexmap",
- "interner",
+ "intern",
  "itertools",
  "lazy_static",
  "relay-codegen",
@@ -1570,7 +1602,7 @@ dependencies = [
  "fnv",
  "graphql-cli",
  "graphql-syntax",
- "interner",
+ "intern",
  "lazy_static",
  "ouroboros",
  "schema-flatbuffer",
@@ -1584,7 +1616,7 @@ dependencies = [
  "common",
  "fnv",
  "graphql-syntax",
- "interner",
+ "intern",
  "lazy_static",
  "schema",
 ]
@@ -1593,7 +1625,7 @@ dependencies = [
 name = "schema-documentation"
 version = "0.0.0"
 dependencies = [
- "interner",
+ "intern",
  "schema",
 ]
 
@@ -1610,7 +1642,7 @@ version = "0.0.0"
 dependencies = [
  "fixture-tests",
  "fnv",
- "interner",
+ "intern",
  "itertools",
  "schema",
 ]
@@ -1622,7 +1654,7 @@ dependencies = [
  "common",
  "fixture-tests",
  "fnv",
- "interner",
+ "intern",
  "lazy_static",
  "rayon",
  "regex",
@@ -1681,6 +1713,15 @@ dependencies = [
  "bytes 0.4.12",
  "serde",
  "thiserror",
+]
+
+[[package]]
+name = "serde_bytes"
+version = "0.11.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "16ae07dd2f88a366f15bd0632ba725227018c69a1c8550a927324f8eb8368bb9"
+dependencies = [
+ "serde",
 ]
 
 [[package]]
@@ -1758,6 +1799,9 @@ name = "smallvec"
 version = "1.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fe0f37c9e8f3c5a4a66ad655a93c74daac4ad00c441533bf5c6e7990bb42604e"
+dependencies = [
+ "serde",
+]
 
 [[package]]
 name = "socket2"
@@ -1821,6 +1865,12 @@ dependencies = [
  "quote",
  "syn",
 ]
+
+[[package]]
+name = "sval"
+version = "1.0.0-alpha.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "45f6ee7c7b87caf59549e9fe45d6a69c75c8019e79e212a835c5da0e92f0ba08"
 
 [[package]]
 name = "syn"
@@ -2058,6 +2108,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6b676010e055c99033117c2343b33a40a30b91fecd6c49055ac9cd2d6c305ab1"
 dependencies = [
  "ctor",
+ "sval",
 ]
 
 [[package]]

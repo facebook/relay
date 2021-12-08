@@ -23,7 +23,6 @@
       "jsModuleFormat": "commonjs",
       "featureFlags": {
         "enable_flight_transform": true,
-        "enable_required_transform": true,
         "no_inline": {
           "kind": "enabled"
         },

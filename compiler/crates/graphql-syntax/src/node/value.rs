@@ -9,7 +9,7 @@ use super::constant_value::*;
 use super::primitive::*;
 use common::{Named, SourceLocationKey, Span, WithLocation};
 use core::fmt;
-use interner::StringKey;
+use intern::string_key::StringKey;
 
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct VariableIdentifier {

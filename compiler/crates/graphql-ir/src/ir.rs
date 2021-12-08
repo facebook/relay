@@ -7,7 +7,7 @@
 
 use common::{Location, Named, WithLocation};
 use graphql_syntax::{FloatValue, OperationKind};
-use interner::StringKey;
+use intern::string_key::StringKey;
 use schema::{FieldID, Type, TypeReference};
 use schema::{SDLSchema, Schema};
 use std::fmt;
@@ -290,6 +290,16 @@ pub struct Condition {
     pub selections: Vec<Selection>,
     pub value: ConditionValue,
     pub passing_value: bool,
+}
+
+impl Condition {
+    pub fn directive_name(&self) -> &'static str {
+        if self.passing_value {
+            "include"
+        } else {
+            "skip"
+        }
+    }
 }
 
 // Associated Types

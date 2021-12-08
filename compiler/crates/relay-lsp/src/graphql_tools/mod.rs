@@ -14,7 +14,7 @@ use graphql_ir::{
 };
 use graphql_syntax::parse_executable_with_error_recovery;
 use graphql_text_printer::print_full_operation;
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey};
 use lsp_types::{request::Request, Url};
 use relay_compiler::config::{Config, ProjectConfig};
 use relay_transforms::{apply_transforms, Programs};

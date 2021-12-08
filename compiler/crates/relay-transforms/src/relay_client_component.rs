@@ -18,7 +18,7 @@ use graphql_ir::{
     OperationDefinition, Program, Selection, Transformed, Transformer, Value,
 };
 use graphql_syntax::OperationKind;
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey};
 use itertools::Itertools;
 use lazy_static::lazy_static;
 use schema::{InterfaceID, Schema, Type};
@@ -212,7 +212,7 @@ impl<'program, 'flag> RelayClientComponentTransform<'program, 'flag> {
         if should_use_no_inline {
             self.no_inline_fragments
                 .entry(fragment.name.item)
-                .or_insert_with(|| vec![])
+                .or_insert_with(std::vec::Vec::new)
                 .push(self.document_name.unwrap());
         } else {
             // Generate a SplitOperation AST

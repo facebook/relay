@@ -11,7 +11,7 @@ use graphql_ir::{
     TransformedValue, Transformer,
 };
 
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey};
 use schema::{FieldID, InterfaceID, ObjectID, Schema, Type};
 use std::{
     collections::{hash_map::Entry, HashMap},

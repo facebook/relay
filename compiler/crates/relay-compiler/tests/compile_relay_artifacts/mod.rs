@@ -15,7 +15,7 @@ use graphql_syntax::parse_executable;
 use graphql_test_helpers::diagnostics_to_sorted_string;
 use graphql_text_printer::print_full_operation;
 
-use interner::Intern;
+use intern::string_key::Intern;
 use relay_codegen::{
     build_request_params, print_fragment, print_operation, print_request, JsModuleFormat,
 };
@@ -27,8 +27,8 @@ use std::{array, sync::Arc};
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let source_location = SourceLocationKey::standalone(fixture.file_name);
 
-    if fixture.content.find("%TODO%").is_some() {
-        if fixture.content.find("expected-to-throw").is_some() {
+    if fixture.content.contains("%TODO%") {
+        if fixture.content.contains("expected-to-throw") {
             return Err("TODO".to_string());
         }
         return Ok("TODO".to_string());
@@ -71,7 +71,6 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
 
     let feature_flags = FeatureFlags {
         enable_flight_transform: true,
-        enable_required_transform: true,
         hash_supported_argument: FeatureFlag::Limited {
             allowlist: array::IntoIter::new(["UserNameRenderer".intern()]).collect(),
         },
@@ -129,7 +128,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
                     directives: reader_operation.directives.clone(),
                     type_condition: reader_operation.type_,
                 };
-                let request_parameters = build_request_params(&operation);
+                let request_parameters = build_request_params(operation);
                 format!(
                     "{}\n\nQUERY:\n\n{}",
                     print_request(

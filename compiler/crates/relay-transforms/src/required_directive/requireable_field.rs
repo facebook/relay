@@ -12,7 +12,7 @@ use common::{Diagnostic, Location, NamedItem, WithLocation};
 use graphql_ir::{
     ConstantValue, Directive, Field, LinkedField, ScalarField, ValidationMessage, Value,
 };
-use interner::StringKey;
+use intern::string_key::StringKey;
 use schema::SDLSchema;
 
 #[derive(Clone, Copy)]

@@ -15,7 +15,7 @@
 
 import type {RefetchFnDynamic} from './useRefetchableFragmentNode';
 import type {
-  FragmentReference,
+  FragmentType,
   GraphQLTaggedNode,
   OperationType,
 } from 'relay-runtime';
@@ -40,7 +40,7 @@ type ReturnType<TQuery: OperationType, TKey: ?{+$data?: mixed, ...}> = [
 
 function useRefetchableFragment<
   TQuery: OperationType,
-  TKey: ?{+$data?: mixed, +$fragmentRefs: FragmentReference, ...},
+  TKey: ?{+$data?: mixed, +$fragmentSpreads: FragmentType, ...},
 >(
   fragmentInput: GraphQLTaggedNode,
   fragmentRef: TKey,

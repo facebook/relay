@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<36d8399c5ba10537b7232a56b0dd3abb>>
+ * @generated SignedSource<<e4eeb518767037f1313ed00df923ef5a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,20 +15,20 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayConcreteVariablesTest7Fragment$ref: FragmentReference;
-declare export opaque type RelayConcreteVariablesTest7Fragment$fragmentType: RelayConcreteVariablesTest7Fragment$ref;
-export type RelayConcreteVariablesTest7Fragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayConcreteVariablesTest7Fragment$fragmentType: FragmentType;
+export type RelayConcreteVariablesTest7Fragment$ref = RelayConcreteVariablesTest7Fragment$fragmentType;
+export type RelayConcreteVariablesTest7Fragment$data = {|
   +profilePicture: ?{|
     +uri: ?string,
   |},
-  +$refType: RelayConcreteVariablesTest7Fragment$ref,
+  +$fragmentType: RelayConcreteVariablesTest7Fragment$fragmentType,
 |};
-export type RelayConcreteVariablesTest7Fragment$data = RelayConcreteVariablesTest7Fragment;
+export type RelayConcreteVariablesTest7Fragment = RelayConcreteVariablesTest7Fragment$data;
 export type RelayConcreteVariablesTest7Fragment$key = {
   +$data?: RelayConcreteVariablesTest7Fragment$data,
-  +$fragmentRefs: RelayConcreteVariablesTest7Fragment$ref,
+  +$fragmentSpreads: RelayConcreteVariablesTest7Fragment$fragmentType,
   ...
 };
 */
@@ -78,4 +78,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "22a028f3cff5badef6dcd50e54d564ca";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayConcreteVariablesTest7Fragment$fragmentType,
+  RelayConcreteVariablesTest7Fragment$data,
+>*/);

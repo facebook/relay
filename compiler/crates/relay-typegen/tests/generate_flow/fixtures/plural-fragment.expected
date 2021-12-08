@@ -3,16 +3,14 @@ fragment PluralFragment on Node @relay(plural: true) {
   id
 }
 ==================================== OUTPUT ===================================
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type PluralFragment$ref: FragmentReference;
-declare export opaque type PluralFragment$fragmentType: PluralFragment$ref;
-export type PluralFragment = $ReadOnlyArray<{|
+import type { FragmentType } from "relay-runtime";
+declare export opaque type PluralFragment$fragmentType: FragmentType;
+export type PluralFragment$data = $ReadOnlyArray<{|
   +id: string,
-  +$refType: PluralFragment$ref,
+  +$fragmentType: PluralFragment$fragmentType,
 |}>;
-export type PluralFragment$data = PluralFragment;
 export type PluralFragment$key = $ReadOnlyArray<{
   +$data?: PluralFragment$data,
-  +$fragmentRefs: PluralFragment$ref,
+  +$fragmentSpreads: PluralFragment$fragmentType,
   ...
 }>;

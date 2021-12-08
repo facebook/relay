@@ -21,7 +21,7 @@ pub fn hash_arguments(args: &[Argument]) -> Option<String> {
                 value: identifier_for_argument_value(&arg.value.item),
             })
             .collect();
-        converted_args.sort_by(|a, b| a.name.cmp(&b.name));
+        converted_args.sort_by(|a, b| a.name.cmp(b.name));
 
         let args_string = format!(
             "[{}]",

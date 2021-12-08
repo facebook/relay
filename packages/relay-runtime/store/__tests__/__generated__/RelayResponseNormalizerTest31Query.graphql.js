@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<982ab710dec306bc1f13730a95a73a9a>>
+ * @generated SignedSource<<6bdfc96669e754e334c81141d87e455c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,18 +15,20 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-export type RelayResponseNormalizerTest31QueryVariables = {||};
-export type RelayResponseNormalizerTest31QueryResponse = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+export type RelayResponseNormalizerTest31Query$variables = {||};
+export type RelayResponseNormalizerTest31QueryVariables = RelayResponseNormalizerTest31Query$variables;
+export type RelayResponseNormalizerTest31Query$data = {|
   +me: ?{|
     +actors: ?$ReadOnlyArray<?{|
       +id: string,
     |}>,
   |},
 |};
+export type RelayResponseNormalizerTest31QueryResponse = RelayResponseNormalizerTest31Query$data;
 export type RelayResponseNormalizerTest31Query = {|
   variables: RelayResponseNormalizerTest31QueryVariables,
-  response: RelayResponseNormalizerTest31QueryResponse,
+  response: RelayResponseNormalizerTest31Query$data,
 |};
 */
 
@@ -126,4 +128,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "26c7124e297d6fd6bcb59cba366c0f6c";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayResponseNormalizerTest31Query$variables,
+  RelayResponseNormalizerTest31Query$data,
+>*/);

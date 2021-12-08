@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<15ce86d85f90dd0e49a9be564c55771e>>
+ * @generated SignedSource<<9c88a5f1a493242770c7a07da3195990>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,21 +15,23 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type useLazyLoadQueryNodeTestUserFragment$ref = any;
-export type useLazyLoadQueryNodeTestUserQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type useLazyLoadQueryNodeTestUserFragment$fragmentType = any;
+export type useLazyLoadQueryNodeTestUserQuery$variables = {|
   id?: ?string,
 |};
-export type useLazyLoadQueryNodeTestUserQueryResponse = {|
+export type useLazyLoadQueryNodeTestUserQueryVariables = useLazyLoadQueryNodeTestUserQuery$variables;
+export type useLazyLoadQueryNodeTestUserQuery$data = {|
   +node: ?{|
     +id: string,
     +name: ?string,
-    +$fragmentRefs: useLazyLoadQueryNodeTestUserFragment$ref,
+    +$fragmentSpreads: useLazyLoadQueryNodeTestUserFragment$fragmentType,
   |},
 |};
+export type useLazyLoadQueryNodeTestUserQueryResponse = useLazyLoadQueryNodeTestUserQuery$data;
 export type useLazyLoadQueryNodeTestUserQuery = {|
   variables: useLazyLoadQueryNodeTestUserQueryVariables,
-  response: useLazyLoadQueryNodeTestUserQueryResponse,
+  response: useLazyLoadQueryNodeTestUserQuery$data,
 |};
 */
 
@@ -134,4 +136,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "bc3d98c6a2a45e4247e409cca1d3f06f";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  useLazyLoadQueryNodeTestUserQuery$variables,
+  useLazyLoadQueryNodeTestUserQuery$data,
+>*/);

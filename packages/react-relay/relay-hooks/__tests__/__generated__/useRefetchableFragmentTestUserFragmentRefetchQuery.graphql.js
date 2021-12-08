@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<989c8ae49c928a1e1531d3205ad89b86>>
+ * @generated SignedSource<<98820f5a9042bd9430ae99a63b47df91>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,22 +15,23 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type useRefetchableFragmentTestUserFragment$ref: FragmentReference;
-declare export opaque type useRefetchableFragmentTestUserFragment$fragmentType: useRefetchableFragmentTestUserFragment$ref;
-export type useRefetchableFragmentTestUserFragmentRefetchQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+type useRefetchableFragmentTestUserFragment$fragmentType = any;
+export type useRefetchableFragmentTestUserFragmentRefetchQuery$variables = {|
   scale?: ?number,
   id: string,
 |};
-export type useRefetchableFragmentTestUserFragmentRefetchQueryResponse = {|
+export type useRefetchableFragmentTestUserFragmentRefetchQueryVariables = useRefetchableFragmentTestUserFragmentRefetchQuery$variables;
+export type useRefetchableFragmentTestUserFragmentRefetchQuery$data = {|
   +node: ?{|
-    +$fragmentRefs: useRefetchableFragmentTestUserFragment$ref,
+    +$fragmentSpreads: useRefetchableFragmentTestUserFragment$fragmentType,
   |},
 |};
+export type useRefetchableFragmentTestUserFragmentRefetchQueryResponse = useRefetchableFragmentTestUserFragmentRefetchQuery$data;
 export type useRefetchableFragmentTestUserFragmentRefetchQuery = {|
   variables: useRefetchableFragmentTestUserFragmentRefetchQueryVariables,
-  response: useRefetchableFragmentTestUserFragmentRefetchQueryResponse,
+  response: useRefetchableFragmentTestUserFragmentRefetchQuery$data,
 |};
 */
 
@@ -178,4 +179,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "d770b0dc72756ed4ba66dee386a91acf";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  useRefetchableFragmentTestUserFragmentRefetchQuery$variables,
+  useRefetchableFragmentTestUserFragmentRefetchQuery$data,
+>*/);

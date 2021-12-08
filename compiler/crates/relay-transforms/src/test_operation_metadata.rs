@@ -12,7 +12,7 @@ use graphql_ir::{
     OperationDefinition, Program, Selection, Transformed, Transformer, Value,
 };
 use indexmap::IndexMap;
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey};
 use lazy_static::lazy_static;
 use regex::Regex;
 use schema::{EnumValue, Field, SDLSchema, Schema, Type};
@@ -104,7 +104,7 @@ impl<'a> Transformer for GenerateTestOperationMetadata<'a> {
                                 operation.name.location,
                                 Value::Constant(ConstantValue::Object(From::from(
                                     RelayTestOperationMetadata::new(
-                                        &self.program,
+                                        self.program,
                                         &operation.selections,
                                     ),
                                 ))),

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<2c019f207cc9bebea039cb9467b4cbca>>
+ * @generated SignedSource<<84e7e7e70d1ef388d6b1a1dfb997111f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,20 +15,20 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayReaderRequiredFieldsTest2Fragment$ref: FragmentReference;
-declare export opaque type RelayReaderRequiredFieldsTest2Fragment$fragmentType: RelayReaderRequiredFieldsTest2Fragment$ref;
-export type RelayReaderRequiredFieldsTest2Fragment = ?{|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayReaderRequiredFieldsTest2Fragment$fragmentType: FragmentType;
+export type RelayReaderRequiredFieldsTest2Fragment$ref = RelayReaderRequiredFieldsTest2Fragment$fragmentType;
+export type RelayReaderRequiredFieldsTest2Fragment$data = ?{|
   +backgroundImage: {|
     +uri: string,
   |},
-  +$refType: RelayReaderRequiredFieldsTest2Fragment$ref,
+  +$fragmentType: RelayReaderRequiredFieldsTest2Fragment$fragmentType,
 |};
-export type RelayReaderRequiredFieldsTest2Fragment$data = RelayReaderRequiredFieldsTest2Fragment;
+export type RelayReaderRequiredFieldsTest2Fragment = RelayReaderRequiredFieldsTest2Fragment$data;
 export type RelayReaderRequiredFieldsTest2Fragment$key = {
   +$data?: RelayReaderRequiredFieldsTest2Fragment$data,
-  +$fragmentRefs: RelayReaderRequiredFieldsTest2Fragment$ref,
+  +$fragmentSpreads: RelayReaderRequiredFieldsTest2Fragment$fragmentType,
   ...
 };
 */
@@ -76,4 +76,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "954d425661b99194d67a6b78d317d7fc";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayReaderRequiredFieldsTest2Fragment$fragmentType,
+  RelayReaderRequiredFieldsTest2Fragment$data,
+>*/);

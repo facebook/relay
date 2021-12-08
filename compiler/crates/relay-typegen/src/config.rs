@@ -8,7 +8,7 @@
 use common::Rollout;
 use fnv::FnvBuildHasher;
 use indexmap::{IndexMap, IndexSet};
-use interner::StringKey;
+use intern::string_key::StringKey;
 use serde::{Deserialize, Serialize};
 
 type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
@@ -100,7 +100,7 @@ impl Default for FlowTypegenConfig {
     fn default() -> Self {
         Self {
             no_future_proof_enums: false,
-            phase: FlowTypegenPhase::Old,
+            phase: FlowTypegenPhase::Final,
             rollout: Rollout::default(),
         }
     }
@@ -120,16 +120,9 @@ impl FlowTypegenConfig {
 
 #[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
 pub enum FlowTypegenPhase {
-    /// Original state
-    Old,
-    /// - add `export opaque type User_photo$fragmentType: FragmentType`
-    /// - `User_photo$ref` is now alias for `User_photo$fragmentType`
-    /// - exported value types are updated
-    /// - exported types are all `MyThing$fooBar` with aliases for the old values
-    Phase1,
-    /// - add $fragmentSpreads prop to Frag$key type
-    /// - use Frag$fragmentType instead of Frag$ref
-    Phase2,
+    /// - remove $fragmentRefs for spreads
+    /// - remove $refType from Frag$data
+    Phase4,
     /// Final state
     Final,
 }
@@ -140,10 +133,8 @@ impl FlowTypegenPhase {
     fn previous(self) -> Self {
         use FlowTypegenPhase::*;
         match self {
-            Old => Old,
-            Phase1 => Old,
-            Phase2 => Phase1,
-            Final => Phase2,
+            Phase4 => Phase4,
+            Final => Phase4,
         }
     }
 }

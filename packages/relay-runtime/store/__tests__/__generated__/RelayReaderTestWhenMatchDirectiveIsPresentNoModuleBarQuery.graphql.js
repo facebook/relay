@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<c97c31d702697caf9f9b1d9a00062714>>
+ * @generated SignedSource<<9c978079066cc44cf5c230e75eed0de2>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,17 +15,19 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment$ref = any;
-export type RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarQueryVariables = {||};
-export type RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarQueryResponse = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment$fragmentType = any;
+export type RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarQuery$variables = {||};
+export type RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarQueryVariables = RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarQuery$variables;
+export type RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarQuery$data = {|
   +me: ?{|
-    +$fragmentRefs: RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment$ref,
+    +$fragmentSpreads: RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment$fragmentType,
   |},
 |};
+export type RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarQueryResponse = RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarQuery$data;
 export type RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarQuery = {|
   variables: RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarQueryVariables,
-  response: RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarQueryResponse,
+  response: RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarQuery$data,
 |};
 */
 
@@ -142,4 +144,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "52e8fb8b490569a5a7125ef7dac411f1";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarQuery$variables,
+  RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarQuery$data,
+>*/);

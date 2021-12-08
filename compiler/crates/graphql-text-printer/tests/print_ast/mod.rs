@@ -17,7 +17,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     Ok(ast
         .definitions
         .iter()
-        .map(|definition| print_executable_definition_ast(&definition))
+        .map(|definition| print_executable_definition_ast(definition))
         .collect::<Vec<String>>()
         .join("\n"))
 }

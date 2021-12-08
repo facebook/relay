@@ -17,14 +17,16 @@ use common::{Diagnostic, DiagnosticsResult, FeatureFlag, NamedItem, WithLocation
 use fnv::{FnvHashMap, FnvHashSet};
 use graphql_ir::{
     Condition, ConditionValue, ConstantValue, Directive, FragmentDefinition, FragmentSpread,
-    InlineFragment, OperationDefinition, Program, Selection, Transformed, TransformedMulti,
-    TransformedValue, Transformer, ValidationMessage, Value, Variable, VariableDefinition,
+    InlineFragment, OperationDefinition, Program, ProvidedVariableMetadata, Selection, Transformed,
+    TransformedMulti, TransformedValue, Transformer, Value, Variable, VariableDefinition,
 };
 use graphql_syntax::OperationKind;
-use interner::{Intern, StringKey};
+use indexmap::IndexMap;
+use intern::string_key::{Intern, StringKey};
 use itertools::Itertools;
-use scope::{format_local_variable, format_provided_variable, Scope};
+use scope::{format_local_variable, Scope};
 use std::sync::Arc;
+use thiserror::Error;
 
 /// A transform that converts a set of documents containing fragments/fragment
 /// spreads *with* arguments to one where all arguments have been inlined. This
@@ -103,7 +105,7 @@ struct ApplyFragmentArgumentsTransform<'flags, 'program, 'base_fragments> {
     is_normalization: bool,
     no_inline_feature: &'flags FeatureFlag,
     program: &'program Program,
-    provided_variables: FnvHashMap<StringKey, VariableDefinition>,
+    provided_variables: IndexMap<StringKey, VariableDefinition>,
     scope: Scope,
     split_operations: FnvHashMap<StringKey, OperationDefinition>,
 }
@@ -129,7 +131,7 @@ impl Transformer for ApplyFragmentArgumentsTransform<'_, '_, '_> {
                     new_operation.variable_definitions.append(
                         &mut self
                             .provided_variables
-                            .drain()
+                            .drain(..)
                             .map(|(_, definition)| definition)
                             .collect_vec(),
                     );
@@ -139,7 +141,7 @@ impl Transformer for ApplyFragmentArgumentsTransform<'_, '_, '_> {
                     new_operation.variable_definitions.append(
                         &mut self
                             .provided_variables
-                            .drain()
+                            .drain(..)
                             .map(|(_, definition)| definition)
                             .collect_vec(),
                     );
@@ -380,24 +382,17 @@ impl ApplyFragmentArgumentsTransform<'_, '_, '_> {
     fn extract_provided_variables(&mut self, fragment: &FragmentDefinition) {
         let provided_arguments =
             fragment
-                .variable_definitions
+                .used_global_variables
                 .iter()
                 .filter(|variable_definition| {
                     variable_definition
                         .directives
-                        .named(*graphql_ir::PROVIDER_MODULE)
+                        .named(ProvidedVariableMetadata::directive_name())
                         .is_some()
                 });
         for definition in provided_arguments {
-            let clobbered_name = format_provided_variable(fragment.name.item, definition.name.item);
-            let clobbered_definition = VariableDefinition {
-                name: WithLocation::new(definition.name.location, clobbered_name),
-                type_: definition.type_.clone(),
-                default_value: definition.default_value.clone(),
-                directives: definition.directives.clone(),
-            };
             self.provided_variables
-                .insert(clobbered_name, clobbered_definition);
+                .insert(definition.name.item, definition.clone());
         }
     }
 
@@ -537,4 +532,10 @@ fn no_inline_fragment_scope(fragment: &FragmentDefinition) -> Scope {
     let mut scope = Scope::root_scope();
     scope.push_bindings(fragment.name.location, bindings);
     scope
+}
+
+#[derive(Debug, Error)]
+enum ValidationMessage {
+    #[error("Found a circular reference from fragment '{fragment_name}'.")]
+    CircularFragmentReference { fragment_name: StringKey },
 }

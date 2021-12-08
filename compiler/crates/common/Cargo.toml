@@ -9,8 +9,8 @@ license = "MIT"
 [dependencies]
 colored = "1.9"
 indexmap = { version = "1.7.0", features = ["rayon", "serde-1"] }
-interner = { path = "../interner" }
-log = { version = "0.4.8", features = ["kv_unstable"] }
+intern = { path = "../intern" }
+log = { version = "0.4.14", features = ["kv_unstable", "kv_unstable_std"] }
 lsp-types = "0.89.0"
 md-5 = "0.8"
 rayon = "1.2"

@@ -13,7 +13,7 @@
 
 'use strict';
 
-import type {FragmentReference, GraphQLTaggedNode} from 'relay-runtime';
+import type {FragmentType, GraphQLTaggedNode} from 'relay-runtime';
 
 const {useTrackLoadQueryInRender} = require('./loadQuery');
 const useFragmentNode = require('./useFragmentNode');
@@ -21,73 +21,54 @@ const useStaticFragmentNodeWarning = require('./useStaticFragmentNodeWarning');
 const {useDebugValue} = require('react');
 const {getFragment} = require('relay-runtime');
 
-// NOTE: These declares ensure that the type of the returned data is:
-//   - non-nullable if the provided ref type is non-nullable
-//   - nullable if the provided ref type is nullable
-//   - array of non-nullable if the privoided ref type is an array of
-//     non-nullable refs
-//   - array of nullable if the privoided ref type is an array of nullable refs
-
+// if the key is non-nullable, return non-nullable value
 declare function useFragment<
-  TKey: {+$data?: mixed, +$fragmentRefs: FragmentReference, ...},
+  TKey: {+$data?: mixed, +$fragmentSpreads: FragmentType, ...},
 >(
-  fragmentInput: GraphQLTaggedNode,
-  fragmentRef: TKey,
-): $Call<<TFragmentData>({+$data?: TFragmentData, ...}) => TFragmentData, TKey>;
+  fragment: GraphQLTaggedNode,
+  key: TKey,
+): $Call<<TData>({+$data?: TData, ...}) => TData, TKey>;
 
+// if the key is nullable, return nullable value
 declare function useFragment<
-  TKey: ?{+$data?: mixed, +$fragmentRefs: FragmentReference, ...},
+  TKey: ?{+$data?: mixed, +$fragmentSpreads: FragmentType, ...},
 >(
-  fragmentInput: GraphQLTaggedNode,
-  fragmentRef: TKey,
-): $Call<
-  <TFragmentData>(?{+$data?: TFragmentData, ...}) => ?TFragmentData,
-  TKey,
->;
+  fragment: GraphQLTaggedNode,
+  key: TKey,
+): $Call<<TData>(?{+$data?: TData, ...}) => ?TData, TKey>;
 
+// if the key is a non-nullable array of keys, return non-nullable array
 declare function useFragment<
   TKey: $ReadOnlyArray<{
     +$data?: mixed,
-    +$fragmentRefs: FragmentReference,
+    +$fragmentSpreads: FragmentType,
     ...
   }>,
 >(
-  fragmentInput: GraphQLTaggedNode,
-  fragmentRef: TKey,
-): $Call<
-  <TFragmentData>(
-    $ReadOnlyArray<{+$data?: TFragmentData, ...}>,
-  ) => TFragmentData,
-  TKey,
->;
+  fragment: GraphQLTaggedNode,
+  key: TKey,
+): $Call<<TData>($ReadOnlyArray<{+$data?: TData, ...}>) => TData, TKey>;
 
+// if the key is a nullable array of keys, return nullable array
 declare function useFragment<
   TKey: ?$ReadOnlyArray<{
     +$data?: mixed,
-    +$fragmentRefs: FragmentReference,
+    +$fragmentSpreads: FragmentType,
     ...
   }>,
 >(
-  fragmentInput: GraphQLTaggedNode,
-  fragmentRef: TKey,
-): $Call<
-  <TFragmentData>(
-    ?$ReadOnlyArray<{+$data?: TFragmentData, ...}>,
-  ) => ?TFragmentData,
-  TKey,
->;
+  fragment: GraphQLTaggedNode,
+  key: TKey,
+): $Call<<TData>(?$ReadOnlyArray<{+$data?: TData, ...}>) => ?TData, TKey>;
 
-function useFragment(
-  fragmentInput: GraphQLTaggedNode,
-  fragmentRef: mixed,
-): mixed {
+function useFragment(fragment: GraphQLTaggedNode, key: mixed): mixed {
   // We need to use this hook in order to be able to track if
   // loadQuery was called during render
   useTrackLoadQueryInRender();
 
-  const fragmentNode = getFragment(fragmentInput);
+  const fragmentNode = getFragment(fragment);
   useStaticFragmentNodeWarning(fragmentNode, 'first argument of useFragment()');
-  const {data} = useFragmentNode<_>(fragmentNode, fragmentRef, 'useFragment()');
+  const {data} = useFragmentNode<_>(fragmentNode, key, 'useFragment()');
   if (__DEV__) {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     useDebugValue({fragment: fragmentNode.name, data});

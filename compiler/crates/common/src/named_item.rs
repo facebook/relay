@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use interner::StringKey;
+use intern::string_key::StringKey;
 
 /// Utility to access an item in a list by its name where name is defined by the
 /// `Named` trait.

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<03c114321dc6583dea4d617bf0b208aa>>
+ * @generated SignedSource<<71bdb7290f1b51fd3bf60fa858bcec8d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,11 +15,12 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
+import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { ActorChangePoint } from "react-relay/multi-actor";
-type ActorChangeWithMutationTestFragment$ref = any;
-export type ActorChangeWithMutationTestQueryVariables = {||};
-export type ActorChangeWithMutationTestQueryResponse = {|
+type ActorChangeWithMutationTestFragment$fragmentType = any;
+export type ActorChangeWithMutationTestQuery$variables = {||};
+export type ActorChangeWithMutationTestQueryVariables = ActorChangeWithMutationTestQuery$variables;
+export type ActorChangeWithMutationTestQuery$data = {|
   +viewer: ?{|
     +actor: ?{|
       +id: string,
@@ -29,15 +30,16 @@ export type ActorChangeWithMutationTestQueryResponse = {|
       +edges: ?$ReadOnlyArray<?{|
         +node: ?ActorChangePoint<{|
           +actor_key: string,
-          +$fragmentRefs: ActorChangeWithMutationTestFragment$ref,
+          +$fragmentSpreads: ActorChangeWithMutationTestFragment$fragmentType,
         |}>,
       |}>,
     |},
   |},
 |};
+export type ActorChangeWithMutationTestQueryResponse = ActorChangeWithMutationTestQuery$data;
 export type ActorChangeWithMutationTestQuery = {|
   variables: ActorChangeWithMutationTestQueryVariables,
-  response: ActorChangeWithMutationTestQueryResponse,
+  response: ActorChangeWithMutationTestQuery$data,
 |};
 */
 
@@ -231,4 +233,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "f97bcaa13a859b2b03d3e1ae718f37ae";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  ActorChangeWithMutationTestQuery$variables,
+  ActorChangeWithMutationTestQuery$data,
+>*/);

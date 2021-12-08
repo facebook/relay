@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<fd6ad4a532cc5a25d6f5b25e6a4589cc>>
+ * @generated SignedSource<<aafb456d23722ded35a94fe8b583f7af>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,20 +15,20 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-type GraphQLTagTest5UserFragment$ref = any;
-type GraphQLTagTest5UserFragment$fragmentType = any;
-export type { GraphQLTagTest5UserFragment$ref, GraphQLTagTest5UserFragment$fragmentType };
-export type GraphQLTagTest5UserFragment = {|
+import type { ReaderFragment, RefetchableFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type GraphQLTagTest5UserFragment$fragmentType: FragmentType;
+export type GraphQLTagTest5UserFragment$ref = GraphQLTagTest5UserFragment$fragmentType;
+type GraphQLTagTestUserFragment3RefetchQuery$variables = any;
+export type GraphQLTagTest5UserFragment$data = {|
   +id: string,
   +name: ?string,
-  +$refType: GraphQLTagTest5UserFragment$ref,
+  +$fragmentType: GraphQLTagTest5UserFragment$fragmentType,
 |};
-export type GraphQLTagTest5UserFragment$data = GraphQLTagTest5UserFragment;
+export type GraphQLTagTest5UserFragment = GraphQLTagTest5UserFragment$data;
 export type GraphQLTagTest5UserFragment$key = {
   +$data?: GraphQLTagTest5UserFragment$data,
-  +$fragmentRefs: GraphQLTagTest5UserFragment$ref,
+  +$fragmentSpreads: GraphQLTagTest5UserFragment$fragmentType,
   ...
 };
 */
@@ -71,4 +71,8 @@ if (__DEV__) {
   (node/*: any*/).hash = "8c6f16917d7019fa1e958f35d43ef8f5";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: RefetchableFragment<
+  GraphQLTagTest5UserFragment$fragmentType,
+  GraphQLTagTest5UserFragment$data,
+  GraphQLTagTestUserFragment3RefetchQuery$variables,
+>*/);

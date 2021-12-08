@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<99350e1a35920d43658cac40c59974d8>>
+ * @generated SignedSource<<1c990471b464ece718c2b32dbf1bf629>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,19 +15,21 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type DataCheckerTest6Fragment$ref = any;
-export type DataCheckerTest9QueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type DataCheckerTest6Fragment$fragmentType = any;
+export type DataCheckerTest9Query$variables = {|
   id: string,
 |};
-export type DataCheckerTest9QueryResponse = {|
+export type DataCheckerTest9QueryVariables = DataCheckerTest9Query$variables;
+export type DataCheckerTest9Query$data = {|
   +node: ?{|
-    +$fragmentRefs: DataCheckerTest6Fragment$ref,
+    +$fragmentSpreads: DataCheckerTest6Fragment$fragmentType,
   |},
 |};
+export type DataCheckerTest9QueryResponse = DataCheckerTest9Query$data;
 export type DataCheckerTest9Query = {|
   variables: DataCheckerTest9QueryVariables,
-  response: DataCheckerTest9QueryResponse,
+  response: DataCheckerTest9Query$data,
 |};
 */
 
@@ -149,4 +151,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "ae64013fff9f02d31b27ea607016ea03";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  DataCheckerTest9Query$variables,
+  DataCheckerTest9Query$data,
+>*/);

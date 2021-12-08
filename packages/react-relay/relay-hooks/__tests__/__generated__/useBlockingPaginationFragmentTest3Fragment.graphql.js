@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<406b7f3e99f1e6326210a36a0de5ee9b>>
+ * @generated SignedSource<<7071e8255bcfb9de0a30af99778db501>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,18 +15,18 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type useBlockingPaginationFragmentTest3Fragment$ref: FragmentReference;
-declare export opaque type useBlockingPaginationFragmentTest3Fragment$fragmentType: useBlockingPaginationFragmentTest3Fragment$ref;
-export type useBlockingPaginationFragmentTest3Fragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type useBlockingPaginationFragmentTest3Fragment$fragmentType: FragmentType;
+export type useBlockingPaginationFragmentTest3Fragment$ref = useBlockingPaginationFragmentTest3Fragment$fragmentType;
+export type useBlockingPaginationFragmentTest3Fragment$data = {|
   +id: string,
-  +$refType: useBlockingPaginationFragmentTest3Fragment$ref,
+  +$fragmentType: useBlockingPaginationFragmentTest3Fragment$fragmentType,
 |};
-export type useBlockingPaginationFragmentTest3Fragment$data = useBlockingPaginationFragmentTest3Fragment;
+export type useBlockingPaginationFragmentTest3Fragment = useBlockingPaginationFragmentTest3Fragment$data;
 export type useBlockingPaginationFragmentTest3Fragment$key = {
   +$data?: useBlockingPaginationFragmentTest3Fragment$data,
-  +$fragmentRefs: useBlockingPaginationFragmentTest3Fragment$ref,
+  +$fragmentSpreads: useBlockingPaginationFragmentTest3Fragment$fragmentType,
   ...
 };
 */
@@ -53,4 +53,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "7f61e10c85a362f8e5a7f814a4b92a5a";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  useBlockingPaginationFragmentTest3Fragment$fragmentType,
+  useBlockingPaginationFragmentTest3Fragment$data,
+>*/);

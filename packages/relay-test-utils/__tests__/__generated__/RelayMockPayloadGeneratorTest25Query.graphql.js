@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<7566e5568c696d4bf41a35cc49bc5d0a>>
+ * @generated SignedSource<<f0b81c9fb4cef0fc749056de5c9e756d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,18 +15,20 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-export type RelayMockPayloadGeneratorTest25QueryVariables = {||};
-export type RelayMockPayloadGeneratorTest25QueryResponse = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+export type RelayMockPayloadGeneratorTest25Query$variables = {||};
+export type RelayMockPayloadGeneratorTest25QueryVariables = RelayMockPayloadGeneratorTest25Query$variables;
+export type RelayMockPayloadGeneratorTest25Query$data = {|
   +node: ?{|
     +id?: string,
     +name?: ?string,
     +pageName?: ?string,
   |},
 |};
+export type RelayMockPayloadGeneratorTest25QueryResponse = RelayMockPayloadGeneratorTest25Query$data;
 export type RelayMockPayloadGeneratorTest25Query = {|
   variables: RelayMockPayloadGeneratorTest25QueryVariables,
-  response: RelayMockPayloadGeneratorTest25QueryResponse,
+  response: RelayMockPayloadGeneratorTest25Query$data,
 |};
 */
 
@@ -186,4 +188,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "2a2f3263c9309ccf610b5451867aba98";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayMockPayloadGeneratorTest25Query$variables,
+  RelayMockPayloadGeneratorTest25Query$data,
+>*/);

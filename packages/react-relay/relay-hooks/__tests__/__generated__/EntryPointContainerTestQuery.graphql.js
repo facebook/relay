@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<dfa512a8cedac9fbd77ab822060431be>>
+ * @generated SignedSource<<4ed8a52f6f7e7863316bd8c338450efc>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,19 +15,21 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-export type EntryPointContainerTestQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+export type EntryPointContainerTestQuery$variables = {|
   id: string,
 |};
-export type EntryPointContainerTestQueryResponse = {|
+export type EntryPointContainerTestQueryVariables = EntryPointContainerTestQuery$variables;
+export type EntryPointContainerTestQuery$data = {|
   +node: ?{|
     +id: string,
     +name?: ?string,
   |},
 |};
+export type EntryPointContainerTestQueryResponse = EntryPointContainerTestQuery$data;
 export type EntryPointContainerTestQuery = {|
   variables: EntryPointContainerTestQueryVariables,
-  response: EntryPointContainerTestQueryResponse,
+  response: EntryPointContainerTestQuery$data,
 |};
 */
 
@@ -134,4 +136,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "709de726e9b253337a1b621d3eb10b67";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  EntryPointContainerTestQuery$variables,
+  EntryPointContainerTestQuery$data,
+>*/);

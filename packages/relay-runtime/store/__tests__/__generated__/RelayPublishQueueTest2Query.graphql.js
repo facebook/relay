@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<8fef0dcdf0fc124c752bab33f2070d62>>
+ * @generated SignedSource<<675db8474499abe4eec6c98ba8e1f9ea>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,21 +15,23 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayPublishQueueTest1Fragment$ref = any;
-export type RelayPublishQueueTest2QueryVariables = {||};
-export type RelayPublishQueueTest2QueryResponse = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayPublishQueueTest1Fragment$fragmentType = any;
+export type RelayPublishQueueTest2Query$variables = {||};
+export type RelayPublishQueueTest2QueryVariables = RelayPublishQueueTest2Query$variables;
+export type RelayPublishQueueTest2Query$data = {|
   +me: ?{|
     +name: ?string,
-    +$fragmentRefs: RelayPublishQueueTest1Fragment$ref,
+    +$fragmentSpreads: RelayPublishQueueTest1Fragment$fragmentType,
   |},
   +nodes: ?$ReadOnlyArray<?{|
     +name: ?string,
   |}>,
 |};
+export type RelayPublishQueueTest2QueryResponse = RelayPublishQueueTest2Query$data;
 export type RelayPublishQueueTest2Query = {|
   variables: RelayPublishQueueTest2QueryVariables,
-  response: RelayPublishQueueTest2QueryResponse,
+  response: RelayPublishQueueTest2Query$data,
 |};
 */
 
@@ -160,4 +162,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "9e3fda617497404bfeeca390667294e5";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayPublishQueueTest2Query$variables,
+  RelayPublishQueueTest2Query$data,
+>*/);

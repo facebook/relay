@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<83af292a4717ebb3d26e278975e136af>>
+ * @generated SignedSource<<7f158c8b6c6bb09443e494650c733532>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,20 +15,22 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type ReactRelayRefetchContainerWithFragmentOwnershipTestUserFragment$ref = any;
-export type ReactRelayRefetchContainerWithFragmentOwnershipTestUserQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type ReactRelayRefetchContainerWithFragmentOwnershipTestUserFragment$fragmentType = any;
+export type ReactRelayRefetchContainerWithFragmentOwnershipTestUserQuery$variables = {|
   id: string,
   scale: number,
 |};
-export type ReactRelayRefetchContainerWithFragmentOwnershipTestUserQueryResponse = {|
+export type ReactRelayRefetchContainerWithFragmentOwnershipTestUserQueryVariables = ReactRelayRefetchContainerWithFragmentOwnershipTestUserQuery$variables;
+export type ReactRelayRefetchContainerWithFragmentOwnershipTestUserQuery$data = {|
   +node: ?{|
-    +$fragmentRefs: ReactRelayRefetchContainerWithFragmentOwnershipTestUserFragment$ref,
+    +$fragmentSpreads: ReactRelayRefetchContainerWithFragmentOwnershipTestUserFragment$fragmentType,
   |},
 |};
+export type ReactRelayRefetchContainerWithFragmentOwnershipTestUserQueryResponse = ReactRelayRefetchContainerWithFragmentOwnershipTestUserQuery$data;
 export type ReactRelayRefetchContainerWithFragmentOwnershipTestUserQuery = {|
   variables: ReactRelayRefetchContainerWithFragmentOwnershipTestUserQueryVariables,
-  response: ReactRelayRefetchContainerWithFragmentOwnershipTestUserQueryResponse,
+  response: ReactRelayRefetchContainerWithFragmentOwnershipTestUserQuery$data,
 |};
 */
 
@@ -172,4 +174,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "226c6570b64b74227f1cd9b069e9815e";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  ReactRelayRefetchContainerWithFragmentOwnershipTestUserQuery$variables,
+  ReactRelayRefetchContainerWithFragmentOwnershipTestUserQuery$data,
+>*/);

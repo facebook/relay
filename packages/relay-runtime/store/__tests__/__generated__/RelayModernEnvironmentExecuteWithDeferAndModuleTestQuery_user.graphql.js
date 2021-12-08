@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<512957eefffcbdfd43e5ad3715eac591>>
+ * @generated SignedSource<<a587e80d23472336cd13962959702518>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,19 +15,19 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user$ref: FragmentReference;
-declare export opaque type RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user$fragmentType: RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user$ref;
-export type RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user$fragmentType: FragmentType;
+export type RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user$ref = RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user$fragmentType;
+export type RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user$data = {|
   +id: string,
   +name: ?string,
-  +$refType: RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user$ref,
+  +$fragmentType: RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user$fragmentType,
 |};
-export type RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user$data = RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user;
+export type RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user = RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user$data;
 export type RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user$key = {
   +$data?: RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user$data,
-  +$fragmentRefs: RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user$ref,
+  +$fragmentSpreads: RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user$fragmentType,
   ...
 };
 */
@@ -61,4 +61,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "8fb94afd920ae45f035f75359e26d76e";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user$fragmentType,
+  RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user$data,
+>*/);

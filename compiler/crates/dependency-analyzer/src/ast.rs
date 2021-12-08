@@ -7,7 +7,7 @@
 
 use fnv::{FnvHashMap, FnvHashSet};
 use graphql_syntax::*;
-use interner::StringKey;
+use intern::string_key::StringKey;
 
 pub struct ReachableAst {
     /// The definitions that need to be compiled, includes the project

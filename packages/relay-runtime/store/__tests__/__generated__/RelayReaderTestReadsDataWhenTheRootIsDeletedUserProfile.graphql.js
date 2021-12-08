@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a7cec5db79636b4ba0984292189ece72>>
+ * @generated SignedSource<<3e5b08687eef0a0d8a159546ecd90f8c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,18 +15,18 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayReaderTestReadsDataWhenTheRootIsDeletedUserProfile$ref: FragmentReference;
-declare export opaque type RelayReaderTestReadsDataWhenTheRootIsDeletedUserProfile$fragmentType: RelayReaderTestReadsDataWhenTheRootIsDeletedUserProfile$ref;
-export type RelayReaderTestReadsDataWhenTheRootIsDeletedUserProfile = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayReaderTestReadsDataWhenTheRootIsDeletedUserProfile$fragmentType: FragmentType;
+export type RelayReaderTestReadsDataWhenTheRootIsDeletedUserProfile$ref = RelayReaderTestReadsDataWhenTheRootIsDeletedUserProfile$fragmentType;
+export type RelayReaderTestReadsDataWhenTheRootIsDeletedUserProfile$data = {|
   +name: ?string,
-  +$refType: RelayReaderTestReadsDataWhenTheRootIsDeletedUserProfile$ref,
+  +$fragmentType: RelayReaderTestReadsDataWhenTheRootIsDeletedUserProfile$fragmentType,
 |};
-export type RelayReaderTestReadsDataWhenTheRootIsDeletedUserProfile$data = RelayReaderTestReadsDataWhenTheRootIsDeletedUserProfile;
+export type RelayReaderTestReadsDataWhenTheRootIsDeletedUserProfile = RelayReaderTestReadsDataWhenTheRootIsDeletedUserProfile$data;
 export type RelayReaderTestReadsDataWhenTheRootIsDeletedUserProfile$key = {
   +$data?: RelayReaderTestReadsDataWhenTheRootIsDeletedUserProfile$data,
-  +$fragmentRefs: RelayReaderTestReadsDataWhenTheRootIsDeletedUserProfile$ref,
+  +$fragmentSpreads: RelayReaderTestReadsDataWhenTheRootIsDeletedUserProfile$fragmentType,
   ...
 };
 */
@@ -53,4 +53,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "0c8e161f9c5782db22155b040edaf569";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayReaderTestReadsDataWhenTheRootIsDeletedUserProfile$fragmentType,
+  RelayReaderTestReadsDataWhenTheRootIsDeletedUserProfile$data,
+>*/);

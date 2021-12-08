@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<c6a073fb3d4b7a34ce8847ae8143eb0d>>
+ * @generated SignedSource<<62e43e21ed026fcb7326c0423720b27b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,21 +15,21 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type fetchQueryInternalTestPlain1Fragment_name$ref: FragmentReference;
-declare export opaque type fetchQueryInternalTestPlain1Fragment_name$fragmentType: fetchQueryInternalTestPlain1Fragment_name$ref;
-export type fetchQueryInternalTestPlain1Fragment_name = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type fetchQueryInternalTestPlain1Fragment_name$fragmentType: FragmentType;
+export type fetchQueryInternalTestPlain1Fragment_name$ref = fetchQueryInternalTestPlain1Fragment_name$fragmentType;
+export type fetchQueryInternalTestPlain1Fragment_name$data = {|
   +plaintext: ?string,
   +data: ?{|
     +text: ?string,
   |},
-  +$refType: fetchQueryInternalTestPlain1Fragment_name$ref,
+  +$fragmentType: fetchQueryInternalTestPlain1Fragment_name$fragmentType,
 |};
-export type fetchQueryInternalTestPlain1Fragment_name$data = fetchQueryInternalTestPlain1Fragment_name;
+export type fetchQueryInternalTestPlain1Fragment_name = fetchQueryInternalTestPlain1Fragment_name$data;
 export type fetchQueryInternalTestPlain1Fragment_name$key = {
   +$data?: fetchQueryInternalTestPlain1Fragment_name$data,
-  +$fragmentRefs: fetchQueryInternalTestPlain1Fragment_name$ref,
+  +$fragmentSpreads: fetchQueryInternalTestPlain1Fragment_name$fragmentType,
   ...
 };
 */
@@ -74,4 +74,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "9139e547ef85f3488c8201562db74a98";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  fetchQueryInternalTestPlain1Fragment_name$fragmentType,
+  fetchQueryInternalTestPlain1Fragment_name$data,
+>*/);

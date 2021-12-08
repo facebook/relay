@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<4d237385dbd0979b56ba69fbe520e2ab>>
+ * @generated SignedSource<<48102b078979f827d0fd540c7d20a322>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,18 +15,20 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-export type useQueryLoaderLiveQueryTestQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+export type useQueryLoaderLiveQueryTestQuery$variables = {|
   id: string,
 |};
-export type useQueryLoaderLiveQueryTestQueryResponse = {|
+export type useQueryLoaderLiveQueryTestQueryVariables = useQueryLoaderLiveQueryTestQuery$variables;
+export type useQueryLoaderLiveQueryTestQuery$data = {|
   +node: ?{|
     +id: string,
   |},
 |};
+export type useQueryLoaderLiveQueryTestQueryResponse = useQueryLoaderLiveQueryTestQuery$data;
 export type useQueryLoaderLiveQueryTestQuery = {|
   variables: useQueryLoaderLiveQueryTestQueryVariables,
-  response: useQueryLoaderLiveQueryTestQueryResponse,
+  response: useQueryLoaderLiveQueryTestQuery$data,
 |};
 */
 
@@ -121,4 +123,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "db84fb335c4f305e0de63d1246959f74";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  useQueryLoaderLiveQueryTestQuery$variables,
+  useQueryLoaderLiveQueryTestQuery$data,
+>*/);

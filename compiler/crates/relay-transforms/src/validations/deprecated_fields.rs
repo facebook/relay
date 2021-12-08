@@ -11,7 +11,7 @@ use common::{Diagnostic, DiagnosticTag, DiagnosticsResult, NamedItem, WithLocati
 use graphql_ir::{
     ExecutableDefinition, LinkedField, Program, ScalarField, ValidationMessage, Validator, Value,
 };
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey};
 use lazy_static::lazy_static;
 use schema::{FieldID, SDLSchema, Schema};
 
@@ -55,7 +55,7 @@ impl<'a> DeprecatedFields<'a> {
         }
     }
 
-    fn validate_field(&mut self, field_id: &WithLocation<FieldID>) -> () {
+    fn validate_field(&mut self, field_id: &WithLocation<FieldID>) {
         let schema = &self.schema;
         let field_definition = schema.field(field_id.item);
         if let Some(directive) = field_definition.directives.named(*DIRECTIVE_DEPRECATED) {

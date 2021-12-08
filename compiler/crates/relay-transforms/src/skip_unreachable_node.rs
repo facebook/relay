@@ -16,7 +16,7 @@ use graphql_ir::{
     LinkedField, Program, Selection, Transformed, TransformedMulti, TransformedValue, Transformer,
     Value,
 };
-use interner::StringKey;
+use intern::string_key::StringKey;
 use std::sync::Arc;
 
 pub fn skip_unreachable_node(program: &Program) -> DiagnosticsResult<Program> {
@@ -193,7 +193,7 @@ impl<'s> SkipUnreachableNodeTransform<'s> {
         if let Some(fragment) = self.program.fragment(key) {
             self.visited_fragments
                 .insert(key, (Arc::clone(fragment), Transformed::Keep));
-            let transformed = self.transform_fragment(&fragment);
+            let transformed = self.transform_fragment(fragment);
             let should_delete = matches!(transformed, Transformed::Delete);
 
             // N.B. we must call self.visited_fragments.get* twice, because we cannot have
@@ -203,7 +203,7 @@ impl<'s> SkipUnreachableNodeTransform<'s> {
             *visited_opt = transformed;
             should_delete
         } else {
-            return true;
+            true
         }
     }
 

@@ -13,7 +13,7 @@ use graphql_ir::{
     Value,
 };
 use graphql_syntax::OperationKind;
-use interner::Intern;
+use intern::string_key::Intern;
 use schema::{FieldID, Schema, Type, TypeReference};
 use std::sync::Arc;
 

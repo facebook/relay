@@ -1,0 +1,37 @@
+==================================== INPUT ====================================
+query UpdatableQuery @updatable {
+  viewer {
+    ...Updatable_viewer
+  }
+}
+
+fragment Updatable_viewer on Viewer @assignable {
+  __typename
+}
+==================================== OUTPUT ===================================
+import type { Updatable_viewer$fragmentType } from "Updatable_viewer.graphql";
+export type UpdatableQuery$variables = {||};
+export type UpdatableQuery$data = {|
+  get viewer(): ?{||},
+  set viewer(value: ?{
+    +$fragmentSpreads: Updatable_viewer$fragmentType,
+    ...
+  }): void,
+|};
+-------------------------------------------------------------------------------
+import type { FragmentType } from "relay-runtime";
+declare export opaque type Updatable_viewer$fragmentType: FragmentType;
+export type Updatable_viewer$data = {|
+  +__typename: "Viewer",
+  +$fragmentType: Updatable_viewer$fragmentType,
+|} | {|
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  +__typename: "%other",
+  +$fragmentType: Updatable_viewer$fragmentType,
+|};
+export type Updatable_viewer$key = {
+  +$data?: Updatable_viewer$data,
+  +$fragmentSpreads: Updatable_viewer$fragmentType,
+  ...
+};

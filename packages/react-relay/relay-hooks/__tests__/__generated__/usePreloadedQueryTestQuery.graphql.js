@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<9f6008b0688c39932174fe19f3d7ba22>>
+ * @generated SignedSource<<3ebdf5c8c0704e54c968684bbe56fa56>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,19 +15,21 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-export type usePreloadedQueryTestQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+export type usePreloadedQueryTestQuery$variables = {|
   id: string,
 |};
-export type usePreloadedQueryTestQueryResponse = {|
+export type usePreloadedQueryTestQueryVariables = usePreloadedQueryTestQuery$variables;
+export type usePreloadedQueryTestQuery$data = {|
   +node: ?{|
     +id: string,
     +name?: ?string,
   |},
 |};
+export type usePreloadedQueryTestQueryResponse = usePreloadedQueryTestQuery$data;
 export type usePreloadedQueryTestQuery = {|
   variables: usePreloadedQueryTestQueryVariables,
-  response: usePreloadedQueryTestQueryResponse,
+  response: usePreloadedQueryTestQuery$data,
 |};
 */
 
@@ -134,4 +136,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "7957e9c42a4dbad04f1c2fc97aed3bed";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  usePreloadedQueryTestQuery$variables,
+  usePreloadedQueryTestQuery$data,
+>*/);

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<872db3241373c0959a9383b3a00e5d78>>
+ * @generated SignedSource<<cafdbcf07761938732a21eaee440a3b1>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,21 +15,23 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type usePreloadedQueryReactDoubleEffectsTestFragment$ref = any;
-export type usePreloadedQueryReactDoubleEffectsTestQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type usePreloadedQueryReactDoubleEffectsTestFragment$fragmentType = any;
+export type usePreloadedQueryReactDoubleEffectsTestQuery$variables = {|
   id?: ?string,
 |};
-export type usePreloadedQueryReactDoubleEffectsTestQueryResponse = {|
+export type usePreloadedQueryReactDoubleEffectsTestQueryVariables = usePreloadedQueryReactDoubleEffectsTestQuery$variables;
+export type usePreloadedQueryReactDoubleEffectsTestQuery$data = {|
   +node: ?{|
     +id: string,
     +name: ?string,
-    +$fragmentRefs: usePreloadedQueryReactDoubleEffectsTestFragment$ref,
+    +$fragmentSpreads: usePreloadedQueryReactDoubleEffectsTestFragment$fragmentType,
   |},
 |};
+export type usePreloadedQueryReactDoubleEffectsTestQueryResponse = usePreloadedQueryReactDoubleEffectsTestQuery$data;
 export type usePreloadedQueryReactDoubleEffectsTestQuery = {|
   variables: usePreloadedQueryReactDoubleEffectsTestQueryVariables,
-  response: usePreloadedQueryReactDoubleEffectsTestQueryResponse,
+  response: usePreloadedQueryReactDoubleEffectsTestQuery$data,
 |};
 */
 
@@ -148,4 +150,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "0bbeeb14ab9e57bc7a6ae0d7486fcb9a";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  usePreloadedQueryReactDoubleEffectsTestQuery$variables,
+  usePreloadedQueryReactDoubleEffectsTestQuery$data,
+>*/);

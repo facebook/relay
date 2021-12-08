@@ -21,7 +21,7 @@ use graphql_syntax::{
     ExecutableDocument, FragmentSpread, InlineFragment, LinkedField, List, OperationDefinition,
     OperationKind, ScalarField, Selection, TokenKind, Value,
 };
-use interner::StringKey;
+use intern::string_key::StringKey;
 use log::debug;
 use lsp_types::{
     request::{Completion, Request, ResolveCompletionItem},
@@ -141,11 +141,10 @@ impl CompletionRequestBuilder {
             match &definition {
                 ExecutableDefinition::Operation(operation) => {
                     if operation.location.contains(position_span) {
-                        self.current_executable_name = if let Some(name) = &operation.name {
-                            Some(ExecutableName::Operation(name.value))
-                        } else {
-                            None
-                        };
+                        self.current_executable_name = operation
+                            .name
+                            .as_ref()
+                            .map(|name| ExecutableName::Operation(name.value));
                         let (_, kind) = operation.operation.clone()?;
                         let type_path = vec![TypePathItem::Operation(kind)];
 

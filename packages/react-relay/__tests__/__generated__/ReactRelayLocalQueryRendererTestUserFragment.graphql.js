@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<03a4763a868d1c0b0dd103907cd90e2a>>
+ * @generated SignedSource<<9afe67e947d6e1bd8370e774f5f4bd6d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,18 +15,18 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type ReactRelayLocalQueryRendererTestUserFragment$ref: FragmentReference;
-declare export opaque type ReactRelayLocalQueryRendererTestUserFragment$fragmentType: ReactRelayLocalQueryRendererTestUserFragment$ref;
-export type ReactRelayLocalQueryRendererTestUserFragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type ReactRelayLocalQueryRendererTestUserFragment$fragmentType: FragmentType;
+export type ReactRelayLocalQueryRendererTestUserFragment$ref = ReactRelayLocalQueryRendererTestUserFragment$fragmentType;
+export type ReactRelayLocalQueryRendererTestUserFragment$data = {|
   +name: ?string,
-  +$refType: ReactRelayLocalQueryRendererTestUserFragment$ref,
+  +$fragmentType: ReactRelayLocalQueryRendererTestUserFragment$fragmentType,
 |};
-export type ReactRelayLocalQueryRendererTestUserFragment$data = ReactRelayLocalQueryRendererTestUserFragment;
+export type ReactRelayLocalQueryRendererTestUserFragment = ReactRelayLocalQueryRendererTestUserFragment$data;
 export type ReactRelayLocalQueryRendererTestUserFragment$key = {
   +$data?: ReactRelayLocalQueryRendererTestUserFragment$data,
-  +$fragmentRefs: ReactRelayLocalQueryRendererTestUserFragment$ref,
+  +$fragmentSpreads: ReactRelayLocalQueryRendererTestUserFragment$fragmentType,
   ...
 };
 */
@@ -53,4 +53,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "ddc7f8cccfd6dfe3505da3973a3e046f";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  ReactRelayLocalQueryRendererTestUserFragment$fragmentType,
+  ReactRelayLocalQueryRendererTestUserFragment$data,
+>*/);

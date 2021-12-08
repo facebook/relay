@@ -44,7 +44,7 @@ extend type User {
 Accessing local data is no different from querying your GraphQL server, although you are required to include atleast one server field in the query.
 The field can be from the server schema, or it can be schema agnostic, like an introspection field (i.e. `__typename`).
 
-Here, we use a [QueryRenderer](./query-renderer) to get the current `User` via the `viewer` field, along with their id, name and the local list of notes.
+Here, we use a [QueryRenderer](Modern-QueryRenderer.md) to get the current `User` via the `viewer` field, along with their id, name and the local list of notes.
 
 ```javascript
 // Example.js
@@ -96,7 +96,7 @@ const Example = (props) => {
 
 ## Mutating local state
 
-All local data lives in the [Relay Store](./relay-store).
+All local data lives in the [Relay Store](Modern-RelayStore.md).
 Updating local state can be done with any `updater` function.
 The `commitLocalUpdate` function is especially ideal for this, because writes to local state are usually executed outside of a mutation.
 

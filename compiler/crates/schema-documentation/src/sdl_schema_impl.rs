@@ -7,7 +7,7 @@
 
 use crate::SchemaDocumentation;
 
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey};
 use schema::{Field, SDLSchema, Schema, Type};
 
 impl SchemaDocumentation for SDLSchema {

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<f9de8cd51c10c6e5e4d66cc197e0645e>>
+ * @generated SignedSource<<ce58c85099cc870e348313b9f5d3294a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,19 +15,21 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type ReactRelayFragmentContainerTestUserFragment$ref = any;
-export type ReactRelayFragmentContainerTestUserQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type ReactRelayFragmentContainerTestUserFragment$fragmentType = any;
+export type ReactRelayFragmentContainerTestUserQuery$variables = {|
   id: string,
 |};
-export type ReactRelayFragmentContainerTestUserQueryResponse = {|
+export type ReactRelayFragmentContainerTestUserQueryVariables = ReactRelayFragmentContainerTestUserQuery$variables;
+export type ReactRelayFragmentContainerTestUserQuery$data = {|
   +node: ?{|
-    +$fragmentRefs: ReactRelayFragmentContainerTestUserFragment$ref,
+    +$fragmentSpreads: ReactRelayFragmentContainerTestUserFragment$fragmentType,
   |},
 |};
+export type ReactRelayFragmentContainerTestUserQueryResponse = ReactRelayFragmentContainerTestUserQuery$data;
 export type ReactRelayFragmentContainerTestUserQuery = {|
   variables: ReactRelayFragmentContainerTestUserQueryVariables,
-  response: ReactRelayFragmentContainerTestUserQueryResponse,
+  response: ReactRelayFragmentContainerTestUserQuery$data,
 |};
 */
 
@@ -135,4 +137,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "0e22a390b8b36d761b73909bcdbaf606";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  ReactRelayFragmentContainerTestUserQuery$variables,
+  ReactRelayFragmentContainerTestUserQuery$data,
+>*/);

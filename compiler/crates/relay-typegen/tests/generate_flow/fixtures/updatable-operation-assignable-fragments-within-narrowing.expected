@@ -1,0 +1,78 @@
+==================================== INPUT ====================================
+query UpdatableQuery @updatable {
+  me {
+    actor {
+      ... on User {
+        __typename
+        ...Updatable_user
+      }
+      ... on Page {
+        __typename
+        ...Updatable_page
+      }
+    }
+  }
+}
+
+fragment Updatable_user on User @assignable {
+  __typename
+}
+
+fragment Updatable_page on Page @assignable {
+  __typename
+}
+==================================== OUTPUT ===================================
+import type { Updatable_page$fragmentType } from "Updatable_page.graphql";
+import type { Updatable_user$fragmentType } from "Updatable_user.graphql";
+export type UpdatableQuery$variables = {||};
+export type UpdatableQuery$data = {|
+  +me: ?{|
+    get actor(): ?({|
+      +__typename: "User",
+    |} | {|
+      +__typename: "Page",
+    |} | {|
+      // This will never be '%other', but we need some
+      // value in case none of the concrete values match.
+      +__typename: "%other",
+    |}),
+    set actor(value: ?{
+      +$fragmentSpreads: Updatable_user$fragmentType | Updatable_page$fragmentType,
+      ...
+    }): void,
+  |},
+|};
+-------------------------------------------------------------------------------
+import type { FragmentType } from "relay-runtime";
+declare export opaque type Updatable_page$fragmentType: FragmentType;
+export type Updatable_page$data = {|
+  +__typename: "Page",
+  +$fragmentType: Updatable_page$fragmentType,
+|} | {|
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  +__typename: "%other",
+  +$fragmentType: Updatable_page$fragmentType,
+|};
+export type Updatable_page$key = {
+  +$data?: Updatable_page$data,
+  +$fragmentSpreads: Updatable_page$fragmentType,
+  ...
+};
+-------------------------------------------------------------------------------
+import type { FragmentType } from "relay-runtime";
+declare export opaque type Updatable_user$fragmentType: FragmentType;
+export type Updatable_user$data = {|
+  +__typename: "User",
+  +$fragmentType: Updatable_user$fragmentType,
+|} | {|
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  +__typename: "%other",
+  +$fragmentType: Updatable_user$fragmentType,
+|};
+export type Updatable_user$key = {
+  +$data?: Updatable_user$data,
+  +$fragmentSpreads: Updatable_user$fragmentType,
+  ...
+};

@@ -10,7 +10,7 @@ use crate::in_memory::InMemorySchema;
 use crate::{flatbuffer::SchemaWrapper, graphql_schema::Schema};
 use common::DiagnosticsResult;
 use graphql_syntax::*;
-use interner::StringKey;
+use intern::string_key::StringKey;
 
 #[derive(Debug)]
 pub enum SDLSchema {

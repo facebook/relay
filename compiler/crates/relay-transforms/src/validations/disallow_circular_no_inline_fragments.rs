@@ -8,10 +8,9 @@
 use crate::no_inline::NO_INLINE_DIRECTIVE_NAME;
 use common::{Diagnostic, DiagnosticsResult, NamedItem};
 use fnv::FnvHashMap;
-use graphql_ir::{
-    FragmentDefinition, FragmentSpread, OperationDefinition, Program, ValidationMessage, Validator,
-};
-use interner::StringKey;
+use graphql_ir::{FragmentDefinition, FragmentSpread, OperationDefinition, Program, Validator};
+use intern::string_key::StringKey;
+use thiserror::Error;
 
 pub fn disallow_circular_no_inline_fragments(program: &Program) -> DiagnosticsResult<()> {
     let mut validator = DisallowCircularNoInlineFragments::new(program);
@@ -79,4 +78,10 @@ impl Validator for DisallowCircularNoInlineFragments<'_> {
         let fragment = self.program.fragment(spread.fragment.item).unwrap();
         self.validate_fragment(fragment)
     }
+}
+
+#[derive(Debug, Error)]
+enum ValidationMessage {
+    #[error("Found a circular reference from fragment '{fragment_name}'.")]
+    CircularFragmentReference { fragment_name: StringKey },
 }

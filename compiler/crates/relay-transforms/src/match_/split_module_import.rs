@@ -14,7 +14,7 @@ use graphql_ir::{
     Transformer,
 };
 use graphql_syntax::OperationKind;
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey};
 use schema::Schema;
 use std::sync::Arc;
 

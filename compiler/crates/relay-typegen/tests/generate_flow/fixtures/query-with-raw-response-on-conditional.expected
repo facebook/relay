@@ -16,17 +16,17 @@ fragment FriendFragment on User {
   }
 }
 ==================================== OUTPUT ===================================
-import type { FriendFragment$ref } from "FriendFragment.graphql";
-export type ExampleQueryVariables = {|
+import type { FriendFragment$fragmentType } from "FriendFragment.graphql";
+export type ExampleQuery$variables = {|
   id: string,
-  condition: boolean,
+  condition: CustomBoolean,
 |};
-export type ExampleQueryResponse = {|
+export type ExampleQuery$data = {|
   +node: ?{|
-    +$fragmentRefs: FriendFragment$ref,
+    +$fragmentSpreads: FriendFragment$fragmentType,
   |},
 |};
-export type ExampleQueryRawResponse = {|
+export type ExampleQuery$rawResponse = {|
   +node: ?({|
     +__typename: "User",
     +id: string,
@@ -41,27 +41,20 @@ export type ExampleQueryRawResponse = {|
     +id: string,
   |}),
 |};
-export type ExampleQuery = {|
-  variables: ExampleQueryVariables,
-  response: ExampleQueryResponse,
-  rawResponse: ExampleQueryRawResponse,
-|};
 -------------------------------------------------------------------------------
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type FriendFragment$ref: FragmentReference;
-declare export opaque type FriendFragment$fragmentType: FriendFragment$ref;
-export type FriendFragment = {|
+import type { FragmentType } from "relay-runtime";
+declare export opaque type FriendFragment$fragmentType: FragmentType;
+export type FriendFragment$data = {|
   +name?: ?string,
   +lastName?: ?string,
   +feedback?: ?{|
     +id: string,
     +name: ?string,
   |},
-  +$refType: FriendFragment$ref,
+  +$fragmentType: FriendFragment$fragmentType,
 |};
-export type FriendFragment$data = FriendFragment;
 export type FriendFragment$key = {
   +$data?: FriendFragment$data,
-  +$fragmentRefs: FriendFragment$ref,
+  +$fragmentSpreads: FriendFragment$fragmentType,
   ...
 };

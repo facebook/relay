@@ -10,7 +10,7 @@ use std::{fmt, hash::Hash};
 use common::WithLocation;
 use dashmap::DashMap;
 use fnv::FnvBuildHasher;
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey};
 use ouroboros::self_referencing;
 
 use crate::{
@@ -70,7 +70,7 @@ impl SchemaWrapper {
     pub fn from_vec(data: Vec<u8>) -> Self {
         let fb = OwnedFlatBufferSchemaBuilder {
             data,
-            schema_builder: |data| FlatBufferSchema::build(&data),
+            schema_builder: |data| FlatBufferSchema::build(data),
         }
         .build();
 

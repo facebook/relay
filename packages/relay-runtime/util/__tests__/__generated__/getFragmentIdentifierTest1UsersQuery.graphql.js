@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<0217d7c0b6822972a305b0fc63e70613>>
+ * @generated SignedSource<<b01380bdf0cbc563be652d576162d9df>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,20 +15,22 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type getFragmentIdentifierTest1UsersFragment$ref = any;
-export type getFragmentIdentifierTest1UsersQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type getFragmentIdentifierTest1UsersFragment$fragmentType = any;
+export type getFragmentIdentifierTest1UsersQuery$variables = {|
   ids: $ReadOnlyArray<string>,
   scale: number,
 |};
-export type getFragmentIdentifierTest1UsersQueryResponse = {|
+export type getFragmentIdentifierTest1UsersQueryVariables = getFragmentIdentifierTest1UsersQuery$variables;
+export type getFragmentIdentifierTest1UsersQuery$data = {|
   +nodes: ?$ReadOnlyArray<?{|
-    +$fragmentRefs: getFragmentIdentifierTest1UsersFragment$ref,
+    +$fragmentSpreads: getFragmentIdentifierTest1UsersFragment$fragmentType,
   |}>,
 |};
+export type getFragmentIdentifierTest1UsersQueryResponse = getFragmentIdentifierTest1UsersQuery$data;
 export type getFragmentIdentifierTest1UsersQuery = {|
   variables: getFragmentIdentifierTest1UsersQueryVariables,
-  response: getFragmentIdentifierTest1UsersQueryResponse,
+  response: getFragmentIdentifierTest1UsersQuery$data,
 |};
 */
 
@@ -172,4 +174,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "fb0794ec3f00a33b50bc7c089587963e";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  getFragmentIdentifierTest1UsersQuery$variables,
+  getFragmentIdentifierTest1UsersQuery$data,
+>*/);

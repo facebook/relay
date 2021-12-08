@@ -29,7 +29,11 @@ pub fn extract_module_name(path: &str) -> Option<String> {
 fn get_final_non_index_js_segment(path: &str) -> Option<&str> {
     let mut iter = path.split('/');
     let last_segment = iter.next_back()?;
-    if last_segment == "index.js" {
+    if last_segment == "index.js"
+        || last_segment == "index.jsx"
+        || last_segment == "index.ts"
+        || last_segment == "index.tsx"
+    {
         return iter.next_back();
     }
     Some(last_segment)
@@ -129,7 +133,19 @@ mod tests {
             Some("TypeScript".to_string())
         );
         assert_eq!(
+            extract_module_name("/path/TypeScript/index.ts"),
+            Some("TypeScript".to_string())
+        );
+        assert_eq!(
+            extract_module_name("/path/TypeScript/index.tsx"),
+            Some("TypeScript".to_string())
+        );
+        assert_eq!(
             extract_module_name("/path/button/index.js"),
+            Some("button".to_string())
+        );
+        assert_eq!(
+            extract_module_name("/path/button/index.jsx"),
             Some("button".to_string())
         );
         assert_eq!(

@@ -37,7 +37,7 @@ graphql-ir = { path = "../graphql-ir" }
 graphql-syntax = { path = "../graphql-syntax" }
 hex = "0.4.3"
 indexmap = { version = "1.7.0", features = ["rayon", "serde-1"] }
-interner = { path = "../interner" }
+intern = { path = "../intern" }
 lazy_static = "1.0"
 md-5 = "0.8"
 relay-transforms = { path = "../relay-transforms" }

@@ -9,4 +9,4 @@
 <Test>'</Test>
 graphql`fragment on User`
 ==================================== OUTPUT ===================================
-line: 8, column: 8, text: <fragment on User>
+graphql - line: 8, column: 8, text: <fragment on User>

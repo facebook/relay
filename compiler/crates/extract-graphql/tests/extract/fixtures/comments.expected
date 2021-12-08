@@ -19,5 +19,5 @@ graphql`ignored`
  **/
 graphql`not ignored 2`
 ==================================== OUTPUT ===================================
-line: 13, column: 18, text: <not ignored 1>
-line: 18, column: 8, text: <not ignored 2>
+graphql - line: 13, column: 18, text: <not ignored 1>
+graphql - line: 18, column: 8, text: <not ignored 2>

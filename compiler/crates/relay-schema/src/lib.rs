@@ -12,7 +12,7 @@
 #![deny(clippy::all)]
 
 use common::{DiagnosticsResult, SourceLocationKey};
-use interner::intern;
+use intern::intern;
 use schema::{ArgumentDefinitions, SDLSchema, TypeReference};
 use std::iter::once;
 
@@ -27,7 +27,7 @@ pub fn build_schema_with_extensions<T: AsRef<str>, U: AsRef<str>>(
             .chain(
                 extension_sdls
                     .iter()
-                    .map(|(source, location_key)| (source.as_ref(), location_key.clone())),
+                    .map(|(source, location_key)| (source.as_ref(), *location_key)),
             )
             .collect();
     let mut schema = schema::build_schema_with_extensions(server_sdls, &extensions)?;

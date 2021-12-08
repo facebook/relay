@@ -40,12 +40,12 @@ export type CommentfeedbackFeedback = {
 export type FeedbackcommentComment = {
   feedback?: CommentfeedbackFeedback | null;
 };
-export type CommentCreateMutationVariables = {
+export type CommentCreateMutation$variables = {
   input: CommentCreateInput;
   first?: number | null;
   orderBy?: ReadonlyArray<string> | null;
 };
-export type CommentCreateMutationResponse = {
+export type CommentCreateMutation$data = {
   readonly commentCreate: {
     readonly comment: {
       readonly friends: {
@@ -53,14 +53,14 @@ export type CommentCreateMutationResponse = {
           readonly node: {
             readonly id: string;
             readonly __typename: string;
-            readonly " $fragmentRefs": FragmentRefs<"FriendFragment">;
+            readonly " $fragmentSpreads": FragmentRefs<"FriendFragment">;
           } | null;
         } | null> | null;
       } | null;
     } | null;
   } | null;
 };
-export type CommentCreateMutationRawResponse = {
+export type CommentCreateMutation$rawResponse = {
   readonly commentCreate: {
     readonly comment: {
       readonly friends: {
@@ -81,23 +81,21 @@ export type CommentCreateMutationRawResponse = {
   } | null;
 };
 export type CommentCreateMutation = {
-  variables: CommentCreateMutationVariables;
-  response: CommentCreateMutationResponse;
-  rawResponse: CommentCreateMutationRawResponse;
+  variables: CommentCreateMutation$variables;
+  response: CommentCreateMutation$data;
 };
 -------------------------------------------------------------------------------
 export type TestEnums = "mark" | "zuck" | "%future added value";
 import { FragmentRefs } from "relay-runtime";
-export type FriendFragment = {
+export type FriendFragment$data = {
   readonly name: string | null;
   readonly lastName: string | null;
   readonly profilePicture2: {
     readonly test_enums: TestEnums | null;
   } | null;
-  readonly " $refType": "FriendFragment";
+  readonly " $fragmentType": "FriendFragment";
 };
-export type FriendFragment$data = FriendFragment;
 export type FriendFragment$key = {
   readonly " $data"?: FriendFragment$data;
-  readonly " $fragmentRefs": FragmentRefs<"FriendFragment">;
+  readonly " $fragmentSpreads": FragmentRefs<"FriendFragment">;
 };

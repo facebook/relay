@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<4441d4e1d75e5942eb45ee27367fc8f5>>
+ * @generated SignedSource<<f6134d727cbfb7ec45f66f2a54a3fdf8>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,12 +15,12 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-type GraphQLTagTest6UserFragment$ref = any;
-type GraphQLTagTest6UserFragment$fragmentType = any;
-export type { GraphQLTagTest6UserFragment$ref, GraphQLTagTest6UserFragment$fragmentType };
-export type GraphQLTagTest6UserFragment = {|
+import type { ReaderFragment, RefetchableFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type GraphQLTagTest6UserFragment$fragmentType: FragmentType;
+export type GraphQLTagTest6UserFragment$ref = GraphQLTagTest6UserFragment$fragmentType;
+type GraphQLTagTestUserFragment4RefetchQuery$variables = any;
+export type GraphQLTagTest6UserFragment$data = {|
   +id: string,
   +name: ?string,
   +friends: ?{|
@@ -30,12 +30,12 @@ export type GraphQLTagTest6UserFragment = {|
       |},
     |}>,
   |},
-  +$refType: GraphQLTagTest6UserFragment$ref,
+  +$fragmentType: GraphQLTagTest6UserFragment$fragmentType,
 |};
-export type GraphQLTagTest6UserFragment$data = GraphQLTagTest6UserFragment;
+export type GraphQLTagTest6UserFragment = GraphQLTagTest6UserFragment$data;
 export type GraphQLTagTest6UserFragment$key = {
   +$data?: GraphQLTagTest6UserFragment$data,
-  +$fragmentRefs: GraphQLTagTest6UserFragment$ref,
+  +$fragmentSpreads: GraphQLTagTest6UserFragment$fragmentType,
   ...
 };
 */
@@ -181,4 +181,8 @@ if (__DEV__) {
   (node/*: any*/).hash = "10a776f9a2114f43f6ada6ebe6adc273";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: RefetchableFragment<
+  GraphQLTagTest6UserFragment$fragmentType,
+  GraphQLTagTest6UserFragment$data,
+  GraphQLTagTestUserFragment4RefetchQuery$variables,
+>*/);

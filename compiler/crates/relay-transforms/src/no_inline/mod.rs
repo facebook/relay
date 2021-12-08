@@ -9,7 +9,7 @@ use crate::{ValidationMessage, MATCH_CONSTANTS, RELAY_CLIENT_COMPONENT_DIRECTIVE
 use common::{Diagnostic, DiagnosticsResult, NamedItem, WithLocation};
 use fnv::FnvHashMap;
 use graphql_ir::{Argument, ConstantValue, Directive, FragmentSpread, Program, Validator, Value};
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey};
 use lazy_static::lazy_static;
 use std::sync::Arc;
 

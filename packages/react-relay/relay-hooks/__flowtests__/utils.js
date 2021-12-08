@@ -13,11 +13,7 @@
 
 'use strict';
 
-import type {
-  Disposable,
-  FragmentReference,
-  GraphQLTaggedNode,
-} from 'relay-runtime';
+import type {Disposable, FragmentType, GraphQLTaggedNode} from 'relay-runtime';
 
 declare export var fragmentInput: GraphQLTaggedNode;
 
@@ -38,42 +34,42 @@ export type AnotherNonNullableData = {|
 
 declare export var keyNonNullable: {
   +$data?: NonNullableData,
-  +$fragmentRefs: FragmentReference,
+  +$fragmentSpreads: FragmentType,
   ...
 };
 
 declare export var keyNonNullablePlural: $ReadOnlyArray<{
   +$data?: NonNullablePluralData,
-  +$fragmentRefs: FragmentReference,
+  +$fragmentSpreads: FragmentType,
   ...
 }>;
 
 declare export var keyNullablePlural: ?$ReadOnlyArray<{
   +$data?: NonNullablePluralData,
-  +$fragmentRefs: FragmentReference,
+  +$fragmentSpreads: FragmentType,
   ...
 }>;
 
 declare export var keyNullable: ?{
   +$data?: NonNullableData,
-  +$fragmentRefs: FragmentReference,
+  +$fragmentSpreads: FragmentType,
   ...
 };
 
 declare export var keyAnotherNonNullable: {
   +$data: AnotherNonNullableData,
-  +$fragmentRefs: FragmentReference,
+  +$fragmentSpreads: FragmentType,
   ...
 };
 
 declare export var keyAnotherNullable: ?{
   +$data: AnotherNonNullableData,
-  +$fragmentRefs: FragmentReference,
+  +$fragmentSpreads: FragmentType,
   ...
 };
 
 declare export var fragmentData: {
-  +$refType: FragmentReference,
+  +$fragmentType: FragmentType,
   ...
 };
 

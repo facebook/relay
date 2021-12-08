@@ -20,7 +20,7 @@ use schema::SDLSchema;
 
 use fnv::{FnvBuildHasher, FnvHashSet};
 use indexmap::IndexMap;
-use interner::StringKey;
+use intern::string_key::StringKey;
 use std::fmt::{Result as FmtResult, Write};
 
 pub fn print_operation(
@@ -310,7 +310,7 @@ impl<'b> JSONPrinter<'b> {
                 Ok(())
             }
             Primitive::StorageKey(field_name, key) => {
-                write_static_storage_key(f, &self.builder, *field_name, *key)
+                write_static_storage_key(f, self.builder, *field_name, *key)
             }
             Primitive::GraphQLModuleDependency(key) => match self.js_module_format {
                 JsModuleFormat::CommonJS => write!(f, "require('./{}.graphql')", key),

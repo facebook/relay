@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<393af865578e3303af92c6b58bb6434d>>
+ * @generated SignedSource<<7da1a7d32e90872a5eb8befef87c4927>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,19 +15,19 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayMockPayloadGeneratorTest24Fragment$ref: FragmentReference;
-declare export opaque type RelayMockPayloadGeneratorTest24Fragment$fragmentType: RelayMockPayloadGeneratorTest24Fragment$ref;
-export type RelayMockPayloadGeneratorTest24Fragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayMockPayloadGeneratorTest24Fragment$fragmentType: FragmentType;
+export type RelayMockPayloadGeneratorTest24Fragment$ref = RelayMockPayloadGeneratorTest24Fragment$fragmentType;
+export type RelayMockPayloadGeneratorTest24Fragment$data = {|
   +id: string,
   +name: ?string,
-  +$refType: RelayMockPayloadGeneratorTest24Fragment$ref,
+  +$fragmentType: RelayMockPayloadGeneratorTest24Fragment$fragmentType,
 |};
-export type RelayMockPayloadGeneratorTest24Fragment$data = RelayMockPayloadGeneratorTest24Fragment;
+export type RelayMockPayloadGeneratorTest24Fragment = RelayMockPayloadGeneratorTest24Fragment$data;
 export type RelayMockPayloadGeneratorTest24Fragment$key = {
   +$data?: RelayMockPayloadGeneratorTest24Fragment$data,
-  +$fragmentRefs: RelayMockPayloadGeneratorTest24Fragment$ref,
+  +$fragmentSpreads: RelayMockPayloadGeneratorTest24Fragment$fragmentType,
   ...
 };
 */
@@ -61,4 +61,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "e29b53fb154bf20e59f8bd2c7c82e771";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayMockPayloadGeneratorTest24Fragment$fragmentType,
+  RelayMockPayloadGeneratorTest24Fragment$data,
+>*/);

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<e96be6b628962b4ff52dbf1ef496eadc>>
+ * @generated SignedSource<<0dd131c1534413bd242fa061db84045b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,19 +15,19 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type ReactRelayRefetchContainerReactDoubleEffectsTestUserFragment$ref: FragmentReference;
-declare export opaque type ReactRelayRefetchContainerReactDoubleEffectsTestUserFragment$fragmentType: ReactRelayRefetchContainerReactDoubleEffectsTestUserFragment$ref;
-export type ReactRelayRefetchContainerReactDoubleEffectsTestUserFragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type ReactRelayRefetchContainerReactDoubleEffectsTestUserFragment$fragmentType: FragmentType;
+export type ReactRelayRefetchContainerReactDoubleEffectsTestUserFragment$ref = ReactRelayRefetchContainerReactDoubleEffectsTestUserFragment$fragmentType;
+export type ReactRelayRefetchContainerReactDoubleEffectsTestUserFragment$data = {|
   +id: string,
   +name: ?string,
-  +$refType: ReactRelayRefetchContainerReactDoubleEffectsTestUserFragment$ref,
+  +$fragmentType: ReactRelayRefetchContainerReactDoubleEffectsTestUserFragment$fragmentType,
 |};
-export type ReactRelayRefetchContainerReactDoubleEffectsTestUserFragment$data = ReactRelayRefetchContainerReactDoubleEffectsTestUserFragment;
+export type ReactRelayRefetchContainerReactDoubleEffectsTestUserFragment = ReactRelayRefetchContainerReactDoubleEffectsTestUserFragment$data;
 export type ReactRelayRefetchContainerReactDoubleEffectsTestUserFragment$key = {
   +$data?: ReactRelayRefetchContainerReactDoubleEffectsTestUserFragment$data,
-  +$fragmentRefs: ReactRelayRefetchContainerReactDoubleEffectsTestUserFragment$ref,
+  +$fragmentSpreads: ReactRelayRefetchContainerReactDoubleEffectsTestUserFragment$fragmentType,
   ...
 };
 */
@@ -61,4 +61,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "b9b19a6158a09093e82899345cfaad32";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  ReactRelayRefetchContainerReactDoubleEffectsTestUserFragment$fragmentType,
+  ReactRelayRefetchContainerReactDoubleEffectsTestUserFragment$data,
+>*/);

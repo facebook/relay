@@ -10,7 +10,7 @@ use graphql_ir::{
     Directive, FragmentDefinition, FragmentSpread, InlineFragment, LinkedField, Program,
     ScalarField, Selection, Transformed, Transformer,
 };
-use interner::StringKey;
+use intern::string_key::StringKey;
 use schema::Schema;
 
 /// Transform to skip IR nodes if they are client-defined extensions

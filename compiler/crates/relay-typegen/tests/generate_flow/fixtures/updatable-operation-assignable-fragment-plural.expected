@@ -1,0 +1,49 @@
+==================================== INPUT ====================================
+query UpdatableQuery @updatable {
+  node(id: 4) {
+    ... on User {
+      __typename
+      parents {
+        ...Updatable_user
+      }
+    }
+  }
+}
+
+fragment Updatable_user on User @assignable {
+  __typename
+}
+==================================== OUTPUT ===================================
+import type { Updatable_user$fragmentType } from "Updatable_user.graphql";
+export type UpdatableQuery$variables = {||};
+export type UpdatableQuery$data = {|
+  +node: ?({|
+    +__typename: "User",
+    get parents(): $ReadOnlyArray<{||}>,
+    set parents(value: $ReadOnlyArray<{
+      +$fragmentSpreads: Updatable_user$fragmentType,
+      ...
+    }>): void,
+  |} | {|
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    +__typename: "%other",
+  |}),
+|};
+-------------------------------------------------------------------------------
+import type { FragmentType } from "relay-runtime";
+declare export opaque type Updatable_user$fragmentType: FragmentType;
+export type Updatable_user$data = {|
+  +__typename: "User",
+  +$fragmentType: Updatable_user$fragmentType,
+|} | {|
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  +__typename: "%other",
+  +$fragmentType: Updatable_user$fragmentType,
+|};
+export type Updatable_user$key = {
+  +$data?: Updatable_user$data,
+  +$fragmentSpreads: Updatable_user$fragmentType,
+  ...
+};

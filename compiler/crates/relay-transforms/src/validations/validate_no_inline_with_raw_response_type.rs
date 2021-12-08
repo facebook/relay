@@ -12,7 +12,7 @@ use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, SourceLocationK
 use errors::validate_map;
 use fnv::FnvHashSet;
 use graphql_ir::{FragmentDefinition, FragmentSpread, Program, ValidationMessage, Validator};
-use interner::StringKey;
+use intern::string_key::StringKey;
 
 /// To generate full raw response types, we need to also generate raw response types for
 /// @no_inline fragment normalization files. So raw_response_type argument is required

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<03a69e9fe41f1a4839e7798427546000>>
+ * @generated SignedSource<<782b80374bef8f911ab1affd0347e664>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,19 +17,21 @@
 // @ReactFlightServerDependency FlightComponent.server
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-export type DataCheckerTestFlightQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+export type DataCheckerTestFlightQuery$variables = {|
   id: string,
   count: number,
 |};
-export type DataCheckerTestFlightQueryResponse = {|
+export type DataCheckerTestFlightQueryVariables = DataCheckerTestFlightQuery$variables;
+export type DataCheckerTestFlightQuery$data = {|
   +node: ?{|
     +flightComponent?: ?any,
   |},
 |};
+export type DataCheckerTestFlightQueryResponse = DataCheckerTestFlightQuery$data;
 export type DataCheckerTestFlightQuery = {|
   variables: DataCheckerTestFlightQueryVariables,
-  response: DataCheckerTestFlightQueryResponse,
+  response: DataCheckerTestFlightQuery$data,
 |};
 */
 
@@ -167,4 +169,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "5deb0c7fbfc1629f14967d717067775d";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  DataCheckerTestFlightQuery$variables,
+  DataCheckerTestFlightQuery$data,
+>*/);

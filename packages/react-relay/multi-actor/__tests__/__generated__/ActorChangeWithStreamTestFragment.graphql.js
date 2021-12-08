@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<847f8d9885f73ce03004497b4be78f51>>
+ * @generated SignedSource<<86201f294d6f5a938db2654b81556a7f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,11 +15,11 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type ActorChangeWithStreamTestFragment$ref: FragmentReference;
-declare export opaque type ActorChangeWithStreamTestFragment$fragmentType: ActorChangeWithStreamTestFragment$ref;
-export type ActorChangeWithStreamTestFragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type ActorChangeWithStreamTestFragment$fragmentType: FragmentType;
+export type ActorChangeWithStreamTestFragment$ref = ActorChangeWithStreamTestFragment$fragmentType;
+export type ActorChangeWithStreamTestFragment$data = {|
   +id: string,
   +message: ?{|
     +text: ?string,
@@ -30,12 +30,12 @@ export type ActorChangeWithStreamTestFragment = {|
       +name: ?string,
     |}>,
   |},
-  +$refType: ActorChangeWithStreamTestFragment$ref,
+  +$fragmentType: ActorChangeWithStreamTestFragment$fragmentType,
 |};
-export type ActorChangeWithStreamTestFragment$data = ActorChangeWithStreamTestFragment;
+export type ActorChangeWithStreamTestFragment = ActorChangeWithStreamTestFragment$data;
 export type ActorChangeWithStreamTestFragment$key = {
   +$data?: ActorChangeWithStreamTestFragment$data,
-  +$fragmentRefs: ActorChangeWithStreamTestFragment$ref,
+  +$fragmentSpreads: ActorChangeWithStreamTestFragment$fragmentType,
   ...
 };
 */
@@ -118,4 +118,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "f6caca148f49ab0721890ee040c47e77";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  ActorChangeWithStreamTestFragment$fragmentType,
+  ActorChangeWithStreamTestFragment$data,
+>*/);

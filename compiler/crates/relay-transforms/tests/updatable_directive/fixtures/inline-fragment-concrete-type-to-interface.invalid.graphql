@@ -1,0 +1,16 @@
+# expected-to-throw
+query TestQuery @updatable {
+  node(id: 4) {
+    ... on Feedback {
+      comments {
+        edges {
+          node {
+            ... on Node {
+              id
+            }
+          }
+        }
+      }
+    }
+  }
+}

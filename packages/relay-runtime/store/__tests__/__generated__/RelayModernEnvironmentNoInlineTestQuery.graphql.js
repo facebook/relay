@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<d7e7549ec6f4009203eeef53c8b6e28e>>
+ * @generated SignedSource<<7e458e39479cdc727bec6bf2f1d52c3d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,21 +15,23 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernEnvironmentNoInlineTest_noInline$ref = any;
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayModernEnvironmentNoInlineTest_noInline$fragmentType = any;
 export type PhotoSize = "SMALL" | "LARGE" | "%future added value";
-export type RelayModernEnvironmentNoInlineTestQueryVariables = {|
+export type RelayModernEnvironmentNoInlineTestQuery$variables = {|
   size?: ?$ReadOnlyArray<?number>,
   preset?: ?PhotoSize,
 |};
-export type RelayModernEnvironmentNoInlineTestQueryResponse = {|
+export type RelayModernEnvironmentNoInlineTestQueryVariables = RelayModernEnvironmentNoInlineTestQuery$variables;
+export type RelayModernEnvironmentNoInlineTestQuery$data = {|
   +me: ?{|
-    +$fragmentRefs: RelayModernEnvironmentNoInlineTest_noInline$ref,
+    +$fragmentSpreads: RelayModernEnvironmentNoInlineTest_noInline$fragmentType,
   |},
 |};
+export type RelayModernEnvironmentNoInlineTestQueryResponse = RelayModernEnvironmentNoInlineTestQuery$data;
 export type RelayModernEnvironmentNoInlineTestQuery = {|
   variables: RelayModernEnvironmentNoInlineTestQueryVariables,
-  response: RelayModernEnvironmentNoInlineTestQueryResponse,
+  response: RelayModernEnvironmentNoInlineTestQuery$data,
 |};
 */
 
@@ -130,4 +132,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "3a7cd297670bd45aeb18f860defe23bc";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentNoInlineTestQuery$variables,
+  RelayModernEnvironmentNoInlineTestQuery$data,
+>*/);

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b4b3e67ce46e01abfe7e94881e41a3b3>>
+ * @generated SignedSource<<d0017b6f06bd3e923a4eec9277035b92>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,19 +15,21 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment$ref = any;
-export type RelayModernEnvironmentConnectionAndRequiredTestFeedbackQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment$fragmentType = any;
+export type RelayModernEnvironmentConnectionAndRequiredTestFeedbackQuery$variables = {|
   id: string,
 |};
-export type RelayModernEnvironmentConnectionAndRequiredTestFeedbackQueryResponse = {|
+export type RelayModernEnvironmentConnectionAndRequiredTestFeedbackQueryVariables = RelayModernEnvironmentConnectionAndRequiredTestFeedbackQuery$variables;
+export type RelayModernEnvironmentConnectionAndRequiredTestFeedbackQuery$data = {|
   +node: ?{|
-    +$fragmentRefs: RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment$ref,
+    +$fragmentSpreads: RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment$fragmentType,
   |},
 |};
+export type RelayModernEnvironmentConnectionAndRequiredTestFeedbackQueryResponse = RelayModernEnvironmentConnectionAndRequiredTestFeedbackQuery$data;
 export type RelayModernEnvironmentConnectionAndRequiredTestFeedbackQuery = {|
   variables: RelayModernEnvironmentConnectionAndRequiredTestFeedbackQueryVariables,
-  response: RelayModernEnvironmentConnectionAndRequiredTestFeedbackQueryResponse,
+  response: RelayModernEnvironmentConnectionAndRequiredTestFeedbackQuery$data,
 |};
 */
 
@@ -220,4 +222,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "c71f667104383509795bb812551f3700";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentConnectionAndRequiredTestFeedbackQuery$variables,
+  RelayModernEnvironmentConnectionAndRequiredTestFeedbackQuery$data,
+>*/);

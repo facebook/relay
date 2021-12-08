@@ -6,7 +6,7 @@
  */
 
 use graphql_syntax::OperationKind;
-use interner::StringKey;
+use intern::string_key::StringKey;
 use schema::{Field, SDLSchema, Schema, Type};
 
 #[derive(Debug, Clone)]

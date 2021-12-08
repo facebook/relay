@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<84ccea87e84771958245460497933317>>
+ * @generated SignedSource<<d4b9a65e33f69e362d639c615584215c>>
  */
 
 mod compile_relay_artifacts;
@@ -1214,6 +1214,13 @@ fn sibling_client_selections() {
     let input = include_str!("compile_relay_artifacts/fixtures/sibling-client-selections.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/sibling-client-selections.expected");
     test_fixture(transform_fixture, "sibling-client-selections.graphql", "compile_relay_artifacts/fixtures/sibling-client-selections.expected", input, expected);
+}
+
+#[test]
+fn spread_of_assignable_fragment() {
+    let input = include_str!("compile_relay_artifacts/fixtures/spread-of-assignable-fragment.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/spread-of-assignable-fragment.expected");
+    test_fixture(transform_fixture, "spread-of-assignable-fragment.graphql", "compile_relay_artifacts/fixtures/spread-of-assignable-fragment.expected", input, expected);
 }
 
 #[test]

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b43c0233e81ab247d99d611622a72a4d>>
+ * @generated SignedSource<<9fc027c4c4e2fcd7781bd2fc9a77990d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,25 +15,27 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type FragmentResourceWithOperationTrackerTestUserFragment$ref = any;
-export type FragmentResourceWithOperationTrackerTestFriendsPaginationQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type FragmentResourceWithOperationTrackerTestUserFragment$fragmentType = any;
+export type FragmentResourceWithOperationTrackerTestFriendsPaginationQuery$variables = {|
   id: string,
 |};
-export type FragmentResourceWithOperationTrackerTestFriendsPaginationQueryResponse = {|
+export type FragmentResourceWithOperationTrackerTestFriendsPaginationQueryVariables = FragmentResourceWithOperationTrackerTestFriendsPaginationQuery$variables;
+export type FragmentResourceWithOperationTrackerTestFriendsPaginationQuery$data = {|
   +node: ?{|
     +friends?: ?{|
       +edges: ?$ReadOnlyArray<?{|
         +node: ?{|
-          +$fragmentRefs: FragmentResourceWithOperationTrackerTestUserFragment$ref,
+          +$fragmentSpreads: FragmentResourceWithOperationTrackerTestUserFragment$fragmentType,
         |},
       |}>,
     |},
   |},
 |};
+export type FragmentResourceWithOperationTrackerTestFriendsPaginationQueryResponse = FragmentResourceWithOperationTrackerTestFriendsPaginationQuery$data;
 export type FragmentResourceWithOperationTrackerTestFriendsPaginationQuery = {|
   variables: FragmentResourceWithOperationTrackerTestFriendsPaginationQueryVariables,
-  response: FragmentResourceWithOperationTrackerTestFriendsPaginationQueryResponse,
+  response: FragmentResourceWithOperationTrackerTestFriendsPaginationQuery$data,
 |};
 */
 
@@ -471,4 +473,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "e5c44762a69061fbab95e22a6c65eba6";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  FragmentResourceWithOperationTrackerTestFriendsPaginationQuery$variables,
+  FragmentResourceWithOperationTrackerTestFriendsPaginationQuery$data,
+>*/);

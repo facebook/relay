@@ -8,7 +8,7 @@
 use fnv::{FnvHashMap, FnvHashSet};
 
 use graphql_ir::*;
-use interner::StringKey;
+use intern::string_key::StringKey;
 use relay_transforms::{DependencyMap, ResolverFieldFinder};
 use schema::SDLSchema;
 use std::collections::hash_map::Entry;
@@ -97,15 +97,15 @@ fn find_resolver_dependencies(
     let mut dependencies = Default::default();
     let mut finder = ResolverFieldFinder::new(&mut dependencies, schema);
     for name in reachable_names {
-        if let Some(node) = dependency_graph.get(&name) {
+        if let Some(node) = dependency_graph.get(name) {
             let def = match node.ir.as_ref() {
                 Some(definition) => definition,
                 None => panic!("Could not find defintion for {}.", name),
             };
 
             match def {
-                ExecutableDefinition::Fragment(fragment) => finder.visit_fragment(&fragment),
-                ExecutableDefinition::Operation(operation) => finder.visit_operation(&operation),
+                ExecutableDefinition::Fragment(fragment) => finder.visit_fragment(fragment),
+                ExecutableDefinition::Operation(operation) => finder.visit_operation(operation),
             }
         }
     }
@@ -145,7 +145,7 @@ fn build_dependency_graph(definitions: Vec<ExecutableDefinition>) -> FnvHashMap<
             ExecutableDefinition::Operation(operation) => &operation.selections,
             ExecutableDefinition::Fragment(fragment) => &fragment.selections,
         };
-        visit_selections(&mut dependency_graph, &selections, name, &mut children);
+        visit_selections(&mut dependency_graph, selections, name, &mut children);
 
         // Insert or update the representation of the IR in the dependency tree
         match dependency_graph.entry(name) {

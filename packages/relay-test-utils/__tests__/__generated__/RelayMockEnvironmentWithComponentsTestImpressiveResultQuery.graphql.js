@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<2bc2392c98d821e5a9875b2bb7aeecdf>>
+ * @generated SignedSource<<b3ad2a655c59f6eae729f38af3c757d0>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,19 +15,21 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayMockEnvironmentWithComponentsTestUsefulAwesomenessFragment$ref = any;
-export type RelayMockEnvironmentWithComponentsTestImpressiveResultQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayMockEnvironmentWithComponentsTestUsefulAwesomenessFragment$fragmentType = any;
+export type RelayMockEnvironmentWithComponentsTestImpressiveResultQuery$variables = {|
   id: string,
 |};
-export type RelayMockEnvironmentWithComponentsTestImpressiveResultQueryResponse = {|
+export type RelayMockEnvironmentWithComponentsTestImpressiveResultQueryVariables = RelayMockEnvironmentWithComponentsTestImpressiveResultQuery$variables;
+export type RelayMockEnvironmentWithComponentsTestImpressiveResultQuery$data = {|
   +node: ?{|
-    +$fragmentRefs: RelayMockEnvironmentWithComponentsTestUsefulAwesomenessFragment$ref,
+    +$fragmentSpreads: RelayMockEnvironmentWithComponentsTestUsefulAwesomenessFragment$fragmentType,
   |},
 |};
+export type RelayMockEnvironmentWithComponentsTestImpressiveResultQueryResponse = RelayMockEnvironmentWithComponentsTestImpressiveResultQuery$data;
 export type RelayMockEnvironmentWithComponentsTestImpressiveResultQuery = {|
   variables: RelayMockEnvironmentWithComponentsTestImpressiveResultQueryVariables,
-  response: RelayMockEnvironmentWithComponentsTestImpressiveResultQueryResponse,
+  response: RelayMockEnvironmentWithComponentsTestImpressiveResultQuery$data,
 |};
 */
 
@@ -175,4 +177,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "eec1fb2dd0c1d0773d8745926c5fdd09";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayMockEnvironmentWithComponentsTestImpressiveResultQuery$variables,
+  RelayMockEnvironmentWithComponentsTestImpressiveResultQuery$data,
+>*/);

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<f74f20db99882cfc0937055b6bd336af>>
+ * @generated SignedSource<<bbefe381b5599342d7831c10af4a9b88>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,9 +15,10 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-export type commitMutationTest4QueryVariables = {||};
-export type commitMutationTest4QueryResponse = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+export type commitMutationTest4Query$variables = {||};
+export type commitMutationTest4QueryVariables = commitMutationTest4Query$variables;
+export type commitMutationTest4Query$data = {|
   +node: ?{|
     +topLevelComments?: ?{|
       +edges: ?$ReadOnlyArray<?{|
@@ -28,9 +29,10 @@ export type commitMutationTest4QueryResponse = {|
     |},
   |},
 |};
+export type commitMutationTest4QueryResponse = commitMutationTest4Query$data;
 export type commitMutationTest4Query = {|
   variables: commitMutationTest4QueryVariables,
-  response: commitMutationTest4QueryResponse,
+  response: commitMutationTest4Query$data,
 |};
 */
 
@@ -234,4 +236,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "7104dfb986be1868726cca080aac477b";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  commitMutationTest4Query$variables,
+  commitMutationTest4Query$data,
+>*/);

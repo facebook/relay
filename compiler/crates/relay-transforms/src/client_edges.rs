@@ -8,7 +8,7 @@
 use crate::refetchable_fragment::{RefetchableFragment, REFETCHABLE_NAME};
 use fnv::FnvHashMap;
 use graphql_syntax::OperationKind;
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey};
 use lazy_static::lazy_static;
 use schema::Type;
 use std::sync::Arc;
@@ -170,7 +170,7 @@ impl<'program> ClientEdgesTransform<'program> {
             selections,
         };
 
-        let mut transformer = RefetchableFragment::new(&self.program, false);
+        let mut transformer = RefetchableFragment::new(self.program, false);
 
         let refetchable_fragment = transformer
             .transform_refetch_fragment_with_refetchable_directive(

@@ -8,7 +8,7 @@
 use graphql_cli::SourcePrinter;
 use std::ops::Range;
 
-const EXAMPLE: &'static str = "fragment Example on User {
+const EXAMPLE: &str = "fragment Example on User {
   photo(size: 40) {
     url
   }
@@ -46,7 +46,7 @@ fn main() {
     for test_case in test_cases.into_iter() {
         let mut res = String::new();
         printer
-            .write_span(&mut res, &test_case.into(), &EXAMPLE)
+            .write_span(&mut res, &test_case.into(), EXAMPLE)
             .unwrap();
         println!("{}\n ---------\n", res);
     }

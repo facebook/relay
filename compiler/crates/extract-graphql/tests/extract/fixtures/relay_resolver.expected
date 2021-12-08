@@ -1,0 +1,21 @@
+==================================== INPUT ====================================
+/**
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+/**
+ * This is a ....
+ * @RelayResolver
+*/
+
+/**
+ * ignored, doesn't have the tag
+ */
+==================================== OUTPUT ===================================
+resolver - line: 7, column: 2, text: <*
+ * This is a ....
+ * @RelayResolver
+>

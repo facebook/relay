@@ -16,8 +16,8 @@ graphql-ir = { path = "../graphql-ir" }
 graphql-syntax = { path = "../graphql-syntax" }
 graphql-text-printer = { path = "../graphql-text-printer" }
 graphql-watchman = { path = "../graphql-watchman" }
-interner = { path = "../interner" }
-log = { version = "0.4.8", features = ["kv_unstable"] }
+intern = { path = "../intern" }
+log = { version = "0.4.14", features = ["kv_unstable", "kv_unstable_std"] }
 lsp-server = "0.5.2"
 lsp-types = "0.89.0"
 percent-encoding = "2.1"

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<30afc0d3a4e433c29c47b397d8b990a0>>
+ * @generated SignedSource<<c14de8fc1bde793ad0edb37a3e4a63db>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,9 +17,9 @@
 // @dataDrivenDependency RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutation.commentCreate.comment.actor.nameRenderer {"branches":{"MarkdownUserNameRenderer":{"component":"MarkdownUserNameRenderer.react","fragment":"RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name$normalization.graphql"},"PlainUserNameRenderer":{"component":"PlainUserNameRenderer.react","fragment":"RelayModernEnvironmentExecuteMutationWithMatchTestPlainUserNameRenderer_name$normalization.graphql"}},"plural":false}
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name$ref = any;
-type RelayModernEnvironmentExecuteMutationWithMatchTestPlainUserNameRenderer_name$ref = any;
+import type { ConcreteRequest, Mutation } from 'relay-runtime';
+type RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name$fragmentType = any;
+type RelayModernEnvironmentExecuteMutationWithMatchTestPlainUserNameRenderer_name$fragmentType = any;
 export type CommentCreateInput = {|
   clientMutationId?: ?string,
   feedbackId?: ?string,
@@ -31,10 +31,11 @@ export type CommentfeedbackFeedback = {|
 export type FeedbackcommentComment = {|
   feedback?: ?CommentfeedbackFeedback,
 |};
-export type RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutationVariables = {|
+export type RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutation$variables = {|
   input: CommentCreateInput,
 |};
-export type RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutationResponse = {|
+export type RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutationVariables = RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutation$variables;
+export type RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutation$data = {|
   +commentCreate: ?{|
     +comment: ?{|
       +actor: ?{|
@@ -42,15 +43,16 @@ export type RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutat
         +nameRenderer: ?{|
           +__fragmentPropName?: ?string,
           +__module_component?: ?string,
-          +$fragmentRefs: RelayModernEnvironmentExecuteMutationWithMatchTestPlainUserNameRenderer_name$ref & RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name$ref,
+          +$fragmentSpreads: RelayModernEnvironmentExecuteMutationWithMatchTestPlainUserNameRenderer_name$fragmentType & RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name$fragmentType,
         |},
       |},
     |},
   |},
 |};
+export type RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutationResponse = RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutation$data;
 export type RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutation = {|
   variables: RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutationVariables,
-  response: RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutationResponse,
+  response: RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutation$data,
 |};
 */
 
@@ -260,4 +262,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "8a6c1e92e6379ca2bcf4b83fbdb38c58";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Mutation<
+  RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutation$variables,
+  RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutation$data,
+>*/);

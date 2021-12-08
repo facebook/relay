@@ -8,7 +8,7 @@
 use common::{Diagnostic, DiagnosticsResult, WithLocation};
 use errors::validate;
 use graphql_ir::{LinkedField, Program, ScalarField, ValidationMessage, Validator};
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey};
 use schema::{FieldID, SDLSchema, Schema};
 
 pub fn disallow_reserved_aliases(program: &Program) -> DiagnosticsResult<()> {

@@ -12,7 +12,7 @@ use common::{NamedItem, SourceLocationKey};
 use fnv::FnvHashMap;
 use graphql_ir::{FragmentDefinition, OperationDefinition};
 use graphql_text_printer::OperationPrinter;
-use interner::StringKey;
+use intern::string_key::StringKey;
 use relay_transforms::{
     Programs, RefetchableDerivedFromMetadata, SplitOperationMetadata,
     CLIENT_EDGE_GENERATED_FRAGMENT_KEY, CLIENT_EDGE_QUERY_METADATA_KEY, CLIENT_EDGE_SOURCE_NAME,
@@ -313,7 +313,7 @@ fn group_operations(programs: &Programs) -> FnvHashMap<StringKey, OperationGroup
             (
                 normalization_operation.name.item,
                 OperationGroup {
-                    normalization: &normalization_operation,
+                    normalization: normalization_operation,
                     operation_text: None,
                     reader: None,
                     typegen: None,

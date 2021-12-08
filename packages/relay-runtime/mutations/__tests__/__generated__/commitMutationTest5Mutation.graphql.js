@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<e898976740224c22b2ed440a06b95f5e>>
+ * @generated SignedSource<<56551485e808a116876020cfffd13ac5>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,15 +15,16 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
+import type { ConcreteRequest, Mutation } from 'relay-runtime';
 export type CommentDeleteInput = {|
   clientMutationId?: ?string,
   commentId?: ?string,
 |};
-export type commitMutationTest5MutationVariables = {|
+export type commitMutationTest5Mutation$variables = {|
   input?: ?CommentDeleteInput,
 |};
-export type commitMutationTest5MutationResponse = {|
+export type commitMutationTest5MutationVariables = commitMutationTest5Mutation$variables;
+export type commitMutationTest5Mutation$data = {|
   +alias: ?{|
     +deletedCommentId: ?string,
     +feedback: ?{|
@@ -34,9 +35,10 @@ export type commitMutationTest5MutationResponse = {|
     |},
   |},
 |};
+export type commitMutationTest5MutationResponse = commitMutationTest5Mutation$data;
 export type commitMutationTest5Mutation = {|
   variables: commitMutationTest5MutationVariables,
-  response: commitMutationTest5MutationResponse,
+  response: commitMutationTest5Mutation$data,
 |};
 */
 
@@ -142,4 +144,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "5b576021209fcdaa50fd7d1d9f09fcf8";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Mutation<
+  commitMutationTest5Mutation$variables,
+  commitMutationTest5Mutation$data,
+>*/);

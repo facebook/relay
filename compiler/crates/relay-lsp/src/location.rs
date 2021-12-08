@@ -16,10 +16,10 @@ pub fn to_lsp_location_of_graphql_literal(
     location: Location,
     root_dir: &Path,
 ) -> LSPRuntimeResult<lsp_types::Location> {
-    Ok(to_contents_and_lsp_location_of_graphql_literal(location, root_dir)?.1)
+    Ok(read_contents_and_get_lsp_location_of_graphql_literal(location, root_dir)?.1)
 }
 
-pub fn to_contents_and_lsp_location_of_graphql_literal(
+pub fn read_contents_and_get_lsp_location_of_graphql_literal(
     location: Location,
     root_dir: &Path,
 ) -> LSPRuntimeResult<(String, lsp_types::Location)> {

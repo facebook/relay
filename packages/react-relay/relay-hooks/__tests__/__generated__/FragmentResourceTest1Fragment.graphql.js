@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<2f0da1aae3aed666a53afe7b84de47ba>>
+ * @generated SignedSource<<6c905c269795a20cb07a0ec988dafcff>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,19 +15,19 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type FragmentResourceTest1Fragment$ref: FragmentReference;
-declare export opaque type FragmentResourceTest1Fragment$fragmentType: FragmentResourceTest1Fragment$ref;
-export type FragmentResourceTest1Fragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type FragmentResourceTest1Fragment$fragmentType: FragmentType;
+export type FragmentResourceTest1Fragment$ref = FragmentResourceTest1Fragment$fragmentType;
+export type FragmentResourceTest1Fragment$data = {|
   +id: string,
   +name: ?string,
-  +$refType: FragmentResourceTest1Fragment$ref,
+  +$fragmentType: FragmentResourceTest1Fragment$fragmentType,
 |};
-export type FragmentResourceTest1Fragment$data = FragmentResourceTest1Fragment;
+export type FragmentResourceTest1Fragment = FragmentResourceTest1Fragment$data;
 export type FragmentResourceTest1Fragment$key = {
   +$data?: FragmentResourceTest1Fragment$data,
-  +$fragmentRefs: FragmentResourceTest1Fragment$ref,
+  +$fragmentSpreads: FragmentResourceTest1Fragment$fragmentType,
   ...
 };
 */
@@ -61,4 +61,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "f27c5d20e7bb39ee80a8008fdcbe9c3a";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  FragmentResourceTest1Fragment$fragmentType,
+  FragmentResourceTest1Fragment$data,
+>*/);

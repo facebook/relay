@@ -9,12 +9,32 @@ use fnv::{FnvBuildHasher, FnvHashMap};
 use graphql_syntax::FloatValue;
 use graphql_syntax::OperationKind;
 use indexmap::IndexSet;
-use interner::StringKey;
+use intern::string_key::StringKey;
 
 #[derive(Eq, PartialEq, Hash, Debug)]
 pub struct ObjectEntry {
     pub key: StringKey,
     pub value: Primitive,
+}
+
+/// A helper for creating Vec<ObjectEntry>
+/// For now, field names are defined in `CODEGEN_CONSTANTS
+#[macro_export]
+macro_rules! object {
+    { $ ( $(:$func: expr,)* $key:ident: $value:expr,)* } => ({
+        use crate::constants::CODEGEN_CONSTANTS;
+        vec![
+            $(
+                $(
+                    $func,
+                )*
+                ObjectEntry {
+                    key: CODEGEN_CONSTANTS.$key,
+                    value: $value,
+                },
+            )*
+        ]
+    })
 }
 
 /// An interned codegen AST

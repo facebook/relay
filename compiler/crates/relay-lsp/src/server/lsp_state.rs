@@ -28,7 +28,7 @@ use graphql_ir::{
 use graphql_syntax::{
     parse_executable_with_error_recovery, ExecutableDefinition, ExecutableDocument, GraphQLSource,
 };
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey};
 use log::debug;
 use lsp_server::Message;
 use lsp_types::{Diagnostic, DiagnosticTag, Range, TextDocumentPositionParams, Url};
@@ -312,7 +312,7 @@ pub fn convert_diagnostic(
 
     Diagnostic {
         code: None,
-        data: get_diagnostics_data(&diagnostic),
+        data: get_diagnostics_data(diagnostic),
         message: diagnostic.message().to_string(),
         range: diagnostic.location().span().to_range(
             &graphql_source.text,
@@ -321,7 +321,7 @@ pub fn convert_diagnostic(
         ),
         related_information: None,
         severity: Some(diagnostic.severity()),
-        tags: if tags.len() == 0 { None } else { Some(tags) },
+        tags: if tags.is_empty() { None } else { Some(tags) },
         source: None,
         ..Default::default()
     }

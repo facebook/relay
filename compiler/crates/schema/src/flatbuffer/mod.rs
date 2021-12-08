@@ -15,7 +15,7 @@ use graphql_syntax::{
     BooleanNode, ConstantArgument, ConstantValue, DirectiveLocation, EnumNode, FloatNode,
     FloatValue, Identifier, IntNode, List, StringNode, Token, TokenKind,
 };
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey};
 pub use serialize::serialize_as_flatbuffer;
 use std::cmp::Ordering;
 pub use wrapper::SchemaWrapper;

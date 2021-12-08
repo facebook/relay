@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<df9fecfb107d0a93b064903330f3b2ee>>
+ * @generated SignedSource<<442f82df1f8331ef9186cc6145d88b09>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,21 +15,21 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type DataCheckerTestPlainUserNameRenderer_nameFragment$ref: FragmentReference;
-declare export opaque type DataCheckerTestPlainUserNameRenderer_nameFragment$fragmentType: DataCheckerTestPlainUserNameRenderer_nameFragment$ref;
-export type DataCheckerTestPlainUserNameRenderer_nameFragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type DataCheckerTestPlainUserNameRenderer_nameFragment$fragmentType: FragmentType;
+export type DataCheckerTestPlainUserNameRenderer_nameFragment$ref = DataCheckerTestPlainUserNameRenderer_nameFragment$fragmentType;
+export type DataCheckerTestPlainUserNameRenderer_nameFragment$data = {|
   +plaintext: ?string,
   +data: ?{|
     +text: ?string,
   |},
-  +$refType: DataCheckerTestPlainUserNameRenderer_nameFragment$ref,
+  +$fragmentType: DataCheckerTestPlainUserNameRenderer_nameFragment$fragmentType,
 |};
-export type DataCheckerTestPlainUserNameRenderer_nameFragment$data = DataCheckerTestPlainUserNameRenderer_nameFragment;
+export type DataCheckerTestPlainUserNameRenderer_nameFragment = DataCheckerTestPlainUserNameRenderer_nameFragment$data;
 export type DataCheckerTestPlainUserNameRenderer_nameFragment$key = {
   +$data?: DataCheckerTestPlainUserNameRenderer_nameFragment$data,
-  +$fragmentRefs: DataCheckerTestPlainUserNameRenderer_nameFragment$ref,
+  +$fragmentSpreads: DataCheckerTestPlainUserNameRenderer_nameFragment$fragmentType,
   ...
 };
 */
@@ -74,4 +74,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "57da6cf1bef83797671946fdc38aa25d";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  DataCheckerTestPlainUserNameRenderer_nameFragment$fragmentType,
+  DataCheckerTestPlainUserNameRenderer_nameFragment$data,
+>*/);

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<31ebd6afd93f7af65bca297ff5ced8f9>>
+ * @generated SignedSource<<a3249754873da8d8ba0cf5e1fecfb7e7>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,11 +15,11 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayResponseNormalizerTest10Fragment$ref: FragmentReference;
-declare export opaque type RelayResponseNormalizerTest10Fragment$fragmentType: RelayResponseNormalizerTest10Fragment$ref;
-export type RelayResponseNormalizerTest10Fragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayResponseNormalizerTest10Fragment$fragmentType: FragmentType;
+export type RelayResponseNormalizerTest10Fragment$ref = RelayResponseNormalizerTest10Fragment$fragmentType;
+export type RelayResponseNormalizerTest10Fragment$data = {|
   +id: string,
   +actors: ?$ReadOnlyArray<?{|
     +name?: ?string,
@@ -27,12 +27,12 @@ export type RelayResponseNormalizerTest10Fragment = {|
       +name: ?string,
     |}>,
   |}>,
-  +$refType: RelayResponseNormalizerTest10Fragment$ref,
+  +$fragmentType: RelayResponseNormalizerTest10Fragment$fragmentType,
 |};
-export type RelayResponseNormalizerTest10Fragment$data = RelayResponseNormalizerTest10Fragment;
+export type RelayResponseNormalizerTest10Fragment = RelayResponseNormalizerTest10Fragment$data;
 export type RelayResponseNormalizerTest10Fragment$key = {
   +$data?: RelayResponseNormalizerTest10Fragment$data,
-  +$fragmentRefs: RelayResponseNormalizerTest10Fragment$ref,
+  +$fragmentSpreads: RelayResponseNormalizerTest10Fragment$fragmentType,
   ...
 };
 */
@@ -104,4 +104,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "8c389e04433fbf8aaa29700855a45351";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayResponseNormalizerTest10Fragment$fragmentType,
+  RelayResponseNormalizerTest10Fragment$data,
+>*/);

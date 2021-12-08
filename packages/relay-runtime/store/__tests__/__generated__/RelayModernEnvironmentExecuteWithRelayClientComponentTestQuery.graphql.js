@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<105dd25bb680e0a501a774f61d3f15bd>>
+ * @generated SignedSource<<b9527fab32377ef8748a24bfd685a0dc>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,19 +17,21 @@
 // @ReactFlightClientDependency RelayModernEnvironmentExecuteWithRelayClientComponentTest_clientFragment$normalization.graphql
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernEnvironmentExecuteWithRelayClientComponentTest_clientFragment$ref = any;
-export type RelayModernEnvironmentExecuteWithRelayClientComponentTestQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayModernEnvironmentExecuteWithRelayClientComponentTest_clientFragment$fragmentType = any;
+export type RelayModernEnvironmentExecuteWithRelayClientComponentTestQuery$variables = {|
   id: string,
 |};
-export type RelayModernEnvironmentExecuteWithRelayClientComponentTestQueryResponse = {|
+export type RelayModernEnvironmentExecuteWithRelayClientComponentTestQueryVariables = RelayModernEnvironmentExecuteWithRelayClientComponentTestQuery$variables;
+export type RelayModernEnvironmentExecuteWithRelayClientComponentTestQuery$data = {|
   +node: ?{|
-    +$fragmentRefs: RelayModernEnvironmentExecuteWithRelayClientComponentTest_clientFragment$ref,
+    +$fragmentSpreads: RelayModernEnvironmentExecuteWithRelayClientComponentTest_clientFragment$fragmentType,
   |},
 |};
+export type RelayModernEnvironmentExecuteWithRelayClientComponentTestQueryResponse = RelayModernEnvironmentExecuteWithRelayClientComponentTestQuery$data;
 export type RelayModernEnvironmentExecuteWithRelayClientComponentTestQuery = {|
   variables: RelayModernEnvironmentExecuteWithRelayClientComponentTestQueryVariables,
-  response: RelayModernEnvironmentExecuteWithRelayClientComponentTestQueryResponse,
+  response: RelayModernEnvironmentExecuteWithRelayClientComponentTestQuery$data,
 |};
 */
 
@@ -128,4 +130,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "7bf230bc939d43ce10e55e7a2cc0af8e";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentExecuteWithRelayClientComponentTestQuery$variables,
+  RelayModernEnvironmentExecuteWithRelayClientComponentTestQuery$data,
+>*/);

@@ -12,7 +12,7 @@ use dependency_analyzer::{get_reachable_ast, get_reachable_ir, ReachableAst};
 use fnv::{FnvHashMap, FnvHashSet};
 use graphql_syntax::ExecutableDefinition;
 use graphql_text_printer::print_executable_definition_ast;
-use interner::StringKey;
+use intern::string_key::StringKey;
 use md5::{Digest, Md5};
 use relay_transforms::DependencyMap;
 use schema::SDLSchema;

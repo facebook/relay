@@ -14,7 +14,7 @@ graphql`
     }
 `
 ==================================== OUTPUT ===================================
-line: 9, column: 8, text: <
+graphql - line: 9, column: 8, text: <
     fragment Foo on ${type} {
         __typename
     }

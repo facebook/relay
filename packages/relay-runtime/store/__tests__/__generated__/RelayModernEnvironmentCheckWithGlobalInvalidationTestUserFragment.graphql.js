@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<e1bf8349523af205859d16d68172a66b>>
+ * @generated SignedSource<<1782dd584f733cbf8ec2b0fe1a84028b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,20 +15,20 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayModernEnvironmentCheckWithGlobalInvalidationTestUserFragment$ref: FragmentReference;
-declare export opaque type RelayModernEnvironmentCheckWithGlobalInvalidationTestUserFragment$fragmentType: RelayModernEnvironmentCheckWithGlobalInvalidationTestUserFragment$ref;
-export type RelayModernEnvironmentCheckWithGlobalInvalidationTestUserFragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayModernEnvironmentCheckWithGlobalInvalidationTestUserFragment$fragmentType: FragmentType;
+export type RelayModernEnvironmentCheckWithGlobalInvalidationTestUserFragment$ref = RelayModernEnvironmentCheckWithGlobalInvalidationTestUserFragment$fragmentType;
+export type RelayModernEnvironmentCheckWithGlobalInvalidationTestUserFragment$data = {|
   +profilePicture: ?{|
     +uri: ?string,
   |},
-  +$refType: RelayModernEnvironmentCheckWithGlobalInvalidationTestUserFragment$ref,
+  +$fragmentType: RelayModernEnvironmentCheckWithGlobalInvalidationTestUserFragment$fragmentType,
 |};
-export type RelayModernEnvironmentCheckWithGlobalInvalidationTestUserFragment$data = RelayModernEnvironmentCheckWithGlobalInvalidationTestUserFragment;
+export type RelayModernEnvironmentCheckWithGlobalInvalidationTestUserFragment = RelayModernEnvironmentCheckWithGlobalInvalidationTestUserFragment$data;
 export type RelayModernEnvironmentCheckWithGlobalInvalidationTestUserFragment$key = {
   +$data?: RelayModernEnvironmentCheckWithGlobalInvalidationTestUserFragment$data,
-  +$fragmentRefs: RelayModernEnvironmentCheckWithGlobalInvalidationTestUserFragment$ref,
+  +$fragmentSpreads: RelayModernEnvironmentCheckWithGlobalInvalidationTestUserFragment$fragmentType,
   ...
 };
 */
@@ -77,4 +77,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "ccdce8c193c52f1dfab84a39ef9d54a8";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayModernEnvironmentCheckWithGlobalInvalidationTestUserFragment$fragmentType,
+  RelayModernEnvironmentCheckWithGlobalInvalidationTestUserFragment$data,
+>*/);

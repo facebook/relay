@@ -7,7 +7,7 @@
 
 use common::{Named, NamedItem, WithLocation};
 use graphql_syntax::*;
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey};
 use lazy_static::lazy_static;
 use std::collections::HashMap;
 use std::fmt;

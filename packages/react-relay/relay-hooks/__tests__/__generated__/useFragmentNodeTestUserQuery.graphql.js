@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<f88716681679984eca5cee1dadebb59e>>
+ * @generated SignedSource<<1d7e271787ed4f1633f45940bbba3de4>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,20 +15,22 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type useFragmentNodeTestUserFragment$ref = any;
-export type useFragmentNodeTestUserQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type useFragmentNodeTestUserFragment$fragmentType = any;
+export type useFragmentNodeTestUserQuery$variables = {|
   id: string,
   scale: number,
 |};
-export type useFragmentNodeTestUserQueryResponse = {|
+export type useFragmentNodeTestUserQueryVariables = useFragmentNodeTestUserQuery$variables;
+export type useFragmentNodeTestUserQuery$data = {|
   +node: ?{|
-    +$fragmentRefs: useFragmentNodeTestUserFragment$ref,
+    +$fragmentSpreads: useFragmentNodeTestUserFragment$fragmentType,
   |},
 |};
+export type useFragmentNodeTestUserQueryResponse = useFragmentNodeTestUserQuery$data;
 export type useFragmentNodeTestUserQuery = {|
   variables: useFragmentNodeTestUserQueryVariables,
-  response: useFragmentNodeTestUserQueryResponse,
+  response: useFragmentNodeTestUserQuery$data,
 |};
 */
 
@@ -172,4 +174,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "84829266b419cba0d2a2e681f3d1db63";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  useFragmentNodeTestUserQuery$variables,
+  useFragmentNodeTestUserQuery$data,
+>*/);

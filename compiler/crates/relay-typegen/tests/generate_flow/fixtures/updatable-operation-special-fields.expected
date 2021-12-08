@@ -1,0 +1,19 @@
+==================================== INPUT ====================================
+query UpdatableQuery @updatable {
+  me {
+    id
+    aliased_id: id
+    __typename
+    aliased_typename: __typename
+  }
+}
+==================================== OUTPUT ===================================
+export type UpdatableQuery$variables = {||};
+export type UpdatableQuery$data = {|
+  +me: ?{|
+    +id: string,
+    +aliased_id: string,
+    +__typename: string,
+    +aliased_typename: string,
+  |},
+|};

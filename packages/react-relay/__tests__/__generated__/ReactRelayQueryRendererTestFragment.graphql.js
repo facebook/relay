@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<7bb7102f6dd553f1780faa2dd0b4a988>>
+ * @generated SignedSource<<7c18fd5fca0e042fb835d7e188d75eb0>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,18 +15,18 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type ReactRelayQueryRendererTestFragment$ref: FragmentReference;
-declare export opaque type ReactRelayQueryRendererTestFragment$fragmentType: ReactRelayQueryRendererTestFragment$ref;
-export type ReactRelayQueryRendererTestFragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type ReactRelayQueryRendererTestFragment$fragmentType: FragmentType;
+export type ReactRelayQueryRendererTestFragment$ref = ReactRelayQueryRendererTestFragment$fragmentType;
+export type ReactRelayQueryRendererTestFragment$data = {|
   +name: ?string,
-  +$refType: ReactRelayQueryRendererTestFragment$ref,
+  +$fragmentType: ReactRelayQueryRendererTestFragment$fragmentType,
 |};
-export type ReactRelayQueryRendererTestFragment$data = ReactRelayQueryRendererTestFragment;
+export type ReactRelayQueryRendererTestFragment = ReactRelayQueryRendererTestFragment$data;
 export type ReactRelayQueryRendererTestFragment$key = {
   +$data?: ReactRelayQueryRendererTestFragment$data,
-  +$fragmentRefs: ReactRelayQueryRendererTestFragment$ref,
+  +$fragmentSpreads: ReactRelayQueryRendererTestFragment$fragmentType,
   ...
 };
 */
@@ -53,4 +53,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "217440fbdae0f10ec8969707bffc1c61";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  ReactRelayQueryRendererTestFragment$fragmentType,
+  ReactRelayQueryRendererTestFragment$data,
+>*/);

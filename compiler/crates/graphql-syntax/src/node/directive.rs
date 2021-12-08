@@ -8,7 +8,7 @@
 use super::primitive::*;
 use super::value::Argument;
 use common::{Named, Span};
-use interner::StringKey;
+use intern::string_key::StringKey;
 
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct Directive {

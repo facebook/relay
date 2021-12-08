@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b8d88b7c29836a20211b703fedf46430>>
+ * @generated SignedSource<<9a3725fb567b64777155450ee9f4c4b0>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,9 +15,10 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-export type RelayMockPayloadGeneratorTest32QueryVariables = {||};
-export type RelayMockPayloadGeneratorTest32QueryResponse = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+export type RelayMockPayloadGeneratorTest32Query$variables = {||};
+export type RelayMockPayloadGeneratorTest32QueryVariables = RelayMockPayloadGeneratorTest32Query$variables;
+export type RelayMockPayloadGeneratorTest32Query$data = {|
   +node: ?{|
     +id?: string,
     +friends?: ?{|
@@ -35,9 +36,10 @@ export type RelayMockPayloadGeneratorTest32QueryResponse = {|
     |},
   |},
 |};
+export type RelayMockPayloadGeneratorTest32QueryResponse = RelayMockPayloadGeneratorTest32Query$data;
 export type RelayMockPayloadGeneratorTest32Query = {|
   variables: RelayMockPayloadGeneratorTest32QueryVariables,
-  response: RelayMockPayloadGeneratorTest32QueryResponse,
+  response: RelayMockPayloadGeneratorTest32Query$data,
 |};
 */
 
@@ -273,4 +275,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "1c649db253fa2b54fb25c4b454be3d90";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayMockPayloadGeneratorTest32Query$variables,
+  RelayMockPayloadGeneratorTest32Query$data,
+>*/);

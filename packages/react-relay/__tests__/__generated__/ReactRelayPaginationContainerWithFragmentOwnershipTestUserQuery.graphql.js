@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<06704f2369d5e880af6bcb6fcddb5663>>
+ * @generated SignedSource<<a5972f811dc24195a9c6bacce4670bac>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,25 +15,27 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment$ref = any;
-export type ReactRelayPaginationContainerWithFragmentOwnershipTestUserQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment$fragmentType = any;
+export type ReactRelayPaginationContainerWithFragmentOwnershipTestUserQuery$variables = {|
   after?: ?string,
   count: number,
   id: string,
   orderby?: ?$ReadOnlyArray<?string>,
   isViewerFriend: boolean,
 |};
-export type ReactRelayPaginationContainerWithFragmentOwnershipTestUserQueryResponse = {|
+export type ReactRelayPaginationContainerWithFragmentOwnershipTestUserQueryVariables = ReactRelayPaginationContainerWithFragmentOwnershipTestUserQuery$variables;
+export type ReactRelayPaginationContainerWithFragmentOwnershipTestUserQuery$data = {|
   +node: ?{|
     +id: string,
     +__typename: string,
-    +$fragmentRefs: ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment$ref,
+    +$fragmentSpreads: ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment$fragmentType,
   |},
 |};
+export type ReactRelayPaginationContainerWithFragmentOwnershipTestUserQueryResponse = ReactRelayPaginationContainerWithFragmentOwnershipTestUserQuery$data;
 export type ReactRelayPaginationContainerWithFragmentOwnershipTestUserQuery = {|
   variables: ReactRelayPaginationContainerWithFragmentOwnershipTestUserQueryVariables,
-  response: ReactRelayPaginationContainerWithFragmentOwnershipTestUserQueryResponse,
+  response: ReactRelayPaginationContainerWithFragmentOwnershipTestUserQuery$data,
 |};
 */
 
@@ -291,4 +293,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "46153f91be065033bb3e83f093819f1b";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  ReactRelayPaginationContainerWithFragmentOwnershipTestUserQuery$variables,
+  ReactRelayPaginationContainerWithFragmentOwnershipTestUserQuery$data,
+>*/);

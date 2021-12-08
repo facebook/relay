@@ -23,19 +23,19 @@ fragment FriendFragment on User {
 }
 ==================================== OUTPUT ===================================
 import { FragmentRefs } from "relay-runtime";
-export type ExampleQueryVariables = {
+export type ExampleQuery$variables = {
   id: string;
 };
-export type ExampleQueryResponse = {
+export type ExampleQuery$data = {
   readonly node: {
     readonly username: string | null;
     readonly friends?: {
       readonly count: number | null;
     } | null;
-    readonly " $fragmentRefs": FragmentRefs<"FriendFragment">;
+    readonly " $fragmentSpreads": FragmentRefs<"FriendFragment">;
   } | null;
 };
-export type ExampleQueryRawResponse = {
+export type ExampleQuery$rawResponse = {
   readonly node: {
     readonly __typename: string;
     readonly username: string | null;
@@ -43,23 +43,21 @@ export type ExampleQueryRawResponse = {
   } | null;
 };
 export type ExampleQuery = {
-  variables: ExampleQueryVariables;
-  response: ExampleQueryResponse;
-  rawResponse: ExampleQueryRawResponse;
+  variables: ExampleQuery$variables;
+  response: ExampleQuery$data;
 };
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
-export type FriendFragment = {
+export type FriendFragment$data = {
   readonly name?: string | null;
   readonly lastName?: string | null;
   readonly feedback?: {
     readonly id: string;
     readonly name: string | null;
   } | null;
-  readonly " $refType": "FriendFragment";
+  readonly " $fragmentType": "FriendFragment";
 };
-export type FriendFragment$data = FriendFragment;
 export type FriendFragment$key = {
   readonly " $data"?: FriendFragment$data;
-  readonly " $fragmentRefs": FragmentRefs<"FriendFragment">;
+  readonly " $fragmentSpreads": FragmentRefs<"FriendFragment">;
 };

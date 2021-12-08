@@ -11,7 +11,7 @@ use common::{Location, WithLocation};
 use graphql_ir::{
     Argument, Directive, LinkedField, Program, ScalarField, Selection, Transformed, Transformer,
 };
-use interner::Intern;
+use intern::string_key::Intern;
 use std::sync::Arc;
 
 /// This transform applies field argument updates for client handle fields:
@@ -76,7 +76,7 @@ impl<'s> Transformer for HandleFieldTransform {
             };
             self.update_arguments(
                 &mut transformed_field.arguments,
-                &handle_directive,
+                handle_directive,
                 transformed_field.definition.location,
             );
             Transformed::Replace(Selection::ScalarField(Arc::new(transformed_field)))
@@ -107,7 +107,7 @@ impl<'s> Transformer for HandleFieldTransform {
             };
             self.update_arguments(
                 &mut transformed_field.arguments,
-                &handle_directive,
+                handle_directive,
                 transformed_field.definition.location,
             );
             Transformed::Replace(Selection::LinkedField(Arc::new(transformed_field)))

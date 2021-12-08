@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<3e349c0554c9e8f9382539ea972785fd>>
+ * @generated SignedSource<<02b2dd7b7e24348320c8fe8f7f075a43>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,16 +15,17 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
+import type { ConcreteRequest, Mutation } from 'relay-runtime';
 export type ActorNameChangeInput = {|
   clientMutationId?: ?string,
   newName?: ?string,
 |};
-export type validateMutationTest10ChangeNameIncludeBoolMutationVariables = {|
+export type validateMutationTest10ChangeNameIncludeBoolMutation$variables = {|
   input: ActorNameChangeInput,
   myVar: boolean,
 |};
-export type validateMutationTest10ChangeNameIncludeBoolMutationResponse = {|
+export type validateMutationTest10ChangeNameIncludeBoolMutationVariables = validateMutationTest10ChangeNameIncludeBoolMutation$variables;
+export type validateMutationTest10ChangeNameIncludeBoolMutation$data = {|
   +actorNameChange: ?{|
     +actor: ?{|
       +username?: ?string,
@@ -32,9 +33,10 @@ export type validateMutationTest10ChangeNameIncludeBoolMutationResponse = {|
     |},
   |},
 |};
+export type validateMutationTest10ChangeNameIncludeBoolMutationResponse = validateMutationTest10ChangeNameIncludeBoolMutation$data;
 export type validateMutationTest10ChangeNameIncludeBoolMutation = {|
   variables: validateMutationTest10ChangeNameIncludeBoolMutationVariables,
-  response: validateMutationTest10ChangeNameIncludeBoolMutationResponse,
+  response: validateMutationTest10ChangeNameIncludeBoolMutation$data,
 |};
 */
 
@@ -216,4 +218,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "d32f98ddfabecf63aee0603885209836";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Mutation<
+  validateMutationTest10ChangeNameIncludeBoolMutation$variables,
+  validateMutationTest10ChangeNameIncludeBoolMutation$data,
+>*/);

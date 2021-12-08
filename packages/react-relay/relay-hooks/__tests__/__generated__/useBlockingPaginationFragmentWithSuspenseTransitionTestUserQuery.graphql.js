@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<fdff81335c5cad246dd9d55412f42393>>
+ * @generated SignedSource<<a93f0c7aff64a317a06695bcdb7fcab7>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,9 +15,9 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment$ref = any;
-export type useBlockingPaginationFragmentWithSuspenseTransitionTestUserQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment$fragmentType = any;
+export type useBlockingPaginationFragmentWithSuspenseTransitionTestUserQuery$variables = {|
   id: string,
   after?: ?string,
   first?: ?number,
@@ -26,16 +26,18 @@ export type useBlockingPaginationFragmentWithSuspenseTransitionTestUserQueryVari
   orderby?: ?$ReadOnlyArray<?string>,
   isViewerFriend?: ?boolean,
 |};
-export type useBlockingPaginationFragmentWithSuspenseTransitionTestUserQueryResponse = {|
+export type useBlockingPaginationFragmentWithSuspenseTransitionTestUserQueryVariables = useBlockingPaginationFragmentWithSuspenseTransitionTestUserQuery$variables;
+export type useBlockingPaginationFragmentWithSuspenseTransitionTestUserQuery$data = {|
   +node: ?{|
     +actor: ?{|
-      +$fragmentRefs: useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment$ref,
+      +$fragmentSpreads: useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment$fragmentType,
     |},
   |},
 |};
+export type useBlockingPaginationFragmentWithSuspenseTransitionTestUserQueryResponse = useBlockingPaginationFragmentWithSuspenseTransitionTestUserQuery$data;
 export type useBlockingPaginationFragmentWithSuspenseTransitionTestUserQuery = {|
   variables: useBlockingPaginationFragmentWithSuspenseTransitionTestUserQueryVariables,
-  response: useBlockingPaginationFragmentWithSuspenseTransitionTestUserQueryResponse,
+  response: useBlockingPaginationFragmentWithSuspenseTransitionTestUserQuery$data,
 |};
 */
 
@@ -355,4 +357,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "d89c8846126eef2be90954dd65755d31";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  useBlockingPaginationFragmentWithSuspenseTransitionTestUserQuery$variables,
+  useBlockingPaginationFragmentWithSuspenseTransitionTestUserQuery$data,
+>*/);

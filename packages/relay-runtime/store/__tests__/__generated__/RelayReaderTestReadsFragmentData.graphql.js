@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<e8147f54d2d1100f79bb6ed181d72afe>>
+ * @generated SignedSource<<064194a0c4dfcf0b347d335b0d3b2668>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,11 +15,11 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayReaderTestReadsFragmentData$ref: FragmentReference;
-declare export opaque type RelayReaderTestReadsFragmentData$fragmentType: RelayReaderTestReadsFragmentData$ref;
-export type RelayReaderTestReadsFragmentData = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayReaderTestReadsFragmentData$fragmentType: FragmentType;
+export type RelayReaderTestReadsFragmentData$ref = RelayReaderTestReadsFragmentData$fragmentType;
+export type RelayReaderTestReadsFragmentData$data = {|
   +id: string,
   +firstName: ?string,
   +friends: ?{|
@@ -34,12 +34,12 @@ export type RelayReaderTestReadsFragmentData = {|
   +profilePicture: ?{|
     +uri: ?string,
   |},
-  +$refType: RelayReaderTestReadsFragmentData$ref,
+  +$fragmentType: RelayReaderTestReadsFragmentData$fragmentType,
 |};
-export type RelayReaderTestReadsFragmentData$data = RelayReaderTestReadsFragmentData;
+export type RelayReaderTestReadsFragmentData = RelayReaderTestReadsFragmentData$data;
 export type RelayReaderTestReadsFragmentData$key = {
   +$data?: RelayReaderTestReadsFragmentData$data,
-  +$fragmentRefs: RelayReaderTestReadsFragmentData$ref,
+  +$fragmentSpreads: RelayReaderTestReadsFragmentData$fragmentType,
   ...
 };
 */
@@ -155,4 +155,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "92a7ad8bc63727cda5956b23cf6d231f";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayReaderTestReadsFragmentData$fragmentType,
+  RelayReaderTestReadsFragmentData$data,
+>*/);

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<99773a177744405ffca2783ce4620b01>>
+ * @generated SignedSource<<27b8c6c2e5ffe23e74a1d4cb07a13823>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,18 +15,18 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type validateMutationTestGroovyFragment_groovygroovy$ref: FragmentReference;
-declare export opaque type validateMutationTestGroovyFragment_groovygroovy$fragmentType: validateMutationTestGroovyFragment_groovygroovy$ref;
-export type validateMutationTestGroovyFragment_groovygroovy = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type validateMutationTestGroovyFragment_groovygroovy$fragmentType: FragmentType;
+export type validateMutationTestGroovyFragment_groovygroovy$ref = validateMutationTestGroovyFragment_groovygroovy$fragmentType;
+export type validateMutationTestGroovyFragment_groovygroovy$data = {|
   +doesViewerLike: ?boolean,
-  +$refType: validateMutationTestGroovyFragment_groovygroovy$ref,
+  +$fragmentType: validateMutationTestGroovyFragment_groovygroovy$fragmentType,
 |};
-export type validateMutationTestGroovyFragment_groovygroovy$data = validateMutationTestGroovyFragment_groovygroovy;
+export type validateMutationTestGroovyFragment_groovygroovy = validateMutationTestGroovyFragment_groovygroovy$data;
 export type validateMutationTestGroovyFragment_groovygroovy$key = {
   +$data?: validateMutationTestGroovyFragment_groovygroovy$data,
-  +$fragmentRefs: validateMutationTestGroovyFragment_groovygroovy$ref,
+  +$fragmentSpreads: validateMutationTestGroovyFragment_groovygroovy$fragmentType,
   ...
 };
 */
@@ -53,4 +53,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "83e864f783acac747c40b6b623186a80";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  validateMutationTestGroovyFragment_groovygroovy$fragmentType,
+  validateMutationTestGroovyFragment_groovygroovy$data,
+>*/);

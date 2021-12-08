@@ -10,7 +10,7 @@ use crate::errors::{Error, Result};
 use common::{Diagnostic, SourceLocationKey};
 use fnv::{FnvHashMap, FnvHashSet};
 use graphql_syntax::ExecutableDefinition;
-use interner::StringKey;
+use intern::string_key::StringKey;
 
 #[derive(Debug)]
 pub struct GraphQLAsts {

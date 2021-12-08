@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<6625eb7e8803db059cf524ba5fddb661>>
+ * @generated SignedSource<<02481d41f76b064d861323b6b36872fc>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,25 +17,25 @@
 // @dataDrivenDependency DataCheckerTest4Fragment.nameRenderer {"branches":{"MarkdownUserNameRenderer":{"component":"MarkdownUserNameRenderer.react","fragment":"DataCheckerTestMarkdownUserNameRenderer_nameFragment$normalization.graphql"},"PlainUserNameRenderer":{"component":"PlainUserNameRenderer.react","fragment":"DataCheckerTestPlainUserNameRenderer_nameFragment$normalization.graphql"}},"plural":false}
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-type DataCheckerTestMarkdownUserNameRenderer_nameFragment$ref = any;
-type DataCheckerTestPlainUserNameRenderer_nameFragment$ref = any;
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type DataCheckerTest4Fragment$ref: FragmentReference;
-declare export opaque type DataCheckerTest4Fragment$fragmentType: DataCheckerTest4Fragment$ref;
-export type DataCheckerTest4Fragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+type DataCheckerTestMarkdownUserNameRenderer_nameFragment$fragmentType = any;
+type DataCheckerTestPlainUserNameRenderer_nameFragment$fragmentType = any;
+import type { FragmentType } from "relay-runtime";
+declare export opaque type DataCheckerTest4Fragment$fragmentType: FragmentType;
+export type DataCheckerTest4Fragment$ref = DataCheckerTest4Fragment$fragmentType;
+export type DataCheckerTest4Fragment$data = {|
   +id: string,
   +nameRenderer: ?{|
     +__fragmentPropName?: ?string,
     +__module_component?: ?string,
-    +$fragmentRefs: DataCheckerTestPlainUserNameRenderer_nameFragment$ref & DataCheckerTestMarkdownUserNameRenderer_nameFragment$ref,
+    +$fragmentSpreads: DataCheckerTestPlainUserNameRenderer_nameFragment$fragmentType & DataCheckerTestMarkdownUserNameRenderer_nameFragment$fragmentType,
   |},
-  +$refType: DataCheckerTest4Fragment$ref,
+  +$fragmentType: DataCheckerTest4Fragment$fragmentType,
 |};
-export type DataCheckerTest4Fragment$data = DataCheckerTest4Fragment;
+export type DataCheckerTest4Fragment = DataCheckerTest4Fragment$data;
 export type DataCheckerTest4Fragment$key = {
   +$data?: DataCheckerTest4Fragment$data,
-  +$fragmentRefs: DataCheckerTest4Fragment$ref,
+  +$fragmentSpreads: DataCheckerTest4Fragment$fragmentType,
   ...
 };
 */
@@ -110,4 +110,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "f20c2eee0a5b421d96944c9afdd2eb66";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  DataCheckerTest4Fragment$fragmentType,
+  DataCheckerTest4Fragment$data,
+>*/);

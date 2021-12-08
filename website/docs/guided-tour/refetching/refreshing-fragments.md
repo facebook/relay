@@ -165,12 +165,12 @@ function UserComponent(props: Props) {
           // be cached, so we use the 'store-only'
           // fetchPolicy to avoid suspending.
           refetch({}, {fetchPolicy: 'store-only'});
-        }
+        },
         error: () => {
           setIsRefreshing(false);
         }
       });
-  }), [/* ... */];
+  }, [/* ... */]);
 
   return (
     <>

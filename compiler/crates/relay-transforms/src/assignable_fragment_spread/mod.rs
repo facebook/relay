@@ -5,15 +5,22 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+mod errors;
+mod validate_assignable_directive;
+mod validate_updatable_directive;
+
+use self::errors::ValidationMessage;
 use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, WithLocation};
 use graphql_ir::{
     Condition, FragmentSpread, InlineFragment, LinkedField, OperationDefinition, Program,
-    ScalarField, Selection, Transformed, Transformer, ValidationMessage,
+    ScalarField, Selection, Transformed, Transformer,
 };
 use intern::string_key::{Intern, StringKey};
 use lazy_static::lazy_static;
 use schema::{FieldID, Schema};
 use std::sync::Arc;
+pub use validate_assignable_directive::validate_assignable_directive;
+pub use validate_updatable_directive::{validate_updatable_directive, UPDATABLE_DIRECTIVE_NAME};
 
 lazy_static! {
     static ref ASSIGNABLE_DIRECTIVE: StringKey = "assignable".intern();

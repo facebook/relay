@@ -5,11 +5,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{Diagnostic, DiagnosticsResult};
-use graphql_ir::{FragmentDefinition, OperationDefinition, Program, ValidationMessage, Validator};
-use graphql_syntax::OperationKind;
-
 mod extract_module_name;
+
+use common::{Diagnostic, DiagnosticsResult};
+use graphql_ir::{FragmentDefinition, OperationDefinition, Program, Validator};
+use graphql_syntax::OperationKind;
+use thiserror::Error;
 
 pub fn validate_module_names(program: &Program) -> DiagnosticsResult<()> {
     (ValidateModuleNames {}).validate_program(program)
@@ -73,4 +74,25 @@ impl Validator for ValidateModuleNames {
         }
         Ok(())
     }
+}
+
+#[derive(Debug, Error)]
+pub enum ValidationMessage {
+    #[error(
+        "{pluralized_string} in graphql tags must start with the module name ('{module_name}') and end with '{operation_type_suffix}'. Got '{operation_name}' instead."
+    )]
+    InvalidOperationName {
+        pluralized_string: String,
+        module_name: String,
+        operation_type_suffix: String,
+        operation_name: String,
+    },
+
+    #[error(
+        "Fragments in graphql tags must start with the module name ('{module_name}'). Got '{fragment_name}' instead."
+    )]
+    InvalidFragmentName {
+        module_name: String,
+        fragment_name: String,
+    },
 }

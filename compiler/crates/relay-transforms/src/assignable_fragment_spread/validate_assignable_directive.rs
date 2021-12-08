@@ -5,8 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use super::ValidationMessage;
 use common::{Diagnostic, DiagnosticsResult, NamedItem};
-use graphql_ir::{FragmentDefinition, Program, Selection, ValidationMessage, Validator};
+use graphql_ir::{FragmentDefinition, Program, Selection, Validator};
 use intern::string_key::{Intern, StringKey};
 use lazy_static::lazy_static;
 use schema::Schema;

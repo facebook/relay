@@ -10,7 +10,6 @@ use std::process::Output;
 
 use thiserror::Error;
 
-/// Fixed set of validation errors with custom display messages
 #[derive(Debug)]
 pub struct ConfigError {
     pub path: PathBuf,

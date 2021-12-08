@@ -7,12 +7,13 @@
 
 use std::collections::HashSet;
 
-use super::validate_assignable_directive::ASSIGNABLE_DIRECTIVE_NAME;
+use super::ValidationMessage;
+use crate::assignable_fragment_spread::validate_assignable_directive::ASSIGNABLE_DIRECTIVE_NAME;
 use common::{Diagnostic, DiagnosticsResult, Location, NamedItem};
 use errors::{validate, validate_map};
 use graphql_ir::{
     Condition, Directive, Field, FragmentDefinition, FragmentSpread, InlineFragment, LinkedField,
-    OperationDefinition, Program, Selection, ValidationMessage, Validator,
+    OperationDefinition, Program, Selection, Validator,
 };
 use intern::string_key::{Intern, StringKey};
 use lazy_static::lazy_static;

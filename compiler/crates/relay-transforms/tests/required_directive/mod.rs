@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{DiagnosticsResult, FeatureFlags};
+use common::DiagnosticsResult;
 use fixture_tests::Fixture;
 use graphql_ir::Program;
 use graphql_test_helpers::apply_transform_for_test;

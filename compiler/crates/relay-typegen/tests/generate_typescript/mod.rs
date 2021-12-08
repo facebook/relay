@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{ConsoleLogger, FeatureFlag, FeatureFlags, SourceLocationKey};
+use common::{ConsoleLogger, FeatureFlags, SourceLocationKey};
 use fixture_tests::Fixture;
 use fnv::FnvHashMap;
 use graphql_ir::{build, Program};

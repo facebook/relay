@@ -116,22 +116,26 @@ pub enum FileSourceKind {
     Glob,
 }
 
-/// In the configs we may have a various values: with or without './' prefix at the beginning
-/// This function will use `root_dir` to construct full path, canonicalize it, and then
-/// it will remove the `root_dir` prefix.
-fn normalize_path_from_config(root_dir: PathBuf, path_from_config: PathBuf) -> PathBuf {
-    let mut src = root_dir.clone();
-    src.push(path_from_config);
+fn normalize_path_from_config(
+    current_dir: PathBuf,
+    common_path: PathBuf,
+    path_from_config: PathBuf,
+) -> PathBuf {
+    let mut src = current_dir.join(path_from_config.clone());
+
     src = src
         .canonicalize()
-        .map_err(|err| format!("Unable to canonicalize file {:?}. Error: {:?}", &src, err))
-        .unwrap();
+        .unwrap_or_else(|err| panic!("Unable to canonicalize file {:?}. Error: {:?}", &src, err));
 
-    if !src.exists() {
-        panic!("Path '{:?}' does not exits.", &src);
-    }
-
-    src.iter().skip(root_dir.iter().count()).collect()
+    src.strip_prefix(common_path.clone())
+        .unwrap_or_else(|_| {
+            panic!(
+                "Expect to be able to strip common_path from {:?} {:?}",
+                &src,
+                &common_path.clone(),
+            );
+        })
+        .to_path_buf()
 }
 
 impl From<SingleProjectConfigFile> for Config {
@@ -690,19 +694,66 @@ impl Default for SingleProjectConfigFile {
     }
 }
 
+impl SingleProjectConfigFile {
+    fn get_common_root(&self, root_dir: PathBuf) -> Option<PathBuf> {
+        let mut paths = vec![];
+        if let Some(artifact_directory_path) = self.artifact_directory.clone() {
+            paths.push(join_and_canonicalize(
+                root_dir.clone(),
+                artifact_directory_path,
+            ));
+        }
+        paths.push(join_and_canonicalize(root_dir.clone(), self.src.clone()));
+        paths.push(join_and_canonicalize(root_dir.clone(), self.schema.clone()));
+        paths.extend(
+            self.schema_extensions
+                .iter()
+                .map(|dir| join_and_canonicalize(root_dir.clone(), dir.clone())),
+        );
+        common_path::common_path_all(paths.iter().map(|path| path.as_path()))
+    }
+}
+
+fn join_and_canonicalize(root: PathBuf, path: PathBuf) -> PathBuf {
+    root.clone()
+        .join(path.clone())
+        .canonicalize()
+        .unwrap_or_else(|err| {
+            panic!(
+                "Expected to create a valid path from {:?} and {:?}. Error {:?}",
+                root, path, err
+            );
+        })
+}
+
 impl From<SingleProjectConfigFile> for MultiProjectConfigFile {
     fn from(oss_config: SingleProjectConfigFile) -> MultiProjectConfigFile {
-        let root_dir = std::env::current_dir().unwrap();
+        let current_dir = std::env::current_dir().unwrap();
+        let common_root_dir = oss_config.get_common_root(current_dir.clone()).expect(
+            "Could not find a common root directory for project sources, schemas, and extensions.",
+        );
+
         let default_project_name = "default".intern();
         let project_config = ConfigFileProject {
-            output: oss_config
-                .artifact_directory
-                .map(|dir| normalize_path_from_config(root_dir.clone(), dir)),
+            output: oss_config.artifact_directory.map(|dir| {
+                normalize_path_from_config(current_dir.clone(), common_root_dir.clone(), dir)
+            }),
             schema: Some(normalize_path_from_config(
-                root_dir.clone(),
+                current_dir.clone(),
+                common_root_dir.clone(),
                 oss_config.schema,
             )),
-            schema_extensions: oss_config.schema_extensions,
+            schema_extensions: oss_config
+                .schema_extensions
+                .iter()
+                .map(|dir| {
+                    normalize_path_from_config(
+                        current_dir.clone(),
+                        common_root_dir.clone(),
+                        dir.clone(),
+                    )
+                })
+                .collect(),
             persist: oss_config.persist_config,
             typegen_config: TypegenConfig {
                 language: oss_config.language.unwrap_or(TypegenLanguage::TypeScript),
@@ -721,12 +772,16 @@ impl From<SingleProjectConfigFile> for MultiProjectConfigFile {
         projects.insert(default_project_name, project_config);
 
         let mut sources = FnvIndexMap::default();
-        let src = normalize_path_from_config(root_dir.clone(), oss_config.src);
+        let src = normalize_path_from_config(
+            current_dir.clone(),
+            common_root_dir.clone(),
+            oss_config.src,
+        );
 
         sources.insert(src, SourceSet::SourceSetName(default_project_name));
 
         MultiProjectConfigFile {
-            root: Some(root_dir),
+            root: Some(common_root_dir),
             projects,
             sources,
             excludes: oss_config.excludes,

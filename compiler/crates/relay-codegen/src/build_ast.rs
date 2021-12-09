@@ -1568,7 +1568,7 @@ fn is_type_discriminator_selection(selection: &Selection) -> bool {
 }
 
 // Storage key is only pre-computable if the arguments don't contain variables
-fn is_static_storage_key_available(arguments: &[Argument]) -> bool {
+pub fn is_static_storage_key_available(arguments: &[Argument]) -> bool {
     !arguments
         .iter()
         .any(|arg| value_contains_variable(&arg.value.item))

@@ -6,7 +6,7 @@ description: Introducing the new Relay compiler
 hide_table_of_contents: false
 ---
 
-We’re extremely excited to release a preview of the new, Rust-based Relay compiler to open source today (as [`v13.0.0-rv.1`](https://github.com/facebook/relay/releases/tag/v13.0.0-rc.1))! This new compiler is faster, supports new runtime features, and provides a strong foundation for additional growth in the future.
+We’re extremely excited to release a preview of the new, Rust-based Relay compiler to open source today (as [`v13.0.0-rc.1`](https://github.com/facebook/relay/releases/tag/v13.0.0-rc.1))! This new compiler is faster, supports new runtime features, and provides a strong foundation for additional growth in the future.
 
 Leading up to this release, Meta’s codebase had been growing without signs of stopping. At our scale, the time it took to compile all of the queries in our codebase was increasing at the direct expense of developer productivity. Though we tried a number of strategies to optimize our JavaScript-based compiler (discussed below), our ability to incrementally eke out performance gains could not keep up with the growth in the number of queries in our codebase.
 

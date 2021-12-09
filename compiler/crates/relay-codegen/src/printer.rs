@@ -128,6 +128,18 @@ impl Printer {
         let printer = JSONPrinter::new(&self.builder, self.js_module_format);
         printer.print(key, self.dedupe)
     }
+
+    pub fn print_request_params(
+        &mut self,
+        schema: &SDLSchema,
+        request_parameters: RequestParameters<'_>,
+        operation: &OperationDefinition,
+    ) -> String {
+        let key =
+            build_request_params_ast_key(schema, request_parameters, &mut self.builder, operation);
+        let printer = JSONPrinter::new(&self.builder, self.js_module_format);
+        printer.print(key, self.dedupe)
+    }
 }
 
 type VariableDefinitions = IndexMap<AstKey, String, FnvBuildHasher>;

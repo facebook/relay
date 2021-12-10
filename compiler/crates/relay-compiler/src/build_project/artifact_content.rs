@@ -5,17 +5,17 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use super::ArtifactGeneratedTypes;
 use crate::config::{Config, ProjectConfig};
 use common::{NamedItem, SourceLocationKey};
 use graphql_ir::{Directive, FragmentDefinition, OperationDefinition};
-use graphql_syntax::OperationKind;
 use relay_codegen::{build_request_params, Printer, QueryID};
 use relay_transforms::{
-    is_operation_preloadable, ReactFlightLocalComponentsMetadata, RefetchableMetadata,
-    RelayClientComponentMetadata, DATA_DRIVEN_DEPENDENCY_METADATA_KEY, INLINE_DIRECTIVE_NAME,
+    is_operation_preloadable, ReactFlightLocalComponentsMetadata, RelayClientComponentMetadata,
+    DATA_DRIVEN_DEPENDENCY_METADATA_KEY,
 };
 use relay_typegen::{
-    generate_fragment_type, has_raw_response_type_directive, TypegenConfig, TypegenLanguage,
+    generate_fragment_type, generate_operation_type, TypegenConfig, TypegenLanguage,
 };
 use schema::SDLSchema;
 use signedsource::{sign_file, SIGNING_TOKEN};
@@ -235,40 +235,26 @@ fn generate_operation(
     if request_parameters.id.is_some() || data_driven_dependency_metadata.is_some() {
         writeln!(content).unwrap();
     }
+
+    let generated_types = ArtifactGeneratedTypes::from_operation(typegen_operation, skip_types);
+
     if project_config.typegen_config.language == TypegenLanguage::Flow {
         writeln!(content, "/*::").unwrap();
     }
 
-    let operation_flow_type = match normalization_operation.kind {
-        OperationKind::Query => "Query",
-        OperationKind::Mutation => "Mutation",
-        OperationKind::Subscription => "GraphQLSubscription",
-    };
-
-    if skip_types {
-        write_import_type_from(
-            &project_config.typegen_config.language,
-            &mut content,
-            "ConcreteRequest",
-            "relay-runtime",
-        )
-        .unwrap()
-    } else {
-        write_import_type_from(
-            &project_config.typegen_config.language,
-            &mut content,
-            &format!("ConcreteRequest, {}", operation_flow_type),
-            "relay-runtime",
-        )
-        .unwrap()
-    }
-
+    write_import_type_from(
+        &project_config.typegen_config.language,
+        &mut content,
+        generated_types.imported_types,
+        "relay-runtime",
+    )
+    .unwrap();
 
     if !skip_types {
         write!(
             content,
             "{}",
-            relay_typegen::generate_operation_type(
+            generate_operation_type(
                 typegen_operation,
                 normalization_operation,
                 schema,
@@ -280,19 +266,15 @@ fn generate_operation(
         .unwrap();
     }
     match project_config.typegen_config.language {
-        TypegenLanguage::Flow => {
-            writeln!(content, "*/\n").unwrap();
-        }
-        TypegenLanguage::TypeScript => {
-            writeln!(content).unwrap();
-        }
+        TypegenLanguage::Flow => writeln!(content, "*/\n").unwrap(),
+        TypegenLanguage::TypeScript => writeln!(content).unwrap(),
     }
 
     write_variable_value_with_type(
         &project_config.typegen_config.language,
         &mut content,
         "node",
-        "ConcreteRequest",
+        generated_types.ast_type,
         &printer.print_request(
             schema,
             normalization_operation,
@@ -318,31 +300,11 @@ fn generate_operation(
         .unwrap();
     }
 
-    let node_type = if skip_types {
-        None
-    } else {
-        Some(
-            if has_raw_response_type_directive(normalization_operation) {
-                format!(
-                    "{type}<\n  {name}$variables,\n  {name}$data,\n  {name}$rawResponse,\n>",
-                    type = operation_flow_type,
-                    name = normalization_operation.name.item
-                )
-            } else {
-                format!(
-                    "{type}<\n  {name}$variables,\n  {name}$data,\n>",
-                    type = operation_flow_type,
-                    name = normalization_operation.name.item
-                )
-            },
-        )
-    };
-
     write_export_generated_node(
         &project_config.typegen_config,
         &mut content,
         "node",
-        node_type,
+        generated_types.exported_type,
     )
     .unwrap();
 
@@ -477,48 +439,7 @@ fn generate_fragment(
             .unwrap();
     }
 
-    let is_inline_data_fragment = reader_fragment
-        .directives
-        .named(*INLINE_DIRECTIVE_NAME)
-        .is_some();
-
-    let (imported_types, reader_node_flow_type, node_type) = if skip_types {
-        if is_inline_data_fragment {
-            ("ReaderInlineDataFragment", "ReaderInlineDataFragment", None)
-        } else {
-            ("ReaderFragment", "ReaderFragment", None)
-        }
-    } else if is_inline_data_fragment {
-        (
-            "InlineFragment, ReaderInlineDataFragment",
-            "ReaderInlineDataFragment",
-            Some(format!(
-                "InlineFragment<\n  {name}$fragmentType,\n  {name}$data,\n>",
-                name = typegen_fragment.name.item
-            )),
-        )
-    } else if let Some(refetchable_metadata) =
-        RefetchableMetadata::find(&typegen_fragment.directives)
-    {
-        (
-            "ReaderFragment, RefetchableFragment",
-            "ReaderFragment",
-            Some(format!(
-                "RefetchableFragment<\n  {name}$fragmentType,\n  {name}$data,\n  {refetchable_name}$variables,\n>",
-                name = typegen_fragment.name.item,
-                refetchable_name = refetchable_metadata.operation_name
-            )),
-        )
-    } else {
-        (
-            "Fragment, ReaderFragment",
-            "ReaderFragment",
-            Some(format!(
-                "Fragment<\n  {name}$fragmentType,\n  {name}$data,\n>",
-                name = typegen_fragment.name.item
-            )),
-        )
-    };
+    let generated_types = ArtifactGeneratedTypes::from_fragment(typegen_fragment, skip_types);
 
     if project_config.typegen_config.language == TypegenLanguage::Flow {
         writeln!(content, "/*::").unwrap();
@@ -527,7 +448,7 @@ fn generate_fragment(
     write_import_type_from(
         &project_config.typegen_config.language,
         &mut content,
-        imported_types,
+        generated_types.imported_types,
         "relay-runtime",
     )
     .unwrap();
@@ -555,7 +476,7 @@ fn generate_fragment(
         &project_config.typegen_config.language,
         &mut content,
         "node",
-        reader_node_flow_type,
+        generated_types.ast_type,
         &printer.print_fragment(schema, reader_fragment),
     )
     .unwrap();
@@ -568,12 +489,11 @@ fn generate_fragment(
     )
     .unwrap();
 
-
     write_export_generated_node(
         &project_config.typegen_config,
         &mut content,
         "node",
-        node_type,
+        generated_types.exported_type,
     )
     .unwrap();
 

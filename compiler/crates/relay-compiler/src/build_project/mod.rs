@@ -9,6 +9,7 @@
 //! watch mode or other state.
 
 mod artifact_content;
+mod artifact_generated_types;
 pub mod artifact_writer;
 mod build_ir;
 mod build_schema;
@@ -25,6 +26,7 @@ use crate::config::{Config, ProjectConfig};
 use crate::errors::BuildProjectError;
 use crate::file_source::SourceControlUpdateStatus;
 use crate::{artifact_map::ArtifactMap, graphql_asts::GraphQLAsts};
+pub use artifact_generated_types::ArtifactGeneratedTypes;
 use build_ir::BuildIRResult;
 pub use build_ir::SourceHashes;
 pub use build_schema::build_schema;

@@ -85,7 +85,7 @@ const user = useFragment(graphql`
 
 ### Why did @required make a non-nullable field/root nullable?
 
-When using the `LOG` or `NONE` actions, Relay will "bubble" a missing field up to its parent field or fragment root. This means that adding `@required(action: LOG)` (for example) to a child of a non-nullalbe fragment root will cause the type of the fragment root to become nullable.
+When using the `LOG` or `NONE` actions, Relay will "bubble" a missing field up to its parent field or fragment root. This means that adding `@required(action: LOG)` (for example) to a child of a non-nullable fragment root will cause the type of the fragment root to become nullable.
 
 ### What happens if you use `@required` in a plural field
 
@@ -149,6 +149,7 @@ We debated making LOG the default action for that reason, but I think that's con
 So, for now we are planning to not offer a default argument. After all, it's still much less to write out than the equivalent manual null checks. Once we see how people use it we will consider what value (if any) should be the default.
 
 <FbInternalOnly>
+
 ### Does @required change anything about the logger project field?
 
 When using recoverableViolation or unrecoverableViolation, the second argument is the FBLogger project name ([defined on Comet here](https://fburl.com/diffusion/rn99dl4s)):

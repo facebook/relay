@@ -311,11 +311,22 @@ fn generate_operation(
     .unwrap();
 
     if is_operation_preloadable(normalization_operation) && id_and_text_hash.is_some() {
-        writeln!(
-            content,
-            "require('relay-runtime').PreloadableQueryRegistry.set((node.params/*: any*/).id, node);\n",
-        )
-        .unwrap();
+        match project_config.typegen_config.language {
+            TypegenLanguage::Flow => {
+                writeln!(
+                    content,
+                    "require('relay-runtime').PreloadableQueryRegistry.set((node.params/*: any*/).id, node);\n",
+                )
+                .unwrap();
+            }
+            TypegenLanguage::TypeScript => {
+                writeln!(
+                    content,
+                    "import {{ PreloadableQueryRegistry }} from 'relay-runtime';\nPreloadableQueryRegistry.set(node.params.id, node);\n",
+                )
+                .unwrap();
+            }
+        }
     }
 
     let node_type = if skip_types {

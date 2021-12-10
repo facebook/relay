@@ -6,8 +6,7 @@
  */
 
 use crate::ir::{ExecutableDefinition, FragmentDefinition, OperationDefinition};
-use fnv::FnvHashMap;
-use intern::string_key::StringKey;
+use intern::string_key::{StringKey, StringKeyMap};
 use schema::SDLSchema;
 use std::{collections::HashMap, sync::Arc};
 
@@ -15,7 +14,7 @@ use std::{collections::HashMap, sync::Arc};
 #[derive(Debug, Clone)]
 pub struct Program {
     pub schema: Arc<SDLSchema>,
-    pub fragments: FnvHashMap<StringKey, Arc<FragmentDefinition>>,
+    pub fragments: StringKeyMap<Arc<FragmentDefinition>>,
     pub operations: Vec<Arc<OperationDefinition>>,
 }
 
@@ -100,7 +99,7 @@ impl Program {
         other_program: &Self,
         removed_definition_names: Option<&[StringKey]>,
     ) {
-        let mut operations: FnvHashMap<StringKey, Arc<OperationDefinition>> = self
+        let mut operations: StringKeyMap<Arc<OperationDefinition>> = self
             .operations
             .drain(..)
             .map(|op| (op.name.item, op))

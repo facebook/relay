@@ -15,10 +15,10 @@ use crate::ir::{ConstantValue, VariableDefinition};
 use crate::GraphQLSuggestions;
 use common::{Diagnostic, DiagnosticsResult, FeatureFlag, Location, WithLocation};
 use errors::{par_try_map, try2};
-use fnv::FnvHashMap;
-use intern::string_key::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey, StringKeyMap};
 use lazy_static::lazy_static;
 use schema::{SDLSchema, Schema, Type, TypeReference};
+use std::collections::HashMap;
 
 lazy_static! {
     static ref TYPE: StringKey = "type".intern();
@@ -28,7 +28,7 @@ lazy_static! {
         "unusedLocalVariable_DEPRECATED".intern();
 }
 
-pub type FragmentSignatures = FnvHashMap<StringKey, FragmentSignature>;
+pub type FragmentSignatures = StringKeyMap<FragmentSignature>;
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct ProvidedVariableMetadata {
@@ -57,8 +57,8 @@ pub fn build_signatures(
     enable_provided_variables: &FeatureFlag,
 ) -> DiagnosticsResult<FragmentSignatures> {
     let suggestions = GraphQLSuggestions::new(schema);
-    let mut seen_signatures: FnvHashMap<StringKey, FragmentSignature> =
-        FnvHashMap::with_capacity_and_hasher(definitions.len(), Default::default());
+    let mut seen_signatures: StringKeyMap<FragmentSignature> =
+        HashMap::with_capacity_and_hasher(definitions.len(), Default::default());
     let signatures = par_try_map(definitions, |definition| match definition {
         graphql_syntax::ExecutableDefinition::Fragment(fragment) => Ok(Some(
             build_fragment_signature(schema, fragment, &suggestions, enable_provided_variables)?,

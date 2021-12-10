@@ -12,13 +12,12 @@ use crate::{
     no_inline::{attach_no_inline_directives_to_fragments, validate_required_no_inline_directive},
 };
 use common::{Diagnostic, DiagnosticsResult, FeatureFlag, FeatureFlags, NamedItem, WithLocation};
-use fnv::{FnvHashMap, FnvHashSet};
 use graphql_ir::{
     associated_data_impl, Argument, ConstantValue, Directive, FragmentDefinition, FragmentSpread,
     OperationDefinition, Program, Selection, Transformed, Transformer, Value,
 };
 use graphql_syntax::OperationKind;
-use intern::string_key::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey, StringKeyMap, StringKeySet};
 use itertools::Itertools;
 use lazy_static::lazy_static;
 use schema::{InterfaceID, Schema, Type};
@@ -103,14 +102,14 @@ pub fn relay_client_component(
 struct RelayClientComponentTransform<'program, 'flag> {
     program: &'program Program,
     errors: Vec<Diagnostic>,
-    split_operations: FnvHashMap<StringKey, (SplitOperationMetadata, OperationDefinition)>,
+    split_operations: StringKeyMap<(SplitOperationMetadata, OperationDefinition)>,
     node_interface_id: InterfaceID,
     /// Name of the document currently being transformed.
     document_name: Option<StringKey>,
-    split_operation_filenames: FnvHashSet<StringKey>,
+    split_operation_filenames: StringKeySet,
     no_inline_flag: &'flag FeatureFlag,
     // Stores the fragments that should use @no_inline and their parent document name
-    no_inline_fragments: FnvHashMap<StringKey, Vec<StringKey>>,
+    no_inline_fragments: StringKeyMap<Vec<StringKey>>,
 }
 
 impl<'program, 'flag> RelayClientComponentTransform<'program, 'flag> {

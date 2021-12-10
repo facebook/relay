@@ -14,15 +14,13 @@ use crate::{
     util::get_normalization_operation_name,
 };
 use common::{Diagnostic, DiagnosticsResult, FeatureFlag, NamedItem, WithLocation};
-use fnv::{FnvHashMap, FnvHashSet};
 use graphql_ir::{
     Condition, ConditionValue, ConstantValue, Directive, FragmentDefinition, FragmentSpread,
     InlineFragment, OperationDefinition, Program, ProvidedVariableMetadata, Selection, Transformed,
     TransformedMulti, TransformedValue, Transformer, Value, Variable, VariableDefinition,
 };
 use graphql_syntax::OperationKind;
-use indexmap::IndexMap;
-use intern::string_key::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey, StringKeyIndexMap, StringKeyMap, StringKeySet};
 use itertools::Itertools;
 use scope::{format_local_variable, Scope};
 use std::sync::Arc;
@@ -53,7 +51,7 @@ pub fn apply_fragment_arguments(
     program: &Program,
     is_normalization: bool,
     no_inline_feature: &FeatureFlag,
-    base_fragment_names: &FnvHashSet<StringKey>,
+    base_fragment_names: &StringKeySet,
 ) -> DiagnosticsResult<Program> {
     let mut transform = ApplyFragmentArgumentsTransform {
         base_fragment_names,
@@ -99,15 +97,15 @@ enum PendingFragment {
 }
 
 struct ApplyFragmentArgumentsTransform<'flags, 'program, 'base_fragments> {
-    base_fragment_names: &'base_fragments FnvHashSet<StringKey>,
+    base_fragment_names: &'base_fragments StringKeySet,
     errors: Vec<Diagnostic>,
-    fragments: FnvHashMap<StringKey, PendingFragment>,
+    fragments: StringKeyMap<PendingFragment>,
     is_normalization: bool,
     no_inline_feature: &'flags FeatureFlag,
     program: &'program Program,
-    provided_variables: IndexMap<StringKey, VariableDefinition>,
+    provided_variables: StringKeyIndexMap<VariableDefinition>,
     scope: Scope,
-    split_operations: FnvHashMap<StringKey, OperationDefinition>,
+    split_operations: StringKeyMap<OperationDefinition>,
 }
 
 impl Transformer for ApplyFragmentArgumentsTransform<'_, '_, '_> {
@@ -514,7 +512,7 @@ impl ApplyFragmentArgumentsTransform<'_, '_, '_> {
 }
 
 fn no_inline_fragment_scope(fragment: &FragmentDefinition) -> Scope {
-    let mut bindings = FnvHashMap::with_capacity_and_hasher(
+    let mut bindings = StringKeyMap::with_capacity_and_hasher(
         fragment.variable_definitions.len(),
         Default::default(),
     );

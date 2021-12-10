@@ -5,9 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use fnv::{FnvHashMap, FnvHashSet};
 use graphql_syntax::*;
-use intern::string_key::StringKey;
+use intern::string_key::{StringKey, StringKeyMap, StringKeySet};
 
 pub struct ReachableAst {
     /// The definitions that need to be compiled, includes the project
@@ -15,7 +14,7 @@ pub struct ReachableAst {
     /// reachable from the project definitions.
     pub definitions: Vec<ExecutableDefinition>,
     /// The fragment names added from the base definitions.
-    pub base_fragment_names: FnvHashSet<StringKey>,
+    pub base_fragment_names: StringKeySet,
 }
 
 /// Get all definitions that reachable from project defintions
@@ -26,12 +25,12 @@ pub fn get_reachable_ast(
     if base_definitions.is_empty() {
         return ReachableAst {
             definitions: project_definitions,
-            base_fragment_names: FnvHashSet::default(),
+            base_fragment_names: Default::default(),
         };
     }
 
-    let mut reachable_base_asts = FnvHashSet::default();
-    let mut base_definitions_map = FnvHashMap::default();
+    let mut reachable_base_asts = Default::default();
+    let mut base_definitions_map: StringKeyMap<ExecutableDefinition> = Default::default();
 
     // Preprocess all base fragment definitions
     // Skipping operations because project definitions can't reference base operations
@@ -79,8 +78,8 @@ pub fn get_reachable_ast(
 /// Get fragment references of each definition
 pub fn get_definition_references<'a>(
     definitions: impl IntoIterator<Item = &'a ExecutableDefinition>,
-) -> FnvHashMap<StringKey, FnvHashSet<StringKey>> {
-    let mut result = FnvHashMap::default();
+) -> StringKeyMap<StringKeySet> {
+    let mut result: StringKeyMap<StringKeySet> = Default::default();
     for definition in definitions {
         let name = definition.name().expect("Expect a name on an operation");
         let mut selections: Vec<_> = match definition {
@@ -89,7 +88,7 @@ pub fn get_definition_references<'a>(
         }
         .iter()
         .collect();
-        let mut references = FnvHashSet::default();
+        let mut references: StringKeySet = Default::default();
         while let Some(selection) = selections.pop() {
             match selection {
                 Selection::FragmentSpread(selection) => {
@@ -110,8 +109,8 @@ pub fn get_definition_references<'a>(
 }
 
 fn visit_selections(
-    base_definitions_map: &FnvHashMap<StringKey, ExecutableDefinition>,
-    reachable_base_asts: &mut FnvHashSet<StringKey>,
+    base_definitions_map: &StringKeyMap<ExecutableDefinition>,
+    reachable_base_asts: &mut StringKeySet,
     selections: &List<Selection>,
     is_base: bool,
 ) {
@@ -144,8 +143,8 @@ fn visit_selections(
 }
 
 fn traverse_base_ast_definition(
-    base_definitions_map: &FnvHashMap<StringKey, ExecutableDefinition>,
-    reachable_base_asts: &mut FnvHashSet<StringKey>,
+    base_definitions_map: &StringKeyMap<ExecutableDefinition>,
+    reachable_base_asts: &mut StringKeySet,
     key: StringKey,
 ) {
     if reachable_base_asts.contains(&key) {

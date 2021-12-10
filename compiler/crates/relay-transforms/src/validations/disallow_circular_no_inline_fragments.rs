@@ -7,9 +7,8 @@
 
 use crate::no_inline::NO_INLINE_DIRECTIVE_NAME;
 use common::{Diagnostic, DiagnosticsResult, NamedItem};
-use fnv::FnvHashMap;
 use graphql_ir::{FragmentDefinition, FragmentSpread, OperationDefinition, Program, Validator};
-use intern::string_key::StringKey;
+use intern::string_key::{StringKey, StringKeyMap};
 use thiserror::Error;
 
 pub fn disallow_circular_no_inline_fragments(program: &Program) -> DiagnosticsResult<()> {
@@ -23,7 +22,7 @@ enum FragmentStatus {
 
 struct DisallowCircularNoInlineFragments<'program> {
     program: &'program Program,
-    fragments: FnvHashMap<StringKey, FragmentStatus>,
+    fragments: StringKeyMap<FragmentStatus>,
 }
 
 impl<'program> DisallowCircularNoInlineFragments<'program> {

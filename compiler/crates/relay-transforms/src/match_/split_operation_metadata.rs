@@ -6,9 +6,8 @@
  */
 
 use common::{NamedItem, WithLocation};
-use fnv::FnvHashSet;
 use graphql_ir::{Argument, ConstantValue, Directive, Value};
-use intern::string_key::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey, StringKeySet};
 use lazy_static::lazy_static;
 
 lazy_static! {
@@ -48,7 +47,7 @@ pub struct SplitOperationMetadata {
     /// The names of the fragments and operations that included this fragment.
     /// They are the reason this split operation exist. If they are all removed,
     /// this file also needs to be removed.
-    pub parent_documents: FnvHashSet<StringKey>,
+    pub parent_documents: StringKeySet,
 
     /// Should a @raw_response_type style type be generated.
     pub raw_response_type: bool,

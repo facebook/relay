@@ -14,7 +14,7 @@ use graphql_ir::{
     Condition, Directive, FragmentDefinition, InlineFragment, LinkedField, OperationDefinition,
     Program, Selection, TransformedValue, ValidationMessage,
 };
-use intern::string_key::StringKey;
+use intern::string_key::StringKeyMap;
 use schema::{Schema, Type};
 
 use crate::node_identifier::{LocationAgnosticPartialEq, NodeIdentifier};
@@ -46,7 +46,7 @@ pub fn flatten(
     is_for_codegen: bool,
     should_validate_fragment_spreads: bool,
 ) -> DiagnosticsResult<()> {
-    let mut fragment_for_validation = FnvHashMap::default();
+    let mut fragment_for_validation = StringKeyMap::default();
     if should_validate_fragment_spreads {
         for (name, fragment) in &program.fragments {
             fragment_for_validation.insert(*name, Arc::clone(fragment));
@@ -80,7 +80,7 @@ pub fn flatten(
 }
 
 struct FlattenTransform {
-    fragments: FnvHashMap<StringKey, Arc<FragmentDefinition>>,
+    fragments: StringKeyMap<Arc<FragmentDefinition>>,
     schema: Arc<SDLSchema>,
     is_for_codegen: bool,
     should_validate_fragment_spreads: bool,
@@ -91,7 +91,7 @@ struct FlattenTransform {
 impl FlattenTransform {
     fn new(
         schema: Arc<SDLSchema>,
-        fragments: FnvHashMap<StringKey, Arc<FragmentDefinition>>,
+        fragments: StringKeyMap<Arc<FragmentDefinition>>,
         is_for_codegen: bool,
         should_validate_fragment_spreads: bool,
     ) -> Self {

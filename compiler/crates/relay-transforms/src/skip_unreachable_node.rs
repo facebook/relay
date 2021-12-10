@@ -10,13 +10,12 @@ use crate::{
     no_inline::NO_INLINE_DIRECTIVE_NAME, DeferDirective, StreamDirective, ValidationMessage,
 };
 use common::{Diagnostic, DiagnosticsResult, NamedItem};
-use fnv::FnvHashMap;
 use graphql_ir::{
     Condition, ConditionValue, ConstantValue, FragmentDefinition, FragmentSpread, InlineFragment,
     LinkedField, Program, Selection, Transformed, TransformedMulti, TransformedValue, Transformer,
     Value,
 };
-use intern::string_key::StringKey;
+use intern::string_key::{StringKey, StringKeyMap};
 use std::sync::Arc;
 
 pub fn skip_unreachable_node(program: &Program) -> DiagnosticsResult<Program> {
@@ -29,8 +28,7 @@ pub fn skip_unreachable_node(program: &Program) -> DiagnosticsResult<Program> {
     }
 }
 
-type VisitedFragments =
-    FnvHashMap<StringKey, (Arc<FragmentDefinition>, Transformed<FragmentDefinition>)>;
+type VisitedFragments = StringKeyMap<(Arc<FragmentDefinition>, Transformed<FragmentDefinition>)>;
 
 pub struct SkipUnreachableNodeTransform<'s> {
     errors: Vec<Diagnostic>,

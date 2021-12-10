@@ -7,13 +7,12 @@
 
 mod requireable_field;
 use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, WithLocation};
-use fnv::FnvHashMap;
 use graphql_ir::{
     associated_data_impl, Directive, Field, FragmentDefinition, InlineFragment, LinkedField,
     OperationDefinition, Program, ScalarField, Selection, Transformed, TransformedValue,
     Transformer, ValidationMessage,
 };
-use intern::string_key::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey, StringKeyMap};
 use lazy_static::lazy_static;
 use requireable_field::{RequireableField, RequiredMetadata};
 use std::{borrow::Cow, mem, sync::Arc};
@@ -68,9 +67,9 @@ struct RequiredDirective<'s> {
     path: Vec<&'s str>,
     within_abstract_inline_fragment: bool,
     parent_inline_fragment_directive: Option<Location>,
-    path_required_map: FnvHashMap<StringKey, MaybeRequiredField>,
-    current_node_required_children: FnvHashMap<StringKey, RequiredField>,
-    required_children_map: FnvHashMap<StringKey, FnvHashMap<StringKey, RequiredField>>,
+    path_required_map: StringKeyMap<MaybeRequiredField>,
+    current_node_required_children: StringKeyMap<RequiredField>,
+    required_children_map: StringKeyMap<StringKeyMap<RequiredField>>,
     required_directive_visitor: RequiredDirectiveVisitor<'s>,
 }
 
@@ -460,7 +459,7 @@ fn add_metadata_directive(
 
 fn maybe_add_children_can_bubble_metadata_directive(
     directives: &[Directive],
-    current_node_required_children: &FnvHashMap<StringKey, RequiredField>,
+    current_node_required_children: &StringKeyMap<RequiredField>,
 ) -> TransformedValue<Vec<Directive>> {
     let children_can_bubble = current_node_required_children
         .values()
@@ -514,7 +513,7 @@ impl From<StringKey> for RequiredAction {
 
 struct RequiredDirectiveVisitor<'s> {
     program: &'s Program,
-    visited_fragments: FnvHashMap<StringKey, bool>,
+    visited_fragments: StringKeyMap<bool>,
 }
 
 impl<'s> DirectiveFinder for RequiredDirectiveVisitor<'s> {

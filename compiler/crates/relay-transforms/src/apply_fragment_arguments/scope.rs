@@ -6,13 +6,12 @@
  */
 
 use common::{Location, NamedItem};
-use fnv::FnvHashMap;
 use graphql_ir::{Argument, ConstantValue, FragmentDefinition, Value};
-use intern::string_key::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey, StringKeyMap};
 
 #[derive(Default, Debug)]
 pub struct Scope {
-    bindings: Vec<(Location, FnvHashMap<StringKey, Value>)>,
+    bindings: Vec<(Location, StringKeyMap<Value>)>,
 }
 
 impl Scope {
@@ -35,7 +34,7 @@ impl Scope {
             .collect()
     }
 
-    pub fn push_bindings(&mut self, location: Location, bindings: FnvHashMap<StringKey, Value>) {
+    pub fn push_bindings(&mut self, location: Location, bindings: StringKeyMap<Value>) {
         self.bindings.push((location, bindings));
     }
 
@@ -45,7 +44,7 @@ impl Scope {
         arguments: &[Argument],
         fragment: &FragmentDefinition,
     ) {
-        let mut bindings = FnvHashMap::default();
+        let mut bindings = StringKeyMap::default();
         for variable_definition in &fragment.variable_definitions {
             let arg_name = variable_definition.name.item;
             let arg_value = match arguments.named(arg_name) {

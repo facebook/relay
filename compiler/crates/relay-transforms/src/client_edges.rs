@@ -6,9 +6,8 @@
  */
 
 use crate::refetchable_fragment::{RefetchableFragment, REFETCHABLE_NAME};
-use fnv::FnvHashMap;
 use graphql_syntax::OperationKind;
-use intern::string_key::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey, StringKeyMap};
 use lazy_static::lazy_static;
 use schema::Type;
 use std::sync::Arc;
@@ -102,7 +101,7 @@ pub fn client_edges(program: &Program) -> DiagnosticsResult<Program> {
 struct ClientEdgesTransform<'program> {
     path: Vec<&'program str>,
     document_name: Option<StringKey>,
-    query_names: FnvHashMap<StringKey, usize>,
+    query_names: StringKeyMap<usize>,
     program: &'program Program,
     new_fragments: Vec<Arc<FragmentDefinition>>,
     new_operations: Vec<OperationDefinition>,

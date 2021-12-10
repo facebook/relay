@@ -7,16 +7,15 @@
 
 use crate::no_inline::NO_INLINE_DIRECTIVE_NAME;
 use common::{Diagnostic, NamedItem, WithLocation};
-use fnv::{FnvHashMap, FnvHashSet};
 use graphql_ir::{
     FragmentDefinition, FragmentSpread, OperationDefinition, Program, ValidationMessage, Value,
     Variable, Visitor,
 };
-use intern::string_key::StringKey;
+use intern::string_key::{StringKey, StringKeyMap, StringKeySet};
 use schema::{Schema, TypeReference};
 
-pub type VariableMap = FnvHashMap<StringKey, Variable>;
-type Visited = FnvHashMap<StringKey, VariableMap>;
+pub type VariableMap = StringKeyMap<Variable>;
+type Visited = StringKeyMap<VariableMap>;
 
 pub struct InferVariablesVisitor<'program> {
     /// Cache fragments as they are transformed to avoid duplicate processing.
@@ -72,8 +71,8 @@ struct VariablesVisitor<'a, 'b> {
     variable_map: VariableMap,
     visited_fragments: &'a mut Visited,
     program: &'a Program,
-    local_variables: FnvHashSet<StringKey>,
-    transitive_local_variables: &'b FnvHashSet<StringKey>,
+    local_variables: StringKeySet,
+    transitive_local_variables: &'b StringKeySet,
     errors: Vec<Diagnostic>,
 }
 
@@ -81,8 +80,8 @@ impl<'a, 'b> VariablesVisitor<'a, 'b> {
     fn new(
         program: &'a Program,
         visited_fragments: &'a mut Visited,
-        local_variables: FnvHashSet<StringKey>,
-        transitive_local_variables: &'b FnvHashSet<StringKey>,
+        local_variables: StringKeySet,
+        transitive_local_variables: &'b StringKeySet,
     ) -> Self {
         Self {
             variable_map: Default::default(),
@@ -118,7 +117,7 @@ impl VariablesVisitor<'_, '_> {
                 .variable_definitions
                 .iter()
                 .map(|var| var.name.item)
-                .collect::<FnvHashSet<_>>();
+                .collect::<StringKeySet>();
             let transitive_local_variables = if fragment
                 .directives
                 .named(*NO_INLINE_DIRECTIVE_NAME)

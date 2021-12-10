@@ -7,12 +7,11 @@
 
 use common::{Diagnostic, DiagnosticsResult, Location, WithLocation};
 use errors::{validate, validate_map};
-use fnv::{FnvHashMap, FnvHashSet};
 use graphql_ir::{
     Directive, FragmentDefinition, FragmentSpread, LinkedField, Program, ScalarField,
     ValidationMessage, Validator,
 };
-use intern::string_key::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey, StringKeyMap, StringKeySet};
 use schema::Schema;
 
 pub fn validate_server_only_directives(program: &Program) -> DiagnosticsResult<()> {
@@ -34,8 +33,8 @@ struct ServerOnlyDirectivesValidation<'s> {
     // if so, a server directive is invalid on it
     is_current_fragment_client_only: bool,
     // For storing the above data
-    fragment_cache: FnvHashMap<StringKey, FragmentState>,
-    client_invalid_directive_names: FnvHashSet<StringKey>,
+    fragment_cache: StringKeyMap<FragmentState>,
+    client_invalid_directive_names: StringKeySet,
 }
 
 // Validate that @defer, @stream, @stream_connection are not used inside client fields
@@ -47,7 +46,7 @@ impl<'s> ServerOnlyDirectivesValidation<'s> {
             is_current_fragment_client_only: true,
             fragment_cache: Default::default(),
             current_client_invalid_directives: Default::default(),
-            client_invalid_directive_names: FnvHashSet::from_iter(vec![
+            client_invalid_directive_names: StringKeySet::from_iter(vec![
                 "stream".intern(),
                 "stream_connection".intern(),
                 "defer".intern(),
@@ -214,15 +213,13 @@ impl<'s> Validator for ServerOnlyDirectivesValidation<'s> {
         {
             self.current_client_invalid_directives.push(directive.name);
             if let Some(location) = self.current_root_client_selection {
-                Err(vec![
-                    Diagnostic::error(
-                        ValidationMessage::InvalidServerOnlyDirectiveInClientFields(
-                            directive.name.item,
-                        ),
-                        directive.name.location,
-                    )
-                    .annotate("related location", location),
-                ])
+                Err(vec![Diagnostic::error(
+                    ValidationMessage::InvalidServerOnlyDirectiveInClientFields(
+                        directive.name.item,
+                    ),
+                    directive.name.location,
+                )
+                .annotate("related location", location)])
             } else {
                 Ok(())
             }

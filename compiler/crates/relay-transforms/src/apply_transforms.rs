@@ -9,9 +9,8 @@ use crate::match_::hash_supported_argument;
 
 use super::*;
 use common::{sync::try_join, DiagnosticsResult, FeatureFlags, PerfLogEvent, PerfLogger};
-use fnv::FnvHashSet;
 use graphql_ir::Program;
-use intern::string_key::StringKey;
+use intern::string_key::{StringKey, StringKeySet};
 use regex::Regex;
 use std::sync::Arc;
 
@@ -27,7 +26,7 @@ pub struct Programs {
 pub fn apply_transforms<TPerfLogger>(
     project_name: StringKey,
     program: Arc<Program>,
-    base_fragment_names: Arc<FnvHashSet<StringKey>>,
+    base_fragment_names: Arc<StringKeySet>,
     connection_interface: &ConnectionInterface,
     feature_flags: Arc<FeatureFlags>,
     test_path_regex: &Option<Regex>,
@@ -130,7 +129,7 @@ fn apply_common_transforms(
     program: Arc<Program>,
     connection_interface: &ConnectionInterface,
     feature_flags: Arc<FeatureFlags>,
-    base_fragment_names: Arc<FnvHashSet<StringKey>>,
+    base_fragment_names: Arc<StringKeySet>,
     perf_logger: Arc<impl PerfLogger>,
 ) -> DiagnosticsResult<Arc<Program>> {
     let log_event = perf_logger.create_event("apply_common_transforms");
@@ -184,7 +183,7 @@ fn apply_reader_transforms(
     project_name: StringKey,
     program: Arc<Program>,
     feature_flags: Arc<FeatureFlags>,
-    base_fragment_names: Arc<FnvHashSet<StringKey>>,
+    base_fragment_names: Arc<StringKeySet>,
     perf_logger: Arc<impl PerfLogger>,
 ) -> DiagnosticsResult<Arc<Program>> {
     let log_event = perf_logger.create_event("apply_reader_transforms");
@@ -226,7 +225,7 @@ fn apply_operation_transforms(
     project_name: StringKey,
     program: Arc<Program>,
     connection_interface: &ConnectionInterface,
-    base_fragment_names: Arc<FnvHashSet<StringKey>>,
+    base_fragment_names: Arc<StringKeySet>,
     perf_logger: Arc<impl PerfLogger>,
 ) -> DiagnosticsResult<Arc<Program>> {
     let log_event = perf_logger.create_event("apply_operation_transforms");
@@ -264,7 +263,7 @@ fn apply_operation_transforms(
 fn apply_normalization_transforms(
     project_name: StringKey,
     program: Arc<Program>,
-    base_fragment_names: Arc<FnvHashSet<StringKey>>,
+    base_fragment_names: Arc<StringKeySet>,
     feature_flags: Arc<FeatureFlags>,
     test_path_regex: Option<Regex>,
     perf_logger: Arc<impl PerfLogger>,
@@ -344,7 +343,7 @@ fn apply_normalization_transforms(
 fn apply_operation_text_transforms(
     project_name: StringKey,
     program: Arc<Program>,
-    base_fragment_names: Arc<FnvHashSet<StringKey>>,
+    base_fragment_names: Arc<StringKeySet>,
     feature_flags: Arc<FeatureFlags>,
     perf_logger: Arc<impl PerfLogger>,
 ) -> DiagnosticsResult<Arc<Program>> {
@@ -397,7 +396,7 @@ fn apply_typegen_transforms(
     project_name: StringKey,
     program: Arc<Program>,
     feature_flags: Arc<FeatureFlags>,
-    base_fragment_names: Arc<FnvHashSet<StringKey>>,
+    base_fragment_names: Arc<StringKeySet>,
     perf_logger: Arc<impl PerfLogger>,
 ) -> DiagnosticsResult<Arc<Program>> {
     let log_event = perf_logger.create_event("apply_typegen_transforms");

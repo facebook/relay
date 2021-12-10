@@ -7,19 +7,15 @@
 
 use graphql_ir::{FragmentDefinition, OperationDefinition};
 
-use fnv::FnvHashSet;
 use graphql_ir::{Program, Transformed, Transformer};
-use intern::string_key::StringKey;
+use intern::string_key::StringKeySet;
 use std::sync::Arc;
 
 /// This transform removes the given list of base fragments from the Program.
 /// This is useful if earlier steps need access to fragments from some base
 /// project, but we don't want to write output files for them and can skip over
 /// some transform steps.
-pub fn remove_base_fragments(
-    program: &Program,
-    base_fragment_names: Arc<FnvHashSet<StringKey>>,
-) -> Program {
+pub fn remove_base_fragments(program: &Program, base_fragment_names: Arc<StringKeySet>) -> Program {
     if base_fragment_names.is_empty() {
         // Nothing to remove.
         return program.clone();
@@ -33,7 +29,7 @@ pub fn remove_base_fragments(
 }
 
 struct StripBaseFragmentsTransform<'a> {
-    base_fragment_names: &'a FnvHashSet<StringKey>,
+    base_fragment_names: &'a StringKeySet,
 }
 
 impl<'a> Transformer for StripBaseFragmentsTransform<'a> {

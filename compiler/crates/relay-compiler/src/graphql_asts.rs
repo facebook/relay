@@ -8,15 +8,15 @@
 use crate::compiler_state::{GraphQLSources, SourceSetName};
 use crate::errors::{Error, Result};
 use common::{Diagnostic, SourceLocationKey};
-use fnv::{FnvHashMap, FnvHashSet};
+use fnv::FnvHashMap;
 use graphql_syntax::ExecutableDefinition;
-use intern::string_key::StringKey;
+use intern::string_key::{StringKey, StringKeySet};
 
 #[derive(Debug)]
 pub struct GraphQLAsts {
     pub asts: Vec<ExecutableDefinition>,
     /// Names of fragments and operations that are updated or created
-    pub pending_definition_names: FnvHashSet<StringKey>,
+    pub pending_definition_names: StringKeySet,
     /// Names of fragments and operations that are deleted
     pub removed_definition_names: Vec<StringKey>,
 }
@@ -48,7 +48,7 @@ impl GraphQLAsts {
         let mut syntax_errors = Vec::new();
 
         let mut asts = Vec::new();
-        let mut pending_definition_names = FnvHashSet::default();
+        let mut pending_definition_names: StringKeySet = Default::default();
         let mut removed_definition_names = Vec::new();
 
         if let Some(dirty_definitions) = dirty_definitions {

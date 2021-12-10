@@ -10,7 +10,6 @@ use common::{
     SourceLocationKey::{self, Generated},
 };
 
-use fnv::FnvHashSet;
 use graphql_ir::Program;
 
 use graphql_text_printer::{self, PrinterOptions};
@@ -86,7 +85,6 @@ pub fn parse_to_ir(schema_text: &str, document_text: &str) -> String {
 pub fn parse_to_ir_impl(schema_text: &str, document_text: &str) -> PlaygroundResult {
     let document = graphql_syntax::parse_executable(document_text, Generated)
         .map_err(|diagnostics| map_diagnostics(diagnostics, &InputType::Document(document_text)))?;
-
 
     let schema = Arc::new(
         build_schema_with_extensions(&[schema_text], &Vec::<(&str, SourceLocationKey)>::new())
@@ -286,14 +284,13 @@ fn get_programs(
     let document = graphql_syntax::parse_executable(document_text, Generated)
         .map_err(|diagnostics| map_diagnostics(diagnostics, &InputType::Document(document_text)))?;
 
-
     let ir = graphql_ir::build(schema, &document.definitions)
         .map_err(|diagnostics| map_diagnostics(diagnostics, &InputType::Document(document_text)))?;
 
     let program = Program::from_definitions(schema.clone(), ir);
 
     let project_name = "test_project".intern();
-    let base_fragment_names = Arc::new(FnvHashSet::default());
+    let base_fragment_names = Arc::new(Default::default());
     let connection_interface = ConnectionInterface::default();
     let feature_flags: FeatureFlags = serde_json::from_str(feature_flags_json)
         .map_err(|err| PlaygroundError::ConfigError(format!("{}", err)))?;

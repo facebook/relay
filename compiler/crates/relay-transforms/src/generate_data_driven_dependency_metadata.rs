@@ -7,12 +7,11 @@
 
 use crate::{util::get_fragment_filename, ModuleMetadata};
 use common::WithLocation;
-use fnv::FnvHashMap;
 use graphql_ir::{
     Argument, ConstantValue, Directive, FragmentDefinition, OperationDefinition, Program,
     Selection, Transformed, Transformer, Value,
 };
-use intern::string_key::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey, StringKeyMap};
 use lazy_static::lazy_static;
 use schema::{Schema, TypeReference};
 
@@ -90,12 +89,12 @@ impl<'s> GenerateDataDrivenDependencyMetadata<'s> {
                             let type_name = self
                                 .program
                                 .schema
-                                .get_type_string(&processing_item.parent_type);
+                                .get_type_name(processing_item.parent_type.inner());
                             module_entries
                                 .entry(id)
                                 .and_modify(|module_entry| {
                                     module_entry.branches.insert(
-                                        type_name.clone(),
+                                        type_name,
                                         Branch {
                                             component,
                                             fragment: get_fragment_filename(fragment_name),
@@ -104,10 +103,9 @@ impl<'s> GenerateDataDrivenDependencyMetadata<'s> {
                                 })
                                 .or_insert(ModuleEntry {
                                     branches: {
-                                        let mut map: FnvHashMap<String, Branch> =
-                                            Default::default();
+                                        let mut map = StringKeyMap::default();
                                         map.insert(
-                                            type_name.clone(),
+                                            type_name,
                                             Branch {
                                                 component,
                                                 fragment: get_fragment_filename(fragment_name),
@@ -149,11 +147,11 @@ struct Branch {
     fragment: StringKey,
 }
 
-type ModuleEntries = FnvHashMap<StringKey, ModuleEntry>;
+type ModuleEntries = StringKeyMap<ModuleEntry>;
 
 #[derive(Debug)]
 struct ModuleEntry {
-    branches: FnvHashMap<String, Branch>,
+    branches: StringKeyMap<Branch>,
     plural: bool,
 }
 
@@ -225,7 +223,7 @@ impl<'s> Transformer for GenerateDataDrivenDependencyMetadata<'s> {
     }
 }
 
-fn create_metadata_directive(module_entries: FnvHashMap<StringKey, ModuleEntry>) -> Directive {
+fn create_metadata_directive(module_entries: StringKeyMap<ModuleEntry>) -> Directive {
     let mut arguments: Vec<Argument> = Vec::with_capacity(module_entries.len());
     for (key, module_entry) in module_entries {
         arguments.push(Argument {
@@ -250,7 +248,7 @@ impl From<ModuleEntry> for StringKey {
             Vec::with_capacity(module_entry.branches.len());
         for (id, branch) in module_entry.branches.iter() {
             serialized_branches.push((
-                id.clone(),
+                id.to_string(),
                 format!(
                     "\"{}\":{{\"component\":\"{}\",\"fragment\":\"{}\"}}",
                     id, branch.component, branch.fragment

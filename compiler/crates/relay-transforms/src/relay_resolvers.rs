@@ -9,14 +9,13 @@ use crate::{ClientEdgeMetadata, DependencyMap};
 
 use super::ValidationMessage;
 use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, WithLocation};
-use fnv::FnvHashSet;
 use graphql_ir::{
     associated_data_impl, Directive, Field as IrField, FragmentDefinition, FragmentSpread,
     OperationDefinition, Program, ScalarField, Selection, Transformed, Transformer, Visitor,
 };
 use graphql_ir::{InlineFragment, LinkedField};
-use intern::string_key::Intern;
 use intern::string_key::StringKey;
+use intern::string_key::{Intern, StringKeySet};
 use lazy_static::lazy_static;
 use schema::{ArgumentValue, Field, FieldID, SDLSchema, Schema};
 use std::{mem, sync::Arc};
@@ -355,7 +354,7 @@ pub fn find_resolver_dependencies(dependencies: &mut DependencyMap, program: &Pr
 pub struct ResolverFieldFinder<'a> {
     dependencies: &'a mut DependencyMap,
     schema: &'a SDLSchema,
-    seen_resolver_fragments: FnvHashSet<StringKey>,
+    seen_resolver_fragments: StringKeySet,
 }
 
 impl<'a> ResolverFieldFinder<'a> {
@@ -424,7 +423,6 @@ impl<'a> Visitor for ResolverFieldFinder<'a> {
     fn visit_scalar_field(&mut self, field: &ScalarField) {
         self.check_for_resolver_dependencies(field.definition.item)
     }
-
 
     fn visit_linked_field(&mut self, field: &LinkedField) {
         self.check_for_resolver_dependencies(field.definition.item);

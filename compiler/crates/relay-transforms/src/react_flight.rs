@@ -6,13 +6,12 @@
  */
 
 use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, WithLocation};
-use fnv::{FnvHashMap, FnvHashSet};
 use graphql_ir::{
     associated_data_impl, Argument, ConstantValue, Directive, FragmentDefinition, FragmentSpread,
     OperationDefinition, Program, ScalarField, Selection, Transformed, Transformer,
     ValidationMessage, Value,
 };
-use intern::string_key::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey, StringKeyMap, StringKeySet};
 use itertools::Itertools;
 use lazy_static::lazy_static;
 use schema::{Field, FieldID, Schema, Type};
@@ -67,16 +66,16 @@ struct ReactFlightTransform<'s> {
     props_type: Type,
     // server components encountered as a dependency of the visited operation/fragment
     // NOTE: this is operation/fragment-specific
-    local_components: FnvHashSet<StringKey>,
-    transitive_components: FnvHashSet<StringKey>,
-    fragments: FnvHashMap<StringKey, FragmentResult>,
+    local_components: StringKeySet,
+    transitive_components: StringKeySet,
+    fragments: StringKeyMap<FragmentResult>,
 }
 
 enum FragmentResult {
     Pending,
     Resolved {
         fragment: Transformed<FragmentDefinition>,
-        transitive_components: FnvHashSet<StringKey>,
+        transitive_components: StringKeySet,
     },
 }
 

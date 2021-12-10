@@ -10,12 +10,11 @@ use std::sync::Arc;
 use common::SourceLocationKey;
 use dependency_analyzer::*;
 use fixture_tests::Fixture;
-use fnv::FnvHashSet;
 use graphql_ir::*;
 use graphql_syntax::parse_executable;
 use intern::string_key::Intern;
 use relay_test_schema::{get_test_schema, get_test_schema_with_extensions};
-use relay_transforms::DependencyMap;
+use relay_transforms::{DependencyMap, DependencySet};
 use schema::SDLSchema;
 
 fn format_definition(def: ExecutableDefinition) -> String {
@@ -34,7 +33,7 @@ fn parse_dependencies(src: &str) -> DependencyMap {
         let segments = line.split(" --> ").collect::<Vec<_>>();
         match segments.as_slice() {
             [parent, children_str] => {
-                let mut children = FnvHashSet::default();
+                let mut children: DependencySet = Default::default();
                 for child in children_str.split(", ") {
                     children.insert(child.intern());
                 }
@@ -83,7 +82,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let mut asts = parse_executable(parts[0], source_location)
         .unwrap()
         .definitions;
-    let mut base_names = FnvHashSet::default();
+    let mut base_names: DependencySet = Default::default();
     for part in parts.iter().skip(1) {
         let defs = parse_executable(part, source_location).unwrap().definitions;
         for def in defs {

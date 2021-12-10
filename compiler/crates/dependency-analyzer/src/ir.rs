@@ -5,13 +5,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use fnv::{FnvHashMap, FnvHashSet};
-
 use graphql_ir::*;
-use intern::string_key::StringKey;
+use intern::string_key::{StringKey, StringKeyMap, StringKeySet};
 use relay_transforms::{DependencyMap, ResolverFieldFinder};
 use schema::SDLSchema;
 use std::collections::hash_map::Entry;
+use std::collections::HashMap;
 use std::fmt;
 
 struct Node {
@@ -39,8 +38,8 @@ impl fmt::Debug for Node {
 /// `implicit_dependencies`.
 pub fn get_reachable_ir(
     definitions: Vec<ExecutableDefinition>,
-    base_definition_names: FnvHashSet<StringKey>,
-    changed_names: FnvHashSet<StringKey>,
+    base_definition_names: StringKeySet,
+    changed_names: StringKeySet,
     implicit_dependencies: &DependencyMap,
     schema: &SDLSchema,
 ) -> Vec<ExecutableDefinition> {
@@ -68,8 +67,8 @@ pub fn get_reachable_ir(
     add_dependencies_to_graph(&mut dependency_graph, implicit_dependencies);
     add_dependencies_to_graph(&mut dependency_graph, &resolver_dependencies);
 
-    let mut visited = FnvHashSet::default();
-    let mut filtered_definitions = FnvHashMap::default();
+    let mut visited = Default::default();
+    let mut filtered_definitions = Default::default();
 
     for key in changed_names.into_iter() {
         if dependency_graph.contains_key(&key) {
@@ -90,8 +89,8 @@ pub fn get_reachable_ir(
 }
 
 fn find_resolver_dependencies(
-    reachable_names: &FnvHashSet<StringKey>,
-    dependency_graph: &FnvHashMap<StringKey, Node>,
+    reachable_names: &StringKeySet,
+    dependency_graph: &StringKeyMap<Node>,
     schema: &SDLSchema,
 ) -> DependencyMap {
     let mut dependencies = Default::default();
@@ -113,7 +112,7 @@ fn find_resolver_dependencies(
 }
 
 fn add_dependencies_to_graph(
-    dependency_graph: &mut FnvHashMap<StringKey, Node>,
+    dependency_graph: &mut StringKeyMap<Node>,
     dependencies: &DependencyMap,
 ) {
     for (parent, children) in dependencies.iter() {
@@ -129,9 +128,9 @@ fn add_dependencies_to_graph(
 }
 
 // Build a dependency graph of that nodes are "doubly linked"
-fn build_dependency_graph(definitions: Vec<ExecutableDefinition>) -> FnvHashMap<StringKey, Node> {
-    let mut dependency_graph =
-        FnvHashMap::with_capacity_and_hasher(definitions.len(), Default::default());
+fn build_dependency_graph(definitions: Vec<ExecutableDefinition>) -> StringKeyMap<Node> {
+    let mut dependency_graph: StringKeyMap<Node> =
+        HashMap::with_capacity_and_hasher(definitions.len(), Default::default());
 
     for definition in definitions.into_iter() {
         let name = match &definition {
@@ -178,7 +177,7 @@ fn build_dependency_graph(definitions: Vec<ExecutableDefinition>) -> FnvHashMap<
 // Visit the selections of current IR, set the `children` for the node representing the IR,
 // and the `parents` for nodes representing the children IR
 fn visit_selections(
-    dependency_graph: &mut FnvHashMap<StringKey, Node>,
+    dependency_graph: &mut StringKeyMap<Node>,
     selections: &[Selection],
     parent_name: StringKey,
     children: &mut Vec<StringKey>,
@@ -221,10 +220,10 @@ fn visit_selections(
 // From `key` of changed definition, recusively traverse up the depenency tree, and add all related nodes (ancestors
 // of changned definitions which are not from base definitions, and all of their desendants) into the `result`
 fn add_related_nodes(
-    visited: &mut FnvHashSet<StringKey>,
-    result: &mut FnvHashMap<StringKey, ExecutableDefinition>,
-    dependency_graph: &FnvHashMap<StringKey, Node>,
-    base_definition_names: &FnvHashSet<StringKey>,
+    visited: &mut StringKeySet,
+    result: &mut StringKeyMap<ExecutableDefinition>,
+    dependency_graph: &StringKeyMap<Node>,
+    base_definition_names: &StringKeySet,
     key: StringKey,
 ) {
     if !visited.insert(key) {
@@ -256,8 +255,8 @@ fn add_related_nodes(
 
 // Recursively add all descendants of current node into the `result`
 fn add_descendants(
-    result: &mut FnvHashMap<StringKey, ExecutableDefinition>,
-    dependency_graph: &FnvHashMap<StringKey, Node>,
+    result: &mut StringKeyMap<ExecutableDefinition>,
+    dependency_graph: &StringKeyMap<Node>,
     key: StringKey,
 ) {
     if result.contains_key(&key) {

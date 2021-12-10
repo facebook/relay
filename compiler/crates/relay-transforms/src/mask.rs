@@ -6,13 +6,12 @@
  */
 
 use crate::relay_directive::RelayDirective;
-use fnv::FnvBuildHasher;
 use graphql_ir::{
     FragmentDefinition, FragmentSpread, InlineFragment, OperationDefinition, Program, ScalarField,
     Selection, Transformed, Transformer, VariableDefinition,
 };
-use indexmap::{map::Entry, IndexMap};
-use intern::string_key::StringKey;
+use indexmap::map::Entry;
+use intern::string_key::StringKeyIndexMap;
 use schema::Schema;
 use std::{ops::RangeFull, sync::Arc};
 
@@ -24,7 +23,7 @@ pub fn mask(program: &Program) -> Program {
         .replace_or_else(|| program.clone())
 }
 
-type JoinedArguments<'s> = IndexMap<StringKey, &'s VariableDefinition, FnvBuildHasher>;
+type JoinedArguments<'s> = StringKeyIndexMap<&'s VariableDefinition>;
 
 struct Mask<'s> {
     program: &'s Program,

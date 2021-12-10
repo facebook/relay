@@ -10,9 +10,8 @@ use crate::no_inline::{
 };
 use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, SourceLocationKey, Span};
 use errors::validate_map;
-use fnv::FnvHashSet;
 use graphql_ir::{FragmentDefinition, FragmentSpread, Program, ValidationMessage, Validator};
-use intern::string_key::StringKey;
+use intern::string_key::StringKeySet;
 
 /// To generate full raw response types, we need to also generate raw response types for
 /// @no_inline fragment normalization files. So raw_response_type argument is required
@@ -25,7 +24,7 @@ pub fn validate_no_inline_fragments_with_raw_response_type(
 }
 
 struct NoInlineRawResponseTypeValidator<'a> {
-    validated: FnvHashSet<StringKey>,
+    validated: StringKeySet,
     program: &'a Program,
     current_query_location: Location,
 }
@@ -63,18 +62,16 @@ impl<'a> Validator for NoInlineRawResponseTypeValidator<'a> {
     fn validate_fragment(&mut self, fragment: &FragmentDefinition) -> DiagnosticsResult<()> {
         if let Some(directive) = fragment.directives.named(*NO_INLINE_DIRECTIVE_NAME) {
             if !is_raw_response_type_enabled(directive) {
-                return Err(vec![
-                    Diagnostic::error(
-                        ValidationMessage::RequiredRawResponseTypeOnNoInline {
-                            fragment_name: fragment.name.item,
-                        },
-                        fragment.name.location,
-                    )
-                    .annotate(
-                        "The query with @raw_response_type",
-                        self.current_query_location,
-                    ),
-                ]);
+                return Err(vec![Diagnostic::error(
+                    ValidationMessage::RequiredRawResponseTypeOnNoInline {
+                        fragment_name: fragment.name.item,
+                    },
+                    fragment.name.location,
+                )
+                .annotate(
+                    "The query with @raw_response_type",
+                    self.current_query_location,
+                )]);
             }
         }
         self.default_validate_fragment(fragment)

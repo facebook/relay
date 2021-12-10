@@ -8,20 +8,16 @@
 use super::{SplitOperationMetadata, MATCH_CONSTANTS};
 use crate::{util::get_normalization_operation_name, ModuleMetadata};
 use common::WithLocation;
-use fnv::{FnvHashMap, FnvHashSet};
 use graphql_ir::{
     InlineFragment, OperationDefinition, Program, Selection, Transformed, TransformedValue,
     Transformer,
 };
 use graphql_syntax::OperationKind;
-use intern::string_key::{Intern, StringKey};
+use intern::string_key::{Intern, StringKeyMap, StringKeySet};
 use schema::Schema;
 use std::sync::Arc;
 
-pub fn split_module_import(
-    program: &Program,
-    base_fragment_names: &FnvHashSet<StringKey>,
-) -> Program {
+pub fn split_module_import(program: &Program, base_fragment_names: &StringKeySet) -> Program {
     let mut transform = SplitModuleImportTransform::new(program, base_fragment_names);
     transform
         .transform_program(program)
@@ -30,14 +26,14 @@ pub fn split_module_import(
 
 pub struct SplitModuleImportTransform<'program, 'base_fragment_names> {
     program: &'program Program,
-    split_operations: FnvHashMap<StringKey, (SplitOperationMetadata, OperationDefinition)>,
-    base_fragment_names: &'base_fragment_names FnvHashSet<StringKey>,
+    split_operations: StringKeyMap<(SplitOperationMetadata, OperationDefinition)>,
+    base_fragment_names: &'base_fragment_names StringKeySet,
 }
 
 impl<'program, 'base_fragment_names> SplitModuleImportTransform<'program, 'base_fragment_names> {
     fn new(
         program: &'program Program,
-        base_fragment_names: &'base_fragment_names FnvHashSet<StringKey>,
+        base_fragment_names: &'base_fragment_names StringKeySet,
     ) -> Self {
         Self {
             program,

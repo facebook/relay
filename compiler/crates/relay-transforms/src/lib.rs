@@ -61,9 +61,11 @@ mod unwrap_custom_directive_selection;
 mod util;
 mod validate_operation_variables;
 mod validations;
-use fnv::{FnvHashMap, FnvHashSet};
+
 use intern::string_key::{Intern, StringKey};
+use intern::BuildIdHasher;
 use lazy_static::lazy_static;
+use std::collections::{HashMap, HashSet};
 
 lazy_static! {
     pub static ref INTERNAL_METADATA_DIRECTIVE: StringKey = "__metadata".intern();
@@ -72,7 +74,9 @@ lazy_static! {
 /// Name of an executable operation
 type OperationName = StringKey;
 
-pub type DependencyMap = FnvHashMap<OperationName, FnvHashSet<OperationName>>;
+// NOTE: Types are based on intern::string_key::{StringKeyMap, StringKeySet}
+pub type DependencyMap = HashMap<OperationName, DependencySet, BuildIdHasher<u32>>;
+pub type DependencySet = HashSet<OperationName, BuildIdHasher<u32>>;
 
 pub use crate::errors::ValidationMessage;
 pub use applied_fragment_name::get_applied_fragment_name;

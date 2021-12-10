@@ -22,7 +22,7 @@ use graphql_ir::{
     Selection, Transformed, TransformedValue, Transformer, ValidationMessage, Value,
 };
 use indexmap::IndexSet;
-use intern::string_key::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey, StringKeyMap};
 use schema::{FieldID, ScalarID, Schema, Type, TypeReference};
 use std::{
     hash::{Hash, Hasher},
@@ -80,7 +80,7 @@ pub struct MatchTransform<'program, 'flag> {
     enable_3d_branch_arg_generation: bool,
     no_inline_flag: &'flag FeatureFlag,
     // Stores the fragments that should use @no_inline and their parent document name
-    no_inline_fragments: FnvHashMap<StringKey, Vec<StringKey>>,
+    no_inline_fragments: StringKeyMap<Vec<StringKey>>,
 }
 
 impl<'program, 'flag> MatchTransform<'program, 'flag> {
@@ -497,18 +497,16 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
                     directives: vec![],
                     selections: vec![Selection::InlineFragment(Arc::new(InlineFragment {
                         type_condition: Some(fragment.type_condition),
-                        directives: vec![
-                            ModuleMetadata {
-                                key: match_directive_key_argument,
-                                module_id,
-                                module_name: module_directive_name_argument,
-                                source_document_name: self.document_name,
-                                fragment_name: spread.fragment.item,
-                                location: module_directive.name.location,
-                                no_inline: should_use_no_inline,
-                            }
-                            .into(),
-                        ],
+                        directives: vec![ModuleMetadata {
+                            key: match_directive_key_argument,
+                            module_id,
+                            module_name: module_directive_name_argument,
+                            source_document_name: self.document_name,
+                            fragment_name: spread.fragment.item,
+                            location: module_directive.name.location,
+                            no_inline: should_use_no_inline,
+                        }
+                        .into()],
                         selections: vec![next_spread, operation_field, component_field],
                     }))],
                 },

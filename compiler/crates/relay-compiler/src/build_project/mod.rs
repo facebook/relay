@@ -35,7 +35,7 @@ pub use generate_artifacts::{
     create_path_for_artifact, generate_artifacts, Artifact, ArtifactContent,
 };
 use graphql_ir::Program;
-use intern::string_key::StringKey;
+use intern::string_key::{StringKey, StringKeySet};
 use log::{debug, info, warn};
 use rayon::{iter::IntoParallelRefIterator, slice::ParallelSlice};
 use relay_codegen::Printer;
@@ -70,7 +70,7 @@ pub fn build_raw_program(
     schema: Arc<SDLSchema>,
     log_event: &impl PerfLogEvent,
     is_incremental_build: bool,
-) -> Result<(Program, FnvHashSet<StringKey>, SourceHashes), BuildProjectError> {
+) -> Result<(Program, StringKeySet, SourceHashes), BuildProjectError> {
     // Build a type aware IR.
     let BuildIRResult {
         ir,
@@ -121,7 +121,7 @@ pub fn transform_program(
     config: &Config,
     project_config: &ProjectConfig,
     program: Arc<Program>,
-    base_fragment_names: Arc<FnvHashSet<StringKey>>,
+    base_fragment_names: Arc<StringKeySet>,
     perf_logger: Arc<impl PerfLogger + 'static>,
     log_event: &impl PerfLogEvent,
 ) -> Result<Programs, BuildProjectFailure> {

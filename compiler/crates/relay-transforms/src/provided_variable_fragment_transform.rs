@@ -7,12 +7,11 @@
 
 use crate::util::format_provided_variable_name;
 use common::{NamedItem, WithLocation};
-use fnv::FnvHashSet;
 use graphql_ir::{
     FragmentDefinition, Program, ProvidedVariableMetadata, Transformed, TransformedValue,
     Transformer, Variable, VariableDefinition,
 };
-use intern::string_key::StringKey;
+use intern::string_key::{StringKey, StringKeySet};
 use itertools::Itertools;
 
 /// This transform applies provided variables in each fragment.
@@ -30,7 +29,7 @@ pub fn provided_variable_fragment_transform(program: &Program) -> Program {
 
 struct ProvidedVariableFragmentTransform {
     // stack of (fragment_name: string, provider_names: set<string>)
-    in_scope_providers: Option<(StringKey, FnvHashSet<StringKey>)>,
+    in_scope_providers: Option<(StringKey, StringKeySet)>,
 }
 
 impl ProvidedVariableFragmentTransform {
@@ -104,7 +103,7 @@ impl<'s> Transformer for ProvidedVariableFragmentTransform {
         fragment: &FragmentDefinition,
     ) -> Transformed<FragmentDefinition> {
         let provided_variable_names =
-            FnvHashSet::from_iter(fragment.variable_definitions.iter().filter_map(|def| {
+            StringKeySet::from_iter(fragment.variable_definitions.iter().filter_map(|def| {
                 if def
                     .directives
                     .named(ProvidedVariableMetadata::directive_name())

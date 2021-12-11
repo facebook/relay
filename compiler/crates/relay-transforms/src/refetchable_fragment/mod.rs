@@ -102,7 +102,6 @@ pub struct RefetchableFragment<'program> {
     existing_refetch_operations: ExistingRefetchOperations,
     for_typegen: bool,
     program: &'program Program,
-    visitor: InferVariablesVisitor<'program>,
 }
 
 impl<'program> RefetchableFragment<'program> {
@@ -112,7 +111,6 @@ impl<'program> RefetchableFragment<'program> {
             existing_refetch_operations: Default::default(),
             for_typegen,
             program,
-            visitor: InferVariablesVisitor::new(program),
         }
     }
 
@@ -141,8 +139,9 @@ impl<'program> RefetchableFragment<'program> {
             RefetchableDirective::from_directive(&self.program.schema, directive)?;
         self.validate_sibling_directives(fragment)?;
         self.validate_refetch_name(fragment, &refetchable_directive)?;
+        let variables_map =
+            InferVariablesVisitor::new(self.program).infer_fragment_variables(fragment);
 
-        let variables_map = self.visitor.infer_fragment_variables(fragment);
         for generator in GENERATORS.iter() {
             if let Some(refetch_root) = (generator.build_refetch_operation)(
                 &self.program.schema,

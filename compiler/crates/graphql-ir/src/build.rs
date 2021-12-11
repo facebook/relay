@@ -424,16 +424,18 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
         let mut seen_variables = StringKeyMap::default();
         for variable in definitions {
             if let Some(other_variable_span) = seen_variables.get(&variable.name.name) {
-                return Err(vec![Diagnostic::error(
-                    ValidationMessage::DuplicateVariable {
-                        name: variable.name.name,
-                    },
-                    self.location.with_span(variable.span),
-                )
-                .annotate(
-                    "conflicts with",
-                    self.location.with_span(*other_variable_span),
-                )]);
+                return Err(vec![
+                    Diagnostic::error(
+                        ValidationMessage::DuplicateVariable {
+                            name: variable.name.name,
+                        },
+                        self.location.with_span(variable.span),
+                    )
+                    .annotate(
+                        "conflicts with",
+                        self.location.with_span(*other_variable_span),
+                    ),
+                ]);
             }
             seen_variables.insert(variable.name.name, variable.span);
         }
@@ -1120,13 +1122,15 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
             for (i, arg) in arguments.items.iter().enumerate() {
                 for other_arg in arguments.items.iter().skip(i + 1) {
                     if arg.name.value == other_arg.name.value {
-                        return Err(vec![Diagnostic::error(
-                            ValidationMessage::DuplicateArgument {
-                                name: arg.name.value,
-                            },
-                            self.location.with_span(arg.span),
-                        )
-                        .annotate("conflicts with", self.location.with_span(other_arg.span))]);
+                        return Err(vec![
+                            Diagnostic::error(
+                                ValidationMessage::DuplicateArgument {
+                                    name: arg.name.value,
+                                },
+                                self.location.with_span(arg.span),
+                            )
+                            .annotate("conflicts with", self.location.with_span(other_arg.span)),
+                        ]);
                     }
                 }
             }
@@ -1179,13 +1183,15 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
                     .skip(index + 1)
                     .find(|other_directive| other_directive.name.item == directive.name.item)
                 {
-                    return Err(vec![Diagnostic::error(
-                        ValidationMessage::RepeatedNonRepeatableDirective {
-                            name: directive.name.item,
-                        },
-                        repeated_directive.name.location,
-                    )
-                    .annotate("previously used here", directive.name.location)]);
+                    return Err(vec![
+                        Diagnostic::error(
+                            ValidationMessage::RepeatedNonRepeatableDirective {
+                                name: directive.name.item,
+                            },
+                            repeated_directive.name.location,
+                        )
+                        .annotate("previously used here", directive.name.location),
+                    ]);
                 }
             }
         }
@@ -1308,14 +1314,16 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
                 let next_type = self.schema.get_type_string(used_as_type);
                 let next_span = self.location.with_span(variable.span);
                 let prev_span = self.location.with_span(prev_usage.span);
-                return Err(vec![Diagnostic::error(
-                    ValidationMessage::IncompatibleVariableUsage {
-                        prev_type,
-                        next_type,
-                    },
-                    next_span,
-                )
-                .annotate("is incompatible with", prev_span)]);
+                return Err(vec![
+                    Diagnostic::error(
+                        ValidationMessage::IncompatibleVariableUsage {
+                            prev_type,
+                            next_type,
+                        },
+                        next_span,
+                    )
+                    .annotate("is incompatible with", prev_span),
+                ]);
             }
             // If the currently used type is a subtype of the previous usage, then it could
             // be a narrower type. Update our inference to reflect the stronger requirements.
@@ -1437,11 +1445,13 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
                     required_fields.remove(&x.name.value);
                     let prev_span = seen_fields.insert(x.name.value, x.name.span);
                     if let Some(prev_span) = prev_span {
-                        return Err(vec![Diagnostic::error(
-                            ValidationMessage::DuplicateInputField(x.name.value),
-                            self.location.with_span(prev_span),
-                        )
-                        .annotate("also defined here", self.location.with_span(x.name.span))]);
+                        return Err(vec![
+                            Diagnostic::error(
+                                ValidationMessage::DuplicateInputField(x.name.value),
+                                self.location.with_span(prev_span),
+                            )
+                            .annotate("also defined here", self.location.with_span(x.name.span)),
+                        ]);
                     };
 
                     let value_span = x.value.span();
@@ -1571,11 +1581,13 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
                     required_fields.remove(&x.name.value);
                     let prev_span = seen_fields.insert(x.name.value, x.name.span);
                     if let Some(prev_span) = prev_span {
-                        return Err(vec![Diagnostic::error(
-                            ValidationMessage::DuplicateInputField(x.name.value),
-                            self.location.with_span(prev_span),
-                        )
-                        .annotate("also defined here", self.location.with_span(x.name.span))]);
+                        return Err(vec![
+                            Diagnostic::error(
+                                ValidationMessage::DuplicateInputField(x.name.value),
+                                self.location.with_span(prev_span),
+                            )
+                            .annotate("also defined here", self.location.with_span(x.name.span)),
+                        ]);
                     };
 
                     let value_span = x.value.span();

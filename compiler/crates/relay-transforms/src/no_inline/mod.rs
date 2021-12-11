@@ -132,13 +132,15 @@ impl<'f, 'p> Validator for RequiredNoInlineValidator<'f, 'p> {
                     || directive.name.item == *RELAY_CLIENT_COMPONENT_DIRECTIVE_NAME
             })
         {
-            Err(vec![Diagnostic::error(
-                ValidationMessage::RequiredExplicitNoInlineDirective {
-                    fragment_name: spread.fragment.item,
-                },
-                spread.fragment.location,
-            )
-            .annotate("fragment definition", fragment.name.location)])
+            Err(vec![
+                Diagnostic::error(
+                    ValidationMessage::RequiredExplicitNoInlineDirective {
+                        fragment_name: spread.fragment.item,
+                    },
+                    spread.fragment.location,
+                )
+                .annotate("fragment definition", fragment.name.location),
+            ])
         } else {
             Ok(())
         }

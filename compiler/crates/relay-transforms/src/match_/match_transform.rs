@@ -497,16 +497,18 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
                     directives: vec![],
                     selections: vec![Selection::InlineFragment(Arc::new(InlineFragment {
                         type_condition: Some(fragment.type_condition),
-                        directives: vec![ModuleMetadata {
-                            key: match_directive_key_argument,
-                            module_id,
-                            module_name: module_directive_name_argument,
-                            source_document_name: self.document_name,
-                            fragment_name: spread.fragment.item,
-                            location: module_directive.name.location,
-                            no_inline: should_use_no_inline,
-                        }
-                        .into()],
+                        directives: vec![
+                            ModuleMetadata {
+                                key: match_directive_key_argument,
+                                module_id,
+                                module_name: module_directive_name_argument,
+                                source_document_name: self.document_name,
+                                fragment_name: spread.fragment.item,
+                                location: module_directive.name.location,
+                                no_inline: should_use_no_inline,
+                            }
+                            .into(),
+                        ],
                         selections: vec![next_spread, operation_field, component_field],
                     }))],
                 },

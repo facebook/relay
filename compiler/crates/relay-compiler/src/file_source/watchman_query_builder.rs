@@ -29,7 +29,12 @@ pub fn get_watchman_expr(config: &Config) -> Expr {
                     Expr::Suffix(match &project.typegen_config.language {
                         TypegenLanguage::Flow => vec![PathBuf::from("js"), PathBuf::from("jsx")],
                         TypegenLanguage::TypeScript => {
-                            vec![PathBuf::from("ts"), PathBuf::from("tsx")]
+                            vec![
+                                PathBuf::from("js"),
+                                PathBuf::from("jsx"),
+                                PathBuf::from("ts"),
+                                PathBuf::from("tsx"),
+                            ]
                         }
                     }),
                     // In the related source root.

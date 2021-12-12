@@ -113,6 +113,12 @@ graphql`
   }
 `;
 
+graphql`
+  fragment readUpdatableQueryEXPERIMENTALTest_node on Node @assignable {
+    __typename
+  }
+`;
+
 describe('readUpdatableQuery', () => {
   let environment;
   let operation;

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<54345e8a1df49a18ea8a7795749369fa>>
+ * @generated SignedSource<<57bb4940f57fafca288f8932c2b7d548>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -25,9 +25,13 @@ export type readUpdatableQueryEXPERIMENTALTestUpdatableQuery$data = {|
     +id: string,
     name: ?string,
     +author: ?{|
-      +client_best_friend: ?{|
+      get client_best_friend(): ?{|
         name: ?string,
       |},
+      set client_best_friend(value: ?{
+        +$fragmentSpreads: readUpdatableQueryEXPERIMENTALTest_user$fragmentType,
+        ...
+      }): void,
     |},
     +author2: ?{|
       client_nickname: ?string,
@@ -93,9 +97,11 @@ v2 = {
   "name": "name",
   "storageKey": null
 },
-v3 = [
-  (v2/*: any*/)
-],
+v3 = {
+  "args": null,
+  "kind": "FragmentSpread",
+  "name": "readUpdatableQueryEXPERIMENTALTest_user"
+},
 v4 = {
   "kind": "ClientExtension",
   "selections": [
@@ -108,28 +114,22 @@ v4 = {
     }
   ]
 },
-v5 = {
-  "args": null,
-  "kind": "FragmentSpread",
-  "name": "readUpdatableQueryEXPERIMENTALTest_user"
-},
-v6 = [
+v5 = [
   {
     "kind": "Literal",
     "name": "id",
     "value": "4"
   }
 ],
-v7 = [
+v6 = [
   {
     "kind": "Literal",
     "name": "id",
     "value": "5"
   }
 ],
-v8 = [
-  (v2/*: any*/),
-  (v1/*: any*/)
+v7 = [
+  (v2/*: any*/)
 ];
 return {
   "fragment": {
@@ -167,7 +167,10 @@ return {
                     "kind": "LinkedField",
                     "name": "client_best_friend",
                     "plural": false,
-                    "selections": (v3/*: any*/),
+                    "selections": [
+                      (v3/*: any*/),
+                      (v2/*: any*/)
+                    ],
                     "storageKey": null
                   }
                 ]
@@ -187,13 +190,13 @@ return {
             ],
             "storageKey": null
           },
-          (v5/*: any*/)
+          (v3/*: any*/)
         ],
         "storageKey": null
       },
       {
         "alias": null,
-        "args": (v6/*: any*/),
+        "args": (v5/*: any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -213,7 +216,7 @@ return {
       },
       {
         "alias": "node2",
-        "args": (v7/*: any*/),
+        "args": (v6/*: any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -232,7 +235,7 @@ return {
                 "name": "parents",
                 "plural": true,
                 "selections": [
-                  (v5/*: any*/),
+                  (v3/*: any*/),
                   (v2/*: any*/),
                   {
                     "alias": null,
@@ -241,7 +244,7 @@ return {
                     "kind": "LinkedField",
                     "name": "parents",
                     "plural": true,
-                    "selections": (v3/*: any*/),
+                    "selections": (v7/*: any*/),
                     "storageKey": null
                   }
                 ],
@@ -294,7 +297,11 @@ return {
                     "kind": "LinkedField",
                     "name": "client_best_friend",
                     "plural": false,
-                    "selections": (v8/*: any*/),
+                    "selections": [
+                      (v0/*: any*/),
+                      (v2/*: any*/),
+                      (v1/*: any*/)
+                    ],
                     "storageKey": null
                   }
                 ]
@@ -320,7 +327,7 @@ return {
       },
       {
         "alias": null,
-        "args": (v6/*: any*/),
+        "args": (v5/*: any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -330,7 +337,7 @@ return {
           (v1/*: any*/),
           {
             "kind": "InlineFragment",
-            "selections": (v3/*: any*/),
+            "selections": (v7/*: any*/),
             "type": "User",
             "abstractKey": null
           }
@@ -339,7 +346,7 @@ return {
       },
       {
         "alias": "node2",
-        "args": (v7/*: any*/),
+        "args": (v6/*: any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -368,7 +375,10 @@ return {
                     "kind": "LinkedField",
                     "name": "parents",
                     "plural": true,
-                    "selections": (v8/*: any*/),
+                    "selections": [
+                      (v2/*: any*/),
+                      (v1/*: any*/)
+                    ],
                     "storageKey": null
                   },
                   (v1/*: any*/)
@@ -396,7 +406,7 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "d93442567ae774426185e17b6cc441ec";
+  (node/*: any*/).hash = "73b720724ad0b12d4de30f4b01b3ded8";
 }
 
 module.exports = ((node/*: any*/)/*: Query<

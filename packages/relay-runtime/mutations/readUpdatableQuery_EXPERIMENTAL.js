@@ -145,6 +145,15 @@ function updateProxyFromSelections<TQuery: OperationType>(
           );
         }
         break;
+      case 'ClientExtension':
+        updateProxyFromSelections(
+          mutableUpdatableProxy,
+          recordProxy,
+          queryVariables,
+          selection.selections,
+          root,
+        );
+        break;
       case 'FragmentSpread':
         // Explicitly ignore
         break;

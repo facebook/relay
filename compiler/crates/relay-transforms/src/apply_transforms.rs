@@ -195,9 +195,10 @@ fn apply_reader_transforms(
         handle_field_transform(&program)
     });
 
-    program = log_event.time("transform_assignable_fragment_spreads", || {
-        transform_assignable_fragment_spreads(&program)
-    })?;
+    program = log_event.time(
+        "transform_assignable_fragment_spreads_in_regular_queries",
+        || transform_assignable_fragment_spreads_in_regular_queries(&program),
+    )?;
 
     program = log_event.time("inline_data_fragment", || inline_data_fragment(&program))?;
     program = log_event.time("skip_unreachable_node", || skip_unreachable_node(&program))?;
@@ -411,9 +412,10 @@ fn apply_typegen_transforms(
     })?;
     program = log_event.time("required_directive", || required_directive(&program))?;
     program = log_event.time("client_edges", || client_edges(&program))?;
-    program = log_event.time("transform_assignable_fragment_spreads", || {
-        transform_assignable_fragment_spreads(&program)
-    })?;
+    program = log_event.time(
+        "transform_assignable_fragment_spreads_in_regular_queries",
+        || transform_assignable_fragment_spreads_in_regular_queries(&program),
+    )?;
     program = log_event.time("relay_resolvers", || {
         relay_resolvers(&program, feature_flags.enable_relay_resolver_transform)
     })?;

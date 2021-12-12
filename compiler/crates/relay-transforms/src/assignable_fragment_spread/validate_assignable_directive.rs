@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use super::ValidationMessage;
+use super::{ValidationMessage, ASSIGNABLE_DIRECTIVE};
 use common::{Diagnostic, DiagnosticsResult, NamedItem};
 use graphql_ir::{FragmentDefinition, Program, Selection, Validator};
 use intern::string_key::{Intern, StringKey};
@@ -13,9 +13,8 @@ use lazy_static::lazy_static;
 use schema::Schema;
 
 lazy_static! {
-    pub(crate) static ref ASSIGNABLE_DIRECTIVE_NAME: StringKey = "assignable".intern();
     static ref ALLOW_LISTED_DIRECTIVES: Vec<StringKey> = vec![
-        *ASSIGNABLE_DIRECTIVE_NAME,
+        *ASSIGNABLE_DIRECTIVE,
         // TODO have a global list of directives...?
         "fb_owner".intern(),
     ];
@@ -35,11 +34,7 @@ impl<'a> Validator for AssignableDirective<'a> {
     const VALIDATE_DIRECTIVES: bool = false;
 
     fn validate_fragment(&mut self, fragment: &FragmentDefinition) -> DiagnosticsResult<()> {
-        if fragment
-            .directives
-            .named(*ASSIGNABLE_DIRECTIVE_NAME)
-            .is_none()
-        {
+        if fragment.directives.named(*ASSIGNABLE_DIRECTIVE).is_none() {
             return Ok(());
         }
 

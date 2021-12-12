@@ -33,8 +33,7 @@ use relay_codegen::JsModuleFormat;
 use relay_transforms::{
     ModuleMetadata, RefetchableDerivedFromMetadata, RefetchableMetadata, RelayDirective,
     RelayResolverSpreadMetadata, RequiredMetadataDirective, CHILDREN_CAN_BUBBLE_METADATA_KEY,
-    CLIENT_EXTENSION_DIRECTIVE_NAME, RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN,
-    UPDATABLE_DIRECTIVE_NAME,
+    CLIENT_EXTENSION_DIRECTIVE_NAME, RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN, UPDATABLE_DIRECTIVE,
 };
 use schema::{EnumID, SDLSchema, ScalarID, Schema, Type, TypeReference};
 use std::hash::Hash;
@@ -208,7 +207,7 @@ impl<'a> TypeGenerator<'a> {
 
         self.is_updatable_operation = typegen_operation
             .directives
-            .named(*UPDATABLE_DIRECTIVE_NAME)
+            .named(*UPDATABLE_DIRECTIVE)
             .is_some();
 
         let input_variables_type = self.generate_input_variables_type(typegen_operation);

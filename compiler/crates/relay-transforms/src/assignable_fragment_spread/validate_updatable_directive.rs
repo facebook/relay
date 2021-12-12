@@ -7,8 +7,7 @@
 
 use std::collections::HashSet;
 
-use super::ValidationMessage;
-use crate::assignable_fragment_spread::validate_assignable_directive::ASSIGNABLE_DIRECTIVE_NAME;
+use super::{ValidationMessage, ASSIGNABLE_DIRECTIVE, UPDATABLE_DIRECTIVE};
 use common::{Diagnostic, DiagnosticsResult, Location, NamedItem};
 use errors::{validate, validate_map};
 use graphql_ir::{
@@ -20,9 +19,8 @@ use lazy_static::lazy_static;
 use schema::Schema;
 
 lazy_static! {
-    pub static ref UPDATABLE_DIRECTIVE_NAME: StringKey = "updatable".intern();
     static ref ALLOW_LISTED_DIRECTIVES: Vec<StringKey> = vec![
-        *UPDATABLE_DIRECTIVE_NAME,
+        *UPDATABLE_DIRECTIVE,
         // TODO have a global list of directives...?
         "fb_owner".intern(),
     ];
@@ -90,11 +88,7 @@ impl<'a> UpdatableDirective<'a> {
 
             if let Some(fragment) = self.program.fragments.get(&fragment_spread.fragment.item) {
                 // Only fragments which are assignable can be spread.
-                if fragment
-                    .directives
-                    .named(*ASSIGNABLE_DIRECTIVE_NAME)
-                    .is_none()
-                {
+                if fragment.directives.named(*ASSIGNABLE_DIRECTIVE).is_none() {
                     errors.push(Diagnostic::error(
                         ValidationMessage::UpdatableOnlyAssignableFragmentSpreads {
                             outer_type_plural: self.executable_definition_info.unwrap().type_plural,
@@ -260,11 +254,7 @@ impl<'a> Validator for UpdatableDirective<'a> {
     const VALIDATE_DIRECTIVES: bool = true;
 
     fn validate_operation(&mut self, operation: &OperationDefinition) -> DiagnosticsResult<()> {
-        if operation
-            .directives
-            .named(*UPDATABLE_DIRECTIVE_NAME)
-            .is_some()
-        {
+        if operation.directives.named(*UPDATABLE_DIRECTIVE).is_some() {
             self.executable_definition_info = Some(ExecutableDefinitionInfo {
                 name: operation.name.item,
                 location: operation.name.location,
@@ -277,7 +267,7 @@ impl<'a> Validator for UpdatableDirective<'a> {
     }
 
     fn validate_fragment(&mut self, fragment: &FragmentDefinition) -> DiagnosticsResult<()> {
-        if let Some(updatable_directive) = fragment.directives.named(*UPDATABLE_DIRECTIVE_NAME) {
+        if let Some(updatable_directive) = fragment.directives.named(*UPDATABLE_DIRECTIVE) {
             Err(vec![Diagnostic::error(
                 ValidationMessage::UpdatableNotAllowedOnFragments,
                 updatable_directive.name.location,

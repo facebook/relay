@@ -182,7 +182,8 @@ export interface RelayMockEnvironment extends MockEnvironment, IEnvironment {}
 function createMockEnvironment(
   config?: $Shape<EnvironmentConfig>,
 ): RelayMockEnvironment {
-  const store = config?.store ?? new Store(new RecordSource());
+  const recordSource = config?.store ? undefined : new RecordSource();
+  const store = config?.store ?? new Store(recordSource);
   const cache = new QueryResponseCache({
     size: MAX_SIZE,
     ttl: MAX_TTL,
@@ -552,6 +553,8 @@ function createMockEnvironment(
     environment.executeMutation.mockClear();
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     environment.executeSubscription.mockClear();
+
+    recordSource?.clear();
 
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     store.getSource.mockClear();

@@ -10,7 +10,7 @@ use graphql_syntax::{
     LinkedField, List, OperationDefinition, ScalarField, Selection, VariableDefinition,
 };
 
-use std::fmt::{Result, Write};
+use std::fmt::{Result as FmtResult, Write};
 
 pub fn print_operation_ast(node: &OperationDefinition) -> String {
     let mut printer: Printer = Default::default();
@@ -39,7 +39,7 @@ struct Printer {
 }
 
 impl Printer {
-    fn print_operation(&mut self, operation: &OperationDefinition) -> Result {
+    fn print_operation(&mut self, operation: &OperationDefinition) -> FmtResult {
         if let Some((_, operation_kind)) = operation.operation {
             write!(self.output, "{}", operation_kind)?;
         };
@@ -57,7 +57,7 @@ impl Printer {
         Ok(())
     }
 
-    fn print_fragment(&mut self, fragment: &FragmentDefinition) -> Result {
+    fn print_fragment(&mut self, fragment: &FragmentDefinition) -> FmtResult {
         write!(
             self.output,
             "fragment {} {}",
@@ -74,7 +74,7 @@ impl Printer {
     fn print_variable_definitions(
         &mut self,
         variable_definitions: &List<VariableDefinition>,
-    ) -> Result {
+    ) -> FmtResult {
         write!(self.output, "(")?;
         let last = variable_definitions.items.last();
         for variable_definition in &variable_definitions.items {
@@ -90,7 +90,7 @@ impl Printer {
         Ok(())
     }
 
-    fn print_variable_definition(&mut self, variable_definition: &VariableDefinition) -> Result {
+    fn print_variable_definition(&mut self, variable_definition: &VariableDefinition) -> FmtResult {
         write!(
             self.output,
             "{}: {}",
@@ -103,7 +103,7 @@ impl Printer {
         Ok(())
     }
 
-    fn print_directives(&mut self, directives: &[Directive]) -> Result {
+    fn print_directives(&mut self, directives: &[Directive]) -> FmtResult {
         for directive in directives {
             self.print_directive(directive)?;
         }
@@ -111,7 +111,7 @@ impl Printer {
         Ok(())
     }
 
-    fn print_directive(&mut self, directive: &Directive) -> Result {
+    fn print_directive(&mut self, directive: &Directive) -> FmtResult {
         write!(self.output, " @{}", directive.name)?;
 
         if let Some(arguments) = &directive.arguments {
@@ -121,7 +121,7 @@ impl Printer {
         Ok(())
     }
 
-    fn print_arguments(&mut self, arguments: &List<Argument>) -> Result {
+    fn print_arguments(&mut self, arguments: &List<Argument>) -> FmtResult {
         write!(self.output, "(")?;
         let last_arg = arguments.items.last();
         for argument in &arguments.items {
@@ -136,7 +136,7 @@ impl Printer {
         Ok(())
     }
 
-    fn print_selections(&mut self, selections: &List<Selection>, indent: &str) -> Result {
+    fn print_selections(&mut self, selections: &List<Selection>, indent: &str) -> FmtResult {
         for selection in &selections.items {
             self.print_selection(selection, indent)?;
             writeln!(self.output)?;
@@ -145,7 +145,7 @@ impl Printer {
         Ok(())
     }
 
-    fn print_selection(&mut self, selection: &Selection, indent: &str) -> Result {
+    fn print_selection(&mut self, selection: &Selection, indent: &str) -> FmtResult {
         write!(self.output, "{}", indent)?;
         match selection {
             Selection::FragmentSpread(node) => self.print_fragment_spread(node),
@@ -155,14 +155,14 @@ impl Printer {
         }
     }
 
-    fn print_fragment_spread(&mut self, node: &FragmentSpread) -> Result {
+    fn print_fragment_spread(&mut self, node: &FragmentSpread) -> FmtResult {
         write!(self.output, "...{}", node.name)?;
         self.print_directives(&node.directives)?;
 
         Ok(())
     }
 
-    fn print_inline_fragment(&mut self, node: &InlineFragment, indent: &str) -> Result {
+    fn print_inline_fragment(&mut self, node: &InlineFragment, indent: &str) -> FmtResult {
         write!(self.output, "...")?;
         if let Some(type_condition) = &node.type_condition {
             write!(self.output, " {}", type_condition)?;
@@ -174,7 +174,7 @@ impl Printer {
         Ok(())
     }
 
-    fn print_linked_field(&mut self, node: &LinkedField, indent: &str) -> Result {
+    fn print_linked_field(&mut self, node: &LinkedField, indent: &str) -> FmtResult {
         if let Some(alias) = &node.alias {
             write!(self.output, "{}: ", alias)?;
         }
@@ -190,7 +190,7 @@ impl Printer {
         Ok(())
     }
 
-    fn print_scalar_field(&mut self, node: &ScalarField) -> Result {
+    fn print_scalar_field(&mut self, node: &ScalarField) -> FmtResult {
         if let Some(alias) = &node.alias {
             write!(self.output, "{}: ", alias)?;
         }

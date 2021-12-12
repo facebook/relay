@@ -11,7 +11,7 @@ use crate::{
 };
 use intern::string_key::StringKey;
 use itertools::Itertools;
-use std::fmt::{Result, Write};
+use std::fmt::{Result as FmtResult, Write};
 
 pub struct FlowPrinter {
     result: String,
@@ -24,7 +24,7 @@ impl Writer for FlowPrinter {
         self.result
     }
 
-    fn write(&mut self, ast: &AST) -> Result {
+    fn write(&mut self, ast: &AST) -> FmtResult {
         match ast {
             AST::Any => write!(&mut self.result, "any"),
             AST::String => write!(&mut self.result, "string"),
@@ -46,8 +46,8 @@ impl Writer for FlowPrinter {
             AST::FragmentReferenceType(fragment) => {
                 write!(&mut self.result, "{}$fragmentType", fragment)
             }
-            AST::FunctionReturnType(function_name) => {
-                self.write_function_return_type(*function_name)
+            AST::ReturnTypeOfFunctionWithName(function_name) => {
+                self.write_return_type_of_function_with_name(*function_name)
             }
             AST::ActorChangePoint(selections) => self.write_actor_change_point(selections),
         }
@@ -57,17 +57,17 @@ impl Writer for FlowPrinter {
         "FragmentType"
     }
 
-    fn write_export_type(&mut self, name: &str, value: &AST) -> Result {
+    fn write_export_type(&mut self, name: &str, value: &AST) -> FmtResult {
         write!(&mut self.result, "export type {} = ", name)?;
         self.write(value)?;
         writeln!(&mut self.result, ";")
     }
 
-    fn write_import_module_default(&mut self, name: &str, from: &str) -> Result {
+    fn write_import_module_default(&mut self, name: &str, from: &str) -> FmtResult {
         writeln!(&mut self.result, "import {} from \"{}\";", name, from)
     }
 
-    fn write_import_type(&mut self, types: &[&str], from: &str) -> Result {
+    fn write_import_type(&mut self, types: &[&str], from: &str) -> FmtResult {
         writeln!(
             &mut self.result,
             "import type {{ {} }} from \"{}\";",
@@ -76,11 +76,11 @@ impl Writer for FlowPrinter {
         )
     }
 
-    fn write_import_fragment_type(&mut self, types: &[&str], from: &str) -> Result {
+    fn write_import_fragment_type(&mut self, types: &[&str], from: &str) -> FmtResult {
         self.write_import_type(types, from)
     }
 
-    fn write_export_fragment_type(&mut self, old_name: &str, new_name: &str) -> Result {
+    fn write_export_fragment_type(&mut self, old_name: &str, new_name: &str) -> FmtResult {
         match self.flow_typegen_phase {
             FlowTypegenPhase::Phase4 => {
                 writeln!(
@@ -103,7 +103,7 @@ export type {old_name} = {new_name};",
         &mut self,
         fragment_type_name_1: &str,
         fragment_type_name_2: &str,
-    ) -> Result {
+    ) -> FmtResult {
         writeln!(
             &mut self.result,
             "export type {{ {}, {} }};",
@@ -111,7 +111,7 @@ export type {old_name} = {new_name};",
         )
     }
 
-    fn write_any_type_definition(&mut self, name: &str) -> Result {
+    fn write_any_type_definition(&mut self, name: &str) -> FmtResult {
         writeln!(&mut self.result, "type {} = any;", name)
     }
 }
@@ -125,19 +125,19 @@ impl FlowPrinter {
         }
     }
 
-    fn write_indentation(&mut self) -> Result {
+    fn write_indentation(&mut self) -> FmtResult {
         self.result.write_str(&"  ".repeat(self.indentation))
     }
 
-    fn write_string_literal(&mut self, literal: StringKey) -> Result {
+    fn write_string_literal(&mut self, literal: StringKey) -> FmtResult {
         write!(&mut self.result, "\"{}\"", literal)
     }
 
-    fn write_other_string(&mut self) -> Result {
+    fn write_other_string(&mut self) -> FmtResult {
         write!(&mut self.result, r#""%other""#)
     }
 
-    fn write_union(&mut self, members: &[AST]) -> Result {
+    fn write_union(&mut self, members: &[AST]) -> FmtResult {
         let mut first = true;
         for member in members {
             if first {
@@ -150,7 +150,7 @@ impl FlowPrinter {
         Ok(())
     }
 
-    fn write_fragment_references(&mut self, fragments: &[StringKey]) -> Result {
+    fn write_fragment_references(&mut self, fragments: &[StringKey]) -> FmtResult {
         let mut first = true;
         for fragment in fragments {
             if first {
@@ -163,13 +163,13 @@ impl FlowPrinter {
         Ok(())
     }
 
-    fn write_read_only_array(&mut self, of_type: &AST) -> Result {
+    fn write_read_only_array(&mut self, of_type: &AST) -> FmtResult {
         write!(&mut self.result, "$ReadOnlyArray<")?;
         self.write(of_type)?;
         write!(&mut self.result, ">")
     }
 
-    fn write_nullable(&mut self, of_type: &AST) -> Result {
+    fn write_nullable(&mut self, of_type: &AST) -> FmtResult {
         write!(&mut self.result, "?")?;
         match of_type {
             AST::Union(members) if members.len() > 1 => {
@@ -184,7 +184,7 @@ impl FlowPrinter {
         Ok(())
     }
 
-    fn write_object(&mut self, props: &[Prop], exact: bool) -> Result {
+    fn write_object(&mut self, props: &[Prop], exact: bool) -> FmtResult {
         if props.is_empty() && exact {
             write!(&mut self.result, "{{||}}")?;
             return Ok(());
@@ -262,14 +262,14 @@ impl FlowPrinter {
         Ok(())
     }
 
-    fn write_local_3d_payload(&mut self, document_name: StringKey, selections: &AST) -> Result {
+    fn write_local_3d_payload(&mut self, document_name: StringKey, selections: &AST) -> FmtResult {
         write!(&mut self.result, "Local3DPayload<\"{}\", ", document_name)?;
         self.write(selections)?;
         write!(&mut self.result, ">")?;
         Ok(())
     }
 
-    fn write_function_return_type(&mut self, function_name: StringKey) -> Result {
+    fn write_return_type_of_function_with_name(&mut self, function_name: StringKey) -> FmtResult {
         write!(
             &mut self.result,
             "$Call<<R>((...empty[]) => R) => R, typeof {}>",
@@ -277,7 +277,7 @@ impl FlowPrinter {
         )
     }
 
-    fn write_actor_change_point(&mut self, selections: &AST) -> Result {
+    fn write_actor_change_point(&mut self, selections: &AST) -> FmtResult {
         write!(&mut self.result, "ActorChangePoint<")?;
         self.write(selections)?;
         write!(&mut self.result, ">")?;
@@ -512,7 +512,7 @@ mod tests {
     #[test]
     fn function_return_type() {
         assert_eq!(
-            print_type(&AST::FunctionReturnType("someFunc".intern())),
+            print_type(&AST::ReturnTypeOfFunctionWithName("someFunc".intern())),
             "$Call<<R>((...empty[]) => R) => R, typeof someFunc>".to_string()
         );
     }

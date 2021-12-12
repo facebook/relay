@@ -10,7 +10,7 @@ use crate::TypegenConfig;
 use crate::{KEY_DATA, KEY_FRAGMENT_SPREADS, KEY_FRAGMENT_TYPE};
 use intern::string_key::{Intern, StringKey};
 use itertools::Itertools;
-use std::fmt::{Result, Write};
+use std::fmt::{Result as FmtResult, Write};
 
 pub struct TypeScriptPrinter {
     result: String,
@@ -27,7 +27,7 @@ impl Writer for TypeScriptPrinter {
         "FragmentRefs"
     }
 
-    fn write(&mut self, ast: &AST) -> Result {
+    fn write(&mut self, ast: &AST) -> FmtResult {
         match ast {
             AST::Any => write!(&mut self.result, "any"),
             AST::String => write!(&mut self.result, "string"),
@@ -47,24 +47,24 @@ impl Writer for TypeScriptPrinter {
             }
             AST::FragmentReference(fragments) => self.write_fragment_references(fragments),
             AST::FragmentReferenceType(fragment) => self.write_fragment_references_type(*fragment),
-            AST::FunctionReturnType(function_name) => {
-                self.write_function_return_type(*function_name)
+            AST::ReturnTypeOfFunctionWithName(function_name) => {
+                self.write_return_type_of_function_with_name(*function_name)
             }
             AST::ActorChangePoint(_) => panic!("Not supported yet"),
         }
     }
 
-    fn write_export_type(&mut self, name: &str, value: &AST) -> Result {
+    fn write_export_type(&mut self, name: &str, value: &AST) -> FmtResult {
         write!(&mut self.result, "export type {} = ", name)?;
         self.write(value)?;
         writeln!(&mut self.result, ";")
     }
 
-    fn write_import_module_default(&mut self, name: &str, from: &str) -> Result {
+    fn write_import_module_default(&mut self, name: &str, from: &str) -> FmtResult {
         writeln!(&mut self.result, "import {} from \"{}\";", name, from)
     }
 
-    fn write_import_type(&mut self, types: &[&str], from: &str) -> Result {
+    fn write_import_type(&mut self, types: &[&str], from: &str) -> FmtResult {
         writeln!(
             &mut self.result,
             "import {}{{ {} }} from \"{}\";",
@@ -79,16 +79,16 @@ impl Writer for TypeScriptPrinter {
     }
 
     // In TypeScript, we don't need to import "any" fragment types, these are unused.
-    fn write_any_type_definition(&mut self, _name: &str) -> Result {
+    fn write_any_type_definition(&mut self, _name: &str) -> FmtResult {
         Ok(())
     }
 
     // In TypeScript, we don't export & import fragments. We just use the generic FragmentRefs type instead.
-    fn write_import_fragment_type(&mut self, _types: &[&str], _from: &str) -> Result {
+    fn write_import_fragment_type(&mut self, _types: &[&str], _from: &str) -> FmtResult {
         Ok(())
     }
 
-    fn write_export_fragment_type(&mut self, _old_name: &str, _new_name: &str) -> Result {
+    fn write_export_fragment_type(&mut self, _old_name: &str, _new_name: &str) -> FmtResult {
         Ok(())
     }
 
@@ -96,7 +96,7 @@ impl Writer for TypeScriptPrinter {
         &mut self,
         _fragment_type_name_1: &str,
         _fragment_type_name_2: &str,
-    ) -> Result {
+    ) -> FmtResult {
         Ok(())
     }
 }
@@ -110,19 +110,19 @@ impl TypeScriptPrinter {
         }
     }
 
-    fn write_indentation(&mut self) -> Result {
+    fn write_indentation(&mut self) -> FmtResult {
         self.result.write_str(&"  ".repeat(self.indentation))
     }
 
-    fn write_string_literal(&mut self, literal: StringKey) -> Result {
+    fn write_string_literal(&mut self, literal: StringKey) -> FmtResult {
         write!(&mut self.result, "\"{}\"", literal)
     }
 
-    fn write_other_string(&mut self) -> Result {
+    fn write_other_string(&mut self) -> FmtResult {
         write!(&mut self.result, r#""%other""#)
     }
 
-    fn write_union(&mut self, members: &[AST]) -> Result {
+    fn write_union(&mut self, members: &[AST]) -> FmtResult {
         let mut first = true;
         for member in members {
             if first {
@@ -135,13 +135,13 @@ impl TypeScriptPrinter {
         Ok(())
     }
 
-    fn write_read_only_array(&mut self, of_type: &AST) -> Result {
+    fn write_read_only_array(&mut self, of_type: &AST) -> FmtResult {
         write!(&mut self.result, "ReadonlyArray<")?;
         self.write(of_type)?;
         write!(&mut self.result, ">")
     }
 
-    fn write_nullable(&mut self, of_type: &AST) -> Result {
+    fn write_nullable(&mut self, of_type: &AST) -> FmtResult {
         let null_type = AST::RawType("null".intern());
         if let AST::Union(members) = of_type {
             let mut new_members = Vec::with_capacity(members.len() + 1);
@@ -154,7 +154,7 @@ impl TypeScriptPrinter {
         Ok(())
     }
 
-    fn write_object(&mut self, props: &[Prop]) -> Result {
+    fn write_object(&mut self, props: &[Prop]) -> FmtResult {
         if props.is_empty() {
             write!(&mut self.result, "{{}}")?;
             return Ok(());
@@ -220,14 +220,14 @@ impl TypeScriptPrinter {
         Ok(())
     }
 
-    fn write_local_3d_payload(&mut self, document_name: StringKey, selections: &AST) -> Result {
+    fn write_local_3d_payload(&mut self, document_name: StringKey, selections: &AST) -> FmtResult {
         write!(&mut self.result, "Local3DPayload<\"{}\", ", document_name)?;
         self.write(selections)?;
         write!(&mut self.result, ">")?;
         Ok(())
     }
 
-    fn write_fragment_references(&mut self, fragments: &[StringKey]) -> Result {
+    fn write_fragment_references(&mut self, fragments: &[StringKey]) -> FmtResult {
         write!(&mut self.result, "FragmentRefs<")?;
         self.write(&AST::Union(
             fragments
@@ -238,11 +238,11 @@ impl TypeScriptPrinter {
         write!(&mut self.result, ">")
     }
 
-    fn write_fragment_references_type(&mut self, fragment: StringKey) -> Result {
+    fn write_fragment_references_type(&mut self, fragment: StringKey) -> FmtResult {
         self.write(&AST::StringLiteral(fragment))
     }
 
-    fn write_function_return_type(&mut self, function_name: StringKey) -> Result {
+    fn write_return_type_of_function_with_name(&mut self, function_name: StringKey) -> FmtResult {
         write!(&mut self.result, "ReturnType<typeof {}>", function_name)
     }
 }
@@ -474,7 +474,7 @@ mod tests {
     #[test]
     fn function_return_type() {
         assert_eq!(
-            print_type(&AST::FunctionReturnType("someFunc".intern(),)),
+            print_type(&AST::ReturnTypeOfFunctionWithName("someFunc".intern(),)),
             "ReturnType<typeof someFunc>".to_string()
         );
     }

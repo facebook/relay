@@ -62,7 +62,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
             .normalization
             .operation(typegen_operation.name.item)
             .unwrap();
-        relay_typegen::generate_operation_type(
+        relay_typegen::generate_operation_type_exports_section(
             typegen_operation,
             normalization_operation,
             &schema,
@@ -75,7 +75,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let mut fragments: Vec<_> = programs.typegen.fragments().collect();
     fragments.sort_by_key(|frag| frag.name.item);
     let fragment_strings = fragments.into_iter().map(|frag| {
-        relay_typegen::generate_fragment_type(
+        relay_typegen::generate_fragment_type_exports_section(
             frag,
             &schema,
             js_module_format,

@@ -17,7 +17,9 @@ use intern::string_key::Intern;
 use relay_codegen::{print_fragment, print_operation, JsModuleFormat};
 use relay_schema::build_schema_with_extensions;
 use relay_transforms::{apply_transforms, ConnectionInterface, Programs};
-use relay_typegen::{generate_fragment_type, generate_operation_type, TypegenConfig};
+use relay_typegen::{
+    generate_fragment_type_exports_section, generate_operation_type_exports_section, TypegenConfig,
+};
 use schema::SDLSchema;
 use serde::Serialize;
 
@@ -212,14 +214,20 @@ pub fn parse_to_types_impl(
         .typegen
         .fragments()
         .map(|def| {
-            generate_fragment_type(def, &schema, JsModuleFormat::Haste, false, &typegen_config)
+            generate_fragment_type_exports_section(
+                def,
+                &schema,
+                JsModuleFormat::Haste,
+                false,
+                &typegen_config,
+            )
         })
         .chain(programs.typegen.operations().map(|typegen_operation| {
             let normalization_operation = programs
                 .normalization
                 .operation(typegen_operation.name.item)
                 .unwrap();
-            generate_operation_type(
+            generate_operation_type_exports_section(
                 typegen_operation,
                 normalization_operation,
                 &schema,

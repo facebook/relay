@@ -38,7 +38,7 @@ use relay_transforms::{
 };
 use schema::{EnumID, SDLSchema, ScalarID, Schema, Type, TypeReference};
 use std::hash::Hash;
-use std::{fmt::Result, path::Path};
+use std::{fmt::Result as FmtResult, path::Path};
 use writer::{Prop, AST};
 
 static REACT_RELAY_MULTI_ACTOR: &str = "react-relay/multi-actor";
@@ -70,7 +70,7 @@ lazy_static! {
     static ref SPREAD_KEY: StringKey = "\0SPREAD".intern();
 }
 
-pub fn generate_fragment_type(
+pub fn generate_fragment_type_exports_section(
     fragment: &FragmentDefinition,
     schema: &SDLSchema,
     js_module_format: JsModuleFormat,
@@ -84,11 +84,13 @@ pub fn generate_fragment_type(
         typegen_config,
         fragment.name.item,
     );
-    generator.generate_fragment_type(fragment).unwrap();
+    generator
+        .write_fragment_type_exports_section(fragment)
+        .unwrap();
     generator.into_string()
 }
 
-pub fn generate_operation_type(
+pub fn generate_operation_type_exports_section(
     typegen_operation: &OperationDefinition,
     normalization_operation: &OperationDefinition,
     schema: &SDLSchema,
@@ -106,12 +108,12 @@ pub fn generate_operation_type(
         rollout_key,
     );
     generator
-        .generate_operation_type(typegen_operation, normalization_operation)
+        .write_operation_type_exports_section(typegen_operation, normalization_operation)
         .unwrap();
     generator.into_string()
 }
 
-pub fn generate_split_operation_type(
+pub fn generate_split_operation_type_exports_section(
     typegen_operation: &OperationDefinition,
     normalization_operation: &OperationDefinition,
     schema: &SDLSchema,
@@ -127,7 +129,7 @@ pub fn generate_split_operation_type(
         typegen_operation.name.item,
     );
     generator
-        .generate_split_operation_type(typegen_operation, normalization_operation)
+        .write_split_operation_type_exports_section(typegen_operation, normalization_operation)
         .unwrap();
     generator.into_string()
 }
@@ -197,11 +199,11 @@ impl<'a> TypeGenerator<'a> {
         self.writer.into_string()
     }
 
-    fn generate_operation_type(
+    fn write_operation_type_exports_section(
         &mut self,
         typegen_operation: &OperationDefinition,
         normalization_operation: &OperationDefinition,
-    ) -> Result {
+    ) -> FmtResult {
         let old_variables_identifier = format!("{}Variables", typegen_operation.name.item);
 
         self.is_updatable_operation = typegen_operation
@@ -267,7 +269,6 @@ impl<'a> TypeGenerator<'a> {
                     .write_export_type(&new_variables_identifier, &input_variables_type)?;
             }
         }
-
 
         let response_identifier = match self.flow_typegen_phase {
             FlowTypegenPhase::Phase4 => {
@@ -376,11 +377,11 @@ impl<'a> TypeGenerator<'a> {
         Ok(())
     }
 
-    fn generate_split_operation_type(
+    fn write_split_operation_type_exports_section(
         &mut self,
         typegen_operation: &OperationDefinition,
         normalization_operation: &OperationDefinition,
-    ) -> Result {
+    ) -> FmtResult {
         let raw_response_selections =
             self.raw_response_visit_selections(&normalization_operation.selections);
         let raw_response_type =
@@ -400,7 +401,7 @@ impl<'a> TypeGenerator<'a> {
         Ok(())
     }
 
-    fn generate_fragment_type(&mut self, node: &FragmentDefinition) -> Result {
+    fn write_fragment_type_exports_section(&mut self, node: &FragmentDefinition) -> FmtResult {
         let mut selections = self.visit_selections(&node.selections);
         if !node.type_condition.is_abstract_type() {
             let num_concrete_selections = selections
@@ -585,7 +586,7 @@ impl<'a> TypeGenerator<'a> {
         type_selections.push(TypeSelection::ScalarField(TypeSelectionScalarField {
             field_name_or_alias: key,
             special_field: None,
-            value: AST::FunctionReturnType(local_resolver_name),
+            value: AST::ReturnTypeOfFunctionWithName(local_resolver_name),
             conditional: false,
             concrete_type: None,
         }));
@@ -1111,10 +1112,9 @@ impl<'a> TypeGenerator<'a> {
                         value: scalar_field.value,
                         optional,
                         // all fields outside of updatable operations are read-only, and within updatable operations,
-                        // the typename field (handled above) and id fields are read-only.
-                        read_only: !is_updatable_operation
-                            || scalar_field.special_field
-                                == Some(ScalarFieldSpecialSchemaField::Id),
+                        // all special fields are read only
+                        read_only: !self.is_updatable_operation
+                            || scalar_field.special_field.is_some(),
                     })
                 }
             }
@@ -1252,7 +1252,7 @@ impl<'a> TypeGenerator<'a> {
         AST::Identifier(self.schema.enum_(enum_id).name)
     }
 
-    fn write_runtime_imports(&mut self) -> Result {
+    fn write_runtime_imports(&mut self) -> FmtResult {
         match self.runtime_imports {
             RuntimeImports {
                 local_3d_payload: true,
@@ -1280,7 +1280,7 @@ impl<'a> TypeGenerator<'a> {
         }
     }
 
-    fn write_fragment_imports(&mut self) -> Result {
+    fn write_fragment_imports(&mut self) -> FmtResult {
         for used_fragment in self.used_fragments.iter().sorted() {
             if !self.generated_fragments.contains(used_fragment) {
                 let fragment_type_name = format!("{}$fragmentType", used_fragment);
@@ -1307,7 +1307,7 @@ impl<'a> TypeGenerator<'a> {
         Ok(())
     }
 
-    fn write_import_actor_change_point(&mut self) -> Result {
+    fn write_import_actor_change_point(&mut self) -> FmtResult {
         if self.has_actor_change {
             self.writer
                 .write_import_type(&[ACTOR_CHANGE_POINT], REACT_RELAY_MULTI_ACTOR)
@@ -1316,7 +1316,7 @@ impl<'a> TypeGenerator<'a> {
         }
     }
 
-    fn write_relay_resolver_imports(&mut self) -> Result {
+    fn write_relay_resolver_imports(&mut self) -> FmtResult {
         for (from, name) in self.imported_resolvers.iter().sorted() {
             self.writer
                 .write_import_module_default(name.lookup(), from.lookup())?
@@ -1324,7 +1324,7 @@ impl<'a> TypeGenerator<'a> {
         Ok(())
     }
 
-    fn write_split_raw_response_type_imports(&mut self) -> Result {
+    fn write_split_raw_response_type_imports(&mut self) -> FmtResult {
         if self.imported_raw_response_types.is_empty() {
             return Ok(());
         }
@@ -1354,7 +1354,7 @@ impl<'a> TypeGenerator<'a> {
         Ok(())
     }
 
-    fn write_enum_definitions(&mut self) -> Result {
+    fn write_enum_definitions(&mut self) -> FmtResult {
         let mut enum_ids: Vec<_> = self.used_enums.iter().cloned().collect();
         enum_ids.sort_by_key(|enum_id| self.schema.enum_(*enum_id).name);
         for enum_id in enum_ids {
@@ -1398,7 +1398,7 @@ impl<'a> TypeGenerator<'a> {
         )
     }
 
-    fn write_input_object_types(&mut self) -> Result {
+    fn write_input_object_types(&mut self) -> FmtResult {
         for (type_identifier, input_object_type) in self.generated_input_object_types.iter() {
             match input_object_type {
                 GeneratedInputObject::Resolved(input_object_type) => {
@@ -1583,7 +1583,6 @@ impl TypeSelection {
             }),
         )
     }
-
 
     fn get_field_name_or_alias(&self) -> Option<StringKey> {
         match self {

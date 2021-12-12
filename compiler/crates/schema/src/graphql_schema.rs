@@ -7,7 +7,7 @@
 
 use crate::definitions::{Directive, *};
 use intern::string_key::StringKey;
-use std::fmt::{Result as FormatResult, Write};
+use std::fmt::{Result as FmtResult, Write};
 
 pub trait Schema {
     fn query_type(&self) -> Option<Type>;
@@ -211,7 +211,7 @@ pub trait Schema {
         }
     }
 
-    fn write_type_string(&self, writer: &mut String, type_: &TypeReference) -> FormatResult {
+    fn write_type_string(&self, writer: &mut String, type_: &TypeReference) -> FmtResult {
         match type_ {
             TypeReference::Named(inner) => {
                 write!(writer, "{}", self.get_type_name(*inner).lookup())

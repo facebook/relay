@@ -9,7 +9,7 @@ use crate::Rollout;
 use indexmap::IndexSet;
 use intern::string_key::StringKey;
 use serde::{Deserialize, Serialize};
-use std::fmt::{Display, Formatter, Result};
+use std::fmt::{Display, Formatter, Result as FmtResult};
 
 #[derive(Default, Debug, Serialize, Deserialize, Clone)]
 #[serde(deny_unknown_fields)]
@@ -89,7 +89,7 @@ impl FeatureFlag {
 }
 
 impl Display for FeatureFlag {
-    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         match self {
             FeatureFlag::Disabled => f.write_str("disabled"),
             FeatureFlag::Enabled => f.write_str("enabled"),

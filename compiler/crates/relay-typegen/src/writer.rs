@@ -6,7 +6,7 @@
  */
 
 use intern::string_key::StringKey;
-use std::fmt::Result;
+use std::fmt::Result as FmtResult;
 
 #[derive(Debug, Clone)]
 pub enum AST {
@@ -28,7 +28,7 @@ pub enum AST {
     Any,
     FragmentReference(Vec<StringKey>),
     FragmentReferenceType(StringKey),
-    FunctionReturnType(StringKey),
+    ReturnTypeOfFunctionWithName(StringKey),
     ActorChangePoint(Box<AST>),
 }
 
@@ -64,23 +64,23 @@ pub trait Writer {
 
     fn get_runtime_fragment_import(&self) -> &'static str;
 
-    fn write(&mut self, ast: &AST) -> Result;
+    fn write(&mut self, ast: &AST) -> FmtResult;
 
-    fn write_export_type(&mut self, name: &str, ast: &AST) -> Result;
+    fn write_export_type(&mut self, name: &str, ast: &AST) -> FmtResult;
 
-    fn write_import_module_default(&mut self, name: &str, from: &str) -> Result;
+    fn write_import_module_default(&mut self, name: &str, from: &str) -> FmtResult;
 
-    fn write_import_type(&mut self, types: &[&str], from: &str) -> Result;
+    fn write_import_type(&mut self, types: &[&str], from: &str) -> FmtResult;
 
-    fn write_import_fragment_type(&mut self, types: &[&str], from: &str) -> Result;
+    fn write_import_fragment_type(&mut self, types: &[&str], from: &str) -> FmtResult;
 
-    fn write_export_fragment_type(&mut self, old_name: &str, new_name: &str) -> Result;
+    fn write_export_fragment_type(&mut self, old_name: &str, new_name: &str) -> FmtResult;
 
     fn write_export_fragment_types(
         &mut self,
         fragment_type_name_1: &str,
         fragment_type_name_2: &str,
-    ) -> Result;
+    ) -> FmtResult;
 
-    fn write_any_type_definition(&mut self, name: &str) -> Result;
+    fn write_any_type_definition(&mut self, name: &str) -> FmtResult;
 }

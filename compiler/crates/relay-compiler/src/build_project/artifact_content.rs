@@ -15,11 +15,12 @@ use relay_transforms::{
     DATA_DRIVEN_DEPENDENCY_METADATA_KEY,
 };
 use relay_typegen::{
-    generate_fragment_type, generate_operation_type, TypegenConfig, TypegenLanguage,
+    generate_fragment_type_exports_section, generate_operation_type_exports_section,
+    generate_split_operation_type_exports_section, TypegenConfig, TypegenLanguage,
 };
 use schema::SDLSchema;
 use signedsource::{sign_file, SIGNING_TOKEN};
-use std::fmt::{self, Write};
+use std::fmt::{Error as FmtError, Result as FmtResult, Write};
 use std::sync::Arc;
 
 pub enum ArtifactContent {
@@ -118,7 +119,7 @@ impl ArtifactContent {
 fn write_data_driven_dependency_annotation(
     content: &mut String,
     data_driven_dependency_directive: &Directive,
-) -> fmt::Result {
+) -> FmtResult {
     for arg in &data_driven_dependency_directive.arguments {
         let value = match arg.value.item {
             graphql_ir::Value::Constant(graphql_ir::ConstantValue::String(value)) => value,
@@ -137,7 +138,7 @@ fn write_data_driven_dependency_annotation(
 fn write_react_flight_server_annotation(
     content: &mut String,
     flight_local_components_metadata: &ReactFlightLocalComponentsMetadata,
-) -> fmt::Result {
+) -> FmtResult {
     for item in &flight_local_components_metadata.components {
         writeln!(content, "// @ReactFlightServerDependency {}", item)?;
     }
@@ -148,7 +149,7 @@ fn write_react_flight_server_annotation(
 fn write_react_flight_client_annotation(
     content: &mut String,
     relay_client_component_metadata: &RelayClientComponentMetadata,
-) -> fmt::Result {
+) -> FmtResult {
     for value in &relay_client_component_metadata.split_operation_filenames {
         writeln!(content, "// @ReactFlightClientDependency {}", value)?;
     }
@@ -169,7 +170,7 @@ fn generate_operation(
     text: &str,
     id_and_text_hash: &Option<QueryID>,
     skip_types: bool,
-) -> Result<Vec<u8>, fmt::Error> {
+) -> Result<Vec<u8>, FmtError> {
     let mut request_parameters = build_request_params(normalization_operation);
     if id_and_text_hash.is_some() {
         request_parameters.id = id_and_text_hash;
@@ -257,7 +258,7 @@ fn generate_operation(
         write!(
             content,
             "{}",
-            generate_operation_type(
+            generate_operation_type_exports_section(
                 typegen_operation,
                 normalization_operation,
                 schema,
@@ -317,7 +318,7 @@ fn generate_split_operation(
     normalization_operation: &OperationDefinition,
     typegen_operation: &Option<Arc<OperationDefinition>>,
     source_hash: &str,
-) -> Result<Vec<u8>, fmt::Error> {
+) -> Result<Vec<u8>, FmtError> {
     let mut content = get_content_start(config)?;
     writeln!(content, " * {}", SIGNING_TOKEN)?;
     if project_config.typegen_config.language == TypegenLanguage::Flow {
@@ -350,7 +351,7 @@ fn generate_split_operation(
         writeln!(
             content,
             "{}",
-            relay_typegen::generate_split_operation_type(
+            generate_split_operation_type_exports_section(
                 typegen_operation,
                 normalization_operation,
                 schema,
@@ -393,7 +394,7 @@ fn generate_fragment(
     typegen_fragment: &FragmentDefinition,
     source_hash: &str,
     skip_types: bool,
-) -> Result<Vec<u8>, fmt::Error> {
+) -> Result<Vec<u8>, FmtError> {
     let mut content = get_content_start(config)?;
     writeln!(content, " * {}", SIGNING_TOKEN)?;
     if project_config.typegen_config.language == TypegenLanguage::Flow {
@@ -448,7 +449,7 @@ fn generate_fragment(
         write!(
             content,
             "{}",
-            generate_fragment_type(
+            generate_fragment_type_exports_section(
                 typegen_fragment,
                 schema,
                 project_config.js_module_format,
@@ -493,7 +494,7 @@ fn write_variable_value_with_type(
     variable_name: &str,
     type_: &str,
     value: &str,
-) -> fmt::Result {
+) -> FmtResult {
     match language {
         TypegenLanguage::Flow => writeln!(
             content,
@@ -506,7 +507,7 @@ fn write_variable_value_with_type(
     }
 }
 
-fn write_disable_lint_header(language: &TypegenLanguage, content: &mut String) -> fmt::Result {
+fn write_disable_lint_header(language: &TypegenLanguage, content: &mut String) -> FmtResult {
     match language {
         TypegenLanguage::TypeScript => {
             writeln!(content, "/* tslint:disable */")?;
@@ -524,7 +525,7 @@ fn write_import_type_from(
     content: &mut String,
     type_: &str,
     from: &str,
-) -> fmt::Result {
+) -> FmtResult {
     match language {
         TypegenLanguage::Flow => writeln!(content, "import type {{ {} }} from '{}';", type_, from),
         TypegenLanguage::TypeScript => writeln!(content, "import {{ {} }} from '{}';", type_, from),
@@ -536,7 +537,7 @@ fn write_export_generated_node(
     content: &mut String,
     variable_node: &str,
     forced_type: Option<String>,
-) -> fmt::Result {
+) -> FmtResult {
     if typegen_config.eager_es_modules {
         writeln!(content, "export default {};", variable_node)
     } else {
@@ -556,7 +557,7 @@ fn write_export_generated_node(
     }
 }
 
-fn get_content_start(config: &Config) -> Result<String, fmt::Error> {
+fn get_content_start(config: &Config) -> Result<String, FmtError> {
     let mut content = String::from("/**\n");
     if !config.header.is_empty() {
         for header_line in &config.header {
@@ -572,7 +573,7 @@ fn write_source_hash(
     language: &TypegenLanguage,
     content: &mut String,
     source_hash: &str,
-) -> fmt::Result {
+) -> FmtResult {
     if let Some(is_dev_variable_name) = &config.is_dev_variable_name {
         writeln!(content, "if ({}) {{", is_dev_variable_name)?;
         match language {

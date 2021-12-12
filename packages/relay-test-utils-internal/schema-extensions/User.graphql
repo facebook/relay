@@ -9,4 +9,5 @@ extend type User {
   foo: Foo
   client_name: String
   client_code: Int
+  client_best_friend: User
 }

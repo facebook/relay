@@ -32,6 +32,14 @@ const updatableQuery = graphql`
       __typename
       id
       name
+      author {
+        client_best_friend {
+          name
+        }
+      }
+      author2: author {
+        client_nickname
+      }
       ...readUpdatableQueryEXPERIMENTALTest_user
     }
     node(id: "4") {
@@ -69,6 +77,12 @@ const regularQuery = graphql`
     me {
       id
       name
+      author {
+        client_best_friend {
+          name
+        }
+        client_nickname
+      }
     }
     node(id: "4") {
       __typename
@@ -122,6 +136,7 @@ describe('readUpdatableQuery', () => {
         id: '4',
         __typename: 'User',
         name: 'Zuck',
+        author: null,
       },
       node: null,
       node2: null,
@@ -149,6 +164,7 @@ describe('readUpdatableQuery', () => {
         id: '4',
         __typename: 'User',
         name: 'Zuck',
+        author: null,
       },
       node: null,
       node2: null,
@@ -185,6 +201,7 @@ describe('readUpdatableQuery', () => {
         id: '4',
         __typename: 'User',
         name: 'Zuck',
+        author: null,
       },
       node: null,
       node2: null,
@@ -297,6 +314,7 @@ describe('readUpdatableQuery', () => {
         __typename: 'User',
         id: '42',
         name: 'NotZuck',
+        author: null,
       },
       node: {
         __typename: 'User',
@@ -355,6 +373,7 @@ describe('readUpdatableQuery', () => {
         __typename: 'User',
         id: '42',
         name: 'NotZuck',
+        author: null,
       },
       node: {
         __typename: 'User',
@@ -401,6 +420,7 @@ describe('readUpdatableQuery', () => {
         __typename: 'User',
         id: '42',
         name: 'NotZuck',
+        author: null,
       },
       node: {
         __typename: 'User',
@@ -693,6 +713,42 @@ describe('readUpdatableQuery', () => {
           {id: '4', foo: 'bar'},
         );
       expect(updatableData.node?.__typename).toBe('Metahuman');
+    });
+  });
+
+  it('throws when accessing a client extension field', () => {
+    environment.commitPayload(operation, {
+      me: {
+        __typename: 'User',
+        id: '4',
+        name: 'Mark',
+        author: {
+          id: '5',
+          client_best_friend: {
+            id: '6',
+            name: 'Sheryl',
+          },
+          client_nickname: 'Zucc',
+        },
+      },
+      node: null,
+      node2: null,
+    });
+
+    commitLocalUpdate(environment, store => {
+      const updatableData =
+        store.readUpdatableQuery_EXPERIMENTAL<readUpdatableQueryEXPERIMENTALTestUpdatableQuery>(
+          updatableQuery,
+          {},
+        );
+      expect(() => {
+        // The author field contains client_best_friend, which is a client extension
+        updatableData.me?.author;
+      }).toThrowError();
+      expect(() => {
+        // The author field contains client_nickname, which is a client extension
+        updatableData.me?.author2;
+      }).toThrowError();
     });
   });
 });

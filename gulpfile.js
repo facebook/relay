@@ -249,6 +249,13 @@ builds.forEach((build) => {
         .src(['LICENSE'])
         .pipe(gulp.dest(path.join(DIST, build.package)));
     },
+    function copyReadmeFile() {
+      return gulp
+        .src(['README.md'], {
+          cwd: path.join(PACKAGES, build.package),
+        })
+        .pipe(gulp.dest(path.join(DIST, build.package)));
+    },
     function copyTestschema() {
       return gulp
         .src(['*.graphql'], {
@@ -334,7 +341,7 @@ const relayCompiler = gulp.parallel(
   },
   function copyPackageFiles() {
     return gulp
-      .src(['package.json', 'cli.js', 'index.js'], {
+      .src(['README.md','package.json', 'cli.js', 'index.js'], {
         cwd: path.join(PACKAGES, 'relay-compiler'),
       })
       .pipe(gulp.dest(path.join(DIST, 'relay-compiler')));

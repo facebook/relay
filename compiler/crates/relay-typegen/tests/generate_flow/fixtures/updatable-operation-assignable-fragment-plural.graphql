@@ -3,12 +3,12 @@ query UpdatableQuery @updatable {
     ... on User {
       __typename
       parents {
-        ...Updatable_user
+        ...Assignable_user
       }
     }
   }
 }
 
-fragment Updatable_user on User @assignable {
+fragment Assignable_user on User @assignable {
   __typename
 }

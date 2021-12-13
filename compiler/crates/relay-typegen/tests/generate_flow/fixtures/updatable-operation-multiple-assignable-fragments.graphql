@@ -1,18 +1,18 @@
 query UpdatableQuery @updatable {
   me {
     actor {
-      ...Updatable_user
-      ...Updatable_page
+      ...Assignable_user
+      ...Assignable_page
       lastName
       name
     }
   }
 }
 
-fragment Updatable_user on Page @assignable {
+fragment Assignable_user on Page @assignable {
   __typename
 }
 
-fragment Updatable_page on Page @assignable {
+fragment Assignable_page on Page @assignable {
   __typename
 }

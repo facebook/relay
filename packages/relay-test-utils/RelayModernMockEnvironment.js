@@ -182,8 +182,8 @@ export interface RelayMockEnvironment extends MockEnvironment, IEnvironment {}
 function createMockEnvironment(
   config?: $Shape<EnvironmentConfig>,
 ): RelayMockEnvironment {
-  const recordSource = config?.store ? undefined : new RecordSource();
-  const store = config?.store ?? new Store(recordSource);
+  let recordSource;
+  const store = config?.store ?? new Store(recordSource = new RecordSource());
   const cache = new QueryResponseCache({
     size: MAX_SIZE,
     ttl: MAX_TTL,

@@ -13,6 +13,9 @@
 
 'use strict';
 
+import type {usePreloadedQueryReactDoubleEffectsTestFragment$key} from './__generated__/usePreloadedQueryReactDoubleEffectsTestFragment.graphql';
+import typeof usePreloadedQueryReactDoubleEffectsTestFragment from './__generated__/usePreloadedQueryReactDoubleEffectsTestFragment.graphql';
+
 const {loadQuery} = require('../loadQuery');
 const preloadQuery_DEPRECATED = require('../preloadQuery_DEPRECATED');
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
@@ -24,7 +27,6 @@ const ReactTestRenderer = require('react-test-renderer');
 const {
   Observable,
   createOperationDescriptor,
-  getFragment,
   getRequest,
   graphql,
 } = require('relay-runtime');
@@ -56,7 +58,6 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
   let environment;
   let gqlQuery;
   let gqlQueryWithDefer;
-  let gqlFragment;
   let query;
   let queryWithDefer;
   let variables;
@@ -124,18 +125,20 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
         }
       }
     `);
-    gqlFragment = getFragment(graphql`
+    const gqlFragment: usePreloadedQueryReactDoubleEffectsTestFragment = graphql`
       fragment usePreloadedQueryReactDoubleEffectsTestFragment on User {
         firstName
       }
-    `);
+    `;
     variables = {id: '1'};
     query = createOperationDescriptor(gqlQuery, variables, {force: true});
     queryWithDefer = createOperationDescriptor(gqlQueryWithDefer, variables, {
       force: true,
     });
 
-    FragmentComponent = function (props) {
+    FragmentComponent = function (props: {|
+      user: usePreloadedQueryReactDoubleEffectsTestFragment$key,
+    |}) {
       const data = useFragment(gqlFragment, props.user);
       return data?.firstName === undefined ? 'Missing fragment data' : null;
     };

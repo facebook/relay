@@ -13,17 +13,26 @@
 
 'use strict';
 
-import type {Disposable, FragmentType, GraphQLTaggedNode} from 'relay-runtime';
+import type {Disposable, Fragment, FragmentType} from 'relay-runtime';
 
-declare export var fragmentInput: GraphQLTaggedNode;
+declare export var fragmentInput: Fragment<
+  Example_user$fragmentType,
+  Example_user$data,
+>;
+
+declare export opaque type Example_user$fragmentType: FragmentType;
+export type Example_user$data = NonNullableData;
+export type Example_user$key = {
+  +$data?: Example_user$data,
+  +$fragmentSpreads: Example_user$fragmentType,
+  ...
+};
 
 export type NonNullableData = {|
   +id: string,
   +count: number,
 |};
-
 export type NullableData = ?NonNullableData;
-
 export type NonNullablePluralData = $ReadOnlyArray<NonNullableData>;
 export type NullablePluralData = ?$ReadOnlyArray<NonNullableData>;
 
@@ -32,29 +41,13 @@ export type AnotherNonNullableData = {|
   +friends: ?number,
 |};
 
-declare export var keyNonNullable: {
-  +$data?: NonNullableData,
-  +$fragmentSpreads: FragmentType,
-  ...
-};
+declare export var keyNonNullable: Example_user$key;
 
-declare export var keyNonNullablePlural: $ReadOnlyArray<{
-  +$data?: NonNullablePluralData,
-  +$fragmentSpreads: FragmentType,
-  ...
-}>;
+declare export var keyNonNullablePlural: $ReadOnlyArray<Example_user$key>;
 
-declare export var keyNullablePlural: ?$ReadOnlyArray<{
-  +$data?: NonNullablePluralData,
-  +$fragmentSpreads: FragmentType,
-  ...
-}>;
+declare export var keyNullablePlural: ?$ReadOnlyArray<Example_user$key>;
 
-declare export var keyNullable: ?{
-  +$data?: NonNullableData,
-  +$fragmentSpreads: FragmentType,
-  ...
-};
+declare export var keyNullable: ?Example_user$key;
 
 declare export var keyAnotherNonNullable: {
   +$data: AnotherNonNullableData,

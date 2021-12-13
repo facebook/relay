@@ -39,7 +39,7 @@ export type GraphQLTaggedNode =
  * Runtime function to correspond to the `graphql` tagged template function.
  * All calls to this function should be transformed by the plugin.
  */
-function graphql(strings: Array<string>): GraphQLTaggedNode {
+function graphql(strings: Array<string>): any {
   invariant(
     false,
     'graphql: Unexpected invocation at runtime. Either the Babel transform ' +

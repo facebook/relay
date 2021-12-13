@@ -12,52 +12,74 @@
 // flowlint ambiguous-object-type:error
 
 import type {
-  NonNullableData,
-  NonNullablePluralData,
-  NullableData,
-  NullablePluralData,
-} from './utils';
+  useFragmentFlowtest_user$data,
+  useFragmentFlowtest_user$key,
+} from './__generated__/useFragmentFlowtest_user.graphql';
+import typeof useFragmentFlowtest_user$fragment from './__generated__/useFragmentFlowtest_user.graphql';
+import type {
+  useFragmentFlowtest_users$data,
+  useFragmentFlowtest_users$key,
+} from './__generated__/useFragmentFlowtest_users.graphql';
+import typeof useFragmentFlowtest_users$fragment from './__generated__/useFragmentFlowtest_users.graphql';
 
 import useFragment from '../useFragment';
-import {
-  fragmentData,
-  fragmentInput,
-  keyAnotherNonNullable,
-  keyAnotherNullable,
-  keyNonNullable,
-  keyNonNullablePlural,
-  keyNullable,
-  keyNullablePlural,
-} from './utils';
+import {graphql} from 'relay-runtime';
+
+declare var Any: $FlowFixMe;
+
+const userFragment: useFragmentFlowtest_user$fragment = graphql`
+  fragment useFragmentFlowtest_user on User {
+    id
+  }
+`;
+
+const usersFragment: useFragmentFlowtest_users$fragment = graphql`
+  fragment useFragmentFlowtest_users on User @relay(plural: true) {
+    id
+  }
+`;
 
 /* eslint-disable react-hooks/rules-of-hooks */
 
 // Nullability of returned data type is correct
-(useFragment(fragmentInput, keyNonNullable): NonNullableData);
-(useFragment(fragmentInput, keyNullable): NullableData);
-(useFragment(fragmentInput, keyNonNullablePlural): NonNullablePluralData);
-(useFragment(fragmentInput, keyNullablePlural): NullablePluralData);
+(useFragment(
+  userFragment,
+  (Any: useFragmentFlowtest_user$key),
+): useFragmentFlowtest_user$data);
+(useFragment(
+  userFragment,
+  (Any: ?useFragmentFlowtest_user$key),
+): ?useFragmentFlowtest_user$data);
+(useFragment(
+  usersFragment,
+  (Any: useFragmentFlowtest_users$key),
+): useFragmentFlowtest_users$data);
+(useFragment(
+  usersFragment,
+  (Any: ?useFragmentFlowtest_users$key),
+): ?useFragmentFlowtest_users$data);
 
 // $FlowExpectedError: can't cast nullable to non-nullable
-(useFragment(fragmentInput, keyNullable): NonNullableData);
+(useFragment(
+  userFragment,
+  (Any: ?useFragmentFlowtest_user$key),
+): useFragmentFlowtest_user$data);
 // $FlowExpectedError: can't cast nullable plural to non-nullable plural
-(useFragment(fragmentInput, keyNullablePlural): NonNullablePluralData);
-
-// $FlowExpectedError: actual type of returned data is correct
-(useFragment(fragmentInput, keyAnotherNonNullable): NonNullableData);
-// $FlowExpectedError
-(useFragment(fragmentInput, keyAnotherNullable): NullableData);
+(useFragment(
+  usersFragment,
+  (Any: ?useFragmentFlowtest_users$key),
+): useFragmentFlowtest_users$data);
 
 // $FlowExpectedError: Key should be one of the generated types
-(useFragment(fragmentInput, 'INVALID_KEY'): NullableData);
+useFragment(userFragment, 'INVALID_KEY');
 
 // $FlowExpectedError: Key should not be a user provided object
-useFragment(fragmentInput, {a: 123});
+useFragment(userFragment, {a: 123});
 
 // $FlowExpectedError: Key should not be an empty object
-useFragment(fragmentInput, {});
+useFragment(userFragment, {});
 
 // $FlowExpectedError: Key should be the `<name>$key` type from generated flow
-useFragment(fragmentInput, fragmentData);
+useFragment(userFragment, (Any: useFragmentFlowtest_user$data));
 
 /* eslint-enable react-hooks/rules-of-hooks */

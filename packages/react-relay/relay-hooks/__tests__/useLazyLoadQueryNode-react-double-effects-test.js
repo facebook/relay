@@ -13,6 +13,9 @@
 
 'use strict';
 
+import type {useLazyLoadQueryNodeReactDoubleEffectsTestUserFragment$key} from './__generated__/useLazyLoadQueryNodeReactDoubleEffectsTestUserFragment.graphql';
+import typeof useLazyLoadQueryNodeReactDoubleEffectsTestUserFragment from './__generated__/useLazyLoadQueryNodeReactDoubleEffectsTestUserFragment.graphql';
+
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const useFragment = require('../useFragment');
 const useLazyLoadQuery = require('../useLazyLoadQuery');
@@ -22,7 +25,6 @@ const ReactTestRenderer = require('react-test-renderer');
 const {
   Observable,
   createOperationDescriptor,
-  getFragment,
   getRequest,
   graphql,
 } = require('relay-runtime');
@@ -52,7 +54,7 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
   let environment;
   let gqlQuery;
   let gqlQueryWithDefer;
-  let gqlFragment;
+  let gqlFragment: useLazyLoadQueryNodeReactDoubleEffectsTestUserFragment;
   let query;
   let queryWithDefer;
   let variables;
@@ -117,11 +119,11 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
         }
       }
     `);
-    gqlFragment = getFragment(graphql`
+    gqlFragment = graphql`
       fragment useLazyLoadQueryNodeReactDoubleEffectsTestUserFragment on User {
         firstName
       }
-    `);
+    `;
     variables = {id: '1'};
     query = createOperationDescriptor(gqlQuery, variables, {force: true});
     queryWithDefer = createOperationDescriptor(gqlQueryWithDefer, variables, {
@@ -380,13 +382,15 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
   describe('with incremental delivery', () => {
     it('with incremental delivery, forces a re-render when effects are double invoked and refetches when policy is network-only', () => {
       let renderLogs = [];
-      const FragmentComponent = function (props) {
+      const FragmentComponent = function (props: {|
+        user: useLazyLoadQueryNodeReactDoubleEffectsTestUserFragment$key,
+      |}) {
         const data = useFragment(gqlFragment, props.user);
         return data?.firstName === undefined ? 'Missing fragment data' : null;
       };
 
       const QueryComponent = function () {
-        const result = useLazyLoadQuery<_>(gqlQueryWithDefer, variables, {
+        const result = useLazyLoadQuery(gqlQueryWithDefer, variables, {
           fetchPolicy: 'network-only',
         });
 
@@ -562,7 +566,9 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
 
     it('with incremental delivery, forces a re-render when effects are double invoked and refetches when policy is store-or-network', () => {
       let renderLogs = [];
-      const FragmentComponent = function (props) {
+      const FragmentComponent = function (props: {|
+        user: useLazyLoadQueryNodeReactDoubleEffectsTestUserFragment$key,
+      |}) {
         const data = useFragment(gqlFragment, props.user);
         return data?.firstName === undefined ? 'Missing fragment data' : null;
       };

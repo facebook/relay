@@ -23,7 +23,7 @@ pub use config::{FlowTypegenConfig, TypegenConfig, TypegenLanguage};
 use fnv::FnvHashSet;
 use graphql_ir::{
     Condition, Directive, FragmentDefinition, FragmentSpread, InlineFragment, LinkedField,
-    OperationDefinition, ScalarField, Selection,
+    OperationDefinition, ProvidedVariableMetadata, ScalarField, Selection,
 };
 use indexmap::{map::Entry, IndexMap, IndexSet};
 use intern::string_key::{Intern, StringKey};
@@ -44,6 +44,7 @@ static REACT_RELAY_MULTI_ACTOR: &str = "react-relay/multi-actor";
 static RELAY_RUNTIME: &str = "relay-runtime";
 static LOCAL_3D_PAYLOAD: &str = "Local3DPayload";
 static ACTOR_CHANGE_POINT: &str = "ActorChangePoint";
+pub static PROVIDED_VARIABLE_TYPE: &str = "ProvidedVariableProviderType";
 
 lazy_static! {
     pub(crate) static ref KEY_DATA: StringKey = "$data".intern();
@@ -372,6 +373,8 @@ impl<'a> TypeGenerator<'a> {
                 }
             }
         }
+
+        self.generate_provided_variables_type(normalization_operation)?;
         self.is_updatable_operation = false;
         Ok(())
     }
@@ -1377,6 +1380,36 @@ impl<'a> TypeGenerator<'a> {
                 self.writer
                     .write_export_type(enum_type.name.lookup(), &AST::Union(members))?;
             }
+        }
+        Ok(())
+    }
+
+    fn generate_provided_variables_type(&mut self, node: &OperationDefinition) -> FmtResult {
+        let fields = node
+            .variable_definitions
+            .iter()
+            .filter_map(|def| {
+                def.directives
+                    .named(ProvidedVariableMetadata::directive_name())?;
+
+                let provider_func = AST::Callable(Box::new(self.transform_input_type(&def.type_)));
+                let provider_module = Prop::KeyValuePair(KeyValuePairProp {
+                    key: "get".intern(),
+                    read_only: true,
+                    optional: false,
+                    value: provider_func,
+                });
+                Some(Prop::KeyValuePair(KeyValuePairProp {
+                    key: def.name.item,
+                    read_only: true,
+                    optional: false,
+                    value: AST::ExactObject(vec![provider_module]),
+                }))
+            })
+            .collect_vec();
+        if !fields.is_empty() {
+            self.writer
+                .write_local_type(PROVIDED_VARIABLE_TYPE, &AST::ExactObject(fields))?;
         }
         Ok(())
     }

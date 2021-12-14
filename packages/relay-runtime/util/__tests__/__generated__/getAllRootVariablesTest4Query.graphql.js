@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<f82e6e29b8b39895824452a56dc28723>>
+ * @generated SignedSource<<0cb2624c939db85df746e5fc20d20a44>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -29,6 +29,17 @@ export type getAllRootVariablesTest4QueryResponse = getAllRootVariablesTest4Quer
 export type getAllRootVariablesTest4Query = {|
   variables: getAllRootVariablesTest4QueryVariables,
   response: getAllRootVariablesTest4Query$data,
+|};
+type ProvidedVariableProviderType = {|
+  +__getAllRootVariablesTest4Fragment1__numberOfFriends: {|
+    +get: () => number,
+  |},
+  +__getAllRootVariablesTest4Fragment1__includeName: {|
+    +get: () => boolean,
+  |},
+  +__getAllRootVariablesTest4Fragment2__includeName: {|
+    +get: () => boolean,
+  |},
 |};
 */
 
@@ -204,20 +215,11 @@ return {
     "name": "getAllRootVariablesTest4Query",
     "operationKind": "query",
     "text": "query getAllRootVariablesTest4Query(\n  $__getAllRootVariablesTest4Fragment1__numberOfFriends: Int!\n  $__getAllRootVariablesTest4Fragment1__includeName: Boolean!\n  $__getAllRootVariablesTest4Fragment2__includeName: Boolean!\n) {\n  node(id: 4) {\n    __typename\n    ...getAllRootVariablesTest4Fragment1\n    ...getAllRootVariablesTest4Fragment2\n    id\n  }\n}\n\nfragment getAllRootVariablesTest4Fragment1 on User {\n  friends(first: $__getAllRootVariablesTest4Fragment1__numberOfFriends) {\n    count\n    edges {\n      node {\n        name @include(if: $__getAllRootVariablesTest4Fragment1__includeName)\n        id\n      }\n    }\n  }\n}\n\nfragment getAllRootVariablesTest4Fragment2 on User {\n  name @include(if: $__getAllRootVariablesTest4Fragment2__includeName)\n}\n",
-    "providedVariables": [
-      {
-        "name": "__getAllRootVariablesTest4Fragment1__numberOfFriends",
-        "provider": require('./../provideNumberOfFriends')
-      },
-      {
-        "name": "__getAllRootVariablesTest4Fragment1__includeName",
-        "provider": require('./../provideIncludeUserNames')
-      },
-      {
-        "name": "__getAllRootVariablesTest4Fragment2__includeName",
-        "provider": require('./../provideIncludeUserNames')
-      }
-    ]
+    "providedVariables": {
+      "__getAllRootVariablesTest4Fragment1__numberOfFriends": require('./../provideNumberOfFriends'),
+      "__getAllRootVariablesTest4Fragment1__includeName": require('./../provideIncludeUserNames'),
+      "__getAllRootVariablesTest4Fragment2__includeName": require('./../provideIncludeUserNames')
+    }
   }
 };
 })();

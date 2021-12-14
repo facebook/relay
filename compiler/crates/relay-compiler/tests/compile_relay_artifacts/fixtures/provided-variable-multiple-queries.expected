@@ -221,20 +221,11 @@ fragment providedVariableMultipleQueries_MultiProvidedVar on User
     "name": "providedVariableMultipleQueries_MultiFragmentQuery",
     "operationKind": "query",
     "text": null,
-    "providedVariables": [
-      {
-        "name": "__providedVariableMultipleQueries_OneProvidedVar__includeName",
-        "provider": require('includeNameProvider')
-      },
-      {
-        "name": "__providedVariableMultipleQueries_MultiProvidedVar__numberOfFriends",
-        "provider": require('numberOfFriendsProvider')
-      },
-      {
-        "name": "__providedVariableMultipleQueries_MultiProvidedVar__includeName_",
-        "provider": require('includeNameProvider')
-      }
-    ]
+    "providedVariables": {
+      "__providedVariableMultipleQueries_OneProvidedVar__includeName": require('includeNameProvider'),
+      "__providedVariableMultipleQueries_MultiProvidedVar__numberOfFriends": require('numberOfFriendsProvider'),
+      "__providedVariableMultipleQueries_MultiProvidedVar__includeName_": require('includeNameProvider')
+    }
   }
 }
 
@@ -375,12 +366,9 @@ fragment providedVariableMultipleQueries_OneProvidedVar on User {
     "name": "providedVariableMultipleQueries_OneFragmentQuery",
     "operationKind": "query",
     "text": null,
-    "providedVariables": [
-      {
-        "name": "__providedVariableMultipleQueries_OneProvidedVar__includeName",
-        "provider": require('includeNameProvider')
-      }
-    ]
+    "providedVariables": {
+      "__providedVariableMultipleQueries_OneProvidedVar__includeName": require('includeNameProvider')
+    }
   }
 }
 

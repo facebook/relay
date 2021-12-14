@@ -268,6 +268,7 @@ fn generate_operation(
             )
         )?;
     }
+
     match project_config.typegen_config.language {
         TypegenLanguage::Flow => writeln!(content, "*/\n")?,
         TypegenLanguage::TypeScript => writeln!(content)?,

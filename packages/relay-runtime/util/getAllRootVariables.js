@@ -20,11 +20,12 @@ function getAllRootVariables(
   userSuppliedVariables: Variables,
   parameters: RequestParameters,
 ): Variables {
-  if (parameters.providedVariables) {
+  const providedVariables = parameters.providedVariables;
+  if (providedVariables != null) {
     const allVariables = {};
     Object.assign(allVariables, userSuppliedVariables);
-    parameters.providedVariables?.forEach(({name, provider}) => {
-      allVariables[name] = provider.get();
+    Object.keys(providedVariables).forEach((varName: string) => {
+      allVariables[varName] = providedVariables[varName].get();
     });
     return allVariables;
   } else {

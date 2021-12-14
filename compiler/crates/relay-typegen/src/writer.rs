@@ -25,6 +25,7 @@ pub enum AST {
     InexactObject(Vec<Prop>),
     Number,
     Boolean,
+    Callable(Box<AST>),
     Any,
     FragmentReference(Vec<StringKey>),
     FragmentReferenceType(StringKey),
@@ -65,6 +66,8 @@ pub trait Writer {
     fn get_runtime_fragment_import(&self) -> &'static str;
 
     fn write(&mut self, ast: &AST) -> FmtResult;
+
+    fn write_local_type(&mut self, name: &str, ast: &AST) -> FmtResult;
 
     fn write_export_type(&mut self, name: &str, ast: &AST) -> FmtResult;
 

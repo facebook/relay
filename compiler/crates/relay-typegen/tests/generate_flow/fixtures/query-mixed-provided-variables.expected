@@ -1,0 +1,136 @@
+==================================== INPUT ====================================
+query queryMixedProvidedVar_OneFragment($id: ID!) {
+  node(id: $id) {
+    ...FragmentOneProvidedVar @arguments(includeAlternateName: false)
+  }
+}
+
+query queryMixedProvidedVar_MultiFragment($id: ID!, $includelastName: Boolean!) {
+  node(id: 4) {
+    ...FragmentOneProvidedVar @arguments(includeAlternateName: true),
+    ...FragmentMultiProvidedVar,
+    ...FragmentProvidedVarWithOtherGlobal,
+  }
+}
+
+fragment FragmentOneProvidedVar on User
+  @argumentDefinitions(
+    includeName: {type: "Boolean!", provider: "includeNameProvider"},
+    includeAlternateName: {type: "Boolean!"},
+) {
+  name @include(if: $includeName),
+  alternate_name @include(if: $includeAlternateName)
+}
+
+fragment FragmentMultiProvidedVar on User
+  @argumentDefinitions(
+    numberOfFriends: {type: "Int!", provider: "numberOfFriendsProvider"},
+    includeName: {type: "Boolean!", provider: "includeNameProvider"}
+    includeAlternateName: {type: "Boolean!", defaultValue: false},
+) {
+  friends(first: $numberOfFriends) {
+    count
+    edges {
+      node {
+        name @include(if: $includeName),
+        alternate_name @include(if: $includeAlternateName)
+      }
+    }
+  }
+}
+
+fragment FragmentProvidedVarWithOtherGlobal on User
+@argumentDefinitions(
+  skipFirstname: {type: "Boolean!", provider: "skipFirstnameProvider"}
+) {
+  firstName @skip(if: $skipFirstname),
+  lastName @include(if: $includelastName)
+}
+==================================== OUTPUT ===================================
+import type { FragmentMultiProvidedVar$fragmentType } from "FragmentMultiProvidedVar.graphql";
+import type { FragmentOneProvidedVar$fragmentType } from "FragmentOneProvidedVar.graphql";
+import type { FragmentProvidedVarWithOtherGlobal$fragmentType } from "FragmentProvidedVarWithOtherGlobal.graphql";
+export type queryMixedProvidedVar_MultiFragment$variables = {|
+  id: string,
+  includelastName: CustomBoolean,
+|};
+export type queryMixedProvidedVar_MultiFragment$data = {|
+  +node: ?{|
+    +$fragmentSpreads: FragmentOneProvidedVar$fragmentType & FragmentMultiProvidedVar$fragmentType & FragmentProvidedVarWithOtherGlobal$fragmentType,
+  |},
+|};
+type ProvidedVariableProviderType = {|
+  +__FragmentOneProvidedVar__includeName: {|
+    +get: () => CustomBoolean,
+  |},
+  +__FragmentMultiProvidedVar__numberOfFriends: {|
+    +get: () => number,
+  |},
+  +__FragmentMultiProvidedVar__includeName: {|
+    +get: () => CustomBoolean,
+  |},
+  +__FragmentProvidedVarWithOtherGlobal__skipFirstname: {|
+    +get: () => CustomBoolean,
+  |},
+|};
+-------------------------------------------------------------------------------
+import type { FragmentOneProvidedVar$fragmentType } from "FragmentOneProvidedVar.graphql";
+export type queryMixedProvidedVar_OneFragment$variables = {|
+  id: string,
+|};
+export type queryMixedProvidedVar_OneFragment$data = {|
+  +node: ?{|
+    +$fragmentSpreads: FragmentOneProvidedVar$fragmentType,
+  |},
+|};
+type ProvidedVariableProviderType = {|
+  +__FragmentOneProvidedVar__includeName: {|
+    +get: () => CustomBoolean,
+  |},
+|};
+-------------------------------------------------------------------------------
+import type { FragmentType } from "relay-runtime";
+declare export opaque type FragmentMultiProvidedVar$fragmentType: FragmentType;
+export type FragmentMultiProvidedVar$data = {|
+  +friends: ?{|
+    +count: ?number,
+    +edges: ?$ReadOnlyArray<?{|
+      +node: ?{|
+        +name?: ?string,
+        +alternate_name?: ?string,
+      |},
+    |}>,
+  |},
+  +$fragmentType: FragmentMultiProvidedVar$fragmentType,
+|};
+export type FragmentMultiProvidedVar$key = {
+  +$data?: FragmentMultiProvidedVar$data,
+  +$fragmentSpreads: FragmentMultiProvidedVar$fragmentType,
+  ...
+};
+-------------------------------------------------------------------------------
+import type { FragmentType } from "relay-runtime";
+declare export opaque type FragmentOneProvidedVar$fragmentType: FragmentType;
+export type FragmentOneProvidedVar$data = {|
+  +name?: ?string,
+  +alternate_name?: ?string,
+  +$fragmentType: FragmentOneProvidedVar$fragmentType,
+|};
+export type FragmentOneProvidedVar$key = {
+  +$data?: FragmentOneProvidedVar$data,
+  +$fragmentSpreads: FragmentOneProvidedVar$fragmentType,
+  ...
+};
+-------------------------------------------------------------------------------
+import type { FragmentType } from "relay-runtime";
+declare export opaque type FragmentProvidedVarWithOtherGlobal$fragmentType: FragmentType;
+export type FragmentProvidedVarWithOtherGlobal$data = {|
+  +firstName?: ?string,
+  +lastName?: ?string,
+  +$fragmentType: FragmentProvidedVarWithOtherGlobal$fragmentType,
+|};
+export type FragmentProvidedVarWithOtherGlobal$key = {
+  +$data?: FragmentProvidedVarWithOtherGlobal$data,
+  +$fragmentSpreads: FragmentProvidedVarWithOtherGlobal$fragmentType,
+  ...
+};

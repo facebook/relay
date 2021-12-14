@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<3b62b439c79c669be0873043aec3100e>>
+ * @generated SignedSource<<082e88f0262999a65d23cbb8d5155e42>>
  */
 
 mod generate_flow;
@@ -122,6 +122,20 @@ fn plural_fragment() {
     let input = include_str!("generate_flow/fixtures/plural-fragment.graphql");
     let expected = include_str!("generate_flow/fixtures/plural-fragment.expected");
     test_fixture(transform_fixture, "plural-fragment.graphql", "generate_flow/fixtures/plural-fragment.expected", input, expected);
+}
+
+#[test]
+fn query_mixed_provided_variables() {
+    let input = include_str!("generate_flow/fixtures/query-mixed-provided-variables.graphql");
+    let expected = include_str!("generate_flow/fixtures/query-mixed-provided-variables.expected");
+    test_fixture(transform_fixture, "query-mixed-provided-variables.graphql", "generate_flow/fixtures/query-mixed-provided-variables.expected", input, expected);
+}
+
+#[test]
+fn query_only_provided_variables() {
+    let input = include_str!("generate_flow/fixtures/query-only-provided-variables.graphql");
+    let expected = include_str!("generate_flow/fixtures/query-only-provided-variables.expected");
+    test_fixture(transform_fixture, "query-only-provided-variables.graphql", "generate_flow/fixtures/query-only-provided-variables.expected", input, expected);
 }
 
 #[test]

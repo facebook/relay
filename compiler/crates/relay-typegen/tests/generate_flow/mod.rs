@@ -8,7 +8,7 @@
 use common::{ConsoleLogger, FeatureFlag, FeatureFlags, SourceLocationKey};
 use fixture_tests::Fixture;
 use fnv::{FnvBuildHasher, FnvHashMap};
-use graphql_ir::{build, Program};
+use graphql_ir::{build_ir_with_relay_feature_flags, Program};
 use graphql_syntax::parse_executable;
 use indexmap::IndexMap;
 use intern::string_key::Intern;
@@ -30,26 +30,30 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
 
     let source_location = SourceLocationKey::standalone(fixture.file_name);
 
+
     let mut sources = FnvHashMap::default();
     sources.insert(source_location, source);
     let ast = parse_executable(source, source_location).unwrap_or_else(|e| {
         panic!("Encountered error building AST: {:?}", e);
     });
-    let ir = build(&schema, &ast.definitions).unwrap_or_else(|e| {
-        panic!("Encountered error building IR {:?}", e);
-    });
+    let feature_flags = FeatureFlags {
+        no_inline: FeatureFlag::Enabled,
+        enable_relay_resolver_transform: true,
+        actor_change_support: FeatureFlag::Enabled,
+        enable_provided_variables: FeatureFlag::Enabled,
+        ..Default::default()
+    };
+    let ir = build_ir_with_relay_feature_flags(&schema, &ast.definitions, &feature_flags)
+        .unwrap_or_else(|e| {
+            panic!("Encountered error building IR {:?}", e);
+        });
     let program = Program::from_definitions(Arc::clone(&schema), ir);
     let programs = apply_transforms(
         "test".intern(),
         Arc::new(program),
         Default::default(),
         &ConnectionInterface::default(),
-        Arc::new(FeatureFlags {
-            no_inline: FeatureFlag::Enabled,
-            enable_relay_resolver_transform: true,
-            actor_change_support: FeatureFlag::Enabled,
-            ..Default::default()
-        }),
+        Arc::new(feature_flags),
         &None,
         Arc::new(ConsoleLogger),
         None,

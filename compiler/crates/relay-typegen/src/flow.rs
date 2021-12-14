@@ -32,6 +32,7 @@ impl Writer for FlowPrinter {
             AST::OtherTypename => self.write_other_string(),
             AST::Number => write!(&mut self.result, "number"),
             AST::Boolean => write!(&mut self.result, "boolean"),
+            AST::Callable(return_type) => self.write_callable(&*return_type),
             AST::Identifier(identifier) => write!(&mut self.result, "{}", identifier),
             AST::RawType(raw) => write!(&mut self.result, "{}", raw),
             AST::Union(members) => self.write_union(members),
@@ -55,6 +56,12 @@ impl Writer for FlowPrinter {
 
     fn get_runtime_fragment_import(&self) -> &'static str {
         "FragmentType"
+    }
+
+    fn write_local_type(&mut self, name: &str, value: &AST) -> FmtResult {
+        write!(&mut self.result, "type {} = ", name)?;
+        self.write(value)?;
+        writeln!(&mut self.result, ";")
     }
 
     fn write_export_type(&mut self, name: &str, value: &AST) -> FmtResult {
@@ -282,6 +289,11 @@ impl FlowPrinter {
         self.write(selections)?;
         write!(&mut self.result, ">")?;
         Ok(())
+    }
+
+    fn write_callable(&mut self, return_type: &AST) -> FmtResult {
+        write!(&mut self.result, "() => ")?;
+        self.write(return_type)
     }
 }
 

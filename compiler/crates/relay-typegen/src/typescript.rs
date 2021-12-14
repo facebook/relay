@@ -35,6 +35,7 @@ impl Writer for TypeScriptPrinter {
             AST::OtherTypename => self.write_other_string(),
             AST::Number => write!(&mut self.result, "number"),
             AST::Boolean => write!(&mut self.result, "boolean"),
+            AST::Callable(return_type) => self.write_callable(&*return_type),
             AST::Identifier(identifier) => write!(&mut self.result, "{}", identifier),
             AST::RawType(raw) => write!(&mut self.result, "{}", raw),
             AST::Union(members) => self.write_union(members),
@@ -52,6 +53,12 @@ impl Writer for TypeScriptPrinter {
             }
             AST::ActorChangePoint(_) => panic!("Not supported yet"),
         }
+    }
+
+    fn write_local_type(&mut self, name: &str, value: &AST) -> FmtResult {
+        write!(&mut self.result, "type {} = ", name)?;
+        self.write(value)?;
+        writeln!(&mut self.result, ";")
     }
 
     fn write_export_type(&mut self, name: &str, value: &AST) -> FmtResult {
@@ -244,6 +251,11 @@ impl TypeScriptPrinter {
 
     fn write_return_type_of_function_with_name(&mut self, function_name: StringKey) -> FmtResult {
         write!(&mut self.result, "ReturnType<typeof {}>", function_name)
+    }
+
+    fn write_callable(&mut self, return_type: &AST) -> FmtResult {
+        write!(&mut self.result, "() => ")?;
+        self.write(return_type)
     }
 }
 

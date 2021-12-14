@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<f764d4b0b4e880c5f0e678985a264045>>
+ * @generated SignedSource<<45c8e2d6dd2ec6b5d6702090cc4026cd>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -30,6 +30,11 @@ export type getAllRootVariablesTest2QueryResponse = getAllRootVariablesTest2Quer
 export type getAllRootVariablesTest2Query = {|
   variables: getAllRootVariablesTest2QueryVariables,
   response: getAllRootVariablesTest2Query$data,
+|};
+type ProvidedVariableProviderType = {|
+  +__getAllRootVariablesTest2Fragment__numberOfFriends: {|
+    +get: () => number,
+  |},
 |};
 */
 
@@ -166,12 +171,9 @@ return {
     "name": "getAllRootVariablesTest2Query",
     "operationKind": "query",
     "text": "query getAllRootVariablesTest2Query(\n  $includeFriendsCount: Boolean!\n  $__getAllRootVariablesTest2Fragment__numberOfFriends: Int!\n) {\n  node(id: 4) {\n    __typename\n    ...getAllRootVariablesTest2Fragment_47ZY3u\n    id\n  }\n}\n\nfragment getAllRootVariablesTest2Fragment_47ZY3u on User {\n  friends(first: $__getAllRootVariablesTest2Fragment__numberOfFriends) {\n    count @include(if: $includeFriendsCount)\n  }\n}\n",
-    "providedVariables": [
-      {
-        "name": "__getAllRootVariablesTest2Fragment__numberOfFriends",
-        "provider": require('./../provideNumberOfFriends')
-      }
-    ]
+    "providedVariables": {
+      "__getAllRootVariablesTest2Fragment__numberOfFriends": require('./../provideNumberOfFriends')
+    }
   }
 };
 })();

@@ -1358,23 +1358,17 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             .iter()
             .filter_map(|def| {
                 let provider_module = ProvidedVariableMetadata::find(&def.directives)?.module_name;
-                Some(Primitive::Key(self.object(vec![
-                    ObjectEntry {
-                        key: CODEGEN_CONSTANTS.name,
-                        value: Primitive::String(def.name.item),
-                    },
-                    ObjectEntry {
-                        key: CODEGEN_CONSTANTS.provider,
-                        value: Primitive::JSModuleDependency(provider_module),
-                    },
-                ])))
+                Some(ObjectEntry {
+                    key: def.name.item,
+                    value: Primitive::JSModuleDependency(provider_module),
+                })
             })
             .collect::<Vec<_>>();
 
         if var_defs.is_empty() {
             None
         } else {
-            Some(Primitive::Key(self.array(var_defs)))
+            Some(Primitive::Key(self.object(var_defs)))
         }
     }
 

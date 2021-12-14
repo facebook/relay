@@ -44,6 +44,17 @@ pub fn build_request_params_ast_key(
     operation_builder.build_request_parameters(operation, request_parameters)
 }
 
+pub fn build_provided_variables(
+    schema: &SDLSchema,
+    ast_builder: &mut AstBuilder,
+    operation: &OperationDefinition,
+) -> Option<AstKey> {
+    let mut operation_builder =
+        CodegenBuilder::new(schema, CodegenVariant::Normalization, ast_builder);
+
+    operation_builder.build_operation_provided_variables(&operation.variable_definitions)
+}
+
 pub fn build_request(
     schema: &SDLSchema,
     ast_builder: &mut AstBuilder,
@@ -1350,10 +1361,10 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         ]))
     }
 
-    fn build_operation_provided_variables(
+    pub fn build_operation_provided_variables(
         &mut self,
         variable_definitions: &[VariableDefinition],
-    ) -> Option<Primitive> {
+    ) -> Option<AstKey> {
         let var_defs = variable_definitions
             .iter()
             .filter_map(|def| {
@@ -1368,7 +1379,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         if var_defs.is_empty() {
             None
         } else {
-            Some(Primitive::Key(self.object(var_defs)))
+            Some(self.object(var_defs))
         }
     }
 
@@ -1447,9 +1458,6 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             },
         };
 
-        let provided_variables =
-            self.build_operation_provided_variables(&operation.variable_definitions);
-
         let mut params_object = if let Some(text) = request_parameters.text {
             vec![
                 ObjectEntry {
@@ -1478,10 +1486,12 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             ]
         };
 
-        if let Some(provider_ast) = provided_variables {
+        if let Some(provided_variables) =
+            self.build_operation_provided_variables(&operation.variable_definitions)
+        {
             params_object.push(ObjectEntry {
                 key: CODEGEN_CONSTANTS.provided_variables,
-                value: provider_ast,
+                value: Primitive::Key(provided_variables),
             });
         }
 

@@ -7,7 +7,7 @@
 
 use crate::ast::{Ast, AstBuilder, AstKey, ObjectEntry, Primitive, QueryID, RequestParameters};
 use crate::build_ast::{
-    build_fragment, build_operation, build_request, build_request_params,
+    build_fragment, build_operation, build_provided_variables, build_request, build_request_params,
     build_request_params_ast_key,
 };
 use crate::constants::CODEGEN_CONSTANTS;
@@ -91,6 +91,16 @@ impl Printer {
             builder: Default::default(),
             dedupe: false,
         }
+    }
+
+    pub fn print_provided_variables(
+        &mut self,
+        schema: &SDLSchema,
+        operation: &OperationDefinition,
+    ) -> Option<String> {
+        let key = build_provided_variables(schema, &mut self.builder, operation)?;
+        let printer = JSONPrinter::new(&self.builder, self.js_module_format);
+        Some(printer.print(key, self.dedupe))
     }
 
     pub fn print_request(

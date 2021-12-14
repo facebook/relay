@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<7592d3edef4c9f94b6ce03692eeebaef>>
+ * @generated SignedSource<<0f0a3d20daa84639dbcac6f7b01534a9>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -35,6 +35,10 @@ type ProvidedVariableProviderType = {|
   |},
 |};
 */
+
+var providedVariableProviders/*: ProvidedVariableProviderType*/ = {
+  "__getAllRootVariablesTest1Fragment__numberOfFriends": require('./../provideNumberOfFriends')
+};
 
 var node/*: ConcreteRequest*/ = (function(){
 var v0 = [

@@ -274,6 +274,19 @@ fn generate_operation(
         TypegenLanguage::TypeScript => writeln!(content)?,
     }
 
+    if let Some(provided_variables) =
+        printer.print_provided_variables(schema, normalization_operation)
+    {
+        write_variable_value_with_type(
+            &project_config.typegen_config.language,
+            &mut content,
+            "providedVariableProviders",
+            relay_typegen::PROVIDED_VARIABLE_TYPE,
+            &provided_variables,
+        )
+        .unwrap();
+    }
+
     write_variable_value_with_type(
         &project_config.typegen_config.language,
         &mut content,

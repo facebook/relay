@@ -8,12 +8,14 @@
 use std::collections::HashSet;
 use std::path::{Path, PathBuf};
 
-use crate::errors::{Error, Result};
+use crate::errors::Result;
 use crate::FileSourceResult;
 use crate::{compiler_state::CompilerState, config::Config};
 use common::{PerfLogEvent, PerfLogger};
-use glob::{glob, Pattern};
+use glob::Pattern;
+use log::debug;
 use relay_typegen::TypegenLanguage;
+use walkdir::WalkDir;
 
 use super::File;
 
@@ -31,6 +33,9 @@ pub struct GlobFileSource<'config> {
 
 impl<'config> GlobFileSource<'config> {
     pub fn new(config: &'config Config) -> Self {
+        debug!(
+            "Watchman server is disabled, or not available. Using GlobFileSource to find files."
+        );
         Self {
             config,
             expected_file_extensions: GlobFileSource::get_expected_file_extensions(config),
@@ -85,27 +90,28 @@ impl<'config> GlobFileSource<'config> {
         )
     }
 
-    fn find_files(&self) -> Result<Vec<File>> {
-        Ok(glob(&format!("{}/**/*.*", self.config.root_dir.display()))
-            .map_err(Error::PatternError)?
-            .flatten()
-            .filter(|path| self.should_include_file(path))
-            .map(|path| {
-                let name = path
-                    .strip_prefix(self.config.root_dir.clone())
-                    .unwrap()
-                    .to_path_buf();
-
-                File { name, exists: true }
+    fn find_files(&self) -> Vec<File> {
+        WalkDir::new(self.config.root_dir.clone())
+            .into_iter()
+            .filter_map(|entry| {
+                let dir_entry = entry.ok()?;
+                self.should_include_file(dir_entry.path()).then(|| {
+                    let name = dir_entry
+                        .path()
+                        .strip_prefix(self.config.root_dir.clone())
+                        .unwrap()
+                        .to_path_buf();
+                    File { name, exists: true }
+                })
             })
-            .collect::<Vec<_>>())
+            .collect::<Vec<_>>()
     }
 
     pub fn create_compiler_state(&self, perf_logger: &impl PerfLogger) -> Result<CompilerState> {
         let setup_event = perf_logger.create_event("Glob_file_source_create_compiler_state");
         let timer = setup_event.start("create_compiler_state_file_files");
         let file_source_changes = FileSourceResult::Glob(GlobFileSourceResult {
-            files: self.find_files()?,
+            files: self.find_files(),
             resolved_root: self.config.root_dir.clone(),
         });
         setup_event.stop(timer);

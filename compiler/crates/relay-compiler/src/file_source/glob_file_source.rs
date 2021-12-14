@@ -12,7 +12,7 @@ use crate::errors::{Error, Result};
 use crate::FileSourceResult;
 use crate::{compiler_state::CompilerState, config::Config};
 use common::{PerfLogEvent, PerfLogger};
-use glob::glob;
+use glob::{glob, Pattern};
 use relay_typegen::TypegenLanguage;
 
 use super::File;
@@ -26,6 +26,7 @@ pub struct GlobFileSourceResult {
 pub struct GlobFileSource<'config> {
     pub config: &'config Config,
     expected_file_extensions: HashSet<&'config str>,
+    exclude_patterns: Vec<Pattern>,
 }
 
 impl<'config> GlobFileSource<'config> {
@@ -33,6 +34,7 @@ impl<'config> GlobFileSource<'config> {
         Self {
             config,
             expected_file_extensions: GlobFileSource::get_expected_file_extensions(config),
+            exclude_patterns: GlobFileSource::get_exclude_patterns(config),
         }
     }
 
@@ -56,7 +58,25 @@ impl<'config> GlobFileSource<'config> {
         file_extensions
     }
 
+    fn get_exclude_patterns(config: &Config) -> Vec<Pattern> {
+        config
+            .excludes
+            .iter()
+            .map(|exclude| Pattern::new(exclude).unwrap_or_else(|err| panic!("{}", err.msg)))
+            .collect()
+    }
+
     fn should_include_file(&self, name: &Path) -> bool {
+        if !name.is_file() {
+            return false;
+        }
+        if self
+            .exclude_patterns
+            .iter()
+            .any(|exclude_pattern| exclude_pattern.matches_path(name))
+        {
+            return false;
+        }
         matches!(
             name.extension().map(|extension| self
                 .expected_file_extensions

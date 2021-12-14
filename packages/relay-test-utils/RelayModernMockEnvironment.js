@@ -553,6 +553,9 @@ function createMockEnvironment(
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     environment.executeSubscription.mockClear();
 
+    // $FlowExpectedError[prop-missing]
+    store.getSource().clear?.();
+
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     store.getSource.mockClear();
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters

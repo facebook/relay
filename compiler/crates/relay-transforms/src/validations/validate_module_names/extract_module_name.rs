@@ -27,7 +27,7 @@ pub fn extract_module_name(path: &str) -> Option<String> {
 }
 
 fn get_final_non_index_js_segment(path: &str) -> Option<&str> {
-    let mut iter = path.split('/');
+    let mut iter = path.split(std::path::MAIN_SEPARATOR);
     let last_segment = iter.next_back()?;
     if last_segment == "index.js"
         || last_segment == "index.jsx"

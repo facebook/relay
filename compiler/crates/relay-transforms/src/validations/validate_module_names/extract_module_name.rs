@@ -66,6 +66,7 @@ fn to_camel_case(non_camelized_string: String) -> String {
 mod tests {
     use super::*;
 
+    #[cfg(not(windows))]
     #[test]
     fn extract_module_names_test() {
         assert_eq!(
@@ -159,6 +160,19 @@ mod tests {
         assert_eq!(
             extract_module_name("/path/non-numeric-end-.js"),
             Some("nonNumericEnd".to_string())
+        );
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn extract_module_names_test() {
+        assert_eq!(
+            extract_module_name("C:\\path\\Button.ios.js"),
+            Some("ButtonIos".to_string())
+        );
+        assert_eq!(
+            extract_module_name("\\path\\Button.android.js"),
+            Some("ButtonAndroid".to_string())
         );
     }
 }

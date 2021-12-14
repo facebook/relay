@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<7fa2c7555d82e901afff13ec639b5d86>>
+ * @generated SignedSource<<8e1db25e9aa06ab47b8ad5b65e2cb910>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,17 +15,13 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type Component_node$ref = any;
-export type AppQueryVariables = {||};
-export type AppQueryResponse = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type Component_node$fragmentType = any;
+export type AppQuery$variables = {||};
+export type AppQuery$data = {|
   +node: ?{|
-    +$fragmentRefs: Component_node$ref
-  |}
-|};
-export type AppQuery = {|
-  variables: AppQueryVariables,
-  response: AppQueryResponse,
+    +$fragmentSpreads: Component_node$fragmentType,
+  |},
 |};
 */
 
@@ -112,8 +108,9 @@ return {
 };
 })();
 
-if (__DEV__) {
-  (node/*: any*/).hash = "942e72826c882d3a02cb0cfbf267dd83";
-}
+(node/*: any*/).hash = "942e72826c882d3a02cb0cfbf267dd83";
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  AppQuery$variables,
+  AppQuery$data,
+>*/);

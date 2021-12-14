@@ -130,7 +130,7 @@ type Foo {
                     alias: None,
                     definition: WithLocation {
                         location: client-fields.graphql:171:173,
-                        item: FieldID(463),
+                        item: FieldID(464),
                     },
                     arguments: [],
                     directives: [],
@@ -139,7 +139,7 @@ type Foo {
                     alias: None,
                     definition: WithLocation {
                         location: client-fields.graphql:226:238,
-                        item: FieldID(520),
+                        item: FieldID(521),
                     },
                     arguments: [],
                     directives: [],
@@ -175,7 +175,7 @@ type Foo {
                                             alias: None,
                                             definition: WithLocation {
                                                 location: client-fields.graphql:287:289,
-                                                item: FieldID(463),
+                                                item: FieldID(464),
                                             },
                                             arguments: [],
                                             directives: [],
@@ -197,7 +197,7 @@ type Foo {
                                     alias: None,
                                     definition: WithLocation {
                                         location: client-fields.graphql:325:336,
-                                        item: FieldID(299),
+                                        item: FieldID(300),
                                     },
                                     arguments: [],
                                     directives: [],
@@ -216,7 +216,7 @@ type Foo {
                             alias: None,
                             definition: WithLocation {
                                 location: client-fields.graphql:367:370,
-                                item: FieldID(521),
+                                item: FieldID(522),
                             },
                             arguments: [],
                             directives: [],
@@ -239,7 +239,7 @@ type Foo {
                                             alias: None,
                                             definition: WithLocation {
                                                 location: client-fields.graphql:470:472,
-                                                item: FieldID(522),
+                                                item: FieldID(523),
                                             },
                                             arguments: [],
                                             directives: [],
@@ -268,7 +268,7 @@ type Foo {
                     alias: None,
                     definition: WithLocation {
                         location: client-fields.graphql:526:528,
-                        item: FieldID(522),
+                        item: FieldID(523),
                     },
                     arguments: [],
                     directives: [],

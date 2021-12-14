@@ -686,6 +686,7 @@ type Page implements Node & Actor {
   viewerSavedState: String
   nameWithArgs(capitalize: Boolean!): String
   nameWithDefaultArgs(capitalize: Boolean = false): String
+  nameWithRequiredDefaultArgs(capitalize: Boolean! = false): String
   actor_key: ID!
 }
 

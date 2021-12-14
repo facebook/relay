@@ -1101,6 +1101,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
         let missing_arg_names = argument_definitions
             .iter()
             .filter(|arg_def| arg_def.type_.is_non_null())
+            .filter(|arg_def| arg_def.default_value.is_none())
             .filter(|required_arg_def| {
                 arguments
                     .iter()

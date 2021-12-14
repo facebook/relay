@@ -23,7 +23,7 @@ fragment LinkedHandleField on User {
                     alias: None,
                     definition: WithLocation {
                         location: linked-handle-filter.graphql:39:46,
-                        item: FieldID(461),
+                        item: FieldID(462),
                     },
                     arguments: [
                         Argument {

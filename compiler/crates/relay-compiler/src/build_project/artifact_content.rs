@@ -294,10 +294,20 @@ fn generate_operation(
     )?;
 
     if is_operation_preloadable(normalization_operation) && id_and_text_hash.is_some() {
-        writeln!(
-            content,
-            "require('relay-runtime').PreloadableQueryRegistry.set((node.params/*: any*/).id, node);\n",
-        )?;
+        match project_config.typegen_config.language {
+            TypegenLanguage::Flow => {
+                writeln!(
+                    content,
+                    "require('relay-runtime').PreloadableQueryRegistry.set((node.params/*: any*/).id, node);\n",
+                )?;
+            }
+            TypegenLanguage::TypeScript => {
+                writeln!(
+                    content,
+                    "import {{ PreloadableQueryRegistry }} from 'relay-runtime';\nPreloadableQueryRegistry.set(node.params.id, node);\n",
+                )?;
+            }
+        }
     }
 
     write_export_generated_node(

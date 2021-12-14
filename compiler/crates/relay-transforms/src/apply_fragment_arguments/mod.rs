@@ -175,6 +175,9 @@ impl Transformer for ApplyFragmentArgumentsTransform<'_, '_, '_> {
                     spread.fragment.item
                 );
             });
+
+        self.extract_provided_variables(fragment);
+
         if self.is_normalization {
             if let Some(directive) = fragment.directives.named(*NO_INLINE_DIRECTIVE_NAME) {
                 let transformed_arguments = spread
@@ -390,7 +393,8 @@ impl ApplyFragmentArgumentsTransform<'_, '_, '_> {
                 });
         for definition in provided_arguments {
             self.provided_variables
-                .insert(definition.name.item, definition.clone());
+                .entry(definition.name.item)
+                .or_insert_with(|| definition.clone());
         }
     }
 
@@ -429,8 +433,6 @@ impl ApplyFragmentArgumentsTransform<'_, '_, '_> {
 
         self.scope
             .push(spread.fragment.location, &transformed_arguments, fragment);
-
-        self.extract_provided_variables(fragment);
 
         let selections = self
             .transform_selections(&fragment.selections)

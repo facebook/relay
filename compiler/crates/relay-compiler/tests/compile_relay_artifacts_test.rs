@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<d4b9a65e33f69e362d639c615584215c>>
+ * @generated SignedSource<<aebd3906fd8c324546244d53449d967f>>
  */
 
 mod compile_relay_artifacts;
@@ -703,6 +703,13 @@ fn provided_variable_in_fragment() {
     let input = include_str!("compile_relay_artifacts/fixtures/provided-variable-in-fragment.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/provided-variable-in-fragment.expected");
     test_fixture(transform_fixture, "provided-variable-in-fragment.graphql", "compile_relay_artifacts/fixtures/provided-variable-in-fragment.expected", input, expected);
+}
+
+#[test]
+fn provided_variable_multiple_queries() {
+    let input = include_str!("compile_relay_artifacts/fixtures/provided-variable-multiple-queries.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/provided-variable-multiple-queries.expected");
+    test_fixture(transform_fixture, "provided-variable-multiple-queries.graphql", "compile_relay_artifacts/fixtures/provided-variable-multiple-queries.expected", input, expected);
 }
 
 #[test]

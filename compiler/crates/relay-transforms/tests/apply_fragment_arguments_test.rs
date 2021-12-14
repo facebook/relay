@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<10714f15064e3e19d5180fc18578b833>>
+ * @generated SignedSource<<d6a77099aa44531c1c0fd324c32a2f81>>
  */
 
 mod apply_fragment_arguments;
@@ -73,6 +73,13 @@ fn merges_identical_fragments_literal_arguments() {
     let input = include_str!("apply_fragment_arguments/fixtures/merges-identical-fragments-literal-arguments.graphql");
     let expected = include_str!("apply_fragment_arguments/fixtures/merges-identical-fragments-literal-arguments.expected");
     test_fixture(transform_fixture, "merges-identical-fragments-literal-arguments.graphql", "apply_fragment_arguments/fixtures/merges-identical-fragments-literal-arguments.expected", input, expected);
+}
+
+#[test]
+fn multiple_queries_with_provided_argument() {
+    let input = include_str!("apply_fragment_arguments/fixtures/multiple-queries-with-provided-argument.graphql");
+    let expected = include_str!("apply_fragment_arguments/fixtures/multiple-queries-with-provided-argument.expected");
+    test_fixture(transform_fixture, "multiple-queries-with-provided-argument.graphql", "apply_fragment_arguments/fixtures/multiple-queries-with-provided-argument.expected", input, expected);
 }
 
 #[test]

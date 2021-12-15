@@ -73,11 +73,10 @@ jobs:
           # add --locked back when we have a better way to ensure it's up to date
           args: --manifest-path=compiler/Cargo.toml
       - uses: actions-rs/cargo@v1
-      - name: 'Compiling the `test-project`.'
-        working-directory: ./compiler
         with:
           command: run
           args: --manifest-path=Cargo.toml --bin relay ./test-project/relay.json
+        working-directory: ./compiler
 
   build-compiler:
     name: Build Rust Compiler (${{ matrix.target.os }})

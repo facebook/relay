@@ -81,6 +81,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         text_artifacts: FeatureFlag::Disabled,
         enable_client_edges: FeatureFlag::Enabled,
         enable_provided_variables: FeatureFlag::Enabled,
+        node_interface_id_field: None,
     };
 
     // TODO pass base fragment names
@@ -90,7 +91,6 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         Default::default(),
         &connection_interface,
         Arc::new(feature_flags),
-        None,
         &None,
         Arc::new(ConsoleLogger),
         None,

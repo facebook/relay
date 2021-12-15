@@ -5,11 +5,13 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::path::{Path, PathBuf};
+
 /// Extract the module name from a path. This is the required prefix for
 /// query, fragment, subscription and mutation names.
 pub fn extract_module_name(path: &str) -> Option<String> {
-    let final_segment = get_final_non_index_js_segment(path)?.to_string();
-
+    let path = PathBuf::from(path);
+    let final_segment = get_final_non_index_js_segment(&path)?;
     let mut iter = final_segment.split('.');
     let mut first_segment = to_camel_case(iter.next()?.to_string());
     let mobile_platform = iter.find_map(|item| {
@@ -26,17 +28,15 @@ pub fn extract_module_name(path: &str) -> Option<String> {
     Some(first_segment)
 }
 
-fn get_final_non_index_js_segment(path: &str) -> Option<&str> {
-    let mut iter = path.split(std::path::MAIN_SEPARATOR);
-    let last_segment = iter.next_back()?;
-    if last_segment == "index.js"
-        || last_segment == "index.jsx"
-        || last_segment == "index.ts"
-        || last_segment == "index.tsx"
-    {
-        return iter.next_back();
+fn get_final_non_index_js_segment(path: &Path) -> Option<&str> {
+    let file_stem = path.file_stem()?.to_str();
+    if file_stem == Some("index") {
+        let mut iter = path.iter();
+        iter.next_back()?;
+        iter.next_back().and_then(|os_str| os_str.to_str())
+    } else {
+        file_stem
     }
-    Some(last_segment)
 }
 
 /// Converts a `String` to a camel case `String`

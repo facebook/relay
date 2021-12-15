@@ -134,7 +134,7 @@ fn apply_common_transforms(
     connection_interface: &ConnectionInterface,
     feature_flags: Arc<FeatureFlags>,
     node_interface_id_field: Option<StringKey>,
-    base_fragment_names: Arc<FnvHashSet<StringKey>>,
+    base_fragment_names: Arc<StringKeySet>,
     perf_logger: Arc<impl PerfLogger>,
 ) -> DiagnosticsResult<Arc<Program>> {
     let log_event = perf_logger.create_event("apply_common_transforms");
@@ -402,12 +402,8 @@ fn apply_typegen_transforms(
     project_name: StringKey,
     program: Arc<Program>,
     feature_flags: Arc<FeatureFlags>,
-<<<<<<< HEAD
-    base_fragment_names: Arc<StringKeySet>,
-=======
     node_interface_id_field: Option<StringKey>,
-    base_fragment_names: Arc<FnvHashSet<StringKey>>,
->>>>>>> d4315a7d83d (Mostly working configurable node interface ID)
+    base_fragment_names: Arc<StringKeySet>,
     perf_logger: Arc<impl PerfLogger>,
 ) -> DiagnosticsResult<Arc<Program>> {
     let log_event = perf_logger.create_event("apply_typegen_transforms");

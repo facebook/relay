@@ -27,7 +27,7 @@ fn build_refetch_operation(
     query_name: StringKey,
     variables_map: &VariableMap,
 ) -> DiagnosticsResult<Option<RefetchRoot>> {
-    let id_name = node_interface_id_field.unwrap_or("id".intern());
+    let id_name = node_interface_id_field.unwrap_or_else(|| "id".intern());
 
     if let Some(identifier_field_name) = get_fetchable_field_name(fragment, schema)? {
         let identifier_field_id = get_identifier_field_id(fragment, schema, identifier_field_name)?;

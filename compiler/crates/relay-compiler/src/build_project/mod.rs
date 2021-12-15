@@ -134,7 +134,6 @@ pub fn transform_program(
         base_fragment_names,
         &config.connection_interface,
         Arc::clone(&project_config.feature_flags),
-        project_config.node_interface_id_field,
         &project_config.test_path_regex,
         perf_logger,
         Some(print_stats),

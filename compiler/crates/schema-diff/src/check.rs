@@ -84,7 +84,7 @@ lazy_static! {
 /// But we have a special case for `Node`. The `id` field is automatically
 /// added to the selection for all types that implements `Node`.
 fn is_object_add_safe(name: StringKey, schema: &SDLSchema, node_interface_id_field: Option<StringKey>) -> bool {
-    let id_name = node_interface_id_field.unwrap_or("id".intern());
+    let id_name = node_interface_id_field.unwrap_or_else(|| "id".intern());
 
     if let Some(schema::Type::Object(id)) = schema.get_type(name) {
         let object = schema.object(id);
@@ -114,7 +114,7 @@ fn is_field_changes_safe(
     removed: &[TypeChange],
     changed: &[ArgumentChange],
 ) -> bool {
-    let id_name = node_interface_id_field.unwrap_or("id".intern());
+    let id_name = node_interface_id_field.unwrap_or_else(|| "id".intern());
 
     if !removed.is_empty() {
         return false;

@@ -363,7 +363,7 @@ impl CompilerState {
                 &current,
                 &Vec::<(&str, SourceLocationKey)>::new(),
             ) {
-                Ok(schema) => schema_change.is_safe(&schema, project_config.node_interface_id_field),
+                Ok(schema) => schema_change.is_safe(&schema, project_config.feature_flags.node_interface_id_field),
                 Err(_) => false,
             }
         }

@@ -29,7 +29,6 @@ pub fn apply_transforms<TPerfLogger>(
     base_fragment_names: Arc<StringKeySet>,
     connection_interface: &ConnectionInterface,
     feature_flags: Arc<FeatureFlags>,
-    node_interface_id_field: Option<StringKey>,
     test_path_regex: &Option<Regex>,
     perf_logger: Arc<TPerfLogger>,
     print_stats: Option<fn(extra_info: &'static str, program: &Program) -> ()>,
@@ -56,7 +55,6 @@ where
                 Arc::clone(&program),
                 connection_interface,
                 Arc::clone(&feature_flags),
-                node_interface_id_field,
                 Arc::clone(&base_fragment_names),
                 Arc::clone(&perf_logger),
             )?;
@@ -66,7 +64,7 @@ where
                     let operation_program = apply_operation_transforms(
                         project_name,
                         Arc::clone(&common_program),
-                        node_interface_id_field,
+                        Arc::clone(&feature_flags),
                         connection_interface,
                         Arc::clone(&base_fragment_names),
                         Arc::clone(&perf_logger),
@@ -111,7 +109,6 @@ where
                 project_name,
                 Arc::clone(&program),
                 Arc::clone(&feature_flags),
-                node_interface_id_field,
                 Arc::clone(&base_fragment_names),
                 Arc::clone(&perf_logger),
             )
@@ -133,7 +130,6 @@ fn apply_common_transforms(
     program: Arc<Program>,
     connection_interface: &ConnectionInterface,
     feature_flags: Arc<FeatureFlags>,
-    node_interface_id_field: Option<StringKey>,
     base_fragment_names: Arc<StringKeySet>,
     perf_logger: Arc<impl PerfLogger>,
 ) -> DiagnosticsResult<Arc<Program>> {
@@ -153,10 +149,10 @@ fn apply_common_transforms(
         transform_subscriptions(&program)
     })?;
     program = log_event.time("transform_refetchable_fragment", || {
-        transform_refetchable_fragment(&program, node_interface_id_field, &base_fragment_names, false)
+        transform_refetchable_fragment(&program, feature_flags.node_interface_id_field, &base_fragment_names, false)
     })?;
 
-    program = log_event.time("client_edges", || client_edges(&program, node_interface_id_field))?;
+    program = log_event.time("client_edges", || client_edges(&program, feature_flags.node_interface_id_field))?;
     program = log_event.time("relay_resolvers", || {
         relay_resolvers(&program, feature_flags.enable_relay_resolver_transform)
     })?;
@@ -229,7 +225,7 @@ fn apply_reader_transforms(
 fn apply_operation_transforms(
     project_name: StringKey,
     program: Arc<Program>,
-    node_interface_id_field: Option<StringKey>,
+    feature_flags: Arc<FeatureFlags>,
     connection_interface: &ConnectionInterface,
     base_fragment_names: Arc<StringKeySet>,
     perf_logger: Arc<impl PerfLogger>,
@@ -244,7 +240,7 @@ fn apply_operation_transforms(
     program = log_event.time("split_module_import", || {
         split_module_import(&program, &base_fragment_names)
     });
-    program = log_event.time("generate_id_field", || generate_id_field(&program, node_interface_id_field));
+    program = log_event.time("generate_id_field", || generate_id_field(&program, feature_flags.node_interface_id_field));
     program = log_event.time("declarative_connection", || {
         transform_declarative_connection(&program, connection_interface)
     })?;
@@ -402,7 +398,6 @@ fn apply_typegen_transforms(
     project_name: StringKey,
     program: Arc<Program>,
     feature_flags: Arc<FeatureFlags>,
-    node_interface_id_field: Option<StringKey>,
     base_fragment_names: Arc<StringKeySet>,
     perf_logger: Arc<impl PerfLogger>,
 ) -> DiagnosticsResult<Arc<Program>> {
@@ -417,7 +412,7 @@ fn apply_typegen_transforms(
         transform_subscriptions(&program)
     })?;
     program = log_event.time("required_directive", || required_directive(&program))?;
-    program = log_event.time("client_edges", || client_edges(&program, node_interface_id_field))?;
+    program = log_event.time("client_edges", || client_edges(&program, feature_flags.node_interface_id_field))?;
     program = log_event.time(
         "transform_assignable_fragment_spreads_in_regular_queries",
         || transform_assignable_fragment_spreads_in_regular_queries(&program),
@@ -430,7 +425,7 @@ fn apply_typegen_transforms(
     })?;
     log_event.time("flatten", || flatten(&mut program, false, false))?;
     program = log_event.time("transform_refetchable_fragment", || {
-        transform_refetchable_fragment(&program, node_interface_id_field, &base_fragment_names, true)
+        transform_refetchable_fragment(&program, feature_flags.node_interface_id_field, &base_fragment_names, true)
     })?;
     program = log_event.time("remove_base_fragments", || {
         remove_base_fragments(&program, base_fragment_names)

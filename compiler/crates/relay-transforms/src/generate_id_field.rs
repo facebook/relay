@@ -114,7 +114,7 @@ impl<'s> Transformer for GenerateIDFieldTransform<'s> {
 
 impl<'s> GenerateIDFieldTransform<'s> {
     fn new(program: &'s Program, node_interface_id_field: Option<StringKey>) -> Self {
-        let id_name = node_interface_id_field.unwrap_or("id".intern());
+        let id_name = node_interface_id_field.unwrap_or_else(|| "id".intern());
 
         let schema = &program.schema;
         let node_interface = match schema.get_type("Node".intern()) {

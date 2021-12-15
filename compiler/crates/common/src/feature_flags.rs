@@ -49,6 +49,10 @@ pub struct FeatureFlags {
 
     #[serde(default)]
     pub enable_provided_variables: FeatureFlag,
+
+    /// The name of the `id` field that exists on the `Node` interface.
+    #[serde(default)]
+    pub node_interface_id_field: Option<StringKey>,
 }
 
 #[derive(Debug, Deserialize, Clone, Serialize)]

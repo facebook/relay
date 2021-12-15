@@ -27,7 +27,7 @@ fn build_refetch_operation(
     query_name: StringKey,
     variables_map: &VariableMap,
 ) -> DiagnosticsResult<Option<RefetchRoot>> {
-    let id_name = node_interface_id_field.unwrap_or("id".intern());
+    let id_name = node_interface_id_field.unwrap_or_else(|| "id".intern());
 
     let node_interface_id = schema.get_type(CONSTANTS.node_type_name).and_then(|type_| {
         if let Type::Interface(id) = type_ {
@@ -185,7 +185,7 @@ fn enforce_selections_with_id_field(
     id_field_id: FieldID,
     node_interface_id: Option<InterfaceID>,
 ) -> Vec<Selection> {
-    let id_name = node_interface_id_field.unwrap_or("id".intern());
+    let id_name = node_interface_id_field.unwrap_or_else(|| "id".intern());
     let mut next_selections = fragment.selections.clone();
     let has_id_field = next_selections.iter().any(|sel| {
         if let Selection::ScalarField(field) = sel {

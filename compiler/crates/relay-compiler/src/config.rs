@@ -273,7 +273,6 @@ impl Config {
                     skip_types_for_artifact: None,
                     rollout: config_file_project.rollout,
                     js_module_format: config_file_project.js_module_format,
-                    node_interface_id_field: config_file_project.node_interface_id_field,
                 };
                 Ok((project_name, project_config))
             })
@@ -518,7 +517,6 @@ pub struct ProjectConfig {
     pub skip_types_for_artifact: Option<Box<dyn (Fn(SourceLocationKey) -> bool) + Send + Sync>>,
     pub rollout: Rollout,
     pub js_module_format: JsModuleFormat,
-    pub node_interface_id_field: Option<StringKey>,
 }
 
 impl Debug for ProjectConfig {
@@ -543,7 +541,6 @@ impl Debug for ProjectConfig {
             skip_types_for_artifact,
             rollout,
             js_module_format,
-            node_interface_id_field,
         } = self;
         f.debug_struct("ProjectConfig")
             .field("name", name)
@@ -579,7 +576,6 @@ impl Debug for ProjectConfig {
             )
             .field("rollout", rollout)
             .field("js_module_format", js_module_format)
-            .field("node_interface_id_field", node_interface_id_field)
             .finish()
     }
 }
@@ -683,9 +679,6 @@ pub struct SingleProjectConfigFile {
     /// It contains URL and addition parameters that will be included
     /// with the request (think API_KEY, APP_ID, etc...)
     pub persist_config: Option<PersistConfig>,
-
-    /// The name of the `id` field that exists on the `Node` interface.
-    pub node_interface_id_field: Option<StringKey>,
 }
 
 impl Default for SingleProjectConfigFile {
@@ -701,7 +694,6 @@ impl Default for SingleProjectConfigFile {
             custom_scalars: Default::default(),
             eager_es_modules: false,
             persist_config: None,
-            node_interface_id_field: None,
         }
     }
 }
@@ -910,9 +902,6 @@ struct ConfigFileProject {
 
     #[serde(default)]
     js_module_format: JsModuleFormat,
-
-    #[serde(default)]
-    pub node_interface_id_field: Option<StringKey>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]

@@ -134,7 +134,6 @@ fn transform_program<TPerfLogger: PerfLogger + 'static>(
         Default::default(),
         &config.connection_interface,
         Arc::clone(&project_config.feature_flags),
-        project_config.node_interface_id_field,
         &None,
         perf_logger,
         None,

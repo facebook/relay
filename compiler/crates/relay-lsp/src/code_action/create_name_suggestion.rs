@@ -178,6 +178,7 @@ fn create_impactful_part() -> String {
     format!("{}{}", adjective, noun)
 }
 
+#[cfg(not(windows))]
 #[cfg(test)]
 mod tests {
     use super::{
@@ -299,6 +300,27 @@ mod tests {
                 DefinitionNameSuffix::Query
             ),
             Some("ReactFileTestQuery".to_string())
+        );
+    }
+}
+
+#[cfg(windows)]
+#[cfg(test)]
+mod tests {
+    use super::{create_default_name, DefinitionNameSuffix};
+
+    #[test]
+    fn test_create_default_name() {
+        assert_eq!(
+            create_default_name("C:\\user\\ReactFile.js", DefinitionNameSuffix::Query),
+            Some("ReactFileQuery".to_string())
+        );
+        assert_eq!(
+            create_default_name(
+                "\\\\?\\D:\\data\\user\\react-file.js",
+                DefinitionNameSuffix::Query
+            ),
+            Some("reactFileQuery".to_string())
         );
     }
 }

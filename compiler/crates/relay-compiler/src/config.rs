@@ -586,6 +586,14 @@ pub enum SchemaLocation {
     Directory(PathBuf),
 }
 
+fn get_default_excludes() -> Vec<String> {
+    vec![
+        "**/node_modules/**".to_string(),
+        "**/__mocks__/**".to_string(),
+        "**/__generated__/**".to_string(),
+    ]
+}
+
 /// Schema of the compiler configuration JSON file.
 #[derive(Debug, Serialize, Deserialize, Default)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
@@ -612,7 +620,7 @@ struct MultiProjectConfigFile {
 
     /// Glob patterns that should not be part of the sources even if they are
     /// in the source set directories.
-    #[serde(default)]
+    #[serde(default = "get_default_excludes")]
     excludes: Vec<String>,
 
     /// Configuration of projects to compile.
@@ -679,11 +687,7 @@ impl Default for SingleProjectConfigFile {
             schema: Default::default(),
             src: Default::default(),
             artifact_directory: Default::default(),
-            excludes: vec![
-                "**/node_modules/**".to_string(),
-                "**/__mocks__/**".to_string(),
-                "**/__generated__/**".to_string(),
-            ],
+            excludes: get_default_excludes(),
             schema_extensions: vec![],
             no_future_proof_enums: false,
             language: Some(TypegenLanguage::default()),

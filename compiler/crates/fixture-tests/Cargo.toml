@@ -18,6 +18,6 @@ path = "tests/uppercase_test.rs"
 colored = "1.9"
 diff = "0.1"
 lazy_static = "1.0"
-parking_lot = "0.10.2"
+parking_lot = { version = "0.11.2", features = ["send_guard"] }
 signedsource = { path = "../signedsource" }
 structopt = "0.3.23"

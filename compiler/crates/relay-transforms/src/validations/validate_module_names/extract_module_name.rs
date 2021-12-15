@@ -1,3 +1,5 @@
+use std::{path::PathBuf, ffi::OsString};
+
 /*
  * Copyright (c) Facebook, Inc. and its affiliates.
  *
@@ -8,9 +10,8 @@
 /// Extract the module name from a path. This is the required prefix for
 /// query, fragment, subscription and mutation names.
 pub fn extract_module_name(path: &str) -> Option<String> {
-    let final_segment = get_final_non_index_js_segment(path)?.to_string();
-
-    let mut iter = final_segment.split('.');
+    let final_segment = get_final_non_index_js_segment(path)?;
+    let mut iter = final_segment.to_str()?.split('.');
     let mut first_segment = to_camel_case(iter.next()?.to_string());
     let mobile_platform = iter.find_map(|item| {
         if item == "ios" {
@@ -26,17 +27,18 @@ pub fn extract_module_name(path: &str) -> Option<String> {
     Some(first_segment)
 }
 
-fn get_final_non_index_js_segment(path: &str) -> Option<&str> {
-    let mut iter = path.split(std::path::MAIN_SEPARATOR);
-    let last_segment = iter.next_back()?;
-    if last_segment == "index.js"
-        || last_segment == "index.jsx"
-        || last_segment == "index.ts"
-        || last_segment == "index.tsx"
+fn get_final_non_index_js_segment(path: &str) -> Option<OsString> {
+    let path_buff = PathBuf::from(path);
+    let file_stem = path_buff.file_stem()?;
+    if file_stem.to_str() == Some("index")
     {
-        return iter.next_back();
+        let mut iter = path_buff.iter();
+        iter.next_back()?;
+        let str = iter.next_back()?;
+        Some(str.to_os_string())
+    } else {
+        Some(file_stem.to_os_string())
     }
-    Some(last_segment)
 }
 
 /// Converts a `String` to a camel case `String`

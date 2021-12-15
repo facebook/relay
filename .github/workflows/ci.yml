@@ -75,9 +75,9 @@ jobs:
       - uses: actions-rs/cargo@v1
       - name: 'Compiling the `test-project`.'
         working-directory: ./compiler
-        with:gi
+        with:
           command: run
-          args: --bin relay ./test-project/relay.json
+          args: --manifest-path=Cargo.toml --bin relay ./test-project/relay.json
 
   build-compiler:
     name: Build Rust Compiler (${{ matrix.target.os }})

@@ -16,10 +16,9 @@
 import type {
   CacheConfig,
   FetchPolicy,
-  GraphQLTaggedNode,
-  OperationType,
+  Query,
   RenderPolicy,
-  VariablesOf,
+  Variables,
 } from 'relay-runtime';
 
 const {useTrackLoadQueryInRender} = require('./loadQuery');
@@ -30,16 +29,16 @@ const {
   __internal: {fetchQuery},
 } = require('relay-runtime');
 
-function useLazyLoadQuery<TQuery: OperationType>(
-  gqlQuery: GraphQLTaggedNode,
-  variables: VariablesOf<TQuery>,
+function useLazyLoadQuery<TVariables: Variables, TData>(
+  gqlQuery: Query<TVariables, TData>,
+  variables: TVariables,
   options?: {|
     fetchKey?: string | number,
     fetchPolicy?: FetchPolicy,
     networkCacheConfig?: CacheConfig,
     UNSTABLE_renderPolicy?: RenderPolicy,
   |},
-): TQuery['response'] {
+): TData {
   // We need to use this hook in order to be able to track if
   // loadQuery was called during render
   useTrackLoadQueryInRender();

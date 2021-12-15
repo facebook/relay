@@ -107,7 +107,7 @@ function MainComponent(props: {
   renderViewerActorName: (actorName: ?string) => void,
   renderActorInTheList: ActorTestRenderFn,
 }) {
-  const data = useLazyLoadQuery<ActorChangeWithMutationTestQuery>(query, {});
+  const data = useLazyLoadQuery(query, {});
   props.renderViewerActorName(data?.viewer?.actor?.name);
 
   return (

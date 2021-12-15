@@ -97,7 +97,7 @@ const query = graphql`
 `;
 
 function MainComponent() {
-  const data = useLazyLoadQuery<ActorChangeWithDeferTestQuery>(query, {});
+  const data = useLazyLoadQuery(query, {});
 
   return (
     <div>

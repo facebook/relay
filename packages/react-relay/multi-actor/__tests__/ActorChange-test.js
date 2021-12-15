@@ -92,7 +92,7 @@ const mutation = graphql`
 `;
 
 function MainComponent() {
-  const data = useLazyLoadQuery<ActorChangeTestQuery>(query, {});
+  const data = useLazyLoadQuery(query, {});
 
   return (
     <div>

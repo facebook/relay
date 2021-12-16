@@ -8,10 +8,9 @@
 use crate::match_::hash_supported_argument;
 
 use super::*;
-use common::{sync::try_join, DiagnosticsResult, FeatureFlags, PerfLogEvent, PerfLogger};
+use common::{sync::try_join, DiagnosticsResult, PerfLogEvent, PerfLogger};
 use graphql_ir::Program;
-use intern::string_key::{StringKey, StringKeySet};
-use regex::Regex;
+use intern::string_key::StringKeySet;
 use relay_config::ProjectConfig;
 use std::sync::Arc;
 
@@ -60,7 +59,7 @@ where
             try_join(
                 || {
                     let operation_program = apply_operation_transforms(
-                        project_config.name,
+                        project_config,
                         Arc::clone(&common_program),
                         connection_interface,
                         Arc::clone(&base_fragment_names),
@@ -70,11 +69,9 @@ where
                     try_join(
                         || {
                             apply_normalization_transforms(
-                                project_config.name,
+                                project_config,
                                 Arc::clone(&operation_program),
                                 Arc::clone(&base_fragment_names),
-                                Arc::clone(&project_config.feature_flags),
-                                project_config.test_path_regex.clone(),
                                 Arc::clone(&perf_logger),
                                 print_stats,
                             )
@@ -219,14 +216,14 @@ fn apply_reader_transforms(
 /// Applies transforms that apply to all operation artifacts.
 /// Corresponds to the "query transforms" in the JS compiler.
 fn apply_operation_transforms(
-    project_name: StringKey,
+    project_config: &ProjectConfig,
     program: Arc<Program>,
     connection_interface: &ConnectionInterface,
     base_fragment_names: Arc<StringKeySet>,
     perf_logger: Arc<impl PerfLogger>,
 ) -> DiagnosticsResult<Arc<Program>> {
     let log_event = perf_logger.create_event("apply_operation_transforms");
-    log_event.string("project", project_name.to_string());
+    log_event.string("project", project_config.name.to_string());
 
     let mut program = log_event.time("preserve_client_edge_backing_ids", || {
         preserve_client_edge_backing_ids(&program)
@@ -258,16 +255,14 @@ fn apply_operation_transforms(
 ///
 /// Corresponds to the "codegen transforms" in the JS compiler
 fn apply_normalization_transforms(
-    project_name: StringKey,
+    project_config: &ProjectConfig,
     program: Arc<Program>,
     base_fragment_names: Arc<StringKeySet>,
-    feature_flags: Arc<FeatureFlags>,
-    test_path_regex: Option<Regex>,
     perf_logger: Arc<impl PerfLogger>,
     maybe_print_stats: Option<fn(extra_info: &'static str, program: &Program) -> ()>,
 ) -> DiagnosticsResult<Arc<Program>> {
     let log_event = perf_logger.create_event("apply_normalization_transforms");
-    log_event.string("project", project_name.to_string());
+    log_event.string("project", project_config.name.to_string());
     if let Some(print_stats) = maybe_print_stats {
         print_stats("normalization start", &program);
     }
@@ -276,7 +271,7 @@ fn apply_normalization_transforms(
         apply_fragment_arguments(
             &program,
             true,
-            &feature_flags.no_inline,
+            &project_config.feature_flags.no_inline,
             &base_fragment_names,
         )
     })?;
@@ -285,7 +280,7 @@ fn apply_normalization_transforms(
     }
 
     program = log_event.time("hash_supported_argument", || {
-        hash_supported_argument(&program, &feature_flags)
+        hash_supported_argument(&program, &project_config.feature_flags)
     })?;
     if let Some(print_stats) = maybe_print_stats {
         print_stats("hash_supported_argument", &program);
@@ -322,7 +317,7 @@ fn apply_normalization_transforms(
     }
 
     program = log_event.time("generate_test_operation_metadata", || {
-        generate_test_operation_metadata(&program, &test_path_regex)
+        generate_test_operation_metadata(&program, &project_config.test_path_regex)
     })?;
     if let Some(print_stats) = maybe_print_stats {
         print_stats("generate_test_operation_metadata", &program);

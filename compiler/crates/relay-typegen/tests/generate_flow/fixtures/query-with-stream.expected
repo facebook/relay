@@ -6,7 +6,7 @@ query TestStream @raw_response_type {
       friends(first: 10)
         @stream_connection(
           key: "PaginationFragment_friends"
-          initial_count: 1
+          initialCount: 1
         ) {
         edges {
           node {

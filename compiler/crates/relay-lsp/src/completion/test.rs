@@ -249,7 +249,7 @@ fn empty_argument_list() {
     );
     assert_labels(
         items.unwrap(),
-        vec!["label", "initial_count", "if", "use_customized_batch"],
+        vec!["label", "initialCount", "if", "useCustomizedBatch"],
     );
 }
 
@@ -267,7 +267,7 @@ fn argument_name_without_value() {
     );
     assert_labels(
         items.unwrap(),
-        vec!["label", "initial_count", "if", "use_customized_batch"],
+        vec!["label", "initialCount", "if", "useCustomizedBatch"],
     );
 }
 
@@ -288,7 +288,7 @@ fn argument_name_with_existing_name() {
     );
     assert_labels(
         items.unwrap(),
-        vec!["label", "initial_count", "use_customized_batch"],
+        vec!["label", "initialCount", "useCustomizedBatch"],
     );
 }
 

@@ -7,7 +7,7 @@ query NodeQuery($id: ID!) {
       clientComments(first: 10)
         @stream_connection(
           key: "NodeQuery_clientComments"
-          initial_count: 0
+          initialCount: 0
           label: "comments"
         ) {
         edges {

@@ -25,9 +25,9 @@ directive @defer(
 
 directive @stream(
   label: String!
-  initial_count: Int!
+  initialCount: Int!
   if: Boolean = true
-  use_customized_batch: Boolean = false
+  useCustomizedBatch: Boolean = false
 ) on FIELD
 
 directive @fetchable(field_name: String!) on OBJECT

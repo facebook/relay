@@ -15,6 +15,7 @@ use graphql_ir::Program;
 use graphql_text_printer::{self, PrinterOptions};
 use intern::string_key::Intern;
 use relay_codegen::{print_fragment, print_operation, JsModuleFormat};
+use relay_config::ProjectConfig;
 use relay_schema::build_schema_with_extensions;
 use relay_transforms::{apply_transforms, ConnectionInterface, Programs};
 use relay_typegen::{
@@ -303,14 +304,16 @@ fn get_programs(
     let feature_flags: FeatureFlags = serde_json::from_str(feature_flags_json)
         .map_err(|err| PlaygroundError::ConfigError(format!("{}", err)))?;
     let perf_logger = NoopPerfLogger;
-
+    let project_config = ProjectConfig {
+        name: project_name,
+        feature_flags: Arc::new(feature_flags),
+        ..Default::default()
+    };
     apply_transforms(
-        project_name,
+        &project_config,
         Arc::new(program),
         base_fragment_names,
         &connection_interface,
-        Arc::new(feature_flags),
-        &None,
         Arc::new(perf_logger),
         None,
     )

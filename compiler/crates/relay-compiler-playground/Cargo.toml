@@ -17,6 +17,7 @@ graphql-ir = { path = "../graphql-ir" }
 graphql-syntax = { path = "../graphql-syntax" }
 graphql-text-printer = { path = "../graphql-text-printer" }
 relay-codegen = { path = "../relay-codegen" }
+relay-config = { path = "../relay-config" }
 relay-typegen = { path = "../relay-typegen" }
 relay-schema = { path = "../relay-schema" }
 relay-transforms = { path = "../relay-transforms" }

@@ -19,7 +19,7 @@ use intern::string_key::Intern;
 use relay_codegen::{
     build_request_params, print_fragment, print_operation, print_request, JsModuleFormat,
 };
-use relay_compiler::validate;
+use relay_compiler::{validate, ProjectConfig};
 use relay_test_schema::{get_test_schema, get_test_schema_with_extensions};
 use relay_transforms::{apply_transforms, ConnectionInterface, DIRECTIVE_SPLIT_OPERATION};
 use std::{array, sync::Arc};
@@ -82,15 +82,18 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         enable_client_edges: FeatureFlag::Enabled,
         enable_provided_variables: FeatureFlag::Enabled,
     };
+    let project_config = ProjectConfig {
+        name: "test".intern(),
+        feature_flags: Arc::new(feature_flags),
+        ..Default::default()
+    };
 
     // TODO pass base fragment names
     let programs = apply_transforms(
-        "test".intern(),
+        &project_config,
         Arc::new(program),
         Default::default(),
         &connection_interface,
-        Arc::new(feature_flags),
-        &None,
         Arc::new(ConsoleLogger),
         None,
     )

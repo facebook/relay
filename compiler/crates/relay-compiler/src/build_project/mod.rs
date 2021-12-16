@@ -129,12 +129,10 @@ pub fn transform_program(
 ) -> Result<Programs, BuildProjectFailure> {
     let timer = log_event.start("apply_transforms_time");
     let result = apply_transforms(
-        project_config.name,
+        project_config,
         program,
         base_fragment_names,
         &config.connection_interface,
-        Arc::clone(&project_config.feature_flags),
-        &project_config.test_path_regex,
         perf_logger,
         Some(print_stats),
     )

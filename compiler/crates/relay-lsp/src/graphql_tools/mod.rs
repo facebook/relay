@@ -129,12 +129,10 @@ fn transform_program<TPerfLogger: PerfLogger + 'static>(
     perf_logger: Arc<TPerfLogger>,
 ) -> Result<Programs, String> {
     apply_transforms(
-        project_config.name,
+        project_config,
         program,
         Default::default(),
         &config.connection_interface,
-        Arc::clone(&project_config.feature_flags),
-        &None,
         perf_logger,
         None,
     )

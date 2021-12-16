@@ -12,6 +12,7 @@ use common::{sync::try_join, DiagnosticsResult, FeatureFlags, PerfLogEvent, Perf
 use graphql_ir::Program;
 use intern::string_key::{StringKey, StringKeySet};
 use regex::Regex;
+use relay_config::ProjectConfig;
 use std::sync::Arc;
 
 #[derive(Debug)]
@@ -24,12 +25,10 @@ pub struct Programs {
 }
 
 pub fn apply_transforms<TPerfLogger>(
-    project_name: StringKey,
+    project_config: &ProjectConfig,
     program: Arc<Program>,
     base_fragment_names: Arc<StringKeySet>,
     connection_interface: &ConnectionInterface,
-    feature_flags: Arc<FeatureFlags>,
-    test_path_regex: &Option<Regex>,
     perf_logger: Arc<TPerfLogger>,
     print_stats: Option<fn(extra_info: &'static str, program: &Program) -> ()>,
 ) -> DiagnosticsResult<Programs>
@@ -51,10 +50,10 @@ where
     let (((normalization_program, text_program), reader_program), typegen_program) = try_join(
         || {
             let common_program = apply_common_transforms(
-                project_name,
+                project_config.name,
                 Arc::clone(&program),
                 connection_interface,
-                Arc::clone(&feature_flags),
+                Arc::clone(&project_config.feature_flags),
                 Arc::clone(&base_fragment_names),
                 Arc::clone(&perf_logger),
             )?;
@@ -62,7 +61,7 @@ where
             try_join(
                 || {
                     let operation_program = apply_operation_transforms(
-                        project_name,
+                        project_config.name,
                         Arc::clone(&common_program),
                         connection_interface,
                         Arc::clone(&base_fragment_names),
@@ -72,21 +71,21 @@ where
                     try_join(
                         || {
                             apply_normalization_transforms(
-                                project_name,
+                                project_config.name,
                                 Arc::clone(&operation_program),
                                 Arc::clone(&base_fragment_names),
-                                Arc::clone(&feature_flags),
-                                test_path_regex.clone(),
+                                Arc::clone(&project_config.feature_flags),
+                                project_config.test_path_regex.clone(),
                                 Arc::clone(&perf_logger),
                                 print_stats,
                             )
                         },
                         || {
                             apply_operation_text_transforms(
-                                project_name,
+                                project_config.name,
                                 Arc::clone(&operation_program),
                                 Arc::clone(&base_fragment_names),
-                                Arc::clone(&feature_flags),
+                                Arc::clone(&project_config.feature_flags),
                                 Arc::clone(&perf_logger),
                             )
                         },
@@ -94,9 +93,9 @@ where
                 },
                 || {
                     apply_reader_transforms(
-                        project_name,
+                        project_config.name,
                         Arc::clone(&common_program),
-                        Arc::clone(&feature_flags),
+                        Arc::clone(&project_config.feature_flags),
                         Arc::clone(&base_fragment_names),
                         Arc::clone(&perf_logger),
                     )
@@ -105,9 +104,9 @@ where
         },
         || {
             apply_typegen_transforms(
-                project_name,
+                project_config.name,
                 Arc::clone(&program),
-                Arc::clone(&feature_flags),
+                Arc::clone(&project_config.feature_flags),
                 Arc::clone(&base_fragment_names),
                 Arc::clone(&perf_logger),
             )

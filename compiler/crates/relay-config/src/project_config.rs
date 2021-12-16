@@ -11,7 +11,7 @@ use std::{fmt, path::PathBuf, sync::Arc};
 use common::{FeatureFlags, Rollout, SourceLocationKey};
 use fnv::FnvBuildHasher;
 use indexmap::IndexMap;
-use intern::string_key::StringKey;
+use intern::string_key::{Intern, StringKey};
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 
@@ -59,6 +59,32 @@ pub struct ProjectConfig {
     pub skip_types_for_artifact: Option<Box<dyn (Fn(SourceLocationKey) -> bool) + Send + Sync>>,
     pub rollout: Rollout,
     pub js_module_format: JsModuleFormat,
+}
+
+impl Default for ProjectConfig {
+    fn default() -> Self {
+        Self {
+            name: "default".intern(),
+            feature_flags: Default::default(),
+            base: None,
+            output: None,
+            extra_artifacts_output: None,
+            shard_output: false,
+            shard_strip_regex: None,
+            schema_extensions: vec![],
+            enabled: true,
+            schema_location: SchemaLocation::File(PathBuf::default()),
+            typegen_config: Default::default(),
+            persist: None,
+            variable_names_comment: false,
+            extra: Default::default(),
+            test_path_regex: None,
+            filename_for_artifact: None,
+            skip_types_for_artifact: None,
+            rollout: Default::default(),
+            js_module_format: Default::default(),
+        }
+    }
 }
 
 impl Debug for ProjectConfig {

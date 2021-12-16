@@ -13,6 +13,7 @@ use graphql_syntax::parse_executable;
 use indexmap::IndexMap;
 use intern::string_key::Intern;
 use relay_codegen::JsModuleFormat;
+use relay_config::ProjectConfig;
 use relay_test_schema::{get_test_schema, get_test_schema_with_extensions};
 use relay_transforms::{apply_transforms, ConnectionInterface};
 use relay_typegen::{self, TypegenConfig, TypegenLanguage};
@@ -48,13 +49,16 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
             panic!("Encountered error building IR {:?}", e);
         });
     let program = Program::from_definitions(Arc::clone(&schema), ir);
+    let project_config = ProjectConfig {
+        name: "test".intern(),
+        feature_flags: Arc::new(feature_flags),
+        ..Default::default()
+    };
     let programs = apply_transforms(
-        "test".intern(),
+        &project_config,
         Arc::new(program),
         Default::default(),
         &ConnectionInterface::default(),
-        Arc::new(feature_flags),
-        &None,
         Arc::new(ConsoleLogger),
         None,
     )

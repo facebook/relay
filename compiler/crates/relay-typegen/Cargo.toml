@@ -15,9 +15,9 @@ intern = { path = "../intern" }
 itertools = "0.10.3"
 lazy_static = "1.0"
 relay-codegen = { path = "../relay-codegen" }
+relay-config = { path = "../relay-config" }
 relay-transforms = { path = "../relay-transforms" }
 schema = { path = "../schema" }
-serde = { version = "1.0.126", features = ["derive", "rc"] }
 
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }

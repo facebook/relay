@@ -10,9 +10,10 @@ use env_logger::Env;
 use log::{error, info, Level};
 use relay_compiler::{
     compiler::Compiler,
-    config::{Config, SingleProjectConfigFile, TypegenLanguage},
+    config::{Config, SingleProjectConfigFile},
     FileSourceKind, RemotePersister,
 };
+use relay_typegen::TypegenLanguage;
 use std::io::Write;
 use std::{
     env::{self, current_dir},

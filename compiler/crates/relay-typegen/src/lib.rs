@@ -9,7 +9,6 @@
 #![deny(rust_2018_idioms)]
 #![deny(clippy::all)]
 
-mod config;
 mod flow;
 mod typescript;
 mod writer;
@@ -18,8 +17,6 @@ use crate::flow::FlowPrinter;
 use crate::typescript::TypeScriptPrinter;
 use crate::writer::{GetterSetterPairProp, KeyValuePairProp, SpreadProp, Writer};
 use common::NamedItem;
-use config::FlowTypegenPhase;
-pub use config::{FlowTypegenConfig, TypegenConfig, TypegenLanguage};
 use fnv::FnvHashSet;
 use graphql_ir::{
     Condition, Directive, FragmentDefinition, FragmentSpread, InlineFragment, LinkedField,
@@ -29,7 +26,8 @@ use indexmap::{map::Entry, IndexMap, IndexSet};
 use intern::string_key::{Intern, StringKey};
 use itertools::Itertools;
 use lazy_static::lazy_static;
-use relay_codegen::JsModuleFormat;
+use relay_config::JsModuleFormat;
+pub use relay_config::{FlowTypegenPhase, TypegenConfig, TypegenLanguage};
 use relay_transforms::{
     ModuleMetadata, RefetchableDerivedFromMetadata, RefetchableMetadata, RelayDirective,
     RelayResolverSpreadMetadata, RequiredMetadataDirective, CHILDREN_CAN_BUBBLE_METADATA_KEY,

@@ -12,8 +12,8 @@ use crate::build_ast::{
 };
 use crate::constants::CODEGEN_CONSTANTS;
 use crate::indentation::print_indentation;
-use crate::js_module_format::JsModuleFormat;
 use crate::utils::escape;
+use crate::JsModuleFormat;
 
 use graphql_ir::{FragmentDefinition, OperationDefinition};
 use schema::SDLSchema;

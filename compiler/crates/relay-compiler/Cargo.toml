@@ -43,6 +43,7 @@ persist-query = { path = "../persist-query" }
 rayon = "1.2"
 regex = "1.5.4"
 relay-codegen = { path = "../relay-codegen" }
+relay-config = { path = "../relay-config" }
 relay-schema = { path = "../relay-schema" }
 relay-transforms = { path = "../relay-transforms" }
 relay-typegen = { path = "../relay-typegen" }

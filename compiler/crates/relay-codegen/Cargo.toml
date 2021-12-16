@@ -40,9 +40,9 @@ indexmap = { version = "1.7.0", features = ["rayon", "serde-1"] }
 intern = { path = "../intern" }
 lazy_static = "1.0"
 md-5 = "0.8"
+relay-config = { path = "../relay-config" }
 relay-transforms = { path = "../relay-transforms" }
 schema = { path = "../schema" }
-serde = { version = "1.0.126", features = ["derive", "rc"] }
 
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }

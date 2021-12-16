@@ -1,0 +1,15 @@
+[package]
+name = "relay-config"
+version = "0.0.0"
+authors = ["Facebook"]
+edition = "2021"
+license = "MIT"
+
+[dependencies]
+common = { path = "../common" }
+intern = { path = "../intern" }
+serde = { version = "1.0.126", features = ["derive", "rc"] }
+serde_json = { version = "1.0.64", features = ["float_roundtrip", "unbounded_depth"] }
+fnv = "1.0"
+indexmap = { version = "1.7.0", features = ["rayon", "serde-1"] }
+regex = "1.5.4"

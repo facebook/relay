@@ -102,9 +102,8 @@ where
         },
         || {
             apply_typegen_transforms(
-                project_config.name,
+                project_config,
                 Arc::clone(&program),
-                Arc::clone(&project_config.feature_flags),
                 Arc::clone(&base_fragment_names),
                 Arc::clone(&perf_logger),
             )
@@ -392,18 +391,17 @@ fn apply_operation_text_transforms(
 }
 
 fn apply_typegen_transforms(
-    project_name: StringKey,
+    project_config: &ProjectConfig,
     program: Arc<Program>,
-    feature_flags: Arc<FeatureFlags>,
     base_fragment_names: Arc<StringKeySet>,
     perf_logger: Arc<impl PerfLogger>,
 ) -> DiagnosticsResult<Arc<Program>> {
     let log_event = perf_logger.create_event("apply_typegen_transforms");
-    log_event.string("project", project_name.to_string());
+    log_event.string("project", project_config.name.to_string());
 
     let mut program = log_event.time("mask", || mask(&program));
     program = log_event.time("transform_match", || {
-        transform_match(&program, &feature_flags)
+        transform_match(&program, &project_config.feature_flags)
     })?;
     program = log_event.time("transform_subscriptions", || {
         transform_subscriptions(&program)
@@ -415,7 +413,10 @@ fn apply_typegen_transforms(
         || transform_assignable_fragment_spreads_in_regular_queries(&program),
     )?;
     program = log_event.time("relay_resolvers", || {
-        relay_resolvers(&program, feature_flags.enable_relay_resolver_transform)
+        relay_resolvers(
+            &program,
+            project_config.feature_flags.enable_relay_resolver_transform,
+        )
     })?;
     program = log_event.time("preserve_client_edge_selections", || {
         preserve_client_edge_selections(&program)
@@ -429,7 +430,7 @@ fn apply_typegen_transforms(
     });
 
     program = log_event.time("relay_actor_change_transform", || {
-        relay_actor_change_transform(&program, &feature_flags.actor_change_support)
+        relay_actor_change_transform(&program, &project_config.feature_flags.actor_change_support)
     })?;
 
     log_event.complete();

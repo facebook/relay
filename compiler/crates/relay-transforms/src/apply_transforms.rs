@@ -50,10 +50,9 @@ where
     let (((normalization_program, text_program), reader_program), typegen_program) = try_join(
         || {
             let common_program = apply_common_transforms(
-                project_config.name,
+                project_config,
                 Arc::clone(&program),
                 connection_interface,
-                Arc::clone(&project_config.feature_flags),
                 Arc::clone(&base_fragment_names),
                 Arc::clone(&perf_logger),
             )?;
@@ -124,15 +123,14 @@ where
 
 /// Applies transforms that apply to every output.
 fn apply_common_transforms(
-    project_name: StringKey,
+    project_config: &ProjectConfig,
     program: Arc<Program>,
     connection_interface: &ConnectionInterface,
-    feature_flags: Arc<FeatureFlags>,
     base_fragment_names: Arc<StringKeySet>,
     perf_logger: Arc<impl PerfLogger>,
 ) -> DiagnosticsResult<Arc<Program>> {
     let log_event = perf_logger.create_event("apply_common_transforms");
-    log_event.string("project", project_name.to_string());
+    log_event.string("project", project_config.name.to_string());
     let mut program = log_event.time("transform_connections", || {
         transform_connections(&program, connection_interface)
     });
@@ -141,7 +139,7 @@ fn apply_common_transforms(
         transform_defer_stream(&program)
     })?;
     program = log_event.time("transform_match", || {
-        transform_match(&program, &feature_flags)
+        transform_match(&program, &project_config.feature_flags)
     })?;
     program = log_event.time("transform_subscriptions", || {
         transform_subscriptions(&program)
@@ -153,18 +151,21 @@ fn apply_common_transforms(
     program = log_event.time("client_edges", || client_edges(&program))?;
 
     program = log_event.time("relay_resolvers", || {
-        relay_resolvers(&program, feature_flags.enable_relay_resolver_transform)
+        relay_resolvers(
+            &program,
+            project_config.feature_flags.enable_relay_resolver_transform,
+        )
     })?;
 
-    if feature_flags.enable_flight_transform {
+    if project_config.feature_flags.enable_flight_transform {
         program = log_event.time("react_flight", || react_flight(&program))?;
         program = log_event.time("relay_client_component", || {
-            relay_client_component(&program, &feature_flags)
+            relay_client_component(&program, &project_config.feature_flags)
         })?;
     }
 
     program = log_event.time("relay_actor_change_transform", || {
-        relay_actor_change_transform(&program, &feature_flags.actor_change_support)
+        relay_actor_change_transform(&program, &project_config.feature_flags.actor_change_support)
     })?;
 
     program = log_event.time("provided_variable_fragment_transform", || {

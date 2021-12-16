@@ -81,10 +81,9 @@ where
                         },
                         || {
                             apply_operation_text_transforms(
-                                project_config.name,
+                                project_config,
                                 Arc::clone(&operation_program),
                                 Arc::clone(&base_fragment_names),
-                                Arc::clone(&project_config.feature_flags),
                                 Arc::clone(&perf_logger),
                             )
                         },
@@ -342,20 +341,19 @@ fn apply_normalization_transforms(
 ///
 /// Corresponds to the "print transforms" in the JS compiler
 fn apply_operation_text_transforms(
-    project_name: StringKey,
+    project_config: &ProjectConfig,
     program: Arc<Program>,
     base_fragment_names: Arc<StringKeySet>,
-    feature_flags: Arc<FeatureFlags>,
     perf_logger: Arc<impl PerfLogger>,
 ) -> DiagnosticsResult<Arc<Program>> {
     let log_event = perf_logger.create_event("apply_operation_text_transforms");
-    log_event.string("project", project_name.to_string());
+    log_event.string("project", project_config.name.to_string());
 
     let mut program = log_event.time("apply_fragment_arguments", || {
         apply_fragment_arguments(
             &program,
             false,
-            &feature_flags.no_inline,
+            &project_config.feature_flags.no_inline,
             &base_fragment_names,
         )
     })?;

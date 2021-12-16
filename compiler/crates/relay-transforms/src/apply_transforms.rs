@@ -91,9 +91,8 @@ where
                 },
                 || {
                     apply_reader_transforms(
-                        project_config.name,
+                        project_config,
                         Arc::clone(&common_program),
-                        Arc::clone(&project_config.feature_flags),
                         Arc::clone(&base_fragment_names),
                         Arc::clone(&perf_logger),
                     )
@@ -178,14 +177,13 @@ fn apply_common_transforms(
 /// Applies transforms only for generated reader code.
 /// Corresponds to the "fragment transforms" in the JS compiler.
 fn apply_reader_transforms(
-    project_name: StringKey,
+    project_config: &ProjectConfig,
     program: Arc<Program>,
-    feature_flags: Arc<FeatureFlags>,
     base_fragment_names: Arc<StringKeySet>,
     perf_logger: Arc<impl PerfLogger>,
 ) -> DiagnosticsResult<Arc<Program>> {
     let log_event = perf_logger.create_event("apply_reader_transforms");
-    log_event.string("project", project_name.to_string());
+    log_event.string("project", project_config.name.to_string());
     let mut program = log_event.time("required_directive", || required_directive(&program))?;
 
     program = log_event.time("client_extensions", || client_extensions(&program));
@@ -210,7 +208,7 @@ fn apply_reader_transforms(
         generate_data_driven_dependency_metadata(&program)
     });
     program = log_event.time("hash_supported_argument", || {
-        hash_supported_argument(&program, &feature_flags)
+        hash_supported_argument(&program, &project_config.feature_flags)
     })?;
 
     log_event.complete();

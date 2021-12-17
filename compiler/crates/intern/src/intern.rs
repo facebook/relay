@@ -93,6 +93,19 @@ pub trait InternId: 'static + Eq + Copy {
         self.unwrap().index()
     }
 
+    /// Reverse the results of `index()`, and check the index boundary.
+    #[inline]
+    fn from_index_checked(i: u32) -> Option<Self> {
+        if (i as usize) < Self::table().len() {
+            // This is safe because `from_index` uses `NonZeroU32::new_unchecked`
+            // and the value is always > 0
+            let ref_ = unsafe { Ref::from_index(i) };
+            Some(Self::wrap(ref_))
+        } else {
+            None
+        }
+    }
+
     /// Unsafely reverse the results of `index()`.
     #[doc(hidden)]
     #[inline]

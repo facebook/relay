@@ -14,8 +14,6 @@ import TabItem from '@theme/TabItem';
 
 As part of its normal work, the [**Relay Compiler**](../compiler) will emit type information for your language of choice that helps you write type-safe application code. These types are included in the artifacts that `relay-compiler` generates to describe your operations and fragments.
 
-Regardless of your choice of language, all language plugins will emit roughly the same sort of type-information, but be sure to read the documentation for other [language plugins](#language-plugins) to learn about their specifics.
-
 ## Operation input data
 
 The shape of the variables object used for query, mutation, or subscription operations.
@@ -104,7 +102,6 @@ const data = useLazyLoadQuery<ExampleQuery>(
 The shape of the data selected in a operation or fragment, following the [data-masking] rules. That is, excluding any data selected by fragment spreads.
 
 In this example the emitted type-information describes the response data which is returned by `useLazyLoadQuery` (or `usePreloadedQuery`).
-
 
 <Tabs
   defaultValue={fbContent({internal: 'Flow', external: 'TypeScript'})}
@@ -396,10 +393,18 @@ return <ExampleFragmentComponent artist={data.artist} />;
 
 An important caveat to note is that by default strict fragment reference type-information will _not_ be emitted, instead they will be typed as `any` and would allow you to pass in any data to the child component.
 
-To enable this feature, you will have to tell the compiler to store all the artifacts in a single directory, like so:
+To enable this feature, you will have to tell the compiler to store all the artifacts in a single directory, by specifing the `artifactDirectory` in the
+compiler configuration:
 
-```shell
-$ relay-compiler --artifactDirectory ./src/__generated__ […]
+```
+{
+  // package.json
+  "relay": {
+    "artifactDirectory": "./src/__generated__",
+    ...
+  },
+  ...
+}
 ```
 
 …and additionally inform the babel plugin in your `.babelrc` config where to look for the artifacts:
@@ -425,36 +430,10 @@ Facebook uses a module system called [Haste], in which all source files are cons
 
 At its simplest, we can consider Haste as a single directory that contains all module files, thus all module imports always being safe to import using relative sibling paths. This is what is achieved by the single artifact directory feature. Rather than co-locating artifacts with their source files, all artifacts are stored in a single directory, allowing the compiler to emit imports of fragment reference types.
 
-## Language plugins
-
--   Flow: This is the default and builtin language plugin. You can explicitly enable it like so:
-
-```shell
-$ relay-compiler --language javascript […]
-```
-
-By default, Flow types are emitted inside of comments to avoid forcing your project to use Flow. Flow types inside of comments is perfectly valid Flow, however, some editors and IDEs (like WebStorm/IDEA) do not understand Flow unless it's in plain source code. In order to solve that, there's a language plugin maintained by the community that replicates the functionality of the default builtin plugin, but emits the Flow types as plain source and not inside comments. Installation and usage:
-
-```shell
-$ yarn add --dev relay-compiler-language-js-flow-uncommented
-$ relay-compiler --language js-flow-uncommented […]
-```
-
--   [TypeScript](https://github.com/relay-tools/relay-compiler-language-typescript): This is a language plugin for the TypeScript language maintained by the community. Install and enable it like so:
-
-```shell
-$ yarn add --dev relay-compiler-language-typescript @types/react-relay @types/relay-runtime
-$ relay-compiler --language typescript […]
-```
-
-If you are looking to create your own language plugin, refer to the `relay-compiler` [language plugin interface][plugin-interface].
-
 </OssOnly>
 
 [data-masking]: ../../principles-and-architecture/thinking-in-relay#data-masking
 
 [Haste]: https://twitter.com/dan_abramov/status/758655309212704768
-
-[plugin-interface]: https://github.com/facebook/relay/blob/main/packages/relay-compiler/language/RelayLanguagePluginInterface.js
 
 <DocsRating />

@@ -139,7 +139,7 @@ pub fn write_value(schema: &SDLSchema, value: &Value, mut result: &mut impl Writ
     printer.print_value(value)
 }
 
-#[derive(Clone, Default)]
+#[derive(Clone, Copy, Default)]
 pub struct PrinterOptions {
     pub compact: bool,
     pub sort_keys: bool,

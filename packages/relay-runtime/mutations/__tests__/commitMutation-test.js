@@ -28,7 +28,6 @@ const {createReaderSelector} = require('../../store/RelayModernSelector');
 const RelayModernStore = require('../../store/RelayModernStore');
 const RelayRecordSource = require('../../store/RelayRecordSource');
 const {ROOT_ID} = require('../../store/RelayStoreUtils');
-const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const commitMutation = require('../commitMutation');
 const nullthrows = require('nullthrows');
 const {createMockEnvironment} = require('relay-test-utils-internal');
@@ -1099,7 +1098,6 @@ describe('Required mutation roots', () => {
   let dataSource;
   let environment;
   beforeEach(() => {
-    RelayFeatureFlags.ENABLE_REQUIRED_DIRECTIVES = true;
     const fetch = jest.fn((_query, _variables, _cacheConfig) => {
       return RelayObservable.create(sink => {
         dataSource = sink;

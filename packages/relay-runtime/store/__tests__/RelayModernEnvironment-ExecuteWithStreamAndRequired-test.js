@@ -28,7 +28,6 @@ const {
 const {createReaderSelector} = require('../RelayModernSelector');
 const RelayModernStore = require('../RelayModernStore');
 const RelayRecordSource = require('../RelayRecordSource');
-const {RelayFeatureFlags} = require('relay-runtime');
 const {disallowWarnings} = require('relay-test-utils-internal');
 
 disallowWarnings();
@@ -44,8 +43,6 @@ describe('execute() a query with @stream and @required', () => {
   let selector;
 
   beforeEach(() => {
-    RelayFeatureFlags.ENABLE_REQUIRED_DIRECTIVES = true;
-
     query = getRequest(graphql`
       query RelayModernEnvironmentExecuteWithStreamAndRequiredTestFeedbackQuery(
         $id: ID!
@@ -92,10 +89,6 @@ describe('execute() a query with @stream and @required', () => {
       network: RelayNetwork.create(fetch),
       store,
     });
-  });
-
-  afterEach(() => {
-    RelayFeatureFlags.ENABLE_REQUIRED_DIRECTIVES = false;
   });
 
   it('bubbles @required @stream nodes up to the parent', () => {

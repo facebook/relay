@@ -15,7 +15,6 @@
 
 const fetchQuery = require('../fetchQuery');
 const {
-  RelayFeatureFlags,
   createOperationDescriptor,
   getRequest,
   graphql,
@@ -227,13 +226,6 @@ describe('fetchQuery', () => {
 });
 
 describe('fetchQuery with missing @required value', () => {
-  beforeEach(() => {
-    RelayFeatureFlags.ENABLE_REQUIRED_DIRECTIVES = true;
-  });
-  afterEach(() => {
-    RelayFeatureFlags.ENABLE_REQUIRED_DIRECTIVES = false;
-  });
-
   it('provides data snapshot on next', () => {
     const requiredFieldLogger = jest.fn();
     const environment = createMockEnvironment({

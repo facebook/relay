@@ -28,7 +28,6 @@ const {getSingularSelector} = require('../RelayModernSelector');
 const RelayModernStore = require('../RelayModernStore');
 const RelayRecordSource = require('../RelayRecordSource');
 const nullthrows = require('nullthrows');
-const {RelayFeatureFlags} = require('relay-runtime');
 const {disallowWarnings} = require('relay-test-utils-internal');
 
 disallowWarnings();
@@ -45,8 +44,6 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
     describe(environmentType, () => {
       beforeEach(() => {
-        RelayFeatureFlags.ENABLE_REQUIRED_DIRECTIVES = true;
-
         query = getRequest(graphql`
           query RelayModernEnvironmentConnectionAndRequiredTestFeedbackQuery(
             $id: ID!

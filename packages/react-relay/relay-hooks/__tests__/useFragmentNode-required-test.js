@@ -22,7 +22,6 @@ const {
   FRAGMENT_OWNER_KEY,
   FRAGMENTS_KEY,
   ID_KEY,
-  RelayFeatureFlags,
   createOperationDescriptor,
   getFragment,
   getRequest,
@@ -62,8 +61,6 @@ beforeEach(() => {
   jest.spyOn(console, 'warn').mockImplementationOnce(() => {});
   jest.mock('warning');
   renderSpy = jest.fn();
-
-  RelayFeatureFlags.ENABLE_REQUIRED_DIRECTIVES = true;
 
   // Set up environment and base data
   environment = createMockEnvironment();
@@ -129,7 +126,6 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  RelayFeatureFlags.ENABLE_REQUIRED_DIRECTIVES = false;
   environment.mockClear();
   renderSpy.mockClear();
   // $FlowFixMe[prop-missing]

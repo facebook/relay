@@ -293,13 +293,6 @@ class RelayReader {
       const selection = selections[i];
       switch (selection.kind) {
         case REQUIRED_FIELD:
-          invariant(
-            RelayFeatureFlags.ENABLE_REQUIRED_DIRECTIVES,
-            'RelayReader(): Encountered a `@required` directive at path "%s" in `%s` without the `ENABLE_REQUIRED_DIRECTIVES` feature flag enabled.',
-            selection.path,
-            this._selector.node.name,
-          );
-
           const fieldValue = this._readRequiredField(selection, record, data);
           if (fieldValue == null) {
             const {action} = selection;

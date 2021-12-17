@@ -14,21 +14,8 @@ const RelayModernFragmentSpecResolver = require('../RelayModernFragmentSpecResol
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
-const {
-  RelayFeatureFlags,
-  getFragment,
-  getRequest,
-  graphql,
-} = require('relay-runtime');
+const {getFragment, getRequest, graphql} = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils-internal');
-
-beforeEach(() => {
-  RelayFeatureFlags.ENABLE_REQUIRED_DIRECTIVES = true;
-});
-
-afterEach(() => {
-  RelayFeatureFlags.ENABLE_REQUIRED_DIRECTIVES = false;
-});
 
 describe('RelayModernFragmentSpecResolver', () => {
   let UserFragment;

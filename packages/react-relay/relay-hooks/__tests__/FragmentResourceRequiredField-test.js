@@ -13,7 +13,6 @@
 
 const {getFragmentResourceForEnvironment} = require('../FragmentResource');
 const {
-  RelayFeatureFlags,
   __internal: {fetchQuery},
   createOperationDescriptor,
   getFragment,
@@ -21,14 +20,6 @@ const {
   graphql,
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
-
-beforeEach(() => {
-  RelayFeatureFlags.ENABLE_REQUIRED_DIRECTIVES = true;
-});
-
-afterEach(() => {
-  RelayFeatureFlags.ENABLE_REQUIRED_DIRECTIVES = false;
-});
 
 let environment;
 let query;

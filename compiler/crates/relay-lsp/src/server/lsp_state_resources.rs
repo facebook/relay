@@ -7,7 +7,7 @@
 
 use std::sync::{Arc, RwLock};
 
-use common::{FeatureFlags, PerfLogEvent, PerfLogger};
+use common::{PerfLogEvent, PerfLogger};
 use dashmap::mapref::entry::Entry;
 use fnv::FnvHashMap;
 use graphql_watchman::WatchmanFileSourceSubscriptionNextChange;
@@ -378,13 +378,12 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
 
         validate_program(
             &self.lsp_state.config,
-            &FeatureFlags::default(),
+            project_config,
             &base_program,
             log_event,
         )?;
 
         transform_program(
-            &self.lsp_state.config,
             project_config,
             Arc::new(base_program),
             Arc::new(base_fragment_names),

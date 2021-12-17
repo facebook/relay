@@ -6,7 +6,6 @@
  */
 
 use intern::string_key::{Intern, StringKey};
-
 use serde::{Deserialize, Serialize};
 
 /// Configuration where Relay should expect some fields in the schema.

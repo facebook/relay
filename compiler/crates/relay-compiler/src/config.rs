@@ -23,9 +23,10 @@ use intern::string_key::{Intern, StringKey};
 use persist_query::PersistError;
 use rayon::prelude::*;
 use regex::Regex;
-use relay_config::{FlowTypegenConfig, JsModuleFormat, TypegenConfig, TypegenLanguage};
+use relay_config::{
+    FlowTypegenConfig, JsModuleFormat, SchemaConfig, TypegenConfig, TypegenLanguage,
+};
 pub use relay_config::{PersistConfig, ProjectConfig, SchemaLocation};
-use relay_transforms::ConnectionInterface;
 use serde::de::Error as DeError;
 use serde::{Deserialize, Deserializer, Serialize};
 use serde_json::Value;
@@ -80,8 +81,6 @@ pub struct Config {
 
     /// Do not reuse persist ids from artifacts even if the text hash matches.
     pub repersist_operations: bool,
-
-    pub connection_interface: ConnectionInterface,
 
     pub saved_state_config: Option<ScmAwareClockData>,
     pub saved_state_loader: Option<Box<dyn SavedStateLoader + Send + Sync>>,
@@ -257,6 +256,7 @@ impl Config {
                     shard_output: config_file_project.shard_output,
                     shard_strip_regex,
                     schema_location,
+                    schema_config: config_file_project.schema_config,
                     typegen_config: config_file_project.typegen_config,
                     persist: config_file_project.persist,
                     variable_names_comment: config_file_project.variable_names_comment,
@@ -299,7 +299,6 @@ impl Config {
             saved_state_config: config_file.saved_state_config,
             saved_state_loader: None,
             saved_state_version: hex::encode(hash.result()),
-            connection_interface: config_file.connection_interface,
             operation_persister: None,
             compile_everything: false,
             repersist_operations: false,
@@ -449,7 +448,6 @@ impl fmt::Debug for Config {
             generate_extra_artifacts,
             saved_state_config,
             saved_state_loader,
-            connection_interface,
             saved_state_version,
             operation_persister,
             post_artifacts_write,
@@ -484,7 +482,6 @@ impl fmt::Debug for Config {
                 "saved_state_loader",
                 &option_fn_to_string(saved_state_loader),
             )
-            .field("connection_interface", connection_interface)
             .field("saved_state_version", saved_state_version)
             .field(
                 "post_artifacts_write",
@@ -533,9 +530,6 @@ struct MultiProjectConfigFile {
 
     /// Configuration of projects to compile.
     projects: FnvIndexMap<ProjectName, ConfigFileProject>,
-
-    #[serde(default)]
-    connection_interface: ConnectionInterface,
 
     #[serde(default)]
     feature_flags: FeatureFlags,
@@ -810,6 +804,9 @@ struct ConfigFileProject {
 
     #[serde(default)]
     js_module_format: JsModuleFormat,
+
+    #[serde(default)]
+    pub schema_config: SchemaConfig,
 }
 
 type PersistId = String;

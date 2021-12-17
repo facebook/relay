@@ -30,7 +30,7 @@ pub use artifact_generated_types::ArtifactGeneratedTypes;
 use build_ir::BuildIRResult;
 pub use build_ir::SourceHashes;
 pub use build_schema::build_schema;
-use common::{sync::*, FeatureFlags, PerfLogEvent, PerfLogger};
+use common::{sync::*, PerfLogEvent, PerfLogger};
 use dashmap::{mapref::entry::Entry, DashSet};
 use fnv::{FnvBuildHasher, FnvHashMap, FnvHashSet};
 pub use generate_artifacts::{
@@ -99,19 +99,14 @@ pub fn build_raw_program(
 
 pub fn validate_program(
     config: &Config,
-    feature_flags: &FeatureFlags,
+    project_config: &ProjectConfig,
     program: &Program,
     log_event: &impl PerfLogEvent,
 ) -> Result<(), BuildProjectError> {
     let timer = log_event.start("validate_time");
     log_event.number("validate_documents_count", program.document_count());
-    let result = validate(
-        program,
-        feature_flags,
-        &config.connection_interface,
-        &config.additional_validations,
-    )
-    .map_err(|errors| BuildProjectError::ValidationErrors { errors });
+    let result = validate(program, project_config, &config.additional_validations)
+        .map_err(|errors| BuildProjectError::ValidationErrors { errors });
 
     log_event.stop(timer);
 
@@ -120,7 +115,6 @@ pub fn validate_program(
 
 /// Apply various chains of transforms to create a set of output programs.
 pub fn transform_program(
-    config: &Config,
     project_config: &ProjectConfig,
     program: Arc<Program>,
     base_fragment_names: Arc<StringKeySet>,
@@ -132,7 +126,6 @@ pub fn transform_program(
         project_config,
         program,
         base_fragment_names,
-        &config.connection_interface,
         perf_logger,
         Some(print_stats),
     )
@@ -178,7 +171,7 @@ pub fn build_programs(
     let (validation_results, _) = rayon::join(
         || {
             // Call validation rules that go beyond type checking.
-            validate_program(config, &project_config.feature_flags, &program, log_event)
+            validate_program(config, project_config, &program, log_event)
         },
         || {
             find_resolver_dependencies(
@@ -194,7 +187,6 @@ pub fn build_programs(
     validation_results?;
 
     let programs = transform_program(
-        config,
         project_config,
         Arc::new(program),
         Arc::new(base_fragment_names),

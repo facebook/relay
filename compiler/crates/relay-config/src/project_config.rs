@@ -15,7 +15,7 @@ use intern::string_key::{Intern, StringKey};
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 
-use crate::{JsModuleFormat, TypegenConfig};
+use crate::{connection_interface::ConnectionInterface, JsModuleFormat, TypegenConfig};
 
 type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
 
@@ -37,6 +37,12 @@ pub enum SchemaLocation {
     Directory(PathBuf),
 }
 
+#[derive(Default, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SchemaConfig {
+    pub connection_interface: ConnectionInterface,
+}
+
 pub struct ProjectConfig {
     pub name: ProjectName,
     pub base: Option<ProjectName>,
@@ -47,7 +53,7 @@ pub struct ProjectConfig {
     pub schema_extensions: Vec<PathBuf>,
     pub enabled: bool,
     pub schema_location: SchemaLocation,
-    // pub schema_config: SchemaConfig, TODO: Add this and use in D33131805
+    pub schema_config: SchemaConfig,
     pub typegen_config: TypegenConfig,
     pub persist: Option<PersistConfig>,
     pub variable_names_comment: bool,
@@ -74,6 +80,7 @@ impl Default for ProjectConfig {
             schema_extensions: vec![],
             enabled: true,
             schema_location: SchemaLocation::File(PathBuf::default()),
+            schema_config: Default::default(),
             typegen_config: Default::default(),
             persist: None,
             variable_names_comment: false,
@@ -99,6 +106,7 @@ impl Debug for ProjectConfig {
             schema_extensions,
             enabled,
             schema_location,
+            schema_config,
             typegen_config,
             persist,
             variable_names_comment,
@@ -120,6 +128,7 @@ impl Debug for ProjectConfig {
             .field("schema_extensions", schema_extensions)
             .field("enabled", enabled)
             .field("schema_location", schema_location)
+            .field("schema_config", schema_config)
             .field("typegen_config", typegen_config)
             .field("persist", persist)
             .field("variable_names_comment", variable_names_comment)

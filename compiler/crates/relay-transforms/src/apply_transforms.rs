@@ -27,7 +27,6 @@ pub fn apply_transforms<TPerfLogger>(
     project_config: &ProjectConfig,
     program: Arc<Program>,
     base_fragment_names: Arc<StringKeySet>,
-    connection_interface: &ConnectionInterface,
     perf_logger: Arc<TPerfLogger>,
     print_stats: Option<fn(extra_info: &'static str, program: &Program) -> ()>,
 ) -> DiagnosticsResult<Programs>
@@ -51,7 +50,6 @@ where
             let common_program = apply_common_transforms(
                 project_config,
                 Arc::clone(&program),
-                connection_interface,
                 Arc::clone(&base_fragment_names),
                 Arc::clone(&perf_logger),
             )?;
@@ -61,7 +59,6 @@ where
                     let operation_program = apply_operation_transforms(
                         project_config,
                         Arc::clone(&common_program),
-                        connection_interface,
                         Arc::clone(&base_fragment_names),
                         Arc::clone(&perf_logger),
                     )?;
@@ -119,14 +116,13 @@ where
 fn apply_common_transforms(
     project_config: &ProjectConfig,
     program: Arc<Program>,
-    connection_interface: &ConnectionInterface,
     base_fragment_names: Arc<StringKeySet>,
     perf_logger: Arc<impl PerfLogger>,
 ) -> DiagnosticsResult<Arc<Program>> {
     let log_event = perf_logger.create_event("apply_common_transforms");
     log_event.string("project", project_config.name.to_string());
     let mut program = log_event.time("transform_connections", || {
-        transform_connections(&program, connection_interface)
+        transform_connections(&program, &project_config.schema_config.connection_interface)
     });
     program = log_event.time("mask", || mask(&program));
     program = log_event.time("transform_defer_stream", || {
@@ -218,7 +214,6 @@ fn apply_reader_transforms(
 fn apply_operation_transforms(
     project_config: &ProjectConfig,
     program: Arc<Program>,
-    connection_interface: &ConnectionInterface,
     base_fragment_names: Arc<StringKeySet>,
     perf_logger: Arc<impl PerfLogger>,
 ) -> DiagnosticsResult<Arc<Program>> {
@@ -234,7 +229,10 @@ fn apply_operation_transforms(
     });
     program = log_event.time("generate_id_field", || generate_id_field(&program));
     program = log_event.time("declarative_connection", || {
-        transform_declarative_connection(&program, connection_interface)
+        transform_declarative_connection(
+            &program,
+            &project_config.schema_config.connection_interface,
+        )
     })?;
 
     // TODO(T67052528): execute FB-specific transforms only if config options is provided

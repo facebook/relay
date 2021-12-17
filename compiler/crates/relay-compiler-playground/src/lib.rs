@@ -17,7 +17,7 @@ use intern::string_key::Intern;
 use relay_codegen::{print_fragment, print_operation, JsModuleFormat};
 use relay_config::ProjectConfig;
 use relay_schema::build_schema_with_extensions;
-use relay_transforms::{apply_transforms, ConnectionInterface, Programs};
+use relay_transforms::{apply_transforms, Programs};
 use relay_typegen::{
     generate_fragment_type_exports_section, generate_operation_type_exports_section, TypegenConfig,
 };
@@ -300,7 +300,6 @@ fn get_programs(
 
     let project_name = "test_project".intern();
     let base_fragment_names = Arc::new(Default::default());
-    let connection_interface = ConnectionInterface::default();
     let feature_flags: FeatureFlags = serde_json::from_str(feature_flags_json)
         .map_err(|err| PlaygroundError::ConfigError(format!("{}", err)))?;
     let perf_logger = NoopPerfLogger;
@@ -313,7 +312,6 @@ fn get_programs(
         &project_config,
         Arc::new(program),
         base_fragment_names,
-        &connection_interface,
         Arc::new(perf_logger),
         None,
     )

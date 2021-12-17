@@ -14,7 +14,7 @@ use intern::string_key::Intern;
 use relay_codegen::JsModuleFormat;
 use relay_config::ProjectConfig;
 use relay_test_schema::{get_test_schema, get_test_schema_with_extensions};
-use relay_transforms::{apply_transforms, ConnectionInterface};
+use relay_transforms::apply_transforms;
 use relay_typegen::{self, TypegenConfig, TypegenLanguage};
 use std::sync::Arc;
 
@@ -45,7 +45,6 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         &project_config,
         Arc::new(program),
         Default::default(),
-        &ConnectionInterface::default(),
         Arc::new(ConsoleLogger),
         None,
     )

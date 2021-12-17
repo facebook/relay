@@ -9,10 +9,12 @@
 #![deny(rust_2018_idioms)]
 #![deny(clippy::all)]
 
+mod connection_interface;
 mod js_module_format;
 mod project_config;
 mod typegen_config;
 
+pub use connection_interface::ConnectionInterface;
 pub use js_module_format::JsModuleFormat;
-pub use project_config::{PersistConfig, ProjectConfig, ProjectName, SchemaLocation};
+pub use project_config::{PersistConfig, ProjectConfig, ProjectName, SchemaConfig, SchemaLocation};
 pub use typegen_config::{FlowTypegenConfig, FlowTypegenPhase, TypegenConfig, TypegenLanguage};

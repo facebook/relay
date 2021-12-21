@@ -56,6 +56,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         Default::default(),
         Arc::new(ConsoleLogger),
         None,
+        None,
     )
     .unwrap();
 

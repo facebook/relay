@@ -12,7 +12,38 @@ use common::{sync::try_join, DiagnosticsResult, PerfLogEvent, PerfLogger};
 use graphql_ir::Program;
 use intern::string_key::StringKeySet;
 use relay_config::ProjectConfig;
+use std::fmt;
 use std::sync::Arc;
+
+#[derive(Clone)]
+pub struct CustomTransform {
+    pub name: &'static str,
+    pub transform: fn(&ProjectConfig, &Program, &StringKeySet) -> DiagnosticsResult<Program>,
+}
+
+impl fmt::Debug for CustomTransform {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("Transform")
+            .field("name", &self.name)
+            .finish()
+    }
+}
+
+#[derive(Debug)]
+pub struct CustomTransforms {
+    pub apply_before: Vec<CustomTransform>,
+    pub apply_after: Vec<CustomTransform>,
+}
+
+#[derive(Debug)]
+pub struct CustomTransformsConfig {
+    pub common_transforms: Option<CustomTransforms>,
+    pub reader_transforms: Option<CustomTransforms>,
+    pub operation_transforms: Option<CustomTransforms>,
+    pub normalization_transforms: Option<CustomTransforms>,
+    pub operation_text_transforms: Option<CustomTransforms>,
+    pub typegen_transforms: Option<CustomTransforms>,
+}
 
 #[derive(Debug)]
 pub struct Programs {
@@ -28,7 +59,8 @@ pub fn apply_transforms<TPerfLogger>(
     program: Arc<Program>,
     base_fragment_names: Arc<StringKeySet>,
     perf_logger: Arc<TPerfLogger>,
-    print_stats: Option<fn(extra_info: &'static str, program: &Program) -> ()>,
+    print_stats: Option<fn(extra_info: &str, program: &Program) -> ()>,
+    custom_transforms_config: Option<&CustomTransformsConfig>,
 ) -> DiagnosticsResult<Programs>
 where
     TPerfLogger: PerfLogger + 'static,
@@ -52,6 +84,7 @@ where
                 Arc::clone(&program),
                 Arc::clone(&base_fragment_names),
                 Arc::clone(&perf_logger),
+                custom_transforms_config,
             )?;
 
             try_join(
@@ -61,6 +94,7 @@ where
                         Arc::clone(&common_program),
                         Arc::clone(&base_fragment_names),
                         Arc::clone(&perf_logger),
+                        custom_transforms_config,
                     )?;
 
                     try_join(
@@ -71,6 +105,7 @@ where
                                 Arc::clone(&base_fragment_names),
                                 Arc::clone(&perf_logger),
                                 print_stats,
+                                custom_transforms_config,
                             )
                         },
                         || {
@@ -79,6 +114,7 @@ where
                                 Arc::clone(&operation_program),
                                 Arc::clone(&base_fragment_names),
                                 Arc::clone(&perf_logger),
+                                custom_transforms_config,
                             )
                         },
                     )
@@ -89,6 +125,7 @@ where
                         Arc::clone(&common_program),
                         Arc::clone(&base_fragment_names),
                         Arc::clone(&perf_logger),
+                        custom_transforms_config,
                     )
                 },
             )
@@ -99,6 +136,7 @@ where
                 Arc::clone(&program),
                 Arc::clone(&base_fragment_names),
                 Arc::clone(&perf_logger),
+                custom_transforms_config,
             )
         },
     )?;
@@ -118,10 +156,22 @@ fn apply_common_transforms(
     program: Arc<Program>,
     base_fragment_names: Arc<StringKeySet>,
     perf_logger: Arc<impl PerfLogger>,
+    custom_transforms_config: Option<&CustomTransformsConfig>,
 ) -> DiagnosticsResult<Arc<Program>> {
     let log_event = perf_logger.create_event("apply_common_transforms");
     log_event.string("project", project_config.name.to_string());
-    let mut program = log_event.time("transform_connections", || {
+
+    let custom_transforms = &custom_transforms_config.and_then(|c| c.common_transforms.as_ref());
+    let mut program = apply_before_custom_transforms(
+        &program,
+        custom_transforms,
+        project_config,
+        &base_fragment_names,
+        &log_event,
+        None,
+    )?;
+
+    program = log_event.time("transform_connections", || {
         transform_connections(&program, &project_config.schema_config.connection_interface)
     });
     program = log_event.time("mask", || mask(&program));
@@ -143,7 +193,6 @@ fn apply_common_transforms(
         )
     })?;
 
-
     if project_config.feature_flags.enable_flight_transform {
         program = log_event.time("react_flight", || react_flight(&program))?;
         program = log_event.time("relay_client_component", || {
@@ -159,6 +208,15 @@ fn apply_common_transforms(
         provided_variable_fragment_transform(&program)
     })?;
 
+    program = apply_after_custom_transforms(
+        &program,
+        custom_transforms,
+        project_config,
+        &base_fragment_names,
+        &log_event,
+        None,
+    )?;
+
     log_event.complete();
 
     Ok(Arc::new(program))
@@ -171,11 +229,22 @@ fn apply_reader_transforms(
     program: Arc<Program>,
     base_fragment_names: Arc<StringKeySet>,
     perf_logger: Arc<impl PerfLogger>,
+    custom_transforms_config: Option<&CustomTransformsConfig>,
 ) -> DiagnosticsResult<Arc<Program>> {
     let log_event = perf_logger.create_event("apply_reader_transforms");
     log_event.string("project", project_config.name.to_string());
 
-    let mut program = log_event.time("required_directive", || required_directive(&program))?;
+    let custom_transforms = &custom_transforms_config.and_then(|c| c.reader_transforms.as_ref());
+    let mut program = apply_before_custom_transforms(
+        &program,
+        custom_transforms,
+        project_config,
+        &base_fragment_names,
+        &log_event,
+        None,
+    )?;
+
+    program = log_event.time("required_directive", || required_directive(&program))?;
     program = log_event.time("client_edges", || {
         client_edges(&program, &project_config.schema_config)
     })?;
@@ -198,7 +267,7 @@ fn apply_reader_transforms(
     program = log_event.time("inline_data_fragment", || inline_data_fragment(&program))?;
     program = log_event.time("skip_unreachable_node", || skip_unreachable_node(&program))?;
     program = log_event.time("remove_base_fragments", || {
-        remove_base_fragments(&program, base_fragment_names)
+        remove_base_fragments(&program, &base_fragment_names)
     });
 
     log_event.time("flatten", || flatten(&mut program, true, false))?;
@@ -209,6 +278,15 @@ fn apply_reader_transforms(
     program = log_event.time("hash_supported_argument", || {
         hash_supported_argument(&program, &project_config.feature_flags)
     })?;
+
+    program = apply_after_custom_transforms(
+        &program,
+        custom_transforms,
+        project_config,
+        &base_fragment_names,
+        &log_event,
+        None,
+    )?;
 
     log_event.complete();
 
@@ -222,11 +300,22 @@ fn apply_operation_transforms(
     program: Arc<Program>,
     base_fragment_names: Arc<StringKeySet>,
     perf_logger: Arc<impl PerfLogger>,
+    custom_transforms_config: Option<&CustomTransformsConfig>,
 ) -> DiagnosticsResult<Arc<Program>> {
     let log_event = perf_logger.create_event("apply_operation_transforms");
     log_event.string("project", project_config.name.to_string());
 
-    let mut program = log_event.time("client_edges", || {
+    let custom_transforms = &custom_transforms_config.and_then(|c| c.operation_transforms.as_ref());
+    let mut program = apply_before_custom_transforms(
+        &program,
+        custom_transforms,
+        project_config,
+        &base_fragment_names,
+        &log_event,
+        None,
+    )?;
+
+    program = log_event.time("client_edges", || {
         client_edges(&program, &project_config.schema_config)
     })?;
     program = log_event.time("relay_resolvers", || {
@@ -255,6 +344,15 @@ fn apply_operation_transforms(
 
     program =
         apply_internal_fb_operation_transforms(project_config, &program, Arc::clone(&perf_logger))?;
+
+    program = apply_after_custom_transforms(
+        &program,
+        custom_transforms,
+        project_config,
+        &base_fragment_names,
+        &log_event,
+        None,
+    )?;
 
     log_event.complete();
 
@@ -300,7 +398,8 @@ fn apply_normalization_transforms(
     program: Arc<Program>,
     base_fragment_names: Arc<StringKeySet>,
     perf_logger: Arc<impl PerfLogger>,
-    maybe_print_stats: Option<fn(extra_info: &'static str, program: &Program) -> ()>,
+    maybe_print_stats: Option<fn(extra_info: &str, program: &Program) -> ()>,
+    custom_transforms_config: Option<&CustomTransformsConfig>,
 ) -> DiagnosticsResult<Arc<Program>> {
     let log_event = perf_logger.create_event("apply_normalization_transforms");
     log_event.string("project", project_config.name.to_string());
@@ -308,7 +407,18 @@ fn apply_normalization_transforms(
         print_stats("normalization start", &program);
     }
 
-    let mut program = log_event.time("apply_fragment_arguments", || {
+    let custom_transforms =
+        &custom_transforms_config.and_then(|c| c.normalization_transforms.as_ref());
+    let mut program = apply_before_custom_transforms(
+        &program,
+        custom_transforms,
+        project_config,
+        &base_fragment_names,
+        &log_event,
+        maybe_print_stats,
+    )?;
+
+    program = log_event.time("apply_fragment_arguments", || {
         apply_fragment_arguments(
             &program,
             true,
@@ -364,6 +474,15 @@ fn apply_normalization_transforms(
         print_stats("generate_test_operation_metadata", &program);
     }
 
+    program = apply_after_custom_transforms(
+        &program,
+        custom_transforms,
+        project_config,
+        &base_fragment_names,
+        &log_event,
+        maybe_print_stats,
+    )?;
+
     log_event.complete();
 
     Ok(Arc::new(program))
@@ -378,11 +497,23 @@ fn apply_operation_text_transforms(
     program: Arc<Program>,
     base_fragment_names: Arc<StringKeySet>,
     perf_logger: Arc<impl PerfLogger>,
+    custom_transforms_config: Option<&CustomTransformsConfig>,
 ) -> DiagnosticsResult<Arc<Program>> {
     let log_event = perf_logger.create_event("apply_operation_text_transforms");
     log_event.string("project", project_config.name.to_string());
 
-    let mut program = log_event.time("apply_fragment_arguments", || {
+    let custom_transforms =
+        &custom_transforms_config.and_then(|c| c.operation_text_transforms.as_ref());
+    let mut program = apply_before_custom_transforms(
+        &program,
+        custom_transforms,
+        project_config,
+        &base_fragment_names,
+        &log_event,
+        None,
+    )?;
+
+    program = log_event.time("apply_fragment_arguments", || {
         apply_fragment_arguments(
             &program,
             false,
@@ -419,6 +550,15 @@ fn apply_operation_text_transforms(
         unwrap_custom_directive_selection(&program)
     });
 
+    program = apply_after_custom_transforms(
+        &program,
+        custom_transforms,
+        project_config,
+        &base_fragment_names,
+        &log_event,
+        None,
+    )?;
+
     log_event.complete();
 
     Ok(Arc::new(program))
@@ -429,11 +569,22 @@ fn apply_typegen_transforms(
     program: Arc<Program>,
     base_fragment_names: Arc<StringKeySet>,
     perf_logger: Arc<impl PerfLogger>,
+    custom_transforms_config: Option<&CustomTransformsConfig>,
 ) -> DiagnosticsResult<Arc<Program>> {
     let log_event = perf_logger.create_event("apply_typegen_transforms");
     log_event.string("project", project_config.name.to_string());
 
-    let mut program = log_event.time("mask", || mask(&program));
+    let custom_transforms = &custom_transforms_config.and_then(|c| c.typegen_transforms.as_ref());
+    let mut program = apply_before_custom_transforms(
+        &program,
+        custom_transforms,
+        project_config,
+        &base_fragment_names,
+        &log_event,
+        None,
+    )?;
+
+    program = log_event.time("mask", || mask(&program));
     program = log_event.time("transform_match", || {
         transform_match(&program, &project_config.feature_flags)
     })?;
@@ -473,14 +624,122 @@ fn apply_typegen_transforms(
         )
     })?;
     program = log_event.time("remove_base_fragments", || {
-        remove_base_fragments(&program, base_fragment_names)
+        remove_base_fragments(&program, &base_fragment_names)
     });
 
     program = log_event.time("relay_actor_change_transform", || {
         relay_actor_change_transform(&program, &project_config.feature_flags.actor_change_support)
     })?;
 
+    program = apply_after_custom_transforms(
+        &program,
+        custom_transforms,
+        project_config,
+        &base_fragment_names,
+        &log_event,
+        None,
+    )?;
+
     log_event.complete();
 
     Ok(Arc::new(program))
+}
+
+fn apply_before_custom_transforms(
+    program: &Program,
+    custom_transforms: &Option<&CustomTransforms>,
+    project_config: &ProjectConfig,
+    base_fragment_names: &StringKeySet,
+    log_event: &impl PerfLogEvent,
+    maybe_print_stats: Option<fn(extra_info: &str, program: &Program) -> ()>,
+) -> DiagnosticsResult<Program> {
+    match custom_transforms {
+        Some(CustomTransforms {
+            apply_before,
+            apply_after: _apply_after,
+        }) => apply_custom_transforms(
+            &program,
+            apply_before,
+            project_config,
+            base_fragment_names,
+            log_event,
+            maybe_print_stats,
+        ),
+        _ => Ok(program.clone()),
+    }
+}
+
+fn apply_after_custom_transforms(
+    program: &Program,
+    custom_transforms: &Option<&CustomTransforms>,
+    project_config: &ProjectConfig,
+    base_fragment_names: &StringKeySet,
+    log_event: &impl PerfLogEvent,
+    maybe_print_stats: Option<fn(extra_info: &str, program: &Program) -> ()>,
+) -> DiagnosticsResult<Program> {
+    match custom_transforms {
+        Some(CustomTransforms {
+            apply_before: _apply_before,
+            apply_after,
+        }) => apply_custom_transforms(
+            &program,
+            apply_after,
+            project_config,
+            base_fragment_names,
+            log_event,
+            maybe_print_stats,
+        ),
+        _ => Ok(program.clone()),
+    }
+}
+
+fn apply_custom_transforms(
+    program: &Program,
+    transforms: &Vec<CustomTransform>,
+    project_config: &ProjectConfig,
+    base_fragment_names: &StringKeySet,
+    log_event: &impl PerfLogEvent,
+    maybe_print_stats: Option<fn(extra_info: &str, program: &Program) -> ()>,
+) -> DiagnosticsResult<Program> {
+    if transforms.len() == 0 {
+        return Ok(program.clone());
+    }
+
+    let apply = |program: &Program, transform| {
+        apply_custom_transform(
+            program,
+            transform,
+            project_config,
+            base_fragment_names,
+            log_event,
+            maybe_print_stats,
+        )
+    };
+
+    let mut program = apply(&program, &transforms[0])?;
+
+    for n in 1..transforms.len() {
+        program = apply(&program, &transforms[n])?;
+    }
+
+    Ok(program)
+}
+
+fn apply_custom_transform(
+    program: &Program,
+    transform: &CustomTransform,
+    project_config: &ProjectConfig,
+    base_fragment_names: &StringKeySet,
+    log_event: &impl PerfLogEvent,
+    maybe_print_stats: Option<fn(extra_info: &str, program: &Program) -> ()>,
+) -> DiagnosticsResult<Program> {
+    let CustomTransform { name, transform } = transform;
+    let program = log_event.time(name, || {
+        transform(project_config, program, base_fragment_names)
+    })?;
+
+    if let Some(print_stats) = maybe_print_stats {
+        print_stats(name, &program);
+    }
+    Ok(program)
 }

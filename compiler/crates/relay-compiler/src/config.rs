@@ -28,6 +28,7 @@ use relay_config::{
     FlowTypegenConfig, JsModuleFormat, SchemaConfig, TypegenConfig, TypegenLanguage,
 };
 pub use relay_config::{PersistConfig, ProjectConfig, SchemaLocation};
+use relay_transforms::CustomTransformsConfig;
 use serde::de::Error as DeError;
 use serde::{Deserialize, Deserializer, Serialize};
 use serde_json::Value;
@@ -104,6 +105,9 @@ pub struct Config {
 
     /// Type of file source to use in the Compiler
     pub file_source_config: FileSourceKind,
+
+    // Provide extra custom transforms to apply
+    pub custom_transforms: Option<CustomTransformsConfig>,
 }
 
 pub enum FileSourceKind {
@@ -309,6 +313,7 @@ impl Config {
             additional_validations: None,
             is_dev_variable_name: config_file.is_dev_variable_name,
             file_source_config: FileSourceKind::Watchman,
+            custom_transforms: None,
         };
 
         let mut validation_errors = Vec::new();
@@ -458,7 +463,11 @@ impl fmt::Debug for Config {
         } = self;
 
         fn option_fn_to_string<T>(option: &Option<T>) -> &'static str {
-            if option.is_some() { "Some(Fn)" } else { "None" }
+            if option.is_some() {
+                "Some(Fn)"
+            } else {
+                "None"
+            }
         }
 
         f.debug_struct("Config")

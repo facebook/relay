@@ -40,6 +40,7 @@ use log::{debug, info, warn};
 use rayon::{iter::IntoParallelRefIterator, slice::ParallelSlice};
 use relay_codegen::Printer;
 use relay_transforms::{apply_transforms, find_resolver_dependencies, DependencyMap, Programs};
+use relay_typegen::TypegenLanguage;
 use schema::SDLSchema;
 pub use source_control::add_to_mercurial;
 use std::iter::FromIterator;
@@ -203,6 +204,14 @@ pub fn build_programs(
     )?;
 
     Ok((programs, Arc::new(source_hashes)))
+}
+
+fn is_relay_file_path(language: &TypegenLanguage, path: &PathBuf) -> bool {
+    match (path.to_str(), &language) {
+        (None, _) => false,
+        (Some(path), TypegenLanguage::Flow) => path.ends_with(".graphql.js"),
+        (Some(path), TypegenLanguage::TypeScript) => path.ends_with(".graphql.ts"),
+    }
 }
 
 pub fn build_project(
@@ -373,7 +382,9 @@ pub async fn commit_project(
                     break;
                 }
                 let path = config.root_dir.join(remaining_artifact);
-                config.artifact_writer.remove(path)?;
+                if is_relay_file_path(&project_config.typegen_config.language, &path) {
+                    config.artifact_writer.remove(path)?;
+                }
             }
             log_event.stop(delete_artifacts_time);
             ArtifactMap::from(artifacts)
@@ -443,7 +454,9 @@ pub async fn commit_project(
                 if should_stop_updating_artifacts() {
                     break;
                 }
-                config.artifact_writer.remove(config.root_dir.join(path))?;
+                if is_relay_file_path(&project_config.typegen_config.language, &path) {
+                    config.artifact_writer.remove(config.root_dir.join(path))?;
+                }
             }
             log_event.stop(delete_artifacts_incremental_time);
 
@@ -512,4 +525,43 @@ fn write_artifacts<F: Fn() -> bool + Sync + Send>(
         },
     )?;
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn matches_relay_file_paths_properly() {
+        assert_eq!(
+            is_relay_file_path(
+                &TypegenLanguage::Flow,
+                &PathBuf::from("/some/folder/here/SomeModule.graphql.js")
+            ),
+            true
+        );
+
+        assert_eq!(
+            is_relay_file_path(
+                &TypegenLanguage::TypeScript,
+                &PathBuf::from("/some/folder/here/SomeModule.graphql.ts")
+            ),
+            true
+        );
+
+        assert_eq!(
+            is_relay_file_path(
+                &TypegenLanguage::Flow,
+                &PathBuf::from("/some/folder/here/SomeRandomFile.js")
+            ),
+            false
+        );
+
+        assert_eq!(
+            is_relay_file_path(
+                &TypegenLanguage::TypeScript,
+                &PathBuf::from("/some/folder/here/SomeRandomFile.ts")
+            ),
+            false
+        );
+    }
 }

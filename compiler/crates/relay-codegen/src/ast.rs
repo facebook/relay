@@ -123,6 +123,7 @@ impl AstBuilder {
     }
 }
 
+#[derive(Clone)]
 pub enum QueryID {
     Persisted { id: String, text_hash: String },
     External(StringKey),

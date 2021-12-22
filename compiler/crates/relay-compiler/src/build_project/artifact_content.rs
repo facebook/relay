@@ -23,6 +23,7 @@ use signedsource::{sign_file, SIGNING_TOKEN};
 use std::fmt::{Error as FmtError, Result as FmtResult, Write};
 use std::sync::Arc;
 
+#[derive(Clone)]
 pub enum ArtifactContent {
     Operation {
         normalization_operation: Arc<OperationDefinition>,

@@ -104,7 +104,7 @@ pub fn build_fragment(
     builder.build_fragment(fragment, false)
 }
 
-struct CodegenBuilder<'schema, 'builder> {
+pub struct CodegenBuilder<'schema, 'builder> {
     connection_constants: ConnectionConstants,
     schema: &'schema SDLSchema,
     variant: CodegenVariant,
@@ -112,13 +112,13 @@ struct CodegenBuilder<'schema, 'builder> {
 }
 
 #[derive(PartialEq)]
-enum CodegenVariant {
+pub enum CodegenVariant {
     Reader,
     Normalization,
 }
 
 impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
-    fn new(
+    pub fn new(
         schema: &'schema SDLSchema,
         variant: CodegenVariant,
         ast_builder: &'builder mut AstBuilder,
@@ -157,7 +157,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                         0,
                         ObjectEntry {
                             key: CODEGEN_CONSTANTS.argument_definitions,
-                            value: argument_definitions,
+                            value: Primitive::Key(argument_definitions),
                         },
                     );
                 }
@@ -168,7 +168,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                     self.build_operation_variable_definitions(&operation.variable_definitions);
                 let selections = self.build_selections(operation.selections.iter());
                 self.object(object! {
-                    argument_definitions: argument_definitions,
+                    argument_definitions: Primitive::Key(argument_definitions),
                     kind: Primitive::String(CODEGEN_CONSTANTS.operation_value),
                     name: Primitive::String(operation.name.item),
                     selections: selections,
@@ -1022,10 +1022,10 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         ]))
     }
 
-    fn build_operation_variable_definitions(
+    pub fn build_operation_variable_definitions(
         &mut self,
         variable_definitions: &[VariableDefinition],
-    ) -> Primitive {
+    ) -> AstKey {
         let var_defs = variable_definitions
             .iter()
             .map(|def| {
@@ -1051,7 +1051,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             })
             .collect::<Vec<_>>();
 
-        Primitive::Key(self.array(var_defs))
+        self.array(var_defs)
     }
 
     fn build_fragment_variable_definitions(

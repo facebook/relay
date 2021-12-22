@@ -153,7 +153,7 @@ impl Printer {
 }
 
 type VariableDefinitions = IndexMap<AstKey, String, FnvBuildHasher>;
-struct JSONPrinter<'b> {
+pub struct JSONPrinter<'b> {
     variable_definitions: VariableDefinitions,
     duplicates: FnvHashSet<AstKey>,
     builder: &'b AstBuilder,
@@ -161,7 +161,7 @@ struct JSONPrinter<'b> {
 }
 
 impl<'b> JSONPrinter<'b> {
-    fn new(builder: &'b AstBuilder, js_module_format: JsModuleFormat) -> Self {
+    pub fn new(builder: &'b AstBuilder, js_module_format: JsModuleFormat) -> Self {
         Self {
             variable_definitions: Default::default(),
             duplicates: Default::default(),
@@ -170,7 +170,7 @@ impl<'b> JSONPrinter<'b> {
         }
     }
 
-    fn print(mut self, root_key: AstKey, dedupe: bool) -> String {
+    pub fn print(mut self, root_key: AstKey, dedupe: bool) -> String {
         if dedupe {
             let mut visited = Default::default();
             self.collect_value_duplicates(&mut visited, root_key);

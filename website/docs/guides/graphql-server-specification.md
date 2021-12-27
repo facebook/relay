@@ -436,11 +436,11 @@ So on the first query for ships, GraphQL told us there was a next page, but on t
 
 Relay uses all of this functionality to build out abstractions around connections, to make these easy to work with efficiently without having to manually manage cursors on the client.
 
-Complete details on how the server should behave are available in the [GraphQL Cursor Connections](/graphql/connections.htm) spec.
+Complete details on how the server should behave are available in the [GraphQL Cursor Connections](https://relay.dev/graphql/connections.htm) spec.
 
 ## Further Reading
 
-This concludes the overview of the GraphQL Server Specifications. For the detailed requirements of a Relay-compliant GraphQL server, a more formal description of the [Relay cursor connection](/graphql/connections.htm) model, the [GraphQL global object identification](https://graphql.org/learn/global-object-identification/) model are all available.
+This concludes the overview of the GraphQL Server Specifications. For the detailed requirements of a Relay-compliant GraphQL server, a more formal description of the [Relay cursor connection](https://relay.dev/graphql/connections.htm) model, the [GraphQL global object identification](https://graphql.org/learn/global-object-identification/) model are all available.
 
 To see code implementing the specification, the [GraphQL.js Relay library](https://github.com/graphql/graphql-relay-js) provides helper functions for creating nodes and connections; that repository's [`__tests__`](https://github.com/graphql/graphql-relay-js/tree/main/src/__tests__) folder contains an implementation of the above example as integration tests for the repository.
 

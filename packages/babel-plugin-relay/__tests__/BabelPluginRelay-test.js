@@ -22,9 +22,9 @@ describe('`development` option', () => {
     ).toMatchSnapshot();
   });
 
-  it('tests the hash when `isDevVariable` is set', () => {
+  it('tests the hash when `isDevVariableName` is set', () => {
     expect(
-      transformerWithOptions({isDevVariable: 'IS_DEV'})(
+      transformerWithOptions({isDevVariableName: 'IS_DEV'})(
         'graphql`fragment TestFrag on Node { id }`',
       ),
     ).toMatchSnapshot();
@@ -34,7 +34,7 @@ describe('`development` option', () => {
     expect(
       transformerWithOptions(
         {
-          buildCommand: 'relay-build',
+          codegenCommand: 'relay-build',
         },
         'development',
       )('graphql`fragment TestFrag on Node { id }`'),

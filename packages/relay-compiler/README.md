@@ -29,12 +29,8 @@ containing `graphql` literals) and the GraphQL schema for the project.
 ```
 Relay Compiler will automatically discover the config if:
 
-- There is a `relay.config.json`, `relay.config.js`, `relay.config.cjs`
-or `relay.config.mjs` file at the root of the project (i.e. in the same folder
-as the `package.json` file).
-- There is a `.relayrc.json`, `.relayrc.js`, `.relayrc.cjs`, `.relayrc.mjs`
-or `.relayrc` file at the root of the project (i.e. in the same folder as
-the `package.json` file).
+- There is a `relay.config.json`, `relay.config.js` file at the root of the
+project (i.e. in the same folder as the `package.json` file).
 - The `package.json` file contains a `"relay"` key.
 
 Additionally, this config file can be specified with the CLI argument `--config`
@@ -50,9 +46,12 @@ or with yarn
 yarn relay --config ./relay.json
 ```
 
+Please note, that if you pass configuration options via --cli arguments, you'll
+need to provide a separate configuration for the [babel plugin](https://www.npmjs.com/package/babel-plugin-relay).
+
 ## File Finder
 Relay compiler uses [`watchman`](https://facebook.github.io/watchman/) to find
-file souces, and "listen" to the file  changes in the "watch" mode.
+file sources, and "listen" to the file  changes in the "watch" mode.
 If `watchman` is not available, the compiler will
 use [glob](https://docs.rs/glob/latest/glob/) to query the filesystem for files.
 
@@ -88,6 +87,14 @@ use [glob](https://docs.rs/glob/latest/glob/) to query the filesystem for files.
   - `params`            The document will be in a `POST`
                         parameter `text`. This map can contain additional
                         parameters to send.                             [object]
+- `codegenCommand`      Command name that for relay compiler.           [string]
+
+- `isDevVariableName`   Name of the global variable for dev mode (`__DEV__`).
+                                                                        [string]
+- `jsModuleFormat`      Formatting style for generated files. `commonjs`
+                        or `haste`. Default is `commonjs`.
+                                                                        [string]
+
 
 ### CLI configuration
 

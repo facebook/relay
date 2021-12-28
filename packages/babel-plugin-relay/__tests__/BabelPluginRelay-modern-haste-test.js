@@ -16,6 +16,6 @@ const {generateTestsFromFixtures} = require('relay-test-utils-internal');
 generateTestsFromFixtures(
   `${__dirname}/fixtures`,
   transformerWithOptions({
-    haste: true,
+    jsModuleFormat: 'haste',
   }),
 );

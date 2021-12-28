@@ -515,6 +515,7 @@ struct MultiProjectConfigFile {
 
     #[serde(default)]
     header: Vec<String>,
+
     #[serde(default)]
     codegen_command: Option<String>,
 
@@ -581,6 +582,16 @@ pub struct SingleProjectConfigFile {
     /// It contains URL and addition parameters that will be included
     /// with the request (think API_KEY, APP_ID, etc...)
     pub persist_config: Option<PersistConfig>,
+
+    /// We may generate some content in the artifacts that's stripped in production if __DEV__ variable is set
+    /// This config option is here to define the name of that special variable
+    pub is_dev_variable_name: Option<String>,
+
+    /// Name of the command that runs the relay compiler
+    pub codegen_command: Option<String>,
+
+    /// Formatting style for generated files.
+    pub js_module_format: JsModuleFormat,
 }
 
 impl Default for SingleProjectConfigFile {
@@ -596,6 +607,9 @@ impl Default for SingleProjectConfigFile {
             custom_scalars: Default::default(),
             eager_es_modules: false,
             persist_config: None,
+            is_dev_variable_name: None,
+            codegen_command: None,
+            js_module_format: JsModuleFormat::CommonJS,
         }
     }
 }
@@ -671,6 +685,7 @@ impl From<SingleProjectConfigFile> for MultiProjectConfigFile {
                 },
                 ..Default::default()
             },
+            js_module_format: oss_config.js_module_format,
             ..Default::default()
         };
 
@@ -691,6 +706,8 @@ impl From<SingleProjectConfigFile> for MultiProjectConfigFile {
             projects,
             sources,
             excludes: oss_config.excludes,
+            is_dev_variable_name: oss_config.is_dev_variable_name,
+            codegen_command: oss_config.codegen_command,
             ..Default::default()
         }
     }

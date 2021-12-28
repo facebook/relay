@@ -56,12 +56,11 @@ function compileGraphQLTag(
     );
   }
 
-  const eagerESModules = Boolean(state.opts && state.opts.eagerESModules);
-  const isHasteMode = Boolean(state.opts && state.opts.haste);
-  const isDevVariable = state.opts && state.opts.isDevVariable;
-  const artifactDirectory = state.opts && state.opts.artifactDirectory;
-  const buildCommand =
-    (state.opts && state.opts.buildCommand) || 'relay-compiler';
+  const eagerESModules = state.opts?.eagerESModules ?? false;
+  const isHasteMode = state.opts?.jsModuleFormat === 'haste';
+  const isDevVariable = state.opts?.isDevVariableName;
+  const artifactDirectory = state.opts?.artifactDirectory;
+  const buildCommand = state.opts?.codegenCommand ?? 'relay-compiler';
   // Fallback is 'true'
   const isDevelopment =
     (process.env.BABEL_ENV || process.env.NODE_ENV) !== 'production';

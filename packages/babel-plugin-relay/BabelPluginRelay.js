@@ -31,11 +31,14 @@ if (result) {
 
 export type RelayPluginOptions = {
   // The command to run to compile Relay files, used for error messages.
-  buildCommand?: string,
-  // Use haste style global requires, defaults to false.
-  haste?: boolean,
-  // Check this global variable before validation.
-  isDevVariable?: string,
+  codegenCommand?: string,
+
+  // Formatting style for generated files. `commonjs` or `haste`.
+  // Default is `commonjs`.
+  jsModuleFormat?: string,
+
+  // Name of the global variable for dev mode
+  isDevVariableName?: string,
 
   // enable generating eager es modules for modern runtime
   eagerESModules?: boolean,

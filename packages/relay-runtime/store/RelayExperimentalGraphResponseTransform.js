@@ -10,30 +10,20 @@
  */
 
 import type {ActorIdentifier} from '../multi-actor-environment/ActorIdentifier';
-import type {NormalizationOptions} from './RelayResponseNormalizer';
-import type {IncrementalDataPlaceholder} from './RelayStoreTypes';
+import type {PayloadData} from '../network/RelayNetworkTypes';
 import type {
-  DataID,
   NormalizationField,
-  NormalizationSelector,
-  PayloadData,
-} from 'relay-runtime';
-import type {GetDataID} from 'relay-runtime/store/RelayResponseNormalizer';
-import type {
   NormalizationLinkedField,
   NormalizationNode,
-} from 'relay-runtime/util/NormalizationNode';
-import type {Variables} from 'relay-runtime/util/RelayRuntimeTypes';
+} from '../util/NormalizationNode';
+import type {DataID, Variables} from '../util/RelayRuntimeTypes';
+import type {NormalizationOptions} from './RelayResponseNormalizer';
+import type {GetDataID} from './RelayResponseNormalizer';
+import type {
+  IncrementalDataPlaceholder,
+  NormalizationSelector,
+} from './RelayStoreTypes';
 
-const {getLocalVariables} = require('./RelayConcreteVariables');
-const {createNormalizationSelector} = require('./RelayModernSelector');
-const invariant = require('invariant');
-const {generateClientID} = require('relay-runtime');
-const {
-  ROOT_TYPE,
-  TYPENAME_KEY,
-  getStorageKey,
-} = require('relay-runtime/store/RelayStoreUtils');
 const {
   CLIENT_EXTENSION,
   CONDITION,
@@ -42,7 +32,12 @@ const {
   INLINE_FRAGMENT,
   LINKED_FIELD,
   SCALAR_FIELD,
-} = require('relay-runtime/util/RelayConcreteNode');
+} = require('../util/RelayConcreteNode');
+const {getLocalVariables} = require('./RelayConcreteVariables');
+const {createNormalizationSelector} = require('./RelayModernSelector');
+const {ROOT_TYPE, TYPENAME_KEY, getStorageKey} = require('./RelayStoreUtils');
+const invariant = require('invariant');
+const {generateClientID} = require('relay-runtime');
 
 /**
  * This module is an experiment to explore a proposal normalized response format for GraphQL.

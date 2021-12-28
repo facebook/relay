@@ -11,7 +11,8 @@
 
 'use strict';
 
-import type {ConcreteRequest, Disposable} from 'relay-runtime';
+import type {ConcreteRequest} from '../util/RelayConcreteNode';
+import type {Disposable} from '../util/RelayRuntimeTypes';
 
 type Callback = (concreteRequest: ConcreteRequest) => void;
 

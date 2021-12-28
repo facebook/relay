@@ -14,13 +14,10 @@ import type {
   GraphModeResponse,
   RecordChunk,
 } from './RelayExperimentalGraphResponseTransform';
-import type {
-  MutableRecordSource,
-  Record,
-} from 'relay-runtime/store/RelayStoreTypes';
+import type {MutableRecordSource, Record} from './RelayStoreTypes';
 
+const RelayModernRecord = require('./RelayModernRecord');
 const invariant = require('invariant');
-const RelayModernRecord = require('relay-runtime/store/RelayModernRecord');
 
 /**
  * Given a stream of GraphMode chunks, populate a MutableRecordSource.

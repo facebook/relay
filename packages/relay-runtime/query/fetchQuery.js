@@ -14,15 +14,17 @@
 'use strict';
 
 import type {
-  CacheConfig,
-  FetchQueryFetchPolicy,
-  GraphQLTaggedNode,
   IEnvironment,
   OperationDescriptor,
-  OperationType,
   Snapshot,
+} from '../store/RelayStoreTypes';
+import type {
+  CacheConfig,
+  FetchQueryFetchPolicy,
+  OperationType,
   VariablesOf,
-} from 'relay-runtime';
+} from '../util/RelayRuntimeTypes';
+import type {GraphQLTaggedNode} from './GraphQLTag';
 
 const RelayObservable = require('../network/RelayObservable');
 const {

@@ -12,9 +12,9 @@
 // flowlint ambiguous-object-type:error
 
 'use strict';
-import type {RecordSourceSelectorProxy} from 'relay-runtime/store/RelayStoreTypes';
 
 import type {GraphQLResponseWithoutData} from '../../network/RelayNetworkTypes';
+import type {RecordSourceSelectorProxy} from '../../store/RelayStoreTypes';
 
 const ConnectionHandler = require('../../handlers/connection/ConnectionHandler');
 const RelayNetwork = require('../../network/RelayNetwork');

@@ -13,11 +13,8 @@
 
 'use strict';
 
-import type {
-  ConcreteRequest,
-  ReaderFragment,
-  ReaderRefetchMetadata,
-} from 'relay-runtime';
+import type {ReaderFragment, ReaderRefetchMetadata} from './ReaderNode';
+import type {ConcreteRequest} from './RelayConcreteNode';
 
 const invariant = require('invariant');
 

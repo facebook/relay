@@ -12,9 +12,9 @@
 // flowlint ambiguous-object-type:error
 
 'use strict';
-import type {GraphQLResponse} from 'relay-runtime/network/RelayNetworkTypes';
 
-import type {Observer} from 'relay-runtime';
+import type {GraphQLResponse} from '../../network/RelayNetworkTypes';
+import type {Observer} from '../../network/RelayObservable';
 
 const {
   fetchQuery,

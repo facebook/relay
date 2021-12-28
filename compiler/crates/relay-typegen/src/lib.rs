@@ -252,7 +252,7 @@ impl<'a> TypeGenerator<'a> {
         self.write_input_object_types()?;
 
         match self.flow_typegen_phase {
-            FlowTypegenPhase::Phase4 => {
+            FlowTypegenPhase::Compat => {
                 let new_variables_identifier = format!("{}$variables", typegen_operation.name.item);
                 self.writer
                     .write_export_type(&new_variables_identifier, &input_variables_type)?;
@@ -269,7 +269,7 @@ impl<'a> TypeGenerator<'a> {
         }
 
         let response_identifier = match self.flow_typegen_phase {
-            FlowTypegenPhase::Phase4 => {
+            FlowTypegenPhase::Compat => {
                 let new_response_identifier = format!("{}$data", typegen_operation.name.item);
                 let old_response_identifier = format!("{}Response", typegen_operation.name.item);
                 self.writer
@@ -289,7 +289,7 @@ impl<'a> TypeGenerator<'a> {
         };
 
         match self.flow_typegen_phase {
-            FlowTypegenPhase::Phase4 => {
+            FlowTypegenPhase::Compat => {
                 let mut operation_types = vec![
                     Prop::KeyValuePair(KeyValuePairProp {
                         key: *VARIABLES,
@@ -494,7 +494,7 @@ impl<'a> TypeGenerator<'a> {
         }
 
         match self.flow_typegen_phase {
-            FlowTypegenPhase::Phase4 => {
+            FlowTypegenPhase::Compat => {
                 self.writer.write_export_type(&data_type_name, &type_)?;
                 self.writer.write_export_type(
                     data_type.lookup(),

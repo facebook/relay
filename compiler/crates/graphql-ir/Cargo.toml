@@ -23,7 +23,6 @@ common = { path = "../common" }
 errors = { path = "../errors" }
 fnv = "1.0"
 graphql-syntax = { path = "../graphql-syntax" }
-indexmap = { version = "1.7.0", features = ["rayon", "serde-1"] }
 intern = { path = "../intern" }
 lazy_static = "1.0"
 once_cell = "1.8"

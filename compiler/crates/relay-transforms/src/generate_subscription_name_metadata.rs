@@ -9,15 +9,16 @@ use crate::INTERNAL_METADATA_DIRECTIVE;
 use common::{Diagnostic, DiagnosticsResult, WithLocation};
 use graphql_ir::{
     Argument, ConstantValue, Directive, OperationDefinition, Program, Selection, Transformed,
-    Transformer, ValidationMessage, Value,
+    Transformer, Value,
 };
 use graphql_syntax::OperationKind;
 use intern::string_key::{Intern, StringKey};
 use lazy_static::lazy_static;
 use schema::Schema;
+use thiserror::Error;
 
 lazy_static! {
-    static ref SUBSCRITION_NAME_METADATA_KEY: StringKey = "subscriptionName".intern();
+    static ref SUBSCRIPTION_NAME_METADATA_KEY: StringKey = "subscriptionName".intern();
 }
 
 pub fn generate_subscription_name_metadata(program: &Program) -> DiagnosticsResult<Program> {
@@ -77,7 +78,7 @@ impl<'s> Transformer for GenerateSubscriptionNameMetadata<'s> {
                             arguments: vec![Argument {
                                 name: WithLocation::new(
                                     operation.name.location,
-                                    *SUBSCRITION_NAME_METADATA_KEY,
+                                    *SUBSCRIPTION_NAME_METADATA_KEY,
                                 ),
                                 value: WithLocation::new(
                                     operation.name.location,
@@ -107,4 +108,10 @@ impl<'s> Transformer for GenerateSubscriptionNameMetadata<'s> {
             _ => Transformed::Keep,
         }
     }
+}
+
+#[derive(Debug, Error)]
+pub enum ValidationMessage {
+    #[error("The root of subscription '{subscription_name}' must be a simple selection.")]
+    GenerateSubscriptionNameSimpleSelection { subscription_name: StringKey },
 }

@@ -564,9 +564,6 @@ pub enum ValidationMessage {
     #[error("Subscription '{subscription_name}' must have a single selection")]
     GenerateSubscriptionNameSingleSelectionItem { subscription_name: StringKey },
 
-    #[error("The root of subscription '{subscription_name}' must be a simple selection.")]
-    GenerateSubscriptionNameSimpleSelection { subscription_name: StringKey },
-
     #[error(
         "Live query expects 'polling_interval' or 'config_id' as an argument to @live_query to for root field {query_name}"
     )]

@@ -389,6 +389,26 @@ const setMainVersion = async () => {
   });
 };
 
+async function setCompilerMainVersion() {
+  if (!RELEASE_COMMIT_SHA) {
+    throw new Error('Expected the RELEASE_COMMIT_SHA env variable to be set.');
+  }
+  const currentVersion = require('./package.json').version;
+  const compilerCargoFile = path.join(
+    '.',
+    'compiler',
+    'crates',
+    'relay-compiler',
+    'Cargo.toml',
+  );
+  const cargo = fs.readFileSync(compilerCargoFile, 'utf8');
+  const updatedCargo = cargo.replace(
+    `version = "${currentVersion}"`,
+    `version = "${VERSION}"`,
+  );
+  fs.writeFileSync(compilerCargoFile, updatedCargo, 'utf8');
+}
+
 const cleanbuild = gulp.series(clean, dist);
 
 exports.clean = clean;
@@ -398,3 +418,4 @@ exports.mainrelease = gulp.series(cleanbuild, relayCompiler, setMainVersion);
 exports.release = gulp.series(cleanbuild, relayCompiler);
 exports.cleanbuild = cleanbuild;
 exports.default = cleanbuild;
+exports.setCompilerMainVersion = setCompilerMainVersion;

@@ -105,6 +105,17 @@ jobs:
           toolchain: stable
           override: true
           target: ${{ matrix.target.target }}
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 16.x
+          cache: 'yarn'
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile --ignore-scripts
+      - name: Set `main` version
+        # if: github.event_name == 'push' && github.repository == 'facebook/relay' && github.ref == 'refs/heads/main'
+        run: yarn gulp setCompilerMainVersion
+        env:
+          RELEASE_COMMIT_SHA: ${{ github.sha }}
       - uses: actions-rs/cargo@v1
         with:
           command: build

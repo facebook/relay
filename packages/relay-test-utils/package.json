@@ -1,7 +1,7 @@
 {
   "name": "relay-test-utils",
   "description": "Utilities for testing Relay applications.",
-  "version": "13.0.0-rc.1",
+  "version": "13.0.0-rc.2",
   "keywords": [
     "graphql",
     "relay"
@@ -14,7 +14,7 @@
     "@babel/runtime": "^7.0.0",
     "fbjs": "^3.0.2",
     "invariant": "^2.2.4",
-    "relay-runtime": "13.0.0-rc.1"
+    "relay-runtime": "13.0.0-rc.2"
   },
   "directories": {
     "": "./"

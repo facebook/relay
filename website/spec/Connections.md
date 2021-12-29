@@ -1,12 +1,12 @@
 GraphQL Cursor Connections Specification
 --------------------------------------
 
-This specification aims to provide an option for GraphQL clients to consistently 
-handle [pagination best practices](https://graphql.org/learn/pagination/) with 
-support for related metadata via a GraphQL server. This spec proposes calling 
-this pattern "Connections" and exposing them in a standardized way. 
+This specification aims to provide an option for GraphQL clients to consistently
+handle [pagination best practices](https://graphql.org/learn/pagination/) with
+support for related metadata via a GraphQL server. This spec proposes calling
+this pattern "Connections" and exposing them in a standardized way.
 
-In the query, the connection model provides a standard mechanism for slicing 
+In the query, the connection model provides a standard mechanism for slicing
 and paginating the result set.
 
 In the response, the connection model provides a standard way of providing
@@ -164,7 +164,7 @@ a Scalar, Enum, Object, Interface, Union, or a Non-Null wrapper around one of
 those types. Notably, this field *cannot* return a list.
 
 NOTE The naming echoes that of the "Node" interface and "node" root
-field as described in a later section of this spec. Spec-compliant clients 
+field as described in a later section of this spec. Spec-compliant clients
 can perform certain optimizations if this field returns an object that implements
 `Node`, however, this is not a strict requirement for conforming.
 
@@ -336,10 +336,10 @@ of which return non-null booleans.  It must also contain fields `startCursor`
 and `endCursor`, both of which return non-null opaque strings.
 
 `hasPreviousPage` is used to indicate whether more edges exist prior to the set
-defined by the clients arguments. If the client is paginating with 
-`last`/`before`, then the server must return {true} if prior edges exist, 
-otherwise {false}. If the client is paginating with `first`/`after`, then the 
-client may return {true} if edges prior to `after` exist, if it can do so 
+defined by the clients arguments. If the client is paginating with
+`last`/`before`, then the server must return {true} if prior edges exist,
+otherwise {false}. If the client is paginating with `first`/`after`, then the
+client may return {true} if edges prior to `after` exist, if it can do so
 efficiently, otherwise may return {false}. More formally:
 
 HasPreviousPage(allEdges, before, after, first, last):
@@ -373,7 +373,7 @@ becomes unclear. This is among the reasons that pagination with both `first` and
 `startCursor` and `endCursor` must be the cursors corresponding to the first and
 last nodes in `edges`, respectively.
 
-NOTE As this spec was created with Relay Classic in mind, it's worth noting that 
+NOTE As this spec was created with Relay Classic in mind, it's worth noting that
 Relay Legacy did not define `startCursor` and `endCursor`, and relied on
 selecting the `cursor` of each edge; Relay Modern began selecting
 `startCursor` and `endCursor` instead to save bandwidth (since it doesn't use any

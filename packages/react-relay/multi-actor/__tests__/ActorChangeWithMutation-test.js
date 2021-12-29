@@ -10,17 +10,7 @@
  */
 
 'use strict';
-import type {
-  Variables,
-  CacheConfig,
-} from 'relay-runtime/util/RelayRuntimeTypes';
-import type {RequestParameters} from 'relay-runtime/util/RelayConcreteNode';
-import type {
-  UploadableMap,
-  LogRequestInfoFunction,
-} from 'relay-runtime/network/RelayNetworkTypes';
 import type {ActorIdentifier} from '../../../relay-runtime/multi-actor-environment/ActorIdentifier';
-
 import type {ActorChangeWithMutationTestFragment$key} from './__generated__/ActorChangeWithMutationTestFragment.graphql';
 import type {ActorChangeWithMutationTestMutation} from './__generated__/ActorChangeWithMutationTestMutation.graphql';
 import type {ActorChangeWithMutationTestQuery} from './__generated__/ActorChangeWithMutationTestQuery.graphql';
@@ -28,6 +18,15 @@ import type {
   IActorEnvironment,
   IMultiActorEnvironment,
 } from 'relay-runtime/multi-actor-environment';
+import type {
+  LogRequestInfoFunction,
+  UploadableMap,
+} from 'relay-runtime/network/RelayNetworkTypes';
+import type {RequestParameters} from 'relay-runtime/util/RelayConcreteNode';
+import type {
+  CacheConfig,
+  Variables,
+} from 'relay-runtime/util/RelayRuntimeTypes';
 
 const RelayEnvironmentProvider = require('../../relay-hooks/RelayEnvironmentProvider');
 const useFragment = require('../../relay-hooks/useFragment');

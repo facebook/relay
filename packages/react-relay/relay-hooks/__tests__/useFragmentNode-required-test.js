@@ -10,8 +10,8 @@
  */
 
 'use strict';
-import type {RequestDescriptor} from 'relay-runtime/store/RelayStoreTypes';
 import type {ReaderFragment} from '../../../relay-runtime/util/ReaderNode';
+import type {RequestDescriptor} from 'relay-runtime/store/RelayStoreTypes';
 
 const useFragmentNodeOriginal = require('../useFragmentNode');
 // eslint-disable-next-line no-unused-vars

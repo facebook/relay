@@ -1,10 +1,10 @@
 GraphQL Global Object Identification Specification
 ------------------------------------------------
 
-To provide options for GraphQL clients to elegantly handle for caching and data 
-refetching GraphQL servers need to expose object identifiers in a standardized 
-way. In the query, the schema should provide a standard mechanism for asking 
-for an object by ID. In the response, the schema provides a standard way of 
+To provide options for GraphQL clients to elegantly handle for caching and data
+refetching GraphQL servers need to expose object identifiers in a standardized
+way. In the query, the schema should provide a standard mechanism for asking
+for an object by ID. In the response, the schema provides a standard way of
 providing these IDs.
 
 We refer to objects with identifiers as "nodes".
@@ -30,7 +30,7 @@ refetching.
 # Reserved Types
 
 A GraphQL server compatible with this spec must reserve certain types and type names
-to support the consistent object identification model. In particular, this spec creates 
+to support the consistent object identification model. In particular, this spec creates
 guidelines for the following types:
 
  - An interface named `Node`.

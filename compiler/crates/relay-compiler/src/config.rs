@@ -195,7 +195,9 @@ impl Config {
 
         let config_file = match config_file {
             ConfigFile::MultiProject(config) => *config,
-            ConfigFile::SingleProject(config) => MultiProjectConfigFile::from(config),
+            ConfigFile::SingleProject(config) => {
+                config.create_multi_project_config(&config_path)?
+            }
         };
 
         let MultiProjectConfigFile {
@@ -545,6 +547,9 @@ struct MultiProjectConfigFile {
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields, rename_all = "camelCase", default)]
 pub struct SingleProjectConfigFile {
+    #[serde(skip)]
+    pub project_name: StringKey,
+
     /// Path to schema.graphql
     pub schema: PathBuf,
 
@@ -597,6 +602,7 @@ pub struct SingleProjectConfigFile {
 impl Default for SingleProjectConfigFile {
     fn default() -> Self {
         Self {
+            project_name: "default".intern(),
             schema: Default::default(),
             src: Default::default(),
             artifact_directory: Default::default(),
@@ -615,55 +621,73 @@ impl Default for SingleProjectConfigFile {
 }
 
 impl SingleProjectConfigFile {
-    fn get_common_root(&self, root_dir: PathBuf) -> Option<PathBuf> {
+    fn get_common_root(
+        &self,
+        root_dir: PathBuf,
+    ) -> std::result::Result<PathBuf, ConfigValidationError> {
         let mut paths = vec![];
         if let Some(artifact_directory_path) = self.artifact_directory.clone() {
-            paths.push(join_and_canonicalize(
-                root_dir.clone(),
-                artifact_directory_path,
-            ));
-        }
-        paths.push(join_and_canonicalize(root_dir.clone(), self.src.clone()));
-        paths.push(join_and_canonicalize(root_dir.clone(), self.schema.clone()));
-        paths.extend(
-            self.schema_extensions
-                .iter()
-                .map(|dir| join_and_canonicalize(root_dir.clone(), dir.clone())),
-        );
-        common_path::common_path_all(paths.iter().map(|path| path.as_path()))
-    }
-}
-
-fn join_and_canonicalize(root: PathBuf, path: PathBuf) -> PathBuf {
-    root.clone()
-        .join(path.clone())
-        .canonicalize()
-        .unwrap_or_else(|err| {
-            panic!(
-                "Expected to create a valid path from {:?} and {:?}. Error {:?}",
-                root, path, err
+            paths.push(
+                root_dir
+                    .join(artifact_directory_path.clone())
+                    .canonicalize()
+                    .map_err(|_| ConfigValidationError::ArtifactDirectoryNotExistent {
+                        path: artifact_directory_path,
+                    })?,
             );
-        })
-}
-
-impl From<SingleProjectConfigFile> for MultiProjectConfigFile {
-    fn from(oss_config: SingleProjectConfigFile) -> MultiProjectConfigFile {
-        let current_dir = std::env::current_dir().unwrap();
-        let common_root_dir = oss_config.get_common_root(current_dir.clone()).expect(
-            "Could not find a common root directory for project sources, schemas, and extensions.",
+        }
+        paths.push(
+            root_dir
+                .join(self.src.clone())
+                .canonicalize()
+                .map_err(|_| ConfigValidationError::SourceNotExistent {
+                    source_dir: self.src.clone(),
+                })?,
         );
+        paths.push(
+            root_dir
+                .join(self.schema.clone())
+                .canonicalize()
+                .map_err(|_| ConfigValidationError::SchemaFileNotExistent {
+                    project_name: self.project_name,
+                    schema_file: self.schema.clone(),
+                })?,
+        );
+        for extension_dir in self.schema_extensions.iter() {
+            paths.push(
+                root_dir
+                    .clone()
+                    .join(extension_dir.clone())
+                    .canonicalize()
+                    .map_err(|_| ConfigValidationError::ExtensionDirNotExistent {
+                        project_name: self.project_name,
+                        extension_dir: extension_dir.clone(),
+                    })?,
+            );
+        }
+        common_path::common_path_all(paths.iter().map(|path| path.as_path()))
+            .ok_or(ConfigValidationError::CommonPathNotFound)
+    }
 
-        let default_project_name = "default".intern();
+    fn create_multi_project_config(self, config_path: &Path) -> Result<MultiProjectConfigFile> {
+        let current_dir = std::env::current_dir().unwrap();
+        let common_root_dir = self.get_common_root(current_dir.clone()).map_err(|err| {
+            Error::ConfigFileValidation {
+                config_path: config_path.to_path_buf(),
+                validation_errors: vec![err],
+            }
+        })?;
+
         let project_config = ConfigFileProject {
-            output: oss_config.artifact_directory.map(|dir| {
+            output: self.artifact_directory.map(|dir| {
                 normalize_path_from_config(current_dir.clone(), common_root_dir.clone(), dir)
             }),
             schema: Some(normalize_path_from_config(
                 current_dir.clone(),
                 common_root_dir.clone(),
-                oss_config.schema,
+                self.schema,
             )),
-            schema_extensions: oss_config
+            schema_extensions: self
                 .schema_extensions
                 .iter()
                 .map(|dir| {
@@ -674,42 +698,38 @@ impl From<SingleProjectConfigFile> for MultiProjectConfigFile {
                     )
                 })
                 .collect(),
-            persist: oss_config.persist_config,
+            persist: self.persist_config,
             typegen_config: TypegenConfig {
-                language: oss_config.language.unwrap_or(TypegenLanguage::TypeScript),
-                custom_scalar_types: oss_config.custom_scalars,
-                eager_es_modules: oss_config.eager_es_modules,
+                language: self.language.unwrap_or(TypegenLanguage::TypeScript),
+                custom_scalar_types: self.custom_scalars.clone(),
+                eager_es_modules: self.eager_es_modules,
                 flow_typegen: FlowTypegenConfig {
-                    no_future_proof_enums: oss_config.no_future_proof_enums,
+                    no_future_proof_enums: self.no_future_proof_enums,
                     ..Default::default()
                 },
                 ..Default::default()
             },
-            js_module_format: oss_config.js_module_format,
+            js_module_format: self.js_module_format,
             ..Default::default()
         };
 
         let mut projects = FnvIndexMap::default();
-        projects.insert(default_project_name, project_config);
+        projects.insert(self.project_name, project_config);
 
         let mut sources = FnvIndexMap::default();
-        let src = normalize_path_from_config(
-            current_dir.clone(),
-            common_root_dir.clone(),
-            oss_config.src,
-        );
+        let src = normalize_path_from_config(current_dir, common_root_dir.clone(), self.src);
 
-        sources.insert(src, SourceSet::SourceSetName(default_project_name));
+        sources.insert(src, SourceSet::SourceSetName(self.project_name));
 
-        MultiProjectConfigFile {
+        Ok(MultiProjectConfigFile {
             root: Some(common_root_dir),
             projects,
             sources,
-            excludes: oss_config.excludes,
-            is_dev_variable_name: oss_config.is_dev_variable_name,
-            codegen_command: oss_config.codegen_command,
+            excludes: self.excludes,
+            is_dev_variable_name: self.is_dev_variable_name,
+            codegen_command: self.codegen_command,
             ..Default::default()
-        }
+        })
     }
 }
 

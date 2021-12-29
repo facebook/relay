@@ -196,6 +196,14 @@ pub enum ConfigValidationError {
     },
 
     #[error(
+        "The `schemaExtensions` configured for project `{project_name}` does not exist at `{extension_dir}`."
+    )]
+    ExtensionDirNotExistent {
+        project_name: ProjectName,
+        extension_dir: PathBuf,
+    },
+
+    #[error(
         "The `schema_dir` configured for project `{project_name}` to be `{schema_dir}` is not a directory."
     )]
     SchemaDirNotDirectory {
@@ -209,6 +217,12 @@ pub enum ConfigValidationError {
         project_name: ProjectName,
         error: regex::Error,
     },
+
+    #[error("The `artifactDirectory` does not exist at `{path}`.")]
+    ArtifactDirectoryNotExistent { path: PathBuf },
+
+    #[error("Unable to find common path for directories in the config file.")]
+    CommonPathNotFound,
 }
 
 #[derive(Debug, Error)]

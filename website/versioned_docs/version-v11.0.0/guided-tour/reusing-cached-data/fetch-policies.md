@@ -40,7 +40,7 @@ Specifically, `fetchPolicy` can be any of the following options: **
 * "store-or-network": *(default)* *will* reuse locally cached data, and will *only* send a network request if any data for the query is [missing](../presence-of-data/) or [stale](../staleness-of-data/). If the query is fully cached, a network request will *not* be made.
 * "store-and-network": *will* reuse locally cached data and will *always* send a network request, regardless of whether any data was [missing](../presence-of-data/) or [stale](../staleness-of-data/) in the store.
 * "network-only": *will* *not* reuse locally cached data, and will *always* send a network request to fetch the query, ignoring any data that might be locally cached and whether it's [missing](../presence-of-data/) or [stale](../staleness-of-data/).
-* "store-only": *will* *only* reuse locally cached data, and will *never* send a network request to fetch the query. In this case, the responsibility of fetching the query falls to the caller, but this policy could also be used to read and operate and data that is entirely [local](../../updating-data/local-data-updates/).
+* "store-only": *will* *only* reuse locally cached data, and will *never* send a network request to fetch the query. In this case, the responsibility of fetching the query falls to the caller, but this policy could also be used to read and operate on data that is entirely [local](../../updating-data/local-data-updates/).
 
 
 Note that the `refetch` function discussed in the [Fetching and Rendering Different Data](../../refetching/) section also takes a `fetchPolicy`.

@@ -1,10 +1,10 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<7c8946ee2a0749e5ba5fb11bae7a13d1>>
+ * @generated SignedSource<<fe81a00272bc1a72fb7ed893652fd0b6>>
  */
 
 mod flatten;

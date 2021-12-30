@@ -1,10 +1,10 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b3d585621820c00ca77687861b6780f7>>
+ * @generated SignedSource<<12a03ad68e8a6ddf5e1bde9ed356b917>>
  */
 
 mod assignable_fragment_spread;

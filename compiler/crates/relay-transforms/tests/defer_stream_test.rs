@@ -1,10 +1,10 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<bc71cac173d0c6e9142f0532e995f5c4>>
+ * @generated SignedSource<<c389b836270f13295c42ac1ed3dc1bb3>>
  */
 
 mod defer_stream;

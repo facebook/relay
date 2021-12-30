@@ -1,10 +1,10 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<aebd3906fd8c324546244d53449d967f>>
+ * @generated SignedSource<<801382dabe42c5f872fa5ba9c6c69a6b>>
  */
 
 mod compile_relay_artifacts;

@@ -588,7 +588,6 @@ dependencies = [
  "fnv",
  "graphql-cli",
  "graphql-syntax",
- "indexmap",
  "intern",
  "lazy_static",
  "once_cell",
@@ -1371,7 +1370,7 @@ dependencies = [
 
 [[package]]
 name = "relay-compiler"
-version = "13.0.0-rc.1"
+version = "13.0.0-rc.2"
 dependencies = [
  "async-trait",
  "bincode",

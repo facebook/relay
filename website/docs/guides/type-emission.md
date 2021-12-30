@@ -14,7 +14,7 @@ import TabItem from '@theme/TabItem';
 
 As part of its normal work, the [**Relay Compiler**](../compiler) will emit type information for your language of choice that helps you write type-safe application code. These types are included in the artifacts that `relay-compiler` generates to describe your operations and fragments.
 
-## Operation input data
+## Operation variables
 
 The shape of the variables object used for query, mutation, or subscription operations.
 
@@ -30,23 +30,21 @@ In this example the emitted type-information would require the variables object 
 
 ```javascript
 /**
- * export type ExampleQueryVariables = {
+ * export type ExampleQuery$variables = {
  *   +artistID: string,
  * }
- * export type ExampleQueryResponse = {
+ * export type ExampleQuery$data = {
  *   +artist: {
  *     +name: ?string,
  *   }
  * }
  * export type ExampleQuery = {
- *   +variables: ExampleQueryVariables,
- *   +response: ExampleQueryResponse,
+ *   +variables: ExampleQuery$variables,
+ *   +response: ExampleQuery$data,
  * }
  */
 
-import type { ExampleQuery } from "__generated__/ExampleQuery.graphql"
-
-const data = useLazyLoadQuery<ExampleQuery>(
+const data = useLazyLoadQuery(
   graphql`
     query ExampleQuery($artistID: ID!) {
       artist(id: $artistID) {
@@ -54,7 +52,7 @@ const data = useLazyLoadQuery<ExampleQuery>(
       }
     }
   `,
-  // variables are expected to be of type ExampleQueryVariables
+  // variables are expected to be of type ExampleQuery$variables
   {artistID: 'banksy'},
 );
 ```
@@ -65,17 +63,17 @@ const data = useLazyLoadQuery<ExampleQuery>(
 
 ```javascript
 /**
- * export type ExampleQueryVariables = {
+ * export type ExampleQuery$variables = {
  *   readonly artistID: string
  * }
- * export type ExampleQueryResponse = {
+ * export type ExampleQuery$data = {
  *   readonly artist?: {
  *     readonly name?: string
  *   }
  * }
  * export type ExampleQuery = {
- *   readonly variables: ExampleQueryVariables
- *   readonly response: ExampleQueryResponse
+ *   readonly variables: ExampleQuery$variables
+ *   readonly response: ExampleQuery$data
  * }
  */
 
@@ -89,7 +87,7 @@ const data = useLazyLoadQuery<ExampleQuery>(
       }
     }
   `,
-  // variables are expected to be of type ExampleQueryVariables
+  // variables are expected to be of type ExampleQuery$variables
   {artistID: 'banksy'},
 );
 ```
@@ -97,7 +95,7 @@ const data = useLazyLoadQuery<ExampleQuery>(
   </TabItem>
 </Tabs>
 
-## Operation/Fragment selection-set data
+## Operation and fragment data
 
 The shape of the data selected in a operation or fragment, following the [data-masking] rules. That is, excluding any data selected by fragment spreads.
 
@@ -113,24 +111,22 @@ In this example the emitted type-information describes the response data which i
 
 ```javascript
 /**
- * export type ExampleQueryVariables = {
+ * export type ExampleQuery$variables = {
  *   +artistID: string,
  * }
- * export type ExampleQueryResponse = {
+ * export type ExampleQuery$data = {
  *   +artist: {
  *     +name: ?string,
  *   }
  * }
  * export type ExampleQuery = {
- *   +variables: ExampleQueryVariables,
- *   +response: ExampleQueryResponse,
+ *   +variables: ExampleQuery$variables,
+ *   +response: ExampleQuery$data,
  * }
  */
 
-import type { ExampleQuery } from "__generated__/ExampleQuery.graphql"
-
-// data is of type ExampleQueryResponse
-const data = useLazyLoadQuery<ExampleQuery>(
+// data is of type ExampleQuery$data
+const data = useLazyLoadQuery(
   graphql`
     query ExampleQuery($artistID: ID!) {
       artist(id: $artistID) {
@@ -150,23 +146,23 @@ return props.artist && <div>{props.artist.name} is great!</div>
 
 ```javascript
 /**
- * export type ExampleQueryVariables = {
+ * export type ExampleQuery$variables = {
  *   readonly artistID: string
  * }
- * export type ExampleQueryResponse = {
+ * export type ExampleQuery$data = {
  *   readonly artist?: {
  *     readonly name?: string
  *   }
  * }
  * export type ExampleQuery = {
- *   readonly variables: ExampleQueryVariables
- *   readonly response: ExampleQueryResponse
+ *   readonly variables: ExampleQuery$variables
+ *   readonly response: ExampleQuery$data
  * }
  */
 
 import { ExampleQuery } from "__generated__/ExampleQuery.graphql"
 
-// data is of type ExampleQueryResponse
+// data is of type ExampleQuery$data
 const data = useLazyLoadQuery<ExampleQuery>(
   graphql`
     query ExampleQuery($artistID: ID!) {
@@ -185,8 +181,7 @@ return props.artist && <div>{props.artist.name} is great!</div>
 </Tabs>
 
 
-Similarly, in this example the emitted type-information describes the type of the prop to match the type of the fragment reference `useFragment`  expects to receive.
-
+Similarly, in this example the emitted type-information describes the type of the prop to match the type of the fragment reference `useFragment` expects to receive.
 
 <Tabs
   defaultValue={fbContent({internal: 'Flow', external: 'TypeScript'})}
@@ -286,41 +281,32 @@ Consider a component that [composes](../../guided-tour/rendering/fragments/#comp
   <TabItem value="Flow">
 
 ```javascript
-/**
- * import type { FragmentReference } from "relay-runtime";
- * declare export opaque type ExampleFragmentComponent_artist$ref: FragmentReference;
- *
- * export type ExampleFragmentComponent_artist$data = {
- *   +name: string,
- *   +$refType: ExampleFragmentComponent_artist$ref,
- * };
- */
-
 import { ExampleFragmentComponent } from "./ExampleFragmentComponent"
 
 /**
- * import type { ExampleFragmentComponent_artist$ref } from "ExampleFragmentComponent_artist.graphql";
+ * import type { ExampleFragmentComponent_artist$fragmentType } from "ExampleFragmentComponent_artist.graphql";
  *
- * export type ExampleQueryResponse = {
+ * export type ExampleQuery$data = {
  *   +artist: ?{
- *     +$fragmentRefs: ExampleFragmentComponent_artist$ref,
+ *     +name: ?string,
+ *     +$fragmentSpreads: ExampleFragmentComponent_artist$fragmentType,
  *   }
  * };
- * export type ExampleQueryVariables = {
+ * export type ExampleQuery$variables = {
  *   +artistID: string,
  * }
  * export type ExampleQuery = {
- *   +variables: ExampleQueryVariables,
- *   +response: ExampleQueryResponse,
+ *   +variables: ExampleQuery$variables,
+ *   +response: ExampleQuery$data,
  * }
  */
-import type { ExampleQuery } from "__generated__/ExampleQuery.graphql"
 
-// data is of type ExampleQueryResponse
-const data = useLazyLoadQuery<ExampleQuery>(
+// data is of type ExampleQuery$data
+const data = useLazyLoadQuery(
   graphql`
     query ExampleQuery($artistID: ID!) {
       artist(id: $artistID) {
+        name
         ...ExampleFragmentComponent_artist
       }
     }
@@ -328,8 +314,9 @@ const data = useLazyLoadQuery<ExampleQuery>(
   {artistID: 'banksy'},
 );
 
-// Here only `data.artist` is an object typed as the appropriate type
-// for the `artist` prop of `ExampleFragmentComponent`.
+// Here only `data.artist.name` is directly visible,
+// the marker prop $fragmentSpreads indicates that `data.artist`
+// can be used for the component expecting this fragment spread.
 return <ExampleFragmentComponent artist={data.artist} />;
 ```
 
@@ -338,40 +325,33 @@ return <ExampleFragmentComponent artist={data.artist} />;
   <TabItem value="TypeScript">
 
 ```javascript
-/**
- * declare const _ExampleFragmentComponent_artist$ref: unique symbol;
- * export type ExampleFragmentComponent_artist$ref = typeof _ExampleFragmentComponent_artist$ref;
- *
- * export type ExampleFragmentComponent_artist = {
- *   readonly name: string
- *   readonly " $refType": ExampleFragmentComponent_artist$ref
- * }
- */
 import { ExampleFragmentComponent } from "./ExampleFragmentComponent"
 
 /**
- * import { ExampleFragmentComponent_artist$ref } from "ExampleFragmentComponent_artist.graphql";
+ * import { ExampleFragmentComponent_artist$fragmentType } from "ExampleFragmentComponent_artist.graphql";
  *
- * export type ExampleQueryResponse = {
+ * export type ExampleQuery$data = {
  *   readonly artist?: {
- *     readonly " $fragmentRefs": ExampleFragmentComponent_artist$ref
+ *     readonly name: ?string,
+ *     readonly " $fragmentSpreads": ExampleFragmentComponent_artist$fragmentType
  *   }
  * }
- * export type ExampleQueryVariables = {
+ * export type ExampleQuery$variables = {
  *   readonly artistID: string
  * }
  * export type ExampleQuery = {
- *   readonly variables: ExampleQueryVariables
- *   readonly response: ExampleQueryResponse
+ *   readonly variables: ExampleQuery$variables
+ *   readonly response: ExampleQuery$data
  * }
  */
 import { ExampleQuery } from "__generated__/ExampleQuery.graphql"
 
-// data is of type ExampleQueryResponse
+// data is of type ExampleQuery$data
 const data = useLazyLoadQuery<ExampleQuery>(
   graphql`
     query ExampleQuery($artistID: ID!) {
       artist(id: $artistID) {
+        name
         ...ExampleFragmentComponent_artist
       }
     }
@@ -379,8 +359,9 @@ const data = useLazyLoadQuery<ExampleQuery>(
   {artistID: 'banksy'},
 );
 
-// Here only `data.artist` is an object typed as the appropriate type
-// for the `artist` prop of `ExampleFragmentComponent`.
+// Here only `data.artist.name` is directly visible,
+// the marker prop $fragmentSpreads indicates that `data.artist`
+// can be used for the component expecting this fragment spread.
 return <ExampleFragmentComponent artist={data.artist} />;
 ```
 

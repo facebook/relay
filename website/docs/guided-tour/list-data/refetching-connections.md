@@ -133,7 +133,7 @@ If we want to refetch the connection with *different* variables, we can use the 
 /**
  * FriendsListComponent.react.js
  */
-import type {FriendsListComponent_user$ref} from 'FriendsListComponent_user.graphql';
+import type {FriendsListComponent_user$key} from 'FriendsListComponent_user.graphql';
 
 const React = require('React');
 const {useState, useEffect} = require('React');

@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<3ebdf5c8c0704e54c968684bbe56fa56>>
+ * @generated SignedSource<<61371a3bf5fce655d05f53beae74a594>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep

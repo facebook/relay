@@ -6,7 +6,7 @@
  */
 
 use common::{Named, NamedItem, WithLocation};
-use graphql_syntax::*;
+use graphql_syntax::{ConstantValue, DirectiveLocation};
 use intern::string_key::{Intern, StringKey};
 use lazy_static::lazy_static;
 use std::collections::HashMap;

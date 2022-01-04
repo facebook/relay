@@ -206,7 +206,7 @@ function App(props: Props) {
     // re-evaluated and refetched.
     setQueryArgs(prev => ({
       options: {
-        fetchKey: (prev?.fetchKey ?? 0) + 1,
+        fetchKey: (prev?.options.fetchKey ?? 0) + 1,
       },
       variables: {id: 'different-id'}
     }));
@@ -319,12 +319,12 @@ function App(props: Props) {
           // fetchPolicy to avoid suspending.
           setQueryArgs(prev => ({
             options: {
-              fetchKey: (prev?.fetchKey ?? 0) + 1,
+              fetchKey: (prev?.options.fetchKey ?? 0) + 1,
               fetchPolicy: 'store-only',
             },
             variables: {id: 'different-id'}
           }));
-        }
+        },
         error: () => {
           setIsRefreshing(false);
         }

@@ -562,6 +562,7 @@ pub struct SingleProjectConfigFile {
 
     /// Directories to ignore under src
     /// default: ['**/node_modules/**', '**/__mocks__/**', '**/__generated__/**'],
+    #[serde(alias = "exclude")]
     pub excludes: Vec<String>,
 
     /// List of directories with schema extensions.

@@ -49,7 +49,7 @@ pub use self::refetchable_directive::REFETCHABLE_NAME;
 ///    at all, and although Relay adds this concept developers are still
 ///    allowed to reference global variables. This necessitates a
 ///    visiting all reachable fragments for each @refetchable fragment,
-///    and finding the union of all global variables expceted to be defined.
+///    and finding the union of all global variables expected to be defined.
 /// 3. Building the refetch queries, a straightforward copying transform from
 ///    Fragment to Root IR nodes.
 pub fn transform_refetchable_fragment(
@@ -58,7 +58,6 @@ pub fn transform_refetchable_fragment(
     for_typegen: bool,
 ) -> DiagnosticsResult<Program> {
     let mut next_program = Program::new(Arc::clone(&program.schema));
-    let query_type = program.schema.query_type().unwrap();
 
     let mut transformer = RefetchableFragment::new(program, for_typegen);
 
@@ -80,7 +79,7 @@ pub fn transform_refetchable_fragment(
                         fragment.name.location,
                         refetchable_directive.query_name.item,
                     ),
-                    type_: query_type,
+                    type_: program.schema.query_type().unwrap(),
                     variable_definitions: operation_result.variable_definitions,
                     directives,
                     selections: operation_result.selections,
@@ -118,9 +117,15 @@ impl<'program> RefetchableFragment<'program> {
         &mut self,
         fragment: &Arc<FragmentDefinition>,
     ) -> DiagnosticsResult<Option<(RefetchableDirective, RefetchRoot)>> {
-        fragment
-            .directives
-            .named(*REFETCHABLE_NAME)
+        let refetchable_directive = fragment.directives.named(*REFETCHABLE_NAME);
+        if refetchable_directive.is_some() && self.program.schema.query_type().is_none() {
+            return Err(vec![Diagnostic::error(
+                "Unable to use @refetchable directive. The `Query` type is not defined on the schema.",
+                refetchable_directive.unwrap().name.location,
+            )]);
+        }
+
+        refetchable_directive
             .map(|refetchable_directive| {
                 self.transform_refetch_fragment_with_refetchable_directive(
                     fragment,

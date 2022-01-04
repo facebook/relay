@@ -20,6 +20,7 @@ use fnv::{FnvBuildHasher, FnvHashSet};
 use graphql_ir::{OperationDefinition, Program};
 use indexmap::IndexMap;
 use intern::string_key::{Intern, StringKey};
+use log::warn;
 use persist_query::PersistError;
 use rayon::prelude::*;
 use regex::Regex;
@@ -560,6 +561,9 @@ pub struct SingleProjectConfigFile {
     /// the babel plugin needs `artifactDirectory` set as well.
     pub artifact_directory: Option<PathBuf>,
 
+    /// This is deprecated field, we're not using it in the V13.
+    pub include: Vec<String>,
+
     /// Directories to ignore under src
     /// default: ['**/node_modules/**', '**/__mocks__/**', '**/__generated__/**'],
     #[serde(alias = "exclude")]
@@ -607,6 +611,7 @@ impl Default for SingleProjectConfigFile {
             schema: Default::default(),
             src: Default::default(),
             artifact_directory: Default::default(),
+            include: vec![],
             excludes: get_default_excludes(),
             schema_extensions: vec![],
             no_future_proof_enums: false,
@@ -671,6 +676,13 @@ impl SingleProjectConfigFile {
     }
 
     fn create_multi_project_config(self, config_path: &Path) -> Result<MultiProjectConfigFile> {
+        if !self.include.is_empty() {
+            warn!(
+                r#"The configuration contains `include: {:#?}` section. This configuration option is no longer supported. Consider removing it."#,
+                &self.include
+            );
+        }
+
         let current_dir = std::env::current_dir().unwrap();
         let common_root_dir = self.get_common_root(current_dir.clone()).map_err(|err| {
             Error::ConfigFileValidation {

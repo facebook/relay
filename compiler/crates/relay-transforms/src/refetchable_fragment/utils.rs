@@ -26,7 +26,6 @@ associated_data_impl!(RefetchableMetadata);
 pub struct Constants {
     pub fetchable: StringKey,
     pub field_name: StringKey,
-    pub id_name: StringKey,
     pub node_field_name: StringKey,
     pub node_type_name: StringKey,
     pub viewer_field_name: StringKey,
@@ -37,7 +36,6 @@ lazy_static! {
     pub static ref CONSTANTS: Constants = Constants {
         fetchable: "fetchable".intern(),
         field_name: "field_name".intern(),
-        id_name: "id".intern(),
         node_field_name: "node".intern(),
         node_type_name: "Node".intern(),
         viewer_field_name: "viewer".intern(),

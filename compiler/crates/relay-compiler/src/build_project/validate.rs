@@ -26,7 +26,7 @@ pub fn validate(
     additional_validations: &Option<AdditionalValidations>,
 ) -> DiagnosticsResult<()> {
     try_all(vec![
-        disallow_reserved_aliases(program),
+        disallow_reserved_aliases(program, &project_config.schema_config),
         validate_no_double_underscore_alias(program),
         validate_unused_variables(program),
         validate_unused_fragment_variables(program),

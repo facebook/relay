@@ -14,11 +14,13 @@ use crate::root_variables::VariableMap;
 use common::{Diagnostic, DiagnosticsResult, WithLocation};
 use graphql_ir::{FragmentDefinition, LinkedField, Selection, ValidationMessage};
 use intern::string_key::StringKey;
+use relay_config::SchemaConfig;
 use schema::{FieldID, SDLSchema, Schema, Type};
 use std::sync::Arc;
 
 fn build_refetch_operation(
     schema: &SDLSchema,
+    _schema_config: &SchemaConfig,
     fragment: &Arc<FragmentDefinition>,
     query_name: StringKey,
     variables_map: &VariableMap,

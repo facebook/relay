@@ -9,10 +9,14 @@ use common::{Diagnostic, DiagnosticsResult, WithLocation};
 use errors::validate;
 use graphql_ir::{LinkedField, Program, ScalarField, ValidationMessage, Validator};
 use intern::string_key::{Intern, StringKey};
+use relay_config::SchemaConfig;
 use schema::{FieldID, SDLSchema, Schema};
 
-pub fn disallow_reserved_aliases(program: &Program) -> DiagnosticsResult<()> {
-    let mut validator = DisallowReservedAliases::new(program);
+pub fn disallow_reserved_aliases(
+    program: &Program,
+    schema_config: &SchemaConfig,
+) -> DiagnosticsResult<()> {
+    let mut validator = DisallowReservedAliases::new(program, schema_config);
     validator.validate_program(program)
 }
 
@@ -22,10 +26,14 @@ struct DisallowReservedAliases<'program> {
 }
 
 impl<'program> DisallowReservedAliases<'program> {
-    fn new(program: &'program Program) -> Self {
+    fn new(program: &'program Program, schema_config: &SchemaConfig) -> Self {
         Self {
             program,
-            reserved_aliases: vec!["id".intern(), "__typename".intern(), "__id".intern()],
+            reserved_aliases: vec![
+                schema_config.node_interface_id_field,
+                "__typename".intern(),
+                "__id".intern(),
+            ],
         }
     }
 }

@@ -29,6 +29,7 @@ use graphql_syntax::OperationKind;
 use intern::string_key::{StringKey, StringKeyMap, StringKeySet};
 use node_query_generator::NODE_QUERY_GENERATOR;
 use query_query_generator::QUERY_QUERY_GENERATOR;
+use relay_config::SchemaConfig;
 use schema::{SDLSchema, Schema};
 use std::{fmt::Write, sync::Arc};
 use utils::*;
@@ -54,12 +55,13 @@ pub use self::refetchable_directive::REFETCHABLE_NAME;
 ///    Fragment to Root IR nodes.
 pub fn transform_refetchable_fragment(
     program: &Program,
+    schema_config: &SchemaConfig,
     base_fragment_names: &'_ StringKeySet,
     for_typegen: bool,
 ) -> DiagnosticsResult<Program> {
     let mut next_program = Program::new(Arc::clone(&program.schema));
 
-    let mut transformer = RefetchableFragment::new(program, for_typegen);
+    let mut transformer = RefetchableFragment::new(program, schema_config, for_typegen);
 
     for operation in program.operations() {
         next_program.insert_operation(Arc::clone(operation));
@@ -96,20 +98,26 @@ pub fn transform_refetchable_fragment(
 
 type ExistingRefetchOperations = StringKeyMap<WithLocation<StringKey>>;
 
-pub struct RefetchableFragment<'program> {
+pub struct RefetchableFragment<'program, 'sc> {
     connection_constants: ConnectionConstants,
     existing_refetch_operations: ExistingRefetchOperations,
     for_typegen: bool,
     program: &'program Program,
+    schema_config: &'sc SchemaConfig,
 }
 
-impl<'program> RefetchableFragment<'program> {
-    pub fn new(program: &'program Program, for_typegen: bool) -> Self {
+impl<'program, 'sc> RefetchableFragment<'program, 'sc> {
+    pub fn new(
+        program: &'program Program,
+        schema_config: &'sc SchemaConfig,
+        for_typegen: bool,
+    ) -> Self {
         RefetchableFragment {
             connection_constants: Default::default(),
             existing_refetch_operations: Default::default(),
             for_typegen,
             program,
+            schema_config,
         }
     }
 
@@ -150,6 +158,7 @@ impl<'program> RefetchableFragment<'program> {
         for generator in GENERATORS.iter() {
             if let Some(refetch_root) = (generator.build_refetch_operation)(
                 &self.program.schema,
+                self.schema_config,
                 fragment,
                 refetchable_directive.query_name.item,
                 &variables_map,
@@ -299,11 +308,12 @@ impl<'program> RefetchableFragment<'program> {
 
 type BuildRefetchOperationFn = fn(
     schema: &SDLSchema,
+    schema_config: &SchemaConfig,
     fragment: &Arc<FragmentDefinition>,
     query_name: StringKey,
     variables_map: &VariableMap,
 ) -> DiagnosticsResult<Option<RefetchRoot>>;
-/// A strategy to generate queries for a given fragment. Multiple stategies
+/// A strategy to generate queries for a given fragment. Multiple strategies
 /// can be tried, such as generating a `node(id: ID)` query or a query directly
 /// on the root query type.
 pub struct QueryGenerator {

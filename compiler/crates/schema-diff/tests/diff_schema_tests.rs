@@ -20,7 +20,7 @@ fn diff(current: &str, previous: &str) -> SchemaChange {
 fn is_safe(current: &str, previous: &str) -> bool {
     let schema = build_schema(current).unwrap();
     let change = detect_changes(&[current], &[previous]);
-    change.is_safe(&schema)
+    change.is_safe(&schema, &Default::default())
 }
 
 #[test]

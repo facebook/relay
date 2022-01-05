@@ -22,7 +22,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         let ir = build(&schema, &ast.definitions).unwrap();
         let program = Program::from_definitions(Arc::clone(&schema), ir);
         let next_program = sort_selections(
-            &client_edges(&program)
+            &client_edges(&program, &Default::default())
                 .and_then(|program| relay_resolvers(&program, true))
                 .unwrap(),
         );

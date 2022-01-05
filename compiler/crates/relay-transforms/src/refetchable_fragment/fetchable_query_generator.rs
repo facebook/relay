@@ -17,15 +17,19 @@ use graphql_ir::{
     Variable, VariableDefinition,
 };
 use intern::string_key::{Intern, StringKey};
+use relay_config::SchemaConfig;
 use schema::{Argument as ArgumentDef, FieldID, SDLSchema, Schema, Type};
 use std::sync::Arc;
 
 fn build_refetch_operation(
     schema: &SDLSchema,
+    schema_config: &SchemaConfig,
     fragment: &Arc<FragmentDefinition>,
     query_name: StringKey,
     variables_map: &VariableMap,
 ) -> DiagnosticsResult<Option<RefetchRoot>> {
+    let id_name = schema_config.node_interface_id_field;
+
     if let Some(identifier_field_name) = get_fetchable_field_name(fragment, schema)? {
         let identifier_field_id = get_identifier_field_id(fragment, schema, identifier_field_name)?;
 
@@ -58,7 +62,7 @@ fn build_refetch_operation(
             ),
         });
         let mut variable_definitions = build_operation_variable_definitions(&fragment);
-        if let Some(id_argument) = variable_definitions.named(CONSTANTS.id_name) {
+        if let Some(id_argument) = variable_definitions.named(id_name) {
             return Err(vec![Diagnostic::error(
                 ValidationMessage::RefetchableFragmentOnNodeWithExistingID {
                     fragment_name: fragment.name.item,
@@ -67,7 +71,7 @@ fn build_refetch_operation(
             )]);
         }
         variable_definitions.push(VariableDefinition {
-            name: WithLocation::new(fragment.name.location, CONSTANTS.id_name),
+            name: WithLocation::new(fragment.name.location, id_name),
             type_: id_arg.type_.non_null(),
             default_value: None,
             directives: vec![],
@@ -83,7 +87,7 @@ fn build_refetch_operation(
                     value: WithLocation::new(
                         fragment.name.location,
                         Value::Variable(Variable {
-                            name: WithLocation::new(fragment.name.location, CONSTANTS.id_name),
+                            name: WithLocation::new(fragment.name.location, id_name),
                             type_: id_arg.type_.non_null(),
                         }),
                     ),

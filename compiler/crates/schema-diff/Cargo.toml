@@ -16,4 +16,5 @@ fnv = "1.0"
 graphql-syntax = { path = "../graphql-syntax" }
 intern = { path = "../intern" }
 lazy_static = "1.0"
+relay-config = { path = "../relay-config" }
 schema = { path = "../schema" }

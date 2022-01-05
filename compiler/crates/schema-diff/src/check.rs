@@ -8,11 +8,12 @@
 use crate::definitions::{ArgumentChange, DefinitionChange, SchemaChange, Type, TypeChange};
 use intern::string_key::{Intern, StringKey};
 use lazy_static::lazy_static;
+use relay_config::SchemaConfig;
 use schema::{SDLSchema, Schema};
 
 /// Return if the changes are safe to skip full rebuild.
 impl SchemaChange {
-    pub fn is_safe(self: &SchemaChange, schema: &SDLSchema) -> bool {
+    pub fn is_safe(self: &SchemaChange, schema: &SDLSchema, schema_config: &SchemaConfig) -> bool {
         match self {
             SchemaChange::None => true,
             SchemaChange::GenericChange => false,
@@ -30,7 +31,12 @@ impl SchemaChange {
                         } => {
                             if !interfaces_added.is_empty()
                                 || !interfaces_removed.is_empty()
-                                || !is_field_changes_safe(added, removed, changed)
+                                || !is_field_changes_safe(
+                                    added,
+                                    removed,
+                                    changed,
+                                    schema_config.node_interface_id_field,
+                                )
                             {
                                 return false;
                             }
@@ -41,12 +47,17 @@ impl SchemaChange {
                             removed,
                             ..
                         } => {
-                            if !is_field_changes_safe(added, removed, changed) {
+                            if !is_field_changes_safe(
+                                added,
+                                removed,
+                                changed,
+                                schema_config.node_interface_id_field,
+                            ) {
                                 return false;
                             }
                         }
                         DefinitionChange::ObjectAdded(name) => {
-                            if !is_object_add_safe(*name, schema) {
+                            if !is_object_add_safe(*name, schema, schema_config) {
                                 return false;
                             }
                         }
@@ -70,7 +81,6 @@ impl SchemaChange {
 }
 
 lazy_static! {
-    static ref ID_FIELD_KEY: StringKey = "id".intern();
     static ref JS_FIELD_KEY: StringKey = "js".intern();
     static ref NODE_INTERFACE_KEY: StringKey = "Node".intern();
 }
@@ -84,13 +94,15 @@ lazy_static! {
 ///   }
 /// But we have a special case for `Node`. The `id` field is automatically
 /// added to the selection for all types that implements `Node`.
-fn is_object_add_safe(name: StringKey, schema: &SDLSchema) -> bool {
+fn is_object_add_safe(name: StringKey, schema: &SDLSchema, schema_config: &SchemaConfig) -> bool {
+    let id_name = schema_config.node_interface_id_field;
+
     if let Some(schema::Type::Object(id)) = schema.get_type(name) {
         let object = schema.object(id);
         if object
             .fields
             .iter()
-            .any(|id| schema.field(*id).name.item == *ID_FIELD_KEY)
+            .any(|id| schema.field(*id).name.item == id_name)
             && object
                 .interfaces
                 .iter()
@@ -111,6 +123,7 @@ fn is_field_changes_safe(
     added: &[TypeChange],
     removed: &[TypeChange],
     changed: &[ArgumentChange],
+    id_name: StringKey,
 ) -> bool {
     if !removed.is_empty() {
         return false;
@@ -121,7 +134,7 @@ fn is_field_changes_safe(
     // - `js` field added to a type might change 3D code generation
     if added
         .iter()
-        .any(|add| add.name == *ID_FIELD_KEY || add.name == *JS_FIELD_KEY)
+        .any(|add| add.name == id_name || add.name == *JS_FIELD_KEY)
     {
         return false;
     }

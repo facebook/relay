@@ -12,6 +12,7 @@ use graphql_ir::{
 };
 
 use intern::string_key::{Intern, StringKey};
+use relay_config::SchemaConfig;
 use schema::{FieldID, InterfaceID, ObjectID, Schema, Type};
 use std::{
     collections::{hash_map::Entry, HashMap},
@@ -20,8 +21,9 @@ use std::{
 
 /// A transform that adds an `id` field on any type that has an id field but
 /// where there is no unaliased `id` selection.
-pub fn generate_id_field(program: &Program) -> Program {
-    let mut transform = GenerateIDFieldTransform::new(program);
+pub fn generate_id_field(program: &Program, schema_config: &SchemaConfig) -> Program {
+    let mut transform =
+        GenerateIDFieldTransform::new(program, schema_config.node_interface_id_field);
     transform
         .transform_program(program)
         .replace_or_else(|| program.clone())
@@ -113,9 +115,7 @@ impl<'s> Transformer for GenerateIDFieldTransform<'s> {
 }
 
 impl<'s> GenerateIDFieldTransform<'s> {
-    fn new(program: &'s Program) -> Self {
-        let id_name = "id".intern();
-
+    fn new(program: &'s Program, id_name: StringKey) -> Self {
         let schema = &program.schema;
         let node_interface = match schema.get_type("Node".intern()) {
             Some(Type::Interface(node_interface_id)) => {
@@ -124,7 +124,9 @@ impl<'s> GenerateIDFieldTransform<'s> {
                     .fields
                     .iter()
                     .find(|&&id| schema.field(id).name.item == id_name)
-                    .expect("Expected `Node` to contain a field named `id`.");
+                    .unwrap_or_else(|| {
+                        panic!("Expected `Node` to contain a field named `{:}`.", id_name)
+                    });
 
                 Some(NodeInterface {
                     id: node_interface_id,

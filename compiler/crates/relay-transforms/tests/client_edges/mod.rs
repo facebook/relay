@@ -24,7 +24,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         let ir = build(&schema, &ast.definitions).unwrap();
         let program = Program::from_definitions(Arc::clone(&schema), ir);
 
-        let mut next_program = client_edges(&program)
+        let mut next_program = client_edges(&program, &Default::default())
             .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
 
         next_program = relay_resolvers(&next_program, true)

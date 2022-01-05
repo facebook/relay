@@ -37,10 +37,27 @@ pub enum SchemaLocation {
     Directory(PathBuf),
 }
 
-#[derive(Default, Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SchemaConfig {
     pub connection_interface: ConnectionInterface,
+
+    /// The name of the `id` field that exists on the `Node` interface.
+    #[serde(default = "default_node_interface_id_field")]
+    pub node_interface_id_field: StringKey,
+}
+
+fn default_node_interface_id_field() -> StringKey {
+    "id".intern()
+}
+
+impl Default for SchemaConfig {
+    fn default() -> Self {
+        Self {
+            connection_interface: ConnectionInterface::default(),
+            node_interface_id_field: default_node_interface_id_field(),
+        }
+    }
 }
 
 pub struct ProjectConfig {

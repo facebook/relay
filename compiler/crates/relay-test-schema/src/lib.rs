@@ -16,10 +16,15 @@ use schema::SDLSchema;
 use std::sync::Arc;
 
 const TEST_SCHEMA_DATA: &str = include_str!("testschema.graphql");
+const TEST_SCHEMA_WITH_CUSTOM_ID_DATA: &str = include_str!("testschema_with_custom_id.graphql");
 
 lazy_static! {
     pub static ref TEST_SCHEMA: Arc<SDLSchema> = Arc::new(
         build_schema_with_extensions::<_, &str>(&[TEST_SCHEMA_DATA], &[])
+            .expect("Expected test schema to be valid")
+    );
+    pub static ref TEST_SCHEMA_WITH_CUSTOM_ID: Arc<SDLSchema> = Arc::new(
+        build_schema_with_extensions::<_, &str>(&[TEST_SCHEMA_WITH_CUSTOM_ID_DATA], &[])
             .expect("Expected test schema to be valid")
     );
 }
@@ -32,6 +37,20 @@ pub fn get_test_schema_with_extensions(extensions_sdl: &str) -> Arc<SDLSchema> {
     Arc::new(
         build_schema_with_extensions(
             &[TEST_SCHEMA_DATA],
+            &[(extensions_sdl, SourceLocationKey::generated())],
+        )
+        .expect("Expected test schema (and extensions) to be valid"),
+    )
+}
+
+pub fn get_test_schema_with_custom_id() -> Arc<SDLSchema> {
+    Arc::clone(&TEST_SCHEMA_WITH_CUSTOM_ID)
+}
+
+pub fn get_test_schema_with_custom_id_with_extensions(extensions_sdl: &str) -> Arc<SDLSchema> {
+    Arc::new(
+        build_schema_with_extensions(
+            &[TEST_SCHEMA_WITH_CUSTOM_ID_DATA],
             &[(extensions_sdl, SourceLocationKey::generated())],
         )
         .expect("Expected test schema (and extensions) to be valid"),

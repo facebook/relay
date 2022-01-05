@@ -342,9 +342,10 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             .source_programs
             .contains_key(&project_config.name)
             && compiler_state.has_processed_changes()
-            && !compiler_state.has_breaking_schema_change(project_config.name)
+            && !compiler_state
+                .has_breaking_schema_change(project_config.name, &project_config.schema_config)
             && if let Some(base) = project_config.base {
-                !compiler_state.has_breaking_schema_change(base)
+                !compiler_state.has_breaking_schema_change(base, &project_config.schema_config)
             } else {
                 true
             };

@@ -135,11 +135,17 @@ fn apply_common_transforms(
         transform_subscriptions(&program)
     })?;
     program = log_event.time("transform_refetchable_fragment", || {
-        transform_refetchable_fragment(&program, &base_fragment_names, false)
+        transform_refetchable_fragment(
+            &program,
+            &project_config.schema_config,
+            &base_fragment_names,
+            false,
+        )
     })?;
 
-    program = log_event.time("client_edges", || client_edges(&program))?;
-
+    program = log_event.time("client_edges", || {
+        client_edges(&program, &project_config.schema_config)
+    })?;
     program = log_event.time("relay_resolvers", || {
         relay_resolvers(
             &program,
@@ -227,7 +233,9 @@ fn apply_operation_transforms(
     program = log_event.time("split_module_import", || {
         split_module_import(&program, &base_fragment_names)
     });
-    program = log_event.time("generate_id_field", || generate_id_field(&program));
+    program = log_event.time("generate_id_field", || {
+        generate_id_field(&program, &project_config.schema_config)
+    });
     program = log_event.time("declarative_connection", || {
         transform_declarative_connection(
             &program,
@@ -423,7 +431,9 @@ fn apply_typegen_transforms(
         transform_subscriptions(&program)
     })?;
     program = log_event.time("required_directive", || required_directive(&program))?;
-    program = log_event.time("client_edges", || client_edges(&program))?;
+    program = log_event.time("client_edges", || {
+        client_edges(&program, &project_config.schema_config)
+    })?;
     program = log_event.time(
         "transform_assignable_fragment_spreads_in_regular_queries",
         || transform_assignable_fragment_spreads_in_regular_queries(&program),
@@ -439,7 +449,12 @@ fn apply_typegen_transforms(
     })?;
     log_event.time("flatten", || flatten(&mut program, false, false))?;
     program = log_event.time("transform_refetchable_fragment", || {
-        transform_refetchable_fragment(&program, &base_fragment_names, true)
+        transform_refetchable_fragment(
+            &program,
+            &project_config.schema_config,
+            &base_fragment_names,
+            true,
+        )
     })?;
     program = log_event.time("remove_base_fragments", || {
         remove_base_fragments(&program, base_fragment_names)

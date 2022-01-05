@@ -9,6 +9,7 @@ use crate::refetchable_fragment::{RefetchableFragment, REFETCHABLE_NAME};
 use graphql_syntax::OperationKind;
 use intern::string_key::{Intern, StringKey, StringKeyMap};
 use lazy_static::lazy_static;
+use relay_config::SchemaConfig;
 use schema::Type;
 use std::sync::Arc;
 
@@ -79,8 +80,8 @@ impl<'a> ClientEdgeMetadata<'a> {
             })
     }
 }
-pub fn client_edges(program: &Program) -> DiagnosticsResult<Program> {
-    let mut transform = ClientEdgesTransform::new(program);
+pub fn client_edges(program: &Program, schema_config: &SchemaConfig) -> DiagnosticsResult<Program> {
+    let mut transform = ClientEdgesTransform::new(program, schema_config);
     let mut next_program = transform
         .transform_program(program)
         .replace_or_else(|| program.clone());
@@ -98,7 +99,7 @@ pub fn client_edges(program: &Program) -> DiagnosticsResult<Program> {
     }
 }
 
-struct ClientEdgesTransform<'program> {
+struct ClientEdgesTransform<'program, 'sc> {
     path: Vec<&'program str>,
     document_name: Option<StringKey>,
     query_names: StringKeyMap<usize>,
@@ -106,12 +107,14 @@ struct ClientEdgesTransform<'program> {
     new_fragments: Vec<Arc<FragmentDefinition>>,
     new_operations: Vec<OperationDefinition>,
     errors: Vec<Diagnostic>,
+    schema_config: &'sc SchemaConfig,
 }
 
-impl<'program> ClientEdgesTransform<'program> {
-    fn new(program: &'program Program) -> Self {
+impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
+    fn new(program: &'program Program, schema_config: &'sc SchemaConfig) -> Self {
         Self {
             program,
+            schema_config,
             path: Default::default(),
             query_names: Default::default(),
             document_name: Default::default(),
@@ -169,7 +172,7 @@ impl<'program> ClientEdgesTransform<'program> {
             selections,
         };
 
-        let mut transformer = RefetchableFragment::new(self.program, false);
+        let mut transformer = RefetchableFragment::new(self.program, self.schema_config, false);
 
         let refetchable_fragment = transformer
             .transform_refetch_fragment_with_refetchable_directive(
@@ -264,7 +267,7 @@ impl<'program> ClientEdgesTransform<'program> {
     }
 }
 
-impl Transformer for ClientEdgesTransform<'_> {
+impl Transformer for ClientEdgesTransform<'_, '_> {
     const NAME: &'static str = "ClientEdgesTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;

@@ -19,7 +19,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let ast = parse_executable(fixture.content, source_location).unwrap();
     let ir = build(&schema, &ast.definitions).unwrap();
     let program = Program::from_definitions(schema, ir);
-    disallow_reserved_aliases(&program)
+    disallow_reserved_aliases(&program, &Default::default())
         .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
 
     Ok("OK".to_owned())

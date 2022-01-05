@@ -161,6 +161,10 @@ impl SchemaWrapper {
         result
     }
 
+    pub fn has_type(&self, type_name: StringKey) -> bool {
+        self.flatbuffer_schema().has_type(type_name)
+    }
+
     pub fn has_directive(&self, name: StringKey) -> bool {
         self.get_directive(name).is_some()
     }

@@ -345,7 +345,7 @@ impl SDLSchema {
 
     pub fn has_type(&self, type_name: StringKey) -> bool {
         match self {
-            SDLSchema::FlatBuffer(_schema) => todo!(),
+            SDLSchema::FlatBuffer(schema) => schema.has_type(type_name),
             SDLSchema::InMemory(schema) => schema.has_type(type_name),
         }
     }

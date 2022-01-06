@@ -11,7 +11,9 @@
 
 'use strict';
 
-const ResolverFragments = require('relay-runtime/store/ResolverFragments');
+const {
+  __internal: {ResolverFragments},
+} = require('relay-runtime');
 
 /**
  * Utility function for testing Relay Resolvers. Pass the resolver function and
@@ -20,7 +22,7 @@ const ResolverFragments = require('relay-runtime/store/ResolverFragments');
  *
  * *Note:* Relay fragment data includes a special `$fragmentType` key which is
  * impossible for non-Relay code to construct. In tests you can work around
- * this by passing `null` with a Flow supression:
+ * this by passing `null` with a Flow suppression:
  *
  * ```
  * const fragmentData = {

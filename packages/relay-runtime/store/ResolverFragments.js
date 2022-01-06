@@ -42,9 +42,9 @@ function withResolverContext<T>(context: ResolverContext, cb: () => T): T {
 // The declarations ensure that the type of the returned data is:
 //   - non-nullable if the provided ref type is non-nullable
 //   - nullable if the provided ref type is nullable
-//   - array of non-nullable if the privoided ref type is an array of
+//   - array of non-nullable if the provided ref type is an array of
 //     non-nullable refs
-//   - array of nullable if the privoided ref type is an array of nullable refs
+//   - array of nullable if the provided ref type is an array of nullable refs
 
 declare function readFragment<
   TKey: {+$data?: mixed, +$fragmentSpreads: FragmentType, ...},

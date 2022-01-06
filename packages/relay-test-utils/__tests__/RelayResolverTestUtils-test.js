@@ -13,9 +13,11 @@
 
 import type {RelayResolverTestUtilsTest$key} from './__generated__/RelayResolverTestUtilsTest.graphql';
 
+// TODO: T109483224 Make sure the test utils are working correctly, when `readFragment` is
+// required from `relay-runtime`.
+const {readFragment} = require('../../relay-runtime/store/ResolverFragments');
 const {testResolver} = require('../RelayResolverTestUtils');
 const {graphql} = require('relay-runtime');
-const {readFragment} = require('relay-runtime/store/ResolverFragments');
 
 function myTestResolver(rootKey: RelayResolverTestUtilsTest$key): string {
   const user = readFragment(

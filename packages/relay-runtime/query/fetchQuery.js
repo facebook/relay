@@ -22,9 +22,9 @@ import type {
   CacheConfig,
   FetchQueryFetchPolicy,
   OperationType,
-  VariablesOf,
+  Query,
+  Variables,
 } from '../util/RelayRuntimeTypes';
-import type {GraphQLTaggedNode} from './GraphQLTag';
 
 const RelayObservable = require('../network/RelayObservable');
 const {
@@ -112,15 +112,15 @@ const invariant = require('invariant');
  * ```
  * NOTE: When using .toPromise(), the request cannot be cancelled.
  */
-function fetchQuery<TQuery: OperationType>(
+function fetchQuery<TVariables: Variables, TData, TRawResponse>(
   environment: IEnvironment,
-  query: GraphQLTaggedNode,
-  variables: VariablesOf<TQuery>,
+  query: Query<TVariables, TData, TRawResponse>,
+  variables: TVariables,
   options?: $ReadOnly<{|
     fetchPolicy?: FetchQueryFetchPolicy,
     networkCacheConfig?: CacheConfig,
   |}>,
-): RelayObservable<TQuery['response']> {
+): RelayObservable<TData> {
   const queryNode = getRequest(query);
   invariant(
     queryNode.params.operationKind === 'query',
@@ -137,10 +137,12 @@ function fetchQuery<TQuery: OperationType>(
   );
   const fetchPolicy = options?.fetchPolicy ?? 'network-only';
 
-  function readData(snapshot: Snapshot) {
+  function readData(snapshot: Snapshot): TData {
     if (snapshot.missingRequiredFields != null) {
       reportMissingRequiredFields(environment, snapshot.missingRequiredFields);
     }
+    /* $FlowFixMe[incompatible-return] we assume readData returns the right
+     * data just having written it from network or checked availability. */
     return snapshot.data;
   }
 

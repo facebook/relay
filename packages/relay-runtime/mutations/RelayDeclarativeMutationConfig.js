@@ -15,7 +15,6 @@
 import type {
   MutationParameters,
   RecordSourceSelectorProxy,
-  SelectorData,
   SelectorStoreUpdater,
 } from '../store/RelayStoreTypes';
 import type {ConcreteRequest} from '../util/RelayConcreteNode';

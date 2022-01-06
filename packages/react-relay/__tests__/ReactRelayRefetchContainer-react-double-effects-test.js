@@ -13,7 +13,6 @@
 
 const {createContainer} = require('../ReactRelayRefetchContainer');
 const RelayEnvironmentProvider = require('../relay-hooks/RelayEnvironmentProvider');
-// eslint-disable-next-line no-unused-vars
 const React = require('react');
 const {useEffect} = require('react');
 const ReactTestRenderer = require('react-test-renderer');

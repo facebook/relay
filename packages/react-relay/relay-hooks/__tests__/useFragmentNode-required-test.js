@@ -14,7 +14,6 @@ import type {ReaderFragment} from '../../../relay-runtime/util/ReaderNode';
 import type {RequestDescriptor} from 'relay-runtime/store/RelayStoreTypes';
 
 const useFragmentNodeOriginal = require('../useFragmentNode');
-// eslint-disable-next-line no-unused-vars
 const React = require('react');
 const ReactRelayContext = require('react-relay/ReactRelayContext');
 const TestRenderer = require('react-test-renderer');

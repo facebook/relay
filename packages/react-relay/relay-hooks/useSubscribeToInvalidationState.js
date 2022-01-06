@@ -13,7 +13,7 @@
 
 'use strict';
 
-import type {DataID, Disposable, InvalidationState} from 'relay-runtime';
+import type {DataID, Disposable} from 'relay-runtime';
 
 const useRelayEnvironment = require('./useRelayEnvironment');
 const {useEffect, useRef} = require('react');

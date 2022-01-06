@@ -30,7 +30,6 @@ const {
   createOperationDescriptor,
 } = require('../store/RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../store/RelayModernSelector');
-const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const warning = require('warning');
 
 export type SubscriptionParameters = {|

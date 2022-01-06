@@ -16,7 +16,7 @@ const {
 } = require('../RelayModernOperationDescriptor');
 const {read} = require('../RelayReader');
 const RelayRecordSource = require('../RelayRecordSource');
-const {RelayFeatureFlags, createReaderSelector} = require('relay-runtime');
+const {createReaderSelector} = require('relay-runtime');
 
 describe('RelayReader @required', () => {
   it('bubbles @required(action: LOG) scalars up to LinkedField', () => {

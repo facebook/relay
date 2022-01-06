@@ -392,7 +392,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
       }) => {
         // We need a render a component to run a Hook
         const [owner, _setOwner] = useState(props.owner);
-        const [_, _setCount] = useState(0);
+        const [, setCount] = useState(0);
         const fragment = props.fragment ?? gqlFragment;
         const artificialUserRef = useMemo(() => {
           const snapshot = environment.lookup(owner.fragment);
@@ -403,7 +403,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
           : artificialUserRef;
 
         setOwner = _setOwner;
-        forceUpdate = _setCount;
+        forceUpdate = setCount;
 
         const {data: userData} =
           useBlockingPaginationFragmentWithSuspenseTransition(

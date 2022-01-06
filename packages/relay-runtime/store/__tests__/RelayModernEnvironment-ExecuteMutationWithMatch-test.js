@@ -33,10 +33,7 @@ const {
 const RelayModernStore = require('../RelayModernStore');
 const RelayRecordSource = require('../RelayRecordSource');
 const nullthrows = require('nullthrows');
-const {
-  disallowWarnings,
-  expectWarningWillFire,
-} = require('relay-test-utils-internal');
+const {disallowWarnings} = require('relay-test-utils-internal');
 
 disallowWarnings();
 

@@ -27,7 +27,6 @@ const {
 } = require('../../multi-actor-environment');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -37,10 +36,7 @@ const RelayModernStore = require('../RelayModernStore');
 const RelayRecordSource = require('../RelayRecordSource');
 const QueryUserNormalizationFragment = require('./__generated__/RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user$normalization.graphql');
 const {graphql} = require('relay-runtime');
-const {
-  disallowWarnings,
-  expectWarningWillFire,
-} = require('relay-test-utils-internal');
+const {disallowWarnings} = require('relay-test-utils-internal');
 
 disallowWarnings();
 

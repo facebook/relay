@@ -262,8 +262,8 @@ describe('useRefetchableFragmentNode', () => {
       ...
     }) => {
       // We need a render a component to run a Hook
-      const [owner, _setOwner] = useState<OperationDescriptor>(props.owner);
-      const [_, _setCount] = useState(0);
+      const [owner, setOwner_] = useState<OperationDescriptor>(props.owner);
+      const [, setCount_] = useState(0);
       const fragment = props.fragment ?? gqlFragment;
       const artificialUserRef = useMemo(
         () => ({
@@ -281,8 +281,8 @@ describe('useRefetchableFragmentNode', () => {
         ? props.userRef
         : artificialUserRef;
 
-      forceUpdate = _setCount;
-      setOwner = _setOwner;
+      forceUpdate = setCount_;
+      setOwner = setOwner_;
 
       const {fragmentData: userData, refetch: refetchInternal} =
         useRefetchableFragmentNode(fragment, userRef);

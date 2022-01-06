@@ -377,8 +377,8 @@ describe('useBlockingPaginationFragment', () => {
       ...
     }) => {
       // We need a render a component to run a Hook
-      const [owner, _setOwner] = useState(props.owner);
-      const [_, _setCount] = useState(0);
+      const [owner, setOwner_] = useState(props.owner);
+      const [, setCount] = useState(0);
       const fragment = props.fragment ?? gqlFragment;
       const artificialUserRef = useMemo(
         () => environment.lookup(owner.fragment).data?.node,
@@ -388,8 +388,8 @@ describe('useBlockingPaginationFragment', () => {
         ? props.userRef
         : artificialUserRef;
 
-      setOwner = _setOwner;
-      forceUpdate = _setCount;
+      setOwner = setOwner_;
+      forceUpdate = setCount;
 
       const {data: userData} = useBlockingPaginationFragment(fragment, userRef);
       return <Renderer user={userData} />;
@@ -842,10 +842,10 @@ describe('useBlockingPaginationFragment', () => {
         // This prevents console.error output in the test, which is expected
         jest.spyOn(console, 'error').mockImplementationOnce(() => {});
         const {
-          __internal: {fetchQuery},
+          __internal: {fetchQuery: fetchQuery_},
         } = require('relay-runtime');
 
-        fetchQuery(environment, query).subscribe({});
+        fetchQuery_(environment, query).subscribe({});
 
         const callback = jest.fn();
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters

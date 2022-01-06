@@ -13,7 +13,6 @@
 import type {ActorIdentifier} from '../../../relay-runtime/multi-actor-environment/ActorIdentifier';
 import type {ActorChangeWithMutationTestFragment$key} from './__generated__/ActorChangeWithMutationTestFragment.graphql';
 import type {ActorChangeWithMutationTestMutation} from './__generated__/ActorChangeWithMutationTestMutation.graphql';
-import type {ActorChangeWithMutationTestQuery} from './__generated__/ActorChangeWithMutationTestQuery.graphql';
 import type {
   IActorEnvironment,
   IMultiActorEnvironment,
@@ -40,10 +39,7 @@ const {
   MultiActorEnvironment,
   getActorIdentifier,
 } = require('relay-runtime/multi-actor-environment');
-const {
-  disallowWarnings,
-  expectWarningWillFire,
-} = require('relay-test-utils-internal');
+const {disallowWarnings} = require('relay-test-utils-internal');
 
 function ComponentWrapper(
   props: $ReadOnly<{

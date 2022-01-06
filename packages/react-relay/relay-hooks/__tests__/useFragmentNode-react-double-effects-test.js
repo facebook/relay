@@ -13,7 +13,6 @@
 
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const useFragmentNode = require('../useFragmentNode');
-// eslint-disable-next-line no-unused-vars
 const React = require('react');
 const {useEffect} = require('react');
 const ReactTestRenderer = require('react-test-renderer');

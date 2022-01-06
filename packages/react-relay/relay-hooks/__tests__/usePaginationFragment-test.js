@@ -44,7 +44,6 @@ describe('usePaginationFragment', () => {
   let gqlQueryWithLiteralArgs;
   let gqlQueryWithStreaming;
   let gqlPaginationQuery;
-  let gqlPaginationQueryWithStreaming;
   let gqlFragment;
   let gqlFragmentWithStreaming;
   let query;
@@ -3964,8 +3963,6 @@ describe('usePaginationFragment', () => {
     });
 
     describe('paginating @fetchable types', () => {
-      let gqlRefetchQuery;
-
       beforeEach(() => {
         const fetchVariables = {id: 'a'};
         gqlQuery = getRequest(graphql`

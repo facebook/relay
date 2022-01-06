@@ -12,7 +12,6 @@
 'use strict';
 import type {ActorChangeWithDeferTestDeferFragment$key} from './__generated__/ActorChangeWithDeferTestDeferFragment.graphql';
 import type {ActorChangeWithDeferTestFragment$key} from './__generated__/ActorChangeWithDeferTestFragment.graphql';
-import type {ActorChangeWithDeferTestQuery} from './__generated__/ActorChangeWithDeferTestQuery.graphql';
 import type {
   IActorEnvironment,
   IMultiActorEnvironment,

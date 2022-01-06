@@ -12,7 +12,6 @@
 'use strict';
 
 import type {ActorChangeTestFeedUnitFragment$key} from './__generated__/ActorChangeTestFeedUnitFragment.graphql';
-import type {ActorChangeTestQuery} from './__generated__/ActorChangeTestQuery.graphql';
 import type {
   ActorIdentifier,
   IActorEnvironment,
@@ -32,10 +31,7 @@ const {
   MultiActorEnvironment,
   getActorIdentifier,
 } = require('relay-runtime/multi-actor-environment');
-const {
-  disallowWarnings,
-  expectWarningWillFire,
-} = require('relay-test-utils-internal');
+const {disallowWarnings} = require('relay-test-utils-internal');
 
 function ComponentWrapper(
   props: $ReadOnly<{

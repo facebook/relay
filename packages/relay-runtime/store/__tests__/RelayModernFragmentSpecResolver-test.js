@@ -11,7 +11,6 @@
 'use strict';
 
 const {fetchQuery} = require('../../query/fetchQueryInternal');
-const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const RelayModernFragmentSpecResolver = require('../RelayModernFragmentSpecResolver');
 const {
   createOperationDescriptor,

@@ -151,7 +151,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
 
     loaderRenderLogs = [];
     LoaderComponent = function (props) {
-      const [entryPointRef, _loadEntryPoint] = useEntryPointLoader(
+      const [entryPointRef] = useEntryPointLoader(
         environmentProvider,
         props.entryPoint,
         {

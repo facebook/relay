@@ -168,13 +168,11 @@ describe('ReactRelayRefetchContainer with fragment ownerhsip', () => {
   });
 
   describe('refetch()', () => {
-    let instance;
-
     beforeEach(() => {
       const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1)
         .data.node;
       environment.mock.clearCache();
-      instance = ReactTestRenderer.create(
+      ReactTestRenderer.create(
         <ContextSetter environment={environment}>
           <TestContainer user={userPointer} />
         </ContextSetter>,
@@ -389,7 +387,7 @@ describe('ReactRelayRefetchContainer with fragment ownerhsip', () => {
       const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1)
         .data.node;
       environment.mock.clearCache();
-      instance = ReactTestRenderer.create(
+      ReactTestRenderer.create(
         <ContextSetter environment={environment}>
           <TestContainer user={userPointer} />
         </ContextSetter>,

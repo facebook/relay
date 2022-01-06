@@ -11,7 +11,6 @@
 
 'use strict';
 import type {ActorChangeWithStreamTestFragment$key} from './__generated__/ActorChangeWithStreamTestFragment.graphql';
-import type {ActorChangeWithStreamTestQuery} from './__generated__/ActorChangeWithStreamTestQuery.graphql';
 import type {
   IActorEnvironment,
   IMultiActorEnvironment,

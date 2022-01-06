@@ -12,7 +12,6 @@
 
 'use strict';
 
-import type {ActorIdentifier} from '../multi-actor-environment/ActorIdentifier';
 import type {DataID, Disposable} from '../util/RelayRuntimeTypes';
 import type {Availability} from './DataChecker';
 import type {GetDataID} from './RelayResponseNormalizer';

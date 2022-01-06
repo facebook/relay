@@ -224,7 +224,7 @@ beforeEach(() => {
   }) => {
     // We need a render a component to run a Hook
     const [owner, _setOwner] = useState<OperationDescriptor>(props.owner);
-    const [, _setCount] = useState(0);
+    const [, setCount] = useState(0);
     const userRef = props.hasOwnProperty('userRef')
       ? props.userRef
       : {
@@ -237,7 +237,7 @@ beforeEach(() => {
         };
 
     setSingularOwner = _setOwner;
-    forceSingularUpdate = () => _setCount(count => count + 1);
+    forceSingularUpdate = () => setCount(count => count + 1);
 
     const [userData] = useFragmentNode(gqlSingularFragment, userRef);
     return <SingularRenderer user={userData} />;

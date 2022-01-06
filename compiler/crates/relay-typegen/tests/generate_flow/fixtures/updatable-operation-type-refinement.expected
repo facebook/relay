@@ -17,18 +17,20 @@ query UpdatableQuery @updatable {
 ==================================== OUTPUT ===================================
 export type UpdatableQuery$variables = {||};
 export type UpdatableQuery$data = {|
-  +maybeNodeInterface: ?({|
+  get maybeNodeInterface(): ?({|
     +__typename: "NonNodeNoID",
     name: ?string,
   |} | {|
     +__typename: "Story",
     actorCount: ?number,
-    +address: ?{|
+    get address(): ?{|
       city: ?string,
     |},
+    set address(value: null | void): void,
   |} | {|
     // This will never be '%other', but we need some
     // value in case none of the concrete values match.
     +__typename: "%other",
   |}),
+  set maybeNodeInterface(value: null | void): void,
 |};

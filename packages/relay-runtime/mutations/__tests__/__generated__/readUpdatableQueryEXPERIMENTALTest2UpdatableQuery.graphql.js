@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<d492ec3a4c8ac77c1835545eb46e43cf>>
+ * @generated SignedSource<<2d636f30bea75a4a906f952c954572d6>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,9 +21,10 @@ export type readUpdatableQueryEXPERIMENTALTest2UpdatableQuery$variables = {|
 |};
 export type readUpdatableQueryEXPERIMENTALTest2UpdatableQueryVariables = readUpdatableQueryEXPERIMENTALTest2UpdatableQuery$variables;
 export type readUpdatableQueryEXPERIMENTALTest2UpdatableQuery$data = {|
-  +node: ?{|
+  get node(): ?{|
     +__typename: string,
   |},
+  set node(value: null | void): void,
 |};
 export type readUpdatableQueryEXPERIMENTALTest2UpdatableQueryResponse = readUpdatableQueryEXPERIMENTALTest2UpdatableQuery$data;
 export type readUpdatableQueryEXPERIMENTALTest2UpdatableQuery = {|

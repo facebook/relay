@@ -315,7 +315,7 @@ describe('readUpdatableQuery', () => {
     });
   });
 
-  it('lets you assign linked fields if the linked field in the updatable query contains an inline fragment', () => {
+  it('lets you assign linked fields if the linked field in the updatable query contains a spread of an assignable fragment', () => {
     environment.commitPayload(operation, {
       me: {
         __typename: 'User',
@@ -419,68 +419,6 @@ describe('readUpdatableQuery', () => {
     const readOnlyData = ((RelayReader.read(source, selector) // $FlowFixMe[unclear-type] Just to cast it to a better type!
       .data: any): readUpdatableQueryEXPERIMENTALTestRegularQuery['response']);
     expect(readOnlyData.me).toBe(null);
-  });
-
-  it('does not let you assign linked fields if the linked field in the updatable query does not contain an inline fragment', () => {
-    environment.commitPayload(operation, {
-      me: {
-        __typename: 'User',
-        id: '42',
-        name: 'NotZuck',
-        author: null,
-      },
-      node: {
-        __typename: 'User',
-        id: '4',
-        name: 'Zuck',
-        __isUser: 'User',
-      },
-      node2: null,
-    });
-
-    commitLocalUpdate(environment, store => {
-      const me = store.getRoot()?.getLinkedRecord('me');
-      expect(me?.getValue('id')).toEqual('42');
-      expect(me?.getValue('name')).toEqual('NotZuck');
-
-      const node = store.getRoot()?.getLinkedRecord('node', {id: '4'});
-      expect(node?.getValue('id')).toEqual('4');
-      expect(node?.getValue('name')).toEqual('Zuck');
-
-      const updatableData =
-        store.readUpdatableQuery_EXPERIMENTAL<readUpdatableQueryEXPERIMENTALTestUpdatableQuery>(
-          updatableQuery,
-          {},
-        );
-
-      const source = environment.getStore().getSource();
-      const selector = operation.fragment;
-      const readOnlyData = ((RelayReader.read(source, selector) // $FlowFixMe[unclear-type] Just to cast it to a better type!
-        .data: any): readUpdatableQueryEXPERIMENTALTestRegularQuery['response']);
-
-      expect(readOnlyData?.me).not.toBe(null);
-      if (updatableData.node != null) {
-        if (updatableData.node.__typename === 'User') {
-          expect(updatableData.node.name).toBe('Zuck');
-        }
-      } else {
-        throw new Error('Expected node to exist');
-      }
-
-      if (updatableData.me != null && readOnlyData != null) {
-        expect(() => {
-          // $FlowFixMe[cannot-write] That's the point!
-          updatableData.node = readOnlyData.me;
-        }).toThrowError();
-      }
-
-      // name is unchanged
-      if (updatableData.node != null) {
-        if (updatableData.node.__typename === 'User') {
-          expect(updatableData.node.name).toBe('Zuck');
-        }
-      }
-    });
   });
 
   it('allows you to assign an empty array to clear plural linked fields', () => {
@@ -613,6 +551,64 @@ describe('readUpdatableQuery', () => {
     } else {
       throw new Error('Expected parents to exist');
     }
+  });
+
+  it('throws if you assign null or undefined to a plural linked field', () => {
+    environment.commitPayload(operation, {
+      me: null,
+      node: {
+        __isUser: 'User',
+        __typename: 'User',
+        id: '4',
+        name: 'Gaius Julius Caesar',
+      },
+      node2: {
+        __typename: 'User',
+        id: '5',
+        name: 'Gaius Julius Caesar Octavianus',
+        __isUser: 'User',
+        parents: [
+          {
+            __typename: 'User',
+            __isUser: 'User',
+            id: '467',
+            name: 'Gaius Octavius',
+            parents: [],
+          },
+        ],
+      },
+    });
+
+    commitLocalUpdate(environment, store => {
+      const updatableData =
+        store.readUpdatableQuery_EXPERIMENTAL<readUpdatableQueryEXPERIMENTALTestUpdatableQuery>(
+          updatableQuery,
+          {},
+        );
+
+      const source = environment.getStore().getSource();
+      const selector = operation.fragment;
+      const readOnlyData = ((RelayReader.read(source, selector) // $FlowFixMe[unclear-type] Just to cast it to a better type!
+        .data: any): readUpdatableQueryEXPERIMENTALTestRegularQuery['response']);
+
+      if (updatableData.node2 != null) {
+        if (updatableData.node2.__typename === 'User') {
+          if (readOnlyData.node != null) {
+            if (readOnlyData.node.__typename === 'User') {
+              expect(() => {
+                /* eslint-disable-next-line flowtype/no-flow-fix-me-comments */
+                // $FlowFixMe
+                updatableData.node2.parents = null;
+              }).toThrowError();
+            }
+          }
+        } else {
+          throw new Error('Expected node2 to have typename User');
+        }
+      } else {
+        throw new Error('Expected node2 to exist');
+      }
+    });
   });
 
   it('lets you access fields deeply', () => {

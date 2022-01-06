@@ -17,7 +17,7 @@ fragment Assignable_user on User @assignable {
 import type { Assignable_user$fragmentType } from "Assignable_user.graphql";
 export type UpdatableQuery$variables = {||};
 export type UpdatableQuery$data = {|
-  +node: ?({|
+  get node(): ?({|
     +__typename: "User",
     get parents(): $ReadOnlyArray<{||}>,
     set parents(value: $ReadOnlyArray<{
@@ -29,6 +29,7 @@ export type UpdatableQuery$data = {|
     // value in case none of the concrete values match.
     +__typename: "%other",
   |}),
+  set node(value: null | void): void,
 |};
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<4f2313fb359179b58536755ffd184699>>
+ * @generated SignedSource<<29658e535f1330f111a095897c016f54>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,7 +24,7 @@ export type readUpdatableQueryEXPERIMENTALTestUpdatableQuery$data = {|
     +__typename: string,
     +id: string,
     name: ?string,
-    +author: ?{|
+    get author(): ?{|
       get client_best_friend(): ?{|
         name: ?string,
       |},
@@ -33,15 +33,17 @@ export type readUpdatableQueryEXPERIMENTALTestUpdatableQuery$data = {|
         ...
       }): void,
     |},
-    +author2: ?{|
+    set author(value: null | void): void,
+    get author2(): ?{|
       client_nickname: ?string,
     |},
+    set author2(value: null | void): void,
   |},
   set me(value: ?{
     +$fragmentSpreads: readUpdatableQueryEXPERIMENTALTest_user$fragmentType,
     ...
   }): void,
-  +node: ?({|
+  get node(): ?({|
     +__typename: "User",
     name: ?string,
   |} | {|
@@ -49,14 +51,16 @@ export type readUpdatableQueryEXPERIMENTALTestUpdatableQuery$data = {|
     // value in case none of the concrete values match.
     +__typename: "%other",
   |}),
-  +node2: ?({|
+  set node(value: null | void): void,
+  get node2(): ?({|
     +__typename: "User",
     name: ?string,
     get parents(): $ReadOnlyArray<{|
       name: ?string,
-      +parents: $ReadOnlyArray<{|
+      get parents(): $ReadOnlyArray<{|
         name: ?string,
       |}>,
+      set parents(value: []): void,
     |}>,
     set parents(value: $ReadOnlyArray<{
       +$fragmentSpreads: readUpdatableQueryEXPERIMENTALTest_user$fragmentType,
@@ -67,6 +71,7 @@ export type readUpdatableQueryEXPERIMENTALTestUpdatableQuery$data = {|
     // value in case none of the concrete values match.
     +__typename: "%other",
   |}),
+  set node2(value: null | void): void,
 |};
 export type readUpdatableQueryEXPERIMENTALTestUpdatableQueryResponse = readUpdatableQueryEXPERIMENTALTestUpdatableQuery$data;
 export type readUpdatableQueryEXPERIMENTALTestUpdatableQuery = {|

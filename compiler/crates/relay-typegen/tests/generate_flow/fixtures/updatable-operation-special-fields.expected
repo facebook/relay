@@ -10,10 +10,11 @@ query UpdatableQuery @updatable {
 ==================================== OUTPUT ===================================
 export type UpdatableQuery$variables = {||};
 export type UpdatableQuery$data = {|
-  +me: ?{|
+  get me(): ?{|
     +id: string,
     +aliased_id: string,
     +__typename: string,
     +aliased_typename: string,
   |},
+  set me(value: null | void): void,
 |};

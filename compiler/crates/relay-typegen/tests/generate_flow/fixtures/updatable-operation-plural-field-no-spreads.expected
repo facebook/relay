@@ -1,16 +1,14 @@
 ==================================== INPUT ====================================
 query UpdatableQuery @updatable {
-  me {
-    actorCount
-    name
+  nodes(ids: [4]) {
+    id
   }
 }
 ==================================== OUTPUT ===================================
 export type UpdatableQuery$variables = {||};
 export type UpdatableQuery$data = {|
-  get me(): ?{|
-    actorCount: ?number,
-    name: ?string,
-  |},
-  set me(value: null | void): void,
+  get nodes(): ?$ReadOnlyArray<?{|
+    +id: string,
+  |}>,
+  set nodes(value: []): void,
 |};

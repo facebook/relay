@@ -16,6 +16,10 @@ mod writer;
 use crate::flow::FlowPrinter;
 use crate::typescript::TypeScriptPrinter;
 use crate::writer::{GetterSetterPairProp, KeyValuePairProp, SpreadProp, Writer};
+use ::intern::{
+    intern,
+    string_key::{Intern, StringKey},
+};
 use common::NamedItem;
 use fnv::FnvHashSet;
 use graphql_ir::{
@@ -23,7 +27,6 @@ use graphql_ir::{
     OperationDefinition, ProvidedVariableMetadata, ScalarField, Selection,
 };
 use indexmap::{map::Entry, IndexMap, IndexSet};
-use intern::string_key::{Intern, StringKey};
 use itertools::Itertools;
 use lazy_static::lazy_static;
 use relay_config::JsModuleFormat;
@@ -1020,9 +1023,8 @@ impl<'a> TypeGenerator<'a> {
         unmasked: bool,
         concrete_type: Option<Type>,
     ) -> Prop {
-        let is_updatable_operation = self.is_updatable_operation;
         let optional = type_selection.is_conditional();
-        if is_updatable_operation && optional {
+        if self.is_updatable_operation && optional {
             panic!(
                 "Within updatable operations, we should never generate optional fields! This indicates a bug in Relay. type_selection: {:?}",
                 type_selection
@@ -1031,11 +1033,9 @@ impl<'a> TypeGenerator<'a> {
 
         match type_selection {
             TypeSelection::LinkedField(linked_field) => {
-                let linked_field_is_updatable =
-                    is_updatable_operation && linked_field.contains_fragment_spread();
                 let key = linked_field.field_name_or_alias;
 
-                if linked_field_is_updatable {
+                if self.is_updatable_operation {
                     // TODO check whether the field is `node` or `nodes` on `Query`. If so, it should not be
                     // updatable.
 
@@ -1047,25 +1047,33 @@ impl<'a> TypeGenerator<'a> {
                     let getter_return_value = self
                         .transform_scalar_type(&linked_field.node_type, Some(getter_object_props));
 
-                    let mut setter_parameter =
-                        AST::InexactObject(vec![Prop::KeyValuePair(KeyValuePairProp {
-                            key: *KEY_FRAGMENT_SPREADS,
-                            value: AST::Union(
-                                just_fragments
-                                    .iter()
-                                    .map(|fragment| {
-                                        AST::FragmentReferenceType(fragment.fragment_name)
-                                    })
-                                    .collect(),
-                            ),
-                            read_only: true,
-                            optional: false,
-                        })]);
-                    if linked_field.node_type.is_list() {
-                        setter_parameter = AST::ReadOnlyArray(Box::new(setter_parameter));
+                    let setter_parameter = if just_fragments.is_empty() {
+                        if linked_field.node_type.is_list() {
+                            AST::RawType(intern!("[]"))
+                        } else {
+                            AST::RawType(intern!("null | void"))
+                        }
                     } else {
-                        setter_parameter = AST::Nullable(Box::new(setter_parameter));
-                    }
+                        let setter_parameter =
+                            AST::InexactObject(vec![Prop::KeyValuePair(KeyValuePairProp {
+                                key: *KEY_FRAGMENT_SPREADS,
+                                value: AST::Union(
+                                    just_fragments
+                                        .iter()
+                                        .map(|fragment| {
+                                            AST::FragmentReferenceType(fragment.fragment_name)
+                                        })
+                                        .collect(),
+                                ),
+                                read_only: true,
+                                optional: false,
+                            })]);
+                        if linked_field.node_type.is_list() {
+                            AST::ReadOnlyArray(Box::new(setter_parameter))
+                        } else {
+                            AST::Nullable(Box::new(setter_parameter))
+                        }
+                    };
 
                     Prop::GetterSetterPair(GetterSetterPairProp {
                         key,
@@ -1649,14 +1657,6 @@ struct TypeSelectionLinkedField {
     node_selections: TypeSelectionMap,
     conditional: bool,
     concrete_type: Option<Type>,
-}
-
-impl TypeSelectionLinkedField {
-    fn contains_fragment_spread(&self) -> bool {
-        self.node_selections
-            .iter()
-            .any(|(_, type_selection)| matches!(type_selection, TypeSelection::FragmentSpread(_)))
-    }
 }
 
 #[derive(Debug, Clone)]

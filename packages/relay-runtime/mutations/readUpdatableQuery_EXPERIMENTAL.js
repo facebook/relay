@@ -55,50 +55,46 @@ function updateProxyFromSelections<TQuery: OperationType>(
   for (const selection of selections) {
     switch (selection.kind) {
       case 'LinkedField':
-        // Linked fields are assignable if they contain fragment spreads or
-        // read-only otherwise.
-        const isAssignable = selection.selections.some(
-          item => item.kind === 'FragmentSpread',
-        );
-
-        const set = !isAssignable
-          ? undefined
-          : selection.plural
-          ? createSetterForPluralLinkedField(
-              selection,
-              queryVariables,
-              recordProxy,
-              root,
-            )
-          : createSetterForSingularLinkedField(
-              selection,
-              queryVariables,
-              recordProxy,
-              root,
-            );
-
-        const get = selection.plural
-          ? createGetterForPluralLinkedField(
-              selection,
-              queryVariables,
-              recordProxy,
-              root,
-            )
-          : createGetterForSingularLinkedField(
-              selection,
-              queryVariables,
-              recordProxy,
-              root,
-            );
-
-        Object.defineProperty(
-          mutableUpdatableProxy,
-          selection.alias ?? selection.name,
-          {
-            get,
-            set,
-          },
-        );
+        if (selection.plural) {
+          Object.defineProperty(
+            mutableUpdatableProxy,
+            selection.alias ?? selection.name,
+            {
+              // $FlowFixMe[incompatible-call] these getters and setters have different types on purpose
+              get: createGetterForPluralLinkedField(
+                selection,
+                queryVariables,
+                recordProxy,
+                root,
+              ),
+              set: createSetterForPluralLinkedField(
+                selection,
+                queryVariables,
+                recordProxy,
+                root,
+              ),
+            },
+          );
+        } else {
+          Object.defineProperty(
+            mutableUpdatableProxy,
+            selection.alias ?? selection.name,
+            {
+              get: createGetterForSingularLinkedField(
+                selection,
+                queryVariables,
+                recordProxy,
+                root,
+              ),
+              set: createSetterForSingularLinkedField(
+                selection,
+                queryVariables,
+                recordProxy,
+                root,
+              ),
+            },
+          );
+        }
         break;
       case 'ScalarField':
         const scalarFieldName = selection.alias ?? selection.name;
@@ -171,11 +167,12 @@ function createSetterForPluralLinkedField<TQuery: OperationType>(
   recordProxy: RecordProxy,
   root: RecordSourceProxy,
 ) {
-  return function set(newValue: ?$ReadOnlyArray<{__id: string, ...}>) {
+  return function set(newValue: $ReadOnlyArray<{__id: string, ...}>) {
     const variables = getArgumentValues(selection.args ?? [], queryVariables);
     if (newValue == null) {
-      // $FlowFixMe[unclear-type] No good way to type these variables
-      recordProxy.setValue(null, selection.name, (variables: any));
+      throw new Error(
+        'Do not assign null to plural linked fields; assign an empty array instead.',
+      );
     } else {
       const recordProxies = newValue.map(item => {
         if (item == null) {
@@ -206,6 +203,7 @@ function createSetterForPluralLinkedField<TQuery: OperationType>(
     }
   };
 }
+
 function createSetterForSingularLinkedField<TQuery: OperationType>(
   selection: ReaderLinkedField,
   queryVariables: TQuery['variables'],

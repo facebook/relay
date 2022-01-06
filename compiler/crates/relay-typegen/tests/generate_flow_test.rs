@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<57c52f7dc2704cd28dc885b8542cd53a>>
+ * @generated SignedSource<<00497d55c4cbafa66e2380e267c24b2c>>
  */
 
 mod generate_flow;
@@ -465,6 +465,20 @@ fn updatable_operation_multiple_assignable_fragments() {
     let input = include_str!("generate_flow/fixtures/updatable-operation-multiple-assignable-fragments.graphql");
     let expected = include_str!("generate_flow/fixtures/updatable-operation-multiple-assignable-fragments.expected");
     test_fixture(transform_fixture, "updatable-operation-multiple-assignable-fragments.graphql", "generate_flow/fixtures/updatable-operation-multiple-assignable-fragments.expected", input, expected);
+}
+
+#[test]
+fn updatable_operation_plural_field_no_spreads() {
+    let input = include_str!("generate_flow/fixtures/updatable-operation-plural-field-no-spreads.graphql");
+    let expected = include_str!("generate_flow/fixtures/updatable-operation-plural-field-no-spreads.expected");
+    test_fixture(transform_fixture, "updatable-operation-plural-field-no-spreads.graphql", "generate_flow/fixtures/updatable-operation-plural-field-no-spreads.expected", input, expected);
+}
+
+#[test]
+fn updatable_operation_plural_field_with_spreads() {
+    let input = include_str!("generate_flow/fixtures/updatable-operation-plural-field-with-spreads.graphql");
+    let expected = include_str!("generate_flow/fixtures/updatable-operation-plural-field-with-spreads.expected");
+    test_fixture(transform_fixture, "updatable-operation-plural-field-with-spreads.graphql", "generate_flow/fixtures/updatable-operation-plural-field-with-spreads.expected", input, expected);
 }
 
 #[test]

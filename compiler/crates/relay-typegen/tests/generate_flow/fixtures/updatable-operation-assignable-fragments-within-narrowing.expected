@@ -26,7 +26,7 @@ import type { Assignable_page$fragmentType } from "Assignable_page.graphql";
 import type { Assignable_user$fragmentType } from "Assignable_user.graphql";
 export type UpdatableQuery$variables = {||};
 export type UpdatableQuery$data = {|
-  +me: ?{|
+  get me(): ?{|
     get actor(): ?({|
       +__typename: "User",
     |} | {|
@@ -41,6 +41,7 @@ export type UpdatableQuery$data = {|
       ...
     }): void,
   |},
+  set me(value: null | void): void,
 |};
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";

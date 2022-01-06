@@ -44,7 +44,11 @@ function createOperationDescriptor<TQuery: OperationType>(
   dataID?: DataID = ROOT_ID,
 ): OperationDescriptor {
   const operation = request.operation;
-  const operationVariables = getOperationVariables(operation, variables);
+  const operationVariables = getOperationVariables(
+    operation,
+    request.params,
+    variables,
+  );
   const requestDescriptor = createRequestDescriptor(
     request,
     operationVariables,

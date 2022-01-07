@@ -16,7 +16,7 @@ describe('`development` option', () => {
   it('tests the hash when `development` is set', () => {
     expect(
       transformerWithOptions(
-        {eagerESModules: true},
+        {eagerEsModules: true},
         'development',
       )('graphql`fragment TestFrag on Node { id }`'),
     ).toMatchSnapshot();
@@ -25,7 +25,7 @@ describe('`development` option', () => {
   it('tests the hash when `isDevVariable` is set', () => {
     expect(
       transformerWithOptions({
-        eagerESModules: true,
+        eagerEsModules: true,
         isDevVariableName: 'IS_DEV',
       })('graphql`fragment TestFrag on Node { id }`'),
     ).toMatchSnapshot();
@@ -36,7 +36,7 @@ describe('`development` option', () => {
       transformerWithOptions(
         {
           buildCommand: 'relay-compiler',
-          eagerESModules: true,
+          eagerEsModules: true,
         },
         'development',
       )('graphql`fragment TestFrag on Node { id }`'),
@@ -46,7 +46,7 @@ describe('`development` option', () => {
   it('does not test the hash when `development` is not set', () => {
     expect(
       transformerWithOptions(
-        {eagerESModules: true},
+        {eagerEsModules: true},
         'production',
       )('graphql`fragment TestFrag on Node { id }`'),
     ).toMatchSnapshot();

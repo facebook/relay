@@ -56,7 +56,7 @@ function compileGraphQLTag(
     );
   }
 
-  const eagerESModules = state.opts?.eagerESModules ?? false;
+  const eagerEsModules = state.opts?.eagerEsModules ?? false;
   const isHasteMode = state.opts?.jsModuleFormat === 'haste';
   const isDevVariable = state.opts?.isDevVariableName;
   const artifactDirectory = state.opts?.artifactDirectory;
@@ -67,7 +67,7 @@ function compileGraphQLTag(
 
   return createNode(t, state, path, definition, {
     artifactDirectory,
-    eagerESModules,
+    eagerEsModules,
     buildCommand,
     isDevelopment,
     isHasteMode,
@@ -90,7 +90,7 @@ function createNode(
     // If an output directory is specified when running relay-compiler this should point to that directory
     artifactDirectory: ?string,
     // Generate eager es modules instead of lazy require
-    eagerESModules: boolean,
+    eagerEsModules: boolean,
     // The command to run to compile Relay files, used for error messages.
     buildCommand: string,
     // Generate extra validation, defaults to true.
@@ -136,7 +136,7 @@ function createNode(
     ),
   );
 
-  if (options.eagerESModules) {
+  if (options.eagerEsModules) {
     const importDeclaration = t.ImportDeclaration(
       [t.ImportDefaultSpecifier(id)],
       t.StringLiteral(requiredPath),

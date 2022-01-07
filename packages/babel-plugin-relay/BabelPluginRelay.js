@@ -41,7 +41,7 @@ export type RelayPluginOptions = {
   isDevVariableName?: string,
 
   // enable generating eager es modules for modern runtime
-  eagerESModules?: boolean,
+  eagerEsModules?: boolean,
 
   // Directory as specified by artifactDirectory when running relay-compiler
   artifactDirectory?: string,

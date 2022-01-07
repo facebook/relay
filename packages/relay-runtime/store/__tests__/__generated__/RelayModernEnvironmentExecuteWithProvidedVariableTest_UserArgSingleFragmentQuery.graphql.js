@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<c759e094e4cfa03d2a1755506ba4aba2>>
+ * @generated SignedSource<<414ad31dd95c14e6f5b56ad53419946e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -42,8 +42,8 @@ type ProvidedVariableProviderType = {|
 */
 
 var providedVariableProviders/*: ProvidedVariableProviderType*/ = {
-  "__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1__includeName": require('./../RelayProvider_includeName'),
-  "__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1__skipUsername": require('./../RelayProvider_skipUsername')
+  "__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1__includeName": require('./../RelayProvider_returnsTrue'),
+  "__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1__skipUsername": require('./../RelayProvider_returnsTrue')
 };
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -194,8 +194,8 @@ return {
     "operationKind": "query",
     "text": "query RelayModernEnvironmentExecuteWithProvidedVariableTest_UserArgSingleFragmentQuery(\n  $id: ID!\n  $__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1__includeName: Boolean!\n  $__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1__skipUsername: Boolean!\n) {\n  node(id: $id) {\n    __typename\n    ...RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1\n    id\n  }\n}\n\nfragment RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1 on User {\n  id\n  name @include(if: $__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1__includeName)\n  username @skip(if: $__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1__skipUsername)\n  profilePicture {\n    uri\n  }\n}\n",
     "providedVariables": {
-      "__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1__includeName": require('./../RelayProvider_includeName'),
-      "__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1__skipUsername": require('./../RelayProvider_skipUsername')
+      "__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1__includeName": require('./../RelayProvider_returnsTrue'),
+      "__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1__skipUsername": require('./../RelayProvider_returnsTrue')
     }
   }
 };

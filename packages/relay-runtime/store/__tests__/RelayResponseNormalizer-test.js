@@ -17,6 +17,9 @@ const {
 const {getRequest, graphql} = require('../../query/GraphQLTag');
 const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const defaultGetDataID = require('../defaultGetDataID');
+const {
+  createOperationDescriptor,
+} = require('../RelayModernOperationDescriptor');
 const RelayModernRecord = require('../RelayModernRecord');
 const {createNormalizationSelector} = require('../RelayModernSelector');
 const RelayRecordSource = require('../RelayRecordSource');
@@ -2515,6 +2518,86 @@ describe('RelayResponseNormalizer', () => {
           },
         });
       });
+    });
+  });
+
+  it('normalize queries with provided variables', () => {
+    graphql`
+      fragment RelayResponseNormalizerTest_pvFragment on User
+      @argumentDefinitions(
+        includeName: {
+          type: "Boolean!"
+          provider: "../RelayProvider_returnsTrue"
+        }
+        includeFirstName: {
+          type: "Boolean!"
+          provider: "../RelayProvider_returnsFalse"
+        }
+        skipLastName: {
+          type: "Boolean!"
+          provider: "../RelayProvider_returnsFalse"
+        }
+        skipUsername: {
+          type: "Boolean!"
+          provider: "../RelayProvider_returnsTrue"
+        }
+      ) {
+        name @include(if: $includeName)
+        firstName @include(if: $includeFirstName)
+        lastName @skip(if: $skipLastName)
+        username @skip(if: $skipUsername)
+      }
+    `;
+
+    const queryPV = getRequest(graphql`
+      query RelayResponseNormalizerTest_pvQuery($id: ID!) {
+        node(id: $id) {
+          id
+          ...RelayResponseNormalizerTest_pvFragment
+        }
+      }
+    `);
+
+    const payload = {
+      node: {
+        __typename: 'User',
+        id: '4',
+        name: 'testName',
+        firstName: 'testLastName',
+        lastName: 'testLastName',
+        username: 'testUsername',
+      },
+    };
+
+    const operationDescriptor = createOperationDescriptor(queryPV, {
+      id: '4',
+    });
+    const recordSource = new RelayRecordSource();
+    recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
+    normalize(
+      recordSource,
+      createNormalizationSelector(
+        operationDescriptor.root.node,
+        ROOT_ID,
+        operationDescriptor.root.variables,
+      ),
+      payload,
+      defaultOptions,
+    );
+
+    expect(recordSource.toJSON()).toEqual({
+      '4': {
+        __id: '4',
+        id: '4',
+        __typename: 'User',
+        name: 'testName',
+        lastName: 'testLastName',
+      },
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        'node(id:"4")': {__ref: '4'},
+      },
     });
   });
 

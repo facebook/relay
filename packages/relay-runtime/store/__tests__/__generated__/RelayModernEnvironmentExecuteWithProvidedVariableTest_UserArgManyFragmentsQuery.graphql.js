@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a28dc5b971fb42614e0c68b2a41e96d6>>
+ * @generated SignedSource<<5ebe02329a3bacdd9839a1cfbba21f2f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -53,10 +53,10 @@ type ProvidedVariableProviderType = {|
 */
 
 var providedVariableProviders/*: ProvidedVariableProviderType*/ = {
-  "__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1__includeName": require('./../RelayProvider_includeName'),
-  "__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1__skipUsername": require('./../RelayProvider_skipUsername'),
-  "__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile2__includeName": require('./../RelayProvider_includeName'),
-  "__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile2__includeAlternateName": require('./../RelayProvider_includeName'),
+  "__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1__includeName": require('./../RelayProvider_returnsTrue'),
+  "__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1__skipUsername": require('./../RelayProvider_returnsTrue'),
+  "__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile2__includeName": require('./../RelayProvider_returnsTrue'),
+  "__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile2__includeAlternateName": require('./../RelayProvider_returnsTrue'),
   "__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile3__profilePictureScale": require('./../RelayProvider_pictureScale')
 };
 
@@ -271,10 +271,10 @@ return {
     "operationKind": "query",
     "text": "query RelayModernEnvironmentExecuteWithProvidedVariableTest_UserArgManyFragmentsQuery(\n  $id: ID!\n  $__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1__includeName: Boolean!\n  $__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1__skipUsername: Boolean!\n  $__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile2__includeName: Boolean!\n  $__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile2__includeAlternateName: Boolean!\n  $__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile3__profilePictureScale: Float!\n) {\n  node(id: $id) {\n    __typename\n    ...RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1\n    ...RelayModernEnvironmentExecuteWithProvidedVariableTest_profile2\n    ...RelayModernEnvironmentExecuteWithProvidedVariableTest_profile3\n    id\n  }\n}\n\nfragment RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1 on User {\n  id\n  name @include(if: $__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1__includeName)\n  username @skip(if: $__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1__skipUsername)\n  profilePicture {\n    uri\n  }\n}\n\nfragment RelayModernEnvironmentExecuteWithProvidedVariableTest_profile2 on User {\n  name @include(if: $__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile2__includeName)\n  alternate_name @include(if: $__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile2__includeAlternateName)\n}\n\nfragment RelayModernEnvironmentExecuteWithProvidedVariableTest_profile3 on User {\n  profile_picture(scale: $__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile3__profilePictureScale) {\n    uri\n  }\n}\n",
     "providedVariables": {
-      "__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1__includeName": require('./../RelayProvider_includeName'),
-      "__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1__skipUsername": require('./../RelayProvider_skipUsername'),
-      "__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile2__includeName": require('./../RelayProvider_includeName'),
-      "__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile2__includeAlternateName": require('./../RelayProvider_includeName'),
+      "__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1__includeName": require('./../RelayProvider_returnsTrue'),
+      "__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1__skipUsername": require('./../RelayProvider_returnsTrue'),
+      "__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile2__includeName": require('./../RelayProvider_returnsTrue'),
+      "__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile2__includeAlternateName": require('./../RelayProvider_returnsTrue'),
       "__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile3__profilePictureScale": require('./../RelayProvider_pictureScale')
     }
   }

@@ -13,6 +13,6 @@
 
 module.exports = {
   get(): boolean {
-    return true;
+    return false;
   },
 };

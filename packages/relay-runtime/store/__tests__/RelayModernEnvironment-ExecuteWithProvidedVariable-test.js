@@ -120,11 +120,11 @@ describe('query with fragments that use provided variables', () => {
       @argumentDefinitions(
         includeName: {
           type: "Boolean!"
-          provider: "../RelayProvider_includeName"
+          provider: "../RelayProvider_returnsTrue"
         }
         skipUsername: {
           type: "Boolean!"
-          provider: "../RelayProvider_skipUsername"
+          provider: "../RelayProvider_returnsTrue"
         }
       ) {
         id
@@ -141,12 +141,12 @@ describe('query with fragments that use provided variables', () => {
       @argumentDefinitions(
         includeName: {
           type: "Boolean!"
-          provider: "../RelayProvider_includeName"
+          provider: "../RelayProvider_returnsTrue"
         }
         # should be able to define two arguments that use the same provider
         includeAlternateName: {
           type: "Boolean!"
-          provider: "../RelayProvider_includeName"
+          provider: "../RelayProvider_returnsTrue"
         }
       ) {
         name @include(if: $includeName)

@@ -41,6 +41,10 @@ struct Opt {
 
     #[structopt(flatten)]
     cli_config: CliConfig,
+
+    /// Run the persister even if the query has not changed.
+    #[structopt(long)]
+    repersist: bool,
 }
 
 #[derive(StructOpt)]
@@ -108,6 +112,7 @@ async fn main() {
     } else {
         FileSourceKind::Glob
     };
+    config.repersist_operations = opt.repersist;
 
     if opt.watch && !matches!(&config.file_source_config, FileSourceKind::Watchman) {
         panic!(

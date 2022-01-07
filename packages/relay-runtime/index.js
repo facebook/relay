@@ -51,7 +51,6 @@ const ViewerPattern = require('./store/ViewerPattern');
 const requestSubscription = require('./subscription/requestSubscription');
 const createPayloadFor3DField = require('./util/createPayloadFor3DField');
 const deepFreeze = require('./util/deepFreeze');
-const getAllRootVariables = require('./util/getAllRootVariables');
 const getFragmentIdentifier = require('./util/getFragmentIdentifier');
 const getPaginationMetadata = require('./util/getPaginationMetadata');
 const getPaginationVariables = require('./util/getPaginationVariables');
@@ -71,6 +70,7 @@ const RelayProfiler = require('./util/RelayProfiler');
 const RelayReplaySubject = require('./util/RelayReplaySubject');
 const reportMissingRequiredFields = require('./util/reportMissingRequiredFields');
 const stableCopy = require('./util/stableCopy');
+const withProvidedVariables = require('./util/withProvidedVariables');
 
 export type {ConnectionMetadata} from './handlers/connection/ConnectionHandler';
 export type {
@@ -347,7 +347,6 @@ module.exports = {
   isScalarAndEqual: isScalarAndEqual,
   recycleNodesInto: recycleNodesInto,
   stableCopy: stableCopy,
-  getAllRootVariables: getAllRootVariables,
   getFragmentIdentifier: getFragmentIdentifier,
   getRefetchMetadata: getRefetchMetadata,
   getPaginationMetadata: getPaginationMetadata,
@@ -364,5 +363,6 @@ module.exports = {
     getPromiseForActiveRequest: fetchQueryInternal.getPromiseForActiveRequest,
     getObservableForActiveRequest:
       fetchQueryInternal.getObservableForActiveRequest,
+    withProvidedVariables: withProvidedVariables,
   },
 };

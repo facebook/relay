@@ -77,9 +77,11 @@ function getFragmentVariables(
 
 /**
  * Determines the variables that are in scope for a given operation given values
- * for some/all of its arguments. Extraneous input variables are filtered from
- * the output, and missing variables are set to default values (if given in the
+ * for some/all of its arguments.
+ * - extraneous input variables are filtered from the output
+ * - missing variables are set to default values (if given in the
  * operation's definition).
+ * - variables with provider modules are added
  */
 function getOperationVariables(
   operation: NormalizationOperation,

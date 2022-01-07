@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<f897d5296c0ce3cb7345d34f3ab8402b>>
+ * @generated SignedSource<<68a09fdacaea8df327dba334285cdafa>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,30 +16,30 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-type getAllRootVariablesTest2Fragment$fragmentType = any;
-export type getAllRootVariablesTest2Query$variables = {|
+type withProvidedVariablesTest2Fragment$fragmentType = any;
+export type withProvidedVariablesTest2Query$variables = {|
   includeFriendsCount: boolean,
 |};
-export type getAllRootVariablesTest2QueryVariables = getAllRootVariablesTest2Query$variables;
-export type getAllRootVariablesTest2Query$data = {|
+export type withProvidedVariablesTest2QueryVariables = withProvidedVariablesTest2Query$variables;
+export type withProvidedVariablesTest2Query$data = {|
   +node: ?{|
-    +$fragmentSpreads: getAllRootVariablesTest2Fragment$fragmentType,
+    +$fragmentSpreads: withProvidedVariablesTest2Fragment$fragmentType,
   |},
 |};
-export type getAllRootVariablesTest2QueryResponse = getAllRootVariablesTest2Query$data;
-export type getAllRootVariablesTest2Query = {|
-  variables: getAllRootVariablesTest2QueryVariables,
-  response: getAllRootVariablesTest2Query$data,
+export type withProvidedVariablesTest2QueryResponse = withProvidedVariablesTest2Query$data;
+export type withProvidedVariablesTest2Query = {|
+  variables: withProvidedVariablesTest2QueryVariables,
+  response: withProvidedVariablesTest2Query$data,
 |};
 type ProvidedVariableProviderType = {|
-  +__getAllRootVariablesTest2Fragment__numberOfFriends: {|
+  +__withProvidedVariablesTest2Fragment__numberOfFriends: {|
     +get: () => number,
   |},
 |};
 */
 
 var providedVariableProviders/*: ProvidedVariableProviderType*/ = {
-  "__getAllRootVariablesTest2Fragment__numberOfFriends": require('./../provideNumberOfFriends')
+  "__withProvidedVariablesTest2Fragment__numberOfFriends": require('./../provideNumberOfFriends')
 };
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -62,7 +62,7 @@ return {
     ],
     "kind": "Fragment",
     "metadata": null,
-    "name": "getAllRootVariablesTest2Query",
+    "name": "withProvidedVariablesTest2Query",
     "selections": [
       {
         "alias": null,
@@ -81,7 +81,7 @@ return {
               }
             ],
             "kind": "FragmentSpread",
-            "name": "getAllRootVariablesTest2Fragment"
+            "name": "withProvidedVariablesTest2Fragment"
           }
         ],
         "storageKey": "node(id:4)"
@@ -97,11 +97,11 @@ return {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "__getAllRootVariablesTest2Fragment__numberOfFriends"
+        "name": "__withProvidedVariablesTest2Fragment__numberOfFriends"
       }
     ],
     "kind": "Operation",
-    "name": "getAllRootVariablesTest2Query",
+    "name": "withProvidedVariablesTest2Query",
     "selections": [
       {
         "alias": null,
@@ -127,7 +127,7 @@ return {
                   {
                     "kind": "Variable",
                     "name": "first",
-                    "variableName": "__getAllRootVariablesTest2Fragment__numberOfFriends"
+                    "variableName": "__withProvidedVariablesTest2Fragment__numberOfFriends"
                   }
                 ],
                 "concreteType": "FriendsConnection",
@@ -169,24 +169,24 @@ return {
     ]
   },
   "params": {
-    "cacheID": "a391bbe9b96949a459361fbdb12eaa6e",
+    "cacheID": "e62bd7ee18b8ecb0bbfe2aefea9f0e85",
     "id": null,
     "metadata": {},
-    "name": "getAllRootVariablesTest2Query",
+    "name": "withProvidedVariablesTest2Query",
     "operationKind": "query",
-    "text": "query getAllRootVariablesTest2Query(\n  $includeFriendsCount: Boolean!\n  $__getAllRootVariablesTest2Fragment__numberOfFriends: Int!\n) {\n  node(id: 4) {\n    __typename\n    ...getAllRootVariablesTest2Fragment_47ZY3u\n    id\n  }\n}\n\nfragment getAllRootVariablesTest2Fragment_47ZY3u on User {\n  friends(first: $__getAllRootVariablesTest2Fragment__numberOfFriends) {\n    count @include(if: $includeFriendsCount)\n  }\n}\n",
+    "text": "query withProvidedVariablesTest2Query(\n  $includeFriendsCount: Boolean!\n  $__withProvidedVariablesTest2Fragment__numberOfFriends: Int!\n) {\n  node(id: 4) {\n    __typename\n    ...withProvidedVariablesTest2Fragment_47ZY3u\n    id\n  }\n}\n\nfragment withProvidedVariablesTest2Fragment_47ZY3u on User {\n  friends(first: $__withProvidedVariablesTest2Fragment__numberOfFriends) {\n    count @include(if: $includeFriendsCount)\n  }\n}\n",
     "providedVariables": {
-      "__getAllRootVariablesTest2Fragment__numberOfFriends": require('./../provideNumberOfFriends')
+      "__withProvidedVariablesTest2Fragment__numberOfFriends": require('./../provideNumberOfFriends')
     }
   }
 };
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "8683dcc42dd08aa9ac8210b1047d2db9";
+  (node/*: any*/).hash = "e9e93574d0f69b01f4abac7b2738cece";
 }
 
 module.exports = ((node/*: any*/)/*: Query<
-  getAllRootVariablesTest2Query$variables,
-  getAllRootVariablesTest2Query$data,
+  withProvidedVariablesTest2Query$variables,
+  withProvidedVariablesTest2Query$data,
 >*/);

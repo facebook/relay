@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<3f6d2214cb61dff8c1e15ea670d96814>>
+ * @generated SignedSource<<18c343ab643d631441b239fffd3145cc>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,32 +16,28 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-type getAllRootVariablesTest3Fragment$fragmentType = any;
-export type getAllRootVariablesTest3Query$variables = {||};
-export type getAllRootVariablesTest3QueryVariables = getAllRootVariablesTest3Query$variables;
-export type getAllRootVariablesTest3Query$data = {|
+type withProvidedVariablesTest1Fragment$fragmentType = any;
+export type withProvidedVariablesTest1Query$variables = {||};
+export type withProvidedVariablesTest1QueryVariables = withProvidedVariablesTest1Query$variables;
+export type withProvidedVariablesTest1Query$data = {|
   +node: ?{|
-    +$fragmentSpreads: getAllRootVariablesTest3Fragment$fragmentType,
+    +$fragmentSpreads: withProvidedVariablesTest1Fragment$fragmentType,
   |},
 |};
-export type getAllRootVariablesTest3QueryResponse = getAllRootVariablesTest3Query$data;
-export type getAllRootVariablesTest3Query = {|
-  variables: getAllRootVariablesTest3QueryVariables,
-  response: getAllRootVariablesTest3Query$data,
+export type withProvidedVariablesTest1QueryResponse = withProvidedVariablesTest1Query$data;
+export type withProvidedVariablesTest1Query = {|
+  variables: withProvidedVariablesTest1QueryVariables,
+  response: withProvidedVariablesTest1Query$data,
 |};
 type ProvidedVariableProviderType = {|
-  +__getAllRootVariablesTest3Fragment__numberOfFriends: {|
+  +__withProvidedVariablesTest1Fragment__numberOfFriends: {|
     +get: () => number,
-  |},
-  +__getAllRootVariablesTest3Fragment__includeName: {|
-    +get: () => boolean,
   |},
 |};
 */
 
 var providedVariableProviders/*: ProvidedVariableProviderType*/ = {
-  "__getAllRootVariablesTest3Fragment__numberOfFriends": require('./../provideNumberOfFriends'),
-  "__getAllRootVariablesTest3Fragment__includeName": require('./../provideIncludeUserNames')
+  "__withProvidedVariablesTest1Fragment__numberOfFriends": require('./../provideNumberOfFriends')
 };
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -57,7 +53,7 @@ return {
     "argumentDefinitions": [],
     "kind": "Fragment",
     "metadata": null,
-    "name": "getAllRootVariablesTest3Query",
+    "name": "withProvidedVariablesTest1Query",
     "selections": [
       {
         "alias": null,
@@ -70,7 +66,7 @@ return {
           {
             "args": null,
             "kind": "FragmentSpread",
-            "name": "getAllRootVariablesTest3Fragment"
+            "name": "withProvidedVariablesTest1Fragment"
           }
         ],
         "storageKey": "node(id:4)"
@@ -85,16 +81,11 @@ return {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "__getAllRootVariablesTest3Fragment__numberOfFriends"
-      },
-      {
-        "defaultValue": null,
-        "kind": "LocalArgument",
-        "name": "__getAllRootVariablesTest3Fragment__includeName"
+        "name": "__withProvidedVariablesTest1Fragment__numberOfFriends"
       }
     ],
     "kind": "Operation",
-    "name": "getAllRootVariablesTest3Query",
+    "name": "withProvidedVariablesTest1Query",
     "selections": [
       {
         "alias": null,
@@ -115,26 +106,12 @@ return {
             "kind": "InlineFragment",
             "selections": [
               {
-                "condition": "__getAllRootVariablesTest3Fragment__includeName",
-                "kind": "Condition",
-                "passingValue": true,
-                "selections": [
-                  {
-                    "alias": null,
-                    "args": null,
-                    "kind": "ScalarField",
-                    "name": "name",
-                    "storageKey": null
-                  }
-                ]
-              },
-              {
                 "alias": null,
                 "args": [
                   {
                     "kind": "Variable",
                     "name": "first",
-                    "variableName": "__getAllRootVariablesTest3Fragment__numberOfFriends"
+                    "variableName": "__withProvidedVariablesTest1Fragment__numberOfFriends"
                   }
                 ],
                 "concreteType": "FriendsConnection",
@@ -169,25 +146,24 @@ return {
     ]
   },
   "params": {
-    "cacheID": "e4f401449d420593deed5537a11c6961",
+    "cacheID": "1137b9e7190ffed3581cd3938f96744d",
     "id": null,
     "metadata": {},
-    "name": "getAllRootVariablesTest3Query",
+    "name": "withProvidedVariablesTest1Query",
     "operationKind": "query",
-    "text": "query getAllRootVariablesTest3Query(\n  $__getAllRootVariablesTest3Fragment__numberOfFriends: Int!\n  $__getAllRootVariablesTest3Fragment__includeName: Boolean!\n) {\n  node(id: 4) {\n    __typename\n    ...getAllRootVariablesTest3Fragment\n    id\n  }\n}\n\nfragment getAllRootVariablesTest3Fragment on User {\n  name @include(if: $__getAllRootVariablesTest3Fragment__includeName)\n  friends(first: $__getAllRootVariablesTest3Fragment__numberOfFriends) {\n    count\n  }\n}\n",
+    "text": "query withProvidedVariablesTest1Query(\n  $__withProvidedVariablesTest1Fragment__numberOfFriends: Int!\n) {\n  node(id: 4) {\n    __typename\n    ...withProvidedVariablesTest1Fragment\n    id\n  }\n}\n\nfragment withProvidedVariablesTest1Fragment on User {\n  friends(first: $__withProvidedVariablesTest1Fragment__numberOfFriends) {\n    count\n  }\n}\n",
     "providedVariables": {
-      "__getAllRootVariablesTest3Fragment__numberOfFriends": require('./../provideNumberOfFriends'),
-      "__getAllRootVariablesTest3Fragment__includeName": require('./../provideIncludeUserNames')
+      "__withProvidedVariablesTest1Fragment__numberOfFriends": require('./../provideNumberOfFriends')
     }
   }
 };
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "6e23f307fa9898404de923a07d00d708";
+  (node/*: any*/).hash = "a613af5829765dd939e03fd6ff1141ff";
 }
 
 module.exports = ((node/*: any*/)/*: Query<
-  getAllRootVariablesTest3Query$variables,
-  getAllRootVariablesTest3Query$data,
+  withProvidedVariablesTest1Query$variables,
+  withProvidedVariablesTest1Query$data,
 >*/);

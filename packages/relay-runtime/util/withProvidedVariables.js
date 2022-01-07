@@ -16,21 +16,21 @@
 import type {RequestParameters} from './RelayConcreteNode';
 import type {Variables} from './RelayRuntimeTypes';
 
-function getAllRootVariables(
+function withProvidedVariables(
   userSuppliedVariables: Variables,
   parameters: RequestParameters,
 ): Variables {
   const providedVariables = parameters.providedVariables;
   if (providedVariables != null) {
-    const allVariables = {};
-    Object.assign(allVariables, userSuppliedVariables);
+    const operationVariables = {};
+    Object.assign(operationVariables, userSuppliedVariables);
     Object.keys(providedVariables).forEach((varName: string) => {
-      allVariables[varName] = providedVariables[varName].get();
+      operationVariables[varName] = providedVariables[varName].get();
     });
-    return allVariables;
+    return operationVariables;
   } else {
     return userSuppliedVariables;
   }
 }
 
-module.exports = getAllRootVariables;
+module.exports = withProvidedVariables;

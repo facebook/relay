@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<cf430524a8b3887f229c41577cc4bf38>>
+ * @generated SignedSource<<2cff2f6f3814d8c305bf0bffef6b7ec6>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,19 +17,19 @@
 /*::
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
-declare export opaque type getAllRootVariablesTest3Fragment$fragmentType: FragmentType;
-export type getAllRootVariablesTest3Fragment$ref = getAllRootVariablesTest3Fragment$fragmentType;
-export type getAllRootVariablesTest3Fragment$data = {|
+declare export opaque type withProvidedVariablesTest3Fragment$fragmentType: FragmentType;
+export type withProvidedVariablesTest3Fragment$ref = withProvidedVariablesTest3Fragment$fragmentType;
+export type withProvidedVariablesTest3Fragment$data = {|
   +name?: ?string,
   +friends: ?{|
     +count: ?number,
   |},
-  +$fragmentType: getAllRootVariablesTest3Fragment$fragmentType,
+  +$fragmentType: withProvidedVariablesTest3Fragment$fragmentType,
 |};
-export type getAllRootVariablesTest3Fragment = getAllRootVariablesTest3Fragment$data;
-export type getAllRootVariablesTest3Fragment$key = {
-  +$data?: getAllRootVariablesTest3Fragment$data,
-  +$fragmentSpreads: getAllRootVariablesTest3Fragment$fragmentType,
+export type withProvidedVariablesTest3Fragment = withProvidedVariablesTest3Fragment$data;
+export type withProvidedVariablesTest3Fragment$key = {
+  +$data?: withProvidedVariablesTest3Fragment$data,
+  +$fragmentSpreads: withProvidedVariablesTest3Fragment$fragmentType,
   ...
 };
 */
@@ -38,19 +38,19 @@ var node/*: ReaderFragment*/ = {
   "argumentDefinitions": [
     {
       "kind": "RootArgument",
-      "name": "__getAllRootVariablesTest3Fragment__includeName"
+      "name": "__withProvidedVariablesTest3Fragment__includeName"
     },
     {
       "kind": "RootArgument",
-      "name": "__getAllRootVariablesTest3Fragment__numberOfFriends"
+      "name": "__withProvidedVariablesTest3Fragment__numberOfFriends"
     }
   ],
   "kind": "Fragment",
   "metadata": null,
-  "name": "getAllRootVariablesTest3Fragment",
+  "name": "withProvidedVariablesTest3Fragment",
   "selections": [
     {
-      "condition": "__getAllRootVariablesTest3Fragment__includeName",
+      "condition": "__withProvidedVariablesTest3Fragment__includeName",
       "kind": "Condition",
       "passingValue": true,
       "selections": [
@@ -69,7 +69,7 @@ var node/*: ReaderFragment*/ = {
         {
           "kind": "Variable",
           "name": "first",
-          "variableName": "__getAllRootVariablesTest3Fragment__numberOfFriends"
+          "variableName": "__withProvidedVariablesTest3Fragment__numberOfFriends"
         }
       ],
       "concreteType": "FriendsConnection",
@@ -93,10 +93,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "b3e261bb744f803e78fbac796f0efce0";
+  (node/*: any*/).hash = "0aeab9b09822f587624b901c7564e55c";
 }
 
 module.exports = ((node/*: any*/)/*: Fragment<
-  getAllRootVariablesTest3Fragment$fragmentType,
-  getAllRootVariablesTest3Fragment$data,
+  withProvidedVariablesTest3Fragment$fragmentType,
+  withProvidedVariablesTest3Fragment$data,
 >*/);

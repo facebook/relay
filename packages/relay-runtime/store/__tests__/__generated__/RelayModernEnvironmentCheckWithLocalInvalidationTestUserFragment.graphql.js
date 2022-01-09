@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<c784a19258280933052f468caca3eb4c>>
+ * @generated SignedSource<<e57400109b87fedbd08f03ad1897410b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,20 +15,20 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayModernEnvironmentCheckWithLocalInvalidationTestUserFragment$ref: FragmentReference;
-declare export opaque type RelayModernEnvironmentCheckWithLocalInvalidationTestUserFragment$fragmentType: RelayModernEnvironmentCheckWithLocalInvalidationTestUserFragment$ref;
-export type RelayModernEnvironmentCheckWithLocalInvalidationTestUserFragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayModernEnvironmentCheckWithLocalInvalidationTestUserFragment$fragmentType: FragmentType;
+export type RelayModernEnvironmentCheckWithLocalInvalidationTestUserFragment$ref = RelayModernEnvironmentCheckWithLocalInvalidationTestUserFragment$fragmentType;
+export type RelayModernEnvironmentCheckWithLocalInvalidationTestUserFragment$data = {|
   +profilePicture: ?{|
     +uri: ?string,
   |},
-  +$refType: RelayModernEnvironmentCheckWithLocalInvalidationTestUserFragment$ref,
+  +$fragmentType: RelayModernEnvironmentCheckWithLocalInvalidationTestUserFragment$fragmentType,
 |};
-export type RelayModernEnvironmentCheckWithLocalInvalidationTestUserFragment$data = RelayModernEnvironmentCheckWithLocalInvalidationTestUserFragment;
+export type RelayModernEnvironmentCheckWithLocalInvalidationTestUserFragment = RelayModernEnvironmentCheckWithLocalInvalidationTestUserFragment$data;
 export type RelayModernEnvironmentCheckWithLocalInvalidationTestUserFragment$key = {
   +$data?: RelayModernEnvironmentCheckWithLocalInvalidationTestUserFragment$data,
-  +$fragmentRefs: RelayModernEnvironmentCheckWithLocalInvalidationTestUserFragment$ref,
+  +$fragmentSpreads: RelayModernEnvironmentCheckWithLocalInvalidationTestUserFragment$fragmentType,
   ...
 };
 */
@@ -77,4 +77,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "33d1beb6c101215ec2db0329b5df2e20";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayModernEnvironmentCheckWithLocalInvalidationTestUserFragment$fragmentType,
+  RelayModernEnvironmentCheckWithLocalInvalidationTestUserFragment$data,
+>*/);

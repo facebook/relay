@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -12,23 +12,22 @@
 
 'use strict';
 
-const RelayConcreteNode = require('../util/RelayConcreteNode');
-
-const getRelayHandleKey = require('../util/getRelayHandleKey');
-const invariant = require('invariant');
-const stableCopy = require('../util/stableCopy');
-
 import type {
-  NormalizationHandle,
   NormalizationArgument,
   NormalizationField,
+  NormalizationHandle,
 } from '../util/NormalizationNode';
 import type {
+  ReaderActorChange,
   ReaderArgument,
   ReaderField,
-  ReaderActorChange,
 } from '../util/ReaderNode';
 import type {Variables} from '../util/RelayRuntimeTypes';
+
+const getRelayHandleKey = require('../util/getRelayHandleKey');
+const RelayConcreteNode = require('../util/RelayConcreteNode');
+const stableCopy = require('../util/stableCopy');
+const invariant = require('invariant');
 
 export type Arguments = interface {+[string]: mixed};
 
@@ -187,7 +186,6 @@ function getStableVariableValue(name: string, variables: Variables): mixed {
     'getVariableValue(): Undefined variable `%s`.',
     name,
   );
-  // $FlowFixMe[cannot-write]
   return stableCopy(variables[name]);
 }
 
@@ -204,6 +202,7 @@ function getModuleOperationKey(documentName: string): string {
  */
 const RelayStoreUtils = {
   ACTOR_IDENTIFIER_KEY: '__actorIdentifier',
+  CLIENT_EDGE_TRAVERSAL_PATH: '__clientEdgeTraversalPath',
   FRAGMENTS_KEY: '__fragments',
   FRAGMENT_OWNER_KEY: '__fragmentOwner',
   FRAGMENT_PROP_NAME_KEY: '__fragmentPropName',

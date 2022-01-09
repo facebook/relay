@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<14976213c61d94f46f2b25902d44def8>>
+ * @generated SignedSource<<5af505c845bc81cfc4ab5316649a2329>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,20 +15,20 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-type RelayModernFlowtest_user$ref = any;
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayModernFlowtest_notref$ref: FragmentReference;
-declare export opaque type RelayModernFlowtest_notref$fragmentType: RelayModernFlowtest_notref$ref;
-export type RelayModernFlowtest_notref = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+type RelayModernFlowtest_user$fragmentType = any;
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayModernFlowtest_notref$fragmentType: FragmentType;
+export type RelayModernFlowtest_notref$ref = RelayModernFlowtest_notref$fragmentType;
+export type RelayModernFlowtest_notref$data = {|
   +id: string,
-  +$fragmentRefs: RelayModernFlowtest_user$ref,
-  +$refType: RelayModernFlowtest_notref$ref,
+  +$fragmentSpreads: RelayModernFlowtest_user$fragmentType,
+  +$fragmentType: RelayModernFlowtest_notref$fragmentType,
 |};
-export type RelayModernFlowtest_notref$data = RelayModernFlowtest_notref;
+export type RelayModernFlowtest_notref = RelayModernFlowtest_notref$data;
 export type RelayModernFlowtest_notref$key = {
   +$data?: RelayModernFlowtest_notref$data,
-  +$fragmentRefs: RelayModernFlowtest_notref$ref,
+  +$fragmentSpreads: RelayModernFlowtest_notref$fragmentType,
   ...
 };
 */
@@ -60,4 +60,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "d61c43d07b2fe8f623c9b84fcdf70ac8";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayModernFlowtest_notref$fragmentType,
+  RelayModernFlowtest_notref$data,
+>*/);

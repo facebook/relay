@@ -2,7 +2,7 @@
 # expected-to-throw
 
 fragment TestFragment on Query {
-  usernames(names: ["Antonio"]) @EXPERIMENTAL__as_actor {
+  usernames(names: ["Antonio"]) @fb_actor_change {
     ...ForActorChange
   }
 }
@@ -15,6 +15,6 @@ fragment ForActorChange on Actor {
 
   actor-change-pluarl.invalid.graphql:4:3
     3 │ fragment TestFragment on Query {
-    4 │   usernames(names: ["Antonio"]) @EXPERIMENTAL__as_actor {
+    4 │   usernames(names: ["Antonio"]) @fb_actor_change {
       │   ^^^^^^^^^
     5 │     ...ForActorChange

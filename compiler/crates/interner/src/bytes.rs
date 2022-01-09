@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -45,6 +45,14 @@ impl Intern for &str {
     }
 }
 
+impl Intern for &String {
+    type Key = StringKey;
+
+    fn intern(self) -> Self::Key {
+        StringKey(BYTES_TABLE.intern(self.as_bytes()))
+    }
+}
+
 /// Interned bytes
 #[derive(Copy, Clone, Eq, Ord, Hash, PartialEq, PartialOrd)]
 pub struct BytesKey(RawInternKey);
@@ -68,13 +76,13 @@ pub struct StringKey(RawInternKey);
 
 impl Ord for StringKey {
     fn cmp(&self, other: &Self) -> Ordering {
-        self.lookup().cmp(&other.lookup())
+        self.lookup().cmp(other.lookup())
     }
 }
 
 impl PartialOrd for StringKey {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        self.lookup().partial_cmp(&other.lookup())
+        self.lookup().partial_cmp(other.lookup())
     }
 }
 
@@ -156,7 +164,7 @@ impl BytesTable {
     }
 
     pub fn intern(&self, value: &[u8]) -> RawInternKey {
-        if let Some(prev) = self.data.read().get(&value) {
+        if let Some(prev) = self.data.read().get(value) {
             return prev;
         }
         let mut writer = self.data.write();
@@ -229,7 +237,7 @@ impl BytesTableData {
 
     pub fn intern(&mut self, value: &[u8]) -> RawInternKey {
         // If there's an existing value return it
-        if let Some(prev) = self.get(&value) {
+        if let Some(prev) = self.get(value) {
             return prev;
         }
 

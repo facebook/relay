@@ -9,7 +9,7 @@ original_id: api-reference
 
 For a usage guide, see: [**A Guided Tour of Relay**](a-guided-tour-of-relay).
 
-For a full example using Relay Hooks and our integration with [Suspense for Data Fetching](https://reactjs.org/docs/concurrent-mode-suspense.html), check out [relay-examples/issue-tracker](https://github.com/relayjs/relay-examples/tree/master/issue-tracker).
+For a full example using Relay Hooks and our integration with [Suspense for Data Fetching](https://reactjs.org/docs/concurrent-mode-suspense.html), check out [relay-examples/issue-tracker](https://github.com/relayjs/relay-examples/tree/main/issue-tracker).
 
 ### Benefits
 
@@ -277,7 +277,7 @@ function App() {
         -   **"store-or-network"**: __(default)__ **_will_** reuse locally cached data and will **_only_** send a network request if any data for the query is missing. If the query is fully cached, a network request will **_not_** be made.
         -   **"store-and-network"**: **_will_** reuse locally cached data and will **_always_** send a network request, regardless of whether any data was missing from the local cache or not.
         -   **"network-only"**: **_will not_** reuse locally cached data, and will **_always_** send a network request to fetch the query, ignoring any data that might be locally cached in Relay.
-        -   **"store-only"**: **_will only_** reuse locally cached data, and will **_never_** send a network request to fetch the query. In this case, the responsibility of fetching the query falls to the caller, but this policy could also be used to read and operate and data that is entirely [local](a-guided-tour-of-relay#local-data-updates).
+        -   **"store-only"**: **_will only_** reuse locally cached data, and will **_never_** send a network request to fetch the query. In this case, the responsibility of fetching the query falls to the caller, but this policy could also be used to read and operate on data that is entirely [local](a-guided-tour-of-relay#local-data-updates).
     -   `fetchKey`: A `fetchKey` can be passed to force a refetch of the current query and variables when the component re-renders, even if the variables didn't change, or even if the component isn't remounted (similarly to how passing a different `key` to a React component will cause it to remount). If the fetchKey is different from the one used in the previous render, the current query and variables will be refetched.
     -   `networkCacheConfig`: __[Optional]__ Object containing cache config options for the **_network layer._** Note the the network layer may contain an _additional_ query response cache which will reuse network responses for identical queries. If you want to bypass this cache completely, pass `{force: true}` as the value for this option.
 
@@ -882,7 +882,7 @@ fetchQuery<AppQuery>(
 #### Return Value
 
 -   `observable`: Returns an observable instance. To start the request, `subscribe` or `toPromise` must be called on the observable. Exposes the following methods:
-    -   `susbcribe`: Function that can be called to subscribe to the observable for the network request
+    -   `subscribe`: Function that can be called to subscribe to the observable for the network request
         -   Arguments:
             -   `observer`: Object that specifies observer functions for different events occurring on the network request observable. May specify the following event handlers as keys in the observer object:
                 -   `start`: Function that will be called when the network requests starts. It will receive a single `subscription` argument, which represents the subscription on the network observable.

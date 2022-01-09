@@ -1,6 +1,0 @@
-fragment FragmentSpread on Node {
-  id
-  ... @include(if: $condition) {
-    ...FragmentSpread
-  }
-}

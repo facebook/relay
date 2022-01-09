@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -11,55 +11,6 @@
 // flowlint ambiguous-object-type:error
 
 'use strict';
-
-const RelayFeatureFlags = require('../util/RelayFeatureFlags');
-const RelayModernRecord = require('./RelayModernRecord');
-
-const areEqual = require('areEqual');
-const invariant = require('invariant');
-const warning = require('warning');
-
-const {
-  ACTOR_IDENTIFIER_FIELD_NAME,
-  getActorIdentifierFromPayload,
-} = require('../multi-actor-environment/ActorUtils');
-const {
-  ACTOR_CHANGE,
-  CONDITION,
-  CLIENT_COMPONENT,
-  CLIENT_EXTENSION,
-  DEFER,
-  FLIGHT_FIELD,
-  FRAGMENT_SPREAD,
-  INLINE_FRAGMENT,
-  LINKED_FIELD,
-  LINKED_HANDLE,
-  MODULE_IMPORT,
-  SCALAR_FIELD,
-  SCALAR_HANDLE,
-  STREAM,
-  TYPE_DISCRIMINATOR,
-} = require('../util/RelayConcreteNode');
-const {generateClientID, isClientID} = require('./ClientID');
-const {getLocalVariables} = require('./RelayConcreteVariables');
-const {createNormalizationSelector} = require('./RelayModernSelector');
-const {
-  refineToReactFlightPayloadData,
-  REACT_FLIGHT_EXECUTABLE_DEFINITIONS_STORAGE_KEY,
-  REACT_FLIGHT_TREE_STORAGE_KEY,
-  REACT_FLIGHT_TYPE_NAME,
-} = require('./RelayStoreReactFlightUtils');
-const {
-  getArgumentValues,
-  getHandleStorageKey,
-  getModuleComponentKey,
-  getModuleOperationKey,
-  getStorageKey,
-  TYPENAME_KEY,
-  ROOT_ID,
-  ROOT_TYPE,
-} = require('./RelayStoreUtils');
-const {generateTypeID, TYPE_SCHEMA_TYPE} = require('./TypeID');
 
 import type {ActorIdentifier} from '../multi-actor-environment/ActorIdentifier';
 import type {PayloadData} from '../network/RelayNetworkTypes';
@@ -86,6 +37,53 @@ import type {
   Record,
   RelayResponsePayload,
 } from './RelayStoreTypes';
+
+const {
+  ACTOR_IDENTIFIER_FIELD_NAME,
+  getActorIdentifierFromPayload,
+} = require('../multi-actor-environment/ActorUtils');
+const {
+  ACTOR_CHANGE,
+  CLIENT_COMPONENT,
+  CLIENT_EXTENSION,
+  CONDITION,
+  DEFER,
+  FLIGHT_FIELD,
+  FRAGMENT_SPREAD,
+  INLINE_FRAGMENT,
+  LINKED_FIELD,
+  LINKED_HANDLE,
+  MODULE_IMPORT,
+  SCALAR_FIELD,
+  SCALAR_HANDLE,
+  STREAM,
+  TYPE_DISCRIMINATOR,
+} = require('../util/RelayConcreteNode');
+const RelayFeatureFlags = require('../util/RelayFeatureFlags');
+const {generateClientID, isClientID} = require('./ClientID');
+const {getLocalVariables} = require('./RelayConcreteVariables');
+const RelayModernRecord = require('./RelayModernRecord');
+const {createNormalizationSelector} = require('./RelayModernSelector');
+const {
+  REACT_FLIGHT_EXECUTABLE_DEFINITIONS_STORAGE_KEY,
+  REACT_FLIGHT_TREE_STORAGE_KEY,
+  REACT_FLIGHT_TYPE_NAME,
+  refineToReactFlightPayloadData,
+} = require('./RelayStoreReactFlightUtils');
+const {
+  ROOT_ID,
+  ROOT_TYPE,
+  TYPENAME_KEY,
+  getArgumentValues,
+  getHandleStorageKey,
+  getModuleComponentKey,
+  getModuleOperationKey,
+  getStorageKey,
+} = require('./RelayStoreUtils');
+const {TYPE_SCHEMA_TYPE, generateTypeID} = require('./TypeID');
+const areEqual = require('areEqual');
+const invariant = require('invariant');
+const warning = require('warning');
 
 export type GetDataID = (
   fieldValue: interface {[string]: mixed},
@@ -192,7 +190,6 @@ class RelayResponseNormalizer {
       'RelayResponseNormalizer(): Undefined variable `%s`.',
       name,
     );
-    // $FlowFixMe[cannot-write]
     return this._variables[name];
   }
 
@@ -244,7 +241,7 @@ class RelayResponseNormalizer {
             if (typeName === selection.type) {
               this._traverseSelections(selection, record, data);
             }
-          } else if (RelayFeatureFlags.ENABLE_PRECISE_TYPE_REFINEMENT) {
+          } else {
             const implementsInterface = data.hasOwnProperty(abstractKey);
             const typeName = RelayModernRecord.getType(record);
             const typeID = generateTypeID(typeName);
@@ -261,36 +258,24 @@ class RelayResponseNormalizer {
             if (implementsInterface) {
               this._traverseSelections(selection, record, data);
             }
-          } else {
-            // legacy behavior for abstract refinements: always normalize even
-            // if the type doesn't conform, but track if the type matches or not
-            // for determining whether response fields are expected to be present
-            const implementsInterface = data.hasOwnProperty(abstractKey);
-            const parentIsUnmatchedAbstractType = this._isUnmatchedAbstractType;
-            this._isUnmatchedAbstractType =
-              this._isUnmatchedAbstractType || !implementsInterface;
-            this._traverseSelections(selection, record, data);
-            this._isUnmatchedAbstractType = parentIsUnmatchedAbstractType;
           }
           break;
         }
         case TYPE_DISCRIMINATOR: {
-          if (RelayFeatureFlags.ENABLE_PRECISE_TYPE_REFINEMENT) {
-            const {abstractKey} = selection;
-            const implementsInterface = data.hasOwnProperty(abstractKey);
-            const typeName = RelayModernRecord.getType(record);
-            const typeID = generateTypeID(typeName);
-            let typeRecord = this._recordSource.get(typeID);
-            if (typeRecord == null) {
-              typeRecord = RelayModernRecord.create(typeID, TYPE_SCHEMA_TYPE);
-              this._recordSource.set(typeID, typeRecord);
-            }
-            RelayModernRecord.setValue(
-              typeRecord,
-              abstractKey,
-              implementsInterface,
-            );
+          const {abstractKey} = selection;
+          const implementsInterface = data.hasOwnProperty(abstractKey);
+          const typeName = RelayModernRecord.getType(record);
+          const typeID = generateTypeID(typeName);
+          let typeRecord = this._recordSource.get(typeID);
+          if (typeRecord == null) {
+            typeRecord = RelayModernRecord.create(typeID, TYPE_SCHEMA_TYPE);
+            this._recordSource.set(typeID, typeRecord);
           }
+          RelayModernRecord.setValue(
+            typeRecord,
+            abstractKey,
+            implementsInterface,
+          );
           break;
         }
         case LINKED_HANDLE:
@@ -520,7 +505,11 @@ class RelayResponseNormalizer {
           this._validateConflictingFieldsWithIdenticalId(
             record,
             storageKey,
-            fieldValue,
+            // When using `treatMissingFieldsAsNull` the conflicting validation raises a false positive
+            // because the value is set using `null` but validated using `fieldValue` which at this point
+            // will be `undefined`.
+            // Setting this to `null` matches the value that we actually set to the `fieldValue`.
+            null,
           );
         }
       }
@@ -777,7 +766,8 @@ class RelayResponseNormalizer {
       reactFlightClientResponse,
     );
 
-    const reachableExecutableDefinitions: Array<ReactFlightReachableExecutableDefinitions> = [];
+    const reachableExecutableDefinitions: Array<ReactFlightReachableExecutableDefinitions> =
+      [];
     for (const query of reactFlightPayload.queries) {
       if (query.response.data != null) {
         this._followupPayloads.push({

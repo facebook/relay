@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,11 +13,10 @@
 
 'use strict';
 
+import type {DataID, Disposable} from 'relay-runtime';
+
 const useRelayEnvironment = require('./useRelayEnvironment');
-
 const {useEffect, useRef} = require('react');
-
-import type {DataID, Disposable, InvalidationState} from 'relay-runtime';
 
 /**
  * This hook subscribes a callback to the invalidation state of the given data
@@ -35,9 +34,7 @@ function useSubscribeToInvalidationState(
   const environment = useRelayEnvironment();
   const disposableRef = useRef(null);
 
-  const stableDataIDs = Array.from(dataIDs)
-    .sort()
-    .join('');
+  const stableDataIDs = Array.from(dataIDs).sort().join('');
   useEffect(() => {
     const store = environment.getStore();
     const invalidationState = store.lookupInvalidationState(dataIDs);

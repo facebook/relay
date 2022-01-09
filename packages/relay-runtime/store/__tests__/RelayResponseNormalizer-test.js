@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -11,23 +11,24 @@
 
 'use strict';
 
-const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
-const RelayModernRecord = require('../RelayModernRecord');
-const RelayRecordSourceMapImpl = require('../RelayRecordSourceMapImpl');
-
-const defaultGetDataID = require('../defaultGetDataID');
-
 const {
   getActorIdentifier,
 } = require('../../multi-actor-environment/ActorIdentifier');
-const {graphql, getRequest} = require('../../query/GraphQLTag');
+const {getRequest, graphql} = require('../../query/GraphQLTag');
+const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
+const defaultGetDataID = require('../defaultGetDataID');
+const {
+  createOperationDescriptor,
+} = require('../RelayModernOperationDescriptor');
+const RelayModernRecord = require('../RelayModernRecord');
 const {createNormalizationSelector} = require('../RelayModernSelector');
+const RelayRecordSource = require('../RelayRecordSource');
 const {normalize} = require('../RelayResponseNormalizer');
 const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
 const {
   disallowWarnings,
-  expectWarningWillFire,
   expectToWarn,
+  expectWarningWillFire,
 } = require('relay-test-utils-internal');
 
 disallowWarnings();
@@ -91,7 +92,7 @@ describe('RelayResponseNormalizer', () => {
         },
       },
     };
-    const recordSource = new RelayRecordSourceMapImpl();
+    const recordSource = new RelayRecordSource();
     recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
     normalize(
       recordSource,
@@ -197,7 +198,7 @@ describe('RelayResponseNormalizer', () => {
         },
       },
     };
-    const recordSource = new RelayRecordSourceMapImpl();
+    const recordSource = new RelayRecordSource();
     recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
     const {fieldPayloads} = normalize(
       recordSource,
@@ -288,7 +289,7 @@ describe('RelayResponseNormalizer', () => {
       },
     };
 
-    const recordSource = new RelayRecordSourceMapImpl();
+    const recordSource = new RelayRecordSource();
     recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
     let {fieldPayloads} = normalize(
       recordSource,
@@ -421,7 +422,7 @@ describe('RelayResponseNormalizer', () => {
         },
       };
 
-      const recordSource = new RelayRecordSourceMapImpl();
+      const recordSource = new RelayRecordSource();
       recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
       const {followupPayloads} = normalize(
         recordSource,
@@ -436,20 +437,21 @@ describe('RelayResponseNormalizer', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
-            __ref:
-              'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
+            {
+              __ref:
+                'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+            },
+        },
+        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
+          {
+            __id: 'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+            __typename: 'MarkdownUserNameRenderer',
+            __module_component_RelayResponseNormalizerTestFragment:
+              'MarkdownUserNameRenderer.react',
+            __module_operation_RelayResponseNormalizerTestFragment:
+              'RelayResponseNormalizerTestMarkdownUserNameRenderer_name$normalization.graphql',
           },
-        },
-        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
-          __id:
-            'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-          __typename: 'MarkdownUserNameRenderer',
-          __module_component_RelayResponseNormalizerTestFragment:
-            'MarkdownUserNameRenderer.react',
-          __module_operation_RelayResponseNormalizerTestFragment:
-            'RelayResponseNormalizerTestMarkdownUserNameRenderer_name$normalization.graphql',
-        },
         'client:root': {
           __id: 'client:root',
           __typename: '__Root',
@@ -501,7 +503,7 @@ describe('RelayResponseNormalizer', () => {
         },
       };
 
-      const recordSource = new RelayRecordSourceMapImpl();
+      const recordSource = new RelayRecordSource();
       recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
       const {followupPayloads} = normalize(
         recordSource,
@@ -518,20 +520,21 @@ describe('RelayResponseNormalizer', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
-            __ref:
-              'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
+            {
+              __ref:
+                'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+            },
+        },
+        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
+          {
+            __id: 'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+            __typename: 'MarkdownUserNameRenderer',
+            __module_component_RelayResponseNormalizerTestFragment:
+              'MarkdownUserNameRenderer.react',
+            __module_operation_RelayResponseNormalizerTestFragment:
+              'RelayResponseNormalizerTestMarkdownUserNameRenderer_name$normalization.graphql',
           },
-        },
-        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
-          __id:
-            'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-          __typename: 'MarkdownUserNameRenderer',
-          __module_component_RelayResponseNormalizerTestFragment:
-            'MarkdownUserNameRenderer.react',
-          __module_operation_RelayResponseNormalizerTestFragment:
-            'RelayResponseNormalizerTestMarkdownUserNameRenderer_name$normalization.graphql',
-        },
         'client:root': {
           __id: 'client:root',
           __typename: '__Root',
@@ -577,7 +580,7 @@ describe('RelayResponseNormalizer', () => {
         },
       };
 
-      const recordSource = new RelayRecordSourceMapImpl();
+      const recordSource = new RelayRecordSource();
       recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
       normalize(
         recordSource,
@@ -592,17 +595,18 @@ describe('RelayResponseNormalizer', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
-            __ref:
-              'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
+            {
+              __ref:
+                'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+            },
+        },
+        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
+          {
+            __id: 'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+            __typename: 'CustomNameRenderer',
+            // note: 'customField' data not processed, there is no selection on this type
           },
-        },
-        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
-          __id:
-            'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-          __typename: 'CustomNameRenderer',
-          // note: 'customField' data not processed, there is no selection on this type
-        },
         'client:root': {
           __id: 'client:root',
           __typename: '__Root',
@@ -620,7 +624,7 @@ describe('RelayResponseNormalizer', () => {
         },
       };
 
-      const recordSource = new RelayRecordSourceMapImpl();
+      const recordSource = new RelayRecordSource();
       recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
       normalize(
         recordSource,
@@ -635,7 +639,8 @@ describe('RelayResponseNormalizer', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': null,
+          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
+            null,
         },
         'client:root': {
           __id: 'client:root',
@@ -706,7 +711,7 @@ describe('RelayResponseNormalizer', () => {
         },
       };
 
-      const recordSource = new RelayRecordSourceMapImpl();
+      const recordSource = new RelayRecordSource();
       recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
       const {followupPayloads} = normalize(
         recordSource,
@@ -783,7 +788,7 @@ describe('RelayResponseNormalizer', () => {
         },
       };
 
-      const recordSource = new RelayRecordSourceMapImpl();
+      const recordSource = new RelayRecordSource();
       recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
       const {followupPayloads} = normalize(
         recordSource,
@@ -856,7 +861,7 @@ describe('RelayResponseNormalizer', () => {
         },
       };
 
-      const recordSource = new RelayRecordSourceMapImpl();
+      const recordSource = new RelayRecordSource();
       recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
       normalize(
         recordSource,
@@ -916,7 +921,7 @@ describe('RelayResponseNormalizer', () => {
         },
       };
 
-      const recordSource = new RelayRecordSourceMapImpl();
+      const recordSource = new RelayRecordSource();
       recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
       const {incrementalPlaceholders} = normalize(
         recordSource,
@@ -966,7 +971,7 @@ describe('RelayResponseNormalizer', () => {
         },
       };
 
-      const recordSource = new RelayRecordSourceMapImpl();
+      const recordSource = new RelayRecordSource();
       recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
       const {incrementalPlaceholders} = normalize(
         recordSource,
@@ -1032,7 +1037,7 @@ describe('RelayResponseNormalizer', () => {
         },
       };
 
-      const recordSource = new RelayRecordSourceMapImpl();
+      const recordSource = new RelayRecordSource();
       recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
       const {incrementalPlaceholders} = normalize(
         recordSource,
@@ -1102,7 +1107,7 @@ describe('RelayResponseNormalizer', () => {
         },
       };
 
-      const recordSource = new RelayRecordSourceMapImpl();
+      const recordSource = new RelayRecordSource();
       recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
       const {incrementalPlaceholders} = normalize(
         recordSource,
@@ -1187,7 +1192,7 @@ describe('RelayResponseNormalizer', () => {
         },
       };
 
-      const recordSource = new RelayRecordSourceMapImpl();
+      const recordSource = new RelayRecordSource();
       recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
       const {incrementalPlaceholders} = normalize(
         recordSource,
@@ -1244,7 +1249,7 @@ describe('RelayResponseNormalizer', () => {
         },
       };
 
-      const recordSource = new RelayRecordSourceMapImpl();
+      const recordSource = new RelayRecordSource();
       recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
       const {incrementalPlaceholders} = normalize(
         recordSource,
@@ -1302,7 +1307,7 @@ describe('RelayResponseNormalizer', () => {
         },
       };
 
-      const recordSource = new RelayRecordSourceMapImpl();
+      const recordSource = new RelayRecordSource();
       recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
       const {incrementalPlaceholders} = normalize(
         recordSource,
@@ -1371,7 +1376,7 @@ describe('RelayResponseNormalizer', () => {
         },
       };
 
-      const recordSource = new RelayRecordSourceMapImpl();
+      const recordSource = new RelayRecordSource();
       recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
       const {incrementalPlaceholders} = normalize(
         recordSource,
@@ -1445,7 +1450,7 @@ describe('RelayResponseNormalizer', () => {
         },
       };
 
-      const recordSource = new RelayRecordSourceMapImpl();
+      const recordSource = new RelayRecordSource();
       recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
       const {incrementalPlaceholders} = normalize(
         recordSource,
@@ -1527,7 +1532,7 @@ describe('RelayResponseNormalizer', () => {
         },
       };
 
-      const recordSource = new RelayRecordSourceMapImpl();
+      const recordSource = new RelayRecordSource();
       recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
       const {incrementalPlaceholders} = normalize(
         recordSource,
@@ -1580,7 +1585,7 @@ describe('RelayResponseNormalizer', () => {
     };
 
     it('skips client fields not present in the payload but present in the store', () => {
-      const recordSource = new RelayRecordSourceMapImpl({
+      const recordSource = new RelayRecordSource({
         '1': {
           __id: '1',
           __typename: 'User',
@@ -1644,71 +1649,8 @@ describe('RelayResponseNormalizer', () => {
       expect(recordSource.toJSON()).toEqual(result);
     });
 
-    it('skips client fields not present in the payload but present in the store when treatMissingFieldsAsNull is true', () => {
-      const recordSource = new RelayRecordSourceMapImpl({
-        '1': {
-          __id: '1',
-          __typename: 'User',
-          id: '1',
-          firstName: 'Alice',
-          nickname: 'ecilA',
-        },
-        'client:root': {
-          __id: 'client:root',
-          __typename: '__Root',
-          'node(id:"1")': {__ref: '1'},
-        },
-      });
-      // TODO: This warning was detected when we started to enforce warnings in this test (D28091790). Payload needs to be updated.
-      expectWarningWillFire(
-        'RelayResponseNormalizer: Invalid record. The record contains two instances of the same id: `1` with conflicting field, firstName and its values: Alice and Bob. If two fields are different but share the same id, one field will overwrite the other.',
-      );
-      normalize(
-        recordSource,
-        createNormalizationSelector(
-          getRequest(StrippedQuery).operation,
-          ROOT_ID,
-          {
-            id: '1',
-            size: 32,
-          },
-        ),
-        payload,
-        {...defaultOptions, treatMissingFieldsAsNull: true},
-      );
-      const result = {
-        '1': {
-          __id: '1',
-          __typename: 'User',
-          id: '1',
-          firstName: 'Bob',
-          nickname: 'ecilA',
-        },
-        'client:root': {
-          __id: 'client:root',
-          __typename: '__Root',
-          'node(id:"1")': {__ref: '1'},
-        },
-      };
-      expect(recordSource.toJSON()).toEqual(result);
-      normalize(
-        recordSource,
-        createNormalizationSelector(
-          getRequest(StrippedQuery).operation,
-          ROOT_ID,
-          {
-            id: '1',
-            size: 32,
-          },
-        ),
-        payload,
-        defaultOptions,
-      );
-      expect(recordSource.toJSON()).toEqual(result);
-    });
-
     it('skips client fields not present in the payload or store', () => {
-      const recordSource = new RelayRecordSourceMapImpl({
+      const recordSource = new RelayRecordSource({
         '1': {
           __id: '1',
           __typename: 'User',
@@ -1768,7 +1710,7 @@ describe('RelayResponseNormalizer', () => {
     });
 
     it('ignores linked client fields not present in the payload', () => {
-      const recordSource = new RelayRecordSourceMapImpl({
+      const recordSource = new RelayRecordSource({
         '1': {
           __id: '1',
           __typename: 'User',
@@ -1858,7 +1800,7 @@ describe('RelayResponseNormalizer', () => {
     });
 
     it('ignores linked client fields not present in the payload or store', () => {
-      const recordSource = new RelayRecordSourceMapImpl({
+      const recordSource = new RelayRecordSource({
         '1': {
           __id: '1',
           __typename: 'User',
@@ -1947,7 +1889,7 @@ describe('RelayResponseNormalizer', () => {
     });
 
     beforeEach(() => {
-      recordSource = new RelayRecordSourceMapImpl();
+      recordSource = new RelayRecordSource();
       recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
     });
 
@@ -2217,7 +2159,7 @@ describe('RelayResponseNormalizer', () => {
           },
         };
         const expectedData = JSON.parse(JSON.stringify(previousData));
-        recordSource = new RelayRecordSourceMapImpl(previousData);
+        recordSource = new RelayRecordSource(previousData);
         normalize(
           recordSource,
           createNormalizationSelector(getRequest(BarQuery).operation, ROOT_ID, {
@@ -2376,7 +2318,7 @@ describe('RelayResponseNormalizer', () => {
             id: '2',
           },
         };
-        recordSource = new RelayRecordSourceMapImpl(previousData);
+        recordSource = new RelayRecordSource(previousData);
         const expectedData = JSON.parse(JSON.stringify(previousData));
         normalize(
           recordSource,
@@ -2413,7 +2355,7 @@ describe('RelayResponseNormalizer', () => {
             id: '1',
           },
         };
-        recordSource = new RelayRecordSourceMapImpl(data);
+        recordSource = new RelayRecordSource(data);
         normalize(
           recordSource,
           createNormalizationSelector(getRequest(BarQuery).operation, ROOT_ID, {
@@ -2579,6 +2521,86 @@ describe('RelayResponseNormalizer', () => {
     });
   });
 
+  it('normalize queries with provided variables', () => {
+    graphql`
+      fragment RelayResponseNormalizerTest_pvFragment on User
+      @argumentDefinitions(
+        includeName: {
+          type: "Boolean!"
+          provider: "../RelayProvider_returnsTrue"
+        }
+        includeFirstName: {
+          type: "Boolean!"
+          provider: "../RelayProvider_returnsFalse"
+        }
+        skipLastName: {
+          type: "Boolean!"
+          provider: "../RelayProvider_returnsFalse"
+        }
+        skipUsername: {
+          type: "Boolean!"
+          provider: "../RelayProvider_returnsTrue"
+        }
+      ) {
+        name @include(if: $includeName)
+        firstName @include(if: $includeFirstName)
+        lastName @skip(if: $skipLastName)
+        username @skip(if: $skipUsername)
+      }
+    `;
+
+    const queryPV = getRequest(graphql`
+      query RelayResponseNormalizerTest_pvQuery($id: ID!) {
+        node(id: $id) {
+          id
+          ...RelayResponseNormalizerTest_pvFragment
+        }
+      }
+    `);
+
+    const payload = {
+      node: {
+        __typename: 'User',
+        id: '4',
+        name: 'testName',
+        firstName: 'testLastName',
+        lastName: 'testLastName',
+        username: 'testUsername',
+      },
+    };
+
+    const operationDescriptor = createOperationDescriptor(queryPV, {
+      id: '4',
+    });
+    const recordSource = new RelayRecordSource();
+    recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
+    normalize(
+      recordSource,
+      createNormalizationSelector(
+        operationDescriptor.root.node,
+        ROOT_ID,
+        operationDescriptor.root.variables,
+      ),
+      payload,
+      defaultOptions,
+    );
+
+    expect(recordSource.toJSON()).toEqual({
+      '4': {
+        __id: '4',
+        id: '4',
+        __typename: 'User',
+        name: 'testName',
+        lastName: 'testLastName',
+      },
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        'node(id:"4")': {__ref: '4'},
+      },
+    });
+  });
+
   it('warns in __DEV__ if payload data is missing an expected field', () => {
     const BarQuery = graphql`
       query RelayResponseNormalizerTest20Query($id: ID) {
@@ -2604,7 +2626,7 @@ describe('RelayResponseNormalizer', () => {
         },
       },
     };
-    const recordSource = new RelayRecordSourceMapImpl();
+    const recordSource = new RelayRecordSource();
     recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
     expectToWarn(
       'RelayResponseNormalizer: Payload did not contain a value for ' +
@@ -2641,7 +2663,7 @@ describe('RelayResponseNormalizer', () => {
         name: 'Alice',
       },
     };
-    const recordSource = new RelayRecordSourceMapImpl();
+    const recordSource = new RelayRecordSource();
     recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
     normalize(
       recordSource,
@@ -2695,7 +2717,7 @@ describe('RelayResponseNormalizer', () => {
         },
       },
     };
-    const recordSource = new RelayRecordSourceMapImpl();
+    const recordSource = new RelayRecordSource();
     recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
     expectToWarn(
       'RelayResponseNormalizer: Invalid record. The record contains two ' +
@@ -2712,6 +2734,62 @@ describe('RelayResponseNormalizer', () => {
           defaultOptions,
         );
       },
+    );
+  });
+
+  it('does not warn if a single response contains the same fields with the same id', () => {
+    const BarQuery = graphql`
+      query RelayResponseNormalizerTest32Query($id: ID) {
+        node(id: $id) {
+          id
+          __typename
+          ... on User {
+            name
+            friends(first: 2) {
+              edges {
+                node {
+                  id
+                  firstName
+                }
+              }
+            }
+          }
+        }
+      }
+    `;
+
+    const payload = {
+      node: {
+        id: '1',
+        __typename: 'User',
+        name: 'Alice',
+        friends: {
+          edges: [
+            {
+              node: {
+                id: 'a',
+                firstName: 'Bob',
+              },
+            },
+            {
+              node: {
+                id: 'a',
+                firstName: 'Bob',
+              },
+            },
+          ],
+        },
+      },
+    };
+    const recordSource = new RelayRecordSource();
+    recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
+    normalize(
+      recordSource,
+      createNormalizationSelector(getRequest(BarQuery).operation, ROOT_ID, {
+        id: '1',
+      }),
+      payload,
+      defaultOptions,
     );
   });
 
@@ -2759,7 +2837,7 @@ describe('RelayResponseNormalizer', () => {
         },
       },
     };
-    const recordSource = new RelayRecordSourceMapImpl();
+    const recordSource = new RelayRecordSource();
     recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
     normalize(
       recordSource,
@@ -2827,7 +2905,7 @@ describe('RelayResponseNormalizer', () => {
         },
       },
     };
-    const recordSource = new RelayRecordSourceMapImpl();
+    const recordSource = new RelayRecordSource();
     recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
     // TODO: This warning was detected when we started to enforce warnings in this test (D28091790). Payload needs to be updated.
     expectWarningWillFire(
@@ -2929,7 +3007,7 @@ describe('RelayResponseNormalizer', () => {
         },
       },
     };
-    const recordSource = new RelayRecordSourceMapImpl();
+    const recordSource = new RelayRecordSource();
     recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
     expectToWarn(
       'RelayResponseNormalizer: Invalid record. The record contains ' +
@@ -3028,7 +3106,7 @@ describe('RelayResponseNormalizer', () => {
         },
       },
     };
-    const recordSource = new RelayRecordSourceMapImpl();
+    const recordSource = new RelayRecordSource();
     recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
     expectToWarn(
       'RelayResponseNormalizer: Invalid record. The record contains references to the conflicting field, node and its id values: 2 and 3. We need to make sure that the record the field points to remains consistent or one field will overwrite the other.',
@@ -3081,7 +3159,7 @@ describe('RelayResponseNormalizer', () => {
         ],
       },
     };
-    const recordSource = new RelayRecordSourceMapImpl();
+    const recordSource = new RelayRecordSource();
     recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
     // TODO: These warnings were detected when we started to enforce warnings in this test (D28091790). Payload needs to be updated.
     expectWarningWillFire(
@@ -3168,7 +3246,7 @@ describe('RelayResponseNormalizer', () => {
         ],
       },
     };
-    const recordSource = new RelayRecordSourceMapImpl();
+    const recordSource = new RelayRecordSource();
     recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
     normalize(
       recordSource,
@@ -3211,7 +3289,7 @@ describe('RelayResponseNormalizer', () => {
         firstName: 'Alice',
       },
     };
-    const recordSource = new RelayRecordSourceMapImpl();
+    const recordSource = new RelayRecordSource();
     recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
 
     // TODO: This warning was detected when we started to enforce warnings in this test (D28091790). Payload needs to be updated.
@@ -3247,6 +3325,207 @@ describe('RelayResponseNormalizer', () => {
           __ref: '1',
         },
       },
+    });
+  });
+
+  describe('when treatMissingFieldsAsNull is true', () => {
+    it('set undefined fields to null', () => {
+      const StrippedQuery = graphql`
+        query RelayResponseNormalizerTest33Query($id: ID, $size: [Int]) {
+          node(id: $id) {
+            id
+            __typename
+            ... on User {
+              firstName
+              profilePicture(size: $size) {
+                uri
+              }
+            }
+          }
+        }
+      `;
+
+      const payload = {
+        node: {
+          id: '1',
+          __typename: 'User',
+          firstName: 'Alice',
+        },
+      };
+      const recordSource = new RelayRecordSource();
+      recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
+
+      normalize(
+        recordSource,
+        createNormalizationSelector(
+          getRequest(StrippedQuery).operation,
+          ROOT_ID,
+          {
+            id: '1',
+            size: 32,
+          },
+        ),
+        payload,
+        {...defaultOptions, treatMissingFieldsAsNull: true},
+      );
+      expect(recordSource.toJSON()).toEqual({
+        '1': {
+          __id: '1',
+          __typename: 'User',
+          id: '1',
+          firstName: 'Alice',
+          'profilePicture(size:32)': null,
+        },
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {
+            __ref: '1',
+          },
+        },
+      });
+    });
+
+    it('skips client fields not present in the payload but present in the store', () => {
+      const StrippedQuery = graphql`
+        query RelayResponseNormalizerTest34Query($id: ID) {
+          node(id: $id) {
+            id
+            __typename
+            ... on User {
+              firstName
+              nickname
+              foo {
+                bar {
+                  content
+                }
+              }
+            }
+          }
+        }
+      `;
+
+      const payload = {
+        node: {
+          id: '1',
+          __typename: 'User',
+          firstName: 'Bob',
+        },
+      };
+      const recordSource = new RelayRecordSource({
+        '1': {
+          __id: '1',
+          __typename: 'User',
+          id: '1',
+          firstName: 'Alice',
+          nickname: 'ecilA',
+        },
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {__ref: '1'},
+        },
+      });
+      // TODO: This warning was detected when we started to enforce warnings in this test (D28091790). Payload needs to be updated.
+      expectWarningWillFire(
+        'RelayResponseNormalizer: Invalid record. The record contains two instances of the same id: `1` with conflicting field, firstName and its values: Alice and Bob. If two fields are different but share the same id, one field will overwrite the other.',
+      );
+      normalize(
+        recordSource,
+        createNormalizationSelector(
+          getRequest(StrippedQuery).operation,
+          ROOT_ID,
+          {
+            id: '1',
+            size: 32,
+          },
+        ),
+        payload,
+        {...defaultOptions, treatMissingFieldsAsNull: true},
+      );
+      const result = {
+        '1': {
+          __id: '1',
+          __typename: 'User',
+          id: '1',
+          firstName: 'Bob',
+          nickname: 'ecilA',
+        },
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {__ref: '1'},
+        },
+      };
+      expect(recordSource.toJSON()).toEqual(result);
+      normalize(
+        recordSource,
+        createNormalizationSelector(
+          getRequest(StrippedQuery).operation,
+          ROOT_ID,
+          {
+            id: '1',
+            size: 32,
+          },
+        ),
+        payload,
+        defaultOptions,
+      );
+      expect(recordSource.toJSON()).toEqual(result);
+    });
+
+    it('does not warn if a single response contains the same fields with the same id', () => {
+      const BarQuery = graphql`
+        query RelayResponseNormalizerTest35Query($id: ID) {
+          node(id: $id) {
+            id
+            __typename
+            ... on User {
+              name
+              friends(first: 2) {
+                edges {
+                  node {
+                    id
+                    firstName
+                  }
+                }
+              }
+            }
+          }
+        }
+      `;
+
+      const payload = {
+        node: {
+          id: '1',
+          __typename: 'User',
+          name: 'Alice',
+          friends: {
+            edges: [
+              {
+                node: {
+                  id: 'a',
+                },
+              },
+              {
+                node: {
+                  id: 'a',
+                },
+              },
+            ],
+          },
+        },
+      };
+      const recordSource = new RelayRecordSource();
+      recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
+      normalize(
+        recordSource,
+        createNormalizationSelector(getRequest(BarQuery).operation, ROOT_ID, {
+          id: '1',
+        }),
+        payload,
+        {...defaultOptions, treatMissingFieldsAsNull: true},
+      );
     });
   });
 
@@ -3296,7 +3575,7 @@ describe('RelayResponseNormalizer', () => {
           }
         }
       `;
-      recordSource = new RelayRecordSourceMapImpl();
+      recordSource = new RelayRecordSource();
       recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
     });
     afterEach(() => {
@@ -3342,8 +3621,7 @@ describe('RelayResponseNormalizer', () => {
               fragments: [
                 {
                   module: {
-                    __dr:
-                      'RelayResponseNormalizerTest_clientFragment$normalization.graphql',
+                    __dr: 'RelayResponseNormalizerTest_clientFragment$normalization.graphql',
                   },
                   __id: '3',
                   __typename: 'Story',
@@ -3354,8 +3632,7 @@ describe('RelayResponseNormalizer', () => {
                         __typename: 'Story',
                         name: 'React Server Components: The Musical',
                         body: {
-                          text:
-                            'Presenting a new musical from the director of Cats (2019)!',
+                          text: 'Presenting a new musical from the director of Cats (2019)!',
                         },
                       },
                     },
@@ -3459,7 +3736,8 @@ describe('RelayResponseNormalizer', () => {
             payload,
             {
               ...defaultOptions,
-              reactFlightPayloadDeserializer: dummyReactFlightPayloadDeserializer,
+              reactFlightPayloadDeserializer:
+                dummyReactFlightPayloadDeserializer,
             },
           );
         }).not.toThrow();
@@ -3516,7 +3794,8 @@ describe('RelayResponseNormalizer', () => {
             payload,
             {
               ...defaultOptions,
-              reactFlightPayloadDeserializer: dummyReactFlightPayloadDeserializer,
+              reactFlightPayloadDeserializer:
+                dummyReactFlightPayloadDeserializer,
               reactFlightServerErrorHandler,
             },
           );
@@ -3569,7 +3848,8 @@ describe('RelayResponseNormalizer', () => {
                 payload,
                 {
                   ...defaultOptions,
-                  reactFlightPayloadDeserializer: dummyReactFlightPayloadDeserializer,
+                  reactFlightPayloadDeserializer:
+                    dummyReactFlightPayloadDeserializer,
                 },
               );
             },
@@ -3643,7 +3923,8 @@ describe('RelayResponseNormalizer', () => {
             payload,
             {
               ...defaultOptions,
-              reactFlightPayloadDeserializer: dummyReactFlightPayloadDeserializer,
+              reactFlightPayloadDeserializer:
+                dummyReactFlightPayloadDeserializer,
             },
           );
         }).toThrow(/Payload did not contain a value for field/);
@@ -3679,7 +3960,8 @@ describe('RelayResponseNormalizer', () => {
               payload,
               {
                 ...defaultOptions,
-                reactFlightPayloadDeserializer: dummyReactFlightPayloadDeserializer,
+                reactFlightPayloadDeserializer:
+                  dummyReactFlightPayloadDeserializer,
               },
             );
           },
@@ -3703,8 +3985,7 @@ describe('RelayResponseNormalizer', () => {
               __typename: 'Story',
               name: 'React Server Components: The Musical',
               body: {
-                text:
-                  'Presenting a new musical from the director of Cats (2019)!',
+                text: 'Presenting a new musical from the director of Cats (2019)!',
               },
             },
           };
@@ -3799,8 +4080,7 @@ describe('RelayResponseNormalizer', () => {
               __typename: 'Story',
               name: 'React Server Components: The Musical',
               body: {
-                text:
-                  'Presenting a new musical from the director of Cats (2019)!',
+                text: 'Presenting a new musical from the director of Cats (2019)!',
               },
             },
           };
@@ -3859,7 +4139,7 @@ describe('RelayResponseNormalizer', () => {
     `;
 
     beforeEach(() => {
-      recordSource = new RelayRecordSourceMapImpl();
+      recordSource = new RelayRecordSource();
       recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
     });
 
@@ -4030,7 +4310,7 @@ describe('RelayResponseNormalizer', () => {
     const query = graphql`
       query RelayResponseNormalizerTestActorChangeQuery {
         viewer {
-          actor @EXPERIMENTAL__as_actor {
+          actor @fb_actor_change {
             ...RelayResponseNormalizerTestActorChangeFragment
           }
         }
@@ -4050,12 +4330,12 @@ describe('RelayResponseNormalizer', () => {
           actor: {
             __typename: 'User',
             id: 'user-1234',
-            __viewer: 'actor-1234',
+            actor_key: 'actor-1234',
             name: 'Antonio',
           },
         },
       };
-      const recordSource = new RelayRecordSourceMapImpl();
+      const recordSource = new RelayRecordSource();
       recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
 
       const result = normalize(
@@ -4073,7 +4353,7 @@ describe('RelayResponseNormalizer', () => {
             actorIdentifier: 'actor-1234',
             data: {
               __typename: 'User',
-              __viewer: 'actor-1234',
+              actor_key: 'actor-1234',
               id: 'user-1234',
               name: 'Antonio',
             },
@@ -4090,7 +4370,7 @@ describe('RelayResponseNormalizer', () => {
         ],
         incrementalPlaceholders: [],
         isFinal: false,
-        source: expect.any(RelayRecordSourceMapImpl),
+        source: expect.any(RelayRecordSource),
       });
 
       expect(result.source.toJSON()).toEqual({
@@ -4119,12 +4399,12 @@ describe('RelayResponseNormalizer', () => {
           actor: {
             __typename: 'User',
             id: 'user-1234',
-            __viewer: 'actor-4321',
+            actor_key: 'actor-4321',
             name: 'Antonio',
           },
         },
       };
-      const recordSource = new RelayRecordSourceMapImpl();
+      const recordSource = new RelayRecordSource();
       recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
 
       const result = normalize(
@@ -4141,7 +4421,7 @@ describe('RelayResponseNormalizer', () => {
             actorIdentifier: 'actor-4321',
             data: {
               __typename: 'User',
-              __viewer: 'actor-4321',
+              actor_key: 'actor-4321',
               id: 'user-1234',
               name: 'Antonio',
             },
@@ -4158,7 +4438,7 @@ describe('RelayResponseNormalizer', () => {
         ],
         incrementalPlaceholders: [],
         isFinal: false,
-        source: expect.any(RelayRecordSourceMapImpl),
+        source: expect.any(RelayRecordSource),
       });
 
       expect(result.source.toJSON()).toEqual({
@@ -4188,12 +4468,12 @@ describe('RelayResponseNormalizer', () => {
             __typename: 'User',
             // ID maybe missing/falsy
             id: '',
-            __viewer: 'actor-4321',
+            actor_key: 'actor-4321',
             name: 'Antonio',
           },
         },
       };
-      const recordSource = new RelayRecordSourceMapImpl();
+      const recordSource = new RelayRecordSource();
       recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
 
       const result = normalize(
@@ -4210,7 +4490,7 @@ describe('RelayResponseNormalizer', () => {
             actorIdentifier: 'actor-4321',
             data: {
               __typename: 'User',
-              __viewer: 'actor-4321',
+              actor_key: 'actor-4321',
               id: '',
               name: 'Antonio',
             },
@@ -4227,7 +4507,7 @@ describe('RelayResponseNormalizer', () => {
         ],
         incrementalPlaceholders: [],
         isFinal: false,
-        source: expect.any(RelayRecordSourceMapImpl),
+        source: expect.any(RelayRecordSource),
       });
 
       expect(result.source.toJSON()).toEqual({
@@ -4249,7 +4529,7 @@ describe('RelayResponseNormalizer', () => {
       });
     });
 
-    it('should warn if `__viewer` is missing in the response', () => {
+    it('should warn if `actor_key` is missing in the response', () => {
       const payload = {
         viewer: {
           __typename: 'Viewer',
@@ -4260,10 +4540,10 @@ describe('RelayResponseNormalizer', () => {
           },
         },
       };
-      const recordSource = new RelayRecordSourceMapImpl();
+      const recordSource = new RelayRecordSource();
       recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
       const result = expectToWarn(
-        'RelayResponseNormalizer: Payload did not contain a value for field `__viewer`. ' +
+        'RelayResponseNormalizer: Payload did not contain a value for field `actor_key`. ' +
           'Check that you are parsing with the same query that was used to fetch the payload. Payload is `' +
           JSON.stringify(
             {
@@ -4294,7 +4574,7 @@ describe('RelayResponseNormalizer', () => {
         followupPayloads: [],
         incrementalPlaceholders: [],
         isFinal: false,
-        source: expect.any(RelayRecordSourceMapImpl),
+        source: expect.any(RelayRecordSource),
       });
 
       expect(result.source.toJSON()).toEqual({
@@ -4319,7 +4599,7 @@ describe('RelayResponseNormalizer', () => {
           __typename: 'Viewer',
         },
       };
-      const recordSource = new RelayRecordSourceMapImpl();
+      const recordSource = new RelayRecordSource();
       recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
       const result = expectToWarn(
         'RelayResponseNormalizer: Payload did not contain a value for field `actor: actor`. Check that you are parsing with the same query that was used to fetch the payload.',
@@ -4342,7 +4622,7 @@ describe('RelayResponseNormalizer', () => {
         followupPayloads: [],
         incrementalPlaceholders: [],
         isFinal: false,
-        source: expect.any(RelayRecordSourceMapImpl),
+        source: expect.any(RelayRecordSource),
       });
 
       expect(result.source.toJSON()).toEqual({
@@ -4367,7 +4647,7 @@ describe('RelayResponseNormalizer', () => {
             me: actor {
               name
             }
-            actor @EXPERIMENTAL__as_actor {
+            actor @fb_actor_change {
               ...RelayResponseNormalizerTestActorChangeFragment
             }
           }
@@ -4385,12 +4665,12 @@ describe('RelayResponseNormalizer', () => {
           actor: {
             __typename: 'User',
             id: 'user-1234',
-            __viewer: 'actor-4321',
+            actor_key: 'actor-4321',
             name: 'Antonio',
           },
         },
       };
-      const recordSource = new RelayRecordSourceMapImpl();
+      const recordSource = new RelayRecordSource();
       recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
 
       const result = normalize(
@@ -4411,7 +4691,7 @@ describe('RelayResponseNormalizer', () => {
             actorIdentifier: 'actor-4321',
             data: {
               __typename: 'User',
-              __viewer: 'actor-4321',
+              actor_key: 'actor-4321',
               id: 'user-1234',
               name: 'Antonio',
             },
@@ -4428,7 +4708,7 @@ describe('RelayResponseNormalizer', () => {
         ],
         incrementalPlaceholders: [],
         isFinal: false,
-        source: expect.any(RelayRecordSourceMapImpl),
+        source: expect.any(RelayRecordSource),
       });
 
       expect(result.source.toJSON()).toEqual({

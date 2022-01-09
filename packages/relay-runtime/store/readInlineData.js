@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -12,24 +12,23 @@
 
 'use strict';
 
-const invariant = require('invariant');
+import type {GraphQLTaggedNode} from '../query/GraphQLTag';
+import type {FragmentType} from './RelayStoreTypes';
 
 const {getInlineDataFragment} = require('../query/GraphQLTag');
 const {FRAGMENTS_KEY} = require('./RelayStoreUtils');
-
-import type {GraphQLTaggedNode} from '../query/GraphQLTag';
-import type {FragmentReference} from './RelayStoreTypes';
+const invariant = require('invariant');
 
 /**
  * Reads an @inline data fragment that was spread into the parent fragment.
  */
 
 declare function readInlineData<
-  TRef: FragmentReference,
+  TFragmentType: FragmentType,
   TData,
   TKey: {
     +$data?: TData,
-    +$fragmentRefs: TRef,
+    +$fragmentSpreads: TFragmentType,
     ...
   },
 >(
@@ -37,11 +36,11 @@ declare function readInlineData<
   fragmentRef: TKey,
 ): TData;
 declare function readInlineData<
-  TRef: FragmentReference,
+  TFragmentType: FragmentType,
   TData,
   TKey: ?{
     +$data?: TData,
-    +$fragmentRefs: TRef,
+    +$fragmentSpreads: TFragmentType,
     ...
   },
 >(

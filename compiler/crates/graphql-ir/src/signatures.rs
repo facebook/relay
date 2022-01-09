@@ -1,31 +1,41 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
+use crate::associated_data_impl;
 use crate::build::{
     build_constant_value, build_type_annotation, build_variable_definitions, ValidationLevel,
 };
 use crate::constants::ARGUMENT_DEFINITION;
-use crate::errors::ValidationMessage;
+use crate::errors::{ValidationMessage, ValidationMessageWithData};
 use crate::ir::{ConstantValue, VariableDefinition};
-use common::{Diagnostic, DiagnosticsResult, Location, WithLocation};
+use crate::GraphQLSuggestions;
+use common::{Diagnostic, DiagnosticsResult, FeatureFlag, Location, WithLocation};
 use errors::{par_try_map, try2};
-use fnv::FnvHashMap;
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey, StringKeyMap};
 use lazy_static::lazy_static;
 use schema::{SDLSchema, Schema, Type, TypeReference};
+use std::collections::HashMap;
 
 lazy_static! {
     static ref TYPE: StringKey = "type".intern();
     static ref DEFAULT_VALUE: StringKey = "defaultValue".intern();
+    static ref PROVIDER: StringKey = "provider".intern();
     pub static ref UNUSED_LOCAL_VARIABLE_DEPRECATED: StringKey =
         "unusedLocalVariable_DEPRECATED".intern();
 }
 
-pub type FragmentSignatures = FnvHashMap<StringKey, FragmentSignature>;
+pub type FragmentSignatures = StringKeyMap<FragmentSignature>;
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub struct ProvidedVariableMetadata {
+    pub module_name: StringKey,
+}
+
+associated_data_impl!(ProvidedVariableMetadata);
 
 /// Describes the public API of a fragment, excluding its selections.
 /// When translating ASTs to IR, fragment spread arguments must be
@@ -34,7 +44,7 @@ pub type FragmentSignatures = FnvHashMap<StringKey, FragmentSignature>;
 /// would depend on having checked its body! Since recursive fragments
 /// are allowed, we break the cycle by first computing signatures
 /// and using these to type check fragment spreads in selections.
-#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
+#[derive(Debug, Eq, PartialEq)]
 pub struct FragmentSignature {
     pub name: WithLocation<StringKey>,
     pub variable_definitions: Vec<VariableDefinition>,
@@ -44,31 +54,31 @@ pub struct FragmentSignature {
 pub fn build_signatures(
     schema: &SDLSchema,
     definitions: &[graphql_syntax::ExecutableDefinition],
+    enable_provided_variables: &FeatureFlag,
 ) -> DiagnosticsResult<FragmentSignatures> {
-    let mut seen_signatures: FnvHashMap<StringKey, FragmentSignature> =
-        FnvHashMap::with_capacity_and_hasher(definitions.len(), Default::default());
+    let suggestions = GraphQLSuggestions::new(schema);
+    let mut seen_signatures: StringKeyMap<FragmentSignature> =
+        HashMap::with_capacity_and_hasher(definitions.len(), Default::default());
     let signatures = par_try_map(definitions, |definition| match definition {
-        graphql_syntax::ExecutableDefinition::Fragment(fragment) => {
-            Ok(Some(build_fragment_signature(schema, &fragment)?))
-        }
+        graphql_syntax::ExecutableDefinition::Fragment(fragment) => Ok(Some(
+            build_fragment_signature(schema, fragment, &suggestions, enable_provided_variables)?,
+        )),
         graphql_syntax::ExecutableDefinition::Operation(_) => Ok(None),
     })?;
     let mut errors = Vec::new();
-    for signature in signatures {
-        if let Some(signature) = signature {
-            let previous_signature = seen_signatures.get(&signature.name.item);
-            if let Some(previous_signature) = previous_signature {
-                errors.push(
-                    Diagnostic::error(
-                        ValidationMessage::DuplicateDefinition(signature.name.item),
-                        previous_signature.name.location,
-                    )
-                    .annotate("also defined here", signature.name.location),
-                );
-                continue;
-            }
-            seen_signatures.insert(signature.name.item, signature);
+    for signature in signatures.into_iter().flatten() {
+        let previous_signature = seen_signatures.get(&signature.name.item);
+        if let Some(previous_signature) = previous_signature {
+            errors.push(
+                Diagnostic::error(
+                    ValidationMessage::DuplicateDefinition(signature.name.item),
+                    previous_signature.name.location,
+                )
+                .annotate("also defined here", signature.name.location),
+            );
+            continue;
         }
+        seen_signatures.insert(signature.name.item, signature);
     }
     if errors.is_empty() {
         Ok(seen_signatures)
@@ -80,6 +90,8 @@ pub fn build_signatures(
 fn build_fragment_signature(
     schema: &SDLSchema,
     fragment: &graphql_syntax::FragmentDefinition,
+    suggestions: &GraphQLSuggestions<'_>,
+    enable_provided_variables: &FeatureFlag,
 ) -> DiagnosticsResult<FragmentSignature> {
     let type_name = fragment.type_condition.type_.value;
     let type_condition = match schema.get_type(type_name) {
@@ -93,8 +105,11 @@ fn build_fragment_signature(
             )
             .into()),
         },
-        None => Err(Diagnostic::error(
-            ValidationMessage::UnknownType(type_name),
+        None => Err(Diagnostic::error_with_data(
+            ValidationMessageWithData::UnknownType {
+                type_name,
+                suggestions: suggestions.composite_type_suggestions(type_name),
+            },
             fragment
                 .location
                 .with_span(fragment.type_condition.type_.span),
@@ -140,9 +155,9 @@ fn build_fragment_signature(
             build_variable_definitions(schema, &variable_definitions.items, fragment.location)
         })
         .or_else(|| {
-            argument_definition_directives
-                .get(0)
-                .map(|x| build_fragment_variable_definitions(schema, fragment, x))
+            argument_definition_directives.get(0).map(|x| {
+                build_fragment_variable_definitions(schema, fragment, x, enable_provided_variables)
+            })
         })
         .unwrap_or_else(|| Ok(Default::default()));
 
@@ -160,6 +175,7 @@ fn build_fragment_variable_definitions(
     schema: &SDLSchema,
     fragment: &graphql_syntax::FragmentDefinition,
     directive: &graphql_syntax::Directive,
+    enable_provided_variables: &FeatureFlag,
 ) -> DiagnosticsResult<Vec<VariableDefinition>> {
     if let Some(arguments) = &directive.arguments {
         Ok(arguments
@@ -170,10 +186,12 @@ fn build_fragment_variable_definitions(
                     object,
                 )) = &variable_arg.value
                 {
+                    let variable_name = &variable_arg.name;
                     let mut extra_items = Vec::new();
                     let mut type_arg = None;
                     let mut default_arg = None;
                     let mut unused_local_variable_arg = None;
+                    let mut provider_arg = None;
                     for item in &object.items {
                         let name = item.name.value;
                         if name == *TYPE {
@@ -182,6 +200,15 @@ fn build_fragment_variable_definitions(
                             default_arg = Some(item);
                         } else if name == *UNUSED_LOCAL_VARIABLE_DEPRECATED {
                             unused_local_variable_arg = Some(item);
+                        } else if name == *PROVIDER {
+                            if !enable_provided_variables.is_enabled_for(fragment.name.value) {
+                                return Err(vec![Diagnostic::error(
+                                    format!("Invalid usage of provided variable: this feature is gated and currently set to {}",
+                                                    enable_provided_variables),
+                                     fragment.location.with_span(item.span),
+                                )]);
+                            }
+                            provider_arg = Some(item);
                         } else {
                             extra_items.push(item);
                         }
@@ -213,7 +240,7 @@ fn build_fragment_variable_definitions(
                         .into());
                     }
 
-                    let directives =
+                    let mut directives = Vec::new();
                         if let Some(unused_local_variable_arg) = unused_local_variable_arg {
                             if !matches!(
                                 unused_local_variable_arg,
@@ -231,22 +258,53 @@ fn build_fragment_variable_definitions(
                                         .with_span(unused_local_variable_arg.value.span()),
                                 )]);
                             }
-                            vec![crate::Directive {
+                            directives.push(crate::Directive {
                                 name: WithLocation::new(
                                     fragment.location.with_span(unused_local_variable_arg.span),
                                     *UNUSED_LOCAL_VARIABLE_DEPRECATED,
                                 ),
                                 arguments: Vec::new(),
-                            }]
-                        } else {
-                            Vec::new()
-                        };
+                                data: None,
+                            });
+                        }
+                        if let Some(provider_arg) = provider_arg {
+                            if let graphql_syntax::ConstantValue::String(provider_module_name) = &provider_arg.value {
+                                if let Some(default_arg_) = default_arg {
+                                    return Err(vec![Diagnostic::error(
+                                        ValidationMessage::ProvidedVariableIncompatibleWithDefaultValue{argument_name: variable_name.value},
+                                        fragment
+                                            .location
+                                            .with_span(provider_arg.span),
+                                    ).annotate("Default value declared here",
+                                    fragment
+                                    .location
+                                    .with_span(default_arg_.span))]);
+                                }
+                                directives.push(crate::Directive {
+                                    name: WithLocation::new(
+                                        fragment.location.with_span(provider_arg.span),
+                                        ProvidedVariableMetadata::directive_name(),
+                                    ),
+                                    arguments: Vec::new(),
+                                    data: Some(Box::new(ProvidedVariableMetadata{module_name: provider_module_name.value})),
+                                });
+
+                            } else{
+                                return Err(vec![Diagnostic::error(
+                                    ValidationMessage::LiteralStringArgumentExpectedForDirective{arg_name: *PROVIDER, directive_name: *ARGUMENT_DEFINITION },
+                                    fragment
+                                        .location
+                                        .with_span(provider_arg.value.span()),
+                                )]);
+                            }
+
+                        }
 
                     let default_value =
                         get_default_value(schema, fragment.location, default_arg, &type_)?;
+
                     Ok(VariableDefinition {
-                        name: variable_arg
-                            .name
+                        name: variable_name
                             .name_with_location(fragment.location.source_location()),
                         type_,
                         directives,
@@ -317,8 +375,19 @@ fn get_default_value(
     location: Location,
     default_arg: Option<&graphql_syntax::ConstantArgument>,
     type_: &TypeReference,
-) -> DiagnosticsResult<Option<ConstantValue>> {
-    Ok(default_arg
-        .map(|x| build_constant_value(schema, &x.value, &type_, location, ValidationLevel::Strict))
-        .transpose()?)
+) -> DiagnosticsResult<Option<WithLocation<ConstantValue>>> {
+    default_arg
+        .map(|x| {
+            let constant_value_span = x.value.span();
+            build_constant_value(schema, &x.value, type_, location, ValidationLevel::Strict).map(
+                |constant_value| {
+                    WithLocation::from_span(
+                        location.source_location(),
+                        constant_value_span,
+                        constant_value,
+                    )
+                },
+            )
+        })
+        .transpose()
 }

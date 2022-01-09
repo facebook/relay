@@ -1,10 +1,10 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<f6f628d744f8a2180c60e8449c83b53a>>
+ * @generated SignedSource<<74f4b149daa4ad7e9564404219116b8d>>
  */
 
 mod parse_executable_document_with_error_recovery;
@@ -76,10 +76,10 @@ fn argument_value_only_3() {
 }
 
 #[test]
-fn arugment_without_closing_paren() {
-    let input = include_str!("parse_executable_document_with_error_recovery/fixtures/arugment-without-closing-paren.graphql");
-    let expected = include_str!("parse_executable_document_with_error_recovery/fixtures/arugment-without-closing-paren.expected");
-    test_fixture(transform_fixture, "arugment-without-closing-paren.graphql", "parse_executable_document_with_error_recovery/fixtures/arugment-without-closing-paren.expected", input, expected);
+fn argument_without_closing_paren() {
+    let input = include_str!("parse_executable_document_with_error_recovery/fixtures/argument-without-closing-paren.graphql");
+    let expected = include_str!("parse_executable_document_with_error_recovery/fixtures/argument-without-closing-paren.expected");
+    test_fixture(transform_fixture, "argument-without-closing-paren.graphql", "parse_executable_document_with_error_recovery/fixtures/argument-without-closing-paren.expected", input, expected);
 }
 
 #[test]

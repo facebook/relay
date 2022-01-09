@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<1760929537de529f1d1b42e4029eb5c6>>
+ * @generated SignedSource<<318853343330172ab82d759b8b8d1f3b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,21 +15,23 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
+import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { ActorChangePoint } from "react-relay/multi-actor";
-type RelayReaderTestActorChangeFragment$ref = any;
-export type RelayReaderTestActorChangeQueryVariables = {||};
-export type RelayReaderTestActorChangeQueryResponse = {|
+type RelayReaderTestActorChangeFragment$fragmentType = any;
+export type RelayReaderTestActorChangeQuery$variables = {||};
+export type RelayReaderTestActorChangeQueryVariables = RelayReaderTestActorChangeQuery$variables;
+export type RelayReaderTestActorChangeQuery$data = {|
   +viewer: ?{|
     +actor: ?ActorChangePoint<{|
-      +__viewer: string,
-      +$fragmentRefs: RelayReaderTestActorChangeFragment$ref,
+      +actor_key: string,
+      +$fragmentSpreads: RelayReaderTestActorChangeFragment$fragmentType,
     |}>,
   |},
 |};
+export type RelayReaderTestActorChangeQueryResponse = RelayReaderTestActorChangeQuery$data;
 export type RelayReaderTestActorChangeQuery = {|
   variables: RelayReaderTestActorChangeQueryVariables,
-  response: RelayReaderTestActorChangeQueryResponse,
+  response: RelayReaderTestActorChangeQuery$data,
 |};
 */
 
@@ -116,7 +118,7 @@ var node/*: ConcreteRequest*/ = {
                   "alias": null,
                   "args": null,
                   "kind": "ScalarField",
-                  "name": "__viewer",
+                  "name": "actor_key",
                   "storageKey": null
                 },
                 {
@@ -136,17 +138,20 @@ var node/*: ConcreteRequest*/ = {
     ]
   },
   "params": {
-    "cacheID": "805a84587ef3db2dc396f930ebef102e",
+    "cacheID": "cc2929f7ee2deb609c210c99c635bd36",
     "id": null,
     "metadata": {},
     "name": "RelayReaderTestActorChangeQuery",
     "operationKind": "query",
-    "text": "query RelayReaderTestActorChangeQuery {\n  viewer {\n    actor {\n      __typename\n      ...RelayReaderTestActorChangeFragment\n      __viewer\n      id\n    }\n  }\n}\n\nfragment RelayReaderTestActorChangeFragment on User {\n  name\n}\n"
+    "text": "query RelayReaderTestActorChangeQuery {\n  viewer {\n    actor @fb_actor_change {\n      __typename\n      ...RelayReaderTestActorChangeFragment\n      actor_key\n      id\n    }\n  }\n}\n\nfragment RelayReaderTestActorChangeFragment on User {\n  name\n}\n"
   }
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "015228b966bba15ac251f5d7e774f2de";
+  (node/*: any*/).hash = "773250516ecbc96c49a303ebd13fe989";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayReaderTestActorChangeQuery$variables,
+  RelayReaderTestActorChangeQuery$data,
+>*/);

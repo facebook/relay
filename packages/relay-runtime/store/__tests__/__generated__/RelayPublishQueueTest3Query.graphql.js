@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<3188959cd85485fa64ffa1d2a66b1dac>>
+ * @generated SignedSource<<ce502cc7172508ec37dd5139dfab287a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,18 +15,20 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-export type RelayPublishQueueTest3QueryVariables = {||};
-export type RelayPublishQueueTest3QueryResponse = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+export type RelayPublishQueueTest3Query$variables = {||};
+export type RelayPublishQueueTest3QueryVariables = RelayPublishQueueTest3Query$variables;
+export type RelayPublishQueueTest3Query$data = {|
   +me: ?{|
     +screennames: ?$ReadOnlyArray<?{|
       +name: ?string,
     |}>,
   |},
 |};
+export type RelayPublishQueueTest3QueryResponse = RelayPublishQueueTest3Query$data;
 export type RelayPublishQueueTest3Query = {|
   variables: RelayPublishQueueTest3QueryVariables,
-  response: RelayPublishQueueTest3QueryResponse,
+  response: RelayPublishQueueTest3Query$data,
 |};
 */
 
@@ -146,4 +148,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "71faac0d936629842d85fea159fe03cf";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayPublishQueueTest3Query$variables,
+  RelayPublishQueueTest3Query$data,
+>*/);

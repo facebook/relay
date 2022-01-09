@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,18 +13,6 @@
 
 'use strict';
 
-const invariant = require('invariant');
-const useLazyLoadQueryNode = require('./useLazyLoadQueryNode');
-const useMemoOperationDescriptor = require('./useMemoOperationDescriptor');
-const useRelayEnvironment = require('./useRelayEnvironment');
-const warning = require('warning');
-
-const {useTrackLoadQueryInRender} = require('./loadQuery');
-const {useDebugValue} = require('react');
-const {
-  __internal: {fetchQueryDeduped, fetchQuery},
-} = require('relay-runtime');
-
 import type {PreloadedQuery} from './EntryPointTypes.flow';
 import type {
   GraphQLTaggedNode,
@@ -32,25 +20,31 @@ import type {
   RenderPolicy,
 } from 'relay-runtime';
 
+const {useTrackLoadQueryInRender} = require('./loadQuery');
+const useLazyLoadQueryNode = require('./useLazyLoadQueryNode');
+const useMemoOperationDescriptor = require('./useMemoOperationDescriptor');
+const useRelayEnvironment = require('./useRelayEnvironment');
+const invariant = require('invariant');
+const {useDebugValue} = require('react');
+const {
+  __internal: {fetchQueryDeduped, fetchQuery},
+} = require('relay-runtime');
+const warning = require('warning');
+
 function usePreloadedQuery<TQuery: OperationType>(
   gqlQuery: GraphQLTaggedNode,
   preloadedQuery: PreloadedQuery<TQuery>,
   options?: {|
     UNSTABLE_renderPolicy?: RenderPolicy,
   |},
-): $ElementType<TQuery, 'response'> {
+): TQuery['response'] {
   // We need to use this hook in order to be able to track if
   // loadQuery was called during render
   useTrackLoadQueryInRender();
 
   const environment = useRelayEnvironment();
-  const {
-    fetchKey,
-    fetchPolicy,
-    source,
-    variables,
-    networkCacheConfig,
-  } = preloadedQuery;
+  const {fetchKey, fetchPolicy, source, variables, networkCacheConfig} =
+    preloadedQuery;
   const operation = useMemoOperationDescriptor(
     gqlQuery,
     variables,

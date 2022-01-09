@@ -1,10 +1,10 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a9688eaa3922b2d2665be37c3d186891>>
+ * @generated SignedSource<<2ea6403534fde8fe5781de95bd4059c7>>
  */
 
 mod disallow_typename_on_root;

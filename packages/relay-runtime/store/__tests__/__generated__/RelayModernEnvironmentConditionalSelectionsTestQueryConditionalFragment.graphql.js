@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<5ceb8546bdc0528883f4eb5cb154c21d>>
+ * @generated SignedSource<<5d626b26a41b76fc456ced377ce05dd2>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,11 +15,11 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayModernEnvironmentConditionalSelectionsTestQueryConditionalFragment$ref: FragmentReference;
-declare export opaque type RelayModernEnvironmentConditionalSelectionsTestQueryConditionalFragment$fragmentType: RelayModernEnvironmentConditionalSelectionsTestQueryConditionalFragment$ref;
-export type RelayModernEnvironmentConditionalSelectionsTestQueryConditionalFragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayModernEnvironmentConditionalSelectionsTestQueryConditionalFragment$fragmentType: FragmentType;
+export type RelayModernEnvironmentConditionalSelectionsTestQueryConditionalFragment$ref = RelayModernEnvironmentConditionalSelectionsTestQueryConditionalFragment$fragmentType;
+export type RelayModernEnvironmentConditionalSelectionsTestQueryConditionalFragment$data = {|
   +viewer?: ?{|
     +actor: ?{|
       +name: ?string,
@@ -28,12 +28,12 @@ export type RelayModernEnvironmentConditionalSelectionsTestQueryConditionalFragm
   +me?: ?{|
     +name: ?string,
   |},
-  +$refType: RelayModernEnvironmentConditionalSelectionsTestQueryConditionalFragment$ref,
+  +$fragmentType: RelayModernEnvironmentConditionalSelectionsTestQueryConditionalFragment$fragmentType,
 |};
-export type RelayModernEnvironmentConditionalSelectionsTestQueryConditionalFragment$data = RelayModernEnvironmentConditionalSelectionsTestQueryConditionalFragment;
+export type RelayModernEnvironmentConditionalSelectionsTestQueryConditionalFragment = RelayModernEnvironmentConditionalSelectionsTestQueryConditionalFragment$data;
 export type RelayModernEnvironmentConditionalSelectionsTestQueryConditionalFragment$key = {
   +$data?: RelayModernEnvironmentConditionalSelectionsTestQueryConditionalFragment$data,
-  +$fragmentRefs: RelayModernEnvironmentConditionalSelectionsTestQueryConditionalFragment$ref,
+  +$fragmentSpreads: RelayModernEnvironmentConditionalSelectionsTestQueryConditionalFragment$fragmentType,
   ...
 };
 */
@@ -114,4 +114,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "3e09cebb24166f50723abfb502abb690";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayModernEnvironmentConditionalSelectionsTestQueryConditionalFragment$fragmentType,
+  RelayModernEnvironmentConditionalSelectionsTestQueryConditionalFragment$data,
+>*/);

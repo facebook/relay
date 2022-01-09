@@ -1,19 +1,19 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, SourceLocationKey, WithLocation};
+use common::{Diagnostic, DiagnosticsResult, Location, SourceLocationKey, WithLocation};
 use graphql_ir::{ConstantValue, Directive, ValidationMessage, Value};
 use graphql_text_printer::print_value;
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey};
 use lazy_static::lazy_static;
 use schema::SDLSchema;
 
 lazy_static! {
-    static ref REFETCHABLE_NAME: StringKey = "refetchable".intern();
+    pub static ref REFETCHABLE_NAME: StringKey = "refetchable".intern();
     static ref QUERY_NAME_ARG: StringKey = "queryName".intern();
     static ref DIRECTIVES_ARG: StringKey = "directives".intern();
 }
@@ -32,18 +32,7 @@ pub struct RefetchableDirective {
 }
 
 impl RefetchableDirective {
-    pub fn from_directives(
-        schema: &SDLSchema,
-        directives: &[Directive],
-    ) -> DiagnosticsResult<Option<Self>> {
-        if let Some(directive) = directives.named(*REFETCHABLE_NAME) {
-            Ok(Some(Self::from_directive(schema, directive)?))
-        } else {
-            Ok(None)
-        }
-    }
-
-    fn from_directive(schema: &SDLSchema, directive: &Directive) -> DiagnosticsResult<Self> {
+    pub fn from_directive(schema: &SDLSchema, directive: &Directive) -> DiagnosticsResult<Self> {
         let mut name = None;
         let mut directives = Vec::new();
 

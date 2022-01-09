@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,19 +13,20 @@
 
 'use strict';
 
-const React = require('react');
-const ReactTestRenderer = require('react-test-renderer');
-const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
+import type {useLazyLoadQueryNodeReactDoubleEffectsTestUserFragment$key} from './__generated__/useLazyLoadQueryNodeReactDoubleEffectsTestUserFragment.graphql';
+import typeof useLazyLoadQueryNodeReactDoubleEffectsTestUserFragment from './__generated__/useLazyLoadQueryNodeReactDoubleEffectsTestUserFragment.graphql';
+import typeof useLazyLoadQueryNodeReactDoubleEffectsTestUserQuery from './__generated__/useLazyLoadQueryNodeReactDoubleEffectsTestUserQuery.graphql';
+import typeof useLazyLoadQueryNodeReactDoubleEffectsTestUserQueryWithDeferQuery from './__generated__/useLazyLoadQueryNodeReactDoubleEffectsTestUserQueryWithDeferQuery.graphql';
 
+const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const useFragment = require('../useFragment');
 const useLazyLoadQuery = require('../useLazyLoadQuery');
-
+const React = require('react');
 const {useEffect} = require('react');
+const ReactTestRenderer = require('react-test-renderer');
 const {
   Observable,
   createOperationDescriptor,
-  getRequest,
-  getFragment,
   graphql,
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
@@ -52,9 +53,31 @@ function expectToHaveFetched(environment, query) {
 // TODO(T83890478): enable once double invoked effects lands in xplat
 describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
   let environment;
-  let gqlQuery;
-  let gqlQueryWithDefer;
-  let gqlFragment;
+  const gqlQuery: useLazyLoadQueryNodeReactDoubleEffectsTestUserQuery = graphql`
+    query useLazyLoadQueryNodeReactDoubleEffectsTestUserQuery($id: ID) {
+      node(id: $id) {
+        id
+        name
+        ...useLazyLoadQueryNodeReactDoubleEffectsTestUserFragment
+      }
+    }
+  `;
+  const gqlQueryWithDefer: useLazyLoadQueryNodeReactDoubleEffectsTestUserQueryWithDeferQuery = graphql`
+    query useLazyLoadQueryNodeReactDoubleEffectsTestUserQueryWithDeferQuery(
+      $id: ID
+    ) {
+      node(id: $id) {
+        id
+        name
+        ...useLazyLoadQueryNodeReactDoubleEffectsTestUserFragment @defer
+      }
+    }
+  `;
+  const gqlFragment: useLazyLoadQueryNodeReactDoubleEffectsTestUserFragment = graphql`
+    fragment useLazyLoadQueryNodeReactDoubleEffectsTestUserFragment on User {
+      firstName
+    }
+  `;
   let query;
   let queryWithDefer;
   let variables;
@@ -99,31 +122,6 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
         };
       });
     });
-    gqlQuery = getRequest(graphql`
-      query useLazyLoadQueryNodeReactDoubleEffectsTestUserQuery($id: ID) {
-        node(id: $id) {
-          id
-          name
-          ...useLazyLoadQueryNodeReactDoubleEffectsTestUserFragment
-        }
-      }
-    `);
-    gqlQueryWithDefer = getRequest(graphql`
-      query useLazyLoadQueryNodeReactDoubleEffectsTestUserQueryWithDeferQuery(
-        $id: ID
-      ) {
-        node(id: $id) {
-          id
-          name
-          ...useLazyLoadQueryNodeReactDoubleEffectsTestUserFragment @defer
-        }
-      }
-    `);
-    gqlFragment = getFragment(graphql`
-      fragment useLazyLoadQueryNodeReactDoubleEffectsTestUserFragment on User {
-        firstName
-      }
-    `);
     variables = {id: '1'};
     query = createOperationDescriptor(gqlQuery, variables, {force: true});
     queryWithDefer = createOperationDescriptor(gqlQueryWithDefer, variables, {
@@ -138,8 +136,8 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
 
   it('forces a re-render when effects are double invoked and refetches when policy is network-only', () => {
     let renderLogs = [];
-    const QueryComponent = function() {
-      const result = useLazyLoadQuery<_>(gqlQuery, variables, {
+    const QueryComponent = function () {
+      const result = useLazyLoadQuery(gqlQuery, variables, {
         fetchPolicy: 'network-only',
       });
 
@@ -179,7 +177,6 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     expect(environment.retain).toHaveBeenCalledTimes(1);
     expect(renderLogs).toEqual([]);
-    // $FlowFixMe[incompatible-use]
     expect(instance.toJSON()).toEqual('Fallback');
 
     // Resolve network response
@@ -215,7 +212,6 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
     expectToHaveFetched(environment, query);
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     expect(environment.retain).toHaveBeenCalledTimes(2);
-    // $FlowFixMe[incompatible-use]
     expect(instance.toJSON()).toEqual('Fallback');
 
     // Assert render state of component using the query up until
@@ -261,7 +257,6 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
       'cleanup: Alice 1',
       'commit: Alice 2',
     ]);
-    // $FlowFixMe[incompatible-use]
     expect(instance.toJSON()).toEqual('Alice 2');
 
     // Assert that query was correctly permanently retained,
@@ -276,8 +271,8 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
 
   it('forces a re-render when effects are double invoked and does not refetch when policy is store-or-network', () => {
     const renderLogs = [];
-    const QueryComponent = function() {
-      const result = useLazyLoadQuery<_>(gqlQuery, variables, {
+    const QueryComponent = function () {
+      const result = useLazyLoadQuery(gqlQuery, variables, {
         fetchPolicy: 'store-or-network',
       });
 
@@ -317,7 +312,6 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     expect(environment.retain).toHaveBeenCalledTimes(1);
     expect(renderLogs).toEqual([]);
-    // $FlowFixMe[incompatible-use]
     expect(instance.toJSON()).toEqual('Fallback');
 
     // Resolve network response
@@ -371,7 +365,6 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
       // since the name didn't change.
       'render: Alice 1',
     ]);
-    // $FlowFixMe[incompatible-use]
     expect(instance.toJSON()).toEqual('Alice 1');
 
     // Assert that query was correctly permanently retained,
@@ -385,15 +378,19 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
   });
 
   describe('with incremental delivery', () => {
-    it('forces a re-render when effects are double invoked and refetches when policy is network-only', () => {
+    it('with incremental delivery, forces a re-render when effects are double invoked and refetches when policy is network-only', () => {
       let renderLogs = [];
-      const FragmentComponent = function(props) {
-        const data = useFragment(gqlFragment, props.user);
+      const FragmentComponent = function ({
+        user,
+      }: {|
+        user: ?useLazyLoadQueryNodeReactDoubleEffectsTestUserFragment$key,
+      |}) {
+        const data = useFragment(gqlFragment, user);
         return data?.firstName === undefined ? 'Missing fragment data' : null;
       };
 
-      const QueryComponent = function() {
-        const result = useLazyLoadQuery<_>(gqlQueryWithDefer, variables, {
+      const QueryComponent = function () {
+        const result = useLazyLoadQuery(gqlQueryWithDefer, variables, {
           fetchPolicy: 'network-only',
         });
 
@@ -440,7 +437,6 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain).toHaveBeenCalledTimes(1);
       expect(renderLogs).toEqual([]);
-      // $FlowFixMe[incompatible-use]
       expect(instance.toJSON()).toEqual('Fallback');
 
       // Resolve network response
@@ -463,22 +459,27 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
       // will mount, and React double invoke effects will be triggered,
       // simulating what would happen if the component was hidden and re-shown:
 
-      // The effect cleanup will execute, so we assert that
-      // the query is disposed and the current network request is cancelled:
+      // The effect cleanup will execute, so we assert that the query is
+      // disposed. The network request is not canceled because it is not
+      // a live query.
       expect(release).toHaveBeenCalledTimes(1);
-      expect(cancelNetworkRequest).toHaveBeenCalledTimes(1);
+      expect(cancelNetworkRequest).toHaveBeenCalledTimes(0);
 
       // The effect setup will re-execute, so we assert that
-      // a re-render is triggered to refetch, re-retain, and
-      // re-suspend:
-      expectToHaveFetched(environment, queryWithDefer);
+      // a re-render is triggered along with another retain.
+      // We don't re-fetch because the existing request wasn't
+      // cancelled when the component was unmounted, and is still ongoing.
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
+      expect(environment.execute).toBeCalledTimes(0);
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain).toHaveBeenCalledTimes(2);
-      // $FlowFixMe[incompatible-use]
-      expect(instance.toJSON()).toEqual(['Fallback']);
+      // Since the request is not canceled when the component is hidden,
+      // it's still underway when the component is shown again; therefore
+      // the component sees the initial part even though it's network-only,
+      // and doesn't re-suspend.
+      expect(instance.toJSON()).toEqual(['Alice 1', 'Loading fragment']);
 
-      // Assert render state of component using the query up until
-      // the point of re-suspending:
+      // Assert render state of component using the query up until now:
       expect(renderLogs).toEqual([
         // Assert component rendered and committed when network resolved:
         'render: Alice 1',
@@ -488,6 +489,10 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
         // Note that render doesn't happen in between:
         'cleanup: Alice 1',
         'commit: Alice 1',
+
+        // Assert final re-render triggered by query.
+        // It does not trigger a commit since the name didn't change.
+        'render: Alice 1',
       ]);
 
       // Resolve response for second request
@@ -519,7 +524,6 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
         'cleanup: Alice 1',
         'commit: Alice 2',
       ]);
-      // $FlowFixMe[incompatible-use]
       expect(instance.toJSON()).toEqual(['Alice 2', 'Loading fragment']);
 
       // Resolve incremental payload for second network request
@@ -548,7 +552,6 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
         'cleanup: Alice 1',
         'commit: Alice 2',
       ]);
-      // $FlowFixMe[incompatible-use]
       expect(instance.toJSON()).toEqual('Alice 2');
 
       // Assert that query was correctly permanently retained,
@@ -561,15 +564,17 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
       expect(environment.retain).toHaveBeenCalledTimes(2);
     });
 
-    it('forces a re-render when effects are double invoked and refetches when policy is store-or-network', () => {
+    it('with incremental delivery, forces a re-render when effects are double invoked and refetches when policy is store-or-network', () => {
       let renderLogs = [];
-      const FragmentComponent = function(props) {
+      const FragmentComponent = function (props: {|
+        user: ?useLazyLoadQueryNodeReactDoubleEffectsTestUserFragment$key,
+      |}) {
         const data = useFragment(gqlFragment, props.user);
         return data?.firstName === undefined ? 'Missing fragment data' : null;
       };
 
-      const QueryComponent = function() {
-        const result = useLazyLoadQuery<_>(gqlQueryWithDefer, variables, {
+      const QueryComponent = function () {
+        const result = useLazyLoadQuery(gqlQueryWithDefer, variables, {
           fetchPolicy: 'store-or-network',
         });
 
@@ -616,7 +621,6 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain).toHaveBeenCalledTimes(1);
       expect(renderLogs).toEqual([]);
-      // $FlowFixMe[incompatible-use]
       expect(instance.toJSON()).toEqual('Fallback');
 
       // Resolve network response
@@ -639,18 +643,20 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
       // will mount, and React double invoke effects will be triggered,
       // simulating what would happen if the component was hidden and re-shown:
 
-      // The effect cleanup will execute, so we assert that
-      // the query is disposed and the current network request is cancelled:
+      // The effect cleanup will execute, so we assert that the query is
+      // disposed. The network request is not canceled because it is not
+      // a live query.
       expect(release).toHaveBeenCalledTimes(1);
-      expect(cancelNetworkRequest).toHaveBeenCalledTimes(1);
+      expect(cancelNetworkRequest).toHaveBeenCalledTimes(0);
 
       // The effect setup will re-execute, so we assert that
-      // a re-render is triggered to refetch, re-retain, and
-      // re-suspend:
-      expectToHaveFetched(environment, queryWithDefer);
+      // a re-render is triggered along with another retain.
+      // We don't re-fetch because the existing request wasn't
+      // cancelled when the component was unmounted, and is still ongoing.
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
+      expect(environment.execute).toBeCalledTimes(0);
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain).toHaveBeenCalledTimes(2);
-      // $FlowFixMe[incompatible-use]
       expect(instance.toJSON()).toEqual(['Alice 1', 'Loading fragment']);
 
       // Assert render state of component using the query up until
@@ -699,7 +705,6 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
         'cleanup: Alice 1',
         'commit: Alice 2',
       ]);
-      // $FlowFixMe[incompatible-use]
       expect(instance.toJSON()).toEqual(['Alice 2', 'Loading fragment']);
 
       // Resolve incremental payload for second network request
@@ -728,7 +733,6 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
         'cleanup: Alice 1',
         'commit: Alice 2',
       ]);
-      // $FlowFixMe[incompatible-use]
       expect(instance.toJSON()).toEqual('Alice 2');
 
       // Assert that query was correctly permanently retained,

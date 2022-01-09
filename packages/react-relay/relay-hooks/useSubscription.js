@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -12,17 +12,16 @@
 
 'use strict';
 
-const useRelayEnvironment = require('./useRelayEnvironment');
+import type {
+  Disposable,
+  GraphQLSubscriptionConfig,
+  IEnvironment,
+  SubscriptionParameters,
+} from 'relay-runtime';
 
+const useRelayEnvironment = require('./useRelayEnvironment');
 const {useEffect} = require('react');
 const {requestSubscription} = require('relay-runtime');
-
-import type {
-  IEnvironment,
-  GraphQLSubscriptionConfig,
-  SubscriptionParameters,
-  Disposable,
-} from 'relay-runtime';
 
 type RequestSubscriptionFn<TSubscriptionParameters: SubscriptionParameters> = (
   environment: IEnvironment,
@@ -42,6 +41,7 @@ function useSubscription<TSubscriptionParameters: SubscriptionParameters>(
   useEffect(() => {
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const {dispose} = actualRequestSubscription(environment, config);
+    // $FlowFixMe[incompatible-call]
     return dispose;
   }, [environment, config, actualRequestSubscription]);
 }

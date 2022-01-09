@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,12 +13,14 @@ use super::{
 use crate::root_variables::VariableMap;
 use common::DiagnosticsResult;
 use graphql_ir::FragmentDefinition;
-use interner::StringKey;
+use intern::string_key::StringKey;
+use relay_config::SchemaConfig;
 use schema::{SDLSchema, Schema};
 use std::sync::Arc;
 
 fn build_refetch_operation(
     schema: &SDLSchema,
+    _schema_config: &SchemaConfig,
     fragment: &Arc<FragmentDefinition>,
     query_name: StringKey,
     variables_map: &VariableMap,

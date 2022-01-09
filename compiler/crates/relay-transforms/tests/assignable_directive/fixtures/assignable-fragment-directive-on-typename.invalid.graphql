@@ -1,0 +1,4 @@
+# expected-to-throw
+fragment AssignableFragment on Page @assignable {
+  __typename @required(action: LOG)
+}

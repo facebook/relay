@@ -1,0 +1,500 @@
+==================================== INPUT ====================================
+query providedVariableMultipleQueries_OneFragmentQuery {
+  node(id: 4) {
+    ...providedVariableMultipleQueries_OneProvidedVar
+  }
+}
+
+query providedVariableMultipleQueries_MultiFragmentQuery {
+  node(id: 5) {
+    ...providedVariableMultipleQueries_OneProvidedVar,
+    ...providedVariableMultipleQueries_MultiProvidedVar,
+  }
+}
+
+fragment providedVariableMultipleQueries_OneProvidedVar on User
+  @argumentDefinitions(
+    includeName: {type: "Boolean!", provider: "includeNameProvider"}
+) {
+  name @include(if: $includeName)
+}
+
+fragment providedVariableMultipleQueries_MultiProvidedVar on User
+  @argumentDefinitions(
+    numberOfFriends: {type: "Int!", provider: "numberOfFriendsProvider"},
+    includeName_: {type: "Boolean!", provider: "includeNameProvider"}
+) {
+  friends(first: $numberOfFriends) {
+    count
+    edges {
+      node {
+        name @include(if: $includeName_),
+      }
+    }
+  }
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "providedVariableMultipleQueries_MultiFragmentQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Literal",
+            "name": "id",
+            "value": 5
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "providedVariableMultipleQueries_OneProvidedVar"
+          },
+          {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "providedVariableMultipleQueries_MultiProvidedVar"
+          }
+        ],
+        "storageKey": "node(id:5)"
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "__providedVariableMultipleQueries_OneProvidedVar__includeName"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "__providedVariableMultipleQueries_MultiProvidedVar__numberOfFriends"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "__providedVariableMultipleQueries_MultiProvidedVar__includeName_"
+      }
+    ],
+    "kind": "Operation",
+    "name": "providedVariableMultipleQueries_MultiFragmentQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Literal",
+            "name": "id",
+            "value": 5
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "__typename",
+            "storageKey": null
+          },
+          {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "condition": "__providedVariableMultipleQueries_OneProvidedVar__includeName",
+                "kind": "Condition",
+                "passingValue": true,
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "name",
+                    "storageKey": null
+                  }
+                ]
+              },
+              {
+                "alias": null,
+                "args": [
+                  {
+                    "kind": "Variable",
+                    "name": "first",
+                    "variableName": "__providedVariableMultipleQueries_MultiProvidedVar__numberOfFriends"
+                  }
+                ],
+                "concreteType": "FriendsConnection",
+                "kind": "LinkedField",
+                "name": "friends",
+                "plural": false,
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "count",
+                    "storageKey": null
+                  },
+                  {
+                    "alias": null,
+                    "args": null,
+                    "concreteType": "FriendsEdge",
+                    "kind": "LinkedField",
+                    "name": "edges",
+                    "plural": true,
+                    "selections": [
+                      {
+                        "alias": null,
+                        "args": null,
+                        "concreteType": "User",
+                        "kind": "LinkedField",
+                        "name": "node",
+                        "plural": false,
+                        "selections": [
+                          {
+                            "condition": "__providedVariableMultipleQueries_MultiProvidedVar__includeName_",
+                            "kind": "Condition",
+                            "passingValue": true,
+                            "selections": [
+                              {
+                                "alias": null,
+                                "args": null,
+                                "kind": "ScalarField",
+                                "name": "name",
+                                "storageKey": null
+                              }
+                            ]
+                          },
+                          {
+                            "alias": null,
+                            "args": null,
+                            "kind": "ScalarField",
+                            "name": "id",
+                            "storageKey": null
+                          }
+                        ],
+                        "storageKey": null
+                      }
+                    ],
+                    "storageKey": null
+                  }
+                ],
+                "storageKey": null
+              }
+            ],
+            "type": "User",
+            "abstractKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          }
+        ],
+        "storageKey": "node(id:5)"
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {},
+    "name": "providedVariableMultipleQueries_MultiFragmentQuery",
+    "operationKind": "query",
+    "text": null,
+    "providedVariables": {
+      "__providedVariableMultipleQueries_OneProvidedVar__includeName": require('includeNameProvider'),
+      "__providedVariableMultipleQueries_MultiProvidedVar__numberOfFriends": require('numberOfFriendsProvider'),
+      "__providedVariableMultipleQueries_MultiProvidedVar__includeName_": require('includeNameProvider')
+    }
+  }
+}
+
+QUERY:
+
+query providedVariableMultipleQueries_MultiFragmentQuery(
+  $__providedVariableMultipleQueries_OneProvidedVar__includeName: Boolean!
+  $__providedVariableMultipleQueries_MultiProvidedVar__numberOfFriends: Int!
+  $__providedVariableMultipleQueries_MultiProvidedVar__includeName_: Boolean!
+) {
+  node(id: 5) {
+    __typename
+    ...providedVariableMultipleQueries_OneProvidedVar
+    ...providedVariableMultipleQueries_MultiProvidedVar
+    id
+  }
+}
+
+fragment providedVariableMultipleQueries_MultiProvidedVar on User {
+  friends(first: $__providedVariableMultipleQueries_MultiProvidedVar__numberOfFriends) {
+    count
+    edges {
+      node {
+        name @include(if: $__providedVariableMultipleQueries_MultiProvidedVar__includeName_)
+        id
+      }
+    }
+  }
+}
+
+fragment providedVariableMultipleQueries_OneProvidedVar on User {
+  name @include(if: $__providedVariableMultipleQueries_OneProvidedVar__includeName)
+}
+
+
+{
+  "fragment": {
+    "argumentDefinitions": [],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "providedVariableMultipleQueries_OneFragmentQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Literal",
+            "name": "id",
+            "value": 4
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "providedVariableMultipleQueries_OneProvidedVar"
+          }
+        ],
+        "storageKey": "node(id:4)"
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "__providedVariableMultipleQueries_OneProvidedVar__includeName"
+      }
+    ],
+    "kind": "Operation",
+    "name": "providedVariableMultipleQueries_OneFragmentQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Literal",
+            "name": "id",
+            "value": 4
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "__typename",
+            "storageKey": null
+          },
+          {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "condition": "__providedVariableMultipleQueries_OneProvidedVar__includeName",
+                "kind": "Condition",
+                "passingValue": true,
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "name",
+                    "storageKey": null
+                  }
+                ]
+              }
+            ],
+            "type": "User",
+            "abstractKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          }
+        ],
+        "storageKey": "node(id:4)"
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {},
+    "name": "providedVariableMultipleQueries_OneFragmentQuery",
+    "operationKind": "query",
+    "text": null,
+    "providedVariables": {
+      "__providedVariableMultipleQueries_OneProvidedVar__includeName": require('includeNameProvider')
+    }
+  }
+}
+
+QUERY:
+
+query providedVariableMultipleQueries_OneFragmentQuery(
+  $__providedVariableMultipleQueries_OneProvidedVar__includeName: Boolean!
+) {
+  node(id: 4) {
+    __typename
+    ...providedVariableMultipleQueries_OneProvidedVar
+    id
+  }
+}
+
+fragment providedVariableMultipleQueries_OneProvidedVar on User {
+  name @include(if: $__providedVariableMultipleQueries_OneProvidedVar__includeName)
+}
+
+
+{
+  "argumentDefinitions": [
+    {
+      "kind": "RootArgument",
+      "name": "__providedVariableMultipleQueries_MultiProvidedVar__includeName_"
+    },
+    {
+      "kind": "RootArgument",
+      "name": "__providedVariableMultipleQueries_MultiProvidedVar__numberOfFriends"
+    }
+  ],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "providedVariableMultipleQueries_MultiProvidedVar",
+  "selections": [
+    {
+      "alias": null,
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "first",
+          "variableName": "__providedVariableMultipleQueries_MultiProvidedVar__numberOfFriends"
+        }
+      ],
+      "concreteType": "FriendsConnection",
+      "kind": "LinkedField",
+      "name": "friends",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "count",
+          "storageKey": null
+        },
+        {
+          "alias": null,
+          "args": null,
+          "concreteType": "FriendsEdge",
+          "kind": "LinkedField",
+          "name": "edges",
+          "plural": true,
+          "selections": [
+            {
+              "alias": null,
+              "args": null,
+              "concreteType": "User",
+              "kind": "LinkedField",
+              "name": "node",
+              "plural": false,
+              "selections": [
+                {
+                  "condition": "__providedVariableMultipleQueries_MultiProvidedVar__includeName_",
+                  "kind": "Condition",
+                  "passingValue": true,
+                  "selections": [
+                    {
+                      "alias": null,
+                      "args": null,
+                      "kind": "ScalarField",
+                      "name": "name",
+                      "storageKey": null
+                    }
+                  ]
+                }
+              ],
+              "storageKey": null
+            }
+          ],
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}
+
+{
+  "argumentDefinitions": [
+    {
+      "kind": "RootArgument",
+      "name": "__providedVariableMultipleQueries_OneProvidedVar__includeName"
+    }
+  ],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "providedVariableMultipleQueries_OneProvidedVar",
+  "selections": [
+    {
+      "condition": "__providedVariableMultipleQueries_OneProvidedVar__includeName",
+      "kind": "Condition",
+      "passingValue": true,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "name",
+          "storageKey": null
+        }
+      ]
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}

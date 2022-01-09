@@ -1,0 +1,16 @@
+==================================== INPUT ====================================
+# expected-to-throw
+
+query Query($id: ID! = "12345") {
+  node(id: $id) {
+    id
+  }
+}
+==================================== ERROR ====================================
+✖︎ Non-nullable variable 'id' has a default value.
+
+  non-nullable-variable-with-default.invalid.graphql:3:22
+    2 │ 
+    3 │ query Query($id: ID! = "12345") {
+      │                      ^^^^^^^^^
+    4 │   node(id: $id) {

@@ -3,7 +3,7 @@ query SimpleQuery {
   node(id: "test-id") {
     id
     ... on User {
-      actor @EXPERIMENTAL__as_actor {
+      actor @fb_actor_change {
         ...UserFragment
       }
     }
@@ -80,7 +80,7 @@ fragment UserFragment on User {
                     "alias": null,
                     "args": null,
                     "kind": "ScalarField",
-                    "name": "__viewer",
+                    "name": "actor_key",
                     "storageKey": null
                   }
                 ],

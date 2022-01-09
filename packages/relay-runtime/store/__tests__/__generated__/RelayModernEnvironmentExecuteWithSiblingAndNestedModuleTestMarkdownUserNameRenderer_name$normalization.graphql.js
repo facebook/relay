@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<c5b912300b63c12ec6af19872ad27e51>>
+ * @generated SignedSource<<80550fb4d6919bcaee35d55d5fb0a091>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,31 +16,6 @@
 
 /*::
 import type { NormalizationSplitOperation } from 'relay-runtime';
-
-import type { Local3DPayload } from "relay-runtime";
-type RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestPlainUserNameRenderer_name$normalization = any;
-export type RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestPlainUserNameRenderer_name = {|
-  ...RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestPlainUserNameRenderer_name$normalization,
-|};
-export type RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestMarkdownUserNameRenderer_name$normalization = {|
-  +__typename: string,
-  +markdown: ?string,
-  +user: ?{|
-    +name: ?string,
-    +innerRenderer: ?({|
-      +__typename: "PlainUserNameRenderer",
-      +__module_operation_RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestMarkdownUserNameRenderer_name: ?any,
-      +__module_component_RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestMarkdownUserNameRenderer_name: ?any,
-      ...RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestPlainUserNameRenderer_name,
-    |} | Local3DPayload<"RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestMarkdownUserNameRenderer_name", {|
-      +__typename: "PlainUserNameRenderer",
-      ...RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestPlainUserNameRenderer_name,
-    |}> | {|
-      +__typename: string,
-    |}),
-    +id: string,
-  |},
-|};
 
 */
 

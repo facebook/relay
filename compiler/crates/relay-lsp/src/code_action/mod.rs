@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -7,16 +7,17 @@
 
 mod create_name_suggestion;
 
-use common::{PerfLogger, Span};
+use common::Span;
 use create_name_suggestion::{
     create_default_name, create_default_name_with_index, create_impactful_name,
     create_name_wrapper, DefinitionNameSuffix,
 };
 use graphql_syntax::ExecutableDefinition;
 use lsp_types::{
-    request::CodeActionRequest, request::Request, CodeAction, CodeActionOrCommand, Position, Range,
-    TextDocumentPositionParams, TextEdit, Url, WorkspaceEdit,
+    request::CodeActionRequest, request::Request, CodeAction, CodeActionOrCommand, Diagnostic,
+    Position, Range, TextDocumentPositionParams, TextEdit, Url, WorkspaceEdit,
 };
+use serde_json::Value;
 use std::collections::{HashMap, HashSet};
 
 use crate::{
@@ -24,38 +25,76 @@ use crate::{
     resolution_path::{
         IdentParent, IdentPath, OperationDefinitionPath, ResolutionPath, ResolvePosition,
     },
-    server::LSPState,
+    server::GlobalState,
 };
 
-pub(crate) fn on_code_action<TPerfLogger: PerfLogger + 'static>(
-    state: &mut LSPState<TPerfLogger>,
+pub(crate) fn on_code_action(
+    state: &impl GlobalState,
     params: <CodeActionRequest as Request>::Params,
 ) -> LSPRuntimeResult<<CodeActionRequest as Request>::Result> {
     let uri = params.text_document.uri.clone();
-    if !uri.path().starts_with(state.root_dir_str()) {
+    if !uri
+        .path()
+        .starts_with(state.root_dir().to_string_lossy().as_ref())
+    {
         return Err(LSPRuntimeError::ExpectedError);
     }
-    if let Ok(result) = state.js_resource.on_code_action(&params, state) {
-        return Ok(result);
+
+    if let Some(js_server) = state.get_js_language_sever() {
+        if let Ok(result) = js_server.on_code_action(&params, state) {
+            return Ok(result);
+        }
     }
 
-    let range = params.range;
+    if let Some(diagnostic) = state.get_diagnostic_for_range(&uri, params.range) {
+        let code_actions = get_code_actions_from_diagnostics(&uri, diagnostic);
+        if code_actions.is_some() {
+            return Ok(code_actions);
+        }
+    }
+
+    let definitions = state.resolve_executable_definitions(&params.text_document.uri)?;
 
     let text_document_position_params = TextDocumentPositionParams {
         text_document: params.text_document,
         position: params.range.start,
     };
-    let definitions = state.resolve_executable_definitions(&text_document_position_params)?;
-
-    let (document, position_span, _project_name) =
+    let (document, position_span) =
         state.extract_executable_document_from_text(&text_document_position_params, 1)?;
 
     let path = document.resolve((), position_span);
 
     let used_definition_names = get_definition_names(&definitions);
-    let result = get_code_actions(path, used_definition_names, uri, range)
+    let result = get_code_actions(path, used_definition_names, uri, params.range)
         .ok_or(LSPRuntimeError::ExpectedError)?;
     Ok(Some(result))
+}
+
+fn get_code_actions_from_diagnostics(
+    url: &Url,
+    diagnostic: Diagnostic,
+) -> Option<Vec<CodeActionOrCommand>> {
+    let code_actions = if let Some(Value::Array(data)) = &diagnostic.data {
+        data.iter()
+            .filter_map(|item| match item {
+                Value::String(suggestion) => Some(create_code_action(
+                    "Fix Error",
+                    suggestion.to_string(),
+                    url,
+                    diagnostic.range,
+                )),
+                _ => None,
+            })
+            .collect::<_>()
+    } else {
+        vec![]
+    };
+
+    if !code_actions.is_empty() {
+        Some(code_actions)
+    } else {
+        None
+    }
 }
 
 struct FragmentAndOperationNames {
@@ -151,12 +190,7 @@ fn create_code_actions(
                     return None;
                 }
 
-                Some(create_name_suggestion_action(
-                    title,
-                    name.clone(),
-                    &url,
-                    range,
-                ))
+                Some(create_code_action(title, name.clone(), url, range))
             } else {
                 None
             }
@@ -168,16 +202,16 @@ fn get_code_action_range(range: Range, span: &Span) -> Range {
     Range {
         start: Position {
             line: range.start.line,
-            character: (span.start - 1).into(),
+            character: (span.start - 1),
         },
         end: Position {
             line: range.start.line,
-            character: (span.end - 1).into(),
+            character: (span.end - 1),
         },
     }
 }
 
-fn create_name_suggestion_action(
+fn create_code_action(
     title: &str,
     new_name: String,
     url: &Url,
@@ -193,13 +227,61 @@ fn create_name_suggestion_action(
 
     CodeActionOrCommand::CodeAction(CodeAction {
         title,
-        kind: Some("quickfix".to_string()),
+        kind: Some(lsp_types::CodeActionKind::QUICKFIX),
         diagnostics: None,
         edit: Some(WorkspaceEdit {
             changes: Some(changes),
             document_changes: None,
+            ..Default::default()
         }),
         command: None,
         is_preferred: Some(false),
+        ..Default::default()
     })
+}
+
+#[cfg(test)]
+mod tests {
+    use lsp_types::{CodeActionOrCommand, Diagnostic, Position, Range, Url};
+    use serde_json::json;
+
+    use crate::code_action::get_code_actions_from_diagnostics;
+
+    #[test]
+    fn test_get_code_actions_from_diagnostics() {
+        let diagnostic = Diagnostic {
+            range: Range {
+                start: Position {
+                    line: 0,
+                    character: 0,
+                },
+                end: Position {
+                    line: 0,
+                    character: 0,
+                },
+            },
+            message: "Error Message".to_string(),
+            data: Some(json!(vec!["item1", "item2"])),
+            ..Default::default()
+        };
+        let url = Url::parse("file://relay.js").unwrap();
+        let code_actions = get_code_actions_from_diagnostics(&url, diagnostic);
+
+        assert_eq!(
+            code_actions
+                .unwrap()
+                .iter()
+                .map(|item| {
+                    match item {
+                        CodeActionOrCommand::CodeAction(action) => action.title.clone(),
+                        _ => panic!("unexpected case"),
+                    }
+                })
+                .collect::<Vec<String>>(),
+            vec![
+                "Fix Error: 'item1'".to_string(),
+                "Fix Error: 'item2'".to_string(),
+            ]
+        );
+    }
 }

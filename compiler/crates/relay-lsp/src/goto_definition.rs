@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -8,28 +8,25 @@
 //! Utilities for providing the goto definition feature
 
 use crate::{
-    location::to_lsp_location_of_graphql_literal,
-    lsp::GotoDefinitionResponse,
+    location::{read_graphql_file_and_get_range, to_lsp_location_of_graphql_literal},
     lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult},
-    resolution_path::utils::find_selection_parent_type,
     resolution_path::{
         IdentParent, IdentPath, LinkedFieldPath, ResolutionPath, ResolvePosition, ScalarFieldPath,
         SelectionParent, TypeConditionPath,
     },
-    server::LSPState,
-    server::SourcePrograms,
-    FieldDefinitionSourceInfo, LSPExtraDataProvider,
+    server::GlobalState,
+    FieldDefinitionSourceInfo, FieldSchemaInfo, LSPExtraDataProvider,
 };
-use common::{NamedItem, PerfLogger};
+use common::NamedItem;
 
-use graphql_syntax::ConstantValue;
-use interner::{Intern, StringKey};
+use graphql_ir::Program;
+use intern::string_key::{Intern, StringKey};
 use lsp_types::{
     request::{GotoDefinition, Request},
-    Url,
+    GotoDefinitionResponse, Url,
 };
 use relay_transforms::{RELAY_RESOLVER_DIRECTIVE_NAME, RELAY_RESOLVER_IMPORT_PATH_ARGUMENT_NAME};
-use schema::{SDLSchema, Schema, Type};
+use schema::Schema;
 use serde::{Deserialize, Serialize};
 use std::{
     path::{Path, PathBuf},
@@ -39,34 +36,25 @@ use std::{
 fn get_goto_definition_response<'a>(
     node_path: ResolutionPath<'a>,
     project_name: StringKey,
-    source_programs: &SourcePrograms,
+    program: &Program,
     root_dir: &Path,
-    extra_data_provider: &(dyn LSPExtraDataProvider + 'static),
+    extra_data_provider: &dyn LSPExtraDataProvider,
 ) -> LSPRuntimeResult<GotoDefinitionResponse> {
     match node_path {
         ResolutionPath::Ident(IdentPath {
             inner: fragment_name,
             parent: IdentParent::FragmentSpreadName(_),
         }) => {
-            if let Some(source_program) = source_programs.get(&project_name) {
-                let fragment = source_program
-                    .fragment(fragment_name.value)
-                    .ok_or_else(|| {
-                        LSPRuntimeError::UnexpectedError(format!(
-                            "Could not find fragment with name {}",
-                            fragment_name
-                        ))
-                    })?;
-
-                Ok(GotoDefinitionResponse::Scalar(
-                    to_lsp_location_of_graphql_literal(fragment.name.location, root_dir)?,
+            let fragment = program.fragment(fragment_name.value).ok_or_else(|| {
+                LSPRuntimeError::UnexpectedError(format!(
+                    "Could not find fragment with name {}",
+                    fragment_name
                 ))
-            } else {
-                Err(LSPRuntimeError::UnexpectedError(format!(
-                    "Project name {} not found",
-                    project_name
-                )))
-            }
+            })?;
+
+            Ok(GotoDefinitionResponse::Scalar(
+                to_lsp_location_of_graphql_literal(fragment.name.location, root_dir)?,
+            ))
         }
         ResolutionPath::Ident(IdentPath {
             inner: field_name,
@@ -79,7 +67,7 @@ fn get_goto_definition_response<'a>(
             field_name.value.to_string(),
             selection_path.parent,
             project_name,
-            source_programs,
+            program,
             root_dir,
             extra_data_provider,
         ),
@@ -94,7 +82,7 @@ fn get_goto_definition_response<'a>(
             field_name.value.to_string(),
             selection_path.parent,
             project_name,
-            source_programs,
+            program,
             root_dir,
             extra_data_provider,
         ),
@@ -115,12 +103,7 @@ fn get_goto_definition_response<'a>(
                 file_path,
                 line_number,
                 is_local,
-            } = provider_response.map_err(|e| -> LSPRuntimeError {
-                LSPRuntimeError::UnexpectedError(format!(
-                    "Error resolving field definition location: {}",
-                    e
-                ))
-            })?;
+            } = get_field_definition_source_info_result(provider_response)?;
             if is_local {
                 Ok(GotoDefinitionResponse::Scalar(get_location(
                     &file_path,
@@ -138,80 +121,74 @@ fn resolve_field<'a>(
     field_name: String,
     selection_parent: SelectionParent<'a>,
     project_name: StringKey,
-    source_programs: &SourcePrograms,
+    program: &Program,
     root_dir: &Path,
-    extra_data_provider: &(dyn LSPExtraDataProvider + 'static),
+    extra_data_provider: &dyn LSPExtraDataProvider,
 ) -> LSPRuntimeResult<GotoDefinitionResponse> {
-    let source_program = source_programs.get(&project_name).ok_or_else(|| {
-        LSPRuntimeError::UnexpectedError(format!("Project name {} not found", project_name))
-    })?;
-
-    let parent_type = find_selection_parent_type(selection_parent, &source_program.schema)
+    let parent_type = selection_parent
+        .find_parent_type(&program.schema)
         .ok_or(LSPRuntimeError::ExpectedError)?;
 
-    let field_name_key = field_name.intern();
+    let field_name_key = (&field_name as &str).intern();
 
-    if let Some(response) = get_relay_resolver_location(
-        &source_program.schema,
-        parent_type,
-        field_name_key,
-        root_dir,
-    )? {
+    let field = program.schema.field(
+        program
+            .schema
+            .named_field(parent_type, field_name_key)
+            .ok_or_else(|| {
+                LSPRuntimeError::UnexpectedError(format!(
+                    "Could not find field with name {}",
+                    field_name,
+                ))
+            })?,
+    );
+
+    // Step 1: is this field a resolver?
+    if let Some(response) = get_relay_resolver_location(field, root_dir)? {
         return Ok(response);
     }
 
-
-    let parent_name = source_program.schema.get_type_name(parent_type);
-
+    let parent_name = program.schema.get_type_name(parent_type);
     let provider_response = extra_data_provider.resolve_field_definition(
         project_name.to_string(),
         parent_name.to_string(),
-        Some(field_name_key.to_string()),
+        Some(FieldSchemaInfo {
+            name: field.name.item.to_string(),
+            is_extension: field.is_extension,
+        }),
     );
-    let FieldDefinitionSourceInfo {
-        file_path,
-        line_number,
-        is_local,
-    } = provider_response.map_err(|e| -> LSPRuntimeError {
-        LSPRuntimeError::UnexpectedError(format!(
-            "Error resolving field definition location: {}",
-            e
-        ))
-    })?;
-    if is_local {
-        Ok(GotoDefinitionResponse::Scalar(get_location(
-            &file_path,
-            line_number,
-        )?))
+
+    if let Ok(Some(source_info)) = provider_response {
+        // Step 2: does extra_data_provider know anything about this field?
+        if source_info.is_local {
+            Ok(GotoDefinitionResponse::Scalar(get_location(
+                &source_info.file_path,
+                source_info.line_number,
+            )?))
+        } else {
+            Err(LSPRuntimeError::ExpectedError)
+        }
+    } else if let Ok((_, location)) = read_graphql_file_and_get_range(field.name.location, root_dir)
+    {
+        // Step 3: is field a standalone graphql file?
+        Ok(GotoDefinitionResponse::Scalar(location))
     } else {
+        // Give up
         Err(LSPRuntimeError::ExpectedError)
     }
 }
 
 fn get_relay_resolver_location(
-    schema: &SDLSchema,
-    parent_type: Type,
-    field_name: StringKey,
+    field: &schema::Field,
     root_dir: &Path,
 ) -> LSPRuntimeResult<Option<GotoDefinitionResponse>> {
-    let maybe_resolver_directive =
-        schema
-            .named_field(parent_type, field_name)
-            .and_then(|field_id| {
-                schema
-                    .field(field_id)
-                    .directives
-                    .named(*RELAY_RESOLVER_DIRECTIVE_NAME)
-            });
+    let maybe_resolver_directive = field.directives.named(*RELAY_RESOLVER_DIRECTIVE_NAME);
 
     Ok(if let Some(resolver_directive) = maybe_resolver_directive {
         let resolver_path = resolver_directive
             .arguments
             .named(*RELAY_RESOLVER_IMPORT_PATH_ARGUMENT_NAME)
-            .and_then(|argument| match &argument.value {
-                ConstantValue::String(import_path) => Some(import_path.value),
-                _ => None,
-            })
+            .and_then(|argument| argument.value.get_string_literal())
             .ok_or_else(|| {
                 LSPRuntimeError::UnexpectedError(
                 "Error resolving field definition location. Malformed schema for Relay Resolver."
@@ -229,27 +206,40 @@ fn get_relay_resolver_location(
     })
 }
 
-pub(crate) fn on_goto_definition<TPerfLogger: PerfLogger + 'static>(
-    state: &mut LSPState<TPerfLogger>,
+pub fn on_goto_definition(
+    state: &impl GlobalState,
     params: <GotoDefinition as Request>::Params,
 ) -> LSPRuntimeResult<<GotoDefinition as Request>::Result> {
-    let (document, position_span, project_name) =
-        state.extract_executable_document_from_text(&params, 1)?;
+    let (document, position_span) =
+        state.extract_executable_document_from_text(&params.text_document_position_params, 1)?;
     let path = document.resolve((), position_span);
+    let project_name = state
+        .extract_project_name_from_url(&params.text_document_position_params.text_document.uri)?;
 
     let goto_definition_response = get_goto_definition_response(
         path,
         project_name,
-        state.get_source_programs_ref(),
-        state.root_dir(),
-        state.extra_data_provider.as_ref(),
+        &state.get_program(&project_name)?,
+        &state.root_dir(),
+        &*state.get_extra_data_provider(),
     )?;
+
+    // For some lsp-clients, such as clients relying on org.eclipse.lsp4j,
+    // (see https://javadoc.io/static/org.eclipse.lsp4j/org.eclipse.lsp4j/0.8.1/org/eclipse/lsp4j/services/TextDocumentService.html)
+    // the definition response should be vector of location or locationlink.
+    // Therefore, let's convert the GotoDefinitionResponse::Scalar into Vector
+    if let GotoDefinitionResponse::Scalar(l) = goto_definition_response {
+        return Ok(Some(GotoDefinitionResponse::Array(vec![l])));
+    }
 
     Ok(Some(goto_definition_response))
 }
 
 fn get_location(path: &str, line: u64) -> Result<lsp_types::Location, LSPRuntimeError> {
-    let start = lsp_types::Position { line, character: 0 };
+    let start = lsp_types::Position {
+        line: line as u32,
+        character: 0,
+    };
     let range = lsp_types::Range { start, end: start };
 
     let uri = Url::parse(&format!("file://{}", path)).map_err(|e| {
@@ -276,38 +266,84 @@ pub(crate) struct GetSourceLocationOfTypeDefinitionResult {
 impl Request for GetSourceLocationOfTypeDefinition {
     type Params = GetSourceLocationOfTypeDefinitionParams;
     type Result = GetSourceLocationOfTypeDefinitionResult;
-    const METHOD: &'static str = "$/getSourceLocationOfTypeDefinition";
+    const METHOD: &'static str = "relay/getSourceLocationOfTypeDefinition";
 }
 
-pub(crate) fn on_get_source_location_of_type_definition<TPerfLogger: PerfLogger + 'static>(
-    state: &mut LSPState<TPerfLogger>,
+pub(crate) fn on_get_source_location_of_type_definition(
+    state: &impl GlobalState,
     params: <GetSourceLocationOfTypeDefinition as Request>::Params,
 ) -> LSPRuntimeResult<<GetSourceLocationOfTypeDefinition as Request>::Result> {
-    let field_definition_source_info = state
-        .extra_data_provider
-        .resolve_field_definition(params.schema_name, params.type_name, params.field_name)
-        .map_err(LSPRuntimeError::UnexpectedError)?;
+    let schema = state.get_schema(&(&params.schema_name as &str).intern())?;
+
+    let type_ = schema
+        .get_type((&params.type_name as &str).intern())
+        .ok_or_else(|| {
+            LSPRuntimeError::UnexpectedError(format!(
+                "Could not find type with name {}",
+                &params.type_name
+            ))
+        })?;
+
+    let field_info = params
+        .field_name
+        .map(|field_name| {
+            schema
+                .named_field(type_, (&field_name as &str).intern())
+                .ok_or_else(|| {
+                    LSPRuntimeError::UnexpectedError(format!(
+                        "Could not find field with name {}",
+                        field_name
+                    ))
+                })
+        })
+        .transpose()?
+        .map(|field_id| {
+            let field = schema.field(field_id);
+            FieldSchemaInfo {
+                name: field.name.item.to_string(),
+                is_extension: field.is_extension,
+            }
+        });
+
+    // TODO add go-to-definition for client fields
+    let field_definition_source_info = get_field_definition_source_info_result(
+        state.get_extra_data_provider().resolve_field_definition(
+            params.schema_name,
+            params.type_name,
+            field_info,
+        ),
+    )?;
+
     Ok(GetSourceLocationOfTypeDefinitionResult {
         field_definition_source_info,
     })
 }
 
+fn get_field_definition_source_info_result(
+    result: Result<Option<FieldDefinitionSourceInfo>, String>,
+) -> LSPRuntimeResult<FieldDefinitionSourceInfo> {
+    result
+        .map_err(LSPRuntimeError::UnexpectedError)?
+        .ok_or_else(|| {
+            LSPRuntimeError::UnexpectedError(
+                "Expected result when resolving field definition location".to_string(),
+            )
+        })
+}
+
 #[cfg(test)]
 mod test {
-    use std::{path::PathBuf, sync::Arc};
+    use std::path::PathBuf;
 
     use common::{SourceLocationKey, Span};
-    use dashmap::DashMap;
-    use fnv::FnvBuildHasher;
     use graphql_ir::Program;
     use graphql_syntax::{parse_executable_with_features, ParserFeatures};
-    use interner::Intern;
-    use lsp_types::{request::GotoDefinitionResponse, Location};
+    use intern::string_key::Intern;
+    use lsp_types::{GotoDefinitionResponse, Location};
     use relay_test_schema::get_test_schema_with_extensions;
-    use schema_documentation::SchemaDocumentation;
 
     use crate::{
-        resolution_path::ResolvePosition, server::SourcePrograms, FieldDefinitionSourceInfo,
+        resolution_path::ResolvePosition, FieldDefinitionSourceInfo, FieldSchemaInfo,
         LSPExtraDataProvider,
     };
 
@@ -316,7 +352,7 @@ mod test {
     struct DummyExtraDataProvider {}
 
     impl LSPExtraDataProvider for DummyExtraDataProvider {
-        fn fetch_query_stats(&self, _search_token: String) -> Vec<String> {
+        fn fetch_query_stats(&self, _search_token: &str) -> Vec<String> {
             Vec::new()
         }
 
@@ -324,16 +360,9 @@ mod test {
             &self,
             _project_name: String,
             _parent_type: String,
-            _field_name: Option<String>,
-        ) -> Result<FieldDefinitionSourceInfo, String> {
+            _field_info: Option<FieldSchemaInfo>,
+        ) -> Result<Option<FieldDefinitionSourceInfo>, String> {
             Err("Not implemented".to_string())
-        }
-
-        fn get_schema_documentation(
-            &self,
-            _schema_name: &str,
-        ) -> Arc<schema_documentation::SchemaDocumentation> {
-            Arc::new(SchemaDocumentation::default())
         }
     }
 
@@ -367,7 +396,6 @@ mod test {
         let resolved = document.resolve((), position_span);
 
         let project_name = "test".intern();
-        let program_map = DashMap::with_hasher(FnvBuildHasher::default());
         let program = Program::new(get_test_schema_with_extensions(
             r#"
         extend type User {
@@ -375,16 +403,13 @@ mod test {
           }
         "#,
         ));
-        program_map.insert(project_name, program);
-        let programs: SourcePrograms = Arc::new(program_map);
         let root_dir = PathBuf::from("/config/root/");
         let extra_data_provider = DummyExtraDataProvider {};
-
 
         let goto_definition_response = get_goto_definition_response(
             resolved,
             project_name,
-            &programs,
+            &program,
             &root_dir,
             &extra_data_provider,
         );
@@ -393,8 +418,6 @@ mod test {
             Ok(GotoDefinitionResponse::Scalar(Location { uri, .. })) => uri.path().to_string(),
             _ => panic!("Invalid go to definition response."),
         };
-
-
 
         assert_eq!(uri, "/config/root/path/to/resolver.js");
     }

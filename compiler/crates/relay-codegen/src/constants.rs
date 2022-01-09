@@ -1,11 +1,11 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey};
 use lazy_static::lazy_static;
 
 pub struct CodegenConstants {
@@ -18,6 +18,9 @@ pub struct CodegenConstants {
     pub backward: StringKey,
     pub cache_id: StringKey,
     pub client_component: StringKey,
+    pub client_edge: StringKey,
+    pub client_edge_backing_field_key: StringKey,
+    pub client_edge_selections_key: StringKey,
     pub client_extension: StringKey,
     pub concrete_type: StringKey,
     pub condition_value: StringKey,
@@ -76,6 +79,8 @@ pub struct CodegenConstants {
     pub passing_value: StringKey,
     pub path: StringKey,
     pub plural: StringKey,
+    pub provided_variables: StringKey,
+    pub provider: StringKey,
     pub query: StringKey,
     pub refetch: StringKey,
     pub relay_resolver: StringKey,
@@ -93,7 +98,6 @@ pub struct CodegenConstants {
     pub text: StringKey,
     pub type_: StringKey,
     pub type_discriminator: StringKey,
-    pub use_customized_batch: StringKey,
     pub value: StringKey,
     pub variable_name: StringKey,
     pub variable: StringKey,
@@ -110,6 +114,9 @@ lazy_static! {
         backward: "backward".intern(),
         cache_id: "cacheID".intern(),
         client_component: "ClientComponent".intern(),
+        client_edge: "ClientEdge".intern(),
+        client_edge_backing_field_key: "backingField".intern(),
+        client_edge_selections_key: "linkedField".intern(),
         client_extension: "ClientExtension".intern(),
         concrete_type: "concreteType".intern(),
         condition_value: "Condition".intern(),
@@ -168,6 +175,8 @@ lazy_static! {
         passing_value: "passingValue".intern(),
         path: "path".intern(),
         plural: "plural".intern(),
+        provider: "provider".intern(),
+        provided_variables: "providedVariables".intern(),
         query: "query".intern(),
         refetch: "refetch".intern(),
         relay_resolver: "RelayResolver".intern(),
@@ -185,7 +194,6 @@ lazy_static! {
         text: "text".intern(),
         type_: "type".intern(),
         type_discriminator: "TypeDiscriminator".intern(),
-        use_customized_batch: "useCustomizedBatch".intern(),
         value: "value".intern(),
         variable_name: "variableName".intern(),
         variable: "Variable".intern(),

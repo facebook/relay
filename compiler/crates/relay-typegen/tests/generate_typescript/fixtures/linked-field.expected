@@ -27,42 +27,41 @@ query UnionTypeTest {
   }
 }
 ==================================== OUTPUT ===================================
-export type UnionTypeTestVariables = {};
-export type UnionTypeTestResponse = {
+export type UnionTypeTest$variables = {};
+export type UnionTypeTest$data = {
   readonly neverNode: {
-    readonly __typename: "FakeNode",
-    readonly id: string,
+    readonly __typename: "FakeNode";
+    readonly id: string;
   } | {
     // This will never be '%other', but we need some
     // value in case none of the concrete values match.
-    readonly __typename: "%other"
-  } | null
+    readonly __typename: "%other";
+  } | null;
 };
 export type UnionTypeTest = {
-  variables: UnionTypeTestVariables,
-  response: UnionTypeTestResponse,
+  variables: UnionTypeTest$variables;
+  response: UnionTypeTest$data;
 };
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
-export type LinkedField = {
+export type LinkedField$data = {
   readonly profilePicture: {
-    readonly uri: string | null,
-    readonly width: number | null,
-    readonly height: number | null,
-  } | null,
+    readonly uri: string | null;
+    readonly width: number | null;
+    readonly height: number | null;
+  } | null;
   readonly hometown: {
-    readonly id: string,
+    readonly id: string;
     readonly profilePicture: {
-      readonly uri: string | null
-    } | null,
-  } | null,
+      readonly uri: string | null;
+    } | null;
+  } | null;
   readonly actor: {
-    readonly id: string
-  } | null,
-  readonly " $refType": FragmentRefs<"LinkedField">,
+    readonly id: string;
+  } | null;
+  readonly " $fragmentType": "LinkedField";
 };
-export type LinkedField$data = LinkedField;
 export type LinkedField$key = {
-  readonly " $data"?: LinkedField$data,
-  readonly " $fragmentRefs": FragmentRefs<"LinkedField">,
+  readonly " $data"?: LinkedField$data;
+  readonly " $fragmentSpreads": FragmentRefs<"LinkedField">;
 };

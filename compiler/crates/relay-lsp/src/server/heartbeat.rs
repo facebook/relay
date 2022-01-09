@@ -1,14 +1,15 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::PerfLogger;
 use lsp_types::request::Request;
 
-use crate::{LSPRuntimeResult, LSPState};
+use crate::LSPRuntimeResult;
+
+use super::GlobalState;
 
 pub(crate) struct HeartbeatRequest;
 
@@ -19,8 +20,8 @@ impl Request for HeartbeatRequest {
 }
 
 #[allow(clippy::unnecessary_wraps)]
-pub(crate) fn on_heartbeat<TPerfLogger: PerfLogger + 'static>(
-    _state: &mut LSPState<TPerfLogger>,
+pub(crate) fn on_heartbeat(
+    _state: &impl GlobalState,
     _params: <HeartbeatRequest as Request>::Params,
 ) -> LSPRuntimeResult<<HeartbeatRequest as Request>::Result> {
     Ok("Connected.".to_string())

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -11,37 +11,15 @@
 
 'use strict';
 
-jest.mock('relay-runtime', () => {
-  const originalRuntime = jest.requireActual('relay-runtime');
-  const originalInternal = originalRuntime.__internal;
-  return {
-    ...originalRuntime,
-    __internal: {
-      ...originalInternal,
-      getPromiseForActiveRequest: jest.fn(),
-    },
-  };
-});
-const {createMockEnvironment} = require('relay-test-utils');
-
 const {getFragmentResourceForEnvironment} = require('../FragmentResource');
 const {
-  __internal: {getPromiseForActiveRequest},
+  __internal: {fetchQuery},
   createOperationDescriptor,
   getFragment,
-  RelayFeatureFlags,
   getRequest,
   graphql,
 } = require('relay-runtime');
-
-beforeEach(() => {
-  RelayFeatureFlags.ENABLE_REQUIRED_DIRECTIVES = true;
-});
-
-afterEach(() => {
-  RelayFeatureFlags.ENABLE_REQUIRED_DIRECTIVES = false;
-  (getPromiseForActiveRequest: any).mockReset();
-});
+const {createMockEnvironment} = require('relay-test-utils');
 
 let environment;
 let query;
@@ -201,8 +179,7 @@ test('Throws if a @required(action: THROW) field is present and then goes missin
 });
 
 it('should throw promise if reading missing data and network request for parent query is in flight', async () => {
-  const requestPromise = Promise.resolve();
-  (getPromiseForActiveRequest: any).mockReturnValue(requestPromise);
+  fetchQuery(environment, query).subscribe({});
   const fragmentNode = getFragment(UserFragment);
   const fragmentRef = {
     __id: '4',
@@ -222,16 +199,18 @@ it('should throw promise if reading missing data and network request for parent 
 
   expect(thrown).toBeInstanceOf(Promise);
 
-  environment.commitPayload(query, {
-    node: {
-      __typename: 'User',
-      id: '4',
-      name: null,
-      alternate_name: 'Zuckster',
+  environment.mock.resolve(query, {
+    data: {
+      node: {
+        __typename: 'User',
+        id: '4',
+        name: null,
+        alternate_name: 'Zuckster',
+      },
     },
   });
-
-  await requestPromise;
+  jest.runAllImmediates();
+  await thrown;
 
   // Now that the request is complete, check that we detect the missing field.
   expect(() =>

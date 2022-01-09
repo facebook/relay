@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,15 +13,13 @@
 
 'use strict';
 
-const React = require('react');
-const ReactTestRenderer = require('react-test-renderer');
+const {loadQuery} = require('../loadQuery');
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
-
 const usePreloadedQuery = require('../usePreloadedQuery');
 const useQueryLoader = require('../useQueryLoader');
-
-const {loadQuery} = require('../loadQuery');
+const React = require('react');
 const {useEffect} = require('react');
+const ReactTestRenderer = require('react-test-renderer');
 const {
   Observable,
   createOperationDescriptor,
@@ -120,7 +118,7 @@ describe.skip('useQueryLoader-react-double-effects', () => {
     query = createOperationDescriptor(gqlQuery, variables);
 
     queryRenderLogs = [];
-    QueryComponent = function(props) {
+    QueryComponent = function (props) {
       const result = usePreloadedQuery(gqlQuery, (props.queryRef: $FlowFixMe));
 
       const name = result?.node?.name ?? 'Empty';
@@ -136,11 +134,8 @@ describe.skip('useQueryLoader-react-double-effects', () => {
     };
 
     loaderRenderLogs = [];
-    LoaderComponent = function(props) {
-      const [queryRef, _loadQuery] = useQueryLoader(
-        gqlQuery,
-        props.initialQueryRef,
-      );
+    LoaderComponent = function (props) {
+      const [queryRef] = useQueryLoader(gqlQuery, props.initialQueryRef);
 
       const queryRefId = queryRef == null ? 'null' : queryRef.id ?? 'Unknown';
       useEffect(() => {
@@ -165,7 +160,7 @@ describe.skip('useQueryLoader-react-double-effects', () => {
       );
     };
 
-    render = function(initialQueryRef, {suspendWholeTree} = {}): $FlowFixMe {
+    render = function (initialQueryRef, {suspendWholeTree} = {}): $FlowFixMe {
       let instance;
       ReactTestRenderer.act(() => {
         instance = ReactTestRenderer.create(
@@ -247,17 +242,19 @@ describe.skip('useQueryLoader-react-double-effects', () => {
         const instance = render(initialQueryRef);
 
         // The effect cleanup will execute, so we assert
-        // that the current query ref is disposed, meaning that
+        // that the current query ref is released, meaning that
         // the request is canceled and the query is released when
         // the query reference is disposed.
-        expect(cancelNetworkRequest).toHaveBeenCalledTimes(1);
+        expect(cancelNetworkRequest).toHaveBeenCalledTimes(0);
         expect(release).toHaveBeenCalledTimes(1);
 
         // The effect setup will re-execute, so we assert that
         // a re-render is triggered to refetch, re-retain the query ref:
 
-        // Assert that query was refetched
-        expectToHaveFetched(environment, query, {force: true});
+        // Assert query wasn't refetched, since the request wasn't cancelled
+        // a new network request is not necessary
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
+        expect(environment.executeWithSource).toBeCalledTimes(0);
 
         // Assert that the component consuming the query is suspended
         expect(instance.toJSON()).toEqual('Loading preloaded query...');
@@ -360,17 +357,19 @@ describe.skip('useQueryLoader-react-double-effects', () => {
         const instance = render(initialQueryRef);
 
         // The effect cleanup will execute, so we assert
-        // that the current query ref is disposed, meaning that
+        // that the current query ref is released, meaning that
         // the request is canceled and the query is released when
         // the query reference is disposed.
-        expect(cancelNetworkRequest).toHaveBeenCalledTimes(1);
+        expect(cancelNetworkRequest).toHaveBeenCalledTimes(0);
         expect(release).toHaveBeenCalledTimes(1);
 
         // The effect setup will re-execute, so we assert that
         // a re-render is triggered to refetch, re-retain the query ref:
 
-        // Assert that query was refetched
-        expectToHaveFetched(environment, query, {force: true});
+        // Assert query wasn't refetched, since the request wasn't cancelled
+        // a new network request is not necessary
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
+        expect(environment.executeWithSource).toBeCalledTimes(0);
 
         // Assert that the component consuming the query is suspended
         expect(instance.toJSON()).toEqual('Loading preloaded query...');
@@ -486,7 +485,7 @@ describe.skip('useQueryLoader-react-double-effects', () => {
         const instance = render(initialQueryRef);
 
         // The effect cleanup will execute, so we assert
-        // that the current query ref is disposed. In this case
+        // that the current query ref is released. In this case
         // no request is cancelled since it wasn't in flight, and,
         // the query is released by both the query ref /and/ the
         // component that was consuming the query.
@@ -610,7 +609,7 @@ describe.skip('useQueryLoader-react-double-effects', () => {
         const instance = render(initialQueryRef);
 
         // The effect cleanup will execute, so we assert
-        // that the current query ref is disposed. In this case
+        // that the current query ref is released. In this case
         // no request is cancelled since it wasn't in flight, and,
         // the query is released by both the query ref /and/ the
         // component that was consuming the query.

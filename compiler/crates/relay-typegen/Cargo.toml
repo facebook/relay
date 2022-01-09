@@ -3,22 +3,23 @@
 name = "relay-typegen"
 version = "0.0.0"
 authors = ["Facebook"]
-edition = "2018"
+edition = "2021"
 license = "MIT"
 
 [dependencies]
 common = { path = "../common" }
 fnv = "1.0"
 graphql-ir = { path = "../graphql-ir" }
-indexmap = { version = "1.6", features = ["rayon", "serde-1"] }
-interner = { path = "../interner" }
-itertools = "0.8"
+indexmap = { version = "1.7.0", features = ["rayon", "serde-1"] }
+intern = { path = "../intern" }
+itertools = "0.10.3"
 lazy_static = "1.0"
+relay-config = { path = "../relay-config" }
 relay-transforms = { path = "../relay-transforms" }
 schema = { path = "../schema" }
-serde = { version = "=1.0.118", features = ["derive", "rc"] }
 
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }
 graphql-syntax = { path = "../graphql-syntax" }
+relay-codegen = { path = "../relay-codegen" }
 relay-test-schema = { path = "../relay-test-schema" }

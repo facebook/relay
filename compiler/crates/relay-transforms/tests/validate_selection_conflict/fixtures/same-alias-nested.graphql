@@ -1,0 +1,13 @@
+# expected-to-throw
+query TestQuery {
+  me {
+    profile_picture {
+      same_alias: width
+    }
+  }
+  me {
+    profile_picture {
+      same_alias: height
+    }
+  }
+}

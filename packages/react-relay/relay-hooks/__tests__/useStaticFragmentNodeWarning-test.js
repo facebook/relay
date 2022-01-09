@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -16,10 +16,9 @@
 const mockWarning = jest.fn();
 jest.mock('warning', () => mockWarning);
 
+const useStaticFragmentNodeWarning = require('../useStaticFragmentNodeWarning');
 const React = require('react');
 const TestRenderer = require('react-test-renderer');
-
-const useStaticFragmentNodeWarning = require('../useStaticFragmentNodeWarning');
 
 const warningMessage =
   'Relay: The %s has to remain the same over the lifetime of a component. Changing ' +

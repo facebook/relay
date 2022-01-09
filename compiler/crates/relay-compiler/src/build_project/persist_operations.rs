@@ -1,21 +1,24 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
 use crate::{
-    config::Config,
+    config::{Config, ProjectConfig},
     config::{OperationPersister, PersistConfig},
     errors::BuildProjectError,
     Artifact, ArtifactContent,
 };
-use common::PerfLogEvent;
+use common::{sync::ParallelIterator, PerfLogEvent};
 use lazy_static::lazy_static;
 use log::debug;
 use md5::{Digest, Md5};
+use rayon::iter::IntoParallelRefMutIterator;
 use regex::Regex;
+use relay_codegen::QueryID;
+use relay_transforms::Programs;
 use std::{fs, path::PathBuf};
 
 lazy_static! {
@@ -28,38 +31,50 @@ pub async fn persist_operations(
     root_dir: &PathBuf,
     persist_config: &PersistConfig,
     config: &Config,
+    project_config: &ProjectConfig,
     operation_persister: &'_ (dyn OperationPersister + Send + Sync),
     log_event: &impl PerfLogEvent,
+    programs: &Programs,
 ) -> Result<(), BuildProjectError> {
     let handles = artifacts
-        .iter_mut()
+        .par_iter_mut()
         .flat_map(|artifact| {
             if let ArtifactContent::Operation {
                 ref text,
                 ref mut id_and_text_hash,
+                ref reader_operation,
                 ..
             } = artifact.content
             {
-                let text_hash = md5(text);
-                let artifact_path = root_dir.join(&artifact.path);
-                let extracted_persist_id = if config.repersist_operations {
+                if let Some(Some(virtual_id_file_name)) = config
+                    .generate_virtual_id_file_name
+                    .as_ref()
+                    .map(|gen_name| gen_name(project_config, reader_operation, &programs.reader))
+                {
+                    *id_and_text_hash = Some(QueryID::External(virtual_id_file_name));
                     None
                 } else {
-                    extract_persist_id(&artifact_path, &text_hash)
-                };
-                if let Some(id) = extracted_persist_id {
-                    *id_and_text_hash = Some((id, text_hash));
-                    None
-                } else {
-                    let text = text.clone();
-                    Some(async move {
-                        operation_persister
-                            .persist_artifact(text, persist_config)
-                            .await
-                            .map(|id| {
-                                *id_and_text_hash = Some((id, text_hash));
-                            })
-                    })
+                    let text_hash = md5(text);
+                    let artifact_path = root_dir.join(&artifact.path);
+                    let extracted_persist_id = if config.repersist_operations {
+                        None
+                    } else {
+                        extract_persist_id(&artifact_path, &text_hash)
+                    };
+                    if let Some(id) = extracted_persist_id {
+                        *id_and_text_hash = Some(QueryID::Persisted { id, text_hash });
+                        None
+                    } else {
+                        let text = text.clone();
+                        Some(async move {
+                            operation_persister
+                                .persist_artifact(text, persist_config)
+                                .await
+                                .map(|id| {
+                                    *id_and_text_hash = Some(QueryID::Persisted { id, text_hash });
+                                })
+                        })
+                    }
                 }
             } else {
                 None
@@ -75,7 +90,9 @@ pub async fn persist_operations(
         .filter_map(Result::err)
         .collect::<Vec<_>>();
     if !errors.is_empty() {
-        return Err(BuildProjectError::PersistErrors { errors });
+        let error = BuildProjectError::PersistErrors { errors };
+        log_event.string("error", error.to_string());
+        return Err(error);
     }
     Ok(())
 }

@@ -1,0 +1,114 @@
+==================================== INPUT ====================================
+fragment Foo_node on Node {
+  ... on Story {
+    author {
+      best_friend {
+        doesViewerLike
+      }
+    }
+  }
+  ... on PhotoStory {
+    author {
+      best_friend {
+        name
+      }
+    }
+  }
+}
+
+fragment BestFriendResolverFragment_name on User {
+  __typename
+}
+
+# %extensions%
+
+extend type User {
+  best_friend: User @relay_resolver(fragment_name: "BestFriendResolverFragment_name", import_path: "BestFriendResolver")
+}
+==================================== OUTPUT ===================================
+fragment BestFriendResolverFragment_name on User {
+  __typename
+}
+
+fragment Foo_node on Node {
+  ... on Story {
+    author {
+      ... @__clientEdge(queryName: "ClientEdgeQuery_Foo_node_Story__author__best_friend") {
+        ...BestFriendResolverFragment_name @__RelayResolverSpreadMetadata
+        # RelayResolverSpreadMetadata {
+        #     field_parent_type: "User",
+        #     import_path: "BestFriendResolver",
+        #     field_name: "best_friend",
+        #     field_alias: None,
+        # }
+        
+        best_friend {
+          doesViewerLike
+        }
+      }
+    }
+  }
+  ... on PhotoStory {
+    author {
+      ... @__clientEdge(queryName: "ClientEdgeQuery_Foo_node_PhotoStory__author__best_friend") {
+        ...BestFriendResolverFragment_name @__RelayResolverSpreadMetadata
+        # RelayResolverSpreadMetadata {
+        #     field_parent_type: "User",
+        #     import_path: "BestFriendResolver",
+        #     field_name: "best_friend",
+        #     field_alias: None,
+        # }
+        
+        best_friend {
+          name
+        }
+      }
+    }
+  }
+}
+
+fragment RefetchableClientEdgeQuery_Foo_node_PhotoStory__author__best_friend on User @__clientEdgeGeneratedFragment(clientEdgeSourceDocument: "Foo_node") @__RefetchableMetadata
+# RefetchableMetadata {
+#     operation_name: "ClientEdgeQuery_Foo_node_PhotoStory__author__best_friend",
+#     path: [
+#         "node",
+#     ],
+#     identifier_field: Some(
+#         "id",
+#     ),
+# }
+ {
+  name
+  id
+}
+
+fragment RefetchableClientEdgeQuery_Foo_node_Story__author__best_friend on User @__clientEdgeGeneratedFragment(clientEdgeSourceDocument: "Foo_node") @__RefetchableMetadata
+# RefetchableMetadata {
+#     operation_name: "ClientEdgeQuery_Foo_node_Story__author__best_friend",
+#     path: [
+#         "node",
+#     ],
+#     identifier_field: Some(
+#         "id",
+#     ),
+# }
+ {
+  doesViewerLike
+  id
+}
+
+query ClientEdgeQuery_Foo_node_PhotoStory__author__best_friend(
+  $id: ID!
+) @__clientEdgeQuery(clientEdgeSourceDocument: "Foo_node") {
+  node(id: $id) {
+    ...RefetchableClientEdgeQuery_Foo_node_PhotoStory__author__best_friend
+  }
+}
+
+query ClientEdgeQuery_Foo_node_Story__author__best_friend(
+  $id: ID!
+) @__clientEdgeQuery(clientEdgeSourceDocument: "Foo_node") {
+  node(id: $id) {
+    ...RefetchableClientEdgeQuery_Foo_node_Story__author__best_friend
+  }
+}

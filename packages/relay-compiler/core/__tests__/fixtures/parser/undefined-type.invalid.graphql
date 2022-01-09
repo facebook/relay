@@ -1,6 +1,0 @@
-# expected-to-throw
-query TestQuery($id: UnknownType) {
-  node(id: "someid") {
-    id
-  }
-}

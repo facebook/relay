@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -12,22 +12,25 @@
 // flowlint ambiguous-object-type:error
 
 'use strict';
-
-const RelayModernEnvironment = require('../RelayModernEnvironment');
-const RelayModernStore = require('../RelayModernStore');
-const RelayNetwork = require('../../network/RelayNetwork');
-const RelayObservable = require('../../network/RelayObservable');
-const RelayRecordSource = require('../RelayRecordSource');
+import type {
+  HandleFieldPayload,
+  RecordSourceProxy,
+} from 'relay-runtime/store/RelayStoreTypes';
 
 const {
-  getActorIdentifier,
   MultiActorEnvironment,
+  getActorIdentifier,
 } = require('../../multi-actor-environment');
-const {graphql, getFragment, getRequest} = require('../../query/GraphQLTag');
+const RelayNetwork = require('../../network/RelayNetwork');
+const RelayObservable = require('../../network/RelayObservable');
+const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
+const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../RelayModernSelector');
+const RelayModernStore = require('../RelayModernStore');
+const RelayRecordSource = require('../RelayRecordSource');
 const {disallowWarnings} = require('relay-test-utils-internal');
 
 disallowWarnings();
@@ -104,7 +107,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         );
 
         const NameHandler = {
-          update(storeProxy, payload) {
+          update(storeProxy: RecordSourceProxy, payload: HandleFieldPayload) {
             const record = storeProxy.get(payload.dataID);
             if (record != null) {
               const markup = record.getValue(payload.fieldKey);
@@ -130,7 +133,9 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         );
         source = RelayRecordSource.create();
         store = new RelayModernStore(source);
-        const handlerProvider = name => {
+        const handlerProvider = (
+          name: string | $TEMPORARY$string<'name_handler'>,
+        ) => {
           switch (name) {
             case 'name_handler':
               return NameHandler;
@@ -163,7 +168,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
       });
 
       it('calls next() and publishes the initial payload to the store', () => {
-        environment.execute({operation}).subscribe(callbacks);
+        environment.executeSubscription({operation}).subscribe(callbacks);
         dataSource.next({
           data: {
             commentCreateSubscribe: {
@@ -194,14 +199,12 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         expect(
           environment
             .getOperationTracker()
-            .getPromiseForPendingOperationsAffectingOwner(
-              queryOperation.request,
-            ),
+            .getPendingOperationsAffectingOwner(queryOperation.request),
         ).not.toBe(null);
       });
 
       it('processes deferred payloads', () => {
-        environment.execute({operation}).subscribe(callbacks);
+        environment.executeSubscription({operation}).subscribe(callbacks);
         dataSource.next({
           data: {
             commentCreateSubscribe: {
@@ -258,14 +261,12 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         expect(
           environment
             .getOperationTracker()
-            .getPromiseForPendingOperationsAffectingOwner(
-              queryOperation.request,
-            ),
+            .getPendingOperationsAffectingOwner(queryOperation.request),
         ).toBe(null);
       });
 
       it('calls complete() if root network request completes after deferred payload resolves', () => {
-        environment.execute({operation}).subscribe(callbacks);
+        environment.executeSubscription({operation}).subscribe(callbacks);
         dataSource.next({
           data: {
             commentCreateSubscribe: {
@@ -314,9 +315,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         expect(
           environment
             .getOperationTracker()
-            .getPromiseForPendingOperationsAffectingOwner(
-              queryOperation.request,
-            ),
+            .getPendingOperationsAffectingOwner(queryOperation.request),
         ).toBe(null);
 
         dataSource.complete();
@@ -331,14 +330,12 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         expect(
           environment
             .getOperationTracker()
-            .getPromiseForPendingOperationsAffectingOwner(
-              queryOperation.request,
-            ),
+            .getPendingOperationsAffectingOwner(queryOperation.request),
         ).toBe(null);
       });
 
       it('calls complete() if root network request completes before deferred payload resolves', () => {
-        environment.execute({operation}).subscribe(callbacks);
+        environment.executeSubscription({operation}).subscribe(callbacks);
         dataSource.next({
           data: {
             commentCreateSubscribe: {
@@ -370,14 +367,12 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         expect(
           environment
             .getOperationTracker()
-            .getPromiseForPendingOperationsAffectingOwner(
-              queryOperation.request,
-            ),
+            .getPendingOperationsAffectingOwner(queryOperation.request),
         ).toBe(null);
       });
 
       it('calls error() if root network request errors before deferred payload resolves', () => {
-        environment.execute({operation}).subscribe(callbacks);
+        environment.executeSubscription({operation}).subscribe(callbacks);
         dataSource.next({
           data: {
             commentCreateSubscribe: {
@@ -411,9 +406,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         expect(
           environment
             .getOperationTracker()
-            .getPromiseForPendingOperationsAffectingOwner(
-              queryOperation.request,
-            ),
+            .getPendingOperationsAffectingOwner(queryOperation.request),
         ).toBe(null);
       });
     });

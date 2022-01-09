@@ -29,7 +29,11 @@ query RefetchableFragmentQuery(
   $cursor: ID
   $lastCount: Int
   $id: ID!
-) @__refetchableQueryMetadata(__refetchableQueryMetadata: "PaginationFragment") {
+) @__RefetchableDerivedFromMetadata
+# RefetchableDerivedFromMetadata(
+#     "PaginationFragment",
+# )
+ {
   node(id: $id) {
     ...PaginationFragment @arguments(count: $count, cursor: $cursor)
   }
@@ -38,7 +42,43 @@ query RefetchableFragmentQuery(
 fragment PaginationFragment on Node @refetchable(queryName: "RefetchableFragmentQuery") @argumentDefinitions(
   count: {type: "Int", defaultValue: 10}
   cursor: {type: "ID"}
-) @__connectionMetadata(__connectionMetadataArgument: [[["friends"], "bidirectional", "count", "lastCount", "cursor", "beforeCursor", false]]) @__refetchableMetadata(__refetchableMetadata: ["RefetchableFragmentQuery", ["node"], "id"]) {
+) @__ConnectionMetadataDirective
+# ConnectionMetadataDirective(
+#     [
+#         ConnectionMetadata {
+#             path: Some(
+#                 [
+#                     "friends",
+#                 ],
+#             ),
+#             direction: "bidirectional",
+#             first: Some(
+#                 "count",
+#             ),
+#             last: Some(
+#                 "lastCount",
+#             ),
+#             before: Some(
+#                 "beforeCursor",
+#             ),
+#             after: Some(
+#                 "cursor",
+#             ),
+#             is_stream_connection: false,
+#         },
+#     ],
+# )
+ @__RefetchableMetadata
+# RefetchableMetadata {
+#     operation_name: "RefetchableFragmentQuery",
+#     path: [
+#         "node",
+#     ],
+#     identifier_field: Some(
+#         "id",
+#     ),
+# }
+ {
   id
   ... on User {
     name

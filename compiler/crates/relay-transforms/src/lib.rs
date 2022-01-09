@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -14,12 +14,14 @@
 mod applied_fragment_name;
 mod apply_fragment_arguments;
 mod apply_transforms;
+mod assignable_fragment_spread;
+mod client_edges;
 mod client_extensions;
 mod connections;
 mod declarative_connection;
 mod defer_stream;
+mod directive_finder;
 mod errors;
-mod feature_flags;
 mod flatten;
 mod generate_data_driven_dependency_metadata;
 mod generate_id_field;
@@ -32,14 +34,16 @@ mod inline_data_fragment;
 mod inline_fragments;
 mod mask;
 mod match_;
+mod murmurhash;
 mod no_inline;
 mod node_identifier;
+mod preloadable_directive;
+mod provided_variable_fragment_transform;
 mod react_flight;
 mod refetchable_fragment;
 mod relay_actor_change;
 mod relay_client_component;
 mod relay_directive;
-mod relay_early_flush;
 mod relay_resolvers;
 mod remove_base_fragments;
 mod required_directive;
@@ -58,9 +62,10 @@ mod util;
 mod validate_operation_variables;
 mod validations;
 
-use fnv::{FnvHashMap, FnvHashSet};
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey};
+use intern::BuildIdHasher;
 use lazy_static::lazy_static;
+use std::collections::{HashMap, HashSet};
 
 lazy_static! {
     pub static ref INTERNAL_METADATA_DIRECTIVE: StringKey = "__metadata".intern();
@@ -69,22 +74,33 @@ lazy_static! {
 /// Name of an executable operation
 type OperationName = StringKey;
 
-pub type DependencyMap = FnvHashMap<OperationName, FnvHashSet<OperationName>>;
+// NOTE: Types are based on intern::string_key::{StringKeyMap, StringKeySet}
+pub type DependencyMap = HashMap<OperationName, DependencySet, BuildIdHasher<u32>>;
+pub type DependencySet = HashSet<OperationName, BuildIdHasher<u32>>;
 
 pub use crate::errors::ValidationMessage;
 pub use applied_fragment_name::get_applied_fragment_name;
 pub use apply_fragment_arguments::apply_fragment_arguments;
 pub use apply_transforms::{apply_transforms, Programs};
+pub use assignable_fragment_spread::{
+    transform_assignable_fragment_spreads_in_regular_queries, validate_assignable_directive,
+    validate_updatable_directive, ASSIGNABLE_DIRECTIVE, UPDATABLE_DIRECTIVE,
+};
+pub use client_edges::{
+    client_edges, preserve_client_edge_backing_ids, preserve_client_edge_selections,
+    ClientEdgeMetadata, CLIENT_EDGE_GENERATED_FRAGMENT_KEY, CLIENT_EDGE_METADATA_KEY,
+    CLIENT_EDGE_QUERY_METADATA_KEY, CLIENT_EDGE_SOURCE_NAME,
+};
 pub use client_extensions::{client_extensions, CLIENT_EXTENSION_DIRECTIVE_NAME};
 pub use connections::{
     extract_connection_metadata_from_directive, ConnectionConstants, ConnectionInterface,
-    ConnectionMetadata, CONNECTION_METADATA_ARGUMENT_NAME, CONNECTION_METADATA_DIRECTIVE_NAME,
+    ConnectionMetadata,
 };
 pub use declarative_connection::transform_declarative_connection;
 pub use defer_stream::{
     transform_defer_stream, DeferDirective, StreamDirective, DEFER_STREAM_CONSTANTS,
 };
-pub use feature_flags::{FeatureFlag, FeatureFlags};
+pub use directive_finder::DirectiveFinder;
 pub use flatten::flatten;
 pub use generate_data_driven_dependency_metadata::{
     generate_data_driven_dependency_metadata, DATA_DRIVEN_DEPENDENCY_METADATA_KEY,
@@ -98,43 +114,42 @@ pub use handle_fields::{
     handle_field_transform,
 };
 pub use hash_arguments::hash_arguments;
-pub use inline_data_fragment::{inline_data_fragment, INLINE_DATA_CONSTANTS};
+pub use inline_data_fragment::{
+    inline_data_fragment, InlineDirectiveMetadata, INLINE_DIRECTIVE_NAME,
+};
 pub use inline_fragments::inline_fragments;
 pub use mask::mask;
 pub use match_::{
-    split_module_import, transform_match, transform_subscriptions, SplitOperationMetadata,
-    DIRECTIVE_SPLIT_OPERATION, MATCH_CONSTANTS,
+    split_module_import, transform_match, transform_subscriptions, ModuleMetadata,
+    SplitOperationMetadata, DIRECTIVE_SPLIT_OPERATION, MATCH_CONSTANTS,
 };
 pub use no_inline::NO_INLINE_DIRECTIVE_NAME;
 pub use node_identifier::NodeIdentifier;
+pub use preloadable_directive::{is_operation_preloadable, should_generate_hack_preloader};
+pub use provided_variable_fragment_transform::provided_variable_fragment_transform;
 pub use react_flight::{
-    react_flight, REACT_FLIGHT_LOCAL_COMPONENTS_METADATA_ARG_KEY,
-    REACT_FLIGHT_LOCAL_COMPONENTS_METADATA_KEY, REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY,
+    react_flight, ReactFlightLocalComponentsMetadata, REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY,
 };
 pub use refetchable_fragment::{
-    extract_refetch_metadata_from_directive, transform_refetchable_fragment,
-    RefetchableDerivedFromMetadata, CONSTANTS as REFETCHABLE_CONSTANTS,
+    transform_refetchable_fragment, RefetchableDerivedFromMetadata, RefetchableMetadata,
+    CONSTANTS as REFETCHABLE_CONSTANTS, REFETCHABLE_NAME,
 };
 pub use relay_actor_change::{
     relay_actor_change_transform, RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN,
 };
 pub use relay_client_component::{
-    relay_client_component, RELAY_CLIENT_COMPONENT_METADATA_KEY,
-    RELAY_CLIENT_COMPONENT_METADATA_SPLIT_OPERATION_ARG_KEY,
+    relay_client_component, RelayClientComponentMetadata, RELAY_CLIENT_COMPONENT_DIRECTIVE_NAME,
     RELAY_CLIENT_COMPONENT_MODULE_ID_ARGUMENT_NAME, RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME,
 };
 pub use relay_directive::RelayDirective;
-pub use relay_early_flush::relay_early_flush;
 pub use relay_resolvers::{
-    find_resolver_dependencies, relay_resolvers, ResolverFieldFinder,
+    find_resolver_dependencies, relay_resolvers, RelayResolverSpreadMetadata, ResolverFieldFinder,
     RELAY_RESOLVER_DIRECTIVE_NAME, RELAY_RESOLVER_IMPORT_PATH_ARGUMENT_NAME,
-    RELAY_RESOLVER_METADATA_DIRECTIVE_NAME, RELAY_RESOLVER_METADATA_FIELD_ALIAS,
-    RELAY_RESOLVER_METADATA_FIELD_NAME, RELAY_RESOLVER_METADATA_FIELD_PARENT_TYPE,
 };
 pub use remove_base_fragments::remove_base_fragments;
 pub use required_directive::{
-    required_directive, RequiredAction, ACTION_ARGUMENT, CHILDREN_CAN_BUBBLE_METADATA_KEY,
-    PATH_METADATA_ARGUMENT, REQUIRED_METADATA_KEY,
+    required_directive, RequiredAction, RequiredMetadataDirective, ACTION_ARGUMENT,
+    CHILDREN_CAN_BUBBLE_METADATA_KEY,
 };
 pub use skip_client_directives::skip_client_directives;
 pub use skip_client_extensions::skip_client_extensions;

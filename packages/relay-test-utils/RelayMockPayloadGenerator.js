@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,11 +13,23 @@
 
 'use strict';
 
-const invariant = require('invariant');
+import type {
+  GraphQLSingularResponse,
+  NormalizationArgument,
+  NormalizationField,
+  NormalizationLinkedField,
+  NormalizationOperation,
+  NormalizationScalarField,
+  NormalizationSelection,
+  NormalizationSplitOperation,
+  OperationDescriptor,
+  Variables,
+} from 'relay-runtime';
 
+const invariant = require('invariant');
 const {
-  TYPENAME_KEY,
   RelayConcreteNode,
+  TYPENAME_KEY,
   getModuleComponentKey,
   getModuleOperationKey,
 } = require('relay-runtime');
@@ -40,19 +52,6 @@ const {
   STREAM,
   TYPE_DISCRIMINATOR,
 } = RelayConcreteNode;
-
-import type {
-  NormalizationArgument,
-  NormalizationField,
-  NormalizationLinkedField,
-  NormalizationOperation,
-  NormalizationScalarField,
-  NormalizationSelection,
-  OperationDescriptor,
-  GraphQLSingularResponse,
-  NormalizationSplitOperation,
-  Variables,
-} from 'relay-runtime';
 
 type ValueResolver = (
   typeName: ?string,
@@ -89,7 +88,7 @@ type SelectionMetadata = {
     +nullable: boolean,
     +enumValues: $ReadOnlyArray<string> | null,
   |},
-  ...,
+  ...
 };
 
 function createIdGenerator() {
@@ -145,9 +144,9 @@ function valueResolver(
         possibleDefaultValue ??
         (typeName === 'ID'
           ? DEFAULT_MOCK_RESOLVERS.ID(context, generateId)
-          : `<mock-value-for-field-"${context.alias ??
-              context.name ??
-              'undefined'}">`);
+          : `<mock-value-for-field-"${
+              context.alias ?? context.name ?? 'undefined'
+            }">`);
     }
     return mockValue;
   };
@@ -188,7 +187,6 @@ class RelayMockPayloadGenerator {
     +selectionMetadata: SelectionMetadata | null,
   |}) {
     this._variables = options.variables;
-    // $FlowFixMe[cannot-spread-indexer]
     // $FlowFixMe[cannot-spread-inexact]
     // $FlowFixMe[incompatible-type]
     this._mockResolvers = {
@@ -460,7 +458,8 @@ class RelayMockPayloadGenerator {
               selection.fragmentName,
             );
 
-            const splitOperation: NormalizationSplitOperation = (operation: $FlowFixMe);
+            const splitOperation: NormalizationSplitOperation =
+              (operation: $FlowFixMe);
             const {documentName} = selection;
             if (mockData == null) {
               mockData = {};
@@ -470,9 +469,8 @@ class RelayMockPayloadGenerator {
               ...mockData,
               [TYPENAME_KEY]: typeName,
               [getModuleOperationKey(documentName)]: operation.name,
-              [getModuleComponentKey(
-                documentName,
-              )]: defaultValues.__module_component,
+              [getModuleComponentKey(documentName)]:
+                defaultValues.__module_component,
               ...this._traverseSelections(
                 splitOperation.selections,
                 typeName,
@@ -755,7 +753,6 @@ class RelayMockPayloadGenerator {
       'RelayMockPayloadGenerator(): Undefined variable `%s`.',
       name,
     );
-    // $FlowFixMe[cannot-write]
     return this._variables[name];
   }
 

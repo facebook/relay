@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<d0c42789f992a519e6f771996e89eb5b>>
+ * @generated SignedSource<<069a9b63248cb88903c4cf987cf1571e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,18 +15,20 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
+import type { ConcreteRequest, Query } from 'relay-runtime';
 export type PersonalityTraits = "CHEERFUL" | "DERISIVE" | "HELPFUL" | "SNARKY" | "%future added value";
-export type RelayMockPayloadGeneratorTest40QueryVariables = {||};
-export type RelayMockPayloadGeneratorTest40QueryResponse = {|
+export type RelayMockPayloadGeneratorTest40Query$variables = {||};
+export type RelayMockPayloadGeneratorTest40QueryVariables = RelayMockPayloadGeneratorTest40Query$variables;
+export type RelayMockPayloadGeneratorTest40Query$data = {|
   +node: ?{|
     +id?: string,
     +traits?: ?$ReadOnlyArray<?PersonalityTraits>,
   |},
 |};
+export type RelayMockPayloadGeneratorTest40QueryResponse = RelayMockPayloadGeneratorTest40Query$data;
 export type RelayMockPayloadGeneratorTest40Query = {|
   variables: RelayMockPayloadGeneratorTest40QueryVariables,
-  response: RelayMockPayloadGeneratorTest40QueryResponse,
+  response: RelayMockPayloadGeneratorTest40Query$data,
 |};
 */
 
@@ -165,4 +167,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "3701a984f2c55db48e915d7e39baebfa";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayMockPayloadGeneratorTest40Query$variables,
+  RelayMockPayloadGeneratorTest40Query$data,
+>*/);

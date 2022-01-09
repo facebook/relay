@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -7,15 +7,16 @@
 
 use std::{fmt, hash::Hash};
 
+use common::WithLocation;
 use dashmap::DashMap;
 use fnv::FnvBuildHasher;
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey};
 use ouroboros::self_referencing;
 
 use crate::{
-    ArgumentDefinitions, Directive, Enum, EnumID, Field, FieldID, InputObject, InputObjectID,
-    Interface, InterfaceID, Object, ObjectID, Scalar, ScalarID, Schema, Type, TypeReference, Union,
-    UnionID,
+    Argument, ArgumentDefinitions, Directive, Enum, EnumID, Field, FieldID, InputObject,
+    InputObjectID, Interface, InterfaceID, Object, ObjectID, Scalar, ScalarID, Schema, Type,
+    TypeReference, Union, UnionID,
 };
 
 use super::FlatBufferSchema;
@@ -33,11 +34,15 @@ struct OwnedFlatBufferSchema {
 const CLIENTID_FIELD_ID: FieldID = FieldID(10_000_000);
 const TYPENAME_FIELD_ID: FieldID = FieldID(10_000_001);
 const FETCH_TOKEN_FIELD_ID: FieldID = FieldID(10_000_002);
+const STRONGID_FIELD_ID: FieldID = FieldID(10_000_003);
+const IS_FULFILLED_FIELD_ID: FieldID = FieldID(10_000_004);
 
 pub struct SchemaWrapper {
     clientid_field_name: StringKey,
+    strongid_field_name: StringKey,
     typename_field_name: StringKey,
     fetch_token_field_name: StringKey,
+    is_fulfilled_field_name: StringKey,
     unchecked_argument_type_sentinel: Option<TypeReference>,
 
     directives: Cache<StringKey, Option<Directive>>,
@@ -65,14 +70,16 @@ impl SchemaWrapper {
     pub fn from_vec(data: Vec<u8>) -> Self {
         let fb = OwnedFlatBufferSchemaBuilder {
             data,
-            schema_builder: |data| FlatBufferSchema::build(&data),
+            schema_builder: |data| FlatBufferSchema::build(data),
         }
         .build();
 
         let mut result = Self {
             clientid_field_name: "__id".intern(),
+            strongid_field_name: "strong_id__".intern(),
             typename_field_name: "__typename".intern(),
             fetch_token_field_name: "__token".intern(),
+            is_fulfilled_field_name: "is_fulfilled__".intern(),
             unchecked_argument_type_sentinel: None,
             directives: Cache::new(),
             unions: Cache::new(),
@@ -87,7 +94,7 @@ impl SchemaWrapper {
 
         // prepopulate special fields
         result.fields.get(TYPENAME_FIELD_ID, || Field {
-            name: result.typename_field_name,
+            name: WithLocation::generated(result.typename_field_name),
             is_extension: false,
             arguments: ArgumentDefinitions::new(Default::default()),
             type_: TypeReference::NonNull(Box::new(TypeReference::Named(
@@ -95,9 +102,10 @@ impl SchemaWrapper {
             ))),
             directives: Vec::new(),
             parent_type: None,
+            description: None,
         });
         result.fields.get(CLIENTID_FIELD_ID, || Field {
-            name: result.clientid_field_name,
+            name: WithLocation::generated(result.clientid_field_name),
             is_extension: true,
             arguments: ArgumentDefinitions::new(Default::default()),
             type_: TypeReference::NonNull(Box::new(TypeReference::Named(
@@ -105,9 +113,19 @@ impl SchemaWrapper {
             ))),
             directives: Vec::new(),
             parent_type: None,
+            description: None,
+        });
+        result.fields.get(STRONGID_FIELD_ID, || Field {
+            name: WithLocation::generated(result.strongid_field_name),
+            is_extension: true,
+            arguments: ArgumentDefinitions::new(Default::default()),
+            type_: TypeReference::Named(result.get_type("ID".intern()).unwrap()),
+            directives: Vec::new(),
+            parent_type: None,
+            description: None,
         });
         result.fields.get(FETCH_TOKEN_FIELD_ID, || Field {
-            name: result.fetch_token_field_name,
+            name: WithLocation::generated(result.fetch_token_field_name),
             is_extension: false,
             arguments: ArgumentDefinitions::new(Default::default()),
             type_: TypeReference::NonNull(Box::new(TypeReference::Named(
@@ -115,6 +133,25 @@ impl SchemaWrapper {
             ))),
             directives: Vec::new(),
             parent_type: None,
+            description: None,
+        });
+        result.fields.get(IS_FULFILLED_FIELD_ID, || Field {
+            name: WithLocation::generated(result.is_fulfilled_field_name),
+            is_extension: true,
+            arguments: ArgumentDefinitions::new(vec![Argument {
+                name: "name".intern(),
+                type_: TypeReference::NonNull(Box::new(TypeReference::Named(
+                    result.get_type("String".intern()).unwrap(),
+                ))),
+                default_value: None,
+                description: None,
+            }]),
+            type_: TypeReference::NonNull(Box::new(TypeReference::Named(
+                result.get_type("Boolean".intern()).unwrap(),
+            ))),
+            directives: Vec::new(),
+            parent_type: None,
+            description: None,
         });
 
         result.unchecked_argument_type_sentinel = Some(TypeReference::Named(
@@ -122,6 +159,10 @@ impl SchemaWrapper {
         ));
 
         result
+    }
+
+    pub fn has_type(&self, type_name: StringKey) -> bool {
+        self.flatbuffer_schema().has_type(type_name)
     }
 
     pub fn has_directive(&self, name: StringKey) -> bool {
@@ -161,12 +202,20 @@ impl Schema for SchemaWrapper {
         CLIENTID_FIELD_ID
     }
 
+    fn strongid_field(&self) -> FieldID {
+        STRONGID_FIELD_ID
+    }
+
     fn typename_field(&self) -> FieldID {
         TYPENAME_FIELD_ID
     }
 
     fn fetch_token_field(&self) -> FieldID {
         FETCH_TOKEN_FIELD_ID
+    }
+
+    fn is_fulfilled_field(&self) -> FieldID {
+        IS_FULFILLED_FIELD_ID
     }
 
     fn get_type(&self, type_name: StringKey) -> Option<Type> {
@@ -230,7 +279,7 @@ impl Schema for SchemaWrapper {
             Type::Enum(id) => self.enum_(id).name,
             Type::InputObject(id) => self.input_object(id).name,
             Type::Interface(id) => self.interface(id).name,
-            Type::Object(id) => self.object(id).name,
+            Type::Object(id) => self.object(id).name.item,
             Type::Scalar(id) => self.scalar(id).name,
             Type::Union(id) => self.union(id).name,
         }
@@ -279,6 +328,12 @@ impl Schema for SchemaWrapper {
             if name == self.clientid_field_name {
                 return Some(CLIENTID_FIELD_ID);
             }
+            if name == self.strongid_field_name {
+                return Some(STRONGID_FIELD_ID);
+            }
+            if name == self.is_fulfilled_field_name {
+                return Some(IS_FULFILLED_FIELD_ID);
+            }
         }
 
         let fields = match parent_type {
@@ -303,7 +358,7 @@ impl Schema for SchemaWrapper {
             .iter()
             .find(|field_id| {
                 let field = self.field(**field_id);
-                field.name == name
+                field.name.item == name
             })
             .cloned()
     }
@@ -314,6 +369,34 @@ impl Schema for SchemaWrapper {
 
     fn snapshot_print(&self) -> String {
         todo!()
+    }
+
+    fn input_objects<'a>(&'a self) -> Box<dyn Iterator<Item = &'a InputObject> + 'a> {
+        Box::new(self.input_objects.map.iter().map(|ref_| *ref_.value()))
+    }
+
+    fn enums<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Enum> + 'a> {
+        Box::new(self.enums.map.iter().map(|ref_| *ref_.value()))
+    }
+
+    fn scalars<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Scalar> + 'a> {
+        Box::new(self.scalars.map.iter().map(|ref_| *ref_.value()))
+    }
+
+    fn fields<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Field> + 'a> {
+        Box::new(self.fields.map.iter().map(|ref_| *ref_.value()))
+    }
+
+    fn objects<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Object> + 'a> {
+        Box::new(self.objects.map.iter().map(|ref_| *ref_.value()))
+    }
+
+    fn unions<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Union> + 'a> {
+        Box::new(self.unions.map.iter().map(|ref_| *ref_.value()))
+    }
+
+    fn interfaces<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Interface> + 'a> {
+        Box::new(self.interfaces.map.iter().map(|ref_| *ref_.value()))
     }
 }
 

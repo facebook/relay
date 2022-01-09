@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<8d1c96e5aae1a1e3cbed70785abd607f>>
+ * @generated SignedSource<<3290ad55c613089d8f61f69ed7fb941f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,18 +15,18 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayModernEnvironmentExecuteWithStreamTestActorFragment$ref: FragmentReference;
-declare export opaque type RelayModernEnvironmentExecuteWithStreamTestActorFragment$fragmentType: RelayModernEnvironmentExecuteWithStreamTestActorFragment$ref;
-export type RelayModernEnvironmentExecuteWithStreamTestActorFragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayModernEnvironmentExecuteWithStreamTestActorFragment$fragmentType: FragmentType;
+export type RelayModernEnvironmentExecuteWithStreamTestActorFragment$ref = RelayModernEnvironmentExecuteWithStreamTestActorFragment$fragmentType;
+export type RelayModernEnvironmentExecuteWithStreamTestActorFragment$data = {|
   +name: ?string,
-  +$refType: RelayModernEnvironmentExecuteWithStreamTestActorFragment$ref,
+  +$fragmentType: RelayModernEnvironmentExecuteWithStreamTestActorFragment$fragmentType,
 |};
-export type RelayModernEnvironmentExecuteWithStreamTestActorFragment$data = RelayModernEnvironmentExecuteWithStreamTestActorFragment;
+export type RelayModernEnvironmentExecuteWithStreamTestActorFragment = RelayModernEnvironmentExecuteWithStreamTestActorFragment$data;
 export type RelayModernEnvironmentExecuteWithStreamTestActorFragment$key = {
   +$data?: RelayModernEnvironmentExecuteWithStreamTestActorFragment$data,
-  +$fragmentRefs: RelayModernEnvironmentExecuteWithStreamTestActorFragment$ref,
+  +$fragmentSpreads: RelayModernEnvironmentExecuteWithStreamTestActorFragment$fragmentType,
   ...
 };
 */
@@ -45,12 +45,15 @@ var node/*: ReaderFragment*/ = {
       "storageKey": null
     }
   ],
-  "type": "Actor",
-  "abstractKey": "__isActor"
+  "type": "User",
+  "abstractKey": null
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "b6d3cf05bfea15497411e0b749651ed7";
+  (node/*: any*/).hash = "c592f9f5c7d3d880fd428b335539a35e";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayModernEnvironmentExecuteWithStreamTestActorFragment$fragmentType,
+  RelayModernEnvironmentExecuteWithStreamTestActorFragment$data,
+>*/);

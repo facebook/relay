@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<376984b57d85d422fbddd150f144b95a>>
+ * @generated SignedSource<<253ed70588c0a0c72b63a387f28d7ae3>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,19 +15,19 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type ReactRelayRefetchContainerTestUserFragment$ref: FragmentReference;
-declare export opaque type ReactRelayRefetchContainerTestUserFragment$fragmentType: ReactRelayRefetchContainerTestUserFragment$ref;
-export type ReactRelayRefetchContainerTestUserFragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type ReactRelayRefetchContainerTestUserFragment$fragmentType: FragmentType;
+export type ReactRelayRefetchContainerTestUserFragment$ref = ReactRelayRefetchContainerTestUserFragment$fragmentType;
+export type ReactRelayRefetchContainerTestUserFragment$data = {|
   +id: string,
   +name?: ?string,
-  +$refType: ReactRelayRefetchContainerTestUserFragment$ref,
+  +$fragmentType: ReactRelayRefetchContainerTestUserFragment$fragmentType,
 |};
-export type ReactRelayRefetchContainerTestUserFragment$data = ReactRelayRefetchContainerTestUserFragment;
+export type ReactRelayRefetchContainerTestUserFragment = ReactRelayRefetchContainerTestUserFragment$data;
 export type ReactRelayRefetchContainerTestUserFragment$key = {
   +$data?: ReactRelayRefetchContainerTestUserFragment$data,
-  +$fragmentRefs: ReactRelayRefetchContainerTestUserFragment$ref,
+  +$fragmentSpreads: ReactRelayRefetchContainerTestUserFragment$fragmentType,
   ...
 };
 */
@@ -74,4 +74,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "db69633fd7c0e2137e8cdc0d2631efea";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  ReactRelayRefetchContainerTestUserFragment$fragmentType,
+  ReactRelayRefetchContainerTestUserFragment$data,
+>*/);

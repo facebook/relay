@@ -1,28 +1,33 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::feature_flags::FeatureFlags;
-use crate::inline_data_fragment::INLINE_DATA_CONSTANTS;
-use crate::match_::MATCH_CONSTANTS;
-use crate::no_inline::{NO_INLINE_DIRECTIVE_NAME, PARENT_DOCUMENTS_ARG};
-use crate::util::get_normalization_operation_name;
-use crate::{defer_stream::DEFER_STREAM_CONSTANTS, FeatureFlag};
-use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, WithLocation};
+use crate::{
+    defer_stream::DEFER_STREAM_CONSTANTS,
+    inline_data_fragment::INLINE_DIRECTIVE_NAME,
+    match_::MATCH_CONSTANTS,
+    no_inline::{attach_no_inline_directives_to_fragments, validate_required_no_inline_directive},
+    util::get_normalization_operation_name,
+};
+use common::{
+    Diagnostic, DiagnosticsResult, FeatureFlag, FeatureFlags, Location, NamedItem, WithLocation,
+};
 use fnv::{FnvBuildHasher, FnvHashMap};
 use graphql_ir::{
-    Argument, ConstantValue, Directive, FragmentDefinition, FragmentSpread, InlineFragment,
-    LinkedField, OperationDefinition, Program, ScalarField, Selection, Transformed,
-    TransformedValue, Transformer, ValidationMessage, Value,
+    associated_data_impl, Argument, ConstantValue, Directive, Field, FragmentDefinition,
+    FragmentSpread, InlineFragment, LinkedField, OperationDefinition, Program, ScalarField,
+    Selection, Transformed, TransformedValue, Transformer, ValidationMessage, Value,
 };
 use indexmap::IndexSet;
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey, StringKeyMap};
 use schema::{FieldID, ScalarID, Schema, Type, TypeReference};
-use std::hash::{Hash, Hasher};
-use std::sync::Arc;
+use std::{
+    hash::{Hash, Hasher},
+    sync::Arc,
+};
 
 /// Transform and validate @match and @module
 pub fn transform_match(
@@ -75,7 +80,7 @@ pub struct MatchTransform<'program, 'flag> {
     enable_3d_branch_arg_generation: bool,
     no_inline_flag: &'flag FeatureFlag,
     // Stores the fragments that should use @no_inline and their parent document name
-    no_inline_fragments: FnvHashMap<StringKey, Vec<StringKey>>,
+    no_inline_fragments: StringKeyMap<Vec<StringKey>>,
 }
 
 impl<'program, 'flag> MatchTransform<'program, 'flag> {
@@ -159,7 +164,7 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
                 let object = self.program.schema.object(id);
                 let js_field_id = object.fields.iter().find(|field_id| {
                     let field = self.program.schema.field(**field_id);
-                    field.name == MATCH_CONSTANTS.js_field_name
+                    field.name.item == MATCH_CONSTANTS.js_field_name
                 });
                 if let Some(js_field_id) = js_field_id {
                     let js_field_id = *js_field_id;
@@ -255,13 +260,7 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
 
         // Only process the fragment spread with @module
         if let Some(module_directive) = module_directive {
-            let should_use_no_inline = {
-                match self.no_inline_flag {
-                    FeatureFlag::Disabled => false,
-                    FeatureFlag::Enabled => true,
-                    FeatureFlag::Limited { allowlist } => allowlist.contains(&spread.fragment.item),
-                }
-            };
+            let should_use_no_inline = self.no_inline_flag.is_enabled_for(spread.fragment.item);
             // @arguments on the fragment spread is not allowed without @no_inline
             if !should_use_no_inline && !spread.arguments.is_empty() {
                 return Err(Diagnostic::error(
@@ -292,10 +291,7 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
             let fragment = self.program.fragment(spread.fragment.item).unwrap();
 
             // Disallow @inline on fragments whose spreads are decorated with @module
-            if let Some(inline_data_directive) = fragment
-                .directives
-                .named(INLINE_DATA_CONSTANTS.directive_name)
-            {
+            if let Some(inline_data_directive) = fragment.directives.named(*INLINE_DIRECTIVE_NAME) {
                 return Err(Diagnostic::error(
                     ValidationMessage::InvalidModuleWithInline,
                     module_directive.name.location,
@@ -492,7 +488,7 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
             if should_use_no_inline {
                 self.no_inline_fragments
                     .entry(fragment.name.item)
-                    .or_insert_with(|| vec![])
+                    .or_insert_with(std::vec::Vec::new)
                     .push(self.document_name);
             }
             Ok(Transformed::Replace(Selection::InlineFragment(Arc::new(
@@ -501,15 +497,18 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
                     directives: vec![],
                     selections: vec![Selection::InlineFragment(Arc::new(InlineFragment {
                         type_condition: Some(fragment.type_condition),
-                        directives: vec![build_module_metadata_as_directive(
-                            match_directive_key_argument,
-                            module_id,
-                            module_directive_name_argument,
-                            self.document_name,
-                            spread,
-                            module_directive.name.location,
-                            should_use_no_inline,
-                        )],
+                        directives: vec![
+                            ModuleMetadata {
+                                key: match_directive_key_argument,
+                                module_id,
+                                module_name: module_directive_name_argument,
+                                source_document_name: self.document_name,
+                                fragment_name: spread.fragment.item,
+                                location: module_directive.name.location,
+                                no_inline: should_use_no_inline,
+                            }
+                            .into(),
+                        ],
                         selections: vec![next_spread, operation_field, component_field],
                     }))],
                 },
@@ -593,7 +592,7 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
                 if !is_supported_string {
                     return Err(Diagnostic::error(
                         ValidationMessage::InvalidMatchNotOnNonNullListString {
-                            field_name: field_definition.name,
+                            field_name: field_definition.name.item,
                         },
                         field.definition.location,
                     ));
@@ -605,7 +604,7 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
         if !field_definition.type_.inner().is_abstract_type() {
             return Err(Diagnostic::error(
                 ValidationMessage::InvalidMatchNotOnUnionOrInterface {
-                    field_name: field_definition.name,
+                    field_name: field_definition.name.item,
                 },
                 field.definition.location,
             ));
@@ -712,31 +711,17 @@ impl Transformer for MatchTransform<'_, '_> {
         if self.no_inline_fragments.is_empty() {
             next_program
         } else {
-            let mut next_program = next_program.replace_or_else(|| program.clone());
-            for (fragment_name, parent_sources) in self.no_inline_fragments.drain() {
-                let fragment = Arc::make_mut(next_program.fragment_mut(fragment_name).unwrap());
-                let parent_documents_arg = Argument {
-                    name: WithLocation::generated(*PARENT_DOCUMENTS_ARG),
-                    value: WithLocation::generated(Value::Constant(ConstantValue::List(
-                        parent_sources
-                            .into_iter()
-                            .map(ConstantValue::String)
-                            .collect(),
-                    ))),
-                };
-                let no_inline_directive = fragment
-                    .directives
-                    .iter_mut()
-                    .find(|d| d.name.item == *NO_INLINE_DIRECTIVE_NAME);
-                if let Some(no_inline_directive) = no_inline_directive {
-                    no_inline_directive.arguments.push(parent_documents_arg);
-                } else {
-                    fragment.directives.push(Directive {
-                        name: WithLocation::new(fragment.name.location, *NO_INLINE_DIRECTIVE_NAME),
-                        arguments: vec![parent_documents_arg],
-                    })
-                }
+            if let Err(errors) =
+                validate_required_no_inline_directive(&self.no_inline_fragments, program)
+            {
+                self.errors.extend(errors);
+                return next_program;
             }
+            let mut next_program = next_program.replace_or_else(|| program.clone());
+            attach_no_inline_directives_to_fragments(
+                &mut self.no_inline_fragments,
+                &mut next_program,
+            );
             TransformedValue::Replace(next_program)
         }
     }
@@ -780,7 +765,7 @@ impl Transformer for MatchTransform<'_, '_> {
     // Validate `js` field
     fn transform_scalar_field(&mut self, field: &ScalarField) -> Transformed<Selection> {
         let field_definition = self.program.schema.field(field.definition.item);
-        if field_definition.name == MATCH_CONSTANTS.js_field_name {
+        if field_definition.name.item == MATCH_CONSTANTS.js_field_name {
             match self.program.schema.get_type(MATCH_CONSTANTS.js_field_type) {
                 None => self.errors.push(Diagnostic::error(
                     ValidationMessage::MissingServerSchemaDefinition {
@@ -872,50 +857,17 @@ fn get_module_directive_name_argument(
     })
 }
 
-pub(crate) fn build_module_metadata_as_directive(
-    match_directive_key_argument: StringKey,
-    module_id: StringKey,
-    module_directive_name_argument: StringKey,
-    source_document_name: StringKey,
-    fragment_spread: &FragmentSpread,
-    location: Location,
-    use_no_inline: bool,
-) -> Directive {
-    let mut arguments = vec![
-        build_string_literal_argument(
-            MATCH_CONSTANTS.key_arg,
-            match_directive_key_argument,
-            location,
-        ),
-        build_string_literal_argument(MATCH_CONSTANTS.js_field_id_arg, module_id, location),
-        build_string_literal_argument(
-            MATCH_CONSTANTS.js_field_module_arg,
-            module_directive_name_argument,
-            location,
-        ),
-        build_string_literal_argument(
-            MATCH_CONSTANTS.source_document_arg,
-            source_document_name,
-            location,
-        ),
-        build_string_literal_argument(
-            MATCH_CONSTANTS.name_arg,
-            fragment_spread.fragment.item,
-            location,
-        ),
-    ];
-    if use_no_inline {
-        arguments.push(Argument {
-            name: WithLocation::new(location, MATCH_CONSTANTS.no_inline_arg),
-            value: WithLocation::new(location, Value::Constant(ConstantValue::Null())),
-        })
-    }
-
-    Directive {
-        name: WithLocation::new(location, MATCH_CONSTANTS.custom_module_directive_name),
-        arguments,
-    }
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub struct ModuleMetadata {
+    pub location: Location,
+    pub key: StringKey,
+    pub module_id: StringKey,
+    pub module_name: StringKey,
+    pub source_document_name: StringKey,
+    pub fragment_name: StringKey,
+    pub no_inline: bool,
 }
+associated_data_impl!(ModuleMetadata);
 
 fn build_string_literal_argument(
     name: StringKey,

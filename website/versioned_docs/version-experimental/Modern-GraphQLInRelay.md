@@ -96,7 +96,7 @@ fragment TodoApp_app on App {
 
 ### `@inline`
 
-By default, Relay will only expose the data for fields explicitly requested by a [component's fragment](./a-guided-tour-of-relay#fragments), which is known as [data masking](./thinking-in-relay#data-masking). Fragment data is unmasked for use in React components by `useFragment`. However, you may want to use fragment data in non-React functions that are called from React.
+By default, Relay will only expose the data for fields explicitly requested by a [component's fragment](./a-guided-tour-of-relay#fragments), which is known as [data masking](./PrinciplesAndArchitecture-ThinkingInRelay.md#data-masking). Fragment data is unmasked for use in React components by `useFragment`. However, you may want to use fragment data in non-React functions that are called from React.
 
 Non-React functions can also take advantage of data masking. A fragment can be defined with the `@inline` directive and stored in a local variable. The non-React function can then "unmask" the data using the `readInlineData` function.
 
@@ -148,7 +148,7 @@ export default createFragmentContainer(MyComponent, {
 
 ### `@relay(mask: Boolean)`
 
-Relay by default will only expose the data for fields explicitly requested by a [fragment](./a-guided-tour-of-relay#fragments), which is known as [data masking](./thinking-in-relay#data-masking).
+Relay by default will only expose the data for fields explicitly requested by a [fragment](./a-guided-tour-of-relay#fragments), which is known as [data masking](./PrinciplesAndArchitecture-ThinkingInRelay.md#data-masking).
 
 However, `@relay(mask: false)` can be used to prevent data masking; when including a fragment and annotating it with `@relay(mask: false)`, its data will be available to the parent, recursively including the data from the fields of the referenced fragment.
 
@@ -349,6 +349,6 @@ Any fields specified in the client schema, can be fetched from the Relay Store b
 
 ### Advanced usage
 
-In addition to the bin script, the `relay-compiler` package also [exports library code](https://github.com/facebook/relay/blob/master/packages/relay-compiler/RelayCompilerPublic.js) which you may use to create more complex configurations for the compiler, or to extend the compiler with your own custom output.
+In addition to the bin script, the `relay-compiler` package also [exports library code](https://github.com/facebook/relay/blob/main/packages/relay-compiler/RelayCompilerPublic.js) which you may use to create more complex configurations for the compiler, or to extend the compiler with your own custom output.
 
 If you find you need to do something unique (like generate types that conform to an older version of flow, or to parse non-javascript source files), you can build your own version of the Compiler by swapping in your own `FileWriter` and `ASTCache`, or by adding on an additional `IRTransform`. Note, the internal APIs of the `RelayCompiler` are under constant iteration, so rolling your own version may lead to incompatibilities with future releases.

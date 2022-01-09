@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,13 +13,12 @@
 
 'use strict';
 
+import type {MatchPointer} from '../MatchContainer';
+
 const MatchContainer = require('../MatchContainer');
 const React = require('react');
 const TestRenderer = require('react-test-renderer');
-
 const {FRAGMENT_OWNER_KEY, FRAGMENTS_KEY, ID_KEY} = require('relay-runtime');
-
-import type {MatchPointer} from '../MatchContainer';
 
 function createMatchPointer({
   id,
@@ -29,7 +28,7 @@ function createMatchPointer({
   module,
 }): MatchPointer {
   const pointer = {
-    $fragmentRefs: {},
+    $fragmentSpreads: {},
     [ID_KEY]: id,
     [FRAGMENTS_KEY]: {},
     [FRAGMENT_OWNER_KEY]: null,

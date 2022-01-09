@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<c21e2dcca663a4113b5385b9b6ad4608>>
+ * @generated SignedSource<<58f2f643254ae45762e72d5a753d638d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,22 +15,23 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragment$ref: FragmentReference;
-declare export opaque type useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragment$fragmentType: useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragment$ref;
-export type useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragmentRefetchQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+type useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragment$fragmentType = any;
+export type useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragmentRefetchQuery$variables = {|
   scale?: ?number,
   id: string,
 |};
-export type useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragmentRefetchQueryResponse = {|
+export type useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragmentRefetchQueryVariables = useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragmentRefetchQuery$variables;
+export type useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragmentRefetchQuery$data = {|
   +node: ?{|
-    +$fragmentRefs: useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragment$ref,
+    +$fragmentSpreads: useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragment$fragmentType,
   |},
 |};
+export type useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragmentRefetchQueryResponse = useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragmentRefetchQuery$data;
 export type useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragmentRefetchQuery = {|
   variables: useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragmentRefetchQueryVariables,
-  response: useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragmentRefetchQueryResponse,
+  response: useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragmentRefetchQuery$data,
 |};
 */
 
@@ -178,4 +179,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "5667a4d9b630416b46fa8e8124d4470c";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragmentRefetchQuery$variables,
+  useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragmentRefetchQuery$data,
+>*/);

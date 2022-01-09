@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<9d4976dedb68ced24803caeba52e643f>>
+ * @generated SignedSource<<e419a506245840489564a466a85a11ef>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,24 +15,26 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
+import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { ActorChangePoint } from "react-relay/multi-actor";
-type RelayResponseNormalizerTestActorChangeFragment$ref = any;
-export type RelayResponseNormalizerTestActorChangeWithAliasQueryVariables = {||};
-export type RelayResponseNormalizerTestActorChangeWithAliasQueryResponse = {|
+type RelayResponseNormalizerTestActorChangeFragment$fragmentType = any;
+export type RelayResponseNormalizerTestActorChangeWithAliasQuery$variables = {||};
+export type RelayResponseNormalizerTestActorChangeWithAliasQueryVariables = RelayResponseNormalizerTestActorChangeWithAliasQuery$variables;
+export type RelayResponseNormalizerTestActorChangeWithAliasQuery$data = {|
   +viewer: ?{|
     +me: ?{|
       +name: ?string,
     |},
     +actor: ?ActorChangePoint<{|
-      +__viewer: string,
-      +$fragmentRefs: RelayResponseNormalizerTestActorChangeFragment$ref,
+      +actor_key: string,
+      +$fragmentSpreads: RelayResponseNormalizerTestActorChangeFragment$fragmentType,
     |}>,
   |},
 |};
+export type RelayResponseNormalizerTestActorChangeWithAliasQueryResponse = RelayResponseNormalizerTestActorChangeWithAliasQuery$data;
 export type RelayResponseNormalizerTestActorChangeWithAliasQuery = {|
   variables: RelayResponseNormalizerTestActorChangeWithAliasQueryVariables,
-  response: RelayResponseNormalizerTestActorChangeWithAliasQueryResponse,
+  response: RelayResponseNormalizerTestActorChangeWithAliasQuery$data,
 |};
 */
 
@@ -154,7 +156,7 @@ return {
                   "alias": null,
                   "args": null,
                   "kind": "ScalarField",
-                  "name": "__viewer",
+                  "name": "actor_key",
                   "storageKey": null
                 },
                 (v3/*: any*/)
@@ -168,18 +170,21 @@ return {
     ]
   },
   "params": {
-    "cacheID": "b0e1f3ae6a39e2e4bf679253c017d41b",
+    "cacheID": "8d9706b47742c098b3900e2e529295a5",
     "id": null,
     "metadata": {},
     "name": "RelayResponseNormalizerTestActorChangeWithAliasQuery",
     "operationKind": "query",
-    "text": "query RelayResponseNormalizerTestActorChangeWithAliasQuery {\n  viewer {\n    me: actor {\n      __typename\n      name\n      id\n    }\n    actor {\n      __typename\n      ...RelayResponseNormalizerTestActorChangeFragment\n      __viewer\n      id\n    }\n  }\n}\n\nfragment RelayResponseNormalizerTestActorChangeFragment on User {\n  name\n}\n"
+    "text": "query RelayResponseNormalizerTestActorChangeWithAliasQuery {\n  viewer {\n    me: actor {\n      __typename\n      name\n      id\n    }\n    actor @fb_actor_change {\n      __typename\n      ...RelayResponseNormalizerTestActorChangeFragment\n      actor_key\n      id\n    }\n  }\n}\n\nfragment RelayResponseNormalizerTestActorChangeFragment on User {\n  name\n}\n"
   }
 };
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "40e7357eeb0ff3ea6f26da4529203e8e";
+  (node/*: any*/).hash = "4d26736797149779b0919c716b985847";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayResponseNormalizerTestActorChangeWithAliasQuery$variables,
+  RelayResponseNormalizerTestActorChangeWithAliasQuery$data,
+>*/);

@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<c243e8bb0ecfdee0f946511c0fbe8dbc>>
+ * @generated SignedSource<<c0338555481297c4debeb5c8637e2077>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,11 +15,12 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
+import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { ActorChangePoint } from "react-relay/multi-actor";
-type ActorChangeWithDeferTestFragment$ref = any;
-export type ActorChangeWithDeferTestQueryVariables = {||};
-export type ActorChangeWithDeferTestQueryResponse = {|
+type ActorChangeWithDeferTestFragment$fragmentType = any;
+export type ActorChangeWithDeferTestQuery$variables = {||};
+export type ActorChangeWithDeferTestQueryVariables = ActorChangeWithDeferTestQuery$variables;
+export type ActorChangeWithDeferTestQuery$data = {|
   +viewer: ?{|
     +newsFeed: ?{|
       +edges: ?$ReadOnlyArray<?{|
@@ -29,16 +30,17 @@ export type ActorChangeWithDeferTestQueryResponse = {|
           |},
         |},
         +actor_node: ?ActorChangePoint<{|
-          +__viewer: string,
-          +$fragmentRefs: ActorChangeWithDeferTestFragment$ref,
+          +actor_key: string,
+          +$fragmentSpreads: ActorChangeWithDeferTestFragment$fragmentType,
         |}>,
       |}>,
     |},
   |},
 |};
+export type ActorChangeWithDeferTestQueryResponse = ActorChangeWithDeferTestQuery$data;
 export type ActorChangeWithDeferTestQuery = {|
   variables: ActorChangeWithDeferTestQueryVariables,
-  response: ActorChangeWithDeferTestQueryResponse,
+  response: ActorChangeWithDeferTestQuery$data,
 |};
 */
 
@@ -249,7 +251,7 @@ return {
                           "alias": null,
                           "args": null,
                           "kind": "ScalarField",
-                          "name": "__viewer",
+                          "name": "actor_key",
                           "storageKey": null
                         }
                       ],
@@ -268,18 +270,21 @@ return {
     ]
   },
   "params": {
-    "cacheID": "1f7f6ef4d5a1b6256cb3a9ded0359e33",
+    "cacheID": "878ffbe2b2e192cee6ea324706e70741",
     "id": null,
     "metadata": {},
     "name": "ActorChangeWithDeferTestQuery",
     "operationKind": "query",
-    "text": "query ActorChangeWithDeferTestQuery {\n  viewer {\n    newsFeed {\n      edges {\n        node {\n          __typename\n          actor {\n            __typename\n            name\n            id\n          }\n          id\n        }\n        actor_node: node {\n          __typename\n          ...ActorChangeWithDeferTestFragment\n          __viewer\n          id\n        }\n      }\n    }\n  }\n}\n\nfragment ActorChangeWithDeferTestDeferFragment on FeedUnit {\n  __isFeedUnit: __typename\n  message {\n    text\n  }\n}\n\nfragment ActorChangeWithDeferTestFragment on FeedUnit {\n  __isFeedUnit: __typename\n  id\n  actor {\n    __typename\n    name\n    id\n  }\n  ...ActorChangeWithDeferTestDeferFragment @defer(label: \"ActorChangeWithDeferTestFragment$defer$ActorChangeWithDeferTestDeferFragment\")\n}\n"
+    "text": "query ActorChangeWithDeferTestQuery {\n  viewer {\n    newsFeed {\n      edges {\n        node {\n          __typename\n          actor {\n            __typename\n            name\n            id\n          }\n          id\n        }\n        actor_node: node @fb_actor_change {\n          __typename\n          ...ActorChangeWithDeferTestFragment\n          actor_key\n          id\n        }\n      }\n    }\n  }\n}\n\nfragment ActorChangeWithDeferTestDeferFragment on FeedUnit {\n  __isFeedUnit: __typename\n  message {\n    text\n  }\n}\n\nfragment ActorChangeWithDeferTestFragment on FeedUnit {\n  __isFeedUnit: __typename\n  id\n  actor {\n    __typename\n    name\n    id\n  }\n  ...ActorChangeWithDeferTestDeferFragment @defer(label: \"ActorChangeWithDeferTestFragment$defer$ActorChangeWithDeferTestDeferFragment\")\n}\n"
   }
 };
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "ae22c21318f4d1ae969ab38f6c150b27";
+  (node/*: any*/).hash = "5140be47d96491c09c1d7e9dac4df2ee";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  ActorChangeWithDeferTestQuery$variables,
+  ActorChangeWithDeferTestQuery$data,
+>*/);

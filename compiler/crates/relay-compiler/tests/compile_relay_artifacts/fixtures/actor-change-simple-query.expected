@@ -3,7 +3,7 @@ query actorChangeSimpleQuery {
   node(id: "test-id") {
     id
     ... on User {
-      actor @EXPERIMENTAL__as_actor {
+      actor @fb_actor_change {
         ...actorChangeSimpleQueryUserFragment
       }
     }
@@ -140,7 +140,7 @@ fragment actorChangeSimpleQueryUserFragment on User {
                       "alias": null,
                       "args": null,
                       "kind": "ScalarField",
-                      "name": "__viewer",
+                      "name": "actor_key",
                       "storageKey": null
                     },
                     {
@@ -179,10 +179,10 @@ query actorChangeSimpleQuery {
     __typename
     id
     ... on User {
-      actor {
+      actor @fb_actor_change {
         __typename
         ...actorChangeSimpleQueryUserFragment
-        __viewer
+        actor_key
         id
       }
     }

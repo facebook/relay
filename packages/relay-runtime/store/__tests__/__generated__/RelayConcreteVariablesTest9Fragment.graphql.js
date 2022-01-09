@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<96c2464dec6715e9ad484daec61d24b2>>
+ * @generated SignedSource<<9b6c3215c77e82ed8a8e6be16fca7056>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,20 +15,20 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayConcreteVariablesTest9Fragment$ref: FragmentReference;
-declare export opaque type RelayConcreteVariablesTest9Fragment$fragmentType: RelayConcreteVariablesTest9Fragment$ref;
-export type RelayConcreteVariablesTest9Fragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayConcreteVariablesTest9Fragment$fragmentType: FragmentType;
+export type RelayConcreteVariablesTest9Fragment$ref = RelayConcreteVariablesTest9Fragment$fragmentType;
+export type RelayConcreteVariablesTest9Fragment$data = {|
   +profilePicture: ?{|
     +uri: ?string,
   |},
-  +$refType: RelayConcreteVariablesTest9Fragment$ref,
+  +$fragmentType: RelayConcreteVariablesTest9Fragment$fragmentType,
 |};
-export type RelayConcreteVariablesTest9Fragment$data = RelayConcreteVariablesTest9Fragment;
+export type RelayConcreteVariablesTest9Fragment = RelayConcreteVariablesTest9Fragment$data;
 export type RelayConcreteVariablesTest9Fragment$key = {
   +$data?: RelayConcreteVariablesTest9Fragment$data,
-  +$fragmentRefs: RelayConcreteVariablesTest9Fragment$ref,
+  +$fragmentSpreads: RelayConcreteVariablesTest9Fragment$fragmentType,
   ...
 };
 */
@@ -78,4 +78,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "82ed3d21666e09944a51bcdada635441";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayConcreteVariablesTest9Fragment$fragmentType,
+  RelayConcreteVariablesTest9Fragment$data,
+>*/);

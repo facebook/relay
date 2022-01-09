@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,11 +13,10 @@
 
 'use strict';
 
-const React = require('react');
+import type {Variables} from 'relay-runtime';
 
 const areEqual = require('areEqual');
-
-import type {Variables} from 'relay-runtime';
+const React = require('react');
 
 const {useMemo, useRef, useState} = React;
 
@@ -45,9 +44,10 @@ function useMemoVariables<TVariables: Variables | null>(
   // NOTE: We disable react-hooks-deps warning because we explicitly
   // don't want to memoize on object identity
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const memoVariables = useMemo(() => variables, [
-    variablesChangedGenerationRef.current,
-  ]);
+  const memoVariables = useMemo(
+    () => variables,
+    [variablesChangedGenerationRef.current],
+  );
   return [memoVariables, variablesChangedGenerationRef.current ?? 0];
 }
 

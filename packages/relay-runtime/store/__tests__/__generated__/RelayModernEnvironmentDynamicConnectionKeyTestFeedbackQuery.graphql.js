@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<5750fe3ad464167725768e6d6a755e7d>>
+ * @generated SignedSource<<898528564b8cf77e4bd6ed9bd5ce20a8>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,20 +15,22 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernEnvironmentDynamicConnectionKeyTestFeedbackFragment$ref = any;
-export type RelayModernEnvironmentDynamicConnectionKeyTestFeedbackQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayModernEnvironmentDynamicConnectionKeyTestFeedbackFragment$fragmentType = any;
+export type RelayModernEnvironmentDynamicConnectionKeyTestFeedbackQuery$variables = {|
   id: string,
   commentsKey?: ?string,
 |};
-export type RelayModernEnvironmentDynamicConnectionKeyTestFeedbackQueryResponse = {|
+export type RelayModernEnvironmentDynamicConnectionKeyTestFeedbackQueryVariables = RelayModernEnvironmentDynamicConnectionKeyTestFeedbackQuery$variables;
+export type RelayModernEnvironmentDynamicConnectionKeyTestFeedbackQuery$data = {|
   +node: ?{|
-    +$fragmentRefs: RelayModernEnvironmentDynamicConnectionKeyTestFeedbackFragment$ref,
+    +$fragmentSpreads: RelayModernEnvironmentDynamicConnectionKeyTestFeedbackFragment$fragmentType,
   |},
 |};
+export type RelayModernEnvironmentDynamicConnectionKeyTestFeedbackQueryResponse = RelayModernEnvironmentDynamicConnectionKeyTestFeedbackQuery$data;
 export type RelayModernEnvironmentDynamicConnectionKeyTestFeedbackQuery = {|
   variables: RelayModernEnvironmentDynamicConnectionKeyTestFeedbackQueryVariables,
-  response: RelayModernEnvironmentDynamicConnectionKeyTestFeedbackQueryResponse,
+  response: RelayModernEnvironmentDynamicConnectionKeyTestFeedbackQuery$data,
 |};
 */
 
@@ -235,4 +237,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "93a8dd6942de5fbbc353f66e3f7d0dc6";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentDynamicConnectionKeyTestFeedbackQuery$variables,
+  RelayModernEnvironmentDynamicConnectionKeyTestFeedbackQuery$data,
+>*/);

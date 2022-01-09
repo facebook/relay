@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<91de3a5e82f4865d73cabee033804d03>>
+ * @generated SignedSource<<06be256604e8eb9e693ac026017f69a5>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,25 +16,6 @@
 
 /*::
 import type { NormalizationSplitOperation } from 'relay-runtime';
-
-export type RelayModernEnvironmentNoInlineTestDeferredStream_newsFeed$normalization = {|
-  +newsFeed: ?{|
-    +edges: ?$ReadOnlyArray<?{|
-      +node: ?{|
-        +__typename: string,
-        +__isFeedUnit: string,
-        +feedback: ?{|
-          +author: ?{|
-            +name: ?string,
-            +id: string,
-          |},
-          +id: string,
-        |},
-        +id: string,
-      |},
-    |}>,
-  |},
-|};
 
 */
 
@@ -81,7 +62,6 @@ return {
           "if": "RelayModernEnvironmentNoInlineTestDeferredStream_newsFeed$enableStream",
           "kind": "Stream",
           "label": "RelayModernEnvironmentNoInlineTestDeferredStream_newsFeed$stream$newsFeed",
-          "metadata": null,
           "selections": [
             {
               "alias": null,
@@ -155,8 +135,7 @@ return {
               ],
               "storageKey": null
             }
-          ],
-          "useCustomizedBatch": null
+          ]
         }
       ],
       "storageKey": "newsFeed(first:2)"

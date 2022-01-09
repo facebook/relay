@@ -4,7 +4,7 @@ fragment Foo on UnknownType {
   id
 }
 ==================================== ERROR ====================================
-✖︎ Unknown type 'UnknownType'
+✖︎ Unknown type 'UnknownType'.
 
   unknown-fragment-type.invalid.graphql:2:17
     1 │ # expected-to-throw

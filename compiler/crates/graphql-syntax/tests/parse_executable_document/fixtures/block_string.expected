@@ -1,0 +1,279 @@
+==================================== INPUT ====================================
+query {
+  some_field(some_arg: """Here is a string. It's very long so
+    we've wrapped it in a block string and let it span multiple
+    lines""")
+
+  another_field(some_arg: """Here is a string. It's very long so
+    we've wrapped it in a block string and let it span multiple
+    lines.
+      but some lines are more indented
+    """)
+
+  yet_another_field(some_arg: """Here is a string. It's very long so
+    we've wrapped it in a block string and let it span multiple
+    lines, and for some reason there are trailing lines
+
+
+
+
+    """)
+
+  i_cant_believe_its_another_field(
+    some_arg: """
+      Because block strings typically represent freeform text,
+      it is considered easier to read if they begin and end with an empty line.
+    """
+  )
+
+}
+==================================== OUTPUT ===================================
+ExecutableDocument {
+    span: 0:753,
+    definitions: [
+        OperationDefinition {
+            location: block_string.graphql:0:752,
+            operation: Some(
+                (
+                    Token {
+                        span: 0:5,
+                        kind: Identifier,
+                    },
+                    Query,
+                ),
+            ),
+            name: None,
+            variable_definitions: None,
+            directives: [],
+            selections: List {
+                span: 6:752,
+                start: Token {
+                    span: 6:7,
+                    kind: OpenBrace,
+                },
+                items: [
+                    ScalarField {
+                        span: 10:147,
+                        alias: None,
+                        name: Identifier {
+                            span: 10:20,
+                            token: Token {
+                                span: 10:20,
+                                kind: Identifier,
+                            },
+                            value: "some_field",
+                        },
+                        arguments: Some(
+                            List {
+                                span: 20:147,
+                                start: Token {
+                                    span: 20:21,
+                                    kind: OpenParen,
+                                },
+                                items: [
+                                    Argument {
+                                        span: 21:146,
+                                        name: Identifier {
+                                            span: 21:29,
+                                            token: Token {
+                                                span: 21:29,
+                                                kind: Identifier,
+                                            },
+                                            value: "some_arg",
+                                        },
+                                        colon: Token {
+                                            span: 29:30,
+                                            kind: Colon,
+                                        },
+                                        value: Constant(
+                                            String(
+                                                StringNode {
+                                                    token: Token {
+                                                        span: 31:146,
+                                                        kind: BlockStringLiteral,
+                                                    },
+                                                    value: "Here is a string. It's very long so\nwe've wrapped it in a block string and let it span multiple\nlines",
+                                                },
+                                            ),
+                                        ),
+                                    },
+                                ],
+                                end: Token {
+                                    span: 146:147,
+                                    kind: CloseParen,
+                                },
+                            },
+                        ),
+                        directives: [],
+                    },
+                    ScalarField {
+                        span: 151:336,
+                        alias: None,
+                        name: Identifier {
+                            span: 151:164,
+                            token: Token {
+                                span: 151:164,
+                                kind: Identifier,
+                            },
+                            value: "another_field",
+                        },
+                        arguments: Some(
+                            List {
+                                span: 164:336,
+                                start: Token {
+                                    span: 164:165,
+                                    kind: OpenParen,
+                                },
+                                items: [
+                                    Argument {
+                                        span: 165:335,
+                                        name: Identifier {
+                                            span: 165:173,
+                                            token: Token {
+                                                span: 165:173,
+                                                kind: Identifier,
+                                            },
+                                            value: "some_arg",
+                                        },
+                                        colon: Token {
+                                            span: 173:174,
+                                            kind: Colon,
+                                        },
+                                        value: Constant(
+                                            String(
+                                                StringNode {
+                                                    token: Token {
+                                                        span: 175:335,
+                                                        kind: BlockStringLiteral,
+                                                    },
+                                                    value: "Here is a string. It's very long so\nwe've wrapped it in a block string and let it span multiple\nlines.\n  but some lines are more indented",
+                                                },
+                                            ),
+                                        ),
+                                    },
+                                ],
+                                end: Token {
+                                    span: 335:336,
+                                    kind: CloseParen,
+                                },
+                            },
+                        ),
+                        directives: [],
+                    },
+                    ScalarField {
+                        span: 340:539,
+                        alias: None,
+                        name: Identifier {
+                            span: 340:357,
+                            token: Token {
+                                span: 340:357,
+                                kind: Identifier,
+                            },
+                            value: "yet_another_field",
+                        },
+                        arguments: Some(
+                            List {
+                                span: 357:539,
+                                start: Token {
+                                    span: 357:358,
+                                    kind: OpenParen,
+                                },
+                                items: [
+                                    Argument {
+                                        span: 358:538,
+                                        name: Identifier {
+                                            span: 358:366,
+                                            token: Token {
+                                                span: 358:366,
+                                                kind: Identifier,
+                                            },
+                                            value: "some_arg",
+                                        },
+                                        colon: Token {
+                                            span: 366:367,
+                                            kind: Colon,
+                                        },
+                                        value: Constant(
+                                            String(
+                                                StringNode {
+                                                    token: Token {
+                                                        span: 368:538,
+                                                        kind: BlockStringLiteral,
+                                                    },
+                                                    value: "Here is a string. It's very long so\nwe've wrapped it in a block string and let it span multiple\nlines, and for some reason there are trailing lines",
+                                                },
+                                            ),
+                                        ),
+                                    },
+                                ],
+                                end: Token {
+                                    span: 538:539,
+                                    kind: CloseParen,
+                                },
+                            },
+                        ),
+                        directives: [],
+                    },
+                    ScalarField {
+                        span: 543:749,
+                        alias: None,
+                        name: Identifier {
+                            span: 543:575,
+                            token: Token {
+                                span: 543:575,
+                                kind: Identifier,
+                            },
+                            value: "i_cant_believe_its_another_field",
+                        },
+                        arguments: Some(
+                            List {
+                                span: 575:749,
+                                start: Token {
+                                    span: 575:576,
+                                    kind: OpenParen,
+                                },
+                                items: [
+                                    Argument {
+                                        span: 581:745,
+                                        name: Identifier {
+                                            span: 581:589,
+                                            token: Token {
+                                                span: 581:589,
+                                                kind: Identifier,
+                                            },
+                                            value: "some_arg",
+                                        },
+                                        colon: Token {
+                                            span: 589:590,
+                                            kind: Colon,
+                                        },
+                                        value: Constant(
+                                            String(
+                                                StringNode {
+                                                    token: Token {
+                                                        span: 591:745,
+                                                        kind: BlockStringLiteral,
+                                                    },
+                                                    value: "Because block strings typically represent freeform text,\nit is considered easier to read if they begin and end with an empty line.",
+                                                },
+                                            ),
+                                        ),
+                                    },
+                                ],
+                                end: Token {
+                                    span: 748:749,
+                                    kind: CloseParen,
+                                },
+                            },
+                        ),
+                        directives: [],
+                    },
+                ],
+                end: Token {
+                    span: 751:752,
+                    kind: CloseBrace,
+                },
+            },
+        },
+    ],
+}

@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<5ef3c2a1d34c232a4b6a1dada9f0fc4b>>
+ * @generated SignedSource<<cae5361beae43ef2d2d819a0fcf1d2ad>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,25 +15,27 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
+import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { ActorChangePoint } from "react-relay/multi-actor";
-type ActorChangeWithStreamTestFragment$ref = any;
-export type ActorChangeWithStreamTestQueryVariables = {||};
-export type ActorChangeWithStreamTestQueryResponse = {|
+type ActorChangeWithStreamTestFragment$fragmentType = any;
+export type ActorChangeWithStreamTestQuery$variables = {||};
+export type ActorChangeWithStreamTestQueryVariables = ActorChangeWithStreamTestQuery$variables;
+export type ActorChangeWithStreamTestQuery$data = {|
   +viewer: ?{|
     +newsFeed: ?{|
       +edges: ?$ReadOnlyArray<?{|
         +node: ?ActorChangePoint<{|
-          +__viewer: string,
-          +$fragmentRefs: ActorChangeWithStreamTestFragment$ref,
+          +actor_key: string,
+          +$fragmentSpreads: ActorChangeWithStreamTestFragment$fragmentType,
         |}>,
       |}>,
     |},
   |},
 |};
+export type ActorChangeWithStreamTestQueryResponse = ActorChangeWithStreamTestQuery$data;
 export type ActorChangeWithStreamTestQuery = {|
   variables: ActorChangeWithStreamTestQueryVariables,
-  response: ActorChangeWithStreamTestQueryResponse,
+  response: ActorChangeWithStreamTestQuery$data,
 |};
 */
 
@@ -185,7 +187,6 @@ return {
                               "if": null,
                               "kind": "Stream",
                               "label": "ActorChangeWithStreamTestFragment$stream$actors",
-                              "metadata": null,
                               "selections": [
                                 {
                                   "alias": null,
@@ -207,8 +208,7 @@ return {
                                   ],
                                   "storageKey": null
                                 }
-                              ],
-                              "useCustomizedBatch": null
+                              ]
                             }
                           ],
                           "storageKey": null
@@ -217,7 +217,7 @@ return {
                           "alias": null,
                           "args": null,
                           "kind": "ScalarField",
-                          "name": "__viewer",
+                          "name": "actor_key",
                           "storageKey": null
                         }
                       ],
@@ -236,18 +236,21 @@ return {
     ]
   },
   "params": {
-    "cacheID": "be0061e6915a1fc52ee1fa364d8d6452",
+    "cacheID": "af2db8fd534769c172bc84e7a133c65a",
     "id": null,
     "metadata": {},
     "name": "ActorChangeWithStreamTestQuery",
     "operationKind": "query",
-    "text": "query ActorChangeWithStreamTestQuery {\n  viewer {\n    newsFeed {\n      edges {\n        node {\n          __typename\n          ...ActorChangeWithStreamTestFragment\n          __viewer\n          id\n        }\n      }\n    }\n  }\n}\n\nfragment ActorChangeWithStreamTestFragment on FeedUnit {\n  __isFeedUnit: __typename\n  id\n  message {\n    text\n  }\n  feedback {\n    id\n    actors @stream(label: \"ActorChangeWithStreamTestFragment$stream$actors\", initial_count: 1) {\n      __typename\n      name\n      id\n    }\n  }\n}\n"
+    "text": "query ActorChangeWithStreamTestQuery {\n  viewer {\n    newsFeed {\n      edges {\n        node @fb_actor_change {\n          __typename\n          ...ActorChangeWithStreamTestFragment\n          actor_key\n          id\n        }\n      }\n    }\n  }\n}\n\nfragment ActorChangeWithStreamTestFragment on FeedUnit {\n  __isFeedUnit: __typename\n  id\n  message {\n    text\n  }\n  feedback {\n    id\n    actors @stream(label: \"ActorChangeWithStreamTestFragment$stream$actors\", initial_count: 1) {\n      __typename\n      name\n      id\n    }\n  }\n}\n"
   }
 };
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "a95b7afa50598a0657cf6298f8189f35";
+  (node/*: any*/).hash = "d36707add9f4e27149d6e1bf38a04360";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  ActorChangeWithStreamTestQuery$variables,
+  ActorChangeWithStreamTestQuery$data,
+>*/);

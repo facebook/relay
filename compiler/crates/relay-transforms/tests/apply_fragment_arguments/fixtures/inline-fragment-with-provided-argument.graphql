@@ -1,0 +1,15 @@
+query TestQuery($id: ID) {
+  node(id: $id) {
+    ... Fragment0
+  }
+}
+
+fragment Fragment0 on User
+    @argumentDefinitions(foo_gk: {type: "Boolean!", provider: "foo_gk_module.js"})
+{
+    ... on User{
+      ... on User {
+        name @include(if: $foo_gk)
+      }
+    }
+}

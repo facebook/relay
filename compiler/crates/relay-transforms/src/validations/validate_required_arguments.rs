@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -8,10 +8,10 @@
 use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, WithLocation};
 use errors::validate;
 use graphql_ir::{
-    Argument, Directive, FragmentDefinition, LinkedField, OperationDefinition, Program,
+    Argument, Directive, Field, FragmentDefinition, LinkedField, OperationDefinition, Program,
     ScalarField, ValidationMessage, Validator,
 };
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey};
 use lazy_static::lazy_static;
 use schema::{ArgumentDefinitions, Schema};
 
@@ -115,11 +115,13 @@ impl ValidateRequiredArguments<'_> {
         root_name_with_location: WithLocation<StringKey>,
     ) -> DiagnosticsResult<()> {
         if !argument_defintinitions.is_empty() {
-            let arg_names: Vec<_> = arguments.iter().map(|arg| arg.name.item).collect();
             for def in argument_defintinitions.iter() {
                 if def.type_.is_non_null()
                     && def.default_value.is_none()
-                    && !arg_names.contains(&def.name)
+                    && !arguments
+                        .iter()
+                        .map(|arg| arg.name.item)
+                        .any(|x| x == def.name)
                 {
                     return Err(vec![
                         Diagnostic::error(

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,23 +13,21 @@
 
 'use strict';
 
-const RelayModernEnvironment = require('../RelayModernEnvironment');
-const RelayModernStore = require('../RelayModernStore');
+const {
+  MultiActorEnvironment,
+  getActorIdentifier,
+} = require('../../multi-actor-environment');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const RelayRecordSource = require('../RelayRecordSource');
-
-const nullthrows = require('nullthrows');
-
-const {
-  getActorIdentifier,
-  MultiActorEnvironment,
-} = require('../../multi-actor-environment');
-const {graphql, getFragment, getRequest} = require('../../query/GraphQLTag');
+const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
+const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {getSingularSelector} = require('../RelayModernSelector');
+const RelayModernStore = require('../RelayModernStore');
+const RelayRecordSource = require('../RelayRecordSource');
+const nullthrows = require('nullthrows');
 const {RelayFeatureFlags} = require('relay-runtime');
 const {disallowWarnings} = require('relay-test-utils-internal');
 
@@ -171,8 +169,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
                 fragments: [
                   {
                     module: {
-                      __dr:
-                        'RelayModernEnvironmentExecuteWithFlightAndClientFragmentTest_clientFragment$normalization.graphql',
+                      __dr: 'RelayModernEnvironmentExecuteWithFlightAndClientFragmentTest_clientFragment$normalization.graphql',
                     },
                     __id: '3',
                     __typename: 'Story',
@@ -182,8 +179,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
                         __typename: 'Story',
                         name: 'React Server Components: The Musical',
                         body: {
-                          text:
-                            'Presenting a new musical from the director of Cats (2019)!',
+                          text: 'Presenting a new musical from the director of Cats (2019)!',
                         },
                       },
                     },

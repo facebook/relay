@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<2e355445d91dd9ac6f908e8551c00700>>
+ * @generated SignedSource<<c8ba4cfeaf77632058f5973ebe5733c0>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,9 +15,9 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type usePaginationFragmentTestUserFragmentWithStreaming$ref = any;
-export type usePaginationFragmentTestUserQueryWithStreamingQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type usePaginationFragmentTestUserFragmentWithStreaming$fragmentType = any;
+export type usePaginationFragmentTestUserQueryWithStreamingQuery$variables = {|
   id: string,
   after?: ?string,
   first?: ?number,
@@ -26,14 +26,16 @@ export type usePaginationFragmentTestUserQueryWithStreamingQueryVariables = {|
   orderby?: ?$ReadOnlyArray<?string>,
   isViewerFriend?: ?boolean,
 |};
-export type usePaginationFragmentTestUserQueryWithStreamingQueryResponse = {|
+export type usePaginationFragmentTestUserQueryWithStreamingQueryVariables = usePaginationFragmentTestUserQueryWithStreamingQuery$variables;
+export type usePaginationFragmentTestUserQueryWithStreamingQuery$data = {|
   +node: ?{|
-    +$fragmentRefs: usePaginationFragmentTestUserFragmentWithStreaming$ref,
+    +$fragmentSpreads: usePaginationFragmentTestUserFragmentWithStreaming$fragmentType,
   |},
 |};
+export type usePaginationFragmentTestUserQueryWithStreamingQueryResponse = usePaginationFragmentTestUserQueryWithStreamingQuery$data;
 export type usePaginationFragmentTestUserQueryWithStreamingQuery = {|
   variables: usePaginationFragmentTestUserQueryWithStreamingQueryVariables,
-  response: usePaginationFragmentTestUserQueryWithStreamingQueryResponse,
+  response: usePaginationFragmentTestUserQueryWithStreamingQuery$data,
 |};
 */
 
@@ -216,7 +218,6 @@ return {
                     "if": null,
                     "kind": "Stream",
                     "label": "usePaginationFragmentTestUserFragmentWithStreaming$stream$UserFragment_friends",
-                    "metadata": null,
                     "selections": [
                       {
                         "alias": null,
@@ -257,8 +258,7 @@ return {
                         ],
                         "storageKey": null
                       }
-                    ],
-                    "useCustomizedBatch": null
+                    ]
                   },
                   {
                     "if": null,
@@ -345,4 +345,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "3804d84962fa5c729fa01498dc7e4224";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  usePaginationFragmentTestUserQueryWithStreamingQuery$variables,
+  usePaginationFragmentTestUserQueryWithStreamingQuery$data,
+>*/);

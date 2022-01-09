@@ -1,26 +1,26 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::ast::{Ast, AstBuilder, AstKey, ObjectEntry, Primitive, RequestParameters};
+use crate::ast::{Ast, AstBuilder, AstKey, ObjectEntry, Primitive, QueryID, RequestParameters};
 use crate::build_ast::{
-    build_fragment, build_operation, build_request, build_request_params,
+    build_fragment, build_operation, build_provided_variables, build_request, build_request_params,
     build_request_params_ast_key,
 };
 use crate::constants::CODEGEN_CONSTANTS;
 use crate::indentation::print_indentation;
-use crate::js_module_format::JsModuleFormat;
 use crate::utils::escape;
+use crate::JsModuleFormat;
 
 use graphql_ir::{FragmentDefinition, OperationDefinition};
 use schema::SDLSchema;
 
 use fnv::{FnvBuildHasher, FnvHashSet};
 use indexmap::IndexMap;
-use interner::StringKey;
+use intern::string_key::StringKey;
 use std::fmt::{Result as FmtResult, Write};
 
 pub fn print_operation(
@@ -43,7 +43,7 @@ pub fn print_request(
     schema: &SDLSchema,
     operation: &OperationDefinition,
     fragment: &FragmentDefinition,
-    request_parameters: RequestParameters,
+    request_parameters: RequestParameters<'_>,
     js_module_format: JsModuleFormat,
 ) -> String {
     Printer::without_dedupe(js_module_format).print_request(
@@ -57,7 +57,7 @@ pub fn print_request(
 pub fn print_request_params(
     schema: &SDLSchema,
     operation: &OperationDefinition,
-    query_id: Option<String>,
+    query_id: &Option<QueryID>,
     js_module_format: JsModuleFormat,
 ) -> String {
     let mut request_parameters = build_request_params(operation);
@@ -93,12 +93,22 @@ impl Printer {
         }
     }
 
+    pub fn print_provided_variables(
+        &mut self,
+        schema: &SDLSchema,
+        operation: &OperationDefinition,
+    ) -> Option<String> {
+        let key = build_provided_variables(schema, &mut self.builder, operation)?;
+        let printer = JSONPrinter::new(&self.builder, self.js_module_format);
+        Some(printer.print(key, self.dedupe))
+    }
+
     pub fn print_request(
         &mut self,
         schema: &SDLSchema,
         operation: &OperationDefinition,
         fragment: &FragmentDefinition,
-        request_parameters: RequestParameters,
+        request_parameters: RequestParameters<'_>,
     ) -> String {
         let request_parameters =
             build_request_params_ast_key(schema, request_parameters, &mut self.builder, operation);
@@ -128,10 +138,22 @@ impl Printer {
         let printer = JSONPrinter::new(&self.builder, self.js_module_format);
         printer.print(key, self.dedupe)
     }
+
+    pub fn print_request_params(
+        &mut self,
+        schema: &SDLSchema,
+        request_parameters: RequestParameters<'_>,
+        operation: &OperationDefinition,
+    ) -> String {
+        let key =
+            build_request_params_ast_key(schema, request_parameters, &mut self.builder, operation);
+        let printer = JSONPrinter::new(&self.builder, self.js_module_format);
+        printer.print(key, self.dedupe)
+    }
 }
 
 type VariableDefinitions = IndexMap<AstKey, String, FnvBuildHasher>;
-struct JSONPrinter<'b> {
+pub struct JSONPrinter<'b> {
     variable_definitions: VariableDefinitions,
     duplicates: FnvHashSet<AstKey>,
     builder: &'b AstBuilder,
@@ -139,7 +161,7 @@ struct JSONPrinter<'b> {
 }
 
 impl<'b> JSONPrinter<'b> {
-    fn new(builder: &'b AstBuilder, js_module_format: JsModuleFormat) -> Self {
+    pub fn new(builder: &'b AstBuilder, js_module_format: JsModuleFormat) -> Self {
         Self {
             variable_definitions: Default::default(),
             duplicates: Default::default(),
@@ -148,7 +170,7 @@ impl<'b> JSONPrinter<'b> {
         }
     }
 
-    fn print(mut self, root_key: AstKey, dedupe: bool) -> String {
+    pub fn print(mut self, root_key: AstKey, dedupe: bool) -> String {
         if dedupe {
             let mut visited = Default::default();
             self.collect_value_duplicates(&mut visited, root_key);
@@ -310,7 +332,7 @@ impl<'b> JSONPrinter<'b> {
                 Ok(())
             }
             Primitive::StorageKey(field_name, key) => {
-                write_static_storage_key(f, &self.builder, *field_name, *key)
+                write_static_storage_key(f, self.builder, *field_name, *key)
             }
             Primitive::GraphQLModuleDependency(key) => match self.js_module_format {
                 JsModuleFormat::CommonJS => write!(f, "require('./{}.graphql')", key),

@@ -1,0 +1,10 @@
+# expected-to-throw
+query TestQuery {
+  node(id: "4") {
+    ...Assignable_user @defer
+  }
+}
+
+fragment Assignable_user on User @assignable {
+  __typename
+}

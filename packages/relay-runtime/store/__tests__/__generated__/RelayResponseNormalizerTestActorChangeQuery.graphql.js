@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a623da01cb524f82d96684ebda41d6ed>>
+ * @generated SignedSource<<052c2084b7fa297fa04ef70fc77553b0>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,21 +15,23 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
+import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { ActorChangePoint } from "react-relay/multi-actor";
-type RelayResponseNormalizerTestActorChangeFragment$ref = any;
-export type RelayResponseNormalizerTestActorChangeQueryVariables = {||};
-export type RelayResponseNormalizerTestActorChangeQueryResponse = {|
+type RelayResponseNormalizerTestActorChangeFragment$fragmentType = any;
+export type RelayResponseNormalizerTestActorChangeQuery$variables = {||};
+export type RelayResponseNormalizerTestActorChangeQueryVariables = RelayResponseNormalizerTestActorChangeQuery$variables;
+export type RelayResponseNormalizerTestActorChangeQuery$data = {|
   +viewer: ?{|
     +actor: ?ActorChangePoint<{|
-      +__viewer: string,
-      +$fragmentRefs: RelayResponseNormalizerTestActorChangeFragment$ref,
+      +actor_key: string,
+      +$fragmentSpreads: RelayResponseNormalizerTestActorChangeFragment$fragmentType,
     |}>,
   |},
 |};
+export type RelayResponseNormalizerTestActorChangeQueryResponse = RelayResponseNormalizerTestActorChangeQuery$data;
 export type RelayResponseNormalizerTestActorChangeQuery = {|
   variables: RelayResponseNormalizerTestActorChangeQueryVariables,
-  response: RelayResponseNormalizerTestActorChangeQueryResponse,
+  response: RelayResponseNormalizerTestActorChangeQuery$data,
 |};
 */
 
@@ -116,7 +118,7 @@ var node/*: ConcreteRequest*/ = {
                   "alias": null,
                   "args": null,
                   "kind": "ScalarField",
-                  "name": "__viewer",
+                  "name": "actor_key",
                   "storageKey": null
                 },
                 {
@@ -136,17 +138,20 @@ var node/*: ConcreteRequest*/ = {
     ]
   },
   "params": {
-    "cacheID": "0447f9134e2f738916e446e932e3cf46",
+    "cacheID": "5aec6b7f42e3d38d910185e4103972da",
     "id": null,
     "metadata": {},
     "name": "RelayResponseNormalizerTestActorChangeQuery",
     "operationKind": "query",
-    "text": "query RelayResponseNormalizerTestActorChangeQuery {\n  viewer {\n    actor {\n      __typename\n      ...RelayResponseNormalizerTestActorChangeFragment\n      __viewer\n      id\n    }\n  }\n}\n\nfragment RelayResponseNormalizerTestActorChangeFragment on User {\n  name\n}\n"
+    "text": "query RelayResponseNormalizerTestActorChangeQuery {\n  viewer {\n    actor @fb_actor_change {\n      __typename\n      ...RelayResponseNormalizerTestActorChangeFragment\n      actor_key\n      id\n    }\n  }\n}\n\nfragment RelayResponseNormalizerTestActorChangeFragment on User {\n  name\n}\n"
   }
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "a005b8f9b274ff3e6897c77b41fc6291";
+  (node/*: any*/).hash = "0cca5a4e676a8ee5984e81c0ceda21ef";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayResponseNormalizerTestActorChangeQuery$variables,
+  RelayResponseNormalizerTestActorChangeQuery$data,
+>*/);

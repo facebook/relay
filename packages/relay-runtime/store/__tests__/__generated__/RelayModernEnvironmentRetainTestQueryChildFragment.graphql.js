@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b5cb50aff7644c2401dbbec6b32fb2f5>>
+ * @generated SignedSource<<8dcf97b64454ec4cdb2cb58411603296>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,19 +15,19 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayModernEnvironmentRetainTestQueryChildFragment$ref: FragmentReference;
-declare export opaque type RelayModernEnvironmentRetainTestQueryChildFragment$fragmentType: RelayModernEnvironmentRetainTestQueryChildFragment$ref;
-export type RelayModernEnvironmentRetainTestQueryChildFragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayModernEnvironmentRetainTestQueryChildFragment$fragmentType: FragmentType;
+export type RelayModernEnvironmentRetainTestQueryChildFragment$ref = RelayModernEnvironmentRetainTestQueryChildFragment$fragmentType;
+export type RelayModernEnvironmentRetainTestQueryChildFragment$data = {|
   +id: string,
   +name: ?string,
-  +$refType: RelayModernEnvironmentRetainTestQueryChildFragment$ref,
+  +$fragmentType: RelayModernEnvironmentRetainTestQueryChildFragment$fragmentType,
 |};
-export type RelayModernEnvironmentRetainTestQueryChildFragment$data = RelayModernEnvironmentRetainTestQueryChildFragment;
+export type RelayModernEnvironmentRetainTestQueryChildFragment = RelayModernEnvironmentRetainTestQueryChildFragment$data;
 export type RelayModernEnvironmentRetainTestQueryChildFragment$key = {
   +$data?: RelayModernEnvironmentRetainTestQueryChildFragment$data,
-  +$fragmentRefs: RelayModernEnvironmentRetainTestQueryChildFragment$ref,
+  +$fragmentSpreads: RelayModernEnvironmentRetainTestQueryChildFragment$fragmentType,
   ...
 };
 */
@@ -61,4 +61,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "7e69889c742314270a6b436c846a7bc5";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayModernEnvironmentRetainTestQueryChildFragment$fragmentType,
+  RelayModernEnvironmentRetainTestQueryChildFragment$data,
+>*/);

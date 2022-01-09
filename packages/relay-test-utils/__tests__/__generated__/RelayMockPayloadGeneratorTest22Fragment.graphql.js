@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<470ec47b23e68a47931838f63197924f>>
+ * @generated SignedSource<<57e94918e1aa451fc100e198879ff1af>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,13 +15,13 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-type RelayMockPayloadGeneratorTest21Fragment$ref = any;
-type RelayMockPayloadGeneratorTest23Fragment$ref = any;
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayMockPayloadGeneratorTest22Fragment$ref: FragmentReference;
-declare export opaque type RelayMockPayloadGeneratorTest22Fragment$fragmentType: RelayMockPayloadGeneratorTest22Fragment$ref;
-export type RelayMockPayloadGeneratorTest22Fragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+type RelayMockPayloadGeneratorTest21Fragment$fragmentType = any;
+type RelayMockPayloadGeneratorTest23Fragment$fragmentType = any;
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayMockPayloadGeneratorTest22Fragment$fragmentType: FragmentType;
+export type RelayMockPayloadGeneratorTest22Fragment$ref = RelayMockPayloadGeneratorTest22Fragment$fragmentType;
+export type RelayMockPayloadGeneratorTest22Fragment$data = {|
   +id: string,
   +name: ?string,
   +myActor: ?{|
@@ -61,20 +61,20 @@ export type RelayMockPayloadGeneratorTest22Fragment = {|
       +comments: ?{|
         +edges: ?$ReadOnlyArray<?{|
           +node: ?{|
-            +$fragmentRefs: RelayMockPayloadGeneratorTest23Fragment$ref,
+            +$fragmentSpreads: RelayMockPayloadGeneratorTest23Fragment$fragmentType,
           |},
         |}>,
       |},
     |},
     +pageName?: ?string,
   |},
-  +$fragmentRefs: RelayMockPayloadGeneratorTest21Fragment$ref,
-  +$refType: RelayMockPayloadGeneratorTest22Fragment$ref,
+  +$fragmentSpreads: RelayMockPayloadGeneratorTest21Fragment$fragmentType,
+  +$fragmentType: RelayMockPayloadGeneratorTest22Fragment$fragmentType,
 |};
-export type RelayMockPayloadGeneratorTest22Fragment$data = RelayMockPayloadGeneratorTest22Fragment;
+export type RelayMockPayloadGeneratorTest22Fragment = RelayMockPayloadGeneratorTest22Fragment$data;
 export type RelayMockPayloadGeneratorTest22Fragment$key = {
   +$data?: RelayMockPayloadGeneratorTest22Fragment$data,
-  +$fragmentRefs: RelayMockPayloadGeneratorTest22Fragment$ref,
+  +$fragmentSpreads: RelayMockPayloadGeneratorTest22Fragment$fragmentType,
   ...
 };
 */
@@ -435,4 +435,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "08c62813cbbac5cf9a652eb692b64132";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayMockPayloadGeneratorTest22Fragment$fragmentType,
+  RelayMockPayloadGeneratorTest22Fragment$data,
+>*/);

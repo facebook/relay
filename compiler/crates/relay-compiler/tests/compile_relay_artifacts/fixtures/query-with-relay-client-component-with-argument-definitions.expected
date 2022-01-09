@@ -22,7 +22,7 @@ fragment queryWithRelayClientComponentWithArgumentDefinitions_ClientComponentFra
         32
       ],
       "kind": "LocalArgument",
-      "name": "size"
+      "name": "queryWithRelayClientComponentWithArgumentDefinitions_ClientComponentFragment$size"
     }
   ],
   "kind": "SplitOperation",
@@ -40,11 +40,9 @@ fragment queryWithRelayClientComponentWithArgumentDefinitions_ClientComponentFra
       "alias": null,
       "args": [
         {
-          "kind": "Literal",
+          "kind": "Variable",
           "name": "size",
-          "value": [
-            32
-          ]
+          "variableName": "queryWithRelayClientComponentWithArgumentDefinitions_ClientComponentFragment$size"
         }
       ],
       "concreteType": "Image",
@@ -60,7 +58,7 @@ fragment queryWithRelayClientComponentWithArgumentDefinitions_ClientComponentFra
           "storageKey": null
         }
       ],
-      "storageKey": "profilePicture(size:[32])"
+      "storageKey": null
     }
   ]
 }
@@ -152,6 +150,7 @@ fragment queryWithRelayClientComponentWithArgumentDefinitions_ClientComponentFra
             "storageKey": null
           },
           {
+            "args": null,
             "fragment": require('queryWithRelayClientComponentWithArgumentDefinitions_ClientComponentFragment$normalization.graphql'),
             "kind": "ClientComponent"
           }

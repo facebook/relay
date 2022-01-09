@@ -1,20 +1,17 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::FeatureFlag;
-
 use super::ValidationMessage;
-use common::{Diagnostic, DiagnosticsResult, NamedItem, WithLocation};
+use common::{Diagnostic, DiagnosticsResult, FeatureFlag, NamedItem, WithLocation};
 use graphql_ir::{
-    Directive, InlineFragment, LinkedField, Program, ScalarField, Selection, Transformed,
+    Directive, Field, InlineFragment, LinkedField, Program, ScalarField, Selection, Transformed,
     Transformer,
 };
-use interner::Intern;
-use interner::StringKey;
+use intern::string_key::{Intern, StringKey};
 use lazy_static::lazy_static;
 use schema::Schema;
 use std::sync::Arc;
@@ -36,9 +33,10 @@ pub fn relay_actor_change_transform(
 }
 
 lazy_static! {
-    pub static ref RELAY_ACTOR_CHANGE_DIRECTIVE: StringKey = "EXPERIMENTAL__as_actor".intern();
-    pub static ref RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN: StringKey = "__as_actor".intern();
-    static ref VIEWER_FIELD_NAME: StringKey = "__viewer".intern();
+    pub static ref RELAY_ACTOR_CHANGE_DIRECTIVE: StringKey = "fb_actor_change".intern();
+    pub static ref RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN: StringKey =
+        "__fb_actor_change".intern();
+    static ref ACTOR_CHANGE_FIELD: StringKey = "actor_key".intern();
 }
 
 struct ActorChangeTransform<'program, 'feature> {
@@ -110,7 +108,7 @@ impl<'program, 'feature> Transformer for ActorChangeTransform<'program, 'feature
             let viewer_field = match self
                 .program
                 .schema
-                .named_field(field_type, *VIEWER_FIELD_NAME)
+                .named_field(field_type, *ACTOR_CHANGE_FIELD)
             {
                 Some(viewer_field_id) => {
                     let viewer_field = self.program.schema.field(viewer_field_id);
@@ -118,8 +116,8 @@ impl<'program, 'feature> Transformer for ActorChangeTransform<'program, 'feature
                         self.errors.push(Diagnostic::error(
                             ValidationMessage::ActorChangeViewerShouldBeScalar {
                                 directive_name: *RELAY_ACTOR_CHANGE_DIRECTIVE,
-                                actor_change_field: *VIEWER_FIELD_NAME,
-                                field_name: schema_field.name,
+                                actor_change_field: *ACTOR_CHANGE_FIELD,
+                                field_name: schema_field.name.item,
                                 actor_change_field_type: self
                                     .program
                                     .schema
@@ -136,8 +134,8 @@ impl<'program, 'feature> Transformer for ActorChangeTransform<'program, 'feature
                     self.errors.push(Diagnostic::error(
                         ValidationMessage::ActorChangeExpectViewerFieldOnType {
                             directive_name: *RELAY_ACTOR_CHANGE_DIRECTIVE,
-                            actor_change_field: *VIEWER_FIELD_NAME,
-                            field_name: schema_field.name,
+                            actor_change_field: *ACTOR_CHANGE_FIELD,
+                            field_name: schema_field.name.item,
                             type_name: self.program.schema.get_type_name(field_type),
                         },
                         actor_change_directive.name.location,
@@ -153,18 +151,6 @@ impl<'program, 'feature> Transformer for ActorChangeTransform<'program, 'feature
                 directives: vec![],
             })));
 
-            let next_directives = field
-                .directives
-                .iter()
-                .filter_map(|directive| {
-                    if directive == actor_change_directive {
-                        None
-                    } else {
-                        Some(directive.clone())
-                    }
-                })
-                .collect::<_>();
-
             let next_selection = Selection::InlineFragment(Arc::new(InlineFragment {
                 type_condition: None,
                 directives: vec![Directive {
@@ -173,9 +159,9 @@ impl<'program, 'feature> Transformer for ActorChangeTransform<'program, 'feature
                         *RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN,
                     ),
                     arguments: vec![],
+                    data: None,
                 }],
                 selections: vec![Selection::LinkedField(Arc::new(LinkedField {
-                    directives: next_directives,
                     selections: next_selections,
                     ..field.clone()
                 }))],

@@ -1,0 +1,8 @@
+query UpdatableQuery @updatable {
+  me {
+    id
+    aliased_id: id
+    __typename
+    aliased_typename: __typename
+  }
+}

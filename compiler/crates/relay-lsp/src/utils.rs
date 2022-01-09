@@ -1,76 +1,39 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use std::{collections::HashMap, path::PathBuf};
+use std::path::PathBuf;
 
 use crate::lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult};
 use common::{SourceLocationKey, Span};
+use dashmap::DashMap;
 use graphql_syntax::{
     parse_executable_with_error_recovery, ExecutableDefinition, ExecutableDocument, GraphQLSource,
 };
-use interner::StringKey;
+use intern::string_key::StringKey;
 use log::debug;
-use lsp_types::{Position, TextDocumentIdentifier, TextDocumentPositionParams, Url};
+use lsp_types::{Position, TextDocumentPositionParams, Url};
 use relay_compiler::{compiler_state::SourceSet, FileCategorizer, FileGroup};
 
-/// Return a vector of `GraphQLSource` from the document
-fn get_all_graphql_sources_from_text_document<'a>(
-    text_document: &'a TextDocumentIdentifier,
-    graphql_source_cache: &'a HashMap<Url, Vec<GraphQLSource>>,
-) -> LSPRuntimeResult<&'a Vec<GraphQLSource>> {
-    let uri = &text_document.uri;
-
+pub fn extract_executable_definitions_from_text_document(
+    text_document_uri: &Url,
+    graphql_source_cache: &DashMap<Url, Vec<GraphQLSource>>,
+) -> LSPRuntimeResult<Vec<ExecutableDefinition>> {
     let graphql_sources = graphql_source_cache
-        .get(uri)
+        .get(text_document_uri)
         // If the source isn't present in the source cache, then that means that
         // the source has no graphql documents.
         .ok_or(LSPRuntimeError::ExpectedError)?;
-
-    Ok(graphql_sources)
-}
-
-/// Return a `GraphQLSource` for a given position, if the position
-/// falls within a graphql literal.
-fn get_graphql_source_from_text_document_position<'a>(
-    text_document_position: &'a TextDocumentPositionParams,
-    graphql_source_cache: &'a HashMap<Url, Vec<GraphQLSource>>,
-) -> LSPRuntimeResult<&'a GraphQLSource> {
-    let TextDocumentPositionParams { position, .. } = text_document_position;
-
-    // We have GraphQL documents, now check if the position
-    // falls within the range of one of these documents.
-    get_all_graphql_sources_from_text_document(
-        &text_document_position.text_document,
-        graphql_source_cache,
-    )?
-    .iter()
-    .find(|graphql_source| {
-        let range = graphql_source.to_range();
-        position >= &range.start && position <= &range.end
-    })
-    .ok_or(LSPRuntimeError::ExpectedError)
-}
-
-pub fn extract_executable_definitions_from_text(
-    text_document_position: &TextDocumentPositionParams,
-    graphql_source_cache: &HashMap<Url, Vec<GraphQLSource>>,
-) -> LSPRuntimeResult<Vec<ExecutableDefinition>> {
-    let graphql_sources = get_all_graphql_sources_from_text_document(
-        &text_document_position.text_document,
-        graphql_source_cache,
-    )?;
-    let url = &text_document_position.text_document.uri;
 
     let definitions = graphql_sources
         .iter()
         .map(|graphql_source| {
             let document = parse_executable_with_error_recovery(
                 &graphql_source.text,
-                SourceLocationKey::standalone(&url.to_string()),
+                SourceLocationKey::standalone(&text_document_uri.to_string()),
             )
             .item;
 
@@ -95,41 +58,51 @@ pub fn extract_project_name_from_url(
         ))
     })?;
 
-    let project_name =
-        if let FileGroup::Source { source_set } = file_categorizer.categorize(&file_path) {
-            match source_set {
-                SourceSet::SourceSetName(source) => source,
-                SourceSet::SourceSetNames(sources) => sources[0],
-            }
-        } else {
-            return Err(LSPRuntimeError::UnexpectedError(format!(
-                "File path {:?} is not a source set",
+    let project_name = if let FileGroup::Source { source_set } =
+        file_categorizer.categorize(file_path).map_err(|_| {
+            LSPRuntimeError::UnexpectedError(format!(
+                "Unable to categorize the file correctly: {:?}",
                 file_path
-            )));
-        };
+            ))
+        })? {
+        match source_set {
+            SourceSet::SourceSetName(source) => source,
+            SourceSet::SourceSetNames(sources) => sources[0],
+        }
+    } else {
+        return Err(LSPRuntimeError::UnexpectedError(format!(
+            "File path {:?} is not a source set",
+            file_path
+        )));
+    };
     Ok(project_name)
 }
 
 /// Return a parsed executable document for this LSP request, only if the request occurs
 /// within a GraphQL document.
 pub fn extract_executable_document_from_text(
+    graphql_source_cache: &DashMap<Url, Vec<GraphQLSource>>,
     text_document_position: &TextDocumentPositionParams,
-    graphql_source_cache: &HashMap<Url, Vec<GraphQLSource>>,
-    file_categorizer: &FileCategorizer,
-    root_dir: &PathBuf,
     index_offset: usize,
-) -> LSPRuntimeResult<(ExecutableDocument, Span, StringKey)> {
-    let graphql_source = get_graphql_source_from_text_document_position(
-        &text_document_position,
-        graphql_source_cache,
-    )?;
-    let url = &text_document_position.text_document.uri;
+) -> LSPRuntimeResult<(ExecutableDocument, Span)> {
+    let uri = &text_document_position.text_document.uri;
     let position = text_document_position.position;
-    let project_name = extract_project_name_from_url(file_categorizer, url, root_dir)?;
+
+    let graphql_sources = graphql_source_cache
+        .get(uri)
+        .ok_or(LSPRuntimeError::ExpectedError)?;
+
+    let graphql_source = graphql_sources
+        .iter()
+        .find(|graphql_source| {
+            let range = graphql_source.to_range();
+            position >= range.start && position <= range.end
+        })
+        .ok_or(LSPRuntimeError::ExpectedError)?;
 
     let document = parse_executable_with_error_recovery(
         &graphql_source.text,
-        SourceLocationKey::standalone(&url.to_string()),
+        SourceLocationKey::standalone(&uri.to_string()),
     )
     .item;
 
@@ -138,7 +111,7 @@ pub fn extract_executable_document_from_text(
     debug!("Successfully parsed the definitions for a target GraphQL source");
     // Map the position to a zero-length span, relative to this GraphQL source.
     let position_span =
-        position_to_span(&position, &graphql_source, index_offset).ok_or_else(|| {
+        position_to_span(&position, graphql_source, index_offset).ok_or_else(|| {
             LSPRuntimeError::UnexpectedError("Failed to map positions to spans".to_string())
         })?;
 
@@ -148,12 +121,12 @@ pub fn extract_executable_document_from_text(
     // since the change event fires before completion.
     debug!("position_span: {:?}", position_span);
 
-    Ok((document, position_span, project_name))
+    Ok((document, position_span))
 }
 
 /// Maps the LSP `Position` type back to a relative span, so we can find out which syntax node(s)
 /// this request came from
-pub(crate) fn position_to_span(
+fn position_to_span(
     position: &Position,
     source: &GraphQLSource,
     index_offset: usize,
@@ -162,16 +135,19 @@ pub(crate) fn position_to_span(
         .map(|offset| Span::new(offset, offset))
 }
 
+/// Find a character position in the GraphQL source text
+/// from the Position (line, character) of the cursor in the IDE.
+/// If the Position is outside of the source text, return None.
 pub fn position_to_offset(
     position: &Position,
     index_offset: usize,
     line_index: usize,
-    text: &str,
+    graphql_source_text: &str,
 ) -> Option<u32> {
     let mut index_of_first_character_of_current_line = 0;
-    let mut line_index = line_index as u64;
+    let mut line_index = line_index as u32;
 
-    let mut chars = text.chars().enumerate().peekable();
+    let mut chars = graphql_source_text.chars().enumerate().peekable();
 
     while let Some((index, chr)) = chars.next() {
         let is_newline = match chr {
@@ -185,12 +161,12 @@ pub fn position_to_offset(
         if is_newline {
             line_index += 1;
             // Add index_offset to account for different position index between hover and autocomplete
-            index_of_first_character_of_current_line = (index + index_offset) as u64;
+            index_of_first_character_of_current_line = index + index_offset;
         }
 
         if line_index == position.line {
             let start_offset =
-                (index_of_first_character_of_current_line + position.character) as u32;
+                (index_of_first_character_of_current_line + position.character as usize) as u32;
             return Some(start_offset);
         }
     }
@@ -199,13 +175,13 @@ pub fn position_to_offset(
 
 #[derive(Debug)]
 pub(crate) struct SameLineOffset {
-    character_offset: u64,
+    character_offset: u32,
 }
 
 #[derive(Debug)]
 pub(crate) struct DifferentLineOffset {
-    line_offset: u64,
-    character: u64,
+    line_offset: u32,
+    character: u32,
 }
 
 /// Represents the offset from a given position to another position.
@@ -254,14 +230,14 @@ pub(crate) fn span_to_range_offset(span: Span, text: &str) -> Option<RangeOffset
     let mut start_position_offset = None;
     let mut end_position_offset = None;
     let Span { start, end } = span;
-    let span_start = start as u64;
-    let span_end = end as u64;
-    let mut characters_iterated: u64 = 0;
+    let span_start = start;
+    let span_end = end;
+    let mut characters_iterated = 0u32;
 
     // For each line, determine whether the start and end of the span
     // occur on that line.
     for (line_index, line) in text.lines().enumerate() {
-        let line_length = line.len() as u64;
+        let line_length = line.len() as u32;
         if start_position_offset.is_none() && characters_iterated + line_length >= span_start {
             start_position_offset = Some(if line_index == 0 {
                 PositionOffset::SameLineOffset(SameLineOffset {
@@ -269,7 +245,7 @@ pub(crate) fn span_to_range_offset(span: Span, text: &str) -> Option<RangeOffset
                 })
             } else {
                 PositionOffset::DifferentLineOffset(DifferentLineOffset {
-                    line_offset: line_index as u64,
+                    line_offset: line_index as u32,
                     character: span_start - characters_iterated,
                 })
             });
@@ -281,7 +257,7 @@ pub(crate) fn span_to_range_offset(span: Span, text: &str) -> Option<RangeOffset
                 })
             } else {
                 PositionOffset::DifferentLineOffset(DifferentLineOffset {
-                    line_offset: line_index as u64,
+                    line_offset: line_index as u32,
                     character: span_end - characters_iterated,
                 })
             });

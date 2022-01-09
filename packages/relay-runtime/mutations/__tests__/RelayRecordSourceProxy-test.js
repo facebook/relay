@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -11,24 +11,16 @@
 
 'use strict';
 
+const defaultGetDataID = require('../../store/defaultGetDataID');
+const RelayRecordSource = require('../../store/RelayRecordSource');
+const RelayStoreUtils = require('../../store/RelayStoreUtils');
 const RelayRecordProxy = require('../RelayRecordProxy');
-const RelayRecordSourceMapImpl = require('../../store/RelayRecordSourceMapImpl');
 const RelayRecordSourceMutator = require('../RelayRecordSourceMutator');
 const RelayRecordSourceProxy = require('../RelayRecordSourceProxy');
-const RelayStoreUtils = require('../../store/RelayStoreUtils');
-
-const defaultGetDataID = require('../../store/defaultGetDataID');
-
 const {simpleClone} = require('relay-test-utils-internal');
 
-const {
-  ID_KEY,
-  REF_KEY,
-  REFS_KEY,
-  ROOT_ID,
-  ROOT_TYPE,
-  TYPENAME_KEY,
-} = RelayStoreUtils;
+const {ID_KEY, REF_KEY, REFS_KEY, ROOT_ID, ROOT_TYPE, TYPENAME_KEY} =
+  RelayStoreUtils;
 
 describe('RelayRecordSourceProxy', () => {
   let baseSource;
@@ -79,8 +71,8 @@ describe('RelayRecordSourceProxy', () => {
 
   beforeEach(() => {
     jest.resetModules();
-    baseSource = new RelayRecordSourceMapImpl(simpleClone(initialData));
-    sinkSource = new RelayRecordSourceMapImpl({});
+    baseSource = new RelayRecordSource(simpleClone(initialData));
+    sinkSource = new RelayRecordSource({});
     mutator = new RelayRecordSourceMutator(baseSource, sinkSource);
     store = new RelayRecordSourceProxy(mutator, defaultGetDataID);
   });
@@ -254,6 +246,23 @@ describe('RelayRecordSourceProxy', () => {
       }).toThrowError(
         'RelayRecordProxy#setValue(): Expected a scalar or array of scalars, ' +
           'got `{"day":1,"month":1,"year":1970}`.',
+      );
+    });
+  });
+
+  describe('getLinkedRecord and getLinkedRecords', () => {
+    it('throws if singular/plural is wrong', () => {
+      const zuck = store.get('4');
+      if (zuck == null) {
+        throw new Error('Exepcted to find record with id 4');
+      }
+      expect(() => zuck.getLinkedRecords('hometown')).toThrow(
+        'It appears to be a singular linked record: did you mean to call ' +
+          'getLinkedRecord() instead of getLinkedRecords()',
+      );
+      expect(() => zuck.getLinkedRecord('blockedPages')).toThrow(
+        'It appears to be a plural linked record: did you mean to call ' +
+          'getLinkedRecords() instead of getLinkedRecord()?',
       );
     });
   });

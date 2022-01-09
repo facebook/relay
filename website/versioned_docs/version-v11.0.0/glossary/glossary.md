@@ -643,10 +643,6 @@ A directive that allows you to turn off data masking.
 
 See the documentation.
 
-## @relay_early_flush
-
-TODO
-
 ## Relay Classic
 
 An even older version of Relay.

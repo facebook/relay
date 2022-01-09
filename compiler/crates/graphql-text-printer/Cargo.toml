@@ -3,7 +3,7 @@
 name = "graphql-text-printer"
 version = "0.0.0"
 authors = ["Facebook"]
-edition = "2018"
+edition = "2021"
 license = "MIT"
 
 [[test]]
@@ -19,7 +19,7 @@ common = { path = "../common" }
 fnv = "1.0"
 graphql-ir = { path = "../graphql-ir" }
 graphql-syntax = { path = "../graphql-syntax" }
-interner = { path = "../interner" }
+intern = { path = "../intern" }
 schema = { path = "../schema" }
 
 [dev-dependencies]

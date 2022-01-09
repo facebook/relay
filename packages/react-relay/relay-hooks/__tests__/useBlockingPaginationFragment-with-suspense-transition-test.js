@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,32 +13,30 @@
 
 'use strict';
 
-const React = require('react');
-const Scheduler = require('scheduler');
+import type {Direction, OperationDescriptor, Variables} from 'relay-runtime';
 
-import type {Direction} from '../useLoadMoreFunction';
-import type {OperationDescriptor, Variables} from 'relay-runtime';
-const {useEffect, useTransition, useMemo, useState} = React;
-const TestRenderer = require('react-test-renderer');
-
-const invariant = require('invariant');
 const useBlockingPaginationFragmentOriginal = require('../useBlockingPaginationFragment');
+const invariant = require('invariant');
+const React = require('react');
 const ReactRelayContext = require('react-relay/ReactRelayContext');
+const TestRenderer = require('react-test-renderer');
 const {
   ConnectionHandler,
   FRAGMENT_OWNER_KEY,
   FRAGMENTS_KEY,
   ID_KEY,
   createOperationDescriptor,
-  graphql,
-  getRequest,
   getFragment,
+  getRequest,
+  graphql,
 } = require('relay-runtime');
-
 const {createMockEnvironment} = require('relay-test-utils');
+const Scheduler = require('scheduler');
+
+const {useEffect, useTransition, useMemo, useState} = React;
 
 describe('useBlockingPaginationFragment with useTransition', () => {
-  if (typeof React.useTransition !== 'function') {
+  if (typeof useTransition !== 'function') {
     it('empty test to prevent Jest from failing', () => {
       // This suite is only useful with experimental React build
     });
@@ -181,9 +179,11 @@ describe('useBlockingPaginationFragment with useTransition', () => {
       return {
         [ID_KEY]: id,
         [FRAGMENTS_KEY]: {
-          useBlockingPaginationFragmentWithSuspenseTransitionTestNestedUserFragment: {},
+          useBlockingPaginationFragmentWithSuspenseTransitionTestNestedUserFragment:
+            {},
         },
         [FRAGMENT_OWNER_KEY]: owner.request,
+        __isWithinUnmatchedTypeRefinement: false,
       };
     }
 
@@ -226,13 +226,13 @@ describe('useBlockingPaginationFragment with useTransition', () => {
 
       gqlFragment = getFragment(graphql`
         fragment useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment on User
-          @refetchable(
-            queryName: "useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragmentPaginationQuery"
-          )
-          @argumentDefinitions(
-            isViewerFriendLocal: {type: "Boolean", defaultValue: false}
-            orderby: {type: "[String]"}
-          ) {
+        @refetchable(
+          queryName: "useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragmentPaginationQuery"
+        )
+        @argumentDefinitions(
+          isViewerFriendLocal: {type: "Boolean", defaultValue: false}
+          orderby: {type: "[String]"}
+        ) {
           id
           name
           friends(
@@ -392,7 +392,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
       }) => {
         // We need a render a component to run a Hook
         const [owner, _setOwner] = useState(props.owner);
-        const [_, _setCount] = useState(0);
+        const [, setCount] = useState(0);
         const fragment = props.fragment ?? gqlFragment;
         const artificialUserRef = useMemo(() => {
           const snapshot = environment.lookup(owner.fragment);
@@ -403,15 +403,13 @@ describe('useBlockingPaginationFragment with useTransition', () => {
           : artificialUserRef;
 
         setOwner = _setOwner;
-        forceUpdate = _setCount;
+        forceUpdate = setCount;
 
-        const {
-          data: userData,
-        } = useBlockingPaginationFragmentWithSuspenseTransition(
-          fragment,
-          // $FlowFixMe[prop-missing]
-          userRef,
-        );
+        const {data: userData} =
+          useBlockingPaginationFragmentWithSuspenseTransition(
+            fragment,
+            userRef,
+          );
         return <Renderer user={userData} />;
       };
 

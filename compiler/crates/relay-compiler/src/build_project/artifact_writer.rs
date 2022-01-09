@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -62,7 +62,7 @@ impl ArtifactFileWriter {
         }
 
         let mut file = File::create(path)?;
-        file.write_all(&content)?;
+        file.write_all(content)?;
         if should_add {
             self.added.lock().unwrap().push(path.clone());
         }
@@ -71,7 +71,7 @@ impl ArtifactFileWriter {
 }
 impl ArtifactWriter for ArtifactFileWriter {
     fn should_write(&self, path: &PathBuf, content: &[u8]) -> Result<bool, BuildProjectError> {
-        content_is_different(path, &content).map_err(|error| BuildProjectError::WriteFileError {
+        content_is_different(path, content).map_err(|error| BuildProjectError::WriteFileError {
             file: path.clone(),
             source: error,
         })
@@ -188,7 +188,7 @@ impl ArtifactWriter for ArtifactDifferenceWriter {
     fn finalize(&self) -> crate::errors::Result<()> {
         (|| {
             let mut file = File::create(&self.codegen_filepath)?;
-            file.write_all(&serde_json::to_string(&self.codegen_records)?.as_bytes())
+            file.write_all(serde_json::to_string(&self.codegen_records)?.as_bytes())
         })()
         .map_err(|error| crate::errors::Error::WriteFileError {
             file: self.codegen_filepath.clone(),

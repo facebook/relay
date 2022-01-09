@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<563c59dbd159e7f2c107dc2fd5a6015d>>
+ * @generated SignedSource<<851158b1eaff8bfee87e4e75641b713e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,19 +15,21 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayMockEnvironmentWithComponentsTestImpactfulAwesomenessFragment$ref = any;
-export type RelayMockEnvironmentWithComponentsTestRemarkableImpactQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayMockEnvironmentWithComponentsTestImpactfulAwesomenessFragment$fragmentType = any;
+export type RelayMockEnvironmentWithComponentsTestRemarkableImpactQuery$variables = {|
   id: string,
 |};
-export type RelayMockEnvironmentWithComponentsTestRemarkableImpactQueryResponse = {|
+export type RelayMockEnvironmentWithComponentsTestRemarkableImpactQueryVariables = RelayMockEnvironmentWithComponentsTestRemarkableImpactQuery$variables;
+export type RelayMockEnvironmentWithComponentsTestRemarkableImpactQuery$data = {|
   +feedback: ?{|
-    +$fragmentRefs: RelayMockEnvironmentWithComponentsTestImpactfulAwesomenessFragment$ref,
+    +$fragmentSpreads: RelayMockEnvironmentWithComponentsTestImpactfulAwesomenessFragment$fragmentType,
   |},
 |};
+export type RelayMockEnvironmentWithComponentsTestRemarkableImpactQueryResponse = RelayMockEnvironmentWithComponentsTestRemarkableImpactQuery$data;
 export type RelayMockEnvironmentWithComponentsTestRemarkableImpactQuery = {|
   variables: RelayMockEnvironmentWithComponentsTestRemarkableImpactQueryVariables,
-  response: RelayMockEnvironmentWithComponentsTestRemarkableImpactQueryResponse,
+  response: RelayMockEnvironmentWithComponentsTestRemarkableImpactQuery$data,
 |};
 */
 
@@ -153,4 +155,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "9eedc32df7974b18aa138a63ffd62be9";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayMockEnvironmentWithComponentsTestRemarkableImpactQuery$variables,
+  RelayMockEnvironmentWithComponentsTestRemarkableImpactQuery$data,
+>*/);

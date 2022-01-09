@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,14 +13,12 @@
 
 'use strict';
 
-const React = require('react');
-const ReactTestRenderer = require('react-test-renderer');
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
-
 const useSubscribeToInvalidationState = require('../useSubscribeToInvalidationState');
-
+const React = require('react');
 const {useEffect, useState} = require('react');
-const {RecordSource, Store, REF_KEY} = require('relay-runtime');
+const ReactTestRenderer = require('react-test-renderer');
+const {RecordSource, REF_KEY, Store} = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
 
 let environment;

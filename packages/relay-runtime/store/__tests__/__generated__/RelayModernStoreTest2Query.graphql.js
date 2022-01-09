@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<6cc4c4a7118dd0673d4e2e12b1a952d6>>
+ * @generated SignedSource<<799cd805e5a8f7aded1420ffb62938f1>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,19 +15,21 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernStoreTest2Fragment$ref = any;
-export type RelayModernStoreTest2QueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayModernStoreTest2Fragment$fragmentType = any;
+export type RelayModernStoreTest2Query$variables = {|
   size?: ?$ReadOnlyArray<?number>,
 |};
-export type RelayModernStoreTest2QueryResponse = {|
+export type RelayModernStoreTest2QueryVariables = RelayModernStoreTest2Query$variables;
+export type RelayModernStoreTest2Query$data = {|
   +me: ?{|
-    +$fragmentRefs: RelayModernStoreTest2Fragment$ref,
+    +$fragmentSpreads: RelayModernStoreTest2Fragment$fragmentType,
   |},
 |};
+export type RelayModernStoreTest2QueryResponse = RelayModernStoreTest2Query$data;
 export type RelayModernStoreTest2Query = {|
   variables: RelayModernStoreTest2QueryVariables,
-  response: RelayModernStoreTest2QueryResponse,
+  response: RelayModernStoreTest2Query$data,
 |};
 */
 
@@ -138,4 +140,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "e518168e115ad40886299a1906f0a863";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernStoreTest2Query$variables,
+  RelayModernStoreTest2Query$data,
+>*/);

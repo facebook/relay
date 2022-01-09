@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -10,11 +10,10 @@
 
 'use strict';
 
-const React = require('react');
 const ReactRelayContext = require('../ReactRelayContext');
 const ReactRelayPaginationContainer = require('../ReactRelayPaginationContainer');
+const React = require('react');
 const ReactTestRenderer = require('react-test-renderer');
-
 const {
   ConnectionHandler,
   ConnectionInterface,
@@ -108,10 +107,10 @@ describe('ReactRelayPaginationContainer', () => {
 
     UserFragment = graphql`
       fragment ReactRelayPaginationContainerTestUserFragment on User
-        @argumentDefinitions(
-          isViewerFriendLocal: {type: "Boolean", defaultValue: false}
-          orderby: {type: "[String]"}
-        ) {
+      @argumentDefinitions(
+        isViewerFriendLocal: {type: "Boolean", defaultValue: false}
+        orderby: {type: "[String]"}
+      ) {
         id
         friends(
           after: $after
@@ -334,6 +333,7 @@ describe('ReactRelayPaginationContainer', () => {
       data: expect.any(Object),
       isMissingData: false,
       missingRequiredFields: null,
+      missingClientEdges: null,
       seenRecords: expect.any(Object),
       selector: createReaderSelector(
         UserFragment,
@@ -438,6 +438,7 @@ describe('ReactRelayPaginationContainer', () => {
       data: expect.any(Object),
       isMissingData: false,
       missingRequiredFields: null,
+      missingClientEdges: null,
       seenRecords: expect.any(Object),
       selector: createReaderSelector(
         UserFragment,
@@ -502,6 +503,7 @@ describe('ReactRelayPaginationContainer', () => {
       data: expect.any(Object),
       isMissingData: false,
       missingRequiredFields: null,
+      missingClientEdges: null,
       seenRecords: expect.any(Object),
       selector: createReaderSelector(
         UserFragment,
@@ -597,6 +599,7 @@ describe('ReactRelayPaginationContainer', () => {
       data: expect.any(Object),
       isMissingData: false,
       missingRequiredFields: null,
+      missingClientEdges: null,
       seenRecords: expect.any(Object),
       selector: createReaderSelector(
         UserFragment,
@@ -1893,22 +1896,23 @@ describe('ReactRelayPaginationContainer', () => {
       }
     }
 
-    const TestUnwrappingContainer = ReactRelayPaginationContainer.createContainer(
-      TestUnwrapping,
-      {
-        user: UserFragment,
-      },
-      {
-        direction: 'forward',
-        getConnectionFromProps,
-        getFragmentVariables: (vars, totalCount) => ({
-          ...vars,
-          count: totalCount,
-        }),
-        getVariables,
-        query: UserQuery,
-      },
-    );
+    const TestUnwrappingContainer =
+      ReactRelayPaginationContainer.createContainer(
+        TestUnwrapping,
+        {
+          user: UserFragment,
+        },
+        {
+          direction: 'forward',
+          getConnectionFromProps,
+          getFragmentVariables: (vars, totalCount) => ({
+            ...vars,
+            count: totalCount,
+          }),
+          getVariables,
+          query: UserQuery,
+        },
+      );
 
     const UnwrappedComponent = unwrapContainer(TestUnwrappingContainer);
 

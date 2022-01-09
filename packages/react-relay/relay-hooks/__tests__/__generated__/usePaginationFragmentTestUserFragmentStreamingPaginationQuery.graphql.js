@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b76fac8164ed43f8bf5463c08a167cd6>>
+ * @generated SignedSource<<36dc6cc72cf489917cadb937250c78cd>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,11 +15,10 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type usePaginationFragmentTestUserFragmentWithStreaming$ref: FragmentReference;
-declare export opaque type usePaginationFragmentTestUserFragmentWithStreaming$fragmentType: usePaginationFragmentTestUserFragmentWithStreaming$ref;
-export type usePaginationFragmentTestUserFragmentStreamingPaginationQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+type usePaginationFragmentTestUserFragmentWithStreaming$fragmentType = any;
+export type usePaginationFragmentTestUserFragmentStreamingPaginationQuery$variables = {|
   after?: ?string,
   before?: ?string,
   first?: ?number,
@@ -29,14 +28,16 @@ export type usePaginationFragmentTestUserFragmentStreamingPaginationQueryVariabl
   scale?: ?number,
   id: string,
 |};
-export type usePaginationFragmentTestUserFragmentStreamingPaginationQueryResponse = {|
+export type usePaginationFragmentTestUserFragmentStreamingPaginationQueryVariables = usePaginationFragmentTestUserFragmentStreamingPaginationQuery$variables;
+export type usePaginationFragmentTestUserFragmentStreamingPaginationQuery$data = {|
   +node: ?{|
-    +$fragmentRefs: usePaginationFragmentTestUserFragmentWithStreaming$ref,
+    +$fragmentSpreads: usePaginationFragmentTestUserFragmentWithStreaming$fragmentType,
   |},
 |};
+export type usePaginationFragmentTestUserFragmentStreamingPaginationQueryResponse = usePaginationFragmentTestUserFragmentStreamingPaginationQuery$data;
 export type usePaginationFragmentTestUserFragmentStreamingPaginationQuery = {|
   variables: usePaginationFragmentTestUserFragmentStreamingPaginationQueryVariables,
-  response: usePaginationFragmentTestUserFragmentStreamingPaginationQueryResponse,
+  response: usePaginationFragmentTestUserFragmentStreamingPaginationQuery$data,
 |};
 */
 
@@ -233,7 +234,6 @@ return {
                     "if": null,
                     "kind": "Stream",
                     "label": "usePaginationFragmentTestUserFragmentWithStreaming$stream$UserFragment_friends",
-                    "metadata": null,
                     "selections": [
                       {
                         "alias": null,
@@ -274,8 +274,7 @@ return {
                         ],
                         "storageKey": null
                       }
-                    ],
-                    "useCustomizedBatch": null
+                    ]
                   },
                   {
                     "if": null,
@@ -362,4 +361,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "900742a3cc02637acec82fdf889079ab";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  usePaginationFragmentTestUserFragmentStreamingPaginationQuery$variables,
+  usePaginationFragmentTestUserFragmentStreamingPaginationQuery$data,
+>*/);

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -11,23 +11,31 @@
 
 'use strict';
 
-import type {PayloadData, GraphQLResponse} from '../network/RelayNetworkTypes';
+import type {GraphQLResponse, PayloadData} from '../network/RelayNetworkTypes';
 import type RelayObservable from '../network/RelayObservable';
 import type RelayPublishQueue from '../store/RelayPublishQueue';
 import type {
+  ExecuteMutationConfig,
+  IEnvironment,
+  MutationParameters,
   OperationAvailability,
   OperationDescriptor,
   OptimisticResponseConfig,
   OptimisticUpdateFunction,
+  RecordSourceProxy,
   SelectorStoreUpdater,
   SingularReaderSelector,
   Snapshot,
   StoreUpdater,
-  IEnvironment,
-  ExecuteMutationConfig,
 } from '../store/RelayStoreTypes';
 import type {Disposable} from '../util/RelayRuntimeTypes';
 import type {ActorIdentifier} from './ActorIdentifier';
+
+export type MultiActorStoreUpdater = (
+  actorIdentifier: ActorIdentifier,
+  environment: IActorEnvironment,
+  store: RecordSourceProxy,
+) => void;
 
 /**
  * Interface of actor specific sub-environment
@@ -48,6 +56,12 @@ export interface IActorEnvironment extends IEnvironment {
    * TODO: this needs to move the the MultiActorEnvironment with different API.
    */
   getPublishQueue(): RelayPublishQueue;
+
+  /**
+   * Optional. A human-readable identifier of the environment.
+   * This value should be visible in the dev tools.
+   */
+  +configName: ?string;
 }
 
 /**
@@ -125,9 +139,9 @@ export interface IMultiActorEnvironment {
    * Apply an optimistic mutation response and/or updater. The mutation can be
    * reverted by calling `dispose()` on the returned value.
    */
-  applyMutation(
+  applyMutation<TMutation: MutationParameters>(
     actorEnvironment: IActorEnvironment,
-    optimisticConfig: OptimisticResponseConfig,
+    optimisticConfig: OptimisticResponseConfig<TMutation>,
   ): Disposable;
 
   /**
@@ -139,6 +153,11 @@ export interface IMultiActorEnvironment {
     actorEnvironment: IActorEnvironment,
     updater: StoreUpdater,
   ): void;
+
+  /**
+   * Commit store updates for each actor-specific environment known to MultiActorEnvironment
+   */
+  commitMultiActorUpdate(updater: MultiActorStoreUpdater): void;
 
   /**
    * Commit a payload to the environment using the given operation selector.
@@ -162,9 +181,6 @@ export interface IMultiActorEnvironment {
    * responses may be returned (via `next`) over time followed by either
    * the request completing (`completed`) or an error (`error`).
    *
-   * Networks/servers that support subscriptions may choose to hold the
-   * subscription open indefinitely such that `complete` is not called.
-   *
    * Note: Observables are lazy, so calling this method will do nothing until
    * the result is subscribed to: environment.execute({...}).subscribe({...}).
    */
@@ -172,7 +188,25 @@ export interface IMultiActorEnvironment {
     actorEnvironment: IActorEnvironment,
     config: {
       operation: OperationDescriptor,
-      updater?: ?SelectorStoreUpdater,
+    },
+  ): RelayObservable<GraphQLResponse>;
+
+  /**
+   * Send a subscription to the server with Observer semantics: one or more
+   * responses may be returned (via `next`) over time followed by either
+   * the request completing (`completed`) or an error (`error`).
+   *
+   * Networks/servers that support subscriptions may choose to hold the
+   * subscription open indefinitely such that `complete` is not called.
+   *
+   * Note: Observables are lazy, so calling this method will do nothing until
+   * the result is subscribed to: environment.executeSubscription({...}).subscribe({...}).
+   */
+  executeSubscription<TMutation: MutationParameters>(
+    actorEnvironment: IActorEnvironment,
+    config: {
+      operation: OperationDescriptor,
+      updater?: ?SelectorStoreUpdater<TMutation['response']>,
     },
   ): RelayObservable<GraphQLResponse>;
 
@@ -186,9 +220,9 @@ export interface IMultiActorEnvironment {
    * the result is subscribed to:
    * environment.executeMutation({...}).subscribe({...}).
    */
-  executeMutation(
+  executeMutation<TMutation: MutationParameters>(
     actorEnvironment: IActorEnvironment,
-    config: ExecuteMutationConfig,
+    config: ExecuteMutationConfig<TMutation>,
   ): RelayObservable<GraphQLResponse>;
 
   /**

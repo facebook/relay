@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<3eab2b8570c04dcba5a0c7f33427d608>>
+ * @generated SignedSource<<7b6bafb7f246ff41dfa8ef554c883d47>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,11 +15,12 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
+import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { ActorChangePoint } from "react-relay/multi-actor";
-type ActorChangeWithMutationTestFragment$ref = any;
-export type ActorChangeWithMutationTestQueryVariables = {||};
-export type ActorChangeWithMutationTestQueryResponse = {|
+type ActorChangeWithMutationTestFragment$fragmentType = any;
+export type ActorChangeWithMutationTestQuery$variables = {||};
+export type ActorChangeWithMutationTestQueryVariables = ActorChangeWithMutationTestQuery$variables;
+export type ActorChangeWithMutationTestQuery$data = {|
   +viewer: ?{|
     +actor: ?{|
       +id: string,
@@ -28,16 +29,17 @@ export type ActorChangeWithMutationTestQueryResponse = {|
     +newsFeed: ?{|
       +edges: ?$ReadOnlyArray<?{|
         +node: ?ActorChangePoint<{|
-          +__viewer: string,
-          +$fragmentRefs: ActorChangeWithMutationTestFragment$ref,
+          +actor_key: string,
+          +$fragmentSpreads: ActorChangeWithMutationTestFragment$fragmentType,
         |}>,
       |}>,
     |},
   |},
 |};
+export type ActorChangeWithMutationTestQueryResponse = ActorChangeWithMutationTestQuery$data;
 export type ActorChangeWithMutationTestQuery = {|
   variables: ActorChangeWithMutationTestQueryVariables,
-  response: ActorChangeWithMutationTestQueryResponse,
+  response: ActorChangeWithMutationTestQuery$data,
 |};
 */
 
@@ -198,7 +200,7 @@ return {
                           "alias": null,
                           "args": null,
                           "kind": "ScalarField",
-                          "name": "__viewer",
+                          "name": "actor_key",
                           "storageKey": null
                         }
                       ],
@@ -217,18 +219,21 @@ return {
     ]
   },
   "params": {
-    "cacheID": "69397d3b37fd2b3f91770d41eeebeb48",
+    "cacheID": "fd6809104452f2818ef6b2a1cbf70b48",
     "id": null,
     "metadata": {},
     "name": "ActorChangeWithMutationTestQuery",
     "operationKind": "query",
-    "text": "query ActorChangeWithMutationTestQuery {\n  viewer {\n    actor {\n      __typename\n      id\n      name\n    }\n    newsFeed {\n      edges {\n        node {\n          __typename\n          ...ActorChangeWithMutationTestFragment\n          __viewer\n          id\n        }\n      }\n    }\n  }\n}\n\nfragment ActorChangeWithMutationTestFragment on FeedUnit {\n  __isFeedUnit: __typename\n  id\n  actor {\n    __typename\n    id\n    name\n  }\n}\n"
+    "text": "query ActorChangeWithMutationTestQuery {\n  viewer {\n    actor {\n      __typename\n      id\n      name\n    }\n    newsFeed {\n      edges {\n        node @fb_actor_change {\n          __typename\n          ...ActorChangeWithMutationTestFragment\n          actor_key\n          id\n        }\n      }\n    }\n  }\n}\n\nfragment ActorChangeWithMutationTestFragment on FeedUnit {\n  __isFeedUnit: __typename\n  id\n  actor {\n    __typename\n    id\n    name\n  }\n}\n"
   }
 };
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "8d403ad1e00377114686b99385bf8e7d";
+  (node/*: any*/).hash = "f97bcaa13a859b2b03d3e1ae718f37ae";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  ActorChangeWithMutationTestQuery$variables,
+  ActorChangeWithMutationTestQuery$data,
+>*/);

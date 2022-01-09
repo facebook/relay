@@ -1,10 +1,10 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<78987ed12f342dc432df8f20ac3ce0a1>>
+ * @generated SignedSource<<7eaf0393e4e9ae43a68b5c57bc5439b7>>
  */
 
 mod extract;
@@ -48,10 +48,24 @@ fn quote_in_jsx() {
 }
 
 #[test]
+fn relay_resolver() {
+    let input = include_str!("extract/fixtures/relay_resolver.js");
+    let expected = include_str!("extract/fixtures/relay_resolver.expected");
+    test_fixture(transform_fixture, "relay_resolver.js", "extract/fixtures/relay_resolver.expected", input, expected);
+}
+
+#[test]
 fn simple() {
     let input = include_str!("extract/fixtures/simple.flow");
     let expected = include_str!("extract/fixtures/simple.expected");
     test_fixture(transform_fixture, "simple.flow", "extract/fixtures/simple.expected", input, expected);
+}
+
+#[test]
+fn tabbed() {
+    let input = include_str!("extract/fixtures/tabbed.js");
+    let expected = include_str!("extract/fixtures/tabbed.expected");
+    test_fixture(transform_fixture, "tabbed.js", "extract/fixtures/tabbed.expected", input, expected);
 }
 
 #[test]

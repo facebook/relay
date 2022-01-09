@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -12,24 +12,23 @@
 
 'use strict';
 
-const RelayFeatureFlags = require('../util/RelayFeatureFlags');
-const RelayReader = require('./RelayReader');
-
-const deepFreeze = require('../util/deepFreeze');
-const hasOverlappingIDs = require('./hasOverlappingIDs');
-const recycleNodesInto = require('../util/recycleNodesInto');
-
 import type {Disposable} from '../util/RelayRuntimeTypes';
 import type {
+  DataIDSet,
   LogFunction,
   OperationDescriptor,
-  DataIDSet,
   RecordSource,
   RequestDescriptor,
   Snapshot,
   StoreSubscriptions,
 } from './RelayStoreTypes';
 import type {ResolverCache} from './ResolverCache';
+
+const deepFreeze = require('../util/deepFreeze');
+const recycleNodesInto = require('../util/recycleNodesInto');
+const RelayFeatureFlags = require('../util/RelayFeatureFlags');
+const hasOverlappingIDs = require('./hasOverlappingIDs');
+const RelayReader = require('./RelayReader');
 
 type Subscription = {|
   callback: (snapshot: Snapshot) => void,
@@ -102,6 +101,7 @@ class RelayStoreSubscriptions implements StoreSubscriptions {
         subscription.snapshot = {
           data: subscription.snapshot.data,
           isMissingData: backup.isMissingData,
+          missingClientEdges: backup.missingClientEdges,
           seenRecords: backup.seenRecords,
           selector: backup.selector,
           missingRequiredFields: backup.missingRequiredFields,
@@ -163,6 +163,7 @@ class RelayStoreSubscriptions implements StoreSubscriptions {
     nextSnapshot = ({
       data: nextData,
       isMissingData: nextSnapshot.isMissingData,
+      missingClientEdges: nextSnapshot.missingClientEdges,
       seenRecords: nextSnapshot.seenRecords,
       selector: nextSnapshot.selector,
       missingRequiredFields: nextSnapshot.missingRequiredFields,

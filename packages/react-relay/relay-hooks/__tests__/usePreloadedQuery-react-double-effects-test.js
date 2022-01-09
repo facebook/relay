@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,21 +13,21 @@
 
 'use strict';
 
-const React = require('react');
-const ReactTestRenderer = require('react-test-renderer');
-const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
-
-const preloadQuery_DEPRECATED = require('../preloadQuery_DEPRECATED');
-const useFragment = require('../useFragment');
-const usePreloadedQuery = require('../usePreloadedQuery');
+import type {usePreloadedQueryReactDoubleEffectsTestFragment$key} from './__generated__/usePreloadedQueryReactDoubleEffectsTestFragment.graphql';
+import typeof usePreloadedQueryReactDoubleEffectsTestFragment from './__generated__/usePreloadedQueryReactDoubleEffectsTestFragment.graphql';
 
 const {loadQuery} = require('../loadQuery');
+const preloadQuery_DEPRECATED = require('../preloadQuery_DEPRECATED');
+const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
+const useFragment = require('../useFragment');
+const usePreloadedQuery = require('../usePreloadedQuery');
+const React = require('react');
 const {useEffect} = require('react');
+const ReactTestRenderer = require('react-test-renderer');
 const {
   Observable,
   createOperationDescriptor,
   getRequest,
-  getFragment,
   graphql,
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
@@ -58,7 +58,6 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
   let environment;
   let gqlQuery;
   let gqlQueryWithDefer;
-  let gqlFragment;
   let query;
   let queryWithDefer;
   let variables;
@@ -126,24 +125,26 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
         }
       }
     `);
-    gqlFragment = getFragment(graphql`
+    const gqlFragment: usePreloadedQueryReactDoubleEffectsTestFragment = graphql`
       fragment usePreloadedQueryReactDoubleEffectsTestFragment on User {
         firstName
       }
-    `);
+    `;
     variables = {id: '1'};
     query = createOperationDescriptor(gqlQuery, variables, {force: true});
     queryWithDefer = createOperationDescriptor(gqlQueryWithDefer, variables, {
       force: true,
     });
 
-    FragmentComponent = function(props) {
+    FragmentComponent = function (props: {|
+      user: usePreloadedQueryReactDoubleEffectsTestFragment$key,
+    |}) {
       const data = useFragment(gqlFragment, props.user);
       return data?.firstName === undefined ? 'Missing fragment data' : null;
     };
 
     renderLogs = [];
-    QueryComponent = function(props) {
+    QueryComponent = function (props) {
       const result = usePreloadedQuery<_>(props.queryInput, props.queryRef);
 
       const name = result?.node?.name ?? 'Empty';
@@ -1139,21 +1140,26 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
         // will mount, and React double invoke effects will be triggered,
         // simulating what would happen if the component was hidden and re-shown:
 
-        // The effect cleanup will execute, so we assert that
-        // the query is disposed and the request is cancelled
+        // The effect cleanup will execute, so we assert that the query is
+        // disposed. The network request is not canceled because it is not
+        // a live query.
         expect(release).toHaveBeenCalledTimes(1);
-        expect(cancelNetworkRequest).toHaveBeenCalledTimes(1);
+        expect(cancelNetworkRequest).toHaveBeenCalledTimes(0);
 
         // The effect setup will re-execute, so we assert that
-        // a re-render is triggered to refetch, re-retain, and
-        // re-suspend:
+        // a re-render is triggered along with another retain:
 
         // Since executeWithSource is called during render, it will
-        // be called twice here, and we verify the request is in flight.
-        expectToHaveFetched(environment, queryWithDefer, {count: 2});
+        // still be called once even though we don't make a network request
+        // again.
+        expectToHaveFetched(environment, queryWithDefer, {count: 1});
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toHaveBeenCalledTimes(2);
-        expect(instance.toJSON()).toEqual(['Fallback']);
+        // Since the request is not canceled when the component is hidden,
+        // it's still underway when the component is shown again; therefore
+        // the component sees the initial part even though it's network-only,
+        // and doesn't re-suspend.
+        expect(instance.toJSON()).toEqual(['Alice 1', 'Loading fragment']);
 
         // Assert render state of component
         expect(renderLogs).toEqual([
@@ -1165,6 +1171,10 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
           // Note that render doesn't happen in between:
           'cleanup: Alice 1',
           'commit: Alice 1',
+
+          // Assert final re-render triggered by query.
+          // It does not trigger a commit since the name didn't change.
+          'render: Alice 1',
         ]);
 
         // Resolve response for second request
@@ -1274,17 +1284,15 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
         // The effect cleanup will execute, so we assert that
         // the query is disposed and the request is cancelled
         expect(release).toHaveBeenCalledTimes(1);
-        expect(cancelNetworkRequest).toHaveBeenCalledTimes(1);
+        expect(cancelNetworkRequest).toHaveBeenCalledTimes(0);
 
         // The effect setup will re-execute, so we assert that
-        // a re-render is triggered to refetch, re-retain, and
-        // re-suspend:
+        // a re-render is triggered along with another retain:
 
-        // We refetch in this case since the query wasn't fully cached
-        // after receiving only the first payload.
         // Since executeWithSource is called during render, it will
-        // be called twice here, and we verify the request is in flight.
-        expectToHaveFetched(environment, queryWithDefer, {count: 2});
+        // still be called once even though we don't make a network request
+        // again.
+        expectToHaveFetched(environment, queryWithDefer, {count: 1});
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toHaveBeenCalledTimes(2);
         expect(instance.toJSON()).toEqual(['Alice 1', 'Loading fragment']);

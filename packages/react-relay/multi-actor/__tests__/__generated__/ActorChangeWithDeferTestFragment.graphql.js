@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<5a901bdc143a8fda5f2c3adae209e8a1>>
+ * @generated SignedSource<<df60534a8c9c720d808f10c343c8c295>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,23 +15,23 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-type ActorChangeWithDeferTestDeferFragment$ref = any;
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type ActorChangeWithDeferTestFragment$ref: FragmentReference;
-declare export opaque type ActorChangeWithDeferTestFragment$fragmentType: ActorChangeWithDeferTestFragment$ref;
-export type ActorChangeWithDeferTestFragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+type ActorChangeWithDeferTestDeferFragment$fragmentType = any;
+import type { FragmentType } from "relay-runtime";
+declare export opaque type ActorChangeWithDeferTestFragment$fragmentType: FragmentType;
+export type ActorChangeWithDeferTestFragment$ref = ActorChangeWithDeferTestFragment$fragmentType;
+export type ActorChangeWithDeferTestFragment$data = {|
   +id: string,
   +actor: ?{|
     +name: ?string,
   |},
-  +$fragmentRefs: ActorChangeWithDeferTestDeferFragment$ref,
-  +$refType: ActorChangeWithDeferTestFragment$ref,
+  +$fragmentSpreads: ActorChangeWithDeferTestDeferFragment$fragmentType,
+  +$fragmentType: ActorChangeWithDeferTestFragment$fragmentType,
 |};
-export type ActorChangeWithDeferTestFragment$data = ActorChangeWithDeferTestFragment;
+export type ActorChangeWithDeferTestFragment = ActorChangeWithDeferTestFragment$data;
 export type ActorChangeWithDeferTestFragment$key = {
   +$data?: ActorChangeWithDeferTestFragment$data,
-  +$fragmentRefs: ActorChangeWithDeferTestFragment$ref,
+  +$fragmentSpreads: ActorChangeWithDeferTestFragment$fragmentType,
   ...
 };
 */
@@ -86,4 +86,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "41ca2a82da7fb665ea29eaa3ed7d07dd";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  ActorChangeWithDeferTestFragment$fragmentType,
+  ActorChangeWithDeferTestFragment$data,
+>*/);

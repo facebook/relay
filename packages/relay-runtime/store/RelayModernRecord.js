@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -12,25 +12,24 @@
 
 'use strict';
 
-const areEqual = require('areEqual');
-const deepFreeze = require('../util/deepFreeze');
-const invariant = require('invariant');
-const warning = require('warning');
+import type {ActorIdentifier} from '../multi-actor-environment/ActorIdentifier';
+import type {DataID} from '../util/RelayRuntimeTypes';
+import type {Record} from './RelayStoreTypes';
 
+const deepFreeze = require('../util/deepFreeze');
 const {isClientID} = require('./ClientID');
 const {
   ACTOR_IDENTIFIER_KEY,
   ID_KEY,
+  INVALIDATED_AT_KEY,
   REF_KEY,
   REFS_KEY,
-  TYPENAME_KEY,
-  INVALIDATED_AT_KEY,
   ROOT_ID,
+  TYPENAME_KEY,
 } = require('./RelayStoreUtils');
-
-import type {ActorIdentifier} from '../multi-actor-environment/ActorIdentifier';
-import type {DataID} from '../util/RelayRuntimeTypes';
-import type {Record} from './RelayStoreTypes';
+const areEqual = require('areEqual');
+const invariant = require('invariant');
+const warning = require('warning');
 
 /**
  * @public
@@ -174,10 +173,14 @@ function getLinkedRecordID(record: Record, storageKey: string): ?DataID {
   invariant(
     typeof link === 'object' && link && typeof link[REF_KEY] === 'string',
     'RelayModernRecord.getLinkedRecordID(): Expected `%s.%s` to be a linked ID, ' +
-      'was `%s`.',
+      'was `%s`.%s',
     record[ID_KEY],
     storageKey,
     JSON.stringify(link),
+    typeof link === 'object' && link[REFS_KEY] !== undefined
+      ? ' It appears to be a plural linked record: did you mean to call ' +
+          'getLinkedRecords() instead of getLinkedRecord()?'
+      : '',
   );
   return link[REF_KEY];
 }
@@ -199,10 +202,14 @@ function getLinkedRecordIDs(
   invariant(
     typeof links === 'object' && Array.isArray(links[REFS_KEY]),
     'RelayModernRecord.getLinkedRecordIDs(): Expected `%s.%s` to contain an array ' +
-      'of linked IDs, got `%s`.',
+      'of linked IDs, got `%s`.%s',
     record[ID_KEY],
     storageKey,
     JSON.stringify(links),
+    typeof links === 'object' && links[REF_KEY] !== undefined
+      ? ' It appears to be a singular linked record: did you mean to call ' +
+          'getLinkedRecord() instead of getLinkedRecords()?'
+      : '',
   );
   // assume items of the array are ids
   return (links[REFS_KEY]: any);

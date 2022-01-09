@@ -43,7 +43,7 @@ Alternatively, instead of using `babel-plugin-relay`, you can use Relay with [ba
 const graphql = require('babel-plugin-relay/macro');
 ```
 
-If you need to configure `babel-plugin-relay` further (e.g. to enable `compat` mode), you can do so by [specifying the options in a number of ways](https://github.com/kentcdodds/babel-plugin-macros/blob/master/other/docs/user.md#config-experimental).
+If you need to configure `babel-plugin-relay` further (e.g. to enable `compat` mode), you can do so by [specifying the options in a number of ways](https://github.com/kentcdodds/babel-plugin-macros/blob/main/other/docs/user.md#config-experimental).
 
 For example:
 
@@ -61,7 +61,7 @@ module.exports = {
 
 ## Set up relay-compiler
 
-Relay's ahead-of-time compilation requires the [Relay Compiler](./graphql-in-relay#relay-compiler), which you can install via `yarn` or `npm`:
+Relay's ahead-of-time compilation requires the [Relay Compiler](Modern-GraphQLInRelay.md#relay-compiler), which you can install via `yarn` or `npm`:
 
 ```sh
 
@@ -101,7 +101,7 @@ yarn run relay --watch
 
 ```
 
-For more details, check out our [Relay Compiler docs](./graphql-in-relay#relay-compiler).
+For more details, check out our [Relay Compiler docs](Modern-GraphQLInRelay.md#relay-compiler).
 
 ## JavaScript environment requirements
 

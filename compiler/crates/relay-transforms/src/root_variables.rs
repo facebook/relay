@@ -1,21 +1,21 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
 use crate::no_inline::NO_INLINE_DIRECTIVE_NAME;
-use common::{NamedItem, WithLocation};
-use fnv::{FnvHashMap, FnvHashSet};
+use common::{Diagnostic, NamedItem, WithLocation};
 use graphql_ir::{
-    FragmentDefinition, FragmentSpread, OperationDefinition, Program, Value, Variable, Visitor,
+    FragmentDefinition, FragmentSpread, OperationDefinition, Program, ValidationMessage, Value,
+    Variable, Visitor,
 };
-use interner::StringKey;
+use intern::string_key::{StringKey, StringKeyMap, StringKeySet};
 use schema::{Schema, TypeReference};
 
-pub type VariableMap = FnvHashMap<StringKey, Variable>;
-type Visited = FnvHashMap<StringKey, VariableMap>;
+pub type VariableMap = StringKeyMap<Variable>;
+type Visited = StringKeyMap<VariableMap>;
 
 pub struct InferVariablesVisitor<'program> {
     /// Cache fragments as they are transformed to avoid duplicate processing.
@@ -38,7 +38,10 @@ impl<'program> InferVariablesVisitor<'program> {
     /// fragment and any fragments it transitively spreads. The type of each variable will be
     /// the most specific type with which that variable is used (ie, the type that the variable
     /// must have for the query to be valid).
-    pub fn infer_operation_variables(&mut self, operation: &OperationDefinition) -> VariableMap {
+    pub fn infer_operation_variables(
+        &mut self,
+        operation: &OperationDefinition,
+    ) -> (VariableMap, Vec<Diagnostic>) {
         let transitive_local_variables = Default::default();
         let mut visitor = VariablesVisitor::new(
             self.program,
@@ -47,7 +50,7 @@ impl<'program> InferVariablesVisitor<'program> {
             &transitive_local_variables,
         );
         visitor.visit_operation(operation);
-        visitor.variable_map
+        (visitor.variable_map, visitor.errors)
     }
 
     /// Similar to infer_operation_variables(), but finds root variables referenced transitively
@@ -68,16 +71,17 @@ struct VariablesVisitor<'a, 'b> {
     variable_map: VariableMap,
     visited_fragments: &'a mut Visited,
     program: &'a Program,
-    local_variables: FnvHashSet<StringKey>,
-    transitive_local_variables: &'b FnvHashSet<StringKey>,
+    local_variables: StringKeySet,
+    transitive_local_variables: &'b StringKeySet,
+    errors: Vec<Diagnostic>,
 }
 
 impl<'a, 'b> VariablesVisitor<'a, 'b> {
     fn new(
         program: &'a Program,
         visited_fragments: &'a mut Visited,
-        local_variables: FnvHashSet<StringKey>,
-        transitive_local_variables: &'b FnvHashSet<StringKey>,
+        local_variables: StringKeySet,
+        transitive_local_variables: &'b StringKeySet,
     ) -> Self {
         Self {
             variable_map: Default::default(),
@@ -85,6 +89,7 @@ impl<'a, 'b> VariablesVisitor<'a, 'b> {
             program,
             local_variables,
             transitive_local_variables,
+            errors: Default::default(),
         }
     }
 }
@@ -112,7 +117,7 @@ impl VariablesVisitor<'_, '_> {
                 .variable_definitions
                 .iter()
                 .map(|var| var.name.item)
-                .collect::<FnvHashSet<_>>();
+                .collect::<StringKeySet>();
             let transitive_local_variables = if fragment
                 .directives
                 .named(*NO_INLINE_DIRECTIVE_NAME)
@@ -128,7 +133,7 @@ impl VariablesVisitor<'_, '_> {
                 local_variables,
                 transitive_local_variables
                     .as_ref()
-                    .unwrap_or(&self.transitive_local_variables),
+                    .unwrap_or(self.transitive_local_variables),
             );
             visitor.visit_fragment(fragment);
             let result = visitor.variable_map;
@@ -155,6 +160,7 @@ impl VariablesVisitor<'_, '_> {
         type_: &TypeReference,
     ) {
         let schema = &self.program.schema;
+        let errors = &mut self.errors;
         self.variable_map
             .entry(name.item)
             .and_modify(|prev_variable| {
@@ -168,6 +174,17 @@ impl VariablesVisitor<'_, '_> {
                         name: *name,
                         type_: type_.clone(),
                     };
+                } else if !schema.is_type_subtype_of(&prev_variable.type_, type_) {
+                    errors.push(
+                        Diagnostic::error(
+                            ValidationMessage::IncompatibleVariableUsage {
+                                prev_type: schema.get_type_string(&prev_variable.type_),
+                                next_type: schema.get_type_string(type_),
+                            },
+                            name.location,
+                        )
+                        .annotate("is incompatible with", prev_variable.name.location),
+                    )
                 }
             })
             .or_insert_with(|| Variable {

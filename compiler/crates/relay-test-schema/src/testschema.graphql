@@ -1,4 +1,4 @@
-# Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved.
+# Copyright (c) Meta Platforms, Inc. and affiliates. All Rights Reserved.
 
 schema {
   query: Query
@@ -15,6 +15,8 @@ directive @fixme_fat_interface on FIELD
 directive @configurable on VARIABLE_DEFINITION
 
 directive @_auto_hoisted on VARIABLE_DEFINITION
+
+directive @fb_actor_change on FIELD
 
 directive @defer(
   label: String!
@@ -50,7 +52,6 @@ type Query {
   usernames(names: [String!]!): [Actor]
   viewer: Viewer
   _mutation: Mutation
-  relay_early_flush(query_name: String): [JSDependency!]!
   fetch__User(id: ID!): User
   fetch__NonNodeStory(input_fetch_id: ID!): NonNodeStory
   nonNodeStory(id: ID!): NonNodeStory
@@ -491,8 +492,15 @@ type FriendsEdge {
 }
 
 type Image {
+  "URI where the image can be found"
   uri: String
+  """
+  Width in pixels
+  """
   width: Int
+  """
+  Height in pixels
+  """
   height: Int
   test_enums: TestEnums
 }
@@ -614,7 +622,7 @@ interface Actor {
   url(relative: Boolean, site: String): String
   websites: [String]
   username: String
-  __viewer: ID!
+  actor_key: ID!
 }
 
 type NodeSavedStateResponsePayload {
@@ -678,7 +686,8 @@ type Page implements Node & Actor {
   viewerSavedState: String
   nameWithArgs(capitalize: Boolean!): String
   nameWithDefaultArgs(capitalize: Boolean = false): String
-  __viewer: ID!
+  nameWithRequiredDefaultArgs(capitalize: Boolean! = false): String
+  actor_key: ID!
 }
 
 type PageInfo {
@@ -1027,7 +1036,7 @@ type User implements Named & Node & Actor & HasJsField & AllConcreteTypesImpleme
   storySearch(query: StorySearchInput): [Story]
   storyCommentSearch(query: StoryCommentSearchInput): [Comment]
   profilePicture(size: [Int], preset: PhotoSize): Image
-  profile_picture(scale: Float): Image
+  profile_picture(scale: Float, media_type: String): Image
   segments(first: Int): Segments
   screennames: [Screenname]
   subscribeStatus: String
@@ -1052,7 +1061,7 @@ type User implements Named & Node & Actor & HasJsField & AllConcreteTypesImpleme
   neighbors: [User!]
   nearest_neighbor: User!
   parents: [User!]!
-  __viewer: ID!
+  actor_key: ID!
 }
 
 enum NameRendererContext {
@@ -1176,5 +1185,5 @@ type Settings {
 }
 
 type WithWrongViewer {
-  __viewer: Viewer
+  actor_key: Viewer
 }

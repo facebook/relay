@@ -1,0 +1,36 @@
+==================================== INPUT ====================================
+# expected-to-throw
+
+fragment conflictingSelectionsWithNoInline_fragment on Query @no_inline {
+  node(id: 4) {
+    ... on User {
+      name
+    }
+  }
+}
+
+
+query conflictingSelectionsWithNoInlineQuery {
+  ...conflictingSelectionsWithNoInline_fragment
+  node(id: 5) {
+    ... on User {
+      name
+    }
+  }
+}
+==================================== ERROR ====================================
+✖︎ Expected all fields on the same parent with the name or alias `node` to have the same argument values after applying fragment arguments. This field has the applied argument values: (id: 4)
+
+  conflicting-selections-with-no-inline.invalid.graphql:4:3
+    3 │ fragment conflictingSelectionsWithNoInline_fragment on Query @no_inline {
+    4 │   node(id: 4) {
+      │   ^^^^
+    5 │     ... on User {
+
+  ℹ︎ which conflicts with this field with applied argument values (id: 5)
+
+  conflicting-selections-with-no-inline.invalid.graphql:14:3
+   13 │   ...conflictingSelectionsWithNoInline_fragment
+   14 │   node(id: 5) {
+      │   ^^^^
+   15 │     ... on User {

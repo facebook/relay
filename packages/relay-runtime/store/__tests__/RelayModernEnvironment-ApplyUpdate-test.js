@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -12,21 +12,21 @@
 // flowlint ambiguous-object-type:error
 
 'use strict';
-
-const RelayModernEnvironment = require('../RelayModernEnvironment');
-const RelayModernStore = require('../RelayModernStore');
-const RelayNetwork = require('../../network/RelayNetwork');
-const RelayRecordSource = require('../RelayRecordSource');
+import type {RecordSourceProxy} from 'relay-runtime/store/RelayStoreTypes';
 
 const {
-  getActorIdentifier,
   MultiActorEnvironment,
+  getActorIdentifier,
 } = require('../../multi-actor-environment');
-const {graphql, getFragment, getRequest} = require('../../query/GraphQLTag');
+const RelayNetwork = require('../../network/RelayNetwork');
+const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
+const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../RelayModernSelector');
+const RelayModernStore = require('../RelayModernStore');
+const RelayRecordSource = require('../RelayRecordSource');
 const {disallowWarnings} = require('relay-test-utils-internal');
 
 disallowWarnings();
@@ -138,7 +138,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
         callback.mockClear();
         const updater = {
-          storeUpdater: proxyStore => {
+          storeUpdater: (proxyStore: RecordSourceProxy) => {
             const zuck = proxyStore.create('4', 'User');
             zuck.setValue('4', 'id');
           },
@@ -239,10 +239,10 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           taskID = 0;
           tasks = new Map();
           scheduler = {
-            cancel: id => {
+            cancel: (id: string) => {
               tasks.delete(id);
             },
-            schedule: task => {
+            schedule: (task: () => void) => {
               const id = String(taskID++);
               tasks.set(id, task);
               return id;
@@ -342,7 +342,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
           callback.mockClear();
           const updater = {
-            storeUpdater: proxyStore => {
+            storeUpdater: (proxyStore: RecordSourceProxy) => {
               const zuck = proxyStore.create('4', 'User');
               zuck.setValue('4', 'id');
             },

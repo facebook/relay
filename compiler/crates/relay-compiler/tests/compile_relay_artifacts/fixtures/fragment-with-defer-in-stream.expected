@@ -110,7 +110,6 @@ fragment fragmentWithDeferInStream_ActorFragment on Actor {
                 "if": null,
                 "kind": "Stream",
                 "label": "fragmentWithDeferInStream_FeedbackFragment$stream$StreamedActorsLabel",
-                "metadata": null,
                 "selections": [
                   {
                     "alias": null,
@@ -155,8 +154,7 @@ fragment fragmentWithDeferInStream_ActorFragment on Actor {
                     ],
                     "storageKey": null
                   }
-                ],
-                "useCustomizedBatch": null
+                ]
               }
             ],
             "type": "Feedback",

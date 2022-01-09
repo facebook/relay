@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,19 +13,17 @@
 
 'use strict';
 
-const RelayModernEnvironment = require('../RelayModernEnvironment');
-const RelayModernSelector = require('../RelayModernSelector');
-const RelayModernStore = require('../RelayModernStore');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const RelayRecordSource = require('../RelayRecordSource');
-
-const invariant = require('invariant');
-
-const {graphql, getFragment, getRequest} = require('../../query/GraphQLTag');
+const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
+const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
+const RelayModernSelector = require('../RelayModernSelector');
+const RelayModernStore = require('../RelayModernStore');
+const RelayRecordSource = require('../RelayRecordSource');
+const invariant = require('invariant');
 const {disallowWarnings} = require('relay-test-utils-internal');
 
 disallowWarnings();
@@ -64,7 +62,7 @@ describe('query with undeclared, unused fragment argument', () => {
 
     innerFragment = getFragment(graphql`
       fragment RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfilePhotoWrapper on User
-        @argumentDefinitions(size: {type: "Int"}) {
+      @argumentDefinitions(size: {type: "Int"}) {
         __typename
         ...RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfilePhoto
           @uncheckedArguments_DEPRECATED(size: $size)
@@ -112,9 +110,11 @@ describe('query with undeclared, unused fragment argument', () => {
     expect(snapshot.data).toEqual({
       node: {
         __fragmentOwner: operation.request,
+        __isWithinUnmatchedTypeRefinement: false,
 
         __fragments: {
-          RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfile: {},
+          RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfile:
+            {},
         },
 
         __id: '4',
@@ -130,11 +130,13 @@ describe('query with undeclared, unused fragment argument', () => {
     expect(fragmentSnapshot.data).toEqual({
       __id: '4',
       __fragmentOwner: operation.request,
+      __isWithinUnmatchedTypeRefinement: false,
 
       __fragments: {
-        RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfilePhotoWrapper: {
-          size: undefined,
-        },
+        RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfilePhotoWrapper:
+          {
+            size: undefined,
+          },
       },
 
       id: '4',
@@ -150,11 +152,13 @@ describe('query with undeclared, unused fragment argument', () => {
     expect(innerSnapshot.data).toEqual({
       __id: '4',
       __fragmentOwner: operation.request,
+      __isWithinUnmatchedTypeRefinement: false,
 
       __fragments: {
-        RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfilePhoto: {
-          size: undefined,
-        },
+        RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfilePhoto:
+          {
+            size: undefined,
+          },
       },
 
       __typename: 'User',

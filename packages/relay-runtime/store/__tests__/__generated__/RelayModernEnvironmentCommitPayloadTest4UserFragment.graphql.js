@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<c67a6879803b1d98e7aab8ac6b8c982a>>
+ * @generated SignedSource<<752975ef52ecb05fb52db56a55c54ce6>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,18 +15,18 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayModernEnvironmentCommitPayloadTest4UserFragment$ref: FragmentReference;
-declare export opaque type RelayModernEnvironmentCommitPayloadTest4UserFragment$fragmentType: RelayModernEnvironmentCommitPayloadTest4UserFragment$ref;
-export type RelayModernEnvironmentCommitPayloadTest4UserFragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayModernEnvironmentCommitPayloadTest4UserFragment$fragmentType: FragmentType;
+export type RelayModernEnvironmentCommitPayloadTest4UserFragment$ref = RelayModernEnvironmentCommitPayloadTest4UserFragment$fragmentType;
+export type RelayModernEnvironmentCommitPayloadTest4UserFragment$data = {|
   +username: ?string,
-  +$refType: RelayModernEnvironmentCommitPayloadTest4UserFragment$ref,
+  +$fragmentType: RelayModernEnvironmentCommitPayloadTest4UserFragment$fragmentType,
 |};
-export type RelayModernEnvironmentCommitPayloadTest4UserFragment$data = RelayModernEnvironmentCommitPayloadTest4UserFragment;
+export type RelayModernEnvironmentCommitPayloadTest4UserFragment = RelayModernEnvironmentCommitPayloadTest4UserFragment$data;
 export type RelayModernEnvironmentCommitPayloadTest4UserFragment$key = {
   +$data?: RelayModernEnvironmentCommitPayloadTest4UserFragment$data,
-  +$fragmentRefs: RelayModernEnvironmentCommitPayloadTest4UserFragment$ref,
+  +$fragmentSpreads: RelayModernEnvironmentCommitPayloadTest4UserFragment$fragmentType,
   ...
 };
 */
@@ -53,4 +53,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "9fe632b35b633d02accdbcdfdaec2ea4";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayModernEnvironmentCommitPayloadTest4UserFragment$fragmentType,
+  RelayModernEnvironmentCommitPayloadTest4UserFragment$data,
+>*/);

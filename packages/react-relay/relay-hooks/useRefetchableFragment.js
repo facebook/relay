@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,18 +13,17 @@
 
 'use strict';
 
-const useRefetchableFragmentNode = require('./useRefetchableFragmentNode');
-const useStaticFragmentNodeWarning = require('./useStaticFragmentNodeWarning');
-
-const {useDebugValue} = require('react');
-const {getFragment} = require('relay-runtime');
-
 import type {RefetchFnDynamic} from './useRefetchableFragmentNode';
 import type {
+  FragmentType,
   GraphQLTaggedNode,
   OperationType,
-  FragmentReference,
 } from 'relay-runtime';
+
+const useRefetchableFragmentNode = require('./useRefetchableFragmentNode');
+const useStaticFragmentNodeWarning = require('./useStaticFragmentNodeWarning');
+const {useDebugValue} = require('react');
+const {getFragment} = require('relay-runtime');
 
 type ReturnType<TQuery: OperationType, TKey: ?{+$data?: mixed, ...}> = [
   // NOTE: This $Call ensures that the type of the returned data is either:
@@ -41,7 +40,7 @@ type ReturnType<TQuery: OperationType, TKey: ?{+$data?: mixed, ...}> = [
 
 function useRefetchableFragment<
   TQuery: OperationType,
-  TKey: ?{+$data?: mixed, +$fragmentRefs: FragmentReference, ...},
+  TKey: ?{+$data?: mixed, +$fragmentSpreads: FragmentType, ...},
 >(
   fragmentInput: GraphQLTaggedNode,
   fragmentRef: TKey,

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -10,30 +10,36 @@
  */
 
 'use strict';
+import type {ActorIdentifier} from '../../../relay-runtime/multi-actor-environment/ActorIdentifier';
+import type {ActorChangeWithMutationTestFragment$key} from './__generated__/ActorChangeWithMutationTestFragment.graphql';
+import type {ActorChangeWithMutationTestMutation} from './__generated__/ActorChangeWithMutationTestMutation.graphql';
+import type {
+  IActorEnvironment,
+  IMultiActorEnvironment,
+} from 'relay-runtime/multi-actor-environment';
+import type {
+  LogRequestInfoFunction,
+  UploadableMap,
+} from 'relay-runtime/network/RelayNetworkTypes';
+import type {RequestParameters} from 'relay-runtime/util/RelayConcreteNode';
+import type {
+  CacheConfig,
+  Variables,
+} from 'relay-runtime/util/RelayRuntimeTypes';
 
-const ActorChange = require('../ActorChange');
-const React = require('react');
-const ReactTestRenderer = require('react-test-renderer');
 const RelayEnvironmentProvider = require('../../relay-hooks/RelayEnvironmentProvider');
-
 const useFragment = require('../../relay-hooks/useFragment');
 const useLazyLoadQuery = require('../../relay-hooks/useLazyLoadQuery');
 const useMutation = require('../../relay-hooks/useMutation');
-
-const {Network, graphql, Observable} = require('relay-runtime');
+const ActorChange = require('../ActorChange');
+const React = require('react');
+const ReactTestRenderer = require('react-test-renderer');
+const {Network, Observable, graphql} = require('relay-runtime');
 const {
   MultiActorEnvironment,
   getActorIdentifier,
 } = require('relay-runtime/multi-actor-environment');
 const {disallowWarnings} = require('relay-test-utils-internal');
-
-import type {ActorChangeWithMutationTestFragment$key} from './__generated__/ActorChangeWithMutationTestFragment.graphql';
-import type {ActorChangeWithMutationTestMutation} from './__generated__/ActorChangeWithMutationTestMutation.graphql';
-import type {ActorChangeWithMutationTestQuery} from './__generated__/ActorChangeWithMutationTestQuery.graphql';
-import type {
-  IActorEnvironment,
-  IMultiActorEnvironment,
-} from 'relay-runtime/multi-actor-environment';
 
 function ComponentWrapper(
   props: $ReadOnly<{
@@ -72,7 +78,7 @@ const query = graphql`
       }
       newsFeed {
         edges {
-          node @EXPERIMENTAL__as_actor {
+          node @fb_actor_change {
             ...ActorChangeWithMutationTestFragment
           }
         }
@@ -96,7 +102,7 @@ function MainComponent(props: {
   renderViewerActorName: (actorName: ?string) => void,
   renderActorInTheList: ActorTestRenderFn,
 }) {
-  const data = useLazyLoadQuery<ActorChangeWithMutationTestQuery>(query, {});
+  const data = useLazyLoadQuery(query, {});
   props.renderViewerActorName(data?.viewer?.actor?.name);
 
   return (
@@ -174,7 +180,16 @@ describe('ActorChange', () => {
   let dataSource;
 
   beforeEach(() => {
-    fetchFnForActor = (...args) => {
+    fetchFnForActor = (
+      ...args: Array<?(
+        | ActorIdentifier
+        | LogRequestInfoFunction
+        | UploadableMap
+        | RequestParameters
+        | Variables
+        | CacheConfig
+      )>
+    ) => {
       return Observable.create(sink => {
         dataSource = sink;
       });
@@ -220,7 +235,7 @@ describe('ActorChange', () => {
             edges: [
               {
                 node: {
-                  __viewer: 'actor:4321',
+                  actor_key: 'actor:4321',
                   id: 'node-1',
                   __typename: 'FeedUnit',
                   actor: {
@@ -235,7 +250,7 @@ describe('ActorChange', () => {
         },
       },
     });
-    ReactTestRenderer.act(jest.runAllTimers);
+    ReactTestRenderer.act(jest.runAllImmediates);
     // Both, main actor
     expect(renderViewerActorName).toBeCalledWith('Antonio Banderas');
     // and new actor rendering the same object with the same ID

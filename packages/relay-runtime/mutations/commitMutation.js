@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -12,23 +12,11 @@
 
 'use strict';
 
-const RelayDeclarativeMutationConfig = require('./RelayDeclarativeMutationConfig');
-
-const invariant = require('invariant');
-const isRelayModernEnvironment = require('../store/isRelayModernEnvironment');
-const validateMutation = require('./validateMutation');
-const warning = require('warning');
-
-const {getRequest} = require('../query/GraphQLTag');
-const {generateUniqueClientID} = require('../store/ClientID');
-const {
-  createOperationDescriptor,
-} = require('../store/RelayModernOperationDescriptor');
-
 import type {PayloadError, UploadableMap} from '../network/RelayNetworkTypes';
 import type {GraphQLTaggedNode} from '../query/GraphQLTag';
 import type {
   IEnvironment,
+  MutationParameters,
   SelectorStoreUpdater,
 } from '../store/RelayStoreTypes';
 import type {
@@ -38,57 +26,63 @@ import type {
 } from '../util/RelayRuntimeTypes';
 import type {DeclarativeMutationConfig} from './RelayDeclarativeMutationConfig';
 
-export type DEPRECATED_MutationConfig<T> = {|
+const {getRequest} = require('../query/GraphQLTag');
+const {generateUniqueClientID} = require('../store/ClientID');
+const isRelayModernEnvironment = require('../store/isRelayModernEnvironment');
+const {
+  createOperationDescriptor,
+} = require('../store/RelayModernOperationDescriptor');
+const RelayDeclarativeMutationConfig = require('./RelayDeclarativeMutationConfig');
+const validateMutation = require('./validateMutation');
+const invariant = require('invariant');
+const warning = require('warning');
+
+export type DEPRECATED_MutationConfig<TMutationResponse> = {|
   configs?: Array<DeclarativeMutationConfig>,
   cacheConfig?: CacheConfig,
   mutation: GraphQLTaggedNode,
   variables: Variables,
   uploadables?: UploadableMap,
-  onCompleted?: ?(response: T, errors: ?Array<PayloadError>) => void,
+  onCompleted?: ?(
+    response: TMutationResponse,
+    errors: ?Array<PayloadError>,
+  ) => void,
   onError?: ?(error: Error) => void,
   onUnsubscribe?: ?() => void,
-  optimisticUpdater?: ?SelectorStoreUpdater,
+  optimisticUpdater?: ?SelectorStoreUpdater<TMutationResponse>,
   optimisticResponse?: Object,
-  updater?: ?SelectorStoreUpdater,
+  updater?: ?SelectorStoreUpdater<TMutationResponse>,
 |};
 
-export type MutationParameters = {|
-  +response: {...},
-  +variables: interface {},
-  +rawResponse?: {...},
-|};
-
-export type MutationConfig<T: MutationParameters> = {|
+export type MutationConfig<TMutation: MutationParameters> = {|
   configs?: Array<DeclarativeMutationConfig>,
   cacheConfig?: CacheConfig,
   mutation: GraphQLTaggedNode,
   onError?: ?(error: Error) => void,
   onCompleted?: ?(
-    response: $ElementType<T, 'response'>,
+    response: TMutation['response'],
     errors: ?Array<PayloadError>,
   ) => void,
+  onNext?: ?() => void,
   onUnsubscribe?: ?() => void,
-  optimisticResponse?: $ElementType<
-    {
-      +rawResponse?: {...},
-      ...T,
-      ...
-    },
-    'rawResponse',
-  >,
-  optimisticUpdater?: ?SelectorStoreUpdater,
-  updater?: ?SelectorStoreUpdater,
+  optimisticResponse?: {
+    +rawResponse?: {...},
+    ...TMutation,
+    ...
+  }['rawResponse'],
+  optimisticUpdater?: ?SelectorStoreUpdater<TMutation['response']>,
+  updater?: ?SelectorStoreUpdater<TMutation['response']>,
   uploadables?: UploadableMap,
-  variables: $ElementType<T, 'variables'>,
+  variables: TMutation['variables'],
 |};
 
 /**
  * Higher-level helper function to execute a mutation against a specific
  * environment.
  */
-function commitMutation<T: MutationParameters>(
+function commitMutation<TMutation: MutationParameters>(
   environment: IEnvironment,
-  config: MutationConfig<T>,
+  config: MutationConfig<TMutation>,
 ): Disposable {
   invariant(
     isRelayModernEnvironment(environment),
@@ -103,18 +97,10 @@ function commitMutation<T: MutationParameters>(
     throw new Error('commitMutation: Expected mutation to be of type request');
   }
   let {optimisticResponse, optimisticUpdater, updater} = config;
-  const {
-    configs,
-    cacheConfig,
-    onError,
-    onUnsubscribe,
-    variables,
-    uploadables,
-  } = config;
+  const {configs, cacheConfig, onError, onUnsubscribe, variables, uploadables} =
+    config;
   const operation = createOperationDescriptor(
     mutation,
-    /* $FlowFixMe[class-object-subtyping] added when improving typing for this
-     * parameters */
     variables,
     cacheConfig,
     generateUniqueClientID(),
@@ -163,6 +149,7 @@ function commitMutation<T: MutationParameters>(
             errors.push(...payload.errors);
           }
         }
+        config.onNext?.();
       },
       complete: () => {
         const {onCompleted} = config;

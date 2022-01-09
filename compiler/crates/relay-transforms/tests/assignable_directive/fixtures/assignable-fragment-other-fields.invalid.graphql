@@ -1,0 +1,5 @@
+# expected-to-throw
+fragment AssignableFragment on Page @assignable {
+  id
+  __typename
+}

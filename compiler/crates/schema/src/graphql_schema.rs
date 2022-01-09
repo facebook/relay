@@ -1,13 +1,13 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
 use crate::definitions::{Directive, *};
-use interner::StringKey;
-use std::fmt::{Result as FormatResult, Write};
+use intern::string_key::StringKey;
+use std::fmt::{Result as FmtResult, Write};
 
 pub trait Schema {
     fn query_type(&self) -> Option<Type>;
@@ -18,27 +18,38 @@ pub trait Schema {
 
     fn clientid_field(&self) -> FieldID;
 
+    fn strongid_field(&self) -> FieldID;
+
     fn typename_field(&self) -> FieldID;
 
     fn fetch_token_field(&self) -> FieldID;
+
+    fn is_fulfilled_field(&self) -> FieldID;
 
     fn get_type(&self, type_name: StringKey) -> Option<Type>;
 
     fn get_directive(&self, name: StringKey) -> Option<&Directive>;
 
     fn input_object(&self, id: InputObjectID) -> &InputObject;
+    fn input_objects<'a>(&'a self) -> Box<dyn Iterator<Item = &'a InputObject> + 'a>;
 
     fn enum_(&self, id: EnumID) -> &Enum;
+    fn enums<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Enum> + 'a>;
 
     fn scalar(&self, id: ScalarID) -> &Scalar;
+    fn scalars<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Scalar> + 'a>;
 
     fn field(&self, id: FieldID) -> &Field;
+    fn fields<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Field> + 'a>;
 
     fn object(&self, id: ObjectID) -> &Object;
+    fn objects<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Object> + 'a>;
 
     fn union(&self, id: UnionID) -> &Union;
+    fn unions<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Union> + 'a>;
 
     fn interface(&self, id: InterfaceID) -> &Interface;
+    fn interfaces<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Interface> + 'a>;
 
     fn get_type_name(&self, type_: Type) -> StringKey;
 
@@ -200,7 +211,7 @@ pub trait Schema {
         }
     }
 
-    fn write_type_string(&self, writer: &mut String, type_: &TypeReference) -> FormatResult {
+    fn write_type_string(&self, writer: &mut String, type_: &TypeReference) -> FmtResult {
         match type_ {
             TypeReference::Named(inner) => {
                 write!(writer, "{}", self.get_type_name(*inner).lookup())

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,30 +13,29 @@
 
 'use strict';
 
-const React = require('react');
-const Scheduler = require('scheduler');
-
-const {useMemo, useState, useEffect} = React;
-const TestRenderer = require('react-test-renderer');
-const {createMockEnvironment} = require('relay-test-utils-internal');
+import type {OperationDescriptor, Variables} from 'relay-runtime';
 
 const {useTrackLoadQueryInRender} = require('../loadQuery');
-const invariant = require('invariant');
 const useRefetchableFragmentNodeOriginal = require('../useRefetchableFragmentNode');
+const invariant = require('invariant');
+const React = require('react');
 const ReactRelayContext = require('react-relay/ReactRelayContext');
+const TestRenderer = require('react-test-renderer');
 const {
   FRAGMENT_OWNER_KEY,
   FRAGMENTS_KEY,
   ID_KEY,
-  createOperationDescriptor,
   Observable,
   __internal: {fetchQuery},
-  graphql,
-  getRequest,
+  createOperationDescriptor,
   getFragment,
+  getRequest,
+  graphql,
 } = require('relay-runtime');
+const {createMockEnvironment} = require('relay-test-utils-internal');
+const Scheduler = require('scheduler');
 
-import type {OperationDescriptor, Variables} from 'relay-runtime';
+const {useMemo, useState, useEffect} = React;
 
 describe('useRefetchableFragmentNode', () => {
   let environment;
@@ -120,6 +119,7 @@ describe('useRefetchableFragmentNode', () => {
         [fragmentName]: {},
       },
       [FRAGMENT_OWNER_KEY]: owner.request,
+      __isWithinUnmatchedTypeRefinement: false,
     };
   }
 
@@ -143,10 +143,10 @@ describe('useRefetchableFragmentNode', () => {
     `;
     gqlFragmentWithArgs = getFragment(graphql`
       fragment useRefetchableFragmentNodeTestUserFragmentWithArgs on User
-        @refetchable(
-          queryName: "useRefetchableFragmentNodeTestUserFragmentWithArgsRefetchQuery"
-        )
-        @argumentDefinitions(scaleLocal: {type: "Float!"}) {
+      @refetchable(
+        queryName: "useRefetchableFragmentNodeTestUserFragmentWithArgsRefetchQuery"
+      )
+      @argumentDefinitions(scaleLocal: {type: "Float!"}) {
         id
         name
         profile_picture(scale: $scaleLocal) {
@@ -157,9 +157,9 @@ describe('useRefetchableFragmentNode', () => {
     `);
     gqlFragment = getFragment(graphql`
       fragment useRefetchableFragmentNodeTestUserFragment on User
-        @refetchable(
-          queryName: "useRefetchableFragmentNodeTestUserFragmentRefetchQuery"
-        ) {
+      @refetchable(
+        queryName: "useRefetchableFragmentNodeTestUserFragmentRefetchQuery"
+      ) {
         id
         name
         profile_picture(scale: $scale) {
@@ -262,18 +262,18 @@ describe('useRefetchableFragmentNode', () => {
       ...
     }) => {
       // We need a render a component to run a Hook
-      const [owner, _setOwner] = useState<OperationDescriptor>(props.owner);
-      const [_, _setCount] = useState(0);
+      const [owner, setOwner_] = useState<OperationDescriptor>(props.owner);
+      const [, setCount_] = useState(0);
       const fragment = props.fragment ?? gqlFragment;
       const artificialUserRef = useMemo(
         () => ({
           [ID_KEY]:
-          // $FlowFixMe[prop-missing]
             owner.request.variables.id ?? owner.request.variables.nodeID,
           [FRAGMENTS_KEY]: {
             [fragment.name]: {},
           },
           [FRAGMENT_OWNER_KEY]: owner.request,
+          __isWithinUnmatchedTypeRefinement: false,
         }),
         [owner, fragment.name],
       );
@@ -281,13 +281,11 @@ describe('useRefetchableFragmentNode', () => {
         ? props.userRef
         : artificialUserRef;
 
-      forceUpdate = _setCount;
-      setOwner = _setOwner;
+      forceUpdate = setCount_;
+      setOwner = setOwner_;
 
-      const {
-        fragmentData: userData,
-        refetch: refetchInternal,
-      } = useRefetchableFragmentNode(fragment, userRef);
+      const {fragmentData: userData, refetch: refetchInternal} =
+        useRefetchableFragmentNode(fragment, userRef);
 
       if (
         props.callDuringRenderKey != null &&
@@ -362,7 +360,7 @@ describe('useRefetchableFragmentNode', () => {
 
       const UserFragment = getFragment(graphql`
         fragment useRefetchableFragmentNodeTest4Fragment on User
-          @relay(plural: true) {
+        @relay(plural: true) {
           id
         }
       `);
@@ -1191,6 +1189,71 @@ describe('useRefetchableFragmentNode', () => {
           },
         },
       ]);
+    });
+
+    it('refetches with new environment when environment changes', () => {
+      const renderer = renderFragment();
+      const initialUser = {
+        id: '1',
+        name: 'Alice',
+        profile_picture: null,
+        ...createFragmentRef('1', query),
+      };
+      expectFragmentResults([{data: initialUser}]);
+
+      // Set new environment
+      const newEnvironment = createMockEnvironment();
+      newEnvironment.commitPayload(query, {
+        node: {
+          __typename: 'User',
+          id: '1',
+          name: 'Alice in a different env',
+          username: 'useralice',
+          profile_picture: null,
+        },
+      });
+      TestRenderer.act(() => {
+        setEnvironment(newEnvironment);
+      });
+
+      TestRenderer.act(() => {
+        refetch({}, {fetchPolicy: 'network-only'});
+      });
+      renderSpy.mockClear();
+
+      // Assert fragment is refetched with new environment
+      expectFragmentIsRefetching(
+        renderer,
+        {
+          refetchVariables: variables,
+          refetchQuery,
+        },
+        newEnvironment,
+      );
+
+      // Mock network response
+      TestRenderer.act(() => {
+        newEnvironment.mock.resolve(gqlRefetchQuery, {
+          data: {
+            node: {
+              __typename: 'User',
+              id: '1',
+              name: 'Alice in a different env refetched',
+              profile_picture: null,
+              username: 'useralice',
+            },
+          },
+        });
+      });
+
+      // Assert fragment is rendered with new data
+      const refetchedUser = {
+        id: '1',
+        name: 'Alice in a different env refetched',
+        profile_picture: null,
+        ...createFragmentRef('1', refetchQuery),
+      };
+      expectFragmentResults([{data: refetchedUser}]);
     });
 
     it('resets to parent data when parent fragment ref changes', () => {
@@ -2984,7 +3047,7 @@ describe('useRefetchableFragmentNode', () => {
         unsubscribe.mockClear();
       });
 
-      it('disposes ongoing request if environment changes', () => {
+      it('does not cancel ongoing request if environment changes', () => {
         renderFragment();
         renderSpy.mockClear();
         TestRenderer.act(() => {
@@ -3033,12 +3096,11 @@ describe('useRefetchableFragmentNode', () => {
           setEnvironment(newEnvironment);
         });
 
-        // Assert request was cancelled
-        // Unsubscribe is called twice because loadQuery will dispose
-        // of both the network and execute observables
-        expect(unsubscribe).toBeCalledTimes(2);
+        // Assert request is not cancelled, since useQueryLoader does not
+        // cancel network requests when disposing query refs.
+        expect(unsubscribe).toBeCalledTimes(0);
         expectRequestIsInFlight({
-          inFlight: false,
+          inFlight: true,
           requestCount: 1,
           gqlRefetchQuery,
           refetchVariables,
@@ -3054,7 +3116,7 @@ describe('useRefetchableFragmentNode', () => {
         expectFragmentResults([{data: expectedUser}, {data: expectedUser}]);
       });
 
-      it('disposes ongoing request if fragment ref changes', () => {
+      it('does not cancel ongoing request if fragment ref changes', () => {
         renderFragment();
         renderSpy.mockClear();
         TestRenderer.act(() => {
@@ -3108,12 +3170,11 @@ describe('useRefetchableFragmentNode', () => {
           setOwner(newQuery);
         });
 
-        // Assert request was cancelled
-        // Unsubscribe is called twice because loadQuery will dispose
-        // of both the network and execute observables
-        expect(unsubscribe).toBeCalledTimes(2);
+        // Assert request is not cancelled, since useQueryLoader does not
+        // cancel network requests when disposing query refs.
+        expect(unsubscribe).toBeCalledTimes(0);
         expectRequestIsInFlight({
-          inFlight: false,
+          inFlight: true,
           requestCount: 1,
           gqlRefetchQuery,
           refetchVariables,
@@ -3131,7 +3192,7 @@ describe('useRefetchableFragmentNode', () => {
         expectFragmentResults([{data: expectedUser}, {data: expectedUser}]);
       });
 
-      it('disposes of ongoing request on unmount when refetch suspends', () => {
+      it('does not cancel ongoing request on unmount when refetch suspends', () => {
         const renderer = renderFragment();
         renderSpy.mockClear();
         TestRenderer.act(() => {
@@ -3158,17 +3219,12 @@ describe('useRefetchableFragmentNode', () => {
           renderer.unmount();
         });
 
-        // Assert request was cancelled
-        expect(unsubscribe).toBeCalledTimes(2);
-        expectRequestIsInFlight({
-          inFlight: false,
-          requestCount: 1,
-          gqlRefetchQuery,
-          refetchVariables,
-        });
+        // Assert request is not cancelled. useQueryLoader does not cancel
+        // network requests when disposing query refs.
+        expect(unsubscribe).toBeCalledTimes(0);
       });
 
-      it('disposes of ongoing request on unmount when refetch does not suspend', () => {
+      it('does not cancel ongoing request on unmount when refetch does not suspend', () => {
         const renderer = renderFragment();
         renderSpy.mockClear();
         TestRenderer.act(() => {
@@ -3206,14 +3262,9 @@ describe('useRefetchableFragmentNode', () => {
           renderer.unmount();
         });
 
-        // Assert request was cancelled
-        expect(unsubscribe).toBeCalledTimes(2);
-        expectRequestIsInFlight({
-          inFlight: false,
-          requestCount: 1,
-          gqlRefetchQuery,
-          refetchVariables,
-        });
+        // Assert request is not cancelled. useQueryLoader does not cancel
+        // network requests when disposing query refs.
+        expect(unsubscribe).toBeCalledTimes(0);
       });
 
       it('disposes ongoing request if it is manually disposed when refetch suspends', () => {
@@ -3310,16 +3361,9 @@ describe('useRefetchableFragmentNode', () => {
           jest.runAllImmediates();
         });
 
-        // Assert request was cancelled.
-        // Unsubscribe is called twice because loadQuery will dispose
-        // of both the network and execute observables
-        expect(unsubscribe).toBeCalledTimes(2);
-        expectRequestIsInFlight({
-          inFlight: false,
-          requestCount: 1,
-          gqlRefetchQuery,
-          refetchVariables,
-        });
+        // Assert request is not cancelled. useQueryLoader does not cancel
+        // network requests when disposing query refs.
+        expect(unsubscribe).toBeCalledTimes(0);
 
         // Assert that when the refetch is disposed we reset to rendering the
         // original data before the refetch
@@ -3337,9 +3381,9 @@ describe('useRefetchableFragmentNode', () => {
       beforeEach(() => {
         gqlFragment = getFragment(graphql`
           fragment useRefetchableFragmentNodeTest1Fragment on NonNodeStory
-            @refetchable(
-              queryName: "useRefetchableFragmentNodeTest1FragmentRefetchQuery"
-            ) {
+          @refetchable(
+            queryName: "useRefetchableFragmentNodeTest1FragmentRefetchQuery"
+          ) {
             actor {
               name
             }
@@ -3600,9 +3644,9 @@ describe('useRefetchableFragmentNode', () => {
         `;
         gqlFragment = getFragment(graphql`
           fragment useRefetchableFragmentNodeTest3Fragment on User
-            @refetchable(
-              queryName: "useRefetchableFragmentNodeTest3FragmentRefetchQuery"
-            ) {
+          @refetchable(
+            queryName: "useRefetchableFragmentNodeTest3FragmentRefetchQuery"
+          ) {
             id
             name
             profile_picture(scale: $scale) {
@@ -3958,12 +4002,9 @@ describe('useRefetchableFragmentNode', () => {
             },
           });
         });
-        expect(
-          anotherNewEnvironment
-            .getStore()
-            .getSource()
-            .get('1'),
-        ).toEqual(dataInSource);
+        expect(anotherNewEnvironment.getStore().getSource().get('1')).toEqual(
+          dataInSource,
+        );
       });
     });
   });

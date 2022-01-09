@@ -820,7 +820,7 @@ QUERY:
 
 query flightPropsTransform_StoryTitleQuery(
   $id: ID!
-) {
+) @react_flight(components: ["StoryTitle.server"]) {
   node(id: $id) {
     __typename
     ...flightPropsTransform_storyTitle

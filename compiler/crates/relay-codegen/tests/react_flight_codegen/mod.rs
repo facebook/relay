@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -32,11 +32,11 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         .map(|next_program| {
             next_program
                 .fragments()
-                .map(|def| print_fragment(&schema, &def, JsModuleFormat::Haste))
+                .map(|def| print_fragment(&schema, def, JsModuleFormat::Haste))
                 .chain(
                     next_program
                         .operations()
-                        .map(|def| print_operation(&schema, &def, JsModuleFormat::Haste)),
+                        .map(|def| print_operation(&schema, def, JsModuleFormat::Haste)),
                 )
                 .collect::<Vec<_>>()
                 .join("\n\n")

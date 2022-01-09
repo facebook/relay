@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -7,9 +7,9 @@
 
 use crate::span::Span;
 use core::cmp::Ordering;
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey};
+use std::fmt;
 use std::path::PathBuf;
-use std::{convert::TryInto, fmt};
 
 /// The location of a source. Could be a standalone file (e.g. test.graphql),
 /// an embedded source (GraphQL tag in a JS file) or generated code without a

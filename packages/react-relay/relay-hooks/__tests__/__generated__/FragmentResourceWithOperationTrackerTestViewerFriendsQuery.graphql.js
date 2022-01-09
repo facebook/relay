@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<1182d6b803e0c8e3418c399d9d2d2167>>
+ * @generated SignedSource<<304a9bb13408bbb699e1e498fe395ae0>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,25 +15,27 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type FragmentResourceWithOperationTrackerTestUserFragment$ref = any;
-export type FragmentResourceWithOperationTrackerTestViewerFriendsQueryVariables = {||};
-export type FragmentResourceWithOperationTrackerTestViewerFriendsQueryResponse = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type FragmentResourceWithOperationTrackerTestUserFragment$fragmentType = any;
+export type FragmentResourceWithOperationTrackerTestViewerFriendsQuery$variables = {||};
+export type FragmentResourceWithOperationTrackerTestViewerFriendsQueryVariables = FragmentResourceWithOperationTrackerTestViewerFriendsQuery$variables;
+export type FragmentResourceWithOperationTrackerTestViewerFriendsQuery$data = {|
   +viewer: ?{|
     +actor: ?{|
       +friends: ?{|
         +edges: ?$ReadOnlyArray<?{|
           +node: ?{|
-            +$fragmentRefs: FragmentResourceWithOperationTrackerTestUserFragment$ref,
+            +$fragmentSpreads: FragmentResourceWithOperationTrackerTestUserFragment$fragmentType,
           |},
         |}>,
       |},
     |},
   |},
 |};
+export type FragmentResourceWithOperationTrackerTestViewerFriendsQueryResponse = FragmentResourceWithOperationTrackerTestViewerFriendsQuery$data;
 export type FragmentResourceWithOperationTrackerTestViewerFriendsQuery = {|
   variables: FragmentResourceWithOperationTrackerTestViewerFriendsQueryVariables,
-  response: FragmentResourceWithOperationTrackerTestViewerFriendsQueryResponse,
+  response: FragmentResourceWithOperationTrackerTestViewerFriendsQuery$data,
 |};
 */
 
@@ -472,4 +474,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "f15f8921d77c61be7dc708d9e8c1f412";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  FragmentResourceWithOperationTrackerTestViewerFriendsQuery$variables,
+  FragmentResourceWithOperationTrackerTestViewerFriendsQuery$data,
+>*/);

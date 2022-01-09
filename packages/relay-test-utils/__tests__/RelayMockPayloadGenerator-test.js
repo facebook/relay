@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -11,17 +11,16 @@
 
 'use strict';
 
-const RelayMockPayloadGenerator = require('../RelayMockPayloadGenerator');
-
-const {
-  getRequest,
-  graphql,
-  createOperationDescriptor,
-} = require('relay-runtime');
-const {FIXTURE_TAG} = require('relay-test-utils-internal');
-
 import type {MockResolvers} from '../RelayMockPayloadGenerator';
 import type {GraphQLTaggedNode} from 'relay-runtime';
+
+const RelayMockPayloadGenerator = require('../RelayMockPayloadGenerator');
+const {
+  createOperationDescriptor,
+  getRequest,
+  graphql,
+} = require('relay-runtime');
+const {FIXTURE_TAG} = require('relay-test-utils-internal');
 
 function testGeneratedData(
   query: GraphQLTaggedNode,
@@ -569,7 +568,7 @@ test('generate mock and verify arguments in the context', () => {
 test('generate mock for fragment with @argumentsDefinition', () => {
   graphql`
     fragment RelayMockPayloadGeneratorTest15Fragment on User
-      @argumentDefinitions(withName: {type: "Boolean!"}) {
+    @argumentDefinitions(withName: {type: "Boolean!"}) {
       id
       name @include(if: $withName)
       profile_picture(scale: $scale) {
@@ -601,7 +600,7 @@ test('generate mock for fragment with @argumentsDefinition', () => {
 test('generate mock for plural fragment', () => {
   graphql`
     fragment RelayMockPayloadGeneratorTest16Fragment on Comment
-      @relay(plural: true) {
+    @relay(plural: true) {
       id
       body {
         text
@@ -674,7 +673,7 @@ test('generate mock for with directives and handlers', () => {
   `;
   graphql`
     fragment RelayMockPayloadGeneratorTest22Fragment on User
-      @argumentDefinitions(condition: {type: "Boolean!"}) {
+    @argumentDefinitions(condition: {type: "Boolean!"}) {
       id
       name
       myActor: actor {

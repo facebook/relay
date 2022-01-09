@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b18b11ddb6e343acad7e5b82840fb6c8>>
+ * @generated SignedSource<<7c1d4292ecc6f9cf34ae6673f7851671>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,21 +15,21 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayModernEnvironmentExecuteWithStreamAndRequiredTestFeedbackFragment$ref: FragmentReference;
-declare export opaque type RelayModernEnvironmentExecuteWithStreamAndRequiredTestFeedbackFragment$fragmentType: RelayModernEnvironmentExecuteWithStreamAndRequiredTestFeedbackFragment$ref;
-export type RelayModernEnvironmentExecuteWithStreamAndRequiredTestFeedbackFragment = ?{|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayModernEnvironmentExecuteWithStreamAndRequiredTestFeedbackFragment$fragmentType: FragmentType;
+export type RelayModernEnvironmentExecuteWithStreamAndRequiredTestFeedbackFragment$ref = RelayModernEnvironmentExecuteWithStreamAndRequiredTestFeedbackFragment$fragmentType;
+export type RelayModernEnvironmentExecuteWithStreamAndRequiredTestFeedbackFragment$data = ?{|
   +id: string,
   +actors: $ReadOnlyArray<?{|
     +name: ?string,
   |}>,
-  +$refType: RelayModernEnvironmentExecuteWithStreamAndRequiredTestFeedbackFragment$ref,
+  +$fragmentType: RelayModernEnvironmentExecuteWithStreamAndRequiredTestFeedbackFragment$fragmentType,
 |};
-export type RelayModernEnvironmentExecuteWithStreamAndRequiredTestFeedbackFragment$data = RelayModernEnvironmentExecuteWithStreamAndRequiredTestFeedbackFragment;
+export type RelayModernEnvironmentExecuteWithStreamAndRequiredTestFeedbackFragment = RelayModernEnvironmentExecuteWithStreamAndRequiredTestFeedbackFragment$data;
 export type RelayModernEnvironmentExecuteWithStreamAndRequiredTestFeedbackFragment$key = {
   +$data?: RelayModernEnvironmentExecuteWithStreamAndRequiredTestFeedbackFragment$data,
-  +$fragmentRefs: RelayModernEnvironmentExecuteWithStreamAndRequiredTestFeedbackFragment$ref,
+  +$fragmentSpreads: RelayModernEnvironmentExecuteWithStreamAndRequiredTestFeedbackFragment$fragmentType,
   ...
 };
 */
@@ -89,4 +89,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "eafa3357931703c738a27fca219e0e48";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayModernEnvironmentExecuteWithStreamAndRequiredTestFeedbackFragment$fragmentType,
+  RelayModernEnvironmentExecuteWithStreamAndRequiredTestFeedbackFragment$data,
+>*/);

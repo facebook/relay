@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -16,7 +16,7 @@ import * as React from 'react';
 
 const Users = () => {
   const {siteConfig} = useDocusaurusContext();
-  const showcase = siteConfig.customFields.users.map(user => {
+  const showcase = siteConfig.customFields.users.map((user) => {
     return (
       <a href={user.infoLink} key={user.caption}>
         <img src={user.image} title={user.caption} />
@@ -34,9 +34,7 @@ const Users = () => {
           </div>
           <div className="logos">{showcase}</div>
           <p>Are you using this project?</p>
-          <a
-            href="https://github.com/facebook/relay/edit/master/website/docusaurus.config.js"
-            className="button">
+          <a href="https://github.com/facebook/relay/edit/main/website/docusaurus.config.js">
             Add your project
           </a>
         </div>
@@ -45,7 +43,7 @@ const Users = () => {
   );
 };
 
-export default props => (
+export default (props) => (
   <Layout>
     <Users {...props} />
   </Layout>

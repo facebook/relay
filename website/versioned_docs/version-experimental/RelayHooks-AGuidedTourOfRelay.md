@@ -10,7 +10,7 @@ In this guide, we're going to go over how to use Relay to build out some of the 
 
 ## Example App
 
-To see a full example using Relay Hooks and our integration with [Suspense for Data Fetching](https://reactjs.org/docs/concurrent-mode-suspense.html), check out: [relay-examples/issue-tracker](https://github.com/relayjs/relay-examples/tree/master/issue-tracker).
+To see a full example using Relay Hooks and our integration with [Suspense for Data Fetching](https://reactjs.org/docs/concurrent-mode-suspense.html), check out: [relay-examples/issue-tracker](https://github.com/relayjs/relay-examples/tree/main/issue-tracker).
 
 ## Setup and Workflow
 
@@ -56,7 +56,7 @@ Alternatively, instead of using `babel-plugin-relay`, you can use Relay with [ba
 const graphql = require('babel-plugin-relay/macro');
 ```
 
-If you need to configure `babel-plugin-relay` further, you can do so by [specifying the options in a number of ways](https://github.com/kentcdodds/babel-plugin-macros/blob/master/other/docs/user.md#config-experimental).
+If you need to configure `babel-plugin-relay` further, you can do so by [specifying the options in a number of ways](https://github.com/kentcdodds/babel-plugin-macros/blob/main/other/docs/user.md#config-experimental).
 
 ### Relay Compiler
 
@@ -1265,7 +1265,7 @@ function App() {
 The provided `fetchPolicy` will determine:
 
 -   _if_ the query should be fulfilled from the local cache, and
--   _if_ a network request should be made to fetch the query from the server, depending on the [availablity of the data for that query in the store](#availability-of-cached-data).
+-   _if_ a network request should be made to fetch the query from the server, depending on the [availability of the data for that query in the store](#availability-of-cached-data).
 
 By default, Relay will try to read the query from the local cache; if any piece of data for that query is [missing](#presence-of-data) or [stale](#staleness-of-data), it will fetch the entire query from the network. This default `fetchPolicy` is called "**_store-or-network"._**
 
@@ -1341,7 +1341,7 @@ const store = new Store(source, {gcScheduler});
 ```
 
 -   By default, if a `gcScheduler` option is not provided, Relay will schedule garbage collection using the `resolveImmediate` function.
--   You can provide a scheduler function to make GC scheduling less aggressive than the default, for example based on time or [scheduler](https://github.com/facebook/react/tree/master/packages/scheduler) priorities, or any other heuristic. By convention, implementations should not execute the callback immediately.
+-   You can provide a scheduler function to make GC scheduling less aggressive than the default, for example based on time or [scheduler](https://github.com/facebook/react/tree/main/packages/scheduler) priorities, or any other heuristic. By convention, implementations should not execute the callback immediately.
 
 ###### GC Release Buffer Size
 
@@ -1418,7 +1418,7 @@ function ProfilePage(props) {
   )
 
   // Here we subscribe to changes in invalidation state for the given user ID.
-  // Whenever the user whith that ID is marked as stale, the provided callback will
+  // Whenever the user with that ID is marked as stale, the provided callback will
   // be executed*
   useSubscribeToInvalidationState([props.userID], () => {
     // Here we can do things like:
@@ -1634,7 +1634,7 @@ const missingFieldHandlers = [
         // value of $story_id.
         return argValues.story_id;
       }
-      return null;
+      return undefined;
     },
     kind: 'linked',
   },
@@ -2242,7 +2242,7 @@ function FriendsListComponent(props: Props) {
 module.exports = FriendsListComponent;
 ```
 
--   `hasNext` is a boolean which indicates if the connection has more items available. This information can be useful for determining if different UI controls should be rendered. In our specific case, we only render the `Button` if there are more friends available in the connection .
+-   `hasNext` is a boolean which indicates if the connection has more items available. This information can be useful for determining if different UI controls should be rendered. In our specific case, we only render the `Button` if there are more friends available in the connection.
 
 ### Blocking ("all-at-once") Pagination
 

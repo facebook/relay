@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -7,11 +7,9 @@
 
 use crate::no_inline::NO_INLINE_DIRECTIVE_NAME;
 use common::{Diagnostic, DiagnosticsResult, NamedItem};
-use fnv::FnvHashMap;
-use graphql_ir::{
-    FragmentDefinition, FragmentSpread, OperationDefinition, Program, ValidationMessage, Validator,
-};
-use interner::StringKey;
+use graphql_ir::{FragmentDefinition, FragmentSpread, OperationDefinition, Program, Validator};
+use intern::string_key::{StringKey, StringKeyMap};
+use thiserror::Error;
 
 pub fn disallow_circular_no_inline_fragments(program: &Program) -> DiagnosticsResult<()> {
     let mut validator = DisallowCircularNoInlineFragments::new(program);
@@ -24,7 +22,7 @@ enum FragmentStatus {
 
 struct DisallowCircularNoInlineFragments<'program> {
     program: &'program Program,
-    fragments: FnvHashMap<StringKey, FragmentStatus>,
+    fragments: StringKeyMap<FragmentStatus>,
 }
 
 impl<'program> DisallowCircularNoInlineFragments<'program> {
@@ -79,4 +77,10 @@ impl Validator for DisallowCircularNoInlineFragments<'_> {
         let fragment = self.program.fragment(spread.fragment.item).unwrap();
         self.validate_fragment(fragment)
     }
+}
+
+#[derive(Debug, Error)]
+enum ValidationMessage {
+    #[error("Found a circular reference from fragment '{fragment_name}'.")]
+    CircularFragmentReference { fragment_name: StringKey },
 }

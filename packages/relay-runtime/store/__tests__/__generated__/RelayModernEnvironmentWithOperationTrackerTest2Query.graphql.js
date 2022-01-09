@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<ee2e61cd794c11647bf86abd76c84106>>
+ * @generated SignedSource<<fed629ce9f1fdb73c2636c6e7e44b40e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,18 +15,20 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-export type RelayModernEnvironmentWithOperationTrackerTest2QueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+export type RelayModernEnvironmentWithOperationTrackerTest2Query$variables = {|
   id?: ?string,
 |};
-export type RelayModernEnvironmentWithOperationTrackerTest2QueryResponse = {|
+export type RelayModernEnvironmentWithOperationTrackerTest2QueryVariables = RelayModernEnvironmentWithOperationTrackerTest2Query$variables;
+export type RelayModernEnvironmentWithOperationTrackerTest2Query$data = {|
   +node: ?{|
     +id: string,
   |},
 |};
+export type RelayModernEnvironmentWithOperationTrackerTest2QueryResponse = RelayModernEnvironmentWithOperationTrackerTest2Query$data;
 export type RelayModernEnvironmentWithOperationTrackerTest2Query = {|
   variables: RelayModernEnvironmentWithOperationTrackerTest2QueryVariables,
-  response: RelayModernEnvironmentWithOperationTrackerTest2QueryResponse,
+  response: RelayModernEnvironmentWithOperationTrackerTest2Query$data,
 |};
 */
 
@@ -138,4 +140,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "b8022f9f27b3ec83efc4c10454a3d999";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentWithOperationTrackerTest2Query$variables,
+  RelayModernEnvironmentWithOperationTrackerTest2Query$data,
+>*/);

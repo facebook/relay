@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -12,18 +12,17 @@
 
 'use strict';
 
+import type {
+  HandleFieldPayload,
+  Handler,
+  RecordProxy,
+  RecordSourceProxy,
+} from '../../store/RelayStoreTypes';
+
 const ConnectionHandler = require('./ConnectionHandler');
 const ConnectionInterface = require('./ConnectionInterface');
-
 const invariant = require('invariant');
 const warning = require('warning');
-
-import type {
-  RecordProxy,
-  HandleFieldPayload,
-  RecordSourceProxy,
-  Handler,
-} from '../../store/RelayStoreTypes';
 
 const DeleteRecordHandler = {
   update: (store: RecordSourceProxy, payload: HandleFieldPayload) => {
@@ -51,7 +50,6 @@ const DeleteEdgeHandler = {
     if (record == null) {
       return;
     }
-    // $FlowFixMe[prop-missing]
     const {connections} = payload.handleArgs;
     invariant(
       connections != null,
@@ -101,7 +99,6 @@ function edgeUpdater(
     if (record == null) {
       return;
     }
-    // $FlowFixMe[prop-missing]
     const {connections} = payload.handleArgs;
     invariant(
       connections != null,
@@ -174,7 +171,6 @@ function nodeUpdater(
     if (record == null) {
       return;
     }
-    // $FlowFixMe[prop-missing]
     const {connections, edgeTypeName} = payload.handleArgs;
     invariant(
       connections != null,

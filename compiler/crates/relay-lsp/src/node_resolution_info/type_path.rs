@@ -1,13 +1,13 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
 use graphql_syntax::OperationKind;
-use interner::StringKey;
-use schema::{Field, SDLSchema, Schema, Type, TypeReference};
+use intern::string_key::StringKey;
+use schema::{Field, SDLSchema, Schema, Type};
 
 #[derive(Debug, Clone)]
 /// An item in the list of type metadata that we can use to resolve the leaf
@@ -62,28 +62,6 @@ fn resolve_relative_type(
     }
 }
 
-fn resolve_relative_type_for_current_item(
-    parent_type: Type,
-    path_item: TypePathItem,
-    schema: &SDLSchema,
-) -> Option<(TypeReference, Option<Field>)> {
-    match path_item {
-        TypePathItem::Operation(_) | TypePathItem::FragmentDefinition { .. } => None,
-        TypePathItem::LinkedField { name } | TypePathItem::ScalarField { name } => {
-            if parent_type.is_abstract_type() || parent_type.is_object() {
-                let field_id = schema.named_field(parent_type, name)?;
-                let field = schema.field(field_id);
-                Some((field.type_.clone(), Some(field.clone())))
-            } else {
-                None
-            }
-        }
-        TypePathItem::InlineFragment { type_name } => schema
-            .get_type(type_name)
-            .map(|type_| (TypeReference::Named(type_), None)),
-    }
-}
-
 #[derive(Debug, Default)]
 pub struct TypePath(pub Vec<TypePathItem>);
 
@@ -106,21 +84,6 @@ impl TypePath {
             resolve_root_type(type_path.pop().expect("path must be non-empty"), schema)?;
         while let Some(path_item) = type_path.pop() {
             type_ = resolve_relative_type(type_, path_item, schema)?;
-        }
-        Some(type_)
-    }
-
-    /// Similar to `resolve_leaf_type` except for ScalarType it will return the type of the field itself
-    pub fn resolve_current_type_reference(self, schema: &SDLSchema) -> Option<TypeReference> {
-        let mut type_path = self.0;
-        type_path.reverse();
-        let mut type_ = TypeReference::Named(resolve_root_type(
-            type_path.pop().expect("path must be non-empty"),
-            schema,
-        )?);
-        while let Some(path_item) = type_path.pop() {
-            let result = resolve_relative_type_for_current_item(type_.inner(), path_item, schema)?;
-            type_ = result.0;
         }
         Some(type_)
     }

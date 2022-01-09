@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,11 +13,10 @@
 
 'use strict';
 
-const warning = require('warning');
+import type {ReaderFragment} from 'relay-runtime';
 
 const {useRef} = require('react');
-
-import type {ReaderFragment} from 'relay-runtime';
+const warning = require('warning');
 
 function useStaticFragmentNodeWarning(
   fragmentNode: ReaderFragment,

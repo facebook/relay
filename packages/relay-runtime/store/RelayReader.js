@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -12,52 +12,14 @@
 
 'use strict';
 
-const ClientID = require('./ClientID');
-const RelayFeatureFlags = require('../util/RelayFeatureFlags');
-const RelayModernRecord = require('./RelayModernRecord');
-
-const invariant = require('invariant');
-
-const {
-  ACTOR_CHANGE,
-  CLIENT_EXTENSION,
-  CONDITION,
-  DEFER,
-  FLIGHT_FIELD,
-  FRAGMENT_SPREAD,
-  INLINE_DATA_FRAGMENT_SPREAD,
-  INLINE_FRAGMENT,
-  LINKED_FIELD,
-  MODULE_IMPORT,
-  REQUIRED_FIELD,
-  RELAY_RESOLVER,
-  SCALAR_FIELD,
-  STREAM,
-} = require('../util/RelayConcreteNode');
-const {getReactFlightClientResponse} = require('./RelayStoreReactFlightUtils');
-const {
-  FRAGMENTS_KEY,
-  FRAGMENT_OWNER_KEY,
-  FRAGMENT_PROP_NAME_KEY,
-  ID_KEY,
-  IS_WITHIN_UNMATCHED_TYPE_REFINEMENT,
-  MODULE_COMPONENT_KEY,
-  ROOT_ID,
-  getArgumentValues,
-  getStorageKey,
-  getModuleComponentKey,
-} = require('./RelayStoreUtils');
-const {NoopResolverCache} = require('./ResolverCache');
-const {withResolverContext} = require('./ResolverFragments');
-const {generateTypeID} = require('./TypeID');
-
 import type {
+  ReaderActorChange,
+  ReaderClientEdge,
   ReaderFlightField,
   ReaderFragment,
   ReaderFragmentSpread,
   ReaderInlineDataFragmentSpread,
   ReaderLinkedField,
-  ReaderActorChange,
   ReaderModuleImport,
   ReaderNode,
   ReaderRelayResolver,
@@ -67,16 +29,57 @@ import type {
 } from '../util/ReaderNode';
 import type {DataID, Variables} from '../util/RelayRuntimeTypes';
 import type {
+  ClientEdgeTraversalInfo,
+  DataIDSet,
+  MissingClientEdgeRequestInfo,
+  MissingRequiredFields,
   Record,
   RecordSource,
   RequestDescriptor,
   SelectorData,
   SingularReaderSelector,
   Snapshot,
-  MissingRequiredFields,
-  DataIDSet,
 } from './RelayStoreTypes';
 import type {ResolverCache} from './ResolverCache';
+
+const {
+  ACTOR_CHANGE,
+  CLIENT_EDGE,
+  CLIENT_EXTENSION,
+  CONDITION,
+  DEFER,
+  FLIGHT_FIELD,
+  FRAGMENT_SPREAD,
+  INLINE_DATA_FRAGMENT_SPREAD,
+  INLINE_FRAGMENT,
+  LINKED_FIELD,
+  MODULE_IMPORT,
+  RELAY_RESOLVER,
+  REQUIRED_FIELD,
+  SCALAR_FIELD,
+  STREAM,
+} = require('../util/RelayConcreteNode');
+const RelayFeatureFlags = require('../util/RelayFeatureFlags');
+const ClientID = require('./ClientID');
+const RelayModernRecord = require('./RelayModernRecord');
+const {getReactFlightClientResponse} = require('./RelayStoreReactFlightUtils');
+const {
+  CLIENT_EDGE_TRAVERSAL_PATH,
+  FRAGMENT_OWNER_KEY,
+  FRAGMENT_PROP_NAME_KEY,
+  FRAGMENTS_KEY,
+  ID_KEY,
+  IS_WITHIN_UNMATCHED_TYPE_REFINEMENT,
+  MODULE_COMPONENT_KEY,
+  ROOT_ID,
+  getArgumentValues,
+  getModuleComponentKey,
+  getStorageKey,
+} = require('./RelayStoreUtils');
+const {NoopResolverCache} = require('./ResolverCache');
+const {withResolverContext} = require('./ResolverFragments');
+const {generateTypeID} = require('./TypeID');
+const invariant = require('invariant');
 
 function read(
   recordSource: RecordSource,
@@ -95,7 +98,9 @@ function read(
  * @private
  */
 class RelayReader {
+  _clientEdgeTraversalPath: Array<ClientEdgeTraversalInfo | null>;
   _isMissingData: boolean;
+  _missingClientEdges: Array<MissingClientEdgeRequestInfo>;
   _isWithinUnmatchedTypeRefinement: boolean;
   _missingRequiredFields: ?MissingRequiredFields;
   _owner: RequestDescriptor;
@@ -110,6 +115,12 @@ class RelayReader {
     selector: SingularReaderSelector,
     resolverCache: ResolverCache,
   ) {
+    this._clientEdgeTraversalPath =
+      RelayFeatureFlags.ENABLE_CLIENT_EDGES &&
+      selector.clientEdgeTraversalPath?.length
+        ? [...selector.clientEdgeTraversalPath]
+        : [];
+    this._missingClientEdges = [];
     this._isMissingData = false;
     this._isWithinUnmatchedTypeRefinement = false;
     this._missingRequiredFields = null;
@@ -142,7 +153,18 @@ class RelayReader {
     // match, then no data is expected to be present.
     if (isDataExpectedToBePresent && abstractKey == null && record != null) {
       const recordType = RelayModernRecord.getType(record);
-      if (recordType !== node.type && dataID !== ROOT_ID) {
+      if (
+        recordType !== node.type &&
+        // The root record type is a special `__Root` type and may not match the
+        // type on the ast, so ignore type mismatches at the root.
+        // We currently detect whether we're at the root by checking against ROOT_ID,
+        // but this does not work for mutations/subscriptions which generate unique
+        // root ids. This is acceptable in practice as we don't read data for mutations/
+        // subscriptions in a situation where we would use isMissingData to decide whether
+        // to suspend or not.
+        // TODO T96653810: Correctly detect reading from root of mutation/subscription
+        dataID !== ROOT_ID
+      ) {
         isDataExpectedToBePresent = false;
       }
     }
@@ -151,12 +173,7 @@ class RelayReader {
     // then data is only expected to be present if the record type is known to
     // implement the interface. If we aren't sure whether the record implements
     // the interface, that itself constitutes "expected" data being missing.
-    if (
-      isDataExpectedToBePresent &&
-      abstractKey != null &&
-      record != null &&
-      RelayFeatureFlags.ENABLE_PRECISE_TYPE_REFINEMENT
-    ) {
+    if (isDataExpectedToBePresent && abstractKey != null && record != null) {
       const recordType = RelayModernRecord.getType(record);
       const typeID = generateTypeID(recordType);
       const typeRecord = this._recordSource.get(typeID);
@@ -178,10 +195,34 @@ class RelayReader {
     return {
       data,
       isMissingData: this._isMissingData && isDataExpectedToBePresent,
+      missingClientEdges:
+        RelayFeatureFlags.ENABLE_CLIENT_EDGES && this._missingClientEdges.length
+          ? this._missingClientEdges
+          : null,
       seenRecords: this._seenRecords,
       selector: this._selector,
       missingRequiredFields: this._missingRequiredFields,
     };
+  }
+
+  _markDataAsMissing(): void {
+    this._isMissingData = true;
+    if (
+      RelayFeatureFlags.ENABLE_CLIENT_EDGES &&
+      this._clientEdgeTraversalPath.length
+    ) {
+      const top =
+        this._clientEdgeTraversalPath[this._clientEdgeTraversalPath.length - 1];
+      // Top can be null if we've traversed past a client edge into an ordinary
+      // client extension field; we never want to fetch in response to missing
+      // data off of a client extension field.
+      if (top !== null) {
+        this._missingClientEdges.push({
+          request: top.readerClientEdge.operation,
+          clientEdgeDestinationID: top.clientEdgeDestinationID,
+        });
+      }
+    }
   }
 
   _traverse(
@@ -193,7 +234,7 @@ class RelayReader {
     this._seenRecords.add(dataID);
     if (record == null) {
       if (record === undefined) {
-        this._isMissingData = true;
+        this._markDataAsMissing();
       }
       return record;
     }
@@ -212,7 +253,6 @@ class RelayReader {
       'RelayReader(): Undefined variable `%s`.',
       name,
     );
-    // $FlowFixMe[cannot-write]
     return this._variables[name];
   }
 
@@ -253,13 +293,6 @@ class RelayReader {
       const selection = selections[i];
       switch (selection.kind) {
         case REQUIRED_FIELD:
-          invariant(
-            RelayFeatureFlags.ENABLE_REQUIRED_DIRECTIVES,
-            'RelayReader(): Encountered a `@required` directive at path "%s" in `%s` without the `ENABLE_REQUIRED_DIRECTIVES` feature flag enabled.',
-            selection.path,
-            this._selector.node.name,
-          );
-
           const fieldValue = this._readRequiredField(selection, record, data);
           if (fieldValue == null) {
             const {action} = selection;
@@ -312,15 +345,15 @@ class RelayReader {
                 return false;
               }
             }
-          } else if (RelayFeatureFlags.ENABLE_PRECISE_TYPE_REFINEMENT) {
+          } else {
             // Similar to the logic in read(): data is only expected to be present
             // if the record is known to conform to the interface. If we don't know
             // whether the type conforms or not, that constitutes missing data.
 
             // store flags to reset after reading
             const parentIsMissingData = this._isMissingData;
-            const parentIsWithinUnmatchedTypeRefinement = this
-              ._isWithinUnmatchedTypeRefinement;
+            const parentIsWithinUnmatchedTypeRefinement =
+              this._isWithinUnmatchedTypeRefinement;
 
             const typeName = RelayModernRecord.getType(record);
             const typeID = generateTypeID(typeName);
@@ -333,19 +366,16 @@ class RelayReader {
               parentIsWithinUnmatchedTypeRefinement ||
               implementsInterface === false;
             this._traverseSelections(selection.selections, record, data);
-            this._isWithinUnmatchedTypeRefinement = parentIsWithinUnmatchedTypeRefinement;
+            this._isWithinUnmatchedTypeRefinement =
+              parentIsWithinUnmatchedTypeRefinement;
 
             if (implementsInterface === false) {
               // Type known to not implement the interface, no data expected
               this._isMissingData = parentIsMissingData;
             } else if (implementsInterface == null) {
               // Don't know if the type implements the interface or not
-              this._isMissingData = true;
+              this._markDataAsMissing();
             }
-          } else {
-            // legacy behavior for abstract refinements: always read even
-            // if the type doesn't conform and don't reset isMissingData
-            this._traverseSelections(selection.selections, record, data);
           }
           break;
         }
@@ -372,12 +402,24 @@ class RelayReader {
         case DEFER:
         case CLIENT_EXTENSION: {
           const isMissingData = this._isMissingData;
+          const alreadyMissingClientEdges = this._missingClientEdges.length;
+          if (RelayFeatureFlags.ENABLE_CLIENT_EDGES) {
+            this._clientEdgeTraversalPath.push(null);
+          }
           const hasExpectedData = this._traverseSelections(
             selection.selections,
             record,
             data,
           );
-          this._isMissingData = isMissingData;
+          // The only case where we want to suspend due to missing data off of
+          // a client extension is if we reached a client edge that we might be
+          // able to fetch:
+          this._isMissingData =
+            isMissingData ||
+            this._missingClientEdges.length > alreadyMissingClientEdges;
+          if (RelayFeatureFlags.ENABLE_CLIENT_EDGES) {
+            this._clientEdgeTraversalPath.pop();
+          }
           if (!hasExpectedData) {
             return false;
           }
@@ -403,6 +445,13 @@ class RelayReader {
           break;
         case ACTOR_CHANGE:
           this._readActorChange(selection, record, data);
+          break;
+        case CLIENT_EDGE:
+          if (RelayFeatureFlags.ENABLE_CLIENT_EDGES) {
+            this._readClientEdge(selection, record, data);
+          } else {
+            throw new Error('Client edges are not yet supported.');
+          }
           break;
         default:
           (selection: empty);
@@ -450,7 +499,7 @@ class RelayReader {
     field: ReaderRelayResolver,
     record: Record,
     data: SelectorData,
-  ): ?mixed {
+  ): void {
     const {resolverModule, fragment} = field;
     const storageKey = getStorageKey(field, this._variables);
     const resolverID = ClientID.generateClientID(
@@ -523,8 +572,66 @@ class RelayReader {
     if (seenRecord != null) {
       this._seenRecords.add(seenRecord);
     }
-    data[storageKey] = result;
-    return result;
+
+    const applicationName = field.alias ?? field.name;
+    data[applicationName] = result;
+  }
+
+  _readClientEdge(
+    field: ReaderClientEdge,
+    record: Record,
+    data: SelectorData,
+  ): void {
+    const backingField = field.backingField;
+
+    // Because ReaderClientExtension doesn't have `alias` or `name` and so I don't know
+    // how to get its applicationName or storageKey yet:
+    invariant(
+      backingField.kind !== 'ClientExtension',
+      'Client extension client edges are not yet implemented.',
+    );
+
+    const applicationName = backingField.alias ?? backingField.name;
+
+    const backingFieldData = {};
+    this._traverseSelections([backingField], record, backingFieldData);
+    const destinationDataID = backingFieldData[applicationName];
+
+    if (destinationDataID == null) {
+      data[applicationName] = destinationDataID;
+      return;
+    }
+
+    invariant(
+      typeof destinationDataID === 'string',
+      'Plural client edges not are yet implemented',
+    ); // FIXME support plural
+
+    // Not wrapping the push/pop in a try/finally because if we throw, the
+    // Reader object is not usable after that anyway.
+    this._clientEdgeTraversalPath.push({
+      readerClientEdge: field,
+      clientEdgeDestinationID: destinationDataID,
+    });
+
+    const prevData = data[applicationName];
+    invariant(
+      prevData == null || typeof prevData === 'object',
+      'RelayReader(): Expected data for field `%s` on record `%s` ' +
+        'to be an object, got `%s`.',
+      applicationName,
+      RelayModernRecord.getDataID(record),
+      prevData,
+    );
+    const value = this._traverse(
+      field.linkedField,
+      destinationDataID,
+      // $FlowFixMe[incompatible-variance]
+      prevData,
+    );
+    data[applicationName] = value;
+
+    this._clientEdgeTraversalPath.pop();
   }
 
   _readFlightField(
@@ -534,14 +641,12 @@ class RelayReader {
   ): ?mixed {
     const applicationName = field.alias ?? field.name;
     const storageKey = getStorageKey(field, this._variables);
-    const reactFlightClientResponseRecordID = RelayModernRecord.getLinkedRecordID(
-      record,
-      storageKey,
-    );
+    const reactFlightClientResponseRecordID =
+      RelayModernRecord.getLinkedRecordID(record, storageKey);
     if (reactFlightClientResponseRecordID == null) {
       data[applicationName] = reactFlightClientResponseRecordID;
       if (reactFlightClientResponseRecordID === undefined) {
-        this._isMissingData = true;
+        this._markDataAsMissing();
       }
       return reactFlightClientResponseRecordID;
     }
@@ -552,7 +657,7 @@ class RelayReader {
     if (reactFlightClientResponseRecord == null) {
       data[applicationName] = reactFlightClientResponseRecord;
       if (reactFlightClientResponseRecord === undefined) {
-        this._isMissingData = true;
+        this._markDataAsMissing();
       }
       return reactFlightClientResponseRecord;
     }
@@ -572,7 +677,7 @@ class RelayReader {
     const storageKey = getStorageKey(field, this._variables);
     const value = RelayModernRecord.getValue(record, storageKey);
     if (value === undefined) {
-      this._isMissingData = true;
+      this._markDataAsMissing();
     }
     data[applicationName] = value;
     return value;
@@ -589,7 +694,7 @@ class RelayReader {
     if (linkedID == null) {
       data[applicationName] = linkedID;
       if (linkedID === undefined) {
-        this._isMissingData = true;
+        this._markDataAsMissing();
       }
       return linkedID;
     }
@@ -624,7 +729,7 @@ class RelayReader {
     if (externalRef == null) {
       data[applicationName] = externalRef;
       if (externalRef === undefined) {
-        this._isMissingData = true;
+        this._markDataAsMissing();
       }
       return data[applicationName];
     }
@@ -657,7 +762,7 @@ class RelayReader {
     if (linkedIDs == null) {
       data[applicationName] = linkedIDs;
       if (linkedIDs === undefined) {
-        this._isMissingData = true;
+        this._markDataAsMissing();
       }
       return linkedIDs;
     }
@@ -675,7 +780,7 @@ class RelayReader {
     linkedIDs.forEach((linkedID, nextIndex) => {
       if (linkedID == null) {
         if (linkedID === undefined) {
-          this._isMissingData = true;
+          this._markDataAsMissing();
         }
         // $FlowFixMe[cannot-write]
         linkedArray[nextIndex] = linkedID;
@@ -713,7 +818,7 @@ class RelayReader {
     const component = RelayModernRecord.getValue(record, componentKey);
     if (component == null) {
       if (component === undefined) {
-        this._isMissingData = true;
+        this._markDataAsMissing();
       }
       return;
     }
@@ -758,11 +863,18 @@ class RelayReader {
       ? getArgumentValues(fragmentSpread.args, this._variables)
       : {};
     data[FRAGMENT_OWNER_KEY] = this._owner;
+    data[IS_WITHIN_UNMATCHED_TYPE_REFINEMENT] =
+      this._isWithinUnmatchedTypeRefinement;
 
-    if (RelayFeatureFlags.ENABLE_PRECISE_TYPE_REFINEMENT) {
-      data[
-        IS_WITHIN_UNMATCHED_TYPE_REFINEMENT
-      ] = this._isWithinUnmatchedTypeRefinement;
+    if (RelayFeatureFlags.ENABLE_CLIENT_EDGES) {
+      if (
+        this._clientEdgeTraversalPath.length > 0 &&
+        this._clientEdgeTraversalPath[
+          this._clientEdgeTraversalPath.length - 1
+        ] !== null
+      ) {
+        data[CLIENT_EDGE_TRAVERSAL_PATH] = [...this._clientEdgeTraversalPath];
+      }
     }
   }
 

@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<9c8c237f60708e8828ea154fb900a403>>
+ * @generated SignedSource<<9a6194b202845a80d94a209526dfdad2>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,7 +15,7 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
+import type { ConcreteRequest, Mutation } from 'relay-runtime';
 export type CommentCreateInput = {|
   clientMutationId?: ?string,
   feedbackId?: ?string,
@@ -27,10 +27,11 @@ export type CommentfeedbackFeedback = {|
 export type FeedbackcommentComment = {|
   feedback?: ?CommentfeedbackFeedback,
 |};
-export type RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCreateCommentMutationVariables = {|
+export type RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCreateCommentMutation$variables = {|
   input: CommentCreateInput,
 |};
-export type RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCreateCommentMutationResponse = {|
+export type RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCreateCommentMutationVariables = RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCreateCommentMutation$variables;
+export type RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCreateCommentMutation$data = {|
   +commentCreate: ?{|
     +comment: ?{|
       +id: string,
@@ -40,9 +41,10 @@ export type RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCreat
     |},
   |},
 |};
+export type RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCreateCommentMutationResponse = RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCreateCommentMutation$data;
 export type RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCreateCommentMutation = {|
   variables: RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCreateCommentMutationVariables,
-  response: RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCreateCommentMutationResponse,
+  response: RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCreateCommentMutation$data,
 |};
 */
 
@@ -141,4 +143,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "5fe8d31255a57d03426f7ce2385e5910";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Mutation<
+  RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCreateCommentMutation$variables,
+  RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCreateCommentMutation$data,
+>*/);

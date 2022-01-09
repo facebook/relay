@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,10 +13,9 @@
 'use strict';
 
 const EntryPointContainer = require('./relay-hooks/EntryPointContainer.react');
-const RelayEnvironmentProvider = require('./relay-hooks/RelayEnvironmentProvider');
-const RelayRuntime = require('relay-runtime');
-
 const loadEntryPoint = require('./relay-hooks/loadEntryPoint');
+const {loadQuery} = require('./relay-hooks/loadQuery');
+const RelayEnvironmentProvider = require('./relay-hooks/RelayEnvironmentProvider');
 const useEntryPointLoader = require('./relay-hooks/useEntryPointLoader');
 const useFragment = require('./relay-hooks/useFragment');
 const useLazyLoadQuery = require('./relay-hooks/useLazyLoadQuery');
@@ -28,8 +27,7 @@ const useRefetchableFragment = require('./relay-hooks/useRefetchableFragment');
 const useRelayEnvironment = require('./relay-hooks/useRelayEnvironment');
 const useSubscribeToInvalidationState = require('./relay-hooks/useSubscribeToInvalidationState');
 const useSubscription = require('./relay-hooks/useSubscription');
-
-const {loadQuery} = require('./relay-hooks/loadQuery');
+const RelayRuntime = require('relay-runtime');
 
 export type * from './relay-hooks/EntryPointTypes.flow';
 export type {
@@ -37,7 +35,7 @@ export type {
   MatchPointer,
 } from './relay-hooks/MatchContainer';
 export type {ProfilerContextType} from './relay-hooks/ProfilerContext';
-export type {Direction, LoadMoreFn} from './relay-hooks/useLoadMoreFunction';
+export type {LoadMoreFn} from './relay-hooks/useLoadMoreFunction';
 export type {UseMutationConfig} from './relay-hooks/useMutation';
 export type {UseQueryLoaderLoadQueryOptions} from './relay-hooks/useQueryLoader';
 export type {
@@ -48,6 +46,7 @@ export type {
 export type {
   DataID,
   DeclarativeMutationConfig,
+  Direction,
   Disposable,
   // RelayRuntime has two environment exports: one interface, one concrete.
   IEnvironment as Environment,

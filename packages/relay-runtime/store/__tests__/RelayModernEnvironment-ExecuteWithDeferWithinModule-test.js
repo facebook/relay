@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,24 +13,23 @@
 
 'use strict';
 
-const RelayModernEnvironment = require('../RelayModernEnvironment');
-const RelayModernStore = require('../RelayModernStore');
-const RelayNetwork = require('../../network/RelayNetwork');
-const RelayObservable = require('../../network/RelayObservable');
-const RelayRecordSource = require('../RelayRecordSource');
+import type {NormalizationRootNode} from '../../util/NormalizationNode';
 
 const {
-  getActorIdentifier,
   MultiActorEnvironment,
+  getActorIdentifier,
 } = require('../../multi-actor-environment');
-const {graphql, getFragment, getRequest} = require('../../query/GraphQLTag');
+const RelayNetwork = require('../../network/RelayNetwork');
+const RelayObservable = require('../../network/RelayObservable');
+const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
+const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../RelayModernSelector');
-const {disallowWarnings} = require('relay-test-utils-internal');
-
-import type {NormalizationRootNode} from '../../util/NormalizationNode';
+const RelayModernStore = require('../RelayModernStore');
+const RelayRecordSource = require('../RelayRecordSource');
+const {disallowWarnings, expectToWarn} = require('relay-test-utils-internal');
 
 disallowWarnings();
 
@@ -134,7 +133,8 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
         userNormalizationFragment = require('./__generated__/RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user$normalization.graphql');
         graphql`
-          fragment RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user on User {
+          fragment RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user on User
+          @no_inline {
             ...RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserFragment
               @defer(label: "UserFragment")
           }
@@ -279,26 +279,37 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         userCallback.mockClear();
         actorCallback.mockClear();
 
-        dataSource.next({
-          data: {
-            id: '1',
-            __typename: 'User',
-            name: 'Alice',
+        expectToWarn(
+          'RelayPublishQueue.run was called, but the call would have been a noop.',
+          () => {
+            dataSource.next({
+              data: {
+                id: '1',
+                __typename: 'User',
+                name: 'Alice',
+              },
+              label:
+                'RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user$defer$UserFragment',
+              path: ['node'],
+            });
           },
-          label:
-            'RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user$defer$UserFragment',
-          path: ['node'],
-        });
-        dataSource.next({
-          data: {
-            id: '2',
-            __typename: 'User',
-            name: 'Bob',
+        );
+
+        expectToWarn(
+          'RelayPublishQueue.run was called, but the call would have been a noop.',
+          () => {
+            dataSource.next({
+              data: {
+                id: '2',
+                __typename: 'User',
+                name: 'Bob',
+              },
+              label:
+                'RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user$defer$UserFragment',
+              path: ['viewer', 'actor'],
+            });
           },
-          label:
-            'RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user$defer$UserFragment',
-          path: ['viewer', 'actor'],
-        });
+        );
 
         expect(userCallback).toBeCalledTimes(0);
         expect(actorCallback).toBeCalledTimes(0);
@@ -309,6 +320,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
         resolveFragment(userNormalizationFragment);
         jest.runAllTimers();
+
         expect(error.mock.calls.map(call => call[0])).toEqual([]);
         expect(userCallback).toBeCalledTimes(1);
         const userSnapshot = userCallback.mock.calls[0][0];
@@ -527,13 +539,23 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           jest.runAllTimers();
 
           expect(tasks.size).toBe(2);
-          runTask();
-          runTask();
+
+          expectToWarn(
+            'RelayPublishQueue.run was called, but the call would have been a noop.',
+            () => {
+              runTask();
+            },
+          );
+          expectToWarn(
+            'RelayPublishQueue.run was called, but the call would have been a noop.',
+            () => {
+              runTask();
+            },
+          );
 
           expect(userCallback).toBeCalledTimes(0);
           expect(actorCallback).toBeCalledTimes(0);
           expect(complete).toBeCalledTimes(0);
-          expect(error.mock.calls.map(call => call[0])).toEqual([]);
           expect(error).toBeCalledTimes(0);
           expect(next).toBeCalledTimes(2);
 

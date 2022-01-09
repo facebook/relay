@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<4557e7617f5b555024710f8f65f0dfcb>>
+ * @generated SignedSource<<89584fbc6111f16dc54b899a9e3b86e9>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,15 +16,6 @@
 
 /*::
 import type { NormalizationSplitOperation } from 'relay-runtime';
-
-export type RelayModernEnvironmentNoInlineTestStream_feedback$normalization = {|
-  +actors: ?$ReadOnlyArray<?{|
-    +__typename: string,
-    +__isActor: string,
-    +name: ?string,
-    +id: string,
-  |}>,
-|};
 
 */
 
@@ -44,7 +35,6 @@ var node/*: NormalizationSplitOperation*/ = {
       "if": null,
       "kind": "Stream",
       "label": "RelayModernEnvironmentNoInlineTestStream_feedback$stream$actors",
-      "metadata": null,
       "selections": [
         {
           "alias": null,
@@ -89,8 +79,7 @@ var node/*: NormalizationSplitOperation*/ = {
           ],
           "storageKey": null
         }
-      ],
-      "useCustomizedBatch": null
+      ]
     }
   ]
 };

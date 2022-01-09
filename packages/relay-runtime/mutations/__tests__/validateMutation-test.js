@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -14,8 +14,7 @@
 'use strict';
 
 const validateMutation = require('../validateMutation');
-
-const {getRequest, graphql, RelayFeatureFlags} = require('relay-runtime');
+const {RelayFeatureFlags, getRequest, graphql} = require('relay-runtime');
 
 jest.mock('warning', () => {
   return (dontWarn, message, ...args) => {
@@ -192,8 +191,7 @@ describe('validateOptimisticResponse', () => {
       shouldWarn: true,
     },
     {
-      name:
-        'Logs a warning when there are unused fields in an `optimisticResponse`',
+      name: 'Logs a warning when there are unused fields in an `optimisticResponse`',
       mutation: getRequest(graphql`
         mutation validateMutationTest7ChangeNameBirthdayMutation(
           $input: ActorNameChangeInput!

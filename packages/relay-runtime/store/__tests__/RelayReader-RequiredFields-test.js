@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -10,58 +10,15 @@
 
 'use strict';
 
-const RelayRecordSource = require('../RelayRecordSource');
-
 const {graphql} = require('../../query/GraphQLTag');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {read} = require('../RelayReader');
-const {createReaderSelector, RelayFeatureFlags} = require('relay-runtime');
-
-beforeEach(() => {
-  RelayFeatureFlags.ENABLE_REQUIRED_DIRECTIVES = true;
-});
-
-afterEach(() => {
-  RelayFeatureFlags.ENABLE_REQUIRED_DIRECTIVES = false;
-});
+const RelayRecordSource = require('../RelayRecordSource');
+const {createReaderSelector} = require('relay-runtime');
 
 describe('RelayReader @required', () => {
-  it('throws if a @required is encounted without the ENABLE_REQUIRED_DIRECTIVES feature flag enabled', () => {
-    const source = RelayRecordSource.create({
-      'client:root': {
-        __id: 'client:root',
-        __typename: '__Root',
-        me: {__ref: '1'},
-      },
-      '1': {
-        __id: '1',
-        id: '1',
-        __typename: 'User',
-        firstName: 'Alice',
-        lastName: null,
-      },
-    });
-    const FooQuery = graphql`
-      query RelayReaderRequiredFieldsTest1Query {
-        me {
-          firstName
-          lastName @required(action: LOG)
-        }
-      }
-    `;
-    const operation = createOperationDescriptor(FooQuery, {id: '1'});
-
-    RelayFeatureFlags.ENABLE_REQUIRED_DIRECTIVES = false;
-
-    expect(() => {
-      read(source, operation.fragment);
-    }).toThrowErrorMatchingInlineSnapshot(
-      '"RelayReader(): Encountered a `@required` directive at path \\"me.lastName\\" in `RelayReaderRequiredFieldsTest1Query` without the `ENABLE_REQUIRED_DIRECTIVES` feature flag enabled."',
-    );
-  });
-
   it('bubbles @required(action: LOG) scalars up to LinkedField', () => {
     const source = RelayRecordSource.create({
       'client:root': {

@@ -1,11 +1,11 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use interner::StringKey;
+use intern::string_key::StringKey;
 use thiserror::Error;
 
 #[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]
@@ -102,5 +102,63 @@ pub enum ValidationMessage {
         actor_change_field: StringKey,
         field_name: StringKey,
         actor_change_field_type: StringKey,
+    },
+
+    #[error(
+        "The '{fragment_name}' is transformed to use @no_inline implictly by `@module` or `@relay_client_component`, but it's also used in a regular fragment spread. It's required to explicitly add `@no_inline` to the definition of '{fragment_name}'."
+    )]
+    RequiredExplicitNoInlineDirective { fragment_name: StringKey },
+
+    #[error(
+        "After transforms, the operation `{name}` that would be sent to the server is empty. \
+        Relay is not setup to handle such queries. This is likely due to only querying for \
+        client extension fields or `@skip`/`@include` directives with constant values that \
+        remove all selections."
+    )]
+    EmptyOperationResult { name: StringKey },
+
+    #[error(
+        "Field '{response_key}' is ambiguous because it references two different fields: '{l_name}' and '{r_name}'"
+    )]
+    AmbiguousFieldAlias {
+        response_key: StringKey,
+        l_name: StringKey,
+        r_name: StringKey,
+    },
+
+    #[error(
+        "Field '{response_key}' is ambiguous because it references fields with different types: '{l_name}' with type '{l_type_string}' and '{r_name}' with type '{r_type_string}'"
+    )]
+    AmbiguousFieldType {
+        response_key: StringKey,
+        l_name: StringKey,
+        l_type_string: String,
+        r_name: StringKey,
+        r_type_string: String,
+    },
+
+    #[error(
+        "Field '{response_key}' is marked with @stream in one place, and not marked in another place. Please use alias to distinguish the 2 fields.'"
+    )]
+    StreamConflictOnlyUsedInOnePlace { response_key: StringKey },
+
+    #[error(
+        "Field '{response_key}' is marked with @stream in multiple places. Please use an alias to distinguish them'"
+    )]
+    StreamConflictUsedInMultiplePlaces { response_key: StringKey },
+
+    #[error(
+        "The `@relay_test_operation` directive is only allowed within test \
+        files because it creates larger generated files we don't want to \
+        include in production. File does not match test regex: {test_path_regex}"
+    )]
+    TestOperationOutsideTestDirectory { test_path_regex: String },
+
+    #[error(
+        "Expected all fields on the same parent with the name or alias `{field_name}` to have the same argument values after applying fragment arguments. This field has the applied argument values: {arguments_a}"
+    )]
+    InvalidSameFieldWithDifferentArguments {
+        field_name: StringKey,
+        arguments_a: String,
     },
 }

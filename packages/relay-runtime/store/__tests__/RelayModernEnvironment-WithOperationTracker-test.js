@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,22 +13,20 @@
 
 'use strict';
 
-const RelayOperationTracker = require('../RelayOperationTracker');
+import type {NormalizationRootNode} from '../../util/NormalizationNode';
 
-const invariant = require('invariant');
-
-const {getRequest, getFragment, graphql} = require('../../query/GraphQLTag');
+const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../RelayModernSelector');
+const RelayOperationTracker = require('../RelayOperationTracker');
+const invariant = require('invariant');
 const {
   MockPayloadGenerator,
   createMockEnvironment,
 } = require('relay-test-utils');
 const {disallowWarnings} = require('relay-test-utils-internal');
-
-import type {NormalizationRootNode} from '../../util/NormalizationNode';
 
 disallowWarnings();
 
@@ -46,7 +44,7 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
   beforeEach(() => {
     const Query1 = getRequest(graphql`
       query RelayModernEnvironmentWithOperationTrackerTest1Query($id: ID)
-        @relay_test_operation {
+      @relay_test_operation {
         node(id: $id) {
           ... on Feedback {
             id
@@ -70,7 +68,7 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
 
     const Query2 = getRequest(graphql`
       query RelayModernEnvironmentWithOperationTrackerTest2Query($id: ID)
-        @relay_test_operation {
+      @relay_test_operation {
         node(id: $id) {
           id
         }
@@ -119,14 +117,10 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
   it('should have operation tracker and operations should not be affected', () => {
     invariant(tracker != null, 'Tracker should be defined');
     expect(
-      tracker.getPromiseForPendingOperationsAffectingOwner(
-        QueryOperation1.request,
-      ),
+      tracker.getPendingOperationsAffectingOwner(QueryOperation1.request),
     ).toBe(null);
     expect(
-      tracker.getPromiseForPendingOperationsAffectingOwner(
-        QueryOperation2.request,
-      ),
+      tracker.getPendingOperationsAffectingOwner(QueryOperation2.request),
     ).toBe(null);
   });
 
@@ -168,9 +162,7 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
       .subscribe({});
 
     expect(
-      tracker.getPromiseForPendingOperationsAffectingOwner(
-        QueryOperation1.request,
-      ),
+      tracker.getPendingOperationsAffectingOwner(QueryOperation1.request),
     ).toBe(null);
 
     // This mutation is changing the same feedback object, so the owner (QueryOperation1)
@@ -190,9 +182,8 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
     );
 
     expect(
-      tracker.getPromiseForPendingOperationsAffectingOwner(
-        QueryOperation1.request,
-      ),
+      tracker.getPendingOperationsAffectingOwner(QueryOperation1.request)
+        ?.promise,
     ).toBeInstanceOf(Promise);
 
     // Complete the mutation
@@ -201,9 +192,7 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
     // There should be no pending operations affecting the owner,
     // after the mutation is completed
     expect(
-      tracker.getPromiseForPendingOperationsAffectingOwner(
-        QueryOperation1.request,
-      ),
+      tracker.getPendingOperationsAffectingOwner(QueryOperation1.request),
     ).toBe(null);
   });
 
@@ -235,9 +224,7 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
       .subscribe({});
 
     expect(
-      tracker.getPromiseForPendingOperationsAffectingOwner(
-        QueryOperation1.request,
-      ),
+      tracker.getPendingOperationsAffectingOwner(QueryOperation1.request),
     ).toBe(null);
 
     // This mutation will update the same data as the QueryOperation1
@@ -257,9 +244,7 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
       }),
     );
     expect(
-      tracker.getPromiseForPendingOperationsAffectingOwner(
-        QueryOperation1.request,
-      ),
+      tracker.getPendingOperationsAffectingOwner(QueryOperation1.request),
     ).toBe(null);
   });
 
@@ -296,9 +281,7 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
       })
       .subscribe({});
     expect(
-      tracker.getPromiseForPendingOperationsAffectingOwner(
-        QueryOperation1.request,
-      ),
+      tracker.getPendingOperationsAffectingOwner(QueryOperation1.request),
     ).toBe(null);
     environment.mock.nextValue(
       MutationOperation,
@@ -313,13 +296,13 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
         },
       }),
     );
-    const promise = tracker.getPromiseForPendingOperationsAffectingOwner(
+    const result = tracker.getPendingOperationsAffectingOwner(
       QueryOperation1.request,
     );
 
-    invariant(promise != null, 'Expected to have promise for operation');
+    invariant(result != null, 'Expected to have promise for operation');
     const promiseCallback = jest.fn();
-    promise.then(promiseCallback);
+    result.promise.then(promiseCallback);
     expect(promiseCallback).not.toBeCalled();
     environment.mock.complete(MutationOperation.request.node);
     jest.runAllTimers();
@@ -364,9 +347,7 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
     );
 
     expect(
-      tracker.getPromiseForPendingOperationsAffectingOwner(
-        QueryOperation1.request,
-      ),
+      tracker.getPendingOperationsAffectingOwner(QueryOperation1.request),
     ).toBe(null);
 
     environment.mock.nextValue(
@@ -381,9 +362,7 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
       }),
     );
     expect(
-      tracker.getPromiseForPendingOperationsAffectingOwner(
-        QueryOperation1.request,
-      ),
+      tracker.getPendingOperationsAffectingOwner(QueryOperation1.request),
     ).toBe(null);
   });
 
@@ -392,7 +371,7 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
       //const {Query, Mutation, FeedbackFragment} =
       const Query = getRequest(graphql`
         query RelayModernEnvironmentWithOperationTrackerTestQuery($id: ID)
-          @relay_test_operation {
+        @relay_test_operation {
           node(id: $id) {
             ...RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment
           }
@@ -520,17 +499,14 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
 
       // We still processing follow-up payloads for the initial query
       expect(
-        tracker.getPromiseForPendingOperationsAffectingOwner(
-          QueryOperation1.request,
-        ),
+        tracker.getPendingOperationsAffectingOwner(QueryOperation1.request)
+          ?.promise,
       ).toBeInstanceOf(Promise);
       jest.runAllTimers();
 
       // All followup completed, operation tracker should be completed
       expect(
-        tracker.getPromiseForPendingOperationsAffectingOwner(
-          QueryOperation1.request,
-        ),
+        tracker.getPendingOperationsAffectingOwner(QueryOperation1.request),
       ).toBe(null);
 
       // Send the mutation
@@ -572,18 +548,15 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
       });
 
       expect(
-        tracker.getPromiseForPendingOperationsAffectingOwner(
-          QueryOperation1.request,
-        ),
+        tracker.getPendingOperationsAffectingOwner(QueryOperation1.request)
+          ?.promise,
       ).toBeInstanceOf(Promise);
 
       environment.mock.complete(MutationOperation);
       expect(operationLoader.load).toBeCalled();
       jest.runAllTimers();
       expect(
-        tracker.getPromiseForPendingOperationsAffectingOwner(
-          QueryOperation1.request,
-        ),
+        tracker.getPendingOperationsAffectingOwner(QueryOperation1.request),
       ).toBe(null);
     });
   });

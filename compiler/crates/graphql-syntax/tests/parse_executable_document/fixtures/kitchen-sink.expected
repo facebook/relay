@@ -111,13 +111,15 @@ ExecutableDocument {
                                 kind: Colon,
                             },
                             type_: Named(
-                                Identifier {
-                                    span: 22:33,
-                                    token: Token {
+                                NamedTypeAnnotation {
+                                    name: Identifier {
                                         span: 22:33,
-                                        kind: Identifier,
+                                        token: Token {
+                                            span: 22:33,
+                                            kind: Identifier,
+                                        },
+                                        value: "ComplexType",
                                     },
-                                    value: "ComplexType",
                                 },
                             ),
                             default_value: None,
@@ -138,13 +140,15 @@ ExecutableDocument {
                                 kind: Colon,
                             },
                             type_: Named(
-                                Identifier {
-                                    span: 42:46,
-                                    token: Token {
+                                NamedTypeAnnotation {
+                                    name: Identifier {
                                         span: 42:46,
-                                        kind: Identifier,
+                                        token: Token {
+                                            span: 42:46,
+                                            kind: Identifier,
+                                        },
+                                        value: "Site",
                                     },
-                                    value: "Site",
                                 },
                             ),
                             default_value: Some(
@@ -1002,13 +1006,15 @@ ExecutableDocument {
                                 kind: Colon,
                             },
                             type_: Named(
-                                Identifier {
-                                    span: 542:565,
-                                    token: Token {
+                                NamedTypeAnnotation {
+                                    name: Identifier {
                                         span: 542:565,
-                                        kind: Identifier,
+                                        token: Token {
+                                            span: 542:565,
+                                            kind: Identifier,
+                                        },
+                                        value: "StoryLikeSubscribeInput",
                                     },
-                                    value: "StoryLikeSubscribeInput",
                                 },
                             ),
                             default_value: None,

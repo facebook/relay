@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<ff6d43957ff0f4c7c4c682d3b520e7cf>>
+ * @generated SignedSource<<9876cc051fbc858032c87c414ec43d74>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,11 +16,6 @@
 
 /*::
 import type { NormalizationSplitOperation } from 'relay-runtime';
-
-type RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user$normalization = any;
-export type RelayModernEnvironmentExecuteWithDeferWithinModuleTestActor_actor$normalization = {|
-  ...RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user$normalization,
-|};
 
 */
 

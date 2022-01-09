@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -12,26 +12,19 @@
 
 'use strict';
 
-const invariant = require('invariant');
+import type {GraphQLTaggedNode} from '../query/GraphQLTag';
+import type {FragmentType, SingularReaderSelector} from './RelayStoreTypes';
 
 const {getFragment} = require('../query/GraphQLTag');
 const {getSelector} = require('./RelayModernSelector');
-
-import type {GraphQLTaggedNode} from '../query/GraphQLTag';
-import type {
-  FragmentReference,
-  SingularReaderSelector,
-} from './RelayStoreTypes';
+const invariant = require('invariant');
 
 // When we call the user-supplied resolver function, it will in turn call
 // `readFragment`, but that's a global function -- it needs information
 // about what resolver is being executed, which is supplied by putting the
 // info on this stack before we call the resolver function.
 type ResolverContext = {|
-  getDataForResolverFragment: (
-    SingularReaderSelector,
-    FragmentReference,
-  ) => mixed,
+  getDataForResolverFragment: (SingularReaderSelector, FragmentType) => mixed,
 |};
 const contextStack: Array<ResolverContext> = [];
 
@@ -49,22 +42,22 @@ function withResolverContext<T>(context: ResolverContext, cb: () => T): T {
 // The declarations ensure that the type of the returned data is:
 //   - non-nullable if the provided ref type is non-nullable
 //   - nullable if the provided ref type is nullable
-//   - array of non-nullable if the privoided ref type is an array of
+//   - array of non-nullable if the provided ref type is an array of
 //     non-nullable refs
-//   - array of nullable if the privoided ref type is an array of nullable refs
+//   - array of nullable if the provided ref type is an array of nullable refs
 
 declare function readFragment<
-  TKey: {+$data?: mixed, +$fragmentRefs: FragmentReference, ...},
+  TKey: {+$data?: mixed, +$fragmentSpreads: FragmentType, ...},
 >(
   fragmentInput: GraphQLTaggedNode,
-  fragmentRef: TKey,
+  fragmentKey: TKey,
 ): $Call<<TFragmentData>({+$data?: TFragmentData, ...}) => TFragmentData, TKey>;
 
 declare function readFragment<
-  TKey: ?{+$data?: mixed, +$fragmentRefs: FragmentReference, ...},
+  TKey: ?{+$data?: mixed, +$fragmentSpreads: FragmentType, ...},
 >(
   fragmentInput: GraphQLTaggedNode,
-  fragmentRef: TKey,
+  fragmentKey: TKey,
 ): $Call<
   <TFragmentData>(?{+$data?: TFragmentData, ...}) => ?TFragmentData,
   TKey,
@@ -73,12 +66,12 @@ declare function readFragment<
 declare function readFragment<
   TKey: $ReadOnlyArray<{
     +$data?: mixed,
-    +$fragmentRefs: FragmentReference,
+    +$fragmentSpreads: FragmentType,
     ...
   }>,
 >(
   fragmentInput: GraphQLTaggedNode,
-  fragmentRef: TKey,
+  fragmentKey: TKey,
 ): $Call<
   <TFragmentData>(
     $ReadOnlyArray<{+$data?: TFragmentData, ...}>,
@@ -89,12 +82,12 @@ declare function readFragment<
 declare function readFragment<
   TKey: ?$ReadOnlyArray<{
     +$data?: mixed,
-    +$fragmentRefs: FragmentReference,
+    +$fragmentSpreads: FragmentType,
     ...
   }>,
 >(
   fragmentInput: GraphQLTaggedNode,
-  fragmentRef: TKey,
+  fragmentKey: TKey,
 ): $Call<
   <TFragmentData>(
     ?$ReadOnlyArray<{+$data?: TFragmentData, ...}>,
@@ -104,7 +97,7 @@ declare function readFragment<
 
 function readFragment(
   fragmentInput: GraphQLTaggedNode,
-  fragmentRef: FragmentReference,
+  fragmentKey: FragmentType,
 ): mixed {
   if (!contextStack.length) {
     throw new Error(
@@ -113,7 +106,7 @@ function readFragment(
   }
   const context = contextStack[contextStack.length - 1];
   const fragmentNode = getFragment(fragmentInput);
-  const fragmentSelector = getSelector(fragmentNode, fragmentRef);
+  const fragmentSelector = getSelector(fragmentNode, fragmentKey);
   invariant(
     fragmentSelector != null,
     `Expected a selector for the fragment of the resolver ${fragmentNode.name}, but got null.`,
@@ -122,7 +115,7 @@ function readFragment(
     fragmentSelector.kind === 'SingularReaderSelector',
     `Expected a singular reader selector for the fragment of the resolver ${fragmentNode.name}, but it was plural.`,
   );
-  return context.getDataForResolverFragment(fragmentSelector, fragmentRef);
+  return context.getDataForResolverFragment(fragmentSelector, fragmentKey);
 }
 
 module.exports = {readFragment, withResolverContext};

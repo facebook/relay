@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -14,6 +14,7 @@
 'use strict';
 
 const React = require('react');
+
 const {useMemo} = React;
 
 /**
@@ -90,7 +91,7 @@ type TypenameOnlyPointer = {|+__typename: string|};
 export type MatchPointer = {
   +__fragmentPropName?: ?string,
   +__module_component?: mixed,
-  +$fragmentRefs: mixed,
+  +$fragmentSpreads: mixed,
   ...
 };
 
@@ -115,7 +116,7 @@ function MatchContainer<TProps: {...}, TFallback: React.Node | null>({
       'MatchContainer: Expected `match` value to be an object or null/undefined.',
     );
   }
-  // NOTE: the MatchPointer type has a $fragmentRefs field to ensure that only
+  // NOTE: the MatchPointer type has a $fragmentSpreads field to ensure that only
   // an object that contains a FragmentSpread can be passed. If the fragment
   // spread matches, then the metadata fields below (__id, __fragments, etc.)
   // will be present. But they can be missing if all the fragment spreads use

@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a09919355df26f3fbad9b1c476487573>>
+ * @generated SignedSource<<d66d086a10e0836c6597ca47f2e85c38>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,19 +17,21 @@
 // @ReactFlightClientDependency RelayResponseNormalizerTest_clientFragment$normalization.graphql
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayResponseNormalizerTest_clientFragment$ref = any;
-export type RelayResponseNormalizerTestServerOrClientQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayResponseNormalizerTest_clientFragment$fragmentType = any;
+export type RelayResponseNormalizerTestServerOrClientQuery$variables = {|
   id: string,
 |};
-export type RelayResponseNormalizerTestServerOrClientQueryResponse = {|
+export type RelayResponseNormalizerTestServerOrClientQueryVariables = RelayResponseNormalizerTestServerOrClientQuery$variables;
+export type RelayResponseNormalizerTestServerOrClientQuery$data = {|
   +node: ?{|
-    +$fragmentRefs: RelayResponseNormalizerTest_clientFragment$ref,
+    +$fragmentSpreads: RelayResponseNormalizerTest_clientFragment$fragmentType,
   |},
 |};
+export type RelayResponseNormalizerTestServerOrClientQueryResponse = RelayResponseNormalizerTestServerOrClientQuery$data;
 export type RelayResponseNormalizerTestServerOrClientQuery = {|
   variables: RelayResponseNormalizerTestServerOrClientQueryVariables,
-  response: RelayResponseNormalizerTestServerOrClientQueryResponse,
+  response: RelayResponseNormalizerTestServerOrClientQuery$data,
 |};
 */
 
@@ -97,6 +99,7 @@ return {
             "storageKey": null
           },
           {
+            "args": null,
             "fragment": require('./RelayResponseNormalizerTest_clientFragment$normalization.graphql'),
             "kind": "ClientComponent"
           },
@@ -127,4 +130,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "a0dd4ee40f4cb0fc29cc2dc260f83cde";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayResponseNormalizerTestServerOrClientQuery$variables,
+  RelayResponseNormalizerTestServerOrClientQuery$data,
+>*/);

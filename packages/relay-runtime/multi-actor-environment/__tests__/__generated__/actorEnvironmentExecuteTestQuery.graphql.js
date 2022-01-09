@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<91d7ae63b5a7c56eb869b990e9cf0c85>>
+ * @generated SignedSource<<7bdceae76b51da2d53e99f478f023cbd>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,18 +15,20 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-export type actorEnvironmentExecuteTestQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+export type actorEnvironmentExecuteTestQuery$variables = {|
   id: string,
 |};
-export type actorEnvironmentExecuteTestQueryResponse = {|
+export type actorEnvironmentExecuteTestQueryVariables = actorEnvironmentExecuteTestQuery$variables;
+export type actorEnvironmentExecuteTestQuery$data = {|
   +node: ?{|
     +name?: ?string,
   |},
 |};
+export type actorEnvironmentExecuteTestQueryResponse = actorEnvironmentExecuteTestQuery$data;
 export type actorEnvironmentExecuteTestQuery = {|
   variables: actorEnvironmentExecuteTestQueryVariables,
-  response: actorEnvironmentExecuteTestQueryResponse,
+  response: actorEnvironmentExecuteTestQuery$data,
 |};
 */
 
@@ -131,4 +133,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "9748c6cb3c3549117a925a61cf59f7ad";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  actorEnvironmentExecuteTestQuery$variables,
+  actorEnvironmentExecuteTestQuery$data,
+>*/);

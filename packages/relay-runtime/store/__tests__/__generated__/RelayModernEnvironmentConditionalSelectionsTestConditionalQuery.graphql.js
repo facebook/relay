@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<58301e9a423705297b62f45e0576ba08>>
+ * @generated SignedSource<<12a503ade448489fa4e2ba88d8ce8ed0>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,17 +15,19 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernEnvironmentConditionalSelectionsTestQueryConditionalFragment$ref = any;
-export type RelayModernEnvironmentConditionalSelectionsTestConditionalQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayModernEnvironmentConditionalSelectionsTestQueryConditionalFragment$fragmentType = any;
+export type RelayModernEnvironmentConditionalSelectionsTestConditionalQuery$variables = {|
   condition: boolean,
 |};
-export type RelayModernEnvironmentConditionalSelectionsTestConditionalQueryResponse = {|
-  +$fragmentRefs: RelayModernEnvironmentConditionalSelectionsTestQueryConditionalFragment$ref,
+export type RelayModernEnvironmentConditionalSelectionsTestConditionalQueryVariables = RelayModernEnvironmentConditionalSelectionsTestConditionalQuery$variables;
+export type RelayModernEnvironmentConditionalSelectionsTestConditionalQuery$data = {|
+  +$fragmentSpreads: RelayModernEnvironmentConditionalSelectionsTestQueryConditionalFragment$fragmentType,
 |};
+export type RelayModernEnvironmentConditionalSelectionsTestConditionalQueryResponse = RelayModernEnvironmentConditionalSelectionsTestConditionalQuery$data;
 export type RelayModernEnvironmentConditionalSelectionsTestConditionalQuery = {|
   variables: RelayModernEnvironmentConditionalSelectionsTestConditionalQueryVariables,
-  response: RelayModernEnvironmentConditionalSelectionsTestConditionalQueryResponse,
+  response: RelayModernEnvironmentConditionalSelectionsTestConditionalQuery$data,
 |};
 */
 
@@ -148,4 +150,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "15714f8d0ab41a192fe8a7946b71437f";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentConditionalSelectionsTestConditionalQuery$variables,
+  RelayModernEnvironmentConditionalSelectionsTestConditionalQuery$data,
+>*/);

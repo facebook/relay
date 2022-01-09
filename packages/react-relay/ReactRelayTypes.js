@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -14,7 +14,7 @@
 
 import type {
   Disposable,
-  FragmentReference,
+  FragmentType,
   GraphQLTaggedNode,
   IEnvironment,
   Observer,
@@ -94,7 +94,7 @@ export type RefetchOptions = {|
  *
  */
 export type $FragmentRef<T> = {
-  +$fragmentRefs: $PropertyType<T, '$refType'>,
+  +$fragmentSpreads: T['$fragmentType'],
   ...
 };
 
@@ -105,14 +105,14 @@ export type $FragmentRef<T> = {
 // prettier-ignore
 export type $RelayProps<Props, RelayPropT = RelayProp> = $ObjMap<
   $Diff<Props, { relay: RelayPropT | void, ... }>,
-  & (<T: { +$refType: empty, ... }>( T) =>  T)
-  & (<T: { +$refType: empty, ... }>(?T) => ?T)
-  & (<TRef: FragmentReference, T: { +$refType: TRef, ... }>(                 T ) =>                  $FragmentRef<T> )
-  & (<TRef: FragmentReference, T: { +$refType: TRef, ... }>(?                T ) => ?                $FragmentRef<T> )
-  & (<TRef: FragmentReference, T: { +$refType: TRef, ... }>( $ReadOnlyArray< T>) =>  $ReadOnlyArray< $FragmentRef<T>>)
-  & (<TRef: FragmentReference, T: { +$refType: TRef, ... }>(?$ReadOnlyArray< T>) => ?$ReadOnlyArray< $FragmentRef<T>>)
-  & (<TRef: FragmentReference, T: { +$refType: TRef, ... }>( $ReadOnlyArray<?T>) =>  $ReadOnlyArray<?$FragmentRef<T>>)
-  & (<TRef: FragmentReference, T: { +$refType: TRef, ... }>(?$ReadOnlyArray<?T>) => ?$ReadOnlyArray<?$FragmentRef<T>>)
+  & (<T: { +$fragmentType: empty, ... }>( T) =>  T)
+  & (<T: { +$fragmentType: empty, ... }>(?T) => ?T)
+  & (<TFragmentType: FragmentType, T: { +$fragmentType: TFragmentType, ... }>(                 T ) =>                  $FragmentRef<T> )
+  & (<TFragmentType: FragmentType, T: { +$fragmentType: TFragmentType, ... }>(?                T ) => ?                $FragmentRef<T> )
+  & (<TFragmentType: FragmentType, T: { +$fragmentType: TFragmentType, ... }>( $ReadOnlyArray< T>) =>  $ReadOnlyArray< $FragmentRef<T>>)
+  & (<TFragmentType: FragmentType, T: { +$fragmentType: TFragmentType, ... }>(?$ReadOnlyArray< T>) => ?$ReadOnlyArray< $FragmentRef<T>>)
+  & (<TFragmentType: FragmentType, T: { +$fragmentType: TFragmentType, ... }>( $ReadOnlyArray<?T>) =>  $ReadOnlyArray<?$FragmentRef<T>>)
+  & (<TFragmentType: FragmentType, T: { +$fragmentType: TFragmentType, ... }>(?$ReadOnlyArray<?T>) => ?$ReadOnlyArray<?$FragmentRef<T>>)
   & (<T>(T) => T),
 >;
 

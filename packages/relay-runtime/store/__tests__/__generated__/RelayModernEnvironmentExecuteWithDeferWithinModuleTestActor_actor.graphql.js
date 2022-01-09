@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<0c673abbb955f4e15a78c027d36d3b9d>>
+ * @generated SignedSource<<cff04dae0876f31ebfaef2c315c43881>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,19 +15,19 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-type RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user$ref = any;
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayModernEnvironmentExecuteWithDeferWithinModuleTestActor_actor$ref: FragmentReference;
-declare export opaque type RelayModernEnvironmentExecuteWithDeferWithinModuleTestActor_actor$fragmentType: RelayModernEnvironmentExecuteWithDeferWithinModuleTestActor_actor$ref;
-export type RelayModernEnvironmentExecuteWithDeferWithinModuleTestActor_actor = {|
-  +$fragmentRefs: RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user$ref,
-  +$refType: RelayModernEnvironmentExecuteWithDeferWithinModuleTestActor_actor$ref,
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+type RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user$fragmentType = any;
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayModernEnvironmentExecuteWithDeferWithinModuleTestActor_actor$fragmentType: FragmentType;
+export type RelayModernEnvironmentExecuteWithDeferWithinModuleTestActor_actor$ref = RelayModernEnvironmentExecuteWithDeferWithinModuleTestActor_actor$fragmentType;
+export type RelayModernEnvironmentExecuteWithDeferWithinModuleTestActor_actor$data = {|
+  +$fragmentSpreads: RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user$fragmentType,
+  +$fragmentType: RelayModernEnvironmentExecuteWithDeferWithinModuleTestActor_actor$fragmentType,
 |};
-export type RelayModernEnvironmentExecuteWithDeferWithinModuleTestActor_actor$data = RelayModernEnvironmentExecuteWithDeferWithinModuleTestActor_actor;
+export type RelayModernEnvironmentExecuteWithDeferWithinModuleTestActor_actor = RelayModernEnvironmentExecuteWithDeferWithinModuleTestActor_actor$data;
 export type RelayModernEnvironmentExecuteWithDeferWithinModuleTestActor_actor$key = {
   +$data?: RelayModernEnvironmentExecuteWithDeferWithinModuleTestActor_actor$data,
-  +$fragmentRefs: RelayModernEnvironmentExecuteWithDeferWithinModuleTestActor_actor$ref,
+  +$fragmentSpreads: RelayModernEnvironmentExecuteWithDeferWithinModuleTestActor_actor$fragmentType,
   ...
 };
 */
@@ -52,4 +52,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "128d4575c05488220a7b8d80e4fcd30e";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayModernEnvironmentExecuteWithDeferWithinModuleTestActor_actor$fragmentType,
+  RelayModernEnvironmentExecuteWithDeferWithinModuleTestActor_actor$data,
+>*/);

@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<7735cd67c252a5fb3f023206288ccf7c>>
+ * @generated SignedSource<<d5a543e06db03477a3dbb0953a265365>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,24 +15,24 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-type getFragmentIdentifierTestNestedUserFragment$ref = any;
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type getFragmentIdentifierTestUsersFragment$ref: FragmentReference;
-declare export opaque type getFragmentIdentifierTestUsersFragment$fragmentType: getFragmentIdentifierTestUsersFragment$ref;
-export type getFragmentIdentifierTestUsersFragment = $ReadOnlyArray<{|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+type getFragmentIdentifierTestNestedUserFragment$fragmentType = any;
+import type { FragmentType } from "relay-runtime";
+declare export opaque type getFragmentIdentifierTestUsersFragment$fragmentType: FragmentType;
+export type getFragmentIdentifierTestUsersFragment$ref = getFragmentIdentifierTestUsersFragment$fragmentType;
+export type getFragmentIdentifierTestUsersFragment$data = $ReadOnlyArray<{|
   +id: string,
   +name: ?string,
   +profile_picture: ?{|
     +uri: ?string,
   |},
-  +$fragmentRefs: getFragmentIdentifierTestNestedUserFragment$ref,
-  +$refType: getFragmentIdentifierTestUsersFragment$ref,
+  +$fragmentSpreads: getFragmentIdentifierTestNestedUserFragment$fragmentType,
+  +$fragmentType: getFragmentIdentifierTestUsersFragment$fragmentType,
 |}>;
-export type getFragmentIdentifierTestUsersFragment$data = getFragmentIdentifierTestUsersFragment;
+export type getFragmentIdentifierTestUsersFragment = getFragmentIdentifierTestUsersFragment$data;
 export type getFragmentIdentifierTestUsersFragment$key = $ReadOnlyArray<{
   +$data?: getFragmentIdentifierTestUsersFragment$data,
-  +$fragmentRefs: getFragmentIdentifierTestUsersFragment$ref,
+  +$fragmentSpreads: getFragmentIdentifierTestUsersFragment$fragmentType,
   ...
 }>;
 */
@@ -102,4 +102,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "d37f0a514c3d60209ae2dec723bc0a47";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  getFragmentIdentifierTestUsersFragment$fragmentType,
+  getFragmentIdentifierTestUsersFragment$data,
+>*/);

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,22 +13,21 @@
 
 'use strict';
 
+import type {ConcreteRequest, GraphQLTaggedNode} from 'relay-runtime';
+
+const {loadQuery, useTrackLoadQueryInRender} = require('../loadQuery');
 // Need React require for OSS build
 // eslint-disable-next-line no-unused-vars
 const React = require('react');
 const ReactTestRenderer = require('react-test-renderer');
-
-const {loadQuery, useTrackLoadQueryInRender} = require('../loadQuery');
 const {
-  graphql,
   Network,
   Observable,
-  getRequest,
   PreloadableQueryRegistry,
+  getRequest,
+  graphql,
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils-internal');
-
-import type {GraphQLTaggedNode, ConcreteRequest} from 'relay-runtime';
 
 describe('loadQuery', () => {
   const q: GraphQLTaggedNode = graphql`
@@ -119,8 +118,9 @@ describe('loadQuery', () => {
         return {dispose: disposeOnloadCallback};
       });
 
-    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
-    const originalExecuteWithSource = environment.executeWithSource.getMockImplementation();
+    const originalExecuteWithSource =
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
+      environment.executeWithSource.getMockImplementation();
     executeObservable = undefined;
     executeUnsubscribe = undefined;
 
@@ -128,18 +128,16 @@ describe('loadQuery', () => {
       .spyOn(environment, 'executeWithSource')
       .mockImplementation((...params) => {
         executeObservable = originalExecuteWithSource(...params);
-        const originalSubscribe = executeObservable.subscribe.bind(
-          executeObservable,
-        );
+        const originalSubscribe =
+          executeObservable.subscribe.bind(executeObservable);
         jest
           .spyOn(executeObservable, 'subscribe')
           .mockImplementation(subscriptionCallbacks => {
             const executeSubscription = originalSubscribe(
               subscriptionCallbacks,
             );
-            const originalUnsubscribe = executeSubscription.unsubscribe.bind(
-              executeSubscription,
-            );
+            const originalUnsubscribe =
+              executeSubscription.unsubscribe.bind(executeSubscription);
             executeUnsubscribe = jest.fn(originalUnsubscribe);
             return {unsubscribe: executeUnsubscribe};
           });

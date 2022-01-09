@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -12,12 +12,10 @@
 // flowlint ambiguous-object-type:error
 
 'use strict';
-const RelayFeatureFlags = require('../RelayFeatureFlags');
-
+const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
 const getFragmentIdentifier = require('../getFragmentIdentifier');
+const RelayFeatureFlags = require('../RelayFeatureFlags');
 const invariant = require('invariant');
-
-const {graphql, getFragment, getRequest} = require('../../query/GraphQLTag');
 const {createOperationDescriptor} = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils-internal');
 
@@ -58,7 +56,7 @@ describe('getFragmentIdentifier', () => {
     `);
     gqlFragmentWithArgs = getFragment(graphql`
       fragment getFragmentIdentifierTestUserFragmentWithArgs on User
-        @argumentDefinitions(scaleLocal: {type: "Float!"}) {
+      @argumentDefinitions(scaleLocal: {type: "Float!"}) {
         id
         name
         profile_picture(scale: $scaleLocal) {
@@ -69,7 +67,7 @@ describe('getFragmentIdentifier', () => {
     `);
     gqlPluralFragment = getFragment(graphql`
       fragment getFragmentIdentifierTestUsersFragment on User
-        @relay(plural: true) {
+      @relay(plural: true) {
         id
         name
         profile_picture(scale: $scale) {
@@ -242,7 +240,7 @@ describe('getFragmentIdentifier Optimized', () => {
 
     gqlFragmentWithArgs = getFragment(graphql`
       fragment getFragmentIdentifierTest1UserFragmentWithArgs on User
-        @argumentDefinitions(scaleLocal: {type: "Float!"}) {
+      @argumentDefinitions(scaleLocal: {type: "Float!"}) {
         id
         name
         profile_picture(scale: $scaleLocal) {
@@ -253,7 +251,7 @@ describe('getFragmentIdentifier Optimized', () => {
     `);
     gqlPluralFragment = getFragment(graphql`
       fragment getFragmentIdentifierTest1UsersFragment on User
-        @relay(plural: true) {
+      @relay(plural: true) {
         id
         name
         profile_picture(scale: $scale) {

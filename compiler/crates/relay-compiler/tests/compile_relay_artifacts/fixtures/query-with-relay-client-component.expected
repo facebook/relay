@@ -150,6 +150,7 @@ fragment queryWithRelayClientComponent_ClientComponentFragment on User {
             "storageKey": null
           },
           {
+            "args": null,
             "fragment": require('queryWithRelayClientComponent_ClientComponentFragment$normalization.graphql'),
             "kind": "ClientComponent"
           }

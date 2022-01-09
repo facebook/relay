@@ -1,0 +1,9 @@
+# expected-to-throw
+query selectionSetConflictDifferentArgumentsWithListQuery {
+  nodes(ids: ["1", "2", "3"]) {
+    id
+  }
+  nodes(ids: ["1", "2", "4"]) {
+    id
+  }
+}

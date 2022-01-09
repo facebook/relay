@@ -26,12 +26,26 @@ extend type User {
 }
 ==================================== OUTPUT ===================================
 fragment Foo_user on User {
-  ...HobbitNameResolverFragment_name @__relayResolver(field_parent_type: "User", import_path: "HobbitNameResolver", field_name: "hobbit_name")
+  ...HobbitNameResolverFragment_name @__RelayResolverSpreadMetadata
+  # RelayResolverSpreadMetadata {
+  #     field_parent_type: "User",
+  #     import_path: "HobbitNameResolver",
+  #     field_name: "hobbit_name",
+  #     field_alias: None,
+  # }
+  
 }
 
 fragment HobbitNameResolverFragment_name on User {
   name
-  ...PopStarNameResolverFragment_name @__relayResolver(field_parent_type: "User", import_path: "PopStarNameResolver", field_name: "pop_star_name")
+  ...PopStarNameResolverFragment_name @__RelayResolverSpreadMetadata
+  # RelayResolverSpreadMetadata {
+  #     field_parent_type: "User",
+  #     import_path: "PopStarNameResolver",
+  #     field_name: "pop_star_name",
+  #     field_alias: None,
+  # }
+  
 }
 
 fragment PopStarNameResolverFragment_name on User {

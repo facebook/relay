@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,24 +13,26 @@
 
 'use strict';
 
-const getPaginationMetadata = require('./getPaginationMetadata');
-const invariant = require('invariant');
-const useLoadMoreFunction = require('./useLoadMoreFunction');
-const useRefetchableFragmentNode = require('./useRefetchableFragmentNode');
-const useStaticFragmentNodeWarning = require('./useStaticFragmentNodeWarning');
-
-const {useCallback, useEffect, useRef, useState} = require('react');
-const {getFragment, getFragmentIdentifier} = require('relay-runtime');
-
 import type {LoadMoreFn, UseLoadMoreFunctionArgs} from './useLoadMoreFunction';
 import type {RefetchFnDynamic} from './useRefetchableFragmentNode';
 import type {
-  FragmentReference,
+  FragmentType,
   GraphQLResponse,
   GraphQLTaggedNode,
   Observer,
   OperationType,
 } from 'relay-runtime';
+
+const useLoadMoreFunction = require('./useLoadMoreFunction');
+const useRefetchableFragmentNode = require('./useRefetchableFragmentNode');
+const useStaticFragmentNodeWarning = require('./useStaticFragmentNodeWarning');
+const invariant = require('invariant');
+const {useCallback, useEffect, useRef, useState} = require('react');
+const {
+  getFragment,
+  getFragmentIdentifier,
+  getPaginationMetadata,
+} = require('relay-runtime');
 
 export type ReturnType<TQuery: OperationType, TKey, TFragmentData> = {|
   data: TFragmentData,
@@ -43,7 +45,7 @@ export type ReturnType<TQuery: OperationType, TKey, TFragmentData> = {|
 
 function useBlockingPaginationFragment<
   TQuery: OperationType,
-  TKey: ?{+$data?: mixed, +$fragmentRefs: FragmentReference, ...},
+  TKey: ?{+$data?: mixed, +$fragmentSpreads: FragmentType, ...},
 >(
   fragmentInput: GraphQLTaggedNode,
   parentFragmentRef: TKey,

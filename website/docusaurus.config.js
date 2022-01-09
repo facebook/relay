@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -10,7 +10,6 @@
 'use strict';
 
 const versions = require('./versions.json');
-
 const {fbContent, isInternal} = require('internaldocs-fb-helpers');
 
 module.exports = {
@@ -18,12 +17,12 @@ module.exports = {
   tagline: 'The GraphQL client that scales with you.',
   url: 'https://relay.dev',
   baseUrl: '/',
+  trailingSlash: true,
   organizationName: 'facebook',
   projectName: 'relay',
   scripts: [
     {
-      src:
-        'https://widget.surveymonkey.com/collect/website/js/tRaiETqnLgj758hTBazgdx2NnQ5W6bg3p3XoJtoYjHDMWZrhV7glVKgJgKV87xxk.js',
+      src: 'https://widget.surveymonkey.com/collect/website/js/tRaiETqnLgj758hTBazgdx2NnQ5W6bg3p3XoJtoYjHDMWZrhV7glVKgJgKV87xxk.js',
       defer: true,
     },
   ],
@@ -188,6 +187,12 @@ module.exports = {
         infoLink: 'https://swissdevjobs.ch/jobs/JavaScript/All',
         pinned: false,
       },
+      {
+        caption: 'Atlassian',
+        image: '/img/logos/vertical-logo-gradient-blue-atlassian.svg',
+        infoLink: 'https://www.atlassian.com/',
+        pinned: false,
+      },
     ],
   },
   onBrokenLinks: 'throw',
@@ -206,7 +211,11 @@ module.exports = {
             internal: false,
             external: true,
           }),
-          editUrl: 'https://github.com/facebook/relay/edit/master/website/',
+          editUrl: fbContent({
+            internal:
+              'https://www.internalfb.com/intern/diffusion/FBS/browse/master/xplat/js/RKJSModules/Libraries/Relay/oss/__github__/website/',
+            external: 'https://github.com/facebook/relay/tree/main/website',
+          }),
 
           path: './docs/',
 
@@ -220,7 +229,8 @@ module.exports = {
             external: [
               'current',
               ...versions.filter(
-                version => version !== 'experimental' && version !== 'classic',
+                (version) =>
+                  version !== 'experimental' && version !== 'classic',
               ),
             ],
           }),
@@ -246,7 +256,7 @@ module.exports = {
     [
       '@docusaurus/plugin-client-redirects',
       {
-        createRedirects: function(toPath) {
+        createRedirects: function (toPath) {
           if (toPath.startsWith('/docs/')) {
             const docPath = toPath.substring(6);
             const fromPaths = ['/docs/en/' + docPath];
@@ -309,11 +319,7 @@ module.exports = {
           },
           {
             to: '/docs/guides/type-emission/',
-            from: [
-              '/docs/en/type-emission',
-              '/docs/v3.0.0/type-emission',
-              '/docs/type-emission',
-            ],
+            from: ['/docs/en/type-emission', '/docs/type-emission'],
           },
           {
             to: '/docs/guides/client-schema-extensions/',
@@ -341,6 +347,10 @@ module.exports = {
               '/docs/mutations',
               '/docs/next/mutations',
             ],
+          },
+          {
+            to: '/compiler-explorer',
+            from: ['/compiler-playground'],
           },
         ],
       },
@@ -436,6 +446,11 @@ module.exports = {
       logo: {
         src: 'img/relay.svg',
       },
+    },
+    prism: {
+      theme: require('prism-react-renderer/themes/github'),
+      darkTheme: require('prism-react-renderer/themes/dracula'),
+      defaultLanguage: 'javascript',
     },
     algolia: {
       apiKey: '3d7d5825d50ea36bca0e6ad06c926f06',

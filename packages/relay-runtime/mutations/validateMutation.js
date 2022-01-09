@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,31 +13,17 @@
 'use strict';
 
 import type {
-  NormalizationSelection,
   NormalizationField,
+  NormalizationSelection,
 } from '../util/NormalizationNode';
 import type {ConcreteRequest} from '../util/RelayConcreteNode';
 import type {Variables} from '../util/RelayRuntimeTypes';
 
-type ValidationContext = {|
-  visitedPaths: Set<string>,
-  path: string,
-  variables: Variables,
-  missingDiff: Object,
-  extraDiff: Object,
-  moduleImportPaths: Set<string>,
-|};
-
-const warning = require('warning');
-
-// $FlowFixMe[method-unbinding] added when improving typing for this parameters
-const hasOwnProperty = Object.prototype.hasOwnProperty;
-
 const {
   ACTOR_CHANGE,
-  CONDITION,
   CLIENT_COMPONENT,
   CLIENT_EXTENSION,
+  CONDITION,
   DEFER,
   FLIGHT_FIELD,
   FRAGMENT_SPREAD,
@@ -50,10 +36,26 @@ const {
   STREAM,
   TYPE_DISCRIMINATOR,
 } = require('../util/RelayConcreteNode');
+const warning = require('warning');
+
+type ValidationContext = {|
+  visitedPaths: Set<string>,
+  path: string,
+  variables: Variables,
+  missingDiff: Object,
+  extraDiff: Object,
+  moduleImportPaths: Set<string>,
+|};
+// $FlowFixMe[method-unbinding] added when improving typing for this parameters
+const hasOwnProperty = Object.prototype.hasOwnProperty;
 
 let validateMutation = () => {};
 if (__DEV__) {
-  const addFieldToDiff = (path: string, diff: Object, isScalar) => {
+  const addFieldToDiff = (
+    path: string,
+    diff: Object,
+    isScalar: void | boolean,
+  ) => {
     let deepLoc = diff;
     path.split('.').forEach((key, index, arr) => {
       if (deepLoc[key] == null) {

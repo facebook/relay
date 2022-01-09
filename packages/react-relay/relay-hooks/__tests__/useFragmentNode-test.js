@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,25 +13,26 @@
 
 'use strict';
 
-const React = require('react');
-const {useMemo, useState} = React;
-const TestRenderer = require('react-test-renderer');
+import type {OperationDescriptor} from 'relay-runtime';
 
+const {act: internalAct} = require('../../jest-react');
 const useFragmentNodeOriginal = require('../useFragmentNode');
+const React = require('react');
 const ReactRelayContext = require('react-relay/ReactRelayContext');
+const TestRenderer = require('react-test-renderer');
 const {
   FRAGMENT_OWNER_KEY,
   FRAGMENTS_KEY,
   ID_KEY,
+  __internal: {fetchQuery},
   createOperationDescriptor,
-  graphql,
-  getRequest,
   getFragment,
+  getRequest,
+  graphql,
 } = require('relay-runtime');
-
 const {createMockEnvironment} = require('relay-test-utils');
 
-import type {OperationDescriptor} from 'relay-runtime';
+const {useMemo, useState} = React;
 
 function assertYieldsWereCleared(_scheduler) {
   const actualYields = _scheduler.unstable_clearYields();
@@ -43,24 +44,26 @@ function assertYieldsWereCleared(_scheduler) {
   }
 }
 
+function expectSchedulerToHaveYielded(expectedYields) {
+  const Scheduler = require('scheduler');
+  const actualYields = Scheduler.unstable_clearYields();
+  expect(actualYields).toEqual(expectedYields);
+}
+
 function expectSchedulerToFlushAndYield(expectedYields) {
-  TestRenderer.act(() => {
-    const Scheduler = require('scheduler');
-    assertYieldsWereCleared(Scheduler);
-    Scheduler.unstable_flushAllWithoutAsserting();
-    const actualYields = Scheduler.unstable_clearYields();
-    expect(actualYields).toEqual(expectedYields);
-  });
+  const Scheduler = require('scheduler');
+  assertYieldsWereCleared(Scheduler);
+  Scheduler.unstable_flushAllWithoutAsserting();
+  const actualYields = Scheduler.unstable_clearYields();
+  expect(actualYields).toEqual(expectedYields);
 }
 
 function expectSchedulerToFlushAndYieldThrough(expectedYields) {
-  TestRenderer.act(() => {
-    const Scheduler = require('scheduler');
-    assertYieldsWereCleared(Scheduler);
-    Scheduler.unstable_flushNumberOfYields(expectedYields.length);
-    const actualYields = Scheduler.unstable_clearYields();
-    expect(actualYields).toEqual(expectedYields);
-  });
+  const Scheduler = require('scheduler');
+  assertYieldsWereCleared(Scheduler);
+  Scheduler.unstable_flushNumberOfYields(expectedYields.length);
+  const actualYields = Scheduler.unstable_clearYields();
+  expect(actualYields).toEqual(expectedYields);
 }
 
 let environment;
@@ -105,7 +108,7 @@ function assertFragmentResults(
   expectedCalls: $ReadOnlyArray<{|data: $FlowFixMe|}>,
 ) {
   // This ensures that useEffect runs
-  TestRenderer.act(() => jest.runAllImmediates());
+  internalAct(() => jest.runAllImmediates());
   expect(renderSpy).toBeCalledTimes(expectedCalls.length);
   expectedCalls.forEach((expected, idx) => {
     const [actualData] = renderSpy.mock.calls[idx];
@@ -121,12 +124,12 @@ function createFragmentRef(id, owner) {
       useFragmentNodeTestNestedUserFragment: {},
     },
     [FRAGMENT_OWNER_KEY]: owner.request,
+    __isWithinUnmatchedTypeRefinement: false,
   };
 }
 
 beforeEach(() => {
   // Set up mocks
-  jest.resetModules();
   jest.spyOn(console, 'warn').mockImplementationOnce(() => {});
   jest.mock('warning');
   jest.mock('scheduler', () => {
@@ -221,20 +224,20 @@ beforeEach(() => {
   }) => {
     // We need a render a component to run a Hook
     const [owner, _setOwner] = useState<OperationDescriptor>(props.owner);
-    const [, _setCount] = useState(0);
+    const [, setCount] = useState(0);
     const userRef = props.hasOwnProperty('userRef')
       ? props.userRef
       : {
-          // $FlowFixMe[prop-missing]
           [ID_KEY]: owner.request.variables.id,
           [FRAGMENTS_KEY]: {
             useFragmentNodeTestUserFragment: {},
           },
           [FRAGMENT_OWNER_KEY]: owner.request,
+          __isWithinUnmatchedTypeRefinement: false,
         };
 
     setSingularOwner = _setOwner;
-    forceSingularUpdate = () => _setCount(count => count + 1);
+    forceSingularUpdate = () => setCount(count => count + 1);
 
     const [userData] = useFragmentNode(gqlSingularFragment, userRef);
     return <SingularRenderer user={userData} />;
@@ -255,6 +258,7 @@ beforeEach(() => {
             useFragmentNodeTestUsersFragment: {},
           },
           [FRAGMENT_OWNER_KEY]: owner.request,
+          __isWithinUnmatchedTypeRefinement: false,
         }));
 
     const [usersData] = useFragmentNode(gqlPluralFragment, usersRef);
@@ -323,7 +327,9 @@ afterEach(() => {
 });
 
 it('should render singular fragment without error when data is available', () => {
-  renderSingularFragment();
+  internalAct(() => {
+    renderSingularFragment();
+  });
   assertFragmentResults([
     {
       data: {
@@ -407,7 +413,7 @@ it('should update when fragment data changes', () => {
     },
   ]);
 
-  TestRenderer.act(() => {
+  internalAct(() => {
     environment.commitPayload(singularQuery, {
       node: {
         __typename: 'User',
@@ -431,8 +437,9 @@ it('should update when fragment data changes', () => {
 });
 
 it('should preserve object identity when fragment data changes', () => {
-  renderSingularFragment();
-  TestRenderer.act(() => jest.runAllImmediates());
+  internalAct(() => {
+    renderSingularFragment();
+  });
   expect(renderSpy).toBeCalledTimes(1);
   const prevData = renderSpy.mock.calls[0][0];
   expect(prevData).toEqual({
@@ -443,7 +450,7 @@ it('should preserve object identity when fragment data changes', () => {
   });
   renderSpy.mockClear();
 
-  TestRenderer.act(() => {
+  internalAct(() => {
     environment.commitPayload(singularQuery, {
       node: {
         __typename: 'User',
@@ -453,7 +460,6 @@ it('should preserve object identity when fragment data changes', () => {
       },
     });
   });
-  TestRenderer.act(() => jest.runAllImmediates());
   expect(renderSpy).toBeCalledTimes(1);
   const nextData = renderSpy.mock.calls[0][0];
   expect(nextData).toEqual({
@@ -489,7 +495,7 @@ it('should re-read and resubscribe to fragment when environment changes', () => 
     },
   });
 
-  TestRenderer.act(() => {
+  internalAct(() => {
     setEnvironment(newEnvironment);
   });
 
@@ -501,7 +507,7 @@ it('should re-read and resubscribe to fragment when environment changes', () => 
   };
   assertFragmentResults([{data: expectedUser}]);
 
-  TestRenderer.act(() => {
+  internalAct(() => {
     newEnvironment.commitPayload(singularQuery, {
       node: {
         __typename: 'User',
@@ -549,7 +555,7 @@ it('should re-read and resubscribe to fragment when fragment pointers change', (
     },
   });
 
-  TestRenderer.act(() => {
+  internalAct(() => {
     setSingularOwner(newQuery);
   });
 
@@ -563,7 +569,7 @@ it('should re-read and resubscribe to fragment when fragment pointers change', (
   };
   assertFragmentResults([{data: expectedUser}]);
 
-  TestRenderer.act(() => {
+  internalAct(() => {
     environment.commitPayload(newQuery, {
       node: {
         __typename: 'User',
@@ -613,7 +619,7 @@ it('should render correct data when changing fragment refs multiple times', () =
     },
   });
 
-  TestRenderer.act(() => {
+  internalAct(() => {
     setSingularOwner(newQuery);
   });
 
@@ -638,7 +644,7 @@ it('should render correct data when changing fragment refs multiple times', () =
   });
 
   // Switch back to rendering data for ID 1
-  TestRenderer.act(() => {
+  internalAct(() => {
     setSingularOwner(singularQuery);
   });
 
@@ -654,7 +660,7 @@ it('should render correct data when changing fragment refs multiple times', () =
   assertFragmentResults([{data: expectedUser}]);
 
   // Assert it correctly subscribes to new data
-  TestRenderer.act(() => {
+  internalAct(() => {
     environment.commitPayload(singularQuery, {
       node: {
         __typename: 'User',
@@ -695,12 +701,10 @@ it('should ignore updates to initially rendered data when fragment pointers chan
 
   // Assert initial render
   SingularRenderer = YieldyUserComponent;
-  renderSingularFragment({isConcurrent: true});
-  expectSchedulerToFlushAndYield([
-    'Hey user,',
-    'Alice',
-    ['with id ', '1', '!'],
-  ]);
+  internalAct(() => {
+    renderSingularFragment({isConcurrent: true});
+  });
+  expectSchedulerToHaveYielded(['Hey user,', 'Alice', ['with id ', '1', '!']]);
   assertFragmentResults([
     {
       data: {
@@ -714,7 +718,7 @@ it('should ignore updates to initially rendered data when fragment pointers chan
 
   const newVariables = {...singularVariables, id: '200'};
   const newQuery = createOperationDescriptor(gqlSingularQuery, newVariables);
-  TestRenderer.act(() => {
+  internalAct(() => {
     environment.commitPayload(newQuery, {
       node: {
         __typename: 'User',
@@ -726,7 +730,7 @@ it('should ignore updates to initially rendered data when fragment pointers chan
     });
   });
 
-  TestRenderer.act(() => {
+  internalAct(() => {
     // Pass new fragment ref that points to new ID 200
     setSingularOwner(newQuery);
 
@@ -821,7 +825,7 @@ it('should re-read and resubscribe to fragment when variables change', () => {
     },
   });
 
-  TestRenderer.act(() => {
+  internalAct(() => {
     setSingularOwner(newQuery);
   });
 
@@ -837,7 +841,7 @@ it('should re-read and resubscribe to fragment when variables change', () => {
   };
   assertFragmentResults([{data: expectedUser}]);
 
-  TestRenderer.act(() => {
+  internalAct(() => {
     environment.commitPayload(newQuery, {
       node: {
         __typename: 'User',
@@ -878,12 +882,10 @@ it('should ignore updates to initially rendered data when variables change', () 
 
   // Assert initial render
   SingularRenderer = YieldyUserComponent;
-  renderSingularFragment({isConcurrent: true});
-  expectSchedulerToFlushAndYield([
-    'Hey user,',
-    'no uri',
-    ['with id ', '1', '!'],
-  ]);
+  internalAct(() => {
+    renderSingularFragment({isConcurrent: true});
+  });
+  expectSchedulerToHaveYielded(['Hey user,', 'no uri', ['with id ', '1', '!']]);
   assertFragmentResults([
     {
       data: {
@@ -897,7 +899,7 @@ it('should ignore updates to initially rendered data when variables change', () 
 
   const newVariables = {...singularVariables, id: '1', scale: 32};
   const newQuery = createOperationDescriptor(gqlSingularQuery, newVariables);
-  TestRenderer.act(() => {
+  internalAct(() => {
     environment.commitPayload(newQuery, {
       node: {
         __typename: 'User',
@@ -911,7 +913,7 @@ it('should ignore updates to initially rendered data when variables change', () 
     });
   });
 
-  TestRenderer.act(() => {
+  internalAct(() => {
     // Pass new fragment ref which contains newVariables
     setSingularOwner(newQuery);
 
@@ -1002,7 +1004,7 @@ it('should NOT update if fragment refs dont change', () => {
   ]);
 
   // Force a re-render with the exact same fragment refs
-  TestRenderer.act(() => {
+  internalAct(() => {
     forceSingularUpdate();
   });
 
@@ -1037,7 +1039,7 @@ it('should NOT update even if fragment ref changes but doesnt point to a differe
     gqlSingularQuery,
     singularVariables,
   );
-  TestRenderer.act(() => {
+  internalAct(() => {
     setSingularOwner(newOwner);
   });
 
@@ -1056,9 +1058,6 @@ it('should NOT update even if fragment ref changes but doesnt point to a differe
 it('should throw a promise if if data is missing for fragment and request is in flight', () => {
   // This prevents console.error output in the test, which is expected
   jest.spyOn(console, 'error').mockImplementationOnce(() => {});
-  jest
-    .spyOn(require('relay-runtime').__internal, 'getPromiseForActiveRequest')
-    .mockImplementationOnce(() => Promise.resolve());
 
   const missingDataVariables = {...singularVariables, id: '4'};
   const missingDataQuery = createOperationDescriptor(
@@ -1072,6 +1071,9 @@ it('should throw a promise if if data is missing for fragment and request is in 
       id: '4',
     },
   });
+
+  // Make sure query is in flight
+  fetchQuery(environment, missingDataQuery).subscribe({});
 
   const renderer = renderSingularFragment({owner: missingDataQuery});
   expect(renderer.toJSON()).toEqual('Singular Fallback');
@@ -1197,6 +1199,95 @@ it('should subscribe for updates even if there is missing data', () => {
   ]);
 });
 
+it('upon commit, it should pick up changes in data that happened before comitting', () => {
+  const Scheduler = require('scheduler');
+  const YieldChild = props => {
+    Scheduler.unstable_yieldValue(props.children);
+    return props.children;
+  };
+  const YieldyUserComponent = ({user}) => {
+    return (
+      <>
+        <YieldChild>Hey user,</YieldChild>
+        <YieldChild>{user.profile_picture?.uri ?? 'no uri'}</YieldChild>
+        <YieldChild>with id {user.id}!</YieldChild>
+      </>
+    );
+  };
+
+  // Assert initial render
+  SingularRenderer = YieldyUserComponent;
+  internalAct(() => {
+    renderSingularFragment({isConcurrent: true});
+    // Flush some of the changes, but don't commit
+    expectSchedulerToFlushAndYieldThrough(['Hey user,', 'no uri']);
+
+    // In Concurrent mode component gets rendered even if not committed
+    // so we reset our mock here
+    resetRenderMock();
+
+    // Trigger an update while render is in progress
+    environment.commitPayload(singularQuery, {
+      node: {
+        __typename: 'User',
+        id: '1',
+        name: 'Alice',
+        // Update profile_picture value
+        profile_picture: {
+          uri: 'uri16',
+        },
+      },
+    });
+
+    // Assert the component renders the updated data
+    expectSchedulerToFlushAndYield([
+      ['with id ', '1', '!'],
+      'Hey user,',
+      'uri16',
+      ['with id ', '1', '!'],
+    ]);
+    assertFragmentResults([
+      {
+        data: {
+          id: '1',
+          name: 'Alice',
+          profile_picture: {
+            uri: 'uri16',
+          },
+          ...createFragmentRef('1', singularQuery),
+        },
+      },
+    ]);
+    // Update latest rendered data
+    environment.commitPayload(singularQuery, {
+      node: {
+        __typename: 'User',
+        id: '1',
+        // Update name
+        name: 'Alice latest update',
+      },
+    });
+    expectSchedulerToFlushAndYield([
+      'Hey user,',
+      'uri16',
+      ['with id ', '1', '!'],
+    ]);
+    assertFragmentResults([
+      {
+        data: {
+          id: '1',
+          // Assert name is updated
+          name: 'Alice latest update',
+          profile_picture: {
+            uri: 'uri16',
+          },
+          ...createFragmentRef('1', singularQuery),
+        },
+      },
+    ]);
+  });
+});
+
 it('should subscribe for updates to plural fragments even if there is missing data', () => {
   // This prevents console.error output in the test, which is expected
   jest.spyOn(console, 'error').mockImplementationOnce(() => {});
@@ -1264,7 +1355,9 @@ it('should subscribe for updates to plural fragments even if there is missing da
 
 describe('disableStoreUpdates', () => {
   it('does not listen to store updates after disableStoreUpdates is called', () => {
-    renderSingularFragment();
+    internalAct(() => {
+      renderSingularFragment();
+    });
     assertFragmentResults([
       {
         data: {
@@ -1288,7 +1381,7 @@ describe('disableStoreUpdates', () => {
     });
 
     // Assert that component did not re-render
-    TestRenderer.act(() => jest.runAllImmediates());
+    internalAct(() => jest.runAllImmediates());
     expect(renderSpy).toBeCalledTimes(0);
   });
 
@@ -1317,12 +1410,12 @@ describe('disableStoreUpdates', () => {
     });
 
     // Assert that component did not re-render while updates are disabled
-    TestRenderer.act(() => {
+    internalAct(() => {
       jest.runAllImmediates();
     });
     expect(renderSpy).toBeCalledTimes(0);
 
-    TestRenderer.act(() => {
+    internalAct(() => {
       enableStoreUpdates();
     });
 
@@ -1358,7 +1451,7 @@ describe('disableStoreUpdates', () => {
     enableStoreUpdates();
 
     // Assert that component did not re-render after enabling updates
-    TestRenderer.act(() => jest.runAllImmediates());
+    internalAct(() => jest.runAllImmediates());
     expect(renderSpy).toBeCalledTimes(0);
   });
 
@@ -1385,13 +1478,13 @@ describe('disableStoreUpdates', () => {
       },
     });
 
-    TestRenderer.act(() => jest.runAllImmediates());
+    internalAct(() => jest.runAllImmediates());
     expect(renderSpy).toBeCalledTimes(0);
 
     enableStoreUpdates();
 
     // Assert that component did not re-render after enabling updates
-    TestRenderer.act(() => jest.runAllImmediates());
+    internalAct(() => jest.runAllImmediates());
     expect(renderSpy).toBeCalledTimes(0);
   });
 });

@@ -3,7 +3,7 @@ query SimpleQuery {
   node(id: "test-id") {
     id
     ... on User {
-      actor @EXPERIMENTAL__as_actor {
+      actor @fb_actor_change {
         ...UserFragment
       }
     }
@@ -18,10 +18,10 @@ query SimpleQuery {
   node(id: "test-id") {
     id
     ... on User {
-      ... @__as_actor {
-        actor {
+      ... @__fb_actor_change {
+        actor @fb_actor_change {
           ...UserFragment
-          __viewer
+          actor_key
         }
       }
     }

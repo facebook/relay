@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,19 +13,18 @@
 
 'use strict';
 
-const RelayModernEnvironment = require('../RelayModernEnvironment');
-const RelayModernStore = require('../RelayModernStore');
-const RelayNetwork = require('../../network/RelayNetwork');
-const RelayRecordSource = require('../RelayRecordSource');
-
 const {
-  getActorIdentifier,
   MultiActorEnvironment,
+  getActorIdentifier,
 } = require('../../multi-actor-environment');
-const {graphql, getRequest} = require('../../query/GraphQLTag');
+const RelayNetwork = require('../../network/RelayNetwork');
+const {getRequest, graphql} = require('../../query/GraphQLTag');
+const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
+const RelayModernStore = require('../RelayModernStore');
+const RelayRecordSource = require('../RelayRecordSource');
 const {disallowWarnings} = require('relay-test-utils-internal');
 
 disallowWarnings();
@@ -122,5 +121,89 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         });
       });
     });
+
+    if (environmentType === 'MultiActorEnvironment') {
+      describe('ActorChange in MultiActorEnvironment', () => {
+        let Query;
+        beforeEach(() => {
+          Query = getRequest(graphql`
+            query RelayModernEnvironmentCheckTestQuery {
+              viewer {
+                newsFeed {
+                  edges {
+                    node @fb_actor_change {
+                      ...RelayModernEnvironmentCheckTestFragment
+                    }
+                  }
+                }
+              }
+            }
+          `);
+          graphql`
+            fragment RelayModernEnvironmentCheckTestFragment on FeedUnit {
+              id
+              message {
+                text
+              }
+            }
+          `;
+        });
+
+        it('should check in multiple environments', () => {
+          operationDescriptor = createOperationDescriptor(Query, {});
+          environment.commitPayload(operationDescriptor, {
+            viewer: {
+              newsFeed: {
+                edges: [
+                  {
+                    node: {
+                      __typename: 'FeedUnit',
+                      actor_key: 'actor:5678',
+                      id: 'id-1',
+                      message: {
+                        text: 'Hello, Antonio',
+                      },
+                    },
+                  },
+                ],
+              },
+            },
+          });
+          expect(environment.check(operationDescriptor)).toEqual({
+            status: 'available',
+            fetchTime: null,
+          });
+        });
+
+        it('should report missing data in multiple environments', () => {
+          operationDescriptor = createOperationDescriptor(Query, {});
+
+          environment.commitPayload(operationDescriptor, {
+            viewer: {
+              newsFeed: {
+                edges: [
+                  {
+                    node: {
+                      __typename: 'FeedUnit',
+                      actor_key: 'actor:5678',
+                      id: 'id-1',
+                      message: {
+                        text: 'Hello, Antonio',
+                      },
+                    },
+                  },
+                ],
+              },
+            },
+          });
+          const parentQueryDescriptor = createOperationDescriptor(ParentQuery, {
+            size: 64,
+          });
+          expect(environment.check(parentQueryDescriptor)).toEqual({
+            status: 'missing',
+          });
+        });
+      });
+    }
   },
 );

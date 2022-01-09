@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,25 +13,23 @@
 
 'use strict';
 
-const React = require('react');
-const ReactTestRenderer = require('react-test-renderer');
-const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
+import type {FetchPolicy} from 'relay-runtime';
 
+const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const useFragmentNode = require('../useFragmentNode');
 const useLazyLoadQueryNode = require('../useLazyLoadQueryNode');
-
+const React = require('react');
+const ReactTestRenderer = require('react-test-renderer');
 const {
-  createOperationDescriptor,
-  getFragment,
   RecordSource,
   Store,
   __internal,
-  graphql,
+  createOperationDescriptor,
+  getFragment,
   getRequest,
+  graphql,
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
-
-import type {FetchPolicy} from 'relay-runtime';
 
 const defaultFetchPolicy = 'network-only';
 
@@ -313,12 +311,7 @@ describe('useLazyLoadQueryNode', () => {
     // Trigger timeout and GC to clear all references
     ReactTestRenderer.act(() => jest.runAllTimers());
     // Verify GC has run
-    expect(
-      environment
-        .getStore()
-        .getSource()
-        .toJSON(),
-    ).toEqual({});
+    expect(environment.getStore().getSource().toJSON()).toEqual({});
 
     renderFn.mockClear();
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
@@ -556,7 +549,7 @@ describe('useLazyLoadQueryNode', () => {
     expect(release).toHaveBeenCalledTimes(1);
   });
 
-  it('disposes ongoing network request when component unmounts while suspended', () => {
+  it('does not cancel ongoing network request when component unmounts while suspended', () => {
     const initialVariables = {id: 'first-render'};
     const initialQuery = createOperationDescriptor(gqlQuery, initialVariables);
     environment.commitPayload(initialQuery, {
@@ -592,21 +585,24 @@ describe('useLazyLoadQueryNode', () => {
     environment.retain.mockClear();
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     environment.execute.mockClear();
+    expect(
+      environment.mock.isLoading(query.request.node, variables, {}),
+    ).toEqual(true);
 
     ReactTestRenderer.act(() => {
       instance.unmount();
     });
 
     // Assert data is released
-    expect(release).toBeCalledTimes(2);
+    expect(release).toBeCalledTimes(1);
 
-    // Assert request in flight is cancelled
+    // Assert request in flight is not cancelled
     expect(
-      environment.mock.isLoading(query.request.node, variables, {force: true}),
-    ).toEqual(false);
+      environment.mock.isLoading(query.request.node, variables, {}),
+    ).toEqual(true);
   });
 
-  it('disposes ongoing network request when component unmounts after committing', () => {
+  it('does not cancel ongoing network request when component unmounts after committing', () => {
     const instance = render(environment, <Container variables={variables} />);
 
     expect(instance.toJSON()).toEqual('Fallback');
@@ -630,19 +626,24 @@ describe('useLazyLoadQueryNode', () => {
     const data = environment.lookup(query.fragment).data;
     expectToBeRendered(renderFn, data);
 
+    // Assert request was created
+    expect(
+      environment.mock.isLoading(query.request.node, variables, {}),
+    ).toEqual(true);
+
     ReactTestRenderer.act(() => {
       instance.unmount();
     });
 
     // Assert data is released
     expect(release).toBeCalledTimes(1);
-    // Assert request in flight is cancelled
+    // Assert request in flight is not cancelled
     expect(
-      environment.mock.isLoading(query.request.node, variables, {force: true}),
-    ).toEqual(false);
+      environment.mock.isLoading(query.request.node, variables, {}),
+    ).toEqual(true);
   });
 
-  it('cancels network request when temporarily retained component that never commits is disposed of after timeout', () => {
+  it('does not cancel network request when temporarily retained component that never commits is disposed of after timeout', () => {
     const instance = render(environment, <Container variables={variables} />);
 
     expect(instance.toJSON()).toEqual('Fallback');
@@ -663,15 +664,19 @@ describe('useLazyLoadQueryNode', () => {
         },
       },
     });
+    // Assert request in created
+    expect(
+      environment.mock.isLoading(query.request.node, variables, {}),
+    ).toEqual(true);
 
     // Trigger releasing of the temporary retain
     jest.runAllTimers();
     // Assert data is released
     expect(release).toBeCalledTimes(1);
-    // Assert request in flight is cancelled
+    // Assert request in flight is not cancelled
     expect(
-      environment.mock.isLoading(query.request.node, variables, {force: true}),
-    ).toEqual(false);
+      environment.mock.isLoading(query.request.node, variables, {}),
+    ).toEqual(true);
   });
 
   describe('with @defer and re-rendering', () => {
@@ -888,6 +893,18 @@ describe('useLazyLoadQueryNode', () => {
           profilerContext: expect.objectContaining({}),
         },
         {
+          name: 'suspense.query',
+          fetchPolicy: 'network-only',
+          isPromiseCached: false,
+          operation: {
+            request: {
+              variables: variables,
+            },
+          },
+          queryAvailability: {status: 'missing'},
+          renderPolicy: 'partial',
+        },
+        {
           name: 'network.next',
           networkRequestId: 100000,
         },
@@ -1009,6 +1026,18 @@ describe('useLazyLoadQueryNode', () => {
           },
         },
         {
+          name: 'suspense.query',
+          fetchPolicy: 'network-only',
+          isPromiseCached: false,
+          operation: {
+            request: {
+              variables: variablesOne,
+            },
+          },
+          queryAvailability: {status: 'missing'},
+          renderPolicy: 'partial',
+        },
+        {
           // execution for variables two starts
           name: 'execute.start',
           executeId: 100004,
@@ -1031,6 +1060,30 @@ describe('useLazyLoadQueryNode', () => {
               variables: variablesTwo,
             },
           },
+        },
+        {
+          name: 'suspense.query',
+          fetchPolicy: 'network-only',
+          isPromiseCached: false,
+          operation: {
+            request: {
+              variables: variablesTwo,
+            },
+          },
+          queryAvailability: {status: 'missing'},
+          renderPolicy: 'partial',
+        },
+        {
+          name: 'suspense.query',
+          fetchPolicy: 'network-only',
+          isPromiseCached: true,
+          operation: {
+            request: {
+              variables: variablesOne,
+            },
+          },
+          queryAvailability: {status: 'missing'},
+          renderPolicy: 'partial',
         },
         // fetch event for variables one is skipped
         // since it's already cached and reused

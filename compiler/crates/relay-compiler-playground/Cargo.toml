@@ -1,8 +1,8 @@
 [package]
 name = "relay-compiler-playground"
-version = "0.0.0"
+version = "0.0.3"
 authors = ["Facebook"]
-edition = "2018"
+edition = "2021"
 license = "MIT"
 
 [lib]
@@ -17,12 +17,14 @@ graphql-ir = { path = "../graphql-ir" }
 graphql-syntax = { path = "../graphql-syntax" }
 graphql-text-printer = { path = "../graphql-text-printer" }
 relay-codegen = { path = "../relay-codegen" }
+relay-config = { path = "../relay-config" }
+relay-typegen = { path = "../relay-typegen" }
 relay-schema = { path = "../relay-schema" }
 relay-transforms = { path = "../relay-transforms" }
 common = { path = "../common" }
-interner = { path = "../interner" }
+intern = { path = "../intern" }
 fnv = "1.0"
-serde = { version = "=1.0.118", features = ["derive", "rc"] }
+serde = { version = "1.0.126", features = ["derive", "rc"] }
 serde_json = { version = "1.0", features = ["float_roundtrip"] }
 schema = { path = "../schema" }
 

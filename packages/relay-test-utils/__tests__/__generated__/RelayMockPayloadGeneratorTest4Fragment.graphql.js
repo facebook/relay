@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<de417f5652c13c3239f67fd64c2c8a10>>
+ * @generated SignedSource<<485c6be958a8a8df3b68d5e23b27a5d8>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,20 +15,20 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayMockPayloadGeneratorTest4Fragment$ref: FragmentReference;
-declare export opaque type RelayMockPayloadGeneratorTest4Fragment$fragmentType: RelayMockPayloadGeneratorTest4Fragment$ref;
-export type RelayMockPayloadGeneratorTest4Fragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayMockPayloadGeneratorTest4Fragment$fragmentType: FragmentType;
+export type RelayMockPayloadGeneratorTest4Fragment$ref = RelayMockPayloadGeneratorTest4Fragment$fragmentType;
+export type RelayMockPayloadGeneratorTest4Fragment$data = {|
   +name: ?string,
   +username: ?string,
   +emailAddresses: ?$ReadOnlyArray<?string>,
-  +$refType: RelayMockPayloadGeneratorTest4Fragment$ref,
+  +$fragmentType: RelayMockPayloadGeneratorTest4Fragment$fragmentType,
 |};
-export type RelayMockPayloadGeneratorTest4Fragment$data = RelayMockPayloadGeneratorTest4Fragment;
+export type RelayMockPayloadGeneratorTest4Fragment = RelayMockPayloadGeneratorTest4Fragment$data;
 export type RelayMockPayloadGeneratorTest4Fragment$key = {
   +$data?: RelayMockPayloadGeneratorTest4Fragment$data,
-  +$fragmentRefs: RelayMockPayloadGeneratorTest4Fragment$ref,
+  +$fragmentSpreads: RelayMockPayloadGeneratorTest4Fragment$fragmentType,
   ...
 };
 */
@@ -69,4 +69,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "c583c180a55fea0b0b4787ba9adc3642";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayMockPayloadGeneratorTest4Fragment$fragmentType,
+  RelayMockPayloadGeneratorTest4Fragment$data,
+>*/);

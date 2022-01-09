@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<de612960ce8dedec313813ae49db779a>>
+ * @generated SignedSource<<208fc51699544b4ee7f347250273f169>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,17 +15,19 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayReaderTestReadsBasicFragmentUserProfile$ref = any;
-export type RelayReaderTestReadsBasicFragmentUserQueryVariables = {||};
-export type RelayReaderTestReadsBasicFragmentUserQueryResponse = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayReaderTestReadsBasicFragmentUserProfile$fragmentType = any;
+export type RelayReaderTestReadsBasicFragmentUserQuery$variables = {||};
+export type RelayReaderTestReadsBasicFragmentUserQueryVariables = RelayReaderTestReadsBasicFragmentUserQuery$variables;
+export type RelayReaderTestReadsBasicFragmentUserQuery$data = {|
   +me: ?{|
-    +$fragmentRefs: RelayReaderTestReadsBasicFragmentUserProfile$ref,
+    +$fragmentSpreads: RelayReaderTestReadsBasicFragmentUserProfile$fragmentType,
   |},
 |};
+export type RelayReaderTestReadsBasicFragmentUserQueryResponse = RelayReaderTestReadsBasicFragmentUserQuery$data;
 export type RelayReaderTestReadsBasicFragmentUserQuery = {|
   variables: RelayReaderTestReadsBasicFragmentUserQueryVariables,
-  response: RelayReaderTestReadsBasicFragmentUserQueryResponse,
+  response: RelayReaderTestReadsBasicFragmentUserQuery$data,
 |};
 */
 
@@ -120,4 +122,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "2401429f098b7810eaab00ff36642660";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayReaderTestReadsBasicFragmentUserQuery$variables,
+  RelayReaderTestReadsBasicFragmentUserQuery$data,
+>*/);

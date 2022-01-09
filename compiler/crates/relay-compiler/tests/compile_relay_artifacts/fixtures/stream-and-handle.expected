@@ -80,7 +80,6 @@ fragment streamAndHandleFragment on Feedback {
                 "if": null,
                 "kind": "Stream",
                 "label": "streamAndHandleFragment$stream$actors",
-                "metadata": null,
                 "selections": [
                   {
                     "alias": null,
@@ -132,8 +131,7 @@ fragment streamAndHandleFragment on Feedback {
                     "kind": "LinkedHandle",
                     "name": "actors"
                   }
-                ],
-                "useCustomizedBatch": null
+                ]
               }
             ],
             "type": "Feedback",

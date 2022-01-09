@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,17 +13,18 @@
 
 'use strict';
 
-const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
-const RelayModernRecord = require('../RelayModernRecord');
-const RelayModernStore = require('../RelayModernStore');
-const RelayOptimisticRecordSource = require('../RelayOptimisticRecordSource');
-const RelayRecordSourceMapImpl = require('../RelayRecordSourceMapImpl');
+import type {Disposable} from '../../util/RelayRuntimeTypes';
 
-const {graphql, getRequest, getFragment} = require('../../query/GraphQLTag');
+const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
+const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
+const RelayModernRecord = require('../RelayModernRecord');
 const {createReaderSelector} = require('../RelayModernSelector');
+const RelayModernStore = require('../RelayModernStore');
+const RelayOptimisticRecordSource = require('../RelayOptimisticRecordSource');
+const RelayRecordSource = require('../RelayRecordSource');
 const {
   INVALIDATED_AT_KEY,
   REF_KEY,
@@ -34,8 +35,6 @@ const {
   createMockEnvironment,
   simpleClone,
 } = require('relay-test-utils-internal');
-
-import type {Disposable} from '../../util/RelayRuntimeTypes';
 
 function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
   if (!value) {
@@ -69,10 +68,9 @@ function cloneEventWithSets(event) {
 }
 
 [
-  [data => new RelayRecordSourceMapImpl(data), 'Map'],
+  [data => new RelayRecordSource(data), 'Map'],
   [
-    data =>
-      RelayOptimisticRecordSource.create(new RelayRecordSourceMapImpl(data)),
+    data => RelayOptimisticRecordSource.create(new RelayRecordSource(data)),
     'Optimistic',
   ],
 ].forEach(([getRecordSourceImplementation, ImplementationName]) => {
@@ -165,7 +163,7 @@ function cloneEventWithSets(event) {
         `);
         graphql`
           fragment RelayModernStoreTestJoeFragment on Query
-            @argumentDefinitions(id: {type: "ID"}) {
+          @argumentDefinitions(id: {type: "ID"}) {
             node(id: $id) {
               ... on User {
                 name
@@ -258,6 +256,7 @@ function cloneEventWithSets(event) {
           },
           seenRecords: new Set(Object.keys(data)),
           missingRequiredFields: null,
+          missingClientEdges: null,
           isMissingData: false,
         });
       });
@@ -306,9 +305,11 @@ function cloneEventWithSets(event) {
             __id: '4',
             __fragments: {RelayModernStoreTest4Fragment: {}},
             __fragmentOwner: owner.request,
+            __isWithinUnmatchedTypeRefinement: false,
           },
           seenRecords: new Set(Object.keys(data)),
           missingRequiredFields: null,
+          missingClientEdges: null,
           isMissingData: false,
         });
         expect(snapshot.data?.__fragmentOwner).toBe(owner.request);
@@ -364,6 +365,7 @@ function cloneEventWithSets(event) {
           },
           seenRecords: new Set(['client:2', '4']),
           missingRequiredFields: null,
+          missingClientEdges: null,
           isMissingData: false,
         });
       });
@@ -634,6 +636,7 @@ function cloneEventWithSets(event) {
         expect(callback.mock.calls[0][0]).toEqual({
           ...snapshot,
           missingRequiredFields: null,
+          missingClientEdges: null,
           isMissingData: false,
           data: {
             name: 'Zuck',
@@ -677,6 +680,7 @@ function cloneEventWithSets(event) {
             profilePicture: undefined,
           },
           missingRequiredFields: null,
+          missingClientEdges: null,
           isMissingData: true,
           seenRecords: new Set(Object.keys(nextSource.toJSON())),
         });
@@ -716,6 +720,7 @@ function cloneEventWithSets(event) {
             profilePicture: undefined,
           },
           missingRequiredFields: null,
+          missingClientEdges: null,
           isMissingData: true,
           seenRecords: new Set(['842472']),
         });

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,20 +13,18 @@
 
 'use strict';
 
+import type {PayloadData, PayloadError} from 'relay-runtime';
+
+const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
+const useMutation = require('../useMutation');
 const React = require('react');
 const ReactTestRenderer = require('react-test-renderer');
-const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
-
-const useMutation = require('../useMutation');
-
 const {
   createOperationDescriptor,
-  graphql,
   getRequest,
+  graphql,
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
-
-import type {PayloadData, PayloadError} from 'relay-runtime';
 
 const {useState, useMemo} = React;
 let environment;
@@ -114,7 +112,7 @@ beforeEach(() => {
     );
   }
 
-  render = function(env, mutation, commitInRender = false) {
+  render = function (env, mutation, commitInRender = false) {
     ReactTestRenderer.act(() => {
       instance = ReactTestRenderer.create(
         <Container

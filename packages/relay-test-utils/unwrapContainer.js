@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -9,15 +9,15 @@
 
 'use strict';
 
-const invariant = require('invariant');
-
 import type React from 'React';
 import type {
-  $RelayProps,
-  RelayProp,
   RelayPaginationProp,
+  RelayProp,
   RelayRefetchProp,
+  $RelayProps,
 } from 'react-relay';
+
+const invariant = require('invariant');
 
 /**
  * Returns original component class wrapped by e.g. createFragmentContainer

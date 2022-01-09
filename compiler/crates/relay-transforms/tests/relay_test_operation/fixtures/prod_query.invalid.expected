@@ -1,0 +1,16 @@
+==================================== INPUT ====================================
+# expected-to-throw
+
+query ProdQuery @relay_test_operation {
+  node(id: "test-id") {
+    id
+  }
+}
+==================================== ERROR ====================================
+✖︎ The `@relay_test_operation` directive is only allowed within test files because it creates larger generated files we don't want to include in production. File does not match test regex: ^test
+
+  prod_query.invalid.graphql:3:17
+    2 │ 
+    3 │ query ProdQuery @relay_test_operation {
+      │                 ^^^^^^^^^^^^^^^^^^^^^
+    4 │   node(id: "test-id") {

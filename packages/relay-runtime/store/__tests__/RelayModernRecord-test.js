@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -10,15 +10,13 @@
 
 'use strict';
 
-const RelayModernRecord = require('../RelayModernRecord');
-const RelayModernTestUtils = require('relay-test-utils-internal');
-const RelayStoreUtils = require('../RelayStoreUtils');
-
-const deepFreeze = require('../../util/deepFreeze');
-
 const {
   getActorIdentifier,
 } = require('../../multi-actor-environment/ActorIdentifier');
+const deepFreeze = require('../../util/deepFreeze');
+const RelayModernRecord = require('../RelayModernRecord');
+const RelayStoreUtils = require('../RelayStoreUtils');
+const RelayModernTestUtils = require('relay-test-utils-internal');
 
 const {ID_KEY, REF_KEY, REFS_KEY, TYPENAME_KEY} = RelayStoreUtils;
 

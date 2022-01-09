@@ -1,7 +1,7 @@
 # expected-to-throw
 
 fragment TestFragment on Query {
-  story @EXPERIMENTAL__as_actor {
+  story @fb_actor_change {
     ...StoryFragment
   }
 }

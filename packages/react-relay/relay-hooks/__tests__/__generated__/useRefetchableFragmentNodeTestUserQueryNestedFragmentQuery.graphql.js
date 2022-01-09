@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<f43d989a2cab699cd289a9e04fa19b71>>
+ * @generated SignedSource<<cc05ad4c00d4a26be463aec2ad2151b1>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,22 +15,24 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type useRefetchableFragmentNodeTestUserFragment$ref = any;
-export type useRefetchableFragmentNodeTestUserQueryNestedFragmentQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type useRefetchableFragmentNodeTestUserFragment$fragmentType = any;
+export type useRefetchableFragmentNodeTestUserQueryNestedFragmentQuery$variables = {|
   id: string,
   scale: number,
 |};
-export type useRefetchableFragmentNodeTestUserQueryNestedFragmentQueryResponse = {|
+export type useRefetchableFragmentNodeTestUserQueryNestedFragmentQueryVariables = useRefetchableFragmentNodeTestUserQueryNestedFragmentQuery$variables;
+export type useRefetchableFragmentNodeTestUserQueryNestedFragmentQuery$data = {|
   +node: ?{|
     +actor: ?{|
-      +$fragmentRefs: useRefetchableFragmentNodeTestUserFragment$ref,
+      +$fragmentSpreads: useRefetchableFragmentNodeTestUserFragment$fragmentType,
     |},
   |},
 |};
+export type useRefetchableFragmentNodeTestUserQueryNestedFragmentQueryResponse = useRefetchableFragmentNodeTestUserQueryNestedFragmentQuery$data;
 export type useRefetchableFragmentNodeTestUserQueryNestedFragmentQuery = {|
   variables: useRefetchableFragmentNodeTestUserQueryNestedFragmentQueryVariables,
-  response: useRefetchableFragmentNodeTestUserQueryNestedFragmentQueryResponse,
+  response: useRefetchableFragmentNodeTestUserQueryNestedFragmentQuery$data,
 |};
 */
 
@@ -200,4 +202,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "845c776ed52ad25feb496e052f8f65cb";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  useRefetchableFragmentNodeTestUserQueryNestedFragmentQuery$variables,
+  useRefetchableFragmentNodeTestUserQueryNestedFragmentQuery$data,
+>*/);

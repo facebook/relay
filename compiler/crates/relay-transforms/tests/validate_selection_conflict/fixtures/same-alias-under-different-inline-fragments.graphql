@@ -1,0 +1,11 @@
+# expected-to-throw
+query TestQuery {
+  me {
+    ... on User {
+      same_alias: lastName
+    }
+    ... on Actor {
+      same_alias: name
+    }
+  }
+}

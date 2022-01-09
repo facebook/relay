@@ -1,10 +1,10 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<78491300d5fd09d58bd8f7afa1355dad>>
+ * @generated SignedSource<<d440aa51b055992a5f9bf86d0e988078>>
  */
 
 mod relay_resolvers;
@@ -59,6 +59,13 @@ fn relay_resolver() {
     let input = include_str!("relay_resolvers/fixtures/relay-resolver.graphql");
     let expected = include_str!("relay_resolvers/fixtures/relay-resolver.expected");
     test_fixture(transform_fixture, "relay-resolver.graphql", "relay_resolvers/fixtures/relay-resolver.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_backing_client_edge() {
+    let input = include_str!("relay_resolvers/fixtures/relay-resolver-backing-client-edge.graphql");
+    let expected = include_str!("relay_resolvers/fixtures/relay-resolver-backing-client-edge.expected");
+    test_fixture(transform_fixture, "relay-resolver-backing-client-edge.graphql", "relay_resolvers/fixtures/relay-resolver-backing-client-edge.expected", input, expected);
 }
 
 #[test]

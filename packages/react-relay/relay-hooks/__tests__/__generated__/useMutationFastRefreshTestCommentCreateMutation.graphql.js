@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<7acebec5fb7a6ee3640af27c374282da>>
+ * @generated SignedSource<<6923f96b24896638a585bd6977f86700>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,7 +15,7 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
+import type { ConcreteRequest, Mutation } from 'relay-runtime';
 export type CommentCreateInput = {|
   clientMutationId?: ?string,
   feedbackId?: ?string,
@@ -27,10 +27,11 @@ export type CommentfeedbackFeedback = {|
 export type FeedbackcommentComment = {|
   feedback?: ?CommentfeedbackFeedback,
 |};
-export type useMutationFastRefreshTestCommentCreateMutationVariables = {|
+export type useMutationFastRefreshTestCommentCreateMutation$variables = {|
   input?: ?CommentCreateInput,
 |};
-export type useMutationFastRefreshTestCommentCreateMutationResponse = {|
+export type useMutationFastRefreshTestCommentCreateMutationVariables = useMutationFastRefreshTestCommentCreateMutation$variables;
+export type useMutationFastRefreshTestCommentCreateMutation$data = {|
   +commentCreate: ?{|
     +feedbackCommentEdge: ?{|
       +cursor: ?string,
@@ -43,9 +44,10 @@ export type useMutationFastRefreshTestCommentCreateMutationResponse = {|
     |},
   |},
 |};
+export type useMutationFastRefreshTestCommentCreateMutationResponse = useMutationFastRefreshTestCommentCreateMutation$data;
 export type useMutationFastRefreshTestCommentCreateMutation = {|
   variables: useMutationFastRefreshTestCommentCreateMutationVariables,
-  response: useMutationFastRefreshTestCommentCreateMutationResponse,
+  response: useMutationFastRefreshTestCommentCreateMutation$data,
 |};
 */
 
@@ -162,4 +164,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "97430a57093eac226b7c8c315e30f400";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Mutation<
+  useMutationFastRefreshTestCommentCreateMutation$variables,
+  useMutationFastRefreshTestCommentCreateMutation$data,
+>*/);

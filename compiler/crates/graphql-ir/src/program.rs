@@ -1,13 +1,12 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
 use crate::ir::{ExecutableDefinition, FragmentDefinition, OperationDefinition};
-use fnv::FnvHashMap;
-use interner::StringKey;
+use intern::string_key::{StringKey, StringKeyMap};
 use schema::SDLSchema;
 use std::{collections::HashMap, sync::Arc};
 
@@ -15,7 +14,7 @@ use std::{collections::HashMap, sync::Arc};
 #[derive(Debug, Clone)]
 pub struct Program {
     pub schema: Arc<SDLSchema>,
-    pub fragments: FnvHashMap<StringKey, Arc<FragmentDefinition>>,
+    pub fragments: StringKeyMap<Arc<FragmentDefinition>>,
     pub operations: Vec<Arc<OperationDefinition>>,
 }
 
@@ -100,7 +99,7 @@ impl Program {
         other_program: &Self,
         removed_definition_names: Option<&[StringKey]>,
     ) {
-        let mut operations: FnvHashMap<StringKey, Arc<OperationDefinition>> = self
+        let mut operations: StringKeyMap<Arc<OperationDefinition>> = self
             .operations
             .drain(..)
             .map(|op| (op.name.item, op))

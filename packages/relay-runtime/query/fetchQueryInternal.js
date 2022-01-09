@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -12,11 +12,6 @@
 
 'use strict';
 
-const Observable = require('../network/RelayObservable');
-const RelayReplaySubject = require('../util/RelayReplaySubject');
-
-const invariant = require('invariant');
-
 import type {GraphQLResponse} from '../network/RelayNetworkTypes';
 import type {Subscription} from '../network/RelayObservable';
 import type {
@@ -25,6 +20,10 @@ import type {
   RequestDescriptor,
 } from '../store/RelayStoreTypes';
 import type {RequestIdentifier} from '../util/getRequestIdentifier';
+
+const Observable = require('../network/RelayObservable');
+const RelayReplaySubject = require('../util/RelayReplaySubject');
+const invariant = require('invariant');
 
 type RequestCacheEntry = {|
   +identifier: RequestIdentifier,
@@ -307,10 +306,8 @@ function getObservableForActiveRequest(
 function getRequestCache(
   environment: IEnvironment,
 ): Map<RequestIdentifier, RequestCacheEntry> {
-  const cached: ?Map<
-    RequestIdentifier,
-    RequestCacheEntry,
-  > = requestCachesByEnvironment.get(environment);
+  const cached: ?Map<RequestIdentifier, RequestCacheEntry> =
+    requestCachesByEnvironment.get(environment);
   if (cached != null) {
     return cached;
   }

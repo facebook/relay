@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow strict
+ * @flow strict-local
  * @format
  */
 
@@ -15,6 +15,9 @@
 /**
  * Basic types used throughout Relay.
  */
+
+import type {ReaderFragment, ReaderInlineDataFragment} from './ReaderNode';
+import type {ConcreteRequest} from './RelayConcreteNode';
 
 /**
  * Represents any resource that must be explicitly disposed of. The most common
@@ -38,7 +41,7 @@ export type OperationType = {|
   +rawResponse?: {...},
 |};
 
-export type VariablesOf<T: OperationType> = $ElementType<T, 'variables'>;
+export type VariablesOf<T: OperationType> = T['variables'];
 
 /**
  * Settings for how a query response may be cached.
@@ -69,3 +72,67 @@ export type FetchPolicy =
   | 'store-and-network'
   | 'store-only';
 export type RenderPolicy = 'full' | 'partial';
+
+/* eslint-disable no-undef */
+
+/**
+ * Return type of graphql tag literals for all operations.
+ */
+declare export opaque type Operation<
+  -TVariables: Variables,
+  +TData,
+  TRawResponse,
+>: ConcreteRequest;
+
+/**
+ * Return type of graphql tag literals for queries.
+ */
+declare export opaque type Query<
+  -TVariables: Variables,
+  +TData,
+  TRawResponse = void,
+>: Operation<TVariables, TData, TRawResponse>;
+
+/**
+ * Return type of graphql tag literals for mutations.
+ */
+declare export opaque type Mutation<
+  -TVariables: Variables,
+  +TData,
+  TRawResponse = void,
+>: Operation<TVariables, TData, TRawResponse>;
+
+/**
+ * Return type of graphql tag literals for subscriptions.
+ *
+ * NOTE: Using the GraphQL prefix here because of a naming conflict with
+ *       `RelayObservable`'s `Subscription` type.
+ */
+declare export opaque type GraphQLSubscription<
+  -TVariables: Variables,
+  +TData,
+  TRawResponse = void,
+>: Operation<TVariables, TData, TRawResponse>;
+
+/**
+ * Return type of graphql tag literals for `@inline` fragments.
+ */
+declare export opaque type InlineFragment<
+  TFragmentType,
+  +TData,
+>: ReaderInlineDataFragment;
+
+/**
+ * Return type of graphql tag literals for fragments, except `@inline`
+ * fragments.
+ */
+declare export opaque type Fragment<TFragmentType, +TData>: ReaderFragment;
+
+/**
+ * Return type of graphql tag literals for `@refetchable` fragments.
+ */
+declare export opaque type RefetchableFragment<
+  TFragmentType,
+  +TData,
+  -TVariables: Variables,
+>: Fragment<TFragmentType, TData>;

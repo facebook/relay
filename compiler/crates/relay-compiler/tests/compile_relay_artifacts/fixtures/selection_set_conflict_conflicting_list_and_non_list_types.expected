@@ -1,0 +1,36 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query selectionSetConflictConflictingListAndNonListTypesQuery {
+  viewer {
+    newsFeed {
+      edges {
+        node {
+          ... on Story {
+            same_alias: actors {
+              id
+            }
+          }
+          ... on PhotoStory {
+            same_alias: actorCount
+          }
+        }
+      }
+    }
+  }
+}
+==================================== ERROR ====================================
+✖︎ Field 'same_alias' is ambiguous because it references fields with different types: 'actors' with type '[Actor]' and 'actorCount' with type 'Int'
+
+  selection_set_conflict_conflicting_list_and_non_list_types.graphql:8:25
+    7 │           ... on Story {
+    8 │             same_alias: actors {
+      │                         ^^^^^^
+    9 │               id
+
+  ℹ︎ the other field
+
+  selection_set_conflict_conflicting_list_and_non_list_types.graphql:13:25
+   12 │           ... on PhotoStory {
+   13 │             same_alias: actorCount
+      │                         ^^^^^^^^^^
+   14 │           }

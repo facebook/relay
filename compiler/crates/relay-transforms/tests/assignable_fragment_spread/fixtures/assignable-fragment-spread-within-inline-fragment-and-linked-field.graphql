@@ -1,0 +1,13 @@
+query TestQuery($skip: Boolean!) {
+  node(id: "4") {
+    ... on User {
+      author {
+        ...Assignable_user
+      }
+    }
+  }
+}
+
+fragment Assignable_user on User @assignable {
+  __typename
+}

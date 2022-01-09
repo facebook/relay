@@ -3,7 +3,7 @@
 name = "graphql-syntax"
 version = "0.0.0"
 authors = ["Facebook"]
-edition = "2018"
+edition = "2021"
 license = "MIT"
 
 [[test]]
@@ -12,11 +12,11 @@ path = "tests/print_test.rs"
 
 [dependencies]
 common = { path = "../common" }
-interner = { path = "../interner" }
+intern = { path = "../intern" }
 logos = "0.11"
-lsp-types = "0.73.0"
-serde = { version = "=1.0.118", features = ["derive", "rc"] }
-thiserror = "1.0"
+lsp-types = "0.89.0"
+serde = { version = "1.0.126", features = ["derive", "rc"] }
+thiserror = "1.0.29"
 
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }

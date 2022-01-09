@@ -1,19 +1,17 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use super::match_::MATCH_CONSTANTS;
-use crate::util::get_fragment_filename;
-use common::{NamedItem, WithLocation};
-use fnv::FnvHashMap;
+use crate::{util::get_fragment_filename, ModuleMetadata};
+use common::WithLocation;
 use graphql_ir::{
     Argument, ConstantValue, Directive, FragmentDefinition, OperationDefinition, Program,
     Selection, Transformed, Transformer, Value,
 };
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey, StringKeyMap};
 use lazy_static::lazy_static;
 use schema::{Schema, TypeReference};
 
@@ -72,20 +70,11 @@ impl<'s> GenerateDataDrivenDependencyMetadata<'s> {
                             Some(type_) => TypeReference::Named(type_),
                             None => processing_item.parent_type.clone(),
                         };
-                        let module_directive = inline_fragment
-                            .directives
-                            .named(MATCH_CONSTANTS.custom_module_directive_name);
-                        if let Some(module_directive) = module_directive {
-                            let id = get_string_literal_argument_value(
-                                &module_directive,
-                                MATCH_CONSTANTS.js_field_id_arg,
-                            )
-                            .expect("Expected id argument to exist on __module directive");
-                            let component = get_string_literal_argument_value(
-                                &module_directive,
-                                MATCH_CONSTANTS.js_field_module_arg,
-                            )
-                            .expect("Expected module argument to exist on __module directive");
+                        if let Some(module_metadata) =
+                            ModuleMetadata::find(&inline_fragment.directives)
+                        {
+                            let id = module_metadata.module_id;
+                            let component = module_metadata.module_name;
 
                             let fragment_spread = inline_fragment
                                 .selections
@@ -100,12 +89,12 @@ impl<'s> GenerateDataDrivenDependencyMetadata<'s> {
                             let type_name = self
                                 .program
                                 .schema
-                                .get_type_string(&processing_item.parent_type);
+                                .get_type_name(processing_item.parent_type.inner());
                             module_entries
                                 .entry(id)
                                 .and_modify(|module_entry| {
                                     module_entry.branches.insert(
-                                        type_name.clone(),
+                                        type_name,
                                         Branch {
                                             component,
                                             fragment: get_fragment_filename(fragment_name),
@@ -113,12 +102,10 @@ impl<'s> GenerateDataDrivenDependencyMetadata<'s> {
                                     );
                                 })
                                 .or_insert(ModuleEntry {
-                                    id,
                                     branches: {
-                                        let mut map: FnvHashMap<String, Branch> =
-                                            Default::default();
+                                        let mut map = StringKeyMap::default();
                                         map.insert(
-                                            type_name.clone(),
+                                            type_name,
                                             Branch {
                                                 component,
                                                 fragment: get_fragment_filename(fragment_name),
@@ -160,12 +147,11 @@ struct Branch {
     fragment: StringKey,
 }
 
-type ModuleEntries = FnvHashMap<StringKey, ModuleEntry>;
+type ModuleEntries = StringKeyMap<ModuleEntry>;
 
 #[derive(Debug)]
 struct ModuleEntry {
-    id: StringKey,
-    branches: FnvHashMap<String, Branch>,
+    branches: StringKeyMap<Branch>,
     plural: bool,
 }
 
@@ -237,7 +223,7 @@ impl<'s> Transformer for GenerateDataDrivenDependencyMetadata<'s> {
     }
 }
 
-fn create_metadata_directive(module_entries: FnvHashMap<StringKey, ModuleEntry>) -> Directive {
+fn create_metadata_directive(module_entries: StringKeyMap<ModuleEntry>) -> Directive {
     let mut arguments: Vec<Argument> = Vec::with_capacity(module_entries.len());
     for (key, module_entry) in module_entries {
         arguments.push(Argument {
@@ -252,6 +238,7 @@ fn create_metadata_directive(module_entries: FnvHashMap<StringKey, ModuleEntry>)
     Directive {
         name: WithLocation::generated(*DATA_DRIVEN_DEPENDENCY_METADATA_KEY),
         arguments,
+        data: None,
     }
 }
 
@@ -261,7 +248,7 @@ impl From<ModuleEntry> for StringKey {
             Vec::with_capacity(module_entry.branches.len());
         for (id, branch) in module_entry.branches.iter() {
             serialized_branches.push((
-                id.clone(),
+                id.to_string(),
                 format!(
                     "\"{}\":{{\"component\":\"{}\",\"fragment\":\"{}\"}}",
                     id, branch.component, branch.fragment
@@ -282,14 +269,4 @@ impl From<ModuleEntry> for StringKey {
         )
         .intern()
     }
-}
-
-fn get_string_literal_argument_value(
-    directive: &Directive,
-    argument_name: StringKey,
-) -> Option<StringKey> {
-    directive
-        .arguments
-        .named(argument_name)
-        .map(|arg| arg.value.item.expect_string_literal())
 }

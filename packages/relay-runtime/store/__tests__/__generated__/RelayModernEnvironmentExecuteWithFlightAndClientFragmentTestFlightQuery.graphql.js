@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b338d5f5c3dce28954827a39b2d91ab7>>
+ * @generated SignedSource<<25ed789ddb39246cede36534d35969c5>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,19 +17,21 @@
 // @ReactFlightServerDependency FlightComponent.server
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-export type RelayModernEnvironmentExecuteWithFlightAndClientFragmentTestFlightQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+export type RelayModernEnvironmentExecuteWithFlightAndClientFragmentTestFlightQuery$variables = {|
   id: string,
   count: number,
 |};
-export type RelayModernEnvironmentExecuteWithFlightAndClientFragmentTestFlightQueryResponse = {|
+export type RelayModernEnvironmentExecuteWithFlightAndClientFragmentTestFlightQueryVariables = RelayModernEnvironmentExecuteWithFlightAndClientFragmentTestFlightQuery$variables;
+export type RelayModernEnvironmentExecuteWithFlightAndClientFragmentTestFlightQuery$data = {|
   +node: ?{|
     +flightComponent?: ?any,
   |},
 |};
+export type RelayModernEnvironmentExecuteWithFlightAndClientFragmentTestFlightQueryResponse = RelayModernEnvironmentExecuteWithFlightAndClientFragmentTestFlightQuery$data;
 export type RelayModernEnvironmentExecuteWithFlightAndClientFragmentTestFlightQuery = {|
   variables: RelayModernEnvironmentExecuteWithFlightAndClientFragmentTestFlightQueryVariables,
-  response: RelayModernEnvironmentExecuteWithFlightAndClientFragmentTestFlightQueryResponse,
+  response: RelayModernEnvironmentExecuteWithFlightAndClientFragmentTestFlightQuery$data,
 |};
 */
 
@@ -167,4 +169,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "af935db133f1abf1a578d02f3bb73db0";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentExecuteWithFlightAndClientFragmentTestFlightQuery$variables,
+  RelayModernEnvironmentExecuteWithFlightAndClientFragmentTestFlightQuery$data,
+>*/);

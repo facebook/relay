@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -11,16 +11,6 @@
 
 'use strict';
 
-const ActorSpecificEnvironment = require('./ActorSpecificEnvironment');
-const MultiActorOperationExecutor = require('./MultiActorOperationExecutor');
-const RelayDefaultHandlerProvider = require('../handlers/RelayDefaultHandlerProvider');
-const RelayModernStore = require('../store/RelayModernStore');
-const RelayObservable = require('../network/RelayObservable');
-const RelayRecordSource = require('../store/RelayRecordSource');
-
-const defaultGetDataID = require('../store/defaultGetDataID');
-const defaultRequiredFieldLogger = require('../store/defaultRequiredFieldLogger');
-
 import type {HandlerProvider} from '../handlers/RelayDefaultHandlerProvider';
 import type {GraphQLResponse, PayloadData} from '../network/RelayNetworkTypes';
 import type {INetwork} from '../network/RelayNetworkTypes';
@@ -30,6 +20,8 @@ import type {
   ExecuteMutationConfig,
   LogFunction,
   MissingFieldHandler,
+  MutableRecordSource,
+  MutationParameters,
   OperationAvailability,
   OperationDescriptor,
   OperationLoader,
@@ -45,14 +37,28 @@ import type {
   StoreUpdater,
 } from '../store/RelayStoreTypes';
 import type {Disposable} from '../util/RelayRuntimeTypes';
+import type {RenderPolicy} from '../util/RelayRuntimeTypes';
 import type {ActorIdentifier} from './ActorIdentifier';
 import type {
   IActorEnvironment,
   IMultiActorEnvironment,
+  MultiActorStoreUpdater,
 } from './MultiActorEnvironmentTypes';
 
+const RelayDefaultHandlerProvider = require('../handlers/RelayDefaultHandlerProvider');
+const RelayObservable = require('../network/RelayObservable');
+const defaultGetDataID = require('../store/defaultGetDataID');
+const defaultRequiredFieldLogger = require('../store/defaultRequiredFieldLogger');
+const OperationExecutor = require('../store/OperationExecutor');
+const RelayModernStore = require('../store/RelayModernStore');
+const RelayRecordSource = require('../store/RelayRecordSource');
+const ActorSpecificEnvironment = require('./ActorSpecificEnvironment');
+
 export type MultiActorEnvironmentConfig = $ReadOnly<{
+  createConfigNameForActor?: ?(actorIdentifier: ActorIdentifier) => string,
   createNetworkForActor: (actorIdentifier: ActorIdentifier) => INetwork,
+  createStoreForActor?: ?(actorIdentifier: ActorIdentifier) => Store,
+  defaultRenderPolicy?: ?RenderPolicy,
   getDataID?: GetDataID,
   handlerProvider?: HandlerProvider,
   isServer?: ?boolean,
@@ -65,13 +71,14 @@ export type MultiActorEnvironmentConfig = $ReadOnly<{
   scheduler?: ?TaskScheduler,
   shouldProcessClientComponents?: ?boolean,
   treatMissingFieldsAsNull?: boolean,
-  createStoreForActor?: ?(actorIdentifier: ActorIdentifier) => Store,
 }>;
 
 class MultiActorEnvironment implements IMultiActorEnvironment {
   +_actorEnvironments: Map<ActorIdentifier, IActorEnvironment>;
+  +_createConfigNameForActor: ?(actorIdentifier: ActorIdentifier) => string;
   +_createNetworkForActor: (actorIdentifier: ActorIdentifier) => INetwork;
   +_createStoreForActor: ?(actorIdentifier: ActorIdentifier) => Store;
+  +_defaultRenderPolicy: RenderPolicy;
   +_getDataID: GetDataID;
   +_handlerProvider: HandlerProvider;
   +_isServer: boolean;
@@ -107,6 +114,8 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
     this._reactFlightPayloadDeserializer =
       config.reactFlightPayloadDeserializer;
     this._reactFlightServerErrorHandler = config.reactFlightServerErrorHandler;
+    this._createConfigNameForActor = config.createConfigNameForActor;
+    this._defaultRenderPolicy = config.defaultRenderPolicy ?? 'partial';
   }
 
   /**
@@ -118,6 +127,9 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
     const environment = this._actorEnvironments.get(actorIdentifier);
     if (environment == null) {
       const newEnvironment = new ActorSpecificEnvironment({
+        configName: this._createConfigNameForActor
+          ? this._createConfigNameForActor(actorIdentifier)
+          : null,
         actorIdentifier,
         multiActorEnvironment: this,
         logFn: this._logFn,
@@ -128,6 +140,7 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
             : new RelayModernStore(RelayRecordSource.create()),
         network: this._createNetworkForActor(actorIdentifier),
         handlerProvider: this._handlerProvider,
+        defaultRenderPolicy: this._defaultRenderPolicy,
       });
       this._actorEnvironments.set(actorIdentifier, newEnvironment);
       return newEnvironment;
@@ -144,7 +157,16 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
       this._missingFieldHandlers == null ||
       this._missingFieldHandlers.length === 0
     ) {
-      return actorEnvironment.getStore().check(operation);
+      return actorEnvironment.getStore().check(operation, {
+        handlers: [],
+        defaultActorIdentifier: actorEnvironment.actorIdentifier,
+        getSourceForActor: actorIdentifier => {
+          return this.forActor(actorIdentifier).getStore().getSource();
+        },
+        getTargetForActor: () => {
+          return RelayRecordSource.create();
+        },
+      });
     }
     return this._checkSelectorAndHandleMissingFields(
       actorEnvironment,
@@ -158,16 +180,34 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
     operation: OperationDescriptor,
     handlers: $ReadOnlyArray<MissingFieldHandler>,
   ): OperationAvailability {
-    const target = RelayRecordSource.create();
-    const result = actorEnvironment
-      .getStore()
-      .check(operation, {target, handlers});
-    if (target.size() > 0) {
-      this._scheduleUpdates(() => {
-        actorEnvironment.getPublishQueue().commitSource(target);
-        actorEnvironment.getPublishQueue().run();
-      });
+    const targets: Map<ActorIdentifier, MutableRecordSource> = new Map([
+      [actorEnvironment.actorIdentifier, RelayRecordSource.create()],
+    ]);
+    const result = actorEnvironment.getStore().check(operation, {
+      handlers,
+      defaultActorIdentifier: actorEnvironment.actorIdentifier,
+      getSourceForActor: actorIdentifier => {
+        return this.forActor(actorIdentifier).getStore().getSource();
+      },
+      getTargetForActor: actorIdentifier => {
+        let target = targets.get(actorIdentifier);
+        if (target == null) {
+          target = RelayRecordSource.create();
+          targets.set(actorIdentifier, target);
+        }
+        return target;
+      },
+    });
+    for (const [actorIdentifier, target] of targets) {
+      if (target.size() > 0) {
+        this._scheduleUpdates(() => {
+          const publishQueue = this.forActor(actorIdentifier).getPublishQueue();
+          publishQueue.commitSource(target);
+          publishQueue.run();
+        });
+      }
     }
+
     return result;
   }
 
@@ -230,9 +270,9 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
     });
   }
 
-  applyMutation(
+  applyMutation<TMutation: MutationParameters>(
     actorEnvironment: IActorEnvironment,
-    optimisticConfig: OptimisticResponseConfig,
+    optimisticConfig: OptimisticResponseConfig<TMutation>,
   ): Disposable {
     const subscription = this._execute(actorEnvironment, {
       createSource: () => RelayObservable.create(_sink => {}),
@@ -283,10 +323,35 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
     actorEnvironment: IActorEnvironment,
     {
       operation,
+    }: {
+      operation: OperationDescriptor,
+    },
+  ): RelayObservable<GraphQLResponse> {
+    return this._execute(actorEnvironment, {
+      createSource: () =>
+        actorEnvironment
+          .getNetwork()
+          .execute(
+            operation.request.node.params,
+            operation.request.variables,
+            operation.request.cacheConfig || {},
+            null,
+          ),
+      isClientPayload: false,
+      operation,
+      optimisticConfig: null,
+      updater: null,
+    });
+  }
+
+  executeSubscription<TMutation: MutationParameters>(
+    actorEnvironment: IActorEnvironment,
+    {
+      operation,
       updater,
     }: {
       operation: OperationDescriptor,
-      updater?: ?SelectorStoreUpdater,
+      updater?: ?SelectorStoreUpdater<TMutation['response']>,
     },
   ): RelayObservable<GraphQLResponse> {
     return this._execute(actorEnvironment, {
@@ -306,7 +371,7 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
     });
   }
 
-  executeMutation(
+  executeMutation<TMutation: MutationParameters>(
     actorEnvironment: IActorEnvironment,
     {
       operation,
@@ -314,7 +379,7 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
       optimisticUpdater,
       updater,
       uploadables,
-    }: ExecuteMutationConfig,
+    }: ExecuteMutationConfig<TMutation>,
   ): RelayObservable<GraphQLResponse> {
     let optimisticConfig;
     if (optimisticResponse || optimisticUpdater) {
@@ -370,7 +435,7 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
     return this._isServer;
   }
 
-  _execute(
+  _execute<TMutation: MutationParameters>(
     actorEnvironment: IActorEnvironment,
     {
       createSource,
@@ -382,12 +447,12 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
       createSource: () => RelayObservable<GraphQLResponse>,
       isClientPayload: boolean,
       operation: OperationDescriptor,
-      optimisticConfig: ?OptimisticResponseConfig,
-      updater: ?SelectorStoreUpdater,
+      optimisticConfig: ?OptimisticResponseConfig<TMutation>,
+      updater: ?SelectorStoreUpdater<TMutation['response']>,
     |},
   ): RelayObservable<GraphQLResponse> {
     return RelayObservable.create(sink => {
-      const executor = MultiActorOperationExecutor.execute({
+      const executor = OperationExecutor.execute({
         actorIdentifier: actorEnvironment.actorIdentifier,
         getDataID: this._getDataID,
         isClientPayload,
@@ -412,6 +477,7 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
         },
         treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
         updater,
+        log: this._logFn,
       });
       return () => executor.cancel();
     });
@@ -423,6 +489,14 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
       scheduler.schedule(task);
     } else {
       task();
+    }
+  }
+
+  commitMultiActorUpdate(updater: MultiActorStoreUpdater): void {
+    for (const [actorIdentifier, environment] of this._actorEnvironments) {
+      environment.commitUpdate(storeProxy => {
+        updater(actorIdentifier, environment, storeProxy);
+      });
     }
   }
 }

@@ -1,3 +1,5 @@
+# expected-to-throw
+
 query fragmentWithDeferArgumentsWithoutLabel_QueryWithFragmentWithDeferQuery {
   me {
     id

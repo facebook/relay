@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -21,7 +21,8 @@ pub trait Intern: Eq + Hash + Clone {
 pub struct RawInternKey(NonZeroU32);
 
 impl RawInternKey {
-    pub(crate) fn new(value: NonZeroU32) -> Self {
+    #[inline(always)]
+    pub(crate) const fn new(value: NonZeroU32) -> Self {
         Self(value)
     }
 

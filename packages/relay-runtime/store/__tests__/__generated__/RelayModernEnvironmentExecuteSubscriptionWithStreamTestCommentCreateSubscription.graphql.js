@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<4a68c435e37ef3d93e990c58e42bbee0>>
+ * @generated SignedSource<<f724db1786d0a461abb8dc3d4649346c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,26 +15,28 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernEnvironmentExecuteSubscriptionWithStreamTestFeedbackFragment$ref = any;
+import type { ConcreteRequest, GraphQLSubscription } from 'relay-runtime';
+type RelayModernEnvironmentExecuteSubscriptionWithStreamTestFeedbackFragment$fragmentType = any;
 export type CommentCreateSubscriptionInput = {|
   clientSubscriptionId?: ?string,
   feedbackId?: ?string,
   text?: ?string,
 |};
-export type RelayModernEnvironmentExecuteSubscriptionWithStreamTestCommentCreateSubscriptionVariables = {|
+export type RelayModernEnvironmentExecuteSubscriptionWithStreamTestCommentCreateSubscription$variables = {|
   input: CommentCreateSubscriptionInput,
 |};
-export type RelayModernEnvironmentExecuteSubscriptionWithStreamTestCommentCreateSubscriptionResponse = {|
+export type RelayModernEnvironmentExecuteSubscriptionWithStreamTestCommentCreateSubscriptionVariables = RelayModernEnvironmentExecuteSubscriptionWithStreamTestCommentCreateSubscription$variables;
+export type RelayModernEnvironmentExecuteSubscriptionWithStreamTestCommentCreateSubscription$data = {|
   +commentCreateSubscribe: ?{|
     +feedback: ?{|
-      +$fragmentRefs: RelayModernEnvironmentExecuteSubscriptionWithStreamTestFeedbackFragment$ref,
+      +$fragmentSpreads: RelayModernEnvironmentExecuteSubscriptionWithStreamTestFeedbackFragment$fragmentType,
     |},
   |},
 |};
+export type RelayModernEnvironmentExecuteSubscriptionWithStreamTestCommentCreateSubscriptionResponse = RelayModernEnvironmentExecuteSubscriptionWithStreamTestCommentCreateSubscription$data;
 export type RelayModernEnvironmentExecuteSubscriptionWithStreamTestCommentCreateSubscription = {|
   variables: RelayModernEnvironmentExecuteSubscriptionWithStreamTestCommentCreateSubscriptionVariables,
-  response: RelayModernEnvironmentExecuteSubscriptionWithStreamTestCommentCreateSubscriptionResponse,
+  response: RelayModernEnvironmentExecuteSubscriptionWithStreamTestCommentCreateSubscription$data,
 |};
 */
 
@@ -125,7 +127,6 @@ return {
                 "if": null,
                 "kind": "Stream",
                 "label": "RelayModernEnvironmentExecuteSubscriptionWithStreamTestFeedbackFragment$stream$actors",
-                "metadata": null,
                 "selections": [
                   {
                     "alias": null,
@@ -162,8 +163,7 @@ return {
                     ],
                     "storageKey": null
                   }
-                ],
-                "useCustomizedBatch": null
+                ]
               }
             ],
             "storageKey": null
@@ -190,4 +190,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "70d193c49c68d1cebe7967a31c1a0bcf";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: GraphQLSubscription<
+  RelayModernEnvironmentExecuteSubscriptionWithStreamTestCommentCreateSubscription$variables,
+  RelayModernEnvironmentExecuteSubscriptionWithStreamTestCommentCreateSubscription$data,
+>*/);

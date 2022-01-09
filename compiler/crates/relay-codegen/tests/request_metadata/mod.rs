@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -12,7 +12,7 @@ use graphql_ir::{
     OperationDefinition, Value,
 };
 use graphql_syntax::parse_executable;
-use interner::Intern;
+use intern::string_key::Intern;
 use relay_codegen::{build_request_params, print_fragment, print_request, JsModuleFormat};
 use relay_test_schema::TEST_SCHEMA;
 
@@ -47,6 +47,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
                                         )),
                                     ),
                                 }],
+                                data: None,
                             }],
                             ..operation.clone()
                         };

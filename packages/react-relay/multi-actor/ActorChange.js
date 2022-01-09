@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -11,12 +11,11 @@
 
 'use strict';
 
-const React = require('react');
-const RelayEnvironmentProvider = require('../relay-hooks/RelayEnvironmentProvider');
-
-const useRelayActorEnvironment = require('./useRelayActorEnvironment');
-
 import type {ActorIdentifier} from 'relay-runtime/multi-actor-environment';
+
+const RelayEnvironmentProvider = require('../relay-hooks/RelayEnvironmentProvider');
+const useRelayActorEnvironment = require('./useRelayActorEnvironment');
+const React = require('react');
 
 export opaque type ActorChangePoint<TFragmentRef> = $ReadOnly<{
   __fragmentRef: TFragmentRef,
@@ -37,8 +36,17 @@ function ActorChange<TFragmentRef>(
   const actorEnvironment = useRelayActorEnvironment(
     props.actorChangePoint.__viewer,
   );
+  const getEnvironmentForActor = React.useCallback(
+    (actorIdentifier: ActorIdentifier) => {
+      return actorEnvironment.multiActorEnvironment.forActor(actorIdentifier);
+    },
+    [actorEnvironment],
+  );
+
   return (
-    <RelayEnvironmentProvider environment={actorEnvironment}>
+    <RelayEnvironmentProvider
+      environment={actorEnvironment}
+      getEnvironmentForActor={getEnvironmentForActor}>
       {props.children(
         props.actorChangePoint.__fragmentRef,
         props.actorChangePoint.__viewer,

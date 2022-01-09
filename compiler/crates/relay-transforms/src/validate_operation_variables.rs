@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -64,10 +64,25 @@ impl<'s> Transformer for ValidateOperationVariables<'s> {
         &mut self,
         operation: &OperationDefinition,
     ) -> Transformed<OperationDefinition> {
-        let variables = self.visitor.infer_operation_variables(operation);
+        let (variables, errors) = self.visitor.infer_operation_variables(operation);
+        self.errors.extend(errors);
         let schema = &self.program.schema;
         let mut has_unused_variable = false;
         for definition in &operation.variable_definitions {
+            if definition.type_.is_non_null() && definition.has_non_null_default_value() {
+                self.errors.push(Diagnostic::error(
+                    ValidationMessage::NonNullableVariableHasDefaultValue {
+                        variable_name: definition.name.item,
+                    },
+                    definition
+                        .default_value
+                        .as_ref()
+                        .map(|default_value| default_value.location)
+                        .unwrap_or(definition.name.location),
+                ));
+                continue;
+            }
+
             if let Some(variable_usage) = variables.get(&definition.name.item) {
                 // The effective type of the variable when taking into account its default value:
                 // if there is a non-null default then the value's type is non-null.

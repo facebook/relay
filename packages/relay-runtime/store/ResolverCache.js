@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -12,19 +12,6 @@
 
 'use strict';
 
-const RelayModernRecord = require('./RelayModernRecord');
-
-const recycleNodesInto = require('../util/recycleNodesInto');
-
-const {generateClientID} = require('./ClientID');
-const {
-  RELAY_RESOLVER_VALUE_KEY,
-  RELAY_RESOLVER_INVALIDATION_KEY,
-  RELAY_RESOLVER_INPUTS_KEY,
-  RELAY_RESOLVER_READER_SELECTOR_KEY,
-  getStorageKey,
-} = require('./RelayStoreUtils');
-
 import type {ReaderRelayResolver} from '../util/ReaderNode';
 import type {DataID, Variables} from '../util/RelayRuntimeTypes';
 import type {
@@ -32,6 +19,18 @@ import type {
   Record,
   SingularReaderSelector,
 } from './RelayStoreTypes';
+
+const recycleNodesInto = require('../util/recycleNodesInto');
+const {generateClientID} = require('./ClientID');
+const RelayModernRecord = require('./RelayModernRecord');
+const {
+  RELAY_RESOLVER_INPUTS_KEY,
+  RELAY_RESOLVER_INVALIDATION_KEY,
+  RELAY_RESOLVER_READER_SELECTOR_KEY,
+  RELAY_RESOLVER_VALUE_KEY,
+  getStorageKey,
+} = require('./RelayStoreUtils');
+const warning = require('warning');
 
 type ResolverID = string;
 
@@ -72,7 +71,11 @@ class NoopResolverCache implements ResolverCache {
   invalidateDataIDs(updatedDataIDs: Set<DataID>): void {}
 }
 
-function addDependencyEdge(edges, from, to): void {
+function addDependencyEdge(
+  edges: Map<ResolverID, Set<DataID>> | Map<DataID, Set<ResolverID>>,
+  from: ResolverID | DataID,
+  to: ResolverID | DataID,
+): void {
   let set = edges.get(from);
   if (!set) {
     set = new Set();
@@ -191,7 +194,12 @@ class RecordResolverCache implements ResolverCache {
   ) {
     const record = recordSource.get(dataID);
     if (!record) {
-      return; // FIXME log? throw?
+      warning(
+        false,
+        'Expected a resolver record with ID %s, but it was missing.',
+        dataID,
+      );
+      return;
     }
     const nextRecord = RelayModernRecord.clone(record);
     RelayModernRecord.setValue(
@@ -219,7 +227,12 @@ class RecordResolverCache implements ResolverCache {
       RELAY_RESOLVER_READER_SELECTOR_KEY,
     );
     if (originalInputs == null || readerSelector == null) {
-      return true; // FIXME log? throw?
+      warning(
+        false,
+        'Expected previous inputs and reader selector on resolver record with ID %s, but they were missing.',
+        RelayModernRecord.getDataID(record),
+      );
+      return true;
     }
     const latestValues = getDataForResolverFragment(readerSelector);
     const recycled = recycleNodesInto(originalInputs, latestValues);

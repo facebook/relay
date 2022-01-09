@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,6 +13,12 @@
 
 'use strict';
 
+import type {
+  LoadQueryOptions,
+  PreloadableConcreteRequest,
+} from '../EntryPointTypes.flow';
+import type {GraphQLTaggedNode, OperationType} from 'relay-runtime';
+
 const {loadQuery} = require('../loadQuery');
 const {
   Network,
@@ -23,12 +29,6 @@ const {
   graphql,
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
-
-import type {
-  LoadQueryOptions,
-  PreloadableConcreteRequest,
-} from '../EntryPointTypes.flow';
-import type {OperationType, GraphQLTaggedNode} from 'relay-runtime';
 
 const query = getRequest(graphql`
   query loadQuerySourceBehaviorTestQuery($id: ID!) {
@@ -117,8 +117,9 @@ beforeEach(() => {
   const store = environment.getStore();
   const operation = createOperationDescriptor(query, variables);
 
-  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
-  const originalExecuteWithSource = environment.executeWithSource.getMockImplementation();
+  const originalExecuteWithSource =
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
+    environment.executeWithSource.getMockImplementation();
   executeObservable = undefined;
   executeUnsubscribe = undefined;
 
@@ -126,9 +127,8 @@ beforeEach(() => {
     .spyOn(environment, 'executeWithSource')
     .mockImplementation((...params) => {
       executeObservable = originalExecuteWithSource(...params);
-      const originalSubscribe = executeObservable.subscribe.bind(
-        executeObservable,
-      );
+      const originalSubscribe =
+        executeObservable.subscribe.bind(executeObservable);
       jest
         .spyOn(executeObservable, 'subscribe')
         .mockImplementation(subscriptionCallbacks => {

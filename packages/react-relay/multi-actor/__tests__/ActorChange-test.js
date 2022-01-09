@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -11,28 +11,27 @@
 
 'use strict';
 
-const ActorChange = require('../ActorChange');
-const React = require('react');
-const ReactTestRenderer = require('react-test-renderer');
-const RelayEnvironmentProvider = require('../../relay-hooks/RelayEnvironmentProvider');
+import type {ActorChangeTestFeedUnitFragment$key} from './__generated__/ActorChangeTestFeedUnitFragment.graphql';
+import type {
+  ActorIdentifier,
+  IActorEnvironment,
+  IMultiActorEnvironment,
+} from 'relay-runtime/multi-actor-environment';
 
+const useRelayActorEnvironment = require('../../multi-actor/useRelayActorEnvironment');
+const RelayEnvironmentProvider = require('../../relay-hooks/RelayEnvironmentProvider');
 const useFragment = require('../../relay-hooks/useFragment');
 const useLazyLoadQuery = require('../../relay-hooks/useLazyLoadQuery');
 const useMutation = require('../../relay-hooks/useMutation');
-
-const {Network, graphql, Observable} = require('relay-runtime');
+const ActorChange = require('../ActorChange');
+const React = require('react');
+const ReactTestRenderer = require('react-test-renderer');
+const {Network, Observable, graphql} = require('relay-runtime');
 const {
   MultiActorEnvironment,
   getActorIdentifier,
 } = require('relay-runtime/multi-actor-environment');
 const {disallowWarnings} = require('relay-test-utils-internal');
-
-import type {ActorChangeTestFeedUnitFragment$key} from './__generated__/ActorChangeTestFeedUnitFragment.graphql';
-import type {ActorChangeTestQuery} from './__generated__/ActorChangeTestQuery.graphql';
-import type {
-  IActorEnvironment,
-  IMultiActorEnvironment,
-} from 'relay-runtime/multi-actor-environment';
 
 function ComponentWrapper(
   props: $ReadOnly<{
@@ -71,7 +70,7 @@ const query = graphql`
               name
             }
           }
-          actor_node: node @EXPERIMENTAL__as_actor {
+          actor_node: node @fb_actor_change {
             ...ActorChangeTestFeedUnitFragment
           }
         }
@@ -89,7 +88,7 @@ const mutation = graphql`
 `;
 
 function MainComponent() {
-  const data = useLazyLoadQuery<ActorChangeTestQuery>(query, {});
+  const data = useLazyLoadQuery(query, {});
 
   return (
     <div>
@@ -102,12 +101,18 @@ function MainComponent() {
           <div key={index}>
             <span
               className="default-store-actors"
-              data-test-id={`default-store-${edge?.node?.actor?.name ??
-                'not an actor'}`}
+              data-test-id={`default-store-${
+                edge?.node?.actor?.name ?? 'not an actor'
+              }`}
             />
             <ActorChange key={index} actorChangePoint={actorNode}>
-              {fragmentRef => {
-                return <ActorMessage myFragment={fragmentRef} />;
+              {(fragmentRef, actorIdentifier) => {
+                return (
+                  <ActorMessage
+                    myFragment={fragmentRef}
+                    actorIdentifier={actorIdentifier}
+                  />
+                );
               }}
             </ActorChange>
           </div>
@@ -119,11 +124,17 @@ function MainComponent() {
 
 type Props = $ReadOnly<{
   myFragment: ActorChangeTestFeedUnitFragment$key,
+  actorIdentifier: ActorIdentifier,
 }>;
 
 function ActorMessage(props: Props) {
   const data = useFragment(fragment, props.myFragment);
   const [commit] = useMutation(mutation);
+
+  // We're calling this hook only to verify that it won't throw.
+  // `useRelayActorEnvironment` should be able to have access to `getEnvironmentForActor` function
+  // from the RelayEnvironmentProvider.
+  useRelayActorEnvironment(props.actorIdentifier);
 
   return (
     <div className="actor-messages">
@@ -180,7 +191,7 @@ describe('ActorChange', () => {
                       },
                     },
                     actor_node: {
-                      __viewer: 'actor:4321',
+                      actor_key: 'actor:4321',
                       id: 'node-1',
                       __typename: 'FeedUnit',
                       message: {
@@ -200,7 +211,7 @@ describe('ActorChange', () => {
                       },
                     },
                     actor_node: {
-                      __viewer: 'actor:5678',
+                      actor_key: 'actor:5678',
                       id: 'node-2',
                       __typename: 'FeedUnit',
                       message: {
@@ -224,9 +235,10 @@ describe('ActorChange', () => {
         <MainComponent />
       </ComponentWrapper>,
     );
+
     expect(testRenderer.toJSON()).toEqual('Loading...');
 
-    ReactTestRenderer.act(jest.runAllTimers);
+    ReactTestRenderer.act(jest.runAllImmediates);
 
     const testInstance = testRenderer.root;
     // Default Viewer data
@@ -279,7 +291,7 @@ describe('ActorChange', () => {
                       },
                     },
                     actor_node: {
-                      __viewer: 'actor:4321',
+                      actor_key: 'actor:4321',
                       id: 'node-1',
                       __typename: 'FeedUnit',
                       message: {
@@ -299,7 +311,7 @@ describe('ActorChange', () => {
                       },
                     },
                     actor_node: {
-                      __viewer: 'actor:5678',
+                      actor_key: 'actor:5678',
                       id: 'node-2',
                       __typename: 'FeedUnit',
                       message: {
@@ -323,7 +335,7 @@ describe('ActorChange', () => {
         <MainComponent />
       </ComponentWrapper>,
     );
-    ReactTestRenderer.act(jest.runAllTimers);
+    jest.runAllTimers();
     // Loading data should be for default actor
     expect(fetchFnForActor).toBeCalledTimes(1);
     expect(fetchFnForActor.mock.calls[0][0]).toBe('actor:1234');

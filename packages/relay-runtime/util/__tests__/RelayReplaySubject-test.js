@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,9 +13,9 @@
 
 'use strict';
 
-const RelayReplaySubject = require('../RelayReplaySubject');
-
 import type {Subscription} from 'relay-runtime';
+
+const RelayReplaySubject = require('../RelayReplaySubject');
 
 let subject;
 
@@ -41,7 +41,7 @@ function createObserver(): Observer {
   };
 }
 
-function clearObserver(observer) {
+function clearObserver(observer: Observer) {
   observer.complete.mockClear();
   observer.error.mockClear();
   observer.next.mockClear();

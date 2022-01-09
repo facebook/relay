@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,33 +13,14 @@
 
 'use strict';
 
-const OperationExecutor = require('./OperationExecutor');
-const RelayDefaultHandlerProvider = require('../handlers/RelayDefaultHandlerProvider');
-const RelayFeatureFlags = require('../util/RelayFeatureFlags');
-const RelayObservable = require('../network/RelayObservable');
-const RelayOperationTracker = require('../store/RelayOperationTracker');
-const RelayPublishQueue = require('./RelayPublishQueue');
-const RelayRecordSource = require('./RelayRecordSource');
-
-const defaultGetDataID = require('./defaultGetDataID');
-const defaultRequiredFieldLogger = require('./defaultRequiredFieldLogger');
-const generateID = require('../util/generateID');
-const invariant = require('invariant');
-
 import type {HandlerProvider} from '../handlers/RelayDefaultHandlerProvider';
+import type {ActorIdentifier} from '../multi-actor-environment/ActorIdentifier';
 import type {
   GraphQLResponse,
   INetwork,
   PayloadData,
-  UploadableMap,
 } from '../network/RelayNetworkTypes';
-import type {RequestParameters} from '../util/RelayConcreteNode';
-import type {
-  CacheConfig,
-  Disposable,
-  RenderPolicy,
-  Variables,
-} from '../util/RelayRuntimeTypes';
+import type {Disposable, RenderPolicy} from '../util/RelayRuntimeTypes';
 import type {ActiveState, TaskScheduler} from './OperationExecutor';
 import type {GetDataID} from './RelayResponseNormalizer';
 import type {
@@ -47,6 +28,7 @@ import type {
   IEnvironment,
   LogFunction,
   MissingFieldHandler,
+  MutationParameters,
   OperationAvailability,
   OperationDescriptor,
   OperationLoader,
@@ -63,6 +45,23 @@ import type {
   Store,
   StoreUpdater,
 } from './RelayStoreTypes';
+
+const RelayDefaultHandlerProvider = require('../handlers/RelayDefaultHandlerProvider');
+const {
+  INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
+  assertInternalActorIndentifier,
+} = require('../multi-actor-environment/ActorIdentifier');
+const RelayObservable = require('../network/RelayObservable');
+const wrapNetworkWithLogObserver = require('../network/wrapNetworkWithLogObserver');
+const RelayOperationTracker = require('../store/RelayOperationTracker');
+const registerEnvironmentWithDevTools = require('../util/registerEnvironmentWithDevTools');
+const RelayFeatureFlags = require('../util/RelayFeatureFlags');
+const defaultGetDataID = require('./defaultGetDataID');
+const defaultRequiredFieldLogger = require('./defaultRequiredFieldLogger');
+const OperationExecutor = require('./OperationExecutor');
+const RelayPublishQueue = require('./RelayPublishQueue');
+const RelayRecordSource = require('./RelayRecordSource');
+const invariant = require('invariant');
 
 export type EnvironmentConfig = {|
   +configName?: string,
@@ -143,7 +142,7 @@ class RelayModernEnvironment implements IEnvironment {
         : 'full';
     this._operationLoader = operationLoader;
     this._operationExecutions = new Map();
-    this._network = this.__wrapNetworkWithLogObserver(config.network);
+    this._network = wrapNetworkWithLogObserver(this, config.network);
     this._getDataID = config.getDataID ?? defaultGetDataID;
     this._publishQueue = new RelayPublishQueue(
       config.store,
@@ -156,31 +155,23 @@ class RelayModernEnvironment implements IEnvironment {
     this._isServer = config.isServer ?? false;
 
     (this: any).__setNet = newNet =>
-      (this._network = this.__wrapNetworkWithLogObserver(newNet));
+      (this._network = wrapNetworkWithLogObserver(this, newNet));
 
     if (__DEV__) {
       const {inspect} = require('./StoreInspector');
       (this: any).DEBUG_inspect = (dataID: ?string) => inspect(this, dataID);
     }
 
-    // Register this Relay Environment with Relay DevTools if it exists.
-    // Note: this must always be the last step in the constructor.
-    const _global =
-      typeof global !== 'undefined'
-        ? global
-        : typeof window !== 'undefined'
-        ? window
-        : undefined;
-    const devToolsHook = _global && _global.__RELAY_DEVTOOLS_HOOK__;
-    if (devToolsHook) {
-      devToolsHook.registerEnvironment(this);
-    }
     this._missingFieldHandlers = config.missingFieldHandlers;
     this._operationTracker =
       config.operationTracker ?? new RelayOperationTracker();
     this._reactFlightPayloadDeserializer = reactFlightPayloadDeserializer;
     this._reactFlightServerErrorHandler = reactFlightServerErrorHandler;
     this._shouldProcessClientComponents = config.shouldProcessClientComponents;
+
+    // Register this Relay Environment with Relay DevTools if it exists.
+    // Note: this must always be the last step in the constructor.
+    registerEnvironmentWithDevTools(this);
   }
 
   getStore(): Store {
@@ -236,7 +227,9 @@ class RelayModernEnvironment implements IEnvironment {
     });
   }
 
-  applyMutation(optimisticConfig: OptimisticResponseConfig): Disposable {
+  applyMutation<TMutation: MutationParameters>(
+    optimisticConfig: OptimisticResponseConfig<TMutation>,
+  ): Disposable {
     const subscription = this._execute({
       createSource: () => RelayObservable.create(_sink => {}),
       isClientPayload: false,
@@ -303,7 +296,19 @@ class RelayModernEnvironment implements IEnvironment {
     handlers: $ReadOnlyArray<MissingFieldHandler>,
   ): OperationAvailability {
     const target = RelayRecordSource.create();
-    const result = this._store.check(operation, {target, handlers});
+    const source = this._store.getSource();
+    const result = this._store.check(operation, {
+      handlers,
+      defaultActorIdentifier: INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
+      getSourceForActor(actorIdentifier: ActorIdentifier) {
+        assertInternalActorIndentifier(actorIdentifier);
+        return source;
+      },
+      getTargetForActor(actorIdentifier: ActorIdentifier) {
+        assertInternalActorIndentifier(actorIdentifier);
+        return target;
+      },
+    });
     if (target.size() > 0) {
       this._scheduleUpdates(() => {
         this._publishQueue.commitSource(target);
@@ -324,7 +329,7 @@ class RelayModernEnvironment implements IEnvironment {
 
   /**
    * Returns an Observable of GraphQLResponse resulting from executing the
-   * provided Query or Subscription operation, each result of which is then
+   * provided Query operation, each result of which is then
    * normalized and committed to the publish queue.
    *
    * Note: Observables are lazy, so calling this method will do nothing until
@@ -332,10 +337,38 @@ class RelayModernEnvironment implements IEnvironment {
    */
   execute({
     operation,
+  }: {|
+    operation: OperationDescriptor,
+  |}): RelayObservable<GraphQLResponse> {
+    return this._execute({
+      createSource: () =>
+        this._network.execute(
+          operation.request.node.params,
+          operation.request.variables,
+          operation.request.cacheConfig || {},
+          null,
+        ),
+      isClientPayload: false,
+      operation,
+      optimisticConfig: null,
+      updater: null,
+    });
+  }
+
+  /**
+   * Returns an Observable of GraphQLResponse resulting from executing the
+   * provided Subscription operation, each result of which is then
+   * normalized and committed to the publish queue.
+   *
+   * Note: Observables are lazy, so calling this method will do nothing until
+   * the result is subscribed to: environment.execute({...}).subscribe({...}).
+   */
+  executeSubscription<TMutation: MutationParameters>({
+    operation,
     updater,
   }: {|
     operation: OperationDescriptor,
-    updater?: ?SelectorStoreUpdater,
+    updater?: ?SelectorStoreUpdater<TMutation['response']>,
   |}): RelayObservable<GraphQLResponse> {
     return this._execute({
       createSource: () =>
@@ -362,13 +395,13 @@ class RelayModernEnvironment implements IEnvironment {
    * the result is subscribed to:
    * environment.executeMutation({...}).subscribe({...}).
    */
-  executeMutation({
+  executeMutation<TMutation: MutationParameters>({
     operation,
     optimisticResponse,
     optimisticUpdater,
     updater,
     uploadables,
-  }: ExecuteMutationConfig): RelayObservable<GraphQLResponse> {
+  }: ExecuteMutationConfig<TMutation>): RelayObservable<GraphQLResponse> {
     let optimisticConfig;
     if (optimisticResponse || optimisticUpdater) {
       optimisticConfig = {
@@ -398,7 +431,7 @@ class RelayModernEnvironment implements IEnvironment {
   /**
    * Returns an Observable of GraphQLResponse resulting from executing the
    * provided Query or Subscription operation responses, the result of which is
-   * then normalized and comitted to the publish queue.
+   * then normalized and committed to the publish queue.
    *
    * Note: Observables are lazy, so calling this method will do nothing until
    * the result is subscribed to:
@@ -424,7 +457,7 @@ class RelayModernEnvironment implements IEnvironment {
     return `RelayModernEnvironment(${this.configName ?? ''})`;
   }
 
-  _execute({
+  _execute<TMutation: MutationParameters>({
     createSource,
     isClientPayload,
     operation,
@@ -434,11 +467,14 @@ class RelayModernEnvironment implements IEnvironment {
     createSource: () => RelayObservable<GraphQLResponse>,
     isClientPayload: boolean,
     operation: OperationDescriptor,
-    optimisticConfig: ?OptimisticResponseConfig,
-    updater: ?SelectorStoreUpdater,
+    optimisticConfig: ?OptimisticResponseConfig<TMutation>,
+    updater: ?SelectorStoreUpdater<TMutation['response']>,
   |}): RelayObservable<GraphQLResponse> {
+    const publishQueue = this._publishQueue;
+    const store = this._store;
     return RelayObservable.create(sink => {
       const executor = OperationExecutor.execute({
+        actorIdentifier: INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         getDataID: this._getDataID,
         isClientPayload,
         log: this.__log,
@@ -447,7 +483,10 @@ class RelayModernEnvironment implements IEnvironment {
         operationLoader: this._operationLoader,
         operationTracker: this._operationTracker,
         optimisticConfig,
-        publishQueue: this._publishQueue,
+        getPublishQueue(actorIdentifier: ActorIdentifier) {
+          assertInternalActorIndentifier(actorIdentifier);
+          return publishQueue;
+        },
         reactFlightPayloadDeserializer: this._reactFlightPayloadDeserializer,
         reactFlightServerErrorHandler: this._reactFlightServerErrorHandler,
         scheduler: this._scheduler,
@@ -456,79 +495,15 @@ class RelayModernEnvironment implements IEnvironment {
         // NOTE: Some product tests expect `Network.execute` to be called only
         //       when the Observable is executed.
         source: createSource(),
-        store: this._store,
+        getStore(actorIdentifier: ActorIdentifier) {
+          assertInternalActorIndentifier(actorIdentifier);
+          return store;
+        },
         treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
         updater,
       });
       return () => executor.cancel();
     });
-  }
-
-  /**
-   * Wraps the network with logging to ensure that network requests are
-   * always logged. Relying on each network callsite to be wrapped is
-   * untenable and will eventually lead to holes in the logging.
-   */
-  __wrapNetworkWithLogObserver(network: INetwork): INetwork {
-    const that = this;
-    return {
-      execute(
-        params: RequestParameters,
-        variables: Variables,
-        cacheConfig: CacheConfig,
-        uploadables?: ?UploadableMap,
-      ): RelayObservable<GraphQLResponse> {
-        const networkRequestId = generateID();
-        const log = that.__log;
-        const logObserver = {
-          start: subscription => {
-            log({
-              name: 'network.start',
-              networkRequestId,
-              params,
-              variables,
-              cacheConfig,
-            });
-          },
-          next: response => {
-            log({
-              name: 'network.next',
-              networkRequestId,
-              response,
-            });
-          },
-          error: error => {
-            log({
-              name: 'network.error',
-              networkRequestId,
-              error,
-            });
-          },
-          complete: () => {
-            log({
-              name: 'network.complete',
-              networkRequestId,
-            });
-          },
-          unsubscribe: () => {
-            log({
-              name: 'network.unsubscribe',
-              networkRequestId,
-            });
-          },
-        };
-        const logRequestInfo = info => {
-          log({
-            name: 'network.info',
-            networkRequestId,
-            info,
-          });
-        };
-        return network
-          .execute(params, variables, cacheConfig, uploadables, logRequestInfo)
-          .do(logObserver);
-      },
-    };
   }
 }
 

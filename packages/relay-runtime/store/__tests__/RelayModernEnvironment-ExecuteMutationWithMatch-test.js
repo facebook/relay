@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,29 +13,27 @@
 
 'use strict';
 
-const RelayModernEnvironment = require('../RelayModernEnvironment');
-const RelayModernStore = require('../RelayModernStore');
-const RelayNetwork = require('../../network/RelayNetwork');
-const RelayObservable = require('../../network/RelayObservable');
-const RelayRecordSource = require('../RelayRecordSource');
-
-const nullthrows = require('nullthrows');
+import type {NormalizationRootNode} from '../../util/NormalizationNode';
 
 const {
-  getActorIdentifier,
   MultiActorEnvironment,
+  getActorIdentifier,
 } = require('../../multi-actor-environment');
-const {graphql, getFragment, getRequest} = require('../../query/GraphQLTag');
+const RelayNetwork = require('../../network/RelayNetwork');
+const RelayObservable = require('../../network/RelayObservable');
+const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
+const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {
-  getSingularSelector,
   createReaderSelector,
+  getSingularSelector,
 } = require('../RelayModernSelector');
+const RelayModernStore = require('../RelayModernStore');
+const RelayRecordSource = require('../RelayRecordSource');
+const nullthrows = require('nullthrows');
 const {disallowWarnings} = require('relay-test-utils-internal');
-
-import type {NormalizationRootNode} from '../../util/NormalizationNode';
 
 disallowWarnings();
 
@@ -255,9 +253,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         expect(
           environment
             .getOperationTracker()
-            .getPromiseForPendingOperationsAffectingOwner(
-              queryOperation.request,
-            ),
+            .getPendingOperationsAffectingOwner(queryOperation.request),
         ).toBe(null);
       });
 
@@ -304,13 +300,14 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               actor: {
                 name: 'actor-name',
                 nameRenderer: {
-                  __id:
-                    'client:4:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+                  __id: 'client:4:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
                   __fragmentPropName: 'name',
                   __fragments: {
-                    RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name: {},
+                    RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name:
+                      {},
                   },
                   __fragmentOwner: operation.request,
+                  __isWithinUnmatchedTypeRefinement: false,
                   __module_component: 'MarkdownUserNameRenderer.react',
                 },
               },
@@ -350,9 +347,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         expect(
           environment
             .getOperationTracker()
-            .getPromiseForPendingOperationsAffectingOwner(
-              queryOperation.request,
-            ),
+            .getPendingOperationsAffectingOwner(queryOperation.request),
         ).not.toBe(null);
       });
 
@@ -433,9 +428,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         expect(
           environment
             .getOperationTracker()
-            .getPromiseForPendingOperationsAffectingOwner(
-              queryOperation.request,
-            ),
+            .getPendingOperationsAffectingOwner(queryOperation.request),
         ).not.toBe(null);
       });
 
@@ -479,9 +472,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         expect(
           environment
             .getOperationTracker()
-            .getPromiseForPendingOperationsAffectingOwner(
-              queryOperation.request,
-            ),
+            .getPendingOperationsAffectingOwner(queryOperation.request),
         ).not.toBe(null);
 
         expect(operationLoader.load).toBeCalledTimes(1);
@@ -499,9 +490,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         expect(
           environment
             .getOperationTracker()
-            .getPromiseForPendingOperationsAffectingOwner(
-              queryOperation.request,
-            ),
+            .getPendingOperationsAffectingOwner(queryOperation.request),
         ).toBe(null);
       });
 
@@ -548,9 +537,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         expect(
           environment
             .getOperationTracker()
-            .getPromiseForPendingOperationsAffectingOwner(
-              queryOperation.request,
-            ),
+            .getPendingOperationsAffectingOwner(queryOperation.request),
         ).not.toBe(null);
 
         expect(complete).toBeCalledTimes(0);
@@ -566,9 +553,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         expect(
           environment
             .getOperationTracker()
-            .getPromiseForPendingOperationsAffectingOwner(
-              queryOperation.request,
-            ),
+            .getPendingOperationsAffectingOwner(queryOperation.request),
         ).toBe(null);
       });
 
@@ -619,13 +604,14 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
                 actor: {
                   name: 'optimistic-actor-name',
                   nameRenderer: {
-                    __id:
-                      'client:4:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+                    __id: 'client:4:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
                     __fragmentPropName: 'name',
                     __fragments: {
-                      RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name: {},
+                      RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name:
+                        {},
                     },
                     __fragmentOwner: operation.request,
+                    __isWithinUnmatchedTypeRefinement: false,
                     __module_component: 'MarkdownUserNameRenderer.react',
                   },
                 },
@@ -678,13 +664,14 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
                 actor: {
                   name: 'optimistic-actor-name',
                   nameRenderer: {
-                    __id:
-                      'client:4:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+                    __id: 'client:4:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
                     __fragmentPropName: 'name',
                     __fragments: {
-                      RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name: {},
+                      RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name:
+                        {},
                     },
                     __fragmentOwner: operation.request,
+                    __isWithinUnmatchedTypeRefinement: false,
                     __module_component: 'MarkdownUserNameRenderer.react',
                   },
                 },
@@ -766,13 +753,14 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
                 actor: {
                   name: 'actor-name',
                   nameRenderer: {
-                    __id:
-                      'client:4:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+                    __id: 'client:4:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
                     __fragmentPropName: 'name',
                     __fragments: {
-                      RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name: {},
+                      RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name:
+                        {},
                     },
                     __fragmentOwner: operation.request,
+                    __isWithinUnmatchedTypeRefinement: false,
                     __module_component: 'MarkdownUserNameRenderer.react',
                   },
                 },

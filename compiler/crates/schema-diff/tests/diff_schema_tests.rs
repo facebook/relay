@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -8,7 +8,7 @@
 use schema_diff::definitions::*;
 use schema_diff::*;
 
-use interner::Intern;
+use intern::string_key::Intern;
 use schema::build_schema;
 
 fn diff(current: &str, previous: &str) -> SchemaChange {
@@ -20,7 +20,7 @@ fn diff(current: &str, previous: &str) -> SchemaChange {
 fn is_safe(current: &str, previous: &str) -> bool {
     let schema = build_schema(current).unwrap();
     let change = detect_changes(&[current], &[previous]);
-    change.is_safe(&schema)
+    change.is_safe(&schema, &Default::default())
 }
 
 #[test]

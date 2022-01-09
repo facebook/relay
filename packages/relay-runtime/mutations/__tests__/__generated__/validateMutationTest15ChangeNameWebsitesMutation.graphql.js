@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<8a47f2cbf77687dc25c70568cce1a478>>
+ * @generated SignedSource<<59b8a4a47a67469a3658d23e5da93414>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,24 +15,26 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
+import type { ConcreteRequest, Mutation } from 'relay-runtime';
 export type ActorNameChangeInput = {|
   clientMutationId?: ?string,
   newName?: ?string,
 |};
-export type validateMutationTest15ChangeNameWebsitesMutationVariables = {|
+export type validateMutationTest15ChangeNameWebsitesMutation$variables = {|
   input: ActorNameChangeInput,
 |};
-export type validateMutationTest15ChangeNameWebsitesMutationResponse = {|
+export type validateMutationTest15ChangeNameWebsitesMutationVariables = validateMutationTest15ChangeNameWebsitesMutation$variables;
+export type validateMutationTest15ChangeNameWebsitesMutation$data = {|
   +actorNameChange: ?{|
     +actor: ?{|
       +websites: ?$ReadOnlyArray<?string>,
     |},
   |},
 |};
+export type validateMutationTest15ChangeNameWebsitesMutationResponse = validateMutationTest15ChangeNameWebsitesMutation$data;
 export type validateMutationTest15ChangeNameWebsitesMutation = {|
   variables: validateMutationTest15ChangeNameWebsitesMutationVariables,
-  response: validateMutationTest15ChangeNameWebsitesMutationResponse,
+  response: validateMutationTest15ChangeNameWebsitesMutation$data,
 |};
 */
 
@@ -152,4 +154,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "a8a63aaea0cd5e20ff4d743c04102462";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Mutation<
+  validateMutationTest15ChangeNameWebsitesMutation$variables,
+  validateMutationTest15ChangeNameWebsitesMutation$data,
+>*/);

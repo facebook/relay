@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -40,9 +40,8 @@ declare module react {
 
   declare export var Component: typeof React$Component;
   declare export var PureComponent: typeof React$PureComponent;
-  declare export type StatelessFunctionalComponent<
-    P,
-  > = React$StatelessFunctionalComponent<P>;
+  declare export type StatelessFunctionalComponent<P> =
+    React$StatelessFunctionalComponent<P>;
   declare export type ComponentType<-P> = React$ComponentType<P>;
   declare export type AbstractComponent<
     -Config,
@@ -123,7 +122,7 @@ declare module react {
 
   declare export function useState<S>(
     initialState: (() => S) | S,
-  ): [S, ((S => S) | S) => void];
+  ): [S, (((S) => S) | S) => void];
 
   declare type Dispatch<A> = (A) => void;
 

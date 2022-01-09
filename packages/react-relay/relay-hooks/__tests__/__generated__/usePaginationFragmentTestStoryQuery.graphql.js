@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<d0015c2e10a3bfa45f6ba8eb23931905>>
+ * @generated SignedSource<<5c7d80e997ce85a3ab6010d96b7b7666>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,19 +15,21 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type usePaginationFragmentTestStoryFragment$ref = any;
-export type usePaginationFragmentTestStoryQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type usePaginationFragmentTestStoryFragment$fragmentType = any;
+export type usePaginationFragmentTestStoryQuery$variables = {|
   id: string,
 |};
-export type usePaginationFragmentTestStoryQueryResponse = {|
+export type usePaginationFragmentTestStoryQueryVariables = usePaginationFragmentTestStoryQuery$variables;
+export type usePaginationFragmentTestStoryQuery$data = {|
   +nonNodeStory: ?{|
-    +$fragmentRefs: usePaginationFragmentTestStoryFragment$ref,
+    +$fragmentSpreads: usePaginationFragmentTestStoryFragment$fragmentType,
   |},
 |};
+export type usePaginationFragmentTestStoryQueryResponse = usePaginationFragmentTestStoryQuery$data;
 export type usePaginationFragmentTestStoryQuery = {|
   variables: usePaginationFragmentTestStoryQueryVariables,
-  response: usePaginationFragmentTestStoryQueryResponse,
+  response: usePaginationFragmentTestStoryQuery$data,
 |};
 */
 
@@ -218,4 +220,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "58177aa39d1e95877117557290be91a1";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  usePaginationFragmentTestStoryQuery$variables,
+  usePaginationFragmentTestStoryQuery$data,
+>*/);

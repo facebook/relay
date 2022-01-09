@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,29 +13,28 @@
 
 'use strict';
 
-const React = require('react');
-const Scheduler = require('scheduler');
+import type {Direction, OperationDescriptor, Variables} from 'relay-runtime';
 
-import type {Direction} from '../useLoadMoreFunction';
-import type {OperationDescriptor, Variables} from 'relay-runtime';
-const {useMemo, useState} = React;
-const TestRenderer = require('react-test-renderer');
-
-const invariant = require('invariant');
 const useBlockingPaginationFragmentOriginal = require('../useBlockingPaginationFragment');
+const invariant = require('invariant');
+const React = require('react');
 const ReactRelayContext = require('react-relay/ReactRelayContext');
+const TestRenderer = require('react-test-renderer');
 const {
   ConnectionHandler,
   FRAGMENT_OWNER_KEY,
   FRAGMENTS_KEY,
   ID_KEY,
+  __internal: {fetchQuery},
   createOperationDescriptor,
-  graphql,
-  getRequest,
   getFragment,
+  getRequest,
+  graphql,
 } = require('relay-runtime');
-
 const {createMockEnvironment} = require('relay-test-utils');
+const Scheduler = require('scheduler');
+
+const {useMemo, useState} = React;
 
 describe('useBlockingPaginationFragment', () => {
   let environment;
@@ -128,12 +127,12 @@ describe('useBlockingPaginationFragment', () => {
         [fragmentName]: {},
       },
       [FRAGMENT_OWNER_KEY]: owner.request,
+      __isWithinUnmatchedTypeRefinement: false,
     };
   }
 
   beforeEach(() => {
     // Set up mocks
-    jest.resetModules();
     jest.spyOn(console, 'warn').mockImplementationOnce(() => {});
     jest.mock('warning');
     renderSpy = jest.fn();
@@ -149,14 +148,14 @@ describe('useBlockingPaginationFragment', () => {
     `;
     gqlFragment = getFragment(graphql`
       fragment useBlockingPaginationFragmentTestUserFragment on User
-        @refetchable(
-          queryName: "useBlockingPaginationFragmentTestUserFragmentPaginationQuery"
-        )
-        @argumentDefinitions(
-          isViewerFriendLocal: {type: "Boolean", defaultValue: false}
-          orderby: {type: "[String]"}
-          scale: {type: "Float"}
-        ) {
+      @refetchable(
+        queryName: "useBlockingPaginationFragmentTestUserFragmentPaginationQuery"
+      )
+      @argumentDefinitions(
+        isViewerFriendLocal: {type: "Boolean", defaultValue: false}
+        orderby: {type: "[String]"}
+        scale: {type: "Float"}
+      ) {
         id
         name
         friends(
@@ -378,8 +377,8 @@ describe('useBlockingPaginationFragment', () => {
       ...
     }) => {
       // We need a render a component to run a Hook
-      const [owner, _setOwner] = useState(props.owner);
-      const [_, _setCount] = useState(0);
+      const [owner, setOwner_] = useState(props.owner);
+      const [, setCount] = useState(0);
       const fragment = props.fragment ?? gqlFragment;
       const artificialUserRef = useMemo(
         () => environment.lookup(owner.fragment).data?.node,
@@ -389,11 +388,9 @@ describe('useBlockingPaginationFragment', () => {
         ? props.userRef
         : artificialUserRef;
 
-      setOwner = _setOwner;
-      forceUpdate = _setCount;
+      setOwner = setOwner_;
+      forceUpdate = setCount;
 
-      // $FlowFixMe[incompatible-call]
-      // $FlowFixMe[prop-missing]
       const {data: userData} = useBlockingPaginationFragment(fragment, userRef);
       return <Renderer user={userData} />;
     };
@@ -474,7 +471,7 @@ describe('useBlockingPaginationFragment', () => {
 
       const UserFragment = graphql`
         fragment useBlockingPaginationFragmentTest1Fragment on User
-          @relay(plural: true) {
+        @relay(plural: true) {
           id
         }
       `;
@@ -491,9 +488,9 @@ describe('useBlockingPaginationFragment', () => {
 
       const UserFragment = graphql`
         fragment useBlockingPaginationFragmentTest2Fragment on User
-          @refetchable(
-            queryName: "useBlockingPaginationFragmentTest2FragmentPaginationQuery"
-          ) {
+        @refetchable(
+          queryName: "useBlockingPaginationFragmentTest2FragmentPaginationQuery"
+        ) {
           id
           friends(
             after: $after
@@ -543,9 +540,9 @@ describe('useBlockingPaginationFragment', () => {
 
       const UserFragment = getFragment(graphql`
         fragment useBlockingPaginationFragmentTest4Fragment on User
-          @refetchable(
-            queryName: "useBlockingPaginationFragmentTest4FragmentRefetchQuery"
-          ) {
+        @refetchable(
+          queryName: "useBlockingPaginationFragmentTest4FragmentRefetchQuery"
+        ) {
           id
         }
       `);
@@ -665,12 +662,6 @@ describe('useBlockingPaginationFragment', () => {
     it('should throw a promise if data is missing for fragment and request is in flight', () => {
       // This prevents console.error output in the test, which is expected
       jest.spyOn(console, 'error').mockImplementationOnce(() => {});
-      jest
-        .spyOn(
-          require('relay-runtime').__internal,
-          'getPromiseForActiveRequest',
-        )
-        .mockImplementationOnce(() => Promise.resolve());
 
       const missingDataVariables = {...variables, id: '4'};
       const missingDataQuery = createOperationDescriptor(
@@ -684,6 +675,9 @@ describe('useBlockingPaginationFragment', () => {
           id: '4',
         },
       });
+
+      // Make sure query is in flight
+      fetchQuery(environment, missingDataQuery).subscribe({});
 
       const renderer = renderFragment({owner: missingDataQuery});
       expect(renderer.toJSON()).toEqual('Fallback');
@@ -848,10 +842,10 @@ describe('useBlockingPaginationFragment', () => {
         // This prevents console.error output in the test, which is expected
         jest.spyOn(console, 'error').mockImplementationOnce(() => {});
         const {
-          __internal: {fetchQuery},
+          __internal: {fetchQuery: fetchQuery_},
         } = require('relay-runtime');
 
-        fetchQuery(environment, query).subscribe({});
+        fetchQuery_(environment, query).subscribe({});
 
         const callback = jest.fn();
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -16,7 +16,7 @@ use lsp_types::{
 
 #[cfg(test)]
 pub fn initialize(client: &Connection, params: &InitializeParams, request_id: u64) {
-    let request_id = RequestId::from(request_id);
+    let request_id = RequestId::from(request_id.to_string());
     let request = ServerRequest {
         id: request_id,
         method: Initialize::METHOD.to_string(),

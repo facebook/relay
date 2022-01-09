@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -14,20 +14,18 @@
 'use strict';
 
 const EntryPointContainer = require('../EntryPointContainer.react');
-const React = require('react');
-const ReactTestRenderer = require('react-test-renderer');
-const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
-
 const loadEntryPoint = require('../loadEntryPoint');
+const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const useEntryPointLoader = require('../useEntryPointLoader');
 const usePreloadedQuery = require('../usePreloadedQuery');
-
+const React = require('react');
 const {useEffect} = require('react');
+const ReactTestRenderer = require('react-test-renderer');
 const {
   Observable,
   createOperationDescriptor,
-  graphql,
   getRequest,
+  graphql,
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
 
@@ -133,7 +131,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
     query = createOperationDescriptor(gqlQuery, variables);
 
     queryRenderLogs = [];
-    QueryComponent = function(props) {
+    QueryComponent = function (props) {
       const result = usePreloadedQuery(
         gqlQuery,
         (props.queries.TestQuery: $FlowFixMe),
@@ -152,8 +150,8 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
     };
 
     loaderRenderLogs = [];
-    LoaderComponent = function(props) {
-      const [entryPointRef, _loadEntryPoint] = useEntryPointLoader(
+    LoaderComponent = function (props) {
+      const [entryPointRef] = useEntryPointLoader(
         environmentProvider,
         props.entryPoint,
         {
@@ -235,7 +233,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
       root: MockJSResourceReference(),
     };
 
-    render = function(
+    render = function (
       entryPoint,
       initialEntryPointRef,
       {suspendWholeTree} = {},

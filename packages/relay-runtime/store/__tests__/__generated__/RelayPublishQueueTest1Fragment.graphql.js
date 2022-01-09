@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<e54ebf5c9d75782618354337ff5ecd7e>>
+ * @generated SignedSource<<9eb5f8bc02e566413f19178bb4ad394a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,18 +15,18 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayPublishQueueTest1Fragment$ref: FragmentReference;
-declare export opaque type RelayPublishQueueTest1Fragment$fragmentType: RelayPublishQueueTest1Fragment$ref;
-export type RelayPublishQueueTest1Fragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayPublishQueueTest1Fragment$fragmentType: FragmentType;
+export type RelayPublishQueueTest1Fragment$ref = RelayPublishQueueTest1Fragment$fragmentType;
+export type RelayPublishQueueTest1Fragment$data = {|
   +username: ?string,
-  +$refType: RelayPublishQueueTest1Fragment$ref,
+  +$fragmentType: RelayPublishQueueTest1Fragment$fragmentType,
 |};
-export type RelayPublishQueueTest1Fragment$data = RelayPublishQueueTest1Fragment;
+export type RelayPublishQueueTest1Fragment = RelayPublishQueueTest1Fragment$data;
 export type RelayPublishQueueTest1Fragment$key = {
   +$data?: RelayPublishQueueTest1Fragment$data,
-  +$fragmentRefs: RelayPublishQueueTest1Fragment$ref,
+  +$fragmentSpreads: RelayPublishQueueTest1Fragment$fragmentType,
   ...
 };
 */
@@ -53,4 +53,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "f9d2dce604839d0e64efdff9b7c9ce23";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayPublishQueueTest1Fragment$fragmentType,
+  RelayPublishQueueTest1Fragment$data,
+>*/);

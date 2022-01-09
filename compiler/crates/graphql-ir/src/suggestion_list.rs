@@ -1,11 +1,11 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use interner::StringKey;
+use intern::string_key::StringKey;
 use schema::{SDLSchema, Schema, Type};
 use strsim::damerau_levenshtein;
 
@@ -46,7 +46,7 @@ impl<'a> LexicalDistance<'a> {
             return Some(1);
         }
 
-        let distance = damerau_levenshtein(&self.input, option);
+        let distance = damerau_levenshtein(self.input, option);
         if distance <= threshold {
             Some(distance)
         } else {
@@ -88,30 +88,99 @@ fn suggestion_list(input: StringKey, options: &[StringKey], limit: usize) -> Vec
 
 pub struct GraphQLSuggestions<'schema> {
     schema: &'schema SDLSchema,
+    enabled: bool,
 }
 
 impl<'schema> GraphQLSuggestions<'schema> {
     const MAX_SUGGESTIONS: usize = 5;
 
     pub fn new(schema: &'schema SDLSchema) -> Self {
-        Self { schema }
+        // If the schema is flatten schema, at this time, we need to temporary disable
+        // the GraphQLSuggestions as `get_type_map` in flattenn schema is not yet implemented.
+        let enabled = !matches!(schema, SDLSchema::FlatBuffer(_));
+
+        Self { schema, enabled }
+    }
+
+    pub fn input_type_suggestions(&self, input: StringKey) -> Vec<StringKey> {
+        if !self.enabled {
+            return Vec::new();
+        }
+
+        let input_types = self
+            .schema
+            .get_type_map()
+            .filter_map(|(type_name, type_)| {
+                if type_.is_input_type() {
+                    Some(*type_name)
+                } else {
+                    None
+                }
+            })
+            .collect::<Vec<StringKey>>();
+
+        suggestion_list(input, &input_types, GraphQLSuggestions::MAX_SUGGESTIONS)
+    }
+
+    pub fn output_type_suggestions(&self, input: StringKey) -> Vec<StringKey> {
+        if !self.enabled {
+            return Vec::new();
+        }
+
+        let type_names = self
+            .schema
+            .get_type_map()
+            .filter_map(|(type_name, type_)| {
+                if !type_.is_input_object() {
+                    Some(*type_name)
+                } else {
+                    None
+                }
+            })
+            .collect::<Vec<StringKey>>();
+
+        suggestion_list(input, &type_names, GraphQLSuggestions::MAX_SUGGESTIONS)
+    }
+
+    pub fn composite_type_suggestions(&self, input: StringKey) -> Vec<StringKey> {
+        if !self.enabled {
+            return Vec::new();
+        }
+
+        let type_names = self
+            .schema
+            .get_type_map()
+            .filter_map(|(type_name, type_)| {
+                if type_.is_composite_type() {
+                    Some(*type_name)
+                } else {
+                    None
+                }
+            })
+            .collect::<Vec<StringKey>>();
+
+        suggestion_list(input, &type_names, GraphQLSuggestions::MAX_SUGGESTIONS)
     }
 
     pub fn field_name_suggestion(&self, type_: Option<Type>, input: StringKey) -> Vec<StringKey> {
+        if !self.enabled {
+            return Vec::new();
+        }
+
         let field_names: Vec<StringKey> = match type_ {
             Some(Type::Object(object_id)) => self
                 .schema
                 .object(object_id)
                 .fields
                 .iter()
-                .map(|field_id| self.schema.field(*field_id).name)
+                .map(|field_id| self.schema.field(*field_id).name.item)
                 .collect(),
             Some(Type::Interface(interface_id)) => self
                 .schema
                 .interface(interface_id)
                 .fields
                 .iter()
-                .map(|field_id| self.schema.field(*field_id).name)
+                .map(|field_id| self.schema.field(*field_id).name.item)
                 .collect(),
             Some(Type::InputObject(input_id)) => self
                 .schema
@@ -129,7 +198,7 @@ impl<'schema> GraphQLSuggestions<'schema> {
 #[cfg(test)]
 mod tests {
     use super::suggestion_list;
-    use interner::Intern;
+    use intern::string_key::Intern;
 
     #[test]
     fn test_suggestion_list_empty_input() {
@@ -219,6 +288,18 @@ mod tests {
                 5
             ),
             vec!["ax".intern(), "ay".intern(), "az".intern()]
+        );
+    }
+
+    #[test]
+    fn test_suggestions_with_user() {
+        assert_eq!(
+            suggestion_list(
+                "Users".intern(),
+                &["User".intern(), "Query".intern(), "Mutation".intern()],
+                5
+            ),
+            vec!["User".intern(), "Query".intern()]
         );
     }
 }

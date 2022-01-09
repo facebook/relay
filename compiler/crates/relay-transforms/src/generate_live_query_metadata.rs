@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -12,7 +12,7 @@ use graphql_ir::{
     Transformed, Transformer, ValidationMessage, Value,
 };
 use graphql_syntax::OperationKind;
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey};
 use lazy_static::lazy_static;
 
 lazy_static! {
@@ -23,7 +23,7 @@ lazy_static! {
 }
 
 pub fn generate_live_query_metadata(program: &Program) -> DiagnosticsResult<Program> {
-    let mut transformer = GenerateLiveQueryMetadata::new(program);
+    let mut transformer = GenerateLiveQueryMetadata::default();
     let next_program = transformer
         .transform_program(program)
         .replace_or_else(|| program.clone());
@@ -35,21 +35,12 @@ pub fn generate_live_query_metadata(program: &Program) -> DiagnosticsResult<Prog
     }
 }
 
-struct GenerateLiveQueryMetadata<'s> {
-    pub program: &'s Program,
-    pub errors: Vec<Diagnostic>,
+#[derive(Default)]
+struct GenerateLiveQueryMetadata {
+    errors: Vec<Diagnostic>,
 }
 
-impl<'s> GenerateLiveQueryMetadata<'s> {
-    fn new(program: &'s Program) -> Self {
-        GenerateLiveQueryMetadata {
-            program,
-            errors: vec![],
-        }
-    }
-}
-
-impl<'s> Transformer for GenerateLiveQueryMetadata<'s> {
+impl Transformer for GenerateLiveQueryMetadata {
     const NAME: &'static str = "GenerateLiveQueryMetadata";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;
@@ -120,11 +111,12 @@ impl<'s> Transformer for GenerateLiveQueryMetadata<'s> {
                                     ])),
                                 ),
                             }],
+                            data: None,
                         });
                     } else if let Some(config_id) = config_id {
-                        let config_id_value = match config_id.value.item {
-                            Value::Constant(ConstantValue::String(value)) => value,
-                            _ => {
+                        let config_id_value = match config_id.value.item.get_string_literal() {
+                            Some(value) => value,
+                            None => {
                                 self.errors.push(Diagnostic::error(
                                     ValidationMessage::LiveQueryTransformInvalidConfigId {
                                         query_name: operation.name.item,
@@ -160,6 +152,7 @@ impl<'s> Transformer for GenerateLiveQueryMetadata<'s> {
                                     ])),
                                 ),
                             }],
+                            data: None,
                         });
                     }
 

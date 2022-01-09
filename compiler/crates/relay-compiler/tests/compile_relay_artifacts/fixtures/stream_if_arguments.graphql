@@ -1,0 +1,44 @@
+query streamIfArgumentsQuery($valueFromQuery: Boolean) {
+  me {
+    ...streamIfArgumentsFragment
+      @arguments(
+        setToValue: $valueFromQuery
+        setToTrue: true
+        setToFalse: false
+      )
+  }
+}
+
+fragment streamIfArgumentsFragment on User
+@argumentDefinitions(
+  defaultsToTrue: { type: "Boolean", defaultValue: true }
+  defaultsToFalse: { type: "Boolean", defaultValue: false }
+  setToValue: { type: "Boolean", defaultValue: false }
+  setToTrue: { type: "Boolean", defaultValue: false }
+  setToFalse: { type: "Boolean", defaultValue: false }
+) {
+  withDefaultTrue: tasks
+    @stream(initial_count: 1, if: $defaultsToTrue, label: "defaultTrue") {
+    __typename
+  }
+  withDefaultFalse: tasks
+    @stream(initial_count: 1, if: $defaultsToFalse, label: "defaultFalse") {
+    __typename
+  }
+  setToTrue: tasks
+    @stream(initial_count: 1, if: $setToTrue, label: "setToTrue") {
+    __typename
+  }
+  setToFalse: tasks
+    @stream(initial_count: 1, if: $setToFalse, label: "setToFalse") {
+    __typename
+  }
+  withValueFromQueryDirectly: tasks
+    @stream(initial_count: 1, if: $valueFromQuery, label: "fromQueryDirectly") {
+    __typename
+  }
+  withValueFromQueryViaArgDef: tasks
+    @stream(initial_count: 1, if: $setToValue, label: "fromQueryViaArg") {
+    __typename
+  }
+}

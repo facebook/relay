@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -45,7 +45,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
                 directives: def.directives.clone(),
                 type_condition: def.type_,
             };
-            let request_parameters = build_request_params(&def);
+            let request_parameters = build_request_params(def);
             printer.print_request(&schema, def, &operation_fragment, request_parameters)
         })
         .collect::<Vec<_>>();

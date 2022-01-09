@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,14 +13,13 @@
 
 'use strict';
 
-const useRelayEnvironment = require('./useRelayEnvironment');
-const warning = require('warning');
+import type {ReaderFragment} from 'relay-runtime';
 
 const {getFragmentResourceForEnvironment} = require('./FragmentResource');
+const useRelayEnvironment = require('./useRelayEnvironment');
 const {useEffect, useRef, useState} = require('react');
 const {getFragmentIdentifier} = require('relay-runtime');
-
-import type {ReaderFragment} from 'relay-runtime';
+const warning = require('warning');
 
 type ReturnType<TFragmentData: mixed> = {|
   data: TFragmentData,
@@ -51,9 +50,8 @@ function useFragmentNode<TFragmentData: mixed>(
   const isListeningForUpdatesRef = useRef(true);
   function enableStoreUpdates() {
     isListeningForUpdatesRef.current = true;
-    const didMissUpdates = FragmentResource.checkMissedUpdates(
-      fragmentResult,
-    )[0];
+    const didMissUpdates =
+      FragmentResource.checkMissedUpdates(fragmentResult)[0];
     if (didMissUpdates) {
       handleDataUpdate();
     }

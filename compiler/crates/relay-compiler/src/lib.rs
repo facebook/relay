@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -18,7 +18,7 @@ pub mod errors;
 mod file_source;
 mod graphql_asts;
 mod red_to_green;
-mod rollout;
+mod remote_persister;
 pub mod saved_state;
 pub mod status_reporter;
 
@@ -29,13 +29,16 @@ pub use build_project::{
     },
     build_programs, build_raw_program, build_schema, create_path_for_artifact, generate_artifacts,
     generate_extra_artifacts::GenerateExtraArtifactsFn,
-    is_operation_preloadable, transform_program, validate, validate_program, Artifact,
-    ArtifactContent, BuildProjectFailure, SourceHashes,
+    transform_program, validate, validate_program, AdditionalValidations, Artifact,
+    ArtifactContent, ArtifactGeneratedTypes, BuildProjectFailure, SourceHashes,
 };
-pub use config::{OperationPersister, PersistConfig};
+pub use config::{
+    FileSourceKind, OperationPersister, PersistConfig, ProjectConfig, SchemaLocation,
+};
 pub use file_source::{
     source_for_location, FileCategorizer, FileGroup, FileSource, FileSourceResult,
     FileSourceSubscription, FileSourceSubscriptionNextChange, FsSourceReader,
     SourceControlUpdateStatus, SourceReader,
 };
 pub use graphql_asts::GraphQLAsts;
+pub use remote_persister::RemotePersister;

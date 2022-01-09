@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -12,26 +12,23 @@
 
 'use strict';
 
-const React = require('react');
-
-const areEqual = require('areEqual');
-const buildReactRelayContainer = require('./buildReactRelayContainer');
-const getRootVariablesForFragments = require('./getRootVariablesForFragments');
-
-const {getContainerName} = require('./ReactRelayContainerUtils');
-const {assertRelayContext} = require('./RelayContext');
-const {
-  createFragmentSpecResolver,
-  getDataIDsFromObject,
-  isScalarAndEqual,
-} = require('relay-runtime');
-
-import type {$RelayProps, GeneratedNodeMap, RelayProp} from './ReactRelayTypes';
+import type {GeneratedNodeMap, RelayProp, $RelayProps} from './ReactRelayTypes';
 import type {
   FragmentMap,
   FragmentSpecResolver,
   RelayContext,
 } from 'relay-runtime';
+
+const buildReactRelayContainer = require('./buildReactRelayContainer');
+const {getContainerName} = require('./ReactRelayContainerUtils');
+const {assertRelayContext} = require('./RelayContext');
+const areEqual = require('areEqual');
+const React = require('react');
+const {
+  createFragmentSpecResolver,
+  getDataIDsFromObject,
+  isScalarAndEqual,
+} = require('relay-runtime');
 
 type ContainerProps = $FlowFixMeProps;
 type ContainerState = {
@@ -149,17 +146,17 @@ function createContainerWithFragments<
     }
 
     componentDidMount() {
-      this._subscribeToNewResolver();
-      this._rerenderIfStoreHasChanged();
+      this._subscribeToNewResolverAndRerenderIfStoreHasChanged();
     }
 
     componentDidUpdate(prevProps: ContainerProps, prevState: ContainerState) {
       if (this.state.resolver !== prevState.resolver) {
         prevState.resolver.dispose();
 
-        this._subscribeToNewResolver();
+        this._subscribeToNewResolverAndRerenderIfStoreHasChanged();
+      } else {
+        this._rerenderIfStoreHasChanged();
       }
-      this._rerenderIfStoreHasChanged();
     }
 
     componentWillUnmount() {
@@ -222,21 +219,24 @@ function createContainerWithFragments<
       }
     }
 
-    _subscribeToNewResolver() {
-      const {resolver} = this.state;
+    _subscribeToNewResolverAndRerenderIfStoreHasChanged() {
+      const {data, resolver} = this.state;
+      const maybeNewData = resolver.resolve();
 
       // Event listeners are only safe to add during the commit phase,
       // So they won't leak if render is interrupted or errors.
-      resolver.setCallback(this._handleFragmentDataUpdate);
+      resolver.setCallback(this.props, this._handleFragmentDataUpdate);
+
+      // External values could change between render and commit.
+      // Check for this case, even though it requires an extra store read.
+      if (data !== maybeNewData) {
+        this.setState({data: maybeNewData});
+      }
     }
 
     render() {
-      const {
-        componentRef,
-        __relayContext,
-        __rootIsQueryRenderer,
-        ...props
-      } = this.props;
+      const {componentRef, __relayContext, __rootIsQueryRenderer, ...props} =
+        this.props;
       return React.createElement(Component, {
         ...props,
         ...this.state.data,

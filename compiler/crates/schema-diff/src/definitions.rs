@@ -1,13 +1,12 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
 pub use graphql_syntax::TypeAnnotation;
-use interner::StringKey;
-use std::convert::From;
+use intern::string_key::StringKey;
 use std::fmt;
 
 #[derive(Eq, PartialEq, PartialOrd, Ord)]
@@ -152,7 +151,7 @@ pub enum Type {
 impl From<TypeAnnotation> for Type {
     fn from(type_: TypeAnnotation) -> Self {
         match type_ {
-            TypeAnnotation::Named(ident) => Type::Named(ident.value),
+            TypeAnnotation::Named(named_type) => Type::Named(named_type.name.value),
             TypeAnnotation::List(annotation) => Type::List(Box::new(Type::from(annotation.type_))),
             TypeAnnotation::NonNull(annotation) => {
                 Type::NonNull(Box::new(Type::from(annotation.type_)))

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -11,27 +11,16 @@
 'use strict';
 
 const RelayModernFragmentSpecResolver = require('../RelayModernFragmentSpecResolver');
-
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
-const {
-  RelayFeatureFlags,
-  getRequest,
-  getFragment,
-  graphql,
-} = require('relay-runtime');
+const {getFragment, getRequest, graphql} = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
 
 const dev = __DEV__;
 
 beforeEach(() => {
   global.__DEV__ = dev;
-  RelayFeatureFlags.ENABLE_REQUIRED_DIRECTIVES = true;
-});
-
-afterEach(() => {
-  RelayFeatureFlags.ENABLE_REQUIRED_DIRECTIVES = false;
 });
 
 describe('RelayModernFragmentSpecResolver', () => {

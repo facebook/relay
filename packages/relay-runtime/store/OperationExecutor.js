@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,41 +13,22 @@
 
 'use strict';
 
-const RelayError = require('../util/RelayError');
-const RelayFeatureFlags = require('../util/RelayFeatureFlags');
-const RelayModernRecord = require('./RelayModernRecord');
-const RelayObservable = require('../network/RelayObservable');
-const RelayRecordSource = require('./RelayRecordSource');
-const RelayResponseNormalizer = require('./RelayResponseNormalizer');
-
-const generateID = require('../util/generateID');
-const getOperation = require('../util/getOperation');
-const invariant = require('invariant');
-const stableCopy = require('../util/stableCopy');
-const warning = require('warning');
-
-const {generateClientID, generateUniqueClientID} = require('./ClientID');
-const {getLocalVariables} = require('./RelayConcreteVariables');
-const {
-  createNormalizationSelector,
-  createReaderSelector,
-} = require('./RelayModernSelector');
-const {ROOT_TYPE, TYPENAME_KEY, getStorageKey} = require('./RelayStoreUtils');
-
+import type {ActorIdentifier} from '../multi-actor-environment/ActorIdentifier';
 import type {
   GraphQLResponse,
-  GraphQLSingularResponse,
   GraphQLResponseWithData,
+  GraphQLSingularResponse,
   ReactFlightServerTree,
 } from '../network/RelayNetworkTypes';
 import type {Sink, Subscription} from '../network/RelayObservable';
 import type {
   DeferPlaceholder,
-  RequestDescriptor,
+  FollowupPayload,
   HandleFieldPayload,
   IncrementalDataPlaceholder,
   LogFunction,
   ModuleImportPayload,
+  MutationParameters,
   NormalizationSelector,
   OperationDescriptor,
   OperationLoader,
@@ -55,11 +36,12 @@ import type {
   OptimisticResponseConfig,
   OptimisticUpdate,
   PublishQueue,
+  ReactFlightClientResponse,
   ReactFlightPayloadDeserializer,
   ReactFlightServerErrorHandler,
-  ReactFlightClientResponse,
   Record,
   RelayResponsePayload,
+  RequestDescriptor,
   SelectorStoreUpdater,
   Store,
   StreamPlaceholder,
@@ -71,29 +53,50 @@ import type {
   NormalizationSelectableNode,
   NormalizationSplitOperation,
 } from '../util/NormalizationNode';
-import type {DataID, Variables, Disposable} from '../util/RelayRuntimeTypes';
+import type {DataID, Disposable, Variables} from '../util/RelayRuntimeTypes';
 import type {GetDataID} from './RelayResponseNormalizer';
 import type {NormalizationOptions} from './RelayResponseNormalizer';
 
-export type ExecuteConfig = {|
+const RelayObservable = require('../network/RelayObservable');
+const generateID = require('../util/generateID');
+const getOperation = require('../util/getOperation');
+const RelayError = require('../util/RelayError');
+const RelayFeatureFlags = require('../util/RelayFeatureFlags');
+const stableCopy = require('../util/stableCopy');
+const withDuration = require('../util/withDuration');
+const {generateClientID, generateUniqueClientID} = require('./ClientID');
+const {getLocalVariables} = require('./RelayConcreteVariables');
+const RelayModernRecord = require('./RelayModernRecord');
+const {
+  createNormalizationSelector,
+  createReaderSelector,
+} = require('./RelayModernSelector');
+const RelayRecordSource = require('./RelayRecordSource');
+const RelayResponseNormalizer = require('./RelayResponseNormalizer');
+const {ROOT_TYPE, TYPENAME_KEY, getStorageKey} = require('./RelayStoreUtils');
+const invariant = require('invariant');
+const warning = require('warning');
+
+export type ExecuteConfig<TMutation: MutationParameters> = {|
+  +actorIdentifier: ActorIdentifier,
   +getDataID: GetDataID,
-  +treatMissingFieldsAsNull: boolean,
-  +log: LogFunction,
+  +getPublishQueue: (actorIdentifier: ActorIdentifier) => PublishQueue,
+  +getStore: (actorIdentifier: ActorIdentifier) => Store,
+  +isClientPayload?: boolean,
   +operation: OperationDescriptor,
   +operationExecutions: Map<string, ActiveState>,
   +operationLoader: ?OperationLoader,
   +operationTracker: OperationTracker,
-  +optimisticConfig: ?OptimisticResponseConfig,
-  +publishQueue: PublishQueue,
+  +optimisticConfig: ?OptimisticResponseConfig<TMutation>,
   +reactFlightPayloadDeserializer?: ?ReactFlightPayloadDeserializer,
   +reactFlightServerErrorHandler?: ?ReactFlightServerErrorHandler,
   +scheduler?: ?TaskScheduler,
+  +shouldProcessClientComponents?: ?boolean,
   +sink: Sink<GraphQLResponse>,
   +source: RelayObservable<GraphQLResponse>,
-  +store: Store,
-  +updater?: ?SelectorStoreUpdater,
-  +isClientPayload?: boolean,
-  +shouldProcessClientComponents?: ?boolean,
+  +treatMissingFieldsAsNull: boolean,
+  +updater?: ?SelectorStoreUpdater<TMutation['response']>,
+  +log: LogFunction,
 |};
 
 export type ActiveState = 'active' | 'inactive';
@@ -121,7 +124,9 @@ type IncrementalGraphQLResponse = {|
   response: GraphQLResponseWithData,
 |};
 
-function execute(config: ExecuteConfig): Executor {
+function execute<TMutation: MutationParameters>(
+  config: ExecuteConfig<TMutation>,
+): Executor<TMutation> {
   return new Executor(config);
 }
 
@@ -130,7 +135,8 @@ function execute(config: ExecuteConfig): Executor {
  * including optimistic payloads, standard payloads, resolution of match
  * dependencies, etc.
  */
-class Executor {
+class Executor<TMutation: MutationParameters> {
+  _actorIdentifier: ActorIdentifier;
   _getDataID: GetDataID;
   _treatMissingFieldsAsNull: boolean;
   _incrementalPayloadsPending: boolean;
@@ -143,9 +149,9 @@ class Executor {
   _operationLoader: ?OperationLoader;
   _operationTracker: OperationTracker;
   _operationUpdateEpochs: Map<string, number>;
-  _optimisticUpdates: null | Array<OptimisticUpdate>;
+  _optimisticUpdates: null | Array<OptimisticUpdate<TMutation>>;
   _pendingModulePayloadsCount: number;
-  _publishQueue: PublishQueue;
+  +_getPublishQueue: (actorIdentifier: ActorIdentifier) => PublishQueue;
   _reactFlightPayloadDeserializer: ?ReactFlightPayloadDeserializer;
   _reactFlightServerErrorHandler: ?ReactFlightServerErrorHandler;
   _shouldProcessClientComponents: ?boolean;
@@ -156,35 +162,38 @@ class Executor {
     {|+record: Record, +fieldPayloads: Array<HandleFieldPayload>|},
   >;
   _state: 'started' | 'loading_incremental' | 'loading_final' | 'completed';
-  _store: Store;
+  +_getStore: (actorIdentifier: ActorIdentifier) => Store;
   _subscriptions: Map<number, Subscription>;
-  _updater: ?SelectorStoreUpdater;
-  _retainDisposable: ?Disposable;
-  _asyncStoreUpdateHandle: ?TimeoutID;
+  _updater: ?SelectorStoreUpdater<TMutation['response']>;
+  _asyncStoreUpdateDisposable: ?Disposable;
   _completeFns: Array<() => void>;
+  +_retainDisposables: Map<ActorIdentifier, Disposable>;
   +_isClientPayload: boolean;
   +_isSubscriptionOperation: boolean;
+  +_seenActors: Set<ActorIdentifier>;
 
   constructor({
+    actorIdentifier,
+    getDataID,
+    getPublishQueue,
+    getStore,
+    isClientPayload,
     operation,
     operationExecutions,
     operationLoader,
-    optimisticConfig,
-    publishQueue,
-    scheduler,
-    sink,
-    source,
-    store,
-    updater,
     operationTracker,
-    treatMissingFieldsAsNull,
-    getDataID,
-    isClientPayload,
-    log,
+    optimisticConfig,
     reactFlightPayloadDeserializer,
     reactFlightServerErrorHandler,
+    scheduler,
     shouldProcessClientComponents,
-  }: ExecuteConfig): void {
+    sink,
+    source,
+    treatMissingFieldsAsNull,
+    updater,
+    log,
+  }: ExecuteConfig<TMutation>): void {
+    this._actorIdentifier = actorIdentifier;
     this._getDataID = getDataID;
     this._treatMissingFieldsAsNull = treatMissingFieldsAsNull;
     this._incrementalPayloadsPending = false;
@@ -199,12 +208,12 @@ class Executor {
     this._operationUpdateEpochs = new Map();
     this._optimisticUpdates = null;
     this._pendingModulePayloadsCount = 0;
-    this._publishQueue = publishQueue;
+    this._getPublishQueue = getPublishQueue;
     this._scheduler = scheduler;
     this._sink = sink;
     this._source = new Map();
     this._state = 'started';
-    this._store = store;
+    this._getStore = getStore;
     this._subscriptions = new Map();
     this._updater = updater;
     this._isClientPayload = isClientPayload === true;
@@ -213,6 +222,8 @@ class Executor {
     this._isSubscriptionOperation =
       this._operation.request.node.params.operationKind === 'subscription';
     this._shouldProcessClientComponents = shouldProcessClientComponents;
+    this._retainDisposables = new Map();
+    this._seenActors = new Set();
     this._completeFns = [];
 
     const id = this._nextSubscriptionId++;
@@ -265,22 +276,19 @@ class Executor {
     if (optimisticUpdates !== null) {
       this._optimisticUpdates = null;
       optimisticUpdates.forEach(update =>
-        this._publishQueue.revertUpdate(update),
+        this._getPublishQueueAndSaveActor().revertUpdate(update),
       );
       // OK: run revert on cancel
-      this._publishQueue.run();
+      this._runPublishQueue();
     }
     this._incrementalResults.clear();
-    if (this._asyncStoreUpdateHandle != null) {
-      clearTimeout(this._asyncStoreUpdateHandle);
-      this._asyncStoreUpdateHandle = null;
+    if (this._asyncStoreUpdateDisposable != null) {
+      this._asyncStoreUpdateDisposable.dispose();
+      this._asyncStoreUpdateDisposable = null;
     }
     this._completeFns = [];
     this._completeOperationTracker();
-    if (this._retainDisposable) {
-      this._retainDisposable.dispose();
-      this._retainDisposable = null;
-    }
+    this._disposeRetainedData();
   }
 
   _deserializeReactFlightPayloadWithLogging = (
@@ -440,7 +448,8 @@ class Executor {
         error.stack;
         throw error;
       } else {
-        const responseWithData: GraphQLResponseWithData = (response: $FlowFixMe);
+        const responseWithData: GraphQLResponseWithData =
+          (response: $FlowFixMe);
         results.push(responseWithData);
       }
     });
@@ -460,7 +469,10 @@ class Executor {
           responsePart => responsePart.extensions?.isOptimistic === true,
         )
       ) {
-        invariant(false, 'Optimistic responses cannot be batched.');
+        invariant(
+          false,
+          'OperationExecutor: Optimistic responses cannot be batched.',
+        );
       }
       return false;
     }
@@ -488,6 +500,7 @@ class Executor {
     if (this._state === 'completed') {
       return;
     }
+    this._seenActors.clear();
 
     const responses = Array.isArray(response) ? response : [response];
     const responsesWithData = this._handleErrorResponse(responses);
@@ -511,10 +524,8 @@ class Executor {
       return;
     }
 
-    const [
-      nonIncrementalResponses,
-      incrementalResponses,
-    ] = partitionGraphQLResponses(responsesWithData);
+    const [nonIncrementalResponses, incrementalResponses] =
+      partitionGraphQLResponses(responsesWithData);
     const hasNonIncrementalResponses = nonIncrementalResponses.length > 0;
 
     // In theory this doesn't preserve the ordering of the batch.
@@ -528,10 +539,7 @@ class Executor {
       // For subscriptions, to avoid every new payload from overwriting existing
       // data from previous payloads, assign a unique rootID for every new
       // non-incremental payload.
-      if (
-        this._isSubscriptionOperation &&
-        RelayFeatureFlags.ENABLE_UNIQUE_SUBSCRIPTION_ROOT
-      ) {
+      if (this._isSubscriptionOperation) {
         const nextID = generateUniqueClientID();
         this._operation = {
           request: this._operation.request,
@@ -550,38 +558,16 @@ class Executor {
       }
 
       const payloadFollowups = this._processResponses(nonIncrementalResponses);
-
-      if (!RelayFeatureFlags.ENABLE_BATCHED_STORE_UPDATES) {
-        const updatedOwners = this._publishQueue.run(this._operation);
-        this._updateOperationTracker(updatedOwners);
-      }
-
       this._processPayloadFollowups(payloadFollowups);
-
-      if (!RelayFeatureFlags.ENABLE_BATCHED_STORE_UPDATES) {
-        if (this._incrementalPayloadsPending && !this._retainDisposable) {
-          this._retainDisposable = this._store.retain(this._operation);
-        }
-      }
     }
 
     if (incrementalResponses.length > 0) {
-      const payloadFollowups = this._processIncrementalResponses(
-        incrementalResponses,
-      );
-      if (!RelayFeatureFlags.ENABLE_BATCHED_STORE_UPDATES) {
-        // For the incremental case, we're only handling follow-up responses
-        // for already initiated operation (and we're not passing it to
-        // the run(...) call)
-        const updatedOwners = this._publishQueue.run();
-        this._updateOperationTracker(updatedOwners);
-      }
+      const payloadFollowups =
+        this._processIncrementalResponses(incrementalResponses);
+
       this._processPayloadFollowups(payloadFollowups);
     }
-    if (
-      this._isSubscriptionOperation &&
-      RelayFeatureFlags.ENABLE_UNIQUE_SUBSCRIPTION_ROOT
-    ) {
+    if (this._isSubscriptionOperation) {
       // We attach the id to allow the `requestSubscription` to read from the store using
       // the current id in its `onNext` callback
       if (responsesWithData[0].extensions == null) {
@@ -590,48 +576,49 @@ class Executor {
           __relay_subscription_root_id: this._operation.fragment.dataID,
         };
       } else {
-        responsesWithData[0].extensions.__relay_subscription_root_id = this._operation.fragment.dataID;
+        responsesWithData[0].extensions.__relay_subscription_root_id =
+          this._operation.fragment.dataID;
       }
     }
 
-    if (RelayFeatureFlags.ENABLE_BATCHED_STORE_UPDATES) {
-      // OK: run once after each new payload
-      // If we have non-incremental responses, we passing `this._operation` to
-      // the publish queue here, which will later be passed to the store (via
-      // notify) to indicate that this operation caused the store to update
-      const updatedOwners = this._publishQueue.run(
-        hasNonIncrementalResponses ? this._operation : undefined,
-      );
-      if (hasNonIncrementalResponses) {
-        if (this._incrementalPayloadsPending && !this._retainDisposable) {
-          this._retainDisposable = this._store.retain(this._operation);
-        }
+    // OK: run once after each new payload
+    // If we have non-incremental responses, we passing `this._operation` to
+    // the publish queue here, which will later be passed to the store (via
+    // notify) to indicate that this operation caused the store to update
+    const updatedOwners = this._runPublishQueue(
+      hasNonIncrementalResponses ? this._operation : undefined,
+    );
+
+    if (hasNonIncrementalResponses) {
+      if (this._incrementalPayloadsPending) {
+        this._retainData();
       }
-      this._updateOperationTracker(updatedOwners);
     }
+    this._updateOperationTracker(updatedOwners);
     this._sink.next(response);
   }
 
   _processOptimisticResponse(
     response: ?GraphQLResponseWithData,
-    updater: ?SelectorStoreUpdater,
+    updater: ?SelectorStoreUpdater<TMutation['response']>,
     treatMissingFieldsAsNull: boolean,
   ): void {
     invariant(
       this._optimisticUpdates === null,
-      'environment.execute: only support one optimistic response per ' +
+      'OperationExecutor: environment.execute: only support one optimistic response per ' +
         'execute.',
     );
     if (response == null && updater == null) {
       return;
     }
-    const optimisticUpdates: Array<OptimisticUpdate> = [];
+    const optimisticUpdates: Array<OptimisticUpdate<TMutation>> = [];
     if (response) {
       const payload = normalizeResponse(
         response,
         this._operation.root,
         ROOT_TYPE,
         {
+          actorIdentifier: this._actorIdentifier,
           getDataID: this._getDataID,
           path: [],
           reactFlightPayloadDeserializer:
@@ -665,78 +652,86 @@ class Executor {
       });
     }
     this._optimisticUpdates = optimisticUpdates;
-    optimisticUpdates.forEach(update => this._publishQueue.applyUpdate(update));
+    optimisticUpdates.forEach(update =>
+      this._getPublishQueueAndSaveActor().applyUpdate(update),
+    );
     // OK: only called on construction and when receiving an optimistic payload from network,
     // which doesn't fall-through to the regular next() handling
-    this._publishQueue.run();
+    this._runPublishQueue();
   }
 
   _processOptimisticFollowups(
     payload: RelayResponsePayload,
-    optimisticUpdates: Array<OptimisticUpdate>,
+    optimisticUpdates: Array<OptimisticUpdate<TMutation>>,
   ): void {
     if (payload.followupPayloads && payload.followupPayloads.length) {
       const followupPayloads = payload.followupPayloads;
-      const operationLoader = this._operationLoader;
-      invariant(
-        operationLoader,
-        'RelayModernEnvironment: Expected an operationLoader to be ' +
-          'configured when using `@match`.',
-      );
       for (const followupPayload of followupPayloads) {
-        if (followupPayload.kind === 'ModuleImportPayload') {
-          const operation = operationLoader.get(
-            followupPayload.operationReference,
-          );
-          if (operation == null) {
-            this._processAsyncOptimisticModuleImport(
-              operationLoader,
-              followupPayload,
+        switch (followupPayload.kind) {
+          case 'ModuleImportPayload':
+            const operationLoader = this._expectOperationLoader();
+            const operation = operationLoader.get(
+              followupPayload.operationReference,
             );
-          } else {
-            const moduleImportOptimisticUpdates = this._processOptimisticModuleImport(
-              operation,
-              followupPayload,
+            if (operation == null) {
+              this._processAsyncOptimisticModuleImport(followupPayload);
+            } else {
+              const moduleImportOptimisticUpdates =
+                this._processOptimisticModuleImport(operation, followupPayload);
+              optimisticUpdates.push(...moduleImportOptimisticUpdates);
+            }
+            break;
+          case 'ActorPayload':
+            warning(
+              false,
+              'OperationExecutor: Unexpected optimistic ActorPayload. These updates are not supported.',
             );
-            optimisticUpdates.push(...moduleImportOptimisticUpdates);
-          }
-        } else {
-          invariant(
-            false,
-            'OperationExecutor(): Unexpected payload follow up kind `%s`.',
-            followupPayload.kind,
-          );
+            break;
+          default:
+            (followupPayload: empty);
+            invariant(
+              false,
+              'OperationExecutor: Unexpected followup kind `%s`. when processing optimistic updates.',
+              followupPayload.kind,
+            );
         }
       }
     }
   }
 
-  _normalizeModuleImport(
-    moduleImportPayload: ModuleImportPayload,
-    operation: NormalizationSplitOperation | NormalizationOperation,
+  /**
+   * Normalize Data for @module payload, and actor-specific payload
+   */
+  _normalizeFollowupPayload(
+    followupPayload: FollowupPayload,
+    normalizationNode: NormalizationSelectableNode,
   ) {
     let variables;
-    if (operation.kind === 'SplitOperation') {
+    if (
+      normalizationNode.kind === 'SplitOperation' &&
+      followupPayload.kind === 'ModuleImportPayload'
+    ) {
       variables = getLocalVariables(
-        moduleImportPayload.variables,
-        operation.argumentDefinitions,
-        moduleImportPayload.args,
+        followupPayload.variables,
+        normalizationNode.argumentDefinitions,
+        followupPayload.args,
       );
     } else {
-      variables = moduleImportPayload.variables;
+      variables = followupPayload.variables;
     }
     const selector = createNormalizationSelector(
-      operation,
-      moduleImportPayload.dataID,
+      normalizationNode,
+      followupPayload.dataID,
       variables,
     );
     return normalizeResponse(
-      {data: moduleImportPayload.data},
+      {data: followupPayload.data},
       selector,
-      moduleImportPayload.typeName,
+      followupPayload.typeName,
       {
+        actorIdentifier: this._actorIdentifier,
         getDataID: this._getDataID,
-        path: moduleImportPayload.path,
+        path: followupPayload.path,
         reactFlightPayloadDeserializer:
           this._reactFlightPayloadDeserializer != null
             ? this._deserializeReactFlightPayloadWithLogging
@@ -751,10 +746,10 @@ class Executor {
   _processOptimisticModuleImport(
     normalizationRootNode: NormalizationRootNode,
     moduleImportPayload: ModuleImportPayload,
-  ): $ReadOnlyArray<OptimisticUpdate> {
+  ): $ReadOnlyArray<OptimisticUpdate<TMutation>> {
     const operation = getOperation(normalizationRootNode);
     const optimisticUpdates = [];
-    const modulePayload = this._normalizeModuleImport(
+    const modulePayload = this._normalizeFollowupPayload(
       moduleImportPayload,
       operation,
     );
@@ -769,21 +764,18 @@ class Executor {
   }
 
   _processAsyncOptimisticModuleImport(
-    operationLoader: OperationLoader,
     moduleImportPayload: ModuleImportPayload,
   ): void {
-    operationLoader
+    this._expectOperationLoader()
       .load(moduleImportPayload.operationReference)
       .then(operation => {
         if (operation == null || this._state !== 'started') {
           return;
         }
-        const moduleImportOptimisticUpdates = this._processOptimisticModuleImport(
-          operation,
-          moduleImportPayload,
-        );
+        const moduleImportOptimisticUpdates =
+          this._processOptimisticModuleImport(operation, moduleImportPayload);
         moduleImportOptimisticUpdates.forEach(update =>
-          this._publishQueue.applyUpdate(update),
+          this._getPublishQueueAndSaveActor().applyUpdate(update),
         );
         if (this._optimisticUpdates == null) {
           warning(
@@ -795,16 +787,18 @@ class Executor {
         } else {
           this._optimisticUpdates.push(...moduleImportOptimisticUpdates);
           // OK: always have to run() after an module import resolves async
-          this._publishQueue.run();
+          this._runPublishQueue();
         }
       });
   }
 
-  _processResponses(responses: $ReadOnlyArray<GraphQLResponseWithData>) {
+  _processResponses(
+    responses: $ReadOnlyArray<GraphQLResponseWithData>,
+  ): $ReadOnlyArray<RelayResponsePayload> {
     if (this._optimisticUpdates !== null) {
-      this._optimisticUpdates.forEach(update =>
-        this._publishQueue.revertUpdate(update),
-      );
+      this._optimisticUpdates.forEach(update => {
+        this._getPublishQueueAndSaveActor().revertUpdate(update);
+      });
       this._optimisticUpdates = null;
     }
 
@@ -817,6 +811,7 @@ class Executor {
         this._operation.root,
         ROOT_TYPE,
         {
+          actorIdentifier: this._actorIdentifier,
           getDataID: this._getDataID,
           path: [],
           reactFlightPayloadDeserializer:
@@ -828,11 +823,12 @@ class Executor {
           shouldProcessClientComponents: this._shouldProcessClientComponents,
         },
       );
-      this._publishQueue.commitPayload(
+      this._getPublishQueueAndSaveActor().commitPayload(
         this._operation,
         relayPayload,
         this._updater,
       );
+
       return relayPayload;
     });
   }
@@ -855,28 +851,23 @@ class Executor {
         this._incrementalPayloadsPending = false;
       }
       if (followupPayloads && followupPayloads.length !== 0) {
-        const operationLoader = this._operationLoader;
-        invariant(
-          operationLoader,
-          'RelayModernEnvironment: Expected an operationLoader to be ' +
-            'configured when using `@match`.',
-        );
         followupPayloads.forEach(followupPayload => {
-          if (followupPayload.kind === 'ModuleImportPayload') {
-            this._processModuleImportPayload(followupPayload, operationLoader);
-          } else {
-            invariant(
-              false,
-              'OperationExecutor(): Unexpected payload follow up kind `%s`.',
-              followupPayload.kind,
-            );
-          }
+          const prevActorIdentifier = this._actorIdentifier;
+          this._actorIdentifier =
+            followupPayload.actorIdentifier ?? this._actorIdentifier;
+          this._processFollowupPayload(followupPayload);
+          this._actorIdentifier = prevActorIdentifier;
         });
       }
+
       if (incrementalPlaceholders && incrementalPlaceholders.length !== 0) {
         this._incrementalPayloadsPending = this._state !== 'loading_final';
         incrementalPlaceholders.forEach(incrementalPlaceholder => {
+          const prevActorIdentifier = this._actorIdentifier;
+          this._actorIdentifier =
+            incrementalPlaceholder.actorIdentifier ?? this._actorIdentifier;
           this._processIncrementalPlaceholder(payload, incrementalPlaceholder);
+          this._actorIdentifier = prevActorIdentifier;
         });
 
         if (this._isClientPayload || this._state === 'loading_final') {
@@ -908,10 +899,6 @@ class Executor {
             }
           });
           if (relayPayloads.length > 0) {
-            if (!RelayFeatureFlags.ENABLE_BATCHED_STORE_UPDATES) {
-              const updatedOwners = this._publishQueue.run();
-              this._updateOperationTracker(updatedOwners);
-            }
             this._processPayloadFollowups(relayPayloads);
           }
         }
@@ -938,128 +925,154 @@ class Executor {
    * defer, stream, etc); these are handled by calling
    * `_processPayloadFollowups()`.
    */
-  _processModuleImportPayload(
-    moduleImportPayload: ModuleImportPayload,
-    operationLoader: OperationLoader,
-  ): void {
-    const node = operationLoader.get(moduleImportPayload.operationReference);
-    if (node != null) {
-      const operation = getOperation(node);
-      // If the operation module is available synchronously, normalize the
-      // data synchronously.
-      this._handleModuleImportPayload(moduleImportPayload, operation);
-      this._maybeCompleteSubscriptionOperationTracking();
-    } else {
-      // Otherwise load the operation module and schedule a task to normalize
-      // the data when the module is available.
-      const id = this._nextSubscriptionId++;
-      this._pendingModulePayloadsCount++;
+  _processFollowupPayload(followupPayload: FollowupPayload): void {
+    switch (followupPayload.kind) {
+      case 'ModuleImportPayload':
+        const operationLoader = this._expectOperationLoader();
+        const node = operationLoader.get(followupPayload.operationReference);
+        if (node != null) {
+          // If the operation module is available synchronously, normalize the
+          // data synchronously.
+          this._processFollowupPayloadWithNormalizationNode(
+            followupPayload,
+            getOperation(node),
+          );
+        } else {
+          // Otherwise load the operation module and schedule a task to normalize
+          // the data when the module is available.
+          const id = this._nextSubscriptionId++;
+          this._pendingModulePayloadsCount++;
 
-      const decrementPendingCount = () => {
-        this._pendingModulePayloadsCount--;
-        this._maybeCompleteSubscriptionOperationTracking();
-      };
+          const decrementPendingCount = () => {
+            this._pendingModulePayloadsCount--;
+            this._maybeCompleteSubscriptionOperationTracking();
+          };
 
-      // Observable.from(operationLoader.load()) wouldn't catch synchronous
-      // errors thrown by the load function, which is user-defined. Guard
-      // against that with Observable.from(new Promise(<work>)).
-      const networkObservable = RelayObservable.from(
-        new Promise((resolve, reject) => {
-          operationLoader
-            .load(moduleImportPayload.operationReference)
-            .then(resolve, reject);
-        }),
-      );
-      RelayObservable.create(sink => {
-        let cancellationToken;
-        const subscription = networkObservable.subscribe({
-          next: (loadedNode: ?NormalizationRootNode) => {
-            if (loadedNode != null) {
-              const publishModuleImportPayload = () => {
-                try {
-                  const operation = getOperation(loadedNode);
-                  const [duration] = withDuration(() => {
-                    this._handleModuleImportPayload(
-                      moduleImportPayload,
-                      operation,
-                    );
-                    if (RelayFeatureFlags.ENABLE_BATCHED_STORE_UPDATES) {
-                      // OK: always have to run after an async module import resolves
-                      if (
-                        RelayFeatureFlags.ENABLE_BATCHED_ASYNC_MODULE_UPDATES
-                      ) {
-                        this._scheduleAsyncStoreUpdate(sink.complete);
-                      } else {
-                        const updatedOwners = this._publishQueue.run();
-                        this._updateOperationTracker(updatedOwners);
+          // Observable.from(operationLoader.load()) wouldn't catch synchronous
+          // errors thrown by the load function, which is user-defined. Guard
+          // against that with Observable.from(new Promise(<work>)).
+          const networkObservable = RelayObservable.from(
+            new Promise((resolve, reject) => {
+              operationLoader
+                .load(followupPayload.operationReference)
+                .then(resolve, reject);
+            }),
+          );
+          RelayObservable.create(sink => {
+            let cancellationToken;
+            const subscription = networkObservable.subscribe({
+              next: (loadedNode: ?NormalizationRootNode) => {
+                if (loadedNode != null) {
+                  const publishModuleImportPayload = () => {
+                    try {
+                      const operation = getOperation(loadedNode);
+                      const batchAsyncModuleUpdatesFN =
+                        RelayFeatureFlags.BATCH_ASYNC_MODULE_UPDATES_FN;
+                      const shouldScheduleAsyncStoreUpdate =
+                        batchAsyncModuleUpdatesFN != null &&
+                        this._pendingModulePayloadsCount > 1;
+                      const [duration] = withDuration(() => {
+                        this._handleFollowupPayload(followupPayload, operation);
+                        // OK: always have to run after an async module import resolves
+                        if (shouldScheduleAsyncStoreUpdate) {
+                          this._scheduleAsyncStoreUpdate(
+                            // $FlowFixMe[incompatible-call] `shouldScheduleAsyncStoreUpdate` check should cover `null` case
+                            batchAsyncModuleUpdatesFN,
+                            sink.complete,
+                          );
+                        } else {
+                          const updatedOwners = this._runPublishQueue();
+                          this._updateOperationTracker(updatedOwners);
+                        }
+                      });
+                      this._log({
+                        name: 'execute.async.module',
+                        executeId: this._executeId,
+                        operationName: operation.name,
+                        duration,
+                      });
+                      if (!shouldScheduleAsyncStoreUpdate) {
+                        sink.complete();
                       }
+                    } catch (error) {
+                      sink.error(error);
                     }
-                  });
-                  this._log({
-                    name: 'execute.async.module',
-                    executeId: this._executeId,
-                    operationName: operation.name,
-                    duration,
-                  });
-                  if (
-                    !(
-                      RelayFeatureFlags.ENABLE_BATCHED_STORE_UPDATES &&
-                      RelayFeatureFlags.ENABLE_BATCHED_ASYNC_MODULE_UPDATES
-                    )
-                  ) {
-                    sink.complete();
+                  };
+                  const scheduler = this._scheduler;
+                  if (scheduler == null) {
+                    publishModuleImportPayload();
+                  } else {
+                    cancellationToken = scheduler.schedule(
+                      publishModuleImportPayload,
+                    );
                   }
-                } catch (error) {
-                  sink.error(error);
+                } else {
+                  sink.complete();
                 }
-              };
-              const scheduler = this._scheduler;
-              if (scheduler == null) {
-                publishModuleImportPayload();
-              } else {
-                cancellationToken = scheduler.schedule(
-                  publishModuleImportPayload,
-                );
+              },
+              error: sink.error,
+            });
+            return () => {
+              subscription.unsubscribe();
+              if (this._scheduler != null && cancellationToken != null) {
+                this._scheduler.cancel(cancellationToken);
               }
-            } else {
-              sink.complete();
-            }
-          },
-          error: sink.error,
-        });
-        return () => {
-          subscription.unsubscribe();
-          if (this._scheduler != null && cancellationToken != null) {
-            this._scheduler.cancel(cancellationToken);
-          }
-        };
-      }).subscribe({
-        complete: () => {
-          this._complete(id);
-          decrementPendingCount();
-        },
-        error: error => {
-          this._error(error);
-          decrementPendingCount();
-        },
-        start: subscription => this._start(id, subscription),
-      });
+            };
+          }).subscribe({
+            complete: () => {
+              this._complete(id);
+              decrementPendingCount();
+            },
+            error: error => {
+              this._error(error);
+              decrementPendingCount();
+            },
+            start: subscription => this._start(id, subscription),
+          });
+        }
+        break;
+      case 'ActorPayload':
+        this._processFollowupPayloadWithNormalizationNode(
+          followupPayload,
+          followupPayload.node,
+        );
+        break;
+      default:
+        (followupPayload: empty);
+        invariant(
+          false,
+          'OperationExecutor: Unexpected followup kind `%s`.',
+          followupPayload.kind,
+        );
     }
   }
 
-  _handleModuleImportPayload(
-    moduleImportPayload: ModuleImportPayload,
-    operation: NormalizationSplitOperation | NormalizationOperation,
+  _processFollowupPayloadWithNormalizationNode(
+    followupPayload: FollowupPayload,
+    normalizationNode:
+      | NormalizationSplitOperation
+      | NormalizationOperation
+      | NormalizationLinkedField,
+  ) {
+    this._handleFollowupPayload(followupPayload, normalizationNode);
+    this._maybeCompleteSubscriptionOperationTracking();
+  }
+
+  _handleFollowupPayload(
+    followupPayload: FollowupPayload,
+    normalizationNode:
+      | NormalizationSplitOperation
+      | NormalizationOperation
+      | NormalizationLinkedField,
   ): void {
-    const relayPayload = this._normalizeModuleImport(
-      moduleImportPayload,
-      operation,
+    const relayPayload = this._normalizeFollowupPayload(
+      followupPayload,
+      normalizationNode,
     );
-    this._publishQueue.commitPayload(this._operation, relayPayload);
-    if (!RelayFeatureFlags.ENABLE_BATCHED_STORE_UPDATES) {
-      const updatedOwners = this._publishQueue.run();
-      this._updateOperationTracker(updatedOwners);
-    }
+    this._getPublishQueueAndSaveActor().commitPayload(
+      this._operation,
+      relayPayload,
+    );
     this._processPayloadFollowups([relayPayload]);
   }
 
@@ -1105,7 +1118,7 @@ class Executor {
       (placeholder: empty);
       invariant(
         false,
-        'Unsupported incremental placeholder kind `%s`.',
+        'OperationExecutor: Unsupported incremental placeholder kind `%s`.',
         placeholder.kind,
       );
     }
@@ -1129,7 +1142,7 @@ class Executor {
     // exist.
     invariant(
       parentRecord != null,
-      'RelayModernEnvironment: Expected record `%s` to exist.',
+      'OperationExecutor: Expected record `%s` to exist.',
       parentID,
     );
     let nextParentRecord;
@@ -1158,16 +1171,12 @@ class Executor {
       record: nextParentRecord,
       fieldPayloads: nextParentPayloads,
     });
+
     // If there were any queued responses, process them now that placeholders
     // are in place
     if (pendingResponses != null) {
-      const payloadFollowups = this._processIncrementalResponses(
-        pendingResponses,
-      );
-      if (!RelayFeatureFlags.ENABLE_BATCHED_STORE_UPDATES) {
-        const updatedOwners = this._publishQueue.run();
-        this._updateOperationTracker(updatedOwners);
-      }
+      const payloadFollowups =
+        this._processIncrementalResponses(pendingResponses);
       this._processPayloadFollowups(payloadFollowups);
     }
   }
@@ -1203,7 +1212,7 @@ class Executor {
         const placeholder = resultForPath.placeholder;
         invariant(
           placeholder.kind === 'defer',
-          'RelayModernEnvironment: Expected data for path `%s` for label `%s` ' +
+          'OperationExecutor: Expected data for path `%s` for label `%s` ' +
             'to be data for @defer, was `@%s`.',
           pathKey,
           label,
@@ -1217,10 +1226,7 @@ class Executor {
         // but Relay records paths relative to the parent of the stream node:
         // therefore we strip the last two elements just to lookup the path
         // (the item index is used later to insert the element in the list)
-        const pathKey = path
-          .slice(0, -2)
-          .map(String)
-          .join('.');
+        const pathKey = path.slice(0, -2).map(String).join('.');
         let resultForPath = resultForLabel.get(pathKey);
         if (resultForPath == null) {
           resultForPath = {kind: 'response', responses: [incrementalResponse]};
@@ -1233,7 +1239,7 @@ class Executor {
         const placeholder = resultForPath.placeholder;
         invariant(
           placeholder.kind === 'stream',
-          'RelayModernEnvironment: Expected data for path `%s` for label `%s` ' +
+          'OperationExecutor: Expected data for path `%s` for label `%s` ' +
             'to be data for @stream, was `@%s`.',
           pathKey,
           label,
@@ -1254,11 +1260,15 @@ class Executor {
     response: GraphQLResponseWithData,
   ): RelayResponsePayload {
     const {dataID: parentID} = placeholder.selector;
+    const prevActorIdentifier = this._actorIdentifier;
+    this._actorIdentifier =
+      placeholder.actorIdentifier ?? this._actorIdentifier;
     const relayPayload = normalizeResponse(
       response,
       placeholder.selector,
       placeholder.typeName,
       {
+        actorIdentifier: this._actorIdentifier,
         getDataID: this._getDataID,
         path: placeholder.path,
         reactFlightPayloadDeserializer:
@@ -1270,14 +1280,17 @@ class Executor {
         shouldProcessClientComponents: this._shouldProcessClientComponents,
       },
     );
-    this._publishQueue.commitPayload(this._operation, relayPayload);
+    this._getPublishQueueAndSaveActor().commitPayload(
+      this._operation,
+      relayPayload,
+    );
 
     // Load the version of the parent record from which this incremental data
     // was derived
     const parentEntry = this._source.get(parentID);
     invariant(
       parentEntry != null,
-      'RelayModernEnvironment: Expected the parent record `%s` for @defer ' +
+      'OperationExecutor: Expected the parent record `%s` for @defer ' +
         'data to exist.',
       parentID,
     );
@@ -1291,11 +1304,13 @@ class Executor {
         source: RelayRecordSource.create(),
         isFinal: response.extensions?.is_final === true,
       };
-      this._publishQueue.commitPayload(
+      this._getPublishQueueAndSaveActor().commitPayload(
         this._operation,
         handleFieldsRelayPayload,
       );
     }
+
+    this._actorIdentifier = prevActorIdentifier;
     return relayPayload;
   }
 
@@ -1308,12 +1323,14 @@ class Executor {
     placeholder: StreamPlaceholder,
     response: GraphQLResponseWithData,
   ): RelayResponsePayload {
-    const {parentID, node, variables} = placeholder;
+    const {parentID, node, variables, actorIdentifier} = placeholder;
+    const prevActorIdentifier = this._actorIdentifier;
+    this._actorIdentifier = actorIdentifier ?? this._actorIdentifier;
     // Find the LinkedField where @stream was applied
     const field = node.selections[0];
     invariant(
       field != null && field.kind === 'LinkedField' && field.plural === true,
-      'RelayModernEnvironment: Expected @stream to be used on a plural field.',
+      'OperationExecutor: Expected @stream to be used on a plural field.',
     );
     const {
       fieldPayloads,
@@ -1333,34 +1350,38 @@ class Executor {
     // Publish the new item and update the parent record to set
     // field[index] = item *if* the parent record hasn't been concurrently
     // modified.
-    this._publishQueue.commitPayload(this._operation, relayPayload, store => {
-      const currentParentRecord = store.get(parentID);
-      if (currentParentRecord == null) {
-        // parent has since been deleted, stream data is stale
-        return;
-      }
-      const currentItems = currentParentRecord.getLinkedRecords(storageKey);
-      if (currentItems == null) {
-        // field has since been deleted, stream data is stale
-        return;
-      }
-      if (
-        currentItems.length !== prevIDs.length ||
-        currentItems.some(
-          (currentItem, index) =>
-            prevIDs[index] !== (currentItem && currentItem.getDataID()),
-        )
-      ) {
-        // field has been modified by something other than this query,
-        // stream data is stale
-        return;
-      }
-      // parent.field has not been concurrently modified:
-      // update `parent.field[index] = item`
-      const nextItems = [...currentItems];
-      nextItems[itemIndex] = store.get(itemID);
-      currentParentRecord.setLinkedRecords(nextItems, storageKey);
-    });
+    this._getPublishQueueAndSaveActor().commitPayload(
+      this._operation,
+      relayPayload,
+      store => {
+        const currentParentRecord = store.get(parentID);
+        if (currentParentRecord == null) {
+          // parent has since been deleted, stream data is stale
+          return;
+        }
+        const currentItems = currentParentRecord.getLinkedRecords(storageKey);
+        if (currentItems == null) {
+          // field has since been deleted, stream data is stale
+          return;
+        }
+        if (
+          currentItems.length !== prevIDs.length ||
+          currentItems.some(
+            (currentItem, index) =>
+              prevIDs[index] !== (currentItem && currentItem.getDataID()),
+          )
+        ) {
+          // field has been modified by something other than this query,
+          // stream data is stale
+          return;
+        }
+        // parent.field has not been concurrently modified:
+        // update `parent.field[index] = item`
+        const nextItems = [...currentItems];
+        nextItems[itemIndex] = store.get(itemID);
+        currentParentRecord.setLinkedRecords(nextItems, storageKey);
+      },
+    );
 
     // Now that the parent record has been updated to include the new item,
     // also update any handle fields that are derived from the parent record.
@@ -1373,11 +1394,13 @@ class Executor {
         source: RelayRecordSource.create(),
         isFinal: false,
       };
-      this._publishQueue.commitPayload(
+      this._getPublishQueueAndSaveActor().commitPayload(
         this._operation,
         handleFieldsRelayPayload,
       );
     }
+
+    this._actorIdentifier = prevActorIdentifier;
     return relayPayload;
   }
 
@@ -1399,7 +1422,7 @@ class Executor {
     const {data} = response;
     invariant(
       typeof data === 'object',
-      'RelayModernEnvironment: Expected the GraphQL @stream payload `data` ' +
+      'OperationExecutor: Expected the GraphQL @stream payload `data` ' +
         'value to be an object.',
     );
     const responseKey = field.alias ?? field.name;
@@ -1410,7 +1433,7 @@ class Executor {
     const parentEntry = this._source.get(parentID);
     invariant(
       parentEntry != null,
-      'RelayModernEnvironment: Expected the parent record `%s` for @stream ' +
+      'OperationExecutor: Expected the parent record `%s` for @stream ' +
         'data to exist.',
       parentID,
     );
@@ -1425,7 +1448,7 @@ class Executor {
     );
     invariant(
       prevIDs != null,
-      'RelayModernEnvironment: Expected record `%s` to have fetched field ' +
+      'OperationExecutor: Expected record `%s` to have fetched field ' +
         '`%s` with @stream.',
       parentID,
       field.name,
@@ -1436,7 +1459,7 @@ class Executor {
     const itemIndex = parseInt(finalPathEntry, 10);
     invariant(
       itemIndex === finalPathEntry && itemIndex >= 0,
-      'RelayModernEnvironment: Expected path for @stream to end in a ' +
+      'OperationExecutor: Expected path for @stream to end in a ' +
         'positive integer index, got `%s`',
       finalPathEntry,
     );
@@ -1444,7 +1467,7 @@ class Executor {
     const typeName = field.concreteType ?? data[TYPENAME_KEY];
     invariant(
       typeof typeName === 'string',
-      'RelayModernEnvironment: Expected @stream field `%s` to have a ' +
+      'OperationExecutor: Expected @stream field `%s` to have a ' +
         '__typename.',
       field.name,
     );
@@ -1459,7 +1482,7 @@ class Executor {
       generateClientID(parentID, storageKey, itemIndex);
     invariant(
       typeof itemID === 'string',
-      'RelayModernEnvironment: Expected id of elements of field `%s` to ' +
+      'OperationExecutor: Expected id of elements of field `%s` to ' +
         'be strings.',
       storageKey,
     );
@@ -1479,6 +1502,7 @@ class Executor {
       fieldPayloads,
     });
     const relayPayload = normalizeResponse(response, selector, typeName, {
+      actorIdentifier: this._actorIdentifier,
       getDataID: this._getDataID,
       path: [...normalizationPath, responseKey, String(itemIndex)],
       reactFlightPayloadDeserializer:
@@ -1499,20 +1523,23 @@ class Executor {
     };
   }
 
-  _scheduleAsyncStoreUpdate(completeFn: () => void): void {
+  _scheduleAsyncStoreUpdate(
+    scheduleFn: (() => void) => Disposable,
+    completeFn: () => void,
+  ): void {
     this._completeFns.push(completeFn);
-    if (this._asyncStoreUpdateHandle != null) {
+    if (this._asyncStoreUpdateDisposable != null) {
       return;
     }
-    this._asyncStoreUpdateHandle = setTimeout(() => {
-      const updatedOwners = this._publishQueue.run();
+    this._asyncStoreUpdateDisposable = scheduleFn(() => {
+      this._asyncStoreUpdateDisposable = null;
+      const updatedOwners = this._runPublishQueue();
       this._updateOperationTracker(updatedOwners);
-      this._asyncStoreUpdateHandle = null;
       for (const complete of this._completeFns) {
         complete();
       }
       this._completeFns = [];
-    }, 0);
+    });
   }
 
   _updateOperationTracker(
@@ -1528,6 +1555,58 @@ class Executor {
 
   _completeOperationTracker() {
     this._operationTracker.complete(this._operation.request);
+  }
+
+  _getPublishQueueAndSaveActor(): PublishQueue {
+    this._seenActors.add(this._actorIdentifier);
+    return this._getPublishQueue(this._actorIdentifier);
+  }
+
+  _getActorsToVisit(): $ReadOnlySet<ActorIdentifier> {
+    if (this._seenActors.size === 0) {
+      return new Set([this._actorIdentifier]);
+    } else {
+      return this._seenActors;
+    }
+  }
+
+  _runPublishQueue(
+    operation?: OperationDescriptor,
+  ): $ReadOnlyArray<RequestDescriptor> {
+    const updatedOwners = new Set();
+    for (const actorIdentifier of this._getActorsToVisit()) {
+      const owners = this._getPublishQueue(actorIdentifier).run(operation);
+      owners.forEach(owner => updatedOwners.add(owner));
+    }
+    return Array.from(updatedOwners);
+  }
+
+  _retainData() {
+    for (const actorIdentifier of this._getActorsToVisit()) {
+      if (!this._retainDisposables.has(actorIdentifier)) {
+        this._retainDisposables.set(
+          actorIdentifier,
+          this._getStore(actorIdentifier).retain(this._operation),
+        );
+      }
+    }
+  }
+
+  _disposeRetainedData() {
+    for (const disposable of this._retainDisposables.values()) {
+      disposable.dispose();
+    }
+    this._retainDisposables.clear();
+  }
+
+  _expectOperationLoader(): OperationLoader {
+    const operationLoader = this._operationLoader;
+    invariant(
+      operationLoader,
+      'OperationExecutor: Expected an operationLoader to be ' +
+        'configured when using `@match`.',
+    );
+    return operationLoader;
   }
 }
 
@@ -1602,22 +1681,6 @@ function validateOptimisticResponsePayload(
         '@stream, and @stream_connection).',
     );
   }
-}
-
-const isPerformanceNowAvailable =
-  global.performance != null && typeof global.performance.now === 'function';
-
-function currentTimestamp(): number {
-  if (isPerformanceNowAvailable) {
-    return global.performance.now();
-  }
-  return Date.now();
-}
-
-function withDuration<T>(cb: () => T): [number, T] {
-  const startTime = currentTimestamp();
-  const result = cb();
-  return [currentTimestamp() - startTime, result];
 }
 
 module.exports = {

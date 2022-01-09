@@ -8,7 +8,7 @@ function MyComponent() {
   return <div>Test</div>;
 }
 ==================================== OUTPUT ===================================
-line: 1, column: 22, text: <
+graphql - line: 1, column: 22, text: <
     fragment Test on User {
       __typename
     }

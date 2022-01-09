@@ -1,25 +1,25 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use lsp_server::{ErrorCode, RequestId, ResponseError};
+use lsp_server::{
+    ErrorCode, Request as ServerRequest, RequestId, RequestId as ServerRequestId,
+    Response as ServerResponse, ResponseError,
+};
 use lsp_types::request::Request;
 
-use crate::{
-    lsp::{ServerRequest, ServerRequestId, ServerResponse},
-    lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult},
-};
+use crate::lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult};
 
-pub(crate) struct LSPRequestDispatch<'state, TState> {
+pub struct LSPRequestDispatch<'state, TState> {
     request: lsp_server::Request,
-    state: &'state mut TState,
+    state: &'state TState,
 }
 
 impl<'state, TState> LSPRequestDispatch<'state, TState> {
-    pub fn new(request: lsp_server::Request, state: &'state mut TState) -> Self {
+    pub fn new(request: lsp_server::Request, state: &'state TState) -> Self {
         LSPRequestDispatch { request, state }
     }
 
@@ -30,7 +30,7 @@ impl<'state, TState> LSPRequestDispatch<'state, TState> {
     /// cause LSPRequestDispatch to execute the first matching handler, if any.
     pub fn on_request_sync<TRequest: Request>(
         self,
-        handler: fn(&mut TState, TRequest::Params) -> LSPRuntimeResult<TRequest::Result>,
+        handler: fn(&TState, TRequest::Params) -> LSPRuntimeResult<TRequest::Result>,
     ) -> Result<Self, ServerResponse> {
         if self.request.method == TRequest::METHOD {
             match extract_request_params::<TRequest>(self.request) {
@@ -48,7 +48,7 @@ impl<'state, TState> LSPRequestDispatch<'state, TState> {
                 }
                 Err(error) => {
                     return Err(convert_to_lsp_response(
-                        ServerRequestId::from("default-relay-lsp-id".to_string()),
+                        ServerRequestId::from("default-lsp-id".to_string()),
                         Err(error),
                     ));
                 }
@@ -107,19 +107,19 @@ where
 
 #[cfg(test)]
 mod test {
+    use crate::lsp_runtime_error::LSPRuntimeResult;
     use lsp_types::{
         request::Request,
         request::{GotoDefinition, HoverRequest},
         Position, TextDocumentIdentifier, TextDocumentPositionParams, Url,
     };
-
-    use crate::lsp_runtime_error::LSPRuntimeResult;
+    use std::sync::atomic::{AtomicI32, Ordering};
 
     use super::LSPRequestDispatch;
 
     #[test]
     fn calls_first_matching_request_handler() {
-        let mut state: i32 = 0;
+        let state: AtomicI32 = AtomicI32::new(0);
         let dispatch = LSPRequestDispatch::new(
             lsp_server::Request {
                 id: "id".to_string().into(),
@@ -135,7 +135,7 @@ mod test {
                 })
                 .unwrap(),
             },
-            &mut state,
+            &state,
         );
         let dispatch = || -> Result<(), super::ServerResponse> {
             dispatch
@@ -145,22 +145,24 @@ mod test {
         };
         let result = dispatch();
         assert!(result.is_err());
-        assert_eq!(state, 2);
+        assert_eq!(state.load(Ordering::Relaxed), 2);
     }
 
     fn hover_handler(
-        state: &mut i32,
+        state: &AtomicI32,
         _params: <HoverRequest as Request>::Params,
     ) -> LSPRuntimeResult<<HoverRequest as Request>::Result> {
-        *state = 1;
+        state.store(1, Ordering::Relaxed);
+
         Ok(None)
     }
 
     fn goto_definition_handler(
-        state: &mut i32,
+        state: &AtomicI32,
         _params: <GotoDefinition as Request>::Params,
     ) -> LSPRuntimeResult<<GotoDefinition as Request>::Result> {
-        *state = 2;
+        state.store(2, Ordering::Relaxed);
+
         Ok(None)
     }
 }

@@ -1,0 +1,30 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query selectionSetConflictNestedConflictQuery {
+  me {
+    profile_picture {
+      same_alias: width
+    }
+  }
+  me {
+    profile_picture {
+      same_alias: height
+    }
+  }
+}
+==================================== ERROR ====================================
+✖︎ Field 'same_alias' is ambiguous because it references two different fields: 'width' and 'height'
+
+  selection_set_conflict_nested_conflict.graphql:5:19
+    4 │     profile_picture {
+    5 │       same_alias: width
+      │                   ^^^^^
+    6 │     }
+
+  ℹ︎ the other field
+
+  selection_set_conflict_nested_conflict.graphql:10:19
+    9 │     profile_picture {
+   10 │       same_alias: height
+      │                   ^^^^^^
+   11 │     }

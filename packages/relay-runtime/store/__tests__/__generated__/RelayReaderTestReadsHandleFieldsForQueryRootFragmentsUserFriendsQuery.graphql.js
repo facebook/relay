@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<9ea62cc14e26da17d239a26338077a94>>
+ * @generated SignedSource<<3568a90a908db6405f9c88df71e7d4e8>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,11 +15,12 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-export type RelayReaderTestReadsHandleFieldsForQueryRootFragmentsUserFriendsQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+export type RelayReaderTestReadsHandleFieldsForQueryRootFragmentsUserFriendsQuery$variables = {|
   id: string,
 |};
-export type RelayReaderTestReadsHandleFieldsForQueryRootFragmentsUserFriendsQueryResponse = {|
+export type RelayReaderTestReadsHandleFieldsForQueryRootFragmentsUserFriendsQueryVariables = RelayReaderTestReadsHandleFieldsForQueryRootFragmentsUserFriendsQuery$variables;
+export type RelayReaderTestReadsHandleFieldsForQueryRootFragmentsUserFriendsQuery$data = {|
   +node: ?{|
     +friends?: ?{|
       +edges: ?$ReadOnlyArray<?{|
@@ -32,9 +33,10 @@ export type RelayReaderTestReadsHandleFieldsForQueryRootFragmentsUserFriendsQuer
     |},
   |},
 |};
+export type RelayReaderTestReadsHandleFieldsForQueryRootFragmentsUserFriendsQueryResponse = RelayReaderTestReadsHandleFieldsForQueryRootFragmentsUserFriendsQuery$data;
 export type RelayReaderTestReadsHandleFieldsForQueryRootFragmentsUserFriendsQuery = {|
   variables: RelayReaderTestReadsHandleFieldsForQueryRootFragmentsUserFriendsQueryVariables,
-  response: RelayReaderTestReadsHandleFieldsForQueryRootFragmentsUserFriendsQueryResponse,
+  response: RelayReaderTestReadsHandleFieldsForQueryRootFragmentsUserFriendsQuery$data,
 |};
 */
 
@@ -254,4 +256,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "95bc24d97eeb913d23a0c1678854d5b3";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayReaderTestReadsHandleFieldsForQueryRootFragmentsUserFriendsQuery$variables,
+  RelayReaderTestReadsHandleFieldsForQueryRootFragmentsUserFriendsQuery$data,
+>*/);

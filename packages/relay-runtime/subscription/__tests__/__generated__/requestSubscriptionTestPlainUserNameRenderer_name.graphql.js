@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<6bc0ac3b0bbafaf054d2989b76aca13e>>
+ * @generated SignedSource<<dc3b5eecff5ea64f6578ccdeba9913dc>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,21 +15,21 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type requestSubscriptionTestPlainUserNameRenderer_name$ref: FragmentReference;
-declare export opaque type requestSubscriptionTestPlainUserNameRenderer_name$fragmentType: requestSubscriptionTestPlainUserNameRenderer_name$ref;
-export type requestSubscriptionTestPlainUserNameRenderer_name = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type requestSubscriptionTestPlainUserNameRenderer_name$fragmentType: FragmentType;
+export type requestSubscriptionTestPlainUserNameRenderer_name$ref = requestSubscriptionTestPlainUserNameRenderer_name$fragmentType;
+export type requestSubscriptionTestPlainUserNameRenderer_name$data = {|
   +plaintext: ?string,
   +data: ?{|
     +text: ?string,
   |},
-  +$refType: requestSubscriptionTestPlainUserNameRenderer_name$ref,
+  +$fragmentType: requestSubscriptionTestPlainUserNameRenderer_name$fragmentType,
 |};
-export type requestSubscriptionTestPlainUserNameRenderer_name$data = requestSubscriptionTestPlainUserNameRenderer_name;
+export type requestSubscriptionTestPlainUserNameRenderer_name = requestSubscriptionTestPlainUserNameRenderer_name$data;
 export type requestSubscriptionTestPlainUserNameRenderer_name$key = {
   +$data?: requestSubscriptionTestPlainUserNameRenderer_name$data,
-  +$fragmentRefs: requestSubscriptionTestPlainUserNameRenderer_name$ref,
+  +$fragmentSpreads: requestSubscriptionTestPlainUserNameRenderer_name$fragmentType,
   ...
 };
 */
@@ -74,4 +74,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "d0c83ee826e9d605ba6911852acb5085";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  requestSubscriptionTestPlainUserNameRenderer_name$fragmentType,
+  requestSubscriptionTestPlainUserNameRenderer_name$data,
+>*/);

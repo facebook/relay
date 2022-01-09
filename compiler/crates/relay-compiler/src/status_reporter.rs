@@ -1,12 +1,12 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
 use crate::{
-    errors::{BuildProjectError, Error, Result},
+    errors::{BuildProjectError, Error},
     source_for_location, FsSourceReader, SourceReader,
 };
 use common::Diagnostic;
@@ -16,7 +16,8 @@ use std::path::PathBuf;
 
 pub trait StatusReporter {
     fn build_starts(&self);
-    fn build_finishes(&self, result: &Result<()>);
+    fn build_completes(&self);
+    fn build_errors(&self, error: &Error);
 }
 
 pub struct ConsoleStatusReporter {
@@ -85,12 +86,12 @@ impl ConsoleStatusReporter {
 impl StatusReporter for ConsoleStatusReporter {
     fn build_starts(&self) {}
 
-    fn build_finishes(&self, result: &Result<()>) {
-        if let Err(error) = result {
-            self.print_error(error);
-            if !matches!(error, Error::Cancelled) {
-                error!("Compilation failed.");
-            }
+    fn build_completes(&self) {}
+
+    fn build_errors(&self, error: &Error) {
+        self.print_error(error);
+        if !matches!(error, Error::Cancelled) {
+            error!("Compilation failed.");
         }
     }
 }

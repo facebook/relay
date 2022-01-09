@@ -41,6 +41,7 @@ query Test {
                                         item: "fixme_fat_interface",
                                     },
                                     arguments: [],
+                                    data: None,
                                 },
                             ],
                         },

@@ -1,17 +1,16 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
 use common::{Diagnostic, DiagnosticsResult, NamedItem};
-use fnv::FnvHashSet;
 use graphql_ir::{
     FragmentDefinition, OperationDefinition, Program, ValidationMessage, Validator, Variable,
     UNUSED_LOCAL_VARIABLE_DEPRECATED,
 };
-use interner::StringKey;
+use intern::string_key::StringKeySet;
 
 /// Validates that there are no unused fragment variables on fragments.
 ///
@@ -23,7 +22,7 @@ pub fn validate_unused_fragment_variables(program: &Program) -> DiagnosticsResul
 
 #[derive(Default)]
 pub struct ValidateUnusedFragmentVariables {
-    used_variables: FnvHashSet<StringKey>,
+    used_variables: StringKeySet,
 }
 
 impl Validator for ValidateUnusedFragmentVariables {

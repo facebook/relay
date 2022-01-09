@@ -1,0 +1,12 @@
+==================================== INPUT ====================================
+# expected-to-throw
+
+directive @fetchable(field_name: String) on OBJECT
+directive @fetchable(field_name: String) on OBJECT
+==================================== ERROR ====================================
+✖︎ Duplicate directive definition 'fetchable'.
+
+  <generated>:4:12
+    3 │ directive @fetchable(field_name: String) on OBJECT
+    4 │ directive @fetchable(field_name: String) on OBJECT
+      │            ^^^^^^^^^

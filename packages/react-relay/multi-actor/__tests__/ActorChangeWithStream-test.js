@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -10,28 +10,33 @@
  */
 
 'use strict';
+import type {ActorChangeWithStreamTestFragment$key} from './__generated__/ActorChangeWithStreamTestFragment.graphql';
+import type {
+  IActorEnvironment,
+  IMultiActorEnvironment,
+} from 'relay-runtime/multi-actor-environment';
+import type {
+  LogRequestInfoFunction,
+  UploadableMap,
+} from 'relay-runtime/network/RelayNetworkTypes';
+import type {RequestParameters} from 'relay-runtime/util/RelayConcreteNode';
+import type {
+  CacheConfig,
+  Variables,
+} from 'relay-runtime/util/RelayRuntimeTypes';
 
+const RelayEnvironmentProvider = require('../../relay-hooks/RelayEnvironmentProvider');
+const useFragment = require('../../relay-hooks/useFragment');
+const useLazyLoadQuery = require('../../relay-hooks/useLazyLoadQuery');
 const ActorChange = require('../ActorChange');
 const React = require('react');
 const ReactTestRenderer = require('react-test-renderer');
-const RelayEnvironmentProvider = require('../../relay-hooks/RelayEnvironmentProvider');
-
-const useFragment = require('../../relay-hooks/useFragment');
-const useLazyLoadQuery = require('../../relay-hooks/useLazyLoadQuery');
-
-const {Network, graphql, Observable} = require('relay-runtime');
+const {Network, Observable, graphql} = require('relay-runtime');
 const {
   MultiActorEnvironment,
   getActorIdentifier,
 } = require('relay-runtime/multi-actor-environment');
 const {disallowWarnings} = require('relay-test-utils-internal');
-
-import type {ActorChangeWithStreamTestFragment$key} from './__generated__/ActorChangeWithStreamTestFragment.graphql';
-import type {ActorChangeWithStreamTestQuery} from './__generated__/ActorChangeWithStreamTestQuery.graphql';
-import type {
-  IActorEnvironment,
-  IMultiActorEnvironment,
-} from 'relay-runtime/multi-actor-environment';
 
 function ComponentWrapper(
   props: $ReadOnly<{
@@ -56,7 +61,7 @@ const query = graphql`
     viewer {
       newsFeed {
         edges {
-          node @EXPERIMENTAL__as_actor {
+          node @fb_actor_change {
             ...ActorChangeWithStreamTestFragment
           }
         }
@@ -66,7 +71,7 @@ const query = graphql`
 `;
 
 function MainComponent() {
-  const data = useLazyLoadQuery<ActorChangeWithStreamTestQuery>(query, {});
+  const data = useLazyLoadQuery(query, {});
 
   return (
     <div>
@@ -124,7 +129,7 @@ function ActorChangeComponent(
 
 disallowWarnings();
 
-describe('ActorChange with @defer', () => {
+describe('ActorChange with @stream', () => {
   let environment;
   let multiActorEnvironment;
   let fetchFnForActor;
@@ -143,7 +148,15 @@ describe('ActorChange with @defer', () => {
   });
 
   it('should render a fragment for actor', () => {
-    fetchFnForActor = (...args) => {
+    fetchFnForActor = (
+      ...args: Array<?(
+        | LogRequestInfoFunction
+        | UploadableMap
+        | RequestParameters
+        | Variables
+        | CacheConfig
+      )>
+    ) => {
       return Observable.create(sink => {
         dataSource = sink;
       });
@@ -164,7 +177,7 @@ describe('ActorChange with @defer', () => {
             edges: [
               {
                 node: {
-                  __viewer: 'actor:4321',
+                  actor_key: 'actor:4321',
                   id: 'node-1',
                   __typename: 'FeedUnit',
                   message: {
@@ -184,7 +197,7 @@ describe('ActorChange with @defer', () => {
               },
               {
                 node: {
-                  __viewer: 'actor:5678',
+                  actor_key: 'actor:5678',
                   id: 'node-2',
                   __typename: 'FeedUnit',
                   message: {
@@ -209,7 +222,7 @@ describe('ActorChange with @defer', () => {
     });
     expect(testRenderer.toJSON()).toEqual('Loading...');
 
-    ReactTestRenderer.act(jest.runAllTimers);
+    ReactTestRenderer.act(jest.runAllImmediates);
 
     expect(testRenderer.toJSON()).toMatchSnapshot(
       'Should render two blocks (scenes) with lists. Each scene has one actor: Antonio as Silvester.',

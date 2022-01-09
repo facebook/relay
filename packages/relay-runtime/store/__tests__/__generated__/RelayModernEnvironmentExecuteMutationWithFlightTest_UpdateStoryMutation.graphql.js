@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<799444e83aad8ed3a3ff8cbf80fe58fd>>
+ * @generated SignedSource<<b76630f95ba21220c6d4893673e1edf4>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,7 +17,7 @@
 // @ReactFlightServerDependency FlightComponent.server
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
+import type { ConcreteRequest, Mutation } from 'relay-runtime';
 export type StoryUpdateInput = {|
   clientMutationId?: ?string,
   body?: ?InputText,
@@ -26,11 +26,12 @@ export type InputText = {|
   text?: ?string,
   ranges?: ?$ReadOnlyArray<?string>,
 |};
-export type RelayModernEnvironmentExecuteMutationWithFlightTest_UpdateStoryMutationVariables = {|
+export type RelayModernEnvironmentExecuteMutationWithFlightTest_UpdateStoryMutation$variables = {|
   input: StoryUpdateInput,
   count: number,
 |};
-export type RelayModernEnvironmentExecuteMutationWithFlightTest_UpdateStoryMutationResponse = {|
+export type RelayModernEnvironmentExecuteMutationWithFlightTest_UpdateStoryMutationVariables = RelayModernEnvironmentExecuteMutationWithFlightTest_UpdateStoryMutation$variables;
+export type RelayModernEnvironmentExecuteMutationWithFlightTest_UpdateStoryMutation$data = {|
   +storyUpdate: ?{|
     +story: ?{|
       +id: string,
@@ -41,9 +42,10 @@ export type RelayModernEnvironmentExecuteMutationWithFlightTest_UpdateStoryMutat
     |},
   |},
 |};
+export type RelayModernEnvironmentExecuteMutationWithFlightTest_UpdateStoryMutationResponse = RelayModernEnvironmentExecuteMutationWithFlightTest_UpdateStoryMutation$data;
 export type RelayModernEnvironmentExecuteMutationWithFlightTest_UpdateStoryMutation = {|
   variables: RelayModernEnvironmentExecuteMutationWithFlightTest_UpdateStoryMutationVariables,
-  response: RelayModernEnvironmentExecuteMutationWithFlightTest_UpdateStoryMutationResponse,
+  response: RelayModernEnvironmentExecuteMutationWithFlightTest_UpdateStoryMutation$data,
 |};
 */
 
@@ -185,4 +187,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "3f3551ba1af651d056e6777df90ef1d4";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Mutation<
+  RelayModernEnvironmentExecuteMutationWithFlightTest_UpdateStoryMutation$variables,
+  RelayModernEnvironmentExecuteMutationWithFlightTest_UpdateStoryMutation$data,
+>*/);

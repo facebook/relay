@@ -1,0 +1,14 @@
+==================================== INPUT ====================================
+query UpdatableQuery @updatable {
+  nodes(ids: [4]) {
+    id
+  }
+}
+==================================== OUTPUT ===================================
+export type UpdatableQuery$variables = {||};
+export type UpdatableQuery$data = {|
+  get nodes(): ?$ReadOnlyArray<?{|
+    +id: string,
+  |}>,
+  set nodes(value: []): void,
+|};

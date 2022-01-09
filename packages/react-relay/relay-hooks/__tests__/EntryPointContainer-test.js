@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -15,14 +15,11 @@
 
 jest.mock('warning');
 const EntryPointContainer = require('../EntryPointContainer.react');
-const React = require('react');
-const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
-const TestRenderer = require('react-test-renderer');
-
 const loadEntryPoint = require('../loadEntryPoint');
+const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const usePreloadedQuery = require('../usePreloadedQuery');
-const warning = require('warning');
-
+const React = require('react');
+const TestRenderer = require('react-test-renderer');
 const {
   Environment,
   Network,
@@ -30,9 +27,10 @@ const {
   PreloadableQueryRegistry,
   RecordSource,
   Store,
-  graphql,
   getRequest,
+  graphql,
 } = require('relay-runtime');
+const warning = require('warning');
 
 const query = getRequest(graphql`
   query EntryPointContainerTestQuery($id: ID!) {

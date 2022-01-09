@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<08c0303a26ff9b8276953ff9ac782522>>
+ * @generated SignedSource<<2b856a92634443262db91ec645ad07a1>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,9 +15,10 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-export type ReactRelayTestMockerTestNestedQueryVariables = {||};
-export type ReactRelayTestMockerTestNestedQueryResponse = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+export type ReactRelayTestMockerTestNestedQuery$variables = {||};
+export type ReactRelayTestMockerTestNestedQueryVariables = ReactRelayTestMockerTestNestedQuery$variables;
+export type ReactRelayTestMockerTestNestedQuery$data = {|
   +viewer: ?{|
     +actor: ?{|
       +birthdate: ?{|
@@ -26,9 +27,10 @@ export type ReactRelayTestMockerTestNestedQueryResponse = {|
     |},
   |},
 |};
+export type ReactRelayTestMockerTestNestedQueryResponse = ReactRelayTestMockerTestNestedQuery$data;
 export type ReactRelayTestMockerTestNestedQuery = {|
   variables: ReactRelayTestMockerTestNestedQueryVariables,
-  response: ReactRelayTestMockerTestNestedQueryResponse,
+  response: ReactRelayTestMockerTestNestedQuery$data,
 |};
 */
 
@@ -145,4 +147,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "a6b9d9e49bf7ac7ae36777450d1ec30b";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  ReactRelayTestMockerTestNestedQuery$variables,
+  ReactRelayTestMockerTestNestedQuery$data,
+>*/);

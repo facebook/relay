@@ -17,54 +17,52 @@ query ScalarHandleField($id: ID!) @raw_response_type {
   }
 }
 ==================================== OUTPUT ===================================
-export type LinkedHandleFieldVariables = {
-  id: string
+export type LinkedHandleField$variables = {
+  id: string;
 };
-export type LinkedHandleFieldResponse = {
+export type LinkedHandleField$data = {
   readonly node: {
     readonly friends?: {
-      readonly count: number | null
-    } | null
-  } | null
+      readonly count: number | null;
+    } | null;
+  } | null;
 };
-export type LinkedHandleFieldRawResponse = {
+export type LinkedHandleField$rawResponse = {
   readonly node: {
-    readonly __typename: "User",
-    readonly id: string,
+    readonly __typename: "User";
+    readonly id: string;
     readonly friends: {
-      readonly count: number | null
-    } | null,
+      readonly count: number | null;
+    } | null;
   } | {
-    readonly __typename: string,
-    readonly id: string,
-  } | null
+    readonly __typename: string;
+    readonly id: string;
+  } | null;
 };
 export type LinkedHandleField = {
-  variables: LinkedHandleFieldVariables,
-  response: LinkedHandleFieldResponse,
-  rawResponse: LinkedHandleFieldRawResponse,
+  variables: LinkedHandleField$variables;
+  response: LinkedHandleField$data;
 };
 -------------------------------------------------------------------------------
-export type ScalarHandleFieldVariables = {
-  id: string
+export type ScalarHandleField$variables = {
+  id: string;
 };
-export type ScalarHandleFieldResponse = {
+export type ScalarHandleField$data = {
   readonly node: {
-    readonly name?: string | null
-  } | null
+    readonly name?: string | null;
+  } | null;
 };
-export type ScalarHandleFieldRawResponse = {
+export type ScalarHandleField$rawResponse = {
   readonly node: {
-    readonly __typename: "User",
-    readonly id: string,
-    readonly name: string | null,
+    readonly __typename: "User";
+    readonly id: string;
+    readonly name: string | null;
   } | {
-    readonly __typename: string,
-    readonly id: string,
-  } | null
+    readonly __typename: string;
+    readonly id: string;
+  } | null;
 };
 export type ScalarHandleField = {
-  variables: ScalarHandleFieldVariables,
-  response: ScalarHandleFieldResponse,
-  rawResponse: ScalarHandleFieldRawResponse,
+  variables: ScalarHandleField$variables;
+  response: ScalarHandleField$data;
 };

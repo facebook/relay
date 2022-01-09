@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<9df21e9689a75be0bb6aa8d50d53a913>>
+ * @generated SignedSource<<83aa7df4c525a04c9bc9d6fa79632fa6>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,17 +15,19 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayReaderTestWhenMatchDirectiveIsPresentBarFragment$ref = any;
-export type RelayReaderTestWhenMatchDirectiveIsPresentBarQueryVariables = {||};
-export type RelayReaderTestWhenMatchDirectiveIsPresentBarQueryResponse = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayReaderTestWhenMatchDirectiveIsPresentBarFragment$fragmentType = any;
+export type RelayReaderTestWhenMatchDirectiveIsPresentBarQuery$variables = {||};
+export type RelayReaderTestWhenMatchDirectiveIsPresentBarQueryVariables = RelayReaderTestWhenMatchDirectiveIsPresentBarQuery$variables;
+export type RelayReaderTestWhenMatchDirectiveIsPresentBarQuery$data = {|
   +me: ?{|
-    +$fragmentRefs: RelayReaderTestWhenMatchDirectiveIsPresentBarFragment$ref,
+    +$fragmentSpreads: RelayReaderTestWhenMatchDirectiveIsPresentBarFragment$fragmentType,
   |},
 |};
+export type RelayReaderTestWhenMatchDirectiveIsPresentBarQueryResponse = RelayReaderTestWhenMatchDirectiveIsPresentBarQuery$data;
 export type RelayReaderTestWhenMatchDirectiveIsPresentBarQuery = {|
   variables: RelayReaderTestWhenMatchDirectiveIsPresentBarQueryVariables,
-  response: RelayReaderTestWhenMatchDirectiveIsPresentBarQueryResponse,
+  response: RelayReaderTestWhenMatchDirectiveIsPresentBarQuery$data,
 |};
 */
 
@@ -151,4 +153,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "ef129a52e6ca5b6a54a16caac745a44a";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayReaderTestWhenMatchDirectiveIsPresentBarQuery$variables,
+  RelayReaderTestWhenMatchDirectiveIsPresentBarQuery$data,
+>*/);

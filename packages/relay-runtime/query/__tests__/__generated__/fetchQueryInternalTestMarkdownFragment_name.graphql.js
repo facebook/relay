@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<19b39f7eb82620bb8fcc006a294454fc>>
+ * @generated SignedSource<<89becc8e28da1ee050968a3aea28c57d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,22 +15,22 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type fetchQueryInternalTestMarkdownFragment_name$ref: FragmentReference;
-declare export opaque type fetchQueryInternalTestMarkdownFragment_name$fragmentType: fetchQueryInternalTestMarkdownFragment_name$ref;
-export type fetchQueryInternalTestMarkdownFragment_name = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type fetchQueryInternalTestMarkdownFragment_name$fragmentType: FragmentType;
+export type fetchQueryInternalTestMarkdownFragment_name$ref = fetchQueryInternalTestMarkdownFragment_name$fragmentType;
+export type fetchQueryInternalTestMarkdownFragment_name$data = {|
   +markdown: ?string,
   +data: ?{|
     +markup: ?string,
   |},
   +__typename: "MarkdownUserNameRenderer",
-  +$refType: fetchQueryInternalTestMarkdownFragment_name$ref,
+  +$fragmentType: fetchQueryInternalTestMarkdownFragment_name$fragmentType,
 |};
-export type fetchQueryInternalTestMarkdownFragment_name$data = fetchQueryInternalTestMarkdownFragment_name;
+export type fetchQueryInternalTestMarkdownFragment_name = fetchQueryInternalTestMarkdownFragment_name$data;
 export type fetchQueryInternalTestMarkdownFragment_name$key = {
   +$data?: fetchQueryInternalTestMarkdownFragment_name$data,
-  +$fragmentRefs: fetchQueryInternalTestMarkdownFragment_name$ref,
+  +$fragmentSpreads: fetchQueryInternalTestMarkdownFragment_name$fragmentType,
   ...
 };
 */
@@ -82,4 +82,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "c2edebb9e00de6001cf648d7924dff03";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  fetchQueryInternalTestMarkdownFragment_name$fragmentType,
+  fetchQueryInternalTestMarkdownFragment_name$data,
+>*/);

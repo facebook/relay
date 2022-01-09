@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<eb88a73a08abe9530c3c15bf719dc348>>
+ * @generated SignedSource<<e4096e2d4e6e34c772c8106c05bc6a43>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,21 +15,21 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type ActorChangeTestFeedUnitFragment$ref: FragmentReference;
-declare export opaque type ActorChangeTestFeedUnitFragment$fragmentType: ActorChangeTestFeedUnitFragment$ref;
-export type ActorChangeTestFeedUnitFragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type ActorChangeTestFeedUnitFragment$fragmentType: FragmentType;
+export type ActorChangeTestFeedUnitFragment$ref = ActorChangeTestFeedUnitFragment$fragmentType;
+export type ActorChangeTestFeedUnitFragment$data = {|
   +id: string,
   +message: ?{|
     +text: ?string,
   |},
-  +$refType: ActorChangeTestFeedUnitFragment$ref,
+  +$fragmentType: ActorChangeTestFeedUnitFragment$fragmentType,
 |};
-export type ActorChangeTestFeedUnitFragment$data = ActorChangeTestFeedUnitFragment;
+export type ActorChangeTestFeedUnitFragment = ActorChangeTestFeedUnitFragment$data;
 export type ActorChangeTestFeedUnitFragment$key = {
   +$data?: ActorChangeTestFeedUnitFragment$data,
-  +$fragmentRefs: ActorChangeTestFeedUnitFragment$ref,
+  +$fragmentSpreads: ActorChangeTestFeedUnitFragment$fragmentType,
   ...
 };
 */
@@ -74,4 +74,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "52c3c2a080b7bc16a00e823abf0cdb25";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  ActorChangeTestFeedUnitFragment$fragmentType,
+  ActorChangeTestFeedUnitFragment$data,
+>*/);

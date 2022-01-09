@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,24 +13,22 @@
 
 'use strict';
 
-const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
-const RelayModernEnvironment = require('../RelayModernEnvironment');
-const RelayModernStore = require('../RelayModernStore');
+const {
+  MultiActorEnvironment,
+  getActorIdentifier,
+} = require('../../multi-actor-environment');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const RelayRecordSource = require('../RelayRecordSource');
-
-const nullthrows = require('nullthrows');
-
-const {
-  getActorIdentifier,
-  MultiActorEnvironment,
-} = require('../../multi-actor-environment');
-const {graphql, getFragment, getRequest} = require('../../query/GraphQLTag');
+const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
+const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
+const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {getSingularSelector} = require('../RelayModernSelector');
+const RelayModernStore = require('../RelayModernStore');
+const RelayRecordSource = require('../RelayRecordSource');
+const nullthrows = require('nullthrows');
 const {disallowWarnings} = require('relay-test-utils-internal');
 
 disallowWarnings();
@@ -81,10 +79,10 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         `);
         fragment = getFragment(graphql`
           fragment RelayModernEnvironmentDynamicConnectionKeyTestFeedbackFragment on Feedback
-            @argumentDefinitions(
-              count: {type: "Int", defaultValue: 2}
-              cursor: {type: "ID"}
-            ) {
+          @argumentDefinitions(
+            count: {type: "Int", defaultValue: 2}
+            cursor: {type: "ID"}
+          ) {
             id
             comments(after: $cursor, first: $count, orderby: "date")
               @connection(
@@ -181,10 +179,12 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             __id: '<feedbackid>',
 
             __fragments: {
-              RelayModernEnvironmentDynamicConnectionKeyTestFeedbackFragment: {},
+              RelayModernEnvironmentDynamicConnectionKeyTestFeedbackFragment:
+                {},
             },
 
             __fragmentOwner: operation.request,
+            __isWithinUnmatchedTypeRefinement: false,
           },
         });
 

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -11,10 +11,9 @@
 
 'use strict';
 
-const cloneRelayHandleSourceField = require('../cloneRelayHandleSourceField');
 const getRelayHandleKey = require('../../util/getRelayHandleKey');
-
 const {LINKED_FIELD, LINKED_HANDLE} = require('../../util/RelayConcreteNode');
+const cloneRelayHandleSourceField = require('../cloneRelayHandleSourceField');
 const {getRequest, graphql} = require('relay-runtime');
 
 describe('cloneRelayHandleSourceField()', () => {

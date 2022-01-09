@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<7b205780892b14b05df71124cc38b00f>>
+ * @generated SignedSource<<8c99f21c98ad105b6235c8112daa8fa8>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,9 +15,9 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type usePaginationFragmentTestUserFragment$ref = any;
-export type usePaginationFragmentTestUserQueryNestedFragmentQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type usePaginationFragmentTestUserFragment$fragmentType = any;
+export type usePaginationFragmentTestUserQueryNestedFragmentQuery$variables = {|
   id: string,
   after?: ?string,
   first?: ?number,
@@ -26,16 +26,18 @@ export type usePaginationFragmentTestUserQueryNestedFragmentQueryVariables = {|
   orderby?: ?$ReadOnlyArray<?string>,
   isViewerFriend?: ?boolean,
 |};
-export type usePaginationFragmentTestUserQueryNestedFragmentQueryResponse = {|
+export type usePaginationFragmentTestUserQueryNestedFragmentQueryVariables = usePaginationFragmentTestUserQueryNestedFragmentQuery$variables;
+export type usePaginationFragmentTestUserQueryNestedFragmentQuery$data = {|
   +node: ?{|
     +actor: ?{|
-      +$fragmentRefs: usePaginationFragmentTestUserFragment$ref,
+      +$fragmentSpreads: usePaginationFragmentTestUserFragment$fragmentType,
     |},
   |},
 |};
+export type usePaginationFragmentTestUserQueryNestedFragmentQueryResponse = usePaginationFragmentTestUserQueryNestedFragmentQuery$data;
 export type usePaginationFragmentTestUserQueryNestedFragmentQuery = {|
   variables: usePaginationFragmentTestUserQueryNestedFragmentQueryVariables,
-  response: usePaginationFragmentTestUserQueryNestedFragmentQueryResponse,
+  response: usePaginationFragmentTestUserQueryNestedFragmentQuery$data,
 |};
 */
 
@@ -355,4 +357,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "0fda8f3b3b888c596ad22c11ba6ecf03";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  usePaginationFragmentTestUserQueryNestedFragmentQuery$variables,
+  usePaginationFragmentTestUserQueryNestedFragmentQuery$data,
+>*/);

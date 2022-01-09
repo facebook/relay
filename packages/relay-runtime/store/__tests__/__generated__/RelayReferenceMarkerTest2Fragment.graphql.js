@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<45196a439350f531a3bc8ed818f3bbc2>>
+ * @generated SignedSource<<fbf968101780a8ab7b6cb26588e919b6>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,11 +15,11 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayReferenceMarkerTest2Fragment$ref: FragmentReference;
-declare export opaque type RelayReferenceMarkerTest2Fragment$fragmentType: RelayReferenceMarkerTest2Fragment$ref;
-export type RelayReferenceMarkerTest2Fragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayReferenceMarkerTest2Fragment$fragmentType: FragmentType;
+export type RelayReferenceMarkerTest2Fragment$ref = RelayReferenceMarkerTest2Fragment$fragmentType;
+export type RelayReferenceMarkerTest2Fragment$data = {|
   +client_foo: ?{|
     +client_name: ?string,
     +profile_picture: ?{|
@@ -39,12 +39,12 @@ export type RelayReferenceMarkerTest2Fragment = {|
     |}>,
   |},
   +firstName: ?string,
-  +$refType: RelayReferenceMarkerTest2Fragment$ref,
+  +$fragmentType: RelayReferenceMarkerTest2Fragment$fragmentType,
 |};
-export type RelayReferenceMarkerTest2Fragment$data = RelayReferenceMarkerTest2Fragment;
+export type RelayReferenceMarkerTest2Fragment = RelayReferenceMarkerTest2Fragment$data;
 export type RelayReferenceMarkerTest2Fragment$key = {
   +$data?: RelayReferenceMarkerTest2Fragment$data,
-  +$fragmentRefs: RelayReferenceMarkerTest2Fragment$ref,
+  +$fragmentSpreads: RelayReferenceMarkerTest2Fragment$fragmentType,
   ...
 };
 */
@@ -190,4 +190,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "34600dc24690307d95ea58d1ef1e180c";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayReferenceMarkerTest2Fragment$fragmentType,
+  RelayReferenceMarkerTest2Fragment$data,
+>*/);

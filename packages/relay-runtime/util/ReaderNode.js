@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -226,13 +226,22 @@ export type ReaderRelayResolver = {|
   +fragment: ReaderFragmentSpread,
   +resolverModule: (rootKey: {
     +$data?: any, // flowlint-line unclear-type:off
+    +$fragmentSpreads: any, // flowlint-line unclear-type:off
     +$fragmentRefs: any, // flowlint-line unclear-type:off
     ...
   }) => mixed,
 |};
 
+export type ReaderClientEdge = {|
+  +kind: 'ClientEdge',
+  +linkedField: ReaderLinkedField,
+  +operation: ConcreteRequest,
+  +backingField: ReaderRelayResolver | ReaderClientExtension,
+|};
+
 export type ReaderSelection =
   | ReaderCondition
+  | ReaderClientEdge
   | ReaderClientExtension
   | ReaderDefer
   | ReaderField

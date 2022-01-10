@@ -250,9 +250,9 @@ to push the query map at compile time to a location accessible by your server:
 
 Some possibilities of what you can do in `./pushQueries.js`:
 
--   `git push` to your server repo
+-   `git push` to your server repo.
 
--   save the query maps to a database
+-   Save the query maps to a database.
 
 ### Run time push
 

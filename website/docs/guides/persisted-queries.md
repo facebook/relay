@@ -199,7 +199,7 @@ To use this, you'll need to update `package.json`:
 You'll need to modify your network layer fetch implementation to pass an ID parameter in the POST body (e.g., `doc_id`) instead of a query parameter:
 
 ```javascript
-function fetchQuery(operation, variables,) {
+function fetchQuery(operation, variables) {
   return fetch('/graphql', {
     method: 'POST',
     headers: {
@@ -279,7 +279,8 @@ const app = Express();
 
 app.use('/graphql',
   matchQueryMiddleware(queryMapJson),
-  expressGraphql({schema}));
+  expressGraphl({schema}),
+);
 ```
 
 ## Using `persistConfig` and `--watch`

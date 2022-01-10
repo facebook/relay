@@ -6,7 +6,7 @@
  */
 
 use intern::string_key::StringKey;
-use std::fmt::Result as FmtResult;
+use std::fmt::{Result as FmtResult, Write};
 
 #[derive(Debug, Clone)]
 pub enum AST {
@@ -60,7 +60,7 @@ pub struct GetterSetterPairProp {
     pub setter_parameter: AST,
 }
 
-pub trait Writer {
+pub trait Writer: Write {
     fn into_string(self: Box<Self>) -> String;
 
     fn get_runtime_fragment_import(&self) -> &'static str;

@@ -18,6 +18,12 @@ pub struct TypeScriptPrinter {
     indentation: usize,
 }
 
+impl Write for TypeScriptPrinter {
+    fn write_str(&mut self, s: &str) -> FmtResult {
+        self.result.write_str(s)
+    }
+}
+
 impl Writer for TypeScriptPrinter {
     fn into_string(self: Box<Self>) -> String {
         self.result

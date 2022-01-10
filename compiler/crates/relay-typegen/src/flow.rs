@@ -19,6 +19,12 @@ pub struct FlowPrinter {
     flow_typegen_phase: FlowTypegenPhase,
 }
 
+impl Write for FlowPrinter {
+    fn write_str(&mut self, s: &str) -> FmtResult {
+        self.result.write_str(s)
+    }
+}
+
 impl Writer for FlowPrinter {
     fn into_string(self: Box<Self>) -> String {
         self.result

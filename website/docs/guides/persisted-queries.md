@@ -289,7 +289,7 @@ It is possible to continuously generate the query map files by using the `persis
 This only makes sense for universal applications i.e. if your client and server code are in a single project
 and you run them both together on localhost during development. Furthermore, in order for the server to pick up changes
 to the `queryMap.json`, you'll need to have server side hot-reloading set up. The details on how to set this up
-is out of the scope of this document.
+are out of the scope of this document.
 
 </OssOnly>
 

@@ -87,6 +87,9 @@ use [glob](https://docs.rs/glob/latest/glob/) to query the filesystem for files.
   - `params`            The document will be in a `POST`
                         parameter `text`. This map can contain additional
                         parameters to send.                             [object]
+  - `concurrency`       The maximum number concurrent requests that will 
+                        be made to `url`. Use 0 for maximum concurrency.
+                                                                        [number]
 - `codegenCommand`      Command name that for relay compiler.           [string]
 
 - `isDevVariableName`   Name of the global variable for dev mode (`__DEV__`).

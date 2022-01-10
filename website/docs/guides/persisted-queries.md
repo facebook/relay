@@ -267,18 +267,22 @@ Once your server has access to the query map, you can perform the mapping. The s
 database technologies you use, so we'll just cover the most common and basic example here.
 
 If you use `express-graphql` and have access to the query map file, you can import it directly and
-perform the matching using the `matchQueryMiddleware` from [relay-compiler-plus](https://github.com/yusinto/relay-compiler-plus).
+perform the matching using the `persistedQueries` middleware from [express-graphql-persisted-queries](https://github.com/kyarik/express-graphql-persisted-queries).
 
 ```javascript
-import Express from 'express';
+import express from 'express';
 import {graphqlHTTP} from 'express-graphql';
-import {matchQueryMiddleware} from 'relay-compiler-plus';
-import queryMapJson from './path/to/queryMap.json';
+import {persistedQueries} from 'express-graphql-persisted-queries';
+import queryMap from './path/to/queryMap.json';
 
-const app = Express();
+const app = express();
 
-app.use('/graphql',
-  matchQueryMiddleware(queryMapJson),
+app.use(
+  '/graphql',
+  persistedQueries({
+    queryMap,
+    queryIdKey: 'doc_id',
+  }),
   graphqlHTTP({schema}),
 );
 ```

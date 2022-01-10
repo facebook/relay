@@ -40,7 +40,7 @@ In your relay configiration section in `package.json` you'll need specify
 },
 "relay": {
   "src": "./src",
-  "schema": "./schema.graphq",
+  "schema": "./schema.graphql",
   "persistConfig": {
     "url": "http://localhost:2999",
     "params": {}
@@ -48,7 +48,7 @@ In your relay configiration section in `package.json` you'll need specify
 }
 ```
 
-Specifiying `persistConfig` in the config will do the folling:
+Specifiying `persistConfig` in the config will do the following:
 
 1.  It converts all query and mutation operation texts to md5 hashes.
 
@@ -88,9 +88,9 @@ Specifiying `persistConfig` in the config will do the folling:
 
     ```
 
-2.  It will sent an HTTP POST request with `text` parameter to the
+2.  It will send an HTTP POST request with a `text` parameter to the
 specified `url`.
-You can also add additional request body parameters to via `params` option.
+You can also add additional request body parameters via the `params` option.
 
 ```
 "scripts": {
@@ -98,7 +98,7 @@ You can also add additional request body parameters to via `params` option.
 },
 "relay": {
   "src": "./src",
-  "schema": "./schema.graphq",
+  "schema": "./schema.graphql",
   "persistConfig": {
     "url": "http://localhost:2999",
     "params": {}
@@ -108,7 +108,7 @@ You can also add additional request body parameters to via `params` option.
 
 ### Example implemetation of `relayLocalPersisting.js`
 
-A simple persist server that will save query text to the `queryMap.json` file.
+Here's an example of a simple persist server that will save query text to the `queryMap.json` file.
 
 
 ```javascript

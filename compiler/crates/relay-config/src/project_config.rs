@@ -13,7 +13,8 @@ use fnv::FnvBuildHasher;
 use indexmap::IndexMap;
 use intern::string_key::{Intern, StringKey};
 use regex::Regex;
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Deserializer, Serialize};
+use tokio::sync::Semaphore;
 
 use crate::{connection_interface::ConnectionInterface, JsModuleFormat, TypegenConfig};
 
@@ -29,6 +30,25 @@ pub struct PersistConfig {
     /// The document will be in a POST parameter `text`. This map can contain
     /// additional parameters to send.
     pub params: FnvIndexMap<String, String>,
+
+    #[serde(
+        rename = "concurrency",
+        skip_serializing,
+        deserialize_with = "deserialize_semaphore"
+    )]
+    pub semaphore: Semaphore,
+}
+
+fn deserialize_semaphore<'de, D>(d: D) -> Result<Semaphore, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let mut permits: usize = Deserialize::deserialize(d)?;
+    if permits == 0 {
+        // Max allowed permits in Semaphore
+        permits = usize::MAX >> 3;
+    }
+    Ok(Semaphore::new(permits))
 }
 
 #[derive(Clone, Debug)]

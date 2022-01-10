@@ -18,10 +18,10 @@ import {FbInternalOnly, OssOnly} from 'internaldocs-fb-helpers';
 
 The relay compiler supports persisted queries. This is useful because:
 
--   the client operation text becomes just an md5 hash which is usually shorter than the real
+-   The client operation text becomes just an md5 hash which is usually shorter than the real
     query string. This saves upload bytes from the client to the server.
 
--   the server can now whitelist queries which improves security by restricting the operations
+-   The server can now whitelist queries which improves security by restricting the operations
     that can be executed by a client.
 
 <OssOnly>

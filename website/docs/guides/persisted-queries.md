@@ -196,7 +196,7 @@ To use this, you'll need to update `package.json`:
 
 ### Network layer changes
 
-You'll need to modify your network layer fetch implementation to pass a `doc_id` parameter in the POST body instead of a query parameter:
+You'll need to modify your network layer fetch implementation to pass an ID parameter in the POST body (e.g., `doc_id`) instead of a query parameter:
 
 ```javascript
 function fetchQuery(operation, variables,) {

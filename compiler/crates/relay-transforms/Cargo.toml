@@ -124,5 +124,4 @@ graphql-test-helpers = { path = "../graphql-test-helpers" }
 relay-test-schema = { path = "../relay-test-schema" }
 
 [features]
-default = ["fb_only"]
 fb_only = []

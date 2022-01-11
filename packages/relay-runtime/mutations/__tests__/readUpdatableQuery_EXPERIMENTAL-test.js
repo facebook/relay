@@ -30,6 +30,7 @@ const updatableQuery = graphql`
   query readUpdatableQueryEXPERIMENTALTestUpdatableQuery @updatable {
     me {
       __typename
+      __id
       id
       name
       author {
@@ -202,7 +203,7 @@ describe('readUpdatableQuery', () => {
     expect(readOnlyData?.me?.name).toEqual('MetaZuck');
   });
 
-  it('cannot be used to update ids or typenames', () => {
+  it('cannot be used to update clientids, ids or typenames', () => {
     environment.commitPayload(operation, {
       me: {
         id: '4',
@@ -227,18 +228,20 @@ describe('readUpdatableQuery', () => {
 
       expect(() => {
         if (updatableData.me != null) {
-          if (updatableData.me.__typename === 'User') {
-            // $FlowFixMe[cannot-write] That's the point!
-            updatableData.me.id = '5';
-          }
+          // $FlowFixMe[cannot-write] That's the point!
+          updatableData.me.id = '5';
         }
       }).toThrowError();
       expect(() => {
         if (updatableData.me != null) {
-          if (updatableData.me.__typename === 'User') {
-            // $FlowFixMe[cannot-write] That's the point!
-            updatableData.me.__typename = '5';
-          }
+          // $FlowFixMe[cannot-write] That's the point!
+          updatableData.me.__typename = 'Protoss';
+        }
+      }).toThrowError();
+      expect(() => {
+        if (updatableData.me != null) {
+          // $FlowFixMe[cannot-write] That's the point!
+          updatableData.me.__id = '5';
         }
       }).toThrowError();
     });

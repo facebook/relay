@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<29658e535f1330f111a095897c016f54>>
+ * @generated SignedSource<<f12295041d458ba90aed22360620e866>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,6 +22,7 @@ export type readUpdatableQueryEXPERIMENTALTestUpdatableQueryVariables = readUpda
 export type readUpdatableQueryEXPERIMENTALTestUpdatableQuery$data = {|
   get me(): ?{|
     +__typename: string,
+    +__id: string,
     +id: string,
     name: ?string,
     get author(): ?{|
@@ -119,21 +120,33 @@ v4 = {
     }
   ]
 },
-v5 = [
+v5 = {
+  "kind": "ClientExtension",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "__id",
+      "storageKey": null
+    }
+  ]
+},
+v6 = [
   {
     "kind": "Literal",
     "name": "id",
     "value": "4"
   }
 ],
-v6 = [
+v7 = [
   {
     "kind": "Literal",
     "name": "id",
     "value": "5"
   }
 ],
-v7 = [
+v8 = [
   (v2/*: any*/)
 ];
 return {
@@ -195,13 +208,14 @@ return {
             ],
             "storageKey": null
           },
-          (v3/*: any*/)
+          (v3/*: any*/),
+          (v5/*: any*/)
         ],
         "storageKey": null
       },
       {
         "alias": null,
-        "args": (v5/*: any*/),
+        "args": (v6/*: any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -221,7 +235,7 @@ return {
       },
       {
         "alias": "node2",
-        "args": (v6/*: any*/),
+        "args": (v7/*: any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -249,7 +263,7 @@ return {
                     "kind": "LinkedField",
                     "name": "parents",
                     "plural": true,
-                    "selections": (v7/*: any*/),
+                    "selections": (v8/*: any*/),
                     "storageKey": null
                   }
                 ],
@@ -326,13 +340,14 @@ return {
               (v4/*: any*/)
             ],
             "storageKey": null
-          }
+          },
+          (v5/*: any*/)
         ],
         "storageKey": null
       },
       {
         "alias": null,
-        "args": (v5/*: any*/),
+        "args": (v6/*: any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -342,7 +357,7 @@ return {
           (v1/*: any*/),
           {
             "kind": "InlineFragment",
-            "selections": (v7/*: any*/),
+            "selections": (v8/*: any*/),
             "type": "User",
             "abstractKey": null
           }
@@ -351,7 +366,7 @@ return {
       },
       {
         "alias": "node2",
-        "args": (v6/*: any*/),
+        "args": (v7/*: any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -411,7 +426,7 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "73b720724ad0b12d4de30f4b01b3ded8";
+  (node/*: any*/).hash = "23fed679ffe6f097def699ed812aa8b6";
 }
 
 module.exports = ((node/*: any*/)/*: Query<

@@ -1941,6 +1941,7 @@ enum ScalarFieldSpecialSchemaField {
     JS,
     TypeName,
     Id,
+    ClientId,
 }
 
 impl ScalarFieldSpecialSchemaField {
@@ -1949,6 +1950,8 @@ impl ScalarFieldSpecialSchemaField {
             Some(ScalarFieldSpecialSchemaField::JS)
         } else if key == *KEY_TYPENAME {
             Some(ScalarFieldSpecialSchemaField::TypeName)
+        } else if key == *KEY_CLIENTID {
+            Some(ScalarFieldSpecialSchemaField::ClientId)
         } else if key == *KEY_ID {
             Some(ScalarFieldSpecialSchemaField::Id)
         } else {

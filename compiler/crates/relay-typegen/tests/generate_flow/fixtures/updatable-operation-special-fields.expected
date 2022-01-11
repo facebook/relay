@@ -5,6 +5,8 @@ query UpdatableQuery @updatable {
     aliased_id: id
     __typename
     aliased_typename: __typename
+    __id
+    aliased_double_under_id: __id
   }
 }
 ==================================== OUTPUT ===================================
@@ -15,6 +17,8 @@ export type UpdatableQuery$data = {|
     +aliased_id: string,
     +__typename: string,
     +aliased_typename: string,
+    +__id: string,
+    +aliased_double_under_id: string,
   |},
   set me(value: null | void): void,
 |};

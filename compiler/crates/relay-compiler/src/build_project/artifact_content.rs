@@ -264,9 +264,7 @@ fn generate_operation(
                 typegen_operation,
                 normalization_operation,
                 schema,
-                project_config.js_module_format,
-                project_config.output.is_some(),
-                &project_config.typegen_config,
+                project_config,
             )
         )?;
     }
@@ -381,9 +379,7 @@ fn generate_split_operation(
                 typegen_operation,
                 normalization_operation,
                 schema,
-                project_config.js_module_format,
-                project_config.output.is_some(),
-                &project_config.typegen_config,
+                project_config,
             )
         )?;
     }
@@ -506,13 +502,7 @@ fn generate_read_only_fragment(
         write!(
             content,
             "{}",
-            generate_fragment_type_exports_section(
-                typegen_fragment,
-                schema,
-                project_config.js_module_format,
-                project_config.output.is_some(),
-                &project_config.typegen_config
-            )
+            generate_fragment_type_exports_section(typegen_fragment, schema, project_config)
         )?;
     }
 
@@ -580,13 +570,7 @@ fn generate_assignable_fragment(
         write!(
             content,
             "{}",
-            generate_fragment_type_exports_section(
-                typegen_fragment,
-                schema,
-                project_config.js_module_format,
-                project_config.output.is_some(),
-                &project_config.typegen_config
-            )
+            generate_fragment_type_exports_section(typegen_fragment, schema, project_config)
         )?;
     }
 
@@ -599,13 +583,8 @@ fn generate_assignable_fragment(
     // don't need to emit a reader fragment.
     // Instead, we only need a named validator export, i.e.
     // module.exports.validator = ...
-    let named_validator_export = generate_named_validator_export(
-        typegen_fragment,
-        schema,
-        project_config.js_module_format,
-        project_config.output.is_some(),
-        &project_config.typegen_config,
-    );
+    let named_validator_export =
+        generate_named_validator_export(typegen_fragment, schema, project_config);
     writeln!(content, "{}", named_validator_export).unwrap();
 
     Ok(sign_file(&content).into_bytes())

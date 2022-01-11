@@ -49,11 +49,25 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
             panic!("Encountered error building IR {:?}", e);
         });
     let program = Program::from_definitions(Arc::clone(&schema), ir);
+
+    let mut custom_scalar_types = FnvIndexMap::default();
+    custom_scalar_types.insert("Boolean".intern(), "CustomBoolean".intern());
     let project_config = ProjectConfig {
         name: "test".intern(),
+        js_module_format: JsModuleFormat::Haste,
         feature_flags: Arc::new(feature_flags),
+        typegen_config: TypegenConfig {
+            language: TypegenLanguage::Flow,
+            custom_scalar_types,
+            flow_typegen: FlowTypegenConfig {
+                phase: FlowTypegenPhase::Final,
+                ..Default::default()
+            },
+            ..Default::default()
+        },
         ..Default::default()
     };
+
     let programs = apply_transforms(
         &project_config,
         Arc::new(program),
@@ -63,19 +77,6 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     )
     .unwrap();
 
-    let js_module_format = JsModuleFormat::Haste;
-    let has_unified_output = false;
-    let mut custom_scalar_types = FnvIndexMap::default();
-    custom_scalar_types.insert("Boolean".intern(), "CustomBoolean".intern());
-    let typegen_config = TypegenConfig {
-        language: TypegenLanguage::Flow,
-        custom_scalar_types,
-        flow_typegen: FlowTypegenConfig {
-            phase: FlowTypegenPhase::Final,
-            ..Default::default()
-        },
-        ..Default::default()
-    };
 
     let mut operations: Vec<_> = programs.typegen.operations().collect();
     operations.sort_by_key(|op| op.name.item);
@@ -88,22 +89,14 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
             typegen_operation,
             normalization_operation,
             &schema,
-            js_module_format,
-            has_unified_output,
-            &typegen_config,
+            &project_config,
         )
     });
 
     let mut fragments: Vec<_> = programs.typegen.fragments().collect();
     fragments.sort_by_key(|frag| frag.name.item);
     let fragment_strings = fragments.into_iter().map(|frag| {
-        relay_typegen::generate_fragment_type_exports_section(
-            frag,
-            &schema,
-            js_module_format,
-            has_unified_output,
-            &typegen_config,
-        )
+        relay_typegen::generate_fragment_type_exports_section(frag, &schema, &project_config)
     });
 
     let mut result: Vec<String> = operation_strings.collect();

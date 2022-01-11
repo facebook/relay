@@ -29,8 +29,8 @@ use graphql_ir::{
 use indexmap::{map::Entry, IndexMap, IndexSet};
 use itertools::Itertools;
 use lazy_static::lazy_static;
-use relay_config::JsModuleFormat;
 pub use relay_config::{FlowTypegenPhase, TypegenConfig, TypegenLanguage};
+use relay_config::{JsModuleFormat, ProjectConfig, SchemaConfig};
 use relay_transforms::{
     ModuleMetadata, RefetchableDerivedFromMetadata, RefetchableMetadata, RelayDirective,
     RelayResolverSpreadMetadata, RequiredMetadataDirective, ASSIGNABLE_DIRECTIVE,
@@ -59,7 +59,6 @@ lazy_static! {
     static ref JS_FIELD_NAME: StringKey = "js".intern();
     static ref KEY_RAW_RESPONSE: StringKey = "rawResponse".intern();
     static ref KEY_TYPENAME: StringKey = "__typename".intern();
-    static ref KEY_ID: StringKey = "id".intern();
     static ref KEY_NODE: StringKey = "node".intern();
     static ref KEY_NODES: StringKey = "nodes".intern();
     static ref MODULE_COMPONENT: StringKey = "__module_component".intern();
@@ -77,15 +76,14 @@ lazy_static! {
 pub fn generate_fragment_type_exports_section(
     fragment: &FragmentDefinition,
     schema: &SDLSchema,
-    js_module_format: JsModuleFormat,
-    has_unified_output: bool,
-    typegen_config: &TypegenConfig,
+    project_config: &ProjectConfig,
 ) -> String {
     let mut generator = TypeGenerator::new(
         schema,
-        js_module_format,
-        has_unified_output,
-        typegen_config,
+        &project_config.schema_config,
+        project_config.js_module_format,
+        project_config.output.is_some(),
+        &project_config.typegen_config,
         fragment.name.item,
     );
     generator
@@ -97,15 +95,14 @@ pub fn generate_fragment_type_exports_section(
 pub fn generate_named_validator_export(
     fragment_definition: &FragmentDefinition,
     schema: &SDLSchema,
-    js_module_format: JsModuleFormat,
-    has_unified_output: bool,
-    typegen_config: &TypegenConfig,
+    project_config: &ProjectConfig,
 ) -> String {
     let mut generator = TypeGenerator::new(
         schema,
-        js_module_format,
-        has_unified_output,
-        typegen_config,
+        &project_config.schema_config,
+        project_config.js_module_format,
+        project_config.output.is_some(),
+        &project_config.typegen_config,
         fragment_definition.name.item,
     );
     generator
@@ -113,7 +110,7 @@ pub fn generate_named_validator_export(
         .unwrap();
     let validator_function_body = generator.into_string();
 
-    if typegen_config.eager_es_modules {
+    if project_config.typegen_config.eager_es_modules {
         format!("export {}", validator_function_body)
     } else {
         format!(
@@ -127,17 +124,16 @@ pub fn generate_operation_type_exports_section(
     typegen_operation: &OperationDefinition,
     normalization_operation: &OperationDefinition,
     schema: &SDLSchema,
-    js_module_format: JsModuleFormat,
-    has_unified_output: bool,
-    typegen_config: &TypegenConfig,
+    project_config: &ProjectConfig,
 ) -> String {
     let rollout_key = RefetchableDerivedFromMetadata::find(&typegen_operation.directives)
         .map_or(typegen_operation.name.item, |metadata| metadata.0);
     let mut generator = TypeGenerator::new(
         schema,
-        js_module_format,
-        has_unified_output,
-        typegen_config,
+        &project_config.schema_config,
+        project_config.js_module_format,
+        project_config.output.is_some(),
+        &project_config.typegen_config,
         rollout_key,
     );
     generator
@@ -150,15 +146,14 @@ pub fn generate_split_operation_type_exports_section(
     typegen_operation: &OperationDefinition,
     normalization_operation: &OperationDefinition,
     schema: &SDLSchema,
-    js_module_format: JsModuleFormat,
-    has_unified_output: bool,
-    typegen_config: &TypegenConfig,
+    project_config: &ProjectConfig,
 ) -> String {
     let mut generator = TypeGenerator::new(
         schema,
-        js_module_format,
-        has_unified_output,
-        typegen_config,
+        &project_config.schema_config,
+        project_config.js_module_format,
+        project_config.output.is_some(),
+        &project_config.typegen_config,
         typegen_operation.name.item,
     );
     generator
@@ -180,6 +175,7 @@ struct RuntimeImports {
 
 struct TypeGenerator<'a> {
     schema: &'a SDLSchema,
+    schema_config: &'a SchemaConfig,
     generated_fragments: FnvHashSet<StringKey>,
     generated_input_object_types: IndexMap<StringKey, GeneratedInputObject>,
     imported_raw_response_types: IndexSet<StringKey>,
@@ -199,6 +195,7 @@ struct TypeGenerator<'a> {
 impl<'a> TypeGenerator<'a> {
     fn new(
         schema: &'a SDLSchema,
+        schema_config: &'a SchemaConfig,
         js_module_format: JsModuleFormat,
         has_unified_output: bool,
         typegen_config: &'a TypegenConfig,
@@ -207,6 +204,7 @@ impl<'a> TypeGenerator<'a> {
         let flow_typegen_phase = typegen_config.flow_typegen.phase(rollout_key);
         Self {
             schema,
+            schema_config,
             generated_fragments: Default::default(),
             generated_input_object_types: Default::default(),
             imported_raw_response_types: Default::default(),
@@ -714,7 +712,10 @@ impl<'a> TypeGenerator<'a> {
         let linked_field_selections = self.visit_selections(&linked_field.selections);
         type_selections.push(TypeSelection::ScalarField(TypeSelectionScalarField {
             field_name_or_alias: key,
-            special_field: ScalarFieldSpecialSchemaField::from_schema_name(schema_name),
+            special_field: ScalarFieldSpecialSchemaField::from_schema_name(
+                schema_name,
+                self.schema_config,
+            ),
             value: AST::Nullable(Box::new(AST::ActorChangePoint(Box::new(
                 self.selections_to_babel(linked_field_selections.into_iter(), false, None),
             )))),
@@ -812,7 +813,10 @@ impl<'a> TypeGenerator<'a> {
             apply_required_directive_nullability(&field.type_, &scalar_field.directives);
         type_selections.push(TypeSelection::ScalarField(TypeSelectionScalarField {
             field_name_or_alias: key,
-            special_field: ScalarFieldSpecialSchemaField::from_schema_name(schema_name),
+            special_field: ScalarFieldSpecialSchemaField::from_schema_name(
+                schema_name,
+                self.schema_config,
+            ),
             value: self.transform_scalar_type(&field_type, None),
             conditional: false,
             concrete_type: None,
@@ -1945,14 +1949,14 @@ enum ScalarFieldSpecialSchemaField {
 }
 
 impl ScalarFieldSpecialSchemaField {
-    fn from_schema_name(key: StringKey) -> Option<Self> {
+    fn from_schema_name(key: StringKey, schema_config: &SchemaConfig) -> Option<Self> {
         if key == *JS_FIELD_NAME {
             Some(ScalarFieldSpecialSchemaField::JS)
         } else if key == *KEY_TYPENAME {
             Some(ScalarFieldSpecialSchemaField::TypeName)
         } else if key == *KEY_CLIENTID {
             Some(ScalarFieldSpecialSchemaField::ClientId)
-        } else if key == *KEY_ID {
+        } else if key == schema_config.node_interface_id_field {
             Some(ScalarFieldSpecialSchemaField::Id)
         } else {
             None

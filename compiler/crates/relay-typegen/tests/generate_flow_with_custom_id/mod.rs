@@ -5,43 +5,69 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{ConsoleLogger, SourceLocationKey};
+use common::{ConsoleLogger, FeatureFlag, FeatureFlags, SourceLocationKey};
 use fixture_tests::Fixture;
-use fnv::FnvHashMap;
-use graphql_ir::{build, Program};
+use fnv::{FnvBuildHasher, FnvHashMap};
+use graphql_ir::{build_ir_with_relay_feature_flags, Program};
 use graphql_syntax::parse_executable;
+use indexmap::IndexMap;
 use intern::string_key::Intern;
 use relay_codegen::JsModuleFormat;
-use relay_config::{FlowTypegenConfig, ProjectConfig};
-use relay_test_schema::{get_test_schema, get_test_schema_with_extensions};
+use relay_config::{FlowTypegenConfig, ProjectConfig, SchemaConfig};
+use relay_test_schema::{
+    get_test_schema_with_custom_id, get_test_schema_with_custom_id_with_extensions,
+};
 use relay_transforms::apply_transforms;
 use relay_typegen::{self, FlowTypegenPhase, TypegenConfig, TypegenLanguage};
 use std::sync::Arc;
 
+type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
+
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let parts = fixture.content.split("%extensions%").collect::<Vec<_>>();
     let (source, schema) = match parts.as_slice() {
-        [source, extensions] => (source, get_test_schema_with_extensions(extensions)),
-        [source] => (source, get_test_schema()),
+        [source, extensions] => (
+            source,
+            get_test_schema_with_custom_id_with_extensions(extensions),
+        ),
+        [source] => (source, get_test_schema_with_custom_id()),
         _ => panic!(),
     };
 
     let source_location = SourceLocationKey::standalone(fixture.file_name);
+
 
     let mut sources = FnvHashMap::default();
     sources.insert(source_location, source);
     let ast = parse_executable(source, source_location).unwrap_or_else(|e| {
         panic!("Encountered error building AST: {:?}", e);
     });
-    let ir = build(&schema, &ast.definitions).unwrap_or_else(|e| {
-        panic!("Encountered error building IR {:?}", e);
-    });
+    let feature_flags = FeatureFlags {
+        no_inline: FeatureFlag::Enabled,
+        enable_relay_resolver_transform: true,
+        actor_change_support: FeatureFlag::Enabled,
+        enable_provided_variables: FeatureFlag::Enabled,
+        ..Default::default()
+    };
+    let ir = build_ir_with_relay_feature_flags(&schema, &ast.definitions, &feature_flags)
+        .unwrap_or_else(|e| {
+            panic!("Encountered error building IR {:?}", e);
+        });
     let program = Program::from_definitions(Arc::clone(&schema), ir);
+
+    let mut custom_scalar_types = FnvIndexMap::default();
+    custom_scalar_types.insert("Boolean".intern(), "CustomBoolean".intern());
     let project_config = ProjectConfig {
         name: "test".intern(),
         js_module_format: JsModuleFormat::Haste,
+        feature_flags: Arc::new(feature_flags),
+        schema_config: SchemaConfig {
+            node_interface_id_field: "global_id".intern(),
+            ..Default::default()
+        },
         typegen_config: TypegenConfig {
-            language: TypegenLanguage::TypeScript,
+            language: TypegenLanguage::Flow,
+            custom_scalar_types,
             flow_typegen: FlowTypegenConfig {
                 phase: FlowTypegenPhase::Final,
                 ..Default::default()
@@ -50,6 +76,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         },
         ..Default::default()
     };
+
     let programs = apply_transforms(
         &project_config,
         Arc::new(program),
@@ -58,6 +85,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         None,
     )
     .unwrap();
+
 
     let mut operations: Vec<_> = programs.typegen.operations().collect();
     operations.sort_by_key(|op| op.name.item);

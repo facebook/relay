@@ -71,7 +71,9 @@ jobs:
         with:
           command: test
           # add --locked back when we have a better way to ensure it's up to date
-          args: --manifest-path=compiler/Cargo.toml
+          args: --manifest-path=compiler/Cargo.toml --features relay-transforms/fb_only
+          # NOTE: we run unit-tests with fb_only features to match the snapshot
+          # output in the internal CI
       - name: "Build test project"
         run: cargo run --manifest-path=Cargo.toml --bin relay ./test-project/relay.json
         working-directory: ./compiler

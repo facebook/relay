@@ -12,11 +12,12 @@ use graphql_ir::{Directive, FragmentDefinition, OperationDefinition};
 use relay_codegen::{build_request_params, Printer, QueryID};
 use relay_transforms::{
     is_operation_preloadable, ReactFlightLocalComponentsMetadata, RelayClientComponentMetadata,
-    DATA_DRIVEN_DEPENDENCY_METADATA_KEY,
+    ASSIGNABLE_DIRECTIVE, DATA_DRIVEN_DEPENDENCY_METADATA_KEY,
 };
 use relay_typegen::{
-    generate_fragment_type_exports_section, generate_operation_type_exports_section,
-    generate_split_operation_type_exports_section, TypegenConfig, TypegenLanguage,
+    generate_fragment_type_exports_section, generate_named_validator_export,
+    generate_operation_type_exports_section, generate_split_operation_type_exports_section,
+    TypegenConfig, TypegenLanguage,
 };
 use schema::SDLSchema;
 use signedsource::{sign_file, SIGNING_TOKEN};
@@ -420,6 +421,37 @@ fn generate_fragment(
     source_hash: &str,
     skip_types: bool,
 ) -> Result<Vec<u8>, FmtError> {
+    let is_assignable_fragment = typegen_fragment
+        .directives
+        .named(*ASSIGNABLE_DIRECTIVE)
+        .is_some();
+    if is_assignable_fragment {
+        generate_assignable_fragment(config, project_config, schema, typegen_fragment, skip_types)
+    } else {
+        generate_read_only_fragment(
+            config,
+            project_config,
+            printer,
+            schema,
+            reader_fragment,
+            typegen_fragment,
+            source_hash,
+            skip_types,
+        )
+    }
+}
+
+#[allow(clippy::too_many_arguments)]
+fn generate_read_only_fragment(
+    config: &Config,
+    project_config: &ProjectConfig,
+    printer: &mut Printer,
+    schema: &SDLSchema,
+    reader_fragment: &FragmentDefinition,
+    typegen_fragment: &FragmentDefinition,
+    source_hash: &str,
+    skip_types: bool,
+) -> Result<Vec<u8>, FmtError> {
     let mut content = get_content_start(config)?;
     writeln!(content, " * {}", SIGNING_TOKEN)?;
     if project_config.typegen_config.language == TypegenLanguage::Flow {
@@ -483,6 +515,7 @@ fn generate_fragment(
             )
         )?;
     }
+
     match project_config.typegen_config.language {
         TypegenLanguage::Flow => writeln!(content, "*/\n")?,
         TypegenLanguage::TypeScript => writeln!(content)?,
@@ -509,6 +542,71 @@ fn generate_fragment(
         "node",
         generated_types.exported_type,
     )?;
+
+    Ok(sign_file(&content).into_bytes())
+}
+
+fn generate_assignable_fragment(
+    config: &Config,
+    project_config: &ProjectConfig,
+    schema: &SDLSchema,
+    typegen_fragment: &FragmentDefinition,
+    skip_types: bool,
+) -> Result<Vec<u8>, FmtError> {
+    let mut content = get_content_start(config)?;
+    writeln!(content, " * {}", SIGNING_TOKEN)?;
+    if project_config.typegen_config.language == TypegenLanguage::Flow {
+        writeln!(content, " * @flow")?;
+    }
+    writeln!(
+        content,
+        " * @lightSyntaxTransform
+ * @nogrep"
+    )?;
+    if let Some(codegen_command) = &config.codegen_command {
+        writeln!(content, " * @codegen-command: {}", codegen_command)?;
+    }
+    writeln!(content, " */\n")?;
+    write_disable_lint_header(&project_config.typegen_config.language, &mut content)?;
+    if project_config.typegen_config.language == TypegenLanguage::Flow {
+        writeln!(content, "'use strict';\n")?;
+    }
+
+    if project_config.typegen_config.language == TypegenLanguage::Flow {
+        writeln!(content, "/*::")?;
+    }
+
+    if !skip_types {
+        write!(
+            content,
+            "{}",
+            generate_fragment_type_exports_section(
+                typegen_fragment,
+                schema,
+                project_config.js_module_format,
+                project_config.output.is_some(),
+                &project_config.typegen_config
+            )
+        )?;
+    }
+
+    match project_config.typegen_config.language {
+        TypegenLanguage::Flow => writeln!(content, "*/\n")?,
+        TypegenLanguage::TypeScript => writeln!(content)?,
+    }
+
+    // Assignable fragments should never be passed to useFragment, and thus, we
+    // don't need to emit a reader fragment.
+    // Instead, we only need a named validator export, i.e.
+    // module.exports.validator = ...
+    let named_validator_export = generate_named_validator_export(
+        typegen_fragment,
+        schema,
+        project_config.js_module_format,
+        project_config.output.is_some(),
+        &project_config.typegen_config,
+    );
+    writeln!(content, "{}", named_validator_export).unwrap();
 
     Ok(sign_file(&content).into_bytes())
 }

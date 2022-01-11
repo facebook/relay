@@ -42,6 +42,7 @@ impl Writer for FlowPrinter {
             AST::Identifier(identifier) => write!(&mut self.result, "{}", identifier),
             AST::RawType(raw) => write!(&mut self.result, "{}", raw),
             AST::Union(members) => self.write_union(members),
+            AST::Array(of_type) => self.write_array(of_type),
             AST::ReadOnlyArray(of_type) => self.write_read_only_array(of_type),
             AST::Nullable(of_type) => self.write_nullable(of_type),
             AST::ExactObject(props) => self.write_object(props, true),
@@ -174,6 +175,12 @@ impl FlowPrinter {
             write!(&mut self.result, "{}$fragmentType", fragment)?;
         }
         Ok(())
+    }
+
+    fn write_array(&mut self, of_type: &AST) -> FmtResult {
+        write!(&mut self.result, "Array<")?;
+        self.write(of_type)?;
+        write!(&mut self.result, ">")
     }
 
     fn write_read_only_array(&mut self, of_type: &AST) -> FmtResult {

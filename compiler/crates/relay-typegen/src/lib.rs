@@ -1506,7 +1506,7 @@ impl<'a> TypeGenerator<'a> {
     fn transform_non_nullable_input_type(&mut self, type_ref: &TypeReference) -> AST {
         match type_ref {
             TypeReference::List(of_type) => {
-                AST::ReadOnlyArray(Box::new(self.transform_input_type(of_type)))
+                AST::Array(Box::new(self.transform_input_type(of_type)))
             }
             TypeReference::Named(named_type) => match named_type {
                 Type::Scalar(scalar) => self.transform_graphql_scalar_type(*scalar),

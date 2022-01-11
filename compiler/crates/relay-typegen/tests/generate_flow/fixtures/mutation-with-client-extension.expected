@@ -21,7 +21,7 @@ type Foo {
 ==================================== OUTPUT ===================================
 export type UpdateAllSeenStateInput = {|
   clientMutationId?: ?string,
-  storyIds?: ?$ReadOnlyArray<?string>,
+  storyIds?: ?Array<?string>,
 |};
 export type Test$variables = {|
   input?: ?UpdateAllSeenStateInput,

@@ -46,7 +46,7 @@ export type FeedbackcommentComment = {|
 export type CommentCreateMutation$variables = {|
   input: CommentCreateInput,
   first?: ?number,
-  orderBy?: ?$ReadOnlyArray<string>,
+  orderBy?: ?Array<string>,
 |};
 export type CommentCreateMutation$data = {|
   +commentCreate: ?{|

@@ -21,7 +21,7 @@ type Foo {
 ==================================== OUTPUT ===================================
 export type UpdateAllSeenStateInput = {
   clientMutationId?: string | null;
-  storyIds?: ReadonlyArray<string | null> | null;
+  storyIds?: Array<string | null> | null;
 };
 export type Test$variables = {
   input?: UpdateAllSeenStateInput | null;

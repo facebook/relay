@@ -11,6 +11,7 @@ use std::fmt::{Result as FmtResult, Write};
 #[derive(Debug, Clone)]
 pub enum AST {
     Union(Vec<AST>),
+    Array(Box<AST>),
     ReadOnlyArray(Box<AST>),
     Nullable(Box<AST>),
     Identifier(StringKey),

@@ -18,10 +18,10 @@ import {FbInternalOnly, OssOnly} from 'internaldocs-fb-helpers';
 
 The relay compiler supports persisted queries. This is useful because:
 
--   the client operation text becomes just an md5 hash which is usually shorter than the real
+-   The client operation text becomes just an md5 hash which is usually shorter than the real
     query string. This saves upload bytes from the client to the server.
 
--   the server can now whitelist queries which improves security by restricting the operations
+-   The server can now whitelist queries which improves security by restricting the operations
     that can be executed by a client.
 
 <OssOnly>
@@ -40,7 +40,7 @@ In your relay configiration section in `package.json` you'll need specify
 },
 "relay": {
   "src": "./src",
-  "schema": "./schema.graphq",
+  "schema": "./schema.graphql",
   "persistConfig": {
     "url": "http://localhost:2999",
     "params": {}
@@ -48,7 +48,7 @@ In your relay configiration section in `package.json` you'll need specify
 }
 ```
 
-Specifiying `persistConfig` in the config will do the folling:
+Specifiying `persistConfig` in the config will do the following:
 
 1.  It converts all query and mutation operation texts to md5 hashes.
 
@@ -88,9 +88,9 @@ Specifiying `persistConfig` in the config will do the folling:
 
     ```
 
-2.  It will sent an HTTP POST request with `text` parameter to the
+2.  It will send an HTTP POST request with a `text` parameter to the
 specified `url`.
-You can also add additional request body parameters to via `params` option.
+You can also add additional request body parameters via the `params` option.
 
 ```
 "scripts": {
@@ -98,7 +98,7 @@ You can also add additional request body parameters to via `params` option.
 },
 "relay": {
   "src": "./src",
-  "schema": "./schema.graphq",
+  "schema": "./schema.graphql",
   "persistConfig": {
     "url": "http://localhost:2999",
     "params": {}
@@ -108,7 +108,7 @@ You can also add additional request body parameters to via `params` option.
 
 ### Example implemetation of `relayLocalPersisting.js`
 
-A simple persist server that will save query text to the `queryMap.json` file.
+Here's an example of a simple persist server that will save query text to the `queryMap.json` file.
 
 
 ```javascript
@@ -196,10 +196,10 @@ To use this, you'll need to update `package.json`:
 
 ### Network layer changes
 
-You'll need to modify your network layer fetch implementation to pass a `doc_id` parameter in the POST body instead of a query parameter:
+You'll need to modify your network layer fetch implementation to pass an ID parameter in the POST body (e.g., `doc_id`) instead of a query parameter:
 
 ```javascript
-function fetchQuery(operation, variables,) {
+function fetchQuery(operation, variables) {
   return fetch('/graphql', {
     method: 'POST',
     headers: {
@@ -228,7 +228,7 @@ Your server should then look up the query referenced by `doc_id` when responding
 <OssOnly>
 
 To execute client requests that send persisted queries instead of query text, your server will need to be able
-to lookup the query text corresponding to each id. Typically this will involve saving the output of the `queryMap.json` JSON file to a database or some other storage mechanism, and retrieving the corresponding text for the ID specified by a client.
+to lookup the query text corresponding to each ID. Typically this will involve saving the output of the `queryMap.json` JSON file to a database or some other storage mechanism, and retrieving the corresponding text for the ID specified by a client.
 
 Additionally, your implementation of `relayLocalPersisting.js` could directly save queries to the database or other storage.
 
@@ -250,14 +250,14 @@ to push the query map at compile time to a location accessible by your server:
 
 Some possibilities of what you can do in `./pushQueries.js`:
 
--   `git push` to your server repo
+-   `git push` to your server repo.
 
--   save the query maps to a database
+-   Save the query maps to a database.
 
 ### Run time push
 
-A second more complex option is to push your query maps to the server at runtime, without the server knowing the query ids at the start.
-The client optimistically sends a query id to the server, which does not have the query map. The server then in turn requests
+A second more complex option is to push your query maps to the server at runtime, without the server knowing the query IDs at the start.
+The client optimistically sends a query ID to the server, which does not have the query map. The server then in turn requests
 for the full query text from the client so it can cache the query map for subsequent requests. This is a more complex approach
 requiring the client and server to interact to exchange the query maps.
 
@@ -267,19 +267,24 @@ Once your server has access to the query map, you can perform the mapping. The s
 database technologies you use, so we'll just cover the most common and basic example here.
 
 If you use `express-graphql` and have access to the query map file, you can import it directly and
-perform the matching using the `matchQueryMiddleware` from [relay-compiler-plus](https://github.com/yusinto/relay-compiler-plus).
+perform the matching using the `persistedQueries` middleware from [express-graphql-persisted-queries](https://github.com/kyarik/express-graphql-persisted-queries).
 
 ```javascript
-import Express from 'express';
-import expressGraphql from 'express-graphql';
-import {matchQueryMiddleware} from 'relay-compiler-plus';
-import queryMapJson from './path/to/queryMap.json';
+import express from 'express';
+import {graphqlHTTP} from 'express-graphql';
+import {persistedQueries} from 'express-graphql-persisted-queries';
+import queryMap from './path/to/queryMap.json';
 
-const app = Express();
+const app = express();
 
-app.use('/graphql',
-  matchQueryMiddleware(queryMapJson),
-  expressGraphql({schema}));
+app.use(
+  '/graphql',
+  persistedQueries({
+    queryMap,
+    queryIdKey: 'doc_id',
+  }),
+  graphqlHTTP({schema}),
+);
 ```
 
 ## Using `persistConfig` and `--watch`
@@ -288,7 +293,7 @@ It is possible to continuously generate the query map files by using the `persis
 This only makes sense for universal applications i.e. if your client and server code are in a single project
 and you run them both together on localhost during development. Furthermore, in order for the server to pick up changes
 to the `queryMap.json`, you'll need to have server side hot-reloading set up. The details on how to set this up
-is out of the scope of this document.
+are out of the scope of this document.
 
 </OssOnly>
 

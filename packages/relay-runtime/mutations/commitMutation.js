@@ -37,32 +37,15 @@ const validateMutation = require('./validateMutation');
 const invariant = require('invariant');
 const warning = require('warning');
 
-export type DEPRECATED_MutationConfig<TMutationResponse> = {|
-  configs?: Array<DeclarativeMutationConfig>,
-  cacheConfig?: CacheConfig,
-  mutation: GraphQLTaggedNode,
-  variables: Variables,
-  uploadables?: UploadableMap,
-  onCompleted?: ?(
-    response: TMutationResponse,
-    errors: ?Array<PayloadError>,
-  ) => void,
-  onError?: ?(error: Error) => void,
-  onUnsubscribe?: ?() => void,
-  optimisticUpdater?: ?SelectorStoreUpdater<TMutationResponse>,
-  optimisticResponse?: Object,
-  updater?: ?SelectorStoreUpdater<TMutationResponse>,
-|};
-
 export type MutationConfig<TMutation: MutationParameters> = {|
-  configs?: Array<DeclarativeMutationConfig>,
   cacheConfig?: CacheConfig,
+  configs?: Array<DeclarativeMutationConfig>,
   mutation: GraphQLTaggedNode,
-  onError?: ?(error: Error) => void,
   onCompleted?: ?(
     response: TMutation['response'],
     errors: ?Array<PayloadError>,
   ) => void,
+  onError?: ?(error: Error) => void,
   onNext?: ?() => void,
   onUnsubscribe?: ?() => void,
   optimisticResponse?: {
@@ -75,6 +58,12 @@ export type MutationConfig<TMutation: MutationParameters> = {|
   uploadables?: UploadableMap,
   variables: TMutation['variables'],
 |};
+
+export type DEPRECATED_MutationConfig<TMutationResponse> = MutationConfig<{|
+  response: TMutationResponse,
+  rawResponse: any,
+  variables: Variables,
+|}>;
 
 /**
  * Higher-level helper function to execute a mutation against a specific

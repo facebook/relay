@@ -439,7 +439,7 @@ describe('Configs: RANGE_ADD', () => {
     environment,
     mutation,
     optimisticUpdater,
-    payload,
+    payload: {...},
     store,
     updater;
   const commentID = 'comment123';
@@ -881,8 +881,8 @@ describe('Configs: RANGE_ADD', () => {
 
   it('does not overwrite previous edge when appended multiple times in updater function', () => {
     updater = (updaterStore: $FlowFixMe | RecordSourceSelectorProxy) => {
-      payload = updaterStore.getRootField('commentCreate');
-      const newEdge = nullthrows(payload).getLinkedRecord(
+      const rootField = updaterStore.getRootField('commentCreate');
+      const newEdge = nullthrows(rootField).getLinkedRecord(
         'feedbackCommentEdge',
       );
       const feedbackProxy = nullthrows(updaterStore).get(feedbackID);

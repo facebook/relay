@@ -20,6 +20,7 @@ impl SourcePrinter {
         writer: &mut W,
         span: &Span,
         source: &str,
+        line_offset: usize,
     ) -> std::fmt::Result {
         let start_char_index = span.start as usize;
         let end_char_index = span.end as usize;
@@ -84,7 +85,7 @@ impl SourcePrinter {
             write!(
                 writer,
                 "{}",
-                format!(" {:>4} \u{2502} ", line_index + 1).bold()
+                format!(" {:>4} \u{2502} ", line_index + line_offset + 1).bold()
             )
             .unwrap();
             let mut something_highlighted_on_line = false;

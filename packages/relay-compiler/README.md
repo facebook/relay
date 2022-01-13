@@ -82,12 +82,12 @@ use [glob](https://docs.rs/glob/latest/glob/) to query the filesystem for files.
 - `eagerEsModules`      This option enables emitting ES modules artifacts.
                                                        [boolean][default: false]
 - `persistConfig`
-  - `url`               String, URL to send a POST request to to persist.
-                                                              [required][string]
-  - `params`            The document will be in a `POST`
-                        parameter `text`. This map can contain additional
-                        parameters to send.
-                                                              [required][object]
+  - `url`               String, URL to send a POST request to to persist. This
+                        field is required in `persistConfig`
+                                                                        [string]
+  - `params`            The document will be in a `POST` parameter `text`.
+                        This map can contain additional parameters to send.
+                                                                        [object]
   - `concurrency`       The maximum number concurrent requests that will
                         be made to `url`. Use a value greater than 0.
                                                                         [number]

@@ -29,6 +29,7 @@ pub struct PersistConfig {
     pub url: String,
     /// The document will be in a POST parameter `text`. This map can contain
     /// additional parameters to send.
+    #[serde(default)]
     pub params: FnvIndexMap<String, String>,
 
     #[serde(

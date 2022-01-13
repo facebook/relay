@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<801382dabe42c5f872fa5ba9c6c69a6b>>
+ * @generated SignedSource<<378d00722015ed94e5b3a33bcbb771a4>>
  */
 
 mod compile_relay_artifacts;
@@ -871,6 +871,13 @@ fn refetchable_fragment_with_connection_bidirectional() {
     let input = include_str!("compile_relay_artifacts/fixtures/refetchable-fragment-with-connection-bidirectional.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/refetchable-fragment-with-connection-bidirectional.expected");
     test_fixture(transform_fixture, "refetchable-fragment-with-connection-bidirectional.graphql", "compile_relay_artifacts/fixtures/refetchable-fragment-with-connection-bidirectional.expected", input, expected);
+}
+
+#[test]
+fn refetchable_fragment_with_connection_es_modules() {
+    let input = include_str!("compile_relay_artifacts/fixtures/refetchable-fragment-with-connection-es-modules.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/refetchable-fragment-with-connection-es-modules.expected");
+    test_fixture(transform_fixture, "refetchable-fragment-with-connection-es-modules.graphql", "compile_relay_artifacts/fixtures/refetchable-fragment-with-connection-es-modules.expected", input, expected);
 }
 
 #[test]

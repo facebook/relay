@@ -32,6 +32,7 @@ pub use build_project::{
     transform_program, validate, validate_program, AdditionalValidations, Artifact,
     ArtifactContent, ArtifactGeneratedTypes, BuildProjectFailure, SourceHashes,
 };
+pub use config::ConfigFileProject;
 pub use config::{
     FileSourceKind, OperationPersister, PersistConfig, ProjectConfig, SchemaLocation,
 };

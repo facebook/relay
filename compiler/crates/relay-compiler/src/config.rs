@@ -797,7 +797,7 @@ It also cannot be a single project config file due to:
 
 #[derive(Debug, Deserialize, Serialize, Default)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
-struct ConfigFileProject {
+pub struct ConfigFileProject {
     /// If a base project is set, the documents of that project can be
     /// referenced, but won't produce output artifacts.
     /// Extensions from the base project will be added as well and the schema
@@ -841,7 +841,7 @@ struct ConfigFileProject {
     persist: Option<PersistConfig>,
 
     #[serde(flatten)]
-    typegen_config: TypegenConfig,
+    pub typegen_config: TypegenConfig,
 
     /// Optional regex to restrict @relay_test_operation to directories matching
     /// this regex. Defaults to no limitations.
@@ -857,7 +857,7 @@ struct ConfigFileProject {
     extra: serde_json::Value,
 
     #[serde(default)]
-    feature_flags: Option<FeatureFlags>,
+    pub feature_flags: Option<FeatureFlags>,
 
     /// A generic rollout state for larger codegen changes. The default is to
     /// pass, otherwise it should be a number between 0 and 100 as a percentage.
@@ -865,7 +865,7 @@ struct ConfigFileProject {
     pub rollout: Rollout,
 
     #[serde(default)]
-    js_module_format: JsModuleFormat,
+    pub js_module_format: JsModuleFormat,
 
     #[serde(default)]
     pub schema_config: SchemaConfig,

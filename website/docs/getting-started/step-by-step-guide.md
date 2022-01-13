@@ -126,7 +126,7 @@ function App() {
     return () => {
       isMounted = false;
     };
-  }, [fetchGraphQL]);
+  }, []);
 
   // Render "Loading" until the query completes
   return (

@@ -83,10 +83,14 @@ use [glob](https://docs.rs/glob/latest/glob/) to query the filesystem for files.
                                                        [boolean][default: false]
 - `persistConfig`
   - `url`               String, URL to send a POST request to to persist.
-                                                                        [string]
+                                                              [required][string]
   - `params`            The document will be in a `POST`
                         parameter `text`. This map can contain additional
-                        parameters to send.                             [object]
+                        parameters to send.
+                                                              [required][object]
+  - `concurrency`       The maximum number concurrent requests that will
+                        be made to `url`. Use a value greater than 0.
+                                                                        [number]
 - `codegenCommand`      Command name that for relay compiler.           [string]
 
 - `isDevVariableName`   Name of the global variable for dev mode (`__DEV__`).

@@ -20,7 +20,14 @@ impl OperationPersister for RemotePersister {
     ) -> Result<String, PersistError> {
         let params = &persist_config.params;
         let url = &persist_config.url;
-        persist(&operation_text, url, params).await
+        if let Some(semaphore) = &persist_config.semaphore {
+            let permit = (*semaphore).acquire().await.unwrap();
+            let result = persist(&operation_text, url, params).await;
+            drop(permit);
+            result
+        } else {
+            persist(&operation_text, url, params).await
+        }
     }
 
     fn worker_count(&self) -> usize {

@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<5a9b623629861619e98749452388d136>>
+ * @generated SignedSource<<a48ac4659a68dc65c787f54aba94e8fa>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,19 +15,21 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-export type ReactRelayLocalQueryRendererTestSecondUserQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+export type ReactRelayLocalQueryRendererTestSecondUserQuery$variables = {|
   id?: ?string,
 |};
-export type ReactRelayLocalQueryRendererTestSecondUserQueryResponse = {|
+export type ReactRelayLocalQueryRendererTestSecondUserQueryVariables = ReactRelayLocalQueryRendererTestSecondUserQuery$variables;
+export type ReactRelayLocalQueryRendererTestSecondUserQuery$data = {|
   +node: ?{|
     +id: string,
     +lastName?: ?string,
   |},
 |};
+export type ReactRelayLocalQueryRendererTestSecondUserQueryResponse = ReactRelayLocalQueryRendererTestSecondUserQuery$data;
 export type ReactRelayLocalQueryRendererTestSecondUserQuery = {|
   variables: ReactRelayLocalQueryRendererTestSecondUserQueryVariables,
-  response: ReactRelayLocalQueryRendererTestSecondUserQueryResponse,
+  response: ReactRelayLocalQueryRendererTestSecondUserQuery$data,
 |};
 */
 
@@ -134,4 +136,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "5716979e899ac67be87af3d3d3533a98";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  ReactRelayLocalQueryRendererTestSecondUserQuery$variables,
+  ReactRelayLocalQueryRendererTestSecondUserQuery$data,
+>*/);

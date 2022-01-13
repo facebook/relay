@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b49d64d0497c4f7d7189106e75418917>>
+ * @generated SignedSource<<e9cdb8bca9f155383d4e65709772dbe6>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,16 +15,17 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
+import type { ConcreteRequest, GraphQLSubscription } from 'relay-runtime';
 export type CommentCreateSubscriptionInput = {|
   clientSubscriptionId?: ?string,
   feedbackId?: ?string,
   text?: ?string,
 |};
-export type requestSubscriptionTestCommentCreateSubscriptionVariables = {|
+export type requestSubscriptionTestCommentCreateSubscription$variables = {|
   input?: ?CommentCreateSubscriptionInput,
 |};
-export type requestSubscriptionTestCommentCreateSubscriptionResponse = {|
+export type requestSubscriptionTestCommentCreateSubscriptionVariables = requestSubscriptionTestCommentCreateSubscription$variables;
+export type requestSubscriptionTestCommentCreateSubscription$data = {|
   +commentCreateSubscribe: ?{|
     +feedbackCommentEdge: ?{|
       +node: ?{|
@@ -36,9 +37,10 @@ export type requestSubscriptionTestCommentCreateSubscriptionResponse = {|
     |},
   |},
 |};
+export type requestSubscriptionTestCommentCreateSubscriptionResponse = requestSubscriptionTestCommentCreateSubscription$data;
 export type requestSubscriptionTestCommentCreateSubscription = {|
   variables: requestSubscriptionTestCommentCreateSubscriptionVariables,
-  response: requestSubscriptionTestCommentCreateSubscriptionResponse,
+  response: requestSubscriptionTestCommentCreateSubscription$data,
 |};
 */
 
@@ -150,4 +152,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "7d9ee99d1116caeaecdf85285ba0c2f7";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: GraphQLSubscription<
+  requestSubscriptionTestCommentCreateSubscription$variables,
+  requestSubscriptionTestCommentCreateSubscription$data,
+>*/);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -7,7 +7,7 @@
 
 use common::{DiagnosticDisplay, WithDiagnosticData};
 use graphql_syntax::OperationKind;
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey};
 use schema::{Type, TypeReference};
 use thiserror::Error;
 
@@ -16,79 +16,86 @@ use thiserror::Error;
 pub enum ValidationMessage {
     #[error("Duplicate definitions for '{0}'")]
     DuplicateDefinition(StringKey),
+
     #[error("Undefined fragment '{0}'")]
     UndefinedFragment(StringKey),
+
     #[error("Expected an object, interface, or union, found '{0:?}'")]
     ExpectedCompositeType(Type),
+
     #[error("Expected type '{0:?}")]
     ExpectedType(TypeReference),
+
     #[error("Expected no selections on scalar field `{field_name}` of type `{type_name}`")]
     InvalidSelectionsOnScalarField {
         field_name: StringKey,
         type_name: StringKey,
     },
+
     #[error("Unknown argument '{0}'")]
     UnknownArgument(StringKey),
+
     #[error("Unknown directive '{0}'")]
     UnknownDirective(StringKey),
+
     #[error(
         "Invalid use of @uncheckedArguments_DEPRECATED: all arguments are defined and of correct type, use @arguments instead."
     )]
     UnnecessaryUncheckedArgumentsDirective,
+
     #[error("Expected operation to have a name (e.g. 'query <Name>')")]
     ExpectedOperationName(),
-    #[error(
-        "{pluralized_string} in graphql tags must start with the module name ('{module_name}') and end with '{operation_type_suffix}'. Got '{operation_name}' instead."
-    )]
-    InvalidOperationName {
-        pluralized_string: String,
-        module_name: String,
-        operation_type_suffix: String,
-        operation_name: String,
-    },
-    #[error(
-        "Fragments in graphql tags must start with the module name ('{module_name}'). Got '{fragment_name}' instead."
-    )]
-    InvalidFragmentName {
-        module_name: String,
-        fragment_name: String,
-    },
+
     #[error("The schema does not support '{0}' operations")]
     UnsupportedOperation(OperationKind),
+
     #[error("Nested lists ('[[T]]' etc) are not supported")]
     UnsupportedNestListType(),
+
     #[error("Expected a value of type '{0}'")]
     ExpectedValueMatchingType(StringKey),
+
     #[error(
         "Expected value of type '{0}' to be a valid enum value, got string. Consider removing quotes."
     )]
     ExpectedEnumValueGotString(StringKey),
+
     #[error("Duplicate values found for field '{0}'")]
     DuplicateInputField(StringKey),
+
     #[error("Missing required fields '{0:?}' of type '{1}'")] // TODO: print joined
     MissingRequiredFields(Vec<StringKey>, StringKey),
+
     #[error("Unsupported (user-defined) scalar type '{0}'")]
     UnsupportedCustomScalarType(StringKey),
+
     #[error("Expected at-most one '@arguments' directive per fragment spread")]
     ExpectedOneArgumentsDirective(),
+
     #[error("Expected at-most one '@argumentDefinitions' directive per fragment spread")]
     ExpectedOneArgumentDefinitionsDirective(),
+
     #[error(
         "Cannot combine fragment variable definitions syntax with the '@argumentDefinitions' directive"
     )]
     VariableDefinitionsAndArgumentDirective(),
+
     #[error(
         "Expected `@argumentDefinitions` value to have a `type` field with a literal string value (e.g. `type: \"Int!\"`)"
     )]
     ExpectedArgumentDefinitionLiteralType(),
+
     #[error(
         "Expected `@argumentDefinitions` value to be an object with `type` and (optionally) `defaultValue` properties"
     )]
     ExpectedArgumentDefinitionToBeObject(),
+
     #[error("Expected '@argumentDefinitions' directive to be used on fragment definitions only.")]
     ExpectedArgumentDefinitionsDirectiveOnFragmentDefinition(),
+
     #[error("Non-nullable variable '{variable_name}' has a default value.")]
     NonNullableVariableHasDefaultValue { variable_name: StringKey },
+
     #[error(
         "Variable was defined as type '{defined_type}' but used where a variable of type '{used_type}' is expected."
     )]
@@ -96,6 +103,7 @@ pub enum ValidationMessage {
         defined_type: String,
         used_type: String,
     },
+
     #[error(
         "Variable was previously used as type '{prev_type}' but later used where type '{next_type}' is expected."
     )]
@@ -103,16 +111,20 @@ pub enum ValidationMessage {
         prev_type: String,
         next_type: String,
     },
+
     #[error("Expected variable `${0}` to be defined on the operation")]
     ExpectedOperationVariableToBeDefined(StringKey),
+
     #[error(
         "Expected argument definition to have an input type (scalar, enum, or input object), found type '{0}'"
     )]
     ExpectedFragmentArgumentToHaveInputType(StringKey),
+
     #[error(
         "Expected variable definition to have an input type (scalar, enum, or input object), found type '{0}'"
     )]
     ExpectedVariablesToHaveInputType(StringKey),
+
     #[error(
         "Invalid type '{type_condition}' in inline fragment, this type can never occur for parent type '{parent_type}'"
     )]
@@ -120,6 +132,7 @@ pub enum ValidationMessage {
         parent_type: StringKey,
         type_condition: StringKey,
     },
+
     #[error(
         "Invalid fragment spread '{fragment_name}', the type of this fragment ('{type_condition}') can never occur for parent type '{parent_type}'"
     )]
@@ -128,6 +141,7 @@ pub enum ValidationMessage {
         parent_type: StringKey,
         type_condition: StringKey,
     },
+
     #[error("Directive '{0}' not supported in this location")]
     InvalidDirectiveUsageUnsupportedLocation(StringKey),
 
@@ -282,14 +296,18 @@ pub enum ValidationMessage {
 
     #[error("Expected the `{0}` argument to @relay to be a boolean literal if specified.")]
     InvalidRelayDirectiveArg(StringKey),
+
     #[error("Cannot use @relay(mask: false) on fragment spreads for fragments with directives.")]
     InvalidUnmaskOnFragmentWithDirectives(),
+
     #[error(
         "Cannot use @relay(mask: false) on fragment spreads for fragments with @argumentDefinitions."
     )]
     InvalidUnmaskOnFragmentWithArguments(),
+
     #[error("Cannot combine global and local variables when applying @relay(mask: false")]
     InvalidUnmaskOnLocalAndGloablVariablesWithSameName(),
+
     #[error(
         "Cannot combine variables with incompatible types {prev_arg_type} and {next_arg_type} when applying @relay(mask: false"
     )]
@@ -298,36 +316,40 @@ pub enum ValidationMessage {
         next_arg_type: String,
     },
 
-    #[error("Found a circular reference from fragment '{fragment_name}'.")]
-    CircularFragmentReference { fragment_name: StringKey },
-
     #[error("'{name}' should be defined on the server schema.")]
     MissingServerSchemaDefinition { name: StringKey },
 
     #[error("Direct use of the '{field_name}' field is not allowed, use '@match/@module instead.")]
     InvalidDirectUseOfJSField { field_name: StringKey },
+
     #[error(
         "Expected the 'key' argument of @match to be a literal string starting with the document name, e.g. '{document_name}_<localName>'."
     )]
     InvalidMatchKeyArgument { document_name: StringKey },
+
     #[error(
         "@match used on incompatible field '{field_name}'. @match may only be used with fields that accept a 'supported: [String]' argument."
     )]
     InvalidMatchNotOnNonNullListString { field_name: StringKey },
+
     #[error(
         "@match used on incompatible field '{field_name}'. @match may only be used with fields that return a union or interface."
     )]
     InvalidMatchNotOnUnionOrInterface { field_name: StringKey },
+
     #[error(
         "Invalid @match selection: the '{supported_arg}' argument is automatically added and cannot be supplied explicitly.'"
     )]
     InvalidMatchNoUserSuppliedSupportedArg { supported_arg: StringKey },
+
     #[error("Invalid @match selection: all selections should be fragment spreads with @module.")]
     InvalidMatchNotAllSelectionsFragmentSpreadWithModule,
+
     #[error(
         "Invalid @match selection: expected at least one @module selection. Remove @match or add a '...Fragment @module()' selection."
     )]
     InvalidMatchNoModuleSelection,
+
     #[error(
         "@match on a field without the `supported` argument is a no-op, please remove the `@match`."
     )]
@@ -335,10 +357,13 @@ pub enum ValidationMessage {
 
     #[error("@module does not support @inline fragments.")]
     InvalidModuleWithInline,
+
     #[error("@module does not support @arguments.")]
     InvalidModuleWithArguments,
+
     #[error("Using @module requires the schema to define a scalar '{js_field_type}' type.")]
     InvalidModuleNonScalarJSField { js_field_type: StringKey },
+
     #[error(
         "@module used on invalid fragment spread '...{spread_name}'. @module may only be used with fragments on a concrete (object) type, but the fragment has abstract type '{type_string}'."
     )]
@@ -346,6 +371,7 @@ pub enum ValidationMessage {
         spread_name: StringKey,
         type_string: StringKey,
     },
+
     #[error(
         "@module used on invalid fragment spread '...{spread_name}'. @module requires the fragment type '{type_string}' to have a '{js_field_name}({js_field_module_arg}: String!, {js_field_id_arg}: String): {js_field_type}' field (your schema may choose to omit the 'id'  argument but if present it must accept a 'String')."
     )]
@@ -357,14 +383,18 @@ pub enum ValidationMessage {
         js_field_id_arg: StringKey,
         js_field_type: StringKey,
     },
+
     #[error(
         "@module used on invalid fragment spread '...{spread_name}'. @module may not have additional directives."
     )]
     InvalidModuleWithAdditionalDirectives { spread_name: StringKey },
+
     #[error("Expected the 'name' argument of @module to be a literal string.")]
     InvalidModuleNonLiteralName,
+
     #[error("Expected the 'name' argument to be defined.")]
     InvalidModuleNoName,
+
     #[error(
         "Invalid @module selection: documents with multiple fields containing 3D selections must specify a unique 'key' value for each field: use '{parent_name} @match(key: \"{document_name}_<localName>\")'."
     )]
@@ -372,6 +402,7 @@ pub enum ValidationMessage {
         document_name: StringKey,
         parent_name: StringKey,
     },
+
     #[error(
         "Invalid @module selection: concrete type '{type_name}' was matched multiple times at path '{alias_path}' but with a different fragment or module name."
     )]
@@ -379,15 +410,12 @@ pub enum ValidationMessage {
         type_name: StringKey,
         alias_path: String,
     },
+
     #[error(
         "Each field on a given type can have only a single @module directive, but here there is more than one (perhaps within different spreads). To fix it, put each @module directive into its own aliased copy of the field with different aliases."
     )]
     ConflictingModuleSelections,
 
-    #[error(
-        "Invalid use of @{directive_name}, the provided label is not unique. Specify a unique 'label' as a literal string."
-    )]
-    LabelNotUniqueForDeferStream { directive_name: StringKey },
     #[error(
         "Expected the '{arg_name}' value to @{directive_name} to be a string literal if provided."
     )]
@@ -395,19 +423,6 @@ pub enum ValidationMessage {
         arg_name: StringKey,
         directive_name: StringKey,
     },
-    #[error(
-        "Invalid use of @defer on an inline fragment. Relay only supports @defer on fragment spreads."
-    )]
-    InvalidDeferOnInlineFragment,
-
-    #[error("Invalid use of @stream on scalar field '{field_name}'")]
-    InvalidStreamOnScalarField { field_name: StringKey },
-
-    #[error("Invalid use of @stream, the 'initial_count' argument is required.")]
-    StreamInitialCountRequired,
-
-    #[error("Field '{field_name}' is not of list type, therefore cannot use @stream directive.")]
-    StreamFieldIsNotAList { field_name: StringKey },
 
     #[error("Variable `${variable_name}` is never used in operation `{operation_name}`")]
     UnusedVariable {
@@ -539,25 +554,26 @@ pub enum ValidationMessage {
         fragment_name: StringKey,
         type_name: StringKey,
     },
+
     #[error("Variables are not yet supported inside @inline fragments.")]
     InlineDataFragmentArgumentsNotSupported,
+
     #[error("Directives on fragment spreads for @inline fragments are not yet supported")]
     InlineDataFragmentDirectivesNotSupported,
 
     #[error("Subscription '{subscription_name}' must have a single selection")]
     GenerateSubscriptionNameSingleSelectionItem { subscription_name: StringKey },
 
-    #[error("The root of subscription '{subscription_name}' must be a simple selection.")]
-    GenerateSubscriptionNameSimpleSelection { subscription_name: StringKey },
-
     #[error(
         "Live query expects 'polling_interval' or 'config_id' as an argument to @live_query to for root field {query_name}"
     )]
     LiveQueryTransformMissingConfig { query_name: StringKey },
+
     #[error(
         "Expected the 'polling_interval' argument to @live_query to be a literal number for root field {query_name}"
     )]
     LiveQueryTransformInvalidPollingInterval { query_name: StringKey },
+
     #[error(
         "Expected the 'config_id' argument to @live_query to be a literal string for root field {query_name}"
     )]
@@ -565,57 +581,6 @@ pub enum ValidationMessage {
 
     #[error("The directive `@{name}` can only be used once at this location.")]
     RepeatedNonRepeatableDirective { name: StringKey },
-
-    #[error("Invalid use of @{directive_name} on scalar field '{field_name}'.")]
-    ConnectionMutationDirectiveOnScalarField {
-        directive_name: StringKey,
-        field_name: StringKey,
-    },
-    #[error(
-        "Invalid use of @{directive_name} on field '{field_name}'. Expected field type 'ID', got '{current_type}'."
-    )]
-    DeleteRecordDirectiveOnUnsupportedType {
-        directive_name: StringKey,
-        field_name: StringKey,
-        current_type: String,
-    },
-    #[error("Invalid use of @{directive_name} on linked field '{field_name}'.")]
-    DeleteRecordDirectiveOnLinkedField {
-        directive_name: StringKey,
-        field_name: StringKey,
-    },
-    #[error("Expected the 'connections' argument to be defined on @{directive_name}.")]
-    ConnectionsArgumentRequired { directive_name: StringKey },
-    #[error(
-        "Unsupported use of @{directive_name} on field '{field_name}', expected an edge field (a field with 'cursor' and 'node' selection)."
-    )]
-    EdgeDirectiveOnUnsupportedType {
-        directive_name: StringKey,
-        field_name: StringKey,
-    },
-    #[error(
-        "Invalid use of @{edge_directive_name} and @{node_directive_name} on field '{field_name}' - these directives cannot be used together."
-    )]
-    ConflictingEdgeAndNodeDirectives {
-        edge_directive_name: StringKey,
-        node_directive_name: StringKey,
-        field_name: StringKey,
-    },
-    #[error(
-        "Unsupported use of @{directive_name} on field '${field_name}', 'edgeTypeName' argument must be provided."
-    )]
-    NodeDirectiveMissesRequiredEdgeTypeName {
-        directive_name: StringKey,
-        field_name: StringKey,
-    },
-    #[error(
-        "Unsupported use of @{directive_name} on field '{field_name}'. Expected an object, union or interface, but got '{current_type}'."
-    )]
-    NodeDirectiveOnUnsupportedType {
-        directive_name: StringKey,
-        field_name: StringKey,
-        current_type: String,
-    },
 
     #[error(
         "Expected 'flight' field schema definition to specify its component name with @react_flight_component"
@@ -674,10 +639,8 @@ pub enum ValidationMessage {
     )]
     RequiredFieldInvalidNesting { suggested_action: StringKey },
 
-    #[error(
-        "The @required directive is experimental and not yet supported for use in product code"
-    )]
-    RequiredNotSupported,
+    #[error("Module-provided variable ('{argument_name}') may not declare a default value")]
+    ProvidedVariableIncompatibleWithDefaultValue { argument_name: StringKey },
 
     #[error(
         "Fragment variable `${name}` conflicts with a global variable generated by the @refetchable generated query"
@@ -729,6 +692,9 @@ pub enum ValidationMessage {
         "The `raw_response_type` argument should be set to `true` for the @no_inline fragment `{fragment_name}` used in the query with @raw_response_type."
     )]
     RequiredRawResponseTypeOnNoInline { fragment_name: StringKey },
+
+    #[error("No fields can have an alias that start with two underscores.")]
+    NoDoubleUnderscoreAlias,
 }
 
 #[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]
@@ -738,12 +704,14 @@ pub enum ValidationMessageWithData {
         type_name: StringKey,
         suggestions: Vec<StringKey>,
     },
+
     #[error("The type `{type_}` has no field `{field}`.{suggestions}", suggestions = did_you_mean(suggestions))]
     UnknownField {
         type_: StringKey,
         field: StringKey,
         suggestions: Vec<StringKey>,
     },
+
     #[error("Expected selections on field `{field_name}` of type `{type_name}`")]
     ExpectedSelectionsOnObjectField {
         field_name: StringKey,

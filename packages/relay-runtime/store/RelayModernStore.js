@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -12,7 +12,6 @@
 
 'use strict';
 
-import type {ActorIdentifier} from '../multi-actor-environment/ActorIdentifier';
 import type {DataID, Disposable} from '../util/RelayRuntimeTypes';
 import type {Availability} from './DataChecker';
 import type {GetDataID} from './RelayResponseNormalizer';
@@ -713,7 +712,6 @@ function updateTargetFromSource(
         currentWriteEpoch,
       );
       invalidatedRecordIDs.add(dataID);
-      // $FlowFixMe[incompatible-call]
       target.set(dataID, nextRecord);
     });
   }

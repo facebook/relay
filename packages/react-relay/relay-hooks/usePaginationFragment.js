@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -16,7 +16,7 @@
 import type {LoadMoreFn, UseLoadMoreFunctionArgs} from './useLoadMoreFunction';
 import type {RefetchFnDynamic} from './useRefetchableFragmentNode';
 import type {
-  FragmentReference,
+  FragmentType,
   GraphQLResponse,
   GraphQLTaggedNode,
   Observer,
@@ -46,7 +46,7 @@ export type ReturnType<TQuery: OperationType, TKey, TFragmentData> = {|
 
 function usePaginationFragment<
   TQuery: OperationType,
-  TKey: ?{+$data?: mixed, +$fragmentRefs: FragmentReference, ...},
+  TKey: ?{+$data?: mixed, +$fragmentSpreads: FragmentType, ...},
 >(
   fragmentInput: GraphQLTaggedNode,
   parentFragmentRef: TKey,
@@ -84,42 +84,34 @@ function usePaginationFragment<
   const fragmentIdentifier = getFragmentIdentifier(fragmentNode, fragmentRef);
 
   // Backward pagination
-  const [
-    loadPrevious,
-    hasPrevious,
-    isLoadingPrevious,
-    disposeFetchPrevious,
-  ] = useLoadMore<TQuery>({
-    componentDisplayName,
-    connectionPathInFragmentData,
-    direction: 'backward',
-    fragmentData,
-    fragmentIdentifier,
-    fragmentNode,
-    fragmentRef,
-    identifierField,
-    paginationMetadata,
-    paginationRequest,
-  });
+  const [loadPrevious, hasPrevious, isLoadingPrevious, disposeFetchPrevious] =
+    useLoadMore<TQuery>({
+      componentDisplayName,
+      connectionPathInFragmentData,
+      direction: 'backward',
+      fragmentData,
+      fragmentIdentifier,
+      fragmentNode,
+      fragmentRef,
+      identifierField,
+      paginationMetadata,
+      paginationRequest,
+    });
 
   // Forward pagination
-  const [
-    loadNext,
-    hasNext,
-    isLoadingNext,
-    disposeFetchNext,
-  ] = useLoadMore<TQuery>({
-    componentDisplayName,
-    connectionPathInFragmentData,
-    direction: 'forward',
-    fragmentData,
-    fragmentIdentifier,
-    fragmentNode,
-    fragmentRef,
-    identifierField,
-    paginationMetadata,
-    paginationRequest,
-  });
+  const [loadNext, hasNext, isLoadingNext, disposeFetchNext] =
+    useLoadMore<TQuery>({
+      componentDisplayName,
+      connectionPathInFragmentData,
+      direction: 'forward',
+      fragmentData,
+      fragmentIdentifier,
+      fragmentNode,
+      fragmentRef,
+      identifierField,
+      paginationMetadata,
+      paginationRequest,
+    });
 
   const refetchPagination: RefetchFnDynamic<TQuery, TKey> = useCallback(
     (variables, options) => {

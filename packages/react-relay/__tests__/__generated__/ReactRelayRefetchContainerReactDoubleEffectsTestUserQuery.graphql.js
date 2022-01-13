@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<46e8fffcc74fde025344936d4f0afb82>>
+ * @generated SignedSource<<3e84f18b3384030ea6dc478f9248cbec>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,19 +15,21 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type ReactRelayRefetchContainerReactDoubleEffectsTestUserFragment$ref = any;
-export type ReactRelayRefetchContainerReactDoubleEffectsTestUserQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type ReactRelayRefetchContainerReactDoubleEffectsTestUserFragment$fragmentType = any;
+export type ReactRelayRefetchContainerReactDoubleEffectsTestUserQuery$variables = {|
   id: string,
 |};
-export type ReactRelayRefetchContainerReactDoubleEffectsTestUserQueryResponse = {|
+export type ReactRelayRefetchContainerReactDoubleEffectsTestUserQueryVariables = ReactRelayRefetchContainerReactDoubleEffectsTestUserQuery$variables;
+export type ReactRelayRefetchContainerReactDoubleEffectsTestUserQuery$data = {|
   +node: ?{|
-    +$fragmentRefs: ReactRelayRefetchContainerReactDoubleEffectsTestUserFragment$ref,
+    +$fragmentSpreads: ReactRelayRefetchContainerReactDoubleEffectsTestUserFragment$fragmentType,
   |},
 |};
+export type ReactRelayRefetchContainerReactDoubleEffectsTestUserQueryResponse = ReactRelayRefetchContainerReactDoubleEffectsTestUserQuery$data;
 export type ReactRelayRefetchContainerReactDoubleEffectsTestUserQuery = {|
   variables: ReactRelayRefetchContainerReactDoubleEffectsTestUserQueryVariables,
-  response: ReactRelayRefetchContainerReactDoubleEffectsTestUserQueryResponse,
+  response: ReactRelayRefetchContainerReactDoubleEffectsTestUserQuery$data,
 |};
 */
 
@@ -135,4 +137,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "672ea26a52c353b070b2114ac3dedb53";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  ReactRelayRefetchContainerReactDoubleEffectsTestUserQuery$variables,
+  ReactRelayRefetchContainerReactDoubleEffectsTestUserQuery$data,
+>*/);

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -11,21 +11,23 @@
 
 'use strict';
 
-const ResolverFragments = require('relay-runtime/store/ResolverFragments');
+const {
+  __internal: {ResolverFragments},
+} = require('relay-runtime');
 
 /**
  * Utility function for testing Relay Resolvers. Pass the resolver function and
  * the data that will be returned from `readFragment` and it will return the
  * value that the resolver would derive.
  *
- * *Note:* Relay fragment data includes a special `$refType` key which is
+ * *Note:* Relay fragment data includes a special `$fragmentType` key which is
  * impossible for non-Relay code to construct. In tests you can work around
- * this by passing `null` with a Flow supression:
+ * this by passing `null` with a Flow suppression:
  *
  * ```
  * const fragmentData = {
  *   // Other fields here...
- *   $refType: (null: any)
+ *   $fragmentType: (null: any)
  * };
  *
  * const actual = testResolver(resolverFunc, fragmentData);
@@ -33,13 +35,12 @@ const ResolverFragments = require('relay-runtime/store/ResolverFragments');
  * ```
  **/
 function testResolver<D, Ret>(
-  resolver: ({$data: D, $fragmentRefs: any}) => Ret,
+  resolver: ({$data: D, $fragmentRefs: any, $fragmentSpreads: any}) => Ret,
   // indexed_access is not yet enabled for this code base. Once it is, this can
   // become: `Key['$data']`
   fragmentData: D,
 ): Ret {
   const readFragment = ResolverFragments.readFragment;
-  // $FlowFixMe Flow says we are not supposed to mutate this, but this is
   // a test utility, so... YOLO!!
   ResolverFragments.readFragment = () => fragmentData;
   const result = resolver(
@@ -47,7 +48,6 @@ function testResolver<D, Ret>(
     // $FlowFixMe
     null,
   );
-  // $FlowFixMe
   ResolverFragments.readFragment = readFragment;
   return result;
 }

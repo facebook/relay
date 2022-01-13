@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<cbc916faa8af895274981d9f602e0e3c>>
+ * @generated SignedSource<<c2682d46d35243efac81dec02d64a9bc>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,23 +17,25 @@
 // @dataDrivenDependency RelayModernEnvironmentExecuteWithOverlappingModuleTestActorQuery.node.nameRenderer {"branches":{"MarkdownUserNameRenderer":{"component":"MarkdownActorNameRenderer.react","fragment":"RelayModernEnvironmentExecuteWithOverlappingModuleTestMarkdownActorNameRenderer_name$normalization.graphql"}},"plural":false}
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernEnvironmentExecuteWithOverlappingModuleTestMarkdownActorNameRenderer_name$ref = any;
-export type RelayModernEnvironmentExecuteWithOverlappingModuleTestActorQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayModernEnvironmentExecuteWithOverlappingModuleTestMarkdownActorNameRenderer_name$fragmentType = any;
+export type RelayModernEnvironmentExecuteWithOverlappingModuleTestActorQuery$variables = {|
   id: string,
 |};
-export type RelayModernEnvironmentExecuteWithOverlappingModuleTestActorQueryResponse = {|
+export type RelayModernEnvironmentExecuteWithOverlappingModuleTestActorQueryVariables = RelayModernEnvironmentExecuteWithOverlappingModuleTestActorQuery$variables;
+export type RelayModernEnvironmentExecuteWithOverlappingModuleTestActorQuery$data = {|
   +node: ?{|
     +nameRenderer?: ?{|
       +__fragmentPropName?: ?string,
       +__module_component?: ?string,
-      +$fragmentRefs: RelayModernEnvironmentExecuteWithOverlappingModuleTestMarkdownActorNameRenderer_name$ref,
+      +$fragmentSpreads: RelayModernEnvironmentExecuteWithOverlappingModuleTestMarkdownActorNameRenderer_name$fragmentType,
     |},
   |},
 |};
+export type RelayModernEnvironmentExecuteWithOverlappingModuleTestActorQueryResponse = RelayModernEnvironmentExecuteWithOverlappingModuleTestActorQuery$data;
 export type RelayModernEnvironmentExecuteWithOverlappingModuleTestActorQuery = {|
   variables: RelayModernEnvironmentExecuteWithOverlappingModuleTestActorQueryVariables,
-  response: RelayModernEnvironmentExecuteWithOverlappingModuleTestActorQueryResponse,
+  response: RelayModernEnvironmentExecuteWithOverlappingModuleTestActorQuery$data,
 |};
 */
 
@@ -176,4 +178,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "5b8c5731fedef0753656577cf15d7702";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentExecuteWithOverlappingModuleTestActorQuery$variables,
+  RelayModernEnvironmentExecuteWithOverlappingModuleTestActorQuery$data,
+>*/);

@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<dd2e94f9e32010f41e6c5214625a9b30>>
+ * @generated SignedSource<<4db0c9643f3d78c15ff62eae8d203482>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,15 +15,17 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayReaderTestShouldConsiderDataMissingIfTheFragmentIsConcreteButOnTheRootRootFragment$ref = any;
-export type RelayReaderTestShouldConsiderDataMissingIfTheFragmentIsConcreteButOnTheRootQueryVariables = {||};
-export type RelayReaderTestShouldConsiderDataMissingIfTheFragmentIsConcreteButOnTheRootQueryResponse = {|
-  +$fragmentRefs: RelayReaderTestShouldConsiderDataMissingIfTheFragmentIsConcreteButOnTheRootRootFragment$ref,
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayReaderTestShouldConsiderDataMissingIfTheFragmentIsConcreteButOnTheRootRootFragment$fragmentType = any;
+export type RelayReaderTestShouldConsiderDataMissingIfTheFragmentIsConcreteButOnTheRootQuery$variables = {||};
+export type RelayReaderTestShouldConsiderDataMissingIfTheFragmentIsConcreteButOnTheRootQueryVariables = RelayReaderTestShouldConsiderDataMissingIfTheFragmentIsConcreteButOnTheRootQuery$variables;
+export type RelayReaderTestShouldConsiderDataMissingIfTheFragmentIsConcreteButOnTheRootQuery$data = {|
+  +$fragmentSpreads: RelayReaderTestShouldConsiderDataMissingIfTheFragmentIsConcreteButOnTheRootRootFragment$fragmentType,
 |};
+export type RelayReaderTestShouldConsiderDataMissingIfTheFragmentIsConcreteButOnTheRootQueryResponse = RelayReaderTestShouldConsiderDataMissingIfTheFragmentIsConcreteButOnTheRootQuery$data;
 export type RelayReaderTestShouldConsiderDataMissingIfTheFragmentIsConcreteButOnTheRootQuery = {|
   variables: RelayReaderTestShouldConsiderDataMissingIfTheFragmentIsConcreteButOnTheRootQueryVariables,
-  response: RelayReaderTestShouldConsiderDataMissingIfTheFragmentIsConcreteButOnTheRootQueryResponse,
+  response: RelayReaderTestShouldConsiderDataMissingIfTheFragmentIsConcreteButOnTheRootQuery$data,
 |};
 */
 
@@ -90,4 +92,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "5fb60f127148c85aab3f1d86296e2525";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayReaderTestShouldConsiderDataMissingIfTheFragmentIsConcreteButOnTheRootQuery$variables,
+  RelayReaderTestShouldConsiderDataMissingIfTheFragmentIsConcreteButOnTheRootQuery$data,
+>*/);

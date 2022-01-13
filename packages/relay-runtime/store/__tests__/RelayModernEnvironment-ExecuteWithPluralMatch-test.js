@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -183,13 +183,13 @@ describe('execute() a query with plural @match', () => {
       node: {
         nameRenderers: [
           {
-            __id:
-              'client:1:nameRenderers(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"]):0',
+            __id: 'client:1:nameRenderers(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"]):0',
 
             __fragmentPropName: 'name',
 
             __fragments: {
-              RelayModernEnvironmentExecuteWithPluralMatchTestMarkdownUserNameRenderer_name: {},
+              RelayModernEnvironmentExecuteWithPluralMatchTestMarkdownUserNameRenderer_name:
+                {},
             },
 
             __fragmentOwner: operation.request,

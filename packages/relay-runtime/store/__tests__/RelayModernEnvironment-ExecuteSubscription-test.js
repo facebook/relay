@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -111,7 +111,7 @@ describe('execute()', () => {
   });
 
   it('fetches the subscription with the provided subscribe function', () => {
-    environment.execute({operation}).subscribe({});
+    environment.executeSubscription({operation}).subscribe({});
     expect(subscribeFn.mock.calls.length).toBe(1);
     expect(subscribeFn.mock.calls[0][0]).toEqual(
       CommentCreateSubscription.params,
@@ -131,7 +131,7 @@ describe('execute()', () => {
     environment.subscribe(snapshot, callback);
 
     environment
-      .execute({
+      .executeSubscription({
         operation,
         updater: _store => {
           const comment = _store.get(commentID);
@@ -196,7 +196,7 @@ describe('execute()', () => {
     environment.subscribe(snapshot, callback);
 
     const subscription = environment
-      .execute({
+      .executeSubscription({
         operation,
         updater: _store => {
           const comment = _store.get(commentID);

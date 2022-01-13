@@ -1,3 +1,0 @@
-fragment TestFragment on User {
-  id
-}

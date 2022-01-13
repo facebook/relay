@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -7,14 +7,12 @@
 
 use common::{Diagnostic, DiagnosticsResult, Location, WithLocation};
 use errors::{validate, validate_map};
-use fnv::{FnvHashMap, FnvHashSet};
 use graphql_ir::{
     Directive, FragmentDefinition, FragmentSpread, LinkedField, Program, ScalarField,
     ValidationMessage, Validator,
 };
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey, StringKeyMap, StringKeySet};
 use schema::Schema;
-use std::iter::FromIterator;
 
 pub fn validate_server_only_directives(program: &Program) -> DiagnosticsResult<()> {
     let mut validator = ServerOnlyDirectivesValidation::new(program);
@@ -35,8 +33,8 @@ struct ServerOnlyDirectivesValidation<'s> {
     // if so, a server directive is invalid on it
     is_current_fragment_client_only: bool,
     // For storing the above data
-    fragment_cache: FnvHashMap<StringKey, FragmentState>,
-    client_invalid_directive_names: FnvHashSet<StringKey>,
+    fragment_cache: StringKeyMap<FragmentState>,
+    client_invalid_directive_names: StringKeySet,
 }
 
 // Validate that @defer, @stream, @stream_connection are not used inside client fields
@@ -48,7 +46,7 @@ impl<'s> ServerOnlyDirectivesValidation<'s> {
             is_current_fragment_client_only: true,
             fragment_cache: Default::default(),
             current_client_invalid_directives: Default::default(),
-            client_invalid_directive_names: FnvHashSet::from_iter(vec![
+            client_invalid_directive_names: StringKeySet::from_iter(vec![
                 "stream".intern(),
                 "stream_connection".intern(),
                 "defer".intern(),

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -14,13 +14,14 @@
 mod applied_fragment_name;
 mod apply_fragment_arguments;
 mod apply_transforms;
+mod assignable_fragment_spread;
 mod client_edges;
 mod client_extensions;
 mod connections;
 mod declarative_connection;
 mod defer_stream;
+mod directive_finder;
 mod errors;
-mod feature_flags;
 mod flatten;
 mod generate_data_driven_dependency_metadata;
 mod generate_id_field;
@@ -37,6 +38,7 @@ mod murmurhash;
 mod no_inline;
 mod node_identifier;
 mod preloadable_directive;
+mod provided_variable_fragment_transform;
 mod react_flight;
 mod refetchable_fragment;
 mod relay_actor_change;
@@ -45,7 +47,6 @@ mod relay_directive;
 mod relay_resolvers;
 mod remove_base_fragments;
 mod required_directive;
-mod rollout;
 mod root_variables;
 mod skip_client_directives;
 mod skip_client_extensions;
@@ -61,9 +62,10 @@ mod util;
 mod validate_operation_variables;
 mod validations;
 
-use fnv::{FnvHashMap, FnvHashSet};
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey};
+use intern::BuildIdHasher;
 use lazy_static::lazy_static;
+use std::collections::{HashMap, HashSet};
 
 lazy_static! {
     pub static ref INTERNAL_METADATA_DIRECTIVE: StringKey = "__metadata".intern();
@@ -72,13 +74,23 @@ lazy_static! {
 /// Name of an executable operation
 type OperationName = StringKey;
 
-pub type DependencyMap = FnvHashMap<OperationName, FnvHashSet<OperationName>>;
+// NOTE: Types are based on intern::string_key::{StringKeyMap, StringKeySet}
+pub type DependencyMap = HashMap<OperationName, DependencySet, BuildIdHasher<u32>>;
+pub type DependencySet = HashSet<OperationName, BuildIdHasher<u32>>;
 
 pub use crate::errors::ValidationMessage;
 pub use applied_fragment_name::get_applied_fragment_name;
 pub use apply_fragment_arguments::apply_fragment_arguments;
 pub use apply_transforms::{apply_transforms, Programs};
-pub use client_edges::client_edges;
+pub use assignable_fragment_spread::{
+    transform_assignable_fragment_spreads_in_regular_queries, validate_assignable_directive,
+    validate_updatable_directive, ASSIGNABLE_DIRECTIVE, UPDATABLE_DIRECTIVE,
+};
+pub use client_edges::{
+    client_edges, preserve_client_edge_backing_ids, preserve_client_edge_selections,
+    ClientEdgeMetadata, CLIENT_EDGE_GENERATED_FRAGMENT_KEY, CLIENT_EDGE_METADATA_KEY,
+    CLIENT_EDGE_QUERY_METADATA_KEY, CLIENT_EDGE_SOURCE_NAME,
+};
 pub use client_extensions::{client_extensions, CLIENT_EXTENSION_DIRECTIVE_NAME};
 pub use connections::{
     extract_connection_metadata_from_directive, ConnectionConstants, ConnectionInterface,
@@ -88,7 +100,7 @@ pub use declarative_connection::transform_declarative_connection;
 pub use defer_stream::{
     transform_defer_stream, DeferDirective, StreamDirective, DEFER_STREAM_CONSTANTS,
 };
-pub use feature_flags::{FeatureFlag, FeatureFlags};
+pub use directive_finder::DirectiveFinder;
 pub use flatten::flatten;
 pub use generate_data_driven_dependency_metadata::{
     generate_data_driven_dependency_metadata, DATA_DRIVEN_DEPENDENCY_METADATA_KEY,
@@ -114,6 +126,7 @@ pub use match_::{
 pub use no_inline::NO_INLINE_DIRECTIVE_NAME;
 pub use node_identifier::NodeIdentifier;
 pub use preloadable_directive::{is_operation_preloadable, should_generate_hack_preloader};
+pub use provided_variable_fragment_transform::provided_variable_fragment_transform;
 pub use react_flight::{
     react_flight, ReactFlightLocalComponentsMetadata, REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY,
 };
@@ -138,7 +151,6 @@ pub use required_directive::{
     required_directive, RequiredAction, RequiredMetadataDirective, ACTION_ARGUMENT,
     CHILDREN_CAN_BUBBLE_METADATA_KEY,
 };
-pub use rollout::Rollout;
 pub use skip_client_directives::skip_client_directives;
 pub use skip_client_extensions::skip_client_extensions;
 pub use skip_null_arguments_transform::skip_null_arguments_transform;

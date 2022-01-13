@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -16,12 +16,11 @@ use crate::{
 use flatbuffers::{FlatBufferBuilder, WIPOffset};
 use fnv::FnvHashMap;
 use graphql_syntax::{ConstantArgument, ConstantValue, DirectiveLocation, List};
-use interner::StringKey;
+use intern::string_key::StringKey;
 use std::collections::BTreeMap;
-use std::convert::TryInto;
 
 pub fn serialize_as_flatbuffer(schema: &InMemorySchema) -> Vec<u8> {
-    let mut serializer = Serializer::new(&schema);
+    let mut serializer = Serializer::new(schema);
     serializer.serialize_schema()
 }
 
@@ -234,7 +233,7 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
         let object = self.schema.object(id);
         let name = object.name;
         let idx = self.objects.len();
-        self.add_to_type_map(idx, schema_flatbuffer::TypeKind::Object, name);
+        self.add_to_type_map(idx, schema_flatbuffer::TypeKind::Object, name.item);
         self.objects.push(schema_flatbuffer::Object::create(
             &mut self.bldr,
             &schema_flatbuffer::ObjectArgs::default(),
@@ -255,7 +254,7 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
             })
             .collect::<Vec<_>>();
         let args = schema_flatbuffer::ObjectArgs {
-            name: Some(self.bldr.create_string(name.lookup())),
+            name: Some(self.bldr.create_string(name.item.lookup())),
             is_extension: object.is_extension,
             directives: Some(self.bldr.create_vector(directives)),
             fields: Some(self.bldr.create_vector(fields)),
@@ -331,7 +330,7 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
 
     fn serialize_field(&mut self, id: FieldID) -> usize {
         let field = self.schema.field(id);
-        let name = field.name.lookup();
+        let name = field.name.item.lookup();
         let directives = &self.serialize_directive_values(&field.directives);
         let arguments = &self.serialize_arguments(&field.arguments);
         let args = schema_flatbuffer::FieldArgs {
@@ -390,7 +389,7 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
         value: &Argument,
     ) -> WIPOffset<schema_flatbuffer::Argument<'fb>> {
         let args = schema_flatbuffer::ArgumentArgs {
-            name: Some(self.bldr.create_string(&value.name.lookup())),
+            name: Some(self.bldr.create_string(value.name.lookup())),
             value: value
                 .default_value
                 .as_ref()
@@ -460,7 +459,7 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
         argument_value: &ArgumentValue,
     ) -> WIPOffset<schema_flatbuffer::ArgumentValue<'fb>> {
         let args = schema_flatbuffer::ArgumentValueArgs {
-            name: Some(self.bldr.create_string(&argument_value.name.lookup())),
+            name: Some(self.bldr.create_string(argument_value.name.lookup())),
             value: Some(self.serialize_const_value(&argument_value.value)),
         };
         schema_flatbuffer::ArgumentValue::create(&mut self.bldr, &args)

@@ -1,0 +1,9 @@
+# expected-to-throw
+query TestQuery($Id: ID!) {
+  node(id: $Id) {
+    __foo: id
+    ... on User {
+      __bar: name
+    }
+  }
+}

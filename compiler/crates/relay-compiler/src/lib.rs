@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -30,9 +30,11 @@ pub use build_project::{
     build_programs, build_raw_program, build_schema, create_path_for_artifact, generate_artifacts,
     generate_extra_artifacts::GenerateExtraArtifactsFn,
     transform_program, validate, validate_program, AdditionalValidations, Artifact,
-    ArtifactContent, BuildProjectFailure, SourceHashes,
+    ArtifactContent, ArtifactGeneratedTypes, BuildProjectFailure, SourceHashes,
 };
-pub use config::{OperationPersister, PersistConfig};
+pub use config::{
+    FileSourceKind, OperationPersister, PersistConfig, ProjectConfig, SchemaLocation,
+};
 pub use file_source::{
     source_for_location, FileCategorizer, FileGroup, FileSource, FileSourceResult,
     FileSourceSubscription, FileSourceSubscriptionNextChange, FsSourceReader,

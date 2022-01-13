@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -139,7 +139,7 @@ impl DiagnosticReporter {
         for diagnostic in &diagnostics.regular_diagnostics {
             if !next_diagnostics
                 .iter()
-                .any(|prev_diag| prev_diag.eq(&diagnostic))
+                .any(|prev_diag| prev_diag.eq(diagnostic))
             {
                 next_diagnostics.push(diagnostic.clone());
             }
@@ -243,9 +243,8 @@ impl DiagnosticReporter {
 /// (or the same) as the end character of the inner range, or outer line
 /// is more than inner end line.
 fn is_sub_range(inner: Range, outer: Range) -> bool {
-    return (outer.start.character <= inner.start.character
-        && outer.start.line <= inner.start.line)
-        && (outer.end.character >= inner.end.character || outer.end.line > inner.end.line);
+    (outer.start.character <= inner.start.character && outer.start.line <= inner.start.line)
+        && (outer.end.character >= inner.end.character || outer.end.line > inner.end.line)
 }
 
 pub fn get_diagnostics_data(diagnostic: &CompilerDiagnostic) -> Option<Value> {
@@ -266,7 +265,7 @@ pub fn get_diagnostics_data(diagnostic: &CompilerDiagnostic) -> Option<Value> {
 mod tests {
     use super::DiagnosticReporter;
     use common::{Diagnostic, Location, SourceLocationKey, Span};
-    use interner::Intern;
+    use intern::string_key::Intern;
     use relay_compiler::SourceReader;
     use std::env;
     use std::path::PathBuf;
@@ -313,7 +312,7 @@ mod tests {
 }
 
 /// Publish diagnostics to the client
-fn publish_diagnostic(
+pub fn publish_diagnostic(
     diagnostic_params: PublishDiagnosticsParams,
     sender: &Sender<Message>,
 ) -> LSPProcessResult<()> {

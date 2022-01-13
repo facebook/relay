@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -14,7 +14,7 @@ use graphql_ir::{
     Condition, Directive, FragmentDefinition, InlineFragment, LinkedField, OperationDefinition,
     Program, Selection, TransformedValue, ValidationMessage,
 };
-use interner::StringKey;
+use intern::string_key::StringKeyMap;
 use schema::{Schema, Type};
 
 use crate::node_identifier::{LocationAgnosticPartialEq, NodeIdentifier};
@@ -46,7 +46,7 @@ pub fn flatten(
     is_for_codegen: bool,
     should_validate_fragment_spreads: bool,
 ) -> DiagnosticsResult<()> {
-    let mut fragment_for_validation = FnvHashMap::default();
+    let mut fragment_for_validation = StringKeyMap::default();
     if should_validate_fragment_spreads {
         for (name, fragment) in &program.fragments {
             fragment_for_validation.insert(*name, Arc::clone(fragment));
@@ -80,7 +80,7 @@ pub fn flatten(
 }
 
 struct FlattenTransform {
-    fragments: FnvHashMap<StringKey, Arc<FragmentDefinition>>,
+    fragments: StringKeyMap<Arc<FragmentDefinition>>,
     schema: Arc<SDLSchema>,
     is_for_codegen: bool,
     should_validate_fragment_spreads: bool,
@@ -91,7 +91,7 @@ struct FlattenTransform {
 impl FlattenTransform {
     fn new(
         schema: Arc<SDLSchema>,
-        fragments: FnvHashMap<StringKey, Arc<FragmentDefinition>>,
+        fragments: StringKeyMap<Arc<FragmentDefinition>>,
         is_for_codegen: bool,
         should_validate_fragment_spreads: bool,
     ) -> Self {
@@ -430,7 +430,7 @@ impl FlattenTransform {
                     || (inline_fragment.type_condition == Some(parent_type)
                         && inline_fragment
                             .directives
-                            .named(*ModuleMetadata::DIRECTIVE_NAME)
+                            .named(ModuleMetadata::directive_name())
                             .is_none())
                 {
                     self.can_flatten_selections(

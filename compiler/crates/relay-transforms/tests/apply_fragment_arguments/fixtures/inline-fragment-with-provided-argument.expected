@@ -1,0 +1,37 @@
+==================================== INPUT ====================================
+query TestQuery($id: ID) {
+  node(id: $id) {
+    ... Fragment0
+  }
+}
+
+fragment Fragment0 on User
+    @argumentDefinitions(foo_gk: {type: "Boolean!", provider: "foo_gk_module.js"})
+{
+    ... on User{
+      ... on User {
+        name @include(if: $foo_gk)
+      }
+    }
+}
+==================================== OUTPUT ===================================
+query TestQuery(
+  $id: ID
+  $__Fragment0__foo_gk: Boolean! @__ProvidedVariableMetadata
+  # ProvidedVariableMetadata {
+  #     module_name: "foo_gk_module.js",
+  # }
+  
+) {
+  node(id: $id) {
+    ...Fragment0
+  }
+}
+
+fragment Fragment0 on User {
+  ... on User {
+    ... on User {
+      name @include(if: $__Fragment0__foo_gk)
+    }
+  }
+}

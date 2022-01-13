@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,7 +13,7 @@ use common::{NamedItem, WithLocation};
 use graphql_ir::{
     associated_data_impl, Directive, InlineFragment, LinkedField, ScalarField, Selection,
 };
-use interner::StringKey;
+use intern::string_key::StringKey;
 use schema::{SDLSchema, Schema, Type};
 
 /// Helper to assert and extract the expected selections for a connection
@@ -28,7 +28,7 @@ pub fn assert_connection_selections<'s>(
     let mut page_info_selection = None;
     for (ix, selection) in selections.iter().enumerate() {
         if let Selection::LinkedField(field) = selection {
-            let field_name = schema.field(field.definition.item).name;
+            let field_name = schema.field(field.definition.item).name.item;
             if field_name == connection_interface.edges {
                 if edges_selection.is_some() {
                     unreachable!("Unexpected duplicate selection for edges")

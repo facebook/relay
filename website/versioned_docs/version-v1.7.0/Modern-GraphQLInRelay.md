@@ -25,9 +25,9 @@ graphql`
 `;
 ```
 
-The result of using the `graphql` template tag are `GraphQLTaggedNode`s, which are used to define [Query Renderers](./query-renderer), [Fragment Containers](./fragment-container), [Refetch Containers](./refetch-container), [Pagination Containers](./pagination-container), etc.
+The result of using the `graphql` template tag are `GraphQLTaggedNode`s, which are used to define [Query Renderers](Modern-QueryRenderer.md), [Fragment Containers](Modern-FragmentContainer.md), [Refetch Containers](Modern-RefetchContainer.md), [Pagination Containers](Modern-PaginationContainer.md), etc.
 
-However, `graphql` template tags are **never executed at runtime**. Instead, they are compiled ahead of time by the [Relay Compiler](#relay-compiler) into generated artifacts that live alongside your source code, and which Relay requires to operate at runtime. The [Relay Babel plugin](./installation-and-setup#setup-babel-plugin-relay) will then convert the `graphql` literals in your code into `require()` calls for the generated files.
+However, `graphql` template tags are **never executed at runtime**. Instead, they are compiled ahead of time by the [Relay Compiler](#relay-compiler) into generated artifacts that live alongside your source code, and which Relay requires to operate at runtime. The [Relay Babel plugin](Introduction-InstallationAndSetup.md#setup-babel-plugin-relay) will then convert the `graphql` literals in your code into `require()` calls for the generated files.
 
 ## Directives
 
@@ -45,7 +45,7 @@ query TodoListQuery($userID: ID) {
 }
 ```
 
-See [Fragment Container docs](./fragment-container#passing-arguments-to-a-fragment) for more details.
+See [Fragment Container docs](Modern-FragmentContainer.md#passing-arguments-to-a-fragment) for more details.
 
 ### `@argumentDefinitions`
 
@@ -63,13 +63,13 @@ fragment TodoList_list on TodoList @argumentDefinitions(
 }
 ```
 
-See [Fragment Container docs](./fragment-container#passing-arguments-to-a-fragment) for more details.
+See [Fragment Container docs](Modern-FragmentContainer.md#passing-arguments-to-a-fragment) for more details.
 
 ### `@connection(key: String!, filters: [String])`
 
-When using the [Pagination Container](./pagination-container), Relay expects connection fields to be annotated with a `@connection` directive. For more detailed information and example, check out our docs on using `@connection` inside a Pagination Container [`here`](./pagination-container#connection).
+When using the [Pagination Container](Modern-PaginationContainer.md), Relay expects connection fields to be annotated with a `@connection` directive. For more detailed information and example, check out our docs on using `@connection` inside a Pagination Container [`here`](Modern-PaginationContainer.md#connection).
 
-**Note:** `@connection` is also supported in [compatibility mode](./relay-compat)
+**Note:** `@connection` is also supported in [compatibility mode](Modern-RelayCompat.md)
 
 ### `@relay(plural: Boolean)`
 
@@ -85,7 +85,7 @@ fragment TodoItems_items on TodoItem @relay(plural: true) {
 
 ### `@relay(mask: Boolean)`
 
-Relay by default will only expose the data for fields explicitly requested by a [component's fragment](./fragment-container#createfragmentcontainer), which is known as [data masking](./thinking-in-relay#data-masking).
+Relay by default will only expose the data for fields explicitly requested by a [component's fragment](Modern-FragmentContainer.md#createfragmentcontainer), which is known as [data masking](PrinciplesAndArchitecture-ThinkingInRelay.md#data-masking).
 
 However, `@relay(mask: false)` can be used to prevent data masking; when including a fragment and annotating it with `@relay(mask: false)`, its data will be available directly to the parent instead of being masked for a different container.
 
@@ -150,7 +150,7 @@ The Relay Compiler is responsible for generating code as part of a build step wh
 
 ### Set up relay-compiler
 
-See our relay-compiler section in our [Installation and Setup guide](./installation-and-setup#set-up-relay-compiler).
+See our relay-compiler section in our [Installation and Setup guide](Introduction-InstallationAndSetup.md#set-up-relay-compiler).
 
 ### GraphQL Schema
 
@@ -228,7 +228,7 @@ This would produce three generated files, and two `__generated__` directories:
 
 ### Importing generated definitions
 
-Typically you will not need to import your generated definitions. The [Relay Babel plugin](./installation-and-setup#setup-babel-plugin-relay) will then convert the `graphql` literals in your code into `require()` calls for the generated files.
+Typically you will not need to import your generated definitions. The [Relay Babel plugin](Introduction-InstallationAndSetup.md#setup-babel-plugin-relay) will then convert the `graphql` literals in your code into `require()` calls for the generated files.
 
 However the Relay Compiler also automatically generates [Flow](https://flow.org) types as [type comments](https://flow.org/en/docs/types/comments/). For example, you can import the generated Flow types like so:
 

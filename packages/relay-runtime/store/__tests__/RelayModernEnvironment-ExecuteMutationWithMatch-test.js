@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -33,10 +33,7 @@ const {
 const RelayModernStore = require('../RelayModernStore');
 const RelayRecordSource = require('../RelayRecordSource');
 const nullthrows = require('nullthrows');
-const {
-  disallowWarnings,
-  expectWarningWillFire,
-} = require('relay-test-utils-internal');
+const {disallowWarnings} = require('relay-test-utils-internal');
 
 disallowWarnings();
 
@@ -303,11 +300,11 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               actor: {
                 name: 'actor-name',
                 nameRenderer: {
-                  __id:
-                    'client:4:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+                  __id: 'client:4:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
                   __fragmentPropName: 'name',
                   __fragments: {
-                    RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name: {},
+                    RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name:
+                      {},
                   },
                   __fragmentOwner: operation.request,
                   __isWithinUnmatchedTypeRefinement: false,
@@ -607,11 +604,11 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
                 actor: {
                   name: 'optimistic-actor-name',
                   nameRenderer: {
-                    __id:
-                      'client:4:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+                    __id: 'client:4:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
                     __fragmentPropName: 'name',
                     __fragments: {
-                      RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name: {},
+                      RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name:
+                        {},
                     },
                     __fragmentOwner: operation.request,
                     __isWithinUnmatchedTypeRefinement: false,
@@ -667,11 +664,11 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
                 actor: {
                   name: 'optimistic-actor-name',
                   nameRenderer: {
-                    __id:
-                      'client:4:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+                    __id: 'client:4:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
                     __fragmentPropName: 'name',
                     __fragments: {
-                      RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name: {},
+                      RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name:
+                        {},
                     },
                     __fragmentOwner: operation.request,
                     __isWithinUnmatchedTypeRefinement: false,
@@ -756,11 +753,11 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
                 actor: {
                   name: 'actor-name',
                   nameRenderer: {
-                    __id:
-                      'client:4:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+                    __id: 'client:4:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
                     __fragmentPropName: 'name',
                     __fragments: {
-                      RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name: {},
+                      RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name:
+                        {},
                     },
                     __fragmentOwner: operation.request,
                     __isWithinUnmatchedTypeRefinement: false,

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -147,7 +147,9 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
       it('calls next() and runs updater when payloads return', () => {
         const updater = jest.fn();
-        environment.execute({operation, updater}).subscribe(callbacks);
+        environment
+          .executeSubscription({operation, updater})
+          .subscribe(callbacks);
         subject.next({
           data: {
             me: {

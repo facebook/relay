@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -60,7 +60,7 @@ pub fn build_schema_with_extensions<T: AsRef<str>, U: AsRef<str>>(
     for (extension_sdl, location_key) in extension_sdls {
         client_schema_documents.push(graphql_syntax::parse_schema_document(
             extension_sdl.as_ref(),
-            location_key.clone(),
+            *location_key,
         )?);
     }
 

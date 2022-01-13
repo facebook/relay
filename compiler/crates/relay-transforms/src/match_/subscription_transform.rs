@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,7 +13,7 @@ use graphql_ir::{
     Value,
 };
 use graphql_syntax::OperationKind;
-use interner::Intern;
+use intern::string_key::Intern;
 use schema::{FieldID, Schema, Type, TypeReference};
 use std::sync::Arc;
 
@@ -75,7 +75,7 @@ impl<'program> SubscriptionTransform<'program> {
                         let object = self.program.schema.object(object_id);
                         for object_field_id in object.fields.iter() {
                             let object_field = self.program.schema.field(*object_field_id);
-                            if object_field.name == MATCH_CONSTANTS.js_field_name {
+                            if object_field.name.item == MATCH_CONSTANTS.js_field_name {
                                 // if we find a js field, it must be valid
                                 return self.is_valid_js_dependency(&object_field.type_).then(|| {
                                     ValidFieldResult {

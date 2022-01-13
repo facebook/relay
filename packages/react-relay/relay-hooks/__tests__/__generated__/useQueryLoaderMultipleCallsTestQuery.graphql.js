@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<28322c00f1712bd2f4c7a44b45d821cc>>
+ * @generated SignedSource<<a19a8e2a67d747598940a67c6d8fd111>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,18 +15,20 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-export type useQueryLoaderMultipleCallsTestQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+export type useQueryLoaderMultipleCallsTestQuery$variables = {|
   id: string,
 |};
-export type useQueryLoaderMultipleCallsTestQueryResponse = {|
+export type useQueryLoaderMultipleCallsTestQueryVariables = useQueryLoaderMultipleCallsTestQuery$variables;
+export type useQueryLoaderMultipleCallsTestQuery$data = {|
   +node: ?{|
     +id: string,
   |},
 |};
+export type useQueryLoaderMultipleCallsTestQueryResponse = useQueryLoaderMultipleCallsTestQuery$data;
 export type useQueryLoaderMultipleCallsTestQuery = {|
   variables: useQueryLoaderMultipleCallsTestQueryVariables,
-  response: useQueryLoaderMultipleCallsTestQueryResponse,
+  response: useQueryLoaderMultipleCallsTestQuery$data,
 |};
 */
 
@@ -117,4 +119,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "83dbf5a0d9545095fdb85f7ed368e897";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  useQueryLoaderMultipleCallsTestQuery$variables,
+  useQueryLoaderMultipleCallsTestQuery$data,
+>*/);

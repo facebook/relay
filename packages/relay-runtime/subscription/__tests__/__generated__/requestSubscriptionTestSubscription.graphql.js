@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<497bb4297c53bc07f37f6c1e7d0b7911>>
+ * @generated SignedSource<<829df6680bd7ecac48720ba10b9b8c59>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,17 +17,18 @@
 // @dataDrivenDependency requestSubscriptionTestSubscription.commentCreateSubscribe.comment.actor.nameRenderer {"branches":{"PlainUserNameRenderer":{"component":"PlainUserNameRenderer.react","fragment":"requestSubscriptionTestPlainUserNameRenderer_name$normalization.graphql"}},"plural":false}
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type requestSubscriptionTestPlainUserNameRenderer_name$ref = any;
+import type { ConcreteRequest, GraphQLSubscription } from 'relay-runtime';
+type requestSubscriptionTestPlainUserNameRenderer_name$fragmentType = any;
 export type CommentCreateSubscriptionInput = {|
   clientSubscriptionId?: ?string,
   feedbackId?: ?string,
   text?: ?string,
 |};
-export type requestSubscriptionTestSubscriptionVariables = {|
+export type requestSubscriptionTestSubscription$variables = {|
   input: CommentCreateSubscriptionInput,
 |};
-export type requestSubscriptionTestSubscriptionResponse = {|
+export type requestSubscriptionTestSubscriptionVariables = requestSubscriptionTestSubscription$variables;
+export type requestSubscriptionTestSubscription$data = {|
   +commentCreateSubscribe: ?{|
     +comment: ?{|
       +actor: ?{|
@@ -35,15 +36,16 @@ export type requestSubscriptionTestSubscriptionResponse = {|
         +nameRenderer: ?{|
           +__fragmentPropName?: ?string,
           +__module_component?: ?string,
-          +$fragmentRefs: requestSubscriptionTestPlainUserNameRenderer_name$ref,
+          +$fragmentSpreads: requestSubscriptionTestPlainUserNameRenderer_name$fragmentType,
         |},
       |},
     |},
   |},
 |};
+export type requestSubscriptionTestSubscriptionResponse = requestSubscriptionTestSubscription$data;
 export type requestSubscriptionTestSubscription = {|
   variables: requestSubscriptionTestSubscriptionVariables,
-  response: requestSubscriptionTestSubscriptionResponse,
+  response: requestSubscriptionTestSubscription$data,
 |};
 */
 
@@ -238,4 +240,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "311e059536555ff9d7a020724eea959c";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: GraphQLSubscription<
+  requestSubscriptionTestSubscription$variables,
+  requestSubscriptionTestSubscription$data,
+>*/);

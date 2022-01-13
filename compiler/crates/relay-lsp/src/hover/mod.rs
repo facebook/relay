@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -8,9 +8,7 @@
 //! Utilities for providing the hover feature
 
 use crate::{
-    lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult},
-    resolution_path::ResolvePosition,
-    server::GlobalState,
+    lsp_runtime_error::LSPRuntimeResult, resolution_path::ResolvePosition, server::GlobalState,
 };
 use lsp_types::{
     request::{HoverRequest, Request},
@@ -20,6 +18,8 @@ use serde::Serialize;
 
 mod with_resolution_path;
 use with_resolution_path::get_hover;
+
+pub use self::with_resolution_path::ContentConsumerType;
 
 fn graphql_marked_string(value: String) -> MarkedString {
     MarkedString::LanguageString(LanguageString {
@@ -61,7 +61,7 @@ DEPRECATED version of `@arguments` directive.
     }.map(|s| MarkedString::String(s.to_string()))
 }
 
-pub(crate) fn on_hover(
+pub fn on_hover(
     state: &impl GlobalState,
     params: <HoverRequest as Request>::Params,
 ) -> LSPRuntimeResult<<HoverRequest as Request>::Result> {
@@ -77,16 +77,15 @@ pub(crate) fn on_hover(
 
     let schema_documentation = state.get_schema_documentation(project_name.lookup());
 
-    get_hover(
+    Ok(get_hover(
         &resolution_path,
         &schema,
         project_name,
         &*state.get_extra_data_provider(),
         &schema_documentation,
         &state.get_program(&project_name)?,
-    )
-    .map(Option::Some)
-    .ok_or(LSPRuntimeError::ExpectedError)
+        state.get_content_consumer_type(),
+    ))
 }
 
 #[derive(Serialize)]

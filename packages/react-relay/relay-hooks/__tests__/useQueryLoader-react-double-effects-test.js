@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -118,7 +118,7 @@ describe.skip('useQueryLoader-react-double-effects', () => {
     query = createOperationDescriptor(gqlQuery, variables);
 
     queryRenderLogs = [];
-    QueryComponent = function(props) {
+    QueryComponent = function (props) {
       const result = usePreloadedQuery(gqlQuery, (props.queryRef: $FlowFixMe));
 
       const name = result?.node?.name ?? 'Empty';
@@ -134,11 +134,8 @@ describe.skip('useQueryLoader-react-double-effects', () => {
     };
 
     loaderRenderLogs = [];
-    LoaderComponent = function(props) {
-      const [queryRef, _loadQuery] = useQueryLoader(
-        gqlQuery,
-        props.initialQueryRef,
-      );
+    LoaderComponent = function (props) {
+      const [queryRef] = useQueryLoader(gqlQuery, props.initialQueryRef);
 
       const queryRefId = queryRef == null ? 'null' : queryRef.id ?? 'Unknown';
       useEffect(() => {
@@ -163,7 +160,7 @@ describe.skip('useQueryLoader-react-double-effects', () => {
       );
     };
 
-    render = function(initialQueryRef, {suspendWholeTree} = {}): $FlowFixMe {
+    render = function (initialQueryRef, {suspendWholeTree} = {}): $FlowFixMe {
       let instance;
       ReactTestRenderer.act(() => {
         instance = ReactTestRenderer.create(

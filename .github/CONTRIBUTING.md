@@ -69,7 +69,7 @@ following steps should work for all Relay packages:
 1. Make your package of choice available to link: `cd dist/relay-compiler && yarn link`.
 1. Link the package into your project: `cd my/app && yarn link relay-compiler`.
 1. Because of symbolic links and how Node resolves dependencies, you will probably want to instruct Node to resolve
-   preserve the links `yarn node --preserve-symlinks-main --preserve-symlinks ./node_modules/.bin/relay-compiler […]`. 
+   preserve the links `yarn node --preserve-symlinks-main --preserve-symlinks ./node_modules/.bin/relay-compiler […]`.
 
 ## License
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -12,7 +12,7 @@ use graphql_syntax::parse_executable;
 use graphql_test_helpers::diagnostics_to_sorted_string;
 use graphql_text_printer::{print_fragment, print_operation, PrinterOptions};
 use relay_test_schema::get_test_schema_with_extensions;
-use relay_transforms::client_edges;
+use relay_transforms::{client_edges, relay_resolvers};
 use std::sync::Arc;
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
@@ -24,9 +24,11 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         let ir = build(&schema, &ast.definitions).unwrap();
         let program = Program::from_definitions(Arc::clone(&schema), ir);
 
-        let next_program = client_edges(&program)
+        let mut next_program = client_edges(&program, &Default::default())
             .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
 
+        next_program = relay_resolvers(&next_program, true)
+            .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
 
         let printer_options = PrinterOptions {
             debug_directive_data: true,

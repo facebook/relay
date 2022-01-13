@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<1723067c6d0d5c7f4d269fbbf6642573>>
+ * @generated SignedSource<<9d28d7e435eaf96059f7adcbb399416e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,12 +17,12 @@
 // @dataDrivenDependency RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name.user.innerRenderer {"branches":{"PlainUserNameRenderer":{"component":"PlainUserNameRenderer.react","fragment":"RelayModernEnvironmentExecuteWithNestedMatchTestPlainUserNameRenderer_name$normalization.graphql"}},"plural":false}
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-type RelayModernEnvironmentExecuteWithNestedMatchTestPlainUserNameRenderer_name$ref = any;
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name$ref: FragmentReference;
-declare export opaque type RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name$fragmentType: RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name$ref;
-export type RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+type RelayModernEnvironmentExecuteWithNestedMatchTestPlainUserNameRenderer_name$fragmentType = any;
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name$fragmentType: FragmentType;
+export type RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name$ref = RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name$fragmentType;
+export type RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name$data = {|
   +markdown: ?string,
   +data: ?{|
     +markup: ?string,
@@ -31,16 +31,16 @@ export type RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRend
     +innerRenderer: ?{|
       +__fragmentPropName?: ?string,
       +__module_component?: ?string,
-      +$fragmentRefs: RelayModernEnvironmentExecuteWithNestedMatchTestPlainUserNameRenderer_name$ref,
+      +$fragmentSpreads: RelayModernEnvironmentExecuteWithNestedMatchTestPlainUserNameRenderer_name$fragmentType,
     |},
   |},
   +__typename: "MarkdownUserNameRenderer",
-  +$refType: RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name$ref,
+  +$fragmentType: RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name$fragmentType,
 |};
-export type RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name$data = RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name;
+export type RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name = RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name$data;
 export type RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name$key = {
   +$data?: RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name$data,
-  +$fragmentRefs: RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name$ref,
+  +$fragmentSpreads: RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name$fragmentType,
   ...
 };
 */
@@ -136,4 +136,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "44c58e2b7f52b082c9fbb6fc18edbfa3";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name$fragmentType,
+  RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name$data,
+>*/);

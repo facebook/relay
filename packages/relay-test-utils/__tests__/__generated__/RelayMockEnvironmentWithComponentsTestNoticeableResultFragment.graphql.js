@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<e6a4fb5c7e9c40f88c82e0c2c4f63ee2>>
+ * @generated SignedSource<<f52b383e7223a3f0e7de436ad6574111>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,22 +15,22 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayMockEnvironmentWithComponentsTestNoticeableResultFragment$ref: FragmentReference;
-declare export opaque type RelayMockEnvironmentWithComponentsTestNoticeableResultFragment$fragmentType: RelayMockEnvironmentWithComponentsTestNoticeableResultFragment$ref;
-export type RelayMockEnvironmentWithComponentsTestNoticeableResultFragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayMockEnvironmentWithComponentsTestNoticeableResultFragment$fragmentType: FragmentType;
+export type RelayMockEnvironmentWithComponentsTestNoticeableResultFragment$ref = RelayMockEnvironmentWithComponentsTestNoticeableResultFragment$fragmentType;
+export type RelayMockEnvironmentWithComponentsTestNoticeableResultFragment$data = {|
   +id: string,
   +message: ?{|
     +text: ?string,
   |},
   +doesViewerLike: ?boolean,
-  +$refType: RelayMockEnvironmentWithComponentsTestNoticeableResultFragment$ref,
+  +$fragmentType: RelayMockEnvironmentWithComponentsTestNoticeableResultFragment$fragmentType,
 |};
-export type RelayMockEnvironmentWithComponentsTestNoticeableResultFragment$data = RelayMockEnvironmentWithComponentsTestNoticeableResultFragment;
+export type RelayMockEnvironmentWithComponentsTestNoticeableResultFragment = RelayMockEnvironmentWithComponentsTestNoticeableResultFragment$data;
 export type RelayMockEnvironmentWithComponentsTestNoticeableResultFragment$key = {
   +$data?: RelayMockEnvironmentWithComponentsTestNoticeableResultFragment$data,
-  +$fragmentRefs: RelayMockEnvironmentWithComponentsTestNoticeableResultFragment$ref,
+  +$fragmentSpreads: RelayMockEnvironmentWithComponentsTestNoticeableResultFragment$fragmentType,
   ...
 };
 */
@@ -82,4 +82,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "7ca93b0d31402b484bcbb0af777a088e";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayMockEnvironmentWithComponentsTestNoticeableResultFragment$fragmentType,
+  RelayMockEnvironmentWithComponentsTestNoticeableResultFragment$data,
+>*/);

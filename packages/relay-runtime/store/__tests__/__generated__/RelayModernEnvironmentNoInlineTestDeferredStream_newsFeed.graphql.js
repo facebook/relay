@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<4b1349e0532d03a086ac021cee32c48f>>
+ * @generated SignedSource<<423f7dda17f74ad4a6cc030b6736afed>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,11 +15,11 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayModernEnvironmentNoInlineTestDeferredStream_newsFeed$ref: FragmentReference;
-declare export opaque type RelayModernEnvironmentNoInlineTestDeferredStream_newsFeed$fragmentType: RelayModernEnvironmentNoInlineTestDeferredStream_newsFeed$ref;
-export type RelayModernEnvironmentNoInlineTestDeferredStream_newsFeed = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayModernEnvironmentNoInlineTestDeferredStream_newsFeed$fragmentType: FragmentType;
+export type RelayModernEnvironmentNoInlineTestDeferredStream_newsFeed$ref = RelayModernEnvironmentNoInlineTestDeferredStream_newsFeed$fragmentType;
+export type RelayModernEnvironmentNoInlineTestDeferredStream_newsFeed$data = {|
   +newsFeed: ?{|
     +edges: ?$ReadOnlyArray<?{|
       +node: ?{|
@@ -31,12 +31,12 @@ export type RelayModernEnvironmentNoInlineTestDeferredStream_newsFeed = {|
       |},
     |}>,
   |},
-  +$refType: RelayModernEnvironmentNoInlineTestDeferredStream_newsFeed$ref,
+  +$fragmentType: RelayModernEnvironmentNoInlineTestDeferredStream_newsFeed$fragmentType,
 |};
-export type RelayModernEnvironmentNoInlineTestDeferredStream_newsFeed$data = RelayModernEnvironmentNoInlineTestDeferredStream_newsFeed;
+export type RelayModernEnvironmentNoInlineTestDeferredStream_newsFeed = RelayModernEnvironmentNoInlineTestDeferredStream_newsFeed$data;
 export type RelayModernEnvironmentNoInlineTestDeferredStream_newsFeed$key = {
   +$data?: RelayModernEnvironmentNoInlineTestDeferredStream_newsFeed$data,
-  +$fragmentRefs: RelayModernEnvironmentNoInlineTestDeferredStream_newsFeed$ref,
+  +$fragmentSpreads: RelayModernEnvironmentNoInlineTestDeferredStream_newsFeed$fragmentType,
   ...
 };
 */
@@ -147,4 +147,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "a7455d1924444ac117790f34dbd90cec";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayModernEnvironmentNoInlineTestDeferredStream_newsFeed$fragmentType,
+  RelayModernEnvironmentNoInlineTestDeferredStream_newsFeed$data,
+>*/);

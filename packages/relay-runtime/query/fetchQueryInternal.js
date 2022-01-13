@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -306,10 +306,8 @@ function getObservableForActiveRequest(
 function getRequestCache(
   environment: IEnvironment,
 ): Map<RequestIdentifier, RequestCacheEntry> {
-  const cached: ?Map<
-    RequestIdentifier,
-    RequestCacheEntry,
-  > = requestCachesByEnvironment.get(environment);
+  const cached: ?Map<RequestIdentifier, RequestCacheEntry> =
+    requestCachesByEnvironment.get(environment);
   if (cached != null) {
     return cached;
   }

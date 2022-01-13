@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<e3ccb1b954d826b1abead20ab94afe04>>
+ * @generated SignedSource<<c7d3f6d96321d84e58b49eb593a04eb7>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,19 +15,21 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernFragmentSpecResolverRequiredFieldNoLoggerTestUserFragment$ref = any;
-export type RelayModernFragmentSpecResolverRequiredFieldNoLoggerTestUserQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayModernFragmentSpecResolverRequiredFieldNoLoggerTestUserFragment$fragmentType = any;
+export type RelayModernFragmentSpecResolverRequiredFieldNoLoggerTestUserQuery$variables = {|
   id: string,
 |};
-export type RelayModernFragmentSpecResolverRequiredFieldNoLoggerTestUserQueryResponse = {|
+export type RelayModernFragmentSpecResolverRequiredFieldNoLoggerTestUserQueryVariables = RelayModernFragmentSpecResolverRequiredFieldNoLoggerTestUserQuery$variables;
+export type RelayModernFragmentSpecResolverRequiredFieldNoLoggerTestUserQuery$data = {|
   +node: ?{|
-    +$fragmentRefs: RelayModernFragmentSpecResolverRequiredFieldNoLoggerTestUserFragment$ref,
+    +$fragmentSpreads: RelayModernFragmentSpecResolverRequiredFieldNoLoggerTestUserFragment$fragmentType,
   |},
 |};
+export type RelayModernFragmentSpecResolverRequiredFieldNoLoggerTestUserQueryResponse = RelayModernFragmentSpecResolverRequiredFieldNoLoggerTestUserQuery$data;
 export type RelayModernFragmentSpecResolverRequiredFieldNoLoggerTestUserQuery = {|
   variables: RelayModernFragmentSpecResolverRequiredFieldNoLoggerTestUserQueryVariables,
-  response: RelayModernFragmentSpecResolverRequiredFieldNoLoggerTestUserQueryResponse,
+  response: RelayModernFragmentSpecResolverRequiredFieldNoLoggerTestUserQuery$data,
 |};
 */
 
@@ -135,4 +137,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "509d57fcdf4027461a38077ba36fc41b";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernFragmentSpecResolverRequiredFieldNoLoggerTestUserQuery$variables,
+  RelayModernFragmentSpecResolverRequiredFieldNoLoggerTestUserQuery$data,
+>*/);

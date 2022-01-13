@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -168,8 +168,7 @@ describe('lookup()', () => {
           __id: 'client:comment:1:commentBody(supported:["PlainCommentBody"])',
           __typename: 'PlainCommentBody',
           text: {
-            __id:
-              'client:comment:1:commentBody(supported:["PlainCommentBody"]):text',
+            __id: 'client:comment:1:commentBody(supported:["PlainCommentBody"]):text',
             __typename: 'Text',
             text: 'A comment!',
           },

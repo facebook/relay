@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -12,15 +12,14 @@
 
 'use strict';
 
+const describeWithFeatureFlags = require('./describeWithFeatureFlags');
 const {
   FIXTURE_TAG,
   generateTestsFromFixtures,
 } = require('./generateTestsFromFixtures');
 const Matchers = require('./Matchers');
-const parseGraphQLText = require('./parseGraphQLText');
 const printAST = require('./printAST');
 const simpleClone = require('./simpleClone');
-const {TestSchema, testSchemaPath} = require('./TestSchema');
 const {
   disallowWarnings,
   expectToWarn,
@@ -49,16 +48,14 @@ function cannotReadPropertyOfUndefined__DEPRECATED(
 module.exports = {
   cannotReadPropertyOfUndefined__DEPRECATED,
   createMockEnvironment,
+  describeWithFeatureFlags,
   expectToWarn,
   expectWarningWillFire,
   disallowWarnings,
   FIXTURE_TAG,
   generateTestsFromFixtures,
   matchers: Matchers,
-  parseGraphQLText,
   printAST,
   simpleClone,
-  TestSchema,
-  testSchemaPath,
   unwrapContainer,
 };

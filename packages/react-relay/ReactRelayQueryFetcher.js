@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -340,8 +340,8 @@ class ReactRelayQueryFetcher {
     this._rootSubscription = environment.subscribe(this._snapshot, snapshot => {
       // Read from this._fetchOptions in case onDataChange() was lazily added.
       if (this._fetchOptions != null) {
-        const maybeNewOnDataChangeCallbacks = this._fetchOptions
-          .onDataChangeCallbacks;
+        const maybeNewOnDataChangeCallbacks =
+          this._fetchOptions.onDataChangeCallbacks;
         if (Array.isArray(maybeNewOnDataChangeCallbacks)) {
           maybeNewOnDataChangeCallbacks.forEach(onDataChange =>
             onDataChange({snapshot}),

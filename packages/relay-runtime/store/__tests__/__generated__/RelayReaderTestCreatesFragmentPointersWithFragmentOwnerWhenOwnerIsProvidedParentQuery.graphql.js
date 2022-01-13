@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<ddbbb20bf7ef129fa355f8e6c54afc04>>
+ * @generated SignedSource<<ad46940732522e764e05ab959e074d4a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,19 +15,21 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayReaderTestCreatesFragmentPointersWithFragmentOwnerWhenOwnerIsProvidedUserProfile$ref = any;
-export type RelayReaderTestCreatesFragmentPointersWithFragmentOwnerWhenOwnerIsProvidedParentQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayReaderTestCreatesFragmentPointersWithFragmentOwnerWhenOwnerIsProvidedUserProfile$fragmentType = any;
+export type RelayReaderTestCreatesFragmentPointersWithFragmentOwnerWhenOwnerIsProvidedParentQuery$variables = {|
   size?: ?$ReadOnlyArray<?number>,
 |};
-export type RelayReaderTestCreatesFragmentPointersWithFragmentOwnerWhenOwnerIsProvidedParentQueryResponse = {|
+export type RelayReaderTestCreatesFragmentPointersWithFragmentOwnerWhenOwnerIsProvidedParentQueryVariables = RelayReaderTestCreatesFragmentPointersWithFragmentOwnerWhenOwnerIsProvidedParentQuery$variables;
+export type RelayReaderTestCreatesFragmentPointersWithFragmentOwnerWhenOwnerIsProvidedParentQuery$data = {|
   +me: ?{|
-    +$fragmentRefs: RelayReaderTestCreatesFragmentPointersWithFragmentOwnerWhenOwnerIsProvidedUserProfile$ref,
+    +$fragmentSpreads: RelayReaderTestCreatesFragmentPointersWithFragmentOwnerWhenOwnerIsProvidedUserProfile$fragmentType,
   |},
 |};
+export type RelayReaderTestCreatesFragmentPointersWithFragmentOwnerWhenOwnerIsProvidedParentQueryResponse = RelayReaderTestCreatesFragmentPointersWithFragmentOwnerWhenOwnerIsProvidedParentQuery$data;
 export type RelayReaderTestCreatesFragmentPointersWithFragmentOwnerWhenOwnerIsProvidedParentQuery = {|
   variables: RelayReaderTestCreatesFragmentPointersWithFragmentOwnerWhenOwnerIsProvidedParentQueryVariables,
-  response: RelayReaderTestCreatesFragmentPointersWithFragmentOwnerWhenOwnerIsProvidedParentQueryResponse,
+  response: RelayReaderTestCreatesFragmentPointersWithFragmentOwnerWhenOwnerIsProvidedParentQuery$data,
 |};
 */
 
@@ -138,4 +140,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "bb0b0cb8795a7e125e63c27f416cc262";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayReaderTestCreatesFragmentPointersWithFragmentOwnerWhenOwnerIsProvidedParentQuery$variables,
+  RelayReaderTestCreatesFragmentPointersWithFragmentOwnerWhenOwnerIsProvidedParentQuery$data,
+>*/);

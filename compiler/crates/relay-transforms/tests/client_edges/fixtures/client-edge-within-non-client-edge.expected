@@ -23,13 +23,23 @@ fragment BestFriendResolverFragment_name on User {
 
 fragment Foo_user on User {
   nearest_neighbor {
-    best_friend @__clientEdge(queryName: "ClientEdgeQuery_Foo_user_nearest_neighbor__best_friend") {
-      name
+    ... @__clientEdge(queryName: "ClientEdgeQuery_Foo_user_nearest_neighbor__best_friend") {
+      ...BestFriendResolverFragment_name @__RelayResolverSpreadMetadata
+      # RelayResolverSpreadMetadata {
+      #     field_parent_type: "User",
+      #     import_path: "BestFriendResolver",
+      #     field_name: "best_friend",
+      #     field_alias: None,
+      # }
+      
+      best_friend {
+        name
+      }
     }
   }
 }
 
-fragment RefetchableClientEdgeQuery_Foo_user_nearest_neighbor__best_friend on User @__RefetchableMetadata
+fragment RefetchableClientEdgeQuery_Foo_user_nearest_neighbor__best_friend on User @__clientEdgeGeneratedFragment(clientEdgeSourceDocument: "Foo_user") @__RefetchableMetadata
 # RefetchableMetadata {
 #     operation_name: "ClientEdgeQuery_Foo_user_nearest_neighbor__best_friend",
 #     path: [
@@ -46,7 +56,7 @@ fragment RefetchableClientEdgeQuery_Foo_user_nearest_neighbor__best_friend on Us
 
 query ClientEdgeQuery_Foo_user_nearest_neighbor__best_friend(
   $id: ID!
-) @__clientEdgeQuery {
+) @__clientEdgeQuery(clientEdgeSourceDocument: "Foo_user") {
   node(id: $id) {
     ...RefetchableClientEdgeQuery_Foo_user_nearest_neighbor__best_friend
   }

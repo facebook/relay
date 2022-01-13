@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -10,7 +10,7 @@ use crate::in_memory::InMemorySchema;
 use crate::{flatbuffer::SchemaWrapper, graphql_schema::Schema};
 use common::DiagnosticsResult;
 use graphql_syntax::*;
-use interner::StringKey;
+use intern::string_key::StringKey;
 
 #[derive(Debug)]
 pub enum SDLSchema {
@@ -345,7 +345,7 @@ impl SDLSchema {
 
     pub fn has_type(&self, type_name: StringKey) -> bool {
         match self {
-            SDLSchema::FlatBuffer(_schema) => todo!(),
+            SDLSchema::FlatBuffer(schema) => schema.has_type(type_name),
             SDLSchema::InMemory(schema) => schema.has_type(type_name),
         }
     }

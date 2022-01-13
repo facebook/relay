@@ -28,18 +28,38 @@ fragment BestFriendResolverFragment_name on User {
 
 fragment Foo_user on User {
   ... @skip(if: $some_var) {
-    best_friend @__clientEdge(queryName: "ClientEdgeQuery_Foo_user_best_friend") {
-      doesViewerLike
+    ... @__clientEdge(queryName: "ClientEdgeQuery_Foo_user_best_friend") {
+      ...BestFriendResolverFragment_name @__RelayResolverSpreadMetadata
+      # RelayResolverSpreadMetadata {
+      #     field_parent_type: "User",
+      #     import_path: "BestFriendResolver",
+      #     field_name: "best_friend",
+      #     field_alias: None,
+      # }
+      
+      best_friend {
+        doesViewerLike
+      }
     }
   }
   ... @include(if: $some_var) {
-    best_friend @__clientEdge(queryName: "ClientEdgeQuery_Foo_user_best_friend_1") {
-      name
+    ... @__clientEdge(queryName: "ClientEdgeQuery_Foo_user_best_friend_1") {
+      ...BestFriendResolverFragment_name @__RelayResolverSpreadMetadata
+      # RelayResolverSpreadMetadata {
+      #     field_parent_type: "User",
+      #     import_path: "BestFriendResolver",
+      #     field_name: "best_friend",
+      #     field_alias: None,
+      # }
+      
+      best_friend {
+        name
+      }
     }
   }
 }
 
-fragment RefetchableClientEdgeQuery_Foo_user_best_friend on User @__RefetchableMetadata
+fragment RefetchableClientEdgeQuery_Foo_user_best_friend on User @__clientEdgeGeneratedFragment(clientEdgeSourceDocument: "Foo_user") @__RefetchableMetadata
 # RefetchableMetadata {
 #     operation_name: "ClientEdgeQuery_Foo_user_best_friend",
 #     path: [
@@ -54,7 +74,7 @@ fragment RefetchableClientEdgeQuery_Foo_user_best_friend on User @__RefetchableM
   id
 }
 
-fragment RefetchableClientEdgeQuery_Foo_user_best_friend_1 on User @__RefetchableMetadata
+fragment RefetchableClientEdgeQuery_Foo_user_best_friend_1 on User @__clientEdgeGeneratedFragment(clientEdgeSourceDocument: "Foo_user") @__RefetchableMetadata
 # RefetchableMetadata {
 #     operation_name: "ClientEdgeQuery_Foo_user_best_friend_1",
 #     path: [
@@ -71,7 +91,7 @@ fragment RefetchableClientEdgeQuery_Foo_user_best_friend_1 on User @__Refetchabl
 
 query ClientEdgeQuery_Foo_user_best_friend(
   $id: ID!
-) @__clientEdgeQuery {
+) @__clientEdgeQuery(clientEdgeSourceDocument: "Foo_user") {
   node(id: $id) {
     ...RefetchableClientEdgeQuery_Foo_user_best_friend
   }
@@ -79,7 +99,7 @@ query ClientEdgeQuery_Foo_user_best_friend(
 
 query ClientEdgeQuery_Foo_user_best_friend_1(
   $id: ID!
-) @__clientEdgeQuery {
+) @__clientEdgeQuery(clientEdgeSourceDocument: "Foo_user") {
   node(id: $id) {
     ...RefetchableClientEdgeQuery_Foo_user_best_friend_1
   }

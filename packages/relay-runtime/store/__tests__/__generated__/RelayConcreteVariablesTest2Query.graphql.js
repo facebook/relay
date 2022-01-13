@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<940f05a97dab9e1395cafe3e74e13b9a>>
+ * @generated SignedSource<<148946f4cb74f2c1435ebc6e0d86c950>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,13 +15,14 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-export type RelayConcreteVariablesTest2QueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+export type RelayConcreteVariablesTest2Query$variables = {|
   id?: ?string,
   count?: ?number,
   order?: ?$ReadOnlyArray<?string>,
 |};
-export type RelayConcreteVariablesTest2QueryResponse = {|
+export type RelayConcreteVariablesTest2QueryVariables = RelayConcreteVariablesTest2Query$variables;
+export type RelayConcreteVariablesTest2Query$data = {|
   +node: ?{|
     +friends?: ?{|
       +edges: ?$ReadOnlyArray<?{|
@@ -32,9 +33,10 @@ export type RelayConcreteVariablesTest2QueryResponse = {|
     |},
   |},
 |};
+export type RelayConcreteVariablesTest2QueryResponse = RelayConcreteVariablesTest2Query$data;
 export type RelayConcreteVariablesTest2Query = {|
   variables: RelayConcreteVariablesTest2QueryVariables,
-  response: RelayConcreteVariablesTest2QueryResponse,
+  response: RelayConcreteVariablesTest2Query$data,
 |};
 */
 
@@ -196,4 +198,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "cc6f1551e100af7df55186ce5b1e53bb";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayConcreteVariablesTest2Query$variables,
+  RelayConcreteVariablesTest2Query$data,
+>*/);

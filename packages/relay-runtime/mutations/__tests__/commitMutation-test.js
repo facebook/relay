@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -14,6 +14,7 @@
 'use strict';
 
 import type {GraphQLResponseWithoutData} from '../../network/RelayNetworkTypes';
+import type {RecordSourceSelectorProxy} from '../../store/RelayStoreTypes';
 
 const ConnectionHandler = require('../../handlers/connection/ConnectionHandler');
 const RelayNetwork = require('../../network/RelayNetwork');
@@ -27,7 +28,6 @@ const {createReaderSelector} = require('../../store/RelayModernSelector');
 const RelayModernStore = require('../../store/RelayModernStore');
 const RelayRecordSource = require('../../store/RelayRecordSource');
 const {ROOT_ID} = require('../../store/RelayStoreUtils');
-const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const commitMutation = require('../commitMutation');
 const nullthrows = require('nullthrows');
 const {createMockEnvironment} = require('relay-test-utils-internal');
@@ -880,7 +880,7 @@ describe('Configs: RANGE_ADD', () => {
   });
 
   it('does not overwrite previous edge when appended multiple times in updater function', () => {
-    updater = updaterStore => {
+    updater = (updaterStore: $FlowFixMe | RecordSourceSelectorProxy) => {
       payload = updaterStore.getRootField('commentCreate');
       const newEdge = nullthrows(payload).getLinkedRecord(
         'feedbackCommentEdge',
@@ -1098,7 +1098,6 @@ describe('Required mutation roots', () => {
   let dataSource;
   let environment;
   beforeEach(() => {
-    RelayFeatureFlags.ENABLE_REQUIRED_DIRECTIVES = true;
     const fetch = jest.fn((_query, _variables, _cacheConfig) => {
       return RelayObservable.create(sink => {
         dataSource = sink;
@@ -1150,6 +1149,7 @@ describe('commitMutation()', () => {
   let mutation;
   let onCompleted;
   let onError;
+  let onNext;
   let variables;
 
   beforeEach(() => {
@@ -1181,6 +1181,7 @@ describe('commitMutation()', () => {
 
     onCompleted = jest.fn();
     onError = jest.fn();
+    onNext = jest.fn();
     const fetch = jest.fn((_query, _variables, _cacheConfig) => {
       return RelayObservable.create(sink => {
         dataSource = sink;
@@ -1347,6 +1348,7 @@ describe('commitMutation()', () => {
       variables,
       onCompleted,
       onError,
+      onNext,
     });
     dataSource.next(
       ({
@@ -1369,6 +1371,8 @@ describe('commitMutation()', () => {
         ],
       }: GraphQLResponseWithoutData),
     );
+    expect(onNext).toBeCalledTimes(1);
+    expect(onNext.mock.calls[0][0]).toBe(undefined);
     dataSource.next(
       ({
         data: {
@@ -1391,6 +1395,8 @@ describe('commitMutation()', () => {
       }: GraphQLResponseWithoutData),
     );
     expect(onCompleted).toBeCalledTimes(0);
+    expect(onNext).toBeCalledTimes(2);
+    expect(onNext.mock.calls[1][0]).toBe(undefined);
     dataSource.complete();
 
     expect(onCompleted).toBeCalledTimes(1);
@@ -1416,6 +1422,7 @@ describe('commitMutation()', () => {
         severity: 'ERROR',
       },
     ]);
+    expect(onNext).toBeCalledTimes(2); // from before
     expect(onError).toBeCalledTimes(0);
   });
 
@@ -1426,7 +1433,6 @@ describe('commitMutation()', () => {
       onCompleted,
       onError,
     });
-    // $FlowFixMe[incompatible-call]
     dataSource.next({
       data: null, // error: missing data
       errors: [

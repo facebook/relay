@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -38,6 +38,14 @@ impl Intern for String {
 /// Str (slices) intern as StringKey, with the interning
 /// based on the raw bytes of the str.
 impl Intern for &str {
+    type Key = StringKey;
+
+    fn intern(self) -> Self::Key {
+        StringKey(BYTES_TABLE.intern(self.as_bytes()))
+    }
+}
+
+impl Intern for &String {
     type Key = StringKey;
 
     fn intern(self) -> Self::Key {

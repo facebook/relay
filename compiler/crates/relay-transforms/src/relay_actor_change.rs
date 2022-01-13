@@ -1,19 +1,17 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::FeatureFlag;
-
 use super::ValidationMessage;
-use common::{Diagnostic, DiagnosticsResult, NamedItem, WithLocation};
+use common::{Diagnostic, DiagnosticsResult, FeatureFlag, NamedItem, WithLocation};
 use graphql_ir::{
     Directive, Field, InlineFragment, LinkedField, Program, ScalarField, Selection, Transformed,
     Transformer,
 };
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey};
 use lazy_static::lazy_static;
 use schema::Schema;
 use std::sync::Arc;
@@ -119,7 +117,7 @@ impl<'program, 'feature> Transformer for ActorChangeTransform<'program, 'feature
                             ValidationMessage::ActorChangeViewerShouldBeScalar {
                                 directive_name: *RELAY_ACTOR_CHANGE_DIRECTIVE,
                                 actor_change_field: *ACTOR_CHANGE_FIELD,
-                                field_name: schema_field.name,
+                                field_name: schema_field.name.item,
                                 actor_change_field_type: self
                                     .program
                                     .schema
@@ -137,7 +135,7 @@ impl<'program, 'feature> Transformer for ActorChangeTransform<'program, 'feature
                         ValidationMessage::ActorChangeExpectViewerFieldOnType {
                             directive_name: *RELAY_ACTOR_CHANGE_DIRECTIVE,
                             actor_change_field: *ACTOR_CHANGE_FIELD,
-                            field_name: schema_field.name,
+                            field_name: schema_field.name.item,
                             type_name: self.program.schema.get_type_name(field_type),
                         },
                         actor_change_directive.name.location,

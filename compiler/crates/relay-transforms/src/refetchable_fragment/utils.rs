@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -11,7 +11,7 @@ use graphql_ir::{
     associated_data_impl, Argument, Directive, FragmentDefinition, FragmentSpread, Selection,
     ValidationMessage, Value, Variable, VariableDefinition,
 };
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey};
 use lazy_static::lazy_static;
 use std::sync::Arc;
 
@@ -26,7 +26,6 @@ associated_data_impl!(RefetchableMetadata);
 pub struct Constants {
     pub fetchable: StringKey,
     pub field_name: StringKey,
-    pub id_name: StringKey,
     pub node_field_name: StringKey,
     pub node_type_name: StringKey,
     pub viewer_field_name: StringKey,
@@ -37,7 +36,6 @@ lazy_static! {
     pub static ref CONSTANTS: Constants = Constants {
         fetchable: "fetchable".intern(),
         field_name: "field_name".intern(),
-        id_name: "id".intern(),
         node_field_name: "node".intern(),
         node_type_name: "Node".intern(),
         viewer_field_name: "viewer".intern(),
@@ -75,7 +73,7 @@ pub fn build_operation_variable_definitions(
         .chain(fragment.variable_definitions.iter())
         .cloned()
         .collect();
-    result.sort_unstable_by(|l, r| l.name.item.lookup().cmp(&r.name.item.lookup()));
+    result.sort_unstable_by(|l, r| l.name.item.lookup().cmp(r.name.item.lookup()));
     result
 }
 

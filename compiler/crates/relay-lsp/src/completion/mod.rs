@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -21,7 +21,7 @@ use graphql_syntax::{
     ExecutableDocument, FragmentSpread, InlineFragment, LinkedField, List, OperationDefinition,
     OperationKind, ScalarField, Selection, TokenKind, Value,
 };
-use interner::StringKey;
+use intern::string_key::StringKey;
 use log::debug;
 use lsp_types::{
     request::{Completion, Request, ResolveCompletionItem},
@@ -141,11 +141,10 @@ impl CompletionRequestBuilder {
             match &definition {
                 ExecutableDefinition::Operation(operation) => {
                     if operation.location.contains(position_span) {
-                        self.current_executable_name = if let Some(name) = &operation.name {
-                            Some(ExecutableName::Operation(name.value))
-                        } else {
-                            None
-                        };
+                        self.current_executable_name = operation
+                            .name
+                            .as_ref()
+                            .map(|name| ExecutableName::Operation(name.value));
                         let (_, kind) = operation.operation.clone()?;
                         let type_path = vec![TypePathItem::Operation(kind)];
 
@@ -685,7 +684,7 @@ fn resolve_completion_items_for_inline_fragment_type(
                     interface
                         .implementing_objects
                         .iter()
-                        .filter_map(|id| schema.get_type(schema.object(*id).name)),
+                        .filter_map(|id| schema.get_type(schema.object(*id).name.item)),
                 )
                 .collect()
         }
@@ -696,7 +695,7 @@ fn resolve_completion_items_for_inline_fragment_type(
                     union
                         .members
                         .iter()
-                        .filter_map(|id| schema.get_type(schema.object(*id).name)),
+                        .filter_map(|id| schema.get_type(schema.object(*id).name.item)),
                 )
                 .collect()
         }
@@ -799,7 +798,7 @@ fn resolve_completion_items_from_fields<T: TypeWithFields + Named>(
         .iter()
         .map(|field_id| {
             let field = schema.field(*field_id);
-            let field_name = field.name.to_string();
+            let field_name = field.name.item.to_string();
             let deprecated = field.deprecated();
             let is_deprecated = deprecated.is_some();
             let deprecated_reason = deprecated
@@ -838,10 +837,10 @@ fn resolve_completion_items_from_fields<T: TypeWithFields + Named>(
                 .get_type_description(schema.get_type_name(field.type_.inner()).lookup());
 
             let field_description = schema_documentation
-                .get_field_description(type_.name().lookup(), field.name.lookup());
+                .get_field_description(type_.name().lookup(), field.name.item.lookup());
 
             let documentation = make_markdown_table_documentation(
-                field.name.lookup(),
+                field.name.item.lookup(),
                 &schema.get_type_string(&field.type_),
                 field_description.unwrap_or(""),
                 type_description.unwrap_or(""),

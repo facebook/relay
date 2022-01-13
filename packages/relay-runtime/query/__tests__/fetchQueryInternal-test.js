@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,7 +13,8 @@
 
 'use strict';
 
-import type {Observer} from 'relay-runtime';
+import type {GraphQLResponse} from '../../network/RelayNetworkTypes';
+import type {Observer} from '../../network/RelayObservable';
 
 const {
   fetchQuery,
@@ -72,7 +73,7 @@ describe('fetchQuery', () => {
     let calledNext = false;
     const values = [];
     const observer = {
-      next: value => {
+      next: (value: GraphQLResponse) => {
         calledNext = true;
         values.push(value);
       },
@@ -106,7 +107,7 @@ describe('fetchQuery', () => {
     let calledError = false;
     let errorMessage = null;
     const observer = {
-      error: error => {
+      error: (error: Error) => {
         calledError = true;
         errorMessage = error.message;
       },
@@ -310,7 +311,7 @@ describe('fetchQuery', () => {
       let observer2Payload = null;
       let calledObserver2Complete = false;
       const observer1 = {
-        next: data => {
+        next: (data: GraphQLResponse) => {
           observer1Payload = data;
         },
         complete: () => {
@@ -318,7 +319,7 @@ describe('fetchQuery', () => {
         },
       };
       const observer2 = {
-        next: data => {
+        next: (data: GraphQLResponse) => {
           observer2Payload = data;
         },
         complete: () => {

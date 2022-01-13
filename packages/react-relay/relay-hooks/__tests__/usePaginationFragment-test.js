@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -44,7 +44,6 @@ describe('usePaginationFragment', () => {
   let gqlQueryWithLiteralArgs;
   let gqlQueryWithStreaming;
   let gqlPaginationQuery;
-  let gqlPaginationQueryWithStreaming;
   let gqlFragment;
   let gqlFragmentWithStreaming;
   let query;
@@ -289,14 +288,14 @@ describe('usePaginationFragment', () => {
     `);
     gqlFragment = getFragment(graphql`
       fragment usePaginationFragmentTestUserFragment on User
-        @refetchable(
-          queryName: "usePaginationFragmentTestUserFragmentPaginationQuery"
-        )
-        @argumentDefinitions(
-          isViewerFriendLocal: {type: "Boolean", defaultValue: false}
-          orderby: {type: "[String]"}
-          scale: {type: "Float"}
-        ) {
+      @refetchable(
+        queryName: "usePaginationFragmentTestUserFragmentPaginationQuery"
+      )
+      @argumentDefinitions(
+        isViewerFriendLocal: {type: "Boolean", defaultValue: false}
+        orderby: {type: "[String]"}
+        scale: {type: "Float"}
+      ) {
         id
         name
         friends(
@@ -324,14 +323,14 @@ describe('usePaginationFragment', () => {
     `);
     gqlFragmentWithStreaming = getFragment(graphql`
       fragment usePaginationFragmentTestUserFragmentWithStreaming on User
-        @refetchable(
-          queryName: "usePaginationFragmentTestUserFragmentStreamingPaginationQuery"
-        )
-        @argumentDefinitions(
-          isViewerFriendLocal: {type: "Boolean", defaultValue: false}
-          orderby: {type: "[String]"}
-          scale: {type: "Float"}
-        ) {
+      @refetchable(
+        queryName: "usePaginationFragmentTestUserFragmentStreamingPaginationQuery"
+      )
+      @argumentDefinitions(
+        isViewerFriendLocal: {type: "Boolean", defaultValue: false}
+        orderby: {type: "[String]"}
+        scale: {type: "Float"}
+      ) {
         id
         name
         friends(
@@ -578,7 +577,7 @@ describe('usePaginationFragment', () => {
 
       const UserFragment = getFragment(graphql`
         fragment usePaginationFragmentTest1Fragment on User
-          @relay(plural: true) {
+        @relay(plural: true) {
           id
         }
       `);
@@ -613,9 +612,9 @@ describe('usePaginationFragment', () => {
 
       const UserFragment = getFragment(graphql`
         fragment usePaginationFragmentTest3Fragment on User
-          @refetchable(
-            queryName: "usePaginationFragmentTest3FragmentRefetchQuery"
-          ) {
+        @refetchable(
+          queryName: "usePaginationFragmentTest3FragmentRefetchQuery"
+        ) {
           id
         }
       `);
@@ -1825,7 +1824,6 @@ describe('usePaginationFragment', () => {
         expect(callback).toBeCalledTimes(0);
 
         TestRenderer.act(() => {
-          // $FlowFixMe[incompatible-call]
           setOwner({...query});
         });
 
@@ -2345,7 +2343,6 @@ describe('usePaginationFragment', () => {
             },
           });
           TestRenderer.act(() => {
-            // $FlowFixMe[incompatible-call]
             setOwner(newQuery);
           });
 
@@ -3966,8 +3963,6 @@ describe('usePaginationFragment', () => {
     });
 
     describe('paginating @fetchable types', () => {
-      let gqlRefetchQuery;
-
       beforeEach(() => {
         const fetchVariables = {id: 'a'};
         gqlQuery = getRequest(graphql`
@@ -3980,13 +3975,13 @@ describe('usePaginationFragment', () => {
 
         gqlFragment = getFragment(graphql`
           fragment usePaginationFragmentTestStoryFragment on NonNodeStory
-            @argumentDefinitions(
-              count: {type: "Int", defaultValue: 10}
-              cursor: {type: "ID"}
-            )
-            @refetchable(
-              queryName: "usePaginationFragmentTestStoryFragmentRefetchQuery"
-            ) {
+          @argumentDefinitions(
+            count: {type: "Int", defaultValue: 10}
+            cursor: {type: "ID"}
+          )
+          @refetchable(
+            queryName: "usePaginationFragmentTestStoryFragmentRefetchQuery"
+          ) {
             comments(first: $count, after: $cursor)
               @connection(key: "StoryFragment_comments") {
               edges {

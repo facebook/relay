@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<525b33ce843f84320de0fc2e15a7ba55>>
+ * @generated SignedSource<<b474a68e8cc0a8be1805796ef9239135>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,11 +15,11 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayModernEnvironmentDynamicConnectionKeyTestFeedbackFragment$ref: FragmentReference;
-declare export opaque type RelayModernEnvironmentDynamicConnectionKeyTestFeedbackFragment$fragmentType: RelayModernEnvironmentDynamicConnectionKeyTestFeedbackFragment$ref;
-export type RelayModernEnvironmentDynamicConnectionKeyTestFeedbackFragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayModernEnvironmentDynamicConnectionKeyTestFeedbackFragment$fragmentType: FragmentType;
+export type RelayModernEnvironmentDynamicConnectionKeyTestFeedbackFragment$ref = RelayModernEnvironmentDynamicConnectionKeyTestFeedbackFragment$fragmentType;
+export type RelayModernEnvironmentDynamicConnectionKeyTestFeedbackFragment$data = {|
   +id: string,
   +comments: ?{|
     +edges: ?$ReadOnlyArray<?{|
@@ -28,12 +28,12 @@ export type RelayModernEnvironmentDynamicConnectionKeyTestFeedbackFragment = {|
       |},
     |}>,
   |},
-  +$refType: RelayModernEnvironmentDynamicConnectionKeyTestFeedbackFragment$ref,
+  +$fragmentType: RelayModernEnvironmentDynamicConnectionKeyTestFeedbackFragment$fragmentType,
 |};
-export type RelayModernEnvironmentDynamicConnectionKeyTestFeedbackFragment$data = RelayModernEnvironmentDynamicConnectionKeyTestFeedbackFragment;
+export type RelayModernEnvironmentDynamicConnectionKeyTestFeedbackFragment = RelayModernEnvironmentDynamicConnectionKeyTestFeedbackFragment$data;
 export type RelayModernEnvironmentDynamicConnectionKeyTestFeedbackFragment$key = {
   +$data?: RelayModernEnvironmentDynamicConnectionKeyTestFeedbackFragment$data,
-  +$fragmentRefs: RelayModernEnvironmentDynamicConnectionKeyTestFeedbackFragment$ref,
+  +$fragmentSpreads: RelayModernEnvironmentDynamicConnectionKeyTestFeedbackFragment$fragmentType,
   ...
 };
 */
@@ -173,4 +173,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "b83415f7ddaf726ca9c8853aa433bf33";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayModernEnvironmentDynamicConnectionKeyTestFeedbackFragment$fragmentType,
+  RelayModernEnvironmentDynamicConnectionKeyTestFeedbackFragment$data,
+>*/);

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -69,7 +69,7 @@ export default function Editor({text, onDidChange, diagnostics, style}) {
       return;
     }
 
-    const markers = (diagnostics ?? []).map(diagnostic => {
+    const markers = (diagnostics ?? []).map((diagnostic) => {
       return {
         severity: 8, // Error
         message: diagnostic.message,

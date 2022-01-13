@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -12,6 +12,10 @@
 // flowlint ambiguous-object-type:error
 
 'use strict';
+import type {
+  HandleFieldPayload,
+  RecordSourceProxy,
+} from 'relay-runtime/store/RelayStoreTypes';
 
 const {
   MultiActorEnvironment,
@@ -103,7 +107,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         );
 
         const NameHandler = {
-          update(storeProxy, payload) {
+          update(storeProxy: RecordSourceProxy, payload: HandleFieldPayload) {
             const record = storeProxy.get(payload.dataID);
             if (record != null) {
               const markup = record.getValue(payload.fieldKey);
@@ -129,7 +133,9 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         );
         source = RelayRecordSource.create();
         store = new RelayModernStore(source);
-        const handlerProvider = name => {
+        const handlerProvider = (
+          name: string | $TEMPORARY$string<'name_handler'>,
+        ) => {
           switch (name) {
             case 'name_handler':
               return NameHandler;
@@ -162,7 +168,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
       });
 
       it('calls next() and publishes the initial payload to the store', () => {
-        environment.execute({operation}).subscribe(callbacks);
+        environment.executeSubscription({operation}).subscribe(callbacks);
         dataSource.next({
           data: {
             commentCreateSubscribe: {
@@ -198,7 +204,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
       });
 
       it('processes deferred payloads', () => {
-        environment.execute({operation}).subscribe(callbacks);
+        environment.executeSubscription({operation}).subscribe(callbacks);
         dataSource.next({
           data: {
             commentCreateSubscribe: {
@@ -260,7 +266,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
       });
 
       it('calls complete() if root network request completes after deferred payload resolves', () => {
-        environment.execute({operation}).subscribe(callbacks);
+        environment.executeSubscription({operation}).subscribe(callbacks);
         dataSource.next({
           data: {
             commentCreateSubscribe: {
@@ -329,7 +335,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
       });
 
       it('calls complete() if root network request completes before deferred payload resolves', () => {
-        environment.execute({operation}).subscribe(callbacks);
+        environment.executeSubscription({operation}).subscribe(callbacks);
         dataSource.next({
           data: {
             commentCreateSubscribe: {
@@ -366,7 +372,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
       });
 
       it('calls error() if root network request errors before deferred payload resolves', () => {
-        environment.execute({operation}).subscribe(callbacks);
+        environment.executeSubscription({operation}).subscribe(callbacks);
         dataSource.next({
           data: {
             commentCreateSubscribe: {

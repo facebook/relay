@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -89,7 +89,7 @@ pub(crate) fn update_in_progress_status(
     update_status(short_message, message, MessageType::Warning, sender);
 }
 
-fn update_status(
+pub fn update_status(
     short_message: impl Into<String>,
     message: Option<impl Into<String>>,
     type_: MessageType,

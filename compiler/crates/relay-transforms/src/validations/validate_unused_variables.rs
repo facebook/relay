@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -8,7 +8,7 @@
 use crate::root_variables::InferVariablesVisitor;
 use common::{Diagnostic, DiagnosticsResult, NamedItem};
 use graphql_ir::{FragmentDefinition, OperationDefinition, Program, ValidationMessage, Validator};
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey};
 
 pub fn validate_unused_variables(program: &Program) -> DiagnosticsResult<()> {
     ValidateUnusedVariables::new(program).validate_program(program)

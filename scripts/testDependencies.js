@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -20,12 +20,12 @@ if (module.parent) {
   const packagesRoot = path.join(topLevelPackagePath, 'packages');
   const packagePaths = fs
     .readdirSync(packagesRoot)
-    .map(filepath => path.join(packagesRoot, filepath))
-    .filter(filepath => fs.statSync(filepath).isDirectory());
+    .map((filepath) => path.join(packagesRoot, filepath))
+    .filter((filepath) => fs.statSync(filepath).isDirectory());
 
   const errors = testDependencies(topLevelPackagePath, packagePaths);
   if (errors.length !== 0) {
-    errors.forEach(error => console.error(error));
+    errors.forEach((error) => console.error(error));
     process.exit(1);
   }
 }

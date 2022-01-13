@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -11,12 +11,11 @@ use crate::{
 };
 use common::{Diagnostic, DiagnosticsResult, NamedItem};
 use errors::validate;
-use fnv::FnvHashMap;
 use graphql_ir::{
     ConstantValue, Directive, FragmentDefinition, FragmentSpread, OperationDefinition, Program,
     ValidationMessage, Validator, Value, VariableDefinition,
 };
-use interner::StringKey;
+use intern::string_key::StringKeyMap;
 use schema::Schema;
 
 pub fn validate_relay_directives(program: &Program) -> DiagnosticsResult<()> {
@@ -78,7 +77,7 @@ impl<'program> RelayDirectiveValidation<'program> {
     /// 2. Their types should be same, or one is the subset of the
     fn validate_reachable_arguments(
         &self,
-        map: &mut FnvHashMap<StringKey, ArgumentDefinition<'program>>,
+        map: &mut StringKeyMap<ArgumentDefinition<'program>>,
     ) -> DiagnosticsResult<()> {
         let mut errs = vec![];
         for arg in &self.current_reachable_arguments {
@@ -152,7 +151,7 @@ impl Validator for RelayDirectiveValidation<'_> {
             if self.current_reachable_arguments.is_empty() {
                 Ok(())
             } else {
-                let mut map = FnvHashMap::default();
+                let mut map: StringKeyMap<_> = Default::default();
                 for variable in &fragment.used_global_variables {
                     map.insert(variable.name.item, ArgumentDefinition::Global(variable));
                 }
@@ -173,7 +172,7 @@ impl Validator for RelayDirectiveValidation<'_> {
             if self.current_reachable_arguments.is_empty() {
                 Ok(())
             } else {
-                let mut map = FnvHashMap::default();
+                let mut map: StringKeyMap<_> = Default::default();
                 for variable in &operation.variable_definitions {
                     map.insert(variable.name.item, ArgumentDefinition::Global(variable));
                 }

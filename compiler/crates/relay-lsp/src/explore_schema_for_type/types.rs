@@ -1,11 +1,11 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use interner::StringKey;
+use intern::string_key::StringKey;
 use schema::{
     DirectiveValue, EnumID, FieldID, InputObjectID, InterfaceID, ObjectID, SDLSchema, ScalarID,
     Schema, Type, UnionID,
@@ -121,7 +121,7 @@ pub(crate) fn get_full_schema_explorer_type_reference(
     count: Option<usize>,
 ) -> SchemaExplorerTypeReference<SchemaExplorerSchemaType> {
     let description = documentation
-        .get_type_description(&type_name)
+        .get_type_description(type_name)
         .map(|description| description.to_string());
 
     let schema_explorer_schema_type = match type_ {
@@ -354,7 +354,7 @@ fn get_schema_explorer_field(
     filter: &Option<String>,
 ) -> Option<SchemaExplorerField> {
     let field = schema.field(field_id);
-    let field_name = field.name.to_string();
+    let field_name = field.name.item.to_string();
 
     let field_type_name = schema.get_type_name(field.type_.inner()).to_string();
 

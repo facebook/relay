@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -37,7 +37,7 @@ function isJestProperty(t, property) {
   return t.isIdentifier(property) && jestMethods.includes(property.name);
 }
 
-module.exports = function(babel) {
+module.exports = function (babel) {
   var t = babel.types;
 
   /**

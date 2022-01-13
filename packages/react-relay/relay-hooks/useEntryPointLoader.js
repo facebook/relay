@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -120,10 +120,8 @@ function useLoadEntryPoint<
   const [entryPointReference, setEntryPointReference] = useState<
     PreloadedEntryPoint<TEntryPointComponent> | NullEntryPointReference,
   >(initialEntryPointReferenceInternal);
-  const [
-    entryPointParams,
-    setEntryPointParams,
-  ] = useState<TEntryPointParams | null>(initialEntryPointParamsInternal);
+  const [entryPointParams, setEntryPointParams] =
+    useState<TEntryPointParams | null>(initialEntryPointParamsInternal);
 
   const disposeEntryPoint = useCallback(() => {
     if (isMountedRef.current) {

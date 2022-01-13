@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -11,7 +11,7 @@ use common::{Diagnostic, DiagnosticTag, DiagnosticsResult, NamedItem, WithLocati
 use graphql_ir::{
     ExecutableDefinition, LinkedField, Program, ScalarField, ValidationMessage, Validator, Value,
 };
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey};
 use lazy_static::lazy_static;
 use schema::{FieldID, SDLSchema, Schema};
 
@@ -55,7 +55,7 @@ impl<'a> DeprecatedFields<'a> {
         }
     }
 
-    fn validate_field(&mut self, field_id: &WithLocation<FieldID>) -> () {
+    fn validate_field(&mut self, field_id: &WithLocation<FieldID>) {
         let schema = &self.schema;
         let field_definition = schema.field(field_id.item);
         if let Some(directive) = field_definition.directives.named(*DIRECTIVE_DEPRECATED) {
@@ -68,7 +68,7 @@ impl<'a> DeprecatedFields<'a> {
 
             self.warnings.push(Diagnostic::hint(
                 ValidationMessage::DeprecatedField {
-                    field_name: field_definition.name,
+                    field_name: field_definition.name.item,
                     parent_name,
                     deprecation_reason,
                 },

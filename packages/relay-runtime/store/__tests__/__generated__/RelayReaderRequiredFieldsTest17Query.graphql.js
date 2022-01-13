@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<e0edf8e2906098bd54687da605aa5305>>
+ * @generated SignedSource<<83d422feb67b632d91cc9052ca8c2598>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,19 +15,21 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-export type RelayReaderRequiredFieldsTest17QueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+export type RelayReaderRequiredFieldsTest17Query$variables = {|
   skip: boolean,
 |};
-export type RelayReaderRequiredFieldsTest17QueryResponse = {|
+export type RelayReaderRequiredFieldsTest17QueryVariables = RelayReaderRequiredFieldsTest17Query$variables;
+export type RelayReaderRequiredFieldsTest17Query$data = {|
   +me: ?{|
     +emailAddresses?: $ReadOnlyArray<?string>,
     +name: ?string,
   |},
 |};
+export type RelayReaderRequiredFieldsTest17QueryResponse = RelayReaderRequiredFieldsTest17Query$data;
 export type RelayReaderRequiredFieldsTest17Query = {|
   variables: RelayReaderRequiredFieldsTest17QueryVariables,
-  response: RelayReaderRequiredFieldsTest17QueryResponse,
+  response: RelayReaderRequiredFieldsTest17Query$data,
 |};
 */
 
@@ -139,4 +141,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "6fabad075998eb88ecad868a27a984dd";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayReaderRequiredFieldsTest17Query$variables,
+  RelayReaderRequiredFieldsTest17Query$data,
+>*/);

@@ -17,17 +17,17 @@ query ScalarHandleField($id: ID!) @raw_response_type {
   }
 }
 ==================================== OUTPUT ===================================
-export type LinkedHandleFieldVariables = {|
+export type LinkedHandleField$variables = {|
   id: string,
 |};
-export type LinkedHandleFieldResponse = {|
+export type LinkedHandleField$data = {|
   +node: ?{|
     +friends?: ?{|
       +count: ?number,
     |},
   |},
 |};
-export type LinkedHandleFieldRawResponse = {|
+export type LinkedHandleField$rawResponse = {|
   +node: ?({|
     +__typename: "User",
     +id: string,
@@ -39,21 +39,16 @@ export type LinkedHandleFieldRawResponse = {|
     +id: string,
   |}),
 |};
-export type LinkedHandleField = {|
-  variables: LinkedHandleFieldVariables,
-  response: LinkedHandleFieldResponse,
-  rawResponse: LinkedHandleFieldRawResponse,
-|};
 -------------------------------------------------------------------------------
-export type ScalarHandleFieldVariables = {|
+export type ScalarHandleField$variables = {|
   id: string,
 |};
-export type ScalarHandleFieldResponse = {|
+export type ScalarHandleField$data = {|
   +node: ?{|
     +name?: ?string,
   |},
 |};
-export type ScalarHandleFieldRawResponse = {|
+export type ScalarHandleField$rawResponse = {|
   +node: ?({|
     +__typename: "User",
     +id: string,
@@ -62,9 +57,4 @@ export type ScalarHandleFieldRawResponse = {|
     +__typename: string,
     +id: string,
   |}),
-|};
-export type ScalarHandleField = {|
-  variables: ScalarHandleFieldVariables,
-  response: ScalarHandleFieldResponse,
-  rawResponse: ScalarHandleFieldRawResponse,
 |};

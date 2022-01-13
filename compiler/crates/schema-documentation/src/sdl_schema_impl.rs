@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -7,7 +7,7 @@
 
 use crate::SchemaDocumentation;
 
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey};
 use schema::{Field, SDLSchema, Schema, Type};
 
 impl SchemaDocumentation for SDLSchema {
@@ -69,7 +69,7 @@ fn get_field_from_type(type_: Type, schema: &SDLSchema, field_name: StringKey) -
     }?;
     fields.iter().find_map(|field_id| {
         let field = schema.field(*field_id);
-        if field.name == field_name {
+        if field.name.item == field_name {
             Some(field)
         } else {
             None

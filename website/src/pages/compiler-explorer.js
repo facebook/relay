@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -11,6 +11,7 @@
 import Layout from '@theme/Layout';
 import clsx from 'clsx';
 import * as React from 'react';
+
 const {useState, useEffect, useLayoutEffect, useMemo} = React;
 
 const DEFAULT_SCHEMA = `
@@ -121,7 +122,7 @@ function CompilerExplorer() {
               {value: 'types', label: 'Types'},
             ]}
             selectedValue={outputType}
-            setSelectedValue={selected => setOutputType(selected)}
+            setSelectedValue={(selected) => setOutputType(selected)}
           />
         </div>
       </div>
@@ -157,7 +158,6 @@ function CompilerExplorer() {
 }
 
 function Config({onFeatureFlagsChanged}) {
-  const [required, setRequired] = useState(true);
   const [flight, setFlight] = useState(true);
   const [hashArgs, setHashArgs] = useState(true);
   const [noInline, setNoInline] = useState(true);
@@ -170,7 +170,6 @@ function Config({onFeatureFlagsChanged}) {
     onFeatureFlagsChanged(
       JSON.stringify({
         enable_flight_transform: flight,
-        enable_required_transform: required,
         hash_supported_argument: {kind: hashArgs ? 'enabled' : 'disabled'},
         no_inline: {kind: noInline ? 'enabled' : 'disabled'},
         enable_3d_branch_arg_generation: threeDBranchArg,
@@ -182,7 +181,6 @@ function Config({onFeatureFlagsChanged}) {
       }),
     );
   }, [
-    required,
     flight,
     hashArgs,
     noInline,
@@ -201,9 +199,6 @@ function Config({onFeatureFlagsChanged}) {
       }}>
       <ConfigOption checked={flight} set={setFlight}>
         Flight Transform
-      </ConfigOption>
-      <ConfigOption checked={required} set={setRequired}>
-        @required
       </ConfigOption>
       <ConfigOption checked={hashArgs} set={setHashArgs}>
         Hash Supported Arguments
@@ -241,7 +236,7 @@ function TypegenConfig({onTypegenConfigChanged}) {
     <div>
       <label>
         Type Generation Language:
-        <select onChange={e => setLangauge(e.target.value)}>
+        <select onChange={(e) => setLangauge(e.target.value)}>
           <option value="flow">Flow</option>
           <option value="typescript">TypeScript</option>
         </select>
@@ -256,7 +251,7 @@ function ConfigOption({checked, set, children}) {
       <input
         type="checkbox"
         checked={checked}
-        onChange={e => set(e.target.checked)}
+        onChange={(e) => set(e.target.checked)}
       />
       {children}
     </label>

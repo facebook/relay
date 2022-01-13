@@ -8,7 +8,7 @@
     "**/node_modules/**"
   ],
   "header": [
-    "Copyright (c) Facebook, Inc. and its affiliates.",
+    "Copyright (c) Meta Platforms, Inc. and affiliates.",
     "",
     "This source code is licensed under the MIT license found in the",
     "LICENSE file in the root directory of this source tree."
@@ -17,21 +17,19 @@
     "tests": {
       "enumModuleSuffix": null,
       "schema": "packages/relay-test-utils-internal/testschema.graphql",
-      "extensions": [
+      "schemaExtensions": [
         "packages/relay-test-utils-internal/schema-extensions"
       ],
       "jsModuleFormat": "commonjs",
       "featureFlags": {
         "enable_flight_transform": true,
-        "enable_required_transform_for_prefix": "",
         "no_inline": {
           "kind": "enabled"
         },
         "actor_change_support": {
           "kind": "enabled"
         }
-      },
-      "haste": false
+      }
     }
   },
   "isDevVariableName": "__DEV__"

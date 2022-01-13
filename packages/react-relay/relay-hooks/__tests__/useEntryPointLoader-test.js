@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -50,7 +50,7 @@ beforeEach(() => {
   // We don't care about the contents of entryPoints
   defaultEntryPoint = {};
 
-  render = function() {
+  render = function () {
     renderCount = 0;
     ReactTestRenderer.act(() => {
       instance = ReactTestRenderer.create(
@@ -62,14 +62,10 @@ beforeEach(() => {
     });
   };
 
-  Container = function({entryPoint, environmentProvider}) {
+  Container = function ({entryPoint, environmentProvider}) {
     renderCount = (renderCount || 0) + 1;
-    [
-      loadedEntryPoint,
-      entryPointLoaderCallback,
-      disposeEntryPoint,
-      // $FlowFixMe[prop-missing]
-    ] = useEntryPointLoader(environmentProvider, entryPoint);
+    [loadedEntryPoint, entryPointLoaderCallback, disposeEntryPoint] =
+      useEntryPointLoader(environmentProvider, entryPoint);
     return null;
   };
   loadEntryPoint.mockClear();

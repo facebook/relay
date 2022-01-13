@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<2ef686ec4867d67b5e93f6d7b35aad1f>>
+ * @generated SignedSource<<221c34a59f2b130cbafb6be88f3780f9>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,17 +15,19 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernEnvironmentTypeRefinementTest7Fragment$ref = any;
-export type RelayModernEnvironmentTypeRefinementTest4QueryVariables = {||};
-export type RelayModernEnvironmentTypeRefinementTest4QueryResponse = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayModernEnvironmentTypeRefinementTest7Fragment$fragmentType = any;
+export type RelayModernEnvironmentTypeRefinementTest4Query$variables = {||};
+export type RelayModernEnvironmentTypeRefinementTest4QueryVariables = RelayModernEnvironmentTypeRefinementTest4Query$variables;
+export type RelayModernEnvironmentTypeRefinementTest4Query$data = {|
   +userOrPage: ?{|
-    +$fragmentRefs: RelayModernEnvironmentTypeRefinementTest7Fragment$ref,
+    +$fragmentSpreads: RelayModernEnvironmentTypeRefinementTest7Fragment$fragmentType,
   |},
 |};
+export type RelayModernEnvironmentTypeRefinementTest4QueryResponse = RelayModernEnvironmentTypeRefinementTest4Query$data;
 export type RelayModernEnvironmentTypeRefinementTest4Query = {|
   variables: RelayModernEnvironmentTypeRefinementTest4QueryVariables,
-  response: RelayModernEnvironmentTypeRefinementTest4QueryResponse,
+  response: RelayModernEnvironmentTypeRefinementTest4Query$data,
 |};
 */
 
@@ -156,4 +158,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "a58fd2e641e7c6652209199221c50e34";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentTypeRefinementTest4Query$variables,
+  RelayModernEnvironmentTypeRefinementTest4Query$data,
+>*/);

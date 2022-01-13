@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -9,16 +9,15 @@ mod serialize;
 mod wrapper;
 
 use crate::definitions::{Argument, Directive, *};
-use common::Span;
+use common::{Span, WithLocation};
 use flatbuffers::{ForwardsUOffset, Vector};
 use graphql_syntax::{
     BooleanNode, ConstantArgument, ConstantValue, DirectiveLocation, EnumNode, FloatNode,
     FloatValue, Identifier, IntNode, List, StringNode, Token, TokenKind,
 };
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey};
 pub use serialize::serialize_as_flatbuffer;
 use std::cmp::Ordering;
-use std::convert::TryInto;
 pub use wrapper::SchemaWrapper;
 
 #[derive(Debug)]
@@ -234,7 +233,7 @@ impl<'fb> FlatBufferSchema<'fb> {
         let object = self.objects.get(id.0.try_into().unwrap());
         let name = object.name()?.intern();
         let parsed_object = Object {
-            name,
+            name: WithLocation::generated(name),
             is_extension: object.is_extension(),
             fields: object.fields()?.iter().map(FieldID).collect(),
             interfaces: object.interfaces()?.iter().map(InterfaceID).collect(),
@@ -275,7 +274,7 @@ impl<'fb> FlatBufferSchema<'fb> {
     fn parse_field(&self, id: FieldID) -> Option<Field> {
         let field = self.fields.get(id.0.try_into().unwrap());
         let parsed_field = Field {
-            name: field.name()?.intern(),
+            name: WithLocation::generated(field.name()?.intern()),
             is_extension: field.is_extension(),
             arguments: self.parse_arguments(field.arguments()?)?,
             type_: self.parse_type_reference(field.type_()?)?,

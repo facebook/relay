@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -7,7 +7,7 @@
 
 use common::{Diagnostic, DiagnosticsResult, NamedItem};
 use graphql_ir::{ConstantValue, Directive, OperationDefinition, Value};
-use interner::intern;
+use intern::intern;
 
 /// Check, if the operation is @preloadable.
 pub fn is_operation_preloadable(operation: &OperationDefinition) -> bool {

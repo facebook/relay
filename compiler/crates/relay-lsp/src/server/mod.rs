@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -10,6 +10,7 @@ mod lsp_notification_dispatch;
 mod lsp_request_dispatch;
 mod lsp_state;
 mod lsp_state_resources;
+mod task_queue;
 
 use crate::{
     code_action::on_code_action,
@@ -28,7 +29,10 @@ use crate::{
     references::on_references,
     resolved_types_at_location::{on_get_resolved_types_at_location, ResolvedTypesAtLocation},
     search_schema_items::{on_search_schema_items, SearchSchemaItems},
-    server::lsp_state_resources::LSPStateResources,
+    server::{
+        lsp_state::handle_lsp_state_tasks, lsp_state_resources::LSPStateResources,
+        task_queue::TaskQueue,
+    },
     shutdown::{on_exit, on_shutdown},
     status_reporter::LSPStatusReporter,
     status_updater::set_initializing_status,
@@ -38,7 +42,7 @@ use crate::{
     },
 };
 use common::{PerfLogEvent, PerfLogger};
-use crossbeam::channel::SendError;
+use crossbeam::{channel::Receiver, select};
 use log::debug;
 pub use lsp_notification_dispatch::LSPNotificationDispatch;
 pub use lsp_request_dispatch::LSPRequestDispatch;
@@ -59,13 +63,14 @@ use lsp_types::{
 };
 use relay_compiler::{config::Config, NoopArtifactWriter};
 use schema_documentation::{SchemaDocumentation, SchemaDocumentationLoader};
-use std::{sync::Arc, thread};
-use tokio::task;
+use std::sync::Arc;
 
 pub use crate::LSPExtraDataProvider;
 pub use lsp_state::{convert_diagnostic, GlobalState, LSPState, Schemas, SourcePrograms};
 
 use heartbeat::{on_heartbeat, HeartbeatRequest};
+
+use self::task_queue::TaskProcessor;
 
 /// Initializes an LSP connection, handling the `initialize` message and `initialized` notification
 /// handshake.
@@ -96,6 +101,12 @@ pub fn initialize(connection: &Connection) -> LSPProcessResult<InitializeParams>
     Ok(params)
 }
 
+#[derive(Debug)]
+pub enum Task {
+    InboundMessage(lsp_server::Message),
+    LSPState(lsp_state::Task),
+}
+
 /// Run the main server loop
 pub async fn run<
     TPerfLogger: PerfLogger + 'static,
@@ -120,6 +131,10 @@ where
     );
     set_initializing_status(&connection.sender);
 
+    let task_processor = LSPTaskProcessor;
+    let task_queue = TaskQueue::new(Arc::new(task_processor));
+    let task_scheduler = task_queue.get_scheduler();
+
     config.artifact_writer = Box::new(NoopArtifactWriter);
     config.status_reporter = Box::new(LSPStatusReporter::new(
         config.root_dir.clone(),
@@ -128,44 +143,49 @@ where
 
     let lsp_state = Arc::new(LSPState::new(
         Arc::new(config),
+        connection.sender.clone(),
+        Arc::clone(&task_scheduler),
         Arc::clone(&perf_logger),
         extra_data_provider,
         schema_documentation_loader,
         js_resource,
-        connection.sender.clone(),
     ));
 
-    // Watchman Subscription to handle Schema/Programs/Validation
-    let lsp_state_clone = Arc::clone(&lsp_state);
-    task::spawn(async move {
-        LSPStateResources::new(lsp_state_clone)
-            .watch()
-            .await
-            .unwrap();
-    });
+    LSPStateResources::new(Arc::clone(&lsp_state)).watch();
 
-    loop {
-        debug!("waiting for incoming messages...");
-        match connection.receiver.recv() {
-            Ok(Message::Request(request)) => {
-                debug!("creating a task to handle request...");
-                let lsp_state = Arc::clone(&lsp_state);
-                thread::spawn(move || {
-                    handle_request(lsp_state, request).unwrap();
-                });
+    while let Some(task) = next_task(&connection.receiver, &task_queue.receiver) {
+        task_queue.process(Arc::clone(&lsp_state), task);
+    }
+
+    panic!("Client exited without proper shutdown sequence.")
+}
+
+fn next_task(
+    lsp_receiver: &Receiver<Message>,
+    task_queue_receiver: &Receiver<Task>,
+) -> Option<Task> {
+    select! {
+        recv(lsp_receiver) -> message => message.ok().map(Task::InboundMessage),
+        recv(task_queue_receiver) -> task => task.ok()
+    }
+}
+
+struct LSPTaskProcessor;
+
+impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentation + 'static>
+    TaskProcessor<LSPState<TPerfLogger, TSchemaDocumentation>, Task> for LSPTaskProcessor
+{
+    fn process(&self, state: Arc<LSPState<TPerfLogger, TSchemaDocumentation>>, task: Task) {
+        match task {
+            Task::InboundMessage(Message::Request(request)) => handle_request(state, request),
+            Task::InboundMessage(Message::Notification(notification)) => {
+                handle_notification(state, notification);
             }
-            Ok(Message::Notification(notification)) => {
-                debug!("creating a task to handle notification...");
-                let lsp_state = Arc::clone(&lsp_state);
-                thread::spawn(move || {
-                    handle_notification(lsp_state, notification);
-                });
+            Task::LSPState(lsp_task) => {
+                handle_lsp_state_tasks(state, lsp_task);
             }
-            Ok(_) => {
-                // Ignore responses for now
-            }
-            Err(error) => {
-                panic!("Relay Language Server receiver error {:?}", error);
+            Task::InboundMessage(Message::Response(_)) => {
+                // TODO: handle response from the client -> cancel message, etc
             }
         }
     }
@@ -174,12 +194,14 @@ where
 fn handle_request<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentation>(
     lsp_state: Arc<LSPState<TPerfLogger, TSchemaDocumentation>>,
     request: lsp_server::Request,
-) -> Result<(), SendError<Message>> {
+) {
     debug!("request received {:?}", request);
     let get_server_response_bound = |req| dispatch_request(req, lsp_state.as_ref());
     let get_response = with_request_logging(&lsp_state.perf_logger, get_server_response_bound);
 
-    lsp_state.send_message(Message::Response(get_response(request)))
+    lsp_state
+        .send_message(Message::Response(get_response(request)))
+        .expect("Unable to send message to a client.");
 }
 
 fn dispatch_request(request: lsp_server::Request, lsp_state: &impl GlobalState) -> ServerResponse {

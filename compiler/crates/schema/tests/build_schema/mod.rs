@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -14,14 +14,26 @@ use schema::{
 };
 use std::collections::BTreeMap;
 
+const SCHEMA_SEPARATOR: &str = "%extensions%";
+
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
-    let parts: Vec<_> = fixture.content.split("%extensions%").collect();
+    let parts: Vec<_> = fixture.content.split(SCHEMA_SEPARATOR).collect();
     let result = match parts.as_slice() {
         [base] => build_schema_with_extensions::<_, &str>(&[base], &[]),
-        [base, extensions] => build_schema_with_extensions(
-            &[base],
-            &[(extensions, SourceLocationKey::standalone(fixture.file_name))],
-        ),
+        [base, extensions] => {
+            // prepend a comment so the correct line + column number is reported for client extension
+            // (since we source base and client schemas from one file)
+            let nchars_base = base.chars().count() + SCHEMA_SEPARATOR.chars().count();
+            assert!(nchars_base > 0);
+            let prepended_extension = format!("{}\n{}", "#".repeat(nchars_base - 1), extensions);
+            build_schema_with_extensions(
+                &[base],
+                &[(
+                    prepended_extension,
+                    SourceLocationKey::standalone(fixture.file_name),
+                )],
+            )
+        }
         _ => panic!("Expected a single extension block"),
     };
 

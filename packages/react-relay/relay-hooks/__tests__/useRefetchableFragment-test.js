@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -43,6 +43,7 @@ describe('useRefetchableFragment', () => {
   function useRefetchableFragment(fragmentNode, fragmentRef) {
     const [data, refetch] = useRefetchableFragmentOriginal(
       fragmentNode,
+      // $FlowFixMe[incompatible-call]
       // $FlowFixMe[prop-missing]
       fragmentRef,
     );
@@ -106,9 +107,9 @@ describe('useRefetchableFragment', () => {
     `);
     gqlFragment = getFragment(graphql`
       fragment useRefetchableFragmentTestUserFragment on User
-        @refetchable(
-          queryName: "useRefetchableFragmentTestUserFragmentRefetchQuery"
-        ) {
+      @refetchable(
+        queryName: "useRefetchableFragmentTestUserFragmentRefetchQuery"
+      ) {
         id
         name
         profile_picture(scale: $scale) {
@@ -135,10 +136,8 @@ describe('useRefetchableFragment', () => {
     const Container = (props: {userRef?: {...}, fragment: $FlowFixMe, ...}) => {
       // We need a render a component to run a Hook
       const artificialUserRef = useMemo(
-        // $FlowFixMe[prop-missing]
         () => ({
           [ID_KEY]:
-          // $FlowFixMe[prop-missing]
             query.request.variables.id ?? query.request.variables.nodeID,
           [FRAGMENTS_KEY]: {
             [gqlFragment.name]: {},

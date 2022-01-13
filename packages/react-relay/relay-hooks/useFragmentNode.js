@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -50,9 +50,8 @@ function useFragmentNode<TFragmentData: mixed>(
   const isListeningForUpdatesRef = useRef(true);
   function enableStoreUpdates() {
     isListeningForUpdatesRef.current = true;
-    const didMissUpdates = FragmentResource.checkMissedUpdates(
-      fragmentResult,
-    )[0];
+    const didMissUpdates =
+      FragmentResource.checkMissedUpdates(fragmentResult)[0];
     if (didMissUpdates) {
       handleDataUpdate();
     }

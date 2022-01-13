@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -7,16 +7,16 @@
 
 use std::{collections::HashSet, sync::Arc};
 
-use common::{PerfLogger, SourceLocationKey};
+use common::{FeatureFlag, PerfLogger, SourceLocationKey};
 use graphql_ir::{
     build_ir_with_extra_features, BuilderOptions, ExecutableDefinition, FragmentDefinition,
     FragmentVariablesSemantic, OperationDefinition, Program, Selection,
 };
 use graphql_syntax::parse_executable_with_error_recovery;
 use graphql_text_printer::print_full_operation;
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey};
 use lsp_types::{request::Request, Url};
-use relay_compiler::config::{Config, ProjectConfig};
+use relay_compiler::config::ProjectConfig;
 use relay_transforms::{apply_transforms, Programs};
 use schema::SDLSchema;
 use schema_documentation::SchemaDocumentation;
@@ -124,17 +124,13 @@ fn get_operation_only_program(
 /// that may generate full operation text
 fn transform_program<TPerfLogger: PerfLogger + 'static>(
     project_config: &ProjectConfig,
-    config: Arc<Config>,
     program: Arc<Program>,
     perf_logger: Arc<TPerfLogger>,
 ) -> Result<Programs, String> {
     apply_transforms(
-        project_config.name,
+        project_config,
         program,
         Default::default(),
-        &config.connection_interface,
-        Arc::clone(&project_config.feature_flags),
-        &None,
         perf_logger,
         None,
     )
@@ -156,14 +152,17 @@ fn print_full_operation_text(programs: Programs, operation_name: StringKey) -> S
 fn build_operation_ir_with_fragments(
     definitions: &[graphql_syntax::ExecutableDefinition],
     schema: Arc<SDLSchema>,
+    enable_provided_variables: &FeatureFlag,
 ) -> Result<(Arc<OperationDefinition>, Vec<Arc<FragmentDefinition>>), String> {
     let ir = build_ir_with_extra_features(
         &schema,
         definitions,
-        BuilderOptions {
+        &BuilderOptions {
             allow_undefined_fragment_spreads: true,
             fragment_variables_semantic: FragmentVariablesSemantic::PassedValue,
-            relay_mode: true,
+            relay_mode: Some(graphql_ir::RelayMode {
+                enable_provided_variables,
+            }),
             default_anonymous_operation_name: Some("anonymous".intern()),
         },
     )
@@ -226,9 +225,12 @@ pub(crate) fn get_query_text<
         ));
     }
 
-    let (operation, fragments) =
-        build_operation_ir_with_fragments(&result.item.definitions, schema)
-            .map_err(LSPRuntimeError::UnexpectedError)?;
+    let (operation, fragments) = build_operation_ir_with_fragments(
+        &result.item.definitions,
+        schema,
+        &project_config.feature_flags.enable_provided_variables,
+    )
+    .map_err(LSPRuntimeError::UnexpectedError)?;
 
     let operation_name = operation.name.item;
     let program = state.get_program(project_name)?;
@@ -237,7 +239,6 @@ pub(crate) fn get_query_text<
         if let Some(program) = get_operation_only_program(operation, fragments, &program) {
             let programs = transform_program(
                 project_config,
-                Arc::clone(&state.config),
                 Arc::new(program),
                 Arc::clone(&state.perf_logger),
             )

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -174,11 +174,8 @@ function useRefetchableFragmentNode<
   componentDisplayName: string,
 ): ReturnType<TQuery, TKey, InternalOptions> {
   const parentEnvironment = useRelayEnvironment();
-  const {
-    refetchableRequest,
-    fragmentRefPathInResponse,
-    identifierField,
-  } = getRefetchMetadata(fragmentNode, componentDisplayName);
+  const {refetchableRequest, fragmentRefPathInResponse, identifierField} =
+    getRefetchMetadata(fragmentNode, componentDisplayName);
   const fragmentIdentifier = getFragmentIdentifier(
     fragmentNode,
     parentFragmentRef,
@@ -211,9 +208,8 @@ function useRefetchableFragmentNode<
   const shouldReset =
     environment !== mirroredEnvironment ||
     fragmentIdentifier !== mirroredFragmentIdentifier;
-  const [queryRef, loadQuery, disposeQuery] = useQueryLoader<TQuery>(
-    refetchableRequest,
-  );
+  const [queryRef, loadQuery, disposeQuery] =
+    useQueryLoader<TQuery>(refetchableRequest);
 
   let fragmentRef = parentFragmentRef;
   if (shouldReset) {
@@ -434,7 +430,6 @@ function useRefetchFunction<TQuery: OperationType>(
       // all variables required by the fragment when calling `refetch()`.
       // We fill in any variables not passed by the call to `refetch()` with the
       // variables from the original parent fragment owner.
-      // $FlowFixMe[cannot-spread-interface]
       const refetchVariables: VariablesOf<TQuery> = {
         ...(parentVariables: $FlowFixMe),
         ...fragmentVariables,
@@ -511,7 +506,6 @@ if (__DEV__) {
       environment: IEnvironment,
     ): ?DebugIDandTypename {
       const {Record} = require('relay-runtime');
-      // $FlowFixMe[prop-missing]
       const id = memoRefetchVariables?.id;
       if (
         fragmentRefPathInResponse.length !== 1 ||

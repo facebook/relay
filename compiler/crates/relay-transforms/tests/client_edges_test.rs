@@ -1,10 +1,10 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<8962ec4583214ba39506d7b4524792ab>>
+ * @generated SignedSource<<eeda961ea8a3d617a760484424f8a96c>>
  */
 
 mod client_edges;
@@ -59,11 +59,4 @@ fn nested_client_edges_with_variables() {
     let input = include_str!("client_edges/fixtures/nested-client-edges-with-variables.graphql");
     let expected = include_str!("client_edges/fixtures/nested-client-edges-with-variables.expected");
     test_fixture(transform_fixture, "nested-client-edges-with-variables.graphql", "client_edges/fixtures/nested-client-edges-with-variables.expected", input, expected);
-}
-
-#[test]
-fn retain_directives() {
-    let input = include_str!("client_edges/fixtures/retain-directives.graphql");
-    let expected = include_str!("client_edges/fixtures/retain-directives.expected");
-    test_fixture(transform_fixture, "retain-directives.graphql", "client_edges/fixtures/retain-directives.expected", input, expected);
 }

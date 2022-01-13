@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -100,7 +100,7 @@ describe('ReactRelayFragmentContainer with fragment ownerhsip', () => {
     `;
     UserFragment = graphql`
       fragment ReactRelayFragmentContainerWithFragmentOwnershipTestUserFragment on User
-        @argumentDefinitions(cond: {type: "Boolean!", defaultValue: true}) {
+      @argumentDefinitions(cond: {type: "Boolean!", defaultValue: true}) {
         id
         name @include(if: $cond)
         ...ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment
@@ -176,7 +176,8 @@ describe('ReactRelayFragmentContainer with fragment ownerhsip', () => {
         name: 'Zuck',
         __id: '4',
         __fragments: {
-          ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment: {},
+          ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment:
+            {},
         },
         __fragmentOwner: ownerUser1.request,
         __isWithinUnmatchedTypeRefinement: false,
@@ -190,12 +191,14 @@ describe('ReactRelayFragmentContainer with fragment ownerhsip', () => {
         name: 'Zuck',
         __id: '4',
         __fragments: {
-          ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment: {},
+          ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment:
+            {},
         },
         __fragmentOwner: ownerUser1.request,
         __isWithinUnmatchedTypeRefinement: false,
       },
       missingRequiredFields: null,
+      missingClientEdges: null,
       isMissingData: false,
       seenRecords: expect.any(Object),
       selector: createReaderSelector(
@@ -231,7 +234,8 @@ describe('ReactRelayFragmentContainer with fragment ownerhsip', () => {
         name: 'Mark',
         __id: '4',
         __fragments: {
-          ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment: {},
+          ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment:
+            {},
         },
         __fragmentOwner: ownerUser1.request,
         __isWithinUnmatchedTypeRefinement: false,
@@ -254,7 +258,8 @@ describe('ReactRelayFragmentContainer with fragment ownerhsip', () => {
         name: 'Mark',
         __id: '4',
         __fragments: {
-          ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment: {},
+          ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment:
+            {},
         },
         __fragmentOwner: ownerUser1.request,
         __isWithinUnmatchedTypeRefinement: false,
@@ -290,7 +295,8 @@ describe('ReactRelayFragmentContainer with fragment ownerhsip', () => {
         name: 'Joe',
         __id: '842472',
         __fragments: {
-          ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment: {},
+          ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment:
+            {},
         },
         __fragmentOwner: ownerUser2.request,
         __isWithinUnmatchedTypeRefinement: false,
@@ -305,12 +311,14 @@ describe('ReactRelayFragmentContainer with fragment ownerhsip', () => {
         name: 'Joe',
         __id: '842472',
         __fragments: {
-          ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment: {},
+          ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment:
+            {},
         },
         __fragmentOwner: ownerUser2.request,
         __isWithinUnmatchedTypeRefinement: false,
       },
       missingRequiredFields: null,
+      missingClientEdges: null,
       isMissingData: false,
       seenRecords: expect.any(Object),
       selector: createReaderSelector(
@@ -353,7 +361,8 @@ describe('ReactRelayFragmentContainer with fragment ownerhsip', () => {
         // Name is excluded since value of cond is now false
         __id: '4',
         __fragments: {
-          ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment: {},
+          ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment:
+            {},
         },
         __fragmentOwner: ownerUser1WithCondVar.request,
         __isWithinUnmatchedTypeRefinement: false,
@@ -367,12 +376,14 @@ describe('ReactRelayFragmentContainer with fragment ownerhsip', () => {
         // Name is excluded since value of cond is now false
         __id: '4',
         __fragments: {
-          ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment: {},
+          ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment:
+            {},
         },
         __fragmentOwner: ownerUser1WithCondVar.request,
         __isWithinUnmatchedTypeRefinement: false,
       },
       missingRequiredFields: null,
+      missingClientEdges: null,
       isMissingData: false,
       seenRecords: expect.any(Object),
       selector: createReaderSelector(

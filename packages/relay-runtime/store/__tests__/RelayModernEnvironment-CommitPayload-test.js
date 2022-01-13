@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -19,7 +19,6 @@ const {
 } = require('../../multi-actor-environment');
 const RelayNetwork = require('../../network/RelayNetwork');
 const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
-const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -354,10 +353,10 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           taskID = 0;
           tasks = new Map();
           scheduler = {
-            cancel: id => {
+            cancel: (id: string) => {
               tasks.delete(id);
             },
-            schedule: task => {
+            schedule: (task: () => void) => {
               const id = String(taskID++);
               tasks.set(id, task);
               return id;

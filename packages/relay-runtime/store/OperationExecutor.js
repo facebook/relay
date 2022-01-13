@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -28,6 +28,7 @@ import type {
   IncrementalDataPlaceholder,
   LogFunction,
   ModuleImportPayload,
+  MutationParameters,
   NormalizationSelector,
   OperationDescriptor,
   OperationLoader,
@@ -76,7 +77,7 @@ const {ROOT_TYPE, TYPENAME_KEY, getStorageKey} = require('./RelayStoreUtils');
 const invariant = require('invariant');
 const warning = require('warning');
 
-export type ExecuteConfig = {|
+export type ExecuteConfig<TMutation: MutationParameters> = {|
   +actorIdentifier: ActorIdentifier,
   +getDataID: GetDataID,
   +getPublishQueue: (actorIdentifier: ActorIdentifier) => PublishQueue,
@@ -86,7 +87,7 @@ export type ExecuteConfig = {|
   +operationExecutions: Map<string, ActiveState>,
   +operationLoader: ?OperationLoader,
   +operationTracker: OperationTracker,
-  +optimisticConfig: ?OptimisticResponseConfig,
+  +optimisticConfig: ?OptimisticResponseConfig<TMutation>,
   +reactFlightPayloadDeserializer?: ?ReactFlightPayloadDeserializer,
   +reactFlightServerErrorHandler?: ?ReactFlightServerErrorHandler,
   +scheduler?: ?TaskScheduler,
@@ -94,7 +95,7 @@ export type ExecuteConfig = {|
   +sink: Sink<GraphQLResponse>,
   +source: RelayObservable<GraphQLResponse>,
   +treatMissingFieldsAsNull: boolean,
-  +updater?: ?SelectorStoreUpdater,
+  +updater?: ?SelectorStoreUpdater<TMutation['response']>,
   +log: LogFunction,
 |};
 
@@ -123,7 +124,9 @@ type IncrementalGraphQLResponse = {|
   response: GraphQLResponseWithData,
 |};
 
-function execute(config: ExecuteConfig): Executor {
+function execute<TMutation: MutationParameters>(
+  config: ExecuteConfig<TMutation>,
+): Executor<TMutation> {
   return new Executor(config);
 }
 
@@ -132,7 +135,7 @@ function execute(config: ExecuteConfig): Executor {
  * including optimistic payloads, standard payloads, resolution of match
  * dependencies, etc.
  */
-class Executor {
+class Executor<TMutation: MutationParameters> {
   _actorIdentifier: ActorIdentifier;
   _getDataID: GetDataID;
   _treatMissingFieldsAsNull: boolean;
@@ -146,7 +149,7 @@ class Executor {
   _operationLoader: ?OperationLoader;
   _operationTracker: OperationTracker;
   _operationUpdateEpochs: Map<string, number>;
-  _optimisticUpdates: null | Array<OptimisticUpdate>;
+  _optimisticUpdates: null | Array<OptimisticUpdate<TMutation>>;
   _pendingModulePayloadsCount: number;
   +_getPublishQueue: (actorIdentifier: ActorIdentifier) => PublishQueue;
   _reactFlightPayloadDeserializer: ?ReactFlightPayloadDeserializer;
@@ -161,7 +164,7 @@ class Executor {
   _state: 'started' | 'loading_incremental' | 'loading_final' | 'completed';
   +_getStore: (actorIdentifier: ActorIdentifier) => Store;
   _subscriptions: Map<number, Subscription>;
-  _updater: ?SelectorStoreUpdater;
+  _updater: ?SelectorStoreUpdater<TMutation['response']>;
   _asyncStoreUpdateDisposable: ?Disposable;
   _completeFns: Array<() => void>;
   +_retainDisposables: Map<ActorIdentifier, Disposable>;
@@ -189,7 +192,7 @@ class Executor {
     treatMissingFieldsAsNull,
     updater,
     log,
-  }: ExecuteConfig): void {
+  }: ExecuteConfig<TMutation>): void {
     this._actorIdentifier = actorIdentifier;
     this._getDataID = getDataID;
     this._treatMissingFieldsAsNull = treatMissingFieldsAsNull;
@@ -445,7 +448,8 @@ class Executor {
         error.stack;
         throw error;
       } else {
-        const responseWithData: GraphQLResponseWithData = (response: $FlowFixMe);
+        const responseWithData: GraphQLResponseWithData =
+          (response: $FlowFixMe);
         results.push(responseWithData);
       }
     });
@@ -520,10 +524,8 @@ class Executor {
       return;
     }
 
-    const [
-      nonIncrementalResponses,
-      incrementalResponses,
-    ] = partitionGraphQLResponses(responsesWithData);
+    const [nonIncrementalResponses, incrementalResponses] =
+      partitionGraphQLResponses(responsesWithData);
     const hasNonIncrementalResponses = nonIncrementalResponses.length > 0;
 
     // In theory this doesn't preserve the ordering of the batch.
@@ -560,9 +562,8 @@ class Executor {
     }
 
     if (incrementalResponses.length > 0) {
-      const payloadFollowups = this._processIncrementalResponses(
-        incrementalResponses,
-      );
+      const payloadFollowups =
+        this._processIncrementalResponses(incrementalResponses);
 
       this._processPayloadFollowups(payloadFollowups);
     }
@@ -575,7 +576,8 @@ class Executor {
           __relay_subscription_root_id: this._operation.fragment.dataID,
         };
       } else {
-        responsesWithData[0].extensions.__relay_subscription_root_id = this._operation.fragment.dataID;
+        responsesWithData[0].extensions.__relay_subscription_root_id =
+          this._operation.fragment.dataID;
       }
     }
 
@@ -598,7 +600,7 @@ class Executor {
 
   _processOptimisticResponse(
     response: ?GraphQLResponseWithData,
-    updater: ?SelectorStoreUpdater,
+    updater: ?SelectorStoreUpdater<TMutation['response']>,
     treatMissingFieldsAsNull: boolean,
   ): void {
     invariant(
@@ -609,7 +611,7 @@ class Executor {
     if (response == null && updater == null) {
       return;
     }
-    const optimisticUpdates: Array<OptimisticUpdate> = [];
+    const optimisticUpdates: Array<OptimisticUpdate<TMutation>> = [];
     if (response) {
       const payload = normalizeResponse(
         response,
@@ -660,7 +662,7 @@ class Executor {
 
   _processOptimisticFollowups(
     payload: RelayResponsePayload,
-    optimisticUpdates: Array<OptimisticUpdate>,
+    optimisticUpdates: Array<OptimisticUpdate<TMutation>>,
   ): void {
     if (payload.followupPayloads && payload.followupPayloads.length) {
       const followupPayloads = payload.followupPayloads;
@@ -674,10 +676,8 @@ class Executor {
             if (operation == null) {
               this._processAsyncOptimisticModuleImport(followupPayload);
             } else {
-              const moduleImportOptimisticUpdates = this._processOptimisticModuleImport(
-                operation,
-                followupPayload,
-              );
+              const moduleImportOptimisticUpdates =
+                this._processOptimisticModuleImport(operation, followupPayload);
               optimisticUpdates.push(...moduleImportOptimisticUpdates);
             }
             break;
@@ -746,7 +746,7 @@ class Executor {
   _processOptimisticModuleImport(
     normalizationRootNode: NormalizationRootNode,
     moduleImportPayload: ModuleImportPayload,
-  ): $ReadOnlyArray<OptimisticUpdate> {
+  ): $ReadOnlyArray<OptimisticUpdate<TMutation>> {
     const operation = getOperation(normalizationRootNode);
     const optimisticUpdates = [];
     const modulePayload = this._normalizeFollowupPayload(
@@ -772,10 +772,8 @@ class Executor {
         if (operation == null || this._state !== 'started') {
           return;
         }
-        const moduleImportOptimisticUpdates = this._processOptimisticModuleImport(
-          operation,
-          moduleImportPayload,
-        );
+        const moduleImportOptimisticUpdates =
+          this._processOptimisticModuleImport(operation, moduleImportPayload);
         moduleImportOptimisticUpdates.forEach(update =>
           this._getPublishQueueAndSaveActor().applyUpdate(update),
         );
@@ -1177,9 +1175,8 @@ class Executor {
     // If there were any queued responses, process them now that placeholders
     // are in place
     if (pendingResponses != null) {
-      const payloadFollowups = this._processIncrementalResponses(
-        pendingResponses,
-      );
+      const payloadFollowups =
+        this._processIncrementalResponses(pendingResponses);
       this._processPayloadFollowups(payloadFollowups);
     }
   }
@@ -1229,10 +1226,7 @@ class Executor {
         // but Relay records paths relative to the parent of the stream node:
         // therefore we strip the last two elements just to lookup the path
         // (the item index is used later to insert the element in the list)
-        const pathKey = path
-          .slice(0, -2)
-          .map(String)
-          .join('.');
+        const pathKey = path.slice(0, -2).map(String).join('.');
         let resultForPath = resultForLabel.get(pathKey);
         if (resultForPath == null) {
           resultForPath = {kind: 'response', responses: [incrementalResponse]};

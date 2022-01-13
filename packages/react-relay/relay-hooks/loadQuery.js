@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -57,7 +57,7 @@ function useTrackLoadQueryInRender() {
 function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
   environment: IEnvironment,
   preloadableRequest: GraphQLTaggedNode | PreloadableConcreteRequest<TQuery>,
-  variables: $ElementType<TQuery, 'variables'>,
+  variables: TQuery['variables'],
   options?: ?LoadQueryOptions,
   environmentProviderOptions?: ?TEnvironmentProviderOptions,
 ): PreloadedQueryInner<TQuery, TEnvironmentProviderOptions> {
@@ -272,7 +272,8 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
   let cancelOnLoadCallback;
   let queryId;
   if (preloadableRequest.kind === 'PreloadableConcreteRequest') {
-    const preloadableConcreteRequest: PreloadableConcreteRequest<TQuery> = (preloadableRequest: $FlowFixMe);
+    const preloadableConcreteRequest: PreloadableConcreteRequest<TQuery> =
+      (preloadableRequest: $FlowFixMe);
     ({params} = preloadableConcreteRequest);
 
     ({id: queryId} = params);
@@ -298,7 +299,6 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
         fetchPolicy === 'store-only' ? null : makeNetworkRequest(params);
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       ({dispose: cancelOnLoadCallback} = PreloadableQueryRegistry.onLoad(
-        // $FlowFixMe[incompatible-call]
         queryId,
         preloadedModule => {
           cancelOnLoadCallback();
@@ -317,7 +317,8 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
       ));
     }
   } else {
-    const graphQlTaggedNode: GraphQLTaggedNode = (preloadableRequest: $FlowFixMe);
+    const graphQlTaggedNode: GraphQLTaggedNode =
+      (preloadableRequest: $FlowFixMe);
     const request = getRequest(graphQlTaggedNode);
     params = request.params;
     queryId = params.cacheID != null ? params.cacheID : params.id;

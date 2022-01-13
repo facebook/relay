@@ -1,4 +1,4 @@
-# Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved.
+# Copyright (c) Meta Platforms, Inc. and affiliates. All Rights Reserved.
 
 schema {
   query: Query
@@ -686,6 +686,7 @@ type Page implements Node & Actor {
   viewerSavedState: String
   nameWithArgs(capitalize: Boolean!): String
   nameWithDefaultArgs(capitalize: Boolean = false): String
+  nameWithRequiredDefaultArgs(capitalize: Boolean! = false): String
   actor_key: ID!
 }
 

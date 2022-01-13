@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -11,7 +11,7 @@ use common::{PerfLogEvent, PerfLogger};
 use dashmap::mapref::entry::Entry;
 use fnv::FnvHashMap;
 use graphql_watchman::WatchmanFileSourceSubscriptionNextChange;
-use interner::StringKey;
+use intern::string_key::StringKey;
 use log::debug;
 use rayon::iter::ParallelIterator;
 use relay_compiler::{
@@ -20,19 +20,15 @@ use relay_compiler::{
     validate_program, BuildProjectFailure, FileSource, FileSourceResult, FileSourceSubscription,
     FileSourceSubscriptionNextChange, GraphQLAsts, SourceControlUpdateStatus,
 };
-use relay_transforms::FeatureFlags;
 use schema::SDLSchema;
 use schema_documentation::SchemaDocumentation;
-use tokio::{sync::Notify, task, task::JoinHandle};
+use tokio::{task, task::JoinHandle};
 
 use crate::{
-    lsp_process_error::{LSPProcessError, LSPProcessResult},
-    status_updater::set_ready_status,
-    status_updater::update_in_progress_status,
-    LSPState,
+    status_updater::set_ready_status, status_updater::update_in_progress_status, LSPState,
 };
 
-use super::lsp_state::ProjectStatus;
+use super::lsp_state::{ProjectStatus, Task};
 
 /// This structure is responsible for keeping schemas/programs in sync with the current state of the world
 pub(crate) struct LSPStateResources<
@@ -40,21 +36,23 @@ pub(crate) struct LSPStateResources<
     TSchemaDocumentation: SchemaDocumentation + 'static,
 > {
     lsp_state: Arc<LSPState<TPerfLogger, TSchemaDocumentation>>,
-    notify: Arc<Notify>,
 }
 
 impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentation + 'static>
     LSPStateResources<TPerfLogger, TSchemaDocumentation>
 {
     pub(crate) fn new(lsp_state: Arc<LSPState<TPerfLogger, TSchemaDocumentation>>) -> Self {
-        Self {
-            lsp_state,
-            notify: Arc::new(Notify::new()),
-        }
+        Self { lsp_state }
+    }
+
+    pub(crate) fn watch(self) {
+        tokio::spawn(async move {
+            self.internal_watch().await;
+        });
     }
 
     /// Create an end-less loop of keeping the resources up-to-date with the source control changes
-    pub(crate) async fn watch(&self) -> LSPProcessResult<()> {
+    async fn internal_watch(&self) {
         'outer: loop {
             debug!("Initializing resources for LSP server");
 
@@ -69,13 +67,24 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                 .create_event("lsp_state_initialize_resources");
             let timer = setup_event.start("lsp_state_initialize_resources_time");
 
-            let file_source = FileSource::connect(&self.lsp_state.config, &setup_event)
-                .await
-                .map_err(LSPProcessError::CompilerError)?;
-            let (mut compiler_state, file_source_subscription) = file_source
+            let file_source = match FileSource::connect(&self.lsp_state.config, &setup_event).await
+            {
+                Ok(f) => f,
+                Err(error) => {
+                    self.log_errors("watch_build_error", &error);
+                    continue;
+                }
+            };
+            let (mut compiler_state, file_source_subscription) = match file_source
                 .subscribe(&setup_event, self.lsp_state.perf_logger.as_ref())
                 .await
-                .map_err(LSPProcessError::CompilerError)?;
+            {
+                Ok(f) => f,
+                Err(error) => {
+                    self.log_errors("watch_build_error", &error);
+                    continue;
+                }
+            };
 
             let pending_file_source_changes =
                 Arc::clone(&compiler_state.pending_file_source_changes);
@@ -113,7 +122,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
 
             // Here we will wait for changes from watchman
             'inner: loop {
-                self.notify.notified().await;
+                self.lsp_state.notify_lsp_state_resources.notified().await;
 
                 // Source control update started, we can ignore all pending changes, and wait for it to complete,
                 // we may change the status bar to `Source Control Update...`
@@ -274,6 +283,9 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             self.build_schema(compiler_state, project_config)
         })?;
 
+        // This will kick-off the validation for all synced sources
+        self.lsp_state.schedule_task(Task::ValidateSyncedSources);
+
         self.build_programs(
             project_config,
             compiler_state,
@@ -330,9 +342,10 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             .source_programs
             .contains_key(&project_config.name)
             && compiler_state.has_processed_changes()
-            && !compiler_state.has_breaking_schema_change(project_config.name)
+            && !compiler_state
+                .has_breaking_schema_change(project_config.name, &project_config.schema_config)
             && if let Some(base) = project_config.base {
-                !compiler_state.has_breaking_schema_change(base)
+                !compiler_state.has_breaking_schema_change(base, &project_config.schema_config)
             } else {
                 true
             };
@@ -366,13 +379,12 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
 
         validate_program(
             &self.lsp_state.config,
-            &FeatureFlags::default(),
+            project_config,
             &base_program,
             log_event,
         )?;
 
         transform_program(
-            &self.lsp_state.config,
             project_config,
             Arc::new(base_program),
             Arc::new(base_fragment_names),
@@ -388,7 +400,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         pending_file_source_changes: Arc<RwLock<Vec<FileSourceResult>>>,
         source_code_update_status: Arc<SourceControlUpdateStatus>,
     ) -> JoinHandle<()> {
-        let notify_sender = self.notify.clone();
+        let notify_sender = self.lsp_state.notify_lsp_state_resources.clone();
         task::spawn(async move {
             loop {
                 match file_source_subscription.next_change().await {

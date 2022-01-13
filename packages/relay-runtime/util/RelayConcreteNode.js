@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -48,6 +48,7 @@ export type RequestParameters =
       // common fields
       +name: string,
       +operationKind: 'mutation' | 'query' | 'subscription',
+      +providedVariables?: {[key: string]: {|get(): mixed|}},
       +metadata: {[key: string]: mixed, ...},
     |}
   | {|
@@ -57,6 +58,7 @@ export type RequestParameters =
       // common fields
       +name: string,
       +operationKind: 'mutation' | 'query' | 'subscription',
+      +providedVariables?: {[key: string]: {|get(): mixed|}},
       +metadata: {[key: string]: mixed, ...},
     |};
 
@@ -70,6 +72,7 @@ const RelayConcreteNode = {
   ACTOR_CHANGE: 'ActorChange',
   CONDITION: 'Condition',
   CLIENT_COMPONENT: 'ClientComponent',
+  CLIENT_EDGE: 'ClientEdge',
   CLIENT_EXTENSION: 'ClientExtension',
   DEFER: 'Defer',
   CONNECTION: 'Connection',

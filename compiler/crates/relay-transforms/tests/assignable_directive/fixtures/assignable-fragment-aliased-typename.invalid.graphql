@@ -1,0 +1,4 @@
+# expected-to-throw
+fragment AssignableFragment on Page @assignable {
+  but_why_would_you_do_this: __typename
+}

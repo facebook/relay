@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<c5328ecfa9ca736f98107ae727fe6479>>
+ * @generated SignedSource<<24afaaeff5118aad83bda716e7097f56>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,22 +15,24 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernEnvironmentDynamicConnectionKeyTestFeedbackFragment$ref = any;
-export type RelayModernEnvironmentDynamicConnectionKeyTestPaginationQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayModernEnvironmentDynamicConnectionKeyTestFeedbackFragment$fragmentType = any;
+export type RelayModernEnvironmentDynamicConnectionKeyTestPaginationQuery$variables = {|
   id: string,
   commentsKey?: ?string,
   count: number,
   cursor: string,
 |};
-export type RelayModernEnvironmentDynamicConnectionKeyTestPaginationQueryResponse = {|
+export type RelayModernEnvironmentDynamicConnectionKeyTestPaginationQueryVariables = RelayModernEnvironmentDynamicConnectionKeyTestPaginationQuery$variables;
+export type RelayModernEnvironmentDynamicConnectionKeyTestPaginationQuery$data = {|
   +node: ?{|
-    +$fragmentRefs: RelayModernEnvironmentDynamicConnectionKeyTestFeedbackFragment$ref,
+    +$fragmentSpreads: RelayModernEnvironmentDynamicConnectionKeyTestFeedbackFragment$fragmentType,
   |},
 |};
+export type RelayModernEnvironmentDynamicConnectionKeyTestPaginationQueryResponse = RelayModernEnvironmentDynamicConnectionKeyTestPaginationQuery$data;
 export type RelayModernEnvironmentDynamicConnectionKeyTestPaginationQuery = {|
   variables: RelayModernEnvironmentDynamicConnectionKeyTestPaginationQueryVariables,
-  response: RelayModernEnvironmentDynamicConnectionKeyTestPaginationQueryResponse,
+  response: RelayModernEnvironmentDynamicConnectionKeyTestPaginationQuery$data,
 |};
 */
 
@@ -267,4 +269,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "f1f26c129bc5e5ba17abf584fb161608";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentDynamicConnectionKeyTestPaginationQuery$variables,
+  RelayModernEnvironmentDynamicConnectionKeyTestPaginationQuery$data,
+>*/);

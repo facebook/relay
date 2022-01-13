@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -28,6 +28,7 @@ import type {
   IEnvironment,
   LogFunction,
   MissingFieldHandler,
+  MutationParameters,
   OperationAvailability,
   OperationDescriptor,
   OperationLoader,
@@ -226,7 +227,9 @@ class RelayModernEnvironment implements IEnvironment {
     });
   }
 
-  applyMutation(optimisticConfig: OptimisticResponseConfig): Disposable {
+  applyMutation<TMutation: MutationParameters>(
+    optimisticConfig: OptimisticResponseConfig<TMutation>,
+  ): Disposable {
     const subscription = this._execute({
       createSource: () => RelayObservable.create(_sink => {}),
       isClientPayload: false,
@@ -326,7 +329,7 @@ class RelayModernEnvironment implements IEnvironment {
 
   /**
    * Returns an Observable of GraphQLResponse resulting from executing the
-   * provided Query or Subscription operation, each result of which is then
+   * provided Query operation, each result of which is then
    * normalized and committed to the publish queue.
    *
    * Note: Observables are lazy, so calling this method will do nothing until
@@ -334,10 +337,38 @@ class RelayModernEnvironment implements IEnvironment {
    */
   execute({
     operation,
+  }: {|
+    operation: OperationDescriptor,
+  |}): RelayObservable<GraphQLResponse> {
+    return this._execute({
+      createSource: () =>
+        this._network.execute(
+          operation.request.node.params,
+          operation.request.variables,
+          operation.request.cacheConfig || {},
+          null,
+        ),
+      isClientPayload: false,
+      operation,
+      optimisticConfig: null,
+      updater: null,
+    });
+  }
+
+  /**
+   * Returns an Observable of GraphQLResponse resulting from executing the
+   * provided Subscription operation, each result of which is then
+   * normalized and committed to the publish queue.
+   *
+   * Note: Observables are lazy, so calling this method will do nothing until
+   * the result is subscribed to: environment.execute({...}).subscribe({...}).
+   */
+  executeSubscription<TMutation: MutationParameters>({
+    operation,
     updater,
   }: {|
     operation: OperationDescriptor,
-    updater?: ?SelectorStoreUpdater,
+    updater?: ?SelectorStoreUpdater<TMutation['response']>,
   |}): RelayObservable<GraphQLResponse> {
     return this._execute({
       createSource: () =>
@@ -364,13 +395,13 @@ class RelayModernEnvironment implements IEnvironment {
    * the result is subscribed to:
    * environment.executeMutation({...}).subscribe({...}).
    */
-  executeMutation({
+  executeMutation<TMutation: MutationParameters>({
     operation,
     optimisticResponse,
     optimisticUpdater,
     updater,
     uploadables,
-  }: ExecuteMutationConfig): RelayObservable<GraphQLResponse> {
+  }: ExecuteMutationConfig<TMutation>): RelayObservable<GraphQLResponse> {
     let optimisticConfig;
     if (optimisticResponse || optimisticUpdater) {
       optimisticConfig = {
@@ -426,7 +457,7 @@ class RelayModernEnvironment implements IEnvironment {
     return `RelayModernEnvironment(${this.configName ?? ''})`;
   }
 
-  _execute({
+  _execute<TMutation: MutationParameters>({
     createSource,
     isClientPayload,
     operation,
@@ -436,8 +467,8 @@ class RelayModernEnvironment implements IEnvironment {
     createSource: () => RelayObservable<GraphQLResponse>,
     isClientPayload: boolean,
     operation: OperationDescriptor,
-    optimisticConfig: ?OptimisticResponseConfig,
-    updater: ?SelectorStoreUpdater,
+    optimisticConfig: ?OptimisticResponseConfig<TMutation>,
+    updater: ?SelectorStoreUpdater<TMutation['response']>,
   |}): RelayObservable<GraphQLResponse> {
     const publishQueue = this._publishQueue;
     const store = this._store;

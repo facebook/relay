@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -11,7 +11,7 @@ use crate::lexer::TokenKind;
 use crate::node::*;
 use crate::syntax_error::SyntaxError;
 use common::{Diagnostic, DiagnosticsResult, Location, SourceLocationKey, Span, WithDiagnostics};
-use interner::Intern;
+use intern::string_key::Intern;
 use logos::Logos;
 
 type ParseResult<T> = Result<T, ()>;
@@ -179,7 +179,7 @@ impl<'a> Parser<'a> {
     }
     fn parse_definition(&mut self) -> ParseResult<Definition> {
         let token = self.peek();
-        let source = self.source(&token);
+        let source = self.source(token);
         match (token.kind, source) {
             (TokenKind::OpenBrace, _)
             | (TokenKind::Identifier, "query")
@@ -221,7 +221,7 @@ impl<'a> Parser<'a> {
         match token.kind {
             TokenKind::OpenBrace => true, // unnamed query
             TokenKind::Identifier => matches!(
-                self.source(&token),
+                self.source(token),
                 "query" | "mutation" | "fragment" | "subscription"
             ),
             _ => false,
@@ -234,7 +234,7 @@ impl<'a> Parser<'a> {
     /// []  TypeSystemExtension
     fn parse_executable_definition(&mut self) -> ParseResult<ExecutableDefinition> {
         let token = self.peek();
-        let source = self.source(&token);
+        let source = self.source(token);
         match (token.kind, source) {
             (TokenKind::OpenBrace, _) => Ok(ExecutableDefinition::Operation(
                 self.parse_operation_definition()?,
@@ -267,7 +267,7 @@ impl<'a> Parser<'a> {
         match token.kind {
             TokenKind::StringLiteral | TokenKind::BlockStringLiteral => true, // description
             TokenKind::Identifier => matches!(
-                self.source(&token),
+                self.source(token),
                 "schema"
                     | "scalar"
                     | "type"
@@ -294,7 +294,7 @@ impl<'a> Parser<'a> {
             // self.record_error(error)
             return Err(());
         }
-        match self.source(&token) {
+        match self.source(token) {
             "schema" => Ok(TypeSystemDefinition::SchemaDefinition(
                 self.parse_schema_definition()?,
             )),
@@ -961,7 +961,7 @@ impl<'a> Parser<'a> {
         let maybe_operation_token = self.peek();
         let operation = match (
             maybe_operation_token.kind,
-            self.source(&maybe_operation_token),
+            self.source(maybe_operation_token),
         ) {
             (TokenKind::Identifier, "mutation") => (self.parse_token(), OperationKind::Mutation),
             (TokenKind::Identifier, "query") => (self.parse_token(), OperationKind::Query),
@@ -2012,7 +2012,7 @@ impl<'a> Parser<'a> {
 // https://spec.graphql.org/June2018/#sec-String-Value
 fn clean_block_string_literal(source: &str) -> String {
     let inner = &source[3..source.len() - 3];
-    let common_indent = get_common_indent(&inner);
+    let common_indent = get_common_indent(inner);
 
     let mut formatted_lines = inner
         .lines()
@@ -2028,13 +2028,13 @@ fn clean_block_string_literal(source: &str) -> String {
 
     while formatted_lines
         .front()
-        .map_or(false, |line| line_is_whitespace(&line))
+        .map_or(false, |line| line_is_whitespace(line))
     {
         formatted_lines.pop_front();
     }
     while formatted_lines
         .back()
-        .map_or(false, |line| line_is_whitespace(&line))
+        .map_or(false, |line| line_is_whitespace(line))
     {
         formatted_lines.pop_back();
     }

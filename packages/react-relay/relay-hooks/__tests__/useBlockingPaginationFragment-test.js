@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -148,14 +148,14 @@ describe('useBlockingPaginationFragment', () => {
     `;
     gqlFragment = getFragment(graphql`
       fragment useBlockingPaginationFragmentTestUserFragment on User
-        @refetchable(
-          queryName: "useBlockingPaginationFragmentTestUserFragmentPaginationQuery"
-        )
-        @argumentDefinitions(
-          isViewerFriendLocal: {type: "Boolean", defaultValue: false}
-          orderby: {type: "[String]"}
-          scale: {type: "Float"}
-        ) {
+      @refetchable(
+        queryName: "useBlockingPaginationFragmentTestUserFragmentPaginationQuery"
+      )
+      @argumentDefinitions(
+        isViewerFriendLocal: {type: "Boolean", defaultValue: false}
+        orderby: {type: "[String]"}
+        scale: {type: "Float"}
+      ) {
         id
         name
         friends(
@@ -377,8 +377,8 @@ describe('useBlockingPaginationFragment', () => {
       ...
     }) => {
       // We need a render a component to run a Hook
-      const [owner, _setOwner] = useState(props.owner);
-      const [_, _setCount] = useState(0);
+      const [owner, setOwner_] = useState(props.owner);
+      const [, setCount] = useState(0);
       const fragment = props.fragment ?? gqlFragment;
       const artificialUserRef = useMemo(
         () => environment.lookup(owner.fragment).data?.node,
@@ -388,11 +388,9 @@ describe('useBlockingPaginationFragment', () => {
         ? props.userRef
         : artificialUserRef;
 
-      setOwner = _setOwner;
-      forceUpdate = _setCount;
+      setOwner = setOwner_;
+      forceUpdate = setCount;
 
-      // $FlowFixMe[incompatible-call]
-      // $FlowFixMe[prop-missing]
       const {data: userData} = useBlockingPaginationFragment(fragment, userRef);
       return <Renderer user={userData} />;
     };
@@ -473,7 +471,7 @@ describe('useBlockingPaginationFragment', () => {
 
       const UserFragment = graphql`
         fragment useBlockingPaginationFragmentTest1Fragment on User
-          @relay(plural: true) {
+        @relay(plural: true) {
           id
         }
       `;
@@ -490,9 +488,9 @@ describe('useBlockingPaginationFragment', () => {
 
       const UserFragment = graphql`
         fragment useBlockingPaginationFragmentTest2Fragment on User
-          @refetchable(
-            queryName: "useBlockingPaginationFragmentTest2FragmentPaginationQuery"
-          ) {
+        @refetchable(
+          queryName: "useBlockingPaginationFragmentTest2FragmentPaginationQuery"
+        ) {
           id
           friends(
             after: $after
@@ -542,9 +540,9 @@ describe('useBlockingPaginationFragment', () => {
 
       const UserFragment = getFragment(graphql`
         fragment useBlockingPaginationFragmentTest4Fragment on User
-          @refetchable(
-            queryName: "useBlockingPaginationFragmentTest4FragmentRefetchQuery"
-          ) {
+        @refetchable(
+          queryName: "useBlockingPaginationFragmentTest4FragmentRefetchQuery"
+        ) {
           id
         }
       `);
@@ -844,10 +842,10 @@ describe('useBlockingPaginationFragment', () => {
         // This prevents console.error output in the test, which is expected
         jest.spyOn(console, 'error').mockImplementationOnce(() => {});
         const {
-          __internal: {fetchQuery},
+          __internal: {fetchQuery: fetchQuery_},
         } = require('relay-runtime');
 
-        fetchQuery(environment, query).subscribe({});
+        fetchQuery_(environment, query).subscribe({});
 
         const callback = jest.fn();
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters

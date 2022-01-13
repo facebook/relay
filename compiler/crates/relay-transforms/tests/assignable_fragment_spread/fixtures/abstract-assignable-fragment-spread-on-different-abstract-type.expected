@@ -1,0 +1,24 @@
+==================================== INPUT ====================================
+query TestQuery {
+  node(id: "4") {
+    ...Assignable_actor
+  }
+}
+
+fragment Assignable_actor on Actor @assignable {
+  __typename
+}
+==================================== OUTPUT ===================================
+query TestQuery {
+  node(id: "4") {
+    ... on Actor {
+      ...Assignable_actor
+      __isAssignable_actor: __typename
+    }
+    __id
+  }
+}
+
+fragment Assignable_actor on Actor @assignable {
+  __typename
+}

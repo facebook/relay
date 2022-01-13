@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a57a93137e8ef7e6b3a71f553cb2af21>>
+ * @generated SignedSource<<48d7d4f2bba798997b4c7a7112050d6e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,18 +15,18 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayReaderTestWhenMatchDirectiveIsPresentNoModuleMarkdownUserNameRenderer_name$ref: FragmentReference;
-declare export opaque type RelayReaderTestWhenMatchDirectiveIsPresentNoModuleMarkdownUserNameRenderer_name$fragmentType: RelayReaderTestWhenMatchDirectiveIsPresentNoModuleMarkdownUserNameRenderer_name$ref;
-export type RelayReaderTestWhenMatchDirectiveIsPresentNoModuleMarkdownUserNameRenderer_name = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayReaderTestWhenMatchDirectiveIsPresentNoModuleMarkdownUserNameRenderer_name$fragmentType: FragmentType;
+export type RelayReaderTestWhenMatchDirectiveIsPresentNoModuleMarkdownUserNameRenderer_name$ref = RelayReaderTestWhenMatchDirectiveIsPresentNoModuleMarkdownUserNameRenderer_name$fragmentType;
+export type RelayReaderTestWhenMatchDirectiveIsPresentNoModuleMarkdownUserNameRenderer_name$data = {|
   +markdown: ?string,
-  +$refType: RelayReaderTestWhenMatchDirectiveIsPresentNoModuleMarkdownUserNameRenderer_name$ref,
+  +$fragmentType: RelayReaderTestWhenMatchDirectiveIsPresentNoModuleMarkdownUserNameRenderer_name$fragmentType,
 |};
-export type RelayReaderTestWhenMatchDirectiveIsPresentNoModuleMarkdownUserNameRenderer_name$data = RelayReaderTestWhenMatchDirectiveIsPresentNoModuleMarkdownUserNameRenderer_name;
+export type RelayReaderTestWhenMatchDirectiveIsPresentNoModuleMarkdownUserNameRenderer_name = RelayReaderTestWhenMatchDirectiveIsPresentNoModuleMarkdownUserNameRenderer_name$data;
 export type RelayReaderTestWhenMatchDirectiveIsPresentNoModuleMarkdownUserNameRenderer_name$key = {
   +$data?: RelayReaderTestWhenMatchDirectiveIsPresentNoModuleMarkdownUserNameRenderer_name$data,
-  +$fragmentRefs: RelayReaderTestWhenMatchDirectiveIsPresentNoModuleMarkdownUserNameRenderer_name$ref,
+  +$fragmentSpreads: RelayReaderTestWhenMatchDirectiveIsPresentNoModuleMarkdownUserNameRenderer_name$fragmentType,
   ...
 };
 */
@@ -53,4 +53,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "b651d2b759885477d679d5d4fb39bcc8";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayReaderTestWhenMatchDirectiveIsPresentNoModuleMarkdownUserNameRenderer_name$fragmentType,
+  RelayReaderTestWhenMatchDirectiveIsPresentNoModuleMarkdownUserNameRenderer_name$data,
+>*/);

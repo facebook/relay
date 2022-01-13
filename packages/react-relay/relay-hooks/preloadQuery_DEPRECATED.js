@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -157,7 +157,8 @@ function preloadQueryDeduped<TQuery: OperationType>(
   let params;
   let query: ?ConcreteRequest;
   if (preloadableRequest.kind === 'PreloadableConcreteRequest') {
-    const preloadableConcreteRequest: PreloadableConcreteRequest<TQuery> = (preloadableRequest: $FlowFixMe);
+    const preloadableConcreteRequest: PreloadableConcreteRequest<TQuery> =
+      (preloadableRequest: $FlowFixMe);
     params = preloadableConcreteRequest.params;
     query = params.id != null ? PreloadableQueryRegistry.get(params.id) : null;
   } else {
@@ -255,9 +256,7 @@ function preloadQueryDeduped<TQuery: OperationType>(
   } else {
     nextQueryEntry = prevQueryEntry;
   }
-  // $FlowFixMe[incompatible-call]
   pendingQueries.set(cacheKey, nextQueryEntry);
-  // $FlowFixMe[incompatible-return]
   return nextQueryEntry;
 }
 

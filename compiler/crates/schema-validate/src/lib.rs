@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -10,7 +10,7 @@ mod errors;
 use common::Named;
 use errors::*;
 use fnv::{FnvHashMap, FnvHashSet};
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey};
 use lazy_static::lazy_static;
 use rayon::prelude::*;
 use regex::Regex;
@@ -184,20 +184,23 @@ impl<'schema> ValidationContext<'schema> {
         for field_id in fields {
             let field = self.schema.field(*field_id);
             if field_names.contains(&field.name) {
-                self.report_error(SchemaValidationError::DuplicateField(field.name), context);
+                self.report_error(
+                    SchemaValidationError::DuplicateField(field.name.item),
+                    context,
+                );
                 continue;
             }
             field_names.insert(field.name);
 
             // Ensure they are named correctly.
-            self.validate_name(field.name, context);
+            self.validate_name(field.name.item, context);
 
             // Ensure the type is an output type
             if !is_output_type(&field.type_) {
                 self.report_error(
                     SchemaValidationError::InvalidFieldType(
                         type_name,
-                        field.name,
+                        field.name.item,
                         field.type_.clone(),
                     ),
                     context,
@@ -213,7 +216,7 @@ impl<'schema> ValidationContext<'schema> {
                 // Ensure unique arguments per directive.
                 if arg_names.contains(&argument.name) {
                     self.report_error(
-                        SchemaValidationError::DuplicateArgument(argument.name, field.name),
+                        SchemaValidationError::DuplicateArgument(argument.name, field.name.item),
                         context,
                     );
                     continue;
@@ -225,7 +228,7 @@ impl<'schema> ValidationContext<'schema> {
                     self.report_error(
                         SchemaValidationError::InvalidArgumentType(
                             type_name,
-                            field.name,
+                            field.name.item,
                             argument.name,
                             argument.type_.clone(),
                         ),
@@ -248,7 +251,7 @@ impl<'schema> ValidationContext<'schema> {
 
         let mut member_names = FnvHashSet::default();
         for member in union.members.iter() {
-            let member_name = self.schema.object(*member).name;
+            let member_name = self.schema.object(*member).name.item;
             if member_names.contains(&member_name) {
                 self.report_error(SchemaValidationError::DuplicateMember(member_name), context);
                 continue;
@@ -328,7 +331,7 @@ impl<'schema> ValidationContext<'schema> {
         type_: &T,
         interface: &Interface,
     ) {
-        let object_field_map = self.field_map(&type_.fields());
+        let object_field_map = self.field_map(type_.fields());
         let interface_field_map = self.field_map(&interface.fields);
         let context = ValidationContextType::TypeNode(type_.name());
 
@@ -500,7 +503,7 @@ impl<'schema> ValidationContext<'schema> {
         fields
             .iter()
             .map(|id| self.schema.field(*id))
-            .map(|field| (field.name, field.clone()))
+            .map(|field| (field.name.item, field.clone()))
             .collect::<FnvHashMap<_, _>>()
     }
 
@@ -529,7 +532,7 @@ impl<'schema> ValidationContext<'schema> {
                     builder,
                     "Type {} with definition:\n\t{}\nhad errors:",
                     type_name,
-                    print_type(&self.schema, self.schema.get_type(*type_name).unwrap()).trim_end()
+                    print_type(self.schema, self.schema.get_type(*type_name).unwrap()).trim_end()
                 )
                 .unwrap(),
                 ValidationContextType::DirectiveNode(directive_name) => writeln!(
@@ -537,7 +540,7 @@ impl<'schema> ValidationContext<'schema> {
                     "Directive {} with definition:\n\t{}\nhad errors:",
                     directive_name,
                     print_directive(
-                        &self.schema,
+                        self.schema,
                         self.schema.get_directive(*directive_name).unwrap()
                     )
                     .trim_end()

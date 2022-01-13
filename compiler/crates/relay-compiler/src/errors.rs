@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -7,6 +7,7 @@
 
 use crate::compiler_state::ProjectName;
 use common::Diagnostic;
+use glob::PatternError;
 use persist_query::PersistError;
 use std::io;
 use std::path::PathBuf;
@@ -130,6 +131,17 @@ pub enum Error {
         file: PathBuf,
         source: serde_json::Error,
     },
+
+    #[error("glob pattern error: {0}")]
+    PatternError(PatternError),
+
+    #[error(
+        "Saved state versions mismatch. Saved state: {saved_state_version}, config: {config_version}."
+    )]
+    SavedStateVersionMismatch {
+        saved_state_version: String,
+        config_version: String,
+    },
 }
 
 #[derive(Debug, Error)]
@@ -184,6 +196,14 @@ pub enum ConfigValidationError {
     },
 
     #[error(
+        "The `schemaExtensions` configured for project `{project_name}` does not exist at `{extension_dir}`."
+    )]
+    ExtensionDirNotExistent {
+        project_name: ProjectName,
+        extension_dir: PathBuf,
+    },
+
+    #[error(
         "The `schema_dir` configured for project `{project_name}` to be `{schema_dir}` is not a directory."
     )]
     SchemaDirNotDirectory {
@@ -197,6 +217,12 @@ pub enum ConfigValidationError {
         project_name: ProjectName,
         error: regex::Error,
     },
+
+    #[error("The `artifactDirectory` does not exist at `{path}`.")]
+    ArtifactDirectoryNotExistent { path: PathBuf },
+
+    #[error("Unable to find common path for directories in the config file.")]
+    CommonPathNotFound,
 }
 
 #[derive(Debug, Error)]

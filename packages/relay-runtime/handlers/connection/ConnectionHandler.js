@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -144,12 +144,10 @@ function update(store: RecordSourceProxy, payload: HandleFieldPayload): void {
     let nextEdges = [];
     const args = payload.args;
     if (prevEdges && serverEdges) {
-      // $FlowFixMe[prop-missing]
       if (args.after != null) {
         // Forward pagination from the end of the connection: append edges
         if (
           clientPageInfo &&
-          // $FlowFixMe[prop-missing]
           args.after === clientPageInfo.getValue(END_CURSOR)
         ) {
           const nodeIDs = new Set();
@@ -165,12 +163,10 @@ function update(store: RecordSourceProxy, payload: HandleFieldPayload): void {
           );
           return;
         }
-        // $FlowFixMe[prop-missing]
       } else if (args.before != null) {
         // Backward pagination from the start of the connection: prepend edges
         if (
           clientPageInfo &&
-          // $FlowFixMe[prop-missing]
           args.before === clientPageInfo.getValue(START_CURSOR)
         ) {
           const nodeIDs = new Set();
@@ -202,12 +198,10 @@ function update(store: RecordSourceProxy, payload: HandleFieldPayload): void {
     }
     // Page info should be updated even if no new edge were returned.
     if (clientPageInfo && serverPageInfo) {
-      // $FlowFixMe[prop-missing]
       if (args.after == null && args.before == null) {
         // The connection was refetched from the beginning/end: replace
         // page_info
         clientPageInfo.copyFieldsFrom(serverPageInfo);
-        // $FlowFixMe[prop-missing]
       } else if (args.before != null || (args.after == null && args.last)) {
         clientPageInfo.setValue(
           !!serverPageInfo.getValue(HAS_PREV_PAGE),
@@ -217,7 +211,6 @@ function update(store: RecordSourceProxy, payload: HandleFieldPayload): void {
         if (typeof startCursor === 'string') {
           clientPageInfo.setValue(startCursor, START_CURSOR);
         }
-        // $FlowFixMe[prop-missing]
       } else if (args.after != null || (args.before == null && args.first)) {
         clientPageInfo.setValue(
           !!serverPageInfo.getValue(HAS_NEXT_PAGE),

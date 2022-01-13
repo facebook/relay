@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -275,7 +275,7 @@ describe('FragmentResource', () => {
       () => {
         UserFragment = graphql`
           fragment FragmentResourceTest5Fragment on Query
-            @argumentDefinitions(id: {type: "ID!"}) {
+          @argumentDefinitions(id: {type: "ID!"}) {
             node(id: $id) {
               __typename
               id

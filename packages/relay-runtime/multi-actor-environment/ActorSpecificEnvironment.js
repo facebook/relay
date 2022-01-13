@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -18,6 +18,7 @@ import type RelayObservable from '../network/RelayObservable';
 import type {
   ExecuteMutationConfig,
   LogFunction,
+  MutationParameters,
   OperationAvailability,
   OperationDescriptor,
   OperationTracker,
@@ -112,7 +113,9 @@ class ActorSpecificEnvironment implements IActorEnvironment {
     return this._defaultRenderPolicy;
   }
 
-  applyMutation(optimisticConfig: OptimisticResponseConfig): Disposable {
+  applyMutation<TMutation: MutationParameters>(
+    optimisticConfig: OptimisticResponseConfig<TMutation>,
+  ): Disposable {
     return this.multiActorEnvironment.applyMutation(this, optimisticConfig);
   }
 
@@ -186,13 +189,19 @@ class ActorSpecificEnvironment implements IActorEnvironment {
 
   execute(config: {
     operation: OperationDescriptor,
-    updater?: ?SelectorStoreUpdater,
   }): RelayObservable<GraphQLResponse> {
     return this.multiActorEnvironment.execute(this, config);
   }
 
-  executeMutation(
-    options: ExecuteMutationConfig,
+  executeSubscription<TMutation: MutationParameters>(config: {
+    operation: OperationDescriptor,
+    updater?: ?SelectorStoreUpdater<TMutation['response']>,
+  }): RelayObservable<GraphQLResponse> {
+    return this.multiActorEnvironment.executeSubscription(this, config);
+  }
+
+  executeMutation<TMutation: MutationParameters>(
+    options: ExecuteMutationConfig<TMutation>,
   ): RelayObservable<GraphQLResponse> {
     return this.multiActorEnvironment.executeMutation(this, options);
   }

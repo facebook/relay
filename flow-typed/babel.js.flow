@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -6807,7 +6807,8 @@ declare module '@babel/types' {
   declare export type RestElement = BabelNodeRestElement;
   declare export type ReturnStatement = BabelNodeReturnStatement;
   declare export type SequenceExpression = BabelNodeSequenceExpression;
-  declare export type ParenthesizedExpression = BabelNodeParenthesizedExpression;
+  declare export type ParenthesizedExpression =
+    BabelNodeParenthesizedExpression;
   declare export type SwitchCase = BabelNodeSwitchCase;
   declare export type SwitchStatement = BabelNodeSwitchStatement;
   declare export type ThisExpression = BabelNodeThisExpression;
@@ -6821,33 +6822,39 @@ declare module '@babel/types' {
   declare export type WithStatement = BabelNodeWithStatement;
   declare export type AssignmentPattern = BabelNodeAssignmentPattern;
   declare export type ArrayPattern = BabelNodeArrayPattern;
-  declare export type ArrowFunctionExpression = BabelNodeArrowFunctionExpression;
+  declare export type ArrowFunctionExpression =
+    BabelNodeArrowFunctionExpression;
   declare export type ClassBody = BabelNodeClassBody;
   declare export type ClassExpression = BabelNodeClassExpression;
   declare export type ClassDeclaration = BabelNodeClassDeclaration;
   declare export type ExportAllDeclaration = BabelNodeExportAllDeclaration;
-  declare export type ExportDefaultDeclaration = BabelNodeExportDefaultDeclaration;
+  declare export type ExportDefaultDeclaration =
+    BabelNodeExportDefaultDeclaration;
   declare export type ExportNamedDeclaration = BabelNodeExportNamedDeclaration;
   declare export type ExportSpecifier = BabelNodeExportSpecifier;
   declare export type ForOfStatement = BabelNodeForOfStatement;
   declare export type ImportDeclaration = BabelNodeImportDeclaration;
   declare export type ImportDefaultSpecifier = BabelNodeImportDefaultSpecifier;
-  declare export type ImportNamespaceSpecifier = BabelNodeImportNamespaceSpecifier;
+  declare export type ImportNamespaceSpecifier =
+    BabelNodeImportNamespaceSpecifier;
   declare export type ImportSpecifier = BabelNodeImportSpecifier;
   declare export type MetaProperty = BabelNodeMetaProperty;
   declare export type ClassMethod = BabelNodeClassMethod;
   declare export type ObjectPattern = BabelNodeObjectPattern;
   declare export type SpreadElement = BabelNodeSpreadElement;
   declare export type Super = BabelNodeSuper;
-  declare export type TaggedTemplateExpression = BabelNodeTaggedTemplateExpression;
+  declare export type TaggedTemplateExpression =
+    BabelNodeTaggedTemplateExpression;
   declare export type TemplateElement = BabelNodeTemplateElement;
   declare export type TemplateLiteral = BabelNodeTemplateLiteral;
   declare export type YieldExpression = BabelNodeYieldExpression;
   declare export type AnyTypeAnnotation = BabelNodeAnyTypeAnnotation;
   declare export type ArrayTypeAnnotation = BabelNodeArrayTypeAnnotation;
   declare export type BooleanTypeAnnotation = BabelNodeBooleanTypeAnnotation;
-  declare export type BooleanLiteralTypeAnnotation = BabelNodeBooleanLiteralTypeAnnotation;
-  declare export type NullLiteralTypeAnnotation = BabelNodeNullLiteralTypeAnnotation;
+  declare export type BooleanLiteralTypeAnnotation =
+    BabelNodeBooleanLiteralTypeAnnotation;
+  declare export type NullLiteralTypeAnnotation =
+    BabelNodeNullLiteralTypeAnnotation;
   declare export type ClassImplements = BabelNodeClassImplements;
   declare export type DeclareClass = BabelNodeDeclareClass;
   declare export type DeclareFunction = BabelNodeDeclareFunction;
@@ -6857,8 +6864,10 @@ declare module '@babel/types' {
   declare export type DeclareTypeAlias = BabelNodeDeclareTypeAlias;
   declare export type DeclareOpaqueType = BabelNodeDeclareOpaqueType;
   declare export type DeclareVariable = BabelNodeDeclareVariable;
-  declare export type DeclareExportDeclaration = BabelNodeDeclareExportDeclaration;
-  declare export type DeclareExportAllDeclaration = BabelNodeDeclareExportAllDeclaration;
+  declare export type DeclareExportDeclaration =
+    BabelNodeDeclareExportDeclaration;
+  declare export type DeclareExportAllDeclaration =
+    BabelNodeDeclareExportAllDeclaration;
   declare export type DeclaredPredicate = BabelNodeDeclaredPredicate;
   declare export type ExistsTypeAnnotation = BabelNodeExistsTypeAnnotation;
   declare export type FunctionTypeAnnotation = BabelNodeFunctionTypeAnnotation;
@@ -6867,22 +6876,28 @@ declare module '@babel/types' {
   declare export type InferredPredicate = BabelNodeInferredPredicate;
   declare export type InterfaceExtends = BabelNodeInterfaceExtends;
   declare export type InterfaceDeclaration = BabelNodeInterfaceDeclaration;
-  declare export type InterfaceTypeAnnotation = BabelNodeInterfaceTypeAnnotation;
-  declare export type IntersectionTypeAnnotation = BabelNodeIntersectionTypeAnnotation;
+  declare export type InterfaceTypeAnnotation =
+    BabelNodeInterfaceTypeAnnotation;
+  declare export type IntersectionTypeAnnotation =
+    BabelNodeIntersectionTypeAnnotation;
   declare export type MixedTypeAnnotation = BabelNodeMixedTypeAnnotation;
   declare export type EmptyTypeAnnotation = BabelNodeEmptyTypeAnnotation;
   declare export type NullableTypeAnnotation = BabelNodeNullableTypeAnnotation;
-  declare export type NumberLiteralTypeAnnotation = BabelNodeNumberLiteralTypeAnnotation;
+  declare export type NumberLiteralTypeAnnotation =
+    BabelNodeNumberLiteralTypeAnnotation;
   declare export type NumberTypeAnnotation = BabelNodeNumberTypeAnnotation;
   declare export type ObjectTypeAnnotation = BabelNodeObjectTypeAnnotation;
   declare export type ObjectTypeInternalSlot = BabelNodeObjectTypeInternalSlot;
   declare export type ObjectTypeCallProperty = BabelNodeObjectTypeCallProperty;
   declare export type ObjectTypeIndexer = BabelNodeObjectTypeIndexer;
   declare export type ObjectTypeProperty = BabelNodeObjectTypeProperty;
-  declare export type ObjectTypeSpreadProperty = BabelNodeObjectTypeSpreadProperty;
+  declare export type ObjectTypeSpreadProperty =
+    BabelNodeObjectTypeSpreadProperty;
   declare export type OpaqueType = BabelNodeOpaqueType;
-  declare export type QualifiedTypeIdentifier = BabelNodeQualifiedTypeIdentifier;
-  declare export type StringLiteralTypeAnnotation = BabelNodeStringLiteralTypeAnnotation;
+  declare export type QualifiedTypeIdentifier =
+    BabelNodeQualifiedTypeIdentifier;
+  declare export type StringLiteralTypeAnnotation =
+    BabelNodeStringLiteralTypeAnnotation;
   declare export type StringTypeAnnotation = BabelNodeStringTypeAnnotation;
   declare export type SymbolTypeAnnotation = BabelNodeSymbolTypeAnnotation;
   declare export type ThisTypeAnnotation = BabelNodeThisTypeAnnotation;
@@ -6892,8 +6907,10 @@ declare module '@babel/types' {
   declare export type TypeAnnotation = BabelNodeTypeAnnotation;
   declare export type TypeCastExpression = BabelNodeTypeCastExpression;
   declare export type TypeParameter = BabelNodeTypeParameter;
-  declare export type TypeParameterDeclaration = BabelNodeTypeParameterDeclaration;
-  declare export type TypeParameterInstantiation = BabelNodeTypeParameterInstantiation;
+  declare export type TypeParameterDeclaration =
+    BabelNodeTypeParameterDeclaration;
+  declare export type TypeParameterInstantiation =
+    BabelNodeTypeParameterInstantiation;
   declare export type UnionTypeAnnotation = BabelNodeUnionTypeAnnotation;
   declare export type Variance = BabelNodeVariance;
   declare export type VoidTypeAnnotation = BabelNodeVoidTypeAnnotation;
@@ -6928,10 +6945,13 @@ declare module '@babel/types' {
   declare export type AwaitExpression = BabelNodeAwaitExpression;
   declare export type BindExpression = BabelNodeBindExpression;
   declare export type ClassProperty = BabelNodeClassProperty;
-  declare export type OptionalMemberExpression = BabelNodeOptionalMemberExpression;
-  declare export type PipelineTopicExpression = BabelNodePipelineTopicExpression;
+  declare export type OptionalMemberExpression =
+    BabelNodeOptionalMemberExpression;
+  declare export type PipelineTopicExpression =
+    BabelNodePipelineTopicExpression;
   declare export type PipelineBareFunction = BabelNodePipelineBareFunction;
-  declare export type PipelinePrimaryTopicReference = BabelNodePipelinePrimaryTopicReference;
+  declare export type PipelinePrimaryTopicReference =
+    BabelNodePipelinePrimaryTopicReference;
   declare export type OptionalCallExpression = BabelNodeOptionalCallExpression;
   declare export type ClassPrivateProperty = BabelNodeClassPrivateProperty;
   declare export type ClassPrivateMethod = BabelNodeClassPrivateMethod;
@@ -6940,7 +6960,8 @@ declare module '@babel/types' {
   declare export type Decorator = BabelNodeDecorator;
   declare export type DoExpression = BabelNodeDoExpression;
   declare export type ExportDefaultSpecifier = BabelNodeExportDefaultSpecifier;
-  declare export type ExportNamespaceSpecifier = BabelNodeExportNamespaceSpecifier;
+  declare export type ExportNamespaceSpecifier =
+    BabelNodeExportNamespaceSpecifier;
   declare export type PrivateName = BabelNodePrivateName;
   declare export type BigIntLiteral = BabelNodeBigIntLiteral;
   declare export type RecordExpression = BabelNodeRecordExpression;
@@ -6949,8 +6970,10 @@ declare module '@babel/types' {
   declare export type TSDeclareFunction = BabelNodeTSDeclareFunction;
   declare export type TSDeclareMethod = BabelNodeTSDeclareMethod;
   declare export type TSQualifiedName = BabelNodeTSQualifiedName;
-  declare export type TSCallSignatureDeclaration = BabelNodeTSCallSignatureDeclaration;
-  declare export type TSConstructSignatureDeclaration = BabelNodeTSConstructSignatureDeclaration;
+  declare export type TSCallSignatureDeclaration =
+    BabelNodeTSCallSignatureDeclaration;
+  declare export type TSConstructSignatureDeclaration =
+    BabelNodeTSConstructSignatureDeclaration;
   declare export type TSPropertySignature = BabelNodeTSPropertySignature;
   declare export type TSMethodSignature = BabelNodeTSMethodSignature;
   declare export type TSIndexSignature = BabelNodeTSIndexSignature;
@@ -6986,7 +7009,8 @@ declare module '@babel/types' {
   declare export type TSIndexedAccessType = BabelNodeTSIndexedAccessType;
   declare export type TSMappedType = BabelNodeTSMappedType;
   declare export type TSLiteralType = BabelNodeTSLiteralType;
-  declare export type TSExpressionWithTypeArguments = BabelNodeTSExpressionWithTypeArguments;
+  declare export type TSExpressionWithTypeArguments =
+    BabelNodeTSExpressionWithTypeArguments;
   declare export type TSInterfaceDeclaration = BabelNodeTSInterfaceDeclaration;
   declare export type TSInterfaceBody = BabelNodeTSInterfaceBody;
   declare export type TSTypeAliasDeclaration = BabelNodeTSTypeAliasDeclaration;
@@ -6997,14 +7021,19 @@ declare module '@babel/types' {
   declare export type TSModuleDeclaration = BabelNodeTSModuleDeclaration;
   declare export type TSModuleBlock = BabelNodeTSModuleBlock;
   declare export type TSImportType = BabelNodeTSImportType;
-  declare export type TSImportEqualsDeclaration = BabelNodeTSImportEqualsDeclaration;
-  declare export type TSExternalModuleReference = BabelNodeTSExternalModuleReference;
+  declare export type TSImportEqualsDeclaration =
+    BabelNodeTSImportEqualsDeclaration;
+  declare export type TSExternalModuleReference =
+    BabelNodeTSExternalModuleReference;
   declare export type TSNonNullExpression = BabelNodeTSNonNullExpression;
   declare export type TSExportAssignment = BabelNodeTSExportAssignment;
-  declare export type TSNamespaceExportDeclaration = BabelNodeTSNamespaceExportDeclaration;
+  declare export type TSNamespaceExportDeclaration =
+    BabelNodeTSNamespaceExportDeclaration;
   declare export type TSTypeAnnotation = BabelNodeTSTypeAnnotation;
-  declare export type TSTypeParameterInstantiation = BabelNodeTSTypeParameterInstantiation;
-  declare export type TSTypeParameterDeclaration = BabelNodeTSTypeParameterDeclaration;
+  declare export type TSTypeParameterInstantiation =
+    BabelNodeTSTypeParameterInstantiation;
+  declare export type TSTypeParameterDeclaration =
+    BabelNodeTSTypeParameterDeclaration;
   declare export type TSTypeParameter = BabelNodeTSTypeParameter;
   declare export type Expression = BabelNodeExpression;
   declare export type Binary = BabelNodeBinary;

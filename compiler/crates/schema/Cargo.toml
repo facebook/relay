@@ -3,7 +3,7 @@
 name = "schema"
 version = "0.0.0"
 authors = ["Facebook"]
-edition = "2018"
+edition = "2021"
 license = "MIT"
 
 [[test]]
@@ -12,11 +12,11 @@ path = "tests/build_schema_test.rs"
 
 [dependencies]
 common = { path = "../common" }
-dashmap = { version = "4.0.2", features = ["serde"] }
+dashmap = { version = "4.0.2", features = ["rayon", "serde"] }
 flatbuffers = "2.0"
 fnv = "1.0"
 graphql-syntax = { path = "../graphql-syntax" }
-interner = { path = "../interner" }
+intern = { path = "../intern" }
 lazy_static = "1.0"
 ouroboros = "0.8"
 schema-flatbuffer = { path = "../schema-flatbuffer" }

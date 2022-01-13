@@ -1,0 +1,49 @@
+==================================== INPUT ====================================
+query TestQuery($id: ID) {
+  node(id: $id) {
+    ...Profile @arguments(get_friends: true)
+  }
+}
+
+fragment Profile on User
+    @argumentDefinitions(
+    get_friends: {type: "Boolean!", defaultValue: false}
+    foo_gk: {type: "Boolean!", provider: "foo_gk_module.js"})
+{
+    name @include(if: $foo_gk)
+    friends(first: 10) @include(if: $get_friends) {
+      edges {
+        node {
+          ...Profile
+        }
+      }
+    }
+}
+==================================== OUTPUT ===================================
+query TestQuery(
+  $id: ID
+  $__Profile__foo_gk: Boolean! @__ProvidedVariableMetadata
+  # ProvidedVariableMetadata {
+  #     module_name: "foo_gk_module.js",
+  # }
+  
+) {
+  node(id: $id) {
+    ...Profile_eQnbl
+  }
+}
+
+fragment Profile on User {
+  name @include(if: $__Profile__foo_gk)
+}
+
+fragment Profile_eQnbl on User {
+  name @include(if: $__Profile__foo_gk)
+  friends(first: 10) {
+    edges {
+      node {
+        ...Profile
+      }
+    }
+  }
+}

@@ -1,18 +1,17 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
 use common::{Location, NamedItem};
-use fnv::FnvHashMap;
 use graphql_ir::{Argument, ConstantValue, FragmentDefinition, Value};
-use interner::StringKey;
+use intern::string_key::{Intern, StringKey, StringKeyMap};
 
 #[derive(Default, Debug)]
 pub struct Scope {
-    bindings: Vec<(Location, FnvHashMap<StringKey, Value>)>,
+    bindings: Vec<(Location, StringKeyMap<Value>)>,
 }
 
 impl Scope {
@@ -35,7 +34,7 @@ impl Scope {
             .collect()
     }
 
-    pub fn push_bindings(&mut self, location: Location, bindings: FnvHashMap<StringKey, Value>) {
+    pub fn push_bindings(&mut self, location: Location, bindings: StringKeyMap<Value>) {
         self.bindings.push((location, bindings));
     }
 
@@ -45,7 +44,7 @@ impl Scope {
         arguments: &[Argument],
         fragment: &FragmentDefinition,
     ) {
-        let mut bindings = FnvHashMap::default();
+        let mut bindings = StringKeyMap::default();
         for variable_definition in &fragment.variable_definitions {
             let arg_name = variable_definition.name.item;
             let arg_value = match arguments.named(arg_name) {
@@ -82,13 +81,17 @@ impl Scope {
     }
 }
 
+pub fn format_local_variable(fragment_name: StringKey, arg_name: StringKey) -> StringKey {
+    format!("{}${}", fragment_name, arg_name).intern()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
 
     use common::{Location, SourceLocationKey, Span, WithLocation};
     use graphql_ir::{Argument, ConstantValue, VariableDefinition};
-    use interner::Intern;
+    use intern::string_key::Intern;
     use schema::{Schema, TypeReference};
 
     use relay_test_schema::TEST_SCHEMA;

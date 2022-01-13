@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -7,7 +7,7 @@
 
 use common::WithLocation;
 use graphql_ir::{Argument, ConstantValue, Directive, Value};
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey};
 use lazy_static::lazy_static;
 
 lazy_static! {

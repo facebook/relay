@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -10,7 +10,7 @@ use graphql_ir::{
     Directive, FragmentDefinition, FragmentSpread, InlineFragment, LinkedField, Program,
     ScalarField, Selection, Transformed, Transformer,
 };
-use interner::StringKey;
+use intern::string_key::StringKey;
 use schema::Schema;
 
 /// Transform to skip IR nodes if they are client-defined extensions

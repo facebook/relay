@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -46,6 +46,7 @@ const RelayModernStore = require('./store/RelayModernStore');
 const RelayOperationTracker = require('./store/RelayOperationTracker');
 const RelayRecordSource = require('./store/RelayRecordSource');
 const RelayStoreUtils = require('./store/RelayStoreUtils');
+const ResolverFragments = require('./store/ResolverFragments');
 const ViewerPattern = require('./store/ViewerPattern');
 const requestSubscription = require('./subscription/requestSubscription');
 const createPayloadFor3DField = require('./util/createPayloadFor3DField');
@@ -69,6 +70,7 @@ const RelayProfiler = require('./util/RelayProfiler');
 const RelayReplaySubject = require('./util/RelayReplaySubject');
 const reportMissingRequiredFields = require('./util/reportMissingRequiredFields');
 const stableCopy = require('./util/stableCopy');
+const withProvidedVariables = require('./util/withProvidedVariables');
 
 export type {ConnectionMetadata} from './handlers/connection/ConnectionHandler';
 export type {
@@ -118,7 +120,9 @@ export type {RecordState} from './store/RelayRecordState';
 export type {
   ExecuteMutationConfig,
   FragmentMap,
-  FragmentReference,
+  // DEPRECATED: use FragmentType instead of FragmentReference
+  FragmentType as FragmentReference,
+  FragmentType,
   FragmentSpecResolver,
   HandleFieldPayload,
   IEnvironment,
@@ -177,8 +181,8 @@ export type {
   NormalizationSplitOperation,
   NormalizationStream,
   NormalizationTypeDiscriminator,
+  NormalizationOperation,
 } from './util/NormalizationNode';
-export type {NormalizationOperation} from './util/NormalizationNode';
 export type {
   ReaderArgument,
   ReaderArgumentDefinition,
@@ -208,7 +212,14 @@ export type {
   Disposable,
   FetchPolicy,
   FetchQueryFetchPolicy,
+  Fragment,
+  GraphQLSubscription,
+  InlineFragment,
+  Mutation,
+  Operation,
   OperationType,
+  Query,
+  RefetchableFragment,
   RenderPolicy,
   Variables,
   VariablesOf,
@@ -343,6 +354,7 @@ module.exports = {
   getPendingOperationsForFragment: getPendingOperationsForFragment,
   getValueAtPath: getValueAtPath,
   __internal: {
+    ResolverFragments,
     OperationTracker: RelayOperationTracker,
     createRelayContext: createRelayContext,
     getOperationVariables: RelayConcreteVariables.getOperationVariables,
@@ -351,5 +363,6 @@ module.exports = {
     getPromiseForActiveRequest: fetchQueryInternal.getPromiseForActiveRequest,
     getObservableForActiveRequest:
       fetchQueryInternal.getObservableForActiveRequest,
+    withProvidedVariables: withProvidedVariables,
   },
 };

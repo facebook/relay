@@ -1,10 +1,10 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<f5ce86397bf18bcbfd1566660b72b456>>
+ * @generated SignedSource<<42c574261acd1469581c9a177ee42d28>>
  */
 
 mod validate_deprecated_fields;

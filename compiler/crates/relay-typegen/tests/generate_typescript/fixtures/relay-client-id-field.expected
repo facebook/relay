@@ -31,10 +31,10 @@ query RelayClientIDFieldQuery($id: ID!) {
   }
 }
 ==================================== OUTPUT ===================================
-export type RelayClientIDFieldQueryVariables = {
+export type RelayClientIDFieldQuery$variables = {
   id: string;
 };
-export type RelayClientIDFieldQueryResponse = {
+export type RelayClientIDFieldQuery$data = {
   readonly __id: string;
   readonly me: {
     readonly __id: string;
@@ -53,18 +53,22 @@ export type RelayClientIDFieldQueryResponse = {
       } | null;
       readonly __id: string;
     } | {
-      readonly __typename: "MarkdownCommentBody";
+      // This will never be '%other', but we need some
+      // value in case none of the concrete values match.
+      readonly __typename: "%other";
       readonly __id: string;
     } | null;
     readonly __id: string;
     readonly id: string;
   } | {
-    readonly __typename: "Feedback" | "Page" | "PhotoStory" | "Story" | "User";
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    readonly __typename: "%other";
     readonly __id: string;
     readonly id: string;
   } | null;
 };
 export type RelayClientIDFieldQuery = {
-  variables: RelayClientIDFieldQueryVariables;
-  response: RelayClientIDFieldQueryResponse;
+  variables: RelayClientIDFieldQuery$variables;
+  response: RelayClientIDFieldQuery$data;
 };

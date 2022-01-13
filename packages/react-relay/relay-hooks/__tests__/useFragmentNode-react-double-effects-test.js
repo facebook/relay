@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,7 +13,6 @@
 
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const useFragmentNode = require('../useFragmentNode');
-// eslint-disable-next-line no-unused-vars
 const React = require('react');
 const {useEffect} = require('react');
 const ReactTestRenderer = require('react-test-renderer');
@@ -80,7 +79,7 @@ describe.skip('useFragmentNode-react-double-effects-test', () => {
     warning.mockClear();
 
     let renderLogs = [];
-    const FragmentComponent = ({user}) => {
+    const FragmentComponent = ({user}: $TEMPORARY$object<{user: mixed}>) => {
       const {data} = useFragmentNode(gqlFragment, user, 'TestComponent');
       useEffect(() => {
         renderLogs.push(`commit: ${data.name}`);
@@ -141,7 +140,6 @@ describe.skip('useFragmentNode-react-double-effects-test', () => {
       'commit: Alice Updated',
     ]);
     // Assert it updates and renders with updated data
-    // $FlowFixMe[incompatible-use]
     expect(instance.toJSON()).toEqual('Alice Updated');
   });
 });

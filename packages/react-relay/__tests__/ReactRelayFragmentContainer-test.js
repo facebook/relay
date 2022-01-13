@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -107,7 +107,7 @@ describe('ReactRelayFragmentContainer', () => {
 
     UserFragment = graphql`
       fragment ReactRelayFragmentContainerTestUserFragment on User
-        @argumentDefinitions(cond: {type: "Boolean!", defaultValue: true}) {
+      @argumentDefinitions(cond: {type: "Boolean!", defaultValue: true}) {
         id
         name @include(if: $cond)
       }
@@ -263,6 +263,7 @@ describe('ReactRelayFragmentContainer', () => {
         name: 'Zuck',
       },
       missingRequiredFields: null,
+      missingClientEdges: null,
       isMissingData: false,
       seenRecords: expect.any(Object),
       selector: createReaderSelector(
@@ -352,6 +353,7 @@ describe('ReactRelayFragmentContainer', () => {
       },
       isMissingData: false,
       missingRequiredFields: null,
+      missingClientEdges: null,
       seenRecords: expect.any(Object),
       selector: createReaderSelector(
         UserFragment,
@@ -402,6 +404,7 @@ describe('ReactRelayFragmentContainer', () => {
       },
       isMissingData: false,
       missingRequiredFields: null,
+      missingClientEdges: null,
       seenRecords: expect.any(Object),
       selector: createReaderSelector(
         UserFragment,
@@ -551,7 +554,7 @@ describe('ReactRelayFragmentContainer', () => {
   test('throw for @inline fragments', () => {
     const InlineUserFragment = graphql`
       fragment ReactRelayFragmentContainerTestInlineUserFragment on User
-        @inline {
+      @inline {
         id
       }
     `;

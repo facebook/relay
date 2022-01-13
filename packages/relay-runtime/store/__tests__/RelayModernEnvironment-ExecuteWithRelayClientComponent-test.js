@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -115,8 +115,7 @@ describe('execute() with @relay_client_component', () => {
               __typename: 'Story',
               name: 'React Server Components: The Musical',
               body: {
-                text:
-                  'Presenting a new musical from the director of Cats (2019)!',
+                text: 'Presenting a new musical from the director of Cats (2019)!',
               },
             },
           },

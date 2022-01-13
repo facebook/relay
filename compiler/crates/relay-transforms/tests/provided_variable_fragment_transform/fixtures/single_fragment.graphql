@@ -1,0 +1,7 @@
+fragment SingleFragment on User 
+  @argumentDefinitions(profilePictureScale: {type: "[Int]", provider: "profilePictureScaleProvider.js"})
+{
+    profilePicture(size: $profilePictureScale) {
+        uri
+    }
+}

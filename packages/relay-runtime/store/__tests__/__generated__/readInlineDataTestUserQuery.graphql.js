@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<43b4dd0a4346dc04b3e715637284eff2>>
+ * @generated SignedSource<<51da5301644e645ed1d80c6d24404cfe>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,19 +15,21 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type readInlineDataTestUserFragment$ref = any;
-export type readInlineDataTestUserQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type readInlineDataTestUserFragment$fragmentType = any;
+export type readInlineDataTestUserQuery$variables = {|
   id: string,
 |};
-export type readInlineDataTestUserQueryResponse = {|
+export type readInlineDataTestUserQueryVariables = readInlineDataTestUserQuery$variables;
+export type readInlineDataTestUserQuery$data = {|
   +node: ?{|
-    +$fragmentRefs: readInlineDataTestUserFragment$ref,
+    +$fragmentSpreads: readInlineDataTestUserFragment$fragmentType,
   |},
 |};
+export type readInlineDataTestUserQueryResponse = readInlineDataTestUserQuery$data;
 export type readInlineDataTestUserQuery = {|
   variables: readInlineDataTestUserQueryVariables,
-  response: readInlineDataTestUserQueryResponse,
+  response: readInlineDataTestUserQuery$data,
 |};
 */
 
@@ -147,4 +149,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "64aaa0bdd963532aa7d5e61221722bca";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  readInlineDataTestUserQuery$variables,
+  readInlineDataTestUserQuery$data,
+>*/);

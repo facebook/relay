@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<dbf73bbdce32a30c3d4ee72cbd53be55>>
+ * @generated SignedSource<<8d87f0bd5394da74d3289fde72a17383>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,19 +15,21 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-export type QueryResourceTest10QueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+export type QueryResourceTest10Query$variables = {|
   id: string,
 |};
-export type QueryResourceTest10QueryResponse = {|
+export type QueryResourceTest10QueryVariables = QueryResourceTest10Query$variables;
+export type QueryResourceTest10Query$data = {|
   +node: ?{|
     +id?: string,
     +name?: ?string,
   |},
 |};
+export type QueryResourceTest10QueryResponse = QueryResourceTest10Query$data;
 export type QueryResourceTest10Query = {|
   variables: QueryResourceTest10QueryVariables,
-  response: QueryResourceTest10QueryResponse,
+  response: QueryResourceTest10Query$data,
 |};
 */
 
@@ -145,4 +147,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "b6e7de763bbf313af519ad7d1fd3d18c";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  QueryResourceTest10Query$variables,
+  QueryResourceTest10Query$data,
+>*/);

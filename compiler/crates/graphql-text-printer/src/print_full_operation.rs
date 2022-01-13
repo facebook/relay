@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -10,7 +10,7 @@ use fnv::FnvHashMap;
 use graphql_ir::{
     FragmentDefinition, FragmentSpread, OperationDefinition, Program, ScalarField, Visitor,
 };
-use interner::StringKey;
+use intern::string_key::StringKey;
 use std::sync::Arc;
 
 pub fn print_full_operation(program: &Program, operation: &OperationDefinition) -> String {

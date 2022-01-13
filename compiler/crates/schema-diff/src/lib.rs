@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -21,7 +21,7 @@ use graphql_syntax::{
     InputObjectTypeDefinition, InputValueDefinition, InterfaceTypeDefinition, List,
     ObjectTypeDefinition, ScalarTypeDefinition, TypeSystemDefinition, UnionTypeDefinition,
 };
-use interner::StringKey;
+use intern::string_key::StringKey;
 
 fn add_definition(changes: &mut Vec<DefinitionChange>, def: &TypeSystemDefinition) -> bool {
     use DefinitionChange::*;
@@ -347,7 +347,7 @@ fn diff(current: Vec<TypeSystemDefinition>, previous: Vec<TypeSystemDefinition>)
                         members,
                         ..
                     })) => {
-                        let (added, removed) = compare_string_keys(&members, previous_members);
+                        let (added, removed) = compare_string_keys(members, previous_members);
                         if !added.is_empty() || !removed.is_empty() {
                             changes.push(DefinitionChange::UnionChanged {
                                 name: name.value,

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -50,7 +50,6 @@ const DeleteEdgeHandler = {
     if (record == null) {
       return;
     }
-    // $FlowFixMe[prop-missing]
     const {connections} = payload.handleArgs;
     invariant(
       connections != null,
@@ -100,7 +99,6 @@ function edgeUpdater(
     if (record == null) {
       return;
     }
-    // $FlowFixMe[prop-missing]
     const {connections} = payload.handleArgs;
     invariant(
       connections != null,
@@ -173,7 +171,6 @@ function nodeUpdater(
     if (record == null) {
       return;
     }
-    // $FlowFixMe[prop-missing]
     const {connections, edgeTypeName} = payload.handleArgs;
     invariant(
       connections != null,

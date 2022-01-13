@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,6 +13,7 @@
 'use strict';
 
 import type {HandlerProvider} from '../handlers/RelayDefaultHandlerProvider';
+import type {GraphQLTaggedNode} from '../query/GraphQLTag';
 import type {GetDataID} from '../store/RelayResponseNormalizer';
 import type {
   DataIDSet,
@@ -21,12 +22,15 @@ import type {
   RecordSource,
   RecordSourceProxy,
 } from '../store/RelayStoreTypes';
-import type {DataID} from '../util/RelayRuntimeTypes';
+import type {DataID, OperationType} from '../util/RelayRuntimeTypes';
 import type RelayRecordSourceMutator from './RelayRecordSourceMutator';
 
 const RelayModernRecord = require('../store/RelayModernRecord');
 const {EXISTENT, NONEXISTENT} = require('../store/RelayRecordState');
 const {ROOT_ID, ROOT_TYPE} = require('../store/RelayStoreUtils');
+const {
+  readUpdatableQuery_EXPERIMENTAL,
+} = require('./readUpdatableQuery_EXPERIMENTAL');
 const RelayRecordProxy = require('./RelayRecordProxy');
 const invariant = require('invariant');
 
@@ -157,6 +161,13 @@ class RelayRecordSourceProxy implements RecordSourceProxy {
 
   getIDsMarkedForInvalidation(): DataIDSet {
     return this._idsMarkedForInvalidation;
+  }
+
+  readUpdatableQuery_EXPERIMENTAL<TQuery: OperationType>(
+    query: GraphQLTaggedNode,
+    variables: TQuery['variables'],
+  ): TQuery['response'] {
+    return readUpdatableQuery_EXPERIMENTAL(query, variables, this);
   }
 }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -9,22 +9,22 @@ mod scope;
 
 use super::get_applied_fragment_name;
 use crate::{
-    feature_flags::FeatureFlag,
     match_::SplitOperationMetadata,
     no_inline::{is_raw_response_type_enabled, NO_INLINE_DIRECTIVE_NAME, PARENT_DOCUMENTS_ARG},
     util::get_normalization_operation_name,
 };
-use common::{Diagnostic, DiagnosticsResult, NamedItem, WithLocation};
-use fnv::{FnvHashMap, FnvHashSet};
+use common::{Diagnostic, DiagnosticsResult, FeatureFlag, NamedItem, WithLocation};
 use graphql_ir::{
     Condition, ConditionValue, ConstantValue, Directive, FragmentDefinition, FragmentSpread,
-    InlineFragment, OperationDefinition, Program, Selection, Transformed, TransformedMulti,
-    TransformedValue, Transformer, ValidationMessage, Value, Variable,
+    InlineFragment, OperationDefinition, Program, ProvidedVariableMetadata, Selection, Transformed,
+    TransformedMulti, TransformedValue, Transformer, Value, Variable, VariableDefinition,
 };
 use graphql_syntax::OperationKind;
-use interner::{Intern, StringKey};
-use scope::Scope;
+use intern::string_key::{Intern, StringKey, StringKeyIndexMap, StringKeyMap, StringKeySet};
+use itertools::Itertools;
+use scope::{format_local_variable, Scope};
 use std::sync::Arc;
+use thiserror::Error;
 
 /// A transform that converts a set of documents containing fragments/fragment
 /// spreads *with* arguments to one where all arguments have been inlined. This
@@ -37,6 +37,7 @@ use std::sync::Arc;
 ///   arguments.
 /// - Field & directive argument variables are replaced with the value of those
 ///   variables in context.
+/// - Definitions of provided variables are added to the root operation.
 /// - All nodes are cloned with updated children.
 ///
 /// The transform also handles statically passing/failing Condition nodes:
@@ -50,7 +51,7 @@ pub fn apply_fragment_arguments(
     program: &Program,
     is_normalization: bool,
     no_inline_feature: &FeatureFlag,
-    base_fragment_names: &FnvHashSet<StringKey>,
+    base_fragment_names: &StringKeySet,
 ) -> DiagnosticsResult<Program> {
     let mut transform = ApplyFragmentArgumentsTransform {
         base_fragment_names,
@@ -59,6 +60,7 @@ pub fn apply_fragment_arguments(
         is_normalization,
         no_inline_feature,
         program,
+        provided_variables: Default::default(),
         scope: Default::default(),
         split_operations: Default::default(),
     };
@@ -95,14 +97,15 @@ enum PendingFragment {
 }
 
 struct ApplyFragmentArgumentsTransform<'flags, 'program, 'base_fragments> {
-    base_fragment_names: &'base_fragments FnvHashSet<StringKey>,
+    base_fragment_names: &'base_fragments StringKeySet,
     errors: Vec<Diagnostic>,
-    fragments: FnvHashMap<StringKey, PendingFragment>,
+    fragments: StringKeyMap<PendingFragment>,
     is_normalization: bool,
     no_inline_feature: &'flags FeatureFlag,
     program: &'program Program,
+    provided_variables: StringKeyIndexMap<VariableDefinition>,
     scope: Scope,
-    split_operations: FnvHashMap<StringKey, OperationDefinition>,
+    split_operations: StringKeyMap<OperationDefinition>,
 }
 
 impl Transformer for ApplyFragmentArgumentsTransform<'_, '_, '_> {
@@ -115,7 +118,36 @@ impl Transformer for ApplyFragmentArgumentsTransform<'_, '_, '_> {
         operation: &OperationDefinition,
     ) -> Transformed<OperationDefinition> {
         self.scope = Scope::root_scope();
-        self.default_transform_operation(operation)
+        self.provided_variables = Default::default();
+        let transform_result = self.default_transform_operation(operation);
+        if self.provided_variables.is_empty() {
+            transform_result
+        } else {
+            match transform_result {
+                Transformed::Keep => {
+                    let mut new_operation = operation.clone();
+                    new_operation.variable_definitions.append(
+                        &mut self
+                            .provided_variables
+                            .drain(..)
+                            .map(|(_, definition)| definition)
+                            .collect_vec(),
+                    );
+                    Transformed::Replace(new_operation)
+                }
+                Transformed::Replace(mut new_operation) => {
+                    new_operation.variable_definitions.append(
+                        &mut self
+                            .provided_variables
+                            .drain(..)
+                            .map(|(_, definition)| definition)
+                            .collect_vec(),
+                    );
+                    Transformed::Replace(new_operation)
+                }
+                Transformed::Delete => Transformed::Delete,
+            }
+        }
     }
 
     fn transform_fragment(
@@ -143,6 +175,9 @@ impl Transformer for ApplyFragmentArgumentsTransform<'_, '_, '_> {
                     spread.fragment.item
                 );
             });
+
+        self.extract_provided_variables(fragment);
+
         if self.is_normalization {
             if let Some(directive) = fragment.directives.named(*NO_INLINE_DIRECTIVE_NAME) {
                 let transformed_arguments = spread
@@ -345,6 +380,24 @@ impl ApplyFragmentArgumentsTransform<'_, '_, '_> {
         self.split_operations.insert(fragment.name.item, operation);
     }
 
+    fn extract_provided_variables(&mut self, fragment: &FragmentDefinition) {
+        let provided_arguments =
+            fragment
+                .used_global_variables
+                .iter()
+                .filter(|variable_definition| {
+                    variable_definition
+                        .directives
+                        .named(ProvidedVariableMetadata::directive_name())
+                        .is_some()
+                });
+        for definition in provided_arguments {
+            self.provided_variables
+                .entry(definition.name.item)
+                .or_insert_with(|| definition.clone());
+        }
+    }
+
     fn apply_fragment(
         &mut self,
         spread: &FragmentSpread,
@@ -461,7 +514,7 @@ impl ApplyFragmentArgumentsTransform<'_, '_, '_> {
 }
 
 fn no_inline_fragment_scope(fragment: &FragmentDefinition) -> Scope {
-    let mut bindings = FnvHashMap::with_capacity_and_hasher(
+    let mut bindings = StringKeyMap::with_capacity_and_hasher(
         fragment.variable_definitions.len(),
         Default::default(),
     );
@@ -481,6 +534,8 @@ fn no_inline_fragment_scope(fragment: &FragmentDefinition) -> Scope {
     scope
 }
 
-fn format_local_variable(fragment_name: StringKey, arg_name: StringKey) -> StringKey {
-    format!("{}${}", fragment_name, arg_name).intern()
+#[derive(Debug, Error)]
+enum ValidationMessage {
+    #[error("Found a circular reference from fragment '{fragment_name}'.")]
+    CircularFragmentReference { fragment_name: StringKey },
 }

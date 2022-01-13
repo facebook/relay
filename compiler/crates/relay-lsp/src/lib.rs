@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -10,31 +10,34 @@
 mod client;
 mod code_action;
 mod completion;
-mod diagnostic_reporter;
+pub mod diagnostic_reporter;
 mod explore_schema_for_type;
-mod goto_definition;
+pub mod goto_definition;
 mod graphql_tools;
-mod hover;
-mod js_language_server;
-mod location;
+pub mod hover;
+pub mod js_language_server;
+pub mod location;
 mod lsp_extra_data_provider;
 pub mod lsp_process_error;
 pub mod lsp_runtime_error;
-mod node_resolution_info;
-mod references;
+pub mod node_resolution_info;
+pub mod references;
 pub mod resolution_path;
 mod resolved_types_at_location;
 mod search_schema_items;
 mod server;
 mod shutdown;
 mod status_reporter;
-mod status_updater;
-mod text_documents;
-mod utils;
+pub mod status_updater;
+pub mod text_documents;
+pub mod utils;
 use common::PerfLogger;
+pub use hover::ContentConsumerType;
 pub use js_language_server::JSLanguageServer;
 use log::debug;
-pub use lsp_extra_data_provider::{FieldDefinitionSourceInfo, LSPExtraDataProvider};
+pub use lsp_extra_data_provider::{
+    FieldDefinitionSourceInfo, FieldSchemaInfo, LSPExtraDataProvider,
+};
 use lsp_process_error::LSPProcessResult;
 pub use lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult};
 use lsp_server::Connection;

@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<3e2fcc630bb14093d2dc4ffdf5e22370>>
+ * @generated SignedSource<<b7eb54653cd26481926eabf00a2644b5>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,20 +15,22 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernEnvironmentTypeRefinementTestAbstractActorFragment$ref = any;
-type RelayModernEnvironmentTypeRefinementTestAbstractInlineRefinementFragment$ref = any;
-type RelayModernEnvironmentTypeRefinementTestConcreteInlineRefinementFragment$ref = any;
-type RelayModernEnvironmentTypeRefinementTestConcreteUserFragment$ref = any;
-export type RelayModernEnvironmentTypeRefinementTestParentQueryVariables = {||};
-export type RelayModernEnvironmentTypeRefinementTestParentQueryResponse = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayModernEnvironmentTypeRefinementTestAbstractActorFragment$fragmentType = any;
+type RelayModernEnvironmentTypeRefinementTestAbstractInlineRefinementFragment$fragmentType = any;
+type RelayModernEnvironmentTypeRefinementTestConcreteInlineRefinementFragment$fragmentType = any;
+type RelayModernEnvironmentTypeRefinementTestConcreteUserFragment$fragmentType = any;
+export type RelayModernEnvironmentTypeRefinementTestParentQuery$variables = {||};
+export type RelayModernEnvironmentTypeRefinementTestParentQueryVariables = RelayModernEnvironmentTypeRefinementTestParentQuery$variables;
+export type RelayModernEnvironmentTypeRefinementTestParentQuery$data = {|
   +userOrPage: ?{|
-    +$fragmentRefs: RelayModernEnvironmentTypeRefinementTestConcreteUserFragment$ref & RelayModernEnvironmentTypeRefinementTestConcreteInlineRefinementFragment$ref & RelayModernEnvironmentTypeRefinementTestAbstractActorFragment$ref & RelayModernEnvironmentTypeRefinementTestAbstractInlineRefinementFragment$ref,
+    +$fragmentSpreads: RelayModernEnvironmentTypeRefinementTestConcreteUserFragment$fragmentType & RelayModernEnvironmentTypeRefinementTestConcreteInlineRefinementFragment$fragmentType & RelayModernEnvironmentTypeRefinementTestAbstractActorFragment$fragmentType & RelayModernEnvironmentTypeRefinementTestAbstractInlineRefinementFragment$fragmentType,
   |},
 |};
+export type RelayModernEnvironmentTypeRefinementTestParentQueryResponse = RelayModernEnvironmentTypeRefinementTestParentQuery$data;
 export type RelayModernEnvironmentTypeRefinementTestParentQuery = {|
   variables: RelayModernEnvironmentTypeRefinementTestParentQueryVariables,
-  response: RelayModernEnvironmentTypeRefinementTestParentQueryResponse,
+  response: RelayModernEnvironmentTypeRefinementTestParentQuery$data,
 |};
 */
 
@@ -178,4 +180,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "689f4ef00bbe32b65200f7bf0b18600d";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentTypeRefinementTestParentQuery$variables,
+  RelayModernEnvironmentTypeRefinementTestParentQuery$data,
+>*/);

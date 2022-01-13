@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -19,6 +19,7 @@ use super::File;
 /// The purpose of this module is to handle saved state and list of changed files
 /// from the external source, and not from the watchman
 pub struct ExternalFileSource<'config> {
+    changed_files_list: PathBuf,
     pub config: &'config Config,
 }
 
@@ -48,25 +49,35 @@ impl ExternalFileSourceResult {
 }
 
 impl<'config> ExternalFileSource<'config> {
-    pub fn new(config: &'config Config) -> Self {
-        Self { config }
+    pub fn new(changed_files_list: PathBuf, config: &'config Config) -> Self {
+        Self {
+            config,
+            changed_files_list,
+        }
     }
 
     pub fn create_compiler_state(&self, perf_logger: &impl PerfLogger) -> Result<CompilerState> {
         let load_saved_state_file = self.config.load_saved_state_file.as_ref().unwrap();
-        let changed_files_list = self.config.changed_files_list.as_ref().unwrap();
-        let root_dir = &self.config.root_dir;
+        let mut compiler_state = CompilerState::deserialize_from_file(load_saved_state_file)?;
+        if std::env::var("RELAY_COMPILER_IGNORE_SAVED_STATE_VERSION").is_err()
+            && compiler_state.saved_state_version != self.config.saved_state_version
+        {
+            return Err(Error::SavedStateVersionMismatch {
+                saved_state_version: compiler_state.saved_state_version,
+                config_version: self.config.saved_state_version.clone(),
+            });
+        }
 
-        let mut compiler_state = CompilerState::deserialize_from_file(&load_saved_state_file)?;
+        let root_dir = &self.config.root_dir;
         compiler_state
             .pending_file_source_changes
             .write()
             .unwrap()
             .push(FileSourceResult::External(
-                ExternalFileSourceResult::read_from_fs(changed_files_list, root_dir.clone())?,
+                ExternalFileSourceResult::read_from_fs(&self.changed_files_list, root_dir.clone())?,
             ));
 
-        compiler_state.merge_file_source_changes(&self.config, perf_logger, true)?;
+        compiler_state.merge_file_source_changes(self.config, perf_logger, true)?;
 
         Ok(compiler_state)
     }

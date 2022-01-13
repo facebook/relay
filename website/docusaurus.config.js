@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -17,12 +17,12 @@ module.exports = {
   tagline: 'The GraphQL client that scales with you.',
   url: 'https://relay.dev',
   baseUrl: '/',
+  trailingSlash: true,
   organizationName: 'facebook',
   projectName: 'relay',
   scripts: [
     {
-      src:
-        'https://widget.surveymonkey.com/collect/website/js/tRaiETqnLgj758hTBazgdx2NnQ5W6bg3p3XoJtoYjHDMWZrhV7glVKgJgKV87xxk.js',
+      src: 'https://widget.surveymonkey.com/collect/website/js/tRaiETqnLgj758hTBazgdx2NnQ5W6bg3p3XoJtoYjHDMWZrhV7glVKgJgKV87xxk.js',
       defer: true,
     },
   ],
@@ -187,6 +187,12 @@ module.exports = {
         infoLink: 'https://swissdevjobs.ch/jobs/JavaScript/All',
         pinned: false,
       },
+      {
+        caption: 'Atlassian',
+        image: '/img/logos/vertical-logo-gradient-blue-atlassian.svg',
+        infoLink: 'https://www.atlassian.com/',
+        pinned: false,
+      },
     ],
   },
   onBrokenLinks: 'throw',
@@ -223,7 +229,8 @@ module.exports = {
             external: [
               'current',
               ...versions.filter(
-                version => version !== 'experimental' && version !== 'classic',
+                (version) =>
+                  version !== 'experimental' && version !== 'classic',
               ),
             ],
           }),
@@ -249,7 +256,7 @@ module.exports = {
     [
       '@docusaurus/plugin-client-redirects',
       {
-        createRedirects: function(toPath) {
+        createRedirects: function (toPath) {
           if (toPath.startsWith('/docs/')) {
             const docPath = toPath.substring(6);
             const fromPaths = ['/docs/en/' + docPath];
@@ -312,11 +319,7 @@ module.exports = {
           },
           {
             to: '/docs/guides/type-emission/',
-            from: [
-              '/docs/en/type-emission',
-              '/docs/v3.0.0/type-emission',
-              '/docs/type-emission',
-            ],
+            from: ['/docs/en/type-emission', '/docs/type-emission'],
           },
           {
             to: '/docs/guides/client-schema-extensions/',
@@ -354,14 +357,6 @@ module.exports = {
     ],
   ],
   themeConfig: {
-    announcementBar: {
-      id: 'survey-2021-announcement', // Any value that will identify this message.
-      content:
-        'We want to hear from you! <a href="https://surveys.savanta.com/survey/selfserve/21e3/210643?list=2" target="_blank" rel="noopener noreferrer">Take the 2021 React Community Survey!</a>',
-      backgroundColor: '#20232a', // Defaults to `#fff`.
-      textColor: '#fff', // Defaults to `#000`.
-      isCloseable: true, // Defaults to `true`.
-    },
     navbar: {
       title: 'Relay',
       style: 'primary',

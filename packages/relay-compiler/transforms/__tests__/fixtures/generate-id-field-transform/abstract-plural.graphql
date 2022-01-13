@@ -1,9 +1,0 @@
-query CommentQuery {
-  node(id: "comment") {
-    ... on Comment {
-      actors {
-        id
-      }
-    }
-  }
-}

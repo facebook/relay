@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -9,10 +9,10 @@ use crate::config::ProjectConfig;
 use crate::{compiler_state::SourceSetName, graphql_asts::GraphQLAsts};
 use common::Diagnostic;
 use dependency_analyzer::{get_reachable_ast, get_reachable_ir, ReachableAst};
-use fnv::{FnvHashMap, FnvHashSet};
+use fnv::FnvHashMap;
 use graphql_syntax::ExecutableDefinition;
 use graphql_text_printer::print_executable_definition_ast;
-use interner::StringKey;
+use intern::string_key::{StringKey, StringKeySet};
 use md5::{Digest, Md5};
 use relay_transforms::DependencyMap;
 use schema::SDLSchema;
@@ -20,7 +20,7 @@ use schema::SDLSchema;
 pub struct BuildIRResult {
     pub ir: Vec<graphql_ir::ExecutableDefinition>,
     pub source_hashes: SourceHashes,
-    pub base_fragment_names: FnvHashSet<StringKey>,
+    pub base_fragment_names: StringKeySet,
 }
 
 /// Map fragments and queries definition names to the md5 of they printed source
@@ -63,10 +63,10 @@ pub fn build_ir(
                 .iter()
                 // TODO(T64459085): Figure out what to do about unnamed (anonymous) operations
                 .filter_map(|definition| definition.name())
-                .collect::<FnvHashSet<_>>();
+                .collect::<StringKeySet>();
             (base_project_asts, base_definition_names)
         }
-        None => (Vec::new(), FnvHashSet::default()),
+        None => (Vec::new(), Default::default()),
     };
 
     find_duplicates(&project_asts, &base_project_asts)?;
@@ -77,7 +77,11 @@ pub fn build_ir(
     } = get_reachable_ast(project_asts, base_project_asts);
 
     let source_hashes = SourceHashes::from_definitions(&reachable_ast);
-    let ir = graphql_ir::build(&schema, &reachable_ast)?;
+    let ir = graphql_ir::build_ir_with_relay_feature_flags(
+        schema,
+        &reachable_ast,
+        &project_config.feature_flags,
+    )?;
     if is_incremental_build {
         let mut reachable_names = graphql_asts
             .get(&project_config.name)

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -24,7 +24,7 @@ const {createMockEnvironment} = require('relay-test-utils-internal');
 
 const query: GraphQLTaggedNode = graphql`
   query useQueryLoaderLiveQueryTestQuery($id: ID!)
-    @live_query(polling_interval: 10000) {
+  @live_query(polling_interval: 10000) {
     node(id: $id) {
       id
     }
@@ -61,7 +61,7 @@ beforeEach(() => {
   renderCount = undefined;
   dispose = undefined;
   environment = createMockEnvironment();
-  render = function(initialPreloadedQuery) {
+  render = function (initialPreloadedQuery) {
     renderCount = 0;
     ReactTestRenderer.act(() => {
       instance = ReactTestRenderer.create(
@@ -70,7 +70,7 @@ beforeEach(() => {
     });
   };
 
-  update = function(initialPreloadedQuery) {
+  update = function (initialPreloadedQuery) {
     ReactTestRenderer.act(() => {
       instance.update(
         <Container initialPreloadedQuery={initialPreloadedQuery} />,
@@ -78,7 +78,7 @@ beforeEach(() => {
     });
   };
 
-  const Inner = function({initialPreloadedQuery}) {
+  const Inner = function ({initialPreloadedQuery}) {
     renderCount = (renderCount || 0) + 1;
     [loadedQuery, queryLoaderCallback, disposeQuery] = useQueryLoader(
       generatedQuery,
@@ -88,7 +88,7 @@ beforeEach(() => {
     return null;
   };
 
-  Container = function({initialPreloadedQuery = undefined}) {
+  Container = function ({initialPreloadedQuery = undefined}) {
     return (
       <RelayEnvironmentProvider environment={environment}>
         <Inner initialPreloadedQuery={initialPreloadedQuery} />

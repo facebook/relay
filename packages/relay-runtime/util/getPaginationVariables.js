@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -29,10 +29,8 @@ function getPaginationVariables(
   extraVariables: Variables,
   paginationMetadata: ReaderPaginationMetadata,
 ): {[string]: mixed, ...} {
-  const {
-    backward: backwardMetadata,
-    forward: forwardMetadata,
-  } = paginationMetadata;
+  const {backward: backwardMetadata, forward: forwardMetadata} =
+    paginationMetadata;
 
   if (direction === 'backward') {
     invariant(
@@ -56,7 +54,6 @@ function getPaginationVariables(
         'determined by Relay.',
       backwardMetadata.count,
     );
-    // $FlowFixMe[cannot-spread-interface]
     const paginationVariables = {
       ...baseVariables,
       ...extraVariables,
@@ -93,7 +90,6 @@ function getPaginationVariables(
       'determined by Relay.',
     forwardMetadata.count,
   );
-  // $FlowFixMe[cannot-spread-interface]
   const paginationVariables = {
     ...baseVariables,
     ...extraVariables,

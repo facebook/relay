@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -143,10 +143,10 @@ describe('useRefetchableFragmentNode', () => {
     `;
     gqlFragmentWithArgs = getFragment(graphql`
       fragment useRefetchableFragmentNodeTestUserFragmentWithArgs on User
-        @refetchable(
-          queryName: "useRefetchableFragmentNodeTestUserFragmentWithArgsRefetchQuery"
-        )
-        @argumentDefinitions(scaleLocal: {type: "Float!"}) {
+      @refetchable(
+        queryName: "useRefetchableFragmentNodeTestUserFragmentWithArgsRefetchQuery"
+      )
+      @argumentDefinitions(scaleLocal: {type: "Float!"}) {
         id
         name
         profile_picture(scale: $scaleLocal) {
@@ -157,9 +157,9 @@ describe('useRefetchableFragmentNode', () => {
     `);
     gqlFragment = getFragment(graphql`
       fragment useRefetchableFragmentNodeTestUserFragment on User
-        @refetchable(
-          queryName: "useRefetchableFragmentNodeTestUserFragmentRefetchQuery"
-        ) {
+      @refetchable(
+        queryName: "useRefetchableFragmentNodeTestUserFragmentRefetchQuery"
+      ) {
         id
         name
         profile_picture(scale: $scale) {
@@ -262,13 +262,12 @@ describe('useRefetchableFragmentNode', () => {
       ...
     }) => {
       // We need a render a component to run a Hook
-      const [owner, _setOwner] = useState<OperationDescriptor>(props.owner);
-      const [_, _setCount] = useState(0);
+      const [owner, setOwner_] = useState<OperationDescriptor>(props.owner);
+      const [, setCount_] = useState(0);
       const fragment = props.fragment ?? gqlFragment;
       const artificialUserRef = useMemo(
         () => ({
           [ID_KEY]:
-          // $FlowFixMe[prop-missing]
             owner.request.variables.id ?? owner.request.variables.nodeID,
           [FRAGMENTS_KEY]: {
             [fragment.name]: {},
@@ -282,13 +281,11 @@ describe('useRefetchableFragmentNode', () => {
         ? props.userRef
         : artificialUserRef;
 
-      forceUpdate = _setCount;
-      setOwner = _setOwner;
+      forceUpdate = setCount_;
+      setOwner = setOwner_;
 
-      const {
-        fragmentData: userData,
-        refetch: refetchInternal,
-      } = useRefetchableFragmentNode(fragment, userRef);
+      const {fragmentData: userData, refetch: refetchInternal} =
+        useRefetchableFragmentNode(fragment, userRef);
 
       if (
         props.callDuringRenderKey != null &&
@@ -363,7 +360,7 @@ describe('useRefetchableFragmentNode', () => {
 
       const UserFragment = getFragment(graphql`
         fragment useRefetchableFragmentNodeTest4Fragment on User
-          @relay(plural: true) {
+        @relay(plural: true) {
           id
         }
       `);
@@ -3384,9 +3381,9 @@ describe('useRefetchableFragmentNode', () => {
       beforeEach(() => {
         gqlFragment = getFragment(graphql`
           fragment useRefetchableFragmentNodeTest1Fragment on NonNodeStory
-            @refetchable(
-              queryName: "useRefetchableFragmentNodeTest1FragmentRefetchQuery"
-            ) {
+          @refetchable(
+            queryName: "useRefetchableFragmentNodeTest1FragmentRefetchQuery"
+          ) {
             actor {
               name
             }
@@ -3647,9 +3644,9 @@ describe('useRefetchableFragmentNode', () => {
         `;
         gqlFragment = getFragment(graphql`
           fragment useRefetchableFragmentNodeTest3Fragment on User
-            @refetchable(
-              queryName: "useRefetchableFragmentNodeTest3FragmentRefetchQuery"
-            ) {
+          @refetchable(
+            queryName: "useRefetchableFragmentNodeTest3FragmentRefetchQuery"
+          ) {
             id
             name
             profile_picture(scale: $scale) {
@@ -4005,12 +4002,9 @@ describe('useRefetchableFragmentNode', () => {
             },
           });
         });
-        expect(
-          anotherNewEnvironment
-            .getStore()
-            .getSource()
-            .get('1'),
-        ).toEqual(dataInSource);
+        expect(anotherNewEnvironment.getStore().getSource().get('1')).toEqual(
+          dataInSource,
+        );
       });
     });
   });

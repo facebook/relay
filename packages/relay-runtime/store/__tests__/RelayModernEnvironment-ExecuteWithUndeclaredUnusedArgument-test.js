@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -62,7 +62,7 @@ describe('query with undeclared, unused fragment argument', () => {
 
     innerFragment = getFragment(graphql`
       fragment RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfilePhotoWrapper on User
-        @argumentDefinitions(size: {type: "Int"}) {
+      @argumentDefinitions(size: {type: "Int"}) {
         __typename
         ...RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfilePhoto
           @uncheckedArguments_DEPRECATED(size: $size)
@@ -113,7 +113,8 @@ describe('query with undeclared, unused fragment argument', () => {
         __isWithinUnmatchedTypeRefinement: false,
 
         __fragments: {
-          RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfile: {},
+          RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfile:
+            {},
         },
 
         __id: '4',
@@ -132,9 +133,10 @@ describe('query with undeclared, unused fragment argument', () => {
       __isWithinUnmatchedTypeRefinement: false,
 
       __fragments: {
-        RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfilePhotoWrapper: {
-          size: undefined,
-        },
+        RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfilePhotoWrapper:
+          {
+            size: undefined,
+          },
       },
 
       id: '4',
@@ -153,9 +155,10 @@ describe('query with undeclared, unused fragment argument', () => {
       __isWithinUnmatchedTypeRefinement: false,
 
       __fragments: {
-        RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfilePhoto: {
-          size: undefined,
-        },
+        RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfilePhoto:
+          {
+            size: undefined,
+          },
       },
 
       __typename: 'User',

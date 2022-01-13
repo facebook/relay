@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -186,7 +186,6 @@ function getStableVariableValue(name: string, variables: Variables): mixed {
     'getVariableValue(): Undefined variable `%s`.',
     name,
   );
-  // $FlowFixMe[cannot-write]
   return stableCopy(variables[name]);
 }
 
@@ -203,6 +202,7 @@ function getModuleOperationKey(documentName: string): string {
  */
 const RelayStoreUtils = {
   ACTOR_IDENTIFIER_KEY: '__actorIdentifier',
+  CLIENT_EDGE_TRAVERSAL_PATH: '__clientEdgeTraversalPath',
   FRAGMENTS_KEY: '__fragments',
   FRAGMENT_OWNER_KEY: '__fragmentOwner',
   FRAGMENT_PROP_NAME_KEY: '__fragmentPropName',

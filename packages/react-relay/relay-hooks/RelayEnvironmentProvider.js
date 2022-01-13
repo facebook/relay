@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -34,10 +34,10 @@ type Props = $ReadOnly<{|
 
 function RelayEnvironmentProvider(props: Props): React.Node {
   const {children, environment, getEnvironmentForActor} = props;
-  const context = useMemo(() => ({environment, getEnvironmentForActor}), [
-    environment,
-    getEnvironmentForActor,
-  ]);
+  const context = useMemo(
+    () => ({environment, getEnvironmentForActor}),
+    [environment, getEnvironmentForActor],
+  );
   return (
     <ReactRelayContext.Provider value={context}>
       {children}

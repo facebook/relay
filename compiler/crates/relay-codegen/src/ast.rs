@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -9,12 +9,32 @@ use fnv::{FnvBuildHasher, FnvHashMap};
 use graphql_syntax::FloatValue;
 use graphql_syntax::OperationKind;
 use indexmap::IndexSet;
-use interner::StringKey;
+use intern::string_key::StringKey;
 
 #[derive(Eq, PartialEq, Hash, Debug)]
 pub struct ObjectEntry {
     pub key: StringKey,
     pub value: Primitive,
+}
+
+/// A helper for creating Vec<ObjectEntry>
+/// For now, field names are defined in `CODEGEN_CONSTANTS
+#[macro_export]
+macro_rules! object {
+    { $ ( $(:$func: expr,)* $key:ident: $value:expr,)* } => ({
+        use crate::constants::CODEGEN_CONSTANTS;
+        vec![
+            $(
+                $(
+                    $func,
+                )*
+                ObjectEntry {
+                    key: CODEGEN_CONSTANTS.$key,
+                    value: $value,
+                },
+            )*
+        ]
+    })
 }
 
 /// An interned codegen AST
@@ -103,6 +123,7 @@ impl AstBuilder {
     }
 }
 
+#[derive(Clone)]
 pub enum QueryID {
     Persisted { id: String, text_hash: String },
     External(StringKey),

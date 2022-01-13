@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<0279d5389198d10b2d647f23a0a18205>>
+ * @generated SignedSource<<17aca18105861d14de0cb1a679625cd3>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,20 +15,20 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayMockEnvironmentWithComponentsTestUsefulAwesomenessFragment$ref: FragmentReference;
-declare export opaque type RelayMockEnvironmentWithComponentsTestUsefulAwesomenessFragment$fragmentType: RelayMockEnvironmentWithComponentsTestUsefulAwesomenessFragment$ref;
-export type RelayMockEnvironmentWithComponentsTestUsefulAwesomenessFragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayMockEnvironmentWithComponentsTestUsefulAwesomenessFragment$fragmentType: FragmentType;
+export type RelayMockEnvironmentWithComponentsTestUsefulAwesomenessFragment$ref = RelayMockEnvironmentWithComponentsTestUsefulAwesomenessFragment$fragmentType;
+export type RelayMockEnvironmentWithComponentsTestUsefulAwesomenessFragment$data = {|
   +id: string,
   +name: ?string,
   +websites: ?$ReadOnlyArray<?string>,
-  +$refType: RelayMockEnvironmentWithComponentsTestUsefulAwesomenessFragment$ref,
+  +$fragmentType: RelayMockEnvironmentWithComponentsTestUsefulAwesomenessFragment$fragmentType,
 |};
-export type RelayMockEnvironmentWithComponentsTestUsefulAwesomenessFragment$data = RelayMockEnvironmentWithComponentsTestUsefulAwesomenessFragment;
+export type RelayMockEnvironmentWithComponentsTestUsefulAwesomenessFragment = RelayMockEnvironmentWithComponentsTestUsefulAwesomenessFragment$data;
 export type RelayMockEnvironmentWithComponentsTestUsefulAwesomenessFragment$key = {
   +$data?: RelayMockEnvironmentWithComponentsTestUsefulAwesomenessFragment$data,
-  +$fragmentRefs: RelayMockEnvironmentWithComponentsTestUsefulAwesomenessFragment$ref,
+  +$fragmentSpreads: RelayMockEnvironmentWithComponentsTestUsefulAwesomenessFragment$fragmentType,
   ...
 };
 */
@@ -69,4 +69,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "432b0a19d5c7d27b270eff399b9bea47";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayMockEnvironmentWithComponentsTestUsefulAwesomenessFragment$fragmentType,
+  RelayMockEnvironmentWithComponentsTestUsefulAwesomenessFragment$data,
+>*/);

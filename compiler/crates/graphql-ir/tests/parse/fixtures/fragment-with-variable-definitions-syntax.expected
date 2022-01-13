@@ -94,7 +94,7 @@ fragment Foo($localId: ID!) on User {
                     alias: None,
                     definition: WithLocation {
                         location: fragment-with-variable-definitions-syntax.graphql:131:145,
-                        item: FieldID(477),
+                        item: FieldID(478),
                     },
                     arguments: [
                         Argument {
@@ -142,7 +142,7 @@ fragment Foo($localId: ID!) on User {
                     ),
                     definition: WithLocation {
                         location: fragment-with-variable-definitions-syntax.graphql:198:212,
-                        item: FieldID(477),
+                        item: FieldID(478),
                     },
                     arguments: [
                         Argument {
@@ -244,7 +244,7 @@ fragment Foo($localId: ID!) on User {
                     alias: None,
                     definition: WithLocation {
                         location: fragment-with-variable-definitions-syntax.graphql:317:319,
-                        item: FieldID(463),
+                        item: FieldID(464),
                     },
                     arguments: [],
                     directives: [],

@@ -1,28 +1,23 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
 use super::ValidationMessage;
+use crate::util::{get_fragment_filename, get_normalization_operation_name};
 use crate::{
     match_::SplitOperationMetadata,
     no_inline::{attach_no_inline_directives_to_fragments, validate_required_no_inline_directive},
-    FeatureFlag,
 };
-use crate::{
-    util::{get_fragment_filename, get_normalization_operation_name},
-    FeatureFlags,
-};
-use common::{Diagnostic, DiagnosticsResult, NamedItem, WithLocation};
-use fnv::{FnvHashMap, FnvHashSet};
+use common::{Diagnostic, DiagnosticsResult, FeatureFlag, FeatureFlags, NamedItem, WithLocation};
 use graphql_ir::{
     associated_data_impl, Argument, ConstantValue, Directive, FragmentDefinition, FragmentSpread,
     OperationDefinition, Program, Selection, Transformed, Transformer, Value,
 };
 use graphql_syntax::OperationKind;
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey, StringKeyMap, StringKeySet};
 use itertools::Itertools;
 use lazy_static::lazy_static;
 use schema::{InterfaceID, Schema, Type};
@@ -35,7 +30,6 @@ lazy_static! {
     pub static ref RELAY_CLIENT_COMPONENT_DIRECTIVE_NAME: StringKey =
         "relay_client_component".intern();
     static ref STRING_TYPE: StringKey = "String".intern();
-    static ref ID_FIELD_NAME: StringKey = "id".intern();
     static ref NODE_TYPE_NAME: StringKey = "Node".intern();
     static ref VIEWER_TYPE_NAME: StringKey = "Viewer".intern();
 }
@@ -107,14 +101,14 @@ pub fn relay_client_component(
 struct RelayClientComponentTransform<'program, 'flag> {
     program: &'program Program,
     errors: Vec<Diagnostic>,
-    split_operations: FnvHashMap<StringKey, (SplitOperationMetadata, OperationDefinition)>,
+    split_operations: StringKeyMap<(SplitOperationMetadata, OperationDefinition)>,
     node_interface_id: InterfaceID,
     /// Name of the document currently being transformed.
     document_name: Option<StringKey>,
-    split_operation_filenames: FnvHashSet<StringKey>,
+    split_operation_filenames: StringKeySet,
     no_inline_flag: &'flag FeatureFlag,
     // Stores the fragments that should use @no_inline and their parent document name
-    no_inline_fragments: FnvHashMap<StringKey, Vec<StringKey>>,
+    no_inline_fragments: StringKeyMap<Vec<StringKey>>,
 }
 
 impl<'program, 'flag> RelayClientComponentTransform<'program, 'flag> {
@@ -216,7 +210,7 @@ impl<'program, 'flag> RelayClientComponentTransform<'program, 'flag> {
         if should_use_no_inline {
             self.no_inline_fragments
                 .entry(fragment.name.item)
-                .or_insert_with(|| vec![])
+                .or_insert_with(std::vec::Vec::new)
                 .push(self.document_name.unwrap());
         } else {
             // Generate a SplitOperation AST

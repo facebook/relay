@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -330,11 +330,9 @@ function createContainerWithFragments<
         typeof refetchVariables === 'function'
           ? refetchVariables(this._getFragmentVariables())
           : refetchVariables;
-      // $FlowFixMe[cannot-spread-interface]
       fetchVariables = {...rootVariables, ...fetchVariables};
       const fragmentVariables = renderVariables
-        ? // $FlowFixMe[cannot-spread-interface]
-          {...fetchVariables, ...renderVariables}
+        ? {...fetchVariables, ...renderVariables}
         : fetchVariables;
 
       const cacheConfig: ?CacheConfig = options
@@ -450,12 +448,8 @@ function createContainerWithFragments<
     };
 
     render() {
-      const {
-        componentRef,
-        __relayContext,
-        __rootIsQueryRenderer,
-        ...props
-      } = this.props;
+      const {componentRef, __relayContext, __rootIsQueryRenderer, ...props} =
+        this.props;
       const {relayProp, contextForChildren} = this.state;
       return (
         <ReactRelayContext.Provider value={contextForChildren}>

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -21,7 +21,7 @@ pub fn hash_arguments(args: &[Argument]) -> Option<String> {
                 value: identifier_for_argument_value(&arg.value.item),
             })
             .collect();
-        converted_args.sort_by(|a, b| a.name.cmp(&b.name));
+        converted_args.sort_by(|a, b| a.name.cmp(b.name));
 
         let args_string = format!(
             "[{}]",

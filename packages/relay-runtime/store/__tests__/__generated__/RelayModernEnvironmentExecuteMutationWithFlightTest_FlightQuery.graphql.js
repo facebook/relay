@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<0b624845586ff1e448e57385c36246f1>>
+ * @generated SignedSource<<63c03fbd2a3897469583312f5ccbf6fd>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,19 +17,21 @@
 // @ReactFlightServerDependency FlightComponent.server
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-export type RelayModernEnvironmentExecuteMutationWithFlightTest_FlightQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+export type RelayModernEnvironmentExecuteMutationWithFlightTest_FlightQuery$variables = {|
   id: string,
   count: number,
 |};
-export type RelayModernEnvironmentExecuteMutationWithFlightTest_FlightQueryResponse = {|
+export type RelayModernEnvironmentExecuteMutationWithFlightTest_FlightQueryVariables = RelayModernEnvironmentExecuteMutationWithFlightTest_FlightQuery$variables;
+export type RelayModernEnvironmentExecuteMutationWithFlightTest_FlightQuery$data = {|
   +node: ?{|
     +flightComponent?: ?any,
   |},
 |};
+export type RelayModernEnvironmentExecuteMutationWithFlightTest_FlightQueryResponse = RelayModernEnvironmentExecuteMutationWithFlightTest_FlightQuery$data;
 export type RelayModernEnvironmentExecuteMutationWithFlightTest_FlightQuery = {|
   variables: RelayModernEnvironmentExecuteMutationWithFlightTest_FlightQueryVariables,
-  response: RelayModernEnvironmentExecuteMutationWithFlightTest_FlightQueryResponse,
+  response: RelayModernEnvironmentExecuteMutationWithFlightTest_FlightQuery$data,
 |};
 */
 
@@ -170,4 +172,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "a8576cffa1a503ae3169c301dbe17dc9";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentExecuteMutationWithFlightTest_FlightQuery$variables,
+  RelayModernEnvironmentExecuteMutationWithFlightTest_FlightQuery$data,
+>*/);

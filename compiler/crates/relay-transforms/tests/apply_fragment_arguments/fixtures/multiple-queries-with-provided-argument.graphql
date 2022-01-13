@@ -1,0 +1,17 @@
+query TestQuery1($id: ID!) {
+  node(id: $id) {
+    id
+    ...TestFragment
+  }
+}
+query TestQuery2($id: ID!) {
+  node(id: $id) {
+    ...TestFragment
+  }
+}
+
+fragment TestFragment on User
+  @argumentDefinitions(foo_gk: {type: "Boolean!", provider: "foo_gk_module"})
+{
+    name @include(if: $foo_gk)
+}

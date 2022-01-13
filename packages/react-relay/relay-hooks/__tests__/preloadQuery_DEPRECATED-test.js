@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -12,6 +12,7 @@
 // flowlint ambiguous-object-type:error
 
 'use strict';
+import type {GraphQLResponse} from 'relay-runtime/network/RelayNetworkTypes';
 
 const preloadQuery_DEPRECATED = require('../preloadQuery_DEPRECATED');
 const {
@@ -110,8 +111,8 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           const events = [];
           const observer = {
             complete: () => events.push('complete'),
-            error: error => events.push('error', error),
-            next: resp => events.push('next', resp),
+            error: (error: Error) => events.push('error', error),
+            next: (resp: GraphQLResponse) => events.push('next', resp),
           };
           return [events, observer];
         }
@@ -823,3 +824,122 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
     });
   },
 );
+
+describe('Preload queries that use provided variables', () => {
+  graphql`
+    fragment preloadQueryDEPRECATEDTest_ProvidedVarFragment on User
+    @argumentDefinitions(
+      includeName: {type: "Boolean!", provider: "../RelayProvider_returnsTrue"}
+      includeFirstName: {
+        type: "Boolean!"
+        provider: "../RelayProvider_returnsFalse"
+      }
+      skipLastName: {
+        type: "Boolean!"
+        provider: "../RelayProvider_returnsFalse"
+      }
+      skipUsername: {type: "Boolean!", provider: "../RelayProvider_returnsTrue"}
+    ) {
+      name @include(if: $includeName)
+      firstName @include(if: $includeFirstName)
+      lastName @skip(if: $skipLastName)
+      username @skip(if: $skipUsername)
+    }
+  `;
+  const queryWithProvidedVar = getRequest(graphql`
+    query preloadQueryDEPRECATEDTest_ProvidedVarQuery($id: ID!) {
+      node(id: $id) {
+        ...preloadQueryDEPRECATEDTest_ProvidedVarFragment
+      }
+    }
+  `);
+
+  const variables = {id: 4};
+  const generatedVariables = {
+    __preloadQueryDEPRECATEDTest_ProvidedVarFragment__includeName:
+      require('./RelayProvider_returnsTrue').get(),
+    __preloadQueryDEPRECATEDTest_ProvidedVarFragment__includeFirstName:
+      require('./RelayProvider_returnsFalse').get(),
+    __preloadQueryDEPRECATEDTest_ProvidedVarFragment__skipLastName:
+      require('./RelayProvider_returnsFalse').get(),
+    __preloadQueryDEPRECATEDTest_ProvidedVarFragment__skipUsername:
+      require('./RelayProvider_returnsTrue').get(),
+    ...variables,
+  };
+
+  // Only queries with an ID are preloadable
+  // $FlowFixMe[cannot-write]
+  queryWithProvidedVar.params.id = '12346';
+
+  const paramsWithProvidedVar = {
+    kind: 'PreloadableConcreteRequest',
+    params: queryWithProvidedVar.params,
+  };
+
+  const responseWithProvidedVar = {
+    data: {
+      node: {
+        __typename: 'User',
+        id: '4',
+        name: 'testName',
+        lastName: 'testLastName',
+      },
+    },
+    extensions: {
+      is_final: true,
+    },
+  };
+
+  let environment;
+  let fetch;
+  let operation;
+
+  beforeEach(() => {
+    fetch = jest.fn((_query, _variables, _cacheConfig) => {
+      return Observable.create(_sink => {});
+    });
+
+    environment = new Environment({
+      network: Network.create(fetch),
+      store: new Store(new RecordSource()),
+    });
+
+    operation = createOperationDescriptor(queryWithProvidedVar, variables);
+    PreloadableQueryRegistry.clear();
+  });
+
+  it('fetches from the network with generated variables', () => {
+    // load data in store
+    environment.commitPayload(operation, responseWithProvidedVar.data);
+    expect(environment.check(operation).status).toEqual('available');
+
+    const preloaded = preloadQuery_DEPRECATED(
+      environment,
+      paramsWithProvidedVar,
+      variables,
+    );
+    expect(preloaded.source).toEqual(expect.any(Observable));
+    expect(preloaded.status).toEqual({
+      cacheConfig: {force: true},
+      source: 'network',
+      fetchTime: null,
+    });
+    expect(fetch).toBeCalledTimes(1);
+    expect(fetch.mock.calls[0][1]).toEqual(generatedVariables);
+  });
+
+  it('resolves from cache if data is available', () => {
+    environment.commitPayload(operation, responseWithProvidedVar.data);
+    expect(environment.check(operation).status).toEqual('available');
+
+    const preloaded = preloadQuery_DEPRECATED(
+      environment,
+      queryWithProvidedVar,
+      variables,
+    );
+    expect(preloaded.source).toBe(null);
+    expect(preloaded.status.cacheConfig?.force).toEqual(true);
+    expect(preloaded.status.source).toEqual('cache');
+    expect(fetch).toBeCalledTimes(0);
+  });
+});

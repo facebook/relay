@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -15,7 +15,6 @@
 
 const fetchQuery = require('../fetchQuery');
 const {
-  RelayFeatureFlags,
   createOperationDescriptor,
   getRequest,
   graphql,
@@ -122,7 +121,7 @@ describe('fetchQuery', () => {
   it('handles error correctly', () => {
     let calledError = false;
     const observer = {
-      error: error => {
+      error: (error: Error) => {
         calledError = true;
         expect(error.message).toEqual('Oops');
         expect(retained.length).toEqual(0);
@@ -227,13 +226,6 @@ describe('fetchQuery', () => {
 });
 
 describe('fetchQuery with missing @required value', () => {
-  beforeEach(() => {
-    RelayFeatureFlags.ENABLE_REQUIRED_DIRECTIVES = true;
-  });
-  afterEach(() => {
-    RelayFeatureFlags.ENABLE_REQUIRED_DIRECTIVES = false;
-  });
-
   it('provides data snapshot on next', () => {
     const requiredFieldLogger = jest.fn();
     const environment = createMockEnvironment({

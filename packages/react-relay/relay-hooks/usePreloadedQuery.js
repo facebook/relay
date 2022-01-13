@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -37,19 +37,14 @@ function usePreloadedQuery<TQuery: OperationType>(
   options?: {|
     UNSTABLE_renderPolicy?: RenderPolicy,
   |},
-): $ElementType<TQuery, 'response'> {
+): TQuery['response'] {
   // We need to use this hook in order to be able to track if
   // loadQuery was called during render
   useTrackLoadQueryInRender();
 
   const environment = useRelayEnvironment();
-  const {
-    fetchKey,
-    fetchPolicy,
-    source,
-    variables,
-    networkCacheConfig,
-  } = preloadedQuery;
+  const {fetchKey, fetchPolicy, source, variables, networkCacheConfig} =
+    preloadedQuery;
   const operation = useMemoOperationDescriptor(
     gqlQuery,
     variables,

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -190,7 +190,6 @@ class RelayResponseNormalizer {
       'RelayResponseNormalizer(): Undefined variable `%s`.',
       name,
     );
-    // $FlowFixMe[cannot-write]
     return this._variables[name];
   }
 
@@ -506,7 +505,11 @@ class RelayResponseNormalizer {
           this._validateConflictingFieldsWithIdenticalId(
             record,
             storageKey,
-            fieldValue,
+            // When using `treatMissingFieldsAsNull` the conflicting validation raises a false positive
+            // because the value is set using `null` but validated using `fieldValue` which at this point
+            // will be `undefined`.
+            // Setting this to `null` matches the value that we actually set to the `fieldValue`.
+            null,
           );
         }
       }
@@ -763,7 +766,8 @@ class RelayResponseNormalizer {
       reactFlightClientResponse,
     );
 
-    const reachableExecutableDefinitions: Array<ReactFlightReachableExecutableDefinitions> = [];
+    const reachableExecutableDefinitions: Array<ReactFlightReachableExecutableDefinitions> =
+      [];
     for (const query of reactFlightPayload.queries) {
       if (query.response.data != null) {
         this._followupPayloads.push({

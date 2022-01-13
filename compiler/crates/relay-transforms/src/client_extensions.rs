@@ -1,18 +1,19 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
+use super::CLIENT_EDGE_METADATA_KEY;
 use crate::util::PointerAddress;
-use common::WithLocation;
+use common::{NamedItem, WithLocation};
 use fnv::FnvHashMap;
 use graphql_ir::{
     Directive, InlineFragment, LinkedField, Program, ScalarField, Selection, Transformed,
     TransformedValue, Transformer,
 };
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey};
 use lazy_static::lazy_static;
 use schema::Schema;
 use std::sync::Arc;
@@ -132,6 +133,20 @@ impl Transformer for ClientExtensionsTransform<'_> {
     }
 
     fn transform_inline_fragment(&mut self, fragment: &InlineFragment) -> Transformed<Selection> {
+        // Client Edges are modeled in the IR as inline fragments. If we
+        // traverse into those fragements, and pull its contents out into a
+        // separate inline fragment (without this directive) we will have lost
+        // the fact that these selections belong to the client edge.
+        //
+        // Client edges are all explicitly handled for each artifact type, so we
+        // don't need to handle them specifically as client schema extensions.
+        if fragment
+            .directives
+            .named(*CLIENT_EDGE_METADATA_KEY)
+            .is_some()
+        {
+            return Transformed::Keep;
+        }
         if let Some(type_condition) = fragment.type_condition {
             if self.program.schema.is_extension_type(type_condition) {
                 return Transformed::Delete;

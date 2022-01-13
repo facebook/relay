@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<5791a981e717513596d2ce7d9790bbf8>>
+ * @generated SignedSource<<ebde100041e60b63b097b962208d6fee>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,18 +15,18 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayReaderTestReadScalarProfile$ref: FragmentReference;
-declare export opaque type RelayReaderTestReadScalarProfile$fragmentType: RelayReaderTestReadScalarProfile$ref;
-export type RelayReaderTestReadScalarProfile = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayReaderTestReadScalarProfile$fragmentType: FragmentType;
+export type RelayReaderTestReadScalarProfile$ref = RelayReaderTestReadScalarProfile$fragmentType;
+export type RelayReaderTestReadScalarProfile$data = {|
   +id: string,
-  +$refType: RelayReaderTestReadScalarProfile$ref,
+  +$fragmentType: RelayReaderTestReadScalarProfile$fragmentType,
 |};
-export type RelayReaderTestReadScalarProfile$data = RelayReaderTestReadScalarProfile;
+export type RelayReaderTestReadScalarProfile = RelayReaderTestReadScalarProfile$data;
 export type RelayReaderTestReadScalarProfile$key = {
   +$data?: RelayReaderTestReadScalarProfile$data,
-  +$fragmentRefs: RelayReaderTestReadScalarProfile$ref,
+  +$fragmentSpreads: RelayReaderTestReadScalarProfile$fragmentType,
   ...
 };
 */
@@ -53,4 +53,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "568b33ad407adb1c329bfcaf3c152667";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayReaderTestReadScalarProfile$fragmentType,
+  RelayReaderTestReadScalarProfile$data,
+>*/);

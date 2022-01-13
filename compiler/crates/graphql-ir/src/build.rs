@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -7,16 +7,18 @@
 
 use crate::errors::{ValidationMessage, ValidationMessageWithData};
 use crate::ir::*;
-use crate::signatures::{build_signatures, FragmentSignature, FragmentSignatures};
+use crate::signatures::{
+    build_signatures, FragmentSignature, FragmentSignatures, ProvidedVariableMetadata,
+};
 use crate::{constants::ARGUMENT_DEFINITION, GraphQLSuggestions};
-use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, Span, WithLocation};
+use common::{
+    Diagnostic, DiagnosticsResult, FeatureFlag, FeatureFlags, Location, NamedItem, Span,
+    WithLocation,
+};
 use core::cmp::Ordering;
 use errors::{par_try_map, try2, try3, try_map};
-use fnv::{FnvBuildHasher, FnvHashMap, FnvHashSet};
 use graphql_syntax::{DirectiveLocation, Identifier, List, OperationKind, Token, TokenKind};
-use indexmap::IndexMap;
-use interner::Intern;
-use interner::StringKey;
+use intern::string_key::{Intern, StringKey, StringKeyIndexMap, StringKeyMap, StringKeySet};
 use lazy_static::lazy_static;
 use schema::{
     ArgumentDefinitions, Enum, FieldID, InputObject, SDLSchema, Scalar, Schema, Type, TypeReference,
@@ -49,8 +51,11 @@ pub enum FragmentVariablesSemantic {
     PassedValue,
 }
 
-#[derive(Clone, Copy)]
-pub struct BuilderOptions {
+pub struct RelayMode<'a> {
+    pub enable_provided_variables: &'a FeatureFlag,
+}
+
+pub struct BuilderOptions<'a> {
     /// Do not error when a fragment spread references a fragment that is not
     /// defined in the same program.
     pub allow_undefined_fragment_spreads: bool,
@@ -61,7 +66,8 @@ pub struct BuilderOptions {
     /// Enable a Relay special cases:
     /// - Fields with a @match directive are not required to pass the non-nullable
     ///   `supported` argument.
-    pub relay_mode: bool,
+    /// - use provided variable
+    pub relay_mode: Option<RelayMode<'a>>,
 
     /// By default Relay doesn't allow the use of anonymous operations,
     /// but operations without name are valid, and can be executed on a server.
@@ -72,25 +78,37 @@ pub struct BuilderOptions {
 /// Converts a self-contained corpus of definitions into typed IR, or returns
 /// a list of errors if the corpus is invalid.
 /// NOTE: Uses Relay defaults.
-pub fn build_ir_with_relay_options(
+pub fn build_ir_with_relay_feature_flags(
+    schema: &SDLSchema,
+    definitions: &[graphql_syntax::ExecutableDefinition],
+    feature_flags: &FeatureFlags,
+) -> DiagnosticsResult<Vec<ExecutableDefinition>> {
+    let builder_options = BuilderOptions {
+        allow_undefined_fragment_spreads: false,
+        fragment_variables_semantic: FragmentVariablesSemantic::PassedValue,
+        relay_mode: Some(RelayMode {
+            enable_provided_variables: &feature_flags.enable_provided_variables,
+        }),
+        default_anonymous_operation_name: None,
+    };
+
+    build_ir_with_extra_features(schema, definitions, &builder_options)
+}
+
+pub fn build_ir(
     schema: &SDLSchema,
     definitions: &[graphql_syntax::ExecutableDefinition],
 ) -> DiagnosticsResult<Vec<ExecutableDefinition>> {
-    let signatures = build_signatures(schema, &definitions)?;
-    par_try_map(definitions, |definition| {
-        let mut builder = Builder::new(
-            schema,
-            &signatures,
-            definition.location(),
-            BuilderOptions {
-                allow_undefined_fragment_spreads: false,
-                fragment_variables_semantic: FragmentVariablesSemantic::PassedValue,
-                relay_mode: true,
-                default_anonymous_operation_name: None,
-            },
-        );
-        builder.build_definition(definition)
-    })
+    build_ir_with_extra_features(
+        schema,
+        definitions,
+        &BuilderOptions {
+            allow_undefined_fragment_spreads: false,
+            fragment_variables_semantic: FragmentVariablesSemantic::PassedValue,
+            relay_mode: None,
+            default_anonymous_operation_name: None,
+        },
+    )
 }
 
 /// Converts a self-contained corpus of definitions into typed IR, or returns
@@ -99,9 +117,13 @@ pub fn build_ir_with_relay_options(
 pub fn build_ir_with_extra_features(
     schema: &SDLSchema,
     definitions: &[graphql_syntax::ExecutableDefinition],
-    options: BuilderOptions,
+    options: &BuilderOptions<'_>,
 ) -> DiagnosticsResult<Vec<ExecutableDefinition>> {
-    let signatures = build_signatures(schema, &definitions)?;
+    let enable_provided_variables = match &options.relay_mode {
+        Some(options) => options.enable_provided_variables,
+        None => &FeatureFlag::Disabled,
+    };
+    let signatures = build_signatures(schema, definitions, enable_provided_variables)?;
     par_try_map(definitions, |definition| {
         let mut builder = Builder::new(schema, &signatures, definition.location(), options);
         builder.build_definition(definition)
@@ -118,10 +140,10 @@ pub fn build_type_annotation(
         schema,
         &signatures,
         location,
-        BuilderOptions {
+        &BuilderOptions {
             allow_undefined_fragment_spreads: false,
             fragment_variables_semantic: FragmentVariablesSemantic::Disabled,
-            relay_mode: false,
+            relay_mode: None,
             default_anonymous_operation_name: None,
         },
     );
@@ -139,10 +161,10 @@ pub fn build_directive(
         schema,
         &signatures,
         location,
-        BuilderOptions {
+        &BuilderOptions {
             allow_undefined_fragment_spreads: false,
             fragment_variables_semantic: FragmentVariablesSemantic::Disabled,
-            relay_mode: false,
+            relay_mode: None,
             default_anonymous_operation_name: None,
         },
     );
@@ -161,10 +183,10 @@ pub fn build_constant_value(
         schema,
         &signatures,
         location,
-        BuilderOptions {
+        &BuilderOptions {
             allow_undefined_fragment_spreads: false,
             fragment_variables_semantic: FragmentVariablesSemantic::Disabled,
-            relay_mode: false,
+            relay_mode: None,
             default_anonymous_operation_name: None,
         },
     );
@@ -181,10 +203,10 @@ pub fn build_variable_definitions(
         schema,
         &signatures,
         location,
-        BuilderOptions {
+        &BuilderOptions {
             allow_undefined_fragment_spreads: false,
             fragment_variables_semantic: FragmentVariablesSemantic::Disabled,
-            relay_mode: false,
+            relay_mode: None,
             default_anonymous_operation_name: None,
         },
     );
@@ -193,8 +215,8 @@ pub fn build_variable_definitions(
 
 // Helper Types
 
-type VariableDefinitions = FnvHashMap<StringKey, VariableDefinition>;
-type UsedVariables = IndexMap<StringKey, VariableUsage, FnvBuildHasher>;
+type VariableDefinitions = StringKeyMap<VariableDefinition>;
+type UsedVariables = StringKeyIndexMap<VariableUsage>;
 
 #[derive(Debug)]
 struct VariableUsage {
@@ -202,22 +224,22 @@ struct VariableUsage {
     type_: TypeReference,
 }
 
-struct Builder<'schema, 'signatures> {
+struct Builder<'schema, 'signatures, 'options> {
     schema: &'schema SDLSchema,
     signatures: &'signatures FragmentSignatures,
     location: Location,
     defined_variables: VariableDefinitions,
     used_variables: UsedVariables,
-    options: BuilderOptions,
+    options: &'options BuilderOptions<'options>,
     suggestions: GraphQLSuggestions<'schema>,
 }
 
-impl<'schema, 'signatures> Builder<'schema, 'signatures> {
+impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
     pub fn new(
         schema: &'schema SDLSchema,
         signatures: &'signatures FragmentSignatures,
         location: Location,
-        options: BuilderOptions,
+        options: &'options BuilderOptions<'options>,
     ) -> Self {
         Self {
             schema,
@@ -399,7 +421,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         definitions: &[graphql_syntax::VariableDefinition],
     ) -> DiagnosticsResult<Vec<VariableDefinition>> {
         // check for duplicate variables
-        let mut seen_variables: FnvHashMap<StringKey, Span> = FnvHashMap::default();
+        let mut seen_variables = StringKeyMap::default();
         for variable in definitions {
             if let Some(other_variable_span) = seen_variables.get(&variable.name.name) {
                 return Err(vec![
@@ -527,7 +549,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
             // Now, let's look into selection directives, and split them into two
             // categories: conditions and other directives
             let (conditions, directives) =
-                split_conditions_and_directives(&next_selection.directives());
+                split_conditions_and_directives(next_selection.directives());
 
             // If conditions are empty -> return the original selection
             if conditions.is_empty() {
@@ -572,8 +594,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         let mut has_invalid_arg = false;
         let mut errors = Vec::new();
         for variable_definition in &signature.variable_definitions {
-            if variable_definition.type_.is_non_null()
-                && variable_definition.default_value.is_none()
+            if variable_definition_requires_argument(variable_definition)
                 && arg_list
                     .items
                     .named(variable_definition.name.item)
@@ -661,7 +682,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         let signature = match self.signatures.get(&spread.name.value) {
             Some(fragment) => fragment,
             None if self.options.allow_undefined_fragment_spreads => {
-                let directives = if self.options.relay_mode {
+                let directives = if self.options.relay_mode.is_some() {
                     self.build_directives(
                         spread.directives.iter().filter(|directive| {
                             directive.name.value != *DIRECTIVE_ARGUMENTS
@@ -743,14 +764,13 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
             } else {
                 ValidationLevel::Strict
             };
-            self.build_fragment_spread_arguments(&signature, &arg_list, validation_level)
+            self.build_fragment_spread_arguments(signature, arg_list, validation_level)
         } else {
             let errors: Vec<_> = signature
                 .variable_definitions
                 .iter()
                 .filter(|variable_definition| {
-                    variable_definition.type_.is_non_null()
-                        && variable_definition.default_value.is_none()
+                    variable_definition_requires_argument(variable_definition)
                 })
                 .map(|variable_definition| {
                     Diagnostic::error(
@@ -894,7 +914,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
             )]);
         }
         let alias = self.build_alias(&field.alias);
-        let relay_supported_arg_optional = self.options.relay_mode;
+        let relay_supported_arg_optional = self.options.relay_mode.is_some();
         let arguments = self.build_arguments(
             field.name.span,
             &field.arguments,
@@ -928,7 +948,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         let field_name = field.name.value;
         if field_name == *TYPENAME_FIELD_NAME {
             return self.build_typename_field(field);
-        } else if self.options.relay_mode && field_name == *CLIENT_ID_FIELD_NAME {
+        } else if self.options.relay_mode.is_some() && field_name == *CLIENT_ID_FIELD_NAME {
             return self.build_clientid_field(field);
         } else if field_name == *FETCH_TOKEN_FIELD_NAME {
             return self.build_fetch_token_field(field);
@@ -1081,6 +1101,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         let missing_arg_names = argument_definitions
             .iter()
             .filter(|arg_def| arg_def.type_.is_non_null())
+            .filter(|arg_def| arg_def.default_value.is_none())
             .filter(|required_arg_def| {
                 arguments
                     .iter()
@@ -1341,7 +1362,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         // variables
         if let graphql_syntax::Value::Constant(constant) = value {
             return Ok(Value::Constant(self.build_constant_value(
-                &constant,
+                constant,
                 type_,
                 ValidationLevel::Strict,
             )?));
@@ -1409,13 +1430,13 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
                 )]);
             }
         };
-        let mut seen_fields: FnvHashMap<StringKey, Span> = FnvHashMap::default();
-        let mut required_fields: FnvHashSet<StringKey> = type_definition
+        let mut seen_fields = StringKeyMap::default();
+        let mut required_fields = type_definition
             .fields
             .iter()
             .filter(|x| x.type_.is_non_null())
             .map(|x| x.name)
-            .collect();
+            .collect::<StringKeySet>();
 
         let fields: DiagnosticsResult<Vec<Argument>> = object
             .items
@@ -1545,13 +1566,13 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
                 )]);
             }
         };
-        let mut seen_fields: FnvHashMap<StringKey, Span> = FnvHashMap::default();
-        let mut required_fields: FnvHashSet<StringKey> = type_definition
+        let mut seen_fields = StringKeyMap::default();
+        let mut required_fields = type_definition
             .fields
             .iter()
             .filter(|x| x.type_.is_non_null())
             .map(|x| x.name)
-            .collect();
+            .collect::<StringKeySet>();
 
         let fields: DiagnosticsResult<Vec<ConstantArgument>> = object
             .items
@@ -1809,4 +1830,13 @@ fn wrap_selection_with_condition(selection: &Selection, condition: &Directive) -
         passing_value: condition.name.item.lookup() == "include",
         selections: vec![selection.clone()],
     }))
+}
+
+fn variable_definition_requires_argument(variable_definition: &VariableDefinition) -> bool {
+    variable_definition.type_.is_non_null()
+        && variable_definition.default_value.is_none()
+        && variable_definition
+            .directives
+            .named(ProvidedVariableMetadata::directive_name())
+            .is_none()
 }

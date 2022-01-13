@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -18,7 +18,7 @@ use graphql_ir::{
     Selection, Transformed, TransformedValue,
 };
 use schema::SDLSchema;
-use std::{iter::Iterator, sync::Arc};
+use std::sync::Arc;
 
 /**
  * A transform that removes redundant fields and fragment spreads. Redundancy is
@@ -398,16 +398,16 @@ impl<'s> SkipRedundantNodesTransform {
 
     fn transform_program(&self, program: &Program) -> TransformedValue<Program> {
         let operations: Vec<Arc<OperationDefinition>> = par_iter(&program.operations)
-            .filter_map(|operation| match self.transform_operation(&operation) {
+            .filter_map(|operation| match self.transform_operation(operation) {
                 Transformed::Delete => None,
-                Transformed::Keep => Some(Arc::clone(&operation)),
+                Transformed::Keep => Some(Arc::clone(operation)),
                 Transformed::Replace(replacement) => Some(Arc::new(replacement)),
             })
             .collect();
         let fragments: Vec<Arc<FragmentDefinition>> = par_iter(&program.fragments)
-            .filter_map(|(_, fragment)| match self.transform_fragment(&fragment) {
+            .filter_map(|(_, fragment)| match self.transform_fragment(fragment) {
                 Transformed::Delete => None,
-                Transformed::Keep => Some(Arc::clone(&fragment)),
+                Transformed::Keep => Some(Arc::clone(fragment)),
                 Transformed::Replace(replacement) => Some(Arc::new(replacement)),
             })
             .collect();

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,10 +13,12 @@ use crate::file_source::{
     FileGroup, FileSourceResult, SourceControlUpdateStatus,
 };
 use common::{PerfLogEvent, PerfLogger, SourceLocationKey};
-use fnv::{FnvHashMap, FnvHashSet};
+use dashmap::DashSet;
+use fnv::{FnvBuildHasher, FnvHashMap, FnvHashSet};
 use graphql_syntax::GraphQLSource;
-use interner::StringKey;
+use intern::string_key::StringKey;
 use rayon::prelude::*;
+use relay_config::SchemaConfig;
 use relay_transforms::DependencyMap;
 use schema::SDLSchema;
 use schema_diff::{definitions::SchemaChange, detect_changes};
@@ -206,10 +208,10 @@ pub struct CompilerState {
     // TODO: How can I can I make this just an ImplicitDependencyMap? Currently I can't move the hashmap out of the Arc wrapper around the dirty version.
     pub implicit_dependencies: Arc<RwLock<DependencyMap>>,
     #[serde(with = "clock_json_string")]
-    pub clock: Clock,
+    pub clock: Option<Clock>,
     pub saved_state_version: String,
     #[serde(skip)]
-    pub dirty_artifact_paths: FnvHashMap<ProjectName, FnvHashSet<PathBuf>>,
+    pub dirty_artifact_paths: FnvHashMap<ProjectName, DashSet<PathBuf, FnvBuildHasher>>,
     #[serde(skip)]
     pub pending_implicit_dependencies: Arc<RwLock<DependencyMap>>,
     #[serde(skip)]
@@ -256,7 +258,7 @@ impl CompilerState {
                         .par_iter()
                         .filter(|file| file.exists)
                         .filter_map(|file| {
-                            match extract_graphql_strings_from_file(&file_source_changes, &file) {
+                            match extract_graphql_strings_from_file(file_source_changes, file) {
                                 Ok(graphql_strings) if graphql_strings.is_empty() => None,
                                 Ok(graphql_strings) => {
                                     Some(Ok((file.name.clone(), graphql_strings)))
@@ -340,7 +342,7 @@ impl CompilerState {
                 .any(|sources| !sources.processed.is_empty())
     }
 
-    fn is_change_safe(&self, sources: &SchemaSources) -> bool {
+    fn is_change_safe(&self, sources: &SchemaSources, schema_config: &SchemaConfig) -> bool {
         let previous = sources
             .get_old_sources()
             .into_iter()
@@ -362,7 +364,7 @@ impl CompilerState {
                 &current,
                 &Vec::<(&str, SourceLocationKey)>::new(),
             ) {
-                Ok(schema) => schema_change.is_safe(&schema),
+                Ok(schema) => schema_change.is_safe(&schema, schema_config),
                 Err(_) => false,
             }
         }
@@ -380,14 +382,18 @@ impl CompilerState {
     }
 
     /// This method is looking at the pending schema changes to see if they may be breaking (removed types, renamed field, etc)
-    pub fn has_breaking_schema_change(&self, project_name: StringKey) -> bool {
+    pub fn has_breaking_schema_change(
+        &self,
+        project_name: StringKey,
+        schema_config: &SchemaConfig,
+    ) -> bool {
         if let Some(extension) = self.extensions.get(&project_name) {
             if !extension.pending.is_empty() {
                 return true;
             }
         }
         if let Some(schema) = self.schemas.get(&project_name) {
-            if !(schema.pending.is_empty() || self.is_change_safe(schema)) {
+            if !(schema.pending.is_empty() || self.is_change_safe(schema, schema_config)) {
                 return true;
             }
         }
@@ -426,7 +432,7 @@ impl CompilerState {
                             .par_iter()
                             .map(|file| {
                                 let graphql_strings = if file.exists {
-                                    extract_graphql_strings_from_file(&file_source_changes, &file)?
+                                    extract_graphql_strings_from_file(&file_source_changes, file)?
                                 } else {
                                     Vec::new()
                                 };
@@ -471,8 +477,10 @@ impl CompilerState {
                     }
                     FileGroup::Generated { project_name } => {
                         if should_collect_changed_artifacts {
-                            self.dirty_artifact_paths
-                                .insert(project_name, files.into_iter().map(|f| f.name).collect());
+                            let mut dashset =
+                                DashSet::with_capacity_and_hasher(files.len(), Default::default());
+                            dashset.extend(files.into_iter().map(|f| f.name));
+                            self.dirty_artifact_paths.insert(project_name, dashset);
                         }
                     }
                 }
@@ -519,17 +527,18 @@ impl CompilerState {
         let mut result = FnvHashMap::default();
         for (project_name, paths) in self.dirty_artifact_paths.iter() {
             if config.projects[project_name].enabled {
-                let mut paths = paths.clone();
+                let paths = paths.clone();
                 let artifacts = self
                     .artifacts
-                    .get(&project_name)
+                    .get(project_name)
                     .expect("Expected the artifacts map to exist.");
                 if let ArtifactMapKind::Mapping(artifacts) = &**artifacts {
                     let mut dirty_definitions = vec![];
-                    'outer: for (definition_name, artifact_records) in artifacts.0.iter() {
+                    'outer: for entry in artifacts.0.iter() {
+                        let (definition_name, artifact_records) = entry.pair();
                         let mut added = false;
                         for artifact_record in artifact_records {
-                            if paths.remove(&artifact_record.path) && !added {
+                            if paths.remove(&artifact_record.path).is_some() && !added {
                                 dirty_definitions.push(*definition_name);
                                 if paths.is_empty() {
                                     break 'outer;
@@ -614,7 +623,7 @@ impl CompilerState {
         for file in files {
             let file_name = file.name.clone();
             if file.exists {
-                added_sources.insert(file_name, read_file_to_string(&file_source_changes, &file)?);
+                added_sources.insert(file_name, read_file_to_string(file_source_changes, &file)?);
             } else {
                 removed_sources.push(file_name);
             }
@@ -658,7 +667,7 @@ mod clock_json_string {
         Deserializer, Serializer,
     };
 
-    pub fn serialize<S>(clock: &Clock, serializer: S) -> Result<S::Ok, S::Error>
+    pub fn serialize<S>(clock: &Option<Clock>, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer,
     {
@@ -666,7 +675,7 @@ mod clock_json_string {
         serializer.serialize_str(&json_string)
     }
 
-    pub fn deserialize<'de, D>(deserializer: D) -> Result<Clock, D::Error>
+    pub fn deserialize<'de, D>(deserializer: D) -> Result<Option<Clock>, D::Error>
     where
         D: Deserializer<'de>,
     {
@@ -675,13 +684,13 @@ mod clock_json_string {
 
     struct JSONStringVisitor;
     impl<'de> Visitor<'de> for JSONStringVisitor {
-        type Value = Clock;
+        type Value = Option<Clock>;
 
         fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
             formatter.write_str("a JSON encoded watchman::Clock value")
         }
 
-        fn visit_str<E: Error>(self, v: &str) -> Result<Clock, E> {
+        fn visit_str<E: Error>(self, v: &str) -> Result<Option<Clock>, E> {
             Ok(serde_json::from_str(v).unwrap())
         }
     }

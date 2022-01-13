@@ -1,18 +1,17 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
 use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, WithLocation};
-use fnv::{FnvHashMap, FnvHashSet};
 use graphql_ir::{
     associated_data_impl, Argument, ConstantValue, Directive, FragmentDefinition, FragmentSpread,
     OperationDefinition, Program, ScalarField, Selection, Transformed, Transformer,
     ValidationMessage, Value,
 };
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey, StringKeyMap, StringKeySet};
 use itertools::Itertools;
 use lazy_static::lazy_static;
 use schema::{Field, FieldID, Schema, Type};
@@ -67,16 +66,16 @@ struct ReactFlightTransform<'s> {
     props_type: Type,
     // server components encountered as a dependency of the visited operation/fragment
     // NOTE: this is operation/fragment-specific
-    local_components: FnvHashSet<StringKey>,
-    transitive_components: FnvHashSet<StringKey>,
-    fragments: FnvHashMap<StringKey, FragmentResult>,
+    local_components: StringKeySet,
+    transitive_components: StringKeySet,
+    fragments: StringKeyMap<FragmentResult>,
 }
 
 enum FragmentResult {
     Pending,
     Resolved {
         fragment: Transformed<FragmentDefinition>,
-        transitive_components: FnvHashSet<StringKey>,
+        transitive_components: StringKeySet,
     },
 }
 
@@ -162,7 +161,7 @@ impl<'s> ReactFlightTransform<'s> {
             None => {
                 self.errors.push(Diagnostic::error(
                     ValidationMessage::InvalidFlightFieldNotDefinedOnType {
-                        field_name: field_definition.name,
+                        field_name: field_definition.name.item,
                     },
                     location,
                 ));
@@ -339,6 +338,8 @@ impl<'s> Transformer for ReactFlightTransform<'s> {
         // then make the parent's sets active again
         std::mem::swap(&mut self.local_components, &mut local_components);
         std::mem::swap(&mut self.transitive_components, &mut transitive_components);
+
+        transitive_components.extend(local_components);
         self.fragments.insert(
             spread.fragment.item,
             FragmentResult::Resolved {
@@ -375,9 +376,7 @@ impl<'s> Transformer for ReactFlightTransform<'s> {
 
         // Rewrite into a call to the `flight` field, passing the original arguments
         // as values of the `props` argument:
-        let alias = field
-            .alias
-            .unwrap_or_else(|| WithLocation::generated(field_definition.name));
+        let alias = field.alias.unwrap_or(field_definition.name);
         let mut directives = Vec::with_capacity(field.directives.len() + 1);
         directives.extend(field.directives.iter().cloned());
         directives.push(Directive {

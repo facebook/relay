@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -18,6 +18,7 @@ import type {
   NormalizationOperation,
 } from '../util/NormalizationNode';
 import type {ReaderFragment} from '../util/ReaderNode';
+import type {RequestParameters} from '../util/RelayConcreteNode';
 import type {Variables} from '../util/RelayRuntimeTypes';
 
 const {getArgumentValues} = require('./RelayStoreUtils');
@@ -40,7 +41,6 @@ function getFragmentVariables(
     if (argumentVariables.hasOwnProperty(definition.name)) {
       return;
     }
-    // $FlowFixMe[cannot-spread-interface]
     variables = variables || {...argumentVariables};
     switch (definition.kind) {
       case 'LocalArgument':
@@ -57,12 +57,9 @@ function getFragmentVariables(
            * RelayStoreUtils.getStableVariableValue() that variable keys are all
            * present.
            */
-          // $FlowFixMe[incompatible-use]
           variables[definition.name] = undefined;
           break;
         }
-        // $FlowFixMe[incompatible-use]
-        // $FlowFixMe[cannot-write]
         variables[definition.name] = rootVariables[definition.name];
         break;
       default:
@@ -80,23 +77,32 @@ function getFragmentVariables(
 
 /**
  * Determines the variables that are in scope for a given operation given values
- * for some/all of its arguments. Extraneous input variables are filtered from
- * the output, and missing variables are set to default values (if given in the
+ * for some/all of its arguments.
+ * - extraneous input variables are filtered from the output
+ * - missing variables are set to default values (if given in the
  * operation's definition).
+ * - variables with provider modules are added
  */
 function getOperationVariables(
   operation: NormalizationOperation,
+  parameters: RequestParameters,
   variables: Variables,
 ): Variables {
   const operationVariables = {};
   operation.argumentDefinitions.forEach(def => {
     let value = def.defaultValue;
-    // $FlowFixMe[cannot-write]
     if (variables[def.name] != null) {
       value = variables[def.name];
     }
     operationVariables[def.name] = value;
   });
+
+  const providedVariables = parameters.providedVariables;
+  if (providedVariables != null) {
+    Object.keys(providedVariables).forEach((varName: string) => {
+      operationVariables[varName] = providedVariables[varName].get();
+    });
+  }
   return operationVariables;
 }
 

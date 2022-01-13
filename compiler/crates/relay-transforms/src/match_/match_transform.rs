@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -7,14 +7,14 @@
 
 use crate::{
     defer_stream::DEFER_STREAM_CONSTANTS,
-    feature_flags::FeatureFlags,
     inline_data_fragment::INLINE_DIRECTIVE_NAME,
     match_::MATCH_CONSTANTS,
     no_inline::{attach_no_inline_directives_to_fragments, validate_required_no_inline_directive},
     util::get_normalization_operation_name,
-    FeatureFlag,
 };
-use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, WithLocation};
+use common::{
+    Diagnostic, DiagnosticsResult, FeatureFlag, FeatureFlags, Location, NamedItem, WithLocation,
+};
 use fnv::{FnvBuildHasher, FnvHashMap};
 use graphql_ir::{
     associated_data_impl, Argument, ConstantValue, Directive, Field, FragmentDefinition,
@@ -22,7 +22,7 @@ use graphql_ir::{
     Selection, Transformed, TransformedValue, Transformer, ValidationMessage, Value,
 };
 use indexmap::IndexSet;
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey, StringKeyMap};
 use schema::{FieldID, ScalarID, Schema, Type, TypeReference};
 use std::{
     hash::{Hash, Hasher},
@@ -80,7 +80,7 @@ pub struct MatchTransform<'program, 'flag> {
     enable_3d_branch_arg_generation: bool,
     no_inline_flag: &'flag FeatureFlag,
     // Stores the fragments that should use @no_inline and their parent document name
-    no_inline_fragments: FnvHashMap<StringKey, Vec<StringKey>>,
+    no_inline_fragments: StringKeyMap<Vec<StringKey>>,
 }
 
 impl<'program, 'flag> MatchTransform<'program, 'flag> {
@@ -164,7 +164,7 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
                 let object = self.program.schema.object(id);
                 let js_field_id = object.fields.iter().find(|field_id| {
                     let field = self.program.schema.field(**field_id);
-                    field.name == MATCH_CONSTANTS.js_field_name
+                    field.name.item == MATCH_CONSTANTS.js_field_name
                 });
                 if let Some(js_field_id) = js_field_id {
                     let js_field_id = *js_field_id;
@@ -488,7 +488,7 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
             if should_use_no_inline {
                 self.no_inline_fragments
                     .entry(fragment.name.item)
-                    .or_insert_with(|| vec![])
+                    .or_insert_with(std::vec::Vec::new)
                     .push(self.document_name);
             }
             Ok(Transformed::Replace(Selection::InlineFragment(Arc::new(
@@ -592,7 +592,7 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
                 if !is_supported_string {
                     return Err(Diagnostic::error(
                         ValidationMessage::InvalidMatchNotOnNonNullListString {
-                            field_name: field_definition.name,
+                            field_name: field_definition.name.item,
                         },
                         field.definition.location,
                     ));
@@ -604,7 +604,7 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
         if !field_definition.type_.inner().is_abstract_type() {
             return Err(Diagnostic::error(
                 ValidationMessage::InvalidMatchNotOnUnionOrInterface {
-                    field_name: field_definition.name,
+                    field_name: field_definition.name.item,
                 },
                 field.definition.location,
             ));
@@ -765,7 +765,7 @@ impl Transformer for MatchTransform<'_, '_> {
     // Validate `js` field
     fn transform_scalar_field(&mut self, field: &ScalarField) -> Transformed<Selection> {
         let field_definition = self.program.schema.field(field.definition.item);
-        if field_definition.name == MATCH_CONSTANTS.js_field_name {
+        if field_definition.name.item == MATCH_CONSTANTS.js_field_name {
             match self.program.schema.get_type(MATCH_CONSTANTS.js_field_type) {
                 None => self.errors.push(Diagnostic::error(
                     ValidationMessage::MissingServerSchemaDefinition {

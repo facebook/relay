@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -114,7 +114,7 @@ describe('ReactRelayRefetchContainer with fragment ownerhsip', () => {
     `;
     UserFragment = graphql`
       fragment ReactRelayRefetchContainerWithFragmentOwnershipTestUserFragment on User
-        @argumentDefinitions(cond: {type: "Boolean!", defaultValue: true}) {
+      @argumentDefinitions(cond: {type: "Boolean!", defaultValue: true}) {
         id
         name @include(if: $cond)
         profile_picture(scale: $scale) {
@@ -126,7 +126,7 @@ describe('ReactRelayRefetchContainer with fragment ownerhsip', () => {
     `;
     UserFriendFragment = graphql`
       fragment ReactRelayRefetchContainerWithFragmentOwnershipTestUserFriendFragment on User
-        @argumentDefinitions(cond: {type: "Boolean!", defaultValue: true}) {
+      @argumentDefinitions(cond: {type: "Boolean!", defaultValue: true}) {
         id
         username @include(if: $cond)
       }
@@ -168,13 +168,11 @@ describe('ReactRelayRefetchContainer with fragment ownerhsip', () => {
   });
 
   describe('refetch()', () => {
-    let instance;
-
     beforeEach(() => {
       const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1)
         .data.node;
       environment.mock.clearCache();
-      instance = ReactTestRenderer.create(
+      ReactTestRenderer.create(
         <ContextSetter environment={environment}>
           <TestContainer user={userPointer} />
         </ContextSetter>,
@@ -220,9 +218,10 @@ describe('ReactRelayRefetchContainer with fragment ownerhsip', () => {
         },
         __id: '4',
         __fragments: {
-          ReactRelayRefetchContainerWithFragmentOwnershipTestUserFriendFragment: {
-            cond: true,
-          },
+          ReactRelayRefetchContainerWithFragmentOwnershipTestUserFriendFragment:
+            {
+              cond: true,
+            },
         },
         __fragmentOwner: ownerUser1.request,
         __isWithinUnmatchedTypeRefinement: false,
@@ -272,9 +271,10 @@ describe('ReactRelayRefetchContainer with fragment ownerhsip', () => {
         },
         __id: '4',
         __fragments: {
-          ReactRelayRefetchContainerWithFragmentOwnershipTestUserFriendFragment: {
-            cond: false,
-          },
+          ReactRelayRefetchContainerWithFragmentOwnershipTestUserFriendFragment:
+            {
+              cond: false,
+            },
         },
         __fragmentOwner: expectedOwner.request,
         __isWithinUnmatchedTypeRefinement: false,
@@ -298,9 +298,10 @@ describe('ReactRelayRefetchContainer with fragment ownerhsip', () => {
         },
         __id: '4',
         __fragments: {
-          ReactRelayRefetchContainerWithFragmentOwnershipTestUserFriendFragment: {
-            cond: true,
-          },
+          ReactRelayRefetchContainerWithFragmentOwnershipTestUserFriendFragment:
+            {
+              cond: true,
+            },
         },
         __fragmentOwner: ownerUser1.request,
         __isWithinUnmatchedTypeRefinement: false,
@@ -356,9 +357,10 @@ describe('ReactRelayRefetchContainer with fragment ownerhsip', () => {
         },
         __id: '4',
         __fragments: {
-          ReactRelayRefetchContainerWithFragmentOwnershipTestUserFriendFragment: {
-            cond: false,
-          },
+          ReactRelayRefetchContainerWithFragmentOwnershipTestUserFriendFragment:
+            {
+              cond: false,
+            },
         },
         __fragmentOwner: expectedOwner.request,
         __isWithinUnmatchedTypeRefinement: false,
@@ -385,7 +387,7 @@ describe('ReactRelayRefetchContainer with fragment ownerhsip', () => {
       const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1)
         .data.node;
       environment.mock.clearCache();
-      instance = ReactTestRenderer.create(
+      ReactTestRenderer.create(
         <ContextSetter environment={environment}>
           <TestContainer user={userPointer} />
         </ContextSetter>,

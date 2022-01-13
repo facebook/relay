@@ -1,0 +1,66 @@
+==================================== INPUT ====================================
+query RelayClientIDFieldQuery($global_id: ID!) {
+  __id # ok on query type
+  me {
+    __id # ok on object type with 'global_id'
+    __typename
+    global_id
+  }
+  node(global_id: $global_id) {
+    __id # ok on interface type
+    __typename
+    global_id
+    ... on Comment {
+      commentBody(supported: ["PlainCommentBody"]) {
+        __id # ok on union type
+        __typename
+        ... on PlainCommentBody {
+          __id # ok on object type w/o 'global_id'
+          text {
+            __id # ok on object type w/o 'global_id'
+            __typename
+            text
+          }
+        }
+      }
+    }
+  }
+}
+==================================== OUTPUT ===================================
+export type RelayClientIDFieldQuery$variables = {|
+  global_id: string,
+|};
+export type RelayClientIDFieldQuery$data = {|
+  +__id: string,
+  +me: ?{|
+    +__id: string,
+    +__typename: string,
+    +global_id: string,
+  |},
+  +node: ?({|
+    +__typename: "Comment",
+    +commentBody: ?({|
+      +__typename: "PlainCommentBody",
+      +__id: string,
+      +text: ?{|
+        +__id: string,
+        +__typename: string,
+        +text: ?string,
+      |},
+      +__id: string,
+    |} | {|
+      // This will never be '%other', but we need some
+      // value in case none of the concrete values match.
+      +__typename: "%other",
+      +__id: string,
+    |}),
+    +__id: string,
+    +global_id: string,
+  |} | {|
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    +__typename: "%other",
+    +__id: string,
+    +global_id: string,
+  |}),
+|};

@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<78caa6f60c13381fc9ce9865c0a184b1>>
+ * @generated SignedSource<<8a06ee1de645351993066cc8329e75ee>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,25 +15,27 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
+import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { ActorChangePoint } from "react-relay/multi-actor";
-type RelayModernEnvironmentCheckTestFragment$ref = any;
-export type RelayModernEnvironmentCheckTestQueryVariables = {||};
-export type RelayModernEnvironmentCheckTestQueryResponse = {|
+type RelayModernEnvironmentCheckTestFragment$fragmentType = any;
+export type RelayModernEnvironmentCheckTestQuery$variables = {||};
+export type RelayModernEnvironmentCheckTestQueryVariables = RelayModernEnvironmentCheckTestQuery$variables;
+export type RelayModernEnvironmentCheckTestQuery$data = {|
   +viewer: ?{|
     +newsFeed: ?{|
       +edges: ?$ReadOnlyArray<?{|
         +node: ?ActorChangePoint<{|
           +actor_key: string,
-          +$fragmentRefs: RelayModernEnvironmentCheckTestFragment$ref,
+          +$fragmentSpreads: RelayModernEnvironmentCheckTestFragment$fragmentType,
         |}>,
       |}>,
     |},
   |},
 |};
+export type RelayModernEnvironmentCheckTestQueryResponse = RelayModernEnvironmentCheckTestQuery$data;
 export type RelayModernEnvironmentCheckTestQuery = {|
   variables: RelayModernEnvironmentCheckTestQueryVariables,
-  response: RelayModernEnvironmentCheckTestQueryResponse,
+  response: RelayModernEnvironmentCheckTestQuery$data,
 |};
 */
 
@@ -205,4 +207,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "3167042d144edcf3764590d0c3bbc1e4";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentCheckTestQuery$variables,
+  RelayModernEnvironmentCheckTestQuery$data,
+>*/);

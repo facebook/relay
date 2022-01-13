@@ -1,10 +1,10 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<d47264b447039ead4427257b50a58684>>
+ * @generated SignedSource<<801382dabe42c5f872fa5ba9c6c69a6b>>
  */
 
 mod compile_relay_artifacts;
@@ -699,6 +699,20 @@ fn prepend_node() {
 }
 
 #[test]
+fn provided_variable_in_fragment() {
+    let input = include_str!("compile_relay_artifacts/fixtures/provided-variable-in-fragment.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/provided-variable-in-fragment.expected");
+    test_fixture(transform_fixture, "provided-variable-in-fragment.graphql", "compile_relay_artifacts/fixtures/provided-variable-in-fragment.expected", input, expected);
+}
+
+#[test]
+fn provided_variable_multiple_queries() {
+    let input = include_str!("compile_relay_artifacts/fixtures/provided-variable-multiple-queries.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/provided-variable-multiple-queries.expected");
+    test_fixture(transform_fixture, "provided-variable-multiple-queries.graphql", "compile_relay_artifacts/fixtures/provided-variable-multiple-queries.expected", input, expected);
+}
+
+#[test]
 fn query_with_and_without_module_directive() {
     let input = include_str!("compile_relay_artifacts/fixtures/query-with-and-without-module-directive.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/query-with-and-without-module-directive.expected");
@@ -899,6 +913,13 @@ fn relay_resolver_alias() {
     let input = include_str!("compile_relay_artifacts/fixtures/relay-resolver-alias.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/relay-resolver-alias.expected");
     test_fixture(transform_fixture, "relay-resolver-alias.graphql", "compile_relay_artifacts/fixtures/relay-resolver-alias.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_backing_client_edge() {
+    let input = include_str!("compile_relay_artifacts/fixtures/relay-resolver-backing-client-edge.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/relay-resolver-backing-client-edge.expected");
+    test_fixture(transform_fixture, "relay-resolver-backing-client-edge.graphql", "compile_relay_artifacts/fixtures/relay-resolver-backing-client-edge.expected", input, expected);
 }
 
 #[test]
@@ -1200,6 +1221,13 @@ fn sibling_client_selections() {
     let input = include_str!("compile_relay_artifacts/fixtures/sibling-client-selections.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/sibling-client-selections.expected");
     test_fixture(transform_fixture, "sibling-client-selections.graphql", "compile_relay_artifacts/fixtures/sibling-client-selections.expected", input, expected);
+}
+
+#[test]
+fn spread_of_assignable_fragment() {
+    let input = include_str!("compile_relay_artifacts/fixtures/spread-of-assignable-fragment.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/spread-of-assignable-fragment.expected");
+    test_fixture(transform_fixture, "spread-of-assignable-fragment.graphql", "compile_relay_artifacts/fixtures/spread-of-assignable-fragment.expected", input, expected);
 }
 
 #[test]

@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<fc6d56e45be656789575b52de431152a>>
+ * @generated SignedSource<<92f7f997665f64a1c4a2908078b5c60d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,11 +15,12 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestFeedback3QueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestFeedback3Query$variables = {|
   id: string,
 |};
-export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestFeedback3QueryResponse = {|
+export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestFeedback3QueryVariables = RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestFeedback3Query$variables;
+export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestFeedback3Query$data = {|
   +node: ?{|
     +comments: ?{|
       +__id: string,
@@ -32,9 +33,10 @@ export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestFeed
     |},
   |},
 |};
+export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestFeedback3QueryResponse = RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestFeedback3Query$data;
 export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestFeedback3Query = {|
   variables: RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestFeedback3QueryVariables,
-  response: RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestFeedback3QueryResponse,
+  response: RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestFeedback3Query$data,
 |};
 */
 
@@ -254,4 +256,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "78fd9497990ef3d977dfe89712d3101a";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestFeedback3Query$variables,
+  RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestFeedback3Query$data,
+>*/);

@@ -1,24 +1,24 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{Diagnostic, DiagnosticsResult, NamedItem};
-use graphql_ir::{
-    Field, FragmentDefinition, LinkedField, Program, ScalarField, Selection, Transformed,
-    Transformer, ValidationMessage,
-};
-
 use crate::{
     connections::ConnectionInterface,
     handle_fields::{build_handle_field_directive, HandleFieldDirectiveValues},
 };
-use interner::{Intern, StringKey};
+use common::{Diagnostic, DiagnosticsResult, NamedItem};
+use graphql_ir::{
+    Field, FragmentDefinition, LinkedField, Program, ScalarField, Selection, Transformed,
+    Transformer,
+};
+use intern::string_key::{Intern, StringKey};
 use lazy_static::lazy_static;
 use schema::{Schema, Type};
 use std::sync::Arc;
+use thiserror::Error;
 
 pub fn transform_declarative_connection(
     program: &Program,
@@ -117,11 +117,8 @@ impl<'s, 'c> Transformer for DeclarativeConnectionMutationTransform<'s, 'c> {
                             key: "".intern(),
                             dynamic_key: None,
                             filters: None,
-                            handle_args: if let Some(connections_arg) = connections_arg {
-                                Some(vec![connections_arg.clone()])
-                            } else {
-                                None
-                            },
+                            handle_args: connections_arg
+                                .map(|connections_arg| vec![connections_arg.clone()]),
                         });
                     let mut next_directives: Vec<_> = field
                         .directives
@@ -189,10 +186,11 @@ impl<'s, 'c> Transformer for DeclarativeConnectionMutationTransform<'s, 'c> {
                         if let Type::Object(id) = field_definition.type_.inner() {
                             let object = self.program.schema.object(id);
                             for field_id in &object.fields {
-                                let current_field = self.program.schema.field(*field_id);
-                                if current_field.name == self.connection_interface.cursor {
+                                let current_field_name =
+                                    self.program.schema.field(*field_id).name.item;
+                                if current_field_name == self.connection_interface.cursor {
                                     has_cursor_field = true;
-                                } else if current_field.name == self.connection_interface.node {
+                                } else if current_field_name == self.connection_interface.node {
                                     has_node_field = true;
                                 }
                             }
@@ -319,4 +317,65 @@ impl<'s, 'c> Transformer for DeclarativeConnectionMutationTransform<'s, 'c> {
             }
         }
     }
+}
+
+#[derive(Debug, Error)]
+enum ValidationMessage {
+    #[error(
+        "Unsupported use of @{directive_name} on field '${field_name}', 'edgeTypeName' argument must be provided."
+    )]
+    NodeDirectiveMissesRequiredEdgeTypeName {
+        directive_name: StringKey,
+        field_name: StringKey,
+    },
+
+    #[error("Invalid use of @{directive_name} on scalar field '{field_name}'.")]
+    ConnectionMutationDirectiveOnScalarField {
+        directive_name: StringKey,
+        field_name: StringKey,
+    },
+
+    #[error(
+        "Invalid use of @{directive_name} on field '{field_name}'. Expected field type 'ID', got '{current_type}'."
+    )]
+    DeleteRecordDirectiveOnUnsupportedType {
+        directive_name: StringKey,
+        field_name: StringKey,
+        current_type: String,
+    },
+
+    #[error("Invalid use of @{directive_name} on linked field '{field_name}'.")]
+    DeleteRecordDirectiveOnLinkedField {
+        directive_name: StringKey,
+        field_name: StringKey,
+    },
+
+    #[error(
+        "Invalid use of @{edge_directive_name} and @{node_directive_name} on field '{field_name}' - these directives cannot be used together."
+    )]
+    ConflictingEdgeAndNodeDirectives {
+        edge_directive_name: StringKey,
+        node_directive_name: StringKey,
+        field_name: StringKey,
+    },
+
+    #[error("Expected the 'connections' argument to be defined on @{directive_name}.")]
+    ConnectionsArgumentRequired { directive_name: StringKey },
+
+    #[error(
+        "Unsupported use of @{directive_name} on field '{field_name}', expected an edge field (a field with 'cursor' and 'node' selection)."
+    )]
+    EdgeDirectiveOnUnsupportedType {
+        directive_name: StringKey,
+        field_name: StringKey,
+    },
+
+    #[error(
+        "Unsupported use of @{directive_name} on field '{field_name}'. Expected an object, union or interface, but got '{current_type}'."
+    )]
+    NodeDirectiveOnUnsupportedType {
+        directive_name: StringKey,
+        field_name: StringKey,
+        current_type: String,
+    },
 }

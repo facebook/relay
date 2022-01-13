@@ -33,21 +33,41 @@ fragment BestFriendResolverFragment_name on User {
 fragment Foo_node on Node {
   ... on Story {
     author {
-      best_friend @__clientEdge(queryName: "ClientEdgeQuery_Foo_node_Story__author__best_friend") {
-        doesViewerLike
+      ... @__clientEdge(queryName: "ClientEdgeQuery_Foo_node_Story__author__best_friend") {
+        ...BestFriendResolverFragment_name @__RelayResolverSpreadMetadata
+        # RelayResolverSpreadMetadata {
+        #     field_parent_type: "User",
+        #     import_path: "BestFriendResolver",
+        #     field_name: "best_friend",
+        #     field_alias: None,
+        # }
+        
+        best_friend {
+          doesViewerLike
+        }
       }
     }
   }
   ... on PhotoStory {
     author {
-      best_friend @__clientEdge(queryName: "ClientEdgeQuery_Foo_node_PhotoStory__author__best_friend") {
-        name
+      ... @__clientEdge(queryName: "ClientEdgeQuery_Foo_node_PhotoStory__author__best_friend") {
+        ...BestFriendResolverFragment_name @__RelayResolverSpreadMetadata
+        # RelayResolverSpreadMetadata {
+        #     field_parent_type: "User",
+        #     import_path: "BestFriendResolver",
+        #     field_name: "best_friend",
+        #     field_alias: None,
+        # }
+        
+        best_friend {
+          name
+        }
       }
     }
   }
 }
 
-fragment RefetchableClientEdgeQuery_Foo_node_PhotoStory__author__best_friend on User @__RefetchableMetadata
+fragment RefetchableClientEdgeQuery_Foo_node_PhotoStory__author__best_friend on User @__clientEdgeGeneratedFragment(clientEdgeSourceDocument: "Foo_node") @__RefetchableMetadata
 # RefetchableMetadata {
 #     operation_name: "ClientEdgeQuery_Foo_node_PhotoStory__author__best_friend",
 #     path: [
@@ -62,7 +82,7 @@ fragment RefetchableClientEdgeQuery_Foo_node_PhotoStory__author__best_friend on 
   id
 }
 
-fragment RefetchableClientEdgeQuery_Foo_node_Story__author__best_friend on User @__RefetchableMetadata
+fragment RefetchableClientEdgeQuery_Foo_node_Story__author__best_friend on User @__clientEdgeGeneratedFragment(clientEdgeSourceDocument: "Foo_node") @__RefetchableMetadata
 # RefetchableMetadata {
 #     operation_name: "ClientEdgeQuery_Foo_node_Story__author__best_friend",
 #     path: [
@@ -79,7 +99,7 @@ fragment RefetchableClientEdgeQuery_Foo_node_Story__author__best_friend on User 
 
 query ClientEdgeQuery_Foo_node_PhotoStory__author__best_friend(
   $id: ID!
-) @__clientEdgeQuery {
+) @__clientEdgeQuery(clientEdgeSourceDocument: "Foo_node") {
   node(id: $id) {
     ...RefetchableClientEdgeQuery_Foo_node_PhotoStory__author__best_friend
   }
@@ -87,7 +107,7 @@ query ClientEdgeQuery_Foo_node_PhotoStory__author__best_friend(
 
 query ClientEdgeQuery_Foo_node_Story__author__best_friend(
   $id: ID!
-) @__clientEdgeQuery {
+) @__clientEdgeQuery(clientEdgeSourceDocument: "Foo_node") {
   node(id: $id) {
     ...RefetchableClientEdgeQuery_Foo_node_Story__author__best_friend
   }

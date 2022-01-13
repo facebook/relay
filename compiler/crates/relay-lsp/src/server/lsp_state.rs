@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -15,6 +15,7 @@ use crate::{
     utils::{
         extract_executable_definitions_from_text_document, extract_executable_document_from_text,
     },
+    ContentConsumerType,
 };
 use crate::{LSPExtraDataProvider, LSPRuntimeError};
 use common::{Diagnostic as CompilerDiagnostic, PerfLogger, SourceLocationKey, Span};
@@ -22,12 +23,12 @@ use crossbeam::channel::{SendError, Sender};
 use dashmap::{mapref::entry::Entry, DashMap};
 use fnv::FnvBuildHasher;
 use graphql_ir::{
-    build_ir_with_extra_features, BuilderOptions, FragmentVariablesSemantic, Program,
+    build_ir_with_extra_features, BuilderOptions, FragmentVariablesSemantic, Program, RelayMode,
 };
 use graphql_syntax::{
     parse_executable_with_error_recovery, ExecutableDefinition, ExecutableDocument, GraphQLSource,
 };
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey};
 use log::debug;
 use lsp_server::Message;
 use lsp_types::{Diagnostic, DiagnosticTag, Range, TextDocumentPositionParams, Url};
@@ -39,6 +40,8 @@ use schema_documentation::{
 };
 use std::{path::PathBuf, sync::Arc};
 use tokio::sync::Notify;
+
+use super::task_queue::TaskScheduler;
 
 pub type Schemas = Arc<DashMap<StringKey, Arc<SDLSchema>, FnvBuildHasher>>;
 pub type SourcePrograms = Arc<DashMap<StringKey, Program, FnvBuildHasher>>;
@@ -63,14 +66,6 @@ pub trait GlobalState {
     ) -> LSPRuntimeResult<NodeResolutionInfo>;
 
     fn root_dir(&self) -> PathBuf;
-
-    fn process_synced_sources(
-        &self,
-        uri: &Url,
-        sources: Vec<GraphQLSource>,
-    ) -> LSPRuntimeResult<()>;
-
-    fn remove_synced_sources(&self, url: &Url);
 
     fn extract_executable_document_from_text(
         &self,
@@ -104,6 +99,17 @@ pub trait GlobalState {
         query_text: String,
         project_name: &StringKey,
     ) -> LSPRuntimeResult<String>;
+
+    fn document_opened(&self, url: &Url, text: &str) -> LSPRuntimeResult<()>;
+
+    fn document_changed(&self, url: &Url, full_text: &str) -> LSPRuntimeResult<()>;
+
+    fn document_closed(&self, url: &Url) -> LSPRuntimeResult<()>;
+
+    /// To distinguish content, that we show to consumers
+    /// we may need to know who's our current consumer.
+    /// This is mostly for hover handler (where we render markup)
+    fn get_content_consumer_type(&self) -> ContentConsumerType;
 }
 
 /// This structure contains all available resources that we may use in the Relay LSP message/notification
@@ -112,7 +118,9 @@ pub struct LSPState<
     TPerfLogger: PerfLogger + 'static,
     TSchemaDocumentation: SchemaDocumentation + 'static,
 > {
-    pub config: Arc<Config>,
+    pub(crate) config: Arc<Config>,
+    pub(crate) sender: Sender<Message>,
+    task_scheduler: Arc<TaskScheduler<super::Task>>,
     root_dir: PathBuf,
     extra_data_provider: Box<dyn LSPExtraDataProvider>,
     file_categorizer: FileCategorizer,
@@ -122,8 +130,7 @@ pub struct LSPState<
     synced_graphql_documents: DashMap<Url, Vec<GraphQLSource>>,
     pub(crate) perf_logger: Arc<TPerfLogger>,
     pub(crate) diagnostic_reporter: Arc<DiagnosticReporter>,
-    notify_sender: Arc<Notify>,
-    pub(crate) sender: Sender<Message>,
+    pub(crate) notify_lsp_state_resources: Arc<Notify>,
     pub(crate) project_status: ProjectStatusMap,
     js_resource: Option<Box<dyn JSLanguageServer<TState = Self>>>,
 }
@@ -134,13 +141,14 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
     /// Private constructor
     pub fn new(
         config: Arc<Config>,
+        sender: Sender<Message>,
+        task_scheduler: Arc<TaskScheduler<super::Task>>,
         perf_logger: Arc<TPerfLogger>,
         extra_data_provider: Box<dyn LSPExtraDataProvider>,
         schema_documentation_loader: Option<
             Box<dyn SchemaDocumentationLoader<TSchemaDocumentation>>,
         >,
         js_resource: Option<Box<dyn JSLanguageServer<TState = Self>>>,
-        sender: Sender<Message>,
     ) -> Self {
         debug!("Creating lsp_state...");
         let file_categorizer = FileCategorizer::from_config(&config);
@@ -152,10 +160,12 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
 
         let lsp_state = Self {
             config,
+            sender,
+            task_scheduler,
             diagnostic_reporter,
             extra_data_provider,
             file_categorizer,
-            notify_sender: Arc::new(Notify::new()),
+            notify_lsp_state_resources: Arc::new(Notify::new()),
             perf_logger,
             project_status: Arc::new(DashMap::with_hasher(FnvBuildHasher::default())),
             root_dir: root_dir.clone(),
@@ -164,7 +174,6 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             source_programs: Arc::new(DashMap::with_hasher(FnvBuildHasher::default())),
             synced_graphql_documents: Default::default(),
             js_resource,
-            sender,
         };
 
         // Preload schema documentation - this will warm-up schema documentation cache in the LSP Extra Data providers
@@ -185,6 +194,17 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             LSPRuntimeError::UnexpectedError(format!("Expected GraphQL sources for URL {}", url))
         })?;
         let project_name = self.extract_project_name_from_url(url)?;
+        let project_config = self
+            .config
+            .enabled_projects()
+            .find(|project_config| project_config.name == project_name)
+            .ok_or_else(|| {
+                LSPRuntimeError::UnexpectedError(format!(
+                    "Expected project config for project {}",
+                    project_name
+                ))
+            })?;
+
         let schema = self
             .schemas
             .get(&project_name)
@@ -206,18 +226,18 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             let compiler_diagnostics = match build_ir_with_extra_features(
                 &schema,
                 &result.item.definitions,
-                BuilderOptions {
+                &BuilderOptions {
                     allow_undefined_fragment_spreads: true,
                     fragment_variables_semantic: FragmentVariablesSemantic::PassedValue,
-                    relay_mode: true,
+                    relay_mode: Some(RelayMode {
+                        enable_provided_variables: &project_config
+                            .feature_flags
+                            .enable_provided_variables,
+                    }),
                     default_anonymous_operation_name: None,
                 },
             )
             .and_then(|documents| {
-                // Waiting until T101267297 is resolved to enable these.
-                if true {
-                    return Ok(vec![]);
-                }
                 let mut warnings = vec![];
                 for document in documents {
                     // Today the only warning we check for is deprecated
@@ -254,6 +274,34 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
     pub fn send_message(&self, message: Message) -> Result<(), SendError<Message>> {
         self.sender.send(message)
     }
+
+    pub fn schedule_task(&self, task: Task) {
+        self.task_scheduler.schedule(super::Task::LSPState(task));
+    }
+
+    fn process_synced_sources(
+        &self,
+        uri: &Url,
+        sources: Vec<GraphQLSource>,
+    ) -> LSPRuntimeResult<()> {
+        let project_name = self.extract_project_name_from_url(uri)?;
+
+        if let Entry::Vacant(e) = self.project_status.entry(project_name) {
+            e.insert(ProjectStatus::Activated);
+            self.notify_lsp_state_resources.notify_one();
+        }
+
+        self.insert_synced_sources(uri, sources);
+        self.schedule_task(Task::ValidateSyncedSource(uri.clone()));
+
+        Ok(())
+    }
+
+    fn remove_synced_sources(&self, url: &Url) {
+        self.synced_graphql_documents.remove(url);
+        self.diagnostic_reporter
+            .clear_quick_diagnostics_for_url(url);
+    }
 }
 
 pub fn convert_diagnostic(
@@ -264,7 +312,7 @@ pub fn convert_diagnostic(
 
     Diagnostic {
         code: None,
-        data: get_diagnostics_data(&diagnostic),
+        data: get_diagnostics_data(diagnostic),
         message: diagnostic.message().to_string(),
         range: diagnostic.location().span().to_range(
             &graphql_source.text,
@@ -273,7 +321,7 @@ pub fn convert_diagnostic(
         ),
         related_information: None,
         severity: Some(diagnostic.severity()),
-        tags: if tags.len() == 0 { None } else { Some(tags) },
+        tags: if tags.is_empty() { None } else { Some(tags) },
         source: None,
         ..Default::default()
     }
@@ -334,30 +382,6 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         create_node_resolution_info(document, position_span)
     }
 
-    fn process_synced_sources(
-        &self,
-        uri: &Url,
-        sources: Vec<GraphQLSource>,
-    ) -> LSPRuntimeResult<()> {
-        let project_name = self.extract_project_name_from_url(uri)?;
-
-        if let Entry::Vacant(e) = self.project_status.entry(project_name) {
-            e.insert(ProjectStatus::Activated);
-            self.notify_sender.notify_one();
-        }
-
-        self.insert_synced_sources(uri, sources);
-        self.validate_synced_sources(uri)?;
-
-        Ok(())
-    }
-
-    fn remove_synced_sources(&self, url: &Url) {
-        self.synced_graphql_documents.remove(url);
-        self.diagnostic_reporter
-            .clear_quick_diagnostics_for_url(url);
-    }
-
     fn extract_executable_document_from_text(
         &self,
         position: &TextDocumentPositionParams,
@@ -416,5 +440,71 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         project_name: &StringKey,
     ) -> LSPRuntimeResult<String> {
         get_query_text(self, query_text, project_name)
+    }
+
+    fn document_opened(&self, uri: &Url, text: &str) -> LSPRuntimeResult<()> {
+        if let Some(js_server) = self.get_js_language_sever() {
+            js_server.process_js_source(uri, text);
+        }
+
+        // First we check to see if this document has any GraphQL documents.
+        let graphql_sources = extract_graphql::parse_chunks(text);
+        if graphql_sources.is_empty() {
+            Ok(())
+        } else {
+            self.process_synced_sources(uri, graphql_sources)
+        }
+    }
+
+    fn document_changed(&self, uri: &Url, full_text: &str) -> LSPRuntimeResult<()> {
+        if let Some(js_server) = self.get_js_language_sever() {
+            js_server.process_js_source(uri, full_text);
+        }
+
+        // First we check to see if this document has any GraphQL documents.
+        let graphql_sources = extract_graphql::parse_chunks(full_text);
+        if graphql_sources.is_empty() {
+            self.remove_synced_sources(uri);
+            Ok(())
+        } else {
+            self.process_synced_sources(uri, graphql_sources)
+        }
+    }
+
+    fn document_closed(&self, uri: &Url) -> LSPRuntimeResult<()> {
+        if let Some(js_server) = self.get_js_language_sever() {
+            js_server.remove_js_source(uri);
+        }
+        self.remove_synced_sources(uri);
+        Ok(())
+    }
+
+    fn get_content_consumer_type(&self) -> ContentConsumerType {
+        ContentConsumerType::Relay
+    }
+}
+
+#[derive(Debug)]
+pub enum Task {
+    ValidateSyncedSource(Url),
+    ValidateSyncedSources,
+}
+
+pub(crate) fn handle_lsp_state_tasks<
+    TPerfLogger: PerfLogger + 'static,
+    TSchemaDocumentation: SchemaDocumentation + 'static,
+>(
+    state: Arc<LSPState<TPerfLogger, TSchemaDocumentation>>,
+    task: Task,
+) {
+    match task {
+        Task::ValidateSyncedSource(url) => {
+            state.validate_synced_sources(&url).ok();
+        }
+        Task::ValidateSyncedSources => {
+            for item in &state.synced_graphql_documents {
+                state.schedule_task(Task::ValidateSyncedSource(item.key().clone()));
+            }
+        }
     }
 }

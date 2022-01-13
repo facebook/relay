@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b1622e376b4e0468ab7c4cb311afef9a>>
+ * @generated SignedSource<<19fed3e5e41f11ff47b73e8ac729ef10>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,19 +17,21 @@
 // @ReactFlightServerDependency FlightComponent.server
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-export type RelayReaderTestFeatureEnableReactFlightComponentFieldFlightQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+export type RelayReaderTestFeatureEnableReactFlightComponentFieldFlightQuery$variables = {|
   id: string,
   count: number,
 |};
-export type RelayReaderTestFeatureEnableReactFlightComponentFieldFlightQueryResponse = {|
+export type RelayReaderTestFeatureEnableReactFlightComponentFieldFlightQueryVariables = RelayReaderTestFeatureEnableReactFlightComponentFieldFlightQuery$variables;
+export type RelayReaderTestFeatureEnableReactFlightComponentFieldFlightQuery$data = {|
   +node: ?{|
     +flightComponent?: ?any,
   |},
 |};
+export type RelayReaderTestFeatureEnableReactFlightComponentFieldFlightQueryResponse = RelayReaderTestFeatureEnableReactFlightComponentFieldFlightQuery$data;
 export type RelayReaderTestFeatureEnableReactFlightComponentFieldFlightQuery = {|
   variables: RelayReaderTestFeatureEnableReactFlightComponentFieldFlightQueryVariables,
-  response: RelayReaderTestFeatureEnableReactFlightComponentFieldFlightQueryResponse,
+  response: RelayReaderTestFeatureEnableReactFlightComponentFieldFlightQuery$data,
 |};
 */
 
@@ -167,4 +169,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "4c044218b936033e2034103a2d011f01";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayReaderTestFeatureEnableReactFlightComponentFieldFlightQuery$variables,
+  RelayReaderTestFeatureEnableReactFlightComponentFieldFlightQuery$data,
+>*/);

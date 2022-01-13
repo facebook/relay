@@ -1,10 +1,10 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<bd1e568c917c0f5121cad5d8d5480cd8>>
+ * @generated SignedSource<<31a9fd31997eea7c6c3cf9a74ddaf459>>
  */
 
 mod apply_fragment_arguments;
@@ -27,10 +27,24 @@ fn deletes_unreferenced_fragments() {
 }
 
 #[test]
+fn fragment_include_with_provided_argument() {
+    let input = include_str!("apply_fragment_arguments/fixtures/fragment-include-with-provided-argument.graphql");
+    let expected = include_str!("apply_fragment_arguments/fixtures/fragment-include-with-provided-argument.expected");
+    test_fixture(transform_fixture, "fragment-include-with-provided-argument.graphql", "apply_fragment_arguments/fixtures/fragment-include-with-provided-argument.expected", input, expected);
+}
+
+#[test]
 fn fragment_with_float_argument() {
     let input = include_str!("apply_fragment_arguments/fixtures/fragment-with-float-argument.graphql");
     let expected = include_str!("apply_fragment_arguments/fixtures/fragment-with-float-argument.expected");
     test_fixture(transform_fixture, "fragment-with-float-argument.graphql", "apply_fragment_arguments/fixtures/fragment-with-float-argument.expected", input, expected);
+}
+
+#[test]
+fn inline_fragment_with_provided_argument() {
+    let input = include_str!("apply_fragment_arguments/fixtures/inline-fragment-with-provided-argument.graphql");
+    let expected = include_str!("apply_fragment_arguments/fixtures/inline-fragment-with-provided-argument.expected");
+    test_fixture(transform_fixture, "inline-fragment-with-provided-argument.graphql", "apply_fragment_arguments/fixtures/inline-fragment-with-provided-argument.expected", input, expected);
 }
 
 #[test]
@@ -59,6 +73,20 @@ fn merges_identical_fragments_literal_arguments() {
     let input = include_str!("apply_fragment_arguments/fixtures/merges-identical-fragments-literal-arguments.graphql");
     let expected = include_str!("apply_fragment_arguments/fixtures/merges-identical-fragments-literal-arguments.expected");
     test_fixture(transform_fixture, "merges-identical-fragments-literal-arguments.graphql", "apply_fragment_arguments/fixtures/merges-identical-fragments-literal-arguments.expected", input, expected);
+}
+
+#[test]
+fn multiple_queries_with_provided_argument() {
+    let input = include_str!("apply_fragment_arguments/fixtures/multiple-queries-with-provided-argument.graphql");
+    let expected = include_str!("apply_fragment_arguments/fixtures/multiple-queries-with-provided-argument.expected");
+    test_fixture(transform_fixture, "multiple-queries-with-provided-argument.graphql", "apply_fragment_arguments/fixtures/multiple-queries-with-provided-argument.expected", input, expected);
+}
+
+#[test]
+fn noncyclic_fragment_with_provided_argument() {
+    let input = include_str!("apply_fragment_arguments/fixtures/noncyclic-fragment-with-provided-argument.graphql");
+    let expected = include_str!("apply_fragment_arguments/fixtures/noncyclic-fragment-with-provided-argument.expected");
+    test_fixture(transform_fixture, "noncyclic-fragment-with-provided-argument.graphql", "apply_fragment_arguments/fixtures/noncyclic-fragment-with-provided-argument.expected", input, expected);
 }
 
 #[test]

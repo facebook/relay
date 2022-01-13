@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -7,7 +7,7 @@
 
 use crate::{lsp_runtime_error::LSPRuntimeResult, server::GlobalState};
 use common::Named;
-use interner::Intern;
+use intern::string_key::Intern;
 use lsp_types::request::Request;
 use schema::Schema;
 use schema_documentation::SchemaDocumentation;

@@ -1,24 +1,23 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, WithLocation};
 mod requireable_field;
-
-use super::FeatureFlags;
-use fnv::FnvHashMap;
+use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, WithLocation};
 use graphql_ir::{
     associated_data_impl, Directive, Field, FragmentDefinition, InlineFragment, LinkedField,
     OperationDefinition, Program, ScalarField, Selection, Transformed, TransformedValue,
     Transformer, ValidationMessage,
 };
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey, StringKeyMap};
 use lazy_static::lazy_static;
 use requireable_field::{RequireableField, RequiredMetadata};
-use std::{mem, sync::Arc};
+use std::{borrow::Cow, mem, sync::Arc};
+
+use crate::DirectiveFinder;
 
 lazy_static! {
     pub static ref REQUIRED_DIRECTIVE_NAME: StringKey = "required".intern();
@@ -37,11 +36,8 @@ pub struct RequiredMetadataDirective {
 }
 associated_data_impl!(RequiredMetadataDirective);
 
-pub fn required_directive(
-    program: &Program,
-    feature_flags: &FeatureFlags,
-) -> DiagnosticsResult<Program> {
-    let mut transform = RequiredDirective::new(program, feature_flags.enable_required_transform);
+pub fn required_directive(program: &Program) -> DiagnosticsResult<Program> {
+    let mut transform = RequiredDirective::new(program);
 
     let next_program = transform
         .transform_program(program)
@@ -71,14 +67,14 @@ struct RequiredDirective<'s> {
     path: Vec<&'s str>,
     within_abstract_inline_fragment: bool,
     parent_inline_fragment_directive: Option<Location>,
-    path_required_map: FnvHashMap<StringKey, MaybeRequiredField>,
-    current_node_required_children: FnvHashMap<StringKey, RequiredField>,
-    required_children_map: FnvHashMap<StringKey, FnvHashMap<StringKey, RequiredField>>,
-    enabled: bool,
+    path_required_map: StringKeyMap<MaybeRequiredField>,
+    current_node_required_children: StringKeyMap<RequiredField>,
+    required_children_map: StringKeyMap<StringKeyMap<RequiredField>>,
+    required_directive_visitor: RequiredDirectiveVisitor<'s>,
 }
 
 impl<'program> RequiredDirective<'program> {
-    fn new(program: &'program Program, enabled: bool) -> Self {
+    fn new(program: &'program Program) -> Self {
         Self {
             program,
             errors: Default::default(),
@@ -88,7 +84,10 @@ impl<'program> RequiredDirective<'program> {
             path_required_map: Default::default(),
             current_node_required_children: Default::default(),
             required_children_map: Default::default(),
-            enabled,
+            required_directive_visitor: RequiredDirectiveVisitor {
+                program,
+                visited_fragments: Default::default(),
+            },
         }
     }
 
@@ -182,12 +181,6 @@ impl<'program> RequiredDirective<'program> {
         let field_name = field.name_with_location(&self.program.schema);
 
         if let Some(metadata) = maybe_required {
-            if !self.enabled {
-                self.errors.push(Diagnostic::error(
-                    ValidationMessage::RequiredNotSupported,
-                    metadata.directive_location,
-                ));
-            }
             self.assert_not_within_abstract_inline_fragment(&metadata.directive_location);
             self.assert_not_within_inline_directive(&metadata.directive_location);
             self.current_node_required_children.insert(
@@ -299,6 +292,9 @@ impl<'s> Transformer for RequiredDirective<'s> {
         &mut self,
         fragment: &FragmentDefinition,
     ) -> Transformed<FragmentDefinition> {
+        if !self.required_directive_visitor.visit_fragment(fragment) {
+            return Transformed::Keep;
+        }
         self.reset_state();
         self.parent_inline_fragment_directive = fragment
             .directives
@@ -324,6 +320,12 @@ impl<'s> Transformer for RequiredDirective<'s> {
         &mut self,
         operation: &OperationDefinition,
     ) -> Transformed<OperationDefinition> {
+        if !self
+            .required_directive_visitor
+            .find(operation.selections.iter().collect())
+        {
+            return Transformed::Keep;
+        }
         self.reset_state();
         let selections = self.transform_selections(&operation.selections);
         let directives = maybe_add_children_can_bubble_metadata_directive(
@@ -367,11 +369,13 @@ impl<'s> Transformer for RequiredDirective<'s> {
         let path_name = self.path.join(".").intern();
 
         let maybe_required_metadata = self.get_required_metadata(field, path_name);
-        let mut next_directives = match maybe_required_metadata {
-            Some(required_metadata) => {
-                add_metadata_directive(&field.directives, path_name, required_metadata.action)
-            }
-            None => field.directives.clone(),
+        let next_directives = match maybe_required_metadata {
+            Some(required_metadata) => Cow::from(add_metadata_directive(
+                &field.directives,
+                path_name,
+                required_metadata.action,
+            )),
+            None => Cow::from(&field.directives),
         };
 
         // Once we've handled our own directive, take the parent's required
@@ -389,11 +393,10 @@ impl<'s> Transformer for RequiredDirective<'s> {
             self.assert_compatible_required_children_severity(required_metadata);
         }
 
-        next_directives = maybe_add_children_can_bubble_metadata_directive(
+        let next_directives_with_metadata = maybe_add_children_can_bubble_metadata_directive(
             &next_directives,
             &self.current_node_required_children,
-        )
-        .replace_or_else(|| next_directives.clone());
+        );
 
         self.within_abstract_inline_fragment = previous_abstract_fragment;
 
@@ -406,11 +409,20 @@ impl<'s> Transformer for RequiredDirective<'s> {
             .insert(path_name, required_children);
 
         self.path.pop();
-        Transformed::Replace(Selection::LinkedField(Arc::new(LinkedField {
-            directives: next_directives,
-            selections: selections.replace_or_else(|| field.selections.clone()),
-            ..field.clone()
-        })))
+
+        if selections.should_keep()
+            && next_directives_with_metadata.should_keep()
+            && maybe_required_metadata.is_none()
+        {
+            Transformed::Keep
+        } else {
+            Transformed::Replace(Selection::LinkedField(Arc::new(LinkedField {
+                directives: next_directives_with_metadata
+                    .replace_or_else(|| next_directives.into()),
+                selections: selections.replace_or_else(|| field.selections.clone()),
+                ..field.clone()
+            })))
+        }
     }
 
     fn transform_inline_fragment(&mut self, fragment: &InlineFragment) -> Transformed<Selection> {
@@ -447,7 +459,7 @@ fn add_metadata_directive(
 
 fn maybe_add_children_can_bubble_metadata_directive(
     directives: &[Directive],
-    current_node_required_children: &FnvHashMap<StringKey, RequiredField>,
+    current_node_required_children: &StringKeyMap<RequiredField>,
 ) -> TransformedValue<Vec<Directive>> {
     let children_can_bubble = current_node_required_children
         .values()
@@ -496,5 +508,37 @@ impl From<StringKey> for RequiredAction {
             // Actions that don't conform to the GraphQL schema should have been filtered out in IR validation.
             _ => unreachable!(),
         }
+    }
+}
+
+struct RequiredDirectiveVisitor<'s> {
+    program: &'s Program,
+    visited_fragments: StringKeyMap<bool>,
+}
+
+impl<'s> DirectiveFinder for RequiredDirectiveVisitor<'s> {
+    fn visit_directive(&self, directive: &Directive) -> bool {
+        directive.name.item == *REQUIRED_DIRECTIVE_NAME
+    }
+
+    fn visit_fragment_spread(&mut self, fragment_spread: &graphql_ir::FragmentSpread) -> bool {
+        let fragment = self
+            .program
+            .fragment(fragment_spread.fragment.item)
+            .unwrap();
+        self.visit_fragment(fragment)
+    }
+}
+
+impl<'s> RequiredDirectiveVisitor<'s> {
+    fn visit_fragment(&mut self, fragment: &FragmentDefinition) -> bool {
+        if let Some(val) = self.visited_fragments.get(&fragment.name.item) {
+            return *val;
+        }
+        // Avoid dead loop in self-referencing fragments
+        self.visited_fragments.insert(fragment.name.item, false);
+        let result = self.find(fragment.selections.iter().collect());
+        self.visited_fragments.insert(fragment.name.item, result);
+        result
     }
 }

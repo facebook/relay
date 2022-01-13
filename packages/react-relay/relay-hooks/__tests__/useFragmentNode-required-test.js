@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -10,9 +10,10 @@
  */
 
 'use strict';
+import type {ReaderFragment} from '../../../relay-runtime/util/ReaderNode';
+import type {RequestDescriptor} from 'relay-runtime/store/RelayStoreTypes';
 
 const useFragmentNodeOriginal = require('../useFragmentNode');
-// eslint-disable-next-line no-unused-vars
 const React = require('react');
 const ReactRelayContext = require('react-relay/ReactRelayContext');
 const TestRenderer = require('react-test-renderer');
@@ -20,7 +21,6 @@ const {
   FRAGMENT_OWNER_KEY,
   FRAGMENTS_KEY,
   ID_KEY,
-  RelayFeatureFlags,
   createOperationDescriptor,
   getFragment,
   getRequest,
@@ -34,7 +34,17 @@ let singularQuery;
 let renderSingularFragment;
 let renderSpy;
 
-function useFragmentNode(fragmentNode, fragmentRef) {
+function useFragmentNode(
+  fragmentNode: ReaderFragment,
+  fragmentRef: $TEMPORARY$object<{
+    __fragmentOwner: RequestDescriptor,
+    __fragments: $TEMPORARY$object<{
+      useFragmentNodeRequiredTestUserFragment: $TEMPORARY$object<{...}>,
+    }>,
+    __id: any,
+    __isWithinUnmatchedTypeRefinement: boolean,
+  }>,
+) {
   const result = useFragmentNodeOriginal(
     fragmentNode,
     fragmentRef,
@@ -50,8 +60,6 @@ beforeEach(() => {
   jest.spyOn(console, 'warn').mockImplementationOnce(() => {});
   jest.mock('warning');
   renderSpy = jest.fn();
-
-  RelayFeatureFlags.ENABLE_REQUIRED_DIRECTIVES = true;
 
   // Set up environment and base data
   environment = createMockEnvironment();
@@ -82,7 +90,9 @@ beforeEach(() => {
     },
   });
 
-  const ContextProvider = ({children}) => {
+  const ContextProvider = ({
+    children,
+  }: any | $TEMPORARY$object<{children: React.Node}>) => {
     return (
       <ReactRelayContext.Provider value={{environment}}>
         {children}
@@ -93,7 +103,6 @@ beforeEach(() => {
   const SingularContainer = () => {
     // We need a render a component to run a Hook
     const userRef = {
-      // $FlowFixMe[prop-missing]
       [ID_KEY]: singularQuery.request.variables.id,
       [FRAGMENTS_KEY]: {
         useFragmentNodeRequiredTestUserFragment: {},
@@ -116,7 +125,6 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  RelayFeatureFlags.ENABLE_REQUIRED_DIRECTIVES = false;
   environment.mockClear();
   renderSpy.mockClear();
   // $FlowFixMe[prop-missing]

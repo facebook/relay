@@ -1,0 +1,256 @@
+==================================== INPUT ====================================
+query spreadOfAssignableFragmentQuery {
+	me {
+		...spreadOfAssignableFragmentAssignable_user
+		...spreadOfAssignableFragmentAssignable_node
+	}
+	node(id: 4) {
+		...spreadOfAssignableFragmentAssignable_user
+		...spreadOfAssignableFragmentAssignable_node
+	}
+}
+
+fragment spreadOfAssignableFragmentAssignable_user on User @assignable {
+	__typename
+}
+
+fragment spreadOfAssignableFragmentAssignable_node on Node @assignable {
+	__typename
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "spreadOfAssignableFragmentQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "me",
+        "plural": false,
+        "selections": [
+          {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "spreadOfAssignableFragmentAssignable_user"
+          },
+          {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "args": null,
+                "kind": "FragmentSpread",
+                "name": "spreadOfAssignableFragmentAssignable_node"
+              },
+              {
+                "alias": "__isspreadOfAssignableFragmentAssignable_node",
+                "args": null,
+                "kind": "ScalarField",
+                "name": "__typename",
+                "storageKey": null
+              }
+            ],
+            "type": "Node",
+            "abstractKey": "__isNode"
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "__id",
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      },
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Literal",
+            "name": "id",
+            "value": 4
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "spreadOfAssignableFragmentAssignable_user"
+          },
+          {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "spreadOfAssignableFragmentAssignable_node"
+          },
+          {
+            "alias": "__isspreadOfAssignableFragmentAssignable_node",
+            "args": null,
+            "kind": "ScalarField",
+            "name": "__typename",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "__id",
+            "storageKey": null
+          }
+        ],
+        "storageKey": "node(id:4)"
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [],
+    "kind": "Operation",
+    "name": "spreadOfAssignableFragmentQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "me",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "__typename",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          },
+          {
+            "kind": "TypeDiscriminator",
+            "abstractKey": "__isNode"
+          }
+        ],
+        "storageKey": null
+      },
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Literal",
+            "name": "id",
+            "value": 4
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "__typename",
+            "storageKey": null
+          },
+          {
+            "kind": "TypeDiscriminator",
+            "abstractKey": "__isNode"
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          }
+        ],
+        "storageKey": "node(id:4)"
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {},
+    "name": "spreadOfAssignableFragmentQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query spreadOfAssignableFragmentQuery {
+  me {
+    ...spreadOfAssignableFragmentAssignable_user
+    ...spreadOfAssignableFragmentAssignable_node
+    id
+  }
+  node(id: 4) {
+    __typename
+    ...spreadOfAssignableFragmentAssignable_user
+    ...spreadOfAssignableFragmentAssignable_node
+    id
+  }
+}
+
+fragment spreadOfAssignableFragmentAssignable_node on Node {
+  __isNode: __typename
+  __typename
+}
+
+fragment spreadOfAssignableFragmentAssignable_user on User {
+  __typename
+}
+
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "spreadOfAssignableFragmentAssignable_node",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "__typename",
+      "storageKey": null
+    }
+  ],
+  "type": "Node",
+  "abstractKey": "__isNode"
+}
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "spreadOfAssignableFragmentAssignable_user",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "__typename",
+      "storageKey": null
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}

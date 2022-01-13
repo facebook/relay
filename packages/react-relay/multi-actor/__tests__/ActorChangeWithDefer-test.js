@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -10,14 +10,21 @@
  */
 
 'use strict';
-
 import type {ActorChangeWithDeferTestDeferFragment$key} from './__generated__/ActorChangeWithDeferTestDeferFragment.graphql';
 import type {ActorChangeWithDeferTestFragment$key} from './__generated__/ActorChangeWithDeferTestFragment.graphql';
-import type {ActorChangeWithDeferTestQuery} from './__generated__/ActorChangeWithDeferTestQuery.graphql';
 import type {
   IActorEnvironment,
   IMultiActorEnvironment,
 } from 'relay-runtime/multi-actor-environment';
+import type {
+  LogRequestInfoFunction,
+  UploadableMap,
+} from 'relay-runtime/network/RelayNetworkTypes';
+import type {RequestParameters} from 'relay-runtime/util/RelayConcreteNode';
+import type {
+  CacheConfig,
+  Variables,
+} from 'relay-runtime/util/RelayRuntimeTypes';
 
 const RelayEnvironmentProvider = require('../../relay-hooks/RelayEnvironmentProvider');
 const useFragment = require('../../relay-hooks/useFragment');
@@ -88,7 +95,7 @@ const query = graphql`
 `;
 
 function MainComponent() {
-  const data = useLazyLoadQuery<ActorChangeWithDeferTestQuery>(query, {});
+  const data = useLazyLoadQuery(query, {});
 
   return (
     <div>
@@ -153,7 +160,15 @@ describe('ActorChange with @defer', () => {
   });
 
   it('should render a fragment for actor', () => {
-    fetchFnForActor = (...args) => {
+    fetchFnForActor = (
+      ...args: Array<?(
+        | LogRequestInfoFunction
+        | UploadableMap
+        | RequestParameters
+        | Variables
+        | CacheConfig
+      )>
+    ) => {
       return Observable.create(sink => {
         dataSource = sink;
       });

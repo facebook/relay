@@ -1,6 +1,0 @@
-fragment ActorsRendererFragment on User {
-  id
-  profile_picture @required(action: THROW) {
-    uri
-  }
-}

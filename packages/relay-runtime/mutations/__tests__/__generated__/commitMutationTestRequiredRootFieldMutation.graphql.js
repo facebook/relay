@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<d99ce0689736eed34455c9585fb50697>>
+ * @generated SignedSource<<bd3c86148c58adf5c5e2763168e12f07>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,22 +15,24 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
+import type { ConcreteRequest, Mutation } from 'relay-runtime';
 export type CommentDeleteInput = {|
   clientMutationId?: ?string,
   commentId?: ?string,
 |};
-export type commitMutationTestRequiredRootFieldMutationVariables = {|
+export type commitMutationTestRequiredRootFieldMutation$variables = {|
   input?: ?CommentDeleteInput,
 |};
-export type commitMutationTestRequiredRootFieldMutationResponse = {|
+export type commitMutationTestRequiredRootFieldMutationVariables = commitMutationTestRequiredRootFieldMutation$variables;
+export type commitMutationTestRequiredRootFieldMutation$data = {|
   +commentDelete: {|
     +deletedCommentId: ?string,
   |},
 |};
+export type commitMutationTestRequiredRootFieldMutationResponse = commitMutationTestRequiredRootFieldMutation$data;
 export type commitMutationTestRequiredRootFieldMutation = {|
   variables: commitMutationTestRequiredRootFieldMutationVariables,
-  response: commitMutationTestRequiredRootFieldMutationResponse,
+  response: commitMutationTestRequiredRootFieldMutation$data,
 |};
 */
 
@@ -107,4 +109,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "c0ee6bcae636236c0564c8da132daeac";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Mutation<
+  commitMutationTestRequiredRootFieldMutation$variables,
+  commitMutationTestRequiredRootFieldMutation$data,
+>*/);

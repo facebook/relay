@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -32,7 +32,7 @@ function myTestResolver(rootKey: RelayResolverTestUtilsFlowTest$key): string {
 
 testResolver(myTestResolver, {
   name: 'Elizabeth',
-  $refType: (null: any),
+  $fragmentType: (null: any),
 });
 
 testResolver(
@@ -41,12 +41,12 @@ testResolver(
   {
     name: 'Elizabeth',
     foo: 'bar',
-    $refType: (null: any),
+    $fragmentType: (null: any),
   },
 );
 
 testResolver(myTestResolver, {
   // $FlowExpectedError Object is not a string
   name: {},
-  $refType: (null: any),
+  $fragmentType: (null: any),
 });

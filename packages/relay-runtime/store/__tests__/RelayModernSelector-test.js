@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -74,7 +74,7 @@ describe('RelayModernSelector', () => {
     `);
     UsersFragment = getFragment(graphql`
       fragment RelayModernSelectorTestUsersFragment on User
-        @relay(plural: true) {
+      @relay(plural: true) {
         id
         name
         profilePicture(size: $size) @include(if: $cond) {

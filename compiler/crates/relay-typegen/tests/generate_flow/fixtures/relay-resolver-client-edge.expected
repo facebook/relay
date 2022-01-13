@@ -1,0 +1,63 @@
+==================================== INPUT ====================================
+fragment relayResolver_BestFriendResolverFragment_name on User {
+  name
+}
+
+query relayResolver_Query {
+  me {
+    best_friend {
+      name
+    }
+  }
+}
+
+# %extensions%
+
+extend type User {
+  best_friend: User @relay_resolver(fragment_name: "relayResolver_BestFriendResolverFragment_name", import_path: "./foo/bar/baz/BestFriendResolver.js")
+}
+==================================== OUTPUT ===================================
+import type { RefetchableClientEdgeQuery_relayResolver_Query_me__best_friend$fragmentType } from "RefetchableClientEdgeQuery_relayResolver_Query_me__best_friend.graphql";
+export type ClientEdgeQuery_relayResolver_Query_me__best_friend$variables = {|
+  id: string,
+|};
+export type ClientEdgeQuery_relayResolver_Query_me__best_friend$data = {|
+  +node: ?{|
+    +$fragmentSpreads: RefetchableClientEdgeQuery_relayResolver_Query_me__best_friend$fragmentType,
+  |},
+|};
+-------------------------------------------------------------------------------
+export type relayResolver_Query$variables = {||};
+export type relayResolver_Query$data = {|
+  +me: ?{|
+    +best_friend: ?{|
+      +name: ?string,
+    |},
+  |},
+|};
+-------------------------------------------------------------------------------
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RefetchableClientEdgeQuery_relayResolver_Query_me__best_friend$fragmentType: FragmentType;
+import type { ClientEdgeQuery_relayResolver_Query_me__best_friend$variables } from "ClientEdgeQuery_relayResolver_Query_me__best_friend.graphql";
+export type RefetchableClientEdgeQuery_relayResolver_Query_me__best_friend$data = {|
+  +name: ?string,
+  +id: string,
+  +$fragmentType: RefetchableClientEdgeQuery_relayResolver_Query_me__best_friend$fragmentType,
+|};
+export type RefetchableClientEdgeQuery_relayResolver_Query_me__best_friend$key = {
+  +$data?: RefetchableClientEdgeQuery_relayResolver_Query_me__best_friend$data,
+  +$fragmentSpreads: RefetchableClientEdgeQuery_relayResolver_Query_me__best_friend$fragmentType,
+  ...
+};
+-------------------------------------------------------------------------------
+import type { FragmentType } from "relay-runtime";
+declare export opaque type relayResolver_BestFriendResolverFragment_name$fragmentType: FragmentType;
+export type relayResolver_BestFriendResolverFragment_name$data = {|
+  +name: ?string,
+  +$fragmentType: relayResolver_BestFriendResolverFragment_name$fragmentType,
+|};
+export type relayResolver_BestFriendResolverFragment_name$key = {
+  +$data?: relayResolver_BestFriendResolverFragment_name$data,
+  +$fragmentSpreads: relayResolver_BestFriendResolverFragment_name$fragmentType,
+  ...
+};

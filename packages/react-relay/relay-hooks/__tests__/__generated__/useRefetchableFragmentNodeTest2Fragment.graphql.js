@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<d0f75a691c0dde2bc27eb2b317470545>>
+ * @generated SignedSource<<78c038d974ce76d13d763936a6419cfc>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,18 +15,18 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type useRefetchableFragmentNodeTest2Fragment$ref: FragmentReference;
-declare export opaque type useRefetchableFragmentNodeTest2Fragment$fragmentType: useRefetchableFragmentNodeTest2Fragment$ref;
-export type useRefetchableFragmentNodeTest2Fragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type useRefetchableFragmentNodeTest2Fragment$fragmentType: FragmentType;
+export type useRefetchableFragmentNodeTest2Fragment$ref = useRefetchableFragmentNodeTest2Fragment$fragmentType;
+export type useRefetchableFragmentNodeTest2Fragment$data = {|
   +username: ?string,
-  +$refType: useRefetchableFragmentNodeTest2Fragment$ref,
+  +$fragmentType: useRefetchableFragmentNodeTest2Fragment$fragmentType,
 |};
-export type useRefetchableFragmentNodeTest2Fragment$data = useRefetchableFragmentNodeTest2Fragment;
+export type useRefetchableFragmentNodeTest2Fragment = useRefetchableFragmentNodeTest2Fragment$data;
 export type useRefetchableFragmentNodeTest2Fragment$key = {
   +$data?: useRefetchableFragmentNodeTest2Fragment$data,
-  +$fragmentRefs: useRefetchableFragmentNodeTest2Fragment$ref,
+  +$fragmentSpreads: useRefetchableFragmentNodeTest2Fragment$fragmentType,
   ...
 };
 */
@@ -53,4 +53,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "0c2f5a8ab89a6105c3468ef1688ca32a";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  useRefetchableFragmentNodeTest2Fragment$fragmentType,
+  useRefetchableFragmentNodeTest2Fragment$data,
+>*/);

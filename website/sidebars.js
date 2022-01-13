@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -20,7 +20,7 @@ const Guides = fbContent({
     'guides/fb/writing-subscriptions',
     'guides/testing-relay-components',
     'guides/testing-relay-with-preloaded-queries',
-    'guides/fb/required-directive',
+    'guides/required-directive',
     'guides/client-schema-extensions',
     'guides/type-emission',
     {
@@ -52,8 +52,7 @@ const Guides = fbContent({
     'guides/client-schema-extensions',
     'guides/testing-relay-components',
     'guides/testing-relay-with-preloaded-queries',
-    // TODO(T84714692) release required guide externally
-    // 'guides/required-directive',
+    'guides/required-directive',
     // TODO(T84797602) release incremental data delivery externally
     // 'guides/incremental-data-delivery',
     // TODO release these in OSS

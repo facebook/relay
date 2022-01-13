@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -149,12 +149,12 @@ describe('ReactRelayLocalQueryRenderer', () => {
       };
       environment.commitPayload(operation, payload);
       const instance = renderer(environment, UserQuery, render, variables);
-      expect(
-        environment
-          .getStore()
-          .getSource()
-          .get('4'),
-      ).toEqual({__id: '4', __typename: 'User', id: '4', lastName: 'Mark'});
+      expect(environment.getStore().getSource().get('4')).toEqual({
+        __id: '4',
+        __typename: 'User',
+        id: '4',
+        lastName: 'Mark',
+      });
       expect(instance.toJSON()).toEqual('Mark');
     });
 
@@ -175,12 +175,7 @@ describe('ReactRelayLocalQueryRenderer', () => {
       ReactTestRenderer.act(() => jest.runAllTimers());
       environment.getStore().__gc();
       // Data should not change
-      expect(
-        environment
-          .getStore()
-          .getSource()
-          .toJSON(),
-      ).not.toEqual({});
+      expect(environment.getStore().getSource().toJSON()).not.toEqual({});
       expect(environment.lookup(operation.fragment, operation)).toEqual(
         snapshot,
       );
@@ -460,12 +455,7 @@ describe('ReactRelayLocalQueryRenderer', () => {
       // Data should not be collected by GC
       environment.getStore().__gc();
       jest.runAllImmediates();
-      expect(
-        environment
-          .getStore()
-          .getSource()
-          .toJSON(),
-      ).not.toEqual({});
+      expect(environment.getStore().getSource().toJSON()).not.toEqual({});
 
       ReactTestRenderer.act(() => jest.runAllImmediates());
       expect(environment.lookup(operation.fragment, operation)).toEqual(
@@ -493,12 +483,7 @@ describe('ReactRelayLocalQueryRenderer', () => {
     it('never runs before unmount, data retain should be released', () => {
       instance.unmount();
       jest.runAllTimers();
-      expect(
-        environment
-          .getStore()
-          .getSource()
-          .toJSON(),
-      ).toEqual({});
+      expect(environment.getStore().getSource().toJSON()).toEqual({});
     });
   });
 

@@ -343,7 +343,7 @@ At its simplest, we can consider Haste as a single directory that contains all m
 
 If you are looking to create your own language plugin, refer to the `relay-compiler` [language plugin interface][plugin-interface].
 
-[data-masking]: ./thinking-in-relay#data-masking
+[data-masking]: ./PrinciplesAndArchitecture-ThinkingInRelay.md#data-masking
 
 [Haste]: https://twitter.com/dan_abramov/status/758655309212704768
 

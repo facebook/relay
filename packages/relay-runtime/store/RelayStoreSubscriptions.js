@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -101,6 +101,7 @@ class RelayStoreSubscriptions implements StoreSubscriptions {
         subscription.snapshot = {
           data: subscription.snapshot.data,
           isMissingData: backup.isMissingData,
+          missingClientEdges: backup.missingClientEdges,
           seenRecords: backup.seenRecords,
           selector: backup.selector,
           missingRequiredFields: backup.missingRequiredFields,
@@ -162,6 +163,7 @@ class RelayStoreSubscriptions implements StoreSubscriptions {
     nextSnapshot = ({
       data: nextData,
       isMissingData: nextSnapshot.isMissingData,
+      missingClientEdges: nextSnapshot.missingClientEdges,
       seenRecords: nextSnapshot.seenRecords,
       selector: nextSnapshot.selector,
       missingRequiredFields: nextSnapshot.missingRequiredFields,

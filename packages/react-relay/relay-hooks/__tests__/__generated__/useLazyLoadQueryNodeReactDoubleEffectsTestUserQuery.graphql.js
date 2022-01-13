@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<98ef1d5313e4a28f479cab84cfcefd62>>
+ * @generated SignedSource<<66af32ec64a8ddfe8be09b33a91da953>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,21 +15,23 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type useLazyLoadQueryNodeReactDoubleEffectsTestUserFragment$ref = any;
-export type useLazyLoadQueryNodeReactDoubleEffectsTestUserQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type useLazyLoadQueryNodeReactDoubleEffectsTestUserFragment$fragmentType = any;
+export type useLazyLoadQueryNodeReactDoubleEffectsTestUserQuery$variables = {|
   id?: ?string,
 |};
-export type useLazyLoadQueryNodeReactDoubleEffectsTestUserQueryResponse = {|
+export type useLazyLoadQueryNodeReactDoubleEffectsTestUserQueryVariables = useLazyLoadQueryNodeReactDoubleEffectsTestUserQuery$variables;
+export type useLazyLoadQueryNodeReactDoubleEffectsTestUserQuery$data = {|
   +node: ?{|
     +id: string,
     +name: ?string,
-    +$fragmentRefs: useLazyLoadQueryNodeReactDoubleEffectsTestUserFragment$ref,
+    +$fragmentSpreads: useLazyLoadQueryNodeReactDoubleEffectsTestUserFragment$fragmentType,
   |},
 |};
+export type useLazyLoadQueryNodeReactDoubleEffectsTestUserQueryResponse = useLazyLoadQueryNodeReactDoubleEffectsTestUserQuery$data;
 export type useLazyLoadQueryNodeReactDoubleEffectsTestUserQuery = {|
   variables: useLazyLoadQueryNodeReactDoubleEffectsTestUserQueryVariables,
-  response: useLazyLoadQueryNodeReactDoubleEffectsTestUserQueryResponse,
+  response: useLazyLoadQueryNodeReactDoubleEffectsTestUserQuery$data,
 |};
 */
 
@@ -148,4 +150,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "4f5221aaf962b9f3544c53ae0f65d8cd";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  useLazyLoadQueryNodeReactDoubleEffectsTestUserQuery$variables,
+  useLazyLoadQueryNodeReactDoubleEffectsTestUserQuery$data,
+>*/);

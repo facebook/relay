@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -190,7 +190,7 @@ fn create_code_actions(
                     return None;
                 }
 
-                Some(create_code_action(title, name.clone(), &url, range))
+                Some(create_code_action(title, name.clone(), url, range))
             } else {
                 None
             }
@@ -202,11 +202,11 @@ fn get_code_action_range(range: Range, span: &Span) -> Range {
     Range {
         start: Position {
             line: range.start.line,
-            character: (span.start - 1).into(),
+            character: (span.start - 1),
         },
         end: Position {
             line: range.start.line,
-            character: (span.end - 1).into(),
+            character: (span.end - 1),
         },
     }
 }

@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<aa2adcb8bdf63ae808014e14d3ae014f>>
+ * @generated SignedSource<<298190a727a633e6097db3aa1e60e5b8>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,21 +15,23 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type useLazyLoadQueryNodeFastRefreshTestUserFragment$ref = any;
-export type useLazyLoadQueryNodeFastRefreshTestUserQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type useLazyLoadQueryNodeFastRefreshTestUserFragment$fragmentType = any;
+export type useLazyLoadQueryNodeFastRefreshTestUserQuery$variables = {|
   id?: ?string,
 |};
-export type useLazyLoadQueryNodeFastRefreshTestUserQueryResponse = {|
+export type useLazyLoadQueryNodeFastRefreshTestUserQueryVariables = useLazyLoadQueryNodeFastRefreshTestUserQuery$variables;
+export type useLazyLoadQueryNodeFastRefreshTestUserQuery$data = {|
   +node: ?{|
     +id: string,
     +name: ?string,
-    +$fragmentRefs: useLazyLoadQueryNodeFastRefreshTestUserFragment$ref,
+    +$fragmentSpreads: useLazyLoadQueryNodeFastRefreshTestUserFragment$fragmentType,
   |},
 |};
+export type useLazyLoadQueryNodeFastRefreshTestUserQueryResponse = useLazyLoadQueryNodeFastRefreshTestUserQuery$data;
 export type useLazyLoadQueryNodeFastRefreshTestUserQuery = {|
   variables: useLazyLoadQueryNodeFastRefreshTestUserQueryVariables,
-  response: useLazyLoadQueryNodeFastRefreshTestUserQueryResponse,
+  response: useLazyLoadQueryNodeFastRefreshTestUserQuery$data,
 |};
 */
 
@@ -134,4 +136,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "ee05f828677e819fb1cfd6cf12c4e4a0";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  useLazyLoadQueryNodeFastRefreshTestUserQuery$variables,
+  useLazyLoadQueryNodeFastRefreshTestUserQuery$data,
+>*/);

@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<3e96d8b393fd4e7edd5551155aa9deff>>
+ * @generated SignedSource<<242a848586e192a1c6f492c9b91fe0b0>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,21 +15,21 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayModernEnvironmentCheckTestFragment$ref: FragmentReference;
-declare export opaque type RelayModernEnvironmentCheckTestFragment$fragmentType: RelayModernEnvironmentCheckTestFragment$ref;
-export type RelayModernEnvironmentCheckTestFragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayModernEnvironmentCheckTestFragment$fragmentType: FragmentType;
+export type RelayModernEnvironmentCheckTestFragment$ref = RelayModernEnvironmentCheckTestFragment$fragmentType;
+export type RelayModernEnvironmentCheckTestFragment$data = {|
   +id: string,
   +message: ?{|
     +text: ?string,
   |},
-  +$refType: RelayModernEnvironmentCheckTestFragment$ref,
+  +$fragmentType: RelayModernEnvironmentCheckTestFragment$fragmentType,
 |};
-export type RelayModernEnvironmentCheckTestFragment$data = RelayModernEnvironmentCheckTestFragment;
+export type RelayModernEnvironmentCheckTestFragment = RelayModernEnvironmentCheckTestFragment$data;
 export type RelayModernEnvironmentCheckTestFragment$key = {
   +$data?: RelayModernEnvironmentCheckTestFragment$data,
-  +$fragmentRefs: RelayModernEnvironmentCheckTestFragment$ref,
+  +$fragmentSpreads: RelayModernEnvironmentCheckTestFragment$fragmentType,
   ...
 };
 */
@@ -74,4 +74,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "1b4a25ad102257cf57bbce2a658d418e";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayModernEnvironmentCheckTestFragment$fragmentType,
+  RelayModernEnvironmentCheckTestFragment$data,
+>*/);

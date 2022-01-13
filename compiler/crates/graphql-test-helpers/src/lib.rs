@@ -1,14 +1,16 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{Diagnostic, DiagnosticsResult, SourceLocationKey};
+use common::{Diagnostic, DiagnosticsResult, FeatureFlag, SourceLocationKey};
 use fixture_tests::Fixture;
 use graphql_cli::DiagnosticPrinter;
-use graphql_ir::{build, Program};
+use graphql_ir::{
+    build_ir_with_extra_features, BuilderOptions, FragmentVariablesSemantic, Program, RelayMode,
+};
 use graphql_syntax::parse_executable;
 use graphql_text_printer::{print_fragment, print_operation, PrinterOptions};
 use relay_test_schema::get_test_schema;
@@ -21,7 +23,18 @@ where
     let source_location = SourceLocationKey::standalone(fixture.file_name);
     let schema = get_test_schema();
     let ast = parse_executable(fixture.content, source_location).unwrap();
-    let ir_result = build(&schema, &ast.definitions);
+    let ir_result = build_ir_with_extra_features(
+        &schema,
+        &ast.definitions,
+        &BuilderOptions {
+            allow_undefined_fragment_spreads: false,
+            fragment_variables_semantic: FragmentVariablesSemantic::PassedValue,
+            relay_mode: Some(RelayMode {
+                enable_provided_variables: &FeatureFlag::Enabled,
+            }),
+            default_anonymous_operation_name: None,
+        },
+    );
     let ir = ir_result
         .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
 

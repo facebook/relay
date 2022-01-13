@@ -31,10 +31,10 @@ query RelayClientIDFieldQuery($id: ID!) {
   }
 }
 ==================================== OUTPUT ===================================
-export type RelayClientIDFieldQueryVariables = {|
+export type RelayClientIDFieldQuery$variables = {|
   id: string,
 |};
-export type RelayClientIDFieldQueryResponse = {|
+export type RelayClientIDFieldQuery$data = {|
   +__id: string,
   +me: ?{|
     +__id: string,
@@ -53,18 +53,18 @@ export type RelayClientIDFieldQueryResponse = {|
       |},
       +__id: string,
     |} | {|
-      +__typename: "MarkdownCommentBody",
+      // This will never be '%other', but we need some
+      // value in case none of the concrete values match.
+      +__typename: "%other",
       +__id: string,
     |}),
     +__id: string,
     +id: string,
   |} | {|
-    +__typename: "Feedback" | "Page" | "PhotoStory" | "Story" | "User",
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    +__typename: "%other",
     +__id: string,
     +id: string,
   |}),
-|};
-export type RelayClientIDFieldQuery = {|
-  variables: RelayClientIDFieldQueryVariables,
-  response: RelayClientIDFieldQueryResponse,
 |};

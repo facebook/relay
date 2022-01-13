@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -21,6 +21,7 @@ import type {
   LogFunction,
   MissingFieldHandler,
   MutableRecordSource,
+  MutationParameters,
   OperationAvailability,
   OperationDescriptor,
   OperationLoader,
@@ -160,9 +161,7 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
         handlers: [],
         defaultActorIdentifier: actorEnvironment.actorIdentifier,
         getSourceForActor: actorIdentifier => {
-          return this.forActor(actorIdentifier)
-            .getStore()
-            .getSource();
+          return this.forActor(actorIdentifier).getStore().getSource();
         },
         getTargetForActor: () => {
           return RelayRecordSource.create();
@@ -188,9 +187,7 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
       handlers,
       defaultActorIdentifier: actorEnvironment.actorIdentifier,
       getSourceForActor: actorIdentifier => {
-        return this.forActor(actorIdentifier)
-          .getStore()
-          .getSource();
+        return this.forActor(actorIdentifier).getStore().getSource();
       },
       getTargetForActor: actorIdentifier => {
         let target = targets.get(actorIdentifier);
@@ -273,9 +270,9 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
     });
   }
 
-  applyMutation(
+  applyMutation<TMutation: MutationParameters>(
     actorEnvironment: IActorEnvironment,
-    optimisticConfig: OptimisticResponseConfig,
+    optimisticConfig: OptimisticResponseConfig<TMutation>,
   ): Disposable {
     const subscription = this._execute(actorEnvironment, {
       createSource: () => RelayObservable.create(_sink => {}),
@@ -326,10 +323,35 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
     actorEnvironment: IActorEnvironment,
     {
       operation,
+    }: {
+      operation: OperationDescriptor,
+    },
+  ): RelayObservable<GraphQLResponse> {
+    return this._execute(actorEnvironment, {
+      createSource: () =>
+        actorEnvironment
+          .getNetwork()
+          .execute(
+            operation.request.node.params,
+            operation.request.variables,
+            operation.request.cacheConfig || {},
+            null,
+          ),
+      isClientPayload: false,
+      operation,
+      optimisticConfig: null,
+      updater: null,
+    });
+  }
+
+  executeSubscription<TMutation: MutationParameters>(
+    actorEnvironment: IActorEnvironment,
+    {
+      operation,
       updater,
     }: {
       operation: OperationDescriptor,
-      updater?: ?SelectorStoreUpdater,
+      updater?: ?SelectorStoreUpdater<TMutation['response']>,
     },
   ): RelayObservable<GraphQLResponse> {
     return this._execute(actorEnvironment, {
@@ -349,7 +371,7 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
     });
   }
 
-  executeMutation(
+  executeMutation<TMutation: MutationParameters>(
     actorEnvironment: IActorEnvironment,
     {
       operation,
@@ -357,7 +379,7 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
       optimisticUpdater,
       updater,
       uploadables,
-    }: ExecuteMutationConfig,
+    }: ExecuteMutationConfig<TMutation>,
   ): RelayObservable<GraphQLResponse> {
     let optimisticConfig;
     if (optimisticResponse || optimisticUpdater) {
@@ -413,7 +435,7 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
     return this._isServer;
   }
 
-  _execute(
+  _execute<TMutation: MutationParameters>(
     actorEnvironment: IActorEnvironment,
     {
       createSource,
@@ -425,8 +447,8 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
       createSource: () => RelayObservable<GraphQLResponse>,
       isClientPayload: boolean,
       operation: OperationDescriptor,
-      optimisticConfig: ?OptimisticResponseConfig,
-      updater: ?SelectorStoreUpdater,
+      optimisticConfig: ?OptimisticResponseConfig<TMutation>,
+      updater: ?SelectorStoreUpdater<TMutation['response']>,
     |},
   ): RelayObservable<GraphQLResponse> {
     return RelayObservable.create(sink => {

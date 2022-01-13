@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -7,7 +7,7 @@
 
 use fnv::FnvHashSet;
 use glob::Pattern;
-use interner::StringKey;
+use intern::string_key::StringKey;
 
 use crate::{
     compiler_state::SourceSet,
@@ -64,7 +64,7 @@ fn get_extra_roots(config: &Config, enabled_projects: &FnvHashSet<StringKey>) ->
         if !enabled_projects.contains(&project_config.name) {
             continue;
         }
-        roots.extend(&project_config.extensions);
+        roots.extend(&project_config.schema_extensions);
         if let Some(output_dir) = &project_config.output {
             roots.push(output_dir);
         }

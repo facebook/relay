@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -10,13 +10,12 @@ use crate::{
     no_inline::NO_INLINE_DIRECTIVE_NAME, DeferDirective, StreamDirective, ValidationMessage,
 };
 use common::{Diagnostic, DiagnosticsResult, NamedItem};
-use fnv::FnvHashMap;
 use graphql_ir::{
     Condition, ConditionValue, ConstantValue, FragmentDefinition, FragmentSpread, InlineFragment,
     LinkedField, Program, Selection, Transformed, TransformedMulti, TransformedValue, Transformer,
     Value,
 };
-use interner::StringKey;
+use intern::string_key::{StringKey, StringKeyMap};
 use std::sync::Arc;
 
 pub fn skip_unreachable_node(program: &Program) -> DiagnosticsResult<Program> {
@@ -29,8 +28,7 @@ pub fn skip_unreachable_node(program: &Program) -> DiagnosticsResult<Program> {
     }
 }
 
-type VisitedFragments =
-    FnvHashMap<StringKey, (Arc<FragmentDefinition>, Transformed<FragmentDefinition>)>;
+type VisitedFragments = StringKeyMap<(Arc<FragmentDefinition>, Transformed<FragmentDefinition>)>;
 
 pub struct SkipUnreachableNodeTransform<'s> {
     errors: Vec<Diagnostic>,
@@ -193,7 +191,7 @@ impl<'s> SkipUnreachableNodeTransform<'s> {
         if let Some(fragment) = self.program.fragment(key) {
             self.visited_fragments
                 .insert(key, (Arc::clone(fragment), Transformed::Keep));
-            let transformed = self.transform_fragment(&fragment);
+            let transformed = self.transform_fragment(fragment);
             let should_delete = matches!(transformed, Transformed::Delete);
 
             // N.B. we must call self.visited_fragments.get* twice, because we cannot have
@@ -203,7 +201,7 @@ impl<'s> SkipUnreachableNodeTransform<'s> {
             *visited_opt = transformed;
             should_delete
         } else {
-            return true;
+            true
         }
     }
 

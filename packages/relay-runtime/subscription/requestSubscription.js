@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -30,7 +30,6 @@ const {
   createOperationDescriptor,
 } = require('../store/RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../store/RelayModernSelector');
-const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const warning = require('warning');
 
 export type SubscriptionParameters = {|
@@ -43,11 +42,11 @@ export type GraphQLSubscriptionConfig<T: SubscriptionParameters> = {|
   configs?: Array<DeclarativeMutationConfig>,
   cacheConfig?: CacheConfig,
   subscription: GraphQLTaggedNode,
-  variables: $ElementType<T, 'variables'>,
+  variables: T['variables'],
   onCompleted?: ?() => void,
   onError?: ?(error: Error) => void,
-  onNext?: ?(response: ?$ElementType<T, 'response'>) => void,
-  updater?: ?SelectorStoreUpdater,
+  onNext?: ?(response: ?T['response']) => void,
+  updater?: ?SelectorStoreUpdater<T['response']>,
 |};
 
 export type DEPRECATED_GraphQLSubscriptionConfig<TSubscriptionPayload> = {|
@@ -58,7 +57,7 @@ export type DEPRECATED_GraphQLSubscriptionConfig<TSubscriptionPayload> = {|
   onCompleted?: ?() => void,
   onError?: ?(error: Error) => void,
   onNext?: ?(response: ?TSubscriptionPayload) => void,
-  updater?: ?SelectorStoreUpdater,
+  updater?: ?SelectorStoreUpdater<TSubscriptionPayload>,
 |};
 
 function requestSubscription<TSubscriptionPayload>(
@@ -69,14 +68,8 @@ function requestSubscription<TSubscriptionPayload>(
   if (subscription.params.operationKind !== 'subscription') {
     throw new Error('requestSubscription: Must use Subscription operation');
   }
-  const {
-    configs,
-    onCompleted,
-    onError,
-    onNext,
-    variables,
-    cacheConfig,
-  } = config;
+  const {configs, onCompleted, onError, onNext, variables, cacheConfig} =
+    config;
   const operation = createOperationDescriptor(
     subscription,
     variables,
@@ -98,7 +91,7 @@ function requestSubscription<TSubscriptionPayload>(
     : config;
 
   const sub = environment
-    .execute({
+    .executeSubscription({
       operation,
       updater,
     })

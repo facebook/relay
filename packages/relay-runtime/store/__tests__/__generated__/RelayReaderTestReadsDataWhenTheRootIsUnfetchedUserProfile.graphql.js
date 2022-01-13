@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<dfa707b2788483142b720e2cb3e0c5d8>>
+ * @generated SignedSource<<aa3fe46bd2ee368083eb2a0610b383c3>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,18 +15,18 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayReaderTestReadsDataWhenTheRootIsUnfetchedUserProfile$ref: FragmentReference;
-declare export opaque type RelayReaderTestReadsDataWhenTheRootIsUnfetchedUserProfile$fragmentType: RelayReaderTestReadsDataWhenTheRootIsUnfetchedUserProfile$ref;
-export type RelayReaderTestReadsDataWhenTheRootIsUnfetchedUserProfile = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayReaderTestReadsDataWhenTheRootIsUnfetchedUserProfile$fragmentType: FragmentType;
+export type RelayReaderTestReadsDataWhenTheRootIsUnfetchedUserProfile$ref = RelayReaderTestReadsDataWhenTheRootIsUnfetchedUserProfile$fragmentType;
+export type RelayReaderTestReadsDataWhenTheRootIsUnfetchedUserProfile$data = {|
   +name: ?string,
-  +$refType: RelayReaderTestReadsDataWhenTheRootIsUnfetchedUserProfile$ref,
+  +$fragmentType: RelayReaderTestReadsDataWhenTheRootIsUnfetchedUserProfile$fragmentType,
 |};
-export type RelayReaderTestReadsDataWhenTheRootIsUnfetchedUserProfile$data = RelayReaderTestReadsDataWhenTheRootIsUnfetchedUserProfile;
+export type RelayReaderTestReadsDataWhenTheRootIsUnfetchedUserProfile = RelayReaderTestReadsDataWhenTheRootIsUnfetchedUserProfile$data;
 export type RelayReaderTestReadsDataWhenTheRootIsUnfetchedUserProfile$key = {
   +$data?: RelayReaderTestReadsDataWhenTheRootIsUnfetchedUserProfile$data,
-  +$fragmentRefs: RelayReaderTestReadsDataWhenTheRootIsUnfetchedUserProfile$ref,
+  +$fragmentSpreads: RelayReaderTestReadsDataWhenTheRootIsUnfetchedUserProfile$fragmentType,
   ...
 };
 */
@@ -53,4 +53,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "8a7ed72952ef5e28d836b287932a29f7";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayReaderTestReadsDataWhenTheRootIsUnfetchedUserProfile$fragmentType,
+  RelayReaderTestReadsDataWhenTheRootIsUnfetchedUserProfile$data,
+>*/);

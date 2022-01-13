@@ -1,13 +1,13 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{Named, NamedItem};
-use graphql_syntax::*;
-use interner::{Intern, StringKey};
+use common::{Named, NamedItem, WithLocation};
+use graphql_syntax::{ConstantValue, DirectiveLocation};
+use intern::string_key::{Intern, StringKey};
 use lazy_static::lazy_static;
 use std::collections::HashMap;
 use std::fmt;
@@ -252,7 +252,7 @@ pub struct Scalar {
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct Object {
-    pub name: StringKey,
+    pub name: WithLocation<StringKey>,
     pub is_extension: bool,
     pub fields: Vec<FieldID>,
     pub interfaces: Vec<InterfaceID>,
@@ -299,7 +299,7 @@ pub struct Interface {
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct Field {
-    pub name: StringKey,
+    pub name: WithLocation<StringKey>,
     pub is_extension: bool,
     pub arguments: ArgumentDefinitions,
     pub type_: TypeReference,
@@ -430,7 +430,18 @@ macro_rules! impl_named {
     };
 }
 
-impl_named!(Object);
+macro_rules! impl_named_for_with_location {
+    ($type_name:ident) => {
+        impl Named for $type_name {
+            fn name(&self) -> StringKey {
+                self.name.item
+            }
+        }
+    };
+}
+
+impl_named_for_with_location!(Object);
+impl_named_for_with_location!(Field);
 impl_named!(Interface);
 impl_named!(Union);
 impl_named!(Scalar);

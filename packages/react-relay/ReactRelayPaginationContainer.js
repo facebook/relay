@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -256,7 +256,6 @@ function createGetFragmentVariables(
     'ReactRelayPaginationContainer: Unable to synthesize a ' +
       'getFragmentVariables function.',
   );
-  // $FlowFixMe[cannot-spread-interface]
   return (prevVars: Variables, totalCount: number) => ({
     ...prevVars,
     [countVariable]: totalCount,
@@ -764,9 +763,7 @@ function createContainerWithFragments<
       };
       let fragmentVariables;
       const rootVariables = getRootVariablesForFragments(fragments, restProps);
-      // $FlowFixMe[cannot-spread-interface]
       fragmentVariables = getVariablesFromObject(fragments, restProps);
-      // $FlowFixMe[cannot-spread-interface]
       fragmentVariables = {
         ...rootVariables,
         ...fragmentVariables,
@@ -787,7 +784,6 @@ function createContainerWithFragments<
         fetchVariables,
         componentName,
       );
-      // $FlowFixMe[cannot-spread-interface]
       fetchVariables = {
         ...fetchVariables,
         ...this._refetchVariables,
@@ -904,12 +900,8 @@ function createContainerWithFragments<
     }
 
     render() {
-      const {
-        componentRef,
-        __relayContext,
-        __rootIsQueryRenderer,
-        ...props
-      } = this.props;
+      const {componentRef, __relayContext, __rootIsQueryRenderer, ...props} =
+        this.props;
       return (
         <ReactRelayContext.Provider value={this.state.contextForChildren}>
           <Component

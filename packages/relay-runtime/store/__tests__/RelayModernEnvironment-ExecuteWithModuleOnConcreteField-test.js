@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -146,7 +146,8 @@ describe('execute() a query with @module on a field with a nullable concrete typ
           __fragmentPropName: 'author',
 
           __fragments: {
-            RelayModernEnvironmentExecuteWithModuleOnConcreteFieldTestFeedbackAuthor_author: {},
+            RelayModernEnvironmentExecuteWithModuleOnConcreteFieldTestFeedbackAuthor_author:
+              {},
           },
 
           __fragmentOwner: operation.request,

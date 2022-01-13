@@ -1,11 +1,11 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use interner::StringKey;
+use intern::string_key::StringKey;
 use schema::{SDLSchema, Schema, Type};
 use strsim::damerau_levenshtein;
 
@@ -46,7 +46,7 @@ impl<'a> LexicalDistance<'a> {
             return Some(1);
         }
 
-        let distance = damerau_levenshtein(&self.input, option);
+        let distance = damerau_levenshtein(self.input, option);
         if distance <= threshold {
             Some(distance)
         } else {
@@ -173,14 +173,14 @@ impl<'schema> GraphQLSuggestions<'schema> {
                 .object(object_id)
                 .fields
                 .iter()
-                .map(|field_id| self.schema.field(*field_id).name)
+                .map(|field_id| self.schema.field(*field_id).name.item)
                 .collect(),
             Some(Type::Interface(interface_id)) => self
                 .schema
                 .interface(interface_id)
                 .fields
                 .iter()
-                .map(|field_id| self.schema.field(*field_id).name)
+                .map(|field_id| self.schema.field(*field_id).name.item)
                 .collect(),
             Some(Type::InputObject(input_id)) => self
                 .schema
@@ -198,7 +198,7 @@ impl<'schema> GraphQLSuggestions<'schema> {
 #[cfg(test)]
 mod tests {
     use super::suggestion_list;
-    use interner::Intern;
+    use intern::string_key::Intern;
 
     #[test]
     fn test_suggestion_list_empty_input() {

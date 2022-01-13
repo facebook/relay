@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<620bc135159b6caf20e5be4794164618>>
+ * @generated SignedSource<<a6ca9b5c962b9e1f6e39c766de8f4589>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,20 +15,22 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type ReactRelayPaginationContainerReactDoubleEffectsTestUserFragment$ref = any;
-export type ReactRelayPaginationContainerReactDoubleEffectsTestUserQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type ReactRelayPaginationContainerReactDoubleEffectsTestUserFragment$fragmentType = any;
+export type ReactRelayPaginationContainerReactDoubleEffectsTestUserQuery$variables = {|
   id: string,
   count: number,
 |};
-export type ReactRelayPaginationContainerReactDoubleEffectsTestUserQueryResponse = {|
+export type ReactRelayPaginationContainerReactDoubleEffectsTestUserQueryVariables = ReactRelayPaginationContainerReactDoubleEffectsTestUserQuery$variables;
+export type ReactRelayPaginationContainerReactDoubleEffectsTestUserQuery$data = {|
   +node: ?{|
-    +$fragmentRefs: ReactRelayPaginationContainerReactDoubleEffectsTestUserFragment$ref,
+    +$fragmentSpreads: ReactRelayPaginationContainerReactDoubleEffectsTestUserFragment$fragmentType,
   |},
 |};
+export type ReactRelayPaginationContainerReactDoubleEffectsTestUserQueryResponse = ReactRelayPaginationContainerReactDoubleEffectsTestUserQuery$data;
 export type ReactRelayPaginationContainerReactDoubleEffectsTestUserQuery = {|
   variables: ReactRelayPaginationContainerReactDoubleEffectsTestUserQueryVariables,
-  response: ReactRelayPaginationContainerReactDoubleEffectsTestUserQueryResponse,
+  response: ReactRelayPaginationContainerReactDoubleEffectsTestUserQuery$data,
 |};
 */
 
@@ -232,4 +234,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "9abbd5101c0d2ac96fcf72a41c26a948";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  ReactRelayPaginationContainerReactDoubleEffectsTestUserQuery$variables,
+  ReactRelayPaginationContainerReactDoubleEffectsTestUserQuery$data,
+>*/);

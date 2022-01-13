@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -12,7 +12,7 @@ use graphql_syntax::{
     FragmentSpread, InlineFragment, LinkedField, List, OperationDefinition, ScalarField, Selection,
     TypeCondition,
 };
-use interner::StringKey;
+use intern::string_key::StringKey;
 
 mod type_path;
 pub use type_path::{TypePath, TypePathItem};
@@ -82,7 +82,7 @@ fn type_condition_at_position(
     Some(NodeKind::TypeCondition(type_condition.type_.value))
 }
 
-pub(crate) fn create_node_resolution_info(
+pub fn create_node_resolution_info(
     document: ExecutableDocument,
     position_span: Span,
 ) -> LSPRuntimeResult<NodeResolutionInfo> {
@@ -257,7 +257,7 @@ fn build_node_resolution_info_from_selections(
                         .add_type(TypePathItem::InlineFragment { type_name });
 
                     if let Some(node_kind) =
-                        type_condition_at_position(&type_condition, position_span)
+                        type_condition_at_position(type_condition, position_span)
                     {
                         node_resolution_info.kind = node_kind;
                     } else {
@@ -296,7 +296,7 @@ mod test {
     use super::{NodeKind, NodeResolutionInfo};
     use common::{SourceLocationKey, Span};
     use graphql_syntax::parse_executable;
-    use interner::Intern;
+    use intern::string_key::Intern;
 
     fn parse_and_get_node_info(source: &str, pos: u32) -> NodeResolutionInfo {
         let document =

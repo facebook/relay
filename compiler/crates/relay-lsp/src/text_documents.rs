@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -17,7 +17,7 @@ use lsp_types::{
     DidChangeTextDocumentParams, DidOpenTextDocumentParams, TextDocumentItem,
 };
 
-pub(crate) fn on_did_open_text_document(
+pub fn on_did_open_text_document(
     lsp_state: &impl GlobalState,
     params: <DidOpenTextDocument as Notification>::Params,
 ) -> LSPRuntimeResult<()> {
@@ -30,21 +30,11 @@ pub(crate) fn on_did_open_text_document(
         return Ok(());
     }
 
-    if let Some(js_server) = lsp_state.get_js_language_sever() {
-        js_server.process_js_source(&uri, &text);
-    }
-
-    // First we check to see if this document has any GraphQL documents.
-    let graphql_sources = extract_graphql::parse_chunks(&text);
-    if graphql_sources.is_empty() {
-        Ok(())
-    } else {
-        lsp_state.process_synced_sources(&uri, graphql_sources)
-    }
+    lsp_state.document_opened(&uri, &text)
 }
 
 #[allow(clippy::unnecessary_wraps)]
-pub(crate) fn on_did_close_text_document(
+pub fn on_did_close_text_document(
     lsp_state: &impl GlobalState,
     params: <DidCloseTextDocument as Notification>::Params,
 ) -> LSPRuntimeResult<()> {
@@ -56,14 +46,10 @@ pub(crate) fn on_did_close_text_document(
         return Ok(());
     }
 
-    if let Some(js_server) = lsp_state.get_js_language_sever() {
-        js_server.remove_js_source(&uri);
-    }
-    lsp_state.remove_synced_sources(&uri);
-    Ok(())
+    lsp_state.document_closed(&uri)
 }
 
-pub(crate) fn on_did_change_text_document(
+pub fn on_did_change_text_document(
     lsp_state: &impl GlobalState,
     params: <DidChangeTextDocument as Notification>::Params,
 ) -> LSPRuntimeResult<()> {
@@ -84,20 +70,7 @@ pub(crate) fn on_did_change_text_document(
         .first()
         .expect("content_changes should always be non-empty");
 
-    if let Some(js_server) = lsp_state.get_js_language_sever() {
-        js_server.process_js_source(&uri, &content_change.text);
-    }
-
-
-    // First we check to see if this document has any GraphQL documents.
-    let graphql_sources = extract_graphql::parse_chunks(&content_change.text);
-    if graphql_sources.is_empty() {
-        lsp_state.remove_synced_sources(&uri);
-
-        Ok(())
-    } else {
-        lsp_state.process_synced_sources(&uri, graphql_sources)
-    }
+    lsp_state.document_changed(&uri, &content_change.text)
 }
 
 #[allow(clippy::unnecessary_wraps)]
@@ -109,7 +82,7 @@ pub(crate) fn on_did_save_text_document(
 }
 
 #[allow(clippy::unnecessary_wraps)]
-pub(crate) fn on_cancel(
+pub fn on_cancel(
     _lsp_state: &impl GlobalState,
     _params: <Cancel as Notification>::Params,
 ) -> LSPRuntimeResult<()> {

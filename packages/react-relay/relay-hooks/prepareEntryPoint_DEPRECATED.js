@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -51,12 +51,8 @@ function prepareEntryPoint<
   if (queries != null) {
     const queriesPropNames = Object.keys(queries);
     queriesPropNames.forEach(queryPropName => {
-      const {
-        environmentProviderOptions,
-        options,
-        parameters,
-        variables,
-      } = queries[queryPropName];
+      const {environmentProviderOptions, options, parameters, variables} =
+        queries[queryPropName];
 
       const environment = environmentProvider.getEnvironment(
         environmentProviderOptions,
@@ -79,10 +75,8 @@ function prepareEntryPoint<
       if (entryPointDescription == null) {
         return;
       }
-      const {
-        entryPoint: nestedEntryPoint,
-        entryPointParams: nestedParams,
-      } = entryPointDescription;
+      const {entryPoint: nestedEntryPoint, entryPointParams: nestedParams} =
+        entryPointDescription;
       preloadedEntryPoints[entryPointPropName] = prepareEntryPoint(
         environmentProvider,
         nestedEntryPoint,

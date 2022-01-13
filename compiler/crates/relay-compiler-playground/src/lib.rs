@@ -1,27 +1,29 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
 use common::{
-    Diagnostic, NoopPerfLogger,
+    Diagnostic, FeatureFlags, NoopPerfLogger,
     SourceLocationKey::{self, Generated},
 };
-use console_error_panic_hook;
-use fnv::FnvHashSet;
+
 use graphql_ir::Program;
-use graphql_syntax;
+
 use graphql_text_printer::{self, PrinterOptions};
-use interner::Intern;
+use intern::string_key::Intern;
 use relay_codegen::{print_fragment, print_operation, JsModuleFormat};
+use relay_config::ProjectConfig;
 use relay_schema::build_schema_with_extensions;
-use relay_transforms::{apply_transforms, ConnectionInterface, FeatureFlags, Programs};
-use relay_typegen::{generate_fragment_type, generate_operation_type, TypegenConfig};
+use relay_transforms::{apply_transforms, Programs};
+use relay_typegen::{
+    generate_fragment_type_exports_section, generate_operation_type_exports_section, TypegenConfig,
+};
 use schema::SDLSchema;
 use serde::Serialize;
-use serde_json;
+
 use std::sync::Arc;
 
 use wasm_bindgen::prelude::*;
@@ -75,7 +77,7 @@ pub fn parse_to_ast_impl(document_text: &str) -> PlaygroundResult {
         .map(|document| format!("{:?}", document))
         .map_err(|diagnostics| map_diagnostics(diagnostics, &InputType::Document(document_text)))?;
 
-    Ok(serialized_document.into())
+    Ok(serialized_document)
 }
 
 #[wasm_bindgen]
@@ -86,7 +88,6 @@ pub fn parse_to_ir(schema_text: &str, document_text: &str) -> String {
 pub fn parse_to_ir_impl(schema_text: &str, document_text: &str) -> PlaygroundResult {
     let document = graphql_syntax::parse_executable(document_text, Generated)
         .map_err(|diagnostics| map_diagnostics(diagnostics, &InputType::Document(document_text)))?;
-
 
     let schema = Arc::new(
         build_schema_with_extensions(&[schema_text], &Vec::<(&str, SourceLocationKey)>::new())
@@ -100,8 +101,7 @@ pub fn parse_to_ir_impl(schema_text: &str, document_text: &str) -> PlaygroundRes
         .iter()
         .map(|definition| format!("{:?}", definition))
         .collect::<Vec<String>>()
-        .join("\n")
-        .into())
+        .join("\n"))
 }
 
 #[wasm_bindgen]
@@ -126,23 +126,23 @@ pub fn parse_to_reader_ast_impl(
         build_schema_with_extensions(&[schema_text], &Vec::<(&str, SourceLocationKey)>::new())
             .map_err(|diagnostics| map_diagnostics(diagnostics, &InputType::Schema(schema_text)))?,
     );
-
-    let programs = get_programs(feature_flags_json, &schema, document_text)?;
+    let project_config = get_project_config(feature_flags_json, None)?;
+    let programs = get_programs(&schema, &project_config, document_text)?;
 
     let reader_ast_string = programs
         .reader
         .fragments()
-        .map(|def| print_fragment(&schema, &def, JsModuleFormat::Haste))
+        .map(|def| print_fragment(&schema, def, JsModuleFormat::Haste))
         .chain(
             programs
                 .reader
                 .operations()
-                .map(|def| print_operation(&schema, &def, JsModuleFormat::Haste)),
+                .map(|def| print_operation(&schema, def, JsModuleFormat::Haste)),
         )
         .collect::<Vec<_>>()
         .join("\n\n");
 
-    Ok(reader_ast_string.into())
+    Ok(reader_ast_string)
 }
 
 #[wasm_bindgen]
@@ -167,17 +167,17 @@ pub fn parse_to_normalization_ast_impl(
         build_schema_with_extensions(&[schema_text], &Vec::<(&str, SourceLocationKey)>::new())
             .map_err(|diagnostics| map_diagnostics(diagnostics, &InputType::Schema(schema_text)))?,
     );
-
-    let programs = get_programs(feature_flags_json, &schema, document_text)?;
+    let project_config = get_project_config(feature_flags_json, None)?;
+    let programs = get_programs(&schema, &project_config, document_text)?;
 
     let normalization_ast_string = programs
         .normalization
         .operations()
-        .map(|def| print_operation(&schema, &def, JsModuleFormat::Haste))
+        .map(|def| print_operation(&schema, def, JsModuleFormat::Haste))
         .collect::<Vec<_>>()
         .join("\n\n");
 
-    Ok(normalization_ast_string.into())
+    Ok(normalization_ast_string)
 }
 
 #[wasm_bindgen]
@@ -205,33 +205,30 @@ pub fn parse_to_types_impl(
         build_schema_with_extensions(&[schema_text], &Vec::<(&str, SourceLocationKey)>::new())
             .map_err(|diagnostics| map_diagnostics(diagnostics, &InputType::Schema(schema_text)))?,
     );
-
-    let programs = get_programs(feature_flags_json, &schema, document_text)?;
-
-    let typegen_config: TypegenConfig = serde_json::from_str(typegen_config_json)
-        .map_err(|err| PlaygroundError::TypegenConfigError(format!("{}", err)))?;
+    let project_config = get_project_config(feature_flags_json, Some(typegen_config_json))?;
+    let programs = get_programs(&schema, &project_config, document_text)?;
 
     let types_string = programs
         .typegen
         .fragments()
-        .map(|def| generate_fragment_type(&def, &schema, JsModuleFormat::Haste, &typegen_config))
+        .map(|def| generate_fragment_type_exports_section(def, &schema, &project_config))
         .chain(programs.typegen.operations().map(|typegen_operation| {
             let normalization_operation = programs
                 .normalization
                 .operation(typegen_operation.name.item)
                 .unwrap();
-            generate_operation_type(
-                &typegen_operation,
+
+            generate_operation_type_exports_section(
+                typegen_operation,
                 normalization_operation,
                 &schema,
-                JsModuleFormat::Haste,
-                &typegen_config,
+                &project_config,
             )
         }))
         .collect::<Vec<_>>()
         .join("\n\n");
 
-    Ok(types_string.into())
+    Ok(types_string)
 }
 
 #[wasm_bindgen]
@@ -252,7 +249,8 @@ fn transform_impl(
         build_schema_with_extensions(&[schema_text], &Vec::<(&str, SourceLocationKey)>::new())
             .map_err(|diagnostics| map_diagnostics(diagnostics, &InputType::Schema(schema_text)))?,
     );
-    let programs = get_programs(feature_flags_json, &schema, document_text)?;
+    let project_config = get_project_config(feature_flags_json, None)?;
+    let programs = get_programs(&schema, &project_config, document_text)?;
 
     let transformed_operations = programs
         .operation_text
@@ -273,38 +271,51 @@ fn transform_impl(
         .join("\n");
 
     let output = transformed_operations + "\n\n" + &transformed_fragments;
-    Ok(output.into())
+    Ok(output)
+}
+
+fn get_project_config(
+    feature_flags_json: &str,
+    typegen_config_json: Option<&str>,
+) -> Result<ProjectConfig, PlaygroundError> {
+    let feature_flags: FeatureFlags = serde_json::from_str(feature_flags_json)
+        .map_err(|err| PlaygroundError::ConfigError(format!("{}", err)))?;
+    let project_name = "test_project".intern();
+    let typegen_config: TypegenConfig = typegen_config_json
+        .map(|str| {
+            serde_json::from_str(str)
+                .map_err(|err| PlaygroundError::TypegenConfigError(format!("{}", err)))
+        })
+        .unwrap_or(Ok(TypegenConfig::default()))?;
+
+
+    Ok(ProjectConfig {
+        name: project_name,
+        feature_flags: Arc::new(feature_flags),
+        typegen_config,
+        ..Default::default()
+    })
 }
 
 fn get_programs(
-    feature_flags_json: &str,
     schema: &Arc<SDLSchema>,
+    project_config: &ProjectConfig,
     document_text: &str,
 ) -> Result<Programs, PlaygroundError> {
     let document = graphql_syntax::parse_executable(document_text, Generated)
         .map_err(|diagnostics| map_diagnostics(diagnostics, &InputType::Document(document_text)))?;
 
-
-    let ir = graphql_ir::build(&schema, &document.definitions)
+    let ir = graphql_ir::build(schema, &document.definitions)
         .map_err(|diagnostics| map_diagnostics(diagnostics, &InputType::Document(document_text)))?;
 
     let program = Program::from_definitions(schema.clone(), ir);
-
-    let project_name = "test_project".intern();
-    let base_fragment_names = Arc::new(FnvHashSet::default());
-    let connection_interface = ConnectionInterface::default();
-    let feature_flags: FeatureFlags = serde_json::from_str(feature_flags_json)
-        .map_err(|err| PlaygroundError::ConfigError(format!("{}", err)))?;
-    let perf_logger = NoopPerfLogger;
+    let base_fragment_names = Arc::new(Default::default());
 
     apply_transforms(
-        project_name,
+        &project_config,
         Arc::new(program),
         base_fragment_names,
-        &connection_interface,
-        Arc::new(feature_flags),
-        &None,
-        Arc::new(perf_logger),
+        Arc::new(NoopPerfLogger),
         None,
     )
     .map_err(|diagnostics: Vec<Diagnostic>| {

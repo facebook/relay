@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<8550e84f5e4dfbaf631a01e7a1de511f>>
+ * @generated SignedSource<<2f24c5e0d9f00811b635f42ac0378560>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,13 +15,13 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-type useBlockingPaginationFragmentWithSuspenseTransitionTestNestedUserFragment$ref = any;
-import type { FragmentReference } from "relay-runtime";
-type useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment$ref = any;
-type useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment$fragmentType = any;
-export type { useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment$ref, useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment$fragmentType };
-export type useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment = {|
+import type { ReaderFragment, RefetchableFragment } from 'relay-runtime';
+type useBlockingPaginationFragmentWithSuspenseTransitionTestNestedUserFragment$fragmentType = any;
+import type { FragmentType } from "relay-runtime";
+declare export opaque type useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment$fragmentType: FragmentType;
+export type useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment$ref = useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment$fragmentType;
+type useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragmentPaginationQuery$variables = any;
+export type useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment$data = {|
   +id: string,
   +name: ?string,
   +friends: ?{|
@@ -29,16 +29,16 @@ export type useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment 
       +node: ?{|
         +id: string,
         +name: ?string,
-        +$fragmentRefs: useBlockingPaginationFragmentWithSuspenseTransitionTestNestedUserFragment$ref,
+        +$fragmentSpreads: useBlockingPaginationFragmentWithSuspenseTransitionTestNestedUserFragment$fragmentType,
       |},
     |}>,
   |},
-  +$refType: useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment$ref,
+  +$fragmentType: useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment$fragmentType,
 |};
-export type useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment$data = useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment;
+export type useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment = useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment$data;
 export type useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment$key = {
   +$data?: useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment$data,
-  +$fragmentRefs: useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment$ref,
+  +$fragmentSpreads: useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment$fragmentType,
   ...
 };
 */
@@ -237,4 +237,8 @@ if (__DEV__) {
   (node/*: any*/).hash = "f40001b7b963988467bb56b398ac1e1a";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: RefetchableFragment<
+  useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment$fragmentType,
+  useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment$data,
+  useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragmentPaginationQuery$variables,
+>*/);

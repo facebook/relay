@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -73,12 +73,8 @@ const {
   STREAM,
   TYPE_DISCRIMINATOR,
 } = RelayConcreteNode;
-const {
-  ROOT_ID,
-  getModuleOperationKey,
-  getStorageKey,
-  getArgumentValues,
-} = RelayStoreUtils;
+const {ROOT_ID, getModuleOperationKey, getStorageKey, getArgumentValues} =
+  RelayStoreUtils;
 
 /**
  * Synchronously check whether the records required to fulfill the given
@@ -209,7 +205,6 @@ class DataChecker {
       'RelayAsyncLoader(): Undefined variable `%s`.',
       name,
     );
-    // $FlowFixMe[cannot-write]
     return this._variables[name];
   }
 
@@ -593,10 +588,8 @@ class DataChecker {
       const prevMutator = this._mutator;
       const prevRecordSourceProxy = this._recordSourceProxy;
 
-      const [
-        mutator,
-        recordSourceProxy,
-      ] = this._getMutatorAndRecordProxyForActor(actorIdentifier);
+      const [mutator, recordSourceProxy] =
+        this._getMutatorAndRecordProxyForActor(actorIdentifier);
 
       this._source = this._getSourceForActor(actorIdentifier);
       this._mutator = mutator;

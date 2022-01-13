@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<e34f4ba5c62aee398a4362cb17021ac7>>
+ * @generated SignedSource<<74ecc6b85aba60172f972a41fd76fc61>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,19 +15,21 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernEnvironmentTypeRefinementTest1Fragment$ref = any;
-export type RelayModernEnvironmentTypeRefinementTest1QueryVariables = {||};
-export type RelayModernEnvironmentTypeRefinementTest1QueryResponse = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayModernEnvironmentTypeRefinementTest1Fragment$fragmentType = any;
+export type RelayModernEnvironmentTypeRefinementTest1Query$variables = {||};
+export type RelayModernEnvironmentTypeRefinementTest1QueryVariables = RelayModernEnvironmentTypeRefinementTest1Query$variables;
+export type RelayModernEnvironmentTypeRefinementTest1Query$data = {|
   +viewer: ?{|
     +actor: ?{|
-      +$fragmentRefs: RelayModernEnvironmentTypeRefinementTest1Fragment$ref,
+      +$fragmentSpreads: RelayModernEnvironmentTypeRefinementTest1Fragment$fragmentType,
     |},
   |},
 |};
+export type RelayModernEnvironmentTypeRefinementTest1QueryResponse = RelayModernEnvironmentTypeRefinementTest1Query$data;
 export type RelayModernEnvironmentTypeRefinementTest1Query = {|
   variables: RelayModernEnvironmentTypeRefinementTest1QueryVariables,
-  response: RelayModernEnvironmentTypeRefinementTest1QueryResponse,
+  response: RelayModernEnvironmentTypeRefinementTest1Query$data,
 |};
 */
 
@@ -145,4 +147,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "0f830411ec71822a790dddf94b77c10d";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentTypeRefinementTest1Query$variables,
+  RelayModernEnvironmentTypeRefinementTest1Query$data,
+>*/);

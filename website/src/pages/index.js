@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -87,7 +87,7 @@ const Index = () => {
   const {isDarkTheme} = useThemeContext();
 
   const showcase = siteConfig.customFields.users
-    .filter(user => {
+    .filter((user) => {
       return user.pinned;
     })
     .map((user, i) => {
@@ -618,7 +618,7 @@ export default function ArtistCard(props) {
   );
 };
 
-export default props => (
+export default (props) => (
   <Layout>
     <Index {...props} />
   </Layout>

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -65,7 +65,7 @@ let nextId = 0;
 
 class ReactRelayTestMocker {
   _environment: IEnvironment;
-  _defaults: {[string]: $PropertyType<NetworkWriteConfig, 'payload'>, ...} = {};
+  _defaults: {[string]: NetworkWriteConfig['payload'], ...} = {};
   _pendingFetches: Array<PendingFetch> = [];
 
   constructor(env: IEnvironment) {
@@ -117,7 +117,6 @@ class ReactRelayTestMocker {
    * annoying to test (e.g. client_mutation_id, actor_id)
    */
   static stripUnused(variables: Variables): Variables {
-    // $FlowFixMe[prop-missing]
     if (variables.input) {
       const toRemove = [
         'client_mutation_id',
@@ -125,7 +124,6 @@ class ReactRelayTestMocker {
         'clientMutationId',
         'actorId',
       ];
-      // $FlowFixMe[cannot-spread-interface]
       const strippedVariables = {...variables, input: {...variables.input}};
       toRemove.forEach(item => (strippedVariables.input[item] = undefined));
       return strippedVariables;
@@ -142,7 +140,11 @@ class ReactRelayTestMocker {
    * their components behave under error conditions.
    */
   _mockNetworkLayer(env: IEnvironment): IEnvironment {
-    const fetch = (request, variables, cacheConfig) => {
+    const fetch = (
+      request: RequestParameters,
+      variables: Variables,
+      cacheConfig: CacheConfig,
+    ) => {
       let resolve;
       let reject;
       const promise = new Promise((res, rej) => {

@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<6ac6476270cc0c14fd70e2f119e4bf7f>>
+ * @generated SignedSource<<be569fe5ecd0bb976985ad3c76991600>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,21 +15,22 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type useBlockingPaginationFragmentTest4Fragment$ref: FragmentReference;
-declare export opaque type useBlockingPaginationFragmentTest4Fragment$fragmentType: useBlockingPaginationFragmentTest4Fragment$ref;
-export type useBlockingPaginationFragmentTest4FragmentRefetchQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+type useBlockingPaginationFragmentTest4Fragment$fragmentType = any;
+export type useBlockingPaginationFragmentTest4FragmentRefetchQuery$variables = {|
   id: string,
 |};
-export type useBlockingPaginationFragmentTest4FragmentRefetchQueryResponse = {|
+export type useBlockingPaginationFragmentTest4FragmentRefetchQueryVariables = useBlockingPaginationFragmentTest4FragmentRefetchQuery$variables;
+export type useBlockingPaginationFragmentTest4FragmentRefetchQuery$data = {|
   +node: ?{|
-    +$fragmentRefs: useBlockingPaginationFragmentTest4Fragment$ref,
+    +$fragmentSpreads: useBlockingPaginationFragmentTest4Fragment$fragmentType,
   |},
 |};
+export type useBlockingPaginationFragmentTest4FragmentRefetchQueryResponse = useBlockingPaginationFragmentTest4FragmentRefetchQuery$data;
 export type useBlockingPaginationFragmentTest4FragmentRefetchQuery = {|
   variables: useBlockingPaginationFragmentTest4FragmentRefetchQueryVariables,
-  response: useBlockingPaginationFragmentTest4FragmentRefetchQueryResponse,
+  response: useBlockingPaginationFragmentTest4FragmentRefetchQuery$data,
 |};
 */
 
@@ -123,4 +124,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "43246af9f06d0dfe5df218b7d05f131c";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  useBlockingPaginationFragmentTest4FragmentRefetchQuery$variables,
+  useBlockingPaginationFragmentTest4FragmentRefetchQuery$data,
+>*/);

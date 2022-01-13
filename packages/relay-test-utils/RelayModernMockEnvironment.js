@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -441,11 +441,13 @@ function createMockEnvironment(
   const createExecuteProxy = (
     env: IEnvironment,
     fn: // $FlowFixMe[method-unbinding] added when improving typing for this parameters
-    | $PropertyType<IEnvironment, 'execute'>
+    | IEnvironment['execute']
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
-      | $PropertyType<IEnvironment, 'executeWithSource'>
+      | IEnvironment['executeSubscription']
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
-      | $PropertyType<IEnvironment, 'executeMutation'>,
+      | IEnvironment['executeWithSource']
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
+      | IEnvironment['executeMutation'],
   ) => {
     return (...argumentsList) => {
       const [{operation}] = argumentsList;
@@ -457,6 +459,12 @@ function createMockEnvironment(
   // $FlowExpectedError[cannot-write]
   // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   environment.execute = createExecuteProxy(environment, environment.execute);
+  // $FlowExpectedError[cannot-write]
+  environment.executeSubscription = createExecuteProxy(
+    environment,
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
+    environment.executeSubscription,
+  );
   // $FlowExpectedError[cannot-write]
   environment.executeWithSource = createExecuteProxy(
     environment,
@@ -480,6 +488,7 @@ function createMockEnvironment(
     mockDisposableMethod(environment, 'subscribe');
     mockDisposableMethod(environment, 'retain');
     mockObservableMethod(environment, 'execute');
+    mockObservableMethod(environment, 'executeSubscription');
     mockObservableMethod(environment, 'executeWithSource');
     mockObservableMethod(environment, 'executeMutation');
 
@@ -541,6 +550,11 @@ function createMockEnvironment(
     environment.execute.mockClear();
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     environment.executeMutation.mockClear();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
+    environment.executeSubscription.mockClear();
+
+    // $FlowExpectedError[prop-missing]
+    store.getSource().clear?.();
 
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     store.getSource.mockClear();

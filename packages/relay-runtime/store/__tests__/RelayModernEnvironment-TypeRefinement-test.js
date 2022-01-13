@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -12,6 +12,7 @@
 // flowlint ambiguous-object-type:error
 
 'use strict';
+import type {OperationDescriptor} from 'relay-runtime/store/RelayStoreTypes';
 
 const RelayNetwork = require('../../network/RelayNetwork');
 const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
@@ -130,7 +131,7 @@ describe('missing data detection', () => {
   // Commit the given payload, immediately running GC to prune any data
   // that wouldn't be retained by the query
   // eslint-disable-next-line no-shadow
-  function commitPayload(operation, payload) {
+  function commitPayload(operation: OperationDescriptor, payload) {
     environment.retain(operation);
     environment.commitPayload(operation, payload);
     (environment.getStore(): $FlowFixMe).scheduleGC();

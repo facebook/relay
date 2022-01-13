@@ -24,16 +24,36 @@ fragment BestFriendResolverFragment_name on User {
 }
 
 fragment Foo_user on User {
-  best_friend @__clientEdge(queryName: "ClientEdgeQuery_Foo_user_best_friend") {
-    url(site: $top_level_site)
-    best_friend @__clientEdge(queryName: "ClientEdgeQuery_Foo_user_best_friend__best_friend") {
-      name
-      url(site: $nested_site)
+  ... @__clientEdge(queryName: "ClientEdgeQuery_Foo_user_best_friend") {
+    ...BestFriendResolverFragment_name @__RelayResolverSpreadMetadata
+    # RelayResolverSpreadMetadata {
+    #     field_parent_type: "User",
+    #     import_path: "BestFriendResolver",
+    #     field_name: "best_friend",
+    #     field_alias: None,
+    # }
+    
+    best_friend {
+      url(site: $top_level_site)
+      ... @__clientEdge(queryName: "ClientEdgeQuery_Foo_user_best_friend__best_friend") {
+        ...BestFriendResolverFragment_name @__RelayResolverSpreadMetadata
+        # RelayResolverSpreadMetadata {
+        #     field_parent_type: "User",
+        #     import_path: "BestFriendResolver",
+        #     field_name: "best_friend",
+        #     field_alias: None,
+        # }
+        
+        best_friend {
+          name
+          url(site: $nested_site)
+        }
+      }
     }
   }
 }
 
-fragment RefetchableClientEdgeQuery_Foo_user_best_friend on User @__RefetchableMetadata
+fragment RefetchableClientEdgeQuery_Foo_user_best_friend on User @__clientEdgeGeneratedFragment(clientEdgeSourceDocument: "Foo_user") @__RefetchableMetadata
 # RefetchableMetadata {
 #     operation_name: "ClientEdgeQuery_Foo_user_best_friend",
 #     path: [
@@ -45,14 +65,24 @@ fragment RefetchableClientEdgeQuery_Foo_user_best_friend on User @__RefetchableM
 # }
  {
   url(site: $top_level_site)
-  best_friend @__clientEdge(queryName: "ClientEdgeQuery_Foo_user_best_friend__best_friend") {
-    name
-    url(site: $nested_site)
+  ... @__clientEdge(queryName: "ClientEdgeQuery_Foo_user_best_friend__best_friend") {
+    ...BestFriendResolverFragment_name @__RelayResolverSpreadMetadata
+    # RelayResolverSpreadMetadata {
+    #     field_parent_type: "User",
+    #     import_path: "BestFriendResolver",
+    #     field_name: "best_friend",
+    #     field_alias: None,
+    # }
+    
+    best_friend {
+      name
+      url(site: $nested_site)
+    }
   }
   id
 }
 
-fragment RefetchableClientEdgeQuery_Foo_user_best_friend__best_friend on User @__RefetchableMetadata
+fragment RefetchableClientEdgeQuery_Foo_user_best_friend__best_friend on User @__clientEdgeGeneratedFragment(clientEdgeSourceDocument: "Foo_user") @__RefetchableMetadata
 # RefetchableMetadata {
 #     operation_name: "ClientEdgeQuery_Foo_user_best_friend__best_friend",
 #     path: [
@@ -72,7 +102,7 @@ query ClientEdgeQuery_Foo_user_best_friend(
   $nested_site: String
   $top_level_site: String
   $id: ID!
-) @__clientEdgeQuery {
+) @__clientEdgeQuery(clientEdgeSourceDocument: "Foo_user") {
   node(id: $id) {
     ...RefetchableClientEdgeQuery_Foo_user_best_friend
   }
@@ -81,7 +111,7 @@ query ClientEdgeQuery_Foo_user_best_friend(
 query ClientEdgeQuery_Foo_user_best_friend__best_friend(
   $nested_site: String
   $id: ID!
-) @__clientEdgeQuery {
+) @__clientEdgeQuery(clientEdgeSourceDocument: "Foo_user") {
   node(id: $id) {
     ...RefetchableClientEdgeQuery_Foo_user_best_friend__best_friend
   }

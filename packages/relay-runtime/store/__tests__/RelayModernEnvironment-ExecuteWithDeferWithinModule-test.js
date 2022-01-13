@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -134,7 +134,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         userNormalizationFragment = require('./__generated__/RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user$normalization.graphql');
         graphql`
           fragment RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user on User
-            @no_inline {
+          @no_inline {
             ...RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserFragment
               @defer(label: "UserFragment")
           }

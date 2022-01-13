@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<c34a82a5827bcb94fb37654dbfaa3707>>
+ * @generated SignedSource<<202e7d21662ee318b475f7c870489678>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,17 +15,19 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type fetchQueryTestFragment$ref = any;
-export type fetchQueryTest4QueryVariables = {||};
-export type fetchQueryTest4QueryResponse = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type fetchQueryTestFragment$fragmentType = any;
+export type fetchQueryTest4Query$variables = {||};
+export type fetchQueryTest4QueryVariables = fetchQueryTest4Query$variables;
+export type fetchQueryTest4Query$data = {|
   +me: ?{|
-    +$fragmentRefs: fetchQueryTestFragment$ref,
+    +$fragmentSpreads: fetchQueryTestFragment$fragmentType,
   |},
 |};
+export type fetchQueryTest4QueryResponse = fetchQueryTest4Query$data;
 export type fetchQueryTest4Query = {|
   variables: fetchQueryTest4QueryVariables,
-  response: fetchQueryTest4QueryResponse,
+  response: fetchQueryTest4Query$data,
 |};
 */
 
@@ -103,4 +105,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "2d32d8bff15f15e3d765d8c6160edecf";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  fetchQueryTest4Query$variables,
+  fetchQueryTest4Query$data,
+>*/);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -7,7 +7,7 @@
 
 use common::{Location, Named, WithLocation};
 use graphql_syntax::{FloatValue, OperationKind};
-use interner::StringKey;
+use intern::string_key::StringKey;
 use schema::{FieldID, Type, TypeReference};
 use schema::{SDLSchema, Schema};
 use std::fmt;
@@ -217,7 +217,7 @@ pub trait Field {
         if let Some(name) = self.alias() {
             name.item
         } else {
-            schema.field(self.definition().item).name
+            schema.field(self.definition().item).name.item
         }
     }
     fn alias_or_name_location(&self) -> Location {
@@ -290,6 +290,16 @@ pub struct Condition {
     pub selections: Vec<Selection>,
     pub value: ConditionValue,
     pub passing_value: bool,
+}
+
+impl Condition {
+    pub fn directive_name(&self) -> &'static str {
+        if self.passing_value {
+            "include"
+        } else {
+            "skip"
+        }
+    }
 }
 
 // Associated Types

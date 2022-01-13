@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<44fccb16217cf2448a60f0f082177e0b>>
+ * @generated SignedSource<<13f0bf9a3c552d135d8432ced99d82c7>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,18 +15,20 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-export type DataCheckerTest2QueryVariables = {||};
-export type DataCheckerTest2QueryResponse = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+export type DataCheckerTest2Query$variables = {||};
+export type DataCheckerTest2QueryVariables = DataCheckerTest2Query$variables;
+export type DataCheckerTest2Query$data = {|
   +me: ?{|
     +profilePicture: ?{|
       +uri: ?string,
     |},
   |},
 |};
+export type DataCheckerTest2QueryResponse = DataCheckerTest2Query$data;
 export type DataCheckerTest2Query = {|
   variables: DataCheckerTest2QueryVariables,
-  response: DataCheckerTest2QueryResponse,
+  response: DataCheckerTest2Query$data,
 |};
 */
 
@@ -146,4 +148,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "7cd54b0080d8dab528631b15888562dc";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  DataCheckerTest2Query$variables,
+  DataCheckerTest2Query$data,
+>*/);

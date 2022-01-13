@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<dba9e6ab71f25343fd8318ea55a512a1>>
+ * @generated SignedSource<<a6c2b99863d19459d34ff2282c471770>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,19 +15,21 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type ReactRelayFragmentContainerReactDoubleEffectsTestUserFragment$ref = any;
-export type ReactRelayFragmentContainerReactDoubleEffectsTestUserQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type ReactRelayFragmentContainerReactDoubleEffectsTestUserFragment$fragmentType = any;
+export type ReactRelayFragmentContainerReactDoubleEffectsTestUserQuery$variables = {|
   id: string,
 |};
-export type ReactRelayFragmentContainerReactDoubleEffectsTestUserQueryResponse = {|
+export type ReactRelayFragmentContainerReactDoubleEffectsTestUserQueryVariables = ReactRelayFragmentContainerReactDoubleEffectsTestUserQuery$variables;
+export type ReactRelayFragmentContainerReactDoubleEffectsTestUserQuery$data = {|
   +node: ?{|
-    +$fragmentRefs: ReactRelayFragmentContainerReactDoubleEffectsTestUserFragment$ref,
+    +$fragmentSpreads: ReactRelayFragmentContainerReactDoubleEffectsTestUserFragment$fragmentType,
   |},
 |};
+export type ReactRelayFragmentContainerReactDoubleEffectsTestUserQueryResponse = ReactRelayFragmentContainerReactDoubleEffectsTestUserQuery$data;
 export type ReactRelayFragmentContainerReactDoubleEffectsTestUserQuery = {|
   variables: ReactRelayFragmentContainerReactDoubleEffectsTestUserQueryVariables,
-  response: ReactRelayFragmentContainerReactDoubleEffectsTestUserQueryResponse,
+  response: ReactRelayFragmentContainerReactDoubleEffectsTestUserQuery$data,
 |};
 */
 
@@ -135,4 +137,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "b3bff2e0a46eaf7e4382f6fbf75d02ac";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  ReactRelayFragmentContainerReactDoubleEffectsTestUserQuery$variables,
+  ReactRelayFragmentContainerReactDoubleEffectsTestUserQuery$data,
+>*/);

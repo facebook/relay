@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -113,7 +113,7 @@ mod tests {
     use super::*;
     use common::{SourceLocationKey, Span};
     use graphql_syntax::{parse_executable_with_features, ParserFeatures};
-    use interner::{Intern, StringKey};
+    use intern::string_key::{Intern, StringKey};
     use relay_test_schema::get_test_schema;
 
     fn get_field_parent_type_name(source: &str, sub_str: &str) -> StringKey {

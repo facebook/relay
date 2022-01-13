@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -12,10 +12,14 @@
 // flowlint ambiguous-object-type:error
 
 'use strict';
-
 import type {NormalizationRootNode} from '../../util/NormalizationNode';
 import type {ReaderFragment} from '../../util/ReaderNode';
 import type {ConcreteRequest} from '../../util/RelayConcreteNode';
+import type {RequestParameters} from 'relay-runtime/util/RelayConcreteNode';
+import type {
+  CacheConfig,
+  Variables,
+} from 'relay-runtime/util/RelayRuntimeTypes';
 
 const {
   MultiActorEnvironment,
@@ -23,7 +27,6 @@ const {
 } = require('../../multi-actor-environment');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -33,10 +36,7 @@ const RelayModernStore = require('../RelayModernStore');
 const RelayRecordSource = require('../RelayRecordSource');
 const QueryUserNormalizationFragment = require('./__generated__/RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user$normalization.graphql');
 const {graphql} = require('relay-runtime');
-const {
-  disallowWarnings,
-  expectWarningWillFire,
-} = require('relay-test-utils-internal');
+const {disallowWarnings} = require('relay-test-utils-internal');
 
 disallowWarnings();
 
@@ -101,7 +101,11 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         error = jest.fn();
         next = jest.fn();
         callbacks = {complete, error, next};
-        fetch = (_query, _variables, _cacheConfig) => {
+        fetch = (
+          _query: RequestParameters,
+          _variables: Variables,
+          _cacheConfig: CacheConfig,
+        ) => {
           return RelayObservable.create(sink => {
             dataSource = sink;
           });

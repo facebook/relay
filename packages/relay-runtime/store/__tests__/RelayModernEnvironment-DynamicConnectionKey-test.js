@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -79,10 +79,10 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         `);
         fragment = getFragment(graphql`
           fragment RelayModernEnvironmentDynamicConnectionKeyTestFeedbackFragment on Feedback
-            @argumentDefinitions(
-              count: {type: "Int", defaultValue: 2}
-              cursor: {type: "ID"}
-            ) {
+          @argumentDefinitions(
+            count: {type: "Int", defaultValue: 2}
+            cursor: {type: "ID"}
+          ) {
             id
             comments(after: $cursor, first: $count, orderby: "date")
               @connection(
@@ -179,7 +179,8 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             __id: '<feedbackid>',
 
             __fragments: {
-              RelayModernEnvironmentDynamicConnectionKeyTestFeedbackFragment: {},
+              RelayModernEnvironmentDynamicConnectionKeyTestFeedbackFragment:
+                {},
             },
 
             __fragmentOwner: operation.request,

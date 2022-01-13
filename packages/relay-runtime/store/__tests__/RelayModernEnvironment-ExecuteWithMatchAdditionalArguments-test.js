@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -188,13 +188,13 @@ describe('execute() a query with @match with additional arguments', () => {
     expect(operationSnapshot.data).toEqual({
       node: {
         nameRendererForContext: {
-          __id:
-            'client:1:nameRendererForContext(context:"HEADER",supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+          __id: 'client:1:nameRendererForContext(context:"HEADER",supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
 
           __fragmentPropName: 'name',
 
           __fragments: {
-            RelayModernEnvironmentExecuteWithMatchAdditionalArgumentsTestMarkdownUserNameRenderer_name: {},
+            RelayModernEnvironmentExecuteWithMatchAdditionalArgumentsTestMarkdownUserNameRenderer_name:
+              {},
           },
 
           __fragmentOwner: operation.request,

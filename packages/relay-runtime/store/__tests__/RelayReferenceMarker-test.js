@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -96,7 +96,7 @@ describe('RelayReferenceMarker', () => {
     `);
     graphql`
       fragment RelayReferenceMarkerTest1Fragment on User
-        @argumentDefinitions(size: {type: "[Int]"}) {
+      @argumentDefinitions(size: {type: "[Int]"}) {
         ... on User {
           firstName
           friends(first: 3) {
@@ -458,22 +458,24 @@ describe('RelayReferenceMarker', () => {
 
     beforeEach(() => {
       const nodes = {};
-      nodes.RelayReferenceMarkerTestPlainUserNameRenderer_name = getFragment(graphql`
-        fragment RelayReferenceMarkerTestPlainUserNameRenderer_name on PlainUserNameRenderer {
-          plaintext
-          data {
-            text
+      nodes.RelayReferenceMarkerTestPlainUserNameRenderer_name =
+        getFragment(graphql`
+          fragment RelayReferenceMarkerTestPlainUserNameRenderer_name on PlainUserNameRenderer {
+            plaintext
+            data {
+              text
+            }
           }
-        }
-      `);
-      nodes.RelayReferenceMarkerTestMarkdownUserNameRenderer_name = getFragment(graphql`
-        fragment RelayReferenceMarkerTestMarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
-          markdown
-          data {
-            markup
+        `);
+      nodes.RelayReferenceMarkerTestMarkdownUserNameRenderer_name =
+        getFragment(graphql`
+          fragment RelayReferenceMarkerTestMarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+            markdown
+            data {
+              markup
+            }
           }
-        }
-      `);
+        `);
       graphql`
         fragment RelayReferenceMarkerTest3Fragment on User {
           id
@@ -509,22 +511,23 @@ describe('RelayReferenceMarker', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
-            __ref:
-              'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
+            {
+              __ref:
+                'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+            },
+        },
+        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
+          {
+            __id: 'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+            __typename: 'PlainUserNameRenderer',
+            __module_component_RelayReferenceMarkerTest3Fragment:
+              'PlainUserNameRenderer.react',
+            __module_operation_RelayReferenceMarkerTest3Fragment:
+              'RelayReferenceMarkerTestPlainUserNameRenderer_name$normalization.graphql',
+            plaintext: 'plain name',
+            data: {__ref: 'data'},
           },
-        },
-        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
-          __id:
-            'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-          __typename: 'PlainUserNameRenderer',
-          __module_component_RelayReferenceMarkerTest3Fragment:
-            'PlainUserNameRenderer.react',
-          __module_operation_RelayReferenceMarkerTest3Fragment:
-            'RelayReferenceMarkerTestPlainUserNameRenderer_name$normalization.graphql',
-          plaintext: 'plain name',
-          data: {__ref: 'data'},
-        },
         'client:root': {
           __id: 'client:root',
           __typename: '__Root',
@@ -561,22 +564,23 @@ describe('RelayReferenceMarker', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
-            __ref:
-              'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
+            {
+              __ref:
+                'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+            },
+        },
+        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
+          {
+            __id: 'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+            __typename: 'MarkdownUserNameRenderer',
+            __module_component_RelayReferenceMarkerTest3Fragment:
+              'MarkdownUserNameRenderer.react',
+            __module_operation_RelayReferenceMarkerTest3Fragment:
+              'RelayReferenceMarkerTestMarkdownUserNameRenderer_name$normalization.graphql',
+            markdown: 'markdown payload',
+            data: {__ref: 'data'},
           },
-        },
-        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
-          __id:
-            'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-          __typename: 'MarkdownUserNameRenderer',
-          __module_component_RelayReferenceMarkerTest3Fragment:
-            'MarkdownUserNameRenderer.react',
-          __module_operation_RelayReferenceMarkerTest3Fragment:
-            'RelayReferenceMarkerTestMarkdownUserNameRenderer_name$normalization.graphql',
-          markdown: 'markdown payload',
-          data: {__ref: 'data'},
-        },
         'client:root': {
           __id: 'client:root',
           __typename: '__Root',
@@ -615,17 +619,18 @@ describe('RelayReferenceMarker', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
-            __ref:
-              'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
+            {
+              __ref:
+                'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+            },
+        },
+        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
+          {
+            __id: 'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+            __typename: 'MarkdownUserNameRenderer',
+            // NOTE: markdown/data fields are missing, data not processed.
           },
-        },
-        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
-          __id:
-            'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-          __typename: 'MarkdownUserNameRenderer',
-          // NOTE: markdown/data fields are missing, data not processed.
-        },
         'client:root': {
           __id: 'client:root',
           __typename: '__Root',
@@ -660,22 +665,23 @@ describe('RelayReferenceMarker', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
-            __ref:
-              'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
+            {
+              __ref:
+                'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+            },
+        },
+        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
+          {
+            __id: 'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+            __typename: 'MarkdownUserNameRenderer',
+            __module_component_RelayReferenceMarkerTest3Fragment:
+              'MarkdownUserNameRenderer.react',
+            __module_operation_RelayReferenceMarkerTest3Fragment:
+              'RelayReferenceMarkerTestMarkdownUserNameRenderer_name$normalization.graphql',
+            // NOTE: 'markdown' field missing
+            data: {__ref: 'data'},
           },
-        },
-        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
-          __id:
-            'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-          __typename: 'MarkdownUserNameRenderer',
-          __module_component_RelayReferenceMarkerTest3Fragment:
-            'MarkdownUserNameRenderer.react',
-          __module_operation_RelayReferenceMarkerTest3Fragment:
-            'RelayReferenceMarkerTestMarkdownUserNameRenderer_name$normalization.graphql',
-          // NOTE: 'markdown' field missing
-          data: {__ref: 'data'},
-        },
         'client:root': {
           __id: 'client:root',
           __typename: '__Root',
@@ -712,18 +718,19 @@ describe('RelayReferenceMarker', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
-            __ref:
-              'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
+            {
+              __ref:
+                'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+            },
+        },
+        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
+          {
+            __id: 'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+            __typename: 'MarkdownUserNameRenderer',
+            markdown: 'markdown text',
+            // NOTE: 'data' field missing
           },
-        },
-        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
-          __id:
-            'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-          __typename: 'MarkdownUserNameRenderer',
-          markdown: 'markdown text',
-          // NOTE: 'data' field missing
-        },
         'client:root': {
           __id: 'client:root',
           __typename: '__Root',
@@ -753,17 +760,18 @@ describe('RelayReferenceMarker', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
-            __ref:
-              'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
+            {
+              __ref:
+                'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+            },
+        },
+        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
+          {
+            __id: 'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+            __typename: 'CustomNameRenderer',
+            customField: 'custom value',
           },
-        },
-        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
-          __id:
-            'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-          __typename: 'CustomNameRenderer',
-          customField: 'custom value',
-        },
         'client:root': {
           __id: 'client:root',
           __typename: '__Root',
@@ -793,7 +801,8 @@ describe('RelayReferenceMarker', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': null,
+          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
+            null,
         },
         'client:root': {
           __id: 'client:root',
@@ -847,22 +856,24 @@ describe('RelayReferenceMarker', () => {
 
     beforeEach(() => {
       const nodes = {};
-      nodes.RelayReferenceMarkerTest2PlainUserNameRenderer_name = getFragment(graphql`
-        fragment RelayReferenceMarkerTest2PlainUserNameRenderer_name on PlainUserNameRenderer {
-          plaintext
-          data {
-            text
+      nodes.RelayReferenceMarkerTest2PlainUserNameRenderer_name =
+        getFragment(graphql`
+          fragment RelayReferenceMarkerTest2PlainUserNameRenderer_name on PlainUserNameRenderer {
+            plaintext
+            data {
+              text
+            }
           }
-        }
-      `);
-      nodes.RelayReferenceMarkerTest2MarkdownUserNameRenderer_name = getFragment(graphql`
-        fragment RelayReferenceMarkerTest2MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
-          markdown
-          data {
-            markup
+        `);
+      nodes.RelayReferenceMarkerTest2MarkdownUserNameRenderer_name =
+        getFragment(graphql`
+          fragment RelayReferenceMarkerTest2MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+            markdown
+            data {
+              markup
+            }
           }
-        }
-      `);
+        `);
       graphql`
         fragment RelayReferenceMarkerTest4Fragment on User {
           id
@@ -1417,10 +1428,11 @@ describe('RelayReferenceMarker', () => {
         '1': {
           __id: '1',
           __typename: 'Story',
-          'flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})': {
-            __ref:
-              'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
-          },
+          'flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})':
+            {
+              __ref:
+                'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
+            },
           id: '1',
         },
         '2': {
@@ -1429,24 +1441,24 @@ describe('RelayReferenceMarker', () => {
           id: '2',
           name: 'Lauren',
         },
-        'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})': {
-          __id:
-            'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
-          __typename: 'ReactFlightComponent',
-          executableDefinitions: [
-            {
-              module: {
-                __dr: 'RelayFlightExampleQuery.graphql',
+        'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})':
+          {
+            __id: 'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
+            __typename: 'ReactFlightComponent',
+            executableDefinitions: [
+              {
+                module: {
+                  __dr: 'RelayFlightExampleQuery.graphql',
+                },
+                variables: {
+                  id: '2',
+                },
               },
-              variables: {
-                id: '2',
-              },
+            ],
+            tree: {
+              readRoot,
             },
-          ],
-          tree: {
-            readRoot,
           },
-        },
         'client:root': {
           __id: 'client:root',
           __typename: '__Root',
@@ -1482,17 +1494,18 @@ describe('RelayReferenceMarker', () => {
         '1': {
           __id: '1',
           __typename: 'Story',
-          'flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})': {
-            __ref:
-              'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
-          },
+          'flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})':
+            {
+              __ref:
+                'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
+            },
           id: '1',
         },
-        'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})': {
-          __id:
-            'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
-          __typename: 'ReactFlightComponent',
-        },
+        'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})':
+          {
+            __id: 'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
+            __typename: 'ReactFlightComponent',
+          },
         'client:root': {
           __id: 'client:root',
           __typename: '__Root',
@@ -1524,13 +1537,15 @@ describe('RelayReferenceMarker', () => {
         '1': {
           __id: '1',
           __typename: 'Story',
-          'flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})': {
-            __ref:
-              'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
-          },
+          'flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})':
+            {
+              __ref:
+                'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
+            },
           id: '1',
         },
-        'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})': null,
+        'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})':
+          null,
         'client:root': {
           __id: 'client:root',
           __typename: '__Root',
@@ -1562,13 +1577,15 @@ describe('RelayReferenceMarker', () => {
         '1': {
           __id: '1',
           __typename: 'Story',
-          'flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})': {
-            __ref:
-              'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
-          },
+          'flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})':
+            {
+              __ref:
+                'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
+            },
           id: '1',
         },
-        'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})': undefined,
+        'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})':
+          undefined,
         'client:root': {
           __id: 'client:root',
           __typename: '__Root',
@@ -1600,10 +1617,11 @@ describe('RelayReferenceMarker', () => {
         '1': {
           __id: '1',
           __typename: 'Story',
-          'flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})': {
-            __ref:
-              'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
-          },
+          'flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})':
+            {
+              __ref:
+                'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
+            },
           id: '1',
         },
         'client:root': {

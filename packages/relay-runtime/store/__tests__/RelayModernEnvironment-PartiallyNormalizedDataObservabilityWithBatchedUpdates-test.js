@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -12,13 +12,16 @@
 // flowlint ambiguous-object-type:error
 
 'use strict';
-
 import type {NormalizationRootNode} from '../../util/NormalizationNode';
+import type {RequestParameters} from 'relay-runtime/util/RelayConcreteNode';
+import type {
+  CacheConfig,
+  Variables,
+} from 'relay-runtime/util/RelayRuntimeTypes';
 
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
 const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
-const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -64,7 +67,11 @@ describe('execute() a query with @module if the module fragment is available syn
   let observationSnapshot;
 
   beforeEach(() => {
-    const fetch = (_query, _variables, _cacheConfig) => {
+    const fetch = (
+      _query: RequestParameters,
+      _variables: Variables,
+      _cacheConfig: CacheConfig,
+    ) => {
       return RelayObservable.create(sink => {
         dataSource = sink;
       });
@@ -179,7 +186,11 @@ describe('execute() a query with @module in @defer if the deferred fragment and 
 
   beforeEach(() => {
     jest.resetModules();
-    const fetch = (_query, _variables, _cacheConfig) => {
+    const fetch = (
+      _query: RequestParameters,
+      _variables: Variables,
+      _cacheConfig: CacheConfig,
+    ) => {
       return RelayObservable.create(sink => {
         dataSource = sink;
       });
@@ -314,7 +325,11 @@ describe('execute() a query with nested @module fragments, where the inner @modu
 
   beforeEach(() => {
     jest.resetModules();
-    const fetch = (_query, _variables, _cacheConfig) => {
+    const fetch = (
+      _query: RequestParameters,
+      _variables: Variables,
+      _cacheConfig: CacheConfig,
+    ) => {
       return RelayObservable.create(sink => {
         dataSource = sink;
       });

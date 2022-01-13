@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<92659b16413c7bd69b25f7d743f15811>>
+ * @generated SignedSource<<eb0a8dfd287e4cdb7cc5760c4220b633>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,20 +15,22 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragment$ref = any;
-export type useRefetchableFragmentNodeWithSuspenseTransitionTestUserQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragment$fragmentType = any;
+export type useRefetchableFragmentNodeWithSuspenseTransitionTestUserQuery$variables = {|
   id: string,
   scale: number,
 |};
-export type useRefetchableFragmentNodeWithSuspenseTransitionTestUserQueryResponse = {|
+export type useRefetchableFragmentNodeWithSuspenseTransitionTestUserQueryVariables = useRefetchableFragmentNodeWithSuspenseTransitionTestUserQuery$variables;
+export type useRefetchableFragmentNodeWithSuspenseTransitionTestUserQuery$data = {|
   +node: ?{|
-    +$fragmentRefs: useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragment$ref,
+    +$fragmentSpreads: useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragment$fragmentType,
   |},
 |};
+export type useRefetchableFragmentNodeWithSuspenseTransitionTestUserQueryResponse = useRefetchableFragmentNodeWithSuspenseTransitionTestUserQuery$data;
 export type useRefetchableFragmentNodeWithSuspenseTransitionTestUserQuery = {|
   variables: useRefetchableFragmentNodeWithSuspenseTransitionTestUserQueryVariables,
-  response: useRefetchableFragmentNodeWithSuspenseTransitionTestUserQueryResponse,
+  response: useRefetchableFragmentNodeWithSuspenseTransitionTestUserQuery$data,
 |};
 */
 
@@ -172,4 +174,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "7dd300784a6642a4b84870d9abd398b9";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  useRefetchableFragmentNodeWithSuspenseTransitionTestUserQuery$variables,
+  useRefetchableFragmentNodeWithSuspenseTransitionTestUserQuery$data,
+>*/);

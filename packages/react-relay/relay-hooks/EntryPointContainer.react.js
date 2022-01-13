@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -49,13 +49,8 @@ function EntryPointContainer<
       'collection, and as such may no longer be present in the Relay store. ' +
       'In the future, this will become a hard error.',
   );
-  const {
-    getComponent,
-    queries,
-    entryPoints,
-    extraProps,
-    rootModuleID,
-  } = entryPointReference;
+  const {getComponent, queries, entryPoints, extraProps, rootModuleID} =
+    entryPointReference;
   const Component = getComponent();
   const profilerContext = useContext(ProfilerContext);
   const environment = useRelayEnvironment();

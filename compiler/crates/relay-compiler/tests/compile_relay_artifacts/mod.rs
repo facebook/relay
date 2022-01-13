@@ -1,33 +1,34 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{ConsoleLogger, NamedItem, SourceLocationKey};
+use common::{ConsoleLogger, FeatureFlag, FeatureFlags, NamedItem, SourceLocationKey};
 use fixture_tests::Fixture;
-use graphql_ir::{build, FragmentDefinition, OperationDefinition, Program};
+use graphql_ir::{
+    build_ir_with_extra_features, BuilderOptions, FragmentDefinition, FragmentVariablesSemantic,
+    OperationDefinition, Program, RelayMode,
+};
 use graphql_syntax::parse_executable;
 use graphql_test_helpers::diagnostics_to_sorted_string;
 use graphql_text_printer::print_full_operation;
 
-use interner::Intern;
+use intern::string_key::Intern;
 use relay_codegen::{
     build_request_params, print_fragment, print_operation, print_request, JsModuleFormat,
 };
-use relay_compiler::validate;
+use relay_compiler::{validate, ProjectConfig};
 use relay_test_schema::{get_test_schema, get_test_schema_with_extensions};
-use relay_transforms::{
-    apply_transforms, ConnectionInterface, FeatureFlag, FeatureFlags, DIRECTIVE_SPLIT_OPERATION,
-};
+use relay_transforms::{apply_transforms, DIRECTIVE_SPLIT_OPERATION};
 use std::{array, sync::Arc};
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let source_location = SourceLocationKey::standalone(fixture.file_name);
 
-    if fixture.content.find("%TODO%").is_some() {
-        if fixture.content.find("expected-to-throw").is_some() {
+    if fixture.content.contains("%TODO%") {
+        if fixture.content.contains("expected-to-throw") {
             return Err("TODO".to_string());
         }
         return Ok("TODO".to_string());
@@ -42,23 +43,24 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
 
     let ast = parse_executable(base, source_location)
         .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
-    let ir = build(&schema, &ast.definitions)
+    let ir_result = build_ir_with_extra_features(
+        &schema,
+        &ast.definitions,
+        &BuilderOptions {
+            allow_undefined_fragment_spreads: false,
+            fragment_variables_semantic: FragmentVariablesSemantic::PassedValue,
+            relay_mode: Some(RelayMode {
+                enable_provided_variables: &FeatureFlag::Enabled,
+            }),
+            default_anonymous_operation_name: None,
+        },
+    );
+    let ir = ir_result
         .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
     let program = Program::from_definitions(Arc::clone(&schema), ir);
 
-    let connection_interface = ConnectionInterface::default();
-
-    validate(
-        &program,
-        &FeatureFlags::default(),
-        &connection_interface,
-        &None,
-    )
-    .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
-
     let feature_flags = FeatureFlags {
         enable_flight_transform: true,
-        enable_required_transform: true,
         hash_supported_argument: FeatureFlag::Limited {
             allowlist: array::IntoIter::new(["UserNameRenderer".intern()]).collect(),
         },
@@ -67,17 +69,24 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         enable_3d_branch_arg_generation: true,
         actor_change_support: FeatureFlag::Enabled,
         text_artifacts: FeatureFlag::Disabled,
-        enable_client_edges: FeatureFlag::Disabled,
+        enable_client_edges: FeatureFlag::Enabled,
+        enable_provided_variables: FeatureFlag::Enabled,
     };
+
+    let project_config = ProjectConfig {
+        name: "test".intern(),
+        feature_flags: Arc::new(feature_flags),
+        ..Default::default()
+    };
+
+    validate(&program, &project_config, &None)
+        .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
 
     // TODO pass base fragment names
     let programs = apply_transforms(
-        "test".intern(),
+        &project_config,
         Arc::new(program),
         Default::default(),
-        &connection_interface,
-        Arc::new(feature_flags),
-        &None,
         Arc::new(ConsoleLogger),
         None,
     )
@@ -115,7 +124,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
                     directives: reader_operation.directives.clone(),
                     type_condition: reader_operation.type_,
                 };
-                let request_parameters = build_request_params(&operation);
+                let request_parameters = build_request_params(operation);
                 format!(
                     "{}\n\nQUERY:\n\n{}",
                     print_request(

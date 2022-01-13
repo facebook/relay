@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -17,6 +17,7 @@ import type RelayPublishQueue from '../store/RelayPublishQueue';
 import type {
   ExecuteMutationConfig,
   IEnvironment,
+  MutationParameters,
   OperationAvailability,
   OperationDescriptor,
   OptimisticResponseConfig,
@@ -138,9 +139,9 @@ export interface IMultiActorEnvironment {
    * Apply an optimistic mutation response and/or updater. The mutation can be
    * reverted by calling `dispose()` on the returned value.
    */
-  applyMutation(
+  applyMutation<TMutation: MutationParameters>(
     actorEnvironment: IActorEnvironment,
-    optimisticConfig: OptimisticResponseConfig,
+    optimisticConfig: OptimisticResponseConfig<TMutation>,
   ): Disposable;
 
   /**
@@ -180,9 +181,6 @@ export interface IMultiActorEnvironment {
    * responses may be returned (via `next`) over time followed by either
    * the request completing (`completed`) or an error (`error`).
    *
-   * Networks/servers that support subscriptions may choose to hold the
-   * subscription open indefinitely such that `complete` is not called.
-   *
    * Note: Observables are lazy, so calling this method will do nothing until
    * the result is subscribed to: environment.execute({...}).subscribe({...}).
    */
@@ -190,7 +188,25 @@ export interface IMultiActorEnvironment {
     actorEnvironment: IActorEnvironment,
     config: {
       operation: OperationDescriptor,
-      updater?: ?SelectorStoreUpdater,
+    },
+  ): RelayObservable<GraphQLResponse>;
+
+  /**
+   * Send a subscription to the server with Observer semantics: one or more
+   * responses may be returned (via `next`) over time followed by either
+   * the request completing (`completed`) or an error (`error`).
+   *
+   * Networks/servers that support subscriptions may choose to hold the
+   * subscription open indefinitely such that `complete` is not called.
+   *
+   * Note: Observables are lazy, so calling this method will do nothing until
+   * the result is subscribed to: environment.executeSubscription({...}).subscribe({...}).
+   */
+  executeSubscription<TMutation: MutationParameters>(
+    actorEnvironment: IActorEnvironment,
+    config: {
+      operation: OperationDescriptor,
+      updater?: ?SelectorStoreUpdater<TMutation['response']>,
     },
   ): RelayObservable<GraphQLResponse>;
 
@@ -204,9 +220,9 @@ export interface IMultiActorEnvironment {
    * the result is subscribed to:
    * environment.executeMutation({...}).subscribe({...}).
    */
-  executeMutation(
+  executeMutation<TMutation: MutationParameters>(
     actorEnvironment: IActorEnvironment,
-    config: ExecuteMutationConfig,
+    config: ExecuteMutationConfig<TMutation>,
   ): RelayObservable<GraphQLResponse>;
 
   /**

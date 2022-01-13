@@ -18,8 +18,8 @@ query TestStream @raw_response_type {
   }
 }
 ==================================== OUTPUT ===================================
-export type TestStreamVariables = {||};
-export type TestStreamResponse = {|
+export type TestStream$variables = {||};
+export type TestStream$data = {|
   +node: ?{|
     +name?: ?string,
     +friends?: ?{|
@@ -31,7 +31,7 @@ export type TestStreamResponse = {|
     |},
   |},
 |};
-export type TestStreamRawResponse = {|
+export type TestStream$rawResponse = {|
   +node: ?({|
     +__typename: "User",
     +id: string,
@@ -46,16 +46,11 @@ export type TestStreamRawResponse = {|
       |}>,
       +pageInfo: ?{|
         +endCursor: ?string,
-        +hasNextPage: ?boolean,
+        +hasNextPage: ?CustomBoolean,
       |},
     |},
   |} | {|
     +__typename: string,
     +id: string,
   |}),
-|};
-export type TestStream = {|
-  variables: TestStreamVariables,
-  response: TestStreamResponse,
-  rawResponse: TestStreamRawResponse,
 |};

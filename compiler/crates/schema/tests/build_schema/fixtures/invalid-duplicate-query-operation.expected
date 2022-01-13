@@ -1,0 +1,23 @@
+==================================== INPUT ====================================
+# expected-to-throw
+
+schema {
+  query: Query1
+  query: Query2
+}
+
+type Query1 {
+  s: String
+}
+
+type Query2 {
+  s: String
+}
+==================================== ERROR ====================================
+✖︎ Duplicate Query type definition, got 'Query2' and 'Query1'.
+
+  <generated>:5:10
+    4 │   query: Query1
+    5 │   query: Query2
+      │          ^^^^^^
+    6 │ }

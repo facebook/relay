@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<860c2c3962d68cbed37c9a46f40ace5e>>
+ * @generated SignedSource<<0fddd40e0d0327920977c9cd71b54145>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,19 +15,19 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-type usePaginationFragmentTest3Fragment$ref = any;
-type usePaginationFragmentTest3Fragment$fragmentType = any;
-export type { usePaginationFragmentTest3Fragment$ref, usePaginationFragmentTest3Fragment$fragmentType };
-export type usePaginationFragmentTest3Fragment = {|
+import type { ReaderFragment, RefetchableFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type usePaginationFragmentTest3Fragment$fragmentType: FragmentType;
+export type usePaginationFragmentTest3Fragment$ref = usePaginationFragmentTest3Fragment$fragmentType;
+type usePaginationFragmentTest3FragmentRefetchQuery$variables = any;
+export type usePaginationFragmentTest3Fragment$data = {|
   +id: string,
-  +$refType: usePaginationFragmentTest3Fragment$ref,
+  +$fragmentType: usePaginationFragmentTest3Fragment$fragmentType,
 |};
-export type usePaginationFragmentTest3Fragment$data = usePaginationFragmentTest3Fragment;
+export type usePaginationFragmentTest3Fragment = usePaginationFragmentTest3Fragment$data;
 export type usePaginationFragmentTest3Fragment$key = {
   +$data?: usePaginationFragmentTest3Fragment$data,
-  +$fragmentRefs: usePaginationFragmentTest3Fragment$ref,
+  +$fragmentSpreads: usePaginationFragmentTest3Fragment$fragmentType,
   ...
 };
 */
@@ -63,4 +63,8 @@ if (__DEV__) {
   (node/*: any*/).hash = "b7e65e1c3646e22d52de26d24bb8c2a9";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: RefetchableFragment<
+  usePaginationFragmentTest3Fragment$fragmentType,
+  usePaginationFragmentTest3Fragment$data,
+  usePaginationFragmentTest3FragmentRefetchQuery$variables,
+>*/);

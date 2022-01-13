@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -21,15 +21,15 @@ use crate::{
 use common::{Diagnostic, DiagnosticsResult, NamedItem, WithLocation};
 use errors::validate_map;
 use fetchable_query_generator::FETCHABLE_QUERY_GENERATOR;
-use fnv::{FnvHashMap, FnvHashSet};
 use graphql_ir::{
     Directive, FragmentDefinition, OperationDefinition, Program, Selection, ValidationMessage,
     VariableDefinition,
 };
 use graphql_syntax::OperationKind;
-use interner::StringKey;
+use intern::string_key::{StringKey, StringKeyMap, StringKeySet};
 use node_query_generator::NODE_QUERY_GENERATOR;
 use query_query_generator::QUERY_QUERY_GENERATOR;
+use relay_config::SchemaConfig;
 use schema::{SDLSchema, Schema};
 use std::{fmt::Write, sync::Arc};
 use utils::*;
@@ -50,18 +50,18 @@ pub use self::refetchable_directive::REFETCHABLE_NAME;
 ///    at all, and although Relay adds this concept developers are still
 ///    allowed to reference global variables. This necessitates a
 ///    visiting all reachable fragments for each @refetchable fragment,
-///    and finding the union of all global variables expceted to be defined.
+///    and finding the union of all global variables expected to be defined.
 /// 3. Building the refetch queries, a straightforward copying transform from
 ///    Fragment to Root IR nodes.
 pub fn transform_refetchable_fragment(
     program: &Program,
-    base_fragment_names: &'_ FnvHashSet<StringKey>,
+    schema_config: &SchemaConfig,
+    base_fragment_names: &'_ StringKeySet,
     for_typegen: bool,
 ) -> DiagnosticsResult<Program> {
     let mut next_program = Program::new(Arc::clone(&program.schema));
-    let query_type = program.schema.query_type().unwrap();
 
-    let mut transformer = RefetchableFragment::new(program, for_typegen);
+    let mut transformer = RefetchableFragment::new(program, schema_config, for_typegen);
 
     for operation in program.operations() {
         next_program.insert_operation(Arc::clone(operation));
@@ -81,7 +81,7 @@ pub fn transform_refetchable_fragment(
                         fragment.name.location,
                         refetchable_directive.query_name.item,
                     ),
-                    type_: query_type,
+                    type_: program.schema.query_type().unwrap(),
                     variable_definitions: operation_result.variable_definitions,
                     directives,
                     selections: operation_result.selections,
@@ -96,24 +96,28 @@ pub fn transform_refetchable_fragment(
     Ok(next_program)
 }
 
-type ExistingRefetchOperations = FnvHashMap<StringKey, WithLocation<StringKey>>;
+type ExistingRefetchOperations = StringKeyMap<WithLocation<StringKey>>;
 
-pub struct RefetchableFragment<'program> {
+pub struct RefetchableFragment<'program, 'sc> {
     connection_constants: ConnectionConstants,
     existing_refetch_operations: ExistingRefetchOperations,
     for_typegen: bool,
     program: &'program Program,
-    visitor: InferVariablesVisitor<'program>,
+    schema_config: &'sc SchemaConfig,
 }
 
-impl<'program> RefetchableFragment<'program> {
-    pub fn new(program: &'program Program, for_typegen: bool) -> Self {
+impl<'program, 'sc> RefetchableFragment<'program, 'sc> {
+    pub fn new(
+        program: &'program Program,
+        schema_config: &'sc SchemaConfig,
+        for_typegen: bool,
+    ) -> Self {
         RefetchableFragment {
             connection_constants: Default::default(),
             existing_refetch_operations: Default::default(),
             for_typegen,
             program,
-            visitor: InferVariablesVisitor::new(program),
+            schema_config,
         }
     }
 
@@ -121,9 +125,15 @@ impl<'program> RefetchableFragment<'program> {
         &mut self,
         fragment: &Arc<FragmentDefinition>,
     ) -> DiagnosticsResult<Option<(RefetchableDirective, RefetchRoot)>> {
-        fragment
-            .directives
-            .named(*REFETCHABLE_NAME)
+        let refetchable_directive = fragment.directives.named(*REFETCHABLE_NAME);
+        if refetchable_directive.is_some() && self.program.schema.query_type().is_none() {
+            return Err(vec![Diagnostic::error(
+                "Unable to use @refetchable directive. The `Query` type is not defined on the schema.",
+                refetchable_directive.unwrap().name.location,
+            )]);
+        }
+
+        refetchable_directive
             .map(|refetchable_directive| {
                 self.transform_refetch_fragment_with_refetchable_directive(
                     fragment,
@@ -142,11 +152,13 @@ impl<'program> RefetchableFragment<'program> {
             RefetchableDirective::from_directive(&self.program.schema, directive)?;
         self.validate_sibling_directives(fragment)?;
         self.validate_refetch_name(fragment, &refetchable_directive)?;
+        let variables_map =
+            InferVariablesVisitor::new(self.program).infer_fragment_variables(fragment);
 
-        let variables_map = self.visitor.infer_fragment_variables(fragment);
         for generator in GENERATORS.iter() {
             if let Some(refetch_root) = (generator.build_refetch_operation)(
                 &self.program.schema,
+                self.schema_config,
                 fragment,
                 refetchable_directive.query_name.item,
                 &variables_map,
@@ -296,11 +308,12 @@ impl<'program> RefetchableFragment<'program> {
 
 type BuildRefetchOperationFn = fn(
     schema: &SDLSchema,
+    schema_config: &SchemaConfig,
     fragment: &Arc<FragmentDefinition>,
     query_name: StringKey,
     variables_map: &VariableMap,
 ) -> DiagnosticsResult<Option<RefetchRoot>>;
-/// A strategy to generate queries for a given fragment. Multiple stategies
+/// A strategy to generate queries for a given fragment. Multiple strategies
 /// can be tried, such as generating a `node(id: ID)` query or a query directly
 /// on the root query type.
 pub struct QueryGenerator {

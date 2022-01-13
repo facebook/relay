@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<725e1895bf5e3fc647cab40fd71b72ee>>
+ * @generated SignedSource<<50a8b6579a384939ce1f0247e4a8651e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,22 +15,22 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayModernFragmentSpecResolverTestQueryUsersFragment$ref: FragmentReference;
-declare export opaque type RelayModernFragmentSpecResolverTestQueryUsersFragment$fragmentType: RelayModernFragmentSpecResolverTestQueryUsersFragment$ref;
-export type RelayModernFragmentSpecResolverTestQueryUsersFragment = $ReadOnlyArray<{|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayModernFragmentSpecResolverTestQueryUsersFragment$fragmentType: FragmentType;
+export type RelayModernFragmentSpecResolverTestQueryUsersFragment$ref = RelayModernFragmentSpecResolverTestQueryUsersFragment$fragmentType;
+export type RelayModernFragmentSpecResolverTestQueryUsersFragment$data = $ReadOnlyArray<{|
   +id: string,
   +name: ?string,
   +profilePicture?: ?{|
     +uri: ?string,
   |},
-  +$refType: RelayModernFragmentSpecResolverTestQueryUsersFragment$ref,
+  +$fragmentType: RelayModernFragmentSpecResolverTestQueryUsersFragment$fragmentType,
 |}>;
-export type RelayModernFragmentSpecResolverTestQueryUsersFragment$data = RelayModernFragmentSpecResolverTestQueryUsersFragment;
+export type RelayModernFragmentSpecResolverTestQueryUsersFragment = RelayModernFragmentSpecResolverTestQueryUsersFragment$data;
 export type RelayModernFragmentSpecResolverTestQueryUsersFragment$key = $ReadOnlyArray<{
   +$data?: RelayModernFragmentSpecResolverTestQueryUsersFragment$data,
-  +$fragmentRefs: RelayModernFragmentSpecResolverTestQueryUsersFragment$ref,
+  +$fragmentSpreads: RelayModernFragmentSpecResolverTestQueryUsersFragment$fragmentType,
   ...
 }>;
 */
@@ -106,4 +106,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "d549c518f9f88f95d48fe6419cc1f5ca";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayModernFragmentSpecResolverTestQueryUsersFragment$fragmentType,
+  RelayModernFragmentSpecResolverTestQueryUsersFragment$data,
+>*/);

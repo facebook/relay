@@ -1,0 +1,21 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query TestQuery($skip: Boolean!) {
+  node(id: "4") {
+    ... @skip(if: $skip) {
+      ...Assignable_user
+    }
+  }
+}
+
+fragment Assignable_user on User @assignable {
+  __typename
+}
+==================================== ERROR ====================================
+✖︎ Assignable fragments cannot appear within inline fragments
+
+  assignable-fragment-spread-within-skipped-inline-fragment.invalid.graphql:5:10
+    4 │     ... @skip(if: $skip) {
+    5 │       ...Assignable_user
+      │          ^^^^^^^^^^^^^^^
+    6 │     }

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -110,7 +110,7 @@ describe.skip('ReactRelayQueryRenderer-react-double-effects', () => {
 
   it('forces a re-render and refetches query when effects are double invoked', () => {
     let renderLogs = [];
-    const QueryComponent = function({node}) {
+    const QueryComponent = function ({node}) {
       const name = node?.name ?? 'Empty';
       useEffect(() => {
         renderLogs.push(`commit: ${name}`);
@@ -123,7 +123,7 @@ describe.skip('ReactRelayQueryRenderer-react-double-effects', () => {
       return name;
     };
 
-    const QueryContainer = function(props) {
+    const QueryContainer = function (props) {
       return (
         <ReactRelayQueryRenderer
           cacheConfig={{force: true}}

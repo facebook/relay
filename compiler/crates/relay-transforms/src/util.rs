@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -16,13 +16,15 @@ use crate::{
     required_directive::{CHILDREN_CAN_BUBBLE_METADATA_KEY, REQUIRED_DIRECTIVE_NAME},
     ModuleMetadata, ReactFlightLocalComponentsMetadata, RefetchableDerivedFromMetadata,
     RelayClientComponentMetadata, RelayResolverSpreadMetadata, RequiredMetadataDirective,
+    CLIENT_EDGE_GENERATED_FRAGMENT_KEY, CLIENT_EDGE_METADATA_KEY, CLIENT_EDGE_QUERY_METADATA_KEY,
     DIRECTIVE_SPLIT_OPERATION, INTERNAL_METADATA_DIRECTIVE,
 };
 
 use graphql_ir::{
-    Argument, Directive, Value, ARGUMENT_DEFINITION, UNUSED_LOCAL_VARIABLE_DEPRECATED,
+    Argument, Directive, ProvidedVariableMetadata, Value, ARGUMENT_DEFINITION,
+    UNUSED_LOCAL_VARIABLE_DEPRECATED,
 };
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey};
 use lazy_static::lazy_static;
 use schema::{SDLSchema, Schema, Type};
 
@@ -85,45 +87,50 @@ pub fn extract_variable_name(argument: Option<&Argument>) -> Option<StringKey> {
 }
 
 lazy_static! {
-    static ref CUSTOM_METADATA_DIRECTIVES: [StringKey; 18] = [
+    static ref CUSTOM_METADATA_DIRECTIVES: [StringKey; 22] = [
         *CLIENT_EXTENSION_DIRECTIVE_NAME,
-        *ConnectionMetadataDirective::DIRECTIVE_NAME,
+        ConnectionMetadataDirective::directive_name(),
         *HANDLE_FIELD_DIRECTIVE_NAME,
-        *ModuleMetadata::DIRECTIVE_NAME,
+        ModuleMetadata::directive_name(),
         *DIRECTIVE_SPLIT_OPERATION,
-        *RefetchableMetadata::DIRECTIVE_NAME,
-        *RefetchableDerivedFromMetadata::DIRECTIVE_NAME,
+        RefetchableMetadata::directive_name(),
+        RefetchableDerivedFromMetadata::directive_name(),
         *INTERNAL_METADATA_DIRECTIVE,
         *ARGUMENT_DEFINITION,
         *REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY,
-        *ReactFlightLocalComponentsMetadata::DIRECTIVE_NAME,
+        ReactFlightLocalComponentsMetadata::directive_name(),
         *REQUIRED_DIRECTIVE_NAME,
-        *RequiredMetadataDirective::DIRECTIVE_NAME,
+        RequiredMetadataDirective::directive_name(),
+        *CLIENT_EDGE_METADATA_KEY,
+        *CLIENT_EDGE_QUERY_METADATA_KEY,
+        *CLIENT_EDGE_GENERATED_FRAGMENT_KEY,
         *CHILDREN_CAN_BUBBLE_METADATA_KEY,
-        *RelayResolverSpreadMetadata::DIRECTIVE_NAME,
-        *RelayClientComponentMetadata::DIRECTIVE_NAME,
+        RelayResolverSpreadMetadata::directive_name(),
+        RelayClientComponentMetadata::directive_name(),
         *UNUSED_LOCAL_VARIABLE_DEPRECATED,
         *RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN,
+        ProvidedVariableMetadata::directive_name(),
     ];
     static ref DIRECTIVES_SKIPPED_IN_NODE_IDENTIFIER: [StringKey; 12] = [
         *CLIENT_EXTENSION_DIRECTIVE_NAME,
-        *ConnectionMetadataDirective::DIRECTIVE_NAME,
+        ConnectionMetadataDirective::directive_name(),
         *HANDLE_FIELD_DIRECTIVE_NAME,
-        *RefetchableMetadata::DIRECTIVE_NAME,
-        *RefetchableDerivedFromMetadata::DIRECTIVE_NAME,
+        RefetchableMetadata::directive_name(),
+        RefetchableDerivedFromMetadata::directive_name(),
         *INTERNAL_METADATA_DIRECTIVE,
         *ARGUMENT_DEFINITION,
         *REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY,
-        *ReactFlightLocalComponentsMetadata::DIRECTIVE_NAME,
+        ReactFlightLocalComponentsMetadata::directive_name(),
         *REQUIRED_DIRECTIVE_NAME,
-        *RelayResolverSpreadMetadata::DIRECTIVE_NAME,
-        *RelayClientComponentMetadata::DIRECTIVE_NAME,
+        RelayResolverSpreadMetadata::directive_name(),
+        RelayClientComponentMetadata::directive_name(),
     ];
-    static ref RELAY_CUSTOM_INLINE_FRAGMENT_DIRECTIVES: [StringKey; 5] = [
+    static ref RELAY_CUSTOM_INLINE_FRAGMENT_DIRECTIVES: [StringKey; 6] = [
         *CLIENT_EXTENSION_DIRECTIVE_NAME,
-        *ModuleMetadata::DIRECTIVE_NAME,
-        *InlineDirectiveMetadata::DIRECTIVE_NAME,
+        ModuleMetadata::directive_name(),
+        InlineDirectiveMetadata::directive_name(),
         *RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN,
+        *CLIENT_EDGE_METADATA_KEY,
         "defer".intern(),
     ];
 }
@@ -162,4 +169,9 @@ pub fn get_fragment_filename(fragment_name: StringKey) -> StringKey {
         get_normalization_operation_name(fragment_name)
     )
     .intern()
+}
+
+pub fn format_provided_variable_name(fragment_name: StringKey, arg_name: StringKey) -> StringKey {
+    // __ prefix indicates Relay internal variable
+    format!("__{}__{}", fragment_name, arg_name).intern()
 }

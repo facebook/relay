@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -27,10 +27,11 @@ const warning = require('warning');
 // The type of a graphql`...` tagged template expression.
 export type GraphQLTaggedNode =
   | ReaderFragment
+  | ReaderInlineDataFragment
   | ConcreteRequest
   | {
       // This is this case when we `require()` a generated ES6 module
-      default: ReaderFragment | ConcreteRequest,
+      default: ReaderFragment | ReaderInlineDataFragment | ConcreteRequest,
       ...
     };
 
@@ -38,7 +39,7 @@ export type GraphQLTaggedNode =
  * Runtime function to correspond to the `graphql` tagged template function.
  * All calls to this function should be transformed by the plugin.
  */
-function graphql(strings: Array<string>): GraphQLTaggedNode {
+function graphql(strings: Array<string>): any {
   invariant(
     false,
     'graphql: Unexpected invocation at runtime. Either the Babel transform ' +
@@ -50,7 +51,7 @@ function graphql(strings: Array<string>): GraphQLTaggedNode {
 
 function getNode(
   taggedNode: GraphQLTaggedNode,
-): ReaderFragment | ConcreteRequest {
+): ReaderFragment | ReaderInlineDataFragment | ConcreteRequest {
   let node = taggedNode;
   if (typeof node === 'function') {
     node = (node(): ReaderFragment | ConcreteRequest);

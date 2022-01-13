@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<db42090de7fbb45d4d767420fbd65d41>>
+ * @generated SignedSource<<899eb8e38abef5e074436333752d7df9>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,9 +15,10 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-export type RelayModernEnvironmentCommitPayloadTest3ActorQueryVariables = {||};
-export type RelayModernEnvironmentCommitPayloadTest3ActorQueryResponse = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+export type RelayModernEnvironmentCommitPayloadTest3ActorQuery$variables = {||};
+export type RelayModernEnvironmentCommitPayloadTest3ActorQueryVariables = RelayModernEnvironmentCommitPayloadTest3ActorQuery$variables;
+export type RelayModernEnvironmentCommitPayloadTest3ActorQuery$data = {|
   +me: ?{|
     +name: ?string,
     +birthdate: ?{|
@@ -27,9 +28,10 @@ export type RelayModernEnvironmentCommitPayloadTest3ActorQueryResponse = {|
     |},
   |},
 |};
+export type RelayModernEnvironmentCommitPayloadTest3ActorQueryResponse = RelayModernEnvironmentCommitPayloadTest3ActorQuery$data;
 export type RelayModernEnvironmentCommitPayloadTest3ActorQuery = {|
   variables: RelayModernEnvironmentCommitPayloadTest3ActorQueryVariables,
-  response: RelayModernEnvironmentCommitPayloadTest3ActorQueryResponse,
+  response: RelayModernEnvironmentCommitPayloadTest3ActorQuery$data,
 |};
 */
 
@@ -140,4 +142,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "ca4be830837a3decc7fc7cb619969da9";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentCommitPayloadTest3ActorQuery$variables,
+  RelayModernEnvironmentCommitPayloadTest3ActorQuery$data,
+>*/);

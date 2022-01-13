@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<078b2c38373f2b944f40689130fc479a>>
+ * @generated SignedSource<<5ce567c16ecea4a81bb3aaf650c8d167>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,16 +15,17 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
+import type { ConcreteRequest, GraphQLSubscription } from 'relay-runtime';
 export type CommentCreateSubscriptionInput = {|
   clientSubscriptionId?: ?string,
   feedbackId?: ?string,
   text?: ?string,
 |};
-export type useSubscriptionTestCommentCreateSubscriptionVariables = {|
+export type useSubscriptionTestCommentCreateSubscription$variables = {|
   input?: ?CommentCreateSubscriptionInput,
 |};
-export type useSubscriptionTestCommentCreateSubscriptionResponse = {|
+export type useSubscriptionTestCommentCreateSubscriptionVariables = useSubscriptionTestCommentCreateSubscription$variables;
+export type useSubscriptionTestCommentCreateSubscription$data = {|
   +commentCreateSubscribe: ?{|
     +feedbackCommentEdge: ?{|
       +node: ?{|
@@ -36,9 +37,10 @@ export type useSubscriptionTestCommentCreateSubscriptionResponse = {|
     |},
   |},
 |};
+export type useSubscriptionTestCommentCreateSubscriptionResponse = useSubscriptionTestCommentCreateSubscription$data;
 export type useSubscriptionTestCommentCreateSubscription = {|
   variables: useSubscriptionTestCommentCreateSubscriptionVariables,
-  response: useSubscriptionTestCommentCreateSubscriptionResponse,
+  response: useSubscriptionTestCommentCreateSubscription$data,
 |};
 */
 
@@ -150,4 +152,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "09f7f93828042d5022df685ced707645";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: GraphQLSubscription<
+  useSubscriptionTestCommentCreateSubscription$variables,
+  useSubscriptionTestCommentCreateSubscription$data,
+>*/);

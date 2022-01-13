@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<c02f5e0db1ae7564d9fe883f2c3c0a90>>
+ * @generated SignedSource<<8817c9fde5fe174e8939497d7372f826>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,15 +15,16 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
+import type { ConcreteRequest, Mutation } from 'relay-runtime';
 export type FeedbackLikeInput = {|
   clientMutationId?: ?string,
   feedbackId?: ?string,
 |};
-export type RelayMockEnvironmentWithComponentsTestDisruptiveSuccessMutationVariables = {|
+export type RelayMockEnvironmentWithComponentsTestDisruptiveSuccessMutation$variables = {|
   input?: ?FeedbackLikeInput,
 |};
-export type RelayMockEnvironmentWithComponentsTestDisruptiveSuccessMutationResponse = {|
+export type RelayMockEnvironmentWithComponentsTestDisruptiveSuccessMutationVariables = RelayMockEnvironmentWithComponentsTestDisruptiveSuccessMutation$variables;
+export type RelayMockEnvironmentWithComponentsTestDisruptiveSuccessMutation$data = {|
   +feedbackLike: ?{|
     +feedback: ?{|
       +id: string,
@@ -31,9 +32,10 @@ export type RelayMockEnvironmentWithComponentsTestDisruptiveSuccessMutationRespo
     |},
   |},
 |};
+export type RelayMockEnvironmentWithComponentsTestDisruptiveSuccessMutationResponse = RelayMockEnvironmentWithComponentsTestDisruptiveSuccessMutation$data;
 export type RelayMockEnvironmentWithComponentsTestDisruptiveSuccessMutation = {|
   variables: RelayMockEnvironmentWithComponentsTestDisruptiveSuccessMutationVariables,
-  response: RelayMockEnvironmentWithComponentsTestDisruptiveSuccessMutationResponse,
+  response: RelayMockEnvironmentWithComponentsTestDisruptiveSuccessMutation$data,
 |};
 */
 
@@ -121,4 +123,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "0673467bdc3067b482da4f9b0f971cf1";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Mutation<
+  RelayMockEnvironmentWithComponentsTestDisruptiveSuccessMutation$variables,
+  RelayMockEnvironmentWithComponentsTestDisruptiveSuccessMutation$data,
+>*/);

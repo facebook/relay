@@ -1,13 +1,13 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
 use crate::definitions::{Directive, *};
-use interner::StringKey;
-use std::fmt::{Result as FormatResult, Write};
+use intern::string_key::StringKey;
+use std::fmt::{Result as FmtResult, Write};
 
 pub trait Schema {
     fn query_type(&self) -> Option<Type>;
@@ -231,7 +231,7 @@ pub trait Schema {
         }
     }
 
-    fn write_type_string(&self, writer: &mut String, type_: &TypeReference) -> FormatResult {
+    fn write_type_string(&self, writer: &mut String, type_: &TypeReference) -> FmtResult {
         match type_ {
             TypeReference::Named(inner) => {
                 write!(writer, "{}", self.get_type_name(*inner).lookup())

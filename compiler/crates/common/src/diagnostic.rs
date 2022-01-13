@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -36,22 +36,6 @@ pub fn diagnostics_result<T>(result: T, diagnostics: Vec<Diagnostic>) -> Diagnos
     } else {
         Err(diagnostics)
     }
-}
-
-/// Convert a list of DiagnosticsResult<T> into a DiagnosticsResult<Vec<T>>.
-/// This is similar to Result::from_iter except that in the case of an error
-/// result, Result::from_iter returns the first error in the list. Whereas
-/// this function concatenates all the Vec<Diagnostic> into one flat list.
-pub fn combined_result<T, I>(results: I) -> DiagnosticsResult<Vec<T>>
-where
-    T: std::fmt::Debug,
-    I: Iterator<Item = DiagnosticsResult<T>>,
-{
-    let (oks, errs): (Vec<_>, Vec<_>) = results.partition(Result::is_ok);
-    diagnostics_result(
-        oks.into_iter().map(Result::unwrap).collect(),
-        errs.into_iter().map(Result::unwrap_err).flatten().collect(),
-    )
 }
 
 /// A diagnostic message as a result of validating some code. This struct is
@@ -249,50 +233,5 @@ impl<T> DiagnosticDisplay for T where T: fmt::Debug + fmt::Display + Send + Sync
 impl From<Diagnostic> for Vec<Diagnostic> {
     fn from(diagnostic: Diagnostic) -> Self {
         vec![diagnostic]
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_combined_result() {
-        let input: Vec<DiagnosticsResult<u32>> = vec![Ok(0), Ok(1), Ok(2)];
-        let output = combined_result(input.into_iter());
-        assert_eq!(output.unwrap(), vec![0, 1, 2]);
-
-        let input: Vec<DiagnosticsResult<u32>> = vec![
-            Ok(1),
-            Err(vec![Diagnostic::error("err0", Location::generated())]),
-        ];
-        let output = combined_result(input.into_iter());
-        assert_eq!(
-            output.as_ref().unwrap_err()[0].message().to_string(),
-            "err0"
-        );
-
-        let input: Vec<DiagnosticsResult<u32>> = vec![
-            Ok(0),
-            Err(vec![Diagnostic::error("err0", Location::generated())]),
-            Ok(1),
-            Err(vec![
-                Diagnostic::error("err1", Location::generated()),
-                Diagnostic::error("err2", Location::generated()),
-            ]),
-        ];
-        let output = combined_result(input.into_iter());
-        assert_eq!(
-            output.as_ref().unwrap_err()[0].message().to_string(),
-            "err0"
-        );
-        assert_eq!(
-            output.as_ref().unwrap_err()[1].message().to_string(),
-            "err1"
-        );
-        assert_eq!(
-            output.as_ref().unwrap_err()[2].message().to_string(),
-            "err2"
-        );
     }
 }

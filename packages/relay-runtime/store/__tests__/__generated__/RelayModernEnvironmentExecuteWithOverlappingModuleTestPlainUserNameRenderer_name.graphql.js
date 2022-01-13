@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<efed9574de90cad8235422bec7182884>>
+ * @generated SignedSource<<eb2dde2d33ae42923604c9a58a7bea61>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,21 +15,21 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayModernEnvironmentExecuteWithOverlappingModuleTestPlainUserNameRenderer_name$ref: FragmentReference;
-declare export opaque type RelayModernEnvironmentExecuteWithOverlappingModuleTestPlainUserNameRenderer_name$fragmentType: RelayModernEnvironmentExecuteWithOverlappingModuleTestPlainUserNameRenderer_name$ref;
-export type RelayModernEnvironmentExecuteWithOverlappingModuleTestPlainUserNameRenderer_name = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayModernEnvironmentExecuteWithOverlappingModuleTestPlainUserNameRenderer_name$fragmentType: FragmentType;
+export type RelayModernEnvironmentExecuteWithOverlappingModuleTestPlainUserNameRenderer_name$ref = RelayModernEnvironmentExecuteWithOverlappingModuleTestPlainUserNameRenderer_name$fragmentType;
+export type RelayModernEnvironmentExecuteWithOverlappingModuleTestPlainUserNameRenderer_name$data = {|
   +plaintext: ?string,
   +data: ?{|
     +text: ?string,
   |},
-  +$refType: RelayModernEnvironmentExecuteWithOverlappingModuleTestPlainUserNameRenderer_name$ref,
+  +$fragmentType: RelayModernEnvironmentExecuteWithOverlappingModuleTestPlainUserNameRenderer_name$fragmentType,
 |};
-export type RelayModernEnvironmentExecuteWithOverlappingModuleTestPlainUserNameRenderer_name$data = RelayModernEnvironmentExecuteWithOverlappingModuleTestPlainUserNameRenderer_name;
+export type RelayModernEnvironmentExecuteWithOverlappingModuleTestPlainUserNameRenderer_name = RelayModernEnvironmentExecuteWithOverlappingModuleTestPlainUserNameRenderer_name$data;
 export type RelayModernEnvironmentExecuteWithOverlappingModuleTestPlainUserNameRenderer_name$key = {
   +$data?: RelayModernEnvironmentExecuteWithOverlappingModuleTestPlainUserNameRenderer_name$data,
-  +$fragmentRefs: RelayModernEnvironmentExecuteWithOverlappingModuleTestPlainUserNameRenderer_name$ref,
+  +$fragmentSpreads: RelayModernEnvironmentExecuteWithOverlappingModuleTestPlainUserNameRenderer_name$fragmentType,
   ...
 };
 */
@@ -74,4 +74,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "771a707877f5334e80dff3cf8d305a68";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayModernEnvironmentExecuteWithOverlappingModuleTestPlainUserNameRenderer_name$fragmentType,
+  RelayModernEnvironmentExecuteWithOverlappingModuleTestPlainUserNameRenderer_name$data,
+>*/);

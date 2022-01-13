@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b1a7af6c794ef0eed51efcdf514d0bc0>>
+ * @generated SignedSource<<df5a297edba3bf3d56592b67b57d8379>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,15 +15,16 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
+import type { ConcreteRequest, Mutation } from 'relay-runtime';
 export type ActorNameChangeInput = {|
   clientMutationId?: ?string,
   newName?: ?string,
 |};
-export type validateMutationTest5ChangeNameBirthdayMutationVariables = {|
+export type validateMutationTest5ChangeNameBirthdayMutation$variables = {|
   input: ActorNameChangeInput,
 |};
-export type validateMutationTest5ChangeNameBirthdayMutationResponse = {|
+export type validateMutationTest5ChangeNameBirthdayMutationVariables = validateMutationTest5ChangeNameBirthdayMutation$variables;
+export type validateMutationTest5ChangeNameBirthdayMutation$data = {|
   +actorNameChange: ?{|
     +actor: ?{|
       +birthdate?: ?{|
@@ -35,9 +36,10 @@ export type validateMutationTest5ChangeNameBirthdayMutationResponse = {|
     |},
   |},
 |};
+export type validateMutationTest5ChangeNameBirthdayMutationResponse = validateMutationTest5ChangeNameBirthdayMutation$data;
 export type validateMutationTest5ChangeNameBirthdayMutation = {|
   variables: validateMutationTest5ChangeNameBirthdayMutationVariables,
-  response: validateMutationTest5ChangeNameBirthdayMutationResponse,
+  response: validateMutationTest5ChangeNameBirthdayMutation$data,
 |};
 */
 
@@ -205,4 +207,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "e3c945f990b74252ca50978eb441aea7";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Mutation<
+  validateMutationTest5ChangeNameBirthdayMutation$variables,
+  validateMutationTest5ChangeNameBirthdayMutation$data,
+>*/);

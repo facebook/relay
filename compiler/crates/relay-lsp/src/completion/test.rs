@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -12,7 +12,7 @@ use super::resolve_completion_items;
 use common::{SourceLocationKey, Span};
 use graphql_ir::{build, Program};
 use graphql_syntax::{parse_executable, parse_executable_with_error_recovery};
-use interner::Intern;
+use intern::string_key::Intern;
 use lsp_types::{CompletionItem, Documentation};
 use relay_test_schema::get_test_schema;
 

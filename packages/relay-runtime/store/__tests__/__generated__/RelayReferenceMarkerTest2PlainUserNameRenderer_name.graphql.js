@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<2be60920aac583d0b352a2111365d201>>
+ * @generated SignedSource<<013caf9024ed667561e91ef7121898e6>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,21 +15,21 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayReferenceMarkerTest2PlainUserNameRenderer_name$ref: FragmentReference;
-declare export opaque type RelayReferenceMarkerTest2PlainUserNameRenderer_name$fragmentType: RelayReferenceMarkerTest2PlainUserNameRenderer_name$ref;
-export type RelayReferenceMarkerTest2PlainUserNameRenderer_name = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayReferenceMarkerTest2PlainUserNameRenderer_name$fragmentType: FragmentType;
+export type RelayReferenceMarkerTest2PlainUserNameRenderer_name$ref = RelayReferenceMarkerTest2PlainUserNameRenderer_name$fragmentType;
+export type RelayReferenceMarkerTest2PlainUserNameRenderer_name$data = {|
   +plaintext: ?string,
   +data: ?{|
     +text: ?string,
   |},
-  +$refType: RelayReferenceMarkerTest2PlainUserNameRenderer_name$ref,
+  +$fragmentType: RelayReferenceMarkerTest2PlainUserNameRenderer_name$fragmentType,
 |};
-export type RelayReferenceMarkerTest2PlainUserNameRenderer_name$data = RelayReferenceMarkerTest2PlainUserNameRenderer_name;
+export type RelayReferenceMarkerTest2PlainUserNameRenderer_name = RelayReferenceMarkerTest2PlainUserNameRenderer_name$data;
 export type RelayReferenceMarkerTest2PlainUserNameRenderer_name$key = {
   +$data?: RelayReferenceMarkerTest2PlainUserNameRenderer_name$data,
-  +$fragmentRefs: RelayReferenceMarkerTest2PlainUserNameRenderer_name$ref,
+  +$fragmentSpreads: RelayReferenceMarkerTest2PlainUserNameRenderer_name$fragmentType,
   ...
 };
 */
@@ -74,4 +74,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "57fc559e5802e30be989ef2d66506b47";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayReferenceMarkerTest2PlainUserNameRenderer_name$fragmentType,
+  RelayReferenceMarkerTest2PlainUserNameRenderer_name$data,
+>*/);

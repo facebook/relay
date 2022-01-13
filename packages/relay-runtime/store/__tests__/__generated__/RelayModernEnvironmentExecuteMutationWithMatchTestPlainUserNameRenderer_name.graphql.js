@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<4b658ec14cb9ec5d41355d50728adcd5>>
+ * @generated SignedSource<<ca3c1bfeee94d2eaff7d2e6388216fec>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,21 +15,21 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayModernEnvironmentExecuteMutationWithMatchTestPlainUserNameRenderer_name$ref: FragmentReference;
-declare export opaque type RelayModernEnvironmentExecuteMutationWithMatchTestPlainUserNameRenderer_name$fragmentType: RelayModernEnvironmentExecuteMutationWithMatchTestPlainUserNameRenderer_name$ref;
-export type RelayModernEnvironmentExecuteMutationWithMatchTestPlainUserNameRenderer_name = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayModernEnvironmentExecuteMutationWithMatchTestPlainUserNameRenderer_name$fragmentType: FragmentType;
+export type RelayModernEnvironmentExecuteMutationWithMatchTestPlainUserNameRenderer_name$ref = RelayModernEnvironmentExecuteMutationWithMatchTestPlainUserNameRenderer_name$fragmentType;
+export type RelayModernEnvironmentExecuteMutationWithMatchTestPlainUserNameRenderer_name$data = {|
   +plaintext: ?string,
   +data: ?{|
     +text: ?string,
   |},
-  +$refType: RelayModernEnvironmentExecuteMutationWithMatchTestPlainUserNameRenderer_name$ref,
+  +$fragmentType: RelayModernEnvironmentExecuteMutationWithMatchTestPlainUserNameRenderer_name$fragmentType,
 |};
-export type RelayModernEnvironmentExecuteMutationWithMatchTestPlainUserNameRenderer_name$data = RelayModernEnvironmentExecuteMutationWithMatchTestPlainUserNameRenderer_name;
+export type RelayModernEnvironmentExecuteMutationWithMatchTestPlainUserNameRenderer_name = RelayModernEnvironmentExecuteMutationWithMatchTestPlainUserNameRenderer_name$data;
 export type RelayModernEnvironmentExecuteMutationWithMatchTestPlainUserNameRenderer_name$key = {
   +$data?: RelayModernEnvironmentExecuteMutationWithMatchTestPlainUserNameRenderer_name$data,
-  +$fragmentRefs: RelayModernEnvironmentExecuteMutationWithMatchTestPlainUserNameRenderer_name$ref,
+  +$fragmentSpreads: RelayModernEnvironmentExecuteMutationWithMatchTestPlainUserNameRenderer_name$fragmentType,
   ...
 };
 */
@@ -74,4 +74,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "3b4f75a178532b5d5523c34ef49b4184";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayModernEnvironmentExecuteMutationWithMatchTestPlainUserNameRenderer_name$fragmentType,
+  RelayModernEnvironmentExecuteMutationWithMatchTestPlainUserNameRenderer_name$data,
+>*/);

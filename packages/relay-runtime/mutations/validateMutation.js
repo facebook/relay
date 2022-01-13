@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -51,7 +51,11 @@ const hasOwnProperty = Object.prototype.hasOwnProperty;
 
 let validateMutation = () => {};
 if (__DEV__) {
-  const addFieldToDiff = (path: string, diff: Object, isScalar) => {
+  const addFieldToDiff = (
+    path: string,
+    diff: Object,
+    isScalar: void | boolean,
+  ) => {
     let deepLoc = diff;
     path.split('.').forEach((key, index, arr) => {
       if (deepLoc[key] == null) {

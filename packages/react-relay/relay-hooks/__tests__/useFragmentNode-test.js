@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -224,11 +224,10 @@ beforeEach(() => {
   }) => {
     // We need a render a component to run a Hook
     const [owner, _setOwner] = useState<OperationDescriptor>(props.owner);
-    const [, _setCount] = useState(0);
+    const [, setCount] = useState(0);
     const userRef = props.hasOwnProperty('userRef')
       ? props.userRef
       : {
-          // $FlowFixMe[prop-missing]
           [ID_KEY]: owner.request.variables.id,
           [FRAGMENTS_KEY]: {
             useFragmentNodeTestUserFragment: {},
@@ -238,7 +237,7 @@ beforeEach(() => {
         };
 
     setSingularOwner = _setOwner;
-    forceSingularUpdate = () => _setCount(count => count + 1);
+    forceSingularUpdate = () => setCount(count => count + 1);
 
     const [userData] = useFragmentNode(gqlSingularFragment, userRef);
     return <SingularRenderer user={userData} />;

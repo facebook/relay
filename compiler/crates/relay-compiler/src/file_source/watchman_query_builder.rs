@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -29,7 +29,12 @@ pub fn get_watchman_expr(config: &Config) -> Expr {
                     Expr::Suffix(match &project.typegen_config.language {
                         TypegenLanguage::Flow => vec![PathBuf::from("js"), PathBuf::from("jsx")],
                         TypegenLanguage::TypeScript => {
-                            vec![PathBuf::from("ts"), PathBuf::from("tsx")]
+                            vec![
+                                PathBuf::from("js"),
+                                PathBuf::from("jsx"),
+                                PathBuf::from("ts"),
+                                PathBuf::from("tsx"),
+                            ]
                         }
                     }),
                     // In the related source root.
@@ -61,28 +66,28 @@ pub fn get_watchman_expr(config: &Config) -> Expr {
 
     let mut expressions = vec![sources_expr];
 
-    let output_dir_paths = get_output_dir_paths(&config);
+    let output_dir_paths = get_output_dir_paths(config);
     if !output_dir_paths.is_empty() {
         let output_dir_expr = expr_files_in_dirs(output_dir_paths);
         expressions.push(output_dir_expr);
     }
 
-    let schema_file_paths = get_schema_file_paths(&config);
+    let schema_file_paths = get_schema_file_paths(config);
     if !schema_file_paths.is_empty() {
         let schema_file_expr = Expr::Name(NameTerm {
-            paths: get_schema_file_paths(&config),
+            paths: get_schema_file_paths(config),
             wholename: true,
         });
         expressions.push(schema_file_expr);
     }
 
-    let schema_dir_paths = get_schema_dir_paths(&config);
+    let schema_dir_paths = get_schema_dir_paths(config);
     if !schema_dir_paths.is_empty() {
         let schema_dir_expr = expr_graphql_files_in_dirs(schema_dir_paths);
         expressions.push(schema_dir_expr);
     }
 
-    let extension_roots = get_extension_roots(&config);
+    let extension_roots = get_extension_roots(config);
     if !extension_roots.is_empty() {
         let extensions_expr = expr_graphql_files_in_dirs(extension_roots);
         expressions.push(extensions_expr);
@@ -125,7 +130,7 @@ fn get_extension_roots(config: &Config) -> Vec<PathBuf> {
     config
         .projects
         .values()
-        .flat_map(|project_config| project_config.extensions.iter().cloned())
+        .flat_map(|project_config| project_config.schema_extensions.iter().cloned())
         .collect()
 }
 

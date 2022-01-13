@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -91,27 +91,11 @@ pub fn categorize_files(
                 })
                 .collect::<Vec<_>>()
         }
-        FileSourceResult::External(file_source_result) => {
-            let file_filter = FileFilter::from_config(config);
-            file_source_result
-                .files
-                .par_iter()
-                .filter(|file| file_filter.is_file_relevant(&file.name))
-                .filter_map(|file| {
-                    let file_group = categorizer
-                        .categorize(&file.name)
-                        .map_err(|err| {
-                            warn!(
-                                "Unexpected error in file categorizer for file `{}`: {}.",
-                                file.name.to_string_lossy(),
-                                err
-                            );
-                            err
-                        })
-                        .ok()?;
-                    Some((file_group, file.clone()))
-                })
-                .collect::<Vec<_>>()
+        FileSourceResult::External(result) => {
+            categorize_non_watchman_files(&categorizer, config, &result.files)
+        }
+        FileSourceResult::Glob(result) => {
+            categorize_non_watchman_files(&categorizer, config, &result.files)
         }
     };
     let mut categorized = HashMap::new();
@@ -122,6 +106,33 @@ pub fn categorize_files(
             .push(file);
     }
     categorized
+}
+
+fn categorize_non_watchman_files(
+    categorizer: &FileCategorizer,
+    config: &Config,
+    files: &[File],
+) -> Vec<(FileGroup, File)> {
+    let file_filter = FileFilter::from_config(config);
+
+    files
+        .par_iter()
+        .filter(|file| file_filter.is_file_relevant(&file.name))
+        .filter_map(|file| {
+            let file_group = categorizer
+                .categorize(&file.name)
+                .map_err(|err| {
+                    warn!(
+                        "Unexpected error in file categorizer for file `{}`: {}.",
+                        file.name.to_string_lossy(),
+                        err
+                    );
+                    err
+                })
+                .ok()?;
+            Some((file_group, file.clone()))
+        })
+        .collect::<Vec<_>>()
 }
 
 /// The FileCategorizer is created from a Config and categorizes files found by
@@ -146,7 +157,7 @@ impl FileCategorizer {
 
         let mut extensions_map: HashMap<PathBuf, ProjectSet> = Default::default();
         for (&project_name, project_config) in &config.projects {
-            for extension_dir in &project_config.extensions {
+            for extension_dir in &project_config.schema_extensions {
                 match extensions_map.entry(extension_dir.clone()) {
                     Entry::Vacant(entry) => {
                         entry.insert(ProjectSet::ProjectName(project_name));
@@ -204,7 +215,7 @@ impl FileCategorizer {
             .projects
             .iter()
             .map(|(project_name, project_config)| {
-                (project_name.clone(), project_config.typegen_config.language)
+                (*project_name, project_config.typegen_config.language)
             })
             .collect::<HashMap<_, _>>();
 
@@ -343,22 +354,20 @@ impl<T: Clone> PathMapping<T> {
 }
 
 fn is_source_code_extension(extension: &OsStr) -> bool {
-    extension == "js" || extension == "ts" || extension == "tsx"
+    extension == "js" || extension == "jsx" || extension == "ts" || extension == "tsx"
 }
 
 fn is_valid_source_code_extension(typegen_language: &TypegenLanguage, extension: &OsStr) -> bool {
-    match (typegen_language, extension.to_str()) {
-        (TypegenLanguage::Flow, Some("js")) => true,
-        (TypegenLanguage::TypeScript, Some("ts")) => true,
-        (TypegenLanguage::TypeScript, Some("tsx")) => true,
-        _ => false,
+    match typegen_language {
+        TypegenLanguage::TypeScript => is_source_code_extension(extension),
+        TypegenLanguage::Flow => extension == "js" || extension == "jsx",
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use interner::Intern;
+    use intern::string_key::Intern;
 
     fn create_test_config() -> Config {
         Config::from_string_for_test(
@@ -497,7 +506,7 @@ mod tests {
         let config = create_test_config();
         let categorizer = FileCategorizer::from_config(&config);
         assert_eq!(
-            categorizer.categorize(&PathBuf::from("src/typescript/a.js")),
+            categorizer.categorize(&PathBuf::from("src/js/a.ts")),
             Err(Cow::Borrowed("Invalid extension for a generated file."))
         );
     }

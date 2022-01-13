@@ -1,0 +1,19 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query TestQuery($skip: Boolean!) {
+  me {
+    ...Assignable_user @skip(if: $skip)
+  }
+}
+
+fragment Assignable_user on User @assignable {
+  __typename
+}
+==================================== ERROR ====================================
+✖︎ The @skip directive is not allowed on assignable fragment spreads.
+
+  skipped-assignable-fragment-spread.invalid.graphql:4:8
+    3 │   me {
+    4 │     ...Assignable_user @skip(if: $skip)
+      │        ^^^^^^^^^^^^^^^
+    5 │   }

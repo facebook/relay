@@ -1,15 +1,15 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
 use crate::refetchable_fragment::{RefetchableFragment, REFETCHABLE_NAME};
-use fnv::FnvHashMap;
 use graphql_syntax::OperationKind;
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey, StringKeyMap};
 use lazy_static::lazy_static;
+use relay_config::SchemaConfig;
 use schema::Type;
 use std::sync::Arc;
 
@@ -27,10 +27,61 @@ lazy_static! {
     // This gets attached to the generated query
     pub static ref CLIENT_EDGE_QUERY_METADATA_KEY: StringKey = "__clientEdgeQuery".intern();
     pub static ref QUERY_NAME_ARG: StringKey = "queryName".intern();
+    pub static ref CLIENT_EDGE_SOURCE_NAME: StringKey = "clientEdgeSourceDocument".intern();
+    // This gets attached to fragment which defines the selection in the generated query
+    pub static ref CLIENT_EDGE_GENERATED_FRAGMENT_KEY: StringKey = "__clientEdgeGeneratedFragment".intern();
 }
 
-pub fn client_edges(program: &Program) -> DiagnosticsResult<Program> {
-    let mut transform = ClientEdgesTransform::new(program);
+pub struct ClientEdgeMetadata<'a> {
+    pub backing_field: &'a Selection,
+    pub selections: &'a Selection,
+    pub query_name: StringKey,
+}
+
+// Client edges consists of two parts:
+//
+// 1. A backing field which contains the ID defining the graph relationship
+// 2. A linked field containing the selections that the user has asked for off
+// of that relationship.
+//
+// In order to ensure both of these elements are present in our IR, and also get
+// traversed by subsequent transform steps, we model Client Edges in our IR as
+// an inline fragment containing these two children in an implict order.
+//
+// This utility method is intended to reduce the number of places that need to
+// know about this implicit contract by reading an inline fragment and returning
+// structured metadata, if present.
+impl<'a> ClientEdgeMetadata<'a> {
+    pub fn find(fragment: &'a InlineFragment) -> Option<Self> {
+        fragment
+            .directives
+            .named(*CLIENT_EDGE_METADATA_KEY)
+            .map(|directive| {
+                let query_name = directive
+                    .arguments
+                    .named(*QUERY_NAME_ARG)
+                    .expect("Client Edge metadata should have a query name")
+                    .value
+                    .item
+                    .get_string_literal()
+                    .expect("queryName is a string literal");
+
+                ClientEdgeMetadata {
+                    query_name,
+                    backing_field: fragment
+                        .selections
+                        .get(0)
+                        .expect("Client Edge inline fragments have exactly two selections"),
+                    selections: fragment
+                        .selections
+                        .get(1)
+                        .expect("Client Edge inline fragments have exactly two selections"),
+                }
+            })
+    }
+}
+pub fn client_edges(program: &Program, schema_config: &SchemaConfig) -> DiagnosticsResult<Program> {
+    let mut transform = ClientEdgesTransform::new(program, schema_config);
     let mut next_program = transform
         .transform_program(program)
         .replace_or_else(|| program.clone());
@@ -48,20 +99,22 @@ pub fn client_edges(program: &Program) -> DiagnosticsResult<Program> {
     }
 }
 
-struct ClientEdgesTransform<'program> {
+struct ClientEdgesTransform<'program, 'sc> {
     path: Vec<&'program str>,
     document_name: Option<StringKey>,
-    query_names: FnvHashMap<StringKey, usize>,
+    query_names: StringKeyMap<usize>,
     program: &'program Program,
     new_fragments: Vec<Arc<FragmentDefinition>>,
     new_operations: Vec<OperationDefinition>,
     errors: Vec<Diagnostic>,
+    schema_config: &'sc SchemaConfig,
 }
 
-impl<'program> ClientEdgesTransform<'program> {
-    fn new(program: &'program Program) -> Self {
+impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
+    fn new(program: &'program Program, schema_config: &'sc SchemaConfig) -> Self {
         Self {
             program,
+            schema_config,
             path: Default::default(),
             query_names: Default::default(),
             document_name: Default::default(),
@@ -106,11 +159,20 @@ impl<'program> ClientEdgesTransform<'program> {
             variable_definitions: Vec::new(),
             used_global_variables: Vec::new(),
             type_condition: field_type,
-            directives: vec![],
+            directives: vec![Directive {
+                name: WithLocation::generated(*CLIENT_EDGE_GENERATED_FRAGMENT_KEY),
+                arguments: vec![Argument {
+                    name: WithLocation::generated(*CLIENT_EDGE_SOURCE_NAME),
+                    value: WithLocation::generated(Value::Constant(ConstantValue::String(
+                        self.document_name.expect("Expect to be within a document"),
+                    ))),
+                }],
+                data: None,
+            }],
             selections,
         };
 
-        let mut transformer = RefetchableFragment::new(&self.program, false);
+        let mut transformer = RefetchableFragment::new(self.program, self.schema_config, false);
 
         let refetchable_fragment = transformer
             .transform_refetch_fragment_with_refetchable_directive(
@@ -130,7 +192,12 @@ impl<'program> ClientEdgesTransform<'program> {
                 let mut directives = refetchable_directive.directives;
                 directives.push(Directive {
                     name: WithLocation::generated(*CLIENT_EDGE_QUERY_METADATA_KEY),
-                    arguments: Default::default(),
+                    arguments: vec![Argument {
+                        name: WithLocation::generated(*CLIENT_EDGE_SOURCE_NAME),
+                        value: WithLocation::generated(Value::Constant(ConstantValue::String(
+                            self.document_name.expect("Expect to be within a document"),
+                        ))),
+                    }],
                     data: None,
                 });
                 self.new_operations.push(OperationDefinition {
@@ -173,29 +240,34 @@ impl<'program> ClientEdgesTransform<'program> {
             new_selections.clone(),
         );
 
-        let mut new_directives = field.directives.clone();
-
-        new_directives.push(Directive {
-            name: WithLocation::generated(*CLIENT_EDGE_METADATA_KEY),
-            arguments: vec![Argument {
-                name: WithLocation::generated(*QUERY_NAME_ARG),
-                value: WithLocation::generated(Value::Constant(ConstantValue::String(
-                    client_edge_query_name,
-                ))),
-            }],
-            data: None,
-        });
-        let new_field = LinkedField {
-            directives: new_directives,
+        let transformed_field = Arc::new(LinkedField {
             selections: new_selections,
             ..field.clone()
+        });
+
+        let inline_fragment = InlineFragment {
+            type_condition: None,
+            directives: vec![Directive {
+                name: WithLocation::generated(*CLIENT_EDGE_METADATA_KEY),
+                arguments: vec![Argument {
+                    name: WithLocation::generated(*QUERY_NAME_ARG),
+                    value: WithLocation::generated(Value::Constant(ConstantValue::String(
+                        client_edge_query_name,
+                    ))),
+                }],
+                data: None,
+            }],
+            selections: vec![
+                Selection::LinkedField(transformed_field.clone()),
+                Selection::LinkedField(transformed_field),
+            ],
         };
 
-        Transformed::Replace(Selection::LinkedField(Arc::new(new_field)))
+        Transformed::Replace(Selection::InlineFragment(Arc::new(inline_fragment)))
     }
 }
 
-impl Transformer for ClientEdgesTransform<'_> {
+impl Transformer for ClientEdgesTransform<'_, '_> {
     const NAME: &'static str = "ClientEdgesTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;
@@ -257,5 +329,61 @@ fn make_refetchable_directive(query_name: StringKey) -> Directive {
             value: WithLocation::generated(Value::Constant(ConstantValue::String(query_name))),
         }],
         data: None,
+    }
+}
+
+pub fn preserve_client_edge_selections(program: &Program) -> DiagnosticsResult<Program> {
+    let mut transform = ClientEdgesCleanupTransform::new(CleanupMode::PreserveSelectionsField);
+    let next_program = transform
+        .transform_program(program)
+        .replace_or_else(|| program.clone());
+
+    Ok(next_program)
+}
+
+pub fn preserve_client_edge_backing_ids(program: &Program) -> DiagnosticsResult<Program> {
+    let mut transform = ClientEdgesCleanupTransform::new(CleanupMode::PreserveBackingField);
+    let next_program = transform
+        .transform_program(program)
+        .replace_or_else(|| program.clone());
+
+    Ok(next_program)
+}
+
+enum CleanupMode {
+    PreserveBackingField,
+    PreserveSelectionsField,
+}
+
+struct ClientEdgesCleanupTransform {
+    cleanup_mode: CleanupMode,
+}
+
+impl ClientEdgesCleanupTransform {
+    fn new(cleanup_mode: CleanupMode) -> Self {
+        Self { cleanup_mode }
+    }
+}
+
+impl Transformer for ClientEdgesCleanupTransform {
+    const NAME: &'static str = "ClientEdgesCleanupTransform";
+    const VISIT_ARGUMENTS: bool = false;
+    const VISIT_DIRECTIVES: bool = false;
+
+    fn transform_inline_fragment(&mut self, fragment: &InlineFragment) -> Transformed<Selection> {
+        match ClientEdgeMetadata::find(fragment) {
+            Some(metadata) => {
+                let new_selection = match self.cleanup_mode {
+                    CleanupMode::PreserveBackingField => metadata.backing_field,
+                    CleanupMode::PreserveSelectionsField => metadata.selections,
+                };
+
+                Transformed::Replace(
+                    self.transform_selection(new_selection)
+                        .unwrap_or_else(|| new_selection.clone()),
+                )
+            }
+            None => self.default_transform_inline_fragment(fragment),
+        }
     }
 }

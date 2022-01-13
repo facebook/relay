@@ -3,10 +3,10 @@
 name = "relay-schema"
 version = "0.0.0"
 authors = ["Facebook"]
-edition = "2018"
+edition = "2021"
 license = "MIT"
 
 [dependencies]
 common = { path = "../common" }
-interner = { path = "../interner" }
+intern = { path = "../intern" }
 schema = { path = "../schema" }

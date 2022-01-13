@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -8,7 +8,7 @@
 use graphql_cli::SourcePrinter;
 use std::ops::Range;
 
-const EXAMPLE: &'static str = "fragment Example on User {
+const EXAMPLE: &str = "fragment Example on User {
   photo(size: 40) {
     url
   }
@@ -46,7 +46,7 @@ fn main() {
     for test_case in test_cases.into_iter() {
         let mut res = String::new();
         printer
-            .write_span(&mut res, &test_case.into(), &EXAMPLE)
+            .write_span(&mut res, &test_case.into(), EXAMPLE)
             .unwrap();
         println!("{}\n ---------\n", res);
     }

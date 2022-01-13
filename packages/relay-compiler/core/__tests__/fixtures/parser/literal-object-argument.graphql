@@ -1,5 +1,0 @@
-query LiteralObjectArgument {
-  checkinSearchQuery(query: {query: "Facebook"}) {
-    query
-  }
-}

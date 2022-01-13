@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -11,13 +11,13 @@
 'use strict';
 
 const {fetchQuery} = require('../../query/fetchQueryInternal');
-const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const RelayModernFragmentSpecResolver = require('../RelayModernFragmentSpecResolver');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {getRequest, graphql} = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils-internal');
+
 describe('RelayModernFragmentSpecResolver', () => {
   let UserFragment;
   let UserQuery;
@@ -66,7 +66,7 @@ describe('RelayModernFragmentSpecResolver', () => {
     `;
     UsersFragment = graphql`
       fragment RelayModernFragmentSpecResolverTestQueryUsersFragment on User
-        @relay(plural: true) {
+      @relay(plural: true) {
         id
         name
         profilePicture(size: $size) @include(if: $fetchSize) {

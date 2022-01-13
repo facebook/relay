@@ -43,7 +43,7 @@ fragment Foo on User {
                             alias: None,
                             definition: WithLocation {
                                 location: directive-include.graphql:34:36,
-                                item: FieldID(463),
+                                item: FieldID(464),
                             },
                             arguments: [],
                             directives: [],
@@ -76,7 +76,7 @@ fragment Foo on User {
                                     alias: None,
                                     definition: WithLocation {
                                         location: directive-include.graphql:97:106,
-                                        item: FieldID(460),
+                                        item: FieldID(461),
                                     },
                                     arguments: [],
                                     directives: [],
@@ -143,7 +143,7 @@ fragment Foo on User {
                     alias: None,
                     definition: WithLocation {
                         location: directive-include.graphql:168:170,
-                        item: FieldID(463),
+                        item: FieldID(464),
                     },
                     arguments: [],
                     directives: [],

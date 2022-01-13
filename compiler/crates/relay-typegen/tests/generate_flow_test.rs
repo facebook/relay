@@ -1,10 +1,10 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a16b71bd84ea4fa531f9d86dd02cf407>>
+ * @generated SignedSource<<00497d55c4cbafa66e2380e267c24b2c>>
  */
 
 mod generate_flow;
@@ -125,6 +125,20 @@ fn plural_fragment() {
 }
 
 #[test]
+fn query_mixed_provided_variables() {
+    let input = include_str!("generate_flow/fixtures/query-mixed-provided-variables.graphql");
+    let expected = include_str!("generate_flow/fixtures/query-mixed-provided-variables.expected");
+    test_fixture(transform_fixture, "query-mixed-provided-variables.graphql", "generate_flow/fixtures/query-mixed-provided-variables.expected", input, expected);
+}
+
+#[test]
+fn query_only_provided_variables() {
+    let input = include_str!("generate_flow/fixtures/query-only-provided-variables.graphql");
+    let expected = include_str!("generate_flow/fixtures/query-only-provided-variables.expected");
+    test_fixture(transform_fixture, "query-only-provided-variables.graphql", "generate_flow/fixtures/query-only-provided-variables.expected", input, expected);
+}
+
+#[test]
 fn query_with_handles() {
     let input = include_str!("generate_flow/fixtures/query-with-handles.graphql");
     let expected = include_str!("generate_flow/fixtures/query-with-handles.expected");
@@ -213,6 +227,13 @@ fn relay_resolver() {
     let input = include_str!("generate_flow/fixtures/relay-resolver.graphql");
     let expected = include_str!("generate_flow/fixtures/relay-resolver.expected");
     test_fixture(transform_fixture, "relay-resolver.graphql", "generate_flow/fixtures/relay-resolver.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_client_edge() {
+    let input = include_str!("generate_flow/fixtures/relay-resolver-client-edge.graphql");
+    let expected = include_str!("generate_flow/fixtures/relay-resolver-client-edge.expected");
+    test_fixture(transform_fixture, "relay-resolver-client-edge.graphql", "generate_flow/fixtures/relay-resolver-client-edge.expected", input, expected);
 }
 
 #[test]
@@ -409,4 +430,67 @@ fn unmasked_fragment_spreads() {
     let input = include_str!("generate_flow/fixtures/unmasked-fragment-spreads.graphql");
     let expected = include_str!("generate_flow/fixtures/unmasked-fragment-spreads.expected");
     test_fixture(transform_fixture, "unmasked-fragment-spreads.graphql", "generate_flow/fixtures/unmasked-fragment-spreads.expected", input, expected);
+}
+
+#[test]
+fn updatable_operation() {
+    let input = include_str!("generate_flow/fixtures/updatable-operation.graphql");
+    let expected = include_str!("generate_flow/fixtures/updatable-operation.expected");
+    test_fixture(transform_fixture, "updatable-operation.graphql", "generate_flow/fixtures/updatable-operation.expected", input, expected);
+}
+
+#[test]
+fn updatable_operation_assignable_fragment() {
+    let input = include_str!("generate_flow/fixtures/updatable-operation-assignable-fragment.graphql");
+    let expected = include_str!("generate_flow/fixtures/updatable-operation-assignable-fragment.expected");
+    test_fixture(transform_fixture, "updatable-operation-assignable-fragment.graphql", "generate_flow/fixtures/updatable-operation-assignable-fragment.expected", input, expected);
+}
+
+#[test]
+fn updatable_operation_assignable_fragment_plural() {
+    let input = include_str!("generate_flow/fixtures/updatable-operation-assignable-fragment-plural.graphql");
+    let expected = include_str!("generate_flow/fixtures/updatable-operation-assignable-fragment-plural.expected");
+    test_fixture(transform_fixture, "updatable-operation-assignable-fragment-plural.graphql", "generate_flow/fixtures/updatable-operation-assignable-fragment-plural.expected", input, expected);
+}
+
+#[test]
+fn updatable_operation_assignable_fragments_within_narrowing() {
+    let input = include_str!("generate_flow/fixtures/updatable-operation-assignable-fragments-within-narrowing.graphql");
+    let expected = include_str!("generate_flow/fixtures/updatable-operation-assignable-fragments-within-narrowing.expected");
+    test_fixture(transform_fixture, "updatable-operation-assignable-fragments-within-narrowing.graphql", "generate_flow/fixtures/updatable-operation-assignable-fragments-within-narrowing.expected", input, expected);
+}
+
+#[test]
+fn updatable_operation_multiple_assignable_fragments() {
+    let input = include_str!("generate_flow/fixtures/updatable-operation-multiple-assignable-fragments.graphql");
+    let expected = include_str!("generate_flow/fixtures/updatable-operation-multiple-assignable-fragments.expected");
+    test_fixture(transform_fixture, "updatable-operation-multiple-assignable-fragments.graphql", "generate_flow/fixtures/updatable-operation-multiple-assignable-fragments.expected", input, expected);
+}
+
+#[test]
+fn updatable_operation_plural_field_no_spreads() {
+    let input = include_str!("generate_flow/fixtures/updatable-operation-plural-field-no-spreads.graphql");
+    let expected = include_str!("generate_flow/fixtures/updatable-operation-plural-field-no-spreads.expected");
+    test_fixture(transform_fixture, "updatable-operation-plural-field-no-spreads.graphql", "generate_flow/fixtures/updatable-operation-plural-field-no-spreads.expected", input, expected);
+}
+
+#[test]
+fn updatable_operation_plural_field_with_spreads() {
+    let input = include_str!("generate_flow/fixtures/updatable-operation-plural-field-with-spreads.graphql");
+    let expected = include_str!("generate_flow/fixtures/updatable-operation-plural-field-with-spreads.expected");
+    test_fixture(transform_fixture, "updatable-operation-plural-field-with-spreads.graphql", "generate_flow/fixtures/updatable-operation-plural-field-with-spreads.expected", input, expected);
+}
+
+#[test]
+fn updatable_operation_special_fields() {
+    let input = include_str!("generate_flow/fixtures/updatable-operation-special-fields.graphql");
+    let expected = include_str!("generate_flow/fixtures/updatable-operation-special-fields.expected");
+    test_fixture(transform_fixture, "updatable-operation-special-fields.graphql", "generate_flow/fixtures/updatable-operation-special-fields.expected", input, expected);
+}
+
+#[test]
+fn updatable_operation_type_refinement() {
+    let input = include_str!("generate_flow/fixtures/updatable-operation-type-refinement.graphql");
+    let expected = include_str!("generate_flow/fixtures/updatable-operation-type-refinement.expected");
+    test_fixture(transform_fixture, "updatable-operation-type-refinement.graphql", "generate_flow/fixtures/updatable-operation-type-refinement.expected", input, expected);
 }

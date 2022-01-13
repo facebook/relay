@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -18,7 +18,6 @@ import type {NormalizationRootNode} from '../../util/NormalizationNode';
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
 const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
-const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -192,7 +191,8 @@ describe('execute() a query with @module', () => {
           __fragmentPropName: 'name',
 
           __fragments: {
-            RelayModernEnvironmentExecuteWithModuleTestMarkdownUserNameRenderer_name: {},
+            RelayModernEnvironmentExecuteWithModuleTestMarkdownUserNameRenderer_name:
+              {},
           },
 
           __fragmentOwner: operation.request,

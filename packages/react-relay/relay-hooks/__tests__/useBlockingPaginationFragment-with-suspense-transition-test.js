@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -179,7 +179,8 @@ describe('useBlockingPaginationFragment with useTransition', () => {
       return {
         [ID_KEY]: id,
         [FRAGMENTS_KEY]: {
-          useBlockingPaginationFragmentWithSuspenseTransitionTestNestedUserFragment: {},
+          useBlockingPaginationFragmentWithSuspenseTransitionTestNestedUserFragment:
+            {},
         },
         [FRAGMENT_OWNER_KEY]: owner.request,
         __isWithinUnmatchedTypeRefinement: false,
@@ -225,13 +226,13 @@ describe('useBlockingPaginationFragment with useTransition', () => {
 
       gqlFragment = getFragment(graphql`
         fragment useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment on User
-          @refetchable(
-            queryName: "useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragmentPaginationQuery"
-          )
-          @argumentDefinitions(
-            isViewerFriendLocal: {type: "Boolean", defaultValue: false}
-            orderby: {type: "[String]"}
-          ) {
+        @refetchable(
+          queryName: "useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragmentPaginationQuery"
+        )
+        @argumentDefinitions(
+          isViewerFriendLocal: {type: "Boolean", defaultValue: false}
+          orderby: {type: "[String]"}
+        ) {
           id
           name
           friends(
@@ -391,7 +392,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
       }) => {
         // We need a render a component to run a Hook
         const [owner, _setOwner] = useState(props.owner);
-        const [_, _setCount] = useState(0);
+        const [, setCount] = useState(0);
         const fragment = props.fragment ?? gqlFragment;
         const artificialUserRef = useMemo(() => {
           const snapshot = environment.lookup(owner.fragment);
@@ -402,15 +403,13 @@ describe('useBlockingPaginationFragment with useTransition', () => {
           : artificialUserRef;
 
         setOwner = _setOwner;
-        forceUpdate = _setCount;
+        forceUpdate = setCount;
 
-        const {
-          data: userData,
-        } = useBlockingPaginationFragmentWithSuspenseTransition(
-          fragment,
-          // $FlowFixMe[prop-missing]
-          userRef,
-        );
+        const {data: userData} =
+          useBlockingPaginationFragmentWithSuspenseTransition(
+            fragment,
+            userRef,
+          );
         return <Renderer user={userData} />;
       };
 

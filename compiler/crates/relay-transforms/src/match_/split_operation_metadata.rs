@@ -1,14 +1,13 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
 use common::{NamedItem, WithLocation};
-use fnv::FnvHashSet;
 use graphql_ir::{Argument, ConstantValue, Directive, Value};
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey, StringKeySet};
 use lazy_static::lazy_static;
 
 lazy_static! {
@@ -48,7 +47,7 @@ pub struct SplitOperationMetadata {
     /// The names of the fragments and operations that included this fragment.
     /// They are the reason this split operation exist. If they are all removed,
     /// this file also needs to be removed.
-    pub parent_documents: FnvHashSet<StringKey>,
+    pub parent_documents: StringKeySet,
 
     /// Should a @raw_response_type style type be generated.
     pub raw_response_type: bool,

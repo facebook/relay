@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -7,9 +7,10 @@
 
 use std::{fmt, hash::Hash};
 
+use common::WithLocation;
 use dashmap::DashMap;
 use fnv::FnvBuildHasher;
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey};
 use ouroboros::self_referencing;
 
 use crate::{
@@ -69,7 +70,7 @@ impl SchemaWrapper {
     pub fn from_vec(data: Vec<u8>) -> Self {
         let fb = OwnedFlatBufferSchemaBuilder {
             data,
-            schema_builder: |data| FlatBufferSchema::build(&data),
+            schema_builder: |data| FlatBufferSchema::build(data),
         }
         .build();
 
@@ -93,7 +94,7 @@ impl SchemaWrapper {
 
         // prepopulate special fields
         result.fields.get(TYPENAME_FIELD_ID, || Field {
-            name: result.typename_field_name,
+            name: WithLocation::generated(result.typename_field_name),
             is_extension: false,
             arguments: ArgumentDefinitions::new(Default::default()),
             type_: TypeReference::NonNull(Box::new(TypeReference::Named(
@@ -104,7 +105,7 @@ impl SchemaWrapper {
             description: None,
         });
         result.fields.get(CLIENTID_FIELD_ID, || Field {
-            name: result.clientid_field_name,
+            name: WithLocation::generated(result.clientid_field_name),
             is_extension: true,
             arguments: ArgumentDefinitions::new(Default::default()),
             type_: TypeReference::NonNull(Box::new(TypeReference::Named(
@@ -115,7 +116,7 @@ impl SchemaWrapper {
             description: None,
         });
         result.fields.get(STRONGID_FIELD_ID, || Field {
-            name: result.strongid_field_name,
+            name: WithLocation::generated(result.strongid_field_name),
             is_extension: true,
             arguments: ArgumentDefinitions::new(Default::default()),
             type_: TypeReference::Named(result.get_type("ID".intern()).unwrap()),
@@ -124,7 +125,7 @@ impl SchemaWrapper {
             description: None,
         });
         result.fields.get(FETCH_TOKEN_FIELD_ID, || Field {
-            name: result.fetch_token_field_name,
+            name: WithLocation::generated(result.fetch_token_field_name),
             is_extension: false,
             arguments: ArgumentDefinitions::new(Default::default()),
             type_: TypeReference::NonNull(Box::new(TypeReference::Named(
@@ -135,7 +136,7 @@ impl SchemaWrapper {
             description: None,
         });
         result.fields.get(IS_FULFILLED_FIELD_ID, || Field {
-            name: result.is_fulfilled_field_name,
+            name: WithLocation::generated(result.is_fulfilled_field_name),
             is_extension: true,
             arguments: ArgumentDefinitions::new(vec![Argument {
                 name: "name".intern(),
@@ -158,6 +159,10 @@ impl SchemaWrapper {
         ));
 
         result
+    }
+
+    pub fn has_type(&self, type_name: StringKey) -> bool {
+        self.flatbuffer_schema().has_type(type_name)
     }
 
     pub fn has_directive(&self, name: StringKey) -> bool {
@@ -274,7 +279,7 @@ impl Schema for SchemaWrapper {
             Type::Enum(id) => self.enum_(id).name,
             Type::InputObject(id) => self.input_object(id).name,
             Type::Interface(id) => self.interface(id).name,
-            Type::Object(id) => self.object(id).name,
+            Type::Object(id) => self.object(id).name.item,
             Type::Scalar(id) => self.scalar(id).name,
             Type::Union(id) => self.union(id).name,
         }
@@ -353,7 +358,7 @@ impl Schema for SchemaWrapper {
             .iter()
             .find(|field_id| {
                 let field = self.field(**field_id);
-                field.name == name
+                field.name.item == name
             })
             .cloned()
     }

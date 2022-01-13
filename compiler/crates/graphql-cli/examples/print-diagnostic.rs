@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -8,7 +8,7 @@
 use common::{Diagnostic, Location, SourceLocationKey, Span};
 use graphql_cli::DiagnosticPrinter;
 
-const EXAMPLE: &'static str = "fragment Example on User {
+const EXAMPLE: &str = "fragment Example on User {
   photo(size: 40) {
     url
   }

@@ -3,8 +3,10 @@ fragment relayResolver_PopStarNameResolverFragment_name on User {
   name
 }
 
-fragment relayResolver_consumer on User {
-  pop_star_name
+query relayResolver_Query {
+  me {
+    pop_star_name @required(action: THROW)
+  }
 }
 
 # %extensions%
@@ -13,6 +15,14 @@ extend type User {
   pop_star_name: Int @relay_resolver(fragment_name: "relayResolver_PopStarNameResolverFragment_name", import_path: "./foo/bar/baz/PopStarNameResolver.js")
 }
 ==================================== OUTPUT ===================================
+import userPopStarNameResolver from "PopStarNameResolver";
+export type relayResolver_Query$variables = {||};
+export type relayResolver_Query$data = {|
+  +me: ?{|
+    +pop_star_name: $NonMaybeType<$Call<<R>((...empty[]) => R) => R, typeof userPopStarNameResolver>>,
+  |},
+|};
+-------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";
 declare export opaque type relayResolver_PopStarNameResolverFragment_name$fragmentType: FragmentType;
 export type relayResolver_PopStarNameResolverFragment_name$data = {|
@@ -22,18 +32,5 @@ export type relayResolver_PopStarNameResolverFragment_name$data = {|
 export type relayResolver_PopStarNameResolverFragment_name$key = {
   +$data?: relayResolver_PopStarNameResolverFragment_name$data,
   +$fragmentSpreads: relayResolver_PopStarNameResolverFragment_name$fragmentType,
-  ...
-};
--------------------------------------------------------------------------------
-import type { FragmentType } from "relay-runtime";
-import userPopStarNameResolver from "PopStarNameResolver";
-declare export opaque type relayResolver_consumer$fragmentType: FragmentType;
-export type relayResolver_consumer$data = {|
-  +pop_star_name: ?$Call<<R>((...empty[]) => R) => R, typeof userPopStarNameResolver>,
-  +$fragmentType: relayResolver_consumer$fragmentType,
-|};
-export type relayResolver_consumer$key = {
-  +$data?: relayResolver_consumer$data,
-  +$fragmentSpreads: relayResolver_consumer$fragmentType,
   ...
 };

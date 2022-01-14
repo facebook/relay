@@ -143,15 +143,6 @@ fn apply_common_transforms(
         )
     })?;
 
-    program = log_event.time("client_edges", || {
-        client_edges(&program, &project_config.schema_config)
-    })?;
-    program = log_event.time("relay_resolvers", || {
-        relay_resolvers(
-            &program,
-            project_config.feature_flags.enable_relay_resolver_transform,
-        )
-    })?;
 
     if project_config.feature_flags.enable_flight_transform {
         program = log_event.time("react_flight", || react_flight(&program))?;
@@ -183,8 +174,17 @@ fn apply_reader_transforms(
 ) -> DiagnosticsResult<Arc<Program>> {
     let log_event = perf_logger.create_event("apply_reader_transforms");
     log_event.string("project", project_config.name.to_string());
-    let mut program = log_event.time("required_directive", || required_directive(&program))?;
 
+    let mut program = log_event.time("required_directive", || required_directive(&program))?;
+    program = log_event.time("client_edges", || {
+        client_edges(&program, &project_config.schema_config)
+    })?;
+    program = log_event.time("relay_resolvers", || {
+        relay_resolvers(
+            &program,
+            project_config.feature_flags.enable_relay_resolver_transform,
+        )
+    })?;
     program = log_event.time("client_extensions", || client_extensions(&program));
     program = log_event.time("handle_field_transform", || {
         handle_field_transform(&program)
@@ -226,7 +226,17 @@ fn apply_operation_transforms(
     let log_event = perf_logger.create_event("apply_operation_transforms");
     log_event.string("project", project_config.name.to_string());
 
-    let mut program = log_event.time("preserve_client_edge_backing_ids", || {
+    let mut program = log_event.time("client_edges", || {
+        client_edges(&program, &project_config.schema_config)
+    })?;
+    program = log_event.time("relay_resolvers", || {
+        relay_resolvers(
+            &program,
+            project_config.feature_flags.enable_relay_resolver_transform,
+        )
+    })?;
+
+    program = log_event.time("preserve_client_edge_backing_ids", || {
         preserve_client_edge_backing_ids(&program)
     })?;
 

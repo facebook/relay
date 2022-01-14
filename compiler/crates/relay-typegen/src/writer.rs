@@ -13,6 +13,7 @@ pub enum AST {
     Union(Vec<AST>),
     ReadOnlyArray(Box<AST>),
     Nullable(Box<AST>),
+    NonNullable(Box<AST>),
     Identifier(StringKey),
     /// Printed as is, should be valid Flow code.
     RawType(StringKey),

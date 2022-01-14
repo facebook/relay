@@ -690,7 +690,14 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         if let Some(resolver_spread_metadata) =
             RelayResolverSpreadMetadata::find(&frag_spread.directives)
         {
-            self.build_relay_resolver(primitive, resolver_spread_metadata)
+            let resolver_primitive = self.build_relay_resolver(primitive, resolver_spread_metadata);
+            if let Some(required_metadata) =
+                RequiredMetadataDirective::find(&frag_spread.directives)
+            {
+                self.build_required_field(required_metadata, resolver_primitive)
+            } else {
+                resolver_primitive
+            }
         } else {
             primitive
         }

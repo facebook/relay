@@ -149,7 +149,7 @@ pub use relay_resolvers::{
 pub use remove_base_fragments::remove_base_fragments;
 pub use required_directive::{
     required_directive, RequiredAction, RequiredMetadataDirective, ACTION_ARGUMENT,
-    CHILDREN_CAN_BUBBLE_METADATA_KEY,
+    CHILDREN_CAN_BUBBLE_METADATA_KEY, REQUIRED_DIRECTIVE_NAME,
 };
 pub use skip_client_directives::skip_client_directives;
 pub use skip_client_extensions::skip_client_extensions;

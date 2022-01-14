@@ -44,6 +44,7 @@ impl Writer for FlowPrinter {
             AST::Union(members) => self.write_union(members),
             AST::ReadOnlyArray(of_type) => self.write_read_only_array(of_type),
             AST::Nullable(of_type) => self.write_nullable(of_type),
+            AST::NonNullable(of_type) => self.write_non_nullable(of_type),
             AST::ExactObject(props) => self.write_object(props, true),
             AST::InexactObject(props) => self.write_object(props, false),
             AST::Local3DPayload(document_name, selections) => {
@@ -178,6 +179,12 @@ impl FlowPrinter {
 
     fn write_read_only_array(&mut self, of_type: &AST) -> FmtResult {
         write!(&mut self.result, "$ReadOnlyArray<")?;
+        self.write(of_type)?;
+        write!(&mut self.result, ">")
+    }
+
+    fn write_non_nullable(&mut self, of_type: &AST) -> FmtResult {
+        write!(&mut self.result, "$NonMaybeType<")?;
         self.write(of_type)?;
         write!(&mut self.result, ">")
     }

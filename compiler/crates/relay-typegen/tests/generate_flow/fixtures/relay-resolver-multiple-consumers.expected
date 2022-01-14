@@ -22,9 +22,9 @@ import userPopStarNameResolver from "PopStarNameResolver";
 export type relayResolver_Query$variables = {||};
 export type relayResolver_Query$data = {|
   +me: ?{|
-    +pop_star_name: $Call<<R>((...empty[]) => R) => R, typeof userPopStarNameResolver>,
+    +pop_star_name: ?$Call<<R>((...empty[]) => R) => R, typeof userPopStarNameResolver>,
     +parents: $ReadOnlyArray<{|
-      +pop_star_name: $Call<<R>((...empty[]) => R) => R, typeof userPopStarNameResolver>,
+      +pop_star_name: ?$Call<<R>((...empty[]) => R) => R, typeof userPopStarNameResolver>,
     |}>,
   |},
 |};

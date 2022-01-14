@@ -5,7 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::{ClientEdgeMetadata, DependencyMap};
+use crate::{
+    ClientEdgeMetadata, DependencyMap, RequiredMetadataDirective, REQUIRED_DIRECTIVE_NAME,
+};
 
 use super::ValidationMessage;
 use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, WithLocation};
@@ -83,9 +85,18 @@ impl<'program> RelayResolverSpreadTransform<'program> {
                 field_name: self.program.schema.field(field.definition().item).name.item,
                 field_alias: field.alias().map(|alias| alias.item),
             };
+
+            let mut new_directives: Vec<Directive> = vec![spread_metadata.into()];
+
+            for directive in field.directives() {
+                if directive.name.item != RelayResolverFieldMetadata::directive_name() {
+                    new_directives.push(directive.clone())
+                }
+            }
+
             Selection::FragmentSpread(Arc::new(FragmentSpread {
                 fragment: WithLocation::generated(field_metadata.fragment_name),
-                directives: vec![spread_metadata.into()],
+                directives: new_directives,
                 arguments: vec![],
             }))
         })
@@ -194,7 +205,13 @@ impl<'program> RelayResolverFieldTransform<'program> {
             }
             match info {
                 Ok((fragment_name, import_path)) => {
-                    if let Some(directive) = field.directives().first() {
+                    let mut non_required_directives =
+                        field.directives().iter().filter(|directive| {
+                            // For now, only @required is allowed on Resolver fields.
+                            directive.name.item != RequiredMetadataDirective::directive_name()
+                                && directive.name.item != *REQUIRED_DIRECTIVE_NAME
+                        });
+                    if let Some(directive) = non_required_directives.next() {
                         self.errors.push(Diagnostic::error(
                             ValidationMessage::RelayResolverUnexpectedDirective {},
                             directive.name.location,
@@ -214,8 +231,11 @@ impl<'program> RelayResolverFieldTransform<'program> {
                         field_parent_type: self.program.schema.get_type_name(parent_type),
                         fragment_name,
                     };
-                    // Note that we've checked above that the field had no pre-existing directives.
-                    Some(vec![resolver_field_metadata.into()])
+
+                    let mut directives: Vec<Directive> = field.directives().to_vec();
+
+                    directives.push(resolver_field_metadata.into());
+                    Some(directives)
                 }
                 Err(diagnostics) => {
                     for diagnostic in diagnostics {

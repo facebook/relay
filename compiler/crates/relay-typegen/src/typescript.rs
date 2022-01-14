@@ -47,6 +47,7 @@ impl Writer for TypeScriptPrinter {
             AST::Union(members) => self.write_union(members),
             AST::ReadOnlyArray(of_type) => self.write_read_only_array(of_type),
             AST::Nullable(of_type) => self.write_nullable(of_type),
+            AST::NonNullable(of_type) => self.write_non_nullable(of_type),
             AST::ExactObject(props) => self.write_object(props),
             AST::InexactObject(props) => self.write_object(props),
             AST::Local3DPayload(document_name, selections) => {
@@ -150,6 +151,12 @@ impl TypeScriptPrinter {
 
     fn write_read_only_array(&mut self, of_type: &AST) -> FmtResult {
         write!(&mut self.result, "ReadonlyArray<")?;
+        self.write(of_type)?;
+        write!(&mut self.result, ">")
+    }
+
+    fn write_non_nullable(&mut self, of_type: &AST) -> FmtResult {
+        write!(&mut self.result, "NonNullable<")?;
         self.write(of_type)?;
         write!(&mut self.result, ">")
     }

@@ -593,7 +593,11 @@ impl<'a> TypeGenerator<'a> {
         if let Some(resolver_spread_metadata) =
             RelayResolverSpreadMetadata::find(&fragment_spread.directives)
         {
-            self.visit_relay_resolver_fragment(type_selections, resolver_spread_metadata);
+            self.visit_relay_resolver_fragment(
+                type_selections,
+                resolver_spread_metadata,
+                RequiredMetadataDirective::find(&fragment_spread.directives).is_some(),
+            );
         } else {
             let name = fragment_spread.fragment.item;
             self.used_fragments.insert(name);
@@ -609,6 +613,7 @@ impl<'a> TypeGenerator<'a> {
         &mut self,
         type_selections: &mut Vec<TypeSelection>,
         resolver_spread_metadata: &RelayResolverSpreadMetadata,
+        required: bool,
     ) {
         let field_name = resolver_spread_metadata.field_name;
 
@@ -631,10 +636,20 @@ impl<'a> TypeGenerator<'a> {
             .entry(haste_import_name)
             .or_insert(local_resolver_name);
 
+
+        let inner_value = Box::new(AST::ReturnTypeOfFunctionWithName(local_resolver_name));
+
+        let value = if required {
+            AST::NonNullable(inner_value)
+        } else {
+            AST::Nullable(inner_value)
+        };
+
+
         type_selections.push(TypeSelection::ScalarField(TypeSelectionScalarField {
             field_name_or_alias: key,
             special_field: None,
-            value: AST::ReturnTypeOfFunctionWithName(local_resolver_name),
+            value,
             conditional: false,
             concrete_type: None,
         }));

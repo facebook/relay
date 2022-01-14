@@ -49,7 +49,7 @@ import type { FragmentType } from "relay-runtime";
 import userPopStarNameResolver from "PopStarNameResolver";
 declare export opaque type relayResolver_user$fragmentType: FragmentType;
 export type relayResolver_user$data = {|
-  +pop_star_name: $Call<<R>((...empty[]) => R) => R, typeof userPopStarNameResolver>,
+  +pop_star_name: ?$Call<<R>((...empty[]) => R) => R, typeof userPopStarNameResolver>,
   +$fragmentType: relayResolver_user$fragmentType,
 |};
 export type relayResolver_user$key = {

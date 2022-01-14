@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<00497d55c4cbafa66e2380e267c24b2c>>
+ * @generated SignedSource<<caaf13d7e8f5c483ca2fa31032674264>>
  */
 
 mod generate_flow;
@@ -237,6 +237,13 @@ fn relay_resolver_client_edge() {
 }
 
 #[test]
+fn relay_resolver_client_edge_required() {
+    let input = include_str!("generate_flow/fixtures/relay-resolver-client-edge-required.graphql");
+    let expected = include_str!("generate_flow/fixtures/relay-resolver-client-edge-required.expected");
+    test_fixture(transform_fixture, "relay-resolver-client-edge-required.graphql", "generate_flow/fixtures/relay-resolver-client-edge-required.expected", input, expected);
+}
+
+#[test]
 fn relay_resolver_in_fragment() {
     let input = include_str!("generate_flow/fixtures/relay-resolver-in-fragment.graphql");
     let expected = include_str!("generate_flow/fixtures/relay-resolver-in-fragment.expected");
@@ -255,6 +262,13 @@ fn relay_resolver_raw_response() {
     let input = include_str!("generate_flow/fixtures/relay-resolver-raw-response.graphql");
     let expected = include_str!("generate_flow/fixtures/relay-resolver-raw-response.expected");
     test_fixture(transform_fixture, "relay-resolver-raw-response.graphql", "generate_flow/fixtures/relay-resolver-raw-response.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_required() {
+    let input = include_str!("generate_flow/fixtures/relay-resolver-required.graphql");
+    let expected = include_str!("generate_flow/fixtures/relay-resolver-required.expected");
+    test_fixture(transform_fixture, "relay-resolver-required.graphql", "generate_flow/fixtures/relay-resolver-required.expected", input, expected);
 }
 
 #[test]

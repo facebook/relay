@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<1d3fa88e31e3245e236852f601db6207>>
+ * @generated SignedSource<<84ffa2b1c3a54f104d9585a901657439>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,11 +16,13 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
+type readUpdatableQueryEXPERIMENTALTest_node$fragmentType = any;
 type readUpdatableQueryEXPERIMENTALTest_user$fragmentType = any;
 export type readUpdatableQueryEXPERIMENTALTestRegularQuery$variables = {||};
 export type readUpdatableQueryEXPERIMENTALTestRegularQueryVariables = readUpdatableQueryEXPERIMENTALTestRegularQuery$variables;
 export type readUpdatableQueryEXPERIMENTALTestRegularQuery$data = {|
   +me: ?{|
+    +__isreadUpdatableQueryEXPERIMENTALTest_node?: string,
     +id: string,
     +name: ?string,
     +author: ?{|
@@ -29,6 +31,8 @@ export type readUpdatableQueryEXPERIMENTALTestRegularQuery$data = {|
       |},
       +client_nickname: ?string,
     |},
+    +__id: string,
+    +$fragmentSpreads: readUpdatableQueryEXPERIMENTALTest_node$fragmentType,
   |},
   +node: ?{|
     +__typename: string,
@@ -79,34 +83,41 @@ v3 = {
   "name": "client_nickname",
   "storageKey": null
 },
-v4 = [
+v4 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "__id",
+  "storageKey": null
+},
+v5 = [
   {
     "kind": "Literal",
     "name": "id",
     "value": "4"
   }
 ],
-v5 = {
+v6 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
   "name": "__typename",
   "storageKey": null
 },
-v6 = {
+v7 = {
   "kind": "InlineFragment",
   "selections": (v2/*: any*/),
   "type": "User",
   "abstractKey": null
 },
-v7 = [
+v8 = [
   {
     "kind": "Literal",
     "name": "id",
     "value": "5"
   }
 ],
-v8 = {
+v9 = {
   "kind": "InlineFragment",
   "selections": [
     (v1/*: any*/),
@@ -154,6 +165,25 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
+          {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "args": null,
+                "kind": "FragmentSpread",
+                "name": "readUpdatableQueryEXPERIMENTALTest_node"
+              },
+              {
+                "alias": "__isreadUpdatableQueryEXPERIMENTALTest_node",
+                "args": null,
+                "kind": "ScalarField",
+                "name": "__typename",
+                "storageKey": null
+              }
+            ],
+            "type": "Node",
+            "abstractKey": "__isNode"
+          },
           (v0/*: any*/),
           (v1/*: any*/),
           {
@@ -182,44 +212,39 @@ return {
               }
             ],
             "storageKey": null
-          }
+          },
+          (v4/*: any*/)
         ],
         "storageKey": null
       },
       {
         "alias": null,
-        "args": (v4/*: any*/),
+        "args": (v5/*: any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v5/*: any*/),
+          (v6/*: any*/),
           {
             "args": null,
             "kind": "FragmentSpread",
             "name": "readUpdatableQueryEXPERIMENTALTest_user"
           },
-          (v6/*: any*/),
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "__id",
-            "storageKey": null
-          }
+          (v7/*: any*/),
+          (v4/*: any*/)
         ],
         "storageKey": "node(id:\"4\")"
       },
       {
         "alias": "node2",
-        "args": (v7/*: any*/),
+        "args": (v8/*: any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v8/*: any*/)
+          (v9/*: any*/)
         ],
         "storageKey": "node(id:\"5\")"
       }
@@ -241,6 +266,14 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
+          {
+            "kind": "InlineFragment",
+            "selections": [
+              (v6/*: any*/)
+            ],
+            "type": "Node",
+            "abstractKey": "__isNode"
+          },
           (v0/*: any*/),
           (v1/*: any*/),
           {
@@ -279,28 +312,28 @@ return {
       },
       {
         "alias": null,
-        "args": (v4/*: any*/),
+        "args": (v5/*: any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v5/*: any*/),
+          (v6/*: any*/),
           (v0/*: any*/),
-          (v6/*: any*/)
+          (v7/*: any*/)
         ],
         "storageKey": "node(id:\"4\")"
       },
       {
         "alias": "node2",
-        "args": (v7/*: any*/),
+        "args": (v8/*: any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v5/*: any*/),
-          (v8/*: any*/),
+          (v6/*: any*/),
+          (v9/*: any*/),
           (v0/*: any*/)
         ],
         "storageKey": "node(id:\"5\")"
@@ -308,18 +341,18 @@ return {
     ]
   },
   "params": {
-    "cacheID": "bbabf06c023387faf661b195d764fc7f",
+    "cacheID": "ece638c7f4d79a48e34a167dbdf0c3a1",
     "id": null,
     "metadata": {},
     "name": "readUpdatableQueryEXPERIMENTALTestRegularQuery",
     "operationKind": "query",
-    "text": "query readUpdatableQueryEXPERIMENTALTestRegularQuery {\n  me {\n    id\n    name\n    author {\n      id\n    }\n  }\n  node(id: \"4\") {\n    __typename\n    ...readUpdatableQueryEXPERIMENTALTest_user\n    ... on User {\n      name\n    }\n    id\n  }\n  node2: node(id: \"5\") {\n    __typename\n    ... on User {\n      name\n      parents {\n        id\n        name\n        parents {\n          id\n        }\n      }\n    }\n    id\n  }\n}\n\nfragment readUpdatableQueryEXPERIMENTALTest_user on User {\n  __typename\n}\n"
+    "text": "query readUpdatableQueryEXPERIMENTALTestRegularQuery {\n  me {\n    ...readUpdatableQueryEXPERIMENTALTest_node\n    id\n    name\n    author {\n      id\n    }\n  }\n  node(id: \"4\") {\n    __typename\n    ...readUpdatableQueryEXPERIMENTALTest_user\n    ... on User {\n      name\n    }\n    id\n  }\n  node2: node(id: \"5\") {\n    __typename\n    ... on User {\n      name\n      parents {\n        id\n        name\n        parents {\n          id\n        }\n      }\n    }\n    id\n  }\n}\n\nfragment readUpdatableQueryEXPERIMENTALTest_node on Node {\n  __isNode: __typename\n  __typename\n}\n\nfragment readUpdatableQueryEXPERIMENTALTest_user on User {\n  __typename\n}\n"
   }
 };
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "f79c739bc4131089a9890c85384b1eb2";
+  (node/*: any*/).hash = "bde36a09c95c842e557b8e5ba7b1903b";
 }
 
 module.exports = ((node/*: any*/)/*: Query<

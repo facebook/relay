@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<57ef3b336bdf5bd26c8f65bcb2e97dd4>>
+ * @generated SignedSource<<fec53e1f793fe0a54fb7a696056cc293>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,6 +16,7 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
+type readUpdatableQueryEXPERIMENTALTest_node$fragmentType = any;
 type readUpdatableQueryEXPERIMENTALTest_user$fragmentType = any;
 export type readUpdatableQueryEXPERIMENTALTestUpdatableQuery$variables = {||};
 export type readUpdatableQueryEXPERIMENTALTestUpdatableQueryVariables = readUpdatableQueryEXPERIMENTALTestUpdatableQuery$variables;
@@ -79,6 +80,15 @@ export type readUpdatableQueryEXPERIMENTALTestUpdatableQuery$data = {|
     +__typename: "%other",
   |}),
   set node2(value: null | void): void,
+  get node3(): ?{|
+    +id: string,
+  |},
+  set node3(value: ?{
+    +$fragmentSpreads: readUpdatableQueryEXPERIMENTALTest_node$fragmentType,
+    +__isreadUpdatableQueryEXPERIMENTALTest_node: string,
+    +__id: string,
+    ...
+  }): void,
 |};
 export type readUpdatableQueryEXPERIMENTALTestUpdatableQueryResponse = readUpdatableQueryEXPERIMENTALTestUpdatableQuery$data;
 export type readUpdatableQueryEXPERIMENTALTestUpdatableQuery = {|
@@ -154,6 +164,13 @@ v7 = [
 ],
 v8 = [
   (v2/*: any*/)
+],
+v9 = [
+  {
+    "kind": "Literal",
+    "name": "id",
+    "value": "6"
+  }
 ];
 return {
   "fragment": {
@@ -281,6 +298,23 @@ return {
           }
         ],
         "storageKey": "node(id:\"5\")"
+      },
+      {
+        "alias": "node3",
+        "args": (v9/*: any*/),
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          (v1/*: any*/),
+          {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "readUpdatableQueryEXPERIMENTALTest_node"
+          }
+        ],
+        "storageKey": "node(id:\"6\")"
       }
     ],
     "type": "Query",
@@ -417,22 +451,39 @@ return {
           }
         ],
         "storageKey": "node(id:\"5\")"
+      },
+      {
+        "alias": "node3",
+        "args": (v9/*: any*/),
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          (v0/*: any*/),
+          (v1/*: any*/),
+          {
+            "kind": "TypeDiscriminator",
+            "abstractKey": "__isNode"
+          }
+        ],
+        "storageKey": "node(id:\"6\")"
       }
     ]
   },
   "params": {
-    "cacheID": "d6fd224fb2641f9cf1ebf774949cf34b",
+    "cacheID": "e2512e79cf0f66aef65bce22940b82cb",
     "id": null,
     "metadata": {},
     "name": "readUpdatableQueryEXPERIMENTALTestUpdatableQuery",
     "operationKind": "query",
-    "text": "query readUpdatableQueryEXPERIMENTALTestUpdatableQuery {\n  me {\n    __typename\n    id\n    name\n    author {\n      id\n    }\n    author2: author {\n      id\n    }\n    ...readUpdatableQueryEXPERIMENTALTest_user\n  }\n  node(id: \"4\") {\n    __typename\n    ... on User {\n      __typename\n      name\n    }\n    id\n  }\n  node2: node(id: \"5\") {\n    __typename\n    ... on User {\n      __typename\n      name\n      parents {\n        ...readUpdatableQueryEXPERIMENTALTest_user\n        name\n        parents {\n          name\n          id\n        }\n        id\n      }\n    }\n    id\n  }\n}\n\nfragment readUpdatableQueryEXPERIMENTALTest_user on User {\n  __typename\n}\n"
+    "text": "query readUpdatableQueryEXPERIMENTALTestUpdatableQuery {\n  me {\n    __typename\n    id\n    name\n    author {\n      id\n    }\n    author2: author {\n      id\n    }\n    ...readUpdatableQueryEXPERIMENTALTest_user\n  }\n  node(id: \"4\") {\n    __typename\n    ... on User {\n      __typename\n      name\n    }\n    id\n  }\n  node2: node(id: \"5\") {\n    __typename\n    ... on User {\n      __typename\n      name\n      parents {\n        ...readUpdatableQueryEXPERIMENTALTest_user\n        name\n        parents {\n          name\n          id\n        }\n        id\n      }\n    }\n    id\n  }\n  node3: node(id: \"6\") {\n    __typename\n    id\n    ...readUpdatableQueryEXPERIMENTALTest_node\n  }\n}\n\nfragment readUpdatableQueryEXPERIMENTALTest_node on Node {\n  __isNode: __typename\n  __typename\n}\n\nfragment readUpdatableQueryEXPERIMENTALTest_user on User {\n  __typename\n}\n"
   }
 };
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "23fed679ffe6f097def699ed812aa8b6";
+  (node/*: any*/).hash = "91a7122121c1d4d4b99ee4b8155b4fbd";
 }
 
 module.exports = ((node/*: any*/)/*: Query<

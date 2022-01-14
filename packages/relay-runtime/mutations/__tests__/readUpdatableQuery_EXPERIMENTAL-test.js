@@ -26,6 +26,9 @@ const RelayReader = require('../../store/RelayReader');
 const RelayRecordSource = require('../../store/RelayRecordSource');
 const commitLocalUpdate = require('../commitLocalUpdate');
 const {
+  validate: validateNode,
+} = require('./__generated__/readUpdatableQueryEXPERIMENTALTest_node.graphql');
+const {
   validate: validateUser,
 } = require('./__generated__/readUpdatableQueryEXPERIMENTALTest_user.graphql');
 
@@ -66,6 +69,10 @@ const updatableQuery = graphql`
         }
       }
     }
+    node3: node(id: "6") {
+      id
+      ...readUpdatableQueryEXPERIMENTALTest_node
+    }
   }
 `;
 
@@ -80,6 +87,7 @@ const updatableQuery2 = graphql`
 const regularQuery = graphql`
   query readUpdatableQueryEXPERIMENTALTestRegularQuery {
     me {
+      ...readUpdatableQueryEXPERIMENTALTest_node
       id
       name
       author {
@@ -579,6 +587,77 @@ describe('readUpdatableQuery', () => {
           expect(validateUser(readOnlyData.node)).toEqual(readOnlyData.node);
         } else {
           throw new Error('Expected readOnlyData.node to exist');
+        }
+      });
+    });
+  });
+
+  describe('assignable fragments with abstract type conditions', () => {
+    it('lets you assign values to linked fields', () => {
+      environment.commitPayload(operation, {
+        me: {
+          __typename: 'User',
+          id: '4',
+          author: null,
+          name: null,
+        },
+        node: null,
+        node2: null,
+      });
+
+      commitLocalUpdate(environment, store => {
+        const updatableData =
+          store.readUpdatableQuery_EXPERIMENTAL<readUpdatableQueryEXPERIMENTALTestUpdatableQuery>(
+            updatableQuery,
+            {},
+          );
+
+        const source = environment.getStore().getSource();
+        const selector = operation.fragment;
+        const readOnlyData = ((RelayReader.read(source, selector) // $FlowFixMe[unclear-type] Just to cast it to a better type!
+          .data: any): readUpdatableQueryEXPERIMENTALTestRegularQuery['response']);
+
+        const validNode = (() => {
+          if (readOnlyData.me != null) {
+            const forAssignment = validateNode(readOnlyData.me);
+            if (forAssignment !== false) {
+              return forAssignment;
+            }
+          }
+          throw new Error('Expected me to be present and valid for assignment');
+        })();
+
+        updatableData.node3 = validNode;
+        (() => {})();
+        expect(updatableData.node3?.id).toBe('4');
+      });
+    });
+
+    describe('validate', () => {
+      it('will return the parameter if the source has a matching __isFragmentName field', () => {
+        environment.commitPayload(operation, {
+          me: {
+            __typename: 'User',
+            id: '4',
+            name: 'Mark',
+            author: null,
+            __isreadUpdatableQueryEXPERIMENTALTest_node: null,
+          },
+          node: null,
+          node2: null,
+        });
+
+        const source = environment.getStore().getSource();
+        const selector = operation.fragment;
+        const readOnlyData = ((RelayReader.read(source, selector) // $FlowFixMe[unclear-type] Just to cast it to a better type!
+          .data: any): readUpdatableQueryEXPERIMENTALTestRegularQuery['response']);
+        expect(
+          readOnlyData.me?.__isreadUpdatableQueryEXPERIMENTALTest_node,
+        ).toBe('User');
+        if (readOnlyData.me != null) {
+          expect(validateNode(readOnlyData.me)).toBe(readOnlyData.me);
+        } else {
+          throw new Error('Expected readOnlyData.me to exist');
         }
       });
     });

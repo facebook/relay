@@ -21,7 +21,7 @@ import type {OperationType} from '../util/RelayRuntimeTypes';
 const {getRequest} = require('../query/GraphQLTag');
 const {getArgumentValues} = require('../store/RelayStoreUtils');
 
-const nonUpdatableKeys = ['id', '__id', '__typename'];
+const nonUpdatableKeys = ['id', '__id', '__typename', 'js'];
 
 function readUpdatableQuery_EXPERIMENTAL<TQuery: OperationType>(
   query: GraphQLTaggedNode,

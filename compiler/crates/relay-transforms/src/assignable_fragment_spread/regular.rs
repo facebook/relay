@@ -60,6 +60,11 @@ impl<'s> AssignableFragmentSpread<'s> {
         let mut in_linked_field = false;
         let mut in_inline_fragment = false;
 
+        let fragment_definition = self
+            .program
+            .fragment(fragment_spread.fragment.item)
+            .expect("Expected fragment to exist.");
+
         for (index, item) in self.path.iter_mut().rev().enumerate() {
             match item {
                 PathSegment::Condition(c) => {
@@ -72,10 +77,13 @@ impl<'s> AssignableFragmentSpread<'s> {
                     }
                 }
                 PathSegment::LinkedField {
-                    encountered_assignable_fragment_spread,
+                    fragment_spread_encounters,
                 } => {
                     in_linked_field = true;
-                    *encountered_assignable_fragment_spread = true;
+                    update_fragment_spread_encounters(
+                        fragment_spread_encounters,
+                        fragment_definition.type_condition.is_abstract_type(),
+                    );
                     break;
                 }
                 PathSegment::InlineFragment => {
@@ -108,10 +116,16 @@ impl<'s> AssignableFragmentSpread<'s> {
 }
 
 #[derive(Debug)]
+enum FragmentSpreadEncounters {
+    OnlyAbstract,
+    SomeConcrete,
+}
+
+#[derive(Debug)]
 enum PathSegment {
     Condition(&'static str),
     LinkedField {
-        encountered_assignable_fragment_spread: bool,
+        fragment_spread_encounters: Option<FragmentSpreadEncounters>,
     },
     InlineFragment,
 }
@@ -197,15 +211,14 @@ impl<'s> Transformer for AssignableFragmentSpread<'s> {
 
     fn transform_linked_field(&mut self, linked_field: &LinkedField) -> Transformed<Selection> {
         self.path.push(PathSegment::LinkedField {
-            encountered_assignable_fragment_spread: false,
+            fragment_spread_encounters: None,
         });
         let response = self.default_transform_linked_field(linked_field);
-        let encountered_assignable_fragment_spread = if let PathSegment::LinkedField {
-            encountered_assignable_fragment_spread,
-        } =
-            self.path.pop().expect("path should be empty")
+        let fragment_spread_encounters = if let PathSegment::LinkedField {
+            fragment_spread_encounters,
+        } = self.path.pop().expect("path should be empty")
         {
-            encountered_assignable_fragment_spread
+            fragment_spread_encounters
         } else {
             panic!("Unexpected non-linked field");
         };
@@ -213,14 +226,19 @@ impl<'s> Transformer for AssignableFragmentSpread<'s> {
         match response {
             Transformed::Delete => panic!("Unexpected Transformed::Delete"),
             Transformed::Keep => {
-                if encountered_assignable_fragment_spread {
-                    get_transformed_linked_field(linked_field, self.program.schema.clientid_field())
+                if let Some(fragment_spread_encounters) = fragment_spread_encounters {
+                    get_transformed_linked_field(
+                        linked_field,
+                        self.program.schema.clientid_field(),
+                        self.program.schema.typename_field(),
+                        &fragment_spread_encounters,
+                    )
                 } else {
                     Transformed::Keep
                 }
             }
             Transformed::Replace(selection) => {
-                if encountered_assignable_fragment_spread {
+                if let Some(fragment_spread_encounters) = fragment_spread_encounters {
                     let linked_field = match selection {
                         Selection::LinkedField(l) => l,
                         _ => panic!("Unexpected non-linked field"),
@@ -228,6 +246,8 @@ impl<'s> Transformer for AssignableFragmentSpread<'s> {
                     get_transformed_linked_field(
                         &linked_field,
                         self.program.schema.clientid_field(),
+                        self.program.schema.typename_field(),
+                        &fragment_spread_encounters,
                     )
                 } else {
                     Transformed::Replace(selection)
@@ -254,18 +274,29 @@ impl<'s> Transformer for AssignableFragmentSpread<'s> {
 
 fn get_transformed_linked_field(
     linked_field: &LinkedField,
-    additional_field: FieldID,
+    clientid_field: FieldID,
+    typename_field: FieldID,
+    fragment_spread_encounters: &FragmentSpreadEncounters,
 ) -> Transformed<Selection> {
     let mut selections = linked_field.selections.clone();
     selections.push(Selection::ScalarField(Arc::new(ScalarField {
         alias: None,
-        definition: WithLocation {
-            location: Location::generated(),
-            item: additional_field,
-        },
+        definition: WithLocation::generated(clientid_field),
         arguments: vec![],
         directives: vec![],
     })));
+
+    // If we have encountered a concrete fragment spread, we also need to select __typename
+    // on the linked field.
+    if let FragmentSpreadEncounters::SomeConcrete = fragment_spread_encounters {
+        selections.push(Selection::ScalarField(Arc::new(ScalarField {
+            alias: None,
+            definition: WithLocation::generated(typename_field),
+            arguments: vec![],
+            directives: vec![],
+        })))
+    }
+
     Transformed::Replace(Selection::LinkedField(Arc::new(LinkedField {
         selections,
         directives: linked_field.directives.clone(),
@@ -273,4 +304,21 @@ fn get_transformed_linked_field(
         definition: linked_field.definition,
         arguments: linked_field.arguments.clone(),
     })))
+}
+
+/// When we encounter a fragment spread, we can go from
+/// None => SomeConcrete
+/// None => OnlyAbstract
+/// OnlyAbstract => SomeConcrete
+/// or stay the same!
+/// i.e. we never go from SomeConcrete => OnlyAbstract
+fn update_fragment_spread_encounters(
+    fragment_spread_encounters: &mut Option<FragmentSpreadEncounters>,
+    is_abstract: bool,
+) {
+    if !is_abstract {
+        *fragment_spread_encounters = Some(FragmentSpreadEncounters::SomeConcrete)
+    } else if fragment_spread_encounters.is_none() {
+        *fragment_spread_encounters = Some(FragmentSpreadEncounters::OnlyAbstract)
+    }
 }

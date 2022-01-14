@@ -31,7 +31,9 @@ const {
   FRAGMENT_SPREAD,
   INLINE_FRAGMENT,
   LINKED_FIELD,
+  LINKED_HANDLE,
   SCALAR_FIELD,
+  SCALAR_HANDLE,
 } = require('../util/RelayConcreteNode');
 const {getLocalVariables} = require('./RelayConcreteVariables');
 const {createNormalizationSelector} = require('./RelayModernSelector');
@@ -394,6 +396,17 @@ export class GraphModeNormalizer {
         case CLIENT_EXTENSION:
           // Since we are only expecting to handle server responses, we can skip
           // over client extensions.
+          break;
+        case SCALAR_HANDLE:
+        case LINKED_HANDLE:
+          // Handles allow us to record information that will be needed to
+          // perform additional process when we insert data into the store. For
+          // example, connection edges need to be prepended/appended to the
+          // pre-existing values.
+          //
+          // GraphMode will eventually need some replacement for this, but it is
+          // not nessesary in order to measure things like response size, so we
+          // can ignore these for now.
           break;
         default:
           throw new Error(`Unexpected selection type: ${selection.kind}`);

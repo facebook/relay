@@ -746,3 +746,105 @@ test('Traverses when @defer is disabled', () => {
     ]
   `);
 });
+
+it('Ignores "handle" fields (for now)', () => {
+  const query = graphql`
+    query RelayExperimentalGraphResponseTransformTestHandleFieldsQuery(
+      $id: ID!
+    ) {
+      node(id: $id) {
+        id
+        __typename
+        ... on User {
+          friends(first: 1) @__clientField(handle: "bestFriends") {
+            edges {
+              cursor
+              node {
+                id
+                name @__clientField(handle: "friendsName")
+              }
+            }
+          }
+        }
+      }
+    }
+  `;
+
+  const response = {
+    node: {
+      id: '4',
+      __typename: 'User',
+      friends: {
+        edges: [
+          {
+            cursor: 'cursor:bestFriends',
+            node: {
+              id: 'pet',
+              name: 'Beast',
+            },
+          },
+        ],
+      },
+    },
+  };
+  const [actual] = applyTransform(query, response, {
+    id: '1',
+    orderBy: ['last name'],
+    isViewerFriend: true,
+  });
+  expect(actual).toMatchInlineSnapshot(`
+    Array [
+      Object {
+        "$kind": "Record",
+        "$streamID": 0,
+        "__id": "pet",
+        "__typename": "User",
+        "id": "pet",
+        "name": "Beast",
+      },
+      Object {
+        "$kind": "Record",
+        "$streamID": 1,
+        "__id": "client:4:friends(first:1):edges:0",
+        "__typename": "FriendsEdge",
+        "cursor": "cursor:bestFriends",
+        "node": Object {
+          "__id": 0,
+        },
+      },
+      Object {
+        "$kind": "Record",
+        "$streamID": 2,
+        "__id": "client:4:friends(first:1)",
+        "__typename": "FriendsConnection",
+        "edges": Object {
+          "__ids": Array [
+            1,
+          ],
+        },
+      },
+      Object {
+        "$kind": "Record",
+        "$streamID": 3,
+        "__id": "4",
+        "__typename": "User",
+        "friends(first:1)": Object {
+          "__id": 2,
+        },
+        "id": "4",
+      },
+      Object {
+        "$kind": "Record",
+        "$streamID": 4,
+        "__id": "client:root",
+        "__typename": "__Root",
+        "node(id:\\"1\\")": Object {
+          "__id": 3,
+        },
+      },
+      Object {
+        "$kind": "Complete",
+      },
+    ]
+  `);
+});

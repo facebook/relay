@@ -214,7 +214,7 @@ function createSetterForSingularLinkedField<TQuery: OperationType>(
     const variables = getArgumentValues(selection.args ?? [], queryVariables);
     if (newValue == null) {
       // $FlowFixMe[unclear-type] No good way to type these variables
-      recordProxy.setValue(null, selection.name, (variables: any));
+      recordProxy.setValue(newValue, selection.name, (variables: any));
     } else {
       const {__id} = newValue;
       if (__id == null) {

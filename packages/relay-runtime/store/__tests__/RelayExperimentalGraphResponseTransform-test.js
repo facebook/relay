@@ -11,13 +11,16 @@
 
 'use strict';
 
-import type {GraphModeChunk} from '../RelayExperimentalGraphResponseTransform';
+import type {
+  GraphModeChunk,
+  TransformMetadata,
+} from '../RelayExperimentalGraphResponseTransform';
 import type {PayloadData, Variables} from 'relay-runtime';
 import type {GraphQLTaggedNode} from 'relay-runtime/query/GraphQLTag';
 
 const defaultGetDataID = require('../defaultGetDataID');
 const {
-  normalizeResponse,
+  normalizeResponseWithMetadata,
 } = require('../RelayExperimentalGraphResponseTransform');
 const {graphql} = require('relay-runtime');
 const {getRequest} = require('relay-runtime/query/GraphQLTag');
@@ -35,13 +38,13 @@ function applyTransform(
   query: GraphQLTaggedNode,
   response: PayloadData,
   variables: Variables,
-): Array<GraphModeChunk> {
+): [Array<GraphModeChunk>, TransformMetadata] {
   const selector = createNormalizationSelector(
     getRequest(query).operation,
     ROOT_ID,
     variables,
   );
-  return Array.from(normalizeResponse(response, selector, defaultOptions));
+  return normalizeResponseWithMetadata(response, selector, defaultOptions);
 }
 
 test('Basic', () => {
@@ -60,7 +63,14 @@ test('Basic', () => {
     },
   };
 
-  const actual = applyTransform(query, response, {});
+  const [actual, {duplicateFieldsAvoided}] = applyTransform(
+    query,
+    response,
+    {},
+  );
+
+  expect(duplicateFieldsAvoided).toBe(0);
+
   expect(actual).toMatchInlineSnapshot(`
     Array [
       Object {
@@ -113,7 +123,13 @@ test('Merge dupliace fields', () => {
     },
   };
 
-  const actual = applyTransform(query, response, {});
+  const [actual, {duplicateFieldsAvoided}] = applyTransform(
+    query,
+    response,
+    {},
+  );
+
+  expect(duplicateFieldsAvoided).toBe(2);
 
   // Note that we only send one `Record` for Alice, and that the second time it's
   // encountered results in an `Extend` which does not duplicate any previously
@@ -176,7 +192,13 @@ test('Omit empty chunks', () => {
     },
   };
 
-  const actual = applyTransform(query, response, {});
+  const [actual, {duplicateFieldsAvoided}] = applyTransform(
+    query,
+    response,
+    {},
+  );
+
+  expect(duplicateFieldsAvoided).toBe(2);
 
   // Note that when we traverse into `fetch__User` we don't emit an additional
   // chunk, since all fields have already been seen in `me`.
@@ -233,7 +255,13 @@ test('Object nested within itself', () => {
     },
   };
 
-  const actual = applyTransform(query, response, {});
+  const [actual, {duplicateFieldsAvoided}] = applyTransform(
+    query,
+    response,
+    {},
+  );
+
+  expect(duplicateFieldsAvoided).toBe(1);
 
   // Note that we emit the nested `nearest_neighbor` first as a Record, and then
   // later extend it with the parent `fetch__User`.
@@ -283,7 +311,13 @@ test('Null Linked Field', () => {
     fetch__User: null,
   };
 
-  const actual = applyTransform(query, response, {});
+  const [actual, {duplicateFieldsAvoided}] = applyTransform(
+    query,
+    response,
+    {},
+  );
+
+  expect(duplicateFieldsAvoided).toBe(0);
 
   expect(actual).toMatchInlineSnapshot(`
     Array [
@@ -328,7 +362,13 @@ test('Plural Linked Fields', () => {
     },
   };
 
-  const actual = applyTransform(query, response, {});
+  const [actual, {duplicateFieldsAvoided}] = applyTransform(
+    query,
+    response,
+    {},
+  );
+
+  expect(duplicateFieldsAvoided).toBe(0);
 
   expect(actual).toMatchInlineSnapshot(`
     Array [
@@ -391,7 +431,13 @@ test('Plural Scalar Fields', () => {
     },
   };
 
-  const actual = applyTransform(query, response, {});
+  const [actual, {duplicateFieldsAvoided}] = applyTransform(
+    query,
+    response,
+    {},
+  );
+
+  expect(duplicateFieldsAvoided).toBe(0);
 
   expect(actual).toMatchInlineSnapshot(`
     Array [
@@ -440,7 +486,13 @@ test('Inline Fragment', () => {
     },
   };
 
-  const actual = applyTransform(query, response, {});
+  const [actual, {duplicateFieldsAvoided}] = applyTransform(
+    query,
+    response,
+    {},
+  );
+
+  expect(duplicateFieldsAvoided).toBe(0);
 
   expect(actual).toMatchInlineSnapshot(`
     Array [
@@ -492,7 +544,13 @@ test('Inline Fragment on abstract type', () => {
     },
   };
 
-  const actual = applyTransform(query, response, {});
+  const [actual, {duplicateFieldsAvoided}] = applyTransform(
+    query,
+    response,
+    {},
+  );
+
+  expect(duplicateFieldsAvoided).toBe(0);
 
   expect(actual).toMatchInlineSnapshot(`
     Array [
@@ -541,7 +599,13 @@ test('Fragment Spread (gets inlined into `InlineFragment`)', () => {
     },
   };
 
-  const actual = applyTransform(query, response, {});
+  const [actual, {duplicateFieldsAvoided}] = applyTransform(
+    query,
+    response,
+    {},
+  );
+
+  expect(duplicateFieldsAvoided).toBe(0);
 
   expect(actual).toMatchInlineSnapshot(`
     Array [
@@ -591,7 +655,13 @@ test('Fragment Spread @no_inline', () => {
     },
   };
 
-  const actual = applyTransform(query, response, {});
+  const [actual, {duplicateFieldsAvoided}] = applyTransform(
+    query,
+    response,
+    {},
+  );
+
+  expect(duplicateFieldsAvoided).toBe(0);
 
   expect(actual).toMatchInlineSnapshot(`
     Array [
@@ -644,10 +714,12 @@ test('Traverses when @defer is disabled', () => {
     },
   };
 
-  const actual = applyTransform(query, response, {
+  const [actual, {duplicateFieldsAvoided}] = applyTransform(query, response, {
     id: '1',
     enableDefer: false,
   });
+
+  expect(duplicateFieldsAvoided).toBe(0);
 
   expect(actual).toMatchInlineSnapshot(`
     Array [

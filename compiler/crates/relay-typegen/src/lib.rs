@@ -33,9 +33,9 @@ pub use relay_config::{FlowTypegenPhase, TypegenConfig, TypegenLanguage};
 use relay_config::{JsModuleFormat, ProjectConfig, SchemaConfig};
 use relay_transforms::{
     ModuleMetadata, RefetchableDerivedFromMetadata, RefetchableMetadata, RelayDirective,
-    RelayResolverSpreadMetadata, RequiredMetadataDirective, ASSIGNABLE_DIRECTIVE,
-    CHILDREN_CAN_BUBBLE_METADATA_KEY, CLIENT_EXTENSION_DIRECTIVE_NAME,
-    RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN, UPDATABLE_DIRECTIVE,
+    RelayResolverSpreadMetadata, RequiredMetadataDirective, TypeConditionInfo,
+    ASSIGNABLE_DIRECTIVE, ASSIGNABLE_DIRECTIVE_FOR_TYPEGEN, CHILDREN_CAN_BUBBLE_METADATA_KEY,
+    CLIENT_EXTENSION_DIRECTIVE_NAME, RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN, UPDATABLE_DIRECTIVE,
 };
 use schema::{EnumID, SDLSchema, ScalarID, Schema, Type, TypeReference};
 use std::hash::Hash;
@@ -605,6 +605,7 @@ impl<'a> TypeGenerator<'a> {
                 fragment_name: name,
                 conditional: false,
                 concrete_type: None,
+                type_condition_info: get_type_condition_info(fragment_spread),
             }));
         }
     }
@@ -1120,20 +1121,46 @@ impl<'a> TypeGenerator<'a> {
                             AST::RawType(intern!("null | void"))
                         }
                     } else {
-                        let setter_parameter =
-                            AST::InexactObject(vec![Prop::KeyValuePair(KeyValuePairProp {
-                                key: *KEY_FRAGMENT_SPREADS,
-                                value: AST::Union(
-                                    just_fragments
-                                        .iter()
-                                        .map(|fragment| {
-                                            AST::FragmentReferenceType(fragment.fragment_name)
-                                        })
-                                        .collect(),
-                                ),
-                                read_only: true,
-                                optional: false,
-                            })]);
+                        let setter_parameter = AST::Union(
+                                just_fragments
+                                    .iter()
+                                    .map(|fragment_spread| {
+                                        let type_condition_info =  fragment_spread
+                                            .type_condition_info
+                                            .expect("Fragment spreads in updatable queries should have TypeConditionInfo");
+                                        let (key, value) = match type_condition_info {
+                                            TypeConditionInfo::Abstract => (format!("__is{}", fragment_spread.fragment_name).intern(), AST::String),
+                                            TypeConditionInfo::Concrete { concrete_type } => ("__typename".intern(), AST::StringLiteral(concrete_type)),
+                                        };
+                                        let fragment_spread_or_concrete_type_marker = Prop::KeyValuePair(KeyValuePairProp {
+                                            key,
+                                            value,
+                                            read_only: true,
+                                            optional: false,
+                                        });
+                                        let assignable_fragment_spread_ref= Prop::KeyValuePair(KeyValuePairProp {
+                                            key: *KEY_FRAGMENT_SPREADS,
+                                            value: AST::FragmentReferenceType(
+                                                fragment_spread.fragment_name,
+                                            ),
+                                            read_only: true,
+                                            optional: false,
+                                        });
+                                        let client_id_field = Prop::KeyValuePair(KeyValuePairProp {
+                                            key: "__id".intern(),
+                                            value: AST::String,
+                                            read_only: true,
+                                            optional: false,
+                                        });
+    
+                                        AST::InexactObject(vec![
+                                            assignable_fragment_spread_ref,
+                                            fragment_spread_or_concrete_type_marker,
+                                            client_id_field,
+                                        ])
+                                    })
+                                    .collect(),
+                            );
                         if linked_field.node_type.is_list() {
                             AST::ReadOnlyArray(Box::new(setter_parameter))
                         } else {
@@ -1813,6 +1840,19 @@ impl<'a> TypeGenerator<'a> {
     }
 }
 
+fn get_type_condition_info(fragment_spread: &FragmentSpread) -> Option<TypeConditionInfo> {
+    fragment_spread
+        .directives
+        .named(*ASSIGNABLE_DIRECTIVE_FOR_TYPEGEN)
+        .map(|directive| {
+            directive
+                .data
+                .as_ref()
+                .and_then(|data| data.downcast_ref().copied())
+                .expect("If a fragment spread contains an __updatable directive, the associated data should be present and have type TypeConditionInfo")
+        })
+}
+
 #[derive(Debug, Clone)]
 enum TypeSelection {
     RawResponseFragmentSpread(RawResponseFragmentSpread),
@@ -1953,6 +1993,10 @@ struct TypeSelectionFragmentSpread {
     fragment_name: StringKey,
     conditional: bool,
     concrete_type: Option<Type>,
+    // Why are we using TypeSelectionInfo instead of re-using concrete_type?
+    // Because concrete_type is poorly named and does not refer to the concrete
+    // type of the fragment spread.
+    type_condition_info: Option<TypeConditionInfo>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

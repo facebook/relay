@@ -83,8 +83,10 @@ pub use applied_fragment_name::get_applied_fragment_name;
 pub use apply_fragment_arguments::apply_fragment_arguments;
 pub use apply_transforms::{apply_transforms, Programs};
 pub use assignable_fragment_spread::{
-    transform_assignable_fragment_spreads_in_regular_queries, validate_assignable_directive,
-    validate_updatable_directive, ASSIGNABLE_DIRECTIVE, UPDATABLE_DIRECTIVE,
+    transform_assignable_fragment_spreads_in_regular_queries,
+    transform_assignable_fragment_spreads_in_updatable_queries, validate_assignable_directive,
+    validate_updatable_directive, TypeConditionInfo, ASSIGNABLE_DIRECTIVE,
+    ASSIGNABLE_DIRECTIVE_FOR_TYPEGEN, UPDATABLE_DIRECTIVE,
 };
 pub use client_edges::{
     client_edges, preserve_client_edge_backing_ids, preserve_client_edge_selections,

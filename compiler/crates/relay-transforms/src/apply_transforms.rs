@@ -444,10 +444,16 @@ fn apply_typegen_transforms(
     program = log_event.time("client_edges", || {
         client_edges(&program, &project_config.schema_config)
     })?;
+
     program = log_event.time(
         "transform_assignable_fragment_spreads_in_regular_queries",
         || transform_assignable_fragment_spreads_in_regular_queries(&program),
     )?;
+    program = log_event.time(
+        "transform_assignable_fragment_spreads_in_updatable_queries",
+        || transform_assignable_fragment_spreads_in_updatable_queries(&program),
+    );
+
     program = log_event.time("relay_resolvers", || {
         relay_resolvers(
             &program,

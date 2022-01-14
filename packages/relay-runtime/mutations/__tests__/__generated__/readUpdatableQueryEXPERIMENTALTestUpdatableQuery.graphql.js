@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<f12295041d458ba90aed22360620e866>>
+ * @generated SignedSource<<57ef3b336bdf5bd26c8f65bcb2e97dd4>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -31,6 +31,8 @@ export type readUpdatableQueryEXPERIMENTALTestUpdatableQuery$data = {|
       |},
       set client_best_friend(value: ?{
         +$fragmentSpreads: readUpdatableQueryEXPERIMENTALTest_user$fragmentType,
+        +__typename: "User",
+        +__id: string,
         ...
       }): void,
     |},
@@ -42,6 +44,8 @@ export type readUpdatableQueryEXPERIMENTALTestUpdatableQuery$data = {|
   |},
   set me(value: ?{
     +$fragmentSpreads: readUpdatableQueryEXPERIMENTALTest_user$fragmentType,
+    +__typename: "User",
+    +__id: string,
     ...
   }): void,
   get node(): ?({|
@@ -65,6 +69,8 @@ export type readUpdatableQueryEXPERIMENTALTestUpdatableQuery$data = {|
     |}>,
     set parents(value: $ReadOnlyArray<{
       +$fragmentSpreads: readUpdatableQueryEXPERIMENTALTest_user$fragmentType,
+      +__typename: "User",
+      +__id: string,
       ...
     }>): void,
   |} | {|

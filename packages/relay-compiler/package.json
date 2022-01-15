@@ -11,5 +11,8 @@
   "bugs": "https://github.com/facebook/relay/issues",
   "repository": "facebook/relay",
   "main": "index.js",
-  "bin": "cli.js"
+  "bin": "cli.js",
+  "dependencies": {
+    "detect-libc": "^1.0.3"
+  }
 }

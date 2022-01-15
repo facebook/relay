@@ -42,6 +42,7 @@
     "cosmiconfig": "^5.0.5",
     "cross-env": "^7.0.2",
     "del": "6.0.0",
+    "detect-libc": "^1.0.3",
     "eslint": "5.4.0",
     "eslint-config-fbjs": "2.1.0",
     "eslint-plugin-babel": "5.1.0",

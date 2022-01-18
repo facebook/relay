@@ -34,7 +34,7 @@ use common::{sync::*, PerfLogEvent, PerfLogger};
 use dashmap::{mapref::entry::Entry, DashSet};
 use fnv::{FnvBuildHasher, FnvHashMap, FnvHashSet};
 pub use generate_artifacts::{
-    create_path_for_artifact, generate_artifacts, Artifact, ArtifactContent,
+    create_path_for_artifact, generate_artifacts, path_for_artifact, Artifact, ArtifactContent,
 };
 use graphql_ir::Program;
 use intern::string_key::{StringKey, StringKeySet};

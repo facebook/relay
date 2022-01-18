@@ -248,7 +248,7 @@ pub fn create_path_for_artifact(
     }
 }
 
-fn path_for_artifact(
+pub fn path_for_artifact(
     project_config: &ProjectConfig,
     source_file: SourceLocationKey,
     definition_name: StringKey,

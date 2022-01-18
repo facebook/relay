@@ -29,8 +29,8 @@ pub use build_project::{
     },
     build_programs, build_raw_program, build_schema, create_path_for_artifact, generate_artifacts,
     generate_extra_artifacts::GenerateExtraArtifactsFn,
-    transform_program, validate, validate_program, AdditionalValidations, Artifact,
-    ArtifactContent, ArtifactGeneratedTypes, BuildProjectFailure, SourceHashes,
+    path_for_artifact, transform_program, validate, validate_program, AdditionalValidations,
+    Artifact, ArtifactContent, ArtifactGeneratedTypes, BuildProjectFailure, SourceHashes,
 };
 pub use config::ConfigFileProject;
 pub use config::{

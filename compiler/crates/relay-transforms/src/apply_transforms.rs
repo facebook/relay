@@ -157,7 +157,7 @@ fn apply_common_transforms(
 
     program = log_event.time("provided_variable_fragment_transform", || {
         provided_variable_fragment_transform(&program)
-    });
+    })?;
 
     log_event.complete();
 

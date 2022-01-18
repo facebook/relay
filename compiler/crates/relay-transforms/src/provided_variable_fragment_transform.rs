@@ -6,7 +6,7 @@
  */
 
 use crate::util::format_provided_variable_name;
-use common::{Named, NamedItem, WithLocation};
+use common::{Diagnostic, DiagnosticsResult, Named, NamedItem, WithLocation};
 use fnv::FnvHashMap;
 use graphql_ir::{
     FragmentDefinition, Program, ProvidedVariableMetadata, Transformed, TransformedValue,
@@ -21,14 +21,20 @@ use itertools::Itertools;
 ///  - Remove provided variables from (local) argument definitions
 ///  - Add provided variables to list of used global variables
 /// apply_fragment_arguments depends on provide_variable_fragment_transform
-pub fn provided_variable_fragment_transform(program: &Program) -> Program {
+pub fn provided_variable_fragment_transform(program: &Program) -> DiagnosticsResult<Program> {
     let mut transform = ProvidedVariableFragmentTransform::new();
-    transform
+    let program = transform
         .transform_program(program)
-        .replace_or_else(|| program.clone())
+        .replace_or_else(|| program.clone());
+    if !transform.errors.is_empty() {
+        Err(transform.errors)
+    } else {
+        Ok(program)
+    }
 }
 
 struct ProvidedVariableFragmentTransform {
+    errors: Vec<Diagnostic>,
     // fragment local identifier --> transformed_identifier
     in_scope_providers: FnvHashMap<StringKey, StringKey>,
 }
@@ -36,6 +42,7 @@ struct ProvidedVariableFragmentTransform {
 impl ProvidedVariableFragmentTransform {
     fn new() -> Self {
         ProvidedVariableFragmentTransform {
+            errors: Vec::new(),
             in_scope_providers: Default::default(),
         }
     }

@@ -12,7 +12,7 @@ use relay_transforms::{apply_fragment_arguments, provided_variable_fragment_tran
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     apply_transform_for_test(fixture, |program| {
-        let program = provided_variable_fragment_transform(program);
+        let program = provided_variable_fragment_transform(program)?;
         apply_fragment_arguments(&program, false, &FeatureFlag::Enabled, &Default::default())
     })
 }

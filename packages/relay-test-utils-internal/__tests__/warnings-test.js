@@ -14,6 +14,7 @@
 const {
   disallowWarnings,
   expectToWarn,
+  expectToWarnMany,
   expectWarningWillFire,
 } = require('../warnings');
 const warning = require('warning');
@@ -23,6 +24,8 @@ disallowWarnings();
 describe('warnings', () => {
   const unexpected_message = 'unexpected warning';
   const expected_message1 = 'expected warning #1';
+  const expected_message2 = 'expected warning #2';
+  const expected_message3 = 'expected warning #3';
   beforeAll(() => {
     jest.spyOn(console, 'error').mockImplementation(() => {});
   });
@@ -55,5 +58,44 @@ describe('warnings', () => {
     expect(() => expectToWarn(expected_message1, () => {})).toThrowError(
       'Expected callback to warn: ' + expected_message1,
     );
+  });
+
+  it('warns on unexpected contextual warning', () => {
+    expect(() =>
+      expectToWarn(expected_message1, () => {
+        warning(false, expected_message2);
+      }),
+    ).toThrowError('Warning: ' + expected_message2);
+  });
+
+  it('matches multiple contextual warnings first', () => {
+    expectWarningWillFire(expected_message1);
+
+    expectToWarnMany([expected_message1, expected_message2], () => {
+      warning(false, expected_message1);
+      warning(false, expected_message2);
+    });
+    warning(false, expected_message1);
+  });
+
+  it('matches multiple contextual warnings in order', () => {
+    expect(() => {
+      expectToWarnMany([expected_message2, expected_message1], () => {
+        warning(false, expected_message1);
+        warning(false, expected_message2);
+      });
+    }).toThrowError('Warning: ' + expected_message1);
+  });
+
+  it('warnings for unfired warning, given multiple contextual warnings', () => {
+    expect(() => {
+      expectToWarnMany(
+        [expected_message1, expected_message2, expected_message3],
+        () => {
+          warning(false, expected_message1);
+          warning(false, expected_message2);
+        },
+      );
+    }).toThrowError('Expected callback to warn: ' + expected_message3);
   });
 });

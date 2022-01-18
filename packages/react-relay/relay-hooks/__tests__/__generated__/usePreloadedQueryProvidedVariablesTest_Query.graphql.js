@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<df6398f2d588beab0999d4a77fb27b77>>
+ * @generated SignedSource<<1550e43511f3318969e19adbc81701ca>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,21 +16,21 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-type usePreloadedQueryTest_providedVariablesFragment$fragmentType = any;
-export type usePreloadedQueryTest_providedVariablesQuery$variables = {|
+type usePreloadedQueryProvidedVariablesTest_Fragment$fragmentType = any;
+export type usePreloadedQueryProvidedVariablesTest_Query$variables = {|
   id: string,
 |};
-export type usePreloadedQueryTest_providedVariablesQueryVariables = usePreloadedQueryTest_providedVariablesQuery$variables;
-export type usePreloadedQueryTest_providedVariablesQuery$data = {|
+export type usePreloadedQueryProvidedVariablesTest_QueryVariables = usePreloadedQueryProvidedVariablesTest_Query$variables;
+export type usePreloadedQueryProvidedVariablesTest_Query$data = {|
   +node: ?{|
     +id: string,
-    +$fragmentSpreads: usePreloadedQueryTest_providedVariablesFragment$fragmentType,
+    +$fragmentSpreads: usePreloadedQueryProvidedVariablesTest_Fragment$fragmentType,
   |},
 |};
-export type usePreloadedQueryTest_providedVariablesQueryResponse = usePreloadedQueryTest_providedVariablesQuery$data;
-export type usePreloadedQueryTest_providedVariablesQuery = {|
-  variables: usePreloadedQueryTest_providedVariablesQueryVariables,
-  response: usePreloadedQueryTest_providedVariablesQuery$data,
+export type usePreloadedQueryProvidedVariablesTest_QueryResponse = usePreloadedQueryProvidedVariablesTest_Query$data;
+export type usePreloadedQueryProvidedVariablesTest_Query = {|
+  variables: usePreloadedQueryProvidedVariablesTest_QueryVariables,
+  response: usePreloadedQueryProvidedVariablesTest_Query$data,
 |};
 type ProvidedVariableProviderType = {|
   +__pv__RelayProvider_returnsTrue: {|
@@ -74,7 +74,7 @@ return {
     ],
     "kind": "Fragment",
     "metadata": null,
-    "name": "usePreloadedQueryTest_providedVariablesQuery",
+    "name": "usePreloadedQueryProvidedVariablesTest_Query",
     "selections": [
       {
         "alias": null,
@@ -88,7 +88,7 @@ return {
           {
             "args": null,
             "kind": "FragmentSpread",
-            "name": "usePreloadedQueryTest_providedVariablesFragment"
+            "name": "usePreloadedQueryProvidedVariablesTest_Fragment"
           }
         ],
         "storageKey": null
@@ -113,7 +113,7 @@ return {
       }
     ],
     "kind": "Operation",
-    "name": "usePreloadedQueryTest_providedVariablesQuery",
+    "name": "usePreloadedQueryProvidedVariablesTest_Query",
     "selections": [
       {
         "alias": null,
@@ -200,12 +200,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "4d62a684b434350a0586950383207568",
+    "cacheID": "7f40f4d7514a0fce2f8d3a5f5ef7a53c",
     "id": null,
     "metadata": {},
-    "name": "usePreloadedQueryTest_providedVariablesQuery",
+    "name": "usePreloadedQueryProvidedVariablesTest_Query",
     "operationKind": "query",
-    "text": "query usePreloadedQueryTest_providedVariablesQuery(\n  $id: ID!\n  $__pv__RelayProvider_returnsTrue: Boolean!\n  $__pv__RelayProvider_returnsFalse: Boolean!\n) {\n  node(id: $id) {\n    __typename\n    id\n    ...usePreloadedQueryTest_providedVariablesFragment\n  }\n}\n\nfragment usePreloadedQueryTest_providedVariablesFragment on User {\n  name @include(if: $__pv__RelayProvider_returnsTrue)\n  firstName @include(if: $__pv__RelayProvider_returnsFalse)\n  lastName @skip(if: $__pv__RelayProvider_returnsFalse)\n  username @skip(if: $__pv__RelayProvider_returnsTrue)\n}\n",
+    "text": "query usePreloadedQueryProvidedVariablesTest_Query(\n  $id: ID!\n  $__pv__RelayProvider_returnsTrue: Boolean!\n  $__pv__RelayProvider_returnsFalse: Boolean!\n) {\n  node(id: $id) {\n    __typename\n    id\n    ...usePreloadedQueryProvidedVariablesTest_Fragment\n  }\n}\n\nfragment usePreloadedQueryProvidedVariablesTest_Fragment on User {\n  name @include(if: $__pv__RelayProvider_returnsTrue)\n  firstName @include(if: $__pv__RelayProvider_returnsFalse)\n  lastName @skip(if: $__pv__RelayProvider_returnsFalse)\n  username @skip(if: $__pv__RelayProvider_returnsTrue)\n}\n",
     "providedVariables": {
       "__pv__RelayProvider_returnsTrue": require('./../RelayProvider_returnsTrue'),
       "__pv__RelayProvider_returnsFalse": require('./../RelayProvider_returnsFalse')
@@ -215,10 +215,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "323e91c95df9acb666386a24dda6b694";
+  (node/*: any*/).hash = "57f29c979bd1ac2b46b7841b521d1cb2";
 }
 
 module.exports = ((node/*: any*/)/*: Query<
-  usePreloadedQueryTest_providedVariablesQuery$variables,
-  usePreloadedQueryTest_providedVariablesQuery$data,
+  usePreloadedQueryProvidedVariablesTest_Query$variables,
+  usePreloadedQueryProvidedVariablesTest_Query$data,
 >*/);

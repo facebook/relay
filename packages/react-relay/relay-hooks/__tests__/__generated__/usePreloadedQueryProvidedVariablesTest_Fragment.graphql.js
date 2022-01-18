@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<1ee8a299294beed1fdf641c4695dcde5>>
+ * @generated SignedSource<<18b5fe708443fcf87cdf3d6e688c0ecf>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,19 +17,19 @@
 /*::
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
-declare export opaque type usePreloadedQueryTest_providedVariablesFragment$fragmentType: FragmentType;
-export type usePreloadedQueryTest_providedVariablesFragment$ref = usePreloadedQueryTest_providedVariablesFragment$fragmentType;
-export type usePreloadedQueryTest_providedVariablesFragment$data = {|
+declare export opaque type usePreloadedQueryProvidedVariablesTest_Fragment$fragmentType: FragmentType;
+export type usePreloadedQueryProvidedVariablesTest_Fragment$ref = usePreloadedQueryProvidedVariablesTest_Fragment$fragmentType;
+export type usePreloadedQueryProvidedVariablesTest_Fragment$data = {|
   +name?: ?string,
   +firstName?: ?string,
   +lastName?: ?string,
   +username?: ?string,
-  +$fragmentType: usePreloadedQueryTest_providedVariablesFragment$fragmentType,
+  +$fragmentType: usePreloadedQueryProvidedVariablesTest_Fragment$fragmentType,
 |};
-export type usePreloadedQueryTest_providedVariablesFragment = usePreloadedQueryTest_providedVariablesFragment$data;
-export type usePreloadedQueryTest_providedVariablesFragment$key = {
-  +$data?: usePreloadedQueryTest_providedVariablesFragment$data,
-  +$fragmentSpreads: usePreloadedQueryTest_providedVariablesFragment$fragmentType,
+export type usePreloadedQueryProvidedVariablesTest_Fragment = usePreloadedQueryProvidedVariablesTest_Fragment$data;
+export type usePreloadedQueryProvidedVariablesTest_Fragment$key = {
+  +$data?: usePreloadedQueryProvidedVariablesTest_Fragment$data,
+  +$fragmentSpreads: usePreloadedQueryProvidedVariablesTest_Fragment$fragmentType,
   ...
 };
 */
@@ -52,7 +52,7 @@ return {
   ],
   "kind": "Fragment",
   "metadata": null,
-  "name": "usePreloadedQueryTest_providedVariablesFragment",
+  "name": "usePreloadedQueryProvidedVariablesTest_Fragment",
   "selections": [
     {
       "condition": "__pv__RelayProvider_returnsTrue",
@@ -117,10 +117,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "e02ef8920fcd8c557fdf776afe9df5e5";
+  (node/*: any*/).hash = "bd07e5c78d2238a6262a40f596363fc6";
 }
 
 module.exports = ((node/*: any*/)/*: Fragment<
-  usePreloadedQueryTest_providedVariablesFragment$fragmentType,
-  usePreloadedQueryTest_providedVariablesFragment$data,
+  usePreloadedQueryProvidedVariablesTest_Fragment$fragmentType,
+  usePreloadedQueryProvidedVariablesTest_Fragment$data,
 >*/);

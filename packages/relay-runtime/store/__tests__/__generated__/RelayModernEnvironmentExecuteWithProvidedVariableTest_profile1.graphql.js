@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<e05b3dd73d5c31750c01c3dfb631d080>>
+ * @generated SignedSource<<b9d0297494b98690806ca4ac312f5046>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -36,16 +36,15 @@ export type RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1$key =
 };
 */
 
-var node/*: ReaderFragment*/ = {
+var node/*: ReaderFragment*/ = (function(){
+var v0 = {
+  "kind": "RootArgument",
+  "name": "__pv__RelayProvider_returnsTrue"
+};
+return {
   "argumentDefinitions": [
-    {
-      "kind": "RootArgument",
-      "name": "__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1__includeName"
-    },
-    {
-      "kind": "RootArgument",
-      "name": "__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1__skipUsername"
-    }
+    (v0/*: any*/),
+    (v0/*: any*/)
   ],
   "kind": "Fragment",
   "metadata": null,
@@ -59,7 +58,7 @@ var node/*: ReaderFragment*/ = {
       "storageKey": null
     },
     {
-      "condition": "__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1__includeName",
+      "condition": "__pv__RelayProvider_returnsTrue",
       "kind": "Condition",
       "passingValue": true,
       "selections": [
@@ -73,7 +72,7 @@ var node/*: ReaderFragment*/ = {
       ]
     },
     {
-      "condition": "__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1__skipUsername",
+      "condition": "__pv__RelayProvider_returnsTrue",
       "kind": "Condition",
       "passingValue": false,
       "selections": [
@@ -108,6 +107,7 @@ var node/*: ReaderFragment*/ = {
   "type": "User",
   "abstractKey": null
 };
+})();
 
 if (__DEV__) {
   (node/*: any*/).hash = "bde31756e6495f3fc76396a0fafadc57";

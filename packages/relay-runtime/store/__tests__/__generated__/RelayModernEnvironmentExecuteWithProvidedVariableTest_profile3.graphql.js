@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<5fb4dface6c17cb758613a42aa3e90f2>>
+ * @generated SignedSource<<e549c517c5c531558cf3a4ca4cface40>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -37,7 +37,7 @@ var node/*: ReaderFragment*/ = {
   "argumentDefinitions": [
     {
       "kind": "RootArgument",
-      "name": "__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile3__profilePictureScale"
+      "name": "__pv__RelayProvider_pictureScale"
     }
   ],
   "kind": "Fragment",
@@ -50,7 +50,7 @@ var node/*: ReaderFragment*/ = {
         {
           "kind": "Variable",
           "name": "scale",
-          "variableName": "__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile3__profilePictureScale"
+          "variableName": "__pv__RelayProvider_pictureScale"
         }
       ],
       "concreteType": "Image",

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<105cf18a3cf1842bb97b51c2bc0056af>>
+ * @generated SignedSource<<ad109ddbb5b130ca18a9fb02a115eb7c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -34,31 +34,28 @@ export type RelayResponseNormalizerTest_pvFragment$key = {
 };
 */
 
-var node/*: ReaderFragment*/ = {
+var node/*: ReaderFragment*/ = (function(){
+var v0 = {
+  "kind": "RootArgument",
+  "name": "__pv__RelayProvider_returnsFalse"
+},
+v1 = {
+  "kind": "RootArgument",
+  "name": "__pv__RelayProvider_returnsTrue"
+};
+return {
   "argumentDefinitions": [
-    {
-      "kind": "RootArgument",
-      "name": "__RelayResponseNormalizerTest_pvFragment__includeFirstName"
-    },
-    {
-      "kind": "RootArgument",
-      "name": "__RelayResponseNormalizerTest_pvFragment__includeName"
-    },
-    {
-      "kind": "RootArgument",
-      "name": "__RelayResponseNormalizerTest_pvFragment__skipLastName"
-    },
-    {
-      "kind": "RootArgument",
-      "name": "__RelayResponseNormalizerTest_pvFragment__skipUsername"
-    }
+    (v0/*: any*/),
+    (v0/*: any*/),
+    (v1/*: any*/),
+    (v1/*: any*/)
   ],
   "kind": "Fragment",
   "metadata": null,
   "name": "RelayResponseNormalizerTest_pvFragment",
   "selections": [
     {
-      "condition": "__RelayResponseNormalizerTest_pvFragment__includeName",
+      "condition": "__pv__RelayProvider_returnsTrue",
       "kind": "Condition",
       "passingValue": true,
       "selections": [
@@ -72,7 +69,7 @@ var node/*: ReaderFragment*/ = {
       ]
     },
     {
-      "condition": "__RelayResponseNormalizerTest_pvFragment__includeFirstName",
+      "condition": "__pv__RelayProvider_returnsFalse",
       "kind": "Condition",
       "passingValue": true,
       "selections": [
@@ -86,7 +83,7 @@ var node/*: ReaderFragment*/ = {
       ]
     },
     {
-      "condition": "__RelayResponseNormalizerTest_pvFragment__skipLastName",
+      "condition": "__pv__RelayProvider_returnsFalse",
       "kind": "Condition",
       "passingValue": false,
       "selections": [
@@ -100,7 +97,7 @@ var node/*: ReaderFragment*/ = {
       ]
     },
     {
-      "condition": "__RelayResponseNormalizerTest_pvFragment__skipUsername",
+      "condition": "__pv__RelayProvider_returnsTrue",
       "kind": "Condition",
       "passingValue": false,
       "selections": [
@@ -117,6 +114,7 @@ var node/*: ReaderFragment*/ = {
   "type": "User",
   "abstractKey": null
 };
+})();
 
 if (__DEV__) {
   (node/*: any*/).hash = "bd90b1b55b33983116d3a7541c2e3ac0";

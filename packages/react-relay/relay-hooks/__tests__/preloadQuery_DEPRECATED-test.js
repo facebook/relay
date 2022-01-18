@@ -856,14 +856,10 @@ describe('Preload queries that use provided variables', () => {
 
   const variables = {id: 4};
   const generatedVariables = {
-    __preloadQueryDEPRECATEDTest_ProvidedVarFragment__includeName:
+    __pv__RelayProvider_returnsTrue:
       require('./RelayProvider_returnsTrue').get(),
-    __preloadQueryDEPRECATEDTest_ProvidedVarFragment__includeFirstName:
+    __pv__RelayProvider_returnsFalse:
       require('./RelayProvider_returnsFalse').get(),
-    __preloadQueryDEPRECATEDTest_ProvidedVarFragment__skipLastName:
-      require('./RelayProvider_returnsFalse').get(),
-    __preloadQueryDEPRECATEDTest_ProvidedVarFragment__skipUsername:
-      require('./RelayProvider_returnsTrue').get(),
     ...variables,
   };
 

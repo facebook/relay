@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<2da01c89d8122869d77507d1b6f3046b>>
+ * @generated SignedSource<<2db45ba6e6fa43b16cf4d4ad6e82ae8c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -32,23 +32,22 @@ export type RelayModernEnvironmentExecuteWithProvidedVariableTest_profile2$key =
 };
 */
 
-var node/*: ReaderFragment*/ = {
+var node/*: ReaderFragment*/ = (function(){
+var v0 = {
+  "kind": "RootArgument",
+  "name": "__pv__RelayProvider_returnsTrue"
+};
+return {
   "argumentDefinitions": [
-    {
-      "kind": "RootArgument",
-      "name": "__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile2__includeAlternateName"
-    },
-    {
-      "kind": "RootArgument",
-      "name": "__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile2__includeName"
-    }
+    (v0/*: any*/),
+    (v0/*: any*/)
   ],
   "kind": "Fragment",
   "metadata": null,
   "name": "RelayModernEnvironmentExecuteWithProvidedVariableTest_profile2",
   "selections": [
     {
-      "condition": "__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile2__includeName",
+      "condition": "__pv__RelayProvider_returnsTrue",
       "kind": "Condition",
       "passingValue": true,
       "selections": [
@@ -58,14 +57,7 @@ var node/*: ReaderFragment*/ = {
           "kind": "ScalarField",
           "name": "name",
           "storageKey": null
-        }
-      ]
-    },
-    {
-      "condition": "__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile2__includeAlternateName",
-      "kind": "Condition",
-      "passingValue": true,
-      "selections": [
+        },
         {
           "alias": null,
           "args": null,
@@ -79,6 +71,7 @@ var node/*: ReaderFragment*/ = {
   "type": "User",
   "abstractKey": null
 };
+})();
 
 if (__DEV__) {
   (node/*: any*/).hash = "fde1f4891ea7ab32c106e5209a512695";

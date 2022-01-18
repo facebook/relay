@@ -43,14 +43,11 @@ export type queryOnlyProvidedVar_MultiFragment$data = {|
   |},
 |};
 type ProvidedVariableProviderType = {|
-  +__FragmentOneProvidedVar__includeName: {|
+  +__pv__includeNameProvider: {|
     +get: () => CustomBoolean,
   |},
-  +__FragmentMultiProvidedVar__numberOfFriends: {|
+  +__pv__numberOfFriendsProvider: {|
     +get: () => number,
-  |},
-  +__FragmentMultiProvidedVar__includeName: {|
-    +get: () => CustomBoolean,
   |},
 |};
 -------------------------------------------------------------------------------
@@ -62,7 +59,7 @@ export type queryOnlyProvidedVar_OneFragment$data = {|
   |},
 |};
 type ProvidedVariableProviderType = {|
-  +__FragmentOneProvidedVar__includeName: {|
+  +__pv__includeNameProvider: {|
     +get: () => CustomBoolean,
   |},
 |};

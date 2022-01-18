@@ -22,7 +22,7 @@ fragment Profile on User
 ==================================== OUTPUT ===================================
 query TestQuery(
   $id: ID
-  $__Profile__foo_gk: Boolean! @__ProvidedVariableMetadata
+  $__pv__fooGKProvider: Boolean! @__ProvidedVariableMetadata
   # ProvidedVariableMetadata {
   #     module_name: "fooGKProvider",
   # }
@@ -34,11 +34,11 @@ query TestQuery(
 }
 
 fragment Profile on User {
-  name @include(if: $__Profile__foo_gk)
+  name @include(if: $__pv__fooGKProvider)
 }
 
 fragment Profile_eQnbl on User {
-  name @include(if: $__Profile__foo_gk)
+  name @include(if: $__pv__fooGKProvider)
   friends(first: 10) {
     edges {
       node {

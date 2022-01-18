@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<5ebe02329a3bacdd9839a1cfbba21f2f>>
+ * @generated SignedSource<<50140dacc3f9423f60b8f37952a2d053>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -34,30 +34,18 @@ export type RelayModernEnvironmentExecuteWithProvidedVariableTest_UserArgManyFra
   response: RelayModernEnvironmentExecuteWithProvidedVariableTest_UserArgManyFragmentsQuery$data,
 |};
 type ProvidedVariableProviderType = {|
-  +__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1__includeName: {|
+  +__pv__RelayProvider_returnsTrue: {|
     +get: () => boolean,
   |},
-  +__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1__skipUsername: {|
-    +get: () => boolean,
-  |},
-  +__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile2__includeName: {|
-    +get: () => boolean,
-  |},
-  +__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile2__includeAlternateName: {|
-    +get: () => boolean,
-  |},
-  +__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile3__profilePictureScale: {|
+  +__pv__RelayProvider_pictureScale: {|
     +get: () => number,
   |},
 |};
 */
 
 var providedVariableProviders/*: ProvidedVariableProviderType*/ = {
-  "__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1__includeName": require('./../RelayProvider_returnsTrue'),
-  "__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1__skipUsername": require('./../RelayProvider_returnsTrue'),
-  "__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile2__includeName": require('./../RelayProvider_returnsTrue'),
-  "__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile2__includeAlternateName": require('./../RelayProvider_returnsTrue'),
-  "__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile3__profilePictureScale": require('./../RelayProvider_pictureScale')
+  "__pv__RelayProvider_returnsTrue": require('./../RelayProvider_returnsTrue'),
+  "__pv__RelayProvider_pictureScale": require('./../RelayProvider_pictureScale')
 };
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -79,15 +67,6 @@ v2 = [
     "args": null,
     "kind": "ScalarField",
     "name": "uri",
-    "storageKey": null
-  }
-],
-v3 = [
-  {
-    "alias": null,
-    "args": null,
-    "kind": "ScalarField",
-    "name": "name",
     "storageKey": null
   }
 ];
@@ -137,27 +116,12 @@ return {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1__includeName"
+        "name": "__pv__RelayProvider_returnsTrue"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1__skipUsername"
-      },
-      {
-        "defaultValue": null,
-        "kind": "LocalArgument",
-        "name": "__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile2__includeName"
-      },
-      {
-        "defaultValue": null,
-        "kind": "LocalArgument",
-        "name": "__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile2__includeAlternateName"
-      },
-      {
-        "defaultValue": null,
-        "kind": "LocalArgument",
-        "name": "__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile3__profilePictureScale"
+        "name": "__pv__RelayProvider_pictureScale"
       }
     ],
     "kind": "Operation",
@@ -204,7 +168,7 @@ return {
                   {
                     "kind": "Variable",
                     "name": "scale",
-                    "variableName": "__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile3__profilePictureScale"
+                    "variableName": "__pv__RelayProvider_pictureScale"
                   }
                 ],
                 "concreteType": "Image",
@@ -215,13 +179,28 @@ return {
                 "storageKey": null
               },
               {
-                "condition": "__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1__includeName",
+                "condition": "__pv__RelayProvider_returnsTrue",
                 "kind": "Condition",
                 "passingValue": true,
-                "selections": (v3/*: any*/)
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "name",
+                    "storageKey": null
+                  },
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "alternate_name",
+                    "storageKey": null
+                  }
+                ]
               },
               {
-                "condition": "__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1__skipUsername",
+                "condition": "__pv__RelayProvider_returnsTrue",
                 "kind": "Condition",
                 "passingValue": false,
                 "selections": [
@@ -230,26 +209,6 @@ return {
                     "args": null,
                     "kind": "ScalarField",
                     "name": "username",
-                    "storageKey": null
-                  }
-                ]
-              },
-              {
-                "condition": "__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile2__includeName",
-                "kind": "Condition",
-                "passingValue": true,
-                "selections": (v3/*: any*/)
-              },
-              {
-                "condition": "__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile2__includeAlternateName",
-                "kind": "Condition",
-                "passingValue": true,
-                "selections": [
-                  {
-                    "alias": null,
-                    "args": null,
-                    "kind": "ScalarField",
-                    "name": "alternate_name",
                     "storageKey": null
                   }
                 ]
@@ -264,18 +223,15 @@ return {
     ]
   },
   "params": {
-    "cacheID": "410850c0b91ffeb79c9375c3a1df5da8",
+    "cacheID": "4ff7b6639058e8037eaf2d6749e45185",
     "id": null,
     "metadata": {},
     "name": "RelayModernEnvironmentExecuteWithProvidedVariableTest_UserArgManyFragmentsQuery",
     "operationKind": "query",
-    "text": "query RelayModernEnvironmentExecuteWithProvidedVariableTest_UserArgManyFragmentsQuery(\n  $id: ID!\n  $__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1__includeName: Boolean!\n  $__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1__skipUsername: Boolean!\n  $__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile2__includeName: Boolean!\n  $__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile2__includeAlternateName: Boolean!\n  $__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile3__profilePictureScale: Float!\n) {\n  node(id: $id) {\n    __typename\n    ...RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1\n    ...RelayModernEnvironmentExecuteWithProvidedVariableTest_profile2\n    ...RelayModernEnvironmentExecuteWithProvidedVariableTest_profile3\n    id\n  }\n}\n\nfragment RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1 on User {\n  id\n  name @include(if: $__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1__includeName)\n  username @skip(if: $__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1__skipUsername)\n  profilePicture {\n    uri\n  }\n}\n\nfragment RelayModernEnvironmentExecuteWithProvidedVariableTest_profile2 on User {\n  name @include(if: $__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile2__includeName)\n  alternate_name @include(if: $__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile2__includeAlternateName)\n}\n\nfragment RelayModernEnvironmentExecuteWithProvidedVariableTest_profile3 on User {\n  profile_picture(scale: $__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile3__profilePictureScale) {\n    uri\n  }\n}\n",
+    "text": "query RelayModernEnvironmentExecuteWithProvidedVariableTest_UserArgManyFragmentsQuery(\n  $id: ID!\n  $__pv__RelayProvider_returnsTrue: Boolean!\n  $__pv__RelayProvider_pictureScale: Float!\n) {\n  node(id: $id) {\n    __typename\n    ...RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1\n    ...RelayModernEnvironmentExecuteWithProvidedVariableTest_profile2\n    ...RelayModernEnvironmentExecuteWithProvidedVariableTest_profile3\n    id\n  }\n}\n\nfragment RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1 on User {\n  id\n  name @include(if: $__pv__RelayProvider_returnsTrue)\n  username @skip(if: $__pv__RelayProvider_returnsTrue)\n  profilePicture {\n    uri\n  }\n}\n\nfragment RelayModernEnvironmentExecuteWithProvidedVariableTest_profile2 on User {\n  name @include(if: $__pv__RelayProvider_returnsTrue)\n  alternate_name @include(if: $__pv__RelayProvider_returnsTrue)\n}\n\nfragment RelayModernEnvironmentExecuteWithProvidedVariableTest_profile3 on User {\n  profile_picture(scale: $__pv__RelayProvider_pictureScale) {\n    uri\n  }\n}\n",
     "providedVariables": {
-      "__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1__includeName": require('./../RelayProvider_returnsTrue'),
-      "__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1__skipUsername": require('./../RelayProvider_returnsTrue'),
-      "__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile2__includeName": require('./../RelayProvider_returnsTrue'),
-      "__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile2__includeAlternateName": require('./../RelayProvider_returnsTrue'),
-      "__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile3__profilePictureScale": require('./../RelayProvider_pictureScale')
+      "__pv__RelayProvider_returnsTrue": require('./../RelayProvider_returnsTrue'),
+      "__pv__RelayProvider_pictureScale": require('./../RelayProvider_pictureScale')
     }
   }
 };

@@ -11,7 +11,7 @@ fragment SingleFragment on User
 ==================================== OUTPUT ===================================
 fragment SingleFragment on User {
   ... on User {
-    profilePicture(size: $__SingleFragment__profilePictureScale) {
+    profilePicture(size: $__pv__profilePictureScaleProvider) {
       uri
     }
   }

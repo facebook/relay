@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<32c1f3fbc2a47df12ab5ef8f4a651a8a>>
+ * @generated SignedSource<<08a4fa73915fc585e40298fd0cb17172>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -34,31 +34,28 @@ export type preloadQueryDEPRECATEDTest_ProvidedVarFragment$key = {
 };
 */
 
-var node/*: ReaderFragment*/ = {
+var node/*: ReaderFragment*/ = (function(){
+var v0 = {
+  "kind": "RootArgument",
+  "name": "__pv__RelayProvider_returnsFalse"
+},
+v1 = {
+  "kind": "RootArgument",
+  "name": "__pv__RelayProvider_returnsTrue"
+};
+return {
   "argumentDefinitions": [
-    {
-      "kind": "RootArgument",
-      "name": "__preloadQueryDEPRECATEDTest_ProvidedVarFragment__includeFirstName"
-    },
-    {
-      "kind": "RootArgument",
-      "name": "__preloadQueryDEPRECATEDTest_ProvidedVarFragment__includeName"
-    },
-    {
-      "kind": "RootArgument",
-      "name": "__preloadQueryDEPRECATEDTest_ProvidedVarFragment__skipLastName"
-    },
-    {
-      "kind": "RootArgument",
-      "name": "__preloadQueryDEPRECATEDTest_ProvidedVarFragment__skipUsername"
-    }
+    (v0/*: any*/),
+    (v0/*: any*/),
+    (v1/*: any*/),
+    (v1/*: any*/)
   ],
   "kind": "Fragment",
   "metadata": null,
   "name": "preloadQueryDEPRECATEDTest_ProvidedVarFragment",
   "selections": [
     {
-      "condition": "__preloadQueryDEPRECATEDTest_ProvidedVarFragment__includeName",
+      "condition": "__pv__RelayProvider_returnsTrue",
       "kind": "Condition",
       "passingValue": true,
       "selections": [
@@ -72,7 +69,7 @@ var node/*: ReaderFragment*/ = {
       ]
     },
     {
-      "condition": "__preloadQueryDEPRECATEDTest_ProvidedVarFragment__includeFirstName",
+      "condition": "__pv__RelayProvider_returnsFalse",
       "kind": "Condition",
       "passingValue": true,
       "selections": [
@@ -86,7 +83,7 @@ var node/*: ReaderFragment*/ = {
       ]
     },
     {
-      "condition": "__preloadQueryDEPRECATEDTest_ProvidedVarFragment__skipLastName",
+      "condition": "__pv__RelayProvider_returnsFalse",
       "kind": "Condition",
       "passingValue": false,
       "selections": [
@@ -100,7 +97,7 @@ var node/*: ReaderFragment*/ = {
       ]
     },
     {
-      "condition": "__preloadQueryDEPRECATEDTest_ProvidedVarFragment__skipUsername",
+      "condition": "__pv__RelayProvider_returnsTrue",
       "kind": "Condition",
       "passingValue": false,
       "selections": [
@@ -117,6 +114,7 @@ var node/*: ReaderFragment*/ = {
   "type": "User",
   "abstractKey": null
 };
+})();
 
 if (__DEV__) {
   (node/*: any*/).hash = "6ccd0faa2d0e7e65107135efa23e2de2";

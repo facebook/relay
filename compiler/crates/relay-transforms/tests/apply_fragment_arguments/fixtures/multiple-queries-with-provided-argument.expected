@@ -19,7 +19,7 @@ fragment TestFragment on User
 ==================================== OUTPUT ===================================
 query TestQuery1(
   $id: ID!
-  $__TestFragment__foo_gk: Boolean! @__ProvidedVariableMetadata
+  $__pv__fooGKProvider: Boolean! @__ProvidedVariableMetadata
   # ProvidedVariableMetadata {
   #     module_name: "fooGKProvider",
   # }
@@ -33,7 +33,7 @@ query TestQuery1(
 
 query TestQuery2(
   $id: ID!
-  $__TestFragment__foo_gk: Boolean! @__ProvidedVariableMetadata
+  $__pv__fooGKProvider: Boolean! @__ProvidedVariableMetadata
   # ProvidedVariableMetadata {
   #     module_name: "fooGKProvider",
   # }
@@ -45,5 +45,5 @@ query TestQuery2(
 }
 
 fragment TestFragment on User {
-  name @include(if: $__TestFragment__foo_gk)
+  name @include(if: $__pv__fooGKProvider)
 }

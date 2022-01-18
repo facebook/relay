@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<9286c547a41f319f09ae4077b60ab0c3>>
+ * @generated SignedSource<<1304825c70450d05676c2ca20efe6c71>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -42,11 +42,11 @@ var node/*: ReaderFragment*/ = {
   "argumentDefinitions": [
     {
       "kind": "RootArgument",
-      "name": "__withProvidedVariablesTest4Fragment1__includeName"
+      "name": "__pv__provideIncludeUserNames"
     },
     {
       "kind": "RootArgument",
-      "name": "__withProvidedVariablesTest4Fragment1__numberOfFriends"
+      "name": "__pv__provideNumberOfFriends"
     }
   ],
   "kind": "Fragment",
@@ -59,7 +59,7 @@ var node/*: ReaderFragment*/ = {
         {
           "kind": "Variable",
           "name": "first",
-          "variableName": "__withProvidedVariablesTest4Fragment1__numberOfFriends"
+          "variableName": "__pv__provideNumberOfFriends"
         }
       ],
       "concreteType": "FriendsConnection",
@@ -91,7 +91,7 @@ var node/*: ReaderFragment*/ = {
               "plural": false,
               "selections": [
                 {
-                  "condition": "__withProvidedVariablesTest4Fragment1__includeName",
+                  "condition": "__pv__provideIncludeUserNames",
                   "kind": "Condition",
                   "passingValue": true,
                   "selections": [

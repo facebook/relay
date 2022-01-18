@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<18c343ab643d631441b239fffd3145cc>>
+ * @generated SignedSource<<140ca12b81cd2148b0d8411e420cc797>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -30,14 +30,14 @@ export type withProvidedVariablesTest1Query = {|
   response: withProvidedVariablesTest1Query$data,
 |};
 type ProvidedVariableProviderType = {|
-  +__withProvidedVariablesTest1Fragment__numberOfFriends: {|
+  +__pv__provideNumberOfFriends: {|
     +get: () => number,
   |},
 |};
 */
 
 var providedVariableProviders/*: ProvidedVariableProviderType*/ = {
-  "__withProvidedVariablesTest1Fragment__numberOfFriends": require('./../provideNumberOfFriends')
+  "__pv__provideNumberOfFriends": require('./../provideNumberOfFriends')
 };
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -81,7 +81,7 @@ return {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "__withProvidedVariablesTest1Fragment__numberOfFriends"
+        "name": "__pv__provideNumberOfFriends"
       }
     ],
     "kind": "Operation",
@@ -111,7 +111,7 @@ return {
                   {
                     "kind": "Variable",
                     "name": "first",
-                    "variableName": "__withProvidedVariablesTest1Fragment__numberOfFriends"
+                    "variableName": "__pv__provideNumberOfFriends"
                   }
                 ],
                 "concreteType": "FriendsConnection",
@@ -146,14 +146,14 @@ return {
     ]
   },
   "params": {
-    "cacheID": "1137b9e7190ffed3581cd3938f96744d",
+    "cacheID": "efb0233a18ba050af3cd50027f3a52fd",
     "id": null,
     "metadata": {},
     "name": "withProvidedVariablesTest1Query",
     "operationKind": "query",
-    "text": "query withProvidedVariablesTest1Query(\n  $__withProvidedVariablesTest1Fragment__numberOfFriends: Int!\n) {\n  node(id: 4) {\n    __typename\n    ...withProvidedVariablesTest1Fragment\n    id\n  }\n}\n\nfragment withProvidedVariablesTest1Fragment on User {\n  friends(first: $__withProvidedVariablesTest1Fragment__numberOfFriends) {\n    count\n  }\n}\n",
+    "text": "query withProvidedVariablesTest1Query(\n  $__pv__provideNumberOfFriends: Int!\n) {\n  node(id: 4) {\n    __typename\n    ...withProvidedVariablesTest1Fragment\n    id\n  }\n}\n\nfragment withProvidedVariablesTest1Fragment on User {\n  friends(first: $__pv__provideNumberOfFriends) {\n    count\n  }\n}\n",
     "providedVariables": {
-      "__withProvidedVariablesTest1Fragment__numberOfFriends": require('./../provideNumberOfFriends')
+      "__pv__provideNumberOfFriends": require('./../provideNumberOfFriends')
     }
   }
 };

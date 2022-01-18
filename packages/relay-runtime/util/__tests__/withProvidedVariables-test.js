@@ -39,9 +39,7 @@ describe('withProvidedVariables', () => {
         userVariables,
         userQuery.params,
       );
-      expect(
-        newVariables.__withProvidedVariablesTest1Fragment__numberOfFriends,
-      ).toEqual(15.0);
+      expect(newVariables.__pv__provideNumberOfFriends).toEqual(15.0);
       expect(Object.keys(newVariables).length).toEqual(1);
     });
   });
@@ -73,9 +71,7 @@ describe('withProvidedVariables', () => {
         userVariables,
         userQuery.params,
       );
-      expect(
-        newVariables.__withProvidedVariablesTest2Fragment__numberOfFriends,
-      ).toEqual(15.0);
+      expect(newVariables.__pv__provideNumberOfFriends).toEqual(15.0);
       expect(newVariables.includeFriendsCount).toEqual(true);
       expect(Object.keys(newVariables).length).toEqual(2);
     });
@@ -111,12 +107,8 @@ describe('withProvidedVariables', () => {
         userVariables,
         userQuery.params,
       );
-      expect(
-        newVariables.__withProvidedVariablesTest3Fragment__numberOfFriends,
-      ).toEqual(15.0);
-      expect(
-        newVariables.__withProvidedVariablesTest3Fragment__includeName,
-      ).toEqual(true);
+      expect(newVariables.__pv__provideNumberOfFriends).toEqual(15.0);
+      expect(newVariables.__pv__provideIncludeUserNames).toEqual(true);
       expect(Object.keys(newVariables).length).toEqual(2);
     });
   });
@@ -169,16 +161,9 @@ describe('withProvidedVariables', () => {
         userVariables,
         userQuery.params,
       );
-      expect(
-        newVariables.__withProvidedVariablesTest4Fragment1__numberOfFriends,
-      ).toEqual(15.0);
-      expect(
-        newVariables.__withProvidedVariablesTest4Fragment1__includeName,
-      ).toEqual(true);
-      expect(
-        newVariables.__withProvidedVariablesTest4Fragment2__includeName,
-      ).toEqual(true);
-      expect(Object.keys(newVariables).length).toEqual(3);
+      expect(newVariables.__pv__provideNumberOfFriends).toEqual(15.0);
+      expect(newVariables.__pv__provideIncludeUserNames).toEqual(true);
+      expect(Object.keys(newVariables).length).toEqual(2);
     });
   });
 });

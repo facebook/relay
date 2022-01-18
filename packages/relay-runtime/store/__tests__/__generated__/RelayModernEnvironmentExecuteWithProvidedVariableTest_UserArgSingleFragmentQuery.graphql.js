@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<414ad31dd95c14e6f5b56ad53419946e>>
+ * @generated SignedSource<<723e391d2a8c174c04c797697b06d2e5>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -32,18 +32,14 @@ export type RelayModernEnvironmentExecuteWithProvidedVariableTest_UserArgSingleF
   response: RelayModernEnvironmentExecuteWithProvidedVariableTest_UserArgSingleFragmentQuery$data,
 |};
 type ProvidedVariableProviderType = {|
-  +__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1__includeName: {|
-    +get: () => boolean,
-  |},
-  +__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1__skipUsername: {|
+  +__pv__RelayProvider_returnsTrue: {|
     +get: () => boolean,
   |},
 |};
 */
 
 var providedVariableProviders/*: ProvidedVariableProviderType*/ = {
-  "__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1__includeName": require('./../RelayProvider_returnsTrue'),
-  "__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1__skipUsername": require('./../RelayProvider_returnsTrue')
+  "__pv__RelayProvider_returnsTrue": require('./../RelayProvider_returnsTrue')
 };
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -95,12 +91,7 @@ return {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1__includeName"
-      },
-      {
-        "defaultValue": null,
-        "kind": "LocalArgument",
-        "name": "__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1__skipUsername"
+        "name": "__pv__RelayProvider_returnsTrue"
       }
     ],
     "kind": "Operation",
@@ -150,7 +141,7 @@ return {
                 "storageKey": null
               },
               {
-                "condition": "__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1__includeName",
+                "condition": "__pv__RelayProvider_returnsTrue",
                 "kind": "Condition",
                 "passingValue": true,
                 "selections": [
@@ -164,7 +155,7 @@ return {
                 ]
               },
               {
-                "condition": "__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1__skipUsername",
+                "condition": "__pv__RelayProvider_returnsTrue",
                 "kind": "Condition",
                 "passingValue": false,
                 "selections": [
@@ -187,15 +178,14 @@ return {
     ]
   },
   "params": {
-    "cacheID": "941bfc8da727943f617f0ada2c771519",
+    "cacheID": "6adc14d68e2637d9e6b0a5c7c3a0e489",
     "id": null,
     "metadata": {},
     "name": "RelayModernEnvironmentExecuteWithProvidedVariableTest_UserArgSingleFragmentQuery",
     "operationKind": "query",
-    "text": "query RelayModernEnvironmentExecuteWithProvidedVariableTest_UserArgSingleFragmentQuery(\n  $id: ID!\n  $__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1__includeName: Boolean!\n  $__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1__skipUsername: Boolean!\n) {\n  node(id: $id) {\n    __typename\n    ...RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1\n    id\n  }\n}\n\nfragment RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1 on User {\n  id\n  name @include(if: $__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1__includeName)\n  username @skip(if: $__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1__skipUsername)\n  profilePicture {\n    uri\n  }\n}\n",
+    "text": "query RelayModernEnvironmentExecuteWithProvidedVariableTest_UserArgSingleFragmentQuery(\n  $id: ID!\n  $__pv__RelayProvider_returnsTrue: Boolean!\n) {\n  node(id: $id) {\n    __typename\n    ...RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1\n    id\n  }\n}\n\nfragment RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1 on User {\n  id\n  name @include(if: $__pv__RelayProvider_returnsTrue)\n  username @skip(if: $__pv__RelayProvider_returnsTrue)\n  profilePicture {\n    uri\n  }\n}\n",
     "providedVariables": {
-      "__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1__includeName": require('./../RelayProvider_returnsTrue'),
-      "__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1__skipUsername": require('./../RelayProvider_returnsTrue')
+      "__pv__RelayProvider_returnsTrue": require('./../RelayProvider_returnsTrue')
     }
   }
 };

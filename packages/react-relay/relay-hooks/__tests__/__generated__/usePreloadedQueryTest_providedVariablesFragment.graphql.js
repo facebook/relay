@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<fec06091ef132b6fd9d04a5fbdb49e55>>
+ * @generated SignedSource<<1ee8a299294beed1fdf641c4695dcde5>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -34,31 +34,28 @@ export type usePreloadedQueryTest_providedVariablesFragment$key = {
 };
 */
 
-var node/*: ReaderFragment*/ = {
+var node/*: ReaderFragment*/ = (function(){
+var v0 = {
+  "kind": "RootArgument",
+  "name": "__pv__RelayProvider_returnsFalse"
+},
+v1 = {
+  "kind": "RootArgument",
+  "name": "__pv__RelayProvider_returnsTrue"
+};
+return {
   "argumentDefinitions": [
-    {
-      "kind": "RootArgument",
-      "name": "__usePreloadedQueryTest_providedVariablesFragment__includeFirstName"
-    },
-    {
-      "kind": "RootArgument",
-      "name": "__usePreloadedQueryTest_providedVariablesFragment__includeName"
-    },
-    {
-      "kind": "RootArgument",
-      "name": "__usePreloadedQueryTest_providedVariablesFragment__skipLastName"
-    },
-    {
-      "kind": "RootArgument",
-      "name": "__usePreloadedQueryTest_providedVariablesFragment__skipUsername"
-    }
+    (v0/*: any*/),
+    (v0/*: any*/),
+    (v1/*: any*/),
+    (v1/*: any*/)
   ],
   "kind": "Fragment",
   "metadata": null,
   "name": "usePreloadedQueryTest_providedVariablesFragment",
   "selections": [
     {
-      "condition": "__usePreloadedQueryTest_providedVariablesFragment__includeName",
+      "condition": "__pv__RelayProvider_returnsTrue",
       "kind": "Condition",
       "passingValue": true,
       "selections": [
@@ -72,7 +69,7 @@ var node/*: ReaderFragment*/ = {
       ]
     },
     {
-      "condition": "__usePreloadedQueryTest_providedVariablesFragment__includeFirstName",
+      "condition": "__pv__RelayProvider_returnsFalse",
       "kind": "Condition",
       "passingValue": true,
       "selections": [
@@ -86,7 +83,7 @@ var node/*: ReaderFragment*/ = {
       ]
     },
     {
-      "condition": "__usePreloadedQueryTest_providedVariablesFragment__skipLastName",
+      "condition": "__pv__RelayProvider_returnsFalse",
       "kind": "Condition",
       "passingValue": false,
       "selections": [
@@ -100,7 +97,7 @@ var node/*: ReaderFragment*/ = {
       ]
     },
     {
-      "condition": "__usePreloadedQueryTest_providedVariablesFragment__skipUsername",
+      "condition": "__pv__RelayProvider_returnsTrue",
       "kind": "Condition",
       "passingValue": false,
       "selections": [
@@ -117,6 +114,7 @@ var node/*: ReaderFragment*/ = {
   "type": "User",
   "abstractKey": null
 };
+})();
 
 if (__DEV__) {
   (node/*: any*/).hash = "e02ef8920fcd8c557fdf776afe9df5e5";

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<44f8133e05cc96e47311baa8c702ed74>>
+ * @generated SignedSource<<df6398f2d588beab0999d4a77fb27b77>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -33,26 +33,18 @@ export type usePreloadedQueryTest_providedVariablesQuery = {|
   response: usePreloadedQueryTest_providedVariablesQuery$data,
 |};
 type ProvidedVariableProviderType = {|
-  +__usePreloadedQueryTest_providedVariablesFragment__includeName: {|
+  +__pv__RelayProvider_returnsTrue: {|
     +get: () => boolean,
   |},
-  +__usePreloadedQueryTest_providedVariablesFragment__includeFirstName: {|
-    +get: () => boolean,
-  |},
-  +__usePreloadedQueryTest_providedVariablesFragment__skipLastName: {|
-    +get: () => boolean,
-  |},
-  +__usePreloadedQueryTest_providedVariablesFragment__skipUsername: {|
+  +__pv__RelayProvider_returnsFalse: {|
     +get: () => boolean,
   |},
 |};
 */
 
 var providedVariableProviders/*: ProvidedVariableProviderType*/ = {
-  "__usePreloadedQueryTest_providedVariablesFragment__includeName": require('./../RelayProvider_returnsTrue'),
-  "__usePreloadedQueryTest_providedVariablesFragment__includeFirstName": require('./../RelayProvider_returnsFalse'),
-  "__usePreloadedQueryTest_providedVariablesFragment__skipLastName": require('./../RelayProvider_returnsFalse'),
-  "__usePreloadedQueryTest_providedVariablesFragment__skipUsername": require('./../RelayProvider_returnsTrue')
+  "__pv__RelayProvider_returnsTrue": require('./../RelayProvider_returnsTrue'),
+  "__pv__RelayProvider_returnsFalse": require('./../RelayProvider_returnsFalse')
 };
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -112,22 +104,12 @@ return {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "__usePreloadedQueryTest_providedVariablesFragment__includeName"
+        "name": "__pv__RelayProvider_returnsTrue"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "__usePreloadedQueryTest_providedVariablesFragment__includeFirstName"
-      },
-      {
-        "defaultValue": null,
-        "kind": "LocalArgument",
-        "name": "__usePreloadedQueryTest_providedVariablesFragment__skipLastName"
-      },
-      {
-        "defaultValue": null,
-        "kind": "LocalArgument",
-        "name": "__usePreloadedQueryTest_providedVariablesFragment__skipUsername"
+        "name": "__pv__RelayProvider_returnsFalse"
       }
     ],
     "kind": "Operation",
@@ -153,7 +135,7 @@ return {
             "kind": "InlineFragment",
             "selections": [
               {
-                "condition": "__usePreloadedQueryTest_providedVariablesFragment__includeName",
+                "condition": "__pv__RelayProvider_returnsTrue",
                 "kind": "Condition",
                 "passingValue": true,
                 "selections": [
@@ -167,7 +149,7 @@ return {
                 ]
               },
               {
-                "condition": "__usePreloadedQueryTest_providedVariablesFragment__includeFirstName",
+                "condition": "__pv__RelayProvider_returnsFalse",
                 "kind": "Condition",
                 "passingValue": true,
                 "selections": [
@@ -181,7 +163,7 @@ return {
                 ]
               },
               {
-                "condition": "__usePreloadedQueryTest_providedVariablesFragment__skipLastName",
+                "condition": "__pv__RelayProvider_returnsFalse",
                 "kind": "Condition",
                 "passingValue": false,
                 "selections": [
@@ -195,7 +177,7 @@ return {
                 ]
               },
               {
-                "condition": "__usePreloadedQueryTest_providedVariablesFragment__skipUsername",
+                "condition": "__pv__RelayProvider_returnsTrue",
                 "kind": "Condition",
                 "passingValue": false,
                 "selections": [
@@ -218,17 +200,15 @@ return {
     ]
   },
   "params": {
-    "cacheID": "5ceb19084ab05ed806a5e5cf7b68f006",
+    "cacheID": "4d62a684b434350a0586950383207568",
     "id": null,
     "metadata": {},
     "name": "usePreloadedQueryTest_providedVariablesQuery",
     "operationKind": "query",
-    "text": "query usePreloadedQueryTest_providedVariablesQuery(\n  $id: ID!\n  $__usePreloadedQueryTest_providedVariablesFragment__includeName: Boolean!\n  $__usePreloadedQueryTest_providedVariablesFragment__includeFirstName: Boolean!\n  $__usePreloadedQueryTest_providedVariablesFragment__skipLastName: Boolean!\n  $__usePreloadedQueryTest_providedVariablesFragment__skipUsername: Boolean!\n) {\n  node(id: $id) {\n    __typename\n    id\n    ...usePreloadedQueryTest_providedVariablesFragment\n  }\n}\n\nfragment usePreloadedQueryTest_providedVariablesFragment on User {\n  name @include(if: $__usePreloadedQueryTest_providedVariablesFragment__includeName)\n  firstName @include(if: $__usePreloadedQueryTest_providedVariablesFragment__includeFirstName)\n  lastName @skip(if: $__usePreloadedQueryTest_providedVariablesFragment__skipLastName)\n  username @skip(if: $__usePreloadedQueryTest_providedVariablesFragment__skipUsername)\n}\n",
+    "text": "query usePreloadedQueryTest_providedVariablesQuery(\n  $id: ID!\n  $__pv__RelayProvider_returnsTrue: Boolean!\n  $__pv__RelayProvider_returnsFalse: Boolean!\n) {\n  node(id: $id) {\n    __typename\n    id\n    ...usePreloadedQueryTest_providedVariablesFragment\n  }\n}\n\nfragment usePreloadedQueryTest_providedVariablesFragment on User {\n  name @include(if: $__pv__RelayProvider_returnsTrue)\n  firstName @include(if: $__pv__RelayProvider_returnsFalse)\n  lastName @skip(if: $__pv__RelayProvider_returnsFalse)\n  username @skip(if: $__pv__RelayProvider_returnsTrue)\n}\n",
     "providedVariables": {
-      "__usePreloadedQueryTest_providedVariablesFragment__includeName": require('./../RelayProvider_returnsTrue'),
-      "__usePreloadedQueryTest_providedVariablesFragment__includeFirstName": require('./../RelayProvider_returnsFalse'),
-      "__usePreloadedQueryTest_providedVariablesFragment__skipLastName": require('./../RelayProvider_returnsFalse'),
-      "__usePreloadedQueryTest_providedVariablesFragment__skipUsername": require('./../RelayProvider_returnsTrue')
+      "__pv__RelayProvider_returnsTrue": require('./../RelayProvider_returnsTrue'),
+      "__pv__RelayProvider_returnsFalse": require('./../RelayProvider_returnsFalse')
     }
   }
 };

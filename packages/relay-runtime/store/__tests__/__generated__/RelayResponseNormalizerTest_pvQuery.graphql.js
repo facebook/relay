@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<c3cdad8d07f0ed3230794f9b7f541491>>
+ * @generated SignedSource<<7be6a3ee0ef7013db9fb44a9996703f4>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -33,26 +33,18 @@ export type RelayResponseNormalizerTest_pvQuery = {|
   response: RelayResponseNormalizerTest_pvQuery$data,
 |};
 type ProvidedVariableProviderType = {|
-  +__RelayResponseNormalizerTest_pvFragment__includeName: {|
+  +__pv__RelayProvider_returnsTrue: {|
     +get: () => boolean,
   |},
-  +__RelayResponseNormalizerTest_pvFragment__includeFirstName: {|
-    +get: () => boolean,
-  |},
-  +__RelayResponseNormalizerTest_pvFragment__skipLastName: {|
-    +get: () => boolean,
-  |},
-  +__RelayResponseNormalizerTest_pvFragment__skipUsername: {|
+  +__pv__RelayProvider_returnsFalse: {|
     +get: () => boolean,
   |},
 |};
 */
 
 var providedVariableProviders/*: ProvidedVariableProviderType*/ = {
-  "__RelayResponseNormalizerTest_pvFragment__includeName": require('./../RelayProvider_returnsTrue'),
-  "__RelayResponseNormalizerTest_pvFragment__includeFirstName": require('./../RelayProvider_returnsFalse'),
-  "__RelayResponseNormalizerTest_pvFragment__skipLastName": require('./../RelayProvider_returnsFalse'),
-  "__RelayResponseNormalizerTest_pvFragment__skipUsername": require('./../RelayProvider_returnsTrue')
+  "__pv__RelayProvider_returnsTrue": require('./../RelayProvider_returnsTrue'),
+  "__pv__RelayProvider_returnsFalse": require('./../RelayProvider_returnsFalse')
 };
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -112,22 +104,12 @@ return {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "__RelayResponseNormalizerTest_pvFragment__includeName"
+        "name": "__pv__RelayProvider_returnsTrue"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "__RelayResponseNormalizerTest_pvFragment__includeFirstName"
-      },
-      {
-        "defaultValue": null,
-        "kind": "LocalArgument",
-        "name": "__RelayResponseNormalizerTest_pvFragment__skipLastName"
-      },
-      {
-        "defaultValue": null,
-        "kind": "LocalArgument",
-        "name": "__RelayResponseNormalizerTest_pvFragment__skipUsername"
+        "name": "__pv__RelayProvider_returnsFalse"
       }
     ],
     "kind": "Operation",
@@ -153,7 +135,7 @@ return {
             "kind": "InlineFragment",
             "selections": [
               {
-                "condition": "__RelayResponseNormalizerTest_pvFragment__includeName",
+                "condition": "__pv__RelayProvider_returnsTrue",
                 "kind": "Condition",
                 "passingValue": true,
                 "selections": [
@@ -167,7 +149,7 @@ return {
                 ]
               },
               {
-                "condition": "__RelayResponseNormalizerTest_pvFragment__includeFirstName",
+                "condition": "__pv__RelayProvider_returnsFalse",
                 "kind": "Condition",
                 "passingValue": true,
                 "selections": [
@@ -181,7 +163,7 @@ return {
                 ]
               },
               {
-                "condition": "__RelayResponseNormalizerTest_pvFragment__skipLastName",
+                "condition": "__pv__RelayProvider_returnsFalse",
                 "kind": "Condition",
                 "passingValue": false,
                 "selections": [
@@ -195,7 +177,7 @@ return {
                 ]
               },
               {
-                "condition": "__RelayResponseNormalizerTest_pvFragment__skipUsername",
+                "condition": "__pv__RelayProvider_returnsTrue",
                 "kind": "Condition",
                 "passingValue": false,
                 "selections": [
@@ -218,17 +200,15 @@ return {
     ]
   },
   "params": {
-    "cacheID": "e5244df351ec7c418a4e2311541dd355",
+    "cacheID": "46023d6a89cb46677c25f7c7194b7167",
     "id": null,
     "metadata": {},
     "name": "RelayResponseNormalizerTest_pvQuery",
     "operationKind": "query",
-    "text": "query RelayResponseNormalizerTest_pvQuery(\n  $id: ID!\n  $__RelayResponseNormalizerTest_pvFragment__includeName: Boolean!\n  $__RelayResponseNormalizerTest_pvFragment__includeFirstName: Boolean!\n  $__RelayResponseNormalizerTest_pvFragment__skipLastName: Boolean!\n  $__RelayResponseNormalizerTest_pvFragment__skipUsername: Boolean!\n) {\n  node(id: $id) {\n    __typename\n    id\n    ...RelayResponseNormalizerTest_pvFragment\n  }\n}\n\nfragment RelayResponseNormalizerTest_pvFragment on User {\n  name @include(if: $__RelayResponseNormalizerTest_pvFragment__includeName)\n  firstName @include(if: $__RelayResponseNormalizerTest_pvFragment__includeFirstName)\n  lastName @skip(if: $__RelayResponseNormalizerTest_pvFragment__skipLastName)\n  username @skip(if: $__RelayResponseNormalizerTest_pvFragment__skipUsername)\n}\n",
+    "text": "query RelayResponseNormalizerTest_pvQuery(\n  $id: ID!\n  $__pv__RelayProvider_returnsTrue: Boolean!\n  $__pv__RelayProvider_returnsFalse: Boolean!\n) {\n  node(id: $id) {\n    __typename\n    id\n    ...RelayResponseNormalizerTest_pvFragment\n  }\n}\n\nfragment RelayResponseNormalizerTest_pvFragment on User {\n  name @include(if: $__pv__RelayProvider_returnsTrue)\n  firstName @include(if: $__pv__RelayProvider_returnsFalse)\n  lastName @skip(if: $__pv__RelayProvider_returnsFalse)\n  username @skip(if: $__pv__RelayProvider_returnsTrue)\n}\n",
     "providedVariables": {
-      "__RelayResponseNormalizerTest_pvFragment__includeName": require('./../RelayProvider_returnsTrue'),
-      "__RelayResponseNormalizerTest_pvFragment__includeFirstName": require('./../RelayProvider_returnsFalse'),
-      "__RelayResponseNormalizerTest_pvFragment__skipLastName": require('./../RelayProvider_returnsFalse'),
-      "__RelayResponseNormalizerTest_pvFragment__skipUsername": require('./../RelayProvider_returnsTrue')
+      "__pv__RelayProvider_returnsTrue": require('./../RelayProvider_returnsTrue'),
+      "__pv__RelayProvider_returnsFalse": require('./../RelayProvider_returnsFalse')
     }
   }
 };

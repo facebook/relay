@@ -6,17 +6,18 @@
  */
 
 use crate::util::format_provided_variable_name;
-use common::{NamedItem, WithLocation};
+use common::{Named, NamedItem, WithLocation};
+use fnv::FnvHashMap;
 use graphql_ir::{
     FragmentDefinition, Program, ProvidedVariableMetadata, Transformed, TransformedValue,
     Transformer, Variable, VariableDefinition,
 };
-use intern::string_key::{StringKey, StringKeySet};
+use intern::string_key::StringKey;
 use itertools::Itertools;
 
 /// This transform applies provided variables in each fragment.
 ///  - Rename all uses of provided variables (in values)
-///     [provided_variable_name] --> __[fragment_name]__[provided_variable_name]
+///     [provided_variable_name] --> __pv__[module_name]
 ///  - Remove provided variables from (local) argument definitions
 ///  - Add provided variables to list of used global variables
 /// apply_fragment_arguments depends on provide_variable_fragment_transform
@@ -28,14 +29,14 @@ pub fn provided_variable_fragment_transform(program: &Program) -> Program {
 }
 
 struct ProvidedVariableFragmentTransform {
-    // stack of (fragment_name: string, provider_names: set<string>)
-    in_scope_providers: Option<(StringKey, StringKeySet)>,
+    // fragment local identifier --> transformed_identifier
+    in_scope_providers: FnvHashMap<StringKey, StringKey>,
 }
 
 impl ProvidedVariableFragmentTransform {
     fn new() -> Self {
         ProvidedVariableFragmentTransform {
-            in_scope_providers: None,
+            in_scope_providers: Default::default(),
         }
     }
 
@@ -55,21 +56,14 @@ impl ProvidedVariableFragmentTransform {
     fn get_global_variables(&self, fragment: &FragmentDefinition) -> Vec<VariableDefinition> {
         let mut new_globals = fragment.used_global_variables.clone();
         new_globals.extend(fragment.variable_definitions.iter().filter_map(|def| {
-            if def
-                .directives
-                .named(ProvidedVariableMetadata::directive_name())
-                .is_some()
-            {
-                Some(VariableDefinition {
-                    name: WithLocation {
-                        item: format_provided_variable_name(fragment.name.item, def.name.item),
-                        location: def.name.location,
-                    },
-                    ..def.clone()
-                })
-            } else {
-                None
-            }
+            let transformed_name = self.in_scope_providers.get(&def.name())?;
+            Some(VariableDefinition {
+                name: WithLocation {
+                    item: *transformed_name,
+                    location: def.name.location,
+                },
+                ..def.clone()
+            })
         }));
         new_globals
     }
@@ -81,18 +75,14 @@ impl<'s> Transformer for ProvidedVariableFragmentTransform {
     const VISIT_DIRECTIVES: bool = false;
 
     fn transform_variable(&mut self, variable: &Variable) -> TransformedValue<Variable> {
-        if let Some((fragment_name, current_fragment_scope)) = &self.in_scope_providers {
-            if current_fragment_scope.contains(&variable.name.item) {
-                TransformedValue::Replace(Variable {
-                    name: WithLocation {
-                        location: variable.name.location,
-                        item: format_provided_variable_name(*fragment_name, variable.name.item),
-                    },
-                    type_: variable.type_.clone(),
-                })
-            } else {
-                TransformedValue::Keep
-            }
+        if let Some(transformed_name) = self.in_scope_providers.get(&variable.name.item) {
+            TransformedValue::Replace(Variable {
+                name: WithLocation {
+                    location: variable.name.location,
+                    item: *transformed_name,
+                },
+                type_: variable.type_.clone(),
+            })
         } else {
             TransformedValue::Keep
         }
@@ -102,25 +92,17 @@ impl<'s> Transformer for ProvidedVariableFragmentTransform {
         &mut self,
         fragment: &FragmentDefinition,
     ) -> Transformed<FragmentDefinition> {
-        let provided_variable_names =
-            StringKeySet::from_iter(fragment.variable_definitions.iter().filter_map(|def| {
-                if def
-                    .directives
-                    .named(ProvidedVariableMetadata::directive_name())
-                    .is_some()
-                {
-                    Some(def.name.item)
-                } else {
-                    None
-                }
-            }));
+        debug_assert!(self.in_scope_providers.is_empty());
+        for def in fragment.variable_definitions.iter() {
+            if let Some(metadata) = ProvidedVariableMetadata::find(&def.directives) {
+                let transformed_name = format_provided_variable_name(metadata.module_name);
+                self.in_scope_providers.insert(def.name(), transformed_name);
+            }
+        }
 
-        debug_assert!(self.in_scope_providers.is_none());
-        if provided_variable_names.is_empty() {
+        if self.in_scope_providers.is_empty() {
             Transformed::Keep
         } else {
-            self.in_scope_providers = Some((fragment.name.item, provided_variable_names));
-
             let selections = self.transform_selections(&fragment.selections);
             let new_fragment = FragmentDefinition {
                 name: fragment.name,
@@ -130,7 +112,7 @@ impl<'s> Transformer for ProvidedVariableFragmentTransform {
                 directives: fragment.directives.clone(),
                 selections: selections.replace_or_else(|| fragment.selections.clone()),
             };
-            self.in_scope_providers = None;
+            self.in_scope_providers.clear();
             Transformed::Replace(new_fragment)
         }
     }

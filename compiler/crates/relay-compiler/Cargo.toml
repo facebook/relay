@@ -25,7 +25,6 @@ common = { path = "../common" }
 common-path = "1.0.0"
 dashmap = { version = "4.0.2", features = ["rayon", "serde"] }
 dependency-analyzer = { path = "../dependency-analyzer" }
-env_logger = "0.7"
 errors = { path = "../errors" }
 extract-graphql = { path = "../extract-graphql" }
 fnv = "1.0"
@@ -58,6 +57,7 @@ serde_bser = "0.3"
 serde_json = { version = "1.0.64", features = ["float_roundtrip", "unbounded_depth"] }
 sha-1 = "0.8"
 signedsource = { path = "../signedsource" }
+simplelog = "0.11.2"
 structopt = "0.3.23"
 thiserror = "1.0.29"
 tokio = { version = "1.10", features = ["full", "test-util", "tracing"] }

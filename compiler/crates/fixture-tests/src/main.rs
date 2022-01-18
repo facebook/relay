@@ -7,6 +7,7 @@
 
 #![deny(clippy::all)]
 
+use clap::Parser;
 use colored::Colorize;
 use signedsource::{sign_file, SIGNING_TOKEN};
 use std::collections::HashMap;
@@ -14,12 +15,13 @@ use std::fs;
 use std::fs::File;
 use std::io::prelude::*;
 use std::path::{Path, PathBuf};
-use structopt::StructOpt;
 
-#[derive(Debug, StructOpt)]
-#[structopt(name = "fixture-tests", about = "Fixture tests")]
+#[derive(Debug, Parser)]
+#[clap(name = "fixture-tests", about = "Generates fixture tests.")]
 struct Options {
-    #[structopt(name = "DIR", parse(from_os_str))]
+    /// List of directories, each should contain a `/fixtures` subdirectory
+    /// from which a test file will be generated
+    #[clap(name = "DIR", parse(from_os_str))]
     dirs: Vec<PathBuf>,
 }
 
@@ -33,7 +35,7 @@ struct TestCase {
 const EXPECTED_EXTENSION: &str = "expected";
 
 fn main() {
-    let opt = Options::from_args();
+    let opt = Options::parse();
 
     for dir in opt.dirs {
         let test_name = dir.file_name().unwrap().to_str().unwrap();

@@ -333,7 +333,7 @@ The server must provide a type called `PageInfo`.
 
 `PageInfo` must contain fields `hasPreviousPage` and `hasNextPage`, both
 of which return non-null booleans.  It must also contain fields `startCursor`
-and `endCursor`, both of which return non-null opaque strings.
+and `endCursor`, both of which return nullable opaque strings.
 
 `hasPreviousPage` is used to indicate whether more edges exist prior to the set
 defined by the clients arguments. If the client is paginating with
@@ -378,6 +378,9 @@ Relay Legacy did not define `startCursor` and `endCursor`, and relied on
 selecting the `cursor` of each edge; Relay Modern began selecting
 `startCursor` and `endCursor` instead to save bandwidth (since it doesn't use any
 cursors in between).
+
+In the event that edges is an empty array, `PageInfo` must still return, with the
+`startCursor` and `endCursor` nulled repectivly.
 
 ## Introspection
 

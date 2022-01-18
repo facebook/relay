@@ -7,7 +7,7 @@ query TestQuery($id: ID) {
 fragment Profile on User
     @argumentDefinitions(
     get_friends: {type: "Boolean!", defaultValue: false}
-    foo_gk: {type: "Boolean!", provider: "foo_gk_module.js"})
+    foo_gk: {type: "Boolean!", provider: "fooGKProvider"})
 {
     name @include(if: $foo_gk)
     friends(first: 10) @include(if: $get_friends) {

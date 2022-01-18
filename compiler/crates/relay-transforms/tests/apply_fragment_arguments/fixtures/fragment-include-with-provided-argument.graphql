@@ -6,7 +6,7 @@ query TestQuery($id: ID!) {
 }
 
 fragment TestFragment on User
-  @argumentDefinitions(foo_gk: {type: "Boolean!", provider: "foo_gk_module.js"})
+  @argumentDefinitions(foo_gk: {type: "Boolean!", provider: "fooGKProvider"})
 {
     name @include(if: $foo_gk)
 }

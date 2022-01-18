@@ -7,7 +7,7 @@ query TestQuery($id: ID!) {
 }
 
 fragment TestFragment on User
-  @argumentDefinitions(foo_gk: {type: "Boolean!", provider: "foo_gk_module.js"})
+  @argumentDefinitions(foo_gk: {type: "Boolean!", provider: "fooGKProvider"})
 {
     name @include(if: $foo_gk)
 }
@@ -16,7 +16,7 @@ query TestQuery(
   $id: ID!
   $__TestFragment__foo_gk: Boolean! @__ProvidedVariableMetadata
   # ProvidedVariableMetadata {
-  #     module_name: "foo_gk_module.js",
+  #     module_name: "fooGKProvider",
   # }
   
 ) {

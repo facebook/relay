@@ -8,7 +8,7 @@ query TestQuery($id: ID) {
 fragment Profile on User
     @argumentDefinitions(
     get_friends: {type: "Boolean!", defaultValue: false}
-    foo_gk: {type: "Boolean!", provider: "foo_gk_module.js"})
+    foo_gk: {type: "Boolean!", provider: "fooGKProvider"})
 {
     name @include(if: $foo_gk)
     friends(first: 10) @include(if: $get_friends) {
@@ -24,7 +24,7 @@ query TestQuery(
   $id: ID
   $__Profile__foo_gk: Boolean! @__ProvidedVariableMetadata
   # ProvidedVariableMetadata {
-  #     module_name: "foo_gk_module.js",
+  #     module_name: "fooGKProvider",
   # }
   
 ) {

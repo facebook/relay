@@ -5,15 +5,19 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::cmp::Reverse;
+
 use crate::util::format_provided_variable_name;
-use common::{Diagnostic, DiagnosticsResult, Named, NamedItem, WithLocation};
+use common::{Diagnostic, DiagnosticsResult, Location, Named, NamedItem, WithLocation};
 use fnv::FnvHashMap;
 use graphql_ir::{
     FragmentDefinition, Program, ProvidedVariableMetadata, Transformed, TransformedValue,
     Transformer, Variable, VariableDefinition,
 };
-use intern::string_key::StringKey;
+use intern::string_key::{Intern, StringKey};
 use itertools::Itertools;
+use schema::{SDLSchema, Schema, TypeReference};
+use thiserror::Error;
 
 /// This transform applies provided variables in each fragment.
 ///  - Rename all uses of provided variables (in values)
@@ -22,29 +26,125 @@ use itertools::Itertools;
 ///  - Add provided variables to list of used global variables
 /// apply_fragment_arguments depends on provide_variable_fragment_transform
 pub fn provided_variable_fragment_transform(program: &Program) -> DiagnosticsResult<Program> {
-    let mut transform = ProvidedVariableFragmentTransform::new();
+    let mut transform = ProvidedVariableFragmentTransform::new(&*program.schema);
     let program = transform
         .transform_program(program)
         .replace_or_else(|| program.clone());
-    if !transform.errors.is_empty() {
-        Err(transform.errors)
-    } else {
+
+    let errors = transform.get_errors();
+    if errors.is_empty() {
         Ok(program)
+    } else {
+        Err(errors)
     }
 }
 
-struct ProvidedVariableFragmentTransform {
-    errors: Vec<Diagnostic>,
-    // fragment local identifier --> transformed_identifier
+struct ProvidedVariableDefinitions {
+    // Different (module name, variable type) tuples give conflicting
+    //  provided variable definitions.
+    // We need to keep track of usages under each definition for stable
+    //  error reporting.
+    usages_map: FnvHashMap<(StringKey, TypeReference), Vec<Location>>,
+}
+
+impl ProvidedVariableDefinitions {
+    fn new() -> ProvidedVariableDefinitions {
+        ProvidedVariableDefinitions {
+            usages_map: Default::default(),
+        }
+    }
+    fn add(&mut self, module_name: StringKey, variable_def: &VariableDefinition) {
+        let usages = self
+            .usages_map
+            .entry((module_name, variable_def.type_.clone()))
+            .or_insert_with(Vec::new);
+        usages.push(variable_def.name.location);
+    }
+
+
+    fn get_errors(&self, schema: &SDLSchema, errors: &mut Vec<Diagnostic>) {
+        if self.usages_map.len() > 1 {
+            // The most frequently used definition is likely the intended one
+            // Tie break by string ordering of module + type name
+            let ((most_used_module, most_used_type), _) = self
+                .usages_map
+                .iter()
+                .max_by_key(|((module, type_), usages)| {
+                    (
+                        usages.len(),
+                        Reverse((module, schema.get_type_string(type_))),
+                    )
+                })
+                .unwrap();
+
+            for ((other_module, other_type), other_usages) in self.usages_map.iter() {
+                if other_module != most_used_module {
+                    for usage in other_usages {
+                        errors.push(Diagnostic::error(
+                            ValidationMessage::ProvidedVariableConflictingModuleNames {
+                                module1: *most_used_module,
+                                module2: *other_module,
+                            },
+                            *usage,
+                        ));
+                    }
+                }
+
+                if other_type != most_used_type {
+                    for usage in other_usages {
+                        errors.push(Diagnostic::error(
+                            ValidationMessage::ProvidedVariableConflictingTypes {
+                                module: *most_used_module,
+                                existing_type: schema.get_type_string(most_used_type).intern(),
+                                new_type: schema.get_type_string(other_type).intern(),
+                            },
+                            *usage,
+                        ));
+                    }
+                }
+            }
+        }
+    }
+}
+
+struct ProvidedVariableFragmentTransform<'schema> {
+    schema: &'schema SDLSchema,
+    all_provided_variables: FnvHashMap<StringKey, ProvidedVariableDefinitions>,
+    // fragment local identifier --> transformed identifier
     in_scope_providers: FnvHashMap<StringKey, StringKey>,
 }
 
-impl ProvidedVariableFragmentTransform {
-    fn new() -> Self {
+impl<'schema> ProvidedVariableFragmentTransform<'schema> {
+    fn new(schema: &'schema SDLSchema) -> Self {
         ProvidedVariableFragmentTransform {
-            errors: Vec::new(),
+            schema,
+            all_provided_variables: Default::default(),
             in_scope_providers: Default::default(),
         }
+    }
+
+
+    fn get_errors(&self) -> Vec<Diagnostic> {
+        let mut errors = Vec::new();
+
+        for (_, def) in self.all_provided_variables.iter() {
+            def.get_errors(self.schema, &mut errors);
+        }
+        errors
+    }
+
+    fn add_provided_variable(
+        &mut self,
+        transformed_name: StringKey,
+        module_name: StringKey,
+        variable_def: &VariableDefinition,
+    ) {
+        let usages = self
+            .all_provided_variables
+            .entry(transformed_name)
+            .or_insert_with(ProvidedVariableDefinitions::new);
+
+        usages.add(module_name, variable_def);
     }
 
     fn get_variable_definitions(&self, fragment: &FragmentDefinition) -> Vec<VariableDefinition> {
@@ -76,7 +176,7 @@ impl ProvidedVariableFragmentTransform {
     }
 }
 
-impl<'s> Transformer for ProvidedVariableFragmentTransform {
+impl<'schema> Transformer for ProvidedVariableFragmentTransform<'schema> {
     const NAME: &'static str = "ApplyFragmentProvidedVariables";
     const VISIT_ARGUMENTS: bool = true;
     const VISIT_DIRECTIVES: bool = false;
@@ -104,6 +204,7 @@ impl<'s> Transformer for ProvidedVariableFragmentTransform {
             if let Some(metadata) = ProvidedVariableMetadata::find(&def.directives) {
                 let transformed_name = format_provided_variable_name(metadata.module_name);
                 self.in_scope_providers.insert(def.name(), transformed_name);
+                self.add_provided_variable(transformed_name, metadata.module_name, def);
             }
         }
 
@@ -123,4 +224,24 @@ impl<'s> Transformer for ProvidedVariableFragmentTransform {
             Transformed::Replace(new_fragment)
         }
     }
+}
+
+#[derive(Debug, Error)]
+enum ValidationMessage {
+    #[error(
+        "Modules '{module1}' and '{module2}' used by provided variables have indistinguishable names. (All non ascii-alphanumeric characters are stripped in Relay transform)"
+    )]
+    ProvidedVariableConflictingModuleNames {
+        module1: StringKey,
+        module2: StringKey,
+    },
+
+    #[error(
+        "All provided variables using module '{module}' must declare the same type. Expected '{existing_type}' but found '{new_type}'"
+    )]
+    ProvidedVariableConflictingTypes {
+        module: StringKey,
+        existing_type: StringKey,
+        new_type: StringKey,
+    },
 }

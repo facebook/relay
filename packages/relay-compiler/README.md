@@ -109,5 +109,9 @@ when you need to run the compiler.
 - `--schema`            Relative path to schema file.
 - `--artifactDirectory` Compiler output directory.
 - `--repersist`         Run the persister even if the query has not changed.
-- `--watch`             Run compiler in `watch` mode
-(requires [`watchman`](https://facebook.github.io/watchman/) to be installed).
+- `--watch`             Run compiler in `watch` mode.
+                        Requires
+                        [`watchman`](https://facebook.github.io/watchman/) to be installed.
+- `--output`            Output format of the compiler. Supported options:
+                        `debug` | `verbose` | `quiet` | `quietWithErrors`.
+                        The default value is `verbose`.

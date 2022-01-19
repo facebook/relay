@@ -6,22 +6,21 @@
  */
 
 use common::ConsoleLogger;
-use env_logger::Env;
-use log::{error, info, Level};
+use log::{error, info};
 use relay_compiler::{
     compiler::Compiler,
     config::{Config, SingleProjectConfigFile},
     FileSourceKind, RemotePersister,
 };
 use relay_typegen::TypegenLanguage;
-use std::io::Write;
+use simplelog::{ColorChoice, ConfigBuilder, LevelFilter, TermLogger, TerminalMode};
 use std::{
     env::{self, current_dir},
     path::PathBuf,
     process::Command,
     sync::Arc,
 };
-use structopt::StructOpt;
+use structopt::{clap::arg_enum, StructOpt};
 
 #[derive(StructOpt)]
 #[structopt(
@@ -45,6 +44,19 @@ struct Opt {
     /// Run the persister even if the query has not changed.
     #[structopt(long)]
     repersist: bool,
+
+    /// Verbosity level
+    #[structopt(long, possible_values = &OutputKind::variants(), case_insensitive = true, default_value = "verbose")]
+    output: OutputKind,
+}
+
+arg_enum! {
+    enum OutputKind {
+        Debug,
+        Quiet,
+        QuietWithErrors,
+        Verbose,
+    }
 }
 
 #[derive(StructOpt)]
@@ -81,18 +93,23 @@ impl From<CliConfig> for SingleProjectConfigFile {
 
 #[tokio::main]
 async fn main() {
-    env_logger::Builder::from_env(Env::default().default_filter_or("info"))
-        .format(|buf, record| {
-            let style = buf.default_level_style(record.level());
-            if record.level() == Level::Info {
-                writeln!(buf, "{}", record.args())
-            } else {
-                writeln!(buf, "[{}] {}", style.value(record.level()), record.args())
-            }
-        })
-        .init();
-
     let opt = Opt::from_args();
+
+    let log_level = match opt.output {
+        OutputKind::Debug => LevelFilter::Debug,
+        OutputKind::Quiet => LevelFilter::Off,
+        OutputKind::QuietWithErrors => LevelFilter::Error,
+        OutputKind::Verbose => LevelFilter::Info,
+    };
+
+    let config = ConfigBuilder::new()
+        .set_time_level(LevelFilter::Off)
+        .set_target_level(LevelFilter::Off)
+        .set_location_level(LevelFilter::Off)
+        .set_thread_level(LevelFilter::Off)
+        .build();
+
+    TermLogger::init(log_level, config, TerminalMode::Mixed, ColorChoice::Auto).unwrap();
 
     let config_result = if let Some(config_path) = opt.config {
         Config::load(config_path)

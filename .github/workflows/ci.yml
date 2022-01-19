@@ -83,10 +83,12 @@ jobs:
     strategy:
       matrix:
         target:
-          - target: x86_64-unknown-linux-gnu
+          - target: x86_64-unknown-linux-musl
             os: ubuntu-latest
             build-name: relay
             artifact-name: relay-compiler-linux-x64
+            packages: musl-tools
+            features: vendored
           - target: x86_64-apple-darwin
             os: macos-latest
             build-name: relay
@@ -120,11 +122,14 @@ jobs:
         run: yarn gulp setCompilerMainVersion
         env:
           RELEASE_COMMIT_SHA: ${{ github.sha }}
+      - name: Install packages
+        if: matrix.target.os == 'ubuntu-latest' && matrix.target.packages
+        run: sudo apt install ${{ matrix.target.packages }} -y
       - uses: actions-rs/cargo@v1
         with:
           command: build
           # add --locked back when we have a better way to ensure it's up to date
-          args: --manifest-path=compiler/Cargo.toml --release --target ${{ matrix.target.target }}
+          args: --manifest-path=compiler/Cargo.toml --release --target ${{ matrix.target.target }} ${{ matrix.target.features && '--features' }} ${{ matrix.target.features }}
       - uses: actions/upload-artifact@v2
         with:
           name: ${{ matrix.target.artifact-name }}

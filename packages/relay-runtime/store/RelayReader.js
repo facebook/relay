@@ -483,8 +483,7 @@ class RelayReader {
         if (!RelayFeatureFlags.ENABLE_RELAY_RESOLVERS) {
           throw new Error('Relay Resolver fields are not yet supported.');
         }
-        this._readResolverField(selection.field, record, data);
-        break;
+        return this._readResolverField(selection.field, record, data);
       default:
         (selection.field.kind: empty);
         invariant(
@@ -499,7 +498,7 @@ class RelayReader {
     field: ReaderRelayResolver,
     record: Record,
     data: SelectorData,
-  ): void {
+  ): mixed {
     const {resolverModule, fragment} = field;
     const storageKey = getStorageKey(field, this._variables);
     const resolverID = ClientID.generateClientID(
@@ -575,6 +574,7 @@ class RelayReader {
 
     const applicationName = field.alias ?? field.name;
     data[applicationName] = result;
+    return result;
   }
 
   _readClientEdge(

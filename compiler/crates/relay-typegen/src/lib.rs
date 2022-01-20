@@ -310,7 +310,7 @@ impl<'a> TypeGenerator<'a> {
             )?;
         };
 
-        match self.flow_typegen_phase {
+        let operation_types = match self.flow_typegen_phase {
             FlowTypegenPhase::Compat => {
                 let mut operation_types = vec![
                     Prop::KeyValuePair(KeyValuePairProp {
@@ -353,12 +353,24 @@ impl<'a> TypeGenerator<'a> {
                     }));
                 }
 
-                self.writer.write_export_type(
-                    typegen_operation.name.item.lookup(),
-                    &AST::ExactObject(operation_types),
-                )?;
+                operation_types
             }
             FlowTypegenPhase::Final => {
+                let mut operation_types = vec![
+                    Prop::KeyValuePair(KeyValuePairProp {
+                        key: *VARIABLES,
+                        read_only: false,
+                        optional: false,
+                        value: AST::Identifier(variables_identifier_key),
+                    }),
+                    Prop::KeyValuePair(KeyValuePairProp {
+                        key: *RESPONSE,
+                        read_only: false,
+                        optional: false,
+                        value: AST::Identifier(response_identifier_key),
+                    }),
+                ];
+
                 if let Some(raw_response_type) = raw_response_type {
                     for (key, ast) in self.match_fields.iter() {
                         self.writer.write_export_type(key.lookup(), ast)?;
@@ -367,30 +379,22 @@ impl<'a> TypeGenerator<'a> {
                         format!("{}$rawResponse", typegen_operation.name.item);
                     self.writer
                         .write_export_type(&raw_response_identifier, &raw_response_type)?;
+
+                    operation_types.push(Prop::KeyValuePair(KeyValuePairProp {
+                        key: *KEY_RAW_RESPONSE,
+                        read_only: false,
+                        optional: false,
+                        value: AST::Identifier(raw_response_identifier.intern()),
+                    }));
                 }
 
-                if self.typegen_config.language == TypegenLanguage::TypeScript {
-                    let operation_types = vec![
-                        Prop::KeyValuePair(KeyValuePairProp {
-                            key: *VARIABLES,
-                            read_only: false,
-                            optional: false,
-                            value: AST::Identifier(variables_identifier_key),
-                        }),
-                        Prop::KeyValuePair(KeyValuePairProp {
-                            key: *RESPONSE,
-                            read_only: false,
-                            optional: false,
-                            value: AST::Identifier(response_identifier_key),
-                        }),
-                    ];
-                    self.writer.write_export_type(
-                        typegen_operation.name.item.lookup(),
-                        &AST::ExactObject(operation_types),
-                    )?;
-                }
+                operation_types
             }
-        }
+        };
+        self.writer.write_export_type(
+            typegen_operation.name.item.lookup(),
+            &AST::ExactObject(operation_types),
+        )?;
 
         self.generate_provided_variables_type(normalization_operation)?;
         self.is_updatable_operation = false;

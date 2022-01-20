@@ -41,6 +41,10 @@ export type UpdatableQuery$data = {|
   |},
   set me(value: null | void): void,
 |};
+export type UpdatableQuery = {|
+  variables: UpdatableQuery$variables,
+  response: UpdatableQuery$data,
+|};
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";
 declare export opaque type Assignable_node$fragmentType: FragmentType;

@@ -41,6 +41,11 @@ export type ExampleQuery$rawResponse = {|
     +id: string,
   |}),
 |};
+export type ExampleQuery = {|
+  variables: ExampleQuery$variables,
+  response: ExampleQuery$data,
+  rawResponse: ExampleQuery$rawResponse,
+|};
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";
 declare export opaque type FriendFragment$fragmentType: FragmentType;

@@ -44,6 +44,7 @@ export type ExampleQuery$rawResponse = {
 export type ExampleQuery = {
   variables: ExampleQuery$variables;
   response: ExampleQuery$data;
+  rawResponse: ExampleQuery$rawResponse;
 };
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";

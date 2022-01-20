@@ -19,3 +19,8 @@ export type MyQuery$rawResponse = {|
     +name: ?string,
   |},
 |};
+export type MyQuery = {|
+  variables: MyQuery$variables,
+  response: MyQuery$data,
+  rawResponse: MyQuery$rawResponse,
+|};

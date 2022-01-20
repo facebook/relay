@@ -42,3 +42,7 @@ export type CommentCreateMutation$data = {|
     |},
   |},
 |};
+export type CommentCreateMutation = {|
+  variables: CommentCreateMutation$variables,
+  response: CommentCreateMutation$data,
+|};

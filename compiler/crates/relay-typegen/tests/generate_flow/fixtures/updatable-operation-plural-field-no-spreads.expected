@@ -12,3 +12,7 @@ export type UpdatableQuery$data = {|
   |}>,
   set nodes(value: []): void,
 |};
+export type UpdatableQuery = {|
+  variables: UpdatableQuery$variables,
+  response: UpdatableQuery$data,
+|};

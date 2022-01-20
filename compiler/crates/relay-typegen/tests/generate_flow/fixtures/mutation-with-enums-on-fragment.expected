@@ -80,6 +80,11 @@ export type CommentCreateMutation$rawResponse = {|
     |},
   |},
 |};
+export type CommentCreateMutation = {|
+  variables: CommentCreateMutation$variables,
+  response: CommentCreateMutation$data,
+  rawResponse: CommentCreateMutation$rawResponse,
+|};
 -------------------------------------------------------------------------------
 export type TestEnums = "mark" | "zuck" | "%future added value";
 import type { FragmentType } from "relay-runtime";

@@ -22,6 +22,10 @@ export type relayResolver_Query$data = {|
     +pop_star_name: ?$Call<<R>((...empty[]) => R) => R, typeof userPopStarNameResolver>,
   |},
 |};
+export type relayResolver_Query = {|
+  variables: relayResolver_Query$variables,
+  response: relayResolver_Query$data,
+|};
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";
 declare export opaque type relayResolver_PopStarNameResolverFragment_name$fragmentType: FragmentType;

@@ -60,3 +60,8 @@ export type TestDefer$rawResponse = {|
     +id: string,
   |}),
 |};
+export type TestDefer = {|
+  variables: TestDefer$variables,
+  response: TestDefer$data,
+  rawResponse: TestDefer$rawResponse,
+|};

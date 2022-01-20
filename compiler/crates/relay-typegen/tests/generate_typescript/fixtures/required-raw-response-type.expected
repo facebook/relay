@@ -22,4 +22,5 @@ export type MyQuery$rawResponse = {
 export type MyQuery = {
   variables: MyQuery$variables;
   response: MyQuery$data;
+  rawResponse: MyQuery$rawResponse;
 };

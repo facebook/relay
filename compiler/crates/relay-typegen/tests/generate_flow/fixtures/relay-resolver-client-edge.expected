@@ -26,6 +26,10 @@ export type ClientEdgeQuery_relayResolver_Query_me__best_friend$data = {|
     +$fragmentSpreads: RefetchableClientEdgeQuery_relayResolver_Query_me__best_friend$fragmentType,
   |},
 |};
+export type ClientEdgeQuery_relayResolver_Query_me__best_friend = {|
+  variables: ClientEdgeQuery_relayResolver_Query_me__best_friend$variables,
+  response: ClientEdgeQuery_relayResolver_Query_me__best_friend$data,
+|};
 -------------------------------------------------------------------------------
 export type relayResolver_Query$variables = {||};
 export type relayResolver_Query$data = {|
@@ -34,6 +38,10 @@ export type relayResolver_Query$data = {|
       +name: ?string,
     |},
   |},
+|};
+export type relayResolver_Query = {|
+  variables: relayResolver_Query$variables,
+  response: relayResolver_Query$data,
 |};
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";

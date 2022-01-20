@@ -14,3 +14,7 @@ export type UpdatableQuery$data = {|
   |},
   set me(value: null | void): void,
 |};
+export type UpdatableQuery = {|
+  variables: UpdatableQuery$variables,
+  response: UpdatableQuery$data,
+|};

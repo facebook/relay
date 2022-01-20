@@ -20,6 +20,10 @@ export type UpdatableQuery$data = {|
     ...
   }): void,
 |};
+export type UpdatableQuery = {|
+  variables: UpdatableQuery$variables,
+  response: UpdatableQuery$data,
+|};
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";
 declare export opaque type Assignable_viewer$fragmentType: FragmentType;

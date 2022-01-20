@@ -49,6 +49,11 @@ export type noInlineFragmentQuery$rawResponse = {|
     +id: string,
   |},
 |};
+export type noInlineFragmentQuery = {|
+  variables: noInlineFragmentQuery$variables,
+  response: noInlineFragmentQuery$data,
+  rawResponse: noInlineFragmentQuery$rawResponse,
+|};
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";
 declare export opaque type noInlineFragment_address$fragmentType: FragmentType;

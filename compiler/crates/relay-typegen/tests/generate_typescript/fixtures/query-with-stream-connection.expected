@@ -63,4 +63,5 @@ export type TestDefer$rawResponse = {
 export type TestDefer = {
   variables: TestDefer$variables;
   response: TestDefer$data;
+  rawResponse: TestDefer$rawResponse;
 };

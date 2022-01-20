@@ -130,6 +130,11 @@ export type Test$rawResponse = {|
     |}),
   |},
 |};
+export type Test = {|
+  variables: Test$variables,
+  response: Test$data,
+  rawResponse: Test$rawResponse,
+|};
 -------------------------------------------------------------------------------
 import type { MarkdownUserNameRenderer_name$fragmentType } from "MarkdownUserNameRenderer_name.graphql";
 import type { PlainUserNameRenderer_name$fragmentType } from "PlainUserNameRenderer_name.graphql";

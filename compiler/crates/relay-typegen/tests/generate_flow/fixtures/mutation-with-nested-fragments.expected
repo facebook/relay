@@ -82,6 +82,11 @@ export type CommentCreateMutation$rawResponse = {|
     |},
   |},
 |};
+export type CommentCreateMutation = {|
+  variables: CommentCreateMutation$variables,
+  response: CommentCreateMutation$data,
+  rawResponse: CommentCreateMutation$rawResponse,
+|};
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";
 declare export opaque type FeedbackFragment$fragmentType: FragmentType;

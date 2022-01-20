@@ -72,6 +72,11 @@ export type Test$rawResponse = {|
     +id: string,
   |}),
 |};
+export type Test = {|
+  variables: Test$variables,
+  response: Test$data,
+  rawResponse: Test$rawResponse,
+|};
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";
 declare export opaque type MarkdownUserNameRenderer_name$fragmentType: FragmentType;

@@ -32,6 +32,11 @@ export type relayResolver_Query$rawResponse = {|
     +id: string,
   |},
 |};
+export type relayResolver_Query = {|
+  variables: relayResolver_Query$variables,
+  response: relayResolver_Query$data,
+  rawResponse: relayResolver_Query$rawResponse,
+|};
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";
 declare export opaque type relayResolver_PopStarNameResolverFragment_name$fragmentType: FragmentType;

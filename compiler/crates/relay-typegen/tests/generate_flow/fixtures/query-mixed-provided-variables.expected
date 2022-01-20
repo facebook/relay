@@ -59,6 +59,10 @@ export type queryMixedProvidedVar_MultiFragment$data = {|
     +$fragmentSpreads: FragmentOneProvidedVar$fragmentType & FragmentMultiProvidedVar$fragmentType & FragmentProvidedVarWithOtherGlobal$fragmentType,
   |},
 |};
+export type queryMixedProvidedVar_MultiFragment = {|
+  variables: queryMixedProvidedVar_MultiFragment$variables,
+  response: queryMixedProvidedVar_MultiFragment$data,
+|};
 type ProvidedVariableProviderType = {|
   +__pv__includeNameProvider: {|
     +get: () => CustomBoolean,
@@ -79,6 +83,10 @@ export type queryMixedProvidedVar_OneFragment$data = {|
   +node: ?{|
     +$fragmentSpreads: FragmentOneProvidedVar$fragmentType,
   |},
+|};
+export type queryMixedProvidedVar_OneFragment = {|
+  variables: queryMixedProvidedVar_OneFragment$variables,
+  response: queryMixedProvidedVar_OneFragment$data,
 |};
 type ProvidedVariableProviderType = {|
   +__pv__includeNameProvider: {|

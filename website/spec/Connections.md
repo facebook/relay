@@ -333,7 +333,8 @@ The server must provide a type called `PageInfo`.
 
 `PageInfo` must contain fields `hasPreviousPage` and `hasNextPage`, both
 of which return non-null booleans.  It must also contain fields `startCursor`
-and `endCursor`, both of which return non-null opaque strings.
+and `endCursor`, both of which return opaque strings.  The fields
+`startCursor` and `endCursor` can be null if there are no results.
 
 `hasPreviousPage` is used to indicate whether more edges exist prior to the set
 defined by the clients arguments. If the client is paginating with
@@ -435,23 +436,17 @@ returns
         {
           "name": "startCursor",
           "type": {
-            "name": null,
-            "kind": "NON_NULL",
-            "ofType": {
-              "name": "String",
-              "kind": "SCALAR"
-            }
+            "name": "String",
+            "kind": "SCALAR",
+            "ofType": null
           }
         },
         {
           "name": "endCursor",
           "type": {
-            "name": null,
-            "kind": "NON_NULL",
-            "ofType": {
-              "name": "String",
-              "kind": "SCALAR"
-            }
+            "name": "String",
+            "kind": "SCALAR",
+            "ofType": null
           }
         }
       ]

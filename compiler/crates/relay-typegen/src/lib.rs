@@ -284,41 +284,30 @@ impl<'a> TypeGenerator<'a> {
         self.write_enum_definitions()?;
         self.write_input_object_types()?;
 
-        match self.flow_typegen_phase {
-            FlowTypegenPhase::Compat => {
-                let new_variables_identifier = format!("{}$variables", typegen_operation.name.item);
-                self.writer
-                    .write_export_type(&new_variables_identifier, &input_variables_type)?;
-                self.writer.write_export_type(
-                    &old_variables_identifier,
-                    &AST::Identifier(new_variables_identifier.intern()),
-                )?;
-            }
-            FlowTypegenPhase::Final => {
-                let new_variables_identifier = format!("{}$variables", typegen_operation.name.item);
-                self.writer
-                    .write_export_type(&new_variables_identifier, &input_variables_type)?;
-            }
+        let variables_identifier = format!("{}$variables", typegen_operation.name.item);
+        let variables_identifier_key = variables_identifier.as_str().intern();
+
+        self.writer
+            .write_export_type(&variables_identifier, &input_variables_type)?;
+
+        if matches!(self.flow_typegen_phase, FlowTypegenPhase::Compat) {
+            self.writer.write_export_type(
+                &old_variables_identifier,
+                &AST::Identifier(variables_identifier_key),
+            )?;
         }
 
-        let response_identifier = match self.flow_typegen_phase {
-            FlowTypegenPhase::Compat => {
-                let new_response_identifier = format!("{}$data", typegen_operation.name.item);
-                let old_response_identifier = format!("{}Response", typegen_operation.name.item);
-                self.writer
-                    .write_export_type(&new_response_identifier, &response_type)?;
-                self.writer.write_export_type(
-                    &old_response_identifier,
-                    &AST::Identifier(new_response_identifier.as_str().intern()),
-                )?;
-                new_response_identifier
-            }
-            FlowTypegenPhase::Final => {
-                let new_response_identifier = format!("{}$data", typegen_operation.name.item);
-                self.writer
-                    .write_export_type(&new_response_identifier, &response_type)?;
-                new_response_identifier
-            }
+        let response_identifier = format!("{}$data", typegen_operation.name.item);
+        let response_identifier_key = response_identifier.as_str().intern();
+        self.writer
+            .write_export_type(&response_identifier, &response_type)?;
+
+        if matches!(self.flow_typegen_phase, FlowTypegenPhase::Compat) {
+            let old_response_identifier = format!("{}Response", typegen_operation.name.item);
+            self.writer.write_export_type(
+                &old_response_identifier,
+                &AST::Identifier(response_identifier_key),
+            )?;
         };
 
         match self.flow_typegen_phase {
@@ -334,7 +323,7 @@ impl<'a> TypeGenerator<'a> {
                         key: *RESPONSE,
                         read_only: false,
                         optional: false,
-                        value: AST::Identifier(response_identifier.intern()),
+                        value: AST::Identifier(response_identifier_key),
                     }),
                 ];
 
@@ -381,20 +370,18 @@ impl<'a> TypeGenerator<'a> {
                 }
 
                 if self.typegen_config.language == TypegenLanguage::TypeScript {
-                    let new_variables_identifier =
-                        format!("{}$variables", typegen_operation.name.item);
                     let operation_types = vec![
                         Prop::KeyValuePair(KeyValuePairProp {
                             key: *VARIABLES,
                             read_only: false,
                             optional: false,
-                            value: AST::Identifier(new_variables_identifier.intern()),
+                            value: AST::Identifier(variables_identifier_key),
                         }),
                         Prop::KeyValuePair(KeyValuePairProp {
                             key: *RESPONSE,
                             read_only: false,
                             optional: false,
-                            value: AST::Identifier(response_identifier.intern()),
+                            value: AST::Identifier(response_identifier_key),
                         }),
                     ];
                     self.writer.write_export_type(

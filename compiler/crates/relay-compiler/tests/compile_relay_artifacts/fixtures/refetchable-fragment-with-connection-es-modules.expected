@@ -312,6 +312,7 @@ fragment refetchableFragmentWithConnectionEsModules_PaginationFragment_1G22uz on
 }
 
 
+import RefetchableFragmentQuery_graphql from './RefetchableFragmentQuery.graphql';
 {
   "argumentDefinitions": [
     {
@@ -351,7 +352,7 @@ fragment refetchableFragmentWithConnectionEsModules_PaginationFragment_1G22uz on
       "fragmentPathInResult": [
         "node"
       ],
-      "operation": require('RefetchableFragmentQuery.graphql'),
+      "operation": RefetchableFragmentQuery_graphql,
       "identifierField": "id"
     }
   },

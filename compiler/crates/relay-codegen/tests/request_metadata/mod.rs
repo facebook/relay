@@ -14,6 +14,7 @@ use graphql_ir::{
 use graphql_syntax::parse_executable;
 use intern::string_key::Intern;
 use relay_codegen::{build_request_params, print_fragment, print_request, JsModuleFormat};
+use relay_config::ProjectConfig;
 use relay_test_schema::TEST_SCHEMA;
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
@@ -61,16 +62,32 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
                             type_condition: operation.type_,
                         };
                         let request_parameters = build_request_params(&operation);
-                        print_request(
+                        let mut import_statements = Default::default();
+                        let request = print_request(
                             &TEST_SCHEMA,
                             &operation,
                             &operation_fragment,
                             request_parameters,
-                            JsModuleFormat::Haste,
-                        )
+                            &ProjectConfig {
+                                js_module_format: JsModuleFormat::Haste,
+                                ..Default::default()
+                            },
+                            &mut import_statements,
+                        );
+                        format!("{}{}", import_statements, request)
                     }
                     ExecutableDefinition::Fragment(fragment) => {
-                        print_fragment(&TEST_SCHEMA, fragment, JsModuleFormat::Haste)
+                        let mut import_statements = Default::default();
+                        let fragment = print_fragment(
+                            &TEST_SCHEMA,
+                            fragment,
+                            &ProjectConfig {
+                                js_module_format: JsModuleFormat::Haste,
+                                ..Default::default()
+                            },
+                            &mut import_statements,
+                        );
+                        format!("{}{}", import_statements, fragment)
                     }
                 })
                 .collect::<Vec<_>>()

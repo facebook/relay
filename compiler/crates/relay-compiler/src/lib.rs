@@ -32,9 +32,9 @@ pub use build_project::{
     path_for_artifact, transform_program, validate, validate_program, AdditionalValidations,
     Artifact, ArtifactContent, ArtifactGeneratedTypes, BuildProjectFailure, SourceHashes,
 };
-pub use config::ConfigFileProject;
 pub use config::{
-    FileSourceKind, OperationPersister, PersistConfig, ProjectConfig, SchemaLocation,
+    ConfigFileProject, FileSourceKind, OperationPersister, PersistConfig, ProjectConfig,
+    SchemaLocation,
 };
 pub use file_source::{
     source_for_location, FileCategorizer, FileGroup, FileSource, FileSourceResult,

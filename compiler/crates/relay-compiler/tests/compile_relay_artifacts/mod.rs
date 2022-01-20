@@ -131,7 +131,10 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
                 .named(*DIRECTIVE_SPLIT_OPERATION)
                 .is_some()
             {
-                print_operation(&schema, operation, JsModuleFormat::Haste)
+                let mut import_statements = Default::default();
+                let operation =
+                    print_operation(&schema, operation, &project_config, &mut import_statements);
+                format!("{}{}", import_statements, operation)
             } else {
                 let name = operation.name.item;
                 let print_operation_node = programs
@@ -152,27 +155,29 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
                     directives: reader_operation.directives.clone(),
                     type_condition: reader_operation.type_,
                 };
+                let mut import_statements = Default::default();
                 let request_parameters = build_request_params(operation);
-                format!(
-                    "{}\n\nQUERY:\n\n{}",
-                    print_request(
-                        &schema,
-                        operation,
-                        &operation_fragment,
-                        request_parameters,
-                        JsModuleFormat::Haste
-                    ),
-                    text
-                )
+                let request = print_request(
+                    &schema,
+                    operation,
+                    &operation_fragment,
+                    request_parameters,
+                    &project_config,
+                    &mut import_statements,
+                );
+                format!("{}{}\n\nQUERY:\n\n{}", import_statements, request, text)
             }
         })
         .chain({
             let mut fragments: Vec<&std::sync::Arc<FragmentDefinition>> =
                 programs.reader.fragments().collect();
             fragments.sort_by_key(|fragment| fragment.name.item);
-            fragments
-                .into_iter()
-                .map(|fragment| print_fragment(&schema, fragment, JsModuleFormat::Haste))
+            fragments.into_iter().map(|fragment| {
+                let mut import_statements = Default::default();
+                let fragment =
+                    print_fragment(&schema, fragment, &project_config, &mut import_statements);
+                format!("{}{}", import_statements, fragment)
+            })
         })
         .collect::<Vec<_>>();
     Ok(result.join("\n\n"))

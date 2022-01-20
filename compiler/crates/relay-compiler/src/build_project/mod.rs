@@ -482,7 +482,7 @@ fn write_artifacts<F: Fn() -> bool + Sync + Send>(
     artifacts: &[Artifact],
 ) -> Result<(), BuildProjectFailure> {
     artifacts.par_chunks(8192).try_for_each_init(
-        || Printer::with_dedupe(project_config.js_module_format),
+        || Printer::with_dedupe(project_config),
         |mut printer, artifacts| {
             for artifact in artifacts {
                 if should_stop_updating_artifacts() {

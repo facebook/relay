@@ -10,10 +10,15 @@ use fixture_tests::Fixture;
 use graphql_ir::build;
 use graphql_syntax::parse_executable;
 use relay_codegen::{JsModuleFormat, Printer};
+use relay_config::ProjectConfig;
 use relay_test_schema::TEST_SCHEMA;
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
-    let mut printer = Printer::with_dedupe(JsModuleFormat::Haste);
+    let project_config = ProjectConfig {
+        js_module_format: JsModuleFormat::Haste,
+        ..Default::default()
+    };
+    let mut printer = Printer::with_dedupe(&project_config);
     let ast = parse_executable(
         fixture.content,
         SourceLocationKey::standalone(fixture.file_name),
@@ -24,14 +29,21 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
             definitions
                 .iter()
                 .map(|def| match def {
-                    graphql_ir::ExecutableDefinition::Operation(operation) => format!(
-                        "Operation:\n{}\n",
-                        printer.print_operation(&TEST_SCHEMA, operation)
-                    ),
-                    graphql_ir::ExecutableDefinition::Fragment(fragment) => format!(
-                        "Fragment:\n{}\n",
-                        printer.print_fragment(&TEST_SCHEMA, fragment)
-                    ),
+                    graphql_ir::ExecutableDefinition::Operation(operation) => {
+                        let mut import_statements = Default::default();
+                        let operation = printer.print_operation(
+                            &TEST_SCHEMA,
+                            operation,
+                            &mut import_statements,
+                        );
+                        format!("Operation:\n{}{}\n", import_statements, operation,)
+                    }
+                    graphql_ir::ExecutableDefinition::Fragment(fragment) => {
+                        let mut import_statements = Default::default();
+                        let fragment =
+                            printer.print_fragment(&TEST_SCHEMA, fragment, &mut import_statements);
+                        format!("Fragment:\n{}{}\n", import_statements, fragment)
+                    }
                 })
                 .collect::<Vec<_>>()
                 .join("\n\n")

@@ -161,4 +161,12 @@ pub enum ValidationMessage {
         field_name: StringKey,
         arguments_a: String,
     },
+
+    #[error("Undefined fragment '{0}'")]
+    UndefinedFragment(StringKey),
+
+    #[error(
+        "Each field on a given type can have only a single @module directive, but here there is more than one (perhaps within different spreads). To fix it, put each @module directive into its own aliased copy of the field with different aliases."
+    )]
+    ConflictingModuleSelections,
 }

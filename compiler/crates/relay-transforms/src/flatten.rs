@@ -8,11 +8,11 @@
 use crate::{
     handle_fields::{HANDLER_ARG_NAME, KEY_ARG_NAME},
     util::{is_relay_custom_inline_fragment_directive, CustomMetadataDirectives, PointerAddress},
-    ModuleMetadata,
+    ModuleMetadata, ValidationMessage,
 };
 use graphql_ir::{
     Condition, Directive, FragmentDefinition, InlineFragment, LinkedField, OperationDefinition,
-    Program, Selection, TransformedValue, ValidationMessage,
+    Program, Selection, TransformedValue,
 };
 use intern::string_key::StringKeyMap;
 use schema::{Schema, Type};

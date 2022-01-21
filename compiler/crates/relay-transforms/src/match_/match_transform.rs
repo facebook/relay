@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use super::validation_message::ValidationMessage;
 use crate::{
     defer_stream::DEFER_STREAM_CONSTANTS,
     inline_data_fragment::INLINE_DIRECTIVE_NAME,
@@ -19,7 +20,7 @@ use fnv::{FnvBuildHasher, FnvHashMap};
 use graphql_ir::{
     associated_data_impl, Argument, ConstantValue, Directive, Field, FragmentDefinition,
     FragmentSpread, InlineFragment, LinkedField, OperationDefinition, Program, ScalarField,
-    Selection, Transformed, TransformedValue, Transformer, ValidationMessage, Value,
+    Selection, Transformed, TransformedValue, Transformer, Value,
 };
 use indexmap::IndexSet;
 use intern::string_key::{Intern, StringKey, StringKeyMap};

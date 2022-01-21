@@ -42,21 +42,26 @@ export type MutationConfig<TMutation: MutationParameters> = {|
   configs?: Array<DeclarativeMutationConfig>,
   mutation: GraphQLTaggedNode,
   onCompleted?: ?(
-    response: TMutation['response'],
+    response: $PropertyType<TMutation, 'response'>,
     errors: ?Array<PayloadError>,
   ) => void,
   onError?: ?(error: Error) => void,
   onNext?: ?() => void,
   onUnsubscribe?: ?() => void,
-  optimisticResponse?: {
-    +rawResponse?: {...},
-    ...TMutation,
-    ...
-  }['rawResponse'],
-  optimisticUpdater?: ?SelectorStoreUpdater<TMutation['response']>,
-  updater?: ?SelectorStoreUpdater<TMutation['response']>,
+  optimisticResponse?: $PropertyType<
+    {
+      +rawResponse?: {...},
+      ...TMutation,
+      ...
+    },
+    'rawResponse',
+  >,
+  optimisticUpdater?: ?SelectorStoreUpdater<
+    $PropertyType<TMutation, 'response'>,
+  >,
+  updater?: ?SelectorStoreUpdater<$PropertyType<TMutation, 'response'>>,
   uploadables?: UploadableMap,
-  variables: TMutation['variables'],
+  variables: $PropertyType<TMutation, 'variables'>,
 |};
 
 export type DEPRECATED_MutationConfig<TMutationResponse> = MutationConfig<{|
@@ -126,9 +131,9 @@ function commitMutation<TMutation: MutationParameters>(
       uploadables,
     })
     .subscribe({
-      next: payload => {
+      next: (payload) => {
         if (Array.isArray(payload)) {
-          payload.forEach(item => {
+          payload.forEach((item) => {
             if (item.errors) {
               errors.push(...item.errors);
             }

@@ -48,7 +48,7 @@ function useLazyLoadQueryNode<TQuery: OperationType>({
   fetchPolicy?: ?FetchPolicy,
   fetchKey?: ?string | ?number,
   renderPolicy?: ?RenderPolicy,
-|}): TQuery['response'] {
+|}): $PropertyType<TQuery, 'response'> {
   const environment = useRelayEnvironment();
   const profilerContext = useContext(ProfilerContext);
   const QueryResource = getQueryResourceForEnvironment(environment);
@@ -101,7 +101,7 @@ function useLazyLoadQueryNode<TQuery: OperationType>({
       // a re-render so that the cache entry for this query is re-intiliazed and
       // and re-evaluated (and potentially cause a refetch).
       maybeHiddenOrFastRefresh.current = false;
-      forceUpdate(n => n + 1);
+      forceUpdate((n) => n + 1);
       return;
     }
 

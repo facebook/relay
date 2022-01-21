@@ -86,19 +86,22 @@ export type DeclarativeMutationConfig =
 function convert<TMutation: MutationParameters>(
   configs: Array<DeclarativeMutationConfig>,
   request: ConcreteRequest,
-  optimisticUpdater?: ?SelectorStoreUpdater<TMutation['response']>,
-  updater?: ?SelectorStoreUpdater<TMutation['response']>,
+  optimisticUpdater?: ?SelectorStoreUpdater<
+    $PropertyType<TMutation, 'response'>,
+  >,
+  updater?: ?SelectorStoreUpdater<$PropertyType<TMutation, 'response'>>,
 ): {
-  optimisticUpdater: SelectorStoreUpdater<TMutation['response']>,
-  updater: SelectorStoreUpdater<TMutation['response']>,
+  optimisticUpdater: SelectorStoreUpdater<$PropertyType<TMutation, 'response'>>,
+  updater: SelectorStoreUpdater<$PropertyType<TMutation, 'response'>>,
   ...
 } {
   const configOptimisticUpdates: Array<
-    SelectorStoreUpdater<TMutation['response']>,
+    SelectorStoreUpdater<$PropertyType<TMutation, 'response'>>,
   > = optimisticUpdater ? [optimisticUpdater] : [];
-  const configUpdates: Array<SelectorStoreUpdater<TMutation['response']>> =
-    updater ? [updater] : [];
-  configs.forEach(config => {
+  const configUpdates: Array<
+    SelectorStoreUpdater<$PropertyType<TMutation, 'response'>>,
+  > = updater ? [updater] : [];
+  configs.forEach((config) => {
     switch (config.type) {
       case 'NODE_DELETE':
         const nodeDeleteResult = nodeDelete(config, request);
@@ -126,17 +129,17 @@ function convert<TMutation: MutationParameters>(
   return {
     optimisticUpdater: (
       store: RecordSourceSelectorProxy,
-      data: ?TMutation['response'],
+      data: ?$PropertyType<TMutation, 'response'>,
     ) => {
-      configOptimisticUpdates.forEach(eachOptimisticUpdater => {
+      configOptimisticUpdates.forEach((eachOptimisticUpdater) => {
         eachOptimisticUpdater(store, data);
       });
     },
     updater: (
       store: RecordSourceSelectorProxy,
-      data: ?TMutation['response'],
+      data: ?$PropertyType<TMutation, 'response'>,
     ) => {
-      configUpdates.forEach(eachUpdater => {
+      configUpdates.forEach((eachUpdater) => {
         eachUpdater(store, data);
       });
     },
@@ -159,7 +162,7 @@ function nodeDelete(
     }
     const deleteID = payload.getValue(deletedIDFieldName);
     const deleteIDs = Array.isArray(deleteID) ? deleteID : [deleteID];
-    deleteIDs.forEach(id => {
+    deleteIDs.forEach((id) => {
       if (id && typeof id === 'string') {
         store.delete(id);
       }
@@ -270,7 +273,7 @@ function rangeDelete(
         }
       }
       if (Array.isArray(deletedIDField)) {
-        deletedIDField.forEach(idObject => {
+        deletedIDField.forEach((idObject) => {
           if (
             idObject &&
             idObject.id &&
@@ -296,7 +299,7 @@ function rangeDelete(
       if (typeof deletedIDField === 'string') {
         deleteIDs.push(deletedIDField);
       } else if (Array.isArray(deletedIDField)) {
-        deletedIDField.forEach(id => {
+        deletedIDField.forEach((id) => {
           if (typeof id === 'string') {
             deleteIDs.push(id);
           }
@@ -359,7 +362,7 @@ function deleteNode(
       key.filters,
     );
     if (connection) {
-      deleteIDs.forEach(deleteID => {
+      deleteIDs.forEach((deleteID) => {
         ConnectionHandler.deleteNode(connection, deleteID);
       });
     }

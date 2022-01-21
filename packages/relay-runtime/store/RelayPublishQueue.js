@@ -46,7 +46,7 @@ type PendingRelayPayload<TMutation: MutationParameters> = {|
   +kind: 'payload',
   +operation: OperationDescriptor,
   +payload: RelayResponsePayload,
-  +updater: ?SelectorStoreUpdater<TMutation['response']>,
+  +updater: ?SelectorStoreUpdater<$PropertyType<TMutation, 'response'>>,
 |};
 type PendingRecordSource = {|
   +kind: 'source',
@@ -160,7 +160,7 @@ class RelayPublishQueue implements PublishQueue {
   commitPayload<TMutation: MutationParameters>(
     operation: OperationDescriptor,
     payload: RelayResponsePayload,
-    updater?: ?SelectorStoreUpdater<TMutation['response']>,
+    updater?: ?SelectorStoreUpdater<$PropertyType<TMutation, 'response'>>,
   ): void {
     this._pendingBackupRebase = true;
     this._pendingData.add({
@@ -281,7 +281,7 @@ class RelayPublishQueue implements PublishQueue {
       this._getDataID,
     );
     if (fieldPayloads && fieldPayloads.length) {
-      fieldPayloads.forEach(fieldPayload => {
+      fieldPayloads.forEach((fieldPayload) => {
         const handler =
           this._handlerProvider && this._handlerProvider(fieldPayload.handle);
         invariant(
@@ -322,7 +322,7 @@ class RelayPublishQueue implements PublishQueue {
       return false;
     }
     let invalidatedStore = false;
-    this._pendingData.forEach(data => {
+    this._pendingData.forEach((data) => {
       if (data.kind === 'payload') {
         const payloadInvalidatedStore = this._publishSourceFromPayload(data);
         invalidatedStore = invalidatedStore || payloadInvalidatedStore;
@@ -418,7 +418,7 @@ class RelayPublishQueue implements PublishQueue {
 
     // apply any new updaters
     if (this._pendingOptimisticUpdates.size) {
-      this._pendingOptimisticUpdates.forEach(optimisticUpdate => {
+      this._pendingOptimisticUpdates.forEach((optimisticUpdate) => {
         processUpdate(optimisticUpdate);
         this._appliedOptimisticUpdates.add(optimisticUpdate);
       });

@@ -82,7 +82,7 @@ class RelayRecordSourceSelectorProxy implements RecordSourceSelectorProxy {
     plural: boolean,
   ): ReaderLinkedField {
     let field = selector.node.selections.find(
-      selection =>
+      (selection) =>
         (selection.kind === 'LinkedField' && selection.name === fieldName) ||
         (selection.kind === 'RequiredField' &&
           selection.field.name === fieldName),
@@ -125,8 +125,8 @@ class RelayRecordSourceSelectorProxy implements RecordSourceSelectorProxy {
 
   readUpdatableQuery_EXPERIMENTAL<TQuery: OperationType>(
     query: GraphQLTaggedNode,
-    variables: TQuery['variables'],
-  ): TQuery['response'] {
+    variables: $PropertyType<TQuery, 'variables'>,
+  ): $PropertyType<TQuery, 'response'> {
     return readUpdatableQuery_EXPERIMENTAL(query, variables, this);
   }
 }

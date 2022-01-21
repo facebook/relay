@@ -41,7 +41,7 @@ export type OperationType = {|
   +rawResponse?: {...},
 |};
 
-export type VariablesOf<T: OperationType> = T['variables'];
+export type VariablesOf<T: OperationType> = $PropertyType<T, 'variables'>;
 
 /**
  * Settings for how a query response may be cached.

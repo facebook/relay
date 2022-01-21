@@ -37,7 +37,7 @@ function usePreloadedQuery<TQuery: OperationType>(
   options?: {|
     UNSTABLE_renderPolicy?: RenderPolicy,
   |},
-): TQuery['response'] {
+): $PropertyType<TQuery, 'response'> {
   // We need to use this hook in order to be able to track if
   // loadQuery was called during render
   useTrackLoadQueryInRender();

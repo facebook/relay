@@ -195,7 +195,7 @@ class ActorSpecificEnvironment implements IActorEnvironment {
 
   executeSubscription<TMutation: MutationParameters>(config: {
     operation: OperationDescriptor,
-    updater?: ?SelectorStoreUpdater<TMutation['response']>,
+    updater?: ?SelectorStoreUpdater<$PropertyType<TMutation, 'response'>>,
   }): RelayObservable<GraphQLResponse> {
     return this.multiActorEnvironment.executeSubscription(this, config);
   }

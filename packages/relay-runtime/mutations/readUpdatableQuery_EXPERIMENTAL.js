@@ -25,9 +25,9 @@ const nonUpdatableKeys = ['id', '__id', '__typename', 'js'];
 
 function readUpdatableQuery_EXPERIMENTAL<TQuery: OperationType>(
   query: GraphQLTaggedNode,
-  variables: TQuery['variables'],
+  variables: $PropertyType<TQuery, 'variables'>,
   proxy: RecordSourceProxy,
-): TQuery['response'] {
+): $PropertyType<TQuery, 'response'> {
   // TODO assert that the concrete request is an updatable query
   const request = getRequest(query);
 
@@ -46,9 +46,9 @@ function readUpdatableQuery_EXPERIMENTAL<TQuery: OperationType>(
 }
 
 function updateProxyFromSelections<TQuery: OperationType>(
-  mutableUpdatableProxy: TQuery['response'],
+  mutableUpdatableProxy: $PropertyType<TQuery, 'response'>,
   recordProxy: RecordProxy,
-  queryVariables: TQuery['variables'],
+  queryVariables: $PropertyType<TQuery, 'variables'>,
   selections: $ReadOnlyArray<ReaderSelection>,
   root: RecordSourceProxy,
 ) {
@@ -163,7 +163,7 @@ function updateProxyFromSelections<TQuery: OperationType>(
 
 function createSetterForPluralLinkedField<TQuery: OperationType>(
   selection: ReaderLinkedField,
-  queryVariables: TQuery['variables'],
+  queryVariables: $PropertyType<TQuery, 'variables'>,
   recordProxy: RecordProxy,
   root: RecordSourceProxy,
 ) {
@@ -174,7 +174,7 @@ function createSetterForPluralLinkedField<TQuery: OperationType>(
         'Do not assign null to plural linked fields; assign an empty array instead.',
       );
     } else {
-      const recordProxies = newValue.map(item => {
+      const recordProxies = newValue.map((item) => {
         if (item == null) {
           throw new Error(
             'When assigning an array of items, none of the items should be null or undefined.',
@@ -206,7 +206,7 @@ function createSetterForPluralLinkedField<TQuery: OperationType>(
 
 function createSetterForSingularLinkedField<TQuery: OperationType>(
   selection: ReaderLinkedField,
-  queryVariables: TQuery['variables'],
+  queryVariables: $PropertyType<TQuery, 'variables'>,
   recordProxy: RecordProxy,
   root: RecordSourceProxy,
 ) {
@@ -238,7 +238,7 @@ function createSetterForSingularLinkedField<TQuery: OperationType>(
 
 function createGetterForPluralLinkedField<TQuery: OperationType>(
   selection: ReaderLinkedField,
-  queryVariables: TQuery['variables'],
+  queryVariables: $PropertyType<TQuery, 'variables'>,
   recordProxy: RecordProxy,
   root: RecordSourceProxy,
 ) {
@@ -250,7 +250,7 @@ function createGetterForPluralLinkedField<TQuery: OperationType>(
       (variables: any),
     );
     if (linkedRecords != null) {
-      return (linkedRecords.map(linkedRecord => {
+      return (linkedRecords.map((linkedRecord) => {
         if (linkedRecord != null) {
           const updatableProxy = {};
           updateProxyFromSelections(
@@ -280,7 +280,7 @@ function createGetterForPluralLinkedField<TQuery: OperationType>(
 
 function createGetterForSingularLinkedField<TQuery: OperationType>(
   selection: ReaderLinkedField,
-  queryVariables: TQuery['variables'],
+  queryVariables: $PropertyType<TQuery, 'variables'>,
   recordProxy: RecordProxy,
   root: RecordSourceProxy,
 ) {

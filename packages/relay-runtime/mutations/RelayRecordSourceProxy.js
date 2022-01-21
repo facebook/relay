@@ -65,7 +65,7 @@ class RelayRecordSourceProxy implements RecordSourceProxy {
     fieldPayloads?: ?Array<HandleFieldPayload>,
   ): void {
     const dataIDs = source.getRecordIDs();
-    dataIDs.forEach(dataID => {
+    dataIDs.forEach((dataID) => {
       const status = source.getStatus(dataID);
       if (status === EXISTENT) {
         const sourceRecord = source.get(dataID);
@@ -81,7 +81,7 @@ class RelayRecordSourceProxy implements RecordSourceProxy {
     });
 
     if (fieldPayloads && fieldPayloads.length) {
-      fieldPayloads.forEach(fieldPayload => {
+      fieldPayloads.forEach((fieldPayload) => {
         const handler =
           this._handlerProvider && this._handlerProvider(fieldPayload.handle);
         invariant(
@@ -165,8 +165,8 @@ class RelayRecordSourceProxy implements RecordSourceProxy {
 
   readUpdatableQuery_EXPERIMENTAL<TQuery: OperationType>(
     query: GraphQLTaggedNode,
-    variables: TQuery['variables'],
-  ): TQuery['response'] {
+    variables: $PropertyType<TQuery, 'variables'>,
+  ): $PropertyType<TQuery, 'response'> {
     return readUpdatableQuery_EXPERIMENTAL(query, variables, this);
   }
 }

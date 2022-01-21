@@ -206,7 +206,7 @@ export interface IMultiActorEnvironment {
     actorEnvironment: IActorEnvironment,
     config: {
       operation: OperationDescriptor,
-      updater?: ?SelectorStoreUpdater<TMutation['response']>,
+      updater?: ?SelectorStoreUpdater<$PropertyType<TMutation, 'response'>>,
     },
   ): RelayObservable<GraphQLResponse>;
 

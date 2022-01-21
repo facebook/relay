@@ -57,7 +57,7 @@ function useTrackLoadQueryInRender() {
 function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
   environment: IEnvironment,
   preloadableRequest: GraphQLTaggedNode | PreloadableConcreteRequest<TQuery>,
-  variables: TQuery['variables'],
+  variables: $PropertyType<TQuery, 'variables'>,
   options?: ?LoadQueryOptions,
   environmentProviderOptions?: ?TEnvironmentProviderOptions,
 ): PreloadedQueryInner<TQuery, TEnvironmentProviderOptions> {
@@ -115,7 +115,7 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
   // of the operation, and then replay them to the Observable we
   // ultimately return.
   const executionSubject = new ReplaySubject();
-  const returnedObservable = Observable.create(sink =>
+  const returnedObservable = Observable.create((sink) =>
     executionSubject.subscribe(sink),
   );
 
@@ -179,7 +179,7 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
       },
     });
     unsubscribeFromNetworkRequest = unsubscribe;
-    return Observable.create(sink => {
+    return Observable.create((sink) => {
       const subjectSubscription = subject.subscribe(sink);
       return () => {
         subjectSubscription.unsubscribe();
@@ -236,7 +236,7 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
     }));
   };
 
-  const checkAvailabilityAndExecute = concreteRequest => {
+  const checkAvailabilityAndExecute = (concreteRequest) => {
     const operation = createOperationDescriptor(
       concreteRequest,
       variables,
@@ -300,7 +300,7 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       ({dispose: cancelOnLoadCallback} = PreloadableQueryRegistry.onLoad(
         queryId,
-        preloadedModule => {
+        (preloadedModule) => {
           cancelOnLoadCallback();
           const operation = createOperationDescriptor(
             preloadedModule,

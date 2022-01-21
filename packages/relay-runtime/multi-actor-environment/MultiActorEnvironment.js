@@ -160,7 +160,7 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
       return actorEnvironment.getStore().check(operation, {
         handlers: [],
         defaultActorIdentifier: actorEnvironment.actorIdentifier,
-        getSourceForActor: actorIdentifier => {
+        getSourceForActor: (actorIdentifier) => {
           return this.forActor(actorIdentifier).getStore().getSource();
         },
         getTargetForActor: () => {
@@ -186,10 +186,10 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
     const result = actorEnvironment.getStore().check(operation, {
       handlers,
       defaultActorIdentifier: actorEnvironment.actorIdentifier,
-      getSourceForActor: actorIdentifier => {
+      getSourceForActor: (actorIdentifier) => {
         return this.forActor(actorIdentifier).getStore().getSource();
       },
-      getTargetForActor: actorIdentifier => {
+      getTargetForActor: (actorIdentifier) => {
         let target = targets.get(actorIdentifier);
         if (target == null) {
           target = RelayRecordSource.create();
@@ -275,7 +275,7 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
     optimisticConfig: OptimisticResponseConfig<TMutation>,
   ): Disposable {
     const subscription = this._execute(actorEnvironment, {
-      createSource: () => RelayObservable.create(_sink => {}),
+      createSource: () => RelayObservable.create((_sink) => {}),
       isClientPayload: false,
       operation: optimisticConfig.operation,
       optimisticConfig,
@@ -351,7 +351,7 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
       updater,
     }: {
       operation: OperationDescriptor,
-      updater?: ?SelectorStoreUpdater<TMutation['response']>,
+      updater?: ?SelectorStoreUpdater<$PropertyType<TMutation, 'response'>>,
     },
   ): RelayObservable<GraphQLResponse> {
     return this._execute(actorEnvironment, {
@@ -448,10 +448,10 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
       isClientPayload: boolean,
       operation: OperationDescriptor,
       optimisticConfig: ?OptimisticResponseConfig<TMutation>,
-      updater: ?SelectorStoreUpdater<TMutation['response']>,
+      updater: ?SelectorStoreUpdater<$PropertyType<TMutation, 'response'>>,
     |},
   ): RelayObservable<GraphQLResponse> {
-    return RelayObservable.create(sink => {
+    return RelayObservable.create((sink) => {
       const executor = OperationExecutor.execute({
         actorIdentifier: actorEnvironment.actorIdentifier,
         getDataID: this._getDataID,
@@ -494,7 +494,7 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
 
   commitMultiActorUpdate(updater: MultiActorStoreUpdater): void {
     for (const [actorIdentifier, environment] of this._actorEnvironments) {
-      environment.commitUpdate(storeProxy => {
+      environment.commitUpdate((storeProxy) => {
         updater(actorIdentifier, environment, storeProxy);
       });
     }

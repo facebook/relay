@@ -41,7 +41,7 @@ export type DataWriteConfig = {
 export type NetworkWriteConfig = {
   query: ConcreteRequest,
   variables?: Variables,
-  payload: GraphQLSingularResponse | (Variables => GraphQLSingularResponse),
+  payload: GraphQLSingularResponse | ((Variables) => GraphQLSingularResponse),
   ...
 };
 
@@ -65,7 +65,7 @@ let nextId = 0;
 
 class ReactRelayTestMocker {
   _environment: IEnvironment;
-  _defaults: {[string]: NetworkWriteConfig['payload'], ...} = {};
+  _defaults: {[string]: $PropertyType<NetworkWriteConfig, 'payload'>, ...} = {};
   _pendingFetches: Array<PendingFetch> = [];
 
   constructor(env: IEnvironment) {
@@ -125,7 +125,7 @@ class ReactRelayTestMocker {
         'actorId',
       ];
       const strippedVariables = {...variables, input: {...variables.input}};
-      toRemove.forEach(item => (strippedVariables.input[item] = undefined));
+      toRemove.forEach((item) => (strippedVariables.input[item] = undefined));
       return strippedVariables;
     }
 
@@ -172,7 +172,7 @@ class ReactRelayTestMocker {
     };
 
     const isLoading = (ident: string): boolean => {
-      return this._pendingFetches.some(pending => pending.ident === ident);
+      return this._pendingFetches.some((pending) => pending.ident === ident);
     };
 
     const resolveRawQuery = (
@@ -180,7 +180,7 @@ class ReactRelayTestMocker {
       payload: GraphQLSingularResponse,
     ): void => {
       this._pendingFetches = this._pendingFetches.filter(
-        pending => pending !== toResolve,
+        (pending) => pending !== toResolve,
       );
 
       const {deferred} = toResolve;
@@ -192,7 +192,7 @@ class ReactRelayTestMocker {
       payload: {error: PayloadError, ...},
     ): void => {
       this._pendingFetches = this._pendingFetches.filter(
-        pending => pending !== toResolve,
+        (pending) => pending !== toResolve,
       );
 
       const {deferred} = toResolve;
@@ -282,7 +282,7 @@ class ReactRelayTestMocker {
     }
 
     let toResolve;
-    this._pendingFetches.forEach(pending => {
+    this._pendingFetches.forEach((pending) => {
       const pendingVars = pending.variables;
       if (pending.ident === ident) {
         invariant(

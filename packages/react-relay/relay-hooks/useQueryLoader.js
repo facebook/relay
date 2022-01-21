@@ -31,7 +31,7 @@ const {useCallback, useEffect, useRef, useState} = require('react');
 const {getRequest} = require('relay-runtime');
 
 export type LoaderFn<TQuery: OperationType> = (
-  variables: TQuery['variables'],
+  variables: $PropertyType<TQuery, 'variables'>,
   options?: UseQueryLoaderLoadQueryOptions,
 ) => void;
 
@@ -128,7 +128,7 @@ function useQueryLoader<TQuery: OperationType>(
 
   const queryLoaderCallback = useCallback(
     (
-      variables: TQuery['variables'],
+      variables: $PropertyType<TQuery, 'variables'>,
       options?: ?UseQueryLoaderLoadQueryOptions,
     ) => {
       const mergedOptions: ?UseQueryLoaderLoadQueryOptions =

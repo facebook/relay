@@ -42,11 +42,11 @@ export type GraphQLSubscriptionConfig<T: SubscriptionParameters> = {|
   configs?: Array<DeclarativeMutationConfig>,
   cacheConfig?: CacheConfig,
   subscription: GraphQLTaggedNode,
-  variables: T['variables'],
+  variables: $PropertyType<T, 'variables'>,
   onCompleted?: ?() => void,
   onError?: ?(error: Error) => void,
-  onNext?: ?(response: ?T['response']) => void,
-  updater?: ?SelectorStoreUpdater<T['response']>,
+  onNext?: ?(response: ?$PropertyType<T, 'response'>) => void,
+  updater?: ?SelectorStoreUpdater<$PropertyType<T, 'response'>>,
 |};
 
 export type DEPRECATED_GraphQLSubscriptionConfig<TSubscriptionPayload: {...}> =
@@ -91,7 +91,7 @@ function requestSubscription<TSubscriptionPayload: {...}>(
       updater,
     })
     .subscribe({
-      next: responses => {
+      next: (responses) => {
         if (onNext != null) {
           let selector = operation.fragment;
           let nextID;

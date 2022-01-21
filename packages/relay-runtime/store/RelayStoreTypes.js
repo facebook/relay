@@ -467,8 +467,8 @@ export interface RecordSourceProxy {
   invalidateStore(): void;
   readUpdatableQuery_EXPERIMENTAL<TQuery: OperationType>(
     query: GraphQLTaggedNode,
-    variables: TQuery['variables'],
-  ): TQuery['response'];
+    variables: $PropertyType<TQuery, 'variables'>,
+  ): $PropertyType<TQuery, 'response'>;
 }
 
 export interface ReadOnlyRecordSourceProxy {
@@ -626,8 +626,8 @@ export type LogEvent =
       +rootModuleID: string,
     |};
 
-export type LogFunction = LogEvent => void;
-export type LogRequestInfoFunction = mixed => void;
+export type LogFunction = (LogEvent) => void;
+export type LogRequestInfoFunction = (mixed) => void;
 
 /**
  * The public API of Relay core. Represents an encapsulated environment with its
@@ -765,7 +765,7 @@ export interface IEnvironment {
    */
   executeSubscription<TMutation: MutationParameters>(config: {|
     operation: OperationDescriptor,
-    updater?: ?SelectorStoreUpdater<TMutation['response']>,
+    updater?: ?SelectorStoreUpdater<$PropertyType<TMutation, 'response'>>,
   |}): RelayObservable<GraphQLResponse>;
 
   /**
@@ -1015,13 +1015,13 @@ export type OptimisticUpdateFunction = {|
 export type OptimisticUpdateRelayPayload<TMutation: MutationParameters> = {|
   +operation: OperationDescriptor,
   +payload: RelayResponsePayload,
-  +updater: ?SelectorStoreUpdater<TMutation['response']>,
+  +updater: ?SelectorStoreUpdater<$PropertyType<TMutation, 'response'>>,
 |};
 
 export type OptimisticResponseConfig<TMutation: MutationParameters> = {|
   +operation: OperationDescriptor,
   +response: ?PayloadData,
-  +updater: ?SelectorStoreUpdater<TMutation['response']>,
+  +updater: ?SelectorStoreUpdater<$PropertyType<TMutation, 'response'>>,
 |};
 
 /**
@@ -1091,9 +1091,11 @@ export type RelayResponsePayload = {|
  */
 export type ExecuteMutationConfig<TMutation: MutationParameters> = {|
   operation: OperationDescriptor,
-  optimisticUpdater?: ?SelectorStoreUpdater<TMutation['response']>,
+  optimisticUpdater?: ?SelectorStoreUpdater<
+    $PropertyType<TMutation, 'response'>,
+  >,
   optimisticResponse?: ?Object,
-  updater?: ?SelectorStoreUpdater<TMutation['response']>,
+  updater?: ?SelectorStoreUpdater<$PropertyType<TMutation, 'response'>>,
   uploadables?: ?UploadableMap,
 |};
 
@@ -1126,7 +1128,7 @@ export interface PublishQueue {
   commitPayload<TMutation: MutationParameters>(
     operation: OperationDescriptor,
     payload: RelayResponsePayload,
-    updater?: ?SelectorStoreUpdater<TMutation['response']>,
+    updater?: ?SelectorStoreUpdater<$PropertyType<TMutation, 'response'>>,
   ): void;
 
   /**

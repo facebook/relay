@@ -28,10 +28,16 @@ const {useContext, useEffect, useMemo} = require('react');
 const {stableCopy} = require('relay-runtime');
 
 type PreloadedEntryPoint<TEntryPointComponent> = $ReadOnly<{|
-  entryPoints: React.ElementConfig<TEntryPointComponent>['entryPoints'],
-  extraProps: React.ElementConfig<TEntryPointComponent>['extraProps'],
+  entryPoints: $PropertyType<
+    React.ElementConfig<TEntryPointComponent>,
+    'entryPoints',
+  >,
+  extraProps: $PropertyType<
+    React.ElementConfig<TEntryPointComponent>,
+    'extraProps',
+  >,
   getComponent: () => TEntryPointComponent,
-  queries: React.ElementConfig<TEntryPointComponent>['queries'],
+  queries: $PropertyType<React.ElementConfig<TEntryPointComponent>, 'queries'>,
   rootModuleID: string,
 |}>;
 
@@ -91,7 +97,7 @@ function prepareEntryPoint<
   const preloadedEntryPoints: $Shape<TPreloadedEntryPoints> = {};
   if (queries != null) {
     const queriesPropNames = Object.keys(queries);
-    queriesPropNames.forEach(queryPropName => {
+    queriesPropNames.forEach((queryPropName) => {
       const {environmentProviderOptions, options, parameters, variables} =
         queries[queryPropName];
 
@@ -111,7 +117,7 @@ function prepareEntryPoint<
 
   if (entryPoints != null) {
     const entryPointPropNames = Object.keys(entryPoints);
-    entryPointPropNames.forEach(entryPointPropName => {
+    entryPointPropNames.forEach((entryPointPropName) => {
       const entryPointDescription = entryPoints[entryPointPropName];
       if (entryPointDescription == null) {
         return;

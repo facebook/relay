@@ -154,7 +154,7 @@ class RelayModernEnvironment implements IEnvironment {
     this.options = config.options;
     this._isServer = config.isServer ?? false;
 
-    (this: any).__setNet = newNet =>
+    (this: any).__setNet = (newNet) =>
       (this._network = wrapNetworkWithLogObserver(this, newNet));
 
     if (__DEV__) {
@@ -231,7 +231,7 @@ class RelayModernEnvironment implements IEnvironment {
     optimisticConfig: OptimisticResponseConfig<TMutation>,
   ): Disposable {
     const subscription = this._execute({
-      createSource: () => RelayObservable.create(_sink => {}),
+      createSource: () => RelayObservable.create((_sink) => {}),
       isClientPayload: false,
       operation: optimisticConfig.operation,
       optimisticConfig,
@@ -368,7 +368,7 @@ class RelayModernEnvironment implements IEnvironment {
     updater,
   }: {|
     operation: OperationDescriptor,
-    updater?: ?SelectorStoreUpdater<TMutation['response']>,
+    updater?: ?SelectorStoreUpdater<$PropertyType<TMutation, 'response'>>,
   |}): RelayObservable<GraphQLResponse> {
     return this._execute({
       createSource: () =>
@@ -468,11 +468,11 @@ class RelayModernEnvironment implements IEnvironment {
     isClientPayload: boolean,
     operation: OperationDescriptor,
     optimisticConfig: ?OptimisticResponseConfig<TMutation>,
-    updater: ?SelectorStoreUpdater<TMutation['response']>,
+    updater: ?SelectorStoreUpdater<$PropertyType<TMutation, 'response'>>,
   |}): RelayObservable<GraphQLResponse> {
     const publishQueue = this._publishQueue;
     const store = this._store;
-    return RelayObservable.create(sink => {
+    return RelayObservable.create((sink) => {
       const executor = OperationExecutor.execute({
         actorIdentifier: INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         getDataID: this._getDataID,

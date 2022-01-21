@@ -75,7 +75,7 @@ export type PreloadedQueryInner_DEPRECATED<
   +id: ?string,
   +name: string,
   +source: ?Observable<GraphQLResponse>,
-  +variables: TQuery['variables'],
+  +variables: $PropertyType<TQuery, 'variables'>,
   +status: PreloadQueryStatus,
 |};
 
@@ -100,7 +100,7 @@ export type PreloadedQueryInner<
   +networkCacheConfig: ?CacheConfig,
   +source: ?Observable<GraphQLResponse>,
   +kind: 'PreloadedQuery',
-  +variables: TQuery['variables'],
+  +variables: $PropertyType<TQuery, 'variables'>,
 |};
 
 export type PreloadQueryStatus = {|
@@ -203,11 +203,14 @@ export type PreloadProps<
 // Return type of `loadEntryPoint(...)`
 export type PreloadedEntryPoint<TEntryPointComponent> = $ReadOnly<{|
   dispose: () => void,
-  entryPoints: ElementConfig<TEntryPointComponent>['entryPoints'],
-  extraProps: ElementConfig<TEntryPointComponent>['extraProps'],
+  entryPoints: $PropertyType<
+    ElementConfig<TEntryPointComponent>,
+    'entryPoints',
+  >,
+  extraProps: $PropertyType<ElementConfig<TEntryPointComponent>, 'extraProps'>,
   getComponent: () => TEntryPointComponent,
   isDisposed: boolean,
-  queries: ElementConfig<TEntryPointComponent>['queries'],
+  queries: $PropertyType<ElementConfig<TEntryPointComponent>, 'queries'>,
   rootModuleID: string,
 |}>;
 
@@ -224,9 +227,10 @@ type ComponentFromEntryPoint<+TEntryPoint> = $Call<
   TEntryPoint,
 >;
 
-export type EntryPointElementConfig<+TEntryPoint> = ElementConfig<
-  ComponentFromEntryPoint<TEntryPoint>,
->['props'];
+export type EntryPointElementConfig<+TEntryPoint> = $PropertyType<
+  ElementConfig<ComponentFromEntryPoint<TEntryPoint>>,
+  'props',
+>;
 
 export type ThinQueryParams<
   TQuery: OperationType,
@@ -235,7 +239,7 @@ export type ThinQueryParams<
   environmentProviderOptions?: ?TEnvironmentProviderOptions,
   options?: ?PreloadOptions,
   parameters: PreloadableConcreteRequest<TQuery>,
-  variables: TQuery['variables'],
+  variables: $PropertyType<TQuery, 'variables'>,
 |}>;
 
 type ThinNestedEntryPointParams<TEntryPointParams, TEntryPoint> = $ReadOnly<{|
@@ -260,14 +264,14 @@ export type ExtractEntryPointTypeHelper = <
 export type EntryPoint<TEntryPointParams, +TEntryPointComponent> =
   InternalEntryPointRepresentation<
     TEntryPointParams,
-    ElementConfig<TEntryPointComponent>['queries'],
-    ElementConfig<TEntryPointComponent>['entryPoints'],
-    ElementConfig<TEntryPointComponent>['props'],
-    ElementConfig<TEntryPointComponent>['extraProps'],
+    $PropertyType<ElementConfig<TEntryPointComponent>, 'queries'>,
+    $PropertyType<ElementConfig<TEntryPointComponent>, 'entryPoints'>,
+    $PropertyType<ElementConfig<TEntryPointComponent>, 'props'>,
+    $PropertyType<ElementConfig<TEntryPointComponent>, 'extraProps'>,
   >;
 
 type ExtractFirstParam = <P, R>((P) => R) => P;
-type GetPreloadPropsType<T> = T['getPreloadProps'];
+type GetPreloadPropsType<T> = $PropertyType<T, 'getPreloadProps'>;
 export type PreloadParamsOf<T> = $Call<
   ExtractFirstParam,
   GetPreloadPropsType<T>,

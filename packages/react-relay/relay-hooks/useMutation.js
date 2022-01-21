@@ -36,20 +36,25 @@ export type UseMutationConfig<TMutation: MutationParameters> = {|
   configs?: Array<DeclarativeMutationConfig>,
   onError?: ?(error: Error) => void,
   onCompleted?: ?(
-    response: TMutation['response'],
+    response: $PropertyType<TMutation, 'response'>,
     errors: ?Array<PayloadError>,
   ) => void,
   onNext?: ?() => void,
   onUnsubscribe?: ?() => void,
-  optimisticResponse?: {
-    +rawResponse?: {...},
-    ...TMutation,
-    ...
-  }['rawResponse'],
-  optimisticUpdater?: ?SelectorStoreUpdater<TMutation['response']>,
-  updater?: ?SelectorStoreUpdater<TMutation['response']>,
+  optimisticResponse?: $PropertyType<
+    {
+      +rawResponse?: {...},
+      ...TMutation,
+      ...
+    },
+    'rawResponse',
+  >,
+  optimisticUpdater?: ?SelectorStoreUpdater<
+    $PropertyType<TMutation, 'response'>,
+  >,
+  updater?: ?SelectorStoreUpdater<$PropertyType<TMutation, 'response'>>,
   uploadables?: UploadableMap,
-  variables: TMutation['variables'],
+  variables: $PropertyType<TMutation, 'variables'>,
 |};
 
 function useMutation<TMutation: MutationParameters>(
@@ -67,7 +72,7 @@ function useMutation<TMutation: MutationParameters>(
   const [isMutationInFlight, setMutationInFlight] = useState(false);
 
   const cleanup = useCallback(
-    disposable => {
+    (disposable) => {
       if (
         environmentRef.current === environment &&
         mutationRef.current === mutation
@@ -104,7 +109,7 @@ function useMutation<TMutation: MutationParameters>(
           cleanup(disposable);
           config.onCompleted?.(response, errors);
         },
-        onError: error => {
+        onError: (error) => {
           cleanup(disposable);
           config.onError?.(error);
         },

@@ -167,7 +167,7 @@ function fetchQuery<TVariables: Variables, TData, TRawResponse>(
 function getNetworkObservable<TQuery: OperationType>(
   environment: IEnvironment,
   operation: OperationDescriptor,
-): RelayObservable<TQuery['response']> {
+): RelayObservable<$PropertyType<TQuery, 'response'>> {
   return fetchQueryInternal
     .fetchQuery(environment, operation)
     .map(() => environment.lookup(operation.fragment));

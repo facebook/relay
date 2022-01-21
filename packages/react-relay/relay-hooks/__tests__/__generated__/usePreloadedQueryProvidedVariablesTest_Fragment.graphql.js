@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<18b5fe708443fcf87cdf3d6e688c0ecf>>
+ * @generated SignedSource<<f4791e085c218e1b9c4fefa4b25e44dd>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -37,11 +37,11 @@ export type usePreloadedQueryProvidedVariablesTest_Fragment$key = {
 var node/*: ReaderFragment*/ = (function(){
 var v0 = {
   "kind": "RootArgument",
-  "name": "__pv__RelayProvider_returnsFalse"
+  "name": "__relay_internal__pv__RelayProvider_returnsFalse"
 },
 v1 = {
   "kind": "RootArgument",
-  "name": "__pv__RelayProvider_returnsTrue"
+  "name": "__relay_internal__pv__RelayProvider_returnsTrue"
 };
 return {
   "argumentDefinitions": [
@@ -55,7 +55,7 @@ return {
   "name": "usePreloadedQueryProvidedVariablesTest_Fragment",
   "selections": [
     {
-      "condition": "__pv__RelayProvider_returnsTrue",
+      "condition": "__relay_internal__pv__RelayProvider_returnsTrue",
       "kind": "Condition",
       "passingValue": true,
       "selections": [
@@ -69,7 +69,7 @@ return {
       ]
     },
     {
-      "condition": "__pv__RelayProvider_returnsFalse",
+      "condition": "__relay_internal__pv__RelayProvider_returnsFalse",
       "kind": "Condition",
       "passingValue": true,
       "selections": [
@@ -83,7 +83,7 @@ return {
       ]
     },
     {
-      "condition": "__pv__RelayProvider_returnsFalse",
+      "condition": "__relay_internal__pv__RelayProvider_returnsFalse",
       "kind": "Condition",
       "passingValue": false,
       "selections": [
@@ -97,7 +97,7 @@ return {
       ]
     },
     {
-      "condition": "__pv__RelayProvider_returnsTrue",
+      "condition": "__relay_internal__pv__RelayProvider_returnsTrue",
       "kind": "Condition",
       "passingValue": false,
       "selections": [

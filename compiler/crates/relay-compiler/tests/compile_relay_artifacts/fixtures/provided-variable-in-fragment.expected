@@ -76,17 +76,17 @@ fragment providedVariableInFragment_Fragment2 on User
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "__pv__fooGKProvider"
+        "name": "__relay_internal__pv__fooGKProvider"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "__pv__foobarGKProvider"
+        "name": "__relay_internal__pv__foobarGKProvider"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "__pv__barGKProvider"
+        "name": "__relay_internal__pv__barGKProvider"
       }
     ],
     "kind": "Operation",
@@ -117,7 +117,7 @@ fragment providedVariableInFragment_Fragment2 on User
             "kind": "InlineFragment",
             "selections": [
               {
-                "condition": "__pv__fooGKProvider",
+                "condition": "__relay_internal__pv__fooGKProvider",
                 "kind": "Condition",
                 "passingValue": true,
                 "selections": [
@@ -131,7 +131,7 @@ fragment providedVariableInFragment_Fragment2 on User
                 ]
               },
               {
-                "condition": "__pv__foobarGKProvider",
+                "condition": "__relay_internal__pv__foobarGKProvider",
                 "kind": "Condition",
                 "passingValue": true,
                 "selections": [
@@ -145,7 +145,7 @@ fragment providedVariableInFragment_Fragment2 on User
                 ]
               },
               {
-                "condition": "__pv__barGKProvider",
+                "condition": "__relay_internal__pv__barGKProvider",
                 "kind": "Condition",
                 "passingValue": false,
                 "selections": [
@@ -181,9 +181,9 @@ fragment providedVariableInFragment_Fragment2 on User
     "operationKind": "query",
     "text": null,
     "providedVariables": {
-      "__pv__fooGKProvider": require('fooGKProvider'),
-      "__pv__foobarGKProvider": require('foobarGKProvider'),
-      "__pv__barGKProvider": require('barGKProvider')
+      "__relay_internal__pv__fooGKProvider": require('fooGKProvider'),
+      "__relay_internal__pv__foobarGKProvider": require('foobarGKProvider'),
+      "__relay_internal__pv__barGKProvider": require('barGKProvider')
     }
   }
 }
@@ -192,9 +192,9 @@ QUERY:
 
 query providedVariableInFragment_Query(
   $id: ID!
-  $__pv__fooGKProvider: Boolean!
-  $__pv__foobarGKProvider: Boolean!
-  $__pv__barGKProvider: Boolean!
+  $__relay_internal__pv__fooGKProvider: Boolean!
+  $__relay_internal__pv__foobarGKProvider: Boolean!
+  $__relay_internal__pv__barGKProvider: Boolean!
 ) {
   node(id: $id) {
     __typename
@@ -205,12 +205,12 @@ query providedVariableInFragment_Query(
 }
 
 fragment providedVariableInFragment_Fragment1 on User {
-  name @include(if: $__pv__fooGKProvider)
-  alternate_name @include(if: $__pv__foobarGKProvider)
+  name @include(if: $__relay_internal__pv__fooGKProvider)
+  alternate_name @include(if: $__relay_internal__pv__foobarGKProvider)
 }
 
 fragment providedVariableInFragment_Fragment2 on User {
-  username @skip(if: $__pv__barGKProvider)
+  username @skip(if: $__relay_internal__pv__barGKProvider)
 }
 
 
@@ -218,11 +218,11 @@ fragment providedVariableInFragment_Fragment2 on User {
   "argumentDefinitions": [
     {
       "kind": "RootArgument",
-      "name": "__pv__fooGKProvider"
+      "name": "__relay_internal__pv__fooGKProvider"
     },
     {
       "kind": "RootArgument",
-      "name": "__pv__foobarGKProvider"
+      "name": "__relay_internal__pv__foobarGKProvider"
     }
   ],
   "kind": "Fragment",
@@ -230,7 +230,7 @@ fragment providedVariableInFragment_Fragment2 on User {
   "name": "providedVariableInFragment_Fragment1",
   "selections": [
     {
-      "condition": "__pv__fooGKProvider",
+      "condition": "__relay_internal__pv__fooGKProvider",
       "kind": "Condition",
       "passingValue": true,
       "selections": [
@@ -244,7 +244,7 @@ fragment providedVariableInFragment_Fragment2 on User {
       ]
     },
     {
-      "condition": "__pv__foobarGKProvider",
+      "condition": "__relay_internal__pv__foobarGKProvider",
       "kind": "Condition",
       "passingValue": true,
       "selections": [
@@ -266,7 +266,7 @@ fragment providedVariableInFragment_Fragment2 on User {
   "argumentDefinitions": [
     {
       "kind": "RootArgument",
-      "name": "__pv__barGKProvider"
+      "name": "__relay_internal__pv__barGKProvider"
     }
   ],
   "kind": "Fragment",
@@ -274,7 +274,7 @@ fragment providedVariableInFragment_Fragment2 on User {
   "name": "providedVariableInFragment_Fragment2",
   "selections": [
     {
-      "condition": "__pv__barGKProvider",
+      "condition": "__relay_internal__pv__barGKProvider",
       "kind": "Condition",
       "passingValue": false,
       "selections": [

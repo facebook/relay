@@ -244,7 +244,7 @@ describe('provided variables', () => {
     preloadWithFetchKey('fetchKey0');
 
     expectToWarn(
-      'Relay: Expected function `get` for provider `__pv__RelayProvider_impure` ' +
+      'Relay: Expected function `get` for provider `__relay_internal__pv__RelayProvider_impure` ' +
         'to be a pure function, but got conflicting return values `1` and `0`',
       () => {
         preloadWithFetchKey('fetchKey1');

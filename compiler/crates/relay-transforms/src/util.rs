@@ -135,6 +135,7 @@ lazy_static! {
         "defer".intern(),
     ];
     static ref VALID_PROVIDED_VARIABLE_NAME: Regex = Regex::new(r#"^[A-Za-z0-9_]*$"#).unwrap();
+    pub static ref INTERNAL_RELAY_VARIABLES_PREFIX: StringKey = "__relay_internal".intern();
 }
 
 pub struct CustomMetadataDirectives;
@@ -175,13 +176,22 @@ pub fn get_fragment_filename(fragment_name: StringKey) -> StringKey {
 
 pub fn format_provided_variable_name(module_name: StringKey) -> StringKey {
     if VALID_PROVIDED_VARIABLE_NAME.is_match(module_name.lookup()) {
-        format!("__pv__{}", module_name.lookup()).intern()
+        format!(
+            "{}__pv__{}",
+            *INTERNAL_RELAY_VARIABLES_PREFIX,
+            module_name.lookup()
+        )
+        .intern()
     } else {
         let transformed_name = module_name
             .lookup()
             .chars()
             .filter(|c| c.is_ascii_alphanumeric() || *c == '_')
             .collect::<String>();
-        format!("__pv__{}", transformed_name).intern()
+        format!(
+            "{}__pv__{}",
+            *INTERNAL_RELAY_VARIABLES_PREFIX, transformed_name
+        )
+        .intern()
     }
 }

@@ -47,10 +47,10 @@ export type queryOnlyProvidedVar_MultiFragment = {|
   response: queryOnlyProvidedVar_MultiFragment$data,
 |};
 type ProvidedVariableProviderType = {|
-  +__pv__includeNameProvider: {|
+  +__relay_internal__pv__includeNameProvider: {|
     +get: () => CustomBoolean,
   |},
-  +__pv__numberOfFriendsProvider: {|
+  +__relay_internal__pv__numberOfFriendsProvider: {|
     +get: () => number,
   |},
 |};
@@ -67,7 +67,7 @@ export type queryOnlyProvidedVar_OneFragment = {|
   response: queryOnlyProvidedVar_OneFragment$data,
 |};
 type ProvidedVariableProviderType = {|
-  +__pv__includeNameProvider: {|
+  +__relay_internal__pv__includeNameProvider: {|
     +get: () => CustomBoolean,
   |},
 |};

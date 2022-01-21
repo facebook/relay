@@ -64,13 +64,13 @@ export type queryMixedProvidedVar_MultiFragment = {|
   response: queryMixedProvidedVar_MultiFragment$data,
 |};
 type ProvidedVariableProviderType = {|
-  +__pv__includeNameProvider: {|
+  +__relay_internal__pv__includeNameProvider: {|
     +get: () => CustomBoolean,
   |},
-  +__pv__numberOfFriendsProvider: {|
+  +__relay_internal__pv__numberOfFriendsProvider: {|
     +get: () => number,
   |},
-  +__pv__skipFirstnameProvider: {|
+  +__relay_internal__pv__skipFirstnameProvider: {|
     +get: () => CustomBoolean,
   |},
 |};
@@ -89,7 +89,7 @@ export type queryMixedProvidedVar_OneFragment = {|
   response: queryMixedProvidedVar_OneFragment$data,
 |};
 type ProvidedVariableProviderType = {|
-  +__pv__includeNameProvider: {|
+  +__relay_internal__pv__includeNameProvider: {|
     +get: () => CustomBoolean,
   |},
 |};

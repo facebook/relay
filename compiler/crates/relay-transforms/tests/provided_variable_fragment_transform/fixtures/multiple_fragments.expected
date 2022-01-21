@@ -22,7 +22,7 @@ fragment UserDataFragment on User {
 }
 ==================================== OUTPUT ===================================
 fragment ProfilePictureFragment on User {
-  profilePicture(size: $__pv__profilePictureScaleProvider) {
+  profilePicture(size: $__relay_internal__pv__profilePictureScaleProvider) {
     uri
   }
 }
@@ -36,5 +36,5 @@ fragment UserDataFragment on User {
 }
 
 fragment UserIDFragment on Actor {
-  id @include(if: $__pv__includeIdProvider)
+  id @include(if: $__relay_internal__pv__includeIdProvider)
 }

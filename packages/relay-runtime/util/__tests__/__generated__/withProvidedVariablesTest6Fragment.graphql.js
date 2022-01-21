@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<e2637d4ad25e7bb167ada053bd08cbb6>>
+ * @generated SignedSource<<a88effc4c97751155320fd32b4b42c44>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -37,7 +37,7 @@ var node/*: ReaderFragment*/ = {
   "argumentDefinitions": [
     {
       "kind": "RootArgument",
-      "name": "__pv__provideRandomNumber_invalid1"
+      "name": "__relay_internal__pv__provideRandomNumber_invalid1"
     }
   ],
   "kind": "Fragment",
@@ -50,7 +50,7 @@ var node/*: ReaderFragment*/ = {
         {
           "kind": "Variable",
           "name": "scale",
-          "variableName": "__pv__provideRandomNumber_invalid1"
+          "variableName": "__relay_internal__pv__provideRandomNumber_invalid1"
         }
       ],
       "concreteType": "Image",

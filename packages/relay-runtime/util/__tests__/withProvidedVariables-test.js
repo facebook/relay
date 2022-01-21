@@ -46,7 +46,9 @@ describe('withProvidedVariables', () => {
         userVariables,
         userQuery.params,
       );
-      expect(newVariables.__pv__provideNumberOfFriends).toEqual(15.0);
+      expect(newVariables.__relay_internal__pv__provideNumberOfFriends).toEqual(
+        15.0,
+      );
       expect(Object.keys(newVariables).length).toEqual(1);
     });
   });
@@ -78,7 +80,9 @@ describe('withProvidedVariables', () => {
         userVariables,
         userQuery.params,
       );
-      expect(newVariables.__pv__provideNumberOfFriends).toEqual(15.0);
+      expect(newVariables.__relay_internal__pv__provideNumberOfFriends).toEqual(
+        15.0,
+      );
       expect(newVariables.includeFriendsCount).toEqual(true);
       expect(Object.keys(newVariables).length).toEqual(2);
     });
@@ -114,8 +118,12 @@ describe('withProvidedVariables', () => {
         userVariables,
         userQuery.params,
       );
-      expect(newVariables.__pv__provideNumberOfFriends).toEqual(15.0);
-      expect(newVariables.__pv__provideIncludeUserNames).toEqual(true);
+      expect(newVariables.__relay_internal__pv__provideNumberOfFriends).toEqual(
+        15.0,
+      );
+      expect(
+        newVariables.__relay_internal__pv__provideIncludeUserNames,
+      ).toEqual(true);
       expect(Object.keys(newVariables).length).toEqual(2);
     });
   });
@@ -168,8 +176,12 @@ describe('withProvidedVariables', () => {
         userVariables,
         userQuery.params,
       );
-      expect(newVariables.__pv__provideNumberOfFriends).toEqual(15.0);
-      expect(newVariables.__pv__provideIncludeUserNames).toEqual(true);
+      expect(newVariables.__relay_internal__pv__provideNumberOfFriends).toEqual(
+        15.0,
+      );
+      expect(
+        newVariables.__relay_internal__pv__provideIncludeUserNames,
+      ).toEqual(true);
       expect(Object.keys(newVariables).length).toEqual(2);
     });
   });
@@ -207,13 +219,17 @@ describe('withProvidedVariables', () => {
       const userVariables = {};
       let vars = withProvidedVariables(userVariables, userQuery.params);
       // first call should return 0
-      expect(vars.__pv__provideRandomNumber_invalid1).toEqual(0);
-      expect(vars.__pv__provideRandomNumber_invalid2).toEqual(0);
+      expect(vars.__relay_internal__pv__provideRandomNumber_invalid1).toEqual(
+        0,
+      );
+      expect(vars.__relay_internal__pv__provideRandomNumber_invalid2).toEqual(
+        0,
+      );
       expectToWarnMany(
         [
-          'Relay: Expected function `get` for provider `__pv__provideRandomNumber_invalid1`' +
+          'Relay: Expected function `get` for provider `__relay_internal__pv__provideRandomNumber_invalid1`' +
             ' to be a pure function, but got conflicting return values `1` and `0`',
-          'Relay: Expected function `get` for provider `__pv__provideRandomNumber_invalid2`' +
+          'Relay: Expected function `get` for provider `__relay_internal__pv__provideRandomNumber_invalid2`' +
             ' to be a pure function, but got conflicting return values `1` and `0`',
         ],
         () => {
@@ -221,8 +237,12 @@ describe('withProvidedVariables', () => {
         },
       );
       // should use cached value from first call to provider.get()
-      expect(vars.__pv__provideRandomNumber_invalid1).toEqual(0);
-      expect(vars.__pv__provideRandomNumber_invalid2).toEqual(0);
+      expect(vars.__relay_internal__pv__provideRandomNumber_invalid1).toEqual(
+        0,
+      );
+      expect(vars.__relay_internal__pv__provideRandomNumber_invalid2).toEqual(
+        0,
+      );
     });
 
     it('warns for different queries that use the same provider function', () => {
@@ -250,14 +270,16 @@ describe('withProvidedVariables', () => {
       const userVariables = {};
       let vars;
       expectToWarn(
-        'Relay: Expected function `get` for provider `__pv__provideRandomNumber_invalid1`' +
+        'Relay: Expected function `get` for provider `__relay_internal__pv__provideRandomNumber_invalid1`' +
           ' to be a pure function, but got conflicting return values `2` and `0`',
         () => {
           vars = withProvidedVariables(userVariables, userQuery.params);
         },
       );
       // should use cached value from previous test case
-      expect(vars.__pv__provideRandomNumber_invalid1).toEqual(0);
+      expect(vars.__relay_internal__pv__provideRandomNumber_invalid1).toEqual(
+        0,
+      );
     });
   });
 });

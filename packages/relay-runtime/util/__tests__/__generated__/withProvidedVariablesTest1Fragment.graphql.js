@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<faf1a17bdabc32ad64ef6f6cf62d41b6>>
+ * @generated SignedSource<<54483b4aa69bf286e3056faf0d68f7a5>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -37,7 +37,7 @@ var node/*: ReaderFragment*/ = {
   "argumentDefinitions": [
     {
       "kind": "RootArgument",
-      "name": "__pv__provideNumberOfFriends"
+      "name": "__relay_internal__pv__provideNumberOfFriends"
     }
   ],
   "kind": "Fragment",
@@ -50,7 +50,7 @@ var node/*: ReaderFragment*/ = {
         {
           "kind": "Variable",
           "name": "first",
-          "variableName": "__pv__provideNumberOfFriends"
+          "variableName": "__relay_internal__pv__provideNumberOfFriends"
         }
       ],
       "concreteType": "FriendsConnection",

@@ -14,7 +14,7 @@ fragment TestFragment on User
 ==================================== OUTPUT ===================================
 query TestQuery(
   $id: ID!
-  $__pv__fooGKProvider: Boolean! @__ProvidedVariableMetadata
+  $__relay_internal__pv__fooGKProvider: Boolean! @__ProvidedVariableMetadata
   # ProvidedVariableMetadata {
   #     module_name: "fooGKProvider",
   # }
@@ -27,5 +27,5 @@ query TestQuery(
 }
 
 fragment TestFragment on User {
-  name @include(if: $__pv__fooGKProvider)
+  name @include(if: $__relay_internal__pv__fooGKProvider)
 }

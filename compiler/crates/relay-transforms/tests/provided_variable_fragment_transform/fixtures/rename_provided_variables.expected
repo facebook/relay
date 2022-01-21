@@ -22,16 +22,16 @@ fragment FragmentB on User
 }
 ==================================== OUTPUT ===================================
 fragment FragmentA on User {
-  picture1: profilePicture(size: $__pv__var1Provider) {
+  picture1: profilePicture(size: $__relay_internal__pv__var1Provider) {
     uri
   }
-  picture2: profilePicture(size: $__pv__var1Provider) {
+  picture2: profilePicture(size: $__relay_internal__pv__var1Provider) {
     uri
   }
 }
 
 fragment FragmentB on User {
-  picture1: profilePicture(size: $__pv__var1Provider) {
+  picture1: profilePicture(size: $__relay_internal__pv__var1Provider) {
     uri
   }
 }

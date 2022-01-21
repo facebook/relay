@@ -856,9 +856,9 @@ describe('Preload queries that use provided variables', () => {
 
   const variables = {id: 4};
   const generatedVariables = {
-    __pv__RelayProvider_returnsTrue:
+    __relay_internal__pv__RelayProvider_returnsTrue:
       require('./RelayProvider_returnsTrue').get(),
-    __pv__RelayProvider_returnsFalse:
+    __relay_internal__pv__RelayProvider_returnsFalse:
       require('./RelayProvider_returnsFalse').get(),
     ...variables,
   };

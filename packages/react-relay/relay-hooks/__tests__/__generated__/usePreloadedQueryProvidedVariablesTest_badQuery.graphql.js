@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<620cce0eea4474ad5fe9533e0049e846>>
+ * @generated SignedSource<<dc33740a5240633109c811eb07d8f313>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -32,14 +32,14 @@ export type usePreloadedQueryProvidedVariablesTest_badQuery = {|
   response: usePreloadedQueryProvidedVariablesTest_badQuery$data,
 |};
 type ProvidedVariableProviderType = {|
-  +__pv__RelayProvider_impure: {|
+  +__relay_internal__pv__RelayProvider_impure: {|
     +get: () => number,
   |},
 |};
 */
 
 var providedVariableProviders/*: ProvidedVariableProviderType*/ = {
-  "__pv__RelayProvider_impure": require('./../RelayProvider_impure')
+  "__relay_internal__pv__RelayProvider_impure": require('./../RelayProvider_impure')
 };
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -91,7 +91,7 @@ return {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "__pv__RelayProvider_impure"
+        "name": "__relay_internal__pv__RelayProvider_impure"
       }
     ],
     "kind": "Operation",
@@ -121,7 +121,7 @@ return {
                   {
                     "kind": "Variable",
                     "name": "scale",
-                    "variableName": "__pv__RelayProvider_impure"
+                    "variableName": "__relay_internal__pv__RelayProvider_impure"
                   }
                 ],
                 "concreteType": "Image",
@@ -156,14 +156,14 @@ return {
     ]
   },
   "params": {
-    "cacheID": "86d8658b2038415eca923ab4e1b67160",
+    "cacheID": "6246b1bea212b475b9777fc29e6eb1d4",
     "id": null,
     "metadata": {},
     "name": "usePreloadedQueryProvidedVariablesTest_badQuery",
     "operationKind": "query",
-    "text": "query usePreloadedQueryProvidedVariablesTest_badQuery(\n  $id: ID!\n  $__pv__RelayProvider_impure: Float!\n) {\n  node(id: $id) {\n    __typename\n    ...usePreloadedQueryProvidedVariablesTest_badFragment\n    id\n  }\n}\n\nfragment usePreloadedQueryProvidedVariablesTest_badFragment on User {\n  profile_picture(scale: $__pv__RelayProvider_impure) {\n    uri\n  }\n}\n",
+    "text": "query usePreloadedQueryProvidedVariablesTest_badQuery(\n  $id: ID!\n  $__relay_internal__pv__RelayProvider_impure: Float!\n) {\n  node(id: $id) {\n    __typename\n    ...usePreloadedQueryProvidedVariablesTest_badFragment\n    id\n  }\n}\n\nfragment usePreloadedQueryProvidedVariablesTest_badFragment on User {\n  profile_picture(scale: $__relay_internal__pv__RelayProvider_impure) {\n    uri\n  }\n}\n",
     "providedVariables": {
-      "__pv__RelayProvider_impure": require('./../RelayProvider_impure')
+      "__relay_internal__pv__RelayProvider_impure": require('./../RelayProvider_impure')
     }
   }
 };

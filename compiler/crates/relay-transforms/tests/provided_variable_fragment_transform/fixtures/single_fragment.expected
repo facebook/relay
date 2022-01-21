@@ -8,7 +8,7 @@ fragment SingleFragment on User
 }
 ==================================== OUTPUT ===================================
 fragment SingleFragment on User {
-  profilePicture(size: $__pv__profilePictureScaleProvider) {
+  profilePicture(size: $__relay_internal__pv__profilePictureScaleProvider) {
     uri
   }
 }

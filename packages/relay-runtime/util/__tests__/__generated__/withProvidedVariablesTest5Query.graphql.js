@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b914b12caad02d109ad117aa8d2f6767>>
+ * @generated SignedSource<<3f4949fa6157623cfc18a6c2f8ad28f4>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -30,18 +30,18 @@ export type withProvidedVariablesTest5Query = {|
   response: withProvidedVariablesTest5Query$data,
 |};
 type ProvidedVariableProviderType = {|
-  +__pv__provideRandomNumber_invalid1: {|
+  +__relay_internal__pv__provideRandomNumber_invalid1: {|
     +get: () => number,
   |},
-  +__pv__provideRandomNumber_invalid2: {|
+  +__relay_internal__pv__provideRandomNumber_invalid2: {|
     +get: () => number,
   |},
 |};
 */
 
 var providedVariableProviders/*: ProvidedVariableProviderType*/ = {
-  "__pv__provideRandomNumber_invalid1": require('./../provideRandomNumber_invalid1'),
-  "__pv__provideRandomNumber_invalid2": require('./../provideRandomNumber_invalid2')
+  "__relay_internal__pv__provideRandomNumber_invalid1": require('./../provideRandomNumber_invalid1'),
+  "__relay_internal__pv__provideRandomNumber_invalid2": require('./../provideRandomNumber_invalid2')
 };
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -94,12 +94,12 @@ return {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "__pv__provideRandomNumber_invalid1"
+        "name": "__relay_internal__pv__provideRandomNumber_invalid1"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "__pv__provideRandomNumber_invalid2"
+        "name": "__relay_internal__pv__provideRandomNumber_invalid2"
       }
     ],
     "kind": "Operation",
@@ -129,7 +129,7 @@ return {
                   {
                     "kind": "Variable",
                     "name": "scale",
-                    "variableName": "__pv__provideRandomNumber_invalid1"
+                    "variableName": "__relay_internal__pv__provideRandomNumber_invalid1"
                   }
                 ],
                 "concreteType": "Image",
@@ -145,7 +145,7 @@ return {
                   {
                     "kind": "Variable",
                     "name": "scale",
-                    "variableName": "__pv__provideRandomNumber_invalid2"
+                    "variableName": "__relay_internal__pv__provideRandomNumber_invalid2"
                   }
                 ],
                 "concreteType": "Image",
@@ -172,15 +172,15 @@ return {
     ]
   },
   "params": {
-    "cacheID": "1aa469c4603ba046b869adafac26238f",
+    "cacheID": "f1ccf6c12138557a6621fbd56cef024b",
     "id": null,
     "metadata": {},
     "name": "withProvidedVariablesTest5Query",
     "operationKind": "query",
-    "text": "query withProvidedVariablesTest5Query(\n  $__pv__provideRandomNumber_invalid1: Float!\n  $__pv__provideRandomNumber_invalid2: Float!\n) {\n  node(id: 4) {\n    __typename\n    ...withProvidedVariablesTest5Fragment\n    id\n  }\n}\n\nfragment withProvidedVariablesTest5Fragment on User {\n  profile_picture(scale: $__pv__provideRandomNumber_invalid1) {\n    uri\n  }\n  other_picture: profile_picture(scale: $__pv__provideRandomNumber_invalid2) {\n    uri\n  }\n}\n",
+    "text": "query withProvidedVariablesTest5Query(\n  $__relay_internal__pv__provideRandomNumber_invalid1: Float!\n  $__relay_internal__pv__provideRandomNumber_invalid2: Float!\n) {\n  node(id: 4) {\n    __typename\n    ...withProvidedVariablesTest5Fragment\n    id\n  }\n}\n\nfragment withProvidedVariablesTest5Fragment on User {\n  profile_picture(scale: $__relay_internal__pv__provideRandomNumber_invalid1) {\n    uri\n  }\n  other_picture: profile_picture(scale: $__relay_internal__pv__provideRandomNumber_invalid2) {\n    uri\n  }\n}\n",
     "providedVariables": {
-      "__pv__provideRandomNumber_invalid1": require('./../provideRandomNumber_invalid1'),
-      "__pv__provideRandomNumber_invalid2": require('./../provideRandomNumber_invalid2')
+      "__relay_internal__pv__provideRandomNumber_invalid1": require('./../provideRandomNumber_invalid1'),
+      "__relay_internal__pv__provideRandomNumber_invalid2": require('./../provideRandomNumber_invalid2')
     }
   }
 };

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<9aaa0def3d36a631c7312ccfe16fed6c>>
+ * @generated SignedSource<<fc950d63711452a7c9770765788881ca>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -31,18 +31,18 @@ export type withProvidedVariablesTest4Query = {|
   response: withProvidedVariablesTest4Query$data,
 |};
 type ProvidedVariableProviderType = {|
-  +__pv__provideNumberOfFriends: {|
+  +__relay_internal__pv__provideNumberOfFriends: {|
     +get: () => number,
   |},
-  +__pv__provideIncludeUserNames: {|
+  +__relay_internal__pv__provideIncludeUserNames: {|
     +get: () => boolean,
   |},
 |};
 */
 
 var providedVariableProviders/*: ProvidedVariableProviderType*/ = {
-  "__pv__provideNumberOfFriends": require('./../provideNumberOfFriends'),
-  "__pv__provideIncludeUserNames": require('./../provideIncludeUserNames')
+  "__relay_internal__pv__provideNumberOfFriends": require('./../provideNumberOfFriends'),
+  "__relay_internal__pv__provideIncludeUserNames": require('./../provideIncludeUserNames')
 };
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -54,7 +54,7 @@ var v0 = [
   }
 ],
 v1 = {
-  "condition": "__pv__provideIncludeUserNames",
+  "condition": "__relay_internal__pv__provideIncludeUserNames",
   "kind": "Condition",
   "passingValue": true,
   "selections": [
@@ -112,12 +112,12 @@ return {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "__pv__provideNumberOfFriends"
+        "name": "__relay_internal__pv__provideNumberOfFriends"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "__pv__provideIncludeUserNames"
+        "name": "__relay_internal__pv__provideIncludeUserNames"
       }
     ],
     "kind": "Operation",
@@ -147,7 +147,7 @@ return {
                   {
                     "kind": "Variable",
                     "name": "first",
-                    "variableName": "__pv__provideNumberOfFriends"
+                    "variableName": "__relay_internal__pv__provideNumberOfFriends"
                   }
                 ],
                 "concreteType": "FriendsConnection",
@@ -201,15 +201,15 @@ return {
     ]
   },
   "params": {
-    "cacheID": "e743a8ebe4cf353e3e049e5ff969e3eb",
+    "cacheID": "ffbf7db2182b3613a98667945a211f8f",
     "id": null,
     "metadata": {},
     "name": "withProvidedVariablesTest4Query",
     "operationKind": "query",
-    "text": "query withProvidedVariablesTest4Query(\n  $__pv__provideNumberOfFriends: Int!\n  $__pv__provideIncludeUserNames: Boolean!\n) {\n  node(id: 4) {\n    __typename\n    ...withProvidedVariablesTest4Fragment1\n    ...withProvidedVariablesTest4Fragment2\n    id\n  }\n}\n\nfragment withProvidedVariablesTest4Fragment1 on User {\n  friends(first: $__pv__provideNumberOfFriends) {\n    count\n    edges {\n      node {\n        name @include(if: $__pv__provideIncludeUserNames)\n        id\n      }\n    }\n  }\n}\n\nfragment withProvidedVariablesTest4Fragment2 on User {\n  name @include(if: $__pv__provideIncludeUserNames)\n}\n",
+    "text": "query withProvidedVariablesTest4Query(\n  $__relay_internal__pv__provideNumberOfFriends: Int!\n  $__relay_internal__pv__provideIncludeUserNames: Boolean!\n) {\n  node(id: 4) {\n    __typename\n    ...withProvidedVariablesTest4Fragment1\n    ...withProvidedVariablesTest4Fragment2\n    id\n  }\n}\n\nfragment withProvidedVariablesTest4Fragment1 on User {\n  friends(first: $__relay_internal__pv__provideNumberOfFriends) {\n    count\n    edges {\n      node {\n        name @include(if: $__relay_internal__pv__provideIncludeUserNames)\n        id\n      }\n    }\n  }\n}\n\nfragment withProvidedVariablesTest4Fragment2 on User {\n  name @include(if: $__relay_internal__pv__provideIncludeUserNames)\n}\n",
     "providedVariables": {
-      "__pv__provideNumberOfFriends": require('./../provideNumberOfFriends'),
-      "__pv__provideIncludeUserNames": require('./../provideIncludeUserNames')
+      "__relay_internal__pv__provideNumberOfFriends": require('./../provideNumberOfFriends'),
+      "__relay_internal__pv__provideIncludeUserNames": require('./../provideIncludeUserNames')
     }
   }
 };

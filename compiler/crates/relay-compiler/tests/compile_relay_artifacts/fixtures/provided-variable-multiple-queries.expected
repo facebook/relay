@@ -78,12 +78,12 @@ fragment providedVariableMultipleQueries_MultiProvidedVar on User
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "__pv__includeNameProvider"
+        "name": "__relay_internal__pv__includeNameProvider"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "__pv__numberOfFriendsProvider"
+        "name": "__relay_internal__pv__numberOfFriendsProvider"
       }
     ],
     "kind": "Operation",
@@ -114,7 +114,7 @@ fragment providedVariableMultipleQueries_MultiProvidedVar on User
             "kind": "InlineFragment",
             "selections": [
               {
-                "condition": "__pv__includeNameProvider",
+                "condition": "__relay_internal__pv__includeNameProvider",
                 "kind": "Condition",
                 "passingValue": true,
                 "selections": [
@@ -133,7 +133,7 @@ fragment providedVariableMultipleQueries_MultiProvidedVar on User
                   {
                     "kind": "Variable",
                     "name": "first",
-                    "variableName": "__pv__numberOfFriendsProvider"
+                    "variableName": "__relay_internal__pv__numberOfFriendsProvider"
                   }
                 ],
                 "concreteType": "FriendsConnection",
@@ -165,7 +165,7 @@ fragment providedVariableMultipleQueries_MultiProvidedVar on User
                         "plural": false,
                         "selections": [
                           {
-                            "condition": "__pv__includeNameProvider",
+                            "condition": "__relay_internal__pv__includeNameProvider",
                             "kind": "Condition",
                             "passingValue": true,
                             "selections": [
@@ -217,8 +217,8 @@ fragment providedVariableMultipleQueries_MultiProvidedVar on User
     "operationKind": "query",
     "text": null,
     "providedVariables": {
-      "__pv__includeNameProvider": require('includeNameProvider'),
-      "__pv__numberOfFriendsProvider": require('numberOfFriendsProvider')
+      "__relay_internal__pv__includeNameProvider": require('includeNameProvider'),
+      "__relay_internal__pv__numberOfFriendsProvider": require('numberOfFriendsProvider')
     }
   }
 }
@@ -226,8 +226,8 @@ fragment providedVariableMultipleQueries_MultiProvidedVar on User
 QUERY:
 
 query providedVariableMultipleQueries_MultiFragmentQuery(
-  $__pv__includeNameProvider: Boolean!
-  $__pv__numberOfFriendsProvider: Int!
+  $__relay_internal__pv__includeNameProvider: Boolean!
+  $__relay_internal__pv__numberOfFriendsProvider: Int!
 ) {
   node(id: 5) {
     __typename
@@ -238,11 +238,11 @@ query providedVariableMultipleQueries_MultiFragmentQuery(
 }
 
 fragment providedVariableMultipleQueries_MultiProvidedVar on User {
-  friends(first: $__pv__numberOfFriendsProvider) {
+  friends(first: $__relay_internal__pv__numberOfFriendsProvider) {
     count
     edges {
       node {
-        name @include(if: $__pv__includeNameProvider)
+        name @include(if: $__relay_internal__pv__includeNameProvider)
         id
       }
     }
@@ -250,7 +250,7 @@ fragment providedVariableMultipleQueries_MultiProvidedVar on User {
 }
 
 fragment providedVariableMultipleQueries_OneProvidedVar on User {
-  name @include(if: $__pv__includeNameProvider)
+  name @include(if: $__relay_internal__pv__includeNameProvider)
 }
 
 
@@ -293,7 +293,7 @@ fragment providedVariableMultipleQueries_OneProvidedVar on User {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "__pv__includeNameProvider"
+        "name": "__relay_internal__pv__includeNameProvider"
       }
     ],
     "kind": "Operation",
@@ -324,7 +324,7 @@ fragment providedVariableMultipleQueries_OneProvidedVar on User {
             "kind": "InlineFragment",
             "selections": [
               {
-                "condition": "__pv__includeNameProvider",
+                "condition": "__relay_internal__pv__includeNameProvider",
                 "kind": "Condition",
                 "passingValue": true,
                 "selections": [
@@ -360,7 +360,7 @@ fragment providedVariableMultipleQueries_OneProvidedVar on User {
     "operationKind": "query",
     "text": null,
     "providedVariables": {
-      "__pv__includeNameProvider": require('includeNameProvider')
+      "__relay_internal__pv__includeNameProvider": require('includeNameProvider')
     }
   }
 }
@@ -368,7 +368,7 @@ fragment providedVariableMultipleQueries_OneProvidedVar on User {
 QUERY:
 
 query providedVariableMultipleQueries_OneFragmentQuery(
-  $__pv__includeNameProvider: Boolean!
+  $__relay_internal__pv__includeNameProvider: Boolean!
 ) {
   node(id: 4) {
     __typename
@@ -378,7 +378,7 @@ query providedVariableMultipleQueries_OneFragmentQuery(
 }
 
 fragment providedVariableMultipleQueries_OneProvidedVar on User {
-  name @include(if: $__pv__includeNameProvider)
+  name @include(if: $__relay_internal__pv__includeNameProvider)
 }
 
 
@@ -386,11 +386,11 @@ fragment providedVariableMultipleQueries_OneProvidedVar on User {
   "argumentDefinitions": [
     {
       "kind": "RootArgument",
-      "name": "__pv__includeNameProvider"
+      "name": "__relay_internal__pv__includeNameProvider"
     },
     {
       "kind": "RootArgument",
-      "name": "__pv__numberOfFriendsProvider"
+      "name": "__relay_internal__pv__numberOfFriendsProvider"
     }
   ],
   "kind": "Fragment",
@@ -403,7 +403,7 @@ fragment providedVariableMultipleQueries_OneProvidedVar on User {
         {
           "kind": "Variable",
           "name": "first",
-          "variableName": "__pv__numberOfFriendsProvider"
+          "variableName": "__relay_internal__pv__numberOfFriendsProvider"
         }
       ],
       "concreteType": "FriendsConnection",
@@ -435,7 +435,7 @@ fragment providedVariableMultipleQueries_OneProvidedVar on User {
               "plural": false,
               "selections": [
                 {
-                  "condition": "__pv__includeNameProvider",
+                  "condition": "__relay_internal__pv__includeNameProvider",
                   "kind": "Condition",
                   "passingValue": true,
                   "selections": [
@@ -466,7 +466,7 @@ fragment providedVariableMultipleQueries_OneProvidedVar on User {
   "argumentDefinitions": [
     {
       "kind": "RootArgument",
-      "name": "__pv__includeNameProvider"
+      "name": "__relay_internal__pv__includeNameProvider"
     }
   ],
   "kind": "Fragment",
@@ -474,7 +474,7 @@ fragment providedVariableMultipleQueries_OneProvidedVar on User {
   "name": "providedVariableMultipleQueries_OneProvidedVar",
   "selections": [
     {
-      "condition": "__pv__includeNameProvider",
+      "condition": "__relay_internal__pv__includeNameProvider",
       "kind": "Condition",
       "passingValue": true,
       "selections": [

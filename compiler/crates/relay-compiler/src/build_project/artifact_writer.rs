@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::errors::BuildProjectError;
+use crate::errors::{BuildProjectError, Error};
 use log::info;
 use serde::{Serialize, Serializer};
 use std::io::prelude::*;
@@ -14,6 +14,7 @@ use std::{
     io,
 };
 use std::{path::PathBuf, sync::Mutex};
+use std::fmt::Write as _;
 
 type BuildProjectResult = Result<(), BuildProjectError>;
 
@@ -230,5 +231,78 @@ impl ArtifactWriter for NoopArtifactWriter {
     }
     fn finalize(&self) -> crate::errors::Result<()> {
         Ok(())
+    }
+}
+
+pub struct ArtifactValidationWriter {
+    added: Mutex<Vec<PathBuf>>,
+    updated: Mutex<Vec<PathBuf>>,
+    removed: Mutex<Vec<PathBuf>>,
+}
+
+impl Default for ArtifactValidationWriter {
+    fn default() -> Self {
+        Self {
+            added: Default::default(),
+            removed: Default::default(),
+            updated: Default::default(),
+        }
+    }
+}
+
+impl ArtifactWriter for ArtifactValidationWriter {
+    fn should_write(&self, path: &PathBuf, content: &[u8]) -> Result<bool, BuildProjectError> {
+        content_is_different(path, content).map_err(|error| BuildProjectError::WriteFileError {
+            file: path.clone(),
+            source: error,
+        })
+    }
+
+    fn write(&self, path: PathBuf, _: Vec<u8>) -> BuildProjectResult {
+        if path.exists() {
+            self.updated.lock().unwrap().push(path.clone());
+        } else {
+            self.added.lock().unwrap().push(path.clone());
+        }
+        Ok(())
+    }
+
+    fn remove(&self, path: PathBuf) -> BuildProjectResult {
+        self.removed.lock().unwrap().push(path);
+        Ok(())
+    }
+
+    fn finalize(&self) -> crate::errors::Result<()> {
+        let mut printed = String::new();
+        if let Some(updated) = print_artefacts(&self.updated) {
+            write!(printed, "\nOut of date:\n{updated}").unwrap();
+        }
+        if let Some(added) = print_artefacts(&self.added) {
+            write!(printed, "\nMissing:\n{added}").unwrap();
+        }
+        if let Some(removed) = print_artefacts(&self.removed) {
+            write!(printed, "\nExtra:\n{removed}").unwrap();
+        }
+        if printed.is_empty() {
+            Ok(())
+        } else {
+            Err(Error::OutOfDateError { error: printed })
+        }
+    }
+}
+
+fn print_artefacts(artefacts: &Mutex<Vec<PathBuf>>) -> Option<String> {
+    let items = artefacts.lock().unwrap();
+    if items.is_empty() {
+        None
+    } else {
+        let items_string = items
+            .iter()
+            .map(|item| format!(
+                " - {}",
+                item.file_name().unwrap().to_os_string().to_string_lossy()))
+            .collect::<Vec<_>>()
+            .join("\n");
+        Some(items_string)
     }
 }

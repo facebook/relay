@@ -41,7 +41,9 @@ use intern::string_key::{StringKey, StringKeySet};
 use log::{debug, info, warn};
 use rayon::{iter::IntoParallelRefIterator, slice::ParallelSlice};
 use relay_codegen::Printer;
-use relay_transforms::{apply_transforms, find_resolver_dependencies, DependencyMap, Programs};
+use relay_transforms::{
+    apply_transforms, find_resolver_dependencies, CustomTransformsConfig, DependencyMap, Programs,
+};
 use schema::SDLSchema;
 pub use source_control::add_to_mercurial;
 use std::iter::FromIterator;
@@ -120,6 +122,7 @@ pub fn transform_program(
     base_fragment_names: Arc<StringKeySet>,
     perf_logger: Arc<impl PerfLogger + 'static>,
     log_event: &impl PerfLogEvent,
+    custom_transforms_config: Option<&CustomTransformsConfig>,
 ) -> Result<Programs, BuildProjectFailure> {
     let timer = log_event.start("apply_transforms_time");
     let result = apply_transforms(
@@ -128,6 +131,7 @@ pub fn transform_program(
         base_fragment_names,
         perf_logger,
         Some(print_stats),
+        custom_transforms_config,
     )
     .map_err(|errors| BuildProjectFailure::Error(BuildProjectError::ValidationErrors { errors }));
 
@@ -192,6 +196,7 @@ pub fn build_programs(
         Arc::new(base_fragment_names),
         Arc::clone(&perf_logger),
         log_event,
+        config.custom_transforms.as_ref(),
     )?;
 
     Ok((programs, Arc::new(source_hashes)))

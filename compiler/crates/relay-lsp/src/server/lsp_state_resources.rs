@@ -390,6 +390,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             Arc::new(base_fragment_names),
             Arc::clone(&self.lsp_state.perf_logger),
             log_event,
+            self.lsp_state.config.custom_transforms.as_ref(),
         )?;
         Ok(())
     }

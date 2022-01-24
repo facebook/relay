@@ -325,6 +325,7 @@ fn get_programs(
         base_fragment_names,
         Arc::new(NoopPerfLogger),
         None,
+        None,
     )
     .map_err(|diagnostics: Vec<Diagnostic>| {
         map_diagnostics(diagnostics, &InputType::Document(document_text))

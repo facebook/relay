@@ -28,6 +28,7 @@ use relay_config::{
     FlowTypegenConfig, JsModuleFormat, SchemaConfig, TypegenConfig, TypegenLanguage,
 };
 pub use relay_config::{PersistConfig, ProjectConfig, SchemaLocation};
+use relay_transforms::CustomTransformsConfig;
 use serde::de::Error as DeError;
 use serde::{Deserialize, Deserializer, Serialize};
 use serde_json::Value;
@@ -104,6 +105,11 @@ pub struct Config {
 
     /// Type of file source to use in the Compiler
     pub file_source_config: FileSourceKind,
+
+    /// A set of custom transform functions, that can be applied before,
+    /// and after each major transformation step (common, operations, etc)
+    /// in the `apply_transforms(...)`.
+    pub custom_transforms: Option<CustomTransformsConfig>,
 }
 
 pub enum FileSourceKind {
@@ -309,6 +315,7 @@ impl Config {
             additional_validations: None,
             is_dev_variable_name: config_file.is_dev_variable_name,
             file_source_config: FileSourceKind::Watchman,
+            custom_transforms: None,
         };
 
         let mut validation_errors = Vec::new();

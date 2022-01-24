@@ -32,7 +32,6 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
 
     let source_location = SourceLocationKey::standalone(fixture.file_name);
 
-
     let mut sources = FnvHashMap::default();
     sources.insert(source_location, source);
     let ast = parse_executable(source, source_location)
@@ -72,9 +71,9 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         Default::default(),
         Arc::new(ConsoleLogger),
         None,
+        None,
     )
     .map_err(|diagnostics| diagnostics_to_sorted_string(source, &diagnostics))?;
-
 
     let mut operations: Vec<_> = programs.typegen.operations().collect();
     operations.sort_by_key(|op| op.name.item);

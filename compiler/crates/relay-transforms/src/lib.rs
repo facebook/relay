@@ -12,6 +12,7 @@
 #![allow(clippy::comparison_chain)]
 
 mod applied_fragment_name;
+mod apply_custom_transforms;
 mod apply_fragment_arguments;
 mod apply_transforms;
 mod assignable_fragment_spread;
@@ -80,6 +81,7 @@ pub type DependencySet = HashSet<OperationName, BuildIdHasher<u32>>;
 
 pub use crate::errors::ValidationMessage;
 pub use applied_fragment_name::get_applied_fragment_name;
+pub use apply_custom_transforms::{CustomTransform, CustomTransforms, CustomTransformsConfig};
 pub use apply_fragment_arguments::apply_fragment_arguments;
 pub use apply_transforms::{apply_transforms, Programs};
 pub use assignable_fragment_spread::{

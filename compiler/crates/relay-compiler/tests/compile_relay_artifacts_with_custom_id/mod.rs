@@ -98,6 +98,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         Default::default(),
         Arc::new(ConsoleLogger),
         None,
+        None,
     )
     .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
 

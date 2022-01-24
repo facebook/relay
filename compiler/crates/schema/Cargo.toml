@@ -25,4 +25,3 @@ thiserror = "1.0.29"
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }
 graphql-cli = { path = "../graphql-cli" }
-graphql-syntax = { path = "../graphql-syntax" }

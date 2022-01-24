@@ -77,7 +77,6 @@ impl ConsoleStatusReporter {
     fn print_diagnostic(&self, diagnostic: &Diagnostic) {
         let printer = DiagnosticPrinter::new(|source_location| {
             source_for_location(&self.root_dir, source_location, self.source_reader.as_ref())
-                .map(|source| source.text)
         });
         error!("{}", printer.diagnostic_to_string(diagnostic));
     }

@@ -609,6 +609,7 @@ version = "0.0.0"
 dependencies = [
  "colored",
  "common",
+ "graphql-syntax",
 ]
 
 [[package]]

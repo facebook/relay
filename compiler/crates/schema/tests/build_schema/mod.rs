@@ -8,6 +8,7 @@
 use common::{Diagnostic, SourceLocationKey};
 use fixture_tests::Fixture;
 use graphql_cli::DiagnosticPrinter;
+use graphql_syntax::GraphQLSource;
 use schema::{
     build_schema_from_flat_buffer, build_schema_with_extensions, serialize_as_flatbuffer,
     SDLSchema, Schema, Type,
@@ -108,7 +109,8 @@ unions: {:#?}
 
 // NOTE: copied from graphql-test-helpers to avoid cyclic dependency breaking Rust Analyzer
 fn diagnostics_to_sorted_string(source: &str, diagnostics: &[Diagnostic]) -> String {
-    let printer = DiagnosticPrinter::new(|_| Some(source.to_string()));
+    let printer =
+        DiagnosticPrinter::new(|_| Some(GraphQLSource::from_whole_document(source.to_string())));
     let mut printed = diagnostics
         .iter()
         .map(|diagnostic| printer.diagnostic_to_string(diagnostic))

@@ -8,7 +8,7 @@
 use common::{Diagnostic, SourceLocationKey};
 use fixture_tests::Fixture;
 use graphql_cli::DiagnosticPrinter;
-use graphql_syntax::parse_schema_document;
+use graphql_syntax::{parse_schema_document, GraphQLSource};
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     parse_schema_document(
@@ -21,7 +21,8 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
 
 // NOTE: copied from graphql-test-helpers to avoid cyclic dependency breaking Rust Analyzer
 fn diagnostics_to_sorted_string(source: &str, diagnostics: &[Diagnostic]) -> String {
-    let printer = DiagnosticPrinter::new(|_| Some(source.to_string()));
+    let printer =
+        DiagnosticPrinter::new(|_| Some(GraphQLSource::from_whole_document(source.to_string())));
     let mut printed = diagnostics
         .iter()
         .map(|diagnostic| printer.diagnostic_to_string(diagnostic))

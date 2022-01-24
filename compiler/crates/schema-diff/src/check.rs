@@ -63,15 +63,21 @@ impl SchemaChange {
                         }
                         // safe changes
                         DefinitionChange::InterfaceAdded(_)
-                        | DefinitionChange::ScalarAdded(_)
                         | DefinitionChange::EnumAdded(_)
+                        | DefinitionChange::ScalarAdded(_)
                         | DefinitionChange::UnionAdded(_)
                         | DefinitionChange::InputObjectAdded(_) => {}
 
                         // unsafe changes
-                        _ => {
-                            return false;
-                        }
+                        DefinitionChange::EnumChanged { .. }
+                        | DefinitionChange::EnumRemoved(_)
+                        | DefinitionChange::UnionChanged { .. }
+                        | DefinitionChange::UnionRemoved(_)
+                        | DefinitionChange::ScalarRemoved(_)
+                        | DefinitionChange::InputObjectChanged { .. }
+                        | DefinitionChange::InputObjectRemoved(_)
+                        | DefinitionChange::InterfaceRemoved(_)
+                        | DefinitionChange::ObjectRemoved(_) => return false,
                     }
                 }
                 true

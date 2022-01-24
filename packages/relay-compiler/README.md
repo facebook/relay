@@ -115,3 +115,5 @@ when you need to run the compiler.
 - `--output`            Output format of the compiler. Supported options:
                         `debug` | `verbose` | `quiet` | `quietWithErrors`.
                         The default value is `verbose`.
+- `--validate`          Looks for pending changes and exits with non-zero code
+                        instead of writing to disk.

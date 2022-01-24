@@ -6,6 +6,7 @@
  */
 
 use crate::errors::{BuildProjectError, Error};
+use dashmap::DashSet;
 use log::info;
 use serde::{Serialize, Serializer};
 use std::io::prelude::*;
@@ -235,9 +236,9 @@ impl ArtifactWriter for NoopArtifactWriter {
 }
 
 pub struct ArtifactValidationWriter {
-    added: Mutex<Vec<PathBuf>>,
-    updated: Mutex<Vec<PathBuf>>,
-    removed: Mutex<Vec<PathBuf>>,
+    added: DashSet<PathBuf>,
+    updated: DashSet<PathBuf>,
+    removed: DashSet<PathBuf>,
 }
 
 impl Default for ArtifactValidationWriter {
@@ -260,15 +261,15 @@ impl ArtifactWriter for ArtifactValidationWriter {
 
     fn write(&self, path: PathBuf, _: Vec<u8>) -> BuildProjectResult {
         if path.exists() {
-            self.updated.lock().unwrap().push(path.clone());
+            self.updated.insert(path.clone());
         } else {
-            self.added.lock().unwrap().push(path.clone());
+            self.added.insert(path.clone());
         }
         Ok(())
     }
 
     fn remove(&self, path: PathBuf) -> BuildProjectResult {
-        self.removed.lock().unwrap().push(path);
+        self.removed.insert(path);
         Ok(())
     }
 
@@ -291,18 +292,17 @@ impl ArtifactWriter for ArtifactValidationWriter {
     }
 }
 
-fn print_artefacts(artefacts: &Mutex<Vec<PathBuf>>) -> Option<String> {
-    let items = artefacts.lock().unwrap();
-    if items.is_empty() {
+fn print_artefacts(artefacts: &DashSet<PathBuf>) -> Option<String> {
+    if artefacts.is_empty() {
         None
     } else {
-        let items_string = items
+        let artefacts_string = artefacts
             .iter()
-            .map(|item| format!(
+            .map(|artefact| format!(
                 " - {}",
-                item.file_name().unwrap().to_os_string().to_string_lossy()))
+                artefact.file_name().unwrap().to_os_string().to_string_lossy()))
             .collect::<Vec<_>>()
             .join("\n");
-        Some(items_string)
+        Some(artefacts_string)
     }
 }

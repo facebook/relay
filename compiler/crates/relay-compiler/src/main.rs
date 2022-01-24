@@ -50,7 +50,8 @@ struct Opt {
     #[structopt(long, possible_values = &OutputKind::variants(), case_insensitive = true, default_value = "verbose")]
     output: OutputKind,
 
-    /// Do not write artifacts to disk and check for changes only
+    /// Looks for pending changes and exits with non-zero code instead of
+    /// writing to disk
     #[structopt(long)]
     validate: bool,
 }

@@ -10,9 +10,9 @@ mod extract_graphql;
 mod file_categorizer;
 mod file_filter;
 mod file_group;
-mod glob_file_source;
 mod read_file_to_string;
 mod source_control_update_status;
+mod walk_dir_file_source;
 mod watchman_file_source;
 mod watchman_query_builder;
 
@@ -33,7 +33,7 @@ use self::external_file_source::ExternalFileSourceResult;
 pub use self::extract_graphql::{
     extract_graphql_strings_from_file, source_for_location, FsSourceReader, SourceReader,
 };
-use self::glob_file_source::{GlobFileSource, GlobFileSourceResult};
+use self::walk_dir_file_source::{WalkDirFileSource, WalkDirFileSourceResult};
 use external_file_source::ExternalFileSource;
 pub use file_categorizer::{categorize_files, FileCategorizer};
 pub use file_group::FileGroup;
@@ -45,7 +45,7 @@ use watchman_file_source::WatchmanFileSource;
 pub enum FileSource<'config> {
     Watchman(WatchmanFileSource<'config>),
     External(ExternalFileSource<'config>),
-    Glob(GlobFileSource<'config>),
+    WalkDir(WalkDirFileSource<'config>),
 }
 
 impl<'config> FileSource<'config> {
@@ -60,7 +60,7 @@ impl<'config> FileSource<'config> {
             FileSourceKind::External(changed_files_list) => Ok(Self::External(
                 ExternalFileSource::new(changed_files_list.to_path_buf(), config),
             )),
-            FileSourceKind::Glob => Ok(Self::Glob(GlobFileSource::new(config))),
+            FileSourceKind::WalkDir => Ok(Self::WalkDir(WalkDirFileSource::new(config))),
         }
     }
 
@@ -91,7 +91,7 @@ impl<'config> FileSource<'config> {
                     result
                 }
             }
-            Self::Glob(file_source) => file_source.create_compiler_state(perf_logger),
+            Self::WalkDir(file_source) => file_source.create_compiler_state(perf_logger),
         }
     }
 
@@ -110,7 +110,7 @@ impl<'config> FileSource<'config> {
                     FileSourceSubscription::Watchman(watchman_subscription),
                 ))
             }
-            Self::External(_) | Self::Glob(_) => {
+            Self::External(_) | Self::WalkDir(_) => {
                 unimplemented!(
                     "watch-mode (subscribe) is not available for non-watchman file sources."
                 )
@@ -137,7 +137,7 @@ impl File {
 pub enum FileSourceResult {
     Watchman(WatchmanFileSourceResult),
     External(ExternalFileSourceResult),
-    Glob(GlobFileSourceResult),
+    WalkDir(WalkDirFileSourceResult),
 }
 
 impl FileSourceResult {
@@ -145,7 +145,7 @@ impl FileSourceResult {
         match self {
             Self::Watchman(file_source) => Some(file_source.clock.clone()),
             Self::External(_) => None,
-            Self::Glob(_) => None,
+            Self::WalkDir(_) => None,
         }
     }
 
@@ -153,7 +153,7 @@ impl FileSourceResult {
         match self {
             Self::Watchman(file_source_result) => file_source_result.resolved_root.path(),
             Self::External(file_source_result) => file_source_result.resolved_root.clone(),
-            Self::Glob(file_source_result) => file_source_result.resolved_root.clone(),
+            Self::WalkDir(file_source_result) => file_source_result.resolved_root.clone(),
         }
     }
 
@@ -161,7 +161,7 @@ impl FileSourceResult {
         match self {
             Self::Watchman(file_source_result) => &file_source_result.saved_state_info,
             Self::External(_) => unimplemented!(),
-            Self::Glob(_) => unimplemented!(),
+            Self::WalkDir(_) => unimplemented!(),
         }
     }
 
@@ -169,7 +169,7 @@ impl FileSourceResult {
         match self {
             Self::Watchman(file_source_result) => file_source_result.files.len(),
             Self::External(file_source_result) => file_source_result.files.len(),
-            Self::Glob(file_source_result) => file_source_result.files.len(),
+            Self::WalkDir(file_source_result) => file_source_result.files.len(),
         }
     }
 }

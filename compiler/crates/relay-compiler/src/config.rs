@@ -117,7 +117,7 @@ pub enum FileSourceKind {
     /// List with changed files in format "file_path,exists".
     /// This can be used to replace watchman queries
     External(PathBuf),
-    Glob,
+    WalkDir,
 }
 
 fn normalize_path_from_config(

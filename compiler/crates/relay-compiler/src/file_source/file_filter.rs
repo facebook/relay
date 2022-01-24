@@ -16,7 +16,7 @@ use crate::{
 use std::path::{Path, PathBuf};
 
 /// The FileFilter is intended to be used for input sources other than
-/// Watchman. The FileFilter is created from `Config` and trys to replicate
+/// Watchman. The FileFilter is created from `Config` and tries to replicate
 /// the filtering done in Watchman. One addition is that this can filter
 /// out files from disabled projects.
 /// It allows paths defined in `config.sources` with `config.excludes` applied,

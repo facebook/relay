@@ -94,7 +94,7 @@ pub fn categorize_files(
         FileSourceResult::External(result) => {
             categorize_non_watchman_files(&categorizer, config, &result.files)
         }
-        FileSourceResult::Glob(result) => {
+        FileSourceResult::WalkDir(result) => {
             categorize_non_watchman_files(&categorizer, config, &result.files)
         }
     };

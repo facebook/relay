@@ -236,7 +236,7 @@ impl DiagnosticReporter {
     }
 }
 
-/// Checks if `inner` range is withing the `outer` range.
+/// Checks if `inner` range is within the `outer` range.
 /// First, we need to make sure that the start character of the outer range
 /// is before (or the same) character of the inner range.
 /// Then we need to make sure that end character of the outer range is after
@@ -244,7 +244,7 @@ impl DiagnosticReporter {
 /// is more than inner end line.
 fn is_sub_range(inner: Range, outer: Range) -> bool {
     (outer.start.character <= inner.start.character && outer.start.line <= inner.start.line)
-        && (outer.end.character >= inner.end.character || outer.end.line > inner.end.line)
+        && (outer.end.character >= inner.end.character && outer.end.line >= inner.end.line)
 }
 
 pub fn get_diagnostics_data(diagnostic: &CompilerDiagnostic) -> Option<Value> {
@@ -261,11 +261,26 @@ pub fn get_diagnostics_data(diagnostic: &CompilerDiagnostic) -> Option<Value> {
     }
 }
 
+/// Publish diagnostics to the client
+pub fn publish_diagnostic(
+    diagnostic_params: PublishDiagnosticsParams,
+    sender: &Sender<Message>,
+) -> LSPProcessResult<()> {
+    let notif = ServerNotification::new(PublishDiagnostics::METHOD.into(), diagnostic_params);
+    sender
+        .send(Message::Notification(notif))
+        .unwrap_or_else(|_| {
+            // TODO(brandondail) log here
+        });
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
-    use super::DiagnosticReporter;
+    use super::{is_sub_range, DiagnosticReporter};
     use common::{Diagnostic, Location, SourceLocationKey, Span};
     use intern::string_key::Intern;
+    use lsp_types::{Position, Range};
     use relay_compiler::SourceReader;
     use std::env;
     use std::path::PathBuf;
@@ -309,18 +324,18 @@ mod tests {
         reporter.report_diagnostic(&Diagnostic::error("-", Location::generated()));
         assert_eq!(reporter.active_diagnostics.len(), 0);
     }
-}
 
-/// Publish diagnostics to the client
-pub fn publish_diagnostic(
-    diagnostic_params: PublishDiagnosticsParams,
-    sender: &Sender<Message>,
-) -> LSPProcessResult<()> {
-    let notif = ServerNotification::new(PublishDiagnostics::METHOD.into(), diagnostic_params);
-    sender
-        .send(Message::Notification(notif))
-        .unwrap_or_else(|_| {
-            // TODO(brandondail) log here
-        });
-    Ok(())
+    #[test]
+    fn sub_range_inner_directly_below() {
+        let cursor = Range::new(Position::new(106, 12), Position::new(106, 12));
+        let diagnostic = Range::new(Position::new(92, 6), Position::new(92, 17));
+        assert!(!is_sub_range(cursor, diagnostic));
+    }
+
+    #[test]
+    fn sub_range_inner_directly_above() {
+        let cursor = Range::new(Position::new(80, 12), Position::new(80, 12));
+        let diagnostic = Range::new(Position::new(92, 6), Position::new(92, 17));
+        assert!(!is_sub_range(cursor, diagnostic));
+    }
 }

@@ -18,7 +18,7 @@ import type {
   NormalizationOperation,
 } from '../util/NormalizationNode';
 import type {ReaderFragment} from '../util/ReaderNode';
-import type {RequestParameters} from '../util/RelayConcreteNode';
+import type {ProvidedVariablesType} from '../util/RelayConcreteNode';
 import type {Variables} from '../util/RelayRuntimeTypes';
 
 const {getArgumentValues} = require('./RelayStoreUtils');
@@ -85,7 +85,7 @@ function getFragmentVariables(
  */
 function getOperationVariables(
   operation: NormalizationOperation,
-  parameters: RequestParameters,
+  providedVariables: ?ProvidedVariablesType,
   variables: Variables,
 ): Variables {
   const operationVariables = {};
@@ -97,7 +97,6 @@ function getOperationVariables(
     operationVariables[def.name] = value;
   });
 
-  const providedVariables = parameters.providedVariables;
   if (providedVariables != null) {
     Object.keys(providedVariables).forEach((varName: string) => {
       operationVariables[varName] = providedVariables[varName].get();

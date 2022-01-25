@@ -35,6 +35,8 @@ export type NormalizationRootNode =
   | ConcreteRequest
   | NormalizationSplitOperation;
 
+export type ProvidedVariablesType = {[key: string]: {|get(): mixed|}};
+
 /**
  * Contains the parameters required for executing a GraphQL request.
  * The operation can either be provided as a persisted `id` or `text`. If given
@@ -48,7 +50,7 @@ export type RequestParameters =
       // common fields
       +name: string,
       +operationKind: 'mutation' | 'query' | 'subscription',
-      +providedVariables?: {[key: string]: {|get(): mixed|}},
+      +providedVariables?: ProvidedVariablesType,
       +metadata: {[key: string]: mixed, ...},
     |}
   | {|
@@ -58,7 +60,7 @@ export type RequestParameters =
       // common fields
       +name: string,
       +operationKind: 'mutation' | 'query' | 'subscription',
-      +providedVariables?: {[key: string]: {|get(): mixed|}},
+      +providedVariables?: ProvidedVariablesType,
       +metadata: {[key: string]: mixed, ...},
     |};
 

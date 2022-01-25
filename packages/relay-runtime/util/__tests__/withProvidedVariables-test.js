@@ -44,7 +44,7 @@ describe('withProvidedVariables', () => {
       const userVariables = {};
       const newVariables = withProvidedVariables(
         userVariables,
-        userQuery.params,
+        userQuery.params.providedVariables,
       );
       expect(newVariables.__relay_internal__pv__provideNumberOfFriends).toEqual(
         15.0,
@@ -78,7 +78,7 @@ describe('withProvidedVariables', () => {
       const userVariables = {includeFriendsCount: true};
       const newVariables = withProvidedVariables(
         userVariables,
-        userQuery.params,
+        userQuery.params.providedVariables,
       );
       expect(newVariables.__relay_internal__pv__provideNumberOfFriends).toEqual(
         15.0,
@@ -116,7 +116,7 @@ describe('withProvidedVariables', () => {
       const userVariables = {};
       const newVariables = withProvidedVariables(
         userVariables,
-        userQuery.params,
+        userQuery.params.providedVariables,
       );
       expect(newVariables.__relay_internal__pv__provideNumberOfFriends).toEqual(
         15.0,
@@ -174,7 +174,7 @@ describe('withProvidedVariables', () => {
       const userVariables = {};
       const newVariables = withProvidedVariables(
         userVariables,
-        userQuery.params,
+        userQuery.params.providedVariables,
       );
       expect(newVariables.__relay_internal__pv__provideNumberOfFriends).toEqual(
         15.0,
@@ -217,7 +217,10 @@ describe('withProvidedVariables', () => {
       `;
 
       const userVariables = {};
-      let vars = withProvidedVariables(userVariables, userQuery.params);
+      let vars = withProvidedVariables(
+        userVariables,
+        userQuery.params.providedVariables,
+      );
       // first call should return 0
       expect(vars.__relay_internal__pv__provideRandomNumber_invalid1).toEqual(
         0,
@@ -233,7 +236,10 @@ describe('withProvidedVariables', () => {
             ' to be a pure function, but got conflicting return values `1` and `0`',
         ],
         () => {
-          vars = withProvidedVariables(userVariables, userQuery.params);
+          vars = withProvidedVariables(
+            userVariables,
+            userQuery.params.providedVariables,
+          );
         },
       );
       // should use cached value from first call to provider.get()
@@ -273,7 +279,10 @@ describe('withProvidedVariables', () => {
         'Relay: Expected function `get` for provider `__relay_internal__pv__provideRandomNumber_invalid1`' +
           ' to be a pure function, but got conflicting return values `2` and `0`',
         () => {
-          vars = withProvidedVariables(userVariables, userQuery.params);
+          vars = withProvidedVariables(
+            userVariables,
+            userQuery.params.providedVariables,
+          );
         },
       );
       // should use cached value from previous test case

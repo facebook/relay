@@ -13,7 +13,7 @@
 
 'use strict';
 
-import type {RequestParameters} from './RelayConcreteNode';
+import type {ProvidedVariablesType} from './RelayConcreteNode';
 import type {Variables} from './RelayRuntimeTypes';
 
 const areEqual = require('areEqual');
@@ -24,9 +24,8 @@ const debugCache = WEAKMAP_SUPPORTED ? new WeakMap() : new Map();
 
 function withProvidedVariables(
   userSuppliedVariables: Variables,
-  parameters: RequestParameters,
+  providedVariables: ?ProvidedVariablesType,
 ): Variables {
-  const providedVariables = parameters.providedVariables;
   if (providedVariables != null) {
     const operationVariables = {};
     Object.assign(operationVariables, userSuppliedVariables);

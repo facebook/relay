@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<f13fe811e17dd315812134754e1be8a3>>
+ * @generated SignedSource<<029b71da6b224936e7ca559c10f51c93>>
  */
 
 mod compile_relay_artifacts_with_custom_id;
@@ -80,13 +80,6 @@ fn refetchable_connection() {
     let input = include_str!("compile_relay_artifacts_with_custom_id/fixtures/refetchable-connection.graphql");
     let expected = include_str!("compile_relay_artifacts_with_custom_id/fixtures/refetchable-connection.expected");
     test_fixture(transform_fixture, "refetchable-connection.graphql", "compile_relay_artifacts_with_custom_id/fixtures/refetchable-connection.expected", input, expected);
-}
-
-#[test]
-fn refetchable_fragment_directives() {
-    let input = include_str!("compile_relay_artifacts_with_custom_id/fixtures/refetchable_fragment_directives.graphql");
-    let expected = include_str!("compile_relay_artifacts_with_custom_id/fixtures/refetchable_fragment_directives.expected");
-    test_fixture(transform_fixture, "refetchable_fragment_directives.graphql", "compile_relay_artifacts_with_custom_id/fixtures/refetchable_fragment_directives.expected", input, expected);
 }
 
 #[test]

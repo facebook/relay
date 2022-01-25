@@ -10,6 +10,7 @@
 
 mod artifact_content;
 mod artifact_generated_types;
+mod artifact_locator;
 pub mod artifact_writer;
 mod build_ir;
 mod build_schema;
@@ -27,15 +28,14 @@ use crate::errors::BuildProjectError;
 use crate::file_source::SourceControlUpdateStatus;
 use crate::{artifact_map::ArtifactMap, graphql_asts::GraphQLAsts};
 pub use artifact_generated_types::ArtifactGeneratedTypes;
+pub use artifact_locator::{create_path_for_artifact, path_for_artifact};
 use build_ir::BuildIRResult;
 pub use build_ir::SourceHashes;
 pub use build_schema::build_schema;
 use common::{sync::*, PerfLogEvent, PerfLogger};
 use dashmap::{mapref::entry::Entry, DashSet};
 use fnv::{FnvBuildHasher, FnvHashMap, FnvHashSet};
-pub use generate_artifacts::{
-    create_path_for_artifact, generate_artifacts, path_for_artifact, Artifact, ArtifactContent,
-};
+pub use generate_artifacts::{generate_artifacts, Artifact, ArtifactContent};
 use graphql_ir::Program;
 use intern::string_key::{StringKey, StringKeySet};
 use log::{debug, info, warn};

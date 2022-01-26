@@ -8,6 +8,7 @@
 use common::ConsoleLogger;
 use log::{error, info};
 use relay_compiler::{
+    build_project::artifact_writer::ArtifactValidationWriter,
     compiler::Compiler,
     config::{Config, SingleProjectConfigFile},
     FileSourceKind, RemotePersister,
@@ -48,6 +49,11 @@ struct Opt {
     /// Verbosity level
     #[structopt(long, possible_values = &OutputKind::variants(), case_insensitive = true, default_value = "verbose")]
     output: OutputKind,
+
+    /// Looks for pending changes and exits with non-zero code instead of
+    /// writing to disk
+    #[structopt(long)]
+    validate: bool,
 }
 
 arg_enum! {
@@ -123,6 +129,11 @@ async fn main() {
         error!("{}", err);
         std::process::exit(1);
     });
+
+    if opt.validate {
+        config.artifact_writer = Box::new(ArtifactValidationWriter::default());
+    }
+
     config.operation_persister = Some(Box::new(RemotePersister));
     config.file_source_config = if should_use_watchman() {
         FileSourceKind::Watchman

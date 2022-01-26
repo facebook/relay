@@ -10,7 +10,7 @@
 #![deny(clippy::all)]
 
 mod artifact_map;
-mod build_project;
+pub mod build_project;
 pub mod compiler;
 pub mod compiler_state;
 pub mod config;
@@ -25,7 +25,8 @@ pub mod status_reporter;
 pub use build_project::{
     add_to_mercurial,
     artifact_writer::{
-        ArtifactDifferenceWriter, ArtifactFileWriter, ArtifactWriter, NoopArtifactWriter,
+        ArtifactDifferenceWriter, ArtifactFileWriter, ArtifactValidationWriter, ArtifactWriter,
+        NoopArtifactWriter,
     },
     build_programs, build_raw_program, build_schema, create_path_for_artifact, generate_artifacts,
     generate_extra_artifacts::GenerateExtraArtifactsFn,

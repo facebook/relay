@@ -59,45 +59,49 @@ use [glob](https://docs.rs/glob/latest/glob/) to query the filesystem for files.
 
 ### Supported compiler configuration options
 
-- `src`                 Root directory of application code.  [string] [required]
-- `schema`              Relative path to the file with GraphQL SDL file.
-                                                             [string] [required]
-- `artifactDirectory`   A specific directory to output all artifacts to. When
-                        enabling this the babel plugin needs `artifactDirectory`
-                        to be set as well.                              [string]
-- `language`            The name of the language used for input files and
-                        generated artifacts.
-                                       ["flow" | "typescript"] [default: "flow"]
-- `excludes`            Directories to ignore under `src`.     [array] [default:
-               ["**/node_modules/**", "**/__mocks__/**", "**/__generated__/**"]]
-- `schemaExtensions`    List of directories with schema extensions.      [array]
-- `noFutureProofEnums`  For `flow` only. This option controls whether or not
-                        a catch-all entry is added to enum type definitions
-                        values that may be added in the future. Enabling this
-                        means you will have to update your application whenever
-                        the GraphQL server schema adds new enum values to
-                        prevent it from breaking.      [boolean][default: false]
-- `customScalars`       Mappings from custom scalars in your schema to built-in
-                        GraphQL types, for type emission purposes.      [object]
-- `eagerEsModules`      This option enables emitting ES modules artifacts.
-                                                       [boolean][default: false]
+- `src`                     Root directory of application code.  [string] [required]
+- `schema`                  Relative path to the file with GraphQL SDL file.
+                                                                 [string] [required]
+- `schemaConfig`
+  - `nodeInterfaceIdField`  Configure the name of the globally unique ID 
+                            field on the Node interface. Useful if you can't use the default `id` field name.
+                                                             [string][default: "id"]
+- `artifactDirectory`       A specific directory to output all artifacts to. When
+                            enabling this the babel plugin needs `artifactDirectory`
+                            to be set as well.                              [string]
+- `language`                The name of the language used for input files and
+                            generated artifacts.
+                                           ["flow" | "typescript"] [default: "flow"]
+- `excludes`                Directories to ignore under `src`.     [array] [default:
+                   ["**/node_modules/**", "**/__mocks__/**", "**/__generated__/**"]]
+- `schemaExtensions`        List of directories with schema extensions.      [array]
+- `noFutureProofEnums`      For `flow` only. This option controls whether or not
+                            a catch-all entry is added to enum type definitions
+                            values that may be added in the future. Enabling this
+                            means you will have to update your application whenever
+                            the GraphQL server schema adds new enum values to
+                            prevent it from breaking.      [boolean][default: false]
+- `customScalars`           Mappings from custom scalars in your schema to built-in
+                            GraphQL types, for type emission purposes.      [object]
+- `eagerEsModules`          This option enables emitting ES modules artifacts.
+                                                           [boolean][default: false]
 - `persistConfig`
-  - `url`               String, URL to send a POST request to to persist. This
-                        field is required in `persistConfig`
-                                                                        [string]
-  - `params`            The document will be in a `POST` parameter `text`.
-                        This map can contain additional parameters to send.
-                                                                        [object]
-  - `concurrency`       The maximum number concurrent requests that will
-                        be made to `url`. Use a value greater than 0.
-                                                                        [number]
-- `codegenCommand`      Command name that for relay compiler.           [string]
+  - `url`                   String, URL to send a POST request to to persist. This
+                            field is required in `persistConfig`
+                                                                            [string]
+  - `params`                The document will be in a `POST` parameter `text`.
+                            This map can contain additional parameters to send.
+                                                                            [object]
+  - `concurrency`           The maximum number concurrent requests that will
+                            be made to `url`. Use a value greater than 0.
+                                                                            [number]
+- `codegenCommand`          Command name that for relay compiler.           [string]
 
-- `isDevVariableName`   Name of the global variable for dev mode (`__DEV__`).
-                                                                        [string]
-- `jsModuleFormat`      Formatting style for generated files. `commonjs`
-                        or `haste`. Default is `commonjs`.
-                                                                        [string]
+- `isDevVariableName`       Name of the global variable for dev mode (`__DEV__`).
+                                                                            [string]
+- `jsModuleFormat`          Formatting style for generated files. `commonjs`
+                            or `haste`. Default is `commonjs`.
+                                                                            [string]
 
 
 ### CLI configuration

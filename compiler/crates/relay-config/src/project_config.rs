@@ -63,6 +63,7 @@ pub enum SchemaLocation {
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SchemaConfig {
+    #[serde(default)]
     pub connection_interface: ConnectionInterface,
 
     /// The name of the `id` field that exists on the `Node` interface.

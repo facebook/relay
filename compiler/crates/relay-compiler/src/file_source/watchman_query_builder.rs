@@ -197,7 +197,7 @@ fn expr_files_in_dirs(roots: Vec<PathBuf>) -> Expr {
 fn expr_graphql_files_in_dirs(roots: Vec<PathBuf>) -> Expr {
     Expr::All(vec![
         // ending in *.graphql
-        Expr::Suffix(vec!["graphql".into()]),
+        Expr::Suffix(vec!["graphql".into(), "gql".into()]),
         // in one of the extension directories
         expr_files_in_dirs(roots),
     ])

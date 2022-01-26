@@ -32,6 +32,8 @@ pub struct WalkDirFileSource<'config> {
 fn get_expected_file_extensions(config: &Config) -> HashSet<&str> {
     let mut file_extensions = HashSet::<&str>::with_capacity(5);
     file_extensions.insert("graphql");
+    file_extensions.insert("gql");
+
     for project in config.enabled_projects() {
         match project.typegen_config.language {
             TypegenLanguage::Flow => {

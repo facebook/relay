@@ -63,6 +63,7 @@ pub enum SchemaLocation {
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SchemaConfig {
+    #[serde(default = "default_connection_interface")]
     pub connection_interface: ConnectionInterface,
 
     /// The name of the `id` field that exists on the `Node` interface.
@@ -72,6 +73,10 @@ pub struct SchemaConfig {
 
 fn default_node_interface_id_field() -> StringKey {
     "id".intern()
+}
+
+fn default_connection_interface() -> ConnectionInterface {
+    ConnectionInterface::default()
 }
 
 impl Default for SchemaConfig {

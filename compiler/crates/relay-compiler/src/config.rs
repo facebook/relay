@@ -614,6 +614,9 @@ pub struct SingleProjectConfigFile {
 
     /// Formatting style for generated files.
     pub js_module_format: JsModuleFormat,
+
+    /// Extra configuration for the schema itself.
+    pub schema_config: SchemaConfig,
 }
 
 impl Default for SingleProjectConfigFile {
@@ -630,6 +633,7 @@ impl Default for SingleProjectConfigFile {
             no_future_proof_enums: false,
             language: Some(TypegenLanguage::default()),
             custom_scalars: Default::default(),
+            schema_config: Default::default(),
             eager_es_modules: false,
             persist_config: None,
             is_dev_variable_name: None,
@@ -719,6 +723,7 @@ impl SingleProjectConfigFile {
                 common_root_dir.clone(),
                 self.schema,
             )),
+            schema_config: self.schema_config,
             schema_extensions: self
                 .schema_extensions
                 .iter()

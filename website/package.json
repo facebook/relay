@@ -19,12 +19,12 @@
     "docusaurus": "docusaurus"
   },
   "dependencies": {
-    "@docusaurus/core": "^2.0.0-beta.3",
-    "@docusaurus/plugin-client-redirects": "^2.0.0-beta.3",
-    "@docusaurus/preset-classic": "^2.0.0-beta.3",
+    "@docusaurus/core": "2.0.0-beta.8",
+    "@docusaurus/plugin-client-redirects": "2.0.0-beta.8",
+    "@docusaurus/preset-classic": "2.0.0-beta.8",
     "classnames": "^2.2.6",
     "clsx": "^1.1.1",
-    "docusaurus-plugin-internaldocs-fb": "^0.8.5",
+    "docusaurus-plugin-internaldocs-fb": "0.10.4",
     "monaco-editor": "^0.24.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",

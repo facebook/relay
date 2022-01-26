@@ -383,7 +383,7 @@ module.exports = {
           position: 'left',
         },
         fbContent({
-          internal: {},
+          internal: null,
           external: {
             type: 'docsVersionDropdown',
             position: 'right',
@@ -396,7 +396,7 @@ module.exports = {
             ],
           },
         }),
-      ],
+      ].filter(Boolean),
     },
     image: 'img/relay.png',
     footer: {

@@ -12,6 +12,7 @@ use crate::build_ast::{
 };
 use crate::constants::CODEGEN_CONSTANTS;
 use crate::indentation::print_indentation;
+use crate::top_level_statements::{TopLevelStatement, TopLevelStatements};
 use crate::utils::escape;
 use crate::JsModuleFormat;
 
@@ -20,7 +21,7 @@ use relay_config::ProjectConfig;
 use schema::SDLSchema;
 
 use fnv::{FnvBuildHasher, FnvHashSet};
-use indexmap::{IndexMap, IndexSet};
+use indexmap::IndexMap;
 use intern::string_key::StringKey;
 use std::fmt::{Result as FmtResult, Write};
 
@@ -28,18 +29,18 @@ pub fn print_operation(
     schema: &SDLSchema,
     operation: &OperationDefinition,
     project_config: &ProjectConfig,
-    import_statements: &mut ImportStatements,
+    top_level_statements: &mut TopLevelStatements,
 ) -> String {
-    Printer::without_dedupe(project_config).print_operation(schema, operation, import_statements)
+    Printer::without_dedupe(project_config).print_operation(schema, operation, top_level_statements)
 }
 
 pub fn print_fragment(
     schema: &SDLSchema,
     fragment: &FragmentDefinition,
     project_config: &ProjectConfig,
-    import_statements: &mut ImportStatements,
+    top_level_statements: &mut TopLevelStatements,
 ) -> String {
-    Printer::without_dedupe(project_config).print_fragment(schema, fragment, import_statements)
+    Printer::without_dedupe(project_config).print_fragment(schema, fragment, top_level_statements)
 }
 
 pub fn print_request(
@@ -48,14 +49,14 @@ pub fn print_request(
     fragment: &FragmentDefinition,
     request_parameters: RequestParameters<'_>,
     project_config: &ProjectConfig,
-    import_statements: &mut ImportStatements,
+    top_level_statements: &mut TopLevelStatements,
 ) -> String {
     Printer::without_dedupe(project_config).print_request(
         schema,
         operation,
         fragment,
         request_parameters,
-        import_statements,
+        top_level_statements,
     )
 }
 
@@ -64,7 +65,7 @@ pub fn print_request_params(
     operation: &OperationDefinition,
     query_id: &Option<QueryID>,
     project_config: &ProjectConfig,
-    import_statements: &mut ImportStatements,
+    top_level_statements: &mut TopLevelStatements,
 ) -> String {
     let mut request_parameters = build_request_params(operation);
     request_parameters.id = query_id;
@@ -72,7 +73,7 @@ pub fn print_request_params(
     let mut builder = AstBuilder::default();
     let request_parameters_ast_key =
         build_request_params_ast_key(schema, request_parameters, &mut builder, operation);
-    let printer = JSONPrinter::new(&builder, project_config, import_statements);
+    let printer = JSONPrinter::new(&builder, project_config, top_level_statements);
     printer.print(request_parameters_ast_key, false)
 }
 
@@ -103,10 +104,10 @@ impl<'p> Printer<'p> {
         &mut self,
         schema: &SDLSchema,
         operation: &OperationDefinition,
-        import_statements: &mut ImportStatements,
+        top_level_statements: &mut TopLevelStatements,
     ) -> Option<String> {
         let key = build_provided_variables(schema, &mut self.builder, operation)?;
-        let printer = JSONPrinter::new(&self.builder, self.project_config, import_statements);
+        let printer = JSONPrinter::new(&self.builder, self.project_config, top_level_statements);
         Some(printer.print(key, self.dedupe))
     }
 
@@ -116,7 +117,7 @@ impl<'p> Printer<'p> {
         operation: &OperationDefinition,
         fragment: &FragmentDefinition,
         request_parameters: RequestParameters<'_>,
-        import_statements: &mut ImportStatements,
+        top_level_statements: &mut TopLevelStatements,
     ) -> String {
         let request_parameters =
             build_request_params_ast_key(schema, request_parameters, &mut self.builder, operation);
@@ -127,7 +128,7 @@ impl<'p> Printer<'p> {
             fragment,
             request_parameters,
         );
-        let printer = JSONPrinter::new(&self.builder, self.project_config, import_statements);
+        let printer = JSONPrinter::new(&self.builder, self.project_config, top_level_statements);
         printer.print(key, self.dedupe)
     }
 
@@ -135,10 +136,10 @@ impl<'p> Printer<'p> {
         &mut self,
         schema: &SDLSchema,
         operation: &OperationDefinition,
-        import_statements: &mut ImportStatements,
+        top_level_statements: &mut TopLevelStatements,
     ) -> String {
         let key = build_operation(schema, &mut self.builder, operation);
-        let printer = JSONPrinter::new(&self.builder, self.project_config, import_statements);
+        let printer = JSONPrinter::new(&self.builder, self.project_config, top_level_statements);
         printer.print(key, self.dedupe)
     }
 
@@ -146,10 +147,10 @@ impl<'p> Printer<'p> {
         &mut self,
         schema: &SDLSchema,
         fragment: &FragmentDefinition,
-        import_statements: &mut ImportStatements,
+        top_level_statements: &mut TopLevelStatements,
     ) -> String {
         let key = build_fragment(schema, &mut self.builder, fragment);
-        let printer = JSONPrinter::new(&self.builder, self.project_config, import_statements);
+        let printer = JSONPrinter::new(&self.builder, self.project_config, top_level_statements);
         printer.print(key, self.dedupe)
     }
 
@@ -158,57 +159,35 @@ impl<'p> Printer<'p> {
         schema: &SDLSchema,
         request_parameters: RequestParameters<'_>,
         operation: &OperationDefinition,
-        import_statements: &mut ImportStatements,
+        top_level_statements: &mut TopLevelStatements,
     ) -> String {
         let key =
             build_request_params_ast_key(schema, request_parameters, &mut self.builder, operation);
-        let printer = JSONPrinter::new(&self.builder, self.project_config, import_statements);
+        let printer = JSONPrinter::new(&self.builder, self.project_config, top_level_statements);
         printer.print(key, self.dedupe)
     }
 }
 
 type VariableDefinitions = IndexMap<AstKey, String, FnvBuildHasher>;
 
-#[derive(Default, Clone)]
-pub struct ImportStatements(IndexSet<String, FnvBuildHasher>);
-
-impl ImportStatements {
-    pub fn insert(&mut self, import_statement: String) {
-        self.0.insert(import_statement);
-    }
-
-    pub fn is_empty(&self) -> bool {
-        self.0.is_empty()
-    }
-}
-
-impl std::fmt::Display for ImportStatements {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> FmtResult {
-        for import in self.0.iter() {
-            writeln!(f, "{}", import)?;
-        }
-
-        Ok(())
-    }
-}
 pub struct JSONPrinter<'b> {
     variable_definitions: VariableDefinitions,
     duplicates: FnvHashSet<AstKey>,
     builder: &'b AstBuilder,
     eager_es_modules: bool,
     js_module_format: JsModuleFormat,
-    import_statements: &'b mut ImportStatements,
+    top_level_statements: &'b mut TopLevelStatements,
 }
 
 impl<'b> JSONPrinter<'b> {
     pub fn new(
         builder: &'b AstBuilder,
         project_config: &ProjectConfig,
-        import_statements: &'b mut ImportStatements,
+        top_level_statements: &'b mut TopLevelStatements,
     ) -> Self {
         Self {
             variable_definitions: Default::default(),
-            import_statements,
+            top_level_statements,
             duplicates: Default::default(),
             builder,
             js_module_format: project_config.js_module_format,
@@ -405,9 +384,12 @@ impl<'b> JSONPrinter<'b> {
 
     fn write_js_dependency(&mut self, f: &mut String, name: String, path: String) -> FmtResult {
         if self.eager_es_modules {
-            self.import_statements
-                .insert(format!("import {} from '{}';", name, path));
-            write!(f, "{}", name)
+            let write_result = write!(f, "{}", name);
+            self.top_level_statements.insert(
+                name.clone(),
+                TopLevelStatement::ImportStatement { name, path },
+            );
+            write_result
         } else {
             write!(f, "require('{}')", path)
         }

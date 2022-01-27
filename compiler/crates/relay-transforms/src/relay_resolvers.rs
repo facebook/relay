@@ -6,7 +6,8 @@
  */
 
 use crate::{
-    ClientEdgeMetadata, DependencyMap, RequiredMetadataDirective, REQUIRED_DIRECTIVE_NAME,
+    ClientEdgeMetadata, DependencyMap, RequiredMetadataDirective,
+    CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME, REQUIRED_DIRECTIVE_NAME,
 };
 
 use super::ValidationMessage;
@@ -207,9 +208,10 @@ impl<'program> RelayResolverFieldTransform<'program> {
                 Ok((fragment_name, import_path)) => {
                     let mut non_required_directives =
                         field.directives().iter().filter(|directive| {
-                            // For now, only @required is allowed on Resolver fields.
+                            // For now, only @required and @waterfall are allowed on Resolver fields.
                             directive.name.item != RequiredMetadataDirective::directive_name()
                                 && directive.name.item != *REQUIRED_DIRECTIVE_NAME
+                                && directive.name.item != *CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME
                         });
                     if let Some(directive) = non_required_directives.next() {
                         self.errors.push(Diagnostic::error(

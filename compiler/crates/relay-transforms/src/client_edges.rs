@@ -13,6 +13,7 @@ use relay_config::SchemaConfig;
 use schema::Type;
 use std::sync::Arc;
 
+use super::ValidationMessage;
 use crate::relay_resolvers::RELAY_RESOLVER_DIRECTIVE_NAME;
 use common::{Diagnostic, DiagnosticsResult, NamedItem, WithLocation};
 use graphql_ir::{
@@ -30,6 +31,7 @@ lazy_static! {
     pub static ref CLIENT_EDGE_SOURCE_NAME: StringKey = "clientEdgeSourceDocument".intern();
     // This gets attached to fragment which defines the selection in the generated query
     pub static ref CLIENT_EDGE_GENERATED_FRAGMENT_KEY: StringKey = "__clientEdgeGeneratedFragment".intern();
+    pub static ref CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME: StringKey = "waterfall".intern();
 }
 
 pub struct ClientEdgeMetadata<'a> {
@@ -214,18 +216,35 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
 
     fn transform_linked_field_impl(&mut self, field: &LinkedField) -> Transformed<Selection> {
         let field_type = self.program.schema.field(field.definition.item);
-        if !field_type.is_extension {
+        // Eventually we will want to enable client edges on non-resolver client
+        // schema extensions, but we'll start with limiting them to resolvers.
+        if !field_type.is_extension
+            || field_type
+                .directives
+                .named(*RELAY_RESOLVER_DIRECTIVE_NAME)
+                .is_none()
+        {
+            if let Some(directive) = field
+                .directives()
+                .named(*CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME)
+            {
+                self.errors.push(Diagnostic::error(
+                    ValidationMessage::RelayResolversUnexpectedWaterfall {},
+                    directive.name.location,
+                ));
+            }
             return self.default_transform_linked_field(field);
         };
 
-        // Eventually we will want to enable client edges on non-resolver client
-        // schema extensions, but we'll start with limiting them to resolvers.
-        if field_type
-            .directives
-            .named(*RELAY_RESOLVER_DIRECTIVE_NAME)
+        if field
+            .directives()
+            .named(*CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME)
             .is_none()
         {
-            return self.default_transform_linked_field(field);
+            self.errors.push(Diagnostic::error(
+                ValidationMessage::RelayResolversMissingWaterfall {},
+                field.alias_or_name_location(),
+            ));
         }
 
         let new_selections = self
@@ -318,6 +337,23 @@ impl Transformer for ClientEdgesTransform<'_, '_> {
         self.path.pop();
 
         new_linked_field
+    }
+
+    fn transform_scalar_field(
+        &mut self,
+        field: &graphql_ir::ScalarField,
+    ) -> Transformed<Selection> {
+        if field
+            .directives()
+            .named(*CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME)
+            .is_some()
+        {
+            self.errors.push(Diagnostic::error(
+                ValidationMessage::RelayResolversUnexpectedWaterfall {},
+                field.alias_or_name_location(),
+            ));
+        }
+        self.default_transform_scalar_field(field)
     }
 }
 

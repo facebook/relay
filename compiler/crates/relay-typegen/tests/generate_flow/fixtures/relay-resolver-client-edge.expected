@@ -5,7 +5,7 @@ fragment relayResolver_BestFriendResolverFragment_name on User {
 
 query relayResolver_Query {
   me {
-    best_friend {
+    best_friend @waterfall {
       name
     }
   }

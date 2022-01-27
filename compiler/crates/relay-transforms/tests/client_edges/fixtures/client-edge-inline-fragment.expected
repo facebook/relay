@@ -2,14 +2,14 @@
 fragment Foo_node on Node {
   ... on Story {
     author {
-      best_friend {
+      best_friend @waterfall {
         doesViewerLike
       }
     }
   }
   ... on PhotoStory {
     author {
-      best_friend {
+      best_friend @waterfall {
         name
       }
     }
@@ -41,8 +41,8 @@ fragment Foo_node on Node {
         #     field_name: "best_friend",
         #     field_alias: None,
         # }
-        
-        best_friend {
+         @waterfall
+        best_friend @waterfall {
           doesViewerLike
         }
       }
@@ -58,8 +58,8 @@ fragment Foo_node on Node {
         #     field_name: "best_friend",
         #     field_alias: None,
         # }
-        
-        best_friend {
+         @waterfall
+        best_friend @waterfall {
           name
         }
       }

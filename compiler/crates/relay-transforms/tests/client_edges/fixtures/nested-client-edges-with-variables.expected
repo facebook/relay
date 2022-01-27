@@ -1,8 +1,8 @@
 ==================================== INPUT ====================================
 fragment Foo_user on User {
-  best_friend {
+  best_friend @waterfall {
     url(site: $top_level_site)
-    best_friend {
+    best_friend @waterfall {
       name
       url(site: $nested_site)
     }
@@ -32,8 +32,8 @@ fragment Foo_user on User {
     #     field_name: "best_friend",
     #     field_alias: None,
     # }
-    
-    best_friend {
+     @waterfall
+    best_friend @waterfall {
       url(site: $top_level_site)
       ... @__clientEdge(queryName: "ClientEdgeQuery_Foo_user_best_friend__best_friend") {
         ...BestFriendResolverFragment_name @__RelayResolverSpreadMetadata
@@ -43,8 +43,8 @@ fragment Foo_user on User {
         #     field_name: "best_friend",
         #     field_alias: None,
         # }
-        
-        best_friend {
+         @waterfall
+        best_friend @waterfall {
           name
           url(site: $nested_site)
         }
@@ -73,8 +73,8 @@ fragment RefetchableClientEdgeQuery_Foo_user_best_friend on User @__clientEdgeGe
     #     field_name: "best_friend",
     #     field_alias: None,
     # }
-    
-    best_friend {
+     @waterfall
+    best_friend @waterfall {
       name
       url(site: $nested_site)
     }

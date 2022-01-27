@@ -85,6 +85,16 @@ pub enum ValidationMessage {
     RelayResolversDisabled {},
 
     #[error(
+        "Expected a `@waterfall` directive on this field. Consuming a Client Edge field incurs a network roundtrip or \"waterfall\". To make this explicit, a `@waterfall` directive is required on this field."
+    )]
+    RelayResolversMissingWaterfall {},
+
+    #[error(
+        "Unexpceted `@waterfall` directive. Only fields backed by a Client Edge should be annotated with the `@waterfall` directive."
+    )]
+    RelayResolversUnexpectedWaterfall {},
+
+    #[error(
         "The directive '{directive_name}' automatically adds '{actor_change_field}' to the selection of the field '{field_name}'. But the field '{actor_change_field}' does not exist on the type '{type_name}'. Please makes sure the GraphQL schema supports actor change on '{type_name}'."
     )]
     ActorChangeExpectViewerFieldOnType {

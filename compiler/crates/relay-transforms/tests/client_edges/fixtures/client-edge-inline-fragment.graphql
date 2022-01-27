@@ -1,14 +1,14 @@
 fragment Foo_node on Node {
   ... on Story {
     author {
-      best_friend {
+      best_friend @waterfall {
         doesViewerLike
       }
     }
   }
   ... on PhotoStory {
     author {
-      best_friend {
+      best_friend @waterfall {
         name
       }
     }

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<ee38545de016215af280bacf01f7cc4c>>
+ * @generated SignedSource<<dcc1f4476e3927bcfe7f8244b17d6a6b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -32,7 +32,7 @@ export type RelayResponseNormalizerTest_pvQuery = {|
   variables: RelayResponseNormalizerTest_pvQueryVariables,
   response: RelayResponseNormalizerTest_pvQuery$data,
 |};
-type ProvidedVariableProviderType = {|
+type ProvidedVariablesType = {|
   +__relay_internal__pv__RelayProvider_returnsTrue: {|
     +get: () => boolean,
   |},
@@ -42,7 +42,7 @@ type ProvidedVariableProviderType = {|
 |};
 */
 
-var providedVariableProviders/*: ProvidedVariableProviderType*/ = {
+var providedVariablesDefinition/*: ProvidedVariablesType*/ = {
   "__relay_internal__pv__RelayProvider_returnsTrue": require('./../RelayProvider_returnsTrue'),
   "__relay_internal__pv__RelayProvider_returnsFalse": require('./../RelayProvider_returnsFalse')
 };

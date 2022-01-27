@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b77469718542ccb9e4eedd1e6c8efc9d>>
+ * @generated SignedSource<<d32e295b91ab2c6c0733e836ccbc1aa9>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -29,7 +29,7 @@ export type withProvidedVariablesTest3Query = {|
   variables: withProvidedVariablesTest3QueryVariables,
   response: withProvidedVariablesTest3Query$data,
 |};
-type ProvidedVariableProviderType = {|
+type ProvidedVariablesType = {|
   +__relay_internal__pv__provideNumberOfFriends: {|
     +get: () => number,
   |},
@@ -39,7 +39,7 @@ type ProvidedVariableProviderType = {|
 |};
 */
 
-var providedVariableProviders/*: ProvidedVariableProviderType*/ = {
+var providedVariablesDefinition/*: ProvidedVariablesType*/ = {
   "__relay_internal__pv__provideNumberOfFriends": require('./../provideNumberOfFriends'),
   "__relay_internal__pv__provideIncludeUserNames": require('./../provideIncludeUserNames')
 };

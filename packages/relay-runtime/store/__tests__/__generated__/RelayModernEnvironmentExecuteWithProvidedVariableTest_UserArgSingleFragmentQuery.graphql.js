@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<44f5c85835ea6b643bc04b942fe15687>>
+ * @generated SignedSource<<63f02ad31b5a02939a9354bf13e251a9>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -31,14 +31,14 @@ export type RelayModernEnvironmentExecuteWithProvidedVariableTest_UserArgSingleF
   variables: RelayModernEnvironmentExecuteWithProvidedVariableTest_UserArgSingleFragmentQueryVariables,
   response: RelayModernEnvironmentExecuteWithProvidedVariableTest_UserArgSingleFragmentQuery$data,
 |};
-type ProvidedVariableProviderType = {|
+type ProvidedVariablesType = {|
   +__relay_internal__pv__RelayProvider_returnsTrue: {|
     +get: () => boolean,
   |},
 |};
 */
 
-var providedVariableProviders/*: ProvidedVariableProviderType*/ = {
+var providedVariablesDefinition/*: ProvidedVariablesType*/ = {
   "__relay_internal__pv__RelayProvider_returnsTrue": require('./../RelayProvider_returnsTrue')
 };
 

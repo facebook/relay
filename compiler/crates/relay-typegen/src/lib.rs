@@ -46,7 +46,7 @@ static REACT_RELAY_MULTI_ACTOR: &str = "react-relay/multi-actor";
 static RELAY_RUNTIME: &str = "relay-runtime";
 static LOCAL_3D_PAYLOAD: &str = "Local3DPayload";
 static ACTOR_CHANGE_POINT: &str = "ActorChangePoint";
-pub static PROVIDED_VARIABLE_TYPE: &str = "ProvidedVariableProviderType";
+pub static PROVIDED_VARIABLE_TYPE: &str = "ProvidedVariablesType";
 static VALIDATOR_EXPORT_NAME: &str = "validate";
 
 lazy_static! {
@@ -1143,7 +1143,7 @@ impl<'a> TypeGenerator<'a> {
                                             read_only: true,
                                             optional: false,
                                         });
-    
+
                                         AST::InexactObject(vec![
                                             assignable_fragment_spread_ref,
                                             fragment_spread_or_concrete_type_marker,

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<dc33740a5240633109c811eb07d8f313>>
+ * @generated SignedSource<<24610a6b12e0d9e1508b0b56ddd67416>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -31,14 +31,14 @@ export type usePreloadedQueryProvidedVariablesTest_badQuery = {|
   variables: usePreloadedQueryProvidedVariablesTest_badQueryVariables,
   response: usePreloadedQueryProvidedVariablesTest_badQuery$data,
 |};
-type ProvidedVariableProviderType = {|
+type ProvidedVariablesType = {|
   +__relay_internal__pv__RelayProvider_impure: {|
     +get: () => number,
   |},
 |};
 */
 
-var providedVariableProviders/*: ProvidedVariableProviderType*/ = {
+var providedVariablesDefinition/*: ProvidedVariablesType*/ = {
   "__relay_internal__pv__RelayProvider_impure": require('./../RelayProvider_impure')
 };
 

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a262c7e60850a8ad1c2661dacdfa1c05>>
+ * @generated SignedSource<<3aaed9fe7c71a96b8486a48bfb8a4751>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -29,14 +29,14 @@ export type withProvidedVariablesTest6Query = {|
   variables: withProvidedVariablesTest6QueryVariables,
   response: withProvidedVariablesTest6Query$data,
 |};
-type ProvidedVariableProviderType = {|
+type ProvidedVariablesType = {|
   +__relay_internal__pv__provideRandomNumber_invalid1: {|
     +get: () => number,
   |},
 |};
 */
 
-var providedVariableProviders/*: ProvidedVariableProviderType*/ = {
+var providedVariablesDefinition/*: ProvidedVariablesType*/ = {
   "__relay_internal__pv__provideRandomNumber_invalid1": require('./../provideRandomNumber_invalid1')
 };
 

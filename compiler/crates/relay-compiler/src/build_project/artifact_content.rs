@@ -280,7 +280,7 @@ fn generate_operation(
         write_variable_value_with_type(
             &project_config.typegen_config.language,
             &mut content,
-            "providedVariableProviders",
+            "providedVariablesDefinition",
             relay_typegen::PROVIDED_VARIABLE_TYPE,
             &provided_variables,
         )

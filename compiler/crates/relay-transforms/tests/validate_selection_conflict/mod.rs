@@ -11,6 +11,7 @@ use graphql_cli::DiagnosticPrinter;
 use graphql_ir::{build, Program};
 use graphql_syntax::{parse_executable, GraphQLSource};
 use graphql_test_helpers::diagnostics_to_sorted_string;
+use relay_config::DeferStreamInterface;
 use relay_test_schema::TEST_SCHEMA;
 use relay_transforms::validate_selection_conflict;
 use std::sync::Arc;
@@ -40,7 +41,8 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     };
 
     let program = Program::from_definitions(Arc::clone(&TEST_SCHEMA), ir);
-    validate_selection_conflict(&program)
+    let defer_stream_interface = DeferStreamInterface::default();
+    validate_selection_conflict(&program, &defer_stream_interface)
         .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
 
     Ok("OK".to_owned())

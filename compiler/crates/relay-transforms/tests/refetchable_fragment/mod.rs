@@ -6,15 +6,14 @@
  */
 
 use fixture_tests::Fixture;
-use relay_transforms::{
-    transform_connections, transform_refetchable_fragment, ConnectionInterface,
-};
+use relay_config::SchemaConfig;
+use relay_transforms::{transform_connections, transform_refetchable_fragment};
 
 use graphql_test_helpers::apply_transform_for_test;
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     apply_transform_for_test(fixture, |program| {
-        let program = transform_connections(program, &ConnectionInterface::default());
+        let program = transform_connections(program, &SchemaConfig::default());
         let base_fragments = Default::default();
         transform_refetchable_fragment(&program, &Default::default(), &base_fragments, false)
     })

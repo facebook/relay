@@ -11,8 +11,9 @@ use graphql_ir::{build, Program};
 use graphql_syntax::parse_executable;
 use graphql_test_helpers::diagnostics_to_sorted_string;
 use graphql_text_printer::{print_fragment, print_operation, PrinterOptions};
+use relay_config::SchemaConfig;
 use relay_test_schema::get_test_schema;
-use relay_transforms::{transform_connections, validate_connections, ConnectionInterface};
+use relay_transforms::{transform_connections, validate_connections};
 use std::sync::Arc;
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
@@ -26,12 +27,12 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
 
     let program = Program::from_definitions(Arc::clone(&schema), ir);
 
-    let connection_interface = ConnectionInterface::default();
+    let schema_config = SchemaConfig::default();
 
-    validate_connections(&program, &connection_interface)
+    validate_connections(&program, &schema_config.connection_interface)
         .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
 
-    let next_program = transform_connections(&program, &connection_interface);
+    let next_program = transform_connections(&program, &schema_config);
 
     let printer_options = PrinterOptions {
         debug_directive_data: true,

@@ -37,7 +37,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     validate_connections(&program, &connection_interface)
         .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
 
-    let next_program = transform_connections(&program, &connection_interface);
+    let next_program = transform_connections(&program, &project_config.schema_config);
 
     let mut printed = next_program
         .operations()
@@ -58,13 +58,14 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
                 &operation_fragment,
                 request_parameters,
                 &mut import_statements,
+                &project_config,
             );
             format!("{}{}", import_statements, request)
         })
         .collect::<Vec<_>>();
     let mut import_statements = Default::default();
     for def in next_program.fragments() {
-        printed.push(printer.print_fragment(&schema, def, &mut import_statements));
+        printed.push(printer.print_fragment(&schema, def, &mut import_statements, &project_config));
     }
     if !import_statements.is_empty() {
         printed.push(import_statements.to_string())

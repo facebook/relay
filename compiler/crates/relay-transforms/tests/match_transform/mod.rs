@@ -8,9 +8,13 @@
 use common::FeatureFlags;
 use fixture_tests::Fixture;
 use graphql_test_helpers::apply_transform_for_test;
+use relay_config::DeferStreamInterface;
 use relay_transforms::transform_match;
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let flags = FeatureFlags::default();
-    apply_transform_for_test(fixture, |program| transform_match(program, &flags))
+    let defer_stream_interface = DeferStreamInterface::default();
+    apply_transform_for_test(fixture, |program| {
+        transform_match(program, &flags, &defer_stream_interface)
+    })
 }

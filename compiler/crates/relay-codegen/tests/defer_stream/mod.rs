@@ -10,7 +10,7 @@ use fixture_tests::Fixture;
 use graphql_ir::{build, Program};
 use graphql_syntax::parse_executable;
 use relay_codegen::{print_fragment, print_operation, JsModuleFormat};
-use relay_config::ProjectConfig;
+use relay_config::{DeferStreamInterface, ProjectConfig};
 use relay_test_schema::get_test_schema;
 use relay_transforms::{sort_selections, transform_defer_stream};
 use std::sync::Arc;
@@ -24,7 +24,9 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let schema = get_test_schema();
     let ir = build(&schema, &ast.definitions).unwrap();
     let program = Program::from_definitions(Arc::clone(&schema), ir);
-    let next_program = sort_selections(&transform_defer_stream(&program).unwrap());
+    let defer_stream_interface = DeferStreamInterface::default();
+    let next_program =
+        sort_selections(&transform_defer_stream(&program, &defer_stream_interface).unwrap());
     let mut result = next_program
         .fragments()
         .map(|def| {

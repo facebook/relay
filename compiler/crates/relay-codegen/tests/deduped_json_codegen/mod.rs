@@ -35,13 +35,18 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
                             &TEST_SCHEMA,
                             operation,
                             &mut import_statements,
+                            &project_config,
                         );
                         format!("Operation:\n{}{}\n", import_statements, operation,)
                     }
                     graphql_ir::ExecutableDefinition::Fragment(fragment) => {
                         let mut import_statements = Default::default();
-                        let fragment =
-                            printer.print_fragment(&TEST_SCHEMA, fragment, &mut import_statements);
+                        let fragment = printer.print_fragment(
+                            &TEST_SCHEMA,
+                            fragment,
+                            &mut import_statements,
+                            &project_config,
+                        );
                         format!("Fragment:\n{}{}\n", import_statements, fragment)
                     }
                 })

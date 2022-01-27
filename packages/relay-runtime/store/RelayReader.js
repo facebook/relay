@@ -109,6 +109,7 @@ class RelayReader {
   _selector: SingularReaderSelector;
   _variables: Variables;
   _resolverCache: ResolverCache;
+  _fragmentName: string;
 
   constructor(
     recordSource: RecordSource,
@@ -130,6 +131,7 @@ class RelayReader {
     this._selector = selector;
     this._variables = selector.variables;
     this._resolverCache = resolverCache;
+    this._fragmentName = selector.node.name;
   }
 
   read(): Snapshot {
@@ -267,7 +269,7 @@ class RelayReader {
       // encounter is likely to be the root cause of the error.
       return;
     }
-    const owner = this._selector.node.name;
+    const owner = this._fragmentName;
 
     switch (action) {
       case 'THROW':
@@ -275,9 +277,19 @@ class RelayReader {
         return;
       case 'LOG':
         if (this._missingRequiredFields == null) {
-          this._missingRequiredFields = {action, fields: []};
+          this._missingRequiredFields = {
+            action,
+            fields: [{path: fieldPath, owner}],
+          };
+        } else {
+          this._missingRequiredFields = {
+            action,
+            fields: [
+              ...this._missingRequiredFields.fields,
+              {path: fieldPath, owner},
+            ],
+          };
         }
-        this._missingRequiredFields.fields.push({path: fieldPath, owner});
         return;
       default:
         (action: empty);
@@ -511,6 +523,8 @@ class RelayReader {
     // inputs have changed since a previous evaluation:
     let fragmentValue;
     let fragmentReaderSelector;
+    let fragmentMissingRequiredFields: ?MissingRequiredFields;
+    let previousMissingRequriedFields: ?MissingRequiredFields;
     const fragmentSeenRecordIDs = new Set();
 
     const getDataForResolverFragment = singularReaderSelector => {
@@ -525,11 +539,14 @@ class RelayReader {
       try {
         this._seenRecords = fragmentSeenRecordIDs;
         const resolverFragmentData = {};
+        previousMissingRequriedFields = this._missingRequiredFields;
+        this._missingRequiredFields = null;
         this._createInlineDataOrResolverFragmentPointer(
           singularReaderSelector.node,
           record,
           resolverFragmentData,
         );
+        fragmentMissingRequiredFields = this._missingRequiredFields;
         fragmentValue = resolverFragmentData[FRAGMENTS_KEY]?.[fragment.name];
         invariant(
           typeof fragmentValue === 'object' && fragmentValue !== null,
@@ -538,36 +555,43 @@ class RelayReader {
         return fragmentValue;
       } finally {
         this._seenRecords = existingSeenRecords;
+        this._missingRequiredFields = previousMissingRequriedFields;
       }
     };
     const resolverContext = {getDataForResolverFragment};
 
-    const [result, seenRecord] = this._resolverCache.readFromCacheOrEvaluate(
-      record,
-      field,
-      this._variables,
-      () => {
-        const key = {
-          __id: RelayModernRecord.getDataID(record),
-          __fragmentOwner: this._owner,
-          __fragments: {
-            [fragment.name]: {}, // Arguments to this fragment; not yet supported.
-          },
-        };
-        return withResolverContext(resolverContext, () => {
-          // $FlowFixMe[prop-missing] - resolver module's type signature is a lie
-          const resolverResult = resolverModule(key);
-          return {
-            resolverResult,
-            fragmentValue,
-            resolverID,
-            seenRecordIDs: fragmentSeenRecordIDs,
-            readerSelector: fragmentReaderSelector,
+    const [result, seenRecord, missingRequiredFields] =
+      this._resolverCache.readFromCacheOrEvaluate(
+        record,
+        field,
+        this._variables,
+        () => {
+          const key = {
+            __id: RelayModernRecord.getDataID(record),
+            __fragmentOwner: this._owner,
+            __fragments: {
+              [fragment.name]: {}, // Arguments to this fragment; not yet supported.
+            },
           };
-        });
-      },
-      getDataForResolverFragment,
-    );
+          return withResolverContext(resolverContext, () => {
+            // $FlowFixMe[prop-missing] - resolver module's type signature is a lie
+            const resolverResult = resolverModule(key);
+            return {
+              resolverResult,
+              fragmentValue,
+              resolverID,
+              seenRecordIDs: fragmentSeenRecordIDs,
+              readerSelector: fragmentReaderSelector,
+              missingRequiredFields: fragmentMissingRequiredFields,
+            };
+          });
+        },
+        getDataForResolverFragment,
+      );
+
+    if (missingRequiredFields != null) {
+      this._addMissingRequiredFields(missingRequiredFields);
+    }
     if (seenRecord != null) {
       this._seenRecords.add(seenRecord);
     }
@@ -896,13 +920,36 @@ class RelayReader {
       data[ID_KEY] = RelayModernRecord.getDataID(record);
     }
     const inlineData = {};
+    const parentFragmentName = this._fragmentName;
+    this._fragmentName = fragmentSpreadOrFragment.name;
     this._traverseSelections(
       fragmentSpreadOrFragment.selections,
       record,
       inlineData,
     );
+    this._fragmentName = parentFragmentName;
     // $FlowFixMe[cannot-write] - writing into read-only field
     fragmentPointers[fragmentSpreadOrFragment.name] = inlineData;
+  }
+
+  _addMissingRequiredFields(additional: MissingRequiredFields) {
+    if (this._missingRequiredFields == null) {
+      this._missingRequiredFields = additional;
+      return;
+    }
+
+    if (this._missingRequiredFields.action === 'THROW') {
+      return;
+    }
+    if (additional.action === 'THROW') {
+      this._missingRequiredFields = additional;
+      return;
+    }
+
+    this._missingRequiredFields = {
+      action: 'LOG',
+      fields: [...this._missingRequiredFields.fields, ...additional.fields],
+    };
   }
 }
 

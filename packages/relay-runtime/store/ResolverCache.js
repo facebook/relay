@@ -15,6 +15,7 @@
 import type {ReaderRelayResolver} from '../util/ReaderNode';
 import type {DataID, Variables} from '../util/RelayRuntimeTypes';
 import type {
+  MissingRequiredFields,
   MutableRecordSource,
   Record,
   SingularReaderSelector,
@@ -26,6 +27,7 @@ const RelayModernRecord = require('./RelayModernRecord');
 const {
   RELAY_RESOLVER_INPUTS_KEY,
   RELAY_RESOLVER_INVALIDATION_KEY,
+  RELAY_RESOLVER_MISSING_REQUIRED_FIELDS_KEY,
   RELAY_RESOLVER_READER_SELECTOR_KEY,
   RELAY_RESOLVER_VALUE_KEY,
   getStorageKey,
@@ -40,6 +42,7 @@ type EvaluationResult<T> = {|
   resolverID: ResolverID,
   seenRecordIDs: Set<DataID>,
   readerSelector: SingularReaderSelector,
+  missingRequiredFields: ?MissingRequiredFields,
 |};
 
 export interface ResolverCache {
@@ -49,7 +52,7 @@ export interface ResolverCache {
     variables: Variables,
     evaluate: () => EvaluationResult<T>,
     getDataForResolverFragment: (SingularReaderSelector) => mixed,
-  ): [T /* Answer */, ?DataID /* Seen record */];
+  ): [T /* Answer */, ?DataID /* Seen record */, ?MissingRequiredFields];
   invalidateDataIDs(
     updatedDataIDs: Set<DataID>, // Mutated in place
   ): void;
@@ -65,8 +68,9 @@ class NoopResolverCache implements ResolverCache {
     variables: Variables,
     evaluate: () => EvaluationResult<T>,
     getDataForResolverFragment: SingularReaderSelector => mixed,
-  ): [T /* Answer */, ?DataID /* Seen record */] {
-    return [evaluate().resolverResult, undefined];
+  ): [T /* Answer */, ?DataID /* Seen record */, ?MissingRequiredFields] {
+    const {resolverResult, missingRequiredFields} = evaluate();
+    return [resolverResult, undefined, missingRequiredFields];
   }
   invalidateDataIDs(updatedDataIDs: Set<DataID>): void {}
 }
@@ -102,7 +106,7 @@ class RecordResolverCache implements ResolverCache {
     variables: Variables,
     evaluate: () => EvaluationResult<T>,
     getDataForResolverFragment: SingularReaderSelector => mixed,
-  ): [T /* Answer */, ?DataID /* Seen record */] {
+  ): [T /* Answer */, ?DataID /* Seen record */, ?MissingRequiredFields] {
     const recordSource = this._getRecordSource();
     const recordID = RelayModernRecord.getDataID(record);
 
@@ -133,6 +137,11 @@ class RecordResolverCache implements ResolverCache {
         RELAY_RESOLVER_READER_SELECTOR_KEY,
         evaluationResult.readerSelector,
       );
+      RelayModernRecord.setValue(
+        linkedRecord,
+        RELAY_RESOLVER_MISSING_REQUIRED_FIELDS_KEY,
+        evaluationResult.missingRequiredFields,
+      );
       recordSource.set(linkedID, linkedRecord);
 
       // Link the resolver value record to the resolver field of the record being read:
@@ -155,7 +164,11 @@ class RecordResolverCache implements ResolverCache {
 
     // $FlowFixMe[incompatible-type] - will always be empty
     const answer: T = linkedRecord[RELAY_RESOLVER_VALUE_KEY];
-    return [answer, linkedID];
+
+    const missingRequiredFields: ?MissingRequiredFields =
+      // $FlowFixMe[incompatible-type] - casting mixed
+      linkedRecord[RELAY_RESOLVER_MISSING_REQUIRED_FIELDS_KEY];
+    return [answer, linkedID, missingRequiredFields];
   }
 
   invalidateDataIDs(

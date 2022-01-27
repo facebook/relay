@@ -13,7 +13,7 @@ use relay_config::SchemaConfig;
 use schema::Type;
 use std::sync::Arc;
 
-use super::ValidationMessage;
+use super::ValidationMessageWithData;
 use crate::relay_resolvers::RELAY_RESOLVER_DIRECTIVE_NAME;
 use common::{Diagnostic, DiagnosticsResult, NamedItem, WithLocation};
 use graphql_ir::{
@@ -228,8 +228,8 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
                 .directives()
                 .named(*CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME)
             {
-                self.errors.push(Diagnostic::error(
-                    ValidationMessage::RelayResolversUnexpectedWaterfall {},
+                self.errors.push(Diagnostic::error_with_data(
+                    ValidationMessageWithData::RelayResolversUnexpectedWaterfall,
                     directive.name.location,
                 ));
             }
@@ -241,9 +241,12 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
             .named(*CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME)
             .is_none()
         {
-            self.errors.push(Diagnostic::error(
-                ValidationMessage::RelayResolversMissingWaterfall {},
-                field.alias_or_name_location(),
+            let field_definition = self.program.schema.field(field.definition().item);
+            self.errors.push(Diagnostic::error_with_data(
+                ValidationMessageWithData::RelayResolversMissingWaterfall {
+                    field_name: field_definition.name.item,
+                },
+                field.definition.location,
             ));
         }
 
@@ -343,14 +346,13 @@ impl Transformer for ClientEdgesTransform<'_, '_> {
         &mut self,
         field: &graphql_ir::ScalarField,
     ) -> Transformed<Selection> {
-        if field
+        if let Some(directive) = field
             .directives()
             .named(*CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME)
-            .is_some()
         {
-            self.errors.push(Diagnostic::error(
-                ValidationMessage::RelayResolversUnexpectedWaterfall {},
-                field.alias_or_name_location(),
+            self.errors.push(Diagnostic::error_with_data(
+                ValidationMessageWithData::RelayResolversUnexpectedWaterfall,
+                directive.name.location,
             ));
         }
         self.default_transform_scalar_field(field)

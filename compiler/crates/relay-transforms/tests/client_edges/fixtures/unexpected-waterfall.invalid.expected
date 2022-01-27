@@ -11,10 +11,10 @@ fragment Foo_user on User {
 ==================================== ERROR ====================================
 ✖︎ Unexpceted `@waterfall` directive. Only fields backed by a Client Edge should be annotated with the `@waterfall` directive.
 
-  unexpected-waterfall.invalid.graphql:3:3
+  unexpected-waterfall.invalid.graphql:3:8
     2 │ fragment Foo_user on User {
     3 │   name @waterfall
-      │   ^^^^
+      │        ^^^^^^^^^^
     4 │   nearest_neighbor @waterfall {
 
 

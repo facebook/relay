@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use common::{DiagnosticDisplay, WithDiagnosticData};
 use intern::string_key::StringKey;
 use thiserror::Error;
 
@@ -83,16 +84,6 @@ pub enum ValidationMessage {
         "Unexpected Relay Resolver field. The Relay Resolvers feature flag is not currently enabled for this project."
     )]
     RelayResolversDisabled {},
-
-    #[error(
-        "Expected a `@waterfall` directive on this field. Consuming a Client Edge field incurs a network roundtrip or \"waterfall\". To make this explicit, a `@waterfall` directive is required on this field."
-    )]
-    RelayResolversMissingWaterfall {},
-
-    #[error(
-        "Unexpceted `@waterfall` directive. Only fields backed by a Client Edge should be annotated with the `@waterfall` directive."
-    )]
-    RelayResolversUnexpectedWaterfall {},
 
     #[error(
         "The directive '{directive_name}' automatically adds '{actor_change_field}' to the selection of the field '{field_name}'. But the field '{actor_change_field}' does not exist on the type '{type_name}'. Please makes sure the GraphQL schema supports actor change on '{type_name}'."
@@ -179,4 +170,30 @@ pub enum ValidationMessage {
         "Each field on a given type can have only a single @module directive, but here there is more than one (perhaps within different spreads). To fix it, put each @module directive into its own aliased copy of the field with different aliases."
     )]
     ConflictingModuleSelections,
+}
+
+#[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]
+pub enum ValidationMessageWithData {
+    #[error(
+        "Expected a `@waterfall` directive on this field. Consuming a Client Edge field incurs a network roundtrip or \"waterfall\". To make this explicit, a `@waterfall` directive is required on this field."
+    )]
+    RelayResolversMissingWaterfall { field_name: StringKey },
+
+    #[error(
+        "Unexpceted `@waterfall` directive. Only fields backed by a Client Edge should be annotated with the `@waterfall` directive."
+    )]
+    RelayResolversUnexpectedWaterfall,
+}
+
+impl WithDiagnosticData for ValidationMessageWithData {
+    fn get_data(&self) -> Vec<Box<dyn DiagnosticDisplay>> {
+        match self {
+            ValidationMessageWithData::RelayResolversMissingWaterfall { field_name } => {
+                vec![Box::new(format!("{} @waterfall", field_name,))]
+            }
+            ValidationMessageWithData::RelayResolversUnexpectedWaterfall => {
+                vec![Box::new("")]
+            }
+        }
+    }
 }

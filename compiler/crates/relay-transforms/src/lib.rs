@@ -79,7 +79,7 @@ type OperationName = StringKey;
 pub type DependencyMap = HashMap<OperationName, DependencySet, BuildIdHasher<u32>>;
 pub type DependencySet = HashSet<OperationName, BuildIdHasher<u32>>;
 
-pub use crate::errors::ValidationMessage;
+pub use crate::errors::{ValidationMessage, ValidationMessageWithData};
 pub use applied_fragment_name::get_applied_fragment_name;
 pub use apply_custom_transforms::{CustomTransform, CustomTransforms, CustomTransformsConfig};
 pub use apply_fragment_arguments::apply_fragment_arguments;

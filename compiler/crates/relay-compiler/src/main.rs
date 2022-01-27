@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use clap::{ArgEnum, Parser};
 use common::ConsoleLogger;
 use log::{error, info};
 use relay_compiler::{
@@ -21,17 +22,17 @@ use std::{
     process::Command,
     sync::Arc,
 };
-use structopt::{clap::arg_enum, StructOpt};
 
-#[derive(StructOpt)]
-#[structopt(
+#[derive(Parser)]
+#[clap(
     name = "Relay Compiler",
-    about = "Compiler to produce Relay generated files.",
+    version = option_env!("CARGO_PKG_VERSION").unwrap_or("unknown"),
+    about = "Compiles Relay files and writes generated files.",
     rename_all = "camel_case"
 )]
 struct Opt {
     /// Compile and watch for changes
-    #[structopt(long, short)]
+    #[clap(long, short)]
     watch: bool,
 
     /// Compile using this config file. If not provided, searches for a config in
@@ -39,15 +40,15 @@ struct Opt {
     /// from the current working directory.
     config: Option<PathBuf>,
 
-    #[structopt(flatten)]
+    #[clap(flatten)]
     cli_config: CliConfig,
 
     /// Run the persister even if the query has not changed.
-    #[structopt(long)]
+    #[clap(long)]
     repersist: bool,
 
     /// Verbosity level
-    #[structopt(long, possible_values = &OutputKind::variants(), case_insensitive = true, default_value = "verbose")]
+    #[clap(long, arg_enum, default_value = "verbose")]
     output: OutputKind,
 
     /// Looks for pending changes and exits with non-zero code instead of
@@ -56,26 +57,25 @@ struct Opt {
     validate: bool,
 }
 
-arg_enum! {
-    enum OutputKind {
-        Debug,
-        Quiet,
-        QuietWithErrors,
-        Verbose,
-    }
+#[derive(ArgEnum, Clone, Copy)]
+enum OutputKind {
+    Debug,
+    Quiet,
+    QuietWithErrors,
+    Verbose,
 }
 
-#[derive(StructOpt)]
-#[structopt(rename_all = "camel_case")]
+#[derive(Parser)]
+#[clap(rename_all = "camel_case")]
 pub struct CliConfig {
     /// Path for the directory where to search for source code
-    #[structopt(long)]
+    #[clap(long)]
     pub src: Option<PathBuf>,
     /// Path to schema file
-    #[structopt(long)]
+    #[clap(long)]
     pub schema: Option<PathBuf>,
     /// Path to a directory, where the compiler should write artifacts
-    #[structopt(long)]
+    #[clap(long)]
     pub artifact_directory: Option<PathBuf>,
 }
 
@@ -99,7 +99,7 @@ impl From<CliConfig> for SingleProjectConfigFile {
 
 #[tokio::main]
 async fn main() {
-    let opt = Opt::from_args();
+    let opt = Opt::parse();
 
     let log_level = match opt.output {
         OutputKind::Debug => LevelFilter::Debug,

@@ -15,6 +15,7 @@ name = "schema_validate_test"
 path = "tests/validate_schema_test.rs"
 
 [dependencies]
+clap = { version = "3.0.9", features = ["derive", "regex", "unicode", "wrap_help"] }
 common = { path = "../common" }
 fnv = "1.0"
 intern = { path = "../intern" }
@@ -23,7 +24,6 @@ rayon = "1.2"
 regex = "1.5.4"
 schema = { path = "../schema" }
 schema-print = { path = "../schema-print" }
-structopt = "0.3.23"
 thiserror = "1.0.29"
 
 [dev-dependencies]

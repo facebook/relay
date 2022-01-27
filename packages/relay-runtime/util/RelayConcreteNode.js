@@ -35,7 +35,7 @@ export type NormalizationRootNode =
   | ConcreteRequest
   | NormalizationSplitOperation;
 
-export type ProvidedVariablesType = {[key: string]: {|get(): mixed|}};
+export type ProvidedVariablesType = {+[key: string]: {|get(): mixed|}};
 
 /**
  * Contains the parameters required for executing a GraphQL request.

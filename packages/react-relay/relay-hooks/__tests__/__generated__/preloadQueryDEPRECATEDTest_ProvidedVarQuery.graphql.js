@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a6c6d56e57834ab9b09504657a5aee89>>
+ * @generated SignedSource<<df780fb53b02244901e41e5a2ad06685>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -203,10 +203,7 @@ return {
     "name": "preloadQueryDEPRECATEDTest_ProvidedVarQuery",
     "operationKind": "query",
     "text": "query preloadQueryDEPRECATEDTest_ProvidedVarQuery(\n  $id: ID!\n  $__relay_internal__pv__RelayProvider_returnsTrue: Boolean!\n  $__relay_internal__pv__RelayProvider_returnsFalse: Boolean!\n) {\n  node(id: $id) {\n    __typename\n    ...preloadQueryDEPRECATEDTest_ProvidedVarFragment\n    id\n  }\n}\n\nfragment preloadQueryDEPRECATEDTest_ProvidedVarFragment on User {\n  name @include(if: $__relay_internal__pv__RelayProvider_returnsTrue)\n  firstName @include(if: $__relay_internal__pv__RelayProvider_returnsFalse)\n  lastName @skip(if: $__relay_internal__pv__RelayProvider_returnsFalse)\n  username @skip(if: $__relay_internal__pv__RelayProvider_returnsTrue)\n}\n",
-    "providedVariables": {
-      "__relay_internal__pv__RelayProvider_returnsTrue": require('./../RelayProvider_returnsTrue'),
-      "__relay_internal__pv__RelayProvider_returnsFalse": require('./../RelayProvider_returnsFalse')
-    }
+    "providedVariables": providedVariablesDefinition
   }
 };
 })();

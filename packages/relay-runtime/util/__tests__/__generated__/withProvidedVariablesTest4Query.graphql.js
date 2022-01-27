@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<5faa9a95f3ac4396af0270b0245c3731>>
+ * @generated SignedSource<<6add954621db98b8f73ae4511a7981e7>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -207,10 +207,7 @@ return {
     "name": "withProvidedVariablesTest4Query",
     "operationKind": "query",
     "text": "query withProvidedVariablesTest4Query(\n  $__relay_internal__pv__provideNumberOfFriends: Int!\n  $__relay_internal__pv__provideIncludeUserNames: Boolean!\n) {\n  node(id: 4) {\n    __typename\n    ...withProvidedVariablesTest4Fragment1\n    ...withProvidedVariablesTest4Fragment2\n    id\n  }\n}\n\nfragment withProvidedVariablesTest4Fragment1 on User {\n  friends(first: $__relay_internal__pv__provideNumberOfFriends) {\n    count\n    edges {\n      node {\n        name @include(if: $__relay_internal__pv__provideIncludeUserNames)\n        id\n      }\n    }\n  }\n}\n\nfragment withProvidedVariablesTest4Fragment2 on User {\n  name @include(if: $__relay_internal__pv__provideIncludeUserNames)\n}\n",
-    "providedVariables": {
-      "__relay_internal__pv__provideNumberOfFriends": require('./../provideNumberOfFriends'),
-      "__relay_internal__pv__provideIncludeUserNames": require('./../provideIncludeUserNames')
-    }
+    "providedVariables": providedVariablesDefinition
   }
 };
 })();

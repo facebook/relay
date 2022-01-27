@@ -63,6 +63,7 @@ impl Ast {
 #[derive(Eq, PartialEq, Hash, Debug)]
 pub enum Primitive {
     Key(AstKey),
+    Variable(StringKey),
     String(StringKey),
     Float(FloatValue),
     Int(i64),

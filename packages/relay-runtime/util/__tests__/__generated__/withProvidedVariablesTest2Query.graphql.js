@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<e48af2249eac9726cd60b60778aec874>>
+ * @generated SignedSource<<08d338f1b10e447d6a0f0c8a32913160>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -175,9 +175,7 @@ return {
     "name": "withProvidedVariablesTest2Query",
     "operationKind": "query",
     "text": "query withProvidedVariablesTest2Query(\n  $includeFriendsCount: Boolean!\n  $__relay_internal__pv__provideNumberOfFriends: Int!\n) {\n  node(id: 4) {\n    __typename\n    ...withProvidedVariablesTest2Fragment_47ZY3u\n    id\n  }\n}\n\nfragment withProvidedVariablesTest2Fragment_47ZY3u on User {\n  friends(first: $__relay_internal__pv__provideNumberOfFriends) {\n    count @include(if: $includeFriendsCount)\n  }\n}\n",
-    "providedVariables": {
-      "__relay_internal__pv__provideNumberOfFriends": require('./../provideNumberOfFriends')
-    }
+    "providedVariables": providedVariablesDefinition
   }
 };
 })();

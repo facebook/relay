@@ -34,6 +34,10 @@ impl TopLevelStatements {
         self.0.insert(symbol, import_statement);
     }
 
+    pub fn contains(&self, symbol: &str) -> bool {
+        self.0.contains_key(symbol)
+    }
+
     pub fn is_empty(&self) -> bool {
         self.0.is_empty()
     }

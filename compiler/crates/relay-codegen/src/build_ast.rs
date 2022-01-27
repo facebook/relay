@@ -10,6 +10,7 @@ use std::path::Path;
 use crate::ast::{Ast, AstBuilder, AstKey, ObjectEntry, Primitive, QueryID, RequestParameters};
 use crate::constants::CODEGEN_CONSTANTS;
 use crate::object;
+use crate::top_level_statements::TopLevelStatements;
 use common::{NamedItem, WithLocation};
 use graphql_ir::{
     Argument, Condition, ConditionValue, ConstantValue, Directive, FragmentDefinition,
@@ -38,10 +39,11 @@ pub fn build_request_params_ast_key(
     request_parameters: RequestParameters<'_>,
     ast_builder: &mut AstBuilder,
     operation: &OperationDefinition,
+    top_level_statements: &TopLevelStatements,
 ) -> AstKey {
     let mut operation_builder =
         CodegenBuilder::new(schema, CodegenVariant::Normalization, ast_builder);
-    operation_builder.build_request_parameters(operation, request_parameters)
+    operation_builder.build_request_parameters(operation, request_parameters, top_level_statements)
 }
 
 pub fn build_provided_variables(
@@ -1266,6 +1268,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         &mut self,
         operation: &OperationDefinition,
         mut request_parameters: RequestParameters<'_>,
+        top_level_statements: &TopLevelStatements,
     ) -> AstKey {
         let mut metadata_items: Vec<ObjectEntry> = operation
             .directives
@@ -1365,12 +1368,20 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             ]
         };
 
-        if let Some(provided_variables) =
-            self.build_operation_provided_variables(&operation.variable_definitions)
+        let provided_variables = if top_level_statements
+            .contains(CODEGEN_CONSTANTS.provided_variables_definition.lookup())
         {
+            Some(Primitive::Variable(
+                CODEGEN_CONSTANTS.provided_variables_definition,
+            ))
+        } else {
+            self.build_operation_provided_variables(&operation.variable_definitions)
+                .map(Primitive::Key)
+        };
+        if let Some(value) = provided_variables {
             params_object.push(ObjectEntry {
                 key: CODEGEN_CONSTANTS.provided_variables,
-                value: Primitive::Key(provided_variables),
+                value,
             });
         }
 

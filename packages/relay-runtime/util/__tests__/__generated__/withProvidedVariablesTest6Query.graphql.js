@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<3aaed9fe7c71a96b8486a48bfb8a4751>>
+ * @generated SignedSource<<ac1b095503755fde1a7b95b002692124>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -152,9 +152,7 @@ return {
     "name": "withProvidedVariablesTest6Query",
     "operationKind": "query",
     "text": "query withProvidedVariablesTest6Query(\n  $__relay_internal__pv__provideRandomNumber_invalid1: Float!\n) {\n  node(id: 4) {\n    __typename\n    ...withProvidedVariablesTest6Fragment\n    id\n  }\n}\n\nfragment withProvidedVariablesTest6Fragment on User {\n  profile_picture(scale: $__relay_internal__pv__provideRandomNumber_invalid1) {\n    uri\n  }\n}\n",
-    "providedVariables": {
-      "__relay_internal__pv__provideRandomNumber_invalid1": require('./../provideRandomNumber_invalid1')
-    }
+    "providedVariables": providedVariablesDefinition
   }
 };
 })();

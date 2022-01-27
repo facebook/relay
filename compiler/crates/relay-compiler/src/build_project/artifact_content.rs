@@ -9,7 +9,7 @@ use super::ArtifactGeneratedTypes;
 use crate::config::{Config, ProjectConfig};
 use common::{NamedItem, SourceLocationKey};
 use graphql_ir::{Directive, FragmentDefinition, OperationDefinition};
-use relay_codegen::{build_request_params, Printer, QueryID, TopLevelStatement};
+use relay_codegen::{build_request_params, Printer, QueryID, TopLevelStatement, CODEGEN_CONSTANTS};
 use relay_transforms::{
     is_operation_preloadable, ReactFlightLocalComponentsMetadata, RelayClientComponentMetadata,
     ASSIGNABLE_DIRECTIVE, DATA_DRIVEN_DEPENDENCY_METADATA_KEY,
@@ -281,13 +281,13 @@ fn generate_operation(
         write_variable_value_with_type(
             &project_config.typegen_config.language,
             &mut provided_variable_text,
-            "providedVariablesDefinition",
+            CODEGEN_CONSTANTS.provided_variables_definition.lookup(),
             relay_typegen::PROVIDED_VARIABLE_TYPE,
             &provided_variables,
         )
         .unwrap();
         top_level_statements.insert(
-            "providedVariableProviders".to_string(),
+            CODEGEN_CONSTANTS.provided_variables_definition.to_string(),
             TopLevelStatement::VariableDefinition(provided_variable_text),
         );
     }

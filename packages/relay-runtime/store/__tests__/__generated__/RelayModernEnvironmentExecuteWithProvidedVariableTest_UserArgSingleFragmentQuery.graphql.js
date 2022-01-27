@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<63f02ad31b5a02939a9354bf13e251a9>>
+ * @generated SignedSource<<651b6fc3a0a3fec9acbfbeebd49f3072>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -184,9 +184,7 @@ return {
     "name": "RelayModernEnvironmentExecuteWithProvidedVariableTest_UserArgSingleFragmentQuery",
     "operationKind": "query",
     "text": "query RelayModernEnvironmentExecuteWithProvidedVariableTest_UserArgSingleFragmentQuery(\n  $id: ID!\n  $__relay_internal__pv__RelayProvider_returnsTrue: Boolean!\n) {\n  node(id: $id) {\n    __typename\n    ...RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1\n    id\n  }\n}\n\nfragment RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1 on User {\n  id\n  name @include(if: $__relay_internal__pv__RelayProvider_returnsTrue)\n  username @skip(if: $__relay_internal__pv__RelayProvider_returnsTrue)\n  profilePicture {\n    uri\n  }\n}\n",
-    "providedVariables": {
-      "__relay_internal__pv__RelayProvider_returnsTrue": require('./../RelayProvider_returnsTrue')
-    }
+    "providedVariables": providedVariablesDefinition
   }
 };
 })();

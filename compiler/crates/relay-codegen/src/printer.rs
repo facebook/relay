@@ -71,8 +71,13 @@ pub fn print_request_params(
     request_parameters.id = query_id;
 
     let mut builder = AstBuilder::default();
-    let request_parameters_ast_key =
-        build_request_params_ast_key(schema, request_parameters, &mut builder, operation);
+    let request_parameters_ast_key = build_request_params_ast_key(
+        schema,
+        request_parameters,
+        &mut builder,
+        operation,
+        top_level_statements,
+    );
     let printer = JSONPrinter::new(&builder, project_config, top_level_statements);
     printer.print(request_parameters_ast_key, false)
 }
@@ -119,8 +124,13 @@ impl<'p> Printer<'p> {
         request_parameters: RequestParameters<'_>,
         top_level_statements: &mut TopLevelStatements,
     ) -> String {
-        let request_parameters =
-            build_request_params_ast_key(schema, request_parameters, &mut self.builder, operation);
+        let request_parameters = build_request_params_ast_key(
+            schema,
+            request_parameters,
+            &mut self.builder,
+            operation,
+            top_level_statements,
+        );
         let key = build_request(
             schema,
             &mut self.builder,
@@ -161,8 +171,13 @@ impl<'p> Printer<'p> {
         operation: &OperationDefinition,
         top_level_statements: &mut TopLevelStatements,
     ) -> String {
-        let key =
-            build_request_params_ast_key(schema, request_parameters, &mut self.builder, operation);
+        let key = build_request_params_ast_key(
+            schema,
+            request_parameters,
+            &mut self.builder,
+            operation,
+            top_level_statements,
+        );
         let printer = JSONPrinter::new(&self.builder, self.project_config, top_level_statements);
         printer.print(key, self.dedupe)
     }
@@ -352,6 +367,7 @@ impl<'b> JSONPrinter<'b> {
             Primitive::String(key) => write!(f, "\"{}\"", key),
             Primitive::Float(value) => write!(f, "{}", value.as_float()),
             Primitive::Int(value) => write!(f, "{}", value),
+            Primitive::Variable(variable_name) => write!(f, "{}", variable_name),
             Primitive::Key(key) => {
                 self.print_ast(f, *key, indent, is_dedupe_var);
                 Ok(())
@@ -498,6 +514,7 @@ fn write_constant_value(f: &mut String, builder: &AstBuilder, value: &Primitive)
         Primitive::String(key) => write!(f, "\\\"{}\\\"", key),
         Primitive::Float(value) => write!(f, "{}", value.as_float()),
         Primitive::Int(value) => write!(f, "{}", value),
+        Primitive::Variable(variable_name) => write!(f, "{}", variable_name),
         Primitive::Key(key) => {
             let ast = builder.lookup(*key);
             match ast {

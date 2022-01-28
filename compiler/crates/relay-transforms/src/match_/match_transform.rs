@@ -7,7 +7,6 @@
 
 use super::validation_message::ValidationMessage;
 use crate::{
-    defer_stream::DEFER_STREAM_CONSTANTS,
     inline_data_fragment::INLINE_DIRECTIVE_NAME,
     match_::MATCH_CONSTANTS,
     no_inline::{attach_no_inline_directives_to_fragments, validate_required_no_inline_directive},
@@ -24,6 +23,7 @@ use graphql_ir::{
 };
 use indexmap::IndexSet;
 use intern::string_key::{Intern, StringKey, StringKeyMap};
+use relay_config::DeferStreamInterface;
 use schema::{FieldID, ScalarID, Schema, Type, TypeReference};
 use std::{
     hash::{Hash, Hasher},
@@ -34,8 +34,9 @@ use std::{
 pub fn transform_match(
     program: &Program,
     feature_flags: &FeatureFlags,
+    defer_stream_interface: &DeferStreamInterface,
 ) -> DiagnosticsResult<Program> {
-    let mut transformer = MatchTransform::new(program, feature_flags);
+    let mut transformer = MatchTransform::new(program, feature_flags, defer_stream_interface);
     let next_program = transformer.transform_program(program);
     if transformer.errors.is_empty() {
         Ok(next_program.replace_or_else(|| program.clone()))
@@ -70,7 +71,7 @@ struct Matches {
 }
 type MatchesForPath = FnvHashMap<Vec<Path>, Matches>;
 
-pub struct MatchTransform<'program, 'flag> {
+pub struct MatchTransform<'program, 'flag, 'dsi> {
     program: &'program Program,
     parent_type: Type,
     document_name: StringKey,
@@ -82,10 +83,15 @@ pub struct MatchTransform<'program, 'flag> {
     no_inline_flag: &'flag FeatureFlag,
     // Stores the fragments that should use @no_inline and their parent document name
     no_inline_fragments: StringKeyMap<Vec<StringKey>>,
+    defer_stream_interface: &'dsi DeferStreamInterface,
 }
 
-impl<'program, 'flag> MatchTransform<'program, 'flag> {
-    fn new(program: &'program Program, feature_flags: &'flag FeatureFlags) -> Self {
+impl<'program, 'flag, 'dsi> MatchTransform<'program, 'flag, 'dsi> {
+    fn new(
+        program: &'program Program,
+        feature_flags: &'flag FeatureFlags,
+        defer_stream_interface: &'dsi DeferStreamInterface,
+    ) -> Self {
         Self {
             program,
             // Placeholders to make the types non-optional,
@@ -98,6 +104,7 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
             enable_3d_branch_arg_generation: feature_flags.enable_3d_branch_arg_generation,
             no_inline_flag: &feature_flags.no_inline,
             no_inline_fragments: Default::default(),
+            defer_stream_interface,
         }
     }
 
@@ -275,7 +282,7 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
                 && !(spread.directives.len() == 2
                     && spread
                         .directives
-                        .named(DEFER_STREAM_CONSTANTS.defer_name)
+                        .named(self.defer_stream_interface.defer_name)
                         .is_some())
             {
                 // allow @defer and @module in typegen transforms
@@ -498,18 +505,16 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
                     directives: vec![],
                     selections: vec![Selection::InlineFragment(Arc::new(InlineFragment {
                         type_condition: Some(fragment.type_condition),
-                        directives: vec![
-                            ModuleMetadata {
-                                key: match_directive_key_argument,
-                                module_id,
-                                module_name: module_directive_name_argument,
-                                source_document_name: self.document_name,
-                                fragment_name: spread.fragment.item,
-                                location: module_directive.name.location,
-                                no_inline: should_use_no_inline,
-                            }
-                            .into(),
-                        ],
+                        directives: vec![ModuleMetadata {
+                            key: match_directive_key_argument,
+                            module_id,
+                            module_name: module_directive_name_argument,
+                            source_document_name: self.document_name,
+                            fragment_name: spread.fragment.item,
+                            location: module_directive.name.location,
+                            no_inline: should_use_no_inline,
+                        }
+                        .into()],
                         selections: vec![next_spread, operation_field, component_field],
                     }))],
                 },
@@ -702,7 +707,7 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
     }
 }
 
-impl Transformer for MatchTransform<'_, '_> {
+impl Transformer for MatchTransform<'_, '_, '_> {
     const NAME: &'static str = "MatchTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;

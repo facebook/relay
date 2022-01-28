@@ -5,7 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use super::defer_stream::DEFER_STREAM_CONSTANTS;
 use crate::{
     no_inline::NO_INLINE_DIRECTIVE_NAME, DeferDirective, StreamDirective, ValidationMessage,
 };
@@ -16,10 +15,15 @@ use graphql_ir::{
     Value,
 };
 use intern::string_key::{StringKey, StringKeyMap};
+use relay_config::DeferStreamInterface;
 use std::sync::Arc;
 
-pub fn skip_unreachable_node(program: &Program) -> DiagnosticsResult<Program> {
-    let mut skip_unreachable_node_transform = SkipUnreachableNodeTransform::new(program);
+pub fn skip_unreachable_node(
+    program: &Program,
+    defer_stream_interface: &DeferStreamInterface,
+) -> DiagnosticsResult<Program> {
+    let mut skip_unreachable_node_transform =
+        SkipUnreachableNodeTransform::new(program, defer_stream_interface);
     let transformed = skip_unreachable_node_transform.transform_program(program);
     if skip_unreachable_node_transform.errors.is_empty() {
         Ok(transformed.replace_or_else(|| program.clone()))
@@ -34,6 +38,7 @@ pub struct SkipUnreachableNodeTransform<'s> {
     errors: Vec<Diagnostic>,
     visited_fragments: VisitedFragments,
     program: &'s Program,
+    defer_stream_interface: &'s DeferStreamInterface,
 }
 
 impl<'s> Transformer for SkipUnreachableNodeTransform<'s> {
@@ -144,8 +149,13 @@ impl<'s> Transformer for SkipUnreachableNodeTransform<'s> {
 
     fn transform_linked_field(&mut self, field: &LinkedField) -> Transformed<Selection> {
         let tranformed_field = self.default_transform_linked_field(field);
-        if let Some(directive) = field.directives.named(DEFER_STREAM_CONSTANTS.stream_name) {
-            if let Some(if_arg) = StreamDirective::from(directive).if_arg {
+        if let Some(directive) = field
+            .directives
+            .named(self.defer_stream_interface.stream_name)
+        {
+            if let Some(if_arg) =
+                StreamDirective::from(directive, self.defer_stream_interface).if_arg
+            {
                 if let Value::Constant(ConstantValue::Boolean(false)) = &if_arg.value.item {
                     let mut next_field = match tranformed_field {
                         Transformed::Delete => return Transformed::Delete,
@@ -159,7 +169,7 @@ impl<'s> Transformer for SkipUnreachableNodeTransform<'s> {
                     Arc::make_mut(&mut next_field)
                         .directives
                         .retain(|directive| {
-                            directive.name.item != DEFER_STREAM_CONSTANTS.stream_name
+                            directive.name.item != self.defer_stream_interface.stream_name
                         });
                     assert_eq!(
                         previous_directive_len,
@@ -175,11 +185,12 @@ impl<'s> Transformer for SkipUnreachableNodeTransform<'s> {
 }
 
 impl<'s> SkipUnreachableNodeTransform<'s> {
-    pub fn new(program: &'s Program) -> Self {
+    pub fn new(program: &'s Program, defer_stream_interface: &'s DeferStreamInterface) -> Self {
         Self {
             errors: Vec::new(),
             visited_fragments: Default::default(),
             program,
+            defer_stream_interface,
         }
     }
 
@@ -223,10 +234,12 @@ impl<'s> SkipUnreachableNodeTransform<'s> {
     ) -> TransformedMulti<Selection> {
         if let Some(directive) = inline_fragment
             .directives
-            .named(DEFER_STREAM_CONSTANTS.defer_name)
+            .named(self.defer_stream_interface.defer_name)
         {
             assert!(inline_fragment.directives.len() == 1);
-            if let Some(if_arg) = DeferDirective::from(directive).if_arg {
+            if let Some(if_arg) =
+                DeferDirective::from(directive, self.defer_stream_interface).if_arg
+            {
                 if let Value::Constant(ConstantValue::Boolean(false)) = &if_arg.value.item {
                     return TransformedMulti::ReplaceMultiple(
                         self.transform_selections(&inline_fragment.selections)

@@ -31,7 +31,12 @@ pub fn print_operation(
     project_config: &ProjectConfig,
     top_level_statements: &mut TopLevelStatements,
 ) -> String {
-    Printer::without_dedupe(project_config).print_operation(schema, operation, top_level_statements)
+    Printer::without_dedupe(project_config).print_operation(
+        schema,
+        operation,
+        top_level_statements,
+        project_config,
+    )
 }
 
 pub fn print_fragment(
@@ -40,7 +45,12 @@ pub fn print_fragment(
     project_config: &ProjectConfig,
     top_level_statements: &mut TopLevelStatements,
 ) -> String {
-    Printer::without_dedupe(project_config).print_fragment(schema, fragment, top_level_statements)
+    Printer::without_dedupe(project_config).print_fragment(
+        schema,
+        fragment,
+        top_level_statements,
+        project_config,
+    )
 }
 
 pub fn print_request(
@@ -57,6 +67,7 @@ pub fn print_request(
         fragment,
         request_parameters,
         top_level_statements,
+        project_config,
     )
 }
 
@@ -77,6 +88,7 @@ pub fn print_request_params(
         &mut builder,
         operation,
         top_level_statements,
+        &project_config.schema_config.defer_stream_interface,
     );
     let printer = JSONPrinter::new(&builder, project_config, top_level_statements);
     printer.print(request_parameters_ast_key, false)
@@ -110,8 +122,14 @@ impl<'p> Printer<'p> {
         schema: &SDLSchema,
         operation: &OperationDefinition,
         top_level_statements: &mut TopLevelStatements,
+        project_config: &ProjectConfig,
     ) -> Option<String> {
-        let key = build_provided_variables(schema, &mut self.builder, operation)?;
+        let key = build_provided_variables(
+            schema,
+            &mut self.builder,
+            operation,
+            &project_config.schema_config.defer_stream_interface,
+        )?;
         let printer = JSONPrinter::new(&self.builder, self.project_config, top_level_statements);
         Some(printer.print(key, self.dedupe))
     }
@@ -123,6 +141,7 @@ impl<'p> Printer<'p> {
         fragment: &FragmentDefinition,
         request_parameters: RequestParameters<'_>,
         top_level_statements: &mut TopLevelStatements,
+        project_config: &ProjectConfig,
     ) -> String {
         let request_parameters = build_request_params_ast_key(
             schema,
@@ -130,6 +149,7 @@ impl<'p> Printer<'p> {
             &mut self.builder,
             operation,
             top_level_statements,
+            &project_config.schema_config.defer_stream_interface,
         );
         let key = build_request(
             schema,
@@ -137,6 +157,7 @@ impl<'p> Printer<'p> {
             operation,
             fragment,
             request_parameters,
+            &project_config.schema_config.defer_stream_interface,
         );
         let printer = JSONPrinter::new(&self.builder, self.project_config, top_level_statements);
         printer.print(key, self.dedupe)
@@ -147,8 +168,14 @@ impl<'p> Printer<'p> {
         schema: &SDLSchema,
         operation: &OperationDefinition,
         top_level_statements: &mut TopLevelStatements,
+        project_config: &ProjectConfig,
     ) -> String {
-        let key = build_operation(schema, &mut self.builder, operation);
+        let key = build_operation(
+            schema,
+            &mut self.builder,
+            operation,
+            &project_config.schema_config.defer_stream_interface,
+        );
         let printer = JSONPrinter::new(&self.builder, self.project_config, top_level_statements);
         printer.print(key, self.dedupe)
     }
@@ -158,8 +185,14 @@ impl<'p> Printer<'p> {
         schema: &SDLSchema,
         fragment: &FragmentDefinition,
         top_level_statements: &mut TopLevelStatements,
+        project_config: &ProjectConfig,
     ) -> String {
-        let key = build_fragment(schema, &mut self.builder, fragment);
+        let key = build_fragment(
+            schema,
+            &mut self.builder,
+            fragment,
+            &project_config.schema_config.defer_stream_interface,
+        );
         let printer = JSONPrinter::new(&self.builder, self.project_config, top_level_statements);
         printer.print(key, self.dedupe)
     }
@@ -170,6 +203,7 @@ impl<'p> Printer<'p> {
         request_parameters: RequestParameters<'_>,
         operation: &OperationDefinition,
         top_level_statements: &mut TopLevelStatements,
+        project_config: &ProjectConfig,
     ) -> String {
         let key = build_request_params_ast_key(
             schema,
@@ -177,6 +211,7 @@ impl<'p> Printer<'p> {
             &mut self.builder,
             operation,
             top_level_statements,
+            &project_config.schema_config.defer_stream_interface,
         );
         let printer = JSONPrinter::new(&self.builder, self.project_config, top_level_statements);
         printer.print(key, self.dedupe)

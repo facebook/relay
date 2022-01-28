@@ -16,7 +16,9 @@ use regex::Regex;
 use serde::{de::Error, Deserialize, Deserializer, Serialize};
 use tokio::sync::Semaphore;
 
-use crate::{connection_interface::ConnectionInterface, JsModuleFormat, TypegenConfig};
+use crate::{
+    connection_interface::ConnectionInterface, DeferStreamInterface, JsModuleFormat, TypegenConfig,
+};
 
 type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
 
@@ -69,6 +71,9 @@ pub struct SchemaConfig {
     /// The name of the `id` field that exists on the `Node` interface.
     #[serde(default = "default_node_interface_id_field")]
     pub node_interface_id_field: StringKey,
+
+    #[serde(default)]
+    pub defer_stream_interface: DeferStreamInterface,
 }
 
 fn default_node_interface_id_field() -> StringKey {
@@ -80,6 +85,7 @@ impl Default for SchemaConfig {
         Self {
             connection_interface: ConnectionInterface::default(),
             node_interface_id_field: default_node_interface_id_field(),
+            defer_stream_interface: DeferStreamInterface::default(),
         }
     }
 }

@@ -20,14 +20,15 @@ use graphql_ir::{
 use graphql_syntax::OperationKind;
 use intern::string_key::{Intern, StringKey};
 use md5::{Digest, Md5};
+use relay_config::DeferStreamInterface;
 use relay_transforms::{
     extract_connection_metadata_from_directive, extract_handle_field_directives,
     extract_values_from_handle_field_directive, generate_abstract_type_refinement_key,
     remove_directive, ClientEdgeMetadata, ConnectionConstants, ConnectionMetadata, DeferDirective,
     InlineDirectiveMetadata, ModuleMetadata, RefetchableMetadata, RelayDirective,
     RelayResolverSpreadMetadata, RequiredMetadataDirective, StreamDirective,
-    CLIENT_EXTENSION_DIRECTIVE_NAME, DEFER_STREAM_CONSTANTS, DIRECTIVE_SPLIT_OPERATION,
-    INLINE_DIRECTIVE_NAME, INTERNAL_METADATA_DIRECTIVE, NO_INLINE_DIRECTIVE_NAME,
+    CLIENT_EXTENSION_DIRECTIVE_NAME, DIRECTIVE_SPLIT_OPERATION, INLINE_DIRECTIVE_NAME,
+    INTERNAL_METADATA_DIRECTIVE, NO_INLINE_DIRECTIVE_NAME,
     REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY, RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN,
     RELAY_CLIENT_COMPONENT_MODULE_ID_ARGUMENT_NAME, RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME,
     TYPE_DISCRIMINATOR_DIRECTIVE_NAME,
@@ -40,9 +41,14 @@ pub fn build_request_params_ast_key(
     ast_builder: &mut AstBuilder,
     operation: &OperationDefinition,
     top_level_statements: &TopLevelStatements,
+    defer_stream_interface: &DeferStreamInterface,
 ) -> AstKey {
-    let mut operation_builder =
-        CodegenBuilder::new(schema, CodegenVariant::Normalization, ast_builder);
+    let mut operation_builder = CodegenBuilder::new(
+        schema,
+        CodegenVariant::Normalization,
+        ast_builder,
+        defer_stream_interface,
+    );
     operation_builder.build_request_parameters(operation, request_parameters, top_level_statements)
 }
 
@@ -50,9 +56,14 @@ pub fn build_provided_variables(
     schema: &SDLSchema,
     ast_builder: &mut AstBuilder,
     operation: &OperationDefinition,
+    defer_stream_interface: &DeferStreamInterface,
 ) -> Option<AstKey> {
-    let mut operation_builder =
-        CodegenBuilder::new(schema, CodegenVariant::Normalization, ast_builder);
+    let mut operation_builder = CodegenBuilder::new(
+        schema,
+        CodegenVariant::Normalization,
+        ast_builder,
+        defer_stream_interface,
+    );
 
     operation_builder.build_operation_provided_variables(&operation.variable_definitions)
 }
@@ -63,11 +74,21 @@ pub fn build_request(
     operation: &OperationDefinition,
     fragment: &FragmentDefinition,
     request_parameters: AstKey,
+    defer_stream_interface: &DeferStreamInterface,
 ) -> AstKey {
-    let mut operation_builder =
-        CodegenBuilder::new(schema, CodegenVariant::Normalization, ast_builder);
+    let mut operation_builder = CodegenBuilder::new(
+        schema,
+        CodegenVariant::Normalization,
+        ast_builder,
+        defer_stream_interface,
+    );
     let operation = Primitive::Key(operation_builder.build_operation(operation));
-    let mut fragment_builder = CodegenBuilder::new(schema, CodegenVariant::Reader, ast_builder);
+    let mut fragment_builder = CodegenBuilder::new(
+        schema,
+        CodegenVariant::Reader,
+        ast_builder,
+        defer_stream_interface,
+    );
     let fragment = Primitive::Key(fragment_builder.build_fragment(fragment, true));
 
     ast_builder.intern(Ast::Object(object! {
@@ -92,8 +113,14 @@ pub fn build_operation(
     schema: &SDLSchema,
     ast_builder: &mut AstBuilder,
     operation: &OperationDefinition,
+    defer_stream_interface: &DeferStreamInterface,
 ) -> AstKey {
-    let mut builder = CodegenBuilder::new(schema, CodegenVariant::Normalization, ast_builder);
+    let mut builder = CodegenBuilder::new(
+        schema,
+        CodegenVariant::Normalization,
+        ast_builder,
+        defer_stream_interface,
+    );
     builder.build_operation(operation)
 }
 
@@ -101,13 +128,20 @@ pub fn build_fragment(
     schema: &SDLSchema,
     ast_builder: &mut AstBuilder,
     fragment: &FragmentDefinition,
+    defer_stream_interface: &DeferStreamInterface,
 ) -> AstKey {
-    let mut builder = CodegenBuilder::new(schema, CodegenVariant::Reader, ast_builder);
+    let mut builder = CodegenBuilder::new(
+        schema,
+        CodegenVariant::Reader,
+        ast_builder,
+        defer_stream_interface,
+    );
     builder.build_fragment(fragment, false)
 }
 
-pub struct CodegenBuilder<'schema, 'builder> {
+pub struct CodegenBuilder<'schema, 'builder, 'dsi> {
     connection_constants: ConnectionConstants,
+    defer_stream_interface: &'dsi DeferStreamInterface,
     schema: &'schema SDLSchema,
     variant: CodegenVariant,
     ast_builder: &'builder mut AstBuilder,
@@ -119,15 +153,17 @@ pub enum CodegenVariant {
     Normalization,
 }
 
-impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
+impl<'schema, 'builder, 'dsi> CodegenBuilder<'schema, 'builder, 'dsi> {
     pub fn new(
         schema: &'schema SDLSchema,
         variant: CodegenVariant,
         ast_builder: &'builder mut AstBuilder,
+        defer_stream_interface: &'dsi DeferStreamInterface,
     ) -> Self {
         Self {
             connection_constants: Default::default(),
             schema,
+            defer_stream_interface,
             variant,
             ast_builder,
         }
@@ -334,7 +370,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                 };
                 if metadata.is_stream_connection {
                     object.push(ObjectEntry {
-                        key: DEFER_STREAM_CONSTANTS.stream_name,
+                        key: self.defer_stream_interface.stream_name,
                         value: Primitive::Bool(true),
                     })
                 }
@@ -374,7 +410,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             Selection::InlineFragment(inline_fragment) => {
                 let defer = inline_fragment
                     .directives
-                    .named(DEFER_STREAM_CONSTANTS.defer_name);
+                    .named(self.defer_stream_interface.defer_name);
                 if let Some(defer) = defer {
                     vec![self.build_defer(inline_fragment, defer)]
                 } else if let Some(inline_data_directive) =
@@ -382,12 +418,8 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                 {
                     // If inline fragment has @__inline directive (created by inline_data_fragment transform)
                     // we will return selection wrapped with InlineDataFragmentSpread
-                    vec![
-                        self.build_inline_data_fragment_spread(
-                            inline_fragment,
-                            inline_data_directive,
-                        ),
-                    ]
+                    vec![self
+                        .build_inline_data_fragment_spread(inline_fragment, inline_data_directive)]
                 } else if let Some(module_metadata) =
                     ModuleMetadata::find(&inline_fragment.directives)
                 {
@@ -403,7 +435,9 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                 }
             }
             Selection::LinkedField(field) => {
-                let stream = field.directives.named(DEFER_STREAM_CONSTANTS.stream_name);
+                let stream = field
+                    .directives
+                    .named(self.defer_stream_interface.stream_name);
 
                 match stream {
                     Some(stream) => vec![self.build_stream(field, stream)],
@@ -806,7 +840,8 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         defer: &Directive,
     ) -> Primitive {
         let next_selections = self.build_selections(inline_fragment.selections.iter());
-        let DeferDirective { if_arg, label_arg } = DeferDirective::from(defer);
+        let DeferDirective { if_arg, label_arg } =
+            DeferDirective::from(defer, self.defer_stream_interface);
         let if_variable_name = if_arg.and_then(|arg| match &arg.value.item {
             // `true` is the default, remove as the AST is typed just as a variable name string
             // `false` constant values should've been transformed away in skip_unreachable_node
@@ -828,7 +863,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         let next_selections = self.build_linked_field_and_handles(&LinkedField {
             directives: remove_directive(
                 &linked_field.directives,
-                DEFER_STREAM_CONSTANTS.stream_name,
+                self.defer_stream_interface.stream_name,
             ),
             ..linked_field.to_owned()
         });
@@ -844,7 +879,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                     label_arg,
                     use_customized_batch_arg: _,
                     initial_count_arg: _,
-                } = StreamDirective::from(stream);
+                } = StreamDirective::from(stream, self.defer_stream_interface);
                 let if_variable_name = if_arg.and_then(|arg| match &arg.value.item {
                     // `true` is the default, remove as the AST is typed just as a variable name string
                     // `false` constant values should've been transformed away in skip_unreachable_node

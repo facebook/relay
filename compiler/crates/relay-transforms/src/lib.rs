@@ -101,9 +101,7 @@ pub use connections::{
     ConnectionMetadata,
 };
 pub use declarative_connection::transform_declarative_connection;
-pub use defer_stream::{
-    transform_defer_stream, DeferDirective, StreamDirective, DEFER_STREAM_CONSTANTS,
-};
+pub use defer_stream::{transform_defer_stream, DeferDirective, StreamDirective};
 pub use directive_finder::DirectiveFinder;
 pub use flatten::flatten;
 pub use generate_data_driven_dependency_metadata::{

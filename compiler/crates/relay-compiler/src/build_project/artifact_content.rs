@@ -274,9 +274,12 @@ fn generate_operation(
         TypegenLanguage::TypeScript => writeln!(content)?,
     }
     let mut top_level_statements = Default::default();
-    if let Some(provided_variables) =
-        printer.print_provided_variables(schema, normalization_operation, &mut top_level_statements)
-    {
+    if let Some(provided_variables) = printer.print_provided_variables(
+        schema,
+        normalization_operation,
+        &mut top_level_statements,
+        project_config,
+    ) {
         let mut provided_variable_text = String::new();
         write_variable_value_with_type(
             &project_config.typegen_config.language,
@@ -298,6 +301,7 @@ fn generate_operation(
         &operation_fragment,
         request_parameters,
         &mut top_level_statements,
+        project_config,
     );
 
     write!(content, "{}", &top_level_statements)?;
@@ -399,8 +403,12 @@ fn generate_split_operation(
     }
 
     let mut top_level_statements = Default::default();
-    let operation =
-        printer.print_operation(schema, normalization_operation, &mut top_level_statements);
+    let operation = printer.print_operation(
+        schema,
+        normalization_operation,
+        &mut top_level_statements,
+        project_config,
+    );
 
     write!(content, "{}", &top_level_statements)?;
 
@@ -527,7 +535,12 @@ fn generate_read_only_fragment(
         TypegenLanguage::TypeScript => writeln!(content)?,
     }
     let mut top_level_statements = Default::default();
-    let fragment = printer.print_fragment(schema, reader_fragment, &mut top_level_statements);
+    let fragment = printer.print_fragment(
+        schema,
+        reader_fragment,
+        &mut top_level_statements,
+        project_config,
+    );
 
     write!(content, "{}", &top_level_statements)?;
 

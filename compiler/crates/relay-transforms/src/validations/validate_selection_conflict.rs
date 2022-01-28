@@ -6,7 +6,7 @@
  */
 
 use self::ignoring_type_and_location::arguments_equals;
-use crate::{PointerAddress, ValidationMessage, DEFER_STREAM_CONSTANTS};
+use crate::{PointerAddress, ValidationMessage};
 use common::{Diagnostic, DiagnosticsResult, Location};
 use dashmap::DashMap;
 use errors::{par_try_map, validate_map};
@@ -15,11 +15,15 @@ use graphql_ir::{
     ScalarField, Selection,
 };
 use intern::string_key::StringKey;
+use relay_config::DeferStreamInterface;
 use schema::{SDLSchema, Schema, Type, TypeReference};
 use std::sync::Arc;
 
-pub fn validate_selection_conflict(program: &Program) -> DiagnosticsResult<()> {
-    ValidateSelectionConflict::new(program).validate_program(program)
+pub fn validate_selection_conflict(
+    program: &Program,
+    defer_stram_interface: &DeferStreamInterface,
+) -> DiagnosticsResult<()> {
+    ValidateSelectionConflict::new(program, defer_stram_interface).validate_program(program)
 }
 
 #[derive(Clone, PartialEq, Debug)]
@@ -34,14 +38,16 @@ struct ValidateSelectionConflict<'s> {
     program: &'s Program,
     fragment_cache: DashMap<StringKey, Arc<Fields<'s>>>,
     fields_cache: DashMap<PointerAddress, Arc<Fields<'s>>>,
+    defer_stream_interface: &'s DeferStreamInterface,
 }
 
 impl<'s> ValidateSelectionConflict<'s> {
-    fn new(program: &'s Program) -> Self {
+    fn new(program: &'s Program, defer_stream_interface: &'s DeferStreamInterface) -> Self {
         Self {
             program,
             fragment_cache: Default::default(),
             fields_cache: Default::default(),
+            defer_stream_interface,
         }
     }
 
@@ -307,11 +313,11 @@ impl<'s> ValidateSelectionConflict<'s> {
             let left_stream_directive = l
                 .directives()
                 .iter()
-                .find(|d| d.name.item == DEFER_STREAM_CONSTANTS.stream_name);
+                .find(|d| d.name.item == self.defer_stream_interface.stream_name);
             let right_stream_directive = r
                 .directives()
                 .iter()
-                .find(|d| d.name.item == DEFER_STREAM_CONSTANTS.stream_name);
+                .find(|d| d.name.item == self.defer_stream_interface.stream_name);
             match (left_stream_directive, right_stream_directive) {
                 (Some(_), None) => Err(Diagnostic::error(
                     ValidationMessage::StreamConflictOnlyUsedInOnePlace { response_key },

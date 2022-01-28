@@ -9,9 +9,8 @@ use crate::{
     connections::{
         assert_connection_selections, build_connection_metadata, build_edge_selections,
         build_page_info_selections, extract_connection_directive, get_default_filters,
-        ConnectionConstants, ConnectionInterface, ConnectionMetadata, ConnectionMetadataDirective,
+        ConnectionConstants, ConnectionMetadata, ConnectionMetadataDirective,
     },
-    defer_stream::DEFER_STREAM_CONSTANTS,
     handle_fields::{build_handle_field_directive_from_connection_directive, KEY_ARG_NAME},
 };
 use common::{NamedItem, WithLocation};
@@ -20,21 +19,19 @@ use graphql_ir::{
     OperationDefinition, Program, Selection, Transformed, Transformer, Value,
 };
 use intern::string_key::{Intern, StringKey};
+use relay_config::SchemaConfig;
 use schema::Schema;
 use std::sync::Arc;
 
-pub fn transform_connections(
-    program: &Program,
-    connection_interface: &ConnectionInterface,
-) -> Program {
-    let mut transform = ConnectionTransform::new(program, connection_interface);
+pub fn transform_connections(program: &Program, schema_config: &SchemaConfig) -> Program {
+    let mut transform = ConnectionTransform::new(program, schema_config);
     transform
         .transform_program(program)
         .replace_or_else(|| program.clone())
 }
 
 struct ConnectionTransform<'s> {
-    connection_interface: &'s ConnectionInterface,
+    schema_config: &'s SchemaConfig,
     connection_constants: ConnectionConstants,
     current_path: Option<Vec<StringKey>>,
     current_connection_metadata: Vec<ConnectionMetadata>,
@@ -43,12 +40,12 @@ struct ConnectionTransform<'s> {
 }
 
 impl<'s> ConnectionTransform<'s> {
-    fn new(program: &'s Program, connection_interface: &'s ConnectionInterface) -> Self {
+    fn new(program: &'s Program, schema_config: &'s SchemaConfig) -> Self {
         Self {
             connection_constants: ConnectionConstants::default(),
-            connection_interface,
+            schema_config,
             current_path: None,
-            current_document_name: connection_interface.cursor, // Set an arbitrary value to avoid Option
+            current_document_name: schema_config.connection_interface.cursor, // Set an arbitrary value to avoid Option
             current_connection_metadata: Vec::new(),
             program,
         }
@@ -70,13 +67,16 @@ impl<'s> ConnectionTransform<'s> {
         let ((edges_ix, edges_field), page_info_selection) = assert_connection_selections(
             schema,
             &transformed_selections,
-            self.connection_interface,
+            &self.schema_config.connection_interface,
         );
         let connection_field_type = schema.field(connection_field.definition.item).type_.inner();
 
         // Construct edges selection
         let edges_schema_field_id = schema
-            .named_field(connection_field_type, self.connection_interface.edges)
+            .named_field(
+                connection_field_type,
+                self.schema_config.connection_interface.edges,
+            )
             .expect("Expected presence of edges field to have been previously validated.");
         let edges_schema_field = schema.field(edges_schema_field_id);
         let edges_field_name = edges_schema_field.name.item;
@@ -109,21 +109,25 @@ impl<'s> ConnectionTransform<'s> {
             .push(build_edge_selections(
                 schema,
                 edge_type,
-                self.connection_interface,
+                &self.schema_config.connection_interface,
             ));
         if is_stream_connection {
             let mut arguments = vec![];
             for arg in &connection_directive.arguments {
-                if arg.name.item == DEFER_STREAM_CONSTANTS.if_arg
-                    || arg.name.item == DEFER_STREAM_CONSTANTS.initial_count_arg
-                    || arg.name.item == DEFER_STREAM_CONSTANTS.use_customized_batch_arg
+                if arg.name.item == self.schema_config.defer_stream_interface.if_arg
+                    || arg.name.item == self.schema_config.defer_stream_interface.initial_count_arg
+                    || arg.name.item
+                        == self
+                            .schema_config
+                            .defer_stream_interface
+                            .use_customized_batch_arg
                 {
                     arguments.push(arg.clone());
                 } else if arg.name.item == *KEY_ARG_NAME {
                     arguments.push(Argument {
                         name: WithLocation::new(
                             arg.name.location,
-                            DEFER_STREAM_CONSTANTS.label_arg,
+                            self.schema_config.defer_stream_interface.label_arg,
                         ),
                         value: arg.value.clone(),
                     });
@@ -132,7 +136,7 @@ impl<'s> ConnectionTransform<'s> {
             transformed_edges_field.directives.push(Directive {
                 name: WithLocation::new(
                     connection_directive.name.location,
-                    DEFER_STREAM_CONSTANTS.stream_name,
+                    self.schema_config.defer_stream_interface.stream_name,
                 ),
                 arguments,
                 data: None,
@@ -141,7 +145,10 @@ impl<'s> ConnectionTransform<'s> {
 
         // Construct page_info selection
         let page_info_schema_field_id = schema
-            .named_field(connection_field_type, self.connection_interface.page_info)
+            .named_field(
+                connection_field_type,
+                self.schema_config.connection_interface.page_info,
+            )
             .expect("Expected presence of page_info field to have been previously validated.");
         let page_info_schema_field = schema.field(page_info_schema_field_id);
         let page_info_field_name = page_info_schema_field.name.item;
@@ -189,7 +196,7 @@ impl<'s> ConnectionTransform<'s> {
                 page_info_type,
                 connection_metadata,
                 self.connection_constants,
-                self.connection_interface,
+                &self.schema_config.connection_interface,
             ));
 
         let transformed_page_info_field_selection = if is_stream_connection {
@@ -200,7 +207,7 @@ impl<'s> ConnectionTransform<'s> {
                 arguments.push(Argument {
                     name: WithLocation::new(
                         key_arg.name.location,
-                        DEFER_STREAM_CONSTANTS.label_arg,
+                        self.schema_config.defer_stream_interface.label_arg,
                     ),
                     value: WithLocation::new(
                         key_arg.value.location,
@@ -209,14 +216,16 @@ impl<'s> ConnectionTransform<'s> {
                                 "{}$defer${}${}",
                                 self.current_document_name,
                                 key.lookup(),
-                                self.connection_interface.page_info
+                                self.schema_config.connection_interface.page_info
                             )
                             .intern(),
                         )),
                     ),
                 });
             }
-            if let Some(if_arg) = connection_args.named(DEFER_STREAM_CONSTANTS.if_arg) {
+            if let Some(if_arg) =
+                connection_args.named(self.schema_config.defer_stream_interface.if_arg)
+            {
                 arguments.push(if_arg.clone());
             }
             Selection::InlineFragment(Arc::new(InlineFragment {
@@ -227,7 +236,7 @@ impl<'s> ConnectionTransform<'s> {
                 directives: vec![Directive {
                     name: WithLocation::new(
                         connection_directive.name.location,
-                        DEFER_STREAM_CONSTANTS.defer_name,
+                        self.schema_config.defer_stream_interface.defer_name,
                     ),
                     arguments,
                     data: None,

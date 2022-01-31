@@ -7,7 +7,7 @@ slug: /guided-tour/updating-data/graphql-mutations/
 import DocsRating from '@site/src/core/DocsRating';
 import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
 
-In GraphQL, data in the server is updated using [GraphQL Mutations](https://graphql.org/learn/queries/#mutations). Mutations are *read-write* server operations, which both modify data in the backend, and allow querying for the modified data from the server in the same request.
+In GraphQL, data in the server is updated using [GraphQL Mutations](https://graphql.org/learn/queries/#mutations). Mutations are *read-write* server operations, which both modify data on the backend, and allow querying for the modified data from the server in the same request.
 
 
 ## Writing Mutations
@@ -26,7 +26,7 @@ mutation FeedbackLikeMutation($input: FeedbackLikeData!) {
 }
 ```
 
-* The mutation above modifies the server data to "like" the specified `Feedback` object. `feedback_like` is a *mutation root field* (or just *mutation field*), which takes specific input and will be processed by the server to update the relevant data in the backend.
+* The mutation above modifies the server data to "like" the specified `Feedback` object. `feedback_like` is a *mutation root field* (or just *mutation field*), which takes specific input and will be processed by the server to update the relevant data on the backend.
 * A mutation is handled in two separate steps: first, the update is processed on the server, and then the query is executed. This ensures that you only see data that has already been updated as part of your mutation response.
 * The mutation field (in this case, `feedback_like`) returns a specific GraphQL type which exposes the data for which we can query in the mutation response.
 
@@ -42,7 +42,7 @@ mutation FeedbackLikeMutation($input: FeedbackLikeData!) {
 
 </OssOnly>
 
-* In this case, we're querying for the *updated* feedback object, including the updated `like_count` and the updated value for `viewer_does_like`, indicating if the current viewer likes the feedback object.
+* In this case, we're querying for the *updated* feedback object, including the updated `like_count` and the updated value for `viewer_does_like`, indicating whether the current viewer likes the feedback object.
 
 <FbInternalOnly>
 

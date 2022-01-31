@@ -3109,7 +3109,7 @@ In this section, we're going to go over how to update data in the server as well
 
 ### GraphQL Mutations
 
-In GraphQL, data in the server is updated using [GraphQL Mutations](https://graphql.org/learn/queries/#mutations). Mutations are _read-write_ server operations, which both modify data in the backend, and allow querying for the modified data from the server in the same request.
+In GraphQL, data in the server is updated using [GraphQL Mutations](https://graphql.org/learn/queries/#mutations). Mutations are _read-write_ server operations, which both modify data on the backend, and allow querying for the modified data from the server in the same request.
 
 A GraphQL mutation looks very similar to a query, with the exception that it uses the **`mutation`** keyword:
 
@@ -3125,8 +3125,8 @@ mutation LikePostMutation($input: LikePostData!) {
 }
 ```
 
--   The mutation above modifies the server data to "like" the specified `Post` object. The **`like_post`** field is the mutation field itself, which takes specific input and will be processed by the server to update the relevant data in the backend.
--   **`like_post`** returns a specific GraphQL type which exposes the data we can query in the mutation response. In this case, we're querying for the **_updated_** post object, including the updated `like_count` and the updated value for `viewer_does_like`, indicating if the current viewer likes the post object.
+-   The mutation above modifies the server data to "like" the specified `Post` object. The **`like_post`** field is the mutation field itself, which takes specific input and will be processed by the server to update the relevant data on the backend.
+-   **`like_post`** returns a specific GraphQL type which exposes the data we can query in the mutation response. In this case, we're querying for the **_updated_** post object, including the updated `like_count` and the updated value for `viewer_does_like`, indicating whether the current viewer likes the post object.
 
 An example of a successful response for the above mutation could look like this:
 
@@ -3421,7 +3421,7 @@ A GraphQL Subscription looks very similar to a query, with the exception that it
 
 ```
 
--   Subscribing to the above subscription will notify the client whenever the specified `` object has been "liked" or "unliked". The **``** field is the subscription field itself, which takes specific input and will set up the subscription in the backend.
+-   Subscribing to the above subscription will notify the client whenever the specified `` object has been "liked" or "unliked". The **``** field is the subscription field itself, which takes specific input and will set up the subscription on the backend.
 -   **``** returns a specific GraphQL type which exposes the data we can query in the subscription payload; that is, whenever the client is notified, it will receive the subscription payload in the notification. In this case, we're querying for the Post object with it's **_updated_** ``, which will allows us to show the like count in real time.
 
 An example of a subscription payload received by the client could look like this:

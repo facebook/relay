@@ -35,7 +35,7 @@ subscription FeedbackLikeSubscription($input: FeedbackLikeSubscribeData!) {
 }
 ```
 
-* Subscribing to the above subscription will notify the client whenever the specified `Feedback` object has been "liked" or "unliked". The `feedback_like_subscription` field is the subscription field itself, which takes specific input and will set up the subscription in the backend.
+* Subscribing to the above subscription will notify the client whenever the specified `Feedback` object has been "liked" or "unliked". The `feedback_like_subscription` field is the subscription field itself, which takes specific input and will set up the subscription on the backend.
 * `feedback_like_subscription` returns a specific GraphQL type which exposes the data we can query in the subscription payload; that is, whenever the client is notified, it will receive the subscription payload in the notification. In this case, we're querying for the Feedback object with its *updated* `like_count`, which will allows us to show the like count in real time.
 
 An example of a subscription payload received by the client could look like this:

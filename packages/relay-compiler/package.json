@@ -9,7 +9,11 @@
   "license": "MIT",
   "homepage": "https://relay.dev",
   "bugs": "https://github.com/facebook/relay/issues",
-  "repository": "facebook/relay",
+  "repository":  {
+    "type": "git",
+    "url": "https://github.com/facebook/relay.git",
+    "directory": "packages/relay-compiler"
+  },
   "main": "index.js",
   "bin": "cli.js"
 }

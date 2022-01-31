@@ -11,7 +11,11 @@
   "license": "MIT",
   "homepage": "https://relay.dev",
   "bugs": "https://github.com/facebook/relay/issues",
-  "repository": "facebook/relay",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/facebook/relay.git",
+    "directory": "packages/babel-plugin-relay"
+  },
   "dependencies": {
     "babel-plugin-macros": "^2.0.0",
     "cosmiconfig": "^5.0.5",

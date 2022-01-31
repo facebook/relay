@@ -10,7 +10,7 @@ keywords:
 import DocsRating from '@site/src/core/DocsRating';
 import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
 
-In GraphQL, data in the server is updated using [GraphQL Mutations](https://graphql.org/learn/queries/#mutations). Mutations are *read-write* server operations, which both modify data in the backend, and allow querying for the modified data from the server in the same request.
+In GraphQL, data in the server is updated using [GraphQL Mutations](https://graphql.org/learn/queries/#mutations). Mutations are *read-write* server operations, which both modify data on the backend, and allow querying for the modified data from the server in the same request.
 
 
 ## Writing Mutations
@@ -29,7 +29,7 @@ mutation FeedbackLikeMutation($input: FeedbackLikeData!) {
 }
 ```
 
-* The mutation above modifies the server data to "like" the specified `Feedback` object. `feedback_like` is a *mutation root field* (or just *mutation field*), which takes specific input and will be processed by the server to update the relevant data in the backend.
+* The mutation above modifies the server data to "like" the specified `Feedback` object. `feedback_like` is a *mutation root field* (or just *mutation field*), which takes specific input and will be processed by the server to update the relevant data on the backend.
 * A mutation is handled in two separate steps: first, the update is processed on the server, and then the query is executed. This ensures that you only see data that has already been updated as part of your mutation response.
 * The mutation field (in this case, `feedback_like`) returns a specific GraphQL type which exposes the data for which we can query in the mutation response.
 
@@ -45,7 +45,7 @@ mutation FeedbackLikeMutation($input: FeedbackLikeData!) {
 
 </OssOnly>
 
-* In this case, we're querying for the *updated* feedback object, including the updated `like_count` and the updated value for `viewer_does_like`, indicating if the current viewer likes the feedback object.
+* In this case, we're querying for the *updated* feedback object, including the updated `like_count` and the updated value for `viewer_does_like`, indicating whether the current viewer likes the feedback object.
 
 <FbInternalOnly>
 
@@ -214,13 +214,15 @@ module.exports = {commit: commitCommentCreateMutation};
 
 Let's distill this example:
 
-* `updater` takes a *`store`* argument, which is an instance of a [`RecordSourceSelectorProxy`](../../../api-reference/store/);  this interface allows you to *imperatively* write and read data directly to and from the Relay store. This means that you have full control over how to update the store in response to the mutation response: you can *create entirely new records*, or *update or delete existing ones*.
-    * `updater` takes a second *`payload`* argument, which is the mutation response object. This can be used to retrieve the payload data without interacting with the *`store`*.
+* The updater receives a `store` argument, which is an instance of a [`RecordSourceSelectorProxy`](../../../api-reference/store/);  this interface allows you to *imperatively* write and read data directly to and from the Relay store. This means that you have full control over how to update the store in response to the mutation response: you can *create entirely new records*, or *update or delete existing ones*.
+* The updater receives a second `data` argument, which contains the data selected by the mutation fragment. This can be used to retrieve the payload data without interacting with the *`store`*. The type of this mutation response can be imported from the auto-generated `Mutation.graphql.js` file, and is given the name `MutationName$data`.
+    * The type of this `data` argument is a nullable version of the `$data` type.
+    * The `data` arguments contains just the data selected directly by the mutation argument. In other words, if another fragment is spread in the mutation, the data from that fragment will not be available within `data` by default.
 * In our specific example, we're adding a new comment to our local store after it has successfully been added on the server. Specifically, we're adding a new item to a connection; for more details on the specifics of how that works, check out our section on [adding and removing items from a connection](../../list-data/updating-connections/).
     * There is no need for an updater in this example — it would be a great place to use the `@appendEdge` directive instead!
-* Note that the mutation response is a *root field* record that can be read from the `store`, specifically using the `store.getRootField` API. In our case, we're reading the `comment_create` root field, which is a root field in the mutation response.
+* Note that the mutation response is a *root field* record that can be read from the `store` using the `store.getRootField` API. In our case, we're reading the `comment_create` root field, which is a root field in the mutation response.
 * Note that the `root` field of the mutation is different from the `root` of queries, and `store.getRootField` in the mutation updater can only get the record from the mutation response. To get records from the root that's not in the mutation response, use `store.getRoot().getLinkedRecord` instead.
-* Note that any local data updates caused by the mutation `updater` will automatically cause components subscribed to the data to be notified of the change and re-render.
+* Once the updater completes, any local data updates caused by the mutation `updater` will automatically cause components subscribed to the data to be notified of the change and re-render.
 
 ## Optimistic updates
 
@@ -280,11 +282,11 @@ Let's see what's happening in this example.
     * In this case, we would immediately set the `viewer_does_like` field to `true` in our `Feedback` object, which would be immediately reflected in our UI.
 * If the mutation *succeeds*, *the optimistic update will be rolled back,* and the server response will be applied.
 * If the mutation *fails*, *the optimistic update will be rolled back,* and the error will be communicated via the `onError` callback.
-* Note that by adding `@raw_response_type` directive,  the type for `optimisticResponse` is generated.
+* Note that by adding `@raw_response_type` directive, the type for `optimisticResponse` is generated.
 
 ### Optimistic updater
 
-However, in some cases we can't statically predict what the server response will be, or we need to optimistically perform more complex updates, like deleting or creating new records, or [adding and removing items from a connection](../../list-data/updating-connections/). In these cases we can provide an `optimisticUpdater` function to `commitMutation`. For example, in addition to setting `viewer_does_like` to true, we can increment the `like_count` field by using an `optimisticUpdater` instead of an `optimisticResponse`:
+However, in some cases we need to optimistically perform more complex updates, like deleting or creating new records, or [adding and removing items from a connection](../../list-data/updating-connections/). In these cases we can provide an `optimisticUpdater` function to `commitMutation`. For example, in addition to setting `viewer_does_like` to true, we can increment the `like_count` field by using an `optimisticUpdater` instead of an `optimisticResponse`:
 
 ```js
 import type {Environment} from 'react-relay';
@@ -334,9 +336,10 @@ module.exports = {commit: commitFeedbackLikeMutation};
 Let's see what's happening here:
 
 * The `optimisticUpdater` has the same signature and behaves the same way as the regular `updater` function, the main difference being that it will be executed immediately, before the mutation response completes.
+    * The second parameter to `optimisticUpdater` is `data`. If no optimistic response is supplied, this parameter will be null.
 * If the mutation succeeds, *the optimistic update will be rolled back,* and the server response will be applied.
-    * Note that if we used an `optimisticResponse`, we wouldn't able to statically provide a value for `like_count`, since it requires reading the current value from the store first, which we can do with an `optimisticUpdater`.
-    * Also note that when mutation completes, the value from the server might differ from the value we optimistically predicted locally. For example, if other "Likes" occurred at the same time, the final `like_count` from the server might've incremented by more than 1.
+    * Note that in this example, we are reading the current `like_count` in the optimistic updater. A preferable alternative would be to read the current `like_count` in a render (e.g. via `useFragment`).
+    * Also note that when mutation completes, the value from the server might differ from the value we optimistically predicted locally. For example, if other "Likes" occurred at the same time, the final `like_count` from the server might differ from our prediction.
 * If the mutation *fails*, *the optimistic update will be rolled back,* and the error will be communicated via the `onError` callback.
 * Note that we're not providing an `updater` function, which is okay. If it's not provided, the default behavior will still be applied when the server response arrives (i.e. merging the new field values for `like_count` and `viewer_does_like` on the `Feedback` object).
 
@@ -487,7 +490,7 @@ GraphQL errors can largely be differentiated as:
 
 ### Surfacing mutation level errors
 
-If you're surfacing an error in the mutation (eg the server rejects the entire mutation because it's invalid), as long as the error returned is considered a [`CRITICAL`](https://www.internalfb.com/code/www/[b5a08782893a]/flib/graphql/experimental/core/error/GraphQL2ErrorSeverity.php?lines=11) error, you can make use of the `onError` callback from useMutation to handle that error in whatever way you see fit for your use case.
+If you're surfacing an error in the mutation (eg the server rejects the entire mutation because it's invalid), as long as the error returned is considered a [`CRITICAL`](https://www.internalfb.com/code/www/[b5a08782893a]/flib/graphql/experimental/core/error/GraphQL2ErrorSeverity.php?lines=11) error, you can make use of the `onError` callback from `useMutation` to handle that error in whatever way you see fit for your use case.
 
 If you control the server resolver, the question you should ask is whether or not throwing a CRITICAL error is the correct behavior for the client. Note though that throwing a CRITICAL error means that Relay will no longer process the interaction, which may not always be what you want if you can still partially update your UI. For example, it's possible that the mutation errored, but still wrote some data to the database, in which case you might still want Relay to process the updated fields.
 

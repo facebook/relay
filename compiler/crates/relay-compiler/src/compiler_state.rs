@@ -304,6 +304,7 @@ impl CompilerState {
                         )),
                     );
                 }
+                FileGroup::Ignore => {}
             }
         }
 
@@ -483,6 +484,7 @@ impl CompilerState {
                             self.dirty_artifact_paths.insert(project_name, dashset);
                         }
                     }
+                    FileGroup::Ignore => {}
                 }
             }
         }

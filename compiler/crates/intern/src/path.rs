@@ -71,6 +71,11 @@ impl PathId {
     pub fn to_path_buf(&self) -> PathBuf {
         self.get().to_path_buf()
     }
+
+    /// Linearize this path, appending to an existing PathBuf.
+    pub fn push_to(&self, buf: &mut PathBuf) {
+        self.get().push_to(buf);
+    }
 }
 
 impl<P: AsRef<Path>> From<P> for PathId {
@@ -154,6 +159,14 @@ impl PathNode {
         };
         path.push(self.file_name());
         path
+    }
+
+    /// Linearize this path, appending to an existing PathBuf.
+    fn push_to(&self, buf: &mut PathBuf) {
+        if let Some(parent) = self.parent {
+            parent.push_to(buf);
+        }
+        buf.push(self.file_name());
     }
 }
 

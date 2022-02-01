@@ -46,6 +46,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         text_artifacts: FeatureFlag::Disabled,
         enable_client_edges: FeatureFlag::Enabled,
         enable_provided_variables: FeatureFlag::Enabled,
+        skip_printing_nulls: FeatureFlag::Disabled,
     };
 
     let default_project_config = ProjectConfig {

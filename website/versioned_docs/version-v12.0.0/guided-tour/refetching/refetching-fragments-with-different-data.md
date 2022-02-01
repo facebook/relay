@@ -75,12 +75,12 @@ Let's distill what's happening in this example:
 
 * `useRefetchableFragment` behaves similarly to [`useFragment`](../../../api-reference/use-fragment/) (see the [Fragments](../../rendering/fragments/) section), but with a few additions:
     * It expects a fragment that is annotated with the `@refetchable` directive. Note that `@refetchable` directive can only be added to fragments that are "refetchable", that is, on fragments that are on `Viewer`, on `Query`, on any type that implements `Node` (i.e. a type that has an `id` field), or on a [`@fetchable`](https://fb.workplace.com/groups/graphql.fyi/permalink/1539541276187011/) type.
-* It returns a `refetch` function, which is already  Flow typed to expect the query variables that the generated query expects.
+* It returns a `refetch` function, which is already  Flow-typed to expect the query variables that the generated query expects.
 * It takes two Flow type parameters: the type of the generated query (in our case  `CommentBodyRefetchQuery`), and a second type which can always be inferred, so you only need to pass underscore (`_`).
 * We're calling the `refetch` function with 2 main inputs:
     * The first argument is the set of variables to fetch the fragment with. In this case, calling `refetch` and passing a new set of variables will fetch the fragment again *with the newly provided variables*. The variables you need to provide are a subset of the variables that the `@refetchable` query expects; the query will require an `id`, if the type of the fragment has an `id` field, and any other variables that are transitively referenced in your fragment.
         * In this case we're passing the current comment `id` and a new value for the `translationType` variable to fetch the translated comment body.
-    * We are not passing a second options argument in this case, which means that we will use the default `fetchPolicy` of `‘store-or-network'`, which will skip the network request if the new data for that fragment is already cached (as we covered in [Reusing Cached Data For Render](../../reusing-cached-data/)).
+    * We are not passing a second options argument in this case, which means that we will use the default `fetchPolicy` of `'store-or-network'`, which will skip the network request if the new data for that fragment is already cached (as we covered in [Reusing Cached Data For Render](../../reusing-cached-data/)).
 * Calling `refetch` will re-render the component and may cause `useRefetchableFragment` to suspend (as explained in [Loading States with Suspense](../../rendering/loading-states/)). This means that you'll need to make sure that there's a `Suspense` boundary wrapping this component from above in order to show a fallback loading state.
 
 </OssOnly>

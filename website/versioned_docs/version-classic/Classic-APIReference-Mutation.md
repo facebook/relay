@@ -246,7 +246,7 @@ abstract getFatQuery(): GraphQL.Fragment
 
 ```
 
-Implement this required method to design a ‘fat query’ – one that represents every field in your data model that could change as a result of this mutation.
+Implement this required method to design a 'fat query’ – one that represents every field in your data model that could change as a result of this mutation.
 
 #### Example
 

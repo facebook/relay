@@ -20,7 +20,7 @@ This can be useful in scenarios where we want to render a screen or a page as fa
 
 ### Fragments as boundaries for partial rendering
 
-To do this, we rely on the ability of fragment components to *suspend* (see the [Loading States with Suspense](../../rendering/loading-states/) section). *A fragment component will suspend* *if* *any of the data it declared locally is missing during render, and is currently being fetched.* Specifically, it will suspend until the data it requires is fetched, that is, until the query it belongs to (its *parent query*) is fetched.
+To do this, we rely on the ability of fragment components to *suspend* (see the [Loading States with Suspense](../../rendering/loading-states/) section). A fragment component will suspend if any of the data it declared locally is missing during render, and is currently being fetched. Specifically, it will suspend until the data it requires is fetched, that is, until the query to which it belongs (its *parent query*) is fetched.
 
 Let's explain what this means with an example. Say we have the following fragment component:
 
@@ -107,13 +107,14 @@ function HomeTab(props: Props) {
 ```
 
 
-Say that when this `HomeTab` component is rendered, we've already previously fetched *(_only_)* the `name` for the `User` with `{id: 4}`, and it is locally cached in the Relay Store.
+Say that when this `HomeTab` component is rendered, we've already previously fetched *(_only_)* the `name` for the `User` with `{id: 4}`, and it is locally cached in the Relay store associated with our current Relay environment.
 
 If we attempt to render the query with a `fetchPolicy` that allows reusing locally cached data (`'store-or-network'`, or `'store-and-network'`), the following will occur:
 
-* The query will check if any of its locally required data is missing. In this case, *it isn't*. ** Specifically, the query is only directly querying for the `name`, and the name *is* available, so as far as the query is concerned, none of the data it requires to render *itself* is missing. This is important to keep in mind: when rendering a query, we eagerly read out data and render the tree, instead of blocking rendering the entire tree until *all* of the data for the query  (i.e. including nested fragments) is fetched. As we render, *we will consider data to be missing for a component if the data it declared locally is missing, i.e. if any data required to render the current component is missing, and _not_ if data for descendant components is missing.*
+* The query will check if any of its locally-required data is missing. In this case, *it isn't*. Specifically, the query is only directly selecting the `name` field, and that field *is* available in the store.
+  * Relay considers data to be missing only if it is declared locally and missing. In other words, data that is selected within fragment spreads does not affect whether the outer query or fragment is determined to have missing data.
 * Given that the query doesn't have any data missing, it will render, and then attempt to render the child `UsernameComponent`.
-* When the `UsernameComponent` attempts to render the `UsernameComponent_user` fragment, it will notice that some of the data required to render itself is missing; specifically, the `username` is missing. At this point, since `UsernameComponent` has missing data, it will suspend rendering until the network request completes. Note that regardless of which `fetchPolicy` you choose, a network request will always be started if any piece of data for the full query, i.e. including fragments, is missing.
+* When the `UsernameComponent` attempts to render the `UsernameComponent_user` fragment, Relay will notice that some of the data required to render is missing; specifically, the `username` is missing. At this point, since `UsernameComponent` has missing data, it will suspend rendering until the network request completes. Note that regardless of which `fetchPolicy` you choose, a network request will always be started if any piece of data for the full query, i.e. including fragments, is missing.
 
 
 At this point, when `UsernameComponent` suspends due to the missing `username`, ideally we should still be able to render the `User`'s `name` immediately, since it's locally cached. However, since we aren't using a `Suspense` component to catch the fragment's suspension, the suspension will bubble up and the entire `App` component will be suspended.
@@ -165,7 +166,7 @@ function HomeTab() {
 
 <FbSuspensePlaceholder />
 
-The process that we described above works the same way for nested fragments (i.e. fragments that include other fragments). This means that if the data required to render a fragment is locally cached, the fragment component will be able to render, regardless of whether data for any of its child or descendant fragments is missing. If data for a child fragment is missing, we can wrap it in a `Suspense` component to allow other fragments and parts of the app to continue rendering.
+The process that we described above works the same way for nested fragments (i.e. fragments included within other fragments). This means that if the data required to render a fragment is locally cached, the fragment component will be able to render, regardless of whether data for any of its child or descendant fragments is missing. If data for a child fragment is missing, we can wrap it in a `Suspense` component to allow other fragments and parts of the app to continue rendering.
 
 As mentioned in our motivating example, this is desirable because it can allows us to skip loading states entirely. More specifically, the ability to render data that is partially available allows us to render intermediate UI states that more closely resemble the final rendered state.
 

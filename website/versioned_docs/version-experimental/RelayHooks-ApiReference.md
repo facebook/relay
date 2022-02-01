@@ -22,7 +22,7 @@ For a full example using Relay Hooks and our integration with [Suspense for Data
 
 ### Caveats
 
--   Relay Hooks are integrated with [React Concurrent Mode](https://reactjs.org/docs/concurrent-mode-intro.html) and [Suspense](a-guided-tour-of-relay#loading-states-with-suspense), which means that they are designed to work in conjunction with apis like [`useTransition`](https://reactjs.org/docs/concurrent-mode-patterns.html#transitions). However, APIs like `useTransition` will not work as expected in React Legacy Mode (i.e. outside of Concurrent Mode), in particular when providing a timeout in a Suspense config; this affects apis like [`useBlockingPaginationFragment`](#useblockingpaginationfragment). For this reason, we recommend using Relay Hooks apis in Concurrent Mode.
+-   Relay Hooks are integrated with [React Concurrent Mode](https://reactjs.org/docs/concurrent-mode-intro.html) and [Suspense](a-guided-tour-of-relay#loading-states-with-suspense), which means that they are designed to work in conjunction with APIs like [`useTransition`](https://reactjs.org/docs/concurrent-mode-patterns.html#transitions). However, APIs like `useTransition` will not work as expected in React Legacy Mode (i.e. outside of Concurrent Mode), in particular when providing a timeout in a Suspense config; this affects APIs like [`useBlockingPaginationFragment`](#useblockingpaginationfragment). For this reason, we recommend using Relay Hooks APIs in Concurrent Mode.
 
 * * *
 

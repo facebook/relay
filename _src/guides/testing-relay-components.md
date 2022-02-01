@@ -437,7 +437,10 @@ test('Refetch Container', () => {
 
 Mutations itself are operations so we can test them independently (unit-test) for specific mutation, or in combination with the view from which this mutation is called.
 
-> Note: the `useMutation` API is an improvement over calling `commitMutation` directly.
+:::note
+the `useMutation` API is an improvement over calling `commitMutation` directly.
+:::
+
 
 ```js
 // Say, you have a mutation function

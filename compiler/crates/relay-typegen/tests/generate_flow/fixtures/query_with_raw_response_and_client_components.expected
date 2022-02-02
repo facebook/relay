@@ -16,8 +16,6 @@ fragment queryWithRelayClientComponent_f2 on Viewer {
 ==================================== OUTPUT ===================================
 import type { queryWithRelayClientComponent_f1$fragmentType } from "queryWithRelayClientComponent_f1.graphql";
 import type { queryWithRelayClientComponent_f2$fragmentType } from "queryWithRelayClientComponent_f2.graphql";
-import type { queryWithRelayClientComponent_f1 } from "queryWithRelayClientComponent_f1.graphql";
-import type { queryWithRelayClientComponent_f2 } from "queryWithRelayClientComponent_f2.graphql";
 export type queryWithRelayClientComponentQuery$variables = {||};
 export type queryWithRelayClientComponentQuery$data = {|
   +viewer: ?{|
@@ -25,9 +23,7 @@ export type queryWithRelayClientComponentQuery$data = {|
   |},
 |};
 export type queryWithRelayClientComponentQuery$rawResponse = {|
-  +viewer: ?{|
-    ...queryWithRelayClientComponent_f1,
-  |},
+  +viewer: ?{||},
 |};
 export type queryWithRelayClientComponentQuery = {|
   variables: queryWithRelayClientComponentQuery$variables,

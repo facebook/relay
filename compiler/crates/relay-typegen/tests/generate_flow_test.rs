@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<caaf13d7e8f5c483ca2fa31032674264>>
+ * @generated SignedSource<<e522c6b1344fad40a1cdce2a72292195>>
  */
 
 mod generate_flow;
@@ -164,6 +164,13 @@ fn query_with_multiple_match_fields() {
     let input = include_str!("generate_flow/fixtures/query-with-multiple-match-fields.graphql");
     let expected = include_str!("generate_flow/fixtures/query-with-multiple-match-fields.expected");
     test_fixture(transform_fixture, "query-with-multiple-match-fields.graphql", "generate_flow/fixtures/query-with-multiple-match-fields.expected", input, expected);
+}
+
+#[test]
+fn query_with_raw_response_and_client_components() {
+    let input = include_str!("generate_flow/fixtures/query_with_raw_response_and_client_components.graphql");
+    let expected = include_str!("generate_flow/fixtures/query_with_raw_response_and_client_components.expected");
+    test_fixture(transform_fixture, "query_with_raw_response_and_client_components.graphql", "generate_flow/fixtures/query_with_raw_response_and_client_components.expected", input, expected);
 }
 
 #[test]

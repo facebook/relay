@@ -37,7 +37,18 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let ast = parse_executable(source, source_location)
         .map_err(|diagnostics| diagnostics_to_sorted_string(source, &diagnostics))?;
     let feature_flags = FeatureFlags {
-        no_inline: FeatureFlag::Enabled,
+        no_inline: FeatureFlag::Limited {
+            allowlist: [
+                "noInlineFragment_address".intern(),
+                "noInlineFragment_user".intern(),
+                "MarkdownUserNameRenderer_name".intern(),
+                "Test_userRenderer".intern(),
+                "PlainUserNameRenderer_name".intern(),
+            ]
+            .into_iter()
+            .collect(),
+        },
+        enable_flight_transform: true,
         enable_relay_resolver_transform: true,
         actor_change_support: FeatureFlag::Enabled,
         enable_provided_variables: FeatureFlag::Enabled,

@@ -192,6 +192,7 @@ pub struct JSONPrinter<'b> {
     eager_es_modules: bool,
     js_module_format: JsModuleFormat,
     top_level_statements: &'b mut TopLevelStatements,
+    skip_printing_nulls: bool,
 }
 
 impl<'b> JSONPrinter<'b> {
@@ -207,6 +208,10 @@ impl<'b> JSONPrinter<'b> {
             builder,
             js_module_format: project_config.js_module_format,
             eager_es_modules: project_config.typegen_config.eager_es_modules,
+            skip_printing_nulls: project_config
+                .feature_flags
+                .skip_printing_nulls
+                .is_fully_enabled(),
         }
     }
 
@@ -306,6 +311,10 @@ impl<'b> JSONPrinter<'b> {
                     let next_indent = indent + 1;
                     f.push('{');
                     for ObjectEntry { key, value } in object {
+                        match value {
+                            Primitive::SkippableNull if self.skip_printing_nulls => continue,
+                            _ => {}
+                        }
                         f.push('\n');
                         print_indentation(f, next_indent);
                         write!(f, "\"{}\": ", key).unwrap();
@@ -333,6 +342,10 @@ impl<'b> JSONPrinter<'b> {
                     f.push('[');
                     let next_indent = indent + 1;
                     for value in array {
+                        match value {
+                            Primitive::SkippableNull if self.skip_printing_nulls => continue,
+                            _ => {}
+                        }
                         f.push('\n');
                         print_indentation(f, next_indent);
                         self.print_primitive(f, value, next_indent, is_dedupe_var)
@@ -356,7 +369,7 @@ impl<'b> JSONPrinter<'b> {
         is_dedupe_var: bool,
     ) -> FmtResult {
         match primitive {
-            Primitive::Null => write!(f, "null"),
+            Primitive::Null | Primitive::SkippableNull => write!(f, "null"),
             Primitive::Bool(b) => write!(f, "{}", if *b { "true" } else { "false" }),
             Primitive::RawString(str) => {
                 f.push('\"');
@@ -545,7 +558,7 @@ fn write_constant_value(f: &mut String, builder: &AstBuilder, value: &Primitive)
                 }
             }
         }
-        Primitive::Null => {
+        Primitive::Null | Primitive::SkippableNull => {
             f.push_str("null");
             Ok(())
         }

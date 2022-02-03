@@ -31,6 +31,33 @@ graphql`
   }
 `;
 
+graphql`
+  fragment validateMutationTestActorFragment on Actor {
+    ... on User {
+      birthdate {
+        day
+        month
+        year
+      }
+    }
+    ... on Page {
+      username
+    }
+  }
+`;
+
+graphql`
+  fragment validateMutationTestEntityFragement on Entity {
+    url
+  }
+`;
+
+graphql`
+  fragment validateMutationTestNodeFragement on Node {
+    name
+  }
+`;
+
 describe('validateOptimisticResponse', () => {
   [
     {
@@ -629,6 +656,175 @@ describe('validateOptimisticResponse', () => {
         feedbackLike: {
           feedback: {
             id: 1,
+          },
+        },
+      },
+      variables: null,
+      shouldWarn: false,
+    },
+    {
+      name: "__isX fields are supported, when there's an interface field + same interface fragment spread",
+      mutation: getRequest(graphql`
+        mutation validateMutationTestIsActorMutation(
+          $input: ActorNameChangeInput!
+        ) @raw_response_type {
+          actorNameChange(input: $input) {
+            actor {
+              ...validateMutationTestActorFragment
+            }
+          }
+        }
+      `),
+      optimisticResponse: {
+        actorNameChange: {
+          actor: {
+            id: 3,
+            __typename: 'Page',
+            username: 'Zuck',
+            __isActor: 'Page',
+          },
+        },
+      },
+      variables: null,
+      shouldWarn: false,
+    },
+    {
+      name: "__isX fields are supported, when there's an interface field + same interface inline fragment",
+      mutation: getRequest(graphql`
+        mutation validateMutationTestIsActorInlineMutation(
+          $input: ActorNameChangeInput!
+        ) @raw_response_type {
+          actorNameChange(input: $input) {
+            actor {
+              ... on Actor {
+                ... on User {
+                  birthdate {
+                    day
+                    month
+                    year
+                  }
+                }
+                ... on Page {
+                  username
+                }
+              }
+            }
+          }
+        }
+      `),
+      optimisticResponse: {
+        actorNameChange: {
+          actor: {
+            id: 3,
+            __typename: 'Page',
+            username: 'Zuck',
+            __isActor: 'Page',
+          },
+        },
+      },
+      variables: null,
+      shouldWarn: false,
+    },
+    {
+      name: '__isX fields are supported, when a field with an interface type contains an inline fragment with a different interface type',
+      mutation: getRequest(graphql`
+        mutation validateMutationTestIsEntityInlineFragmentMutation(
+          $input: ActorNameChangeInput!
+        ) @raw_response_type {
+          actorNameChange(input: $input) {
+            actor {
+              ... on Entity {
+                url
+              }
+            }
+          }
+        }
+      `),
+      optimisticResponse: {
+        actorNameChange: {
+          actor: {
+            id: 3,
+            __typename: 'User',
+            url: 'Zuck.com',
+            __isEntity: 'User',
+          },
+        },
+      },
+      variables: null,
+      shouldWarn: false,
+    },
+    {
+      name: '__isX fields are supported, when a field with an interface type contains a fragment spread with a different interface type',
+      mutation: getRequest(graphql`
+        mutation validateMutationTestIsEntitySpreadFragmentMutation(
+          $input: ActorNameChangeInput!
+        ) @raw_response_type {
+          actorNameChange(input: $input) {
+            actor {
+              ...validateMutationTestEntityFragement
+            }
+          }
+        }
+      `),
+      optimisticResponse: {
+        actorNameChange: {
+          actor: {
+            id: 3,
+            __typename: 'User',
+            url: 'Zuck.com',
+            __isEntity: 'User',
+          },
+        },
+      },
+      variables: null,
+      shouldWarn: false,
+    },
+    {
+      name: '__isX fields are supported, when a field with a concrete type contains an inline fragment with an interface type',
+      mutation: getRequest(graphql`
+        mutation validateMutationTestIsNodeInlineFragmentMutation(
+          $input: FeedbackLikeInput
+        ) @raw_response_type {
+          feedbackLike(input: $input) {
+            feedback {
+              ... on Node {
+                name
+              }
+            }
+          }
+        }
+      `),
+      optimisticResponse: {
+        feedbackLike: {
+          feedback: {
+            id: 1,
+            name: 'Zuck',
+            __isNode: 'Feedback',
+          },
+        },
+      },
+      variables: null,
+      shouldWarn: false,
+    },
+    {
+      name: '__isX fields are supported, when a field with a concrete type contains a fragment spread with an interface type',
+      mutation: getRequest(graphql`
+        mutation validateMutationTestIsNodeSpreadMutation(
+          $input: FeedbackLikeInput
+        ) @raw_response_type {
+          feedbackLike(input: $input) {
+            feedback {
+              ...validateMutationTestNodeFragement
+            }
+          }
+        }
+      `),
+      optimisticResponse: {
+        feedbackLike: {
+          feedback: {
+            id: 1,
+            name: 'Zuck',
+            __isNode: 'Feedback',
           },
         },
       },

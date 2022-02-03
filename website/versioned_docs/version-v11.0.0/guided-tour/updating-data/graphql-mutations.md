@@ -46,7 +46,7 @@ mutation FeedbackLikeMutation($input: FeedbackLikeData!) {
 
 <FbInternalOnly>
 
-* Check out the [Hack documentation on writing mutations](https://www.internalfb.com/intern/wiki/Graphql-for-hack-developers/mutation-root-fields/) for information on how to add a mutation field to your back-end code.
+* Check out the [Hack documentation on writing mutations](https://www.internalfb.com/intern/wiki/Graphql-for-hack-developers/mutation-root-fields/) for information on how to add a mutation field to your backend code.
 
 </FbInternalOnly>
 

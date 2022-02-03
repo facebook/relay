@@ -2580,7 +2580,7 @@ function updater(store: RecordSourceSelectorProxy) {
 }
 ```
 
-### Adding Edges
+### Adding edges
 
 Once we have a connection record, we also need a record for the new edge that we want to add to the connection. Usually, mutation or subscription payloads will contain the new edge that was added; if not, you can also construct a new edge from scratch.
 
@@ -2697,7 +2697,7 @@ function updater(store: RecordSourceSelectorProxy) {
 
 -   Note that these APIs will _mutate_ the connection in-place.
 
-### Removing Edges
+### Removing edges
 
 `ConnectionHandler` provides a similar API to remove an edge from a connection, via **`ConnectionHandler.deleteNode`**:
 
@@ -2728,7 +2728,7 @@ function updater(store: RecordSourceSelectorProxy) {
 
 You can also check out our complete Relay Store APIs [here](https://relay.dev/docs/en/relay-store.html)
 
-### Connection Identity With Filters
+### Connection identity with filters
 
 In our previous examples, our connections didn't take any arguments as filters. If you declared a connection that takes arguments as filters, the values used for the filters will be part of the connection identifier. In other words, **_each of the values passed in as connection filters will be used to identify the connection in the Relay store_**, however, **_excluding_** pagination arguments; i.e. excluding:  `first:`, `last:`, `before:`, and `after:`.
 

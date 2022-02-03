@@ -115,7 +115,7 @@ function updater(store: RecordSourceSelectorProxy) {
 }
 ```
 
-## Adding Edges
+## Adding edges
 
 There are a couple of alternatives for adding edges to a connection:
 
@@ -359,9 +359,9 @@ function updater(store: RecordSourceSelectorProxy) {
 Check out our complete [Relay Store APIs](../../../api-reference/store/).
 :::
 
-## Removing Edges
+## Removing edges
 
-### Using declarative deletion directive
+### Using the declarative deletion directive
 
 Similarly to the [directives to add edges](#using-declarative-directives), we can use the `@deleteEdge` directive to delete edges from connections. If your mutation or subscription exposes a field with the ID or IDs of the nodes that were deleted that you can query for in the response, then you can use the `@deleteEdge` directive on that field to delete the respective edges from the connection (note that this directive also works on queries).
 
@@ -439,7 +439,7 @@ Remember: when performing any of the operations described here to mutate a conne
 :::
 
 
-## Connection Identity With Filters
+## Connection identity with filters
 
 In our previous examples, our connections didn't take any arguments as filters. If you declared a connection that takes arguments as filters, the values used for the filters will be part of the connection identifier. In other words, *each of the values passed in as connection filters will be used to identify the connection in the Relay store.*
 

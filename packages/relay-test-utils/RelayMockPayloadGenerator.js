@@ -699,7 +699,7 @@ class RelayMockPayloadGenerator {
     // information came from mock resolver __typename value and it was
     // an intentional selection of the specific type
     const isAbstractType =
-      field.concreteType === null && typeName === typeFromSelection.type;
+      field.concreteType == null && typeName === typeFromSelection.type;
 
     const generateDataForField = possibleDefaultValue => {
       const fieldDefaultValue =

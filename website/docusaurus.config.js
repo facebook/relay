@@ -124,7 +124,7 @@ module.exports = {
         caption: 'AutoGuru',
         image: '/img/logos/autoguru.png',
         infoLink: 'https://www.autoguru.com.au/',
-        pinned: true,
+        pinned: false,
         description: 'Used at autoguru.com.au, and affiliates',
       },
       {
@@ -192,6 +192,13 @@ module.exports = {
         image: '/img/logos/vertical-logo-gradient-blue-atlassian.svg',
         infoLink: 'https://www.atlassian.com/',
         pinned: false,
+      },
+      {
+        caption: 'Zip',
+        image: '/img/logos/zip.png',
+        infoLink: 'https://zip.co/',
+        pinned: true,
+        description: 'Used at zip.co, and affiliates in 8+ nations in internal and public facing applications.',
       },
     ],
   },

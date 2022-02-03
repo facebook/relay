@@ -76,7 +76,7 @@ fn convert_to_lsp_response(
         Err(runtime_error) => {
             let response_error: Option<ResponseError> = runtime_error.into();
             let response_error = response_error.unwrap_or_else(|| ResponseError {
-                code: ErrorCode::RequestCanceled as i32,
+                code: ErrorCode::UnknownErrorCode as i32,
                 message: "Request Canceled".to_string(),
                 data: None,
             });

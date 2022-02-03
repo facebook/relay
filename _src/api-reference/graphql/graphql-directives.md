@@ -11,6 +11,7 @@ keywords:
   - connection
   - relay
   - inline
+  - provider
 ---
 
 import DocsRating from '@site/src/core/DocsRating';
@@ -45,6 +46,43 @@ fragment TodoList_list on TodoList @argumentDefinitions(
   }
 }
 ```
+
+### Provided Variables
+A provided variable is a special fragment variable whose value is supplied by a specified provider function at runtime. This simplifies supplying device attributes, user experiment flags, and other runtime constants to graphql fragments.
+
+To add a provided variable:
+- add an argument with `provider: "<JSModule>"` to `@argumentDefinitions`
+- ensure that `<JSModule>.js` exists and exports a `get()` function
+  -  `get` should return the same value on every call for a given run.
+
+```graphql
+fragment TodoItem_item on TodoList
+@argumentDefinitions(
+  include_timestamp: {
+    type: "Boolean!",
+    provider: "Todo_ShouldIncludeTimestamp"
+  },
+) {
+  timestamp @include(if: $include_timestamp)
+  text
+}
+```
+
+```javascript
+// Todo_ShouldIncludeTimestamp.js
+export default {
+  get(): boolean {
+    // must always return true or false for a given run
+    return check('todo_should_include_timestamp');
+  },
+};
+```
+Notes:
+- Even though fragments declare provided variables in `argumentDefinitions`, their parent cannot pass provided variables through `@arguments`.
+- An argument definition cannot specify both a provider and a defaultValue.
+- _Unstable / subject to change_
+  - Relay transforms provided variables to operation root variables and renames them to `__<internal prefix>__<JsModule>`.
+    - Only relevant if you are debugging a query that uses provided variables.
 
 ## `@connection(key: String!, filters: [String])`
 

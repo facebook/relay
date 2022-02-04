@@ -1,0 +1,5 @@
+query MyQuery($id: ID @int_max_value, $count: Int! = 5 @int_max_value) {
+  my_alias: node(id: $id) {
+    id
+  }
+}

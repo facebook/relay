@@ -803,7 +803,7 @@ fn resolve_completion_items_from_fields<T: TypeWithFields + Named>(
             let is_deprecated = deprecated.is_some();
             let deprecated_reason = deprecated
                 .and_then(|deprecated| deprecated.reason)
-                .map(|reason| reason.lookup().to_string());
+                .map(|reason| format!("Deprecated: {}", reason));
             let args = create_arguments_snippets(field.arguments.iter(), schema);
             let insert_text = match (
                 existing_linked_field
@@ -839,9 +839,10 @@ fn resolve_completion_items_from_fields<T: TypeWithFields + Named>(
             let field_description = schema_documentation
                 .get_field_description(type_.name().lookup(), field.name.item.lookup());
 
+            let type_name = schema.get_type_string(&field.type_);
             let documentation = make_markdown_table_documentation(
                 field.name.item.lookup(),
-                &schema.get_type_string(&field.type_),
+                &type_name,
                 field_description.unwrap_or(""),
                 type_description.unwrap_or(""),
             );
@@ -860,7 +861,7 @@ fn resolve_completion_items_from_fields<T: TypeWithFields + Named>(
             CompletionItem {
                 label: field_name,
                 kind,
-                detail: deprecated_reason,
+                detail: deprecated_reason.or(Some(type_name)),
                 documentation: Some(documentation),
                 deprecated: Some(is_deprecated),
                 preselect: None,

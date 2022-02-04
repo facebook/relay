@@ -82,7 +82,6 @@ pub async fn persist_operations(
         })
         .collect::<Vec<_>>();
     log_event.number("persist_documents", handles.len());
-    log_event.number("worker_count", operation_persister.worker_count());
     let results = futures::future::join_all(handles).await;
     debug!("done persisting");
     let errors = results

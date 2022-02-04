@@ -29,8 +29,4 @@ impl OperationPersister for RemotePersister {
             persist(&operation_text, url, params).await
         }
     }
-
-    fn worker_count(&self) -> usize {
-        0
-    }
 }

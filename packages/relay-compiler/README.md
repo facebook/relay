@@ -85,13 +85,21 @@ file sources, and "listen" to the file changes in the "watch" mode. If
   GraphQL types, for type emission purposes. [object]
 - `eagerEsModules` This option enables emitting ES modules artifacts.
   [boolean][default: false]
-- `persistConfig`
+- `persistConfig` Relay supports two versions of the config:
+- - **Remote Persisting:**
+
   - `url` String, URL to send a POST request to to persist. This field is
     required in `persistConfig` [string]
   - `params` The document will be in a `POST` parameter `text`. This map can
     contain additional parameters to send. [object]
   - `concurrency` The maximum number concurrent requests that will be made to
     `url`. Use a value greater than 0. [number]
+
+- - **Local Persisting:**
+  - `file` Path for the JSON file that will contain operations map. Compiler
+    will write queries in the format: { "md5(queryText) => "queryText", ...}.
+    [string]
+
 - `codegenCommand` Command name that for relay compiler. [string]
 
 - `isDevVariableName` Name of the global variable for dev mode (`__DEV__`).

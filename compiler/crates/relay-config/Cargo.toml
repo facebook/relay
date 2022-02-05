@@ -14,4 +14,3 @@ intern = { path = "../intern" }
 regex = "1.5.4"
 serde = { version = "1.0.126", features = ["derive", "rc"] }
 serde_json = { version = "1.0.64", features = ["float_roundtrip", "unbounded_depth"] }
-tokio = { version = "1.15", features = ["full", "test-util", "tracing"] }

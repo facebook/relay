@@ -27,7 +27,9 @@ use regex::Regex;
 use relay_config::{
     FlowTypegenConfig, JsModuleFormat, SchemaConfig, TypegenConfig, TypegenLanguage,
 };
-pub use relay_config::{PersistConfig, ProjectConfig, SchemaLocation};
+pub use relay_config::{
+    LocalPersistConfig, PersistConfig, ProjectConfig, RemotePersistConfig, SchemaLocation,
+};
 use relay_transforms::CustomTransformsConfig;
 use serde::de::Error as DeError;
 use serde::{Deserialize, Deserializer, Serialize};
@@ -45,6 +47,10 @@ type PostArtifactsWriter = Box<
         + Send
         + Sync,
 >;
+
+type OperationPersisterCreator =
+    Box<dyn Fn(&ProjectConfig) -> Option<Box<dyn OperationPersister + Send + Sync>> + Send + Sync>;
+
 /// The full compiler config. This is a combination of:
 /// - the configuration file
 /// - the absolute path to the root of the compiled projects
@@ -88,8 +94,9 @@ pub struct Config {
     pub saved_state_loader: Option<Box<dyn SavedStateLoader + Send + Sync>>,
     pub saved_state_version: String,
 
-    /// Function that is called to save operation text (e.g. to a database) and to generate an id.
-    pub operation_persister: Option<Box<dyn OperationPersister + Send + Sync>>,
+    /// Function that creates a function that is
+    /// called to save operation text (e.g. to a database) and to generate an id.
+    pub create_operation_persister: Option<OperationPersisterCreator>,
 
     pub post_artifacts_write: Option<PostArtifactsWriter>,
 
@@ -308,7 +315,7 @@ impl Config {
             saved_state_config: config_file.saved_state_config,
             saved_state_loader: None,
             saved_state_version: hex::encode(hash.result()),
-            operation_persister: None,
+            create_operation_persister: None,
             compile_everything: false,
             repersist_operations: false,
             post_artifacts_write: None,
@@ -459,7 +466,7 @@ impl fmt::Debug for Config {
             saved_state_config,
             saved_state_loader,
             saved_state_version,
-            operation_persister,
+            create_operation_persister,
             post_artifacts_write,
             ..
         } = self;
@@ -481,8 +488,8 @@ impl fmt::Debug for Config {
             .field("load_saved_state_file", load_saved_state_file)
             .field("saved_state_config", saved_state_config)
             .field(
-                "operation_persister",
-                &option_fn_to_string(operation_persister),
+                "create_operation_persister",
+                &option_fn_to_string(create_operation_persister),
             )
             .field(
                 "generate_extra_artifacts",
@@ -883,13 +890,15 @@ pub struct ConfigFileProject {
     pub schema_config: SchemaConfig,
 }
 
-type PersistId = String;
+pub type PersistId = String;
+
+pub type PersistResult<T> = std::result::Result<T, PersistError>;
 
 #[async_trait]
 pub trait OperationPersister {
-    async fn persist_artifact(
-        &self,
-        artifact_text: String,
-        project_config: &PersistConfig,
-    ) -> std::result::Result<PersistId, PersistError>;
+    async fn persist_artifact(&self, artifact_text: String) -> PersistResult<PersistId>;
+
+    fn finalize(&self) -> PersistResult<()> {
+        Ok(())
+    }
 }

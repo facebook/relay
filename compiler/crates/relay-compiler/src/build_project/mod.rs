@@ -289,22 +289,24 @@ pub async fn commit_project(
         return Err(BuildProjectFailure::Cancelled);
     }
 
-    if let Some(ref operation_persister) = config.operation_persister {
-        if let Some(ref persist_config) = project_config.persist {
-            let persist_operations_timer = log_event.start("persist_operations_time");
-            persist_operations::persist_operations(
-                &mut artifacts,
-                &config.root_dir,
-                persist_config,
-                config,
-                project_config,
-                operation_persister.as_ref(),
-                &log_event,
-                &programs,
-            )
-            .await?;
-            log_event.stop(persist_operations_timer);
-        }
+    if let Some(operation_persister) = config
+        .create_operation_persister
+        .as_ref()
+        .map(|create_fn| create_fn(project_config))
+        .flatten()
+    {
+        let persist_operations_timer = log_event.start("persist_operations_time");
+        persist_operations::persist_operations(
+            &mut artifacts,
+            &config.root_dir,
+            config,
+            project_config,
+            &(*operation_persister),
+            &log_event,
+            &programs,
+        )
+        .await?;
+        log_event.stop(persist_operations_timer);
     }
 
     if source_control_update_status.is_started() {

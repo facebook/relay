@@ -12,7 +12,7 @@ use relay_compiler::{
     build_project::artifact_writer::ArtifactValidationWriter,
     compiler::Compiler,
     config::{Config, SingleProjectConfigFile},
-    FileSourceKind, RemotePersister,
+    FileSourceKind, LocalPersister, OperationPersister, PersistConfig, RemotePersister,
 };
 use relay_typegen::TypegenLanguage;
 use simplelog::{ColorChoice, ConfigBuilder, LevelFilter, TermLogger, TerminalMode};
@@ -134,7 +134,21 @@ async fn main() {
         config.artifact_writer = Box::new(ArtifactValidationWriter::default());
     }
 
-    config.operation_persister = Some(Box::new(RemotePersister));
+    config.create_operation_persister = Some(Box::new(|project_config| {
+        project_config.persist.as_ref().map(
+            |persist_config| -> Box<dyn OperationPersister + Send + Sync> {
+                match persist_config {
+                    PersistConfig::Remote(remote_config) => {
+                        Box::new(RemotePersister::new(remote_config.clone()))
+                    }
+                    PersistConfig::Local(local_config) => {
+                        Box::new(LocalPersister::new(local_config.clone()))
+                    }
+                }
+            },
+        )
+    }));
+
     config.file_source_config = if should_use_watchman() {
         FileSourceKind::Watchman
     } else {

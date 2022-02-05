@@ -17,8 +17,8 @@ pub mod config;
 pub mod errors;
 mod file_source;
 mod graphql_asts;
+mod operation_persister;
 mod red_to_green;
-mod remote_persister;
 pub mod saved_state;
 pub mod status_reporter;
 
@@ -34,8 +34,8 @@ pub use build_project::{
     Artifact, ArtifactContent, ArtifactGeneratedTypes, BuildProjectFailure, SourceHashes,
 };
 pub use config::{
-    ConfigFileProject, FileSourceKind, OperationPersister, PersistConfig, ProjectConfig,
-    SchemaLocation,
+    ConfigFileProject, FileSourceKind, LocalPersistConfig, OperationPersister, PersistConfig,
+    ProjectConfig, RemotePersistConfig, SchemaLocation,
 };
 pub use file_source::{
     source_for_location, FileCategorizer, FileGroup, FileSource, FileSourceResult,
@@ -43,4 +43,4 @@ pub use file_source::{
     SourceControlUpdateStatus, SourceReader,
 };
 pub use graphql_asts::GraphQLAsts;
-pub use remote_persister::RemotePersister;
+pub use operation_persister::{LocalPersister, RemotePersister};

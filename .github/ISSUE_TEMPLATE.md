@@ -10,8 +10,8 @@ If you have a question on how to use Relay, please get in touch with community m
 
 We will be using GitHub Issues for our public bugs. We will keep a close eye on this and try to make it clear when we have an internal fix in progress. Before filing a new issue, make sure an issue for your problem doesn't already exist.
 
-The best way to get your bug fixed is to provide a reduced test case. To make reproduction simple for you, and set-up simple for Relay's maintainers, you can use Glitch:
-https://glitch.com/edit/#!/remix/relay-starter-kit
+The best way to get your bug fixed is to provide a reduced test case. To make reproduction simple for you, and set-up simple for Relay's maintainers, you can use CodeSandbox:
+https://codesandbox.io/s/relay-sandbox-2qfy9
 
 You can also provide a public repository with a runnable example.
 

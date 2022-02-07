@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b0cbcbf2c2237926dcf91828d5030cef>>
+ * @generated SignedSource<<702cf92f700e1d46c815d51a87e72581>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,7 +19,6 @@ import type { ReaderFragment, RefetchableFragment } from 'relay-runtime';
 type useRefetchableFragmentNodeTestNestedUserFragment$fragmentType = any;
 import type { FragmentType } from "relay-runtime";
 declare export opaque type useRefetchableFragmentNodeTestUserFragmentWithArgs$fragmentType: FragmentType;
-export type useRefetchableFragmentNodeTestUserFragmentWithArgs$ref = useRefetchableFragmentNodeTestUserFragmentWithArgs$fragmentType;
 type useRefetchableFragmentNodeTestUserFragmentWithArgsRefetchQuery$variables = any;
 export type useRefetchableFragmentNodeTestUserFragmentWithArgs$data = {|
   +id: string,
@@ -30,7 +29,6 @@ export type useRefetchableFragmentNodeTestUserFragmentWithArgs$data = {|
   +$fragmentSpreads: useRefetchableFragmentNodeTestNestedUserFragment$fragmentType,
   +$fragmentType: useRefetchableFragmentNodeTestUserFragmentWithArgs$fragmentType,
 |};
-export type useRefetchableFragmentNodeTestUserFragmentWithArgs = useRefetchableFragmentNodeTestUserFragmentWithArgs$data;
 export type useRefetchableFragmentNodeTestUserFragmentWithArgs$key = {
   +$data?: useRefetchableFragmentNodeTestUserFragmentWithArgs$data,
   +$fragmentSpreads: useRefetchableFragmentNodeTestUserFragmentWithArgs$fragmentType,

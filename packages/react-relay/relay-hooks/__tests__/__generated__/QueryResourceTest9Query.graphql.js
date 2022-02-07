@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b0b11791e5a2ec815ed9554d4b226d31>>
+ * @generated SignedSource<<5677ef16b2c326cea7e6297cf32d90e8>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,15 +19,13 @@ import type { ConcreteRequest, Query } from 'relay-runtime';
 export type QueryResourceTest9Query$variables = {|
   id: string,
 |};
-export type QueryResourceTest9QueryVariables = QueryResourceTest9Query$variables;
 export type QueryResourceTest9Query$data = {|
   +node: ?{|
     +id?: string,
   |},
 |};
-export type QueryResourceTest9QueryResponse = QueryResourceTest9Query$data;
 export type QueryResourceTest9Query = {|
-  variables: QueryResourceTest9QueryVariables,
+  variables: QueryResourceTest9Query$variables,
   response: QueryResourceTest9Query$data,
 |};
 */

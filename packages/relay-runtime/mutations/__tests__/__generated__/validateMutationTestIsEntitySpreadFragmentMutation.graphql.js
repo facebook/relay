@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<7b2b24975b8f700fbaeffbf27312131d>>
+ * @generated SignedSource<<a81ef03233573ad09aa469f4127a2157>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,7 +24,6 @@ export type ActorNameChangeInput = {|
 export type validateMutationTestIsEntitySpreadFragmentMutation$variables = {|
   input: ActorNameChangeInput,
 |};
-export type validateMutationTestIsEntitySpreadFragmentMutationVariables = validateMutationTestIsEntitySpreadFragmentMutation$variables;
 export type validateMutationTestIsEntitySpreadFragmentMutation$data = {|
   +actorNameChange: ?{|
     +actor: ?{|
@@ -32,7 +31,6 @@ export type validateMutationTestIsEntitySpreadFragmentMutation$data = {|
     |},
   |},
 |};
-export type validateMutationTestIsEntitySpreadFragmentMutationResponse = validateMutationTestIsEntitySpreadFragmentMutation$data;
 export type validateMutationTestIsEntitySpreadFragmentMutation$rawResponse = {|
   +actorNameChange: ?{|
     +actor: ?{|
@@ -43,9 +41,8 @@ export type validateMutationTestIsEntitySpreadFragmentMutation$rawResponse = {|
     |},
   |},
 |};
-export type validateMutationTestIsEntitySpreadFragmentMutationRawResponse = validateMutationTestIsEntitySpreadFragmentMutation$rawResponse;
 export type validateMutationTestIsEntitySpreadFragmentMutation = {|
-  variables: validateMutationTestIsEntitySpreadFragmentMutationVariables,
+  variables: validateMutationTestIsEntitySpreadFragmentMutation$variables,
   response: validateMutationTestIsEntitySpreadFragmentMutation$data,
   rawResponse: validateMutationTestIsEntitySpreadFragmentMutation$rawResponse,
 |};

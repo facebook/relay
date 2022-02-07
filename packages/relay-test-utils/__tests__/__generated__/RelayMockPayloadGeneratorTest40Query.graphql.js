@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<069a9b63248cb88903c4cf987cf1571e>>
+ * @generated SignedSource<<685485c70e9b8a961ec8878fb18c3d2b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,16 +18,14 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 export type PersonalityTraits = "CHEERFUL" | "DERISIVE" | "HELPFUL" | "SNARKY" | "%future added value";
 export type RelayMockPayloadGeneratorTest40Query$variables = {||};
-export type RelayMockPayloadGeneratorTest40QueryVariables = RelayMockPayloadGeneratorTest40Query$variables;
 export type RelayMockPayloadGeneratorTest40Query$data = {|
   +node: ?{|
     +id?: string,
     +traits?: ?$ReadOnlyArray<?PersonalityTraits>,
   |},
 |};
-export type RelayMockPayloadGeneratorTest40QueryResponse = RelayMockPayloadGeneratorTest40Query$data;
 export type RelayMockPayloadGeneratorTest40Query = {|
-  variables: RelayMockPayloadGeneratorTest40QueryVariables,
+  variables: RelayMockPayloadGeneratorTest40Query$variables,
   response: RelayMockPayloadGeneratorTest40Query$data,
 |};
 */

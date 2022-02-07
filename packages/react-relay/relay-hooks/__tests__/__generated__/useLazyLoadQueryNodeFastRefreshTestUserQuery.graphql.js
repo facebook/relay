@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<298190a727a633e6097db3aa1e60e5b8>>
+ * @generated SignedSource<<a82e3b7406b044111a3d4ed315380dcb>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,7 +20,6 @@ type useLazyLoadQueryNodeFastRefreshTestUserFragment$fragmentType = any;
 export type useLazyLoadQueryNodeFastRefreshTestUserQuery$variables = {|
   id?: ?string,
 |};
-export type useLazyLoadQueryNodeFastRefreshTestUserQueryVariables = useLazyLoadQueryNodeFastRefreshTestUserQuery$variables;
 export type useLazyLoadQueryNodeFastRefreshTestUserQuery$data = {|
   +node: ?{|
     +id: string,
@@ -28,9 +27,8 @@ export type useLazyLoadQueryNodeFastRefreshTestUserQuery$data = {|
     +$fragmentSpreads: useLazyLoadQueryNodeFastRefreshTestUserFragment$fragmentType,
   |},
 |};
-export type useLazyLoadQueryNodeFastRefreshTestUserQueryResponse = useLazyLoadQueryNodeFastRefreshTestUserQuery$data;
 export type useLazyLoadQueryNodeFastRefreshTestUserQuery = {|
-  variables: useLazyLoadQueryNodeFastRefreshTestUserQueryVariables,
+  variables: useLazyLoadQueryNodeFastRefreshTestUserQuery$variables,
   response: useLazyLoadQueryNodeFastRefreshTestUserQuery$data,
 |};
 */

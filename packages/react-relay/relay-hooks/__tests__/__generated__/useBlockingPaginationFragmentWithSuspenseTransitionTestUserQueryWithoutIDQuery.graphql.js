@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<53d4f8394b508817d1e1d84fbb6e141b>>
+ * @generated SignedSource<<9690e430704cd41b7a3417965ce6bb0d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -25,7 +25,6 @@ export type useBlockingPaginationFragmentWithSuspenseTransitionTestUserQueryWith
   orderby?: ?$ReadOnlyArray<?string>,
   isViewerFriend?: ?boolean,
 |};
-export type useBlockingPaginationFragmentWithSuspenseTransitionTestUserQueryWithoutIDQueryVariables = useBlockingPaginationFragmentWithSuspenseTransitionTestUserQueryWithoutIDQuery$variables;
 export type useBlockingPaginationFragmentWithSuspenseTransitionTestUserQueryWithoutIDQuery$data = {|
   +viewer: ?{|
     +actor: ?{|
@@ -33,9 +32,8 @@ export type useBlockingPaginationFragmentWithSuspenseTransitionTestUserQueryWith
     |},
   |},
 |};
-export type useBlockingPaginationFragmentWithSuspenseTransitionTestUserQueryWithoutIDQueryResponse = useBlockingPaginationFragmentWithSuspenseTransitionTestUserQueryWithoutIDQuery$data;
 export type useBlockingPaginationFragmentWithSuspenseTransitionTestUserQueryWithoutIDQuery = {|
-  variables: useBlockingPaginationFragmentWithSuspenseTransitionTestUserQueryWithoutIDQueryVariables,
+  variables: useBlockingPaginationFragmentWithSuspenseTransitionTestUserQueryWithoutIDQuery$variables,
   response: useBlockingPaginationFragmentWithSuspenseTransitionTestUserQueryWithoutIDQuery$data,
 |};
 */

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<c5e338404cb577cd72ebfaf12e78c6ec>>
+ * @generated SignedSource<<3c317381c0abd4dc4b51c28c6638a9cc>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,7 +24,6 @@ export type ReactRelayPaginationContainerTestUserQuery$variables = {|
   orderby?: ?$ReadOnlyArray<?string>,
   isViewerFriend?: ?boolean,
 |};
-export type ReactRelayPaginationContainerTestUserQueryVariables = ReactRelayPaginationContainerTestUserQuery$variables;
 export type ReactRelayPaginationContainerTestUserQuery$data = {|
   +node: ?{|
     +id: string,
@@ -32,9 +31,8 @@ export type ReactRelayPaginationContainerTestUserQuery$data = {|
     +$fragmentSpreads: ReactRelayPaginationContainerTestUserFragment$fragmentType,
   |},
 |};
-export type ReactRelayPaginationContainerTestUserQueryResponse = ReactRelayPaginationContainerTestUserQuery$data;
 export type ReactRelayPaginationContainerTestUserQuery = {|
-  variables: ReactRelayPaginationContainerTestUserQueryVariables,
+  variables: ReactRelayPaginationContainerTestUserQuery$variables,
   response: ReactRelayPaginationContainerTestUserQuery$data,
 |};
 */

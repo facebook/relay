@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b3c8a11023bbed393162d50ec256bef7>>
+ * @generated SignedSource<<8b294c3743506658e13cafe0fc52b6fa>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,12 +18,10 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type validateMutationTestEntityFragement$fragmentType: FragmentType;
-export type validateMutationTestEntityFragement$ref = validateMutationTestEntityFragement$fragmentType;
 export type validateMutationTestEntityFragement$data = {|
   +url: ?string,
   +$fragmentType: validateMutationTestEntityFragement$fragmentType,
 |};
-export type validateMutationTestEntityFragement = validateMutationTestEntityFragement$data;
 export type validateMutationTestEntityFragement$key = {
   +$data?: validateMutationTestEntityFragement$data,
   +$fragmentSpreads: validateMutationTestEntityFragement$fragmentType,

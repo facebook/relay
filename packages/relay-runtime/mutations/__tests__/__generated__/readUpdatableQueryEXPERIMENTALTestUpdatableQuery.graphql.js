@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<fec53e1f793fe0a54fb7a696056cc293>>
+ * @generated SignedSource<<330a97e51894f037540b684562ef2ad4>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,7 +19,6 @@ import type { ConcreteRequest, Query } from 'relay-runtime';
 type readUpdatableQueryEXPERIMENTALTest_node$fragmentType = any;
 type readUpdatableQueryEXPERIMENTALTest_user$fragmentType = any;
 export type readUpdatableQueryEXPERIMENTALTestUpdatableQuery$variables = {||};
-export type readUpdatableQueryEXPERIMENTALTestUpdatableQueryVariables = readUpdatableQueryEXPERIMENTALTestUpdatableQuery$variables;
 export type readUpdatableQueryEXPERIMENTALTestUpdatableQuery$data = {|
   get me(): ?{|
     +__typename: string,
@@ -90,9 +89,8 @@ export type readUpdatableQueryEXPERIMENTALTestUpdatableQuery$data = {|
     ...
   }): void,
 |};
-export type readUpdatableQueryEXPERIMENTALTestUpdatableQueryResponse = readUpdatableQueryEXPERIMENTALTestUpdatableQuery$data;
 export type readUpdatableQueryEXPERIMENTALTestUpdatableQuery = {|
-  variables: readUpdatableQueryEXPERIMENTALTestUpdatableQueryVariables,
+  variables: readUpdatableQueryEXPERIMENTALTestUpdatableQuery$variables,
   response: readUpdatableQueryEXPERIMENTALTestUpdatableQuery$data,
 |};
 */

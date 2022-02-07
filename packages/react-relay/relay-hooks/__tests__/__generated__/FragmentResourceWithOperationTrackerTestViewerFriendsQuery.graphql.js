@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<304a9bb13408bbb699e1e498fe395ae0>>
+ * @generated SignedSource<<59df27044ba8fea02c1e19d231dd1364>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,7 +18,6 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 type FragmentResourceWithOperationTrackerTestUserFragment$fragmentType = any;
 export type FragmentResourceWithOperationTrackerTestViewerFriendsQuery$variables = {||};
-export type FragmentResourceWithOperationTrackerTestViewerFriendsQueryVariables = FragmentResourceWithOperationTrackerTestViewerFriendsQuery$variables;
 export type FragmentResourceWithOperationTrackerTestViewerFriendsQuery$data = {|
   +viewer: ?{|
     +actor: ?{|
@@ -32,9 +31,8 @@ export type FragmentResourceWithOperationTrackerTestViewerFriendsQuery$data = {|
     |},
   |},
 |};
-export type FragmentResourceWithOperationTrackerTestViewerFriendsQueryResponse = FragmentResourceWithOperationTrackerTestViewerFriendsQuery$data;
 export type FragmentResourceWithOperationTrackerTestViewerFriendsQuery = {|
-  variables: FragmentResourceWithOperationTrackerTestViewerFriendsQueryVariables,
+  variables: FragmentResourceWithOperationTrackerTestViewerFriendsQuery$variables,
   response: FragmentResourceWithOperationTrackerTestViewerFriendsQuery$data,
 |};
 */

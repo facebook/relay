@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<93792ed526fac5d0f9b8f3128c859cfc>>
+ * @generated SignedSource<<2c0b5c86cefe7a84f4d5938567898916>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,7 +17,6 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 export type cloneRelayHandleSourceFieldTestTestQuery$variables = {||};
-export type cloneRelayHandleSourceFieldTestTestQueryVariables = cloneRelayHandleSourceFieldTestTestQuery$variables;
 export type cloneRelayHandleSourceFieldTestTestQuery$data = {|
   +me: ?{|
     +address: ?{|
@@ -25,9 +24,8 @@ export type cloneRelayHandleSourceFieldTestTestQuery$data = {|
     |},
   |},
 |};
-export type cloneRelayHandleSourceFieldTestTestQueryResponse = cloneRelayHandleSourceFieldTestTestQuery$data;
 export type cloneRelayHandleSourceFieldTestTestQuery = {|
-  variables: cloneRelayHandleSourceFieldTestTestQueryVariables,
+  variables: cloneRelayHandleSourceFieldTestTestQuery$variables,
   response: cloneRelayHandleSourceFieldTestTestQuery$data,
 |};
 */

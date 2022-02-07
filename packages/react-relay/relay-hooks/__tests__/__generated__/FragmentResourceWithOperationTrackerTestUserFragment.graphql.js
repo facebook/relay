@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<7b819f53c055963ec95540f4e2193f1d>>
+ * @generated SignedSource<<084c979fe37bb160facd48705eb302f2>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,7 +23,6 @@ type FragmentResourceWithOperationTrackerTestMarkdownUserNameRenderer_name$fragm
 type FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name$fragmentType = any;
 import type { FragmentType } from "relay-runtime";
 declare export opaque type FragmentResourceWithOperationTrackerTestUserFragment$fragmentType: FragmentType;
-export type FragmentResourceWithOperationTrackerTestUserFragment$ref = FragmentResourceWithOperationTrackerTestUserFragment$fragmentType;
 export type FragmentResourceWithOperationTrackerTestUserFragment$data = {|
   +id: string,
   +name: ?string,
@@ -39,7 +38,6 @@ export type FragmentResourceWithOperationTrackerTestUserFragment$data = {|
   |},
   +$fragmentType: FragmentResourceWithOperationTrackerTestUserFragment$fragmentType,
 |};
-export type FragmentResourceWithOperationTrackerTestUserFragment = FragmentResourceWithOperationTrackerTestUserFragment$data;
 export type FragmentResourceWithOperationTrackerTestUserFragment$key = {
   +$data?: FragmentResourceWithOperationTrackerTestUserFragment$data,
   +$fragmentSpreads: FragmentResourceWithOperationTrackerTestUserFragment$fragmentType,

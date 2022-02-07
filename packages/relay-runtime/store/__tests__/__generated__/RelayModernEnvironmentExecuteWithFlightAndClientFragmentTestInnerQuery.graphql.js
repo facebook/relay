@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<dd1133e31d947ba69f4170863598e0ed>>
+ * @generated SignedSource<<dc8345f7367caba9a0c0bb5c0d02451b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,15 +22,13 @@ type RelayModernEnvironmentExecuteWithFlightAndClientFragmentTest_clientFragment
 export type RelayModernEnvironmentExecuteWithFlightAndClientFragmentTestInnerQuery$variables = {|
   id: string,
 |};
-export type RelayModernEnvironmentExecuteWithFlightAndClientFragmentTestInnerQueryVariables = RelayModernEnvironmentExecuteWithFlightAndClientFragmentTestInnerQuery$variables;
 export type RelayModernEnvironmentExecuteWithFlightAndClientFragmentTestInnerQuery$data = {|
   +node: ?{|
     +$fragmentSpreads: RelayModernEnvironmentExecuteWithFlightAndClientFragmentTest_clientFragment$fragmentType,
   |},
 |};
-export type RelayModernEnvironmentExecuteWithFlightAndClientFragmentTestInnerQueryResponse = RelayModernEnvironmentExecuteWithFlightAndClientFragmentTestInnerQuery$data;
 export type RelayModernEnvironmentExecuteWithFlightAndClientFragmentTestInnerQuery = {|
-  variables: RelayModernEnvironmentExecuteWithFlightAndClientFragmentTestInnerQueryVariables,
+  variables: RelayModernEnvironmentExecuteWithFlightAndClientFragmentTestInnerQuery$variables,
   response: RelayModernEnvironmentExecuteWithFlightAndClientFragmentTestInnerQuery$data,
 |};
 */

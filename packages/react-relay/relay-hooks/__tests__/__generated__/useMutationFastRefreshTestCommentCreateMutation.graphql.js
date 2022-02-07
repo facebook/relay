@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<6923f96b24896638a585bd6977f86700>>
+ * @generated SignedSource<<49bb47dbaf1d1c53c0c1b4a2c9b573ca>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -30,7 +30,6 @@ export type FeedbackcommentComment = {|
 export type useMutationFastRefreshTestCommentCreateMutation$variables = {|
   input?: ?CommentCreateInput,
 |};
-export type useMutationFastRefreshTestCommentCreateMutationVariables = useMutationFastRefreshTestCommentCreateMutation$variables;
 export type useMutationFastRefreshTestCommentCreateMutation$data = {|
   +commentCreate: ?{|
     +feedbackCommentEdge: ?{|
@@ -44,9 +43,8 @@ export type useMutationFastRefreshTestCommentCreateMutation$data = {|
     |},
   |},
 |};
-export type useMutationFastRefreshTestCommentCreateMutationResponse = useMutationFastRefreshTestCommentCreateMutation$data;
 export type useMutationFastRefreshTestCommentCreateMutation = {|
-  variables: useMutationFastRefreshTestCommentCreateMutationVariables,
+  variables: useMutationFastRefreshTestCommentCreateMutation$variables,
   response: useMutationFastRefreshTestCommentCreateMutation$data,
 |};
 */

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<cae5361beae43ef2d2d819a0fcf1d2ad>>
+ * @generated SignedSource<<98a78e8672ff7ed10edff8339e0e14ad>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,7 +19,6 @@ import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { ActorChangePoint } from "react-relay/multi-actor";
 type ActorChangeWithStreamTestFragment$fragmentType = any;
 export type ActorChangeWithStreamTestQuery$variables = {||};
-export type ActorChangeWithStreamTestQueryVariables = ActorChangeWithStreamTestQuery$variables;
 export type ActorChangeWithStreamTestQuery$data = {|
   +viewer: ?{|
     +newsFeed: ?{|
@@ -32,9 +31,8 @@ export type ActorChangeWithStreamTestQuery$data = {|
     |},
   |},
 |};
-export type ActorChangeWithStreamTestQueryResponse = ActorChangeWithStreamTestQuery$data;
 export type ActorChangeWithStreamTestQuery = {|
-  variables: ActorChangeWithStreamTestQueryVariables,
+  variables: ActorChangeWithStreamTestQuery$variables,
   response: ActorChangeWithStreamTestQuery$data,
 |};
 */

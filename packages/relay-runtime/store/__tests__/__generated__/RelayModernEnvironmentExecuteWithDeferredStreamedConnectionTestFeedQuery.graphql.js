@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<bf936eb40cb51bd197d784a6ee5126a1>>
+ * @generated SignedSource<<d6e1932762c48fb0905972202f42faf1>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,16 +21,14 @@ export type RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedQ
   enableStream: boolean,
   after?: ?string,
 |};
-export type RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedQueryVariables = RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedQuery$variables;
 export type RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedQuery$data = {|
   +viewer: ?{|
     +__typename: string,
     +$fragmentSpreads: RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedFragment$fragmentType,
   |},
 |};
-export type RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedQueryResponse = RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedQuery$data;
 export type RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedQuery = {|
-  variables: RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedQueryVariables,
+  variables: RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedQuery$variables,
   response: RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedQuery$data,
 |};
 */

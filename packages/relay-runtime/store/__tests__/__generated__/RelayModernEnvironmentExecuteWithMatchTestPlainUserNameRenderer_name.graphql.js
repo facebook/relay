@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<75229f31bc5d0f6e6a2d3849d2e5ec12>>
+ * @generated SignedSource<<ac54ec9f9fa2669c1170b30b5ffd5c1d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,7 +18,6 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentExecuteWithMatchTestPlainUserNameRenderer_name$fragmentType: FragmentType;
-export type RelayModernEnvironmentExecuteWithMatchTestPlainUserNameRenderer_name$ref = RelayModernEnvironmentExecuteWithMatchTestPlainUserNameRenderer_name$fragmentType;
 export type RelayModernEnvironmentExecuteWithMatchTestPlainUserNameRenderer_name$data = {|
   +plaintext: ?string,
   +data: ?{|
@@ -26,7 +25,6 @@ export type RelayModernEnvironmentExecuteWithMatchTestPlainUserNameRenderer_name
   |},
   +$fragmentType: RelayModernEnvironmentExecuteWithMatchTestPlainUserNameRenderer_name$fragmentType,
 |};
-export type RelayModernEnvironmentExecuteWithMatchTestPlainUserNameRenderer_name = RelayModernEnvironmentExecuteWithMatchTestPlainUserNameRenderer_name$data;
 export type RelayModernEnvironmentExecuteWithMatchTestPlainUserNameRenderer_name$key = {
   +$data?: RelayModernEnvironmentExecuteWithMatchTestPlainUserNameRenderer_name$data,
   +$fragmentSpreads: RelayModernEnvironmentExecuteWithMatchTestPlainUserNameRenderer_name$fragmentType,

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<94eba5f1cf98febfd9215519af05fb40>>
+ * @generated SignedSource<<2f254fafeff0021fb685a71ef07f63f5>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -32,7 +32,6 @@ export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestPrep
   edgeTypeName: string,
   input?: ?CommentCreateInput,
 |};
-export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestPrependComment3MutationVariables = RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestPrependComment3Mutation$variables;
 export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestPrependComment3Mutation$data = {|
   +commentCreate: ?{|
     +comment: ?{|
@@ -40,9 +39,8 @@ export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestPrep
     |},
   |},
 |};
-export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestPrependComment3MutationResponse = RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestPrependComment3Mutation$data;
 export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestPrependComment3Mutation = {|
-  variables: RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestPrependComment3MutationVariables,
+  variables: RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestPrependComment3Mutation$variables,
   response: RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestPrependComment3Mutation$data,
 |};
 */

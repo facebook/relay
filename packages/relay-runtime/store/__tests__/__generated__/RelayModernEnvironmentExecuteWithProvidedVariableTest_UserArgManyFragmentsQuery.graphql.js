@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<f0d2f2bd4cbf242d40d417250988df0a>>
+ * @generated SignedSource<<a2d2413161d798655ca6134124d9b692>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,15 +22,13 @@ type RelayModernEnvironmentExecuteWithProvidedVariableTest_profile3$fragmentType
 export type RelayModernEnvironmentExecuteWithProvidedVariableTest_UserArgManyFragmentsQuery$variables = {|
   id: string,
 |};
-export type RelayModernEnvironmentExecuteWithProvidedVariableTest_UserArgManyFragmentsQueryVariables = RelayModernEnvironmentExecuteWithProvidedVariableTest_UserArgManyFragmentsQuery$variables;
 export type RelayModernEnvironmentExecuteWithProvidedVariableTest_UserArgManyFragmentsQuery$data = {|
   +node: ?{|
     +$fragmentSpreads: RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1$fragmentType & RelayModernEnvironmentExecuteWithProvidedVariableTest_profile2$fragmentType & RelayModernEnvironmentExecuteWithProvidedVariableTest_profile3$fragmentType,
   |},
 |};
-export type RelayModernEnvironmentExecuteWithProvidedVariableTest_UserArgManyFragmentsQueryResponse = RelayModernEnvironmentExecuteWithProvidedVariableTest_UserArgManyFragmentsQuery$data;
 export type RelayModernEnvironmentExecuteWithProvidedVariableTest_UserArgManyFragmentsQuery = {|
-  variables: RelayModernEnvironmentExecuteWithProvidedVariableTest_UserArgManyFragmentsQueryVariables,
+  variables: RelayModernEnvironmentExecuteWithProvidedVariableTest_UserArgManyFragmentsQuery$variables,
   response: RelayModernEnvironmentExecuteWithProvidedVariableTest_UserArgManyFragmentsQuery$data,
 |};
 type ProvidedVariablesType = {|

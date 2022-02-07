@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<e35a052938b92809eebef6e2aff8c49a>>
+ * @generated SignedSource<<83096bc1acd0013e8d2d8b9f9c1ca844>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,15 +23,13 @@ export type RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserQuery$va
   size?: ?$ReadOnlyArray<?number>,
   fetchSize: boolean,
 |};
-export type RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserQueryVariables = RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserQuery$variables;
 export type RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserQuery$data = {|
   +node: ?{|
     +$fragmentSpreads: RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserFragment$fragmentType & RelayModernFragmentSpecResolverWithFragmentOwnershipTestUsersFragment$fragmentType,
   |},
 |};
-export type RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserQueryResponse = RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserQuery$data;
 export type RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserQuery = {|
-  variables: RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserQueryVariables,
+  variables: RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserQuery$variables,
   response: RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserQuery$data,
 |};
 */

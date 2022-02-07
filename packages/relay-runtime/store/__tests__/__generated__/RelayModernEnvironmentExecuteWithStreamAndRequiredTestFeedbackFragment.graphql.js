@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<7c1d4292ecc6f9cf34ae6673f7851671>>
+ * @generated SignedSource<<f764a490ec9313b6cc03a598b51de3bf>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,7 +18,6 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentExecuteWithStreamAndRequiredTestFeedbackFragment$fragmentType: FragmentType;
-export type RelayModernEnvironmentExecuteWithStreamAndRequiredTestFeedbackFragment$ref = RelayModernEnvironmentExecuteWithStreamAndRequiredTestFeedbackFragment$fragmentType;
 export type RelayModernEnvironmentExecuteWithStreamAndRequiredTestFeedbackFragment$data = ?{|
   +id: string,
   +actors: $ReadOnlyArray<?{|
@@ -26,7 +25,6 @@ export type RelayModernEnvironmentExecuteWithStreamAndRequiredTestFeedbackFragme
   |}>,
   +$fragmentType: RelayModernEnvironmentExecuteWithStreamAndRequiredTestFeedbackFragment$fragmentType,
 |};
-export type RelayModernEnvironmentExecuteWithStreamAndRequiredTestFeedbackFragment = RelayModernEnvironmentExecuteWithStreamAndRequiredTestFeedbackFragment$data;
 export type RelayModernEnvironmentExecuteWithStreamAndRequiredTestFeedbackFragment$key = {
   +$data?: RelayModernEnvironmentExecuteWithStreamAndRequiredTestFeedbackFragment$data,
   +$fragmentSpreads: RelayModernEnvironmentExecuteWithStreamAndRequiredTestFeedbackFragment$fragmentType,

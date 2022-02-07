@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<201bb3f5601fad166a1c1fdb89bff377>>
+ * @generated SignedSource<<d4763ce6c0ecfc9430012d84e4589d7d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,7 +18,6 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type preloadQueryDEPRECATEDTest_ProvidedVarFragment$fragmentType: FragmentType;
-export type preloadQueryDEPRECATEDTest_ProvidedVarFragment$ref = preloadQueryDEPRECATEDTest_ProvidedVarFragment$fragmentType;
 export type preloadQueryDEPRECATEDTest_ProvidedVarFragment$data = {|
   +name?: ?string,
   +firstName?: ?string,
@@ -26,7 +25,6 @@ export type preloadQueryDEPRECATEDTest_ProvidedVarFragment$data = {|
   +username?: ?string,
   +$fragmentType: preloadQueryDEPRECATEDTest_ProvidedVarFragment$fragmentType,
 |};
-export type preloadQueryDEPRECATEDTest_ProvidedVarFragment = preloadQueryDEPRECATEDTest_ProvidedVarFragment$data;
 export type preloadQueryDEPRECATEDTest_ProvidedVarFragment$key = {
   +$data?: preloadQueryDEPRECATEDTest_ProvidedVarFragment$data,
   +$fragmentSpreads: preloadQueryDEPRECATEDTest_ProvidedVarFragment$fragmentType,

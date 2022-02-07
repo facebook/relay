@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<4de680f4bedd4d671ab95a60f9c3fc84>>
+ * @generated SignedSource<<7d266b533c941401cda881285703bda2>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,12 +18,10 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayReaderTestReadsDataWhenTheRootIsDeletedUserProfile$fragmentType: FragmentType;
-export type RelayReaderTestReadsDataWhenTheRootIsDeletedUserProfile$ref = RelayReaderTestReadsDataWhenTheRootIsDeletedUserProfile$fragmentType;
 export type RelayReaderTestReadsDataWhenTheRootIsDeletedUserProfile$data = {|
   +name: ?string,
   +$fragmentType: RelayReaderTestReadsDataWhenTheRootIsDeletedUserProfile$fragmentType,
 |};
-export type RelayReaderTestReadsDataWhenTheRootIsDeletedUserProfile = RelayReaderTestReadsDataWhenTheRootIsDeletedUserProfile$data;
 export type RelayReaderTestReadsDataWhenTheRootIsDeletedUserProfile$key = {
   +$data?: RelayReaderTestReadsDataWhenTheRootIsDeletedUserProfile$data,
   +$fragmentSpreads: RelayReaderTestReadsDataWhenTheRootIsDeletedUserProfile$fragmentType,

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<93f69db4b37f8804a93252605e09f27e>>
+ * @generated SignedSource<<e5736a22574eeebcb4b5973c653aa3f8>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,16 +19,14 @@ import type { ConcreteRequest, Query } from 'relay-runtime';
 export type ReactRelayQueryRendererReactDoubleEffectsTestUserQuery$variables = {|
   id: string,
 |};
-export type ReactRelayQueryRendererReactDoubleEffectsTestUserQueryVariables = ReactRelayQueryRendererReactDoubleEffectsTestUserQuery$variables;
 export type ReactRelayQueryRendererReactDoubleEffectsTestUserQuery$data = {|
   +node: ?{|
     +id: string,
     +name?: ?string,
   |},
 |};
-export type ReactRelayQueryRendererReactDoubleEffectsTestUserQueryResponse = ReactRelayQueryRendererReactDoubleEffectsTestUserQuery$data;
 export type ReactRelayQueryRendererReactDoubleEffectsTestUserQuery = {|
-  variables: ReactRelayQueryRendererReactDoubleEffectsTestUserQueryVariables,
+  variables: ReactRelayQueryRendererReactDoubleEffectsTestUserQuery$variables,
   response: ReactRelayQueryRendererReactDoubleEffectsTestUserQuery$data,
 |};
 */

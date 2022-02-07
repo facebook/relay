@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<49cd18e375c312d0c1a9eb5b2d0a3114>>
+ * @generated SignedSource<<3b73670acbec63df90cd0c729ece6163>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,7 +23,6 @@ export type ActorNameChangeInput = {|
 export type RelayPublishQueueTest3Mutation$variables = {|
   input: ActorNameChangeInput,
 |};
-export type RelayPublishQueueTest3MutationVariables = RelayPublishQueueTest3Mutation$variables;
 export type RelayPublishQueueTest3Mutation$data = {|
   +actorNameChange: ?{|
     +actor: ?{|
@@ -31,9 +30,8 @@ export type RelayPublishQueueTest3Mutation$data = {|
     |},
   |},
 |};
-export type RelayPublishQueueTest3MutationResponse = RelayPublishQueueTest3Mutation$data;
 export type RelayPublishQueueTest3Mutation = {|
-  variables: RelayPublishQueueTest3MutationVariables,
+  variables: RelayPublishQueueTest3Mutation$variables,
   response: RelayPublishQueueTest3Mutation$data,
 |};
 */

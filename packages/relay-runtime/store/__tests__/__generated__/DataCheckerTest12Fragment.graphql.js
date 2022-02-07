@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<c56799373c7fe00b4d7bd3479cffcb67>>
+ * @generated SignedSource<<ce961808c5647cbe314c828ec2e8e24c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,14 +18,12 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type DataCheckerTest12Fragment$fragmentType: FragmentType;
-export type DataCheckerTest12Fragment$ref = DataCheckerTest12Fragment$fragmentType;
 export type DataCheckerTest12Fragment$data = {|
   +screennames: ?$ReadOnlyArray<?{|
     +name: ?string,
   |}>,
   +$fragmentType: DataCheckerTest12Fragment$fragmentType,
 |};
-export type DataCheckerTest12Fragment = DataCheckerTest12Fragment$data;
 export type DataCheckerTest12Fragment$key = {
   +$data?: DataCheckerTest12Fragment$data,
   +$fragmentSpreads: DataCheckerTest12Fragment$fragmentType,

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<c2decc0973f9c87dc3a176be164181fa>>
+ * @generated SignedSource<<400f58cb3d4b3376ebca28c75bd52d08>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,7 +19,6 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 type RelayModernFragmentSpecResolverWithFragmentOwnershipTestNestedUserFragment$fragmentType = any;
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernFragmentSpecResolverWithFragmentOwnershipTestUsersFragment$fragmentType: FragmentType;
-export type RelayModernFragmentSpecResolverWithFragmentOwnershipTestUsersFragment$ref = RelayModernFragmentSpecResolverWithFragmentOwnershipTestUsersFragment$fragmentType;
 export type RelayModernFragmentSpecResolverWithFragmentOwnershipTestUsersFragment$data = $ReadOnlyArray<{|
   +id: string,
   +name: ?string,
@@ -29,7 +28,6 @@ export type RelayModernFragmentSpecResolverWithFragmentOwnershipTestUsersFragmen
   +$fragmentSpreads: RelayModernFragmentSpecResolverWithFragmentOwnershipTestNestedUserFragment$fragmentType,
   +$fragmentType: RelayModernFragmentSpecResolverWithFragmentOwnershipTestUsersFragment$fragmentType,
 |}>;
-export type RelayModernFragmentSpecResolverWithFragmentOwnershipTestUsersFragment = RelayModernFragmentSpecResolverWithFragmentOwnershipTestUsersFragment$data;
 export type RelayModernFragmentSpecResolverWithFragmentOwnershipTestUsersFragment$key = $ReadOnlyArray<{
   +$data?: RelayModernFragmentSpecResolverWithFragmentOwnershipTestUsersFragment$data,
   +$fragmentSpreads: RelayModernFragmentSpecResolverWithFragmentOwnershipTestUsersFragment$fragmentType,

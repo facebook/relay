@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<95e1a3f35a157d427d1fe22ba7f20905>>
+ * @generated SignedSource<<6e1aca5e33ccc8c77f2f66d02baca536>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -30,15 +30,13 @@ export type FeedbackcommentComment = {|
 export type ActorChangeTestMutation$variables = {|
   input?: ?CommentCreateInput,
 |};
-export type ActorChangeTestMutationVariables = ActorChangeTestMutation$variables;
 export type ActorChangeTestMutation$data = {|
   +commentCreate: ?{|
     +__typename: string,
   |},
 |};
-export type ActorChangeTestMutationResponse = ActorChangeTestMutation$data;
 export type ActorChangeTestMutation = {|
-  variables: ActorChangeTestMutationVariables,
+  variables: ActorChangeTestMutation$variables,
   response: ActorChangeTestMutation$data,
 |};
 */

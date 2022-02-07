@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<4f388f153e01985eb2bc1d3d06993b42>>
+ * @generated SignedSource<<d94eaf77c26be8c942a285763b5431fa>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,7 +23,6 @@ type fetchQueryInternalTestPlainFragment_name$fragmentType = any;
 export type fetchQueryInternalTest2Query$variables = {|
   id: string,
 |};
-export type fetchQueryInternalTest2QueryVariables = fetchQueryInternalTest2Query$variables;
 export type fetchQueryInternalTest2Query$data = {|
   +node: ?{|
     +nameRenderer?: ?{|
@@ -33,9 +32,8 @@ export type fetchQueryInternalTest2Query$data = {|
     |},
   |},
 |};
-export type fetchQueryInternalTest2QueryResponse = fetchQueryInternalTest2Query$data;
 export type fetchQueryInternalTest2Query = {|
-  variables: fetchQueryInternalTest2QueryVariables,
+  variables: fetchQueryInternalTest2Query$variables,
   response: fetchQueryInternalTest2Query$data,
 |};
 */

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<08d338f1b10e447d6a0f0c8a32913160>>
+ * @generated SignedSource<<86a2f684a1932a0f92fb23b902a196ac>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,15 +20,13 @@ type withProvidedVariablesTest2Fragment$fragmentType = any;
 export type withProvidedVariablesTest2Query$variables = {|
   includeFriendsCount: boolean,
 |};
-export type withProvidedVariablesTest2QueryVariables = withProvidedVariablesTest2Query$variables;
 export type withProvidedVariablesTest2Query$data = {|
   +node: ?{|
     +$fragmentSpreads: withProvidedVariablesTest2Fragment$fragmentType,
   |},
 |};
-export type withProvidedVariablesTest2QueryResponse = withProvidedVariablesTest2Query$data;
 export type withProvidedVariablesTest2Query = {|
-  variables: withProvidedVariablesTest2QueryVariables,
+  variables: withProvidedVariablesTest2Query$variables,
   response: withProvidedVariablesTest2Query$data,
 |};
 type ProvidedVariablesType = {|

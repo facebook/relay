@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<dccd762ab9a3c0270211ebe8d861bd5c>>
+ * @generated SignedSource<<43cd81245334f55c2556d044e7ef250a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,7 +18,6 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayMockEnvironmentWithComponentsTestRobustAwesomenessFragment$fragmentType: FragmentType;
-export type RelayMockEnvironmentWithComponentsTestRobustAwesomenessFragment$ref = RelayMockEnvironmentWithComponentsTestRobustAwesomenessFragment$fragmentType;
 export type RelayMockEnvironmentWithComponentsTestRobustAwesomenessFragment$data = {|
   +id: string,
   +friends: ?{|
@@ -34,7 +33,6 @@ export type RelayMockEnvironmentWithComponentsTestRobustAwesomenessFragment$data
   |},
   +$fragmentType: RelayMockEnvironmentWithComponentsTestRobustAwesomenessFragment$fragmentType,
 |};
-export type RelayMockEnvironmentWithComponentsTestRobustAwesomenessFragment = RelayMockEnvironmentWithComponentsTestRobustAwesomenessFragment$data;
 export type RelayMockEnvironmentWithComponentsTestRobustAwesomenessFragment$key = {
   +$data?: RelayMockEnvironmentWithComponentsTestRobustAwesomenessFragment$data,
   +$fragmentSpreads: RelayMockEnvironmentWithComponentsTestRobustAwesomenessFragment$fragmentType,

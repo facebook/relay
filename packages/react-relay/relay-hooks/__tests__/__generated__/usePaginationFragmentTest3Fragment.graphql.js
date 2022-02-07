@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<0fddd40e0d0327920977c9cd71b54145>>
+ * @generated SignedSource<<dc3e3ea2e0d75c8319179e7dd5f8df44>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,13 +18,11 @@
 import type { ReaderFragment, RefetchableFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type usePaginationFragmentTest3Fragment$fragmentType: FragmentType;
-export type usePaginationFragmentTest3Fragment$ref = usePaginationFragmentTest3Fragment$fragmentType;
 type usePaginationFragmentTest3FragmentRefetchQuery$variables = any;
 export type usePaginationFragmentTest3Fragment$data = {|
   +id: string,
   +$fragmentType: usePaginationFragmentTest3Fragment$fragmentType,
 |};
-export type usePaginationFragmentTest3Fragment = usePaginationFragmentTest3Fragment$data;
 export type usePaginationFragmentTest3Fragment$key = {
   +$data?: usePaginationFragmentTest3Fragment$data,
   +$fragmentSpreads: usePaginationFragmentTest3Fragment$fragmentType,

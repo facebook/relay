@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<cff04dae0876f31ebfaef2c315c43881>>
+ * @generated SignedSource<<683d43811beabeaafddca197902608e1>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,12 +19,10 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 type RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user$fragmentType = any;
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentExecuteWithDeferWithinModuleTestActor_actor$fragmentType: FragmentType;
-export type RelayModernEnvironmentExecuteWithDeferWithinModuleTestActor_actor$ref = RelayModernEnvironmentExecuteWithDeferWithinModuleTestActor_actor$fragmentType;
 export type RelayModernEnvironmentExecuteWithDeferWithinModuleTestActor_actor$data = {|
   +$fragmentSpreads: RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user$fragmentType,
   +$fragmentType: RelayModernEnvironmentExecuteWithDeferWithinModuleTestActor_actor$fragmentType,
 |};
-export type RelayModernEnvironmentExecuteWithDeferWithinModuleTestActor_actor = RelayModernEnvironmentExecuteWithDeferWithinModuleTestActor_actor$data;
 export type RelayModernEnvironmentExecuteWithDeferWithinModuleTestActor_actor$key = {
   +$data?: RelayModernEnvironmentExecuteWithDeferWithinModuleTestActor_actor$data,
   +$fragmentSpreads: RelayModernEnvironmentExecuteWithDeferWithinModuleTestActor_actor$fragmentType,

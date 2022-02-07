@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<efbf812d2932d1021c30fff43c6dfe1f>>
+ * @generated SignedSource<<6e2d010c78fadd5a7958da0515e20b9b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,7 +24,6 @@ export type FeedbackLikeInput = {|
 export type validateMutationTestIsNodeSpreadMutation$variables = {|
   input?: ?FeedbackLikeInput,
 |};
-export type validateMutationTestIsNodeSpreadMutationVariables = validateMutationTestIsNodeSpreadMutation$variables;
 export type validateMutationTestIsNodeSpreadMutation$data = {|
   +feedbackLike: ?{|
     +feedback: ?{|
@@ -32,7 +31,6 @@ export type validateMutationTestIsNodeSpreadMutation$data = {|
     |},
   |},
 |};
-export type validateMutationTestIsNodeSpreadMutationResponse = validateMutationTestIsNodeSpreadMutation$data;
 export type validateMutationTestIsNodeSpreadMutation$rawResponse = {|
   +feedbackLike: ?{|
     +feedback: ?{|
@@ -42,9 +40,8 @@ export type validateMutationTestIsNodeSpreadMutation$rawResponse = {|
     |},
   |},
 |};
-export type validateMutationTestIsNodeSpreadMutationRawResponse = validateMutationTestIsNodeSpreadMutation$rawResponse;
 export type validateMutationTestIsNodeSpreadMutation = {|
-  variables: validateMutationTestIsNodeSpreadMutationVariables,
+  variables: validateMutationTestIsNodeSpreadMutation$variables,
   response: validateMutationTestIsNodeSpreadMutation$data,
   rawResponse: validateMutationTestIsNodeSpreadMutation$rawResponse,
 |};

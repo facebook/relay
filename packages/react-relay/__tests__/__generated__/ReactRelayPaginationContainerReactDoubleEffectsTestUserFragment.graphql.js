@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<bc6be84e2943c8364d8b7a0e954d3feb>>
+ * @generated SignedSource<<a906661aa91ddff9e6cfd473efa932d1>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,7 +18,6 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type ReactRelayPaginationContainerReactDoubleEffectsTestUserFragment$fragmentType: FragmentType;
-export type ReactRelayPaginationContainerReactDoubleEffectsTestUserFragment$ref = ReactRelayPaginationContainerReactDoubleEffectsTestUserFragment$fragmentType;
 export type ReactRelayPaginationContainerReactDoubleEffectsTestUserFragment$data = {|
   +id: string,
   +name: ?string,
@@ -31,7 +30,6 @@ export type ReactRelayPaginationContainerReactDoubleEffectsTestUserFragment$data
   |},
   +$fragmentType: ReactRelayPaginationContainerReactDoubleEffectsTestUserFragment$fragmentType,
 |};
-export type ReactRelayPaginationContainerReactDoubleEffectsTestUserFragment = ReactRelayPaginationContainerReactDoubleEffectsTestUserFragment$data;
 export type ReactRelayPaginationContainerReactDoubleEffectsTestUserFragment$key = {
   +$data?: ReactRelayPaginationContainerReactDoubleEffectsTestUserFragment$data,
   +$fragmentSpreads: ReactRelayPaginationContainerReactDoubleEffectsTestUserFragment$fragmentType,

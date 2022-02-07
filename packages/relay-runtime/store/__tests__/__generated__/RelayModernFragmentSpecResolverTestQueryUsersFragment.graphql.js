@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<50a8b6579a384939ce1f0247e4a8651e>>
+ * @generated SignedSource<<78b53a77db85376c78c310a41a470ddf>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,7 +18,6 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernFragmentSpecResolverTestQueryUsersFragment$fragmentType: FragmentType;
-export type RelayModernFragmentSpecResolverTestQueryUsersFragment$ref = RelayModernFragmentSpecResolverTestQueryUsersFragment$fragmentType;
 export type RelayModernFragmentSpecResolverTestQueryUsersFragment$data = $ReadOnlyArray<{|
   +id: string,
   +name: ?string,
@@ -27,7 +26,6 @@ export type RelayModernFragmentSpecResolverTestQueryUsersFragment$data = $ReadOn
   |},
   +$fragmentType: RelayModernFragmentSpecResolverTestQueryUsersFragment$fragmentType,
 |}>;
-export type RelayModernFragmentSpecResolverTestQueryUsersFragment = RelayModernFragmentSpecResolverTestQueryUsersFragment$data;
 export type RelayModernFragmentSpecResolverTestQueryUsersFragment$key = $ReadOnlyArray<{
   +$data?: RelayModernFragmentSpecResolverTestQueryUsersFragment$data,
   +$fragmentSpreads: RelayModernFragmentSpecResolverTestQueryUsersFragment$fragmentType,

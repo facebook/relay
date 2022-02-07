@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a4411607045f8321b8a66297343e4291>>
+ * @generated SignedSource<<15472543f5d84bb564dc6d663649045f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -30,7 +30,6 @@ export type FeedbackcommentComment = {|
 export type MultiActorEnvironmentExecuteMutationTestCreateCommentMutation$variables = {|
   input: CommentCreateInput,
 |};
-export type MultiActorEnvironmentExecuteMutationTestCreateCommentMutationVariables = MultiActorEnvironmentExecuteMutationTestCreateCommentMutation$variables;
 export type MultiActorEnvironmentExecuteMutationTestCreateCommentMutation$data = {|
   +commentCreate: ?{|
     +comment: ?{|
@@ -41,9 +40,8 @@ export type MultiActorEnvironmentExecuteMutationTestCreateCommentMutation$data =
     |},
   |},
 |};
-export type MultiActorEnvironmentExecuteMutationTestCreateCommentMutationResponse = MultiActorEnvironmentExecuteMutationTestCreateCommentMutation$data;
 export type MultiActorEnvironmentExecuteMutationTestCreateCommentMutation = {|
-  variables: MultiActorEnvironmentExecuteMutationTestCreateCommentMutationVariables,
+  variables: MultiActorEnvironmentExecuteMutationTestCreateCommentMutation$variables,
   response: MultiActorEnvironmentExecuteMutationTestCreateCommentMutation$data,
 |};
 */

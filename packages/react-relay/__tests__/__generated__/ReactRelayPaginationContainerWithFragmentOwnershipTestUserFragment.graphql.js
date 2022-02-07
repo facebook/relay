@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<d9ef4a3b5b72737ec1e7edb5346269ad>>
+ * @generated SignedSource<<307551ff7435842d356bfeb9476e7edd>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,7 +19,6 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 type ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment$fragmentType = any;
 import type { FragmentType } from "relay-runtime";
 declare export opaque type ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment$fragmentType: FragmentType;
-export type ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment$ref = ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment$fragmentType;
 export type ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment$data = {|
   +id: string,
   +friends: ?{|
@@ -32,7 +31,6 @@ export type ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment$d
   |},
   +$fragmentType: ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment$fragmentType,
 |};
-export type ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment = ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment$data;
 export type ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment$key = {
   +$data?: ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment$data,
   +$fragmentSpreads: ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment$fragmentType,

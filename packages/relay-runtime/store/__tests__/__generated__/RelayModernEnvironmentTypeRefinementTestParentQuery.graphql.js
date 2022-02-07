@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b7eb54653cd26481926eabf00a2644b5>>
+ * @generated SignedSource<<1a5527b32787669d740e3e0566ef80a0>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,15 +21,13 @@ type RelayModernEnvironmentTypeRefinementTestAbstractInlineRefinementFragment$fr
 type RelayModernEnvironmentTypeRefinementTestConcreteInlineRefinementFragment$fragmentType = any;
 type RelayModernEnvironmentTypeRefinementTestConcreteUserFragment$fragmentType = any;
 export type RelayModernEnvironmentTypeRefinementTestParentQuery$variables = {||};
-export type RelayModernEnvironmentTypeRefinementTestParentQueryVariables = RelayModernEnvironmentTypeRefinementTestParentQuery$variables;
 export type RelayModernEnvironmentTypeRefinementTestParentQuery$data = {|
   +userOrPage: ?{|
     +$fragmentSpreads: RelayModernEnvironmentTypeRefinementTestConcreteUserFragment$fragmentType & RelayModernEnvironmentTypeRefinementTestConcreteInlineRefinementFragment$fragmentType & RelayModernEnvironmentTypeRefinementTestAbstractActorFragment$fragmentType & RelayModernEnvironmentTypeRefinementTestAbstractInlineRefinementFragment$fragmentType,
   |},
 |};
-export type RelayModernEnvironmentTypeRefinementTestParentQueryResponse = RelayModernEnvironmentTypeRefinementTestParentQuery$data;
 export type RelayModernEnvironmentTypeRefinementTestParentQuery = {|
-  variables: RelayModernEnvironmentTypeRefinementTestParentQueryVariables,
+  variables: RelayModernEnvironmentTypeRefinementTestParentQuery$variables,
   response: RelayModernEnvironmentTypeRefinementTestParentQuery$data,
 |};
 */

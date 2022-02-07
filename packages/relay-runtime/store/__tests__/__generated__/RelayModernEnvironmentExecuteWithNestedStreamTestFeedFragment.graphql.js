@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<f391ef8bba82577187c6b4c5fa4de7a3>>
+ * @generated SignedSource<<35c8cf526fb81dd691764e518845be31>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,7 +18,6 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentExecuteWithNestedStreamTestFeedFragment$fragmentType: FragmentType;
-export type RelayModernEnvironmentExecuteWithNestedStreamTestFeedFragment$ref = RelayModernEnvironmentExecuteWithNestedStreamTestFeedFragment$fragmentType;
 export type RelayModernEnvironmentExecuteWithNestedStreamTestFeedFragment$data = {|
   +newsFeed: ?{|
     +edges: ?$ReadOnlyArray<?{|
@@ -35,7 +34,6 @@ export type RelayModernEnvironmentExecuteWithNestedStreamTestFeedFragment$data =
   |},
   +$fragmentType: RelayModernEnvironmentExecuteWithNestedStreamTestFeedFragment$fragmentType,
 |};
-export type RelayModernEnvironmentExecuteWithNestedStreamTestFeedFragment = RelayModernEnvironmentExecuteWithNestedStreamTestFeedFragment$data;
 export type RelayModernEnvironmentExecuteWithNestedStreamTestFeedFragment$key = {
   +$data?: RelayModernEnvironmentExecuteWithNestedStreamTestFeedFragment$data,
   +$fragmentSpreads: RelayModernEnvironmentExecuteWithNestedStreamTestFeedFragment$fragmentType,

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<d16d53fbbd49a274f2130bb502588be5>>
+ * @generated SignedSource<<beff9085b4eb644ae79698885efb3fcf>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,7 +23,6 @@ export type ActorNameChangeInput = {|
 export type validateMutationTestIsActorInlineMutation$variables = {|
   input: ActorNameChangeInput,
 |};
-export type validateMutationTestIsActorInlineMutationVariables = validateMutationTestIsActorInlineMutation$variables;
 export type validateMutationTestIsActorInlineMutation$data = {|
   +actorNameChange: ?{|
     +actor: ?{|
@@ -36,7 +35,6 @@ export type validateMutationTestIsActorInlineMutation$data = {|
     |},
   |},
 |};
-export type validateMutationTestIsActorInlineMutationResponse = validateMutationTestIsActorInlineMutation$data;
 export type validateMutationTestIsActorInlineMutation$rawResponse = {|
   +actorNameChange: ?{|
     +actor: ?({|
@@ -60,9 +58,8 @@ export type validateMutationTestIsActorInlineMutation$rawResponse = {|
     |}),
   |},
 |};
-export type validateMutationTestIsActorInlineMutationRawResponse = validateMutationTestIsActorInlineMutation$rawResponse;
 export type validateMutationTestIsActorInlineMutation = {|
-  variables: validateMutationTestIsActorInlineMutationVariables,
+  variables: validateMutationTestIsActorInlineMutation$variables,
   response: validateMutationTestIsActorInlineMutation$data,
   rawResponse: validateMutationTestIsActorInlineMutation$rawResponse,
 |};

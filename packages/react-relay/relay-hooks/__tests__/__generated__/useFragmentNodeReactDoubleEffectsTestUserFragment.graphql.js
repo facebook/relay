@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<e9f58698a3460ad53d38a45902abe825>>
+ * @generated SignedSource<<07716fc687bf7f72b305f4d136e60339>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,13 +18,11 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type useFragmentNodeReactDoubleEffectsTestUserFragment$fragmentType: FragmentType;
-export type useFragmentNodeReactDoubleEffectsTestUserFragment$ref = useFragmentNodeReactDoubleEffectsTestUserFragment$fragmentType;
 export type useFragmentNodeReactDoubleEffectsTestUserFragment$data = {|
   +id: string,
   +name: ?string,
   +$fragmentType: useFragmentNodeReactDoubleEffectsTestUserFragment$fragmentType,
 |};
-export type useFragmentNodeReactDoubleEffectsTestUserFragment = useFragmentNodeReactDoubleEffectsTestUserFragment$data;
 export type useFragmentNodeReactDoubleEffectsTestUserFragment$key = {
   +$data?: useFragmentNodeReactDoubleEffectsTestUserFragment$data,
   +$fragmentSpreads: useFragmentNodeReactDoubleEffectsTestUserFragment$fragmentType,

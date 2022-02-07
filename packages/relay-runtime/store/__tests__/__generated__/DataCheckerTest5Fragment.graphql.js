@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<3bfcada9fd1f3db6e3c6b13eac7d4901>>
+ * @generated SignedSource<<ce291c3a4bab68f305526f1d7ea173a9>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,7 +22,6 @@ type DataCheckerTest5MarkdownUserNameRenderer_name$fragmentType = any;
 type DataCheckerTest5PlainUserNameRenderer_name$fragmentType = any;
 import type { FragmentType } from "relay-runtime";
 declare export opaque type DataCheckerTest5Fragment$fragmentType: FragmentType;
-export type DataCheckerTest5Fragment$ref = DataCheckerTest5Fragment$fragmentType;
 export type DataCheckerTest5Fragment$data = {|
   +id: string,
   +nameRenderer: ?{|
@@ -32,7 +31,6 @@ export type DataCheckerTest5Fragment$data = {|
   |},
   +$fragmentType: DataCheckerTest5Fragment$fragmentType,
 |};
-export type DataCheckerTest5Fragment = DataCheckerTest5Fragment$data;
 export type DataCheckerTest5Fragment$key = {
   +$data?: DataCheckerTest5Fragment$data,
   +$fragmentSpreads: DataCheckerTest5Fragment$fragmentType,

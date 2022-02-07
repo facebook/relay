@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<d34ac43cc0515c1083407c92134bbfb0>>
+ * @generated SignedSource<<39f92753032d5970f379ad5ce9d7e690>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,7 +18,6 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentNoInlineTestModuleMarkdownUserNameRenderer_name$fragmentType: FragmentType;
-export type RelayModernEnvironmentNoInlineTestModuleMarkdownUserNameRenderer_name$ref = RelayModernEnvironmentNoInlineTestModuleMarkdownUserNameRenderer_name$fragmentType;
 export type RelayModernEnvironmentNoInlineTestModuleMarkdownUserNameRenderer_name$data = {|
   +markdown?: ?string,
   +data?: ?{|
@@ -26,7 +25,6 @@ export type RelayModernEnvironmentNoInlineTestModuleMarkdownUserNameRenderer_nam
   |},
   +$fragmentType: RelayModernEnvironmentNoInlineTestModuleMarkdownUserNameRenderer_name$fragmentType,
 |};
-export type RelayModernEnvironmentNoInlineTestModuleMarkdownUserNameRenderer_name = RelayModernEnvironmentNoInlineTestModuleMarkdownUserNameRenderer_name$data;
 export type RelayModernEnvironmentNoInlineTestModuleMarkdownUserNameRenderer_name$key = {
   +$data?: RelayModernEnvironmentNoInlineTestModuleMarkdownUserNameRenderer_name$data,
   +$fragmentSpreads: RelayModernEnvironmentNoInlineTestModuleMarkdownUserNameRenderer_name$fragmentType,

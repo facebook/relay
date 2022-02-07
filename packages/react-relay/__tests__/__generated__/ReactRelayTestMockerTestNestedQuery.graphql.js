@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<2b856a92634443262db91ec645ad07a1>>
+ * @generated SignedSource<<a063deb7ffbb829dd106973751e7e16f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,7 +17,6 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 export type ReactRelayTestMockerTestNestedQuery$variables = {||};
-export type ReactRelayTestMockerTestNestedQueryVariables = ReactRelayTestMockerTestNestedQuery$variables;
 export type ReactRelayTestMockerTestNestedQuery$data = {|
   +viewer: ?{|
     +actor: ?{|
@@ -27,9 +26,8 @@ export type ReactRelayTestMockerTestNestedQuery$data = {|
     |},
   |},
 |};
-export type ReactRelayTestMockerTestNestedQueryResponse = ReactRelayTestMockerTestNestedQuery$data;
 export type ReactRelayTestMockerTestNestedQuery = {|
-  variables: ReactRelayTestMockerTestNestedQueryVariables,
+  variables: ReactRelayTestMockerTestNestedQuery$variables,
   response: ReactRelayTestMockerTestNestedQuery$data,
 |};
 */

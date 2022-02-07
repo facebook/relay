@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a06fdb241a91d48a6569dc06290096a9>>
+ * @generated SignedSource<<b63d80353d40ff41c6a1e41dd2d0fcb7>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -31,7 +31,6 @@ export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestAppe
   connections: $ReadOnlyArray<string>,
   input?: ?CommentsCreateInput,
 |};
-export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestAppendComments3MutationVariables = RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestAppendComments3Mutation$variables;
 export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestAppendComments3Mutation$data = {|
   +commentsCreate: ?{|
     +feedbackCommentEdges: ?$ReadOnlyArray<?{|
@@ -42,9 +41,8 @@ export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestAppe
     |}>,
   |},
 |};
-export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestAppendComments3MutationResponse = RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestAppendComments3Mutation$data;
 export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestAppendComments3Mutation = {|
-  variables: RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestAppendComments3MutationVariables,
+  variables: RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestAppendComments3Mutation$variables,
   response: RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestAppendComments3Mutation$data,
 |};
 */

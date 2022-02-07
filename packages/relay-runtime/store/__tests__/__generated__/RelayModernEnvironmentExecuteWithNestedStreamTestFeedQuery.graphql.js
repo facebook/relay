@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a86869cf40aafedc0b91e6d94decdd98>>
+ * @generated SignedSource<<f9f0637409da9bd6a38e4ab5dbfb1a3c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,15 +20,13 @@ type RelayModernEnvironmentExecuteWithNestedStreamTestFeedFragment$fragmentType 
 export type RelayModernEnvironmentExecuteWithNestedStreamTestFeedQuery$variables = {|
   enableStream: boolean,
 |};
-export type RelayModernEnvironmentExecuteWithNestedStreamTestFeedQueryVariables = RelayModernEnvironmentExecuteWithNestedStreamTestFeedQuery$variables;
 export type RelayModernEnvironmentExecuteWithNestedStreamTestFeedQuery$data = {|
   +viewer: ?{|
     +$fragmentSpreads: RelayModernEnvironmentExecuteWithNestedStreamTestFeedFragment$fragmentType,
   |},
 |};
-export type RelayModernEnvironmentExecuteWithNestedStreamTestFeedQueryResponse = RelayModernEnvironmentExecuteWithNestedStreamTestFeedQuery$data;
 export type RelayModernEnvironmentExecuteWithNestedStreamTestFeedQuery = {|
-  variables: RelayModernEnvironmentExecuteWithNestedStreamTestFeedQueryVariables,
+  variables: RelayModernEnvironmentExecuteWithNestedStreamTestFeedQuery$variables,
   response: RelayModernEnvironmentExecuteWithNestedStreamTestFeedQuery$data,
 |};
 */

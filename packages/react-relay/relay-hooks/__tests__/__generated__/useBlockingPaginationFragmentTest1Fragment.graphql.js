@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<124c9c28a9019e3c8c4dea759ccd0ed1>>
+ * @generated SignedSource<<86bee5e06659ed2c5ad957db2d689375>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,12 +18,10 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type useBlockingPaginationFragmentTest1Fragment$fragmentType: FragmentType;
-export type useBlockingPaginationFragmentTest1Fragment$ref = useBlockingPaginationFragmentTest1Fragment$fragmentType;
 export type useBlockingPaginationFragmentTest1Fragment$data = $ReadOnlyArray<{|
   +id: string,
   +$fragmentType: useBlockingPaginationFragmentTest1Fragment$fragmentType,
 |}>;
-export type useBlockingPaginationFragmentTest1Fragment = useBlockingPaginationFragmentTest1Fragment$data;
 export type useBlockingPaginationFragmentTest1Fragment$key = $ReadOnlyArray<{
   +$data?: useBlockingPaginationFragmentTest1Fragment$data,
   +$fragmentSpreads: useBlockingPaginationFragmentTest1Fragment$fragmentType,

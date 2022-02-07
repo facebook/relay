@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a54f60f10cbc894222914ae81d63242a>>
+ * @generated SignedSource<<2b5388798acada0df46a62bb5219616b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,14 +18,12 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentTypeRefinementTestConcreteInlineRefinementFragment$fragmentType: FragmentType;
-export type RelayModernEnvironmentTypeRefinementTestConcreteInlineRefinementFragment$ref = RelayModernEnvironmentTypeRefinementTestConcreteInlineRefinementFragment$fragmentType;
 export type RelayModernEnvironmentTypeRefinementTestConcreteInlineRefinementFragment$data = {|
   +id?: string,
   +name?: ?string,
   +missing?: ?string,
   +$fragmentType: RelayModernEnvironmentTypeRefinementTestConcreteInlineRefinementFragment$fragmentType,
 |};
-export type RelayModernEnvironmentTypeRefinementTestConcreteInlineRefinementFragment = RelayModernEnvironmentTypeRefinementTestConcreteInlineRefinementFragment$data;
 export type RelayModernEnvironmentTypeRefinementTestConcreteInlineRefinementFragment$key = {
   +$data?: RelayModernEnvironmentTypeRefinementTestConcreteInlineRefinementFragment$data,
   +$fragmentSpreads: RelayModernEnvironmentTypeRefinementTestConcreteInlineRefinementFragment$fragmentType,

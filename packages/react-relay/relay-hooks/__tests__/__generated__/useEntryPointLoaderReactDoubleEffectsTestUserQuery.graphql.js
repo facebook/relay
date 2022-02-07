@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<dabae1d5b927e793d43b904a3a01dfea>>
+ * @generated SignedSource<<e1f4f3243431c305e1fe29992c49b3a0>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,7 +20,6 @@ type useEntryPointLoaderReactDoubleEffectsTestUserFragment$fragmentType = any;
 export type useEntryPointLoaderReactDoubleEffectsTestUserQuery$variables = {|
   id?: ?string,
 |};
-export type useEntryPointLoaderReactDoubleEffectsTestUserQueryVariables = useEntryPointLoaderReactDoubleEffectsTestUserQuery$variables;
 export type useEntryPointLoaderReactDoubleEffectsTestUserQuery$data = {|
   +node: ?{|
     +id: string,
@@ -28,9 +27,8 @@ export type useEntryPointLoaderReactDoubleEffectsTestUserQuery$data = {|
     +$fragmentSpreads: useEntryPointLoaderReactDoubleEffectsTestUserFragment$fragmentType,
   |},
 |};
-export type useEntryPointLoaderReactDoubleEffectsTestUserQueryResponse = useEntryPointLoaderReactDoubleEffectsTestUserQuery$data;
 export type useEntryPointLoaderReactDoubleEffectsTestUserQuery = {|
-  variables: useEntryPointLoaderReactDoubleEffectsTestUserQueryVariables,
+  variables: useEntryPointLoaderReactDoubleEffectsTestUserQuery$variables,
   response: useEntryPointLoaderReactDoubleEffectsTestUserQuery$data,
 |};
 */

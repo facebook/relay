@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<198f98c388052741dc3e285fc164ca8b>>
+ * @generated SignedSource<<688296572cad8a83ebf177a834b6b578>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,7 +23,6 @@ export type ActorNameChangeInput = {|
 export type validateMutationTestIsEntityInlineFragmentMutation$variables = {|
   input: ActorNameChangeInput,
 |};
-export type validateMutationTestIsEntityInlineFragmentMutationVariables = validateMutationTestIsEntityInlineFragmentMutation$variables;
 export type validateMutationTestIsEntityInlineFragmentMutation$data = {|
   +actorNameChange: ?{|
     +actor: ?{|
@@ -31,7 +30,6 @@ export type validateMutationTestIsEntityInlineFragmentMutation$data = {|
     |},
   |},
 |};
-export type validateMutationTestIsEntityInlineFragmentMutationResponse = validateMutationTestIsEntityInlineFragmentMutation$data;
 export type validateMutationTestIsEntityInlineFragmentMutation$rawResponse = {|
   +actorNameChange: ?{|
     +actor: ?{|
@@ -42,9 +40,8 @@ export type validateMutationTestIsEntityInlineFragmentMutation$rawResponse = {|
     |},
   |},
 |};
-export type validateMutationTestIsEntityInlineFragmentMutationRawResponse = validateMutationTestIsEntityInlineFragmentMutation$rawResponse;
 export type validateMutationTestIsEntityInlineFragmentMutation = {|
-  variables: validateMutationTestIsEntityInlineFragmentMutationVariables,
+  variables: validateMutationTestIsEntityInlineFragmentMutation$variables,
   response: validateMutationTestIsEntityInlineFragmentMutation$data,
   rawResponse: validateMutationTestIsEntityInlineFragmentMutation$rawResponse,
 |};

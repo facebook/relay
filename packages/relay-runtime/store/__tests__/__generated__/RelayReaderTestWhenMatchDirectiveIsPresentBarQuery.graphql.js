@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<83aa7df4c525a04c9bc9d6fa79632fa6>>
+ * @generated SignedSource<<6f4214177ad4769b808caf01fa93d7dc>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,15 +18,13 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 type RelayReaderTestWhenMatchDirectiveIsPresentBarFragment$fragmentType = any;
 export type RelayReaderTestWhenMatchDirectiveIsPresentBarQuery$variables = {||};
-export type RelayReaderTestWhenMatchDirectiveIsPresentBarQueryVariables = RelayReaderTestWhenMatchDirectiveIsPresentBarQuery$variables;
 export type RelayReaderTestWhenMatchDirectiveIsPresentBarQuery$data = {|
   +me: ?{|
     +$fragmentSpreads: RelayReaderTestWhenMatchDirectiveIsPresentBarFragment$fragmentType,
   |},
 |};
-export type RelayReaderTestWhenMatchDirectiveIsPresentBarQueryResponse = RelayReaderTestWhenMatchDirectiveIsPresentBarQuery$data;
 export type RelayReaderTestWhenMatchDirectiveIsPresentBarQuery = {|
-  variables: RelayReaderTestWhenMatchDirectiveIsPresentBarQueryVariables,
+  variables: RelayReaderTestWhenMatchDirectiveIsPresentBarQuery$variables,
   response: RelayReaderTestWhenMatchDirectiveIsPresentBarQuery$data,
 |};
 */

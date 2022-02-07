@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b1145a9bd0794614194f77e0e9099924>>
+ * @generated SignedSource<<597d9f6ba8c3bee5ddee4967f620a452>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,7 +22,6 @@ type RelayModernEnvironmentNoInlineTestModuleMarkdownUserNameRenderer_name$fragm
 export type RelayModernEnvironmentNoInlineTestModuleQuery$variables = {|
   cond: boolean,
 |};
-export type RelayModernEnvironmentNoInlineTestModuleQueryVariables = RelayModernEnvironmentNoInlineTestModuleQuery$variables;
 export type RelayModernEnvironmentNoInlineTestModuleQuery$data = {|
   +node: ?{|
     +nameRenderer?: ?{|
@@ -32,9 +31,8 @@ export type RelayModernEnvironmentNoInlineTestModuleQuery$data = {|
     |},
   |},
 |};
-export type RelayModernEnvironmentNoInlineTestModuleQueryResponse = RelayModernEnvironmentNoInlineTestModuleQuery$data;
 export type RelayModernEnvironmentNoInlineTestModuleQuery = {|
-  variables: RelayModernEnvironmentNoInlineTestModuleQueryVariables,
+  variables: RelayModernEnvironmentNoInlineTestModuleQuery$variables,
   response: RelayModernEnvironmentNoInlineTestModuleQuery$data,
 |};
 */

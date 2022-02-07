@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<653dd5973815bfe040f30bf042cca1ab>>
+ * @generated SignedSource<<51bf44b1d8d28dd4277dd4f2082a2acf>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,7 +17,6 @@
 /*::
 import type { FragmentType } from "relay-runtime";
 declare export opaque type readUpdatableQueryEXPERIMENTALTest_node$fragmentType: FragmentType;
-export type readUpdatableQueryEXPERIMENTALTest_node$ref = readUpdatableQueryEXPERIMENTALTest_node$fragmentType;
 */
 
 module.exports.validate = function validate(value/*: {

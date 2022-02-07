@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<cf7f00383e5cee3b4cbe58914f43b1b0>>
+ * @generated SignedSource<<32a8dbeaf21a7057f245a64ec6bb1f60>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,15 +19,13 @@ import type { ConcreteRequest, Query } from 'relay-runtime';
 export type RelayModernEnvironmentExecuteMutationWithFlightTest_InnerQuery$variables = {|
   id: string,
 |};
-export type RelayModernEnvironmentExecuteMutationWithFlightTest_InnerQueryVariables = RelayModernEnvironmentExecuteMutationWithFlightTest_InnerQuery$variables;
 export type RelayModernEnvironmentExecuteMutationWithFlightTest_InnerQuery$data = {|
   +node: ?{|
     +name?: ?string,
   |},
 |};
-export type RelayModernEnvironmentExecuteMutationWithFlightTest_InnerQueryResponse = RelayModernEnvironmentExecuteMutationWithFlightTest_InnerQuery$data;
 export type RelayModernEnvironmentExecuteMutationWithFlightTest_InnerQuery = {|
-  variables: RelayModernEnvironmentExecuteMutationWithFlightTest_InnerQueryVariables,
+  variables: RelayModernEnvironmentExecuteMutationWithFlightTest_InnerQuery$variables,
   response: RelayModernEnvironmentExecuteMutationWithFlightTest_InnerQuery$data,
 |};
 */

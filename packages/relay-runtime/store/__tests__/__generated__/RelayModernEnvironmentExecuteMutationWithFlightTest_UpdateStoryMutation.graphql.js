@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b76630f95ba21220c6d4893673e1edf4>>
+ * @generated SignedSource<<1ea2dfdccf059b0c76f777a90b0b3277>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -30,7 +30,6 @@ export type RelayModernEnvironmentExecuteMutationWithFlightTest_UpdateStoryMutat
   input: StoryUpdateInput,
   count: number,
 |};
-export type RelayModernEnvironmentExecuteMutationWithFlightTest_UpdateStoryMutationVariables = RelayModernEnvironmentExecuteMutationWithFlightTest_UpdateStoryMutation$variables;
 export type RelayModernEnvironmentExecuteMutationWithFlightTest_UpdateStoryMutation$data = {|
   +storyUpdate: ?{|
     +story: ?{|
@@ -42,9 +41,8 @@ export type RelayModernEnvironmentExecuteMutationWithFlightTest_UpdateStoryMutat
     |},
   |},
 |};
-export type RelayModernEnvironmentExecuteMutationWithFlightTest_UpdateStoryMutationResponse = RelayModernEnvironmentExecuteMutationWithFlightTest_UpdateStoryMutation$data;
 export type RelayModernEnvironmentExecuteMutationWithFlightTest_UpdateStoryMutation = {|
-  variables: RelayModernEnvironmentExecuteMutationWithFlightTest_UpdateStoryMutationVariables,
+  variables: RelayModernEnvironmentExecuteMutationWithFlightTest_UpdateStoryMutation$variables,
   response: RelayModernEnvironmentExecuteMutationWithFlightTest_UpdateStoryMutation$data,
 |};
 */

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<fa6ddab580ea7942dce5cd2bb7165d64>>
+ * @generated SignedSource<<4716bc4f4026e03999605861796f9815>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,7 +23,6 @@ export type FeedbackLikeInput = {|
 export type validateMutationTestIsNodeInlineFragmentMutation$variables = {|
   input?: ?FeedbackLikeInput,
 |};
-export type validateMutationTestIsNodeInlineFragmentMutationVariables = validateMutationTestIsNodeInlineFragmentMutation$variables;
 export type validateMutationTestIsNodeInlineFragmentMutation$data = {|
   +feedbackLike: ?{|
     +feedback: ?{|
@@ -31,7 +30,6 @@ export type validateMutationTestIsNodeInlineFragmentMutation$data = {|
     |},
   |},
 |};
-export type validateMutationTestIsNodeInlineFragmentMutationResponse = validateMutationTestIsNodeInlineFragmentMutation$data;
 export type validateMutationTestIsNodeInlineFragmentMutation$rawResponse = {|
   +feedbackLike: ?{|
     +feedback: ?{|
@@ -41,9 +39,8 @@ export type validateMutationTestIsNodeInlineFragmentMutation$rawResponse = {|
     |},
   |},
 |};
-export type validateMutationTestIsNodeInlineFragmentMutationRawResponse = validateMutationTestIsNodeInlineFragmentMutation$rawResponse;
 export type validateMutationTestIsNodeInlineFragmentMutation = {|
-  variables: validateMutationTestIsNodeInlineFragmentMutationVariables,
+  variables: validateMutationTestIsNodeInlineFragmentMutation$variables,
   response: validateMutationTestIsNodeInlineFragmentMutation$data,
   rawResponse: validateMutationTestIsNodeInlineFragmentMutation$rawResponse,
 |};

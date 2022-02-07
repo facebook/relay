@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<651b6fc3a0a3fec9acbfbeebd49f3072>>
+ * @generated SignedSource<<025ffe7281b2378b9f99d524fad32e3e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,15 +20,13 @@ type RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1$fragmentType
 export type RelayModernEnvironmentExecuteWithProvidedVariableTest_UserArgSingleFragmentQuery$variables = {|
   id: string,
 |};
-export type RelayModernEnvironmentExecuteWithProvidedVariableTest_UserArgSingleFragmentQueryVariables = RelayModernEnvironmentExecuteWithProvidedVariableTest_UserArgSingleFragmentQuery$variables;
 export type RelayModernEnvironmentExecuteWithProvidedVariableTest_UserArgSingleFragmentQuery$data = {|
   +node: ?{|
     +$fragmentSpreads: RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1$fragmentType,
   |},
 |};
-export type RelayModernEnvironmentExecuteWithProvidedVariableTest_UserArgSingleFragmentQueryResponse = RelayModernEnvironmentExecuteWithProvidedVariableTest_UserArgSingleFragmentQuery$data;
 export type RelayModernEnvironmentExecuteWithProvidedVariableTest_UserArgSingleFragmentQuery = {|
-  variables: RelayModernEnvironmentExecuteWithProvidedVariableTest_UserArgSingleFragmentQueryVariables,
+  variables: RelayModernEnvironmentExecuteWithProvidedVariableTest_UserArgSingleFragmentQuery$variables,
   response: RelayModernEnvironmentExecuteWithProvidedVariableTest_UserArgSingleFragmentQuery$data,
 |};
 type ProvidedVariablesType = {|

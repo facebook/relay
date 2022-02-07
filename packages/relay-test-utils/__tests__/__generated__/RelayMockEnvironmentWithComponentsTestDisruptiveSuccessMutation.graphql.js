@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<8817c9fde5fe174e8939497d7372f826>>
+ * @generated SignedSource<<2244e6a9efd60d12536ca4dea65ef9a4>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,7 +23,6 @@ export type FeedbackLikeInput = {|
 export type RelayMockEnvironmentWithComponentsTestDisruptiveSuccessMutation$variables = {|
   input?: ?FeedbackLikeInput,
 |};
-export type RelayMockEnvironmentWithComponentsTestDisruptiveSuccessMutationVariables = RelayMockEnvironmentWithComponentsTestDisruptiveSuccessMutation$variables;
 export type RelayMockEnvironmentWithComponentsTestDisruptiveSuccessMutation$data = {|
   +feedbackLike: ?{|
     +feedback: ?{|
@@ -32,9 +31,8 @@ export type RelayMockEnvironmentWithComponentsTestDisruptiveSuccessMutation$data
     |},
   |},
 |};
-export type RelayMockEnvironmentWithComponentsTestDisruptiveSuccessMutationResponse = RelayMockEnvironmentWithComponentsTestDisruptiveSuccessMutation$data;
 export type RelayMockEnvironmentWithComponentsTestDisruptiveSuccessMutation = {|
-  variables: RelayMockEnvironmentWithComponentsTestDisruptiveSuccessMutationVariables,
+  variables: RelayMockEnvironmentWithComponentsTestDisruptiveSuccessMutation$variables,
   response: RelayMockEnvironmentWithComponentsTestDisruptiveSuccessMutation$data,
 |};
 */

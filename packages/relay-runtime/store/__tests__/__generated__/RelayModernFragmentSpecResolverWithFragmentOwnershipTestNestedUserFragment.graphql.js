@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<4e5c6c8ff8d985a94b081d02dfbb6611>>
+ * @generated SignedSource<<ccb86c24b67eaa7c6be25122a096b4c2>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,12 +18,10 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernFragmentSpecResolverWithFragmentOwnershipTestNestedUserFragment$fragmentType: FragmentType;
-export type RelayModernFragmentSpecResolverWithFragmentOwnershipTestNestedUserFragment$ref = RelayModernFragmentSpecResolverWithFragmentOwnershipTestNestedUserFragment$fragmentType;
 export type RelayModernFragmentSpecResolverWithFragmentOwnershipTestNestedUserFragment$data = {|
   +username: ?string,
   +$fragmentType: RelayModernFragmentSpecResolverWithFragmentOwnershipTestNestedUserFragment$fragmentType,
 |};
-export type RelayModernFragmentSpecResolverWithFragmentOwnershipTestNestedUserFragment = RelayModernFragmentSpecResolverWithFragmentOwnershipTestNestedUserFragment$data;
 export type RelayModernFragmentSpecResolverWithFragmentOwnershipTestNestedUserFragment$key = {
   +$data?: RelayModernFragmentSpecResolverWithFragmentOwnershipTestNestedUserFragment$data,
   +$fragmentSpreads: RelayModernFragmentSpecResolverWithFragmentOwnershipTestNestedUserFragment$fragmentType,

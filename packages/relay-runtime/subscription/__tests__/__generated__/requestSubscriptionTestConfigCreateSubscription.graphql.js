@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<dde99c894a4b111727d7309230c3f9ac>>
+ * @generated SignedSource<<576a97b2781df9cebf9718360f5498ce>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,7 +18,6 @@
 import type { ConcreteRequest, GraphQLSubscription } from 'relay-runtime';
 type requestSubscriptionTestExtraFragment$fragmentType = any;
 export type requestSubscriptionTestConfigCreateSubscription$variables = {||};
-export type requestSubscriptionTestConfigCreateSubscriptionVariables = requestSubscriptionTestConfigCreateSubscription$variables;
 export type requestSubscriptionTestConfigCreateSubscription$data = {|
   +configCreateSubscribe: ?{|
     +config: ?{|
@@ -27,9 +26,8 @@ export type requestSubscriptionTestConfigCreateSubscription$data = {|
     |},
   |},
 |};
-export type requestSubscriptionTestConfigCreateSubscriptionResponse = requestSubscriptionTestConfigCreateSubscription$data;
 export type requestSubscriptionTestConfigCreateSubscription = {|
-  variables: requestSubscriptionTestConfigCreateSubscriptionVariables,
+  variables: requestSubscriptionTestConfigCreateSubscription$variables,
   response: requestSubscriptionTestConfigCreateSubscription$data,
 |};
 */

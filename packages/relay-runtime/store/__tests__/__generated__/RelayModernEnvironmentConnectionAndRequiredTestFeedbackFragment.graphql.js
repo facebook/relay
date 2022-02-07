@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<5c5c6b729841c096d73f923d2988590e>>
+ * @generated SignedSource<<952232db1f5a77ee4f29da6cad4d2d7e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,7 +18,6 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment$fragmentType: FragmentType;
-export type RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment$ref = RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment$fragmentType;
 export type RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment$data = ?{|
   +id: string,
   +comments: {|
@@ -30,7 +29,6 @@ export type RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment$data
   |},
   +$fragmentType: RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment$fragmentType,
 |};
-export type RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment = RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment$data;
 export type RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment$key = {
   +$data?: RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment$data,
   +$fragmentSpreads: RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment$fragmentType,

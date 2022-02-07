@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<4dad5e96cad66766257493bac95f0703>>
+ * @generated SignedSource<<2746dbc65ff25422393f0587f05d604c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,16 +20,14 @@ type RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCommentFragm
 export type RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCommentQuery$variables = {|
   id: string,
 |};
-export type RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCommentQueryVariables = RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCommentQuery$variables;
 export type RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCommentQuery$data = {|
   +node: ?{|
     +id: string,
     +$fragmentSpreads: RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCommentFragment$fragmentType,
   |},
 |};
-export type RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCommentQueryResponse = RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCommentQuery$data;
 export type RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCommentQuery = {|
-  variables: RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCommentQueryVariables,
+  variables: RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCommentQuery$variables,
   response: RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCommentQuery$data,
 |};
 */

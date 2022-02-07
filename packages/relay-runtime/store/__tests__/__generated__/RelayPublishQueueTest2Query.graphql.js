@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<8521040173cdc9647b3c078c2a8e19c1>>
+ * @generated SignedSource<<e2ccaaab9beb9cf15a1cf0e4c4b7add5>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,7 +18,6 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 type RelayPublishQueueTest1Fragment$fragmentType = any;
 export type RelayPublishQueueTest2Query$variables = {||};
-export type RelayPublishQueueTest2QueryVariables = RelayPublishQueueTest2Query$variables;
 export type RelayPublishQueueTest2Query$data = {|
   +me: ?{|
     +name: ?string,
@@ -28,9 +27,8 @@ export type RelayPublishQueueTest2Query$data = {|
     +name: ?string,
   |}>,
 |};
-export type RelayPublishQueueTest2QueryResponse = RelayPublishQueueTest2Query$data;
 export type RelayPublishQueueTest2Query = {|
-  variables: RelayPublishQueueTest2QueryVariables,
+  variables: RelayPublishQueueTest2Query$variables,
   response: RelayPublishQueueTest2Query$data,
 |};
 */

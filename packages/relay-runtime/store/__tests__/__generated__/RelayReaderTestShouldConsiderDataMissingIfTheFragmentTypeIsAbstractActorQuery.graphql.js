@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<45906b234f6ad6294a07975b8499af1a>>
+ * @generated SignedSource<<cc4a9d7ebb4295b00ed05cbe8f70dbed>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,7 +18,6 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 type RelayReaderTestShouldConsiderDataMissingIfTheFragmentTypeIsAbstractActorProfile$fragmentType = any;
 export type RelayReaderTestShouldConsiderDataMissingIfTheFragmentTypeIsAbstractActorQuery$variables = {||};
-export type RelayReaderTestShouldConsiderDataMissingIfTheFragmentTypeIsAbstractActorQueryVariables = RelayReaderTestShouldConsiderDataMissingIfTheFragmentTypeIsAbstractActorQuery$variables;
 export type RelayReaderTestShouldConsiderDataMissingIfTheFragmentTypeIsAbstractActorQuery$data = {|
   +viewer: ?{|
     +actor: ?{|
@@ -26,9 +25,8 @@ export type RelayReaderTestShouldConsiderDataMissingIfTheFragmentTypeIsAbstractA
     |},
   |},
 |};
-export type RelayReaderTestShouldConsiderDataMissingIfTheFragmentTypeIsAbstractActorQueryResponse = RelayReaderTestShouldConsiderDataMissingIfTheFragmentTypeIsAbstractActorQuery$data;
 export type RelayReaderTestShouldConsiderDataMissingIfTheFragmentTypeIsAbstractActorQuery = {|
-  variables: RelayReaderTestShouldConsiderDataMissingIfTheFragmentTypeIsAbstractActorQueryVariables,
+  variables: RelayReaderTestShouldConsiderDataMissingIfTheFragmentTypeIsAbstractActorQuery$variables,
   response: RelayReaderTestShouldConsiderDataMissingIfTheFragmentTypeIsAbstractActorQuery$data,
 |};
 */

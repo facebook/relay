@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<10843a647f935fef0198b9137bc6a62d>>
+ * @generated SignedSource<<f1bfedab0cc0c58469cf837bfb76836e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,15 +18,13 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 type RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingUserProfile$fragmentType = any;
 export type RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingUserQuery$variables = {||};
-export type RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingUserQueryVariables = RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingUserQuery$variables;
 export type RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingUserQuery$data = {|
   +me: ?{|
     +$fragmentSpreads: RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingUserProfile$fragmentType,
   |},
 |};
-export type RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingUserQueryResponse = RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingUserQuery$data;
 export type RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingUserQuery = {|
-  variables: RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingUserQueryVariables,
+  variables: RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingUserQuery$variables,
   response: RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingUserQuery$data,
 |};
 */

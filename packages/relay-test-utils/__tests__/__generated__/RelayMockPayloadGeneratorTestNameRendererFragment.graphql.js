@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<c243564b903e2169a3ad0efc868e0045>>
+ * @generated SignedSource<<8394e537744a17bef9311d05a768c6da>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,7 +21,6 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 type RelayMockPayloadGeneratorTestMarkdownUserNameRenderer_name$fragmentType = any;
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayMockPayloadGeneratorTestNameRendererFragment$fragmentType: FragmentType;
-export type RelayMockPayloadGeneratorTestNameRendererFragment$ref = RelayMockPayloadGeneratorTestNameRendererFragment$fragmentType;
 export type RelayMockPayloadGeneratorTestNameRendererFragment$data = {|
   +id: string,
   +nameRenderer: ?{|
@@ -31,7 +30,6 @@ export type RelayMockPayloadGeneratorTestNameRendererFragment$data = {|
   |},
   +$fragmentType: RelayMockPayloadGeneratorTestNameRendererFragment$fragmentType,
 |};
-export type RelayMockPayloadGeneratorTestNameRendererFragment = RelayMockPayloadGeneratorTestNameRendererFragment$data;
 export type RelayMockPayloadGeneratorTestNameRendererFragment$key = {
   +$data?: RelayMockPayloadGeneratorTestNameRendererFragment$data,
   +$fragmentSpreads: RelayMockPayloadGeneratorTestNameRendererFragment$fragmentType,

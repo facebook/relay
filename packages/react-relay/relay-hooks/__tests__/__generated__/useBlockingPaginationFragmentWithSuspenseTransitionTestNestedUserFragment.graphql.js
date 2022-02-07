@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<14a7cc6fdaba0129a89277e5c64d5692>>
+ * @generated SignedSource<<99e1950374042cf860c57164f657b4b7>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,12 +18,10 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type useBlockingPaginationFragmentWithSuspenseTransitionTestNestedUserFragment$fragmentType: FragmentType;
-export type useBlockingPaginationFragmentWithSuspenseTransitionTestNestedUserFragment$ref = useBlockingPaginationFragmentWithSuspenseTransitionTestNestedUserFragment$fragmentType;
 export type useBlockingPaginationFragmentWithSuspenseTransitionTestNestedUserFragment$data = {|
   +username: ?string,
   +$fragmentType: useBlockingPaginationFragmentWithSuspenseTransitionTestNestedUserFragment$fragmentType,
 |};
-export type useBlockingPaginationFragmentWithSuspenseTransitionTestNestedUserFragment = useBlockingPaginationFragmentWithSuspenseTransitionTestNestedUserFragment$data;
 export type useBlockingPaginationFragmentWithSuspenseTransitionTestNestedUserFragment$key = {
   +$data?: useBlockingPaginationFragmentWithSuspenseTransitionTestNestedUserFragment$data,
   +$fragmentSpreads: useBlockingPaginationFragmentWithSuspenseTransitionTestNestedUserFragment$fragmentType,

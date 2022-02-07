@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<e2fdd08adcbbe807503d2e14123c4869>>
+ * @generated SignedSource<<a680f340eff218e50c7fbe066d5636ad>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,7 +18,6 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type fetchQueryInternalTestMarkdown1Fragment_name$fragmentType: FragmentType;
-export type fetchQueryInternalTestMarkdown1Fragment_name$ref = fetchQueryInternalTestMarkdown1Fragment_name$fragmentType;
 export type fetchQueryInternalTestMarkdown1Fragment_name$data = {|
   +markdown: ?string,
   +data: ?{|
@@ -27,7 +26,6 @@ export type fetchQueryInternalTestMarkdown1Fragment_name$data = {|
   +__typename: "MarkdownUserNameRenderer",
   +$fragmentType: fetchQueryInternalTestMarkdown1Fragment_name$fragmentType,
 |};
-export type fetchQueryInternalTestMarkdown1Fragment_name = fetchQueryInternalTestMarkdown1Fragment_name$data;
 export type fetchQueryInternalTestMarkdown1Fragment_name$key = {
   +$data?: fetchQueryInternalTestMarkdown1Fragment_name$data,
   +$fragmentSpreads: fetchQueryInternalTestMarkdown1Fragment_name$fragmentType,

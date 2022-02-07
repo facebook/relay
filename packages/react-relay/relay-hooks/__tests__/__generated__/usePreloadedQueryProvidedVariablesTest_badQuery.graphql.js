@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<6a5534624af997a4ce640c3c491918dd>>
+ * @generated SignedSource<<270401a0ef815400ae3917618a084a1a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,15 +20,13 @@ type usePreloadedQueryProvidedVariablesTest_badFragment$fragmentType = any;
 export type usePreloadedQueryProvidedVariablesTest_badQuery$variables = {|
   id: string,
 |};
-export type usePreloadedQueryProvidedVariablesTest_badQueryVariables = usePreloadedQueryProvidedVariablesTest_badQuery$variables;
 export type usePreloadedQueryProvidedVariablesTest_badQuery$data = {|
   +node: ?{|
     +$fragmentSpreads: usePreloadedQueryProvidedVariablesTest_badFragment$fragmentType,
   |},
 |};
-export type usePreloadedQueryProvidedVariablesTest_badQueryResponse = usePreloadedQueryProvidedVariablesTest_badQuery$data;
 export type usePreloadedQueryProvidedVariablesTest_badQuery = {|
-  variables: usePreloadedQueryProvidedVariablesTest_badQueryVariables,
+  variables: usePreloadedQueryProvidedVariablesTest_badQuery$variables,
   response: usePreloadedQueryProvidedVariablesTest_badQuery$data,
 |};
 type ProvidedVariablesType = {|

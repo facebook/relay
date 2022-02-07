@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<40f451ee330a26652bfa6f4e3f57ddf2>>
+ * @generated SignedSource<<5ecbc4622a960fda513321202dcbd65a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,12 +18,10 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentCommitPayloadTest6UserFragment$fragmentType: FragmentType;
-export type RelayModernEnvironmentCommitPayloadTest6UserFragment$ref = RelayModernEnvironmentCommitPayloadTest6UserFragment$fragmentType;
 export type RelayModernEnvironmentCommitPayloadTest6UserFragment$data = {|
   +username: ?string,
   +$fragmentType: RelayModernEnvironmentCommitPayloadTest6UserFragment$fragmentType,
 |};
-export type RelayModernEnvironmentCommitPayloadTest6UserFragment = RelayModernEnvironmentCommitPayloadTest6UserFragment$data;
 export type RelayModernEnvironmentCommitPayloadTest6UserFragment$key = {
   +$data?: RelayModernEnvironmentCommitPayloadTest6UserFragment$data,
   +$fragmentSpreads: RelayModernEnvironmentCommitPayloadTest6UserFragment$fragmentType,

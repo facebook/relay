@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<38e387a113c7b11bf232c8d8d09db02c>>
+ * @generated SignedSource<<4b470b014a22a1a5c6faa04c2609e7b6>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,7 +18,6 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentFragment$fragmentType: FragmentType;
-export type RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentFragment$ref = RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentFragment$fragmentType;
 export type RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentFragment$data = {|
   +id: string,
   +body: ?{|
@@ -26,7 +25,6 @@ export type RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommen
   |},
   +$fragmentType: RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentFragment$fragmentType,
 |};
-export type RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentFragment = RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentFragment$data;
 export type RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentFragment$key = {
   +$data?: RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentFragment$data,
   +$fragmentSpreads: RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentFragment$fragmentType,

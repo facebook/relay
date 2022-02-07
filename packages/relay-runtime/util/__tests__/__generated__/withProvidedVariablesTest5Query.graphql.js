@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<d91dd5daf9b7b5c3599494db4db46798>>
+ * @generated SignedSource<<97ef6d3ac23e0400cae1419bc6658a92>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,15 +18,13 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 type withProvidedVariablesTest5Fragment$fragmentType = any;
 export type withProvidedVariablesTest5Query$variables = {||};
-export type withProvidedVariablesTest5QueryVariables = withProvidedVariablesTest5Query$variables;
 export type withProvidedVariablesTest5Query$data = {|
   +node: ?{|
     +$fragmentSpreads: withProvidedVariablesTest5Fragment$fragmentType,
   |},
 |};
-export type withProvidedVariablesTest5QueryResponse = withProvidedVariablesTest5Query$data;
 export type withProvidedVariablesTest5Query = {|
-  variables: withProvidedVariablesTest5QueryVariables,
+  variables: withProvidedVariablesTest5Query$variables,
   response: withProvidedVariablesTest5Query$data,
 |};
 type ProvidedVariablesType = {|

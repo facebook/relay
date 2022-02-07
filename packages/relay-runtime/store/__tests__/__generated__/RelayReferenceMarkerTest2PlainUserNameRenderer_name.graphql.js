@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<013caf9024ed667561e91ef7121898e6>>
+ * @generated SignedSource<<d9d81483f6219b27faae7923788345ba>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,7 +18,6 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayReferenceMarkerTest2PlainUserNameRenderer_name$fragmentType: FragmentType;
-export type RelayReferenceMarkerTest2PlainUserNameRenderer_name$ref = RelayReferenceMarkerTest2PlainUserNameRenderer_name$fragmentType;
 export type RelayReferenceMarkerTest2PlainUserNameRenderer_name$data = {|
   +plaintext: ?string,
   +data: ?{|
@@ -26,7 +25,6 @@ export type RelayReferenceMarkerTest2PlainUserNameRenderer_name$data = {|
   |},
   +$fragmentType: RelayReferenceMarkerTest2PlainUserNameRenderer_name$fragmentType,
 |};
-export type RelayReferenceMarkerTest2PlainUserNameRenderer_name = RelayReferenceMarkerTest2PlainUserNameRenderer_name$data;
 export type RelayReferenceMarkerTest2PlainUserNameRenderer_name$key = {
   +$data?: RelayReferenceMarkerTest2PlainUserNameRenderer_name$data,
   +$fragmentSpreads: RelayReferenceMarkerTest2PlainUserNameRenderer_name$fragmentType,

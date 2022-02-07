@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<415bf1460c23f059062bcfdeaa8719ed>>
+ * @generated SignedSource<<9f486c20d2ef19ffc5a3c7ca9d3035d4>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,7 +24,6 @@ type RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user$fragmentTyp
 export type RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQuery$variables = {|
   id: string,
 |};
-export type RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQueryVariables = RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQuery$variables;
 export type RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQuery$data = {|
   +node: ?{|
     +__fragmentPropName?: ?string,
@@ -39,9 +38,8 @@ export type RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQuery$data
     |},
   |},
 |};
-export type RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQueryResponse = RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQuery$data;
 export type RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQuery = {|
-  variables: RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQueryVariables,
+  variables: RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQuery$variables,
   response: RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQuery$data,
 |};
 */

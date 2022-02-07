@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a0d23ee1f2ac4870e5a740f4d6780de5>>
+ * @generated SignedSource<<12b46153c7df4e9dfb49468936b57e2b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,15 +20,13 @@ type RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableProfilePicture$
 export type RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserQuery$variables = {|
   size?: ?$ReadOnlyArray<?number>,
 |};
-export type RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserQueryVariables = RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserQuery$variables;
 export type RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserQuery$data = {|
   +me: ?{|
     +$fragmentSpreads: RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableProfilePicture$fragmentType,
   |},
 |};
-export type RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserQueryResponse = RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserQuery$data;
 export type RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserQuery = {|
-  variables: RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserQueryVariables,
+  variables: RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserQuery$variables,
   response: RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserQuery$data,
 |};
 */

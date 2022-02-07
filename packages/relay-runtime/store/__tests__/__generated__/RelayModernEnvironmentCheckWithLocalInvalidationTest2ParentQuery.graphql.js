@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<d56accea7bb935506c9bf0588b104f59>>
+ * @generated SignedSource<<7f1e069e36cf18e421c1bd70e9a49170>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,7 +20,6 @@ type RelayModernEnvironmentCheckWithLocalInvalidationTestUserFragment$fragmentTy
 export type RelayModernEnvironmentCheckWithLocalInvalidationTest2ParentQuery$variables = {|
   size: $ReadOnlyArray<?number>,
 |};
-export type RelayModernEnvironmentCheckWithLocalInvalidationTest2ParentQueryVariables = RelayModernEnvironmentCheckWithLocalInvalidationTest2ParentQuery$variables;
 export type RelayModernEnvironmentCheckWithLocalInvalidationTest2ParentQuery$data = {|
   +me: ?{|
     +id: string,
@@ -28,9 +27,8 @@ export type RelayModernEnvironmentCheckWithLocalInvalidationTest2ParentQuery$dat
     +$fragmentSpreads: RelayModernEnvironmentCheckWithLocalInvalidationTestUserFragment$fragmentType,
   |},
 |};
-export type RelayModernEnvironmentCheckWithLocalInvalidationTest2ParentQueryResponse = RelayModernEnvironmentCheckWithLocalInvalidationTest2ParentQuery$data;
 export type RelayModernEnvironmentCheckWithLocalInvalidationTest2ParentQuery = {|
-  variables: RelayModernEnvironmentCheckWithLocalInvalidationTest2ParentQueryVariables,
+  variables: RelayModernEnvironmentCheckWithLocalInvalidationTest2ParentQuery$variables,
   response: RelayModernEnvironmentCheckWithLocalInvalidationTest2ParentQuery$data,
 |};
 */

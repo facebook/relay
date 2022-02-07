@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a441bff4ca19a3e39e00508b4bbef7f9>>
+ * @generated SignedSource<<2aca91ef74271f971730b61aa959f947>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -30,7 +30,6 @@ export type FeedbackcommentComment = {|
 export type RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCreateCommentMutation$variables = {|
   input: CommentCreateInput,
 |};
-export type RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCreateCommentMutationVariables = RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCreateCommentMutation$variables;
 export type RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCreateCommentMutation$data = {|
   +commentCreate: ?{|
     +comment: ?{|
@@ -41,9 +40,8 @@ export type RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCreate
     |},
   |},
 |};
-export type RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCreateCommentMutationResponse = RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCreateCommentMutation$data;
 export type RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCreateCommentMutation = {|
-  variables: RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCreateCommentMutationVariables,
+  variables: RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCreateCommentMutation$variables,
   response: RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCreateCommentMutation$data,
 |};
 */

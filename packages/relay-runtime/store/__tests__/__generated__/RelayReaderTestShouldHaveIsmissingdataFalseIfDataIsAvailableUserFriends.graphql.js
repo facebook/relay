@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<5da9da09441ec62803d5fe6a077459ae>>
+ * @generated SignedSource<<6674509f8afd2723feb63a4cd476137c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,7 +18,6 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserFriends$fragmentType: FragmentType;
-export type RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserFriends$ref = RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserFriends$fragmentType;
 export type RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserFriends$data = {|
   +id: string,
   +friends: ?{|
@@ -31,7 +30,6 @@ export type RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserFrie
   |},
   +$fragmentType: RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserFriends$fragmentType,
 |};
-export type RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserFriends = RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserFriends$data;
 export type RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserFriends$key = {
   +$data?: RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserFriends$data,
   +$fragmentSpreads: RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserFriends$fragmentType,

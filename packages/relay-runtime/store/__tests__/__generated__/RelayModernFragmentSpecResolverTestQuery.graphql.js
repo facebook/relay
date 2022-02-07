@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<9d63f4ed4c0db961395b55be6797ec8e>>
+ * @generated SignedSource<<73816cff036b0b1149b9db01caf4079d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,15 +23,13 @@ export type RelayModernFragmentSpecResolverTestQuery$variables = {|
   size?: ?$ReadOnlyArray<?number>,
   fetchSize: boolean,
 |};
-export type RelayModernFragmentSpecResolverTestQueryVariables = RelayModernFragmentSpecResolverTestQuery$variables;
 export type RelayModernFragmentSpecResolverTestQuery$data = {|
   +node: ?{|
     +$fragmentSpreads: RelayModernFragmentSpecResolverTestQueryUserFragment$fragmentType & RelayModernFragmentSpecResolverTestQueryUsersFragment$fragmentType,
   |},
 |};
-export type RelayModernFragmentSpecResolverTestQueryResponse = RelayModernFragmentSpecResolverTestQuery$data;
 export type RelayModernFragmentSpecResolverTestQuery = {|
-  variables: RelayModernFragmentSpecResolverTestQueryVariables,
+  variables: RelayModernFragmentSpecResolverTestQuery$variables,
   response: RelayModernFragmentSpecResolverTestQuery$data,
 |};
 */

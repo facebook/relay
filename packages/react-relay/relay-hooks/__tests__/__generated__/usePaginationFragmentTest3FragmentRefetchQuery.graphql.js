@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<195ad44c08ce11706541422c42b9432b>>
+ * @generated SignedSource<<b14d8c56ba08e8d56836de43d0b91316>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,15 +21,13 @@ type usePaginationFragmentTest3Fragment$fragmentType = any;
 export type usePaginationFragmentTest3FragmentRefetchQuery$variables = {|
   id: string,
 |};
-export type usePaginationFragmentTest3FragmentRefetchQueryVariables = usePaginationFragmentTest3FragmentRefetchQuery$variables;
 export type usePaginationFragmentTest3FragmentRefetchQuery$data = {|
   +node: ?{|
     +$fragmentSpreads: usePaginationFragmentTest3Fragment$fragmentType,
   |},
 |};
-export type usePaginationFragmentTest3FragmentRefetchQueryResponse = usePaginationFragmentTest3FragmentRefetchQuery$data;
 export type usePaginationFragmentTest3FragmentRefetchQuery = {|
-  variables: usePaginationFragmentTest3FragmentRefetchQueryVariables,
+  variables: usePaginationFragmentTest3FragmentRefetchQuery$variables,
   response: usePaginationFragmentTest3FragmentRefetchQuery$data,
 |};
 */

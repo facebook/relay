@@ -10,5 +10,5 @@ license = "MIT"
 fnv = "1.0"
 lazy_static = "1.0"
 once_cell = "1.8"
-parking_lot = { version = "0.11.2", features = ["send_guard"] }
+parking_lot = { version = "0.12.0", features = ["send_guard"] }
 serde = { version = "1.0.126", features = ["derive", "rc"] }

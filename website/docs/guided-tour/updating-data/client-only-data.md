@@ -1,6 +1,6 @@
 ---
 id: client-only-data
-title: Client-Only Data
+title: Client-only data
 slug: /guided-tour/updating-data/client-only-data/
 description: Relay guide to client-only data
 keywords:

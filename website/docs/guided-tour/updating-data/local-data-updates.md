@@ -2,7 +2,7 @@
 id: local-data-updates
 title: Local Data Updates
 slug: /guided-tour/updating-data/local-data-updates/
-description: Relay guide to local data updates
+description: Other APIs for modifying store data
 keywords:
 - client-only
 - commitLocalUpdate
@@ -19,7 +19,7 @@ Note that local data updates can be made both on [client-only data](../client-on
 
 ## commitLocalUpdate
 
-To make updates using an [`updater`](../graphql-mutations/#updater-functions) function, you can use the `commitLocalUpdate` API:
+To make updates using an [`updater`](../imperatively-modifying-store-data/) function, you can use the `commitLocalUpdate` API:
 
 ```js
 import type {Environment} from 'react-relay';
@@ -31,28 +31,7 @@ function commitCommentCreateLocally(
   feedbackID: string,
 ) {
   return commitLocalUpdate(environment, store => {
-    const feedbackRecord = store.get(feedbackID);
-    const connectionRecord = ConnectionHandler.getConnection(
-      userRecord,
-      'CommentsComponent_comments_connection',
-    );
-
-    // Create a new local Comment from scratch
-    const id = `client:new_comment:${randomID()}`;
-    const newCommentRecord = store.create(id, 'Comment');
-
-    // ... update new comment with content
-
-    // Create new edge from scratch
-    const newEdge = ConnectionHandler.createEdge(
-      store,
-      connectionRecord,
-      newCommentRecord,
-      'CommentEdge' /* GraphQl Type for edge */,
-    );
-
-    // Add edge to the end of the connection
-    ConnectionHandler.insertEdgeAfter(connectionRecord, newEdge);
+    // Imperatively mutate the store here
   });
 }
 
@@ -61,7 +40,7 @@ module.exports = {commit: commitCommentCreateLocally};
 
 * `commitLocalUpdate` update simply takes an environment and an updater function.
     * `updater` takes a *`store`* argument, which is an instance of a [`RecordSourceSelectorProxy`](../../../api-reference/store/);  this interface allows you to *imperatively* write and read data directly to and from the Relay store. This means that you have full control over how to update the store: you can *create entirely new records*, or *update or delete existing ones*.
-* In our specific example, we're adding a new comment to our local store when. Specifically, we're adding a new item to a connection; for more details on the specifics of how that works, check out our [Updating Connections](../../list-data/updating-connections/) section.
+    * Unlike regular and optimistic updaters that are accepted by the mutation and subscription APIs, the updater passed to `commitLocalUpdate` does not accept a second parameter. This is because there is no associated network response.
 * Note that any local data updates will automatically cause components subscribed to the data to be notified of the change and re-render.
 
 ## commitPayload
@@ -88,6 +67,5 @@ environment.commitPayload(operation, payload);
 * Note that any local data updates will automatically cause components subscribed to the data to be notified of the change and re-render.
 
 <FbLocalDataUpdatesFlow />
-
 
 <DocsRating />

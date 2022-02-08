@@ -124,6 +124,7 @@ module.exports = {
             'guided-tour/updating-data/introduction',
             'guided-tour/updating-data/graphql-mutations',
             'guided-tour/updating-data/graphql-subscriptions',
+            'guided-tour/updating-data/imperatively-modifying-store-data',
             'guided-tour/updating-data/local-data-updates',
             'guided-tour/updating-data/client-only-data',
           ],

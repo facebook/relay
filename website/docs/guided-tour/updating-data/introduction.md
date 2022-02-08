@@ -13,9 +13,12 @@ keywords:
 import DocsRating from '@site/src/core/DocsRating';
 import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
 
-Relay holds a local in-memory store of normalized GraphQL data, which accumulates data as GraphQL queries are made throughout usage of our app; think of it as a local database of GraphQL data. When records are updated, any components affected by the updated data will be notified and re-rendered with the updated data.
+In previous sections, the guided tour discussed how to fetch data using GraphQL queries. Though [refetching data](../refetching/) can have the *incidental* effect of modifying data in Relay's local store (if the refetched data has changed), we haven't discussed any ways to *intentionally* modify our locally stored data.
 
-In this section, we're going to go over how to update data in the server as well as how to update our local data store accordingly, ensuring that our components are kept in sync with the latest data.
+This section will do just that: it will discuss how to update data on the server and how to update our local data store.
 
+:::note
+The **Relay store** is a cache of GraphQL data, associated with a given Relay environment, that we have encountered during the execution of an application.
+:::
 
 <DocsRating />

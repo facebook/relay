@@ -1,8 +1,8 @@
 ---
 id: graphql-mutations
-title: GraphQL Mutations
+title: GraphQL mutations
 slug: /guided-tour/updating-data/graphql-mutations/
-description: Relay guide to GraphQl mutations
+description: Relay guide to GraphQL mutations
 keywords:
 - mutation
 ---
@@ -10,12 +10,11 @@ keywords:
 import DocsRating from '@site/src/core/DocsRating';
 import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
 
-In GraphQL, data in the server is updated using [GraphQL Mutations](https://graphql.org/learn/queries/#mutations). Mutations are *read-write* server operations, which both modify data on the backend, and allow querying for the modified data from the server in the same request.
-
+In GraphQL, data on the server is updated using [GraphQL mutations](https://graphql.org/learn/queries/#mutations). Mutations are read-write server operations, which both modify the data on the backend and allow you to query the modified data in the same request.
 
 ## Writing Mutations
 
-A GraphQL mutation looks very similar to a query, with the exception that it uses the `mutation` keyword:
+A GraphQL mutation looks very similar to a query, except that it uses the `mutation` keyword:
 
 ```graphql
 mutation FeedbackLikeMutation($input: FeedbackLikeData!) {
@@ -29,21 +28,32 @@ mutation FeedbackLikeMutation($input: FeedbackLikeData!) {
 }
 ```
 
-* The mutation above modifies the server data to "like" the specified `Feedback` object. `feedback_like` is a *mutation root field* (or just *mutation field*), which takes specific input and will be processed by the server to update the relevant data on the backend.
+* The mutation above modifies the server data to "like" the specified `Feedback` object.
+* `feedback_like` is a *mutation root field* (or just *mutation field*) which updates data on the backend.
+
+<FbInternalOnly>
+
+:::info
+You can view mutation root fields in the GraphQL Schema Explorer by opening VSCode @ FB and executing the command "Relay: Open GraphQL Schema Explorer". Then, in the "Schema Explorer Tab", click on "Mutation".
+
+You can click on the various mutation fields to see their parameters, descriptions and exposed fields.
+:::
+
+</FbInternalOnly>
+
 * A mutation is handled in two separate steps: first, the update is processed on the server, and then the query is executed. This ensures that you only see data that has already been updated as part of your mutation response.
+
+:::note
+Note that queries are processed in the same way. Outer selections are calculated before inner selections. It is simply a matter of convention that top-level mutation fields have side-effects, while other fields tend not to.
+:::
+
 * The mutation field (in this case, `feedback_like`) returns a specific GraphQL type which exposes the data for which we can query in the mutation response.
 
 <FbInternalOnly>
 
-* The fields you can access on the mutation field are not automatically the same fields you can access in a regular query. [It is a best practice](https://fb.workplace.com/groups/644933736023601/?multi_permalinks=823422684841371) to include the `viewer` object and all updated Ents as part of the mutation response.
+* [It is a best practice](https://fb.workplace.com/groups/644933736023601/?multi_permalinks=823422684841371) to include the `viewer` object and all updated Ents as part of the mutation response.
 
 </FbInternalOnly>
-
-<OssOnly>
-
-* The fields you can access on the mutation field are not automatically the same fields you can access in a regular query. It is a best practice to include the `viewer` object and all updated entities as part of the mutation response.
-
-</OssOnly>
 
 * In this case, we're querying for the *updated* feedback object, including the updated `like_count` and the updated value for `viewer_does_like`, indicating whether the current viewer likes the feedback object.
 
@@ -67,7 +77,6 @@ An example of a successful response for the above mutation could look like this:
 }
 ```
 
-
 In Relay, we can declare GraphQL mutations using the `graphql` tag too:
 
 ```js
@@ -88,388 +97,251 @@ const feedbackLikeMutation = graphql`
 
 * Note that mutations can also reference GraphQL [variables](../../rendering/variables/) in the same way queries or fragments do.
 
+## Using `useMutation` to execute a mutation
 
-In order to *execute* a mutation against the server in Relay, we can use the `commitMutation` and [useMutation](../../../api-reference/use-mutation) APIs. Let's take a look at an example using the `commitMutation` API:
+In order to execute a mutation against the server in Relay, we can use the `commitMutation` and [useMutation](../../../api-reference/use-mutation) APIs. Let's take a look at an example using the `useMutation` API:
 
 ```js
-import type {Environment} from 'react-relay';
-import type {FeedbackLikeData, FeedbackLikeMutation} from 'FeedbackLikeMutation.graphql';
+import type {FeedbackLikeData, LikeButtonMutation} from 'LikeButtonMutation.graphql';
 
-const {commitMutation, graphql} = require('react-relay');
+const {useMutation, graphql} = require('react-relay');
 
-function commitFeedbackLikeMutation(
-  environment: Environment,
-  input: FeedbackLikeData,
-) {
-  return commitMutation<FeedbackLikeMutation>(environment, {
-    mutation: graphql`
-      mutation FeedbackLikeMutation($input: FeedbackLikeData!) {
+function LikeButton({
+  feedbackId: string,
+}) {
+  const [commitMutation, isMutationInFlight] = useMutation<LikeButtonMutation>(
+    graphql`
+      mutation LikeButtonMutation($input: FeedbackLikeData!) {
         feedback_like(data: $input) {
           feedback {
-            id
             viewer_does_like
             like_count
           }
         }
       }
-    `,
-    variables: {input},
-    onCompleted: response => {} /* Mutation completed */,
-    onError: error => {} /* Mutation errored */,
-  });
-}
+    `
+  );
 
-module.exports = {commit: commitFeedbackLikeMutation};
+  return <button
+    onClick={() => commitMutation({
+      variables: {
+        input: {id: feedbackId},
+      },
+    })}
+    disabled={isMutationInFlight}
+  >
+    Like
+  </button>
+}
 ```
 
-Let's distill what's happening here:
+Let's distill what's happening here.
 
-* `commitMutation` takes an environment, the `graphql` tagged  mutation, and the variables to use for sending the mutation request to the server.
-* Note that the `input` for the mutation can be Flow-typed with the autogenerated type available from the *`FeedbackLikeMutation.graphql`* module. In general, the Relay will generate Flow types for mutations at build time, with the following naming format: `*<mutation_name>*.graphql.js`.
-* Note that `variables`, `response` in `onCompleted`, and `optimisticResponse` will be typed by providing a single autogenerated type, such as `FeedbackLikeMutation` from the `FeedbackLikeMutation.graphql` module.
-* To also strongly type the `optimisticResponse` field, a `@raw_response_type` directive should be added to the mutation query root.
-* `commitMutation` also takes `onCompleted` and `onError` callbacks, which will be called when the request completes successfully or when an error occurs, respectively.
-* When the mutation response is received, any objects in the mutation response with `id` fields that match records in the local store will *automatically* be updated with the new field values from the response. In this case, it would automatically find the existing `Feedback` object matching the given id in the store, and update the values for its `viewer_does_like` and `like_count` fields.
-* Note that any local data updates caused by the mutation will automatically cause components subscribed to the data to be notified of the change and re-render.
+* `useMutation` takes a graphql literal containing a mutation as its only argument.
+* It returns a tuple of items:
+  * a callback (which we call `commitMutation`) which accepts a `UseMutationConfig`, and
+  * a boolean indicating whether a mutation is in flight.
+* In addition, `useMutation` accepts a Flow type parameter. As with queries, the Flow type of the mutation is exported from the file that the Relay compiler generates.
+  * If this type is provided, the `UseMutationConfig` becomes statically typed as well. **It is a best practice to always provide this type.**
+* Now, when `commitMutation` is called with the mutation variables, Relay will make a network request that executes the `feedback_like` field on the server. In this example, this would find the feedback specified by the variables, and record on the backend that the user liked that piece of feedback.
+* Once that field is executed, the backend will select the updated Feedback object and select the `viewer_does_like` and `like_count` fields off of it.
+  * Since the `Feedback` type contains an `id` field, the Relay compiler will automatically add a selection for the `id` field.
+* When the mutation response is received, Relay will find a feedback object in the store with a matching `id` and update it with the newly received `viewer_does_like` and `like_count` values.
+* If these values have changed as a result, any components which selected these fields off of the feedback object will be re-rendered. Or, to put it colloquially, any component which depends on the updated data will re-render.
 
-## Updating data once a request is complete
+:::note
+The name of the type of the parameter `FeedbackLikeData` is derived from the name of the top-level mutation field, i.e. from `feedback_like`. This type is also exported from the generated `graphql.js` file.
+:::
 
-There are four ways in which store data is updated when a request is complete:
+## Refreshing components in response to mutations
 
-* If a field is queried from within the mutation field and includes an id field, that record in the local store will automatically be updated with the new values from the response. In the example, because the query includes `feedback` and `id`, Relay will find the existing `Feedback` object that matches the given ID in the store, and update the values for its `viewer_does_like` and `like_count` fields.
-    * Note that instead of refetching a fragment after a mutation completes, you can often spread the fragment into the mutation response in order to update the fragment's data as part of the same request.
-* If a field is queried from within the mutation field and includes an id field which has the `@deleteRecord` directive, that field will be removed from the store.
-* If an edge field is queried from within the mutation field and includes the `@prependEdge` or `@appendEdge` directives, that edge will be prepended or appended to a connection, respectively.
-* Lastly, for all updates not covered by the previous three bullet points, updater functions give you full control over how the data in the local store is updated when the request completes.
+In the previous example, we manually selected `viewer_does_like` and `like_count`. Components that select these fields will be re-rendered, should the value of those fields change.
 
-See the [order of execution section](#order-of-execution-of-updater-functions) for information on what happens when Relay encounters multiple ways to update the data in the store.
+However, it is generally better to spread fragments that correspond to components that we want to refresh in response to the mutation. This is because the data selected by components can change.
 
-## Updater functions
+Requiring developers to know about all mutations that might affect their components' data (and keeping them up-to-date) is an example of the kind of global reasoning that Relay wants to avoid requiring.
 
-If the updates you wish to perform on the local data are more complex than just updating the values of fields and cannot be handled by the declarative mutation directives, you can provide an `updater` function to `commitMutation` or `useMutation` for full control over how to update the store:
+For example, we might rewrite the mutation as follows:
 
-```js
-import type {Environment} from 'react-relay';
-import type {CommentCreateData, CreateCommentMutation} from 'CreateCommentMutation.graphql';
-
-const {commitMutation, graphql} = require('react-relay');
-const {ConnectionHandler} = require('relay-runtime');
-
-function commitCommentCreateMutation(
-  environment: Environment,
-  feedbackID: string,
-  input: CommentCreateData,
-) {
-  return commitMutation<CreateCommentMutation>(environment, {
-    mutation: graphql`
-      mutation CreateCommentMutation($input: CommentCreateData!) {
-        comment_create(input: $input) {
-          comment_edge {
-            cursor
-            node {
-              body {
-                text
-              }
-            }
-          }
-        }
-      }
-    `,
-    variables: {input},
-    onCompleted: () => {},
-    onError: error => {},
-    updater: store => {
-      const feedbackRecord = store.get(feedbackID);
-
-      // Get connection record
-      const connectionRecord = ConnectionHandler.getConnection(
-        feedbackRecord,
-        'CommentsComponent_comments_connection',
-      );
-
-      // Get the payload returned from the server
-      const payload = store.getRootField('comment_create');
-
-      // Get the edge inside the payload
-      const serverEdge = payload.getLinkedRecord('comment_edge');
-
-      // Build edge for adding to the connection
-      const newEdge = ConnectionHandler.buildConnectionEdge(
-        store,
-        connectionRecord,
-        serverEdge,
-      );
-
-      // Add edge to the end of the connection
-      ConnectionHandler.insertEdgeAfter(
-        connectionRecord,
-        newEdge,
-      );
-    },
-  });
+```graphql
+mutation FeedbackLikeMutation($input: FeedbackLikeData!) {
+  feedback_like(data: $input) {
+    feedback {
+      ...FeedbackDisplay_feedback
+      ...FeedbackDetail_feedback
+    }
+  }
 }
-
-module.exports = {commit: commitCommentCreateMutation};
 ```
 
-Let's distill this example:
+If this mutation is executed, then whatever fields were selected by the `FeedbackDisplay` and `FeedbackDetail` components will be refetched, and those components will remain in a consistent state.
 
-* The updater receives a `store` argument, which is an instance of a [`RecordSourceSelectorProxy`](../../../api-reference/store/);  this interface allows you to *imperatively* write and read data directly to and from the Relay store. This means that you have full control over how to update the store in response to the mutation response: you can *create entirely new records*, or *update or delete existing ones*.
-* The updater receives a second `data` argument, which contains the data selected by the mutation fragment. This can be used to retrieve the payload data without interacting with the *`store`*. The type of this mutation response can be imported from the auto-generated `Mutation.graphql.js` file, and is given the name `MutationName$data`.
-    * The type of this `data` argument is a nullable version of the `$data` type.
-    * The `data` arguments contains just the data selected directly by the mutation argument. In other words, if another fragment is spread in the mutation, the data from that fragment will not be available within `data` by default.
-* In our specific example, we're adding a new comment to our local store after it has successfully been added on the server. Specifically, we're adding a new item to a connection; for more details on the specifics of how that works, check out our section on [adding and removing items from a connection](../../list-data/updating-connections/).
-    * There is no need for an updater in this example — it would be a great place to use the `@appendEdge` directive instead!
-* Note that the mutation response is a *root field* record that can be read from the `store` using the `store.getRootField` API. In our case, we're reading the `comment_create` root field, which is a root field in the mutation response.
-* Note that the `root` field of the mutation is different from the `root` of queries, and `store.getRootField` in the mutation updater can only get the record from the mutation response. To get records from the root that's not in the mutation response, use `store.getRoot().getLinkedRecord` instead.
-* Once the updater completes, any local data updates caused by the mutation `updater` will automatically cause components subscribed to the data to be notified of the change and re-render.
+:::note
+Spreading fragments is generally preferable to refetching the data after a mutation has completed, since the updated data can be fetched in a single round trip.
+:::
+
+## Executing a callback when the mutation completes or errors
+
+We may want to update some state in response to the mutation succeeding or failing. For example, we might want to alert the user if the mutation failed. The `UseMutationConfig` object can include the following fields to handle such cases:
+
+* `onCompleted`, a callback that is executed when the mutation completes. It is passed the mutation response (stopping at fragment spread boundaries).
+* `onError`, a callback that is executed when the mutation errors. It is passed the error that occurred.
+
+## Declarative mutation directives
+
+### Manipulating connections in response to mutations
+
+Relay makes it easy to respond to mutations by adding items to or removing items from connections (i.e. lists). For example, you might want to append a newly created user to a given connection. For more, see [Using declarative directives](../../list-data/updating-connections/#using-declarative-directives).
+
+### Deleting items in response to mutations
+
+In addition, you might want to delete an item from the store in response to a mutation. In order to do this, you would add the `@deleteRecord` directive to the deleted ID. For example:
+
+```graphql
+mutation DeletePostMutation($input: DeletePostData!) {
+  delete_post(data: $input) {
+    deleted_post {
+      id @deleteRecord
+    }
+  }
+}
+```
+
+## Imperatively modifying local data
+
+At times, the updates you wish to perform are more complex than just updating the values of fields and cannot be handled by the declarative mutation directives. For such situations, the `UseMutationConfig` accepts an `updater` function which gives you full control over how to update the store.
+
+This is discussed in more detail in the section on [Imperatively modifying store data](../imperatively-modifying-store-data/).
 
 ## Optimistic updates
 
-Oftentimes, we don't want to wait for the server response to complete before we respond to user interaction. For example, if a user clicks the "Like" button, we don't want to wait until the mutation response comes back before we show them that the post has been liked; ideally, we'd do that instantly.
+Oftentimes, we don't want to wait for the server to respond before we respond to the user interaction. For example, if a user clicks the "Like" button, we would like to instantly show the affected comment, post, etc. has been liked by the user.
 
-More generally, in these cases we want to immediately ** update our local data *optimistically,* in order to improve perceived responsiveness; that is, we want to update our local data to immediately reflect what it would look like after the mutation *succeeds*. If the mutation ends up *not* succeeding, we can roll back the change and show an error message, but we're *optimistically* expecting the mutation to succeed most of the time.
+More generally, in these cases, we want to immediately update the data in our store optimistically, i.e. under the assumption that the mutation will complete successfully. If the mutation ends up not succeeding, we would like to roll back that optimistic update.
 
-In order to do this, Relay provides two APIs to specify an optimistic update when executing a mutation:
+### Optimistic response
 
-### Optimistic Response
+In order to enable this, the `UseMutationConfig` can include an `optimisticResponse` field.
 
-When you can predict what the server response for a mutation is going to be, the simplest way to optimistically update the store is by providing an `optimisticResponse` to `commitMutation`:
+For this field to be Flow-typed, the call to `useMutation` must be passed a Flow type parameter **and** the mutation must be decorated with a `@raw_response_type` directive.
+
+In the previous example, we might provide the following optimistic response:
 
 ```js
-import type {Environment} from 'react-relay';
-import type {FeedbackLikeData, FeedbackLikeMutation} from 'FeedbackLikeMutation.graphql';
+{
+  feedback_like: {
+    feedback: {
+      // Even though the id field is not explicitly selected, the
+      // compiler selected it for us
+      id: feedbackId,
+      viewer_does_like: true,
+    },
+  },
+}
+```
 
-const {commitMutation, graphql} = require('react-relay');
+Now, when we call `commitMutation`, this data will be immediately written into the store. The item in the store with the matching id will be updated with a new value of `viewer_does_like`. Any components which have selected this field will be re-rendered.
 
-function commitFeedbackLikeMutation(
-  environment: Environment,
-  feedbackID: string,
-  input: FeedbackLikeData,
-) {
-  return commitMutation<FeedbackLikeMutation>(environment, {
-    mutation: graphql`
-      mutation FeedbackLikeMutation($input: FeedbackLikeData!)
-        @raw_response_type {
+When the mutation succeeds or errors, the optimistic response will be rolled back.
+
+Updating the `like_count` field takes a bit more work. In order to update it, we should also read the **current like count** in the component.
+
+```js
+import type {FeedbackLikeData, LikeButtonMutation} from 'LikeButtonMutation.graphql';
+import type {LikeButton_feedback$ref} from 'LikeButton_feedback.graphql';
+
+const {useMutation, graphql} = require('react-relay');
+
+function LikeButton({
+  feedback: LikeButton_feedback$ref,
+}) {
+  const data = useFragment(
+    graphql`
+      fragment LikeButton_feedback on Feedback {
+        __id
+        viewer_does_like @required(action: THROW)
+        like_count @required(action: THROW)
+      }
+    `,
+    feedback
+  );
+
+  const [commitMutation, isMutationInFlight] = useMutation<LikeButtonMutation>(
+    graphql`
+      mutation LikeButtonMutation($input: FeedbackLikeData!)
+      @raw_response_type {
         feedback_like(data: $input) {
           feedback {
-            id
             viewer_does_like
+            like_count
           }
         }
       }
-    `,
-    variables: {input},
-    optimisticResponse: {
-      feedback_like: {
-        feedback: {
-          id: feedbackID,
-          viewer_does_like: true,
+    `
+  );
+
+  const changeToLikeCount = data.viewer_does_like ? -1 : 1;
+  return <button
+    onClick={() => commitMutation({
+      variables: {
+        input: {id: data.__id},
+      },
+      optimisticResponse: {
+        feedback_like: {
+          feedback: {
+            id: data.__id,
+            viewer_does_like: !data.viewer_does_like,
+            like_count: data.like_count + changeToLikeCount,
+          },
         },
       },
-    },
-    onCompleted: () => {} /* Mutation completed */,
-    onError: error => {} /* Mutation errored */,
-  });
+    })}
+    disabled={isMutationInFlight}
+  >
+    Like
+  </button>
 }
-
-module.exports = {commit: commitFeedbackLikeMutation};
 ```
 
-Let's see what's happening in this example.
+:::caution
 
-* The `optimisticResponse` is an object matching the shape of the mutation response, and it simulates a successful response from the server. When `optimisticResponse`, is provided, Relay will automatically process the response in the same way it would process the response from the server, and update the data accordingly (i.e. update the values of fields for the record with the matching id).
-    * In this case, we would immediately set the `viewer_does_like` field to `true` in our `Feedback` object, which would be immediately reflected in our UI.
-* If the mutation *succeeds*, *the optimistic update will be rolled back,* and the server response will be applied.
-* If the mutation *fails*, *the optimistic update will be rolled back,* and the error will be communicated via the `onError` callback.
-* Note that by adding `@raw_response_type` directive, the type for `optimisticResponse` is generated.
+You should be careful, and consider using [optimistic updaters](../imperatively-modifying-store-data/#example) if the value of the optimistic response depends on the value of the store and if there can be multiple optimistic responses affecting that store value.
 
-### Optimistic updater
+For example, if **two** optimistic responses each increase the like count by one, and the **first** optimistic updater is rolled back, the second optimistic update will still be applied, and the like count in the store will remain increased by two.
 
-However, in some cases we need to optimistically perform more complex updates, like deleting or creating new records, or [adding and removing items from a connection](../../list-data/updating-connections/). In these cases we can provide an `optimisticUpdater` function to `commitMutation`. For example, in addition to setting `viewer_does_like` to true, we can increment the `like_count` field by using an `optimisticUpdater` instead of an `optimisticResponse`:
-
-```js
-import type {Environment} from 'react-relay';
-import type {FeedbackLikeData} from 'FeedbackLikeMutation.graphql';
-
-const {commitMutation, graphql} = require('react-relay');
-
-function commitFeedbackLikeMutation(
-  environment: Environment,
-  feedbackID: string,
-  input: FeedbackLikeData,
-) {
-  return commitMutation(environment, {
-    mutation: graphql`
-      mutation FeedbackLikeMutation($input: FeedbackLikeData!) {
-        feedback_like(data: $input) {
-          feedback {
-            id
-            like_count
-            viewer_does_like
-          }
-        }
-      }
-    `,
-    variables: {input},
-    optimisticUpdater: store => {
-      // Get the record for the Feedback object
-      const feedbackRecord = store.get(feedbackID);
-
-      // Read the current value for the like_count
-      const currentLikeCount = feedbackRecord.getValue('like_count');
-
-      // Optimistically increment the like_count by 1
-      feedbackRecord.setValue((currentLikeCount ?? 0) + 1, 'like_count');
-
-      // Optimistically set viewer_does_like to true
-      feedbackRecord.setValue(true, 'viewer_does_like');
-    },
-    onCompleted: () => {} /* Mutation completed */,
-    onError: error => {} /* Mutation errored */,
-  });
-}
-
-module.exports = {commit: commitFeedbackLikeMutation};
-```
-
-Let's see what's happening here:
-
-* The `optimisticUpdater` has the same signature and behaves the same way as the regular `updater` function, the main difference being that it will be executed immediately, before the mutation response completes.
-    * The second parameter to `optimisticUpdater` is `data`. If no optimistic response is supplied, this parameter will be null.
-* If the mutation succeeds, *the optimistic update will be rolled back,* and the server response will be applied.
-    * Note that in this example, we are reading the current `like_count` in the optimistic updater. A preferable alternative would be to read the current `like_count` in a render (e.g. via `useFragment`).
-    * Also note that when mutation completes, the value from the server might differ from the value we optimistically predicted locally. For example, if other "Likes" occurred at the same time, the final `like_count` from the server might differ from our prediction.
-* If the mutation *fails*, *the optimistic update will be rolled back,* and the error will be communicated via the `onError` callback.
-* Note that we're not providing an `updater` function, which is okay. If it's not provided, the default behavior will still be applied when the server response arrives (i.e. merging the new field values for `like_count` and `viewer_does_like` on the `Feedback` object).
-
-
-
-:::note
-Remember that any updates to local data caused by a mutation will automatically notify and re-render components subscribed to that data.
 :::
 
+:::caution
+
+Optimistic responses contain **many pitfalls!**
+
+* An optimistic response can contain the data for the full query response, i.e. including the content of fragment spreads. This means that if a developer selects more fields in components whose fragments are spread in an optimistic response, these components may have inconsistent or partial data during an optimistic update.
+* Because the type of the optimistic update includes the contents of all recursively nested fragments, it can be very large. Adding `@raw_response_type` to certain mutations can degrade the performance of the Relay compiler.
+
+:::
+
+### Optimistic updaters
+
+Optimistic responses aren't enough for every case. For example, we may want to optimistically update data that we aren't selecting in the mutation. Or, we may want to add or remove items from a connection (and the declarative mutation directives are insufficient for our use case.)
+
+For situations like these, the `UseMutationConfig` can contain an `optimisticUpdater` field, which allows developers to imperatively and optimistically update the data in the store. This is discussed in more detail in the section on [Imperatively updating store data](../imperatively-modifying-store-data/).
 
 ## Order of execution of updater functions
 
 In general, execution of the `updater` and optimistic updates will occur in the following order:
 
-* If an `optimisticResponse` is provided, Relay will use it to merge the new field values for the records that match the ids in the `optimisticResponse`.
+* If an `optimisticResponse` is provided, that data will be written into the store.
 * If an `optimisticUpdater` is provided, Relay will execute it and update the store accordingly.
-* If an `optimisticResponse` was provided, the declarative mutation directives `@deleteRecord`, `@appendEdge` and `@prependEdge` will be processed on the optimistic response.
+* If an `optimisticResponse` was provided, the declarative mutation directives present in the mutation will be processed on the optimistic response.
 * If the mutation request succeeds:
     * Any optimistic update that was applied will be rolled back.
-    * Relay will use the server response to merge the new field values for the records that match the ids in the response.
+    * Relay will write the server response to the store.
     * If an `updater` was provided, Relay will execute it and update the store accordingly. The server payload will be available to the `updater` as a root field in the store.
-    * Relay will process any `@deleteRecord`, `@appendEdge` and `@prependEdge` declarative mutation directives.
+    * Relay will process any declarative mutation directives using the server response.
+    * The `onCompleted` callback will be called.
 * If the mutation request fails:
     * Any optimistic update was applied will be rolled back.
     * The `onError` callback will be called.
-
-
-### Full example
-
-This means that in more complicated scenarios you can still provide many options: `optimisticResponse`, `optimisticUpdater` and `updater`. For example, the mutation to add a new comment could like something like the following (for full details on updating connections, check out our [Updating Connections](../../list-data/updating-connections/) guide):
-
-```js
-import type {Environment} from 'react-relay';
-import type {CommentCreateData, CreateCommentMutation} from 'CreateCommentMutation.graphql';
-
-const {commitMutation, graphql} = require('react-relay');
-const {ConnectionHandler} = require('relay-runtime');
-
-function commitCommentCreateMutation(
-  environment: Environment,
-  feedbackID: string,
-  input: CommentCreateData,
-) {
-  return commitMutation<CreateCommentMutation>(environment, {
-    mutation: graphql`
-      mutation CreateCommentMutation($input: CommentCreateData!) {
-        comment_create(input: $input) {
-          feedback {
-            id
-            viewer_has_commented
-          }
-          comment_edge {
-            cursor
-            node {
-              body {
-                text
-              }
-            }
-          }
-        }
-      }
-    `,
-    variables: {input},
-    onCompleted: () => {},
-    onError: error => {},
-
-    // Optimistically set the value for `viewer_has_commented`
-    optimisticResponse: {
-      feedback: {
-        id: feedbackID,
-        viewer_has_commented: true,
-      },
-    },
-
-    // Optimistically add a new comment to the comments connection
-    optimisticUpdater: store => {
-      const feedbackRecord = store.get(feedbackID);
-      const connectionRecord = ConnectionHandler.getConnection(
-        userRecord,
-        'CommentsComponent_comments_connection',
-      );
-
-      // Create a new local Comment from scratch
-      const id = `client:new_comment:${randomID()}`;
-      const newCommentRecord = store.create(id, 'Comment');
-
-      // ... update new comment with content
-
-      // Create new edge from scratch
-      const newEdge = ConnectionHandler.createEdge(
-        store,
-        connectionRecord,
-        newCommentRecord,
-        'CommentEdge' /* GraphQl Type for edge */,
-      );
-
-      // Add edge to the end of the connection
-      ConnectionHandler.insertEdgeAfter(connectionRecord, newEdge);
-    },
-    updater: store => {
-      const feedbackRecord = store.get(feedbackID);
-      const connectionRecord = ConnectionHandler.getConnection(
-        userRecord,
-        'CommentsComponent_comments_connection',
-      );
-
-      // Get the payload returned from the server
-      const payload = store.getRootField('comment_create');
-
-      // Get the edge from server payload
-      const newEdge = payload.getLinkedRecord('comment_edge');
-
-      // Add edge to the end of the connection
-      ConnectionHandler.insertEdgeAfter(connectionRecord, newEdge);
-    },
-  });
-}
-
-module.exports = {commit: commitCommentCreateMutation};
-```
-
-Let's distill this example, according to the execution order of the updaters:
-
-* Given that an `optimisticResponse` was provided, it will be executed *first*. This will cause the new value of `viewer_has_commented` to be merged into the existing `Feedback` object, setting it to `true`.
-* Given that an `optimisticUpdater` was provided, it will be executed next. Our `optimisticUpdater` will create new comment and edge records from scratch, simulating what the new edge in the server response would look like, and then add the new edge to the connection.
-* When the optimistic updates conclude, components subscribed to this data will be notified.
-* When the mutation succeeds, all of our optimistic updates will be rolled back.
-* The server response will be processed by relay, and this will cause the new value of `viewer_has_commented` to be merged into the existing `Feedback` object, setting it to `true`.
-* Finally, the `updater` function we provided will be executed. The `updater` function is very similar to the `optimisticUpdater` function, however, instead of creating the new data from scratch, it reads it from the mutation payload and adds the new edge to the connection.
-
 
 ## Invalidating data during a mutation
 
@@ -500,13 +372,6 @@ In the non-CRITICAL case the mutation may have failed, but some data was success
 Field level errors from the server are generally recommended to be at the [`ERROR`](https://www.internalfb.com/code/www/[9120ab8aa8a5]/flib/graphql/experimental/core/error/GraphQL2ErrorSeverity.php?lines=17) level, because your UI should still be able to process the other fields that were successfully returned. If you want to explicitly handle the field level error, then we still recommend [modeling that](../../rendering/error-states/#accessing-errors-in-graphql-responses) in your schema.
 
 </FbInternalOnly>
-
-## Mutation queueing
-
-> TBD: Left to be implemented in user space
-
-
-
 
 
 <DocsRating />

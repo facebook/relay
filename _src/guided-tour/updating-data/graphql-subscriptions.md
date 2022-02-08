@@ -1,8 +1,8 @@
 ---
 id: graphql-subscriptions
-title: GraphQL Subscriptions
+title: GraphQL subscriptions
 slug: /guided-tour/updating-data/graphql-subscriptions/
-description: Relay guide to GraphQl subscriptions
+description: Relay guide to GraphQL subscriptions
 keywords:
 - subscription
 ---
@@ -12,31 +12,48 @@ import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
 
 <FbInternalOnly>
 
-[GraphQL Subscriptions](https://our.internmc.facebook.com/intern/wiki/GraphQL_Subscriptions/) (GQLS) are a mechanism which allow clients to subscribe to changes in a piece of data from the server, and get notified whenever that data changes.
+[GraphQL subscriptions](https://our.internmc.facebook.com/intern/wiki/GraphQL_Subscriptions/) are a mechanism to allow clients to query for data in response to a stream of server-side events.
 
 </FbInternalOnly>
 
 <OssOnly>
 
-GraphQL Subscriptions (GQLS) are a mechanism which allow clients to subscribe to changes in a piece of data from the server, and get notified whenever that data changes.
+GraphQL subscriptions are a mechanism to allow clients to query for data in response to a stream of server-side events.
 
 </OssOnly>
 
-A GraphQL Subscription looks very similar to a query, with the exception that it uses the subscription keyword:
+A GraphQL subscription looks very similar to a query, except that it uses the `subscription` keyword:
 
 ```graphql
 subscription FeedbackLikeSubscription($input: FeedbackLikeSubscribeData!) {
   feedback_like_subscribe(data: $input) {
     feedback {
-      id
       like_count
     }
   }
 }
 ```
 
-* Subscribing to the above subscription will notify the client whenever the specified `Feedback` object has been "liked" or "unliked". The `feedback_like_subscription` field is the subscription field itself, which takes specific input and will set up the subscription on the backend.
-* `feedback_like_subscription` returns a specific GraphQL type which exposes the data we can query in the subscription payload; that is, whenever the client is notified, it will receive the subscription payload in the notification. In this case, we're querying for the Feedback object with its *updated* `like_count`, which will allows us to show the like count in real time.
+* Establishing a subscription using this GraphQL snippet will cause the application to be notified whenever an event is emitted from the `feedback_like_subscribe` stream.
+* `feedback_like_subscribe` is a *subscription root field* (or just *subscription field*), which sets up the subscription on the backend.
+
+<FbInternalOnly>
+
+:::info
+You can view subscription root fields in the GraphQL Schema Explorer by opening VSCode @ FB and executing the command "Relay: Open GraphQL Schema Explorer". Then, in the "Schema Explorer Tab", click on "Subscription".
+
+You can click on the various mutation fields to see their parameters, descriptions and exposed fields.
+:::
+
+</FbInternalOnly>
+
+* Like mutations, a subscription is handled in two separate steps. First, a server-side event occurs. Then, the query is executed.
+
+:::note
+Note that the event stream can be completely arbitrary, and can have no relation to the fields selected. In other words, there is no guarantee that the values selected in a subscription will have changed from notification to notification.
+:::
+
+* `feedback_like_subscribe` returns a specific GraphQL type which exposes the data we can query in response to the server-side event. In this case, we're querying for the Feedback object and its updated `like_count`. This allows us to show the like count in real time.
 
 An example of a subscription payload received by the client could look like this:
 
@@ -51,7 +68,6 @@ An example of a subscription payload received by the client could look like this
 }
 ```
 
-
 In Relay, we can declare GraphQL subscriptions using the `graphql` tag too:
 
 ```js
@@ -61,7 +77,6 @@ const feedbackLikeSubscription = graphql`
   subscription FeedbackLikeSubscription($input: FeedbackLikeSubscribeData!) {
     feedback_like_subscribe(data: $input) {
       feedback {
-        id
         like_count
       }
     }
@@ -71,159 +86,131 @@ const feedbackLikeSubscription = graphql`
 
 * Note that subscriptions can also reference GraphQL [variables](../../rendering/variables/) in the same way queries or fragments do.
 
-There are two ways of *executing* a subscription against the server. The `requestSubscription` API and using hooks.
+## Using `useSubscription` to create a subscription
 
-## Request subscription API
-
-In order to execute a subscription against the server in Relay, we can use the `requestSubscription` API:
+In order to create a subscription in Relay, we can use the `useSubscription` and `requestSubscription` APIs. Let's take a look at an example using the `useSubscription` API:
 
 ```js
 import type {Environment} from 'react-relay';
-import type {FeedbackLikeSubscribeData} from 'FeedbackLikeSubscription.graphql';
+import type {FeedbackLikeSubscribeData, FeedbackLikeSubscription} from 'FeedbackLikeSubscription.graphql';
 
-const {graphql, requestSubscription} = require('react-relay');
+const {graphql, useSubscription} = require('react-relay');
+const {useMemo} = require('React');
 
-function feedbackLikeSubscribe(
-  environment: Environment,
-  feedbackID: string,
+function useFeedbackSubscription(
   input: FeedbackLikeSubscribeData,
 ) {
-  return requestSubscription(environment, {
+  const config = useMemo({
     subscription: graphql`
       subscription FeedbackLikeSubscription(
         $input: FeedbackLikeSubscribeData!
       ) {
         feedback_like_subscribe(data: $input) {
           feedback {
-            id
             like_count
           }
         }
       }
     `,
     variables: {input},
-    onCompleted: () => {} /* Subscription established */,
-    onError: error => {} /* Subscription errored */,
-    onNext: response => {} /* Subscription payload received */
-  });
-}
+  }, [input])
 
-module.exports = {subscribe: feedbackLikeSubscribe};
-```
-
-Let's distill what's happening here:
-
-* `requestSubscription` takes an environment, the `graphql` tagged subscription, and the variables to use.
-* Note that the `input` for the subscription can be Flow-typed with the autogenerated type available from the *`FeedbackLikeSubscription.graphql`* module. In general, the Relay will generate Flow types for subscriptions at build time, with the following naming format: `*<subscription_name>*.graphql.js`.
-* `requestSubscription` also takes an `onCompleted` and `onError` callbacks, which will respectively be called when the subscription is successfully established, or when an error occurs.
-* `requestSubscription` also takes an `onNext` callback, which will be called whenever a subscription payload is received.
-* When the subscription payload is received, **if the objects in the subscription payload have IDs, the records in the local store will _automatically_ be updated with the new field values from the payload.** In this case, it would automatically find the existing `Feedback` object matching the given ID in the store, and update the values for the `like_count` field.
-* Note that any local data updates caused by the subscription will automatically cause components subscribed to the data to be notified of the change and re-render.
-
-
-However, if the updates you wish to perform on the local data in response to the subscription are more complex than just updating the values of fields, like deleting or creating new records, or [adding and removing items from a connection](../../list-data/updating-connections/), you can provide an [`updater`](../graphql-mutations/) function to `requestSubscription` for full control over how to update the store:
-
-```js
-import type {Environment} from 'react-relay';
-import type {CommentCreateSubscribeData} from 'CommentCreateSubscription.graphql';
-
-const {graphql, requestSubscription} = require('react-relay');
-
-function commentCreateSubscribe(
-  environment: Environment,
-  feedbackID: string,
-  input: CommentCreateSubscribeData,
-) {
-  return requestSubscription(environment, {
-    subscription: graphql`
-      subscription CommentCreateSubscription(
-        $input: CommentCreateSubscribeData!
-      ) {
-        comment_create_subscribe(data: $input) {
-          feedback_comment_edge {
-            cursor
-            node {
-              body {
-                text
-              }
-            }
-          }
-        }
-      }
-    `,
-    variables: {input},
-    updater: store => {
-      const feedbackRecord = store.get(feedbackID);
-
-      // Get connection record
-      const connectionRecord = ConnectionHandler.getConnection(
-        feedbackRecord,
-        'CommentsComponent_comments_connection',
-      );
-
-      // Get the payload returned from the server
-      const payload = store.getRootField('comment_create_subscribe');
-
-      // Get the edge inside the payload
-      const serverEdge = payload.getLinkedRecord('feedback_comment_edge');
-
-      // Build edge for adding to the connection
-      const newEdge = ConnectionHandler.buildConnectionEdge(
-        store,
-        connectionRecord,
-        serverEdge,
-      );
-
-      // Add edge to the end of the connection
-      ConnectionHandler.insertEdgeAfter(connectionRecord, newEdge);
-    },
-    onCompleted: () => {} /* Subscription established */,
-    onError: error => {} /* Subscription errored */,
-    onNext: response => {} /* Subscription payload received */,
-  });
-}
-
-module.exports = {subscribe: commentCreateSubscribe};
-```
-
-Let's distill this example:
-
-* `updater` takes a *`store`* argument, which is an instance of a [`RecordSourceSelectorProxy`](../../../api-reference/store/);  this interface allows you to *imperatively* write and read data directly to and from the Relay store. This means that you have full control over how to update the store in response to the subscription payload: you can *create entirely new records*, or *update or delete existing ones*. The full API for reading and writing to the Relay store is available here: https://facebook.github.io/relay/docs/en/relay-store.html
-* In our specific example, we're adding a new comment to our local store when we receive a subscription payload notifying us that a new comment has been created. Specifically, we're adding a new item to a connection; for more details on the specifics of how that works, check out our [Updating Connections](../../list-data/updating-connections/) section.
-* Note that the subscription payload is a *root field* record that can be read from the `store`, specifically using the `store.getRootField` API. In our case, we're reading the `comment_create_subcribe` root field, which is a root field in the subscription response.
-* Note that any local data updates caused by the mutation `updater` will automatically cause components subscribed to the data to be notified of the change and re-render.
-
-## Requesting a subscription with Hooks
-
-You can also use hooks to subscribe to a *subscription query*.
-
-```js
-import {graphql, useSubscription} from 'react-relay';
-import {useMemo} from 'react';
-
-const subscription = graphql`subscription ...`;
-function MyFunctionalComponent({ id }) {
-  // IMPORTANT: your config should be memoized, or at least not re-computed
-  // every render. Otherwise, useSubscription will re-render too frequently.
-  const config = useMemo(() => { variables: { id }, subscription }, [id]);
-  useSubscription(config);
-  return <div>Move Fast</div>
+  return useSubscription<FeedbackLikeSubscription>(config);
 }
 ```
 
-This is only a thin wrapper around the `requestSubscription` API. It's behavior:
+Let's distill what's happening here.
 
-* Subscribe when the component is mounted with the given config
-* Unsubscribe when the component is unmounted
+* `useSubscription` takes a `GraphlQLSubscriptionConfig` object, which includes the following fields:
+  * `subscription`: the GraphQL literal containing the subscription, and
+  * `variables`: the variables with which to establish the subscription.
+* In addition, `useSubscription` accepts a Flow type parameter. As with queries, the Flow type of the subscription is exported from the file that the Relay compiler generates.
+  * If this type is provided, the `GraphQLSubscriptionConfig` becomes statically typed as well. **It is a best practice to always provide this type.**
+* Now, when the `useFeedbackSubscription` hook commits, Relay will establish a subscription.
+  * Unlike with APIs like `useLazyLoadQuery`, Relay will **not** attempt to establish this subscription during the render phase.
+* Once it is established, whenever an event occurs, the backend will select the updated Feedback object and select the `like_count` fields off of it.
+  * Since the `Feedback` type contains an `id` field, the Relay compiler will automatically add a selection for the `id` field.
+* When the subscription response is received, Relay will find a feedback object in the store with a matching `id` and update it with the newly received `like_count` value.
+* If these values have changed as a result, any components which selected these fields off of the feedback object will be re-rendered. Or, to put it colloquially, any component which depends on the updated data will re-render.
 
-If you have the need to do something more complicated, such as imperatively requesting a subscription, please use the `requestSubscription` API directly.
+:::note
+The name of the type of the parameter `FeedbackLikeSubscribeData` is derived from the name of the top-level mutation field, i.e. from `feedback_like_subscribe`. This type is also exported from the generated `graphql.js` file.
+:::
 
+:::caution
+
+The `GraphQLSubscriptionConfig` object passed to `useSubscription` should be memoized! Otherwise, `useSubscription` will dispose the subscription and re-establish it with every render!
+
+:::
+
+## Refreshing components in response to subscription events
+
+In the previous example, we manually selected `like_count`. Components that select this field will be re-rendered, should we receive an updated value.
+
+However, it is generally better to spread fragments that correspond to the components that we want to refresh in response to the mutation. This is because the data selected by components can change.
+
+Requiring developers to know about all subscriptions that might fetch their components data (and keeping them up-to-date) is an example of the kind of global reasoning that Relay wants to avoid requiring.
+
+For example, we might rewrite the subscription as follows:
+
+```graphql
+subscription FeedbackLikeSubscription($input: FeedbackLikeSubscribeData!) {
+  feedback_like_subscribe(data: $input) {
+    feedback {
+      ...FeedbackDisplay_feedback
+      ...FeedbackDetail_feedback
+    }
+  }
+}
+```
+
+Now, whenever a event in the `feedback_like_subscribe` event stream occurred, the data selected by the `FeedbackDisplay` and `FeedbackDetail` components will be refetched, and those components will remain in a consistent state.
+
+:::note
+Spreading fragments is generally preferable to refetching the data in response to subscription events, since the updated data can be fetched in a single round trip.
+:::
+
+## Executing a callback when the subscription fires, errors or is closed by the server
+
+In addition to writing updated data to the Relay store, we may want to execute a callback whenever a subscription payload is received. We may want to execute a callback if an error is received or if an error is received or if the server ends the subscription. The `GraphQLSubscriptionConfig` can include the following fields to handle such cases:
+
+* `onNext`, a callback that is executed when a subscription payload is received. It is passed the subscription response (stopping at fragment spread boundaries).
+* `onError`, a callback that is executed when the subscription errors. It is passed the error that occured.
+* `onCompleted`, a callback that is executed when the server ends the subscription.
+
+## Declarative mutation directives
+
+[Declarative mutation directives](../../list-data/updating-connections/#using-declarative-directives) and [`@deleteRecord`](../graphql-mutations/#deleting-items-in-response-to-mutations) work in subscriptions, too.
+
+### Manipulating connections in response to subscription events
+
+Relay makes it easy to respond to subscription events by adding items to or removing items from connections (i.e. lists). For example, you might want to append a newly created user to a given connection. For more, see [Using declarative directives](../../list-data/updating-connections/#using-declarative-directives).
+
+### Deleting items in response to mutations
+
+In addition, you might want to delete an item from the store in response to a mutation. In order to do this, you would add the `@deleteRecord` directive to the deleted ID. For example:
+
+```graphql
+subscription DeletePostSubscription($input: DeletePostSubscribeData!) {
+  delete_post_subscribe(data: $input) {
+    deleted_post {
+      id @deleteRecord
+    }
+  }
+}
+```
+
+## Imperatively modifying local data
+
+At times, the updates you wish to perform are more complex than just updating the values of fields and cannot be handled by the declarative mutation directives. For such situations, the `GraphQLSubscriptionConfig` accepts an `updater` function which gives you full control over how to update the store.
+
+This is discussed in more detail in the section on [Imperatively updating store data](../imperatively-modifying-store-data/).
 
 ## Configuring the Network Layer
 
 <OssOnly>
 
-You will need to Configure your [Network Layer](../../../guides/network-layer) to handle subscriptions. The below example uses [subscriptions-transport-ws](https://github.com/apollographql/subscriptions-transport-ws):
+You will need to Configure your [Network layer](../../../guides/network-layer) to handle subscriptions. This example uses [subscriptions-transport-ws](https://github.com/apollographql/subscriptions-transport-ws):
 
 ```javascript
 import {
@@ -233,25 +220,21 @@ import {
 } from 'relay-runtime';
 import { SubscriptionClient } from 'subscriptions-transport-ws';
 
-...
-
 const subscriptionClient = new SubscriptionClient('ws://localhost:3000', {
-    reconnect: true,
+  reconnect: true,
 });
 
 const subscribe = (request, variables) => {
-    const subscribeObservable = subscriptionClient.request({
-        query: request.text,
-        operationName: request.name,
-        variables,
-    });
-    // Important: Convert subscriptions-transport-ws observable type to Relay's
-    return Observable.from(subscribeObservable);
+  const subscribeObservable = subscriptionClient.request({
+    query: request.text,
+    operationName: request.name,
+    variables,
+  });
+  // Important: Convert subscriptions-transport-ws observable type to Relay's
+  return Observable.from(subscribeObservable);
 };
 
 const network = Network.create(fetchQuery, subscribe);
-
-...
 ```
 </OssOnly>
 
@@ -260,6 +243,5 @@ const network = Network.create(fetchQuery, subscribe);
 At Facebook, the Network Layer has already been configured to handle GraphQL Subscriptions. For more details on writing subscriptions at Facebook, check out this [guide](../../../guides/writing-subscriptions/). For a guide on setting up subscriptions on the server side, check out this [wiki](https://our.internmc.facebook.com/intern/wiki/GraphQL_Subscriptions/creating-a-new-subscription/).
 
 </FbInternalOnly>
-
 
 <DocsRating />

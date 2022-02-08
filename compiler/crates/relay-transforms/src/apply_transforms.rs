@@ -316,6 +316,10 @@ fn apply_operation_transforms(
     program =
         apply_internal_fb_operation_transforms(project_config, &program, Arc::clone(&perf_logger))?;
 
+    program = log_event.time("generate_live_query_metadata", || {
+        generate_live_query_metadata(&program)
+    })?;
+
     program = apply_after_custom_transforms(
         &program,
         custom_transforms,
@@ -339,11 +343,8 @@ fn apply_internal_fb_operation_transforms(
     let log_event = perf_logger.create_event("apply_internal_fb_operation_transforms");
     log_event.string("project", project_config.name.to_string());
 
-    let mut next_program = log_event.time("generate_subscription_name_metadata", || {
+    let next_program = log_event.time("generate_subscription_name_metadata", || {
         generate_subscription_name_metadata(program)
-    })?;
-    next_program = log_event.time("generate_live_query_metadata", || {
-        generate_live_query_metadata(&next_program)
     })?;
 
     log_event.complete();

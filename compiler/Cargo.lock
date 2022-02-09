@@ -1423,7 +1423,7 @@ dependencies = [
 
 [[package]]
 name = "relay-compiler"
-version = "13.1.0"
+version = "13.1.1"
 dependencies = [
  "async-trait",
  "bincode",

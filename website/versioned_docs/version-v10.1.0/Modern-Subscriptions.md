@@ -102,13 +102,13 @@ import {
 } from 'relay-runtime';
 import { createClient } from 'graphql-ws';
 
-const subscriptionClient = createClient({
+const wsClient = createClient({
   url:'ws://localhost:3000',
 });
 
 const subscribe = (operation, variables) => {
   return Observable.create((sink) => {
-    return subscriptionsClient.subscribe(
+    return wsClient.subscribe(
       {
         operationName: operation.name,
         query: operation.text,

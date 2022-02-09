@@ -106,6 +106,11 @@ file sources, and "listen" to the file changes in the "watch" mode. If
   [string]
 - `jsModuleFormat` Formatting style for generated files. `commonjs` or `haste`.
   Default is `commonjs`. [string]
+- `typegenPhase` - `Final` or `Compat`. Use `Compat` for exposing old
+  `<module>QueryVariables` and `<module>QueryResponse` types in the generated
+  artifacts. But we do recommend migrating to the `Final` mode, where the naming
+  of the exposed types are unified with `<module>$data` and `<module>$variables`
+  suffixes.
 
 ### CLI configuration
 

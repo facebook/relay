@@ -25,7 +25,8 @@ use persist_query::PersistError;
 use rayon::prelude::*;
 use regex::Regex;
 use relay_config::{
-    FlowTypegenConfig, JsModuleFormat, SchemaConfig, TypegenConfig, TypegenLanguage,
+    FlowTypegenConfig, FlowTypegenPhase, JsModuleFormat, SchemaConfig, TypegenConfig,
+    TypegenLanguage,
 };
 pub use relay_config::{
     LocalPersistConfig, PersistConfig, ProjectConfig, RemotePersistConfig, SchemaLocation,
@@ -624,6 +625,9 @@ pub struct SingleProjectConfigFile {
 
     /// Extra configuration for the schema itself.
     pub schema_config: SchemaConfig,
+
+    /// Added in 13.1.1 to customize Final/Compat mode in the single project config file
+    pub typegen_phase: FlowTypegenPhase,
 }
 
 impl Default for SingleProjectConfigFile {
@@ -646,6 +650,7 @@ impl Default for SingleProjectConfigFile {
             is_dev_variable_name: None,
             codegen_command: None,
             js_module_format: JsModuleFormat::CommonJS,
+            typegen_phase: FlowTypegenPhase::Final,
         }
     }
 }
@@ -749,6 +754,7 @@ impl SingleProjectConfigFile {
                 eager_es_modules: self.eager_es_modules,
                 flow_typegen: FlowTypegenConfig {
                     no_future_proof_enums: self.no_future_proof_enums,
+                    phase: self.typegen_phase,
                     ..Default::default()
                 },
                 ..Default::default()

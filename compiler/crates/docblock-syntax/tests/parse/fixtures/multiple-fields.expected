@@ -1,0 +1,38 @@
+==================================== INPUT ====================================
+/**
+ * @fieldOne Value1
+ * @fieldTwo Value2
+ */
+==================================== OUTPUT ===================================
+DocblockAST {
+    sections: [
+        Field(
+            DocblockField {
+                field_name: WithLocation {
+                    location: multiple-fields.ecmascript:6:14,
+                    item: "fieldOne",
+                },
+                field_value: Some(
+                    WithLocation {
+                        location: multiple-fields.ecmascript:15:21,
+                        item: "Value1",
+                    },
+                ),
+            },
+        ),
+        Field(
+            DocblockField {
+                field_name: WithLocation {
+                    location: multiple-fields.ecmascript:26:34,
+                    item: "fieldTwo",
+                },
+                field_value: Some(
+                    WithLocation {
+                        location: multiple-fields.ecmascript:35:41,
+                        item: "Value2",
+                    },
+                ),
+            },
+        ),
+    ],
+}

@@ -11,10 +11,15 @@ use fixture_tests::Fixture;
 use graphql_test_helpers::diagnostics_to_sorted_string;
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
-    parse_docblock(
-        fixture.content,
-        SourceLocationKey::standalone(fixture.file_name),
-    )
-    .map(|x| format!("{:#?}", x))
-    .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))
+    let mut content = fixture.content;
+    if !content.starts_with("/*") {
+        panic!("Expected fixture to start with \"/*\".")
+    };
+    if !content.ends_with("*/\n") {
+        panic!("Expected fixture to end with \"*/\" followed by a newline.")
+    }
+    content = &content[2..content.len() - 3];
+    parse_docblock(content, SourceLocationKey::standalone(fixture.file_name))
+        .map(|x| format!("{:#?}", x))
+        .map_err(|diagnostics| diagnostics_to_sorted_string(content, &diagnostics))
 }

@@ -1,0 +1,13 @@
+==================================== INPUT ====================================
+/*
+ * @# Not allowed
+ * expected-to-throw
+*/
+==================================== ERROR ====================================
+✖︎ Expected @ to be followed by a field name.
+
+  invalid_field_name.invalid.ecmascript:2:5
+    1 │ 
+    2 │  * @# Not allowed
+      │     ^
+    3 │  * expected-to-throw

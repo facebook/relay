@@ -98,21 +98,22 @@ impl Source for Vec<GraphQLSource> {
     }
 }
 
-type IncrementalSourceSet<K, V> = FnvHashMap<K, V>;
+type IncrementalSourceSet<V> = FnvHashMap<PathBuf, V>;
+
 #[derive(Serialize, Deserialize, Clone, Debug)]
-pub struct IncrementalSources<K: Eq + Hash, V: Source> {
-    pub pending: IncrementalSourceSet<K, V>,
-    pub processed: IncrementalSourceSet<K, V>,
+pub struct IncrementalSources<V: Source> {
+    pub pending: IncrementalSourceSet<V>,
+    pub processed: IncrementalSourceSet<V>,
 }
 
-impl<K: Eq + Hash, V: Source> IncrementalSources<K, V> {
+impl<V: Source> IncrementalSources<V> {
     /// Merges additional pending sources into this states pending sources.
-    fn merge_pending_sources(&mut self, additional_pending_sources: IncrementalSourceSet<K, V>) {
+    fn merge_pending_sources(&mut self, additional_pending_sources: IncrementalSourceSet<V>) {
         self.pending.extend(additional_pending_sources.into_iter());
     }
 
     /// Remove deleted sources from both pending sources and processed sources.
-    fn remove_sources(&mut self, removed_sources: &[K]) {
+    fn remove_sources(&mut self, removed_sources: &[PathBuf]) {
         for source in removed_sources {
             self.pending.remove(source);
             self.processed.remove(source);
@@ -130,7 +131,7 @@ impl<K: Eq + Hash, V: Source> IncrementalSources<K, V> {
     }
 }
 
-impl<K: Eq + Hash, V: Source> Default for IncrementalSources<K, V> {
+impl<V: Source> Default for IncrementalSources<V> {
     fn default() -> Self {
         IncrementalSources {
             pending: FnvHashMap::default(),
@@ -139,9 +140,9 @@ impl<K: Eq + Hash, V: Source> Default for IncrementalSources<K, V> {
     }
 }
 
-type GraphQLSourceSet = IncrementalSourceSet<PathBuf, Vec<GraphQLSource>>;
-pub type GraphQLSources = IncrementalSources<PathBuf, Vec<GraphQLSource>>;
-pub type SchemaSources = IncrementalSources<PathBuf, String>;
+type GraphQLSourceSet = IncrementalSourceSet<Vec<GraphQLSource>>;
+pub type GraphQLSources = IncrementalSources<Vec<GraphQLSource>>;
+pub type SchemaSources = IncrementalSources<String>;
 
 impl Source for String {
     fn is_empty(&self) -> bool {
@@ -254,7 +255,7 @@ impl CompilerState {
                     let log_event = perf_logger.create_event("categorize");
                     log_event.string("source_set_name", source_set.to_string());
                     let extract_timer = log_event.start("extract_graphql_strings_from_file_time");
-                    let sources = files
+                    let sources: GraphQLSourceSet = files
                         .par_iter()
                         .filter(|file| file.exists)
                         .filter_map(|file| {
@@ -429,7 +430,7 @@ impl CompilerState {
                         log_event.string("source_set_name", source_set.to_string());
                         let extract_timer =
                             log_event.start("extract_graphql_strings_from_file_time");
-                        let sources: FnvHashMap<PathBuf, Vec<GraphQLSource>> = files
+                        let sources: GraphQLSourceSet = files
                             .par_iter()
                             .map(|file| {
                                 let graphql_strings = if file.exists {

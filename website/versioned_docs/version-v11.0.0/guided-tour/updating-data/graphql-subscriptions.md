@@ -252,7 +252,7 @@ const subscribe = (operation, variables) => {
 const network = Network.create(fetchQuery, subscribe);
 ```
 
-Alternatively, the legacy [subscriptions-transport-ws](https://github.com/apollographql/subscriptions-transport-ws) library can be used instead too:
+Alternatively, the legacy [subscriptions-transport-ws](https://github.com/apollographql/subscriptions-transport-ws) library can be used too:
 
 ```javascript
 import {

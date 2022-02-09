@@ -19,9 +19,9 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
                     s.line_index, s.column_index, s.text
                 )
             }
-            JavaScriptSourceFeature::RelayResolverMetadataSource(s) => {
+            JavaScriptSourceFeature::DocblockSource(s) => {
                 format!(
-                    "resolver - line: {}, column: {}, text: <{}>",
+                    "docblock - line: {}, column: {}, text: <{}>",
                     s.line_index, s.column_index, s.text
                 )
             }

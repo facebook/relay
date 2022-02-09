@@ -9,29 +9,14 @@
 #![deny(rust_2018_idioms)]
 #![deny(clippy::all)]
 
+use docblock_syntax::DocblockSource;
 use graphql_syntax::GraphQLSource;
 use std::iter::Peekable;
 use std::str::CharIndices;
 
-pub struct RelayResolverMetadataSource {
-    pub text: String,
-    pub line_index: usize,
-    pub column_index: usize,
-}
-
-impl RelayResolverMetadataSource {
-    pub fn new(text: impl Into<String>, line_index: usize, column_index: usize) -> Self {
-        RelayResolverMetadataSource {
-            text: text.into(),
-            line_index,
-            column_index,
-        }
-    }
-}
-
 pub enum JavaScriptSourceFeature {
     GraphQLSource(GraphQLSource),
-    RelayResolverMetadataSource(RelayResolverMetadataSource),
+    DocblockSource(DocblockSource),
 }
 
 /// A wrapper around a peekable char iterator that tracks
@@ -172,12 +157,8 @@ pub fn extract(input: &str) -> Vec<JavaScriptSourceFeature> {
                                 let end = i;
                                 let text = &input[start + 2..end - 1];
                                 if text.contains("@RelayResolver") {
-                                    res.push(JavaScriptSourceFeature::RelayResolverMetadataSource(
-                                        RelayResolverMetadataSource::new(
-                                            text,
-                                            line_index,
-                                            column_index,
-                                        ),
+                                    res.push(JavaScriptSourceFeature::DocblockSource(
+                                        DocblockSource::new(text, line_index, column_index),
                                     ));
                                 }
                                 continue 'code;

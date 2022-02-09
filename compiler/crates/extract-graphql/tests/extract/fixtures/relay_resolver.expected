@@ -15,7 +15,7 @@
  * ignored, doesn't have the tag
  */
 ==================================== OUTPUT ===================================
-resolver - line: 7, column: 2, text: <*
+docblock - line: 7, column: 2, text: <*
  * This is a ....
  * @RelayResolver
 >

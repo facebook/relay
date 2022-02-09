@@ -15,8 +15,23 @@ use common::{Diagnostic, DiagnosticsResult, Location, SourceLocationKey, Span, W
 use errors::SyntaxError;
 use intern::string_key::{Intern, StringKey};
 
-type ParseResult<T> = Result<T, ()>;
+pub struct DocblockSource {
+    pub text: String,
+    pub line_index: usize,
+    pub column_index: usize,
+}
 
+impl DocblockSource {
+    pub fn new(text: impl Into<String>, line_index: usize, column_index: usize) -> Self {
+        Self {
+            text: text.into(),
+            line_index,
+            column_index,
+        }
+    }
+}
+
+type ParseResult<T> = Result<T, ()>;
 /// Parses a docblock's contents.
 ///
 /// Expectes to be passed a string containing the _contents_ of a docblock (with

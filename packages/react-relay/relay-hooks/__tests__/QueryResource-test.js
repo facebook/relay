@@ -2447,16 +2447,6 @@ describe(`QueryResource`, () => {
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain.mock.calls[0][0]).toEqual(queryMissingData);
 
-        // Assert that retain count is 1
-        const cacheEntry = QueryResource.TESTS_ONLY__getCacheEntry(
-          queryMissingData,
-          fetchPolicy,
-          renderPolicy,
-        );
-        expect(cacheEntry && cacheEntry.TESTS_ONLY__getRetainCount()).toEqual(
-          1,
-        );
-
         const result = QueryResource.prepare(
           queryMissingData,
           fetchObservableMissingData,
@@ -2469,10 +2459,6 @@ describe(`QueryResource`, () => {
         expect(environment.retain).toBeCalledTimes(1);
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain.mock.calls[0][0]).toEqual(queryMissingData);
-        // Assert that retain count is still 1
-        expect(cacheEntry && cacheEntry.TESTS_ONLY__getRetainCount()).toEqual(
-          1,
-        );
 
         // Assert network is only called once
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
@@ -2486,10 +2472,6 @@ describe(`QueryResource`, () => {
         expect(release).toBeCalledTimes(0);
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(1);
-        // Assert retain count is still 1
-        expect(cacheEntry && cacheEntry.TESTS_ONLY__getRetainCount()).toEqual(
-          1,
-        );
 
         // Assert that disposing correctly releases the query
         disposable.dispose();
@@ -2512,16 +2494,6 @@ describe(`QueryResource`, () => {
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain.mock.calls[0][0]).toEqual(queryMissingData);
 
-        // Assert that retain count is 1
-        const cacheEntry = QueryResource.TESTS_ONLY__getCacheEntry(
-          queryMissingData,
-          fetchPolicy,
-          renderPolicy,
-        );
-        expect(cacheEntry && cacheEntry.TESTS_ONLY__getRetainCount()).toEqual(
-          1,
-        );
-
         const result = QueryResource.prepare(
           queryMissingData,
           fetchObservableMissingData,
@@ -2534,10 +2506,6 @@ describe(`QueryResource`, () => {
         expect(environment.retain).toBeCalledTimes(1);
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain.mock.calls[0][0]).toEqual(queryMissingData);
-        // Assert that retain count is still 1
-        expect(cacheEntry && cacheEntry.TESTS_ONLY__getRetainCount()).toEqual(
-          1,
-        );
 
         // Assert network is only called once
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
@@ -2551,10 +2519,6 @@ describe(`QueryResource`, () => {
         expect(release).toBeCalledTimes(0);
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(1);
-        // Assert that retain count is still 1
-        expect(cacheEntry && cacheEntry.TESTS_ONLY__getRetainCount()).toEqual(
-          1,
-        );
 
         // Running timers won't release the query since it has been
         // permanently retained
@@ -2562,10 +2526,6 @@ describe(`QueryResource`, () => {
         expect(release).toBeCalledTimes(0);
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(1);
-        // Assert that retain count is still 1
-        expect(cacheEntry && cacheEntry.TESTS_ONLY__getRetainCount()).toEqual(
-          1,
-        );
 
         // Assert that disposing correctly releases the query
         disposable.dispose();
@@ -2588,16 +2548,6 @@ describe(`QueryResource`, () => {
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain.mock.calls[0][0]).toEqual(queryMissingData);
 
-        // Assert that retain count is 1
-        const cacheEntry = QueryResource.TESTS_ONLY__getCacheEntry(
-          queryMissingData,
-          fetchPolicy,
-          renderPolicy,
-        );
-        expect(cacheEntry && cacheEntry.TESTS_ONLY__getRetainCount()).toEqual(
-          1,
-        );
-
         // Assert network is called once
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.execute).toBeCalledTimes(1);
@@ -2610,10 +2560,6 @@ describe(`QueryResource`, () => {
         expect(release).toBeCalledTimes(0);
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(1);
-        // Assert that retain count remains at 1
-        expect(cacheEntry && cacheEntry.TESTS_ONLY__getRetainCount()).toEqual(
-          1,
-        );
 
         // Running timers won't release the query since it has been
         // permanently retained
@@ -2621,10 +2567,6 @@ describe(`QueryResource`, () => {
         expect(release).toBeCalledTimes(0);
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(1);
-        // Assert that retain count remains at 1
-        expect(cacheEntry && cacheEntry.TESTS_ONLY__getRetainCount()).toEqual(
-          1,
-        );
 
         // Simulate rendering a second time, but without committing
         QueryResource.prepare(
@@ -2632,12 +2574,6 @@ describe(`QueryResource`, () => {
           fetchObservableMissingData,
           fetchPolicy,
           renderPolicy,
-        );
-
-        // Assert that the retain count increases by 1 due to the
-        // new temporary commit
-        expect(cacheEntry && cacheEntry.TESTS_ONLY__getRetainCount()).toEqual(
-          2,
         );
 
         // Assert query is still retained
@@ -2650,9 +2586,6 @@ describe(`QueryResource`, () => {
         // Assert that disposing the first disposable doesn't release the
         // query since it's still temporarily retained
         disposable.dispose();
-        expect(cacheEntry && cacheEntry.TESTS_ONLY__getRetainCount()).toEqual(
-          1,
-        );
         expect(release).toBeCalledTimes(0);
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(1);
@@ -2660,9 +2593,6 @@ describe(`QueryResource`, () => {
         // Assert that if the render never commits, the temporary retain
         // is released.
         jest.runAllTimers();
-        expect(cacheEntry && cacheEntry.TESTS_ONLY__getRetainCount()).toEqual(
-          0,
-        );
         expect(release).toBeCalledTimes(1);
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(1);
@@ -2695,16 +2625,6 @@ describe(`QueryResource`, () => {
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain.mock.calls[0][0]).toEqual(queryMissingData);
 
-        // Assert that retain count is 1
-        const cacheEntry = QueryResource.TESTS_ONLY__getCacheEntry(
-          queryMissingData,
-          fetchPolicy,
-          renderPolicy,
-        );
-        expect(cacheEntry && cacheEntry.TESTS_ONLY__getRetainCount()).toEqual(
-          1,
-        );
-
         const result2 = QueryResource.prepare(
           queryMissingData,
           fetchObservableMissingData,
@@ -2717,10 +2637,6 @@ describe(`QueryResource`, () => {
         expect(environment.retain).toBeCalledTimes(1);
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain.mock.calls[0][0]).toEqual(queryMissingData);
-        // Assert that retain count is still 1
-        expect(cacheEntry && cacheEntry.TESTS_ONLY__getRetainCount()).toEqual(
-          1,
-        );
 
         // Assert network is only called once
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
@@ -2732,10 +2648,6 @@ describe(`QueryResource`, () => {
         expect(release).toBeCalledTimes(0);
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(1);
-        // Assert that retain count is still 1
-        expect(cacheEntry && cacheEntry.TESTS_ONLY__getRetainCount()).toEqual(
-          1,
-        );
 
         const disposable2 = QueryResource.retain(result2);
 
@@ -2743,10 +2655,6 @@ describe(`QueryResource`, () => {
         expect(release).toBeCalledTimes(0);
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(1);
-        // Assert that retain count is now 2
-        expect(cacheEntry && cacheEntry.TESTS_ONLY__getRetainCount()).toEqual(
-          2,
-        );
 
         // Assert that disposing the first disposable doesn't release the query
         disposable1.dispose();
@@ -2820,16 +2728,6 @@ describe(`QueryResource`, () => {
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain.mock.calls[0][0]).toEqual(queryMissingData);
 
-        // Assert that retain count is 1
-        const cacheEntry = QueryResource.TESTS_ONLY__getCacheEntry(
-          queryMissingData,
-          fetchPolicy,
-          renderPolicy,
-        );
-        expect(cacheEntry && cacheEntry.TESTS_ONLY__getRetainCount()).toEqual(
-          1,
-        );
-
         const result2 = QueryResource.prepare(
           queryMissingData,
           fetchObservableMissingData,
@@ -2842,10 +2740,6 @@ describe(`QueryResource`, () => {
         expect(environment.retain).toBeCalledTimes(1);
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain.mock.calls[0][0]).toEqual(queryMissingData);
-        // Assert that retain count is still 1
-        expect(cacheEntry && cacheEntry.TESTS_ONLY__getRetainCount()).toEqual(
-          1,
-        );
 
         // Assert network is only called once
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
@@ -2857,10 +2751,6 @@ describe(`QueryResource`, () => {
         expect(release).toBeCalledTimes(0);
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(1);
-        // Assert that retain count is still 1
-        expect(cacheEntry && cacheEntry.TESTS_ONLY__getRetainCount()).toEqual(
-          1,
-        );
 
         const disposable2 = QueryResource.retain(result2);
 
@@ -2868,10 +2758,6 @@ describe(`QueryResource`, () => {
         expect(release).toBeCalledTimes(0);
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(1);
-        // Assert that retain count is now 2
-        expect(cacheEntry && cacheEntry.TESTS_ONLY__getRetainCount()).toEqual(
-          2,
-        );
 
         // Running timers won't release the query since it has been
         // permanently retained
@@ -2879,10 +2765,6 @@ describe(`QueryResource`, () => {
         expect(release).toBeCalledTimes(0);
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(1);
-        // Assert that retain count is now 2
-        expect(cacheEntry && cacheEntry.TESTS_ONLY__getRetainCount()).toEqual(
-          2,
-        );
 
         // Assert that disposing the first disposable doesn't release the query
         disposable1.dispose();
@@ -2944,15 +2826,6 @@ describe(`QueryResource`, () => {
         expect(environment.retain).toBeCalledTimes(1);
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain.mock.calls[0][0]).toEqual(queryMissingData);
-        // Assert that retain count is 1
-        const cacheEntry = QueryResource.TESTS_ONLY__getCacheEntry(
-          queryMissingData,
-          fetchPolicy,
-          renderPolicy,
-        );
-        expect(cacheEntry && cacheEntry.TESTS_ONLY__getRetainCount()).toEqual(
-          1,
-        );
 
         // Assert network is called
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
@@ -2963,10 +2836,6 @@ describe(`QueryResource`, () => {
         expect(release).toBeCalledTimes(0);
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(1);
-        // Assert that retain count is still 1
-        expect(cacheEntry && cacheEntry.TESTS_ONLY__getRetainCount()).toEqual(
-          1,
-        );
 
         // Prepare the query again after it has been permanently retained.
         // This will happen if the query component is unmounting and re-mounting
@@ -2982,49 +2851,30 @@ describe(`QueryResource`, () => {
         expect(environment.retain).toBeCalledTimes(1);
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain.mock.calls[0][0]).toEqual(queryMissingData);
-        // Assert that retain count is now at 2
-        expect(cacheEntry && cacheEntry.TESTS_ONLY__getRetainCount()).toEqual(
-          2,
-        );
 
         // First disposable will be called when query component finally unmounts
         disposable1.dispose();
 
         // Assert that query is still temporarily retained by new render
         expect(release).toHaveBeenCalledTimes(0);
-        expect(cacheEntry && cacheEntry.TESTS_ONLY__getRetainCount()).toEqual(
-          1,
-        );
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(1);
 
         // Permanently retain the query after the initial retain has been
         // disposed of. This will occur when the query component remounts.
         const disposable2 = QueryResource.retain(result2);
-
-        // Assert latest temporary retain is released, so the retain
-        // count on the cacheEntry will remain at 1
-        expect(cacheEntry && cacheEntry.TESTS_ONLY__getRetainCount()).toEqual(
-          1,
-        );
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(1);
 
         // Running timers won't release the query since it has been
         // permanently retained
         jest.runAllTimers();
-        expect(cacheEntry && cacheEntry.TESTS_ONLY__getRetainCount()).toEqual(
-          1,
-        );
         expect(release).toBeCalledTimes(0);
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(1);
 
         // Assert that disposing the last disposable fully releases the query
         disposable2.dispose();
-        expect(cacheEntry && cacheEntry.TESTS_ONLY__getRetainCount()).toEqual(
-          0,
-        );
         expect(release).toBeCalledTimes(1);
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(1);

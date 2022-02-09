@@ -57,7 +57,6 @@ type QueryResourceCacheEntry = {|
   temporaryRetain(environment: IEnvironment): Disposable,
   permanentRetain(environment: IEnvironment): Disposable,
   releaseTemporaryRetain(): void,
-  TESTS_ONLY__getRetainCount(): number,
 |};
 export opaque type QueryResult: {
   fragmentNode: ReaderFragment,
@@ -175,9 +174,6 @@ function createCacheEntry(
     },
     releaseTemporaryRetain() {
       suspenseResource.releaseTemporaryRetain();
-    },
-    TESTS_ONLY__getRetainCount() {
-      return suspenseResource.getRetainCount();
     },
   };
 

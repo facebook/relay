@@ -1,0 +1,43 @@
+==================================== INPUT ====================================
+# expected-to-throw
+subscription MultipleSelectionSubscription($feedback_input: FeedbackLikeInput, $comment_input: CommentCreateSubscriptionInput) {
+  feedbackLikeSubscribe(input: $feedback_input) {
+    feedback {
+      id
+    }
+  }
+  commentCreateSubscribe(input: $comment_input) {
+    comment {
+      id
+    }
+  }
+}
+==================================== ERROR ====================================
+✖︎ Subscription 'MultipleSelectionSubscription' must have a single selection
+
+  subscription-with-multiple-selections.invalid.graphql:2:1
+    1 │ # expected-to-throw
+    2 │ subscription MultipleSelectionSubscription($feedback_input: FeedbackLikeInput, $comment_input: CommentCreateSubscriptionInput) {
+      │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    3 │   feedbackLikeSubscribe(input: $feedback_input) {
+      │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    4 │     feedback {
+      │ ^^^^^^^^^^^^^^
+    5 │       id
+      │ ^^^^^^^^
+    6 │     }
+      │ ^^^^^
+    7 │   }
+      │ ^^^
+    8 │   commentCreateSubscribe(input: $comment_input) {
+      │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    9 │     comment {
+      │ ^^^^^^^^^^^^^
+   10 │       id
+      │ ^^^^^^^^
+   11 │     }
+      │ ^^^^^
+   12 │   }
+      │ ^^^
+   13 │ }
+      │ ^

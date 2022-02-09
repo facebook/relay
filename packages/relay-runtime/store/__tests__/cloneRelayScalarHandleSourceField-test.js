@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -11,18 +11,17 @@
 
 'use strict';
 
-const cloneRelayScalarHandleSourceField = require('../cloneRelayScalarHandleSourceField');
 const getRelayHandleKey = require('../../util/getRelayHandleKey');
-
 const {SCALAR_FIELD, SCALAR_HANDLE} = require('../../util/RelayConcreteNode');
-const {generateWithTransforms} = require('relay-test-utils-internal');
+const cloneRelayScalarHandleSourceField = require('../cloneRelayScalarHandleSourceField');
+const {getRequest, graphql} = require('relay-runtime');
 
 describe('cloneRelayScalarHandleSourceField()', () => {
   let selections;
 
   beforeEach(() => {
-    const {TestQuery} = generateWithTransforms(`
-      query TestQuery {
+    const TestQuery = getRequest(graphql`
+      query cloneRelayScalarHandleSourceFieldTestQuery {
         me {
           address {
             street @__clientField(handle: "test")
@@ -31,13 +30,14 @@ describe('cloneRelayScalarHandleSourceField()', () => {
       }
     `);
     // Get the selections on `me.addresss`.
+    // $FlowFixMe
     selections = TestQuery.operation.selections[0].selections[0].selections;
   });
 
   it('returns a clone of the source, with the same name as the handle', () => {
     const handleField = selections.find(node => node.kind === SCALAR_HANDLE);
     const clone = cloneRelayScalarHandleSourceField(
-      handleField,
+      (handleField: $FlowFixMe),
       selections,
       {},
     );
@@ -52,7 +52,11 @@ describe('cloneRelayScalarHandleSourceField()', () => {
     selections = selections.filter(node => node.kind === SCALAR_HANDLE);
 
     expect(() =>
-      cloneRelayScalarHandleSourceField(handleField, selections, {}),
+      cloneRelayScalarHandleSourceField(
+        (handleField: $FlowFixMe),
+        selections,
+        {},
+      ),
     ).toThrowError(
       'cloneRelayScalarHandleSourceField: Expected a corresponding source field ' +
         'for handle `test`.',

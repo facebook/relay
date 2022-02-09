@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,27 +13,24 @@
 
 'use strict';
 
+import type {GraphQLResponseWithoutData} from '../../network/RelayNetworkTypes';
+import type {RecordSourceSelectorProxy} from '../../store/RelayStoreTypes';
+
 const ConnectionHandler = require('../../handlers/connection/ConnectionHandler');
-const RelayModernEnvironment = require('../../store/RelayModernEnvironment');
-const RelayModernStore = require('../../store/RelayModernStore');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const RelayRecordSource = require('../../store/RelayRecordSource');
-
-const commitMutation = require('../commitMutation');
-const nullthrows = require('nullthrows');
-
+const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
+const RelayModernEnvironment = require('../../store/RelayModernEnvironment');
 const {
   createOperationDescriptor,
 } = require('../../store/RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../../store/RelayModernSelector');
+const RelayModernStore = require('../../store/RelayModernStore');
+const RelayRecordSource = require('../../store/RelayRecordSource');
 const {ROOT_ID} = require('../../store/RelayStoreUtils');
-const {
-  createMockEnvironment,
-  generateAndCompile,
-} = require('relay-test-utils-internal');
-
-import type {GraphQLResponseWithoutData} from '../../network/RelayNetworkTypes';
+const commitMutation = require('../commitMutation');
+const nullthrows = require('nullthrows');
+const {createMockEnvironment} = require('relay-test-utils-internal');
 
 describe('Configs: NODE_DELETE', () => {
   jest.resetModules();
@@ -41,10 +38,8 @@ describe('Configs: NODE_DELETE', () => {
   it('deletes a node', () => {
     const environment = createMockEnvironment();
     const store = environment.getStore();
-    const mutation = generateAndCompile(`
-      mutation CommentDeleteMutation(
-        $input: CommentDeleteInput
-      ) {
+    const mutation = getRequest(graphql`
+      mutation commitMutationTest1Mutation($input: CommentDeleteInput) {
         commentDelete(input: $input) {
           deletedCommentId
           feedback {
@@ -55,7 +50,7 @@ describe('Configs: NODE_DELETE', () => {
           }
         }
       }
-    `).CommentDeleteMutation;
+    `);
     const feedbackID = 'feedback123';
     const firstCommentID = 'comment456';
     const secondCommentID = 'comment789';
@@ -64,10 +59,10 @@ describe('Configs: NODE_DELETE', () => {
         deletedCommentId: firstCommentID,
       },
     };
-    const {FeedbackCommentQuery} = generateAndCompile(`
-      query FeedbackCommentQuery {
+    const FeedbackCommentQuery = getRequest(graphql`
+      query commitMutationTest1Query {
         node(id: "feedback123") {
-          ...on Feedback {
+          ... on Feedback {
             topLevelComments(first: 2) {
               count
               edges {
@@ -148,6 +143,7 @@ describe('Configs: NODE_DELETE', () => {
     expect(callback.mock.calls.length).toBe(1);
     expect(optimisticUpdater).toBeCalled();
     callback.mockClear();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const operation = environment.executeMutation.mock.calls[0][0].operation;
     environment.mock.resolve(operation, {
       data: {
@@ -179,10 +175,8 @@ describe('Configs: RANGE_DELETE', () => {
   });
 
   it('handles configs', () => {
-    const mutation = generateAndCompile(`
-      mutation CommentDeleteMutation(
-        $input: CommentDeleteInput
-      ) {
+    const mutation = getRequest(graphql`
+      mutation commitMutationTest2Mutation($input: CommentDeleteInput) {
         commentDelete(input: $input) {
           deletedCommentId
           feedback {
@@ -192,7 +186,7 @@ describe('Configs: RANGE_DELETE', () => {
           }
         }
       }
-    `).CommentDeleteMutation;
+    `);
     const commentID = 'comment123';
     const variables = {
       input: {
@@ -220,13 +214,11 @@ describe('Configs: RANGE_DELETE', () => {
         pathToConnection: ['feedback', 'comments'],
       },
     ];
-    ({FeedbackCommentQuery} = generateAndCompile(`
-      query FeedbackCommentQuery {
+    FeedbackCommentQuery = getRequest(graphql`
+      query commitMutationTest2Query {
         node(id: "123") {
-          ...on Feedback {
-            comments(first: 10) @connection(
-              key: "Feedback_comments"
-            ) {
+          ... on Feedback {
+            comments(first: 10) @connection(key: "Feedback_comments") {
               edges {
                 node {
                   body {
@@ -238,7 +230,7 @@ describe('Configs: RANGE_DELETE', () => {
           }
         }
       }
-    `));
+    `);
     const payload = {
       node: {
         __typename: 'Feedback',
@@ -295,6 +287,7 @@ describe('Configs: RANGE_DELETE', () => {
     expect(callback.mock.calls.length).toBe(1);
     expect(optimisticUpdater).toBeCalled();
     callback.mockClear();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const operation = environment.executeMutation.mock.calls[0][0].operation;
     environment.mock.resolve(operation, {
       data: {
@@ -318,10 +311,8 @@ describe('Configs: RANGE_DELETE', () => {
   it('handles config with deletedIDFieldName as path', () => {
     const optimisticUpdater = jest.fn();
     const updater = jest.fn();
-    const mutation = generateAndCompile(`
-      mutation UnfriendMutation(
-        $input: UnfriendInput
-      ) {
+    const mutation = getRequest(graphql`
+      mutation commitMutationTest3Mutation($input: UnfriendInput) {
         unfriend(input: $input) {
           actor {
             id
@@ -331,7 +322,7 @@ describe('Configs: RANGE_DELETE', () => {
           }
         }
       }
-    `).UnfriendMutation;
+    `);
     const configs = [
       {
         type: 'RANGE_DELETE',
@@ -350,24 +341,23 @@ describe('Configs: RANGE_DELETE', () => {
     environment = createMockEnvironment();
     store = environment.getStore();
 
-    const {FriendQuery} = generateAndCompile(`
-      query FriendQuery {
+    const FriendQuery = getRequest(graphql`
+      query commitMutationTest3Query {
         viewer {
           actor {
-            ...on User {
-              friends(first: 1) @connection(
-                key: "Friends_friends") {
-                  edges {
-                    node {
-                      id
-                    }
+            ... on User {
+              friends(first: 1) @connection(key: "Friends_friends") {
+                edges {
+                  node {
+                    id
                   }
                 }
               }
             }
           }
         }
-      `);
+      }
+    `);
     const payload = {
       viewer: {
         actor: {
@@ -421,6 +411,7 @@ describe('Configs: RANGE_DELETE', () => {
     expect(callback.mock.calls.length).toBe(1);
     expect(optimisticUpdater).toBeCalled();
     callback.mockClear();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const operation = environment.executeMutation.mock.calls[0][0].operation;
     environment.mock.resolve(operation, {
       data: {
@@ -448,7 +439,7 @@ describe('Configs: RANGE_ADD', () => {
     environment,
     mutation,
     optimisticUpdater,
-    payload,
+    payload: {...},
     store,
     updater;
   const commentID = 'comment123';
@@ -486,10 +477,8 @@ describe('Configs: RANGE_ADD', () => {
     environment = createMockEnvironment();
     store = environment.getStore();
 
-    mutation = generateAndCompile(`
-      mutation CommentCreateMutation(
-        $input: CommentCreateInput
-      ) {
+    mutation = getRequest(graphql`
+      mutation commitMutationTest4Mutation($input: CommentCreateInput) {
         commentCreate(input: $input) {
           feedbackCommentEdge {
             cursor
@@ -501,15 +490,15 @@ describe('Configs: RANGE_ADD', () => {
             }
           }
         }
-    }`).CommentCreateMutation;
+      }
+    `);
 
-    ({CommentQuery} = generateAndCompile(`
-      query CommentQuery {
-        node(id:"feedback123") {
-          ...on Feedback {
-            topLevelComments(first: 1) @connection(
-              key: "Feedback_topLevelComments"
-            ) {
+    CommentQuery = getRequest(graphql`
+      query commitMutationTest4Query {
+        node(id: "feedback123") {
+          ... on Feedback {
+            topLevelComments(first: 1)
+              @connection(key: "Feedback_topLevelComments") {
               edges {
                 node {
                   id
@@ -518,7 +507,8 @@ describe('Configs: RANGE_ADD', () => {
             }
           }
         }
-      }`));
+      }
+    `);
     payload = {
       node: {
         id: feedbackID,
@@ -594,6 +584,7 @@ describe('Configs: RANGE_ADD', () => {
     expect(callback.mock.calls.length).toBe(1);
     expect(optimisticUpdater).toBeCalled();
     callback.mockClear();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const operation = environment.executeMutation.mock.calls[0][0].operation;
     environment.mock.resolve(operation, data);
     jest.runAllTimers();
@@ -661,6 +652,7 @@ describe('Configs: RANGE_ADD', () => {
         },
       },
     };
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const operation = environment.executeMutation.mock.calls[0][0].operation;
     environment.mock.resolve(operation, serverResponse);
     jest.runAllTimers();
@@ -813,6 +805,7 @@ describe('Configs: RANGE_ADD', () => {
     expect(callback.mock.calls.length).toBe(1);
     expect(optimisticUpdater).toBeCalled();
     callback.mockClear();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const operation = environment.executeMutation.mock.calls[0][0].operation;
     environment.mock.resolve(operation, data);
     jest.runAllTimers();
@@ -837,13 +830,12 @@ describe('Configs: RANGE_ADD', () => {
         edgeName: 'feedbackCommentEdge',
       },
     ];
-    ({CommentQuery} = generateAndCompile(`
-      query CommentQuery {
-        node(id:"feedback123") {
-          ...on Feedback {
-            topLevelComments(orderBy: chronological, first: 1) @connection(
-              key: "Feedback_topLevelComments"
-            ) {
+    CommentQuery = getRequest(graphql`
+      query commitMutationTest5Query {
+        node(id: "feedback123") {
+          ... on Feedback {
+            topLevelComments(orderBy: chronological, first: 1)
+              @connection(key: "Feedback_topLevelComments") {
               count
               edges {
                 node {
@@ -853,7 +845,8 @@ describe('Configs: RANGE_ADD', () => {
             }
           }
         }
-      }`));
+      }
+    `);
     const operationDescriptor = createOperationDescriptor(CommentQuery, {});
     environment.commitPayload(operationDescriptor, nullthrows(payload));
     const snapshot = store.lookup(
@@ -877,6 +870,7 @@ describe('Configs: RANGE_ADD', () => {
     expect(callback.mock.calls.length).toBe(1);
     expect(optimisticUpdater).toBeCalled();
     callback.mockClear();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const operation = environment.executeMutation.mock.calls[0][0].operation;
     environment.mock.resolve(operation, data);
     jest.runAllTimers();
@@ -886,9 +880,9 @@ describe('Configs: RANGE_ADD', () => {
   });
 
   it('does not overwrite previous edge when appended multiple times in updater function', () => {
-    updater = updaterStore => {
-      payload = updaterStore.getRootField('commentCreate');
-      const newEdge = nullthrows(payload).getLinkedRecord(
+    updater = (updaterStore: $FlowFixMe | RecordSourceSelectorProxy) => {
+      const rootField = updaterStore.getRootField('commentCreate');
+      const newEdge = nullthrows(rootField).getLinkedRecord(
         'feedbackCommentEdge',
       );
       const feedbackProxy = nullthrows(updaterStore).get(feedbackID);
@@ -955,6 +949,7 @@ describe('Configs: RANGE_ADD', () => {
 
     environment.subscribe(snapshot, callback);
 
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const operation = environment.executeMutation.mock.calls[0][0].operation;
     environment.mock.resolve(operation, serverResponse);
     jest.runAllTimers();
@@ -1063,10 +1058,8 @@ describe('Aliased mutation roots', () => {
 
   it('does not present a warning when mutation uses an aliased in combination with a optimistcResponse', () => {
     const environment = createMockEnvironment();
-    const mutation = generateAndCompile(`
-      mutation CommentDeleteMutation(
-        $input: CommentDeleteInput
-      ) {
+    const mutation = getRequest(graphql`
+      mutation commitMutationTest5Mutation($input: CommentDeleteInput) {
         alias: commentDelete(input: $input) {
           deletedCommentId
           feedback {
@@ -1077,7 +1070,7 @@ describe('Aliased mutation roots', () => {
           }
         }
       }
-    `).CommentDeleteMutation;
+    `);
     commitMutation(environment, {
       mutation,
       variables: {},
@@ -1101,6 +1094,54 @@ describe('Aliased mutation roots', () => {
   });
 });
 
+describe('Required mutation roots', () => {
+  let dataSource;
+  let environment;
+  beforeEach(() => {
+    const fetch = jest.fn((_query, _variables, _cacheConfig) => {
+      return RelayObservable.create(sink => {
+        dataSource = sink;
+      });
+    });
+    const source = RelayRecordSource.create({});
+    const store = new RelayModernStore(source);
+    environment = new RelayModernEnvironment({
+      network: RelayNetwork.create(fetch),
+      store,
+    });
+  });
+  it('does not throw when accessing the root field', () => {
+    const mutation = getRequest(graphql`
+      mutation commitMutationTestRequiredRootFieldMutation(
+        $input: CommentDeleteInput
+      ) {
+        commentDelete(input: $input) @required(action: THROW) {
+          deletedCommentId
+        }
+      }
+    `);
+
+    let idInUpdater;
+    commitMutation(environment, {
+      mutation,
+      variables: {},
+      updater: updaterStore => {
+        const payload = updaterStore.getRootField('commentDelete');
+        idInUpdater = payload?.getValue('deletedCommentId');
+      },
+    });
+    dataSource.next({
+      data: {
+        commentDelete: {
+          deletedCommentId: '1',
+        },
+      },
+    });
+
+    expect(idInUpdater).toBe('1');
+  });
+});
+
 describe('commitMutation()', () => {
   let dataSource;
   let environment;
@@ -1108,30 +1149,30 @@ describe('commitMutation()', () => {
   let mutation;
   let onCompleted;
   let onError;
+  let onNext;
   let variables;
 
   beforeEach(() => {
-    ({
-      CreateCommentMutation: mutation,
-      CommentFragment: fragment,
-    } = generateAndCompile(`
-        mutation CreateCommentMutation($input: CommentCreateInput!) {
-          commentCreate(input: $input) {
-            comment {
-              id
-              body {
-                text
-              }
+    fragment = getFragment(graphql`
+      fragment commitMutationTest2Fragment on Comment {
+        id
+        body {
+          text
+        }
+      }
+    `);
+    mutation = getRequest(graphql`
+      mutation commitMutationTest6Mutation($input: CommentCreateInput!) {
+        commentCreate(input: $input) {
+          comment {
+            id
+            body {
+              text
             }
           }
         }
-        fragment CommentFragment on Comment {
-          id
-          body {
-            text
-          }
-        }
-      `));
+      }
+    `);
     variables = {
       input: {
         feedbackId: '1',
@@ -1140,6 +1181,7 @@ describe('commitMutation()', () => {
 
     onCompleted = jest.fn();
     onError = jest.fn();
+    onNext = jest.fn();
     const fetch = jest.fn((_query, _variables, _cacheConfig) => {
       return RelayObservable.create(sink => {
         dataSource = sink;
@@ -1306,6 +1348,7 @@ describe('commitMutation()', () => {
       variables,
       onCompleted,
       onError,
+      onNext,
     });
     dataSource.next(
       ({
@@ -1328,6 +1371,8 @@ describe('commitMutation()', () => {
         ],
       }: GraphQLResponseWithoutData),
     );
+    expect(onNext).toBeCalledTimes(1);
+    expect(onNext.mock.calls[0][0]).toBe(undefined);
     dataSource.next(
       ({
         data: {
@@ -1350,6 +1395,8 @@ describe('commitMutation()', () => {
       }: GraphQLResponseWithoutData),
     );
     expect(onCompleted).toBeCalledTimes(0);
+    expect(onNext).toBeCalledTimes(2);
+    expect(onNext.mock.calls[1][0]).toBe(undefined);
     dataSource.complete();
 
     expect(onCompleted).toBeCalledTimes(1);
@@ -1375,6 +1422,7 @@ describe('commitMutation()', () => {
         severity: 'ERROR',
       },
     ]);
+    expect(onNext).toBeCalledTimes(2); // from before
     expect(onError).toBeCalledTimes(0);
   });
 
@@ -1398,7 +1446,7 @@ describe('commitMutation()', () => {
     expect(onCompleted).toBeCalledTimes(0);
     expect(onError).toBeCalledTimes(1);
     expect(onError.mock.calls[0][0].message).toContain(
-      'No data returned for operation `CreateCommentMutation`',
+      'No data returned for operation `commitMutationTest6Mutation`',
     );
   });
 
@@ -1425,27 +1473,27 @@ describe('commitMutation() cacheConfig', () => {
   let variables;
 
   beforeEach(() => {
-    ({
-      CreateCommentMutation: mutation,
-      CommentFragment: fragment,
-    } = generateAndCompile(`
-        mutation CreateCommentMutation($input: CommentCreateInput!) {
-          commentCreate(input: $input) {
-            comment {
-              id
-              body {
-                text
-              }
+    fragment = getFragment(graphql`
+      fragment commitMutationTest1Fragment on Comment {
+        id
+        body {
+          text
+        }
+      }
+    `);
+
+    mutation = getRequest(graphql`
+      mutation commitMutationTest7Mutation($input: CommentCreateInput!) {
+        commentCreate(input: $input) {
+          comment {
+            id
+            body {
+              text
             }
           }
         }
-        fragment CommentFragment on Comment {
-          id
-          body {
-            text
-          }
-        }
-      `));
+      }
+    `);
     variables = {
       input: {
         clientMutationId: '0',

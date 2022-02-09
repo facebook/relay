@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<f969924e7d3de3c2afbad3a9749df094>>
+ * @generated SignedSource<<e3d321d070ddb90a27e22d2855c4444d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,29 +15,29 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
+import type { ConcreteRequest, Mutation } from 'relay-runtime';
 export type LocationInput = {|
   longitude?: ?number,
   latitude?: ?number,
 |};
-export type RelayModernEnvironmentViewerTest_SetLocationMutationVariables = {|
-  input: LocationInput
+export type RelayModernEnvironmentViewerTest_SetLocationMutation$variables = {|
+  input: LocationInput,
 |};
-export type RelayModernEnvironmentViewerTest_SetLocationMutationResponse = {|
+export type RelayModernEnvironmentViewerTest_SetLocationMutation$data = {|
   +setLocation: ?{|
     +viewer: ?{|
       +marketplace_settings: ?{|
         +location: ?{|
           +latitude: ?number,
           +longitude: ?number,
-        |}
-      |}
-    |}
-  |}
+        |},
+      |},
+    |},
+  |},
 |};
 export type RelayModernEnvironmentViewerTest_SetLocationMutation = {|
-  variables: RelayModernEnvironmentViewerTest_SetLocationMutationVariables,
-  response: RelayModernEnvironmentViewerTest_SetLocationMutationResponse,
+  variables: RelayModernEnvironmentViewerTest_SetLocationMutation$variables,
+  response: RelayModernEnvironmentViewerTest_SetLocationMutation$data,
 |};
 */
 
@@ -147,4 +147,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "eb0479436163e3d7e09b56e7a65fe412";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Mutation<
+  RelayModernEnvironmentViewerTest_SetLocationMutation$variables,
+  RelayModernEnvironmentViewerTest_SetLocationMutation$data,
+>*/);

@@ -1,0 +1,3 @@
+fragment Test on User {
+  photo(size:)
+}

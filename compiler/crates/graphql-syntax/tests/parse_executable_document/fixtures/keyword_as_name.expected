@@ -7,7 +7,7 @@ ExecutableDocument {
     span: 0:56,
     definitions: [
         OperationDefinition {
-            location: keyword_as_name.graphql:0:56,
+            location: keyword_as_name.graphql:0:55,
             operation: Some(
                 (
                     Token {
@@ -37,7 +37,7 @@ ExecutableDocument {
                 },
                 items: [
                     ScalarField {
-                        span: 24:54,
+                        span: 24:53,
                         alias: None,
                         name: Identifier {
                             span: 24:38,

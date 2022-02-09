@@ -1,0 +1,19 @@
+query fieldsWithNullArgumentValues_NodeQuery($id: ID!) {
+  node(id: $id) {
+    id
+    ... on Story {
+      comments(first: 10, last: null) {
+        __typename
+      }
+      comments2: comments(first: null, after: "1") {
+        __typename
+      }
+      comments3: comments(first: null, last: null) {
+        __typename
+      }
+      comments4: comments(first: null, last: 10) {
+        __typename
+      }
+    }
+  }
+}

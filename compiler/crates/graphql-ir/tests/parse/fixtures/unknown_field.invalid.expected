@@ -1,0 +1,129 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query Q1 {
+  taskc(task_id: 123) {
+    title
+  }
+}
+
+query Q2 {
+  my
+}
+
+query Q3 {
+  stor {
+    names
+    ids
+  }
+}
+
+query Q4 {
+  story {
+    names
+    ids
+    actro
+    nod
+    x_actor
+    x_canViewersComment
+    long_prefix_canViewerComment
+    viewerComment
+  }
+}
+==================================== ERROR ====================================
+✖︎ The type `Query` has no field `taskc`. Did you mean `task`?
+
+  unknown_field.invalid.graphql:3:3
+    2 │ query Q1 {
+    3 │   taskc(task_id: 123) {
+      │   ^^^^^
+    4 │     title
+
+
+✖︎ The type `Query` has no field `my`. Did you mean `me`?
+
+  unknown_field.invalid.graphql:9:3
+    8 │ query Q2 {
+    9 │   my
+      │   ^^
+   10 │ }
+
+
+✖︎ The type `Query` has no field `stor`. Did you mean `story`?
+
+  unknown_field.invalid.graphql:13:3
+   12 │ query Q3 {
+   13 │   stor {
+      │   ^^^^
+   14 │     names
+
+
+✖︎ The type `Story` has no field `names`. Did you mean `name`?
+
+  unknown_field.invalid.graphql:21:5
+   20 │   story {
+   21 │     names
+      │     ^^^^^
+   22 │     ids
+
+
+✖︎ The type `Story` has no field `ids`. Did you mean `id`?
+
+  unknown_field.invalid.graphql:22:5
+   21 │     names
+   22 │     ids
+      │     ^^^
+   23 │     actro
+
+
+✖︎ The type `Story` has no field `actro`. Did you mean `actor`, `actors`, or `author`?
+
+  unknown_field.invalid.graphql:23:5
+   22 │     ids
+   23 │     actro
+      │     ^^^^^
+   24 │     nod
+
+
+✖︎ The type `Story` has no field `nod`. Did you mean `body` or `id`?
+
+  unknown_field.invalid.graphql:24:5
+   23 │     actro
+   24 │     nod
+      │     ^^^
+   25 │     x_actor
+
+
+✖︎ The type `Story` has no field `x_actor`. Did you mean `actor` or `actors`?
+
+  unknown_field.invalid.graphql:25:5
+   24 │     nod
+   25 │     x_actor
+      │     ^^^^^^^
+   26 │     x_canViewersComment
+
+
+✖︎ The type `Story` has no field `x_canViewersComment`. Did you mean `canViewerComment`?
+
+  unknown_field.invalid.graphql:26:5
+   25 │     x_actor
+   26 │     x_canViewersComment
+      │     ^^^^^^^^^^^^^^^^^^^
+   27 │     long_prefix_canViewerComment
+
+
+✖︎ The type `Story` has no field `long_prefix_canViewerComment`. Did you mean `canViewerComment`?
+
+  unknown_field.invalid.graphql:27:5
+   26 │     x_canViewersComment
+   27 │     long_prefix_canViewerComment
+      │     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   28 │     viewerComment
+
+
+✖︎ The type `Story` has no field `viewerComment`. Did you mean `canViewerComment`?
+
+  unknown_field.invalid.graphql:28:5
+   27 │     long_prefix_canViewerComment
+   28 │     viewerComment
+      │     ^^^^^^^^^^^^^
+   29 │   }

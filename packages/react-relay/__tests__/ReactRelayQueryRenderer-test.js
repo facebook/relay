@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -12,29 +12,28 @@
 
 jest.mock('scheduler', () => require('scheduler/unstable_mock'));
 
-const React = require('react');
-const Scheduler = require('scheduler');
 const ReactRelayContext = require('../ReactRelayContext');
 const ReactRelayQueryRenderer = require('../ReactRelayQueryRenderer');
-const ReactTestRenderer = require('react-test-renderer');
-
+const ReactRelayQueryRendererContext = require('../ReactRelayQueryRendererContext');
 const readContext = require('../readContext');
+const React = require('react');
+const ReactTestRenderer = require('react-test-renderer');
 const {graphql} = require('relay-runtime');
-
 const {
-  createOperationDescriptor,
   Environment,
   Network,
   Observable,
   RecordSource,
-  Store,
   ROOT_ID,
+  Store,
+  createOperationDescriptor,
 } = require('relay-runtime');
 const {ROOT_TYPE} = require('relay-runtime/store/RelayStoreUtils');
 const {
   createMockEnvironment,
   simpleClone,
 } = require('relay-test-utils-internal');
+const Scheduler = require('scheduler');
 
 describe('ReactRelayQueryRenderer', () => {
   let TestQuery;
@@ -168,6 +167,7 @@ describe('ReactRelayQueryRenderer', () => {
           }
           const renderer = ReactTestRenderer.create(<Example />, {
             unstable_isConcurrent: true,
+            unstable_concurrentUpdatesByDefault: true,
           });
 
           // Flush some of the changes, but don't commit
@@ -237,6 +237,7 @@ describe('ReactRelayQueryRenderer', () => {
           }
           const renderer = ReactTestRenderer.create(<Example />, {
             unstable_isConcurrent: true,
+            unstable_concurrentUpdatesByDefault: true,
           });
           const owner = createOperationDescriptor(TestQuery, variables);
 
@@ -255,6 +256,7 @@ describe('ReactRelayQueryRenderer', () => {
                 },
 
                 __fragmentOwner: owner.request,
+                __isWithinUnmatchedTypeRefinement: false,
                 __id: '4',
               },
             },
@@ -279,6 +281,7 @@ describe('ReactRelayQueryRenderer', () => {
                 },
 
                 __fragmentOwner: owner.request,
+                __isWithinUnmatchedTypeRefinement: false,
                 __id: '4',
               },
             },
@@ -322,6 +325,7 @@ describe('ReactRelayQueryRenderer', () => {
           }
           const renderer = ReactTestRenderer.create(<Example />, {
             unstable_isConcurrent: true,
+            unstable_concurrentUpdatesByDefault: true,
           });
           const owner = createOperationDescriptor(TestQuery, variables);
 
@@ -340,6 +344,7 @@ describe('ReactRelayQueryRenderer', () => {
                 },
 
                 __fragmentOwner: owner.request,
+                __isWithinUnmatchedTypeRefinement: false,
                 __id: '4',
               },
             },
@@ -364,6 +369,7 @@ describe('ReactRelayQueryRenderer', () => {
                 },
 
                 __fragmentOwner: owner.request,
+                __isWithinUnmatchedTypeRefinement: false,
                 __id: '4',
               },
             },
@@ -417,6 +423,7 @@ describe('ReactRelayQueryRenderer', () => {
               },
 
               __fragmentOwner: firstOwner.request,
+              __isWithinUnmatchedTypeRefinement: false,
               __id: '4',
             },
           },
@@ -476,6 +483,7 @@ describe('ReactRelayQueryRenderer', () => {
               },
 
               __fragmentOwner: thirdOwner.request,
+              __isWithinUnmatchedTypeRefinement: false,
               __id: '6',
             },
           },
@@ -552,6 +560,7 @@ describe('ReactRelayQueryRenderer', () => {
             },
 
             __fragmentOwner: owner.request,
+            __isWithinUnmatchedTypeRefinement: false,
             __id: '4',
           },
         },
@@ -587,6 +596,7 @@ describe('ReactRelayQueryRenderer', () => {
             },
 
             __fragmentOwner: owner.request,
+            __isWithinUnmatchedTypeRefinement: false,
             __id: '4',
           },
         },
@@ -763,6 +773,7 @@ describe('ReactRelayQueryRenderer', () => {
               ReactRelayQueryRendererTestFragment: {},
             },
             __fragmentOwner: owner.request,
+            __isWithinUnmatchedTypeRefinement: false,
             __id: '<default>',
           },
         },
@@ -795,6 +806,42 @@ describe('ReactRelayQueryRenderer', () => {
 
       expect(relayContext).toBe(previousContext);
       expect(relayContext.environment).toBe(environment);
+    });
+  });
+
+  describe('QueryRenderer context', () => {
+    let queryRendererContext;
+    let ContextGetter;
+
+    beforeEach(() => {
+      ContextGetter = () => {
+        queryRendererContext = readContext(ReactRelayQueryRendererContext);
+        return null;
+      };
+
+      render = jest.fn(() => <ContextGetter />);
+    });
+
+    it('sets QueryRenderer context', () => {
+      expect.assertions(1);
+      ReactTestRenderer.create(
+        <ReactRelayQueryRenderer
+          environment={environment}
+          query={TestQuery}
+          render={render}
+          variables={variables}
+        />,
+      );
+      environment.mock.resolve(TestQuery, response);
+
+      expect(queryRendererContext.rootIsQueryRenderer).toBe(true);
+    });
+
+    it('default context', () => {
+      expect.assertions(1);
+      ReactTestRenderer.create(<ContextGetter />);
+
+      expect(queryRendererContext.rootIsQueryRenderer).toBe(false);
     });
   });
 
@@ -1082,6 +1129,7 @@ describe('ReactRelayQueryRenderer', () => {
             },
 
             __fragmentOwner: owner.request,
+            __isWithinUnmatchedTypeRefinement: false,
             __id: '4',
           },
         },
@@ -1140,6 +1188,7 @@ describe('ReactRelayQueryRenderer', () => {
 
                   __fragmentOwner: owner.request,
                   __id: '4',
+                  __isWithinUnmatchedTypeRefinement: false,
                 },
               },
               retry: expect.any(Function),
@@ -1159,6 +1208,7 @@ describe('ReactRelayQueryRenderer', () => {
                   },
 
                   __fragmentOwner: owner.request,
+                  __isWithinUnmatchedTypeRefinement: false,
                   __id: '4',
                 },
               },
@@ -1213,6 +1263,7 @@ describe('ReactRelayQueryRenderer', () => {
             },
 
             __fragmentOwner: owner.request,
+            __isWithinUnmatchedTypeRefinement: false,
             __id: '4',
           },
         },

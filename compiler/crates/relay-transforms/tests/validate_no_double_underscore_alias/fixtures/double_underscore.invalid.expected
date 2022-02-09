@@ -1,0 +1,27 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query TestQuery($Id: ID!) {
+  node(id: $Id) {
+    __foo: id
+    ... on User {
+      __bar: name
+    }
+  }
+}
+==================================== ERROR ====================================
+✖︎ No fields can have an alias that start with two underscores.
+
+  double_underscore.invalid.graphql:4:5
+    3 │   node(id: $Id) {
+    4 │     __foo: id
+      │     ^^^^^
+    5 │     ... on User {
+
+
+✖︎ No fields can have an alias that start with two underscores.
+
+  double_underscore.invalid.graphql:6:7
+    5 │     ... on User {
+    6 │       __bar: name
+      │       ^^^^^
+    7 │     }

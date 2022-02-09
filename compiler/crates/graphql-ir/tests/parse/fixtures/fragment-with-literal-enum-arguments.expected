@@ -34,9 +34,7 @@ fragment ChildFragment on Query
                     ),
                     definition: WithLocation {
                         location: fragment-with-literal-enum-arguments.graphql:54:62,
-                        item: FieldID(
-                            12,
-                        ),
+                        item: FieldID(12),
                     },
                     arguments: [
                         Argument {
@@ -60,9 +58,7 @@ fragment ChildFragment on Query
                             alias: None,
                             definition: WithLocation {
                                 location: fragment-with-literal-enum-arguments.graphql:90:98,
-                                item: FieldID(
-                                    511,
-                                ),
+                                item: FieldID(517),
                             },
                             arguments: [],
                             directives: [],
@@ -125,6 +121,7 @@ fragment ChildFragment on Query
                         item: "argumentDefinitions",
                     },
                     arguments: [],
+                    data: None,
                 },
             ],
             selections: [
@@ -132,9 +129,7 @@ fragment ChildFragment on Query
                     alias: None,
                     definition: WithLocation {
                         location: fragment-with-literal-enum-arguments.graphql:250:258,
-                        item: FieldID(
-                            12,
-                        ),
+                        item: FieldID(12),
                     },
                     arguments: [
                         Argument {
@@ -164,9 +159,7 @@ fragment ChildFragment on Query
                             alias: None,
                             definition: WithLocation {
                                 location: fragment-with-literal-enum-arguments.graphql:292:300,
-                                item: FieldID(
-                                    511,
-                                ),
+                                item: FieldID(517),
                             },
                             arguments: [],
                             directives: [],

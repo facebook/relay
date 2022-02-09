@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -31,27 +31,27 @@ export type NormalizationHandle =
 
 export type NormalizationLinkedHandle = {|
   +kind: 'LinkedHandle',
-  +alias: ?string,
+  +alias?: ?string,
   +name: string,
-  +args: ?$ReadOnlyArray<NormalizationArgument>,
+  +args?: ?$ReadOnlyArray<NormalizationArgument>,
   +handle: string,
   +key: string,
   // NOTE: this property is optional because it's expected to be rarely used
   +dynamicKey?: ?NormalizationArgument,
-  +filters: ?$ReadOnlyArray<string>,
+  +filters?: ?$ReadOnlyArray<string>,
   +handleArgs?: $ReadOnlyArray<NormalizationArgument>,
 |};
 
 export type NormalizationScalarHandle = {|
   +kind: 'ScalarHandle',
-  +alias: ?string,
+  +alias?: ?string,
   +name: string,
-  +args: ?$ReadOnlyArray<NormalizationArgument>,
+  +args?: ?$ReadOnlyArray<NormalizationArgument>,
   +handle: string,
   +key: string,
   // NOTE: this property is optional because it's expected to be rarely used
   +dynamicKey?: ?NormalizationArgument,
-  +filters: ?$ReadOnlyArray<string>,
+  +filters?: ?$ReadOnlyArray<string>,
   +handleArgs?: $ReadOnlyArray<NormalizationArgument>,
 |};
 
@@ -82,21 +82,33 @@ export type NormalizationInlineFragment = {|
   +kind: 'InlineFragment',
   +selections: $ReadOnlyArray<NormalizationSelection>,
   +type: string,
-  +abstractKey: ?string,
+  +abstractKey?: ?string,
+|};
+
+export type NormalizationFragmentSpread = {|
+  +kind: 'FragmentSpread',
+  +fragment: NormalizationSplitOperation,
+  +args?: ?$ReadOnlyArray<NormalizationArgument>,
 |};
 
 export type NormalizationLinkedField = {|
   +kind: 'LinkedField',
-  +alias: ?string,
+  +alias?: ?string,
   +name: string,
-  +storageKey: ?string,
-  +args: ?$ReadOnlyArray<NormalizationArgument>,
-  +concreteType: ?string,
+  +storageKey?: ?string,
+  +args?: ?$ReadOnlyArray<NormalizationArgument>,
+  +concreteType?: ?string,
   +plural: boolean,
   +selections: $ReadOnlyArray<NormalizationSelection>,
 |};
 
+export type NormalizationActorChange = {|
+  +kind: 'ActorChange',
+  +linkedField: NormalizationLinkedField,
+|};
+
 export type NormalizationModuleImport = {|
+  +args?: ?$ReadOnlyArray<NormalizationArgument>,
   +kind: 'ModuleImport',
   +documentName: string,
   +fragmentPropName: string,
@@ -134,10 +146,10 @@ export type NormalizationNode =
 
 export type NormalizationScalarField = {|
   +kind: 'ScalarField',
-  +alias: ?string,
+  +alias?: ?string,
   +name: string,
-  +args: ?$ReadOnlyArray<NormalizationArgument>,
-  +storageKey: ?string,
+  +args?: ?$ReadOnlyArray<NormalizationArgument>,
+  +storageKey?: ?string,
 |};
 
 export type NormalizationFlightField = {|
@@ -148,6 +160,12 @@ export type NormalizationFlightField = {|
   +storageKey: ?string,
 |};
 
+export type NormalizationClientComponent = {|
+  +args?: ?$ReadOnlyArray<NormalizationArgument>,
+  +kind: 'ClientComponent',
+  +fragment: NormalizationNode,
+|};
+
 export type NormalizationTypeDiscriminator = {|
   +kind: 'TypeDiscriminator',
   +abstractKey: string,
@@ -155,17 +173,21 @@ export type NormalizationTypeDiscriminator = {|
 
 export type NormalizationSelection =
   | NormalizationCondition
+  | NormalizationClientComponent
   | NormalizationClientExtension
   | NormalizationDefer
   | NormalizationField
   | NormalizationFlightField
+  | NormalizationFragmentSpread
   | NormalizationHandle
   | NormalizationInlineFragment
   | NormalizationModuleImport
   | NormalizationStream
+  | NormalizationActorChange
   | NormalizationTypeDiscriminator;
 
 export type NormalizationSplitOperation = {|
+  +argumentDefinitions?: $ReadOnlyArray<NormalizationLocalArgumentDefinition>,
   +kind: 'SplitOperation',
   +name: string,
   +metadata: ?{+[key: string]: mixed, ...},
@@ -176,8 +198,6 @@ export type NormalizationStream = {|
   +if: string | null,
   +kind: 'Stream',
   +label: string,
-  +useCustomizedBatch: string | null,
-  +metadata: ?{+[key: string]: mixed, ...},
   +selections: $ReadOnlyArray<NormalizationSelection>,
 |};
 

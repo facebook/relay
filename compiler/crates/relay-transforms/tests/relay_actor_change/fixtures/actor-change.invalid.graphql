@@ -1,0 +1,21 @@
+# expected-to-throw
+fragment UserFragmentWithScalarField on User {
+  name @fb_actor_change
+}
+
+fragment UserFragmentWithLinkedField on User {
+  author @fb_actor_change {
+    name
+  }
+}
+
+fragment UserFragmentWithLinkedFieldAndSpread on User {
+  author @fb_actor_change {
+    name
+    ...ForActorChange
+  }
+}
+
+fragment ForActorChange on User {
+  name
+}

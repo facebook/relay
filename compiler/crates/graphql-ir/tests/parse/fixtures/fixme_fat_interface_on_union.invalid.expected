@@ -8,7 +8,7 @@ query Test {
   }
 }
 ==================================== ERROR ====================================
-✖︎ The type `MaybeNode` has no field `doesNotExist`
+✖︎ The type `MaybeNode` has no field `doesNotExist`.
 
   fixme_fat_interface_on_union.invalid.graphql:6:5
     5 │   maybeNode {

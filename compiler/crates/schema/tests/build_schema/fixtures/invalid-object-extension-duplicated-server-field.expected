@@ -13,6 +13,16 @@ extend type User {
 ==================================== ERROR ====================================
 ✖︎ Duplicate field definition 'name' found.
 
-  <generated>:1:1
-    1 │ # expected-to-throw
-    2 │
+  invalid-object-extension-duplicated-server-field.graphql:10:3
+    9 │ extend type User {
+   10 │   name: ID
+      │   ^^^^
+   11 │ }
+
+  ℹ︎ previously defined here
+
+  <generated>:4:3
+    3 │ type User {
+    4 │   name: String
+      │   ^^^^
+    5 │ }

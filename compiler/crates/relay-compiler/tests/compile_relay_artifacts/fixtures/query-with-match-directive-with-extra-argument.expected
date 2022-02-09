@@ -161,10 +161,7 @@ fragment queryWithMatchDirectiveWithExtraArgument_MarkdownUserNameRenderer_name 
                   {
                     "kind": "Literal",
                     "name": "supported",
-                    "value": [
-                      "PlainUserNameRenderer",
-                      "MarkdownUserNameRenderer"
-                    ]
+                    "value": "34hjiS"
                   }
                 ],
                 "concreteType": null,
@@ -183,6 +180,7 @@ fragment queryWithMatchDirectiveWithExtraArgument_MarkdownUserNameRenderer_name 
                     "kind": "InlineFragment",
                     "selections": [
                       {
+                        "args": null,
                         "documentName": "queryWithMatchDirectiveWithExtraArgument_NameRendererFragment",
                         "fragmentName": "queryWithMatchDirectiveWithExtraArgument_PlainUserNameRenderer_name",
                         "fragmentPropName": "PlainUserNameRenderer_name",
@@ -196,6 +194,7 @@ fragment queryWithMatchDirectiveWithExtraArgument_MarkdownUserNameRenderer_name 
                     "kind": "InlineFragment",
                     "selections": [
                       {
+                        "args": null,
                         "documentName": "queryWithMatchDirectiveWithExtraArgument_NameRendererFragment",
                         "fragmentName": "queryWithMatchDirectiveWithExtraArgument_MarkdownUserNameRenderer_name",
                         "fragmentPropName": "MarkdownUserNameRenderer_name",
@@ -206,7 +205,7 @@ fragment queryWithMatchDirectiveWithExtraArgument_MarkdownUserNameRenderer_name 
                     "abstractKey": null
                   }
                 ],
-                "storageKey": "nameRendererForContext(context:\"HEADER\",supported:[\"PlainUserNameRenderer\",\"MarkdownUserNameRenderer\"])"
+                "storageKey": "nameRendererForContext(context:\"HEADER\",supported:\"34hjiS\")"
               }
             ],
             "type": "User",
@@ -252,13 +251,13 @@ fragment queryWithMatchDirectiveWithExtraArgument_NameRendererFragment on User {
     __typename
     ... on PlainUserNameRenderer {
       ...queryWithMatchDirectiveWithExtraArgument_PlainUserNameRenderer_name
-      __module_operation_queryWithMatchDirectiveWithExtraArgument_NameRendererFragment: js(module: "queryWithMatchDirectiveWithExtraArgument_PlainUserNameRenderer_name$normalization.graphql", id: "queryWithMatchDirectiveWithExtraArgument_NameRendererFragment.nameRendererForContext")
-      __module_component_queryWithMatchDirectiveWithExtraArgument_NameRendererFragment: js(module: "PlainUserNameRenderer.react", id: "queryWithMatchDirectiveWithExtraArgument_NameRendererFragment.nameRendererForContext")
+      __module_operation_queryWithMatchDirectiveWithExtraArgument_NameRendererFragment: js(module: "queryWithMatchDirectiveWithExtraArgument_PlainUserNameRenderer_name$normalization.graphql", id: "queryWithMatchDirectiveWithExtraArgument_NameRendererFragment.nameRendererForContext", branch: "PlainUserNameRenderer")
+      __module_component_queryWithMatchDirectiveWithExtraArgument_NameRendererFragment: js(module: "PlainUserNameRenderer.react", id: "queryWithMatchDirectiveWithExtraArgument_NameRendererFragment.nameRendererForContext", branch: "PlainUserNameRenderer")
     }
     ... on MarkdownUserNameRenderer {
       ...queryWithMatchDirectiveWithExtraArgument_MarkdownUserNameRenderer_name
-      __module_operation_queryWithMatchDirectiveWithExtraArgument_NameRendererFragment: js(module: "queryWithMatchDirectiveWithExtraArgument_MarkdownUserNameRenderer_name$normalization.graphql", id: "queryWithMatchDirectiveWithExtraArgument_NameRendererFragment.nameRendererForContext")
-      __module_component_queryWithMatchDirectiveWithExtraArgument_NameRendererFragment: js(module: "MarkdownUserNameRenderer.react", id: "queryWithMatchDirectiveWithExtraArgument_NameRendererFragment.nameRendererForContext")
+      __module_operation_queryWithMatchDirectiveWithExtraArgument_NameRendererFragment: js(module: "queryWithMatchDirectiveWithExtraArgument_MarkdownUserNameRenderer_name$normalization.graphql", id: "queryWithMatchDirectiveWithExtraArgument_NameRendererFragment.nameRendererForContext", branch: "MarkdownUserNameRenderer")
+      __module_component_queryWithMatchDirectiveWithExtraArgument_NameRendererFragment: js(module: "MarkdownUserNameRenderer.react", id: "queryWithMatchDirectiveWithExtraArgument_NameRendererFragment.nameRendererForContext", branch: "MarkdownUserNameRenderer")
     }
   }
 }
@@ -372,10 +371,7 @@ fragment queryWithMatchDirectiveWithExtraArgument_PlainUserNameRenderer_name on 
         {
           "kind": "Literal",
           "name": "supported",
-          "value": [
-            "PlainUserNameRenderer",
-            "MarkdownUserNameRenderer"
-          ]
+          "value": "34hjiS"
         }
       ],
       "concreteType": null,
@@ -387,6 +383,7 @@ fragment queryWithMatchDirectiveWithExtraArgument_PlainUserNameRenderer_name on 
           "kind": "InlineFragment",
           "selections": [
             {
+              "args": null,
               "documentName": "queryWithMatchDirectiveWithExtraArgument_NameRendererFragment",
               "fragmentName": "queryWithMatchDirectiveWithExtraArgument_PlainUserNameRenderer_name",
               "fragmentPropName": "PlainUserNameRenderer_name",
@@ -400,6 +397,7 @@ fragment queryWithMatchDirectiveWithExtraArgument_PlainUserNameRenderer_name on 
           "kind": "InlineFragment",
           "selections": [
             {
+              "args": null,
               "documentName": "queryWithMatchDirectiveWithExtraArgument_NameRendererFragment",
               "fragmentName": "queryWithMatchDirectiveWithExtraArgument_MarkdownUserNameRenderer_name",
               "fragmentPropName": "MarkdownUserNameRenderer_name",
@@ -410,7 +408,7 @@ fragment queryWithMatchDirectiveWithExtraArgument_PlainUserNameRenderer_name on 
           "abstractKey": null
         }
       ],
-      "storageKey": "nameRendererForContext(context:\"HEADER\",supported:[\"PlainUserNameRenderer\",\"MarkdownUserNameRenderer\"])"
+      "storageKey": "nameRendererForContext(context:\"HEADER\",supported:\"34hjiS\")"
     }
   ],
   "type": "User",

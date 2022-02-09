@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -12,13 +12,6 @@
 
 'use strict';
 
-const invariant = require('invariant');
-
-const {
-  isRelayModernEnvironment,
-  __internal: {fetchQuery},
-} = require('relay-runtime');
-
 import type {
   CacheConfig,
   Disposable,
@@ -28,6 +21,13 @@ import type {
   Snapshot,
 } from 'relay-runtime';
 
+const invariant = require('invariant');
+const {
+  __internal: {fetchQuery},
+  createOperationDescriptor,
+  isRelayModernEnvironment,
+} = require('relay-runtime');
+
 type OnDataChange = ({
   error?: Error,
   snapshot?: Snapshot,
@@ -36,7 +36,6 @@ type OnDataChange = ({
 
 /** The external API of 'fetch' **/
 export type FetchOptions = {|
-  cacheConfig?: ?CacheConfig,
   environment: IEnvironment,
   onDataChange?: null | OnDataChange,
   operation: OperationDescriptor,
@@ -45,7 +44,6 @@ export type FetchOptions = {|
 // Internally we keep an array of onDataChange callbacks, to support reusing
 // the queryRenderer for multiple components.
 type FetchOptionsInternal = {|
-  cacheConfig?: ?CacheConfig,
   environment: IEnvironment,
   onDataChangeCallbacks: Array<OnDataChange>,
   operation: OperationDescriptor,
@@ -54,7 +52,6 @@ type FetchOptionsInternal = {|
 export type ExecuteConfig = {|
   environment: IEnvironment,
   operation: OperationDescriptor,
-  cacheConfig?: ?CacheConfig,
   // Allows pagination container to retain results from previous queries
   preservePreviousReferences?: boolean,
 |};
@@ -110,16 +107,9 @@ class ReactRelayQueryFetcher {
   execute({
     environment,
     operation,
-    cacheConfig,
     preservePreviousReferences = false,
   }: ExecuteConfig): Observable<mixed> {
     const reference = environment.retain(operation);
-    const fetchQueryOptions =
-      cacheConfig != null
-        ? {
-            networkCacheConfig: cacheConfig,
-          }
-        : {};
     const error = () => {
       // We may have partially fulfilled the request, so let the next request
       // or the unmount dispose of the references.
@@ -137,13 +127,13 @@ class ReactRelayQueryFetcher {
       this._selectionReferences = this._selectionReferences.concat(reference);
     };
     if (!isRelayModernEnvironment(environment)) {
-      return environment.execute({operation, cacheConfig}).do({
+      return environment.execute({operation}).do({
         error,
         complete,
         unsubscribe,
       });
     }
-    return fetchQuery(environment, operation, fetchQueryOptions).do({
+    return fetchQuery(environment, operation).do({
       error,
       complete,
       unsubscribe,
@@ -187,7 +177,7 @@ class ReactRelayQueryFetcher {
     fetchOptions: FetchOptions,
     cacheConfigOverride?: CacheConfig,
   ): ?Snapshot {
-    const {cacheConfig, environment, operation, onDataChange} = fetchOptions;
+    const {environment, operation, onDataChange} = fetchOptions;
     let fetchHasReturned = false;
     let error;
 
@@ -195,7 +185,6 @@ class ReactRelayQueryFetcher {
     const oldOnDataChangeCallbacks =
       this._fetchOptions && this._fetchOptions.onDataChangeCallbacks;
     this._fetchOptions = {
-      cacheConfig,
       environment,
       onDataChangeCallbacks: oldOnDataChangeCallbacks || [],
       operation,
@@ -208,10 +197,17 @@ class ReactRelayQueryFetcher {
       this._fetchOptions.onDataChangeCallbacks.push(onDataChange);
     }
 
+    const operationOverride = cacheConfigOverride
+      ? createOperationDescriptor(
+          operation.request.node,
+          operation.request.variables,
+          cacheConfigOverride,
+        )
+      : operation;
+
     const request = this.execute({
       environment,
-      operation,
-      cacheConfig: cacheConfigOverride ?? cacheConfig,
+      operation: operationOverride,
     })
       .finally(() => {
         this._pendingRequest = null;
@@ -273,7 +269,6 @@ class ReactRelayQueryFetcher {
     );
     return this.fetch(
       {
-        cacheConfig: this._fetchOptions.cacheConfig,
         environment: this._fetchOptions.environment,
         operation: this._fetchOptions.operation,
         onDataChange: null, // If there are onDataChangeCallbacks they will be reused
@@ -345,8 +340,8 @@ class ReactRelayQueryFetcher {
     this._rootSubscription = environment.subscribe(this._snapshot, snapshot => {
       // Read from this._fetchOptions in case onDataChange() was lazily added.
       if (this._fetchOptions != null) {
-        const maybeNewOnDataChangeCallbacks = this._fetchOptions
-          .onDataChangeCallbacks;
+        const maybeNewOnDataChangeCallbacks =
+          this._fetchOptions.onDataChangeCallbacks;
         if (Array.isArray(maybeNewOnDataChangeCallbacks)) {
           maybeNewOnDataChangeCallbacks.forEach(onDataChange =>
             onDataChange({snapshot}),

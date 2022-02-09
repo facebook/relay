@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -10,25 +10,21 @@
 
 'use strict';
 
-const React = require('react');
 const ReactRelayContext = require('../ReactRelayContext');
 const ReactRelayFragmentContainer = require('../ReactRelayFragmentContainer');
 const ReactRelayRefetchContainer = require('../ReactRelayRefetchContainer');
-const ReactTestRenderer = require('react-test-renderer');
-
 const readContext = require('../readContext');
-
+const React = require('react');
+const ReactTestRenderer = require('react-test-renderer');
 const {
+  ROOT_ID,
   createNormalizationSelector,
   createOperationDescriptor,
   createReaderSelector,
   createRequestDescriptor,
-  ROOT_ID,
+  graphql,
 } = require('relay-runtime');
-const {
-  createMockEnvironment,
-  generateAndCompile,
-} = require('relay-test-utils-internal');
+const {createMockEnvironment} = require('relay-test-utils-internal');
 
 describe('ReactRelayRefetchContainer with fragment ownerhsip', () => {
   let TestChildComponent;
@@ -106,35 +102,35 @@ describe('ReactRelayRefetchContainer with fragment ownerhsip', () => {
     jest.resetModules();
 
     environment = createMockEnvironment();
-    ({UserFragment, UserFriendFragment, UserQuery} = generateAndCompile(`
-      query UserQuery(
+    UserQuery = graphql`
+      query ReactRelayRefetchContainerWithFragmentOwnershipTestUserQuery(
         $id: ID!
-        $scale: Int!
+        $scale: Float!
       ) {
         node(id: $id) {
-          ...UserFragment
+          ...ReactRelayRefetchContainerWithFragmentOwnershipTestUserFragment
         }
       }
-
-      fragment UserFragment on User @argumentDefinitions(
-        cond: {type: "Boolean!", defaultValue: true}
-      ) {
+    `;
+    UserFragment = graphql`
+      fragment ReactRelayRefetchContainerWithFragmentOwnershipTestUserFragment on User
+      @argumentDefinitions(cond: {type: "Boolean!", defaultValue: true}) {
         id
         name @include(if: $cond)
         profile_picture(scale: $scale) {
           uri
         }
-        ...UserFriendFragment @arguments(cond: $cond)
+        ...ReactRelayRefetchContainerWithFragmentOwnershipTestUserFriendFragment
+          @arguments(cond: $cond)
       }
-
-      fragment UserFriendFragment on User @argumentDefinitions(
-        cond: {type: "Boolean!", defaultValue: true}
-      ) {
+    `;
+    UserFriendFragment = graphql`
+      fragment ReactRelayRefetchContainerWithFragmentOwnershipTestUserFriendFragment on User
+      @argumentDefinitions(cond: {type: "Boolean!", defaultValue: true}) {
         id
         username @include(if: $cond)
       }
-    `));
-
+    `;
     TestChildComponent = jest.fn(() => <div />);
     TestChildContainer = ReactRelayFragmentContainer.createContainer(
       TestChildComponent,
@@ -172,13 +168,11 @@ describe('ReactRelayRefetchContainer with fragment ownerhsip', () => {
   });
 
   describe('refetch()', () => {
-    let instance;
-
     beforeEach(() => {
       const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1)
         .data.node;
       environment.mock.clearCache();
-      instance = ReactTestRenderer.create(
+      ReactTestRenderer.create(
         <ContextSetter environment={environment}>
           <TestContainer user={userPointer} />
         </ContextSetter>,
@@ -223,8 +217,14 @@ describe('ReactRelayRefetchContainer with fragment ownerhsip', () => {
           uri: 'zuck2',
         },
         __id: '4',
-        __fragments: {UserFriendFragment: {cond: true}},
+        __fragments: {
+          ReactRelayRefetchContainerWithFragmentOwnershipTestUserFriendFragment:
+            {
+              cond: true,
+            },
+        },
         __fragmentOwner: ownerUser1.request,
+        __isWithinUnmatchedTypeRefinement: false,
       });
       expect(TestChildComponent.mock.calls.length).toBe(1);
       expect(TestChildComponent.mock.calls[0][0].user).toEqual({
@@ -270,8 +270,14 @@ describe('ReactRelayRefetchContainer with fragment ownerhsip', () => {
           uri: 'zuck2',
         },
         __id: '4',
-        __fragments: {UserFriendFragment: {cond: false}},
+        __fragments: {
+          ReactRelayRefetchContainerWithFragmentOwnershipTestUserFriendFragment:
+            {
+              cond: false,
+            },
+        },
         __fragmentOwner: expectedOwner.request,
+        __isWithinUnmatchedTypeRefinement: false,
       });
       expect(render.mock.calls[0][0].user.name).toBe(undefined);
 
@@ -291,8 +297,14 @@ describe('ReactRelayRefetchContainer with fragment ownerhsip', () => {
           uri: 'zuck2',
         },
         __id: '4',
-        __fragments: {UserFriendFragment: {cond: true}},
+        __fragments: {
+          ReactRelayRefetchContainerWithFragmentOwnershipTestUserFriendFragment:
+            {
+              cond: true,
+            },
+        },
         __fragmentOwner: ownerUser1.request,
+        __isWithinUnmatchedTypeRefinement: false,
       });
       expect(TestChildComponent.mock.calls.length).toBe(1);
       expect(TestChildComponent.mock.calls[0][0].user).toEqual({
@@ -344,8 +356,14 @@ describe('ReactRelayRefetchContainer with fragment ownerhsip', () => {
           uri: 'zuck2',
         },
         __id: '4',
-        __fragments: {UserFriendFragment: {cond: false}},
+        __fragments: {
+          ReactRelayRefetchContainerWithFragmentOwnershipTestUserFriendFragment:
+            {
+              cond: false,
+            },
+        },
         __fragmentOwner: expectedOwner.request,
+        __isWithinUnmatchedTypeRefinement: false,
       });
       expect(render.mock.calls[0][0].user.name).toBe(undefined);
 
@@ -369,7 +387,7 @@ describe('ReactRelayRefetchContainer with fragment ownerhsip', () => {
       const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1)
         .data.node;
       environment.mock.clearCache();
-      instance = ReactTestRenderer.create(
+      ReactTestRenderer.create(
         <ContextSetter environment={environment}>
           <TestContainer user={userPointer} />
         </ContextSetter>,

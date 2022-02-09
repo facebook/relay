@@ -1,0 +1,15 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment RefetchableFragment on User
+  @relay(plural: true)
+  @refetchable(queryName: "RefetchableFragmentQuery") {
+  id
+}
+==================================== ERROR ====================================
+✖︎ Invalid use of @refetchable on fragment `RefetchableFragment`, fragments cannot be annotated with both @refetchable and @relay(plural: true).
+
+  fragment-with-relay-plural.invalid.graphql:3:3
+    2 │ fragment RefetchableFragment on User
+    3 │   @relay(plural: true)
+      │   ^^^^^^
+    4 │   @refetchable(queryName: "RefetchableFragmentQuery") {

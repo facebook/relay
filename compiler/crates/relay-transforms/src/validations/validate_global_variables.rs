@@ -1,11 +1,11 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::{root_variables::InferVariablesVisitor, MATCH_CONSTANTS};
+use crate::{root_variables::InferVariablesVisitor, DIRECTIVE_SPLIT_OPERATION};
 use common::{Diagnostic, DiagnosticsResult, NamedItem};
 use graphql_ir::{FragmentDefinition, OperationDefinition, Program, ValidationMessage, Validator};
 
@@ -35,12 +35,12 @@ impl Validator for ValidateGlobalVariables<'_> {
         // Skip 3D normalization fragments
         if operation
             .directives
-            .named(MATCH_CONSTANTS.custom_module_directive_name)
+            .named(*DIRECTIVE_SPLIT_OPERATION)
             .is_some()
         {
             return Ok(());
         }
-        let variables = self.visitor.infer_operation_variables(operation);
+        let (variables, _) = self.visitor.infer_operation_variables(operation);
 
         let undefined_variables: Vec<_> = variables
             .values()

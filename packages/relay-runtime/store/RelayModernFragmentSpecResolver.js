@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -12,29 +12,13 @@
 
 'use strict';
 
-const RelayFeatureFlags = require('../util/RelayFeatureFlags');
-
-const areEqual = require('areEqual');
-const invariant = require('invariant');
-const isScalarAndEqual = require('../util/isScalarAndEqual');
-const reportMissingRequiredFields = require('../util/reportMissingRequiredFields');
-const warning = require('warning');
-
-const {getPromiseForActiveRequest} = require('../query/fetchQueryInternal');
-const {createRequestDescriptor} = require('./RelayModernOperationDescriptor');
-const {
-  areEqualSelectors,
-  createReaderSelector,
-  getSelectorsFromObject,
-} = require('./RelayModernSelector');
-
 import type {ConcreteRequest} from '../util/RelayConcreteNode';
 import type {Disposable, Variables} from '../util/RelayRuntimeTypes';
 import type {
-  IEnvironment,
   FragmentMap,
   FragmentSpecResolver,
   FragmentSpecResults,
+  IEnvironment,
   MissingRequiredFields,
   PluralReaderSelector,
   RelayContext,
@@ -43,10 +27,25 @@ import type {
   Snapshot,
 } from './RelayStoreTypes';
 
+const getPendingOperationsForFragment = require('../util/getPendingOperationsForFragment');
+const isScalarAndEqual = require('../util/isScalarAndEqual');
+const recycleNodesInto = require('../util/recycleNodesInto');
+const RelayFeatureFlags = require('../util/RelayFeatureFlags');
+const reportMissingRequiredFields = require('../util/reportMissingRequiredFields');
+const {createRequestDescriptor} = require('./RelayModernOperationDescriptor');
+const {
+  areEqualSelectors,
+  createReaderSelector,
+  getSelectorsFromObject,
+} = require('./RelayModernSelector');
+const areEqual = require('areEqual');
+const invariant = require('invariant');
+const warning = require('warning');
+
 type Props = {[key: string]: mixed, ...};
 type Resolvers = {
   [key: string]: ?(SelectorListResolver | SelectorResolver),
-  ...,
+  ...
 };
 
 /**
@@ -71,6 +70,7 @@ type Resolvers = {
 class RelayModernFragmentSpecResolver implements FragmentSpecResolver {
   _callback: ?() => void;
   _context: RelayContext;
+  _rootIsQueryRenderer: boolean;
   _data: Object;
   _fragments: FragmentMap;
   _props: Props;
@@ -82,6 +82,7 @@ class RelayModernFragmentSpecResolver implements FragmentSpecResolver {
     fragments: FragmentMap,
     props: Props,
     callback?: () => void,
+    rootIsQueryRenderer: boolean,
   ) {
     this._callback = callback;
     this._context = context;
@@ -90,6 +91,7 @@ class RelayModernFragmentSpecResolver implements FragmentSpecResolver {
     this._props = {};
     this._resolvers = {};
     this._stale = false;
+    this._rootIsQueryRenderer = rootIsQueryRenderer;
 
     this.setProps(props);
   }
@@ -134,13 +136,16 @@ class RelayModernFragmentSpecResolver implements FragmentSpecResolver {
     return this._data;
   }
 
-  setCallback(callback: () => void): void {
+  setCallback(props: Props, callback: () => void): void {
     this._callback = callback;
+    if (RelayFeatureFlags.ENABLE_CONTAINERS_SUBSCRIBE_ON_COMMIT === true) {
+      this.setProps(props);
+    }
   }
 
   setProps(props: Props): void {
-    const ownedSelectors = getSelectorsFromObject(this._fragments, props);
     this._props = {};
+    const ownedSelectors = getSelectorsFromObject(this._fragments, props);
 
     for (const key in ownedSelectors) {
       if (ownedSelectors.hasOwnProperty(key)) {
@@ -155,7 +160,9 @@ class RelayModernFragmentSpecResolver implements FragmentSpecResolver {
           if (resolver == null) {
             resolver = new SelectorListResolver(
               this._context.environment,
+              this._rootIsQueryRenderer,
               ownedSelector,
+              this._callback != null,
               this._onChange,
             );
           } else {
@@ -170,7 +177,9 @@ class RelayModernFragmentSpecResolver implements FragmentSpecResolver {
           if (resolver == null) {
             resolver = new SelectorResolver(
               this._context.environment,
+              this._rootIsQueryRenderer,
               ownedSelector,
+              this._callback != null,
               this._onChange,
             );
           } else {
@@ -219,12 +228,15 @@ class SelectorResolver {
   _environment: IEnvironment;
   _isMissingData: boolean;
   _missingRequiredFields: ?MissingRequiredFields;
+  _rootIsQueryRenderer: boolean;
   _selector: SingularReaderSelector;
   _subscription: ?Disposable;
 
   constructor(
     environment: IEnvironment,
+    rootIsQueryRenderer: boolean,
     selector: SingularReaderSelector,
+    subscribeOnConstruction: boolean,
     callback: () => void,
   ) {
     const snapshot = environment.lookup(selector);
@@ -233,8 +245,15 @@ class SelectorResolver {
     this._isMissingData = snapshot.isMissingData;
     this._missingRequiredFields = snapshot.missingRequiredFields;
     this._environment = environment;
+    this._rootIsQueryRenderer = rootIsQueryRenderer;
     this._selector = selector;
-    this._subscription = environment.subscribe(snapshot, this._onChange);
+    if (RelayFeatureFlags.ENABLE_CONTAINERS_SUBSCRIBE_ON_COMMIT === true) {
+      if (subscribeOnConstruction) {
+        this._subscription = environment.subscribe(snapshot, this._onChange);
+      }
+    } else {
+      this._subscription = environment.subscribe(snapshot, this._onChange);
+    }
   }
 
   dispose(): void {
@@ -245,10 +264,7 @@ class SelectorResolver {
   }
 
   resolve(): ?Object {
-    if (
-      RelayFeatureFlags.ENABLE_RELAY_CONTAINERS_SUSPENSE === true &&
-      this._isMissingData === true
-    ) {
+    if (this._isMissingData === true) {
       // NOTE: This branch exists to handle the case in which:
       // - A RelayModern container is rendered as a descendant of a Relay Hook
       //   root using a "partial" renderPolicy (this means that eargerly
@@ -270,20 +286,42 @@ class SelectorResolver {
       // This should eventually go away with something like @optional, where we only
       // suspend at specific boundaries depending on whether the boundary
       // can be fulfilled or not.
-      const promise =
-        getPromiseForActiveRequest(this._environment, this._selector.owner) ??
-        this._environment
-          .getOperationTracker()
-          .getPromiseForPendingOperationsAffectingOwner(this._selector.owner);
+      const pendingOperationsResult = getPendingOperationsForFragment(
+        this._environment,
+        this._selector.node,
+        this._selector.owner,
+      );
+      const promise: void | Promise<void> = pendingOperationsResult?.promise;
       if (promise != null) {
-        warning(
-          false,
-          'Relay: Relay Container for fragment `%s` suspended. When using ' +
-            'features such as @defer or @module, use `useFragment` instead ' +
-            'of a Relay Container.',
-          this._selector.node.name,
-        );
-        throw promise;
+        if (this._rootIsQueryRenderer) {
+          warning(
+            false,
+            'Relay: Relay Container for fragment `%s` has missing data and ' +
+              'would suspend. When using features such as @defer or @module, ' +
+              'use `useFragment` instead of a Relay Container.',
+            this._selector.node.name,
+          );
+        } else {
+          const pendingOperations =
+            pendingOperationsResult?.pendingOperations ?? [];
+          warning(
+            false,
+            'Relay: Relay Container for fragment `%s` suspended. When using ' +
+              'features such as @defer or @module, use `useFragment` instead ' +
+              'of a Relay Container.',
+            this._selector.node.name,
+          );
+          this._environment.__log({
+            name: 'suspense.fragment',
+            data: this._data,
+            fragment: this._selector.node,
+            isRelayHooks: false,
+            isMissingData: this._isMissingData,
+            isPromiseCached: false,
+            pendingOperations,
+          });
+          throw promise;
+        }
       }
     }
     if (this._missingRequiredFields != null) {
@@ -304,7 +342,7 @@ class SelectorResolver {
     }
     this.dispose();
     const snapshot = this._environment.lookup(selector);
-    this._data = snapshot.data;
+    this._data = recycleNodesInto(this._data, snapshot.data);
     this._isMissingData = snapshot.isMissingData;
     this._missingRequiredFields = snapshot.missingRequiredFields;
     this._selector = selector;
@@ -355,11 +393,15 @@ class SelectorListResolver {
   _data: Array<?SelectorData>;
   _environment: IEnvironment;
   _resolvers: Array<SelectorResolver>;
+  _rootIsQueryRenderer: boolean;
   _stale: boolean;
+  _subscribeOnConstruction: boolean;
 
   constructor(
     environment: IEnvironment,
+    rootIsQueryRenderer: boolean,
     selector: PluralReaderSelector,
+    subscribeOnConstruction: boolean,
     callback: () => void,
   ) {
     this._callback = callback;
@@ -367,6 +409,8 @@ class SelectorListResolver {
     this._environment = environment;
     this._resolvers = [];
     this._stale = true;
+    this._rootIsQueryRenderer = rootIsQueryRenderer;
+    this._subscribeOnConstruction = subscribeOnConstruction;
 
     this.setSelector(selector);
   }
@@ -410,7 +454,9 @@ class SelectorListResolver {
       } else {
         this._resolvers[ii] = new SelectorResolver(
           this._environment,
+          this._rootIsQueryRenderer,
           selectors[ii],
+          this._subscribeOnConstruction,
           this._onChange,
         );
       }

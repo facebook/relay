@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -12,21 +12,24 @@
 
 'use strict';
 
-const RelayConcreteNode = require('../util/RelayConcreteNode');
-
-const getRelayHandleKey = require('../util/getRelayHandleKey');
-const invariant = require('invariant');
-const stableCopy = require('../util/stableCopy');
-
 import type {
-  NormalizationHandle,
   NormalizationArgument,
   NormalizationField,
+  NormalizationHandle,
 } from '../util/NormalizationNode';
-import type {ReaderArgument, ReaderField} from '../util/ReaderNode';
+import type {
+  ReaderActorChange,
+  ReaderArgument,
+  ReaderField,
+} from '../util/ReaderNode';
 import type {Variables} from '../util/RelayRuntimeTypes';
 
-export type Arguments = {+[string]: mixed, ...};
+const getRelayHandleKey = require('../util/getRelayHandleKey');
+const RelayConcreteNode = require('../util/RelayConcreteNode');
+const stableCopy = require('../util/stableCopy');
+const invariant = require('invariant');
+
+export type Arguments = interface {+[string]: mixed};
 
 const {VARIABLE, LITERAL, OBJECT_VALUE, LIST_VALUE} = RelayConcreteNode;
 
@@ -121,14 +124,19 @@ function getHandleStorageKey(
  * used here for consistency.
  */
 function getStorageKey(
-  field: NormalizationField | NormalizationHandle | ReaderField,
+  field:
+    | NormalizationField
+    | NormalizationHandle
+    | ReaderField
+    | ReaderActorChange,
   variables: Variables,
 ): string {
   if (field.storageKey) {
     // TODO T23663664: Handle nodes do not yet define a static storageKey.
     return (field: $FlowFixMe).storageKey;
   }
-  const {args, name} = field;
+  const args = typeof field.args === 'undefined' ? undefined : field.args;
+  const name = field.name;
   return args && args.length !== 0
     ? formatStorageKey(name, getArgumentValues(args, variables))
     : name;
@@ -193,6 +201,8 @@ function getModuleOperationKey(documentName: string): string {
  * Constants shared by all implementations of RecordSource/MutableRecordSource/etc.
  */
 const RelayStoreUtils = {
+  ACTOR_IDENTIFIER_KEY: '__actorIdentifier',
+  CLIENT_EDGE_TRAVERSAL_PATH: '__clientEdgeTraversalPath',
   FRAGMENTS_KEY: '__fragments',
   FRAGMENT_OWNER_KEY: '__fragmentOwner',
   FRAGMENT_PROP_NAME_KEY: '__fragmentPropName',
@@ -205,6 +215,11 @@ const RelayStoreUtils = {
   TYPENAME_KEY: '__typename',
   INVALIDATED_AT_KEY: '__invalidated_at',
   IS_WITHIN_UNMATCHED_TYPE_REFINEMENT: '__isWithinUnmatchedTypeRefinement',
+  RELAY_RESOLVER_VALUE_KEY: '__resolverValue',
+  RELAY_RESOLVER_INVALIDATION_KEY: '__resolverValueMayBeInvalid',
+  RELAY_RESOLVER_INPUTS_KEY: '__resolverInputValues',
+  RELAY_RESOLVER_READER_SELECTOR_KEY: '__resolverReaderSelector',
+  RELAY_RESOLVER_MISSING_REQUIRED_FIELDS_KEY: '__resolverMissingRequiredFields',
 
   formatStorageKey,
   getArgumentValue,

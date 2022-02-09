@@ -1,0 +1,15 @@
+# expected-to-throw
+query QueryWithRelayClientComponent {
+  me {
+    id
+    ...ClientFragmentWithArguments @relay_client_component @arguments(scale: 1.5)
+  }
+}
+
+fragment ClientFragmentWithArguments on User @argumentDefinitions(scale: {type: "Float"}) {
+  id
+  name
+  profile_picture(scale: $scale) {
+    uri
+  }
+}

@@ -1,6 +1,0 @@
-# expected-to-throw
-query TestQuery {
-  task(number: 123) {
-    title @include(shouldInclude: true)
-  }
-}

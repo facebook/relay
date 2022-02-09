@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -20,13 +20,14 @@ pub struct TokenKindExtras {
 #[derive(Logos, Copy, Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[logos(extras = TokenKindExtras)]
 pub enum TokenKind {
-    #[regex(r"[ \t\n\f,]+|#[^\n\r]*", logos::skip)]
+    #[regex(r"[ \t\r\n\f,]+|#[^\n\r]*", logos::skip)]
     #[error]
     Error,
 
     ErrorUnterminatedString,
     ErrorUnsupportedStringCharacter,
     ErrorUnterminatedBlockString,
+    Empty,
 
     // Valid tokens
     #[token("&")]
@@ -221,6 +222,7 @@ impl fmt::Display for TokenKind {
             TokenKind::ErrorUnterminatedString => "unterminated string",
             TokenKind::ErrorUnsupportedStringCharacter => "unsupported character in string",
             TokenKind::ErrorUnterminatedBlockString => "unterminated block string",
+            TokenKind::Empty => "missing expected kind",
         };
         f.write_str(message)
     }

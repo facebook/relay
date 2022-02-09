@@ -1,17 +1,17 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::util::CUSTOM_METADATA_DIRECTIVES;
-use graphql_ir::Selection;
+use crate::util::CustomMetadataDirectives;
 use graphql_ir::{
     Directive, FragmentDefinition, FragmentSpread, InlineFragment, LinkedField, Program,
-    ScalarField, Transformed, Transformer,
+    ScalarField, Selection, Transformed, Transformer,
 };
-use interner::StringKey;
+use intern::string_key::StringKey;
+use schema::Schema;
 
 /// Transform to skip IR nodes if they are client-defined extensions
 /// to the schema
@@ -39,7 +39,7 @@ impl<'s> SkipClientExtensionsTransform<'s> {
         //   metadata in the IR
         // - or, directive is a client-defined directive, not present
         //   in the server schema
-        CUSTOM_METADATA_DIRECTIVES.is_custom_metadata_directive(name)
+        CustomMetadataDirectives::is_custom_metadata_directive(name)
             || self.program.schema.is_extension_directive(name)
     }
 }
@@ -73,7 +73,7 @@ impl<'s> Transformer for SkipClientExtensionsTransform<'s> {
         {
             Transformed::Delete
         } else {
-            Transformed::Keep
+            self.default_transform_fragment_spread(spread)
         }
     }
 

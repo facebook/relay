@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -14,57 +14,63 @@
 
 const ConnectionHandler = require('./handlers/connection/ConnectionHandler');
 const ConnectionInterface = require('./handlers/connection/ConnectionInterface');
-const GraphQLTag = require('./query/GraphQLTag');
 const MutationHandlers = require('./handlers/connection/MutationHandlers');
-const PreloadableQueryRegistry = require('./query/PreloadableQueryRegistry');
-const RelayConcreteNode = require('./util/RelayConcreteNode');
-const RelayConcreteVariables = require('./store/RelayConcreteVariables');
-const RelayDeclarativeMutationConfig = require('./mutations/RelayDeclarativeMutationConfig');
-const RelayDefaultHandleKey = require('./util/RelayDefaultHandleKey');
 const RelayDefaultHandlerProvider = require('./handlers/RelayDefaultHandlerProvider');
-const RelayError = require('./util/RelayError');
-const RelayFeatureFlags = require('./util/RelayFeatureFlags');
-const RelayModernEnvironment = require('./store/RelayModernEnvironment');
-const RelayModernOperationDescriptor = require('./store/RelayModernOperationDescriptor');
-const RelayModernRecord = require('./store/RelayModernRecord');
-const RelayModernSelector = require('./store/RelayModernSelector');
-const RelayModernStore = require('./store/RelayModernStore');
-const RelayNetwork = require('./network/RelayNetwork');
-const RelayObservable = require('./network/RelayObservable');
-const RelayOperationTracker = require('./store/RelayOperationTracker');
-const RelayProfiler = require('./util/RelayProfiler');
-const RelayQueryResponseCache = require('./network/RelayQueryResponseCache');
-const RelayRecordSource = require('./store/RelayRecordSource');
-const RelayReplaySubject = require('./util/RelayReplaySubject');
-const RelayStoreUtils = require('./store/RelayStoreUtils');
-const ViewerPattern = require('./store/ViewerPattern');
-
 const applyOptimisticMutation = require('./mutations/applyOptimisticMutation');
 const commitLocalUpdate = require('./mutations/commitLocalUpdate');
 const commitMutation = require('./mutations/commitMutation');
-const createFragmentSpecResolver = require('./store/createFragmentSpecResolver');
-const createPayloadFor3DField = require('./util/createPayloadFor3DField');
-const createRelayContext = require('./store/createRelayContext');
-const deepFreeze = require('./util/deepFreeze');
+const RelayDeclarativeMutationConfig = require('./mutations/RelayDeclarativeMutationConfig');
+const RelayNetwork = require('./network/RelayNetwork');
+const RelayObservable = require('./network/RelayObservable');
+const RelayQueryResponseCache = require('./network/RelayQueryResponseCache');
 const fetchQuery = require('./query/fetchQuery');
+const fetchQuery_DEPRECATED = require('./query/fetchQuery_DEPRECATED');
 const fetchQueryInternal = require('./query/fetchQueryInternal');
-const getFragmentIdentifier = require('./util/getFragmentIdentifier');
-const getRelayHandleKey = require('./util/getRelayHandleKey');
-const getRequestIdentifier = require('./util/getRequestIdentifier');
-const isPromise = require('./util/isPromise');
-const isRelayModernEnvironment = require('./store/isRelayModernEnvironment');
-const isScalarAndEqual = require('./util/isScalarAndEqual');
-const readInlineData = require('./store/readInlineData');
-const recycleNodesInto = require('./util/recycleNodesInto');
-const reportMissingRequiredFields = require('./util/reportMissingRequiredFields');
-const requestSubscription = require('./subscription/requestSubscription');
-const stableCopy = require('./util/stableCopy');
-
+const GraphQLTag = require('./query/GraphQLTag');
+const PreloadableQueryRegistry = require('./query/PreloadableQueryRegistry');
 const {
   generateClientID,
   generateUniqueClientID,
   isClientID,
 } = require('./store/ClientID');
+const createFragmentSpecResolver = require('./store/createFragmentSpecResolver');
+const createRelayContext = require('./store/createRelayContext');
+const isRelayModernEnvironment = require('./store/isRelayModernEnvironment');
+const readInlineData = require('./store/readInlineData');
+const RelayConcreteVariables = require('./store/RelayConcreteVariables');
+const RelayModernEnvironment = require('./store/RelayModernEnvironment');
+const RelayModernOperationDescriptor = require('./store/RelayModernOperationDescriptor');
+const RelayModernRecord = require('./store/RelayModernRecord');
+const RelayModernSelector = require('./store/RelayModernSelector');
+const RelayModernStore = require('./store/RelayModernStore');
+const RelayOperationTracker = require('./store/RelayOperationTracker');
+const RelayRecordSource = require('./store/RelayRecordSource');
+const RelayStoreUtils = require('./store/RelayStoreUtils');
+const ResolverFragments = require('./store/ResolverFragments');
+const ViewerPattern = require('./store/ViewerPattern');
+const requestSubscription = require('./subscription/requestSubscription');
+const createPayloadFor3DField = require('./util/createPayloadFor3DField');
+const deepFreeze = require('./util/deepFreeze');
+const getFragmentIdentifier = require('./util/getFragmentIdentifier');
+const getPaginationMetadata = require('./util/getPaginationMetadata');
+const getPaginationVariables = require('./util/getPaginationVariables');
+const getPendingOperationsForFragment = require('./util/getPendingOperationsForFragment');
+const getRefetchMetadata = require('./util/getRefetchMetadata');
+const getRelayHandleKey = require('./util/getRelayHandleKey');
+const getRequestIdentifier = require('./util/getRequestIdentifier');
+const getValueAtPath = require('./util/getValueAtPath');
+const isPromise = require('./util/isPromise');
+const isScalarAndEqual = require('./util/isScalarAndEqual');
+const recycleNodesInto = require('./util/recycleNodesInto');
+const RelayConcreteNode = require('./util/RelayConcreteNode');
+const RelayDefaultHandleKey = require('./util/RelayDefaultHandleKey');
+const RelayError = require('./util/RelayError');
+const RelayFeatureFlags = require('./util/RelayFeatureFlags');
+const RelayProfiler = require('./util/RelayProfiler');
+const RelayReplaySubject = require('./util/RelayReplaySubject');
+const reportMissingRequiredFields = require('./util/reportMissingRequiredFields');
+const stableCopy = require('./util/stableCopy');
+const withProvidedVariables = require('./util/withProvidedVariables');
 
 export type {ConnectionMetadata} from './handlers/connection/ConnectionHandler';
 export type {
@@ -81,7 +87,6 @@ export type {OptimisticMutationConfig} from './mutations/applyOptimisticMutation
 export type {
   DEPRECATED_MutationConfig,
   MutationConfig,
-  MutationParameters,
 } from './mutations/commitMutation';
 export type {
   ExecuteFunction,
@@ -97,6 +102,7 @@ export type {
   ReactFlightPayloadData,
   ReactFlightPayloadQuery,
   ReactFlightServerTree,
+  ReactFlightServerError,
   SubscribeFunction,
   Uploadable,
   UploadableMap,
@@ -108,13 +114,15 @@ export type {
   Subscription,
 } from './network/RelayObservable';
 export type {GraphQLTaggedNode} from './query/GraphQLTag';
+export type {TaskScheduler} from './store/OperationExecutor';
 export type {EnvironmentConfig} from './store/RelayModernEnvironment';
-export type {TaskScheduler} from './store/RelayModernQueryExecutor';
 export type {RecordState} from './store/RelayRecordState';
 export type {
+  ExecuteMutationConfig,
   FragmentMap,
-  FragmentPointer,
-  FragmentReference,
+  // DEPRECATED: use FragmentType instead of FragmentReference
+  FragmentType as FragmentReference,
+  FragmentType,
   FragmentSpecResolver,
   HandleFieldPayload,
   IEnvironment,
@@ -124,6 +132,7 @@ export type {
   MissingFieldHandler,
   MissingRequiredFields,
   ModuleImportPointer,
+  MutationParameters,
   NormalizationSelector,
   OperationAvailability,
   OperationDescriptor,
@@ -135,8 +144,9 @@ export type {
   PluralReaderSelector,
   Props,
   PublishQueue,
-  ReactFlightPayloadDeserializer,
   ReactFlightClientResponse,
+  ReactFlightPayloadDeserializer,
+  ReactFlightServerErrorHandler,
   ReaderSelector,
   ReadOnlyRecordProxy,
   RecordProxy,
@@ -144,13 +154,18 @@ export type {
   RecordSourceSelectorProxy,
   RelayContext,
   RequestDescriptor,
+  RequiredFieldLogger,
   SelectorData,
   SelectorStoreUpdater,
   SingularReaderSelector,
   Snapshot,
   StoreUpdater,
 } from './store/RelayStoreTypes';
-export type {GraphQLSubscriptionConfig} from './subscription/requestSubscription';
+export type {
+  DEPRECATED_GraphQLSubscriptionConfig,
+  GraphQLSubscriptionConfig,
+  SubscriptionParameters,
+} from './subscription/requestSubscription';
 export type {JSResourceReference} from './util/JSResourceTypes.flow';
 export type {
   NormalizationArgument,
@@ -166,8 +181,8 @@ export type {
   NormalizationSplitOperation,
   NormalizationStream,
   NormalizationTypeDiscriminator,
+  NormalizationOperation,
 } from './util/NormalizationNode';
-export type {NormalizationOperation} from './util/NormalizationNode';
 export type {
   ReaderArgument,
   ReaderArgumentDefinition,
@@ -197,12 +212,21 @@ export type {
   Disposable,
   FetchPolicy,
   FetchQueryFetchPolicy,
+  Fragment,
+  GraphQLSubscription,
+  InlineFragment,
+  Mutation,
+  Operation,
   OperationType,
+  Query,
+  RefetchableFragment,
   RenderPolicy,
   Variables,
   VariablesOf,
 } from './util/RelayRuntimeTypes';
 export type {Local3DPayload} from './util/createPayloadFor3DField';
+export type {Direction} from './util/getPaginationVariables';
+export type {RequestIdentifier} from './util/getRequestIdentifier';
 
 // As early as possible, check for the existence of the JavaScript globals which
 // Relay Runtime relies upon, and produce a clear message if they do not exist.
@@ -287,7 +311,8 @@ module.exports = {
   applyOptimisticMutation,
   commitLocalUpdate,
   commitMutation,
-  fetchQuery,
+  fetchQuery: fetchQuery,
+  fetchQuery_DEPRECATED,
   isRelayModernEnvironment,
   requestSubscription,
 
@@ -323,7 +348,13 @@ module.exports = {
   recycleNodesInto: recycleNodesInto,
   stableCopy: stableCopy,
   getFragmentIdentifier: getFragmentIdentifier,
+  getRefetchMetadata: getRefetchMetadata,
+  getPaginationMetadata: getPaginationMetadata,
+  getPaginationVariables: getPaginationVariables,
+  getPendingOperationsForFragment: getPendingOperationsForFragment,
+  getValueAtPath: getValueAtPath,
   __internal: {
+    ResolverFragments,
     OperationTracker: RelayOperationTracker,
     createRelayContext: createRelayContext,
     getOperationVariables: RelayConcreteVariables.getOperationVariables,
@@ -332,5 +363,6 @@ module.exports = {
     getPromiseForActiveRequest: fetchQueryInternal.getPromiseForActiveRequest,
     getObservableForActiveRequest:
       fetchQueryInternal.getObservableForActiveRequest,
+    withProvidedVariables: withProvidedVariables,
   },
 };

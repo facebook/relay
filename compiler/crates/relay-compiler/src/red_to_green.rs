@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -35,7 +35,7 @@ impl RedToGreen {
             let event = logger.create_event("red_to_green");
             event.number("time_to_resolve", timer.elapsed().as_millis() as usize);
             event.number("try_count", self.error_count);
-            logger.complete_event(event);
+            event.complete();
             self.error_count = 0;
             self.timer = None;
         }

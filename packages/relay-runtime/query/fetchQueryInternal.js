@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -12,11 +12,6 @@
 
 'use strict';
 
-const Observable = require('../network/RelayObservable');
-const RelayReplaySubject = require('../util/RelayReplaySubject');
-
-const invariant = require('invariant');
-
 import type {GraphQLResponse} from '../network/RelayNetworkTypes';
 import type {Subscription} from '../network/RelayObservable';
 import type {
@@ -24,8 +19,11 @@ import type {
   OperationDescriptor,
   RequestDescriptor,
 } from '../store/RelayStoreTypes';
-import type {CacheConfig} from '../util/RelayRuntimeTypes';
 import type {RequestIdentifier} from '../util/getRequestIdentifier';
+
+const Observable = require('../network/RelayObservable');
+const RelayReplaySubject = require('../util/RelayReplaySubject');
+const invariant = require('invariant');
 
 type RequestCacheEntry = {|
   +identifier: RequestIdentifier,
@@ -93,8 +91,7 @@ const requestCachesByEnvironment = WEAKMAP_SUPPORTED
  * Cancelling requests:
  * ====================
  * If the subscription returned by subscribe is called while the
- * request is in-flight, apart from releasing retained data, the request will
- * also be cancelled.
+ * request is in-flight, the request will be cancelled.
  *
  * ```
  * const subscription = fetchQuery(...).subscribe(...);
@@ -106,14 +103,10 @@ const requestCachesByEnvironment = WEAKMAP_SUPPORTED
 function fetchQuery(
   environment: IEnvironment,
   operation: OperationDescriptor,
-  options?: {|
-    networkCacheConfig?: CacheConfig,
-  |},
 ): Observable<GraphQLResponse> {
   return fetchQueryDeduped(environment, operation.request.identifier, () =>
     environment.execute({
       operation,
-      cacheConfig: options?.networkCacheConfig,
     }),
   );
 }
@@ -238,7 +231,7 @@ function getActiveStatusObservableForCachedRequest(
 
 /**
  * If a request is active for the given query, variables and environment,
- * this function will return a Promise that will resolve when that request has
+ * this function will return a Promise that will resolve when that request
  * stops being active (receives a final payload), and the data has been saved
  * to the store.
  * If no request is active, null will be returned
@@ -313,10 +306,8 @@ function getObservableForActiveRequest(
 function getRequestCache(
   environment: IEnvironment,
 ): Map<RequestIdentifier, RequestCacheEntry> {
-  const cached: ?Map<
-    RequestIdentifier,
-    RequestCacheEntry,
-  > = requestCachesByEnvironment.get(environment);
+  const cached: ?Map<RequestIdentifier, RequestCacheEntry> =
+    requestCachesByEnvironment.get(environment);
   if (cached != null) {
     return cached;
   }

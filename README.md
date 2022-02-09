@@ -1,4 +1,4 @@
-# [Relay](https://relay.dev) &middot; [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/facebook/relay/blob/master/LICENSE) [![npm version](https://img.shields.io/npm/v/react-relay.svg??style=flat)](https://www.npmjs.com/package/react-relay)
+# [Relay](https://relay.dev) &middot; [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/facebook/relay/blob/main/LICENSE) [![npm version](https://img.shields.io/npm/v/react-relay.svg??style=flat)](https://www.npmjs.com/package/react-relay)
 
 Relay is a JavaScript framework for building data-driven React applications.
 
@@ -28,8 +28,16 @@ We actively welcome pull requests, learn how to [contribute](./.github/CONTRIBUT
 
 ## Users
 
-We have a [community-maintained list](https://relay.dev/en/users) of people and projects using Relay in production.
+We have a [community-maintained list](https://relay.dev/users/) of people and projects using Relay in production.
 
 ## License
 
 Relay is [MIT licensed](./LICENSE).
+
+## Thanks
+
+We'd like to thank [the contributors](https://github.com/facebook/relay/graphs/contributors) that helped make Relay in open source possible.
+
+The open source project [`relay-hooks`](https://github.com/relay-tools/relay-hooks) allowed the community to experiment with Relay and React Hooks, and was a source of valuable feedback for us. The idea for the `useSubscription` hook originated in [an issue](https://github.com/relay-tools/relay-hooks/issues/5#issuecomment-603930570) on that repo. Thank you @morrys for driving this project and for playing such an important role in our open source community.
+
+Thank you for helping make this possible!

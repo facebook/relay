@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -12,18 +12,17 @@
 
 'use strict';
 
-const RelayModernRecord = require('./RelayModernRecord');
-const RelayRecordSource = require('./RelayRecordSource');
-const RelayResponseNormalizer = require('./RelayResponseNormalizer');
-
-const {ROOT_TYPE} = require('./RelayStoreUtils');
-
 import type {PayloadData, PayloadError} from '../network/RelayNetworkTypes';
 import type {NormalizationOptions} from './RelayResponseNormalizer';
 import type {
-  RelayResponsePayload,
   NormalizationSelector,
+  RelayResponsePayload,
 } from './RelayStoreTypes';
+
+const RelayModernRecord = require('./RelayModernRecord');
+const RelayRecordSource = require('./RelayRecordSource');
+const RelayResponseNormalizer = require('./RelayResponseNormalizer');
+const {ROOT_TYPE} = require('./RelayStoreUtils');
 
 function normalizeRelayPayload(
   selector: NormalizationSelector,

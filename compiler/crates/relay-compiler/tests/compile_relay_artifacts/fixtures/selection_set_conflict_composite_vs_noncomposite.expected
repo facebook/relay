@@ -1,0 +1,41 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query selectionSetConflictCompositeVsNoncompositeQuery {
+
+  node(id: 42) {
+    ... on Page {
+      same_alias: friends {
+        edges {
+          node {
+            alias: name
+          }
+        }
+      }
+    }
+    ... on User {
+      same_alias: friends {
+        edges {
+          node {
+            alias: id
+          }
+        }
+      }
+    }
+  }
+}
+==================================== ERROR ====================================
+✖︎ Field 'alias' is ambiguous because it references fields with different types: 'name' with type 'String' and 'id' with type 'ID!'
+
+  selection_set_conflict_composite_vs_noncomposite.graphql:9:20
+    8 │           node {
+    9 │             alias: name
+      │                    ^^^^
+   10 │           }
+
+  ℹ︎ the other field
+
+  selection_set_conflict_composite_vs_noncomposite.graphql:18:20
+   17 │           node {
+   18 │             alias: id
+      │                    ^^
+   19 │           }

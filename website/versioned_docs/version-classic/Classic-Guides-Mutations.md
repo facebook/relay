@@ -1,9 +1,8 @@
 ---
-id: version-classic-classic-guides-mutations
+id: classic-guides-mutations
 title: Mutations
 original_id: classic-guides-mutations
 ---
-
 Up until this point we have only interacted with the GraphQL endpoint to perform queries that fetch data. In this guide, you will learn how to use Relay to perform mutations – operations that consist of writes to the data store followed by a fetch of any changed fields.
 
 ## A complete example
@@ -11,24 +10,25 @@ Up until this point we have only interacted with the GraphQL endpoint to perform
 Before taking a deep dive into the mutations API, let's look at a complete example. Here, we subclass `Relay.Mutation` to create a custom mutation that we can use to like a story.
 
 ```
+
 class LikeStoryMutation extends Relay.Mutation {
   // This method should return a GraphQL operation that represents
   // the mutation to be performed. This presumes that the server
-  // implements a mutation type named ‘likeStory’.
+  // implements a mutation type named 'likeStory’.
   getMutation() {
     return Relay.QL`mutation {likeStory}`;
   }
   // Use this method to prepare the variables that will be used as
-  // input to the mutation. Our ‘likeStory’ mutation takes exactly
+  // input to the mutation. Our 'likeStory’ mutation takes exactly
   // one variable as input – the ID of the story to like.
   getVariables() {
     return {storyID: this.props.story.id};
   }
-  // Use this method to design a ‘fat query’ – one that represents every
+  // Use this method to design a 'fat query’ – one that represents every
   // field in your data model that could change as a result of this mutation.
   // Liking a story could affect the likers count, the sentence that
   // summarizes who has liked a story, and the fact that the viewer likes the
-  // story or not. Relay will intersect this query with a ‘tracked query’
+  // story or not. Relay will intersect this query with a 'tracked query’
   // that represents the data that your application actually uses, and
   // instruct the server to include only those fields in its response.
   getFatQuery() {
@@ -47,7 +47,7 @@ class LikeStoryMutation extends Relay.Mutation {
   // These configurations advise Relay on how to handle the LikeStoryPayload
   // returned by the server. Here, we tell Relay to use the payload to
   // change the fields of a record it already has in the store. The
-  // key-value pairs of ‘fieldIDs’ associate field names in the payload
+  // key-value pairs of 'fieldIDs’ associate field names in the payload
   // with the ID of the record that we want updated.
   getConfigs() {
     return [{
@@ -74,6 +74,7 @@ class LikeStoryMutation extends Relay.Mutation {
 Here's an example of this mutation in use by a `LikeButton` component:
 
 ```
+
 class LikeButton extends React.Component {
   _handleLike = () => {
     // To perform a mutation, pass an instance of one to
@@ -116,6 +117,7 @@ In this particular example, the only field that the `LikeButton` cares about is 
 Any props that we pass to the constructor of a mutation will become available to its instance methods as `this.props`. Like in components used within Relay containers, props for which a corresponding fragment has been defined will be populated by Relay with query data:
 
 ```
+
 class LikeStoryMutation extends Relay.Mutation {
   static fragments = {
     story: () => Relay.QL`
@@ -138,9 +140,10 @@ class LikeStoryMutation extends Relay.Mutation {
 
 ## Fragment variables
 
-Like it can be done with [Relay containers](guides-containers.html), we can prepare variables for use by our mutation's fragment builders, based on the previous variables and the runtime environment.
+Like it can be done with [Relay containers](./classic-guides-containers), we can prepare variables for use by our mutation's fragment builders, based on the previous variables and the runtime environment.
 
 ```
+
 class RentMovieMutation extends Relay.Mutation {
   static initialVariables = {
     format: 'hd',
@@ -174,14 +177,15 @@ class RentMovieMutation extends Relay.Mutation {
 
 Changing one thing in a system can have a ripple effect that causes other things to change in turn. Imagine a mutation that we can use to accept a friend request. This can have wide implications:
 
-- both people's friend count will increment
-- an edge representing the new friend will be added to the viewer's `friends` connection
-- an edge representing the viewer will be added to the new friend's `friends` connection
-- the viewer's friendship status with the requester will change
+-   both people's friend count will increment
+-   an edge representing the new friend will be added to the viewer's `friends` connection
+-   an edge representing the viewer will be added to the new friend's `friends` connection
+-   the viewer's friendship status with the requester will change
 
 Design a fat query that covers every possible field that could change:
 
 ```
+
 class AcceptFriendRequestMutation extends Relay.Mutation {
   getFatQuery() {
     // This presumes that the server-side implementation of this mutation
@@ -203,11 +207,14 @@ class AcceptFriendRequestMutation extends Relay.Mutation {
 }
 ```
 
-This fat query looks like any other GraphQL query, with one important distinction. We know some of these fields to be non-scalar (like `friendEdge` and `friends`) but notice that we have not named any of their children by way of a subquery. In this way, we indicate to Relay that *anything* under those non-scalar fields may change as a result of this mutation.
+This fat query looks like any other GraphQL query, with one important distinction. We know some of these fields to be non-scalar (like `friendEdge` and `friends`) but notice that we have not named any of their children by way of a subquery. In this way, we indicate to Relay that _anything_ under those non-scalar fields may change as a result of this mutation.
 
-> Note
->
-> When designing a fat query, consider *all* of the data that might change as a result of the mutation – not just the data currently in use by your application. We don't need to worry about overfetching; this query is never executed without first intersecting it with a ‘tracked query’ of the data our application actually needs. If we omit fields in the fat query, we might observe data inconsistencies in the future when we add views with new data dependencies, or add new data dependencies to existing views.
+<blockquote>
+Note
+
+When designing a fat query, consider <em>all</em> of the data that might change as a result of the mutation – not just the data currently in use by your application. We don't need to worry about overfetching; this query is never executed without first intersecting it with a 'tracked query’ of the data our application actually needs. If we omit fields in the fat query, we might observe data inconsistencies in the future when we add views with new data dependencies, or add new data dependencies to existing views.
+
+</blockquote>
 
 ## Mutator configuration
 
@@ -219,13 +226,14 @@ Any field in the payload that can be correlated by DataID with one or more recor
 
 #### Arguments
 
-- `fieldIDs: {[fieldName: string]: DataID | Array<DataID>}`
+-   `fieldIDs: {[fieldName: string]: DataID | Array<DataID>}`
 
-  A map between a `fieldName` in the response and one or more DataIDs in the store.
+    A map between a `fieldName` in the response and one or more DataIDs in the store.
 
 #### Example
 
 ```
+
 class RenameDocumentMutation extends Relay.Mutation {
   // This mutation declares a dependency on a document's ID
   static fragments = {
@@ -259,25 +267,26 @@ Given a parent, a connection, and one or more DataIDs in the response payload, R
 
 #### Arguments
 
-- `parentName: string`
+-   `parentName: string`
 
-  The field name in the response that represents the parent of the connection
+    The field name in the response that represents the parent of the connection
 
-- `parentID?: string`
+-   `parentID?: string`
 
-  The DataID of the parent node that contains the connection. This argument is optional.
+    The DataID of the parent node that contains the connection. This argument is optional.
 
-- `connectionName: string`
+-   `connectionName: string`
 
-  The field name in the response that represents the connection
+    The field name in the response that represents the connection
 
-- `deletedIDFieldName: string`
+-   `deletedIDFieldName: string`
 
-  The field name in the response that contains the DataID of the deleted node
+    The field name in the response that contains the DataID of the deleted node
 
 #### Example
 
 ```
+
 class DestroyShipMutation extends Relay.Mutation {
   // This mutation declares a dependency on an enemy ship's ID
   // and the ID of the faction that ship belongs to.
@@ -313,29 +322,30 @@ Given a parent, a connection, and the name of the newly created edge in the resp
 
 #### Arguments
 
-- `parentName: string`
+-   `parentName: string`
 
-  The field name in the response that represents the parent of the connection
+    The field name in the response that represents the parent of the connection
 
-- `parentID?: string`
+-   `parentID?: string`
 
-  The DataID of the parent node that contains the connection. This argument is optional.
+    The DataID of the parent node that contains the connection. This argument is optional.
 
-- `connectionName: string`
+-   `connectionName: string`
 
-  The field name in the response that represents the connection
+    The field name in the response that represents the connection
 
-- `edgeName: string`
+-   `edgeName: string`
 
-  The field name in the response that represents the newly created edge
+    The field name in the response that represents the newly created edge
 
-- `rangeBehaviors: {[call: string]: GraphQLMutatorConstants.RANGE_OPERATIONS} | (connectionArgs: {[argName: string]: string}) => $Keys<GraphQLMutatorConstants.RANGE_OPERATIONS>`
+-   `rangeBehaviors: {[call: string]: GraphQLMutatorConstants.RANGE_OPERATIONS} | (connectionArgs: {[argName: string]: string}) => $Keys<GraphQLMutatorConstants.RANGE_OPERATIONS>`
 
-  A map between printed, dot-separated GraphQL calls *in alphabetical order* and the behavior we want Relay to exhibit when adding the new edge to connections under the influence of those calls or a function accepting an array of connection arguments, returning that behavior.
+    A map between printed, dot-separated GraphQL calls _in alphabetical order_ and the behavior we want Relay to exhibit when adding the new edge to connections under the influence of those calls or a function accepting an array of connection arguments, returning that behavior.
 
 For example, `rangeBehaviors` could be written this way:
 
 ```
+
 const rangeBehaviors = {
   // When the ships connection is not under the influence
   // of any call, append the ship to the end of the connection
@@ -348,6 +358,7 @@ const rangeBehaviors = {
 Or this way, with the same results:
 
 ```
+
 const rangeBehaviors = ({orderby}) => {
   if (orderby === 'newest') {
     return 'prepend';
@@ -356,6 +367,7 @@ const rangeBehaviors = ({orderby}) => {
   }
 };
 
+
 ```
 
 Behaviors can be one of `'append'`, `'ignore'`, `'prepend'`, `'refetch'`, or `'remove'`.
@@ -363,6 +375,7 @@ Behaviors can be one of `'append'`, `'ignore'`, `'prepend'`, `'refetch'`, or `'r
 #### Example
 
 ```
+
 class IntroduceShipMutation extends Relay.Mutation {
   // This mutation declares a dependency on the faction
   // into which this ship is to be introduced.
@@ -405,18 +418,18 @@ Given a connection, one or more DataIDs in the response payload, and a path betw
 
 #### Arguments
 
-- `deletedIDFieldName: string | Array<string>`
+-   `deletedIDFieldName: string | Array<string>`
 
-  The field name in the response that contains the DataID of the removed node, or the path to the node removed from the connection
+    The field name in the response that contains the DataID of the removed node, or the path to the node removed from the connection
 
-- `pathToConnection: Array<string>`
+-   `pathToConnection: Array<string>`
 
-  An array containing the field names between the parent and the connection, including the parent and the connection
-
+    An array containing the field names between the parent and the connection, including the parent and the connection
 
 #### Example
 
 ```
+
 class RemoveTagMutation extends Relay.Mutation {
   // This mutation declares a dependency on the
   // todo from which this tag is being removed.
@@ -451,6 +464,7 @@ A `REQUIRED_CHILDREN` config is used to append additional children to the mutati
 Data fetched as a result of a `REQUIRED_CHILDREN` config is not written into the client store, but you can add code that processes it in the `onSuccess` callback that you pass into `commitUpdate()`:
 
 ```
+
 this.props.relay.commitUpdate(
   new CreateCouponMutation(),
   {
@@ -463,11 +477,12 @@ this.props.relay.commitUpdate(
 
 #### Arguments
 
-- `children: Array<RelayQuery.Node>`
+-   `children: Array<RelayQuery.Node>`
 
 #### Example
 
 ```
+
 class CreateCouponMutation extends Relay.Mutation<Props> {
   getMutation() {
     return Relay.QL`mutation {
@@ -514,6 +529,7 @@ All of the mutations we've performed so far have waited on a response from the s
 Let's craft an optimistic response for the `LikeStoryMutation` example above:
 
 ```
+
 class LikeStoryMutation extends Relay.Mutation {
   /* ... */
   // Here's the fat query from before

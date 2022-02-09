@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -9,6 +9,7 @@ use common::{Diagnostic, DiagnosticsResult};
 use graphql_ir::{
     FragmentDefinition, OperationDefinition, Program, Selection, ValidationMessage, Validator,
 };
+use schema::Schema;
 
 pub fn disallow_typename_on_root(program: &Program) -> DiagnosticsResult<()> {
     let mut validator = DisallowTypenameOnRoot::new(program);

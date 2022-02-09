@@ -207,6 +207,7 @@ fragment moduleInInlineFragment_MarkdownUserNameRenderer_name on MarkdownUserNam
                         "storageKey": null
                       },
                       {
+                        "args": null,
                         "documentName": "moduleInInlineFragment_FooNameRendererFragment",
                         "fragmentName": "moduleInInlineFragment_MarkdownUserNameRenderer_name",
                         "fragmentPropName": "MarkdownUserNameRenderer_name",
@@ -261,8 +262,8 @@ fragment moduleInInlineFragment_FooNameRendererFragment on User {
         id
       }
       ...moduleInInlineFragment_MarkdownUserNameRenderer_name
-      __module_operation_moduleInInlineFragment_FooNameRendererFragment: js(module: "moduleInInlineFragment_MarkdownUserNameRenderer_name$normalization.graphql", id: "moduleInInlineFragment_FooNameRendererFragment.nameRenderer")
-      __module_component_moduleInInlineFragment_FooNameRendererFragment: js(module: "FooMarkdownUserNameRenderer.react", id: "moduleInInlineFragment_FooNameRendererFragment.nameRenderer")
+      __module_operation_moduleInInlineFragment_FooNameRendererFragment: js(module: "moduleInInlineFragment_MarkdownUserNameRenderer_name$normalization.graphql", id: "moduleInInlineFragment_FooNameRendererFragment.nameRenderer", branch: "MarkdownUserNameRenderer")
+      __module_component_moduleInInlineFragment_FooNameRendererFragment: js(module: "FooMarkdownUserNameRenderer.react", id: "moduleInInlineFragment_FooNameRendererFragment.nameRenderer", branch: "MarkdownUserNameRenderer")
     }
   }
 }
@@ -333,6 +334,7 @@ fragment moduleInInlineFragment_MarkdownUserNameRenderer_name on MarkdownUserNam
               "storageKey": null
             },
             {
+              "args": null,
               "documentName": "moduleInInlineFragment_FooNameRendererFragment",
               "fragmentName": "moduleInInlineFragment_MarkdownUserNameRenderer_name",
               "fragmentPropName": "MarkdownUserNameRenderer_name",

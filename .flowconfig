@@ -14,10 +14,6 @@ module.system.haste.paths.excludes=.*/__tests__/.*
 module.system.haste.paths.excludes=.*/__mocks__/.*
 module.system.haste.paths.includes=<PROJECT_ROOT>/node_modules/fbjs/lib/.*
 
-esproposal.class_static_fields=enable
-esproposal.class_instance_fields=enable
-esproposal.optional_chaining=enable
-
 munge_underscores=true
 
 suppress_type=$FlowIssue
@@ -25,8 +21,8 @@ suppress_type=$FlowFixMe
 suppress_type=$FlowFixMeProps
 suppress_type=$FlowFixMeState
 
-well_formed_exports=true
-types_first=true
+format.bracket_spacing=false
+
 experimental.abstract_locations=true
 
 [lints]
@@ -42,4 +38,4 @@ untyped-import
 untyped-type-import
 
 [version]
-^0.137.0
+^0.171.0

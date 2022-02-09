@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -7,7 +7,7 @@
 
 use crate::span::Span;
 use core::cmp::Ordering;
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey};
 use std::fmt;
 use std::path::PathBuf;
 
@@ -20,7 +20,7 @@ pub enum SourceLocationKey {
     /// embedded sources. E.g. the second graphql tag has index 1.
     Embedded {
         path: StringKey,
-        index: usize,
+        index: u16,
     },
     Standalone {
         path: StringKey,
@@ -43,7 +43,7 @@ impl SourceLocationKey {
     pub fn embedded(path: &str, index: usize) -> Self {
         SourceLocationKey::Embedded {
             path: path.intern(),
-            index,
+            index: index.try_into().unwrap(),
         }
     }
 
@@ -157,6 +157,10 @@ impl<T> WithLocation<T> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn with_location_memory() {
+        assert_eq!(20, std::mem::size_of::<WithLocation<StringKey>>());
+    }
 
     #[test]
     fn location_debug_printing() {

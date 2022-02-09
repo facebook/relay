@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -12,28 +12,29 @@
 
 'use strict';
 
-const areEqual = require('areEqual');
-const invariant = require('invariant');
-const warning = require('warning');
-
-const {getFragmentVariables} = require('./RelayConcreteVariables');
-const {
-  FRAGMENT_OWNER_KEY,
-  FRAGMENTS_KEY,
-  ID_KEY,
-  IS_WITHIN_UNMATCHED_TYPE_REFINEMENT,
-} = require('./RelayStoreUtils');
-
 import type {NormalizationSelectableNode} from '../util/NormalizationNode';
 import type {ReaderFragment} from '../util/ReaderNode';
 import type {DataID, Variables} from '../util/RelayRuntimeTypes';
 import type {
+  ClientEdgeTraversalPath,
   NormalizationSelector,
   PluralReaderSelector,
   ReaderSelector,
   RequestDescriptor,
   SingularReaderSelector,
 } from './RelayStoreTypes';
+
+const {getFragmentVariables} = require('./RelayConcreteVariables');
+const {
+  CLIENT_EDGE_TRAVERSAL_PATH,
+  FRAGMENT_OWNER_KEY,
+  FRAGMENTS_KEY,
+  ID_KEY,
+  IS_WITHIN_UNMATCHED_TYPE_REFINEMENT,
+} = require('./RelayStoreUtils');
+const areEqual = require('areEqual');
+const invariant = require('invariant');
+const warning = require('warning');
 
 /**
  * @public
@@ -80,6 +81,7 @@ function getSingularSelector(
   const mixedOwner = item[FRAGMENT_OWNER_KEY];
   const isWithinUnmatchedTypeRefinement =
     item[IS_WITHIN_UNMATCHED_TYPE_REFINEMENT] === true;
+  const mixedClientEdgeTraversalPath = item[CLIENT_EDGE_TRAVERSAL_PATH];
   if (
     typeof dataID === 'string' &&
     typeof fragments === 'object' &&
@@ -87,22 +89,28 @@ function getSingularSelector(
     typeof fragments[fragment.name] === 'object' &&
     fragments[fragment.name] !== null &&
     typeof mixedOwner === 'object' &&
-    mixedOwner !== null
+    mixedOwner !== null &&
+    (mixedClientEdgeTraversalPath == null ||
+      Array.isArray(mixedClientEdgeTraversalPath))
   ) {
     const owner: RequestDescriptor = (mixedOwner: $FlowFixMe);
-    const argumentVariables = fragments[fragment.name];
+    const clientEdgeTraversalPath: ?ClientEdgeTraversalPath =
+      (mixedClientEdgeTraversalPath: $FlowFixMe);
 
+    const argumentVariables = fragments[fragment.name];
     const fragmentVariables = getFragmentVariables(
       fragment,
       owner.variables,
       argumentVariables,
     );
+
     return createReaderSelector(
       fragment,
       dataID,
       fragmentVariables,
       owner,
       isWithinUnmatchedTypeRefinement,
+      clientEdgeTraversalPath,
     );
   }
 
@@ -419,11 +427,13 @@ function createReaderSelector(
   variables: Variables,
   request: RequestDescriptor,
   isWithinUnmatchedTypeRefinement: boolean = false,
+  clientEdgeTraversalPath: ?ClientEdgeTraversalPath,
 ): SingularReaderSelector {
   return {
     kind: 'SingularReaderSelector',
     dataID,
     isWithinUnmatchedTypeRefinement,
+    clientEdgeTraversalPath: clientEdgeTraversalPath ?? null,
     node: fragment,
     variables,
     owner: request,

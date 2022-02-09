@@ -1,16 +1,15 @@
 ---
-id: version-classic-classic-interfaces-relay-mutation-request
+id: classic-interfaces-relay-mutation-request
 title: RelayMutationRequest
 original_id: classic-interfaces-relay-mutation-request
 ---
-
 `RelayMutationRequest` encapsulates a mutation that Relay needs to send to the server. They are made available to network layers via the `sendMutation` method.
 
 ## Overview
 
-*Methods*
+_Methods_
 
-<ul class="apiIndex">
+<ul className="apiIndex">
   <li>
     <a href="#getquerystring">
       <pre>getQueryString()</pre>
@@ -38,13 +37,14 @@ original_id: classic-interfaces-relay-mutation-request
   </li>
 </ul>
 
-
 ## Methods
 
 ### getQueryString
 
 ```
+
 getQueryString(): string
+
 ```
 
 Gets a string representation of the GraphQL mutation.
@@ -52,6 +52,7 @@ Gets a string representation of the GraphQL mutation.
 ### getVariables
 
 ```
+
 getVariables(): {[name: string]: mixed}
 ```
 
@@ -60,6 +61,7 @@ Gets the variables used by the mutation. These variables should be serialized an
 ### getFiles
 
 ```
+
 getFiles(): ?{[key: string]: File}
 ```
 
@@ -68,7 +70,9 @@ Gets an optional map from name to File objects.
 ### getID
 
 ```
+
 getID(): string
+
 ```
 
 Gets a unique identifier for this mutation. These identifiers are useful for assigning response payloads to their corresponding mutations when sent in a single GraphQL request.
@@ -76,7 +80,9 @@ Gets a unique identifier for this mutation. These identifiers are useful for ass
 ### getDebugName
 
 ```
+
 getDebugName(): string
+
 ```
 
 Gets a string name used to refer to this request for printing debug output.

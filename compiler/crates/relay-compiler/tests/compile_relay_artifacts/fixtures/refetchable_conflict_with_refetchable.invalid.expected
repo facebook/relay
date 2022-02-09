@@ -13,18 +13,18 @@ fragment refetchableConflictWithRefetchableF2 on Node
   id
 }
 ==================================== ERROR ====================================
-✖︎ Duplicate definition for @refetchable operation 'refetchableConflictWithRefetchableQuery' from fragments 'refetchableConflictWithRefetchableF2' and 'refetchableConflictWithRefetchableF1'
-
-  refetchable_conflict_with_refetchable.invalid.graphql:9:10
-    8 │ 
-    9 │ fragment refetchableConflictWithRefetchableF2 on Node
-      │          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   10 │   @refetchable(queryName: "refetchableConflictWithRefetchableQuery")
-
-  ℹ︎ previously defined here
+✖︎ Duplicate definition for @refetchable operation 'refetchableConflictWithRefetchableQuery' from fragments 'refetchableConflictWithRefetchableF1' and 'refetchableConflictWithRefetchableF2'
 
   refetchable_conflict_with_refetchable.invalid.graphql:3:10
     2 │ 
     3 │ fragment refetchableConflictWithRefetchableF1 on Node
       │          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     4 │   @refetchable(queryName: "refetchableConflictWithRefetchableQuery")
+
+  ℹ︎ also defined here
+
+  refetchable_conflict_with_refetchable.invalid.graphql:9:10
+    8 │ 
+    9 │ fragment refetchableConflictWithRefetchableF2 on Node
+      │          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   10 │   @refetchable(queryName: "refetchableConflictWithRefetchableQuery")

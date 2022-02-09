@@ -6,5 +6,10 @@ fragment EnabledActorsRendererFragment on Node {
 ==================================== OUTPUT ===================================
 fragment EnabledActorsRendererFragment on Node {
   id
-  name @required(action: THROW) @__required(action: "THROW", path: "name")
+  name @required(action: THROW) @__RequiredMetadataDirective
+  # RequiredMetadataDirective {
+  #     action: Throw,
+  #     path: "name",
+  # }
+  
 }

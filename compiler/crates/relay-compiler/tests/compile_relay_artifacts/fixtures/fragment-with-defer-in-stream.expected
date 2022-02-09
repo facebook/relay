@@ -110,7 +110,6 @@ fragment fragmentWithDeferInStream_ActorFragment on Actor {
                 "if": null,
                 "kind": "Stream",
                 "label": "fragmentWithDeferInStream_FeedbackFragment$stream$StreamedActorsLabel",
-                "metadata": null,
                 "selections": [
                   {
                     "alias": null,
@@ -125,13 +124,6 @@ fragment fragmentWithDeferInStream_ActorFragment on Actor {
                         "args": null,
                         "kind": "ScalarField",
                         "name": "__typename",
-                        "storageKey": null
-                      },
-                      {
-                        "alias": null,
-                        "args": null,
-                        "kind": "ScalarField",
-                        "name": "id",
                         "storageKey": null
                       },
                       {
@@ -151,12 +143,18 @@ fragment fragmentWithDeferInStream_ActorFragment on Actor {
                             "storageKey": null
                           }
                         ]
+                      },
+                      {
+                        "alias": null,
+                        "args": null,
+                        "kind": "ScalarField",
+                        "name": "id",
+                        "storageKey": null
                       }
                     ],
                     "storageKey": null
                   }
-                ],
-                "useCustomizedBatch": null
+                ]
               }
             ],
             "type": "Feedback",

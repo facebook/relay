@@ -68,7 +68,7 @@ ExecutableDocument {
     span: 0:1124,
     definitions: [
         OperationDefinition {
-            location: kitchen-sink.graphql:0:393,
+            location: kitchen-sink.graphql:0:391,
             operation: Some(
                 (
                     Token {
@@ -97,7 +97,7 @@ ExecutableDocument {
                     },
                     items: [
                         VariableDefinition {
-                            span: 16:35,
+                            span: 16:33,
                             name: VariableIdentifier {
                                 span: 16:20,
                                 token: Token {
@@ -111,13 +111,15 @@ ExecutableDocument {
                                 kind: Colon,
                             },
                             type_: Named(
-                                Identifier {
-                                    span: 22:33,
-                                    token: Token {
+                                NamedTypeAnnotation {
+                                    name: Identifier {
                                         span: 22:33,
-                                        kind: Identifier,
+                                        token: Token {
+                                            span: 22:33,
+                                            kind: Identifier,
+                                        },
+                                        value: "ComplexType",
                                     },
-                                    value: "ComplexType",
                                 },
                             ),
                             default_value: None,
@@ -138,13 +140,15 @@ ExecutableDocument {
                                 kind: Colon,
                             },
                             type_: Named(
-                                Identifier {
-                                    span: 42:46,
-                                    token: Token {
+                                NamedTypeAnnotation {
+                                    name: Identifier {
                                         span: 42:46,
-                                        kind: Identifier,
+                                        token: Token {
+                                            span: 42:46,
+                                            kind: Identifier,
+                                        },
+                                        value: "Site",
                                     },
-                                    value: "Site",
                                 },
                             ),
                             default_value: Some(
@@ -176,7 +180,7 @@ ExecutableDocument {
             ),
             directives: [
                 Directive {
-                    span: 57:66,
+                    span: 57:65,
                     at: Token {
                         span: 57:58,
                         kind: At,
@@ -200,7 +204,7 @@ ExecutableDocument {
                 },
                 items: [
                     LinkedField {
-                        span: 70:390,
+                        span: 70:389,
                         alias: Some(
                             Alias {
                                 span: 70:88,
@@ -300,7 +304,7 @@ ExecutableDocument {
                             },
                             items: [
                                 ScalarField {
-                                    span: 111:118,
+                                    span: 111:113,
                                     alias: None,
                                     name: Identifier {
                                         span: 111:113,
@@ -314,14 +318,14 @@ ExecutableDocument {
                                     directives: [],
                                 },
                                 InlineFragment {
-                                    span: 118:320,
+                                    span: 118:315,
                                     spread: Token {
                                         span: 118:121,
                                         kind: Spread,
                                     },
                                     type_condition: Some(
                                         TypeCondition {
-                                            span: 122:130,
+                                            span: 122:129,
                                             on: Token {
                                                 span: 122:124,
                                                 kind: Identifier,
@@ -338,7 +342,7 @@ ExecutableDocument {
                                     ),
                                     directives: [
                                         Directive {
-                                            span: 130:148,
+                                            span: 130:147,
                                             at: Token {
                                                 span: 130:131,
                                                 kind: At,
@@ -362,7 +366,7 @@ ExecutableDocument {
                                         },
                                         items: [
                                             LinkedField {
-                                                span: 156:314,
+                                                span: 156:309,
                                                 alias: None,
                                                 name: Identifier {
                                                     span: 156:162,
@@ -382,7 +386,7 @@ ExecutableDocument {
                                                     },
                                                     items: [
                                                         ScalarField {
-                                                            span: 173:184,
+                                                            span: 173:175,
                                                             alias: None,
                                                             name: Identifier {
                                                                 span: 173:175,
@@ -396,7 +400,7 @@ ExecutableDocument {
                                                             directives: [],
                                                         },
                                                         LinkedField {
-                                                            span: 184:308,
+                                                            span: 184:301,
                                                             alias: Some(
                                                                 Alias {
                                                                     span: 184:197,
@@ -431,7 +435,7 @@ ExecutableDocument {
                                                                     },
                                                                     items: [
                                                                         Argument {
-                                                                            span: 198:209,
+                                                                            span: 198:207,
                                                                             name: Identifier {
                                                                                 span: 198:203,
                                                                                 token: Token {
@@ -490,7 +494,7 @@ ExecutableDocument {
                                                             ),
                                                             directives: [
                                                                 Directive {
-                                                                    span: 222:241,
+                                                                    span: 222:240,
                                                                     at: Token {
                                                                         span: 222:223,
                                                                         kind: At,
@@ -553,7 +557,7 @@ ExecutableDocument {
                                                                 },
                                                                 items: [
                                                                     ScalarField {
-                                                                        span: 253:266,
+                                                                        span: 253:255,
                                                                         alias: None,
                                                                         name: Identifier {
                                                                             span: 253:255,
@@ -567,7 +571,7 @@ ExecutableDocument {
                                                                         directives: [],
                                                                     },
                                                                     FragmentSpread {
-                                                                        span: 266:300,
+                                                                        span: 266:291,
                                                                         spread: Token {
                                                                             span: 266:269,
                                                                             kind: Spread,
@@ -582,7 +586,7 @@ ExecutableDocument {
                                                                         },
                                                                         directives: [
                                                                             Directive {
-                                                                                span: 274:300,
+                                                                                span: 274:291,
                                                                                 at: Token {
                                                                                     span: 274:275,
                                                                                     kind: At,
@@ -621,7 +625,7 @@ ExecutableDocument {
                                     },
                                 },
                                 InlineFragment {
-                                    span: 320:365,
+                                    span: 320:360,
                                     spread: Token {
                                         span: 320:323,
                                         kind: Spread,
@@ -629,7 +633,7 @@ ExecutableDocument {
                                     type_condition: None,
                                     directives: [
                                         Directive {
-                                            span: 324:344,
+                                            span: 324:343,
                                             at: Token {
                                                 span: 324:325,
                                                 kind: At,
@@ -692,7 +696,7 @@ ExecutableDocument {
                                         },
                                         items: [
                                             ScalarField {
-                                                span: 352:359,
+                                                span: 352:354,
                                                 alias: None,
                                                 name: Identifier {
                                                     span: 352:354,
@@ -713,7 +717,7 @@ ExecutableDocument {
                                     },
                                 },
                                 InlineFragment {
-                                    span: 365:388,
+                                    span: 365:385,
                                     spread: Token {
                                         span: 365:368,
                                         kind: Spread,
@@ -728,7 +732,7 @@ ExecutableDocument {
                                         },
                                         items: [
                                             ScalarField {
-                                                span: 377:384,
+                                                span: 377:379,
                                                 alias: None,
                                                 name: Identifier {
                                                     span: 377:379,
@@ -763,7 +767,7 @@ ExecutableDocument {
             },
         },
         OperationDefinition {
-            location: kitchen-sink.graphql:393:499,
+            location: kitchen-sink.graphql:393:497,
             operation: Some(
                 (
                     Token {
@@ -786,7 +790,7 @@ ExecutableDocument {
             variable_definitions: None,
             directives: [
                 Directive {
-                    span: 412:424,
+                    span: 412:423,
                     at: Token {
                         span: 412:413,
                         kind: At,
@@ -810,7 +814,7 @@ ExecutableDocument {
                 },
                 items: [
                     LinkedField {
-                        span: 428:496,
+                        span: 428:495,
                         alias: None,
                         name: Identifier {
                             span: 428:432,
@@ -863,7 +867,7 @@ ExecutableDocument {
                         ),
                         directives: [
                             Directive {
-                                span: 445:454,
+                                span: 445:453,
                                 at: Token {
                                     span: 445:446,
                                     kind: At,
@@ -887,7 +891,7 @@ ExecutableDocument {
                             },
                             items: [
                                 LinkedField {
-                                    span: 460:494,
+                                    span: 460:491,
                                     alias: None,
                                     name: Identifier {
                                         span: 460:465,
@@ -907,7 +911,7 @@ ExecutableDocument {
                                         },
                                         items: [
                                             ScalarField {
-                                                span: 474:490,
+                                                span: 474:485,
                                                 alias: None,
                                                 name: Identifier {
                                                     span: 474:476,
@@ -920,7 +924,7 @@ ExecutableDocument {
                                                 arguments: None,
                                                 directives: [
                                                     Directive {
-                                                        span: 477:490,
+                                                        span: 477:485,
                                                         at: Token {
                                                             span: 477:478,
                                                             kind: At,
@@ -959,7 +963,7 @@ ExecutableDocument {
             },
         },
         OperationDefinition {
-            location: kitchen-sink.graphql:499:887,
+            location: kitchen-sink.graphql:499:727,
             operation: Some(
                 (
                     Token {
@@ -1002,13 +1006,15 @@ ExecutableDocument {
                                 kind: Colon,
                             },
                             type_: Named(
-                                Identifier {
-                                    span: 542:565,
-                                    token: Token {
+                                NamedTypeAnnotation {
+                                    name: Identifier {
                                         span: 542:565,
-                                        kind: Identifier,
+                                        token: Token {
+                                            span: 542:565,
+                                            kind: Identifier,
+                                        },
+                                        value: "StoryLikeSubscribeInput",
                                     },
-                                    value: "StoryLikeSubscribeInput",
                                 },
                             ),
                             default_value: None,
@@ -1023,7 +1029,7 @@ ExecutableDocument {
             ),
             directives: [
                 Directive {
-                    span: 569:585,
+                    span: 569:584,
                     at: Token {
                         span: 569:570,
                         kind: At,
@@ -1047,7 +1053,7 @@ ExecutableDocument {
                 },
                 items: [
                     LinkedField {
-                        span: 589:726,
+                        span: 589:725,
                         alias: None,
                         name: Identifier {
                             span: 589:607,
@@ -1106,7 +1112,7 @@ ExecutableDocument {
                             },
                             items: [
                                 LinkedField {
-                                    span: 629:724,
+                                    span: 629:721,
                                     alias: None,
                                     name: Identifier {
                                         span: 629:634,
@@ -1126,7 +1132,7 @@ ExecutableDocument {
                                         },
                                         items: [
                                             LinkedField {
-                                                span: 643:680,
+                                                span: 643:673,
                                                 alias: None,
                                                 name: Identifier {
                                                     span: 643:649,
@@ -1146,7 +1152,7 @@ ExecutableDocument {
                                                     },
                                                     items: [
                                                         ScalarField {
-                                                            span: 660:672,
+                                                            span: 660:665,
                                                             alias: None,
                                                             name: Identifier {
                                                                 span: 660:665,
@@ -1167,7 +1173,7 @@ ExecutableDocument {
                                                 },
                                             },
                                             LinkedField {
-                                                span: 680:720,
+                                                span: 680:715,
                                                 alias: None,
                                                 name: Identifier {
                                                     span: 680:692,
@@ -1187,7 +1193,7 @@ ExecutableDocument {
                                                     },
                                                     items: [
                                                         ScalarField {
-                                                            span: 703:714,
+                                                            span: 703:707,
                                                             alias: None,
                                                             name: Identifier {
                                                                 span: 703:707,
@@ -1229,7 +1235,7 @@ ExecutableDocument {
             },
         },
         FragmentDefinition {
-            location: kitchen-sink.graphql:887:1035,
+            location: kitchen-sink.graphql:887:1033,
             fragment: Token {
                 span: 887:895,
                 kind: Identifier,
@@ -1244,7 +1250,7 @@ ExecutableDocument {
             },
             variable_definitions: None,
             type_condition: TypeCondition {
-                span: 901:911,
+                span: 901:910,
                 on: Token {
                     span: 901:903,
                     kind: Identifier,
@@ -1260,7 +1266,7 @@ ExecutableDocument {
             },
             directives: [
                 Directive {
-                    span: 911:933,
+                    span: 911:932,
                     at: Token {
                         span: 911:912,
                         kind: At,
@@ -1284,7 +1290,7 @@ ExecutableDocument {
                 },
                 items: [
                     ScalarField {
-                        span: 937:1016,
+                        span: 937:1013,
                         alias: None,
                         name: Identifier {
                             span: 937:940,
@@ -1303,7 +1309,7 @@ ExecutableDocument {
                                 },
                                 items: [
                                     Argument {
-                                        span: 941:954,
+                                        span: 941:952,
                                         name: Identifier {
                                             span: 941:945,
                                             token: Token {
@@ -1328,7 +1334,7 @@ ExecutableDocument {
                                         ),
                                     },
                                     Argument {
-                                        span: 954:963,
+                                        span: 954:961,
                                         name: Identifier {
                                             span: 954:957,
                                             token: Token {
@@ -1376,7 +1382,7 @@ ExecutableDocument {
                                                     },
                                                     items: [
                                                         ConstantArgument {
-                                                            span: 969:983,
+                                                            span: 969:981,
                                                             name: Identifier {
                                                                 span: 969:972,
                                                                 token: Token {
@@ -1442,7 +1448,7 @@ ExecutableDocument {
                         directives: [],
                     },
                     ScalarField {
-                        span: 1016:1021,
+                        span: 1016:1018,
                         alias: None,
                         name: Identifier {
                             span: 1016:1018,
@@ -1456,7 +1462,7 @@ ExecutableDocument {
                         directives: [],
                     },
                     ScalarField {
-                        span: 1021:1032,
+                        span: 1021:1031,
                         alias: None,
                         name: Identifier {
                             span: 1021:1031,
@@ -1477,7 +1483,7 @@ ExecutableDocument {
             },
         },
         OperationDefinition {
-            location: kitchen-sink.graphql:1035:1101,
+            location: kitchen-sink.graphql:1035:1099,
             operation: None,
             name: None,
             variable_definitions: None,
@@ -1490,7 +1496,7 @@ ExecutableDocument {
                 },
                 items: [
                     ScalarField {
-                        span: 1039:1092,
+                        span: 1039:1089,
                         alias: None,
                         name: Identifier {
                             span: 1039:1046,
@@ -1509,7 +1515,7 @@ ExecutableDocument {
                                 },
                                 items: [
                                     Argument {
-                                        span: 1047:1061,
+                                        span: 1047:1059,
                                         name: Identifier {
                                             span: 1047:1053,
                                             token: Token {
@@ -1535,7 +1541,7 @@ ExecutableDocument {
                                         ),
                                     },
                                     Argument {
-                                        span: 1061:1075,
+                                        span: 1061:1073,
                                         name: Identifier {
                                             span: 1061:1066,
                                             token: Token {
@@ -1593,7 +1599,7 @@ ExecutableDocument {
                         directives: [],
                     },
                     ScalarField {
-                        span: 1092:1098,
+                        span: 1092:1097,
                         alias: None,
                         name: Identifier {
                             span: 1092:1097,
@@ -1614,7 +1620,7 @@ ExecutableDocument {
             },
         },
         OperationDefinition {
-            location: kitchen-sink.graphql:1101:1124,
+            location: kitchen-sink.graphql:1101:1123,
             operation: Some(
                 (
                     Token {
@@ -1635,7 +1641,7 @@ ExecutableDocument {
                 },
                 items: [
                     ScalarField {
-                        span: 1111:1122,
+                        span: 1111:1121,
                         alias: None,
                         name: Identifier {
                             span: 1111:1121,

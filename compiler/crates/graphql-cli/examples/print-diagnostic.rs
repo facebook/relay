@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -7,15 +7,17 @@
 
 use common::{Diagnostic, Location, SourceLocationKey, Span};
 use graphql_cli::DiagnosticPrinter;
+use graphql_syntax::GraphQLSource;
 
-const EXAMPLE: &'static str = "fragment Example on User {
+const EXAMPLE: &str = "fragment Example on User {
   photo(size: 40) {
     url
   }
 }";
 
 fn main() {
-    let printer = DiagnosticPrinter::new(|_| Some(EXAMPLE.to_string()));
+    let printer =
+        DiagnosticPrinter::new(|_| Some(GraphQLSource::from_whole_document(EXAMPLE.to_string())));
 
     let span_photo = Span::new(29, 34);
     let span_type = Span::new(20, 24);

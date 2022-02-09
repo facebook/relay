@@ -1,0 +1,24 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query selectionSetConflictAliasCoveringNameQuery {
+  me {
+    name
+    name: canViewerComment
+  }
+}
+==================================== ERROR ====================================
+✖︎ Field 'name' is ambiguous because it references two different fields: 'name' and 'canViewerComment'
+
+  selection_set_conflict_alias_covering_name.graphql:4:5
+    3 │   me {
+    4 │     name
+      │     ^^^^
+    5 │     name: canViewerComment
+
+  ℹ︎ the other field
+
+  selection_set_conflict_alias_covering_name.graphql:5:11
+    4 │     name
+    5 │     name: canViewerComment
+      │           ^^^^^^^^^^^^^^^^
+    6 │   }

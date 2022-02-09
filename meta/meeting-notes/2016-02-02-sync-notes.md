@@ -36,7 +36,7 @@
 We discussed various ways to increase our transparency improve the communication with our open source users:
 
 - Will start publishing meeting notes here on the wiki.
-- We have a couple of talks which were given in venues but not recorded; intend to give these again and video them for wider distribution. 
+- We have a couple of talks which were given in venues but not recorded; intend to give these again and video them for wider distribution.
 - Will update our roadmap [#788](https://github.com/facebook/relay/issues/788).
 - Will set up a repo analogous to [react-future](https://github.com/reactjs/react-future).
 

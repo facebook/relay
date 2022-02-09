@@ -1,0 +1,26 @@
+#expected-to-throw
+fragment Foo_user on User {
+  pop_star_name @someDirective
+}
+
+fragment PopStarNameResolverFragment_name on User {
+  name
+  address {
+    street
+  }
+  parents {
+    lastName
+  }
+}
+
+# %extensions%
+
+"""
+A custom directive for the purposes of testing. We don't have any directives on
+field that don't get special treatment (e.g. @skip).
+"""
+directive @someDirective on FIELD
+
+extend type User {
+  pop_star_name: String @relay_resolver(fragment_name: "PopStarNameResolverFragment_name", import_path: "PopStarNameResolver")
+}

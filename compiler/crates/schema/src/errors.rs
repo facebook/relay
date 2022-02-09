@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -7,7 +7,7 @@
 
 use crate::definitions::Type;
 use graphql_syntax::OperationType;
-use interner::StringKey;
+use intern::string_key::StringKey;
 use thiserror::Error;
 
 pub type Result<T> = std::result::Result<T, SchemaError>;
@@ -44,4 +44,9 @@ pub enum SchemaError {
     // TODO: These should be replaced with error codes or by unifying the parsers.
     #[error("Parse Error '{0}' at {1}.\nError line:'{2}'")]
     Syntax(String, String, String),
+
+    #[error(
+        "Expected a field of the input object to be a valid input object, scalar, or enum. Got '{0}'."
+    )]
+    ExpectedInputType(StringKey),
 }

@@ -1,0 +1,13 @@
+query selectionSetConflictValidStreamQuery {
+  me {
+    ... on User {
+      friends {
+        edges @stream(label: "jkdhg", initial_count: 0) {
+          node {
+            id
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,8 +1,0 @@
-# expected-to-throw
-query TestQuery {
-  node {
-    hometown {
-      nameWithArgs
-    }
-  }
-}

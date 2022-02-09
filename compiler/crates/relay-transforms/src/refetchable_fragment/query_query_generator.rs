@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -8,18 +8,19 @@
 use super::{
     build_fragment_metadata_as_directive, build_fragment_spread,
     build_operation_variable_definitions, build_used_global_variables, QueryGenerator, RefetchRoot,
-    RefetchableDerivedFromMetadata, RefetchableMetadata,
+    RefetchableMetadata,
 };
 use crate::root_variables::VariableMap;
-use common::{DiagnosticsResult, WithLocation};
-use graphql_ir::{FragmentDefinition, OperationDefinition};
-use graphql_syntax::OperationKind;
-use interner::StringKey;
-use schema::Schema;
+use common::DiagnosticsResult;
+use graphql_ir::FragmentDefinition;
+use intern::string_key::StringKey;
+use relay_config::SchemaConfig;
+use schema::{SDLSchema, Schema};
 use std::sync::Arc;
 
 fn build_refetch_operation(
-    schema: &Schema,
+    schema: &SDLSchema,
+    _schema_config: &SchemaConfig,
     fragment: &Arc<FragmentDefinition>,
     query_name: StringKey,
     variables_map: &VariableMap,
@@ -46,16 +47,8 @@ fn build_refetch_operation(
         ..fragment.as_ref().clone()
     });
     Ok(Some(RefetchRoot {
-        operation: Arc::new(OperationDefinition {
-            kind: OperationKind::Query,
-            name: WithLocation::new(fragment.name.location, query_name),
-            type_: query_type,
-            variable_definitions: build_operation_variable_definitions(&fragment),
-            directives: vec![RefetchableDerivedFromMetadata::create_directive(
-                fragment.name,
-            )],
-            selections: vec![build_fragment_spread(&fragment)],
-        }),
+        variable_definitions: build_operation_variable_definitions(&fragment),
+        selections: vec![build_fragment_spread(&fragment)],
         fragment,
     }))
 }

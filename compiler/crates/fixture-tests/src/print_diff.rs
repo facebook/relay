@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -31,8 +31,5 @@ pub(crate) fn print_diff(expected: &str, actual: &str) {
 }
 
 fn is_change<T>(result: &diff::Result<T>) -> bool {
-    match result {
-        Left(_) | Right(_) => true,
-        _ => false,
-    }
+    matches!(result, Left(_) | Right(_))
 }

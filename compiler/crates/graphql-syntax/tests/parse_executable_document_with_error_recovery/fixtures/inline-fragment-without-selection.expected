@@ -1,0 +1,117 @@
+==================================== INPUT ====================================
+fragment Test on User {
+  ... on User
+  username
+}
+==================================== OUTPUT ===================================
+ExecutableDocument {
+    span: 0:51,
+    definitions: [
+        FragmentDefinition {
+            location: inline-fragment-without-selection.graphql:0:50,
+            fragment: Token {
+                span: 0:8,
+                kind: Identifier,
+            },
+            name: Identifier {
+                span: 9:13,
+                token: Token {
+                    span: 9:13,
+                    kind: Identifier,
+                },
+                value: "Test",
+            },
+            variable_definitions: None,
+            type_condition: TypeCondition {
+                span: 14:21,
+                on: Token {
+                    span: 14:16,
+                    kind: Identifier,
+                },
+                type_: Identifier {
+                    span: 17:21,
+                    token: Token {
+                        span: 17:21,
+                        kind: Identifier,
+                    },
+                    value: "User",
+                },
+            },
+            directives: [],
+            selections: List {
+                span: 22:50,
+                start: Token {
+                    span: 22:23,
+                    kind: OpenBrace,
+                },
+                items: [
+                    InlineFragment {
+                        span: 26:37,
+                        spread: Token {
+                            span: 26:29,
+                            kind: Spread,
+                        },
+                        type_condition: Some(
+                            TypeCondition {
+                                span: 30:37,
+                                on: Token {
+                                    span: 30:32,
+                                    kind: Identifier,
+                                },
+                                type_: Identifier {
+                                    span: 33:37,
+                                    token: Token {
+                                        span: 33:37,
+                                        kind: Identifier,
+                                    },
+                                    value: "User",
+                                },
+                            },
+                        ),
+                        directives: [],
+                        selections: List {
+                            span: 37:37,
+                            start: Token {
+                                span: 37:37,
+                                kind: Empty,
+                            },
+                            items: [],
+                            end: Token {
+                                span: 37:37,
+                                kind: Empty,
+                            },
+                        },
+                    },
+                    ScalarField {
+                        span: 40:48,
+                        alias: None,
+                        name: Identifier {
+                            span: 40:48,
+                            token: Token {
+                                span: 40:48,
+                                kind: Identifier,
+                            },
+                            value: "username",
+                        },
+                        arguments: None,
+                        directives: [],
+                    },
+                ],
+                end: Token {
+                    span: 49:50,
+                    kind: CloseBrace,
+                },
+            },
+        },
+    ],
+}
+Errors:
+✖︎ Expected a open brace ('{')
+
+  inline-fragment-without-selection.graphql:2:14
+    1 │ fragment Test on User {
+    2 │   ... on User 
+      │              ^
+    3 │   username
+      │ ^^
+    4 │ }

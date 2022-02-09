@@ -1,7 +1,0 @@
-query ViewerQuery @raw_response_type {
-  viewer {
-    actor {
-      id
-    }
-  }
-}

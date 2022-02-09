@@ -17,22 +17,22 @@ query TestDefer @raw_response_type {
   }
 }
 ==================================== OUTPUT ===================================
-export type TestDeferVariables = {||};
-export type TestDeferResponse = {|
+export type TestDefer$variables = {||};
+export type TestDefer$data = {|
   +node: ?{|
     +name?: ?string,
     +friends?: ?{|
       +edges: ?$ReadOnlyArray<?{|
         +node: ?{|
           +actor: ?{|
-            +name: ?string
-          |}
-        |}
-      |}>
+            +name: ?string,
+          |},
+        |},
+      |}>,
     |},
-  |}
+  |},
 |};
-export type TestDeferRawResponse = {|
+export type TestDefer$rawResponse = {|
   +node: ?({|
     +__typename: "User",
     +id: string,
@@ -52,16 +52,16 @@ export type TestDeferRawResponse = {|
       |}>,
       +pageInfo: ?{|
         +endCursor: ?string,
-        +hasNextPage: ?boolean,
+        +hasNextPage: ?CustomBoolean,
       |},
     |},
   |} | {|
     +__typename: string,
     +id: string,
-  |})
+  |}),
 |};
 export type TestDefer = {|
-  variables: TestDeferVariables,
-  response: TestDeferResponse,
-  rawResponse: TestDeferRawResponse,
+  variables: TestDefer$variables,
+  response: TestDefer$data,
+  rawResponse: TestDefer$rawResponse,
 |};

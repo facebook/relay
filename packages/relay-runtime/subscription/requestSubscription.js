@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -11,15 +11,6 @@
 // flowlint ambiguous-object-type:error
 
 'use strict';
-
-const RelayDeclarativeMutationConfig = require('../mutations/RelayDeclarativeMutationConfig');
-
-const warning = require('warning');
-
-const {getRequest} = require('../query/GraphQLTag');
-const {
-  createOperationDescriptor,
-} = require('../store/RelayModernOperationDescriptor');
 
 import type {DeclarativeMutationConfig} from '../mutations/RelayDeclarativeMutationConfig';
 import type {GraphQLTaggedNode} from '../query/GraphQLTag';
@@ -33,34 +24,52 @@ import type {
   Variables,
 } from '../util/RelayRuntimeTypes';
 
-export type GraphQLSubscriptionConfig<TSubscriptionPayload> = {|
+const RelayDeclarativeMutationConfig = require('../mutations/RelayDeclarativeMutationConfig');
+const {getRequest} = require('../query/GraphQLTag');
+const {
+  createOperationDescriptor,
+} = require('../store/RelayModernOperationDescriptor');
+const {createReaderSelector} = require('../store/RelayModernSelector');
+const warning = require('warning');
+
+export type SubscriptionParameters = {|
+  +response: {...},
+  +variables: {...},
+  +rawResponse?: {...},
+|};
+
+export type GraphQLSubscriptionConfig<T: SubscriptionParameters> = {|
   configs?: Array<DeclarativeMutationConfig>,
   cacheConfig?: CacheConfig,
   subscription: GraphQLTaggedNode,
-  variables: Variables,
+  variables: T['variables'],
   onCompleted?: ?() => void,
   onError?: ?(error: Error) => void,
-  onNext?: ?(response: ?TSubscriptionPayload) => void,
-  updater?: ?SelectorStoreUpdater,
+  onNext?: ?(response: ?T['response']) => void,
+  updater?: ?SelectorStoreUpdater<T['response']>,
 |};
 
-function requestSubscription<TSubscriptionPayload>(
+export type DEPRECATED_GraphQLSubscriptionConfig<TSubscriptionPayload: {...}> =
+  GraphQLSubscriptionConfig<{|
+    response: TSubscriptionPayload,
+    variables: Variables,
+  |}>;
+
+function requestSubscription<TSubscriptionPayload: {...}>(
   environment: IEnvironment,
-  config: GraphQLSubscriptionConfig<TSubscriptionPayload>,
+  config: DEPRECATED_GraphQLSubscriptionConfig<TSubscriptionPayload>,
 ): Disposable {
   const subscription = getRequest(config.subscription);
   if (subscription.params.operationKind !== 'subscription') {
     throw new Error('requestSubscription: Must use Subscription operation');
   }
-  const {
-    configs,
-    onCompleted,
-    onError,
-    onNext,
+  const {configs, onCompleted, onError, onNext, variables, cacheConfig} =
+    config;
+  const operation = createOperationDescriptor(
+    subscription,
     variables,
     cacheConfig,
-  } = config;
-  const operation = createOperationDescriptor(subscription, variables);
+  );
 
   warning(
     !(config.updater && configs),
@@ -77,18 +86,33 @@ function requestSubscription<TSubscriptionPayload>(
     : config;
 
   const sub = environment
-    .execute({
+    .executeSubscription({
       operation,
       updater,
-      cacheConfig,
-    })
-    .map(() => {
-      const data = environment.lookup(operation.fragment).data;
-      // $FlowFixMe[incompatible-cast]
-      return (data: TSubscriptionPayload);
     })
     .subscribe({
-      next: onNext,
+      next: responses => {
+        if (onNext != null) {
+          let selector = operation.fragment;
+          let nextID;
+          if (Array.isArray(responses)) {
+            nextID = responses[0]?.extensions?.__relay_subscription_root_id;
+          } else {
+            nextID = responses.extensions?.__relay_subscription_root_id;
+          }
+          if (typeof nextID === 'string') {
+            selector = createReaderSelector(
+              selector.node,
+              nextID,
+              selector.variables,
+              selector.owner,
+            );
+          }
+          const data = environment.lookup(selector).data;
+          // $FlowFixMe[incompatible-cast]
+          onNext((data: TSubscriptionPayload));
+        }
+      },
       error: onError,
       complete: onCompleted,
     });

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -35,6 +35,8 @@ export type NormalizationRootNode =
   | ConcreteRequest
   | NormalizationSplitOperation;
 
+export type ProvidedVariablesType = {+[key: string]: {|get(): mixed|}};
+
 /**
  * Contains the parameters required for executing a GraphQL request.
  * The operation can either be provided as a persisted `id` or `text`. If given
@@ -48,6 +50,7 @@ export type RequestParameters =
       // common fields
       +name: string,
       +operationKind: 'mutation' | 'query' | 'subscription',
+      +providedVariables?: ProvidedVariablesType,
       +metadata: {[key: string]: mixed, ...},
     |}
   | {|
@@ -57,6 +60,7 @@ export type RequestParameters =
       // common fields
       +name: string,
       +operationKind: 'mutation' | 'query' | 'subscription',
+      +providedVariables?: ProvidedVariablesType,
       +metadata: {[key: string]: mixed, ...},
     |};
 
@@ -67,7 +71,10 @@ export type GeneratedNode =
   | NormalizationSplitOperation;
 
 const RelayConcreteNode = {
+  ACTOR_CHANGE: 'ActorChange',
   CONDITION: 'Condition',
+  CLIENT_COMPONENT: 'ClientComponent',
+  CLIENT_EDGE: 'ClientEdge',
   CLIENT_EXTENSION: 'ClientExtension',
   DEFER: 'Defer',
   CONNECTION: 'Connection',
@@ -83,6 +90,7 @@ const RelayConcreteNode = {
   LIST_VALUE: 'ListValue',
   LOCAL_ARGUMENT: 'LocalArgument',
   MODULE_IMPORT: 'ModuleImport',
+  RELAY_RESOLVER: 'RelayResolver',
   REQUIRED_FIELD: 'RequiredField',
   OBJECT_VALUE: 'ObjectValue',
   OPERATION: 'Operation',

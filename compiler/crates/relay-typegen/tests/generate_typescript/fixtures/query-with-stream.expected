@@ -18,44 +18,44 @@ query TestStream @raw_response_type {
   }
 }
 ==================================== OUTPUT ===================================
-export type TestStreamVariables = {};
-export type TestStreamResponse = {
-  readonly node?: {
-    readonly name?: string,
+export type TestStream$variables = {};
+export type TestStream$data = {
+  readonly node: {
+    readonly name?: string | null;
     readonly friends?: {
-      readonly edges?: ReadonlyArray<{
-        readonly node?: {
-          readonly id: string
-        }
-      } | null>
-    },
-  }
+      readonly edges: ReadonlyArray<{
+        readonly node: {
+          readonly id: string;
+        } | null;
+      } | null> | null;
+    } | null;
+  } | null;
 };
-export type TestStreamRawResponse = {
-  readonly node?: {
-    readonly __typename: "User",
-    readonly id: string,
-    readonly name?: string,
-    readonly friends?: {
-      readonly edges?: ReadonlyArray<{
-        readonly node?: {
-          readonly id: string,
-          readonly __typename: "User",
-        },
-        readonly cursor?: string,
-      } | null>,
-      readonly pageInfo?: {
-        readonly endCursor?: string,
-        readonly hasNextPage?: boolean,
-      },
-    },
+export type TestStream$rawResponse = {
+  readonly node: {
+    readonly __typename: "User";
+    readonly id: string;
+    readonly name: string | null;
+    readonly friends: {
+      readonly edges: ReadonlyArray<{
+        readonly node: {
+          readonly id: string;
+          readonly __typename: "User";
+        } | null;
+        readonly cursor: string | null;
+      } | null> | null;
+      readonly pageInfo: {
+        readonly endCursor: string | null;
+        readonly hasNextPage: boolean | null;
+      } | null;
+    } | null;
   } | {
-    readonly __typename: string,
-    readonly id: string,
-  }
+    readonly __typename: string;
+    readonly id: string;
+  } | null;
 };
 export type TestStream = {
-  variables: TestStreamVariables,
-  response: TestStreamResponse,
-  rawResponse: TestStreamRawResponse,
+  variables: TestStream$variables;
+  response: TestStream$data;
+  rawResponse: TestStream$rawResponse;
 };

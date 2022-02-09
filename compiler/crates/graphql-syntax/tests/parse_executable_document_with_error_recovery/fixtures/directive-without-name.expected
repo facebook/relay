@@ -1,0 +1,94 @@
+==================================== INPUT ====================================
+fragment Test on User {
+  photo @
+}
+==================================== OUTPUT ===================================
+ExecutableDocument {
+    span: 0:36,
+    definitions: [
+        FragmentDefinition {
+            location: directive-without-name.graphql:0:35,
+            fragment: Token {
+                span: 0:8,
+                kind: Identifier,
+            },
+            name: Identifier {
+                span: 9:13,
+                token: Token {
+                    span: 9:13,
+                    kind: Identifier,
+                },
+                value: "Test",
+            },
+            variable_definitions: None,
+            type_condition: TypeCondition {
+                span: 14:21,
+                on: Token {
+                    span: 14:16,
+                    kind: Identifier,
+                },
+                type_: Identifier {
+                    span: 17:21,
+                    token: Token {
+                        span: 17:21,
+                        kind: Identifier,
+                    },
+                    value: "User",
+                },
+            },
+            directives: [],
+            selections: List {
+                span: 22:35,
+                start: Token {
+                    span: 22:23,
+                    kind: OpenBrace,
+                },
+                items: [
+                    ScalarField {
+                        span: 26:33,
+                        alias: None,
+                        name: Identifier {
+                            span: 26:31,
+                            token: Token {
+                                span: 26:31,
+                                kind: Identifier,
+                            },
+                            value: "photo",
+                        },
+                        arguments: None,
+                        directives: [
+                            Directive {
+                                span: 32:33,
+                                at: Token {
+                                    span: 32:33,
+                                    kind: At,
+                                },
+                                name: Identifier {
+                                    span: 33:33,
+                                    token: Token {
+                                        span: 33:33,
+                                        kind: Empty,
+                                    },
+                                    value: "",
+                                },
+                                arguments: None,
+                            },
+                        ],
+                    },
+                ],
+                end: Token {
+                    span: 34:35,
+                    kind: CloseBrace,
+                },
+            },
+        },
+    ],
+}
+Errors:
+✖︎ Expected a non-variable identifier (e.g. 'x' or 'Foo')
+
+  directive-without-name.graphql:2:10
+    1 │ fragment Test on User {
+    2 │   photo @ 
+      │          ^
+    3 │ }

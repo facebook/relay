@@ -1,0 +1,52 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query TestQuery @updatable {
+  node(id: 4) {
+    ... on Feedback {
+      comments {
+        edges {
+          node {
+            ... on Node {
+              id
+            }
+          }
+        }
+      }
+    }
+  }
+}
+==================================== ERROR ====================================
+✖︎ Within updatable operations, each inline fragment spread must contain an unaliased typename field. However, within node, there are inline fragments without typename fields.
+
+  inline-fragment-concrete-type-to-interface.invalid.graphql:3:3
+    2 │ query TestQuery @updatable {
+    3 │   node(id: 4) {
+      │   ^^^^
+    4 │     ... on Feedback {
+
+
+✖︎ Within updatable operations, each inline fragment spread must contain an unaliased typename field. However, within node, there are inline fragments without typename fields.
+
+  inline-fragment-concrete-type-to-interface.invalid.graphql:7:11
+    6 │         edges {
+    7 │           node {
+      │           ^^^^
+    8 │             ... on Node {
+
+
+✖︎ Within updatable operations, each inline fragment spread must have a type condition narrowing the type to a unique concrete type. `Node` is not a concrete type.
+
+  inline-fragment-concrete-type-to-interface.invalid.graphql:7:11
+    6 │         edges {
+    7 │           node {
+      │           ^^^^
+    8 │             ... on Node {
+
+
+✖︎ Within updatable operations, inline fragments are only allowed on interfaces or unions, not on concrete types. In updatable queries, each inline fragment must have a type conditions, so no inline fragment would make sense here.
+
+  inline-fragment-concrete-type-to-interface.invalid.graphql:7:11
+    6 │         edges {
+    7 │           node {
+      │           ^^^^
+    8 │             ... on Node {

@@ -1,0 +1,26 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query selectionSetConflictWithInlineFragmentQuery {
+  username(name: "me") {
+    same_alias: name
+    ... on User {
+      same_alias: id
+    }
+  }
+}
+==================================== ERROR ====================================
+✖︎ Field 'same_alias' is ambiguous because it references two different fields: 'name' and 'id'
+
+  selection_set_conflict_with_inline_fragment.graphql:4:17
+    3 │   username(name: "me") {
+    4 │     same_alias: name
+      │                 ^^^^
+    5 │     ... on User {
+
+  ℹ︎ the other field
+
+  selection_set_conflict_with_inline_fragment.graphql:6:19
+    5 │     ... on User {
+    6 │       same_alias: id
+      │                   ^^
+    7 │     }

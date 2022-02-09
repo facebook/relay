@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -10,10 +10,10 @@ use fixture_tests::Fixture;
 use graphql_ir::{build, Program};
 use graphql_syntax::parse_executable;
 use graphql_test_helpers::diagnostics_to_sorted_string;
-use interner::Intern;
-use relay_codegen::{print_fragment, print_operation};
+use relay_codegen::{print_fragment, print_operation, JsModuleFormat};
+use relay_config::ProjectConfig;
 use relay_test_schema::{get_test_schema, get_test_schema_with_extensions};
-use relay_transforms::{required_directive, FeatureFlags};
+use relay_transforms::required_directive;
 use std::sync::Arc;
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
@@ -29,24 +29,38 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
     let program = Program::from_definitions(Arc::clone(&schema), ir);
 
-    required_directive(
-        &program,
-        &FeatureFlags {
-            enable_required_transform_for_prefix: Some("".intern()),
-            enable_flight_transform: false,
-        },
-    )
-    .map(|next_program| {
-        next_program
-            .fragments()
-            .map(|def| print_fragment(&schema, &def))
-            .chain(
-                next_program
-                    .operations()
-                    .map(|def| print_operation(&schema, &def)),
-            )
-            .collect::<Vec<_>>()
-            .join("\n\n")
-    })
-    .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))
+    required_directive(&program)
+        .map(|next_program| {
+            next_program
+                .fragments()
+                .map(|def| {
+                    let mut import_statements = Default::default();
+                    let fragment = print_fragment(
+                        &schema,
+                        def,
+                        &ProjectConfig {
+                            js_module_format: JsModuleFormat::Haste,
+                            ..Default::default()
+                        },
+                        &mut import_statements,
+                    );
+                    format!("{}{}", import_statements, fragment)
+                })
+                .chain(next_program.operations().map(|def| {
+                    let mut import_statements = Default::default();
+                    let operation = print_operation(
+                        &schema,
+                        def,
+                        &ProjectConfig {
+                            js_module_format: JsModuleFormat::Haste,
+                            ..Default::default()
+                        },
+                        &mut import_statements,
+                    );
+                    format!("{}{}", import_statements, operation)
+                }))
+                .collect::<Vec<_>>()
+                .join("\n\n")
+        })
+        .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))
 }

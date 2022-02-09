@@ -1,0 +1,19 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query TestQuery {
+  node(id: "4") {
+    ...Assignable_user @defer
+  }
+}
+
+fragment Assignable_user on User @assignable {
+  __typename
+}
+==================================== ERROR ====================================
+✖︎ The @defer directive is not allowed on assignable fragment spreads.
+
+  assignable-fragment-spread-with-directives.invalid.graphql:4:24
+    3 │   node(id: "4") {
+    4 │     ...Assignable_user @defer
+      │                        ^^^^^^
+    5 │   }

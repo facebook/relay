@@ -1,88 +1,136 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::ast::{Ast, AstBuilder, AstKey, ObjectEntry, Primitive, RequestParameters};
+use crate::ast::{Ast, AstBuilder, AstKey, ObjectEntry, Primitive, QueryID, RequestParameters};
 use crate::build_ast::{
-    build_fragment, build_operation, build_request, build_request_params,
+    build_fragment, build_operation, build_provided_variables, build_request, build_request_params,
     build_request_params_ast_key,
 };
 use crate::constants::CODEGEN_CONSTANTS;
 use crate::indentation::print_indentation;
+use crate::top_level_statements::{TopLevelStatement, TopLevelStatements};
 use crate::utils::escape;
+use crate::JsModuleFormat;
 
 use graphql_ir::{FragmentDefinition, OperationDefinition};
-use schema::Schema;
+use relay_config::ProjectConfig;
+use schema::SDLSchema;
 
 use fnv::{FnvBuildHasher, FnvHashSet};
 use indexmap::IndexMap;
-use interner::StringKey;
+use intern::string_key::StringKey;
 use std::fmt::{Result as FmtResult, Write};
 
-pub fn print_operation(schema: &Schema, operation: &OperationDefinition) -> String {
-    Printer::without_dedupe().print_operation(schema, operation)
+pub fn print_operation(
+    schema: &SDLSchema,
+    operation: &OperationDefinition,
+    project_config: &ProjectConfig,
+    top_level_statements: &mut TopLevelStatements,
+) -> String {
+    Printer::without_dedupe(project_config).print_operation(schema, operation, top_level_statements)
 }
 
-pub fn print_fragment(schema: &Schema, fragment: &FragmentDefinition) -> String {
-    Printer::without_dedupe().print_fragment(schema, fragment)
+pub fn print_fragment(
+    schema: &SDLSchema,
+    fragment: &FragmentDefinition,
+    project_config: &ProjectConfig,
+    top_level_statements: &mut TopLevelStatements,
+) -> String {
+    Printer::without_dedupe(project_config).print_fragment(schema, fragment, top_level_statements)
 }
 
 pub fn print_request(
-    schema: &Schema,
+    schema: &SDLSchema,
     operation: &OperationDefinition,
     fragment: &FragmentDefinition,
-    request_parameters: RequestParameters,
+    request_parameters: RequestParameters<'_>,
+    project_config: &ProjectConfig,
+    top_level_statements: &mut TopLevelStatements,
 ) -> String {
-    Printer::without_dedupe().print_request(schema, operation, fragment, request_parameters)
+    Printer::without_dedupe(project_config).print_request(
+        schema,
+        operation,
+        fragment,
+        request_parameters,
+        top_level_statements,
+    )
 }
 
 pub fn print_request_params(
-    schema: &Schema,
+    schema: &SDLSchema,
     operation: &OperationDefinition,
-    query_id: Option<String>,
+    query_id: &Option<QueryID>,
+    project_config: &ProjectConfig,
+    top_level_statements: &mut TopLevelStatements,
 ) -> String {
     let mut request_parameters = build_request_params(operation);
     request_parameters.id = query_id;
 
     let mut builder = AstBuilder::default();
-    let request_parameters_ast_key =
-        build_request_params_ast_key(schema, request_parameters, &mut builder, operation);
-    let printer = JSONPrinter::new(&builder);
+    let request_parameters_ast_key = build_request_params_ast_key(
+        schema,
+        request_parameters,
+        &mut builder,
+        operation,
+        top_level_statements,
+    );
+    let printer = JSONPrinter::new(&builder, project_config, top_level_statements);
     printer.print(request_parameters_ast_key, false)
 }
 
-pub struct Printer {
+pub struct Printer<'p> {
+    project_config: &'p ProjectConfig,
     builder: AstBuilder,
     dedupe: bool,
 }
 
-impl Printer {
-    pub fn with_dedupe() -> Self {
+impl<'p> Printer<'p> {
+    pub fn with_dedupe(project_config: &'p ProjectConfig) -> Self {
         Self {
+            project_config,
             builder: Default::default(),
             dedupe: true,
         }
     }
 
-    pub fn without_dedupe() -> Self {
+    pub fn without_dedupe(project_config: &'p ProjectConfig) -> Self {
         Self {
+            project_config,
             builder: Default::default(),
             dedupe: false,
         }
     }
 
+    pub fn print_provided_variables(
+        &mut self,
+        schema: &SDLSchema,
+        operation: &OperationDefinition,
+        top_level_statements: &mut TopLevelStatements,
+    ) -> Option<String> {
+        let key = build_provided_variables(schema, &mut self.builder, operation)?;
+        let printer = JSONPrinter::new(&self.builder, self.project_config, top_level_statements);
+        Some(printer.print(key, self.dedupe))
+    }
+
     pub fn print_request(
         &mut self,
-        schema: &Schema,
+        schema: &SDLSchema,
         operation: &OperationDefinition,
         fragment: &FragmentDefinition,
-        request_parameters: RequestParameters,
+        request_parameters: RequestParameters<'_>,
+        top_level_statements: &mut TopLevelStatements,
     ) -> String {
-        let request_parameters =
-            build_request_params_ast_key(schema, request_parameters, &mut self.builder, operation);
+        let request_parameters = build_request_params_ast_key(
+            schema,
+            request_parameters,
+            &mut self.builder,
+            operation,
+            top_level_statements,
+        );
         let key = build_request(
             schema,
             &mut self.builder,
@@ -90,40 +138,84 @@ impl Printer {
             fragment,
             request_parameters,
         );
-        let printer = JSONPrinter::new(&self.builder);
+        let printer = JSONPrinter::new(&self.builder, self.project_config, top_level_statements);
         printer.print(key, self.dedupe)
     }
 
-    pub fn print_operation(&mut self, schema: &Schema, operation: &OperationDefinition) -> String {
+    pub fn print_operation(
+        &mut self,
+        schema: &SDLSchema,
+        operation: &OperationDefinition,
+        top_level_statements: &mut TopLevelStatements,
+    ) -> String {
         let key = build_operation(schema, &mut self.builder, operation);
-        let printer = JSONPrinter::new(&self.builder);
+        let printer = JSONPrinter::new(&self.builder, self.project_config, top_level_statements);
         printer.print(key, self.dedupe)
     }
 
-    pub fn print_fragment(&mut self, schema: &Schema, fragment: &FragmentDefinition) -> String {
+    pub fn print_fragment(
+        &mut self,
+        schema: &SDLSchema,
+        fragment: &FragmentDefinition,
+        top_level_statements: &mut TopLevelStatements,
+    ) -> String {
         let key = build_fragment(schema, &mut self.builder, fragment);
-        let printer = JSONPrinter::new(&self.builder);
+        let printer = JSONPrinter::new(&self.builder, self.project_config, top_level_statements);
+        printer.print(key, self.dedupe)
+    }
+
+    pub fn print_request_params(
+        &mut self,
+        schema: &SDLSchema,
+        request_parameters: RequestParameters<'_>,
+        operation: &OperationDefinition,
+        top_level_statements: &mut TopLevelStatements,
+    ) -> String {
+        let key = build_request_params_ast_key(
+            schema,
+            request_parameters,
+            &mut self.builder,
+            operation,
+            top_level_statements,
+        );
+        let printer = JSONPrinter::new(&self.builder, self.project_config, top_level_statements);
         printer.print(key, self.dedupe)
     }
 }
 
 type VariableDefinitions = IndexMap<AstKey, String, FnvBuildHasher>;
-struct JSONPrinter<'b> {
+
+pub struct JSONPrinter<'b> {
     variable_definitions: VariableDefinitions,
     duplicates: FnvHashSet<AstKey>,
     builder: &'b AstBuilder,
+    eager_es_modules: bool,
+    js_module_format: JsModuleFormat,
+    top_level_statements: &'b mut TopLevelStatements,
+    skip_printing_nulls: bool,
 }
 
 impl<'b> JSONPrinter<'b> {
-    fn new(builder: &'b AstBuilder) -> Self {
+    pub fn new(
+        builder: &'b AstBuilder,
+        project_config: &ProjectConfig,
+        top_level_statements: &'b mut TopLevelStatements,
+    ) -> Self {
         Self {
             variable_definitions: Default::default(),
+            top_level_statements,
             duplicates: Default::default(),
             builder,
+            js_module_format: project_config.js_module_format,
+            eager_es_modules: project_config.typegen_config.eager_es_modules,
+            skip_printing_nulls: project_config
+                .feature_flags
+                .skip_printing_nulls
+                .is_fully_enabled(),
         }
     }
 
-    fn print(mut self, root_key: AstKey, dedupe: bool) -> String {
+    pub fn print(mut self, root_key: AstKey, dedupe: bool) -> String {
         if dedupe {
             let mut visited = Default::default();
             self.collect_value_duplicates(&mut visited, root_key);
@@ -219,9 +311,13 @@ impl<'b> JSONPrinter<'b> {
                     let next_indent = indent + 1;
                     f.push('{');
                     for ObjectEntry { key, value } in object {
+                        match value {
+                            Primitive::SkippableNull if self.skip_printing_nulls => continue,
+                            _ => {}
+                        }
                         f.push('\n');
                         print_indentation(f, next_indent);
-                        write!(f, "\"{}\": ", key.lookup()).unwrap();
+                        write!(f, "\"{}\": ", key).unwrap();
                         self.print_primitive(f, value, next_indent, is_dedupe_var)
                             .unwrap();
                         f.push(',');
@@ -246,6 +342,10 @@ impl<'b> JSONPrinter<'b> {
                     f.push('[');
                     let next_indent = indent + 1;
                     for value in array {
+                        match value {
+                            Primitive::SkippableNull if self.skip_printing_nulls => continue,
+                            _ => {}
+                        }
                         f.push('\n');
                         print_indentation(f, next_indent);
                         self.print_primitive(f, value, next_indent, is_dedupe_var)
@@ -269,7 +369,7 @@ impl<'b> JSONPrinter<'b> {
         is_dedupe_var: bool,
     ) -> FmtResult {
         match primitive {
-            Primitive::Null => write!(f, "null"),
+            Primitive::Null | Primitive::SkippableNull => write!(f, "null"),
             Primitive::Bool(b) => write!(f, "{}", if *b { "true" } else { "false" }),
             Primitive::RawString(str) => {
                 f.push('\"');
@@ -280,14 +380,47 @@ impl<'b> JSONPrinter<'b> {
             Primitive::String(key) => write!(f, "\"{}\"", key),
             Primitive::Float(value) => write!(f, "{}", value.as_float()),
             Primitive::Int(value) => write!(f, "{}", value),
+            Primitive::Variable(variable_name) => write!(f, "{}", variable_name),
             Primitive::Key(key) => {
                 self.print_ast(f, *key, indent, is_dedupe_var);
                 Ok(())
             }
             Primitive::StorageKey(field_name, key) => {
-                write_static_storage_key(f, &self.builder, *field_name, *key)
+                write_static_storage_key(f, self.builder, *field_name, *key)
             }
-            Primitive::ModuleDependency(key) => write!(f, "require('{}.graphql')", key),
+            Primitive::GraphQLModuleDependency(key) => match self.js_module_format {
+                JsModuleFormat::CommonJS => self.write_js_dependency(
+                    f,
+                    format!("{}_graphql", key),
+                    format!("./{}.graphql", key),
+                ),
+                JsModuleFormat::Haste => self.write_js_dependency(
+                    f,
+                    format!("{}_graphql", key),
+                    format!("{}.graphql", key),
+                ),
+            },
+            Primitive::JSModuleDependency(key) => match self.js_module_format {
+                JsModuleFormat::CommonJS => {
+                    self.write_js_dependency(f, key.to_string(), format!("./{}", key))
+                }
+                JsModuleFormat::Haste => {
+                    self.write_js_dependency(f, key.to_string(), key.to_string())
+                }
+            },
+        }
+    }
+
+    fn write_js_dependency(&mut self, f: &mut String, name: String, path: String) -> FmtResult {
+        if self.eager_es_modules {
+            let write_result = write!(f, "{}", name);
+            self.top_level_statements.insert(
+                name.clone(),
+                TopLevelStatement::ImportStatement { name, path },
+            );
+            write_result
+        } else {
+            write!(f, "require('{}')", path)
         }
     }
 }
@@ -394,6 +527,7 @@ fn write_constant_value(f: &mut String, builder: &AstBuilder, value: &Primitive)
         Primitive::String(key) => write!(f, "\\\"{}\\\"", key),
         Primitive::Float(value) => write!(f, "{}", value.as_float()),
         Primitive::Int(value) => write!(f, "{}", value),
+        Primitive::Variable(variable_name) => write!(f, "{}", variable_name),
         Primitive::Key(key) => {
             let ast = builder.lookup(*key);
             match ast {
@@ -424,12 +558,13 @@ fn write_constant_value(f: &mut String, builder: &AstBuilder, value: &Primitive)
                 }
             }
         }
-        Primitive::Null => {
+        Primitive::Null | Primitive::SkippableNull => {
             f.push_str("null");
             Ok(())
         }
         Primitive::StorageKey(_, _) => panic!("Unexpected StorageKey"),
         Primitive::RawString(_) => panic!("Unexpected RawString"),
-        Primitive::ModuleDependency(_) => panic!("Unexpected ModuleDependency"),
+        Primitive::GraphQLModuleDependency(_) => panic!("Unexpected GraphQLModuleDependency"),
+        Primitive::JSModuleDependency(_) => panic!("Unexpected JSModuleDependency"),
     }
 }

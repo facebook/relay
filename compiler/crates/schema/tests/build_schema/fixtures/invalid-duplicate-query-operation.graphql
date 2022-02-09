@@ -1,0 +1,14 @@
+# expected-to-throw
+
+schema {
+  query: Query1
+  query: Query2
+}
+
+type Query1 {
+  s: String
+}
+
+type Query2 {
+  s: String
+}

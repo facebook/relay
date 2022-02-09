@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,21 +13,22 @@
 
 'use strict';
 
-const RelayOperationTracker = require('../RelayOperationTracker');
+import type {NormalizationRootNode} from '../../util/NormalizationNode';
 
-const invariant = require('invariant');
-
+const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../RelayModernSelector');
+const RelayOperationTracker = require('../RelayOperationTracker');
+const invariant = require('invariant');
 const {
-  createMockEnvironment,
   MockPayloadGenerator,
+  createMockEnvironment,
 } = require('relay-test-utils');
-const {generateAndCompile} = require('relay-test-utils-internal');
+const {disallowWarnings} = require('relay-test-utils-internal');
 
-import type {NormalizationRootNode} from '../../util/NormalizationNode';
+disallowWarnings();
 
 describe('RelayModernEnvironment with RelayOperationTracker', () => {
   let tracker;
@@ -36,13 +37,14 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
   let QueryOperation2;
   let MutationOperation;
   let operationLoader: {|
-    +get: (reference: mixed) => ?NormalizationRootNode,
+    get: (reference: mixed) => ?NormalizationRootNode,
     load: JestMockFn<$ReadOnlyArray<mixed>, Promise<?NormalizationRootNode>>,
   |};
 
   beforeEach(() => {
-    const {Query1, Query2, Mutation1} = generateAndCompile(`
-      query Query1($id: ID) @relay_test_operation {
+    const Query1 = getRequest(graphql`
+      query RelayModernEnvironmentWithOperationTrackerTest1Query($id: ID)
+      @relay_test_operation {
         node(id: $id) {
           ... on Feedback {
             id
@@ -62,14 +64,21 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
           }
         }
       }
+    `);
 
-      query Query2($id: ID) @relay_test_operation {
+    const Query2 = getRequest(graphql`
+      query RelayModernEnvironmentWithOperationTrackerTest2Query($id: ID)
+      @relay_test_operation {
         node(id: $id) {
           id
         }
       }
+    `);
 
-      mutation Mutation1($input: CommentCreateInput) @relay_test_operation {
+    const Mutation1 = getRequest(graphql`
+      mutation RelayModernEnvironmentWithOperationTrackerTest1Mutation(
+        $input: CommentCreateInput
+      ) @relay_test_operation {
         commentCreate(input: $input) {
           comment {
             id
@@ -108,14 +117,10 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
   it('should have operation tracker and operations should not be affected', () => {
     invariant(tracker != null, 'Tracker should be defined');
     expect(
-      tracker.getPromiseForPendingOperationsAffectingOwner(
-        QueryOperation1.request,
-      ),
+      tracker.getPendingOperationsAffectingOwner(QueryOperation1.request),
     ).toBe(null);
     expect(
-      tracker.getPromiseForPendingOperationsAffectingOwner(
-        QueryOperation2.request,
-      ),
+      tracker.getPendingOperationsAffectingOwner(QueryOperation2.request),
     ).toBe(null);
   });
 
@@ -157,9 +162,7 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
       .subscribe({});
 
     expect(
-      tracker.getPromiseForPendingOperationsAffectingOwner(
-        QueryOperation1.request,
-      ),
+      tracker.getPendingOperationsAffectingOwner(QueryOperation1.request),
     ).toBe(null);
 
     // This mutation is changing the same feedback object, so the owner (QueryOperation1)
@@ -179,9 +182,8 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
     );
 
     expect(
-      tracker.getPromiseForPendingOperationsAffectingOwner(
-        QueryOperation1.request,
-      ),
+      tracker.getPendingOperationsAffectingOwner(QueryOperation1.request)
+        ?.promise,
     ).toBeInstanceOf(Promise);
 
     // Complete the mutation
@@ -190,9 +192,7 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
     // There should be no pending operations affecting the owner,
     // after the mutation is completed
     expect(
-      tracker.getPromiseForPendingOperationsAffectingOwner(
-        QueryOperation1.request,
-      ),
+      tracker.getPendingOperationsAffectingOwner(QueryOperation1.request),
     ).toBe(null);
   });
 
@@ -224,9 +224,7 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
       .subscribe({});
 
     expect(
-      tracker.getPromiseForPendingOperationsAffectingOwner(
-        QueryOperation1.request,
-      ),
+      tracker.getPendingOperationsAffectingOwner(QueryOperation1.request),
     ).toBe(null);
 
     // This mutation will update the same data as the QueryOperation1
@@ -246,9 +244,7 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
       }),
     );
     expect(
-      tracker.getPromiseForPendingOperationsAffectingOwner(
-        QueryOperation1.request,
-      ),
+      tracker.getPendingOperationsAffectingOwner(QueryOperation1.request),
     ).toBe(null);
   });
 
@@ -285,9 +281,7 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
       })
       .subscribe({});
     expect(
-      tracker.getPromiseForPendingOperationsAffectingOwner(
-        QueryOperation1.request,
-      ),
+      tracker.getPendingOperationsAffectingOwner(QueryOperation1.request),
     ).toBe(null);
     environment.mock.nextValue(
       MutationOperation,
@@ -302,13 +296,13 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
         },
       }),
     );
-    const promise = tracker.getPromiseForPendingOperationsAffectingOwner(
+    const result = tracker.getPendingOperationsAffectingOwner(
       QueryOperation1.request,
     );
 
-    invariant(promise != null, 'Expected to have promise for operation');
+    invariant(result != null, 'Expected to have promise for operation');
     const promiseCallback = jest.fn();
-    promise.then(promiseCallback);
+    result.promise.then(promiseCallback);
     expect(promiseCallback).not.toBeCalled();
     environment.mock.complete(MutationOperation.request.node);
     jest.runAllTimers();
@@ -353,9 +347,7 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
     );
 
     expect(
-      tracker.getPromiseForPendingOperationsAffectingOwner(
-        QueryOperation1.request,
-      ),
+      tracker.getPendingOperationsAffectingOwner(QueryOperation1.request),
     ).toBe(null);
 
     environment.mock.nextValue(
@@ -370,31 +362,41 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
       }),
     );
     expect(
-      tracker.getPromiseForPendingOperationsAffectingOwner(
-        QueryOperation1.request,
-      ),
+      tracker.getPendingOperationsAffectingOwner(QueryOperation1.request),
     ).toBe(null);
   });
 
   describe('with @match', () => {
     it('should return a promise for affecting operations', () => {
-      const {Query, Mutation, FeedbackFragment} = generateAndCompile(`
+      //const {Query, Mutation, FeedbackFragment} =
+      const Query = getRequest(graphql`
+        query RelayModernEnvironmentWithOperationTrackerTestQuery($id: ID)
+        @relay_test_operation {
+          node(id: $id) {
+            ...RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment
+          }
+        }
+      `);
 
-        fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+      graphql`
+        fragment RelayModernEnvironmentWithOperationTrackerTestPlainUserNameRenderer_name on PlainUserNameRenderer {
           plaintext
           data {
             text
           }
         }
-
-        fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+      `;
+      graphql`
+        fragment RelayModernEnvironmentWithOperationTrackerTestMarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
           markdown
           data {
             markup
           }
         }
+      `;
 
-        fragment FeedbackFragment on Feedback {
+      const FeedbackFragment = getFragment(graphql`
+        fragment RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment on Feedback {
           id
           body {
             text
@@ -402,30 +404,29 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
           author {
             __typename
             nameRenderer @match {
-              ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
-              ...MarkdownUserNameRenderer_name
+              ...RelayModernEnvironmentWithOperationTrackerTestPlainUserNameRenderer_name
+                @module(name: "PlainUserNameRenderer.react")
+              ...RelayModernEnvironmentWithOperationTrackerTestMarkdownUserNameRenderer_name
                 @module(name: "MarkdownUserNameRenderer.react")
             }
-            plainNameRenderer: nameRenderer @match(key: "FeedbackFragment_plainNameRenderer") {
-              ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+            plainNameRenderer: nameRenderer
+              @match(
+                key: "RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment_plainNameRenderer"
+              ) {
+              ...RelayModernEnvironmentWithOperationTrackerTestPlainUserNameRenderer_name
+                @module(name: "PlainUserNameRenderer.react")
             }
           }
         }
+      `);
 
-        fragment UserFragment_userName on User {
-          name
-        }
-
-        query Query($id: ID) @relay_test_operation {
-          node(id: $id) {
-            ...FeedbackFragment
-          }
-        }
-
-        mutation Mutation($input: CommentCreateInput) @relay_test_operation {
+      const Mutation = getRequest(graphql`
+        mutation RelayModernEnvironmentWithOperationTrackerTestMutation(
+          $input: CommentCreateInput
+        ) @relay_test_operation {
           commentCreate(input: $input) {
             feedback {
-              ...FeedbackFragment
+              ...RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment
             }
           }
         }
@@ -476,16 +477,16 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
                 data: {
                   markup: 'mock value',
                 },
-                __module_component_FeedbackFragment:
+                __module_component_RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment:
                   '<mock-value-for-field-"__module_component_FeedbackFragment">',
-                __module_operation_FeedbackFragment:
+                __module_operation_RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment:
                   '<mock-value-for-field-"__module_operation_FeedbackFragment">',
               },
               plainNameRenderer: {
                 __typename: 'PlainUserNameRenderer',
-                __module_component_FeedbackFragment_plainNameRenderer:
+                __module_component_RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment:
                   '<mock-value-for-field-"__module_component_FeedbackFragment">',
-                __module_operation_FeedbackFragment_plainNameRenderer:
+                __module_operation_RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment:
                   '<mock-value-for-field-"__module_operation_FeedbackFragment">',
               },
               id: '<User-mock-id-1>',
@@ -498,17 +499,14 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
 
       // We still processing follow-up payloads for the initial query
       expect(
-        tracker.getPromiseForPendingOperationsAffectingOwner(
-          QueryOperation1.request,
-        ),
+        tracker.getPendingOperationsAffectingOwner(QueryOperation1.request)
+          ?.promise,
       ).toBeInstanceOf(Promise);
       jest.runAllTimers();
 
       // All followup completed, operation tracker should be completed
       expect(
-        tracker.getPromiseForPendingOperationsAffectingOwner(
-          QueryOperation1.request,
-        ),
+        tracker.getPendingOperationsAffectingOwner(QueryOperation1.request),
       ).toBe(null);
 
       // Send the mutation
@@ -530,16 +528,16 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
                 __typename: 'User',
                 nameRenderer: {
                   __typename: 'PlainUserNameRenderer',
-                  __module_component_FeedbackFragment:
+                  __module_component_RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment:
                     '<mock-value-for-field-"__module_component_FeedbackFragment">',
-                  __module_operation_FeedbackFragment:
+                  __module_operation_RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment:
                     '<mock-value-for-field-"__module_operation_FeedbackFragment">',
                 },
                 plainNameRenderer: {
                   __typename: 'PlainUserNameRenderer',
-                  __module_component_FeedbackFragment_plainNameRenderer:
+                  __module_component_RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment_plainNameRenderer:
                     '<mock-value-for-field-"__module_component_FeedbackFragment">',
-                  __module_operation_FeedbackFragment_plainNameRenderer:
+                  __module_operation_RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment_plainNameRenderer:
                     '<mock-value-for-field-"__module_operation_FeedbackFragment">',
                 },
                 id: '<User-mock-id-1>',
@@ -550,18 +548,15 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
       });
 
       expect(
-        tracker.getPromiseForPendingOperationsAffectingOwner(
-          QueryOperation1.request,
-        ),
+        tracker.getPendingOperationsAffectingOwner(QueryOperation1.request)
+          ?.promise,
       ).toBeInstanceOf(Promise);
 
       environment.mock.complete(MutationOperation);
       expect(operationLoader.load).toBeCalled();
       jest.runAllTimers();
       expect(
-        tracker.getPromiseForPendingOperationsAffectingOwner(
-          QueryOperation1.request,
-        ),
+        tracker.getPendingOperationsAffectingOwner(QueryOperation1.request),
       ).toBe(null);
     });
   });

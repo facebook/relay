@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -19,6 +19,7 @@
  */
 function simpleClone<T>(value: T): T {
   if (Array.isArray(value)) {
+    // $FlowFixMe[incompatible-return]
     return value.map(simpleClone);
   } else if (value != null && typeof value === 'object') {
     const result = {};

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -9,12 +9,14 @@
 
 'use strict';
 
-const babel = require('gulp-babel');
 const babelOptions = require('./scripts/getBabelOptions')({
   ast: false,
   plugins: [
     '@babel/plugin-transform-flow-strip-types',
-    '@babel/plugin-transform-runtime',
+    [
+      '@babel/plugin-transform-runtime',
+      {version: require('@babel/runtime/package.json').version},
+    ],
     '@babel/plugin-proposal-nullish-coalescing-operator',
     '@babel/plugin-proposal-optional-catch-binding',
     '@babel/plugin-proposal-optional-chaining',
@@ -28,12 +30,12 @@ const babelOptions = require('./scripts/getBabelOptions')({
 const del = require('del');
 const fs = require('fs');
 const gulp = require('gulp');
+const babel = require('gulp-babel');
 const chmod = require('gulp-chmod');
-const gulpUtil = require('gulp-util');
 const header = require('gulp-header');
-const once = require('gulp-once');
-const path = require('path');
 const rename = require('gulp-rename');
+const gulpUtil = require('gulp-util');
+const path = require('path');
 const webpack = require('webpack');
 const webpackStream = require('webpack-stream');
 
@@ -46,10 +48,9 @@ if (RELEASE_COMMIT_SHA && RELEASE_COMMIT_SHA.length !== 40) {
 }
 
 const VERSION = RELEASE_COMMIT_SHA
-  ? `0.0.0-master-${RELEASE_COMMIT_SHA.substr(0, 8)}`
+  ? `0.0.0-main-${RELEASE_COMMIT_SHA.substr(0, 8)}`
   : process.env.npm_package_version;
 
-const SCRIPT_HASHBANG = '#!/usr/bin/env node\n';
 const DEVELOPMENT_HEADER = `/**
  * Relay v${VERSION}
  */
@@ -57,14 +58,14 @@ const DEVELOPMENT_HEADER = `/**
 const PRODUCTION_HEADER = `/**
  * Relay v${VERSION}
  *
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 `;
 
-const buildDist = function(filename, opts, isProduction) {
+const buildDist = function (filename, opts, isProduction) {
   const webpackOpts = {
     externals: [/^[-/a-zA-Z0-9]+$/, /^@babel\/.+$/],
     target: opts.target,
@@ -95,7 +96,7 @@ const buildDist = function(filename, opts, isProduction) {
       minimize: true,
     };
   }
-  return webpackStream(webpackOpts, webpack, function(err, stats) {
+  return webpackStream(webpackOpts, webpack, function (err, stats) {
     if (err) {
       throw new gulpUtil.PluginError('webpack', err);
     }
@@ -108,7 +109,6 @@ const buildDist = function(filename, opts, isProduction) {
 // Paths from package-root
 const PACKAGES = 'packages';
 const DIST = 'dist';
-const ONCE_FILE = '.checksums';
 
 // Globs for paths in PACKAGES
 const INCLUDE_GLOBS = [
@@ -140,6 +140,8 @@ const builds = [
     package: 'react-relay',
     exports: {
       index: 'index.js',
+      hooks: 'hooks.js',
+      legacy: 'legacy.js',
       ReactRelayContext: 'ReactRelayContext.js',
     },
     bundles: [
@@ -149,29 +151,17 @@ const builds = [
         libraryName: 'ReactRelay',
         libraryTarget: 'umd',
       },
-    ],
-  },
-  {
-    package: 'relay-compiler',
-    exports: {
-      index: 'index.js',
-    },
-    bundles: [
       {
-        entry: 'index.js',
-        output: 'relay-compiler',
-        libraryName: 'RelayCompiler',
-        libraryTarget: 'commonjs2',
-        target: 'node',
-        noMinify: true, // Note: uglify can't yet handle modern JS
+        entry: 'hooks.js',
+        output: 'react-relay-hooks',
+        libraryName: 'ReactRelayHooks',
+        libraryTarget: 'umd',
       },
-    ],
-    bins: [
       {
-        entry: 'RelayCompilerBin.js',
-        output: 'relay-compiler',
-        libraryTarget: 'commonjs2',
-        target: 'node',
+        entry: 'legacy.js',
+        output: 'react-relay-legacy',
+        libraryName: 'ReactRelayLegacy',
+        libraryTarget: 'umd',
       },
     ],
   },
@@ -206,21 +196,6 @@ const builds = [
     ],
   },
   {
-    package: 'relay-config',
-    exports: {
-      index: 'index.js',
-    },
-    bundles: [
-      {
-        entry: 'index.js',
-        output: 'relay-config',
-        libraryName: 'RelayConfig',
-        target: 'node',
-        noMinify: true, // Note: uglify can't yet handle modern JS
-      },
-    ],
-  },
-  {
     package: 'relay-test-utils-internal',
     exports: {
       index: 'index.js',
@@ -240,13 +215,12 @@ const builds = [
 
 const modules = gulp.parallel(
   ...builds.map(
-    build =>
+    (build) =>
       function modulesTask() {
         return gulp
           .src(INCLUDE_GLOBS, {
             cwd: path.join(PACKAGES, build.package),
           })
-          .pipe(once())
           .pipe(babel(babelOptions))
           .pipe(gulp.dest(path.join(DIST, build.package, 'lib')));
       },
@@ -255,7 +229,7 @@ const modules = gulp.parallel(
 
 const flowDefs = gulp.parallel(
   ...builds.map(
-    build =>
+    (build) =>
       function modulesTask() {
         return gulp
           .src(['**/*.js', '!**/__tests__/**/*.js', '!**/__mocks__/**/*.js'], {
@@ -268,11 +242,18 @@ const flowDefs = gulp.parallel(
 );
 
 const copyFilesTasks = [];
-builds.forEach(build => {
+builds.forEach((build) => {
   copyFilesTasks.push(
     function copyLicense() {
       return gulp
         .src(['LICENSE'])
+        .pipe(gulp.dest(path.join(DIST, build.package)));
+    },
+    function copyReadmeFile() {
+      return gulp
+        .src(['README.md'], {
+          cwd: path.join(PACKAGES, build.package),
+        })
         .pipe(gulp.dest(path.join(DIST, build.package)));
     },
     function copyTestschema() {
@@ -280,7 +261,6 @@ builds.forEach(build => {
         .src(['*.graphql'], {
           cwd: path.join(PACKAGES, build.package),
         })
-        .pipe(once())
         .pipe(gulp.dest(path.join(DIST, build.package, 'lib')));
     },
     function copyPackageJSON() {
@@ -288,7 +268,6 @@ builds.forEach(build => {
         .src(['package.json'], {
           cwd: path.join(PACKAGES, build.package),
         })
-        .pipe(once())
         .pipe(gulp.dest(path.join(DIST, build.package)));
     },
   );
@@ -301,9 +280,9 @@ const exportsFiles = gulp.series(
   modules,
   gulp.parallel(
     ...builds.map(
-      build =>
+      (build) =>
         function exportsFilesTask(done) {
-          Object.keys(build.exports).map(exportName =>
+          Object.keys(build.exports).map((exportName) =>
             fs.writeFileSync(
               path.join(DIST, build.package, exportName + '.js'),
               PRODUCTION_HEADER +
@@ -316,26 +295,9 @@ const exportsFiles = gulp.series(
   ),
 );
 
-const binsTasks = [];
-builds.forEach(build => {
-  if (build.bins) {
-    build.bins.forEach(bin => {
-      binsTasks.push(function binsTask() {
-        return gulp
-          .src(path.join(DIST, build.package, 'lib', 'bin', bin.entry))
-          .pipe(buildDist(bin.output, bin, /* isProduction */ false))
-          .pipe(header(SCRIPT_HASHBANG + PRODUCTION_HEADER))
-          .pipe(chmod(0o755))
-          .pipe(gulp.dest(path.join(DIST, build.package, 'bin')));
-      });
-    });
-  }
-});
-const bins = gulp.series(binsTasks);
-
 const bundlesTasks = [];
-builds.forEach(build => {
-  build.bundles.forEach(bundle => {
+builds.forEach((build) => {
+  build.bundles.forEach((bundle) => {
     bundlesTasks.push(function bundleTask() {
       return gulp
         .src(path.join(DIST, build.package, 'lib', bundle.entry))
@@ -350,8 +312,8 @@ builds.forEach(build => {
 const bundles = gulp.series(bundlesTasks);
 
 const bundlesMinTasks = [];
-builds.forEach(build => {
-  build.bundles.forEach(bundle => {
+builds.forEach((build) => {
+  build.bundles.forEach((bundle) => {
     bundlesMinTasks.push(function bundlesMinTask() {
       return gulp
         .src(path.join(DIST, build.package, 'lib', bundle.entry))
@@ -365,22 +327,45 @@ builds.forEach(build => {
 });
 const bundlesMin = gulp.series(bundlesMinTasks);
 
-const clean = () => del(ONCE_FILE).then(() => del(DIST));
-const dist = gulp.series(exportsFiles, bins, bundles, bundlesMin);
+const clean = () => del(DIST);
+const dist = gulp.series(exportsFiles, bundles, bundlesMin);
 const watch = gulp.series(dist, () =>
   gulp.watch(INCLUDE_GLOBS, {cwd: PACKAGES}, dist),
 );
 
+const relayCompiler = gulp.parallel(
+  function copyLicense() {
+    return gulp
+      .src(['LICENSE'])
+      .pipe(gulp.dest(path.join(DIST, 'relay-compiler')));
+  },
+  function copyPackageFiles() {
+    return gulp
+      .src(['README.md', 'package.json', 'cli.js', 'index.js'], {
+        cwd: path.join(PACKAGES, 'relay-compiler'),
+      })
+      .pipe(gulp.dest(path.join(DIST, 'relay-compiler')));
+  },
+  function copyCompilerBins() {
+    return gulp
+      .src('**', {
+        cwd: path.join('artifacts'),
+      })
+      .pipe(gulp.dest(path.join(DIST, 'relay-compiler')));
+  },
+);
+
 /**
  * Updates the package.json files `/dist/` with a version to release to npm under
- * the master tag.
+ * the main tag.
  */
-const setMasterVersion = async () => {
+const setMainVersion = async () => {
   if (!RELEASE_COMMIT_SHA) {
     throw new Error('Expected the RELEASE_COMMIT_SHA env variable to be set.');
   }
-  const packages = builds.map(build => build.package);
-  packages.forEach(pkg => {
+  const packages = builds.map((build) => build.package);
+  packages.push('relay-compiler');
+  packages.forEach((pkg) => {
     const pkgJsonPath = path.join('.', 'dist', pkg, 'package.json');
     const packageJson = JSON.parse(fs.readFileSync(pkgJsonPath, 'utf8'));
     packageJson.version = VERSION;
@@ -404,11 +389,33 @@ const setMasterVersion = async () => {
   });
 };
 
+async function setCompilerMainVersion() {
+  if (!RELEASE_COMMIT_SHA) {
+    throw new Error('Expected the RELEASE_COMMIT_SHA env variable to be set.');
+  }
+  const currentVersion = require('./package.json').version;
+  const compilerCargoFile = path.join(
+    '.',
+    'compiler',
+    'crates',
+    'relay-compiler',
+    'Cargo.toml',
+  );
+  const cargo = fs.readFileSync(compilerCargoFile, 'utf8');
+  const updatedCargo = cargo.replace(
+    `version = "${currentVersion}"`,
+    `version = "${VERSION}"`,
+  );
+  fs.writeFileSync(compilerCargoFile, updatedCargo, 'utf8');
+}
+
 const cleanbuild = gulp.series(clean, dist);
 
 exports.clean = clean;
 exports.dist = dist;
 exports.watch = watch;
-exports.masterrelease = gulp.series(cleanbuild, setMasterVersion);
+exports.mainrelease = gulp.series(cleanbuild, relayCompiler, setMainVersion);
+exports.release = gulp.series(cleanbuild, relayCompiler);
 exports.cleanbuild = cleanbuild;
 exports.default = cleanbuild;
+exports.setCompilerMainVersion = setCompilerMainVersion;

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -12,11 +12,10 @@
 
 'use strict';
 
-const React = require('react');
-
 const {
   createContainer: createPaginationContainer,
 } = require('../ReactRelayPaginationContainer');
+const React = require('react');
 const {graphql} = require('relay-runtime');
 
 /**
@@ -63,10 +62,15 @@ const Foo = createPaginationContainer(
   {
     viewer: graphql`
       fragment ReactRelayPaginationContainerFlowtest_viewer on Viewer {
-        all_friends(after: $cursor, first: $count) @connection {
-          edges {
-            node {
-              __typename
+        account_user {
+          friends(after: $cursor, first: $count)
+            @connection(
+              key: "ReactRelayPaginationContainerFlowtest_viewer__friends"
+            ) {
+            edges {
+              node {
+                __typename
+              }
             }
           }
         }
@@ -75,7 +79,8 @@ const Foo = createPaginationContainer(
   },
   {
     direction: 'forward',
-    getConnectionFromProps: props => props.viewer.all_friends,
+    getConnectionFromProps: props => props.viewer.account_user.friends,
+    // $FlowFixMe[cannot-spread-interface]
     getFragmentVariables: (vars, totalCount) => ({
       ...vars,
       count: totalCount,

@@ -1,8 +1,0 @@
-fragment UserFragment on User
-  @argumentDefinitions(
-    environments: {type: "[Environment!]!", defaultValue: [web]}
-  ) {
-  checkins(environments: $environments) {
-    __typename
-  }
-}

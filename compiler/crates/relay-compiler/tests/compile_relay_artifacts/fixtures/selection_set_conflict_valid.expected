@@ -1,0 +1,242 @@
+==================================== INPUT ====================================
+query selectionSetConflictValidQuery {
+  me {
+    profile_picture(scale: 1.5, media_type: "image/jpeg") {
+      width @include(if: true)
+      height
+    }
+    profile_picture(media_type: "image/jpeg", scale: 1.5) {
+      uri
+      width @include(if: false)
+    }
+  }
+  nodes(ids: ["1", "2", "3"]) {
+    id
+  }
+  nodes(ids: ["1", "2", "3"]) {
+    id
+  }
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "selectionSetConflictValidQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "me",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": [
+              {
+                "kind": "Literal",
+                "name": "media_type",
+                "value": "image/jpeg"
+              },
+              {
+                "kind": "Literal",
+                "name": "scale",
+                "value": 1.5
+              }
+            ],
+            "concreteType": "Image",
+            "kind": "LinkedField",
+            "name": "profile_picture",
+            "plural": false,
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "width",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "height",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "uri",
+                "storageKey": null
+              }
+            ],
+            "storageKey": "profile_picture(media_type:\"image/jpeg\",scale:1.5)"
+          }
+        ],
+        "storageKey": null
+      },
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Literal",
+            "name": "ids",
+            "value": [
+              "1",
+              "2",
+              "3"
+            ]
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "nodes",
+        "plural": true,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          }
+        ],
+        "storageKey": "nodes(ids:[\"1\",\"2\",\"3\"])"
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [],
+    "kind": "Operation",
+    "name": "selectionSetConflictValidQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "me",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": [
+              {
+                "kind": "Literal",
+                "name": "media_type",
+                "value": "image/jpeg"
+              },
+              {
+                "kind": "Literal",
+                "name": "scale",
+                "value": 1.5
+              }
+            ],
+            "concreteType": "Image",
+            "kind": "LinkedField",
+            "name": "profile_picture",
+            "plural": false,
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "width",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "height",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "uri",
+                "storageKey": null
+              }
+            ],
+            "storageKey": "profile_picture(media_type:\"image/jpeg\",scale:1.5)"
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      },
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Literal",
+            "name": "ids",
+            "value": [
+              "1",
+              "2",
+              "3"
+            ]
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "nodes",
+        "plural": true,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "__typename",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          }
+        ],
+        "storageKey": "nodes(ids:[\"1\",\"2\",\"3\"])"
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {},
+    "name": "selectionSetConflictValidQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query selectionSetConflictValidQuery {
+  me {
+    profile_picture(scale: 1.5, media_type: "image/jpeg") {
+      width
+      height
+      uri
+    }
+    id
+  }
+  nodes(ids: ["1", "2", "3"]) {
+    __typename
+    id
+  }
+}

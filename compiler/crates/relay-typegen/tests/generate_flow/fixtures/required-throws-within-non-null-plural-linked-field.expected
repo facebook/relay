@@ -5,18 +5,16 @@ fragment SomeFragment on User {
   }
 }
 ==================================== OUTPUT ===================================
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type SomeFragment$ref: FragmentReference;
-declare export opaque type SomeFragment$fragmentType: SomeFragment$ref;
-export type SomeFragment = {|
+import type { FragmentType } from "relay-runtime";
+declare export opaque type SomeFragment$fragmentType: FragmentType;
+export type SomeFragment$data = {|
   +neighbors: ?$ReadOnlyArray<{|
-    +name: string
+    +name: string,
   |}>,
-  +$refType: SomeFragment$ref,
+  +$fragmentType: SomeFragment$fragmentType,
 |};
-export type SomeFragment$data = SomeFragment;
 export type SomeFragment$key = {
   +$data?: SomeFragment$data,
-  +$fragmentRefs: SomeFragment$ref,
+  +$fragmentSpreads: SomeFragment$fragmentType,
   ...
 };

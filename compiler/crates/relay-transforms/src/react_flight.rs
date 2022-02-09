@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -7,16 +7,22 @@
 
 use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, WithLocation};
 use graphql_ir::{
-    Argument, ConstantValue, Directive, Program, ScalarField, Selection, Transformed, Transformer,
-    ValidationMessage, Value,
+    associated_data_impl, Argument, ConstantValue, Directive, FragmentDefinition, FragmentSpread,
+    OperationDefinition, Program, ScalarField, Selection, Transformed, Transformer, Value,
 };
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey, StringKeyMap, StringKeySet};
+use itertools::Itertools;
 use lazy_static::lazy_static;
-use schema::{Field, FieldID, Type};
+use schema::{Field, FieldID, Schema, Type};
 use std::sync::Arc;
+use thiserror::Error;
 
 lazy_static! {
-    pub static ref REACT_FLIGHT_DIRECTIVE_NAME: StringKey = "__ReactFlightComponent".intern();
+    static ref REACT_FLIGHT_TRANSITIVE_COMPONENTS_DIRECTIVE_NAME: StringKey =
+        "react_flight".intern();
+    static ref REACT_FLIGHT_TRANSITIVE_COMPONENTS_DIRECTIVE_ARG: StringKey = "components".intern();
+    pub static ref REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY: StringKey =
+        "__ReactFlightComponent".intern();
     static ref REACT_FLIGHT_COMPONENT_ARGUMENT_NAME: StringKey = "component".intern();
     static ref REACT_FLIGHT_PROPS_ARGUMENT_NAME: StringKey = "props".intern();
     static ref REACT_FLIGHT_PROPS_TYPE: StringKey = "ReactFlightProps".intern();
@@ -26,8 +32,16 @@ lazy_static! {
     static ref NAME: StringKey = "name".intern();
 }
 
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub struct ReactFlightLocalComponentsMetadata {
+    pub components: Vec<StringKey>,
+}
+associated_data_impl!(ReactFlightLocalComponentsMetadata);
+
 /// Transform to find calls to React Flight schema extension fields and rewrite them into calls
-/// to a generic `flight(component, props)` field.
+/// to a generic `flight(component, props)` field. Also tracks which Flight fields each document
+/// references locally (stored as a metadata directive on fragments/operations) as well as which
+/// Flight fields each operation uses transitively (stored as a server directive on operations).
 pub fn react_flight(program: &Program) -> DiagnosticsResult<Program> {
     // No-op unless the special props/component types and flight directive are defined
     let props_type = program.schema.get_type(*REACT_FLIGHT_PROPS_TYPE);
@@ -37,10 +51,9 @@ pub fn react_flight(program: &Program) -> DiagnosticsResult<Program> {
         _ => return Ok(program.clone()),
     };
     let mut transform = ReactFlightTransform::new(program, props_type, component_type);
+    let transform_result = transform.transform_program(program);
     if transform.errors.is_empty() {
-        Ok(transform
-            .transform_program(program)
-            .replace_or_else(|| program.clone()))
+        Ok(transform_result.replace_or_else(|| program.clone()))
     } else {
         Err(transform.errors)
     }
@@ -51,6 +64,19 @@ struct ReactFlightTransform<'s> {
     errors: Vec<Diagnostic>,
     program: &'s Program,
     props_type: Type,
+    // server components encountered as a dependency of the visited operation/fragment
+    // NOTE: this is operation/fragment-specific
+    local_components: StringKeySet,
+    transitive_components: StringKeySet,
+    fragments: StringKeyMap<FragmentResult>,
+}
+
+enum FragmentResult {
+    Pending,
+    Resolved {
+        fragment: Transformed<FragmentDefinition>,
+        transitive_components: StringKeySet,
+    },
 }
 
 impl<'s> ReactFlightTransform<'s> {
@@ -60,6 +86,9 @@ impl<'s> ReactFlightTransform<'s> {
             errors: Default::default(),
             program,
             props_type,
+            local_components: Default::default(),
+            transitive_components: Default::default(),
+            fragments: Default::default(),
         }
     }
 
@@ -132,7 +161,7 @@ impl<'s> ReactFlightTransform<'s> {
             None => {
                 self.errors.push(Diagnostic::error(
                     ValidationMessage::InvalidFlightFieldNotDefinedOnType {
-                        field_name: field_definition.name,
+                        field_name: field_definition.name.item,
                     },
                     location,
                 ));
@@ -174,12 +203,152 @@ impl<'s> ReactFlightTransform<'s> {
         }
         Ok(flight_field_id)
     }
+
+    // Generate a metadata directive recording which server components were reachable
+    // from the visited IR nodes
+    fn generate_flight_local_flight_components_metadata_directive(&self) -> Directive {
+        ReactFlightLocalComponentsMetadata {
+            components: self.local_components.iter().copied().sorted().collect(),
+        }
+        .into()
+    }
+
+    // Generate a server directive recording which server components were *transitively* reachable
+    // from the visited IR nodes
+    fn generate_flight_transitive_flight_components_server_directive(&self) -> Directive {
+        let mut components: Vec<StringKey> = self.transitive_components.iter().copied().collect();
+        components.sort();
+        Directive {
+            name: WithLocation::generated(*REACT_FLIGHT_TRANSITIVE_COMPONENTS_DIRECTIVE_NAME),
+            arguments: vec![Argument {
+                name: WithLocation::generated(*REACT_FLIGHT_TRANSITIVE_COMPONENTS_DIRECTIVE_ARG),
+                value: WithLocation::generated(Value::Constant(ConstantValue::List(
+                    components.into_iter().map(ConstantValue::String).collect(),
+                ))),
+            }],
+            data: None,
+        }
+    }
 }
 
 impl<'s> Transformer for ReactFlightTransform<'s> {
     const NAME: &'static str = "ReactFlightTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;
+
+    fn transform_operation(
+        &mut self,
+        operation: &OperationDefinition,
+    ) -> Transformed<OperationDefinition> {
+        // reset component lists per document
+        self.local_components.clear();
+        self.transitive_components.clear();
+        let transformed = self.default_transform_operation(operation);
+
+        // if there are no locally or transitively referenced server components there is no metadata
+        // to add to the fragment
+        if self.transitive_components.is_empty() && self.local_components.is_empty() {
+            return transformed;
+        }
+
+        let mut operation = transformed.unwrap_or_else(|| operation.clone());
+        self.transitive_components
+            .extend(self.local_components.iter().cloned());
+        operation.directives.reserve_exact(2);
+        operation
+            .directives
+            .push(self.generate_flight_local_flight_components_metadata_directive());
+        if self
+            .program
+            .schema
+            .has_directive(*REACT_FLIGHT_TRANSITIVE_COMPONENTS_DIRECTIVE_NAME)
+        {
+            operation
+                .directives
+                .push(self.generate_flight_transitive_flight_components_server_directive());
+        }
+        Transformed::Replace(operation)
+    }
+
+    fn transform_fragment(
+        &mut self,
+        fragment: &FragmentDefinition,
+    ) -> Transformed<FragmentDefinition> {
+        if let Some(FragmentResult::Resolved { fragment, .. }) =
+            self.fragments.get(&fragment.name.item)
+        {
+            // fragment has already been visited (a previous fragment transitively referenced this one)
+            return fragment.clone();
+        }
+
+        // reset component lists per document
+        self.local_components.clear();
+        self.transitive_components.clear();
+        let transformed = self.default_transform_fragment(fragment);
+
+        // if there are no locally referenced server components there is no metadata to add to the fragment
+        if self.local_components.is_empty() {
+            return transformed;
+        }
+
+        let mut fragment = transformed.unwrap_or_else(|| fragment.clone());
+        fragment.directives.reserve_exact(1);
+        fragment
+            .directives
+            .push(self.generate_flight_local_flight_components_metadata_directive());
+
+        Transformed::Replace(fragment)
+    }
+
+    fn transform_fragment_spread(&mut self, spread: &FragmentSpread) -> Transformed<Selection> {
+        match self.fragments.get(&spread.fragment.item) {
+            Some(FragmentResult::Resolved {
+                transitive_components,
+                ..
+            }) => {
+                self.transitive_components
+                    .extend(transitive_components.iter().cloned());
+                return Transformed::Keep;
+            }
+            Some(FragmentResult::Pending) => {
+                // recursive fragment, immediately return to avoid infinite loop. components will be added
+                // at the point where the fragment was first reached
+                return Transformed::Keep;
+            }
+            None => {}
+        };
+        // capture the local/transitive component sets prior to visiting the fragment
+        let mut local_components = std::mem::take(&mut self.local_components);
+        let mut transitive_components = std::mem::take(&mut self.transitive_components);
+        // mark the fragment as pending in case of a recursive fragment and then visit it
+        self.fragments
+            .insert(spread.fragment.item, FragmentResult::Pending);
+        let fragment =
+            self.transform_fragment(self.program.fragment(spread.fragment.item).unwrap_or_else(
+                || {
+                    panic!(
+                        "Tried to spread missing fragment: `{}`.",
+                        spread.fragment.item
+                    );
+                },
+            ));
+        // extend the parent's transitive component set w the local and transitive components from the fragment
+        transitive_components.extend(self.local_components.iter().cloned());
+        transitive_components.extend(self.transitive_components.iter().cloned());
+        // then make the parent's sets active again
+        std::mem::swap(&mut self.local_components, &mut local_components);
+        std::mem::swap(&mut self.transitive_components, &mut transitive_components);
+
+        transitive_components.extend(local_components);
+        self.fragments.insert(
+            spread.fragment.item,
+            FragmentResult::Resolved {
+                fragment,
+                transitive_components,
+            },
+        );
+        Transformed::Keep
+    }
 
     fn transform_scalar_field(&mut self, field: &ScalarField) -> Transformed<Selection> {
         let field_definition = self.program.schema.field(field.definition.item);
@@ -202,16 +371,18 @@ impl<'s> Transformer for ReactFlightTransform<'s> {
                 Err(_) => return Transformed::Keep,
             };
 
+        // Record that the given component is reachable from this field
+        self.local_components.insert(component_name);
+
         // Rewrite into a call to the `flight` field, passing the original arguments
         // as values of the `props` argument:
-        let alias = field
-            .alias
-            .unwrap_or_else(|| WithLocation::generated(field_definition.name));
+        let alias = field.alias.unwrap_or(field_definition.name);
         let mut directives = Vec::with_capacity(field.directives.len() + 1);
         directives.extend(field.directives.iter().cloned());
         directives.push(Directive {
-            name: WithLocation::generated(*REACT_FLIGHT_DIRECTIVE_NAME),
+            name: WithLocation::generated(*REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY),
             arguments: vec![],
+            data: None,
         });
         Transformed::Replace(Selection::ScalarField(Arc::new(ScalarField {
             alias: Some(alias),
@@ -231,4 +402,27 @@ impl<'s> Transformer for ReactFlightTransform<'s> {
             directives,
         })))
     }
+}
+
+#[derive(Error, Debug)]
+enum ValidationMessage {
+    #[error(
+        "Expected 'flight' field schema definition to specify its component name with @react_flight_component"
+    )]
+    InvalidFlightFieldMissingModuleDirective,
+
+    #[error("Cannot query field '{field_name}', this type does not define a 'flight' field")]
+    InvalidFlightFieldNotDefinedOnType { field_name: StringKey },
+
+    #[error("Expected @react_flight_component value to be a literal string")]
+    InvalidFlightFieldExpectedModuleNameString,
+
+    #[error("Expected flight field to have a 'props: ReactFlightProps' argument")]
+    InvalidFlightFieldPropsArgument,
+
+    #[error("Expected flight field to have a 'component: String' argument")]
+    InvalidFlightFieldComponentArgument,
+
+    #[error("Expected flight field to return 'ReactFlightComponent'")]
+    InvalidFlightFieldReturnType,
 }

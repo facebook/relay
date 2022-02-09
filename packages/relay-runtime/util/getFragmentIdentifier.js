@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,18 +13,17 @@
 
 'use strict';
 
-const RelayFeatureFlags = require('./RelayFeatureFlags');
-
-const isEmptyObject = require('./isEmptyObject');
-const stableCopy = require('./stableCopy');
+import type {ReaderFragment} from './ReaderNode';
 
 const {
   getDataIDsFromFragment,
-  getVariablesFromFragment,
   getSelector,
+  getVariablesFromFragment,
 } = require('../store/RelayModernSelector');
-
-import type {ReaderFragment} from './ReaderNode';
+const isEmptyObject = require('./isEmptyObject');
+const RelayFeatureFlags = require('./RelayFeatureFlags');
+const stableCopy = require('./stableCopy');
+const {intern} = require('./StringInterner');
 
 function getFragmentIdentifier(
   fragmentNode: ReaderFragment,
@@ -43,6 +42,19 @@ function getFragmentIdentifier(
   const dataIDs = getDataIDsFromFragment(fragmentNode, fragmentRef);
 
   if (RelayFeatureFlags.ENABLE_GETFRAGMENTIDENTIFIER_OPTIMIZATION) {
+    let ids =
+      typeof dataIDs === 'undefined'
+        ? 'missing'
+        : dataIDs == null
+        ? 'null'
+        : Array.isArray(dataIDs)
+        ? '[' + dataIDs.join(',') + ']'
+        : dataIDs;
+    ids =
+      RelayFeatureFlags.STRING_INTERN_LEVEL <= 1
+        ? ids
+        : intern(ids, RelayFeatureFlags.MAX_DATA_ID_LENGTH);
+
     return (
       fragmentOwnerIdentifier +
       '/' +
@@ -52,15 +64,15 @@ function getFragmentIdentifier(
         ? '{}'
         : JSON.stringify(stableCopy(fragmentVariables))) +
       '/' +
-      (typeof dataIDs === 'undefined'
-        ? 'missing'
-        : dataIDs == null
-        ? 'null'
-        : Array.isArray(dataIDs)
-        ? '[' + dataIDs.join(',') + ']'
-        : dataIDs)
+      ids
     );
   } else {
+    let ids = JSON.stringify(dataIDs) ?? 'missing';
+    ids =
+      RelayFeatureFlags.STRING_INTERN_LEVEL <= 1
+        ? ids
+        : intern(ids, RelayFeatureFlags.MAX_DATA_ID_LENGTH);
+
     return (
       fragmentOwnerIdentifier +
       '/' +
@@ -68,7 +80,7 @@ function getFragmentIdentifier(
       '/' +
       JSON.stringify(stableCopy(fragmentVariables)) +
       '/' +
-      (JSON.stringify(dataIDs) ?? 'missing')
+      ids
     );
   }
 }

@@ -1,46 +1,45 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::build_project::Artifact;
-use fnv::{FnvBuildHasher, FnvHashMap};
-use interner::StringKey;
+use crate::build_project::{Artifact, ArtifactContent};
+use dashmap::{mapref::entry::Entry, DashMap};
+use intern::string_key::StringKey;
+use relay_codegen::QueryID;
 use serde::{Deserialize, Serialize};
-use sha1::{Digest, Sha1};
-use std::{collections::hash_map::Entry, path::PathBuf};
+use std::path::PathBuf;
 
 /// Name of a fragment or operation.
 pub type DefinitionName = StringKey;
 
-/// Tuple with the path and hash of the artifact
-type ArtifactTuple = (PathBuf, Sha1Hash);
-
+/// Record that contains path to the artifact, persisted_operation_id (when available)
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct Sha1Hash(String);
-
-impl Sha1Hash {
-    fn hash(data: &str) -> Self {
-        let mut hash = Sha1::new();
-        hash.input(data);
-        Sha1Hash(hex::encode(hash.result()))
-    }
+pub struct ArtifactRecord {
+    pub path: PathBuf,
+    pub persisted_operation_id: Option<String>,
 }
-
-/// A map from DefinitionName to output artifacts and their hashes
+/// A map from DefinitionName to output artifacts records
 #[derive(Default, Serialize, Deserialize, Debug, Clone)]
-pub struct ArtifactMap(pub FnvHashMap<DefinitionName, Vec<ArtifactTuple>>);
+pub struct ArtifactMap(pub DashMap<DefinitionName, Vec<ArtifactRecord>>);
 
 impl ArtifactMap {
-    pub fn insert(&mut self, artifact: Artifact) {
-        let artifact_tuple = (
-            artifact.path,
-            Sha1Hash::hash(
-                "TODO", // &artifact.content
-            ),
-        );
+    pub fn insert(&self, artifact: Artifact) {
+        let artifact_tuple = ArtifactRecord {
+            path: artifact.path,
+            persisted_operation_id: match artifact.content {
+                ArtifactContent::Operation {
+                    id_and_text_hash, ..
+                } => match id_and_text_hash {
+                    Some(QueryID::Persisted { id, .. }) => Some(id),
+                    _ => None,
+                },
+                _ => None,
+            },
+        };
+
         for source_definition_name in artifact.source_definition_names {
             match self.0.entry(source_definition_name) {
                 Entry::Occupied(mut entry) => {
@@ -56,10 +55,7 @@ impl ArtifactMap {
 
 impl From<Vec<Artifact>> for ArtifactMap {
     fn from(artifacts: Vec<Artifact>) -> Self {
-        let mut map = ArtifactMap(FnvHashMap::with_capacity_and_hasher(
-            artifacts.len(),
-            FnvBuildHasher::default(),
-        ));
+        let map = ArtifactMap(DashMap::with_capacity(artifacts.len()));
         for artifact in artifacts {
             map.insert(artifact);
         }

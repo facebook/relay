@@ -1,0 +1,13 @@
+# expected-to-throw
+query QueryWithRelayClientComponent($id: ID!) {
+  nonNodeStory(id: $id) {
+    id
+    ...ClientFragmentOnFakeNode @relay_client_component
+  }
+}
+
+fragment ClientFragmentOnFakeNode on NonNodeStory {
+  message {
+    text
+  }
+}

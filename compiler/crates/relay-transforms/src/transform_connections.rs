@@ -1,24 +1,26 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::connections::{
-    assert_connection_selections, build_connection_metadata,
-    build_connection_metadata_as_directive, build_edge_selections, build_page_info_selections,
-    extract_connection_directive, get_default_filters, ConnectionConstants, ConnectionInterface,
-    ConnectionMetadata,
+use crate::{
+    connections::{
+        assert_connection_selections, build_connection_metadata, build_edge_selections,
+        build_page_info_selections, extract_connection_directive, get_default_filters,
+        ConnectionConstants, ConnectionInterface, ConnectionMetadata, ConnectionMetadataDirective,
+    },
+    defer_stream::DEFER_STREAM_CONSTANTS,
+    handle_fields::{build_handle_field_directive_from_connection_directive, KEY_ARG_NAME},
 };
-use crate::defer_stream::DEFER_STREAM_CONSTANTS;
-use crate::handle_fields::{build_handle_field_directive_from_connection_directive, KEY_ARG_NAME};
 use common::{NamedItem, WithLocation};
 use graphql_ir::{
     Argument, ConstantValue, Directive, FragmentDefinition, InlineFragment, LinkedField,
     OperationDefinition, Program, Selection, Transformed, Transformer, Value,
 };
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey};
+use schema::Schema;
 use std::sync::Arc;
 
 pub fn transform_connections(
@@ -77,7 +79,7 @@ impl<'s> ConnectionTransform<'s> {
             .named_field(connection_field_type, self.connection_interface.edges)
             .expect("Expected presence of edges field to have been previously validated.");
         let edges_schema_field = schema.field(edges_schema_field_id);
-        let edges_field_name = edges_schema_field.name;
+        let edges_field_name = edges_schema_field.name.item;
         let edge_type = edges_schema_field.type_.inner();
         let mut is_aliased_edges = false;
         let mut transformed_edges_field = if let Some(alias) = edges_field.alias {
@@ -133,6 +135,7 @@ impl<'s> ConnectionTransform<'s> {
                     DEFER_STREAM_CONSTANTS.stream_name,
                 ),
                 arguments,
+                data: None,
             });
         }
 
@@ -141,7 +144,7 @@ impl<'s> ConnectionTransform<'s> {
             .named_field(connection_field_type, self.connection_interface.page_info)
             .expect("Expected presence of page_info field to have been previously validated.");
         let page_info_schema_field = schema.field(page_info_schema_field_id);
-        let page_info_field_name = page_info_schema_field.name;
+        let page_info_field_name = page_info_schema_field.name.item;
         let page_info_type = page_info_schema_field.type_.inner();
         let mut page_info_ix = None;
         let mut is_aliased_page_info = false;
@@ -184,7 +187,7 @@ impl<'s> ConnectionTransform<'s> {
             .push(build_page_info_selections(
                 schema,
                 page_info_type,
-                &connection_metadata,
+                connection_metadata,
                 self.connection_constants,
                 self.connection_interface,
             ));
@@ -227,6 +230,7 @@ impl<'s> ConnectionTransform<'s> {
                         DEFER_STREAM_CONSTANTS.defer_name,
                     ),
                     arguments,
+                    data: None,
                 }],
             }))
         } else {
@@ -295,19 +299,19 @@ impl<'s> ConnectionTransform<'s> {
         connection_directive: &Directive,
     ) -> Transformed<Selection> {
         let connection_metadata = build_connection_metadata(
-            &connection_field,
+            connection_field,
             self.connection_constants,
             &self.current_path,
             connection_directive.name.item
                 == self.connection_constants.stream_connection_directive_name,
         );
         let next_connection_selections = self.transform_connection_selections(
-            &connection_field,
+            connection_field,
             &connection_metadata,
-            &connection_directive,
+            connection_directive,
         );
         let next_connection_directives =
-            self.transform_connection_directives(&connection_field, &connection_directive);
+            self.transform_connection_directives(connection_field, connection_directive);
 
         // Include the connection metadata from this linked field to
         // attach to the current root document (fragment or operation)
@@ -318,6 +322,10 @@ impl<'s> ConnectionTransform<'s> {
             directives: next_connection_directives,
             ..connection_field.clone()
         })))
+    }
+
+    fn get_metadata_directive(&mut self) -> Directive {
+        ConnectionMetadataDirective(std::mem::take(&mut self.current_connection_metadata)).into()
     }
 }
 
@@ -346,14 +354,9 @@ impl<'s> Transformer for ConnectionTransform<'s> {
             Transformed::Replace(replaced) => replaced,
         };
 
-        let connection_metadata_directive = build_connection_metadata_as_directive(
-            &self.current_connection_metadata,
-            self.connection_constants,
-        );
-
         transformed_operation
             .directives
-            .push(connection_metadata_directive);
+            .push(self.get_metadata_directive());
 
         Transformed::Replace(transformed_operation)
     }
@@ -378,14 +381,9 @@ impl<'s> Transformer for ConnectionTransform<'s> {
             Transformed::Replace(replaced) => replaced,
         };
 
-        let connection_metadata_directive = build_connection_metadata_as_directive(
-            &self.current_connection_metadata,
-            self.connection_constants,
-        );
-
         transformed_fragment
             .directives
-            .push(connection_metadata_directive);
+            .push(self.get_metadata_directive());
 
         Transformed::Replace(transformed_fragment)
     }
@@ -405,7 +403,7 @@ impl<'s> Transformer for ConnectionTransform<'s> {
             path.push(if let Some(alias) = field.alias {
                 alias.item
             } else {
-                connection_schema_field.name
+                connection_schema_field.name.item
             })
         }
 

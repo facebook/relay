@@ -1,28 +1,33 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::client_extensions::CLIENT_EXTENSION_DIRECTIVE_NAME;
-use crate::connections::ConnectionConstants;
-use crate::handle_fields::HANDLE_FIELD_DIRECTIVE_NAME;
-use crate::inline_data_fragment::INLINE_DATA_CONSTANTS;
-use crate::match_::MATCH_CONSTANTS;
-use crate::react_flight::REACT_FLIGHT_DIRECTIVE_NAME;
-use crate::refetchable_fragment::CONSTANTS as REFETCHABLE_CONSTANTS;
-use crate::required_directive::{
-    CHILDREN_CAN_BUBBLE_METADATA_KEY, REQUIRED_DIRECTIVE_NAME, REQUIRED_METADATA_KEY,
+use crate::{
+    client_extensions::CLIENT_EXTENSION_DIRECTIVE_NAME,
+    connections::ConnectionMetadataDirective,
+    handle_fields::HANDLE_FIELD_DIRECTIVE_NAME,
+    inline_data_fragment::InlineDirectiveMetadata,
+    react_flight::REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY,
+    refetchable_fragment::RefetchableMetadata,
+    relay_actor_change::RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN,
+    required_directive::{CHILDREN_CAN_BUBBLE_METADATA_KEY, REQUIRED_DIRECTIVE_NAME},
+    ModuleMetadata, ReactFlightLocalComponentsMetadata, RefetchableDerivedFromMetadata,
+    RelayClientComponentMetadata, RelayResolverSpreadMetadata, RequiredMetadataDirective,
+    CLIENT_EDGE_GENERATED_FRAGMENT_KEY, CLIENT_EDGE_METADATA_KEY, CLIENT_EDGE_QUERY_METADATA_KEY,
+    DIRECTIVE_SPLIT_OPERATION, INTERNAL_METADATA_DIRECTIVE,
 };
 
-use crate::INTERNAL_METADATA_DIRECTIVE;
-
-use fnv::FnvHashSet;
-use graphql_ir::{Argument, Directive, Value, ARGUMENT_DEFINITION};
-use interner::{Intern, StringKey};
+use graphql_ir::{
+    Argument, Directive, ProvidedVariableMetadata, Value, ARGUMENT_DEFINITION,
+    UNUSED_LOCAL_VARIABLE_DEPRECATED,
+};
+use intern::string_key::{Intern, StringKey};
 use lazy_static::lazy_static;
-use schema::{Schema, Type};
+use regex::Regex;
+use schema::{SDLSchema, Schema, Type};
 
 // A wrapper type that allows comparing pointer equality of references. Two
 // `PointerAddress` values are equal if they point to the same memory location.
@@ -82,62 +87,111 @@ pub fn extract_variable_name(argument: Option<&Argument>) -> Option<StringKey> {
     }
 }
 
-pub struct CustomMetadataDirectives {
-    pub connection_constants: ConnectionConstants,
+lazy_static! {
+    static ref CUSTOM_METADATA_DIRECTIVES: [StringKey; 22] = [
+        *CLIENT_EXTENSION_DIRECTIVE_NAME,
+        ConnectionMetadataDirective::directive_name(),
+        *HANDLE_FIELD_DIRECTIVE_NAME,
+        ModuleMetadata::directive_name(),
+        *DIRECTIVE_SPLIT_OPERATION,
+        RefetchableMetadata::directive_name(),
+        RefetchableDerivedFromMetadata::directive_name(),
+        *INTERNAL_METADATA_DIRECTIVE,
+        *ARGUMENT_DEFINITION,
+        *REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY,
+        ReactFlightLocalComponentsMetadata::directive_name(),
+        *REQUIRED_DIRECTIVE_NAME,
+        RequiredMetadataDirective::directive_name(),
+        *CLIENT_EDGE_METADATA_KEY,
+        *CLIENT_EDGE_QUERY_METADATA_KEY,
+        *CLIENT_EDGE_GENERATED_FRAGMENT_KEY,
+        *CHILDREN_CAN_BUBBLE_METADATA_KEY,
+        RelayResolverSpreadMetadata::directive_name(),
+        RelayClientComponentMetadata::directive_name(),
+        *UNUSED_LOCAL_VARIABLE_DEPRECATED,
+        *RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN,
+        ProvidedVariableMetadata::directive_name(),
+    ];
+    static ref DIRECTIVES_SKIPPED_IN_NODE_IDENTIFIER: [StringKey; 12] = [
+        *CLIENT_EXTENSION_DIRECTIVE_NAME,
+        ConnectionMetadataDirective::directive_name(),
+        *HANDLE_FIELD_DIRECTIVE_NAME,
+        RefetchableMetadata::directive_name(),
+        RefetchableDerivedFromMetadata::directive_name(),
+        *INTERNAL_METADATA_DIRECTIVE,
+        *ARGUMENT_DEFINITION,
+        *REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY,
+        ReactFlightLocalComponentsMetadata::directive_name(),
+        *REQUIRED_DIRECTIVE_NAME,
+        RelayResolverSpreadMetadata::directive_name(),
+        RelayClientComponentMetadata::directive_name(),
+    ];
+    static ref RELAY_CUSTOM_INLINE_FRAGMENT_DIRECTIVES: [StringKey; 6] = [
+        *CLIENT_EXTENSION_DIRECTIVE_NAME,
+        ModuleMetadata::directive_name(),
+        InlineDirectiveMetadata::directive_name(),
+        *RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN,
+        *CLIENT_EDGE_METADATA_KEY,
+        "defer".intern(),
+    ];
+    static ref VALID_PROVIDED_VARIABLE_NAME: Regex = Regex::new(r#"^[A-Za-z0-9_]*$"#).unwrap();
+    pub static ref INTERNAL_RELAY_VARIABLES_PREFIX: StringKey = "__relay_internal".intern();
 }
+
+pub struct CustomMetadataDirectives;
 
 impl CustomMetadataDirectives {
-    pub fn is_custom_metadata_directive(&self, name: StringKey) -> bool {
-        name == *CLIENT_EXTENSION_DIRECTIVE_NAME
-            || name == self.connection_constants.connection_metadata_directive_name
-            || name == *HANDLE_FIELD_DIRECTIVE_NAME
-            || name == MATCH_CONSTANTS.custom_module_directive_name
-            || name == REFETCHABLE_CONSTANTS.refetchable_metadata_name
-            || name == REFETCHABLE_CONSTANTS.refetchable_operation_metadata_name
-            || name == *INTERNAL_METADATA_DIRECTIVE
-            || name == *ARGUMENT_DEFINITION
-            || name == *REACT_FLIGHT_DIRECTIVE_NAME
-            || name == *REQUIRED_DIRECTIVE_NAME
-            || name == *REQUIRED_METADATA_KEY
-            || name == *CHILDREN_CAN_BUBBLE_METADATA_KEY
+    pub fn is_custom_metadata_directive(name: StringKey) -> bool {
+        CUSTOM_METADATA_DIRECTIVES.contains(&name)
     }
 
-    pub fn should_skip_in_node_identifier(&self, name: StringKey) -> bool {
-        name == *CLIENT_EXTENSION_DIRECTIVE_NAME
-            || name == self.connection_constants.connection_metadata_directive_name
-            || name == *HANDLE_FIELD_DIRECTIVE_NAME
-            || name == REFETCHABLE_CONSTANTS.refetchable_metadata_name
-            || name == REFETCHABLE_CONSTANTS.refetchable_operation_metadata_name
-            || name == *INTERNAL_METADATA_DIRECTIVE
-            || name == *ARGUMENT_DEFINITION
-            || name == *REACT_FLIGHT_DIRECTIVE_NAME
-            || name == *REQUIRED_DIRECTIVE_NAME
+    pub fn should_skip_in_node_identifier(name: StringKey) -> bool {
+        DIRECTIVES_SKIPPED_IN_NODE_IDENTIFIER.contains(&name)
     }
 
-    pub fn is_handle_field_directive(&self, name: StringKey) -> bool {
+    pub fn is_handle_field_directive(name: StringKey) -> bool {
         name == *HANDLE_FIELD_DIRECTIVE_NAME
     }
-}
-
-lazy_static! {
-    static ref RELAY_CUSTOM_INLINE_FRAGMENT_DIRECTIVES: FnvHashSet<StringKey> = vec![
-        *CLIENT_EXTENSION_DIRECTIVE_NAME,
-        MATCH_CONSTANTS.custom_module_directive_name,
-        INLINE_DATA_CONSTANTS.internal_directive_name,
-        "defer".intern(),
-    ]
-    .into_iter()
-    .collect();
-    pub static ref CUSTOM_METADATA_DIRECTIVES: CustomMetadataDirectives =
-        CustomMetadataDirectives {
-            connection_constants: ConnectionConstants::default(),
-        };
 }
 
 pub fn is_relay_custom_inline_fragment_directive(directive: &Directive) -> bool {
     RELAY_CUSTOM_INLINE_FRAGMENT_DIRECTIVES.contains(&directive.name.item)
 }
 
-pub fn generate_abstract_type_refinement_key(schema: &Schema, type_: Type) -> StringKey {
+pub fn generate_abstract_type_refinement_key(schema: &SDLSchema, type_: Type) -> StringKey {
     format!("__is{}", schema.get_type_name(type_).lookup()).intern()
+}
+
+pub fn get_normalization_operation_name(name: StringKey) -> String {
+    format!("{}$normalization", name)
+}
+
+pub fn get_fragment_filename(fragment_name: StringKey) -> StringKey {
+    format!(
+        "{}.graphql",
+        get_normalization_operation_name(fragment_name)
+    )
+    .intern()
+}
+
+pub fn format_provided_variable_name(module_name: StringKey) -> StringKey {
+    if VALID_PROVIDED_VARIABLE_NAME.is_match(module_name.lookup()) {
+        format!(
+            "{}__pv__{}",
+            *INTERNAL_RELAY_VARIABLES_PREFIX,
+            module_name.lookup()
+        )
+        .intern()
+    } else {
+        let transformed_name = module_name
+            .lookup()
+            .chars()
+            .filter(|c| c.is_ascii_alphanumeric() || *c == '_')
+            .collect::<String>();
+        format!(
+            "{}__pv__{}",
+            *INTERNAL_RELAY_VARIABLES_PREFIX, transformed_name
+        )
+        .intern()
+    }
 }

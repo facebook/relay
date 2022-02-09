@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -12,24 +12,27 @@
 
 'use strict';
 
-const RelayModernRecord = require('../store/RelayModernRecord');
-const RelayRecordProxy = require('./RelayRecordProxy');
-
-const invariant = require('invariant');
-
-const {EXISTENT, NONEXISTENT} = require('../store/RelayRecordState');
-const {ROOT_ID, ROOT_TYPE} = require('../store/RelayStoreUtils');
-
 import type {HandlerProvider} from '../handlers/RelayDefaultHandlerProvider';
+import type {GraphQLTaggedNode} from '../query/GraphQLTag';
 import type {GetDataID} from '../store/RelayResponseNormalizer';
 import type {
+  DataIDSet,
   HandleFieldPayload,
-  RecordSource,
   RecordProxy,
+  RecordSource,
   RecordSourceProxy,
 } from '../store/RelayStoreTypes';
-import type {DataID} from '../util/RelayRuntimeTypes';
+import type {DataID, OperationType} from '../util/RelayRuntimeTypes';
 import type RelayRecordSourceMutator from './RelayRecordSourceMutator';
+
+const RelayModernRecord = require('../store/RelayModernRecord');
+const {EXISTENT, NONEXISTENT} = require('../store/RelayRecordState');
+const {ROOT_ID, ROOT_TYPE} = require('../store/RelayStoreUtils');
+const {
+  readUpdatableQuery_EXPERIMENTAL,
+} = require('./readUpdatableQuery_EXPERIMENTAL');
+const RelayRecordProxy = require('./RelayRecordProxy');
+const invariant = require('invariant');
 
 /**
  * @internal
@@ -42,7 +45,7 @@ class RelayRecordSourceProxy implements RecordSourceProxy {
   _proxies: {[dataID: DataID]: ?RelayRecordProxy, ...};
   _getDataID: GetDataID;
   _invalidatedStore: boolean;
-  _idsMarkedForInvalidation: Set<DataID>;
+  _idsMarkedForInvalidation: DataIDSet;
 
   constructor(
     mutator: RelayRecordSourceMutator,
@@ -156,8 +159,15 @@ class RelayRecordSourceProxy implements RecordSourceProxy {
     this._idsMarkedForInvalidation.add(dataID);
   }
 
-  getIDsMarkedForInvalidation(): Set<DataID> {
+  getIDsMarkedForInvalidation(): DataIDSet {
     return this._idsMarkedForInvalidation;
+  }
+
+  readUpdatableQuery_EXPERIMENTAL<TQuery: OperationType>(
+    query: GraphQLTaggedNode,
+    variables: TQuery['variables'],
+  ): TQuery['response'] {
+    return readUpdatableQuery_EXPERIMENTAL(query, variables, this);
   }
 }
 

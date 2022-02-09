@@ -1,0 +1,14 @@
+query SimpleQuery {
+  node(id: "test-id") {
+    id
+    ... on User {
+      actor @fb_actor_change {
+        ...UserFragment
+      }
+    }
+  }
+}
+
+fragment UserFragment on User {
+  name
+}

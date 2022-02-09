@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -12,21 +12,23 @@
 
 'use strict';
 
-import type {RecordMap, UpdatedRecords} from './RelayStoreTypes';
+import type {DataIDSet} from './RelayStoreTypes';
 
-const hasOwnProperty = Object.prototype.hasOwnProperty;
+const ITERATOR_KEY = Symbol.iterator;
 
 function hasOverlappingIDs(
-  seenRecords: RecordMap,
-  updatedRecordIDs: UpdatedRecords,
+  seenRecords: DataIDSet,
+  updatedRecordIDs: DataIDSet,
 ): boolean {
-  for (const key in seenRecords) {
-    if (
-      hasOwnProperty.call(seenRecords, key) &&
-      hasOwnProperty.call(updatedRecordIDs, key)
-    ) {
+  // $FlowFixMe: Set is an iterable type, accessing its iterator is allowed.
+  const iterator = seenRecords[ITERATOR_KEY]();
+  let next = iterator.next();
+  while (!next.done) {
+    const key = next.value;
+    if (updatedRecordIDs.has(key)) {
       return true;
     }
+    next = iterator.next();
   }
   return false;
 }

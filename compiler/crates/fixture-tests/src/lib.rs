@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -58,9 +58,6 @@ use std::env;
 use std::fs::File;
 use std::io::prelude::*;
 use std::sync::Arc;
-
-use signedsource as _; // used in main.rs, cargo only
-use structopt as _; // used in main.rs, cargo only
 
 lazy_static! {
     static ref LOCK: Arc<Mutex<usize>> = Arc::new(Mutex::new(0));
@@ -121,20 +118,24 @@ pub fn test_fixture<T, U, V>(
         ),
     };
 
-    if actual_result.is_ok() != expect_ok {
-        panic!(if expect_ok {
-            let error_message = match actual_result.err() {
-                Some(err) => format!("{}", err),
-                None => "Unknown error".to_string(),
-            };
-            format!(
-                "Expected transform to succeed but it failed with {:?}, use 'expected-to-throw' if this is expected",
-                error_message
-            )
-        } else {
-            "Expected transform to error but it succeeded, remove 'expected-to-throw' if this is expected".to_string()
-        });
-    }
+    match actual_result {
+        Ok(_) if !expect_ok => {
+            panic!(
+                "Expected transform to error but it succeeded, remove 'expected-to-throw' if this is expected"
+            );
+        }
+        Err(error) if expect_ok => {
+            panic!(
+                "Expected transform to succeed but it failed with, use 'expected-to-throw' if this is expected. Error:
+#############################################################################
+{}
+#############################################################################
+",
+                error
+            );
+        }
+        _ => {}
+    };
 
     let actual = format!("{}\n", actual.trim_end());
     if actual != expected {
@@ -144,8 +145,15 @@ pub fn test_fixture<T, U, V>(
         }
 
         if env::var_os("UPDATE_SNAPSHOTS").is_some() {
-            File::create("tests/".to_string() + expected_file_name)
-                .unwrap()
+            let file_name = format!("tests/{}", expected_file_name);
+            File::create(&file_name)
+                .unwrap_or_else(|_| {
+                    panic!(
+                        "Unable to create {}/{}",
+                        env::current_dir().unwrap().to_str().unwrap(),
+                        file_name
+                    )
+                })
                 .write_all(actual.as_bytes())
                 .unwrap();
         } else {

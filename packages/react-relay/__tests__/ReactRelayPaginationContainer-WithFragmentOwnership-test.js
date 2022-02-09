@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -10,24 +10,21 @@
 
 'use strict';
 
-const React = require('react');
 const ReactRelayContext = require('../ReactRelayContext');
 const ReactRelayFragmentContainer = require('../ReactRelayFragmentContainer');
 const ReactRelayPaginationContainer = require('../ReactRelayPaginationContainer');
+const React = require('react');
 const ReactTestRenderer = require('react-test-renderer');
-
 const {
   ConnectionHandler,
+  ROOT_ID,
   createNormalizationSelector,
   createOperationDescriptor,
   createReaderSelector,
   createRequestDescriptor,
-  ROOT_ID,
+  graphql,
 } = require('relay-runtime');
-const {
-  createMockEnvironment,
-  generateAndCompile,
-} = require('relay-test-utils-internal');
+const {createMockEnvironment} = require('relay-test-utils-internal');
 
 describe('ReactRelayPaginationContainer with fragment ownership', () => {
   let TestChildComponent;
@@ -105,50 +102,57 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
     environment = createMockEnvironment({
       handlerProvider: () => ConnectionHandler,
     });
-    ({UserFragment, UserFriendFragment, UserQuery} = generateAndCompile(`
-      query UserQuery(
+
+    UserQuery = graphql`
+      query ReactRelayPaginationContainerWithFragmentOwnershipTestUserQuery(
         $after: ID
         $count: Int!
         $id: ID!
         $orderby: [String]
-        $isViewerFriend: Boolean
+        $isViewerFriend: Boolean!
       ) {
         node(id: $id) {
           id
           __typename
-          ...UserFragment @arguments(isViewerFriendLocal: $isViewerFriend, orderby: $orderby)
+          ...ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment
+            @arguments(isViewerFriendLocal: $isViewerFriend, orderby: $orderby)
         }
       }
+    `;
 
-      fragment UserFragment on User
-        @argumentDefinitions(
-          isViewerFriendLocal: {type: "Boolean", defaultValue: false}
-          orderby: {type: "[String]"}
-        ) {
+    UserFriendFragment = graphql`
+      fragment ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment on User
+      @argumentDefinitions(
+        isViewerFriendLocal: {type: "Boolean", defaultValue: false}
+      ) {
+        id
+        name @include(if: $isViewerFriendLocal)
+      }
+    `;
+
+    UserFragment = graphql`
+      fragment ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment on User
+      @argumentDefinitions(
+        isViewerFriendLocal: {type: "Boolean", defaultValue: false}
+        orderby: {type: "[String]"}
+      ) {
         id
         friends(
-          after: $after,
-          first: $count,
-          orderby: $orderby,
+          after: $after
+          first: $count
+          orderby: $orderby
           isViewerFriend: $isViewerFriendLocal
         ) @connection(key: "UserFragment_friends") {
           edges {
             node {
               id
-              ...UserFriendFragment @arguments(isViewerFriendLocal: $isViewerFriendLocal)
+              ...ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment
+                @arguments(isViewerFriendLocal: $isViewerFriendLocal)
             }
           }
         }
       }
-
-      fragment UserFriendFragment on User
-        @argumentDefinitions(
-          isViewerFriendLocal: {type: "Boolean", defaultValue: false}
-        ) {
-        id
-        name @include(if: $isViewerFriendLocal)
-      }
-    `));
+    `;
 
     TestChildComponent = jest.fn(() => <div />);
     TestChildContainer = ReactRelayFragmentContainer.createContainer(
@@ -252,9 +256,13 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
                     id: 'node:1',
                     __id: 'node:1',
                     __fragments: {
-                      UserFriendFragment: {isViewerFriendLocal: false},
+                      ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment:
+                        {
+                          isViewerFriendLocal: false,
+                        },
                     },
                     __fragmentOwner: ownerUser1.request,
+                    __isWithinUnmatchedTypeRefinement: false,
                   },
                 },
               ],
@@ -303,9 +311,13 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
                     id: 'node:1',
                     __id: 'node:1',
                     __fragments: {
-                      UserFriendFragment: {isViewerFriendLocal: false},
+                      ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment:
+                        {
+                          isViewerFriendLocal: false,
+                        },
                     },
                     __fragmentOwner: ownerUser1.request,
+                    __isWithinUnmatchedTypeRefinement: false,
                   },
                 },
               ],
@@ -359,7 +371,6 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
     });
 
     it('renders with the results of the new variables on success', () => {
-      expect.assertions(9);
       expect(render.mock.calls.length).toBe(1);
       expect(render.mock.calls[0][0].user.friends.edges.length).toBe(1);
       loadMore(1, jest.fn());
@@ -415,9 +426,13 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
             id: 'node:1',
             __id: 'node:1',
             __fragments: {
-              UserFriendFragment: {isViewerFriendLocal: false},
+              ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment:
+                {
+                  isViewerFriendLocal: false,
+                },
             },
             __fragmentOwner: expectedOwner.request,
+            __isWithinUnmatchedTypeRefinement: false,
           },
         },
         {
@@ -427,18 +442,21 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
             id: 'node:2',
             __id: 'node:2',
             __fragments: {
-              UserFriendFragment: {isViewerFriendLocal: false},
+              ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment:
+                {
+                  isViewerFriendLocal: false,
+                },
             },
             __fragmentOwner: expectedOwner.request,
+            __isWithinUnmatchedTypeRefinement: false,
           },
         },
       ]);
 
       // Assert child containers are correctly rendered
-      expect(TestChildComponent.mock.calls.length).toBe(2);
-      TestChildComponent.mock.calls.forEach((call, idx) => {
-        const user = call[0].user;
-        expect(user).toEqual({id: `node:${idx + 1}`});
+      expect(TestChildComponent.mock.calls.length).toBe(1);
+      expect(TestChildComponent.mock.calls[0][0].user).toEqual({
+        id: 'node:2',
       });
     });
 
@@ -487,9 +505,13 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
                     id: 'node:1',
                     __id: 'node:1',
                     __fragments: {
-                      UserFriendFragment: {isViewerFriendLocal: false},
+                      ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment:
+                        {
+                          isViewerFriendLocal: false,
+                        },
                     },
                     __fragmentOwner: ownerUser1.request,
+                    __isWithinUnmatchedTypeRefinement: false,
                   },
                 },
               ],
@@ -555,7 +577,6 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
     });
 
     it('renders with the results of the new variables on success', () => {
-      expect.assertions(8);
       expect(render.mock.calls.length).toBe(1);
       expect(render.mock.calls[0][0].user.friends.edges.length).toBe(1);
       refetchConnection(1, jest.fn());
@@ -608,9 +629,13 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
                   id: 'node:2',
                   __id: 'node:2',
                   __fragments: {
-                    UserFriendFragment: {isViewerFriendLocal: false},
+                    ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment:
+                      {
+                        isViewerFriendLocal: false,
+                      },
                   },
                   __fragmentOwner: expectedOwner.request,
+                  __isWithinUnmatchedTypeRefinement: false,
                 },
               },
             ],
@@ -630,8 +655,8 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
       });
 
       // Assert child containers are correctly rendered
-      expect(TestChildComponent.mock.calls.length).toBe(3);
-      expect(TestChildComponent.mock.calls[2][0].user).toEqual({
+      expect(TestChildComponent.mock.calls.length).toBe(2);
+      expect(TestChildComponent.mock.calls[1][0].user).toEqual({
         id: 'node:2',
       });
     });
@@ -779,9 +804,13 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
                   id: 'node:7',
                   __id: 'node:7',
                   __fragments: {
-                    UserFriendFragment: {isViewerFriendLocal: false},
+                    ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment:
+                      {
+                        isViewerFriendLocal: false,
+                      },
                   },
                   __fragmentOwner: expectedFragmentOwner.request,
+                  __isWithinUnmatchedTypeRefinement: false,
                 },
               },
             ],
@@ -858,9 +887,13 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
                   id: 'node:7',
                   __id: 'node:7',
                   __fragments: {
-                    UserFriendFragment: {isViewerFriendLocal: true},
+                    ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment:
+                      {
+                        isViewerFriendLocal: true,
+                      },
                   },
                   __fragmentOwner: expectedFragmentOwner.request,
+                  __isWithinUnmatchedTypeRefinement: false,
                 },
               },
             ],
@@ -944,9 +977,13 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
                   id: 'node:7',
                   __id: 'node:7',
                   __fragments: {
-                    UserFriendFragment: {isViewerFriendLocal: true},
+                    ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment:
+                      {
+                        isViewerFriendLocal: true,
+                      },
                   },
                   __fragmentOwner: expectedFragmentOwner.request,
+                  __isWithinUnmatchedTypeRefinement: false,
                 },
               },
               {
@@ -956,9 +993,13 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
                   id: 'node:8',
                   __id: 'node:8',
                   __fragments: {
-                    UserFriendFragment: {isViewerFriendLocal: true},
+                    ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment:
+                      {
+                        isViewerFriendLocal: true,
+                      },
                   },
                   __fragmentOwner: expectedFragmentOwner.request,
+                  __isWithinUnmatchedTypeRefinement: false,
                 },
               },
             ],
@@ -972,12 +1013,8 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
       });
 
       // Assert child containers are correctly rendered
-      expect(TestChildComponent.mock.calls.length).toBe(3);
-      expect(TestChildComponent.mock.calls[1][0].user).toEqual({
-        id: 'node:7',
-        name: 'user:7',
-      });
-      expect(TestChildComponent.mock.calls[2][0].user).toEqual({
+      expect(TestChildComponent.mock.calls.length).toBe(1);
+      expect(TestChildComponent.mock.calls[0][0].user).toEqual({
         id: 'node:8',
         name: 'user:8',
       });

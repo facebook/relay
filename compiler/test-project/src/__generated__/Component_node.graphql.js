@@ -1,5 +1,10 @@
 /**
- * @generated SignedSource<<634bc5a99a55c606ff46b6f37ab46b12>>
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * 
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ * @generated SignedSource<<7c0e57fbb893f2377269c8836573bb71>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -10,18 +15,16 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type Component_node$ref: FragmentReference;
-declare export opaque type Component_node$fragmentType: Component_node$ref;
-export type Component_node = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type Component_node$fragmentType: FragmentType;
+export type Component_node$data = {|
   +id: string,
-  +$refType: Component_node$ref,
+  +$fragmentType: Component_node$fragmentType,
 |};
-export type Component_node$data = Component_node;
 export type Component_node$key = {
   +$data?: Component_node$data,
-  +$fragmentRefs: Component_node$ref,
+  +$fragmentSpreads: Component_node$fragmentType,
   ...
 };
 */
@@ -44,8 +47,9 @@ var node/*: ReaderFragment*/ = {
   "abstractKey": "__isNode"
 };
 
-if (__DEV__) {
-  (node/*: any*/).hash = "c1076fdf6414be9f597194edf35d01a0";
-}
+(node/*: any*/).hash = "c1076fdf6414be9f597194edf35d01a0";
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  Component_node$fragmentType,
+  Component_node$data,
+>*/);

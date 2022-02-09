@@ -1,29 +1,102 @@
 {
-  "version-classic-docs": {
-    "Relay Classic Guides": [
-      "version-classic-classic-guides-containers",
-      "version-classic-classic-guides-routes",
-      "version-classic-classic-guides-root-container",
-      "version-classic-classic-guides-ready-state",
-      "version-classic-classic-guides-mutations",
-      "version-classic-classic-guides-network-layer"
-    ],
-    "Relay Classic API": [
-      "version-classic-classic-api-reference-relay",
-      "version-classic-classic-api-reference-relay-container",
-      "version-classic-classic-api-reference-relay-route",
-      "version-classic-classic-api-reference-relay-renderer",
-      "version-classic-classic-api-reference-relay-root-container",
-      "version-classic-classic-api-reference-relay-ql",
-      "version-classic-classic-api-reference-relay-mutation",
-      "version-classic-classic-api-reference-relay-graphql-mutation",
-      "version-classic-classic-api-reference-relay-proptypes",
-      "version-classic-classic-api-reference-relay-store"
-    ],
-    "Relay Classic Interfaces": [
-      "version-classic-classic-interfaces-relay-mutation-request",
-      "version-classic-classic-interfaces-relay-network-layer",
-      "version-classic-classic-interfaces-relay-query-request"
-    ]
-  }
+  "version-classic/docs": [
+    {
+      "type": "category",
+      "label": "Relay Classic Guides",
+      "items": [
+        {
+          "type": "doc",
+          "id": "version-classic/introduction-to-relay"
+        },
+        {
+          "type": "doc",
+          "id": "version-classic/classic-guides-containers"
+        },
+        {
+          "type": "doc",
+          "id": "version-classic/classic-guides-routes"
+        },
+        {
+          "type": "doc",
+          "id": "version-classic/classic-guides-root-container"
+        },
+        {
+          "type": "doc",
+          "id": "version-classic/classic-guides-ready-state"
+        },
+        {
+          "type": "doc",
+          "id": "version-classic/classic-guides-mutations"
+        },
+        {
+          "type": "doc",
+          "id": "version-classic/classic-guides-network-layer"
+        }
+      ]
+    },
+    {
+      "type": "category",
+      "label": "Relay Classic API",
+      "items": [
+        {
+          "type": "doc",
+          "id": "version-classic/classic-api-reference-relay"
+        },
+        {
+          "type": "doc",
+          "id": "version-classic/classic-api-reference-relay-container"
+        },
+        {
+          "type": "doc",
+          "id": "version-classic/classic-api-reference-relay-route"
+        },
+        {
+          "type": "doc",
+          "id": "version-classic/classic-api-reference-relay-renderer"
+        },
+        {
+          "type": "doc",
+          "id": "version-classic/classic-api-reference-relay-root-container"
+        },
+        {
+          "type": "doc",
+          "id": "version-classic/classic-api-reference-relay-ql"
+        },
+        {
+          "type": "doc",
+          "id": "version-classic/classic-api-reference-relay-mutation"
+        },
+        {
+          "type": "doc",
+          "id": "version-classic/classic-api-reference-relay-graphql-mutation"
+        },
+        {
+          "type": "doc",
+          "id": "version-classic/classic-api-reference-relay-proptypes"
+        },
+        {
+          "type": "doc",
+          "id": "version-classic/classic-api-reference-relay-store"
+        }
+      ]
+    },
+    {
+      "type": "category",
+      "label": "Relay Classic Interfaces",
+      "items": [
+        {
+          "type": "doc",
+          "id": "version-classic/classic-interfaces-relay-mutation-request"
+        },
+        {
+          "type": "doc",
+          "id": "version-classic/classic-interfaces-relay-network-layer"
+        },
+        {
+          "type": "doc",
+          "id": "version-classic/classic-interfaces-relay-query-request"
+        }
+      ]
+    }
+  ]
 }

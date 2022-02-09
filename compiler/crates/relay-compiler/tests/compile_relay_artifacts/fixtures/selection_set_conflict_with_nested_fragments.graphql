@@ -1,0 +1,15 @@
+# expected-to-throw
+query selectionSetConflictWithNestedFragmentsQuery {
+  me {
+    same_alias: name
+    ...selectionSetConflictWithNestedFragmentsFrag
+  }
+}
+fragment selectionSetConflictWithNestedFragmentsFrag on User {
+  ... on Actor {
+    ...selectionSetConflictWithNestedFragmentsFrag2
+  }
+}
+fragment selectionSetConflictWithNestedFragmentsFrag2 on User {
+  same_alias: id
+}

@@ -1,5 +1,0 @@
-# expected-to-throw
-fragment InvalidPrefixFragment on Node {
-  id
-  name @required(action: THROW)
-}

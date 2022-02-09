@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -14,9 +14,7 @@
 'use strict';
 
 const validateMutation = require('../validateMutation');
-
-const {RelayFeatureFlags} = require('relay-runtime');
-const {generateAndCompile} = require('relay-test-utils-internal');
+const {RelayFeatureFlags, getRequest, graphql} = require('relay-runtime');
 
 jest.mock('warning', () => {
   return (dontWarn, message, ...args) => {
@@ -26,21 +24,55 @@ jest.mock('warning', () => {
     throw new Error(`${message} ${args.join(' ')}`);
   };
 });
+
+graphql`
+  fragment validateMutationTestGroovyFragment_groovygroovy on Feedback {
+    doesViewerLike
+  }
+`;
+
+graphql`
+  fragment validateMutationTestActorFragment on Actor {
+    ... on User {
+      birthdate {
+        day
+        month
+        year
+      }
+    }
+    ... on Page {
+      username
+    }
+  }
+`;
+
+graphql`
+  fragment validateMutationTestEntityFragement on Entity {
+    url
+  }
+`;
+
+graphql`
+  fragment validateMutationTestNodeFragement on Node {
+    name
+  }
+`;
+
 describe('validateOptimisticResponse', () => {
   [
     {
       name: 'Does not log a warning in the positive case',
-      mutation: generateAndCompile(`
-          mutation ChangeNameMutation(
-            $input: ActorNameChangeInput!
-          ) {
-            actorNameChange(input: $input) {
-              actor {
-                name
-              }
+      mutation: getRequest(graphql`
+        mutation validateMutationTest1ChangeNameMutation(
+          $input: ActorNameChangeInput!
+        ) {
+          actorNameChange(input: $input) {
+            actor {
+              name
             }
           }
-      `).ChangeNameMutation,
+        }
+      `),
       optimisticResponse: {
         actorNameChange: {
           actor: {
@@ -55,17 +87,17 @@ describe('validateOptimisticResponse', () => {
     },
     {
       name: 'Logs a warning when a field is is not specified',
-      mutation: generateAndCompile(`
-          mutation ChangeNameMutation(
-            $input: ActorNameChangeInput!
-          ) {
-            actorNameChange(input: $input) {
-              actor {
-                name
-              }
+      mutation: getRequest(graphql`
+        mutation validateMutationTest2ChangeNameMutation(
+          $input: ActorNameChangeInput!
+        ) {
+          actorNameChange(input: $input) {
+            actor {
+              name
             }
           }
-      `).ChangeNameMutation,
+        }
+      `),
       optimisticResponse: {
         actorNameChange: {
           actor: {},
@@ -76,17 +108,17 @@ describe('validateOptimisticResponse', () => {
     },
     {
       name: 'Logs a warning when an id is is not specified',
-      mutation: generateAndCompile(`
-          mutation ChangeNameMutation(
-            $input: ActorNameChangeInput!
-          ) {
-            actorNameChange(input: $input) {
-              actor {
-                name
-              }
+      mutation: getRequest(graphql`
+        mutation validateMutationTest3ChangeNameMutation(
+          $input: ActorNameChangeInput!
+        ) {
+          actorNameChange(input: $input) {
+            actor {
+              name
             }
           }
-      `).ChangeNameMutation,
+        }
+      `),
       optimisticResponse: {
         actorNameChange: {
           actor: {
@@ -100,17 +132,17 @@ describe('validateOptimisticResponse', () => {
     },
     {
       name: 'Logs a warning when a object is is not specified',
-      mutation: generateAndCompile(`
-          mutation ChangeNameMutation(
-            $input: ActorNameChangeInput!
-          ) {
-            actorNameChange(input: $input) {
-              actor {
-                name
-              }
+      mutation: getRequest(graphql`
+        mutation validateMutationTest4ChangeNameMutation(
+          $input: ActorNameChangeInput!
+        ) {
+          actorNameChange(input: $input) {
+            actor {
+              name
             }
           }
-      `).ChangeNameMutation,
+        }
+      `),
       optimisticResponse: {
         actorNameChange: {},
       },
@@ -119,26 +151,26 @@ describe('validateOptimisticResponse', () => {
     },
     {
       name: 'Uses type names to filter inline fragment warnings',
-      mutation: generateAndCompile(`
-          mutation ChangeNameMutation(
-            $input: ActorNameChangeInput!
-          ) {
-            actorNameChange(input: $input) {
-              actor {
-                ... on User {
-                  birthdate {
-                    day
-                    month
-                    year
-                  }
+      mutation: getRequest(graphql`
+        mutation validateMutationTest5ChangeNameBirthdayMutation(
+          $input: ActorNameChangeInput!
+        ) {
+          actorNameChange(input: $input) {
+            actor {
+              ... on User {
+                birthdate {
+                  day
+                  month
+                  year
                 }
-                ... on Page {
-                  username
-                }
+              }
+              ... on Page {
+                username
               }
             }
           }
-      `).ChangeNameMutation,
+        }
+      `),
       optimisticResponse: {
         actorNameChange: {
           actor: {
@@ -153,26 +185,26 @@ describe('validateOptimisticResponse', () => {
     },
     {
       name: 'Logs a warning for errors contained in inline fragments',
-      mutation: generateAndCompile(`
-          mutation ChangeNameMutation(
-            $input: ActorNameChangeInput!
-          ) {
-            actorNameChange(input: $input) {
-              actor {
-                ... on User {
-                  birthdate {
-                    day
-                    month
-                    year
-                  }
+      mutation: getRequest(graphql`
+        mutation validateMutationTest6ChangeNameBirthdayMutation(
+          $input: ActorNameChangeInput!
+        ) {
+          actorNameChange(input: $input) {
+            actor {
+              ... on User {
+                birthdate {
+                  day
+                  month
+                  year
                 }
-                ... on Page {
-                  username
-                }
+              }
+              ... on Page {
+                username
               }
             }
           }
-      `).ChangeNameMutation,
+        }
+      `),
       optimisticResponse: {
         actorNameChange: {
           actor: {
@@ -186,28 +218,27 @@ describe('validateOptimisticResponse', () => {
       shouldWarn: true,
     },
     {
-      name:
-        'Logs a warning when there are unused fields in an `optimisticResponse`',
-      mutation: generateAndCompile(`
-          mutation ChangeNameMutation(
-            $input: ActorNameChangeInput!
-          ) {
-            actorNameChange(input: $input) {
-              actor {
-                ... on User {
-                  birthdate {
-                    day
-                    month
-                    year
-                  }
+      name: 'Logs a warning when there are unused fields in an `optimisticResponse`',
+      mutation: getRequest(graphql`
+        mutation validateMutationTest7ChangeNameBirthdayMutation(
+          $input: ActorNameChangeInput!
+        ) {
+          actorNameChange(input: $input) {
+            actor {
+              ... on User {
+                birthdate {
+                  day
+                  month
+                  year
                 }
-                ... on Page {
-                  username
-                }
+              }
+              ... on Page {
+                username
               }
             }
           }
-      `).ChangeNameMutation,
+        }
+      `),
       optimisticResponse: {
         actorNameChange: {
           actor: {
@@ -223,27 +254,28 @@ describe('validateOptimisticResponse', () => {
     },
     {
       name: 'Passes when fields are null',
-      mutation: generateAndCompile(`
-          mutation ChangeNameMutation(
-            $input: ActorNameChangeInput!
-          ) {
-            actorNameChange(input: $input) {
-              actor {
-                name
-                ... on User {
-                  birthdate {
-                    day
-                    month
-                    year
-                  }
+      mutation: getRequest(graphql`
+        mutation validateMutationTest8ChangeNameBirthdayWithNameMutation(
+          $input: ActorNameChangeInput!
+        ) {
+          actorNameChange(input: $input) {
+            actor {
+              name
+              ... on User {
+                birthdate {
+                  day
+                  month
+                  year
                 }
-                ... on Page {
-                  username
-                }
+              }
+              ... on Page {
+                username
               }
             }
           }
-      `).ChangeNameMutation,
+        }
+      `),
+
       optimisticResponse: {
         actorNameChange: {
           actor: {
@@ -259,27 +291,27 @@ describe('validateOptimisticResponse', () => {
     },
     {
       name: 'Warns when conditional branches are not specified',
-      mutation: generateAndCompile(`
-          mutation ChangeNameMutation(
-            $input: ActorNameChangeInput!,
-            $myVar: Boolean!,
-          ) {
-            actorNameChange(input: $input) {
-              actor {
-                ... @include(if: $myVar) {
-                  ... on Page {
-                    username
-                  }
+      mutation: getRequest(graphql`
+        mutation validateMutationTest9ChangeNameIncludeMutation(
+          $input: ActorNameChangeInput!
+          $myVar: Boolean!
+        ) {
+          actorNameChange(input: $input) {
+            actor {
+              ... @include(if: $myVar) {
+                ... on Page {
+                  username
                 }
-                ... @skip(if: $myVar) {
-                  ... on Page {
-                    canViewerLike
-                  }
+              }
+              ... @skip(if: $myVar) {
+                ... on Page {
+                  canViewerLike
                 }
               }
             }
           }
-      `).ChangeNameMutation,
+        }
+      `),
       optimisticResponse: {
         actorNameChange: {
           actor: {
@@ -296,27 +328,27 @@ describe('validateOptimisticResponse', () => {
     },
     {
       name: 'Does not warn when conditional branches are specified',
-      mutation: generateAndCompile(`
-          mutation ChangeNameMutation(
-            $input: ActorNameChangeInput!,
-            $myVar: Boolean!,
-          ) {
-            actorNameChange(input: $input) {
-              actor {
-                ... @include(if: $myVar) {
-                  ... on Page {
-                    username
-                  }
+      mutation: getRequest(graphql`
+        mutation validateMutationTest10ChangeNameIncludeBoolMutation(
+          $input: ActorNameChangeInput!
+          $myVar: Boolean!
+        ) {
+          actorNameChange(input: $input) {
+            actor {
+              ... @include(if: $myVar) {
+                ... on Page {
+                  username
                 }
-                ... @skip(if: $myVar) {
-                  ... on Page {
-                    canViewerLike
-                  }
+              }
+              ... @skip(if: $myVar) {
+                ... on Page {
+                  canViewerLike
                 }
               }
             }
           }
-      `).ChangeNameMutation,
+        }
+      `),
       optimisticResponse: {
         actorNameChange: {
           actor: {
@@ -334,19 +366,19 @@ describe('validateOptimisticResponse', () => {
     },
     {
       name: 'Handles Lists',
-      mutation: generateAndCompile(`
-          mutation ChangeNameMutation(
-            $input: ActorNameChangeInput!
-          ) {
-            actorNameChange(input: $input) {
-              actor {
-                allPhones {
-                  isVerified
-                }
+      mutation: getRequest(graphql`
+        mutation validateMutationTest11ChangeNamePhonesMutation(
+          $input: ActorNameChangeInput!
+        ) {
+          actorNameChange(input: $input) {
+            actor {
+              allPhones {
+                isVerified
               }
             }
           }
-      `).ChangeNameMutation,
+        }
+      `),
       optimisticResponse: {
         actorNameChange: {
           actor: {
@@ -367,19 +399,19 @@ describe('validateOptimisticResponse', () => {
     },
     {
       name: 'Handles Lists with null values',
-      mutation: generateAndCompile(`
-          mutation ChangeNameMutation(
-            $input: ActorNameChangeInput!
-          ) {
-            actorNameChange(input: $input) {
-              actor {
-                allPhones {
-                  isVerified
-                }
+      mutation: getRequest(graphql`
+        mutation validateMutationTest12ChangeNamePhonesMutation(
+          $input: ActorNameChangeInput!
+        ) {
+          actorNameChange(input: $input) {
+            actor {
+              allPhones {
+                isVerified
               }
             }
           }
-      `).ChangeNameMutation,
+        }
+      `),
       optimisticResponse: {
         actorNameChange: {
           actor: {
@@ -396,19 +428,19 @@ describe('validateOptimisticResponse', () => {
     },
     {
       name: 'Handles object with null values',
-      mutation: generateAndCompile(`
-          mutation ChangeNameMutation(
-            $input: ActorNameChangeInput!
-          ) {
-            actorNameChange(input: $input) {
-              actor {
-                allPhones {
-                  isVerified
-                }
+      mutation: getRequest(graphql`
+        mutation validateMutationTest13ChangeNamePhonesMutation(
+          $input: ActorNameChangeInput!
+        ) {
+          actorNameChange(input: $input) {
+            actor {
+              allPhones {
+                isVerified
               }
             }
           }
-      `).ChangeNameMutation,
+        }
+      `),
       optimisticResponse: {
         actorNameChange: {
           actor: {
@@ -425,19 +457,19 @@ describe('validateOptimisticResponse', () => {
     },
     {
       name: 'Warn when invalid value in the list',
-      mutation: generateAndCompile(`
-          mutation ChangeNameMutation(
-            $input: ActorNameChangeInput!
-          ) {
-            actorNameChange(input: $input) {
-              actor {
-                allPhones {
-                  isVerified
-                }
+      mutation: getRequest(graphql`
+        mutation validateMutationTest14ChangeNamePhonesMutation(
+          $input: ActorNameChangeInput!
+        ) {
+          actorNameChange(input: $input) {
+            actor {
+              allPhones {
+                isVerified
               }
             }
           }
-      `).ChangeNameMutation,
+        }
+      `),
       optimisticResponse: {
         actorNameChange: {
           actor: {
@@ -460,17 +492,17 @@ describe('validateOptimisticResponse', () => {
     },
     {
       name: 'Handles Lists with scalar fields',
-      mutation: generateAndCompile(`
-          mutation ChangeNameMutation(
-            $input: ActorNameChangeInput!
-          ) {
-            actorNameChange(input: $input) {
-              actor {
-                websites
-              }
+      mutation: getRequest(graphql`
+        mutation validateMutationTest15ChangeNameWebsitesMutation(
+          $input: ActorNameChangeInput!
+        ) {
+          actorNameChange(input: $input) {
+            actor {
+              websites
             }
           }
-      `).ChangeNameMutation,
+        }
+      `),
       optimisticResponse: {
         actorNameChange: {
           actor: {
@@ -487,17 +519,17 @@ describe('validateOptimisticResponse', () => {
     },
     {
       name: 'Warn for invalid values in the list',
-      mutation: generateAndCompile(`
-          mutation ChangeNameMutation(
-            $input: ActorNameChangeInput!
-          ) {
-            actorNameChange(input: $input) {
-              actor {
-                websites
-              }
+      mutation: getRequest(graphql`
+        mutation validateMutationTest16ChangeNameWebsitesMutation(
+          $input: ActorNameChangeInput!
+        ) {
+          actorNameChange(input: $input) {
+            actor {
+              websites
             }
           }
-      `).ChangeNameMutation,
+        }
+      `),
       optimisticResponse: {
         actorNameChange: {
           actor: {
@@ -514,17 +546,17 @@ describe('validateOptimisticResponse', () => {
     },
     {
       name: 'Does not warn when a field is specified as undefined',
-      mutation: generateAndCompile(`
-          mutation ChangeNameMutation(
-            $input: ActorNameChangeInput!
-          ) {
-            actorNameChange(input: $input) {
-              actor {
-                name
-              }
+      mutation: getRequest(graphql`
+        mutation validateMutationTest17ChangeNameMutation(
+          $input: ActorNameChangeInput!
+        ) {
+          actorNameChange(input: $input) {
+            actor {
+              name
             }
           }
-      `).ChangeNameMutation,
+        }
+      `),
       optimisticResponse: {
         actorNameChange: {
           actor: {__typename: null, id: null, name: undefined},
@@ -535,17 +567,17 @@ describe('validateOptimisticResponse', () => {
     },
     {
       name: 'Does not warn when an object is specified as undefined',
-      mutation: generateAndCompile(`
-          mutation ChangeNameMutation(
-            $input: ActorNameChangeInput!
-          ) {
-            actorNameChange(input: $input) {
-              actor {
-                name
-              }
+      mutation: getRequest(graphql`
+        mutation validateMutationTest18ChangeNameMutation(
+          $input: ActorNameChangeInput!
+        ) {
+          actorNameChange(input: $input) {
+            actor {
+              name
             }
           }
-      `).ChangeNameMutation,
+        }
+      `),
       optimisticResponse: {
         actorNameChange: {
           actor: undefined,
@@ -556,23 +588,18 @@ describe('validateOptimisticResponse', () => {
     },
     {
       name: 'Does not log a warning for client-side schema extensions',
-      mutation: generateAndCompile(
-        `
-          extend type Feedback {
-            isSavingLike: Boolean
-          }
-          mutation FeedbackLikeMutation(
-            $input: FeedbackLikeInput
-          ) {
-            feedbackLike(input: $input) {
-              feedback {
-                doesViewerLike
-                isSavingLike
-              }
+      mutation: getRequest(graphql`
+        mutation validateMutationTest19FeedbackLikeMutation(
+          $input: FeedbackLikeInput
+        ) {
+          feedbackLike(input: $input) {
+            feedback {
+              doesViewerLike
+              isSavingLike
             }
           }
-      `,
-      ).FeedbackLikeMutation,
+        }
+      `),
       optimisticResponse: {
         feedbackLike: {
           feedback: {
@@ -587,23 +614,18 @@ describe('validateOptimisticResponse', () => {
     },
     {
       name: 'Logs a warning for invalid client-side schema extension fields',
-      mutation: generateAndCompile(
-        `
-          extend type Feedback {
-            isSavingLike: Boolean
-          }
-          mutation FeedbackLikeMutation(
-            $input: FeedbackLikeInput
-          ) {
-            feedbackLike(input: $input) {
-              feedback {
-                doesViewerLike
-                isSavingLike
-              }
+      mutation: getRequest(graphql`
+        mutation validateMutationTest20FeedbackLikeMutation(
+          $input: FeedbackLikeInput
+        ) {
+          feedbackLike(input: $input) {
+            feedback {
+              doesViewerLike
+              isSavingLike
             }
           }
-      `,
-      ).FeedbackLikeMutation,
+        }
+      `),
       optimisticResponse: {
         feedbackLike: {
           feedback: {
@@ -618,26 +640,191 @@ describe('validateOptimisticResponse', () => {
     },
     {
       name: 'Does not log a warning for ModuleImport sub selections',
-      mutation: generateAndCompile(
-        `
-          mutation FeedbackLikeMutation(
-            $input: FeedbackLikeInput
-          ) {
-            feedbackLike(input: $input) {
-              feedback {
-                ...TheGrooviestReactModule_groovygroovy @module(name: "GroovyModule.react")
-              }
+      mutation: getRequest(graphql`
+        mutation validateMutationTest21FeedbackLikeGroovyMutation(
+          $input: FeedbackLikeInput
+        ) {
+          feedbackLike(input: $input) {
+            feedback {
+              ...validateMutationTestGroovyFragment_groovygroovy
+                @module(name: "GroovyModule.react")
             }
           }
-          fragment TheGrooviestReactModule_groovygroovy on Feedback {
-            doesViewerLike
-          }
-      `,
-      ).FeedbackLikeMutation,
+        }
+      `),
       optimisticResponse: {
         feedbackLike: {
           feedback: {
             id: 1,
+          },
+        },
+      },
+      variables: null,
+      shouldWarn: false,
+    },
+    {
+      name: "__isX fields are supported, when there's an interface field + same interface fragment spread",
+      mutation: getRequest(graphql`
+        mutation validateMutationTestIsActorMutation(
+          $input: ActorNameChangeInput!
+        ) @raw_response_type {
+          actorNameChange(input: $input) {
+            actor {
+              ...validateMutationTestActorFragment
+            }
+          }
+        }
+      `),
+      optimisticResponse: {
+        actorNameChange: {
+          actor: {
+            id: 3,
+            __typename: 'Page',
+            username: 'Zuck',
+            __isActor: 'Page',
+          },
+        },
+      },
+      variables: null,
+      shouldWarn: false,
+    },
+    {
+      name: "__isX fields are supported, when there's an interface field + same interface inline fragment",
+      mutation: getRequest(graphql`
+        mutation validateMutationTestIsActorInlineMutation(
+          $input: ActorNameChangeInput!
+        ) @raw_response_type {
+          actorNameChange(input: $input) {
+            actor {
+              ... on Actor {
+                ... on User {
+                  birthdate {
+                    day
+                    month
+                    year
+                  }
+                }
+                ... on Page {
+                  username
+                }
+              }
+            }
+          }
+        }
+      `),
+      optimisticResponse: {
+        actorNameChange: {
+          actor: {
+            id: 3,
+            __typename: 'Page',
+            username: 'Zuck',
+            __isActor: 'Page',
+          },
+        },
+      },
+      variables: null,
+      shouldWarn: false,
+    },
+    {
+      name: '__isX fields are supported, when a field with an interface type contains an inline fragment with a different interface type',
+      mutation: getRequest(graphql`
+        mutation validateMutationTestIsEntityInlineFragmentMutation(
+          $input: ActorNameChangeInput!
+        ) @raw_response_type {
+          actorNameChange(input: $input) {
+            actor {
+              ... on Entity {
+                url
+              }
+            }
+          }
+        }
+      `),
+      optimisticResponse: {
+        actorNameChange: {
+          actor: {
+            id: 3,
+            __typename: 'User',
+            url: 'Zuck.com',
+            __isEntity: 'User',
+          },
+        },
+      },
+      variables: null,
+      shouldWarn: false,
+    },
+    {
+      name: '__isX fields are supported, when a field with an interface type contains a fragment spread with a different interface type',
+      mutation: getRequest(graphql`
+        mutation validateMutationTestIsEntitySpreadFragmentMutation(
+          $input: ActorNameChangeInput!
+        ) @raw_response_type {
+          actorNameChange(input: $input) {
+            actor {
+              ...validateMutationTestEntityFragement
+            }
+          }
+        }
+      `),
+      optimisticResponse: {
+        actorNameChange: {
+          actor: {
+            id: 3,
+            __typename: 'User',
+            url: 'Zuck.com',
+            __isEntity: 'User',
+          },
+        },
+      },
+      variables: null,
+      shouldWarn: false,
+    },
+    {
+      name: '__isX fields are supported, when a field with a concrete type contains an inline fragment with an interface type',
+      mutation: getRequest(graphql`
+        mutation validateMutationTestIsNodeInlineFragmentMutation(
+          $input: FeedbackLikeInput
+        ) @raw_response_type {
+          feedbackLike(input: $input) {
+            feedback {
+              ... on Node {
+                name
+              }
+            }
+          }
+        }
+      `),
+      optimisticResponse: {
+        feedbackLike: {
+          feedback: {
+            id: 1,
+            name: 'Zuck',
+            __isNode: 'Feedback',
+          },
+        },
+      },
+      variables: null,
+      shouldWarn: false,
+    },
+    {
+      name: '__isX fields are supported, when a field with a concrete type contains a fragment spread with an interface type',
+      mutation: getRequest(graphql`
+        mutation validateMutationTestIsNodeSpreadMutation(
+          $input: FeedbackLikeInput
+        ) @raw_response_type {
+          feedbackLike(input: $input) {
+            feedback {
+              ...validateMutationTestNodeFragement
+            }
+          }
+        }
+      `),
+      optimisticResponse: {
+        feedbackLike: {
+          feedback: {
+            id: 1,
+            name: 'Zuck',
+            __isNode: 'Feedback',
           },
         },
       },
@@ -660,9 +847,26 @@ describe('validateOptimisticResponse', () => {
   });
 
   describe('feature ENABLE_REACT_FLIGHT_COMPONENT_FIELD', () => {
+    let FlightMutation;
     beforeEach(() => {
       jest.clearAllMocks();
       RelayFeatureFlags.ENABLE_REACT_FLIGHT_COMPONENT_FIELD = true;
+      FlightMutation = getRequest(graphql`
+        mutation validateMutationTestFlightMutation(
+          $input: StoryUpdateInput!
+          $count: Int!
+        ) {
+          storyUpdate(input: $input) {
+            story {
+              id
+              body {
+                text
+              }
+              flightComponentValidateMutation(condition: true, count: $count)
+            }
+          }
+        }
+      `);
     });
 
     afterEach(() => {
@@ -670,30 +874,6 @@ describe('validateOptimisticResponse', () => {
     });
 
     it('Throws an error when optimistic responses contain Flight fields', () => {
-      const {FlightMutation} = generateAndCompile(`
-        mutation FlightMutation(
-            $input: StoryUpdateInput!,
-            $count: Int!
-          ) {
-            storyUpdate(input: $input) {
-              story {
-                id
-                body {
-                  text
-                }
-                flightComponent(condition: true, count: $count)
-              }
-            }
-          }
-
-          extend type Story {
-            flightComponent(
-              condition: Boolean!
-              count: Int!
-            ): ReactFlightComponent
-              @react_flight_component(name: "FlightComponent.server")
-          }
-      `);
       const optimisticResponse = {
         storyUpdate: {
           story: {
@@ -701,7 +881,7 @@ describe('validateOptimisticResponse', () => {
             body: {
               text: 'Hello world',
             },
-            flightComponent: {
+            flightComponentValidateMutation: {
               tree: [
                 {
                   type: 'div',
@@ -711,6 +891,8 @@ describe('validateOptimisticResponse', () => {
                 },
               ],
               queries: [],
+              errors: [],
+              fragments: [],
             },
           },
         },
@@ -723,30 +905,6 @@ describe('validateOptimisticResponse', () => {
     });
 
     it('Does not error when optimistic responses contain null or undefined Flight fields', () => {
-      const {FlightMutation} = generateAndCompile(`
-        mutation FlightMutation(
-            $input: StoryUpdateInput!,
-            $count: Int!
-          ) {
-            storyUpdate(input: $input) {
-              story {
-                id
-                body {
-                  text
-                }
-                flightComponent(condition: true, count: $count)
-              }
-            }
-          }
-
-          extend type Story {
-            flightComponent(
-              condition: Boolean!
-              count: Int!
-            ): ReactFlightComponent
-              @react_flight_component(name: "FlightComponent.server")
-          }
-      `);
       const optimisticResponseWithUndefinedFlightField = {
         storyUpdate: {
           story: {
@@ -754,7 +912,7 @@ describe('validateOptimisticResponse', () => {
             body: {
               text: 'Hello world',
             },
-            flightComponent: undefined,
+            flightComponentValidateMutation: undefined,
           },
         },
       };
@@ -765,7 +923,7 @@ describe('validateOptimisticResponse', () => {
             body: {
               text: 'Hello world',
             },
-            flightComponent: null,
+            flightComponentValidateMutation: null,
           },
         },
       };

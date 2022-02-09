@@ -1,0 +1,40 @@
+# expected-to-throw
+query selectionSetConflictInvalidSameFragmentsInDifferentContextsQuery {
+  node(id: 42) {
+    ... on User {
+      people: friends {
+        edges {
+          node {
+            ...selectionSetConflictInvalidSameFragmentsInDifferentContextsA
+          }
+        }
+      }
+    }
+    ... on Page {
+      people: likers {
+        edges {
+          node {
+            ...selectionSetConflictInvalidSameFragmentsInDifferentContextsB
+          }
+        }
+      }
+    }
+  }
+
+  me {
+    ...selectionSetConflictInvalidSameFragmentsInDifferentContextsA
+    ...selectionSetConflictInvalidSameFragmentsInDifferentContextsB
+  }
+}
+
+fragment selectionSetConflictInvalidSameFragmentsInDifferentContextsA on Actor {
+  profilePicture(size: [42]) {
+    uri
+  }
+}
+
+fragment selectionSetConflictInvalidSameFragmentsInDifferentContextsB on Actor {
+  profilePicture {
+    uri
+  }
+}

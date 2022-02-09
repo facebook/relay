@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -12,11 +12,17 @@
 
 'use strict';
 
-const invariant = require('invariant');
-
-import type {NormalizationOperation} from '../util/NormalizationNode';
+import type {
+  NormalizationArgument,
+  NormalizationLocalArgumentDefinition,
+  NormalizationOperation,
+} from '../util/NormalizationNode';
 import type {ReaderFragment} from '../util/ReaderNode';
+import type {ProvidedVariablesType} from '../util/RelayConcreteNode';
 import type {Variables} from '../util/RelayRuntimeTypes';
+
+const {getArgumentValues} = require('./RelayStoreUtils');
+const invariant = require('invariant');
 
 /**
  * Determines the variables that are in scope for a fragment given the variables
@@ -71,12 +77,15 @@ function getFragmentVariables(
 
 /**
  * Determines the variables that are in scope for a given operation given values
- * for some/all of its arguments. Extraneous input variables are filtered from
- * the output, and missing variables are set to default values (if given in the
+ * for some/all of its arguments.
+ * - extraneous input variables are filtered from the output
+ * - missing variables are set to default values (if given in the
  * operation's definition).
+ * - variables with provider modules are added
  */
 function getOperationVariables(
   operation: NormalizationOperation,
+  providedVariables: ?ProvidedVariablesType,
   variables: Variables,
 ): Variables {
   const operationVariables = {};
@@ -87,10 +96,35 @@ function getOperationVariables(
     }
     operationVariables[def.name] = value;
   });
+
+  if (providedVariables != null) {
+    Object.keys(providedVariables).forEach((varName: string) => {
+      operationVariables[varName] = providedVariables[varName].get();
+    });
+  }
   return operationVariables;
 }
 
+function getLocalVariables(
+  currentVariables: Variables,
+  argumentDefinitions: ?$ReadOnlyArray<NormalizationLocalArgumentDefinition>,
+  args: ?$ReadOnlyArray<NormalizationArgument>,
+): Variables {
+  if (argumentDefinitions == null) {
+    return currentVariables;
+  }
+  const nextVariables = {...currentVariables};
+  const nextArgs = args ? getArgumentValues(args, currentVariables) : {};
+  argumentDefinitions.forEach(def => {
+    // $FlowFixMe[cannot-write]
+    const value = nextArgs[def.name] ?? def.defaultValue;
+    nextVariables[def.name] = value;
+  });
+  return nextVariables;
+}
+
 module.exports = {
+  getLocalVariables,
   getFragmentVariables,
   getOperationVariables,
 };

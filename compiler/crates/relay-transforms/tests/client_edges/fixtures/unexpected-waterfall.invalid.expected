@@ -1,0 +1,27 @@
+==================================== INPUT ====================================
+#expected-to-throw
+fragment Foo_user on User {
+  name @waterfall
+  nearest_neighbor @waterfall {
+    __typename
+  }
+}
+
+# %extensions%
+==================================== ERROR ====================================
+✖︎ Unexpceted `@waterfall` directive. Only fields backed by a Client Edge should be annotated with the `@waterfall` directive.
+
+  unexpected-waterfall.invalid.graphql:3:8
+    2 │ fragment Foo_user on User {
+    3 │   name @waterfall
+      │        ^^^^^^^^^^
+    4 │   nearest_neighbor @waterfall {
+
+
+✖︎ Unexpceted `@waterfall` directive. Only fields backed by a Client Edge should be annotated with the `@waterfall` directive.
+
+  unexpected-waterfall.invalid.graphql:4:20
+    3 │   name @waterfall
+    4 │   nearest_neighbor @waterfall {
+      │                    ^^^^^^^^^^
+    5 │     __typename

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,17 +13,19 @@
 
 'use strict';
 
-const RelayModernEnvironment = require('../RelayModernEnvironment');
-const RelayModernStore = require('../RelayModernStore');
 const RelayNetwork = require('../../network/RelayNetwork');
-const RelayRecordSource = require('../RelayRecordSource');
-
+const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../RelayModernSelector');
+const RelayModernStore = require('../RelayModernStore');
+const RelayRecordSource = require('../RelayRecordSource');
 const {ROOT_ID} = require('../RelayStoreUtils');
-const {generateAndCompile} = require('relay-test-utils-internal');
+const {getRequest, graphql} = require('relay-runtime');
+const {disallowWarnings} = require('relay-test-utils-internal');
+
+disallowWarnings();
 
 describe('query cache expiration time', () => {
   let environment;
@@ -39,15 +41,14 @@ describe('query cache expiration time', () => {
     fetchTime = Date.now();
     jest.spyOn(global.Date, 'now').mockImplementation(() => fetchTime);
 
-    jest.resetModules();
-    ({ParentQuery} = generateAndCompile(`
-        query ParentQuery {
-          me {
-            id
-            name
-          }
+    ParentQuery = getRequest(graphql`
+      query RelayModernEnvironmentQueryCacheExpirationTimeTestQuery {
+        me {
+          id
+          name
         }
-      `));
+      }
+    `);
 
     source = RelayRecordSource.create();
     store = new RelayModernStore(source, {
@@ -58,7 +59,9 @@ describe('query cache expiration time', () => {
       network: RelayNetwork.create(jest.fn()),
       store,
     });
-    operationDescriptor = createOperationDescriptor(ParentQuery, {size: 32});
+    operationDescriptor = createOperationDescriptor(ParentQuery, {
+      size: 32,
+    });
   });
 
   afterEach(() => {
@@ -73,6 +76,7 @@ describe('query cache expiration time', () => {
           name: 'Zuck',
         },
       });
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       const {dispose} = environment.retain(operationDescriptor);
       const snapshot = environment.lookup(
         createReaderSelector(
@@ -118,6 +122,7 @@ describe('query cache expiration time', () => {
           name: 'Zuck',
         },
       });
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       const {dispose} = environment.retain(operationDescriptor);
       const snapshot = environment.lookup(
         createReaderSelector(
@@ -158,6 +163,7 @@ describe('query cache expiration time', () => {
           name: 'Zuck',
         },
       });
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       const {dispose} = environment.retain(operationDescriptor);
       const originalFetchTime = fetchTime;
 

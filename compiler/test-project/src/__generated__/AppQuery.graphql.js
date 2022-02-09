@@ -1,5 +1,10 @@
 /**
- * @generated SignedSource<<0fa074a62a100c72778668ccb2f859ba>>
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * 
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ * @generated SignedSource<<ddcf8b54164d37c90b9ce54d5c7a133b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -10,33 +15,14 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-import type { Component_node$ref } from "Component_node.graphql";
-export type AppQueryVariables = {||};
-export type AppQueryResponse = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type Component_node$fragmentType = any;
+export type AppQuery$variables = {||};
+export type AppQuery$data = {|
   +node: ?{|
-    +$fragmentRefs: Component_node$ref
-  |}
+    +$fragmentSpreads: Component_node$fragmentType,
+  |},
 |};
-export type AppQuery = {|
-  variables: AppQueryVariables,
-  response: AppQueryResponse,
-|};
-*/
-
-/*
-query AppQuery {
-  node(id: "test") {
-    __typename
-    ...Component_node
-    id
-  }
-}
-
-fragment Component_node on Node {
-  __isNode: __typename
-  id
-}
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -122,8 +108,9 @@ return {
 };
 })();
 
-if (__DEV__) {
-  (node/*: any*/).hash = "942e72826c882d3a02cb0cfbf267dd83";
-}
+(node/*: any*/).hash = "942e72826c882d3a02cb0cfbf267dd83";
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  AppQuery$variables,
+  AppQuery$data,
+>*/);

@@ -1,0 +1,20 @@
+# expected-to-throw
+
+schema {
+  query: Query
+}
+
+type Query {
+  foo: MyType
+}
+
+# Invalid accoring to spec:
+# > The named type must already be defined and must be an Interface type.
+# -- https://spec.graphql.org/June2018/#InterfaceTypeExtension
+extend type MyType {
+  will_this_crash: Int
+}
+
+type MyType {
+  is_this_cool: Boolean
+}

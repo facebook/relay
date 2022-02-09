@@ -1,23 +1,23 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::node_identifier::NodeIdentifier;
-use crate::util::{is_relay_custom_inline_fragment_directive, PointerAddress};
-use crate::DEFER_STREAM_CONSTANTS;
+use crate::{
+    node_identifier::NodeIdentifier,
+    util::{is_relay_custom_inline_fragment_directive, PointerAddress},
+    DEFER_STREAM_CONSTANTS,
+};
 
-use common::NamedItem;
+use common::{sync::*, NamedItem};
 use dashmap::DashMap;
 use graphql_ir::{
     Condition, FragmentDefinition, InlineFragment, LinkedField, OperationDefinition, Program,
     Selection, Transformed, TransformedValue,
 };
-use rayon::prelude::*;
-use schema::Schema;
-use std::iter::Iterator;
+use schema::SDLSchema;
 use std::sync::Arc;
 
 /**
@@ -124,7 +124,7 @@ struct SelectionMap(VecMap<NodeIdentifier, Option<SelectionMap>>);
 type Cache = DashMap<PointerAddress, (Transformed<Selection>, SelectionMap)>;
 
 struct SkipRedundantNodesTransform {
-    schema: Arc<Schema>,
+    schema: Arc<SDLSchema>,
     cache: Cache,
 }
 
@@ -156,7 +156,7 @@ impl<'s> SkipRedundantNodesTransform {
                 }
             }
             Selection::LinkedField(selection) => {
-                let should_cache = is_empty && Arc::strong_count(selection) > 1;
+                let should_cache = is_empty && Arc::strong_count(selection) > 2;
                 if should_cache {
                     let key = PointerAddress::new(selection);
                     if let Some(cached) = self.cache.get(&key) {
@@ -207,7 +207,7 @@ impl<'s> SkipRedundantNodesTransform {
                 }
             }
             Selection::InlineFragment(selection) => {
-                let should_cache = is_empty && Arc::strong_count(selection) > 1;
+                let should_cache = is_empty && Arc::strong_count(selection) > 2;
                 if should_cache {
                     let key = PointerAddress::new(selection);
                     if let Some(cached) = self.cache.get(&key) {
@@ -365,7 +365,7 @@ impl<'s> SkipRedundantNodesTransform {
         if has_changes {
             TransformedValue::Replace(result)
         } else {
-            TransformedValue::Replace(selections.iter().map(|&x| x.clone()).collect())
+            TransformedValue::Keep
         }
     }
 
@@ -397,17 +397,15 @@ impl<'s> SkipRedundantNodesTransform {
     }
 
     fn transform_program(&self, program: &Program) -> TransformedValue<Program> {
-        let operations: Vec<Arc<OperationDefinition>> = program
-            .par_operations()
+        let operations: Vec<Arc<OperationDefinition>> = par_iter(&program.operations)
             .filter_map(|operation| match self.transform_operation(operation) {
                 Transformed::Delete => None,
                 Transformed::Keep => Some(Arc::clone(operation)),
                 Transformed::Replace(replacement) => Some(Arc::new(replacement)),
             })
             .collect();
-        let fragments: Vec<Arc<FragmentDefinition>> = program
-            .par_fragments()
-            .filter_map(|fragment| match self.transform_fragment(fragment) {
+        let fragments: Vec<Arc<FragmentDefinition>> = par_iter(&program.fragments)
+            .filter_map(|(_, fragment)| match self.transform_fragment(fragment) {
                 Transformed::Delete => None,
                 Transformed::Keep => Some(Arc::clone(fragment)),
                 Transformed::Replace(replacement) => Some(Arc::new(replacement)),
@@ -484,11 +482,6 @@ where
 {
     fn contains_key(&self, key: &K) -> bool {
         self.data.iter().any(|(k, _v)| k == key)
-    }
-
-    #[allow(dead_code)]
-    fn get(&self, key: &K) -> Option<&V> {
-        self.data.iter().find(|(k, _v)| k == key).map(|(_k, v)| v)
     }
 
     fn get_mut(&mut self, key: &K) -> Option<&mut V> {

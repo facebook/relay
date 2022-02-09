@@ -1,0 +1,15 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query TestQuery @updatable {
+  node(id: 4) @skip(if: true) {
+    id
+  }
+}
+==================================== ERROR ====================================
+✖︎ Within updatable operations, the directives @include and @skip are not allowed. The directive was found in TestQuery.
+
+  skip.invalid.graphql:2:7
+    1 │ # expected-to-throw
+    2 │ query TestQuery @updatable {
+      │       ^^^^^^^^^
+    3 │   node(id: 4) @skip(if: true) {

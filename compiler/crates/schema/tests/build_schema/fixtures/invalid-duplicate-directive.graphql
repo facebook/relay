@@ -1,0 +1,4 @@
+# expected-to-throw
+
+directive @fetchable(field_name: String) on OBJECT
+directive @fetchable(field_name: String) on OBJECT

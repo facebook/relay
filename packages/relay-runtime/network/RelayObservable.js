@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -223,7 +223,7 @@ class RelayObservable<+T> implements Subscribable<T> {
   do(observer: Observer<T>): RelayObservable<T> {
     return RelayObservable.create(sink => {
       const both = (action: any) =>
-        function() {
+        function () {
           try {
             observer[action] && observer[action].apply(observer, arguments);
           } catch (error) {

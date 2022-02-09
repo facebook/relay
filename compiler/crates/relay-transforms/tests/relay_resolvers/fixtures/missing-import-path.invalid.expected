@@ -1,0 +1,29 @@
+==================================== INPUT ====================================
+#expected-to-throw
+fragment Foo_user on User {
+  pop_star_name
+}
+
+fragment PopStarNameResolverFragment_name on User {
+  name
+  address {
+    street
+  }
+  parents {
+    lastName
+  }
+}
+
+# %extensions%
+
+extend type User {
+  pop_star_name: String @relay_resolver(fragment_name: "PopStarNameResolverFragment_name")
+}
+==================================== ERROR ====================================
+✖︎ The Relay Resolver backing this field is missing a 'import_path' argument in its `@relay_resolver` directive.
+
+  missing-import-path.invalid.graphql:3:3
+    2 │ fragment Foo_user on User {
+    3 │   pop_star_name
+      │   ^^^^^^^^^^^^^
+    4 │ }

@@ -1,21 +1,21 @@
 ---
-id: version-classic-classic-api-reference-relay-container
+id: classic-api-reference-relay-container
 title: RelayContainer
 original_id: classic-api-reference-relay-container
 ---
 
 `RelayContainer` is a higher-order React component that lets a React component encode its data requirements.
 
-- Relay ensures that this data is available before the component is rendered.
-- Relay updates the component whenever the underlying data has changed.
+-   Relay ensures that this data is available before the component is rendered.
+-   Relay updates the component whenever the underlying data has changed.
 
 Relay containers are created using `Relay.createContainer`.
 
 ## Overview
 
-*Container Specification*
+_Container Specification_
 
-<ul class="apiIndex">
+<ul className="apiIndex">
   <li>
     <a href="#fragments">
       <pre>fragments</pre>
@@ -42,11 +42,11 @@ Relay containers are created using `Relay.createContainer`.
   </li>
 </ul>
 
-*Properties and Methods*
+_Properties and Methods_
 
 These are the methods and properties that the container will provide as `this.props.relay` in the plain React component.
 
-<ul class="apiIndex">
+<ul className="apiIndex">
   <li>
     <a href="#route">
       <pre>route</pre>
@@ -84,9 +84,9 @@ These are the methods and properties that the container will provide as `this.pr
   </li>
 </ul>
 
-*Static Methods*
+_Static Methods_
 
-<ul class="apiIndex">
+<ul className="apiIndex">
   <li>
     <a href="#getfragment">
       <pre>getFragment(name[, vars])</pre>
@@ -100,6 +100,7 @@ These are the methods and properties that the container will provide as `this.pr
 ### fragments
 
 ```
+
 fragments: RelayQueryFragments<Tk> = {
   [propName: string]: (
     variables: {[name: string]: mixed}
@@ -113,7 +114,8 @@ Only fields specified by these fragments will be populated in `this.props` when 
 
 #### Example
 
-```{8-14}
+```{"{"}8-14{"}"}
+
 class StarWarsShip extends React.Component {
   render() {
     return <div>{this.props.ship.name}</div>;
@@ -130,14 +132,17 @@ module.exports = Relay.createContainer(StarWarsShip, {
   },
 });
 
+
 ```
+
 In this example, the fields associated with the `ship` fragment will be made available on `this.props.ship`.
 
-See also: [Containers > Relay Containers](guides-containers.html#relay-containers)
+See also: [Containers &gt; Relay Containers](./classic-guides-containers#relay-containers)
 
 ### initialVariables
 
 ```
+
 initialVariables: {[name: string]: mixed};
 ```
 
@@ -145,7 +150,8 @@ The initial set of variable values available to this component's fragments.
 
 #### Example
 
-```{4}
+```{"{"}4{"}"}
+
 class ProfilePicture extends React.Component {...}
 
 module.exports = Relay.createContainer(ProfilePicture, {
@@ -162,11 +168,12 @@ module.exports = Relay.createContainer(ProfilePicture, {
 });
 ```
 
-In this example, `profilePicture(size: 50)` will be fetched for the intial render.
+In this example, `profilePicture(size: 50)` will be fetched for the initial render.
 
 ### prepareVariables
 
 ```
+
 prepareVariables: ?(
   prevVariables: {[name: string]: mixed}
 ) => {[name: string]: mixed}
@@ -178,7 +185,8 @@ This method is also called after the partial set of variables from `setVariables
 
 #### Example
 
-```{3-9}
+```{"{"}3-9{"}"}
+
 module.exports = Relay.createContainer(ProfilePicture, {
   initialVariables: {size: 50},
   prepareVariables: prevVariables => {
@@ -195,6 +203,7 @@ module.exports = Relay.createContainer(ProfilePicture, {
 ### shouldComponentUpdate
 
 ```
+
 shouldComponentUpdate: () => boolean;
 ```
 
@@ -202,7 +211,8 @@ RelayContainer implements a conservative default `shouldComponentUpdate` that re
 
 #### Example
 
-```{2}
+```{"{"}2{"}"}
+
 module.exports = Relay.createContainer(ProfilePicture, {
   shouldComponentUpdate: () => true,
   // ...
@@ -210,12 +220,15 @@ module.exports = Relay.createContainer(ProfilePicture, {
 ```
 
 ## Properties and Methods
+
 The properties and methods listed below can be accessed on `this.props.relay` from the wrapped React component.
 
 ### route
 
 ```
+
 route: RelayRoute
+
 ```
 
 Route is useful in providing the context which a component is being rendered in. It includes information about the `name`, `params`, and `queries` of the current route.
@@ -223,17 +236,19 @@ Route is useful in providing the context which a component is being rendered in.
 #### Example
 
 ```
+
 var name = this.props.relay.route.name;
 if (name === 'SuperAwesomeRoute') {
   // Do something super cool.
 }
 ```
 
-See also: [Routes](guides-routes.html)
+See also: [Routes](./classic-guides-routes)
 
 ### variables
 
 ```
+
 variables: {[name: string]: mixed}
 ```
 
@@ -241,7 +256,8 @@ variables: {[name: string]: mixed}
 
 #### Example
 
-```{8}
+```{"{"}8{"}"}
+
 class ProfilePicture extends React.Component {
   render() {
     var user = this.props.user;
@@ -264,15 +280,20 @@ module.exports = Relay.createContainer(ProfilePicture, {
   },
 });
 ```
+
 In this example, the `width` of the rendered image will always correspond to the `$size` variable used to fetch the current version of `profilePicture.uri`.
 
-> Note
->
-> Never mutate `this.props.relay.variables` directly as it will not trigger data to be fetched properly. Treat `this.props.relay.variables` as if it were immutable, just like props.
+<blockquote>
+Note
+
+Never mutate <code>this.props.relay.variables</code> directly as it will not trigger data to be fetched properly. Treat <code>this.props.relay.variables</code> as if it were immutable, just like props.
+
+</blockquote>
 
 ### pendingVariables
 
 ```
+
 pendingVariables: ?{[name: string]: mixed}
 ```
 
@@ -282,7 +303,8 @@ If no request is in flight pendingVariables is `null`.
 
 #### Example
 
-```{12}
+```{"{"}12{"}"}
+
 class ProfilePicture extends React.Component {
   requestRandomPictureSize = () => {
     const randIntMin = 10;
@@ -328,11 +350,12 @@ module.exports = Relay.createContainer(ProfilePicture, {
 
 In this example, whenever a picture with a new size is being loaded a spinner is displayed instead of the picture.
 
-
 ### setVariables
 
 ```
+
 setVariables([partialVariables: Object, [onReadyStateChange: Function]]): void
+
 ```
 
 Components can change their data requirements by using `setVariables` to request an update to the current set of `variables`.
@@ -343,7 +366,8 @@ An optional `onReadyStateChange` callback can be supplied to respond to the even
 
 #### Example
 
-```{12-15}
+```{"{"}12-15{"}"}
+
 class Feed extends React.Component {
   render() {
     return (
@@ -380,16 +404,21 @@ module.exports = Relay.createContainer(Feed, {
 });
 ```
 
-> Note
->
-> `setVariables` does not immediately mutate `variables`, but creates a  pending state transition. `variables` will continue returning the previous values until `this.props` has been populated with data that fulfills the new variable values.
+<blockquote>
+Note
 
-See also: [Containers > Requesting Different Data](guides-containers.html#requesting-different-data), [Ready State](guides-ready-state.html)
+<code>setVariables</code> does not immediately mutate <code>variables</code>, but creates a  pending state transition. <code>variables</code> will continue returning the previous values until <code>this.props</code> has been populated with data that fulfills the new variable values.
+
+</blockquote>
+
+See also: [Containers &gt; Requesting Different Data](./classic-guides-containers#requesting-different-data), [Ready State](./classic-guides-ready-state)
 
 ### forceFetch
 
 ```
+
 forceFetch([partialVariables: Object, [onReadyStateChange: Function]]): void
+
 ```
 
 `forceFetch` is similar to `setVariables` because it is also used to change the data requirements by altering `variables`.
@@ -398,16 +427,21 @@ The two methods differ in that instead of sending a query that includes only fie
 
 An optional `onReadyStateChange` callback can be supplied to respond to the events involved with the data fulfillment.
 
-> Note
->
-> `forceFetch` can be called with an empty set of partial variables, meaning it can trigger a refresh of the currently rendered set of data.
+<blockquote>
+Note
 
-See also: [Ready State](guides-ready-state.html)
+`forceFetch` can be called with an empty set of partial variables, meaning it can trigger a refresh of the currently rendered set of data.
+
+</blockquote>
+
+See also: [Ready State](./classic-guides-ready-state)
 
 ### hasOptimisticUpdate
 
 ```
+
 hasOptimisticUpdate(record: Object): boolean
+
 ```
 
 Calling `hasOptimisticUpdate` with a record from `this.props` will return whether that given record is affected by an optimistic mutation. It allows the component to render local optimistic changes differently from data that has successfully synchronized with the server.
@@ -415,6 +449,7 @@ Calling `hasOptimisticUpdate` with a record from `this.props` will return whethe
 #### Example
 
 ```
+
 class Feed extends React.Component {
   render() {
     var edges = this.props.viewer.feed.edges;
@@ -424,7 +459,7 @@ class Feed extends React.Component {
           var node = edge.node;
           if (this.props.relay.hasOptimisticUpdate(node)) {
             // Render pending story that has not been stored
-            // on the server using a diffrent component.
+            // on the server using a different component.
             return (
               <PendingStory
                 key={edge.node.id}
@@ -464,14 +499,17 @@ module.exports = Relay.createContainer(Feed, {
   },
 });
 
+
 ```
 
-See also: [Mutations > Optimistic Updates](guides-mutations.html#optimistic-updates)
+See also: [Mutations &gt; Optimistic Updates](./classic-guides-mutations#optimistic-updates)
 
 ### getPendingTransactions
 
 ```
+
 getPendingTransactions(record: Object): ?Array<RelayMutationTransaction>
+
 ```
 
 Components can inspect pending mutations on any record (i.e. data made available in props with a corresponding fragment). Calling `getPendingTransactions` with a record will return a list of the pending mutation transactions that affect that particular record.
@@ -481,6 +519,7 @@ Each `RelayMutationTransaction` has methods to check the status of the mutation 
 #### Example
 
 ```
+
 class Story extends React.Component {
   render() {
     var story = this.props.story;
@@ -515,21 +554,23 @@ module.exports = Relay.createContainer(ProfilePicture, {
 
 `RelayMutationTransaction.getStatus` can return one of the following strings:
 
-- `UNCOMMITTED` — Transaction hasn't yet been sent to the server. Transaction can be committed or rolled back.
-- `COMMIT_QUEUED` —  Transaction was committed but another transaction with the same collision key is pending, so the transaction has been queued to send to the server.
-- `COLLISION_COMMIT_FAILED` — Transaction was queued for commit but another transaction with the same collision key failed. All transactions in the collision queue, including this one, have been failed. Transaction can be recommitted or rolled back.
-- `COMMITTING` — Transaction is waiting for the server to respond.
-- `COMMIT_FAILED` — Transaction was sent to the server for comitting but failed.
+-   `UNCOMMITTED` — Transaction hasn't yet been sent to the server. Transaction can be committed or rolled back.
+-   `COMMIT_QUEUED` —  Transaction was committed but another transaction with the same collision key is pending, so the transaction has been queued to send to the server.
+-   `COLLISION_COMMIT_FAILED` — Transaction was queued for commit but another transaction with the same collision key failed. All transactions in the collision queue, including this one, have been failed. Transaction can be recommitted or rolled back.
+-   `COMMITTING` — Transaction is waiting for the server to respond.
+-   `COMMIT_FAILED` — Transaction was sent to the server for committing but failed.
 
 ## Static Methods
 
 ### getFragment
 
 ```
+
 getFragment(
   fragmentName: string,
   variables?: {[name: string]: mixed}
 ): RelayFragmentReference
+
 ```
 
 Gets a reference to a child container's fragment for inclusion in a parent fragment.
@@ -538,7 +579,8 @@ Gets a reference to a child container's fragment for inclusion in a parent fragm
 
 Fragment composition is achieved via ES6 template string interpolation and `getFragment`:
 
-```{6}
+```{"{"}6{"}"}
+
 // Parent.js
 Relay.createContainer(Parent, {
   fragments: {
@@ -565,13 +607,14 @@ Relay.createContainer(Child, {
 });
 ```
 
-In this example, whenever `Parent` is fetched, `Child`'s fragment will also be fetched. When rendering, `<Parent>` will only have access to the `props.foo.id` field;  data from the child fragment will be [*masked*](http://facebook.github.io/relay/docs/thinking-in-relay.html#data-masking). By default, `childFragment` will use its corresponding initial variables. Relay will fetch `photo(size: 64)`. When `<Child>` is rendered it will also make the initial variables available as `props.relay.variables = {size: 64}`.
+In this example, whenever `Parent` is fetched, `Child`'s fragment will also be fetched. When rendering, `<Parent>` will only have access to the `props.foo.id` field;  data from the child fragment will be [_masked_](./PrinciplesAndArchitecture-ThinkingInRelay.md#data-masking). By default, `childFragment` will use its corresponding initial variables. Relay will fetch `photo(size: 64)`. When `<Child>` is rendered it will also make the initial variables available as `props.relay.variables = {size: 64}`.
 
 #### Overriding Fragment Variables
 
-Sometimes a parent needs to override the default variables of a child component. Imagine that we want to render `Child` above with a photo size of 128 instead of the default 64. To do this, we have to ensure that both the fragment *and* the container know about the custom variable. To set a custom variable in the *query*, use the second argument to `getFragment`:
+Sometimes a parent needs to override the default variables of a child component. Imagine that we want to render `Child` above with a photo size of 128 instead of the default 64. To do this, we have to ensure that both the fragment _and_ the container know about the custom variable. To set a custom variable in the _query_, use the second argument to `getFragment`:
 
-```{6}
+```{"{"}6{"}"}
+
 // Parent.js
 Relay.createContainer(Parent, {
   fragments: {
@@ -587,7 +630,8 @@ Relay.createContainer(Parent, {
 
 Now Relay will fetch the photo with size 128 - but the `Child` container won't magically know about this variable. We have to tell it by passing the variable value as a prop:
 
-```{4}
+```{"{"}4{"}"}
+
 const Parent = (props) => {
   return (
     <Child
@@ -598,4 +642,4 @@ const Parent = (props) => {
 }
 ```
 
-Now Relay will both fetch the larger photo size *and* `Child` will know to render it.
+Now Relay will both fetch the larger photo size _and_ `Child` will know to render it.

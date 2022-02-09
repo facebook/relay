@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -15,10 +15,10 @@ const {
   getPaginationFragment,
   getRefetchableFragment,
   getRequest,
+  graphql,
   isFragment,
   isRequest,
 } = require('../GraphQLTag');
-const {generateAndCompile} = require('relay-test-utils-internal');
 
 beforeEach(() => {
   jest.resetModules();
@@ -28,11 +28,11 @@ describe('isFragment/getFragment()', () => {
   let fragment;
 
   beforeEach(() => {
-    ({UserFragment: fragment} = generateAndCompile(`
-        fragment UserFragment on User {
-          name
-        }
-      `));
+    fragment = graphql`
+      fragment GraphQLTagTestUserFragment on User {
+        name
+      }
+    `;
   });
 
   it('returns concrete fragments as-is', () => {
@@ -51,13 +51,13 @@ describe('isRequest/getRequest()', () => {
   let query;
 
   beforeEach(() => {
-    ({Query: query} = generateAndCompile(`
-        query Query {
-          me {
-            id
-          }
+    query = graphql`
+      query GraphQLTagTest1Query {
+        me {
+          id
         }
-      `));
+      }
+    `;
   });
 
   it('returns concrete queries as-is', () => {
@@ -74,42 +74,42 @@ describe('isRequest/getRequest()', () => {
 
 describe('getRefetchableFragment()', () => {
   it('returns null for non-refetchable fragments', () => {
-    const {UserFragment: fragment} = generateAndCompile(`
-        fragment UserFragment on User {
-          name
-        }
-      `);
+    const fragment = graphql`
+      fragment GraphQLTagTest1UserFragment on User {
+        name
+      }
+    `;
     expect(getRefetchableFragment(fragment)).toBe(null);
   });
 
   it('returns refetchable fragments', () => {
-    const {UserFragment: fragment} = generateAndCompile(`
-        fragment UserFragment on User
-          @refetchable(queryName: "UserFragmentRefetchQuery") {
-          id
-          name
-        }
-      `);
+    const fragment = graphql`
+      fragment GraphQLTagTest2UserFragment on User
+      @refetchable(queryName: "GraphQLTagTestUserFragment1RefetchQuery") {
+        id
+        name
+      }
+    `;
     const refetchable = getRefetchableFragment(fragment);
     expect(refetchable).toBe(fragment);
   });
 
   it('returns refetchable pagination fragments', () => {
-    const {UserFragment: fragment} = generateAndCompile(`
-        fragment UserFragment on User
-          @refetchable(queryName: "UserFragmentRefetchQuery") {
-          id
-          name
-          friends(after: $after, first: $first)
-            @connection(key: "UserFragment_friends") {
-            edges {
-              node {
-                id
-              }
+    const fragment = graphql`
+      fragment GraphQLTagTest3UserFragment on User
+      @refetchable(queryName: "GraphQLTagTestUserFragment2RefetchQuery") {
+        id
+        name
+        friends(after: $after, first: $first)
+          @connection(key: "UserFragment_friends") {
+          edges {
+            node {
+              id
             }
           }
         }
-      `);
+      }
+    `;
     const refetchable = getRefetchableFragment(fragment);
     expect(refetchable).toBe(fragment);
   });
@@ -117,41 +117,41 @@ describe('getRefetchableFragment()', () => {
 
 describe('getPaginationFragment()', () => {
   it('returns null for non-refetchable fragments', () => {
-    const {UserFragment: fragment} = generateAndCompile(`
-        fragment UserFragment on User {
-          name
-        }
-      `);
+    const fragment = graphql`
+      fragment GraphQLTagTest4UserFragment on User {
+        name
+      }
+    `;
     expect(getPaginationFragment(fragment)).toBe(null);
   });
 
   it('returns null for refetchable fragments', () => {
-    const {UserFragment: fragment} = generateAndCompile(`
-        fragment UserFragment on User
-          @refetchable(queryName: "UserFragmentRefetchQuery") {
-          id
-          name
-        }
-      `);
+    const fragment = graphql`
+      fragment GraphQLTagTest5UserFragment on User
+      @refetchable(queryName: "GraphQLTagTestUserFragment3RefetchQuery") {
+        id
+        name
+      }
+    `;
     expect(getPaginationFragment(fragment)).toBe(null);
   });
 
   it('returns refetchable pagination fragments', () => {
-    const {UserFragment: fragment} = generateAndCompile(`
-        fragment UserFragment on User
-          @refetchable(queryName: "UserFragmentRefetchQuery") {
-          id
-          name
-          friends(after: $after, first: $first)
-            @connection(key: "UserFragment_friends") {
-            edges {
-              node {
-                id
-              }
+    const fragment = graphql`
+      fragment GraphQLTagTest6UserFragment on User
+      @refetchable(queryName: "GraphQLTagTestUserFragment4RefetchQuery") {
+        id
+        name
+        friends(after: $after, first: $first)
+          @connection(key: "UserFragment_friends") {
+          edges {
+            node {
+              id
             }
           }
         }
-      `);
+      }
+    `;
     const refetchable = getPaginationFragment(fragment);
     expect(refetchable).toBe(fragment);
   });

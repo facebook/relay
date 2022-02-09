@@ -1,0 +1,15 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query TestQuery @updatable @live_query {
+  node(id: 4) {
+    id
+  }
+}
+==================================== ERROR ====================================
+✖︎ The @live_query directive is not allowed in updatable operations.
+
+  directive-query.invalid.graphql:2:28
+    1 │ # expected-to-throw
+    2 │ query TestQuery @updatable @live_query {
+      │                            ^^^^^^^^^^^
+    3 │   node(id: 4) {

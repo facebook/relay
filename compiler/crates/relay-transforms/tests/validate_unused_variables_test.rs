@@ -1,4 +1,11 @@
-// @generated SignedSource<<4eaf04058b087306afb51fea4898e193>>
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ * @generated SignedSource<<620255d5fdc8dee833f3b68dc61e8fa8>>
+ */
 
 mod validate_unused_variables;
 

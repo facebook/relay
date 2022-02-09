@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -11,16 +11,19 @@ use graphql_ir::{
     TransformedValue, Transformer,
 };
 
-use interner::{Intern, StringKey};
-use schema::{FieldID, InterfaceID, ObjectID, Type};
-use std::collections::hash_map::Entry;
-use std::collections::HashMap;
-use std::sync::Arc;
+use intern::string_key::{Intern, StringKey};
+use relay_config::SchemaConfig;
+use schema::{FieldID, InterfaceID, ObjectID, Schema, Type};
+use std::{
+    collections::{hash_map::Entry, HashMap},
+    sync::Arc,
+};
 
 /// A transform that adds an `id` field on any type that has an id field but
 /// where there is no unaliased `id` selection.
-pub fn generate_id_field(program: &Program) -> Program {
-    let mut transform = GenerateIDFieldTransform::new(program);
+pub fn generate_id_field(program: &Program, schema_config: &SchemaConfig) -> Program {
+    let mut transform =
+        GenerateIDFieldTransform::new(program, schema_config.node_interface_id_field);
     transform
         .transform_program(program)
         .replace_or_else(|| program.clone())
@@ -112,9 +115,7 @@ impl<'s> Transformer for GenerateIDFieldTransform<'s> {
 }
 
 impl<'s> GenerateIDFieldTransform<'s> {
-    fn new(program: &'s Program) -> Self {
-        let id_name = "id".intern();
-
+    fn new(program: &'s Program, id_name: StringKey) -> Self {
         let schema = &program.schema;
         let node_interface = match schema.get_type("Node".intern()) {
             Some(Type::Interface(node_interface_id)) => {
@@ -122,8 +123,10 @@ impl<'s> GenerateIDFieldTransform<'s> {
                 let id_field = *node_interface
                     .fields
                     .iter()
-                    .find(|&&id| schema.field(id).name == id_name)
-                    .expect("Expected `Node` to contain a field named `id`.");
+                    .find(|&&id| schema.field(id).name.item == id_name)
+                    .unwrap_or_else(|| {
+                        panic!("Expected `Node` to contain a field named `{:}`.", id_name)
+                    });
 
                 Some(NodeInterface {
                     id: node_interface_id,
@@ -145,7 +148,7 @@ impl<'s> GenerateIDFieldTransform<'s> {
         selections.iter().any(|x| match x {
             Selection::ScalarField(child) => {
                 child.alias.is_none()
-                    && self.program.schema.field(child.definition.item).name == self.id_name
+                    && self.program.schema.field(child.definition.item).name.item == self.id_name
             }
             _ => false,
         })
@@ -157,7 +160,8 @@ impl<'s> GenerateIDFieldTransform<'s> {
             Entry::Vacant(e) => {
                 for id in fields {
                     let field = &self.program.schema.field(*id);
-                    if field.name == self.id_name && self.program.schema.is_id(field.type_.inner())
+                    if field.name.item == self.id_name
+                        && self.program.schema.is_id(field.type_.inner())
                     {
                         let result = Some(*id);
                         e.insert(result);

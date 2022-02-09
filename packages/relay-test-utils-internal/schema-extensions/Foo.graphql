@@ -1,0 +1,7 @@
+# Copyright (c) Meta Platforms, Inc. and affiliates. All Rights Reserved.
+
+type Foo {
+  client_name: String
+  profile_picture(scale: Float): Image
+  bar: Bar
+}

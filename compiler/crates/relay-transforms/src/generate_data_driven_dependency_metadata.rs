@@ -1,20 +1,19 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use super::match_::{get_normalization_operation_name, MATCH_CONSTANTS};
-use common::{NamedItem, WithLocation};
-use fnv::FnvHashMap;
+use crate::{util::get_fragment_filename, ModuleMetadata};
+use common::WithLocation;
 use graphql_ir::{
     Argument, ConstantValue, Directive, FragmentDefinition, OperationDefinition, Program,
     Selection, Transformed, Transformer, Value,
 };
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey, StringKeyMap};
 use lazy_static::lazy_static;
-use schema::TypeReference;
+use schema::{Schema, TypeReference};
 
 lazy_static! {
     pub static ref DATA_DRIVEN_DEPENDENCY_METADATA_KEY: StringKey =
@@ -50,96 +49,85 @@ impl<'s> GenerateDataDrivenDependencyMetadata<'s> {
 
         let mut module_entries: ModuleEntries = Default::default();
 
-        while !processing_queue.is_empty() {
-            if let Some(processing_item) = processing_queue.pop() {
-                for selection in processing_item.selections {
-                    match selection {
-                        Selection::ScalarField(_) | Selection::FragmentSpread(_) => {}
-                        Selection::LinkedField(linked_filed) => {
-                            let field_type = &self
+        while let Some(processing_item) = processing_queue.pop() {
+            for selection in processing_item.selections {
+                match selection {
+                    Selection::ScalarField(_) | Selection::FragmentSpread(_) => {}
+                    Selection::LinkedField(linked_filed) => {
+                        let field_type = &self
+                            .program
+                            .schema
+                            .field(linked_filed.definition.item)
+                            .type_;
+                        processing_queue.push(ProcessingItem {
+                            plural: processing_item.plural || field_type.is_list(),
+                            parent_type: field_type.clone(),
+                            selections: &linked_filed.selections,
+                        });
+                    }
+                    Selection::InlineFragment(inline_fragment) => {
+                        let parent_type = match inline_fragment.type_condition {
+                            Some(type_) => TypeReference::Named(type_),
+                            None => processing_item.parent_type.clone(),
+                        };
+                        if let Some(module_metadata) =
+                            ModuleMetadata::find(&inline_fragment.directives)
+                        {
+                            let id = module_metadata.module_id;
+                            let component = module_metadata.module_name;
+
+                            let fragment_spread = inline_fragment
+                                .selections
+                                .iter()
+                                .find(|item| matches!(item, Selection::FragmentSpread(_)));
+                            // This is expected to be a fragment spread
+                            let fragment_name = match fragment_spread {
+                                Some(Selection::FragmentSpread(spread)) => spread.fragment.item,
+                                _ => panic!("Expected to have a fragment spread"),
+                            };
+
+                            let type_name = self
                                 .program
                                 .schema
-                                .field(linked_filed.definition.item)
-                                .type_;
-                            processing_queue.push(ProcessingItem {
-                                plural: processing_item.plural || field_type.is_list(),
-                                parent_type: field_type.clone(),
-                                selections: &linked_filed.selections,
-                            });
-                        }
-                        Selection::InlineFragment(inline_fragment) => {
-                            let parent_type = match inline_fragment.type_condition {
-                                Some(type_) => TypeReference::Named(type_),
-                                None => processing_item.parent_type.clone(),
-                            };
-                            let module_directive = inline_fragment
-                                .directives
-                                .named(MATCH_CONSTANTS.custom_module_directive_name);
-                            if let Some(module_directive) = module_directive {
-                                let id = get_argument_value(
-                                    &module_directive,
-                                    MATCH_CONSTANTS.js_field_id_arg,
-                                );
-                                let component = get_argument_value(
-                                    &module_directive,
-                                    MATCH_CONSTANTS.js_field_module_arg,
-                                );
-                                let fragment_spread =
-                                    inline_fragment.selections.iter().find(|item| match item {
-                                        Selection::FragmentSpread(_) => true,
-                                        _ => false,
-                                    });
-                                // This is expected to be a fragment spread
-                                let fragment_name = match fragment_spread {
-                                    Some(Selection::FragmentSpread(spread)) => spread.fragment.item,
-                                    _ => panic!("Expected to have a fragment spread"),
-                                };
-
-                                let type_name = self
-                                    .program
-                                    .schema
-                                    .get_type_string(&processing_item.parent_type);
-                                module_entries
-                                    .entry(id)
-                                    .and_modify(|module_entry| {
-                                        module_entry.branches.insert(
-                                            type_name.clone(),
+                                .get_type_name(processing_item.parent_type.inner());
+                            module_entries
+                                .entry(id)
+                                .and_modify(|module_entry| {
+                                    module_entry.branches.insert(
+                                        type_name,
+                                        Branch {
+                                            component,
+                                            fragment: get_fragment_filename(fragment_name),
+                                        },
+                                    );
+                                })
+                                .or_insert(ModuleEntry {
+                                    branches: {
+                                        let mut map = StringKeyMap::default();
+                                        map.insert(
+                                            type_name,
                                             Branch {
                                                 component,
                                                 fragment: get_fragment_filename(fragment_name),
                                             },
                                         );
-                                    })
-                                    .or_insert(ModuleEntry {
-                                        id,
-                                        branches: {
-                                            let mut map: FnvHashMap<String, Branch> =
-                                                Default::default();
-                                            map.insert(
-                                                type_name.clone(),
-                                                Branch {
-                                                    component,
-                                                    fragment: get_fragment_filename(fragment_name),
-                                                },
-                                            );
-                                            map
-                                        },
-                                        plural: processing_item.plural,
-                                    });
-                            }
-                            processing_queue.push(ProcessingItem {
-                                plural: processing_item.plural,
-                                parent_type,
-                                selections: &inline_fragment.selections,
-                            });
+                                        map
+                                    },
+                                    plural: processing_item.plural,
+                                });
                         }
-                        Selection::Condition(condition) => {
-                            processing_queue.push(ProcessingItem {
-                                plural: processing_item.plural,
-                                parent_type: processing_item.parent_type.clone(),
-                                selections: &condition.selections,
-                            });
-                        }
+                        processing_queue.push(ProcessingItem {
+                            plural: processing_item.plural,
+                            parent_type,
+                            selections: &inline_fragment.selections,
+                        });
+                    }
+                    Selection::Condition(condition) => {
+                        processing_queue.push(ProcessingItem {
+                            plural: processing_item.plural,
+                            parent_type: processing_item.parent_type.clone(),
+                            selections: &condition.selections,
+                        });
                     }
                 }
             }
@@ -159,12 +147,11 @@ struct Branch {
     fragment: StringKey,
 }
 
-type ModuleEntries = FnvHashMap<StringKey, ModuleEntry>;
+type ModuleEntries = StringKeyMap<ModuleEntry>;
 
 #[derive(Debug)]
 struct ModuleEntry {
-    id: StringKey,
-    branches: FnvHashMap<String, Branch>,
+    branches: StringKeyMap<Branch>,
     plural: bool,
 }
 
@@ -236,7 +223,7 @@ impl<'s> Transformer for GenerateDataDrivenDependencyMetadata<'s> {
     }
 }
 
-fn create_metadata_directive(module_entries: FnvHashMap<StringKey, ModuleEntry>) -> Directive {
+fn create_metadata_directive(module_entries: StringKeyMap<ModuleEntry>) -> Directive {
     let mut arguments: Vec<Argument> = Vec::with_capacity(module_entries.len());
     for (key, module_entry) in module_entries {
         arguments.push(Argument {
@@ -251,6 +238,7 @@ fn create_metadata_directive(module_entries: FnvHashMap<StringKey, ModuleEntry>)
     Directive {
         name: WithLocation::generated(*DATA_DRIVEN_DEPENDENCY_METADATA_KEY),
         arguments,
+        data: None,
     }
 }
 
@@ -260,7 +248,7 @@ impl From<ModuleEntry> for StringKey {
             Vec::with_capacity(module_entry.branches.len());
         for (id, branch) in module_entry.branches.iter() {
             serialized_branches.push((
-                id.clone(),
+                id.to_string(),
                 format!(
                     "\"{}\":{{\"component\":\"{}\",\"fragment\":\"{}\"}}",
                     id, branch.component, branch.fragment
@@ -281,20 +269,4 @@ impl From<ModuleEntry> for StringKey {
         )
         .intern()
     }
-}
-
-fn get_argument_value(directive: &Directive, argument_name: StringKey) -> StringKey {
-    match directive.arguments.named(argument_name).unwrap().value.item {
-        Value::Constant(ConstantValue::String(value)) => value,
-        _ => panic!(
-            "Expected to have a constant string value for argument {}.",
-            argument_name
-        ),
-    }
-}
-
-fn get_fragment_filename(fragment_name: StringKey) -> StringKey {
-    let mut fragment = String::new();
-    get_normalization_operation_name(&mut fragment, fragment_name);
-    format!("{}.graphql", fragment).intern()
 }

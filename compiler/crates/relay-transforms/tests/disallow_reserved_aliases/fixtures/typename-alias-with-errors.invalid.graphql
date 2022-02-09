@@ -1,0 +1,12 @@
+# expected-to-throw
+fragment User_fragment on User {
+  __typename: name
+}
+
+fragment Page_fragment on Node {
+  ... on Page {
+    __typename: author {
+      name
+    }
+  }
+}

@@ -1,16 +1,34 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::Location;
+use lsp_types::{DiagnosticSeverity, DiagnosticTag};
+
+use crate::{Location, SourceLocationKey};
 use std::error::Error;
 use std::fmt;
 use std::fmt::Write;
 
 pub type DiagnosticsResult<T> = Result<T, Vec<Diagnostic>>;
+
+#[derive(fmt::Debug)]
+pub struct WithDiagnostics<T> {
+    pub item: T,
+    pub errors: Vec<Diagnostic>,
+}
+
+impl<T> From<WithDiagnostics<T>> for Result<T, Vec<Diagnostic>> {
+    fn from(s: WithDiagnostics<T>) -> Result<T, Vec<Diagnostic>> {
+        if s.errors.is_empty() {
+            Ok(s.item)
+        } else {
+            Err(s.errors)
+        }
+    }
+}
 
 pub fn diagnostics_result<T>(result: T, diagnostics: Vec<Diagnostic>) -> DiagnosticsResult<T> {
     if diagnostics.is_empty() {
@@ -38,7 +56,44 @@ impl Diagnostic {
         Self(Box::new(DiagnosticData {
             message: Box::new(message),
             location,
+            tags: Vec::new(),
+            severity: DiagnosticSeverity::Error,
             related_information: Vec::new(),
+            data: Vec::new(),
+        }))
+    }
+
+    /// Creates a new error Diagnostic with additional data that
+    /// can be used in IDE code actions
+    pub fn error_with_data<T: 'static + DiagnosticDisplay + WithDiagnosticData>(
+        message: T,
+        location: Location,
+    ) -> Self {
+        let data = message.get_data();
+        Self(Box::new(DiagnosticData {
+            message: Box::new(message),
+            location,
+            tags: Vec::new(),
+            severity: DiagnosticSeverity::Error,
+            related_information: Vec::new(),
+            data,
+        }))
+    }
+
+    /// Creates a new Diagnostic with a severity of Hint
+    /// Additional locations can be added with the `.annotate()` function.
+    pub fn hint<T: 'static + DiagnosticDisplay>(
+        message: T,
+        location: Location,
+        tags: Vec<DiagnosticTag>,
+    ) -> Self {
+        Self(Box::new(DiagnosticData {
+            message: Box::new(message),
+            location,
+            tags,
+            related_information: Vec::new(),
+            severity: DiagnosticSeverity::Hint, // TODO: Make this an argument?
+            data: Vec::new(),
         }))
     }
 
@@ -63,6 +118,28 @@ impl Diagnostic {
 
     pub fn location(&self) -> Location {
         self.0.location
+    }
+
+    pub fn get_data(&self) -> &[impl DiagnosticDisplay] {
+        &self.0.data
+    }
+
+    pub fn severity(&self) -> DiagnosticSeverity {
+        self.0.severity
+    }
+
+    pub fn tags(&self) -> Vec<DiagnosticTag> {
+        self.0.tags.clone()
+    }
+
+    /// Override the location. This should only be used for exceptional situations.
+    /// Typically, diagnostics should be constructed with a correct location.
+    pub fn override_location(&mut self, location: Location) {
+        assert!(
+            self.0.location.source_location() == SourceLocationKey::Generated,
+            "Diagnostic::override_location can only be called when the location is generated."
+        );
+        self.0.location = location;
     }
 
     pub fn related_information(&self) -> &[DiagnosticRelatedInformation] {
@@ -120,6 +197,15 @@ struct DiagnosticData {
     /// Related diagnostic information, such as other definitions in the case of
     /// a duplicate definition error.
     related_information: Vec<DiagnosticRelatedInformation>,
+
+    tags: Vec<DiagnosticTag>,
+
+    severity: DiagnosticSeverity,
+
+    /// A list with data that can be passed to the code actions
+    /// `data` is used in the LSP protocol:
+    /// @see https://microsoft.github.io/language-server-protocol/specifications/specification-current/#diagnostic
+    data: Vec<Box<dyn DiagnosticDisplay>>,
 }
 
 /// Secondary locations attached to a diagnostic.
@@ -130,6 +216,10 @@ pub struct DiagnosticRelatedInformation {
 
     /// The location of this related diagnostic information.
     pub location: Location,
+}
+
+pub trait WithDiagnosticData {
+    fn get_data(&self) -> Vec<Box<dyn DiagnosticDisplay>>;
 }
 
 /// Trait for diagnostic messages to allow structs that capture

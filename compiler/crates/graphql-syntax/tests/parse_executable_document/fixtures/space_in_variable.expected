@@ -10,7 +10,7 @@ ExecutableDocument {
     span: 0:108,
     definitions: [
         FragmentDefinition {
-            location: space_in_variable.graphql:0:108,
+            location: space_in_variable.graphql:0:107,
             fragment: Token {
                 span: 0:8,
                 kind: Identifier,
@@ -25,7 +25,7 @@ ExecutableDocument {
             },
             variable_definitions: None,
             type_condition: TypeCondition {
-                span: 14:22,
+                span: 14:21,
                 on: Token {
                     span: 14:16,
                     kind: Identifier,
@@ -48,7 +48,7 @@ ExecutableDocument {
                 },
                 items: [
                     ScalarField {
-                        span: 26:106,
+                        span: 26:105,
                         alias: None,
                         name: Identifier {
                             span: 26:31,
@@ -67,7 +67,7 @@ ExecutableDocument {
                                 },
                                 items: [
                                     Argument {
-                                        span: 32:104,
+                                        span: 32:101,
                                         name: Identifier {
                                             span: 32:36,
                                             token: Token {

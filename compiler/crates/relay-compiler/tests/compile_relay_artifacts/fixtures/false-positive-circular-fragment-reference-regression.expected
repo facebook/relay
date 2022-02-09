@@ -38,6 +38,16 @@ fragment falsePositiveCircularFragmentReferenceRegression_MyNestedViewer on View
         "plural": false,
         "selections": [
           {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "falsePositiveCircularFragmentReferenceRegression_MyViewer"
+          },
+          {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "falsePositiveCircularFragmentReferenceRegression_MyOtherViewer"
+          },
+          {
             "alias": null,
             "args": null,
             "concreteType": null,
@@ -54,16 +64,6 @@ fragment falsePositiveCircularFragmentReferenceRegression_MyNestedViewer on View
               }
             ],
             "storageKey": null
-          },
-          {
-            "args": null,
-            "kind": "FragmentSpread",
-            "name": "falsePositiveCircularFragmentReferenceRegression_MyViewer"
-          },
-          {
-            "args": null,
-            "kind": "FragmentSpread",
-            "name": "falsePositiveCircularFragmentReferenceRegression_MyOtherViewer"
           }
         ],
         "storageKey": null

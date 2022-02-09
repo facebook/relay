@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -9,21 +9,22 @@ use crate::INTERNAL_METADATA_DIRECTIVE;
 use common::{Diagnostic, DiagnosticsResult, NamedItem, WithLocation};
 use graphql_ir::{
     Argument, ConstantArgument, ConstantValue, Directive, OperationDefinition, Program,
-    Transformed, Transformer, ValidationMessage, Value,
+    Transformed, Transformer, Value,
 };
 use graphql_syntax::OperationKind;
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey};
 use lazy_static::lazy_static;
+use thiserror::Error;
 
 lazy_static! {
-    pub static ref LIVE_QUERY_DIRECTIVE_NAME: StringKey = "live_query".intern();
-    pub static ref LIVE_METADATA_KEY: StringKey = "live".intern();
-    pub static ref POLLING_INTERVAL_ARG: StringKey = "polling_interval".intern();
-    pub static ref CONFIG_ID_ARG: StringKey = "config_id".intern();
+    static ref LIVE_QUERY_DIRECTIVE_NAME: StringKey = "live_query".intern();
+    static ref LIVE_METADATA_KEY: StringKey = "live".intern();
+    static ref POLLING_INTERVAL_ARG: StringKey = "polling_interval".intern();
+    static ref CONFIG_ID_ARG: StringKey = "config_id".intern();
 }
 
 pub fn generate_live_query_metadata(program: &Program) -> DiagnosticsResult<Program> {
-    let mut transformer = GenerateLiveQueryMetadata::new(program);
+    let mut transformer = GenerateLiveQueryMetadata::default();
     let next_program = transformer
         .transform_program(program)
         .replace_or_else(|| program.clone());
@@ -35,21 +36,12 @@ pub fn generate_live_query_metadata(program: &Program) -> DiagnosticsResult<Prog
     }
 }
 
-struct GenerateLiveQueryMetadata<'s> {
-    pub program: &'s Program,
-    pub errors: Vec<Diagnostic>,
+#[derive(Default)]
+struct GenerateLiveQueryMetadata {
+    errors: Vec<Diagnostic>,
 }
 
-impl<'s> GenerateLiveQueryMetadata<'s> {
-    fn new(program: &'s Program) -> Self {
-        GenerateLiveQueryMetadata {
-            program,
-            errors: vec![],
-        }
-    }
-}
-
-impl<'s> Transformer for GenerateLiveQueryMetadata<'s> {
+impl Transformer for GenerateLiveQueryMetadata {
     const NAME: &'static str = "GenerateLiveQueryMetadata";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;
@@ -120,11 +112,12 @@ impl<'s> Transformer for GenerateLiveQueryMetadata<'s> {
                                     ])),
                                 ),
                             }],
+                            data: None,
                         });
                     } else if let Some(config_id) = config_id {
-                        let config_id_value = match config_id.value.item {
-                            Value::Constant(ConstantValue::String(value)) => value,
-                            _ => {
+                        let config_id_value = match config_id.value.item.get_string_literal() {
+                            Some(value) => value,
+                            None => {
                                 self.errors.push(Diagnostic::error(
                                     ValidationMessage::LiveQueryTransformInvalidConfigId {
                                         query_name: operation.name.item,
@@ -160,6 +153,7 @@ impl<'s> Transformer for GenerateLiveQueryMetadata<'s> {
                                     ])),
                                 ),
                             }],
+                            data: None,
                         });
                     }
 
@@ -174,4 +168,22 @@ impl<'s> Transformer for GenerateLiveQueryMetadata<'s> {
             _ => Transformed::Keep,
         }
     }
+}
+
+#[derive(Error, Debug)]
+enum ValidationMessage {
+    #[error(
+        "Live query expects 'polling_interval' or 'config_id' as an argument to @live_query to for root field {query_name}"
+    )]
+    LiveQueryTransformMissingConfig { query_name: StringKey },
+
+    #[error(
+        "Expected the 'polling_interval' argument to @live_query to be a literal number for root field {query_name}"
+    )]
+    LiveQueryTransformInvalidPollingInterval { query_name: StringKey },
+
+    #[error(
+        "Expected the 'config_id' argument to @live_query to be a literal string for root field {query_name}"
+    )]
+    LiveQueryTransformInvalidConfigId { query_name: StringKey },
 }

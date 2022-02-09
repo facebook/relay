@@ -1,6 +1,0 @@
-# expected-to-throw
-query NullValuesQuery {
-  node_id_required(id: null) {
-    id
-  }
-}

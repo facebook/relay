@@ -1,0 +1,28 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query selectionSetConflictAddedArgumentQuery {
+  me {
+    profile_picture(scale: 1.5) {
+      width
+    }
+    profile_picture(scale: 1.0, media_type: "image/jpeg") {
+      width
+    }
+  }
+}
+==================================== ERROR ====================================
+✖︎ Expected all fields on the same parent with the name or alias `profile_picture` to have the same argument values after applying fragment arguments. This field has the applied argument values: (scale: 1.5)
+
+  selection_set_conflict_added_argument.graphql:4:5
+    3 │   me {
+    4 │     profile_picture(scale: 1.5) {
+      │     ^^^^^^^^^^^^^^^
+    5 │       width
+
+  ℹ︎ which conflicts with this field with applied argument values (scale: 1, media_type: "image/jpeg")
+
+  selection_set_conflict_added_argument.graphql:7:5
+    6 │     }
+    7 │     profile_picture(scale: 1.0, media_type: "image/jpeg") {
+      │     ^^^^^^^^^^^^^^^
+    8 │       width

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -20,14 +20,15 @@ import type RelayObservable, {ObservableFromValue} from './RelayObservable';
  * An interface for fetching the data for one or more (possibly interdependent)
  * queries.
  */
-export type INetwork = {|
-  execute: ExecuteFunction,
-|};
+export interface INetwork {
+  +execute: ExecuteFunction;
+}
+
 export type LogRequestInfoFunction = mixed => void;
 
-export type PayloadData = {[key: string]: mixed, ...};
+export type PayloadData = {[key: string]: mixed};
 
-export type PayloadError = {
+export type PayloadError = interface {
   message: string,
   locations?: Array<{
     line: number,
@@ -36,14 +37,13 @@ export type PayloadError = {
   }>,
   // Not officially part of the spec, but used at Facebook
   severity?: 'CRITICAL' | 'ERROR' | 'WARNING',
-  ...
 };
 
 export type PayloadExtensions = {[key: string]: mixed, ...};
 
 /**
  * The shape of a GraphQL response as dictated by the
- * [spec](https://graphql.github.io/graphql-spec/June2018/#sec-Response-Format)
+ * [spec](https://spec.graphql.org/June2018/#sec-Response-Format).
  */
 export type GraphQLResponseWithData = {|
   +data: PayloadData,
@@ -120,7 +120,7 @@ export type SubscribeFunction = (
 ) => RelayObservable<GraphQLResponse>;
 
 export type Uploadable = File | Blob;
-export type UploadableMap = {[key: string]: Uploadable, ...};
+export type UploadableMap = interface {[key: string]: Uploadable};
 
 /**
  * React Flight tree created on the server.
@@ -132,14 +132,34 @@ export type ReactFlightPayloadQuery = {|
   +response: GraphQLSingularResponse,
   +variables: Variables,
 |};
+export type ReactFlightPayloadFragment = {|
+  +__id: string,
+  +__typename: string,
+  +module: mixed,
+  +response: GraphQLSingularResponse,
+  +variables: Variables,
+|};
+export type ReactFlightServerError = {
+  +message: string,
+  +stack: string,
+  ...
+};
 /**
  * Data that is returned by a Flight compliant GraphQL server.
  *
- * - tree: an array of values that will be iterated and fed into
- *     ReactFlightDOMRelayClient.
+ * - status: string representing status of the server response.
+ * - tree: React Server Components written into a row protocol that can be later
+ *         read on the client. If this is null, this indicates that no rows were
+ *         were written on the server.
  * - queries: an array of queries that the server preloaded for the client.
+ * - errors: an array of errors that were encountered while rendering the
+ *           Server Component.
+ * - fragments: an array of fragments that the server preloaded for the client.
  */
 export type ReactFlightPayloadData = {|
-  +tree: Array<ReactFlightServerTree>,
+  +status: string,
+  +tree: ?Array<ReactFlightServerTree>,
   +queries: Array<ReactFlightPayloadQuery>,
+  +errors: Array<ReactFlightServerError>,
+  +fragments: Array<ReactFlightPayloadFragment>,
 |};

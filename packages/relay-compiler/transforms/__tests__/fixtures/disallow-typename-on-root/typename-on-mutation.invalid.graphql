@@ -1,4 +1,0 @@
-# expected-to-throw
-mutation TestMutation {
-  __typename
-}

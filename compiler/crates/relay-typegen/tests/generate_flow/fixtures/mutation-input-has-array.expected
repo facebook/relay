@@ -11,26 +11,26 @@ export type UpdateAllSeenStateInput = {|
   clientMutationId?: ?string,
   storyIds?: ?$ReadOnlyArray<?string>,
 |};
-export type InputHasArrayVariables = {|
-  input?: ?UpdateAllSeenStateInput
+export type InputHasArray$variables = {|
+  input?: ?UpdateAllSeenStateInput,
 |};
-export type InputHasArrayResponse = {|
+export type InputHasArray$data = {|
   +viewerNotificationsUpdateAllSeenState: ?{|
     +stories: ?$ReadOnlyArray<?{|
-      +actorCount: ?number
-    |}>
-  |}
+      +actorCount: ?number,
+    |}>,
+  |},
 |};
-export type InputHasArrayRawResponse = {|
+export type InputHasArray$rawResponse = {|
   +viewerNotificationsUpdateAllSeenState: ?{|
     +stories: ?$ReadOnlyArray<?{|
       +actorCount: ?number,
       +id: string,
-    |}>
-  |}
+    |}>,
+  |},
 |};
 export type InputHasArray = {|
-  variables: InputHasArrayVariables,
-  response: InputHasArrayResponse,
-  rawResponse: InputHasArrayRawResponse,
+  variables: InputHasArray$variables,
+  response: InputHasArray$data,
+  rawResponse: InputHasArray$rawResponse,
 |};

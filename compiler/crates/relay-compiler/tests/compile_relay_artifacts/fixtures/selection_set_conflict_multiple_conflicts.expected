@@ -1,0 +1,64 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query selectionSetConflictMultipleConflictsQuery {
+  me {
+    same_alias: id
+    same_alias: name
+    same_alias: profile_picture {
+      size: width
+    }
+    same_alias: profile_picture {
+      size: height
+    }
+  }
+}
+==================================== ERROR ====================================
+✖︎ Field 'same_alias' is ambiguous because it references fields with different types: 'id' with type 'ID!' and 'profile_picture' with type 'Image'
+
+  selection_set_conflict_multiple_conflicts.graphql:4:17
+    3 │   me {
+    4 │     same_alias: id
+      │                 ^^
+    5 │     same_alias: name
+
+  ℹ︎ the other field
+
+  selection_set_conflict_multiple_conflicts.graphql:6:17
+    5 │     same_alias: name
+    6 │     same_alias: profile_picture {
+      │                 ^^^^^^^^^^^^^^^
+    7 │       size: width
+
+
+✖︎ Field 'same_alias' is ambiguous because it references fields with different types: 'id' with type 'ID!' and 'profile_picture' with type 'Image'
+
+  selection_set_conflict_multiple_conflicts.graphql:4:17
+    3 │   me {
+    4 │     same_alias: id
+      │                 ^^
+    5 │     same_alias: name
+
+  ℹ︎ the other field
+
+  selection_set_conflict_multiple_conflicts.graphql:9:17
+    8 │     }
+    9 │     same_alias: profile_picture {
+      │                 ^^^^^^^^^^^^^^^
+   10 │       size: height
+
+
+✖︎ Field 'same_alias' is ambiguous because it references two different fields: 'id' and 'name'
+
+  selection_set_conflict_multiple_conflicts.graphql:4:17
+    3 │   me {
+    4 │     same_alias: id
+      │                 ^^
+    5 │     same_alias: name
+
+  ℹ︎ the other field
+
+  selection_set_conflict_multiple_conflicts.graphql:5:17
+    4 │     same_alias: id
+    5 │     same_alias: name
+      │                 ^^^^
+    6 │     same_alias: profile_picture {

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,11 +13,30 @@
 'use strict';
 
 import type {
-  NormalizationSelection,
   NormalizationField,
+  NormalizationSelection,
 } from '../util/NormalizationNode';
 import type {ConcreteRequest} from '../util/RelayConcreteNode';
 import type {Variables} from '../util/RelayRuntimeTypes';
+
+const {
+  ACTOR_CHANGE,
+  CLIENT_COMPONENT,
+  CLIENT_EXTENSION,
+  CONDITION,
+  DEFER,
+  FLIGHT_FIELD,
+  FRAGMENT_SPREAD,
+  INLINE_FRAGMENT,
+  LINKED_FIELD,
+  LINKED_HANDLE,
+  MODULE_IMPORT,
+  SCALAR_FIELD,
+  SCALAR_HANDLE,
+  STREAM,
+  TYPE_DISCRIMINATOR,
+} = require('../util/RelayConcreteNode');
+const warning = require('warning');
 
 type ValidationContext = {|
   visitedPaths: Set<string>,
@@ -27,14 +46,16 @@ type ValidationContext = {|
   extraDiff: Object,
   moduleImportPaths: Set<string>,
 |};
-
-const warning = require('warning');
-
+// $FlowFixMe[method-unbinding] added when improving typing for this parameters
 const hasOwnProperty = Object.prototype.hasOwnProperty;
 
 let validateMutation = () => {};
 if (__DEV__) {
-  const addFieldToDiff = (path: string, diff: Object, isScalar) => {
+  const addFieldToDiff = (
+    path: string,
+    diff: Object,
+    isScalar: void | boolean,
+  ) => {
     let deepLoc = diff;
     path.split('.').forEach((key, index, arr) => {
       if (deepLoc[key] == null) {
@@ -96,16 +117,31 @@ if (__DEV__) {
     context: ValidationContext,
   ) => {
     switch (selection.kind) {
-      case 'Condition':
+      case CONDITION:
         validateSelections(optimisticResponse, selection.selections, context);
         return;
-      case 'ScalarField':
-      case 'LinkedField':
-      case 'FlightField':
+      case CLIENT_COMPONENT:
+      case FRAGMENT_SPREAD:
+        validateSelections(
+          optimisticResponse,
+          selection.fragment.selections,
+          context,
+        );
+        return;
+      case SCALAR_FIELD:
+      case LINKED_FIELD:
+      case FLIGHT_FIELD:
         return validateField(optimisticResponse, selection, context);
-      case 'InlineFragment':
+      case ACTOR_CHANGE:
+        return validateField(
+          optimisticResponse,
+          selection.linkedField,
+          context,
+        );
+      case INLINE_FRAGMENT:
         const type = selection.type;
         const isConcreteType = selection.abstractKey == null;
+        validateAbstractKey(context, selection.abstractKey);
         selection.selections.forEach(subselection => {
           if (isConcreteType && optimisticResponse.__typename !== type) {
             return;
@@ -113,18 +149,19 @@ if (__DEV__) {
           validateSelection(optimisticResponse, subselection, context);
         });
         return;
-      case 'ClientExtension':
+      case CLIENT_EXTENSION:
         selection.selections.forEach(subselection => {
           validateSelection(optimisticResponse, subselection, context);
         });
         return;
-      case 'ModuleImport':
+      case MODULE_IMPORT:
         return validateModuleImport(context);
-      case 'LinkedHandle':
-      case 'ScalarHandle':
-      case 'Defer':
-      case 'Stream':
-      case 'TypeDiscriminator': {
+      case TYPE_DISCRIMINATOR:
+        return validateAbstractKey(context, selection.abstractKey);
+      case LINKED_HANDLE:
+      case SCALAR_HANDLE:
+      case DEFER:
+      case STREAM: {
         // TODO(T35864292) - Add missing validations for these types
         return;
       }
@@ -138,6 +175,16 @@ if (__DEV__) {
     context.moduleImportPaths.add(context.path);
   };
 
+  const validateAbstractKey = (
+    context: ValidationContext,
+    abstractKey: ?string,
+  ) => {
+    if (abstractKey != null) {
+      const path = `${context.path}.${abstractKey}`;
+      context.visitedPaths.add(path);
+    }
+  };
+
   const validateField = (
     optimisticResponse: Object,
     field: NormalizationField,
@@ -147,12 +194,12 @@ if (__DEV__) {
     const path = `${context.path}.${fieldName}`;
     context.visitedPaths.add(path);
     switch (field.kind) {
-      case 'ScalarField':
+      case SCALAR_FIELD:
         if (hasOwnProperty.call(optimisticResponse, fieldName) === false) {
           addFieldToDiff(path, context.missingDiff, true);
         }
         return;
-      case 'LinkedField':
+      case LINKED_FIELD:
         const selections = field.selections;
         if (
           optimisticResponse[fieldName] === null ||
@@ -188,7 +235,7 @@ if (__DEV__) {
             return;
           }
         }
-      case 'FlightField':
+      case FLIGHT_FIELD:
         if (
           optimisticResponse[fieldName] === null ||
           (hasOwnProperty.call(optimisticResponse, fieldName) &&

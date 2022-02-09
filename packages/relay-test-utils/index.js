@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -14,7 +14,7 @@
 
 const RelayMockPayloadGenerator = require('./RelayMockPayloadGenerator');
 const RelayModernMockEnvironment = require('./RelayModernMockEnvironment');
-
+const testResolver = require('./RelayResolverTestUtils');
 const unwrapContainer = require('./unwrapContainer');
 
 export type {MockResolvers} from './RelayMockPayloadGenerator';
@@ -27,4 +27,5 @@ module.exports = {
   MockPayloadGenerator: RelayMockPayloadGenerator,
   createMockEnvironment: RelayModernMockEnvironment.createMockEnvironment,
   unwrapContainer: unwrapContainer,
+  testResolver: testResolver,
 };

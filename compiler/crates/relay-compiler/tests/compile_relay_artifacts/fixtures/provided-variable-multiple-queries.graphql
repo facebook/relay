@@ -1,0 +1,34 @@
+query providedVariableMultipleQueries_OneFragmentQuery {
+  node(id: 4) {
+    ...providedVariableMultipleQueries_OneProvidedVar
+  }
+}
+
+query providedVariableMultipleQueries_MultiFragmentQuery {
+  node(id: 5) {
+    ...providedVariableMultipleQueries_OneProvidedVar,
+    ...providedVariableMultipleQueries_MultiProvidedVar,
+  }
+}
+
+fragment providedVariableMultipleQueries_OneProvidedVar on User
+  @argumentDefinitions(
+    includeName: {type: "Boolean!", provider: "includeNameProvider"}
+) {
+  name @include(if: $includeName)
+}
+
+fragment providedVariableMultipleQueries_MultiProvidedVar on User
+  @argumentDefinitions(
+    numberOfFriends: {type: "Int!", provider: "numberOfFriendsProvider"},
+    includeName_: {type: "Boolean!", provider: "includeNameProvider"}
+) {
+  friends(first: $numberOfFriends) {
+    count
+    edges {
+      node {
+        name @include(if: $includeName_),
+      }
+    }
+  }
+}

@@ -1,16 +1,16 @@
 ---
-id: version-experimental-a-guided-tour-of-relay
+id: a-guided-tour-of-relay
 title: A Guided Tour
 original_id: a-guided-tour-of-relay
 ---
 
 [Relay](https://relay.dev/) is a framework for managing and declaratively fetching GraphQL data. Specifically, it provides a set of APIs to fetch and declare data dependencies for React components, in colocation with component definitions themselves.
 
-In this guide, we're going to go over how to use Relay to build out some of the more common use cases in apps. If you're interested in a detailed reference of our APIs, check out our [API Reference](api-reference.html) page. Before getting started, bear in mind that we assume some level of familiarity with JavaScript, [React](https://reactjs.org/docs/getting-started.html), [GraphQL](https://graphql.org/learn/), and assume that you have set up a GraphQL Server that adheres to the [Relay specification](graphql-server-specification.html)
+In this guide, we're going to go over how to use Relay to build out some of the more common use cases in apps. If you're interested in a detailed reference of our APIs, check out our [API Reference](./api-reference) page. Before getting started, bear in mind that we assume some level of familiarity with JavaScript, [React](https://reactjs.org/docs/getting-started.html), [GraphQL](https://graphql.org/learn/), and assume that you have set up a GraphQL Server that adheres to the [Relay specification](./graphql-server-specification)
 
 ## Example App
 
-To see a full example using Relay Hooks and our integration with [Suspense for Data Fetching](https://reactjs.org/docs/concurrent-mode-suspense.html), check out: [relay-examples/issue-tracker](https://github.com/relayjs/relay-examples/tree/master/issue-tracker).
+To see a full example using Relay Hooks and our integration with [Suspense for Data Fetching](https://reactjs.org/docs/concurrent-mode-suspense.html), check out: [relay-examples/issue-tracker](https://github.com/relayjs/relay-examples/tree/main/issue-tracker).
 
 ## Setup and Workflow
 
@@ -21,7 +21,9 @@ In case you've never worked with Relay before, here's a rundown of what you need
 Install the experimental versions of React and Relay using `yarn` or `npm`:
 
 ```sh
+
 yarn add react@experimental react-dom@experimental react-relay@experimental
+
 ```
 
 ### Babel plugin
@@ -29,7 +31,9 @@ yarn add react@experimental react-dom@experimental react-relay@experimental
 Relay requires a Babel plugin to process `graphql` tags inside your JavaScript code:
 
 ```sh
+
 yarn add --dev babel-plugin-relay graphql
+
 ```
 
 Add `"relay"` to the list of plugins in your `.babelrc` file:
@@ -52,21 +56,23 @@ Alternatively, instead of using `babel-plugin-relay`, you can use Relay with [ba
 const graphql = require('babel-plugin-relay/macro');
 ```
 
-If you need to configure `babel-plugin-relay` further, you can do so by [specifying the options in a number of ways](https://github.com/kentcdodds/babel-plugin-macros/blob/master/other/docs/user.md#config-experimental).
+If you need to configure `babel-plugin-relay` further, you can do so by [specifying the options in a number of ways](https://github.com/kentcdodds/babel-plugin-macros/blob/main/other/docs/user.md#config-experimental).
 
 ### Relay Compiler
 
-Whenever you're developing Relay components, for example by writing [Fragments](#fragments) or [Queries](#queries), you will need to run the [Relay Compiler](./graphql-in-relay.html#relay-compiler). The Relay Compiler will read and analyze any `graphql` inside your JavaScript code, and produce a set of artifacts that will be used by Relay at runtime (i.e. when the application is running on the browser).
+Whenever you're developing Relay components, for example by writing [Fragments](#fragments) or [Queries](#queries), you will need to run the [Relay Compiler](./graphql-in-relay#relay-compiler). The Relay Compiler will read and analyze any `graphql` inside your JavaScript code, and produce a set of artifacts that will be used by Relay at runtime (i.e. when the application is running on the browser).
 
 To install the compiler, you can use `yarn` or `npm`:
 
 ```sh
+
 yarn add --dev relay-compiler
+
 ```
 
 This installs the bin script `relay-compiler` in your `node_modules` folder. It's recommended to run this from a `yarn`/`npm` script by adding a script to your `package.json` file:
 
-```js
+```javascript
 "scripts": {
   "relay": "relay-compiler --src ./src --schema ./schema.graphql"
 }
@@ -74,7 +80,7 @@ This installs the bin script `relay-compiler` in your `node_modules` folder. It'
 
 or if you are using jsx:
 
-```js
+```javascript
 "scripts": {
   "relay": "relay-compiler --src ./src --schema ./schema.graphql --extensions js jsx"
 }
@@ -83,15 +89,19 @@ or if you are using jsx:
 Then, whenever you've made edits to your application files, you can run the `relay` script to run the compiler and generate new compiled artifacts:
 
 ```sh
+
 # Single run
 yarn run relay
+
 ```
 
 You can also pass the `--watch` option to watch for changes in your application files and automatically re-compile the artifacts (**Note:** Requires [watchman](https://facebook.github.io/watchman) to be installed):
 
 ```sh
+
 # Watch for changes
 yarn run relay --watch
+
 ```
 
 ### Config file
@@ -102,7 +112,9 @@ using the `relay-config` package. Besides unifying all Relay configuration in a 
 Install the package:
 
 ```sh
+
 yarn add --dev relay-config
+
 ```
 
 And create the configuration file:
@@ -150,7 +162,7 @@ const userFragment = graphql`
 `;
 ```
 
-In order to *render* the data for a fragment, you can use the **`useFragment`** Hook:
+In order to _render_ the data for a fragment, you can use the **`useFragment`** Hook:
 
 ```javascript
 import type {UserComponent_user$key} from 'UserComponent_user.graphql';
@@ -191,14 +203,14 @@ module.exports = UserComponent;
 
 Let's distill what's going on here:
 
-* `useFragment` takes a fragment definition and a ***fragment reference***, and returns the corresponding `data` for that fragment and reference.
-* A ***fragment reference*** is an object that Relay uses to ***read*** the data declared in the fragment definition; as you can see, the `UserComponent_user` fragment itself just declares fields on the `User` type, but we need to know ***which*** specific user to read those fields from; this is what the fragment reference corresponds to. In other words, a fragment reference is like ***a pointer to a specific instance of a type*** that we want to read data from.
-* Note that ***the component is automatically subscribed to updates to the fragment data:*** if the data for this particular `User` is updated anywhere in the app (e.g. via fetching new data, or mutating existing data), the component will automatically re-render with the latest updated data.
-* Relay will automatically generate Flow types for any declared fragments when the compiler is run, so you can use these types to declare the type for your Component's `props`.
-  * The generated Flow types include a type for the fragment reference, which is the type with the **`$key`** suffix: `<fragment_name>$key`, and a type for the shape of the data, which is the type with the **`$data`** suffix:  `<fragment_name>$data`; these types are available to import from files that are generated with the following name: `<fragment_name>.graphql.js`.
-  * We use our [lint rule](https://github.com/relayjs/eslint-plugin-relay) to enforce that the type of the fragment reference prop is correctly declared when using `useFragment`. By using a properly typed fragment reference as input, the type of the returned `data` will automatically be Flow typed without requiring an explicit annotation.
-  * In our example, we're typing the `user` prop as the fragment reference we need for `useFragment`, which corresponds to the `UserComponent_user$key` imported from  `UserComponent_user.graphql`, which means that the type of `data` above would be: `{| name: ?string, profile_picture: ?{| uri: ?string |} |}`.
-* Fragment names need to be globally unique. In order to easily achieve this, we name fragments using the following convention based on the module name followed by an identifier: `<module_name>_<property_name>`. This makes it easy to identify which fragments are defined in which modules and avoids name collisions when multiple fragments are defined in the same module.
+-   `useFragment` takes a fragment definition and a **_fragment reference_**, and returns the corresponding `data` for that fragment and reference.
+-   A **_fragment reference_** is an object that Relay uses to **_read_** the data declared in the fragment definition; as you can see, the `UserComponent_user` fragment itself just declares fields on the `User` type, but we need to know **_which_** specific user to read those fields from; this is what the fragment reference corresponds to. In other words, a fragment reference is like **_a pointer to a specific instance of a type_** that we want to read data from.
+-   Note that **_the component is automatically subscribed to updates to the fragment data:_** if the data for this particular `User` is updated anywhere in the app (e.g. via fetching new data, or mutating existing data), the component will automatically re-render with the latest updated data.
+-   Relay will automatically generate Flow types for any declared fragments when the compiler is run, so you can use these types to declare the type for your Component's `props`.
+    -   The generated Flow types include a type for the fragment reference, which is the type with the **`$key`** suffix: `<fragment_name>$key`, and a type for the shape of the data, which is the type with the **`$data`** suffix:  `<fragment_name>$data`; these types are available to import from files that are generated with the following name: `<fragment_name>.graphql.js`.
+    -   We use our [lint rule](https://github.com/relayjs/eslint-plugin-relay) to enforce that the type of the fragment reference prop is correctly declared when using `useFragment`. By using a properly typed fragment reference as input, the type of the returned `data` will automatically be Flow-typed without requiring an explicit annotation.
+    -   In our example, we're typing the `user` prop as the fragment reference we need for `useFragment`, which corresponds to the `UserComponent_user$key` imported from  `UserComponent_user.graphql`, which means that the type of `data` above would be: `{| name: ?string, profile_picture: ?{| uri: ?string |} |}`.
+-   Fragment names need to be globally unique. In order to easily achieve this, we name fragments using the following convention based on the module name followed by an identifier: `<module_name>_<property_name>`. This makes it easy to identify which fragments are defined in which modules and avoids name collisions when multiple fragments are defined in the same module.
 
 If you need to render data from multiple fragments inside the same component, you can use  **`useFragment`** multiple times:
 
@@ -254,9 +266,10 @@ module.exports = UserComponent;
 
 ### Composing Fragments
 
-In GraphQL, fragments are reusable units, which means they can include *other* fragments, and consequently a fragment can be included within other fragments or [Queries](#queries):
+In GraphQL, fragments are reusable units, which means they can include _other_ fragments, and consequently a fragment can be included within other fragments or [Queries](#queries):
 
 ```
+
 fragment UserFragment on User {
   name
   age
@@ -271,7 +284,6 @@ fragment AnotherUserFragment on User {
   ...FooUserFragment
 }
 ```
-
 
 With Relay, you can compose fragment components in a similar way, using both component composition and fragment composition. Each React component is responsible for fetching the data dependencies of its direct children - just as it has to know about its children's props in order to render them correctly. This pattern means that developers are able to reason locally about components - what data they need, what components they render - but Relay is able to derive a global view of the data dependencies of an entire UI tree.
 
@@ -342,6 +354,7 @@ function UserComponent(props: Props) {
     props.user,
   );
 
+  // Render child component by passing the _fragment reference_ to <UsernameSection>
   return (
     <>
       <h1>{user.name}</h1>
@@ -349,7 +362,6 @@ function UserComponent(props: Props) {
         <img src={user.profile_picture?.uri} />
         {user.age}
 
-        {/* Render child component, passing the _fragment reference_: */}
         <UsernameSection user={user}/>
       </div>
     </>
@@ -361,14 +373,14 @@ module.exports = UserComponent;
 
 There are a few things to note here:
 
-* `UserComponent` both renders `UsernameSection`, *and* includes the fragment declared by `UsernameSection` inside its own `graphql` fragment declaration.
-* `UsernameSection` expects a ***fragment reference*** as the `user` prop. As we've mentioned before, a fragment reference is an object that Relay uses to ***read*** the data declared in the fragment definition; as you can see, the child `UsernameSection_user` fragment itself just declares fields on the `User` type, but we need to know ***which*** specific user to read those fields from; this is what the fragment reference corresponds to. In other words, a fragment reference is like ***a pointer to a specific instance of a type*** that we want to read data from.
-*  Note that in this case the `user` passed to `UsernameSection`, i.e. the fragment reference, *doesn't actually contain any of the data declared by the child `UsernameSection` component*; instead, `UsernameSection` will use the fragment reference to read the data *it* declared internally, using `useFragment`. This prevents the parent from implicitly creating dependencies on data declared by its children, and vice-versa, which allows us to reason locally about our components and modify them without worrying about affecting other components. If this wasn't the case, and the parent had access to the child's data, modifying the data declared by the child could break the parent. This is known as [***data masking***](https://relay.dev/docs/en/thinking-in-relay.html#data-masking).
-* The ***fragment reference*** that the child (i.e.  `UsernameSection`) expects is the result of reading a parent fragment that *includes* the child fragment. In our particular example, that means the result of reading a fragment that includes `...UsernameSection_user` will be the fragment reference that `UsernameSection` expects. In other words, the data obtained as a result of reading a fragment via `useFragment` also serves as the fragment reference for any child fragments included in that fragment.
+-   `UserComponent` both renders `UsernameSection`, _and_ includes the fragment declared by `UsernameSection` inside its own `graphql` fragment declaration.
+-   `UsernameSection` expects a **_fragment reference_** as the `user` prop. As we've mentioned before, a fragment reference is an object that Relay uses to **_read_** the data declared in the fragment definition; as you can see, the child `UsernameSection_user` fragment itself just declares fields on the `User` type, but we need to know **_which_** specific user to read those fields from; this is what the fragment reference corresponds to. In other words, a fragment reference is like **_a pointer to a specific instance of a type_** that we want to read data from.
+-   Note that in this case the `user` passed to `UsernameSection`, i.e. the fragment reference, _doesn't actually contain any of the data declared by the child `UsernameSection` component_; instead, `UsernameSection` will use the fragment reference to read the data _it_ declared internally, using `useFragment`. This prevents the parent from implicitly creating dependencies on data declared by its children, and vice-versa, which allows us to reason locally about our components and modify them without worrying about affecting other components. If this wasn't the case, and the parent had access to the child's data, modifying the data declared by the child could break the parent. This is known as [**_data masking_**](https://relay.dev/docs/en/thinking-in-relay#data-masking).
+-   The **_fragment reference_** that the child (i.e.  `UsernameSection`) expects is the result of reading a parent fragment that _includes_ the child fragment. In our particular example, that means the result of reading a fragment that includes `...UsernameSection_user` will be the fragment reference that `UsernameSection` expects. In other words, the data obtained as a result of reading a fragment via `useFragment` also serves as the fragment reference for any child fragments included in that fragment.
 
 ### Queries
 
-A [GraphQL query](https://graphql.github.io/learn/queries/) is a request that can be sent to a GraphQL server in combination with a set of [Variables](#variables), in order to fetch some data. It consists of a selection of fields, and potentially includes other fragments:
+A [GraphQL query](https://graphql.org/learn/queries/) is a request that can be sent to a GraphQL server in combination with a set of [Variables](#variables), in order to fetch some data. It consists of a selection of fields, and potentially includes other fragments:
 
 ```graphql
 query UserQuery($id: ID!) {
@@ -390,7 +402,9 @@ fragment UserFragment on User {
 ```
 
 Sample response:
+
 ```json
+
 {
   "data": {
     "user": {
@@ -407,11 +421,11 @@ Sample response:
 }
 ```
 
-***NOTE:*** Fragments in Relay allow declaring data dependencies for a component, but they can't be fetched by themselves; they need to be included by a query, either directly or transitively. This implies that ***all fragments must belong to a query when they are rendered***, or in other words, they must be *rooted* under some query. Note that a single fragment can still be included by multiple queries, but when rendering a specific *instance* of a fragment component, it must have been included as part of a specific query request.
+**_NOTE:_** Fragments in Relay allow declaring data dependencies for a component, but they can't be fetched by themselves; they need to be included by a query, either directly or transitively. This implies that **_all fragments must belong to a query when they are rendered_**, or in other words, they must be _rooted_ under some query. Note that a single fragment can still be included by multiple queries, but when rendering a specific _instance_ of a fragment component, it must have been included as part of a specific query request.
 
 * * *
 
-To ***fetch*** *and* render a query in Relay, you can use **`useLazyLoadQuery`** Hook:
+To **_fetch_** _and_ render a query in Relay, you can use **`useLazyLoadQuery`** Hook:
 
 ```javascript
 import type {AppQuery} from 'AppQuery.graphql';
@@ -439,15 +453,15 @@ function App() {
 
 Lets see what's going on here:
 
-* **`useLazyLoadQuery`**  takes a `graphql` query and some variables for that query, and returns the data that was fetched for that query. The `variables` are an object containing the values for the [Variables](#variables) referenced inside the GraphQL query.
-* Similarly to fragments, the component is automatically subscribed to updates to the query data: if the data for this query is updated anywhere in the app, the component will automatically re-render with the latest updated data.
-* `useLazyLoadQuery` additionally, it takes a Flow type parameter, which corresponds to the Flow type for the query, in this case `AppQuery`.
-  * Remember that Relay automatically generates Flow types for any declared queries, which you can import and use with `useLazyLoadQuery`. These types are available in the generated files with the following name format: `<query_name>.graphql.js`.
-  * Note that the `variables` will checked by Flow to ensure that you are passing values that match what the GraphQL query expects.
-  * Note that the `data` is already properly Flow typed without requiring an explicit annotation, and is based on the types from the GraphQL schema. For example, the type of `data` above would be: `{| user: ?{| name: ?string |} |}`.
-* By default, when the component renders, Relay will automatically ***fetch*** the data for this query from the server (if it isn't already cached), and return it as a the result of the `useLazyLoadQuery` call. We'll go into more detail about how to show loading states in the [Loading States With Suspense](#loading-states-with-suspense) section, and how Relay uses cached data in the [Reusing Cached Data for Render](#reusing-cached-data-for-render) section.
-* Note that if you re-render your component and pass ***different query variables*** than the ones originally used, it will cause the query to be fetched again with the new variables, and potentially re-render with different data.
-* Finally, make sure you're providing a Relay environment at the root of your app before trying to render a query: [Relay Environment Provider](#relay-environment-provider).
+-   **`useLazyLoadQuery`**  takes a `graphql` query and some variables for that query, and returns the data that was fetched for that query. The `variables` are an object containing the values for the [Variables](#variables) referenced inside the GraphQL query.
+-   Similarly to fragments, the component is automatically subscribed to updates to the query data: if the data for this query is updated anywhere in the app, the component will automatically re-render with the latest updated data.
+-   `useLazyLoadQuery` additionally, it takes a Flow type parameter, which corresponds to the Flow type for the query, in this case `AppQuery`.
+    -   Remember that Relay automatically generates Flow types for any declared queries, which you can import and use with `useLazyLoadQuery`. These types are available in the generated files with the following name format: `<query_name>.graphql.js`.
+    -   Note that the `variables` will checked by Flow to ensure that you are passing values that match what the GraphQL query expects.
+    -   Note that the `data` is already properly Flow-typed without requiring an explicit annotation, and is based on the types from the GraphQL schema. For example, the type of `data` above would be: `{| user: ?{| name: ?string |} |}`.
+-   By default, when the component renders, Relay will automatically **_fetch_** the data for this query from the server (if it isn't already cached), and return it as a the result of the `useLazyLoadQuery` call. We'll go into more detail about how to show loading states in the [Loading States With Suspense](#loading-states-with-suspense) section, and how Relay uses cached data in the [Reusing Cached Data for Render](#reusing-cached-data-for-render) section.
+-   Note that if you re-render your component and pass **_different query variables_** than the ones originally used, it will cause the query to be fetched again with the new variables, and potentially re-render with different data.
+-   Finally, make sure you're providing a Relay environment at the root of your app before trying to render a query: [Relay Environment Provider](#relay-environment-provider).
 
 To fetch and render a query that includes a fragment, you can compose them in the same way fragments are composed, as shown in the [Composing Fragments](#composing-fragments) section:
 
@@ -508,10 +522,10 @@ function App() {
     {id: '4'},
   );
 
+  // Render child component by passing the fragment reference to <UserComponent>:
   return (
     <>
       <h1>{data.user?.name}</h1>
-      {/* Render child component, passing the fragment reference: */}
       <UserComponent user={data.user} />
     </>
   );
@@ -520,12 +534,12 @@ function App() {
 
 Note that:
 
-* The ***fragment reference*** that `UserComponent` expects is the result of reading a parent query that includes its fragment, which in our case means a query that includes `...UsernameSection_user`. In other words, the `data` obtained as a result of `useLazyLoadQuery` also serves as the fragment reference for any child fragments included in that query.
-* As mentioned previously, ***all fragments must belong to a query when they are rendered,*** which means that all fragment components *must* be descendants of a query. This guarantees that you will always be able to provide a fragment reference for `useFragment`, by starting from the result of reading a root query with `useLazyLoadQuery`.
+-   The **_fragment reference_** that `UserComponent` expects is the result of reading a parent query that includes its fragment, which in our case means a query that includes `...UsernameSection_user`. In other words, the `data` obtained as a result of `useLazyLoadQuery` also serves as the fragment reference for any child fragments included in that query.
+-   As mentioned previously, **_all fragments must belong to a query when they are rendered,_** which means that all fragment components _must_ be descendants of a query. This guarantees that you will always be able to provide a fragment reference for `useFragment`, by starting from the result of reading a root query with `useLazyLoadQuery`.
 
 ### Variables
 
-You may have noticed that the query declarations in our examples above contain references to an `$id` symbol inside the GraphQL code: these are [GraphQL Variables](https://graphql.github.io/learn/queries/#variables).
+You may have noticed that the query declarations in our examples above contain references to an `$id` symbol inside the GraphQL code: these are [GraphQL Variables](https://graphql.org/learn/queries/#variables).
 
 GraphQL variables are a construct that allows referencing dynamic values inside a GraphQL query. When fetching a query from the server, we also need to provide as input the actual set of values to use for the variables declared inside the query:
 
@@ -553,7 +567,6 @@ query UserQuery($id: ID!) {
 {"id": 4}
 ```
 
-
 Fetching the above query and variables from the server would produce the following response:
 
 ```javascript
@@ -567,7 +580,7 @@ Fetching the above query and variables from the server would produce the followi
 }
 ```
 
-* Note that changing the value of the `id` variable used as input would of course produce a different response.
+-   Note that changing the value of the `id` variable used as input would of course produce a different response.
 
 * * *
 
@@ -590,8 +603,8 @@ query ViewerQuery($scale: Float!) {
 }
 ```
 
-* Even though the fragment above doesn't *declare* the `$scale` variable directly, it can still reference it. Doing so makes it so any query that includes this fragment, either directly or transitively, ***must*** declare the variable and it's type, otherwise an error will be produced by the Relay compiler.
-* In other words, ***query variables are available globally by any fragment that is a descendant of the query***.
+-   Even though the fragment above doesn't _declare_ the `$scale` variable directly, it can still reference it. Doing so makes it so any query that includes this fragment, either directly or transitively, **_must_** declare the variable and it's type, otherwise an error will be produced by the Relay compiler.
+-   In other words, **_query variables are available globally by any fragment that is a descendant of the query_**.
 
 In Relay, fragment declarations inside components can also reference query variables:
 
@@ -613,8 +626,8 @@ function UserComponent(props: Props) {
 }
 ```
 
-* The above fragment could be included by multiple queries, and rendered by different components, which means that any query that ends up rendering/including the above fragment ***must*** declare the `$scale` variable.
-* If any query that happens to include this fragment *doesn't* declare the `$scale` variable, an error will be produced by the Relay Compiler at build time, ensuring that an incorrect query never gets sent to the server (sending a query with missing variable declarations will also produce an error in the server).
+-   The above fragment could be included by multiple queries, and rendered by different components, which means that any query that ends up rendering/including the above fragment **_must_** declare the `$scale` variable.
+-   If any query that happens to include this fragment _doesn't_ declare the `$scale` variable, an error will be produced by the Relay Compiler at build time, ensuring that an incorrect query never gets sent to the server (sending a query with missing variable declarations will also produce an error in the server).
 
 ### `@arguments` and `@argumentDefinitions`
 
@@ -684,11 +697,10 @@ function OtherUserComponent(props) {
 }
 ```
 
-* Note that when passing `@arguments` to a fragment, we can pass a literal value or pass another variable. The variable can be a global query variable, or another local variable declared via `@argumentDefinitions`.
-* When we actually fetch `PictureComponent_user` as part of a query, the `scale` value passed to the `profile_picture` field will depend on the argument that was provided by the parent of `PictureComponent_user`:
-  * For `UserComponent_user` the value of `$scale` will be 2.0.
-  * For `OtherUserComponent_user`, the value of `$scale` will be whatever value we pass to the server for the `$pictureScale` variable when we fetch the query.
-
+-   Note that when passing `@arguments` to a fragment, we can pass a literal value or pass another variable. The variable can be a global query variable, or another local variable declared via `@argumentDefinitions`.
+-   When we actually fetch `PictureComponent_user` as part of a query, the `scale` value passed to the `profile_picture` field will depend on the argument that was provided by the parent of `PictureComponent_user`:
+    -   For `UserComponent_user` the value of `$scale` will be 2.0.
+    -   For `OtherUserComponent_user`, the value of `$scale` will be whatever value we pass to the server for the `$pictureScale` variable when we fetch the query.
 
 Fragments that expect arguments can also declare default values, making the arguments optional:
 
@@ -731,7 +743,7 @@ function UserComponent(props) {
 }
 ```
 
-* Not passing the argument to `PictureComponent_user` makes it use the default value for its locally declared `$scale` variable, in this case 2.0.
+-   Not passing the argument to `PictureComponent_user` makes it use the default value for its locally declared `$scale` variable, in this case 2.0.
 
 #### Accessing GraphQL Variables At Runtime
 
@@ -741,9 +753,9 @@ Relay currently does not expose the resolved variables (i.e. after applying argu
 
 ### Loading States with Suspense
 
-As you may have noticed, we mentioned that using `useLazyLoadQuery` will ***fetch*** a query from the server, but we didn't elaborate on how to render a loading UI while the query is being loaded. We will cover that in this section.
+As you may have noticed, we mentioned that using `useLazyLoadQuery` will **_fetch_** a query from the server, but we didn't elaborate on how to render a loading UI while the query is being loaded. We will cover that in this section.
 
-To render loading states while a query is being fetched, we rely on [React Suspense](https://reactjs.org/docs/concurrent-mode-suspense.html). Suspense is a new feature in React that allows components to interrupt or *"suspend"* rendering in order to wait for some asynchronous resource (such as code, images or data) to be loaded; when a component "suspends", it indicates to React that the component isn't *"ready"* to be rendered yet, and won't be until the asynchronous resource it's waiting for is loaded. When the resource finally loads, React will try to render the component again.
+To render loading states while a query is being fetched, we rely on [React Suspense](https://reactjs.org/docs/concurrent-mode-suspense.html). Suspense is a new feature in React that allows components to interrupt or _"suspend"_ rendering in order to wait for some asynchronous resource (such as code, images or data) to be loaded; when a component "suspends", it indicates to React that the component isn't _"ready"_ to be rendered yet, and won't be until the asynchronous resource it's waiting for is loaded. When the resource finally loads, React will try to render the component again.
 
 This capability is useful for components to express asynchronous dependencies like data, code, or images that they require in order to render, and lets React coordinate rendering the loading states across a component tree as these asynchronous resources become available. More generally, the use of Suspense give us better control to implement more deliberately designed loading states when our app is loading for the first time or when it's transitioning to different states, and helps prevent accidental flickering of loading elements (such as spinners), which can commonly occur when loading sequences aren't explicitly designed and coordinated.
 
@@ -751,7 +763,7 @@ For a lot more details on Suspense, check the [React docs on Suspense](https://r
 
 #### Loading fallbacks with Suspense Boundaries
 
-When a component is suspended, we need to render a *fallback* in place of the component while we await for it to become *"ready"*. In order to do so, we use the `Suspense` component provided by React:
+When a component is suspended, we need to render a _fallback_ in place of the component while we await for it to become _"ready"_. In order to do so, we use the `Suspense` component provided by React:
 
 ```javascript
 const React = require('React');
@@ -767,7 +779,7 @@ function App() {
 }
 ```
 
-`Suspense` components can be used to wrap any component; if the target component suspends, `Suspense` will render the provided fallback until all its descendants become *"ready"* (i.e. until *all* of the promises thrown inside its subtree of descendants resolve). Usually, the fallback is used to render a loading state, such as a glimmer.
+`Suspense` components can be used to wrap any component; if the target component suspends, `Suspense` will render the provided fallback until all its descendants become _"ready"_ (i.e. until _all_ of the promises thrown inside its subtree of descendants resolve). Usually, the fallback is used to render a loading state, such as a glimmer.
 
 Usually, different pieces of content in our app might suspend, so we can show loading state until they are resolved by using `Suspense` :
 
@@ -786,7 +798,9 @@ function App() {
   return (
     // LoadingSpinner is rendered via the Suspense fallback
     <Suspense fallback={<LoadingSpinner />}>
-      <MainContent /> {/* MainContent may suspend */}
+      <MainContent
+        // MainContent may suspend
+      />
     </Suspense>
   );
 }
@@ -794,7 +808,7 @@ function App() {
 
 Let's distill what's going on here:
 
-* If `MainContent` suspends because it's waiting on some asynchronous resource (like data), the `Suspense` component that wraps `MainContent` will detect that it suspended, and will render the **`fallback`** element (i.e. the `LoadingSpinner` in this case) up until `MainContent` is ready to be rendered. Note that this also transitively includes descendants of `MainContent`, which might also suspend.
+-   If `MainContent` suspends because it's waiting on some asynchronous resource (like data), the `Suspense` component that wraps `MainContent` will detect that it suspended, and will render the **`fallback`** element (i.e. the `LoadingSpinner` in this case) up until `MainContent` is ready to be rendered. Note that this also transitively includes descendants of `MainContent`, which might also suspend.
 
 What's nice about Suspense is that you have granular control about how to accumulate loading states for different parts of your component tree:
 
@@ -815,14 +829,16 @@ function App() {
     // A LoadingSpinner for *_all_* content is rendered via the Suspense fallback
     <Suspense fallback={<LoadingSpinner />}>
       <MainContent />
-      <SecondaryContent />  *{/* SecondaryContent can also suspend */}*
+      <SecondaryContent
+        // SecondaryContent can also suspend
+      />
     </Suspense>
   );
 }
 ```
 
-* In this case, both `MainContent` and `SecondaryContent` may suspend while they load their asynchronous resources; by wrapping both in a `Suspense`, we can show a single loading state up until they are ***all*** ready, and then render the entire content in a single paint, after everything has successfully loaded.
-* In fact, `MainContent` and `SecondaryContent` may suspend for different reasons other than fetching data, but the same `Suspense` component can be used to render a fallback up until ***all*** components in the subtree are ready to be rendered. Note that this also transitively includes descendants of `MainContent` or `SecondaryContent`, which might also suspend.
+-   In this case, both `MainContent` and `SecondaryContent` may suspend while they load their asynchronous resources; by wrapping both in a `Suspense`, we can show a single loading state up until they are **_all_** ready, and then render the entire content in a single paint, after everything has successfully loaded.
+-   In fact, `MainContent` and `SecondaryContent` may suspend for different reasons other than fetching data, but the same `Suspense` component can be used to render a fallback up until **_all_** components in the subtree are ready to be rendered. Note that this also transitively includes descendants of `MainContent` or `SecondaryContent`, which might also suspend.
 
 Conversely, you can also decide to be more granular about your loading UI and wrap Suspense components around smaller or individual parts of your component tree:
 
@@ -843,13 +859,17 @@ const SecondaryContent = require('./SecondaryContent.react');
 function App() {
   return (
     <>
-      {/* Show a separate loading UI for the LeftHandColumn */}
-      <Suspense fallback={<LeftColumnPlaceholder />}>
+      <Suspense
+        // Show a separate loading UI for the LeftHandColumn
+        fallback={<LeftColumnPlaceholder />}
+      >
         <LeftColumn />
       </Suspense>
 
-      {/* Show a separate loading UI for both the Main and Secondary content */}
-      <Suspense fallback={<LoadingSpinner />}>
+      <Suspense
+        // Show a separate loading UI for both the Main and Secondary content
+        fallback={<LoadingSpinner />}
+      >
         <MainContent />
         <SecondaryContent />
       </Suspense>
@@ -858,10 +878,10 @@ function App() {
 }
 ```
 
-* In this case, we're showing 2 separate loading UIs:
-  * One to be shown until the `LeftColumn` becomes ready.
-  * And one to be shown until both the `MainContent` and `SecondaryContent` become ready.
-* What is powerful about this is that by more granularly wrapping our components in Suspense, ***we allow other components to be rendered earlier as they become ready***. In our example, by separately wrapping `MainContent` and `SecondaryContent` under `Suspense`, we're allowing `LeftColumn` to render as soon as it becomes ready, which might be earlier than when the content sections become ready.
+-   In this case, we're showing 2 separate loading UIs:
+    -   One to be shown until the `LeftColumn` becomes ready.
+    -   And one to be shown until both the `MainContent` and `SecondaryContent` become ready.
+-   What is powerful about this is that by more granularly wrapping our components in Suspense, **_we allow other components to be rendered earlier as they become ready_**. In our example, by separately wrapping `MainContent` and `SecondaryContent` under `Suspense`, we're allowing `LeftColumn` to render as soon as it becomes ready, which might be earlier than when the content sections become ready.
 
 #### Transitions and Updates that Suspend
 
@@ -901,14 +921,14 @@ function TabSwitcher() {
 
 Let's take a look at what's happening here:
 
-* We have a `MainContent` component that takes a tab to render. This component might suspend while it loads the content for the current tab. During initial render, if this component suspends, we'll show the `LoadingGlimmer` fallback from the `Suspense` boundary that is wrapping it.
-* Additionally, in order to change tabs, we're keeping some state for the currently selected tab; when we set state to change the current tab, this will be an update that can cause the `MainContent` component to suspend again, since it may have to load the content for the new tab. Since this update may cause the component to suspend, **we need to make sure to schedule it using the `startTransition` function we get from `useTransition`**. By doing so, we're letting React know that the update may suspend, so React can coordinate and render it at the right priority.
+-   We have a `MainContent` component that takes a tab to render. This component might suspend while it loads the content for the current tab. During initial render, if this component suspends, we'll show the `LoadingGlimmer` fallback from the `Suspense` boundary that is wrapping it.
+-   Additionally, in order to change tabs, we're keeping some state for the currently selected tab; when we set state to change the current tab, this will be an update that can cause the `MainContent` component to suspend again, since it may have to load the content for the new tab. Since this update may cause the component to suspend, **we need to make sure to schedule it using the `startTransition` function we get from `useTransition`**. By doing so, we're letting React know that the update may suspend, so React can coordinate and render it at the right priority.
 
-However, when we make these sorts of transitions, we ideally want to avoid "bad loading states", that is, loading states (e.g. a glimmer) that would replace content that has already been rendered on the screen. In this case for example, if we're already showing content for a tab, instead of immediately replacing the content with a glimmer, we might instead want to render some sort of "pending" or "busy" state to let the user know that we're changing tabs, and then render the new selected tab when it's hopefully mostly ready. In order to do so, this is where we need to take into account the different [stages](https://reactjs.org/docs/concurrent-mode-patterns.html#the-three-steps) of a transition (***pending*** → ***loading*** → ***complete***), and make use of additional Suspense [primitives](https://reactjs.org/docs/concurrent-mode-patterns.html#transitions), that allow us to control what we want to show at each stage.
+However, when we make these sorts of transitions, we ideally want to avoid "bad loading states", that is, loading states (e.g. a glimmer) that would replace content that has already been rendered on the screen. In this case for example, if we're already showing content for a tab, instead of immediately replacing the content with a glimmer, we might instead want to render some sort of "pending" or "busy" state to let the user know that we're changing tabs, and then render the new selected tab when it's hopefully mostly ready. In order to do so, this is where we need to take into account the different [stages](https://reactjs.org/docs/concurrent-mode-patterns.html#the-three-steps) of a transition (**_pending_** → **_loading_** → **_complete_**), and make use of additional Suspense [primitives](https://reactjs.org/docs/concurrent-mode-patterns.html#transitions), that allow us to control what we want to show at each stage.
 
-The ***pending*** stage is the first state in a transition, and is usually rendered close to the element that initiated the action (e.g. a "busy spinner" next to a button); it should occur immediately (at a high priority), and be rendered quickly in order to give post to the user that their action has been registered. The ***loading*** state occurs when we actually start showing the new content or the next screen; this update is usually heavier it can take a little longer, so it doesn't need to be executed at the highest priority. *During the **loading** state is where we'll show the fallbacks from our `Suspense` boundaries* (i.e. placeholders for the new content, like glimmers);  some of the content might be partially rendered during this stage as async resources are loaded, so it can occur in multiple steps, until we finally reach the ***complete*** state, where the full content is rendered.
+The **_pending_** stage is the first state in a transition, and is usually rendered close to the element that initiated the action (e.g. a "busy spinner" next to a button); it should occur immediately (at a high priority), and be rendered quickly in order to give post to the user that their action has been registered. The **_loading_** state occurs when we actually start showing the new content or the next screen; this update is usually heavier it can take a little longer, so it doesn't need to be executed at the highest priority. _During the **loading** state is where we'll show the fallbacks from our `Suspense` boundaries_ (i.e. placeholders for the new content, like glimmers);  some of the content might be partially rendered during this stage as async resources are loaded, so it can occur in multiple steps, until we finally reach the **_complete_** state, where the full content is rendered.
 
-By default, when a suspense transition occurs, if the new content suspends, React will automatically transition to the loading state and show the fallbacks from any `Suspense` boundaries that are in place for the new content.  However, if we want to delay showing the loading state, and show a *pending* state instead, we can also use [**`useTransition`**](https://reactjs.org/docs/concurrent-mode-patterns.html#transitions) to do so:
+By default, when a suspense transition occurs, if the new content suspends, React will automatically transition to the loading state and show the fallbacks from any `Suspense` boundaries that are in place for the new content.  However, if we want to delay showing the loading state, and show a _pending_ state instead, we can also use [**`useTransition`**](https://reactjs.org/docs/concurrent-mode-patterns.html#transitions) to do so:
 
 ```javascript
 const {
@@ -950,12 +970,14 @@ function TabSwitcher() {
 }
 ```
 
-> **NOTE:** Providing a Suspense config to `useTransition` will only work as expected in ***_React Concurrent Mode_***
+<blockquote>
+<strong>NOTE:</strong> Providing a Suspense config to <code>useTransition</code> will only work as expected in <strong><em>React Concurrent Mode</em></strong>.
+</blockquote>
 
 Let's take a look at what's happening here:
 
-* In this case, we're passing the **`SUSPENSE_CONFIG`** config object to `useTransition` in order to configure how we want this transition to behave. Specifically, we can pass a **`timeoutMs`** property in the config, which will dictate how long React should wait before transitioning to the *"loading"* state (i.e. transition to showing the fallbacks from the `Suspense` boundaries), in favor of showing a ***pending*** state controlled locally by the component during that time.
-* `useTransition` will also return a **`isPending`** boolean value, which captures the pending state. That is, this value will become `true` ***immediately*** when the transition starts, and will become `false` when the transition reaches the fully *"completed"* stage, that is, when all the new content has been fully loaded. As mentioned above, the pending state should be used to give immediate post to the user that the action has been received, and we can do so by using the `isPending` value to control what we render; for example, we can use that value to render a spinner next to the button, or in this case, disable the button immediately after it is clicked.
+-   In this case, we're passing the **`SUSPENSE_CONFIG`** config object to `useTransition` in order to configure how we want this transition to behave. Specifically, we can pass a **`timeoutMs`** property in the config, which will dictate how long React should wait before transitioning to the _"loading"_ state (i.e. transition to showing the fallbacks from the `Suspense` boundaries), in favor of showing a **_pending_** state controlled locally by the component during that time.
+-   `useTransition` will also return a **`isPending`** boolean value, which captures the pending state. That is, this value will become `true` **_immediately_** when the transition starts, and will become `false` when the transition reaches the fully _"completed"_ stage, that is, when all the new content has been fully loaded. As mentioned above, the pending state should be used to give immediate post to the user that the action has been received, and we can do so by using the `isPending` value to control what we render; for example, we can use that value to render a spinner next to the button, or in this case, disable the button immediately after it is clicked.
 
 For more details, check out the [React docs on Suspense](https://reactjs.org/docs/concurrent-mode-suspense.html).
 
@@ -1003,7 +1025,9 @@ function App() {
   return (
     // LoadingSpinner is rendered via the Suspense fallback
     <Suspense fallback={<LoadingSpinner />}>
-      <MainContent /> {/* MainContent may suspend */}
+      <MainContent
+        // MainContent may suspend
+      />
     </Suspense>
   );
 }
@@ -1011,8 +1035,8 @@ function App() {
 
 Let's distill what's going on here:
 
-* We have a `MainContent` component, which is a query renderer that fetches and renders a query. `MainContent` will *suspend* rendering when it attempts to fetch the query, indicating that it isn't ready to be rendered yet, and it will resolve when the query is fetched.
-* The `Suspense `component that wraps `MainContent` will detect that `MainContent` suspended, and will render the **`fallback`** element (i.e. the `LoadingSpinner` in this case) up until `MainContent` is ready to be rendered; that is, up until the query is fetched.
+-   We have a `MainContent` component, which is a query renderer that fetches and renders a query. `MainContent` will _suspend_ rendering when it attempts to fetch the query, indicating that it isn't ready to be rendered yet, and it will resolve when the query is fetched.
+-   The `Suspense `component that wraps `MainContent` will detect that `MainContent` suspended, and will render the **`fallback`** element (i.e. the `LoadingSpinner` in this case) up until `MainContent` is ready to be rendered; that is, up until the query is fetched.
 
 _**Fragments**_
 
@@ -1024,7 +1048,7 @@ Additionally, our APIs for refetching ([Re-rendering with Different Data](#re-re
 
 ### Error States with Error Boundaries
 
-As you may have noticed, we mentioned that using `useLazyLoadQuery` will ***fetch*** a query from the server, but we didn't elaborate on how to render UI to show an error if an error occurred during fetch. We will cover that in this section.
+As you may have noticed, we mentioned that using `useLazyLoadQuery` will **_fetch_** a query from the server, but we didn't elaborate on how to render UI to show an error if an error occurred during fetch. We will cover that in this section.
 
 We can use [**Error Boundary**](https://reactjs.org/docs/error-boundaries.html) components to catch errors that occur during render (due to a network error, or any kind of error), and render an alternative error UI when that occurs. The way it works is similar to how `Suspense` works, by wrapping a component tree in an error boundary, we can specify how we want to react when an error occurs, for example by rendering a fallback UI.
 
@@ -1068,8 +1092,8 @@ function App() {
 }
 ```
 
-* We can use the Error Boundary to wrap subtrees and show a different UI when an error occurs within that subtree. When an error occurs, the specified `fallback` will be rendered instead of the content inside the boundary.
-* Note that we can also control the granularity at which we render error UIs, by wrapping components at different levels with error boundaries. In this example, if any error occurs within `MainContent` or `SecondaryContent`, we will render an `ErrorSection` in place of the entire app content.
+-   We can use the Error Boundary to wrap subtrees and show a different UI when an error occurs within that subtree. When an error occurs, the specified `fallback` will be rendered instead of the content inside the boundary.
+-   Note that we can also control the granularity at which we render error UIs, by wrapping components at different levels with error boundaries. In this example, if any error occurs within `MainContent` or `SecondaryContent`, we will render an `ErrorSection` in place of the entire app content.
 
 #### Retrying after an Error
 
@@ -1127,9 +1151,11 @@ function App() {
       fallback={(error, retry) =>
         <>
           <ErrorUI error={error} />
-          {/* Render a button to retry; this will attempt to re-render the
-            content inside the boundary, i.e. the query component */}
-          <Button onClick={retry}>Retry</Button>
+          <Button
+            // Render a button to retry; this will attempt to re-render the
+            // content inside the boundary, i.e. the query component
+            onClick={retry}
+          >Retry</Button>
         </>
       }>
       <MainContent />
@@ -1138,14 +1164,14 @@ function App() {
 }
 ```
 
-* The sample Error Boundary in this example code will provide a `retry` function to re-attempt to render the content that originally produced the error. By doing so, we will attempt to re-render our query component (that uses `useLazyLoadQuery`), and consequently attempt to fetch the query again.
+-   The sample Error Boundary in this example code will provide a `retry` function to re-attempt to render the content that originally produced the error. By doing so, we will attempt to re-render our query component (that uses `useLazyLoadQuery`), and consequently attempt to fetch the query again.
 
 #### Accessing errors in GraphQL Response
 
-By default, Relay will ***only*** surface errors to React that are returned in the top-level [errors field](https://graphql.org/learn/validation/), **if**:
+By default, Relay will **_only_** surface errors to React that are returned in the top-level [errors field](https://graphql.org/learn/validation/), **if**:
 
-* the fetch function provided to the [Relay Network](https://relay.dev/docs/en/network-layer) throws or returns an Error.
-* if the top-level `data` field wasn't returned in the response.
+-   the fetch function provided to the [Relay Network](https://relay.dev/docs/en/network-layer) throws or returns an Error.
+-   if the top-level `data` field wasn't returned in the response.
 
 If you wish to access error information in your application to display user-friendly messages, the recommended approach is to model and expose the error information as part of your GraphQL schema.
 
@@ -1182,11 +1208,11 @@ function Root() {
 }
 ```
 
-* The `RelayEnvironmentProvider `takes an environment, which it will make available to all descendant Relay components, and which is necessary for Relay to function.
+-   The `RelayEnvironmentProvider `takes an environment, which it will make available to all descendant Relay components, and which is necessary for Relay to function.
 
 #### Accessing the Relay Environment
 
-If you want to access the *current* Relay Environment within a descendant of a `RelayEnvironmentProvider` component, you can use the **`useRelayEnvironment`** Hook:
+If you want to access the _current_ Relay Environment within a descendant of a `RelayEnvironmentProvider` component, you can use the **`useRelayEnvironment`** Hook:
 
 ```javascript
 const {useRelayEnvironment} = require('react-relay/hooks');
@@ -1200,19 +1226,20 @@ function UserComponent(props: Props) {
 
 ## Reusing Cached Data for Render
 
-While our app is in use, Relay will accumulate and cache *(for some time)* the data for the multiple queries that have been fetched throughout usage of our app. Often times, we'll want to be able to reuse and immediately render this data that is locally cached instead of waiting for a network request when fulfilling a query; this is what we'll cover in this section.
+While our app is in use, Relay will accumulate and cache _(for some time)_ the data for the multiple queries that have been fetched throughout usage of our app. Often times, we'll want to be able to reuse and immediately render this data that is locally cached instead of waiting for a network request when fulfilling a query; this is what we'll cover in this section.
 
 Some examples of when this might be useful are:
 
-* Navigating between tabs in an app, where each app renders a query. If a tab has already been visited, re-visiting the tab should render it instantly, without having to wait for a network request to fetch the data that we've already fetched before.
-* Navigating to a post that was previously rendered on a feed. If the post has already been rendered on a feed, navigating to the post's permalink page should render the post immediately, since all of the data for the post should already be cached.
-  * Even if rendering the post in the permalink page requires more data than rendering the post on a feed, we'd still like to reuse and immediately render as much of the post's data that we already have available locally, without blocking render for the entire post if only a small bit of data is missing.
+-   Navigating between tabs in an app, where each app renders a query. If a tab has already been visited, re-visiting the tab should render it instantly, without having to wait for a network request to fetch the data that we've already fetched before.
+-   Navigating to a post that was previously rendered on a feed. If the post has already been rendered on a feed, navigating to the post's permalink page should render the post immediately, since all of the data for the post should already be cached.
+    -   Even if rendering the post in the permalink page requires more data than rendering the post on a feed, we'd still like to reuse and immediately render as much of the post's data that we already have available locally, without blocking render for the entire post if only a small bit of data is missing.
 
 ### Fetch Policies
 
 The first step to reusing locally cached data is to specify a **`fetchPolicy`** for `useLazyLoadQuery`:
 
 ```
+
 const React = require('React');
 const {graphql, useLazyLoadQuery} = require('react-relay/hooks');
 
@@ -1236,17 +1263,18 @@ function App() {
 ```
 
 The provided `fetchPolicy` will determine:
-* *if* the query should be fulfilled from the local cache, and
-* *if* a network request should be made to fetch the query from the server, depending on the [availablity of the data for that query in the store](#availability-of-cached-data).
 
-By default, Relay will try to read the query from the local cache; if any piece of data for that query is [missing](#presence-of-data) or [stale](#staleness-of-data), it will fetch the entire query from the network. This default `fetchPolicy` is called "***store-or-network".***
+-   _if_ the query should be fulfilled from the local cache, and
+-   _if_ a network request should be made to fetch the query from the server, depending on the [availability of the data for that query in the store](#availability-of-cached-data).
+
+By default, Relay will try to read the query from the local cache; if any piece of data for that query is [missing](#presence-of-data) or [stale](#staleness-of-data), it will fetch the entire query from the network. This default `fetchPolicy` is called "**_store-or-network"._**
 
 Specifically, `fetchPolicy` can be any of the following options:
 
-* **"store-or-network"**: *(default)* ***will*** reuse locally cached data and will ***only*** send a network request if any data for the query is [missing](#presence-of-data) or [stale](#staleness-of-data). If the query is fully cached, a network request will ***not*** be made.
-* **"store-and-network"**: ***will*** reuse locally cached data and will ***always*** send a network request, regardless of whether any data was [missing](#presence-of-data) or [stale](#staleness-of-data) in the store.
-* **"network-only"**: ***will not*** reuse locally cached data, and will ***always*** send a network request to fetch the query, ignoring any data that might be locally cached and whether it's [missing](#presence-of-data) or [stale](#staleness-of-data).
-* **"store-only"**: ***will only*** reuse locally cached data, and will ***never*** send a network request to fetch the query. In this case, the responsibility of fetching the query falls to the caller, but this policy could also be used to read and operate on data that is entirely [local](#local-data-updates).
+-   **"store-or-network"**: _(default)_ **_will_** reuse locally cached data and will **_only_** send a network request if any data for the query is [missing](#presence-of-data) or [stale](#staleness-of-data). If the query is fully cached, a network request will **_not_** be made.
+-   **"store-and-network"**: **_will_** reuse locally cached data and will **_always_** send a network request, regardless of whether any data was [missing](#presence-of-data) or [stale](#staleness-of-data) in the store.
+-   **"network-only"**: **_will not_** reuse locally cached data, and will **_always_** send a network request to fetch the query, ignoring any data that might be locally cached and whether it's [missing](#presence-of-data) or [stale](#staleness-of-data).
+-   **"store-only"**: **_will only_** reuse locally cached data, and will **_never_** send a network request to fetch the query. In this case, the responsibility of fetching the query falls to the caller, but this policy could also be used to read and operate on data that is entirely [local](#local-data-updates).
 
 Note that the `refetch` function discussed in the [Fetching More Data and Rendering Different Data](#fetching-and-rendering-different-data) section  also takes a `fetchPolicy`.
 
@@ -1256,8 +1284,8 @@ The behavior of the fetch policies described in the [previous section](#fetch-po
 
 There are 2 main aspects that determine the availability of data, which we will go over in this section:
 
-* [Presence of data](#presence-of-data)
-* [Staleness of data](#staleness-of-data)
+-   [Presence of data](#presence-of-data)
+-   [Staleness of data](#staleness-of-data)
 
 ### Presence of Data
 
@@ -1265,14 +1293,13 @@ An important thing to keep in mind when attempting to reuse data that is cached 
 
 Data in the Relay store for a given query will generally be present after the query has been fetched for the first time, as long as that query is being rendered on the screen. If we’ve never fetched data for a specific query, then it will be missing from the store.
 
-However, even after we've fetched data for different queries, we can't keep all of the data that we've fetched indefinitely in memory, since over time it would grow to be too large and too stale. In order to mitigate this, Relay runs a process called *Garbage Collection*, in order to delete data that we're no longer using:
+However, even after we've fetched data for different queries, we can't keep all of the data that we've fetched indefinitely in memory, since over time it would grow to be too large and too stale. In order to mitigate this, Relay runs a process called _Garbage Collection_, in order to delete data that we're no longer using:
 
 #### Garbage Collection in Relay
 
 Specifically, Relay runs garbage collection on the local in-memory store by deleting any data that is no longer being referenced by any component in the app.
 
 However, this can be at odds with reusing cached data; if the data is deleted too soon, before we try to reuse it again later, that will prevent us from reusing that data to render a screen without having to wait on a network request. To address this, this section will cover what you need to do in order to ensure that the data you want to reuse is kept cached for as long as you need it.
-
 
 ##### Query Retention
 
@@ -1292,7 +1319,8 @@ const disposable = environment.retain(queryDescriptor);
 // by Relay's garbage collection if it hasn't been retained elsewhere
 disposable.dispose();
 ```
-* As mentioned, this will allow you to retain the query even after a query component has unmounted, allowing other components, or future instances of the same component, to reuse the retained data.
+
+-   As mentioned, this will allow you to retain the query even after a query component has unmounted, allowing other components, or future instances of the same component, to reuse the retained data.
 
 ##### Controlling Relay's Garbage Collection Policy
 
@@ -1312,8 +1340,8 @@ function gcScheduler(run: () => void) {
 const store = new Store(source, {gcScheduler});
 ```
 
-* By default, if a `gcScheduler` option is not provided, Relay will schedule garbage collection using the `resolveImmediate` function.
-* You can provide a scheduler function to make GC scheduling less aggressive than the default, for example based on time or [scheduler](https://github.com/facebook/react/tree/master/packages/scheduler) priorities, or any other heuristic. By convention, implementations should not execute the callback immediately.
+-   By default, if a `gcScheduler` option is not provided, Relay will schedule garbage collection using the `resolveImmediate` function.
+-   You can provide a scheduler function to make GC scheduling less aggressive than the default, for example based on time or [scheduler](https://github.com/facebook/react/tree/main/packages/scheduler) priorities, or any other heuristic. By convention, implementations should not execute the callback immediately.
 
 ###### GC Release Buffer Size
 
@@ -1325,14 +1353,13 @@ In order to configure the size of the release buffer, you can provide a **`gcRel
 const store = new Store(source, {gcReleaseBufferSize: 10});
 ```
 
-* Note that having a buffer size of 0 is equivalent to not having the release buffer, which means that queries will be immediately released and collected.
-
+-   Note that having a buffer size of 0 is equivalent to not having the release buffer, which means that queries will be immediately released and collected.
 
 ### Staleness of Data
 
 Assuming our data is [present in the store](#presence-of-data), we still need to consider the staleness of such data.
 
-By default, Relay will never consider data in the store to be stale (regardless of how long it has been cached for), unless it’s explicitly marked as stale using our data invalidation apis.
+By default, Relay will never consider data in the store to be stale (regardless of how long it has been cached for), unless it’s explicitly marked as stale using our data invalidation APIs.
 
 Marking data as stale is useful for cases when we explicitly know that some data is no longer fresh (for example after executing a [Mutation](#graphql-mutations)), and we want to make sure it get’s refetched with the latest value from the server. Specifically, when data has been marked as stale, if any query references the stale data, that means the query will also be considered stale, and it will need to be fetched again the next time it is evaluated, given the provided [Fetch Policy](#fetch-policies).
 
@@ -1349,12 +1376,13 @@ function updater(store) {
   store.invalidateStore();
 }
 ```
-* Calling `invalidateStore()` will cause ***all*** data that was written to the store before invalidation occurred to be considered stale, and will require any query to be refetched again the next time it’s evaluated.
-* Note that an updater function can be specified as part of a [mutation](#graphql-mutations), [subscription](#graphql-subscriptions) or just a [local store update](#local-data-updates).
+
+-   Calling `invalidateStore()` will cause **_all_** data that was written to the store before invalidation occurred to be considered stale, and will require any query to be refetched again the next time it’s evaluated.
+-   Note that an updater function can be specified as part of a [mutation](#graphql-mutations), [subscription](#graphql-subscriptions) or just a [local store update](#local-data-updates).
 
 #### Invalidating Specific Data in the Store
 
-We can also be more granular about which data we invalidate and only invalidate *specific records* in the store; compared to global invalidation, only queries that reference the invalidated records will be considered stale after invalidation.
+We can also be more granular about which data we invalidate and only invalidate _specific records_ in the store; compared to global invalidation, only queries that reference the invalidated records will be considered stale after invalidation.
 
 To invalidate a record, we can call **`invalidateRecord()`** within an [updater](#updater-functions) function:
 
@@ -1366,8 +1394,9 @@ function updater(store) {
   }
 }
 ```
-* Calling `invalidateRecord()` on the user record will mark *that* specific user in the store as stale. That means that any query that is cached and references that invalidated user will now be considered stale, and will require to be refetched again the next time it’s evaluated.
-* Note that an updater function can be specified as part of a [mutation](#graphql-mutations), [subscription](#graphql-subscriptions) or just a [local store update](#local-data-updates).
+
+-   Calling `invalidateRecord()` on the user record will mark _that_ specific user in the store as stale. That means that any query that is cached and references that invalidated user will now be considered stale, and will require to be refetched again the next time it’s evaluated.
+-   Note that an updater function can be specified as part of a [mutation](#graphql-mutations), [subscription](#graphql-subscriptions) or just a [local store update](#local-data-updates).
 
 #### Subscribing to Data Invalidation
 
@@ -1375,9 +1404,8 @@ Just marking the store or records as stale will cause queries to be refetched th
 
 This is useful for a lot of use cases, but there are some times when we’d like to immediately refetch some data upon invalidation, for example:
 
-* When invalidating data that is already visible in the current page. Since no navigation is occurring, we won’t re-revaluate the queries for the current page, so even if some data is stale, it won't be immediately refetched and we will be showing stale data.
-* When invalidating data that is rendered on a previous view that was never unmounted; since the view wasn't unmounted, if we navigate back, the queries for that view wont be re-evaluated, meaning that even if some is stale, it won't be refetched and we will be showing stale data.
-
+-   When invalidating data that is already visible in the current page. Since no navigation is occurring, we won’t re-revaluate the queries for the current page, so even if some data is stale, it won't be immediately refetched and we will be showing stale data.
+-   When invalidating data that is rendered on a previous view that was never unmounted; since the view wasn't unmounted, if we navigate back, the queries for that view wont be re-evaluated, meaning that even if some is stale, it won't be refetched and we will be showing stale data.
 
 To support these use cases, Relay exposes the **`useSubscribeToInvalidationState`** hook:
 
@@ -1390,12 +1418,12 @@ function ProfilePage(props) {
   )
 
   // Here we subscribe to changes in invalidation state for the given user ID.
-  // Whenever the user whith that ID is marked as stale, the provided callback will
+  // Whenever the user with that ID is marked as stale, the provided callback will
   // be executed*
   useSubscribeToInvalidationState([props.userID], () => {
     // Here we can do things like:
     // - re-evaluate the query by passing a new preloadedQuery to usePreloadedQuery.
-    // - imperitavely refetch any data
+    // - imperatively refetch any data
     // - render a loading spinner or gray out the page to indicate that refetch
     //   is happening.
   })
@@ -1403,20 +1431,23 @@ function ProfilePage(props) {
   return (...);
 }
 ```
-* `useSubscribeToInvalidationState` takes an array of ids, and a callback. Whenever any of the records for those ids are marked as stale, the provided callback will fire.
-* Inside the callback, we can react accordingly and refetch and/or update any current views that are rendering stale data. As an example, we could re-execute the top-level `usePreloadedQuery` by keeping the `preloadedQuery` in state and setting a new one here; since that query is stale at that point, the query will be refetched even if the data is cached in the store.
+
+-   `useSubscribeToInvalidationState` takes an array of ids, and a callback. Whenever any of the records for those ids are marked as stale, the provided callback will fire.
+-   Inside the callback, we can react accordingly and refetch and/or update any current views that are rendering stale data. As an example, we could re-execute the top-level `usePreloadedQuery` by keeping the `preloadedQuery` in state and setting a new one here; since that query is stale at that point, the query will be refetched even if the data is cached in the store.
 
 ### Rendering Partially Cached Data [HIGHLY EXPERIMENTAL]
 
-> **NOTE:** Partial rendering behavior is still highly experimental and likely to change, and only enabled under an experimental option. If you still wish to use it, you can enable it by passing `{UNSTABLE_renderPolicy: "partial"}` as an option to `useLazyLoadQuery`.
+<blockquote>
+<strong>NOTE:</strong> Partial rendering behavior is still highly experimental and likely to change, and only enabled under an experimental option. If you still wish to use it, you can enable it by passing <pre>{"{"}'{"{"}UNSTABLE_renderPolicy: "partial"{"}"}'{"}"}</pre> as an option to <pre>useLazyLoadQuery</pre>.
+</blockquote>
 
-Often times when dealing with cached data, we'd like the ability to perform partial rendering. We define *"partial rendering"* as the ability to immediately render a query that is partially cached. That is, parts of the query might be missing, but parts of the query might already be cached. In these cases, we want to be able to immediately render the parts of the query that are cached, without waiting on the full query to be fetched.
+Often times when dealing with cached data, we'd like the ability to perform partial rendering. We define _"partial rendering"_ as the ability to immediately render a query that is partially cached. That is, parts of the query might be missing, but parts of the query might already be cached. In these cases, we want to be able to immediately render the parts of the query that are cached, without waiting on the full query to be fetched.
 
 This can be useful in scenarios where we want to render a screen or a page as fast as possible, and we know that some of the data for that page is already cached, so we can skip a loading state. For example, imagine a user profile page: it is very likely that the user's name has already been cached at some point during usage of the app, so when visiting a profile page, if the name of the user is cached, we'd like to render immediately, even if the rest of the data for the profile page isn't available yet.
 
 #### Fragments as boundaries for partial rendering
 
-To do this, we rely on the ability of fragment containers to [*suspend*](#loading-states-with-suspense). ***A fragment container will suspend if any of the data it declared locally is missing during render, and is currently being fetched.*** Specifically, it will suspend until the data it requires is fetched, that is, until the query it belongs to (its *parent query*) is fetched.
+To do this, we rely on the ability of fragment containers to [_suspend_](#loading-states-with-suspense). **_A fragment container will suspend if any of the data it declared locally is missing during render, and is currently being fetched._** Specifically, it will suspend until the data it requires is fetched, that is, until the query it belongs to (its _parent query_) is fetched.
 
 Let's explain what this means with an example. Say we have the following fragment component:
 
@@ -1488,17 +1519,17 @@ function App() {
 }
 ```
 
-Say that when this `App` component is rendered, we've already previously fetched *(_only_)* the **`name`** for the `User` with `{id: 4}`, and it is locally cached in the Relay Store.
+Say that when this `App` component is rendered, we've already previously fetched _(_only_)_ the **`name`** for the `User` with `{id: 4}`, and it is locally cached in the Relay Store.
 
 If we attempt to render the query with a `fetchPolicy` that allows reusing locally cached data (`'store-or-network'`, or `'store-and-network'`), the following will occur:
 
-* The query will check if any of its locally required data is missing. In this case, ***it isn't***. Specifically, the query is only directly querying for the `name`, and the name *is* available, so as far as the query is concerned, none of the data it requires to render ***itself*** is missing. This is important to keep in mind: when rendering a query, we eagerly read out data and render the tree, instead of blocking rendering of the entire tree until *all* of the data for the query (i.e. including nested fragments) is fetched. As we render, ***we will consider data to be missing for a component if the data it declared locally is missing, i.e. if any data required to render the current component is missing, and _not_ if data for descendant components is missing.***
-* Given that the query doesn't have any data missing, it will render, and then attempt to render the child `UsernameComponent`.
-* When the `UsernameComponent` attempts to render the `UsernameComponent_user` fragment, it will notice that some of the data required to render itself is missing; specifically, the **`username`** is missing. At this point, since `UsernameComponent` has missing data, it will suspend rendering until the network request completes. Note that regardless of which `fetchPolicy` you choose, a network request will always be started if any piece of data for the full query, i.e. including fragments, is missing.
+-   The query will check if any of its locally required data is missing. In this case, **_it isn't_**. Specifically, the query is only directly querying for the `name`, and the name _is_ available, so as far as the query is concerned, none of the data it requires to render **_itself_** is missing. This is important to keep in mind: when rendering a query, we eagerly read out data and render the tree, instead of blocking rendering of the entire tree until _all_ of the data for the query (i.e. including nested fragments) is fetched. As we render, **_we will consider data to be missing for a component if the data it declared locally is missing, i.e. if any data required to render the current component is missing, and _not_ if data for descendant components is missing._**
+-   Given that the query doesn't have any data missing, it will render, and then attempt to render the child `UsernameComponent`.
+-   When the `UsernameComponent` attempts to render the `UsernameComponent_user` fragment, it will notice that some of the data required to render itself is missing; specifically, the **`username`** is missing. At this point, since `UsernameComponent` has missing data, it will suspend rendering until the network request completes. Note that regardless of which `fetchPolicy` you choose, a network request will always be started if any piece of data for the full query, i.e. including fragments, is missing.
 
 At this point, when `UsernameComponent` suspends due to the missing **`username`**, ideally we should still be able to render the `User`'s `**name**` immediately, since it's locally cached. However, since we aren't using a `Suspense` component to catch the fragment's suspension, the suspension will bubble up and the entire `App` component will be suspended.
 
-In order to achieve the desired effect of rendering the **`name`** when it's available even if the **`username`**  is missing, we just need to wrap the `UsernameComponent` in `Suspense,` to *allow* the other parts of `App` to continue rendering:
+In order to achieve the desired effect of rendering the **`name`** when it's available even if the **`username`**  is missing, we just need to wrap the `UsernameComponent` in `Suspense,` to _allow_ the other parts of `App` to continue rendering:
 
 ```javascript
 /**
@@ -1531,11 +1562,11 @@ function App() {
     <>
       <h1>{data.user?.name}</h1>
 
-      {/*
-        Wrap the UserComponent in Suspense to allow other parts of the
-        App to be rendered even if the username is missing.
-    */}
-      <Suspense fallback={<LoadingSpinner label="Fetching username" />}>
+      <Suspense
+        // Wrap the UserComponent in Suspense to allow other parts of the
+        // App to be rendered even if the username is missing.
+        fallback={<LoadingSpinner label="Fetching username" />}
+      >
         <UsernameComponent user={data.user} />
       </Suspense>
     </>
@@ -1549,7 +1580,7 @@ The process that we described above works the same way for nested fragments (i.e
 
 ### Filling in Missing Data (Missing Data Handlers)
 
-In the previous section we covered how to reuse data that is fully or partially cached, however there are cases in which Relay can't automatically tell that it can reuse some of its local data to fulfill a query. Specifically, Relay knows how to reuse data that is cached for the *same* query; that is, if you fetch the exact same query twice, Relay will know that it has the data cached for that query the second time.
+In the previous section we covered how to reuse data that is fully or partially cached, however there are cases in which Relay can't automatically tell that it can reuse some of its local data to fulfill a query. Specifically, Relay knows how to reuse data that is cached for the _same_ query; that is, if you fetch the exact same query twice, Relay will know that it has the data cached for that query the second time.
 
 However, when using different queries, there might still be cases where different queries point to the same data, which we'd want to be able to reuse. For example, imagine the following two queries:
 
@@ -1563,6 +1594,7 @@ query UserQuery {
 ```
 
 ```
+
 // Query 2
 query NodeQuery {
   node(id: 4) {
@@ -1573,7 +1605,7 @@ query NodeQuery {
 }
 ```
 
-These two queries are different, but reference the exact same data. Ideally, if one of the queries was already cached in the store, we should be able to reuse that data when rendering the other query. However, Relay doesn't have this knowledge by default, so we need to configure it to encode the knowledge that a `node(id: 4)` ***"is also a"*** `user(id: 4)`.
+These two queries are different, but reference the exact same data. Ideally, if one of the queries was already cached in the store, we should be able to reuse that data when rendering the other query. However, Relay doesn't have this knowledge by default, so we need to configure it to encode the knowledge that a `node(id: 4)` **_"is also a"_** `user(id: 4)`.
 
 To do so, we can provide **`missingFieldHandlers`** to the `RelayEnvironment`, which specify this knowledge:
 
@@ -1602,26 +1634,29 @@ const missingFieldHandlers = [
         // value of $story_id.
         return argValues.story_id;
       }
-      return null;
+      return undefined;
     },
     kind: 'linked',
   },
 ];
 
-const environment = new Environment({/*...*/, missingFieldHandlers});
+const environment = new Environment({
+  // and other fields
+  missingFieldHandlers,
+});
 ```
 
-* `missingFieldHandlers` is an array of *handlers*. Each handler must specify a `handle` function, and the kind of missing fields it knows how to handle. The 2 main types of fields that you'd want to handle are:
-  * ***'scalar'***: This represents a field that contains a scalar value, for example a number or a string.
-  * ***'linked'***: This represents a field that references another object, i.e. not a scalar.
-* The `handle` function takes the field that is missing, the record that field belongs to, and any arguments that were passed to the field in the current execution of the query.
-  * When handling a ***'scalar'*** field, the handle function should return a scalar value, in order to use as the value for a missing field
-  * When handling a ***'linked'*** field, the handle function should return an ***ID***, referencing another object in the store that should be use in place of the missing field.
-* As Relay attempts to fulfill a query from the local cache, whenever it detects any missing data, it will run any of the provided missing field handlers that match the field type before definitively declaring that the data is missing.
+-   `missingFieldHandlers` is an array of _handlers_. Each handler must specify a `handle` function, and the kind of missing fields it knows how to handle. The 2 main types of fields that you'd want to handle are:
+    -   **_'scalar'_**: This represents a field that contains a scalar value, for example a number or a string.
+    -   **_'linked'_**: This represents a field that references another object, i.e. not a scalar.
+-   The `handle` function takes the field that is missing, the record that field belongs to, and any arguments that were passed to the field in the current execution of the query.
+    -   When handling a **_'scalar'_** field, the handle function should return a scalar value, in order to use as the value for a missing field
+    -   When handling a **_'linked'_** field, the handle function should return an **_ID_**, referencing another object in the store that should be use in place of the missing field.
+-   As Relay attempts to fulfill a query from the local cache, whenever it detects any missing data, it will run any of the provided missing field handlers that match the field type before definitively declaring that the data is missing.
 
-## Fetching Rendering *Different* Data
+## Fetching Rendering _Different_ Data
 
-After an app has been initially rendered, there are various scenarios in which you might want to fetch and render more data, re-render your UI with *different* data, or maybe refresh existing data, usually as a result of an event or user interaction.
+After an app has been initially rendered, there are various scenarios in which you might want to fetch and render more data, re-render your UI with _different_ data, or maybe refresh existing data, usually as a result of an event or user interaction.
 
 In this section we'll cover some of the most common scenarios and how to build them with Relay.
 
@@ -1728,7 +1763,7 @@ function App() {
 
 #### Refreshing Fragments
 
-In order to refresh the data for a fragment, we can also use `fetchQuery`, but we need to provide a query to refetch the fragment under; remember, ***fragments can't be fetched by themselves: they need to be part of a query,*** so we can't just "fetch" the fragment again by itself.
+In order to refresh the data for a fragment, we can also use `fetchQuery`, but we need to provide a query to refetch the fragment under; remember, **_fragments can't be fetched by themselves: they need to be part of a query,_** so we can't just "fetch" the fragment again by itself.
 
 However, we don't need to manually write the query; instead, we can use the **`@refetchable`** directive, which will make it so Relay automatically generates a query to fetch the fragment when the compiler is run:
 
@@ -1784,24 +1819,24 @@ function UserComponent(props: Props) {
 module.exports = UserComponent;
 ```
 
-* Relay will autogenerate a query by adding the `@refetchable` directive to our fragment, and we can import it and pass it to `fetchQuery`. Note that `@refetchable` directive can only be added to fragments that are "refetchable", that is, on fragments that are on `Viewer`, or on `Query`, or on a type that implements `Node` (i.e. a type that has an `id` field).
-* In order to fetch the query, we need to know the `id` of the user since it will be a required query variable in the generated query. To do so, we simply include the `id` in our fragment.
-* Given that the fragment container component is subscribed to any changes in its own data, when the request completes, the component will automatically update and re-render with the latest data:
-* If you want to know whether the request is in flight, in order to show a busy indicator or disable a UI control, you can use provide an `observer` to `fetchQuery`, and keep state in your component.
+-   Relay will autogenerate a query by adding the `@refetchable` directive to our fragment, and we can import it and pass it to `fetchQuery`. Note that `@refetchable` directive can only be added to fragments that are "refetchable", that is, on fragments that are on `Viewer`, or on `Query`, or on a type that implements `Node` (i.e. a type that has an `id` field).
+-   In order to fetch the query, we need to know the `id` of the user since it will be a required query variable in the generated query. To do so, we simply include the `id` in our fragment.
+-   Given that the fragment container component is subscribed to any changes in its own data, when the request completes, the component will automatically update and re-render with the latest data:
+-   If you want to know whether the request is in flight, in order to show a busy indicator or disable a UI control, you can use provide an `observer` to `fetchQuery`, and keep state in your component.
 
 ### Re-rendering with Different Data
 
-Often times you'll want to re-render your existing query or fragment components, but using *different* data than the one they were originally rendered with. This usually means fetching your existing queries or fragments with *different variables*.
+Often times you'll want to re-render your existing query or fragment components, but using _different_ data than the one they were originally rendered with. This usually means fetching your existing queries or fragments with _different variables_.
 
 Some examples of when you might want to do this:
 
-* You've rendered a comment, and after user interaction want to fetch and re-render the comment body with the text translated to a different language.
-* You've rendered a profile picture, and you want to fetch and re-render it with a different size or scale.
-* You've rendered a list of search results, and you want to fetch and re-render the list with a new search term upon user input.
+-   You've rendered a comment, and after user interaction want to fetch and re-render the comment body with the text translated to a different language.
+-   You've rendered a profile picture, and you want to fetch and re-render it with a different size or scale.
+-   You've rendered a list of search results, and you want to fetch and re-render the list with a new search term upon user input.
 
 #### Re-rendering queries with different data
 
-As mentioned in the [Queries](#queries) section, passing ***different query variables*** than the ones originally passed when using `useLazyLoadQuery` will cause the query to be fetched with the new variables, and re-render your component with the new data:
+As mentioned in the [Queries](#queries) section, passing **_different query variables_** than the ones originally passed when using `useLazyLoadQuery` will cause the query to be fetched with the new variables, and re-render your component with the new data:
 
 ```javascript
 import type {AppQuery} from 'AppQuery.graphql';
@@ -1845,9 +1880,9 @@ function App() {
 
 Let's distill what's going on here:
 
-* Calling `setVariables` and passing a new set of variables will re-render the component and cause the query to be fetched again ***with the newly provided variables***. In this case, we will fetch the `User` with id `'different-id'`, and render the results when they're available.
-* This will re-render your component and may cause it to suspend (as explained in ([Transitions And Updates That Suspend](#transitions-and-updates-that-suspend)) if it needs to send and wait for a network request. If `setVariables` causes the component to suspend, you'll need to make sure that there's a `Suspense` boundary wrapping this component from above, and/or that you are using [`useTransition`](https://reactjs.org/docs/concurrent-mode-patterns.html#transitions) with a Suspense config in order to show the appropriate pending or loading state.
-  * Note that since `setVariables` may cause the component to suspend, regardless of whether we're using a Suspense config to render a pending state, we should always use `startTransition` to schedule that update; any update that may cause a component to suspend should be scheduled using this pattern.
+-   Calling `setVariables` and passing a new set of variables will re-render the component and cause the query to be fetched again **_with the newly provided variables_**. In this case, we will fetch the `User` with id `'different-id'`, and render the results when they're available.
+-   This will re-render your component and may cause it to suspend (as explained in ([Transitions And Updates That Suspend](#transitions-and-updates-that-suspend)) if it needs to send and wait for a network request. If `setVariables` causes the component to suspend, you'll need to make sure that there's a `Suspense` boundary wrapping this component from above, and/or that you are using [`useTransition`](https://reactjs.org/docs/concurrent-mode-patterns.html#transitions) with a Suspense config in order to show the appropriate pending or loading state.
+    -   Note that since `setVariables` may cause the component to suspend, regardless of whether we're using a Suspense config to render a pending state, we should always use `startTransition` to schedule that update; any update that may cause a component to suspend should be scheduled using this pattern.
 
 You can also provide a different **`fetchPolicy`** when refetching the query in order to specify whether to use locally cached data (as we covered in [Reusing Cached Data for Render](#reusing-cached-data-for-render)):
 
@@ -1898,11 +1933,11 @@ function App() {
 }
 ```
 
-* In this case, we're keeping both the `fetchPolicy` and `variables` in component state in order to trigger a refetch both with different `variables` and a different `fetchPolicy`.
+-   In this case, we're keeping both the `fetchPolicy` and `variables` in component state in order to trigger a refetch both with different `variables` and a different `fetchPolicy`.
 
 #### Re-rendering Fragments with Different Data
 
-Sometimes, upon an event or user interaction, we'd like to render the *same* exact fragment that was originally rendered under the initial query, but with a different data. Conceptually, this means fetching and rendering the currently rendered fragment again, but under a new query with different variables; or in other words, *making the rendered fragment a new query root*. Remember that ***fragments can't be fetched by themselves: they need to be part of a query,*** so we can't just "fetch" the fragment again by itself.
+Sometimes, upon an event or user interaction, we'd like to render the _same_ exact fragment that was originally rendered under the initial query, but with a different data. Conceptually, this means fetching and rendering the currently rendered fragment again, but under a new query with different variables; or in other words, _making the rendered fragment a new query root_. Remember that **_fragments can't be fetched by themselves: they need to be part of a query,_** so we can't just "fetch" the fragment again by itself.
 
 To do so, you can use the **`useRefetchableFragment`** hook, in order to refetch a fragment under new query and variables, using the **`refetch`** function:
 
@@ -1952,24 +1987,24 @@ module.exports = CommentBody;
 
 Let's distill what's happening in this example:
 
-* `useRefetchableFragment` behaves the same way as a `useFragment` ([Fragments](#fragments)), but with a few additions:
-  * It expects a fragment that is annotated with the `@refetchable` directive. Note that  `@refetchable` directive can only be added to fragments that are "refetchable", that is, on fragments that are on `Viewer`, or on `Query`, or on a type that implements `Node` (i.e. a type that has an `id` field).
-  * It returns a **`refetch`** function, which is already Flow typed to expect the query variables that the generated query expects
-  * It takes to Flow type parameters: the type of the generated query (in our case  `CommentBodyRefetchQuery`), and a second type which can always be inferred, so you only need to pass underscore (`_`).
-* Calling `refetch` and passing a new set of variables will fetch the fragment again ***with the newly provided variables***. The variables you need to provide are a subset of the variables that the generated query expects; the generated query will require an `id`, if the type of the fragment has an `id` field, and any other variables that are transitively referenced in your fragment.
-  * In this case we're passing the current comment `id` and a new value for the `translationType` variable to fetch the translated comment body.
-* This will re-render your component and may cause it to suspend (as explained in [Transitions And Updates That Suspend](#transitions-and-updates-that-suspend)) if it needs to send and wait for a network request. If `refetch` causes the component to suspend, you'll need to make sure that there's a `Suspense` boundary wrapping this component from above, and/or that you are using [`useTransition`](https://reactjs.org/docs/concurrent-mode-patterns.html#transitions) with a Suspense config in order to show the appropriate pending state.
-  * Note that since `refetch` may cause the component to suspend, regardless of whether we're using a Suspense config to render a pending state, we should always use `startTransition` to schedule that update; any update that may cause a component to suspend should be scheduled using this pattern.
+-   `useRefetchableFragment` behaves the same way as a `useFragment` ([Fragments](#fragments)), but with a few additions:
+    -   It expects a fragment that is annotated with the `@refetchable` directive. Note that  `@refetchable` directive can only be added to fragments that are "refetchable", that is, on fragments that are on `Viewer`, or on `Query`, or on a type that implements `Node` (i.e. a type that has an `id` field).
+    -   It returns a **`refetch`** function, which is already Flow-typed to expect the query variables that the generated query expects
+    -   It takes to Flow type parameters: the type of the generated query (in our case  `CommentBodyRefetchQuery`), and a second type which can always be inferred, so you only need to pass underscore (`_`).
+-   Calling `refetch` and passing a new set of variables will fetch the fragment again **_with the newly provided variables_**. The variables you need to provide are a subset of the variables that the generated query expects; the generated query will require an `id`, if the type of the fragment has an `id` field, and any other variables that are transitively referenced in your fragment.
+    -   In this case we're passing the current comment `id` and a new value for the `translationType` variable to fetch the translated comment body.
+-   This will re-render your component and may cause it to suspend (as explained in [Transitions And Updates That Suspend](#transitions-and-updates-that-suspend)) if it needs to send and wait for a network request. If `refetch` causes the component to suspend, you'll need to make sure that there's a `Suspense` boundary wrapping this component from above, and/or that you are using [`useTransition`](https://reactjs.org/docs/concurrent-mode-patterns.html#transitions) with a Suspense config in order to show the appropriate pending state.
+    -   Note that since `refetch` may cause the component to suspend, regardless of whether we're using a Suspense config to render a pending state, we should always use `startTransition` to schedule that update; any update that may cause a component to suspend should be scheduled using this pattern.
 
 ## Rendering List Data and Pagination
 
-There are several scenarios in which we'll want to query a list of data from the GraphQL server. Often times we won't want to query the *entire* set of data up front, but rather discrete sub-parts of the list, incrementally, usually in response to user input or other events. Querying a list of data in discrete parts is usually known as [Pagination](https://graphql.github.io/learn/pagination/).
+There are several scenarios in which we'll want to query a list of data from the GraphQL server. Often times we won't want to query the _entire_ set of data up front, but rather discrete sub-parts of the list, incrementally, usually in response to user input or other events. Querying a list of data in discrete parts is usually known as [Pagination](https://graphql.org/learn/pagination/).
 
 ### Connections
 
-Specifically in Relay, we do this via GraphQL fields known as [Connections](https://graphql.github.io/learn/pagination/#complete-connection-model). Connections are GraphQL fields that take a set of arguments to specify which "slice" of the list to query, and include in their response both the "slice" of the list that was requested, as well as information to indicate if there is more data available in the list and how to query it; this additional information can be used in order to perform pagination by querying for more "slices" or pages on the list.
+Specifically in Relay, we do this via GraphQL fields known as [Connections](https://graphql.org/learn/pagination/#complete-connection-model). Connections are GraphQL fields that take a set of arguments to specify which "slice" of the list to query, and include in their response both the "slice" of the list that was requested, as well as information to indicate if there is more data available in the list and how to query it; this additional information can be used in order to perform pagination by querying for more "slices" or pages on the list.
 
-More specifically, we perform *cursor-based pagination,* in which the input used to query for "slices" of the list is a `cursor` and a `count`. Cursors are essentially opaque tokens that serve as markers or pointers to a position in the list. If you're curious to learn more about the details of cursor-based pagination and connections, check out [this spec](https://relay.dev/graphql/connections.htm).
+More specifically, we perform _cursor-based pagination,_ in which the input used to query for "slices" of the list is a `cursor` and a `count`. Cursors are essentially opaque tokens that serve as markers or pointers to a position in the list. If you're curious to learn more about the details of cursor-based pagination and connections, check out [this spec](https://relay.dev/graphql/connections.htm).
 
 ### Rendering Connections
 
@@ -1993,9 +2028,9 @@ const userFragment = graphql`
 `;
 ```
 
-* In the example above, we're querying for the `friends` field, which is a connection; in other words, it adheres to the connection spec. Specifically, we can query the `edges` and `node`s in the connection; the `edges` usually contain information about the relationship between the entities, while the `node`s are the actual entities at the other end of the relationship; in this case, the `node`s are objects of type `User` representing the user's friends.
-* In order to indicate to Relay that we want to perform pagination over this connection, we need to mark the field with the `@connection` directive. We must also provide a *static* unique identifier for this connection, known as the **`key`**. We recommend the following naming convention for the connection key: `<fragment_name>_<field_name>`.
-* We will go into more detail later as to why it is necessary to mark the field as a `@connection` and give it a unique `key` in our [Adding and Removing Items From a Connection](#adding-and-removing-items-from-a-connection) section.
+-   In the example above, we're querying for the `friends` field, which is a connection; in other words, it adheres to the connection spec. Specifically, we can query the `edges` and `node`s in the connection; the `edges` usually contain information about the relationship between the entities, while the `node`s are the actual entities at the other end of the relationship; in this case, the `node`s are objects of type `User` representing the user's friends.
+-   In order to indicate to Relay that we want to perform pagination over this connection, we need to mark the field with the `@connection` directive. We must also provide a _static_ unique identifier for this connection, known as the **`key`**. We recommend the following naming convention for the connection key: `<fragment_name>_<field_name>`.
+-   We will go into more detail later as to why it is necessary to mark the field as a `@connection` and give it a unique `key` in our [Adding and Removing Items From a Connection](#adding-and-removing-items-from-a-connection) section.
 
 In order to render this fragment which queries for a connection, we can use the **`usePaginationFragment`** Hook:
 
@@ -2035,15 +2070,17 @@ function FriendsListComponent(props: Props) {
     <>
       <h1>Friends of {data.name}:</h1>
       <SuspenseList revealOrder="forwards">
-        {/* Extract each friend from the resulting data */}
-        {(data.friends?.edges ?? []).map(edge => {
-          const node = edge.node;
-          return (
-            <Suspense fallback={<Glimmer />}>
-              <FriendComponent user={node} />
-            </Suspense>
-          );
-        })}
+        {
+          // Extract each friend from the resulting data
+          (data.friends?.edges ?? []).map(edge => {
+            const node = edge.node;
+            return (
+              <Suspense fallback={<Glimmer />}>
+                <FriendComponent user={node} />
+              </Suspense>
+            );
+          })
+        }
       </SuspenseList>
     </>
   );
@@ -2052,11 +2089,11 @@ function FriendsListComponent(props: Props) {
 module.exports = FriendsListComponent;
 ```
 
-* `usePaginationFragment` behaves the same way as a `useFragment` ([Fragments](#fragments)), so our list of friends is available under **`data.friends.edges.node`**, as declared by the fragment. However, it also has a few additions:
-  * It expects a fragment that is a connection field annotated with the `@connection` directive
-  * It expects a fragment that is annotated with the `@refetchable` directive. Note that  `@refetchable` directive can only be added to fragments that are "refetchable", that is, on fragments that are on `Viewer`, or on `Query`, or on a type that implements `Node` (i.e. a type that has an `id` field).
-  * It takes two Flow type parameters: the type of the generated query (in our case  `FriendsListPaginationQuery`), and a second type which can always be inferred, so you only need to pass underscore (`_`).
-* Note that we're using `[SuspenseList](https://reactjs.org/docs/concurrent-mode-patterns.html#suspenselist)` to render the items: this will ensure that the list is rendered in order from top to bottom even if individual items in the list suspend and resolve at different times; that is, it will prevent items from rendering out of order, which prevents content from jumping around after it has been rendered.
+-   `usePaginationFragment` behaves the same way as a `useFragment` ([Fragments](#fragments)), so our list of friends is available under **`data.friends.edges.node`**, as declared by the fragment. However, it also has a few additions:
+    -   It expects a fragment that is a connection field annotated with the `@connection` directive
+    -   It expects a fragment that is annotated with the `@refetchable` directive. Note that  `@refetchable` directive can only be added to fragments that are "refetchable", that is, on fragments that are on `Viewer`, or on `Query`, or on a type that implements `Node` (i.e. a type that has an `id` field).
+    -   It takes two Flow type parameters: the type of the generated query (in our case  `FriendsListPaginationQuery`), and a second type which can always be inferred, so you only need to pass underscore (`_`).
+-   Note that we're using `[SuspenseList](https://reactjs.org/docs/concurrent-mode-patterns.html#suspenselist)` to render the items: this will ensure that the list is rendered in order from top to bottom even if individual items in the list suspend and resolve at different times; that is, it will prevent items from rendering out of order, which prevents content from jumping around after it has been rendered.
 
 ### Pagination
 
@@ -2127,10 +2164,10 @@ module.exports = FriendsListComponent;
 
 Let's distill what's happening here:
 
-* **`loadNext`** takes a count to specify how many more items in the connection to fetch from the server. In this case, when `loadNext` is called we'll fetch the next 10 friends in the friends list of our currently rendered `User`.
-* When the request to fetch the next items completes, the connection will be automatically updated and the component will re-render with the latest items in the connection. In our case, this means that the `friends` field will always contain *all* of the friends that we've fetched so far. By default, ***Relay will automatically append new items to the connection upon completing a pagination request,*** and will make them available to your fragment component. If you need a different behavior, check out our [Advanced Pagination Use Cases](#advanced-pagination-use-cases) section.
-* `loadNext` may cause the component or new children components to suspend (as explained in [Transitions And Updates That Suspend](#transitions-and-updates-that-suspend)). This means that you'll need to make sure that there's a `Suspense` boundary wrapping this component from above, and/or that you are using [`useTransition`](https://reactjs.org/docs/concurrent-mode-patterns.html#transitions) with a Suspense config in order to show the appropriate pending or loading state.
-  * Note that since `loadNext` may cause the component to suspend, regardless of whether we're using a Suspense config to render a pending state, we should always use `startTransition` to schedule that update; any update that may cause a component to suspend should be scheduled using this pattern.
+-   **`loadNext`** takes a count to specify how many more items in the connection to fetch from the server. In this case, when `loadNext` is called we'll fetch the next 10 friends in the friends list of our currently rendered `User`.
+-   When the request to fetch the next items completes, the connection will be automatically updated and the component will re-render with the latest items in the connection. In our case, this means that the `friends` field will always contain _all_ of the friends that we've fetched so far. By default, **_Relay will automatically append new items to the connection upon completing a pagination request,_** and will make them available to your fragment component. If you need a different behavior, check out our [Advanced Pagination Use Cases](#advanced-pagination-use-cases) section.
+-   `loadNext` may cause the component or new children components to suspend (as explained in [Transitions And Updates That Suspend](#transitions-and-updates-that-suspend)). This means that you'll need to make sure that there's a `Suspense` boundary wrapping this component from above, and/or that you are using [`useTransition`](https://reactjs.org/docs/concurrent-mode-patterns.html#transitions) with a Suspense config in order to show the appropriate pending or loading state.
+    -   Note that since `loadNext` may cause the component to suspend, regardless of whether we're using a Suspense config to render a pending state, we should always use `startTransition` to schedule that update; any update that may cause a component to suspend should be scheduled using this pattern.
 
 Often, you will also want to access information about whether there are more items available to load. To do this, you can use the `hasNext` value, also available from `usePaginationFragment`:
 
@@ -2186,17 +2223,18 @@ function FriendsListComponent(props: Props) {
         })}
       </SuspenseList>
 
-      {/* Only render button if there are more friends to load in the list */}
-      {hasNext ? (
-        <Button
-          onClick={() => {
-            startTransition(() => {
-              loadNext(10)
-            });
-          }}>
-          Load more friends
-        </Button>
-      ) : null}
+      {
+        // Only render button if there are more friends to load in the list
+        hasNext ? (
+          <Button
+            onClick={() => {
+              startTransition(() => {
+                loadNext(10)
+              });
+            }}>
+            Load more friends
+          </Button>
+        ) : null}
     </>
   );
 }
@@ -2204,7 +2242,7 @@ function FriendsListComponent(props: Props) {
 module.exports = FriendsListComponent;
 ```
 
-* `hasNext` is a boolean which indicates if the connection has more items available. This information can be useful for determining if different UI controls should be rendered. In our specific case, we only render the `Button` if there are more friends available in the connection .
+-   `hasNext` is a boolean which indicates if the connection has more items available. This information can be useful for determining if different UI controls should be rendered. In our specific case, we only render the `Button` if there are more friends available in the connection.
 
 ### Blocking ("all-at-once") Pagination
 
@@ -2212,12 +2250,12 @@ So far when we've talked about pagination, we haven't specified how we want pagi
 
 Usually, we've identified that this will fall under one of these 2 categories:
 
-* ***"One by one"*** (or "stream-y") pagination: Regardless of whether we're actually streaming at the data layer, conceptually this type of pagination is where we want to render items one by one, in order, as they become available. In this use case, we usually want to show some sort of loading placeholder for the new items (either in aggregate or for each individual item) as they are loaded in. This should not exclude the possibility of *also* having a *separate* [pending or busy state](https://reactjs.org/docs/concurrent-mode-patterns.html#the-three-steps) (like a spinner next to the button that started the action). This is generally the default pagination behavior that we'll want, which applies to most lists and feeds.
-* ***"All at once"*** pagination: This type of pagination is where we want to load and render the entire next page of items *all at once,* in a ***single paint***; that is, we want to render the next page of items only when *all* of the items are ready (including when individual items suspend). Unlike the previous case, in this case, we do not want to show individual placeholders for the new items in the list, but instead we want to immediately show a [pending or busy state](https://reactjs.org/docs/concurrent-mode-patterns.html#the-three-steps), such as a spinner next (or close) to the element that started the action (like a button); this pending spinner should continue "spinning" until the entire next page of items are *fully* loaded and rendered. The best example of this type of use case is pagination when loading new comments in a list of comments.
+-   **_"One by one"_** (or "stream-y") pagination: Regardless of whether we're actually streaming at the data layer, conceptually this type of pagination is where we want to render items one by one, in order, as they become available. In this use case, we usually want to show some sort of loading placeholder for the new items (either in aggregate or for each individual item) as they are loaded in. This should not exclude the possibility of _also_ having a _separate_ [pending or busy state](https://reactjs.org/docs/concurrent-mode-patterns.html#the-three-steps) (like a spinner next to the button that started the action). This is generally the default pagination behavior that we'll want, which applies to most lists and feeds.
+-   **_"All at once"_** pagination: This type of pagination is where we want to load and render the entire next page of items _all at once,_ in a **_single paint_**; that is, we want to render the next page of items only when _all_ of the items are ready (including when individual items suspend). Unlike the previous case, in this case, we do not want to show individual placeholders for the new items in the list, but instead we want to immediately show a [pending or busy state](https://reactjs.org/docs/concurrent-mode-patterns.html#the-three-steps), such as a spinner next (or close) to the element that started the action (like a button); this pending spinner should continue "spinning" until the entire next page of items are _fully_ loaded and rendered. The best example of this type of use case is pagination when loading new comments in a list of comments.
 
-So far in the previous pagination sections, we've implicitly been referring to the ***"one by one"*** pagination case when describe using `usePaginationFragment` + `SuspenseList` to render lists and show loading placeholders.
+So far in the previous pagination sections, we've implicitly been referring to the **_"one by one"_** pagination case when describe using `usePaginationFragment` + `SuspenseList` to render lists and show loading placeholders.
 
-However, if we want to implement ***"all at once"*** pagination, we need to use a different API, **`useBlockingPaginationFragment`**:
+However, if we want to implement **_"all at once"_** pagination, we need to use a different API, **`useBlockingPaginationFragment`**:
 
 ```javascript
 import type {FriendsListPaginationQuery} from 'FriendsListPaginationQuery.graphql';
@@ -2281,12 +2319,14 @@ function FriendsListComponent(props: Props) {
         })}
       </SuspenseList>
 
-      {/* Render a Spinner next to the button immediately, while transition is pending */}
-      {isPending ? <Spinner /> : null}
+      {
+        // Render a Spinner next to the button immediately, while transition is pending
+        isPending ? <Spinner /> : null
+      }
 
       {hasNext ? (
         <Button
-          {/* Disbale the button immediately, while transition is pending */}
+          // Disable the button immediately, while transition is pending
           disabled={isPending}
           onClick={() => {
             startTransition(() => {
@@ -2305,9 +2345,9 @@ module.exports = FriendsListComponent;
 
 Let's distill what's going on here:
 
-* `loadNext` will cause the component to suspend, so we need to wrap it in `startTransition`, as explained in [Transitions And Updates That Suspend](#transitions-and-updates-that-suspend)).
-* Also similarly to the case described in [Transitions And Updates That Suspend](#transitions-and-updates-that-suspend), we're passing the **`SUSPENSE_CONFIG`** config object to `useTransition` in order to configure how we want this transition to behave. Specifically, we can pass a **`timeoutMs`** property in the config, which will dictate how long React should wait before transitioning to the *"loading"* state (i.e. transition to showing the loading placeholders for the new items), in favor of showing a *"pending"* state controlled locally by the component during that time.
-* `useTransition` will also return a **`isPending`** boolean value, which captures the pending state. That is, this value will become `true` ***immediately*** when the pagination transition starts, and will become `false` when the transition reaches the fully *"completed"* stage, that is, when all the new items have been *fully* loaded, including their own asynchronous dependencies that would cause them to suspend. We can use the `isPending` value to show immediate post to the user action, in this case by rendering a spinner next to the button and disabling the button. In this case, the spinner will be rendered and the button will be disabled until *all* the new items in the list have been fully loaded and rendered.
+-   `loadNext` will cause the component to suspend, so we need to wrap it in `startTransition`, as explained in [Transitions And Updates That Suspend](#transitions-and-updates-that-suspend)).
+-   Also similarly to the case described in [Transitions And Updates That Suspend](#transitions-and-updates-that-suspend), we're passing the **`SUSPENSE_CONFIG`** config object to `useTransition` in order to configure how we want this transition to behave. Specifically, we can pass a **`timeoutMs`** property in the config, which will dictate how long React should wait before transitioning to the _"loading"_ state (i.e. transition to showing the loading placeholders for the new items), in favor of showing a _"pending"_ state controlled locally by the component during that time.
+-   `useTransition` will also return a **`isPending`** boolean value, which captures the pending state. That is, this value will become `true` **_immediately_** when the pagination transition starts, and will become `false` when the transition reaches the fully _"completed"_ stage, that is, when all the new items have been _fully_ loaded, including their own asynchronous dependencies that would cause them to suspend. We can use the `isPending` value to show immediate post to the user action, in this case by rendering a spinner next to the button and disabling the button. In this case, the spinner will be rendered and the button will be disabled until _all_ the new items in the list have been fully loaded and rendered.
 
 ### Using and Changing Filters
 
@@ -2315,9 +2355,9 @@ Often times when querying for a list of data, you can provide different values i
 
 Some examples of this are:
 
-* Building a search typeahead, where the list of results is a list filtered by the search term entered by the user.
-* Changing the ordering mode of the list comments currently displayed for a post, which could produce a completely different set of comments from the server.
-* Changing the way News Feed is ranked and sorted.
+-   Building a search typeahead, where the list of results is a list filtered by the search term entered by the user.
+-   Changing the ordering mode of the list comments currently displayed for a post, which could produce a completely different set of comments from the server.
+-   Changing the way News Feed is ranked and sorted.
 
 Specifically, in GraphQL, connection fields can accept arguments to sort or filter the set of queried results:
 
@@ -2414,9 +2454,9 @@ function FriendsListComponent(props: Props) {
 }
 ```
 
-* Note that calling `loadNext` will use the ***original*** **`order_by`** and **`search_term`** values used for the initial query. During pagination, these value won't (*and shouldn't*) change.
+-   Note that calling `loadNext` will use the **_original_** **`order_by`** and **`search_term`** values used for the initial query. During pagination, these value won't (_and shouldn't_) change.
 
-If we want to refetch the connection with *different* variables, we can use the **`refetch`** function provided by `usePaginationFragment`, similarly to how we do so when [Re-rendering Fragments With Different Data](#re-rendering-fragments-with-different-data):
+If we want to refetch the connection with _different_ variables, we can use the **`refetch`** function provided by `usePaginationFragment`, similarly to how we do so when [Re-rendering Fragments With Different Data](#re-rendering-fragments-with-different-data):
 
 ```javascript
 /**
@@ -2471,8 +2511,8 @@ function FriendsListComponent(props: Props) {
     <>
       <h1>Friends of {data.name}:</h1>
 
-      {/* When the button is clicked, refetch the connection but sorted differently */}
       <Button
+        // When the button is clicked, refetch the connection but sorted differently
         onClick={() =>
           startTransition(() => {
             refetch({first: 10, orderBy: 'DATE_ADDED'});
@@ -2490,11 +2530,11 @@ function FriendsListComponent(props: Props) {
 
 Let's distill what's going on here:
 
-* Calling **`refetch`** and passing a new set of variables will fetch the fragment again ***with the newly-provided variables***. The variables you need to provide are a subset of the variables that the generated query expects; the generated query will require an `id`, if the type of the fragment has an `id` field, and any other variables that are transitively referenced in your fragment.
-  * In our case, we need to pass the count we want to fetch as the `first` variable, and we can pass different values for our filters, like `orderBy` or `searchTerm`.
-* This will re-render your component and may cause it to suspend (as explained in [Transitions And Updates That Suspend](#transitions-and-updates-that-suspend)) if it needs to send and wait for a network request. If `refetch` causes the component to suspend, you'll need to make sure that there's a `Suspense` boundary wrapping this component from above, and/or that you are using [`useTransition`](https://reactjs.org/docs/concurrent-mode-patterns.html#transitions) with a Suspense config in order to show the appropriate pending or loading state.
-  * Note that since `refetch` may cause the component to suspend, regardless of whether we're using a Suspense config to render a pending state, we should always use `startTransition` to schedule that update; any update that may cause a component to suspend should be scheduled using this pattern.
-* Conceptually, when we call refetch, we're fetching the connection *from scratch*. In other words, we're fetching it again from the *beginning* and ***"resetting"*** our pagination state. For example, if we fetch the connection with a different `search_term`, our pagination information for the previous `search_term` no longer makes sense, since we're essentially paginating over a new list of items.
+-   Calling **`refetch`** and passing a new set of variables will fetch the fragment again **_with the newly-provided variables_**. The variables you need to provide are a subset of the variables that the generated query expects; the generated query will require an `id`, if the type of the fragment has an `id` field, and any other variables that are transitively referenced in your fragment.
+    -   In our case, we need to pass the count we want to fetch as the `first` variable, and we can pass different values for our filters, like `orderBy` or `searchTerm`.
+-   This will re-render your component and may cause it to suspend (as explained in [Transitions And Updates That Suspend](#transitions-and-updates-that-suspend)) if it needs to send and wait for a network request. If `refetch` causes the component to suspend, you'll need to make sure that there's a `Suspense` boundary wrapping this component from above, and/or that you are using [`useTransition`](https://reactjs.org/docs/concurrent-mode-patterns.html#transitions) with a Suspense config in order to show the appropriate pending or loading state.
+    -   Note that since `refetch` may cause the component to suspend, regardless of whether we're using a Suspense config to render a pending state, we should always use `startTransition` to schedule that update; any update that may cause a component to suspend should be scheduled using this pattern.
+-   Conceptually, when we call refetch, we're fetching the connection _from scratch_. In other words, we're fetching it again from the _beginning_ and **_"resetting"_** our pagination state. For example, if we fetch the connection with a different `search_term`, our pagination information for the previous `search_term` no longer makes sense, since we're essentially paginating over a new list of items.
 
 ### Adding and Removing Items From a Connection
 
@@ -2504,7 +2544,7 @@ As explained in our [Updating Data](#updating-data) section, Relay holds a local
 
 ### Connection Records
 
-In Relay, connection fields that are marked with the `@connection` directive are stored as special records in the store, and they hold and accumulate *all* of the items that have been fetched for the connection so far. In order to add or remove items from a connection, we need to access the connection record using the connection ***`key`***, which was provided when declaring a `@connection`; specifically, this allows us to access a connection inside an `updater` function using the `ConnectionHandler` APIs.
+In Relay, connection fields that are marked with the `@connection` directive are stored as special records in the store, and they hold and accumulate _all_ of the items that have been fetched for the connection so far. In order to add or remove items from a connection, we need to access the connection record using the connection **_`key`_**, which was provided when declaring a `@connection`; specifically, this allows us to access a connection inside an `updater` function using the `ConnectionHandler` APIs.
 
 For example, given the following fragment that declares a `@connection`:
 
@@ -2540,7 +2580,7 @@ function updater(store: RecordSourceSelectorProxy) {
 }
 ```
 
-### Adding Edges
+### Adding edges
 
 Once we have a connection record, we also need a record for the new edge that we want to add to the connection. Usually, mutation or subscription payloads will contain the new edge that was added; if not, you can also construct a new edge from scratch.
 
@@ -2565,7 +2605,7 @@ const createCommentMutation = graphql`
 `;
 ```
 
-* Note that we also query for the **`cursor`** for the new edge; this isn't strictly necessary, but it is information that will be required if we need to perform pagination based on that `cursor`.
+-   Note that we also query for the **`cursor`** for the new edge; this isn't strictly necessary, but it is information that will be required if we need to perform pagination based on that `cursor`.
 
 Inside an `updater`, we can access the edge inside the mutation response using Relay store APIs:
 
@@ -2596,8 +2636,8 @@ function updater(store: RecordSourceSelectorProxy) {
 }
 ```
 
-* The mutation payload is available as a root field on that store, which can be read using the `store.getRootField` API. In our case, we're reading `comment_create`, which is the root field in the response.
-* Note that we need to construct the new edge from the edge received from the server using **`ConnectionHandler.buildConnectionEdge`** before we can add it to the connection.
+-   The mutation payload is available as a root field on that store, which can be read using the `store.getRootField` API. In our case, we're reading `comment_create`, which is the root field in the response.
+-   Note that we need to construct the new edge from the edge received from the server using **`ConnectionHandler.buildConnectionEdge`** before we can add it to the connection.
 
 If you need to create a new edge from scratch, you can use **`ConnectionHandler.createEdge`**:
 
@@ -2655,9 +2695,9 @@ function updater(store: RecordSourceSelectorProxy) {
 }
 ```
 
-* Note that these APIs will *mutate* the connection in-place.
+-   Note that these APIs will _mutate_ the connection in-place.
 
-### Removing Edges
+### Removing edges
 
 `ConnectionHandler` provides a similar API to remove an edge from a connection, via **`ConnectionHandler.deleteNode`**:
 
@@ -2679,17 +2719,18 @@ function updater(store: RecordSourceSelectorProxy) {
 }
 ```
 
-* In this case `ConnectionHandler.deleteNode` will remove an edge given a ***`node`** ID*. This means it will look up which edge in the connection contains a node with the provided ID, and remove that edge.
-* Note that this API will *mutate* the connection in-place.
+-   In this case `ConnectionHandler.deleteNode` will remove an edge given a **\*`node`** ID\*. This means it will look up which edge in the connection contains a node with the provided ID, and remove that edge.
+-   Note that this API will _mutate_ the connection in-place.
 
-> **Remember:** When performing any of the operations described here to mutate a connection, any fragment or query components that are rendering the affected connection will be notified and re-render with the latest version of the connection.
-
+<blockquote>
+<strong>Remember:</strong> When performing any of the operations described here to mutate a connection, any fragment or query components that are rendering the affected connection will be notified and re-render with the latest version of the connection.
+</blockquote>
 
 You can also check out our complete Relay Store APIs [here](https://relay.dev/docs/en/relay-store.html)
 
-### Connection Identity With Filters
+### Connection identity with filters
 
-In our previous examples, our connections didn't take any arguments as filters. If you declared a connection that takes arguments as filters, the values used for the filters will be part of the connection identifier. In other words, ***each of the values passed in as connection filters will be used to identify the connection in the Relay store***, however, ***excluding*** pagination arguments; i.e. excluding:  `first:`, `last:`, `before:`, and `after:`.
+In our previous examples, our connections didn't take any arguments as filters. If you declared a connection that takes arguments as filters, the values used for the filters will be part of the connection identifier. In other words, **_each of the values passed in as connection filters will be used to identify the connection in the Relay store_**, however, **_excluding_** pagination arguments; i.e. excluding:  `first:`, `last:`, `before:`, and `after:`.
 
 For example, let's say the `comments` field took the following arguments, which we pass in as GraphQL [Variables](#variables):
 
@@ -2743,9 +2784,9 @@ function updater(store: RecordSourceSelectorProxy) {
 }
 ```
 
-This implies that by default, ***each combination of values used for filters will produce a different record for the connection.***
+This implies that by default, **_each combination of values used for filters will produce a different record for the connection._**
 
-When making updates to a connection, you will need to make sure to update all of the relevant records affected by a change. For example, if we were to add a new comment to our example connection, we'd need to make sure ***not*** to add the comment to the `FRIENDS_ONLY` connection, if the new comment wasn't made by a friend of the user:
+When making updates to a connection, you will need to make sure to update all of the relevant records affected by a change. For example, if we were to add a new comment to our example connection, we'd need to make sure **_not_** to add the comment to the `FRIENDS_ONLY` connection, if the new comment wasn't made by a friend of the user:
 
 ```javascript
 const {ConnectionHandler} = require('react-relay');
@@ -2792,9 +2833,9 @@ _**Managing connections with many filters:**_
 
 As you can see, just adding a few filters to a connection can make the complexity and number of connection records that need to be managed explode. In order to more easily manage this, Relay provides 2 strategies:
 
-1) Specify exactly *which* filters should be used as connection identifiers.
+1) Specify exactly _which_ filters should be used as connection identifiers.
 
-By default, ***all*** **non-pagination** filters will be used as part of the connection identifier. However, when declaring a `@connection`, you can specify the exact set of filters to use for connection identity:
+By default, **_all_** **non-pagination** filters will be used as part of the connection identifier. However, when declaring a `@connection`, you can specify the exact set of filters to use for connection identity:
 
 ```javascript
 const {graphql} = require('react-relay');
@@ -2822,13 +2863,15 @@ const storyFragment = graphql`
 `;
 ```
 
-* By specifying `filters` when declaring the `@connection`, we're indicating to Relay the exact set of filter values that should be used as part of connection identity. In this case, we're excluding `language`, which means that only values for `order_by` and `filter_mode` will affect connection identity and thus produce new connection records.
-* Conceptually, this means that we're specifying which arguments affect the output of the connection from the server, or in other words, which arguments are *actually* ***filters***. If one of the connection arguments doesn't actually change the set of items that are returned from the server, or their ordering, then it isn't really a filter on the connection, and we don't need to identify the connection differently when that value changes. In our example, changing the `language` of the comments we request doesn't change the set of comments that are returned by the connection, so it is safe to exclude it from `filters`.
-* This can also be useful if we know that any of the connection arguments will never change in our app, in which case it would also be safe to exclude from `filters`.
+-   By specifying `filters` when declaring the `@connection`, we're indicating to Relay the exact set of filter values that should be used as part of connection identity. In this case, we're excluding `language`, which means that only values for `order_by` and `filter_mode` will affect connection identity and thus produce new connection records.
+-   Conceptually, this means that we're specifying which arguments affect the output of the connection from the server, or in other words, which arguments are _actually_ **_filters_**. If one of the connection arguments doesn't actually change the set of items that are returned from the server, or their ordering, then it isn't really a filter on the connection, and we don't need to identify the connection differently when that value changes. In our example, changing the `language` of the comments we request doesn't change the set of comments that are returned by the connection, so it is safe to exclude it from `filters`.
+-   This can also be useful if we know that any of the connection arguments will never change in our app, in which case it would also be safe to exclude from `filters`.
 
 2) An easier API alternative to manage multiple connections with multiple filter values is still pending
 
-> **TODO**
+<blockquote>
+<strong>TODO</strong>
+</blockquote>
 
 ### Advanced Pagination Use Cases
 
@@ -2905,7 +2948,7 @@ However, we recommend trying to keep a single connection per component, to keep 
 
 #### Bi-directional Pagination
 
-In the [Pagination](#pagination) section we covered how to use `usePaginationFragment` to paginate in a single *"forward"* direction. However, connections also allow paginating in the opposite *"backward"* direction. The meaning of *"forward"* and *"backward"* directions will depend on how the items in the connection are sorted, for example  *"forward"* could mean more recent, and *"backward"* could mean less recent.
+In the [Pagination](#pagination) section we covered how to use `usePaginationFragment` to paginate in a single _"forward"_ direction. However, connections also allow paginating in the opposite _"backward"_ direction. The meaning of _"forward"_ and _"backward"_ directions will depend on how the items in the connection are sorted, for example  _"forward"_ could mean more recent, and _"backward"_ could mean less recent.
 
 Regardless of the semantic meaning of the direction, Relay also provides the same APIs to paginate in the opposite direction using **`usePaginationFragment`**, as long  as the **`before`** and **`last`** connection arguments are also used along with `after` and `first`:
 
@@ -2964,41 +3007,50 @@ function FriendsListComponent(props: Props) {
         </Button>
       ) : null}
 
-      {/* Forward pagination controls can go simultaneously here */}
     </>
+    // Forward pagination controls can also be included
   );
 }
 
+
 ```
 
-* The APIs for both *"forward"* and *"backward"* are exactly the same, they're only named differently. When paginating forward, then the  `after` and `first` connection arguments will be used, when paginating backward, the `before` and `last` connection arguments will be used.
-* Note that the primitives for both *"forward"* and *"backward"* pagination are exposed from a single use of `usePaginationFragment` call, so both *"forward"* and *"backward"* pagination can be performed simultaneously in the same component.
+-   The APIs for both _"forward"_ and _"backward"_ are exactly the same, they're only named differently. When paginating forward, then the  `after` and `first` connection arguments will be used, when paginating backward, the `before` and `last` connection arguments will be used.
+-   Note that the primitives for both _"forward"_ and _"backward"_ pagination are exposed from a single use of `usePaginationFragment` call, so both _"forward"_ and _"backward"_ pagination can be performed simultaneously in the same component.
 
 #### Custom Connection State
 
-By default, when using `usePaginationFragment` and `@connection`, Relay will *append* new pages of items to the connection when paginating *"forward",* and *prepend* new pages of items when paginating *"backward"*. This means that your component will always render the ***full*** connection, with *all* of the items that have been accumulated so far via pagination, and/or items that have been added or removed via mutations or subscriptions.
+By default, when using `usePaginationFragment` and `@connection`, Relay will _append_ new pages of items to the connection when paginating _"forward",_ and _prepend_ new pages of items when paginating _"backward"_. This means that your component will always render the **_full_** connection, with _all_ of the items that have been accumulated so far via pagination, and/or items that have been added or removed via mutations or subscriptions.
 
 However, it is possible that you'd need different behavior for how to merge and accumulate pagination results (or other updates to the connection), and/or derive local component state from changes to the connection. Some examples of this might be:
 
-* Keeping track of different *visible* slices or windows of the connection.
-* Visually separating each *page* of items. This requires knowledge of the exact set of items inside each page that has been fetched.
-* Displaying different ends of the same connection simultaneously, while keeping track of the "gaps" between them, and being able to merge results when preforming pagination between the gaps. For example, imagine rendering a list of comments where the oldest comments are displayed at the top, then a "gap" that can be interacted with to paginate, and then a section at the bottom which shows the most recent comments that have been added by the user or by real-time subscriptions.
+-   Keeping track of different _visible_ slices or windows of the connection.
+-   Visually separating each _page_ of items. This requires knowledge of the exact set of items inside each page that has been fetched.
+-   Displaying different ends of the same connection simultaneously, while keeping track of the "gaps" between them, and being able to merge results when preforming pagination between the gaps. For example, imagine rendering a list of comments where the oldest comments are displayed at the top, then a "gap" that can be interacted with to paginate, and then a section at the bottom which shows the most recent comments that have been added by the user or by real-time subscriptions.
 
 To address these more complex use cases, Relay is still working on a solution:
 
-> **TODO**
+<blockquote>
+<strong>TODO</strong>
+</blockquote>
 
 #### Refreshing connections
 
-> **TODO**
+<blockquote>
+<strong>TODO</strong>
+</blockquote>
 
 #### Prefetching Pages of a Connection
 
-> **TODO**
+<blockquote>
+<strong>TODO</strong>
+</blockquote>
 
 #### Rendering One Page of Items at a Time
 
-> **TODO**
+<blockquote>
+<strong>TODO</strong>
+</blockquote>
 
 ## Advanced Data Fetching
 
@@ -3006,28 +3058,34 @@ To address these more complex use cases, Relay is still working on a solution:
 
 #### Preloading Data for Initial Load (Server Preloading)
 
-> OSS TODO
+<blockquote>
+OSS TODO
+</blockquote>
 
 #### Preloading Data for Transitions, in Parallel With Code (Client Preloading)
 
 The way navigations or transitions into different pages work by default is the following:
 
-* *first*, we load the code necessary to render that new page, since that will usually correspond to a separate JS bundle.
-* *then, once the code for the new page is loaded, we can start rendering it, and only at that point when we start rendering the page do we send a network request to fetch the data that the page needs, for example by using `useLazyLoadQuery` ([Queries](#queries)).
+-   _first_, we load the code necessary to render that new page, since that will usually correspond to a separate JS bundle.
+-   \*then, once the code for the new page is loaded, we can start rendering it, and only at that point when we start rendering the page do we send a network request to fetch the data that the page needs, for example by using `useLazyLoadQuery` ([Queries](#queries)).
 
-This not only applies to transitions to other pages, but also for displaying elements such as dialogs, menus, popovers, or other elements that are hidden behind some user interaction, and which have both code *and* data dependencies.
+This not only applies to transitions to other pages, but also for displaying elements such as dialogs, menus, popovers, or other elements that are hidden behind some user interaction, and which have both code _and_ data dependencies.
 
-The problem with this naive approach is that we have to wait for a significant amount of time before we can actually start fetching the data we need. Ideally, by the time a user interaction occurs, we'd already know what data we will need in order to fulfill that interaction, and we could start *preloading* it from the client immediately, ***in parallel*** with loading the JS code that we're going to need; by doing so, we can significantly speed up the amount of time it takes to show content to users after an interaction.
+The problem with this naive approach is that we have to wait for a significant amount of time before we can actually start fetching the data we need. Ideally, by the time a user interaction occurs, we'd already know what data we will need in order to fulfill that interaction, and we could start _preloading_ it from the client immediately, **_in parallel_** with loading the JS code that we're going to need; by doing so, we can significantly speed up the amount of time it takes to show content to users after an interaction.
 
-In order to do so, we can use **Relay EntryPoints**, which are a set of APIs for efficiently loading both the code and data dependencies of *any* view in parallel. Check out our api reference for Entry Points: <TODO>
+In order to do so, we can use **Relay EntryPoints**, which are a set of APIs for efficiently loading both the code and data dependencies of _any_ view in parallel. Check out our api reference for Entry Points: (TODO)
 
 ### Incremental Data Delivery
 
-> OSS TODO
+<blockquote>
+OSS TODO
+</blockquote>
 
 ### Data-driven Dependencies
 
-> OSS TODO
+<blockquote>
+OSS TODO
+</blockquote>
 
 ### Image Prefetching
 
@@ -3035,7 +3093,9 @@ The standard approach to loading images with Relay is to first request image URI
 
 #### Usage
 
-> OSS TODO
+<blockquote>
+OSS TODO
+</blockquote>
 
 #### When To Use Image Prefetching
 
@@ -3049,7 +3109,7 @@ In this section, we're going to go over how to update data in the server as well
 
 ### GraphQL Mutations
 
-In GraphQL, data in the server is updated using [GraphQL Mutations](https://graphql.org/learn/queries/#mutations). Mutations are *read-write* server operations, which both modify data in the backend, and allow querying for the modified data from the server in the same request.
+In GraphQL, data in the server is updated using [GraphQL Mutations](https://graphql.org/learn/queries/#mutations). Mutations are _read-write_ server operations, which both modify data on the backend, and allow querying for the modified data from the server in the same request.
 
 A GraphQL mutation looks very similar to a query, with the exception that it uses the **`mutation`** keyword:
 
@@ -3065,12 +3125,13 @@ mutation LikePostMutation($input: LikePostData!) {
 }
 ```
 
-* The mutation above modifies the server data to "like" the specified `Post` object. The **`like_post`** field is the mutation field itself, which takes specific input and will be processed by the server to update the relevant data in the backend.
-* **`like_post`** returns a specific GraphQL type which exposes the data we can query in the mutation response. In this case, we're querying for the ***updated*** post object, including the updated `like_count` and the updated value for `viewer_does_like`, indicating if the current viewer likes the post object.
+-   The mutation above modifies the server data to "like" the specified `Post` object. The **`like_post`** field is the mutation field itself, which takes specific input and will be processed by the server to update the relevant data on the backend.
+-   **`like_post`** returns a specific GraphQL type which exposes the data we can query in the mutation response. In this case, we're querying for the **_updated_** post object, including the updated `like_count` and the updated value for `viewer_does_like`, indicating whether the current viewer likes the post object.
 
 An example of a successful response for the above mutation could look like this:
 
 ```json
+
 {
   "like_post": {
     "post": {
@@ -3100,9 +3161,9 @@ const likeMutation = graphql`
 `;
 ```
 
-* Note that mutations can also reference GraphQL [Variables](#variables) in the same way queries or fragments do.
+-   Note that mutations can also reference GraphQL [Variables](#variables) in the same way queries or fragments do.
 
-In order to *execute* a mutation against the server in Relay, we can use the **`useMutation`** hook.
+In order to _execute_ a mutation against the server in Relay, we can use the **`useMutation`** hook.
 
 ```javascript
 import type {LikePostData, LikePostMutation} from 'LikePostMutation.graphql';
@@ -3143,10 +3204,10 @@ module.exports = LikeButton;
 
 Let's distill what's happening here:
 
-* `useMutation` takes a mutation `GraphQLTaggedNode` (the result of using the `graphql` template tag), and an optional `commitMutationFn`.
-* `useMutation` returns `[commit, isInFlight]: [(UseMutationConfig<TMutation>) => Disposable, boolean]`.
-* `isInFlight` will be true if any mutation triggered by calling `commit` is still in flight. If you call `commit` multiple times, there can be multiple mutations in flight at once.
-* `commit` is a function that accepts a `UseMutationConfig`. The type of `UseMutationConfig` is as follows:
+-   `useMutation` takes a mutation `GraphQLTaggedNode` (the result of using the `graphql` template tag), and an optional `commitMutationFn`.
+-   `useMutation` returns `[commit, isInFlight]: [(UseMutationConfig<TMutation>) => Disposable, boolean]`.
+-   `isInFlight` will be true if any mutation triggered by calling `commit` is still in flight. If you call `commit` multiple times, there can be multiple mutations in flight at once.
+-   `commit` is a function that accepts a `UseMutationConfig`. The type of `UseMutationConfig` is as follows:
 
 ```javascript
 type UseMutationConfig<TMutation: MutationParameters> = {|
@@ -3172,13 +3233,13 @@ type UseMutationConfig<TMutation: MutationParameters> = {|
 |};
 ```
 
-* The only required property in the `UseMutationConfig` object is `variables`, which is an object containing the parameters to the mutation.
-* You can also include `onCompleted` and `onError` callbacks, which are called when the mutation completes or errors out, respectively.
-* Note that the input for the mutation can be Flow typed with the autogenerated type available from the `LikePostMutation.graphql` module. In general, the Relay will generate Flow types for mutations at build time, with the following naming format: `<mutation_name>.graphql.js`.
-* Note that `variables` and `response` in `onComplete` will be typed altogether by providing the autogenerated type `LikePostMutation` to `useMutation` from the `LikePostMutation.graphql` module.
-* When the mutation response is received, ***if the objects in the mutation response have IDs, the records in the local store will automatically be updated with the new field values from the response***. In this case, it would automatically find the existing `Post` object matching the given ID in the store, and update the values for its `viewer_does_like` and `like_count` fields.
-* Note that any local data updates caused by the mutation will automatically cause components subscribed to the data to be notified of the change and re-render.
-* Calling `commit` results in a call to `commitMutation`, which you can learn about [here](https://relay.dev/docs/en/experimental/api-reference#commitMutation).
+-   The only required property in the `UseMutationConfig` object is `variables`, which is an object containing the parameters to the mutation.
+-   You can also include `onCompleted` and `onError` callbacks, which are called when the mutation completes or errors out, respectively.
+-   Note that the input for the mutation can be Flow-typed with the autogenerated type available from the `LikePostMutation.graphql` module. In general, the Relay will generate Flow types for mutations at build time, with the following naming format: `<mutation_name>.graphql.js`.
+-   Note that `variables` and `response` in `onComplete` will be typed altogether by providing the autogenerated type `LikePostMutation` to `useMutation` from the `LikePostMutation.graphql` module.
+-   When the mutation response is received, **_if the objects in the mutation response have IDs, the records in the local store will automatically be updated with the new field values from the response_**. In this case, it would automatically find the existing `Post` object matching the given ID in the store, and update the values for its `viewer_does_like` and `like_count` fields.
+-   Note that any local data updates caused by the mutation will automatically cause components subscribed to the data to be notified of the change and re-render.
+-   Calling `commit` results in a call to `commitMutation`, which you can learn about [here](https://relay.dev/docs/en/experimental/api-reference#commitMutation).
 
 #### Updater functions
 
@@ -3251,277 +3312,102 @@ module.exports = LikeButton;
 
 Let's distill this example:
 
-* `updater` takes a *`store`* argument, which is an instance of a `[RecordSourceSelectorProxy](https://relay.dev/docs/en/relay-store.html#recordsourceselectorproxy)`;  this interface allows you to *imperatively* write and read data directly to and from the Relay store. This means that you have full control over how to update the store in response to the mutation response: you can *create entirely new records*, or *update or delete existing ones*. The full API for reading and writing to the Relay store is available here: https://relay.dev/docs/en/relay-store.html
-* In our specific example, we're adding a new comment to our local store after it has successfully been added on the server. Specifically, we're adding a new item to a connection; for more details on the specifics of how that works, check out our [Adding and Removing Items From a Connection](#adding-and-removing-items-from-a-connection) section.
-* Note that the mutation response is a *root field* record that can be read from the `store`, specifically using the `store.getRootField` API. In our case, we're reading the `comment_create` root field, which is a root field in the mutation response.
-* Note that any local data updates caused by the mutation `updater` will automatically cause components subscribed to the data to be notified of the change and re-render.
+-   `updater` takes a _`store`_ argument, which is an instance of a `[RecordSourceSelectorProxy](https://relay.dev/docs/en/relay-store.html#recordsourceselectorproxy)`;  this interface allows you to _imperatively_ write and read data directly to and from the Relay store. This means that you have full control over how to update the store in response to the mutation response: you can _create entirely new records_, or _update or delete existing ones_. The full API for reading and writing to the Relay store is available here: https:
+-   In our specific example, we're adding a new comment to our local store after it has successfully been added on the server. Specifically, we're adding a new item to a connection; for more details on the specifics of how that works, check out our [Adding and Removing Items From a Connection](#adding-and-removing-items-from-a-connection) section.
+-   Note that the mutation response is a _root field_ record that can be read from the ``, specifically using the `` API. In our case, we're reading the `` root field, which is a root field in the mutation response.
+-   Note that any local data updates caused by the mutation `` will automatically cause components subscribed to the data to be notified of the change and re-render.
 
 #### Optimistic updates
 
 Often times when executing a mutation we don't want to wait for the server response to complete before we respond to user interaction. For example, if a user clicks the "Like" button, we don't want to wait until the mutation response comes back before we show them that the post has been liked; ideally, we'd do that instantly.
 
-More generally, in these cases we want to immediately update our local data *optimistically*, in order to improve perceived responsiveness; that is, we want to update our local data to immediately reflect what it would look like after the mutation *succeeds*. If the mutation ends up *not* succeeding, we can roll back the change and show an error message, but we're *optimistically* expecting the mutation to succeed most of the time.
+More generally, in these cases we want to immediately update our local data _optimistically_, in order to improve perceived responsiveness; that is, we want to update our local data to immediately reflect what it would look like after the mutation _succeeds_. If the mutation ends up _not_ succeeding, we can roll back the change and show an error message, but we're _optimistically_ expecting the mutation to succeed most of the time.
 
 In order to do this, Relay provides 2 APIs to specify an optimistic update when executing a mutation:
 
 _**Optimistic Response**_
 
-When you can predict what the server response for a mutation is going to be, the simplest way to optimistically update the store is by providing an **`optimisticResponse`** to `commitMutation`:
+When you can predict what the server response for a mutation is going to be, the simplest way to optimistically update the store is by providing an **``** to ``:
 
 ```javascript
-import type {LikePostData, LikePostMutation} from 'LikePostMutation.graphql';
 
-const {graphql, useMutation} = require('react-relay/hooks');
 
-type Props = {|
-  likePostData: LikePostData,
-|};
-function LikeButton(props: Props) {
-  const [commit, isInFlight] = useMutation<LikePostMutation>(graphql`
-    mutation LikePostMutation($input: LikePostData!)
-      @raw_response_type {
-      like_post(data: $input) {
-        post {
-          id
-          viewer_does_like
-          like_count
-        }
-      }
-    }
-  `);
-
-  const mutationConfig = {
-    variables: {
-      input: props.likePostData,
-    },
-    optimisticResponse: {
-      like_post: {
-        post: {
-          id: postID,
-          viewer_does_like: true,
-        },
-      },
-    },
-    onCompleted: response => {} /* Mutation completed */,
-    onError: error => {} /* Mutation errored */,
-  };
-
-  return (
-    <Button disabled={isInFlight} onClick={() => commit(mutationConfig)}>
-      Like
-    </Button>
-  );
-}
-
-module.exports = LikeButton;
 ```
 
 Let's see what's happening in this example.
 
-* The `optimisticResponse` is an object matching the shape of the mutation response, and it simulates a successful response from the server. When `optimisticResponse`, is provided, Relay will automatically process the response in the same way it would process the response from the server, and update the data accordingly (i.e. update the values of fields for the record with the matching id).
-  * In this case, we would immediately set the `viewer_does_like` field to `true` in our `Post` object, which would be immediately reflected in our UI.
-* If the mutation *succeeds*, ***the optimistic update will be rolled back,*** and the server response will be applied.
-* If the mutation *fails*, ***the optimistic update will be rolled back,*** and the error will be communicated via the `onError` callback.
-* Note that by adding `@raw_response_type` directive,  the type for `optimisticResponse` is generated , and the flow type is applied by: `commitMutation<LikePostMutation>`.
+-   The `` is an object matching the shape of the mutation response, and it simulates a successful response from the server. When ``, is provided, Relay will automatically process the response in the same way it would process the response from the server, and update the data accordingly (i.e. update the values of fields for the record with the matching id).
+    -   In this case, we would immediately set the `` field to `` in our `` object, which would be immediately reflected in our UI.
+-   If the mutation _succeeds_, **_the optimistic update will be rolled back,_** and the server response will be applied.
+-   If the mutation _fails_, **_the optimistic update will be rolled back,_** and the error will be communicated via the `` callback.
+-   Note that by adding `` directive,  the type for `` is generated , and the flow type is applied by: ``.
 
 _**Optimistic Updater**_
 
-However, in some cases we can't statically predict what the server response will be, or we need to optimistically perform more complex updates, like deleting or creating new records, or [Adding and Removing Items From a Connection](#adding-and-removing-items-from-a-connection). In these cases we can provide an **`optimisticUpdater`** function to `commitMutation`. For example, we can rewrite the above example using an `optimisticUpdater` instead of an `optimisticResponse`:
+However, in some cases we can't statically predict what the server response will be, or we need to optimistically perform more complex updates, like deleting or creating new records, or [Adding and Removing Items From a Connection](#adding-and-removing-items-from-a-connection). In these cases we can provide an **``** function to ``. For example, we can rewrite the above example using an `` instead of an ``:
 
 ```javascript
-import type {LikePostData, LikePostMutation} from 'LikePostMutation.graphql';
 
-const {graphql, useMutation} = require('react-relay/hooks');
 
-type Props = {|
-  likePostData: LikePostData,
-|};
-function LikeButton(props: Props) {
-  const [commit, isInFlight] = useMutation<LikePostMutation>(graphql`
-    mutation LikePostMutation($input: LikePostData!) {
-      like_post(data: $input) {
-        post {
-          id
-          viewer_does_like
-          like_count
-        }
-      }
-    }
-  `);
-
-  const mutationConfig = {
-    variables: {
-      input: props.likePostData,
-    },
-    optimisticUpdater: store => {
-      // Get the record for the Post object
-      const postRecord = store.get(postID);
-
-      // Read the current value for the like_count
-      const currentLikeCount = postRecord.getValue('like_count');
-
-      // Optimistically increment the like_count by 1
-      postRecord.setValue((currentLikeCount ?? 0) + 1, 'like_count');
-
-      // Optimistically set viewer_does_like to true
-      postRecord.setValue(true, 'viewer_does_like');
-    },
-  };
-
-  return (
-    <Button disabled={isInFlight} onClick={() => commit(mutationConfig)}>
-      Like
-    </Button>
-  );
-}
-
-module.exports = LikeButton;
 ```
 
 Let's see what's happening here:
 
-* The `optimisticUpdater` has the same signature and behaves the same way as the regular `updater` function, the main difference being that it will be executed immediately, before the mutation response completes.
-* If the mutation succeeds, ***the optimistic update will be rolled back,*** and the server response will be applied.
-  * Note that if we used an `optimisticResponse`, we wouldn't be able to statically provide a value for `like_count`, since it requires reading the current value from the store first, which we can do with an `optimisticUpdater`.
-  * Also note that when mutation completes, the value from the server might differ from the value we optimistically predicted locally. For example, if other "Likes" occurred at the same time, the final `like_count` from the server might've incremented by more than 1.
-* If the mutation *fails*, ***the optimistic update will be rolled back,*** and the error will be communicated via the `onError` callback.
-* Note that we're not providing an `updater` function, which is okay. If it's not provided, the default behavior will still be applied when the server response arrives (i.e. merging the new field values for `like_count` and `viewer_does_like` on the `Post` object).
+-   The `` has the same signature and behaves the same way as the regular `` function, the main difference being that it will be executed immediately, before the mutation response completes.
+-   If the mutation succeeds, **_the optimistic update will be rolled back,_** and the server response will be applied.
+    -   Note that if we used an ``, we wouldn't be able to statically provide a value for ``, since it requires reading the current value from the store first, which we can do with an ``.
+    -   Also note that when mutation completes, the value from the server might differ from the value we optimistically predicted locally. For example, if other "Likes" occurred at the same time, the final `` from the server might've incremented by more than 1.
+-   If the mutation _fails_, **_the optimistic update will be rolled back,_** and the error will be communicated via the `` callback.
+-   Note that we're not providing an `` function, which is okay. If it's not provided, the default behavior will still be applied when the server response arrives (i.e. merging the new field values for `` and `` on the `` object).
 
-> **NOTE:** Remember that any updates to local data caused by a mutation will automatically notify and re-render components subscribed to that data.
+
+NOTE: Remember that any updates to local data caused by a mutation will automatically notify and re-render components subscribed to that data.
 
 
 #### Order of Execution of Updater Functions
 
-In general, execution of the `updater` and optimistic updates will occur in the following order:
+In general, execution of the `` and optimistic updates will occur in the following order:
 
-* If an `optimisticResponse` is provided, Relay will use it to merge the new field values for the records that match the ids in the `optimisticResponse`.
-* If `optimisticUpdater` is provided, Relay will execute it and update the store accordingly.
-* If the mutation request succeeds:
-  * Any optimistic update that was applied will be rolled back.
-  * Relay will use the server response to merge the new field values for the records that match the ids in the response.
-  * If an `updater` was provided, Relay will execute it and update the store accordingly. The server payload will be available to the `updater` as a root field in the store.
-* If the mutation request fails:
-  * Any optimistic update was applied will be rolled back.
-  * The `onError` callback will be called.
-
-
+-   If an `` is provided, Relay will use it to merge the new field values for the records that match the ids in the ``.
+-   If `` is provided, Relay will execute it and update the store accordingly.
+-   If the mutation request succeeds:
+    -   Any optimistic update that was applied will be rolled back.
+    -   Relay will use the server response to merge the new field values for the records that match the ids in the response.
+    -   If an `` was provided, Relay will execute it and update the store accordingly. The server payload will be available to the `` as a root field in the store.
+-   If the mutation request fails:
+    -   Any optimistic update was applied will be rolled back.
+    -   The `` callback will be called.
 
 _**Full Example**_
 
-This means that in more complicated scenarios you can still provide all 3 options: `optimisticResponse`, `optimisticUpdater` and `updater`. For example, the mutation to add a new comment could be like something like the following (for full details on updating connections, check out our [Adding and Removing Items From a Connection](#adding-and-removing-items-from-a-connection) guide):
+This means that in more complicated scenarios you can still provide all 3 options: ``, `` and ``. For example, the mutation to add a new comment could be like something like the following (for full details on updating connections, check out our [Adding and Removing Items From a Connection](#adding-and-removing-items-from-a-connection) guide):
 
 ```javascript
-import type {CommentCreateData, CreateCommentMutation} from 'CreateCommentMutation.graphql';
 
-const {graphql, useMutation} = require('react-relay/hooks');
 
-type Props = {|
-  commentCreateData: CommentCreateData,
-  postID: string,
-|};
-function CreateCommentButton(props: Props) {
-  const [commit, isInFlight] = useMutation<CreateCommentMutation>(graphql`
-      mutation CreateCommentMutation($input: CommentCreateData!) {
-        comment_create(input: $input) {
-          post {
-            id
-            viewer_has_commented
-          }
-          comment_edge {
-            cursor
-            node {
-              body {
-                text
-              }
-            }
-          }
-        }
-      }
-    `);
-
-  const mutationConfig = {
-    variables: {
-      input: props.commentCreateData,
-    },
-    // Optimistically set the value for `viewer_has_commented`
-    optimisticResponse: {
-      post: {
-        id: props.postID,
-        viewer_has_commented: true,
-      },
-    },
-    // Optimistically add a new comment to the comments connection
-    optimisticUpdater: store => {
-      const postRecord = store.get(postID);
-      const connectionRecord = ConnectionHandler.getConnection(
-        postRecord,
-        'CommentsComponent_comments_connection',
-      );
-
-      // Create a new local Comment from scratch
-      const id = `client:new_comment:${randomID()}`;
-      const newCommentRecord = store.create(id, 'Comment');
-
-      // ... update new comment with content
-
-      // Create new edge from scratch
-      const newEdge = ConnectionHandler.createEdge(
-        store,
-        connectionRecord,
-        newCommentRecord,
-        'CommentEdge' /* GraphQl Type for edge */,
-      );
-
-      // Add edge to the end of the connection
-      ConnectionHandler.insertEdgeAfter(connectionRecord, newEdge);
-    },
-    updater: store => {
-      const postRecord = store.get(postID);
-      const connectionRecord = ConnectionHandler.getConnection(
-        postRecord,
-        'CommentsComponent_comments_connection',
-      );
-
-      // Get the payload returned from the server
-      const payload = store.getRootField('comment_create');
-
-      // Get the edge from server payload
-      const newEdge = payload.getLinkedRecord('comment_edge');
-
-      // Add edge to the end of the connection
-      ConnectionHandler.insertEdgeAfter(connectionRecord, newEdge);
-    },
-  };
-
-  return <Button onClick={() => commit(mutationConfig)}>Create Comment</Button>;
-}
-
-module.exports = CreateCommentButton;
 ```
 
 Let's distill this example, according to the execution order of the updaters:
 
-* Given that an `optimisticResponse` was provided, it will be executed *first*. This will cause the new value of `viewer_has_commented` to be merged into the existing `Post` object, setting it to `true`.
-* Given that an `optimisticUpdater` was provided, it will be executed next. Our `optimisticUpdater` will create new comment and edge records from scratch, simulating what the new edge in the server response would look like, and then add the new edge to the connection.
-* When the optimistic updates conclude, components subscribed to this data will be notified.
-* When the mutation succeeds, all of our optimistic updates will be rolled back.
-* The server response will be processed by Relay, and this will cause the new value of `viewer_has_commented` to be merged into the existing `Post` object, setting it to `true`.
-* Finally, the `updater` function we provided will be executed. The `updater` function is very similar to the `optimisticUpdater` function, however, instead of creating the new data from scratch, it reads it from the mutation payload and adds the new edge to the connection.
-
+-   Given that an `` was provided, it will be executed _first_. This will cause the new value of `` to be merged into the existing `` object, setting it to ``.
+-   Given that an `` was provided, it will be executed next. Our `` will create new comment and edge records from scratch, simulating what the new edge in the server response would look like, and then add the new edge to the connection.
+-   When the optimistic updates conclude, components subscribed to this data will be notified.
+-   When the mutation succeeds, all of our optimistic updates will be rolled back.
+-   The server response will be processed by Relay, and this will cause the new value of `` to be merged into the existing `` object, setting it to ``.
+-   Finally, the `` function we provided will be executed. The `` function is very similar to the `` function, however, instead of creating the new data from scratch, it reads it from the mutation payload and adds the new edge to the connection.
 
 #### Invalidating Data during a Mutation
 
-The recommended approach when executing a mutation is to request ***all*** the relevant data that was affected by the mutation back from the server (as part of the mutation body), so that our local Relay store is consistent with the state of the server.
+The recommended approach when executing a mutation is to request **_all_** the relevant data that was affected by the mutation back from the server (as part of the mutation body), so that our local Relay store is consistent with the state of the server.
 
 However, often times it can be unfeasible to know and specify all the possible data that would be affected for mutations that have large rippling effects (e.g. imagine “blocking a user” or “leaving a group”).
 
-For these types of mutations, it’s often more straightforward to explicitly mark some data as stale (or the whole store), so that Relay knows to refetch it the next time it is rendered. In order to do so, you can use the data invalidation apis documented in our [Staleness of Data section](#staleness-of-data).
-
+For these types of mutations, it’s often more straightforward to explicitly mark some data as stale (or the whole store), so that Relay knows to refetch it the next time it is rendered. In order to do so, you can use the data invalidation aAPIpdocumented in our [Staleness of Data section](#staleness-of-data).
 
 #### Mutation Queueing
 
-> **TODO:** Left to be implemented in user space
 
+**TODO:** Left to be implemented in user space
 
 
 ### GraphQL Subscriptions
@@ -3531,185 +3417,58 @@ For these types of mutations, it’s often more straightforward to explicitly ma
 A GraphQL Subscription looks very similar to a query, with the exception that it uses the subscription keyword:
 
 ```graphql
-subscription LikePostSubscription($input: LikePostSubscribeData!) {
-  like_post_subscribe(data: $input) {
-    post {
-      id
-      like_count
-    }
-  }
-}
+
+
 ```
 
-* Subscribing to the above subscription will notify the client whenever the specified `Post` object has been "liked" or "unliked". The **`like_post_subscribe`** field is the subscription field itself, which takes specific input and will set up the subscription in the backend.
-* **`like_post_subscribe`** returns a specific GraphQL type which exposes the data we can query in the subscription payload; that is, whenever the client is notified, it will receive the subscription payload in the notification. In this case, we're querying for the Post object with it's ***updated*** `like_count`, which will allows us to show the like count in real time.
+-   Subscribing to the above subscription will notify the client whenever the specified `` object has been "liked" or "unliked". The **``** field is the subscription field itself, which takes specific input and will set up the subscription on the backend.
+-   **``** returns a specific GraphQL type which exposes the data we can query in the subscription payload; that is, whenever the client is notified, it will receive the subscription payload in the notification. In this case, we're querying for the Post object with it's **_updated_** ``, which will allows us to show the like count in real time.
 
 An example of a subscription payload received by the client could look like this:
 
 ```javascript
-{
-  "like_post_subscribe": {
-    "post": {
-      "id": "post-id",
-      "like_count": 321,
-    }
-  }
-}
+
+
 ```
 
-
-In Relay, we can declare GraphQL subcriptions using the `graphql` tag too:
+In Relay, we can declare GraphQL subcriptions using the `` tag too:
 
 ```javascript
-const {graphql} = require('react-relay');
 
-const postLikeSubscription = graphql`
-  subscription LikePostSubscription($input: LikePostSubscribeData!) {
-    like_post_subscribe(data: $input) {
-      post {
-        id
-        like_count
-      }
-    }
-  }
-`;
+
 ```
 
-* Note that subscriptions can also reference GraphQL [Variables](#variables) in the same way queries or fragments do.
+-   Note that subscriptions can also reference GraphQL [Variables](#variables) in the same way queries or fragments do.
 
-
-In order to *execute* a subscription against the server in Relay, we can use the **`useSubscription`** hook:
+In order to _execute_ a subscription against the server in Relay, we can use the **``** hook:
 
 ```javascript
-import type {LikePostSubscribeData} from 'LikePostSubscription.graphql';
 
-const React = require('react');
 
-const {graphql, useSubscription, useFragment} = require('react-relay');
-
-type Props = {|
-  likePostSubscribeData: LikePostSubscribeData,
-  postId: string,
-|};
-function LikeCount() {
-  const data = useFragment(
-    graphql`
-      query LikeCount_likes($id: ID!) {
-        post(id: $id) {
-          id
-          like_count
-        }
-      }
-    `,
-    {id: props.postId},
-  );
-  const subscriptionConfig = useMemo(() => ({
-    subscription: graphql`
-      subscription LikePostSubscription(
-        $input: LikePostSubscribeData!
-      ) {
-        like_post_subscribe(data: $input) {
-          post {
-            id
-            like_count
-          }
-        }
-      }
-    `,
-    variables: {input: props.likePostSubscribeData},
-    onCompleted: () => {} /* Subscription established */,
-    onError: error => {} /* Subscription errored */,
-    onNext: response => {} /* Subscription payload received */,
-  }));
-
-  useSubscription(subscriptionConfig);
-
-  return (
-    <div>
-      This post has been liked {data?.post?.like_count ?? "an unknown number of"} times.
-    </div>
-  );
-}
-
-module.exports = LikeCount;
 ```
 
 Let's distill what's happening here:
 
-* `useSubscription` takes a config object containing the subscription and the variables that the GraphQL query expects.
-* Note that the `input` for the subscription can be Flow typed with the autogenerated type available from the `LikePostSubscription.graphql` module. In general, the Relay will generate Flow types for subscriptions at build time, with the following naming format: `<subscription_name>.graphql.js`.
-* `useSubscription` also take `onCompleted` and `onError` callbacks, which will be called respectively when the subscription is successfully established, or when an error occurs.
-* `useSubscription` also takes an `onNext` callback, which will be called whenever a subscription payload is received.
-* When the subscription payload is received, ***if the objects in the subscription payload have IDs, the records in the local store will *automatically* be updated with the new field values from the payload.*** In this case, it would automatically find the existing `Post` object matching the given ID in the store, and update the values for the `like_count` field.
-* Note that any local data updates caused by the subscription will automatically cause components subscribed to the data to be notified of the change and re-render.
+-   `` takes a config object containing the subscription and the variables that the GraphQL query expects.
+-   Note that the `` for the subscription can be Flow-typed with the autogenerated type available from the `` module. In general, the Relay will generate Flow types for subscriptions at build time, with the following naming format: ``.
+-   `` also take `` and `` callbacks, which will be called respectively when the subscription is successfully established, or when an error occurs.
+-   `` also takes an `` callback, which will be called whenever a subscription payload is received.
+-   When the subscription payload is received, **_if the objects in the subscription payload have IDs, the records in the local store will _automatically_ be updated with the new field values from the payload._** In this case, it would automatically find the existing `` object matching the given ID in the store, and update the values for the `` field.
+-   Note that any local data updates caused by the subscription will automatically cause components subscribed to the data to be notified of the change and re-render.
 
-However, if the updates you wish to perform on the local data in response to the subscription are more complex than just updating the values of fields, like deleting or creating new records, or [Adding and Removing Items From a Connection](#adding-and-removing-items-from-a-connection), you can provide an `**updater**` function to **`useSubscription`** for full control over how to update the store:
+However, if the updates you wish to perform on the local data in response to the subscription are more complex than just updating the values of fields, like deleting or creating new records, or [Adding and Removing Items From a Connection](#adding-and-removing-items-from-a-connection), you can provide an `` function to **``** for full control over how to update the store:
 
 ```javascript
-import type {Environment} from 'react-relay';
-import type {CommentCreateSubscribeData} from 'CommentCreateSubscription.graphql';
 
-const {graphql, useSubscription} = require('react-relay');
 
-function useCommentCreateSubscription(
-  input: CommentCreateSubscribeData,
-) {
-  const subscriptionConfig = useMemo(() => ({
-    subscription: graphql`
-      subscription CommentCreateSubscription(
-        $input: CommentCreateSubscribeData!
-      ) {
-        comment_create_subscribe(data: $input) {
-          post_comment_edge {
-            cursor
-            node {
-              body {
-                text
-              }
-            }
-          }
-        }
-      }
-    `,
-    variables: {input},
-    updater: store => {
-      const postRecord = store.get(postID);
-
-      // Get connection record
-      const connectionRecord = ConnectionHandler.getConnection(
-        postRecord,
-        'CommentsComponent_comments_connection',
-      );
-
-      // Get the payload returned from the server
-      const payload = store.getRootField('comment_create_subscribe');
-
-      // Get the edge inside the payload
-      const serverEdge = payload.getLinkedRecord('post_comment_edge');
-
-      // Build edge for adding to the connection
-      const newEdge = ConnectionHandler.buildConnectionEdge(
-        store,
-        connectionRecord,
-        serverEdge,
-      );
-
-      // Add edge to the end of the connection
-      ConnectionHandler.insertEdgeAfter(connectionRecord, newEdge);
-    },
-  }));
-  useSubscription(subscriptionConfig);
-}
-
-module.exports = useCommentCreateSubscription;
 ```
 
 Let's distill this example:
 
-* `updater` takes a *`store`* argument, which is an instance of a `[RecordSourceSelectorProxy](https://relay.dev/docs/en/relay-store.html#recordsourceselectorproxy)`;  this interface allows you to *imperatively* write and read data directly to and from the Relay store. This means that you have full control over how to update the store in response to the subscription payload: you can *create entirely new records*, or *update or delete existing ones*. The full API for reading and writing to the Relay store is available here: https://relay.dev/docs/en/relay-store.html
-* In our specific example, we're adding a new comment to our local store when we receive a subscription payload notifying us that a new comment has been created. Specifically, we're adding a new item to a connection; for more details on the specifics of how that works, check out our [Adding and Removing Items From a Connection](#adding-and-removing-items-from-a-connection) section.
-* Note that the subscription payload is a *root field* record that can be read from the `store`, specifically using the `store.getRootField` API. In our case, we're reading the `comment_create_subcribe` root field, which is a root field in the subscription response.
-* Note that any local data updates caused by the mutation `updater` will automatically cause components subscribed to the data to be notified of the change and re-render.
+-   `` takes a _``_ argument, which is an instance of a ``;  this interface allows you to _imperatively_ write and read data directly to and from the Relay store. This means that you have full control over how to update the store in response to the subscription payload: you can _create entirely new records_, or _update or delete existing ones_. The full API for reading and writing to the Relay store is available here:
+-   In our specific example, we're adding a new comment to our local store when we receive a subscription payload notifying us that a new comment has been created. Specifically, we're adding a new item to a connection; for more details on the specifics of how that works, check out our [Adding and Removing Items From a Connection](#adding-and-removing-items-from-a-connection) section.
+-   Note that the subscription payload is a _root field_ record that can be read from the ``, specifically using the `` API. In our case, we're reading the `` root field, which is a root field in the subscription response.
+-   Note that any local data updates caused by the mutation `` will automatically cause components subscribed to the data to be notified of the change and re-render.
 
 ### Local Data Updates
 
@@ -3719,148 +3478,72 @@ Note that local data updates can be made both on [client-only data](#client-only
 
 #### commitLocalUpdate
 
-To make updates using an `updater` function, you can use the **`commitLocalUpdate`** API:
+To make updates using an `` function, you can use the **``** API:
 
 ```javascript
-import type {Environment} from 'react-relay';
 
-const {commitLocalUpdate, graphql} = require('react-relay');
 
-function commitCommentCreateLocally(
-  environment: Environment,
-  postID: string,
-) {
-  return commitLocalUpdate(environment, store => {
-    const postRecord = store.get(postID);
-    const connectionRecord = ConnectionHandler.getConnection(
-      postRecord,
-      'CommentsComponent_comments_connection',
-    );
-
-    // Create a new local Comment from scratch
-    const id = `client:new_comment:${randomID()}`;
-    const newCommentRecord = store.create(id, 'Comment');
-
-    // ... update new comment with content
-
-    // Create new edge from scratch
-    const newEdge = ConnectionHandler.createEdge(
-      store,
-      connectionRecord,
-      newCommentRecord,
-      'CommentEdge' /* GraphQl Type for edge */,
-    );
-
-    // Add edge to the end of the connection
-    ConnectionHandler.insertEdgeAfter(connectionRecord, newEdge);
-  });
-}
-
-module.exports = {commit: commitCommentCreateLocally};
 ```
 
-* `commitLocalUpdate` update simply takes an environment and an updater function.
-  * `updater` takes a *`store`* argument, which is an instance of a `[RecordSourceSelectorProxy](https://relay.dev/docs/en/relay-store.html#recordsourceselectorproxy)`;  this interface allows you to *imperatively* write and read data directly to and from the Relay store. This means that you have full control over how to update the store: you can *create entirely new records*, or *update or delete existing ones*. The full API for reading and writing to the Relay store is available here: https://relay.dev/docs/en/relay-store.html
-* In our specific example, we're adding a new comment to our local store when. Specifically, we're adding a new item to a connection; for more details on the specifics of how that works, check out our [Adding and Removing Items From a Connection](#adding-and-removing-items-from-a-connection) section.
-* Note that any local data updates will automatically cause components subscribed to the data to be notified of the change and re-render.
+-   `` update simply takes an environment and an updater function.
+    -   `` takes a _``_ argument, which is an instance of a ``;  this interface allows you to _imperatively_ write and read data directly to and from the Relay store. This means that you have full control over how to update the store: you can _create entirely new records_, or _update or delete existing ones_. The full API for reading and writing to the Relay store is available here:
+-   In our specific example, we're adding a new comment to our local store when. Specifically, we're adding a new item to a connection; for more details on the specifics of how that works, check out our [Adding and Removing Items From a Connection](#adding-and-removing-items-from-a-connection) section.
+-   Note that any local data updates will automatically cause components subscribed to the data to be notified of the change and re-render.
 
 #### commitPayload
 
-**`commitPayload`** takes an `OperationDescriptor` and the payload for the query, and writes it to the Relay Store. The payload will be resolved like a normal server response for a query.
+**``** takes an `` and the payload for the query, and writes it to the Relay Store. The payload will be resolved like a normal server response for a query.
 
 ```javascript
-import type {FooQueryRawResponse} from 'FooQuery.graphql'
 
-const {createOperationDescriptor} = require('relay-runtime');
 
-const operationDescriptor = createOperationDescriptor(FooQuery, {
-  id: 'an-id',
-  otherVariable: 'value',
-});
-
-const payload: FooQueryRawResponse = {...};
-
-environment.commitPayload(operation, payload);
 ```
 
-* An `OperationDescriptor` can be created by using `createOperationDescriptor`; it takes the query and the query variables.
-* The payload can be typed using the Flow type generated by adding  @raw_response_type to the query.
-* Note that any local data updates will automatically cause components subscribed to the data to be notified of the change and re-render.
-
+-   An `` can be created by using ``; it takes the query and the query variables.
+-   The payload can be typed using the Flow type generated by adding  @raw_response_type to the query.
+-   Note that any local data updates will automatically cause components subscribed to the data to be notified of the change and re-render.
 
 ### Client-Only Data (Client Schema Extensions)
 
-Relay provides the ability to extend the GraphQL schema ***on the client*** (i.e. in the browser), via client schema extensions, in order to model data that only needs to be created, read and updated on the client. This can be useful to add small pieces of information to data that is fetched from the server, or to entirely model client-specific state to be stored and managed by Relay.
+Relay provides the ability to extend the GraphQL schema **_on the client_** (i.e. in the browser), via client schema extensions, in order to model data that only needs to be created, read and updated on the client. This can be useful to add small pieces of information to data that is fetched from the server, or to entirely model client-specific state to be stored and managed by Relay.
 
 Client schema extensions allows you to modify existing types on the schema (e.g. by adding new fields to a type), or to create entirely new types that only exist in the client.
 
-
 #### Adding a Client Schema file
 
-To add a client schema, create a new `.graphql` file inside your src directory. The file can be named anything.
+To add a client schema, create a new `` file inside your src directory. The file can be named anything.
 
 #### Extending Existing Types
 
-In order to extend an existing type, add a `.graphql` file to the appropriate schema extension file:
+In order to extend an existing type, add a `` file to the appropriate schema extension file:
 
 ```graphql
-extend type Comment {
-  is_new_comment: Boolean
-}
+
+
 ```
 
-* In this example, we're using the **`extend`** keyword to extend an existing type, and we're adding a new field, `is_new_comment` to the existing `Comment` type, which we will be able to [read](#reading-client-only-data) in our components, and [update](#updating-client-only-data) when necessary using normal Relay APIs; you might imagine that we might use this field to render a different visual treatment for a comment if it's new, and we might set it when creating a new comment.
-* Note that in order for Relay to pick up this extension, the file needs to be inside your src directory. The file can be named anything, e.g.: `clientSchema.graphql`.
-
+-   In this example, we're using the **``** keyword to extend an existing type, and we're adding a new field, `` to the existing `` type, which we will be able to [read](#reading-client-only-data) in our components, and [update](#updating-client-only-data) when necessary using normal Relay APIs; you might imagine that we might use this field to render a different visual treatment for a comment if it's new, and we might set it when creating a new comment.
+-   Note that in order for Relay to pick up this extension, the file needs to be inside your src directory. The file can be named anything, e.g.: ``.
 
 #### Adding New Types
 
 You can define types using the same regular GraphQL syntax, by defining it inside your client schema file:
 
 ```graphql
-enum FetchStatus {
-  FETCHED
-  PENDING
-  ERRORED
-}
 
-type FetchState {
-  # You can reuse client-only types to define other types
-  status: FetchStatus
 
-  # You can also reference regular server types
-  started_by: User!
-}
-
-extend type Item {
-  # You can extend server types with client-only types
-  fetch_state: FetchState
-}
 ```
 
-* In this contrived example, we're defining 2 new client-only types, and `enum` and a regular `type`. Note that they can reference themselves as normal, and reference regular server defined types. Also note that we can extend server types and add fields that are of our client-only types.
-* As mentioned previously, we will be able  [read](#reading-client-only-data) and [update](#updating-client-only-data) this data normally via Relay APIs.
-
+-   In this contrived example, we're defining 2 new client-only types, and `` and a regular ``. Note that they can reference themselves as normal, and reference regular server defined types. Also note that we can extend server types and add fields that are of our client-only types.
+-   As mentioned previously, we will be able  [read](#reading-client-only-data) and [update](#updating-client-only-data) this data normally via Relay APIs.
 
 #### Reading Client-Only Data
 
 We can read client-only data by selecting it inside [fragments](#fragments) or [queries](#queries) as normal:
 
 ```javascript
-const data = *useFragment*(
-  graphql`
-    fragment CommentComponent_comment on Comment {
 
-      # We can select client-only fields as we would any other field
-      is_new_comment
 
-      body {
-        text
-      }
-    }
-  `,
-  props.user,
-);
 ```
 
 #### Updating Client-Only Data
@@ -3869,13 +3552,15 @@ In order to update client-only data, you can do so regularly inside [mutation](#
 
 ## Local Application State Management
 
-> **TODO**
+
+**TODO**
+
 
 Roughly, at a high level:
 
-1. Read data from Relay
-2. Keep your state in React, possibly derive it from Relay data
-3. Write data back to Relay via mutations or local update
+1.  Read data from Relay
+2.  Keep your state in React, possibly derive it from Relay data
+3.  Write data back to Relay via mutations or local update
 
 ## Accessing Data Outside React
 
@@ -3883,115 +3568,68 @@ This section covers less common use cases, which involve fetching and accessing 
 
 ### Fetching Queries
 
-If you want to fetch a query outside of React, you can use the **`fetchQuery`** function, which returns an observable:
+If you want to fetch a query outside of React, you can use the **``** function, which returns an observable:
 
 ```javascript
-import type {AppQuery} from 'AppQuery.graphql';
 
-const {fetchQuery} = require('react-relay/hooks');
 
-fetchQuery<AppQuery>(
-  environment,
-  graphql`
-    query AppQuery($id: ID!) {
-      user(id: $id) {
-        name
-      }
-    }
-  `,
-  {id: 4},
-)
-.subscribe({
-  start: () => {...},
-  complete: () => {...},
-  error: (error) => {...},
-  next: (data) => {...}
-});
 ```
 
-* `fetchQuery` will automatically save the fetched data to the in-memory Relay store, and notify any components subscribed to the relevant data.
-* `fetchQuery` will ***NOT*** retain the data for the query, meaning that it is not guaranteed that the data will remain saved in the Relay store at any point after the request completes. If you wish to make sure that the data is retained outside of the scope of the request, you need to call `environment.retain()` directly on the query to ensure it doesn't get deleted. See [Retaining Queries](#retaining-queries) for more details.
-* The data provided in the `next` callback represents a snapshot of the query data read from the Relay store at the moment a payload was received from the server.
-* Note that we specify the `AppQuery` Flow type; this ensures that the type of the data provided by the observable matches the shape of the query, and enforces that the `variables` passed as input to `fetchQuery` match the type of the variables expected by the query.
+-   `` will automatically save the fetched data to the in-memory Relay store, and notify any components subscribed to the relevant data.
+-   `` will **_NOT_** retain the data for the query, meaning that it is not guaranteed that the data will remain saved in the Relay store at any point after the request completes. If you wish to make sure that the data is retained outside of the scope of the request, you need to call `` directly on the query to ensure it doesn't get deleted. See [Retaining Queries](#retaining-queries) for more details.
+-   The data provided in the `` callback represents a snapshot of the query data read from the Relay store at the moment a payload was received from the server.
+-   Note that we specify the `` Flow type; this ensures that the type of the data provided by the observable matches the shape of the query, and enforces that the `` passed as input to `` match the type of the variables expected by the query.
 
-If desired, you can convert the request into a Promise using **`.toPromise()`**:
+If desired, you can convert the request into a Promise using **``**:
 
 ```javascript
-import type {AppQuery} from 'AppQuery.graphql';
 
-const {fetchQuery} = require('react-relay/hooks');
 
-fetchQuery<AppQuery>(
-  environment,
-  graphql`
-    query AppQuery($id: ID!) {
-      user(id: $id) {
-        name
-      }
-    }
-  `,
-  {id: 4},
-)
-.toPromise()
-.then(data => {...})
-.catch(error => {...};
 ```
 
-* The returned Promise that resolves to the query data, read out from the store when the first network response is received from the server. If the request fails, the promise will reject
-* Note that we specify the `AppQuery` Flow type; this ensures that the type of the data the promise will resolve to matches the shape of the query, and enforces that the `variables` passed as input to `fetchQuery` match the type of the variables expected by the query.
+-   The returned Promise that resolves to the query data, read out from the store when the first network response is received from the server. If the request fails, the promise will reject
+-   Note that we specify the `` Flow type; this ensures that the type of the data the promise will resolve to matches the shape of the query, and enforces that the `` passed as input to `` match the type of the variables expected by the query.
 
-> See also our API Reference for [fetchQuery](api-reference.html#fetchquery).
+
+See also our API Reference for [fetchQuery](./api-reference#fetchquery).
+
 
 ### Prefetching Queries
 
 This section covers prefetching queries from the client (if you're interested in preloading for initial load or transitions,  see our [Preloading Data](#preloading-data) section). Prefetching queries can be useful to anticipate user actions and increase the likelihood of data being immediately available when the user requests it.
 
-> **TODO**
+
+**TODO**
+
 
 ### Subscribing to Queries
 
-> **TODO**
+
+**TODO**
+
 
 ### Reading Queries from Local Cache
 
-> **TODO**
+
+**TODO**
+
 
 ### Reading Fragments from Local Cache
 
-> **TODO**
+
+**TODO**
+
 
 ### Retaining Queries
 
-In order to manually retain a query so that the data it references isn't garbage collected by Relay, we can use the **`environment.retain`** method:
+In order to manually retain a query so that the data it references isn't garbage collected by Relay, we can use the **``** method:
 
 ```javascript
-const {
-  createOperationDescriptor,
-  getRequest,
-  graphql,
-} = require('relay-runtime')
 
-// Query graphql object
-const query = graphql`...`;
 
-// Construct Relay's internal representation of the query
-const queryRequest = getRequest(query)
-const queryDescriptor = createOperationDescriptor(
-  queryRequest,
-  variables
-);
-
-// Retain query; this will prevent the data for this query and
-// variables from being garbage collected by Relay
-const disposable = environment.retain(queryDescriptor);
-
-// Disposing of the disposable will release the data for this query
-// and variables, meaning that it can be deleted at any moment
-// by Relay's garbage collection if it hasn't been retained elsewhere
-disposable.dispose();
 ```
 
-* **NOTE:** Relay automatically manages the query data retention based on any mounted query components that are rendering the data, so* you usually should ***not*** need to call `retain` directly within product code. For any advanced or special use cases, query data retention should usually be handled within infra-level code, such as a Router.
+-   **NOTE:** Relay automatically manages the query data retention based on any mounted query components that are rendering the data, so\* you usually should **_not_** need to call `` directly within product code. For any advanced or special use cases, query data retention should usually be handled within infra-level code, such as a Router.
 
 ## Testing
 

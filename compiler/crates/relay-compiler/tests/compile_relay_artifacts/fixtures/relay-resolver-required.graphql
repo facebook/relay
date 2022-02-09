@@ -1,0 +1,17 @@
+fragment relayResolverRequired_PopStarNameResolverFragment_name on User {
+  name
+}
+
+query relayResolverRequired_Query {
+  node(id: "SOME_ID") {
+    ... on User {
+      pop_star_name @required(action: LOG)
+    }
+  }
+}
+
+# %extensions%
+
+extend type User {
+  pop_star_name: String @relay_resolver(fragment_name: "relayResolverRequired_PopStarNameResolverFragment_name", import_path: "./path/to/PopStarNameResolver.js")
+}

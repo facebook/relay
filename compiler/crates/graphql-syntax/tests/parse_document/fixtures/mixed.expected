@@ -62,15 +62,17 @@ Document {
                                     },
                                     type_: NonNull(
                                         NonNullTypeAnnotation {
-                                            span: 62:66,
+                                            span: 62:65,
                                             type_: Named(
-                                                Identifier {
-                                                    span: 62:64,
-                                                    token: Token {
+                                                NamedTypeAnnotation {
+                                                    name: Identifier {
                                                         span: 62:64,
-                                                        kind: Identifier,
+                                                        token: Token {
+                                                            span: 62:64,
+                                                            kind: Identifier,
+                                                        },
+                                                        value: "ID",
                                                     },
-                                                    value: "ID",
                                                 },
                                             ),
                                             exclamation: Token {
@@ -81,6 +83,7 @@ Document {
                                     ),
                                     arguments: None,
                                     directives: [],
+                                    description: None,
                                 },
                             ],
                             end: Token {
@@ -94,7 +97,7 @@ Document {
         ),
         ExecutableDefinition(
             FragmentDefinition {
-                location: mixed.graphql:69:97,
+                location: mixed.graphql:69:96,
                 fragment: Token {
                     span: 69:77,
                     kind: Identifier,
@@ -109,7 +112,7 @@ Document {
                 },
                 variable_definitions: None,
                 type_condition: TypeCondition {
-                    span: 80:88,
+                    span: 80:87,
                     on: Token {
                         span: 80:82,
                         kind: Identifier,
@@ -132,7 +135,7 @@ Document {
                     },
                     items: [
                         ScalarField {
-                            span: 92:95,
+                            span: 92:94,
                             alias: None,
                             name: Identifier {
                                 span: 92:94,

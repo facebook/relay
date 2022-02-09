@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -12,19 +12,20 @@
 
 'use strict';
 
-const React = require('react');
-const ReactRelayContext = require('./ReactRelayContext');
+import type {ReactRelayQueryRendererContext as ReactRelayQueryRendererContextType} from './ReactRelayQueryRendererContext';
+import type {GraphQLTaggedNode, IEnvironment, Variables} from 'relay-runtime';
 
-const {useLayoutEffect, useState, useRef, useMemo} = React;
+const ReactRelayContext = require('./ReactRelayContext');
+const ReactRelayQueryRendererContext = require('./ReactRelayQueryRendererContext');
+const areEqual = require('areEqual');
+const React = require('react');
 const {
   createOperationDescriptor,
   deepFreeze,
   getRequest,
 } = require('relay-runtime');
 
-const areEqual = require('areEqual');
-
-import type {GraphQLTaggedNode, IEnvironment, Variables} from 'relay-runtime';
+const {useLayoutEffect, useState, useRef, useMemo} = React;
 
 type Props = {
   environment: IEnvironment,
@@ -35,7 +36,11 @@ type Props = {
   ...
 };
 
-function useDeepCompare<T: {...}>(value: T): T {
+const queryRendererContext: ReactRelayQueryRendererContextType = {
+  rootIsQueryRenderer: true,
+};
+
+function useDeepCompare<T: interface {}>(value: T): T {
   const latestValue = React.useRef(value);
   if (!areEqual(latestValue.current, value)) {
     if (__DEV__) {
@@ -99,7 +104,9 @@ function ReactRelayLocalQueryRenderer(props: Props): React.Node {
 
   return (
     <ReactRelayContext.Provider value={relayContext}>
-      {render({props: dataRef.current})}
+      <ReactRelayQueryRendererContext.Provider value={queryRendererContext}>
+        {render({props: dataRef.current})}
+      </ReactRelayQueryRendererContext.Provider>
     </ReactRelayContext.Provider>
   );
 }

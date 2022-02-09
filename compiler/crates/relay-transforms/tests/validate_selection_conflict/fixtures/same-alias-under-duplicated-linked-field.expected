@@ -1,0 +1,35 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query TestQuery {
+    me {
+        profile_picture {
+            same_alias1: width
+        }
+    }
+    me {
+        profile_picture {
+            same_alias2: height
+        }
+    }
+    me {
+        profile_picture {
+            same_alias2: width
+        }
+    }
+}
+==================================== ERROR ====================================
+✖︎ Field 'same_alias2' is ambiguous because it references two different fields: 'height' and 'width'
+
+  same-alias-under-duplicated-linked-field.graphql:10:26
+    9 │         profile_picture {
+   10 │             same_alias2: height
+      │                          ^^^^^^
+   11 │         }
+
+  ℹ︎ the other field
+
+  same-alias-under-duplicated-linked-field.graphql:15:26
+   14 │         profile_picture {
+   15 │             same_alias2: width
+      │                          ^^^^^
+   16 │         }

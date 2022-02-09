@@ -2,6 +2,7 @@
 node_modules
 npm-debug.log
 /compiler/target
+/compiler/crates/*/target
 /dist/
 /lib/
 /website/build
@@ -10,5 +11,4 @@ npm-debug.log
 /website/src/relay/prototyping
 .idea
 .vscode
-.checksums
 .DS_Store

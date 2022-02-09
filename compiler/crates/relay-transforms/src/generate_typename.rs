@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -16,9 +16,9 @@ use graphql_ir::{
     OperationDefinition, Program, ScalarField, Selection, Transformed, TransformedValue,
     Transformer,
 };
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey};
 use lazy_static::lazy_static;
-use schema::{Schema, Type};
+use schema::{SDLSchema, Schema, Type};
 use std::sync::Arc;
 
 lazy_static! {
@@ -78,7 +78,7 @@ impl<'s> Transformer for GenerateTypenameTransform<'s> {
         let schema = &self.program.schema;
         let mut selections = self.transform_selections(&fragment.selections);
         let type_ = fragment.type_condition;
-        if !schema.is_extension_type(type_) && schema.is_abstract_type(type_) {
+        if !schema.is_extension_type(type_) && type_.is_abstract_type() {
             let mut next_selections = Vec::with_capacity(fragment.selections.len() + 1);
             next_selections.push(generate_abstract_key_field(
                 schema,
@@ -109,7 +109,7 @@ impl<'s> Transformer for GenerateTypenameTransform<'s> {
         self.parent_type = Some(field_definition.type_.inner());
         let selections = self.transform_selections(&field.selections);
         self.parent_type = parent_type;
-        let is_abstract = schema.is_abstract_type(field_definition.type_.inner());
+        let is_abstract = field_definition.type_.inner().is_abstract_type();
         let selections = if is_abstract && !has_typename_field(schema, &field.selections) {
             let mut next_selections = Vec::with_capacity(field.selections.len() + 1);
             next_selections.push(Selection::ScalarField(Arc::new(ScalarField {
@@ -164,7 +164,7 @@ impl<'s> Transformer for GenerateTypenameTransform<'s> {
             .iter()
             .any(is_relay_custom_inline_fragment_directive)
             && !schema.is_extension_type(type_)
-            && schema.is_abstract_type(type_)
+            && type_.is_abstract_type()
         {
             let mut next_selections = Vec::with_capacity(fragment.selections.len() + 1);
             next_selections.push(generate_abstract_key_field(
@@ -203,7 +203,7 @@ impl<'s> Transformer for GenerateTypenameTransform<'s> {
     }
 }
 
-fn has_typename_field(schema: &Schema, selections: &[Selection]) -> bool {
+fn has_typename_field(schema: &SDLSchema, selections: &[Selection]) -> bool {
     let typename_field = schema.typename_field();
     selections.iter().any(|x| match x {
         Selection::ScalarField(child) => {
@@ -214,7 +214,7 @@ fn has_typename_field(schema: &Schema, selections: &[Selection]) -> bool {
 }
 
 fn generate_abstract_key_field(
-    schema: &Schema,
+    schema: &SDLSchema,
     type_: Type,
     location: Location,
     is_for_codegen: bool,
@@ -228,6 +228,7 @@ fn generate_abstract_key_field(
             vec![Directive {
                 name: WithLocation::new(location, *TYPE_DISCRIMINATOR_DIRECTIVE_NAME),
                 arguments: vec![],
+                data: None,
             }]
         } else {
             vec![]

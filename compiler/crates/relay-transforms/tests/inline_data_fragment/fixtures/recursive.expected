@@ -26,7 +26,11 @@ fragment AnotherInlineDataFragment on Image @inline {
 
 fragment InlineDataFragment on Image @inline {
   uri
-  ... @__inline(name: "AnotherInlineDataFragment") {
+  ... @__InlineDirectiveMetadata
+  # InlineDirectiveMetadata {
+  #     fragment_name: "AnotherInlineDataFragment",
+  # }
+   {
     ... on Image {
       uri
       width
@@ -36,10 +40,18 @@ fragment InlineDataFragment on Image @inline {
 
 fragment UserProfile on User {
   profilePicture(size: $ProfilePicture_SIZE) {
-    ... @__inline(name: "InlineDataFragment") {
+    ... @__InlineDirectiveMetadata
+    # InlineDirectiveMetadata {
+    #     fragment_name: "InlineDataFragment",
+    # }
+     {
       ... on Image {
         uri
-        ... @__inline(name: "AnotherInlineDataFragment") {
+        ... @__InlineDirectiveMetadata
+        # InlineDirectiveMetadata {
+        #     fragment_name: "AnotherInlineDataFragment",
+        # }
+         {
           ... on Image {
             uri
             width
@@ -47,7 +59,11 @@ fragment UserProfile on User {
         }
       }
     }
-    ... @include(if: $cond) @__inline(name: "AnotherInlineDataFragment") {
+    ... @include(if: $cond) @__InlineDirectiveMetadata
+    # InlineDirectiveMetadata {
+    #     fragment_name: "AnotherInlineDataFragment",
+    # }
+     {
       ... on Image {
         uri
         width
@@ -55,10 +71,18 @@ fragment UserProfile on User {
     }
   }
   smallPic: profilePicture(size: 20) {
-    ... @__inline(name: "InlineDataFragment") {
+    ... @__InlineDirectiveMetadata
+    # InlineDirectiveMetadata {
+    #     fragment_name: "InlineDataFragment",
+    # }
+     {
       ... on Image {
         uri
-        ... @__inline(name: "AnotherInlineDataFragment") {
+        ... @__InlineDirectiveMetadata
+        # InlineDirectiveMetadata {
+        #     fragment_name: "AnotherInlineDataFragment",
+        # }
+         {
           ... on Image {
             uri
             width

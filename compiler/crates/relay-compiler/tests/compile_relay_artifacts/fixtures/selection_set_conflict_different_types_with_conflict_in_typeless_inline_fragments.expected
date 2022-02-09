@@ -1,0 +1,34 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query selectionSetConflictDifferentTypesWithConflictInTypelessInlineFragmentsQuery {
+  me {
+    ...selectionSetConflictDifferentTypesWithConflictInTypelessInlineFragmentsFrag1
+    ...selectionSetConflictDifferentTypesWithConflictInTypelessInlineFragmentsFrag2
+  }
+}
+fragment selectionSetConflictDifferentTypesWithConflictInTypelessInlineFragmentsFrag1 on User {
+  ... @include(if: true) {
+    same_alias: id
+  }
+}
+fragment selectionSetConflictDifferentTypesWithConflictInTypelessInlineFragmentsFrag2 on Actor {
+  ... @skip(if: false) {
+    same_alias: name
+  }
+}
+==================================== ERROR ====================================
+✖︎ Field 'same_alias' is ambiguous because it references two different fields: 'id' and 'name'
+
+  selection_set_conflict_different_types_with_conflict_in_typeless_inline_fragments.graphql:10:17
+    9 │   ... @include(if: true) {
+   10 │     same_alias: id
+      │                 ^^
+   11 │   }
+
+  ℹ︎ the other field
+
+  selection_set_conflict_different_types_with_conflict_in_typeless_inline_fragments.graphql:15:17
+   14 │   ... @skip(if: false) {
+   15 │     same_alias: name
+      │                 ^^^^
+   16 │   }

@@ -1,0 +1,130 @@
+==================================== INPUT ====================================
+query noInlineFragmentAndModuleQuery {
+  me {
+    ...noInlineFragmentAndModule_parent @module(name: "NoInlineFragment")
+  }
+}
+
+fragment noInlineFragmentAndModule_parent on User @no_inline {
+  id
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "noInlineFragmentAndModuleQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "me",
+        "plural": false,
+        "selections": [
+          {
+            "args": null,
+            "documentName": "noInlineFragmentAndModuleQuery",
+            "fragmentName": "noInlineFragmentAndModule_parent",
+            "fragmentPropName": "parent",
+            "kind": "ModuleImport"
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [],
+    "kind": "Operation",
+    "name": "noInlineFragmentAndModuleQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "me",
+        "plural": false,
+        "selections": [
+          {
+            "args": null,
+            "documentName": "noInlineFragmentAndModuleQuery",
+            "fragmentName": "noInlineFragmentAndModule_parent",
+            "fragmentPropName": "parent",
+            "kind": "ModuleImport"
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {},
+    "name": "noInlineFragmentAndModuleQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query noInlineFragmentAndModuleQuery {
+  me {
+    ...noInlineFragmentAndModule_parent
+    __module_operation_noInlineFragmentAndModuleQuery: js(module: "noInlineFragmentAndModule_parent$normalization.graphql", id: "noInlineFragmentAndModuleQuery.me", branch: "User")
+    __module_component_noInlineFragmentAndModuleQuery: js(module: "NoInlineFragment", id: "noInlineFragmentAndModuleQuery.me", branch: "User")
+    id
+  }
+}
+
+fragment noInlineFragmentAndModule_parent on User {
+  id
+}
+
+
+{
+  "kind": "SplitOperation",
+  "metadata": {},
+  "name": "noInlineFragmentAndModule_parent$normalization",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "id",
+      "storageKey": null
+    }
+  ]
+}
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "noInlineFragmentAndModule_parent",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "id",
+      "storageKey": null
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}

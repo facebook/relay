@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -12,39 +12,12 @@
 
 'use strict';
 
-const React = require('react');
-const ReactRelayContext = require('./ReactRelayContext');
-const ReactRelayQueryFetcher = require('./ReactRelayQueryFetcher');
-
-const areEqual = require('areEqual');
-const buildReactRelayContainer = require('./buildReactRelayContainer');
-const getRootVariablesForFragments = require('./getRootVariablesForFragments');
-const invariant = require('invariant');
-const warning = require('warning');
-
-const {
-  getComponentName,
-  getContainerName,
-} = require('./ReactRelayContainerUtils');
-const {assertRelayContext} = require('./RelayContext');
-const {
-  ConnectionInterface,
-  Observable,
-  createFragmentSpecResolver,
-  createOperationDescriptor,
-  getDataIDsFromObject,
-  getRequest,
-  getSelector,
-  getVariablesFromObject,
-  isScalarAndEqual,
-} = require('relay-runtime');
-
 import type {
-  $RelayProps,
-  ObserverOrCallback,
   GeneratedNodeMap,
+  ObserverOrCallback,
   RefetchOptions,
   RelayPaginationProp,
+  $RelayProps,
 } from './ReactRelayTypes';
 import type {
   CacheConfig,
@@ -60,11 +33,37 @@ import type {
   Variables,
 } from 'relay-runtime';
 
+const buildReactRelayContainer = require('./buildReactRelayContainer');
+const getRootVariablesForFragments = require('./getRootVariablesForFragments');
+const {
+  getComponentName,
+  getContainerName,
+} = require('./ReactRelayContainerUtils');
+const ReactRelayContext = require('./ReactRelayContext');
+const ReactRelayQueryFetcher = require('./ReactRelayQueryFetcher');
+const {assertRelayContext} = require('./RelayContext');
+const areEqual = require('areEqual');
+const invariant = require('invariant');
+const React = require('react');
+const {
+  ConnectionInterface,
+  Observable,
+  RelayFeatureFlags,
+  createFragmentSpecResolver,
+  createOperationDescriptor,
+  getDataIDsFromObject,
+  getRequest,
+  getVariablesFromObject,
+  isScalarAndEqual,
+} = require('relay-runtime');
+const warning = require('warning');
+
 type ContainerState = {
   data: {[key: string]: mixed, ...},
   relayProp: RelayPaginationProp,
   prevContext: RelayContext,
   contextForChildren: RelayContext,
+  resolverGeneration: number,
   ...
 };
 
@@ -360,24 +359,55 @@ function createContainerWithFragments<
     constructor(props) {
       super(props);
       const relayContext = assertRelayContext(props.__relayContext);
+      const rootIsQueryRenderer = props.__rootIsQueryRenderer ?? false;
       this._isARequestInFlight = false;
       this._refetchSubscription = null;
       this._refetchVariables = null;
-      this._resolver = createFragmentSpecResolver(
-        relayContext,
-        containerName,
-        fragments,
-        props,
-        this._handleFragmentDataUpdate,
-      );
+
+      if (RelayFeatureFlags.ENABLE_CONTAINERS_SUBSCRIBE_ON_COMMIT === true) {
+        this._resolver = createFragmentSpecResolver(
+          relayContext,
+          containerName,
+          fragments,
+          props,
+          rootIsQueryRenderer,
+        );
+      } else {
+        this._resolver = createFragmentSpecResolver(
+          relayContext,
+          containerName,
+          fragments,
+          props,
+          rootIsQueryRenderer,
+          this._handleFragmentDataUpdate,
+        );
+      }
       this.state = {
         data: this._resolver.resolve(),
         prevContext: relayContext,
         contextForChildren: relayContext,
         relayProp: this._buildRelayProp(relayContext),
+        resolverGeneration: 0,
       };
       this._isUnmounted = false;
       this._hasFetched = false;
+    }
+
+    componentDidMount() {
+      this._isUnmounted = false;
+      if (RelayFeatureFlags.ENABLE_CONTAINERS_SUBSCRIBE_ON_COMMIT === true) {
+        this._subscribeToNewResolverAndRerenderIfStoreHasChanged();
+      }
+    }
+
+    componentDidUpdate(prevProps: Props, prevState: ContainerState) {
+      if (RelayFeatureFlags.ENABLE_CONTAINERS_SUBSCRIBE_ON_COMMIT === true) {
+        if (prevState.resolverGeneration !== this.state.resolverGeneration) {
+          this._subscribeToNewResolverAndRerenderIfStoreHasChanged();
+        } else {
+          this._rerenderIfStoreHasChanged();
+        }
+      }
     }
 
     /**
@@ -387,6 +417,7 @@ function createContainerWithFragments<
      */
     UNSAFE_componentWillReceiveProps(nextProps) {
       const relayContext = assertRelayContext(nextProps.__relayContext);
+      const rootIsQueryRenderer = nextProps.__rootIsQueryRenderer ?? false;
       const prevIDs = getDataIDsFromObject(fragments, this.props);
       const nextIDs = getDataIDsFromObject(fragments, nextProps);
       const prevRootVariables = getRootVariablesForFragments(
@@ -410,18 +441,30 @@ function createContainerWithFragments<
       ) {
         this._cleanup();
         // Child containers rely on context.relay being mutated (for gDSFP).
-        this._resolver = createFragmentSpecResolver(
-          relayContext,
-          containerName,
-          fragments,
-          nextProps,
-          this._handleFragmentDataUpdate,
-        );
-        this.setState({
+        if (RelayFeatureFlags.ENABLE_CONTAINERS_SUBSCRIBE_ON_COMMIT === true) {
+          this._resolver = createFragmentSpecResolver(
+            relayContext,
+            containerName,
+            fragments,
+            nextProps,
+            rootIsQueryRenderer,
+          );
+        } else {
+          this._resolver = createFragmentSpecResolver(
+            relayContext,
+            containerName,
+            fragments,
+            nextProps,
+            rootIsQueryRenderer,
+            this._handleFragmentDataUpdate,
+          );
+        }
+        this.setState(prevState => ({
           prevContext: relayContext,
           contextForChildren: relayContext,
           relayProp: this._buildRelayProp(relayContext),
-        });
+          resolverGeneration: prevState.resolverGeneration + 1,
+        }));
       } else if (!this._hasFetched) {
         this._resolver.setProps(nextProps);
       }
@@ -440,7 +483,8 @@ function createContainerWithFragments<
       // Short-circuit if any Relay-related data has changed
       if (
         nextState.data !== this.state.data ||
-        nextState.relayProp !== this.state.relayProp
+        nextState.relayProp !== this.state.relayProp ||
+        nextState.resolverGeneration !== this.state.resolverGeneration
       ) {
         return true;
       }
@@ -476,6 +520,31 @@ function createContainerWithFragments<
         refetchConnection: this._refetchConnection,
         environment: relayContext.environment,
       };
+    }
+
+    _rerenderIfStoreHasChanged() {
+      const {data} = this.state;
+      // External values could change between render and commit.
+      // Check for this case, even though it requires an extra store read.
+      const maybeNewData = this._resolver.resolve();
+      if (data !== maybeNewData) {
+        this.setState({data: maybeNewData});
+      }
+    }
+
+    _subscribeToNewResolverAndRerenderIfStoreHasChanged() {
+      const {data} = this.state;
+      const maybeNewData = this._resolver.resolve();
+
+      // Event listeners are only safe to add during the commit phase,
+      // So they won't leak if render is interrupted or errors.
+      this._resolver.setCallback(this.props, this._handleFragmentDataUpdate);
+
+      // External values could change between render and commit.
+      // Check for this case, even though it requires an extra store read.
+      if (data !== maybeNewData) {
+        this.setState({data: maybeNewData});
+      }
     }
 
     /**
@@ -682,7 +751,12 @@ function createContainerWithFragments<
       options: ?RefetchOptions,
     ): Subscription {
       const {environment} = assertRelayContext(this.props.__relayContext);
-      const {componentRef: _, __relayContext, ...restProps} = this.props;
+      const {
+        componentRef: _,
+        __relayContext,
+        __rootIsQueryRenderer,
+        ...restProps
+      } = this.props;
       const props = {
         ...restProps,
         ...this.state.data,
@@ -726,7 +800,11 @@ function createContainerWithFragments<
         cacheConfig.metadata = options?.metadata;
       }
       const request = getRequest(connectionConfig.query);
-      const operation = createOperationDescriptor(request, fetchVariables);
+      const operation = createOperationDescriptor(
+        request,
+        fetchVariables,
+        cacheConfig,
+      );
 
       let refetchSubscription = null;
 
@@ -782,7 +860,6 @@ function createContainerWithFragments<
         .execute({
           environment,
           operation,
-          cacheConfig,
           preservePreviousReferences: true,
         })
         .mergeMap(payload =>
@@ -823,7 +900,8 @@ function createContainerWithFragments<
     }
 
     render() {
-      const {componentRef, __relayContext, ...props} = this.props;
+      const {componentRef, __relayContext, __rootIsQueryRenderer, ...props} =
+        this.props;
       return (
         <ReactRelayContext.Provider value={this.state.contextForChildren}>
           <Component
@@ -852,6 +930,7 @@ function createContainer<Props: {...}, TComponent: React.ComponentType<Props>>(
 ): React.ComponentType<
   $RelayProps<React$ElementConfig<TComponent>, RelayPaginationProp>,
 > {
+  // $FlowFixMe[incompatible-return]
   return buildReactRelayContainer(
     Component,
     fragmentSpec,

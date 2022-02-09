@@ -1,0 +1,13 @@
+# expected-to-throw
+query selectionSetConflictDifferentTypesWithConflictQuery {
+  me {
+    ...selectionSetConflictDifferentTypesWithConflictFrag1
+    ...selectionSetConflictDifferentTypesWithConflictFrag2
+  }
+}
+fragment selectionSetConflictDifferentTypesWithConflictFrag1 on User {
+  same_alias: id
+}
+fragment selectionSetConflictDifferentTypesWithConflictFrag2 on Actor {
+  same_alias: name
+}

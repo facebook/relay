@@ -1,34 +1,42 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::constants::ARGUMENT_DEFINITION;
-use crate::errors::ValidationMessage;
+use crate::errors::{ValidationMessage, ValidationMessageWithData};
 use crate::ir::*;
-use crate::signatures::{build_signatures, FragmentSignature, FragmentSignatures};
-use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, Span, WithLocation};
+use crate::signatures::{
+    build_signatures, FragmentSignature, FragmentSignatures, ProvidedVariableMetadata,
+};
+use crate::{constants::ARGUMENT_DEFINITION, GraphQLSuggestions};
+use common::{
+    Diagnostic, DiagnosticsResult, FeatureFlag, FeatureFlags, Location, NamedItem, Span,
+    WithLocation,
+};
 use core::cmp::Ordering;
 use errors::{par_try_map, try2, try3, try_map};
-use fnv::{FnvBuildHasher, FnvHashMap, FnvHashSet};
-use graphql_syntax::{DirectiveLocation, List, OperationKind};
-use indexmap::IndexMap;
-use interner::Intern;
-use interner::StringKey;
+use graphql_syntax::{DirectiveLocation, Identifier, List, OperationKind, Token, TokenKind};
+use intern::string_key::{Intern, StringKey, StringKeyIndexMap, StringKeyMap, StringKeySet};
 use lazy_static::lazy_static;
 use schema::{
-    ArgumentDefinitions, Enum, FieldID, InputObject, Scalar, Schema, Type, TypeReference,
+    ArgumentDefinitions, Enum, FieldID, InputObject, SDLSchema, Scalar, Schema, Type, TypeReference,
 };
 
 lazy_static! {
     static ref TYPENAME_FIELD_NAME: StringKey = "__typename".intern();
+    static ref FETCH_TOKEN_FIELD_NAME: StringKey = "__token".intern();
 
     /// Relay extension field that's available on all types.
     static ref CLIENT_ID_FIELD_NAME: StringKey = "__id".intern();
     static ref MATCH_NAME: StringKey = "match".intern();
     static ref SUPPORTED_NAME: StringKey = "supported".intern();
+
+    static ref FIXME_FAT_INTERFACE: StringKey = "fixme_fat_interface".intern();
+
+    static ref DIRECTIVE_UNCHECKED_ARGUMENTS: StringKey = "uncheckedArguments_DEPRECATED".intern();
+    pub static ref DIRECTIVE_ARGUMENTS: StringKey = "arguments".intern();
 }
 
 /// The semantic of defining variables on a fragment definition.
@@ -43,8 +51,11 @@ pub enum FragmentVariablesSemantic {
     PassedValue,
 }
 
-#[derive(Clone, Copy)]
-pub struct BuilderOptions {
+pub struct RelayMode<'a> {
+    pub enable_provided_variables: &'a FeatureFlag,
+}
+
+pub struct BuilderOptions<'a> {
     /// Do not error when a fragment spread references a fragment that is not
     /// defined in the same program.
     pub allow_undefined_fragment_spreads: bool,
@@ -53,43 +64,66 @@ pub struct BuilderOptions {
     pub fragment_variables_semantic: FragmentVariablesSemantic,
 
     /// Enable a Relay special cases:
-    /// - Fields with a @match directive do not require to pass the non-nullable
+    /// - Fields with a @match directive are not required to pass the non-nullable
     ///   `supported` argument.
-    pub relay_mode: bool,
+    /// - use provided variable
+    pub relay_mode: Option<RelayMode<'a>>,
+
+    /// By default Relay doesn't allow the use of anonymous operations,
+    /// but operations without name are valid, and can be executed on a server.
+    /// This option allows `build_ir` to use a default name for anonymous operations.
+    pub default_anonymous_operation_name: Option<StringKey>,
 }
 
 /// Converts a self-contained corpus of definitions into typed IR, or returns
 /// a list of errors if the corpus is invalid.
 /// NOTE: Uses Relay defaults.
-pub fn build_ir_with_relay_options(
-    schema: &Schema,
+pub fn build_ir_with_relay_feature_flags(
+    schema: &SDLSchema,
+    definitions: &[graphql_syntax::ExecutableDefinition],
+    feature_flags: &FeatureFlags,
+) -> DiagnosticsResult<Vec<ExecutableDefinition>> {
+    let builder_options = BuilderOptions {
+        allow_undefined_fragment_spreads: false,
+        fragment_variables_semantic: FragmentVariablesSemantic::PassedValue,
+        relay_mode: Some(RelayMode {
+            enable_provided_variables: &feature_flags.enable_provided_variables,
+        }),
+        default_anonymous_operation_name: None,
+    };
+
+    build_ir_with_extra_features(schema, definitions, &builder_options)
+}
+
+pub fn build_ir(
+    schema: &SDLSchema,
     definitions: &[graphql_syntax::ExecutableDefinition],
 ) -> DiagnosticsResult<Vec<ExecutableDefinition>> {
-    let signatures = build_signatures(schema, &definitions)?;
-    par_try_map(definitions, |definition| {
-        let mut builder = Builder::new(
-            schema,
-            &signatures,
-            definition.location(),
-            BuilderOptions {
-                allow_undefined_fragment_spreads: false,
-                fragment_variables_semantic: FragmentVariablesSemantic::PassedValue,
-                relay_mode: true,
-            },
-        );
-        builder.build_definition(definition)
-    })
+    build_ir_with_extra_features(
+        schema,
+        definitions,
+        &BuilderOptions {
+            allow_undefined_fragment_spreads: false,
+            fragment_variables_semantic: FragmentVariablesSemantic::PassedValue,
+            relay_mode: None,
+            default_anonymous_operation_name: None,
+        },
+    )
 }
 
 /// Converts a self-contained corpus of definitions into typed IR, or returns
 /// a list of errors if the corpus is invalid. `options` can be set to
 /// control the builder activities.
 pub fn build_ir_with_extra_features(
-    schema: &Schema,
+    schema: &SDLSchema,
     definitions: &[graphql_syntax::ExecutableDefinition],
-    options: BuilderOptions,
+    options: &BuilderOptions<'_>,
 ) -> DiagnosticsResult<Vec<ExecutableDefinition>> {
-    let signatures = build_signatures(schema, &definitions)?;
+    let enable_provided_variables = match &options.relay_mode {
+        Some(options) => options.enable_provided_variables,
+        None => &FeatureFlag::Disabled,
+    };
+    let signatures = build_signatures(schema, definitions, enable_provided_variables)?;
     par_try_map(definitions, |definition| {
         let mut builder = Builder::new(schema, &signatures, definition.location(), options);
         builder.build_definition(definition)
@@ -97,7 +131,7 @@ pub fn build_ir_with_extra_features(
 }
 
 pub fn build_type_annotation(
-    schema: &Schema,
+    schema: &SDLSchema,
     annotation: &graphql_syntax::TypeAnnotation,
     location: Location,
 ) -> DiagnosticsResult<TypeReference> {
@@ -106,17 +140,39 @@ pub fn build_type_annotation(
         schema,
         &signatures,
         location,
-        BuilderOptions {
+        &BuilderOptions {
             allow_undefined_fragment_spreads: false,
             fragment_variables_semantic: FragmentVariablesSemantic::Disabled,
-            relay_mode: false,
+            relay_mode: None,
+            default_anonymous_operation_name: None,
         },
     );
     builder.build_type_annotation(annotation)
 }
 
+pub fn build_directive(
+    schema: &SDLSchema,
+    directive: &graphql_syntax::Directive,
+    directive_location: DirectiveLocation,
+    location: Location,
+) -> DiagnosticsResult<Directive> {
+    let signatures = Default::default();
+    let mut builder = Builder::new(
+        schema,
+        &signatures,
+        location,
+        &BuilderOptions {
+            allow_undefined_fragment_spreads: false,
+            fragment_variables_semantic: FragmentVariablesSemantic::Disabled,
+            relay_mode: None,
+            default_anonymous_operation_name: None,
+        },
+    );
+    builder.build_directive(directive, directive_location)
+}
+
 pub fn build_constant_value(
-    schema: &Schema,
+    schema: &SDLSchema,
     value: &graphql_syntax::ConstantValue,
     type_: &TypeReference,
     location: Location,
@@ -127,17 +183,18 @@ pub fn build_constant_value(
         schema,
         &signatures,
         location,
-        BuilderOptions {
+        &BuilderOptions {
             allow_undefined_fragment_spreads: false,
             fragment_variables_semantic: FragmentVariablesSemantic::Disabled,
-            relay_mode: false,
+            relay_mode: None,
+            default_anonymous_operation_name: None,
         },
     );
     builder.build_constant_value(value, type_, validation)
 }
 
 pub fn build_variable_definitions(
-    schema: &Schema,
+    schema: &SDLSchema,
     definitions: &[graphql_syntax::VariableDefinition],
     location: Location,
 ) -> DiagnosticsResult<Vec<VariableDefinition>> {
@@ -146,10 +203,11 @@ pub fn build_variable_definitions(
         schema,
         &signatures,
         location,
-        BuilderOptions {
+        &BuilderOptions {
             allow_undefined_fragment_spreads: false,
             fragment_variables_semantic: FragmentVariablesSemantic::Disabled,
-            relay_mode: false,
+            relay_mode: None,
+            default_anonymous_operation_name: None,
         },
     );
     builder.build_variable_definitions(definitions)
@@ -157,8 +215,8 @@ pub fn build_variable_definitions(
 
 // Helper Types
 
-type VariableDefinitions = FnvHashMap<StringKey, VariableDefinition>;
-type UsedVariables = IndexMap<StringKey, VariableUsage, FnvBuildHasher>;
+type VariableDefinitions = StringKeyMap<VariableDefinition>;
+type UsedVariables = StringKeyIndexMap<VariableUsage>;
 
 #[derive(Debug)]
 struct VariableUsage {
@@ -166,21 +224,22 @@ struct VariableUsage {
     type_: TypeReference,
 }
 
-struct Builder<'schema, 'signatures> {
-    schema: &'schema Schema,
+struct Builder<'schema, 'signatures, 'options> {
+    schema: &'schema SDLSchema,
     signatures: &'signatures FragmentSignatures,
     location: Location,
     defined_variables: VariableDefinitions,
     used_variables: UsedVariables,
-    options: BuilderOptions,
+    options: &'options BuilderOptions<'options>,
+    suggestions: GraphQLSuggestions<'schema>,
 }
 
-impl<'schema, 'signatures> Builder<'schema, 'signatures> {
+impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
     pub fn new(
-        schema: &'schema Schema,
+        schema: &'schema SDLSchema,
         signatures: &'signatures FragmentSignatures,
         location: Location,
-        options: BuilderOptions,
+        options: &'options BuilderOptions<'options>,
     ) -> Self {
         Self {
             schema,
@@ -189,6 +248,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
             defined_variables: Default::default(),
             used_variables: UsedVariables::default(),
             options,
+            suggestions: GraphQLSuggestions::new(schema),
         }
     }
 
@@ -224,7 +284,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
 
         let directives =
             self.build_directives(&fragment.directives, DirectiveLocation::FragmentDefinition);
-        let selections = self.build_selections(&fragment.selections.items, &fragment_type);
+        let selections = self.build_selections(&fragment.selections.items, &[fragment_type]);
         let (directives, selections) = try2(directives, selections)?;
         let used_global_variables = self
             .used_variables
@@ -246,19 +306,37 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         })
     }
 
+    fn get_operation_name(
+        &self,
+        operation: &graphql_syntax::OperationDefinition,
+    ) -> DiagnosticsResult<Identifier> {
+        match &operation.name {
+            Some(name) => Ok(name.clone()),
+            None => {
+                if let Some(name) = self.options.default_anonymous_operation_name {
+                    Ok(Identifier {
+                        span: Span::new(0, 0),
+                        token: Token {
+                            span: Span::new(0, 0),
+                            kind: TokenKind::Identifier,
+                        },
+                        value: name,
+                    })
+                } else {
+                    Err(vec![Diagnostic::error(
+                        ValidationMessage::ExpectedOperationName(),
+                        operation.location,
+                    )])
+                }
+            }
+        }
+    }
+
     fn build_operation(
         &mut self,
         operation: &graphql_syntax::OperationDefinition,
     ) -> DiagnosticsResult<OperationDefinition> {
-        let name = match &operation.name {
-            Some(name) => name,
-            None => {
-                return Err(vec![Diagnostic::error(
-                    ValidationMessage::ExpectedOperationName(),
-                    operation.location,
-                )]);
-            }
-        };
+        let name = &self.get_operation_name(operation)?;
         let kind = operation
             .operation
             .as_ref()
@@ -299,8 +377,19 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
             },
         );
         let operation_type_reference = TypeReference::Named(operation_type);
+        // assert the subscription only contains one selection
+        if let OperationKind::Subscription = kind {
+            if operation.selections.items.len() != 1 {
+                return Err(vec![Diagnostic::error(
+                    ValidationMessage::GenerateSubscriptionNameSingleSelectionItem {
+                        subscription_name: name.value,
+                    },
+                    operation.location,
+                )]);
+            }
+        }
         let selections =
-            self.build_selections(&operation.selections.items, &operation_type_reference);
+            self.build_selections(&operation.selections.items, &[operation_type_reference]);
         let (directives, selections) = try2(directives, selections)?;
         if !self.used_variables.is_empty() {
             Err(self
@@ -331,6 +420,25 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         &mut self,
         definitions: &[graphql_syntax::VariableDefinition],
     ) -> DiagnosticsResult<Vec<VariableDefinition>> {
+        // check for duplicate variables
+        let mut seen_variables = StringKeyMap::default();
+        for variable in definitions {
+            if let Some(other_variable_span) = seen_variables.get(&variable.name.name) {
+                return Err(vec![
+                    Diagnostic::error(
+                        ValidationMessage::DuplicateVariable {
+                            name: variable.name.name,
+                        },
+                        self.location.with_span(variable.span),
+                    )
+                    .annotate(
+                        "conflicts with",
+                        self.location.with_span(*other_variable_span),
+                    ),
+                ]);
+            }
+            seen_variables.insert(variable.name.name, variable.span);
+        }
         try_map(definitions, |definition| {
             self.build_variable_definition(definition)
         })
@@ -340,21 +448,13 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         &mut self,
         definition: &graphql_syntax::VariableDefinition,
     ) -> DiagnosticsResult<VariableDefinition> {
-        let type_ = self.build_type_annotation(&definition.type_)?;
-        if !type_.inner().is_input_type() {
-            return Err(vec![Diagnostic::error(
-                ValidationMessage::ExpectedVariablesToHaveInputType(
-                    self.schema.get_type_name(type_.inner()),
-                ),
-                self.location.with_span(definition.span),
-            )]);
-        }
+        let type_ = self.build_type_annotation_for_input(&definition.type_)?;
         let default_value = match &definition.default_value {
-            Some(default_value) => Some(self.build_constant_value(
-                &default_value.value,
-                &type_,
-                ValidationLevel::Strict,
-            )?),
+            Some(default_value) => Some(WithLocation::from_span(
+                self.location.source_location(),
+                default_value.span,
+                self.build_constant_value(&default_value.value, &type_, ValidationLevel::Strict)?,
+            )),
             None => None,
         };
         let directives = self.build_directives(
@@ -375,28 +475,58 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         &mut self,
         annotation: &graphql_syntax::TypeAnnotation,
     ) -> DiagnosticsResult<TypeReference> {
-        self.build_type_annotation_inner(annotation)
+        self.build_type_annotation_inner(annotation, false)
+    }
+
+    fn build_type_annotation_for_input(
+        &mut self,
+        annotation: &graphql_syntax::TypeAnnotation,
+    ) -> DiagnosticsResult<TypeReference> {
+        self.build_type_annotation_inner(annotation, true)
     }
 
     fn build_type_annotation_inner(
         &mut self,
         annotation: &graphql_syntax::TypeAnnotation,
+        is_for_input: bool,
     ) -> DiagnosticsResult<TypeReference> {
         match annotation {
-            graphql_syntax::TypeAnnotation::Named(name) => match self.schema.get_type(name.value) {
-                Some(type_) => Ok(TypeReference::Named(type_)),
-                None => Err(vec![Diagnostic::error(
-                    ValidationMessage::UnknownType(name.value),
-                    self.location.with_span(name.span),
-                )]),
-            },
+            graphql_syntax::TypeAnnotation::Named(named_type) => {
+                match self.schema.get_type(named_type.name.value) {
+                    Some(type_) => {
+                        if is_for_input && !type_.is_input_type() {
+                            Err(vec![Diagnostic::error(
+                                ValidationMessage::ExpectedVariablesToHaveInputType(
+                                    self.schema.get_type_name(type_),
+                                ),
+                                self.location.with_span(named_type.name.span),
+                            )])
+                        } else {
+                            Ok(TypeReference::Named(type_))
+                        }
+                    }
+                    None => Err(vec![Diagnostic::error_with_data(
+                        ValidationMessageWithData::UnknownType {
+                            type_name: named_type.name.value,
+                            suggestions: if is_for_input {
+                                self.suggestions
+                                    .input_type_suggestions(named_type.name.value)
+                            } else {
+                                self.suggestions
+                                    .output_type_suggestions(named_type.name.value)
+                            },
+                        },
+                        self.location.with_span(named_type.name.span),
+                    )]),
+                }
+            }
             graphql_syntax::TypeAnnotation::NonNull(non_null) => {
-                let inner = self.build_type_annotation_inner(&non_null.type_)?;
+                let inner = self.build_type_annotation_inner(&non_null.type_, is_for_input)?;
                 Ok(TypeReference::NonNull(Box::new(inner)))
             }
             graphql_syntax::TypeAnnotation::List(list) => {
                 // TODO: Nested lists is allowed to support existing query variables definitions
-                let inner = self.build_type_annotation_inner(&list.type_)?;
+                let inner = self.build_type_annotation_inner(&list.type_, is_for_input)?;
                 Ok(TypeReference::List(Box::new(inner)))
             }
         }
@@ -405,11 +535,11 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
     fn build_selections(
         &mut self,
         selections: &[graphql_syntax::Selection],
-        parent_type: &TypeReference,
+        parent_types: &[TypeReference],
     ) -> DiagnosticsResult<Vec<Selection>> {
         try_map(selections, |selection| {
             // Here we've built our normal selections (fragments, linked fields, etc)
-            let mut next_selection = self.build_selection(selection, parent_type)?;
+            let mut next_selection = self.build_selection(selection, parent_types)?;
 
             // If there is no directives on selection return early.
             if next_selection.directives().is_empty() {
@@ -419,7 +549,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
             // Now, let's look into selection directives, and split them into two
             // categories: conditions and other directives
             let (conditions, directives) =
-                split_conditions_and_directives(&next_selection.directives());
+                split_conditions_and_directives(next_selection.directives());
 
             // If conditions are empty -> return the original selection
             if conditions.is_empty() {
@@ -437,20 +567,20 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
     fn build_selection(
         &mut self,
         selection: &graphql_syntax::Selection,
-        parent_type: &TypeReference,
+        parent_types: &[TypeReference],
     ) -> DiagnosticsResult<Selection> {
         match selection {
             graphql_syntax::Selection::FragmentSpread(selection) => Ok(Selection::FragmentSpread(
-                From::from(self.build_fragment_spread(selection, parent_type)?),
+                From::from(self.build_fragment_spread(selection, parent_types)?),
             )),
             graphql_syntax::Selection::InlineFragment(selection) => Ok(Selection::InlineFragment(
-                From::from(self.build_inline_fragment(selection, parent_type)?),
+                From::from(self.build_inline_fragment(selection, parent_types)?),
             )),
             graphql_syntax::Selection::LinkedField(selection) => Ok(Selection::LinkedField(
-                From::from(self.build_linked_field(selection, parent_type)?),
+                From::from(self.build_linked_field(selection, &parent_types[0])?),
             )),
             graphql_syntax::Selection::ScalarField(selection) => Ok(Selection::ScalarField(
-                From::from(self.build_scalar_field(selection, parent_type)?),
+                From::from(self.build_scalar_field(selection, &parent_types[0])?),
             )),
         }
     }
@@ -459,13 +589,12 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         &mut self,
         signature: &FragmentSignature,
         arg_list: &List<graphql_syntax::Argument>,
-        check_arguments: bool,
+        validation_level: ValidationLevel,
     ) -> DiagnosticsResult<Vec<Argument>> {
-        let mut has_unused_args = false;
+        let mut has_invalid_arg = false;
         let mut errors = Vec::new();
         for variable_definition in &signature.variable_definitions {
-            if variable_definition.type_.is_non_null()
-                && variable_definition.default_value.is_none()
+            if variable_definition_requires_argument(variable_definition)
                 && arg_list
                     .items
                     .named(variable_definition.name.item)
@@ -504,15 +633,19 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
                     // but the persist query allowed them as the types are the same underlyingly.
                     // NOTE: We keep the same behavior as JS compiler for now, where we don't validate
                     // types of variables passed to @args at all
-                    Ok(self.build_argument(
+                    let arg_result = self.build_argument(
                         arg,
                         &argument_definition.type_,
-                        ValidationLevel::Loose,
-                    )?)
-                } else if !check_arguments {
-                    // TODO: fully handle uncheckedArguments_DEPRECATED. Currently, this just creates
-                    // a fake Boolean type.
-                    has_unused_args = true;
+                        ValidationLevel::Strict,
+                    );
+                    if arg_result.is_err() && validation_level == ValidationLevel::Loose {
+                        has_invalid_arg = true;
+                        self.build_argument(arg, &argument_definition.type_, ValidationLevel::Loose)
+                    } else {
+                        arg_result
+                    }
+                } else if validation_level == ValidationLevel::Loose {
+                    has_invalid_arg = true;
                     Ok(self.build_argument(
                         arg,
                         self.schema.unchecked_argument_type_sentinel(),
@@ -526,7 +659,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
                 }
             })
             .collect();
-        if !check_arguments && !has_unused_args {
+        if validation_level == ValidationLevel::Loose && !has_invalid_arg {
             Err(vec![Diagnostic::error(
                 ValidationMessage::UnnecessaryUncheckedArgumentsDirective,
                 self.location.with_span(arg_list.span),
@@ -539,7 +672,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
     fn build_fragment_spread(
         &mut self,
         spread: &graphql_syntax::FragmentSpread,
-        parent_type: &TypeReference,
+        parent_types: &[TypeReference],
     ) -> DiagnosticsResult<FragmentSpread> {
         let spread_name_with_location = spread
             .name
@@ -549,10 +682,17 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         let signature = match self.signatures.get(&spread.name.value) {
             Some(fragment) => fragment,
             None if self.options.allow_undefined_fragment_spreads => {
-                let directives = self.build_directives(
-                    spread.directives.iter(),
-                    DirectiveLocation::FragmentSpread,
-                )?;
+                let directives = if self.options.relay_mode.is_some() {
+                    self.build_directives(
+                        spread.directives.iter().filter(|directive| {
+                            directive.name.value != *DIRECTIVE_ARGUMENTS
+                                && directive.name.value != *DIRECTIVE_UNCHECKED_ARGUMENTS
+                        }),
+                        DirectiveLocation::FragmentSpread,
+                    )?
+                } else {
+                    self.build_directives(&spread.directives, DirectiveLocation::FragmentSpread)?
+                };
                 return Ok(FragmentSpread {
                     fragment: spread_name_with_location,
                     arguments: Vec::new(),
@@ -567,24 +707,15 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
             }
         };
 
-        if !self
-            .schema
-            .are_overlapping_types(parent_type.inner(), signature.type_condition)
+        if let Some(parent_type) =
+            self.find_conflicting_parent_type(parent_types, signature.type_condition)
         {
             // no possible overlap
             return Err(vec![Diagnostic::error(
                 ValidationMessage::InvalidFragmentSpreadType {
                     fragment_name: spread.name.value,
-                    parent_type: self
-                        .schema
-                        .get_type_name(parent_type.inner())
-                        .lookup()
-                        .to_owned(),
-                    type_condition: self
-                        .schema
-                        .get_type_name(signature.type_condition)
-                        .lookup()
-                        .to_owned(),
+                    parent_type: self.schema.get_type_name(parent_type.inner()),
+                    type_condition: self.schema.get_type_name(signature.type_condition),
                 },
                 self.location.with_span(spread.span),
             )]);
@@ -603,16 +734,14 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         let (mut argument_directives, other_directives) = spread
             .directives
             .iter()
-            .partition::<Vec<_>, _>(|x| x.name.value.lookup() == "arguments");
+            .partition::<Vec<_>, _>(|directive| {
+                directive.name.value == *DIRECTIVE_ARGUMENTS
+                    || directive.name.value == *DIRECTIVE_UNCHECKED_ARGUMENTS
+            });
 
-        let (mut unchecked_argument_directives, other_directives) = other_directives
-            .into_iter()
-            .partition::<Vec<_>, _>(|x| x.name.value.lookup() == "uncheckedArguments_DEPRECATED");
-
-        if argument_directives.len() + unchecked_argument_directives.len() > 1 {
+        if argument_directives.len() > 1 {
             let mut locations = argument_directives
                 .iter()
-                .chain(unchecked_argument_directives.iter())
                 .map(|x| self.location.with_span(x.span));
             let mut error = Diagnostic::error(
                 ValidationMessage::ExpectedOneArgumentsDirective(),
@@ -625,24 +754,23 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         }
 
         let arguments = if let Some(graphql_syntax::Directive {
+            name,
             arguments: Some(arg_list),
             ..
         }) = argument_directives.pop()
         {
-            self.build_fragment_spread_arguments(&signature, arg_list, true)
-        } else if let Some(graphql_syntax::Directive {
-            arguments: Some(arg_list),
-            ..
-        }) = unchecked_argument_directives.pop()
-        {
-            self.build_fragment_spread_arguments(&signature, arg_list, false)
+            let validation_level = if name.value == *DIRECTIVE_UNCHECKED_ARGUMENTS {
+                ValidationLevel::Loose
+            } else {
+                ValidationLevel::Strict
+            };
+            self.build_fragment_spread_arguments(signature, arg_list, validation_level)
         } else {
             let errors: Vec<_> = signature
                 .variable_definitions
                 .iter()
                 .filter(|variable_definition| {
-                    variable_definition.type_.is_non_null()
-                        && variable_definition.default_value.is_none()
+                    variable_definition_requires_argument(variable_definition)
                 })
                 .map(|variable_definition| {
                     Diagnostic::error(
@@ -675,29 +803,33 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
     fn build_inline_fragment(
         &mut self,
         fragment: &graphql_syntax::InlineFragment,
-        parent_type: &TypeReference,
+        parent_types: &[TypeReference],
     ) -> DiagnosticsResult<InlineFragment> {
         // Error early if the type condition is invalid, since we can't correctly build
         // its selections w an invalid parent type
-        let type_condition = match &fragment.type_condition {
+        let type_condition_with_span = match &fragment.type_condition {
             Some(type_condition_node) => {
                 let type_name = type_condition_node.type_.value;
+                let span = type_condition_node.type_.span;
                 match self.schema.get_type(type_name) {
                     Some(type_condition) => match type_condition {
                         Type::Interface(..) | Type::Object(..) | Type::Union(..) => {
-                            Some(type_condition)
+                            Some((type_condition, span))
                         }
                         _ => {
                             return Err(vec![Diagnostic::error(
                                 ValidationMessage::ExpectedCompositeType(type_condition),
-                                self.location.with_span(type_condition_node.type_.span),
+                                self.location.with_span(span),
                             )]);
                         }
                     },
                     None => {
-                        return Err(vec![Diagnostic::error(
-                            ValidationMessage::UnknownType(type_name),
-                            self.location.with_span(type_condition_node.type_.span),
+                        return Err(vec![Diagnostic::error_with_data(
+                            ValidationMessageWithData::UnknownType {
+                                type_name,
+                                suggestions: self.suggestions.output_type_suggestions(type_name),
+                            },
+                            self.location.with_span(span),
                         )]);
                     }
                 }
@@ -705,35 +837,36 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
             None => None,
         };
 
-        if let Some(type_condition) = type_condition {
-            if !(self
-                .schema
-                .are_overlapping_types(parent_type.inner(), type_condition))
+        if let Some((type_condition, span)) = type_condition_with_span {
+            if let Some(parent_type) =
+                self.find_conflicting_parent_type(parent_types, type_condition)
             {
                 // no possible overlap
                 return Err(vec![Diagnostic::error(
                     ValidationMessage::InvalidInlineFragmentTypeCondition {
-                        parent_type: self
-                            .schema
-                            .get_type_name(parent_type.inner())
-                            .lookup()
-                            .to_owned(),
-                        type_condition: self
-                            .schema
-                            .get_type_name(type_condition)
-                            .lookup()
-                            .to_owned(),
+                        parent_type: self.schema.get_type_name(parent_type.inner()),
+                        type_condition: self.schema.get_type_name(type_condition),
                     },
-                    self.location.with_span(fragment.span),
+                    self.location.with_span(span),
                 )]);
             }
         }
 
-        let type_condition_reference = type_condition
-            .map(TypeReference::Named)
-            .unwrap_or_else(|| parent_type.clone());
-        let selections =
-            self.build_selections(&fragment.selections.items, &type_condition_reference);
+        let type_condition = type_condition_with_span.map(|(type_, _)| type_);
+
+        let new_parent_types = type_condition.map(|type_| {
+            let mut parents = Vec::with_capacity(parent_types.len() + 1);
+            // Note: The immediate parent is stored at the front of the vec.
+            parents.push(TypeReference::Named(type_));
+            parents.extend_from_slice(parent_types);
+            parents
+        });
+
+        let selections = self.build_selections(
+            &fragment.selections.items,
+            new_parent_types.as_deref().unwrap_or(parent_types),
+        );
+
         let directives =
             self.build_directives(&fragment.directives, DirectiveLocation::InlineFragment);
         let (directives, selections) = try2(directives, selections)?;
@@ -758,10 +891,13 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         ) {
             Some(field_id) => field_id,
             None => {
-                return Err(vec![Diagnostic::error(
-                    ValidationMessage::UnknownField {
+                return Err(vec![Diagnostic::error_with_data(
+                    ValidationMessageWithData::UnknownField {
                         type_: self.schema.get_type_name(parent_type.inner()),
                         field: field.name.value,
+                        suggestions: self
+                            .suggestions
+                            .field_name_suggestion(Some(parent_type.inner()), field.name.value),
                     },
                     self.location.with_span(span),
                 )]);
@@ -778,7 +914,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
             )]);
         }
         let alias = self.build_alias(&field.alias);
-        let relay_supported_arg_optional = self.options.relay_mode;
+        let relay_supported_arg_optional = self.options.relay_mode.is_some();
         let arguments = self.build_arguments(
             field.name.span,
             &field.arguments,
@@ -791,7 +927,8 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
                 }
             },
         );
-        let selections = self.build_selections(&field.selections.items, &field_definition.type_);
+        let selections =
+            self.build_selections(&field.selections.items, &[field_definition.type_.clone()]);
         let directives = self.build_directives(&field.directives, DirectiveLocation::Field);
         let (arguments, selections, directives) = try3(arguments, selections, directives)?;
         Ok(LinkedField {
@@ -811,8 +948,10 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         let field_name = field.name.value;
         if field_name == *TYPENAME_FIELD_NAME {
             return self.build_typename_field(field);
-        } else if self.options.relay_mode && field_name == *CLIENT_ID_FIELD_NAME {
+        } else if self.options.relay_mode.is_some() && field_name == *CLIENT_ID_FIELD_NAME {
             return self.build_clientid_field(field);
+        } else if field_name == *FETCH_TOKEN_FIELD_NAME {
+            return self.build_fetch_token_field(field);
         };
         let span = field.name.span;
         let field_id = match self.lookup_field(
@@ -823,10 +962,13 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         ) {
             Some(field_id) => field_id,
             None => {
-                return Err(vec![Diagnostic::error(
-                    ValidationMessage::UnknownField {
+                return Err(vec![Diagnostic::error_with_data(
+                    ValidationMessageWithData::UnknownField {
                         type_: self.schema.get_type_name(parent_type.inner()),
-                        field: field_name,
+                        field: field.name.value,
+                        suggestions: self
+                            .suggestions
+                            .field_name_suggestion(Some(parent_type.inner()), field.name.value),
                     },
                     self.location.with_span(span),
                 )]);
@@ -835,8 +977,8 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         let field_definition = self.schema.field(field_id);
         if !field_definition.type_.inner().is_scalar() && !field_definition.type_.inner().is_enum()
         {
-            return Err(vec![Diagnostic::error(
-                ValidationMessage::ExpectedSelectionsOnObjectField {
+            return Err(vec![Diagnostic::error_with_data(
+                ValidationMessageWithData::ExpectedSelectionsOnObjectField {
                     type_name: self.schema.get_type_name(parent_type.inner()),
                     field_name,
                 },
@@ -911,6 +1053,32 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         })
     }
 
+    fn build_fetch_token_field(
+        &mut self,
+        field: &graphql_syntax::ScalarField,
+    ) -> DiagnosticsResult<ScalarField> {
+        let field_id = self.schema.fetch_token_field();
+        let alias = self.build_alias(&field.alias);
+        if let Some(arguments) = &field.arguments {
+            return Err(Diagnostic::error(
+                ValidationMessage::InvalidArgumentsOnFetchTokenField(),
+                self.location.with_span(arguments.span),
+            )
+            .into());
+        }
+        let directives = self.build_directives(&field.directives, DirectiveLocation::Field)?;
+        Ok(ScalarField {
+            alias,
+            definition: WithLocation::from_span(
+                self.location.source_location(),
+                field.name.span,
+                field_id,
+            ),
+            arguments: Default::default(),
+            directives,
+        })
+    }
+
     fn build_alias(
         &mut self,
         alias: &Option<graphql_syntax::Alias>,
@@ -929,9 +1097,11 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         argument_definitions: &ArgumentDefinitions,
         is_non_nullable_field_required: impl Fn(&StringKey) -> bool,
     ) -> DiagnosticsResult<Vec<Argument>> {
+        // check for missing required (non-nullable) arguments
         let missing_arg_names = argument_definitions
             .iter()
             .filter(|arg_def| arg_def.type_.is_non_null())
+            .filter(|arg_def| arg_def.default_value.is_none())
             .filter(|required_arg_def| {
                 arguments
                     .iter()
@@ -947,8 +1117,26 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
                 self.location.with_span(span),
             )]);
         }
-        match arguments {
-            Some(arguments) => arguments
+
+        if let Some(arguments) = arguments {
+            // check for duplicate arguments
+            for (i, arg) in arguments.items.iter().enumerate() {
+                for other_arg in arguments.items.iter().skip(i + 1) {
+                    if arg.name.value == other_arg.name.value {
+                        return Err(vec![
+                            Diagnostic::error(
+                                ValidationMessage::DuplicateArgument {
+                                    name: arg.name.value,
+                                },
+                                self.location.with_span(arg.span),
+                            )
+                            .annotate("conflicts with", self.location.with_span(other_arg.span)),
+                        ]);
+                    }
+                }
+            }
+
+            arguments
                 .items
                 .iter()
                 .map(
@@ -964,8 +1152,9 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
                         )]),
                     },
                 )
-                .collect(),
-            None => Ok(vec![]),
+                .collect()
+        } else {
+            Ok(vec![])
         }
     }
 
@@ -1028,6 +1217,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
                     .name
                     .name_with_location(self.location.source_location()),
                 arguments: vec![],
+                data: None,
             });
         }
         let directive_definition = match self.schema.get_directive(directive.name.value) {
@@ -1052,10 +1242,16 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
             |_| true,
         )?;
         Ok(Directive {
-            name: directive
-                .name
-                .name_with_location(self.location.source_location()),
+            name: WithLocation::from_span(
+                self.location.source_location(),
+                // Include the @ in the span of the directive name for the IR
+                // so error highlighting of the directive include the @ for stylistic
+                // purposes.
+                Span::new(directive.at.span.start, directive.name.span.end),
+                directive.name.value,
+            ),
             arguments,
+            data: None,
         })
     }
 
@@ -1166,7 +1362,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         // variables
         if let graphql_syntax::Value::Constant(constant) = value {
             return Ok(Value::Constant(self.build_constant_value(
-                &constant,
+                constant,
                 type_,
                 ValidationLevel::Strict,
             )?));
@@ -1234,13 +1430,13 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
                 )]);
             }
         };
-        let mut seen_fields: FnvHashMap<StringKey, Span> = FnvHashMap::default();
-        let mut required_fields: FnvHashSet<StringKey> = type_definition
+        let mut seen_fields = StringKeyMap::default();
+        let mut required_fields = type_definition
             .fields
             .iter()
             .filter(|x| x.type_.is_non_null())
             .map(|x| x.name)
-            .collect();
+            .collect::<StringKeySet>();
 
         let fields: DiagnosticsResult<Vec<Argument>> = object
             .items
@@ -1275,9 +1471,13 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
                     })
                 }
                 None => Err(vec![Diagnostic::error(
-                    ValidationMessage::UnknownField {
+                    ValidationMessageWithData::UnknownField {
                         type_: type_definition.name,
                         field: x.name.value,
+                        suggestions: self.suggestions.field_name_suggestion(
+                            self.schema.get_type(type_definition.name),
+                            x.name.value,
+                        ),
                     },
                     self.location.with_span(x.name.span),
                 )]),
@@ -1286,8 +1486,8 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         if required_fields.is_empty() {
             Ok(Value::Object(fields?))
         } else {
-            let mut missing: Vec<StringKey> = required_fields.into_iter().map(|x| x).collect();
-            missing.sort_by_key(|x| x.lookup());
+            let mut missing: Vec<StringKey> = required_fields.into_iter().collect();
+            missing.sort();
             Err(vec![Diagnostic::error(
                 ValidationMessage::MissingRequiredFields(missing, type_definition.name),
                 self.location.with_span(object.span),
@@ -1366,13 +1566,13 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
                 )]);
             }
         };
-        let mut seen_fields: FnvHashMap<StringKey, Span> = FnvHashMap::default();
-        let mut required_fields: FnvHashSet<StringKey> = type_definition
+        let mut seen_fields = StringKeyMap::default();
+        let mut required_fields = type_definition
             .fields
             .iter()
             .filter(|x| x.type_.is_non_null())
             .map(|x| x.name)
-            .collect();
+            .collect::<StringKeySet>();
 
         let fields: DiagnosticsResult<Vec<ConstantArgument>> = object
             .items
@@ -1404,9 +1604,13 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
                     })
                 }
                 None => Err(vec![Diagnostic::error(
-                    ValidationMessage::UnknownField {
+                    ValidationMessageWithData::UnknownField {
                         type_: type_definition.name,
                         field: x.name.value,
+                        suggestions: self.suggestions.field_name_suggestion(
+                            self.schema.get_type(type_definition.name),
+                            x.name.value,
+                        ),
                     },
                     self.location.with_span(x.name.span),
                 )]),
@@ -1415,8 +1619,8 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         if required_fields.is_empty() {
             Ok(ConstantValue::Object(fields?))
         } else {
-            let mut missing: Vec<StringKey> = required_fields.into_iter().map(|x| x).collect();
-            missing.sort_by_key(|x| x.lookup());
+            let mut missing: Vec<StringKey> = required_fields.into_iter().collect();
+            missing.sort();
             Err(vec![Diagnostic::error(
                 ValidationMessage::MissingRequiredFields(missing, type_definition.name),
                 self.location.with_span(object.span),
@@ -1444,16 +1648,17 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
                 )]);
             }
         };
-        match type_definition.values.iter().find(|enum_value| {
-            enum_value.value == value
-                || enum_value.value == value.lookup().to_lowercase().intern()
-                || enum_value.value == value.lookup().to_uppercase().intern()
-        }) {
-            Some(_) => Ok(ConstantValue::Enum(value)),
-            _ => Err(vec![Diagnostic::error(
+        if type_definition
+            .values
+            .iter()
+            .any(|enum_value| enum_value.value == value)
+        {
+            Ok(ConstantValue::Enum(value))
+        } else {
+            Err(vec![Diagnostic::error(
                 ValidationMessage::ExpectedValueMatchingType(type_definition.name),
                 self.location.with_span(node.span()),
-            )]),
+            )])
         }
     }
 
@@ -1523,15 +1728,15 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
     ) -> Option<FieldID> {
         if let Some(field_id) = self.schema.named_field(parent_type, field_name) {
             return Some(field_id);
-        };
+        }
+
+        #[allow(clippy::question_mark)]
+        if directives.named(*FIXME_FAT_INTERFACE).is_none() {
+            return None;
+        }
+
         // Handle @fixme_fat_interface: if present and the parent type is abstract, see
         // if one of the implementors has this field and if so use that definition.
-        if !directives
-            .iter()
-            .any(|x| x.name.value.lookup() == "fixme_fat_interface")
-        {
-            return None;
-        };
         let possible_types = match parent_type {
             Type::Interface(id) => {
                 let interface = self.schema.interface(id);
@@ -1545,7 +1750,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
             _ => unreachable!("Parent type of a field must be an interface, union, or object"),
         };
         if let Some(possible_types) = possible_types {
-            for possible_type in possible_types.iter() {
+            for possible_type in possible_types {
                 let field = self
                     .schema
                     .named_field(Type::Object(*possible_type), field_name);
@@ -1566,6 +1771,18 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
             }
         }
         None
+    }
+
+    fn find_conflicting_parent_type<'a>(
+        &self,
+        parent_types: &'a [TypeReference],
+        type_condition: Type,
+    ) -> Option<&'a TypeReference> {
+        parent_types.iter().find(|parent_type| {
+            !self
+                .schema
+                .are_overlapping_types(parent_type.inner(), type_condition)
+        })
     }
 }
 
@@ -1613,4 +1830,13 @@ fn wrap_selection_with_condition(selection: &Selection, condition: &Directive) -
         passing_value: condition.name.item.lookup() == "include",
         selections: vec![selection.clone()],
     }))
+}
+
+fn variable_definition_requires_argument(variable_definition: &VariableDefinition) -> bool {
+    variable_definition.type_.is_non_null()
+        && variable_definition.default_value.is_none()
+        && variable_definition
+            .directives
+            .named(ProvidedVariableMetadata::directive_name())
+            .is_none()
 }

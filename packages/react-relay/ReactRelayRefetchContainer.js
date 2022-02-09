@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -12,34 +12,12 @@
 
 'use strict';
 
-const React = require('react');
-const ReactRelayContext = require('./ReactRelayContext');
-const ReactRelayQueryFetcher = require('./ReactRelayQueryFetcher');
-
-const areEqual = require('areEqual');
-const buildReactRelayContainer = require('./buildReactRelayContainer');
-const getRootVariablesForFragments = require('./getRootVariablesForFragments');
-const warning = require('warning');
-
-const {getContainerName} = require('./ReactRelayContainerUtils');
-const {assertRelayContext} = require('./RelayContext');
-const {
-  Observable,
-  createFragmentSpecResolver,
-  createOperationDescriptor,
-  getDataIDsFromObject,
-  getRequest,
-  getSelector,
-  getVariablesFromObject,
-  isScalarAndEqual,
-} = require('relay-runtime');
-
 import type {
-  $RelayProps,
-  ObserverOrCallback,
   GeneratedNodeMap,
+  ObserverOrCallback,
   RefetchOptions,
   RelayRefetchProp,
+  $RelayProps,
 } from './ReactRelayTypes';
 import type {
   CacheConfig,
@@ -51,6 +29,25 @@ import type {
   Variables,
 } from 'relay-runtime';
 import type {FragmentSpecResolver} from 'relay-runtime';
+
+const buildReactRelayContainer = require('./buildReactRelayContainer');
+const getRootVariablesForFragments = require('./getRootVariablesForFragments');
+const {getContainerName} = require('./ReactRelayContainerUtils');
+const ReactRelayContext = require('./ReactRelayContext');
+const ReactRelayQueryFetcher = require('./ReactRelayQueryFetcher');
+const {assertRelayContext} = require('./RelayContext');
+const areEqual = require('areEqual');
+const React = require('react');
+const {
+  Observable,
+  createFragmentSpecResolver,
+  createOperationDescriptor,
+  getDataIDsFromObject,
+  getRequest,
+  getVariablesFromObject,
+  isScalarAndEqual,
+} = require('relay-runtime');
+const warning = require('warning');
 
 type ContainerProps = $FlowFixMeProps;
 
@@ -92,6 +89,7 @@ function createContainerWithFragments<
     constructor(props) {
       super(props);
       const relayContext = assertRelayContext(props.__relayContext);
+      const rootIsQueryRenderer = props.__rootIsQueryRenderer ?? false;
       this._refetchSubscription = null;
       // Do not provide a subscription/callback here.
       // It is possible for this render to be interrupted or aborted,
@@ -102,6 +100,7 @@ function createContainerWithFragments<
         containerName,
         fragments,
         props,
+        rootIsQueryRenderer,
       );
       this.state = {
         data: resolver.resolve(),
@@ -116,7 +115,8 @@ function createContainerWithFragments<
     }
 
     componentDidMount() {
-      this._subscribeToNewResolver();
+      this._isUnmounted = false;
+      this._subscribeToNewResolverAndRerenderIfStoreHasChanged();
     }
 
     componentDidUpdate(prevProps: ContainerProps, prevState: ContainerState) {
@@ -130,7 +130,9 @@ function createContainerWithFragments<
         this._queryFetcher && this._queryFetcher.dispose();
         this._refetchSubscription && this._refetchSubscription.unsubscribe();
 
-        this._subscribeToNewResolver();
+        this._subscribeToNewResolverAndRerenderIfStoreHasChanged();
+      } else {
+        this._rerenderIfStoreHasChanged();
       }
     }
 
@@ -146,6 +148,7 @@ function createContainerWithFragments<
       // This is an unusual pattern, but necessary for this container usecase.
       const {prevProps} = prevState;
       const relayContext = assertRelayContext(nextProps.__relayContext);
+      const rootIsQueryRenderer = nextProps.__rootIsQueryRenderer ?? false;
 
       const prevIDs = getDataIDsFromObject(fragments, prevProps);
       const nextIDs = getDataIDsFromObject(fragments, nextProps);
@@ -180,6 +183,7 @@ function createContainerWithFragments<
           containerName,
           fragments,
           nextProps,
+          rootIsQueryRenderer,
         );
         return {
           data: resolver.resolve(),
@@ -245,16 +249,26 @@ function createContainerWithFragments<
       return false;
     }
 
-    _subscribeToNewResolver() {
+    _rerenderIfStoreHasChanged() {
       const {data, resolver} = this.state;
-
-      // Event listeners are only safe to add during the commit phase,
-      // So they won't leak if render is interrupted or errors.
-      resolver.setCallback(this._handleFragmentDataUpdate);
-
       // External values could change between render and commit.
       // Check for this case, even though it requires an extra store read.
       const maybeNewData = resolver.resolve();
+      if (data !== maybeNewData) {
+        this.setState({data: maybeNewData});
+      }
+    }
+
+    _subscribeToNewResolverAndRerenderIfStoreHasChanged() {
+      const {data, resolver} = this.state;
+      const maybeNewData = resolver.resolve();
+
+      // Event listeners are only safe to add during the commit phase,
+      // So they won't leak if render is interrupted or errors.
+      resolver.setCallback(this.props, this._handleFragmentDataUpdate);
+
+      // External values could change between render and commit.
+      // Check for this case, even though it requires an extra store read.
       if (data !== maybeNewData) {
         this.setState({data: maybeNewData});
       }
@@ -339,7 +353,11 @@ function createContainerWithFragments<
           : observerOrCallback || ({}: any);
 
       const query = getRequest(taggedNode);
-      const operation = createOperationDescriptor(query, fetchVariables);
+      const operation = createOperationDescriptor(
+        query,
+        fetchVariables,
+        cacheConfig,
+      );
 
       // TODO: T26288752 find a better way
       /* eslint-disable lint/react-state-props-mutation */
@@ -384,7 +402,6 @@ function createContainerWithFragments<
         .execute({
           environment,
           operation,
-          cacheConfig,
           // TODO (T26430099): Cleanup old references
           preservePreviousReferences: true,
         })
@@ -431,7 +448,8 @@ function createContainerWithFragments<
     };
 
     render() {
-      const {componentRef, __relayContext, ...props} = this.props;
+      const {componentRef, __relayContext, __rootIsQueryRenderer, ...props} =
+        this.props;
       const {relayProp, contextForChildren} = this.state;
       return (
         <ReactRelayContext.Provider value={contextForChildren}>
@@ -468,6 +486,7 @@ function createContainer<Props: {...}, TComponent: React.ComponentType<Props>>(
 ): React.ComponentType<
   $RelayProps<React$ElementConfig<TComponent>, RelayRefetchProp>,
 > {
+  // $FlowFixMe[incompatible-return]
   return buildReactRelayContainer(
     Component,
     fragmentSpec,

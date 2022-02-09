@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -11,7 +11,7 @@ use std::fmt;
 
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub enum TypeAnnotation {
-    Named(Identifier),
+    Named(NamedTypeAnnotation),
     List(Box<ListTypeAnnotation>),
     NonNull(Box<NonNullTypeAnnotation>),
 }
@@ -19,7 +19,7 @@ pub enum TypeAnnotation {
 impl fmt::Display for TypeAnnotation {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            TypeAnnotation::Named(named) => f.write_fmt(format_args!("{}", named)),
+            TypeAnnotation::Named(named) => named.fmt(f),
             TypeAnnotation::List(list) => f.write_fmt(format_args!("[{}]", list.type_)),
             TypeAnnotation::NonNull(non_null) => f.write_fmt(format_args!("{}!", non_null.type_)),
         }
@@ -27,9 +27,9 @@ impl fmt::Display for TypeAnnotation {
 }
 
 impl TypeAnnotation {
-    pub fn inner(&self) -> &TypeAnnotation {
+    pub fn inner(&self) -> &NamedTypeAnnotation {
         match self {
-            TypeAnnotation::Named(_) => self,
+            TypeAnnotation::Named(named) => named,
             TypeAnnotation::List(of) => (*of).type_.inner(),
             TypeAnnotation::NonNull(of) => (*of).type_.inner(),
         }
@@ -37,10 +37,21 @@ impl TypeAnnotation {
 
     pub fn span(&self) -> Span {
         match self {
-            TypeAnnotation::Named(x) => x.span,
+            TypeAnnotation::Named(named) => named.name.span,
             TypeAnnotation::List(of) => (*of).span,
             TypeAnnotation::NonNull(of) => (*of).span,
         }
+    }
+}
+
+#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
+pub struct NamedTypeAnnotation {
+    pub name: Identifier,
+}
+
+impl fmt::Display for NamedTypeAnnotation {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        self.name.fmt(f)
     }
 }
 

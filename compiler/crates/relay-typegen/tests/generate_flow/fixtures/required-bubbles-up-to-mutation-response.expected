@@ -13,22 +13,22 @@ export type CommentCreateInput = {|
   feedback?: ?CommentfeedbackFeedback,
 |};
 export type CommentfeedbackFeedback = {|
-  comment?: ?FeedbackcommentComment
+  comment?: ?FeedbackcommentComment,
 |};
 export type FeedbackcommentComment = {|
-  feedback?: ?CommentfeedbackFeedback
+  feedback?: ?CommentfeedbackFeedback,
 |};
-export type CommentCreateMutationVariables = {|
-  input: CommentCreateInput
+export type CommentCreateMutation$variables = {|
+  input: CommentCreateInput,
 |};
-export type CommentCreateMutationResponse = ?{|
+export type CommentCreateMutation$data = ?{|
   +commentCreate: {|
     +comment: {|
-      +id: string
-    |}
-  |}
+      +id: string,
+    |},
+  |},
 |};
 export type CommentCreateMutation = {|
-  variables: CommentCreateMutationVariables,
-  response: CommentCreateMutationResponse,
+  variables: CommentCreateMutation$variables,
+  response: CommentCreateMutation$data,
 |};

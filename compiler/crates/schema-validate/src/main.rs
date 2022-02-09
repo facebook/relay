@@ -1,31 +1,31 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
+use clap::Parser;
 use common::DiagnosticsResult;
-use schema::{build_schema, Schema};
+use schema::{build_schema, SDLSchema};
 use schema_validate_lib::validate;
 use std::fs;
 use std::path::Path;
-use structopt::StructOpt;
 
-#[derive(StructOpt)]
-#[structopt(name = "schema-validate", about = "Binary to Validate GraphQL Schema.")]
+#[derive(Parser)]
+#[clap(name = "schema-validate", about = "Binary to Validate GraphQL Schema.")]
 struct Opt {
     /// Path to Schema SDL. If schema is sharded, this is directory.
-    #[structopt(long)]
+    #[clap(long)]
     schema_path: String,
 }
 
 pub fn main() {
-    let opt = Opt::from_args();
+    let opt = Opt::parse();
     match build_schema_from_file(&opt.schema_path) {
         Ok(schema) => {
             let validation_context = validate(&schema);
-            if !validation_context.errors.is_empty() {
+            if !validation_context.errors.lock().unwrap().is_empty() {
                 eprintln!(
                     "Schema failed validation with below errors:\n{}",
                     validation_context.print_errors()
@@ -40,7 +40,7 @@ pub fn main() {
     }
 }
 
-fn build_schema_from_file(schema_file: &str) -> DiagnosticsResult<Schema> {
+fn build_schema_from_file(schema_file: &str) -> DiagnosticsResult<SDLSchema> {
     let path = Path::new(schema_file);
     let data = if path.is_file() {
         fs::read_to_string(path).unwrap()

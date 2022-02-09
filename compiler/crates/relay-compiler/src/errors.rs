@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -7,8 +7,8 @@
 
 use crate::compiler_state::ProjectName;
 use common::Diagnostic;
+use glob::PatternError;
 use persist_query::PersistError;
-use serde_json::error::Error as SerdeError;
 use std::io;
 use std::path::PathBuf;
 use thiserror::Error;
@@ -21,6 +21,14 @@ pub enum Error {
     ConfigFileRead {
         config_path: PathBuf,
         source: std::io::Error,
+    },
+
+    #[error("No config found.")]
+    ConfigNotFound,
+
+    #[error("Error searching config: {error}")]
+    ConfigSearchError {
+        error: js_config_loader::ConfigError,
     },
 
     #[error("Failed to parse config file `{config_path}`: {source}")]
@@ -69,10 +77,16 @@ pub enum Error {
     WriteFileError { file: PathBuf, source: io::Error },
 
     #[error("Unable to serialize state to file: `{file}`, because of `{source}`.")]
-    SerializationError { file: PathBuf, source: SerdeError },
+    SerializationError {
+        file: PathBuf,
+        source: Box<bincode::ErrorKind>,
+    },
 
     #[error("Unable to deserialize state from file: `{file}`, because of `{source}`.")]
-    DeserializationError { file: PathBuf, source: SerdeError },
+    DeserializationError {
+        file: PathBuf,
+        source: Box<bincode::ErrorKind>,
+    },
 
     #[error("Failed to canonicalize root: `{root}`.")]
     CanonicalizeRoot {
@@ -80,7 +94,7 @@ pub enum Error {
         source: std::io::Error,
     },
 
-    #[error("Watchman error.")]
+    #[error("Watchman error: {source}")]
     Watchman {
         #[from]
         source: watchman_client::Error,
@@ -95,11 +109,11 @@ pub enum Error {
         source: std::io::Error,
     },
 
-    #[error("Syntax error: {error}")]
-    Syntax { error: String },
-
     #[error("A thread that the Relay compiler spun up did not shut down gracefully: {error}")]
     JoinError { error: String },
+
+    #[error("Artifacts validation failed: {error}")]
+    ArtifactsValidationError { error: String },
 
     #[error("Error in post artifact writer: {error}")]
     PostArtifactsError {
@@ -108,6 +122,29 @@ pub enum Error {
 
     #[error("Compilation cancelled due to new changes")]
     Cancelled,
+
+    #[error("IO error {0}")]
+    IOError(std::io::Error),
+
+    #[error("Unable to parse changed files list. {reason}")]
+    ExternalSourceParseError { reason: String },
+
+    #[error("JSON parse error in `{file}`: {source}")]
+    SerdeError {
+        file: PathBuf,
+        source: serde_json::Error,
+    },
+
+    #[error("glob pattern error: {0}")]
+    PatternError(PatternError),
+
+    #[error(
+        "Saved state versions mismatch. Saved state: {saved_state_version}, config: {config_version}."
+    )]
+    SavedStateVersionMismatch {
+        saved_state_version: String,
+        config_version: String,
+    },
 }
 
 #[derive(Debug, Error)]
@@ -162,6 +199,14 @@ pub enum ConfigValidationError {
     },
 
     #[error(
+        "The `schemaExtensions` configured for project `{project_name}` does not exist at `{extension_dir}`."
+    )]
+    ExtensionDirNotExistent {
+        project_name: ProjectName,
+        extension_dir: PathBuf,
+    },
+
+    #[error(
         "The `schema_dir` configured for project `{project_name}` to be `{schema_dir}` is not a directory."
     )]
     SchemaDirNotDirectory {
@@ -169,11 +214,18 @@ pub enum ConfigValidationError {
         schema_dir: PathBuf,
     },
 
-    #[error("The Regex in `shardPathStrip` for project `{project_name}` is invalid.\n {error}.")]
-    InvalidShardPathStripRegex {
+    #[error("The regex in `{key}` for project `{project_name}` is invalid.\n {error}.")]
+    InvalidRegex {
+        key: &'static str,
         project_name: ProjectName,
         error: regex::Error,
     },
+
+    #[error("The `artifactDirectory` does not exist at `{path}`.")]
+    ArtifactDirectoryNotExistent { path: PathBuf },
+
+    #[error("Unable to find common path for directories in the config file.")]
+    CommonPathNotFound,
 }
 
 #[derive(Debug, Error)]
@@ -199,4 +251,7 @@ pub enum BuildProjectError {
 
     #[error("Failed to write file `{file}`: {source}")]
     WriteFileError { file: PathBuf, source: io::Error },
+
+    #[error("Unable to get schema for project {project_name}")]
+    SchemaNotFoundForProject { project_name: ProjectName },
 }

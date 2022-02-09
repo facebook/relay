@@ -1,15 +1,17 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::collections::VecDeque;
+
 use crate::lexer::TokenKind;
 use crate::node::*;
 use crate::syntax_error::SyntaxError;
-use common::{Diagnostic, DiagnosticsResult, Location, SourceLocationKey, Span};
-use interner::Intern;
+use common::{Diagnostic, DiagnosticsResult, Location, SourceLocationKey, Span, WithDiagnostics};
+use intern::string_key::Intern;
 use logos::Logos;
 
 type ParseResult<T> = Result<T, ()>;
@@ -27,10 +29,12 @@ pub struct Parser<'a> {
     errors: Vec<Diagnostic>,
     source_location: SourceLocationKey,
     source: &'a str,
+    /// the byte offset of the *end* of the previous token
+    end_index: u32,
 }
 
 /// Parser for the *executable* subset of the GraphQL specification:
-/// https://github.com/graphql/graphql-spec/blob/master/spec/Appendix%20B%20--%20Grammar%20Summary.md
+/// https://github.com/graphql/graphql-spec/blob/main/spec/Appendix%20B%20--%20Grammar%20Summary.md
 impl<'a> Parser<'a> {
     pub fn new(
         source: &'a str,
@@ -55,6 +59,7 @@ impl<'a> Parser<'a> {
             lexer,
             source_location,
             source,
+            end_index: 0,
         };
         // Advance to the first real token before doing any work
         parser.parse_token();
@@ -71,15 +76,31 @@ impl<'a> Parser<'a> {
         }
     }
 
-    /// Parses a document consisting only of executable nodes: operations and
-    /// fragments.
-    pub fn parse_executable_document(mut self) -> DiagnosticsResult<ExecutableDocument> {
-        let document = self.parse_executable_document_impl();
+    /// Parses a string containing a single directive.
+    pub fn parse_directive(mut self) -> DiagnosticsResult<Directive> {
+        let document = self.parse_directive_impl();
         if self.errors.is_empty() {
             self.parse_eof()?;
             Ok(document.unwrap())
         } else {
             Err(self.errors)
+        }
+    }
+
+    /// Parses a document consisting only of executable nodes: operations and
+    /// fragments.
+    pub fn parse_executable_document(mut self) -> WithDiagnostics<ExecutableDocument> {
+        let document = self.parse_executable_document_impl();
+        if self.errors.is_empty() {
+            let _ = self.parse_kind(TokenKind::EndOfFile);
+        }
+        let document = document.unwrap_or_else(|_| ExecutableDocument {
+            span: Span::new(0, 0),
+            definitions: Default::default(),
+        });
+        WithDiagnostics {
+            item: document,
+            errors: self.errors,
         }
     }
 
@@ -158,7 +179,7 @@ impl<'a> Parser<'a> {
     }
     fn parse_definition(&mut self) -> ParseResult<Definition> {
         let token = self.peek();
-        let source = self.source(&token);
+        let source = self.source(token);
         match (token.kind, source) {
             (TokenKind::OpenBrace, _)
             | (TokenKind::Identifier, "query")
@@ -199,13 +220,10 @@ impl<'a> Parser<'a> {
         let token = self.peek();
         match token.kind {
             TokenKind::OpenBrace => true, // unnamed query
-            TokenKind::Identifier => match self.source(&token) {
-                "query" => true,
-                "mutation" => true,
-                "fragment" => true,
-                "subscription" => true,
-                _ => false,
-            },
+            TokenKind::Identifier => matches!(
+                self.source(token),
+                "query" | "mutation" | "fragment" | "subscription"
+            ),
             _ => false,
         }
     }
@@ -216,7 +234,7 @@ impl<'a> Parser<'a> {
     /// []  TypeSystemExtension
     fn parse_executable_definition(&mut self) -> ParseResult<ExecutableDefinition> {
         let token = self.peek();
-        let source = self.source(&token);
+        let source = self.source(token);
         match (token.kind, source) {
             (TokenKind::OpenBrace, _) => Ok(ExecutableDefinition::Operation(
                 self.parse_operation_definition()?,
@@ -248,11 +266,18 @@ impl<'a> Parser<'a> {
         let token = self.peek();
         match token.kind {
             TokenKind::StringLiteral | TokenKind::BlockStringLiteral => true, // description
-            TokenKind::Identifier => match self.source(&token) {
-                "schema" | "scalar" | "type" | "interface" | "union" | "enum" | "input"
-                | "directive" | "extend" => true,
-                _ => false,
-            },
+            TokenKind::Identifier => matches!(
+                self.source(token),
+                "schema"
+                    | "scalar"
+                    | "type"
+                    | "interface"
+                    | "union"
+                    | "enum"
+                    | "input"
+                    | "directive"
+                    | "extend"
+            ),
             _ => false,
         }
     }
@@ -262,14 +287,14 @@ impl<'a> Parser<'a> {
     /// [x]  TypeSystemDefinition
     /// []  TypeSystemExtension
     fn parse_type_system_definition(&mut self) -> ParseResult<TypeSystemDefinition> {
-        self.parse_optional_description();
+        let description = self.parse_optional_description();
         let token = self.peek();
         if token.kind != TokenKind::Identifier {
             // TODO
             // self.record_error(error)
             return Err(());
         }
-        match self.source(&token) {
+        match self.source(token) {
             "schema" => Ok(TypeSystemDefinition::SchemaDefinition(
                 self.parse_schema_definition()?,
             )),
@@ -292,7 +317,7 @@ impl<'a> Parser<'a> {
                 self.parse_input_object_type_definition()?,
             )),
             "directive" => Ok(TypeSystemDefinition::DirectiveDefinition(
-                self.parse_directive_definition()?,
+                self.parse_directive_definition(description)?,
             )),
             "extend" => self.parse_type_system_extension(),
             token_str => {
@@ -579,9 +604,9 @@ impl<'a> Parser<'a> {
         }
         Ok(ObjectTypeExtension {
             name,
-            fields,
             interfaces,
             directives,
+            fields,
         })
     }
 
@@ -681,7 +706,10 @@ impl<'a> Parser<'a> {
      * DirectiveDefinition :
      *   - Description? directive @ Name ArgumentsDefinition? `repeatable`? on DirectiveLocations
      */
-    fn parse_directive_definition(&mut self) -> ParseResult<DirectiveDefinition> {
+    fn parse_directive_definition(
+        &mut self,
+        description: Option<StringNode>,
+    ) -> ParseResult<DirectiveDefinition> {
         self.parse_keyword("directive")?;
         self.parse_kind(TokenKind::At)?;
         let name = self.parse_identifier()?;
@@ -698,6 +726,7 @@ impl<'a> Parser<'a> {
             arguments,
             repeatable,
             locations,
+            description,
         })
     }
 
@@ -779,13 +808,21 @@ impl<'a> Parser<'a> {
     /**
      * Description : StringValue
      */
-    fn parse_optional_description(&mut self) {
-        // TODO actually return the description
+    fn parse_optional_description(&mut self) -> Option<StringNode> {
         match self.peek_token_kind() {
-            TokenKind::StringLiteral | TokenKind::BlockStringLiteral => {
-                self.parse_token();
+            TokenKind::StringLiteral => {
+                let token = self.parse_token();
+                let source = self.source(&token);
+                let value = source[1..source.len() - 1].to_string().intern();
+                Some(StringNode { token, value })
             }
-            _ => {}
+            TokenKind::BlockStringLiteral => {
+                let token = self.parse_token();
+                let source = self.source(&token);
+                let value = clean_block_string_literal(source).intern();
+                Some(StringNode { token, value })
+            }
+            _ => None,
         }
     }
 
@@ -805,7 +842,7 @@ impl<'a> Parser<'a> {
      *   - Description? Name ArgumentsDefinition? : Type Directives?
      */
     fn parse_field_definition(&mut self) -> ParseResult<FieldDefinition> {
-        self.parse_optional_description();
+        let description = self.parse_optional_description();
         let name = self.parse_identifier()?;
         let arguments = self.parse_argument_defs()?;
         self.parse_kind(TokenKind::Colon)?;
@@ -813,9 +850,10 @@ impl<'a> Parser<'a> {
         let directives = self.parse_constant_directives()?;
         Ok(FieldDefinition {
             name,
-            arguments,
             type_,
+            arguments,
             directives,
+            description,
         })
     }
 
@@ -888,7 +926,7 @@ impl<'a> Parser<'a> {
         let type_condition = self.parse_type_condition()?;
         let directives = self.parse_directives()?;
         let selections = self.parse_selections()?;
-        let end = self.index();
+        let end = self.end_index;
         let span = Span::new(start, end);
         Ok(FragmentDefinition {
             location: Location::new(self.source_location, span),
@@ -909,7 +947,7 @@ impl<'a> Parser<'a> {
         // Special case: anonymous query
         if self.peek_token_kind() == TokenKind::OpenBrace {
             let selections = self.parse_selections()?;
-            let span = Span::new(start, self.index());
+            let span = Span::new(start, self.end_index);
             return Ok(OperationDefinition {
                 location: Location::new(self.source_location, span),
                 operation: None,
@@ -923,7 +961,7 @@ impl<'a> Parser<'a> {
         let maybe_operation_token = self.peek();
         let operation = match (
             maybe_operation_token.kind,
-            self.source(&maybe_operation_token),
+            self.source(maybe_operation_token),
         ) {
             (TokenKind::Identifier, "mutation") => (self.parse_token(), OperationKind::Mutation),
             (TokenKind::Identifier, "query") => (self.parse_token(), OperationKind::Query),
@@ -951,7 +989,7 @@ impl<'a> Parser<'a> {
         )?;
         let directives = self.parse_directives()?;
         let selections = self.parse_selections()?;
-        let span = Span::new(start, self.index());
+        let span = Span::new(start, self.end_index);
         Ok(OperationDefinition {
             location: Location::new(self.source_location, span),
             operation: Some(operation),
@@ -974,7 +1012,7 @@ impl<'a> Parser<'a> {
             None
         };
         let directives = self.parse_directives()?;
-        let span = Span::new(start, self.index());
+        let span = Span::new(start, self.end_index);
         Ok(VariableDefinition {
             span,
             name,
@@ -990,7 +1028,7 @@ impl<'a> Parser<'a> {
         let start = self.index();
         let equals = self.parse_kind(TokenKind::Equals)?;
         let value = self.parse_constant_value()?;
-        let span = Span::new(start, self.index());
+        let span = Span::new(start, self.end_index);
         Ok(DefaultValue {
             span,
             equals,
@@ -1006,13 +1044,15 @@ impl<'a> Parser<'a> {
         let start = self.index();
         let token = self.peek();
         let type_annotation = match token.kind {
-            TokenKind::Identifier => TypeAnnotation::Named(self.parse_identifier()?),
+            TokenKind::Identifier => TypeAnnotation::Named(NamedTypeAnnotation {
+                name: self.parse_identifier()?,
+            }),
             TokenKind::OpenBracket => {
                 let open = self.parse_kind(TokenKind::OpenBracket)?;
                 let type_ = self.parse_type_annotation()?;
                 let close = self.parse_kind(TokenKind::CloseBracket)?;
                 TypeAnnotation::List(Box::new(ListTypeAnnotation {
-                    span: Span::new(start, self.index()),
+                    span: Span::new(start, self.end_index),
                     open,
                     type_,
                     close,
@@ -1030,7 +1070,7 @@ impl<'a> Parser<'a> {
         if self.peek_token_kind() == TokenKind::Exclamation {
             let exclamation = self.parse_kind(TokenKind::Exclamation)?;
             Ok(TypeAnnotation::NonNull(Box::new(NonNullTypeAnnotation {
-                span: Span::new(start, self.index()),
+                span: Span::new(start, self.end_index),
                 type_: type_annotation,
                 exclamation,
             })))
@@ -1041,7 +1081,7 @@ impl<'a> Parser<'a> {
 
     /// Directives[Const] : Directive[?Const]+
     fn parse_directives(&mut self) -> ParseResult<Vec<Directive>> {
-        self.parse_list(|s| s.peek_kind(TokenKind::At), |s| s.parse_directive())
+        self.parse_list(|s| s.peek_kind(TokenKind::At), |s| s.parse_directive_impl())
     }
 
     fn parse_constant_directives(&mut self) -> ParseResult<Vec<ConstantDirective>> {
@@ -1056,12 +1096,12 @@ impl<'a> Parser<'a> {
     }
 
     /// Directive[Const] : @ Name Arguments[?Const]?
-    fn parse_directive(&mut self) -> ParseResult<Directive> {
+    fn parse_directive_impl(&mut self) -> ParseResult<Directive> {
         let start = self.index();
         let at = self.parse_kind(TokenKind::At)?;
-        let name = self.parse_identifier()?;
+        let name = self.parse_identifier_with_error_recovery();
         let arguments = self.parse_optional_arguments()?;
-        let span = Span::new(start, self.index());
+        let span = Span::new(start, self.end_index);
         Ok(Directive {
             span,
             at,
@@ -1074,7 +1114,7 @@ impl<'a> Parser<'a> {
         let at = self.parse_kind(TokenKind::At)?;
         let name = self.parse_identifier()?;
         let arguments = self.parse_optional_constant_arguments()?;
-        let span = Span::new(start, self.index());
+        let span = Span::new(start, self.end_index);
         Ok(ConstantDirective {
             span,
             at,
@@ -1090,7 +1130,7 @@ impl<'a> Parser<'a> {
         let on = self.parse_keyword("on")?;
         let type_ = self.parse_identifier()?;
         Ok(TypeCondition {
-            span: Span::new(start, self.index()),
+            span: Span::new(start, self.end_index),
             on,
             type_,
         })
@@ -1145,7 +1185,7 @@ impl<'a> Parser<'a> {
             (
                 name,
                 Some(Alias {
-                    span: Span::new(start, self.index()),
+                    span: Span::new(start, self.end_index),
                     alias,
                     colon,
                 }),
@@ -1158,7 +1198,7 @@ impl<'a> Parser<'a> {
         if self.peek_token_kind() == TokenKind::OpenBrace {
             let selections = self.parse_selections()?;
             Ok(Selection::LinkedField(LinkedField {
-                span: Span::new(start, self.index()),
+                span: Span::new(start, self.end_index),
                 alias,
                 name,
                 arguments,
@@ -1167,7 +1207,7 @@ impl<'a> Parser<'a> {
             }))
         } else {
             Ok(Selection::ScalarField(ScalarField {
-                span: Span::new(start, self.index()),
+                span: Span::new(start, self.end_index),
                 alias,
                 name,
                 arguments,
@@ -1187,7 +1227,7 @@ impl<'a> Parser<'a> {
             let name = self.parse_identifier()?;
             let directives = self.parse_directives()?;
             Ok(Selection::FragmentSpread(FragmentSpread {
-                span: Span::new(start, self.index()),
+                span: Span::new(start, self.end_index),
                 spread,
                 name,
                 directives,
@@ -1202,7 +1242,7 @@ impl<'a> Parser<'a> {
             let directives = self.parse_directives()?;
             let selections = self.parse_selections()?;
             Ok(Selection::InlineFragment(InlineFragment {
-                span: Span::new(start, self.index()),
+                span: Span::new(start, self.end_index),
                 spread,
                 type_condition,
                 directives,
@@ -1214,12 +1254,177 @@ impl<'a> Parser<'a> {
     /// Arguments?
     /// Arguments[Const] : ( Argument[?Const]+ )
     fn parse_optional_arguments(&mut self) -> ParseResult<Option<List<Argument>>> {
-        self.parse_optional_delimited_nonempty_list(
-            TokenKind::OpenParen,
-            TokenKind::CloseParen,
-            Self::parse_argument,
-        )
+        if self.peek_token_kind() != TokenKind::OpenParen {
+            return Ok(None);
+        }
+        let start = self.parse_token();
+        let mut items: Vec<Argument> = vec![];
+        loop {
+            let peek_kind = self.peek_token_kind();
+            if peek_kind == TokenKind::CloseParen {
+                break;
+            } else if peek_kind == TokenKind::OpenBrace || peek_kind == TokenKind::CloseBrace {
+                self.record_error(Diagnostic::error(
+                    SyntaxError::Expected(TokenKind::CloseParen),
+                    Location::new(self.source_location, self.peek().span),
+                ));
+                let span = Span::new(start.span.start, self.end_index);
+                if items.is_empty() {
+                    self.record_error(Diagnostic::error(
+                        SyntaxError::ExpectedArgument,
+                        Location::new(self.source_location, span),
+                    ))
+                }
+                return Ok(Some(List {
+                    span,
+                    start,
+                    items,
+                    end: self.empty_token(),
+                }));
+            }
+            // MaybeArgument Name ?: ?Value[?Const]
+            let start = self.index();
+            let name = if peek_kind == TokenKind::Identifier {
+                self.parse_identifier()?
+            } else {
+                (|| {
+                    if peek_kind == TokenKind::Colon && !items.is_empty() {
+                        /*
+                            (
+                                arg:
+                                arg2: $var
+                                #   ^ We are at the second colon, and need to recover the identifier
+                            )
+                        */
+                        let last_arg = items.last_mut().unwrap();
+                        if let Value::Constant(ConstantValue::Enum(node)) = &last_arg.value {
+                            self.record_error(Diagnostic::error(
+                                SyntaxError::ExpectedValue,
+                                Location::new(
+                                    self.source_location,
+                                    Span::new(last_arg.colon.span.end, last_arg.colon.span.end),
+                                ),
+                            ));
+                            let name = Identifier {
+                                span: node.token.span,
+                                token: node.token.clone(),
+                                value: node.value,
+                            };
+                            last_arg.span.end = last_arg.colon.span.end;
+                            last_arg.value = Value::Constant(ConstantValue::Null(Token {
+                                span: Span::new(last_arg.span.end, last_arg.span.end),
+                                kind: TokenKind::Empty,
+                            }));
+                            return name;
+                        }
+                    }
+                    /*
+                        ($var)
+                        (:$var)
+                    */
+                    self.record_error(Diagnostic::error(
+                        SyntaxError::Expected(TokenKind::Identifier),
+                        Location::new(
+                            self.source_location,
+                            Span::new(start, self.peek().span.start),
+                        ),
+                    ));
+                    let empty_token = self.empty_token();
+                    Identifier {
+                        span: empty_token.span,
+                        token: empty_token,
+                        value: "".intern(),
+                    }
+                })()
+            };
+
+            let colon = self.parse_optional_kind(TokenKind::Colon);
+            if let Some(colon) = colon {
+                if self.peek_kind(TokenKind::CloseParen) {
+                    self.record_error(Diagnostic::error(
+                        SyntaxError::ExpectedValue,
+                        Location::new(
+                            self.source_location,
+                            Span::new(name.span.end, self.end_index),
+                        ),
+                    ));
+                    let span = Span::new(start, self.end_index);
+                    let value = Value::Constant(ConstantValue::Null(self.empty_token()));
+                    items.push(Argument {
+                        span,
+                        name,
+                        colon,
+                        value,
+                    });
+                } else {
+                    let value = self.parse_value()?;
+                    let span = Span::new(start, self.end_index);
+                    items.push(Argument {
+                        span,
+                        name,
+                        colon,
+                        value,
+                    });
+                }
+            } else {
+                self.record_error(Diagnostic::error(
+                    SyntaxError::Expected(TokenKind::Colon),
+                    Location::new(self.source_location, Span::new(name.span.end, self.index())),
+                ));
+                // Continue parsing value if the next token looks like a value (except for Enum)
+                // break early if the next token is not a valid token for the next argument
+                let mut should_break = false;
+                let value = match self.peek_token_kind() {
+                    TokenKind::Dollar
+                    | TokenKind::OpenBrace
+                    | TokenKind::OpenBracket
+                    | TokenKind::StringLiteral
+                    | TokenKind::IntegerLiteral
+                    | TokenKind::FloatLiteral => self.parse_value()?,
+                    TokenKind::Identifier => {
+                        let source = self.source(self.peek());
+                        if source == "true" || source == "false" || source == "null" {
+                            self.parse_value()?
+                        } else {
+                            Value::Constant(ConstantValue::Null(self.empty_token()))
+                        }
+                    }
+                    TokenKind::CloseParen | TokenKind::Colon => {
+                        Value::Constant(ConstantValue::Null(self.empty_token()))
+                    }
+                    _ => {
+                        should_break = true;
+                        Value::Constant(ConstantValue::Null(self.empty_token()))
+                    }
+                };
+                let span = Span::new(start, self.end_index);
+                items.push(Argument {
+                    span,
+                    name,
+                    colon: self.empty_token(),
+                    value,
+                });
+                if should_break {
+                    break;
+                }
+            }
+        }
+        let end = self.parse_token();
+        let span = Span::new(start.span.start, end.span.end);
+        if items.is_empty() {
+            self.record_error(Diagnostic::error(
+                SyntaxError::ExpectedArgument,
+                Location::new(self.source_location, span),
+            ))
+        }
+        Ok(Some(List {
+            span,
+            start,
+            items,
+            end,
+        }))
     }
+
     fn parse_optional_constant_arguments(&mut self) -> ParseResult<Option<List<ConstantArgument>>> {
         self.parse_optional_delimited_nonempty_list(
             TokenKind::OpenParen,
@@ -1234,7 +1439,7 @@ impl<'a> Parser<'a> {
         let name = self.parse_identifier()?;
         let colon = self.parse_kind(TokenKind::Colon)?;
         let value = self.parse_value()?;
-        let span = Span::new(start, self.index());
+        let span = Span::new(start, self.end_index);
         Ok(Argument {
             span,
             name,
@@ -1248,7 +1453,7 @@ impl<'a> Parser<'a> {
         let name = self.parse_identifier()?;
         let colon = self.parse_kind(TokenKind::Colon)?;
         let value = self.parse_constant_value()?;
-        let span = Span::new(start, self.index());
+        let span = Span::new(start, self.end_index);
         Ok(ConstantArgument {
             span,
             name,
@@ -1372,6 +1577,13 @@ impl<'a> Parser<'a> {
         match &token.kind {
             TokenKind::StringLiteral => {
                 let value = source[1..source.len() - 1].to_string();
+                Ok(ConstantValue::String(StringNode {
+                    token,
+                    value: value.intern(),
+                }))
+            }
+            TokenKind::BlockStringLiteral => {
+                let value = clean_block_string_literal(source);
                 Ok(ConstantValue::String(StringNode {
                     token,
                     value: value.intern(),
@@ -1525,6 +1737,34 @@ impl<'a> Parser<'a> {
         }
     }
 
+    fn parse_identifier_with_error_recovery(&mut self) -> Identifier {
+        match self.peek_token_kind() {
+            TokenKind::Identifier => {
+                let token = self.parse_token();
+                let source = self.source(&token);
+                let span = token.span;
+                Identifier {
+                    span,
+                    token,
+                    value: source.intern(),
+                }
+            }
+            _ => {
+                let token = self.empty_token();
+                let error = Diagnostic::error(
+                    SyntaxError::Expected(TokenKind::Identifier),
+                    Location::new(self.source_location, token.span),
+                );
+                self.record_error(error);
+                Identifier {
+                    span: token.span,
+                    token,
+                    value: "".intern(),
+                }
+            }
+        }
+    }
+
     // Helpers
 
     /// <item>*
@@ -1578,14 +1818,38 @@ impl<'a> Parser<'a> {
     where
         F: Fn(&mut Self) -> ParseResult<T>,
     {
-        let start = self.parse_kind(start_kind)?;
-        let mut items = vec![parse(self)?];
+        if !self.peek_kind(start_kind) {
+            let error = Diagnostic::error(
+                SyntaxError::Expected(start_kind),
+                Location::new(
+                    self.source_location,
+                    Span::new(self.end_index, self.index()),
+                ),
+            );
+            self.record_error(error);
+            let token = self.empty_token();
+            return Ok(List {
+                span: token.span,
+                start: token.clone(),
+                items: vec![],
+                end: token,
+            });
+        }
+        let start = self.parse_token();
+        let mut items = vec![];
         while !self.peek_kind(end_kind) {
             items.push(parse(self)?);
         }
         let end = self.parse_kind(end_kind)?;
-
         let span = Span::new(start.span.start, end.span.end);
+
+        if items.is_empty() {
+            self.record_error(Diagnostic::error(
+                SyntaxError::ExpectedNonEmptyList,
+                Location::new(self.source_location, span),
+            ));
+        }
+
         Ok(List {
             span,
             start,
@@ -1644,7 +1908,7 @@ impl<'a> Parser<'a> {
         } else {
             let error = Diagnostic::error(
                 SyntaxError::Expected(expected),
-                Location::new(self.source_location, Span::new(start, self.index())),
+                Location::new(self.source_location, Span::new(start, self.end_index)),
             );
             self.record_error(error);
             Err(())
@@ -1698,6 +1962,7 @@ impl<'a> Parser<'a> {
                         self.lexer.extras.error_token = None;
                         // If error_token is set, return that error token
                         // instead of a generic error.
+                        self.end_index = self.current.span.end;
                         return std::mem::replace(
                             &mut self.current,
                             Token {
@@ -1715,6 +1980,7 @@ impl<'a> Parser<'a> {
                     }
                 }
                 _ => {
+                    self.end_index = self.current.span.end;
                     return std::mem::replace(
                         &mut self.current,
                         Token {
@@ -1731,5 +1997,153 @@ impl<'a> Parser<'a> {
         // NOTE: Useful for debugging parse errors:
         // panic!("{:?}", error);
         self.errors.push(error);
+    }
+
+    /// Returns an empty token with a span at the end of last token
+    fn empty_token(&self) -> Token {
+        let index = self.end_index;
+        Token {
+            span: Span::new(index, index),
+            kind: TokenKind::Empty,
+        }
+    }
+}
+
+// https://spec.graphql.org/June2018/#sec-String-Value
+fn clean_block_string_literal(source: &str) -> String {
+    let inner = &source[3..source.len() - 3];
+    let common_indent = get_common_indent(inner);
+
+    let mut formatted_lines = inner
+        .lines()
+        .enumerate()
+        .map(|(i, line)| {
+            if i == 0 {
+                line.to_string()
+            } else {
+                line.chars().skip(common_indent).collect::<String>()
+            }
+        })
+        .collect::<VecDeque<String>>();
+
+    while formatted_lines
+        .front()
+        .map_or(false, |line| line_is_whitespace(line))
+    {
+        formatted_lines.pop_front();
+    }
+    while formatted_lines
+        .back()
+        .map_or(false, |line| line_is_whitespace(line))
+    {
+        formatted_lines.pop_back();
+    }
+
+    let lines_vec: Vec<String> = formatted_lines.into_iter().collect();
+    lines_vec.join("\n")
+}
+
+fn get_common_indent(source: &str) -> usize {
+    let lines = source.lines().skip(1);
+    let mut common_indent: Option<usize> = None;
+    for line in lines {
+        if let Some((first_index, _)) = line.match_indices(is_not_whitespace).next() {
+            if common_indent.map_or(true, |indent| first_index < indent) {
+                common_indent = Some(first_index)
+            }
+        }
+    }
+    common_indent.unwrap_or(0)
+}
+
+fn line_is_whitespace(line: &str) -> bool {
+    !line.contains(is_not_whitespace)
+}
+
+// https://spec.graphql.org/June2018/#sec-White-Space
+fn is_not_whitespace(c: char) -> bool {
+    c != ' ' && c != '\t'
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn triple_quote(inner: &str) -> String {
+        format!("\"\"\"{}\"\"\"", inner)
+    }
+
+    #[test]
+    fn common_indent_ignores_first_line() {
+        let actual = get_common_indent("            1\n  2\n  3");
+        assert_eq!(actual, 2);
+    }
+    #[test]
+    fn common_indent_uses_smallest_indent() {
+        let actual = get_common_indent("1\n  2\n        3");
+        assert_eq!(actual, 2);
+    }
+
+    #[test]
+    fn common_indent_ignores_lines_that_are_all_whitespace() {
+        let actual = get_common_indent("1\n    2\n \t\n    3\n");
+        assert_eq!(actual, 4);
+    }
+
+    #[test]
+    fn common_indent_ignores_lines_blank_lines() {
+        let actual = get_common_indent("1\n    2\n\n    3\n");
+        assert_eq!(actual, 4);
+    }
+
+    #[test]
+    fn clean_block_string_literal_does_not_trim_leading_whitespace() {
+        let actual = clean_block_string_literal(&triple_quote("       Hello world!"));
+        assert_eq!(actual, "       Hello world!");
+    }
+
+    #[test]
+    fn clean_block_string_literal_trims_leading_whitespace_lines() {
+        let actual = clean_block_string_literal(&triple_quote("       \n\t\t\t\nHello world!"));
+        assert_eq!(actual, "Hello world!");
+    }
+
+    #[test]
+    fn clean_block_string_literal_trims_trailing_whitespace_lines() {
+        let actual = clean_block_string_literal(&triple_quote("Hello world!\n    \n\t\t   \n"));
+        assert_eq!(actual, "Hello world!");
+    }
+
+    #[test]
+    fn clean_block_string_literal_trims_trailing_empty_lines() {
+        let actual = clean_block_string_literal(&triple_quote("Hello world!\n\n\n\n\n"));
+        assert_eq!(actual, "Hello world!");
+    }
+
+    #[test]
+    fn clean_block_string_literal_dedents_smallest_common_indent() {
+        let actual = clean_block_string_literal(&triple_quote(
+            "Hello world!\n  Two Char Indent\n    Four Char Indent",
+        ));
+        assert_eq!(actual, "Hello world!\nTwo Char Indent\n  Four Char Indent");
+    }
+
+    #[test]
+    fn clean_block_string_literal_ignores_first_line_indent() {
+        let actual = clean_block_string_literal(&triple_quote(
+            "        Hello world!\n  Two Char Indent\n    Four Char Indent",
+        ));
+        assert_eq!(
+            actual,
+            "        Hello world!\nTwo Char Indent\n  Four Char Indent"
+        );
+    }
+
+    #[test]
+    fn clean_block_string_literal_treats_tab_and_space_as_equal() {
+        let actual = clean_block_string_literal(&triple_quote(
+            "Hello world!\n\t\tTwo Tab Indent\n    Four Space Indent",
+        ));
+        assert_eq!(actual, "Hello world!\nTwo Tab Indent\n  Four Space Indent");
     }
 }

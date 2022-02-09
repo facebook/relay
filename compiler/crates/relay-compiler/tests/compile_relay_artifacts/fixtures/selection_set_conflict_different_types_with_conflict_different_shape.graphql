@@ -1,0 +1,11 @@
+# expected-to-throw
+query selectionSetConflictDifferentTypesWithConflictDifferentShapeQuery {
+  username(name: "me") {
+    ... on User {
+      same_alias: id
+    }
+    ... on Page {
+      same_alias: actorCount
+    }
+  }
+}

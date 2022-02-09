@@ -7,32 +7,27 @@ fragment FlowRefetchableFragment on Node
   }
 }
 ==================================== OUTPUT ===================================
-import { FragmentReference } from "relay-runtime";
-declare export opaque type FlowRefetchableFragment$ref: FragmentReference;
-declare export opaque type FlowRefetchableFragment$fragmentType: FlowRefetchableFragment$ref;
-export type FlowRefetchableFragmentQueryVariables = {
-  id: string
+import { FragmentRefs } from "relay-runtime";
+export type FlowRefetchableFragmentQuery$variables = {
+  id: string;
 };
-export type FlowRefetchableFragmentQueryResponse = {
-  readonly node?: {
-    readonly $fragmentRefs: FlowRefetchableFragment$ref
-  }
+export type FlowRefetchableFragmentQuery$data = {
+  readonly node: {
+    readonly " $fragmentSpreads": FragmentRefs<"FlowRefetchableFragment">;
+  } | null;
 };
 export type FlowRefetchableFragmentQuery = {
-  variables: FlowRefetchableFragmentQueryVariables,
-  response: FlowRefetchableFragmentQueryResponse,
+  variables: FlowRefetchableFragmentQuery$variables;
+  response: FlowRefetchableFragmentQuery$data;
 };
 -------------------------------------------------------------------------------
-import { FragmentReference } from "relay-runtime";
-import { FlowRefetchableFragment$ref, FlowRefetchableFragment$fragmentType } from "FlowRefetchableFragmentQuery.graphql";
-export { FlowRefetchableFragment$ref, FlowRefetchableFragment$fragmentType };
-export type FlowRefetchableFragment = {
-  readonly id: string,
-  readonly name?: string,
-  readonly $refType: FlowRefetchableFragment$ref,
+import { FragmentRefs } from "relay-runtime";
+export type FlowRefetchableFragment$data = {
+  readonly id: string;
+  readonly name?: string | null;
+  readonly " $fragmentType": "FlowRefetchableFragment";
 };
-export type FlowRefetchableFragment$data = FlowRefetchableFragment;
 export type FlowRefetchableFragment$key = {
-  readonly $data?: FlowRefetchableFragment$data,
-  readonly $fragmentRefs: FlowRefetchableFragment$ref,
+  readonly " $data"?: FlowRefetchableFragment$data;
+  readonly " $fragmentSpreads": FragmentRefs<"FlowRefetchableFragment">;
 };

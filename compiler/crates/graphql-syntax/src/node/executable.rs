@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -11,7 +11,7 @@ use super::primitive::*;
 use super::type_annotation::*;
 use super::value::*;
 use common::{Location, Span};
-use interner::StringKey;
+use intern::string_key::StringKey;
 use std::fmt;
 
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
@@ -30,13 +30,7 @@ impl ExecutableDefinition {
 
     pub fn name(&self) -> Option<StringKey> {
         match self {
-            ExecutableDefinition::Operation(node) => {
-                if let Some(name) = &node.name {
-                    Some(name.value)
-                } else {
-                    None
-                }
-            }
+            ExecutableDefinition::Operation(node) => node.name.as_ref().map(|name| name.value),
             ExecutableDefinition::Fragment(node) => Some(node.name.value),
         }
     }
@@ -72,6 +66,17 @@ pub struct OperationDefinition {
     pub variable_definitions: Option<List<VariableDefinition>>,
     pub directives: Vec<Directive>,
     pub selections: List<Selection>,
+}
+
+impl OperationDefinition {
+    pub fn operation_kind(&self) -> OperationKind {
+        // The GraphQL spec defines anonymous operations as queries.
+        // https://spec.graphql.org/June2018/#sec-Anonymous-Operation-Definitions
+        self.operation
+            .as_ref()
+            .map(|(_, operation_kind)| *operation_kind)
+            .unwrap_or(OperationKind::Query)
+    }
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
@@ -170,6 +175,15 @@ impl Selection {
             Selection::InlineFragment(node) => node.span,
             Selection::LinkedField(node) => node.span,
             Selection::ScalarField(node) => node.span,
+        }
+    }
+
+    pub fn directives(&self) -> &[Directive] {
+        match self {
+            Selection::FragmentSpread(node) => &node.directives,
+            Selection::InlineFragment(node) => &node.directives,
+            Selection::LinkedField(node) => &node.directives,
+            Selection::ScalarField(node) => &node.directives,
         }
     }
 }

@@ -21,28 +21,28 @@ export type CommentCreateInput = {|
   feedback?: ?CommentfeedbackFeedback,
 |};
 export type CommentfeedbackFeedback = {|
-  comment?: ?FeedbackcommentComment
+  comment?: ?FeedbackcommentComment,
 |};
 export type FeedbackcommentComment = {|
-  feedback?: ?CommentfeedbackFeedback
+  feedback?: ?CommentfeedbackFeedback,
 |};
-export type CommentCreateMutationVariables = {|
+export type CommentCreateMutation$variables = {|
   input: CommentCreateInput,
   first?: ?number,
   orderBy?: ?$ReadOnlyArray<string>,
 |};
-export type CommentCreateMutationResponse = {|
+export type CommentCreateMutation$data = {|
   +commentCreate: ?{|
     +comment: ?{|
       +id: string,
       +name: ?string,
       +friends: ?{|
-        +count: ?number
+        +count: ?number,
       |},
-    |}
-  |}
+    |},
+  |},
 |};
 export type CommentCreateMutation = {|
-  variables: CommentCreateMutationVariables,
-  response: CommentCreateMutationResponse,
+  variables: CommentCreateMutation$variables,
+  response: CommentCreateMutation$data,
 |};

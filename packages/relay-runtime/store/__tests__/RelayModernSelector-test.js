@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,9 +13,9 @@
 
 'use strict';
 
-const warning = require('warning');
+import type {OperationDescriptor} from '../RelayStoreTypes';
 
-const {getRequest} = require('../../query/GraphQLTag');
+const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
 const {
   createOperationDescriptor,
   createRequestDescriptor,
@@ -31,13 +31,8 @@ const {
   getVariablesFromObject,
 } = require('../RelayModernSelector');
 const {ROOT_ID} = require('../RelayStoreUtils');
-const {
-  createMockEnvironment,
-  generateAndCompile,
-  matchers,
-} = require('relay-test-utils-internal');
-
-import type {OperationDescriptor} from '../RelayStoreTypes';
+const {createMockEnvironment, matchers} = require('relay-test-utils-internal');
+const warning = require('warning');
 
 describe('RelayModernSelector', () => {
   let UserFragment;
@@ -51,39 +46,46 @@ describe('RelayModernSelector', () => {
   let owner;
 
   beforeEach(() => {
+    // $FlowFixMe[incompatible-call]
     expect.extend(matchers);
     jest.mock('warning');
 
     environment = createMockEnvironment();
-    ({UserFragment, UserQuery, UsersFragment} = generateAndCompile(`
-      query UserQuery($id: ID!, $size: Int, $cond: Boolean!) {
+    UserQuery = getRequest(graphql`
+      query RelayModernSelectorTestUserQuery(
+        $id: ID!
+        $size: [Int]
+        $cond: Boolean!
+      ) {
         node(id: $id) {
-          ...UserFragment
-          ...UsersFragment
+          ...RelayModernSelectorTestUserFragment
+          ...RelayModernSelectorTestUsersFragment
         }
       }
-      fragment UserFragment on User {
+    `);
+    UserFragment = getFragment(graphql`
+      fragment RelayModernSelectorTestUserFragment on User {
         id
         name
         profilePicture(size: $size) @include(if: $cond) {
           uri
         }
       }
-      fragment UsersFragment on User @relay(plural: true) {
+    `);
+    UsersFragment = getFragment(graphql`
+      fragment RelayModernSelectorTestUsersFragment on User
+      @relay(plural: true) {
         id
         name
         profilePicture(size: $size) @include(if: $cond) {
           uri
         }
       }
-    `));
+    `);
     const dataID = ROOT_ID;
     variables = {id: '4', size: null, cond: false};
     operationVariables = variables;
-    const requestDescriptor = createRequestDescriptor(
-      getRequest(UserQuery),
-      variables,
-    );
+    const requestDescriptor = createRequestDescriptor(UserQuery, variables);
     const fragment = createReaderSelector(
       UserQuery.fragment,
       dataID,
@@ -125,14 +127,14 @@ describe('RelayModernSelector', () => {
   describe('getSingularSelector()', () => {
     it('throws for invalid inputs', () => {
       expect(() => getSingularSelector(UserFragment, 'zuck')).toThrowError(
-        'RelayModernSelector: Expected value for fragment `UserFragment` to ' +
+        'RelayModernSelector: Expected value for fragment `RelayModernSelectorTestUserFragment` to ' +
           'be an object, got `"zuck"`.',
       );
       expect(() => getSingularSelector(UserFragment, [zuck])).toThrowError(
-        'RelayModernSelector: Expected value for fragment `UserFragment` to be an object, got ' +
-          '`[{"__fragments":{"UserFragment":{},"UsersFragment":{}},"__id":"4","__fragmentOwner":' +
+        'RelayModernSelector: Expected value for fragment `RelayModernSelectorTestUserFragment` to be an object, got ' +
+          '`[{"__fragments":{"RelayModernSelectorTestUserFragment":{},"RelayModernSelectorTestUsersFragment":{}},"__id":"4","__fragmentOwner":' +
           JSON.stringify(operationDescriptor.request) +
-          '}]`.',
+          ',"__isWithinUnmatchedTypeRefinement":false}]`.',
       );
     });
 
@@ -143,15 +145,15 @@ describe('RelayModernSelector', () => {
         'RelayModernSelector: Expected object to contain data for fragment ' +
           '`%s`, got `%s`. Make sure that the parent ' +
           'operation/fragment included fragment `...%s` without `@relay(mask: false)`.',
-        'UserFragment',
+        'RelayModernSelectorTestUserFragment',
         '{}',
-        'UserFragment',
+        'RelayModernSelectorTestUserFragment',
       );
       expect(selector).toBe(null);
     });
 
     it('returns a selector', () => {
-      const queryNode = getRequest(UserQuery);
+      const queryNode = UserQuery;
       owner = createOperationDescriptor(queryNode, operationVariables);
       zuck = (environment.lookup(owner.fragment).data: $FlowFixMe).node;
 
@@ -163,7 +165,7 @@ describe('RelayModernSelector', () => {
     });
 
     it('uses variables from owner', () => {
-      const queryNode = getRequest(UserQuery);
+      const queryNode = UserQuery;
       // Pass owner with different variables
       owner = createOperationDescriptor(queryNode, {
         id: '4',
@@ -191,7 +193,7 @@ describe('RelayModernSelector', () => {
   describe('getPluralSelector()', () => {
     it('throws for invalid inputs', () => {
       expect(() => getPluralSelector(UserFragment, ['zuck'])).toThrowError(
-        'RelayModernSelector: Expected value for fragment `UserFragment` to be ' +
+        'RelayModernSelector: Expected value for fragment `RelayModernSelectorTestUserFragment` to be ' +
           'an object, got `"zuck"`.',
       );
     });
@@ -203,15 +205,15 @@ describe('RelayModernSelector', () => {
         'RelayModernSelector: Expected object to contain data for fragment ' +
           '`%s`, got `%s`. Make sure that the parent ' +
           'operation/fragment included fragment `...%s` without `@relay(mask: false)`.',
-        'UserFragment',
+        'RelayModernSelectorTestUserFragment',
         '{}',
-        'UserFragment',
+        'RelayModernSelectorTestUserFragment',
       );
       expect(selectors).toBe(null);
     });
 
     it('returns selectors', () => {
-      const queryNode = getRequest(UserQuery);
+      const queryNode = UserQuery;
       owner = createOperationDescriptor(queryNode, operationVariables);
       zuck = (environment.lookup(owner.fragment).data: $FlowFixMe).node;
 
@@ -225,7 +227,7 @@ describe('RelayModernSelector', () => {
     });
 
     it('uses owner variables', () => {
-      const queryNode = getRequest(UserQuery);
+      const queryNode = UserQuery;
       // Pass owner with different variables
       owner = createOperationDescriptor(queryNode, {
         id: '4',
@@ -257,7 +259,7 @@ describe('RelayModernSelector', () => {
       expect(() =>
         getSelectorsFromObject({user: UserFragment}, {user: 'zuck'}),
       ).toThrowError(
-        'RelayModernSelector: Expected value for fragment `UserFragment` to be an ' +
+        'RelayModernSelector: Expected value for fragment `RelayModernSelectorTestUserFragment` to be an ' +
           'object, got `"zuck"`.',
       );
     });
@@ -272,9 +274,9 @@ describe('RelayModernSelector', () => {
         'RelayModernSelector: Expected object to contain data for fragment ' +
           '`%s`, got `%s`. Make sure that the parent ' +
           'operation/fragment included fragment `...%s` without `@relay(mask: false)`.',
-        'UserFragment',
+        'RelayModernSelectorTestUserFragment',
         '{}',
-        'UserFragment',
+        'RelayModernSelectorTestUserFragment',
       );
       expect(selectors).toEqual({user: null});
     });
@@ -352,7 +354,7 @@ describe('RelayModernSelector', () => {
 
     describe('with fragment owner', () => {
       beforeEach(() => {
-        const queryNode = getRequest(UserQuery);
+        const queryNode = UserQuery;
         owner = createOperationDescriptor(queryNode, operationVariables);
         zuck = (environment.lookup(owner.fragment).data: $FlowFixMe).node;
       });
@@ -373,7 +375,7 @@ describe('RelayModernSelector', () => {
       });
 
       it('returns singular selector and uses variables from owner', () => {
-        const queryNode = getRequest(UserQuery);
+        const queryNode = UserQuery;
         // Pass owner with different variables
         owner = createOperationDescriptor(queryNode, {
           id: '4',
@@ -419,7 +421,7 @@ describe('RelayModernSelector', () => {
       });
 
       it('returns plural selectors and uses variables from owner', () => {
-        const queryNode = getRequest(UserQuery);
+        const queryNode = UserQuery;
         // Pass owner with different variables
         owner = createOperationDescriptor(queryNode, {
           id: '4',
@@ -456,7 +458,7 @@ describe('RelayModernSelector', () => {
       expect(() =>
         getDataIDsFromObject({user: UserFragment}, {user: 'zuck'}),
       ).toThrowError(
-        'RelayModernSelector: Expected value for fragment `UserFragment` to be an ' +
+        'RelayModernSelector: Expected value for fragment `RelayModernSelectorTestUserFragment` to be an ' +
           'object, got `"zuck"`.',
       );
     });
@@ -468,9 +470,9 @@ describe('RelayModernSelector', () => {
         'RelayModernSelector: Expected object to contain data for fragment ' +
           '`%s`, got `%s`. Make sure that the parent ' +
           'operation/fragment included fragment `...%s` without `@relay(mask: false)`.',
-        'UserFragment',
+        'RelayModernSelectorTestUserFragment',
         '{}',
-        'UserFragment',
+        'RelayModernSelectorTestUserFragment',
       );
       expect(ids).toEqual({user: null});
     });
@@ -530,7 +532,7 @@ describe('RelayModernSelector', () => {
       expect(() =>
         getVariablesFromObject({user: UserFragment}, {user: 'zuck'}),
       ).toThrowError(
-        'RelayModernSelector: Expected value for fragment `UserFragment` to be an ' +
+        'RelayModernSelector: Expected value for fragment `RelayModernSelectorTestUserFragment` to be an ' +
           'object, got `"zuck"`.',
       );
     });
@@ -545,9 +547,9 @@ describe('RelayModernSelector', () => {
         'RelayModernSelector: Expected object to contain data for fragment ' +
           '`%s`, got `%s`. Make sure that the parent ' +
           'operation/fragment included fragment `...%s` without `@relay(mask: false)`.',
-        'UserFragment',
+        'RelayModernSelectorTestUserFragment',
         '{}',
-        'UserFragment',
+        'RelayModernSelectorTestUserFragment',
       );
       expect(fragmentVariables).toEqual({});
     });
@@ -594,7 +596,7 @@ describe('RelayModernSelector', () => {
 
     describe('with fragment owner', () => {
       beforeEach(() => {
-        const queryNode = getRequest(UserQuery);
+        const queryNode = UserQuery;
         owner = createOperationDescriptor(queryNode, inputVariables);
         zuck = (environment.lookup(owner.fragment).data: $FlowFixMe).node;
       });
@@ -607,7 +609,7 @@ describe('RelayModernSelector', () => {
         });
       });
       it('returns variables for singular props and uses variables from owner', () => {
-        const queryNode = getRequest(UserQuery);
+        const queryNode = UserQuery;
         // Pass owner with different variables
         owner = createOperationDescriptor(queryNode, {
           id: '4',
@@ -633,7 +635,7 @@ describe('RelayModernSelector', () => {
       });
 
       it('returns variables for plural props and uses variables from owner', () => {
-        const queryNode = getRequest(UserQuery);
+        const queryNode = UserQuery;
         // Pass owner with different variables
         owner = createOperationDescriptor(queryNode, {
           id: '4',
@@ -663,6 +665,7 @@ describe('RelayModernSelector', () => {
       );
       const clone = {
         ...selector,
+        // $FlowFixMe[cannot-spread-interface]
         variables: {...selector.variables},
       };
       expect(areEqualSelectors(selector, selector)).toBe(true);
@@ -670,7 +673,7 @@ describe('RelayModernSelector', () => {
     });
 
     it('returns false for equivalent selectors but with different owners', () => {
-      const queryNode = getRequest(UserQuery);
+      const queryNode = UserQuery;
       owner = createOperationDescriptor(queryNode, operationVariables);
       const selector = createReaderSelector(
         UserFragment,
@@ -688,7 +691,7 @@ describe('RelayModernSelector', () => {
     });
 
     it('returns true for equivalent selectors with same owners', () => {
-      const queryNode = getRequest(UserQuery);
+      const queryNode = UserQuery;
       owner = createOperationDescriptor(queryNode, operationVariables);
       const selector = createReaderSelector(
         UserFragment,
@@ -698,6 +701,7 @@ describe('RelayModernSelector', () => {
       );
       const clone = {
         ...selector,
+        // $FlowFixMe[cannot-spread-interface]
         variables: {...selector.variables},
       };
       expect(areEqualSelectors(selector, selector)).toBe(true);
@@ -729,7 +733,7 @@ describe('RelayModernSelector', () => {
     });
 
     it('returns false for different selectors with owners', () => {
-      const queryNode = getRequest(UserQuery);
+      const queryNode = UserQuery;
       owner = createOperationDescriptor(queryNode, operationVariables);
       const selector = createReaderSelector(
         UserFragment,

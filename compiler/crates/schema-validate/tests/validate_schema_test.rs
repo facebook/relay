@@ -1,4 +1,11 @@
-// @generated SignedSource<<031a4252e88c9ed11853d0a90ce6ef7e>>
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ * @generated SignedSource<<e0f69125973077ab82c37b910a577a54>>
+ */
 
 mod validate_schema;
 
@@ -17,13 +24,6 @@ fn validate_enum() {
     let input = include_str!("validate_schema/fixtures/validate_enum.graphql");
     let expected = include_str!("validate_schema/fixtures/validate_enum.expected");
     test_fixture(transform_fixture, "validate_enum.graphql", "validate_schema/fixtures/validate_enum.expected", input, expected);
-}
-
-#[test]
-fn validate_input_object() {
-    let input = include_str!("validate_schema/fixtures/validate_input_object.graphql");
-    let expected = include_str!("validate_schema/fixtures/validate_input_object.expected");
-    test_fixture(transform_fixture, "validate_input_object.graphql", "validate_schema/fixtures/validate_input_object.expected", input, expected);
 }
 
 #[test]

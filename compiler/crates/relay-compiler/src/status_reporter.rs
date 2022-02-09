@@ -1,13 +1,13 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
 use crate::{
-    errors::{BuildProjectError, Error, Result},
-    source_for_location,
+    errors::{BuildProjectError, Error},
+    source_for_location, FsSourceReader, SourceReader,
 };
 use common::Diagnostic;
 use graphql_cli::DiagnosticPrinter;
@@ -16,16 +16,21 @@ use std::path::PathBuf;
 
 pub trait StatusReporter {
     fn build_starts(&self);
-    fn build_finishes(&self, result: &Result<()>);
+    fn build_completes(&self);
+    fn build_errors(&self, error: &Error);
 }
 
 pub struct ConsoleStatusReporter {
+    source_reader: Box<dyn SourceReader + Send + Sync>,
     root_dir: PathBuf,
 }
 
 impl ConsoleStatusReporter {
     pub fn new(root_dir: PathBuf) -> Self {
-        Self { root_dir }
+        Self {
+            root_dir,
+            source_reader: Box::new(FsSourceReader),
+        }
     }
 }
 
@@ -71,7 +76,7 @@ impl ConsoleStatusReporter {
 
     fn print_diagnostic(&self, diagnostic: &Diagnostic) {
         let printer = DiagnosticPrinter::new(|source_location| {
-            source_for_location(&self.root_dir, source_location).map(|source| source.text)
+            source_for_location(&self.root_dir, source_location, self.source_reader.as_ref())
         });
         error!("{}", printer.diagnostic_to_string(diagnostic));
     }
@@ -80,12 +85,12 @@ impl ConsoleStatusReporter {
 impl StatusReporter for ConsoleStatusReporter {
     fn build_starts(&self) {}
 
-    fn build_finishes(&self, result: &Result<()>) {
-        if let Err(error) = result {
-            self.print_error(error);
-            if !matches!(error, Error::Cancelled) {
-                error!("Compilation failed.");
-            }
+    fn build_completes(&self) {}
+
+    fn build_errors(&self, error: &Error) {
+        self.print_error(error);
+        if !matches!(error, Error::Cancelled) {
+            error!("Compilation failed.");
         }
     }
 }

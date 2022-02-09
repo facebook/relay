@@ -156,10 +156,7 @@ fragment queryWithMatchDirectiveNoInlineExperimental_MarkdownUserNameRenderer_na
                   {
                     "kind": "Literal",
                     "name": "supported",
-                    "value": [
-                      "PlainUserNameRenderer",
-                      "MarkdownUserNameRenderer"
-                    ]
+                    "value": "34hjiS"
                   }
                 ],
                 "concreteType": null,
@@ -178,6 +175,7 @@ fragment queryWithMatchDirectiveNoInlineExperimental_MarkdownUserNameRenderer_na
                     "kind": "InlineFragment",
                     "selections": [
                       {
+                        "args": null,
                         "documentName": "queryWithMatchDirectiveNoInlineExperimental_NameRendererFragment",
                         "fragmentName": "queryWithMatchDirectiveNoInlineExperimental_PlainUserNameRenderer_name",
                         "fragmentPropName": "PlainUserNameRenderer_name",
@@ -191,6 +189,7 @@ fragment queryWithMatchDirectiveNoInlineExperimental_MarkdownUserNameRenderer_na
                     "kind": "InlineFragment",
                     "selections": [
                       {
+                        "args": null,
                         "documentName": "queryWithMatchDirectiveNoInlineExperimental_NameRendererFragment",
                         "fragmentName": "queryWithMatchDirectiveNoInlineExperimental_MarkdownUserNameRenderer_name",
                         "fragmentPropName": "MarkdownUserNameRenderer_name",
@@ -201,7 +200,7 @@ fragment queryWithMatchDirectiveNoInlineExperimental_MarkdownUserNameRenderer_na
                     "abstractKey": null
                   }
                 ],
-                "storageKey": "nameRenderer(supported:[\"PlainUserNameRenderer\",\"MarkdownUserNameRenderer\"])"
+                "storageKey": "nameRenderer(supported:\"34hjiS\")"
               }
             ],
             "type": "User",
@@ -247,13 +246,13 @@ fragment queryWithMatchDirectiveNoInlineExperimental_NameRendererFragment on Use
     __typename
     ... on PlainUserNameRenderer {
       ...queryWithMatchDirectiveNoInlineExperimental_PlainUserNameRenderer_name
-      __module_operation_queryWithMatchDirectiveNoInlineExperimental_NameRendererFragment: js(module: "queryWithMatchDirectiveNoInlineExperimental_PlainUserNameRenderer_name$normalization.graphql", id: "queryWithMatchDirectiveNoInlineExperimental_NameRendererFragment.nameRenderer")
-      __module_component_queryWithMatchDirectiveNoInlineExperimental_NameRendererFragment: js(module: "PlainUserNameRenderer.react", id: "queryWithMatchDirectiveNoInlineExperimental_NameRendererFragment.nameRenderer")
+      __module_operation_queryWithMatchDirectiveNoInlineExperimental_NameRendererFragment: js(module: "queryWithMatchDirectiveNoInlineExperimental_PlainUserNameRenderer_name$normalization.graphql", id: "queryWithMatchDirectiveNoInlineExperimental_NameRendererFragment.nameRenderer", branch: "PlainUserNameRenderer")
+      __module_component_queryWithMatchDirectiveNoInlineExperimental_NameRendererFragment: js(module: "PlainUserNameRenderer.react", id: "queryWithMatchDirectiveNoInlineExperimental_NameRendererFragment.nameRenderer", branch: "PlainUserNameRenderer")
     }
     ... on MarkdownUserNameRenderer {
       ...queryWithMatchDirectiveNoInlineExperimental_MarkdownUserNameRenderer_name
-      __module_operation_queryWithMatchDirectiveNoInlineExperimental_NameRendererFragment: js(module: "queryWithMatchDirectiveNoInlineExperimental_MarkdownUserNameRenderer_name$normalization.graphql", id: "queryWithMatchDirectiveNoInlineExperimental_NameRendererFragment.nameRenderer")
-      __module_component_queryWithMatchDirectiveNoInlineExperimental_NameRendererFragment: js(module: "MarkdownUserNameRenderer.react", id: "queryWithMatchDirectiveNoInlineExperimental_NameRendererFragment.nameRenderer")
+      __module_operation_queryWithMatchDirectiveNoInlineExperimental_NameRendererFragment: js(module: "queryWithMatchDirectiveNoInlineExperimental_MarkdownUserNameRenderer_name$normalization.graphql", id: "queryWithMatchDirectiveNoInlineExperimental_NameRendererFragment.nameRenderer", branch: "MarkdownUserNameRenderer")
+      __module_component_queryWithMatchDirectiveNoInlineExperimental_NameRendererFragment: js(module: "MarkdownUserNameRenderer.react", id: "queryWithMatchDirectiveNoInlineExperimental_NameRendererFragment.nameRenderer", branch: "MarkdownUserNameRenderer")
     }
   }
 }
@@ -362,10 +361,7 @@ fragment queryWithMatchDirectiveNoInlineExperimental_PlainUserNameRenderer_name 
         {
           "kind": "Literal",
           "name": "supported",
-          "value": [
-            "PlainUserNameRenderer",
-            "MarkdownUserNameRenderer"
-          ]
+          "value": "34hjiS"
         }
       ],
       "concreteType": null,
@@ -377,6 +373,7 @@ fragment queryWithMatchDirectiveNoInlineExperimental_PlainUserNameRenderer_name 
           "kind": "InlineFragment",
           "selections": [
             {
+              "args": null,
               "documentName": "queryWithMatchDirectiveNoInlineExperimental_NameRendererFragment",
               "fragmentName": "queryWithMatchDirectiveNoInlineExperimental_PlainUserNameRenderer_name",
               "fragmentPropName": "PlainUserNameRenderer_name",
@@ -390,6 +387,7 @@ fragment queryWithMatchDirectiveNoInlineExperimental_PlainUserNameRenderer_name 
           "kind": "InlineFragment",
           "selections": [
             {
+              "args": null,
               "documentName": "queryWithMatchDirectiveNoInlineExperimental_NameRendererFragment",
               "fragmentName": "queryWithMatchDirectiveNoInlineExperimental_MarkdownUserNameRenderer_name",
               "fragmentPropName": "MarkdownUserNameRenderer_name",
@@ -400,7 +398,7 @@ fragment queryWithMatchDirectiveNoInlineExperimental_PlainUserNameRenderer_name 
           "abstractKey": null
         }
       ],
-      "storageKey": "nameRenderer(supported:[\"PlainUserNameRenderer\",\"MarkdownUserNameRenderer\"])"
+      "storageKey": "nameRenderer(supported:\"34hjiS\")"
     }
   ],
   "type": "User",

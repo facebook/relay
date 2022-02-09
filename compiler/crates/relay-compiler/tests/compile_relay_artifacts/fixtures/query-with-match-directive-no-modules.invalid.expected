@@ -15,8 +15,8 @@ fragment queryWithMatchDirectiveNoModules_NameRendererFragment on User {
 ==================================== ERROR ====================================
 ✖︎ Invalid @match selection: expected at least one @module selection. Remove @match or add a '...Fragment @module()' selection.
 
-  query-with-match-directive-no-modules.invalid.graphql:10:17
+  query-with-match-directive-no-modules.invalid.graphql:10:16
     9 │   id
    10 │   nameRenderer @match {
-      │                 ^^^^^
+      │                ^^^^^^
    11 │     __typename

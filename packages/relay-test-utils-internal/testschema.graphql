@@ -1,4 +1,4 @@
-# Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved.
+# Copyright (c) Meta Platforms, Inc. and affiliates. All Rights Reserved.
 
 schema {
   query: Query
@@ -24,6 +24,18 @@ directive @stream(
 
 directive @fetchable(field_name: String!) on OBJECT
 
+directive @relay_client_component_server(module_id: String!) on FRAGMENT_SPREAD
+
+directive @fb_actor_change on FIELD
+
+directive @live_query(
+  enabled: Boolean = true
+  polling_interval: Int
+  config_id: String
+  partial: Boolean
+  event_stream: String
+) on QUERY
+
 type Query {
   checkinSearchQuery(query: CheckinSearchInput): CheckinSearchResult
   defaultSettings: Settings
@@ -44,7 +56,6 @@ type Query {
   usernames(names: [String!]!): [Actor]
   viewer: Viewer
   _mutation: Mutation
-  relay_early_flush(query_name: String): [JSDependency!]!
   fetch__User(id: ID!): User
   fetch__NonNodeStory(input_fetch_id: ID!): NonNodeStory
   nonNodeStory(id: ID!): NonNodeStory
@@ -128,6 +139,7 @@ type Subscription {
   commentCreateSubscribe(
     input: CommentCreateSubscriptionInput
   ): CommentCreateResponsePayload
+  configCreateSubscribe: ConfigCreateSubscriptResponsePayload
 }
 
 input ActorSubscribeInput {
@@ -239,7 +251,7 @@ input CheckinSearchInput {
 
 input StoryUpdateInput {
   clientMutationId: String
-  body: Text
+  body: InputText
 }
 
 type PlainCommentBody {
@@ -315,6 +327,10 @@ type Comment implements Node {
   websites: [String]
   username: String
   viewerSavedState: String
+}
+
+type ConfigCreateSubscriptResponsePayload {
+  config: Config
 }
 
 type CommentCreateResponsePayload {
@@ -474,6 +490,7 @@ interface FeedUnit {
   id: ID!
   message: Text
   tracking: String
+  actor_key: ID!
 }
 
 type FriendsConnection {
@@ -616,6 +633,7 @@ interface Actor {
   url(relative: Boolean, site: String): String
   websites: [String]
   username: String
+  actor_key: ID!
 }
 
 type NodeSavedStateResponsePayload {
@@ -679,6 +697,7 @@ type Page implements Node & Actor & Entity {
   viewerSavedState: String
   nameWithArgs(capitalize: Boolean!): String
   nameWithDefaultArgs(capitalize: Boolean! = false): String
+  actor_key: ID!
 }
 
 type PageInfo {
@@ -741,6 +760,7 @@ type NonNodeStory implements FeedUnit @fetchable(field_name: "fetch_id") {
     last: Int
     orderby: String
   ): CommentsConnection
+  actor_key: ID!
 }
 
 type PhotoStory implements FeedUnit & Node {
@@ -804,6 +824,7 @@ type PhotoStory implements FeedUnit & Node {
   websites: [String]
   username: String
   viewerSavedState: String
+  actor_key: ID!
 }
 
 type Story implements FeedUnit & Node & MaybeNodeInterface {
@@ -867,6 +888,7 @@ type Story implements FeedUnit & Node & MaybeNodeInterface {
   username: String
   viewerSavedState: String
   flight(component: String, props: ReactFlightProps): ReactFlightComponent
+  actor_key: ID!
 }
 
 type StoryAttachment {
@@ -895,6 +917,11 @@ type SubscribersEdge {
 }
 
 type Text {
+  text: String
+  ranges: [String]
+}
+
+input InputText {
   text: String
   ranges: [String]
 }
@@ -1059,6 +1086,7 @@ type User implements Named & Node & Actor & HasJsField & Entity & AllConcreteTyp
   neighbors: [User!]
   nearest_neighbor: User!
   parents: [User!]!
+  actor_key: ID!
 }
 
 enum NameRendererContext {

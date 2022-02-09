@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -12,30 +12,12 @@
 
 'use strict';
 
-const DataChecker = require('./DataChecker');
-const RelayModernRecord = require('./RelayModernRecord');
-const RelayOptimisticRecordSource = require('./RelayOptimisticRecordSource');
-const RelayProfiler = require('../util/RelayProfiler');
-const RelayReader = require('./RelayReader');
-const RelayReferenceMarker = require('./RelayReferenceMarker');
-const RelayStoreReactFlightUtils = require('./RelayStoreReactFlightUtils');
-const RelayStoreUtils = require('./RelayStoreUtils');
-
-const deepFreeze = require('../util/deepFreeze');
-const defaultGetDataID = require('./defaultGetDataID');
-const hasOverlappingIDs = require('./hasOverlappingIDs');
-const invariant = require('invariant');
-const isEmptyObject = require('../util/isEmptyObject');
-const recycleNodesInto = require('../util/recycleNodesInto');
-const resolveImmediate = require('../util/resolveImmediate');
-
-const {ROOT_ID, ROOT_TYPE} = require('./RelayStoreUtils');
-
 import type {DataID, Disposable} from '../util/RelayRuntimeTypes';
 import type {Availability} from './DataChecker';
 import type {GetDataID} from './RelayResponseNormalizer';
 import type {
   CheckOptions,
+  DataIDSet,
   LogFunction,
   MutableRecordSource,
   OperationAvailability,
@@ -47,19 +29,33 @@ import type {
   SingularReaderSelector,
   Snapshot,
   Store,
-  UpdatedRecords,
+  StoreSubscriptions,
 } from './RelayStoreTypes';
+import type {ResolverCache} from './ResolverCache';
+
+const {
+  INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
+  assertInternalActorIndentifier,
+} = require('../multi-actor-environment/ActorIdentifier');
+const deepFreeze = require('../util/deepFreeze');
+const RelayFeatureFlags = require('../util/RelayFeatureFlags');
+const resolveImmediate = require('../util/resolveImmediate');
+const DataChecker = require('./DataChecker');
+const defaultGetDataID = require('./defaultGetDataID');
+const RelayModernRecord = require('./RelayModernRecord');
+const RelayOptimisticRecordSource = require('./RelayOptimisticRecordSource');
+const RelayReader = require('./RelayReader');
+const RelayReferenceMarker = require('./RelayReferenceMarker');
+const RelayStoreReactFlightUtils = require('./RelayStoreReactFlightUtils');
+const RelayStoreSubscriptions = require('./RelayStoreSubscriptions');
+const RelayStoreUtils = require('./RelayStoreUtils');
+const {ROOT_ID, ROOT_TYPE} = require('./RelayStoreUtils');
+const {RecordResolverCache} = require('./ResolverCache');
+const invariant = require('invariant');
 
 export opaque type InvalidationState = {|
   dataIDs: $ReadOnlyArray<DataID>,
   invalidations: Map<DataID, ?number>,
-|};
-
-type Subscription = {|
-  callback: (snapshot: Snapshot) => void,
-  snapshot: Snapshot,
-  stale: boolean,
-  backup: ?Snapshot,
 |};
 
 type InvalidationSubscription = {|
@@ -67,7 +63,7 @@ type InvalidationSubscription = {|
   invalidationState: InvalidationState,
 |};
 
-const DEFAULT_RELEASE_BUFFER_SIZE = 0;
+const DEFAULT_RELEASE_BUFFER_SIZE = 10;
 
 /**
  * @public
@@ -90,12 +86,13 @@ class RelayModernStore implements Store {
   _getDataID: GetDataID;
   _globalInvalidationEpoch: ?number;
   _invalidationSubscriptions: Set<InvalidationSubscription>;
-  _invalidatedRecordIDs: Set<DataID>;
+  _invalidatedRecordIDs: DataIDSet;
   __log: ?LogFunction;
   _queryCacheExpirationTime: ?number;
   _operationLoader: ?OperationLoader;
   _optimisticSource: ?MutableRecordSource;
   _recordSource: MutableRecordSource;
+  _resolverCache: ResolverCache;
   _releaseBuffer: Array<string>;
   _roots: Map<
     string,
@@ -107,8 +104,9 @@ class RelayModernStore implements Store {
     |},
   >;
   _shouldScheduleGC: boolean;
-  _subscriptions: Set<Subscription>;
-  _updatedRecordIDs: UpdatedRecords;
+  _storeSubscriptions: StoreSubscriptions;
+  _updatedRecordIDs: DataIDSet;
+  _shouldProcessClientComponents: ?boolean;
 
   constructor(
     source: MutableRecordSource,
@@ -116,9 +114,10 @@ class RelayModernStore implements Store {
       gcScheduler?: ?Scheduler,
       log?: ?LogFunction,
       operationLoader?: ?OperationLoader,
-      UNSTABLE_DO_NOT_USE_getDataID?: ?GetDataID,
+      getDataID?: ?GetDataID,
       gcReleaseBufferSize?: ?number,
       queryCacheExpirationTime?: ?number,
+      shouldProcessClientComponents?: ?boolean,
     |},
   ) {
     // Prevent mutation of a record from outside the store.
@@ -137,8 +136,7 @@ class RelayModernStore implements Store {
       options?.gcReleaseBufferSize ?? DEFAULT_RELEASE_BUFFER_SIZE;
     this._gcRun = null;
     this._gcScheduler = options?.gcScheduler ?? resolveImmediate;
-    this._getDataID =
-      options?.UNSTABLE_DO_NOT_USE_getDataID ?? defaultGetDataID;
+    this._getDataID = options?.getDataID ?? defaultGetDataID;
     this._globalInvalidationEpoch = null;
     this._invalidationSubscriptions = new Set();
     this._invalidatedRecordIDs = new Set();
@@ -150,8 +148,16 @@ class RelayModernStore implements Store {
     this._releaseBuffer = [];
     this._roots = new Map();
     this._shouldScheduleGC = false;
-    this._subscriptions = new Set();
-    this._updatedRecordIDs = {};
+    this._resolverCache = new RecordResolverCache(() =>
+      this._getMutableRecordSource(),
+    );
+    this._storeSubscriptions = new RelayStoreSubscriptions(
+      options?.log,
+      this._resolverCache,
+    );
+    this._updatedRecordIDs = new Set();
+    this._shouldProcessClientComponents =
+      options?.shouldProcessClientComponents;
 
     initializeRecordSource(this._recordSource);
   }
@@ -160,12 +166,16 @@ class RelayModernStore implements Store {
     return this._optimisticSource ?? this._recordSource;
   }
 
+  _getMutableRecordSource(): MutableRecordSource {
+    return this._optimisticSource ?? this._recordSource;
+  }
+
   check(
     operation: OperationDescriptor,
     options?: CheckOptions,
   ): OperationAvailability {
     const selector = operation.root;
-    const source = this._optimisticSource ?? this._recordSource;
+    const source = this._getMutableRecordSource();
     const globalInvalidationEpoch = this._globalInvalidationEpoch;
 
     const rootEntry = this._roots.get(operation.request.identifier);
@@ -174,7 +184,7 @@ class RelayModernStore implements Store {
     // Check if store has been globally invalidated
     if (globalInvalidationEpoch != null) {
       // If so, check if the operation we're checking was last written
-      // before or after invalidation occured.
+      // before or after invalidation occurred.
       if (
         operationLastWrittenAt == null ||
         operationLastWrittenAt <= globalInvalidationEpoch
@@ -187,15 +197,29 @@ class RelayModernStore implements Store {
       }
     }
 
-    const target = options?.target ?? source;
     const handlers = options?.handlers ?? [];
+    const getSourceForActor =
+      options?.getSourceForActor ??
+      (actorIdentifier => {
+        assertInternalActorIndentifier(actorIdentifier);
+        return source;
+      });
+    const getTargetForActor =
+      options?.getTargetForActor ??
+      (actorIdentifier => {
+        assertInternalActorIndentifier(actorIdentifier);
+        return source;
+      });
+
     const operationAvailability = DataChecker.check(
-      source,
-      target,
+      getSourceForActor,
+      getTargetForActor,
+      options?.defaultActorIdentifier ?? INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
       selector,
       handlers,
       this._operationLoader,
       this._getDataID,
+      this._shouldProcessClientComponents,
     );
 
     return getAvailabilityStatus(
@@ -233,7 +257,7 @@ class RelayModernStore implements Store {
 
         if (rootEntryIsStale) {
           this._roots.delete(id);
-          this._scheduleGC();
+          this.scheduleGC();
         } else {
           this._releaseBuffer.push(id);
 
@@ -243,7 +267,7 @@ class RelayModernStore implements Store {
           if (this._releaseBuffer.length > this._gcReleaseBufferSize) {
             const _id = this._releaseBuffer.shift();
             this._roots.delete(_id);
-            this._scheduleGC();
+            this.scheduleGC();
           }
         }
       }
@@ -274,7 +298,7 @@ class RelayModernStore implements Store {
 
   lookup(selector: SingularReaderSelector): Snapshot {
     const source = this.getSource();
-    const snapshot = RelayReader.read(source, selector);
+    const snapshot = RelayReader.read(source, selector, this._resolverCache);
     if (__DEV__) {
       deepFreeze(snapshot);
     }
@@ -290,6 +314,7 @@ class RelayModernStore implements Store {
     if (log != null) {
       log({
         name: 'store.notify.start',
+        sourceOperation,
       });
     }
 
@@ -301,19 +326,21 @@ class RelayModernStore implements Store {
       this._globalInvalidationEpoch = this._currentWriteEpoch;
     }
 
+    if (RelayFeatureFlags.ENABLE_RELAY_RESOLVERS) {
+      // When a record is updated, we need to also handle records that depend on it,
+      // specifically Relay Resolver result records containing results based on the
+      // updated records. This both adds to updatedRecordIDs and invalidates any
+      // cached data as needed.
+      this._resolverCache.invalidateDataIDs(this._updatedRecordIDs);
+    }
     const source = this.getSource();
     const updatedOwners = [];
-    const hasUpdatedRecords = !isEmptyObject(this._updatedRecordIDs);
-    this._subscriptions.forEach(subscription => {
-      const owner = this._updateSubscription(
-        source,
-        subscription,
-        hasUpdatedRecords,
-      );
-      if (owner != null) {
-        updatedOwners.push(owner);
-      }
-    });
+    this._storeSubscriptions.updateSubscriptions(
+      source,
+      this._updatedRecordIDs,
+      updatedOwners,
+      sourceOperation,
+    );
     this._invalidationSubscriptions.forEach(subscription => {
       this._updateInvalidationSubscription(
         subscription,
@@ -323,12 +350,13 @@ class RelayModernStore implements Store {
     if (log != null) {
       log({
         name: 'store.notify.complete',
+        sourceOperation,
         updatedRecordIDs: this._updatedRecordIDs,
         invalidatedRecordIDs: this._invalidatedRecordIDs,
       });
     }
 
-    this._updatedRecordIDs = {};
+    this._updatedRecordIDs.clear();
     this._invalidatedRecordIDs.clear();
 
     // If a source operation was provided (indicating the operation
@@ -366,8 +394,8 @@ class RelayModernStore implements Store {
     return updatedOwners;
   }
 
-  publish(source: RecordSource, idsMarkedForInvalidation?: Set<DataID>): void {
-    const target = this._optimisticSource ?? this._recordSource;
+  publish(source: RecordSource, idsMarkedForInvalidation?: DataIDSet): void {
+    const target = this._getMutableRecordSource();
     updateTargetFromSource(
       target,
       source,
@@ -395,12 +423,7 @@ class RelayModernStore implements Store {
     snapshot: Snapshot,
     callback: (snapshot: Snapshot) => void,
   ): Disposable {
-    const subscription = {backup: null, callback, snapshot, stale: false};
-    const dispose = () => {
-      this._subscriptions.delete(subscription);
-    };
-    this._subscriptions.add(subscription);
-    return {dispose};
+    return this._storeSubscriptions.subscribe(snapshot, callback);
   }
 
   holdGC(): Disposable {
@@ -413,7 +436,7 @@ class RelayModernStore implements Store {
       if (this._gcHoldCounter > 0) {
         this._gcHoldCounter--;
         if (this._gcHoldCounter === 0 && this._shouldScheduleGC) {
-          this._scheduleGC();
+          this.scheduleGC();
           this._shouldScheduleGC = false;
         }
       }
@@ -425,46 +448,13 @@ class RelayModernStore implements Store {
     return 'RelayModernStore()';
   }
 
-  // Internal API
-  __getUpdatedRecordIDs(): UpdatedRecords {
-    return this._updatedRecordIDs;
+  getEpoch(): number {
+    return this._currentWriteEpoch;
   }
 
-  // Returns the owner (RequestDescriptor) if the subscription was affected by the
-  // latest update, or null if it was not affected.
-  _updateSubscription(
-    source: RecordSource,
-    subscription: Subscription,
-    hasUpdatedRecords: boolean,
-  ): ?RequestDescriptor {
-    const {backup, callback, snapshot, stale} = subscription;
-    const hasOverlappingUpdates =
-      hasUpdatedRecords &&
-      hasOverlappingIDs(snapshot.seenRecords, this._updatedRecordIDs);
-    if (!stale && !hasOverlappingUpdates) {
-      return;
-    }
-    let nextSnapshot: Snapshot =
-      hasOverlappingUpdates || !backup
-        ? RelayReader.read(source, snapshot.selector)
-        : backup;
-    const nextData = recycleNodesInto(snapshot.data, nextSnapshot.data);
-    nextSnapshot = ({
-      data: nextData,
-      isMissingData: nextSnapshot.isMissingData,
-      seenRecords: nextSnapshot.seenRecords,
-      selector: nextSnapshot.selector,
-      missingRequiredFields: nextSnapshot.missingRequiredFields,
-    }: Snapshot);
-    if (__DEV__) {
-      deepFreeze(nextSnapshot);
-    }
-    subscription.snapshot = nextSnapshot;
-    subscription.stale = false;
-    if (nextSnapshot.data !== snapshot.data) {
-      callback(nextSnapshot);
-      return snapshot.selector.owner;
-    }
+  // Internal API
+  __getUpdatedRecordIDs(): DataIDSet {
+    return this._updatedRecordIDs;
   }
 
   lookupInvalidationState(dataIDs: $ReadOnlyArray<DataID>): InvalidationState {
@@ -546,29 +536,7 @@ class RelayModernStore implements Store {
         name: 'store.snapshot',
       });
     }
-    this._subscriptions.forEach(subscription => {
-      // Backup occurs after writing a new "final" payload(s) and before (re)applying
-      // optimistic changes. Each subscription's `snapshot` represents what was *last
-      // published to the subscriber*, which notably may include previous optimistic
-      // updates. Therefore a subscription can be in any of the following states:
-      // - stale=true: This subscription was restored to a different value than
-      //   `snapshot`. That means this subscription has changes relative to its base,
-      //   but its base has changed (we just applied a final payload): recompute
-      //   a backup so that we can later restore to the state the subscription
-      //   should be in.
-      // - stale=false: This subscription was restored to the same value than
-      //   `snapshot`. That means this subscription does *not* have changes relative
-      //   to its base, so the current `snapshot` is valid to use as a backup.
-      if (!subscription.stale) {
-        subscription.backup = subscription.snapshot;
-        return;
-      }
-      const snapshot = subscription.snapshot;
-      const backup = RelayReader.read(this.getSource(), snapshot.selector);
-      const nextData = recycleNodesInto(snapshot.data, backup.data);
-      (backup: $FlowFixMe).data = nextData; // backup owns the snapshot and can safely mutate
-      subscription.backup = backup;
-    });
+    this._storeSubscriptions.snapshotSubscriptions(this.getSource());
     if (this._gcRun) {
       this._gcRun = null;
       this._shouldScheduleGC = true;
@@ -592,29 +560,12 @@ class RelayModernStore implements Store {
     }
     this._optimisticSource = null;
     if (this._shouldScheduleGC) {
-      this._scheduleGC();
+      this.scheduleGC();
     }
-    this._subscriptions.forEach(subscription => {
-      const backup = subscription.backup;
-      subscription.backup = null;
-      if (backup) {
-        if (backup.data !== subscription.snapshot.data) {
-          subscription.stale = true;
-        }
-        subscription.snapshot = {
-          data: subscription.snapshot.data,
-          isMissingData: backup.isMissingData,
-          seenRecords: backup.seenRecords,
-          selector: backup.selector,
-          missingRequiredFields: backup.missingRequiredFields,
-        };
-      } else {
-        subscription.stale = true;
-      }
-    });
+    this._storeSubscriptions.restoreSubscriptions();
   }
 
-  _scheduleGC() {
+  scheduleGC() {
     if (this._gcHoldCounter > 0) {
       this._shouldScheduleGC = true;
       return;
@@ -662,6 +613,7 @@ class RelayModernStore implements Store {
           selector,
           references,
           this._operationLoader,
+          this._shouldProcessClientComponents,
         );
         // Yield for other work after each operation
         yield;
@@ -716,9 +668,9 @@ function updateTargetFromSource(
   target: MutableRecordSource,
   source: RecordSource,
   currentWriteEpoch: number,
-  idsMarkedForInvalidation: ?Set<DataID>,
-  updatedRecordIDs: UpdatedRecords,
-  invalidatedRecordIDs: Set<DataID>,
+  idsMarkedForInvalidation: ?DataIDSet,
+  updatedRecordIDs: DataIDSet,
+  invalidatedRecordIDs: DataIDSet,
 ): void {
   // First, update any records that were marked for invalidation.
   // For each provided dataID that was invalidated, we write the
@@ -792,17 +744,17 @@ function updateTargetFromSource(
         if (__DEV__) {
           RelayModernRecord.freeze(nextRecord);
         }
-        updatedRecordIDs[dataID] = true;
+        updatedRecordIDs.add(dataID);
         target.set(dataID, nextRecord);
       }
     } else if (sourceRecord === null) {
       target.delete(dataID);
       if (targetRecord !== null) {
-        updatedRecordIDs[dataID] = true;
+        updatedRecordIDs.add(dataID);
       }
     } else if (sourceRecord) {
       target.set(dataID, sourceRecord);
-      updatedRecordIDs[dataID] = true;
+      updatedRecordIDs.add(dataID);
     } // don't add explicit undefined
   }
 }
@@ -850,9 +802,5 @@ function getAvailabilityStatus(
   // been fetched after the most recent record invalidation.
   return {status: 'available', fetchTime: operationFetchTime ?? null};
 }
-
-RelayProfiler.instrumentMethods(RelayModernStore.prototype, {
-  lookup: 'RelayModernStore.prototype.lookup',
-});
 
 module.exports = RelayModernStore;

@@ -1,0 +1,166 @@
+==================================== INPUT ====================================
+fragment relayResolverRequired_PopStarNameResolverFragment_name on User {
+  name
+}
+
+query relayResolverRequired_Query {
+  node(id: "SOME_ID") {
+    ... on User {
+      pop_star_name @required(action: LOG)
+    }
+  }
+}
+
+# %extensions%
+
+extend type User {
+  pop_star_name: String @relay_resolver(fragment_name: "relayResolverRequired_PopStarNameResolverFragment_name", import_path: "./path/to/PopStarNameResolver.js")
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "relayResolverRequired_Query",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Literal",
+            "name": "id",
+            "value": "SOME_ID"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "kind": "RequiredField",
+                "field": {
+                  "alias": null,
+                  "fragment": {
+                    "args": null,
+                    "kind": "FragmentSpread",
+                    "name": "relayResolverRequired_PopStarNameResolverFragment_name"
+                  },
+                  "kind": "RelayResolver",
+                  "name": "pop_star_name",
+                  "resolverModule": require('PopStarNameResolver')
+                },
+                "action": "LOG",
+                "path": "node.pop_star_name"
+              }
+            ],
+            "type": "User",
+            "abstractKey": null
+          }
+        ],
+        "storageKey": "node(id:\"SOME_ID\")"
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [],
+    "kind": "Operation",
+    "name": "relayResolverRequired_Query",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Literal",
+            "name": "id",
+            "value": "SOME_ID"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "__typename",
+            "storageKey": null
+          },
+          {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "name",
+                "storageKey": null
+              }
+            ],
+            "type": "User",
+            "abstractKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          }
+        ],
+        "storageKey": "node(id:\"SOME_ID\")"
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {},
+    "name": "relayResolverRequired_Query",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query relayResolverRequired_Query {
+  node(id: "SOME_ID") {
+    __typename
+    ... on User {
+      ...relayResolverRequired_PopStarNameResolverFragment_name
+    }
+    id
+  }
+}
+
+fragment relayResolverRequired_PopStarNameResolverFragment_name on User {
+  name
+}
+
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "relayResolverRequired_PopStarNameResolverFragment_name",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "name",
+      "storageKey": null
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}

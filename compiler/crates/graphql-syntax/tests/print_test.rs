@@ -1,4 +1,11 @@
-// @generated SignedSource<<bade607e12e3613ab1587388e460cbd2>>
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ * @generated SignedSource<<e754c9b986474e80e9bc346aa6c77fcd>>
+ */
 
 mod print;
 

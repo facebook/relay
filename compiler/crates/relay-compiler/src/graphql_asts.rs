@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -7,16 +7,16 @@
 
 use crate::compiler_state::{GraphQLSources, SourceSetName};
 use crate::errors::{Error, Result};
-use common::SourceLocationKey;
-use fnv::{FnvHashMap, FnvHashSet};
+use common::{Diagnostic, SourceLocationKey};
+use fnv::FnvHashMap;
 use graphql_syntax::ExecutableDefinition;
-use interner::StringKey;
+use intern::string_key::{StringKey, StringKeySet};
 
 #[derive(Debug)]
 pub struct GraphQLAsts {
     pub asts: Vec<ExecutableDefinition>,
     /// Names of fragments and operations that are updated or created
-    pub pending_definition_names: FnvHashSet<StringKey>,
+    pub pending_definition_names: StringKeySet,
     /// Names of fragments and operations that are deleted
     pub removed_definition_names: Vec<StringKey>,
 }
@@ -48,7 +48,7 @@ impl GraphQLAsts {
         let mut syntax_errors = Vec::new();
 
         let mut asts = Vec::new();
-        let mut pending_definition_names = FnvHashSet::default();
+        let mut pending_definition_names: StringKeySet = Default::default();
         let mut removed_definition_names = Vec::new();
 
         if let Some(dirty_definitions) = dirty_definitions {
@@ -66,8 +66,14 @@ impl GraphQLAsts {
                 match graphql_syntax::parse_executable(&graphql_source.text, source_location) {
                     Ok(document) => {
                         for def in &document.definitions {
-                            let name = def.name().expect("Expected operation name to exist.");
-                            pending_definition_names.insert(name);
+                            if let Some(name) = def.name() {
+                                pending_definition_names.insert(name);
+                            } else {
+                                syntax_errors.push(Diagnostic::error(
+                                    "Expected operation to have a name (e.g. 'query <Name>')",
+                                    def.location(),
+                                ))
+                            }
                         }
                         definitions_for_file.extend(document.definitions);
                     }

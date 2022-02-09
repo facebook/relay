@@ -1,0 +1,168 @@
+==================================== INPUT ====================================
+fragment Test on User {
+  photo(
+    s:
+    size1: $size
+    size2: $size
+  )
+}
+==================================== OUTPUT ===================================
+ExecutableDocument {
+    span: 0:80,
+    definitions: [
+        FragmentDefinition {
+            location: argument-missing-value-2.graphql:0:79,
+            fragment: Token {
+                span: 0:8,
+                kind: Identifier,
+            },
+            name: Identifier {
+                span: 9:13,
+                token: Token {
+                    span: 9:13,
+                    kind: Identifier,
+                },
+                value: "Test",
+            },
+            variable_definitions: None,
+            type_condition: TypeCondition {
+                span: 14:21,
+                on: Token {
+                    span: 14:16,
+                    kind: Identifier,
+                },
+                type_: Identifier {
+                    span: 17:21,
+                    token: Token {
+                        span: 17:21,
+                        kind: Identifier,
+                    },
+                    value: "User",
+                },
+            },
+            directives: [],
+            selections: List {
+                span: 22:79,
+                start: Token {
+                    span: 22:23,
+                    kind: OpenBrace,
+                },
+                items: [
+                    ScalarField {
+                        span: 26:77,
+                        alias: None,
+                        name: Identifier {
+                            span: 26:31,
+                            token: Token {
+                                span: 26:31,
+                                kind: Identifier,
+                            },
+                            value: "photo",
+                        },
+                        arguments: Some(
+                            List {
+                                span: 31:77,
+                                start: Token {
+                                    span: 31:32,
+                                    kind: OpenParen,
+                                },
+                                items: [
+                                    Argument {
+                                        span: 37:39,
+                                        name: Identifier {
+                                            span: 37:38,
+                                            token: Token {
+                                                span: 37:38,
+                                                kind: Identifier,
+                                            },
+                                            value: "s",
+                                        },
+                                        colon: Token {
+                                            span: 38:39,
+                                            kind: Colon,
+                                        },
+                                        value: Constant(
+                                            Null(
+                                                Token {
+                                                    span: 39:39,
+                                                    kind: Empty,
+                                                },
+                                            ),
+                                        ),
+                                    },
+                                    Argument {
+                                        span: 49:56,
+                                        name: Identifier {
+                                            span: 44:49,
+                                            token: Token {
+                                                span: 44:49,
+                                                kind: Identifier,
+                                            },
+                                            value: "size1",
+                                        },
+                                        colon: Token {
+                                            span: 49:50,
+                                            kind: Colon,
+                                        },
+                                        value: Variable(
+                                            VariableIdentifier {
+                                                span: 51:56,
+                                                token: Token {
+                                                    span: 52:56,
+                                                    kind: Identifier,
+                                                },
+                                                name: "size",
+                                            },
+                                        ),
+                                    },
+                                    Argument {
+                                        span: 61:73,
+                                        name: Identifier {
+                                            span: 61:66,
+                                            token: Token {
+                                                span: 61:66,
+                                                kind: Identifier,
+                                            },
+                                            value: "size2",
+                                        },
+                                        colon: Token {
+                                            span: 66:67,
+                                            kind: Colon,
+                                        },
+                                        value: Variable(
+                                            VariableIdentifier {
+                                                span: 68:73,
+                                                token: Token {
+                                                    span: 69:73,
+                                                    kind: Identifier,
+                                                },
+                                                name: "size",
+                                            },
+                                        ),
+                                    },
+                                ],
+                                end: Token {
+                                    span: 76:77,
+                                    kind: CloseParen,
+                                },
+                            },
+                        ),
+                        directives: [],
+                    },
+                ],
+                end: Token {
+                    span: 78:79,
+                    kind: CloseBrace,
+                },
+            },
+        },
+    ],
+}
+Errors:
+✖︎ Expected a value ('$example', boolean, integer, float, string, null, list, or object)
+
+  argument-missing-value-2.graphql:3:7
+    2 │   photo(
+    3 │     s: 
+      │       ^
+    4 │     size1: $size

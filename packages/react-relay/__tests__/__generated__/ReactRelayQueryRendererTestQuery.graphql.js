@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<fd7dbc4ce136f2d20c42b17cc9c0edb3>>
+ * @generated SignedSource<<7637ec1e71c1663b3db8ba999d61685a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,20 +15,20 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type ReactRelayQueryRendererTestFragment$ref = any;
-export type ReactRelayQueryRendererTestQueryVariables = {|
-  id?: ?string
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type ReactRelayQueryRendererTestFragment$fragmentType = any;
+export type ReactRelayQueryRendererTestQuery$variables = {|
+  id?: ?string,
 |};
-export type ReactRelayQueryRendererTestQueryResponse = {|
+export type ReactRelayQueryRendererTestQuery$data = {|
   +node: ?{|
     +id: string,
-    +$fragmentRefs: ReactRelayQueryRendererTestFragment$ref,
-  |}
+    +$fragmentSpreads: ReactRelayQueryRendererTestFragment$fragmentType,
+  |},
 |};
 export type ReactRelayQueryRendererTestQuery = {|
-  variables: ReactRelayQueryRendererTestQueryVariables,
-  response: ReactRelayQueryRendererTestQueryResponse,
+  variables: ReactRelayQueryRendererTestQuery$variables,
+  response: ReactRelayQueryRendererTestQuery$data,
 |};
 */
 
@@ -138,4 +138,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "868a762b987be24c755ff000a86baacc";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  ReactRelayQueryRendererTestQuery$variables,
+  ReactRelayQueryRendererTestQuery$data,
+>*/);

@@ -1,0 +1,47 @@
+query queryMixedProvidedVar_OneFragment($id: ID!) {
+  node(id: $id) {
+    ...FragmentOneProvidedVar @arguments(includeAlternateName: false)
+  }
+}
+
+query queryMixedProvidedVar_MultiFragment($id: ID!, $includelastName: Boolean!) {
+  node(id: 4) {
+    ...FragmentOneProvidedVar @arguments(includeAlternateName: true),
+    ...FragmentMultiProvidedVar,
+    ...FragmentProvidedVarWithOtherGlobal,
+  }
+}
+
+fragment FragmentOneProvidedVar on User
+  @argumentDefinitions(
+    includeName: {type: "Boolean!", provider: "includeNameProvider"},
+    includeAlternateName: {type: "Boolean!"},
+) {
+  name @include(if: $includeName),
+  alternate_name @include(if: $includeAlternateName)
+}
+
+fragment FragmentMultiProvidedVar on User
+  @argumentDefinitions(
+    numberOfFriends: {type: "Int!", provider: "numberOfFriendsProvider"},
+    includeName: {type: "Boolean!", provider: "includeNameProvider"}
+    includeAlternateName: {type: "Boolean!", defaultValue: false},
+) {
+  friends(first: $numberOfFriends) {
+    count
+    edges {
+      node {
+        name @include(if: $includeName),
+        alternate_name @include(if: $includeAlternateName)
+      }
+    }
+  }
+}
+
+fragment FragmentProvidedVarWithOtherGlobal on User
+@argumentDefinitions(
+  skipFirstname: {type: "Boolean!", provider: "skipFirstnameProvider"}
+) {
+  firstName @skip(if: $skipFirstname),
+  lastName @include(if: $includelastName)
+}

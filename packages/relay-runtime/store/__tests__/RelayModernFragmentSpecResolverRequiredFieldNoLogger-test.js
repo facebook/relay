@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -11,25 +11,16 @@
 'use strict';
 
 const RelayModernFragmentSpecResolver = require('../RelayModernFragmentSpecResolver');
-
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
-const {RelayFeatureFlags} = require('relay-runtime');
-const {
-  createMockEnvironment,
-  generateAndCompile,
-} = require('relay-test-utils-internal');
+const {getFragment, getRequest, graphql} = require('relay-runtime');
+const {createMockEnvironment} = require('relay-test-utils');
 
 const dev = __DEV__;
 
 beforeEach(() => {
   global.__DEV__ = dev;
-  RelayFeatureFlags.ENABLE_REQUIRED_DIRECTIVES = true;
-});
-
-afterEach(() => {
-  RelayFeatureFlags.ENABLE_REQUIRED_DIRECTIVES = false;
 });
 
 describe('RelayModernFragmentSpecResolver', () => {
@@ -52,17 +43,22 @@ describe('RelayModernFragmentSpecResolver', () => {
     environment = createMockEnvironment({
       // We intentionally omit `requriedFieldLogger` here.
     });
-    ({UserFragment, UserQuery} = generateAndCompile(`
-      query UserQuery($id: ID!) {
-        node(id: $id) {
-          ...UserFragment
-        }
-      }
-      fragment UserFragment on User {
+    UserFragment = getFragment(graphql`
+      fragment RelayModernFragmentSpecResolverRequiredFieldNoLoggerTestUserFragment on User {
         id
         alternate_name @required(action: LOG)
       }
-    `));
+    `);
+    UserQuery = getRequest(graphql`
+      query RelayModernFragmentSpecResolverRequiredFieldNoLoggerTestUserQuery(
+        $id: ID!
+      ) {
+        node(id: $id) {
+          ...RelayModernFragmentSpecResolverRequiredFieldNoLoggerTestUserFragment
+        }
+      }
+    `);
+
     const zuckOperation = createOperationDescriptor(UserQuery, {
       id: '4',
     });
@@ -89,6 +85,7 @@ describe('RelayModernFragmentSpecResolver', () => {
       {user: UserFragment},
       {user: zuck},
       jest.fn(),
+      true /* rootIsQueryRenderer */,
     );
     expect(() => resolver.resolve()).toThrow(
       'Relay Environment Configuration Error (dev only): `@required(action: LOG)` requires that the Relay Environment be configured with a `requiredFieldLogger`',
@@ -103,6 +100,7 @@ describe('RelayModernFragmentSpecResolver', () => {
       {user: UserFragment},
       {user: zuck},
       jest.fn(),
+      true /* rootIsQueryRenderer */,
     );
     expect(() => resolver.resolve()).not.toThrow();
   });

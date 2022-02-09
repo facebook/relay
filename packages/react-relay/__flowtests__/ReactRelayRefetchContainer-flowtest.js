@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -12,11 +12,10 @@
 
 'use strict';
 
-const React = require('react');
-
 const {
   createContainer: createRefetchContainer,
 } = require('../ReactRelayRefetchContainer');
+const React = require('react');
 const {graphql} = require('relay-runtime');
 
 /**
@@ -62,10 +61,15 @@ const Foo = createRefetchContainer(
   {
     viewer: graphql`
       fragment ReactRelayRefetchContainerFlowtest_viewer on Viewer {
-        all_friends(after: $cursor, first: $count) @connection {
-          edges {
-            node {
-              __typename
+        account_user {
+          friends(after: $cursor, first: $count)
+            @connection(
+              key: "ReactRelayRefetchContainerFlowtest_viewer__friends"
+            ) {
+            edges {
+              node {
+                __typename
+              }
             }
           }
         }

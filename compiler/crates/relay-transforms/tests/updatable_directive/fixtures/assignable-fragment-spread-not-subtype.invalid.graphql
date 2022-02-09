@@ -1,0 +1,18 @@
+# expected-to-throw
+fragment AssignableFragmentSpreads_node on Node @assignable {
+  __typename	
+}
+
+query TestQuery @updatable {
+  node(id: 4) {
+    ... on Feedback {
+      comments {
+        edges {
+          node {
+            ...AssignableFragmentSpreads_node
+          }
+        }
+      }
+    }
+  }
+}

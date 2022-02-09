@@ -1,267 +1,326 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::writer::{Prop, Writer, AST, SPREAD_KEY};
-use interner::StringKey;
-use std::fmt::{Result, Write};
+use crate::{
+    writer::{Prop, Writer, AST},
+    FlowTypegenPhase,
+};
+use intern::string_key::StringKey;
+use itertools::Itertools;
+use std::fmt::{Result as FmtResult, Write};
 
 pub struct FlowPrinter {
-    indentation: u32,
+    result: String,
+    indentation: usize,
+    flow_typegen_phase: FlowTypegenPhase,
+}
+
+impl Write for FlowPrinter {
+    fn write_str(&mut self, s: &str) -> FmtResult {
+        self.result.write_str(s)
+    }
 }
 
 impl Writer for FlowPrinter {
-    fn write_ast(&mut self, ast: &AST) -> String {
-        let mut writer = String::new();
-        self.write(&mut writer, ast)
-            .expect("Expected Ok result from writing Flow code");
-
-        writer
-    }
-}
-
-impl FlowPrinter {
-    pub fn new() -> Self {
-        Self { indentation: 0 }
+    fn into_string(self: Box<Self>) -> String {
+        self.result
     }
 
-    fn write(&mut self, writer: &mut dyn Write, ast: &AST) -> Result {
+    fn write(&mut self, ast: &AST) -> FmtResult {
         match ast {
-            AST::Any => write!(writer, "any")?,
-            AST::String => write!(writer, "string")?,
-            AST::StringLiteral(literal) => self.write_string_literal(writer, *literal)?,
-            AST::OtherEnumValue => self.write_other_string(writer)?,
-            AST::Number => write!(writer, "number")?,
-            AST::Boolean => write!(writer, "boolean")?,
-            AST::Identifier(identifier) => write!(writer, "{}", identifier)?,
-            AST::RawType(raw) => write!(writer, "{}", raw)?,
-            AST::Union(members) => self.write_union(writer, members)?,
-            AST::Intersection(members) => self.write_intersection(writer, members)?,
-            AST::ReadOnlyArray(of_type) => self.write_read_only_array(writer, of_type)?,
-            AST::Nullable(of_type) => self.write_nullable(writer, of_type)?,
-            AST::ExactObject(props) => self.write_object(writer, props, true)?,
-            AST::InexactObject(props) => self.write_object(writer, props, false)?,
+            AST::Any => write!(&mut self.result, "any"),
+            AST::String => write!(&mut self.result, "string"),
+            AST::StringLiteral(literal) => self.write_string_literal(*literal),
+            AST::OtherTypename => self.write_other_string(),
+            AST::Number => write!(&mut self.result, "number"),
+            AST::Boolean => write!(&mut self.result, "boolean"),
+            AST::Callable(return_type) => self.write_callable(&*return_type),
+            AST::Identifier(identifier) => write!(&mut self.result, "{}", identifier),
+            AST::RawType(raw) => write!(&mut self.result, "{}", raw),
+            AST::Union(members) => self.write_union(members),
+            AST::ReadOnlyArray(of_type) => self.write_read_only_array(of_type),
+            AST::Nullable(of_type) => self.write_nullable(of_type),
+            AST::NonNullable(of_type) => self.write_non_nullable(of_type),
+            AST::ExactObject(props) => self.write_object(props, true),
+            AST::InexactObject(props) => self.write_object(props, false),
             AST::Local3DPayload(document_name, selections) => {
-                self.write_local_3d_payload(writer, *document_name, selections)?
+                self.write_local_3d_payload(*document_name, selections)
             }
-            AST::ImportType(types, from) => self.write_import_type(writer, types, from)?,
-            AST::DeclareExportOpaqueType(alias, value) => {
-                self.write_declare_export_opaque_type(writer, alias, value)?
+            AST::FragmentReference(fragments) => self.write_fragment_references(fragments),
+            AST::FragmentReferenceType(fragment) => {
+                write!(&mut self.result, "{}$fragmentType", fragment)
             }
-            AST::ExportTypeEquals(name, value) => {
-                self.write_export_type_equals(writer, name, value)?
+            AST::ReturnTypeOfFunctionWithName(function_name) => {
+                self.write_return_type_of_function_with_name(*function_name)
             }
-            AST::ExportList(names) => self.write_export_list(writer, names)?,
+            AST::ActorChangePoint(selections) => self.write_actor_change_point(selections),
         }
-
-        Ok(())
     }
 
-    fn write_indentation(&mut self, writer: &mut dyn Write) -> Result {
-        for _ in 0..self.indentation {
-            write!(writer, "  ")?;
-        }
-        Ok(())
+    fn get_runtime_fragment_import(&self) -> &'static str {
+        "FragmentType"
     }
 
-    fn write_string_literal(&mut self, writer: &mut dyn Write, literal: StringKey) -> Result {
-        write!(writer, "\"{}\"", literal)
+    fn write_local_type(&mut self, name: &str, value: &AST) -> FmtResult {
+        write!(&mut self.result, "type {} = ", name)?;
+        self.write(value)?;
+        writeln!(&mut self.result, ";")
     }
 
-    fn write_other_string(&mut self, writer: &mut dyn Write) -> Result {
-        write!(writer, r#""%other""#)
+    fn write_export_type(&mut self, name: &str, value: &AST) -> FmtResult {
+        write!(&mut self.result, "export type {} = ", name)?;
+        self.write(value)?;
+        writeln!(&mut self.result, ";")
     }
 
-    fn write_union(&mut self, writer: &mut dyn Write, members: &[AST]) -> Result {
-        let mut first = true;
-        for member in members {
-            if first {
-                first = false;
-            } else {
-                write!(writer, " | ")?;
-            }
-            self.write(writer, member)?;
-        }
-        Ok(())
+    fn write_import_module_default(&mut self, name: &str, from: &str) -> FmtResult {
+        writeln!(&mut self.result, "import {} from \"{}\";", name, from)
     }
 
-    fn write_intersection(&mut self, writer: &mut dyn Write, members: &[AST]) -> Result {
-        let mut first = true;
-        for member in members {
-            if first {
-                first = false;
-            } else {
-                write!(writer, " & ")?;
-            }
-            self.write(writer, member)?;
-        }
-        Ok(())
-    }
-
-    fn write_read_only_array(&mut self, writer: &mut dyn Write, of_type: &AST) -> Result {
-        write!(writer, "$ReadOnlyArray<")?;
-        self.write(writer, of_type)?;
-        write!(writer, ">")
-    }
-
-    fn write_nullable(&mut self, writer: &mut dyn Write, of_type: &AST) -> Result {
-        write!(writer, "?")?;
-        match of_type {
-            AST::Union(members) if members.len() > 1 => {
-                write!(writer, "(")?;
-                self.write(writer, of_type)?;
-                write!(writer, ")")?;
-            }
-            _ => {
-                self.write(writer, of_type)?;
-            }
-        }
-        Ok(())
-    }
-
-    fn write_object(&mut self, writer: &mut dyn Write, props: &[Prop], exact: bool) -> Result {
-        if props.is_empty() && exact {
-            write!(writer, "{{||}}")?;
-            return Ok(());
-        }
-
-        // Replication of babel printer oddity: objects only containing a spread
-        // are missing a newline.
-        if props.len() == 1 && props[0].key == *SPREAD_KEY {
-            write!(writer, "{{| ...")?;
-            self.write(writer, &props[0].value)?;
-            writeln!(writer)?;
-            self.write_indentation(writer)?;
-            write!(writer, "|}}")?;
-            return Ok(());
-        }
-
-        if exact {
-            writeln!(writer, "{{|")?;
-        } else {
-            writeln!(writer, "{{")?;
-        }
-        self.indentation += 1;
-
-        let mut first = true;
-        for prop in props {
-            self.write_indentation(writer)?;
-            if prop.key == *SPREAD_KEY {
-                write!(writer, "...")?;
-                self.write(writer, &prop.value)?;
-                writeln!(writer, ",")?;
-                continue;
-            }
-            if let AST::OtherEnumValue = prop.value {
-                writeln!(writer, "// This will never be '%other', but we need some")?;
-                self.write_indentation(writer)?;
-                writeln!(
-                    writer,
-                    "// value in case none of the concrete values match."
-                )?;
-                self.write_indentation(writer)?;
-            }
-            if prop.read_only {
-                write!(writer, "+")?;
-            }
-            write!(writer, "{}", prop.key)?;
-            if prop.optional {
-                write!(writer, "?")?;
-            }
-            write!(writer, ": ")?;
-            self.write(writer, &prop.value)?;
-            if first && props.len() == 1 && exact {
-                writeln!(writer)?;
-            } else {
-                writeln!(writer, ",")?;
-            }
-            first = false;
-        }
-        if !exact {
-            self.write_indentation(writer)?;
-            writeln!(writer, "...")?;
-        }
-        self.indentation -= 1;
-        self.write_indentation(writer)?;
-        if exact {
-            write!(writer, "|}}")?;
-        } else {
-            write!(writer, "}}")?;
-        }
-        Ok(())
-    }
-
-    fn write_local_3d_payload(
-        &mut self,
-        writer: &mut dyn Write,
-        document_name: StringKey,
-        selections: &AST,
-    ) -> Result {
-        write!(writer, "Local3DPayload<\"{}\", ", document_name)?;
-        self.write(writer, selections)?;
-        write!(writer, ">")?;
-        Ok(())
-    }
-
-    fn write_import_type(
-        &mut self,
-        writer: &mut dyn Write,
-        types: &Vec<StringKey>,
-        from: &StringKey,
-    ) -> Result {
-        write!(
-            writer,
+    fn write_import_type(&mut self, types: &[&str], from: &str) -> FmtResult {
+        writeln!(
+            &mut self.result,
             "import type {{ {} }} from \"{}\";",
-            types
-                .iter()
-                .map(|t| format!("{}", t))
-                .collect::<Vec<_>>()
-                .join(", "),
+            types.iter().format(", "),
             from
         )
     }
 
-    fn write_declare_export_opaque_type(
-        &mut self,
-        writer: &mut dyn Write,
-        alias: &StringKey,
-        value: &StringKey,
-    ) -> Result {
-        write!(writer, "declare export opaque type {}: {};", alias, value)
+    fn write_import_fragment_type(&mut self, types: &[&str], from: &str) -> FmtResult {
+        self.write_import_type(types, from)
     }
 
-    fn write_export_type_equals(
-        &mut self,
-        writer: &mut dyn Write,
-        name: &StringKey,
-        value: &AST,
-    ) -> Result {
-        write!(writer, "export type {} = {};", name, self.write_ast(value))
+    fn write_export_fragment_type(&mut self, old_name: &str, new_name: &str) -> FmtResult {
+        match self.flow_typegen_phase {
+            FlowTypegenPhase::Compat => {
+                writeln!(
+                    &mut self.result,
+                    "declare export opaque type {new_name}: FragmentType;
+export type {old_name} = {new_name};",
+                    old_name = old_name,
+                    new_name = new_name,
+                )
+            }
+            FlowTypegenPhase::Final => writeln!(
+                &mut self.result,
+                "declare export opaque type {new_name}: FragmentType;",
+                new_name = new_name
+            ),
+        }
     }
 
-    fn write_export_list(&mut self, writer: &mut dyn Write, names: &Vec<StringKey>) -> Result {
-        write!(
-            writer,
-            "export type {{ {} }};",
-            names
-                .iter()
-                .map(|t| format!("{}", t))
-                .collect::<Vec<_>>()
-                .join(", "),
+    fn write_export_fragment_types(
+        &mut self,
+        fragment_type_name_1: &str,
+        fragment_type_name_2: &str,
+    ) -> FmtResult {
+        writeln!(
+            &mut self.result,
+            "export type {{ {}, {} }};",
+            fragment_type_name_1, fragment_type_name_2
         )
+    }
+
+    fn write_any_type_definition(&mut self, name: &str) -> FmtResult {
+        writeln!(&mut self.result, "type {} = any;", name)
+    }
+}
+
+impl FlowPrinter {
+    pub fn new(flow_typegen_phase: FlowTypegenPhase) -> Self {
+        Self {
+            result: String::new(),
+            indentation: 0,
+            flow_typegen_phase,
+        }
+    }
+
+    fn write_indentation(&mut self) -> FmtResult {
+        self.result.write_str(&"  ".repeat(self.indentation))
+    }
+
+    fn write_string_literal(&mut self, literal: StringKey) -> FmtResult {
+        write!(&mut self.result, "\"{}\"", literal)
+    }
+
+    fn write_other_string(&mut self) -> FmtResult {
+        write!(&mut self.result, r#""%other""#)
+    }
+
+    fn write_union(&mut self, members: &[AST]) -> FmtResult {
+        let mut first = true;
+        for member in members {
+            if first {
+                first = false;
+            } else {
+                write!(&mut self.result, " | ")?;
+            }
+            self.write(member)?;
+        }
+        Ok(())
+    }
+
+    fn write_fragment_references(&mut self, fragments: &[StringKey]) -> FmtResult {
+        let mut first = true;
+        for fragment in fragments {
+            if first {
+                first = false;
+            } else {
+                write!(&mut self.result, " & ")?;
+            }
+            write!(&mut self.result, "{}$fragmentType", fragment)?;
+        }
+        Ok(())
+    }
+
+    fn write_read_only_array(&mut self, of_type: &AST) -> FmtResult {
+        write!(&mut self.result, "$ReadOnlyArray<")?;
+        self.write(of_type)?;
+        write!(&mut self.result, ">")
+    }
+
+    fn write_non_nullable(&mut self, of_type: &AST) -> FmtResult {
+        write!(&mut self.result, "$NonMaybeType<")?;
+        self.write(of_type)?;
+        write!(&mut self.result, ">")
+    }
+
+    fn write_nullable(&mut self, of_type: &AST) -> FmtResult {
+        write!(&mut self.result, "?")?;
+        match of_type {
+            AST::Union(members) if members.len() > 1 => {
+                write!(&mut self.result, "(")?;
+                self.write(of_type)?;
+                write!(&mut self.result, ")")?;
+            }
+            _ => {
+                self.write(of_type)?;
+            }
+        }
+        Ok(())
+    }
+
+    fn write_object(&mut self, props: &[Prop], exact: bool) -> FmtResult {
+        if props.is_empty() && exact {
+            write!(&mut self.result, "{{||}}")?;
+            return Ok(());
+        }
+
+        if exact {
+            writeln!(&mut self.result, "{{|")?;
+        } else {
+            writeln!(&mut self.result, "{{")?;
+        }
+        self.indentation += 1;
+
+        for prop in props {
+            self.write_indentation()?;
+            match prop {
+                Prop::Spread(spread) => {
+                    write!(&mut self.result, "...")?;
+                    self.write(&AST::Identifier(spread.value))?;
+                    writeln!(&mut self.result, ",")?;
+                    continue;
+                }
+                Prop::KeyValuePair(key_value_pair) => {
+                    if let AST::OtherTypename = key_value_pair.value {
+                        writeln!(
+                            &mut self.result,
+                            "// This will never be '%other', but we need some"
+                        )?;
+                        self.write_indentation()?;
+                        writeln!(
+                            &mut self.result,
+                            "// value in case none of the concrete values match."
+                        )?;
+                        self.write_indentation()?;
+                    }
+                    if key_value_pair.read_only {
+                        write!(&mut self.result, "+")?;
+                    }
+                    write!(&mut self.result, "{}", key_value_pair.key)?;
+                    if key_value_pair.optional {
+                        write!(&mut self.result, "?")?;
+                    }
+                    write!(&mut self.result, ": ")?;
+                    self.write(&key_value_pair.value)?;
+                    writeln!(&mut self.result, ",")?;
+                }
+                Prop::GetterSetterPair(getter_setter_pair) => {
+                    // Write the getter
+                    write!(&mut self.result, "get ")?;
+                    self.write(&AST::Identifier(getter_setter_pair.key))?;
+                    write!(&mut self.result, "(): ")?;
+                    self.write(&getter_setter_pair.getter_return_value)?;
+                    writeln!(&mut self.result, ",")?;
+
+                    // Write the setter
+                    self.write_indentation()?;
+                    write!(&mut self.result, "set ")?;
+                    self.write(&AST::Identifier(getter_setter_pair.key))?;
+                    write!(&mut self.result, "(value: ")?;
+                    self.write(&getter_setter_pair.setter_parameter)?;
+                    writeln!(&mut self.result, "): void,")?;
+                }
+            };
+        }
+        if !exact {
+            self.write_indentation()?;
+            writeln!(&mut self.result, "...")?;
+        }
+        self.indentation -= 1;
+        self.write_indentation()?;
+        if exact {
+            write!(&mut self.result, "|}}")?;
+        } else {
+            write!(&mut self.result, "}}")?;
+        }
+        Ok(())
+    }
+
+    fn write_local_3d_payload(&mut self, document_name: StringKey, selections: &AST) -> FmtResult {
+        write!(&mut self.result, "Local3DPayload<\"{}\", ", document_name)?;
+        self.write(selections)?;
+        write!(&mut self.result, ">")?;
+        Ok(())
+    }
+
+    fn write_return_type_of_function_with_name(&mut self, function_name: StringKey) -> FmtResult {
+        write!(
+            &mut self.result,
+            "$Call<<R>((...empty[]) => R) => R, typeof {}>",
+            function_name
+        )
+    }
+
+    fn write_actor_change_point(&mut self, selections: &AST) -> FmtResult {
+        write!(&mut self.result, "ActorChangePoint<")?;
+        self.write(selections)?;
+        write!(&mut self.result, ">")?;
+        Ok(())
+    }
+
+    fn write_callable(&mut self, return_type: &AST) -> FmtResult {
+        write!(&mut self.result, "() => ")?;
+        self.write(return_type)
     }
 }
 
 #[cfg(test)]
 mod tests {
+    use crate::writer::KeyValuePairProp;
+
     use super::*;
-    use interner::Intern;
+    use intern::string_key::Intern;
 
     fn print_type(ast: &AST) -> String {
-        FlowPrinter::new().write_ast(ast)
+        let mut printer = Box::new(FlowPrinter::new(FlowTypegenPhase::Final));
+        printer.write(ast).unwrap();
+        printer.into_string()
     }
 
     #[test]
@@ -311,31 +370,33 @@ mod tests {
         );
 
         assert_eq!(
-            print_type(&AST::ExactObject(vec![Prop {
-                key: "single".intern(),
-                optional: false,
-                read_only: false,
-                value: AST::String,
-            },])),
+            print_type(&AST::ExactObject(vec![Prop::KeyValuePair(
+                KeyValuePairProp {
+                    key: "single".intern(),
+                    optional: false,
+                    read_only: false,
+                    value: AST::String,
+                }
+            ),])),
             r"{|
-  single: string
+  single: string,
 |}"
             .to_string()
         );
         assert_eq!(
             print_type(&AST::ExactObject(vec![
-                Prop {
+                Prop::KeyValuePair(KeyValuePairProp {
                     key: "foo".intern(),
                     optional: true,
                     read_only: false,
                     value: AST::String,
-                },
-                Prop {
+                }),
+                Prop::KeyValuePair(KeyValuePairProp {
                     key: "bar".intern(),
                     optional: false,
                     read_only: true,
                     value: AST::Number,
-                },
+                }),
             ])),
             r"{|
   foo?: string,
@@ -349,31 +410,31 @@ mod tests {
     fn nested_object() {
         assert_eq!(
             print_type(&AST::ExactObject(vec![
-                Prop {
+                Prop::KeyValuePair(KeyValuePairProp {
                     key: "foo".intern(),
                     optional: true,
                     read_only: false,
                     value: AST::ExactObject(vec![
-                        Prop {
+                        Prop::KeyValuePair(KeyValuePairProp {
                             key: "nested_foo".intern(),
                             optional: true,
                             read_only: false,
                             value: AST::String,
-                        },
-                        Prop {
+                        }),
+                        Prop::KeyValuePair(KeyValuePairProp {
                             key: "nested_foo2".intern(),
                             optional: false,
                             read_only: true,
                             value: AST::Number,
-                        },
+                        }),
                     ]),
-                },
-                Prop {
+                }),
+                Prop::KeyValuePair(KeyValuePairProp {
                     key: "bar".intern(),
                     optional: false,
                     read_only: true,
                     value: AST::Number,
-                },
+                }),
             ])),
             r"{|
   foo?: {|
@@ -397,12 +458,14 @@ mod tests {
         );
 
         assert_eq!(
-            print_type(&AST::InexactObject(vec![Prop {
-                key: "single".intern(),
-                optional: false,
-                read_only: false,
-                value: AST::String,
-            },])),
+            print_type(&AST::InexactObject(vec![Prop::KeyValuePair(
+                KeyValuePairProp {
+                    key: "single".intern(),
+                    optional: false,
+                    read_only: false,
+                    value: AST::String,
+                }
+            ),])),
             r"{
   single: string,
   ...
@@ -412,18 +475,18 @@ mod tests {
 
         assert_eq!(
             print_type(&AST::InexactObject(vec![
-                Prop {
+                Prop::KeyValuePair(KeyValuePairProp {
                     key: "foo".intern(),
                     optional: false,
                     read_only: false,
                     value: AST::String,
-                },
-                Prop {
+                }),
+                Prop::KeyValuePair(KeyValuePairProp {
                     key: "bar".intern(),
                     optional: true,
                     read_only: true,
                     value: AST::Number,
-                }
+                })
             ])),
             r"{
   foo: string,
@@ -437,18 +500,45 @@ mod tests {
     #[test]
     fn other_comment() {
         assert_eq!(
-            print_type(&AST::ExactObject(vec![Prop {
-                key: "with_comment".intern(),
-                optional: false,
-                read_only: false,
-                value: AST::OtherEnumValue,
-            },])),
+            print_type(&AST::ExactObject(vec![Prop::KeyValuePair(
+                KeyValuePairProp {
+                    key: "with_comment".intern(),
+                    optional: false,
+                    read_only: false,
+                    value: AST::OtherTypename,
+                }
+            ),])),
             r#"{|
   // This will never be '%other', but we need some
   // value in case none of the concrete values match.
-  with_comment: "%other"
+  with_comment: "%other",
 |}"#
             .to_string()
+        );
+    }
+
+    #[test]
+    fn import_type() {
+        let mut printer = Box::new(FlowPrinter::new(FlowTypegenPhase::Final));
+        printer.write_import_type(&["A", "B"], "module").unwrap();
+        assert_eq!(
+            printer.into_string(),
+            "import type { A, B } from \"module\";\n"
+        );
+    }
+
+    #[test]
+    fn import_module() {
+        let mut printer = Box::new(FlowPrinter::new(FlowTypegenPhase::Final));
+        printer.write_import_module_default("A", "module").unwrap();
+        assert_eq!(printer.into_string(), "import A from \"module\";\n");
+    }
+
+    #[test]
+    fn function_return_type() {
+        assert_eq!(
+            print_type(&AST::ReturnTypeOfFunctionWithName("someFunc".intern())),
+            "$Call<<R>((...empty[]) => R) => R, typeof someFunc>".to_string()
         );
     }
 }

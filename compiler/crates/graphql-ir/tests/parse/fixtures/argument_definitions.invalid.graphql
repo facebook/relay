@@ -1,0 +1,16 @@
+# expected-to-throw
+fragment TestFragment on User
+  @argumentDefinitions(
+    id: {type: "ID"}
+    size: {type: "[Int]", defaultValu: [100]} # uh-oh, typo
+  ) {
+  ...Foo @arguments(size: $size)
+}
+
+fragment VariableAsType on User
+  @argumentDefinitions(
+    id: {type: "ID"}
+    size: {type: $typeVariable} # needs to be literal
+  ) {
+  ...Foo @arguments(size: $size)
+}

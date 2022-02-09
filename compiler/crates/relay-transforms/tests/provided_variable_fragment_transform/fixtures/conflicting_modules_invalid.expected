@@ -1,0 +1,131 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment TestFragmentA on User
+  @argumentDefinitions(
+    var1: {type: "[Int]", provider: "varProvider"}
+    var2: {type: "[Int]", provider: "../varProvider"}
+    var3: {type: "[Int]", provider: "var-Provider"}
+    var4: {type: "[Int]", provider: "var+Provider"}
+    var5: {type: "[Int]", provider: "var.Provider"}
+    var6: {type: "[Int]", provider: "var(Provider"}
+    var7: {type: "[Int]", provider: "var)Provider"}
+    var8: {type: "[Int]", provider: "var,Provider"}
+    var9: {type: "[Int]", provider: "var Provider"}
+) {
+    picture1: profilePicture(size: $var1) {
+        uri
+    }
+    picture2: profilePicture(size: $var2) {
+        uri
+    }
+    picture3: profilePicture(size: $var3) {
+        uri
+    }
+    picture4: profilePicture(size: $var4) {
+        uri
+    }
+    picture5: profilePicture(size: $var5) {
+        uri
+    }
+    picture6: profilePicture(size: $var6) {
+        uri
+    }
+    picture7: profilePicture(size: $var7) {
+        uri
+    }
+    picture8: profilePicture(size: $var8) {
+        uri
+    }
+    picture9: profilePicture(size: $var9) {
+        uri
+    }
+}
+
+fragment TestFragmentB on User
+  @argumentDefinitions(
+    var_other: {type: "[Int]", provider: "var  Provider"}
+  ) {
+    picture1: profilePicture(size: $var_other) {
+        uri
+    }
+}
+==================================== ERROR ====================================
+✖︎ Modules '../varProvider' and 'var  Provider' used by provided variables have indistinguishable names. (All non ascii-alphanumeric characters are stripped in Relay transform)
+
+  conflicting_modules_invalid.graphql:45:5
+   44 │   @argumentDefinitions(
+   45 │     var_other: {type: "[Int]", provider: "var  Provider"}
+      │     ^^^^^^^^^
+   46 │   ) {
+
+
+✖︎ Modules '../varProvider' and 'var Provider' used by provided variables have indistinguishable names. (All non ascii-alphanumeric characters are stripped in Relay transform)
+
+  conflicting_modules_invalid.graphql:12:5
+   11 │     var8: {type: "[Int]", provider: "var,Provider"}
+   12 │     var9: {type: "[Int]", provider: "var Provider"}
+      │     ^^^^
+   13 │ ) {
+
+
+✖︎ Modules '../varProvider' and 'var(Provider' used by provided variables have indistinguishable names. (All non ascii-alphanumeric characters are stripped in Relay transform)
+
+  conflicting_modules_invalid.graphql:9:5
+    8 │     var5: {type: "[Int]", provider: "var.Provider"}
+    9 │     var6: {type: "[Int]", provider: "var(Provider"}
+      │     ^^^^
+   10 │     var7: {type: "[Int]", provider: "var)Provider"}
+
+
+✖︎ Modules '../varProvider' and 'var)Provider' used by provided variables have indistinguishable names. (All non ascii-alphanumeric characters are stripped in Relay transform)
+
+  conflicting_modules_invalid.graphql:10:5
+    9 │     var6: {type: "[Int]", provider: "var(Provider"}
+   10 │     var7: {type: "[Int]", provider: "var)Provider"}
+      │     ^^^^
+   11 │     var8: {type: "[Int]", provider: "var,Provider"}
+
+
+✖︎ Modules '../varProvider' and 'var+Provider' used by provided variables have indistinguishable names. (All non ascii-alphanumeric characters are stripped in Relay transform)
+
+  conflicting_modules_invalid.graphql:7:5
+    6 │     var3: {type: "[Int]", provider: "var-Provider"}
+    7 │     var4: {type: "[Int]", provider: "var+Provider"}
+      │     ^^^^
+    8 │     var5: {type: "[Int]", provider: "var.Provider"}
+
+
+✖︎ Modules '../varProvider' and 'var,Provider' used by provided variables have indistinguishable names. (All non ascii-alphanumeric characters are stripped in Relay transform)
+
+  conflicting_modules_invalid.graphql:11:5
+   10 │     var7: {type: "[Int]", provider: "var)Provider"}
+   11 │     var8: {type: "[Int]", provider: "var,Provider"}
+      │     ^^^^
+   12 │     var9: {type: "[Int]", provider: "var Provider"}
+
+
+✖︎ Modules '../varProvider' and 'var-Provider' used by provided variables have indistinguishable names. (All non ascii-alphanumeric characters are stripped in Relay transform)
+
+  conflicting_modules_invalid.graphql:6:5
+    5 │     var2: {type: "[Int]", provider: "../varProvider"}
+    6 │     var3: {type: "[Int]", provider: "var-Provider"}
+      │     ^^^^
+    7 │     var4: {type: "[Int]", provider: "var+Provider"}
+
+
+✖︎ Modules '../varProvider' and 'var.Provider' used by provided variables have indistinguishable names. (All non ascii-alphanumeric characters are stripped in Relay transform)
+
+  conflicting_modules_invalid.graphql:8:5
+    7 │     var4: {type: "[Int]", provider: "var+Provider"}
+    8 │     var5: {type: "[Int]", provider: "var.Provider"}
+      │     ^^^^
+    9 │     var6: {type: "[Int]", provider: "var(Provider"}
+
+
+✖︎ Modules '../varProvider' and 'varProvider' used by provided variables have indistinguishable names. (All non ascii-alphanumeric characters are stripped in Relay transform)
+
+  conflicting_modules_invalid.graphql:4:5
+    3 │   @argumentDefinitions(
+    4 │     var1: {type: "[Int]", provider: "varProvider"}
+      │     ^^^^
+    5 │     var2: {type: "[Int]", provider: "../varProvider"}

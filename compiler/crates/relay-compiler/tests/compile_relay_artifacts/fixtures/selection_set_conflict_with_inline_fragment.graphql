@@ -1,0 +1,9 @@
+# expected-to-throw
+query selectionSetConflictWithInlineFragmentQuery {
+  username(name: "me") {
+    same_alias: name
+    ... on User {
+      same_alias: id
+    }
+  }
+}

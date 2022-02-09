@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -22,9 +22,9 @@ describe('`development` option', () => {
     ).toMatchSnapshot();
   });
 
-  it('tests the hash when `isDevVariable` is set', () => {
+  it('tests the hash when `isDevVariableName` is set', () => {
     expect(
-      transformerWithOptions({isDevVariable: 'IS_DEV'})(
+      transformerWithOptions({isDevVariableName: 'IS_DEV'})(
         'graphql`fragment TestFrag on Node { id }`',
       ),
     ).toMatchSnapshot();
@@ -34,7 +34,7 @@ describe('`development` option', () => {
     expect(
       transformerWithOptions(
         {
-          buildCommand: 'relay-build',
+          codegenCommand: 'relay-build',
         },
         'development',
       )('graphql`fragment TestFrag on Node { id }`'),

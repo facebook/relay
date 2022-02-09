@@ -23,30 +23,30 @@ export type UpdateAllSeenStateInput = {|
   clientMutationId?: ?string,
   storyIds?: ?$ReadOnlyArray<?string>,
 |};
-export type TestVariables = {|
-  input?: ?UpdateAllSeenStateInput
+export type Test$variables = {|
+  input?: ?UpdateAllSeenStateInput,
 |};
-export type TestResponse = {|
+export type Test$data = {|
   +viewerNotificationsUpdateAllSeenState: ?{|
     +stories: ?$ReadOnlyArray<?{|
       +foos: ?$ReadOnlyArray<?{|
-        +bar: ?string
-      |}>
-    |}>
-  |}
+        +bar: ?string,
+      |}>,
+    |}>,
+  |},
 |};
-export type TestRawResponse = {|
+export type Test$rawResponse = {|
   +viewerNotificationsUpdateAllSeenState: ?{|
     +stories: ?$ReadOnlyArray<?{|
       +id: string,
       +foos?: ?$ReadOnlyArray<?{|
-        +bar: ?string
+        +bar: ?string,
       |}>,
-    |}>
-  |}
+    |}>,
+  |},
 |};
 export type Test = {|
-  variables: TestVariables,
-  response: TestResponse,
-  rawResponse: TestRawResponse,
+  variables: Test$variables,
+  response: Test$data,
+  rawResponse: Test$rawResponse,
 |};

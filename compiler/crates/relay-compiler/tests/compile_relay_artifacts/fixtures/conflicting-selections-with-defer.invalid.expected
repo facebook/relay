@@ -1,0 +1,39 @@
+==================================== INPUT ====================================
+# expected-to-throw
+
+fragment conflictingSelectionsWithDefer1_fragment on Query {
+  node(id: 4) {
+    ... on User {
+      name
+    }
+  }
+}
+
+fragment conflictingSelectionsWithDefer2_fragment on Query {
+  node(id: 5) {
+    ... on User {
+      name
+    }
+  }
+}
+
+query conflictingSelectionsWithDeferQuery {
+  ...conflictingSelectionsWithDefer1_fragment @defer
+  ...conflictingSelectionsWithDefer2_fragment @defer
+}
+==================================== ERROR ====================================
+✖︎ Expected all fields on the same parent with the name or alias `node` to have the same argument values after applying fragment arguments. This field has the applied argument values: (id: 4)
+
+  conflicting-selections-with-defer.invalid.graphql:4:3
+    3 │ fragment conflictingSelectionsWithDefer1_fragment on Query {
+    4 │   node(id: 4) {
+      │   ^^^^
+    5 │     ... on User {
+
+  ℹ︎ which conflicts with this field with applied argument values (id: 5)
+
+  conflicting-selections-with-defer.invalid.graphql:12:3
+   11 │ fragment conflictingSelectionsWithDefer2_fragment on Query {
+   12 │   node(id: 5) {
+      │   ^^^^
+   13 │     ... on User {

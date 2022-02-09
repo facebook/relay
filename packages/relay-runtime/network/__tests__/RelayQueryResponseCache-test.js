@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -64,6 +64,19 @@ describe('RelayQueryResponseCache', () => {
       expect(cache.get(queryID, variables)).toEqual(result);
       Date.now = () => 11;
       expect(cache.get(queryID, variables)).toBe(null);
+    });
+
+    it('returns known entries for response batch', () => {
+      const cache = new RelayQueryResponseCache({size: 1, ttl: 1000});
+      const payload = [{}, {}];
+      const variables = {id: 1};
+      const result = [
+        {extensions: {cacheTimestamp: 5}},
+        {extensions: {cacheTimestamp: 5}},
+      ];
+      Date.now = () => 5;
+      cache.set(queryID, variables, payload);
+      expect(cache.get(queryID, variables)).toEqual(result);
     });
   });
 

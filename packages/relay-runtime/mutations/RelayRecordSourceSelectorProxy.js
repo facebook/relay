@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -12,10 +12,7 @@
 
 'use strict';
 
-const invariant = require('invariant');
-
-const {getStorageKey, ROOT_TYPE} = require('../store/RelayStoreUtils');
-
+import type {GraphQLTaggedNode} from '../query/GraphQLTag';
 import type {
   RecordProxy,
   RecordSourceProxy,
@@ -23,8 +20,14 @@ import type {
   SingularReaderSelector,
 } from '../store/RelayStoreTypes';
 import type {ReaderLinkedField} from '../util/ReaderNode';
-import type {DataID} from '../util/RelayRuntimeTypes';
+import type {DataID, OperationType} from '../util/RelayRuntimeTypes';
 import type RelayRecordSourceMutator from './RelayRecordSourceMutator';
+
+const {ROOT_TYPE, getStorageKey} = require('../store/RelayStoreUtils');
+const {
+  readUpdatableQuery_EXPERIMENTAL,
+} = require('./readUpdatableQuery_EXPERIMENTAL');
+const invariant = require('invariant');
 
 /**
  * @internal
@@ -78,10 +81,15 @@ class RelayRecordSourceSelectorProxy implements RecordSourceSelectorProxy {
     fieldName: string,
     plural: boolean,
   ): ReaderLinkedField {
-    const field = selector.node.selections.find(
+    let field = selector.node.selections.find(
       selection =>
-        selection.kind === 'LinkedField' && selection.name === fieldName,
+        (selection.kind === 'LinkedField' && selection.name === fieldName) ||
+        (selection.kind === 'RequiredField' &&
+          selection.field.name === fieldName),
     );
+    if (field && field.kind === 'RequiredField') {
+      field = field.field;
+    }
     invariant(
       field && field.kind === 'LinkedField',
       'RelayRecordSourceSelectorProxy#getRootField(): Cannot find root ' +
@@ -113,6 +121,13 @@ class RelayRecordSourceSelectorProxy implements RecordSourceSelectorProxy {
 
   invalidateStore(): void {
     this.__recordSource.invalidateStore();
+  }
+
+  readUpdatableQuery_EXPERIMENTAL<TQuery: OperationType>(
+    query: GraphQLTaggedNode,
+    variables: TQuery['variables'],
+  ): TQuery['response'] {
+    return readUpdatableQuery_EXPERIMENTAL(query, variables, this);
   }
 }
 

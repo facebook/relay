@@ -45,15 +45,13 @@ union Address @source(schema: "facebook", name: "Address") =
     MailingAddress
   | MailingAddress
 ==================================== OUTPUT ===================================
-Schema {
- query_type: Some(
-    ObjectID(
-        0,
-    ),
+Text Schema:Schema {
+  query_type: Some(
+    ObjectID(0),
 )
- mutation_type: None
- subscription_type: None
- directives: [
+  mutation_type: None
+  subscription_type: None
+  directives: [
     Directive {
         name: "extern_type",
         arguments: [
@@ -63,6 +61,7 @@ Schema {
                     Scalar(2),
                 ),
                 default_value: None,
+                description: None,
             },
             Argument {
                 name: "name",
@@ -70,6 +69,7 @@ Schema {
                     Scalar(2),
                 ),
                 default_value: None,
+                description: None,
             },
         ],
         locations: [
@@ -77,6 +77,7 @@ Schema {
         ],
         repeatable: false,
         is_extension: false,
+        description: None,
     },
     Directive {
         name: "fetchable",
@@ -87,6 +88,7 @@ Schema {
                     Scalar(2),
                 ),
                 default_value: None,
+                description: None,
             },
         ],
         locations: [
@@ -94,6 +96,7 @@ Schema {
         ],
         repeatable: false,
         is_extension: false,
+        description: None,
     },
     Directive {
         name: "include",
@@ -106,6 +109,7 @@ Schema {
                     ),
                 ),
                 default_value: None,
+                description: None,
             },
         ],
         locations: [
@@ -115,6 +119,7 @@ Schema {
         ],
         repeatable: false,
         is_extension: false,
+        description: None,
     },
     Directive {
         name: "ref_type",
@@ -125,6 +130,7 @@ Schema {
                     Scalar(2),
                 ),
                 default_value: None,
+                description: None,
             },
             Argument {
                 name: "name",
@@ -132,6 +138,7 @@ Schema {
                     Scalar(2),
                 ),
                 default_value: None,
+                description: None,
             },
         ],
         locations: [
@@ -139,6 +146,7 @@ Schema {
         ],
         repeatable: false,
         is_extension: false,
+        description: None,
     },
     Directive {
         name: "skip",
@@ -151,6 +159,7 @@ Schema {
                     ),
                 ),
                 default_value: None,
+                description: None,
             },
         ],
         locations: [
@@ -160,6 +169,7 @@ Schema {
         ],
         repeatable: false,
         is_extension: false,
+        description: None,
     },
     Directive {
         name: "source",
@@ -172,6 +182,7 @@ Schema {
                     ),
                 ),
                 default_value: None,
+                description: None,
             },
         ],
         locations: [
@@ -184,9 +195,10 @@ Schema {
         ],
         repeatable: false,
         is_extension: false,
+        description: None,
     },
 ]
- type_map: {
+  type_map: {
     "Address": Union(0),
     "Boolean": Scalar(3),
     "Country": InputObject(0),
@@ -200,10 +212,13 @@ Schema {
     "XIGHuman": Interface(0),
     "XIGStory": Object(3),
 }
- enums: []
- fields: [
+  enums: []
+  fields: [
     Field {
-        name: "fetch__User",
+        name: WithLocation {
+            location: <generated>:352:363,
+            item: "fetch__User",
+        },
         is_extension: false,
         arguments: [
             Argument {
@@ -212,6 +227,7 @@ Schema {
                     Scalar(5),
                 ),
                 default_value: None,
+                description: None,
             },
         ],
         type_: Named(
@@ -221,9 +237,13 @@ Schema {
         parent_type: Some(
             Object(0),
         ),
+        description: None,
     },
     Field {
-        name: "fetch__XIGStory",
+        name: WithLocation {
+            location: <generated>:380:395,
+            item: "fetch__XIGStory",
+        },
         is_extension: false,
         arguments: [
             Argument {
@@ -232,6 +252,7 @@ Schema {
                     Scalar(5),
                 ),
                 default_value: None,
+                description: None,
             },
         ],
         type_: Named(
@@ -241,9 +262,13 @@ Schema {
         parent_type: Some(
             Object(0),
         ),
+        description: None,
     },
     Field {
-        name: "name",
+        name: WithLocation {
+            location: <generated>:484:488,
+            item: "name",
+        },
         is_extension: false,
         arguments: [],
         type_: Named(
@@ -253,9 +278,13 @@ Schema {
         parent_type: Some(
             Interface(0),
         ),
+        description: None,
     },
     Field {
-        name: "id",
+        name: WithLocation {
+            location: <generated>:563:565,
+            item: "id",
+        },
         is_extension: false,
         arguments: [],
         type_: Named(
@@ -265,9 +294,13 @@ Schema {
         parent_type: Some(
             Object(1),
         ),
+        description: None,
     },
     Field {
-        name: "story",
+        name: WithLocation {
+            location: <generated>:572:577,
+            item: "story",
+        },
         is_extension: false,
         arguments: [],
         type_: Named(
@@ -307,9 +340,13 @@ Schema {
         parent_type: Some(
             Object(1),
         ),
+        description: None,
     },
     Field {
-        name: "default_mailing_address",
+        name: WithLocation {
+            location: <generated>:636:659,
+            item: "default_mailing_address",
+        },
         is_extension: false,
         arguments: [
             Argument {
@@ -318,6 +355,7 @@ Schema {
                     InputObject(0),
                 ),
                 default_value: None,
+                description: None,
             },
         ],
         type_: Named(
@@ -327,9 +365,13 @@ Schema {
         parent_type: Some(
             Object(1),
         ),
+        description: None,
     },
     Field {
-        name: "id",
+        name: WithLocation {
+            location: <generated>:721:723,
+            item: "id",
+        },
         is_extension: false,
         arguments: [],
         type_: Named(
@@ -339,9 +381,13 @@ Schema {
         parent_type: Some(
             Object(2),
         ),
+        description: None,
     },
     Field {
-        name: "is_default",
+        name: WithLocation {
+            location: <generated>:730:740,
+            item: "is_default",
+        },
         is_extension: false,
         arguments: [],
         type_: Named(
@@ -351,9 +397,13 @@ Schema {
         parent_type: Some(
             Object(2),
         ),
+        description: None,
     },
     Field {
-        name: "label",
+        name: WithLocation {
+            location: <generated>:752:757,
+            item: "label",
+        },
         is_extension: false,
         arguments: [],
         type_: Named(
@@ -363,9 +413,13 @@ Schema {
         parent_type: Some(
             Object(2),
         ),
+        description: None,
     },
     Field {
-        name: "id",
+        name: WithLocation {
+            location: <generated>:962:964,
+            item: "id",
+        },
         is_extension: false,
         arguments: [],
         type_: Named(
@@ -375,9 +429,13 @@ Schema {
         parent_type: Some(
             Object(3),
         ),
+        description: None,
     },
     Field {
-        name: "name",
+        name: WithLocation {
+            location: <generated>:971:975,
+            item: "name",
+        },
         is_extension: false,
         arguments: [],
         type_: Named(
@@ -387,9 +445,13 @@ Schema {
         parent_type: Some(
             Object(3),
         ),
+        description: None,
     },
     Field {
-        name: "__typename",
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "__typename",
+        },
         is_extension: false,
         arguments: [],
         type_: NonNull(
@@ -399,9 +461,29 @@ Schema {
         ),
         directives: [],
         parent_type: None,
+        description: None,
     },
     Field {
-        name: "__id",
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "__token",
+        },
+        is_extension: false,
+        arguments: [],
+        type_: NonNull(
+            Named(
+                Scalar(5),
+            ),
+        ),
+        directives: [],
+        parent_type: None,
+        description: None,
+    },
+    Field {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "__id",
+        },
         is_extension: true,
         arguments: [],
         type_: NonNull(
@@ -411,9 +493,51 @@ Schema {
         ),
         directives: [],
         parent_type: None,
+        description: None,
+    },
+    Field {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "strong_id__",
+        },
+        is_extension: true,
+        arguments: [],
+        type_: Named(
+            Scalar(5),
+        ),
+        directives: [],
+        parent_type: None,
+        description: None,
+    },
+    Field {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "is_fulfilled__",
+        },
+        is_extension: true,
+        arguments: [
+            Argument {
+                name: "name",
+                type_: NonNull(
+                    Named(
+                        Scalar(2),
+                    ),
+                ),
+                default_value: None,
+                description: None,
+            },
+        ],
+        type_: NonNull(
+            Named(
+                Scalar(2),
+            ),
+        ),
+        directives: [],
+        parent_type: None,
+        description: None,
     },
 ]
- input_objects: [
+  input_objects: [
     InputObject {
         name: "Country",
         fields: [
@@ -425,6 +549,7 @@ Schema {
                     ),
                 ),
                 default_value: None,
+                description: None,
             },
         ],
         directives: [
@@ -458,21 +583,18 @@ Schema {
                 ],
             },
         ],
+        description: None,
     },
 ]
- interfaces: [
+  interfaces: [
     Interface {
         name: "XIGHuman",
         is_extension: false,
         implementing_objects: [
-            ObjectID(
-                1,
-            ),
+            ObjectID(1),
         ],
         fields: [
-            FieldID(
-                2,
-            ),
+            FieldID(2),
         ],
         directives: [
             DirectiveValue {
@@ -506,41 +628,37 @@ Schema {
             },
         ],
         interfaces: [],
+        description: None,
     },
 ]
- objects: [
+  objects: [
     Object {
-        name: "Query",
+        name: WithLocation {
+            location: <generated>:342:347,
+            item: "Query",
+        },
         is_extension: false,
         fields: [
-            FieldID(
-                0,
-            ),
-            FieldID(
-                1,
-            ),
+            FieldID(0),
+            FieldID(1),
         ],
         interfaces: [],
         directives: [],
+        description: None,
     },
     Object {
-        name: "User",
+        name: WithLocation {
+            location: <generated>:505:509,
+            item: "User",
+        },
         is_extension: false,
         fields: [
-            FieldID(
-                3,
-            ),
-            FieldID(
-                4,
-            ),
-            FieldID(
-                5,
-            ),
+            FieldID(3),
+            FieldID(4),
+            FieldID(5),
         ],
         interfaces: [
-            InterfaceID(
-                0,
-            ),
+            InterfaceID(0),
         ],
         directives: [
             DirectiveValue {
@@ -561,34 +679,32 @@ Schema {
                 ],
             },
         ],
+        description: None,
     },
     Object {
-        name: "MailingAddress",
+        name: WithLocation {
+            location: <generated>:702:716,
+            item: "MailingAddress",
+        },
         is_extension: false,
         fields: [
-            FieldID(
-                6,
-            ),
-            FieldID(
-                7,
-            ),
-            FieldID(
-                8,
-            ),
+            FieldID(6),
+            FieldID(7),
+            FieldID(8),
         ],
         interfaces: [],
         directives: [],
+        description: None,
     },
     Object {
-        name: "XIGStory",
+        name: WithLocation {
+            location: <generated>:872:880,
+            item: "XIGStory",
+        },
         is_extension: false,
         fields: [
-            FieldID(
-                9,
-            ),
-            FieldID(
-                10,
-            ),
+            FieldID(9),
+            FieldID(10),
         ],
         interfaces: [],
         directives: [
@@ -639,33 +755,39 @@ Schema {
                 ],
             },
         ],
+        description: None,
     },
 ]
- scalars: [
+  scalars: [
     Scalar {
         name: "Int",
         is_extension: false,
         directives: [],
+        description: None,
     },
     Scalar {
         name: "Float",
         is_extension: false,
         directives: [],
+        description: None,
     },
     Scalar {
         name: "String",
         is_extension: false,
         directives: [],
+        description: None,
     },
     Scalar {
         name: "Boolean",
         is_extension: false,
         directives: [],
+        description: None,
     },
     Scalar {
         name: "ID",
         is_extension: false,
         directives: [],
+        description: None,
     },
     Scalar {
         name: "ID",
@@ -701,19 +823,16 @@ Schema {
                 ],
             },
         ],
+        description: None,
     },
 ]
- unions: [
+  unions: [
     Union {
         name: "Address",
         is_extension: false,
         members: [
-            ObjectID(
-                2,
-            ),
-            ObjectID(
-                2,
-            ),
+            ObjectID(2),
+            ObjectID(2),
         ],
         directives: [
             DirectiveValue {
@@ -746,6 +865,718 @@ Schema {
                 ],
             },
         ],
+        description: None,
     },
 ]
- }
+  }
+
+FlatBuffer Schema:FB Schema {
+directives: [
+    Directive {
+        name: "extern_type",
+        arguments: [
+            Argument {
+                name: "schema",
+                type_: Named(
+                    Scalar(2),
+                ),
+                default_value: None,
+                description: None,
+            },
+            Argument {
+                name: "name",
+                type_: Named(
+                    Scalar(2),
+                ),
+                default_value: None,
+                description: None,
+            },
+        ],
+        locations: [
+            Interface,
+        ],
+        repeatable: false,
+        is_extension: false,
+        description: None,
+    },
+    Directive {
+        name: "fetchable",
+        arguments: [
+            Argument {
+                name: "field_name",
+                type_: Named(
+                    Scalar(2),
+                ),
+                default_value: None,
+                description: None,
+            },
+        ],
+        locations: [
+            Object,
+        ],
+        repeatable: false,
+        is_extension: false,
+        description: None,
+    },
+    Directive {
+        name: "include",
+        arguments: [
+            Argument {
+                name: "if",
+                type_: NonNull(
+                    Named(
+                        Scalar(1),
+                    ),
+                ),
+                default_value: None,
+                description: None,
+            },
+        ],
+        locations: [
+            Field,
+            FragmentSpread,
+            InlineFragment,
+        ],
+        repeatable: false,
+        is_extension: false,
+        description: None,
+    },
+    Directive {
+        name: "ref_type",
+        arguments: [
+            Argument {
+                name: "schema",
+                type_: Named(
+                    Scalar(2),
+                ),
+                default_value: None,
+                description: None,
+            },
+            Argument {
+                name: "name",
+                type_: Named(
+                    Scalar(2),
+                ),
+                default_value: None,
+                description: None,
+            },
+        ],
+        locations: [
+            FieldDefinition,
+        ],
+        repeatable: false,
+        is_extension: false,
+        description: None,
+    },
+    Directive {
+        name: "skip",
+        arguments: [
+            Argument {
+                name: "if",
+                type_: NonNull(
+                    Named(
+                        Scalar(1),
+                    ),
+                ),
+                default_value: None,
+                description: None,
+            },
+        ],
+        locations: [
+            Field,
+            FragmentSpread,
+            InlineFragment,
+        ],
+        repeatable: false,
+        is_extension: false,
+        description: None,
+    },
+    Directive {
+        name: "source",
+        arguments: [
+            Argument {
+                name: "name",
+                type_: NonNull(
+                    Named(
+                        Scalar(2),
+                    ),
+                ),
+                default_value: None,
+                description: None,
+            },
+        ],
+        locations: [
+            Enum,
+            InputObject,
+            Interface,
+            Object,
+            Scalar,
+            Union,
+        ],
+        repeatable: false,
+        is_extension: false,
+        description: None,
+    },
+]
+enums: []
+fields: [
+    Field {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "id",
+        },
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Scalar(0),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(0),
+        ),
+        description: None,
+    },
+    Field {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "is_default",
+        },
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Scalar(1),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(0),
+        ),
+        description: None,
+    },
+    Field {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "label",
+        },
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Scalar(2),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(0),
+        ),
+        description: None,
+    },
+    Field {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "fetch__User",
+        },
+        is_extension: false,
+        arguments: [
+            Argument {
+                name: "id",
+                type_: Named(
+                    Scalar(0),
+                ),
+                default_value: None,
+                description: None,
+            },
+        ],
+        type_: Named(
+            Object(2),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(1),
+        ),
+        description: None,
+    },
+    Field {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "fetch__XIGStory",
+        },
+        is_extension: false,
+        arguments: [
+            Argument {
+                name: "id",
+                type_: Named(
+                    Scalar(0),
+                ),
+                default_value: None,
+                description: None,
+            },
+        ],
+        type_: Named(
+            Object(3),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(1),
+        ),
+        description: None,
+    },
+    Field {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "id",
+        },
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Scalar(0),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(2),
+        ),
+        description: None,
+    },
+    Field {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "story",
+        },
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Object(3),
+        ),
+        directives: [
+            DirectiveValue {
+                name: "ref_type",
+                arguments: [
+                    ArgumentValue {
+                        name: "schema",
+                        value: String(
+                            StringNode {
+                                token: Token {
+                                    span: 0:0,
+                                    kind: EndOfFile,
+                                },
+                                value: "instagram",
+                            },
+                        ),
+                    },
+                    ArgumentValue {
+                        name: "name",
+                        value: String(
+                            StringNode {
+                                token: Token {
+                                    span: 0:0,
+                                    kind: EndOfFile,
+                                },
+                                value: "Story",
+                            },
+                        ),
+                    },
+                ],
+            },
+        ],
+        parent_type: Some(
+            Object(2),
+        ),
+        description: None,
+    },
+    Field {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "default_mailing_address",
+        },
+        is_extension: false,
+        arguments: [
+            Argument {
+                name: "country",
+                type_: Named(
+                    InputObject(0),
+                ),
+                default_value: None,
+                description: None,
+            },
+        ],
+        type_: Named(
+            Object(0),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(2),
+        ),
+        description: None,
+    },
+    Field {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "name",
+        },
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Scalar(2),
+        ),
+        directives: [],
+        parent_type: Some(
+            Interface(0),
+        ),
+        description: None,
+    },
+    Field {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "id",
+        },
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Scalar(0),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(3),
+        ),
+        description: None,
+    },
+    Field {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "name",
+        },
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Scalar(2),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(3),
+        ),
+        description: None,
+    },
+]
+input_objects: [
+    InputObject {
+        name: "Country",
+        fields: [
+            Argument {
+                name: "name",
+                type_: NonNull(
+                    Named(
+                        Scalar(2),
+                    ),
+                ),
+                default_value: None,
+                description: None,
+            },
+        ],
+        directives: [
+            DirectiveValue {
+                name: "source",
+                arguments: [
+                    ArgumentValue {
+                        name: "schema",
+                        value: String(
+                            StringNode {
+                                token: Token {
+                                    span: 0:0,
+                                    kind: EndOfFile,
+                                },
+                                value: "instagram",
+                            },
+                        ),
+                    },
+                    ArgumentValue {
+                        name: "name",
+                        value: String(
+                            StringNode {
+                                token: Token {
+                                    span: 0:0,
+                                    kind: EndOfFile,
+                                },
+                                value: "Country",
+                            },
+                        ),
+                    },
+                ],
+            },
+        ],
+        description: None,
+    },
+]
+interfaces: [
+    Interface {
+        name: "XIGHuman",
+        is_extension: false,
+        implementing_objects: [
+            ObjectID(2),
+        ],
+        fields: [
+            FieldID(8),
+        ],
+        directives: [
+            DirectiveValue {
+                name: "source",
+                arguments: [
+                    ArgumentValue {
+                        name: "schema",
+                        value: String(
+                            StringNode {
+                                token: Token {
+                                    span: 0:0,
+                                    kind: EndOfFile,
+                                },
+                                value: "instagram",
+                            },
+                        ),
+                    },
+                    ArgumentValue {
+                        name: "name",
+                        value: String(
+                            StringNode {
+                                token: Token {
+                                    span: 0:0,
+                                    kind: EndOfFile,
+                                },
+                                value: "Human",
+                            },
+                        ),
+                    },
+                ],
+            },
+        ],
+        interfaces: [],
+        description: None,
+    },
+]
+objects: [
+    Object {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "MailingAddress",
+        },
+        is_extension: false,
+        fields: [
+            FieldID(0),
+            FieldID(1),
+            FieldID(2),
+        ],
+        interfaces: [],
+        directives: [],
+        description: None,
+    },
+    Object {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "Query",
+        },
+        is_extension: false,
+        fields: [
+            FieldID(9),
+            FieldID(10),
+        ],
+        interfaces: [],
+        directives: [],
+        description: None,
+    },
+    Object {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "User",
+        },
+        is_extension: false,
+        fields: [
+            FieldID(3),
+            FieldID(6),
+            FieldID(7),
+        ],
+        interfaces: [
+            InterfaceID(0),
+        ],
+        directives: [
+            DirectiveValue {
+                name: "fetchable",
+                arguments: [
+                    ArgumentValue {
+                        name: "field_name",
+                        value: String(
+                            StringNode {
+                                token: Token {
+                                    span: 0:0,
+                                    kind: EndOfFile,
+                                },
+                                value: "id",
+                            },
+                        ),
+                    },
+                ],
+            },
+        ],
+        description: None,
+    },
+    Object {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "XIGStory",
+        },
+        is_extension: false,
+        fields: [
+            FieldID(4),
+            FieldID(5),
+        ],
+        interfaces: [],
+        directives: [
+            DirectiveValue {
+                name: "fetchable",
+                arguments: [
+                    ArgumentValue {
+                        name: "field_name",
+                        value: String(
+                            StringNode {
+                                token: Token {
+                                    span: 0:0,
+                                    kind: EndOfFile,
+                                },
+                                value: "id",
+                            },
+                        ),
+                    },
+                ],
+            },
+            DirectiveValue {
+                name: "source",
+                arguments: [
+                    ArgumentValue {
+                        name: "schema",
+                        value: String(
+                            StringNode {
+                                token: Token {
+                                    span: 0:0,
+                                    kind: EndOfFile,
+                                },
+                                value: "instagram",
+                            },
+                        ),
+                    },
+                    ArgumentValue {
+                        name: "name",
+                        value: String(
+                            StringNode {
+                                token: Token {
+                                    span: 0:0,
+                                    kind: EndOfFile,
+                                },
+                                value: "Story",
+                            },
+                        ),
+                    },
+                ],
+            },
+        ],
+        description: None,
+    },
+]
+scalars: [
+    Scalar {
+        name: "Boolean",
+        is_extension: false,
+        directives: [],
+        description: None,
+    },
+    Scalar {
+        name: "Float",
+        is_extension: false,
+        directives: [],
+        description: None,
+    },
+    Scalar {
+        name: "ID",
+        is_extension: false,
+        directives: [
+            DirectiveValue {
+                name: "source",
+                arguments: [
+                    ArgumentValue {
+                        name: "schema",
+                        value: String(
+                            StringNode {
+                                token: Token {
+                                    span: 0:0,
+                                    kind: EndOfFile,
+                                },
+                                value: "facebook",
+                            },
+                        ),
+                    },
+                    ArgumentValue {
+                        name: "name",
+                        value: String(
+                            StringNode {
+                                token: Token {
+                                    span: 0:0,
+                                    kind: EndOfFile,
+                                },
+                                value: "ID",
+                            },
+                        ),
+                    },
+                ],
+            },
+        ],
+        description: None,
+    },
+    Scalar {
+        name: "Int",
+        is_extension: false,
+        directives: [],
+        description: None,
+    },
+    Scalar {
+        name: "String",
+        is_extension: false,
+        directives: [],
+        description: None,
+    },
+]
+unions: [
+    Union {
+        name: "Address",
+        is_extension: false,
+        members: [
+            ObjectID(0),
+            ObjectID(0),
+        ],
+        directives: [
+            DirectiveValue {
+                name: "source",
+                arguments: [
+                    ArgumentValue {
+                        name: "schema",
+                        value: String(
+                            StringNode {
+                                token: Token {
+                                    span: 0:0,
+                                    kind: EndOfFile,
+                                },
+                                value: "facebook",
+                            },
+                        ),
+                    },
+                    ArgumentValue {
+                        name: "name",
+                        value: String(
+                            StringNode {
+                                token: Token {
+                                    span: 0:0,
+                                    kind: EndOfFile,
+                                },
+                                value: "Address",
+                            },
+                        ),
+                    },
+                ],
+            },
+        ],
+        description: None,
+    },
+]
+}

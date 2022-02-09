@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -12,16 +12,6 @@
 
 'use strict';
 
-const areEqual = require('areEqual');
-const invariant = require('invariant');
-const warning = require('warning');
-
-const {
-  createOperationDescriptor,
-  isRelayModernEnvironment,
-  Network,
-} = require('relay-runtime');
-
 import type {
   CacheConfig,
   ConcreteRequest,
@@ -31,6 +21,15 @@ import type {
   RequestParameters,
   Variables,
 } from 'relay-runtime';
+
+const areEqual = require('areEqual');
+const invariant = require('invariant');
+const {
+  Network,
+  createOperationDescriptor,
+  isRelayModernEnvironment,
+} = require('relay-runtime');
+const warning = require('warning');
 
 export type DataWriteConfig = {
   query: ConcreteRequest,
@@ -66,7 +65,7 @@ let nextId = 0;
 
 class ReactRelayTestMocker {
   _environment: IEnvironment;
-  _defaults: {[string]: $PropertyType<NetworkWriteConfig, 'payload'>, ...} = {};
+  _defaults: {[string]: NetworkWriteConfig['payload'], ...} = {};
   _pendingFetches: Array<PendingFetch> = [];
 
   constructor(env: IEnvironment) {
@@ -141,7 +140,11 @@ class ReactRelayTestMocker {
    * their components behave under error conditions.
    */
   _mockNetworkLayer(env: IEnvironment): IEnvironment {
-    const fetch = (request, variables, cacheConfig) => {
+    const fetch = (
+      request: RequestParameters,
+      variables: Variables,
+      cacheConfig: CacheConfig,
+    ) => {
       let resolve;
       let reject;
       const promise = new Promise((res, rej) => {
@@ -312,6 +315,7 @@ class ReactRelayTestMocker {
     );
 
     const realPayload =
+      // $FlowFixMe[incompatible-call]
       typeof payload === 'function' ? payload(toResolve.variables) : payload;
 
     // if there are errors, reject the query

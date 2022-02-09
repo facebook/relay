@@ -7,35 +7,33 @@ fragment RefetchableFragment on Node
   }
 }
 ==================================== OUTPUT ===================================
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RefetchableFragment$ref: FragmentReference;
-declare export opaque type RefetchableFragment$fragmentType: RefetchableFragment$ref;
-export type RefetchableFragmentQueryVariables = {|
-  id: string
+import type { FragmentType } from "relay-runtime";
+import type { RefetchableFragment$fragmentType } from "RefetchableFragment.graphql";
+export type RefetchableFragmentQuery$variables = {|
+  id: string,
 |};
-export type RefetchableFragmentQueryResponse = {|
+export type RefetchableFragmentQuery$data = {|
   +node: ?{|
-    +$fragmentRefs: RefetchableFragment$ref
-  |}
+    +$fragmentSpreads: RefetchableFragment$fragmentType,
+  |},
 |};
 export type RefetchableFragmentQuery = {|
-  variables: RefetchableFragmentQueryVariables,
-  response: RefetchableFragmentQueryResponse,
+  variables: RefetchableFragmentQuery$variables,
+  response: RefetchableFragmentQuery$data,
 |};
 -------------------------------------------------------------------------------
-import type { FragmentReference } from "relay-runtime";
-import type { RefetchableFragment$ref, RefetchableFragment$fragmentType } from "RefetchableFragmentQuery.graphql";
-export type { RefetchableFragment$ref, RefetchableFragment$fragmentType };
-export type RefetchableFragment = {|
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RefetchableFragment$fragmentType: FragmentType;
+import type { RefetchableFragmentQuery$variables } from "RefetchableFragmentQuery.graphql";
+export type RefetchableFragment$data = {|
   +id: string,
   +fragAndField: ?{|
-    +uri: ?string
+    +uri: ?string,
   |},
-  +$refType: RefetchableFragment$ref,
+  +$fragmentType: RefetchableFragment$fragmentType,
 |};
-export type RefetchableFragment$data = RefetchableFragment;
 export type RefetchableFragment$key = {
   +$data?: RefetchableFragment$data,
-  +$fragmentRefs: RefetchableFragment$ref,
+  +$fragmentSpreads: RefetchableFragment$fragmentType,
   ...
 };

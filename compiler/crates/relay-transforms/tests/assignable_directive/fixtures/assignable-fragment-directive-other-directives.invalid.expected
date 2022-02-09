@@ -1,0 +1,13 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment AssignableFragment on Page @assignable @refetchable(queryName: "Foo") {
+  __typename
+}
+==================================== ERROR ====================================
+✖︎ The @refetchable directive is not allowed on assignable fragments.
+
+  assignable-fragment-directive-other-directives.invalid.graphql:2:49
+    1 │ # expected-to-throw
+    2 │ fragment AssignableFragment on Page @assignable @refetchable(queryName: "Foo") {
+      │                                                 ^^^^^^^^^^^^
+    3 │   __typename

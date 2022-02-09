@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<4bd8416be2bb740c09b7765a2d26da92>>
+ * @generated SignedSource<<f58670749c94d91fe00adccdcc85656d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,18 +15,18 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-export type ReactRelayQueryRendererTestNextQueryVariables = {|
-  id: string
+import type { ConcreteRequest, Query } from 'relay-runtime';
+export type ReactRelayQueryRendererTestNextQuery$variables = {|
+  id: string,
 |};
-export type ReactRelayQueryRendererTestNextQueryResponse = {|
+export type ReactRelayQueryRendererTestNextQuery$data = {|
   +node: ?{|
-    +name?: ?string
-  |}
+    +name?: ?string,
+  |},
 |};
 export type ReactRelayQueryRendererTestNextQuery = {|
-  variables: ReactRelayQueryRendererTestNextQueryVariables,
-  response: ReactRelayQueryRendererTestNextQueryResponse,
+  variables: ReactRelayQueryRendererTestNextQuery$variables,
+  response: ReactRelayQueryRendererTestNextQuery$data,
 |};
 */
 
@@ -103,14 +103,14 @@ return {
             "name": "__typename",
             "storageKey": null
           },
+          (v2/*: any*/),
           {
             "alias": null,
             "args": null,
             "kind": "ScalarField",
             "name": "id",
             "storageKey": null
-          },
-          (v2/*: any*/)
+          }
         ],
         "storageKey": null
       }
@@ -131,4 +131,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "2653367ac12aeab05ef739c0c9cf766f";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  ReactRelayQueryRendererTestNextQuery$variables,
+  ReactRelayQueryRendererTestNextQuery$data,
+>*/);

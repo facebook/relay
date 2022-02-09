@@ -1,3 +1,11 @@
+schema {
+  query: Query
+}
+
+type Query {
+  node: Node
+}
+
 interface BaseNode {
   id: ID!
 }

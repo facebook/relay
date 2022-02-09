@@ -1,0 +1,178 @@
+==================================== INPUT ====================================
+query selectionSetConflictDifferentAliasesQuery {
+  me {
+    big: profile_picture(scale: 1.5) {
+      width
+    }
+    small: profile_picture(scale: 1.0) {
+      width
+    }
+  }
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "selectionSetConflictDifferentAliasesQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "me",
+        "plural": false,
+        "selections": [
+          {
+            "alias": "big",
+            "args": [
+              {
+                "kind": "Literal",
+                "name": "scale",
+                "value": 1.5
+              }
+            ],
+            "concreteType": "Image",
+            "kind": "LinkedField",
+            "name": "profile_picture",
+            "plural": false,
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "width",
+                "storageKey": null
+              }
+            ],
+            "storageKey": "profile_picture(scale:1.5)"
+          },
+          {
+            "alias": "small",
+            "args": [
+              {
+                "kind": "Literal",
+                "name": "scale",
+                "value": 1
+              }
+            ],
+            "concreteType": "Image",
+            "kind": "LinkedField",
+            "name": "profile_picture",
+            "plural": false,
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "width",
+                "storageKey": null
+              }
+            ],
+            "storageKey": "profile_picture(scale:1)"
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [],
+    "kind": "Operation",
+    "name": "selectionSetConflictDifferentAliasesQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "me",
+        "plural": false,
+        "selections": [
+          {
+            "alias": "big",
+            "args": [
+              {
+                "kind": "Literal",
+                "name": "scale",
+                "value": 1.5
+              }
+            ],
+            "concreteType": "Image",
+            "kind": "LinkedField",
+            "name": "profile_picture",
+            "plural": false,
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "width",
+                "storageKey": null
+              }
+            ],
+            "storageKey": "profile_picture(scale:1.5)"
+          },
+          {
+            "alias": "small",
+            "args": [
+              {
+                "kind": "Literal",
+                "name": "scale",
+                "value": 1
+              }
+            ],
+            "concreteType": "Image",
+            "kind": "LinkedField",
+            "name": "profile_picture",
+            "plural": false,
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "width",
+                "storageKey": null
+              }
+            ],
+            "storageKey": "profile_picture(scale:1)"
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {},
+    "name": "selectionSetConflictDifferentAliasesQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query selectionSetConflictDifferentAliasesQuery {
+  me {
+    big: profile_picture(scale: 1.5) {
+      width
+    }
+    small: profile_picture(scale: 1) {
+      width
+    }
+    id
+  }
+}

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -10,7 +10,7 @@ use fnv::FnvHashMap;
 use graphql_ir::{
     FragmentDefinition, FragmentSpread, OperationDefinition, Program, ScalarField, Visitor,
 };
-use interner::StringKey;
+use intern::string_key::StringKey;
 use std::sync::Arc;
 
 pub fn print_full_operation(program: &Program, operation: &OperationDefinition) -> String {
@@ -18,7 +18,7 @@ pub fn print_full_operation(program: &Program, operation: &OperationDefinition) 
     printer.print(operation)
 }
 
-struct OperationPrinter<'s> {
+pub struct OperationPrinter<'s> {
     fragment_result: FnvHashMap<StringKey, String>,
     reachable_fragments: FnvHashMap<StringKey, Arc<FragmentDefinition>>,
     program: &'s Program,
@@ -34,11 +34,11 @@ impl<'s> OperationPrinter<'s> {
     }
 
     pub fn print(&mut self, operation: &OperationDefinition) -> String {
-        let mut result = print_operation(&self.program.schema, operation);
+        let mut result = print_operation(&self.program.schema, operation, Default::default());
         self.visit_operation(operation);
         let mut fragments: Vec<(StringKey, Arc<FragmentDefinition>)> =
             self.reachable_fragments.drain().collect();
-        fragments.sort_unstable_by(|a, b| a.0.lookup().cmp(b.0.lookup()));
+        fragments.sort_unstable_by_key(|(name, _)| *name);
         for (_, fragment) in fragments {
             result.push_str("\n\n");
             result.push_str(self.print_fragment(&fragment));
@@ -51,7 +51,7 @@ impl<'s> OperationPrinter<'s> {
         let schema = &self.program.schema;
         self.fragment_result
             .entry(fragment.name.item)
-            .or_insert_with(|| print_fragment(schema, fragment))
+            .or_insert_with(|| print_fragment(schema, fragment, Default::default()))
     }
 }
 

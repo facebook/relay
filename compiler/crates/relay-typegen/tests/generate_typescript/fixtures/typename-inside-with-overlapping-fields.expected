@@ -16,30 +16,27 @@ fragment TypenameInsideWithOverlappingFields on Viewer {
   }
 }
 ==================================== OUTPUT ===================================
-import { FragmentReference } from "relay-runtime";
-export type TypenameInsideWithOverlappingFields$ref = FragmentReference & { _: "TypenameInsideWithOverlappingFields$ref" };
-export type TypenameInsideWithOverlappingFields$fragmentType = TypenameInsideWithOverlappingFields$ref & { _: "TypenameInsideWithOverlappingFields$fragmentType" };
-export type TypenameInsideWithOverlappingFields = {
-  readonly actor?: {
-    readonly __typename: "Page",
-    readonly id: string,
-    readonly name?: string,
+import { FragmentRefs } from "relay-runtime";
+export type TypenameInsideWithOverlappingFields$data = {
+  readonly actor: {
+    readonly __typename: "Page";
+    readonly id: string;
+    readonly name: string | null;
   } | {
-    readonly __typename: "User",
-    readonly id: string,
-    readonly name?: string,
-    readonly profile_picture?: {
-      readonly uri?: string
-    },
+    readonly __typename: "User";
+    readonly id: string;
+    readonly name: string | null;
+    readonly profile_picture: {
+      readonly uri: string | null;
+    } | null;
   } | {
     // This will never be '%other', but we need some
     // value in case none of the concrete values match.
-    readonly __typename: "%other"
-  },
-  readonly $refType: TypenameInsideWithOverlappingFields$ref,
+    readonly __typename: "%other";
+  } | null;
+  readonly " $fragmentType": "TypenameInsideWithOverlappingFields";
 };
-export type TypenameInsideWithOverlappingFields$data = TypenameInsideWithOverlappingFields;
 export type TypenameInsideWithOverlappingFields$key = {
-  readonly $data?: TypenameInsideWithOverlappingFields$data,
-  readonly $fragmentRefs: TypenameInsideWithOverlappingFields$ref,
+  readonly " $data"?: TypenameInsideWithOverlappingFields$data;
+  readonly " $fragmentSpreads": FragmentRefs<"TypenameInsideWithOverlappingFields">;
 };

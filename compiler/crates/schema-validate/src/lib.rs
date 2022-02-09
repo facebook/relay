@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -7,18 +7,20 @@
 
 mod errors;
 
+use common::Named;
 use errors::*;
 use fnv::{FnvHashMap, FnvHashSet};
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey};
 use lazy_static::lazy_static;
+use rayon::prelude::*;
 use regex::Regex;
 use schema::{
-    EnumID, Field, FieldID, InputObjectID, Interface, Schema, Type, TypeReference, TypeWithFields,
-    UnionID,
+    EnumID, Field, FieldID, InputObjectID, Interface, SDLSchema, Schema, Type, TypeReference,
+    TypeWithFields, UnionID,
 };
 use schema_print::{print_directive, print_type};
-use std::fmt::Write;
 use std::time::Instant;
+use std::{fmt::Write, sync::Mutex};
 
 lazy_static! {
     static ref INTROSPECTION_TYPES: FnvHashSet<StringKey> = vec![
@@ -39,7 +41,7 @@ lazy_static! {
     static ref TYPE_NAME_REGEX: Regex = Regex::new(r"^[_a-zA-Z][_a-zA-Z0-9]*$").unwrap();
 }
 
-pub fn validate(schema: &Schema) -> ValidationContext<'_> {
+pub fn validate(schema: &SDLSchema) -> ValidationContext<'_> {
     let mut validation_context = ValidationContext::new(schema);
     validation_context.validate();
     validation_context
@@ -63,15 +65,15 @@ impl ValidationContextType {
 }
 
 pub struct ValidationContext<'schema> {
-    pub schema: &'schema Schema,
-    pub errors: FnvHashMap<ValidationContextType, Vec<SchemaValidationError>>,
+    pub schema: &'schema SDLSchema,
+    pub errors: Mutex<FnvHashMap<ValidationContextType, Vec<SchemaValidationError>>>,
 }
 
 impl<'schema> ValidationContext<'schema> {
-    pub fn new(schema: &'schema Schema) -> Self {
+    pub fn new(schema: &'schema SDLSchema) -> Self {
         Self {
             schema,
-            errors: FnvHashMap::default(),
+            errors: Mutex::new(FnvHashMap::default()),
         }
     }
 
@@ -81,7 +83,10 @@ impl<'schema> ValidationContext<'schema> {
         self.validate_directives();
         self.validate_types();
         println!("Validated Schema in {}ms", now.elapsed().as_millis());
-        println!("Found {} validation errors", self.errors.len())
+        println!(
+            "Found {} validation errors",
+            self.errors.lock().unwrap().len()
+        )
     }
 
     fn validate_root_types(&mut self) {
@@ -90,7 +95,7 @@ impl<'schema> ValidationContext<'schema> {
         self.validate_root_type(self.schema.mutation_type(), *MUTATION);
     }
 
-    fn validate_root_type(&mut self, root_type: Option<Type>, type_name: StringKey) {
+    fn validate_root_type(&self, root_type: Option<Type>, type_name: StringKey) {
         if let Some(type_) = root_type {
             if !type_.is_object() {
                 self.report_error(
@@ -98,10 +103,8 @@ impl<'schema> ValidationContext<'schema> {
                     ValidationContextType::TypeNode(type_name),
                 );
             }
-        } else {
-            if type_name == *QUERY {
-                self.add_error(SchemaValidationError::MissingRootType(type_name));
-            }
+        } else if type_name == *QUERY {
+            self.add_error(SchemaValidationError::MissingRootType(type_name));
         }
     }
 
@@ -127,10 +130,11 @@ impl<'schema> ValidationContext<'schema> {
     }
 
     fn validate_types(&mut self) {
-        for (type_name, type_) in self.schema.get_type_map() {
+        let types = self.schema.get_type_map().collect::<Vec<_>>();
+        types.par_iter().for_each(|(type_name, type_)| {
             // Ensure it is named correctly (excluding introspection types).
-            if !is_introspection_type(type_, *type_name) {
-                self.validate_name(*type_name, ValidationContextType::TypeNode(*type_name));
+            if !is_introspection_type(type_, **type_name) {
+                self.validate_name(**type_name, ValidationContextType::TypeNode(**type_name));
             }
             match type_ {
                 Type::Enum(id) => {
@@ -144,7 +148,7 @@ impl<'schema> ValidationContext<'schema> {
                 Type::Interface(id) => {
                     let interface = self.schema.interface(*id);
                     // Ensure fields are valid
-                    self.validate_fields(*type_name, &interface.fields);
+                    self.validate_fields(**type_name, &interface.fields);
 
                     // Validate cyclic references
                     if !self.validate_cyclic_implements_reference(interface) {
@@ -155,7 +159,7 @@ impl<'schema> ValidationContext<'schema> {
                 Type::Object(id) => {
                     let object = self.schema.object(*id);
                     // Ensure fields are valid
-                    self.validate_fields(*type_name, &object.fields);
+                    self.validate_fields(**type_name, &object.fields);
 
                     // Ensure objects implement the interfaces they claim to.
                     self.validate_type_with_interfaces(object);
@@ -166,10 +170,10 @@ impl<'schema> ValidationContext<'schema> {
                 }
                 Type::Scalar(_id) => {}
             };
-        }
+        });
     }
 
-    fn validate_fields(&mut self, type_name: StringKey, fields: &[FieldID]) {
+    fn validate_fields(&self, type_name: StringKey, fields: &[FieldID]) {
         let context = ValidationContextType::TypeNode(type_name);
         // Must define one or more fields.
         if fields.is_empty() {
@@ -180,20 +184,23 @@ impl<'schema> ValidationContext<'schema> {
         for field_id in fields {
             let field = self.schema.field(*field_id);
             if field_names.contains(&field.name) {
-                self.report_error(SchemaValidationError::DuplicateField(field.name), context);
+                self.report_error(
+                    SchemaValidationError::DuplicateField(field.name.item),
+                    context,
+                );
                 continue;
             }
             field_names.insert(field.name);
 
             // Ensure they are named correctly.
-            self.validate_name(field.name, context);
+            self.validate_name(field.name.item, context);
 
             // Ensure the type is an output type
             if !is_output_type(&field.type_) {
                 self.report_error(
                     SchemaValidationError::InvalidFieldType(
                         type_name,
-                        field.name,
+                        field.name.item,
                         field.type_.clone(),
                     ),
                     context,
@@ -209,7 +216,7 @@ impl<'schema> ValidationContext<'schema> {
                 // Ensure unique arguments per directive.
                 if arg_names.contains(&argument.name) {
                     self.report_error(
-                        SchemaValidationError::DuplicateArgument(argument.name, field.name),
+                        SchemaValidationError::DuplicateArgument(argument.name, field.name.item),
                         context,
                     );
                     continue;
@@ -221,7 +228,7 @@ impl<'schema> ValidationContext<'schema> {
                     self.report_error(
                         SchemaValidationError::InvalidArgumentType(
                             type_name,
-                            field.name,
+                            field.name.item,
                             argument.name,
                             argument.type_.clone(),
                         ),
@@ -232,7 +239,7 @@ impl<'schema> ValidationContext<'schema> {
         }
     }
 
-    fn validate_union_members(&mut self, id: UnionID) {
+    fn validate_union_members(&self, id: UnionID) {
         let union = self.schema.union(id);
         let context = ValidationContextType::TypeNode(union.name);
         if union.members.is_empty() {
@@ -244,7 +251,7 @@ impl<'schema> ValidationContext<'schema> {
 
         let mut member_names = FnvHashSet::default();
         for member in union.members.iter() {
-            let member_name = self.schema.object(*member).name;
+            let member_name = self.schema.object(*member).name.item;
             if member_names.contains(&member_name) {
                 self.report_error(SchemaValidationError::DuplicateMember(member_name), context);
                 continue;
@@ -253,7 +260,7 @@ impl<'schema> ValidationContext<'schema> {
         }
     }
 
-    fn validate_enum_type(&mut self, id: EnumID) {
+    fn validate_enum_type(&self, id: EnumID) {
         let enum_ = self.schema.enum_(id);
         let context = ValidationContextType::TypeNode(enum_.name);
         if enum_.values.is_empty() {
@@ -273,7 +280,7 @@ impl<'schema> ValidationContext<'schema> {
         }
     }
 
-    fn validate_input_object_fields(&mut self, id: InputObjectID) {
+    fn validate_input_object_fields(&self, id: InputObjectID) {
         let input_object = self.schema.input_object(id);
         let context = ValidationContextType::TypeNode(input_object.name);
         if input_object.fields.is_empty() {
@@ -300,14 +307,14 @@ impl<'schema> ValidationContext<'schema> {
         }
     }
 
-    fn validate_type_with_interfaces<T: TypeWithFields>(&mut self, type_: &T) {
+    fn validate_type_with_interfaces<T: TypeWithFields + Named>(&self, type_: &T) {
         let mut interface_names = FnvHashSet::default();
         for interface_id in type_.interfaces().iter() {
             let interface = self.schema.interface(*interface_id);
             if interface_names.contains(&interface.name) {
                 self.report_error(
                     SchemaValidationError::DuplicateInterfaceImplementation(
-                        type_.name().clone(),
+                        type_.name(),
                         interface.name,
                     ),
                     ValidationContextType::TypeNode(type_.name()),
@@ -319,12 +326,12 @@ impl<'schema> ValidationContext<'schema> {
         }
     }
 
-    fn validate_type_implements_interface<T: TypeWithFields>(
-        &mut self,
+    fn validate_type_implements_interface<T: TypeWithFields + Named>(
+        &self,
         type_: &T,
         interface: &Interface,
     ) {
-        let object_field_map = self.field_map(&type_.fields());
+        let object_field_map = self.field_map(type_.fields());
         let interface_field_map = self.field_map(&interface.fields);
         let context = ValidationContextType::TypeNode(type_.name());
 
@@ -405,11 +412,7 @@ impl<'schema> ValidationContext<'schema> {
 
             // Assert additional arguments must not be required.
             for object_argument in object_field.arguments.iter() {
-                if interface_field
-                    .arguments
-                    .iter()
-                    .find(|arg| arg.name == object_argument.name)
-                    .is_none()
+                if !interface_field.arguments.contains(object_argument.name)
                     && object_argument.type_.is_non_null()
                 {
                     self.report_error(
@@ -426,7 +429,7 @@ impl<'schema> ValidationContext<'schema> {
         }
     }
 
-    fn validate_cyclic_implements_reference(&mut self, interface: &Interface) -> bool {
+    fn validate_cyclic_implements_reference(&self, interface: &Interface) -> bool {
         for id in interface.interfaces() {
             let mut path = Vec::new();
             let mut visited = FnvHashSet::default();
@@ -479,13 +482,13 @@ impl<'schema> ValidationContext<'schema> {
         false
     }
 
-    fn validate_name(&mut self, name: StringKey, context: ValidationContextType) {
+    fn validate_name(&self, name: StringKey, context: ValidationContextType) {
         let name = name.lookup();
         let mut chars = name.chars();
         if name.len() > 1 && chars.next() == Some('_') && chars.next() == Some('_') {
             self.report_error(
                 SchemaValidationError::InvalidNamePrefix(name.to_string()),
-                context.clone(),
+                context,
             );
         }
         if !TYPE_NAME_REGEX.is_match(name) {
@@ -500,24 +503,27 @@ impl<'schema> ValidationContext<'schema> {
         fields
             .iter()
             .map(|id| self.schema.field(*id))
-            .map(|field| (field.name, field.clone()))
+            .map(|field| (field.name.item, field.clone()))
             .collect::<FnvHashMap<_, _>>()
     }
 
-    fn report_error(&mut self, error: SchemaValidationError, context: ValidationContextType) {
+    fn report_error(&self, error: SchemaValidationError, context: ValidationContextType) {
         self.errors
+            .lock()
+            .unwrap()
             .entry(context)
             .or_insert_with(Vec::new)
             .push(error);
     }
 
-    fn add_error(&mut self, error: SchemaValidationError) {
+    fn add_error(&self, error: SchemaValidationError) {
         self.report_error(error, ValidationContextType::None);
     }
 
     pub fn print_errors(&self) -> String {
         let mut builder: String = String::new();
-        let mut contexts: Vec<_> = self.errors.keys().collect();
+        let errors = self.errors.lock().unwrap();
+        let mut contexts: Vec<_> = errors.keys().collect();
         contexts.sort_by_key(|context| context.type_name());
         for context in contexts {
             match context {
@@ -526,7 +532,7 @@ impl<'schema> ValidationContext<'schema> {
                     builder,
                     "Type {} with definition:\n\t{}\nhad errors:",
                     type_name,
-                    print_type(&self.schema, self.schema.get_type(*type_name).unwrap()).trim_end()
+                    print_type(self.schema, self.schema.get_type(*type_name).unwrap()).trim_end()
                 )
                 .unwrap(),
                 ValidationContextType::DirectiveNode(directive_name) => writeln!(
@@ -534,22 +540,21 @@ impl<'schema> ValidationContext<'schema> {
                     "Directive {} with definition:\n\t{}\nhad errors:",
                     directive_name,
                     print_directive(
-                        &self.schema,
+                        self.schema,
                         self.schema.get_directive(*directive_name).unwrap()
                     )
                     .trim_end()
                 )
                 .unwrap(),
             }
-            let mut errors = self
-                .errors
+            let mut error_strings = errors
                 .get(context)
                 .unwrap()
                 .iter()
                 .map(|error| format!("\t* {}", error))
                 .collect::<Vec<_>>();
-            errors.sort();
-            writeln!(builder, "{}", errors.join("\n")).unwrap();
+            error_strings.sort();
+            writeln!(builder, "{}", error_strings.join("\n")).unwrap();
             writeln!(builder).unwrap();
         }
         builder

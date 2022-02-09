@@ -1,0 +1,13 @@
+# Copyright (c) Meta Platforms, Inc. and affiliates. All Rights Reserved.
+
+extend type User {
+  nickname: String
+  client_nickname: String
+  best_friends: FriendsConnection
+  client_actor_field: String
+  client_foo: Foo
+  foo: Foo
+  client_name: String
+  client_code: Int
+  client_best_friend: User
+}

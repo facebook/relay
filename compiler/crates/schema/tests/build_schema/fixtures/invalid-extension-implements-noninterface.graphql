@@ -1,0 +1,17 @@
+# expected-to-throw
+
+type Query {
+  users: [User]
+}
+
+type Foo {
+  url: String
+}
+
+type User {
+  id: ID
+}
+extend type User implements Foo {
+  nickname: String
+  client: String
+}

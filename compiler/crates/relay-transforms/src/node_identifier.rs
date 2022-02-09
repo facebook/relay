@@ -1,23 +1,24 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::util::CUSTOM_METADATA_DIRECTIVES;
-use crate::MATCH_CONSTANTS;
+use crate::{util::CustomMetadataDirectives, ModuleMetadata};
 use common::WithLocation;
+use graphql_ir::Field;
 use graphql_ir::*;
-use interner::StringKey;
-use schema::Schema;
-use std::hash::{Hash, Hasher};
-use std::sync::Arc;
-/**
- * An identifier that is unique to a given selection: the alias for
- * fields, the type for inline fragments, and a summary of the condition
- * variable and passing value for conditions.
- */
+use intern::string_key::StringKey;
+use schema::SDLSchema;
+use std::{
+    hash::{Hash, Hasher},
+    sync::Arc,
+};
+
+/// An identifier that is unique to a given selection: the alias for
+/// fields, the type for inline fragments, and a summary of the condition
+/// variable and passing value for conditions.
 #[derive(Eq, Clone, Debug)]
 pub enum NodeIdentifier {
     LinkedField(LinkedFieldIdentifier),
@@ -28,23 +29,23 @@ pub enum NodeIdentifier {
 }
 
 impl NodeIdentifier {
-    pub fn from_selection(schema: &Schema, selection: &Selection) -> Self {
+    pub fn from_selection(schema: &SDLSchema, selection: &Selection) -> Self {
         match selection {
-            Selection::LinkedField(node) => NodeIdentifier::LinkedField(LinkedFieldIdentifier(
-                Arc::clone(&node),
-                node.alias_or_name(schema),
-            )),
-            Selection::ScalarField(node) => NodeIdentifier::ScalarField(ScalarFieldIdentifier(
-                Arc::clone(&node),
-                node.alias_or_name(schema),
-            )),
+            Selection::LinkedField(node) => NodeIdentifier::LinkedField(LinkedFieldIdentifier {
+                alias_or_name: node.alias_or_name(schema),
+                node: Arc::clone(node),
+            }),
+            Selection::ScalarField(node) => NodeIdentifier::ScalarField(ScalarFieldIdentifier {
+                alias_or_name: node.alias_or_name(schema),
+                node: Arc::clone(node),
+            }),
             Selection::InlineFragment(node) => NodeIdentifier::InlineFragment(Arc::clone(node)),
             Selection::FragmentSpread(node) => NodeIdentifier::FragmentSpread(Arc::clone(node)),
             Selection::Condition(node) => NodeIdentifier::Condition(Arc::clone(node)),
         }
     }
 
-    pub fn are_equal(schema: &Schema, a: &Selection, b: &Selection) -> bool {
+    pub fn are_equal(schema: &SDLSchema, a: &Selection, b: &Selection) -> bool {
         match (a, b) {
             (Selection::FragmentSpread(a), Selection::FragmentSpread(b)) => {
                 a.fragment.item == b.fragment.item && a.arguments.location_agnostic_eq(&b.arguments)
@@ -121,30 +122,44 @@ impl Hash for NodeIdentifier {
 
 // Implement ScalarFieldIdentifier and LinkedFieldIdentifier separately for computing alias name
 #[derive(Eq, Clone, Debug)]
-pub struct ScalarFieldIdentifier(Arc<ScalarField>, StringKey);
+pub struct ScalarFieldIdentifier {
+    alias_or_name: StringKey,
+    node: Arc<ScalarField>,
+}
 impl PartialEq for ScalarFieldIdentifier {
     fn eq(&self, other: &Self) -> bool {
-        self.1 == other.1 && self.0.directives.location_agnostic_eq(&other.0.directives)
+        self.alias_or_name == other.alias_or_name
+            && self
+                .node
+                .directives
+                .location_agnostic_eq(&other.node.directives)
     }
 }
 impl Hash for ScalarFieldIdentifier {
     fn hash<H: Hasher>(&self, state: &mut H) {
-        self.1.hash(state);
-        self.0.directives.location_agnostic_hash(state);
+        self.alias_or_name.hash(state);
+        self.node.directives.location_agnostic_hash(state);
     }
 }
 
 #[derive(Eq, Clone, Debug)]
-pub struct LinkedFieldIdentifier(Arc<LinkedField>, StringKey);
+pub struct LinkedFieldIdentifier {
+    alias_or_name: StringKey,
+    node: Arc<LinkedField>,
+}
 impl PartialEq for LinkedFieldIdentifier {
     fn eq(&self, other: &Self) -> bool {
-        self.1 == other.1 && self.0.directives.location_agnostic_eq(&other.0.directives)
+        self.alias_or_name == other.alias_or_name
+            && self
+                .node
+                .directives
+                .location_agnostic_eq(&other.node.directives)
     }
 }
 impl Hash for LinkedFieldIdentifier {
     fn hash<H: Hasher>(&self, state: &mut H) {
-        self.1.hash(state);
-        self.0.directives.location_agnostic_hash(state);
+        self.alias_or_name.hash(state);
+        self.node.directives.location_agnostic_hash(state);
     }
 }
 
@@ -247,27 +262,32 @@ fn filtered_location_agnostic_eq<
 impl LocationAgnosticPartialEq for Vec<Directive> {
     fn location_agnostic_eq(&self, other: &Self) -> bool {
         filtered_location_agnostic_eq(self, other, |d| {
-            !CUSTOM_METADATA_DIRECTIVES.should_skip_in_node_identifier(d.name.item)
+            !CustomMetadataDirectives::should_skip_in_node_identifier(d.name.item)
         })
     }
 }
 
 impl LocationAgnosticHash for Directive {
     fn location_agnostic_hash<H: Hasher>(&self, state: &mut H) {
-        if self.name.item == MATCH_CONSTANTS.custom_module_directive_name {
-            MATCH_CONSTANTS.custom_module_directive_name.hash(state);
-        } else if !CUSTOM_METADATA_DIRECTIVES.should_skip_in_node_identifier(self.name.item) {
+        if self.name.item == ModuleMetadata::directive_name() {
+            (ModuleMetadata::directive_name()).hash(state);
+        } else if !CustomMetadataDirectives::should_skip_in_node_identifier(self.name.item) {
             self.name.location_agnostic_hash(state);
             self.arguments.location_agnostic_hash(state);
+            self.data.hash(state);
         }
     }
 }
 
 impl LocationAgnosticPartialEq for Directive {
     fn location_agnostic_eq(&self, other: &Self) -> bool {
-        self.name.location_agnostic_eq(&other.name)
-            && (self.name.item == MATCH_CONSTANTS.custom_module_directive_name
-                || self.arguments.location_agnostic_eq(&other.arguments))
+        if !self.name.location_agnostic_eq(&other.name) {
+            return false;
+        }
+        if self.name.item == ModuleMetadata::directive_name() {
+            return true;
+        }
+        self.arguments.location_agnostic_eq(&other.arguments) && self.data == other.data
     }
 }
 

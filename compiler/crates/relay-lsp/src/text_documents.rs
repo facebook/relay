@@ -1,88 +1,90 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
 //! Utilities related to LSP text document syncing
-#![allow(dead_code)]
 
-use crate::lsp::{
-    DidChangeTextDocumentParams, DidCloseTextDocumentParams, DidOpenTextDocumentParams,
-    TextDocumentItem, Url,
+use crate::{lsp_runtime_error::LSPRuntimeResult, server::GlobalState};
+
+use lsp_types::{
+    notification::{
+        Cancel, DidChangeTextDocument, DidCloseTextDocument, DidOpenTextDocument,
+        DidSaveTextDocument, Notification,
+    },
+    DidChangeTextDocumentParams, DidOpenTextDocumentParams, TextDocumentItem,
 };
 
-use graphql_syntax::GraphQLSource;
-use log::info;
-
-pub type GraphQLTextDocumentCache = std::collections::HashMap<Url, Vec<GraphQLSource>>;
-
 pub fn on_did_open_text_document(
-    params: DidOpenTextDocumentParams,
-    graphql_source_cache: &mut GraphQLTextDocumentCache,
-) {
-    info!("Did open text document!");
+    lsp_state: &impl GlobalState,
+    params: <DidOpenTextDocument as Notification>::Params,
+) -> LSPRuntimeResult<()> {
     let DidOpenTextDocumentParams { text_document } = params;
     let TextDocumentItem { text, uri, .. } = text_document;
+    if !uri
+        .path()
+        .starts_with(lsp_state.root_dir().to_string_lossy().as_ref())
+    {
+        return Ok(());
+    }
 
-    // First we check to see if this document has any GraphQL documents.
-    let graphql_sources = match extract_graphql_sources(&text) {
-        Some(sources) => sources,
-        // Exit early if there are no sources
-        None => return,
-    };
-
-    // Track the GraphQL sources for this document
-    graphql_source_cache.insert(uri, graphql_sources);
+    lsp_state.document_opened(&uri, &text)
 }
 
+#[allow(clippy::unnecessary_wraps)]
 pub fn on_did_close_text_document(
-    params: DidCloseTextDocumentParams,
-    graphql_source_cache: &mut GraphQLTextDocumentCache,
-) {
+    lsp_state: &impl GlobalState,
+    params: <DidCloseTextDocument as Notification>::Params,
+) -> LSPRuntimeResult<()> {
     let uri = params.text_document.uri;
-    graphql_source_cache.remove(&uri);
+    if !uri
+        .path()
+        .starts_with(lsp_state.root_dir().to_string_lossy().as_ref())
+    {
+        return Ok(());
+    }
+
+    lsp_state.document_closed(&uri)
 }
 
 pub fn on_did_change_text_document(
-    params: DidChangeTextDocumentParams,
-    graphql_source_cache: &mut GraphQLTextDocumentCache,
-) {
-    info!("Did change text document!");
+    lsp_state: &impl GlobalState,
+    params: <DidChangeTextDocument as Notification>::Params,
+) -> LSPRuntimeResult<()> {
     let DidChangeTextDocumentParams {
         content_changes,
         text_document,
     } = params;
     let uri = text_document.uri;
+    if !uri
+        .path()
+        .starts_with(lsp_state.root_dir().to_string_lossy().as_ref())
+    {
+        return Ok(());
+    }
 
     // We do full text document syncing, so the new text will be in the first content change event.
     let content_change = content_changes
         .first()
         .expect("content_changes should always be non-empty");
 
-    // First we check to see if this document has any GraphQL documents.
-    let graphql_sources = match extract_graphql_sources(&content_change.text) {
-        Some(sources) => sources,
-        // Exit early if there are no sources
-        None => return,
-    };
-
-    // Update the GraphQL sources for this document
-    graphql_source_cache.insert(uri, graphql_sources);
+    lsp_state.document_changed(&uri, &content_change.text)
 }
 
-/// Returns a set of *non-empty* GraphQL sources if they exist in a file. Returns `None`
-/// if extracting fails or there are no GraphQL chunks in the file.
-pub fn extract_graphql_sources(source: &str) -> Option<Vec<GraphQLSource>> {
-    match extract_graphql::parse_chunks(source) {
-        Ok(chunks) => {
-            if chunks.is_empty() {
-                None
-            } else {
-                Some(chunks)
-            }
-        }
-        Err(_) => None,
-    }
+#[allow(clippy::unnecessary_wraps)]
+pub(crate) fn on_did_save_text_document(
+    _lsp_state: &impl GlobalState,
+    _params: <DidSaveTextDocument as Notification>::Params,
+) -> LSPRuntimeResult<()> {
+    Ok(())
+}
+
+#[allow(clippy::unnecessary_wraps)]
+pub fn on_cancel(
+    _lsp_state: &impl GlobalState,
+    _params: <Cancel as Notification>::Params,
+) -> LSPRuntimeResult<()> {
+    Ok(())
 }

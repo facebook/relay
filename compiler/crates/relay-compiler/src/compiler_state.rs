@@ -9,7 +9,7 @@ use crate::artifact_map::ArtifactMap;
 use crate::config::Config;
 use crate::errors::{Error, Result};
 use crate::file_source::{
-    categorize_files, extract_graphql_strings_from_file, read_file_to_string, Clock, File,
+    categorize_files, extract_javascript_features_from_file, read_file_to_string, Clock, File,
     FileGroup, FileSourceResult, SourceControlUpdateStatus,
 };
 use common::{PerfLogEvent, PerfLogger, SourceLocationKey};
@@ -283,10 +283,14 @@ impl CompilerState {
                         .par_iter()
                         .filter(|file| file.exists)
                         .filter_map(|file| {
-                            match extract_graphql_strings_from_file(file_source_changes, file) {
-                                Ok(graphql_strings) if graphql_strings.is_empty() => None,
-                                Ok(graphql_strings) => {
-                                    Some(Ok((file.name.clone(), graphql_strings)))
+                            match extract_javascript_features_from_file(file_source_changes, file) {
+                                Ok(source_features)
+                                    if source_features.graphql_sources.is_empty() =>
+                                {
+                                    None
+                                }
+                                Ok(source_features) => {
+                                    Some(Ok((file.name.clone(), source_features.graphql_sources)))
                                 }
                                 Err(err) => Some(Err(err)),
                             }
@@ -450,12 +454,16 @@ impl CompilerState {
                         let sources: GraphQLSourceSet = files
                             .par_iter()
                             .map(|file| {
-                                let graphql_strings = if file.exists {
-                                    extract_graphql_strings_from_file(&file_source_changes, file)?
+                                let javascript_features = if file.exists {
+                                    extract_javascript_features_from_file(
+                                        &file_source_changes,
+                                        file,
+                                    )?
+                                    .graphql_sources
                                 } else {
                                     Vec::new()
                                 };
-                                Ok((file.name.clone(), graphql_strings))
+                                Ok((file.name.clone(), javascript_features))
                             })
                             .collect::<Result<_>>()?;
                         log_event.stop(extract_timer);

@@ -15,6 +15,7 @@ use common::{Diagnostic, DiagnosticsResult, Location, SourceLocationKey, Span, W
 use errors::SyntaxError;
 use intern::string_key::{Intern, StringKey};
 
+#[derive(Clone, Debug)]
 pub struct DocblockSource {
     pub text: String,
     pub line_index: usize,

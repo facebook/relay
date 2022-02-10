@@ -6,26 +6,25 @@
  */
 
 use extract_graphql::extract;
-use extract_graphql::JavaScriptSourceFeature;
 use fixture_tests::Fixture;
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
-    Ok(extract(fixture.content)
+    let features = extract(fixture.content);
+    Ok(features
+        .graphql_sources
         .into_iter()
-        .map(|source| match source {
-            JavaScriptSourceFeature::GraphQLSource(s) => {
-                format!(
-                    "graphql - line: {}, column: {}, text: <{}>",
-                    s.line_index, s.column_index, s.text
-                )
-            }
-            JavaScriptSourceFeature::DocblockSource(s) => {
-                format!(
-                    "docblock - line: {}, column: {}, text: <{}>",
-                    s.line_index, s.column_index, s.text
-                )
-            }
+        .map(|s| {
+            format!(
+                "graphql - line: {}, column: {}, text: <{}>",
+                s.line_index, s.column_index, s.text
+            )
         })
+        .chain(features.docblock_sources.into_iter().map(|s| {
+            format!(
+                "docblock - line: {}, column: {}, text: <{}>",
+                s.line_index, s.column_index, s.text
+            )
+        }))
         .collect::<Vec<_>>()
         .join("\n"))
 }

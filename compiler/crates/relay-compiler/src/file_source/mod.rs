@@ -31,7 +31,7 @@ use std::path::PathBuf;
 
 use self::external_file_source::ExternalFileSourceResult;
 pub use self::extract_graphql::{
-    extract_graphql_strings_from_file, source_for_location, FsSourceReader, SourceReader,
+    extract_javascript_features_from_file, source_for_location, FsSourceReader, SourceReader,
 };
 use self::walk_dir_file_source::{WalkDirFileSource, WalkDirFileSourceResult};
 use external_file_source::ExternalFileSource;

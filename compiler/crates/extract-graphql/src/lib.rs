@@ -14,9 +14,19 @@ use graphql_syntax::GraphQLSource;
 use std::iter::Peekable;
 use std::str::CharIndices;
 
-pub enum JavaScriptSourceFeature {
-    GraphQLSource(GraphQLSource),
-    DocblockSource(DocblockSource),
+#[derive(Clone, Debug)]
+pub struct JavaScriptSourceFeatures {
+    pub graphql_sources: Vec<GraphQLSource>,
+    pub docblock_sources: Vec<DocblockSource>,
+}
+
+impl JavaScriptSourceFeatures {
+    fn new() -> Self {
+        Self {
+            graphql_sources: Vec::new(),
+            docblock_sources: Vec::new(),
+        }
+    }
 }
 
 /// A wrapper around a peekable char iterator that tracks
@@ -68,11 +78,11 @@ impl<'a> Iterator for CharReader<'a> {
 
 /// Extract graphql`text` literals and @RelayResolver comments from JS-like code.
 // This should work for Flow or TypeScript alike.
-pub fn extract(input: &str) -> Vec<JavaScriptSourceFeature> {
+pub fn extract(input: &str) -> JavaScriptSourceFeatures {
+    let mut res = JavaScriptSourceFeatures::new();
     if !input.contains("graphql`") && !input.contains("@RelayResolver") {
-        return vec![];
+        return res;
     }
-    let mut res = vec![];
     let mut it = CharReader::new(input);
     'code: while let Some((i, c)) = it.next() {
         match c {
@@ -94,11 +104,11 @@ pub fn extract(input: &str) -> Vec<JavaScriptSourceFeature> {
                         '`' => {
                             let end = i;
                             let text = &input[start + 8..end];
-                            res.push(JavaScriptSourceFeature::GraphQLSource(GraphQLSource::new(
+                            res.graphql_sources.push(GraphQLSource::new(
                                 text,
                                 line_index,
                                 column_index,
-                            )));
+                            ));
                             continue 'code;
                         }
                         ' ' | '\n' | '\r' | '\t' => {}
@@ -157,8 +167,10 @@ pub fn extract(input: &str) -> Vec<JavaScriptSourceFeature> {
                                 let end = i;
                                 let text = &input[start + 2..end - 1];
                                 if text.contains("@RelayResolver") {
-                                    res.push(JavaScriptSourceFeature::DocblockSource(
-                                        DocblockSource::new(text, line_index, column_index),
+                                    res.docblock_sources.push(DocblockSource::new(
+                                        text,
+                                        line_index,
+                                        column_index,
                                     ));
                                 }
                                 continue 'code;
@@ -213,16 +225,4 @@ fn consume_string(it: &mut CharReader<'_>, quote: char) {
             _ => {}
         }
     }
-}
-
-// Returns graphql`` literals only. Temporary until all callsites understand
-// both graphql and relay resolvers.
-pub fn parse_chunks(input: &str) -> Vec<GraphQLSource> {
-    extract(input)
-        .into_iter()
-        .flat_map(|feature| match feature {
-            JavaScriptSourceFeature::GraphQLSource(gql) => Some(gql),
-            _ => None,
-        })
-        .collect()
 }

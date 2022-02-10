@@ -210,7 +210,39 @@ This is discussed in more detail in the section on [Imperatively updating store 
 
 <OssOnly>
 
-You will need to Configure your [Network layer](../../../guides/network-layer) to handle subscriptions. This example uses [subscriptions-transport-ws](https://github.com/apollographql/subscriptions-transport-ws):
+You will need to Configure your [Network layer](../../../guides/network-layer) to handle subscriptions.
+
+Usually GraphQL subscriptions are communicated over [WebSockets](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API), here's an example using [graphql-ws](https://github.com/enisdenjo/graphql-ws):
+
+```javascript
+import {
+    ...
+    Network,
+    Observable
+} from 'relay-runtime';
+import { createClient } from 'graphql-ws';
+
+const wsClient = createClient({
+  url:'ws://localhost:3000',
+});
+
+const subscribe = (operation, variables) => {
+  return Observable.create((sink) => {
+    return wsClient.subscribe(
+      {
+        operationName: operation.name,
+        query: operation.text,
+        variables,
+      },
+      sink,
+    );
+  });
+}
+
+const network = Network.create(fetchQuery, subscribe);
+```
+
+Alternatively, the legacy [subscriptions-transport-ws](https://github.com/apollographql/subscriptions-transport-ws) library can be used too:
 
 ```javascript
 import {

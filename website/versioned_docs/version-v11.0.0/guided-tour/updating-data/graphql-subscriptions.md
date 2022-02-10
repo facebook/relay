@@ -226,14 +226,14 @@ Usually GraphQL subscriptions are communicated over [WebSockets](https://develop
 
 ```javascript
 import {
-    ...
-    Network,
-    Observable
+  ...
+  Network,
+  Observable,
 } from 'relay-runtime';
 import { createClient } from 'graphql-ws';
 
 const wsClient = createClient({
-  url:'ws://localhost:3000',
+  url: 'ws://localhost:3000',
 });
 
 const subscribe = (operation, variables) => {
@@ -247,7 +247,7 @@ const subscribe = (operation, variables) => {
       sink,
     );
   });
-}
+};
 
 const network = Network.create(fetchQuery, subscribe);
 ```

@@ -32,7 +32,7 @@ import type {
 const LRUCache = require('./LRUCache');
 const SuspenseResource = require('./SuspenseResource');
 const invariant = require('invariant');
-const {RelayFeatureFlags, isPromise} = require('relay-runtime');
+const {isPromise} = require('relay-runtime');
 const warning = require('warning');
 
 const CACHE_CAPACITY = 1000;
@@ -50,7 +50,6 @@ type QueryResourceCacheEntry = {|
   // from the incremental responses, so later we can choose how to handle errors
   // in the incremental payloads.
   processedPayloadsCount: number,
-  getRetainCount(): number,
   getNetworkSubscription(): ?Subscription,
   setNetworkSubscription(?Subscription): void,
   getValue(): Error | Promise<void> | QueryResult,
@@ -126,39 +125,6 @@ function createCacheEntry(
   networkSubscription: ?Subscription,
   onDispose: QueryResourceCacheEntry => void,
 ): QueryResourceCacheEntry {
-  // There should be no behavior difference between createCacheEntry_new and
-  // createCacheEntry_old, and it doesn't directly relate to Client Edges.
-  // It was just a refactoring that was needed for Client Edges but that
-  // is behind the feature flag just in case there is any accidental breakage.
-  if (RelayFeatureFlags.REFACTOR_SUSPENSE_RESOURCE) {
-    return createCacheEntry_new(
-      cacheIdentifier,
-      operation,
-      operationAvailability,
-      value,
-      networkSubscription,
-      onDispose,
-    );
-  } else {
-    return createCacheEntry_old(
-      cacheIdentifier,
-      operation,
-      operationAvailability,
-      value,
-      networkSubscription,
-      onDispose,
-    );
-  }
-}
-
-function createCacheEntry_new(
-  cacheIdentifier: string,
-  operation: OperationDescriptor,
-  operationAvailability: ?OperationAvailability,
-  value: Error | Promise<void> | QueryResult,
-  networkSubscription: ?Subscription,
-  onDispose: QueryResourceCacheEntry => void,
-): QueryResourceCacheEntry {
   const isLiveQuery = operationIsLiveQuery(operation);
 
   let currentValue: Error | Promise<void> | QueryResult = value;
@@ -191,9 +157,6 @@ function createCacheEntry_new(
     setValue(val: QueryResult | Promise<void> | Error) {
       currentValue = val;
     },
-    getRetainCount() {
-      return suspenseResource.getRetainCount();
-    },
     getNetworkSubscription() {
       return currentNetworkSubscription;
     },
@@ -211,153 +174,6 @@ function createCacheEntry_new(
     },
     releaseTemporaryRetain() {
       suspenseResource.releaseTemporaryRetain();
-    },
-  };
-
-  return cacheEntry;
-}
-
-const DATA_RETENTION_TIMEOUT = 5 * 60 * 1000;
-function createCacheEntry_old(
-  cacheIdentifier: string,
-  operation: OperationDescriptor,
-  operationAvailability: ?OperationAvailability,
-  value: Error | Promise<void> | QueryResult,
-  networkSubscription: ?Subscription,
-  onDispose: QueryResourceCacheEntry => void,
-): QueryResourceCacheEntry {
-  const isLiveQuery = operationIsLiveQuery(operation);
-
-  let currentValue: Error | Promise<void> | QueryResult = value;
-  let retainCount = 0;
-  let retainDisposable: ?Disposable = null;
-  let releaseTemporaryRetain: ?() => void = null;
-  let currentNetworkSubscription: ?Subscription = networkSubscription;
-
-  const retain = (environment: IEnvironment) => {
-    retainCount++;
-    if (retainCount === 1) {
-      retainDisposable = environment.retain(operation);
-    }
-    return {
-      dispose: () => {
-        retainCount = Math.max(0, retainCount - 1);
-        if (retainCount === 0) {
-          invariant(
-            retainDisposable != null,
-            'Relay: Expected disposable to release query to be defined.' +
-              "If you're seeing this, this is likely a bug in Relay.",
-          );
-          retainDisposable.dispose();
-          retainDisposable = null;
-        }
-        onDispose(cacheEntry);
-      },
-    };
-  };
-
-  const cacheEntry = {
-    cacheIdentifier,
-    id: nextID++,
-    processedPayloadsCount: 0,
-    operationAvailability,
-    getValue() {
-      return currentValue;
-    },
-    setValue(val: QueryResult | Promise<void> | Error) {
-      currentValue = val;
-    },
-    getRetainCount() {
-      return retainCount;
-    },
-    getNetworkSubscription() {
-      return currentNetworkSubscription;
-    },
-    setNetworkSubscription(subscription: ?Subscription) {
-      if (isLiveQuery && currentNetworkSubscription != null) {
-        currentNetworkSubscription.unsubscribe();
-      }
-      currentNetworkSubscription = subscription;
-    },
-    temporaryRetain(environment: IEnvironment): Disposable {
-      // NOTE: If we're executing in a server environment, there's no need
-      // to create temporary retains, since the component will never commit.
-      if (environment.isServer()) {
-        return {dispose: () => {}};
-      }
-
-      // NOTE: temporaryRetain is called during the render phase. However,
-      // given that we can't tell if this render will eventually commit or not,
-      // we create a timer to autodispose of this retain in case the associated
-      // component never commits.
-      // If the component /does/ commit, permanentRetain will clear this timeout
-      // and permanently retain the data.
-      const disposable = retain(environment);
-      let releaseQueryTimeout = null;
-      const localReleaseTemporaryRetain = () => {
-        clearTimeout(releaseQueryTimeout);
-        releaseQueryTimeout = null;
-        releaseTemporaryRetain = null;
-        disposable.dispose();
-        // Normally if this entry never commits, the request would've ended by the
-        // time this timeout expires and the temporary retain is released. However,
-        // we need to do this for live queries which remain open indefinitely.
-        if (
-          isLiveQuery &&
-          retainCount <= 0 &&
-          currentNetworkSubscription != null
-        ) {
-          currentNetworkSubscription.unsubscribe();
-        }
-      };
-      releaseQueryTimeout = setTimeout(
-        localReleaseTemporaryRetain,
-        DATA_RETENTION_TIMEOUT,
-      );
-
-      // NOTE: Since temporaryRetain can be called multiple times, we release
-      // the previous temporary retain after we re-establish a new one, since
-      // we only ever need a single temporary retain until the permanent retain is
-      // established.
-      // temporaryRetain may be called multiple times by React during the render
-      // phase, as well as multiple times by other query components that are
-      // rendering the same query/variables.
-      if (releaseTemporaryRetain != null) {
-        releaseTemporaryRetain();
-      }
-      releaseTemporaryRetain = localReleaseTemporaryRetain;
-
-      return {
-        dispose: () => {
-          releaseTemporaryRetain && releaseTemporaryRetain();
-        },
-      };
-    },
-    permanentRetain(environment: IEnvironment): Disposable {
-      const disposable = retain(environment);
-      if (releaseTemporaryRetain != null) {
-        releaseTemporaryRetain();
-        releaseTemporaryRetain = null;
-      }
-
-      return {
-        dispose: () => {
-          disposable.dispose();
-          if (
-            isLiveQuery &&
-            retainCount <= 0 &&
-            currentNetworkSubscription != null
-          ) {
-            currentNetworkSubscription.unsubscribe();
-          }
-        },
-      };
-    },
-    releaseTemporaryRetain() {
-      if (releaseTemporaryRetain != null) {
-        releaseTemporaryRetain();
-        releaseTemporaryRetain = null;
-      }
     },
   };
 
@@ -532,15 +348,7 @@ class QueryResourceImpl {
   }
 
   _clearCacheEntry = (cacheEntry: QueryResourceCacheEntry): void => {
-    // The new code does this retainCount <= 0 check within SuspenseResource
-    // before calling _clearCacheEntry, whereas with the old code we do it here.
-    if (RelayFeatureFlags.REFACTOR_SUSPENSE_RESOURCE) {
-      this._cache.delete(cacheEntry.cacheIdentifier);
-    } else {
-      if (cacheEntry.getRetainCount() <= 0) {
-        this._cache.delete(cacheEntry.cacheIdentifier);
-      }
-    }
+    this._cache.delete(cacheEntry.cacheIdentifier);
   };
 
   _getOrCreateCacheEntry(

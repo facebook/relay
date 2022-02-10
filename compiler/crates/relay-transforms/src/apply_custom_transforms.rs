@@ -10,10 +10,12 @@ use graphql_ir::Program;
 use intern::string_key::StringKeySet;
 use relay_config::ProjectConfig;
 
+pub type BaseFragmentNames = StringKeySet;
+
 #[derive(Clone)]
 pub struct CustomTransform {
     pub name: &'static str,
-    pub transform: fn(&ProjectConfig, &Program, &StringKeySet) -> DiagnosticsResult<Program>,
+    pub transform: fn(&ProjectConfig, &Program, &BaseFragmentNames) -> DiagnosticsResult<Program>,
 }
 
 impl std::fmt::Debug for CustomTransform {
@@ -44,7 +46,7 @@ pub(crate) fn apply_before_custom_transforms(
     program: &Program,
     custom_transforms: &Option<&CustomTransforms>,
     project_config: &ProjectConfig,
-    base_fragment_names: &StringKeySet,
+    base_fragment_names: &BaseFragmentNames,
     log_event: &impl PerfLogEvent,
     maybe_print_stats: Option<fn(extra_info: &str, program: &Program) -> ()>,
 ) -> DiagnosticsResult<Program> {
@@ -65,7 +67,7 @@ pub(crate) fn apply_after_custom_transforms(
     program: &Program,
     custom_transforms: &Option<&CustomTransforms>,
     project_config: &ProjectConfig,
-    base_fragment_names: &StringKeySet,
+    base_fragment_names: &BaseFragmentNames,
     log_event: &impl PerfLogEvent,
     maybe_print_stats: Option<fn(extra_info: &str, program: &Program) -> ()>,
 ) -> DiagnosticsResult<Program> {
@@ -86,7 +88,7 @@ fn apply_custom_transforms(
     program: &Program,
     transforms: &[CustomTransform],
     project_config: &ProjectConfig,
-    base_fragment_names: &StringKeySet,
+    base_fragment_names: &BaseFragmentNames,
     log_event: &impl PerfLogEvent,
     maybe_print_stats: Option<fn(extra_info: &str, program: &Program) -> ()>,
 ) -> DiagnosticsResult<Program> {
@@ -116,7 +118,7 @@ fn apply_custom_transform(
     program: &Program,
     transform: &CustomTransform,
     project_config: &ProjectConfig,
-    base_fragment_names: &StringKeySet,
+    base_fragment_names: &BaseFragmentNames,
     log_event: &impl PerfLogEvent,
     maybe_print_stats: Option<fn(extra_info: &str, program: &Program) -> ()>,
 ) -> DiagnosticsResult<Program> {

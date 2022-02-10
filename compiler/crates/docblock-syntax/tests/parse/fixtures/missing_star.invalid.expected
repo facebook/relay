@@ -1,12 +1,12 @@
 ==================================== INPUT ====================================
 /*
-// Can't parse this!
-// expected-to-throw
+ * @fieldName field value
+  expected-to-throw
 */
 ==================================== ERROR ====================================
 ✖︎ Expected "*".
 
-  invalid_docblock.invalid.ecmascript:2:1
-    1 │ 
-    2 │ // Can't parse this!
-      │ ^
+  missing_star.invalid.ecmascript:3:3
+    2 │  * @fieldName field value
+    3 │   expected-to-throw
+      │   ^

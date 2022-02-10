@@ -8,6 +8,7 @@
 use super::{read_file_to_string, File, FileSourceResult};
 use crate::errors::Result;
 use common::SourceLocationKey;
+use extract_graphql::JavaScriptSourceFeatures;
 use graphql_syntax::GraphQLSource;
 use std::{
     fs,
@@ -28,13 +29,14 @@ impl SourceReader for FsSourceReader {
     }
 }
 
-/// Reads and extracts `graphql` tagged literals from a file.
-pub fn extract_graphql_strings_from_file(
+/// Reads and extracts `graphql` tagged literals and Relay-specific docblocks
+/// from a JavaScript file.
+pub fn extract_javascript_features_from_file(
     file_source_result: &FileSourceResult,
     file: &File,
-) -> Result<Vec<GraphQLSource>> {
+) -> Result<JavaScriptSourceFeatures> {
     let contents = read_file_to_string(file_source_result, file)?;
-    Ok(extract_graphql::parse_chunks(&contents))
+    Ok(extract_graphql::extract(&contents))
 }
 
 pub fn source_for_location(
@@ -46,8 +48,11 @@ pub fn source_for_location(
         SourceLocationKey::Embedded { path, index } => {
             let absolute_path = root_dir.join(path.lookup());
             let contents = source_reader.read_file_to_string(&absolute_path).ok()?;
-            let file_sources = extract_graphql::parse_chunks(&contents);
-            file_sources.into_iter().nth(index.try_into().unwrap())
+            let file_sources = extract_graphql::extract(&contents);
+            file_sources
+                .graphql_sources
+                .into_iter()
+                .nth(index.try_into().unwrap())
         }
         SourceLocationKey::Standalone { path } => {
             let absolute_path = root_dir.join(path.lookup());

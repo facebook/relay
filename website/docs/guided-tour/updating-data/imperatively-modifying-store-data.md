@@ -32,7 +32,9 @@ Lastly, there are things you can only achieve using updaters, such as invalidati
 
 If two optimistic responses affect a given value, and the first optimistic response is rolled back, the second one will remain applied.
 
-For example, if two optimistic responses each increase a story's like count by one, and the first optimistic response is rolled back, the second optimistic response remains applied. However, it is **not recalculated**, and the value of the like count will remain increased by two.
+For example, if two optimistic responses each increase a story's like count by one, and the first optimistic response is rolled back, the second optimistic response remains applied. Since the second optimistic response **not recalculated**, the value of the like count will remain increased by two.
+
+An optimistic updater, on the other hand, would be re-run in this circumstance.
 
 ## When **not** to use updaters
 

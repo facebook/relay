@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<7eaf0393e4e9ae43a68b5c57bc5439b7>>
+ * @generated SignedSource<<a22b4dd1b04f731d91f6daf85c6d5ebd>>
  */
 
 mod extract;
@@ -52,6 +52,13 @@ fn relay_resolver() {
     let input = include_str!("extract/fixtures/relay_resolver.js");
     let expected = include_str!("extract/fixtures/relay_resolver.expected");
     test_fixture(transform_fixture, "relay_resolver.js", "extract/fixtures/relay_resolver.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_and_graphql() {
+    let input = include_str!("extract/fixtures/relay_resolver_and_graphql.js");
+    let expected = include_str!("extract/fixtures/relay_resolver_and_graphql.expected");
+    test_fixture(transform_fixture, "relay_resolver_and_graphql.js", "extract/fixtures/relay_resolver_and_graphql.expected", input, expected);
 }
 
 #[test]

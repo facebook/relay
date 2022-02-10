@@ -1,2 +1,4 @@
-// expected-to-throw
+/*
 // Can't parse this!
+// expected-to-throw
+*/

@@ -9,7 +9,9 @@ use thiserror::Error;
 
 #[derive(Clone, Copy, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub enum SyntaxError {
-    // Temporary error to use as a placeholder until we have a real parser.
-    #[error("Expected \"Hello World\"")]
-    PlaceholderError,
+    #[error("Expected \"{expected}\".")]
+    ExpectedString { expected: &'static str },
+
+    #[error("Expected @ to be followed by a field name.")]
+    ExpectedFieldName,
 }

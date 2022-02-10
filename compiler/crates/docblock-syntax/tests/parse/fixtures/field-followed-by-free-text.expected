@@ -1,0 +1,25 @@
+==================================== INPUT ====================================
+/**
+ * @fieldName
+ * This text is free text, not connected to the above boolean field
+ */
+==================================== OUTPUT ===================================
+DocblockAST {
+    sections: [
+        Field(
+            DocblockField {
+                field_name: WithLocation {
+                    location: field-followed-by-free-text.ecmascript:6:15,
+                    item: "fieldName",
+                },
+                field_value: None,
+            },
+        ),
+        FreeText(
+            WithLocation {
+                location: field-followed-by-free-text.ecmascript:19:83,
+                item: "This text is free text, not connected to the above boolean field",
+            },
+        ),
+    ],
+}

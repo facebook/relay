@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<ecfd49d743a0f43c5fa503e9fcf51720>>
+ * @generated SignedSource<<ebc173659719e9229047a929957c876f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -136,9 +136,7 @@ return {
   "params": {
     "cacheID": "a1671b3a14cbfbc84cfbf4a5b5f2fd89",
     "id": null,
-    "metadata": {
-      "subscriptionName": "commentCreateSubscribe"
-    },
+    "metadata": {},
     "name": "requestSubscriptionTest1CommentCreateSubscription",
     "operationKind": "subscription",
     "text": "subscription requestSubscriptionTest1CommentCreateSubscription(\n  $input: CommentCreateSubscriptionInput\n) {\n  commentCreateSubscribe(input: $input) {\n    feedbackCommentEdge {\n      node {\n        id\n        body {\n          text\n        }\n      }\n    }\n  }\n}\n"

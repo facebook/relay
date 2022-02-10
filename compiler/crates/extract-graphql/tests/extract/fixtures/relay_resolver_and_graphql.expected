@@ -11,10 +11,17 @@
  * @RelayResolver
 */
 
-/**
- * ignored, doesn't have the tag
- */
+graphql`query MyQuery {
+    me: {
+        id
+    }
+}`;
 ==================================== OUTPUT ===================================
+graphql - line: 12, column: 8, text: <query MyQuery {
+    me: {
+        id
+    }
+}>
 docblock - line: 7, column: 2, text: <*
  * This is a ....
  * @RelayResolver

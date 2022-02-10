@@ -1,14 +1,13 @@
 ==================================== INPUT ====================================
 /**
- * Hello World
- */
+ * Hello World */
 ==================================== OUTPUT ===================================
 DocblockAST {
     sections: [
         FreeText(
             WithLocation {
-                location: simple_docblock.ecmascript:5:16,
-                item: "Hello World",
+                location: docblock-ends-mid-line.ecmascript:5:17,
+                item: "Hello World ",
             },
         ),
     ],

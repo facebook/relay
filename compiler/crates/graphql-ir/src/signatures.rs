@@ -204,8 +204,8 @@ fn build_fragment_variable_definitions(
                             if !enable_provided_variables.is_enabled_for(fragment.name.value) {
                                 return Err(vec![Diagnostic::error(
                                     format!("Invalid usage of provided variable: this feature is gated and currently set to {}",
-                                                    enable_provided_variables),
-                                     fragment.location.with_span(item.span),
+                                    enable_provided_variables),
+                                    fragment.location.with_span(item.span),
                                 )]);
                             }
                             provider_arg = Some(item);
@@ -241,64 +241,61 @@ fn build_fragment_variable_definitions(
                     }
 
                     let mut directives = Vec::new();
-                        if let Some(unused_local_variable_arg) = unused_local_variable_arg {
-                            if !matches!(
-                                unused_local_variable_arg,
-                                graphql_syntax::ConstantArgument {
-                                    value: graphql_syntax::ConstantValue::Boolean(
-                                        graphql_syntax::BooleanNode { value: true, .. }
-                                    ),
-                                    ..
-                                }
-                            ) {
-                                return Err(vec![Diagnostic::error(
-                                    ValidationMessage::InvalidUnusedFragmentVariableSuppressionArg,
-                                    fragment
-                                        .location
-                                        .with_span(unused_local_variable_arg.value.span()),
-                                )]);
-                            }
-                            directives.push(crate::Directive {
-                                name: WithLocation::new(
-                                    fragment.location.with_span(unused_local_variable_arg.span),
-                                    *UNUSED_LOCAL_VARIABLE_DEPRECATED,
+                    if let Some(unused_local_variable_arg) = unused_local_variable_arg {
+                        if !matches!(
+                            unused_local_variable_arg,
+                            graphql_syntax::ConstantArgument {
+                                value: graphql_syntax::ConstantValue::Boolean(
+                                    graphql_syntax::BooleanNode { value: true, .. }
                                 ),
-                                arguments: Vec::new(),
-                                data: None,
-                            });
-                        }
-                        if let Some(provider_arg) = provider_arg {
-                            if let graphql_syntax::ConstantValue::String(provider_module_name) = &provider_arg.value {
-                                if let Some(default_arg_) = default_arg {
-                                    return Err(vec![Diagnostic::error(
-                                        ValidationMessage::ProvidedVariableIncompatibleWithDefaultValue{argument_name: variable_name.value},
-                                        fragment
-                                            .location
-                                            .with_span(provider_arg.span),
-                                    ).annotate("Default value declared here",
-                                    fragment
-                                    .location
-                                    .with_span(default_arg_.span))]);
-                                }
-                                directives.push(crate::Directive {
-                                    name: WithLocation::new(
-                                        fragment.location.with_span(provider_arg.span),
-                                        ProvidedVariableMetadata::directive_name(),
-                                    ),
-                                    arguments: Vec::new(),
-                                    data: Some(Box::new(ProvidedVariableMetadata{module_name: provider_module_name.value})),
-                                });
-
-                            } else{
-                                return Err(vec![Diagnostic::error(
-                                    ValidationMessage::LiteralStringArgumentExpectedForDirective{arg_name: *PROVIDER, directive_name: *ARGUMENT_DEFINITION },
-                                    fragment
-                                        .location
-                                        .with_span(provider_arg.value.span()),
-                                )]);
+                                ..
                             }
-
+                        ) {
+                            return Err(vec![Diagnostic::error(
+                                ValidationMessage::InvalidUnusedFragmentVariableSuppressionArg,
+                                fragment
+                                    .location
+                                    .with_span(unused_local_variable_arg.value.span()),
+                            )]);
                         }
+                        directives.push(crate::Directive {
+                            name: WithLocation::new(
+                                fragment.location.with_span(unused_local_variable_arg.span),
+                                *UNUSED_LOCAL_VARIABLE_DEPRECATED,
+                            ),
+                            arguments: Vec::new(),
+                            data: None,
+                        });
+                    }
+                    if let Some(provider_arg) = provider_arg {
+                        let provider_module_name = provider_arg.value.get_string_literal().ok_or_else(|| {
+                            vec![Diagnostic::error(
+                                ValidationMessage::LiteralStringArgumentExpectedForDirective{arg_name: *PROVIDER, directive_name: *ARGUMENT_DEFINITION },
+                                fragment
+                                    .location
+                                    .with_span(provider_arg.value.span()),
+                            )]
+                        })?;
+                        if let Some(default_arg_) = default_arg {
+                            return Err(vec![Diagnostic::error(
+                                ValidationMessage::ProvidedVariableIncompatibleWithDefaultValue{argument_name: variable_name.value},
+                                fragment
+                                    .location
+                                    .with_span(provider_arg.span),
+                            ).annotate("Default value declared here",
+                            fragment
+                            .location
+                            .with_span(default_arg_.span))]);
+                        }
+                        directives.push(crate::Directive {
+                            name: WithLocation::new(
+                                fragment.location.with_span(provider_arg.span),
+                                ProvidedVariableMetadata::directive_name(),
+                            ),
+                            arguments: Vec::new(),
+                            data: Some(Box::new(ProvidedVariableMetadata{module_name: provider_module_name})),
+                        });
+                    }
 
                     let default_value =
                         get_default_value(schema, fragment.location, default_arg, &type_)?;

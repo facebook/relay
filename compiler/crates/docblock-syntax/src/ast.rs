@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::WithLocation;
+use common::{Location, WithLocation};
 use intern::string_key::StringKey;
 #[derive(Debug, PartialEq)]
 pub struct DocblockField {
@@ -21,5 +21,6 @@ pub enum DocblockSection {
 
 #[derive(Debug, PartialEq)]
 pub struct DocblockAST {
+    pub location: Location,
     pub sections: Vec<DocblockSection>,
 }

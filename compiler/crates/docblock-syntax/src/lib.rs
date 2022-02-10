@@ -94,6 +94,7 @@ impl<'a> DocblockParser<'a> {
     }
 
     fn parse(mut self) -> DiagnosticsResult<DocblockAST> {
+        let start = self.offset;
         // By convention most docblocks start `/**`. Since we expect the leading
         // `/*` to be trimmed before it's passed to us, we want to remove the
         // second `*` and its trailing whitespace/newline.
@@ -103,11 +104,13 @@ impl<'a> DocblockParser<'a> {
         }
 
         let result = self.parse_sections();
+        let end = self.offset;
 
         if self.errors.is_empty() {
             result.expect("Expected no parse errors.");
             Ok(DocblockAST {
                 sections: self.sections,
+                location: Location::new(self.source_location, Span::new(start, end)),
             })
         } else {
             Err(self.errors)

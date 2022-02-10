@@ -3,6 +3,7 @@
  * Hello World */
 ==================================== OUTPUT ===================================
 DocblockAST {
+    location: docblock-ends-mid-line.ecmascript:0:17,
     sections: [
         FreeText(
             WithLocation {

@@ -5,6 +5,7 @@
  */
 ==================================== OUTPUT ===================================
 DocblockAST {
+    location: multiple-fields.ecmascript:0:43,
     sections: [
         Field(
             DocblockField {

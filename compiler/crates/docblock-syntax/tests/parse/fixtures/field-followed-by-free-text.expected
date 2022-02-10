@@ -5,6 +5,7 @@
  */
 ==================================== OUTPUT ===================================
 DocblockAST {
+    location: field-followed-by-free-text.ecmascript:0:85,
     sections: [
         Field(
             DocblockField {

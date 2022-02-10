@@ -63,12 +63,36 @@ impl ProjectSet {
     }
 }
 
+impl IntoIterator for ProjectSet {
+    type Item = ProjectName;
+    type IntoIter = std::vec::IntoIter<Self::Item>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        match self {
+            ProjectSet::ProjectName(name) => vec![name].into_iter(),
+            ProjectSet::ProjectNames(names) => names.into_iter(),
+        }
+    }
+}
+
 /// Represents the name of the source set, or list of source sets
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
 #[serde(untagged)]
 pub enum SourceSet {
     SourceSetName(SourceSetName),
     SourceSetNames(Vec<SourceSetName>),
+}
+
+impl IntoIterator for SourceSet {
+    type Item = SourceSetName;
+    type IntoIter = std::vec::IntoIter<Self::Item>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        match self {
+            SourceSet::SourceSetName(name) => vec![name].into_iter(),
+            SourceSet::SourceSetNames(names) => names.into_iter(),
+        }
+    }
 }
 
 impl fmt::Display for SourceSet {
@@ -270,15 +294,8 @@ impl CompilerState {
                         .collect::<Result<_>>()?;
                     log_event.stop(extract_timer);
                     log_event.complete();
-                    match source_set {
-                        SourceSet::SourceSetName(source_set_name) => {
-                            result.set_pending_source_set(source_set_name, sources);
-                        }
-                        SourceSet::SourceSetNames(names) => {
-                            for source_set_name in names {
-                                result.set_pending_source_set(source_set_name, sources.clone());
-                            }
-                        }
+                    for source_set_name in source_set {
+                        result.set_pending_source_set(source_set_name, sources.clone());
                     }
                 }
                 FileGroup::Schema { project_set } => {
@@ -442,21 +459,12 @@ impl CompilerState {
                             })
                             .collect::<Result<_>>()?;
                         log_event.stop(extract_timer);
-                        match source_set {
-                            SourceSet::SourceSetName(source_set_name) => {
-                                self.graphql_sources
-                                    .entry(source_set_name)
-                                    .or_default()
-                                    .merge_pending_sources(sources);
-                            }
-                            SourceSet::SourceSetNames(names) => {
-                                for source_set_name in names {
-                                    self.graphql_sources
-                                        .entry(source_set_name)
-                                        .or_default()
-                                        .merge_pending_sources(sources.clone());
-                                }
-                            }
+
+                        for source_set_name in source_set {
+                            self.graphql_sources
+                                .entry(source_set_name)
+                                .or_default()
+                                .merge_pending_sources(sources.clone());
                         }
                     }
                     FileGroup::Schema { project_set } => {
@@ -631,20 +639,11 @@ impl CompilerState {
                 removed_sources.push(file_name);
             }
         }
-        match project_set {
-            ProjectSet::ProjectName(project_name) => {
-                let entry = source_map.entry(project_name).or_default();
-                entry.remove_sources(&removed_sources);
-                entry.merge_pending_sources(added_sources);
-            }
-            ProjectSet::ProjectNames(project_names) => {
-                for project_name in project_names {
-                    let entry = source_map.entry(project_name).or_default();
-                    entry.remove_sources(&removed_sources);
-                    entry.merge_pending_sources(added_sources.clone());
-                }
-            }
-        };
+        for project_name in project_set {
+            let entry = source_map.entry(project_name).or_default();
+            entry.remove_sources(&removed_sources);
+            entry.merge_pending_sources(added_sources.clone());
+        }
         Ok(())
     }
 

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<204003702f63edab47ce5a377850f725>>
+ * @generated SignedSource<<6ff25624339fd98caa1c4cafb141a95f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -224,9 +224,7 @@ return {
   "params": {
     "cacheID": "c70373f17edf13d0b0d8b3f24c5fb33f",
     "id": null,
-    "metadata": {
-      "subscriptionName": "commentCreateSubscribe"
-    },
+    "metadata": {},
     "name": "requestSubscriptionTestSubscription",
     "operationKind": "subscription",
     "text": "subscription requestSubscriptionTestSubscription(\n  $input: CommentCreateSubscriptionInput!\n) {\n  commentCreateSubscribe(input: $input) {\n    comment {\n      actor {\n        __typename\n        name\n        nameRenderer(supported: [\"PlainUserNameRenderer\"]) {\n          __typename\n          ... on PlainUserNameRenderer {\n            ...requestSubscriptionTestPlainUserNameRenderer_name\n            __module_operation_requestSubscriptionTestSubscription: js(module: \"requestSubscriptionTestPlainUserNameRenderer_name$normalization.graphql\", id: \"requestSubscriptionTestSubscription.commentCreateSubscribe.comment.actor.nameRenderer\")\n            __module_component_requestSubscriptionTestSubscription: js(module: \"PlainUserNameRenderer.react\", id: \"requestSubscriptionTestSubscription.commentCreateSubscribe.comment.actor.nameRenderer\")\n          }\n        }\n        id\n      }\n      id\n    }\n  }\n}\n\nfragment requestSubscriptionTestPlainUserNameRenderer_name on PlainUserNameRenderer {\n  plaintext\n  data {\n    text\n    id\n  }\n}\n"

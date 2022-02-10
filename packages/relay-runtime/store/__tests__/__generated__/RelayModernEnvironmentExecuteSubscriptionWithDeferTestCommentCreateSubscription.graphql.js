@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<10fe4132c4e297f9c943e2c7ad5560cc>>
+ * @generated SignedSource<<15ff57c5792d5c6bf4ec42a97f217d74>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -182,9 +182,7 @@ return {
   "params": {
     "cacheID": "cc5d5a7b7cc03e0dc187517d56f6835d",
     "id": null,
-    "metadata": {
-      "subscriptionName": "commentCreateSubscribe"
-    },
+    "metadata": {},
     "name": "RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentCreateSubscription",
     "operationKind": "subscription",
     "text": "subscription RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentCreateSubscription(\n  $input: CommentCreateSubscriptionInput!\n) {\n  commentCreateSubscribe(input: $input) {\n    comment {\n      id\n      ...RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentFragment @defer(label: \"RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentCreateSubscription$defer$RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentFragment\")\n    }\n  }\n}\n\nfragment RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentFragment on Comment {\n  id\n  actor {\n    __typename\n    name\n    id\n  }\n}\n"

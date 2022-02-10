@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<146c7161089a60f101ae284b98984b36>>
+ * @generated SignedSource<<fb128195a62a3b4cac07c426864b152d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -123,9 +123,7 @@ return {
   "params": {
     "cacheID": "8fd8fcebf3ed6c8b5627532fceaa00d4",
     "id": null,
-    "metadata": {
-      "subscriptionName": "commentCreateSubscribe"
-    },
+    "metadata": {},
     "name": "RelayModernEnvironmentExecuteSubscriptionTestCommentCreateSubscription",
     "operationKind": "subscription",
     "text": "subscription RelayModernEnvironmentExecuteSubscriptionTestCommentCreateSubscription(\n  $input: CommentCreateSubscriptionInput!\n) {\n  commentCreateSubscribe(input: $input) {\n    comment {\n      id\n      body {\n        text\n      }\n    }\n  }\n}\n"

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<576a97b2781df9cebf9718360f5498ce>>
+ * @generated SignedSource<<7139abd87033108ab2d27fdea55cc2ec>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -120,9 +120,7 @@ return {
   "params": {
     "cacheID": "1b69adfae158cc6f1ccf259d412d1bf3",
     "id": null,
-    "metadata": {
-      "subscriptionName": "configCreateSubscribe"
-    },
+    "metadata": {},
     "name": "requestSubscriptionTestConfigCreateSubscription",
     "operationKind": "subscription",
     "text": "subscription requestSubscriptionTestConfigCreateSubscription {\n  configCreateSubscribe {\n    config {\n      name\n      ...requestSubscriptionTestExtraFragment\n    }\n  }\n}\n\nfragment requestSubscriptionTestExtraFragment on Config {\n  isEnabled\n}\n"

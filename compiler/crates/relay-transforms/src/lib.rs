@@ -27,7 +27,6 @@ mod flatten;
 mod generate_data_driven_dependency_metadata;
 mod generate_id_field;
 mod generate_live_query_metadata;
-mod generate_subscription_name_metadata;
 mod generate_typename;
 mod handle_fields;
 mod hash_arguments;
@@ -81,7 +80,9 @@ pub type DependencySet = HashSet<OperationName, BuildIdHasher<u32>>;
 
 pub use crate::errors::{ValidationMessage, ValidationMessageWithData};
 pub use applied_fragment_name::get_applied_fragment_name;
-pub use apply_custom_transforms::{CustomTransform, CustomTransforms, CustomTransformsConfig};
+pub use apply_custom_transforms::{
+    BaseFragmentNames, CustomTransform, CustomTransforms, CustomTransformsConfig,
+};
 pub use apply_fragment_arguments::apply_fragment_arguments;
 pub use apply_transforms::{apply_transforms, Programs};
 pub use assignable_fragment_spread::{
@@ -111,7 +112,6 @@ pub use generate_data_driven_dependency_metadata::{
 };
 pub use generate_id_field::generate_id_field;
 pub use generate_live_query_metadata::generate_live_query_metadata;
-pub use generate_subscription_name_metadata::generate_subscription_name_metadata;
 pub use generate_typename::{generate_typename, TYPE_DISCRIMINATOR_DIRECTIVE_NAME};
 pub use handle_fields::{
     extract_handle_field_directives, extract_values_from_handle_field_directive,

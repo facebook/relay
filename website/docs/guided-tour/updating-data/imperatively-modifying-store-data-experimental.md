@@ -26,13 +26,31 @@ Please also see the [early adopter guide](https://fb.quip.com/4FZaADvkQPPl).
 
 Data in Relay stores can be imperatively modified within updater functions.
 
-## Why use updaters
+## When to use updaters
+
+### Complex client updates
 
 You might provide an updater function if the changes to local data are more complex than what can be achieved by simply writing a network response to the store and cannot be handled by the declarative mutation directives.
 
+### Client schema extensions
+
 In addition, since the network response necessarily will not include data for fields defined in client schema extensions, you may wish to use an updater to initialize data defined in client schema extensions.
 
+### Use of other APIs
+
 Lastly, there are things you can only achieve using updaters, such as invalidating nodes, deleting nodes, finding all connections at a given field, etc.
+
+### If multiple optimistic responses modify a given store value
+
+If two optimistic responses affect a given value, and the first optimistic response is rolled back, the second one will remain applied.
+
+For example, if two optimistic responses each increase a story's like count by one, and the first optimistic response is rolled back, the second optimistic response remains applied. However, it is **not recalculated**, and the value of the like count will remain increased by two.
+
+## When **not** to use updaters
+
+### To trigger other side effects
+
+You should use the `onCompleted` callback to trigger other side effects.
 
 ## The various types of updater functions
 
@@ -48,7 +66,7 @@ Regular updaters are executed when a mutation completes successfully.
 
 ## Example
 
-Let's construct an example in which an `is_newly_created` field (which is defined in a schema extension) is set to `true` on a newly created Feedback object in a mutation updater.
+Let's construct an example in which an `is_new_comment` field (which is defined in a schema extension) is set to `true` on a newly created Feedback object in a mutation updater.
 
 ```graphql
 # Feedback.graphql
@@ -127,9 +145,13 @@ function commitCreateFeedbackMutation(
 module.exports = {commit: commitCreateFeedbackMutation};
 ```
 
+<FbInternalOnly>
+
 :::note
 If available, the auto-generated `fetch__Feedback` field can make this example simpler.
 :::
+
+</FbInternalOnly>
 
 Let's distill what's going on here.
 
@@ -215,13 +237,16 @@ Let's distill what's going on here.
 * In a click handler, we call `commitLocalUpdate`, which accepts a Relay environment and an updater function. **Unlike in the previous examples, this updater does not accept a second parameter** because there is no associated network payload.
 * In this updater function, we access get an updatable data object by calling `store.readUpdatableQuery_EXPERIMENTAL`, access the current user and toggle the `is_selected` field.
 
+<FbInternalOnly>
+
 :::note
 If available, the auto-generated `fetch__User` field can make this example simpler.
 :::
 
+</FbInternalOnly>
+
 :::note
 This example can be rewritten using the `environment.commitPayload` API, albeit without type safety.
 :::
-
 
 <DocsRating />

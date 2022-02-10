@@ -244,6 +244,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             sink.next(response);
             sink.complete();
             expect(events).toEqual(['next', response, 'complete']);
+            jest.runAllTimers(); // Ensure that the consumed entry is cleaned up.
             const preloaded2 = preloadQuery_DEPRECATED(
               environment,
               params,
@@ -578,6 +579,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             sink.next(response);
             sink.complete();
             expect(events).toEqual(['next', response, 'complete']);
+            jest.runAllTimers(); // Ensure that the consumed entry is cleaned up.
             const preloaded2 = preloadQuery_DEPRECATED(
               environment,
               params,
@@ -712,6 +714,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             sink.next(response);
             sink.complete();
             expect(events).toEqual(['next', response, 'complete']);
+            jest.runAllTimers(); // Ensure that the consumed entry is cleaned up.
             const preloaded2 = preloadQuery_DEPRECATED(
               environment,
               params,

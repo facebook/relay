@@ -158,7 +158,7 @@ pub use required_directive::{
 pub use skip_client_directives::skip_client_directives;
 pub use skip_client_extensions::skip_client_extensions;
 pub use skip_null_arguments_transform::skip_null_arguments_transform;
-pub use skip_redundant_nodes::skip_redundant_nodes;
+pub use skip_redundant_nodes::{skip_redundant_nodes, SkipRedundantNodesTransform};
 pub use skip_split_operation::skip_split_operation;
 pub use skip_unreachable_node::skip_unreachable_node;
 pub use sort_selections::sort_selections;

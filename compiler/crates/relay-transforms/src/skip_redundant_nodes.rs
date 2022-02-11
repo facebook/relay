@@ -123,7 +123,7 @@ struct SelectionMap(VecMap<NodeIdentifier, Option<SelectionMap>>);
 
 type Cache = DashMap<PointerAddress, (Transformed<Selection>, SelectionMap)>;
 
-struct SkipRedundantNodesTransform {
+pub struct SkipRedundantNodesTransform {
     schema: Arc<SDLSchema>,
     cache: Cache,
 }
@@ -132,6 +132,13 @@ impl<'s> SkipRedundantNodesTransform {
     fn new(program: &'_ Program) -> Self {
         Self {
             schema: Arc::clone(&program.schema),
+            cache: DashMap::new(),
+        }
+    }
+
+    pub fn from_schema(schema: &Arc<SDLSchema>) -> Self {
+        Self {
+            schema: Arc::clone(schema),
             cache: DashMap::new(),
         }
     }
@@ -369,7 +376,7 @@ impl<'s> SkipRedundantNodesTransform {
         }
     }
 
-    fn transform_operation(
+    pub fn transform_operation(
         &self,
         operation: &OperationDefinition,
     ) -> Transformed<OperationDefinition> {
@@ -384,7 +391,10 @@ impl<'s> SkipRedundantNodesTransform {
         }
     }
 
-    fn transform_fragment(&self, fragment: &FragmentDefinition) -> Transformed<FragmentDefinition> {
+    pub fn transform_fragment(
+        &self,
+        fragment: &FragmentDefinition,
+    ) -> Transformed<FragmentDefinition> {
         let mut selection_map = Default::default();
         let selections = self.transform_selections(&fragment.selections, &mut selection_map);
         match selections {

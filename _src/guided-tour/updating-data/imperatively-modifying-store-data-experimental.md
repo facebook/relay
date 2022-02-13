@@ -2,7 +2,7 @@
 id: imperatively-modifying-store-data-experimental
 title: Imperatively modifying store data (EXPERIMENTAL)
 slug: /guided-tour/updating-data/imperatively-modifying-store-data-experimental/
-description: Using readUpdatableQuery_EXPERIMENTAL to update store data
+description: Using readUpdatableQuery_EXPERIMENTAL to update scalar fields in the store
 keywords:
 - record source
 - store
@@ -23,6 +23,10 @@ Please also see the [early adopter guide](https://fb.quip.com/4FZaADvkQPPl).
 :::
 
 </FbInternalOnly>
+
+:::note
+See also [using readUpdatableQuery_EXPERIMENTAL to update linked fields in the store](../imperatively-modifying-linked-fields-experimental).
+:::
 
 Data in Relay stores can be imperatively modified within updater functions.
 
@@ -130,6 +134,7 @@ function commitCreateFeedbackMutation(
               }
             }
           `,
+          // Step 4A: Pass the query variables to readUpdatableQuery_EXPERIMENTAL
           {id}
         );
 
@@ -161,7 +166,7 @@ Let's distill what's going on here.
 * This `updater` is executed after the mutation response has been written to the store. In other words, we can assume that the returned feedback object exists for any data that is read out through the `store` object in the updater.
 * In this example updater, we do three things:
   * First, we get the ID of the newly created Feedback object.
-  * Next, we call `readUpdatableQuery_EXPERIMENTAL`. We pass it a GraphQL query that has the `@updatable` directive. This defines the data that we wish to access and update.
+  * Next, we call `readUpdatableQuery_EXPERIMENTAL`. We pass it a GraphQL query that has the `@updatable` directive and the query variables. This query defines the data that we wish to access and update.
   * Next, we modify the value that was returned from `readUpdatableQuery_EXPERIMENTAL`. In this case, `updatableData.node.is_new_comment = true` calls a lower-level and older API (`proxy.setValue(...)`) under the hood.
     * Note that in order to have `updatableData.node.is_new_comment = true` typecheck, we must refine the type of `updatableData.node`. We must check that it isn't optional, and that the typename matches what we expect. Otherwise, Flow will complain.
 * Once this updater completes, the updates that have been recorded are written to the store, and all affected components are re-rendered.
@@ -178,7 +183,8 @@ extend type User {
 ```
 
 ```js
-import type {UserSelectToggle_user$ref, UserSelectToggle_user} from 'UserSelectToggle_user.graphql';
+import type {RecordSourceSelectorProxy} from 'react-relay';
+import type {UserSelectToggle_user$fragmentType, UserSelectToggle_user} from 'UserSelectToggle_user.graphql';
 import type {
   UserSelectToggleUpdatableQuery,
   UserSelectToggleUpdatableQuery$data,
@@ -188,7 +194,7 @@ const {useRelayEnvironment, commitLocalUpdate} = require('react-relay');
 
 function UserSelectToggle({ userId, userRef }: {
   userId: string,
-  userRef: UserSelectToggle_user$ref,
+  userRef: UserSelectToggle_user$fragmentType,
 }) {
   const data = useFragment<UserSelectToggle_user>(graphql`
     fragment UserSelectToggle_user on User {

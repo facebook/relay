@@ -184,7 +184,7 @@ extend type User {
 
 ```js
 import type {RecordSourceSelectorProxy} from 'react-relay';
-import type {UserSelectToggle_user$ref, UserSelectToggle_user} from 'UserSelectToggle_user.graphql';
+import type {UserSelectToggle_user$fragmentType, UserSelectToggle_user} from 'UserSelectToggle_user.graphql';
 import type {
   UserSelectToggleUpdatableQuery,
   UserSelectToggleUpdatableQuery$data,
@@ -194,7 +194,7 @@ const {useRelayEnvironment, commitLocalUpdate} = require('react-relay');
 
 function UserSelectToggle({ userId, userRef }: {
   userId: string,
-  userRef: UserSelectToggle_user$ref,
+  userRef: UserSelectToggle_user$fragmentType,
 }) {
   const data = useFragment<UserSelectToggle_user>(graphql`
     fragment UserSelectToggle_user on User {

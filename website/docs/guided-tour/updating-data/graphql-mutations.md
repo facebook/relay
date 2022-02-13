@@ -248,12 +248,12 @@ Updating the `like_count` field takes a bit more work. In order to update it, we
 
 ```js
 import type {FeedbackLikeData, LikeButtonMutation} from 'LikeButtonMutation.graphql';
-import type {LikeButton_feedback$ref} from 'LikeButton_feedback.graphql';
+import type {LikeButton_feedback$fragmentType} from 'LikeButton_feedback.graphql';
 
 const {useMutation, graphql} = require('react-relay');
 
 function LikeButton({
-  feedback: LikeButton_feedback$ref,
+  feedback: LikeButton_feedback$fragmentType,
 }) {
   const data = useFragment(
     graphql`

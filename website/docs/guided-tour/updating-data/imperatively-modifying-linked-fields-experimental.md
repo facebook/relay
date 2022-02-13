@@ -79,12 +79,12 @@ Next, lets define a component that accepts a User fragment reference. In the fra
 
 ```js
 // AssignBestFriendButton.react.js
-import type {AssignBestFriendButton_user$ref} from 'AssignBestFriendButton_user.graphql';
+import type {AssignBestFriendButton_user$fragmentType} from 'AssignBestFriendButton_user.graphql';
 
 const {useFragment} = require('react-relay');
 
 export default function AssignBestFriendButton({
-  userFragmentRef: AssignBestFriendButton_user$ref,
+  userFragmentRef: AssignBestFriendButton_user$fragmentType,
 }) {
   const user = useFragment(graphql`
     fragment AssignBestFriendButton_user on User {
@@ -181,7 +181,7 @@ extend type Viewer {
 ```js
 // AssignBestFriendButton.react.js
 import {validate as ValidateUser} from 'AssignableBestFriendButton_assignable_user.graphql';
-import type {AssignBestFriendButton_user$ref} from 'AssignBestFriendButton_user.graphql';
+import type {AssignBestFriendButton_user$fragmentType} from 'AssignBestFriendButton_user.graphql';
 import type {RecordSourceSelectorProxy} from 'react-relay';
 import type {
   AssignBestFriendButtonUpdatableQuery$data,
@@ -197,7 +197,7 @@ graphql`
 `;
 
 export default function AssignBestFriendButton({
-  userFragmentRef: AssignBestFriendButton_user$ref,
+  userFragmentRef: AssignBestFriendButton_user$fragmentType,
 }) {
   const user = useFragment(graphql`
     fragment AssignBestFriendButton_user on User {
@@ -289,8 +289,8 @@ extend type Viewer {
 ```js
 // AssignBestFriendButton.react.js
 import {validate as ValidateUser} from 'AssignableBestFriendButton_assignable_user.graphql';
-import type {AssignBestFriendButton_user$ref} from 'AssignBestFriendButton_user.graphql';
-import type {AssignBestFriendButton_viewer$ref} from 'AssignBestFriendButton_viewer';
+import type {AssignBestFriendButton_user$fragmentType} from 'AssignBestFriendButton_user.graphql';
+import type {AssignBestFriendButton_viewer$fragmentType} from 'AssignBestFriendButton_viewer';
 
 import type {RecordSourceSelectorProxy} from 'react-relay';
 import type {
@@ -307,8 +307,8 @@ graphql`
 `;
 
 export default function AssignBestFriendButton({
-  userFragmentRef: AssignBestFriendButton_user$ref,
-  viewerFragmentRef: AssignBestFriendButton_viewer$ref,
+  userFragmentRef: AssignBestFriendButton_user$fragmentType,
+  viewerFragmentRef: AssignBestFriendButton_viewer$fragmentType,
 }) {
   const user = useFragment(graphql`
     fragment AssignBestFriendButton_user on User {

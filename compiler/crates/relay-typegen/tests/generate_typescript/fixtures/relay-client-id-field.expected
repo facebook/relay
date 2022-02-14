@@ -51,7 +51,6 @@ export type RelayClientIDFieldQuery$data = {
         readonly __typename: string;
         readonly text: string | null;
       } | null;
-      readonly __id: string;
     } | {
       readonly __typename: "MarkdownCommentBody";
       readonly __id: string;

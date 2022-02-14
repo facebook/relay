@@ -8,7 +8,7 @@
 use intern::string_key::StringKey;
 use std::fmt::{Result as FmtResult, Write};
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub enum AST {
     Union(Vec<AST>),
     Intersection(Vec<AST>),
@@ -45,16 +45,94 @@ impl AST {
             _ => false,
         }
     }
+
+    pub fn merge_with(&mut self, other: Self) {
+        if *self == other {
+            return;
+        }
+
+        match self {
+            AST::Union(a) => {
+                if let AST::Union(mut b) = other {
+                    a.append(&mut b);
+                } else {
+                    a.push(other);
+                }
+            }
+            AST::ReadOnlyArray(a) => {
+                if let AST::ReadOnlyArray(b) = other {
+                    a.merge_with(*b);
+                } else {
+                    *self = AST::Union(vec![self.clone(), other]);
+                }
+            }
+            AST::Nullable(a) => {
+                if let AST::Nullable(b) = other {
+                    a.merge_with(*b);
+                } else {
+                    *self = AST::Union(vec![self.clone(), other]);
+                }
+            }
+            AST::ExactObject(a) => {
+                if let AST::ExactObject(b) = other {
+                    for prop in b {
+                        if !a.contains(&prop) {
+                            a.push(prop);
+                        }
+                    }
+                } else {
+                    *self = AST::Union(vec![self.clone(), other]);
+                }
+            }
+            AST::InexactObject(a) => {
+                if let AST::InexactObject(b) = other {
+                    for prop in b {
+                        if !a.contains(&prop) {
+                            a.push(prop);
+                        }
+                    }
+                } else {
+                    *self = AST::Union(vec![self.clone(), other]);
+                }
+            }
+            AST::FragmentReference(a) => {
+                if let AST::FragmentReference(b) = other {
+                    for key in b {
+                        if !a.contains(&key) {
+                            a.push(key);
+                        }
+                    }
+                } else {
+                    *self = AST::Union(vec![self.clone(), other]);
+                }
+            }
+
+            // Everything else should just be a union, since we don't have a way to
+            // structurally merge them.
+            _ => {
+                *self = AST::Union(vec![self.clone(), other]);
+            }
+        }
+    }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub enum Prop {
     KeyValuePair(KeyValuePairProp),
     Spread(SpreadProp),
     GetterSetterPair(GetterSetterPairProp),
 }
 
-#[derive(Debug, Clone)]
+impl Prop {
+    pub(crate) fn get_key(&self) -> Option<StringKey> {
+        match self {
+            Prop::KeyValuePair(kvp) => Some(kvp.key),
+            _ => None,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct KeyValuePairProp {
     pub key: StringKey,
     pub value: AST,
@@ -62,12 +140,12 @@ pub struct KeyValuePairProp {
     pub optional: bool,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct SpreadProp {
     pub value: StringKey,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct GetterSetterPairProp {
     pub key: StringKey,
     pub getter_return_value: AST,

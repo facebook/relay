@@ -856,7 +856,7 @@ impl<'a> TypeGenerator<'a> {
         fragment_type_name: Option<StringKey>,
     ) -> AST {
         let mut base_fields: TypeSelectionMap = Default::default();
-        let mut base_fragments: IndexMap<_, _> = Default::default();
+        let mut base_fragments: IndexMap<StringKey, TypeSelection> = Default::default();
         let mut by_concrete_type: IndexMap<Type, Vec<TypeSelection>> = Default::default();
 
         for selection in selections {
@@ -966,7 +966,7 @@ impl<'a> TypeGenerator<'a> {
                         .collect(),
                 );
             } else {
-                // It might be some other type then the listed concrete types. We try to
+                // It might be some other type than the listed concrete types. We try to
                 // figure out which types remain here.
                 let possible_types_left: Option<Vec<&Object>> = if let Some(node_type) = node_type {
                     if let Some(possible_types) = self.schema.get_possible_types(node_type) {
@@ -1096,10 +1096,7 @@ impl<'a> TypeGenerator<'a> {
             return AST::Union(
                 concrete_types
                     .into_iter()
-                    .map(|mut props: Vec<Prop>| {
-                        props.extend(base_type_props.iter().cloned());
-                        props_to_object(props)
-                    })
+                    .map(|props| props_to_object(merge_props(props, base_type_props.clone())))
                     .collect(),
             );
         }
@@ -2189,6 +2186,56 @@ fn merge_selection(
         b
     } else {
         b
+    }
+}
+
+fn merge_props(props: Vec<Prop>, other_props: Vec<Prop>) -> Vec<Prop> {
+    let mut keyless_props = Vec::new();
+    let mut props_map: IndexMap<_, _> = props
+        .into_iter()
+        .filter_map(|prop| {
+            if let Some(key) = prop.get_key() {
+                Some((key, prop))
+            } else {
+                keyless_props.push(prop);
+
+                None
+            }
+        })
+        .collect();
+
+    for prop in other_props {
+        if let Some(key) = prop.get_key() {
+            props_map
+                .entry(key)
+                .and_modify(|p| merge_prop(p, prop.clone()))
+                .or_insert(prop);
+        } else {
+            keyless_props.push(prop);
+        }
+    }
+
+    for prop in hashmap_into_values(props_map) {
+        keyless_props.push(prop);
+    }
+
+    keyless_props
+}
+
+fn merge_prop(prop: &mut Prop, other_prop: Prop) {
+    // Note that, since this is used from merge_props, which only calls this function
+    // when get_key() return Some(), we know that _both_ prop and other_prop are
+    // of the variant Prop::KeyValuePair.
+    match prop {
+        Prop::KeyValuePair(a) => match other_prop {
+            Prop::KeyValuePair(b) => {
+                // a.value = AST::Union(vec![a.value.clone(), b.value]);
+                // a.value = a.value.clone().merge_with(b.value);
+                a.value.merge_with(b.value);
+            }
+            _ => {}
+        },
+        _ => {}
     }
 }
 

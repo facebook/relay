@@ -162,12 +162,9 @@ export type TypenameOutsideWithAbstractType$data = {|
   +address: ?{|
     +street: ?string,
     +city: ?string,
-  |},
-  +username?: ?string,
-  +address?: ?{|
-    +city: ?string,
     +country: ?string,
   |},
+  +username?: ?string,
   +$fragmentType: TypenameOutsideWithAbstractType$fragmentType,
 |} | {|
   +__typename: "Comment" | "Feedback" | "Page" | "PhotoStory" | "Story",

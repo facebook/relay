@@ -51,7 +51,6 @@ export type RelayClientIDFieldQuery$data = {|
         +__typename: string,
         +text: ?string,
       |},
-      +__id: string,
     |} | {|
       +__typename: "MarkdownCommentBody",
       +__id: string,

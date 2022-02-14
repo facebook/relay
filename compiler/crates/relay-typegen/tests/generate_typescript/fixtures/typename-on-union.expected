@@ -153,12 +153,9 @@ export type TypenameOutsideWithAbstractType$data = {
   readonly address: {
     readonly street: string | null;
     readonly city: string | null;
-  } | null;
-  readonly username?: string | null;
-  readonly address?: {
-    readonly city: string | null;
     readonly country: string | null;
   } | null;
+  readonly username?: string | null;
   readonly " $fragmentType": "TypenameOutsideWithAbstractType";
 } | {
   readonly __typename: "Comment" | "Feedback" | "Page" | "PhotoStory" | "Story";

@@ -951,7 +951,14 @@ impl<'a> TypeGenerator<'a> {
                 );
             }
 
-            if self.typegen_config.future_proof_abstract_types {
+            let exclude_from_future_proofness = node_type
+                .filter(|type_| {
+                    self.typegen_config
+                        .exclude_from_typename_unions
+                        .contains(&self.schema.get_type_name(*type_))
+                })
+                .is_some();
+            if self.typegen_config.future_proof_abstract_types || exclude_from_future_proofness {
                 concrete_types.push(
                     typename_aliases
                         .iter()

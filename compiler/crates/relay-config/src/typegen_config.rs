@@ -73,6 +73,12 @@ pub struct TypegenConfig {
     #[serde(default = "default_future_proofness")]
     pub future_proof_abstract_types: bool,
 
+    /// For which types (unions or interfaces) to not write out all possible type names if future
+    /// proof abstract types is set to false. Especially useful for interfaces or unions that may
+    /// have a lot of concrete types, such as Node.
+    #[serde(default)]
+    pub exclude_from_typename_unions: Vec<StringKey>,
+
     /// A map from GraphQL scalar types to a custom JS type, example:
     /// { "Url": "String" }
     #[serde(default)]
@@ -153,6 +159,7 @@ impl Default for TypegenConfig {
             use_import_type_syntax: false,
             future_proof_abstract_types: default_future_proofness(),
             future_proof_enums: default_future_proofness(),
+            exclude_from_typename_unions: vec![],
             custom_scalar_types: FnvIndexMap::default(),
             flow_enums: FnvIndexSet::default(),
             require_custom_scalar_types: false,

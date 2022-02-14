@@ -1,0 +1,28 @@
+==================================== INPUT ====================================
+{
+  "futureProofAbstractTypes": false,
+  "excludeFromTypenameUnions": ["Node"]
+}
+%%%
+fragment TypenameOnNode on Node {
+  __typename
+  ... on User {
+    id
+  }
+}
+==================================== OUTPUT ===================================
+import { FragmentRefs } from "relay-runtime";
+export type TypenameOnNode$data = {
+  readonly __typename: "User";
+  readonly id: string;
+  readonly " $fragmentType": "TypenameOnNode";
+} | {
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  readonly __typename: "%other";
+  readonly " $fragmentType": "TypenameOnNode";
+};
+export type TypenameOnNode$key = {
+  readonly " $data"?: TypenameOnNode$data;
+  readonly " $fragmentSpreads": FragmentRefs<"TypenameOnNode">;
+};

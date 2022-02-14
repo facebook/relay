@@ -13,7 +13,6 @@
 
 'use strict';
 
-jest.mock('warning');
 const {createFragmentResource} = require('../FragmentResource');
 const {
   createOperationDescriptor,
@@ -23,11 +22,10 @@ const {
   graphql,
 } = require('relay-runtime');
 const RelayOperationTracker = require('relay-runtime/store/RelayOperationTracker');
-const {
-  MockPayloadGenerator,
-  createMockEnvironment,
-} = require('relay-test-utils');
-const warning = require('warning');
+const {createMockEnvironment} = require('relay-test-utils');
+const {disallowWarnings} = require('relay-test-utils-internal');
+
+disallowWarnings();
 
 describe('FragmentResource with Operation Tracker and Missing Data', () => {
   const componentName = 'TestComponent';
@@ -55,16 +53,14 @@ describe('FragmentResource with Operation Tracker and Missing Data', () => {
       operationLoader,
     });
     NodeQuery = getRequest(graphql`
-      query FragmentResourceWithOperationTrackerTestNodeQuery($id: ID!)
-      @relay_test_operation {
+      query FragmentResourceWithOperationTrackerTestNodeQuery($id: ID!) {
         node(id: $id) {
           ...FragmentResourceWithOperationTrackerTestUserFragment
         }
       }
     `);
     ViewerFriendsQuery = getRequest(graphql`
-      query FragmentResourceWithOperationTrackerTestViewerFriendsQuery
-      @relay_test_operation {
+      query FragmentResourceWithOperationTrackerTestViewerFriendsQuery {
         viewer {
           actor {
             friends(first: 1) @connection(key: "Viewer_friends") {
@@ -81,7 +77,7 @@ describe('FragmentResource with Operation Tracker and Missing Data', () => {
     FriendsPaginationQuery = getRequest(graphql`
       query FragmentResourceWithOperationTrackerTestFriendsPaginationQuery(
         $id: ID!
-      ) @relay_test_operation {
+      ) {
         node(id: $id) {
           ... on User {
             friends(first: 1) @connection(key: "Viewer_friends") {
@@ -143,23 +139,36 @@ describe('FragmentResource with Operation Tracker and Missing Data', () => {
       jest.fn(),
     );
 
-    // This will add data to the store (but not for 3D)
-    environment.mock.resolve(
-      viewerOperation,
-      // TODO: (alunyov) T43369419 [relay-testing] Make sure MockPayloadGenerator can generate data for @match
-      MockPayloadGenerator.generate(viewerOperation, {
-        Actor() {
-          return {
+    environment.mock.resolve(viewerOperation, {
+      data: {
+        viewer: {
+          actor: {
             id: 'viewer-id',
-          };
+            __typename: 'User',
+            friends: {
+              pageInfo: {
+                hasNextPage: true,
+                hasPrevPage: false,
+                startCursor: 'cursor-1',
+                endCursor: 'cursor-1',
+              },
+              edges: [
+                {
+                  cursor: 'cursor-1',
+                  node: {
+                    id: 'user-id-1',
+                    name: 'Alice',
+                    __typename: 'User',
+                    nameRenderer: null,
+                    plainNameRenderer: null,
+                  },
+                },
+              ],
+            },
+          },
         },
-        User(_, generateId) {
-          return {
-            id: 'user-id-1',
-          };
-        },
-      }),
-    );
+      },
+    });
 
     // We need to subscribe to a fragment in order for OperationTracker
     // to be able to notify owners if they are affected by any pending operation
@@ -174,8 +183,6 @@ describe('FragmentResource with Operation Tracker and Missing Data', () => {
       ),
       jest.fn(),
     );
-    // $FlowFixMe[prop-missing]
-    warning.mockClear();
   });
 
   it('should throw and cache promise for pending operation affecting fragment owner', () => {
@@ -198,6 +205,7 @@ describe('FragmentResource with Operation Tracker and Missing Data', () => {
               'FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name$normalization.graphql',
             plaintext: 'Plaintext',
             data: {
+              id: 'plain-test-data-id-1',
               text: 'Data Text',
             },
           },
@@ -209,6 +217,7 @@ describe('FragmentResource with Operation Tracker and Missing Data', () => {
               'FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name$normalization.graphql',
             plaintext: 'Plaintext',
             data: {
+              id: 'plain-test-data-id-1',
               text: 'Data Text',
             },
           },
@@ -279,6 +288,7 @@ describe('FragmentResource with Operation Tracker and Missing Data', () => {
               'PlainUserNameRenderer_name$normalization.graphql',
             plaintext: 'Plaintext',
             data: {
+              id: 'plain-test-data-id-1',
               text: 'Data Text',
             },
           },
@@ -290,6 +300,7 @@ describe('FragmentResource with Operation Tracker and Missing Data', () => {
               'PlainUserNameRenderer_name$normalization.graphql',
             plaintext: 'Plaintext',
             data: {
+              id: 'plain-test-data-id-1',
               text: 'Data Text',
             },
           },
@@ -300,8 +311,6 @@ describe('FragmentResource with Operation Tracker and Missing Data', () => {
     environment.mock.complete(nodeOperation);
     // To make sure promise is resolved
     jest.runAllTimers();
-    // $FlowFixMe[prop-missing]
-    warning.mockClear();
     const snapshot = FragmentResource.read(
       PlainUserNameRenderer_name,
       {
@@ -314,7 +323,6 @@ describe('FragmentResource with Operation Tracker and Missing Data', () => {
       },
       componentName,
     );
-    expect(warning).not.toBeCalled();
     expect(snapshot.data).toEqual({
       data: {
         text: 'Data Text',
@@ -341,8 +349,15 @@ describe('FragmentResource with Operation Tracker and Missing Data', () => {
           __typename: 'User',
           id: 'viewer-id',
           friends: {
+            pageInfo: {
+              hasNextPage: true,
+              hasPrevPage: false,
+              startCursor: 'cursor-2',
+              endCursor: 'cursor-2',
+            },
             edges: [
               {
+                cursor: 'cursor-2',
                 node: {
                   __typename: 'User',
                   id: 'user-id-2',
@@ -355,6 +370,8 @@ describe('FragmentResource with Operation Tracker and Missing Data', () => {
                       'PlainUserNameRenderer_name$normalization.graphql',
                     plaintext: 'Plaintext 2',
                     data: {
+                      id: 'plain-test-data-id-2',
+
                       text: 'Data Text 2',
                     },
                   },
@@ -366,6 +383,7 @@ describe('FragmentResource with Operation Tracker and Missing Data', () => {
                       'PlainUserNameRenderer_name$normalization.graphql',
                     plaintext: 'Plaintext 2',
                     data: {
+                      id: 'plain-test-data-id-2',
                       text: 'Data Text 2',
                     },
                   },

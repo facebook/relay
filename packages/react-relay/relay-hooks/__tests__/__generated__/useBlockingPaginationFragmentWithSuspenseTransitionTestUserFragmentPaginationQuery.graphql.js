@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<446d3bcd332b81b69bd05b8fc341a27a>>
+ * @generated SignedSource<<a7f0f44e7a2a2319dde11a34615ff97d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -27,15 +27,13 @@ export type useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragmentP
   orderby?: ?$ReadOnlyArray<?string>,
   id: string,
 |};
-export type useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragmentPaginationQueryVariables = useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragmentPaginationQuery$variables;
 export type useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragmentPaginationQuery$data = {|
   +node: ?{|
     +$fragmentSpreads: useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment$fragmentType,
   |},
 |};
-export type useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragmentPaginationQueryResponse = useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragmentPaginationQuery$data;
 export type useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragmentPaginationQuery = {|
-  variables: useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragmentPaginationQueryVariables,
+  variables: useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragmentPaginationQuery$variables,
   response: useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragmentPaginationQuery$data,
 |};
 */

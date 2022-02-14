@@ -6,11 +6,13 @@
  */
 
 use common::{Diagnostic, DiagnosticsResult, Location, SourceLocationKey, WithLocation};
-use graphql_ir::{ConstantValue, Directive, ValidationMessage, Value};
+use graphql_ir::{ConstantValue, Directive, Value};
 use graphql_text_printer::print_value;
 use intern::string_key::{Intern, StringKey};
 use lazy_static::lazy_static;
 use schema::SDLSchema;
+
+use super::validation_message::ValidationMessage;
 
 lazy_static! {
     pub static ref REFETCHABLE_NAME: StringKey = "refetchable".intern();

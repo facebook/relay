@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<f4a2f1a2065085abea1e869d562c7d2d>>
+ * @generated SignedSource<<56e0996f549e73a8dd1118b208d2a0ca>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -25,7 +25,6 @@ export type usePaginationFragmentTestUserQueryWithoutIDQuery$variables = {|
   orderby?: ?$ReadOnlyArray<?string>,
   isViewerFriend?: ?boolean,
 |};
-export type usePaginationFragmentTestUserQueryWithoutIDQueryVariables = usePaginationFragmentTestUserQueryWithoutIDQuery$variables;
 export type usePaginationFragmentTestUserQueryWithoutIDQuery$data = {|
   +viewer: ?{|
     +actor: ?{|
@@ -33,9 +32,8 @@ export type usePaginationFragmentTestUserQueryWithoutIDQuery$data = {|
     |},
   |},
 |};
-export type usePaginationFragmentTestUserQueryWithoutIDQueryResponse = usePaginationFragmentTestUserQueryWithoutIDQuery$data;
 export type usePaginationFragmentTestUserQueryWithoutIDQuery = {|
-  variables: usePaginationFragmentTestUserQueryWithoutIDQueryVariables,
+  variables: usePaginationFragmentTestUserQueryWithoutIDQuery$variables,
   response: usePaginationFragmentTestUserQueryWithoutIDQuery$data,
 |};
 */

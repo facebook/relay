@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<dd48d5a51784eb992786b1d3c611ac24>>
+ * @generated SignedSource<<7fdaaff66043016206be9b6b7c656316>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,12 +18,10 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type ReactRelayTestMockerTest_me$fragmentType: FragmentType;
-export type ReactRelayTestMockerTest_me$ref = ReactRelayTestMockerTest_me$fragmentType;
 export type ReactRelayTestMockerTest_me$data = {|
   +name: ?string,
   +$fragmentType: ReactRelayTestMockerTest_me$fragmentType,
 |};
-export type ReactRelayTestMockerTest_me = ReactRelayTestMockerTest_me$data;
 export type ReactRelayTestMockerTest_me$key = {
   +$data?: ReactRelayTestMockerTest_me$data,
   +$fragmentSpreads: ReactRelayTestMockerTest_me$fragmentType,

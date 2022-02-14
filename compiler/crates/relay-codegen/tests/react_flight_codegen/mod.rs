@@ -11,6 +11,7 @@ use graphql_ir::{build, Program};
 use graphql_syntax::parse_executable;
 use graphql_test_helpers::diagnostics_to_sorted_string;
 use relay_codegen::{print_fragment, print_operation, JsModuleFormat};
+use relay_config::ProjectConfig;
 use relay_test_schema::{get_test_schema, get_test_schema_with_extensions};
 use relay_transforms::react_flight;
 use std::sync::Arc;
@@ -32,12 +33,32 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         .map(|next_program| {
             next_program
                 .fragments()
-                .map(|def| print_fragment(&schema, def, JsModuleFormat::Haste))
-                .chain(
-                    next_program
-                        .operations()
-                        .map(|def| print_operation(&schema, def, JsModuleFormat::Haste)),
-                )
+                .map(|def| {
+                    let mut import_statements = Default::default();
+                    let fragment = print_fragment(
+                        &schema,
+                        def,
+                        &ProjectConfig {
+                            js_module_format: JsModuleFormat::Haste,
+                            ..Default::default()
+                        },
+                        &mut import_statements,
+                    );
+                    format!("{}{}", import_statements, fragment)
+                })
+                .chain(next_program.operations().map(|def| {
+                    let mut import_statements = Default::default();
+                    let operation = print_operation(
+                        &schema,
+                        def,
+                        &ProjectConfig {
+                            js_module_format: JsModuleFormat::Haste,
+                            ..Default::default()
+                        },
+                        &mut import_statements,
+                    );
+                    format!("{}{}", import_statements, operation)
+                }))
                 .collect::<Vec<_>>()
                 .join("\n\n")
         })

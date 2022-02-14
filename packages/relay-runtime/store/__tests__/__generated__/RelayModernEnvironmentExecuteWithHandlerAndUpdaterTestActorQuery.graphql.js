@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<1ac8a72538f2cf83d69ce1027be347b4>>
+ * @generated SignedSource<<ca3893169b3c8461af95f7243295b5f4>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,15 +17,13 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 export type RelayModernEnvironmentExecuteWithHandlerAndUpdaterTestActorQuery$variables = {||};
-export type RelayModernEnvironmentExecuteWithHandlerAndUpdaterTestActorQueryVariables = RelayModernEnvironmentExecuteWithHandlerAndUpdaterTestActorQuery$variables;
 export type RelayModernEnvironmentExecuteWithHandlerAndUpdaterTestActorQuery$data = {|
   +me: ?{|
     +name: ?string,
   |},
 |};
-export type RelayModernEnvironmentExecuteWithHandlerAndUpdaterTestActorQueryResponse = RelayModernEnvironmentExecuteWithHandlerAndUpdaterTestActorQuery$data;
 export type RelayModernEnvironmentExecuteWithHandlerAndUpdaterTestActorQuery = {|
-  variables: RelayModernEnvironmentExecuteWithHandlerAndUpdaterTestActorQueryVariables,
+  variables: RelayModernEnvironmentExecuteWithHandlerAndUpdaterTestActorQuery$variables,
   response: RelayModernEnvironmentExecuteWithHandlerAndUpdaterTestActorQuery$data,
 |};
 */

@@ -8,12 +8,13 @@
 use common::{Diagnostic, DiagnosticsResult, NamedItem};
 use graphql_ir::{
     associated_data_impl, FragmentSpread, InlineFragment, Program, Selection, Transformed,
-    Transformer, ValidationMessage,
+    Transformer,
 };
 
 use intern::string_key::{Intern, StringKey};
 use once_cell::sync::Lazy;
 use std::sync::Arc;
+use thiserror::Error;
 
 pub fn inline_data_fragment(program: &Program) -> DiagnosticsResult<Program> {
     let mut transform = InlineDataFragmentsTransform::new(program);
@@ -138,4 +139,13 @@ impl<'s> Transformer for InlineDataFragmentsTransform<'s> {
             Transformed::Replace(Selection::InlineFragment(Arc::new(inline_fragment)))
         }
     }
+}
+
+#[derive(Error, Debug)]
+enum ValidationMessage {
+    #[error("Variables are not yet supported inside @inline fragments.")]
+    InlineDataFragmentArgumentsNotSupported,
+
+    #[error("Directives on fragment spreads for @inline fragments are not yet supported")]
+    InlineDataFragmentDirectivesNotSupported,
 }

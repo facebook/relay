@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a7db3d9932ca0232fe5484e0385abe15>>
+ * @generated SignedSource<<d72edfa0c5aee245f683768666f7cc38>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,15 +18,13 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 type RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfile$fragmentType = any;
 export type RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserQuery$variables = {||};
-export type RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserQueryVariables = RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserQuery$variables;
 export type RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserQuery$data = {|
   +me: ?{|
     +$fragmentSpreads: RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfile$fragmentType,
   |},
 |};
-export type RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserQueryResponse = RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserQuery$data;
 export type RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserQuery = {|
-  variables: RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserQueryVariables,
+  variables: RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserQuery$variables,
   response: RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserQuery$data,
 |};
 */

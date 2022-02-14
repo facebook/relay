@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<159904e99dc96e1ceed906d1ddbd4a31>>
+ * @generated SignedSource<<74ce799b456022b3ec6be2d3ba4407cf>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,7 +18,6 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentExecuteWithFlightAndClientFragmentTest_clientFragment$fragmentType: FragmentType;
-export type RelayModernEnvironmentExecuteWithFlightAndClientFragmentTest_clientFragment$ref = RelayModernEnvironmentExecuteWithFlightAndClientFragmentTest_clientFragment$fragmentType;
 export type RelayModernEnvironmentExecuteWithFlightAndClientFragmentTest_clientFragment$data = {|
   +name: ?string,
   +body: ?{|
@@ -26,7 +25,6 @@ export type RelayModernEnvironmentExecuteWithFlightAndClientFragmentTest_clientF
   |},
   +$fragmentType: RelayModernEnvironmentExecuteWithFlightAndClientFragmentTest_clientFragment$fragmentType,
 |};
-export type RelayModernEnvironmentExecuteWithFlightAndClientFragmentTest_clientFragment = RelayModernEnvironmentExecuteWithFlightAndClientFragmentTest_clientFragment$data;
 export type RelayModernEnvironmentExecuteWithFlightAndClientFragmentTest_clientFragment$key = {
   +$data?: RelayModernEnvironmentExecuteWithFlightAndClientFragmentTest_clientFragment$data,
   +$fragmentSpreads: RelayModernEnvironmentExecuteWithFlightAndClientFragmentTest_clientFragment$fragmentType,

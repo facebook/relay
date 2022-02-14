@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<7b9d7e2044c30c5793cf5dfae0f87400>>
+ * @generated SignedSource<<2626f3469a50bde8b7d96394f2510733>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,7 +21,6 @@ import type { ConcreteRequest, Query } from 'relay-runtime';
 type RelayModernEnvironmentCommitPayloadTest6MarkdownUserNameRenderer_name$fragmentType = any;
 type RelayModernEnvironmentCommitPayloadTest6UserFragment$fragmentType = any;
 export type RelayModernEnvironmentCommitPayloadTest6ActorQuery$variables = {||};
-export type RelayModernEnvironmentCommitPayloadTest6ActorQueryVariables = RelayModernEnvironmentCommitPayloadTest6ActorQuery$variables;
 export type RelayModernEnvironmentCommitPayloadTest6ActorQuery$data = {|
   +me: ?{|
     +name: ?string,
@@ -33,9 +32,8 @@ export type RelayModernEnvironmentCommitPayloadTest6ActorQuery$data = {|
     +$fragmentSpreads: RelayModernEnvironmentCommitPayloadTest6UserFragment$fragmentType,
   |},
 |};
-export type RelayModernEnvironmentCommitPayloadTest6ActorQueryResponse = RelayModernEnvironmentCommitPayloadTest6ActorQuery$data;
 export type RelayModernEnvironmentCommitPayloadTest6ActorQuery = {|
-  variables: RelayModernEnvironmentCommitPayloadTest6ActorQueryVariables,
+  variables: RelayModernEnvironmentCommitPayloadTest6ActorQuery$variables,
   response: RelayModernEnvironmentCommitPayloadTest6ActorQuery$data,
 |};
 */

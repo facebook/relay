@@ -10,6 +10,7 @@ mod disallow_circular_no_inline_fragments;
 mod disallow_reserved_aliases;
 mod disallow_typename_on_root;
 mod validate_connections;
+mod validate_global_variable_names;
 mod validate_global_variables;
 mod validate_module_names;
 mod validate_no_double_underscore_alias;
@@ -26,6 +27,7 @@ pub use disallow_circular_no_inline_fragments::disallow_circular_no_inline_fragm
 pub use disallow_reserved_aliases::disallow_reserved_aliases;
 pub use disallow_typename_on_root::disallow_typename_on_root;
 pub use validate_connections::validate_connections;
+pub use validate_global_variable_names::validate_global_variable_names;
 pub use validate_global_variables::validate_global_variables;
 pub use validate_module_names::{extract_module_name, validate_module_names};
 pub use validate_no_double_underscore_alias::validate_no_double_underscore_alias;

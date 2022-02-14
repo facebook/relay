@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<853cad1bacf28b6c0cca359b18622e36>>
+ * @generated SignedSource<<05d0783f1754905f3f47f13782bcb37e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,7 +18,6 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentExecuteWithPluralMatchTestMarkdownUserNameRenderer_name$fragmentType: FragmentType;
-export type RelayModernEnvironmentExecuteWithPluralMatchTestMarkdownUserNameRenderer_name$ref = RelayModernEnvironmentExecuteWithPluralMatchTestMarkdownUserNameRenderer_name$fragmentType;
 export type RelayModernEnvironmentExecuteWithPluralMatchTestMarkdownUserNameRenderer_name$data = {|
   +markdown: ?string,
   +data: ?{|
@@ -27,7 +26,6 @@ export type RelayModernEnvironmentExecuteWithPluralMatchTestMarkdownUserNameRend
   +__typename: "MarkdownUserNameRenderer",
   +$fragmentType: RelayModernEnvironmentExecuteWithPluralMatchTestMarkdownUserNameRenderer_name$fragmentType,
 |};
-export type RelayModernEnvironmentExecuteWithPluralMatchTestMarkdownUserNameRenderer_name = RelayModernEnvironmentExecuteWithPluralMatchTestMarkdownUserNameRenderer_name$data;
 export type RelayModernEnvironmentExecuteWithPluralMatchTestMarkdownUserNameRenderer_name$key = {
   +$data?: RelayModernEnvironmentExecuteWithPluralMatchTestMarkdownUserNameRenderer_name$data,
   +$fragmentSpreads: RelayModernEnvironmentExecuteWithPluralMatchTestMarkdownUserNameRenderer_name$fragmentType,

@@ -42,15 +42,16 @@ export type queryOnlyProvidedVar_MultiFragment$data = {|
     +$fragmentSpreads: FragmentOneProvidedVar$fragmentType & FragmentMultiProvidedVar$fragmentType,
   |},
 |};
-type ProvidedVariableProviderType = {|
-  +__FragmentOneProvidedVar__includeName: {|
+export type queryOnlyProvidedVar_MultiFragment = {|
+  variables: queryOnlyProvidedVar_MultiFragment$variables,
+  response: queryOnlyProvidedVar_MultiFragment$data,
+|};
+type ProvidedVariablesType = {|
+  +__relay_internal__pv__includeNameProvider: {|
     +get: () => CustomBoolean,
   |},
-  +__FragmentMultiProvidedVar__numberOfFriends: {|
+  +__relay_internal__pv__numberOfFriendsProvider: {|
     +get: () => number,
-  |},
-  +__FragmentMultiProvidedVar__includeName: {|
-    +get: () => CustomBoolean,
   |},
 |};
 -------------------------------------------------------------------------------
@@ -61,8 +62,12 @@ export type queryOnlyProvidedVar_OneFragment$data = {|
     +$fragmentSpreads: FragmentOneProvidedVar$fragmentType,
   |},
 |};
-type ProvidedVariableProviderType = {|
-  +__FragmentOneProvidedVar__includeName: {|
+export type queryOnlyProvidedVar_OneFragment = {|
+  variables: queryOnlyProvidedVar_OneFragment$variables,
+  response: queryOnlyProvidedVar_OneFragment$data,
+|};
+type ProvidedVariablesType = {|
+  +__relay_internal__pv__includeNameProvider: {|
     +get: () => CustomBoolean,
   |},
 |};

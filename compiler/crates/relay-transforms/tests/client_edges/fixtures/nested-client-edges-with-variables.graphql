@@ -1,7 +1,7 @@
 fragment Foo_user on User {
-  best_friend {
+  best_friend @waterfall {
     url(site: $top_level_site)
-    best_friend {
+    best_friend @waterfall {
       name
       url(site: $nested_site)
     }

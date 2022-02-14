@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<3781a628e96800168860aaebf8e6d3ee>>
+ * @generated SignedSource<<496ee7c98b396369fb2f6d74c79ac15a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,7 +18,6 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentWithOperationTrackerTestMarkdownUserNameRenderer_name$fragmentType: FragmentType;
-export type RelayModernEnvironmentWithOperationTrackerTestMarkdownUserNameRenderer_name$ref = RelayModernEnvironmentWithOperationTrackerTestMarkdownUserNameRenderer_name$fragmentType;
 export type RelayModernEnvironmentWithOperationTrackerTestMarkdownUserNameRenderer_name$data = {|
   +markdown: ?string,
   +data: ?{|
@@ -26,7 +25,6 @@ export type RelayModernEnvironmentWithOperationTrackerTestMarkdownUserNameRender
   |},
   +$fragmentType: RelayModernEnvironmentWithOperationTrackerTestMarkdownUserNameRenderer_name$fragmentType,
 |};
-export type RelayModernEnvironmentWithOperationTrackerTestMarkdownUserNameRenderer_name = RelayModernEnvironmentWithOperationTrackerTestMarkdownUserNameRenderer_name$data;
 export type RelayModernEnvironmentWithOperationTrackerTestMarkdownUserNameRenderer_name$key = {
   +$data?: RelayModernEnvironmentWithOperationTrackerTestMarkdownUserNameRenderer_name$data,
   +$fragmentSpreads: RelayModernEnvironmentWithOperationTrackerTestMarkdownUserNameRenderer_name$fragmentType,

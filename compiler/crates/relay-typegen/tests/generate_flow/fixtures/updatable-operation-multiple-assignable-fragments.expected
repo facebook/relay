@@ -2,15 +2,15 @@
 query UpdatableQuery @updatable {
   me {
     actor {
-      ...Assignable_user
       ...Assignable_page
+      ...Assignable_node
       lastName
       name
     }
   }
 }
 
-fragment Assignable_user on Page @assignable {
+fragment Assignable_node on Node @assignable {
   __typename
 }
 
@@ -18,8 +18,8 @@ fragment Assignable_page on Page @assignable {
   __typename
 }
 ==================================== OUTPUT ===================================
+import type { Assignable_node$fragmentType } from "Assignable_node.graphql";
 import type { Assignable_page$fragmentType } from "Assignable_page.graphql";
-import type { Assignable_user$fragmentType } from "Assignable_user.graphql";
 export type UpdatableQuery$variables = {||};
 export type UpdatableQuery$data = {|
   get me(): ?{|
@@ -27,16 +27,27 @@ export type UpdatableQuery$data = {|
       lastName: ?string,
       name: ?string,
     |},
-    set actor(value: ?{
-      +$fragmentSpreads: Assignable_user$fragmentType | Assignable_page$fragmentType,
+    set actor(value: ?({
+      +$fragmentSpreads: Assignable_page$fragmentType,
+      +__typename: "Page",
+      +__id: string,
       ...
-    }): void,
+    } | {
+      +$fragmentSpreads: Assignable_node$fragmentType,
+      +__isAssignable_node: string,
+      +__id: string,
+      ...
+    })): void,
   |},
   set me(value: null | void): void,
 |};
+export type UpdatableQuery = {|
+  variables: UpdatableQuery$variables,
+  response: UpdatableQuery$data,
+|};
+-------------------------------------------------------------------------------
+import type { FragmentType } from "relay-runtime";
+declare export opaque type Assignable_node$fragmentType: FragmentType;
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";
 declare export opaque type Assignable_page$fragmentType: FragmentType;
--------------------------------------------------------------------------------
-import type { FragmentType } from "relay-runtime";
-declare export opaque type Assignable_user$fragmentType: FragmentType;

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<c97104358634f16659cc41748bd5d827>>
+ * @generated SignedSource<<6ec09742349ac3c10dd1f7ac2fafb591>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,15 +20,13 @@ type RelayReferenceMarkerTest6Fragment$fragmentType = any;
 export type RelayReferenceMarkerTest8Query$variables = {|
   id: string,
 |};
-export type RelayReferenceMarkerTest8QueryVariables = RelayReferenceMarkerTest8Query$variables;
 export type RelayReferenceMarkerTest8Query$data = {|
   +node: ?{|
     +$fragmentSpreads: RelayReferenceMarkerTest6Fragment$fragmentType,
   |},
 |};
-export type RelayReferenceMarkerTest8QueryResponse = RelayReferenceMarkerTest8Query$data;
 export type RelayReferenceMarkerTest8Query = {|
-  variables: RelayReferenceMarkerTest8QueryVariables,
+  variables: RelayReferenceMarkerTest8Query$variables,
   response: RelayReferenceMarkerTest8Query$data,
 |};
 */

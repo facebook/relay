@@ -17,7 +17,7 @@ use graphql_text_printer::print_full_operation;
 use intern::string_key::{Intern, StringKey};
 use lsp_types::{request::Request, Url};
 use relay_compiler::config::ProjectConfig;
-use relay_transforms::{apply_transforms, Programs};
+use relay_transforms::{apply_transforms, CustomTransformsConfig, Programs};
 use schema::SDLSchema;
 use schema_documentation::SchemaDocumentation;
 
@@ -126,6 +126,7 @@ fn transform_program<TPerfLogger: PerfLogger + 'static>(
     project_config: &ProjectConfig,
     program: Arc<Program>,
     perf_logger: Arc<TPerfLogger>,
+    custom_transforms_config: Option<&CustomTransformsConfig>,
 ) -> Result<Programs, String> {
     apply_transforms(
         project_config,
@@ -133,6 +134,7 @@ fn transform_program<TPerfLogger: PerfLogger + 'static>(
         Default::default(),
         perf_logger,
         None,
+        custom_transforms_config,
     )
     .map_err(|errors| format!("{:?}", errors))
 }
@@ -241,6 +243,7 @@ pub(crate) fn get_query_text<
                 project_config,
                 Arc::new(program),
                 Arc::clone(&state.perf_logger),
+                state.config.custom_transforms.as_ref(),
             )
             .map_err(LSPRuntimeError::UnexpectedError)?;
 

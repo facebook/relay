@@ -59,17 +59,18 @@ export type queryMixedProvidedVar_MultiFragment$data = {|
     +$fragmentSpreads: FragmentOneProvidedVar$fragmentType & FragmentMultiProvidedVar$fragmentType & FragmentProvidedVarWithOtherGlobal$fragmentType,
   |},
 |};
-type ProvidedVariableProviderType = {|
-  +__FragmentOneProvidedVar__includeName: {|
+export type queryMixedProvidedVar_MultiFragment = {|
+  variables: queryMixedProvidedVar_MultiFragment$variables,
+  response: queryMixedProvidedVar_MultiFragment$data,
+|};
+type ProvidedVariablesType = {|
+  +__relay_internal__pv__includeNameProvider: {|
     +get: () => CustomBoolean,
   |},
-  +__FragmentMultiProvidedVar__numberOfFriends: {|
+  +__relay_internal__pv__numberOfFriendsProvider: {|
     +get: () => number,
   |},
-  +__FragmentMultiProvidedVar__includeName: {|
-    +get: () => CustomBoolean,
-  |},
-  +__FragmentProvidedVarWithOtherGlobal__skipFirstname: {|
+  +__relay_internal__pv__skipFirstnameProvider: {|
     +get: () => CustomBoolean,
   |},
 |};
@@ -83,8 +84,12 @@ export type queryMixedProvidedVar_OneFragment$data = {|
     +$fragmentSpreads: FragmentOneProvidedVar$fragmentType,
   |},
 |};
-type ProvidedVariableProviderType = {|
-  +__FragmentOneProvidedVar__includeName: {|
+export type queryMixedProvidedVar_OneFragment = {|
+  variables: queryMixedProvidedVar_OneFragment$variables,
+  response: queryMixedProvidedVar_OneFragment$data,
+|};
+type ProvidedVariablesType = {|
+  +__relay_internal__pv__includeNameProvider: {|
     +get: () => CustomBoolean,
   |},
 |};

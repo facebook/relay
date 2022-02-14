@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<ee1811af1bcd707cbe9facf3040db3a2>>
+ * @generated SignedSource<<8daa3bc0e9b838cf0d5dcb6d3f783d74>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,7 +19,6 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 type RelayModernEnvironmentNoInlineTest_nestedNoInline$fragmentType = any;
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentNoInlineTest_nestedNoInlineParent$fragmentType: FragmentType;
-export type RelayModernEnvironmentNoInlineTest_nestedNoInlineParent$ref = RelayModernEnvironmentNoInlineTest_nestedNoInlineParent$fragmentType;
 export type RelayModernEnvironmentNoInlineTest_nestedNoInlineParent$data = {|
   +mark: ?{|
     +$fragmentSpreads: RelayModernEnvironmentNoInlineTest_nestedNoInline$fragmentType,
@@ -32,7 +31,6 @@ export type RelayModernEnvironmentNoInlineTest_nestedNoInlineParent$data = {|
   |},
   +$fragmentType: RelayModernEnvironmentNoInlineTest_nestedNoInlineParent$fragmentType,
 |};
-export type RelayModernEnvironmentNoInlineTest_nestedNoInlineParent = RelayModernEnvironmentNoInlineTest_nestedNoInlineParent$data;
 export type RelayModernEnvironmentNoInlineTest_nestedNoInlineParent$key = {
   +$data?: RelayModernEnvironmentNoInlineTest_nestedNoInlineParent$data,
   +$fragmentSpreads: RelayModernEnvironmentNoInlineTest_nestedNoInlineParent$fragmentType,

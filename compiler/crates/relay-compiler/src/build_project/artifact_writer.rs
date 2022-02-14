@@ -5,9 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::errors::BuildProjectError;
+use crate::errors::{BuildProjectError, Error};
+use dashmap::DashSet;
 use log::info;
 use serde::{Serialize, Serializer};
+use std::fmt::Write as _;
 use std::io::prelude::*;
 use std::{
     fs::{create_dir_all, File},
@@ -230,5 +232,59 @@ impl ArtifactWriter for NoopArtifactWriter {
     }
     fn finalize(&self) -> crate::errors::Result<()> {
         Ok(())
+    }
+}
+
+#[derive(Default)]
+pub struct ArtifactValidationWriter {
+    added: DashSet<PathBuf>,
+    updated: DashSet<PathBuf>,
+    removed: DashSet<PathBuf>,
+}
+
+impl ArtifactWriter for ArtifactValidationWriter {
+    fn should_write(&self, path: &PathBuf, content: &[u8]) -> Result<bool, BuildProjectError> {
+        content_is_different(path, content).map_err(|error| BuildProjectError::WriteFileError {
+            file: path.clone(),
+            source: error,
+        })
+    }
+
+    fn write(&self, path: PathBuf, _: Vec<u8>) -> BuildProjectResult {
+        if path.exists() {
+            self.updated.insert(path);
+        } else {
+            self.added.insert(path);
+        }
+        Ok(())
+    }
+
+    fn remove(&self, path: PathBuf) -> BuildProjectResult {
+        if path.exists() {
+            self.removed.insert(path);
+        }
+        Ok(())
+    }
+
+    fn finalize(&self) -> crate::errors::Result<()> {
+        let mut output = String::new();
+        write_outdated_artifacts(&mut output, "\nOut of date:", &self.updated);
+        write_outdated_artifacts(&mut output, "\nMissing:", &self.added);
+        write_outdated_artifacts(&mut output, "\nExtra:", &self.removed);
+
+        if output.is_empty() {
+            Ok(())
+        } else {
+            Err(Error::ArtifactsValidationError { error: output })
+        }
+    }
+}
+
+fn write_outdated_artifacts(output: &mut String, title: &str, artifacts: &DashSet<PathBuf>) {
+    if !artifacts.is_empty() {
+        writeln!(output, "{}", title).unwrap();
+        artifacts.iter().for_each(|artifact_path| {
+            writeln!(output, " - {:#?}", artifact_path.as_path()).unwrap()
+        });
     }
 }

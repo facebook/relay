@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<2da01c89d8122869d77507d1b6f3046b>>
+ * @generated SignedSource<<fb4dbe0af3aae7b87853d28f1af80708>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,13 +18,11 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentExecuteWithProvidedVariableTest_profile2$fragmentType: FragmentType;
-export type RelayModernEnvironmentExecuteWithProvidedVariableTest_profile2$ref = RelayModernEnvironmentExecuteWithProvidedVariableTest_profile2$fragmentType;
 export type RelayModernEnvironmentExecuteWithProvidedVariableTest_profile2$data = {|
   +name?: ?string,
   +alternate_name?: ?string,
   +$fragmentType: RelayModernEnvironmentExecuteWithProvidedVariableTest_profile2$fragmentType,
 |};
-export type RelayModernEnvironmentExecuteWithProvidedVariableTest_profile2 = RelayModernEnvironmentExecuteWithProvidedVariableTest_profile2$data;
 export type RelayModernEnvironmentExecuteWithProvidedVariableTest_profile2$key = {
   +$data?: RelayModernEnvironmentExecuteWithProvidedVariableTest_profile2$data,
   +$fragmentSpreads: RelayModernEnvironmentExecuteWithProvidedVariableTest_profile2$fragmentType,
@@ -32,23 +30,22 @@ export type RelayModernEnvironmentExecuteWithProvidedVariableTest_profile2$key =
 };
 */
 
-var node/*: ReaderFragment*/ = {
+var node/*: ReaderFragment*/ = (function(){
+var v0 = {
+  "kind": "RootArgument",
+  "name": "__relay_internal__pv__RelayProvider_returnsTrue"
+};
+return {
   "argumentDefinitions": [
-    {
-      "kind": "RootArgument",
-      "name": "__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile2__includeAlternateName"
-    },
-    {
-      "kind": "RootArgument",
-      "name": "__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile2__includeName"
-    }
+    (v0/*: any*/),
+    (v0/*: any*/)
   ],
   "kind": "Fragment",
   "metadata": null,
   "name": "RelayModernEnvironmentExecuteWithProvidedVariableTest_profile2",
   "selections": [
     {
-      "condition": "__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile2__includeName",
+      "condition": "__relay_internal__pv__RelayProvider_returnsTrue",
       "kind": "Condition",
       "passingValue": true,
       "selections": [
@@ -58,14 +55,7 @@ var node/*: ReaderFragment*/ = {
           "kind": "ScalarField",
           "name": "name",
           "storageKey": null
-        }
-      ]
-    },
-    {
-      "condition": "__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile2__includeAlternateName",
-      "kind": "Condition",
-      "passingValue": true,
-      "selections": [
+        },
         {
           "alias": null,
           "args": null,
@@ -79,6 +69,7 @@ var node/*: ReaderFragment*/ = {
   "type": "User",
   "abstractKey": null
 };
+})();
 
 if (__DEV__) {
   (node/*: any*/).hash = "fde1f4891ea7ab32c106e5209a512695";

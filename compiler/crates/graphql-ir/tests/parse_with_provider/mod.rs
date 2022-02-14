@@ -12,7 +12,7 @@ use graphql_cli::DiagnosticPrinter;
 use graphql_ir::{
     build_ir_with_extra_features, BuilderOptions, FragmentVariablesSemantic, RelayMode,
 };
-use graphql_syntax::{parse_executable_with_features, ParserFeatures};
+use graphql_syntax::{parse_executable_with_features, GraphQLSource, ParserFeatures};
 use relay_test_schema::TEST_SCHEMA;
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
@@ -40,7 +40,11 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
             errors
                 .into_iter()
                 .map(|error| {
-                    let printer = DiagnosticPrinter::new(|_| Some(fixture.content.to_string()));
+                    let printer = DiagnosticPrinter::new(|_| {
+                        Some(GraphQLSource::from_whole_document(
+                            fixture.content.to_string(),
+                        ))
+                    });
                     printer.diagnostic_to_string(&error)
                 })
                 .collect::<Vec<_>>()

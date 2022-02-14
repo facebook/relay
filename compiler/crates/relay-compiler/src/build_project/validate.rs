@@ -11,10 +11,10 @@ use graphql_ir::Program;
 use relay_config::ProjectConfig;
 use relay_transforms::{
     disallow_circular_no_inline_fragments, disallow_reserved_aliases, disallow_typename_on_root,
-    validate_assignable_directive, validate_connections, validate_module_names,
-    validate_no_double_underscore_alias, validate_no_inline_fragments_with_raw_response_type,
-    validate_relay_directives, validate_unused_fragment_variables, validate_unused_variables,
-    validate_updatable_directive,
+    validate_assignable_directive, validate_connections, validate_global_variable_names,
+    validate_module_names, validate_no_double_underscore_alias,
+    validate_no_inline_fragments_with_raw_response_type, validate_relay_directives,
+    validate_unused_fragment_variables, validate_unused_variables, validate_updatable_directive,
 };
 
 pub type AdditionalValidations =
@@ -32,6 +32,7 @@ pub fn validate(
         validate_unused_fragment_variables(program),
         validate_connections(program, &project_config.schema_config.connection_interface),
         validate_relay_directives(program),
+        validate_global_variable_names(program),
         validate_module_names(program),
         validate_no_inline_fragments_with_raw_response_type(program),
         disallow_typename_on_root(program),

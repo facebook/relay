@@ -38,6 +38,10 @@ export type UnionTypeTest$data = {|
     +__typename: "%other",
   |}),
 |};
+export type UnionTypeTest = {|
+  variables: UnionTypeTest$variables,
+  response: UnionTypeTest$data,
+|};
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";
 declare export opaque type LinkedField$fragmentType: FragmentType;

@@ -26,7 +26,7 @@ export interface INetwork {
 
 export type LogRequestInfoFunction = mixed => void;
 
-export type PayloadData = interface {[key: string]: mixed};
+export type PayloadData = {[key: string]: mixed};
 
 export type PayloadError = interface {
   message: string,

@@ -34,7 +34,7 @@ const warning = require('warning');
 
 export type SubscriptionParameters = {|
   +response: {...},
-  +variables: interface {},
+  +variables: {...},
   +rawResponse?: {...},
 |};
 
@@ -49,18 +49,13 @@ export type GraphQLSubscriptionConfig<T: SubscriptionParameters> = {|
   updater?: ?SelectorStoreUpdater<T['response']>,
 |};
 
-export type DEPRECATED_GraphQLSubscriptionConfig<TSubscriptionPayload> = {|
-  configs?: Array<DeclarativeMutationConfig>,
-  cacheConfig?: CacheConfig,
-  subscription: GraphQLTaggedNode,
-  variables: Variables,
-  onCompleted?: ?() => void,
-  onError?: ?(error: Error) => void,
-  onNext?: ?(response: ?TSubscriptionPayload) => void,
-  updater?: ?SelectorStoreUpdater<TSubscriptionPayload>,
-|};
+export type DEPRECATED_GraphQLSubscriptionConfig<TSubscriptionPayload: {...}> =
+  GraphQLSubscriptionConfig<{|
+    response: TSubscriptionPayload,
+    variables: Variables,
+  |}>;
 
-function requestSubscription<TSubscriptionPayload>(
+function requestSubscription<TSubscriptionPayload: {...}>(
   environment: IEnvironment,
   config: DEPRECATED_GraphQLSubscriptionConfig<TSubscriptionPayload>,
 ): Disposable {

@@ -90,7 +90,39 @@ requestSubscription(
 
 # Configure Network
 
-You will need to Configure your [Network](Modern-NetworkLayer.md) to handle subscriptions. The below example uses [subscriptions-transport-ws](https://github.com/apollographql/subscriptions-transport-ws):
+You will need to Configure your Network layer to handle subscriptions.
+
+Usually GraphQL subscriptions are communicated over [WebSockets](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API), here's an example using [graphql-ws](https://github.com/enisdenjo/graphql-ws):
+
+```javascript
+import {
+    ...
+    Network,
+    Observable
+} from 'relay-runtime';
+import { createClient } from 'graphql-ws';
+
+const wsClient = createClient({
+  url:'ws://localhost:3000',
+});
+
+const subscribe = (operation, variables) => {
+  return Observable.create((sink) => {
+    return wsClient.subscribe(
+      {
+        operationName: operation.name,
+        query: operation.text,
+        variables,
+      },
+      sink,
+    );
+  });
+}
+
+const network = Network.create(fetchQuery, subscribe);
+```
+
+Alternatively, the legacy [subscriptions-transport-ws](https://github.com/apollographql/subscriptions-transport-ws) library can be used too:
 
 ```javascript
 import {
@@ -120,6 +152,42 @@ const network = Network.create(fetchQuery, subscribe);
 
 ...
 
+```
+
+or if your server uses [graphql-ws](https://github.com/enisdenjo/graphql-ws), this is how you would use the client in Relay:
+
+```javascript
+import {
+  Network,
+  Observable,
+  RequestParameters,
+  Variables,
+} from 'relay-runtime';
+import { createClient } from 'graphql-ws';
+
+const wsClient = createClient({
+  url: 'wss://relayis.awesome/graphql',
+});
+
+// you can also perform queries and mutations besides the subscriptions
+// through websocket, if you server allows them of course
+function fetchOrSubscribe(operation: RequestParameters, variables: Variables) {
+  return Observable.create((sink) => {
+    if (!operation.text) {
+      return sink.error(new Error('Operation text cannot be empty'));
+    }
+    return wsClient.subscribe(
+      {
+        operationName: operation.name,
+        query: operation.text,
+        variables,
+      },
+      sink
+    );
+  });
+}
+
+export const network = Network.create(fetchOrSubscribe, fetchOrSubscribe);
 ```
 
 # Updating the client on each response

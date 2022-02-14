@@ -62,7 +62,7 @@ We will eventually have a linter that will catch most styling issues that may ex
 
 ## Development process for non-FB developers
 
-A typical solution for working on a library is to test changes in your application project through ‘linking’. The
+A typical solution for working on a library is to test changes in your application project through 'linking’. The
 following steps should work for all Relay packages:
 
 1. Either trigger a build manually by running `yarn build` or keep a watcher running with `yarn build:watch`.

@@ -9,7 +9,7 @@
 
 mod client;
 mod code_action;
-mod completion;
+pub mod completion;
 pub mod diagnostic_reporter;
 mod explore_schema_for_type;
 pub mod goto_definition;

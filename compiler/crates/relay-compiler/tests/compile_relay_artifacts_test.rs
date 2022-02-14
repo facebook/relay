@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<801382dabe42c5f872fa5ba9c6c69a6b>>
+ * @generated SignedSource<<63770637527e42c50a6fc42e4471bbba>>
  */
 
 mod compile_relay_artifacts;
@@ -839,13 +839,6 @@ fn refetchable_connection_custom_handler() {
 }
 
 #[test]
-fn refetchable_fragment_directives() {
-    let input = include_str!("compile_relay_artifacts/fixtures/refetchable_fragment_directives.graphql");
-    let expected = include_str!("compile_relay_artifacts/fixtures/refetchable_fragment_directives.expected");
-    test_fixture(transform_fixture, "refetchable_fragment_directives.graphql", "compile_relay_artifacts/fixtures/refetchable_fragment_directives.expected", input, expected);
-}
-
-#[test]
 fn refetchable_fragment_directives_invalid() {
     let input = include_str!("compile_relay_artifacts/fixtures/refetchable_fragment_directives.invalid.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/refetchable_fragment_directives.invalid.expected");
@@ -871,6 +864,13 @@ fn refetchable_fragment_with_connection_bidirectional() {
     let input = include_str!("compile_relay_artifacts/fixtures/refetchable-fragment-with-connection-bidirectional.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/refetchable-fragment-with-connection-bidirectional.expected");
     test_fixture(transform_fixture, "refetchable-fragment-with-connection-bidirectional.graphql", "compile_relay_artifacts/fixtures/refetchable-fragment-with-connection-bidirectional.expected", input, expected);
+}
+
+#[test]
+fn refetchable_fragment_with_connection_es_modules() {
+    let input = include_str!("compile_relay_artifacts/fixtures/refetchable-fragment-with-connection-es-modules.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/refetchable-fragment-with-connection-es-modules.expected");
+    test_fixture(transform_fixture, "refetchable-fragment-with-connection-es-modules.graphql", "compile_relay_artifacts/fixtures/refetchable-fragment-with-connection-es-modules.expected", input, expected);
 }
 
 #[test]
@@ -920,6 +920,13 @@ fn relay_resolver_backing_client_edge() {
     let input = include_str!("compile_relay_artifacts/fixtures/relay-resolver-backing-client-edge.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/relay-resolver-backing-client-edge.expected");
     test_fixture(transform_fixture, "relay-resolver-backing-client-edge.graphql", "compile_relay_artifacts/fixtures/relay-resolver-backing-client-edge.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_required() {
+    let input = include_str!("compile_relay_artifacts/fixtures/relay-resolver-required.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/relay-resolver-required.expected");
+    test_fixture(transform_fixture, "relay-resolver-required.graphql", "compile_relay_artifacts/fixtures/relay-resolver-required.expected", input, expected);
 }
 
 #[test]
@@ -1263,13 +1270,6 @@ fn stream_if_arguments() {
     let input = include_str!("compile_relay_artifacts/fixtures/stream_if_arguments.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/stream_if_arguments.expected");
     test_fixture(transform_fixture, "stream_if_arguments.graphql", "compile_relay_artifacts/fixtures/stream_if_arguments.expected", input, expected);
-}
-
-#[test]
-fn subscription_transform() {
-    let input = include_str!("compile_relay_artifacts/fixtures/subscription-transform.graphql");
-    let expected = include_str!("compile_relay_artifacts/fixtures/subscription-transform.expected");
-    test_fixture(transform_fixture, "subscription-transform.graphql", "compile_relay_artifacts/fixtures/subscription-transform.expected", input, expected);
 }
 
 #[test]

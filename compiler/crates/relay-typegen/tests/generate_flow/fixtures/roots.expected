@@ -33,6 +33,10 @@ export type ExampleQuery$data = {|
     +id: string,
   |},
 |};
+export type ExampleQuery = {|
+  variables: ExampleQuery$variables,
+  response: ExampleQuery$data,
+|};
 -------------------------------------------------------------------------------
 export type CommentCreateInput = {|
   clientMutationId?: ?string,
@@ -55,6 +59,10 @@ export type TestMutation$data = {|
     |},
   |},
 |};
+export type TestMutation = {|
+  variables: TestMutation$variables,
+  response: TestMutation$data,
+|};
 -------------------------------------------------------------------------------
 export type FeedbackLikeInput = {|
   clientMutationId?: ?string,
@@ -69,6 +77,10 @@ export type TestSubscription$data = {|
       +id: string,
     |},
   |},
+|};
+export type TestSubscription = {|
+  variables: TestSubscription$variables,
+  response: TestSubscription$data,
 |};
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";

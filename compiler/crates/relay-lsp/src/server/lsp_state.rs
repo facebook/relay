@@ -448,7 +448,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         }
 
         // First we check to see if this document has any GraphQL documents.
-        let graphql_sources = extract_graphql::parse_chunks(text);
+        let graphql_sources = extract_graphql::extract(text).graphql_sources;
         if graphql_sources.is_empty() {
             Ok(())
         } else {
@@ -462,7 +462,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         }
 
         // First we check to see if this document has any GraphQL documents.
-        let graphql_sources = extract_graphql::parse_chunks(full_text);
+        let graphql_sources = extract_graphql::extract(full_text).graphql_sources;
         if graphql_sources.is_empty() {
             self.remove_synced_sources(uri);
             Ok(())

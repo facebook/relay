@@ -12,6 +12,13 @@
 
 const {graphql} = require('../../query/GraphQLTag');
 const withProvidedVariables = require('../withProvidedVariables');
+const {
+  disallowWarnings,
+  expectToWarn,
+  expectToWarnMany,
+} = require('relay-test-utils-internal');
+
+disallowWarnings();
 
 describe('withProvidedVariables', () => {
   describe('singleProvidedVariable', () => {
@@ -37,11 +44,11 @@ describe('withProvidedVariables', () => {
       const userVariables = {};
       const newVariables = withProvidedVariables(
         userVariables,
-        userQuery.params,
+        userQuery.params.providedVariables,
       );
-      expect(
-        newVariables.__withProvidedVariablesTest1Fragment__numberOfFriends,
-      ).toEqual(15.0);
+      expect(newVariables.__relay_internal__pv__provideNumberOfFriends).toEqual(
+        15.0,
+      );
       expect(Object.keys(newVariables).length).toEqual(1);
     });
   });
@@ -71,11 +78,11 @@ describe('withProvidedVariables', () => {
       const userVariables = {includeFriendsCount: true};
       const newVariables = withProvidedVariables(
         userVariables,
-        userQuery.params,
+        userQuery.params.providedVariables,
       );
-      expect(
-        newVariables.__withProvidedVariablesTest2Fragment__numberOfFriends,
-      ).toEqual(15.0);
+      expect(newVariables.__relay_internal__pv__provideNumberOfFriends).toEqual(
+        15.0,
+      );
       expect(newVariables.includeFriendsCount).toEqual(true);
       expect(Object.keys(newVariables).length).toEqual(2);
     });
@@ -109,13 +116,13 @@ describe('withProvidedVariables', () => {
       const userVariables = {};
       const newVariables = withProvidedVariables(
         userVariables,
-        userQuery.params,
+        userQuery.params.providedVariables,
+      );
+      expect(newVariables.__relay_internal__pv__provideNumberOfFriends).toEqual(
+        15.0,
       );
       expect(
-        newVariables.__withProvidedVariablesTest3Fragment__numberOfFriends,
-      ).toEqual(15.0);
-      expect(
-        newVariables.__withProvidedVariablesTest3Fragment__includeName,
+        newVariables.__relay_internal__pv__provideIncludeUserNames,
       ).toEqual(true);
       expect(Object.keys(newVariables).length).toEqual(2);
     });
@@ -167,18 +174,121 @@ describe('withProvidedVariables', () => {
       const userVariables = {};
       const newVariables = withProvidedVariables(
         userVariables,
-        userQuery.params,
+        userQuery.params.providedVariables,
+      );
+      expect(newVariables.__relay_internal__pv__provideNumberOfFriends).toEqual(
+        15.0,
       );
       expect(
-        newVariables.__withProvidedVariablesTest4Fragment1__numberOfFriends,
-      ).toEqual(15.0);
-      expect(
-        newVariables.__withProvidedVariablesTest4Fragment1__includeName,
+        newVariables.__relay_internal__pv__provideIncludeUserNames,
       ).toEqual(true);
-      expect(
-        newVariables.__withProvidedVariablesTest4Fragment2__includeName,
-      ).toEqual(true);
-      expect(Object.keys(newVariables).length).toEqual(3);
+      expect(Object.keys(newVariables).length).toEqual(2);
+    });
+  });
+
+  describe('When a provider function returns different values', () => {
+    it('warns for every provider that returns a changed value', () => {
+      const userQuery = graphql`
+        query withProvidedVariablesTest5Query {
+          node(id: 4) {
+            ...withProvidedVariablesTest5Fragment
+          }
+        }
+      `;
+      graphql`
+        fragment withProvidedVariablesTest5Fragment on User
+        @argumentDefinitions(
+          impureProvider1: {
+            type: "Float!"
+            provider: "../provideRandomNumber_invalid1"
+          }
+          impureProvider2: {
+            type: "Float!"
+            provider: "../provideRandomNumber_invalid2"
+          }
+        ) {
+          profile_picture(scale: $impureProvider1) {
+            uri
+          }
+          other_picture: profile_picture(scale: $impureProvider2) {
+            uri
+          }
+        }
+      `;
+
+      const userVariables = {};
+      let vars = withProvidedVariables(
+        userVariables,
+        userQuery.params.providedVariables,
+      );
+      // first call should return 0
+      expect(vars.__relay_internal__pv__provideRandomNumber_invalid1).toEqual(
+        0,
+      );
+      expect(vars.__relay_internal__pv__provideRandomNumber_invalid2).toEqual(
+        0,
+      );
+      expectToWarnMany(
+        [
+          'Relay: Expected function `get` for provider `__relay_internal__pv__provideRandomNumber_invalid1`' +
+            ' to be a pure function, but got conflicting return values `1` and `0`',
+          'Relay: Expected function `get` for provider `__relay_internal__pv__provideRandomNumber_invalid2`' +
+            ' to be a pure function, but got conflicting return values `1` and `0`',
+        ],
+        () => {
+          vars = withProvidedVariables(
+            userVariables,
+            userQuery.params.providedVariables,
+          );
+        },
+      );
+      // should use cached value from first call to provider.get()
+      expect(vars.__relay_internal__pv__provideRandomNumber_invalid1).toEqual(
+        0,
+      );
+      expect(vars.__relay_internal__pv__provideRandomNumber_invalid2).toEqual(
+        0,
+      );
+    });
+
+    it('warns for different queries that use the same provider function', () => {
+      const userQuery = graphql`
+        query withProvidedVariablesTest6Query {
+          node(id: 4) {
+            ...withProvidedVariablesTest6Fragment
+          }
+        }
+      `;
+      graphql`
+        fragment withProvidedVariablesTest6Fragment on User
+        @argumentDefinitions(
+          impureProvider: {
+            type: "Float!"
+            provider: "../provideRandomNumber_invalid1"
+          }
+        ) {
+          profile_picture(scale: $impureProvider) {
+            uri
+          }
+        }
+      `;
+
+      const userVariables = {};
+      let vars;
+      expectToWarn(
+        'Relay: Expected function `get` for provider `__relay_internal__pv__provideRandomNumber_invalid1`' +
+          ' to be a pure function, but got conflicting return values `2` and `0`',
+        () => {
+          vars = withProvidedVariables(
+            userVariables,
+            userQuery.params.providedVariables,
+          );
+        },
+      );
+      // should use cached value from previous test case
+      expect(vars.__relay_internal__pv__provideRandomNumber_invalid1).toEqual(
+        0,
+      );
     });
   });
 });

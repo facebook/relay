@@ -9,11 +9,12 @@ use crate::INTERNAL_METADATA_DIRECTIVE;
 use common::{Diagnostic, DiagnosticsResult, NamedItem, WithLocation};
 use graphql_ir::{
     Argument, ConstantArgument, ConstantValue, Directive, OperationDefinition, Program,
-    Transformed, Transformer, ValidationMessage, Value,
+    Transformed, Transformer, Value,
 };
 use graphql_syntax::OperationKind;
 use intern::string_key::{Intern, StringKey};
 use lazy_static::lazy_static;
+use thiserror::Error;
 
 lazy_static! {
     static ref LIVE_QUERY_DIRECTIVE_NAME: StringKey = "live_query".intern();
@@ -167,4 +168,22 @@ impl Transformer for GenerateLiveQueryMetadata {
             _ => Transformed::Keep,
         }
     }
+}
+
+#[derive(Error, Debug)]
+enum ValidationMessage {
+    #[error(
+        "Live query expects 'polling_interval' or 'config_id' as an argument to @live_query to for root field {query_name}"
+    )]
+    LiveQueryTransformMissingConfig { query_name: StringKey },
+
+    #[error(
+        "Expected the 'polling_interval' argument to @live_query to be a literal number for root field {query_name}"
+    )]
+    LiveQueryTransformInvalidPollingInterval { query_name: StringKey },
+
+    #[error(
+        "Expected the 'config_id' argument to @live_query to be a literal string for root field {query_name}"
+    )]
+    LiveQueryTransformInvalidConfigId { query_name: StringKey },
 }

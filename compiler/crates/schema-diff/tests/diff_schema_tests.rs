@@ -87,13 +87,33 @@ fn test_add_enum_value() {
            }
          #",
         ),
-        SchemaChange::DefinitionChanges(vec![DefinitionChange::EnumChanged {
-            name: "A".intern(),
-            added: vec![String::from("MAYBE").intern()],
-            removed: vec![],
-        }])
+        SchemaChange::DefinitionChanges(vec![DefinitionChange::EnumChanged { name: "A".intern() }])
     );
 }
+
+#[test]
+fn test_sort_enum_value() {
+    assert_eq!(
+        diff(
+            r"
+         enum A {
+             OK
+             NOT_OK
+             MAYBE
+           }
+         #",
+            r"
+         enum A {
+             OK
+             MAYBE
+             NOT_OK
+           }
+         #",
+        ),
+        SchemaChange::DefinitionChanges(vec![DefinitionChange::EnumChanged { name: "A".intern() }])
+    );
+}
+
 #[test]
 fn test_remove_enum_value() {
     assert_eq!(
@@ -112,11 +132,7 @@ fn test_remove_enum_value() {
            }
          #",
         ),
-        SchemaChange::DefinitionChanges(vec![DefinitionChange::EnumChanged {
-            name: "A".intern(),
-            added: vec![],
-            removed: vec!["MAYBE".intern()],
-        }])
+        SchemaChange::DefinitionChanges(vec![DefinitionChange::EnumChanged { name: "A".intern() }])
     );
 }
 
@@ -141,11 +157,29 @@ fn test_add_remove_enum_value() {
            }
          #",
         ),
-        SchemaChange::DefinitionChanges(vec![DefinitionChange::EnumChanged {
-            name: "A".intern(),
-            added: vec!["NOT_ZUCK".intern(), "ZUCK".intern()],
-            removed: vec!["MARK".intern(), "NOT_MARK".intern()],
-        }])
+        SchemaChange::DefinitionChanges(vec![DefinitionChange::EnumChanged { name: "A".intern() }])
+    );
+}
+
+#[test]
+fn test_add_comment_to_enum() {
+    assert_eq!(
+        diff(
+            r"
+            enum A {
+                OK
+                NOT_OK
+            }
+         #",
+            r"
+            # comment
+            enum A {
+                OK
+                NOT_OK
+            }
+         #",
+        ),
+        SchemaChange::GenericChange
     );
 }
 
@@ -934,14 +968,6 @@ fn sort_change(change: &mut SchemaChange) {
         changes.sort();
         for c in changes {
             match c {
-                DefinitionChange::EnumChanged {
-                    ref mut added,
-                    ref mut removed,
-                    ..
-                } => {
-                    added.sort();
-                    removed.sort();
-                }
                 DefinitionChange::UnionChanged {
                     ref mut added,
                     ref mut removed,

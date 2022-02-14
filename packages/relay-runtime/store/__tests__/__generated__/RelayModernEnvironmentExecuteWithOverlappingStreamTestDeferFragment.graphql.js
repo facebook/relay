@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<d0635e252e82ddcc0cbaa2b03bb61193>>
+ * @generated SignedSource<<63681965052e04a2d6231ee4d58d2398>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,14 +18,12 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment$fragmentType: FragmentType;
-export type RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment$ref = RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment$fragmentType;
 export type RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment$data = {|
   +viewedBy: ?$ReadOnlyArray<?{|
     +name: ?string,
   |}>,
   +$fragmentType: RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment$fragmentType,
 |};
-export type RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment = RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment$data;
 export type RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment$key = {
   +$data?: RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment$data,
   +$fragmentSpreads: RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment$fragmentType,

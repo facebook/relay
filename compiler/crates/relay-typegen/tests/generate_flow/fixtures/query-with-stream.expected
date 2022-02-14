@@ -54,3 +54,8 @@ export type TestStream$rawResponse = {|
     +id: string,
   |}),
 |};
+export type TestStream = {|
+  variables: TestStream$variables,
+  response: TestStream$data,
+  rawResponse: TestStream$rawResponse,
+|};

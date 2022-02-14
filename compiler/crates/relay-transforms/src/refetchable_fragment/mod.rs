@@ -10,6 +10,7 @@ mod node_query_generator;
 mod query_query_generator;
 mod refetchable_directive;
 mod utils;
+mod validation_message;
 mod viewer_query_generator;
 
 use crate::{
@@ -18,12 +19,12 @@ use crate::{
     root_variables::{InferVariablesVisitor, VariableMap},
 };
 
+use self::validation_message::ValidationMessage;
+use ::errors::validate_map;
 use common::{Diagnostic, DiagnosticsResult, NamedItem, WithLocation};
-use errors::validate_map;
 use fetchable_query_generator::FETCHABLE_QUERY_GENERATOR;
 use graphql_ir::{
-    Directive, FragmentDefinition, OperationDefinition, Program, Selection, ValidationMessage,
-    VariableDefinition,
+    Directive, FragmentDefinition, OperationDefinition, Program, Selection, VariableDefinition,
 };
 use graphql_syntax::OperationKind;
 use intern::string_key::{StringKey, StringKeyMap, StringKeySet};

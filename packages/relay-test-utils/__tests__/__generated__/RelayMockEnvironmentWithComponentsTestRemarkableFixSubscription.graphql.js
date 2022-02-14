@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<d0d6d7d62ea09fc59446f82d70105140>>
+ * @generated SignedSource<<873b615a310d9477fa46bc9e1b8773ff>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,7 +23,6 @@ export type FeedbackLikeInput = {|
 export type RelayMockEnvironmentWithComponentsTestRemarkableFixSubscription$variables = {|
   input?: ?FeedbackLikeInput,
 |};
-export type RelayMockEnvironmentWithComponentsTestRemarkableFixSubscriptionVariables = RelayMockEnvironmentWithComponentsTestRemarkableFixSubscription$variables;
 export type RelayMockEnvironmentWithComponentsTestRemarkableFixSubscription$data = {|
   +feedbackLikeSubscribe: ?{|
     +feedback: ?{|
@@ -32,9 +31,8 @@ export type RelayMockEnvironmentWithComponentsTestRemarkableFixSubscription$data
     |},
   |},
 |};
-export type RelayMockEnvironmentWithComponentsTestRemarkableFixSubscriptionResponse = RelayMockEnvironmentWithComponentsTestRemarkableFixSubscription$data;
 export type RelayMockEnvironmentWithComponentsTestRemarkableFixSubscription = {|
-  variables: RelayMockEnvironmentWithComponentsTestRemarkableFixSubscriptionVariables,
+  variables: RelayMockEnvironmentWithComponentsTestRemarkableFixSubscription$variables,
   response: RelayMockEnvironmentWithComponentsTestRemarkableFixSubscription$data,
 |};
 */
@@ -111,9 +109,7 @@ return {
   "params": {
     "cacheID": "c8544e6b2672010acbe98aa4c507fb30",
     "id": null,
-    "metadata": {
-      "subscriptionName": "feedbackLikeSubscribe"
-    },
+    "metadata": {},
     "name": "RelayMockEnvironmentWithComponentsTestRemarkableFixSubscription",
     "operationKind": "subscription",
     "text": "subscription RelayMockEnvironmentWithComponentsTestRemarkableFixSubscription(\n  $input: FeedbackLikeInput\n) {\n  feedbackLikeSubscribe(input: $input) {\n    feedback {\n      id\n      doesViewerLike\n    }\n  }\n}\n"

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<721e5589b3af299d9a38a7fdf84cb472>>
+ * @generated SignedSource<<12fbdb2a984cd41e4966cd85536cdfc8>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,7 +20,6 @@ type FragmentResourceWithOperationTrackerTestUserFragment$fragmentType = any;
 export type FragmentResourceWithOperationTrackerTestFriendsPaginationQuery$variables = {|
   id: string,
 |};
-export type FragmentResourceWithOperationTrackerTestFriendsPaginationQueryVariables = FragmentResourceWithOperationTrackerTestFriendsPaginationQuery$variables;
 export type FragmentResourceWithOperationTrackerTestFriendsPaginationQuery$data = {|
   +node: ?{|
     +friends?: ?{|
@@ -32,9 +31,8 @@ export type FragmentResourceWithOperationTrackerTestFriendsPaginationQuery$data 
     |},
   |},
 |};
-export type FragmentResourceWithOperationTrackerTestFriendsPaginationQueryResponse = FragmentResourceWithOperationTrackerTestFriendsPaginationQuery$data;
 export type FragmentResourceWithOperationTrackerTestFriendsPaginationQuery = {|
-  variables: FragmentResourceWithOperationTrackerTestFriendsPaginationQueryVariables,
+  variables: FragmentResourceWithOperationTrackerTestFriendsPaginationQuery$variables,
   response: FragmentResourceWithOperationTrackerTestFriendsPaginationQuery$data,
 |};
 */
@@ -106,48 +104,6 @@ v6 = {
   "kind": "ScalarField",
   "name": "id",
   "storageKey": null
-},
-v7 = {
-  "enumValues": null,
-  "nullable": false,
-  "plural": false,
-  "type": "String"
-},
-v8 = {
-  "enumValues": null,
-  "nullable": true,
-  "plural": false,
-  "type": "String"
-},
-v9 = {
-  "enumValues": null,
-  "nullable": false,
-  "plural": false,
-  "type": "ID"
-},
-v10 = {
-  "enumValues": null,
-  "nullable": true,
-  "plural": false,
-  "type": "UserNameRenderer"
-},
-v11 = {
-  "enumValues": null,
-  "nullable": true,
-  "plural": false,
-  "type": "JSDependency"
-},
-v12 = {
-  "enumValues": null,
-  "nullable": true,
-  "plural": false,
-  "type": "PlainUserNameData"
-},
-v13 = {
-  "enumValues": null,
-  "nullable": true,
-  "plural": false,
-  "type": "ID"
 };
 return {
   "fragment": {
@@ -397,70 +353,7 @@ return {
             "friends"
           ]
         }
-      ],
-      "relayTestingSelectionTypeInfo": {
-        "node": {
-          "enumValues": null,
-          "nullable": true,
-          "plural": false,
-          "type": "Node"
-        },
-        "node.__typename": (v7/*: any*/),
-        "node.friends": {
-          "enumValues": null,
-          "nullable": true,
-          "plural": false,
-          "type": "FriendsConnection"
-        },
-        "node.friends.edges": {
-          "enumValues": null,
-          "nullable": true,
-          "plural": true,
-          "type": "FriendsEdge"
-        },
-        "node.friends.edges.cursor": (v8/*: any*/),
-        "node.friends.edges.node": {
-          "enumValues": null,
-          "nullable": true,
-          "plural": false,
-          "type": "User"
-        },
-        "node.friends.edges.node.__typename": (v7/*: any*/),
-        "node.friends.edges.node.id": (v9/*: any*/),
-        "node.friends.edges.node.name": (v8/*: any*/),
-        "node.friends.edges.node.nameRenderer": (v10/*: any*/),
-        "node.friends.edges.node.nameRenderer.__module_component_FragmentResourceWithOperationTrackerTestUserFragment": (v11/*: any*/),
-        "node.friends.edges.node.nameRenderer.__module_operation_FragmentResourceWithOperationTrackerTestUserFragment": (v11/*: any*/),
-        "node.friends.edges.node.nameRenderer.__typename": (v7/*: any*/),
-        "node.friends.edges.node.nameRenderer.data": (v12/*: any*/),
-        "node.friends.edges.node.nameRenderer.data.id": (v13/*: any*/),
-        "node.friends.edges.node.nameRenderer.data.markup": (v8/*: any*/),
-        "node.friends.edges.node.nameRenderer.data.text": (v8/*: any*/),
-        "node.friends.edges.node.nameRenderer.markdown": (v8/*: any*/),
-        "node.friends.edges.node.nameRenderer.plaintext": (v8/*: any*/),
-        "node.friends.edges.node.plainNameRenderer": (v10/*: any*/),
-        "node.friends.edges.node.plainNameRenderer.__module_component_FragmentResourceWithOperationTrackerTestUserFragment_plainNameRenderer": (v11/*: any*/),
-        "node.friends.edges.node.plainNameRenderer.__module_operation_FragmentResourceWithOperationTrackerTestUserFragment_plainNameRenderer": (v11/*: any*/),
-        "node.friends.edges.node.plainNameRenderer.__typename": (v7/*: any*/),
-        "node.friends.edges.node.plainNameRenderer.data": (v12/*: any*/),
-        "node.friends.edges.node.plainNameRenderer.data.id": (v13/*: any*/),
-        "node.friends.edges.node.plainNameRenderer.data.text": (v8/*: any*/),
-        "node.friends.edges.node.plainNameRenderer.plaintext": (v8/*: any*/),
-        "node.friends.pageInfo": {
-          "enumValues": null,
-          "nullable": true,
-          "plural": false,
-          "type": "PageInfo"
-        },
-        "node.friends.pageInfo.endCursor": (v8/*: any*/),
-        "node.friends.pageInfo.hasNextPage": {
-          "enumValues": null,
-          "nullable": true,
-          "plural": false,
-          "type": "Boolean"
-        },
-        "node.id": (v9/*: any*/)
-      }
+      ]
     },
     "name": "FragmentResourceWithOperationTrackerTestFriendsPaginationQuery",
     "operationKind": "query",
@@ -470,7 +363,7 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "e5c44762a69061fbab95e22a6c65eba6";
+  (node/*: any*/).hash = "66a007250373940bb3644639ca2c58c7";
 }
 
 module.exports = ((node/*: any*/)/*: Query<

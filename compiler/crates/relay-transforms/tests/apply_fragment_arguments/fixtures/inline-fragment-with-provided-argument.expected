@@ -6,7 +6,7 @@ query TestQuery($id: ID) {
 }
 
 fragment Fragment0 on User
-    @argumentDefinitions(foo_gk: {type: "Boolean!", provider: "foo_gk_module.js"})
+    @argumentDefinitions(foo_gk: {type: "Boolean!", provider: "fooGKProvider"})
 {
     ... on User{
       ... on User {
@@ -17,9 +17,9 @@ fragment Fragment0 on User
 ==================================== OUTPUT ===================================
 query TestQuery(
   $id: ID
-  $__Fragment0__foo_gk: Boolean! @__ProvidedVariableMetadata
+  $__relay_internal__pv__fooGKProvider: Boolean! @__ProvidedVariableMetadata
   # ProvidedVariableMetadata {
-  #     module_name: "foo_gk_module.js",
+  #     module_name: "fooGKProvider",
   # }
   
 ) {
@@ -31,7 +31,7 @@ query TestQuery(
 fragment Fragment0 on User {
   ... on User {
     ... on User {
-      name @include(if: $__Fragment0__foo_gk)
+      name @include(if: $__relay_internal__pv__fooGKProvider)
     }
   }
 }

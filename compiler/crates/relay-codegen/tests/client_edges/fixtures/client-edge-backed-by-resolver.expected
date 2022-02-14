@@ -1,6 +1,6 @@
 ==================================== INPUT ====================================
 fragment Foo_user on User {
-  best_friend {
+  best_friend @waterfall {
     name
   }
 }

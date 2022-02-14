@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<8c968f4ab3e57c7e9e87d45b715b7c1c>>
+ * @generated SignedSource<<04f909138d4363c5043ce6594da8cc09>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,7 +20,6 @@ type useLazyLoadQueryNodeReactDoubleEffectsTestUserFragment$fragmentType = any;
 export type useLazyLoadQueryNodeReactDoubleEffectsTestUserQueryWithDeferQuery$variables = {|
   id?: ?string,
 |};
-export type useLazyLoadQueryNodeReactDoubleEffectsTestUserQueryWithDeferQueryVariables = useLazyLoadQueryNodeReactDoubleEffectsTestUserQueryWithDeferQuery$variables;
 export type useLazyLoadQueryNodeReactDoubleEffectsTestUserQueryWithDeferQuery$data = {|
   +node: ?{|
     +id: string,
@@ -28,9 +27,8 @@ export type useLazyLoadQueryNodeReactDoubleEffectsTestUserQueryWithDeferQuery$da
     +$fragmentSpreads: useLazyLoadQueryNodeReactDoubleEffectsTestUserFragment$fragmentType,
   |},
 |};
-export type useLazyLoadQueryNodeReactDoubleEffectsTestUserQueryWithDeferQueryResponse = useLazyLoadQueryNodeReactDoubleEffectsTestUserQueryWithDeferQuery$data;
 export type useLazyLoadQueryNodeReactDoubleEffectsTestUserQueryWithDeferQuery = {|
-  variables: useLazyLoadQueryNodeReactDoubleEffectsTestUserQueryWithDeferQueryVariables,
+  variables: useLazyLoadQueryNodeReactDoubleEffectsTestUserQueryWithDeferQuery$variables,
   response: useLazyLoadQueryNodeReactDoubleEffectsTestUserQueryWithDeferQuery$data,
 |};
 */

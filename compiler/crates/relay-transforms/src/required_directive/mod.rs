@@ -6,11 +6,13 @@
  */
 
 mod requireable_field;
+mod validation_message;
+
 use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, WithLocation};
 use graphql_ir::{
     associated_data_impl, Directive, Field, FragmentDefinition, InlineFragment, LinkedField,
     OperationDefinition, Program, ScalarField, Selection, Transformed, TransformedValue,
-    Transformer, ValidationMessage,
+    Transformer,
 };
 use intern::string_key::{Intern, StringKey, StringKeyMap};
 use lazy_static::lazy_static;
@@ -18,6 +20,8 @@ use requireable_field::{RequireableField, RequiredMetadata};
 use std::{borrow::Cow, mem, sync::Arc};
 
 use crate::DirectiveFinder;
+
+use self::validation_message::ValidationMessage;
 
 lazy_static! {
     pub static ref REQUIRED_DIRECTIVE_NAME: StringKey = "required".intern();

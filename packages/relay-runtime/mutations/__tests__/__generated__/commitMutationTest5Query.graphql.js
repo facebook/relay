@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<0b1b5442ec15dc98e78922cb06fe7f85>>
+ * @generated SignedSource<<2b52c3824cce58b285d1cd07ae18a038>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,7 +17,6 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 export type commitMutationTest5Query$variables = {||};
-export type commitMutationTest5QueryVariables = commitMutationTest5Query$variables;
 export type commitMutationTest5Query$data = {|
   +node: ?{|
     +topLevelComments?: ?{|
@@ -30,9 +29,8 @@ export type commitMutationTest5Query$data = {|
     |},
   |},
 |};
-export type commitMutationTest5QueryResponse = commitMutationTest5Query$data;
 export type commitMutationTest5Query = {|
-  variables: commitMutationTest5QueryVariables,
+  variables: commitMutationTest5Query$variables,
   response: commitMutationTest5Query$data,
 |};
 */

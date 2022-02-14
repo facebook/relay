@@ -209,10 +209,14 @@ describe('RelayConcreteVariables', () => {
           }
         }
       `;
-      const variables = getOperationVariables(Query.operation, Query.params, {
-        id: '4',
-        count: 10, // not defined on Query
-      });
+      const variables = getOperationVariables(
+        Query.operation,
+        Query.params.providedVariables,
+        {
+          id: '4',
+          count: 10, // not defined on Query
+        },
+      );
       expect(variables).toEqual({
         id: '4',
         // count is filtered out
@@ -239,11 +243,15 @@ describe('RelayConcreteVariables', () => {
           }
         }
       `;
-      const variables = getOperationVariables(Query.operation, Query.params, {
-        id: '4',
-        // no count
-        order: null,
-      });
+      const variables = getOperationVariables(
+        Query.operation,
+        Query.params.providedVariables,
+        {
+          id: '4',
+          // no count
+          order: null,
+        },
+      );
       expect(variables).toEqual({
         id: '4', // user value overwrites default
         count: 10, // set to default

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<4a215accbd2552c8a35c1e5e1144d627>>
+ * @generated SignedSource<<34ce3776dc993be3954b0fbb0cc812fe>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,15 +20,13 @@ type DataCheckerTest5Fragment$fragmentType = any;
 export type DataCheckerTest5Query$variables = {|
   id: string,
 |};
-export type DataCheckerTest5QueryVariables = DataCheckerTest5Query$variables;
 export type DataCheckerTest5Query$data = {|
   +node: ?{|
     +$fragmentSpreads: DataCheckerTest5Fragment$fragmentType,
   |},
 |};
-export type DataCheckerTest5QueryResponse = DataCheckerTest5Query$data;
 export type DataCheckerTest5Query = {|
-  variables: DataCheckerTest5QueryVariables,
+  variables: DataCheckerTest5Query$variables,
   response: DataCheckerTest5Query$data,
 |};
 */

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<be3f16d5f486117904effcb4780bc331>>
+ * @generated SignedSource<<ec52a4754dfa5fe38625da6abf5a05bc>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,7 +19,6 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 type RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment$fragmentType = any;
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackFragment$fragmentType: FragmentType;
-export type RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackFragment$ref = RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackFragment$fragmentType;
 export type RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackFragment$data = {|
   +id: string,
   +actors: ?$ReadOnlyArray<?{|
@@ -28,7 +27,6 @@ export type RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackFragme
   +$fragmentSpreads: RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment$fragmentType,
   +$fragmentType: RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackFragment$fragmentType,
 |};
-export type RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackFragment = RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackFragment$data;
 export type RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackFragment$key = {
   +$data?: RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackFragment$data,
   +$fragmentSpreads: RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackFragment$fragmentType,

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<03a38b8289055eb1253d818f3ebcf8bd>>
+ * @generated SignedSource<<ceedf544d2fcebf0b0f6fa3bf6f4720f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,7 +23,6 @@ export type FeedbackLikeInput = {|
 export type validateMutationTest19FeedbackLikeMutation$variables = {|
   input?: ?FeedbackLikeInput,
 |};
-export type validateMutationTest19FeedbackLikeMutationVariables = validateMutationTest19FeedbackLikeMutation$variables;
 export type validateMutationTest19FeedbackLikeMutation$data = {|
   +feedbackLike: ?{|
     +feedback: ?{|
@@ -32,9 +31,8 @@ export type validateMutationTest19FeedbackLikeMutation$data = {|
     |},
   |},
 |};
-export type validateMutationTest19FeedbackLikeMutationResponse = validateMutationTest19FeedbackLikeMutation$data;
 export type validateMutationTest19FeedbackLikeMutation = {|
-  variables: validateMutationTest19FeedbackLikeMutationVariables,
+  variables: validateMutationTest19FeedbackLikeMutation$variables,
   response: validateMutationTest19FeedbackLikeMutation$data,
 |};
 */

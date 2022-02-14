@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<ebedad0dcecbd761767ba4b7277b16b1>>
+ * @generated SignedSource<<e877d679c2d9783371d4dff3624d44bb>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,7 +18,6 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentExecuteWithStreamWithHandlerTestFeedbackFragment$fragmentType: FragmentType;
-export type RelayModernEnvironmentExecuteWithStreamWithHandlerTestFeedbackFragment$ref = RelayModernEnvironmentExecuteWithStreamWithHandlerTestFeedbackFragment$fragmentType;
 export type RelayModernEnvironmentExecuteWithStreamWithHandlerTestFeedbackFragment$data = {|
   +id: string,
   +actors: ?$ReadOnlyArray<?{|
@@ -26,7 +25,6 @@ export type RelayModernEnvironmentExecuteWithStreamWithHandlerTestFeedbackFragme
   |}>,
   +$fragmentType: RelayModernEnvironmentExecuteWithStreamWithHandlerTestFeedbackFragment$fragmentType,
 |};
-export type RelayModernEnvironmentExecuteWithStreamWithHandlerTestFeedbackFragment = RelayModernEnvironmentExecuteWithStreamWithHandlerTestFeedbackFragment$data;
 export type RelayModernEnvironmentExecuteWithStreamWithHandlerTestFeedbackFragment$key = {
   +$data?: RelayModernEnvironmentExecuteWithStreamWithHandlerTestFeedbackFragment$data,
   +$fragmentSpreads: RelayModernEnvironmentExecuteWithStreamWithHandlerTestFeedbackFragment$fragmentType,

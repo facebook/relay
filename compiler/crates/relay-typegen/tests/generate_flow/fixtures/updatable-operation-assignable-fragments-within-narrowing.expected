@@ -36,12 +36,23 @@ export type UpdatableQuery$data = {|
       // value in case none of the concrete values match.
       +__typename: "%other",
     |}),
-    set actor(value: ?{
-      +$fragmentSpreads: Assignable_user$fragmentType | Assignable_page$fragmentType,
+    set actor(value: ?({
+      +$fragmentSpreads: Assignable_user$fragmentType,
+      +__typename: "User",
+      +__id: string,
       ...
-    }): void,
+    } | {
+      +$fragmentSpreads: Assignable_page$fragmentType,
+      +__typename: "Page",
+      +__id: string,
+      ...
+    })): void,
   |},
   set me(value: null | void): void,
+|};
+export type UpdatableQuery = {|
+  variables: UpdatableQuery$variables,
+  response: UpdatableQuery$data,
 |};
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";

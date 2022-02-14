@@ -8,7 +8,7 @@ query TestQuery($id: ID) {
 fragment Profile on User
     @argumentDefinitions(
     get_friends: {type: "Boolean!", defaultValue: false}
-    foo_gk: {type: "Boolean!", provider: "foo_gk_module.js"})
+    foo_gk: {type: "Boolean!", provider: "fooGKProvider"})
 {
     name @include(if: $foo_gk)
     friends(first: 10) @include(if: $get_friends) {
@@ -22,9 +22,9 @@ fragment Profile on User
 ==================================== OUTPUT ===================================
 query TestQuery(
   $id: ID
-  $__Profile__foo_gk: Boolean! @__ProvidedVariableMetadata
+  $__relay_internal__pv__fooGKProvider: Boolean! @__ProvidedVariableMetadata
   # ProvidedVariableMetadata {
-  #     module_name: "foo_gk_module.js",
+  #     module_name: "fooGKProvider",
   # }
   
 ) {
@@ -34,11 +34,11 @@ query TestQuery(
 }
 
 fragment Profile on User {
-  name @include(if: $__Profile__foo_gk)
+  name @include(if: $__relay_internal__pv__fooGKProvider)
 }
 
 fragment Profile_eQnbl on User {
-  name @include(if: $__Profile__foo_gk)
+  name @include(if: $__relay_internal__pv__fooGKProvider)
   friends(first: 10) {
     edges {
       node {

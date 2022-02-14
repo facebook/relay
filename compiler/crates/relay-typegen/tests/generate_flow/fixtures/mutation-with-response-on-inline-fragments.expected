@@ -81,6 +81,11 @@ export type TestMutation$rawResponse = {|
     |},
   |},
 |};
+export type TestMutation = {|
+  variables: TestMutation$variables,
+  response: TestMutation$data,
+  rawResponse: TestMutation$rawResponse,
+|};
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";
 declare export opaque type InlineFragmentWithOverlappingFields$fragmentType: FragmentType;

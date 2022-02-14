@@ -8,14 +8,14 @@
 use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, WithLocation};
 use graphql_ir::{
     associated_data_impl, Argument, ConstantValue, Directive, FragmentDefinition, FragmentSpread,
-    OperationDefinition, Program, ScalarField, Selection, Transformed, Transformer,
-    ValidationMessage, Value,
+    OperationDefinition, Program, ScalarField, Selection, Transformed, Transformer, Value,
 };
 use intern::string_key::{Intern, StringKey, StringKeyMap, StringKeySet};
 use itertools::Itertools;
 use lazy_static::lazy_static;
 use schema::{Field, FieldID, Schema, Type};
 use std::sync::Arc;
+use thiserror::Error;
 
 lazy_static! {
     static ref REACT_FLIGHT_TRANSITIVE_COMPONENTS_DIRECTIVE_NAME: StringKey =
@@ -402,4 +402,27 @@ impl<'s> Transformer for ReactFlightTransform<'s> {
             directives,
         })))
     }
+}
+
+#[derive(Error, Debug)]
+enum ValidationMessage {
+    #[error(
+        "Expected 'flight' field schema definition to specify its component name with @react_flight_component"
+    )]
+    InvalidFlightFieldMissingModuleDirective,
+
+    #[error("Cannot query field '{field_name}', this type does not define a 'flight' field")]
+    InvalidFlightFieldNotDefinedOnType { field_name: StringKey },
+
+    #[error("Expected @react_flight_component value to be a literal string")]
+    InvalidFlightFieldExpectedModuleNameString,
+
+    #[error("Expected flight field to have a 'props: ReactFlightProps' argument")]
+    InvalidFlightFieldPropsArgument,
+
+    #[error("Expected flight field to have a 'component: String' argument")]
+    InvalidFlightFieldComponentArgument,
+
+    #[error("Expected flight field to return 'ReactFlightComponent'")]
+    InvalidFlightFieldReturnType,
 }

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<0c271737f13fd548bcf58e0e3ec9d4ad>>
+ * @generated SignedSource<<86f990ee88078c49934d0f28c6c31da4>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,7 +18,6 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type ReactRelayPaginationContainerFlowtest_viewer$fragmentType: FragmentType;
-export type ReactRelayPaginationContainerFlowtest_viewer$ref = ReactRelayPaginationContainerFlowtest_viewer$fragmentType;
 export type ReactRelayPaginationContainerFlowtest_viewer$data = {|
   +account_user: ?{|
     +friends: ?{|
@@ -31,7 +30,6 @@ export type ReactRelayPaginationContainerFlowtest_viewer$data = {|
   |},
   +$fragmentType: ReactRelayPaginationContainerFlowtest_viewer$fragmentType,
 |};
-export type ReactRelayPaginationContainerFlowtest_viewer = ReactRelayPaginationContainerFlowtest_viewer$data;
 export type ReactRelayPaginationContainerFlowtest_viewer$key = {
   +$data?: ReactRelayPaginationContainerFlowtest_viewer$data,
   +$fragmentSpreads: ReactRelayPaginationContainerFlowtest_viewer$fragmentType,

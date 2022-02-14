@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<43903350f542d76aa386fe5cc3124f81>>
+ * @generated SignedSource<<cf3dc30deb5c172320fc6e66da036606>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -31,7 +31,6 @@ export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestPrep
   connections: $ReadOnlyArray<string>,
   input?: ?CommentCreateInput,
 |};
-export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestPrependCommentMutationVariables = RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestPrependCommentMutation$variables;
 export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestPrependCommentMutation$data = {|
   +commentCreate: ?{|
     +feedbackCommentEdge: ?{|
@@ -42,9 +41,8 @@ export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestPrep
     |},
   |},
 |};
-export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestPrependCommentMutationResponse = RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestPrependCommentMutation$data;
 export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestPrependCommentMutation = {|
-  variables: RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestPrependCommentMutationVariables,
+  variables: RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestPrependCommentMutation$variables,
   response: RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestPrependCommentMutation$data,
 |};
 */

@@ -57,8 +57,15 @@ type PendingUpdater = {|
   +updater: StoreUpdater,
 |};
 
+const _global: typeof global | $FlowFixMe =
+  typeof global !== 'undefined'
+    ? global
+    : typeof window !== 'undefined'
+    ? window
+    : undefined;
+
 const applyWithGuard =
-  global?.ErrorUtils?.applyWithGuard ??
+  _global?.ErrorUtils?.applyWithGuard ??
   ((callback, context, args, onError, name) => callback.apply(context, args));
 
 /**

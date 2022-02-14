@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<2acd8fdd0438674df38d6a50c1a21d94>>
+ * @generated SignedSource<<c91c3244fc779683f7ae36726c4105d6>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,12 +18,10 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type usePreloadedQueryReactDoubleEffectsTestFragment$fragmentType: FragmentType;
-export type usePreloadedQueryReactDoubleEffectsTestFragment$ref = usePreloadedQueryReactDoubleEffectsTestFragment$fragmentType;
 export type usePreloadedQueryReactDoubleEffectsTestFragment$data = {|
   +firstName: ?string,
   +$fragmentType: usePreloadedQueryReactDoubleEffectsTestFragment$fragmentType,
 |};
-export type usePreloadedQueryReactDoubleEffectsTestFragment = usePreloadedQueryReactDoubleEffectsTestFragment$data;
 export type usePreloadedQueryReactDoubleEffectsTestFragment$key = {
   +$data?: usePreloadedQueryReactDoubleEffectsTestFragment$data,
   +$fragmentSpreads: usePreloadedQueryReactDoubleEffectsTestFragment$fragmentType,

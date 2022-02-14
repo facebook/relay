@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use common::{DiagnosticDisplay, WithDiagnosticData};
 use intern::string_key::StringKey;
 use thiserror::Error;
 
@@ -161,4 +162,38 @@ pub enum ValidationMessage {
         field_name: StringKey,
         arguments_a: String,
     },
+
+    #[error("Undefined fragment '{0}'")]
+    UndefinedFragment(StringKey),
+
+    #[error(
+        "Each field on a given type can have only a single @module directive, but here there is more than one (perhaps within different spreads). To fix it, put each @module directive into its own aliased copy of the field with different aliases."
+    )]
+    ConflictingModuleSelections,
+}
+
+#[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]
+pub enum ValidationMessageWithData {
+    #[error(
+        "Expected a `@waterfall` directive on this field. Consuming a Client Edge field incurs a network roundtrip or \"waterfall\". To make this explicit, a `@waterfall` directive is required on this field."
+    )]
+    RelayResolversMissingWaterfall { field_name: StringKey },
+
+    #[error(
+        "Unexpceted `@waterfall` directive. Only fields backed by a Client Edge should be annotated with the `@waterfall` directive."
+    )]
+    RelayResolversUnexpectedWaterfall,
+}
+
+impl WithDiagnosticData for ValidationMessageWithData {
+    fn get_data(&self) -> Vec<Box<dyn DiagnosticDisplay>> {
+        match self {
+            ValidationMessageWithData::RelayResolversMissingWaterfall { field_name } => {
+                vec![Box::new(format!("{} @waterfall", field_name,))]
+            }
+            ValidationMessageWithData::RelayResolversUnexpectedWaterfall => {
+                vec![Box::new("")]
+            }
+        }
+    }
 }

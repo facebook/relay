@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a2250679b9fd0cb9e3ffc950194a80f3>>
+ * @generated SignedSource<<0ca8b4d75e14b28b62a349c6108ce428>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,14 +18,12 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentCheckWithGlobalInvalidationTestUserFragment$fragmentType: FragmentType;
-export type RelayModernEnvironmentCheckWithGlobalInvalidationTestUserFragment$ref = RelayModernEnvironmentCheckWithGlobalInvalidationTestUserFragment$fragmentType;
 export type RelayModernEnvironmentCheckWithGlobalInvalidationTestUserFragment$data = {|
   +profilePicture: ?{|
     +uri: ?string,
   |},
   +$fragmentType: RelayModernEnvironmentCheckWithGlobalInvalidationTestUserFragment$fragmentType,
 |};
-export type RelayModernEnvironmentCheckWithGlobalInvalidationTestUserFragment = RelayModernEnvironmentCheckWithGlobalInvalidationTestUserFragment$data;
 export type RelayModernEnvironmentCheckWithGlobalInvalidationTestUserFragment$key = {
   +$data?: RelayModernEnvironmentCheckWithGlobalInvalidationTestUserFragment$data,
   +$fragmentSpreads: RelayModernEnvironmentCheckWithGlobalInvalidationTestUserFragment$fragmentType,

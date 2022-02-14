@@ -23,6 +23,7 @@ const simpleClone = require('./simpleClone');
 const {
   disallowWarnings,
   expectToWarn,
+  expectToWarnMany,
   expectWarningWillFire,
 } = require('./warnings');
 const {createMockEnvironment, unwrapContainer} = require('relay-test-utils');
@@ -50,6 +51,7 @@ module.exports = {
   createMockEnvironment,
   describeWithFeatureFlags,
   expectToWarn,
+  expectToWarnMany,
   expectWarningWillFire,
   disallowWarnings,
   FIXTURE_TAG,

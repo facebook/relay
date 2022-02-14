@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<e05b3dd73d5c31750c01c3dfb631d080>>
+ * @generated SignedSource<<d405753496889b4fd01a43c68bd33134>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,7 +18,6 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1$fragmentType: FragmentType;
-export type RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1$ref = RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1$fragmentType;
 export type RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1$data = {|
   +id: string,
   +name?: ?string,
@@ -28,7 +27,6 @@ export type RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1$data 
   |},
   +$fragmentType: RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1$fragmentType,
 |};
-export type RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1 = RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1$data;
 export type RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1$key = {
   +$data?: RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1$data,
   +$fragmentSpreads: RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1$fragmentType,
@@ -36,16 +34,15 @@ export type RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1$key =
 };
 */
 
-var node/*: ReaderFragment*/ = {
+var node/*: ReaderFragment*/ = (function(){
+var v0 = {
+  "kind": "RootArgument",
+  "name": "__relay_internal__pv__RelayProvider_returnsTrue"
+};
+return {
   "argumentDefinitions": [
-    {
-      "kind": "RootArgument",
-      "name": "__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1__includeName"
-    },
-    {
-      "kind": "RootArgument",
-      "name": "__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1__skipUsername"
-    }
+    (v0/*: any*/),
+    (v0/*: any*/)
   ],
   "kind": "Fragment",
   "metadata": null,
@@ -59,7 +56,7 @@ var node/*: ReaderFragment*/ = {
       "storageKey": null
     },
     {
-      "condition": "__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1__includeName",
+      "condition": "__relay_internal__pv__RelayProvider_returnsTrue",
       "kind": "Condition",
       "passingValue": true,
       "selections": [
@@ -73,7 +70,7 @@ var node/*: ReaderFragment*/ = {
       ]
     },
     {
-      "condition": "__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1__skipUsername",
+      "condition": "__relay_internal__pv__RelayProvider_returnsTrue",
       "kind": "Condition",
       "passingValue": false,
       "selections": [
@@ -108,6 +105,7 @@ var node/*: ReaderFragment*/ = {
   "type": "User",
   "abstractKey": null
 };
+})();
 
 if (__DEV__) {
   (node/*: any*/).hash = "bde31756e6495f3fc76396a0fafadc57";

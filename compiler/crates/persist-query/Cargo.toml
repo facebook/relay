@@ -13,3 +13,6 @@ serde = { version = "1.0.126", features = ["derive", "rc"] }
 serde_json = { version = "1.0.64", features = ["float_roundtrip", "unbounded_depth"] }
 thiserror = "1.0.29"
 url = "2.2.2"
+
+[features]
+vendored = ["hyper-tls/vendored"]

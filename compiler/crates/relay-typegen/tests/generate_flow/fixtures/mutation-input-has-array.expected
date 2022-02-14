@@ -29,3 +29,8 @@ export type InputHasArray$rawResponse = {|
     |}>,
   |},
 |};
+export type InputHasArray = {|
+  variables: InputHasArray$variables,
+  response: InputHasArray$data,
+  rawResponse: InputHasArray$rawResponse,
+|};

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a49efebcd2ca9f112497679a60a928c8>>
+ * @generated SignedSource<<baecbd9045b2957d20c63617d9df9240>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,14 +18,12 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayReaderTestCreatesFragmentPointersWithLiteralArgumentsUserProfilePicture$fragmentType: FragmentType;
-export type RelayReaderTestCreatesFragmentPointersWithLiteralArgumentsUserProfilePicture$ref = RelayReaderTestCreatesFragmentPointersWithLiteralArgumentsUserProfilePicture$fragmentType;
 export type RelayReaderTestCreatesFragmentPointersWithLiteralArgumentsUserProfilePicture$data = {|
   +profilePicture: ?{|
     +uri: ?string,
   |},
   +$fragmentType: RelayReaderTestCreatesFragmentPointersWithLiteralArgumentsUserProfilePicture$fragmentType,
 |};
-export type RelayReaderTestCreatesFragmentPointersWithLiteralArgumentsUserProfilePicture = RelayReaderTestCreatesFragmentPointersWithLiteralArgumentsUserProfilePicture$data;
 export type RelayReaderTestCreatesFragmentPointersWithLiteralArgumentsUserProfilePicture$key = {
   +$data?: RelayReaderTestCreatesFragmentPointersWithLiteralArgumentsUserProfilePicture$data,
   +$fragmentSpreads: RelayReaderTestCreatesFragmentPointersWithLiteralArgumentsUserProfilePicture$fragmentType,

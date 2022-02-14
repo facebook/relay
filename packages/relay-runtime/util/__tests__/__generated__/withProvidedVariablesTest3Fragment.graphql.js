@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<2cff2f6f3814d8c305bf0bffef6b7ec6>>
+ * @generated SignedSource<<c436e77d6a02be46317821796c65cd5b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,7 +18,6 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type withProvidedVariablesTest3Fragment$fragmentType: FragmentType;
-export type withProvidedVariablesTest3Fragment$ref = withProvidedVariablesTest3Fragment$fragmentType;
 export type withProvidedVariablesTest3Fragment$data = {|
   +name?: ?string,
   +friends: ?{|
@@ -26,7 +25,6 @@ export type withProvidedVariablesTest3Fragment$data = {|
   |},
   +$fragmentType: withProvidedVariablesTest3Fragment$fragmentType,
 |};
-export type withProvidedVariablesTest3Fragment = withProvidedVariablesTest3Fragment$data;
 export type withProvidedVariablesTest3Fragment$key = {
   +$data?: withProvidedVariablesTest3Fragment$data,
   +$fragmentSpreads: withProvidedVariablesTest3Fragment$fragmentType,
@@ -38,11 +36,11 @@ var node/*: ReaderFragment*/ = {
   "argumentDefinitions": [
     {
       "kind": "RootArgument",
-      "name": "__withProvidedVariablesTest3Fragment__includeName"
+      "name": "__relay_internal__pv__provideIncludeUserNames"
     },
     {
       "kind": "RootArgument",
-      "name": "__withProvidedVariablesTest3Fragment__numberOfFriends"
+      "name": "__relay_internal__pv__provideNumberOfFriends"
     }
   ],
   "kind": "Fragment",
@@ -50,7 +48,7 @@ var node/*: ReaderFragment*/ = {
   "name": "withProvidedVariablesTest3Fragment",
   "selections": [
     {
-      "condition": "__withProvidedVariablesTest3Fragment__includeName",
+      "condition": "__relay_internal__pv__provideIncludeUserNames",
       "kind": "Condition",
       "passingValue": true,
       "selections": [
@@ -69,7 +67,7 @@ var node/*: ReaderFragment*/ = {
         {
           "kind": "Variable",
           "name": "first",
-          "variableName": "__withProvidedVariablesTest3Fragment__numberOfFriends"
+          "variableName": "__relay_internal__pv__provideNumberOfFriends"
         }
       ],
       "concreteType": "FriendsConnection",

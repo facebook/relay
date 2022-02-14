@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b3f803d3d45bd826b973810acef92227>>
+ * @generated SignedSource<<446c7d4abfe5dfa2b5bb9d478deab3ab>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,7 +23,6 @@ export type UnfriendInput = {|
 export type commitMutationTest3Mutation$variables = {|
   input?: ?UnfriendInput,
 |};
-export type commitMutationTest3MutationVariables = commitMutationTest3Mutation$variables;
 export type commitMutationTest3Mutation$data = {|
   +unfriend: ?{|
     +actor: ?{|
@@ -34,9 +33,8 @@ export type commitMutationTest3Mutation$data = {|
     |},
   |},
 |};
-export type commitMutationTest3MutationResponse = commitMutationTest3Mutation$data;
 export type commitMutationTest3Mutation = {|
-  variables: commitMutationTest3MutationVariables,
+  variables: commitMutationTest3Mutation$variables,
   response: commitMutationTest3Mutation$data,
 |};
 */

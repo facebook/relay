@@ -85,6 +85,7 @@ export type CommentCreateMutation$rawResponse = {
 export type CommentCreateMutation = {
   variables: CommentCreateMutation$variables;
   response: CommentCreateMutation$data;
+  rawResponse: CommentCreateMutation$rawResponse;
 };
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";

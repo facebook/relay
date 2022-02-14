@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<c0d48a97876f326e5de6fed677ac445b>>
+ * @generated SignedSource<<108039483349378f4a0bc2bcb66187b6>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,14 +18,12 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type ReactRelayPaginationContainerTestNoConnectionOnFragmentViewerFragment$fragmentType: FragmentType;
-export type ReactRelayPaginationContainerTestNoConnectionOnFragmentViewerFragment$ref = ReactRelayPaginationContainerTestNoConnectionOnFragmentViewerFragment$fragmentType;
 export type ReactRelayPaginationContainerTestNoConnectionOnFragmentViewerFragment$data = {|
   +actor: ?{|
     +id: string,
   |},
   +$fragmentType: ReactRelayPaginationContainerTestNoConnectionOnFragmentViewerFragment$fragmentType,
 |};
-export type ReactRelayPaginationContainerTestNoConnectionOnFragmentViewerFragment = ReactRelayPaginationContainerTestNoConnectionOnFragmentViewerFragment$data;
 export type ReactRelayPaginationContainerTestNoConnectionOnFragmentViewerFragment$key = {
   +$data?: ReactRelayPaginationContainerTestNoConnectionOnFragmentViewerFragment$data,
   +$fragmentSpreads: ReactRelayPaginationContainerTestNoConnectionOnFragmentViewerFragment$fragmentType,

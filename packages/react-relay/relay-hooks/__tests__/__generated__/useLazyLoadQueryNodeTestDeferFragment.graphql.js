@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<ae0357bdf7cdc6847abc62883b95266e>>
+ * @generated SignedSource<<989c83a75a86f20b77474c4d0dfbb63e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,13 +18,11 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type useLazyLoadQueryNodeTestDeferFragment$fragmentType: FragmentType;
-export type useLazyLoadQueryNodeTestDeferFragment$ref = useLazyLoadQueryNodeTestDeferFragment$fragmentType;
 export type useLazyLoadQueryNodeTestDeferFragment$data = {|
   +id: string,
   +name: ?string,
   +$fragmentType: useLazyLoadQueryNodeTestDeferFragment$fragmentType,
 |};
-export type useLazyLoadQueryNodeTestDeferFragment = useLazyLoadQueryNodeTestDeferFragment$data;
 export type useLazyLoadQueryNodeTestDeferFragment$key = {
   +$data?: useLazyLoadQueryNodeTestDeferFragment$data,
   +$fragmentSpreads: useLazyLoadQueryNodeTestDeferFragment$fragmentType,

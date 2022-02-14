@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<32c1f3fbc2a47df12ab5ef8f4a651a8a>>
+ * @generated SignedSource<<d4763ce6c0ecfc9430012d84e4589d7d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,7 +18,6 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type preloadQueryDEPRECATEDTest_ProvidedVarFragment$fragmentType: FragmentType;
-export type preloadQueryDEPRECATEDTest_ProvidedVarFragment$ref = preloadQueryDEPRECATEDTest_ProvidedVarFragment$fragmentType;
 export type preloadQueryDEPRECATEDTest_ProvidedVarFragment$data = {|
   +name?: ?string,
   +firstName?: ?string,
@@ -26,7 +25,6 @@ export type preloadQueryDEPRECATEDTest_ProvidedVarFragment$data = {|
   +username?: ?string,
   +$fragmentType: preloadQueryDEPRECATEDTest_ProvidedVarFragment$fragmentType,
 |};
-export type preloadQueryDEPRECATEDTest_ProvidedVarFragment = preloadQueryDEPRECATEDTest_ProvidedVarFragment$data;
 export type preloadQueryDEPRECATEDTest_ProvidedVarFragment$key = {
   +$data?: preloadQueryDEPRECATEDTest_ProvidedVarFragment$data,
   +$fragmentSpreads: preloadQueryDEPRECATEDTest_ProvidedVarFragment$fragmentType,
@@ -34,31 +32,28 @@ export type preloadQueryDEPRECATEDTest_ProvidedVarFragment$key = {
 };
 */
 
-var node/*: ReaderFragment*/ = {
+var node/*: ReaderFragment*/ = (function(){
+var v0 = {
+  "kind": "RootArgument",
+  "name": "__relay_internal__pv__RelayProvider_returnsFalse"
+},
+v1 = {
+  "kind": "RootArgument",
+  "name": "__relay_internal__pv__RelayProvider_returnsTrue"
+};
+return {
   "argumentDefinitions": [
-    {
-      "kind": "RootArgument",
-      "name": "__preloadQueryDEPRECATEDTest_ProvidedVarFragment__includeFirstName"
-    },
-    {
-      "kind": "RootArgument",
-      "name": "__preloadQueryDEPRECATEDTest_ProvidedVarFragment__includeName"
-    },
-    {
-      "kind": "RootArgument",
-      "name": "__preloadQueryDEPRECATEDTest_ProvidedVarFragment__skipLastName"
-    },
-    {
-      "kind": "RootArgument",
-      "name": "__preloadQueryDEPRECATEDTest_ProvidedVarFragment__skipUsername"
-    }
+    (v0/*: any*/),
+    (v0/*: any*/),
+    (v1/*: any*/),
+    (v1/*: any*/)
   ],
   "kind": "Fragment",
   "metadata": null,
   "name": "preloadQueryDEPRECATEDTest_ProvidedVarFragment",
   "selections": [
     {
-      "condition": "__preloadQueryDEPRECATEDTest_ProvidedVarFragment__includeName",
+      "condition": "__relay_internal__pv__RelayProvider_returnsTrue",
       "kind": "Condition",
       "passingValue": true,
       "selections": [
@@ -72,7 +67,7 @@ var node/*: ReaderFragment*/ = {
       ]
     },
     {
-      "condition": "__preloadQueryDEPRECATEDTest_ProvidedVarFragment__includeFirstName",
+      "condition": "__relay_internal__pv__RelayProvider_returnsFalse",
       "kind": "Condition",
       "passingValue": true,
       "selections": [
@@ -86,7 +81,7 @@ var node/*: ReaderFragment*/ = {
       ]
     },
     {
-      "condition": "__preloadQueryDEPRECATEDTest_ProvidedVarFragment__skipLastName",
+      "condition": "__relay_internal__pv__RelayProvider_returnsFalse",
       "kind": "Condition",
       "passingValue": false,
       "selections": [
@@ -100,7 +95,7 @@ var node/*: ReaderFragment*/ = {
       ]
     },
     {
-      "condition": "__preloadQueryDEPRECATEDTest_ProvidedVarFragment__skipUsername",
+      "condition": "__relay_internal__pv__RelayProvider_returnsTrue",
       "kind": "Condition",
       "passingValue": false,
       "selections": [
@@ -117,6 +112,7 @@ var node/*: ReaderFragment*/ = {
   "type": "User",
   "abstractKey": null
 };
+})();
 
 if (__DEV__) {
   (node/*: any*/).hash = "6ccd0faa2d0e7e65107135efa23e2de2";

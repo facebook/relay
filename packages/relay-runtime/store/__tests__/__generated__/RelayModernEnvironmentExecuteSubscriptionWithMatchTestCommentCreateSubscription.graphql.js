@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b28095196b5a04225498dfecbad3bccd>>
+ * @generated SignedSource<<3ffa8777b723fc2484658836d40a375b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -28,7 +28,6 @@ export type CommentCreateSubscriptionInput = {|
 export type RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentCreateSubscription$variables = {|
   input: CommentCreateSubscriptionInput,
 |};
-export type RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentCreateSubscriptionVariables = RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentCreateSubscription$variables;
 export type RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentCreateSubscription$data = {|
   +commentCreateSubscribe: ?{|
     +comment: ?{|
@@ -43,9 +42,8 @@ export type RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentCreateS
     |},
   |},
 |};
-export type RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentCreateSubscriptionResponse = RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentCreateSubscription$data;
 export type RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentCreateSubscription = {|
-  variables: RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentCreateSubscriptionVariables,
+  variables: RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentCreateSubscription$variables,
   response: RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentCreateSubscription$data,
 |};
 */
@@ -244,9 +242,7 @@ return {
   "params": {
     "cacheID": "601e62ff5c9e358b7e0b3ef618d91480",
     "id": null,
-    "metadata": {
-      "subscriptionName": "commentCreateSubscribe"
-    },
+    "metadata": {},
     "name": "RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentCreateSubscription",
     "operationKind": "subscription",
     "text": "subscription RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentCreateSubscription(\n  $input: CommentCreateSubscriptionInput!\n) {\n  commentCreateSubscribe(input: $input) {\n    comment {\n      actor {\n        __typename\n        name\n        nameRenderer(supported: [\"PlainUserNameRenderer\", \"MarkdownUserNameRenderer\"]) {\n          __typename\n          ... on PlainUserNameRenderer {\n            ...RelayModernEnvironmentExecuteSubscriptionWithMatchTestPlainUserNameRenderer_name\n            __module_operation_RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentCreateSubscription: js(module: \"RelayModernEnvironmentExecuteSubscriptionWithMatchTestPlainUserNameRenderer_name$normalization.graphql\", id: \"RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentCreateSubscription.commentCreateSubscribe.comment.actor.nameRenderer\")\n            __module_component_RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentCreateSubscription: js(module: \"PlainUserNameRenderer.react\", id: \"RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentCreateSubscription.commentCreateSubscribe.comment.actor.nameRenderer\")\n          }\n          ... on MarkdownUserNameRenderer {\n            ...RelayModernEnvironmentExecuteSubscriptionWithMatchTestMarkdownUserNameRenderer_name\n            __module_operation_RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentCreateSubscription: js(module: \"RelayModernEnvironmentExecuteSubscriptionWithMatchTestMarkdownUserNameRenderer_name$normalization.graphql\", id: \"RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentCreateSubscription.commentCreateSubscribe.comment.actor.nameRenderer\")\n            __module_component_RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentCreateSubscription: js(module: \"MarkdownUserNameRenderer.react\", id: \"RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentCreateSubscription.commentCreateSubscribe.comment.actor.nameRenderer\")\n          }\n        }\n        id\n      }\n      id\n    }\n  }\n}\n\nfragment RelayModernEnvironmentExecuteSubscriptionWithMatchTestMarkdownUserNameRenderer_name on MarkdownUserNameRenderer {\n  __typename\n  markdown\n  data {\n    markup\n    id\n  }\n}\n\nfragment RelayModernEnvironmentExecuteSubscriptionWithMatchTestPlainUserNameRenderer_name on PlainUserNameRenderer {\n  plaintext\n  data {\n    text\n    id\n  }\n}\n"

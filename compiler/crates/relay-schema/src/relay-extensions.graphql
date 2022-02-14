@@ -226,6 +226,14 @@ directive @relay_resolver(
 """
 (Relay Only)
 
+Reading this Client Edge field triggers a network roundtrip or "waterfall". The
+consuming component will suspend until that request has been fulfilled.
+"""
+directive @waterfall on FIELD
+
+"""
+(Relay Only)
+
 Marks a given query or fragment as updatable.
 
 [Read More](https://fb.quip.com/4FZaADvkQPPl)

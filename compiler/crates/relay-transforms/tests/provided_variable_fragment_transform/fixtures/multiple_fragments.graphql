@@ -1,13 +1,13 @@
-fragment ProfilePictureFragment on User 
-  @argumentDefinitions(profilePictureScale: {type: "[Int]", provider: "profilePictureScaleProvider.js"})
+fragment ProfilePictureFragment on User
+  @argumentDefinitions(profilePictureScale: {type: "[Int]", provider: "profilePictureScaleProvider"})
 {
     profilePicture(size: $profilePictureScale) {
         uri
     }
 }
 
-fragment UserIDFragment on Actor 
-  @argumentDefinitions(includeId: {type: "Boolean!", provider: "includeIdrovider.js"})
+fragment UserIDFragment on Actor
+  @argumentDefinitions(includeId: {type: "Boolean!", provider: "includeIdProvider"})
 {
     id @include(if: $includeId)
 }

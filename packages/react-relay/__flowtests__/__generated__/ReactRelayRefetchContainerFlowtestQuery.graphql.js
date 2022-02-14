@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<4966fff79753003b0e22a540764f020d>>
+ * @generated SignedSource<<a07bf128347274d353ab379de5eaef1f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,15 +21,13 @@ export type ReactRelayRefetchContainerFlowtestQuery$variables = {|
   count: number,
   cursor?: ?string,
 |};
-export type ReactRelayRefetchContainerFlowtestQueryVariables = ReactRelayRefetchContainerFlowtestQuery$variables;
 export type ReactRelayRefetchContainerFlowtestQuery$data = {|
   +viewer: ?{|
     +$fragmentSpreads: ReactRelayRefetchContainerFlowtest_viewer$fragmentType,
   |},
 |};
-export type ReactRelayRefetchContainerFlowtestQueryResponse = ReactRelayRefetchContainerFlowtestQuery$data;
 export type ReactRelayRefetchContainerFlowtestQuery = {|
-  variables: ReactRelayRefetchContainerFlowtestQueryVariables,
+  variables: ReactRelayRefetchContainerFlowtestQuery$variables,
   response: ReactRelayRefetchContainerFlowtestQuery$data,
 |};
 */

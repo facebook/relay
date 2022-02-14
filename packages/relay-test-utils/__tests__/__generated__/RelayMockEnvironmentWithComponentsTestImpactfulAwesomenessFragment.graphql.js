@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<2449c5d78770768c40f1eb8a90ed6efd>>
+ * @generated SignedSource<<a7bfc5d5cafdae06b335ab01d94ff465>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,7 +18,6 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayMockEnvironmentWithComponentsTestImpactfulAwesomenessFragment$fragmentType: FragmentType;
-export type RelayMockEnvironmentWithComponentsTestImpactfulAwesomenessFragment$ref = RelayMockEnvironmentWithComponentsTestImpactfulAwesomenessFragment$fragmentType;
 export type RelayMockEnvironmentWithComponentsTestImpactfulAwesomenessFragment$data = {|
   +id: string,
   +message: ?{|
@@ -27,7 +26,6 @@ export type RelayMockEnvironmentWithComponentsTestImpactfulAwesomenessFragment$d
   +doesViewerLike: ?boolean,
   +$fragmentType: RelayMockEnvironmentWithComponentsTestImpactfulAwesomenessFragment$fragmentType,
 |};
-export type RelayMockEnvironmentWithComponentsTestImpactfulAwesomenessFragment = RelayMockEnvironmentWithComponentsTestImpactfulAwesomenessFragment$data;
 export type RelayMockEnvironmentWithComponentsTestImpactfulAwesomenessFragment$key = {
   +$data?: RelayMockEnvironmentWithComponentsTestImpactfulAwesomenessFragment$data,
   +$fragmentSpreads: RelayMockEnvironmentWithComponentsTestImpactfulAwesomenessFragment$fragmentType,

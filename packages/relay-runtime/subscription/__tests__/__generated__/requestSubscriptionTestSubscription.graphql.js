@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<829df6680bd7ecac48720ba10b9b8c59>>
+ * @generated SignedSource<<6ff25624339fd98caa1c4cafb141a95f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -27,7 +27,6 @@ export type CommentCreateSubscriptionInput = {|
 export type requestSubscriptionTestSubscription$variables = {|
   input: CommentCreateSubscriptionInput,
 |};
-export type requestSubscriptionTestSubscriptionVariables = requestSubscriptionTestSubscription$variables;
 export type requestSubscriptionTestSubscription$data = {|
   +commentCreateSubscribe: ?{|
     +comment: ?{|
@@ -42,9 +41,8 @@ export type requestSubscriptionTestSubscription$data = {|
     |},
   |},
 |};
-export type requestSubscriptionTestSubscriptionResponse = requestSubscriptionTestSubscription$data;
 export type requestSubscriptionTestSubscription = {|
-  variables: requestSubscriptionTestSubscriptionVariables,
+  variables: requestSubscriptionTestSubscription$variables,
   response: requestSubscriptionTestSubscription$data,
 |};
 */
@@ -226,9 +224,7 @@ return {
   "params": {
     "cacheID": "c70373f17edf13d0b0d8b3f24c5fb33f",
     "id": null,
-    "metadata": {
-      "subscriptionName": "commentCreateSubscribe"
-    },
+    "metadata": {},
     "name": "requestSubscriptionTestSubscription",
     "operationKind": "subscription",
     "text": "subscription requestSubscriptionTestSubscription(\n  $input: CommentCreateSubscriptionInput!\n) {\n  commentCreateSubscribe(input: $input) {\n    comment {\n      actor {\n        __typename\n        name\n        nameRenderer(supported: [\"PlainUserNameRenderer\"]) {\n          __typename\n          ... on PlainUserNameRenderer {\n            ...requestSubscriptionTestPlainUserNameRenderer_name\n            __module_operation_requestSubscriptionTestSubscription: js(module: \"requestSubscriptionTestPlainUserNameRenderer_name$normalization.graphql\", id: \"requestSubscriptionTestSubscription.commentCreateSubscribe.comment.actor.nameRenderer\")\n            __module_component_requestSubscriptionTestSubscription: js(module: \"PlainUserNameRenderer.react\", id: \"requestSubscriptionTestSubscription.commentCreateSubscribe.comment.actor.nameRenderer\")\n          }\n        }\n        id\n      }\n      id\n    }\n  }\n}\n\nfragment requestSubscriptionTestPlainUserNameRenderer_name on PlainUserNameRenderer {\n  plaintext\n  data {\n    text\n    id\n  }\n}\n"

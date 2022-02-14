@@ -84,6 +84,7 @@ export type TestMutation$rawResponse = {
 export type TestMutation = {
   variables: TestMutation$variables;
   response: TestMutation$data;
+  rawResponse: TestMutation$rawResponse;
 };
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";

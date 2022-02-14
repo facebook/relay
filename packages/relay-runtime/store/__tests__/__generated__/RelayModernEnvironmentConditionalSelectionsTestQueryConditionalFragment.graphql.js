@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<5d626b26a41b76fc456ced377ce05dd2>>
+ * @generated SignedSource<<8e4ed3a285173c5b34f15e5807dab8a8>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,7 +18,6 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentConditionalSelectionsTestQueryConditionalFragment$fragmentType: FragmentType;
-export type RelayModernEnvironmentConditionalSelectionsTestQueryConditionalFragment$ref = RelayModernEnvironmentConditionalSelectionsTestQueryConditionalFragment$fragmentType;
 export type RelayModernEnvironmentConditionalSelectionsTestQueryConditionalFragment$data = {|
   +viewer?: ?{|
     +actor: ?{|
@@ -30,7 +29,6 @@ export type RelayModernEnvironmentConditionalSelectionsTestQueryConditionalFragm
   |},
   +$fragmentType: RelayModernEnvironmentConditionalSelectionsTestQueryConditionalFragment$fragmentType,
 |};
-export type RelayModernEnvironmentConditionalSelectionsTestQueryConditionalFragment = RelayModernEnvironmentConditionalSelectionsTestQueryConditionalFragment$data;
 export type RelayModernEnvironmentConditionalSelectionsTestQueryConditionalFragment$key = {
   +$data?: RelayModernEnvironmentConditionalSelectionsTestQueryConditionalFragment$data,
   +$fragmentSpreads: RelayModernEnvironmentConditionalSelectionsTestQueryConditionalFragment$fragmentType,

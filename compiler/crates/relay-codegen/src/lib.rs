@@ -14,13 +14,16 @@ mod build_ast;
 mod constants;
 mod indentation;
 mod printer;
+mod top_level_statements;
 mod utils;
 
 pub use ast::{AstBuilder, Primitive, QueryID, RequestParameters};
 pub use build_ast::{
     build_request_params, is_static_storage_key_available, CodegenBuilder, CodegenVariant,
 };
+pub use constants::CODEGEN_CONSTANTS;
 pub use printer::{
     print_fragment, print_operation, print_request, print_request_params, JSONPrinter, Printer,
 };
 pub use relay_config::JsModuleFormat;
+pub use top_level_statements::TopLevelStatement;

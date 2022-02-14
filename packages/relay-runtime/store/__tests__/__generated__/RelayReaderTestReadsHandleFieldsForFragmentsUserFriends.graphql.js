@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<e5ec378ce8702be3bb99f78c94643f6d>>
+ * @generated SignedSource<<e3acd5a076fe1bee0d1cdef9fb45a5a7>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,7 +18,6 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayReaderTestReadsHandleFieldsForFragmentsUserFriends$fragmentType: FragmentType;
-export type RelayReaderTestReadsHandleFieldsForFragmentsUserFriends$ref = RelayReaderTestReadsHandleFieldsForFragmentsUserFriends$fragmentType;
 export type RelayReaderTestReadsHandleFieldsForFragmentsUserFriends$data = {|
   +friends: ?{|
     +edges: ?$ReadOnlyArray<?{|
@@ -31,7 +30,6 @@ export type RelayReaderTestReadsHandleFieldsForFragmentsUserFriends$data = {|
   |},
   +$fragmentType: RelayReaderTestReadsHandleFieldsForFragmentsUserFriends$fragmentType,
 |};
-export type RelayReaderTestReadsHandleFieldsForFragmentsUserFriends = RelayReaderTestReadsHandleFieldsForFragmentsUserFriends$data;
 export type RelayReaderTestReadsHandleFieldsForFragmentsUserFriends$key = {
   +$data?: RelayReaderTestReadsHandleFieldsForFragmentsUserFriends$data,
   +$fragmentSpreads: RelayReaderTestReadsHandleFieldsForFragmentsUserFriends$fragmentType,

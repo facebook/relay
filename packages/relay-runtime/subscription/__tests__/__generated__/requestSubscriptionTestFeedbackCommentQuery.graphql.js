@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<14ebbf67588543784ab4f12e55612760>>
+ * @generated SignedSource<<13f6921f76d64d374f7636c8609e2e50>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,7 +19,6 @@ import type { ConcreteRequest, Query } from 'relay-runtime';
 export type requestSubscriptionTestFeedbackCommentQuery$variables = {|
   id?: ?string,
 |};
-export type requestSubscriptionTestFeedbackCommentQueryVariables = requestSubscriptionTestFeedbackCommentQuery$variables;
 export type requestSubscriptionTestFeedbackCommentQuery$data = {|
   +node: ?{|
     +comments?: ?{|
@@ -34,9 +33,8 @@ export type requestSubscriptionTestFeedbackCommentQuery$data = {|
     |},
   |},
 |};
-export type requestSubscriptionTestFeedbackCommentQueryResponse = requestSubscriptionTestFeedbackCommentQuery$data;
 export type requestSubscriptionTestFeedbackCommentQuery = {|
-  variables: requestSubscriptionTestFeedbackCommentQueryVariables,
+  variables: requestSubscriptionTestFeedbackCommentQuery$variables,
   response: requestSubscriptionTestFeedbackCommentQuery$data,
 |};
 */

@@ -11,7 +11,7 @@ use graphql_cli::DiagnosticPrinter;
 use graphql_ir::{
     build_ir_with_extra_features, BuilderOptions, FragmentVariablesSemantic, Program, RelayMode,
 };
-use graphql_syntax::parse_executable;
+use graphql_syntax::{parse_executable, GraphQLSource};
 use graphql_text_printer::{print_fragment, print_operation, PrinterOptions};
 use relay_test_schema::get_test_schema;
 use std::sync::Arc;
@@ -65,7 +65,8 @@ where
 }
 
 pub fn diagnostics_to_sorted_string(source: &str, diagnostics: &[Diagnostic]) -> String {
-    let printer = DiagnosticPrinter::new(|_| Some(source.to_string()));
+    let printer =
+        DiagnosticPrinter::new(|_| Some(GraphQLSource::from_whole_document(source.to_string())));
     let mut printed = diagnostics
         .iter()
         .map(|diagnostic| printer.diagnostic_to_string(diagnostic))

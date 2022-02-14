@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<eeda961ea8a3d617a760484424f8a96c>>
+ * @generated SignedSource<<424fd4fe41d6a6aaa3333662c3e4b22f>>
  */
 
 mod client_edges;
@@ -59,4 +59,11 @@ fn nested_client_edges_with_variables() {
     let input = include_str!("client_edges/fixtures/nested-client-edges-with-variables.graphql");
     let expected = include_str!("client_edges/fixtures/nested-client-edges-with-variables.expected");
     test_fixture(transform_fixture, "nested-client-edges-with-variables.graphql", "client_edges/fixtures/nested-client-edges-with-variables.expected", input, expected);
+}
+
+#[test]
+fn unexpected_waterfall_invalid() {
+    let input = include_str!("client_edges/fixtures/unexpected-waterfall.invalid.graphql");
+    let expected = include_str!("client_edges/fixtures/unexpected-waterfall.invalid.expected");
+    test_fixture(transform_fixture, "unexpected-waterfall.invalid.graphql", "client_edges/fixtures/unexpected-waterfall.invalid.expected", input, expected);
 }

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<1682fc152e9194da1884b664bc2b3ad9>>
+ * @generated SignedSource<<eeb9b34ab120f194020e09b36994d1d4>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,7 +23,6 @@ export type ConnectionHandlerTestConnectionQuery$variables = {|
   after?: ?string,
   orderby?: ?$ReadOnlyArray<?string>,
 |};
-export type ConnectionHandlerTestConnectionQueryVariables = ConnectionHandlerTestConnectionQuery$variables;
 export type ConnectionHandlerTestConnectionQuery$data = {|
   +node: ?{|
     +friends?: ?{|
@@ -43,9 +42,8 @@ export type ConnectionHandlerTestConnectionQuery$data = {|
     |},
   |},
 |};
-export type ConnectionHandlerTestConnectionQueryResponse = ConnectionHandlerTestConnectionQuery$data;
 export type ConnectionHandlerTestConnectionQuery = {|
-  variables: ConnectionHandlerTestConnectionQueryVariables,
+  variables: ConnectionHandlerTestConnectionQuery$variables,
   response: ConnectionHandlerTestConnectionQuery$data,
 |};
 */

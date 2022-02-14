@@ -122,8 +122,8 @@ impl<'fb> FlatBufferSchema<'fb> {
         let mut start = 0;
         let mut end = self.directives.len();
         let name = name.lookup();
-        while start <= end {
-            let mid = (start + end) / 2;
+        while start < end {
+            let mid = start + ((end - start) / 2);
             match self.directives.get(mid).key_compare_with_value(name) {
                 Ordering::Less => {
                     start = mid + 1;
@@ -132,9 +132,7 @@ impl<'fb> FlatBufferSchema<'fb> {
                     let directive = self.directives.get(mid).value()?;
                     return self.parse_directive(directive);
                 }
-                Ordering::Greater => {
-                    end = mid - 1;
-                }
+                Ordering::Greater => end = mid,
             }
         }
         None
@@ -161,8 +159,8 @@ impl<'fb> FlatBufferSchema<'fb> {
         let mut start = 0;
         let mut end = self.types.len();
         let type_name = type_name.lookup();
-        while start <= end {
-            let mid = (start + end) / 2;
+        while start < end {
+            let mid = start + ((end - start) / 2);
             match self.types.get(mid).key_compare_with_value(type_name) {
                 Ordering::Less => {
                     start = mid + 1;
@@ -171,9 +169,7 @@ impl<'fb> FlatBufferSchema<'fb> {
                     let type_ = self.types.get(mid).value()?;
                     return Some(self.parse_type(type_));
                 }
-                Ordering::Greater => {
-                    end = mid - 1;
-                }
+                Ordering::Greater => end = mid,
             }
         }
         None
@@ -559,5 +555,47 @@ fn get_mapped_location(location: schema_flatbuffer::DirectiveLocation) -> Direct
         FDL::InputFieldDefinition => DL::InputFieldDefinition,
         FDL::VariableDefinition => DL::VariableDefinition,
         unknown => panic!("unknown DirectiveLocation value: {:?}", unknown),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::build_schema;
+    use common::DiagnosticsResult;
+
+    #[test]
+    fn binary_search() -> DiagnosticsResult<()> {
+        let sdl = "
+        directive @ref_type(schema: String, name: String) on FIELD_DEFINITION
+        directive @extern_type(schema: String, name: String) on INTERFACE
+        directive @fetchable(field_name: String) on OBJECT
+
+        type Query { id: ID }
+        type User { id: ID }
+        type MailingAddress { id: ID }
+        type Country { id: ID }
+        ";
+        let sdl_schema = build_schema(sdl)?.unwrap_in_memory_impl();
+        let bytes = serialize_as_flatbuffer(&sdl_schema);
+        let fb_schema = FlatBufferSchema::build(&bytes);
+
+        assert!(fb_schema.read_type("Query".intern()).is_some());
+        assert!(fb_schema.read_type("User".intern()).is_some());
+        assert!(fb_schema.read_type("MailingAddress".intern()).is_some());
+
+        assert!(fb_schema.read_type("State".intern()).is_none());
+        assert!(fb_schema.read_type("Aaaa".intern()).is_none());
+        assert!(fb_schema.read_type("Zzzz".intern()).is_none());
+
+        assert!(fb_schema.read_directive("ref_type".intern()).is_some());
+        assert!(fb_schema.read_directive("extern_type".intern()).is_some());
+        assert!(fb_schema.read_directive("fetchable".intern()).is_some());
+
+        assert!(fb_schema.read_directive("goto".intern()).is_none());
+        assert!(fb_schema.read_directive("aaaa".intern()).is_none());
+        assert!(fb_schema.read_directive("zzzz".intern()).is_none());
+
+        Ok(())
     }
 }

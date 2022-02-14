@@ -8,15 +8,15 @@ query providedVariableInFragment_Query($id: ID!) {
 
 fragment providedVariableInFragment_Fragment1 on User
   @argumentDefinitions(
-    foo_gk: {type: "Boolean!", provider: "foo_gk_module.js"}
-    foobar_gk: {type: "Boolean!", provider: "foobar_gk_module.js"})
+    foo_gk: {type: "Boolean!", provider: "fooGKProvider"}
+    foobar_gk: {type: "Boolean!", provider: "foobarGKProvider"})
 {
     name @include(if: $foo_gk)
     alternate_name @include(if: $foobar_gk)
 }
 
 fragment providedVariableInFragment_Fragment2 on User
-  @argumentDefinitions(bar_gk: {type: "Boolean!", provider: "bar_gk_module.js"})
+  @argumentDefinitions(bar_gk: {type: "Boolean!", provider: "barGKProvider"})
 {
     username @skip(if: $bar_gk)
 }
@@ -76,17 +76,17 @@ fragment providedVariableInFragment_Fragment2 on User
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "__providedVariableInFragment_Fragment1__foo_gk"
+        "name": "__relay_internal__pv__fooGKProvider"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "__providedVariableInFragment_Fragment1__foobar_gk"
+        "name": "__relay_internal__pv__foobarGKProvider"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "__providedVariableInFragment_Fragment2__bar_gk"
+        "name": "__relay_internal__pv__barGKProvider"
       }
     ],
     "kind": "Operation",
@@ -117,7 +117,7 @@ fragment providedVariableInFragment_Fragment2 on User
             "kind": "InlineFragment",
             "selections": [
               {
-                "condition": "__providedVariableInFragment_Fragment1__foo_gk",
+                "condition": "__relay_internal__pv__fooGKProvider",
                 "kind": "Condition",
                 "passingValue": true,
                 "selections": [
@@ -131,7 +131,7 @@ fragment providedVariableInFragment_Fragment2 on User
                 ]
               },
               {
-                "condition": "__providedVariableInFragment_Fragment1__foobar_gk",
+                "condition": "__relay_internal__pv__foobarGKProvider",
                 "kind": "Condition",
                 "passingValue": true,
                 "selections": [
@@ -145,7 +145,7 @@ fragment providedVariableInFragment_Fragment2 on User
                 ]
               },
               {
-                "condition": "__providedVariableInFragment_Fragment2__bar_gk",
+                "condition": "__relay_internal__pv__barGKProvider",
                 "kind": "Condition",
                 "passingValue": false,
                 "selections": [
@@ -181,9 +181,9 @@ fragment providedVariableInFragment_Fragment2 on User
     "operationKind": "query",
     "text": null,
     "providedVariables": {
-      "__providedVariableInFragment_Fragment1__foo_gk": require('foo_gk_module.js'),
-      "__providedVariableInFragment_Fragment1__foobar_gk": require('foobar_gk_module.js'),
-      "__providedVariableInFragment_Fragment2__bar_gk": require('bar_gk_module.js')
+      "__relay_internal__pv__fooGKProvider": require('fooGKProvider'),
+      "__relay_internal__pv__foobarGKProvider": require('foobarGKProvider'),
+      "__relay_internal__pv__barGKProvider": require('barGKProvider')
     }
   }
 }
@@ -192,9 +192,9 @@ QUERY:
 
 query providedVariableInFragment_Query(
   $id: ID!
-  $__providedVariableInFragment_Fragment1__foo_gk: Boolean!
-  $__providedVariableInFragment_Fragment1__foobar_gk: Boolean!
-  $__providedVariableInFragment_Fragment2__bar_gk: Boolean!
+  $__relay_internal__pv__fooGKProvider: Boolean!
+  $__relay_internal__pv__foobarGKProvider: Boolean!
+  $__relay_internal__pv__barGKProvider: Boolean!
 ) {
   node(id: $id) {
     __typename
@@ -205,12 +205,12 @@ query providedVariableInFragment_Query(
 }
 
 fragment providedVariableInFragment_Fragment1 on User {
-  name @include(if: $__providedVariableInFragment_Fragment1__foo_gk)
-  alternate_name @include(if: $__providedVariableInFragment_Fragment1__foobar_gk)
+  name @include(if: $__relay_internal__pv__fooGKProvider)
+  alternate_name @include(if: $__relay_internal__pv__foobarGKProvider)
 }
 
 fragment providedVariableInFragment_Fragment2 on User {
-  username @skip(if: $__providedVariableInFragment_Fragment2__bar_gk)
+  username @skip(if: $__relay_internal__pv__barGKProvider)
 }
 
 
@@ -218,11 +218,11 @@ fragment providedVariableInFragment_Fragment2 on User {
   "argumentDefinitions": [
     {
       "kind": "RootArgument",
-      "name": "__providedVariableInFragment_Fragment1__foo_gk"
+      "name": "__relay_internal__pv__fooGKProvider"
     },
     {
       "kind": "RootArgument",
-      "name": "__providedVariableInFragment_Fragment1__foobar_gk"
+      "name": "__relay_internal__pv__foobarGKProvider"
     }
   ],
   "kind": "Fragment",
@@ -230,7 +230,7 @@ fragment providedVariableInFragment_Fragment2 on User {
   "name": "providedVariableInFragment_Fragment1",
   "selections": [
     {
-      "condition": "__providedVariableInFragment_Fragment1__foo_gk",
+      "condition": "__relay_internal__pv__fooGKProvider",
       "kind": "Condition",
       "passingValue": true,
       "selections": [
@@ -244,7 +244,7 @@ fragment providedVariableInFragment_Fragment2 on User {
       ]
     },
     {
-      "condition": "__providedVariableInFragment_Fragment1__foobar_gk",
+      "condition": "__relay_internal__pv__foobarGKProvider",
       "kind": "Condition",
       "passingValue": true,
       "selections": [
@@ -266,7 +266,7 @@ fragment providedVariableInFragment_Fragment2 on User {
   "argumentDefinitions": [
     {
       "kind": "RootArgument",
-      "name": "__providedVariableInFragment_Fragment2__bar_gk"
+      "name": "__relay_internal__pv__barGKProvider"
     }
   ],
   "kind": "Fragment",
@@ -274,7 +274,7 @@ fragment providedVariableInFragment_Fragment2 on User {
   "name": "providedVariableInFragment_Fragment2",
   "selections": [
     {
-      "condition": "__providedVariableInFragment_Fragment2__bar_gk",
+      "condition": "__relay_internal__pv__barGKProvider",
       "kind": "Condition",
       "passingValue": false,
       "selections": [

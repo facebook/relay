@@ -14,21 +14,21 @@ Before taking a deep dive into the mutations API, let's look at a complete examp
 class LikeStoryMutation extends Relay.Mutation {
   // This method should return a GraphQL operation that represents
   // the mutation to be performed. This presumes that the server
-  // implements a mutation type named ‘likeStory’.
+  // implements a mutation type named 'likeStory’.
   getMutation() {
     return Relay.QL`mutation {likeStory}`;
   }
   // Use this method to prepare the variables that will be used as
-  // input to the mutation. Our ‘likeStory’ mutation takes exactly
+  // input to the mutation. Our 'likeStory’ mutation takes exactly
   // one variable as input – the ID of the story to like.
   getVariables() {
     return {storyID: this.props.story.id};
   }
-  // Use this method to design a ‘fat query’ – one that represents every
+  // Use this method to design a 'fat query’ – one that represents every
   // field in your data model that could change as a result of this mutation.
   // Liking a story could affect the likers count, the sentence that
   // summarizes who has liked a story, and the fact that the viewer likes the
-  // story or not. Relay will intersect this query with a ‘tracked query’
+  // story or not. Relay will intersect this query with a 'tracked query’
   // that represents the data that your application actually uses, and
   // instruct the server to include only those fields in its response.
   getFatQuery() {
@@ -47,7 +47,7 @@ class LikeStoryMutation extends Relay.Mutation {
   // These configurations advise Relay on how to handle the LikeStoryPayload
   // returned by the server. Here, we tell Relay to use the payload to
   // change the fields of a record it already has in the store. The
-  // key-value pairs of ‘fieldIDs’ associate field names in the payload
+  // key-value pairs of 'fieldIDs’ associate field names in the payload
   // with the ID of the record that we want updated.
   getConfigs() {
     return [{
@@ -212,7 +212,7 @@ This fat query looks like any other GraphQL query, with one important distinctio
 <blockquote>
 Note
 
-When designing a fat query, consider <em>all</em> of the data that might change as a result of the mutation – not just the data currently in use by your application. We don't need to worry about overfetching; this query is never executed without first intersecting it with a ‘tracked query’ of the data our application actually needs. If we omit fields in the fat query, we might observe data inconsistencies in the future when we add views with new data dependencies, or add new data dependencies to existing views.
+When designing a fat query, consider <em>all</em> of the data that might change as a result of the mutation – not just the data currently in use by your application. We don't need to worry about overfetching; this query is never executed without first intersecting it with a 'tracked query’ of the data our application actually needs. If we omit fields in the fat query, we might observe data inconsistencies in the future when we add views with new data dependencies, or add new data dependencies to existing views.
 
 </blockquote>
 

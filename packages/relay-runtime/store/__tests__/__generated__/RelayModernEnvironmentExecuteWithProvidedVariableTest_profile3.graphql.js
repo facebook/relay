@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<5fb4dface6c17cb758613a42aa3e90f2>>
+ * @generated SignedSource<<c502fe9a1f0cb55e656edf7b6b651f99>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,14 +18,12 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentExecuteWithProvidedVariableTest_profile3$fragmentType: FragmentType;
-export type RelayModernEnvironmentExecuteWithProvidedVariableTest_profile3$ref = RelayModernEnvironmentExecuteWithProvidedVariableTest_profile3$fragmentType;
 export type RelayModernEnvironmentExecuteWithProvidedVariableTest_profile3$data = {|
   +profile_picture: ?{|
     +uri: ?string,
   |},
   +$fragmentType: RelayModernEnvironmentExecuteWithProvidedVariableTest_profile3$fragmentType,
 |};
-export type RelayModernEnvironmentExecuteWithProvidedVariableTest_profile3 = RelayModernEnvironmentExecuteWithProvidedVariableTest_profile3$data;
 export type RelayModernEnvironmentExecuteWithProvidedVariableTest_profile3$key = {
   +$data?: RelayModernEnvironmentExecuteWithProvidedVariableTest_profile3$data,
   +$fragmentSpreads: RelayModernEnvironmentExecuteWithProvidedVariableTest_profile3$fragmentType,
@@ -37,7 +35,7 @@ var node/*: ReaderFragment*/ = {
   "argumentDefinitions": [
     {
       "kind": "RootArgument",
-      "name": "__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile3__profilePictureScale"
+      "name": "__relay_internal__pv__RelayProvider_pictureScale"
     }
   ],
   "kind": "Fragment",
@@ -50,7 +48,7 @@ var node/*: ReaderFragment*/ = {
         {
           "kind": "Variable",
           "name": "scale",
-          "variableName": "__RelayModernEnvironmentExecuteWithProvidedVariableTest_profile3__profilePictureScale"
+          "variableName": "__relay_internal__pv__RelayProvider_pictureScale"
         }
       ],
       "concreteType": "Image",

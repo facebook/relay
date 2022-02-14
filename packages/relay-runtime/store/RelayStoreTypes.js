@@ -117,9 +117,10 @@ type MissingRequiredField = {|
   owner: string,
 |};
 
-export type MissingRequiredFields =
+export type MissingRequiredFields = $ReadOnly<
   | {|action: 'THROW', field: MissingRequiredField|}
-  | {|action: 'LOG', fields: Array<MissingRequiredField>|};
+  | {|action: 'LOG', fields: Array<MissingRequiredField>|},
+>;
 
 export type ClientEdgeTraversalInfo = {|
   +readerClientEdge: ReaderClientEdge,

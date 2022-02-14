@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<07e524ed88117c3786955e60a0329ce7>>
+ * @generated SignedSource<<98673c7043730e4b03f5368e92866db7>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,15 +17,13 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 export type RelayExperimentalGraphResponseTransformTestPluralScalarQuery$variables = {||};
-export type RelayExperimentalGraphResponseTransformTestPluralScalarQueryVariables = RelayExperimentalGraphResponseTransformTestPluralScalarQuery$variables;
 export type RelayExperimentalGraphResponseTransformTestPluralScalarQuery$data = {|
   +me: ?{|
     +emailAddresses: ?$ReadOnlyArray<?string>,
   |},
 |};
-export type RelayExperimentalGraphResponseTransformTestPluralScalarQueryResponse = RelayExperimentalGraphResponseTransformTestPluralScalarQuery$data;
 export type RelayExperimentalGraphResponseTransformTestPluralScalarQuery = {|
-  variables: RelayExperimentalGraphResponseTransformTestPluralScalarQueryVariables,
+  variables: RelayExperimentalGraphResponseTransformTestPluralScalarQuery$variables,
   response: RelayExperimentalGraphResponseTransformTestPluralScalarQuery$data,
 |};
 */

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<c1d60f1454d9f129fb848c0e59f2f0f7>>
+ * @generated SignedSource<<ed2c28df17ba0d0d7f5427f5d0544d22>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,7 +20,6 @@ type RelayMockEnvironmentWithComponentsTestUsefulAwesomenessFragment$fragmentTyp
 export type RelayMockEnvironmentWithComponentsTestExceptionalImpactQuery$variables = {|
   id?: ?string,
 |};
-export type RelayMockEnvironmentWithComponentsTestExceptionalImpactQueryVariables = RelayMockEnvironmentWithComponentsTestExceptionalImpactQuery$variables;
 export type RelayMockEnvironmentWithComponentsTestExceptionalImpactQuery$data = {|
   +user: ?{|
     +id: string,
@@ -30,9 +29,8 @@ export type RelayMockEnvironmentWithComponentsTestExceptionalImpactQuery$data = 
     |},
   |},
 |};
-export type RelayMockEnvironmentWithComponentsTestExceptionalImpactQueryResponse = RelayMockEnvironmentWithComponentsTestExceptionalImpactQuery$data;
 export type RelayMockEnvironmentWithComponentsTestExceptionalImpactQuery = {|
-  variables: RelayMockEnvironmentWithComponentsTestExceptionalImpactQueryVariables,
+  variables: RelayMockEnvironmentWithComponentsTestExceptionalImpactQuery$variables,
   response: RelayMockEnvironmentWithComponentsTestExceptionalImpactQuery$data,
 |};
 */

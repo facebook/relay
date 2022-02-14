@@ -28,4 +28,10 @@ pub enum PersistError {
         #[from]
         source: serde_json::Error,
     },
+
+    #[error("IO Error: {source}")]
+    IOError {
+        #[from]
+        source: std::io::Error,
+    },
 }

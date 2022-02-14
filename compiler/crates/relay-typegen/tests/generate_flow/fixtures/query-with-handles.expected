@@ -39,6 +39,11 @@ export type LinkedHandleField$rawResponse = {|
     +id: string,
   |}),
 |};
+export type LinkedHandleField = {|
+  variables: LinkedHandleField$variables,
+  response: LinkedHandleField$data,
+  rawResponse: LinkedHandleField$rawResponse,
+|};
 -------------------------------------------------------------------------------
 export type ScalarHandleField$variables = {|
   id: string,
@@ -57,4 +62,9 @@ export type ScalarHandleField$rawResponse = {|
     +__typename: string,
     +id: string,
   |}),
+|};
+export type ScalarHandleField = {|
+  variables: ScalarHandleField$variables,
+  response: ScalarHandleField$data,
+  rawResponse: ScalarHandleField$rawResponse,
 |};

@@ -1,6 +1,6 @@
 ==================================== INPUT ====================================
-fragment SingleFragment on User 
-  @argumentDefinitions(profilePictureScale: {type: "[Int]", provider: "profilePictureScaleProvider.js"})
+fragment SingleFragment on User
+  @argumentDefinitions(profilePictureScale: {type: "[Int]", provider: "profilePictureScaleProvider"})
 {
     ... on User {
         profilePicture(size: $profilePictureScale) {
@@ -11,7 +11,7 @@ fragment SingleFragment on User
 ==================================== OUTPUT ===================================
 fragment SingleFragment on User {
   ... on User {
-    profilePicture(size: $__SingleFragment__profilePictureScale) {
+    profilePicture(size: $__relay_internal__pv__profilePictureScaleProvider) {
       uri
     }
   }

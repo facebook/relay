@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<f724db1786d0a461abb8dc3d4649346c>>
+ * @generated SignedSource<<e67ad7c9d9369bbc45b8ba500c8082bb>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -25,7 +25,6 @@ export type CommentCreateSubscriptionInput = {|
 export type RelayModernEnvironmentExecuteSubscriptionWithStreamTestCommentCreateSubscription$variables = {|
   input: CommentCreateSubscriptionInput,
 |};
-export type RelayModernEnvironmentExecuteSubscriptionWithStreamTestCommentCreateSubscriptionVariables = RelayModernEnvironmentExecuteSubscriptionWithStreamTestCommentCreateSubscription$variables;
 export type RelayModernEnvironmentExecuteSubscriptionWithStreamTestCommentCreateSubscription$data = {|
   +commentCreateSubscribe: ?{|
     +feedback: ?{|
@@ -33,9 +32,8 @@ export type RelayModernEnvironmentExecuteSubscriptionWithStreamTestCommentCreate
     |},
   |},
 |};
-export type RelayModernEnvironmentExecuteSubscriptionWithStreamTestCommentCreateSubscriptionResponse = RelayModernEnvironmentExecuteSubscriptionWithStreamTestCommentCreateSubscription$data;
 export type RelayModernEnvironmentExecuteSubscriptionWithStreamTestCommentCreateSubscription = {|
-  variables: RelayModernEnvironmentExecuteSubscriptionWithStreamTestCommentCreateSubscriptionVariables,
+  variables: RelayModernEnvironmentExecuteSubscriptionWithStreamTestCommentCreateSubscription$variables,
   response: RelayModernEnvironmentExecuteSubscriptionWithStreamTestCommentCreateSubscription$data,
 |};
 */
@@ -176,9 +174,7 @@ return {
   "params": {
     "cacheID": "c13dedba1d0c8b17a192b735d141de99",
     "id": null,
-    "metadata": {
-      "subscriptionName": "commentCreateSubscribe"
-    },
+    "metadata": {},
     "name": "RelayModernEnvironmentExecuteSubscriptionWithStreamTestCommentCreateSubscription",
     "operationKind": "subscription",
     "text": "subscription RelayModernEnvironmentExecuteSubscriptionWithStreamTestCommentCreateSubscription(\n  $input: CommentCreateSubscriptionInput!\n) {\n  commentCreateSubscribe(input: $input) {\n    feedback {\n      ...RelayModernEnvironmentExecuteSubscriptionWithStreamTestFeedbackFragment\n      id\n    }\n  }\n}\n\nfragment RelayModernEnvironmentExecuteSubscriptionWithStreamTestFeedbackFragment on Feedback {\n  id\n  actors @stream(label: \"RelayModernEnvironmentExecuteSubscriptionWithStreamTestFeedbackFragment$stream$actors\", initial_count: 0) {\n    __typename\n    name\n    id\n  }\n}\n"

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<c7d3f6d96321d84e58b49eb593a04eb7>>
+ * @generated SignedSource<<1dec139789bbe16702935690ebba62d7>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,15 +20,13 @@ type RelayModernFragmentSpecResolverRequiredFieldNoLoggerTestUserFragment$fragme
 export type RelayModernFragmentSpecResolverRequiredFieldNoLoggerTestUserQuery$variables = {|
   id: string,
 |};
-export type RelayModernFragmentSpecResolverRequiredFieldNoLoggerTestUserQueryVariables = RelayModernFragmentSpecResolverRequiredFieldNoLoggerTestUserQuery$variables;
 export type RelayModernFragmentSpecResolverRequiredFieldNoLoggerTestUserQuery$data = {|
   +node: ?{|
     +$fragmentSpreads: RelayModernFragmentSpecResolverRequiredFieldNoLoggerTestUserFragment$fragmentType,
   |},
 |};
-export type RelayModernFragmentSpecResolverRequiredFieldNoLoggerTestUserQueryResponse = RelayModernFragmentSpecResolverRequiredFieldNoLoggerTestUserQuery$data;
 export type RelayModernFragmentSpecResolverRequiredFieldNoLoggerTestUserQuery = {|
-  variables: RelayModernFragmentSpecResolverRequiredFieldNoLoggerTestUserQueryVariables,
+  variables: RelayModernFragmentSpecResolverRequiredFieldNoLoggerTestUserQuery$variables,
   response: RelayModernFragmentSpecResolverRequiredFieldNoLoggerTestUserQuery$data,
 |};
 */

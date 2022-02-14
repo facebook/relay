@@ -9,8 +9,20 @@ use crate::compiler_state::{ProjectName, ProjectSet, SourceSet};
 
 #[derive(Debug, PartialEq, Eq, Hash)]
 pub enum FileGroup {
-    Generated { project_name: ProjectName },
-    Schema { project_set: ProjectSet },
-    Extension { project_set: ProjectSet },
-    Source { source_set: SourceSet },
+    Generated {
+        project_name: ProjectName,
+    },
+    Schema {
+        project_set: ProjectSet,
+    },
+    Extension {
+        project_set: ProjectSet,
+    },
+    Source {
+        source_set: SourceSet,
+    },
+    /// Files, that are located in the generated directory, but not created
+    /// by relay compiler (utility files: .gitkeep, README, etc.) and should
+    /// be ignored
+    Ignore,
 }

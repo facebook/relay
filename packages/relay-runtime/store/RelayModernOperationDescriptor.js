@@ -46,7 +46,7 @@ function createOperationDescriptor<TQuery: OperationType>(
   const operation = request.operation;
   const operationVariables = getOperationVariables(
     operation,
-    request.params,
+    request.params.providedVariables,
     variables,
   );
   const requestDescriptor = createRequestDescriptor(

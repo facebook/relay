@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<ccadec7007a57eee2997c7cc5961126a>>
+ * @generated SignedSource<<e5e767f21809994ff200f5262bab65fc>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,7 +20,6 @@ type usePreloadedQueryReactDoubleEffectsTestFragment$fragmentType = any;
 export type usePreloadedQueryReactDoubleEffectsTestQuery$variables = {|
   id?: ?string,
 |};
-export type usePreloadedQueryReactDoubleEffectsTestQueryVariables = usePreloadedQueryReactDoubleEffectsTestQuery$variables;
 export type usePreloadedQueryReactDoubleEffectsTestQuery$data = {|
   +node: ?{|
     +id: string,
@@ -28,9 +27,8 @@ export type usePreloadedQueryReactDoubleEffectsTestQuery$data = {|
     +$fragmentSpreads: usePreloadedQueryReactDoubleEffectsTestFragment$fragmentType,
   |},
 |};
-export type usePreloadedQueryReactDoubleEffectsTestQueryResponse = usePreloadedQueryReactDoubleEffectsTestQuery$data;
 export type usePreloadedQueryReactDoubleEffectsTestQuery = {|
-  variables: usePreloadedQueryReactDoubleEffectsTestQueryVariables,
+  variables: usePreloadedQueryReactDoubleEffectsTestQuery$variables,
   response: usePreloadedQueryReactDoubleEffectsTestQuery$data,
 |};
 */

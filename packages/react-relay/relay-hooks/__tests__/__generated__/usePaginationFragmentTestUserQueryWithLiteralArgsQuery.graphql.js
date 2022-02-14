@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<e5c39cc2b4b1d624b13c62d6e76829c0>>
+ * @generated SignedSource<<ec283735e656e041cb03134dc2a7c02d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,15 +24,13 @@ export type usePaginationFragmentTestUserQueryWithLiteralArgsQuery$variables = {
   before?: ?string,
   last?: ?number,
 |};
-export type usePaginationFragmentTestUserQueryWithLiteralArgsQueryVariables = usePaginationFragmentTestUserQueryWithLiteralArgsQuery$variables;
 export type usePaginationFragmentTestUserQueryWithLiteralArgsQuery$data = {|
   +node: ?{|
     +$fragmentSpreads: usePaginationFragmentTestUserFragment$fragmentType,
   |},
 |};
-export type usePaginationFragmentTestUserQueryWithLiteralArgsQueryResponse = usePaginationFragmentTestUserQueryWithLiteralArgsQuery$data;
 export type usePaginationFragmentTestUserQueryWithLiteralArgsQuery = {|
-  variables: usePaginationFragmentTestUserQueryWithLiteralArgsQueryVariables,
+  variables: usePaginationFragmentTestUserQueryWithLiteralArgsQuery$variables,
   response: usePaginationFragmentTestUserQueryWithLiteralArgsQuery$data,
 |};
 */

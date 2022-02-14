@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<26f8c487ecbe451ae3cfc5c101e153a6>>
+ * @generated SignedSource<<0371903ded989ecb42ff9b9bc0add04e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,7 +22,6 @@ type RelayReaderTestWhenMatchDirectiveIsPresentMarkdownUserNameRenderer_name$fra
 type RelayReaderTestWhenMatchDirectiveIsPresentPlainUserNameRenderer_name$fragmentType = any;
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayReaderTestWhenMatchDirectiveIsPresentBarFragment$fragmentType: FragmentType;
-export type RelayReaderTestWhenMatchDirectiveIsPresentBarFragment$ref = RelayReaderTestWhenMatchDirectiveIsPresentBarFragment$fragmentType;
 export type RelayReaderTestWhenMatchDirectiveIsPresentBarFragment$data = {|
   +id: string,
   +nameRenderer: ?{|
@@ -32,7 +31,6 @@ export type RelayReaderTestWhenMatchDirectiveIsPresentBarFragment$data = {|
   |},
   +$fragmentType: RelayReaderTestWhenMatchDirectiveIsPresentBarFragment$fragmentType,
 |};
-export type RelayReaderTestWhenMatchDirectiveIsPresentBarFragment = RelayReaderTestWhenMatchDirectiveIsPresentBarFragment$data;
 export type RelayReaderTestWhenMatchDirectiveIsPresentBarFragment$key = {
   +$data?: RelayReaderTestWhenMatchDirectiveIsPresentBarFragment$data,
   +$fragmentSpreads: RelayReaderTestWhenMatchDirectiveIsPresentBarFragment$fragmentType,

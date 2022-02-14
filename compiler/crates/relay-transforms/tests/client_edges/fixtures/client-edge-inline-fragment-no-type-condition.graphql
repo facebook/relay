@@ -1,11 +1,11 @@
 fragment Foo_user on User {
   ... @skip(if: $some_var) {
-    best_friend {
+    best_friend @waterfall {
       doesViewerLike
     }
   }
   ... @include(if: $some_var) {
-    best_friend {
+    best_friend @waterfall {
       name
     }
   }

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<305590324a7eb541212cfd5ee3541b0c>>
+ * @generated SignedSource<<5a90270a06ee37f7e257e9126f502b83>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,7 +22,6 @@ type RelayModernEnvironmentExecuteWithModuleOnConcreteFieldTestFeedbackAuthor_au
 export type RelayModernEnvironmentExecuteWithModuleOnConcreteFieldTestFeedbackQuery$variables = {|
   id: string,
 |};
-export type RelayModernEnvironmentExecuteWithModuleOnConcreteFieldTestFeedbackQueryVariables = RelayModernEnvironmentExecuteWithModuleOnConcreteFieldTestFeedbackQuery$variables;
 export type RelayModernEnvironmentExecuteWithModuleOnConcreteFieldTestFeedbackQuery$data = {|
   +node: ?{|
     +author?: ?{|
@@ -32,9 +31,8 @@ export type RelayModernEnvironmentExecuteWithModuleOnConcreteFieldTestFeedbackQu
     |},
   |},
 |};
-export type RelayModernEnvironmentExecuteWithModuleOnConcreteFieldTestFeedbackQueryResponse = RelayModernEnvironmentExecuteWithModuleOnConcreteFieldTestFeedbackQuery$data;
 export type RelayModernEnvironmentExecuteWithModuleOnConcreteFieldTestFeedbackQuery = {|
-  variables: RelayModernEnvironmentExecuteWithModuleOnConcreteFieldTestFeedbackQueryVariables,
+  variables: RelayModernEnvironmentExecuteWithModuleOnConcreteFieldTestFeedbackQuery$variables,
   response: RelayModernEnvironmentExecuteWithModuleOnConcreteFieldTestFeedbackQuery$data,
 |};
 */

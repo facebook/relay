@@ -5,33 +5,34 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use clap::{ArgEnum, Parser};
 use common::ConsoleLogger;
-use env_logger::Env;
-use log::{error, info, Level};
+use log::{error, info};
 use relay_compiler::{
+    build_project::artifact_writer::ArtifactValidationWriter,
     compiler::Compiler,
     config::{Config, SingleProjectConfigFile},
-    FileSourceKind, RemotePersister,
+    FileSourceKind, LocalPersister, OperationPersister, PersistConfig, RemotePersister,
 };
 use relay_typegen::TypegenLanguage;
-use std::io::Write;
+use simplelog::{ColorChoice, ConfigBuilder, LevelFilter, TermLogger, TerminalMode};
 use std::{
     env::{self, current_dir},
     path::PathBuf,
     process::Command,
     sync::Arc,
 };
-use structopt::StructOpt;
 
-#[derive(StructOpt)]
-#[structopt(
+#[derive(Parser)]
+#[clap(
     name = "Relay Compiler",
-    about = "Compiler to produce Relay generated files.",
+    version = option_env!("CARGO_PKG_VERSION").unwrap_or("unknown"),
+    about = "Compiles Relay files and writes generated files.",
     rename_all = "camel_case"
 )]
 struct Opt {
     /// Compile and watch for changes
-    #[structopt(long, short)]
+    #[clap(long, short)]
     watch: bool,
 
     /// Compile using this config file. If not provided, searches for a config in
@@ -39,25 +40,42 @@ struct Opt {
     /// from the current working directory.
     config: Option<PathBuf>,
 
-    #[structopt(flatten)]
+    #[clap(flatten)]
     cli_config: CliConfig,
 
     /// Run the persister even if the query has not changed.
-    #[structopt(long)]
+    #[clap(long)]
     repersist: bool,
+
+    /// Verbosity level
+    #[clap(long, arg_enum, default_value = "verbose")]
+    output: OutputKind,
+
+    /// Looks for pending changes and exits with non-zero code instead of
+    /// writing to disk
+    #[structopt(long)]
+    validate: bool,
 }
 
-#[derive(StructOpt)]
-#[structopt(rename_all = "camel_case")]
+#[derive(ArgEnum, Clone, Copy)]
+enum OutputKind {
+    Debug,
+    Quiet,
+    QuietWithErrors,
+    Verbose,
+}
+
+#[derive(Parser)]
+#[clap(rename_all = "camel_case")]
 pub struct CliConfig {
     /// Path for the directory where to search for source code
-    #[structopt(long)]
+    #[clap(long)]
     pub src: Option<PathBuf>,
     /// Path to schema file
-    #[structopt(long)]
+    #[clap(long)]
     pub schema: Option<PathBuf>,
     /// Path to a directory, where the compiler should write artifacts
-    #[structopt(long)]
+    #[clap(long)]
     pub artifact_directory: Option<PathBuf>,
 }
 
@@ -81,18 +99,23 @@ impl From<CliConfig> for SingleProjectConfigFile {
 
 #[tokio::main]
 async fn main() {
-    env_logger::Builder::from_env(Env::default().default_filter_or("info"))
-        .format(|buf, record| {
-            let style = buf.default_level_style(record.level());
-            if record.level() == Level::Info {
-                writeln!(buf, "{}", record.args())
-            } else {
-                writeln!(buf, "[{}] {}", style.value(record.level()), record.args())
-            }
-        })
-        .init();
+    let opt = Opt::parse();
 
-    let opt = Opt::from_args();
+    let log_level = match opt.output {
+        OutputKind::Debug => LevelFilter::Debug,
+        OutputKind::Quiet => LevelFilter::Off,
+        OutputKind::QuietWithErrors => LevelFilter::Error,
+        OutputKind::Verbose => LevelFilter::Info,
+    };
+
+    let config = ConfigBuilder::new()
+        .set_time_level(LevelFilter::Off)
+        .set_target_level(LevelFilter::Off)
+        .set_location_level(LevelFilter::Off)
+        .set_thread_level(LevelFilter::Off)
+        .build();
+
+    TermLogger::init(log_level, config, TerminalMode::Mixed, ColorChoice::Auto).unwrap();
 
     let config_result = if let Some(config_path) = opt.config {
         Config::load(config_path)
@@ -106,11 +129,30 @@ async fn main() {
         error!("{}", err);
         std::process::exit(1);
     });
-    config.operation_persister = Some(Box::new(RemotePersister));
+
+    if opt.validate {
+        config.artifact_writer = Box::new(ArtifactValidationWriter::default());
+    }
+
+    config.create_operation_persister = Some(Box::new(|project_config| {
+        project_config.persist.as_ref().map(
+            |persist_config| -> Box<dyn OperationPersister + Send + Sync> {
+                match persist_config {
+                    PersistConfig::Remote(remote_config) => {
+                        Box::new(RemotePersister::new(remote_config.clone()))
+                    }
+                    PersistConfig::Local(local_config) => {
+                        Box::new(LocalPersister::new(local_config.clone()))
+                    }
+                }
+            },
+        )
+    }));
+
     config.file_source_config = if should_use_watchman() {
         FileSourceKind::Watchman
     } else {
-        FileSourceKind::Glob
+        FileSourceKind::WalkDir
     };
     config.repersist_operations = opt.repersist;
 
@@ -132,8 +174,7 @@ async fn main() {
             Ok(_compiler_state) => {
                 info!("Done");
             }
-            Err(err) => {
-                error!("{}", err);
+            Err(_err) => {
                 std::process::exit(1);
             }
         }

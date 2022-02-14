@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b54ae398d5220c45c0e9710dcf8ab23b>>
+ * @generated SignedSource<<ea97ebb3393fc7bbff0e6d31c19b131d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,12 +18,10 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type withProvidedVariablesTest4Fragment2$fragmentType: FragmentType;
-export type withProvidedVariablesTest4Fragment2$ref = withProvidedVariablesTest4Fragment2$fragmentType;
 export type withProvidedVariablesTest4Fragment2$data = {|
   +name?: ?string,
   +$fragmentType: withProvidedVariablesTest4Fragment2$fragmentType,
 |};
-export type withProvidedVariablesTest4Fragment2 = withProvidedVariablesTest4Fragment2$data;
 export type withProvidedVariablesTest4Fragment2$key = {
   +$data?: withProvidedVariablesTest4Fragment2$data,
   +$fragmentSpreads: withProvidedVariablesTest4Fragment2$fragmentType,
@@ -35,7 +33,7 @@ var node/*: ReaderFragment*/ = {
   "argumentDefinitions": [
     {
       "kind": "RootArgument",
-      "name": "__withProvidedVariablesTest4Fragment2__includeName"
+      "name": "__relay_internal__pv__provideIncludeUserNames"
     }
   ],
   "kind": "Fragment",
@@ -43,7 +41,7 @@ var node/*: ReaderFragment*/ = {
   "name": "withProvidedVariablesTest4Fragment2",
   "selections": [
     {
-      "condition": "__withProvidedVariablesTest4Fragment2__includeName",
+      "condition": "__relay_internal__pv__provideIncludeUserNames",
       "kind": "Condition",
       "passingValue": true,
       "selections": [

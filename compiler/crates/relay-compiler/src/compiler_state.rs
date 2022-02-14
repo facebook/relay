@@ -9,7 +9,7 @@ use crate::artifact_map::ArtifactMap;
 use crate::config::Config;
 use crate::errors::{Error, Result};
 use crate::file_source::{
-    categorize_files, extract_graphql_strings_from_file, read_file_to_string, Clock, File,
+    categorize_files, extract_javascript_features_from_file, read_file_to_string, Clock, File,
     FileGroup, FileSourceResult, SourceControlUpdateStatus,
 };
 use common::{PerfLogEvent, PerfLogger, SourceLocationKey};
@@ -63,12 +63,36 @@ impl ProjectSet {
     }
 }
 
+impl IntoIterator for ProjectSet {
+    type Item = ProjectName;
+    type IntoIter = std::vec::IntoIter<Self::Item>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        match self {
+            ProjectSet::ProjectName(name) => vec![name].into_iter(),
+            ProjectSet::ProjectNames(names) => names.into_iter(),
+        }
+    }
+}
+
 /// Represents the name of the source set, or list of source sets
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
 #[serde(untagged)]
 pub enum SourceSet {
     SourceSetName(SourceSetName),
     SourceSetNames(Vec<SourceSetName>),
+}
+
+impl IntoIterator for SourceSet {
+    type Item = SourceSetName;
+    type IntoIter = std::vec::IntoIter<Self::Item>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        match self {
+            SourceSet::SourceSetName(name) => vec![name].into_iter(),
+            SourceSet::SourceSetNames(names) => names.into_iter(),
+        }
+    }
 }
 
 impl fmt::Display for SourceSet {
@@ -98,21 +122,22 @@ impl Source for Vec<GraphQLSource> {
     }
 }
 
-type IncrementalSourceSet<K, V> = FnvHashMap<K, V>;
+type IncrementalSourceSet<V> = FnvHashMap<PathBuf, V>;
+
 #[derive(Serialize, Deserialize, Clone, Debug)]
-pub struct IncrementalSources<K: Eq + Hash, V: Source> {
-    pub pending: IncrementalSourceSet<K, V>,
-    pub processed: IncrementalSourceSet<K, V>,
+pub struct IncrementalSources<V: Source> {
+    pub pending: IncrementalSourceSet<V>,
+    pub processed: IncrementalSourceSet<V>,
 }
 
-impl<K: Eq + Hash, V: Source> IncrementalSources<K, V> {
+impl<V: Source> IncrementalSources<V> {
     /// Merges additional pending sources into this states pending sources.
-    fn merge_pending_sources(&mut self, additional_pending_sources: IncrementalSourceSet<K, V>) {
+    fn merge_pending_sources(&mut self, additional_pending_sources: IncrementalSourceSet<V>) {
         self.pending.extend(additional_pending_sources.into_iter());
     }
 
     /// Remove deleted sources from both pending sources and processed sources.
-    fn remove_sources(&mut self, removed_sources: &[K]) {
+    fn remove_sources(&mut self, removed_sources: &[PathBuf]) {
         for source in removed_sources {
             self.pending.remove(source);
             self.processed.remove(source);
@@ -130,7 +155,7 @@ impl<K: Eq + Hash, V: Source> IncrementalSources<K, V> {
     }
 }
 
-impl<K: Eq + Hash, V: Source> Default for IncrementalSources<K, V> {
+impl<V: Source> Default for IncrementalSources<V> {
     fn default() -> Self {
         IncrementalSources {
             pending: FnvHashMap::default(),
@@ -139,9 +164,9 @@ impl<K: Eq + Hash, V: Source> Default for IncrementalSources<K, V> {
     }
 }
 
-type GraphQLSourceSet = IncrementalSourceSet<PathBuf, Vec<GraphQLSource>>;
-pub type GraphQLSources = IncrementalSources<PathBuf, Vec<GraphQLSource>>;
-pub type SchemaSources = IncrementalSources<PathBuf, String>;
+type GraphQLSourceSet = IncrementalSourceSet<Vec<GraphQLSource>>;
+pub type GraphQLSources = IncrementalSources<Vec<GraphQLSource>>;
+pub type SchemaSources = IncrementalSources<String>;
 
 impl Source for String {
     fn is_empty(&self) -> bool {
@@ -254,14 +279,18 @@ impl CompilerState {
                     let log_event = perf_logger.create_event("categorize");
                     log_event.string("source_set_name", source_set.to_string());
                     let extract_timer = log_event.start("extract_graphql_strings_from_file_time");
-                    let sources = files
+                    let sources: GraphQLSourceSet = files
                         .par_iter()
                         .filter(|file| file.exists)
                         .filter_map(|file| {
-                            match extract_graphql_strings_from_file(file_source_changes, file) {
-                                Ok(graphql_strings) if graphql_strings.is_empty() => None,
-                                Ok(graphql_strings) => {
-                                    Some(Ok((file.name.clone(), graphql_strings)))
+                            match extract_javascript_features_from_file(file_source_changes, file) {
+                                Ok(source_features)
+                                    if source_features.graphql_sources.is_empty() =>
+                                {
+                                    None
+                                }
+                                Ok(source_features) => {
+                                    Some(Ok((file.name.clone(), source_features.graphql_sources)))
                                 }
                                 Err(err) => Some(Err(err)),
                             }
@@ -269,15 +298,8 @@ impl CompilerState {
                         .collect::<Result<_>>()?;
                     log_event.stop(extract_timer);
                     log_event.complete();
-                    match source_set {
-                        SourceSet::SourceSetName(source_set_name) => {
-                            result.set_pending_source_set(source_set_name, sources);
-                        }
-                        SourceSet::SourceSetNames(names) => {
-                            for source_set_name in names {
-                                result.set_pending_source_set(source_set_name, sources.clone());
-                            }
-                        }
+                    for source_set_name in source_set {
+                        result.set_pending_source_set(source_set_name, sources.clone());
                     }
                 }
                 FileGroup::Schema { project_set } => {
@@ -304,6 +326,7 @@ impl CompilerState {
                         )),
                     );
                 }
+                FileGroup::Ignore => {}
             }
         }
 
@@ -428,33 +451,28 @@ impl CompilerState {
                         log_event.string("source_set_name", source_set.to_string());
                         let extract_timer =
                             log_event.start("extract_graphql_strings_from_file_time");
-                        let sources: FnvHashMap<PathBuf, Vec<GraphQLSource>> = files
+                        let sources: GraphQLSourceSet = files
                             .par_iter()
                             .map(|file| {
-                                let graphql_strings = if file.exists {
-                                    extract_graphql_strings_from_file(&file_source_changes, file)?
+                                let javascript_features = if file.exists {
+                                    extract_javascript_features_from_file(
+                                        &file_source_changes,
+                                        file,
+                                    )?
+                                    .graphql_sources
                                 } else {
                                     Vec::new()
                                 };
-                                Ok((file.name.clone(), graphql_strings))
+                                Ok((file.name.clone(), javascript_features))
                             })
                             .collect::<Result<_>>()?;
                         log_event.stop(extract_timer);
-                        match source_set {
-                            SourceSet::SourceSetName(source_set_name) => {
-                                self.graphql_sources
-                                    .entry(source_set_name)
-                                    .or_default()
-                                    .merge_pending_sources(sources);
-                            }
-                            SourceSet::SourceSetNames(names) => {
-                                for source_set_name in names {
-                                    self.graphql_sources
-                                        .entry(source_set_name)
-                                        .or_default()
-                                        .merge_pending_sources(sources.clone());
-                                }
-                            }
+
+                        for source_set_name in source_set {
+                            self.graphql_sources
+                                .entry(source_set_name)
+                                .or_default()
+                                .merge_pending_sources(sources.clone());
                         }
                     }
                     FileGroup::Schema { project_set } => {
@@ -483,6 +501,7 @@ impl CompilerState {
                             self.dirty_artifact_paths.insert(project_name, dashset);
                         }
                     }
+                    FileGroup::Ignore => {}
                 }
             }
         }
@@ -628,20 +647,11 @@ impl CompilerState {
                 removed_sources.push(file_name);
             }
         }
-        match project_set {
-            ProjectSet::ProjectName(project_name) => {
-                let entry = source_map.entry(project_name).or_default();
-                entry.remove_sources(&removed_sources);
-                entry.merge_pending_sources(added_sources);
-            }
-            ProjectSet::ProjectNames(project_names) => {
-                for project_name in project_names {
-                    let entry = source_map.entry(project_name).or_default();
-                    entry.remove_sources(&removed_sources);
-                    entry.merge_pending_sources(added_sources.clone());
-                }
-            }
-        };
+        for project_name in project_set {
+            let entry = source_map.entry(project_name).or_default();
+            entry.remove_sources(&removed_sources);
+            entry.merge_pending_sources(added_sources.clone());
+        }
         Ok(())
     }
 

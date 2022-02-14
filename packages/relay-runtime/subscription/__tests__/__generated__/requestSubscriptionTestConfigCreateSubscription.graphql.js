@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<dde99c894a4b111727d7309230c3f9ac>>
+ * @generated SignedSource<<7139abd87033108ab2d27fdea55cc2ec>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,7 +18,6 @@
 import type { ConcreteRequest, GraphQLSubscription } from 'relay-runtime';
 type requestSubscriptionTestExtraFragment$fragmentType = any;
 export type requestSubscriptionTestConfigCreateSubscription$variables = {||};
-export type requestSubscriptionTestConfigCreateSubscriptionVariables = requestSubscriptionTestConfigCreateSubscription$variables;
 export type requestSubscriptionTestConfigCreateSubscription$data = {|
   +configCreateSubscribe: ?{|
     +config: ?{|
@@ -27,9 +26,8 @@ export type requestSubscriptionTestConfigCreateSubscription$data = {|
     |},
   |},
 |};
-export type requestSubscriptionTestConfigCreateSubscriptionResponse = requestSubscriptionTestConfigCreateSubscription$data;
 export type requestSubscriptionTestConfigCreateSubscription = {|
-  variables: requestSubscriptionTestConfigCreateSubscriptionVariables,
+  variables: requestSubscriptionTestConfigCreateSubscription$variables,
   response: requestSubscriptionTestConfigCreateSubscription$data,
 |};
 */
@@ -122,9 +120,7 @@ return {
   "params": {
     "cacheID": "1b69adfae158cc6f1ccf259d412d1bf3",
     "id": null,
-    "metadata": {
-      "subscriptionName": "configCreateSubscribe"
-    },
+    "metadata": {},
     "name": "requestSubscriptionTestConfigCreateSubscription",
     "operationKind": "subscription",
     "text": "subscription requestSubscriptionTestConfigCreateSubscription {\n  configCreateSubscribe {\n    config {\n      name\n      ...requestSubscriptionTestExtraFragment\n    }\n  }\n}\n\nfragment requestSubscriptionTestExtraFragment on Config {\n  isEnabled\n}\n"

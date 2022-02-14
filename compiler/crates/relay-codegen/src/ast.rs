@@ -63,6 +63,7 @@ impl Ast {
 #[derive(Eq, PartialEq, Hash, Debug)]
 pub enum Primitive {
     Key(AstKey),
+    Variable(StringKey),
     String(StringKey),
     Float(FloatValue),
     Int(i64),
@@ -72,6 +73,9 @@ pub enum Primitive {
     RawString(String),
     GraphQLModuleDependency(StringKey),
     JSModuleDependency(StringKey),
+    // Don't include the value in the output when
+    // skip_printing_nulls is enabled
+    SkippableNull,
 }
 
 impl Primitive {

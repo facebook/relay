@@ -87,6 +87,7 @@ pub fn categorize_files(
                             | FileGroup::Extension {
                                 project_set: ProjectSet::ProjectNames(names),
                             } => !names.iter().any(|name| relevant_projects.contains(name)),
+                            FileGroup::Ignore => false,
                         })
                 })
                 .collect::<Vec<_>>()
@@ -94,7 +95,7 @@ pub fn categorize_files(
         FileSourceResult::External(result) => {
             categorize_non_watchman_files(&categorizer, config, &result.files)
         }
-        FileSourceResult::Glob(result) => {
+        FileSourceResult::WalkDir(result) => {
             categorize_non_watchman_files(&categorizer, config, &result.files)
         }
     };
@@ -234,12 +235,21 @@ impl FileCategorizer {
     /// preprocessing the config in `from_config` and then re-using the
     /// `FileCategorizer`.
     pub fn categorize(&self, path: &Path) -> Result<FileGroup, Cow<'static, str>> {
+        let extension = path.extension();
+
         if let Some(project_name) = self.generated_dir_mapping.find(path) {
-            return Ok(FileGroup::Generated { project_name });
+            return if let Some(extension) = extension {
+                if is_source_code_extension(extension) || is_extra_extensions(extension) {
+                    Ok(FileGroup::Generated { project_name })
+                } else {
+                    Ok(FileGroup::Ignore)
+                }
+            } else {
+                Ok(FileGroup::Ignore)
+            };
         }
-        let extension = path
-            .extension()
-            .ok_or(Cow::Borrowed("Got unexpected path without extension."))?;
+
+        let extension = extension.ok_or(Cow::Borrowed("Got unexpected path without extension."))?;
 
         if is_source_code_extension(extension) {
             let source_set = self
@@ -267,7 +277,7 @@ impl FileCategorizer {
                     Err(Cow::Borrowed("Invalid extension for a generated file."))
                 }
             }
-        } else if extension == "graphql" {
+        } else if is_schema_extension(extension) {
             if let Some(project_set) = self.schema_file_mapping.get(path) {
                 Ok(FileGroup::Schema {
                     project_set: project_set.clone(),
@@ -278,7 +288,7 @@ impl FileCategorizer {
                 Ok(FileGroup::Schema { project_set })
             } else {
                 Err(Cow::Borrowed(
-                    "Expected *.graphql file to be either a schema or extension.",
+                    "Expected *.graphql/*.gql file to be either a schema or extension.",
                 ))
             }
         } else {
@@ -355,6 +365,14 @@ impl<T: Clone> PathMapping<T> {
 
 fn is_source_code_extension(extension: &OsStr) -> bool {
     extension == "js" || extension == "jsx" || extension == "ts" || extension == "tsx"
+}
+
+fn is_schema_extension(extension: &OsStr) -> bool {
+    extension == "graphql" || extension == "gql"
+}
+
+fn is_extra_extensions(extension: &OsStr) -> bool {
+    extension == "php" || extension == "json"
 }
 
 fn is_valid_source_code_extension(typegen_language: &TypegenLanguage, extension: &OsStr) -> bool {
@@ -519,7 +537,14 @@ mod tests {
         assert_eq!(
             categorizer.categorize(&PathBuf::from("src/js/a.graphql")),
             Err(Cow::Borrowed(
-                "Expected *.graphql file to be either a schema or extension."
+                "Expected *.graphql/*.gql file to be either a schema or extension."
+            )),
+        );
+
+        assert_eq!(
+            categorizer.categorize(&PathBuf::from("src/js/a.gql")),
+            Err(Cow::Borrowed(
+                "Expected *.graphql/*.gql file to be either a schema or extension."
             )),
         );
 

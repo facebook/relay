@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<9b57539dc470e45c46f583d989c1df38>>
+ * @generated SignedSource<<695f239d281809246e6c574c1ff0f60a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,7 +24,6 @@ export type ReactRelayPaginationContainerTestNoConnectionOnFragmentUserQuery$var
   id: string,
   orderby?: ?$ReadOnlyArray<?string>,
 |};
-export type ReactRelayPaginationContainerTestNoConnectionOnFragmentUserQueryVariables = ReactRelayPaginationContainerTestNoConnectionOnFragmentUserQuery$variables;
 export type ReactRelayPaginationContainerTestNoConnectionOnFragmentUserQuery$data = {|
   +viewer: ?{|
     +$fragmentSpreads: ReactRelayPaginationContainerTestNoConnectionOnFragmentViewerFragment$fragmentType,
@@ -34,9 +33,8 @@ export type ReactRelayPaginationContainerTestNoConnectionOnFragmentUserQuery$dat
     +$fragmentSpreads: ReactRelayPaginationContainerTestNoConnectionOnFragmentUserFragment$fragmentType,
   |},
 |};
-export type ReactRelayPaginationContainerTestNoConnectionOnFragmentUserQueryResponse = ReactRelayPaginationContainerTestNoConnectionOnFragmentUserQuery$data;
 export type ReactRelayPaginationContainerTestNoConnectionOnFragmentUserQuery = {|
-  variables: ReactRelayPaginationContainerTestNoConnectionOnFragmentUserQueryVariables,
+  variables: ReactRelayPaginationContainerTestNoConnectionOnFragmentUserQuery$variables,
   response: ReactRelayPaginationContainerTestNoConnectionOnFragmentUserQuery$data,
 |};
 */

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<d9f3bf330a0943bab4153eef884430c4>>
+ * @generated SignedSource<<2299a0e303cfca713d525cc77490ce02>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,7 +18,6 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type ReactRelayPaginationContainerTestNoConnectionOnFragmentUserFragment$fragmentType: FragmentType;
-export type ReactRelayPaginationContainerTestNoConnectionOnFragmentUserFragment$ref = ReactRelayPaginationContainerTestNoConnectionOnFragmentUserFragment$fragmentType;
 export type ReactRelayPaginationContainerTestNoConnectionOnFragmentUserFragment$data = {|
   +friends: ?{|
     +edges: ?$ReadOnlyArray<?{|
@@ -33,7 +32,6 @@ export type ReactRelayPaginationContainerTestNoConnectionOnFragmentUserFragment$
   |},
   +$fragmentType: ReactRelayPaginationContainerTestNoConnectionOnFragmentUserFragment$fragmentType,
 |};
-export type ReactRelayPaginationContainerTestNoConnectionOnFragmentUserFragment = ReactRelayPaginationContainerTestNoConnectionOnFragmentUserFragment$data;
 export type ReactRelayPaginationContainerTestNoConnectionOnFragmentUserFragment$key = {
   +$data?: ReactRelayPaginationContainerTestNoConnectionOnFragmentUserFragment$data,
   +$fragmentSpreads: ReactRelayPaginationContainerTestNoConnectionOnFragmentUserFragment$fragmentType,

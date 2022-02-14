@@ -9,7 +9,7 @@ use common::SourceLocationKey;
 use fixture_tests::Fixture;
 use graphql_cli::DiagnosticPrinter;
 use graphql_ir::{build, Program};
-use graphql_syntax::parse_executable;
+use graphql_syntax::{parse_executable, GraphQLSource};
 use graphql_test_helpers::diagnostics_to_sorted_string;
 use relay_test_schema::TEST_SCHEMA;
 use relay_transforms::validate_selection_conflict;
@@ -26,7 +26,11 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
             let mut errs = errors
                 .into_iter()
                 .map(|err| {
-                    let printer = DiagnosticPrinter::new(|_| Some(fixture.content.to_string()));
+                    let printer = DiagnosticPrinter::new(|_| {
+                        Some(GraphQLSource::from_whole_document(
+                            fixture.content.to_string(),
+                        ))
+                    });
                     printer.diagnostic_to_string(&err)
                 })
                 .collect::<Vec<_>>();

@@ -5,7 +5,7 @@ query TestQuery($id: ID) {
 }
 
 fragment Fragment0 on User
-    @argumentDefinitions(foo_gk: {type: "Boolean!", provider: "foo_gk_module.js"})
+    @argumentDefinitions(foo_gk: {type: "Boolean!", provider: "fooGKProvider"})
 {
     ... on User{
       ... on User {

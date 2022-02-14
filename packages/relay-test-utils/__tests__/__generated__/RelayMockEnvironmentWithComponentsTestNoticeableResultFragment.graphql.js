@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<f52b383e7223a3f0e7de436ad6574111>>
+ * @generated SignedSource<<fdf23039df7fbec1d31a13850cf1b61f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,7 +18,6 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayMockEnvironmentWithComponentsTestNoticeableResultFragment$fragmentType: FragmentType;
-export type RelayMockEnvironmentWithComponentsTestNoticeableResultFragment$ref = RelayMockEnvironmentWithComponentsTestNoticeableResultFragment$fragmentType;
 export type RelayMockEnvironmentWithComponentsTestNoticeableResultFragment$data = {|
   +id: string,
   +message: ?{|
@@ -27,7 +26,6 @@ export type RelayMockEnvironmentWithComponentsTestNoticeableResultFragment$data 
   +doesViewerLike: ?boolean,
   +$fragmentType: RelayMockEnvironmentWithComponentsTestNoticeableResultFragment$fragmentType,
 |};
-export type RelayMockEnvironmentWithComponentsTestNoticeableResultFragment = RelayMockEnvironmentWithComponentsTestNoticeableResultFragment$data;
 export type RelayMockEnvironmentWithComponentsTestNoticeableResultFragment$key = {
   +$data?: RelayMockEnvironmentWithComponentsTestNoticeableResultFragment$data,
   +$fragmentSpreads: RelayMockEnvironmentWithComponentsTestNoticeableResultFragment$fragmentType,

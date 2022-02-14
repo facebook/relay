@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<4e9e802f9104f1e5c260981c761f9e6a>>
+ * @generated SignedSource<<2bc5a0f591894b3c67d0f4e95461629b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,7 +19,6 @@ import type { ConcreteRequest, Query } from 'relay-runtime';
 export type RelayModernEnvironmentExecuteWithPromiseNetworkTestActorQuery$variables = {|
   fetchSize: boolean,
 |};
-export type RelayModernEnvironmentExecuteWithPromiseNetworkTestActorQueryVariables = RelayModernEnvironmentExecuteWithPromiseNetworkTestActorQuery$variables;
 export type RelayModernEnvironmentExecuteWithPromiseNetworkTestActorQuery$data = {|
   +me: ?{|
     +name: ?string,
@@ -28,9 +27,8 @@ export type RelayModernEnvironmentExecuteWithPromiseNetworkTestActorQuery$data =
     |},
   |},
 |};
-export type RelayModernEnvironmentExecuteWithPromiseNetworkTestActorQueryResponse = RelayModernEnvironmentExecuteWithPromiseNetworkTestActorQuery$data;
 export type RelayModernEnvironmentExecuteWithPromiseNetworkTestActorQuery = {|
-  variables: RelayModernEnvironmentExecuteWithPromiseNetworkTestActorQueryVariables,
+  variables: RelayModernEnvironmentExecuteWithPromiseNetworkTestActorQuery$variables,
   response: RelayModernEnvironmentExecuteWithPromiseNetworkTestActorQuery$data,
 |};
 */

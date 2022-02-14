@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<9286c547a41f319f09ae4077b60ab0c3>>
+ * @generated SignedSource<<2f93f01461707f79e89dab71b95a8561>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,7 +18,6 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type withProvidedVariablesTest4Fragment1$fragmentType: FragmentType;
-export type withProvidedVariablesTest4Fragment1$ref = withProvidedVariablesTest4Fragment1$fragmentType;
 export type withProvidedVariablesTest4Fragment1$data = {|
   +friends: ?{|
     +count: ?number,
@@ -30,7 +29,6 @@ export type withProvidedVariablesTest4Fragment1$data = {|
   |},
   +$fragmentType: withProvidedVariablesTest4Fragment1$fragmentType,
 |};
-export type withProvidedVariablesTest4Fragment1 = withProvidedVariablesTest4Fragment1$data;
 export type withProvidedVariablesTest4Fragment1$key = {
   +$data?: withProvidedVariablesTest4Fragment1$data,
   +$fragmentSpreads: withProvidedVariablesTest4Fragment1$fragmentType,
@@ -42,11 +40,11 @@ var node/*: ReaderFragment*/ = {
   "argumentDefinitions": [
     {
       "kind": "RootArgument",
-      "name": "__withProvidedVariablesTest4Fragment1__includeName"
+      "name": "__relay_internal__pv__provideIncludeUserNames"
     },
     {
       "kind": "RootArgument",
-      "name": "__withProvidedVariablesTest4Fragment1__numberOfFriends"
+      "name": "__relay_internal__pv__provideNumberOfFriends"
     }
   ],
   "kind": "Fragment",
@@ -59,7 +57,7 @@ var node/*: ReaderFragment*/ = {
         {
           "kind": "Variable",
           "name": "first",
-          "variableName": "__withProvidedVariablesTest4Fragment1__numberOfFriends"
+          "variableName": "__relay_internal__pv__provideNumberOfFriends"
         }
       ],
       "concreteType": "FriendsConnection",
@@ -91,7 +89,7 @@ var node/*: ReaderFragment*/ = {
               "plural": false,
               "selections": [
                 {
-                  "condition": "__withProvidedVariablesTest4Fragment1__includeName",
+                  "condition": "__relay_internal__pv__provideIncludeUserNames",
                   "kind": "Condition",
                   "passingValue": true,
                   "selections": [

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b0ad3c42da79b820f7b7f3a96ca30698>>
+ * @generated SignedSource<<7c98e1739beb3ee457e2857047be10d2>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,12 +18,10 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type GraphQLTagTestUserFragment$fragmentType: FragmentType;
-export type GraphQLTagTestUserFragment$ref = GraphQLTagTestUserFragment$fragmentType;
 export type GraphQLTagTestUserFragment$data = {|
   +name: ?string,
   +$fragmentType: GraphQLTagTestUserFragment$fragmentType,
 |};
-export type GraphQLTagTestUserFragment = GraphQLTagTestUserFragment$data;
 export type GraphQLTagTestUserFragment$key = {
   +$data?: GraphQLTagTestUserFragment$data,
   +$fragmentSpreads: GraphQLTagTestUserFragment$fragmentType,

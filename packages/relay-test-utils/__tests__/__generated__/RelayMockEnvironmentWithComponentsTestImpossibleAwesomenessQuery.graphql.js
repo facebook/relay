@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<c655ce923f8c27418664dca8aad56d57>>
+ * @generated SignedSource<<28022cba3314e01f07231d3ce0027db0>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,7 +21,6 @@ export type RelayMockEnvironmentWithComponentsTestImpossibleAwesomenessQuery$var
   id?: ?string,
   scale?: ?number,
 |};
-export type RelayMockEnvironmentWithComponentsTestImpossibleAwesomenessQueryVariables = RelayMockEnvironmentWithComponentsTestImpossibleAwesomenessQuery$variables;
 export type RelayMockEnvironmentWithComponentsTestImpossibleAwesomenessQuery$data = {|
   +user: ?{|
     +id: string,
@@ -29,9 +28,8 @@ export type RelayMockEnvironmentWithComponentsTestImpossibleAwesomenessQuery$dat
     +$fragmentSpreads: RelayMockEnvironmentWithComponentsTestProminentSolutionFragment$fragmentType,
   |},
 |};
-export type RelayMockEnvironmentWithComponentsTestImpossibleAwesomenessQueryResponse = RelayMockEnvironmentWithComponentsTestImpossibleAwesomenessQuery$data;
 export type RelayMockEnvironmentWithComponentsTestImpossibleAwesomenessQuery = {|
-  variables: RelayMockEnvironmentWithComponentsTestImpossibleAwesomenessQueryVariables,
+  variables: RelayMockEnvironmentWithComponentsTestImpossibleAwesomenessQuery$variables,
   response: RelayMockEnvironmentWithComponentsTestImpossibleAwesomenessQuery$data,
 |};
 */

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<720a628b4dbc43168c1362ca84db2883>>
+ * @generated SignedSource<<9f2fcea7be14b0466eb7e1574f509d30>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,12 +18,10 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type useRefetchableFragmentNodeWithSuspenseTransitionTestNestedUserFragment$fragmentType: FragmentType;
-export type useRefetchableFragmentNodeWithSuspenseTransitionTestNestedUserFragment$ref = useRefetchableFragmentNodeWithSuspenseTransitionTestNestedUserFragment$fragmentType;
 export type useRefetchableFragmentNodeWithSuspenseTransitionTestNestedUserFragment$data = {|
   +username: ?string,
   +$fragmentType: useRefetchableFragmentNodeWithSuspenseTransitionTestNestedUserFragment$fragmentType,
 |};
-export type useRefetchableFragmentNodeWithSuspenseTransitionTestNestedUserFragment = useRefetchableFragmentNodeWithSuspenseTransitionTestNestedUserFragment$data;
 export type useRefetchableFragmentNodeWithSuspenseTransitionTestNestedUserFragment$key = {
   +$data?: useRefetchableFragmentNodeWithSuspenseTransitionTestNestedUserFragment$data,
   +$fragmentSpreads: useRefetchableFragmentNodeWithSuspenseTransitionTestNestedUserFragment$fragmentType,

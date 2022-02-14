@@ -5,38 +5,146 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::cmp::Reverse;
+
 use crate::util::format_provided_variable_name;
-use common::{NamedItem, WithLocation};
+use common::{Diagnostic, DiagnosticsResult, Location, Named, NamedItem, WithLocation};
+use fnv::FnvHashMap;
 use graphql_ir::{
     FragmentDefinition, Program, ProvidedVariableMetadata, Transformed, TransformedValue,
     Transformer, Variable, VariableDefinition,
 };
-use intern::string_key::{StringKey, StringKeySet};
+use intern::string_key::{Intern, StringKey};
 use itertools::Itertools;
+use schema::{SDLSchema, Schema, TypeReference};
+use thiserror::Error;
 
 /// This transform applies provided variables in each fragment.
 ///  - Rename all uses of provided variables (in values)
-///     [provided_variable_name] --> __[fragment_name]__[provided_variable_name]
+///     [provided_variable_name] --> __pv__[module_name]
 ///  - Remove provided variables from (local) argument definitions
 ///  - Add provided variables to list of used global variables
 /// apply_fragment_arguments depends on provide_variable_fragment_transform
-pub fn provided_variable_fragment_transform(program: &Program) -> Program {
-    let mut transform = ProvidedVariableFragmentTransform::new();
-    transform
+pub fn provided_variable_fragment_transform(program: &Program) -> DiagnosticsResult<Program> {
+    let mut transform = ProvidedVariableFragmentTransform::new(&*program.schema);
+    let program = transform
         .transform_program(program)
-        .replace_or_else(|| program.clone())
+        .replace_or_else(|| program.clone());
+
+    let errors = transform.get_errors();
+    if errors.is_empty() {
+        Ok(program)
+    } else {
+        Err(errors)
+    }
 }
 
-struct ProvidedVariableFragmentTransform {
-    // stack of (fragment_name: string, provider_names: set<string>)
-    in_scope_providers: Option<(StringKey, StringKeySet)>,
+struct ProvidedVariableDefinitions {
+    // Different (module name, variable type) tuples give conflicting
+    //  provided variable definitions.
+    // We need to keep track of usages under each definition for stable
+    //  error reporting.
+    usages_map: FnvHashMap<(StringKey, TypeReference), Vec<Location>>,
 }
 
-impl ProvidedVariableFragmentTransform {
-    fn new() -> Self {
-        ProvidedVariableFragmentTransform {
-            in_scope_providers: None,
+impl ProvidedVariableDefinitions {
+    fn new() -> ProvidedVariableDefinitions {
+        ProvidedVariableDefinitions {
+            usages_map: Default::default(),
         }
+    }
+    fn add(&mut self, module_name: StringKey, variable_def: &VariableDefinition) {
+        let usages = self
+            .usages_map
+            .entry((module_name, variable_def.type_.clone()))
+            .or_insert_with(Vec::new);
+        usages.push(variable_def.name.location);
+    }
+
+
+    fn get_errors(&self, schema: &SDLSchema, errors: &mut Vec<Diagnostic>) {
+        if self.usages_map.len() > 1 {
+            // The most frequently used definition is likely the intended one
+            // Tie break by string ordering of module + type name
+            let ((most_used_module, most_used_type), _) = self
+                .usages_map
+                .iter()
+                .max_by_key(|((module, type_), usages)| {
+                    (
+                        usages.len(),
+                        Reverse((module, schema.get_type_string(type_))),
+                    )
+                })
+                .unwrap();
+
+            for ((other_module, other_type), other_usages) in self.usages_map.iter() {
+                if other_module != most_used_module {
+                    for usage in other_usages {
+                        errors.push(Diagnostic::error(
+                            ValidationMessage::ProvidedVariableConflictingModuleNames {
+                                module1: *most_used_module,
+                                module2: *other_module,
+                            },
+                            *usage,
+                        ));
+                    }
+                }
+
+                if other_type != most_used_type {
+                    for usage in other_usages {
+                        errors.push(Diagnostic::error(
+                            ValidationMessage::ProvidedVariableConflictingTypes {
+                                module: *most_used_module,
+                                existing_type: schema.get_type_string(most_used_type).intern(),
+                                new_type: schema.get_type_string(other_type).intern(),
+                            },
+                            *usage,
+                        ));
+                    }
+                }
+            }
+        }
+    }
+}
+
+struct ProvidedVariableFragmentTransform<'schema> {
+    schema: &'schema SDLSchema,
+    all_provided_variables: FnvHashMap<StringKey, ProvidedVariableDefinitions>,
+    // fragment local identifier --> transformed identifier
+    in_scope_providers: FnvHashMap<StringKey, StringKey>,
+}
+
+impl<'schema> ProvidedVariableFragmentTransform<'schema> {
+    fn new(schema: &'schema SDLSchema) -> Self {
+        ProvidedVariableFragmentTransform {
+            schema,
+            all_provided_variables: Default::default(),
+            in_scope_providers: Default::default(),
+        }
+    }
+
+
+    fn get_errors(&self) -> Vec<Diagnostic> {
+        let mut errors = Vec::new();
+
+        for (_, def) in self.all_provided_variables.iter() {
+            def.get_errors(self.schema, &mut errors);
+        }
+        errors
+    }
+
+    fn add_provided_variable(
+        &mut self,
+        transformed_name: StringKey,
+        module_name: StringKey,
+        variable_def: &VariableDefinition,
+    ) {
+        let usages = self
+            .all_provided_variables
+            .entry(transformed_name)
+            .or_insert_with(ProvidedVariableDefinitions::new);
+
+        usages.add(module_name, variable_def);
     }
 
     fn get_variable_definitions(&self, fragment: &FragmentDefinition) -> Vec<VariableDefinition> {
@@ -55,44 +163,33 @@ impl ProvidedVariableFragmentTransform {
     fn get_global_variables(&self, fragment: &FragmentDefinition) -> Vec<VariableDefinition> {
         let mut new_globals = fragment.used_global_variables.clone();
         new_globals.extend(fragment.variable_definitions.iter().filter_map(|def| {
-            if def
-                .directives
-                .named(ProvidedVariableMetadata::directive_name())
-                .is_some()
-            {
-                Some(VariableDefinition {
-                    name: WithLocation {
-                        item: format_provided_variable_name(fragment.name.item, def.name.item),
-                        location: def.name.location,
-                    },
-                    ..def.clone()
-                })
-            } else {
-                None
-            }
+            let transformed_name = self.in_scope_providers.get(&def.name())?;
+            Some(VariableDefinition {
+                name: WithLocation {
+                    item: *transformed_name,
+                    location: def.name.location,
+                },
+                ..def.clone()
+            })
         }));
         new_globals
     }
 }
 
-impl<'s> Transformer for ProvidedVariableFragmentTransform {
+impl<'schema> Transformer for ProvidedVariableFragmentTransform<'schema> {
     const NAME: &'static str = "ApplyFragmentProvidedVariables";
     const VISIT_ARGUMENTS: bool = true;
     const VISIT_DIRECTIVES: bool = false;
 
     fn transform_variable(&mut self, variable: &Variable) -> TransformedValue<Variable> {
-        if let Some((fragment_name, current_fragment_scope)) = &self.in_scope_providers {
-            if current_fragment_scope.contains(&variable.name.item) {
-                TransformedValue::Replace(Variable {
-                    name: WithLocation {
-                        location: variable.name.location,
-                        item: format_provided_variable_name(*fragment_name, variable.name.item),
-                    },
-                    type_: variable.type_.clone(),
-                })
-            } else {
-                TransformedValue::Keep
-            }
+        if let Some(transformed_name) = self.in_scope_providers.get(&variable.name.item) {
+            TransformedValue::Replace(Variable {
+                name: WithLocation {
+                    location: variable.name.location,
+                    item: *transformed_name,
+                },
+                type_: variable.type_.clone(),
+            })
         } else {
             TransformedValue::Keep
         }
@@ -102,25 +199,18 @@ impl<'s> Transformer for ProvidedVariableFragmentTransform {
         &mut self,
         fragment: &FragmentDefinition,
     ) -> Transformed<FragmentDefinition> {
-        let provided_variable_names =
-            StringKeySet::from_iter(fragment.variable_definitions.iter().filter_map(|def| {
-                if def
-                    .directives
-                    .named(ProvidedVariableMetadata::directive_name())
-                    .is_some()
-                {
-                    Some(def.name.item)
-                } else {
-                    None
-                }
-            }));
+        debug_assert!(self.in_scope_providers.is_empty());
+        for def in fragment.variable_definitions.iter() {
+            if let Some(metadata) = ProvidedVariableMetadata::find(&def.directives) {
+                let transformed_name = format_provided_variable_name(metadata.module_name);
+                self.in_scope_providers.insert(def.name(), transformed_name);
+                self.add_provided_variable(transformed_name, metadata.module_name, def);
+            }
+        }
 
-        debug_assert!(self.in_scope_providers.is_none());
-        if provided_variable_names.is_empty() {
+        if self.in_scope_providers.is_empty() {
             Transformed::Keep
         } else {
-            self.in_scope_providers = Some((fragment.name.item, provided_variable_names));
-
             let selections = self.transform_selections(&fragment.selections);
             let new_fragment = FragmentDefinition {
                 name: fragment.name,
@@ -130,8 +220,28 @@ impl<'s> Transformer for ProvidedVariableFragmentTransform {
                 directives: fragment.directives.clone(),
                 selections: selections.replace_or_else(|| fragment.selections.clone()),
             };
-            self.in_scope_providers = None;
+            self.in_scope_providers.clear();
             Transformed::Replace(new_fragment)
         }
     }
+}
+
+#[derive(Debug, Error)]
+enum ValidationMessage {
+    #[error(
+        "Modules '{module1}' and '{module2}' used by provided variables have indistinguishable names. (All non ascii-alphanumeric characters are stripped in Relay transform)"
+    )]
+    ProvidedVariableConflictingModuleNames {
+        module1: StringKey,
+        module2: StringKey,
+    },
+
+    #[error(
+        "All provided variables using module '{module}' must declare the same type. Expected '{existing_type}' but found '{new_type}'"
+    )]
+    ProvidedVariableConflictingTypes {
+        module: StringKey,
+        existing_type: StringKey,
+        new_type: StringKey,
+    },
 }

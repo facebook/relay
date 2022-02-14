@@ -46,7 +46,10 @@ function create(
     uploadables?: ?UploadableMap,
     logRequestInfo: ?LogRequestInfoFunction,
   ): RelayObservable<GraphQLResponse> {
-    const operationVariables = withProvidedVariables(variables, request);
+    const operationVariables = withProvidedVariables(
+      variables,
+      request.providedVariables,
+    );
     if (request.operationKind === 'subscription') {
       invariant(
         subscribe,

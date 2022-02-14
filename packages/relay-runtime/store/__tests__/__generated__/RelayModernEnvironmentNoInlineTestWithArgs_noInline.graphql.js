@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<29cd4d9ee88e244d5bbef80aee6698e8>>
+ * @generated SignedSource<<af810fd82548649a092a1e47ae75b630>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,7 +19,6 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 type RelayModernEnvironmentNoInlineTest_inner$fragmentType = any;
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentNoInlineTestWithArgs_noInline$fragmentType: FragmentType;
-export type RelayModernEnvironmentNoInlineTestWithArgs_noInline$ref = RelayModernEnvironmentNoInlineTestWithArgs_noInline$fragmentType;
 export type RelayModernEnvironmentNoInlineTestWithArgs_noInline$data = {|
   +profile_picture?: ?{|
     +uri: ?string,
@@ -27,7 +26,6 @@ export type RelayModernEnvironmentNoInlineTestWithArgs_noInline$data = {|
   +$fragmentSpreads: RelayModernEnvironmentNoInlineTest_inner$fragmentType,
   +$fragmentType: RelayModernEnvironmentNoInlineTestWithArgs_noInline$fragmentType,
 |};
-export type RelayModernEnvironmentNoInlineTestWithArgs_noInline = RelayModernEnvironmentNoInlineTestWithArgs_noInline$data;
 export type RelayModernEnvironmentNoInlineTestWithArgs_noInline$key = {
   +$data?: RelayModernEnvironmentNoInlineTestWithArgs_noInline$data,
   +$fragmentSpreads: RelayModernEnvironmentNoInlineTestWithArgs_noInline$fragmentType,

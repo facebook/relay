@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<38ba22f01af7e05653c3fc1f70be2e22>>
+ * @generated SignedSource<<6905645a65399c0f3da574d400e7c7f2>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,7 +18,6 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type ActorChangeWithStreamTestFragment$fragmentType: FragmentType;
-export type ActorChangeWithStreamTestFragment$ref = ActorChangeWithStreamTestFragment$fragmentType;
 export type ActorChangeWithStreamTestFragment$data = {|
   +id: string,
   +message: ?{|
@@ -32,7 +31,6 @@ export type ActorChangeWithStreamTestFragment$data = {|
   |},
   +$fragmentType: ActorChangeWithStreamTestFragment$fragmentType,
 |};
-export type ActorChangeWithStreamTestFragment = ActorChangeWithStreamTestFragment$data;
 export type ActorChangeWithStreamTestFragment$key = {
   +$data?: ActorChangeWithStreamTestFragment$data,
   +$fragmentSpreads: ActorChangeWithStreamTestFragment$fragmentType,

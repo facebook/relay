@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<61c56d733a497b293e90a1d81438cf9d>>
+ * @generated SignedSource<<0eaa0addad282db14090c16be213c419>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,15 +21,13 @@ export type ReactRelayRefetchContainerTestUserWithCondQuery$variables = {|
   id: string,
   condGlobal: boolean,
 |};
-export type ReactRelayRefetchContainerTestUserWithCondQueryVariables = ReactRelayRefetchContainerTestUserWithCondQuery$variables;
 export type ReactRelayRefetchContainerTestUserWithCondQuery$data = {|
   +node: ?{|
     +$fragmentSpreads: ReactRelayRefetchContainerTestUserFragment$fragmentType,
   |},
 |};
-export type ReactRelayRefetchContainerTestUserWithCondQueryResponse = ReactRelayRefetchContainerTestUserWithCondQuery$data;
 export type ReactRelayRefetchContainerTestUserWithCondQuery = {|
-  variables: ReactRelayRefetchContainerTestUserWithCondQueryVariables,
+  variables: ReactRelayRefetchContainerTestUserWithCondQuery$variables,
   response: ReactRelayRefetchContainerTestUserWithCondQuery$data,
 |};
 */

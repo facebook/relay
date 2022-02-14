@@ -4,7 +4,7 @@ fragment relayResolverBackingClientEdge_best_friend_resolver on User {
 
 query relayResolverBackingClientEdgeQuery {
   me {
-    best_friend {
+    best_friend @waterfall {
       name
     }
   }

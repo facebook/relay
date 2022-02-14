@@ -109,7 +109,7 @@ pub struct FlowTypegenConfig {
 impl Default for FlowTypegenConfig {
     fn default() -> Self {
         Self {
-            phase: FlowTypegenPhase::Compat,
+            phase: FlowTypegenPhase::Final,
             rollout: Rollout::default(),
         }
     }

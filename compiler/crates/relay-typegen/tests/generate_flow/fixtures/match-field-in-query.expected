@@ -35,6 +35,10 @@ export type NameRendererQuery$data = {|
     |},
   |},
 |};
+export type NameRendererQuery = {|
+  variables: NameRendererQuery$variables,
+  response: NameRendererQuery$data,
+|};
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";
 declare export opaque type MarkdownUserNameRenderer_name$fragmentType: FragmentType;

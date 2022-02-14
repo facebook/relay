@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<2398006f37a2945c11e8cc5f6b5111be>>
+ * @generated SignedSource<<6d5c346863daba742ab9ea9acedb8125>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,16 +20,14 @@ type QueryResourceTest2Fragment$fragmentType = any;
 export type QueryResourceTest4Query$variables = {|
   id: string,
 |};
-export type QueryResourceTest4QueryVariables = QueryResourceTest4Query$variables;
 export type QueryResourceTest4Query$data = {|
   +node: ?{|
     +__typename: string,
     +$fragmentSpreads: QueryResourceTest2Fragment$fragmentType,
   |},
 |};
-export type QueryResourceTest4QueryResponse = QueryResourceTest4Query$data;
 export type QueryResourceTest4Query = {|
-  variables: QueryResourceTest4QueryVariables,
+  variables: QueryResourceTest4Query$variables,
   response: QueryResourceTest4Query$data,
 |};
 */

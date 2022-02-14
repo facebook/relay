@@ -244,6 +244,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             sink.next(response);
             sink.complete();
             expect(events).toEqual(['next', response, 'complete']);
+            jest.runAllTimers(); // Ensure that the consumed entry is cleaned up.
             const preloaded2 = preloadQuery_DEPRECATED(
               environment,
               params,
@@ -578,6 +579,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             sink.next(response);
             sink.complete();
             expect(events).toEqual(['next', response, 'complete']);
+            jest.runAllTimers(); // Ensure that the consumed entry is cleaned up.
             const preloaded2 = preloadQuery_DEPRECATED(
               environment,
               params,
@@ -712,6 +714,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             sink.next(response);
             sink.complete();
             expect(events).toEqual(['next', response, 'complete']);
+            jest.runAllTimers(); // Ensure that the consumed entry is cleaned up.
             const preloaded2 = preloadQuery_DEPRECATED(
               environment,
               params,
@@ -856,14 +859,10 @@ describe('Preload queries that use provided variables', () => {
 
   const variables = {id: 4};
   const generatedVariables = {
-    __preloadQueryDEPRECATEDTest_ProvidedVarFragment__includeName:
+    __relay_internal__pv__RelayProvider_returnsTrue:
       require('./RelayProvider_returnsTrue').get(),
-    __preloadQueryDEPRECATEDTest_ProvidedVarFragment__includeFirstName:
+    __relay_internal__pv__RelayProvider_returnsFalse:
       require('./RelayProvider_returnsFalse').get(),
-    __preloadQueryDEPRECATEDTest_ProvidedVarFragment__skipLastName:
-      require('./RelayProvider_returnsFalse').get(),
-    __preloadQueryDEPRECATEDTest_ProvidedVarFragment__skipUsername:
-      require('./RelayProvider_returnsTrue').get(),
     ...variables,
   };
 

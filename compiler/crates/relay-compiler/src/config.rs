@@ -25,9 +25,13 @@ use persist_query::PersistError;
 use rayon::prelude::*;
 use regex::Regex;
 use relay_config::{
-    FlowTypegenConfig, JsModuleFormat, SchemaConfig, TypegenConfig, TypegenLanguage,
+    FlowTypegenConfig, FlowTypegenPhase, JsModuleFormat, SchemaConfig, TypegenConfig,
+    TypegenLanguage,
 };
-pub use relay_config::{PersistConfig, ProjectConfig, SchemaLocation};
+pub use relay_config::{
+    LocalPersistConfig, PersistConfig, ProjectConfig, RemotePersistConfig, SchemaLocation,
+};
+use relay_transforms::CustomTransformsConfig;
 use serde::de::Error as DeError;
 use serde::{Deserialize, Deserializer, Serialize};
 use serde_json::Value;
@@ -44,6 +48,10 @@ type PostArtifactsWriter = Box<
         + Send
         + Sync,
 >;
+
+type OperationPersisterCreator =
+    Box<dyn Fn(&ProjectConfig) -> Option<Box<dyn OperationPersister + Send + Sync>> + Send + Sync>;
+
 /// The full compiler config. This is a combination of:
 /// - the configuration file
 /// - the absolute path to the root of the compiled projects
@@ -87,8 +95,9 @@ pub struct Config {
     pub saved_state_loader: Option<Box<dyn SavedStateLoader + Send + Sync>>,
     pub saved_state_version: String,
 
-    /// Function that is called to save operation text (e.g. to a database) and to generate an id.
-    pub operation_persister: Option<Box<dyn OperationPersister + Send + Sync>>,
+    /// Function that creates a function that is
+    /// called to save operation text (e.g. to a database) and to generate an id.
+    pub create_operation_persister: Option<OperationPersisterCreator>,
 
     pub post_artifacts_write: Option<PostArtifactsWriter>,
 
@@ -104,6 +113,11 @@ pub struct Config {
 
     /// Type of file source to use in the Compiler
     pub file_source_config: FileSourceKind,
+
+    /// A set of custom transform functions, that can be applied before,
+    /// and after each major transformation step (common, operations, etc)
+    /// in the `apply_transforms(...)`.
+    pub custom_transforms: Option<CustomTransformsConfig>,
 }
 
 pub enum FileSourceKind {
@@ -111,7 +125,7 @@ pub enum FileSourceKind {
     /// List with changed files in format "file_path,exists".
     /// This can be used to replace watchman queries
     External(PathBuf),
-    Glob,
+    WalkDir,
 }
 
 fn normalize_path_from_config(
@@ -302,13 +316,14 @@ impl Config {
             saved_state_config: config_file.saved_state_config,
             saved_state_loader: None,
             saved_state_version: hex::encode(hash.result()),
-            operation_persister: None,
+            create_operation_persister: None,
             compile_everything: false,
             repersist_operations: false,
             post_artifacts_write: None,
             additional_validations: None,
             is_dev_variable_name: config_file.is_dev_variable_name,
             file_source_config: FileSourceKind::Watchman,
+            custom_transforms: None,
         };
 
         let mut validation_errors = Vec::new();
@@ -452,7 +467,7 @@ impl fmt::Debug for Config {
             saved_state_config,
             saved_state_loader,
             saved_state_version,
-            operation_persister,
+            create_operation_persister,
             post_artifacts_write,
             ..
         } = self;
@@ -478,8 +493,8 @@ impl fmt::Debug for Config {
             .field("load_saved_state_file", load_saved_state_file)
             .field("saved_state_config", saved_state_config)
             .field(
-                "operation_persister",
-                &option_fn_to_string(operation_persister),
+                "create_operation_persister",
+                &option_fn_to_string(create_operation_persister),
             )
             .field(
                 "generate_extra_artifacts",
@@ -611,6 +626,12 @@ pub struct SingleProjectConfigFile {
 
     /// Formatting style for generated files.
     pub js_module_format: JsModuleFormat,
+
+    /// Extra configuration for the schema itself.
+    pub schema_config: SchemaConfig,
+
+    /// Added in 13.1.1 to customize Final/Compat mode in the single project config file
+    pub typegen_phase: FlowTypegenPhase,
 }
 
 impl Default for SingleProjectConfigFile {
@@ -627,11 +648,13 @@ impl Default for SingleProjectConfigFile {
             no_future_proof_enums: false,
             language: Some(TypegenLanguage::default()),
             custom_scalars: Default::default(),
+            schema_config: Default::default(),
             eager_es_modules: false,
             persist_config: None,
             is_dev_variable_name: None,
             codegen_command: None,
             js_module_format: JsModuleFormat::CommonJS,
+            typegen_phase: FlowTypegenPhase::Final,
         }
     }
 }
@@ -716,6 +739,7 @@ impl SingleProjectConfigFile {
                 common_root_dir.clone(),
                 self.schema,
             )),
+            schema_config: self.schema_config,
             schema_extensions: self
                 .schema_extensions
                 .iter()
@@ -733,7 +757,11 @@ impl SingleProjectConfigFile {
                 custom_scalar_types: self.custom_scalars.clone(),
                 eager_es_modules: self.eager_es_modules,
                 future_proof_enums: !self.no_future_proof_enums,
-                flow_typegen: FlowTypegenConfig::default(),
+                flow_typegen: FlowTypegenConfig {
+                    no_future_proof_enums: self.no_future_proof_enums,
+                    phase: self.typegen_phase,
+                    ..Default::default()
+                },
                 ..Default::default()
             },
             js_module_format: self.js_module_format,
@@ -799,7 +827,7 @@ It also cannot be a single project config file due to:
 
 #[derive(Debug, Deserialize, Serialize, Default)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
-struct ConfigFileProject {
+pub struct ConfigFileProject {
     /// If a base project is set, the documents of that project can be
     /// referenced, but won't produce output artifacts.
     /// Extensions from the base project will be added as well and the schema
@@ -843,7 +871,7 @@ struct ConfigFileProject {
     persist: Option<PersistConfig>,
 
     #[serde(flatten)]
-    typegen_config: TypegenConfig,
+    pub typegen_config: TypegenConfig,
 
     /// Optional regex to restrict @relay_test_operation to directories matching
     /// this regex. Defaults to no limitations.
@@ -859,7 +887,7 @@ struct ConfigFileProject {
     extra: serde_json::Value,
 
     #[serde(default)]
-    feature_flags: Option<FeatureFlags>,
+    pub feature_flags: Option<FeatureFlags>,
 
     /// A generic rollout state for larger codegen changes. The default is to
     /// pass, otherwise it should be a number between 0 and 100 as a percentage.
@@ -867,21 +895,21 @@ struct ConfigFileProject {
     pub rollout: Rollout,
 
     #[serde(default)]
-    js_module_format: JsModuleFormat,
+    pub js_module_format: JsModuleFormat,
 
     #[serde(default)]
     pub schema_config: SchemaConfig,
 }
 
-type PersistId = String;
+pub type PersistId = String;
+
+pub type PersistResult<T> = std::result::Result<T, PersistError>;
 
 #[async_trait]
 pub trait OperationPersister {
-    async fn persist_artifact(
-        &self,
-        artifact_text: String,
-        project_config: &PersistConfig,
-    ) -> std::result::Result<PersistId, PersistError>;
+    async fn persist_artifact(&self, artifact_text: String) -> PersistResult<PersistId>;
 
-    fn worker_count(&self) -> usize;
+    fn finalize(&self) -> PersistResult<()> {
+        Ok(())
+    }
 }

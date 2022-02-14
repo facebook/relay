@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<47d67beddf74412ec2888880152fcfd4>>
+ * @generated SignedSource<<13eebfd8919d1086e6b88e51b7afcdc3>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,14 +19,12 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 type RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfilePhotoWrapper$fragmentType = any;
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfile$fragmentType: FragmentType;
-export type RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfile$ref = RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfile$fragmentType;
 export type RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfile$data = {|
   +id: string,
   +name: ?string,
   +$fragmentSpreads: RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfilePhotoWrapper$fragmentType,
   +$fragmentType: RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfile$fragmentType,
 |};
-export type RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfile = RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfile$data;
 export type RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfile$key = {
   +$data?: RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfile$data,
   +$fragmentSpreads: RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfile$fragmentType,

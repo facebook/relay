@@ -11,6 +11,7 @@ mod match_transform;
 mod split_module_import;
 mod split_operation_metadata;
 mod subscription_transform;
+mod validation_message;
 
 pub use constants::MATCH_CONSTANTS;
 pub use hash_supported_argument::hash_supported_argument;

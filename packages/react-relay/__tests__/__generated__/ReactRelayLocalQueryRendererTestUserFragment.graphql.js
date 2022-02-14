@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<e2c96962a12871694ffb6da0190e6a7d>>
+ * @generated SignedSource<<ab072ecaaf6dea9b281a9a7af347e204>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,12 +18,10 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type ReactRelayLocalQueryRendererTestUserFragment$fragmentType: FragmentType;
-export type ReactRelayLocalQueryRendererTestUserFragment$ref = ReactRelayLocalQueryRendererTestUserFragment$fragmentType;
 export type ReactRelayLocalQueryRendererTestUserFragment$data = {|
   +name: ?string,
   +$fragmentType: ReactRelayLocalQueryRendererTestUserFragment$fragmentType,
 |};
-export type ReactRelayLocalQueryRendererTestUserFragment = ReactRelayLocalQueryRendererTestUserFragment$data;
 export type ReactRelayLocalQueryRendererTestUserFragment$key = {
   +$data?: ReactRelayLocalQueryRendererTestUserFragment$data,
   +$fragmentSpreads: ReactRelayLocalQueryRendererTestUserFragment$fragmentType,

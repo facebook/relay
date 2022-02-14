@@ -13,3 +13,7 @@ export type FooQuery$data = {|
     +lastName: string,
   |},
 |};
+export type FooQuery = {|
+  variables: FooQuery$variables,
+  response: FooQuery$data,
+|};

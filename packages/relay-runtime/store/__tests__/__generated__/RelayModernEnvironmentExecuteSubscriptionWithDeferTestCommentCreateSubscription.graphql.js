@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<17bb4199d7bbf416d9ae019a4ca40a58>>
+ * @generated SignedSource<<15ff57c5792d5c6bf4ec42a97f217d74>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -25,7 +25,6 @@ export type CommentCreateSubscriptionInput = {|
 export type RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentCreateSubscription$variables = {|
   input: CommentCreateSubscriptionInput,
 |};
-export type RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentCreateSubscriptionVariables = RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentCreateSubscription$variables;
 export type RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentCreateSubscription$data = {|
   +commentCreateSubscribe: ?{|
     +comment: ?{|
@@ -34,9 +33,8 @@ export type RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentCreateS
     |},
   |},
 |};
-export type RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentCreateSubscriptionResponse = RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentCreateSubscription$data;
 export type RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentCreateSubscription = {|
-  variables: RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentCreateSubscriptionVariables,
+  variables: RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentCreateSubscription$variables,
   response: RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentCreateSubscription$data,
 |};
 */
@@ -184,9 +182,7 @@ return {
   "params": {
     "cacheID": "cc5d5a7b7cc03e0dc187517d56f6835d",
     "id": null,
-    "metadata": {
-      "subscriptionName": "commentCreateSubscribe"
-    },
+    "metadata": {},
     "name": "RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentCreateSubscription",
     "operationKind": "subscription",
     "text": "subscription RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentCreateSubscription(\n  $input: CommentCreateSubscriptionInput!\n) {\n  commentCreateSubscribe(input: $input) {\n    comment {\n      id\n      ...RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentFragment @defer(label: \"RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentCreateSubscription$defer$RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentFragment\")\n    }\n  }\n}\n\nfragment RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentFragment on Comment {\n  id\n  actor {\n    __typename\n    name\n    id\n  }\n}\n"

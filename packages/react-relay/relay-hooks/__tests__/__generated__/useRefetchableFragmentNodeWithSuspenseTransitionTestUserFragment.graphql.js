@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<e7955d8694609b8727179c5da015dcc6>>
+ * @generated SignedSource<<3442d41c48b0e1c938bea91c50e5712e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,7 +19,6 @@ import type { ReaderFragment, RefetchableFragment } from 'relay-runtime';
 type useRefetchableFragmentNodeWithSuspenseTransitionTestNestedUserFragment$fragmentType = any;
 import type { FragmentType } from "relay-runtime";
 declare export opaque type useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragment$fragmentType: FragmentType;
-export type useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragment$ref = useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragment$fragmentType;
 type useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragmentRefetchQuery$variables = any;
 export type useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragment$data = {|
   +id: string,
@@ -30,7 +29,6 @@ export type useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragment$dat
   +$fragmentSpreads: useRefetchableFragmentNodeWithSuspenseTransitionTestNestedUserFragment$fragmentType,
   +$fragmentType: useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragment$fragmentType,
 |};
-export type useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragment = useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragment$data;
 export type useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragment$key = {
   +$data?: useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragment$data,
   +$fragmentSpreads: useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragment$fragmentType,

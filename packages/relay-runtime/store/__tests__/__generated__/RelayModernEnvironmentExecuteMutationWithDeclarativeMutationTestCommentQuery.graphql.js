@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<881bf4cb1049f2e85344290bd56e4c2d>>
+ * @generated SignedSource<<7421cfe9eef94fbebb1b62552a112e59>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,7 +19,6 @@ import type { ConcreteRequest, Query } from 'relay-runtime';
 export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestCommentQuery$variables = {|
   id: string,
 |};
-export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestCommentQueryVariables = RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestCommentQuery$variables;
 export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestCommentQuery$data = {|
   +node: ?{|
     +id: string,
@@ -28,9 +27,8 @@ export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestComm
     |},
   |},
 |};
-export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestCommentQueryResponse = RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestCommentQuery$data;
 export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestCommentQuery = {|
-  variables: RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestCommentQueryVariables,
+  variables: RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestCommentQuery$variables,
   response: RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestCommentQuery$data,
 |};
 */

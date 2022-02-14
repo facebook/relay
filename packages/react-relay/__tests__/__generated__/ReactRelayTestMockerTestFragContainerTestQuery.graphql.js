@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<eceb06fd71e019db216fd73aa42c4435>>
+ * @generated SignedSource<<bfc86bafa68ec72c6dbfed1a980eb4e2>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,15 +18,13 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 type ReactRelayTestMockerTest_me$fragmentType = any;
 export type ReactRelayTestMockerTestFragContainerTestQuery$variables = {||};
-export type ReactRelayTestMockerTestFragContainerTestQueryVariables = ReactRelayTestMockerTestFragContainerTestQuery$variables;
 export type ReactRelayTestMockerTestFragContainerTestQuery$data = {|
   +me: ?{|
     +$fragmentSpreads: ReactRelayTestMockerTest_me$fragmentType,
   |},
 |};
-export type ReactRelayTestMockerTestFragContainerTestQueryResponse = ReactRelayTestMockerTestFragContainerTestQuery$data;
 export type ReactRelayTestMockerTestFragContainerTestQuery = {|
-  variables: ReactRelayTestMockerTestFragContainerTestQueryVariables,
+  variables: ReactRelayTestMockerTestFragContainerTestQuery$variables,
   response: ReactRelayTestMockerTestFragContainerTestQuery$data,
 |};
 */

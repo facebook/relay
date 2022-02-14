@@ -1,12 +1,11 @@
-React APIs for Relay
----
+## React APIs for Relay
 
-This package contains a collection of React APIs: Hooks and Components that are integrated with Relay runtime.
+This package contains a collection of React APIs: Hooks and Components that are
+integrated with Relay runtime.
 
 Example:
 
 ```js
-
 // @flow
 
 import type {UserComponent_user$key} from 'UserComponent_user.graphql';
@@ -41,7 +40,6 @@ function UserComponent(props: Props) {
     </>
   );
 }
-
 ```
 
 For complete API reference, visit https://relay.dev/.

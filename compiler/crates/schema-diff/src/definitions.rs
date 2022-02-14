@@ -14,8 +14,6 @@ pub enum DefinitionChange {
     EnumAdded(StringKey),
     EnumChanged {
         name: StringKey,
-        added: Vec<StringKey>,
-        removed: Vec<StringKey>,
     },
     EnumRemoved(StringKey),
     UnionAdded(StringKey),
@@ -57,15 +55,7 @@ pub enum DefinitionChange {
 impl fmt::Debug for DefinitionChange {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            DefinitionChange::EnumChanged {
-                added,
-                removed,
-                name,
-            } => write!(
-                f,
-                "EnumChanged {:?}: added:{:?} removed:{:?}",
-                name, added, removed,
-            ),
+            DefinitionChange::EnumChanged { name } => write!(f, "EnumChanged {:?}.", name,),
             DefinitionChange::UnionChanged {
                 added,
                 removed,

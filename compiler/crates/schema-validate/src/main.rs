@@ -5,23 +5,23 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use clap::Parser;
 use common::DiagnosticsResult;
 use schema::{build_schema, SDLSchema};
 use schema_validate_lib::validate;
 use std::fs;
 use std::path::Path;
-use structopt::StructOpt;
 
-#[derive(StructOpt)]
-#[structopt(name = "schema-validate", about = "Binary to Validate GraphQL Schema.")]
+#[derive(Parser)]
+#[clap(name = "schema-validate", about = "Binary to Validate GraphQL Schema.")]
 struct Opt {
     /// Path to Schema SDL. If schema is sharded, this is directory.
-    #[structopt(long)]
+    #[clap(long)]
     schema_path: String,
 }
 
 pub fn main() {
-    let opt = Opt::from_args();
+    let opt = Opt::parse();
     match build_schema_from_file(&opt.schema_path) {
         Ok(schema) => {
             let validation_context = validate(&schema);

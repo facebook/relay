@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<75497fa312742094c54f36947b3628ad>>
+ * @generated SignedSource<<8a31a5e4587bf6e757f89e8ec64c632e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,15 +19,13 @@ import type { ConcreteRequest, Query } from 'relay-runtime';
 export type RelayModernStoreTest8Query$variables = {|
   id: string,
 |};
-export type RelayModernStoreTest8QueryVariables = RelayModernStoreTest8Query$variables;
 export type RelayModernStoreTest8Query$data = {|
   +node: ?{|
     +__typename: string,
   |},
 |};
-export type RelayModernStoreTest8QueryResponse = RelayModernStoreTest8Query$data;
 export type RelayModernStoreTest8Query = {|
-  variables: RelayModernStoreTest8QueryVariables,
+  variables: RelayModernStoreTest8Query$variables,
   response: RelayModernStoreTest8Query$data,
 |};
 */

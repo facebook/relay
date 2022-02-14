@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<58f2f643254ae45762e72d5a753d638d>>
+ * @generated SignedSource<<f99827628225401ffe7bd82290776c22>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,15 +22,13 @@ export type useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragmentRefe
   scale?: ?number,
   id: string,
 |};
-export type useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragmentRefetchQueryVariables = useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragmentRefetchQuery$variables;
 export type useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragmentRefetchQuery$data = {|
   +node: ?{|
     +$fragmentSpreads: useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragment$fragmentType,
   |},
 |};
-export type useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragmentRefetchQueryResponse = useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragmentRefetchQuery$data;
 export type useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragmentRefetchQuery = {|
-  variables: useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragmentRefetchQueryVariables,
+  variables: useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragmentRefetchQuery$variables,
   response: useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragmentRefetchQuery$data,
 |};
 */

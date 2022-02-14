@@ -1,7 +1,0 @@
-fragment refetchableFragmentDirectives on Node
-@refetchable(
-  queryName: "refetchableFragmentDirectivesQuery"
-  directives: ["@live_query(polling_interval:10)"]
-) {
-  global_id
-}

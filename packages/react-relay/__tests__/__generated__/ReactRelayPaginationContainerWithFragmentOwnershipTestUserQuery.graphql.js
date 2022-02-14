@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<58f9445dc79c94cc5d477721844e188a>>
+ * @generated SignedSource<<d06dd1571f16cca3e1b544063cb01ec8>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,7 +24,6 @@ export type ReactRelayPaginationContainerWithFragmentOwnershipTestUserQuery$vari
   orderby?: ?$ReadOnlyArray<?string>,
   isViewerFriend: boolean,
 |};
-export type ReactRelayPaginationContainerWithFragmentOwnershipTestUserQueryVariables = ReactRelayPaginationContainerWithFragmentOwnershipTestUserQuery$variables;
 export type ReactRelayPaginationContainerWithFragmentOwnershipTestUserQuery$data = {|
   +node: ?{|
     +id: string,
@@ -32,9 +31,8 @@ export type ReactRelayPaginationContainerWithFragmentOwnershipTestUserQuery$data
     +$fragmentSpreads: ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment$fragmentType,
   |},
 |};
-export type ReactRelayPaginationContainerWithFragmentOwnershipTestUserQueryResponse = ReactRelayPaginationContainerWithFragmentOwnershipTestUserQuery$data;
 export type ReactRelayPaginationContainerWithFragmentOwnershipTestUserQuery = {|
-  variables: ReactRelayPaginationContainerWithFragmentOwnershipTestUserQueryVariables,
+  variables: ReactRelayPaginationContainerWithFragmentOwnershipTestUserQuery$variables,
   response: ReactRelayPaginationContainerWithFragmentOwnershipTestUserQuery$data,
 |};
 */

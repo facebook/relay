@@ -1,12 +1,12 @@
 ==================================== INPUT ====================================
 fragment Foo_user on User {
   ... @skip(if: $some_var) {
-    best_friend {
+    best_friend @waterfall {
       doesViewerLike
     }
   }
   ... @include(if: $some_var) {
-    best_friend {
+    best_friend @waterfall {
       name
     }
   }
@@ -36,8 +36,8 @@ fragment Foo_user on User {
       #     field_name: "best_friend",
       #     field_alias: None,
       # }
-      
-      best_friend {
+       @waterfall
+      best_friend @waterfall {
         doesViewerLike
       }
     }
@@ -51,8 +51,8 @@ fragment Foo_user on User {
       #     field_name: "best_friend",
       #     field_alias: None,
       # }
-      
-      best_friend {
+       @waterfall
+      best_friend @waterfall {
         name
       }
     }

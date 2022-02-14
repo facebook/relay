@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<0a2ca967ae0d59ee420e7dd8fff80bef>>
+ * @generated SignedSource<<3bb264fbb76fe20d374ed37714722048>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,15 +23,13 @@ export type CommentsDeleteInput = {|
 export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestDeleteCommentsMutation$variables = {|
   input?: ?CommentsDeleteInput,
 |};
-export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestDeleteCommentsMutationVariables = RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestDeleteCommentsMutation$variables;
 export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestDeleteCommentsMutation$data = {|
   +commentsDelete: ?{|
     +deletedCommentIds: ?$ReadOnlyArray<?string>,
   |},
 |};
-export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestDeleteCommentsMutationResponse = RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestDeleteCommentsMutation$data;
 export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestDeleteCommentsMutation = {|
-  variables: RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestDeleteCommentsMutationVariables,
+  variables: RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestDeleteCommentsMutation$variables,
   response: RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestDeleteCommentsMutation$data,
 |};
 */

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<66af32ec64a8ddfe8be09b33a91da953>>
+ * @generated SignedSource<<8e5d95e17367cfa15b1cbe06da954996>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,7 +20,6 @@ type useLazyLoadQueryNodeReactDoubleEffectsTestUserFragment$fragmentType = any;
 export type useLazyLoadQueryNodeReactDoubleEffectsTestUserQuery$variables = {|
   id?: ?string,
 |};
-export type useLazyLoadQueryNodeReactDoubleEffectsTestUserQueryVariables = useLazyLoadQueryNodeReactDoubleEffectsTestUserQuery$variables;
 export type useLazyLoadQueryNodeReactDoubleEffectsTestUserQuery$data = {|
   +node: ?{|
     +id: string,
@@ -28,9 +27,8 @@ export type useLazyLoadQueryNodeReactDoubleEffectsTestUserQuery$data = {|
     +$fragmentSpreads: useLazyLoadQueryNodeReactDoubleEffectsTestUserFragment$fragmentType,
   |},
 |};
-export type useLazyLoadQueryNodeReactDoubleEffectsTestUserQueryResponse = useLazyLoadQueryNodeReactDoubleEffectsTestUserQuery$data;
 export type useLazyLoadQueryNodeReactDoubleEffectsTestUserQuery = {|
-  variables: useLazyLoadQueryNodeReactDoubleEffectsTestUserQueryVariables,
+  variables: useLazyLoadQueryNodeReactDoubleEffectsTestUserQuery$variables,
   response: useLazyLoadQueryNodeReactDoubleEffectsTestUserQuery$data,
 |};
 */

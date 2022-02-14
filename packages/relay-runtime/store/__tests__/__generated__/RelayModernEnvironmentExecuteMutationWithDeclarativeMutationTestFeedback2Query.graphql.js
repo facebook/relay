@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<de14db004f81e663b91455764a4be278>>
+ * @generated SignedSource<<4c52f681403017a307827ba5e2eaad65>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,7 +19,6 @@ import type { ConcreteRequest, Query } from 'relay-runtime';
 export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestFeedback2Query$variables = {|
   id: string,
 |};
-export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestFeedback2QueryVariables = RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestFeedback2Query$variables;
 export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestFeedback2Query$data = {|
   +node: ?{|
     +comments: ?{|
@@ -34,9 +33,8 @@ export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestFeed
     |},
   |},
 |};
-export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestFeedback2QueryResponse = RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestFeedback2Query$data;
 export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestFeedback2Query = {|
-  variables: RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestFeedback2QueryVariables,
+  variables: RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestFeedback2Query$variables,
   response: RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestFeedback2Query$data,
 |};
 */

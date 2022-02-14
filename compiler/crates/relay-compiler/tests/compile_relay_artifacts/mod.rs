@@ -19,7 +19,7 @@ use intern::string_key::Intern;
 use relay_codegen::{
     build_request_params, print_fragment, print_operation, print_request, JsModuleFormat,
 };
-use relay_compiler::{validate, ProjectConfig};
+use relay_compiler::{validate, ConfigFileProject, ProjectConfig};
 use relay_test_schema::{get_test_schema, get_test_schema_with_extensions};
 use relay_transforms::{apply_transforms, DIRECTIVE_SPLIT_OPERATION};
 use std::{array, sync::Arc};
@@ -34,8 +34,57 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         return Ok("TODO".to_string());
     }
 
-    let parts: Vec<_> = fixture.content.split("%extensions%").collect();
-    let (base, schema) = match parts.as_slice() {
+    let feature_flags = FeatureFlags {
+        enable_flight_transform: true,
+        hash_supported_argument: FeatureFlag::Limited {
+            allowlist: array::IntoIter::new(["UserNameRenderer".intern()]).collect(),
+        },
+        no_inline: FeatureFlag::Enabled,
+        enable_relay_resolver_transform: true,
+        enable_3d_branch_arg_generation: true,
+        actor_change_support: FeatureFlag::Enabled,
+        text_artifacts: FeatureFlag::Disabled,
+        enable_client_edges: FeatureFlag::Enabled,
+        enable_provided_variables: FeatureFlag::Enabled,
+        skip_printing_nulls: FeatureFlag::Disabled,
+    };
+
+    let default_project_config = ProjectConfig {
+        name: "test".intern(),
+        feature_flags: Arc::new(feature_flags),
+        js_module_format: JsModuleFormat::Haste,
+        ..Default::default()
+    };
+    // Adding %project_config section on top of the fixture will allow
+    // us to validate output changes with different configurations
+    let parts: Vec<_> = fixture.content.split("%project_config%").collect();
+    let (project_config, other_parts) = match parts.as_slice() {
+        [fixture_content, project_config_str] => (
+            {
+                let config_file_project: ConfigFileProject =
+                    serde_json::from_str(project_config_str).unwrap();
+                ProjectConfig {
+                    schema_config: config_file_project.schema_config,
+                    typegen_config: config_file_project.typegen_config,
+                    feature_flags: config_file_project
+                        .feature_flags
+                        .map_or(default_project_config.feature_flags, |flags| {
+                            Arc::new(flags)
+                        }),
+                    js_module_format: config_file_project.js_module_format,
+                    ..default_project_config
+                }
+            },
+            fixture_content.split("%extensions%").collect::<Vec<&str>>(),
+        ),
+        [fixture_content] => (
+            default_project_config,
+            fixture_content.split("%extensions%").collect::<Vec<&str>>(),
+        ),
+        _ => panic!("Invalid fixture input {}", fixture.content),
+    };
+
+    let (base, schema) = match other_parts.as_slice() {
         [base, extensions] => (base, get_test_schema_with_extensions(extensions)),
         [base] => (base, get_test_schema()),
         _ => panic!("Invalid fixture input {}", fixture.content),
@@ -59,26 +108,6 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
     let program = Program::from_definitions(Arc::clone(&schema), ir);
 
-    let feature_flags = FeatureFlags {
-        enable_flight_transform: true,
-        hash_supported_argument: FeatureFlag::Limited {
-            allowlist: array::IntoIter::new(["UserNameRenderer".intern()]).collect(),
-        },
-        no_inline: FeatureFlag::Enabled,
-        enable_relay_resolver_transform: true,
-        enable_3d_branch_arg_generation: true,
-        actor_change_support: FeatureFlag::Enabled,
-        text_artifacts: FeatureFlag::Disabled,
-        enable_client_edges: FeatureFlag::Enabled,
-        enable_provided_variables: FeatureFlag::Enabled,
-    };
-
-    let project_config = ProjectConfig {
-        name: "test".intern(),
-        feature_flags: Arc::new(feature_flags),
-        ..Default::default()
-    };
-
     validate(&program, &project_config, &None)
         .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
 
@@ -88,6 +117,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         Arc::new(program),
         Default::default(),
         Arc::new(ConsoleLogger),
+        None,
         None,
     )
     .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
@@ -103,7 +133,10 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
                 .named(*DIRECTIVE_SPLIT_OPERATION)
                 .is_some()
             {
-                print_operation(&schema, operation, JsModuleFormat::Haste)
+                let mut import_statements = Default::default();
+                let operation =
+                    print_operation(&schema, operation, &project_config, &mut import_statements);
+                format!("{}{}", import_statements, operation)
             } else {
                 let name = operation.name.item;
                 let print_operation_node = programs
@@ -124,27 +157,29 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
                     directives: reader_operation.directives.clone(),
                     type_condition: reader_operation.type_,
                 };
+                let mut import_statements = Default::default();
                 let request_parameters = build_request_params(operation);
-                format!(
-                    "{}\n\nQUERY:\n\n{}",
-                    print_request(
-                        &schema,
-                        operation,
-                        &operation_fragment,
-                        request_parameters,
-                        JsModuleFormat::Haste
-                    ),
-                    text
-                )
+                let request = print_request(
+                    &schema,
+                    operation,
+                    &operation_fragment,
+                    request_parameters,
+                    &project_config,
+                    &mut import_statements,
+                );
+                format!("{}{}\n\nQUERY:\n\n{}", import_statements, request, text)
             }
         })
         .chain({
             let mut fragments: Vec<&std::sync::Arc<FragmentDefinition>> =
                 programs.reader.fragments().collect();
             fragments.sort_by_key(|fragment| fragment.name.item);
-            fragments
-                .into_iter()
-                .map(|fragment| print_fragment(&schema, fragment, JsModuleFormat::Haste))
+            fragments.into_iter().map(|fragment| {
+                let mut import_statements = Default::default();
+                let fragment =
+                    print_fragment(&schema, fragment, &project_config, &mut import_statements);
+                format!("{}{}", import_statements, fragment)
+            })
         })
         .collect::<Vec<_>>();
     Ok(result.join("\n\n"))

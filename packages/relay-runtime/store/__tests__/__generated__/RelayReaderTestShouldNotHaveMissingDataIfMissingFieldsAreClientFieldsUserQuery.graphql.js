@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<50c41cbaa6c1cad33156bcf910d00081>>
+ * @generated SignedSource<<4ead5b75d99a5d4ffd6a1c74adfebfe2>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,15 +20,13 @@ type RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserPr
 export type RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserQuery$variables = {|
   size?: ?$ReadOnlyArray<?number>,
 |};
-export type RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserQueryVariables = RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserQuery$variables;
 export type RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserQuery$data = {|
   +me: ?{|
     +$fragmentSpreads: RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserProfile$fragmentType,
   |},
 |};
-export type RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserQueryResponse = RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserQuery$data;
 export type RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserQuery = {|
-  variables: RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserQueryVariables,
+  variables: RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserQuery$variables,
   response: RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserQuery$data,
 |};
 */

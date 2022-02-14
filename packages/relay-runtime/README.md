@@ -1,5 +1,4 @@
-Relay Runtime
----
+## Relay Runtime
 
 A set of Relay APIs responsible for data fetching, reading and normalization of
 the GraphQL data.
@@ -7,7 +6,6 @@ the GraphQL data.
 Example:
 
 ```js
-
 // @flow strict-local
 
 import type {FetchFunction} from 'relay-runtime';
@@ -61,7 +59,6 @@ fetchQuery(
     console.log(data);
   },
 });
-
 ```
 
 For complete API reference, visit https://relay.dev/.

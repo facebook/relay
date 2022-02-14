@@ -1,14 +1,14 @@
 ==================================== INPUT ====================================
-fragment ProfilePictureFragment on User 
-  @argumentDefinitions(profilePictureScale: {type: "[Int]", provider: "profilePictureScaleProvider.js"})
+fragment ProfilePictureFragment on User
+  @argumentDefinitions(profilePictureScale: {type: "[Int]", provider: "profilePictureScaleProvider"})
 {
     profilePicture(size: $profilePictureScale) {
         uri
     }
 }
 
-fragment UserIDFragment on Actor 
-  @argumentDefinitions(includeId: {type: "Boolean!", provider: "includeIdrovider.js"})
+fragment UserIDFragment on Actor
+  @argumentDefinitions(includeId: {type: "Boolean!", provider: "includeIdProvider"})
 {
     id @include(if: $includeId)
 }
@@ -22,7 +22,7 @@ fragment UserDataFragment on User {
 }
 ==================================== OUTPUT ===================================
 fragment ProfilePictureFragment on User {
-  profilePicture(size: $__ProfilePictureFragment__profilePictureScale) {
+  profilePicture(size: $__relay_internal__pv__profilePictureScaleProvider) {
     uri
   }
 }
@@ -36,5 +36,5 @@ fragment UserDataFragment on User {
 }
 
 fragment UserIDFragment on Actor {
-  id @include(if: $__UserIDFragment__includeId)
+  id @include(if: $__relay_internal__pv__includeIdProvider)
 }

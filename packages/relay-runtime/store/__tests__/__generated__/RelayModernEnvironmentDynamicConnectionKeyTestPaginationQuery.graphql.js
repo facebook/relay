@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<24afaaeff5118aad83bda716e7097f56>>
+ * @generated SignedSource<<19385543da476ab60b14739fb488b673>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,15 +23,13 @@ export type RelayModernEnvironmentDynamicConnectionKeyTestPaginationQuery$variab
   count: number,
   cursor: string,
 |};
-export type RelayModernEnvironmentDynamicConnectionKeyTestPaginationQueryVariables = RelayModernEnvironmentDynamicConnectionKeyTestPaginationQuery$variables;
 export type RelayModernEnvironmentDynamicConnectionKeyTestPaginationQuery$data = {|
   +node: ?{|
     +$fragmentSpreads: RelayModernEnvironmentDynamicConnectionKeyTestFeedbackFragment$fragmentType,
   |},
 |};
-export type RelayModernEnvironmentDynamicConnectionKeyTestPaginationQueryResponse = RelayModernEnvironmentDynamicConnectionKeyTestPaginationQuery$data;
 export type RelayModernEnvironmentDynamicConnectionKeyTestPaginationQuery = {|
-  variables: RelayModernEnvironmentDynamicConnectionKeyTestPaginationQueryVariables,
+  variables: RelayModernEnvironmentDynamicConnectionKeyTestPaginationQuery$variables,
   response: RelayModernEnvironmentDynamicConnectionKeyTestPaginationQuery$data,
 |};
 */

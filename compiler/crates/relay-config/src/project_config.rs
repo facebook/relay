@@ -5,15 +5,15 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use fmt::Debug;
-use std::{fmt, path::PathBuf, sync::Arc};
-
 use common::{FeatureFlags, Rollout, SourceLocationKey};
+use fmt::Debug;
 use fnv::FnvBuildHasher;
 use indexmap::IndexMap;
 use intern::string_key::{Intern, StringKey};
 use regex::Regex;
-use serde::{Deserialize, Serialize};
+use serde::{de::Error, Deserialize, Deserializer, Serialize};
+use serde_json::Value;
+use std::{fmt, path::PathBuf, sync::Arc, usize};
 
 use crate::{connection_interface::ConnectionInterface, JsModuleFormat, TypegenConfig};
 
@@ -21,14 +21,81 @@ type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
 
 pub type ProjectName = StringKey;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
-pub struct PersistConfig {
+pub struct RemotePersistConfig {
     /// URL to send a POST request to to persist.
     pub url: String,
     /// The document will be in a POST parameter `text`. This map can contain
     /// additional parameters to send.
+    #[serde(default)]
     pub params: FnvIndexMap<String, String>,
+
+    #[serde(
+        default,
+        rename = "concurrency",
+        deserialize_with = "deserialize_semaphore_permits"
+    )]
+    pub semaphore_permits: Option<usize>,
+}
+
+fn deserialize_semaphore_permits<'de, D>(d: D) -> Result<Option<usize>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let permits: usize = Deserialize::deserialize(d)?;
+    if permits == 0 {
+        return Err(Error::custom(
+            "Invalid `persistConfig.concurrency` value. Please, increase the number of concurrent request for query persisting. 0 is not going to work.",
+        ));
+    }
+    Ok(Some(permits))
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct LocalPersistConfig {
+    pub file: PathBuf,
+}
+
+#[derive(Debug, Serialize, Clone)]
+#[serde(untagged)]
+pub enum PersistConfig {
+    Remote(RemotePersistConfig),
+    Local(LocalPersistConfig),
+}
+
+impl<'de> Deserialize<'de> for PersistConfig {
+    fn deserialize<D: Deserializer<'de>>(deserializer: D) -> std::result::Result<Self, D::Error> {
+        let value = Value::deserialize(deserializer)?;
+        match RemotePersistConfig::deserialize(value.clone()) {
+            Ok(remote_config) => Ok(PersistConfig::Remote(remote_config)),
+            Err(remote_error) => match LocalPersistConfig::deserialize(value) {
+                Ok(local_config) => {
+                    if !local_config.file.exists() {
+                        Err(Error::custom(format!(
+                            "The file `{}` for the local query persisting does not exist. Please, make sure the file path is correct.",
+                            local_config.file.display()
+                        )))
+                    } else {
+                        Ok(PersistConfig::Local(local_config))
+                    }
+                }
+                Err(local_error) => {
+                    let error_message = format!(
+                        r#"Persist configuration cannot be parsed as a remote configuration due to:
+- {:?}.
+
+It also cannot be a local persist configuration due to:
+- {:?}."#,
+                        remote_error, local_error
+                    );
+
+                    Err(Error::custom(error_message))
+                }
+            },
+        }
+    }
 }
 
 #[derive(Clone, Debug)]
@@ -40,6 +107,7 @@ pub enum SchemaLocation {
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SchemaConfig {
+    #[serde(default)]
     pub connection_interface: ConnectionInterface,
 
     /// The name of the `id` field that exists on the `Node` interface.

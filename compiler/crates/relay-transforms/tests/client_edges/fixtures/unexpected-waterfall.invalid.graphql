@@ -1,0 +1,9 @@
+#expected-to-throw
+fragment Foo_user on User {
+  name @waterfall
+  nearest_neighbor @waterfall {
+    __typename
+  }
+}
+
+# %extensions%

@@ -7,9 +7,8 @@
 
 use crate::{
     config::{Config, ProjectConfig},
-    config::{OperationPersister, PersistConfig},
     errors::BuildProjectError,
-    Artifact, ArtifactContent,
+    Artifact, ArtifactContent, OperationPersister,
 };
 use common::{sync::ParallelIterator, PerfLogEvent};
 use lazy_static::lazy_static;
@@ -29,7 +28,6 @@ lazy_static! {
 pub async fn persist_operations(
     artifacts: &mut [Artifact],
     root_dir: &PathBuf,
-    persist_config: &PersistConfig,
     config: &Config,
     project_config: &ProjectConfig,
     operation_persister: &'_ (dyn OperationPersister + Send + Sync),
@@ -67,12 +65,9 @@ pub async fn persist_operations(
                     } else {
                         let text = text.clone();
                         Some(async move {
-                            operation_persister
-                                .persist_artifact(text, persist_config)
-                                .await
-                                .map(|id| {
-                                    *id_and_text_hash = Some(QueryID::Persisted { id, text_hash });
-                                })
+                            operation_persister.persist_artifact(text).await.map(|id| {
+                                *id_and_text_hash = Some(QueryID::Persisted { id, text_hash });
+                            })
                         })
                     }
                 }
@@ -82,8 +77,12 @@ pub async fn persist_operations(
         })
         .collect::<Vec<_>>();
     log_event.number("persist_documents", handles.len());
-    log_event.number("worker_count", operation_persister.worker_count());
     let results = futures::future::join_all(handles).await;
+    operation_persister
+        .finalize()
+        .map_err(|error| BuildProjectError::PersistErrors {
+            errors: vec![error],
+        })?;
     debug!("done persisting");
     let errors = results
         .into_iter()

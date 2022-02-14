@@ -141,6 +141,7 @@ if (__DEV__) {
       case INLINE_FRAGMENT:
         const type = selection.type;
         const isConcreteType = selection.abstractKey == null;
+        validateAbstractKey(context, selection.abstractKey);
         selection.selections.forEach(subselection => {
           if (isConcreteType && optimisticResponse.__typename !== type) {
             return;
@@ -155,11 +156,12 @@ if (__DEV__) {
         return;
       case MODULE_IMPORT:
         return validateModuleImport(context);
+      case TYPE_DISCRIMINATOR:
+        return validateAbstractKey(context, selection.abstractKey);
       case LINKED_HANDLE:
       case SCALAR_HANDLE:
       case DEFER:
-      case STREAM:
-      case TYPE_DISCRIMINATOR: {
+      case STREAM: {
         // TODO(T35864292) - Add missing validations for these types
         return;
       }
@@ -171,6 +173,16 @@ if (__DEV__) {
 
   const validateModuleImport = (context: ValidationContext) => {
     context.moduleImportPaths.add(context.path);
+  };
+
+  const validateAbstractKey = (
+    context: ValidationContext,
+    abstractKey: ?string,
+  ) => {
+    if (abstractKey != null) {
+      const path = `${context.path}.${abstractKey}`;
+      context.visitedPaths.add(path);
+    }
   };
 
   const validateField = (

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<3e84f18b3384030ea6dc478f9248cbec>>
+ * @generated SignedSource<<b270c0543119797733c686aafbdc382e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,15 +20,13 @@ type ReactRelayRefetchContainerReactDoubleEffectsTestUserFragment$fragmentType =
 export type ReactRelayRefetchContainerReactDoubleEffectsTestUserQuery$variables = {|
   id: string,
 |};
-export type ReactRelayRefetchContainerReactDoubleEffectsTestUserQueryVariables = ReactRelayRefetchContainerReactDoubleEffectsTestUserQuery$variables;
 export type ReactRelayRefetchContainerReactDoubleEffectsTestUserQuery$data = {|
   +node: ?{|
     +$fragmentSpreads: ReactRelayRefetchContainerReactDoubleEffectsTestUserFragment$fragmentType,
   |},
 |};
-export type ReactRelayRefetchContainerReactDoubleEffectsTestUserQueryResponse = ReactRelayRefetchContainerReactDoubleEffectsTestUserQuery$data;
 export type ReactRelayRefetchContainerReactDoubleEffectsTestUserQuery = {|
-  variables: ReactRelayRefetchContainerReactDoubleEffectsTestUserQueryVariables,
+  variables: ReactRelayRefetchContainerReactDoubleEffectsTestUserQuery$variables,
   response: ReactRelayRefetchContainerReactDoubleEffectsTestUserQuery$data,
 |};
 */

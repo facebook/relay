@@ -15,7 +15,7 @@
 
 let installed = false;
 const expectedWarnings: Array<string> = [];
-let contextualExpectedWarning: string | null = null;
+const contextualExpectedWarning: Array<string> = [];
 
 /**
  * Mocks the `warning` module to turn warnings into errors. Any expected
@@ -37,10 +37,10 @@ function disallowWarnings(): void {
         const index = expectedWarnings.indexOf(message);
 
         if (
-          contextualExpectedWarning != null &&
-          contextualExpectedWarning === message
+          contextualExpectedWarning.length > 0 &&
+          contextualExpectedWarning[0] === message
         ) {
-          contextualExpectedWarning = null;
+          contextualExpectedWarning.shift();
         } else if (index >= 0) {
           expectedWarnings.splice(index, 1);
         } else {
@@ -52,6 +52,7 @@ function disallowWarnings(): void {
     });
   });
   afterEach(() => {
+    contextualExpectedWarning.length = 0;
     if (expectedWarnings.length > 0) {
       const error = new Error(
         'Some expected warnings where not triggered:\n\n' +
@@ -81,14 +82,23 @@ function expectWarningWillFire(message: string): void {
  * Expect the callback `fn` to trigger the warning message and otherwise fail.
  */
 function expectToWarn<T>(message: string, fn: () => T): T {
-  if (contextualExpectedWarning != null) {
+  return expectToWarnMany([message], fn);
+}
+
+/**
+ * Expect the callback `fn` to trigger all warning messages (in sequence)
+ * or otherwise fail.
+ */
+function expectToWarnMany<T>(messages: Array<string>, fn: () => T): T {
+  if (contextualExpectedWarning.length > 0) {
     throw new Error('Cannot nest `expectToWarn()` calls.');
   }
-  contextualExpectedWarning = message;
+  contextualExpectedWarning.push(...messages);
   const result = fn();
-  if (contextualExpectedWarning != null) {
-    contextualExpectedWarning = null;
-    throw new Error(`Expected callback to warn: ${message}`);
+  if (contextualExpectedWarning.length > 0) {
+    const notFired = contextualExpectedWarning.toString();
+    contextualExpectedWarning.length = 0;
+    throw new Error(`Expected callback to warn: ${notFired}`);
   }
   return result;
 }
@@ -97,4 +107,5 @@ module.exports = {
   disallowWarnings,
   expectWarningWillFire,
   expectToWarn,
+  expectToWarnMany,
 };

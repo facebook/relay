@@ -13,7 +13,6 @@
 
 'use strict';
 
-jest.mock('warning');
 const EntryPointContainer = require('../EntryPointContainer.react');
 const loadEntryPoint = require('../loadEntryPoint');
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
@@ -30,7 +29,12 @@ const {
   getRequest,
   graphql,
 } = require('relay-runtime');
-const warning = require('warning');
+const {
+  disallowWarnings,
+  expectWarningWillFire,
+} = require('relay-test-utils-internal');
+
+disallowWarnings();
 
 const query = getRequest(graphql`
   query EntryPointContainerTestQuery($id: ID!) {
@@ -102,10 +106,6 @@ class FakeJSResource<T> {
 }
 
 beforeEach(() => {
-  // $FlowFixMe[prop-missing]
-  warning.mockClear();
-  jest.spyOn(console, 'warn').mockImplementation(() => {});
-  jest.spyOn(console, 'error').mockImplementation(() => {});
   fetch = jest.fn((_query, _variables, _cacheConfig) =>
     Observable.create(sink => {
       dataSource = sink;
@@ -259,9 +259,6 @@ it('renders synchronously when the component has already loaded and the data arr
 });
 
 it('warns if the entryPointReference has already been disposed', () => {
-  const expectWarningMessage = expect.stringMatching(
-    /^<EntryPointContainer>: Expected entryPointReference to not be disposed/,
-  );
   entryPointReference = loadEntryPoint(
     {
       getEnvironment: () => environment,
@@ -284,17 +281,10 @@ it('warns if the entryPointReference has already been disposed', () => {
   };
 
   render();
-  expect(warning).toBeCalledTimes(2);
-  expect(warning).toHaveBeenLastCalledWith(
-    true, // invariant holds
-    expectWarningMessage,
-  );
-
   entryPointReference.dispose();
-  render();
-  expect(warning).toBeCalledTimes(3);
-  expect(warning).toHaveBeenLastCalledWith(
-    false, // invariant broken
-    expectWarningMessage,
+
+  expectWarningWillFire(
+    '<EntryPointContainer>: Expected entryPointReference to not be disposed yet. This is because disposing the entrypoint marks it for future garbage collection, and as such may no longer be present in the Relay store. In the future, this will become a hard error.',
   );
+  render();
 });

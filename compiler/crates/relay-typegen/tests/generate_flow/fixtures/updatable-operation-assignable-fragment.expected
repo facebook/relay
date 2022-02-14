@@ -15,8 +15,14 @@ export type UpdatableQuery$data = {|
   get viewer(): ?{||},
   set viewer(value: ?{
     +$fragmentSpreads: Assignable_viewer$fragmentType,
+    +__typename: "Viewer",
+    +__id: string,
     ...
   }): void,
+|};
+export type UpdatableQuery = {|
+  variables: UpdatableQuery$variables,
+  response: UpdatableQuery$data,
 |};
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";

@@ -31,7 +31,9 @@ const {
   FRAGMENT_SPREAD,
   INLINE_FRAGMENT,
   LINKED_FIELD,
+  LINKED_HANDLE,
   SCALAR_FIELD,
+  SCALAR_HANDLE,
 } = require('../util/RelayConcreteNode');
 const {getLocalVariables} = require('./RelayConcreteVariables');
 const {createNormalizationSelector} = require('./RelayModernSelector');
@@ -91,6 +93,10 @@ export type GraphModeChunk = DataChunk | CompleteChunk;
 
 export type GraphModeResponse = Iterable<GraphModeChunk>;
 
+export type TransformMetadata = {
+  duplicateFieldsAvoided: number,
+};
+
 /**
  * Converts a JSON response (and Normalization AST) into a stream of GraphMode chunks
  *
@@ -128,7 +134,20 @@ export function normalizeResponse(
   return normalizer.normalizeResponse(node, dataID, response);
 }
 
-class GraphModeNormalizer {
+export function normalizeResponseWithMetadata(
+  response: PayloadData,
+  selector: NormalizationSelector,
+  options: NormalizationOptions,
+): [Array<GraphModeChunk>, TransformMetadata] {
+  const {node, variables, dataID} = selector;
+  const normalizer = new GraphModeNormalizer(variables, options);
+  const chunks = Array.from(
+    normalizer.normalizeResponse(node, dataID, response),
+  );
+  return [chunks, {duplicateFieldsAvoided: normalizer.duplicateFieldsAvoided}];
+}
+
+export class GraphModeNormalizer {
   _cacheKeyToStreamID: Map<string, number>;
   _sentFields: Map<string, Set<string>>;
   _getDataId: GetDataID;
@@ -138,6 +157,7 @@ class GraphModeNormalizer {
   _path: Array<string>;
   _incrementalPlaceholders: Array<IncrementalDataPlaceholder>;
   _actorIdentifier: ?ActorIdentifier;
+  duplicateFieldsAvoided: number;
   constructor(variables: Variables, options: NormalizationOptions) {
     this._actorIdentifier = options.actorIdentifier;
     this._path = options.path ? [...options.path] : [];
@@ -146,6 +166,7 @@ class GraphModeNormalizer {
     this._sentFields = new Map();
     this._nextStreamID = 0;
     this._variables = variables;
+    this.duplicateFieldsAvoided = 0;
   }
 
   _getStreamID() {
@@ -266,6 +287,7 @@ class GraphModeNormalizer {
           // TODO: We could also opt to confirm that this matches the previously
           // seen value.
           if (sentFields.has(storageKey)) {
+            this.duplicateFieldsAvoided++;
             break;
           }
 
@@ -281,6 +303,7 @@ class GraphModeNormalizer {
           // TODO: We could also opt to confirm that this matches the previously
           // seen value.
           if (sentFields.has(storageKey)) {
+            this.duplicateFieldsAvoided++;
             break;
           }
           const fieldData = ((data[responseKey]: any): ChunkField);
@@ -373,6 +396,17 @@ class GraphModeNormalizer {
         case CLIENT_EXTENSION:
           // Since we are only expecting to handle server responses, we can skip
           // over client extensions.
+          break;
+        case SCALAR_HANDLE:
+        case LINKED_HANDLE:
+          // Handles allow us to record information that will be needed to
+          // perform additional process when we insert data into the store. For
+          // example, connection edges need to be prepended/appended to the
+          // pre-existing values.
+          //
+          // GraphMode will eventually need some replacement for this, but it is
+          // not nessesary in order to measure things like response size, so we
+          // can ignore these for now.
           break;
         default:
           throw new Error(`Unexpected selection type: ${selection.kind}`);

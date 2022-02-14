@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<37a5ee01c9afa882b416521031898a2f>>
+ * @generated SignedSource<<fb128195a62a3b4cac07c426864b152d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,7 +24,6 @@ export type CommentCreateSubscriptionInput = {|
 export type RelayModernEnvironmentExecuteSubscriptionTestCommentCreateSubscription$variables = {|
   input: CommentCreateSubscriptionInput,
 |};
-export type RelayModernEnvironmentExecuteSubscriptionTestCommentCreateSubscriptionVariables = RelayModernEnvironmentExecuteSubscriptionTestCommentCreateSubscription$variables;
 export type RelayModernEnvironmentExecuteSubscriptionTestCommentCreateSubscription$data = {|
   +commentCreateSubscribe: ?{|
     +comment: ?{|
@@ -35,9 +34,8 @@ export type RelayModernEnvironmentExecuteSubscriptionTestCommentCreateSubscripti
     |},
   |},
 |};
-export type RelayModernEnvironmentExecuteSubscriptionTestCommentCreateSubscriptionResponse = RelayModernEnvironmentExecuteSubscriptionTestCommentCreateSubscription$data;
 export type RelayModernEnvironmentExecuteSubscriptionTestCommentCreateSubscription = {|
-  variables: RelayModernEnvironmentExecuteSubscriptionTestCommentCreateSubscriptionVariables,
+  variables: RelayModernEnvironmentExecuteSubscriptionTestCommentCreateSubscription$variables,
   response: RelayModernEnvironmentExecuteSubscriptionTestCommentCreateSubscription$data,
 |};
 */
@@ -125,9 +123,7 @@ return {
   "params": {
     "cacheID": "8fd8fcebf3ed6c8b5627532fceaa00d4",
     "id": null,
-    "metadata": {
-      "subscriptionName": "commentCreateSubscribe"
-    },
+    "metadata": {},
     "name": "RelayModernEnvironmentExecuteSubscriptionTestCommentCreateSubscription",
     "operationKind": "subscription",
     "text": "subscription RelayModernEnvironmentExecuteSubscriptionTestCommentCreateSubscription(\n  $input: CommentCreateSubscriptionInput!\n) {\n  commentCreateSubscribe(input: $input) {\n    comment {\n      id\n      body {\n        text\n      }\n    }\n  }\n}\n"

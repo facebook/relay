@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<723519b784d48615347ee93518e428d9>>
+ * @generated SignedSource<<86769cda0959faba2fd768060b68516a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,7 +22,6 @@ export type RelayModernEnvironmentNoInlineTestWithArgsQuery$variables = {|
   size?: ?$ReadOnlyArray<?number>,
   preset?: ?PhotoSize,
 |};
-export type RelayModernEnvironmentNoInlineTestWithArgsQueryVariables = RelayModernEnvironmentNoInlineTestWithArgsQuery$variables;
 export type RelayModernEnvironmentNoInlineTestWithArgsQuery$data = {|
   +me: ?{|
     +$fragmentSpreads: RelayModernEnvironmentNoInlineTestWithArgs_noInline$fragmentType,
@@ -31,9 +30,8 @@ export type RelayModernEnvironmentNoInlineTestWithArgsQuery$data = {|
     +$fragmentSpreads: RelayModernEnvironmentNoInlineTestWithArgs_noInline$fragmentType,
   |},
 |};
-export type RelayModernEnvironmentNoInlineTestWithArgsQueryResponse = RelayModernEnvironmentNoInlineTestWithArgsQuery$data;
 export type RelayModernEnvironmentNoInlineTestWithArgsQuery = {|
-  variables: RelayModernEnvironmentNoInlineTestWithArgsQueryVariables,
+  variables: RelayModernEnvironmentNoInlineTestWithArgsQuery$variables,
   response: RelayModernEnvironmentNoInlineTestWithArgsQuery$data,
 |};
 */

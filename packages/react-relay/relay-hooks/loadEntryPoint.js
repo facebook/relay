@@ -114,11 +114,21 @@ function loadEntryPoint<
     entryPoints: (preloadedEntryPoints: TPreloadedEntryPoints),
     extraProps: extraProps ?? null,
     getComponent: () => {
-      const component = entryPoint.root.getModuleIfRequired();
-      if (component == null) {
+      const componentModule = entryPoint.root.getModuleIfRequired();
+      if (componentModule == null) {
         loadingPromise = loadingPromise ?? entryPoint.root.load();
         throw loadingPromise;
       }
+
+      // On certain platforms, getting an es6 module with a default export from a JSResource will return an object like
+      // {default: module}, so let's assume that if the "component" has a static property named "default"
+      // that it's actually an es6 module wrapper, so unwrap it. This won't work for React classes with a static property named "default", but
+      // that's probably a worthwhile trade-off.
+      const component =
+        // $FlowIgnore[prop-missing]
+        componentModule.default != null
+          ? componentModule.default
+          : componentModule;
       // $FlowFixMe[incompatible-cast] - trust me Flow, its entryPoint component
       return (component: TEntryPointComponent);
     },

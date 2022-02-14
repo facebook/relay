@@ -14,7 +14,7 @@ use graphql_ir::Program;
 
 use graphql_text_printer::{self, PrinterOptions};
 use intern::string_key::Intern;
-use relay_codegen::{print_fragment, print_operation, JsModuleFormat};
+use relay_codegen::{print_fragment, print_operation};
 use relay_config::ProjectConfig;
 use relay_schema::build_schema_with_extensions;
 use relay_transforms::{apply_transforms, Programs};
@@ -132,13 +132,16 @@ pub fn parse_to_reader_ast_impl(
     let reader_ast_string = programs
         .reader
         .fragments()
-        .map(|def| print_fragment(&schema, def, JsModuleFormat::Haste))
-        .chain(
-            programs
-                .reader
-                .operations()
-                .map(|def| print_operation(&schema, def, JsModuleFormat::Haste)),
-        )
+        .map(|def| {
+            let mut import_statements = Default::default();
+            let fragment = print_fragment(&schema, def, &project_config, &mut import_statements);
+            format!("{}{}", import_statements, fragment)
+        })
+        .chain(programs.reader.operations().map(|def| {
+            let mut import_statements = Default::default();
+            let operation = print_operation(&schema, def, &project_config, &mut import_statements);
+            format!("{}{}", import_statements, operation)
+        }))
         .collect::<Vec<_>>()
         .join("\n\n");
 
@@ -173,7 +176,12 @@ pub fn parse_to_normalization_ast_impl(
     let normalization_ast_string = programs
         .normalization
         .operations()
-        .map(|def| print_operation(&schema, def, JsModuleFormat::Haste))
+        .map(|def| {
+            let mut import_statements = Default::default();
+            let operation = print_operation(&schema, def, &project_config, &mut import_statements);
+
+            format!("{}{}", import_statements, operation)
+        })
         .collect::<Vec<_>>()
         .join("\n\n");
 
@@ -316,6 +324,7 @@ fn get_programs(
         Arc::new(program),
         base_fragment_names,
         Arc::new(NoopPerfLogger),
+        None,
         None,
     )
     .map_err(|diagnostics: Vec<Diagnostic>| {

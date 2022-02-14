@@ -10,6 +10,7 @@ use std::path::Path;
 use crate::ast::{Ast, AstBuilder, AstKey, ObjectEntry, Primitive, QueryID, RequestParameters};
 use crate::constants::CODEGEN_CONSTANTS;
 use crate::object;
+use crate::top_level_statements::TopLevelStatements;
 use common::{NamedItem, WithLocation};
 use graphql_ir::{
     Argument, Condition, ConditionValue, ConstantValue, Directive, FragmentDefinition,
@@ -38,10 +39,11 @@ pub fn build_request_params_ast_key(
     request_parameters: RequestParameters<'_>,
     ast_builder: &mut AstBuilder,
     operation: &OperationDefinition,
+    top_level_statements: &TopLevelStatements,
 ) -> AstKey {
     let mut operation_builder =
         CodegenBuilder::new(schema, CodegenVariant::Normalization, ast_builder);
-    operation_builder.build_request_parameters(operation, request_parameters)
+    operation_builder.build_request_parameters(operation, request_parameters, top_level_statements)
 }
 
 pub fn build_provided_variables(
@@ -188,7 +190,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                     &fragment.used_global_variables),
             kind: Primitive::String(CODEGEN_CONSTANTS.fragment_value),
             metadata: if skip_metadata {
-                    Primitive::Null
+                    Primitive::SkippableNull
                 } else {
                     self.build_fragment_metadata(fragment)
                 },
@@ -201,7 +203,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                         fragment.type_condition,
                     ))
                 } else {
-                    Primitive::Null
+                    Primitive::SkippableNull
                 },
         };
         self.object(object)
@@ -268,7 +270,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                 };
                 Primitive::Key(self.object(connection_object))
             } else {
-                Primitive::Null
+                Primitive::SkippableNull
             };
             let mut refetch_object = object! {
                 connection: refetch_connection,
@@ -297,7 +299,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             })
         }
         if metadata.is_empty() {
-            Primitive::Null
+            Primitive::SkippableNull
         } else {
             Primitive::Key(self.object(metadata))
         }
@@ -311,7 +313,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             .iter()
             .map(|metadata| {
                 let path = match &metadata.path {
-                    None => Primitive::Null,
+                    None => Primitive::SkippableNull,
                     Some(path) => Primitive::Key(
                         self.array(path.iter().cloned().map(Primitive::String).collect()),
                     ),
@@ -471,18 +473,18 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         let primitive = Primitive::Key(self.object(object! {
             :build_alias(alias, name),
             args: match args {
-                    None => Primitive::Null,
+                    None => Primitive::SkippableNull,
                     Some(key) => Primitive::Key(key),
                 },
             kind: kind,
             name: Primitive::String(name),
             storage_key: match args {
-                    None => Primitive::Null,
+                    None => Primitive::SkippableNull,
                     Some(key) => {
                         if is_static_storage_key_available(&field.arguments) {
                             Primitive::StorageKey(name, key)
                         } else {
-                            Primitive::Null
+                            Primitive::SkippableNull
                         }
                     }
                 },
@@ -503,13 +505,13 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         for directive in handle_field_directives {
             let values = extract_values_from_handle_field_directive(directive);
             let filters = match values.filters {
-                None => Primitive::Null,
+                None => Primitive::SkippableNull,
                 Some(strs) => {
                     Primitive::Key(self.array(strs.into_iter().map(Primitive::String).collect()))
                 }
             };
             let arguments = match self.build_arguments(&field.arguments) {
-                None => Primitive::Null,
+                None => Primitive::SkippableNull,
                 Some(key) => Primitive::Key(key),
             };
             let mut object = object! {
@@ -554,11 +556,11 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         let primitive = Primitive::Key(self.object(object! {
             :build_alias(alias, name),
             args: match args {
-                    None => Primitive::Null,
+                    None => Primitive::SkippableNull,
                     Some(key) => Primitive::Key(key),
                 },
             concrete_type: if schema_field.type_.inner().is_abstract_type() {
-                    Primitive::Null
+                    Primitive::SkippableNull
                 } else {
                     Primitive::String(self.schema.get_type_name(schema_field.type_.inner()))
                 },
@@ -567,12 +569,12 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             plural: Primitive::Bool(schema_field.type_.is_list()),
             selections: selections,
             storage_key: match args {
-                None => Primitive::Null,
+                None => Primitive::SkippableNull,
                 Some(key) => {
                     if is_static_storage_key_available(&field.arguments) {
                         Primitive::StorageKey(name, key)
                     } else {
-                        Primitive::Null
+                        Primitive::SkippableNull
                     }
                 }
             },
@@ -597,7 +599,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                 None => None,
             };
             let filters = match values.filters {
-                None => Primitive::Null,
+                None => Primitive::SkippableNull,
                 Some(strings) => {
                     Primitive::Key(self.array(strings.into_iter().map(Primitive::String).collect()))
                 }
@@ -605,7 +607,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             let mut object = object! {
                 :build_alias(field.alias.map(|a| a.item), field_name),
                 args: match self.build_arguments(&field.arguments) {
-                        None => Primitive::Null,
+                        None => Primitive::SkippableNull,
                         Some(key) => Primitive::Key(key),
                     },
                 filters: filters,
@@ -680,7 +682,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         let args = self.build_arguments(&frag_spread.arguments);
         let primitive = Primitive::Key(self.object(object! {
             args: match args {
-                    None => Primitive::Null,
+                    None => Primitive::SkippableNull,
                     Some(key) => Primitive::Key(key),
                 },
             kind: Primitive::String(CODEGEN_CONSTANTS.fragment_spread),
@@ -690,7 +692,14 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         if let Some(resolver_spread_metadata) =
             RelayResolverSpreadMetadata::find(&frag_spread.directives)
         {
-            self.build_relay_resolver(primitive, resolver_spread_metadata)
+            let resolver_primitive = self.build_relay_resolver(primitive, resolver_spread_metadata);
+            if let Some(required_metadata) =
+                RequiredMetadataDirective::find(&frag_spread.directives)
+            {
+                self.build_required_field(required_metadata, resolver_primitive)
+            } else {
+                resolver_primitive
+            }
         } else {
             primitive
         }
@@ -728,7 +737,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
 
         Primitive::Key(self.object(object! {
                 args: match args {
-                        None => Primitive::Null,
+                        None => Primitive::SkippableNull,
                         Some(key) => Primitive::Key(key),
                     },
                 fragment: Primitive::GraphQLModuleDependency(frag_spread.fragment.item),
@@ -964,7 +973,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                                 type_condition,
                             ))
                         } else {
-                            Primitive::Null
+                            Primitive::SkippableNull
                         },
                 }))
             }
@@ -1206,7 +1215,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         };
         let selection = Primitive::Key(self.object(object! {
             args: match args {
-                None => Primitive::Null,
+                None => Primitive::SkippableNull,
                 Some(key) => Primitive::Key(key),
             },
             document_name: Primitive::String(module_metadata.key),
@@ -1259,6 +1268,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         &mut self,
         operation: &OperationDefinition,
         mut request_parameters: RequestParameters<'_>,
+        top_level_statements: &TopLevelStatements,
     ) -> AstKey {
         let mut metadata_items: Vec<ObjectEntry> = operation
             .directives
@@ -1358,12 +1368,20 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             ]
         };
 
-        if let Some(provided_variables) =
-            self.build_operation_provided_variables(&operation.variable_definitions)
+        let provided_variables = if top_level_statements
+            .contains(CODEGEN_CONSTANTS.provided_variables_definition.lookup())
         {
+            Some(Primitive::Variable(
+                CODEGEN_CONSTANTS.provided_variables_definition,
+            ))
+        } else {
+            self.build_operation_provided_variables(&operation.variable_definitions)
+                .map(Primitive::Key)
+        };
+        if let Some(value) = provided_variables {
             params_object.push(ObjectEntry {
                 key: CODEGEN_CONSTANTS.provided_variables,
-                value: Primitive::Key(provided_variables),
+                value,
             });
         }
 
@@ -1406,17 +1424,17 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                     :build_alias(alias, name),
                     name: Primitive::String(name),
                     storage_key: match args {
-                            None => Primitive::Null,
+                            None => Primitive::SkippableNull,
                             Some(key) => {
                                 if is_static_storage_key_available(&linked_field.arguments) {
                                     Primitive::StorageKey(name, key)
                                 } else {
-                                    Primitive::Null
+                                    Primitive::SkippableNull
                                 }
                             }
                         },
                     args: match args {
-                            None => Primitive::Null,
+                            None => Primitive::SkippableNull,
                             Some(key) => Primitive::Key(key),
                         },
                     fragment_spread_property: Primitive::Key(fragment_spread_key),
@@ -1457,10 +1475,10 @@ fn value_contains_variable(value: &Value) -> bool {
 
 fn build_alias(alias: Option<StringKey>, name: StringKey) -> ObjectEntry {
     let alias = match alias {
-        None => Primitive::Null,
+        None => Primitive::SkippableNull,
         Some(alias) => {
             if alias == name {
-                Primitive::Null
+                Primitive::SkippableNull
             } else {
                 Primitive::String(alias)
             }

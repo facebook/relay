@@ -9,7 +9,7 @@ license = "MIT"
 [dependencies]
 common = { path = "../common" }
 fnv = "1.0"
-indexmap = { version = "1.7.0", features = ["rayon", "serde-1"] }
+indexmap = { version = "1.8.0", features = ["rayon", "serde-1"] }
 intern = { path = "../intern" }
 regex = "1.5.4"
 serde = { version = "1.0.126", features = ["derive", "rc"] }

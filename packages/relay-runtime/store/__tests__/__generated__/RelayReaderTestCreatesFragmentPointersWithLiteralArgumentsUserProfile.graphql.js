@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<8f1f5d485c3d20d0ce6d2a38a886b03b>>
+ * @generated SignedSource<<6c1424abb072d7684f2b8d9c61054716>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,13 +19,11 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 type RelayReaderTestCreatesFragmentPointersWithLiteralArgumentsUserProfilePicture$fragmentType = any;
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayReaderTestCreatesFragmentPointersWithLiteralArgumentsUserProfile$fragmentType: FragmentType;
-export type RelayReaderTestCreatesFragmentPointersWithLiteralArgumentsUserProfile$ref = RelayReaderTestCreatesFragmentPointersWithLiteralArgumentsUserProfile$fragmentType;
 export type RelayReaderTestCreatesFragmentPointersWithLiteralArgumentsUserProfile$data = {|
   +id: string,
   +$fragmentSpreads: RelayReaderTestCreatesFragmentPointersWithLiteralArgumentsUserProfilePicture$fragmentType,
   +$fragmentType: RelayReaderTestCreatesFragmentPointersWithLiteralArgumentsUserProfile$fragmentType,
 |};
-export type RelayReaderTestCreatesFragmentPointersWithLiteralArgumentsUserProfile = RelayReaderTestCreatesFragmentPointersWithLiteralArgumentsUserProfile$data;
 export type RelayReaderTestCreatesFragmentPointersWithLiteralArgumentsUserProfile$key = {
   +$data?: RelayReaderTestCreatesFragmentPointersWithLiteralArgumentsUserProfile$data,
   +$fragmentSpreads: RelayReaderTestCreatesFragmentPointersWithLiteralArgumentsUserProfile$fragmentType,

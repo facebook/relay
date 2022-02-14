@@ -9,7 +9,7 @@
 
 /* eslint-disable lint/no-value-import */
 import './docsRating.css';
-
+import Link from '@docusaurus/Link';
 import {fbContent} from 'internaldocs-fb-helpers';
 import * as React from 'react';
 /* eslint-enable lint/no-value-import */
@@ -92,16 +92,28 @@ const FileATaskButton = () => (
   </p>
 );
 
+const SurveyLink = () => (
+  <p>
+    Help us make the site even better by{' '}
+    <Link to="https://www.surveymonkey.com/r/FYC9TCJ">
+      answering a few quick questions
+    </Link>
+    .
+  </p>
+);
+
 const DocsRatingInternal = () => (
   <Wrapper>
     <FileATaskButton />
     <FeedbackButtons />
+    <SurveyLink />
   </Wrapper>
 );
 
 const DocsRatingExternal = () => (
   <Wrapper>
     <FeedbackButtons />
+    <SurveyLink />
   </Wrapper>
 );
 

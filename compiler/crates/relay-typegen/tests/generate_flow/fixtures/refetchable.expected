@@ -17,6 +17,10 @@ export type FlowRefetchableFragmentQuery$data = {|
     +$fragmentSpreads: FlowRefetchableFragment$fragmentType,
   |},
 |};
+export type FlowRefetchableFragmentQuery = {|
+  variables: FlowRefetchableFragmentQuery$variables,
+  response: FlowRefetchableFragmentQuery$data,
+|};
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";
 declare export opaque type FlowRefetchableFragment$fragmentType: FragmentType;

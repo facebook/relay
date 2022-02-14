@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<e3a38894bbe0540c41a7df1833bdfc38>>
+ * @generated SignedSource<<a9f5acb5cfc6ddcd9afbbd95fad9d364>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,14 +18,12 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayConcreteVariablesTest5Fragment$fragmentType: FragmentType;
-export type RelayConcreteVariablesTest5Fragment$ref = RelayConcreteVariablesTest5Fragment$fragmentType;
 export type RelayConcreteVariablesTest5Fragment$data = {|
   +profilePicture: ?{|
     +uri: ?string,
   |},
   +$fragmentType: RelayConcreteVariablesTest5Fragment$fragmentType,
 |};
-export type RelayConcreteVariablesTest5Fragment = RelayConcreteVariablesTest5Fragment$data;
 export type RelayConcreteVariablesTest5Fragment$key = {
   +$data?: RelayConcreteVariablesTest5Fragment$data,
   +$fragmentSpreads: RelayConcreteVariablesTest5Fragment$fragmentType,

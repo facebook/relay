@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<f8b63803c9d0b2531792cb07d72268f4>>
+ * @generated SignedSource<<00f64573fd125df59159b9b1650455a4>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,7 +17,6 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 export type DataCheckerTest3Query$variables = {||};
-export type DataCheckerTest3QueryVariables = DataCheckerTest3Query$variables;
 export type DataCheckerTest3Query$data = {|
   +me: ?{|
     +profilePicture: ?{|
@@ -25,9 +24,8 @@ export type DataCheckerTest3Query$data = {|
     |},
   |},
 |};
-export type DataCheckerTest3QueryResponse = DataCheckerTest3Query$data;
 export type DataCheckerTest3Query = {|
-  variables: DataCheckerTest3QueryVariables,
+  variables: DataCheckerTest3Query$variables,
   response: DataCheckerTest3Query$data,
 |};
 */

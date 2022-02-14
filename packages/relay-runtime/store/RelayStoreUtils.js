@@ -219,6 +219,7 @@ const RelayStoreUtils = {
   RELAY_RESOLVER_INVALIDATION_KEY: '__resolverValueMayBeInvalid',
   RELAY_RESOLVER_INPUTS_KEY: '__resolverInputValues',
   RELAY_RESOLVER_READER_SELECTOR_KEY: '__resolverReaderSelector',
+  RELAY_RESOLVER_MISSING_REQUIRED_FIELDS_KEY: '__resolverMissingRequiredFields',
 
   formatStorageKey,
   getArgumentValue,

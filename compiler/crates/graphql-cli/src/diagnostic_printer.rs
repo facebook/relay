@@ -8,6 +8,7 @@
 use crate::SourcePrinter;
 use colored::*;
 use common::{Diagnostic, Location, SourceLocationKey};
+use graphql_syntax::GraphQLSource;
 use std::fmt::Write;
 
 pub struct DiagnosticPrinter<T: Sources> {
@@ -69,14 +70,17 @@ impl<TSources: Sources> DiagnosticPrinter<TSources> {
     fn write_source<W: Write>(&self, writer: &mut W, location: Location) -> std::fmt::Result {
         let source_printer = SourcePrinter::default();
         if let Some(source) = self.sources.get(location.source_location()) {
-            let range = location.span().to_range(&source, 0, 0);
+            let range =
+                location
+                    .span()
+                    .to_range(&source.text, source.line_index, source.column_index);
             writeln!(
                 writer,
                 "  {}{}",
                 location.source_location().path().underline(),
                 format!(":{}:{}", range.start.line + 1, range.start.character + 1).dimmed()
             )?;
-            source_printer.write_span(writer, location.span(), &source)?;
+            source_printer.write_span(writer, location.span(), &source.text, source.line_index)?;
         } else {
             writeln!(
                 writer,
@@ -89,14 +93,14 @@ impl<TSources: Sources> DiagnosticPrinter<TSources> {
 }
 
 pub trait Sources {
-    fn get(&self, source_location: SourceLocationKey) -> Option<String>;
+    fn get(&self, source_location: SourceLocationKey) -> Option<GraphQLSource>;
 }
 
 impl<F> Sources for F
 where
-    F: Fn(SourceLocationKey) -> Option<String>,
+    F: Fn(SourceLocationKey) -> Option<GraphQLSource>,
 {
-    fn get(&self, source_location: SourceLocationKey) -> Option<String> {
+    fn get(&self, source_location: SourceLocationKey) -> Option<GraphQLSource> {
         self(source_location)
     }
 }

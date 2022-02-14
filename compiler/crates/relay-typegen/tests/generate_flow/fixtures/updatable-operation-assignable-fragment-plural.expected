@@ -22,6 +22,8 @@ export type UpdatableQuery$data = {|
     get parents(): $ReadOnlyArray<{||}>,
     set parents(value: $ReadOnlyArray<{
       +$fragmentSpreads: Assignable_user$fragmentType,
+      +__typename: "User",
+      +__id: string,
       ...
     }>): void,
   |} | {|
@@ -30,6 +32,10 @@ export type UpdatableQuery$data = {|
     +__typename: "%other",
   |}),
   set node(value: null | void): void,
+|};
+export type UpdatableQuery = {|
+  variables: UpdatableQuery$variables,
+  response: UpdatableQuery$data,
 |};
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";

@@ -92,6 +92,86 @@ test('it should preload entry point with queries', () => {
   expect(preloadedEntryPoint.entryPoints).toEqual({});
 });
 
+test('it should unwrap an entry point wrapping a module with default exports', () => {
+  const env = createMockEnvironment();
+  const fakeModule = {
+    foo: 'bar',
+  };
+  const entryPoint = {
+    getPreloadProps(params) {
+      return {
+        queries: {
+          myTestQuery: {
+            parameters: {
+              kind: 'PreloadableConcreteRequest',
+              params: {
+                operationKind: 'query',
+                name: 'MyPreloadedQuery',
+                id: 'my-persisted-query-id',
+                text: null,
+                metadata: {},
+              },
+            },
+            variables: {
+              id: params.id,
+            },
+          },
+        },
+      };
+    },
+    root: (new FakeJSResource({
+      default: fakeModule,
+    }): $FlowFixMe),
+  };
+  const preloadedEntryPoint = loadEntryPoint(
+    {
+      getEnvironment: () => env,
+    },
+    entryPoint,
+    {id: 'my-id'},
+  );
+  expect(preloadedEntryPoint.getComponent()).toEqual(fakeModule);
+});
+
+test('it should return the module from an entry point that just returns the module directly', () => {
+  const env = createMockEnvironment();
+  const fakeModule = {
+    foo: 'bar',
+  };
+  const entryPoint = {
+    getPreloadProps(params) {
+      return {
+        queries: {
+          myTestQuery: {
+            parameters: {
+              kind: 'PreloadableConcreteRequest',
+              params: {
+                operationKind: 'query',
+                name: 'MyPreloadedQuery',
+                id: 'my-persisted-query-id',
+                text: null,
+                metadata: {},
+              },
+            },
+            variables: {
+              id: params.id,
+            },
+          },
+        },
+      };
+    },
+    root: (new FakeJSResource(fakeModule): $FlowFixMe),
+  };
+  const preloadedEntryPoint = loadEntryPoint(
+    {
+      getEnvironment: () => env,
+    },
+    entryPoint,
+    {id: 'my-id'},
+  );
+  expect(preloadedEntryPoint.getComponent()).toEqual(fakeModule);
+});
+
 describe('with respect to loadQuery', () => {
   let mockLoadedQuery;
   const loadQuery = jest.fn().mockImplementation(() => {

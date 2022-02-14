@@ -27,6 +27,10 @@ export type Viewer$data = {|
     |}>,
   |},
 |};
+export type Viewer = {|
+  variables: Viewer$variables,
+  response: Viewer$data,
+|};
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";
 declare export opaque type ActorFragment$fragmentType: FragmentType;

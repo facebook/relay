@@ -26,6 +26,7 @@ use graphql_ir::{
 };
 use intern::string_key::{Intern, StringKey};
 use lazy_static::lazy_static;
+use regex::Regex;
 use schema::{SDLSchema, Schema, Type};
 
 // A wrapper type that allows comparing pointer equality of references. Two
@@ -133,6 +134,8 @@ lazy_static! {
         *CLIENT_EDGE_METADATA_KEY,
         "defer".intern(),
     ];
+    static ref VALID_PROVIDED_VARIABLE_NAME: Regex = Regex::new(r#"^[A-Za-z0-9_]*$"#).unwrap();
+    pub static ref INTERNAL_RELAY_VARIABLES_PREFIX: StringKey = "__relay_internal".intern();
 }
 
 pub struct CustomMetadataDirectives;
@@ -171,7 +174,24 @@ pub fn get_fragment_filename(fragment_name: StringKey) -> StringKey {
     .intern()
 }
 
-pub fn format_provided_variable_name(fragment_name: StringKey, arg_name: StringKey) -> StringKey {
-    // __ prefix indicates Relay internal variable
-    format!("__{}__{}", fragment_name, arg_name).intern()
+pub fn format_provided_variable_name(module_name: StringKey) -> StringKey {
+    if VALID_PROVIDED_VARIABLE_NAME.is_match(module_name.lookup()) {
+        format!(
+            "{}__pv__{}",
+            *INTERNAL_RELAY_VARIABLES_PREFIX,
+            module_name.lookup()
+        )
+        .intern()
+    } else {
+        let transformed_name = module_name
+            .lookup()
+            .chars()
+            .filter(|c| c.is_ascii_alphanumeric() || *c == '_')
+            .collect::<String>();
+        format!(
+            "{}__pv__{}",
+            *INTERNAL_RELAY_VARIABLES_PREFIX, transformed_name
+        )
+        .intern()
+    }
 }

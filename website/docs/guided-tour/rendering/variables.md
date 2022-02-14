@@ -17,13 +17,11 @@ GraphQL variables are a construct that allows referencing dynamic values inside 
 
 ```graphql
 query UserQuery($id: ID!) {
-
   # The value of $id is used as input to the user() call:
   user(id: $id) {
     id
     name
   }
-
 }
 ```
 
@@ -65,7 +63,6 @@ Fetching the above query and variables from the server would produce the followi
 }
 ```
 
-* Note that changing the value of the `id` variable used as input would of course produce a different response.
 
 * * *
 
@@ -121,7 +118,7 @@ function UserComponent(props: Props) {
 
 ## @arguments and @argumentDefinitions
 
-However, in order to prevent bloating queries with global variable declarations, Relay also provides a way to declare variables that are scoped locally to a fragment using  the `@arguments` and `@argumentDefinitions` directives:
+However, in order to avoid bloating queries with global variable declarations and to allow developers to reuse fragments with different variables, Relay also provides a way to declare variables that are scoped locally to a fragment using  the `@arguments` and `@argumentDefinitions` directives:
 
 ```js
 /**
@@ -133,9 +130,6 @@ function PictureComponent(props) {
     graphql`
       fragment PictureComponent_user on User
         @argumentDefinitions(scale: {type: "Float!"}) {
-
-        # *`**$scale**`* is a local variable here, declared above
-        # as an argument *`**scale**`*, of type *`**Float!`*
         profile_picture(scale: $scale) {
           uri
         }
@@ -157,7 +151,7 @@ function UserComponent(props) {
       fragment UserComponent_user on User {
         name
 
-        # Pass value of 2.0 for the *`*scale*`* variable
+        # Pass value of 2.0 for the $scale variable
         ...PictureComponent_user @arguments(scale: 2.0)
       }
     `,
@@ -178,7 +172,7 @@ function OtherUserComponent(props) {
         name
 
         # Pass a different value for the scale variable.
-        # The value can be another local or global variable:
+        # The value can be a local variable, global variable or literal:
         ...PictureComponent_user @arguments(scale: $pictureScale)
       }
     `,
@@ -187,7 +181,7 @@ function OtherUserComponent(props) {
 }
 ```
 
-* Note that when passing `@arguments` to a fragment, we can pass a literal value or pass another variable. The variable can be a global query variable, or another local variable declared via `@argumentDefinitions`.
+* Note that when passing `@arguments` to a fragment, we can pass a literal value or pass another variable. The variable can be a global query variable, a local variable declared via `@argumentDefinitions` or a literal (e.g. `42.0`).
 * When we actually fetch `PictureComponent_user` as part of a query, the `scale` value passed to the `profile_picture` field will depend on the argument that was provided by the parent of `PictureComponent_user`:
     * For `UserComponent_user` the value of `$scale` will be 2.0.
     * For `OtherUserComponent_user`, the value of `$scale` will be whatever value we pass to the server for the `$pictureScale` variable when we fetch the query.
@@ -206,8 +200,8 @@ function PictureComponent(props) {
       fragment PictureComponent_user on User
         @argumentDefinitions(scale: {type: "Float!", defaultValue: 2.0}) {
 
-        # *`**$scale**`* is a local variable here, declared above
-        # as an argument *`**scale**`*, of type *`**Float!` with a default value of *`2.0**`**
+        # $scale is a local variable here, declared above
+        # as an argument scale, of type Float! with a default value of 2.0
         profile_picture(scale: $scale) {
           uri
         }
@@ -225,7 +219,7 @@ function UserComponent(props) {
       fragment UserComponent_user on User {
         name
 
-        # Do not pass an argument, value for scale will be **`2.0**`**
+        # Do not pass an argument, value for scale will be 2.0
         ...PictureComponent_user
       }
     `,

@@ -9,7 +9,7 @@ use super::ArtifactGeneratedTypes;
 use crate::config::{Config, ProjectConfig};
 use common::{NamedItem, SourceLocationKey};
 use graphql_ir::{Directive, FragmentDefinition, OperationDefinition};
-use relay_codegen::{build_request_params, Printer, QueryID};
+use relay_codegen::{build_request_params, Printer, QueryID, TopLevelStatement, CODEGEN_CONSTANTS};
 use relay_transforms::{
     is_operation_preloadable, ReactFlightLocalComponentsMetadata, RelayClientComponentMetadata,
     ASSIGNABLE_DIRECTIVE, DATA_DRIVEN_DEPENDENCY_METADATA_KEY,
@@ -54,7 +54,7 @@ impl ArtifactContent {
         &self,
         config: &Config,
         project_config: &ProjectConfig,
-        printer: &mut Printer,
+        printer: &mut Printer<'_>,
         schema: &SDLSchema,
         source_file: SourceLocationKey,
     ) -> Vec<u8> {
@@ -163,7 +163,7 @@ fn write_react_flight_client_annotation(
 fn generate_operation(
     config: &Config,
     project_config: &ProjectConfig,
-    printer: &mut Printer,
+    printer: &mut Printer<'_>,
     schema: &SDLSchema,
     normalization_operation: &OperationDefinition,
     reader_operation: &OperationDefinition,
@@ -273,31 +273,41 @@ fn generate_operation(
         TypegenLanguage::Flow => writeln!(content, "*/\n")?,
         TypegenLanguage::TypeScript => writeln!(content)?,
     }
-
+    let mut top_level_statements = Default::default();
     if let Some(provided_variables) =
-        printer.print_provided_variables(schema, normalization_operation)
+        printer.print_provided_variables(schema, normalization_operation, &mut top_level_statements)
     {
+        let mut provided_variable_text = String::new();
         write_variable_value_with_type(
             &project_config.typegen_config.language,
-            &mut content,
-            "providedVariableProviders",
+            &mut provided_variable_text,
+            CODEGEN_CONSTANTS.provided_variables_definition.lookup(),
             relay_typegen::PROVIDED_VARIABLE_TYPE,
             &provided_variables,
         )
         .unwrap();
+        top_level_statements.insert(
+            CODEGEN_CONSTANTS.provided_variables_definition.to_string(),
+            TopLevelStatement::VariableDefinition(provided_variable_text),
+        );
     }
+
+    let request = printer.print_request(
+        schema,
+        normalization_operation,
+        &operation_fragment,
+        request_parameters,
+        &mut top_level_statements,
+    );
+
+    write!(content, "{}", &top_level_statements)?;
 
     write_variable_value_with_type(
         &project_config.typegen_config.language,
         &mut content,
         "node",
         generated_types.ast_type,
-        &printer.print_request(
-            schema,
-            normalization_operation,
-            &operation_fragment,
-            request_parameters,
-        ),
+        &request,
     )?;
 
     write_source_hash(
@@ -337,7 +347,7 @@ fn generate_operation(
 fn generate_split_operation(
     config: &Config,
     project_config: &ProjectConfig,
-    printer: &mut Printer,
+    printer: &mut Printer<'_>,
     schema: &SDLSchema,
     normalization_operation: &OperationDefinition,
     typegen_operation: &Option<Arc<OperationDefinition>>,
@@ -388,12 +398,18 @@ fn generate_split_operation(
         TypegenLanguage::TypeScript => writeln!(content)?,
     }
 
+    let mut top_level_statements = Default::default();
+    let operation =
+        printer.print_operation(schema, normalization_operation, &mut top_level_statements);
+
+    write!(content, "{}", &top_level_statements)?;
+
     write_variable_value_with_type(
         &project_config.typegen_config.language,
         &mut content,
         "node",
         "NormalizationSplitOperation",
-        &printer.print_operation(schema, normalization_operation),
+        &operation,
     )?;
     write_source_hash(
         config,
@@ -410,7 +426,7 @@ fn generate_split_operation(
 fn generate_fragment(
     config: &Config,
     project_config: &ProjectConfig,
-    printer: &mut Printer,
+    printer: &mut Printer<'_>,
     schema: &SDLSchema,
     reader_fragment: &FragmentDefinition,
     typegen_fragment: &FragmentDefinition,
@@ -441,7 +457,7 @@ fn generate_fragment(
 fn generate_read_only_fragment(
     config: &Config,
     project_config: &ProjectConfig,
-    printer: &mut Printer,
+    printer: &mut Printer<'_>,
     schema: &SDLSchema,
     reader_fragment: &FragmentDefinition,
     typegen_fragment: &FragmentDefinition,
@@ -510,13 +526,17 @@ fn generate_read_only_fragment(
         TypegenLanguage::Flow => writeln!(content, "*/\n")?,
         TypegenLanguage::TypeScript => writeln!(content)?,
     }
+    let mut top_level_statements = Default::default();
+    let fragment = printer.print_fragment(schema, reader_fragment, &mut top_level_statements);
+
+    write!(content, "{}", &top_level_statements)?;
 
     write_variable_value_with_type(
         &project_config.typegen_config.language,
         &mut content,
         "node",
         generated_types.ast_type,
-        &printer.print_fragment(schema, reader_fragment),
+        &fragment,
     )?;
 
     write_source_hash(

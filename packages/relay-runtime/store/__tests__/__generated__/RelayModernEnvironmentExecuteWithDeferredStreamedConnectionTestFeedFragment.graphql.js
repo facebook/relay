@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a9beefefcb34d89bd2ff9101aec6dd64>>
+ * @generated SignedSource<<e1e04ccf7e1425e4e57da503a31be531>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,7 +18,6 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedFragment$fragmentType: FragmentType;
-export type RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedFragment$ref = RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedFragment$fragmentType;
 export type RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedFragment$data = {|
   +newsFeed: ?{|
     +edges: ?$ReadOnlyArray<?{|
@@ -42,7 +41,6 @@ export type RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedF
   |},
   +$fragmentType: RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedFragment$fragmentType,
 |};
-export type RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedFragment = RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedFragment$data;
 export type RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedFragment$key = {
   +$data?: RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedFragment$data,
   +$fragmentSpreads: RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedFragment$fragmentType,

@@ -1,7 +1,7 @@
 {
   "name": "relay",
   "description": "A framework for building data-driven React applications.",
-  "version": "13.0.1",
+  "version": "13.1.1",
   "license": "MIT",
   "homepage": "https://relay.dev",
   "bugs": "https://github.com/facebook/relay/issues",
@@ -50,7 +50,7 @@
     "eslint-plugin-react": "7.21.5",
     "eslint-plugin-relay": "1.7.1",
     "fbjs": "^3.0.2",
-    "flow-bin": "^0.168.0",
+    "flow-bin": "^0.171.0",
     "glob": "^7.1.1",
     "graphql": "15.3.0",
     "gulp": "4.0.2",

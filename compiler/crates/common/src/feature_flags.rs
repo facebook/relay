@@ -49,6 +49,9 @@ pub struct FeatureFlags {
 
     #[serde(default)]
     pub enable_provided_variables: FeatureFlag,
+
+    #[serde(default)]
+    pub skip_printing_nulls: FeatureFlag,
 }
 
 #[derive(Debug, Deserialize, Clone, Serialize)]

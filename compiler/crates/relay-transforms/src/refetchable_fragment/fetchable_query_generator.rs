@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use super::validation_message::ValidationMessage;
 use super::{
     build_fragment_metadata_as_directive, build_fragment_spread,
     build_operation_variable_definitions, build_used_global_variables, QueryGenerator, RefetchRoot,
@@ -13,8 +14,8 @@ use super::{
 use crate::root_variables::VariableMap;
 use common::{Diagnostic, DiagnosticsResult, NamedItem, WithLocation};
 use graphql_ir::{
-    Argument, FragmentDefinition, LinkedField, ScalarField, Selection, ValidationMessage, Value,
-    Variable, VariableDefinition,
+    Argument, FragmentDefinition, LinkedField, ScalarField, Selection, Value, Variable,
+    VariableDefinition,
 };
 use intern::string_key::{Intern, StringKey};
 use relay_config::SchemaConfig;

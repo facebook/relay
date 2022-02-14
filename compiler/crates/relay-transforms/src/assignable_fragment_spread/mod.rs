@@ -7,6 +7,7 @@
 
 mod errors;
 mod transform_assignable_fragment_spreads_in_regular_queries;
+mod transform_assignable_fragment_spreads_in_updatable_queries;
 mod validate_assignable_directive;
 mod validate_updatable_directive;
 
@@ -20,5 +21,6 @@ lazy_static! {
 
 use self::errors::ValidationMessage;
 pub use transform_assignable_fragment_spreads_in_regular_queries::*;
+pub use transform_assignable_fragment_spreads_in_updatable_queries::*;
 pub use validate_assignable_directive::*;
 pub use validate_updatable_directive::*;

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<3e6d28c9e1b1f40a4b36c265481fb07c>>
+ * @generated SignedSource<<4af19709df3de64f86b58a65a274db27>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,7 +23,6 @@ type RelayModernEnvironmentWithOperationTrackerTestMarkdownUserNameRenderer_name
 type RelayModernEnvironmentWithOperationTrackerTestPlainUserNameRenderer_name$fragmentType = any;
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment$fragmentType: FragmentType;
-export type RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment$ref = RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment$fragmentType;
 export type RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment$data = {|
   +id: string,
   +body: ?{|
@@ -44,7 +43,6 @@ export type RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment$data 
   |},
   +$fragmentType: RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment$fragmentType,
 |};
-export type RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment = RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment$data;
 export type RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment$key = {
   +$data?: RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment$data,
   +$fragmentSpreads: RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment$fragmentType,

@@ -15,3 +15,7 @@ export type TestQuery$data = {|
     |}>,
   |},
 |};
+export type TestQuery = {|
+  variables: TestQuery$variables,
+  response: TestQuery$data,
+|};

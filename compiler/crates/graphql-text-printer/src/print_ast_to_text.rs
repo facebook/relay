@@ -99,6 +99,7 @@ impl Printer {
         if let Some(default_value) = &variable_definition.default_value {
             write!(self.output, " = {}", default_value)?;
         }
+        self.print_directives(&variable_definition.directives)?;
 
         Ok(())
     }

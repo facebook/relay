@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<3568a90a908db6405f9c88df71e7d4e8>>
+ * @generated SignedSource<<39d75786626164ab2e31c525f479d085>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,7 +19,6 @@ import type { ConcreteRequest, Query } from 'relay-runtime';
 export type RelayReaderTestReadsHandleFieldsForQueryRootFragmentsUserFriendsQuery$variables = {|
   id: string,
 |};
-export type RelayReaderTestReadsHandleFieldsForQueryRootFragmentsUserFriendsQueryVariables = RelayReaderTestReadsHandleFieldsForQueryRootFragmentsUserFriendsQuery$variables;
 export type RelayReaderTestReadsHandleFieldsForQueryRootFragmentsUserFriendsQuery$data = {|
   +node: ?{|
     +friends?: ?{|
@@ -33,9 +32,8 @@ export type RelayReaderTestReadsHandleFieldsForQueryRootFragmentsUserFriendsQuer
     |},
   |},
 |};
-export type RelayReaderTestReadsHandleFieldsForQueryRootFragmentsUserFriendsQueryResponse = RelayReaderTestReadsHandleFieldsForQueryRootFragmentsUserFriendsQuery$data;
 export type RelayReaderTestReadsHandleFieldsForQueryRootFragmentsUserFriendsQuery = {|
-  variables: RelayReaderTestReadsHandleFieldsForQueryRootFragmentsUserFriendsQueryVariables,
+  variables: RelayReaderTestReadsHandleFieldsForQueryRootFragmentsUserFriendsQuery$variables,
   response: RelayReaderTestReadsHandleFieldsForQueryRootFragmentsUserFriendsQuery$data,
 |};
 */

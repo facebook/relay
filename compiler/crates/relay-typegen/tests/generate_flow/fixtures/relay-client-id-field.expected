@@ -63,3 +63,7 @@ export type RelayClientIDFieldQuery$data = {|
     +id: string,
   |}),
 |};
+export type RelayClientIDFieldQuery = {|
+  variables: RelayClientIDFieldQuery$variables,
+  response: RelayClientIDFieldQuery$data,
+|};

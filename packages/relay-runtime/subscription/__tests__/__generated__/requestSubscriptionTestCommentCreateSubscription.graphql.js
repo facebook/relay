@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<e9cdb8bca9f155383d4e65709772dbe6>>
+ * @generated SignedSource<<5ccfcc005ceaa42d0ddc4162369a78dd>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,7 +24,6 @@ export type CommentCreateSubscriptionInput = {|
 export type requestSubscriptionTestCommentCreateSubscription$variables = {|
   input?: ?CommentCreateSubscriptionInput,
 |};
-export type requestSubscriptionTestCommentCreateSubscriptionVariables = requestSubscriptionTestCommentCreateSubscription$variables;
 export type requestSubscriptionTestCommentCreateSubscription$data = {|
   +commentCreateSubscribe: ?{|
     +feedbackCommentEdge: ?{|
@@ -37,9 +36,8 @@ export type requestSubscriptionTestCommentCreateSubscription$data = {|
     |},
   |},
 |};
-export type requestSubscriptionTestCommentCreateSubscriptionResponse = requestSubscriptionTestCommentCreateSubscription$data;
 export type requestSubscriptionTestCommentCreateSubscription = {|
-  variables: requestSubscriptionTestCommentCreateSubscriptionVariables,
+  variables: requestSubscriptionTestCommentCreateSubscription$variables,
   response: requestSubscriptionTestCommentCreateSubscription$data,
 |};
 */
@@ -138,9 +136,7 @@ return {
   "params": {
     "cacheID": "69ed95f4ec4971c57ef2b015b07ffeb0",
     "id": null,
-    "metadata": {
-      "subscriptionName": "commentCreateSubscribe"
-    },
+    "metadata": {},
     "name": "requestSubscriptionTestCommentCreateSubscription",
     "operationKind": "subscription",
     "text": "subscription requestSubscriptionTestCommentCreateSubscription(\n  $input: CommentCreateSubscriptionInput\n) {\n  commentCreateSubscribe(input: $input) {\n    feedbackCommentEdge {\n      node {\n        id\n        body {\n          text\n        }\n      }\n    }\n  }\n}\n"

@@ -758,7 +758,6 @@ impl SingleProjectConfigFile {
                 eager_es_modules: self.eager_es_modules,
                 future_proof_enums: !self.no_future_proof_enums,
                 flow_typegen: FlowTypegenConfig {
-                    no_future_proof_enums: self.no_future_proof_enums,
                     phase: self.typegen_phase,
                     ..Default::default()
                 },

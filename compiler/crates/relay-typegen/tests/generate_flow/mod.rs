@@ -37,7 +37,6 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
 
     let source_location = SourceLocationKey::standalone(fixture.file_name);
 
-
     let mut sources = FnvHashMap::default();
     sources.insert(source_location, source);
     let ast = parse_executable(source, source_location).unwrap_or_else(|e| {
@@ -62,15 +61,26 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         name: "test".intern(),
         js_module_format: JsModuleFormat::Haste,
         feature_flags: Arc::new(feature_flags),
-        typegen_config: TypegenConfig {
-            language: TypegenLanguage::Flow,
-            custom_scalar_types,
-            flow_typegen: FlowTypegenConfig {
-                phase: FlowTypegenPhase::Final,
+        typegen_config: typegen_input
+            .and_then(|str| serde_json::from_str(str).unwrap())
+            .map(|config| TypegenConfig {
+                language: TypegenLanguage::Flow,
+                custom_scalar_types: custom_scalar_types.clone(),
+                flow_typegen: FlowTypegenConfig {
+                    phase: FlowTypegenPhase::Final,
+                    ..Default::default()
+                },
+                ..config
+            })
+            .unwrap_or_else(|| TypegenConfig {
+                language: TypegenLanguage::Flow,
+                custom_scalar_types,
+                flow_typegen: FlowTypegenConfig {
+                    phase: FlowTypegenPhase::Final,
+                    ..Default::default()
+                },
                 ..Default::default()
-            },
-            ..Default::default()
-        },
+            }),
         ..Default::default()
     };
 
@@ -82,18 +92,6 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         None,
     )
     .unwrap();
-
-    let js_module_format = JsModuleFormat::Haste;
-    let typegen_config = typegen_input
-        .and_then(|str| serde_json::from_str(str).unwrap())
-        .map(|config| TypegenConfig {
-            language: TypegenLanguage::Flow,
-            ..config
-        })
-        .unwrap_or_else(|| TypegenConfig {
-            language: TypegenLanguage::Flow,
-            ..Default::default()
-        });
 
     let mut operations: Vec<_> = programs.typegen.operations().collect();
     operations.sort_by_key(|op| op.name.item);

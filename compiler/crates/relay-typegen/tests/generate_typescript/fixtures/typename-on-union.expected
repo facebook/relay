@@ -93,11 +93,6 @@ export type TypenameAlias$data = {
   readonly _typeAlias: "Page";
   readonly username: string | null;
   readonly " $fragmentType": "TypenameAlias";
-} | {
-  // This will never be '%other', but we need some
-  // value in case none of the concrete values match.
-  readonly _typeAlias: "%other";
-  readonly " $fragmentType": "TypenameAlias";
 };
 export type TypenameAlias$key = {
   readonly " $data"?: TypenameAlias$data;
@@ -115,14 +110,6 @@ export type TypenameAliases$data = {
   readonly _typeAlias2: "Page";
   readonly username: string | null;
   readonly " $fragmentType": "TypenameAliases";
-} | {
-  // This will never be '%other', but we need some
-  // value in case none of the concrete values match.
-  readonly _typeAlias1: "%other";
-  // This will never be '%other', but we need some
-  // value in case none of the concrete values match.
-  readonly _typeAlias2: "%other";
-  readonly " $fragmentType": "TypenameAliases";
 };
 export type TypenameAliases$key = {
   readonly " $data"?: TypenameAliases$data;
@@ -138,11 +125,6 @@ export type TypenameInside$data = {
   readonly __typename: "Page";
   readonly username: string | null;
   readonly " $fragmentType": "TypenameInside";
-} | {
-  // This will never be '%other', but we need some
-  // value in case none of the concrete values match.
-  readonly __typename: "%other";
-  readonly " $fragmentType": "TypenameInside";
 };
 export type TypenameInside$key = {
   readonly " $data"?: TypenameInside$data;
@@ -157,11 +139,6 @@ export type TypenameOutside$data = {
 } | {
   readonly __typename: "Page";
   readonly username: string | null;
-  readonly " $fragmentType": "TypenameOutside";
-} | {
-  // This will never be '%other', but we need some
-  // value in case none of the concrete values match.
-  readonly __typename: "%other";
   readonly " $fragmentType": "TypenameOutside";
 };
 export type TypenameOutside$key = {
@@ -184,9 +161,7 @@ export type TypenameOutsideWithAbstractType$data = {
   } | null;
   readonly " $fragmentType": "TypenameOutsideWithAbstractType";
 } | {
-  // This will never be '%other', but we need some
-  // value in case none of the concrete values match.
-  readonly __typename: "%other";
+  readonly __typename: "Comment" | "Feedback" | "Page" | "PhotoStory" | "Story";
   readonly username?: string | null;
   readonly address?: {
     readonly city: string | null;
@@ -208,12 +183,6 @@ export type TypenameWithCommonSelections$data = {
 } | {
   readonly __typename: "Page";
   readonly username: string | null;
-  readonly name: string | null;
-  readonly " $fragmentType": "TypenameWithCommonSelections";
-} | {
-  // This will never be '%other', but we need some
-  // value in case none of the concrete values match.
-  readonly __typename: "%other";
   readonly name: string | null;
   readonly " $fragmentType": "TypenameWithCommonSelections";
 };

@@ -46,14 +46,24 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let project_config = ProjectConfig {
         name: "test".intern(),
         js_module_format: JsModuleFormat::Haste,
-        typegen_config: TypegenConfig {
-            language: TypegenLanguage::TypeScript,
-            flow_typegen: FlowTypegenConfig {
-                phase: FlowTypegenPhase::Final,
+        typegen_config: typegen_input
+            .and_then(|str| serde_json::from_str(str).unwrap())
+            .map(|config| TypegenConfig {
+                language: TypegenLanguage::TypeScript,
+                flow_typegen: FlowTypegenConfig {
+                    phase: FlowTypegenPhase::Final,
+                    ..Default::default()
+                },
+                ..config
+            })
+            .unwrap_or_else(|| TypegenConfig {
+                language: TypegenLanguage::TypeScript,
+                flow_typegen: FlowTypegenConfig {
+                    phase: FlowTypegenPhase::Final,
+                    ..Default::default()
+                },
                 ..Default::default()
-            },
-            ..Default::default()
-        },
+            }),
         ..Default::default()
     };
     let programs = apply_transforms(
@@ -64,18 +74,6 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         None,
     )
     .unwrap();
-
-    let js_module_format = JsModuleFormat::Haste;
-    let typegen_config = typegen_input
-        .and_then(|str| serde_json::from_str(str).unwrap())
-        .map(|config| TypegenConfig {
-            language: TypegenLanguage::TypeScript,
-            ..config
-        })
-        .unwrap_or_else(|| TypegenConfig {
-            language: TypegenLanguage::TypeScript,
-            ..Default::default()
-        });
 
     let mut operations: Vec<_> = programs.typegen.operations().collect();
     operations.sort_by_key(|op| op.name.item);

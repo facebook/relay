@@ -94,11 +94,6 @@ export type TypenameAlias$data = {|
   +_typeAlias: "Page",
   +username: ?string,
   +$fragmentType: TypenameAlias$fragmentType,
-|} | {|
-  // This will never be '%other', but we need some
-  // value in case none of the concrete values match.
-  +_typeAlias: "%other",
-  +$fragmentType: TypenameAlias$fragmentType,
 |};
 export type TypenameAlias$key = {
   +$data?: TypenameAlias$data,
@@ -118,14 +113,6 @@ export type TypenameAliases$data = {|
   +_typeAlias2: "Page",
   +username: ?string,
   +$fragmentType: TypenameAliases$fragmentType,
-|} | {|
-  // This will never be '%other', but we need some
-  // value in case none of the concrete values match.
-  +_typeAlias1: "%other",
-  // This will never be '%other', but we need some
-  // value in case none of the concrete values match.
-  +_typeAlias2: "%other",
-  +$fragmentType: TypenameAliases$fragmentType,
 |};
 export type TypenameAliases$key = {
   +$data?: TypenameAliases$data,
@@ -143,11 +130,6 @@ export type TypenameInside$data = {|
   +__typename: "Page",
   +username: ?string,
   +$fragmentType: TypenameInside$fragmentType,
-|} | {|
-  // This will never be '%other', but we need some
-  // value in case none of the concrete values match.
-  +__typename: "%other",
-  +$fragmentType: TypenameInside$fragmentType,
 |};
 export type TypenameInside$key = {
   +$data?: TypenameInside$data,
@@ -164,11 +146,6 @@ export type TypenameOutside$data = {|
 |} | {|
   +__typename: "Page",
   +username: ?string,
-  +$fragmentType: TypenameOutside$fragmentType,
-|} | {|
-  // This will never be '%other', but we need some
-  // value in case none of the concrete values match.
-  +__typename: "%other",
   +$fragmentType: TypenameOutside$fragmentType,
 |};
 export type TypenameOutside$key = {
@@ -193,9 +170,7 @@ export type TypenameOutsideWithAbstractType$data = {|
   |},
   +$fragmentType: TypenameOutsideWithAbstractType$fragmentType,
 |} | {|
-  // This will never be '%other', but we need some
-  // value in case none of the concrete values match.
-  +__typename: "%other",
+  +__typename: "Comment" | "Feedback" | "Page" | "PhotoStory" | "Story",
   +username?: ?string,
   +address?: ?{|
     +city: ?string,
@@ -219,12 +194,6 @@ export type TypenameWithCommonSelections$data = {|
 |} | {|
   +__typename: "Page",
   +username: ?string,
-  +name: ?string,
-  +$fragmentType: TypenameWithCommonSelections$fragmentType,
-|} | {|
-  // This will never be '%other', but we need some
-  // value in case none of the concrete values match.
-  +__typename: "%other",
   +name: ?string,
   +$fragmentType: TypenameWithCommonSelections$fragmentType,
 |};

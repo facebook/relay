@@ -419,6 +419,13 @@ fn typename_inside_with_overlapping_fields() {
 }
 
 #[test]
+fn typename_on_node() {
+  let input = include_str!("generate_flow/fixtures/typename-on-node.graphql");
+  let expected = include_str!("generate_flow/fixtures/typename-on-node.expected");
+  test_fixture(transform_fixture, "typename-on-node.graphql", "generate_flow/fixtures/typename-on-node.expected", input, expected);
+}
+
+#[test]
 fn typename_on_union() {
     let input = include_str!("generate_flow/fixtures/typename-on-union.graphql");
     let expected = include_str!("generate_flow/fixtures/typename-on-union.expected");

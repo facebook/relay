@@ -14,8 +14,8 @@ path = "tests/parse_test.rs"
 common = { path = "../common" }
 docblock-syntax = { path = "../docblock-syntax" }
 intern = { path = "../intern" }
-thiserror = "1.0.29"
 lazy_static = "1.0"
+thiserror = "1.0.29"
 
 [dev-dependencies]
 extract-graphql = { path = "../extract-graphql" }

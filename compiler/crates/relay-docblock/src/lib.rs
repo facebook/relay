@@ -17,7 +17,7 @@ use common::{DiagnosticsResult, WithLocation};
 use docblock_syntax::{DocblockAST, DocblockField, DocblockSection};
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
-use ir::{DocblockIr, RelayResolverIr};
+pub use ir::{DocblockIr, RelayResolverIr};
 use lazy_static::lazy_static;
 
 lazy_static! {
@@ -99,6 +99,7 @@ impl RelayResolverParser {
             root_fragment: self.assert_field_value(*ROOT_FRAGMENT_FIELD)?,
             edge_to: self.fields.get(&EDGE_TO_FIELD).copied(),
             description: self.description,
+            location: ast.location,
         })
     }
 

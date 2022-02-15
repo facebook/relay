@@ -13,6 +13,7 @@ path = "tests/parse_test.rs"
 [dependencies]
 common = { path = "../common" }
 docblock-syntax = { path = "../docblock-syntax" }
+graphql-syntax = { path = "../graphql-syntax" }
 intern = { path = "../intern" }
 lazy_static = "1.0"
 thiserror = "1.0.29"

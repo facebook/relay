@@ -10,7 +10,7 @@ mod errors;
 
 use std::{iter::Peekable, str::Chars};
 
-use ast::{DocblockAST, DocblockField, DocblockSection};
+pub use ast::{DocblockAST, DocblockField, DocblockSection};
 use common::{Diagnostic, DiagnosticsResult, Location, SourceLocationKey, Span, WithLocation};
 use errors::SyntaxError;
 use intern::string_key::{Intern, StringKey};

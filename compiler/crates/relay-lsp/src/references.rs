@@ -73,7 +73,7 @@ fn transform_ir_location_to_lsp_location(
         return Ok(lsp_location_of_graphql_literal);
     }
 
-    // Case 2: for the embedded source, the lsp_location_of_graphql_literal should be swifted by the span range.
+    // Case 2: for the embedded source, the lsp_location_of_graphql_literal should be shifted by the span range.
     let range_offset = span_to_range_offset(*node_ir_location.span(), &graphql_literal_text)
         .ok_or(LSPRuntimeError::ExpectedError)?;
 

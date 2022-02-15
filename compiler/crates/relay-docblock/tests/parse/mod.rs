@@ -28,9 +28,10 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         .collect::<Result<Vec<_>, _>>()
         .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?
         .iter()
-        .map(|ir| format!("{:?}", ir))
+        .flatten()
+        .map(|ir| format!("{:#?}", ir))
         .collect::<Vec<_>>()
         .join("\n\n");
 
-    Ok(format!("{:?}", irs))
+    Ok(irs)
 }

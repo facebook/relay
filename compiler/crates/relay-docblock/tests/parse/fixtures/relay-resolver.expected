@@ -8,13 +8,43 @@
 
 /**
  * @RelayResolver
- *
- * expected-to-throw
+ * 
+ * @onType User
+ * @fieldName favorite_page
+ * @edgeTo Page
+ * @rootFragment myRootFragment
+ * 
+ * The user's favorite page! They probably clicked something in the UI 
+ * to tell us that it was their favorite page and then we put that in a
+ * database or something. Then we got that info out again and put it out
+ * again. Anyway, I'm rambling now. Its a page that the user likes. A lot.
  */
-==================================== ERROR ====================================
-✖︎ This feature is not implemented yet.
-
-  <generated>:1:1
-    1 │ /**
-      │ ^
-    2 │  * Copyright (c) Meta Platforms, Inc. and affiliates.
+==================================== OUTPUT ===================================
+RelayResolver(
+    RelayResolverIr {
+        field_name: WithLocation {
+            location: <generated>:54:67,
+            item: "favorite_page",
+        },
+        on_type: WithLocation {
+            location: <generated>:35:39,
+            item: "User",
+        },
+        root_fragment: WithLocation {
+            location: <generated>:101:115,
+            item: "myRootFragment",
+        },
+        edge_to: Some(
+            WithLocation {
+                location: <generated>:79:83,
+                item: "Page",
+            },
+        ),
+        description: Some(
+            WithLocation {
+                location: <generated>:119:411,
+                item: "\nThe user's favorite page! They probably clicked something in the UI \nto tell us that it was their favorite page and then we put that in a\ndatabase or something. Then we got that info out again and put it out\nagain. Anyway, I'm rambling now. Its a page that the user likes. A lot.",
+            },
+        ),
+    },
+)

@@ -2291,8 +2291,6 @@ fn merge_prop(prop: &mut Prop, other_prop: Prop) {
     match prop {
         Prop::KeyValuePair(a) => match other_prop {
             Prop::KeyValuePair(b) => {
-                // a.value = AST::Union(vec![a.value.clone(), b.value]);
-                // a.value = a.value.clone().merge_with(b.value);
                 a.value.merge_with(b.value);
             }
             _ => {}

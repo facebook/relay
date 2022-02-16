@@ -30,6 +30,12 @@ const {
   graphql,
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
+const {
+  disallowConsoleErrors,
+  disallowWarnings,
+  expectToWarn,
+  expectWarningWillFire,
+} = require('relay-test-utils-internal');
 
 const defaultFetchPolicy = 'network-only';
 
@@ -42,6 +48,9 @@ function expectToBeRendered(renderFn, readyState) {
   expect(renderFn.mock.calls[0][0]).toEqual(readyState);
   renderFn.mockClear();
 }
+
+disallowWarnings();
+disallowConsoleErrors();
 
 function expectToHaveFetched(environment, query) {
   // $FlowFixMe[method-unbinding] added when improving typing for this parameters
@@ -81,8 +90,6 @@ describe('useLazyLoadQueryNode', () => {
   let errorBoundaryDidCatchFn;
 
   beforeEach(() => {
-    jest.resetModules();
-    jest.spyOn(console, 'warn').mockImplementationOnce(() => {});
     errorBoundaryDidCatchFn = jest.fn();
 
     class ErrorBoundary extends React.Component<any, any> {
@@ -261,6 +268,10 @@ describe('useLazyLoadQueryNode', () => {
     expect(renderFn).not.toBeCalled();
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     expect(environment.retain).toHaveBeenCalledTimes(1);
+
+    expectWarningWillFire(
+      'RelayResponseNormalizer: Payload did not contain a value for field `name: name`. Check that you are parsing with the same query that was used to fetch the payload.',
+    );
 
     ReactTestRenderer.act(() => {
       environment.mock.resolve(gqlQuery, {
@@ -708,6 +719,8 @@ describe('useLazyLoadQueryNode', () => {
       expect(renderFn).not.toBeCalled();
 
       const payloadError = new Error('Invalid Payload');
+      // $FlowFixMe[prop-missing] This will make react suppress error logging for this error
+      payloadError._suppressLogging = true;
 
       expect(errorBoundaryDidCatchFn).not.toBeCalled();
 
@@ -725,9 +738,6 @@ describe('useLazyLoadQueryNode', () => {
     });
 
     it('should render the query with defer payloads without errors for defer payloads', () => {
-      jest.mock('warning');
-      const warning = require('warning');
-
       const instance = render(
         environment,
         <Container key={0} variables={variables} />,
@@ -754,18 +764,11 @@ describe('useLazyLoadQueryNode', () => {
       expect(errorBoundaryDidCatchFn).not.toBeCalled();
 
       const payloadError = new Error('Invalid Payload');
-      // $FlowFixMe(prop-missing)
-      warning.mockClear();
-
-      environment.mock.reject(query, payloadError);
-      expect(warning).toBeCalledWith(
-        false,
-        expect.stringContaining(
-          'QueryResource: An incremental payload for query `%`',
-        ),
-        'useLazyLoadQueryNodeTest1Query',
-        expect.stringContaining('Invalid Payload'),
-        expect.stringContaining('Invalid Payload'),
+      expectToWarn(
+        'QueryResource: An incremental payload for query `useLazyLoadQueryNodeTest1Query` returned an error: `Invalid Payload`.',
+        () => {
+          environment.mock.reject(query, payloadError);
+        },
       );
 
       // force re-rendering of the component, to read from the QueryResource
@@ -861,6 +864,13 @@ describe('useLazyLoadQueryNode', () => {
   });
 
   describe('logging', () => {
+    beforeEach(() => {
+      // we need to reset modules in order to test generated ID
+      jest.resetModules();
+      disallowWarnings();
+      disallowConsoleErrors();
+    });
+
     test('simple fetch', () => {
       render(environment, <Container variables={variables} />);
 

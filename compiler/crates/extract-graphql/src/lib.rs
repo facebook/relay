@@ -14,17 +14,20 @@ use graphql_syntax::GraphQLSource;
 use std::iter::Peekable;
 use std::str::CharIndices;
 
-#[derive(Clone, Debug)]
-pub struct JavaScriptSourceFeatures {
-    pub graphql_sources: Vec<GraphQLSource>,
-    pub docblock_sources: Vec<DocblockSource>,
+pub enum JavaScriptSourceFeature {
+    GraphQL(GraphQLSource),
+    Docblock(DocblockSource),
 }
 
-impl JavaScriptSourceFeatures {
-    fn new() -> Self {
-        Self {
-            graphql_sources: Vec::new(),
-            docblock_sources: Vec::new(),
+impl JavaScriptSourceFeature {
+    pub fn as_graphql_source(self) -> GraphQLSource {
+        match self {
+            JavaScriptSourceFeature::GraphQL(source) => source,
+            JavaScriptSourceFeature::Docblock(source) => GraphQLSource {
+                text: source.text,
+                line_index: source.line_index,
+                column_index: source.column_index,
+            },
         }
     }
 }
@@ -78,8 +81,8 @@ impl<'a> Iterator for CharReader<'a> {
 
 /// Extract graphql`text` literals and @RelayResolver comments from JS-like code.
 // This should work for Flow or TypeScript alike.
-pub fn extract(input: &str) -> JavaScriptSourceFeatures {
-    let mut res = JavaScriptSourceFeatures::new();
+pub fn extract(input: &str) -> Vec<JavaScriptSourceFeature> {
+    let mut res = Vec::new();
     if !input.contains("graphql`") && !input.contains("@RelayResolver") {
         return res;
     }
@@ -104,11 +107,11 @@ pub fn extract(input: &str) -> JavaScriptSourceFeatures {
                         '`' => {
                             let end = i;
                             let text = &input[start + 8..end];
-                            res.graphql_sources.push(GraphQLSource::new(
+                            res.push(JavaScriptSourceFeature::GraphQL(GraphQLSource::new(
                                 text,
                                 line_index,
                                 column_index,
-                            ));
+                            )));
                             continue 'code;
                         }
                         ' ' | '\n' | '\r' | '\t' => {}
@@ -167,10 +170,8 @@ pub fn extract(input: &str) -> JavaScriptSourceFeatures {
                                 let end = i;
                                 let text = &input[start + 2..end - 1];
                                 if text.contains("@RelayResolver") {
-                                    res.docblock_sources.push(DocblockSource::new(
-                                        text,
-                                        line_index,
-                                        column_index,
+                                    res.push(JavaScriptSourceFeature::Docblock(
+                                        DocblockSource::new(text, line_index, column_index),
                                     ));
                                 }
                                 continue 'code;

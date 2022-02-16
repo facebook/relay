@@ -26,6 +26,7 @@ common = { path = "../common" }
 common-path = "1.0.0"
 dashmap = { version = "4.0.2", features = ["rayon", "serde"] }
 dependency-analyzer = { path = "../dependency-analyzer" }
+docblock-syntax = { path = "../docblock-syntax" }
 errors = { path = "../errors" }
 extract-graphql = { path = "../extract-graphql" }
 fnv = "1.0"

@@ -19,7 +19,7 @@
 ==================================== ERROR ====================================
 ✖︎ Unexpected docblock field "@notValid"
 
-  <generated>:4:56
+  /path/to/test/fixture/relay-resolver-invalid-field.invalid.js:4:56
     3 │  *
     4 │  * This source code is licensed under the MIT license found in the
       │                                                        ^^^^^^^^

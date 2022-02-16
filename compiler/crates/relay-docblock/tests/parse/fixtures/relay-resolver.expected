@@ -23,29 +23,29 @@
 RelayResolver(
     RelayResolverIr {
         field_name: WithLocation {
-            location: <generated>:54:67,
+            location: /path/to/test/fixture/relay-resolver.js:54:67,
             item: "favorite_page",
         },
         on_type: WithLocation {
-            location: <generated>:35:39,
+            location: /path/to/test/fixture/relay-resolver.js:35:39,
             item: "User",
         },
         root_fragment: WithLocation {
-            location: <generated>:101:115,
+            location: /path/to/test/fixture/relay-resolver.js:101:115,
             item: "myRootFragment",
         },
         edge_to: Some(
             WithLocation {
-                location: <generated>:79:83,
+                location: /path/to/test/fixture/relay-resolver.js:79:83,
                 item: "Page",
             },
         ),
         description: Some(
             WithLocation {
-                location: <generated>:119:411,
+                location: /path/to/test/fixture/relay-resolver.js:119:411,
                 item: "\nThe user's favorite page! They probably clicked something in the UI \nto tell us that it was their favorite page and then we put that in a\ndatabase or something. Then we got that info out again and put it out\nagain. Anyway, I'm rambling now. Its a page that the user likes. A lot.",
             },
         ),
-        location: <generated>:0:413,
+        location: /path/to/test/fixture/relay-resolver.js:0:413,
     },
 )

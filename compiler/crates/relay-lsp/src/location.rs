@@ -71,15 +71,16 @@ fn read_embedded_file_and_get_range(
     let file_contents =
         std::str::from_utf8(&file).map_err(|e| LSPRuntimeError::UnexpectedError(e.to_string()))?;
 
-    let response = extract_graphql::extract(file_contents).graphql_sources;
-    let source = response.get(index).ok_or_else(|| {
+    let response = extract_graphql::extract(file_contents);
+    let response_length = response.len();
+    let embedded_source = response.into_iter().nth(index).ok_or_else(|| {
         LSPRuntimeError::UnexpectedError(format!(
             "File {:?} does not contain enough graphql literals: {} needed; {} found",
-            path_to_fragment,
-            index,
-            response.len()
+            path_to_fragment, index, response_length
         ))
     })?;
+
+    let source = embedded_source.as_graphql_source();
 
     let lines = source.text.lines().enumerate();
     let (line_count, last_line) = lines.last().ok_or_else(|| {

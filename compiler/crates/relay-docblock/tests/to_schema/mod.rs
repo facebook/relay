@@ -8,7 +8,7 @@
 use common::SourceLocationKey;
 // use docblock_syntax::parse_docblock;
 use docblock_syntax::parse_docblock;
-use extract_graphql;
+use extract_graphql::{self, JavaScriptSourceFeature};
 use fixture_tests::Fixture;
 use graphql_test_helpers::diagnostics_to_sorted_string;
 use intern::string_key::Intern;
@@ -18,9 +18,12 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let js_features = extract_graphql::extract(fixture.content);
 
     let asts = js_features
-        .docblock_sources
         .iter()
         .enumerate()
+        .filter_map(|(i, source)| match source {
+            JavaScriptSourceFeature::GraphQL(_) => None,
+            JavaScriptSourceFeature::Docblock(docblock_source) => Some((i, docblock_source)),
+        })
         .map(|(i, souce)| {
             parse_docblock(
                 &souce.text,

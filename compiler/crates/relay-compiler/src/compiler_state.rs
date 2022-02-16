@@ -10,13 +10,12 @@ use crate::config::Config;
 use crate::errors::{Error, Result};
 use crate::file_source::{
     categorize_files, extract_javascript_features_from_file, read_file_to_string, Clock, File,
-    FileGroup, FileSourceResult, SourceControlUpdateStatus,
+    FileGroup, FileSourceResult, LocatedGraphQLSource, SourceControlUpdateStatus,
 };
 use bincode::Options;
 use common::{PerfLogEvent, PerfLogger, SourceLocationKey};
 use dashmap::DashSet;
 use fnv::{FnvBuildHasher, FnvHashMap, FnvHashSet};
-use graphql_syntax::GraphQLSource;
 use intern::string_key::StringKey;
 use rayon::prelude::*;
 use relay_config::SchemaConfig;
@@ -118,7 +117,7 @@ pub trait Source {
     fn is_empty(&self) -> bool;
 }
 
-impl Source for Vec<GraphQLSource> {
+impl Source for Vec<LocatedGraphQLSource> {
     fn is_empty(&self) -> bool {
         self.is_empty()
     }
@@ -166,8 +165,8 @@ impl<V: Source> Default for IncrementalSources<V> {
     }
 }
 
-type GraphQLSourceSet = IncrementalSourceSet<Vec<GraphQLSource>>;
-pub type GraphQLSources = IncrementalSources<Vec<GraphQLSource>>;
+type GraphQLSourceSet = IncrementalSourceSet<Vec<LocatedGraphQLSource>>;
+pub type GraphQLSources = IncrementalSources<Vec<LocatedGraphQLSource>>;
 pub type SchemaSources = IncrementalSources<String>;
 
 impl Source for String {

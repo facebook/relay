@@ -12,6 +12,7 @@ use crate::file_source::{
     categorize_files, extract_javascript_features_from_file, read_file_to_string, Clock, File,
     FileGroup, FileSourceResult, SourceControlUpdateStatus,
 };
+use bincode::Options;
 use common::{PerfLogEvent, PerfLogger, SourceLocationKey};
 use dashmap::DashSet;
 use fnv::{FnvBuildHasher, FnvHashMap, FnvHashSet};
@@ -23,6 +24,7 @@ use relay_transforms::DependencyMap;
 use schema::SDLSchema;
 use schema_diff::{definitions::SchemaChange, detect_changes};
 use serde::{Deserialize, Serialize};
+use std::env;
 use std::{
     fmt,
     fs::File as FsFile,
@@ -604,10 +606,24 @@ impl CompilerState {
             ZstdDecoder::<BufReader<FsFile>>::recommended_output_size(),
             reader,
         );
-        bincode::deserialize_from(reader).map_err(|err| Error::DeserializationError {
-            file: path.clone(),
-            source: err,
-        })
+
+        let memory_limit: u64 = env::var("RELAY_SAVED_STATE_MEMORY_LIMIT")
+            .map(|limit| {
+                limit.parse::<u64>().expect(
+                    "Expected RELAY_SAVED_STATE_MEMORY_LIMIT environment variable to be a number.",
+                )
+            })
+            .unwrap_or_else(|_| 10_u64.pow(10) /* 10GB */);
+
+        bincode::DefaultOptions::new()
+            .with_fixint_encoding()
+            .allow_trailing_bytes()
+            .with_limit(memory_limit)
+            .deserialize_from(reader)
+            .map_err(|err| Error::DeserializationError {
+                file: path.clone(),
+                source: err,
+            })
     }
 
     pub fn has_pending_file_source_changes(&self) -> bool {

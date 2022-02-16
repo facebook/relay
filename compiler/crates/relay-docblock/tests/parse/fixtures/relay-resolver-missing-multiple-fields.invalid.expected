@@ -10,12 +10,25 @@
 
 /**
  * @RelayResolver
- * @fieldName favorite_page
- * @edgeTo Page
- * @rootFragment myRootFragment
  */
 ==================================== ERROR ====================================
+✖︎ Missing docblock field "@fieldName"
+
+  <generated>:1:1
+    1 │ *
+      │ ^
+    2 │  * @RelayResolver
+
+
 ✖︎ Missing docblock field "@onType"
+
+  <generated>:1:1
+    1 │ *
+      │ ^
+    2 │  * @RelayResolver
+
+
+✖︎ Missing docblock field "@rootFragment"
 
   <generated>:1:1
     1 │ *

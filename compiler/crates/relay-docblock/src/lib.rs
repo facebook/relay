@@ -93,10 +93,14 @@ impl RelayResolverParser {
             }
         }
 
+        let field_name = self.assert_field_value(*FIELD_NAME_FIELD);
+        let on_type = self.assert_field_value(*ON_TYPE_FIELD);
+        let root_fragment = self.assert_field_value(*ROOT_FRAGMENT_FIELD);
+
         Ok(RelayResolverIr {
-            field_name: self.assert_field_value(*FIELD_NAME_FIELD)?,
-            on_type: self.assert_field_value(*ON_TYPE_FIELD)?,
-            root_fragment: self.assert_field_value(*ROOT_FRAGMENT_FIELD)?,
+            field_name: field_name?,
+            on_type: on_type?,
+            root_fragment: root_fragment?,
             edge_to: self.fields.get(&EDGE_TO_FIELD).copied(),
             description: self.description,
             location: ast.location,

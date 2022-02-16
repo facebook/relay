@@ -27,6 +27,14 @@ pub enum DocblockIr {
     RelayResolver(RelayResolverIr),
 }
 
+impl DocblockIr {
+    pub fn to_sdl_string(&self) -> String {
+        match self {
+            DocblockIr::RelayResolver(relay_resolver) => relay_resolver.to_sdl_string(),
+        }
+    }
+}
+
 #[derive(Debug, PartialEq)]
 pub struct RelayResolverIr {
     pub field_name: WithLocation<StringKey>,
@@ -38,6 +46,14 @@ pub struct RelayResolverIr {
 }
 
 impl RelayResolverIr {
+    pub fn to_sdl_string(&self) -> String {
+        self.to_graphql_schema_ast()
+            .definitions
+            .iter()
+            .map(|definition| format!("{}", definition))
+            .collect::<Vec<String>>()
+            .join("\n\n")
+    }
     pub fn to_graphql_schema_ast(&self) -> SchemaDocument {
         let edge_to = self
             .edge_to

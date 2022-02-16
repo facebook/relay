@@ -7,13 +7,13 @@
 
 /**
  * @RelayResolver
- * 
+ *
  * @onType User
  * @fieldName favorite_page
  * @edgeTo Page
  * @rootFragment myRootFragment
- * 
- * The user's favorite page! They probably clicked something in the UI 
+ *
+ * The user's favorite page! They probably clicked something in the UI
  * to tell us that it was their favorite page and then we put that in a
  * database or something. Then we got that info out again and put it out
  * again. Anyway, I'm rambling now. Its a page that the user likes. A lot.

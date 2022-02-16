@@ -16,7 +16,7 @@ use graphql_syntax::{
 use intern::string_key::StringKey;
 use log::debug;
 use lsp_types::{Position, TextDocumentPositionParams, Url};
-use relay_compiler::{compiler_state::SourceSet, FileCategorizer, FileGroup};
+use relay_compiler::{compiler_state::ProjectSet, FileCategorizer, FileGroup};
 
 pub fn extract_executable_definitions_from_text_document(
     text_document_uri: &Url,
@@ -58,16 +58,16 @@ pub fn extract_project_name_from_url(
         ))
     })?;
 
-    let project_name = if let FileGroup::Source { source_set } =
+    let project_name = if let FileGroup::Source { project_set } =
         file_categorizer.categorize(file_path).map_err(|_| {
             LSPRuntimeError::UnexpectedError(format!(
                 "Unable to categorize the file correctly: {:?}",
                 file_path
             ))
         })? {
-        match source_set {
-            SourceSet::SourceSetName(source) => source,
-            SourceSet::SourceSetNames(sources) => sources[0],
+        match project_set {
+            ProjectSet::ProjectName(source) => source,
+            ProjectSet::ProjectNames(sources) => sources[0],
         }
     } else {
         return Err(LSPRuntimeError::UnexpectedError(format!(

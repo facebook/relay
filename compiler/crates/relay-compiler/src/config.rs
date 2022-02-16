@@ -10,7 +10,7 @@ use crate::build_project::{
     artifact_writer::{ArtifactFileWriter, ArtifactWriter},
     AdditionalValidations,
 };
-use crate::compiler_state::{ProjectName, SourceSet};
+use crate::compiler_state::{ProjectName, ProjectSet};
 use crate::errors::{ConfigValidationError, Error, Result};
 use crate::saved_state::SavedStateLoader;
 use crate::status_reporter::{ConsoleStatusReporter, StatusReporter};
@@ -64,7 +64,7 @@ pub struct Config {
     /// Root directory of all projects to compile. Any other paths in the
     /// compiler should be relative to this root unless otherwise noted.
     pub root_dir: PathBuf,
-    pub sources: FnvIndexMap<PathBuf, SourceSet>,
+    pub sources: FnvIndexMap<PathBuf, ProjectSet>,
     pub excludes: Vec<String>,
     pub projects: FnvIndexMap<ProjectName, ProjectConfig>,
     pub header: Vec<String>,
@@ -358,15 +358,15 @@ impl Config {
 
     /// Validated internal consistency of the config.
     fn validate_consistency(&self, errors: &mut Vec<ConfigValidationError>) {
-        let mut source_set_names = FnvHashSet::default();
+        let mut project_names = FnvHashSet::default();
         for value in self.sources.values() {
             match value {
-                SourceSet::SourceSetName(name) => {
-                    source_set_names.insert(*name);
+                ProjectSet::ProjectName(name) => {
+                    project_names.insert(*name);
                 }
-                SourceSet::SourceSetNames(names) => {
+                ProjectSet::ProjectNames(names) => {
                     for name in names {
-                        source_set_names.insert(*name);
+                        project_names.insert(*name);
                     }
                 }
             };
@@ -374,7 +374,7 @@ impl Config {
 
         for (&project_name, project_config) in &self.projects {
             // there should be a source for each project matching the project name
-            if !source_set_names.contains(&project_name) {
+            if !project_names.contains(&project_name) {
                 errors.push(ConfigValidationError::ProjectSourceMissing { project_name });
             }
 
@@ -540,7 +540,7 @@ struct MultiProjectConfigFile {
     /// A mapping from directory paths (relative to the root) to a source set.
     /// If a path is a subdirectory of another path, the more specific path
     /// wins.
-    sources: IndexMap<PathBuf, SourceSet, fnv::FnvBuildHasher>,
+    sources: IndexMap<PathBuf, ProjectSet, fnv::FnvBuildHasher>,
 
     /// Glob patterns that should not be part of the sources even if they are
     /// in the source set directories.
@@ -769,7 +769,7 @@ impl SingleProjectConfigFile {
         let mut sources = FnvIndexMap::default();
         let src = normalize_path_from_config(current_dir, common_root_dir.clone(), self.src);
 
-        sources.insert(src, SourceSet::SourceSetName(self.project_name));
+        sources.insert(src, ProjectSet::ProjectName(self.project_name));
 
         Ok(MultiProjectConfigFile {
             root: Some(common_root_dir),

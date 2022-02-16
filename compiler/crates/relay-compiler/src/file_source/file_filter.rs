@@ -10,7 +10,7 @@ use glob::Pattern;
 use intern::string_key::StringKey;
 
 use crate::{
-    compiler_state::SourceSet,
+    compiler_state::ProjectSet,
     config::{Config, SchemaLocation},
 };
 use std::path::{Path, PathBuf};
@@ -83,10 +83,10 @@ fn get_sources_root(config: &Config, enabled_projects: &FnvHashSet<StringKey>) -
         config
             .sources
             .iter()
-            .filter_map(|(path, source_set)| {
-                let is_enabled = match source_set {
-                    SourceSet::SourceSetName(name) => enabled_projects.contains(name),
-                    SourceSet::SourceSetNames(names) => {
+            .filter_map(|(path, project_set)| {
+                let is_enabled = match project_set {
+                    ProjectSet::ProjectName(name) => enabled_projects.contains(name),
+                    ProjectSet::ProjectNames(names) => {
                         names.iter().any(|name| enabled_projects.contains(name))
                     }
                 };

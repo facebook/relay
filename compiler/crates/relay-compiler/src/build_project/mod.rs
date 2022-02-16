@@ -22,7 +22,7 @@ mod source_control;
 mod validate;
 
 use self::log_program_stats::print_stats;
-use crate::compiler_state::{ArtifactMapKind, CompilerState, ProjectName, SourceSetName};
+use crate::compiler_state::{ArtifactMapKind, CompilerState, ProjectName};
 use crate::config::{Config, ProjectConfig};
 use crate::errors::BuildProjectError;
 use crate::file_source::SourceControlUpdateStatus;
@@ -70,7 +70,7 @@ impl From<BuildProjectError> for BuildProjectFailure {
 pub fn build_raw_program(
     project_config: &ProjectConfig,
     implicit_dependencies: &DependencyMap,
-    graphql_asts: &FnvHashMap<SourceSetName, GraphQLAsts>,
+    graphql_asts: &FnvHashMap<ProjectName, GraphQLAsts>,
     schema: Arc<SDLSchema>,
     log_event: &impl PerfLogEvent,
     is_incremental_build: bool,
@@ -144,7 +144,7 @@ pub fn build_programs(
     config: &Config,
     project_config: &ProjectConfig,
     compiler_state: &CompilerState,
-    graphql_asts: &FnvHashMap<SourceSetName, GraphQLAsts>,
+    graphql_asts: &FnvHashMap<ProjectName, GraphQLAsts>,
     schema: Arc<SDLSchema>,
     log_event: &impl PerfLogEvent,
     perf_logger: Arc<impl PerfLogger + 'static>,
@@ -206,7 +206,7 @@ pub fn build_project(
     config: &Config,
     project_config: &ProjectConfig,
     compiler_state: &CompilerState,
-    graphql_asts: &FnvHashMap<SourceSetName, GraphQLAsts>,
+    graphql_asts: &FnvHashMap<ProjectName, GraphQLAsts>,
     perf_logger: Arc<impl PerfLogger + 'static>,
 ) -> Result<BuildProjectOutput, BuildProjectFailure> {
     let log_event = perf_logger.create_event("build_project");

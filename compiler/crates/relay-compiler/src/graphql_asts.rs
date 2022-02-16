@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::compiler_state::{GraphQLSources, SourceSetName};
+use crate::compiler_state::{GraphQLSources, ProjectName};
 use crate::errors::{Error, Result};
 use crate::file_source::LocatedGraphQLSource;
 use common::{Diagnostic, SourceLocationKey};
@@ -24,17 +24,17 @@ pub struct GraphQLAsts {
 
 impl GraphQLAsts {
     pub fn from_graphql_sources_map(
-        graphql_sources_map: &FnvHashMap<SourceSetName, GraphQLSources>,
-        dirty_definitions_map: &FnvHashMap<SourceSetName, Vec<StringKey>>,
-    ) -> Result<FnvHashMap<SourceSetName, GraphQLAsts>> {
+        graphql_sources_map: &FnvHashMap<ProjectName, GraphQLSources>,
+        dirty_definitions_map: &FnvHashMap<ProjectName, Vec<StringKey>>,
+    ) -> Result<FnvHashMap<ProjectName, GraphQLAsts>> {
         graphql_sources_map
             .iter()
-            .map(|(&source_set_name, sources)| {
+            .map(|(&project_name, sources)| {
                 let asts = GraphQLAsts::from_graphql_sources(
                     sources,
-                    dirty_definitions_map.get(&source_set_name),
+                    dirty_definitions_map.get(&project_name),
                 )?;
-                Ok((source_set_name, asts))
+                Ok((project_name, asts))
             })
             .collect::<Result<_>>()
     }

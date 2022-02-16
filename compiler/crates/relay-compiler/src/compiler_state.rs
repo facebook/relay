@@ -23,9 +23,8 @@ use relay_transforms::DependencyMap;
 use schema::SDLSchema;
 use schema_diff::{definitions::SchemaChange, detect_changes};
 use serde::{Deserialize, Serialize};
-use std::env;
 use std::{
-    fmt,
+    env, fmt,
     fs::File as FsFile,
     hash::Hash,
     io::{BufReader, BufWriter},
@@ -38,12 +37,9 @@ use zstd::stream::{read::Decoder as ZstdDecoder, write::Encoder as ZstdEncoder};
 /// Name of a compiler project.
 pub type ProjectName = StringKey;
 
-/// Name of a source set; a source set corresponds to a set fo files
-/// that can be shared by multiple compiler projects
-pub type SourceSetName = StringKey;
-
 /// Set of project names.
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
+#[serde(untagged)]
 pub enum ProjectSet {
     ProjectName(ProjectName),
     ProjectNames(Vec<ProjectName>),
@@ -76,31 +72,11 @@ impl IntoIterator for ProjectSet {
     }
 }
 
-/// Represents the name of the source set, or list of source sets
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
-#[serde(untagged)]
-pub enum SourceSet {
-    SourceSetName(SourceSetName),
-    SourceSetNames(Vec<SourceSetName>),
-}
-
-impl IntoIterator for SourceSet {
-    type Item = SourceSetName;
-    type IntoIter = std::vec::IntoIter<Self::Item>;
-
-    fn into_iter(self) -> Self::IntoIter {
-        match self {
-            SourceSet::SourceSetName(name) => vec![name].into_iter(),
-            SourceSet::SourceSetNames(names) => names.into_iter(),
-        }
-    }
-}
-
-impl fmt::Display for SourceSet {
+impl fmt::Display for ProjectSet {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            SourceSet::SourceSetName(name) => write!(f, "{}", name),
-            SourceSet::SourceSetNames(names) => write!(
+            ProjectSet::ProjectName(name) => write!(f, "{}", name),
+            ProjectSet::ProjectNames(names) => write!(
                 f,
                 "{}",
                 names
@@ -227,7 +203,7 @@ pub enum ArtifactMapKind {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct CompilerState {
-    pub graphql_sources: FnvHashMap<SourceSetName, GraphQLSources>,
+    pub graphql_sources: FnvHashMap<ProjectName, GraphQLSources>,
     pub schemas: FnvHashMap<ProjectName, SchemaSources>,
     pub extensions: FnvHashMap<ProjectName, SchemaSources>,
     pub artifacts: FnvHashMap<ProjectName, Arc<ArtifactMapKind>>,
@@ -276,9 +252,9 @@ impl CompilerState {
 
         for (category, files) in categorized {
             match category {
-                FileGroup::Source { source_set } => {
+                FileGroup::Source { project_set } => {
                     let log_event = perf_logger.create_event("categorize");
-                    log_event.string("source_set_name", source_set.to_string());
+                    log_event.string("source_set_name", project_set.to_string());
                     let extract_timer = log_event.start("extract_graphql_strings_from_file_time");
                     let sources: GraphQLSourceSet = files
                         .par_iter()
@@ -299,8 +275,8 @@ impl CompilerState {
                         .collect::<Result<_>>()?;
                     log_event.stop(extract_timer);
                     log_event.complete();
-                    for source_set_name in source_set {
-                        result.set_pending_source_set(source_set_name, sources.clone());
+                    for project_name in project_set {
+                        result.set_pending_source_set(project_name, sources.clone());
                     }
                 }
                 FileGroup::Schema { project_set } => {
@@ -443,13 +419,13 @@ impl CompilerState {
 
             for (category, files) in categorized {
                 match category {
-                    FileGroup::Source { source_set } => {
+                    FileGroup::Source { project_set } => {
                         // TODO: possible optimization to only set this if the
                         // extracted sources actually differ.
                         has_changed = true;
 
                         let log_event = perf_logger.create_event("categorize");
-                        log_event.string("source_set_name", source_set.to_string());
+                        log_event.string("source_set_name", project_set.to_string());
                         let extract_timer =
                             log_event.start("extract_graphql_strings_from_file_time");
                         let sources: GraphQLSourceSet = files
@@ -469,9 +445,9 @@ impl CompilerState {
                             .collect::<Result<_>>()?;
                         log_event.stop(extract_timer);
 
-                        for source_set_name in source_set {
+                        for project_name in project_set {
                             self.graphql_sources
-                                .entry(source_set_name)
+                                .entry(project_name)
                                 .or_default()
                                 .merge_pending_sources(sources.clone());
                         }
@@ -629,14 +605,10 @@ impl CompilerState {
         !self.pending_file_source_changes.read().unwrap().is_empty()
     }
 
-    fn set_pending_source_set(
-        &mut self,
-        source_set_name: SourceSetName,
-        source_set: GraphQLSourceSet,
-    ) {
+    fn set_pending_source_set(&mut self, project_name: ProjectName, source_set: GraphQLSourceSet) {
         let pending_entry = &mut self
             .graphql_sources
-            .entry(source_set_name)
+            .entry(project_name)
             .or_default()
             .pending;
         if pending_entry.is_empty() {

@@ -8,7 +8,7 @@
 use super::file_filter::FileFilter;
 use super::File;
 use super::FileGroup;
-use crate::compiler_state::{ProjectName, ProjectSet, SourceSet};
+use crate::compiler_state::{ProjectName, ProjectSet};
 use crate::config::{Config, SchemaLocation};
 use crate::FileSourceResult;
 use common::sync::ParallelIterator;
@@ -67,7 +67,7 @@ pub fn categorize_files(
                     !(has_disabled_projects
                         && match &file_group {
                             FileGroup::Source {
-                                source_set: SourceSet::SourceSetName(name),
+                                project_set: ProjectSet::ProjectName(name),
                             }
                             | FileGroup::Schema {
                                 project_set: ProjectSet::ProjectName(name),
@@ -79,7 +79,7 @@ pub fn categorize_files(
                                 !relevant_projects.contains(name)
                             }
                             FileGroup::Source {
-                                source_set: SourceSet::SourceSetNames(names),
+                                project_set: ProjectSet::ProjectNames(names),
                             }
                             | FileGroup::Schema {
                                 project_set: ProjectSet::ProjectNames(names),
@@ -144,7 +144,7 @@ pub struct FileCategorizer {
     extensions_mapping: PathMapping<ProjectSet>,
     default_generated_dir: &'static OsStr,
     generated_dir_mapping: PathMapping<ProjectName>,
-    source_mapping: PathMapping<SourceSet>,
+    source_mapping: PathMapping<ProjectSet>,
     schema_file_mapping: HashMap<PathBuf, ProjectSet>,
     schema_dir_mapping: PathMapping<ProjectSet>,
 }
@@ -152,8 +152,8 @@ pub struct FileCategorizer {
 impl FileCategorizer {
     pub fn from_config(config: &Config) -> Self {
         let mut source_mapping = vec![];
-        for (path, source_set) in &config.sources {
-            source_mapping.push((path.clone(), source_set.clone()));
+        for (path, project_set) in &config.sources {
+            source_mapping.push((path.clone(), project_set.clone()));
         }
 
         let mut extensions_map: HashMap<PathBuf, ProjectSet> = Default::default();
@@ -252,27 +252,25 @@ impl FileCategorizer {
         let extension = extension.ok_or(Cow::Borrowed("Got unexpected path without extension."))?;
 
         if is_source_code_extension(extension) {
-            let source_set = self
+            let project_set = self
                 .source_mapping
                 .find(path)
                 .ok_or(Cow::Borrowed("File is not in any source set."))?;
             if self.in_relative_generated_dir(path) {
-                if let SourceSet::SourceSetName(source_set_name) = source_set {
-                    Ok(FileGroup::Generated {
-                        project_name: source_set_name,
-                    })
+                if let ProjectSet::ProjectName(project_name) = project_set {
+                    Ok(FileGroup::Generated { project_name })
                 } else {
                     Err(Cow::Owned(format!(
                         "Overlapping input sources are incompatible with relative generated \
                         directories. Got file in a relative generated directory with source set {:?}.",
-                        source_set,
+                        project_set,
                     )))
                 }
             } else {
                 let is_valid_extension =
-                    self.is_valid_extension_for_source_set(&source_set, extension, path);
+                    self.is_valid_extension_for_project_set(&project_set, extension, path);
                 if is_valid_extension {
-                    Ok(FileGroup::Source { source_set })
+                    Ok(FileGroup::Source { project_set })
                 } else {
                     Err(Cow::Borrowed("Invalid extension for a generated file."))
                 }
@@ -305,15 +303,15 @@ impl FileCategorizer {
         })
     }
 
-    fn is_valid_extension_for_source_set(
+    fn is_valid_extension_for_project_set(
         &self,
-        source_set: &SourceSet,
+        project_set: &ProjectSet,
         extension: &OsStr,
         path: &Path,
     ) -> bool {
-        match source_set {
-            SourceSet::SourceSetName(source_set_name) => {
-                if let Some(language) = self.source_language.get(source_set_name) {
+        match project_set {
+            ProjectSet::ProjectName(project_name) => {
+                if let Some(language) = self.source_language.get(project_name) {
                     if !is_valid_source_code_extension(language, extension) {
                         warn!(
                             "Unexpected file `{:?}` for language `{:?}`.",
@@ -323,9 +321,9 @@ impl FileCategorizer {
                     }
                 }
             }
-            SourceSet::SourceSetNames(source_set_names) => {
-                for source_set_name in source_set_names {
-                    if let Some(language) = self.source_language.get(source_set_name) {
+            ProjectSet::ProjectNames(project_names) => {
+                for project_name in project_names {
+                    if let Some(language) = self.source_language.get(project_name) {
                         if !is_valid_source_code_extension(language, extension) {
                             warn!(
                                 "Unexpected file `{:?}` for language `{:?}`.",
@@ -434,7 +432,7 @@ mod tests {
                 .categorize(&PathBuf::from("src/js/a.js"))
                 .unwrap(),
             FileGroup::Source {
-                source_set: SourceSet::SourceSetName("public".intern()),
+                project_set: ProjectSet::ProjectName("public".intern()),
             },
         );
         assert_eq!(
@@ -442,7 +440,7 @@ mod tests {
                 .categorize(&PathBuf::from("src/js/nested/b.js"))
                 .unwrap(),
             FileGroup::Source {
-                source_set: SourceSet::SourceSetName("public".intern()),
+                project_set: ProjectSet::ProjectName("public".intern()),
             },
         );
         assert_eq!(
@@ -450,7 +448,7 @@ mod tests {
                 .categorize(&PathBuf::from("src/js/internal/nested/c.js"))
                 .unwrap(),
             FileGroup::Source {
-                source_set: SourceSet::SourceSetName("internal".intern()),
+                project_set: ProjectSet::ProjectName("internal".intern()),
             },
         );
         assert_eq!(
@@ -462,7 +460,7 @@ mod tests {
                 .categorize(&PathBuf::from("src/custom/custom-generated/c.js"))
                 .unwrap(),
             FileGroup::Source {
-                source_set: SourceSet::SourceSetName("with_custom_generated_dir".intern()),
+                project_set: ProjectSet::ProjectName("with_custom_generated_dir".intern()),
             },
         );
         assert_eq!(
@@ -502,7 +500,7 @@ mod tests {
                 .categorize(&PathBuf::from("src/typescript/a.ts"))
                 .unwrap(),
             FileGroup::Source {
-                source_set: SourceSet::SourceSetName("typescript".intern()),
+                project_set: ProjectSet::ProjectName("typescript".intern()),
             },
         );
     }
@@ -556,7 +554,7 @@ mod tests {
         assert_eq!(
             categorizer.categorize(&PathBuf::from("src/custom_overlapping/__generated__/c.js")),
             Err(Cow::Borrowed(
-                "Overlapping input sources are incompatible with relative generated directories. Got file in a relative generated directory with source set SourceSetNames([\"with_custom_generated_dir\", \"overlapping_generated_dir\"])."
+                "Overlapping input sources are incompatible with relative generated directories. Got file in a relative generated directory with source set ProjectNames([\"with_custom_generated_dir\", \"overlapping_generated_dir\"])."
             )),
         );
     }

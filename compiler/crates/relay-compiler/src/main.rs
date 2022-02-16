@@ -53,7 +53,7 @@ struct Opt {
 
     /// Looks for pending changes and exits with non-zero code instead of
     /// writing to disk
-    #[structopt(long)]
+    #[clap(long)]
     validate: bool,
 }
 

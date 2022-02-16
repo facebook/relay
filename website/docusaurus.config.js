@@ -20,12 +20,7 @@ module.exports = {
   trailingSlash: true,
   organizationName: 'facebook',
   projectName: 'relay',
-  scripts: [
-    {
-      src: 'https://widget.surveymonkey.com/collect/website/js/tRaiETqnLgj758hTBazgdx2NnQ5W6bg3p3XoJtoYjHDMWZrhV7glVKgJgKV87xxk.js',
-      defer: true,
-    },
-  ],
+  scripts: [],
   favicon: 'img/favicon.png',
   customFields: {
     users: [

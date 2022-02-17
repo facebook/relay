@@ -71,6 +71,25 @@ impl Writer for FlowPrinter {
         writeln!(&mut self.result, ";")
     }
 
+    fn write_export_enum(
+        &mut self,
+        name: &str,
+        values: &[StringKey],
+        incomplete: bool,
+    ) -> FmtResult {
+        writeln!(&mut self.result, "export const enum {} {{", name)?;
+        for value in values {
+            let enum_key = self.to_title_case(value.lookup());
+            write!(&mut self.result, "  {} = ", enum_key)?;
+            self.write_string_literal(*value)?;
+            writeln!(&mut self.result, ",")?;
+        }
+        if incomplete {
+            writeln!(&mut self.result, "  ...")?;
+        }
+        writeln!(&mut self.result, "}}")
+    }
+
     fn write_export_type(&mut self, name: &str, value: &AST) -> FmtResult {
         write!(&mut self.result, "export type {} = ", name)?;
         self.write(value)?;

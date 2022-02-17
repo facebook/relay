@@ -629,7 +629,6 @@ impl<'a> TypeGenerator<'a> {
             .entry(haste_import_name)
             .or_insert(local_resolver_name);
 
-
         let inner_value = Box::new(AST::ReturnTypeOfFunctionWithName(local_resolver_name));
 
         let value = if required {
@@ -637,7 +636,6 @@ impl<'a> TypeGenerator<'a> {
         } else {
             AST::Nullable(inner_value)
         };
-
 
         type_selections.push(TypeSelection::ScalarField(TypeSelectionScalarField {
             field_name_or_alias: key,
@@ -1456,6 +1454,16 @@ impl<'a> TypeGenerator<'a> {
                 self.writer.write_import_type(
                     &[enum_type.name.lookup()],
                     &format!("{}{}", enum_type.name, enum_module_suffix),
+                )?;
+            } else if self.typegen_config.use_native_enums {
+                self.writer.write_export_enum(
+                    enum_type.name.lookup(),
+                    &enum_type
+                        .values
+                        .iter()
+                        .map(|enum_value| enum_value.value)
+                        .collect::<Vec<_>>(),
+                    !self.typegen_config.flow_typegen.no_future_proof_enums,
                 )?;
             } else {
                 let mut members: Vec<AST> = enum_type

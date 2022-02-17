@@ -70,6 +70,13 @@ pub trait Writer: Write {
 
     fn write_local_type(&mut self, name: &str, ast: &AST) -> FmtResult;
 
+    fn write_export_enum(
+        &mut self,
+        name: &str,
+        values: &[StringKey],
+        incomplete: bool,
+    ) -> FmtResult;
+
     fn write_export_type(&mut self, name: &str, ast: &AST) -> FmtResult;
 
     fn write_import_module_default(&mut self, name: &str, from: &str) -> FmtResult;
@@ -87,4 +94,25 @@ pub trait Writer: Write {
     ) -> FmtResult;
 
     fn write_any_type_definition(&mut self, name: &str) -> FmtResult;
+
+    fn to_title_case(&self, value: &str) -> String {
+        let mut result = String::with_capacity(value.len());
+        let mut first = true;
+        for c in value.chars() {
+            if first {
+                for u in c.to_uppercase() {
+                    result.push(u);
+                }
+                first = false
+            } else if c == '_' {
+                first = true
+            } else {
+                for l in c.to_lowercase() {
+                    result.push(l);
+                }
+            }
+        }
+
+        result
+    }
 }

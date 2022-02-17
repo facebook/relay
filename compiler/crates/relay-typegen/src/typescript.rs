@@ -6,7 +6,7 @@
  */
 
 use crate::writer::{Prop, Writer, AST};
-use crate::TypegenConfig;
+use crate::{TypegenConfig, FUTURE_ENUM_VALUE};
 use crate::{KEY_DATA, KEY_FRAGMENT_SPREADS, KEY_FRAGMENT_TYPE};
 use intern::string_key::{Intern, StringKey};
 use itertools::Itertools;
@@ -15,6 +15,7 @@ use std::fmt::{Result as FmtResult, Write};
 pub struct TypeScriptPrinter {
     result: String,
     use_import_type_syntax: bool,
+    use_const_enums: bool,
     indentation: usize,
 }
 
@@ -66,6 +67,42 @@ impl Writer for TypeScriptPrinter {
         write!(&mut self.result, "type {} = ", name)?;
         self.write(value)?;
         writeln!(&mut self.result, ";")
+    }
+
+    fn write_export_enum(
+        &mut self,
+        name: &str,
+        values: &[StringKey],
+        incomplete: bool,
+    ) -> FmtResult {
+        if incomplete {
+            // Typescript has no way to mark an enum as incomplete, so fall back to a string
+            // union instead.
+            return self.write_export_type(
+                name,
+                &AST::Union(
+                    values
+                        .into_iter()
+                        .map(|str| AST::StringLiteral(*str))
+                        .chain(std::iter::once(AST::StringLiteral(*FUTURE_ENUM_VALUE)))
+                        .collect(),
+                ),
+            );
+        }
+
+        writeln!(
+            &mut self.result,
+            "export {}enum {} {{",
+            if self.use_const_enums { "const " } else { "" },
+            name
+        )?;
+        for value in values {
+            let enum_key = self.to_title_case(value.lookup());
+            write!(&mut self.result, "  {} = ", enum_key)?;
+            self.write_string_literal(*value)?;
+            writeln!(&mut self.result, ",")?;
+        }
+        writeln!(&mut self.result, "}}")
     }
 
     fn write_export_type(&mut self, name: &str, value: &AST) -> FmtResult {
@@ -121,6 +158,7 @@ impl TypeScriptPrinter {
             result: String::new(),
             indentation: 0,
             use_import_type_syntax: config.use_import_type_syntax,
+            use_const_enums: config.use_typescript_const_enums,
         }
     }
 

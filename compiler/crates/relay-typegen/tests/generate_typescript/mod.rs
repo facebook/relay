@@ -43,6 +43,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         typegen_config: TypegenConfig {
             language: TypegenLanguage::TypeScript,
             flow_typegen: FlowTypegenConfig {
+                no_future_proof_enums: true,
                 phase: FlowTypegenPhase::Final,
                 ..Default::default()
             },

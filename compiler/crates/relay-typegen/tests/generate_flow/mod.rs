@@ -68,7 +68,6 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
             language: TypegenLanguage::Flow,
             custom_scalar_types,
             use_native_enums: true,
-            use_typescript_const_enums: true,
             flow_typegen: FlowTypegenConfig {
                 phase: FlowTypegenPhase::Final,
                 ..Default::default()

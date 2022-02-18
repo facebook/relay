@@ -14,16 +14,24 @@ pub fn extract_module_name(path: &str) -> Option<String> {
     let final_segment = get_final_non_index_js_segment(&path)?;
     let mut iter = final_segment.split('.');
     let mut first_segment = to_camel_case(iter.next()?.to_string());
-    let mobile_platform = iter.find_map(|item| {
-        if item == "ios" {
-            return Some("Ios");
-        } else if item == "android" {
-            return Some("Android");
+    // If the file name is index the module name is the directory
+    if first_segment == "index" {
+        let mut iter = path.iter();
+        iter.next_back()?;
+        let directory = iter.next_back().and_then(|os_str| os_str.to_str())?;
+        first_segment = to_camel_case(directory.to_string());
+    } else {
+        let mobile_platform = iter.find_map(|item| {
+            if item == "ios" {
+                return Some("Ios");
+            } else if item == "android" {
+                return Some("Android");
+            }
+            None
+        });
+        if let Some(mobile_platform) = mobile_platform {
+            first_segment.push_str(mobile_platform);
         }
-        None
-    });
-    if let Some(mobile_platform) = mobile_platform {
-        first_segment.push_str(mobile_platform);
     }
     Some(first_segment)
 }
@@ -146,6 +154,10 @@ mod tests {
             Some("button".to_string())
         );
         assert_eq!(
+            extract_module_name("/path/button/index.react.js"),
+            Some("button".to_string())
+        );
+        assert_eq!(
             extract_module_name("/path/button/index.jsx"),
             Some("button".to_string())
         );
@@ -160,6 +172,14 @@ mod tests {
         assert_eq!(
             extract_module_name("/path/non-numeric-end-.js"),
             Some("nonNumericEnd".to_string())
+        );
+        assert_eq!(
+            extract_module_name("/path/non-numeric-end-.js"),
+            Some("nonNumericEnd".to_string())
+        );
+        assert_eq!(
+            extract_module_name("/path/__tests__/index.test.js"),
+            Some("Tests".to_string())
         );
     }
 

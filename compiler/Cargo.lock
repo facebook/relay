@@ -1421,6 +1421,7 @@ dependencies = [
  "common-path",
  "dashmap",
  "dependency-analyzer",
+ "docblock-syntax",
  "errors",
  "extract-graphql",
  "fixture-tests",

@@ -157,6 +157,21 @@ impl<V: Source> IncrementalSources<V> {
             }
         }
     }
+    pub fn get_all(&self) -> Vec<(&PathBuf, &V)> {
+        let mut sources: Vec<_>;
+        if self.pending.is_empty() {
+            sources = self.processed.iter().collect();
+        } else {
+            sources = self.pending.iter().collect();
+            for (key, value) in self.processed.iter() {
+                if !self.pending.contains_key(key) {
+                    sources.push((key, value));
+                }
+            }
+        }
+        sources.sort_by_key(|file_content| file_content.0);
+        sources
+    }
 }
 
 impl<V: Source> Default for IncrementalSources<V> {
@@ -179,21 +194,6 @@ impl Source for String {
 }
 
 impl SchemaSources {
-    fn get_all(&self) -> Vec<(&PathBuf, &String)> {
-        let mut sources: Vec<_>;
-        if self.pending.is_empty() {
-            sources = self.processed.iter().collect();
-        } else {
-            sources = self.pending.iter().collect();
-            for (key, value) in self.processed.iter() {
-                if !self.pending.contains_key(key) {
-                    sources.push((key, value));
-                }
-            }
-        }
-        sources.sort_by_key(|file_content| file_content.0);
-        sources
-    }
     pub fn get_sources(&self) -> Vec<&String> {
         let sources = self.get_all();
         sources.iter().map(|file_content| file_content.1).collect()

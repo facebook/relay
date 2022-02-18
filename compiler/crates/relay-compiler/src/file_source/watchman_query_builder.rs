@@ -5,7 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::compiler_state::ProjectSet;
 use crate::config::{Config, SchemaLocation};
 use relay_typegen::TypegenLanguage;
 use std::path::PathBuf;
@@ -16,12 +15,11 @@ pub fn get_watchman_expr(config: &Config) -> Expr {
         config
             .sources
             .iter()
-            .flat_map(|(path, name)| match name {
-                ProjectSet::ProjectName(name) => vec![(path, &config.projects[name])],
-                ProjectSet::ProjectNames(names) => names
+            .flat_map(|(path, project_set)| {
+                project_set
                     .iter()
                     .map(|name| (path, &config.projects[name]))
-                    .collect::<Vec<_>>(),
+                    .collect::<Vec<_>>()
             })
             .map(|(path, project)| {
                 Expr::All(vec![

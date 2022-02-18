@@ -16,7 +16,7 @@ use graphql_syntax::{
 use intern::string_key::StringKey;
 use log::debug;
 use lsp_types::{Position, TextDocumentPositionParams, Url};
-use relay_compiler::{compiler_state::ProjectSet, FileCategorizer, FileGroup};
+use relay_compiler::{FileCategorizer, FileGroup};
 
 pub fn extract_executable_definitions_from_text_document(
     text_document_uri: &Url,
@@ -65,10 +65,12 @@ pub fn extract_project_name_from_url(
                 file_path
             ))
         })? {
-        match project_set {
-            ProjectSet::ProjectName(source) => source,
-            ProjectSet::ProjectNames(sources) => sources[0],
-        }
+        *project_set.first().ok_or_else(|| {
+            LSPRuntimeError::UnexpectedError(format!(
+                "Expected to find at least one project for {:?}",
+                file_path
+            ))
+        })?
     } else {
         return Err(LSPRuntimeError::UnexpectedError(format!(
             "File path {:?} is not a source set",

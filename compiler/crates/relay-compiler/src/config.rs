@@ -359,17 +359,10 @@ impl Config {
     /// Validated internal consistency of the config.
     fn validate_consistency(&self, errors: &mut Vec<ConfigValidationError>) {
         let mut project_names = FnvHashSet::default();
-        for value in self.sources.values() {
-            match value {
-                ProjectSet::ProjectName(name) => {
-                    project_names.insert(*name);
-                }
-                ProjectSet::ProjectNames(names) => {
-                    for name in names {
-                        project_names.insert(*name);
-                    }
-                }
-            };
+        for project_set in self.sources.values() {
+            for name in project_set.iter() {
+                project_names.insert(*name);
+            }
         }
 
         for (&project_name, project_config) in &self.projects {
@@ -769,7 +762,7 @@ impl SingleProjectConfigFile {
         let mut sources = FnvIndexMap::default();
         let src = normalize_path_from_config(current_dir, common_root_dir.clone(), self.src);
 
-        sources.insert(src, ProjectSet::ProjectName(self.project_name));
+        sources.insert(src, ProjectSet::of(self.project_name));
 
         Ok(MultiProjectConfigFile {
             root: Some(common_root_dir),

@@ -9,10 +9,7 @@ use fnv::FnvHashSet;
 use glob::Pattern;
 use intern::string_key::StringKey;
 
-use crate::{
-    compiler_state::ProjectSet,
-    config::{Config, SchemaLocation},
-};
+use crate::config::{Config, SchemaLocation};
 use std::path::{Path, PathBuf};
 
 /// The FileFilter is intended to be used for input sources other than
@@ -84,12 +81,9 @@ fn get_sources_root(config: &Config, enabled_projects: &FnvHashSet<StringKey>) -
             .sources
             .iter()
             .filter_map(|(path, project_set)| {
-                let is_enabled = match project_set {
-                    ProjectSet::ProjectName(name) => enabled_projects.contains(name),
-                    ProjectSet::ProjectNames(names) => {
-                        names.iter().any(|name| enabled_projects.contains(name))
-                    }
-                };
+                let is_enabled = project_set
+                    .iter()
+                    .any(|name| enabled_projects.contains(name));
                 is_enabled.then(|| path)
             })
             .collect(),

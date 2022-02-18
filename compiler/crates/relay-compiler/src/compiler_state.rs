@@ -32,6 +32,7 @@ use std::{
     path::PathBuf,
     sync::{Arc, RwLock},
 };
+use std::{slice, vec};
 use zstd::stream::{read::Decoder as ZstdDecoder, write::Encoder as ZstdEncoder};
 
 /// Name of a compiler project.
@@ -39,52 +40,78 @@ pub type ProjectName = StringKey;
 
 /// Set of project names.
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
-#[serde(untagged)]
-pub enum ProjectSet {
-    ProjectName(ProjectName),
-    ProjectNames(Vec<ProjectName>),
-}
+#[serde(from = "DeserializableProjectSet")]
+pub struct ProjectSet(Vec<ProjectName>);
+
 impl ProjectSet {
+    pub fn new(names: Vec<ProjectName>) -> Self {
+        if names.is_empty() {
+            panic!("Expected project set to have at least one project.")
+        }
+        ProjectSet(names)
+    }
+    pub fn of(name: ProjectName) -> Self {
+        ProjectSet(vec![name])
+    }
     /// Inserts a new project name into this set.
     pub fn insert(&mut self, project_name: ProjectName) {
-        match self {
-            ProjectSet::ProjectName(existing_name) => {
-                assert!(*existing_name != project_name);
-                *self = ProjectSet::ProjectNames(vec![*existing_name, project_name]);
-            }
-            ProjectSet::ProjectNames(existing_names) => {
-                assert!(!existing_names.contains(&project_name));
-                existing_names.push(project_name);
-            }
-        }
+        let existing_names = &mut self.0;
+        assert!(!existing_names.contains(&project_name));
+        existing_names.push(project_name);
+    }
+
+    pub fn iter(&self) -> slice::Iter<'_, StringKey> {
+        self.0.iter()
+    }
+
+    pub fn has_multiple_projects(&self) -> bool {
+        self.0.len() > 1
+    }
+
+    pub fn first(&self) -> Option<&ProjectName> {
+        self.0.first()
     }
 }
 
 impl IntoIterator for ProjectSet {
     type Item = ProjectName;
-    type IntoIter = std::vec::IntoIter<Self::Item>;
+    type IntoIter = vec::IntoIter<StringKey>;
 
     fn into_iter(self) -> Self::IntoIter {
-        match self {
-            ProjectSet::ProjectName(name) => vec![name].into_iter(),
-            ProjectSet::ProjectNames(names) => names.into_iter(),
-        }
+        self.0.into_iter()
     }
 }
 
 impl fmt::Display for ProjectSet {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            ProjectSet::ProjectName(name) => write!(f, "{}", name),
-            ProjectSet::ProjectNames(names) => write!(
-                f,
-                "{}",
-                names
-                    .iter()
-                    .map(|name| name.to_string())
-                    .collect::<Vec<String>>()
-                    .join(",")
-            ),
+        let names = self
+            .0
+            .iter()
+            .map(|name| name.to_string())
+            .collect::<Vec<String>>()
+            .join(",");
+
+        write!(f, "{}", names)
+    }
+}
+
+// Serde has the built in ability for deserializing enums that might be in
+// different shapes. In this case a `Vec<StringKey>` or `StringKey`. However, we
+// want our actual `ProjectSet` object to be modeled as a single Vec internally.
+// So, we provide this enum to use sede's polymorphic deserialization and then
+// tell `ProjectSet` to deserialize via this enum using `From`.
+#[derive(Deserialize, Debug)]
+#[serde(untagged)]
+pub enum DeserializableProjectSet {
+    ProjectName(ProjectName),
+    ProjectNames(Vec<ProjectName>),
+}
+
+impl From<DeserializableProjectSet> for ProjectSet {
+    fn from(legacy: DeserializableProjectSet) -> Self {
+        match legacy {
+            DeserializableProjectSet::ProjectName(name) => ProjectSet::of(name),
+            DeserializableProjectSet::ProjectNames(names) => ProjectSet::new(names),
         }
     }
 }

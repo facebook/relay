@@ -174,10 +174,6 @@ mod tests {
             Some("nonNumericEnd".to_string())
         );
         assert_eq!(
-            extract_module_name("/path/non-numeric-end-.js"),
-            Some("nonNumericEnd".to_string())
-        );
-        assert_eq!(
             extract_module_name("/path/__tests__/index.test.js"),
             Some("Tests".to_string())
         );

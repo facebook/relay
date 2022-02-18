@@ -8,7 +8,7 @@
 use crate::definitions::{Directive, *};
 use crate::in_memory::InMemorySchema;
 use crate::{flatbuffer::SchemaWrapper, graphql_schema::Schema};
-use common::DiagnosticsResult;
+use common::{DiagnosticsResult, SourceLocationKey};
 use graphql_syntax::*;
 use intern::string_key::StringKey;
 
@@ -270,6 +270,20 @@ impl SDLSchema {
         Ok(SDLSchema::FlatBuffer(SchemaWrapper::from_vec(
             flatbuffer_bytes,
         )))
+    }
+
+    pub fn add_object_type_extension(
+        &mut self,
+        object_extension: ObjectTypeExtension,
+        location_key: SourceLocationKey,
+        is_extension: bool,
+    ) -> DiagnosticsResult<()> {
+        match self {
+            SDLSchema::FlatBuffer(_schema) => panic!("expected an underlying InMemorySchema"),
+            SDLSchema::InMemory(schema) => {
+                schema.add_object_type_extension(object_extension, location_key, is_extension)
+            }
+        }
     }
 
     pub fn unwrap_in_memory_impl(self) -> InMemorySchema {

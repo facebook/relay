@@ -20,6 +20,9 @@ pub struct FeatureFlags {
     #[serde(default)]
     pub enable_relay_resolver_transform: bool,
 
+    #[serde(default)]
+    pub parse_resolver_docblocks: bool,
+
     /// Enable hashing of the `supported` argument of 3D fields. Partial
     /// enabling of the feature flag checks the name based on the field type.
     #[serde(default)]

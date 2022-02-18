@@ -70,6 +70,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         hash_supported_argument: FeatureFlag::Disabled,
         no_inline: FeatureFlag::Enabled,
         enable_relay_resolver_transform: true,
+        parse_resolver_docblocks: true,
         enable_3d_branch_arg_generation: true,
         actor_change_support: FeatureFlag::Enabled,
         text_artifacts: FeatureFlag::Disabled,

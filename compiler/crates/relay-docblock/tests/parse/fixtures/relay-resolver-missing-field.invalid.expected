@@ -17,7 +17,16 @@
 ==================================== ERROR ====================================
 ✖︎ Missing docblock field "@onType"
 
-  <generated>:1:1
+  /path/to/test/fixture/relay-resolver-missing-field.invalid.js:1:1
     1 │ *
       │ ^
     2 │  * @RelayResolver
+      │ ^^^^^^^^^^^^^^^^^
+    3 │  * @fieldName favorite_page
+      │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    4 │  * @edgeTo Page
+      │ ^^^^^^^^^^^^^^^
+    5 │  * @rootFragment myRootFragment
+      │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    6 │  
+      │ ^

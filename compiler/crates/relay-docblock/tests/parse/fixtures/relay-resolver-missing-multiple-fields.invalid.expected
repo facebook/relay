@@ -14,23 +14,32 @@
 ==================================== ERROR ====================================
 ✖︎ Missing docblock field "@fieldName"
 
-  <generated>:1:1
+  /path/to/test/fixture/relay-resolver-missing-multiple-fields.invalid.js:1:1
     1 │ *
       │ ^
     2 │  * @RelayResolver
+      │ ^^^^^^^^^^^^^^^^^
+    3 │  
+      │ ^
 
 
 ✖︎ Missing docblock field "@onType"
 
-  <generated>:1:1
+  /path/to/test/fixture/relay-resolver-missing-multiple-fields.invalid.js:1:1
     1 │ *
       │ ^
     2 │  * @RelayResolver
+      │ ^^^^^^^^^^^^^^^^^
+    3 │  
+      │ ^
 
 
 ✖︎ Missing docblock field "@rootFragment"
 
-  <generated>:1:1
+  /path/to/test/fixture/relay-resolver-missing-multiple-fields.invalid.js:1:1
     1 │ *
       │ ^
     2 │  * @RelayResolver
+      │ ^^^^^^^^^^^^^^^^^
+    3 │  
+      │ ^

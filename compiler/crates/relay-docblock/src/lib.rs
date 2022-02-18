@@ -93,9 +93,9 @@ impl RelayResolverParser {
             }
         }
 
-        let field_name = self.assert_field_value(*FIELD_NAME_FIELD);
-        let on_type = self.assert_field_value(*ON_TYPE_FIELD);
-        let root_fragment = self.assert_field_value(*ROOT_FRAGMENT_FIELD);
+        let field_name = self.assert_field_value(*FIELD_NAME_FIELD, ast.location);
+        let on_type = self.assert_field_value(*ON_TYPE_FIELD, ast.location);
+        let root_fragment = self.assert_field_value(*ROOT_FRAGMENT_FIELD, ast.location);
 
         Ok(RelayResolverIr {
             field_name: field_name?,
@@ -137,13 +137,14 @@ impl RelayResolverParser {
     fn assert_field_value(
         &mut self,
         field_name: StringKey,
+        docblock_location: Location,
     ) -> ParseResult<WithLocation<StringKey>> {
         match self.fields.get(&field_name) {
             Some(field_value) => Ok(field_value.clone()),
             None => {
                 self.errors.push(Diagnostic::error(
                     ErrorMessages::MissingField { field_name },
-                    Location::generated(), // TODO
+                    docblock_location,
                 ));
                 Err(())
             }

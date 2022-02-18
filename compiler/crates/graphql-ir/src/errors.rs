@@ -93,6 +93,11 @@ pub enum ValidationMessage {
     #[error("Expected '@argumentDefinitions' directive to be used on fragment definitions only.")]
     ExpectedArgumentDefinitionsDirectiveOnFragmentDefinition(),
 
+    #[error(
+        "Expected the `directives` argument to `@argumentDefinition` to be a list of literal strings in the form `directives: [\"@example\"]`."
+    )]
+    ArgumentDefinitionsDirectivesNotStringListLiteral,
+
     #[error("Non-nullable variable '{variable_name}' has a default value.")]
     NonNullableVariableHasDefaultValue { variable_name: StringKey },
 

@@ -5,7 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::associated_data_impl;
 use crate::build::{
     build_constant_value, build_type_annotation, build_variable_definitions, ValidationLevel,
 };
@@ -13,7 +12,10 @@ use crate::constants::ARGUMENT_DEFINITION;
 use crate::errors::{ValidationMessage, ValidationMessageWithData};
 use crate::ir::{ConstantValue, VariableDefinition};
 use crate::GraphQLSuggestions;
-use common::{Diagnostic, DiagnosticsResult, FeatureFlag, Location, WithLocation};
+use crate::{associated_data_impl, build_directive};
+use common::{
+    Diagnostic, DiagnosticsResult, FeatureFlag, Location, SourceLocationKey, WithLocation,
+};
 use errors::{par_try_map, try2};
 use intern::string_key::{Intern, StringKey, StringKeyMap};
 use lazy_static::lazy_static;
@@ -26,6 +28,7 @@ lazy_static! {
     static ref PROVIDER: StringKey = "provider".intern();
     pub static ref UNUSED_LOCAL_VARIABLE_DEPRECATED: StringKey =
         "unusedLocalVariable_DEPRECATED".intern();
+    static ref DIRECTIVES: StringKey = "directives".intern();
 }
 
 pub type FragmentSignatures = StringKeyMap<FragmentSignature>;
@@ -186,12 +189,12 @@ fn build_fragment_variable_definitions(
                     object,
                 )) = &variable_arg.value
                 {
-                    let variable_name = &variable_arg.name;
-                    let mut extra_items = Vec::new();
                     let mut type_arg = None;
                     let mut default_arg = None;
                     let mut unused_local_variable_arg = None;
                     let mut provider_arg = None;
+                    let mut directives_arg = None;
+                    let mut extra_items = Vec::new();
                     for item in &object.items {
                         let name = item.name.value;
                         if name == *TYPE {
@@ -200,6 +203,8 @@ fn build_fragment_variable_definitions(
                             default_arg = Some(item);
                         } else if name == *UNUSED_LOCAL_VARIABLE_DEPRECATED {
                             unused_local_variable_arg = Some(item);
+                        } else if name == *DIRECTIVES {
+                            directives_arg = Some(item);
                         } else if name == *PROVIDER {
                             if !enable_provided_variables.is_enabled_for(fragment.name.value) {
                                 return Err(vec![Diagnostic::error(
@@ -228,6 +233,9 @@ fn build_fragment_variable_definitions(
                             .collect());
                     }
 
+                    let variable_name = &variable_arg.name;
+                    let mut directives = Vec::new();
+
                     // Convert variable type, validate that it's an input type
                     let type_ = get_argument_type(schema, fragment.location, type_arg, object)?;
                     if !type_.inner().is_input_type() {
@@ -240,7 +248,6 @@ fn build_fragment_variable_definitions(
                         .into());
                     }
 
-                    let mut directives = Vec::new();
                     if let Some(unused_local_variable_arg) = unused_local_variable_arg {
                         if !matches!(
                             unused_local_variable_arg,
@@ -267,6 +274,7 @@ fn build_fragment_variable_definitions(
                             data: None,
                         });
                     }
+
                     if let Some(provider_arg) = provider_arg {
                         let provider_module_name = provider_arg.value.get_string_literal().ok_or_else(|| {
                             vec![Diagnostic::error(
@@ -295,6 +303,54 @@ fn build_fragment_variable_definitions(
                             arguments: Vec::new(),
                             data: Some(Box::new(ProvidedVariableMetadata{module_name: provider_module_name})),
                         });
+                    }
+
+                    if let Some(directives_arg) = directives_arg {
+                        if let graphql_syntax::ConstantValue::List(items) = &directives_arg.value {
+                            for item in &items.items {
+                                if let graphql_syntax::ConstantValue::String(directive_string) = item {
+                                    let ast_directive = graphql_syntax::parse_directive(
+                                        directive_string.value.lookup(),
+                                        // We currently don't have the ability to pass offset locations
+                                        // to the parser call, so we first use a generated location and
+                                        // later override it with an approximation.
+                                        SourceLocationKey::generated(),
+                                    )
+                                    .map_err(|mut diagnostics| {
+                                        for diagnostic in &mut diagnostics {
+                                            diagnostic.override_location(fragment.location.with_span(directive_string.token.span));
+                                        }
+                                        diagnostics
+                                    })?;
+                                    let directive = build_directive(
+                                        schema,
+                                        &ast_directive,
+                                        graphql_syntax::DirectiveLocation::VariableDefinition,
+                                        // We currently don't have the ability to pass offset locations
+                                        // to the parser call, so we first use a generated location and
+                                        // later override it with an approximation.
+                                        Location::generated(),
+                                    )
+                                    .map_err(|mut diagnostics| {
+                                        for diagnostic in &mut diagnostics {
+                                            diagnostic.override_location(fragment.location.with_span(directive_string.token.span));
+                                        }
+                                        diagnostics
+                                    })?;
+                                    directives.push(directive);
+                                } else {
+                                    return Err(vec![Diagnostic::error(
+                                        ValidationMessage::ArgumentDefinitionsDirectivesNotStringListLiteral,
+                                        fragment.location.with_span(item.span()),
+                                    )]);
+                                }
+                            }
+                        } else {
+                            return Err(vec![Diagnostic::error(
+                                ValidationMessage::ArgumentDefinitionsDirectivesNotStringListLiteral,
+                                fragment.location.with_span(directives_arg.value.span()),
+                            )]);
+                        }
                     }
 
                     let default_value =

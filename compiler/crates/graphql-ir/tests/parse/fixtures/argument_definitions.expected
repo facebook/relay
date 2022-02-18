@@ -1,0 +1,88 @@
+==================================== INPUT ====================================
+fragment TestFragment on User
+  @argumentDefinitions(
+    id: {type: "ID", directives: ["@configurable"]}
+    size: {type: "[Int]", defaultValue: [100]}
+  ) {
+  __typename
+}
+==================================== OUTPUT ===================================
+[
+    Fragment(
+        FragmentDefinition {
+            name: WithLocation {
+                location: argument_definitions.graphql:9:21,
+                item: "TestFragment",
+            },
+            variable_definitions: [
+                VariableDefinition {
+                    name: WithLocation {
+                        location: argument_definitions.graphql:58:60,
+                        item: "id",
+                    },
+                    type_: Named(
+                        Scalar(4),
+                    ),
+                    default_value: None,
+                    directives: [
+                        Directive {
+                            name: WithLocation {
+                                location: <generated>:0:13,
+                                item: "configurable",
+                            },
+                            arguments: [],
+                            data: None,
+                        },
+                    ],
+                },
+                VariableDefinition {
+                    name: WithLocation {
+                        location: argument_definitions.graphql:110:114,
+                        item: "size",
+                    },
+                    type_: List(
+                        Named(
+                            Scalar(0),
+                        ),
+                    ),
+                    default_value: Some(
+                        WithLocation {
+                            location: argument_definitions.graphql:146:151,
+                            item: List(
+                                [
+                                    Int(
+                                        100,
+                                    ),
+                                ],
+                            ),
+                        },
+                    ),
+                    directives: [],
+                },
+            ],
+            used_global_variables: [],
+            type_condition: Object(67),
+            directives: [
+                Directive {
+                    name: WithLocation {
+                        location: argument_definitions.graphql:33:52,
+                        item: "argumentDefinitions",
+                    },
+                    arguments: [],
+                    data: None,
+                },
+            ],
+            selections: [
+                ScalarField {
+                    alias: None,
+                    definition: WithLocation {
+                        location: argument_definitions.graphql:161:171,
+                        item: FieldID(521),
+                    },
+                    arguments: [],
+                    directives: [],
+                },
+            ],
+        },
+    ),
+]

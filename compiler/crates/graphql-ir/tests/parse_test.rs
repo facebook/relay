@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<c70f2ac4a3c6751dda817fbb8e7c4795>>
+ * @generated SignedSource<<59d8d24b7d8b31f8735e6b0288f92dd5>>
  */
 
 mod parse;
@@ -20,10 +20,45 @@ fn argument_complex_object_invalid() {
 }
 
 #[test]
-fn argument_definitions_invalid() {
-    let input = include_str!("parse/fixtures/argument_definitions.invalid.graphql");
-    let expected = include_str!("parse/fixtures/argument_definitions.invalid.expected");
-    test_fixture(transform_fixture, "argument_definitions.invalid.graphql", "parse/fixtures/argument_definitions.invalid.expected", input, expected);
+fn argument_definitions() {
+    let input = include_str!("parse/fixtures/argument_definitions.graphql");
+    let expected = include_str!("parse/fixtures/argument_definitions.expected");
+    test_fixture(transform_fixture, "argument_definitions.graphql", "parse/fixtures/argument_definitions.expected", input, expected);
+}
+
+#[test]
+fn argument_definitions_directives_invalid_directive_arg_invalid() {
+    let input = include_str!("parse/fixtures/argument_definitions_directives_invalid_directive_arg.invalid.graphql");
+    let expected = include_str!("parse/fixtures/argument_definitions_directives_invalid_directive_arg.invalid.expected");
+    test_fixture(transform_fixture, "argument_definitions_directives_invalid_directive_arg.invalid.graphql", "parse/fixtures/argument_definitions_directives_invalid_directive_arg.invalid.expected", input, expected);
+}
+
+#[test]
+fn argument_definitions_directives_invalid_locations_invalid() {
+    let input = include_str!("parse/fixtures/argument_definitions_directives_invalid_locations.invalid.graphql");
+    let expected = include_str!("parse/fixtures/argument_definitions_directives_invalid_locations.invalid.expected");
+    test_fixture(transform_fixture, "argument_definitions_directives_invalid_locations.invalid.graphql", "parse/fixtures/argument_definitions_directives_invalid_locations.invalid.expected", input, expected);
+}
+
+#[test]
+fn argument_definitions_directives_invalid_syntax_invalid() {
+    let input = include_str!("parse/fixtures/argument_definitions_directives_invalid_syntax.invalid.graphql");
+    let expected = include_str!("parse/fixtures/argument_definitions_directives_invalid_syntax.invalid.expected");
+    test_fixture(transform_fixture, "argument_definitions_directives_invalid_syntax.invalid.graphql", "parse/fixtures/argument_definitions_directives_invalid_syntax.invalid.expected", input, expected);
+}
+
+#[test]
+fn argument_definitions_directives_invalid_type_invalid() {
+    let input = include_str!("parse/fixtures/argument_definitions_directives_invalid_type.invalid.graphql");
+    let expected = include_str!("parse/fixtures/argument_definitions_directives_invalid_type.invalid.expected");
+    test_fixture(transform_fixture, "argument_definitions_directives_invalid_type.invalid.graphql", "parse/fixtures/argument_definitions_directives_invalid_type.invalid.expected", input, expected);
+}
+
+#[test]
+fn argument_definitions_typo_invalid() {
+    let input = include_str!("parse/fixtures/argument_definitions_typo.invalid.graphql");
+    let expected = include_str!("parse/fixtures/argument_definitions_typo.invalid.expected");
+    test_fixture(transform_fixture, "argument_definitions_typo.invalid.graphql", "parse/fixtures/argument_definitions_typo.invalid.expected", input, expected);
 }
 
 #[test]

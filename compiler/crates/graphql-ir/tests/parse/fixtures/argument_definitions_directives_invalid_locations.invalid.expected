@@ -1,0 +1,23 @@
+==================================== INPUT ====================================
+# expected-to-throw
+
+fragment InvalidArgumentDirectives on User
+@argumentDefinitions(
+  invalid_locations: {
+    type: "ID"
+    directives: [
+      "@configurable" # this one is okay
+      "@customDirective"
+    ]
+  }
+) {
+  __typename
+}
+==================================== ERROR ====================================
+✖︎ Directive 'customDirective' not supported in this location
+
+  argument_definitions_directives_invalid_locations.invalid.graphql:9:7
+    8 │       "@configurable" # this one is okay
+    9 │       "@customDirective"
+      │       ^^^^^^^^^^^^^^^^^^
+   10 │     ]

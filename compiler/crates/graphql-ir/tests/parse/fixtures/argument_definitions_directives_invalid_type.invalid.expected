@@ -1,0 +1,24 @@
+==================================== INPUT ====================================
+# expected-to-throw
+
+fragment InvalidArgumentDirectives on User
+@argumentDefinitions(
+  # should be a list
+  invalid_type: { type: "ID", directives: "@configurable" }
+
+  # incorrect argument in directive
+  invalid_directive_arg: {
+    type: "ID"
+    directives: ["@configurable(arg_does_not_exist: 1)"]
+  }
+) {
+  __typename
+}
+==================================== ERROR ====================================
+✖︎ Expected the `directives` argument to `@argumentDefinition` to be a list of literal strings in the form `directives: ["@example"]`.
+
+  argument_definitions_directives_invalid_type.invalid.graphql:6:43
+    5 │   # should be a list
+    6 │   invalid_type: { type: "ID", directives: "@configurable" }
+      │                                           ^^^^^^^^^^^^^^^
+    7 │

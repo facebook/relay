@@ -28,10 +28,14 @@ const {
 } = require('relay-runtime');
 const {
   createMockEnvironment,
-  describeWithFeatureFlags,
+  disallowConsoleErrors,
+  disallowWarnings,
 } = require('relay-test-utils-internal');
 
-describe(`QueryResource`, () => {
+disallowWarnings();
+disallowConsoleErrors();
+
+describe('QueryResource', () => {
   let environment;
   let QueryResource;
   let fetchPolicy;

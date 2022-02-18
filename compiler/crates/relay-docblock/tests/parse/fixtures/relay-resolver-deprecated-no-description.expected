@@ -1,0 +1,48 @@
+==================================== INPUT ====================================
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+/**
+ * @RelayResolver
+ * 
+ * @onType User
+ * @fieldName favorite_page
+ * @edgeTo Page
+ * @rootFragment myRootFragment
+ * @deprecated
+ */
+==================================== OUTPUT ===================================
+RelayResolver(
+    RelayResolverIr {
+        field_name: WithLocation {
+            location: /path/to/test/fixture/relay-resolver-deprecated-no-description.js:54:67,
+            item: "favorite_page",
+        },
+        on_type: WithLocation {
+            location: /path/to/test/fixture/relay-resolver-deprecated-no-description.js:35:39,
+            item: "User",
+        },
+        root_fragment: WithLocation {
+            location: /path/to/test/fixture/relay-resolver-deprecated-no-description.js:101:115,
+            item: "myRootFragment",
+        },
+        edge_to: Some(
+            WithLocation {
+                location: /path/to/test/fixture/relay-resolver-deprecated-no-description.js:79:83,
+                item: "Page",
+            },
+        ),
+        description: None,
+        deprecated: Some(
+            IrField {
+                key_location: /path/to/test/fixture/relay-resolver-deprecated-no-description.js:120:130,
+                value: None,
+            },
+        ),
+        location: /path/to/test/fixture/relay-resolver-deprecated-no-description.js:0:132,
+    },
+)

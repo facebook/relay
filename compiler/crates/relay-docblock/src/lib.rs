@@ -17,6 +17,7 @@ use common::{DiagnosticsResult, WithLocation};
 use docblock_syntax::{DocblockAST, DocblockField, DocblockSection};
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
+use ir::IrField;
 pub use ir::{DocblockIr, RelayResolverIr};
 use lazy_static::lazy_static;
 
@@ -25,6 +26,7 @@ lazy_static! {
     static ref FIELD_NAME_FIELD: StringKey = "fieldName".intern();
     static ref ON_TYPE_FIELD: StringKey = "onType".intern();
     static ref EDGE_TO_FIELD: StringKey = "edgeTo".intern();
+    static ref DEPRECATED_FIELD: StringKey = "deprecated".intern();
     static ref ROOT_FRAGMENT_FIELD: StringKey = "rootFragment".intern();
     static ref EMPTY_STRING: StringKey = "".intern();
 }
@@ -43,7 +45,7 @@ type ParseResult<T> = Result<T, ()>;
 
 #[derive(Default)]
 struct RelayResolverParser {
-    fields: HashMap<StringKey, WithLocation<StringKey>>,
+    fields: HashMap<StringKey, IrField>,
     description: Option<WithLocation<StringKey>>,
     allowed_fields: Vec<StringKey>,
     errors: Vec<Diagnostic>,
@@ -61,6 +63,7 @@ impl RelayResolverParser {
                 *ON_TYPE_FIELD,
                 *ROOT_FRAGMENT_FIELD,
                 *EDGE_TO_FIELD,
+                *DEPRECATED_FIELD,
             ],
         }
     }
@@ -97,13 +100,19 @@ impl RelayResolverParser {
         let on_type = self.assert_field_value(*ON_TYPE_FIELD, ast.location);
         let root_fragment = self.assert_field_value(*ROOT_FRAGMENT_FIELD, ast.location);
 
+        let deprecated = self.fields.get(&DEPRECATED_FIELD).copied();
+
         Ok(RelayResolverIr {
             field_name: field_name?,
             on_type: on_type?,
             root_fragment: root_fragment?,
-            edge_to: self.fields.get(&EDGE_TO_FIELD).copied(),
+            edge_to: self
+                .fields
+                .get(&EDGE_TO_FIELD)
+                .and_then(|f| f.value.clone()),
             description: self.description,
             location: ast.location,
+            deprecated,
         })
     }
 
@@ -117,22 +126,24 @@ impl RelayResolverParser {
             ));
             return;
         }
-        if let Some(field_value) = field.field_value {
-            match self.fields.entry(field.field_name.item) {
-                std::collections::hash_map::Entry::Occupied(_) => {
-                    self.errors.push(Diagnostic::error(
-                        ErrorMessages::DuplicateField {
-                            field_name: field.field_name.item,
-                        },
-                        field.field_name.location,
-                    ))
-                }
-                std::collections::hash_map::Entry::Vacant(entry) => {
-                    entry.insert(field_value);
-                }
+
+        let field_value = field.field_value;
+        match self.fields.entry(field.field_name.item) {
+            std::collections::hash_map::Entry::Occupied(_) => self.errors.push(Diagnostic::error(
+                ErrorMessages::DuplicateField {
+                    field_name: field.field_name.item,
+                },
+                field.field_name.location,
+            )),
+            std::collections::hash_map::Entry::Vacant(entry) => {
+                entry.insert(IrField {
+                    key_location: field.field_name.location,
+                    value: field_value,
+                });
             }
         }
     }
+
 
     fn assert_field_value(
         &mut self,
@@ -140,7 +151,16 @@ impl RelayResolverParser {
         docblock_location: Location,
     ) -> ParseResult<WithLocation<StringKey>> {
         match self.fields.get(&field_name) {
-            Some(field_value) => Ok(field_value.clone()),
+            Some(field) => match field.value {
+                Some(field_value) => Ok(field_value.clone()),
+                None => {
+                    self.errors.push(Diagnostic::error(
+                        ErrorMessages::MissingFieldValue { field_name },
+                        field.key_location,
+                    ));
+                    Err(())
+                }
+            },
             None => {
                 self.errors.push(Diagnostic::error(
                     ErrorMessages::MissingField { field_name },

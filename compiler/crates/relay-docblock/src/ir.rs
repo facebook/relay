@@ -18,8 +18,10 @@ use lazy_static::lazy_static;
 lazy_static! {
     static ref INT_TYPE: StringKey = "Int".intern();
     static ref RELAY_RESOLVER_DIRECTIVE_NAME: StringKey = "relay_resolver".intern();
+    static ref DEPRECATED_RESOLVER_DIRECTIVE_NAME: StringKey = "deprecated".intern();
     static ref FRAGMENT_KEY_ARGUMENT_NAME: StringKey = "fragment_name".intern();
     static ref IMPORT_PATH_AGUMENT_NAME: StringKey = "import_path".intern();
+    static ref DEPRECATED_REASON_ARGUMENT_NAME: StringKey = "reason".intern();
 }
 
 #[derive(Debug, PartialEq)]
@@ -34,6 +36,11 @@ impl DocblockIr {
         }
     }
 }
+#[derive(Debug, PartialEq, Clone, Copy)]
+pub struct IrField {
+    pub key_location: Location,
+    pub value: Option<WithLocation<StringKey>>,
+}
 
 #[derive(Debug, PartialEq)]
 pub struct RelayResolverIr {
@@ -42,6 +49,7 @@ pub struct RelayResolverIr {
     pub root_fragment: WithLocation<StringKey>,
     pub edge_to: Option<WithLocation<StringKey>>,
     pub description: Option<WithLocation<StringKey>>,
+    pub deprecated: Option<IrField>,
     pub location: Location,
 }
 
@@ -58,6 +66,9 @@ impl RelayResolverIr {
         let edge_to = self
             .edge_to
             .map_or_else(|| string_key_as_identifier(*INT_TYPE), as_identifier);
+
+
+
         SchemaDocument {
             location: self.location,
             definitions: vec![TypeSystemDefinition::ObjectTypeExtension(
@@ -69,12 +80,33 @@ impl RelayResolverIr {
                         name: as_identifier(self.field_name),
                         type_: TypeAnnotation::Named(NamedTypeAnnotation { name: edge_to }),
                         arguments: None,
-                        directives: vec![self.directive()],
+                        directives: self.directives(),
                         description: self.description.map(as_string_node),
                     }])),
                 },
             )],
         }
+    }
+
+    fn directives(&self) -> Vec<ConstantDirective> {
+        let span = self.location.span();
+        let mut directives = vec![self.directive()];
+
+        if let Some(deprecated) = self.deprecated {
+            directives.push(ConstantDirective {
+                span: span.clone(),
+                at: dummy_token(span),
+                name: string_key_as_identifier(*DEPRECATED_RESOLVER_DIRECTIVE_NAME),
+                arguments: deprecated.value.map(|value| {
+                    List::generated(vec![string_argument(
+                        *DEPRECATED_REASON_ARGUMENT_NAME,
+                        value,
+                    )])
+                }),
+            })
+        }
+
+        directives
     }
 
     fn directive(&self) -> ConstantDirective {

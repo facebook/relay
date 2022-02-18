@@ -23,4 +23,7 @@ pub enum ErrorMessages {
 
     #[error("Missing docblock field \"@{field_name}\"")]
     MissingField { field_name: StringKey },
+
+    #[error("Expected docblock field \"@{field_name}\" to have specified a value.")]
+    MissingFieldValue { field_name: StringKey },
 }

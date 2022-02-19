@@ -222,8 +222,9 @@ impl<'program> RelayResolverFieldTransform<'program> {
                     if self.program.fragment(fragment_name).is_none() {
                         self.errors.push(Diagnostic::error(
                             ValidationMessage::InvalidRelayResolverFragmentName { fragment_name },
-                            // We don't have locations for schema files.
-                            field.definition().location,
+                            // We don't have locations for directives in schema files.
+                            // So we send them to the field name, rather than the directive value.
+                            field_type.name.location,
                         ));
                         return None;
                     }

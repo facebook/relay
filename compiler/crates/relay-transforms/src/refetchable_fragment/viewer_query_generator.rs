@@ -16,7 +16,7 @@ use common::{Diagnostic, DiagnosticsResult, WithLocation};
 use graphql_ir::{FragmentDefinition, LinkedField, Selection};
 use intern::string_key::StringKey;
 use relay_config::SchemaConfig;
-use schema::{FieldID, SDLSchema, Schema, Type};
+use schema::{SDLSchema, Schema};
 use std::sync::Arc;
 
 fn build_refetch_operation(
@@ -26,14 +26,35 @@ fn build_refetch_operation(
     query_name: StringKey,
     variables_map: &VariableMap,
 ) -> DiagnosticsResult<Option<RefetchRoot>> {
+    // Retrieve the "viewer: ..." field's ID
+    // or skip this generator if there's none
     let query_type = schema.query_type().unwrap();
+    let viewer_field_id = match schema.named_field(query_type, CONSTANTS.viewer_field_name) {
+        Some(viewer_field_id) => viewer_field_id,
+        None => {
+            return Ok(None);
+        }
+    };
 
-    // Skip this generator if there's no "viewer: ..." field present
-    if schema.named_field(query_type, CONSTANTS.viewer_field_name).is_none() {
+    // Additionally skip this generator if the "viewer: ..." field's type
+    // doesn't match the fragment's type
+    let viewer_field = schema.field(viewer_field_id);
+    if viewer_field.type_.inner() != fragment.type_condition {
         return Ok(None);
     }
 
-    let viewer_field_id = get_viewer_field_id(schema, query_type, fragment)?;
+    // Sanity check
+    if !viewer_field.type_.inner().is_object()
+        || viewer_field.type_.is_list()
+        || !viewer_field.arguments.is_empty()
+    {
+        return Err(vec![Diagnostic::error(
+            ValidationMessage::InvalidViewerSchemaForRefetchableFragmentOnViewer {
+                fragment_name: fragment.name.item,
+            },
+            fragment.name.location,
+        )]);
+    }
 
     let fragment = Arc::new(FragmentDefinition {
         directives: build_fragment_metadata_as_directive(
@@ -62,29 +83,6 @@ fn build_refetch_operation(
         }))],
         fragment,
     }))
-}
-
-fn get_viewer_field_id(
-    schema: &SDLSchema,
-    query_type: Type,
-    fragment: &FragmentDefinition,
-) -> DiagnosticsResult<FieldID> {
-    let viewer_field_id = schema.named_field(query_type, CONSTANTS.viewer_field_name);
-    if let Some(viewer_field_id) = viewer_field_id {
-        let viewer_field = schema.field(viewer_field_id);
-        if viewer_field.type_.inner().is_object() && !viewer_field.type_.is_list()
-            && viewer_field.type_.inner() == fragment.type_condition
-            && viewer_field.arguments.is_empty()
-        {
-            return Ok(viewer_field_id);
-        }
-    }
-    Err(vec![Diagnostic::error(
-        ValidationMessage::InvalidViewerSchemaForRefetchableFragmentOnViewer {
-            fragment_name: fragment.name.item,
-        },
-        fragment.name.location,
-    )])
 }
 
 pub const VIEWER_QUERY_GENERATOR: QueryGenerator = QueryGenerator {

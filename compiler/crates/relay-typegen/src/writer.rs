@@ -87,4 +87,25 @@ pub trait Writer: Write {
     ) -> FmtResult;
 
     fn write_any_type_definition(&mut self, name: &str) -> FmtResult;
+
+    fn sort_props(&self, props: &[Prop]) -> Vec<Prop> {
+        let mut result = Vec::from(props);
+
+        // Put regular key-value props first, followed by getter/setter pairs,
+        // followed by spreads, with $fragmentSpreads and $fragmentType props last.
+        result.sort_by_cached_key(|prop| match prop {
+            Prop::KeyValuePair(kvp) => (
+                if kvp.key == *crate::KEY_FRAGMENT_SPREADS || kvp.key == *crate::KEY_FRAGMENT_TYPE {
+                    3
+                } else {
+                    0
+                },
+                kvp.key,
+            ),
+            Prop::GetterSetterPair(pair) => (1, pair.key),
+            Prop::Spread(spread) => (2, spread.value),
+        });
+
+        result
+    }
 }

@@ -629,7 +629,6 @@ impl<'a> TypeGenerator<'a> {
             .entry(haste_import_name)
             .or_insert(local_resolver_name);
 
-
         let inner_value = Box::new(AST::ReturnTypeOfFunctionWithName(local_resolver_name));
 
         let value = if required {
@@ -637,7 +636,6 @@ impl<'a> TypeGenerator<'a> {
         } else {
             AST::Nullable(inner_value)
         };
-
 
         type_selections.push(TypeSelection::ScalarField(TypeSelectionScalarField {
             field_name_or_alias: key,

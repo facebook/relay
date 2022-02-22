@@ -217,7 +217,7 @@ impl FlowPrinter {
         }
         self.indentation += 1;
 
-        for prop in props {
+        for prop in self.sort_props(props) {
             self.write_indentation()?;
             match prop {
                 Prop::Spread(spread) => {

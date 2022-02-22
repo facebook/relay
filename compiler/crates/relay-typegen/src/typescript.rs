@@ -48,8 +48,7 @@ impl Writer for TypeScriptPrinter {
             AST::ReadOnlyArray(of_type) => self.write_read_only_array(of_type),
             AST::Nullable(of_type) => self.write_nullable(of_type),
             AST::NonNullable(of_type) => self.write_non_nullable(of_type),
-            AST::ExactObject(props) => self.write_object(props),
-            AST::InexactObject(props) => self.write_object(props),
+            AST::ExactObject(props) | AST::InexactObject(props) => self.write_object(props),
             AST::Local3DPayload(document_name, selections) => {
                 self.write_local_3d_payload(*document_name, selections)
             }
@@ -192,7 +191,7 @@ impl TypeScriptPrinter {
         writeln!(&mut self.result, "{{")?;
         self.indentation += 1;
 
-        for prop in props {
+        for prop in self.sort_props(props) {
             match prop {
                 Prop::Spread(_) => continue,
                 Prop::KeyValuePair(key_value_pair) => {

@@ -60,8 +60,8 @@ export type queryMixedProvidedVar_MultiFragment$data = {|
   |},
 |};
 export type queryMixedProvidedVar_MultiFragment = {|
-  variables: queryMixedProvidedVar_MultiFragment$variables,
   response: queryMixedProvidedVar_MultiFragment$data,
+  variables: queryMixedProvidedVar_MultiFragment$variables,
 |};
 type ProvidedVariablesType = {|
   +__relay_internal__pv__includeNameProvider: {|
@@ -85,8 +85,8 @@ export type queryMixedProvidedVar_OneFragment$data = {|
   |},
 |};
 export type queryMixedProvidedVar_OneFragment = {|
-  variables: queryMixedProvidedVar_OneFragment$variables,
   response: queryMixedProvidedVar_OneFragment$data,
+  variables: queryMixedProvidedVar_OneFragment$variables,
 |};
 type ProvidedVariablesType = {|
   +__relay_internal__pv__includeNameProvider: {|
@@ -101,8 +101,8 @@ export type FragmentMultiProvidedVar$data = {|
     +count: ?number,
     +edges: ?$ReadOnlyArray<?{|
       +node: ?{|
-        +name?: ?string,
         +alternate_name?: ?string,
+        +name?: ?string,
       |},
     |}>,
   |},
@@ -117,8 +117,8 @@ export type FragmentMultiProvidedVar$key = {
 import type { FragmentType } from "relay-runtime";
 declare export opaque type FragmentOneProvidedVar$fragmentType: FragmentType;
 export type FragmentOneProvidedVar$data = {|
-  +name?: ?string,
   +alternate_name?: ?string,
+  +name?: ?string,
   +$fragmentType: FragmentOneProvidedVar$fragmentType,
 |};
 export type FragmentOneProvidedVar$key = {

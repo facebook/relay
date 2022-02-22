@@ -26,9 +26,9 @@ export type queryWithRelayClientComponentQuery$rawResponse = {|
   +viewer: ?{||},
 |};
 export type queryWithRelayClientComponentQuery = {|
-  variables: queryWithRelayClientComponentQuery$variables,
-  response: queryWithRelayClientComponentQuery$data,
   rawResponse: queryWithRelayClientComponentQuery$rawResponse,
+  response: queryWithRelayClientComponentQuery$data,
+  variables: queryWithRelayClientComponentQuery$variables,
 |};
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";

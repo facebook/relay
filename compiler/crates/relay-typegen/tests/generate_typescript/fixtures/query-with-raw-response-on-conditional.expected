@@ -18,8 +18,8 @@ fragment FriendFragment on User {
 ==================================== OUTPUT ===================================
 import { FragmentRefs } from "relay-runtime";
 export type ExampleQuery$variables = {
-  id: string;
   condition: boolean;
+  id: string;
 };
 export type ExampleQuery$data = {
   readonly node: {
@@ -29,32 +29,32 @@ export type ExampleQuery$data = {
 export type ExampleQuery$rawResponse = {
   readonly node: {
     readonly __typename: "User";
-    readonly id: string;
-    readonly name: string | null;
-    readonly lastName: string | null;
     readonly feedback: {
       readonly id: string;
       readonly name: string | null;
     } | null;
+    readonly id: string;
+    readonly lastName: string | null;
+    readonly name: string | null;
   } | {
     readonly __typename: string;
     readonly id: string;
   } | null;
 };
 export type ExampleQuery = {
-  variables: ExampleQuery$variables;
-  response: ExampleQuery$data;
   rawResponse: ExampleQuery$rawResponse;
+  response: ExampleQuery$data;
+  variables: ExampleQuery$variables;
 };
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
 export type FriendFragment$data = {
-  readonly name?: string | null;
-  readonly lastName?: string | null;
   readonly feedback?: {
     readonly id: string;
     readonly name: string | null;
   } | null;
+  readonly lastName?: string | null;
+  readonly name?: string | null;
   readonly " $fragmentType": "FriendFragment";
 };
 export type FriendFragment$key = {

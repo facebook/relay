@@ -18,8 +18,8 @@ export type FlowRefetchableFragmentQuery$data = {|
   |},
 |};
 export type FlowRefetchableFragmentQuery = {|
-  variables: FlowRefetchableFragmentQuery$variables,
   response: FlowRefetchableFragmentQuery$data,
+  variables: FlowRefetchableFragmentQuery$variables,
 |};
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";

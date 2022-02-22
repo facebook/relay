@@ -67,10 +67,10 @@ fragment SomeFragment on User {
 import { FragmentRefs } from "relay-runtime";
 export type InlineFragment$data = {
   readonly id: string;
-  readonly name?: string | null;
   readonly message?: {
     readonly text: string | null;
   } | null;
+  readonly name?: string | null;
   readonly " $fragmentType": "InlineFragment";
 };
 export type InlineFragment$key = {
@@ -93,12 +93,12 @@ import { FragmentRefs } from "relay-runtime";
 export type InlineFragmentKitchenSink$data = {
   readonly actor: {
     readonly id: string;
+    readonly name?: string | null;
     readonly profilePicture: {
+      readonly height?: number | null;
       readonly uri: string | null;
       readonly width?: number | null;
-      readonly height?: number | null;
     } | null;
-    readonly name?: string | null;
     readonly " $fragmentSpreads": FragmentRefs<"SomeFragment">;
   } | null;
   readonly " $fragmentType": "InlineFragmentKitchenSink";
@@ -112,10 +112,10 @@ import { FragmentRefs } from "relay-runtime";
 export type InlineFragmentWithOverlappingFields$data = {
   readonly hometown?: {
     readonly id: string;
-    readonly name: string | null;
     readonly message?: {
       readonly text: string | null;
     } | null;
+    readonly name: string | null;
   } | null;
   readonly name?: string | null;
   readonly " $fragmentType": "InlineFragmentWithOverlappingFields";

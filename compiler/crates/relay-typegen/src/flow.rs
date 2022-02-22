@@ -399,8 +399,8 @@ mod tests {
                 }),
             ])),
             r"{|
-  foo?: string,
   +bar: number,
+  foo?: string,
 |}"
             .to_string()
         );
@@ -437,11 +437,11 @@ mod tests {
                 }),
             ])),
             r"{|
+  +bar: number,
   foo?: {|
     nested_foo?: string,
     +nested_foo2: number,
   |},
-  +bar: number,
 |}"
             .to_string()
         );
@@ -489,8 +489,8 @@ mod tests {
                 })
             ])),
             r"{
-  foo: string,
   +bar?: number,
+  foo: string,
   ...
 }"
             .to_string()

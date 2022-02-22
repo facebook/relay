@@ -31,10 +31,10 @@ fragment Foo on Node {
 import type { FragmentType } from "relay-runtime";
 declare export opaque type Bar$fragmentType: FragmentType;
 export type Bar$data = ?{|
-  +name?: string,
   +body?: ?{|
     +text: ?string,
   |},
+  +name?: string,
   +$fragmentType: Bar$fragmentType,
 |};
 export type Bar$key = {

@@ -17,8 +17,8 @@ mutation CommentCreateMutation(
 ==================================== OUTPUT ===================================
 export type CommentCreateInput = {|
   clientMutationId?: ?string,
-  feedbackId?: ?string,
   feedback?: ?CommentfeedbackFeedback,
+  feedbackId?: ?string,
 |};
 export type CommentfeedbackFeedback = {|
   comment?: ?FeedbackcommentComment,
@@ -27,22 +27,22 @@ export type FeedbackcommentComment = {|
   feedback?: ?CommentfeedbackFeedback,
 |};
 export type CommentCreateMutation$variables = {|
-  input: CommentCreateInput,
   first?: ?number,
+  input: CommentCreateInput,
   orderBy?: ?$ReadOnlyArray<string>,
 |};
 export type CommentCreateMutation$data = {|
   +commentCreate: ?{|
     +comment: ?{|
-      +id: string,
-      +name: ?string,
       +friends: ?{|
         +count: ?number,
       |},
+      +id: string,
+      +name: ?string,
     |},
   |},
 |};
 export type CommentCreateMutation = {|
-  variables: CommentCreateMutation$variables,
   response: CommentCreateMutation$data,
+  variables: CommentCreateMutation$variables,
 |};

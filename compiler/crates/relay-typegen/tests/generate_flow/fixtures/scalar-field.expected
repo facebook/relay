@@ -17,17 +17,17 @@ export type PersonalityTraits = "CHEERFUL" | "DERISIVE" | "HELPFUL" | "SNARKY" |
 import type { FragmentType } from "relay-runtime";
 declare export opaque type ScalarField$fragmentType: FragmentType;
 export type ScalarField$data = {|
-  +id: string,
-  +name: ?string,
-  +websites: ?$ReadOnlyArray<?string>,
-  +traits: ?$ReadOnlyArray<?PersonalityTraits>,
   +aliasedLinkedField: ?{|
     +aliasedField: ?number,
   |},
+  +id: string,
+  +name: ?string,
   +screennames: ?$ReadOnlyArray<?{|
     +name: ?string,
     +service: ?string,
   |}>,
+  +traits: ?$ReadOnlyArray<?PersonalityTraits>,
+  +websites: ?$ReadOnlyArray<?string>,
   +$fragmentType: ScalarField$fragmentType,
 |};
 export type ScalarField$key = {

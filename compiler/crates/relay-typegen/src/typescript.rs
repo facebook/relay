@@ -361,8 +361,8 @@ mod tests {
                 }),
             ])),
             r"{
-  foo?: string;
   readonly bar: number;
+  foo?: string;
 }"
             .to_string()
         );
@@ -399,11 +399,11 @@ mod tests {
                 }),
             ])),
             r"{
+  readonly bar: number;
   foo?: {
     nested_foo?: string;
     readonly nested_foo2: number;
   };
-  readonly bar: number;
 }"
             .to_string()
         );
@@ -447,8 +447,8 @@ mod tests {
                 })
             ])),
             r"{
-  foo: string;
   readonly bar?: number;
+  foo: string;
 }"
             .to_string()
         );

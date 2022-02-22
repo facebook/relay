@@ -22,15 +22,15 @@ import userPopStarNameResolver from "PopStarNameResolver";
 export type relayResolver_Query$variables = {||};
 export type relayResolver_Query$data = {|
   +me: ?{|
-    +pop_star_name: ?$Call<<R>((...empty[]) => R) => R, typeof userPopStarNameResolver>,
     +parents: $ReadOnlyArray<{|
       +pop_star_name: ?$Call<<R>((...empty[]) => R) => R, typeof userPopStarNameResolver>,
     |}>,
+    +pop_star_name: ?$Call<<R>((...empty[]) => R) => R, typeof userPopStarNameResolver>,
   |},
 |};
 export type relayResolver_Query = {|
-  variables: relayResolver_Query$variables,
   response: relayResolver_Query$data,
+  variables: relayResolver_Query$variables,
 |};
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";

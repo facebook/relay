@@ -30,19 +30,19 @@ export type LinkedHandleField$data = {|
 export type LinkedHandleField$rawResponse = {|
   +node: ?({|
     +__typename: "User",
-    +id: string,
     +friends: ?{|
       +count: ?number,
     |},
+    +id: string,
   |} | {|
     +__typename: string,
     +id: string,
   |}),
 |};
 export type LinkedHandleField = {|
-  variables: LinkedHandleField$variables,
-  response: LinkedHandleField$data,
   rawResponse: LinkedHandleField$rawResponse,
+  response: LinkedHandleField$data,
+  variables: LinkedHandleField$variables,
 |};
 -------------------------------------------------------------------------------
 export type ScalarHandleField$variables = {|
@@ -64,7 +64,7 @@ export type ScalarHandleField$rawResponse = {|
   |}),
 |};
 export type ScalarHandleField = {|
-  variables: ScalarHandleField$variables,
-  response: ScalarHandleField$data,
   rawResponse: ScalarHandleField$rawResponse,
+  response: ScalarHandleField$data,
+  variables: ScalarHandleField$variables,
 |};

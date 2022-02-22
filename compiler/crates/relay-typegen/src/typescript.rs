@@ -45,6 +45,7 @@ impl Writer for TypeScriptPrinter {
             AST::Identifier(identifier) => write!(&mut self.result, "{}", identifier),
             AST::RawType(raw) => write!(&mut self.result, "{}", raw),
             AST::Union(members) => self.write_union(members),
+            AST::Intersection(members) => self.write_intersection(members),
             AST::ReadOnlyArray(of_type) => self.write_read_only_array(of_type),
             AST::Nullable(of_type) => self.write_nullable(of_type),
             AST::NonNullable(of_type) => self.write_non_nullable(of_type),
@@ -137,6 +138,9 @@ impl TypeScriptPrinter {
     }
 
     fn write_union(&mut self, members: &[AST]) -> FmtResult {
+        if members.len() > 1 {
+            write!(&mut self.result, "(")?;
+        }
         let mut first = true;
         for member in members {
             if first {
@@ -145,6 +149,28 @@ impl TypeScriptPrinter {
                 write!(&mut self.result, " | ")?;
             }
             self.write(member)?;
+        }
+        if members.len() > 1 {
+            write!(&mut self.result, ")")?;
+        }
+        Ok(())
+    }
+
+    fn write_intersection(&mut self, members: &[AST]) -> FmtResult {
+        if members.len() > 1 {
+            write!(&mut self.result, "(")?;
+        }
+        let mut first = true;
+        for member in members {
+            if first {
+                first = false;
+            } else {
+                write!(&mut self.result, " & ")?;
+            }
+            self.write(member)?;
+        }
+        if members.len() > 1 {
+            write!(&mut self.result, ")")?;
         }
         Ok(())
     }
@@ -300,7 +326,7 @@ mod tests {
     fn union_type() {
         assert_eq!(
             print_type(&AST::Union(vec![AST::String, AST::Number])),
-            "string | number".to_string()
+            "(string | number)".to_string()
         );
     }
 
@@ -316,7 +342,7 @@ mod tests {
     fn nullable_type() {
         assert_eq!(
             print_type(&AST::Nullable(Box::new(AST::String))),
-            "string | null".to_string()
+            "(string | null)".to_string()
         );
 
         assert_eq!(
@@ -324,8 +350,65 @@ mod tests {
                 AST::String,
                 AST::Number,
             ])))),
-            "string | number | null"
+            "(string | number | null)"
         )
+    }
+
+    #[test]
+    fn intersections() {
+        assert_eq!(
+            print_type(&AST::Intersection(vec![
+                AST::ExactObject(vec![Prop::KeyValuePair(KeyValuePairProp {
+                    key: "first".intern(),
+                    optional: false,
+                    read_only: false,
+                    value: AST::String
+                })]),
+                AST::ExactObject(vec![Prop::KeyValuePair(KeyValuePairProp {
+                    key: "second".intern(),
+                    optional: false,
+                    read_only: false,
+                    value: AST::Number
+                })]),
+            ])),
+            r"({
+  first: string;
+} & {
+  second: number;
+})"
+        );
+
+        assert_eq!(
+            print_type(&AST::Intersection(vec![
+                AST::Union(vec![
+                    AST::ExactObject(vec![Prop::KeyValuePair(KeyValuePairProp {
+                        key: "first".intern(),
+                        optional: false,
+                        read_only: false,
+                        value: AST::String
+                    })]),
+                    AST::ExactObject(vec![Prop::KeyValuePair(KeyValuePairProp {
+                        key: "second".intern(),
+                        optional: false,
+                        read_only: false,
+                        value: AST::Number
+                    })]),
+                ]),
+                AST::ExactObject(vec![Prop::KeyValuePair(KeyValuePairProp {
+                    key: "third".intern(),
+                    optional: false,
+                    read_only: false,
+                    value: AST::Number
+                })]),
+            ],)),
+            r"(({
+  first: string;
+} | {
+  second: number;
+}) & {
+  third: number;
+})"
+        );
     }
 
     #[test]

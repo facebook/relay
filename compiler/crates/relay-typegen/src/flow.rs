@@ -42,6 +42,7 @@ impl Writer for FlowPrinter {
             AST::Identifier(identifier) => write!(&mut self.result, "{}", identifier),
             AST::RawType(raw) => write!(&mut self.result, "{}", raw),
             AST::Union(members) => self.write_union(members),
+            AST::Intersection(members) => self.write_intersection(members),
             AST::ReadOnlyArray(of_type) => self.write_read_only_array(of_type),
             AST::Nullable(of_type) => self.write_nullable(of_type),
             AST::NonNullable(of_type) => self.write_non_nullable(of_type),
@@ -152,6 +153,9 @@ impl FlowPrinter {
     }
 
     fn write_union(&mut self, members: &[AST]) -> FmtResult {
+        if members.len() > 1 {
+            write!(&mut self.result, "(")?;
+        }
         let mut first = true;
         for member in members {
             if first {
@@ -160,6 +164,28 @@ impl FlowPrinter {
                 write!(&mut self.result, " | ")?;
             }
             self.write(member)?;
+        }
+        if members.len() > 1 {
+            write!(&mut self.result, ")")?;
+        }
+        Ok(())
+    }
+
+    fn write_intersection(&mut self, members: &[AST]) -> FmtResult {
+        if members.len() > 1 {
+            write!(&mut self.result, "(")?;
+        }
+        let mut first = true;
+        for member in members {
+            if first {
+                first = false;
+            } else {
+                write!(&mut self.result, " & ")?;
+            }
+            self.write(member)?;
+        }
+        if members.len() > 1 {
+            write!(&mut self.result, ")")?;
         }
         Ok(())
     }
@@ -191,17 +217,7 @@ impl FlowPrinter {
 
     fn write_nullable(&mut self, of_type: &AST) -> FmtResult {
         write!(&mut self.result, "?")?;
-        match of_type {
-            AST::Union(members) if members.len() > 1 => {
-                write!(&mut self.result, "(")?;
-                self.write(of_type)?;
-                write!(&mut self.result, ")")?;
-            }
-            _ => {
-                self.write(of_type)?;
-            }
-        }
-        Ok(())
+        self.write(of_type)
     }
 
     fn write_object(&mut self, props: &[Prop], exact: bool) -> FmtResult {
@@ -334,7 +350,7 @@ mod tests {
     fn union_type() {
         assert_eq!(
             print_type(&AST::Union(vec![AST::String, AST::Number])),
-            "string | number".to_string()
+            "(string | number)".to_string()
         );
     }
 

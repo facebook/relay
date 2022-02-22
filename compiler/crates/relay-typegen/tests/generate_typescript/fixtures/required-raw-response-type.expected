@@ -7,17 +7,17 @@ query MyQuery @raw_response_type {
 }
 ==================================== OUTPUT ===================================
 export type MyQuery$variables = {};
-export type MyQuery$data = {
+export type MyQuery$data = ({
   readonly me: {
     readonly id: string;
     readonly name: string;
   };
-} | null;
+} | null);
 export type MyQuery$rawResponse = {
-  readonly me: {
+  readonly me: ({
     readonly id: string;
-    readonly name: string | null;
-  } | null;
+    readonly name: (string | null);
+  } | null);
 };
 export type MyQuery = {
   variables: MyQuery$variables;

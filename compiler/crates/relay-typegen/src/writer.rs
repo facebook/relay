@@ -11,6 +11,10 @@ use std::fmt::{Result as FmtResult, Write};
 #[derive(Debug, Clone)]
 pub enum AST {
     Union(Vec<AST>),
+    // Intersection variant added in preparation for better support for abstract types.
+    // See https://github.com/facebook/relay/pull/3280
+    #[allow(dead_code)]
+    Intersection(Vec<AST>),
     ReadOnlyArray(Box<AST>),
     Nullable(Box<AST>),
     NonNullable(Box<AST>),

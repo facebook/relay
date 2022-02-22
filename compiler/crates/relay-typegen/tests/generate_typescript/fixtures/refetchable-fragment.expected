@@ -12,9 +12,9 @@ export type RefetchableFragmentQuery$variables = {
   id: string;
 };
 export type RefetchableFragmentQuery$data = {
-  readonly node: {
+  readonly node: ({
     readonly " $fragmentSpreads": FragmentRefs<"RefetchableFragment">;
-  } | null;
+  } | null);
 };
 export type RefetchableFragmentQuery = {
   variables: RefetchableFragmentQuery$variables;
@@ -24,9 +24,9 @@ export type RefetchableFragmentQuery = {
 import { FragmentRefs } from "relay-runtime";
 export type RefetchableFragment$data = {
   readonly id: string;
-  readonly fragAndField: {
-    readonly uri: string | null;
-  } | null;
+  readonly fragAndField: ({
+    readonly uri: (string | null);
+  } | null);
   readonly " $fragmentType": "RefetchableFragment";
 };
 export type RefetchableFragment$key = {

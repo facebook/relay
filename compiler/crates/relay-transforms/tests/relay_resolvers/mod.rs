@@ -5,29 +5,31 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::SourceLocationKey;
+use common::{Diagnostic, SourceLocationKey};
 use fixture_tests::Fixture;
+use graphql_cli::DiagnosticPrinter;
 use graphql_ir::{build, Program};
-use graphql_syntax::parse_executable;
-use graphql_test_helpers::diagnostics_to_sorted_string;
+use graphql_syntax::{parse_executable, GraphQLSource};
 use graphql_text_printer::{print_fragment, print_operation, PrinterOptions};
-use relay_test_schema::get_test_schema_with_extensions;
+use relay_test_schema::get_test_schema_with_located_extensions;
 use relay_transforms::{find_resolver_dependencies, relay_resolvers, DependencyMap};
 use std::sync::Arc;
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let parts: Vec<_> = fixture.content.split("%extensions%").collect();
     if let [base, extensions] = parts.as_slice() {
-        let source_location = SourceLocationKey::standalone(fixture.file_name);
-        let ast = parse_executable(base, source_location).unwrap();
-        let schema = get_test_schema_with_extensions(extensions);
+        let grapqhl_location = SourceLocationKey::embedded(fixture.file_name, 0);
+        let extension_location = SourceLocationKey::embedded(fixture.file_name, 1);
+
+        let ast = parse_executable(base, grapqhl_location).unwrap();
+        let schema = get_test_schema_with_located_extensions(extensions, extension_location);
         let ir = build(&schema, &ast.definitions).unwrap();
         let program = Program::from_definitions(Arc::clone(&schema), ir);
 
         let mut implicit_dependencies = Default::default();
         find_resolver_dependencies(&mut implicit_dependencies, &program);
         let next_program = relay_resolvers(&program, true)
-            .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
+            .map_err(|diagnostics| diagnostics_to_sorted_string(base, extensions, &diagnostics))?;
 
         let printer_options = PrinterOptions {
             debug_directive_data: true,
@@ -72,4 +74,28 @@ fn print_dependency_map(dependency_map: DependencyMap) -> String {
     lines.sort();
 
     format!("# Implicit Dependencies:\n#\n{}", lines.join("\n"))
+}
+
+pub fn diagnostics_to_sorted_string(
+    source: &str,
+    extensions: &str,
+    diagnostics: &[Diagnostic],
+) -> String {
+    let printer = DiagnosticPrinter::new(|source_location| match source_location {
+        SourceLocationKey::Embedded { index, .. } => {
+            Some(GraphQLSource::from_whole_document(match index {
+                0 => source,
+                1 => extensions,
+                _ => panic!("Expected index to be 0 or 1"),
+            }))
+        }
+        SourceLocationKey::Standalone { .. } => None,
+        SourceLocationKey::Generated => None,
+    });
+    let mut printed = diagnostics
+        .iter()
+        .map(|diagnostic| printer.diagnostic_to_string(diagnostic))
+        .collect::<Vec<_>>();
+    printed.sort();
+    printed.join("\n\n")
 }

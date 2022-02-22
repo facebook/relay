@@ -26,12 +26,13 @@ fn build_refetch_operation(
     query_name: StringKey,
     variables_map: &VariableMap,
 ) -> DiagnosticsResult<Option<RefetchRoot>> {
+    let query_type = schema.query_type().unwrap();
+
     // Skip this generator if there's no "viewer: ..." field present
-    if schema.get_type(CONSTANTS.viewer_field_name).is_none() {
+    if schema.named_field(query_type, CONSTANTS.viewer_field_name).is_none() {
         return Ok(None);
     }
 
-    let query_type = schema.query_type().unwrap();
     let viewer_field_id = get_viewer_field_id(schema, query_type, fragment)?;
 
     let fragment = Arc::new(FragmentDefinition {

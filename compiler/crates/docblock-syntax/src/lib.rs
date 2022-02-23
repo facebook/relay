@@ -14,8 +14,9 @@ pub use ast::{DocblockAST, DocblockField, DocblockSection};
 use common::{Diagnostic, DiagnosticsResult, Location, SourceLocationKey, Span, WithLocation};
 use errors::SyntaxError;
 use intern::string_key::{Intern, StringKey};
+use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Debug)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct DocblockSource {
     pub text: String,
     pub line_index: usize,

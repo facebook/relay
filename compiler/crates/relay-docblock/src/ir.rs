@@ -35,6 +35,11 @@ impl DocblockIr {
             DocblockIr::RelayResolver(relay_resolver) => relay_resolver.to_sdl_string(),
         }
     }
+    pub fn to_graphql_schema_ast(&self) -> SchemaDocument {
+        match self {
+            DocblockIr::RelayResolver(relay_resolver) => relay_resolver.to_graphql_schema_ast(),
+        }
+    }
 }
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub struct IrField {

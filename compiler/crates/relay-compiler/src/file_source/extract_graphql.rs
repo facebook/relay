@@ -23,11 +23,13 @@ pub struct LocatedGraphQLSource {
     pub graphql_source: GraphQLSource,
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct LocatedDocblockSource {
     pub index: usize,
     pub docblock_source: DocblockSource,
 }
 
+#[derive(Default)]
 pub struct LocatedJavascriptSourceFeatures {
     pub graphql_sources: Vec<LocatedGraphQLSource>,
     pub docblock_sources: Vec<LocatedDocblockSource>,

@@ -7,7 +7,9 @@
 
 use crate::compiler_state::CompilerState;
 use crate::config::ProjectConfig;
+use crate::docblocks::extract_schema_from_docblock_sources;
 use common::DiagnosticsResult;
+use graphql_syntax::TypeSystemDefinition;
 use schema::SDLSchema;
 use std::sync::Arc;
 
@@ -39,7 +41,42 @@ pub fn build_schema(
                     .into_iter()
                     .map(String::as_str),
             );
-            relay_schema::build_schema_with_extensions(&schema_sources, &extensions).map(Arc::new)
+            let mut schema =
+                relay_schema::build_schema_with_extensions(&schema_sources, &extensions)?;
+
+            if project_config.feature_flags.parse_resolver_docblocks {
+                let mut projects = vec![project_config.name];
+                projects.extend(project_config.base);
+
+                let docblock_sources = projects
+                    .iter()
+                    .map(|name| compiler_state.docblocks.get(name))
+                    .flatten();
+
+                for docblocks in docblock_sources {
+                    for (file_path, docblock_sources) in &docblocks.get_all() {
+                        for schema_document in
+                            extract_schema_from_docblock_sources(file_path, docblock_sources)?
+                        {
+                            for definition in schema_document.definitions {
+                                match definition {
+                                    TypeSystemDefinition::ObjectTypeExtension(extension) => schema
+                                        .add_object_type_extension(
+                                            extension,
+                                            schema_document.location.source_location(),
+                                            true,
+                                        )?,
+                                    _ => panic!(
+                                        "Expected docblocks to only expose object extensions"
+                                    ),
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            Ok(Arc::new(schema))
         }
     }
 }

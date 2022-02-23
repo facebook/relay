@@ -10,7 +10,8 @@ use crate::config::Config;
 use crate::errors::{Error, Result};
 use crate::file_source::{
     categorize_files, extract_javascript_features_from_file, read_file_to_string, Clock, File,
-    FileGroup, FileSourceResult, LocatedGraphQLSource, SourceControlUpdateStatus,
+    FileGroup, FileSourceResult, LocatedDocblockSource, LocatedGraphQLSource,
+    LocatedJavascriptSourceFeatures, SourceControlUpdateStatus,
 };
 use bincode::Options;
 use common::{PerfLogEvent, PerfLogger, SourceLocationKey};
@@ -126,6 +127,12 @@ impl Source for Vec<LocatedGraphQLSource> {
     }
 }
 
+impl Source for Vec<LocatedDocblockSource> {
+    fn is_empty(&self) -> bool {
+        self.is_empty()
+    }
+}
+
 type IncrementalSourceSet<V> = FnvHashMap<PathBuf, V>;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -184,8 +191,10 @@ impl<V: Source> Default for IncrementalSources<V> {
 }
 
 type GraphQLSourceSet = IncrementalSourceSet<Vec<LocatedGraphQLSource>>;
+type DocblockSourceSet = IncrementalSourceSet<Vec<LocatedDocblockSource>>;
 pub type GraphQLSources = IncrementalSources<Vec<LocatedGraphQLSource>>;
 pub type SchemaSources = IncrementalSources<String>;
+pub type DocblockSources = IncrementalSources<Vec<LocatedDocblockSource>>;
 
 impl Source for String {
     fn is_empty(&self) -> bool {
@@ -233,6 +242,7 @@ pub struct CompilerState {
     pub graphql_sources: FnvHashMap<ProjectName, GraphQLSources>,
     pub schemas: FnvHashMap<ProjectName, SchemaSources>,
     pub extensions: FnvHashMap<ProjectName, SchemaSources>,
+    pub docblocks: FnvHashMap<ProjectName, DocblockSources>,
     pub artifacts: FnvHashMap<ProjectName, Arc<ArtifactMapKind>>,
     // TODO: How can I can I make this just an ImplicitDependencyMap? Currently I can't move the hashmap out of the Arc wrapper around the dirty version.
     pub implicit_dependencies: Arc<RwLock<DependencyMap>>,
@@ -267,6 +277,7 @@ impl CompilerState {
             artifacts: Default::default(),
             implicit_dependencies: Default::default(),
             extensions: Default::default(),
+            docblocks: Default::default(),
             schemas: Default::default(),
             clock: file_source_changes.clock(),
             saved_state_version: config.saved_state_version.clone(),
@@ -280,30 +291,17 @@ impl CompilerState {
         for (category, files) in categorized {
             match category {
                 FileGroup::Source { project_set } => {
-                    let log_event = perf_logger.create_event("categorize");
-                    log_event.string("source_set_name", project_set.to_string());
-                    let extract_timer = log_event.start("extract_graphql_strings_from_file_time");
-                    let sources: GraphQLSourceSet = files
-                        .par_iter()
-                        .filter(|file| file.exists)
-                        .filter_map(|file| {
-                            match extract_javascript_features_from_file(file_source_changes, file) {
-                                Ok(source_features)
-                                    if source_features.graphql_sources.is_empty() =>
-                                {
-                                    None
-                                }
-                                Ok(source_features) => {
-                                    Some(Ok((file.name.clone(), source_features.graphql_sources)))
-                                }
-                                Err(err) => Some(Err(err)),
-                            }
-                        })
-                        .collect::<Result<_>>()?;
-                    log_event.stop(extract_timer);
-                    log_event.complete();
+                    let (graphql_sources, docblock_sources) = extract_sources(
+                        &project_set,
+                        files,
+                        file_source_changes,
+                        false,
+                        perf_logger,
+                    )?;
+
                     for project_name in project_set {
-                        result.set_pending_source_set(project_name, sources.clone());
+                        result.set_pending_source_set(project_name, graphql_sources.clone());
+                        result.set_pending_docblock_set(project_name, docblock_sources.clone());
                     }
                 }
                 FileGroup::Schema { project_set } => {
@@ -353,6 +351,10 @@ impl CompilerState {
                 .extensions
                 .get(&project_name)
                 .map_or(false, |sources| !sources.pending.is_empty())
+            || self
+                .docblocks
+                .get(&project_name)
+                .map_or(false, |sources| !sources.pending.is_empty())
     }
 
     pub fn has_processed_changes(&self) -> bool {
@@ -365,6 +367,10 @@ impl CompilerState {
                 .any(|sources| !sources.processed.is_empty())
             || self
                 .extensions
+                .values()
+                .any(|sources| !sources.processed.is_empty())
+            || self
+                .docblocks
                 .values()
                 .any(|sources| !sources.processed.is_empty())
     }
@@ -399,9 +405,13 @@ impl CompilerState {
 
     /// This method will detect any schema changes in the pending sources (for LSP Server, to invalidate schema cache)
     pub fn has_schema_changes(&self) -> bool {
-        self.extensions
+        self.docblocks
             .values()
             .any(|sources| !sources.pending.is_empty())
+            || self
+                .extensions
+                .values()
+                .any(|sources| !sources.pending.is_empty())
             || self
                 .schemas
                 .iter()
@@ -416,6 +426,11 @@ impl CompilerState {
     ) -> bool {
         if let Some(extension) = self.extensions.get(&project_name) {
             if !extension.pending.is_empty() {
+                return true;
+            }
+        }
+        if let Some(docblocks) = self.docblocks.get(&project_name) {
+            if !docblocks.pending.is_empty() {
                 return true;
             }
         }
@@ -451,32 +466,23 @@ impl CompilerState {
                         // extracted sources actually differ.
                         has_changed = true;
 
-                        let log_event = perf_logger.create_event("categorize");
-                        log_event.string("source_set_name", project_set.to_string());
-                        let extract_timer =
-                            log_event.start("extract_graphql_strings_from_file_time");
-                        let sources: GraphQLSourceSet = files
-                            .par_iter()
-                            .map(|file| {
-                                let javascript_features = if file.exists {
-                                    extract_javascript_features_from_file(
-                                        &file_source_changes,
-                                        file,
-                                    )?
-                                    .graphql_sources
-                                } else {
-                                    Vec::new()
-                                };
-                                Ok((file.name.clone(), javascript_features))
-                            })
-                            .collect::<Result<_>>()?;
-                        log_event.stop(extract_timer);
+                        let (graphql_sources, docblock_sources) = extract_sources(
+                            &project_set,
+                            files,
+                            &file_source_changes,
+                            true,
+                            perf_logger,
+                        )?;
 
                         for project_name in project_set {
                             self.graphql_sources
                                 .entry(project_name)
                                 .or_default()
-                                .merge_pending_sources(sources.clone());
+                                .merge_pending_sources(graphql_sources.clone());
+                            self.docblocks
+                                .entry(project_name)
+                                .or_default()
+                                .merge_pending_sources(docblock_sources.clone());
                         }
                     }
                     FileGroup::Schema { project_set } => {
@@ -523,6 +529,9 @@ impl CompilerState {
         for sources in self.extensions.values_mut() {
             sources.commit_pending_sources();
         }
+        for sources in self.docblocks.values_mut() {
+            sources.commit_pending_sources();
+        }
         self.implicit_dependencies = mem::take(&mut self.pending_implicit_dependencies);
         self.dirty_artifact_paths.clear();
     }
@@ -535,6 +544,9 @@ impl CompilerState {
             sources.commit_pending_sources();
         }
         if let Some(sources) = self.extensions.get_mut(project_name) {
+            sources.commit_pending_sources();
+        }
+        if let Some(sources) = self.docblocks.get_mut(project_name) {
             sources.commit_pending_sources();
         }
     }
@@ -645,6 +657,19 @@ impl CompilerState {
         }
     }
 
+    fn set_pending_docblock_set(
+        &mut self,
+        project_name: ProjectName,
+        source_set: DocblockSourceSet,
+    ) {
+        let pending_entry = &mut self.docblocks.entry(project_name).or_default().pending;
+        if pending_entry.is_empty() {
+            *pending_entry = source_set;
+        } else {
+            pending_entry.extend(source_set);
+        }
+    }
+
     fn process_schema_change(
         file_source_changes: &FileSourceResult,
         files: Vec<File>,
@@ -678,6 +703,47 @@ impl CompilerState {
     pub fn should_cancel_current_build(&self) -> bool {
         self.is_source_control_update_in_progress() || self.has_pending_file_source_changes()
     }
+}
+
+fn extract_sources(
+    project_set: &ProjectSet,
+    files: Vec<File>,
+    file_source_changes: &FileSourceResult,
+    preserve_empty: bool,
+    perf_logger: &impl PerfLogger,
+) -> Result<(GraphQLSourceSet, DocblockSourceSet)> {
+    let log_event = perf_logger.create_event("categorize");
+    log_event.string("source_set_name", project_set.to_string());
+    let extract_timer = log_event.start("extract_graphql_strings_from_file_time");
+
+    let source_features = files
+        .par_iter()
+        .map(|file| {
+            if file.exists {
+                match extract_javascript_features_from_file(file_source_changes, file) {
+                    Ok(features) => Ok((file, features)),
+                    Err(err) => Err(err),
+                }
+            } else {
+                Ok((file, LocatedJavascriptSourceFeatures::default()))
+            }
+        })
+        .collect::<Result<Vec<_>>>()?;
+
+    log_event.stop(extract_timer);
+
+    let mut graphql_sources: GraphQLSourceSet = FnvHashMap::default();
+    let mut docblock_sources: DocblockSourceSet = FnvHashMap::default();
+    for (file, features) in source_features {
+        if preserve_empty || !features.graphql_sources.is_empty() {
+            graphql_sources.insert(file.name.clone(), features.graphql_sources);
+        }
+        if preserve_empty || !features.docblock_sources.is_empty() {
+            docblock_sources.insert(file.name.clone(), features.docblock_sources);
+        }
+    }
+
+    Ok((graphql_sources, docblock_sources))
 }
 
 /// A module to serialize a watchman Clock value via JSON.

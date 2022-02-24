@@ -27,7 +27,6 @@ intern = { path = "../intern" }
 lazy_static = "1.0"
 once_cell = "1.8"
 schema = { path = "../schema" }
-strsim = "0.10.0"
 thiserror = "1.0.29"
 
 [dev-dependencies]

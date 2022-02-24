@@ -11,7 +11,6 @@ use crate::build::{
 use crate::constants::ARGUMENT_DEFINITION;
 use crate::errors::{ValidationMessage, ValidationMessageWithData};
 use crate::ir::{ConstantValue, VariableDefinition};
-use crate::GraphQLSuggestions;
 use crate::{associated_data_impl, build_directive};
 use common::{
     Diagnostic, DiagnosticsResult, FeatureFlag, Location, SourceLocationKey, WithLocation,
@@ -19,6 +18,7 @@ use common::{
 use errors::{par_try_map, try2};
 use intern::string_key::{Intern, StringKey, StringKeyMap};
 use lazy_static::lazy_static;
+use schema::suggestion_list::GraphQLSuggestions;
 use schema::{SDLSchema, Schema, Type, TypeReference};
 use std::collections::HashMap;
 

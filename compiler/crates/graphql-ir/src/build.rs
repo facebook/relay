@@ -5,12 +5,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use crate::constants::ARGUMENT_DEFINITION;
 use crate::errors::{ValidationMessage, ValidationMessageWithData};
 use crate::ir::*;
 use crate::signatures::{
     build_signatures, FragmentSignature, FragmentSignatures, ProvidedVariableMetadata,
 };
-use crate::{constants::ARGUMENT_DEFINITION, GraphQLSuggestions};
 use common::{
     Diagnostic, DiagnosticsResult, FeatureFlag, FeatureFlags, Location, NamedItem, Span,
     WithLocation,
@@ -20,6 +20,7 @@ use errors::{par_try_map, try2, try3, try_map};
 use graphql_syntax::{DirectiveLocation, Identifier, List, OperationKind, Token, TokenKind};
 use intern::string_key::{Intern, StringKey, StringKeyIndexMap, StringKeyMap, StringKeySet};
 use lazy_static::lazy_static;
+use schema::suggestion_list::GraphQLSuggestions;
 use schema::{
     ArgumentDefinitions, Enum, FieldID, InputObject, SDLSchema, Scalar, Schema, Type, TypeReference,
 };

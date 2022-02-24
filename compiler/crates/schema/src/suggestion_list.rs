@@ -5,8 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use crate::{SDLSchema, Schema, Type};
 use intern::string_key::StringKey;
-use schema::{SDLSchema, Schema, Type};
 use strsim::damerau_levenshtein;
 
 /// Computes the lexical distance between strings A and B.

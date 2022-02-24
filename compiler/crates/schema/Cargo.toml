@@ -20,6 +20,7 @@ intern = { path = "../intern" }
 lazy_static = "1.0"
 ouroboros = "0.8"
 schema-flatbuffer = { path = "../schema-flatbuffer" }
+strsim = "0.10.0"
 thiserror = "1.0.29"
 
 [dev-dependencies]

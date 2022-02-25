@@ -469,7 +469,7 @@ fn apply_operation_text_transforms(
     program = log_event.time("skip_split_operation", || skip_split_operation(&program));
     program = log_event.time("skip_client_extensions", || {
         skip_client_extensions(&program)
-    });
+    })?;
     program = log_event.time("skip_unreachable_node", || skip_unreachable_node(&program))?;
     program = log_event.time("generate_typename", || generate_typename(&program, false));
     program = log_event.time("skip_null_arguments_transform", || {

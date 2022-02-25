@@ -1,0 +1,48 @@
+==================================== INPUT ====================================
+# expected-to-throw
+
+query FooQuery($id: ID!, $arg: String) {
+  client_root_field
+
+  node(id: $id) {
+    id
+  }
+}
+
+mutation FooMutation {
+  client_root_field
+}
+
+subscription FooSubscription {
+  client_root_field
+}
+
+# %extensions%
+extend type Query {
+  client_root_field: String
+}
+
+extend type Mutation {
+  client_root_field: String
+}
+
+extend type Subscription {
+  client_root_field: String
+}
+==================================== ERROR ====================================
+✖︎ After transforms, the operation `FooMutation` that would be sent to the server is empty. Relay is not setup to handle such queries. This is likely due to only querying for client extension fields or `@skip`/`@include` directives with constant values that remove all selections.
+
+  client-fields-on-roots.invalid.graphql:11:10
+   10 │ 
+   11 │ mutation FooMutation {
+      │          ^^^^^^^^^^^
+   12 │   client_root_field
+
+
+✖︎ After transforms, the operation `FooSubscription` that would be sent to the server is empty. Relay is not setup to handle such queries. This is likely due to only querying for client extension fields or `@skip`/`@include` directives with constant values that remove all selections.
+
+  client-fields-on-roots.invalid.graphql:15:14
+   14 │ 
+   15 │ subscription FooSubscription {
+      │              ^^^^^^^^^^^^^^^
+   16 │   client_root_field

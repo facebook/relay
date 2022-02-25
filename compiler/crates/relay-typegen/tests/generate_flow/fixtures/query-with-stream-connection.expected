@@ -20,7 +20,6 @@ query TestDefer @raw_response_type {
 export type TestDefer$variables = {||};
 export type TestDefer$data = {|
   +node: ?{|
-    +name?: ?string,
     +friends?: ?{|
       +edges: ?$ReadOnlyArray<?{|
         +node: ?{|
@@ -30,38 +29,39 @@ export type TestDefer$data = {|
         |},
       |}>,
     |},
+    +name?: ?string,
   |},
 |};
 export type TestDefer$rawResponse = {|
   +node: ?({|
     +__typename: "User",
-    +id: string,
-    +name: ?string,
     +friends: ?{|
       +edges: ?$ReadOnlyArray<?{|
+        +cursor: ?string,
         +node: ?{|
+          +__typename: "User",
           +actor: ?{|
             +__typename: string,
-            +name: ?string,
             +id: string,
+            +name: ?string,
           |},
           +id: string,
-          +__typename: "User",
         |},
-        +cursor: ?string,
       |}>,
       +pageInfo: ?{|
         +endCursor: ?string,
         +hasNextPage: ?CustomBoolean,
       |},
     |},
+    +id: string,
+    +name: ?string,
   |} | {|
     +__typename: string,
     +id: string,
   |}),
 |};
 export type TestDefer = {|
-  variables: TestDefer$variables,
-  response: TestDefer$data,
   rawResponse: TestDefer$rawResponse,
+  response: TestDefer$data,
+  variables: TestDefer$variables,
 |};

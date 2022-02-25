@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<4716bc4f4026e03999605861796f9815>>
+ * @generated SignedSource<<2685f46f9a59a59e5466379cdfc016c0>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -34,15 +34,15 @@ export type validateMutationTestIsNodeInlineFragmentMutation$rawResponse = {|
   +feedbackLike: ?{|
     +feedback: ?{|
       +__isNode: "Feedback",
-      +name: ?string,
       +id: string,
+      +name: ?string,
     |},
   |},
 |};
 export type validateMutationTestIsNodeInlineFragmentMutation = {|
-  variables: validateMutationTestIsNodeInlineFragmentMutation$variables,
-  response: validateMutationTestIsNodeInlineFragmentMutation$data,
   rawResponse: validateMutationTestIsNodeInlineFragmentMutation$rawResponse,
+  response: validateMutationTestIsNodeInlineFragmentMutation$data,
+  variables: validateMutationTestIsNodeInlineFragmentMutation$variables,
 |};
 */
 

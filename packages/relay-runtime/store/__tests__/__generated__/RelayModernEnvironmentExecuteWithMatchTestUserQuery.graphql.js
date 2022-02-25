@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<9541dffa643ca1db06a887e7b58c1a70>>
+ * @generated SignedSource<<05b3c1ff43e0bb288b9485bcbbb92d2c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -26,14 +26,14 @@ export type RelayModernEnvironmentExecuteWithMatchTestUserQuery$variables = {|
 export type RelayModernEnvironmentExecuteWithMatchTestUserQuery$data = {|
   +node: ?{|
     +nameRenderer?: ?({|
-      +__typename: "PlainUserNameRenderer",
       +__fragmentPropName: ?string,
       +__module_component: ?string,
+      +__typename: "PlainUserNameRenderer",
       +$fragmentSpreads: RelayModernEnvironmentExecuteWithMatchTestPlainUserNameRenderer_name$fragmentType,
     |} | {|
-      +__typename: "MarkdownUserNameRenderer",
       +__fragmentPropName: ?string,
       +__module_component: ?string,
+      +__typename: "MarkdownUserNameRenderer",
       +$fragmentSpreads: RelayModernEnvironmentExecuteWithMatchTestMarkdownUserNameRenderer_name$fragmentType,
     |} | {|
       // This will never be '%other', but we need some
@@ -43,8 +43,8 @@ export type RelayModernEnvironmentExecuteWithMatchTestUserQuery$data = {|
   |},
 |};
 export type RelayModernEnvironmentExecuteWithMatchTestUserQuery = {|
-  variables: RelayModernEnvironmentExecuteWithMatchTestUserQuery$variables,
   response: RelayModernEnvironmentExecuteWithMatchTestUserQuery$data,
+  variables: RelayModernEnvironmentExecuteWithMatchTestUserQuery$variables,
 |};
 */
 

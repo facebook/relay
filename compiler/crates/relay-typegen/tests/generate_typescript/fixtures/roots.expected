@@ -29,58 +29,58 @@ export type ExampleQuery$variables = {
   id: string;
 };
 export type ExampleQuery$data = {
-  readonly node: {
+  readonly node: ({
     readonly id: string;
-  } | null;
+  } | null);
 };
 export type ExampleQuery = {
-  variables: ExampleQuery$variables;
   response: ExampleQuery$data;
+  variables: ExampleQuery$variables;
 };
 -------------------------------------------------------------------------------
 export type CommentCreateInput = {
-  clientMutationId?: string | null;
-  feedbackId?: string | null;
-  feedback?: CommentfeedbackFeedback | null;
+  clientMutationId?: (string | null);
+  feedback?: (CommentfeedbackFeedback | null);
+  feedbackId?: (string | null);
 };
 export type CommentfeedbackFeedback = {
-  comment?: FeedbackcommentComment | null;
+  comment?: (FeedbackcommentComment | null);
 };
 export type FeedbackcommentComment = {
-  feedback?: CommentfeedbackFeedback | null;
+  feedback?: (CommentfeedbackFeedback | null);
 };
 export type TestMutation$variables = {
   input: CommentCreateInput;
 };
 export type TestMutation$data = {
-  readonly commentCreate: {
-    readonly comment: {
+  readonly commentCreate: ({
+    readonly comment: ({
       readonly id: string;
-    } | null;
-  } | null;
+    } | null);
+  } | null);
 };
 export type TestMutation = {
-  variables: TestMutation$variables;
   response: TestMutation$data;
+  variables: TestMutation$variables;
 };
 -------------------------------------------------------------------------------
 export type FeedbackLikeInput = {
-  clientMutationId?: string | null;
-  feedbackId?: string | null;
+  clientMutationId?: (string | null);
+  feedbackId?: (string | null);
 };
 export type TestSubscription$variables = {
-  input?: FeedbackLikeInput | null;
+  input?: (FeedbackLikeInput | null);
 };
 export type TestSubscription$data = {
-  readonly feedbackLikeSubscribe: {
-    readonly feedback: {
+  readonly feedbackLikeSubscribe: ({
+    readonly feedback: ({
       readonly id: string;
-    } | null;
-  } | null;
+    } | null);
+  } | null);
 };
 export type TestSubscription = {
-  variables: TestSubscription$variables;
   response: TestSubscription$data;
+  variables: TestSubscription$variables;
 };
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";

@@ -12,19 +12,19 @@ export type FlowRefetchableFragmentQuery$variables = {
   id: string;
 };
 export type FlowRefetchableFragmentQuery$data = {
-  readonly node: {
+  readonly node: ({
     readonly " $fragmentSpreads": FragmentRefs<"FlowRefetchableFragment">;
-  } | null;
+  } | null);
 };
 export type FlowRefetchableFragmentQuery = {
-  variables: FlowRefetchableFragmentQuery$variables;
   response: FlowRefetchableFragmentQuery$data;
+  variables: FlowRefetchableFragmentQuery$variables;
 };
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
 export type FlowRefetchableFragment$data = {
   readonly id: string;
-  readonly name?: string | null;
+  readonly name?: (string | null);
   readonly " $fragmentType": "FlowRefetchableFragment";
 };
 export type FlowRefetchableFragment$key = {

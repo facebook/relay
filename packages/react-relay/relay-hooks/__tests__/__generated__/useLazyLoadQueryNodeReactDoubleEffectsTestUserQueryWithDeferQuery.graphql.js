@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<04f909138d4363c5043ce6594da8cc09>>
+ * @generated SignedSource<<2d77db37d76457913cd1ae745316a198>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -28,8 +28,8 @@ export type useLazyLoadQueryNodeReactDoubleEffectsTestUserQueryWithDeferQuery$da
   |},
 |};
 export type useLazyLoadQueryNodeReactDoubleEffectsTestUserQueryWithDeferQuery = {|
-  variables: useLazyLoadQueryNodeReactDoubleEffectsTestUserQueryWithDeferQuery$variables,
   response: useLazyLoadQueryNodeReactDoubleEffectsTestUserQueryWithDeferQuery$data,
+  variables: useLazyLoadQueryNodeReactDoubleEffectsTestUserQueryWithDeferQuery$variables,
 |};
 */
 

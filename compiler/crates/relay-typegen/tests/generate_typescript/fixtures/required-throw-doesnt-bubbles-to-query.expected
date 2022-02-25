@@ -9,11 +9,11 @@ query FooQuery {
 export type FooQuery$variables = {};
 export type FooQuery$data = {
   readonly me: {
-    readonly firstName: string | null;
-    readonly lastName: string | null;
+    readonly firstName: (string | null);
+    readonly lastName: (string | null);
   };
 };
 export type FooQuery = {
-  variables: FooQuery$variables;
   response: FooQuery$data;
+  variables: FooQuery$variables;
 };

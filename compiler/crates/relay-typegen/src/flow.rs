@@ -17,6 +17,7 @@ pub struct FlowPrinter {
     result: String,
     indentation: usize,
     flow_typegen_phase: FlowTypegenPhase,
+    should_wrap_unions_in_parentheses: bool,
 }
 
 impl Write for FlowPrinter {
@@ -42,6 +43,7 @@ impl Writer for FlowPrinter {
             AST::Identifier(identifier) => write!(&mut self.result, "{}", identifier),
             AST::RawType(raw) => write!(&mut self.result, "{}", raw),
             AST::Union(members) => self.write_union(members),
+            AST::Intersection(members) => self.write_intersection(members),
             AST::ReadOnlyArray(of_type) => self.write_read_only_array(of_type),
             AST::Nullable(of_type) => self.write_nullable(of_type),
             AST::NonNullable(of_type) => self.write_non_nullable(of_type),
@@ -131,11 +133,15 @@ export type {old_name} = {new_name};",
 }
 
 impl FlowPrinter {
-    pub fn new(flow_typegen_phase: FlowTypegenPhase) -> Self {
+    pub fn new(
+        flow_typegen_phase: FlowTypegenPhase,
+        should_wrap_unions_in_parentheses: bool,
+    ) -> Self {
         Self {
             result: String::new(),
             indentation: 0,
             flow_typegen_phase,
+            should_wrap_unions_in_parentheses,
         }
     }
 
@@ -152,6 +158,9 @@ impl FlowPrinter {
     }
 
     fn write_union(&mut self, members: &[AST]) -> FmtResult {
+        if members.len() > 1 && self.should_wrap_unions_in_parentheses {
+            write!(&mut self.result, "(")?;
+        }
         let mut first = true;
         for member in members {
             if first {
@@ -160,6 +169,28 @@ impl FlowPrinter {
                 write!(&mut self.result, " | ")?;
             }
             self.write(member)?;
+        }
+        if members.len() > 1 && self.should_wrap_unions_in_parentheses {
+            write!(&mut self.result, ")")?;
+        }
+        Ok(())
+    }
+
+    fn write_intersection(&mut self, members: &[AST]) -> FmtResult {
+        if members.len() > 1 {
+            write!(&mut self.result, "(")?;
+        }
+        let mut first = true;
+        for member in members {
+            if first {
+                first = false;
+            } else {
+                write!(&mut self.result, " & ")?;
+            }
+            self.write(member)?;
+        }
+        if members.len() > 1 {
+            write!(&mut self.result, ")")?;
         }
         Ok(())
     }
@@ -191,17 +222,7 @@ impl FlowPrinter {
 
     fn write_nullable(&mut self, of_type: &AST) -> FmtResult {
         write!(&mut self.result, "?")?;
-        match of_type {
-            AST::Union(members) if members.len() > 1 => {
-                write!(&mut self.result, "(")?;
-                self.write(of_type)?;
-                write!(&mut self.result, ")")?;
-            }
-            _ => {
-                self.write(of_type)?;
-            }
-        }
-        Ok(())
+        self.write(of_type)
     }
 
     fn write_object(&mut self, props: &[Prop], exact: bool) -> FmtResult {
@@ -312,13 +333,13 @@ impl FlowPrinter {
 
 #[cfg(test)]
 mod tests {
-    use crate::writer::KeyValuePairProp;
+    use crate::writer::{ExactObject, InexactObject, KeyValuePairProp};
 
     use super::*;
     use intern::string_key::Intern;
 
     fn print_type(ast: &AST) -> String {
-        let mut printer = Box::new(FlowPrinter::new(FlowTypegenPhase::Final));
+        let mut printer = Box::new(FlowPrinter::new(FlowTypegenPhase::Final, true));
         printer.write(ast).unwrap();
         printer.into_string()
     }
@@ -334,7 +355,7 @@ mod tests {
     fn union_type() {
         assert_eq!(
             print_type(&AST::Union(vec![AST::String, AST::Number])),
-            "string | number".to_string()
+            "(string | number)".to_string()
         );
     }
 
@@ -365,42 +386,46 @@ mod tests {
     #[test]
     fn exact_object() {
         assert_eq!(
-            print_type(&AST::ExactObject(Vec::new())),
+            print_type(&AST::ExactObject(ExactObject::new(Vec::new(), true))),
             r"{||}".to_string()
         );
 
         assert_eq!(
-            print_type(&AST::ExactObject(vec![Prop::KeyValuePair(
-                KeyValuePairProp {
+            print_type(&AST::ExactObject(ExactObject::new(
+                vec![Prop::KeyValuePair(KeyValuePairProp {
                     key: "single".intern(),
                     optional: false,
                     read_only: false,
                     value: AST::String,
-                }
-            ),])),
+                }),],
+                true
+            ))),
             r"{|
   single: string,
 |}"
             .to_string()
         );
         assert_eq!(
-            print_type(&AST::ExactObject(vec![
-                Prop::KeyValuePair(KeyValuePairProp {
-                    key: "foo".intern(),
-                    optional: true,
-                    read_only: false,
-                    value: AST::String,
-                }),
-                Prop::KeyValuePair(KeyValuePairProp {
-                    key: "bar".intern(),
-                    optional: false,
-                    read_only: true,
-                    value: AST::Number,
-                }),
-            ])),
+            print_type(&AST::ExactObject(ExactObject::new(
+                vec![
+                    Prop::KeyValuePair(KeyValuePairProp {
+                        key: "foo".intern(),
+                        optional: true,
+                        read_only: false,
+                        value: AST::String,
+                    }),
+                    Prop::KeyValuePair(KeyValuePairProp {
+                        key: "bar".intern(),
+                        optional: false,
+                        read_only: true,
+                        value: AST::Number,
+                    }),
+                ],
+                true
+            ))),
             r"{|
-  foo?: string,
   +bar: number,
+  foo?: string,
 |}"
             .to_string()
         );
@@ -409,39 +434,45 @@ mod tests {
     #[test]
     fn nested_object() {
         assert_eq!(
-            print_type(&AST::ExactObject(vec![
-                Prop::KeyValuePair(KeyValuePairProp {
-                    key: "foo".intern(),
-                    optional: true,
-                    read_only: false,
-                    value: AST::ExactObject(vec![
-                        Prop::KeyValuePair(KeyValuePairProp {
-                            key: "nested_foo".intern(),
-                            optional: true,
-                            read_only: false,
-                            value: AST::String,
-                        }),
-                        Prop::KeyValuePair(KeyValuePairProp {
-                            key: "nested_foo2".intern(),
-                            optional: false,
-                            read_only: true,
-                            value: AST::Number,
-                        }),
-                    ]),
-                }),
-                Prop::KeyValuePair(KeyValuePairProp {
-                    key: "bar".intern(),
-                    optional: false,
-                    read_only: true,
-                    value: AST::Number,
-                }),
-            ])),
+            print_type(&AST::ExactObject(ExactObject::new(
+                vec![
+                    Prop::KeyValuePair(KeyValuePairProp {
+                        key: "foo".intern(),
+                        optional: true,
+                        read_only: false,
+                        value: AST::ExactObject(ExactObject::new(
+                            vec![
+                                Prop::KeyValuePair(KeyValuePairProp {
+                                    key: "nested_foo".intern(),
+                                    optional: true,
+                                    read_only: false,
+                                    value: AST::String,
+                                }),
+                                Prop::KeyValuePair(KeyValuePairProp {
+                                    key: "nested_foo2".intern(),
+                                    optional: false,
+                                    read_only: true,
+                                    value: AST::Number,
+                                }),
+                            ],
+                            true
+                        )),
+                    }),
+                    Prop::KeyValuePair(KeyValuePairProp {
+                        key: "bar".intern(),
+                        optional: false,
+                        read_only: true,
+                        value: AST::Number,
+                    }),
+                ],
+                true
+            ))),
             r"{|
+  +bar: number,
   foo?: {|
     nested_foo?: string,
     +nested_foo2: number,
   |},
-  +bar: number,
 |}"
             .to_string()
         );
@@ -450,7 +481,7 @@ mod tests {
     #[test]
     fn inexact_object() {
         assert_eq!(
-            print_type(&AST::InexactObject(Vec::new())),
+            print_type(&AST::InexactObject(InexactObject::new(Vec::new(), true))),
             r"{
   ...
 }"
@@ -458,14 +489,15 @@ mod tests {
         );
 
         assert_eq!(
-            print_type(&AST::InexactObject(vec![Prop::KeyValuePair(
-                KeyValuePairProp {
+            print_type(&AST::InexactObject(InexactObject::new(
+                vec![Prop::KeyValuePair(KeyValuePairProp {
                     key: "single".intern(),
                     optional: false,
                     read_only: false,
                     value: AST::String,
-                }
-            ),])),
+                }),],
+                true
+            ))),
             r"{
   single: string,
   ...
@@ -474,23 +506,26 @@ mod tests {
         );
 
         assert_eq!(
-            print_type(&AST::InexactObject(vec![
-                Prop::KeyValuePair(KeyValuePairProp {
-                    key: "foo".intern(),
-                    optional: false,
-                    read_only: false,
-                    value: AST::String,
-                }),
-                Prop::KeyValuePair(KeyValuePairProp {
-                    key: "bar".intern(),
-                    optional: true,
-                    read_only: true,
-                    value: AST::Number,
-                })
-            ])),
+            print_type(&AST::InexactObject(InexactObject::new(
+                vec![
+                    Prop::KeyValuePair(KeyValuePairProp {
+                        key: "foo".intern(),
+                        optional: false,
+                        read_only: false,
+                        value: AST::String,
+                    }),
+                    Prop::KeyValuePair(KeyValuePairProp {
+                        key: "bar".intern(),
+                        optional: true,
+                        read_only: true,
+                        value: AST::Number,
+                    })
+                ],
+                true
+            ))),
             r"{
-  foo: string,
   +bar?: number,
+  foo: string,
   ...
 }"
             .to_string()
@@ -500,14 +535,15 @@ mod tests {
     #[test]
     fn other_comment() {
         assert_eq!(
-            print_type(&AST::ExactObject(vec![Prop::KeyValuePair(
-                KeyValuePairProp {
+            print_type(&AST::ExactObject(ExactObject::new(
+                vec![Prop::KeyValuePair(KeyValuePairProp {
                     key: "with_comment".intern(),
                     optional: false,
                     read_only: false,
                     value: AST::OtherTypename,
-                }
-            ),])),
+                }),],
+                true
+            ))),
             r#"{|
   // This will never be '%other', but we need some
   // value in case none of the concrete values match.
@@ -519,7 +555,7 @@ mod tests {
 
     #[test]
     fn import_type() {
-        let mut printer = Box::new(FlowPrinter::new(FlowTypegenPhase::Final));
+        let mut printer = Box::new(FlowPrinter::new(FlowTypegenPhase::Final, true));
         printer.write_import_type(&["A", "B"], "module").unwrap();
         assert_eq!(
             printer.into_string(),
@@ -529,7 +565,7 @@ mod tests {
 
     #[test]
     fn import_module() {
-        let mut printer = Box::new(FlowPrinter::new(FlowTypegenPhase::Final));
+        let mut printer = Box::new(FlowPrinter::new(FlowTypegenPhase::Final, true));
         printer.write_import_module_default("A", "module").unwrap();
         assert_eq!(printer.into_string(), "import A from \"module\";\n");
     }

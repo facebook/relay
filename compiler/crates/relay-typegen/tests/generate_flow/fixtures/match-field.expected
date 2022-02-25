@@ -25,10 +25,10 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 import type { FragmentType } from "relay-runtime";
 declare export opaque type MarkdownUserNameRenderer_name$fragmentType: FragmentType;
 export type MarkdownUserNameRenderer_name$data = {|
-  +markdown: ?string,
   +data: ?{|
     +markup: ?string,
   |},
+  +markdown: ?string,
   +$fragmentType: MarkdownUserNameRenderer_name$fragmentType,
 |};
 export type MarkdownUserNameRenderer_name$key = {
@@ -59,10 +59,10 @@ export type NameRendererFragment$key = {
 import type { FragmentType } from "relay-runtime";
 declare export opaque type PlainUserNameRenderer_name$fragmentType: FragmentType;
 export type PlainUserNameRenderer_name$data = {|
-  +plaintext: ?string,
   +data: ?{|
     +text: ?string,
   |},
+  +plaintext: ?string,
   +$fragmentType: PlainUserNameRenderer_name$fragmentType,
 |};
 export type PlainUserNameRenderer_name$key = {

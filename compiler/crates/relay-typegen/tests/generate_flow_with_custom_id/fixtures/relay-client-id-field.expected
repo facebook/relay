@@ -40,7 +40,6 @@ export type RelayClientIDFieldQuery$data = {|
   +node: ?{|
     +__id: string,
     +__typename: string,
-    +global_id: string,
     +commentBody?: ?{|
       +__id: string,
       +__typename: string,
@@ -50,9 +49,10 @@ export type RelayClientIDFieldQuery$data = {|
         +text: ?string,
       |},
     |},
+    +global_id: string,
   |},
 |};
 export type RelayClientIDFieldQuery = {|
-  variables: RelayClientIDFieldQuery$variables,
   response: RelayClientIDFieldQuery$data,
+  variables: RelayClientIDFieldQuery$variables,
 |};

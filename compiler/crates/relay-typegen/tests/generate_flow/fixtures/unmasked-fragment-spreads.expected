@@ -29,8 +29,8 @@ fragment AnotherRecursiveFragment on Image {
 import type { FragmentType } from "relay-runtime";
 declare export opaque type AnotherRecursiveFragment$fragmentType: FragmentType;
 export type AnotherRecursiveFragment$data = {|
-  +uri: ?string,
   +height: ?number,
+  +uri: ?string,
   +$fragmentType: AnotherRecursiveFragment$fragmentType,
 |};
 export type AnotherRecursiveFragment$key = {
@@ -70,9 +70,9 @@ import type { FragmentType } from "relay-runtime";
 declare export opaque type UserProfile$fragmentType: FragmentType;
 export type UserProfile$data = {|
   +profilePicture: ?{|
+    +height: ?number,
     +uri: ?string,
     +width: ?number,
-    +height: ?number,
     +$fragmentSpreads: PhotoFragment$fragmentType,
   |},
   +$fragmentType: UserProfile$fragmentType,

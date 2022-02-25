@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<e4379dc36514bb61037706422fe27266>>
+ * @generated SignedSource<<ef77647b924a0dc0798836e2dac17bab>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,31 +19,31 @@
 /*::
 import type { ConcreteRequest, Mutation } from 'relay-runtime';
 export type StoryUpdateInput = {|
-  clientMutationId?: ?string,
   body?: ?InputText,
+  clientMutationId?: ?string,
 |};
 export type InputText = {|
-  text?: ?string,
   ranges?: ?$ReadOnlyArray<?string>,
+  text?: ?string,
 |};
 export type validateMutationTestFlightMutation$variables = {|
-  input: StoryUpdateInput,
   count: number,
+  input: StoryUpdateInput,
 |};
 export type validateMutationTestFlightMutation$data = {|
   +storyUpdate: ?{|
     +story: ?{|
-      +id: string,
       +body: ?{|
         +text: ?string,
       |},
       +flightComponentValidateMutation: ?any,
+      +id: string,
     |},
   |},
 |};
 export type validateMutationTestFlightMutation = {|
-  variables: validateMutationTestFlightMutation$variables,
   response: validateMutationTestFlightMutation$data,
+  variables: validateMutationTestFlightMutation$variables,
 |};
 */
 

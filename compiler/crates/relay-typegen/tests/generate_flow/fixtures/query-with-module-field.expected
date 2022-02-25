@@ -34,8 +34,8 @@ export type Test$rawResponse = {|
     +__typename: "User",
     +id: string,
     +plainUserRenderer: ?({|
-      +__module_operation_Test_user: ?any,
       +__module_component_Test_user: ?any,
+      +__module_operation_Test_user: ?any,
       ...Test_userRenderer,
     |} | Local3DPayload<"Test_user", {|
       ...Test_userRenderer,
@@ -46,9 +46,9 @@ export type Test$rawResponse = {|
   |}),
 |};
 export type Test = {|
-  variables: Test$variables,
-  response: Test$data,
   rawResponse: Test$rawResponse,
+  response: Test$data,
+  variables: Test$variables,
 |};
 -------------------------------------------------------------------------------
 import type { Test_userRenderer$fragmentType } from "Test_userRenderer.graphql";

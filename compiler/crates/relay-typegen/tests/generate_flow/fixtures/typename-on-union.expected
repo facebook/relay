@@ -82,7 +82,7 @@ fragment TypenameAliases on Actor {
 ==================================== OUTPUT ===================================
 import type { FragmentType } from "relay-runtime";
 declare export opaque type TypenameAlias$fragmentType: FragmentType;
-export type TypenameAlias$data = {|
+export type TypenameAlias$data = ({|
   +_typeAlias: "User",
   +firstName: ?string,
   +$fragmentType: TypenameAlias$fragmentType,
@@ -95,7 +95,7 @@ export type TypenameAlias$data = {|
   // value in case none of the concrete values match.
   +_typeAlias: "%other",
   +$fragmentType: TypenameAlias$fragmentType,
-|};
+|});
 export type TypenameAlias$key = {
   +$data?: TypenameAlias$data,
   +$fragmentSpreads: TypenameAlias$fragmentType,
@@ -104,7 +104,7 @@ export type TypenameAlias$key = {
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";
 declare export opaque type TypenameAliases$fragmentType: FragmentType;
-export type TypenameAliases$data = {|
+export type TypenameAliases$data = ({|
   +_typeAlias1: "User",
   +_typeAlias2: "User",
   +firstName: ?string,
@@ -122,7 +122,7 @@ export type TypenameAliases$data = {|
   // value in case none of the concrete values match.
   +_typeAlias2: "%other",
   +$fragmentType: TypenameAliases$fragmentType,
-|};
+|});
 export type TypenameAliases$key = {
   +$data?: TypenameAliases$data,
   +$fragmentSpreads: TypenameAliases$fragmentType,
@@ -131,7 +131,7 @@ export type TypenameAliases$key = {
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";
 declare export opaque type TypenameInside$fragmentType: FragmentType;
-export type TypenameInside$data = {|
+export type TypenameInside$data = ({|
   +__typename: "User",
   +firstName: ?string,
   +$fragmentType: TypenameInside$fragmentType,
@@ -144,7 +144,7 @@ export type TypenameInside$data = {|
   // value in case none of the concrete values match.
   +__typename: "%other",
   +$fragmentType: TypenameInside$fragmentType,
-|};
+|});
 export type TypenameInside$key = {
   +$data?: TypenameInside$data,
   +$fragmentSpreads: TypenameInside$fragmentType,
@@ -153,7 +153,7 @@ export type TypenameInside$key = {
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";
 declare export opaque type TypenameOutside$fragmentType: FragmentType;
-export type TypenameOutside$data = {|
+export type TypenameOutside$data = ({|
   +__typename: "User",
   +firstName: ?string,
   +$fragmentType: TypenameOutside$fragmentType,
@@ -166,7 +166,7 @@ export type TypenameOutside$data = {|
   // value in case none of the concrete values match.
   +__typename: "%other",
   +$fragmentType: TypenameOutside$fragmentType,
-|};
+|});
 export type TypenameOutside$key = {
   +$data?: TypenameOutside$data,
   +$fragmentSpreads: TypenameOutside$fragmentType,
@@ -177,13 +177,13 @@ import type { FragmentType } from "relay-runtime";
 declare export opaque type TypenameOutsideWithAbstractType$fragmentType: FragmentType;
 export type TypenameOutsideWithAbstractType$data = {|
   +__typename: string,
-  +username?: ?string,
   +address?: ?{|
     +city: ?string,
     +country: ?string,
     +street?: ?string,
   |},
   +firstName?: ?string,
+  +username?: ?string,
   +$fragmentType: TypenameOutsideWithAbstractType$fragmentType,
 |};
 export type TypenameOutsideWithAbstractType$key = {
@@ -196,8 +196,8 @@ import type { FragmentType } from "relay-runtime";
 declare export opaque type TypenameWithCommonSelections$fragmentType: FragmentType;
 export type TypenameWithCommonSelections$data = {|
   +__typename: string,
-  +name: ?string,
   +firstName?: ?string,
+  +name: ?string,
   +username?: ?string,
   +$fragmentType: TypenameWithCommonSelections$fragmentType,
 |};
@@ -210,8 +210,8 @@ export type TypenameWithCommonSelections$key = {
 import type { FragmentType } from "relay-runtime";
 declare export opaque type TypenameWithoutSpreads$fragmentType: FragmentType;
 export type TypenameWithoutSpreads$data = {|
-  +firstName: ?string,
   +__typename: "User",
+  +firstName: ?string,
   +$fragmentType: TypenameWithoutSpreads$fragmentType,
 |};
 export type TypenameWithoutSpreads$key = {

@@ -56,7 +56,7 @@ export type queryMixedProvidedVar_MultiFragment$variables = {|
 |};
 export type queryMixedProvidedVar_MultiFragment$data = {|
   +node: ?{|
-    +$fragmentSpreads: FragmentOneProvidedVar$fragmentType & FragmentMultiProvidedVar$fragmentType & FragmentProvidedVarWithOtherGlobal$fragmentType,
+    +$fragmentSpreads: FragmentMultiProvidedVar$fragmentType & FragmentOneProvidedVar$fragmentType & FragmentProvidedVarWithOtherGlobal$fragmentType,
   |},
 |};
 export type queryMixedProvidedVar_MultiFragment = {|

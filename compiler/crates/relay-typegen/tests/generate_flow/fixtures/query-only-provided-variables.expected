@@ -39,7 +39,7 @@ import type { FragmentOneProvidedVar$fragmentType } from "FragmentOneProvidedVar
 export type queryOnlyProvidedVar_MultiFragment$variables = {||};
 export type queryOnlyProvidedVar_MultiFragment$data = {|
   +node: ?{|
-    +$fragmentSpreads: FragmentOneProvidedVar$fragmentType & FragmentMultiProvidedVar$fragmentType,
+    +$fragmentSpreads: FragmentMultiProvidedVar$fragmentType & FragmentOneProvidedVar$fragmentType,
   |},
 |};
 export type queryOnlyProvidedVar_MultiFragment = {|

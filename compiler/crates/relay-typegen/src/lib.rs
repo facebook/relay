@@ -897,16 +897,19 @@ impl<'a> TypeGenerator<'a> {
             let mut typename_aliases = IndexSet::new();
             for (concrete_type, selections) in by_concrete_type {
                 types.push(
-                    group_refs(base_fields.values().cloned().chain(selections))
-                        .map(|selection| {
-                            if selection.is_typename() {
-                                typename_aliases.insert(selection.get_field_name_or_alias().expect(
+                    group_refs(
+                        base_fields.values().cloned().chain(selections),
+                        self.should_sort_typegen_items,
+                    )
+                    .map(|selection| {
+                        if selection.is_typename() {
+                            typename_aliases.insert(selection.get_field_name_or_alias().expect(
                                 "Just checked this exists by checking that the field is typename",
                             ));
-                            }
-                            self.make_prop(selection, unmasked, Some(concrete_type))
-                        })
-                        .collect(),
+                        }
+                        self.make_prop(selection, unmasked, Some(concrete_type))
+                    })
+                    .collect(),
                 );
             }
 
@@ -941,35 +944,38 @@ impl<'a> TypeGenerator<'a> {
                     true,
                 );
             }
-            let selection_map_values = group_refs(hashmap_into_values(selection_map))
-                .map(|sel| {
-                    if let TypeSelection::ScalarField(ref scalar_field) = sel {
-                        if sel.is_typename() {
-                            if let Some(type_condition) = scalar_field.concrete_type {
-                                let mut scalar_field = scalar_field.clone();
-                                scalar_field.conditional = false;
-                                return self.make_prop(
-                                    TypeSelection::ScalarField(scalar_field),
-                                    unmasked,
-                                    Some(type_condition),
-                                );
-                            }
-                        }
-                    } else if let TypeSelection::LinkedField(ref linked_field) = sel {
-                        if let Some(concrete_type) = linked_field.concrete_type {
-                            let mut linked_field = linked_field.clone();
-                            linked_field.concrete_type = None;
+            let selection_map_values = group_refs(
+                hashmap_into_values(selection_map),
+                self.should_sort_typegen_items,
+            )
+            .map(|sel| {
+                if let TypeSelection::ScalarField(ref scalar_field) = sel {
+                    if sel.is_typename() {
+                        if let Some(type_condition) = scalar_field.concrete_type {
+                            let mut scalar_field = scalar_field.clone();
+                            scalar_field.conditional = false;
                             return self.make_prop(
-                                TypeSelection::LinkedField(linked_field),
+                                TypeSelection::ScalarField(scalar_field),
                                 unmasked,
-                                Some(concrete_type),
+                                Some(type_condition),
                             );
                         }
                     }
+                } else if let TypeSelection::LinkedField(ref linked_field) = sel {
+                    if let Some(concrete_type) = linked_field.concrete_type {
+                        let mut linked_field = linked_field.clone();
+                        linked_field.concrete_type = None;
+                        return self.make_prop(
+                            TypeSelection::LinkedField(linked_field),
+                            unmasked,
+                            Some(concrete_type),
+                        );
+                    }
+                }
 
-                    self.make_prop(sel, unmasked, None)
-                })
-                .collect();
+                self.make_prop(sel, unmasked, None)
+            })
+            .collect();
             types.push(selection_map_values);
         }
 
@@ -2161,7 +2167,10 @@ fn selections_to_map(
 
 // TODO: T85950736 Fix these clippy errors
 #[allow(clippy::while_let_on_iterator, clippy::useless_conversion)]
-fn group_refs(props: impl Iterator<Item = TypeSelection>) -> impl Iterator<Item = TypeSelection> {
+fn group_refs(
+    props: impl Iterator<Item = TypeSelection>,
+    should_sort_typegen_items: bool,
+) -> impl Iterator<Item = TypeSelection> {
     let mut fragment_spreads = None;
     let mut props = props.into_iter();
     std::iter::from_fn(move || {
@@ -2178,7 +2187,11 @@ fn group_refs(props: impl Iterator<Item = TypeSelection>) -> impl Iterator<Item 
                 return Some(prop);
             }
         }
-        if let Some(refs) = fragment_spreads.take() {
+        if let Some(mut refs) = fragment_spreads.take() {
+            if should_sort_typegen_items {
+                refs.sort();
+            }
+
             return Some(TypeSelection::ScalarField(TypeSelectionScalarField {
                 field_name_or_alias: *KEY_FRAGMENT_SPREADS,
                 value: AST::FragmentReference(refs),

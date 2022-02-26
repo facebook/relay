@@ -46,7 +46,7 @@ export type NameRendererFragment$data = {|
   +nameRenderer: ?{|
     +__fragmentPropName?: ?string,
     +__module_component?: ?string,
-    +$fragmentSpreads: PlainUserNameRenderer_name$fragmentType & MarkdownUserNameRenderer_name$fragmentType,
+    +$fragmentSpreads: MarkdownUserNameRenderer_name$fragmentType & PlainUserNameRenderer_name$fragmentType,
   |},
   +$fragmentType: NameRendererFragment$fragmentType,
 |};

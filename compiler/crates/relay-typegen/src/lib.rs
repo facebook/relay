@@ -1478,18 +1478,29 @@ impl<'a> TypeGenerator<'a> {
                     &format!("{}{}", enum_type.name, enum_module_suffix),
                 )?;
             } else {
-                let mut members: Vec<AST> = enum_type
+                let mut members: Vec<_> = enum_type
                     .values
                     .iter()
-                    .map(|enum_value| AST::StringLiteral(enum_value.value))
+                    .map(|enum_value| enum_value.value)
                     .collect();
 
-                if !self.typegen_config.flow_typegen.no_future_proof_enums {
-                    members.push(AST::StringLiteral(*FUTURE_ENUM_VALUE));
+                if self.should_sort_typegen_items {
+                    members.sort();
                 }
 
-                self.writer
-                    .write_export_type(enum_type.name.lookup(), &AST::Union(members))?;
+                if !self.typegen_config.flow_typegen.no_future_proof_enums {
+                    members.push(*FUTURE_ENUM_VALUE);
+                }
+
+                self.writer.write_export_type(
+                    enum_type.name.lookup(),
+                    &AST::Union(
+                        members
+                            .into_iter()
+                            .map(|key| AST::StringLiteral(key))
+                            .collect(),
+                    ),
+                )?;
             }
         }
         Ok(())

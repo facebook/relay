@@ -9,7 +9,7 @@ fragment Foo on Node {
 }
 ==================================== OUTPUT ===================================
 import { FragmentRefs } from "relay-runtime";
-export type Foo$data = ({
+export type Foo$data = {
   readonly __typename: "User";
   readonly name: string;
   readonly " $fragmentType": "Foo";
@@ -18,7 +18,7 @@ export type Foo$data = ({
   // value in case none of the concrete values match.
   readonly __typename: "%other";
   readonly " $fragmentType": "Foo";
-} | null);
+} | null;
 export type Foo$key = {
   readonly " $data"?: Foo$data;
   readonly " $fragmentSpreads": FragmentRefs<"Foo">;

@@ -35,44 +35,18 @@ impl Writer for TypeScriptPrinter {
     }
 
     fn write(&mut self, ast: &AST) -> FmtResult {
-        match ast {
-            AST::Any => write!(&mut self.result, "any"),
-            AST::String => write!(&mut self.result, "string"),
-            AST::StringLiteral(literal) => self.write_string_literal(*literal),
-            AST::OtherTypename => self.write_other_string(),
-            AST::Number => write!(&mut self.result, "number"),
-            AST::Boolean => write!(&mut self.result, "boolean"),
-            AST::Callable(return_type) => self.write_callable(&*return_type),
-            AST::Identifier(identifier) => write!(&mut self.result, "{}", identifier),
-            AST::RawType(raw) => write!(&mut self.result, "{}", raw),
-            AST::Union(members) => self.write_union(members),
-            AST::Intersection(members) => self.write_intersection(members),
-            AST::ReadOnlyArray(of_type) => self.write_read_only_array(of_type),
-            AST::Nullable(of_type) => self.write_nullable(of_type),
-            AST::NonNullable(of_type) => self.write_non_nullable(of_type),
-            AST::ExactObject(object) => self.write_object(object),
-            AST::InexactObject(object) => self.write_object(object),
-            AST::Local3DPayload(document_name, selections) => {
-                self.write_local_3d_payload(*document_name, selections)
-            }
-            AST::FragmentReference(fragments) => self.write_fragment_references(fragments),
-            AST::FragmentReferenceType(fragment) => self.write_fragment_references_type(*fragment),
-            AST::ReturnTypeOfFunctionWithName(function_name) => {
-                self.write_return_type_of_function_with_name(*function_name)
-            }
-            AST::ActorChangePoint(_) => panic!("Not supported yet"),
-        }
+        self.write_ast(ast, true)
     }
 
     fn write_local_type(&mut self, name: &str, value: &AST) -> FmtResult {
         write!(&mut self.result, "type {} = ", name)?;
-        self.write(value)?;
+        self.write_ast(value, false)?;
         writeln!(&mut self.result, ";")
     }
 
     fn write_export_type(&mut self, name: &str, value: &AST) -> FmtResult {
         write!(&mut self.result, "export type {} = ", name)?;
-        self.write(value)?;
+        self.write_ast(value, false)?;
         writeln!(&mut self.result, ";")
     }
 
@@ -127,6 +101,36 @@ impl TypeScriptPrinter {
         }
     }
 
+    fn write_ast(&mut self, ast: &AST, wrapping_required: bool) -> FmtResult {
+        match ast {
+            AST::Any => write!(&mut self.result, "any"),
+            AST::String => write!(&mut self.result, "string"),
+            AST::StringLiteral(literal) => self.write_string_literal(*literal),
+            AST::OtherTypename => self.write_other_string(),
+            AST::Number => write!(&mut self.result, "number"),
+            AST::Boolean => write!(&mut self.result, "boolean"),
+            AST::Callable(return_type) => self.write_callable(&*return_type),
+            AST::Identifier(identifier) => write!(&mut self.result, "{}", identifier),
+            AST::RawType(raw) => write!(&mut self.result, "{}", raw),
+            AST::Union(members) => self.write_union(members, wrapping_required),
+            AST::Intersection(members) => self.write_intersection(members, wrapping_required),
+            AST::ReadOnlyArray(of_type) => self.write_read_only_array(of_type),
+            AST::Nullable(of_type) => self.write_nullable(of_type, wrapping_required),
+            AST::NonNullable(of_type) => self.write_non_nullable(of_type),
+            AST::ExactObject(object) => self.write_object(object),
+            AST::InexactObject(object) => self.write_object(object),
+            AST::Local3DPayload(document_name, selections) => {
+                self.write_local_3d_payload(*document_name, selections)
+            }
+            AST::FragmentReference(fragments) => self.write_fragment_references(fragments),
+            AST::FragmentReferenceType(fragment) => self.write_fragment_references_type(*fragment),
+            AST::ReturnTypeOfFunctionWithName(function_name) => {
+                self.write_return_type_of_function_with_name(*function_name)
+            }
+            AST::ActorChangePoint(_) => panic!("Not supported yet"),
+        }
+    }
+
     fn write_indentation(&mut self) -> FmtResult {
         self.result.write_str(&"  ".repeat(self.indentation))
     }
@@ -139,8 +143,8 @@ impl TypeScriptPrinter {
         write!(&mut self.result, r#""%other""#)
     }
 
-    fn write_union(&mut self, members: &[AST]) -> FmtResult {
-        if members.len() > 1 && self.should_wrap_unions_in_parentheses {
+    fn write_union(&mut self, members: &[AST], wrapping_required: bool) -> FmtResult {
+        if members.len() > 1 && self.should_wrap_unions_in_parentheses && wrapping_required {
             write!(&mut self.result, "(")?;
         }
         let mut first = true;
@@ -152,14 +156,14 @@ impl TypeScriptPrinter {
             }
             self.write(member)?;
         }
-        if members.len() > 1 && self.should_wrap_unions_in_parentheses {
+        if members.len() > 1 && self.should_wrap_unions_in_parentheses && wrapping_required {
             write!(&mut self.result, ")")?;
         }
         Ok(())
     }
 
-    fn write_intersection(&mut self, members: &[AST]) -> FmtResult {
-        if members.len() > 1 {
+    fn write_intersection(&mut self, members: &[AST], wrapping_required: bool) -> FmtResult {
+        if members.len() > 1 && wrapping_required {
             write!(&mut self.result, "(")?;
         }
         let mut first = true;
@@ -171,7 +175,7 @@ impl TypeScriptPrinter {
             }
             self.write(member)?;
         }
-        if members.len() > 1 {
+        if members.len() > 1 && wrapping_required {
             write!(&mut self.result, ")")?;
         }
         Ok(())
@@ -179,25 +183,25 @@ impl TypeScriptPrinter {
 
     fn write_read_only_array(&mut self, of_type: &AST) -> FmtResult {
         write!(&mut self.result, "ReadonlyArray<")?;
-        self.write(of_type)?;
+        self.write_ast(of_type, false)?;
         write!(&mut self.result, ">")
     }
 
     fn write_non_nullable(&mut self, of_type: &AST) -> FmtResult {
         write!(&mut self.result, "NonNullable<")?;
-        self.write(of_type)?;
+        self.write_ast(of_type, false)?;
         write!(&mut self.result, ">")
     }
 
-    fn write_nullable(&mut self, of_type: &AST) -> FmtResult {
+    fn write_nullable(&mut self, of_type: &AST, wrapping_required: bool) -> FmtResult {
         let null_type = AST::RawType("null".intern());
         if let AST::Union(members) = of_type {
             let mut new_members = Vec::with_capacity(members.len() + 1);
             new_members.extend_from_slice(members);
             new_members.push(null_type);
-            self.write_union(&*new_members)?;
+            self.write_union(&*new_members, wrapping_required)?;
         } else {
-            self.write_union(&*vec![of_type.clone(), null_type])?;
+            self.write_union(&*vec![of_type.clone(), null_type], wrapping_required)?;
         }
         Ok(())
     }
@@ -252,7 +256,7 @@ impl TypeScriptPrinter {
                         write!(&mut self.result, "?")?;
                     }
                     write!(&mut self.result, ": ")?;
-                    self.write(&key_value_pair.value)?;
+                    self.write_ast(&key_value_pair.value, false)?;
                     writeln!(&mut self.result, ";")?;
                 }
                 Prop::GetterSetterPair(_) => {
@@ -270,19 +274,22 @@ impl TypeScriptPrinter {
 
     fn write_local_3d_payload(&mut self, document_name: StringKey, selections: &AST) -> FmtResult {
         write!(&mut self.result, "Local3DPayload<\"{}\", ", document_name)?;
-        self.write(selections)?;
+        self.write_ast(selections, false)?;
         write!(&mut self.result, ">")?;
         Ok(())
     }
 
     fn write_fragment_references(&mut self, fragments: &[StringKey]) -> FmtResult {
         write!(&mut self.result, "FragmentRefs<")?;
-        self.write(&AST::Union(
-            fragments
-                .iter()
-                .map(|key| AST::StringLiteral(*key))
-                .collect(),
-        ))?;
+        self.write_ast(
+            &AST::Union(
+                fragments
+                    .iter()
+                    .map(|key| AST::StringLiteral(*key))
+                    .collect(),
+            ),
+            false,
+        )?;
         write!(&mut self.result, ">")
     }
 
@@ -425,6 +432,28 @@ mod tests {
 }) & {
   third: number;
 })"
+        );
+    }
+
+    #[test]
+    fn wrapping() {
+        assert_eq!(
+            print_type(&AST::ExactObject(ExactObject::new(
+                vec![Prop::KeyValuePair(KeyValuePairProp {
+                    key: "key".intern(),
+                    optional: false,
+                    read_only: false,
+                    value: AST::Intersection(vec![
+                        AST::Union(vec![AST::String, AST::Number]),
+                        AST::Boolean
+                    ])
+                })],
+                true
+            ))),
+            r"{
+  key: (string | number) & boolean;
+}"
+            .to_string()
         );
     }
 

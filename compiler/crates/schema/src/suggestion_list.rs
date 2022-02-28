@@ -56,7 +56,7 @@ impl<'a> LexicalDistance<'a> {
 }
 
 /// Generate the list of the suggested values that are closest to the `input`
-fn suggestion_list(input: StringKey, options: &[StringKey], limit: usize) -> Vec<StringKey> {
+pub fn suggestion_list(input: StringKey, options: &[StringKey], limit: usize) -> Vec<StringKey> {
     let lexical_distance = LexicalDistance::new(input.lookup());
 
     // This is from graphql-js (https://github.com/graphql/graphql-js/commit/4c10844f6f2ab3e2993d8d5f5f3ed97dce9d3655)

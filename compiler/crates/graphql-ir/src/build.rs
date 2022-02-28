@@ -20,7 +20,7 @@ use errors::{par_try_map, try2, try3, try_map};
 use graphql_syntax::{DirectiveLocation, Identifier, List, OperationKind, Token, TokenKind};
 use intern::string_key::{Intern, StringKey, StringKeyIndexMap, StringKeyMap, StringKeySet};
 use lazy_static::lazy_static;
-use schema::suggestion_list::GraphQLSuggestions;
+use schema::suggestion_list::{self, GraphQLSuggestions};
 use schema::{
     ArgumentDefinitions, Enum, FieldID, InputObject, SDLSchema, Scalar, Schema, Type, TypeReference,
 };
@@ -701,9 +701,23 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
                 });
             }
             None => {
-                return Err(vec![Diagnostic::error(
-                    ValidationMessage::UndefinedFragment(spread.name.value),
-                    self.location.with_span(spread.span),
+                let fragment_names = self
+                    .signatures
+                    .values()
+                    .filter(|signature| {
+                        self.find_conflicting_parent_type(parent_types, signature.type_condition)
+                            .is_none()
+                    })
+                    .map(|signature| signature.name.item)
+                    .collect::<Vec<StringKey>>();
+                let suggestions =
+                    suggestion_list::suggestion_list(spread.name.value, &fragment_names, 5);
+                return Err(vec![Diagnostic::error_with_data(
+                    ValidationMessageWithData::UndefinedFragment {
+                        fragment_name: spread.name.value,
+                        suggestions,
+                    },
+                    self.location.with_span(spread.name.span),
                 )]);
             }
         };

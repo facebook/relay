@@ -18,9 +18,6 @@ pub enum ValidationMessage {
     #[error("Duplicate definitions for '{0}'")]
     DuplicateDefinition(StringKey),
 
-    #[error("Undefined fragment '{0}'")]
-    UndefinedFragment(StringKey),
-
     #[error("Expected an object, interface, or union, found '{0:?}'")]
     ExpectedCompositeType(Type),
 
@@ -447,13 +444,20 @@ pub enum ValidationMessageWithData {
         field_name: StringKey,
         type_name: StringKey,
     },
+
+    #[error("Undefined fragment '{fragment_name}'.{suggestions}", suggestions = did_you_mean(suggestions))]
+    UndefinedFragment {
+        fragment_name: StringKey,
+        suggestions: Vec<StringKey>,
+    },
 }
 
 impl WithDiagnosticData for ValidationMessageWithData {
     fn get_data(&self) -> Vec<Box<dyn DiagnosticDisplay>> {
         match self {
             ValidationMessageWithData::UnknownType { suggestions, .. }
-            | ValidationMessageWithData::UnknownField { suggestions, .. } => suggestions
+            | ValidationMessageWithData::UnknownField { suggestions, .. }
+            | ValidationMessageWithData::UndefinedFragment { suggestions, .. } => suggestions
                 .iter()
                 .map(|suggestion| into_box(*suggestion))
                 .collect::<_>(),

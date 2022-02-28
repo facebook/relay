@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::errors::ErrorMessages;
+use crate::errors::ErrorMessagesWithData;
 use common::{Diagnostic, DiagnosticsResult, Location, Span, WithLocation};
 use graphql_syntax::{
     ConstantArgument, ConstantDirective, ConstantValue, FieldDefinition, Identifier,
@@ -95,8 +95,8 @@ impl RelayResolverIr {
                     Some(_) => Ok(self.object_definitions(on_type)),
                     None => {
                         let suggestor = GraphQLSuggestions::new(schema);
-                        Err(vec![Diagnostic::error(
-                            ErrorMessages::InvalidOnType {
+                        Err(vec![Diagnostic::error_with_data(
+                            ErrorMessagesWithData::InvalidOnType {
                                 type_name: on_type.item,
                                 suggestions: suggestor.object_type_suggestions(on_type.item),
                             },
@@ -114,8 +114,8 @@ impl RelayResolverIr {
                 }
                 None => {
                     let suggestor = GraphQLSuggestions::new(schema);
-                    Err(vec![Diagnostic::error(
-                        ErrorMessages::InvalidOnInterface {
+                    Err(vec![Diagnostic::error_with_data(
+                        ErrorMessagesWithData::InvalidOnInterface {
                             interface_name: on_interface.item,
                             suggestions: suggestor.interface_type_suggestions(on_interface.item),
                         },

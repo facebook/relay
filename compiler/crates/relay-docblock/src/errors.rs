@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use common::{DiagnosticDisplay, WithDiagnosticData};
 use intern::string_key::StringKey;
 use schema::suggestion_list::did_you_mean;
 use thiserror::Error;
@@ -37,7 +38,10 @@ pub enum ErrorMessages {
         "Expected either `onType` or `onInterface` to be defined in a @RelayResolver docblock."
     )]
     ExpectedOnTypeOrOnInterface,
+}
 
+#[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]
+pub enum ErrorMessagesWithData {
     #[error(
         "Invalid interface given for `onInterface`. \"{interface_name}\" is not an existing GraphQL interface.{suggestions}", suggestions = did_you_mean(suggestions))]
     InvalidOnInterface {
@@ -50,4 +54,20 @@ pub enum ErrorMessages {
         type_name: StringKey,
         suggestions: Vec<StringKey>,
     },
+}
+
+impl WithDiagnosticData for ErrorMessagesWithData {
+    fn get_data(&self) -> Vec<Box<dyn DiagnosticDisplay>> {
+        match self {
+            ErrorMessagesWithData::InvalidOnInterface { suggestions, .. }
+            | ErrorMessagesWithData::InvalidOnType { suggestions, .. } => suggestions
+                .iter()
+                .map(|suggestion| into_box(*suggestion))
+                .collect::<_>(),
+        }
+    }
+}
+
+fn into_box(item: StringKey) -> Box<dyn DiagnosticDisplay> {
+    Box::new(item)
 }

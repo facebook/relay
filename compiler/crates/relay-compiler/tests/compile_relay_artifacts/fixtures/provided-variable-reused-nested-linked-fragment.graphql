@@ -1,4 +1,3 @@
-# expected-to-throw
 query providedVariableReusedNestedLinkedFragment_1Query($id: ID!) {
         ...providedVariableReusedNestedLinkedFragment_FragmentCommon
 }

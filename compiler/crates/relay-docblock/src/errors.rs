@@ -26,4 +26,22 @@ pub enum ErrorMessages {
 
     #[error("Expected docblock field \"@{field_name}\" to have specified a value.")]
     MissingFieldValue { field_name: StringKey },
+
+    #[error(
+        "Unexpected `onType` and `onInterface`. Only one of these docblock fields should be defined on a given @RelayResolver."
+    )]
+    UnexpectedOnTypeAndOnInterface,
+
+    #[error(
+        "Expected either `onType` or `onInterface` to be defined in a @RelayResolver docblock."
+    )]
+    ExpectedOnTypeOrOnInterface,
+
+    #[error(
+        "Invalid interface given for `onInterface`. \"{interface_name}\" is not an existing GraphQL interface."
+    )]
+    InvalidOnInterface { interface_name: StringKey },
+
+    #[error("Invalid type given for `onType`. \"{type_name}\" is not an existing GraphQL type.")]
+    InvalidOnType { type_name: StringKey },
 }

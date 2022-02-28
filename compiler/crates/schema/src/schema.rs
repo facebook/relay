@@ -286,6 +286,20 @@ impl SDLSchema {
         }
     }
 
+    pub fn add_interface_type_extension(
+        &mut self,
+        interface_extension: InterfaceTypeExtension,
+        location_key: SourceLocationKey,
+        is_extension: bool,
+    ) -> DiagnosticsResult<()> {
+        match self {
+            SDLSchema::FlatBuffer(_schema) => panic!("expected an underlying InMemorySchema"),
+            SDLSchema::InMemory(schema) => {
+                schema.add_interface_type_extension(interface_extension, location_key, is_extension)
+            }
+        }
+    }
+
     pub fn unwrap_in_memory_impl(self) -> InMemorySchema {
         match self {
             SDLSchema::FlatBuffer(_schema) => panic!("expected an underlying InMemorySchema"),

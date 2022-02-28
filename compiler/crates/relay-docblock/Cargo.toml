@@ -18,6 +18,7 @@ path = "tests/to_schema_test.rs"
 common = { path = "../common" }
 docblock-syntax = { path = "../docblock-syntax" }
 graphql-syntax = { path = "../graphql-syntax" }
+schema = { path = "../schema" }
 intern = { path = "../intern" }
 lazy_static = "1.0"
 thiserror = "1.0.29"
@@ -26,3 +27,4 @@ thiserror = "1.0.29"
 extract-graphql = { path = "../extract-graphql" }
 fixture-tests = { path = "../fixture-tests" }
 graphql-test-helpers = { path = "../graphql-test-helpers" }
+relay-test-schema = { path = "../relay-test-schema" }

@@ -55,9 +55,11 @@ pub fn build_schema(
 
                 for docblocks in docblock_sources {
                     for (file_path, docblock_sources) in &docblocks.get_all() {
-                        for schema_document in
-                            extract_schema_from_docblock_sources(file_path, docblock_sources)?
-                        {
+                        for schema_document in extract_schema_from_docblock_sources(
+                            file_path,
+                            docblock_sources,
+                            &schema,
+                        )? {
                             for definition in schema_document.definitions {
                                 match definition {
                                     TypeSystemDefinition::ObjectTypeExtension(extension) => schema
@@ -66,8 +68,15 @@ pub fn build_schema(
                                             schema_document.location.source_location(),
                                             true,
                                         )?,
+                                    TypeSystemDefinition::InterfaceTypeExtension(extension) => {
+                                        schema.add_interface_type_extension(
+                                            extension,
+                                            schema_document.location.source_location(),
+                                            true,
+                                        )?
+                                    }
                                     _ => panic!(
-                                        "Expected docblocks to only expose object extensions"
+                                        "Expected docblocks to only expose object and interface extensions"
                                     ),
                                 }
                             }

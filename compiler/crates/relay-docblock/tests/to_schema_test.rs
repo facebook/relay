@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<9e7253a47a155d6d6b8ddcc99e8cf5aa>>
+ * @generated SignedSource<<395589ed7293b0ebd4fbc20085c91123>>
  */
 
 mod to_schema;
@@ -48,6 +48,13 @@ fn relay_resolver_on_interface() {
 }
 
 #[test]
+fn relay_resolver_on_interface_with_type_invalid() {
+    let input = include_str!("to_schema/fixtures/relay-resolver-on-interface-with-type.invalid.js");
+    let expected = include_str!("to_schema/fixtures/relay-resolver-on-interface-with-type.invalid.expected");
+    test_fixture(transform_fixture, "relay-resolver-on-interface-with-type.invalid.js", "to_schema/fixtures/relay-resolver-on-interface-with-type.invalid.expected", input, expected);
+}
+
+#[test]
 fn relay_resolver_on_invalid_interface_invalid() {
     let input = include_str!("to_schema/fixtures/relay-resolver-on-invalid-interface.invalid.js");
     let expected = include_str!("to_schema/fixtures/relay-resolver-on-invalid-interface.invalid.expected");
@@ -59,4 +66,11 @@ fn relay_resolver_on_invalid_type_invalid() {
     let input = include_str!("to_schema/fixtures/relay-resolver-on-invalid-type.invalid.js");
     let expected = include_str!("to_schema/fixtures/relay-resolver-on-invalid-type.invalid.expected");
     test_fixture(transform_fixture, "relay-resolver-on-invalid-type.invalid.js", "to_schema/fixtures/relay-resolver-on-invalid-type.invalid.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_on_type_with_interface_invalid() {
+    let input = include_str!("to_schema/fixtures/relay-resolver-on-type-with-interface.invalid.js");
+    let expected = include_str!("to_schema/fixtures/relay-resolver-on-type-with-interface.invalid.expected");
+    test_fixture(transform_fixture, "relay-resolver-on-type-with-interface.invalid.js", "to_schema/fixtures/relay-resolver-on-type-with-interface.invalid.expected", input, expected);
 }

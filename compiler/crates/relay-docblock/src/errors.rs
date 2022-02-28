@@ -10,6 +10,8 @@ use intern::string_key::StringKey;
 use schema::suggestion_list::did_you_mean;
 use thiserror::Error;
 
+use crate::{ON_INTERFACE_FIELD, ON_TYPE_FIELD};
+
 #[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub enum ErrorMessages {
     #[error("Unexpected docblock field \"@{field_name}\"")]
@@ -54,6 +56,16 @@ pub enum ErrorMessagesWithData {
         type_name: StringKey,
         suggestions: Vec<StringKey>,
     },
+
+    #[error(
+        "Found `@onType` docblock field referring to an interface. Did you mean `@onInterface`?"
+    )]
+    OnTypeForInterface,
+
+    #[error(
+        "Found `@onInterface` docblock field referring to an object type. Did you mean `@onType`?"
+    )]
+    OnInterfaceForType,
 }
 
 impl WithDiagnosticData for ErrorMessagesWithData {
@@ -64,6 +76,8 @@ impl WithDiagnosticData for ErrorMessagesWithData {
                 .iter()
                 .map(|suggestion| into_box(*suggestion))
                 .collect::<_>(),
+            ErrorMessagesWithData::OnTypeForInterface => vec![into_box(*ON_INTERFACE_FIELD)],
+            ErrorMessagesWithData::OnInterfaceForType => vec![into_box(*ON_TYPE_FIELD)],
         }
     }
 }

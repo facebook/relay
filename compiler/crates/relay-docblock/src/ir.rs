@@ -51,10 +51,16 @@ pub struct IrField {
     pub value: Option<WithLocation<StringKey>>,
 }
 
+#[derive(Debug, PartialEq, Clone, Copy)]
+pub struct PopulatedIrField {
+    pub key_location: Location,
+    pub value: WithLocation<StringKey>,
+}
+
 #[derive(Debug, PartialEq)]
 pub enum On {
-    Type(WithLocation<StringKey>),
-    Interface(WithLocation<StringKey>),
+    Type(PopulatedIrField),
+    Interface(PopulatedIrField),
 }
 
 #[derive(Debug, PartialEq)]
@@ -87,42 +93,52 @@ impl RelayResolverIr {
 
     fn definitions(&self, schema: &SDLSchema) -> DiagnosticsResult<Vec<TypeSystemDefinition>> {
         match self.on {
-            On::Type(on_type) => {
-                match schema
-                    .get_type(on_type.item)
-                    .and_then(|t| t.get_object_id())
-                {
-                    Some(_) => Ok(self.object_definitions(on_type)),
-                    None => {
-                        let suggestor = GraphQLSuggestions::new(schema);
-                        Err(vec![Diagnostic::error_with_data(
-                            ErrorMessagesWithData::InvalidOnType {
-                                type_name: on_type.item,
-                                suggestions: suggestor.object_type_suggestions(on_type.item),
-                            },
-                            on_type.location,
-                        )])
+            On::Type(PopulatedIrField {
+                key_location,
+                value,
+            }) => {
+                if let Some(_type) = schema.get_type(value.item) {
+                    if _type.is_object() {
+                        return Ok(self.object_definitions(value));
+                    } else if _type.is_interface() {
+                        return Err(vec![Diagnostic::error_with_data(
+                            ErrorMessagesWithData::OnTypeForInterface,
+                            key_location,
+                        )]);
                     }
                 }
+                let suggestor = GraphQLSuggestions::new(schema);
+                Err(vec![Diagnostic::error_with_data(
+                    ErrorMessagesWithData::InvalidOnType {
+                        type_name: value.item,
+                        suggestions: suggestor.object_type_suggestions(value.item),
+                    },
+                    value.location,
+                )])
             }
-            On::Interface(on_interface) => match schema
-                .get_type(on_interface.item)
-                .and_then(|t| t.get_interface_id())
-            {
-                Some(interface_type) => {
-                    Ok(self.interface_definitions(on_interface, interface_type, schema))
+            On::Interface(PopulatedIrField {
+                key_location,
+                value,
+            }) => {
+                if let Some(_type) = schema.get_type(value.item) {
+                    if let Some(interface_type) = _type.get_interface_id() {
+                        return Ok(self.interface_definitions(value, interface_type, schema));
+                    } else if _type.is_object() {
+                        return Err(vec![Diagnostic::error_with_data(
+                            ErrorMessagesWithData::OnInterfaceForType,
+                            key_location,
+                        )]);
+                    }
                 }
-                None => {
-                    let suggestor = GraphQLSuggestions::new(schema);
-                    Err(vec![Diagnostic::error_with_data(
-                        ErrorMessagesWithData::InvalidOnInterface {
-                            interface_name: on_interface.item,
-                            suggestions: suggestor.interface_type_suggestions(on_interface.item),
-                        },
-                        on_interface.location,
-                    )])
-                }
-            },
+                let suggestor = GraphQLSuggestions::new(schema);
+                Err(vec![Diagnostic::error_with_data(
+                    ErrorMessagesWithData::InvalidOnInterface {
+                        interface_name: value.item,
+                        suggestions: suggestor.interface_type_suggestions(value.item),
+                    },
+                    value.location,
+                )])
+            }
         }
     }
 

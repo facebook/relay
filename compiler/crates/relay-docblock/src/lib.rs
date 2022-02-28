@@ -17,15 +17,15 @@ use common::{DiagnosticsResult, WithLocation};
 use docblock_syntax::{DocblockAST, DocblockField, DocblockSection};
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
-use ir::IrField;
 pub use ir::{DocblockIr, On, RelayResolverIr};
+use ir::{IrField, PopulatedIrField};
 use lazy_static::lazy_static;
 
 lazy_static! {
     static ref RELAY_RESOLVER_FIELD: StringKey = "RelayResolver".intern();
     static ref FIELD_NAME_FIELD: StringKey = "fieldName".intern();
-    static ref ON_TYPE_FIELD: StringKey = "onType".intern();
-    static ref ON_INTERFACE_FIELD: StringKey = "onInterface".intern();
+    pub static ref ON_TYPE_FIELD: StringKey = "onType".intern();
+    pub static ref ON_INTERFACE_FIELD: StringKey = "onInterface".intern();
     static ref EDGE_TO_FIELD: StringKey = "edgeTo".intern();
     static ref DEPRECATED_FIELD: StringKey = "deprecated".intern();
     static ref ROOT_FRAGMENT_FIELD: StringKey = "rootFragment".intern();
@@ -164,9 +164,9 @@ impl RelayResolverParser {
                 self.errors.push(
                     Diagnostic::error(
                         ErrorMessages::UnexpectedOnTypeAndOnInterface,
-                        on_type.location,
+                        on_type.key_location,
                     )
-                    .annotate("`onInterface` was found here", on_interface.location),
+                    .annotate("`onInterface` was found here", on_interface.key_location),
                 );
                 Err(())
             }
@@ -184,7 +184,7 @@ impl RelayResolverParser {
         docblock_location: Location,
     ) -> ParseResult<WithLocation<StringKey>> {
         match self.get_field_with_value(field_name)? {
-            Some(field) => Ok(field),
+            Some(field) => Ok(field.value),
             None => {
                 self.errors.push(Diagnostic::error(
                     ErrorMessages::MissingField { field_name },
@@ -199,10 +199,13 @@ impl RelayResolverParser {
     fn get_field_with_value(
         &mut self,
         field_name: StringKey,
-    ) -> ParseResult<Option<WithLocation<StringKey>>> {
+    ) -> ParseResult<Option<PopulatedIrField>> {
         match self.fields.get(&field_name) {
             Some(field) => match field.value {
-                Some(field_value) => Ok(Some(field_value.clone())),
+                Some(field_value) => Ok(Some(PopulatedIrField {
+                    value: field_value.clone(),
+                    key_location: field.key_location,
+                })),
                 None => {
                     self.errors.push(Diagnostic::error(
                         ErrorMessages::MissingFieldValue { field_name },

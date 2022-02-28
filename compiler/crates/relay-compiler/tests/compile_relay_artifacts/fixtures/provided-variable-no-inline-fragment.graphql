@@ -1,0 +1,15 @@
+query providedVariableNoInlineFragment_Query {
+  me {
+    ...providedVariableNoInlineFragment
+  }
+}
+
+fragment providedVariableNoInlineFragment on User
+@no_inline
+@argumentDefinitions(
+  scale: {type: "Float!", provider: "jsScaleProvider"}
+) {
+  profile_picture(scale: $scale) {
+    uri
+  }
+}

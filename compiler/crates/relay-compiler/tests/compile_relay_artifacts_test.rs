@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<8440e71e1dd528fa76f122a4b3ecc19e>>
+ * @generated SignedSource<<562d9640eca03ba6e61a65d3ed6f5b3f>>
  */
 
 mod compile_relay_artifacts;
@@ -717,6 +717,27 @@ fn provided_variable_multiple_queries() {
     let input = include_str!("compile_relay_artifacts/fixtures/provided-variable-multiple-queries.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/provided-variable-multiple-queries.expected");
     test_fixture(transform_fixture, "provided-variable-multiple-queries.graphql", "compile_relay_artifacts/fixtures/provided-variable-multiple-queries.expected", input, expected);
+}
+
+#[test]
+fn provided_variable_no_inline_fragment() {
+    let input = include_str!("compile_relay_artifacts/fixtures/provided-variable-no-inline-fragment.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/provided-variable-no-inline-fragment.expected");
+    test_fixture(transform_fixture, "provided-variable-no-inline-fragment.graphql", "compile_relay_artifacts/fixtures/provided-variable-no-inline-fragment.expected", input, expected);
+}
+
+#[test]
+fn provided_variable_reused_nested_fragment() {
+    let input = include_str!("compile_relay_artifacts/fixtures/provided-variable-reused-nested-fragment.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/provided-variable-reused-nested-fragment.expected");
+    test_fixture(transform_fixture, "provided-variable-reused-nested-fragment.graphql", "compile_relay_artifacts/fixtures/provided-variable-reused-nested-fragment.expected", input, expected);
+}
+
+#[test]
+fn provided_variable_reused_nested_linked_fragment() {
+    let input = include_str!("compile_relay_artifacts/fixtures/provided-variable-reused-nested-linked-fragment.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/provided-variable-reused-nested-linked-fragment.expected");
+    test_fixture(transform_fixture, "provided-variable-reused-nested-linked-fragment.graphql", "compile_relay_artifacts/fixtures/provided-variable-reused-nested-linked-fragment.expected", input, expected);
 }
 
 #[test]

@@ -1,0 +1,35 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query providedVariableReusedNestedLinkedFragment_1Query($id: ID!) {
+        ...providedVariableReusedNestedLinkedFragment_FragmentCommon
+}
+
+query providedVariableReusedNestedLinkedFragment_2Query($id: ID!) {
+       ...providedVariableReusedNestedLinkedFragment_Fragment
+}
+
+fragment providedVariableReusedNestedLinkedFragment_Fragment on Query
+{
+    ...providedVariableReusedNestedLinkedFragment_FragmentCommon
+}
+
+fragment providedVariableReusedNestedLinkedFragment_FragmentCommon on Query
+{
+  node(id: $id) {
+    ...providedVariableReusedNestedLinkedFragment_FragmentWithProvider
+  }
+}
+
+fragment providedVariableReusedNestedLinkedFragment_FragmentWithProvider on User
+  @argumentDefinitions(bar_gk: {type: "Boolean!", provider: "barGKProvider"})
+{
+    username @skip(if: $bar_gk)
+}
+==================================== ERROR ====================================
+✖︎ Operation 'providedVariableReusedNestedLinkedFragment_2Query' references undefined variable: '$__relay_internal__pv__barGKProvider'.
+
+  provided-variable-reused-nested-linked-fragment.graphql:25:24
+   24 │ {
+   25 │     username @skip(if: $bar_gk)
+      │                        ^^^^^^^
+   26 │ }

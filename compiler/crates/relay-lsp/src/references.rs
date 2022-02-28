@@ -8,19 +8,18 @@
 //! Utilities for providing the goto definition feature
 
 use crate::{
-    location::read_contents_and_get_lsp_location_of_graphql_literal,
+    location::transform_relay_location_to_lsp_location,
     lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult},
     node_resolution_info::NodeKind,
     node_resolution_info::NodeResolutionInfo,
     server::GlobalState,
-    utils::span_to_range_offset,
 };
-use common::{Location as IRLocation, SourceLocationKey};
+use common::Location as IRLocation;
 use graphql_ir::{FragmentSpread, Program, Visitor};
 use intern::string_key::StringKey;
 use lsp_types::{
     request::{References, Request},
-    Location as LSPLocation, Range,
+    Location as LSPLocation,
 };
 use std::path::PathBuf;
 
@@ -34,56 +33,13 @@ fn get_references_response(
             let references =
                 ReferenceFinder::get_references_to_fragment(program, fragment.name.value)
                     .into_iter()
-                    .map(|location| transform_ir_location_to_lsp_location(root_dir, location))
+                    .map(|location| transform_relay_location_to_lsp_location(root_dir, location))
                     .collect::<Result<Vec<_>, LSPRuntimeError>>()?;
 
             Ok(references)
         }
         _ => Err(LSPRuntimeError::ExpectedError),
     }
-}
-
-/// Given a root dir and a graphql_ir::Location, return a Result containing an
-/// LSPLocation (i.e. lsp_types::Location).
-///
-/// IR Locations contain a description of where to find the graphql literal,
-/// which can be embedded, standalone or generated; and the span of the ir node.
-/// The IR Location's span contains the start and end character of the node.
-///
-/// LSP Locations contain a file URI and a pair of row/column offsets, and are
-/// the formatted expected by the LSP Client (i.e. VSCode).
-///
-/// In order to convert from an IR Location to an LSP location, this function:
-/// - reads the file containing the literal, extracts it, and gets the LSP Location
-///   of the literal
-/// - converts the IR Location's span to a range offset. Given the text of a literal,
-///   convert the start/end characters to a pair of ("move over X characters" OR
-///   "move down X lines and move to character Y")
-/// - add this range offset to the LSP location's start, giving us the LSP location
-///   of the IR node.
-fn transform_ir_location_to_lsp_location(
-    root_dir: &PathBuf,
-    node_ir_location: IRLocation,
-) -> LSPRuntimeResult<LSPLocation> {
-    let (graphql_literal_text, lsp_location_of_graphql_literal) =
-        read_contents_and_get_lsp_location_of_graphql_literal(node_ir_location, root_dir)?;
-
-    // Case 1: for the standalone file, the lsp_location_of_graphql_literal is the result of what we need
-    if let SourceLocationKey::Standalone { .. } = node_ir_location.source_location() {
-        return Ok(lsp_location_of_graphql_literal);
-    }
-
-    // Case 2: for the embedded source, the lsp_location_of_graphql_literal should be shifted by the span range.
-    let range_offset = span_to_range_offset(*node_ir_location.span(), &graphql_literal_text)
-        .ok_or(LSPRuntimeError::ExpectedError)?;
-
-    let mut lsp_location_of_node = lsp_location_of_graphql_literal;
-    // update lsp_location_of_node to have a range that points to the ir node
-    lsp_location_of_node.range = Range {
-        start: lsp_location_of_node.range.start + range_offset.start,
-        end: lsp_location_of_node.range.start + range_offset.end,
-    };
-    Ok(lsp_location_of_node)
 }
 
 #[derive(Debug, Clone)]

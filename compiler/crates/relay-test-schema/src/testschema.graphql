@@ -974,6 +974,14 @@ interface UserNameRenderable {
   name: String
 }
 
+interface ImplementsUserNameRenderable implements UserNameRenderable {
+  name: String
+}
+
+type ImplementsImplementsUserNameRenderable implements ImplementsUserNameRenderable {
+  name: String
+}
+
 input ProfilePictureOptions {
   newName: String
 }

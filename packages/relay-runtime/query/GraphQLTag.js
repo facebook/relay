@@ -97,6 +97,15 @@ function isRequest(node: GraphQLTaggedNode): boolean {
   );
 }
 
+function isUpdatableQuery(node: GraphQLTaggedNode): boolean {
+  const updatableQuery = getNode(node);
+  return (
+    typeof updatableQuery === 'object' &&
+    updatableQuery !== null &&
+    updatableQuery.kind === RelayConcreteNode.UPDATABLE_QUERY
+  );
+}
+
 function isInlineDataFragment(node: GraphQLTaggedNode): boolean {
   const fragment = getNode(node);
   return (
@@ -154,6 +163,18 @@ function getRequest(taggedNode: GraphQLTaggedNode): ConcreteRequest {
   return (request: any);
 }
 
+function getUpdatableQuery(
+  taggedNode: GraphQLTaggedNode,
+): ConcreteUpdatableQuery {
+  const updatableQuery = getNode(taggedNode);
+  invariant(
+    isUpdatableQuery(updatableQuery),
+    'GraphQLTag: Expected a request, got `%s`.',
+    JSON.stringify(updatableQuery),
+  );
+  return (updatableQuery: any);
+}
+
 function getInlineDataFragment(
   taggedNode: GraphQLTaggedNode,
 ): ReaderInlineDataFragment {
@@ -172,9 +193,11 @@ module.exports = {
   getPaginationFragment,
   getRefetchableFragment,
   getRequest,
+  getUpdatableQuery,
   getInlineDataFragment,
   graphql,
   isFragment,
   isRequest,
+  isUpdatableQuery,
   isInlineDataFragment,
 };

@@ -137,7 +137,6 @@ pub fn generate_artifacts(
                     .cloned()
                     .unwrap();
                 generate_updatable_query_artifact(
-                    &mut operation_printer,
                     operations.normalization.name.item,
                     project_config,
                     &operations,
@@ -210,14 +209,12 @@ fn generate_normalization_artifact(
 }
 
 fn generate_updatable_query_artifact(
-    operation_printer: &mut OperationPrinter<'_>,
     source_definition_name: StringKey,
     project_config: &ProjectConfig,
     operations: &OperationGroup<'_>,
     source_hash: String,
     source_file: SourceLocationKey,
 ) -> Artifact {
-    let text = operation_printer.print(operations.expect_operation_text());
     Artifact {
         source_definition_names: vec![source_definition_name],
         path: path_for_artifact(
@@ -226,12 +223,9 @@ fn generate_updatable_query_artifact(
             operations.normalization.name.item,
         ),
         content: ArtifactContent::UpdatableQuery {
-            normalization_operation: Arc::clone(operations.normalization),
             reader_operation: operations.expect_reader(),
             typegen_operation: operations.expect_typegen(),
             source_hash,
-            text,
-            id_and_text_hash: None,
         },
         source_file: operations.normalization.name.location.source_location(),
     }

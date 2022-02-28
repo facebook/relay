@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<330a97e51894f037540b684562ef2ad4>>
+ * @generated SignedSource<<877353425a8ffe182ea0c3410a813fef>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,7 +15,7 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { UpdatableQuery, ConcreteUpdatableQuery } from 'relay-runtime';
 type readUpdatableQueryEXPERIMENTALTest_node$fragmentType = any;
 type readUpdatableQueryEXPERIMENTALTest_user$fragmentType = any;
 export type readUpdatableQueryEXPERIMENTALTestUpdatableQuery$variables = {||};
@@ -95,7 +95,7 @@ export type readUpdatableQueryEXPERIMENTALTestUpdatableQuery = {|
 |};
 */
 
-var node/*: ConcreteRequest*/ = (function(){
+var node/*: ConcreteUpdatableQuery*/ = (function(){
 var v0 = {
   "alias": null,
   "args": null,
@@ -121,55 +121,7 @@ v3 = {
   "args": null,
   "kind": "FragmentSpread",
   "name": "readUpdatableQueryEXPERIMENTALTest_user"
-},
-v4 = {
-  "kind": "ClientExtension",
-  "selections": [
-    {
-      "alias": null,
-      "args": null,
-      "kind": "ScalarField",
-      "name": "client_nickname",
-      "storageKey": null
-    }
-  ]
-},
-v5 = {
-  "kind": "ClientExtension",
-  "selections": [
-    {
-      "alias": null,
-      "args": null,
-      "kind": "ScalarField",
-      "name": "__id",
-      "storageKey": null
-    }
-  ]
-},
-v6 = [
-  {
-    "kind": "Literal",
-    "name": "id",
-    "value": "4"
-  }
-],
-v7 = [
-  {
-    "kind": "Literal",
-    "name": "id",
-    "value": "5"
-  }
-],
-v8 = [
-  (v2/*: any*/)
-],
-v9 = [
-  {
-    "kind": "Literal",
-    "name": "id",
-    "value": "6"
-  }
-];
+};
 return {
   "fragment": {
     "argumentDefinitions": [],
@@ -225,18 +177,46 @@ return {
             "name": "author",
             "plural": false,
             "selections": [
-              (v4/*: any*/)
+              {
+                "kind": "ClientExtension",
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "client_nickname",
+                    "storageKey": null
+                  }
+                ]
+              }
             ],
             "storageKey": null
           },
           (v3/*: any*/),
-          (v5/*: any*/)
+          {
+            "kind": "ClientExtension",
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "__id",
+                "storageKey": null
+              }
+            ]
+          }
         ],
         "storageKey": null
       },
       {
         "alias": null,
-        "args": (v6/*: any*/),
+        "args": [
+          {
+            "kind": "Literal",
+            "name": "id",
+            "value": "4"
+          }
+        ],
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -256,7 +236,13 @@ return {
       },
       {
         "alias": "node2",
-        "args": (v7/*: any*/),
+        "args": [
+          {
+            "kind": "Literal",
+            "name": "id",
+            "value": "5"
+          }
+        ],
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -284,7 +270,9 @@ return {
                     "kind": "LinkedField",
                     "name": "parents",
                     "plural": true,
-                    "selections": (v8/*: any*/),
+                    "selections": [
+                      (v2/*: any*/)
+                    ],
                     "storageKey": null
                   }
                 ],
@@ -299,7 +287,13 @@ return {
       },
       {
         "alias": "node3",
-        "args": (v9/*: any*/),
+        "args": [
+          {
+            "kind": "Literal",
+            "name": "id",
+            "value": "6"
+          }
+        ],
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -318,165 +312,7 @@ return {
     "type": "Query",
     "abstractKey": null
   },
-  "kind": "Request",
-  "operation": {
-    "argumentDefinitions": [],
-    "kind": "Operation",
-    "name": "readUpdatableQueryEXPERIMENTALTestUpdatableQuery",
-    "selections": [
-      {
-        "alias": null,
-        "args": null,
-        "concreteType": "User",
-        "kind": "LinkedField",
-        "name": "me",
-        "plural": false,
-        "selections": [
-          (v0/*: any*/),
-          (v1/*: any*/),
-          (v2/*: any*/),
-          {
-            "alias": null,
-            "args": null,
-            "concreteType": "User",
-            "kind": "LinkedField",
-            "name": "author",
-            "plural": false,
-            "selections": [
-              (v1/*: any*/),
-              {
-                "kind": "ClientExtension",
-                "selections": [
-                  {
-                    "alias": null,
-                    "args": null,
-                    "concreteType": "User",
-                    "kind": "LinkedField",
-                    "name": "client_best_friend",
-                    "plural": false,
-                    "selections": [
-                      (v0/*: any*/),
-                      (v2/*: any*/),
-                      (v1/*: any*/)
-                    ],
-                    "storageKey": null
-                  }
-                ]
-              }
-            ],
-            "storageKey": null
-          },
-          {
-            "alias": "author2",
-            "args": null,
-            "concreteType": "User",
-            "kind": "LinkedField",
-            "name": "author",
-            "plural": false,
-            "selections": [
-              (v1/*: any*/),
-              (v4/*: any*/)
-            ],
-            "storageKey": null
-          },
-          (v5/*: any*/)
-        ],
-        "storageKey": null
-      },
-      {
-        "alias": null,
-        "args": (v6/*: any*/),
-        "concreteType": null,
-        "kind": "LinkedField",
-        "name": "node",
-        "plural": false,
-        "selections": [
-          (v0/*: any*/),
-          (v1/*: any*/),
-          {
-            "kind": "InlineFragment",
-            "selections": (v8/*: any*/),
-            "type": "User",
-            "abstractKey": null
-          }
-        ],
-        "storageKey": "node(id:\"4\")"
-      },
-      {
-        "alias": "node2",
-        "args": (v7/*: any*/),
-        "concreteType": null,
-        "kind": "LinkedField",
-        "name": "node",
-        "plural": false,
-        "selections": [
-          (v0/*: any*/),
-          (v1/*: any*/),
-          {
-            "kind": "InlineFragment",
-            "selections": [
-              (v2/*: any*/),
-              {
-                "alias": null,
-                "args": null,
-                "concreteType": "User",
-                "kind": "LinkedField",
-                "name": "parents",
-                "plural": true,
-                "selections": [
-                  (v0/*: any*/),
-                  (v2/*: any*/),
-                  {
-                    "alias": null,
-                    "args": null,
-                    "concreteType": "User",
-                    "kind": "LinkedField",
-                    "name": "parents",
-                    "plural": true,
-                    "selections": [
-                      (v2/*: any*/),
-                      (v1/*: any*/)
-                    ],
-                    "storageKey": null
-                  },
-                  (v1/*: any*/)
-                ],
-                "storageKey": null
-              }
-            ],
-            "type": "User",
-            "abstractKey": null
-          }
-        ],
-        "storageKey": "node(id:\"5\")"
-      },
-      {
-        "alias": "node3",
-        "args": (v9/*: any*/),
-        "concreteType": null,
-        "kind": "LinkedField",
-        "name": "node",
-        "plural": false,
-        "selections": [
-          (v0/*: any*/),
-          (v1/*: any*/),
-          {
-            "kind": "TypeDiscriminator",
-            "abstractKey": "__isNode"
-          }
-        ],
-        "storageKey": "node(id:\"6\")"
-      }
-    ]
-  },
-  "params": {
-    "cacheID": "e2512e79cf0f66aef65bce22940b82cb",
-    "id": null,
-    "metadata": {},
-    "name": "readUpdatableQueryEXPERIMENTALTestUpdatableQuery",
-    "operationKind": "query",
-    "text": "query readUpdatableQueryEXPERIMENTALTestUpdatableQuery {\n  me {\n    __typename\n    id\n    name\n    author {\n      id\n    }\n    author2: author {\n      id\n    }\n    ...readUpdatableQueryEXPERIMENTALTest_user\n  }\n  node(id: \"4\") {\n    __typename\n    ... on User {\n      __typename\n      name\n    }\n    id\n  }\n  node2: node(id: \"5\") {\n    __typename\n    ... on User {\n      __typename\n      name\n      parents {\n        ...readUpdatableQueryEXPERIMENTALTest_user\n        name\n        parents {\n          name\n          id\n        }\n        id\n      }\n    }\n    id\n  }\n  node3: node(id: \"6\") {\n    __typename\n    id\n    ...readUpdatableQueryEXPERIMENTALTest_node\n  }\n}\n\nfragment readUpdatableQueryEXPERIMENTALTest_node on Node {\n  __isNode: __typename\n  __typename\n}\n\nfragment readUpdatableQueryEXPERIMENTALTest_user on User {\n  __typename\n}\n"
-  }
+  "kind": "UpdatableQuery"
 };
 })();
 
@@ -484,7 +320,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "91a7122121c1d4d4b99ee4b8155b4fbd";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*: any*/)/*: UpdatableQuery<
   readUpdatableQueryEXPERIMENTALTestUpdatableQuery$variables,
   readUpdatableQueryEXPERIMENTALTestUpdatableQuery$data,
 >*/);

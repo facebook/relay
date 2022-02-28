@@ -107,6 +107,7 @@ const RelayConcreteNode = {
   SPLIT_OPERATION: 'SplitOperation',
   STREAM: 'Stream',
   TYPE_DISCRIMINATOR: 'TypeDiscriminator',
+  UPDATABLE_QUERY: 'UpdatableQuery',
   VARIABLE: 'Variable',
 };
 

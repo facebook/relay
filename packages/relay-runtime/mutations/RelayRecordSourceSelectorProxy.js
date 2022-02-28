@@ -20,7 +20,11 @@ import type {
   SingularReaderSelector,
 } from '../store/RelayStoreTypes';
 import type {ReaderLinkedField} from '../util/ReaderNode';
-import type {DataID, OperationType} from '../util/RelayRuntimeTypes';
+import type {
+  DataID,
+  UpdatableQuery,
+  UpdatableQueryType,
+} from '../util/RelayRuntimeTypes';
 import type RelayRecordSourceMutator from './RelayRecordSourceMutator';
 
 const {ROOT_TYPE, getStorageKey} = require('../store/RelayStoreUtils');
@@ -123,8 +127,8 @@ class RelayRecordSourceSelectorProxy implements RecordSourceSelectorProxy {
     this.__recordSource.invalidateStore();
   }
 
-  readUpdatableQuery_EXPERIMENTAL<TQuery: OperationType>(
-    query: GraphQLTaggedNode,
+  readUpdatableQuery_EXPERIMENTAL<TQuery: UpdatableQueryType>(
+    query: UpdatableQuery<TQuery['variables'], TQuery['response']>,
     variables: TQuery['variables'],
   ): TQuery['response'] {
     return readUpdatableQuery_EXPERIMENTAL(query, variables, this);

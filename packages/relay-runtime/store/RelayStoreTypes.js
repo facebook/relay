@@ -44,8 +44,9 @@ import type {
   CacheConfig,
   DataID,
   Disposable,
-  OperationType,
   RenderPolicy,
+  UpdatableQuery,
+  UpdatableQueryType,
   Variables,
 } from '../util/RelayRuntimeTypes';
 import type {InvalidationState} from './RelayModernStore';
@@ -466,8 +467,8 @@ export interface RecordSourceProxy {
   get(dataID: DataID): ?RecordProxy;
   getRoot(): RecordProxy;
   invalidateStore(): void;
-  readUpdatableQuery_EXPERIMENTAL<TQuery: OperationType>(
-    query: GraphQLTaggedNode,
+  readUpdatableQuery_EXPERIMENTAL<TQuery: UpdatableQueryType>(
+    query: UpdatableQuery<TQuery['variables'], TQuery['response']>,
     variables: TQuery['variables'],
   ): TQuery['response'];
 }

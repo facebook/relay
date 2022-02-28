@@ -179,7 +179,11 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         }
     }
 
-    fn build_fragment(&mut self, fragment: &FragmentDefinition, skip_metadata: bool) -> AstKey {
+    pub(crate) fn build_fragment(
+        &mut self,
+        fragment: &FragmentDefinition,
+        skip_metadata: bool,
+    ) -> AstKey {
         if fragment.directives.named(*INLINE_DIRECTIVE_NAME).is_some() {
             return self.build_inline_data_fragment(fragment);
         }

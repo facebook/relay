@@ -31,6 +31,11 @@ export type ConcreteRequest = {|
   +params: RequestParameters,
 |};
 
+export type ConcreteUpdatableQuery = {|
+  +kind: 'UpdatableQuery',
+  +fragment: ReaderFragment,
+|};
+
 export type NormalizationRootNode =
   | ConcreteRequest
   | NormalizationSplitOperation;
@@ -68,7 +73,8 @@ export type GeneratedNode =
   | ConcreteRequest
   | ReaderFragment
   | ReaderInlineDataFragment
-  | NormalizationSplitOperation;
+  | NormalizationSplitOperation
+  | ConcreteUpdatableQuery;
 
 const RelayConcreteNode = {
   ACTOR_CHANGE: 'ActorChange',

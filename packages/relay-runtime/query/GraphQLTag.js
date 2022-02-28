@@ -18,7 +18,10 @@ import type {
   ReaderPaginationFragment,
   ReaderRefetchableFragment,
 } from '../util/ReaderNode';
-import type {ConcreteRequest} from '../util/RelayConcreteNode';
+import type {
+  ConcreteRequest,
+  ConcreteUpdatableQuery,
+} from '../util/RelayConcreteNode';
 
 const RelayConcreteNode = require('../util/RelayConcreteNode');
 const invariant = require('invariant');
@@ -29,9 +32,14 @@ export type GraphQLTaggedNode =
   | ReaderFragment
   | ReaderInlineDataFragment
   | ConcreteRequest
+  | ConcreteUpdatableQuery
   | {
       // This is this case when we `require()` a generated ES6 module
-      default: ReaderFragment | ReaderInlineDataFragment | ConcreteRequest,
+      default:
+        | ReaderFragment
+        | ReaderInlineDataFragment
+        | ConcreteRequest
+        | ConcreteUpdatableQuery,
       ...
     };
 
@@ -51,7 +59,11 @@ function graphql(strings: Array<string>): any {
 
 function getNode(
   taggedNode: GraphQLTaggedNode,
-): ReaderFragment | ReaderInlineDataFragment | ConcreteRequest {
+):
+  | ReaderFragment
+  | ReaderInlineDataFragment
+  | ConcreteRequest
+  | ConcreteUpdatableQuery {
   let node = taggedNode;
   if (typeof node === 'function') {
     node = (node(): ReaderFragment | ConcreteRequest);

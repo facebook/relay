@@ -7,7 +7,8 @@
 
 use common::{DiagnosticDisplay, WithDiagnosticData};
 use graphql_syntax::OperationKind;
-use intern::string_key::{Intern, StringKey};
+use intern::string_key::StringKey;
+use schema::suggestion_list::did_you_mean;
 use schema::{Type, TypeReference};
 use thiserror::Error;
 
@@ -465,32 +466,4 @@ impl WithDiagnosticData for ValidationMessageWithData {
 
 fn into_box(item: StringKey) -> Box<dyn DiagnosticDisplay> {
     Box::new(item)
-}
-
-/// Given [ A, B, C ] return ' Did you mean A, B, or C?'.
-fn did_you_mean(suggestions: &[StringKey]) -> String {
-    if suggestions.is_empty() {
-        return "".to_string();
-    }
-
-    let suggestions_string = match suggestions.len() {
-        1 => format!("`{}`", suggestions[0].lookup()),
-        2 => format!("`{}` or `{}`", suggestions[0], suggestions[1]),
-        _ => {
-            let mut suggestions = suggestions.to_vec();
-            let last_option = suggestions.pop();
-
-            format!(
-                "{}, or `{}`",
-                suggestions
-                    .iter()
-                    .map(|suggestion| format!("`{}`", suggestion.lookup()))
-                    .collect::<Vec<String>>()
-                    .join(", "),
-                last_option.unwrap_or_else(|| "".intern())
-            )
-        }
-    };
-
-    format!(" Did you mean {}?", suggestions_string)
 }

@@ -15,7 +15,7 @@ use graphql_syntax::{
 use intern::string_key::{Intern, StringKey};
 
 use lazy_static::lazy_static;
-use schema::{InterfaceID, SDLSchema, Schema};
+use schema::{suggestion_list::GraphQLSuggestions, InterfaceID, SDLSchema, Schema};
 
 lazy_static! {
     static ref INT_TYPE: StringKey = "Int".intern();
@@ -93,12 +93,16 @@ impl RelayResolverIr {
                     .and_then(|t| t.get_object_id())
                 {
                     Some(_) => Ok(self.object_definitions(on_type)),
-                    None => Err(vec![Diagnostic::error(
-                        ErrorMessages::InvalidOnType {
-                            type_name: on_type.item,
-                        },
-                        on_type.location,
-                    )]),
+                    None => {
+                        let suggestor = GraphQLSuggestions::new(schema);
+                        Err(vec![Diagnostic::error(
+                            ErrorMessages::InvalidOnType {
+                                type_name: on_type.item,
+                                suggestions: suggestor.object_type_suggestions(on_type.item),
+                            },
+                            on_type.location,
+                        )])
+                    }
                 }
             }
             On::Interface(on_interface) => match schema
@@ -108,12 +112,16 @@ impl RelayResolverIr {
                 Some(interface_type) => {
                     Ok(self.interface_definitions(on_interface, interface_type, schema))
                 }
-                None => Err(vec![Diagnostic::error(
-                    ErrorMessages::InvalidOnInterface {
-                        interface_name: on_interface.item,
-                    },
-                    on_interface.location,
-                )]),
+                None => {
+                    let suggestor = GraphQLSuggestions::new(schema);
+                    Err(vec![Diagnostic::error(
+                        ErrorMessages::InvalidOnInterface {
+                            interface_name: on_interface.item,
+                            suggestions: suggestor.interface_type_suggestions(on_interface.item),
+                        },
+                        on_interface.location,
+                    )])
+                }
             },
         }
     }

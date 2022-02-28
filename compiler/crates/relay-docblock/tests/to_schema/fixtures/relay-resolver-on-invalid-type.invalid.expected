@@ -21,7 +21,7 @@
  * again. Anyway, I'm rambling now. Its a page that the user likes. A lot.
  */
 ==================================== ERROR ====================================
-✖︎ Invalid type given for `onType`. "Loser" is not an existing GraphQL type.
+✖︎ Invalid type given for `onType`. "Loser" is not an existing GraphQL type. Did you mean `User`?
 
   /path/to/test/fixture/relay-resolver-on-invalid-type.invalid.js:4:12
     3 │  *

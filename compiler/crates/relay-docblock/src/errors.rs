@@ -6,9 +6,10 @@
  */
 
 use intern::string_key::StringKey;
+use schema::suggestion_list::did_you_mean;
 use thiserror::Error;
 
-#[derive(Clone, Copy, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]
+#[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub enum ErrorMessages {
     #[error("Unexpected docblock field \"@{field_name}\"")]
     UnknownField { field_name: StringKey },
@@ -38,10 +39,15 @@ pub enum ErrorMessages {
     ExpectedOnTypeOrOnInterface,
 
     #[error(
-        "Invalid interface given for `onInterface`. \"{interface_name}\" is not an existing GraphQL interface."
-    )]
-    InvalidOnInterface { interface_name: StringKey },
+        "Invalid interface given for `onInterface`. \"{interface_name}\" is not an existing GraphQL interface.{suggestions}", suggestions = did_you_mean(suggestions))]
+    InvalidOnInterface {
+        interface_name: StringKey,
+        suggestions: Vec<StringKey>,
+    },
 
-    #[error("Invalid type given for `onType`. \"{type_name}\" is not an existing GraphQL type.")]
-    InvalidOnType { type_name: StringKey },
+    #[error("Invalid type given for `onType`. \"{type_name}\" is not an existing GraphQL type.{suggestions}", suggestions = did_you_mean(suggestions))]
+    InvalidOnType {
+        type_name: StringKey,
+        suggestions: Vec<StringKey>,
+    },
 }

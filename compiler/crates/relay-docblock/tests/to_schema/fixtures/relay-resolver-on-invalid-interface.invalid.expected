@@ -21,7 +21,7 @@
  * again. Anyway, I'm rambling now. Its a page that the user likes. A lot.
  */
 ==================================== ERROR ====================================
-✖︎ Invalid interface given for `onInterface`. "Loser" is not an existing GraphQL interface.
+✖︎ Invalid interface given for `onInterface`. "Loser" is not an existing GraphQL interface. Did you mean `Node`?
 
   /path/to/test/fixture/relay-resolver-on-invalid-interface.invalid.js:4:17
     3 │  *

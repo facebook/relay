@@ -44,7 +44,7 @@ pub fn build_schema(
             let mut schema =
                 relay_schema::build_schema_with_extensions(&schema_sources, &extensions)?;
 
-            if project_config.feature_flags.parse_resolver_docblocks {
+            if project_config.feature_flags.enable_relay_resolver_transform {
                 let mut projects = vec![project_config.name];
                 projects.extend(project_config.base);
 

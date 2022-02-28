@@ -17,7 +17,7 @@ use intern::string_key::StringKey;
 use relay_transforms::{
     Programs, RefetchableDerivedFromMetadata, SplitOperationMetadata,
     CLIENT_EDGE_GENERATED_FRAGMENT_KEY, CLIENT_EDGE_QUERY_METADATA_KEY, CLIENT_EDGE_SOURCE_NAME,
-    DIRECTIVE_SPLIT_OPERATION,
+    DIRECTIVE_SPLIT_OPERATION, UPDATABLE_DIRECTIVE,
 };
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -126,6 +126,24 @@ pub fn generate_artifacts(
                     source_hash,
                     source_file,
                 )
+            } else if operations
+                .normalization
+                .directives
+                .named(*UPDATABLE_DIRECTIVE)
+                .is_some()
+            {
+                let source_hash = source_hashes
+                    .get(&operations.normalization.name.item)
+                    .cloned()
+                    .unwrap();
+                generate_updatable_query_artifact(
+                    &mut operation_printer,
+                    operations.normalization.name.item,
+                    project_config,
+                    &operations,
+                    source_hash,
+                    operations.normalization.name.location.source_location(),
+                )
             } else {
                 let source_hash = source_hashes
                     .get(&operations.normalization.name.item)
@@ -180,6 +198,34 @@ fn generate_normalization_artifact(
             operations.normalization.name.item,
         ),
         content: ArtifactContent::Operation {
+            normalization_operation: Arc::clone(operations.normalization),
+            reader_operation: operations.expect_reader(),
+            typegen_operation: operations.expect_typegen(),
+            source_hash,
+            text,
+            id_and_text_hash: None,
+        },
+        source_file: operations.normalization.name.location.source_location(),
+    }
+}
+
+fn generate_updatable_query_artifact(
+    operation_printer: &mut OperationPrinter<'_>,
+    source_definition_name: StringKey,
+    project_config: &ProjectConfig,
+    operations: &OperationGroup<'_>,
+    source_hash: String,
+    source_file: SourceLocationKey,
+) -> Artifact {
+    let text = operation_printer.print(operations.expect_operation_text());
+    Artifact {
+        source_definition_names: vec![source_definition_name],
+        path: path_for_artifact(
+            project_config,
+            source_file,
+            operations.normalization.name.item,
+        ),
+        content: ArtifactContent::UpdatableQuery {
             normalization_operation: Arc::clone(operations.normalization),
             reader_operation: operations.expect_reader(),
             typegen_operation: operations.expect_typegen(),

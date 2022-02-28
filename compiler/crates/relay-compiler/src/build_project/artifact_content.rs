@@ -34,6 +34,14 @@ pub enum ArtifactContent {
         text: String,
         id_and_text_hash: Option<QueryID>,
     },
+    UpdatableQuery {
+        normalization_operation: Arc<OperationDefinition>,
+        reader_operation: Arc<OperationDefinition>,
+        typegen_operation: Arc<OperationDefinition>,
+        source_hash: String,
+        text: String,
+        id_and_text_hash: Option<QueryID>,
+    },
     Fragment {
         reader_fragment: Arc<FragmentDefinition>,
         typegen_fragment: Arc<FragmentDefinition>,
@@ -71,6 +79,27 @@ impl ArtifactContent {
                 text,
                 id_and_text_hash,
             } => generate_operation(
+                config,
+                project_config,
+                printer,
+                schema,
+                normalization_operation,
+                reader_operation,
+                typegen_operation,
+                source_hash.into(),
+                text,
+                id_and_text_hash,
+                skip_types,
+            )
+            .unwrap(),
+            ArtifactContent::UpdatableQuery {
+                normalization_operation,
+                reader_operation,
+                typegen_operation,
+                source_hash,
+                text,
+                id_and_text_hash,
+            } => generate_updatable_query(
                 config,
                 project_config,
                 printer,
@@ -157,6 +186,191 @@ fn write_react_flight_client_annotation(
     }
     writeln!(content)?;
     Ok(())
+}
+
+#[allow(clippy::too_many_arguments)]
+fn generate_updatable_query(
+    config: &Config,
+    project_config: &ProjectConfig,
+    printer: &mut Printer<'_>,
+    schema: &SDLSchema,
+    normalization_operation: &OperationDefinition,
+    reader_operation: &OperationDefinition,
+    typegen_operation: &OperationDefinition,
+    source_hash: String,
+    text: &str,
+    id_and_text_hash: &Option<QueryID>,
+    skip_types: bool,
+) -> Result<Vec<u8>, FmtError> {
+    let mut request_parameters = build_request_params(normalization_operation);
+    if id_and_text_hash.is_some() {
+        request_parameters.id = id_and_text_hash;
+    } else {
+        request_parameters.text = Some(text.into());
+    };
+    let operation_fragment = FragmentDefinition {
+        name: reader_operation.name,
+        variable_definitions: reader_operation.variable_definitions.clone(),
+        selections: reader_operation.selections.clone(),
+        used_global_variables: Default::default(),
+        directives: reader_operation.directives.clone(),
+        type_condition: reader_operation.type_,
+    };
+    let mut content = get_content_start(config)?;
+    writeln!(content, " * {}", SIGNING_TOKEN)?;
+
+    if let Some(QueryID::Persisted { text_hash, .. }) = id_and_text_hash {
+        writeln!(content, " * @relayHash {}", text_hash)?;
+    };
+
+    if project_config.typegen_config.language == TypegenLanguage::Flow {
+        writeln!(content, " * @flow")?;
+    }
+    writeln!(
+        content,
+        " * @lightSyntaxTransform
+ * @nogrep"
+    )?;
+    if let Some(codegen_command) = &config.codegen_command {
+        writeln!(content, " * @codegen-command: {}", codegen_command)?;
+    }
+    writeln!(content, " */\n")?;
+
+    write_disable_lint_header(&project_config.typegen_config.language, &mut content)?;
+    if project_config.typegen_config.language == TypegenLanguage::Flow {
+        writeln!(content, "'use strict';\n")?;
+    }
+
+    if let Some(QueryID::Persisted { id, .. }) = &request_parameters.id {
+        writeln!(content, "// @relayRequestID {}", id)?;
+    }
+    if project_config.variable_names_comment {
+        write!(content, "// @relayVariables")?;
+        for variable_definition in &normalization_operation.variable_definitions {
+            write!(content, " {}", variable_definition.name.item)?;
+        }
+        writeln!(content)?;
+    }
+    let data_driven_dependency_metadata = operation_fragment
+        .directives
+        .named(*DATA_DRIVEN_DEPENDENCY_METADATA_KEY);
+    if let Some(data_driven_dependency_metadata) = data_driven_dependency_metadata {
+        write_data_driven_dependency_annotation(&mut content, data_driven_dependency_metadata)?;
+    }
+    if let Some(flight_metadata) =
+        ReactFlightLocalComponentsMetadata::find(&operation_fragment.directives)
+    {
+        write_react_flight_server_annotation(&mut content, flight_metadata)?;
+    }
+    let relay_client_component_metadata =
+        RelayClientComponentMetadata::find(&operation_fragment.directives);
+    if let Some(relay_client_component_metadata) = relay_client_component_metadata {
+        write_react_flight_client_annotation(&mut content, relay_client_component_metadata)?;
+    }
+
+    if request_parameters.id.is_some() || data_driven_dependency_metadata.is_some() {
+        writeln!(content)?;
+    }
+
+    let generated_types = ArtifactGeneratedTypes::from_operation(typegen_operation, skip_types);
+
+    if project_config.typegen_config.language == TypegenLanguage::Flow {
+        writeln!(content, "/*::")?;
+    }
+
+    write_import_type_from(
+        &project_config.typegen_config.language,
+        &mut content,
+        generated_types.imported_types,
+        "relay-runtime",
+    )?;
+
+    if !skip_types {
+        write!(
+            content,
+            "{}",
+            generate_operation_type_exports_section(
+                typegen_operation,
+                normalization_operation,
+                schema,
+                project_config,
+            )
+        )?;
+    }
+
+    match project_config.typegen_config.language {
+        TypegenLanguage::Flow => writeln!(content, "*/\n")?,
+        TypegenLanguage::TypeScript => writeln!(content)?,
+    }
+    let mut top_level_statements = Default::default();
+    if let Some(provided_variables) =
+        printer.print_provided_variables(schema, normalization_operation, &mut top_level_statements)
+    {
+        let mut provided_variable_text = String::new();
+        write_variable_value_with_type(
+            &project_config.typegen_config.language,
+            &mut provided_variable_text,
+            CODEGEN_CONSTANTS.provided_variables_definition.lookup(),
+            relay_typegen::PROVIDED_VARIABLE_TYPE,
+            &provided_variables,
+        )
+        .unwrap();
+        top_level_statements.insert(
+            CODEGEN_CONSTANTS.provided_variables_definition.to_string(),
+            TopLevelStatement::VariableDefinition(provided_variable_text),
+        );
+    }
+
+    let request = printer.print_request(
+        schema,
+        normalization_operation,
+        &operation_fragment,
+        request_parameters,
+        &mut top_level_statements,
+    );
+
+    write!(content, "{}", &top_level_statements)?;
+
+    write_variable_value_with_type(
+        &project_config.typegen_config.language,
+        &mut content,
+        "node",
+        generated_types.ast_type,
+        &request,
+    )?;
+
+    write_source_hash(
+        config,
+        &project_config.typegen_config.language,
+        &mut content,
+        &source_hash,
+    )?;
+
+    if is_operation_preloadable(normalization_operation) && id_and_text_hash.is_some() {
+        match project_config.typegen_config.language {
+            TypegenLanguage::Flow => {
+                writeln!(
+                    content,
+                    "require('relay-runtime').PreloadableQueryRegistry.set((node.params/*: any*/).id, node);\n",
+                )?;
+            }
+            TypegenLanguage::TypeScript => {
+                writeln!(
+                    content,
+                    "import {{ PreloadableQueryRegistry }} from 'relay-runtime';\nPreloadableQueryRegistry.set(node.params.id, node);\n",
+                )?;
+            }
+        }
+    }
+
+    write_export_generated_node(
+        &project_config.typegen_config,
+        &mut content,
+        "node",
+        generated_types.exported_type,
+    )?;
+
+    Ok(sign_file(&content).into_bytes())
 }
 
 #[allow(clippy::too_many_arguments)]

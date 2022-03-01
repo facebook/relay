@@ -56,7 +56,6 @@ describe.skip('ReactRelayQueryRenderer-react-double-effects', () => {
 
   beforeEach(() => {
     jest.spyOn(console, 'warn').mockImplementationOnce(() => {});
-    RelayFeatureFlags.ENABLE_QUERY_RENDERER_OFFSCREEN_SUPPORT = true;
 
     environment = createMockEnvironment();
     release = jest.fn();
@@ -105,7 +104,6 @@ describe.skip('ReactRelayQueryRenderer-react-double-effects', () => {
   afterEach(() => {
     environment.mockClear();
     jest.clearAllTimers();
-    RelayFeatureFlags.ENABLE_QUERY_RENDERER_OFFSCREEN_SUPPORT = false;
   });
 
   it('forces a re-render and refetches query when effects are double invoked', () => {

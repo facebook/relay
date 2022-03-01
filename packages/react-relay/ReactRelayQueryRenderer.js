@@ -157,10 +157,7 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
   }
 
   componentDidMount() {
-    if (
-      RelayFeatureFlags.ENABLE_QUERY_RENDERER_OFFSCREEN_SUPPORT === true &&
-      this._maybeHiddenOrFastRefresh === true
-    ) {
+    if (this._maybeHiddenOrFastRefresh === true) {
       // This block only runs if the component has previously "unmounted"
       // due to it being hidden by the Offscreen API, or during fast refresh.
       // At this point, the current cached resource will have been disposed

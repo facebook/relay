@@ -658,6 +658,12 @@ You should not write new code using Relay Classic or Relay Modern.
 
 An older version of Relay. This version of Relay had an API that was heavily focused on Containers.
 
+## Relay Resolvers
+
+Relay Resolvers is an experimental Relay feature which enables modeling derived state as client-only fields in Relay’s GraphQL graph.
+
+See also [the Relay Resolvers guide](../guides/relay-resolvers).
+
 ## Release Buffer
 
 As queries are released (no longer [retained](#retain)), their root nodes are stored in a release buffer of fixed size, and only evicted by newly released queries when there isn't enough space in the release buffer. When Relay runs garbage collection, queries that are present in the release buffer and not disposed.

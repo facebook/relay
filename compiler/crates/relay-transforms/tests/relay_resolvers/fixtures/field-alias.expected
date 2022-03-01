@@ -28,6 +28,7 @@ fragment Foo_user on User {
   #     field_alias: Some(
   #         "poppy",
   #     ),
+  #     field_path: "poppy",
   # }
   
 }

@@ -87,7 +87,8 @@ extend type User {
         },
         "kind": "RelayResolver",
         "name": "best_friend",
-        "resolverModule": require('BestFriendResolver')
+        "resolverModule": require('BestFriendResolver'),
+        "path": "best_friend"
       },
       "linkedField": {
         "alias": null,

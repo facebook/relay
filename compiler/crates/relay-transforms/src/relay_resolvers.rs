@@ -39,6 +39,7 @@ struct RelayResolverFieldMetadata {
     field_parent_type: StringKey,
     import_path: StringKey,
     fragment_name: StringKey,
+    field_path: StringKey,
 }
 associated_data_impl!(RelayResolverFieldMetadata);
 
@@ -48,6 +49,7 @@ pub struct RelayResolverSpreadMetadata {
     pub import_path: StringKey,
     pub field_name: StringKey,
     pub field_alias: Option<StringKey>,
+    pub field_path: StringKey,
 }
 associated_data_impl!(RelayResolverSpreadMetadata);
 
@@ -85,6 +87,7 @@ impl<'program> RelayResolverSpreadTransform<'program> {
                 import_path: field_metadata.import_path,
                 field_name: self.program.schema.field(field.definition().item).name.item,
                 field_alias: field.alias().map(|alias| alias.item),
+                field_path: field_metadata.field_path,
             };
 
             let mut new_directives: Vec<Directive> = vec![spread_metadata.into()];
@@ -180,6 +183,7 @@ struct RelayResolverFieldTransform<'program> {
     enabled: bool,
     program: &'program Program,
     errors: Vec<Diagnostic>,
+    path: Vec<&'program str>,
 }
 
 impl<'program> RelayResolverFieldTransform<'program> {
@@ -188,6 +192,7 @@ impl<'program> RelayResolverFieldTransform<'program> {
             program,
             enabled,
             errors: Default::default(),
+            path: Vec::new(),
         }
     }
 
@@ -196,6 +201,7 @@ impl<'program> RelayResolverFieldTransform<'program> {
         field: &impl IrField,
     ) -> Option<Vec<Directive>> {
         let field_type = self.program.schema.field(field.definition().item);
+
         get_resolver_info(field_type, field.definition().location).and_then(|info| {
             if !self.enabled {
                 self.errors.push(Diagnostic::error(
@@ -229,10 +235,12 @@ impl<'program> RelayResolverFieldTransform<'program> {
                         return None;
                     }
                     let parent_type = field_type.parent_type.unwrap();
+
                     let resolver_field_metadata = RelayResolverFieldMetadata {
                         import_path,
                         field_parent_type: self.program.schema.get_type_name(parent_type),
                         fragment_name,
+                        field_path: self.path.join(".").intern(),
                     };
 
                     let mut directives: Vec<Directive> = field.directives().to_vec();
@@ -257,17 +265,27 @@ impl Transformer for RelayResolverFieldTransform<'_> {
     const VISIT_DIRECTIVES: bool = false;
 
     fn transform_scalar_field(&mut self, field: &ScalarField) -> Transformed<Selection> {
-        self.extract_resolver_field_directives(field)
-            .map_or(Transformed::Keep, |directives| {
-                Transformed::Replace(Selection::ScalarField(Arc::new(ScalarField {
-                    directives,
-                    ..field.clone()
-                })))
-            })
+        self.path
+            .push(field.alias_or_name(&self.program.schema).lookup());
+
+        let transformed =
+            self.extract_resolver_field_directives(field)
+                .map_or(Transformed::Keep, |directives| {
+                    Transformed::Replace(Selection::ScalarField(Arc::new(ScalarField {
+                        directives,
+                        ..field.clone()
+                    })))
+                });
+
+        self.path.pop();
+        transformed
     }
 
     fn transform_linked_field(&mut self, field: &LinkedField) -> Transformed<Selection> {
-        self.extract_resolver_field_directives(field).map_or_else(
+        self.path
+            .push(field.alias_or_name(&self.program.schema).lookup());
+
+        let transformed = self.extract_resolver_field_directives(field).map_or_else(
             || self.default_transform_linked_field(field),
             |directives| {
                 Transformed::Replace(Selection::LinkedField(Arc::new(LinkedField {
@@ -275,7 +293,9 @@ impl Transformer for RelayResolverFieldTransform<'_> {
                     ..field.clone()
                 })))
             },
-        )
+        );
+        self.path.pop();
+        transformed
     }
 
     fn transform_inline_fragment(

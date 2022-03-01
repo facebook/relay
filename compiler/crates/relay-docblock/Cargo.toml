@@ -18,9 +18,9 @@ path = "tests/to_schema_test.rs"
 common = { path = "../common" }
 docblock-syntax = { path = "../docblock-syntax" }
 graphql-syntax = { path = "../graphql-syntax" }
-schema = { path = "../schema" }
 intern = { path = "../intern" }
 lazy_static = "1.0"
+schema = { path = "../schema" }
 thiserror = "1.0.29"
 
 [dev-dependencies]

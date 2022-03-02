@@ -175,9 +175,9 @@ dependencies = [
 
 [[package]]
 name = "clap"
-version = "3.0.10"
+version = "3.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7a30c3bf9ff12dfe5dae53f0a96e0febcd18420d1c0e7fad77796d9d5c4b5375"
+checksum = "ced1892c55c910c1219e98d6fc8d71f6bddba7905866ce740066d8bfea859312"
 dependencies = [
  "atty",
  "bitflags",
@@ -195,9 +195,9 @@ dependencies = [
 
 [[package]]
 name = "clap_derive"
-version = "3.0.6"
+version = "3.1.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "517358c28fcef6607bf6f76108e02afad7e82297d132a6b846dcc1fc3efcd153"
+checksum = "da95d038ede1a964ce99f49cbe27a7fb538d1da595e4b4f70b8c8f338d17bf16"
 dependencies = [
  "heck",
  "proc-macro-error",
@@ -381,6 +381,7 @@ dependencies = [
  "fixture-tests",
  "graphql-test-helpers",
  "intern",
+ "serde",
  "thiserror",
 ]
 
@@ -615,7 +616,6 @@ dependencies = [
  "once_cell",
  "relay-test-schema",
  "schema",
- "strsim",
  "thiserror",
 ]
 
@@ -1421,6 +1421,7 @@ dependencies = [
  "common-path",
  "dashmap",
  "dependency-analyzer",
+ "docblock-syntax",
  "errors",
  "extract-graphql",
  "fixture-tests",
@@ -1445,6 +1446,7 @@ dependencies = [
  "regex",
  "relay-codegen",
  "relay-config",
+ "relay-docblock",
  "relay-schema",
  "relay-test-schema",
  "relay-transforms",
@@ -1475,6 +1477,23 @@ dependencies = [
  "regex",
  "serde",
  "serde_json",
+]
+
+[[package]]
+name = "relay-docblock"
+version = "0.0.0"
+dependencies = [
+ "common",
+ "docblock-syntax",
+ "extract-graphql",
+ "fixture-tests",
+ "graphql-syntax",
+ "graphql-test-helpers",
+ "intern",
+ "lazy_static",
+ "relay-test-schema",
+ "schema",
+ "thiserror",
 ]
 
 [[package]]
@@ -1625,6 +1644,7 @@ dependencies = [
  "lazy_static",
  "ouroboros",
  "schema-flatbuffer",
+ "strsim",
  "thiserror",
 ]
 
@@ -1919,9 +1939,9 @@ dependencies = [
 
 [[package]]
 name = "textwrap"
-version = "0.14.2"
+version = "0.15.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0066c8d12af8b5acd21e00547c3797fde4e8677254a7ee429176ccebbe93dd80"
+checksum = "b1141d4d61095b28419e22cb0bbf02755f5e54e0526f97f1e3d1d160e60885fb"
 dependencies = [
  "terminal_size",
  "unicode-width",
@@ -2096,9 +2116,9 @@ dependencies = [
 
 [[package]]
 name = "unicode-width"
-version = "0.1.8"
+version = "0.1.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9337591893a19b88d8d87f2cec1e73fad5cdfd10e5a6f349f498ad6ea2ffb1e3"
+checksum = "3ed742d4ea2bd1176e236172c8429aaf54486e7ac098db29ffe6529e0ce50973"
 
 [[package]]
 name = "unicode-xid"

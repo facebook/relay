@@ -21,6 +21,7 @@ const Guides = fbContent({
     'guides/testing-relay-components',
     'guides/testing-relay-with-preloaded-queries',
     'guides/required-directive',
+    'guides/relay-resolvers',
     'guides/client-schema-extensions',
     'guides/type-emission',
     {

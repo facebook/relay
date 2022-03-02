@@ -6,7 +6,7 @@
  */
 
 use crate::writer::{Prop, Writer, AST};
-use crate::TypegenConfig;
+use crate::{AstList, TypegenConfig};
 use crate::{KEY_DATA, KEY_FRAGMENT_SPREADS, KEY_FRAGMENT_TYPE};
 use intern::string_key::{Intern, StringKey};
 use itertools::Itertools;
@@ -14,6 +14,7 @@ use std::fmt::{Result as FmtResult, Write};
 
 pub struct TypeScriptPrinter {
     result: String,
+    should_sort_typegen_items: bool,
     use_import_type_syntax: bool,
     indentation: usize,
     should_wrap_unions_in_parentheses: bool,
@@ -92,11 +93,16 @@ impl Writer for TypeScriptPrinter {
 }
 
 impl TypeScriptPrinter {
-    pub fn new(config: &TypegenConfig, should_wrap_unions_in_parentheses: bool) -> Self {
+    pub fn new(
+        config: &TypegenConfig,
+        should_sort_typegen_items: bool,
+        should_wrap_unions_in_parentheses: bool,
+    ) -> Self {
         Self {
             result: String::new(),
             indentation: 0,
             use_import_type_syntax: config.use_import_type_syntax,
+            should_sort_typegen_items,
             should_wrap_unions_in_parentheses,
         }
     }
@@ -282,12 +288,13 @@ impl TypeScriptPrinter {
     fn write_fragment_references(&mut self, fragments: &[StringKey]) -> FmtResult {
         write!(&mut self.result, "FragmentRefs<")?;
         self.write_ast(
-            &AST::Union(
+            &AST::Union(AstList::new(
                 fragments
                     .iter()
                     .map(|key| AST::StringLiteral(*key))
                     .collect(),
-            ),
+                self.should_sort_typegen_items,
+            )),
             false,
         )?;
         write!(&mut self.result, ">")
@@ -309,7 +316,7 @@ impl TypeScriptPrinter {
 
 #[cfg(test)]
 mod tests {
-    use crate::writer::{ExactObject, InexactObject, KeyValuePairProp};
+    use crate::writer::{AstList, ExactObject, InexactObject, KeyValuePairProp};
 
     use super::*;
     use intern::string_key::Intern;
@@ -319,7 +326,7 @@ mod tests {
     }
 
     fn print_type_with_config(ast: &AST, config: &TypegenConfig) -> String {
-        let mut printer = Box::new(TypeScriptPrinter::new(config, true));
+        let mut printer = Box::new(TypeScriptPrinter::new(config, true, true));
         printer.write(ast).unwrap();
         printer.into_string()
     }
@@ -334,7 +341,10 @@ mod tests {
     #[test]
     fn union_type() {
         assert_eq!(
-            print_type(&AST::Union(vec![AST::String, AST::Number])),
+            print_type(&AST::Union(AstList::new(
+                vec![AST::String, AST::Number],
+                true
+            ))),
             "(string | number)".to_string()
         );
     }
@@ -355,10 +365,10 @@ mod tests {
         );
 
         assert_eq!(
-            print_type(&AST::Nullable(Box::new(AST::Union(vec![
-                AST::String,
-                AST::Number,
-            ])))),
+            print_type(&AST::Nullable(Box::new(AST::Union(AstList::new(
+                vec![AST::String, AST::Number,],
+                true
+            ))))),
             "(string | number | null)"
         )
     }
@@ -366,36 +376,8 @@ mod tests {
     #[test]
     fn intersections() {
         assert_eq!(
-            print_type(&AST::Intersection(vec![
-                AST::ExactObject(ExactObject::new(
-                    vec![Prop::KeyValuePair(KeyValuePairProp {
-                        key: "first".intern(),
-                        optional: false,
-                        read_only: false,
-                        value: AST::String
-                    })],
-                    true
-                )),
-                AST::ExactObject(ExactObject::new(
-                    vec![Prop::KeyValuePair(KeyValuePairProp {
-                        key: "second".intern(),
-                        optional: false,
-                        read_only: false,
-                        value: AST::Number
-                    })],
-                    true
-                )),
-            ])),
-            r"({
-  first: string;
-} & {
-  second: number;
-})"
-        );
-
-        assert_eq!(
-            print_type(&AST::Intersection(vec![
-                AST::Union(vec![
+            print_type(&AST::Intersection(AstList::new(
+                vec![
                     AST::ExactObject(ExactObject::new(
                         vec![Prop::KeyValuePair(KeyValuePairProp {
                             key: "first".intern(),
@@ -414,7 +396,38 @@ mod tests {
                         })],
                         true
                     )),
-                ]),
+                ],
+                true
+            ))),
+            r"({
+  first: string;
+} & {
+  second: number;
+})"
+        );
+
+        assert_eq!(
+            print_type(&AST::Intersection(AstList::sorted(vec![
+                AST::Union(AstList::sorted(vec![
+                    AST::ExactObject(ExactObject::new(
+                        vec![Prop::KeyValuePair(KeyValuePairProp {
+                            key: "first".intern(),
+                            optional: false,
+                            read_only: false,
+                            value: AST::String
+                        })],
+                        true
+                    )),
+                    AST::ExactObject(ExactObject::new(
+                        vec![Prop::KeyValuePair(KeyValuePairProp {
+                            key: "second".intern(),
+                            optional: false,
+                            read_only: false,
+                            value: AST::Number
+                        })],
+                        true
+                    )),
+                ],)),
                 AST::ExactObject(ExactObject::new(
                     vec![Prop::KeyValuePair(KeyValuePairProp {
                         key: "third".intern(),
@@ -424,7 +437,7 @@ mod tests {
                     })],
                     true
                 )),
-            ],)),
+            ]),)),
             r"(({
   first: string;
 } | {
@@ -443,10 +456,10 @@ mod tests {
                     key: "key".intern(),
                     optional: false,
                     read_only: false,
-                    value: AST::Intersection(vec![
-                        AST::Union(vec![AST::String, AST::Number]),
+                    value: AST::Intersection(AstList::sorted(vec![
+                        AST::Union(AstList::sorted(vec![AST::String, AST::Number])),
                         AST::Boolean
-                    ])
+                    ]))
                 })],
                 true
             ))),
@@ -624,7 +637,11 @@ mod tests {
 
     #[test]
     fn import_type() {
-        let mut printer = Box::new(TypeScriptPrinter::new(&TypegenConfig::default(), true));
+        let mut printer = Box::new(TypeScriptPrinter::new(
+            &TypegenConfig::default(),
+            true,
+            true,
+        ));
         printer.write_import_type(&["A", "B"], "module").unwrap();
         assert_eq!(printer.into_string(), "import { A, B } from \"module\";\n");
 
@@ -634,6 +651,7 @@ mod tests {
                 ..Default::default()
             },
             true,
+            true,
         ));
         printer.write_import_type(&["C"], "./foo").unwrap();
         assert_eq!(printer.into_string(), "import type { C } from \"./foo\";\n");
@@ -641,7 +659,11 @@ mod tests {
 
     #[test]
     fn import_module() {
-        let mut printer = Box::new(TypeScriptPrinter::new(&TypegenConfig::default(), true));
+        let mut printer = Box::new(TypeScriptPrinter::new(
+            &TypegenConfig::default(),
+            true,
+            true,
+        ));
         printer.write_import_module_default("A", "module").unwrap();
         assert_eq!(printer.into_string(), "import A from \"module\";\n");
     }

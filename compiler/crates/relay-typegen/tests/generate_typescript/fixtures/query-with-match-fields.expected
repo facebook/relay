@@ -51,26 +51,26 @@ export type MarkdownUserNameRenderer_name = {
 };
 export type Test$rawResponse = {
   readonly node: {
-    readonly __typename: "User";
-    readonly id: string;
-    readonly nameRenderer: {
-      readonly __module_component_NameRendererFragment: any | null;
-      readonly __module_operation_NameRendererFragment: any | null;
-      readonly __typename: "PlainUserNameRenderer";
-    } | Local3DPayload<"NameRendererFragment", {
-      readonly __typename: "PlainUserNameRenderer";
-    }> | {
-      readonly __module_component_NameRendererFragment: any | null;
-      readonly __module_operation_NameRendererFragment: any | null;
-      readonly __typename: "MarkdownUserNameRenderer";
-    } | Local3DPayload<"NameRendererFragment", {
-      readonly __typename: "MarkdownUserNameRenderer";
-    }> | {
-      readonly __typename: string;
-    } | null;
-  } | {
     readonly __typename: string;
     readonly id: string;
+  } | {
+    readonly __typename: "User";
+    readonly id: string;
+    readonly nameRenderer: Local3DPayload<"NameRendererFragment", {
+      readonly __typename: "MarkdownUserNameRenderer";
+    }> | Local3DPayload<"NameRendererFragment", {
+      readonly __typename: "PlainUserNameRenderer";
+    }> | {
+      readonly __module_component_NameRendererFragment: any | null;
+      readonly __module_operation_NameRendererFragment: any | null;
+      readonly __typename: "MarkdownUserNameRenderer";
+    } | {
+      readonly __module_component_NameRendererFragment: any | null;
+      readonly __module_operation_NameRendererFragment: any | null;
+      readonly __typename: "PlainUserNameRenderer";
+    } | {
+      readonly __typename: string;
+    } | null;
   } | null;
 };
 export type Test = {

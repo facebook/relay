@@ -13,6 +13,7 @@ mod flow;
 mod typescript;
 mod writer;
 
+use crate::writer::AstList;
 use ::intern::{
     intern,
     string_key::{Intern, StringKey},
@@ -227,6 +228,7 @@ impl<'a> TypeGenerator<'a> {
                 )),
                 TypegenLanguage::TypeScript => Box::new(TypeScriptPrinter::new(
                     typegen_config,
+                    should_sort_typegen_items,
                     should_sort_typegen_items,
                 )),
             },
@@ -979,7 +981,7 @@ impl<'a> TypeGenerator<'a> {
             types.push(selection_map_values);
         }
 
-        AST::Union(
+        AST::Union(AstList::new(
             types
                 .into_iter()
                 .map(|mut props: Vec<Prop>| {
@@ -1001,7 +1003,8 @@ impl<'a> TypeGenerator<'a> {
                     }
                 })
                 .collect(),
-        )
+            self.should_sort_typegen_items,
+        ))
     }
 
     fn raw_response_selections_to_babel(
@@ -1070,7 +1073,7 @@ impl<'a> TypeGenerator<'a> {
             self.append_local_3d_payload(&mut types, &base_fields, concrete_type);
         }
 
-        AST::Union(types)
+        AST::Union(AstList::new(types, self.should_sort_typegen_items))
     }
 
     fn append_local_3d_payload(
@@ -1139,7 +1142,7 @@ impl<'a> TypeGenerator<'a> {
                             AST::RawType(intern!("null | void"))
                         }
                     } else {
-                        let setter_parameter = AST::Union(
+                        let setter_parameter = AST::Union(AstList::new(
                                 just_fragments
                                     .iter()
                                     .map(|fragment_spread| {
@@ -1177,7 +1180,7 @@ impl<'a> TypeGenerator<'a> {
                                             client_id_field,
                                         ], self.should_sort_typegen_items))
                                     })
-                                    .collect(),
+                                    .collect(), self.should_sort_typegen_items)
                             );
                         if linked_field.node_type.is_list() {
                             AST::ReadOnlyArray(Box::new(setter_parameter))
@@ -1500,12 +1503,14 @@ impl<'a> TypeGenerator<'a> {
 
                 self.writer.write_export_type(
                     enum_type.name.lookup(),
-                    &AST::Union(
+                    &AST::Union(AstList::new(
                         members
                             .into_iter()
                             .map(|key| AST::StringLiteral(key))
                             .collect(),
-                    ),
+                        // Sort above to always put FUTURE_ENUM_VALUE last.
+                        false,
+                    )),
                 )?;
             }
         }
@@ -1761,13 +1766,16 @@ impl<'a> TypeGenerator<'a> {
             ],
             self.should_sort_typegen_items,
         ));
-        let return_type = AST::Union(vec![
-            AST::InexactObject(InexactObject::new(
-                vec![id_prop, fragment_spread_prop, return_value_discriminator],
-                self.should_sort_typegen_items,
-            )),
-            AST::RawType(intern!("false")),
-        ]);
+        let return_type = AST::Union(AstList::new(
+            vec![
+                AST::InexactObject(InexactObject::new(
+                    vec![id_prop, fragment_spread_prop, return_value_discriminator],
+                    self.should_sort_typegen_items,
+                )),
+                AST::RawType(intern!("false")),
+            ],
+            false,
+        ));
 
         let (open_comment, close_comment) = match self.typegen_config.language {
             TypegenLanguage::Flow => ("/*", "*/"),
@@ -1850,13 +1858,16 @@ impl<'a> TypeGenerator<'a> {
             ],
             self.should_sort_typegen_items,
         ));
-        let return_type = AST::Union(vec![
-            AST::InexactObject(InexactObject::new(
-                vec![id_prop, fragment_spread_prop, return_value_discriminator],
-                self.should_sort_typegen_items,
-            )),
-            AST::RawType(intern!("false")),
-        ]);
+        let return_type = AST::Union(AstList::new(
+            vec![
+                AST::InexactObject(InexactObject::new(
+                    vec![id_prop, fragment_spread_prop, return_value_discriminator],
+                    self.should_sort_typegen_items,
+                )),
+                AST::RawType(intern!("false")),
+            ],
+            false,
+        ));
 
         let (open_comment, close_comment) = match self.typegen_config.language {
             TypegenLanguage::Flow => ("/*", "*/"),

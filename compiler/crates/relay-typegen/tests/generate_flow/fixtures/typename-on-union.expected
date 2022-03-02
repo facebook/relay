@@ -83,12 +83,12 @@ fragment TypenameAliases on Actor {
 import type { FragmentType } from "relay-runtime";
 declare export opaque type TypenameAlias$fragmentType: FragmentType;
 export type TypenameAlias$data = {|
-  +_typeAlias: "User",
-  +firstName: ?string,
-  +$fragmentType: TypenameAlias$fragmentType,
-|} | {|
   +_typeAlias: "Page",
   +username: ?string,
+  +$fragmentType: TypenameAlias$fragmentType,
+|} | {|
+  +_typeAlias: "User",
+  +firstName: ?string,
   +$fragmentType: TypenameAlias$fragmentType,
 |} | {|
   // This will never be '%other', but we need some
@@ -105,14 +105,14 @@ export type TypenameAlias$key = {
 import type { FragmentType } from "relay-runtime";
 declare export opaque type TypenameAliases$fragmentType: FragmentType;
 export type TypenameAliases$data = {|
-  +_typeAlias1: "User",
-  +_typeAlias2: "User",
-  +firstName: ?string,
-  +$fragmentType: TypenameAliases$fragmentType,
-|} | {|
   +_typeAlias1: "Page",
   +_typeAlias2: "Page",
   +username: ?string,
+  +$fragmentType: TypenameAliases$fragmentType,
+|} | {|
+  +_typeAlias1: "User",
+  +_typeAlias2: "User",
+  +firstName: ?string,
   +$fragmentType: TypenameAliases$fragmentType,
 |} | {|
   // This will never be '%other', but we need some
@@ -132,12 +132,12 @@ export type TypenameAliases$key = {
 import type { FragmentType } from "relay-runtime";
 declare export opaque type TypenameInside$fragmentType: FragmentType;
 export type TypenameInside$data = {|
-  +__typename: "User",
-  +firstName: ?string,
-  +$fragmentType: TypenameInside$fragmentType,
-|} | {|
   +__typename: "Page",
   +username: ?string,
+  +$fragmentType: TypenameInside$fragmentType,
+|} | {|
+  +__typename: "User",
+  +firstName: ?string,
   +$fragmentType: TypenameInside$fragmentType,
 |} | {|
   // This will never be '%other', but we need some
@@ -154,12 +154,12 @@ export type TypenameInside$key = {
 import type { FragmentType } from "relay-runtime";
 declare export opaque type TypenameOutside$fragmentType: FragmentType;
 export type TypenameOutside$data = {|
-  +__typename: "User",
-  +firstName: ?string,
-  +$fragmentType: TypenameOutside$fragmentType,
-|} | {|
   +__typename: "Page",
   +username: ?string,
+  +$fragmentType: TypenameOutside$fragmentType,
+|} | {|
+  +__typename: "User",
+  +firstName: ?string,
   +$fragmentType: TypenameOutside$fragmentType,
 |} | {|
   // This will never be '%other', but we need some

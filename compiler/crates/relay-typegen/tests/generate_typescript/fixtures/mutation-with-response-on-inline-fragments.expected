@@ -55,12 +55,8 @@ export type TestMutation$rawResponse = {
   readonly commentCreate: {
     readonly viewer: {
       readonly actor: {
-        readonly __isActor: "User";
-        readonly __typename: "User";
-        readonly hometown: {
-          readonly id: string;
-          readonly name: string | null;
-        } | null;
+        readonly __isActor: string;
+        readonly __typename: string;
         readonly id: string;
       } | {
         readonly __isActor: "Page";
@@ -74,8 +70,12 @@ export type TestMutation$rawResponse = {
         readonly id: string;
         readonly name: string | null;
       } | {
-        readonly __isActor: string;
-        readonly __typename: string;
+        readonly __isActor: "User";
+        readonly __typename: "User";
+        readonly hometown: {
+          readonly id: string;
+          readonly name: string | null;
+        } | null;
         readonly id: string;
       } | null;
     } | null;

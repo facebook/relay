@@ -33,6 +33,9 @@ export type TestStream$data = {
 };
 export type TestStream$rawResponse = {
   readonly node: {
+    readonly __typename: string;
+    readonly id: string;
+  } | {
     readonly __typename: "User";
     readonly friends: {
       readonly edges: ReadonlyArray<{
@@ -49,9 +52,6 @@ export type TestStream$rawResponse = {
     } | null;
     readonly id: string;
     readonly name: string | null;
-  } | {
-    readonly __typename: string;
-    readonly id: string;
   } | null;
 };
 export type TestStream = {

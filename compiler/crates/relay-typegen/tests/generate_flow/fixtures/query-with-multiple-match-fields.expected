@@ -74,14 +74,15 @@ export type MarkdownUserNameRenderer_name = {|
 |};
 export type Test$rawResponse = {|
   +node: ?({|
+    +__typename: string,
+    +id: string,
+  |} | {|
     +__typename: "User",
     +id: string,
-    +nameRenderer: ?({|
-      +__module_component_NameRendererFragment: ?any,
-      +__module_operation_NameRendererFragment: ?any,
-      +__typename: "PlainUserNameRenderer",
-      ...PlainUserNameRenderer_name,
-    |} | Local3DPayload<"NameRendererFragment", {|
+    +nameRenderer: ?(Local3DPayload<"NameRendererFragment", {|
+      +__typename: "MarkdownUserNameRenderer",
+      ...MarkdownUserNameRenderer_name,
+    |}> | Local3DPayload<"NameRendererFragment", {|
       +__typename: "PlainUserNameRenderer",
       ...PlainUserNameRenderer_name,
     |}> | {|
@@ -89,28 +90,28 @@ export type Test$rawResponse = {|
       +__module_operation_NameRendererFragment: ?any,
       +__typename: "MarkdownUserNameRenderer",
       ...MarkdownUserNameRenderer_name,
-    |} | Local3DPayload<"NameRendererFragment", {|
-      +__typename: "MarkdownUserNameRenderer",
-      ...MarkdownUserNameRenderer_name,
-    |}> | {|
+    |} | {|
+      +__module_component_NameRendererFragment: ?any,
+      +__module_operation_NameRendererFragment: ?any,
+      +__typename: "PlainUserNameRenderer",
+      ...PlainUserNameRenderer_name,
+    |} | {|
       +__typename: string,
     |}),
     +username: ?string,
-  |} | {|
-    +__typename: string,
-    +id: string,
   |}),
   +viewer: ?{|
     +actor: ?({|
+      +__typename: string,
+      +id: string,
+    |} | {|
       +__typename: "User",
       +id: string,
       +name: ?string,
-      +nameRenderer: ?({|
-        +__module_component_AnotherNameRendererFragment: ?any,
-        +__module_operation_AnotherNameRendererFragment: ?any,
-        +__typename: "PlainUserNameRenderer",
-        ...PlainUserNameRenderer_name,
-      |} | Local3DPayload<"AnotherNameRendererFragment", {|
+      +nameRenderer: ?(Local3DPayload<"AnotherNameRendererFragment", {|
+        +__typename: "MarkdownUserNameRenderer",
+        ...MarkdownUserNameRenderer_name,
+      |}> | Local3DPayload<"AnotherNameRendererFragment", {|
         +__typename: "PlainUserNameRenderer",
         ...PlainUserNameRenderer_name,
       |}> | {|
@@ -118,15 +119,14 @@ export type Test$rawResponse = {|
         +__module_operation_AnotherNameRendererFragment: ?any,
         +__typename: "MarkdownUserNameRenderer",
         ...MarkdownUserNameRenderer_name,
-      |} | Local3DPayload<"AnotherNameRendererFragment", {|
-        +__typename: "MarkdownUserNameRenderer",
-        ...MarkdownUserNameRenderer_name,
-      |}> | {|
+      |} | {|
+        +__module_component_AnotherNameRendererFragment: ?any,
+        +__module_operation_AnotherNameRendererFragment: ?any,
+        +__typename: "PlainUserNameRenderer",
+        ...PlainUserNameRenderer_name,
+      |} | {|
         +__typename: string,
       |}),
-    |} | {|
-      +__typename: string,
-      +id: string,
     |}),
   |},
 |};

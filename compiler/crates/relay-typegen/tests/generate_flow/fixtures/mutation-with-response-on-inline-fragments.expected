@@ -55,12 +55,8 @@ export type TestMutation$rawResponse = {|
   +commentCreate: ?{|
     +viewer: ?{|
       +actor: ?({|
-        +__isActor: "User",
-        +__typename: "User",
-        +hometown: ?{|
-          +id: string,
-          +name: ?string,
-        |},
+        +__isActor: string,
+        +__typename: string,
         +id: string,
       |} | {|
         +__isActor: "Page",
@@ -74,8 +70,12 @@ export type TestMutation$rawResponse = {|
         +id: string,
         +name: ?string,
       |} | {|
-        +__isActor: string,
-        +__typename: string,
+        +__isActor: "User",
+        +__typename: "User",
+        +hometown: ?{|
+          +id: string,
+          +name: ?string,
+        |},
         +id: string,
       |}),
     |},

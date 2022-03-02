@@ -31,18 +31,18 @@ export type Test_userRenderer = {|
 |};
 export type Test$rawResponse = {|
   +node: ?({|
+    +__typename: string,
+    +id: string,
+  |} | {|
     +__typename: "User",
     +id: string,
-    +plainUserRenderer: ?({|
+    +plainUserRenderer: ?(Local3DPayload<"Test_user", {|
+      ...Test_userRenderer,
+    |}> | {|
       +__module_component_Test_user: ?any,
       +__module_operation_Test_user: ?any,
       ...Test_userRenderer,
-    |} | Local3DPayload<"Test_user", {|
-      ...Test_userRenderer,
-    |}>),
-  |} | {|
-    +__typename: string,
-    +id: string,
+    |}),
   |}),
 |};
 export type Test = {|

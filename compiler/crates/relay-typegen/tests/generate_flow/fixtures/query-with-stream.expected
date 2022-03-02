@@ -33,6 +33,9 @@ export type TestStream$data = {|
 |};
 export type TestStream$rawResponse = {|
   +node: ?({|
+    +__typename: string,
+    +id: string,
+  |} | {|
     +__typename: "User",
     +friends: ?{|
       +edges: ?$ReadOnlyArray<?{|
@@ -49,9 +52,6 @@ export type TestStream$rawResponse = {|
     |},
     +id: string,
     +name: ?string,
-  |} | {|
-    +__typename: string,
-    +id: string,
   |}),
 |};
 export type TestStream = {|

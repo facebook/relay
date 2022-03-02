@@ -29,13 +29,13 @@ export type UpdatableQuery$data = {|
     |},
     set actor(value: ?({
       +__id: string,
-      +__typename: "Page",
-      +$fragmentSpreads: Assignable_page$fragmentType,
+      +__isAssignable_node: string,
+      +$fragmentSpreads: Assignable_node$fragmentType,
       ...
     } | {
       +__id: string,
-      +__isAssignable_node: string,
-      +$fragmentSpreads: Assignable_node$fragmentType,
+      +__typename: "Page",
+      +$fragmentSpreads: Assignable_page$fragmentType,
       ...
     })): void,
   |},

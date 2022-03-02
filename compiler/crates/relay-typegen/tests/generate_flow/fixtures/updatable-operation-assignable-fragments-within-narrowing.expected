@@ -28,9 +28,9 @@ export type UpdatableQuery$variables = {||};
 export type UpdatableQuery$data = {|
   get me(): ?{|
     get actor(): ?({|
-      +__typename: "User",
-    |} | {|
       +__typename: "Page",
+    |} | {|
+      +__typename: "User",
     |} | {|
       // This will never be '%other', but we need some
       // value in case none of the concrete values match.
@@ -38,13 +38,13 @@ export type UpdatableQuery$data = {|
     |}),
     set actor(value: ?({
       +__id: string,
-      +__typename: "User",
-      +$fragmentSpreads: Assignable_user$fragmentType,
+      +__typename: "Page",
+      +$fragmentSpreads: Assignable_page$fragmentType,
       ...
     } | {
       +__id: string,
-      +__typename: "Page",
-      +$fragmentSpreads: Assignable_page$fragmentType,
+      +__typename: "User",
+      +$fragmentSpreads: Assignable_user$fragmentType,
       ...
     })): void,
   |},

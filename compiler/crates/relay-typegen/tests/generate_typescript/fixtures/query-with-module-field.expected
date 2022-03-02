@@ -32,15 +32,15 @@ export type Test_userRenderer = {
 };
 export type Test$rawResponse = {
   readonly node: {
-    readonly __typename: "User";
-    readonly id: string;
-    readonly plainUserRenderer: {
-      readonly __module_component_Test_user: any | null;
-      readonly __module_operation_Test_user: any | null;
-    } | Local3DPayload<"Test_user", {}> | null;
-  } | {
     readonly __typename: string;
     readonly id: string;
+  } | {
+    readonly __typename: "User";
+    readonly id: string;
+    readonly plainUserRenderer: Local3DPayload<"Test_user", {}> | {
+      readonly __module_component_Test_user: any | null;
+      readonly __module_operation_Test_user: any | null;
+    } | null;
   } | null;
 };
 export type Test = {

@@ -28,6 +28,9 @@ export type ExampleQuery$data = {|
 |};
 export type ExampleQuery$rawResponse = {|
   +node: ?({|
+    +__typename: string,
+    +id: string,
+  |} | {|
     +__typename: "User",
     +feedback: ?{|
       +id: string,
@@ -36,9 +39,6 @@ export type ExampleQuery$rawResponse = {|
     +id: string,
     +lastName: ?string,
     +name: ?string,
-  |} | {|
-    +__typename: string,
-    +id: string,
   |}),
 |};
 export type ExampleQuery = {|

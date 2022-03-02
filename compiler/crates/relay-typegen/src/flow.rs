@@ -340,6 +340,7 @@ mod tests {
     use crate::writer::{ExactObject, InexactObject, KeyValuePairProp};
 
     use super::*;
+    use crate::AstList;
     use intern::string_key::Intern;
 
     fn print_type(ast: &AST) -> String {
@@ -358,7 +359,7 @@ mod tests {
     #[test]
     fn union_type() {
         assert_eq!(
-            print_type(&AST::Union(vec![AST::String, AST::Number])),
+            print_type(&AST::Union(AstList::sorted(vec![AST::String, AST::Number]))),
             "(string | number)".to_string()
         );
     }
@@ -379,10 +380,10 @@ mod tests {
         );
 
         assert_eq!(
-            print_type(&AST::Nullable(Box::new(AST::Union(vec![
+            print_type(&AST::Nullable(Box::new(AST::Union(AstList::sorted(vec![
                 AST::String,
                 AST::Number,
-            ])))),
+            ]))))),
             "?(string | number)"
         )
     }
@@ -395,10 +396,10 @@ mod tests {
                     key: "key".intern(),
                     optional: false,
                     read_only: false,
-                    value: AST::Intersection(vec![
-                        AST::Union(vec![AST::String, AST::Number]),
+                    value: AST::Intersection(AstList::sorted(vec![
+                        AST::Union(AstList::sorted(vec![AST::String, AST::Number])),
                         AST::Boolean
-                    ])
+                    ]))
                 })],
                 true
             ))),

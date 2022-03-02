@@ -5,11 +5,13 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use common::NamedItem;
 use graphql_ir::{Program, Value};
 use graphql_syntax::{FragmentDefinition, Identifier, OperationDefinition, VariableDefinition};
 use graphql_text_printer::print_value;
 use intern::string_key::StringKey;
 use lsp_types::{Hover, HoverContents, MarkedString};
+use relay_transforms::RELAY_RESOLVER_DIRECTIVE_NAME;
 use schema::{SDLSchema, Schema};
 use schema_documentation::SchemaDocumentation;
 use schema_print::print_directive;
@@ -616,6 +618,11 @@ fn get_scalar_or_linked_field_hover_content(
         .named_field(*parent_type, field_name.value)
         .map(|id| schema.field(id))?;
 
+    let is_resolver = field
+        .directives
+        .named(*RELAY_RESOLVER_DIRECTIVE_NAME)
+        .is_some();
+
     let rendered_type_string = schema.get_type_string(&field.type_);
     let field_type_name = schema.get_type_name(field.type_.inner()).lookup();
 
@@ -632,18 +639,21 @@ fn get_scalar_or_linked_field_hover_content(
 
     type_path.push(field_type_name);
 
-    hover_contents.push(MarkedString::String(format!(
-        "Type: **{}**",
-        content_consumer_type.render_text_with_params(
-            &rendered_type_string,
-            &GraphQLSchemaExplorerParams {
-                path: type_path,
-                schema_name: schema_name.lookup(),
-                filter: None,
-            }
-        )
-    )));
-
+    // Relay Resolvers return the return type of their resolver function. This can be any JavaScript value
+    // so it's not correctly modeled in our schema types.
+    if !is_resolver {
+        hover_contents.push(MarkedString::String(format!(
+            "Type: **{}**",
+            content_consumer_type.render_text_with_params(
+                &rendered_type_string,
+                &GraphQLSchemaExplorerParams {
+                    path: type_path,
+                    schema_name: schema_name.lookup(),
+                    filter: None,
+                }
+            )
+        )));
+    }
     if let Some(type_description) = schema_documentation.get_type_description(field_type_name) {
         hover_contents.push(MarkedString::String(type_description.to_string()));
     }
@@ -684,7 +694,10 @@ fn get_scalar_or_linked_field_hover_content(
         }
     }
 
-    if field.is_extension {
+    if is_resolver {
+        let msg = "**Relay Resolver**: This field is backed by a Relay Resolver, and is therefore only avaliable in Relay code. [Learn More](https://relay.dev/docs/next/guides/relay-resolvers/).";
+        hover_contents.push(MarkedString::String(msg.to_string()))
+    } else if field.is_extension {
         let msg = match content_consumer_type {
             ContentConsumerType::Relay => {
                 "**Client Schema Extension**: This field was declared as a Relay Client Schema Extension, and is therefore only avalaible in Relay code. [Learn More](https://relay.dev/docs/guided-tour/updating-data/client-only-data/#client-only-data-client-schema-extensions)."

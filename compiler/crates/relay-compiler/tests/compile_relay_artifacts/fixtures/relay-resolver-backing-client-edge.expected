@@ -173,7 +173,8 @@ fragment RefetchableClientEdgeQuery_relayResolverBackingClientEdgeQuery_me__best
               },
               "kind": "RelayResolver",
               "name": "best_friend",
-              "resolverModule": require('BestFriendResolver')
+              "resolverModule": require('BestFriendResolver'),
+              "path": "me.best_friend"
             },
             "linkedField": {
               "alias": null,

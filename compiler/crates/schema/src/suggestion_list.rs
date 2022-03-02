@@ -6,7 +6,7 @@
  */
 
 use crate::{SDLSchema, Schema, Type};
-use intern::string_key::StringKey;
+use intern::string_key::{Intern, StringKey};
 use strsim::damerau_levenshtein;
 
 /// Computes the lexical distance between strings A and B.
@@ -56,7 +56,7 @@ impl<'a> LexicalDistance<'a> {
 }
 
 /// Generate the list of the suggested values that are closest to the `input`
-fn suggestion_list(input: StringKey, options: &[StringKey], limit: usize) -> Vec<StringKey> {
+pub fn suggestion_list(input: StringKey, options: &[StringKey], limit: usize) -> Vec<StringKey> {
     let lexical_distance = LexicalDistance::new(input.lookup());
 
     // This is from graphql-js (https://github.com/graphql/graphql-js/commit/4c10844f6f2ab3e2993d8d5f5f3ed97dce9d3655)
@@ -162,6 +162,46 @@ impl<'schema> GraphQLSuggestions<'schema> {
         suggestion_list(input, &type_names, GraphQLSuggestions::MAX_SUGGESTIONS)
     }
 
+    pub fn object_type_suggestions(&self, input: StringKey) -> Vec<StringKey> {
+        if !self.enabled {
+            return Vec::new();
+        }
+
+        let type_names = self
+            .schema
+            .get_type_map()
+            .filter_map(|(type_name, type_)| {
+                if type_.is_object() {
+                    Some(*type_name)
+                } else {
+                    None
+                }
+            })
+            .collect::<Vec<StringKey>>();
+
+        suggestion_list(input, &type_names, GraphQLSuggestions::MAX_SUGGESTIONS)
+    }
+
+    pub fn interface_type_suggestions(&self, input: StringKey) -> Vec<StringKey> {
+        if !self.enabled {
+            return Vec::new();
+        }
+
+        let type_names = self
+            .schema
+            .get_type_map()
+            .filter_map(|(type_name, type_)| {
+                if type_.is_interface() {
+                    Some(*type_name)
+                } else {
+                    None
+                }
+            })
+            .collect::<Vec<StringKey>>();
+
+        suggestion_list(input, &type_names, GraphQLSuggestions::MAX_SUGGESTIONS)
+    }
+
     pub fn field_name_suggestion(&self, type_: Option<Type>, input: StringKey) -> Vec<StringKey> {
         if !self.enabled {
             return Vec::new();
@@ -195,6 +235,35 @@ impl<'schema> GraphQLSuggestions<'schema> {
         suggestion_list(input, &field_names, GraphQLSuggestions::MAX_SUGGESTIONS)
     }
 }
+
+/// Given [ A, B, C ] return ' Did you mean A, B, or C?'.
+pub fn did_you_mean(suggestions: &[StringKey]) -> String {
+    if suggestions.is_empty() {
+        return "".to_string();
+    }
+
+    let suggestions_string = match suggestions.len() {
+        1 => format!("`{}`", suggestions[0].lookup()),
+        2 => format!("`{}` or `{}`", suggestions[0], suggestions[1]),
+        _ => {
+            let mut suggestions = suggestions.to_vec();
+            let last_option = suggestions.pop();
+
+            format!(
+                "{}, or `{}`",
+                suggestions
+                    .iter()
+                    .map(|suggestion| format!("`{}`", suggestion.lookup()))
+                    .collect::<Vec<String>>()
+                    .join(", "),
+                last_option.unwrap_or_else(|| "".intern())
+            )
+        }
+    };
+
+    format!(" Did you mean {}?", suggestions_string)
+}
+
 #[cfg(test)]
 mod tests {
     use super::suggestion_list;

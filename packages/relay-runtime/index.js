@@ -203,6 +203,7 @@ export type {
 } from './util/ReaderNode';
 export type {
   ConcreteRequest,
+  ConcreteUpdatableQuery,
   GeneratedNode,
   RequestParameters,
 } from './util/RelayConcreteNode';
@@ -221,6 +222,7 @@ export type {
   Query,
   RefetchableFragment,
   RenderPolicy,
+  UpdatableQuery,
   Variables,
   VariablesOf,
 } from './util/RelayRuntimeTypes';

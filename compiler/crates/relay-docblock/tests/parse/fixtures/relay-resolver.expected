@@ -26,10 +26,15 @@ RelayResolver(
             location: /path/to/test/fixture/relay-resolver.js:54:67,
             item: "favorite_page",
         },
-        on_type: WithLocation {
-            location: /path/to/test/fixture/relay-resolver.js:35:39,
-            item: "User",
-        },
+        on: Type(
+            PopulatedIrField {
+                key_location: /path/to/test/fixture/relay-resolver.js:28:34,
+                value: WithLocation {
+                    location: /path/to/test/fixture/relay-resolver.js:35:39,
+                    item: "User",
+                },
+            },
+        ),
         root_fragment: WithLocation {
             location: /path/to/test/fixture/relay-resolver.js:101:115,
             item: "myRootFragment",

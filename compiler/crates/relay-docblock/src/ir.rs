@@ -5,15 +5,17 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{Location, Span, WithLocation};
+use crate::errors::ErrorMessagesWithData;
+use common::{Diagnostic, DiagnosticsResult, Location, Span, WithLocation};
 use graphql_syntax::{
-    ConstantArgument, ConstantDirective, ConstantValue, FieldDefinition, Identifier, List,
-    NamedTypeAnnotation, ObjectTypeExtension, SchemaDocument, StringNode, Token, TokenKind,
-    TypeAnnotation, TypeSystemDefinition,
+    ConstantArgument, ConstantDirective, ConstantValue, FieldDefinition, Identifier,
+    InterfaceTypeExtension, List, NamedTypeAnnotation, ObjectTypeExtension, SchemaDocument,
+    StringNode, Token, TokenKind, TypeAnnotation, TypeSystemDefinition,
 };
 use intern::string_key::{Intern, StringKey};
 
 use lazy_static::lazy_static;
+use schema::{suggestion_list::GraphQLSuggestions, InterfaceID, SDLSchema, Schema};
 
 lazy_static! {
     static ref INT_TYPE: StringKey = "Int".intern();
@@ -30,14 +32,16 @@ pub enum DocblockIr {
 }
 
 impl DocblockIr {
-    pub fn to_sdl_string(&self) -> String {
+    pub fn to_sdl_string(&self, schema: &SDLSchema) -> DiagnosticsResult<String> {
         match self {
-            DocblockIr::RelayResolver(relay_resolver) => relay_resolver.to_sdl_string(),
+            DocblockIr::RelayResolver(relay_resolver) => relay_resolver.to_sdl_string(schema),
         }
     }
-    pub fn to_graphql_schema_ast(&self) -> SchemaDocument {
+    pub fn to_graphql_schema_ast(&self, schema: &SDLSchema) -> DiagnosticsResult<SchemaDocument> {
         match self {
-            DocblockIr::RelayResolver(relay_resolver) => relay_resolver.to_graphql_schema_ast(),
+            DocblockIr::RelayResolver(relay_resolver) => {
+                relay_resolver.to_graphql_schema_ast(schema)
+            }
         }
     }
 }
@@ -47,10 +51,22 @@ pub struct IrField {
     pub value: Option<WithLocation<StringKey>>,
 }
 
+#[derive(Debug, PartialEq, Clone, Copy)]
+pub struct PopulatedIrField {
+    pub key_location: Location,
+    pub value: WithLocation<StringKey>,
+}
+
+#[derive(Debug, PartialEq)]
+pub enum On {
+    Type(PopulatedIrField),
+    Interface(PopulatedIrField),
+}
+
 #[derive(Debug, PartialEq)]
 pub struct RelayResolverIr {
     pub field_name: WithLocation<StringKey>,
-    pub on_type: WithLocation<StringKey>,
+    pub on: On,
     pub root_fragment: WithLocation<StringKey>,
     pub edge_to: Option<WithLocation<StringKey>>,
     pub description: Option<WithLocation<StringKey>>,
@@ -59,38 +75,146 @@ pub struct RelayResolverIr {
 }
 
 impl RelayResolverIr {
-    pub fn to_sdl_string(&self) -> String {
-        self.to_graphql_schema_ast()
+    pub fn to_sdl_string(&self, schema: &SDLSchema) -> DiagnosticsResult<String> {
+        Ok(self
+            .to_graphql_schema_ast(schema)?
             .definitions
             .iter()
             .map(|definition| format!("{}", definition))
             .collect::<Vec<String>>()
-            .join("\n\n")
+            .join("\n\n"))
     }
-    pub fn to_graphql_schema_ast(&self) -> SchemaDocument {
+    pub fn to_graphql_schema_ast(&self, schema: &SDLSchema) -> DiagnosticsResult<SchemaDocument> {
+        Ok(SchemaDocument {
+            location: self.location,
+            definitions: self.definitions(schema)?,
+        })
+    }
+
+    fn definitions(&self, schema: &SDLSchema) -> DiagnosticsResult<Vec<TypeSystemDefinition>> {
+        match self.on {
+            On::Type(PopulatedIrField {
+                key_location,
+                value,
+            }) => {
+                if let Some(_type) = schema.get_type(value.item) {
+                    if _type.is_object() {
+                        return Ok(self.object_definitions(value));
+                    } else if _type.is_interface() {
+                        return Err(vec![Diagnostic::error_with_data(
+                            ErrorMessagesWithData::OnTypeForInterface,
+                            key_location,
+                        )]);
+                    }
+                }
+                let suggestor = GraphQLSuggestions::new(schema);
+                Err(vec![Diagnostic::error_with_data(
+                    ErrorMessagesWithData::InvalidOnType {
+                        type_name: value.item,
+                        suggestions: suggestor.object_type_suggestions(value.item),
+                    },
+                    value.location,
+                )])
+            }
+            On::Interface(PopulatedIrField {
+                key_location,
+                value,
+            }) => {
+                if let Some(_type) = schema.get_type(value.item) {
+                    if let Some(interface_type) = _type.get_interface_id() {
+                        return Ok(self.interface_definitions(value, interface_type, schema));
+                    } else if _type.is_object() {
+                        return Err(vec![Diagnostic::error_with_data(
+                            ErrorMessagesWithData::OnInterfaceForType,
+                            key_location,
+                        )]);
+                    }
+                }
+                let suggestor = GraphQLSuggestions::new(schema);
+                Err(vec![Diagnostic::error_with_data(
+                    ErrorMessagesWithData::InvalidOnInterface {
+                        interface_name: value.item,
+                        suggestions: suggestor.interface_type_suggestions(value.item),
+                    },
+                    value.location,
+                )])
+            }
+        }
+    }
+
+    /// Build recursive object/interface extensions to add this field to all
+    /// types that will need it.
+    fn interface_definitions(
+        &self,
+        interface_name: WithLocation<StringKey>,
+        interface_id: InterfaceID,
+        schema: &SDLSchema,
+    ) -> Vec<TypeSystemDefinition> {
+        let fields = self.fields();
+
+        // First we extend the interface itself...
+        let mut definitions = vec![TypeSystemDefinition::InterfaceTypeExtension(
+            InterfaceTypeExtension {
+                name: as_identifier(interface_name),
+                interfaces: Vec::new(),
+                directives: vec![],
+                fields: Some(fields.clone()),
+            },
+        )];
+
+        // Secondly we extend every object which implements this interface
+        for object_id in &schema.interface(interface_id).implementing_objects {
+            definitions.extend(self.object_definitions(WithLocation::new(
+                interface_name.location,
+                schema.object(*object_id).name.item,
+            )))
+        }
+
+        // Thirdly we recursively extend every interface which implements
+        // this interface, and therefore every object/interface which
+        // implements that interface.
+        for existing_interface in schema
+            .interfaces()
+            .filter(|i| i.interfaces.contains(&interface_id))
+        {
+            definitions.extend(
+                self.interface_definitions(
+                    WithLocation::new(interface_name.location, existing_interface.name),
+                    schema
+                        .get_type(existing_interface.name)
+                        .unwrap()
+                        .get_interface_id()
+                        .unwrap(),
+                    schema,
+                ),
+            )
+        }
+        definitions
+    }
+
+    fn object_definitions(&self, on_type: WithLocation<StringKey>) -> Vec<TypeSystemDefinition> {
+        vec![TypeSystemDefinition::ObjectTypeExtension(
+            ObjectTypeExtension {
+                name: as_identifier(on_type),
+                interfaces: Vec::new(),
+                directives: vec![],
+                fields: Some(self.fields()),
+            },
+        )]
+    }
+
+    fn fields(&self) -> List<FieldDefinition> {
         let edge_to = self
             .edge_to
             .map_or_else(|| string_key_as_identifier(*INT_TYPE), as_identifier);
 
-
-
-        SchemaDocument {
-            location: self.location,
-            definitions: vec![TypeSystemDefinition::ObjectTypeExtension(
-                ObjectTypeExtension {
-                    name: as_identifier(self.on_type),
-                    interfaces: Vec::new(),
-                    directives: vec![],
-                    fields: Some(List::generated(vec![FieldDefinition {
-                        name: as_identifier(self.field_name),
-                        type_: TypeAnnotation::Named(NamedTypeAnnotation { name: edge_to }),
-                        arguments: None,
-                        directives: self.directives(),
-                        description: self.description.map(as_string_node),
-                    }])),
-                },
-            )],
-        }
+        List::generated(vec![FieldDefinition {
+            name: as_identifier(self.field_name),
+            type_: TypeAnnotation::Named(NamedTypeAnnotation { name: edge_to }),
+            arguments: None,
+            directives: self.directives(),
+            description: self.description.map(as_string_node),
+        }])
     }
 
     fn directives(&self) -> Vec<ConstantDirective> {

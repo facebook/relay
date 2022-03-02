@@ -12,14 +12,14 @@ fragment TestFragment on User {
             },
             variable_definitions: [],
             used_global_variables: [],
-            type_condition: Object(67),
+            type_condition: Object(68),
             directives: [],
             selections: [
                 ScalarField {
                     alias: None,
                     definition: WithLocation {
                         location: list-of-enums.graphql:34:40,
-                        item: FieldID(487),
+                        item: FieldID(489),
                     },
                     arguments: [],
                     directives: [],

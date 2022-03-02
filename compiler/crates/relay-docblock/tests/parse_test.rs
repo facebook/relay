@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<1a63b7853a21e0490215fc4524e01ef1>>
+ * @generated SignedSource<<085b96473751f6ff499d57fcc5854332>>
  */
 
 mod parse;
@@ -52,4 +52,25 @@ fn relay_resolver_missing_multiple_fields_invalid() {
     let input = include_str!("parse/fixtures/relay-resolver-missing-multiple-fields.invalid.js");
     let expected = include_str!("parse/fixtures/relay-resolver-missing-multiple-fields.invalid.expected");
     test_fixture(transform_fixture, "relay-resolver-missing-multiple-fields.invalid.js", "parse/fixtures/relay-resolver-missing-multiple-fields.invalid.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_on_interface_no_value_invalid() {
+    let input = include_str!("parse/fixtures/relay-resolver-on-interface-no-value.invalid.js");
+    let expected = include_str!("parse/fixtures/relay-resolver-on-interface-no-value.invalid.expected");
+    test_fixture(transform_fixture, "relay-resolver-on-interface-no-value.invalid.js", "parse/fixtures/relay-resolver-on-interface-no-value.invalid.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_on_type_and_on_interface_invalid() {
+    let input = include_str!("parse/fixtures/relay-resolver-on-type-and-on-interface.invalid.js");
+    let expected = include_str!("parse/fixtures/relay-resolver-on-type-and-on-interface.invalid.expected");
+    test_fixture(transform_fixture, "relay-resolver-on-type-and-on-interface.invalid.js", "parse/fixtures/relay-resolver-on-type-and-on-interface.invalid.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_on_type_no_value_invalid() {
+    let input = include_str!("parse/fixtures/relay-resolver-on-type-no-value.invalid.js");
+    let expected = include_str!("parse/fixtures/relay-resolver-on-type-no-value.invalid.expected");
+    test_fixture(transform_fixture, "relay-resolver-on-type-no-value.invalid.js", "parse/fixtures/relay-resolver-on-type-no-value.invalid.expected", input, expected);
 }

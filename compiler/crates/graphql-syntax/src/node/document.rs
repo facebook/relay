@@ -8,6 +8,7 @@
 use common::{Location, Span};
 
 use crate::{ExecutableDefinition, TypeSystemDefinition};
+use std::fmt;
 
 /// A GraphQL document containing any type of definition. This can represent
 /// any GraphQL document.
@@ -38,4 +39,16 @@ pub struct ExecutableDocument {
 pub struct SchemaDocument {
     pub location: Location,
     pub definitions: Vec<TypeSystemDefinition>,
+}
+
+impl fmt::Display for SchemaDocument {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let v = self
+            .definitions
+            .iter()
+            .map(|definition| definition.to_string())
+            .collect::<Vec<String>>()
+            .join("\n");
+        writeln!(f, "{}", v)
+    }
 }

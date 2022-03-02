@@ -1,0 +1,368 @@
+==================================== INPUT ====================================
+query providedVariableReusedNestedLinkedFragment_1Query($id: ID!) {
+        ...providedVariableReusedNestedLinkedFragment_FragmentCommon
+}
+
+query providedVariableReusedNestedLinkedFragment_2Query($id: ID!) {
+       ...providedVariableReusedNestedLinkedFragment_Fragment
+}
+
+fragment providedVariableReusedNestedLinkedFragment_Fragment on Query
+{
+    ...providedVariableReusedNestedLinkedFragment_FragmentCommon
+}
+
+fragment providedVariableReusedNestedLinkedFragment_FragmentCommon on Query
+{
+  node(id: $id) {
+    ...providedVariableReusedNestedLinkedFragment_FragmentWithProvider
+  }
+}
+
+fragment providedVariableReusedNestedLinkedFragment_FragmentWithProvider on User
+  @argumentDefinitions(bar_gk: {type: "Boolean!", provider: "barGKProvider"})
+{
+    username @skip(if: $bar_gk)
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "id"
+      }
+    ],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "providedVariableReusedNestedLinkedFragment_1Query",
+    "selections": [
+      {
+        "args": null,
+        "kind": "FragmentSpread",
+        "name": "providedVariableReusedNestedLinkedFragment_FragmentCommon"
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "id"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "__relay_internal__pv__barGKProvider"
+      }
+    ],
+    "kind": "Operation",
+    "name": "providedVariableReusedNestedLinkedFragment_1Query",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "__typename",
+            "storageKey": null
+          },
+          {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "condition": "__relay_internal__pv__barGKProvider",
+                "kind": "Condition",
+                "passingValue": false,
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "username",
+                    "storageKey": null
+                  }
+                ]
+              }
+            ],
+            "type": "User",
+            "abstractKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {},
+    "name": "providedVariableReusedNestedLinkedFragment_1Query",
+    "operationKind": "query",
+    "text": null,
+    "providedVariables": {
+      "__relay_internal__pv__barGKProvider": require('barGKProvider')
+    }
+  }
+}
+
+QUERY:
+
+query providedVariableReusedNestedLinkedFragment_1Query(
+  $id: ID!
+  $__relay_internal__pv__barGKProvider: Boolean!
+) {
+  ...providedVariableReusedNestedLinkedFragment_FragmentCommon
+}
+
+fragment providedVariableReusedNestedLinkedFragment_FragmentCommon on Query {
+  node(id: $id) {
+    __typename
+    ...providedVariableReusedNestedLinkedFragment_FragmentWithProvider
+    id
+  }
+}
+
+fragment providedVariableReusedNestedLinkedFragment_FragmentWithProvider on User {
+  username @skip(if: $__relay_internal__pv__barGKProvider)
+}
+
+
+{
+  "fragment": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "id"
+      }
+    ],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "providedVariableReusedNestedLinkedFragment_2Query",
+    "selections": [
+      {
+        "args": null,
+        "kind": "FragmentSpread",
+        "name": "providedVariableReusedNestedLinkedFragment_Fragment"
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "id"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "__relay_internal__pv__barGKProvider"
+      }
+    ],
+    "kind": "Operation",
+    "name": "providedVariableReusedNestedLinkedFragment_2Query",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "__typename",
+            "storageKey": null
+          },
+          {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "condition": "__relay_internal__pv__barGKProvider",
+                "kind": "Condition",
+                "passingValue": false,
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "username",
+                    "storageKey": null
+                  }
+                ]
+              }
+            ],
+            "type": "User",
+            "abstractKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {},
+    "name": "providedVariableReusedNestedLinkedFragment_2Query",
+    "operationKind": "query",
+    "text": null,
+    "providedVariables": {
+      "__relay_internal__pv__barGKProvider": require('barGKProvider')
+    }
+  }
+}
+
+QUERY:
+
+query providedVariableReusedNestedLinkedFragment_2Query(
+  $id: ID!
+  $__relay_internal__pv__barGKProvider: Boolean!
+) {
+  ...providedVariableReusedNestedLinkedFragment_Fragment
+}
+
+fragment providedVariableReusedNestedLinkedFragment_Fragment on Query {
+  ...providedVariableReusedNestedLinkedFragment_FragmentCommon
+}
+
+fragment providedVariableReusedNestedLinkedFragment_FragmentCommon on Query {
+  node(id: $id) {
+    __typename
+    ...providedVariableReusedNestedLinkedFragment_FragmentWithProvider
+    id
+  }
+}
+
+fragment providedVariableReusedNestedLinkedFragment_FragmentWithProvider on User {
+  username @skip(if: $__relay_internal__pv__barGKProvider)
+}
+
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "providedVariableReusedNestedLinkedFragment_Fragment",
+  "selections": [
+    {
+      "args": null,
+      "kind": "FragmentSpread",
+      "name": "providedVariableReusedNestedLinkedFragment_FragmentCommon"
+    }
+  ],
+  "type": "Query",
+  "abstractKey": null
+}
+
+{
+  "argumentDefinitions": [
+    {
+      "kind": "RootArgument",
+      "name": "id"
+    }
+  ],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "providedVariableReusedNestedLinkedFragment_FragmentCommon",
+  "selections": [
+    {
+      "alias": null,
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "id",
+          "variableName": "id"
+        }
+      ],
+      "concreteType": null,
+      "kind": "LinkedField",
+      "name": "node",
+      "plural": false,
+      "selections": [
+        {
+          "args": null,
+          "kind": "FragmentSpread",
+          "name": "providedVariableReusedNestedLinkedFragment_FragmentWithProvider"
+        }
+      ],
+      "storageKey": null
+    }
+  ],
+  "type": "Query",
+  "abstractKey": null
+}
+
+{
+  "argumentDefinitions": [
+    {
+      "kind": "RootArgument",
+      "name": "__relay_internal__pv__barGKProvider"
+    }
+  ],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "providedVariableReusedNestedLinkedFragment_FragmentWithProvider",
+  "selections": [
+    {
+      "condition": "__relay_internal__pv__barGKProvider",
+      "kind": "Condition",
+      "passingValue": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "username",
+          "storageKey": null
+        }
+      ]
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}

@@ -30,6 +30,7 @@ fragment Foo_user on User {
   #     import_path: "BestFriendResolver",
   #     field_name: "best_friend",
   #     field_alias: None,
+  #     field_path: "best_friend",
   # }
   
 }

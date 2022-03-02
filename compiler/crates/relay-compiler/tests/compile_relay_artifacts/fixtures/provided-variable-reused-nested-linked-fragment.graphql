@@ -1,0 +1,25 @@
+query providedVariableReusedNestedLinkedFragment_1Query($id: ID!) {
+        ...providedVariableReusedNestedLinkedFragment_FragmentCommon
+}
+
+query providedVariableReusedNestedLinkedFragment_2Query($id: ID!) {
+       ...providedVariableReusedNestedLinkedFragment_Fragment
+}
+
+fragment providedVariableReusedNestedLinkedFragment_Fragment on Query
+{
+    ...providedVariableReusedNestedLinkedFragment_FragmentCommon
+}
+
+fragment providedVariableReusedNestedLinkedFragment_FragmentCommon on Query
+{
+  node(id: $id) {
+    ...providedVariableReusedNestedLinkedFragment_FragmentWithProvider
+  }
+}
+
+fragment providedVariableReusedNestedLinkedFragment_FragmentWithProvider on User
+  @argumentDefinitions(bar_gk: {type: "Boolean!", provider: "barGKProvider"})
+{
+    username @skip(if: $bar_gk)
+}

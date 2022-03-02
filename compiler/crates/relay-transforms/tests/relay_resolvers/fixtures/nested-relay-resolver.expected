@@ -32,6 +32,7 @@ fragment Foo_user on User {
   #     import_path: "HobbitNameResolver",
   #     field_name: "hobbit_name",
   #     field_alias: None,
+  #     field_path: "hobbit_name",
   # }
   
 }
@@ -44,6 +45,7 @@ fragment HobbitNameResolverFragment_name on User {
   #     import_path: "PopStarNameResolver",
   #     field_name: "pop_star_name",
   #     field_alias: None,
+  #     field_path: "pop_star_name",
   # }
   
 }

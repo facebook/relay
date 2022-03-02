@@ -15,7 +15,7 @@
  * @rootFragment myRootFragment
  */
 ==================================== ERROR ====================================
-✖︎ Missing docblock field "@onType"
+✖︎ Expected either `onType` or `onInterface` to be defined in a @RelayResolver docblock.
 
   /path/to/test/fixture/relay-resolver-missing-field.invalid.js:1:1
     1 │ *

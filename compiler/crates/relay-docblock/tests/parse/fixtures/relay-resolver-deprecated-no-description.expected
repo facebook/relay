@@ -22,10 +22,15 @@ RelayResolver(
             location: /path/to/test/fixture/relay-resolver-deprecated-no-description.js:54:67,
             item: "favorite_page",
         },
-        on_type: WithLocation {
-            location: /path/to/test/fixture/relay-resolver-deprecated-no-description.js:35:39,
-            item: "User",
-        },
+        on: Type(
+            PopulatedIrField {
+                key_location: /path/to/test/fixture/relay-resolver-deprecated-no-description.js:28:34,
+                value: WithLocation {
+                    location: /path/to/test/fixture/relay-resolver-deprecated-no-description.js:35:39,
+                    item: "User",
+                },
+            },
+        ),
         root_fragment: WithLocation {
             location: /path/to/test/fixture/relay-resolver-deprecated-no-description.js:101:115,
             item: "myRootFragment",

@@ -12,97 +12,58 @@ use lsp_types::Url;
 
 use crate::lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult};
 
-pub fn to_lsp_location_of_graphql_literal(
-    location: Location,
+/// Given a root dir and a common::Location, return a Result containing an
+/// LSPLocation (i.e. lsp_types::Location).
+pub fn transform_relay_location_to_lsp_location(
     root_dir: &Path,
+    location: Location,
 ) -> LSPRuntimeResult<lsp_types::Location> {
-    Ok(read_contents_and_get_lsp_location_of_graphql_literal(location, root_dir)?.1)
-}
-
-pub fn read_contents_and_get_lsp_location_of_graphql_literal(
-    location: Location,
-    root_dir: &Path,
-) -> LSPRuntimeResult<(String, lsp_types::Location)> {
-    match location.source_location() {
-        SourceLocationKey::Embedded { path, index } => {
-            let path_to_fragment = root_dir.join(PathBuf::from(path.lookup()));
-            let uri = get_uri(&path_to_fragment)?;
-            let (file_contents, range) =
-                read_embedded_file_and_get_range(&path_to_fragment, index.try_into().unwrap())?;
-
-            Ok((file_contents, lsp_types::Location { uri, range }))
-        }
-        SourceLocationKey::Standalone { .. } => read_graphql_file_and_get_range(location, root_dir),
-        SourceLocationKey::Generated => Err(LSPRuntimeError::UnexpectedError(
-            "Cannot get location of a generated artifact".to_string(),
-        )),
-    }
-}
-
-pub fn read_graphql_file_and_get_range(
-    location: Location,
-    root_dir: &Path,
-) -> LSPRuntimeResult<(String, lsp_types::Location)> {
     match location.source_location() {
         SourceLocationKey::Standalone { path } => {
             let abspath = root_dir.join(PathBuf::from(path.lookup()));
 
-            let file = std::fs::read(abspath.clone())
-                .map_err(|e| LSPRuntimeError::UnexpectedError(e.to_string()))?;
-            let file_contents = std::str::from_utf8(&file)
-                .map_err(|e| LSPRuntimeError::UnexpectedError(e.to_string()))?;
+            let file_contents = get_file_contents(&abspath)?;
 
             let uri = get_uri(&abspath)?;
-            let range = location.span().to_range(file_contents, 0, 0);
-            Ok((file_contents.to_owned(), lsp_types::Location { uri, range }))
+            let range = location.span().to_range(&file_contents, 0, 0);
+            Ok(lsp_types::Location { uri, range })
+        }
+        SourceLocationKey::Embedded { path, index } => {
+            let path_to_fragment = root_dir.join(PathBuf::from(path.lookup()));
+            let uri = get_uri(&path_to_fragment)?;
+
+            let file_contents = get_file_contents(&path_to_fragment)?;
+
+            let response = extract_graphql::extract(&file_contents);
+            let response_length = response.len();
+            let embedded_source = response
+                .into_iter()
+                .nth(index.try_into().unwrap())
+                .ok_or_else(|| {
+                    LSPRuntimeError::UnexpectedError(format!(
+                        "File {:?} does not contain enough graphql literals: {} needed; {} found",
+                        path_to_fragment, index, response_length
+                    ))
+                })?;
+
+            let graphql_source = embedded_source.as_graphql_source();
+            let range = location.span().to_range(
+                &graphql_source.text,
+                graphql_source.line_index,
+                graphql_source.column_index,
+            );
+
+            Ok(lsp_types::Location { uri, range })
         }
         _ => Err(LSPRuntimeError::UnexpectedError(
-            "Cannot get location of embedded or generated field in graphql file".to_string(),
+            "Cannot get location of generated field in graphql file".to_string(),
         )),
     }
 }
 
-fn read_embedded_file_and_get_range(
-    path_to_fragment: &PathBuf,
-    index: usize,
-) -> LSPRuntimeResult<(String, lsp_types::Range)> {
-    let file = std::fs::read(path_to_fragment)
-        .map_err(|e| LSPRuntimeError::UnexpectedError(e.to_string()))?;
-    let file_contents =
-        std::str::from_utf8(&file).map_err(|e| LSPRuntimeError::UnexpectedError(e.to_string()))?;
-
-    let response = extract_graphql::extract(file_contents);
-    let response_length = response.len();
-    let embedded_source = response.into_iter().nth(index).ok_or_else(|| {
-        LSPRuntimeError::UnexpectedError(format!(
-            "File {:?} does not contain enough graphql literals: {} needed; {} found",
-            path_to_fragment, index, response_length
-        ))
-    })?;
-
-    let source = embedded_source.as_graphql_source();
-
-    let lines = source.text.lines().enumerate();
-    let (line_count, last_line) = lines.last().ok_or_else(|| {
-        LSPRuntimeError::UnexpectedError(format!(
-            "Encountered empty graphql literal in {:?} (literal {})",
-            path_to_fragment, index
-        ))
-    })?;
-
-    Ok((
-        source.text.to_string(),
-        lsp_types::Range {
-            start: lsp_types::Position {
-                line: source.line_index as u32,
-                character: source.column_index as u32,
-            },
-            end: lsp_types::Position {
-                line: (source.line_index + line_count) as u32,
-                character: last_line.len() as u32,
-            },
-        },
-    ))
+fn get_file_contents(path: &Path) -> LSPRuntimeResult<String> {
+    let file = std::fs::read(&path).map_err(|e| LSPRuntimeError::UnexpectedError(e.to_string()))?;
+    String::from_utf8(file).map_err(|e| LSPRuntimeError::UnexpectedError(e.to_string()))
 }
 
 fn get_uri(path: &PathBuf) -> LSPRuntimeResult<Url> {

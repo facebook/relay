@@ -17,7 +17,10 @@
  */
 
 import type {ReaderFragment, ReaderInlineDataFragment} from './ReaderNode';
-import type {ConcreteRequest} from './RelayConcreteNode';
+import type {
+  ConcreteRequest,
+  ConcreteUpdatableQuery,
+} from './RelayConcreteNode';
 
 /**
  * Represents any resource that must be explicitly disposed of. The most common
@@ -39,6 +42,14 @@ export type OperationType = {|
   +variables: Variables,
   +response: mixed,
   +rawResponse?: {...},
+|};
+
+/**
+ * Generated updatable query flow types are subtypes of this.
+ */
+export type UpdatableQueryType = {|
+  +variables: Variables,
+  +response: mixed,
 |};
 
 export type VariablesOf<T: OperationType> = T['variables'];
@@ -83,6 +94,14 @@ declare export opaque type Operation<
   +TData,
   TRawResponse,
 >: ConcreteRequest;
+
+/**
+ * Return type of graphql tag literals for updatable queries.
+ */
+declare export opaque type UpdatableQuery<
+  -TVariables: Variables,
+  +TData,
+>: ConcreteUpdatableQuery;
 
 /**
  * Return type of graphql tag literals for queries.

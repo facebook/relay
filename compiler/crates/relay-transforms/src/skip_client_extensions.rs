@@ -5,30 +5,38 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::util::CustomMetadataDirectives;
+use crate::{util::CustomMetadataDirectives, ValidationMessage};
+use common::{Diagnostic, DiagnosticsResult};
 use graphql_ir::{
-    Directive, FragmentDefinition, FragmentSpread, InlineFragment, LinkedField, Program,
-    ScalarField, Selection, Transformed, Transformer,
+    Directive, FragmentDefinition, FragmentSpread, InlineFragment, LinkedField,
+    OperationDefinition, Program, ScalarField, Selection, Transformed, Transformer,
 };
 use intern::string_key::StringKey;
 use schema::Schema;
 
 /// Transform to skip IR nodes if they are client-defined extensions
 /// to the schema
-pub fn skip_client_extensions(program: &Program) -> Program {
+pub fn skip_client_extensions(program: &Program) -> DiagnosticsResult<Program> {
     let mut transform = SkipClientExtensionsTransform::new(program);
-    transform
-        .transform_program(program)
-        .replace_or_else(|| program.clone())
+    let transformed = transform.transform_program(program);
+    if transform.errors.is_empty() {
+        Ok(transformed.replace_or_else(|| program.clone()))
+    } else {
+        Err(transform.errors)
+    }
 }
 
 struct SkipClientExtensionsTransform<'s> {
     program: &'s Program,
+    errors: Vec<Diagnostic>,
 }
 
 impl<'s> SkipClientExtensionsTransform<'s> {
     fn new(program: &'s Program) -> Self {
-        Self { program }
+        Self {
+            program,
+            errors: vec![],
+        }
     }
 }
 
@@ -48,6 +56,22 @@ impl<'s> Transformer for SkipClientExtensionsTransform<'s> {
     const NAME: &'static str = "SkipClientExtensionsTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = true;
+
+    fn transform_operation(
+        &mut self,
+        operation: &OperationDefinition,
+    ) -> Transformed<OperationDefinition> {
+        let transformed = self.default_transform_operation(operation);
+        if let Transformed::Delete = transformed {
+            self.errors.push(Diagnostic::error(
+                ValidationMessage::EmptyOperationResult {
+                    name: operation.name.item,
+                },
+                operation.name.location,
+            ));
+        }
+        transformed
+    }
 
     fn transform_fragment(
         &mut self,

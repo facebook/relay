@@ -40,6 +40,7 @@ fragment Foo_node on Node {
         #     import_path: "BestFriendResolver",
         #     field_name: "best_friend",
         #     field_alias: None,
+        #     field_path: "author.best_friend",
         # }
          @waterfall
         best_friend @waterfall {
@@ -57,6 +58,7 @@ fragment Foo_node on Node {
         #     import_path: "BestFriendResolver",
         #     field_name: "best_friend",
         #     field_alias: None,
+        #     field_path: "author.best_friend",
         # }
          @waterfall
         best_friend @waterfall {

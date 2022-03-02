@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<59d8d24b7d8b31f8735e6b0288f92dd5>>
+ * @generated SignedSource<<0ca1fdb35aff7435674d234f070c70fe>>
  */
 
 mod parse;
@@ -549,6 +549,13 @@ fn typename_with_arguments_invalid() {
     let input = include_str!("parse/fixtures/typename_with_arguments.invalid.graphql");
     let expected = include_str!("parse/fixtures/typename_with_arguments.invalid.expected");
     test_fixture(transform_fixture, "typename_with_arguments.invalid.graphql", "parse/fixtures/typename_with_arguments.invalid.expected", input, expected);
+}
+
+#[test]
+fn undefined_fragment_but_close_invalid() {
+    let input = include_str!("parse/fixtures/undefined-fragment-but-close.invalid.graphql");
+    let expected = include_str!("parse/fixtures/undefined-fragment-but-close.invalid.expected");
+    test_fixture(transform_fixture, "undefined-fragment-but-close.invalid.graphql", "parse/fixtures/undefined-fragment-but-close.invalid.expected", input, expected);
 }
 
 #[test]

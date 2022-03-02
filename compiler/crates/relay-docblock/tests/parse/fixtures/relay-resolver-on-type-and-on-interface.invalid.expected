@@ -1,0 +1,35 @@
+==================================== INPUT ====================================
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+// expected-to-throw
+
+/**
+ * @RelayResolver
+ * 
+ * @onType User
+ * @onInterface Node
+ * @fieldName favorite_page
+ * @edgeTo Page
+ * @rootFragment myRootFragment
+ */
+==================================== ERROR ====================================
+✖︎ Unexpected `onType` and `onInterface`. Only one of these docblock fields should be defined on a given @RelayResolver.
+
+  /path/to/test/fixture/relay-resolver-on-type-and-on-interface.invalid.js:4:5
+    3 │  * 
+    4 │  * @onType User
+      │     ^^^^^^
+    5 │  * @onInterface Node
+
+  ℹ︎ `onInterface` was found here
+
+  /path/to/test/fixture/relay-resolver-on-type-and-on-interface.invalid.js:5:5
+    4 │  * @onType User
+    5 │  * @onInterface Node
+      │     ^^^^^^^^^^^
+    6 │  * @fieldName favorite_page

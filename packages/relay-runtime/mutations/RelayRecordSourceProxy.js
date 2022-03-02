@@ -22,7 +22,11 @@ import type {
   RecordSource,
   RecordSourceProxy,
 } from '../store/RelayStoreTypes';
-import type {DataID, OperationType} from '../util/RelayRuntimeTypes';
+import type {
+  DataID,
+  UpdatableQuery,
+  UpdatableQueryType,
+} from '../util/RelayRuntimeTypes';
 import type RelayRecordSourceMutator from './RelayRecordSourceMutator';
 
 const RelayModernRecord = require('../store/RelayModernRecord');
@@ -163,8 +167,8 @@ class RelayRecordSourceProxy implements RecordSourceProxy {
     return this._idsMarkedForInvalidation;
   }
 
-  readUpdatableQuery_EXPERIMENTAL<TQuery: OperationType>(
-    query: GraphQLTaggedNode,
+  readUpdatableQuery_EXPERIMENTAL<TQuery: UpdatableQueryType>(
+    query: UpdatableQuery<TQuery['variables'], TQuery['response']>,
     variables: TQuery['variables'],
   ): TQuery['response'] {
     return readUpdatableQuery_EXPERIMENTAL(query, variables, this);

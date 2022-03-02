@@ -62,8 +62,14 @@ html[data-theme="dark"] .navbar {
 }
 
 .homeBanner {
+  font-weight: bold;
   font-size: 20px;
+  padding: 20px;
+  max-width: 768px;
+  margin: 0 auto;
   text-align: center;
+  position: relative;
+  z-index: 1;
 }
 
 .homeBanner a {

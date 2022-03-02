@@ -14,24 +14,16 @@ pub fn extract_module_name(path: &str) -> Option<String> {
     let final_segment = get_final_non_index_js_segment(&path)?;
     let mut iter = final_segment.split('.');
     let mut first_segment = to_camel_case(iter.next()?.to_string());
-    // If the file name is index the module name is the directory
-    if first_segment == "index" {
-        let mut iter = path.iter();
-        iter.next_back()?;
-        let directory = iter.next_back().and_then(|os_str| os_str.to_str())?;
-        first_segment = to_camel_case(directory.to_string());
-    } else {
-        let mobile_platform = iter.find_map(|item| {
-            if item == "ios" {
-                return Some("Ios");
-            } else if item == "android" {
-                return Some("Android");
-            }
-            None
-        });
-        if let Some(mobile_platform) = mobile_platform {
-            first_segment.push_str(mobile_platform);
+    let mobile_platform = iter.find_map(|item| {
+        if item == "ios" {
+            return Some("Ios");
+        } else if item == "android" {
+            return Some("Android");
         }
+        None
+    });
+    if let Some(mobile_platform) = mobile_platform {
+        first_segment.push_str(mobile_platform);
     }
     Some(first_segment)
 }
@@ -39,7 +31,6 @@ pub fn extract_module_name(path: &str) -> Option<String> {
 fn get_final_non_index_js_segment(path: &Path) -> Option<&str> {
     let file_stem = path.file_stem()?.to_str();
     if file_stem.map_or(false, |f| f.starts_with("index")) {
-        // <---- esto
         let mut iter = path.iter();
         iter.next_back()?;
         iter.next_back().and_then(|os_str| os_str.to_str())

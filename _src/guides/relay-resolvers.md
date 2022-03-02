@@ -44,7 +44,7 @@ export default function userGreetingResolver(userKey: UserGreetingResolver$key):
       last_name
     }`, userKey);
 
-  return `Hello ${user.honorific} ${user.greeting}!`;
+  return `Hello ${user.honorific} ${user.last_name}!`;
 }
 ```
 
@@ -58,7 +58,7 @@ function MyGreeting({userKey}) {
     fragment MyGreeting on User {
       greeting
     }`, userKey);
-  return<h1>{user.greetig}<h1>;
+  return<h1>{user.greeting}<h1>;
 }
 ```
 

@@ -20,7 +20,7 @@ function hasOverlappingIDs(
   seenRecords: DataIDSet,
   updatedRecordIDs: DataIDSet,
 ): boolean {
-  // $FlowFixMe: Set is an iterable type, accessing its iterator is allowed.
+  // $FlowFixMe[incompatible-use]: Set is an iterable type, accessing its iterator is allowed.
   const iterator = seenRecords[ITERATOR_KEY]();
   let next = iterator.next();
   while (!next.done) {

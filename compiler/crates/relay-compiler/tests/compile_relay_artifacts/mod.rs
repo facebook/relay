@@ -22,7 +22,7 @@ use relay_codegen::{
 use relay_compiler::{validate, ConfigFileProject, ProjectConfig};
 use relay_test_schema::{get_test_schema, get_test_schema_with_extensions};
 use relay_transforms::{apply_transforms, DIRECTIVE_SPLIT_OPERATION};
-use std::{array, sync::Arc};
+use std::sync::Arc;
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let source_location = SourceLocationKey::standalone(fixture.file_name);
@@ -33,11 +33,12 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         }
         return Ok("TODO".to_string());
     }
+    let hash_supported_argument_allowlist = vec!["UserNameRenderer".intern()];
 
     let feature_flags = FeatureFlags {
         enable_flight_transform: true,
         hash_supported_argument: FeatureFlag::Limited {
-            allowlist: array::IntoIter::new(["UserNameRenderer".intern()]).collect(),
+            allowlist: hash_supported_argument_allowlist.into_iter().collect(),
         },
         no_inline: FeatureFlag::Enabled,
         enable_relay_resolver_transform: true,

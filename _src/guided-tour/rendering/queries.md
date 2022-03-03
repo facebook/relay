@@ -224,13 +224,11 @@ Another alternative for fetching a query is to lazily fetch the query when the c
 To fetch a query lazily, you can use the `useLazyLoadQuery` Hook:
 
 ```js
-import type {AppQuery} from 'AppQuery.graphql';
-
 const React = require('React');
 const {graphql, useLazyLoadQuery} = require('react-relay');
 
 function App() {
-  const data = useLazyLoadQuery<AppQuery>(
+  const data = useLazyLoadQuery(
     graphql`
       query AppQuery($id: ID!) {
         user(id: $id) {

@@ -31,6 +31,8 @@ Similarly to [Refreshing Queries with `useQueryLoader`](../refreshing-queries/#w
 /**
  * App.react.js
  */
+import type {AppQuery as AppQueryType} from 'AppQuery.graphql';
+
 const AppQuery = require('__generated__/AppQuery.graphql');
 
 function App(props: Props) {
@@ -189,8 +191,6 @@ Similarly to [Refreshing Queries with `useLazyLoadQuery`](../refreshing-queries/
 /**
  * App.react.js
  */
-import type {AppQuery as AppQueryType} from 'AppQuery.graphql';
-
 const AppQuery = require('__generated__/AppQuery.graphql');
 
 function App(props: Props) {
@@ -227,12 +227,10 @@ function App(props: Props) {
 /**
  * MainContent.react.js
  */
-import type {AppQuery as AppQueryType} from 'AppQuery.graphql';
-
 // Fetches and renders the query, given the fetch options
 function MainContent(props) {
   const {refetch, queryArgs} = props;
-  const data = useLazyLoadQuery<AppQueryType>(
+  const data = useLazyLoadQuery(
     graphql`
       query AppQuery($id: ID!) {
         user(id: $id) {
@@ -286,8 +284,6 @@ In some cases, you might want to avoid showing a Suspense fallback, which would 
 /**
  * App.react.js
  */
-import type {AppQuery as AppQueryType} from 'AppQuery.graphql';
-
 const AppQuery = require('__generated__/AppQuery.graphql');
 
 function App(props: Props) {

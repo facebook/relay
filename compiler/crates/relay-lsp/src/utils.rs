@@ -10,6 +10,7 @@ use std::path::PathBuf;
 use crate::lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult};
 use common::{SourceLocationKey, Span};
 use dashmap::DashMap;
+use extract_graphql::JavaScriptSourceFeature;
 use graphql_syntax::{
     parse_executable_with_error_recovery, ExecutableDefinition, ExecutableDocument, GraphQLSource,
 };
@@ -20,16 +21,20 @@ use relay_compiler::{FileCategorizer, FileGroup};
 
 pub fn extract_executable_definitions_from_text_document(
     text_document_uri: &Url,
-    graphql_source_cache: &DashMap<Url, Vec<GraphQLSource>>,
+    source_feature_cache: &DashMap<Url, Vec<JavaScriptSourceFeature>>,
 ) -> LSPRuntimeResult<Vec<ExecutableDefinition>> {
-    let graphql_sources = graphql_source_cache
+    let source_features = source_feature_cache
         .get(text_document_uri)
         // If the source isn't present in the source cache, then that means that
         // the source has no graphql documents.
         .ok_or(LSPRuntimeError::ExpectedError)?;
 
-    let definitions = graphql_sources
+    let definitions = source_features
         .iter()
+        .filter_map(|feature| match feature {
+            JavaScriptSourceFeature::Docblock(_) => None,
+            JavaScriptSourceFeature::GraphQL(graphql_source) => Some(graphql_source),
+        })
         .map(|graphql_source| {
             let document = parse_executable_with_error_recovery(
                 &graphql_source.text,
@@ -83,22 +88,30 @@ pub fn extract_project_name_from_url(
 /// Return a parsed executable document for this LSP request, only if the request occurs
 /// within a GraphQL document.
 pub fn extract_executable_document_from_text(
-    graphql_source_cache: &DashMap<Url, Vec<GraphQLSource>>,
+    source_feature_cache: &DashMap<Url, Vec<JavaScriptSourceFeature>>,
     text_document_position: &TextDocumentPositionParams,
     index_offset: usize,
 ) -> LSPRuntimeResult<(ExecutableDocument, Span)> {
     let uri = &text_document_position.text_document.uri;
     let position = text_document_position.position;
 
-    let graphql_sources = graphql_source_cache
+    let source_features = source_feature_cache
         .get(uri)
         .ok_or(LSPRuntimeError::ExpectedError)?;
 
-    let graphql_source = graphql_sources
+    let graphql_source = source_features
         .iter()
-        .find(|graphql_source| {
-            let range = graphql_source.to_range();
-            position >= range.start && position <= range.end
+        .find_map(|source_feature| {
+            if let JavaScriptSourceFeature::GraphQL(graphql_source) = source_feature {
+                let range = graphql_source.to_range();
+                if position >= range.start && position <= range.end {
+                    Some(graphql_source)
+                } else {
+                    None
+                }
+            } else {
+                None
+            }
         })
         .ok_or(LSPRuntimeError::ExpectedError)?;
 

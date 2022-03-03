@@ -32,6 +32,7 @@ pub mod status_updater;
 pub mod text_documents;
 pub mod utils;
 use common::PerfLogger;
+pub use extract_graphql::JavaScriptSourceFeature;
 pub use hover::ContentConsumerType;
 pub use js_language_server::JSLanguageServer;
 use log::debug;

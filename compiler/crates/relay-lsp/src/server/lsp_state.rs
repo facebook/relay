@@ -128,7 +128,7 @@ pub struct LSPState<
     pub(crate) schemas: Schemas,
     schema_documentation_loader: Option<Box<dyn SchemaDocumentationLoader<TSchemaDocumentation>>>,
     pub(crate) source_programs: SourcePrograms,
-    synced_graphql_documents: DashMap<Url, Vec<GraphQLSource>>,
+    synced_javascript_features: DashMap<Url, Vec<JavaScriptSourceFeature>>,
     pub(crate) perf_logger: Arc<TPerfLogger>,
     pub(crate) diagnostic_reporter: Arc<DiagnosticReporter>,
     pub(crate) notify_lsp_state_resources: Arc<Notify>,
@@ -173,7 +173,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             schemas: Arc::new(DashMap::with_hasher(FnvBuildHasher::default())),
             schema_documentation_loader,
             source_programs: Arc::new(DashMap::with_hasher(FnvBuildHasher::default())),
-            synced_graphql_documents: Default::default(),
+            synced_javascript_features: Default::default(),
             js_resource,
         };
 
@@ -186,20 +186,12 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
     }
 
     fn insert_synced_sources(&self, url: &Url, sources: Vec<JavaScriptSourceFeature>) {
-        let graphql_sources = sources
-            .into_iter()
-            .filter_map(|js_feature| match js_feature {
-                JavaScriptSourceFeature::GraphQL(graphql_source) => Some(graphql_source),
-                JavaScriptSourceFeature::Docblock(_) => None,
-            })
-            .collect::<Vec<_>>();
-        self.synced_graphql_documents
-            .insert(url.clone(), graphql_sources);
+        self.synced_javascript_features.insert(url.clone(), sources);
     }
 
     fn validate_synced_sources(&self, url: &Url) -> LSPRuntimeResult<()> {
         let mut diagnostics = vec![];
-        let graphql_sources = self.synced_graphql_documents.get(url).ok_or_else(|| {
+        let javascript_features = self.synced_javascript_features.get(url).ok_or_else(|| {
             LSPRuntimeError::UnexpectedError(format!("Expected GraphQL sources for URL {}", url))
         })?;
         let project_name = self.extract_project_name_from_url(url)?;
@@ -219,54 +211,61 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             .get(&project_name)
             .ok_or(LSPRuntimeError::ExpectedError)?;
 
-        for graphql_source in graphql_sources.iter() {
-            let result = parse_executable_with_error_recovery(
-                &graphql_source.text,
-                SourceLocationKey::standalone(&url.to_string()),
-            );
+        for feature in javascript_features.iter() {
+            match feature {
+                JavaScriptSourceFeature::GraphQL(graphql_source) => {
+                    let result = parse_executable_with_error_recovery(
+                        &graphql_source.text,
+                        SourceLocationKey::standalone(&url.to_string()),
+                    );
 
-            diagnostics.extend(
-                result
-                    .errors
-                    .iter()
-                    .map(|diagnostic| convert_diagnostic(graphql_source, diagnostic)),
-            );
+                    diagnostics.extend(
+                        result
+                            .errors
+                            .iter()
+                            .map(|diagnostic| convert_diagnostic(graphql_source, diagnostic)),
+                    );
 
-            let compiler_diagnostics = match build_ir_with_extra_features(
-                &schema,
-                &result.item.definitions,
-                &BuilderOptions {
-                    allow_undefined_fragment_spreads: true,
-                    fragment_variables_semantic: FragmentVariablesSemantic::PassedValue,
-                    relay_mode: Some(RelayMode {
-                        enable_provided_variables: &project_config
-                            .feature_flags
-                            .enable_provided_variables,
-                    }),
-                    default_anonymous_operation_name: None,
-                },
-            )
-            .and_then(|documents| {
-                let mut warnings = vec![];
-                for document in documents {
-                    // Today the only warning we check for is deprecated
-                    // fields, but in the future we could check for more
-                    // things here by making this more generic.
-                    warnings.extend(deprecated_fields_for_executable_definition(
-                        &schema, &document,
-                    )?)
+                    let compiler_diagnostics = match build_ir_with_extra_features(
+                        &schema,
+                        &result.item.definitions,
+                        &BuilderOptions {
+                            allow_undefined_fragment_spreads: true,
+                            fragment_variables_semantic: FragmentVariablesSemantic::PassedValue,
+                            relay_mode: Some(RelayMode {
+                                enable_provided_variables: &project_config
+                                    .feature_flags
+                                    .enable_provided_variables,
+                            }),
+                            default_anonymous_operation_name: None,
+                        },
+                    )
+                    .and_then(|documents| {
+                        let mut warnings = vec![];
+                        for document in documents {
+                            // Today the only warning we check for is deprecated
+                            // fields, but in the future we could check for more
+                            // things here by making this more generic.
+                            warnings.extend(deprecated_fields_for_executable_definition(
+                                &schema, &document,
+                            )?)
+                        }
+                        Ok(warnings)
+                    }) {
+                        Ok(warnings) => warnings,
+                        Err(errors) => errors,
+                    };
+
+                    diagnostics.extend(
+                        compiler_diagnostics
+                            .iter()
+                            .map(|diagnostic| convert_diagnostic(graphql_source, diagnostic)),
+                    );
                 }
-                Ok(warnings)
-            }) {
-                Ok(warnings) => warnings,
-                Err(errors) => errors,
-            };
-
-            diagnostics.extend(
-                compiler_diagnostics
-                    .iter()
-                    .map(|diagnostic| convert_diagnostic(graphql_source, diagnostic)),
-            );
+                JavaScriptSourceFeature::Docblock(_) => {
+                    // TODO: Parse and report errors in docblocks
+                }
+            }
         }
         self.diagnostic_reporter
             .update_quick_diagnostics_for_url(url, diagnostics);
@@ -307,7 +306,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
     }
 
     fn remove_synced_sources(&self, url: &Url) {
-        self.synced_graphql_documents.remove(url);
+        self.synced_javascript_features.remove(url);
         self.diagnostic_reporter
             .clear_quick_diagnostics_for_url(url);
     }
@@ -376,7 +375,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         text_document_position: &TextDocumentPositionParams,
     ) -> LSPRuntimeResult<NodeResolutionInfo> {
         let (document, position_span) = extract_executable_document_from_text(
-            &self.synced_graphql_documents,
+            &self.synced_javascript_features,
             text_document_position,
             // For hovering, offset the index by 1
             // ```
@@ -397,7 +396,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         index_offset: usize,
     ) -> LSPRuntimeResult<(ExecutableDocument, Span)> {
         extract_executable_document_from_text(
-            &self.synced_graphql_documents,
+            &self.synced_javascript_features,
             position,
             index_offset,
         )
@@ -430,7 +429,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
     ) -> LSPRuntimeResult<Vec<ExecutableDefinition>> {
         extract_executable_definitions_from_text_document(
             text_document_uri,
-            &self.synced_graphql_documents,
+            &self.synced_javascript_features,
         )
     }
 
@@ -511,7 +510,7 @@ pub(crate) fn handle_lsp_state_tasks<
             state.validate_synced_sources(&url).ok();
         }
         Task::ValidateSyncedSources => {
-            for item in &state.synced_graphql_documents {
+            for item in &state.synced_javascript_features {
                 state.schedule_task(Task::ValidateSyncedSource(item.key().clone()));
             }
         }

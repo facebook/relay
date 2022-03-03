@@ -29,7 +29,7 @@ const RelayConcreteNode = require('../util/RelayConcreteNode');
 const stableCopy = require('../util/stableCopy');
 const invariant = require('invariant');
 
-export type Arguments = interface {+[string]: mixed};
+export type Arguments = {+[string]: mixed};
 
 const {VARIABLE, LITERAL, OBJECT_VALUE, LIST_VALUE} = RelayConcreteNode;
 

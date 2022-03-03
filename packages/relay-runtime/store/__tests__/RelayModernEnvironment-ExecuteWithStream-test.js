@@ -99,7 +99,7 @@ describe('execute() a query with @stream', () => {
     };
 
     function getDataID(
-      data: interface {[string]: mixed},
+      data: {[string]: mixed},
       typename: string | $TEMPORARY$string<'MessagingParticipant'>,
     ) {
       if (typename === 'MessagingParticipant') {

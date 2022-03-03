@@ -52,6 +52,6 @@ RelayResolver(
             },
         ),
         deprecated: None,
-        location: /path/to/test/fixture/relay-resolver.js:0:413,
+        location: /path/to/test/fixture/relay-resolver.js:0:412,
     },
 )

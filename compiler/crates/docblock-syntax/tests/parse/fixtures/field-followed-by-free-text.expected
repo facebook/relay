@@ -5,7 +5,7 @@
  */
 ==================================== OUTPUT ===================================
 DocblockAST {
-    location: field-followed-by-free-text.ecmascript:0:85,
+    location: field-followed-by-free-text.ecmascript:0:84,
     sections: [
         Field(
             DocblockField {

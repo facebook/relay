@@ -6,7 +6,7 @@
  */
 ==================================== OUTPUT ===================================
 DocblockAST {
-    location: free-text-starting-with-star.ecmascript:0:82,
+    location: free-text-starting-with-star.ecmascript:0:81,
     sections: [
         FreeText(
             WithLocation {

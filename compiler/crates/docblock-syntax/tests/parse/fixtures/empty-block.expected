@@ -3,6 +3,6 @@
  */
 ==================================== OUTPUT ===================================
 DocblockAST {
-    location: empty-block.ecmascript:0:3,
+    location: empty-block.ecmascript:0:2,
     sections: [],
 }

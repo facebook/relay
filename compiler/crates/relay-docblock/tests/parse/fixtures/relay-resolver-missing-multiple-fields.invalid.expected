@@ -20,7 +20,6 @@
     2 │  * @RelayResolver
       │ ^^^^^^^^^^^^^^^^^
     3 │  
-      │ ^
 
 
 ✖︎ Missing docblock field "@fieldName"
@@ -31,7 +30,6 @@
     2 │  * @RelayResolver
       │ ^^^^^^^^^^^^^^^^^
     3 │  
-      │ ^
 
 
 ✖︎ Missing docblock field "@rootFragment"
@@ -41,5 +39,4 @@
       │ ^
     2 │  * @RelayResolver
       │ ^^^^^^^^^^^^^^^^^
-    3 │  
-      │ ^
+    3 │

@@ -4,7 +4,7 @@
  */
 ==================================== OUTPUT ===================================
 DocblockAST {
-    location: simple_docblock.ecmascript:0:18,
+    location: simple_docblock.ecmascript:0:17,
     sections: [
         FreeText(
             WithLocation {

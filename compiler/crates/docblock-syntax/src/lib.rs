@@ -111,7 +111,26 @@ impl<'a> DocblockParser<'a> {
             result.expect("Expected no parse errors.");
             Ok(DocblockAST {
                 sections: self.sections,
-                location: Location::new(self.source_location, Span::new(start, end)),
+                location: Location::new(
+                    self.source_location,
+                    /*
+                     * TODO(T113385544): Investigate if this is actaully a bug in Span::to_range.
+                     *
+                     * I honestly don't fully understand this. We use
+                     * self.offset as the end position for all other spans and
+                     * they render perfectly. However, if we try to show a
+                     * diagnostic of the full docblock (which we do when it's
+                     * missing a field) it breaks Span::to_range because the end
+                     * index is greater than the index of the last char that it
+                     * iterates over, so it never sets an end_position and
+                     * therefore shows the end position as 0,0 and VSCode
+                     * renders an inverted diagnostic (a range starting at 0,0
+                     * and ending at the start position.
+                     *
+                     * Anyway, subtracting 1 here solves the problem for now.
+                     */
+                    Span::new(start, end - 1),
+                ),
             })
         } else {
             Err(self.errors)

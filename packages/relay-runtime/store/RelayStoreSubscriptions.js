@@ -105,6 +105,7 @@ class RelayStoreSubscriptions implements StoreSubscriptions {
           seenRecords: backup.seenRecords,
           selector: backup.selector,
           missingRequiredFields: backup.missingRequiredFields,
+          relayResolverErrors: backup.relayResolverErrors,
         };
       } else {
         subscription.stale = true;
@@ -167,6 +168,7 @@ class RelayStoreSubscriptions implements StoreSubscriptions {
       seenRecords: nextSnapshot.seenRecords,
       selector: nextSnapshot.selector,
       missingRequiredFields: nextSnapshot.missingRequiredFields,
+      relayResolverErrors: nextSnapshot.relayResolverErrors,
     }: Snapshot);
     if (__DEV__) {
       deepFreeze(nextSnapshot);

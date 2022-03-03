@@ -263,6 +263,7 @@ describe('ReactRelayFragmentContainer', () => {
         name: 'Zuck',
       },
       missingRequiredFields: null,
+      relayResolverErrors: [],
       missingClientEdges: null,
       isMissingData: false,
       seenRecords: expect.any(Object),
@@ -298,6 +299,7 @@ describe('ReactRelayFragmentContainer', () => {
         name: 'Mark', // !== 'Zuck'
       },
       seenRecords: {},
+      relayResolverErrors: [],
     });
 
     // No need to resolve props or resubscribe
@@ -353,6 +355,7 @@ describe('ReactRelayFragmentContainer', () => {
       },
       isMissingData: false,
       missingRequiredFields: null,
+      relayResolverErrors: [],
       missingClientEdges: null,
       seenRecords: expect.any(Object),
       selector: createReaderSelector(
@@ -404,6 +407,7 @@ describe('ReactRelayFragmentContainer', () => {
       },
       isMissingData: false,
       missingRequiredFields: null,
+      relayResolverErrors: [],
       missingClientEdges: null,
       seenRecords: expect.any(Object),
       selector: createReaderSelector(

@@ -37,9 +37,9 @@ const {
   getPendingOperationsForFragment,
   getSelector,
   getVariablesFromFragment,
+  handlePotentialSnapshotErrors,
   isPromise,
   recycleNodesInto,
-  reportMissingRequiredFields,
 } = require('relay-runtime');
 
 export type FragmentResource = FragmentResourceImpl;
@@ -289,7 +289,7 @@ class FragmentResourceImpl {
       }
 
       if (cachedValue.kind === 'done' && cachedValue.result.snapshot) {
-        this._reportMissingRequiredFieldsInSnapshot(
+        this._handlePotentialSnapshotErrorsInSnapshot(
           cachedValue.result.snapshot,
         );
         return cachedValue.result;
@@ -330,7 +330,7 @@ class FragmentResourceImpl {
       storeEpoch,
     );
     if (!fragmentResult.isMissingData) {
-      this._reportMissingRequiredFieldsInSnapshot(snapshot);
+      this._handlePotentialSnapshotErrorsInSnapshot(snapshot);
 
       this._cache.set(fragmentIdentifier, {
         kind: 'done',
@@ -426,7 +426,7 @@ class FragmentResourceImpl {
         : parentQueryPromiseResultPromise;
     }
 
-    this._reportMissingRequiredFieldsInSnapshot(snapshot);
+    this._handlePotentialSnapshotErrorsInSnapshot(snapshot);
     return getFragmentResult(fragmentIdentifier, snapshot, storeEpoch);
   }
 
@@ -462,23 +462,21 @@ class FragmentResourceImpl {
     };
   }
 
-  _reportMissingRequiredFieldsInSnapshot(snapshot: SingularOrPluralSnapshot) {
+  _handlePotentialSnapshotErrorsInSnapshot(snapshot: SingularOrPluralSnapshot) {
     if (Array.isArray(snapshot)) {
       snapshot.forEach(s => {
-        if (s.missingRequiredFields != null) {
-          reportMissingRequiredFields(
-            this._environment,
-            s.missingRequiredFields,
-          );
-        }
+        handlePotentialSnapshotErrors(
+          this._environment,
+          s.missingRequiredFields,
+          s.relayResolverErrors,
+        );
       });
     } else {
-      if (snapshot.missingRequiredFields != null) {
-        reportMissingRequiredFields(
-          this._environment,
-          snapshot.missingRequiredFields,
-        );
-      }
+      handlePotentialSnapshotErrors(
+        this._environment,
+        snapshot.missingRequiredFields,
+        snapshot.relayResolverErrors,
+      );
     }
   }
 
@@ -647,6 +645,7 @@ class FragmentResourceImpl {
       seenRecords: currentSnapshot.seenRecords,
       selector: currentSnapshot.selector,
       missingRequiredFields: currentSnapshot.missingRequiredFields,
+      relayResolverErrors: currentSnapshot.relayResolverErrors,
     };
     if (updatedData !== renderData) {
       this._cache.set(cacheKey, {

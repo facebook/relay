@@ -333,6 +333,7 @@ describe('ReactRelayPaginationContainer', () => {
       data: expect.any(Object),
       isMissingData: false,
       missingRequiredFields: null,
+      relayResolverErrors: [],
       missingClientEdges: null,
       seenRecords: expect.any(Object),
       selector: createReaderSelector(
@@ -372,6 +373,7 @@ describe('ReactRelayPaginationContainer', () => {
         friends: null, // set to null
       },
       seenRecords: {},
+      relayResolverErrors: [],
     });
 
     // No need to resolve props or resubscribe
@@ -438,6 +440,7 @@ describe('ReactRelayPaginationContainer', () => {
       data: expect.any(Object),
       isMissingData: false,
       missingRequiredFields: null,
+      relayResolverErrors: [],
       missingClientEdges: null,
       seenRecords: expect.any(Object),
       selector: createReaderSelector(
@@ -503,6 +506,7 @@ describe('ReactRelayPaginationContainer', () => {
       data: expect.any(Object),
       isMissingData: false,
       missingRequiredFields: null,
+      relayResolverErrors: [],
       missingClientEdges: null,
       seenRecords: expect.any(Object),
       selector: createReaderSelector(
@@ -599,6 +603,7 @@ describe('ReactRelayPaginationContainer', () => {
       data: expect.any(Object),
       isMissingData: false,
       missingRequiredFields: null,
+      relayResolverErrors: [],
       missingClientEdges: null,
       seenRecords: expect.any(Object),
       selector: createReaderSelector(

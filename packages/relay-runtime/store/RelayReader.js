@@ -35,6 +35,7 @@ import type {
   MissingRequiredFields,
   Record,
   RecordSource,
+  RelayResolverErrors,
   RequestDescriptor,
   SelectorData,
   SingularReaderSelector,
@@ -109,6 +110,7 @@ class RelayReader {
   _selector: SingularReaderSelector;
   _variables: Variables;
   _resolverCache: ResolverCache;
+  _resolverErrors: RelayResolverErrors;
   _fragmentName: string;
 
   constructor(
@@ -131,6 +133,7 @@ class RelayReader {
     this._selector = selector;
     this._variables = selector.variables;
     this._resolverCache = resolverCache;
+    this._resolverErrors = [];
     this._fragmentName = selector.node.name;
   }
 
@@ -204,6 +207,7 @@ class RelayReader {
       seenRecords: this._seenRecords,
       selector: this._selector,
       missingRequiredFields: this._missingRequiredFields,
+      relayResolverErrors: this._resolverErrors,
     };
   }
 
@@ -525,6 +529,9 @@ class RelayReader {
     let fragmentReaderSelector;
     let fragmentMissingRequiredFields: ?MissingRequiredFields;
     let previousMissingRequriedFields: ?MissingRequiredFields;
+
+    let currentResolverErrors: RelayResolverErrors;
+    let previousResolverErrors: RelayResolverErrors;
     const fragmentSeenRecordIDs = new Set();
 
     const getDataForResolverFragment = singularReaderSelector => {
@@ -541,12 +548,16 @@ class RelayReader {
         const resolverFragmentData = {};
         previousMissingRequriedFields = this._missingRequiredFields;
         this._missingRequiredFields = null;
+
+        previousResolverErrors = this._resolverErrors;
+        this._resolverErrors = [];
         this._createInlineDataOrResolverFragmentPointer(
           singularReaderSelector.node,
           record,
           resolverFragmentData,
         );
         fragmentMissingRequiredFields = this._missingRequiredFields;
+        currentResolverErrors = this._resolverErrors;
         fragmentValue = resolverFragmentData[FRAGMENTS_KEY]?.[fragment.name];
         invariant(
           typeof fragmentValue === 'object' && fragmentValue !== null,
@@ -556,39 +567,56 @@ class RelayReader {
       } finally {
         this._seenRecords = existingSeenRecords;
         this._missingRequiredFields = previousMissingRequriedFields;
+        this._resolverErrors = previousResolverErrors;
       }
     };
     const resolverContext = {getDataForResolverFragment};
 
-    const [result, seenRecord, missingRequiredFields] =
+    const evaluate = () => {
+      const key = {
+        __id: RelayModernRecord.getDataID(record),
+        __fragmentOwner: this._owner,
+        __fragments: {
+          [fragment.name]: {}, // Arguments to this fragment; not yet supported.
+        },
+      };
+      return withResolverContext(resolverContext, () => {
+        let resolverResult = null;
+        try {
+          // $FlowFixMe[prop-missing] - resolver module's type signature is a lie
+          resolverResult = resolverModule(key);
+        } catch (e) {
+          // `field.path` is typed as nullable while we rollout compiler changes.
+          const path = field.path ?? '[UNKNOWN]';
+          currentResolverErrors.push({
+            field: {path, owner: this._fragmentName},
+            error: e,
+          });
+        }
+        return {
+          resolverResult,
+          errors: currentResolverErrors,
+          fragmentValue,
+          resolverID,
+          seenRecordIDs: fragmentSeenRecordIDs,
+          readerSelector: fragmentReaderSelector,
+          missingRequiredFields: fragmentMissingRequiredFields,
+        };
+      });
+    };
+
+    const [result, seenRecord, resolverErrors, missingRequiredFields] =
       this._resolverCache.readFromCacheOrEvaluate(
         record,
         field,
         this._variables,
-        () => {
-          const key = {
-            __id: RelayModernRecord.getDataID(record),
-            __fragmentOwner: this._owner,
-            __fragments: {
-              [fragment.name]: {}, // Arguments to this fragment; not yet supported.
-            },
-          };
-          return withResolverContext(resolverContext, () => {
-            // $FlowFixMe[prop-missing] - resolver module's type signature is a lie
-            const resolverResult = resolverModule(key);
-            return {
-              resolverResult,
-              fragmentValue,
-              resolverID,
-              seenRecordIDs: fragmentSeenRecordIDs,
-              readerSelector: fragmentReaderSelector,
-              missingRequiredFields: fragmentMissingRequiredFields,
-            };
-          });
-        },
+        evaluate,
         getDataForResolverFragment,
       );
 
+    for (const resolverError of resolverErrors) {
+      this._resolverErrors.push(resolverError);
+    }
     if (missingRequiredFields != null) {
       this._addMissingRequiredFields(missingRequiredFields);
     }

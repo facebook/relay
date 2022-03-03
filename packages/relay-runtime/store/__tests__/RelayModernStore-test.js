@@ -256,6 +256,7 @@ function cloneEventWithSets(event) {
           },
           seenRecords: new Set(Object.keys(data)),
           missingRequiredFields: null,
+          relayResolverErrors: [],
           missingClientEdges: null,
           isMissingData: false,
         });
@@ -309,6 +310,7 @@ function cloneEventWithSets(event) {
           },
           seenRecords: new Set(Object.keys(data)),
           missingRequiredFields: null,
+          relayResolverErrors: [],
           missingClientEdges: null,
           isMissingData: false,
         });
@@ -365,6 +367,7 @@ function cloneEventWithSets(event) {
           },
           seenRecords: new Set(['client:2', '4']),
           missingRequiredFields: null,
+          relayResolverErrors: [],
           missingClientEdges: null,
           isMissingData: false,
         });

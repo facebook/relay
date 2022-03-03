@@ -30,7 +30,7 @@ const RelayObservable = require('../network/RelayObservable');
 const {
   createOperationDescriptor,
 } = require('../store/RelayModernOperationDescriptor');
-const reportMissingRequiredFields = require('../util/reportMissingRequiredFields');
+const handlePotentialSnapshotErrors = require('../util/handlePotentialSnapshotErrors');
 const fetchQueryInternal = require('./fetchQueryInternal');
 const {getRequest} = require('./GraphQLTag');
 const invariant = require('invariant');
@@ -138,9 +138,11 @@ function fetchQuery<TVariables: Variables, TData, TRawResponse>(
   const fetchPolicy = options?.fetchPolicy ?? 'network-only';
 
   function readData(snapshot: Snapshot): TData {
-    if (snapshot.missingRequiredFields != null) {
-      reportMissingRequiredFields(environment, snapshot.missingRequiredFields);
-    }
+    handlePotentialSnapshotErrors(
+      environment,
+      snapshot.missingRequiredFields,
+      snapshot.relayResolverErrors,
+    );
     /* $FlowFixMe[incompatible-return] we assume readData returns the right
      * data just having written it from network or checked availability. */
     return snapshot.data;

@@ -34,8 +34,8 @@ const {
   getPendingOperationsForFragment,
   getSelector,
   getVariablesFromFragment,
+  handlePotentialSnapshotErrors,
   recycleNodesInto,
-  reportMissingRequiredFields,
 } = require('relay-runtime');
 
 type FragmentQueryOptions = {|
@@ -82,25 +82,23 @@ function getMissingClientEdges(
   }
 }
 
-function reportMissingRequiredFieldsForState(
+function handlePotentialSnapshotErrorsForState(
   environment: IEnvironment,
   state: FragmentState,
 ): void {
   if (state.kind === 'singular') {
-    if (state.snapshot.missingRequiredFields != null) {
-      reportMissingRequiredFields(
-        environment,
-        state.snapshot.missingRequiredFields,
-      );
-    }
+    handlePotentialSnapshotErrors(
+      environment,
+      state.snapshot.missingRequiredFields,
+      state.snapshot.relayResolverErrors,
+    );
   } else if (state.kind === 'plural') {
     for (const snapshot of state.snapshots) {
-      if (snapshot.missingRequiredFields != null) {
-        reportMissingRequiredFields(
-          environment,
-          snapshot.missingRequiredFields,
-        );
-      }
+      handlePotentialSnapshotErrors(
+        environment,
+        snapshot.missingRequiredFields,
+        snapshot.relayResolverErrors,
+      );
     }
   }
 }
@@ -371,7 +369,7 @@ function useFragmentInternal_REACT_CACHE(
     }
     // Report required fields only if we're not suspending, since that means
     // they're missing even though we are out of options for possibly fetching them:
-    reportMissingRequiredFieldsForState(environment, state);
+    handlePotentialSnapshotErrorsForState(environment, state);
   }
 
   // Subscriptions:

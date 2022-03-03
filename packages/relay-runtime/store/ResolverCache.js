@@ -18,6 +18,7 @@ import type {
   MissingRequiredFields,
   MutableRecordSource,
   Record,
+  RelayResolverErrors,
   SingularReaderSelector,
 } from './RelayStoreTypes';
 
@@ -25,6 +26,7 @@ const recycleNodesInto = require('../util/recycleNodesInto');
 const {generateClientID} = require('./ClientID');
 const RelayModernRecord = require('./RelayModernRecord');
 const {
+  RELAY_RESOLVER_ERROR_KEY,
   RELAY_RESOLVER_INPUTS_KEY,
   RELAY_RESOLVER_INVALIDATION_KEY,
   RELAY_RESOLVER_MISSING_REQUIRED_FIELDS_KEY,
@@ -42,6 +44,7 @@ type EvaluationResult<T> = {|
   resolverID: ResolverID,
   seenRecordIDs: Set<DataID>,
   readerSelector: SingularReaderSelector,
+  errors: RelayResolverErrors,
   missingRequiredFields: ?MissingRequiredFields,
 |};
 
@@ -52,7 +55,12 @@ export interface ResolverCache {
     variables: Variables,
     evaluate: () => EvaluationResult<T>,
     getDataForResolverFragment: (SingularReaderSelector) => mixed,
-  ): [T /* Answer */, ?DataID /* Seen record */, ?MissingRequiredFields];
+  ): [
+    T /* Answer */,
+    ?DataID /* Seen record */,
+    RelayResolverErrors,
+    ?MissingRequiredFields,
+  ];
   invalidateDataIDs(
     updatedDataIDs: Set<DataID>, // Mutated in place
   ): void;
@@ -68,9 +76,14 @@ class NoopResolverCache implements ResolverCache {
     variables: Variables,
     evaluate: () => EvaluationResult<T>,
     getDataForResolverFragment: SingularReaderSelector => mixed,
-  ): [T /* Answer */, ?DataID /* Seen record */, ?MissingRequiredFields] {
-    const {resolverResult, missingRequiredFields} = evaluate();
-    return [resolverResult, undefined, missingRequiredFields];
+  ): [
+    T /* Answer */,
+    ?DataID /* Seen record */,
+    RelayResolverErrors,
+    ?MissingRequiredFields,
+  ] {
+    const {resolverResult, missingRequiredFields, errors} = evaluate();
+    return [resolverResult, undefined, errors, missingRequiredFields];
   }
   invalidateDataIDs(updatedDataIDs: Set<DataID>): void {}
 }
@@ -106,7 +119,12 @@ class RecordResolverCache implements ResolverCache {
     variables: Variables,
     evaluate: () => EvaluationResult<T>,
     getDataForResolverFragment: SingularReaderSelector => mixed,
-  ): [T /* Answer */, ?DataID /* Seen record */, ?MissingRequiredFields] {
+  ): [
+    T /* Answer */,
+    ?DataID /* Seen record */,
+    RelayResolverErrors,
+    ?MissingRequiredFields,
+  ] {
     const recordSource = this._getRecordSource();
     const recordID = RelayModernRecord.getDataID(record);
 
@@ -142,6 +160,11 @@ class RecordResolverCache implements ResolverCache {
         RELAY_RESOLVER_MISSING_REQUIRED_FIELDS_KEY,
         evaluationResult.missingRequiredFields,
       );
+      RelayModernRecord.setValue(
+        linkedRecord,
+        RELAY_RESOLVER_ERROR_KEY,
+        evaluationResult.errors,
+      );
       recordSource.set(linkedID, linkedRecord);
 
       // Link the resolver value record to the resolver field of the record being read:
@@ -168,7 +191,10 @@ class RecordResolverCache implements ResolverCache {
     const missingRequiredFields: ?MissingRequiredFields =
       // $FlowFixMe[incompatible-type] - casting mixed
       linkedRecord[RELAY_RESOLVER_MISSING_REQUIRED_FIELDS_KEY];
-    return [answer, linkedID, missingRequiredFields];
+
+    // $FlowFixMe[incompatible-type] - casting mixed
+    const errors: RelayResolverErrors = linkedRecord[RELAY_RESOLVER_ERROR_KEY];
+    return [answer, linkedID, errors, missingRequiredFields];
   }
 
   invalidateDataIDs(

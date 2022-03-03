@@ -113,14 +113,14 @@ export type NormalizationSelector = {|
   +variables: Variables,
 |};
 
-type MissingRequiredField = {|
+type FieldLocation = {|
   path: string,
   owner: string,
 |};
 
 export type MissingRequiredFields = $ReadOnly<
-  | {|action: 'THROW', field: MissingRequiredField|}
-  | {|action: 'LOG', fields: Array<MissingRequiredField>|},
+  | {|action: 'THROW', field: FieldLocation|}
+  | {|action: 'LOG', fields: Array<FieldLocation>|},
 >;
 
 export type ClientEdgeTraversalInfo = {|
@@ -136,6 +136,13 @@ export type MissingClientEdgeRequestInfo = {|
   +clientEdgeDestinationID: DataID,
 |};
 
+export type RelayResolverError = {|
+  field: FieldLocation,
+  error: Error,
+|};
+
+export type RelayResolverErrors = Array<RelayResolverError>;
+
 /**
  * A representation of a selector and its results at a particular point in time.
  */
@@ -146,6 +153,7 @@ export type Snapshot = {|
   +seenRecords: DataIDSet,
   +selector: SingularReaderSelector,
   +missingRequiredFields: ?MissingRequiredFields,
+  +relayResolverErrors: RelayResolverErrors,
 |};
 
 /**
@@ -1073,6 +1081,12 @@ export type RequiredFieldLogger = (
       +kind: 'missing_field.throw',
       +owner: string,
       +fieldPath: string,
+    |}
+  | {|
+      +kind: 'relay_resolver.error',
+      +owner: string,
+      +fieldPath: string,
+      +error: Error,
     |},
 ) => void;
 

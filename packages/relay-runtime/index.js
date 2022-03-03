@@ -59,6 +59,7 @@ const getRefetchMetadata = require('./util/getRefetchMetadata');
 const getRelayHandleKey = require('./util/getRelayHandleKey');
 const getRequestIdentifier = require('./util/getRequestIdentifier');
 const getValueAtPath = require('./util/getValueAtPath');
+const handlePotentialSnapshotErrors = require('./util/handlePotentialSnapshotErrors');
 const isPromise = require('./util/isPromise');
 const isScalarAndEqual = require('./util/isScalarAndEqual');
 const recycleNodesInto = require('./util/recycleNodesInto');
@@ -68,7 +69,6 @@ const RelayError = require('./util/RelayError');
 const RelayFeatureFlags = require('./util/RelayFeatureFlags');
 const RelayProfiler = require('./util/RelayProfiler');
 const RelayReplaySubject = require('./util/RelayReplaySubject');
-const reportMissingRequiredFields = require('./util/reportMissingRequiredFields');
 const stableCopy = require('./util/stableCopy');
 const withProvidedVariables = require('./util/withProvidedVariables');
 
@@ -291,7 +291,7 @@ module.exports = {
     RelayModernSelector.getVariablesFromPluralFragment,
   getVariablesFromSingularFragment:
     RelayModernSelector.getVariablesFromSingularFragment,
-  reportMissingRequiredFields,
+  handlePotentialSnapshotErrors,
   graphql: GraphQLTag.graphql,
   isFragment: GraphQLTag.isFragment,
   isInlineDataFragment: GraphQLTag.isInlineDataFragment,

@@ -271,6 +271,7 @@ describe('ReactRelayRefetchContainer', () => {
       },
       isMissingData: false,
       missingRequiredFields: null,
+      relayResolverErrors: [],
       missingClientEdges: null,
       seenRecords: expect.any(Object),
       selector: createReaderSelector(
@@ -305,6 +306,7 @@ describe('ReactRelayRefetchContainer', () => {
         name: 'Mark', // !== 'Zuck'
       },
       seenRecords: {},
+      relayResolverErrors: [],
     });
 
     // No need to resolve props or resubscribe
@@ -362,6 +364,7 @@ describe('ReactRelayRefetchContainer', () => {
       },
       isMissingData: false,
       missingRequiredFields: null,
+      relayResolverErrors: [],
       missingClientEdges: null,
       seenRecords: expect.any(Object),
       selector: createReaderSelector(
@@ -414,6 +417,7 @@ describe('ReactRelayRefetchContainer', () => {
       },
       isMissingData: false,
       missingRequiredFields: null,
+      relayResolverErrors: [],
       missingClientEdges: null,
       seenRecords: expect.any(Object),
       selector: createReaderSelector(
@@ -490,6 +494,7 @@ describe('ReactRelayRefetchContainer', () => {
         // Name is excluded since value of cond is now false
       },
       missingRequiredFields: null,
+      relayResolverErrors: [],
       missingClientEdges: null,
       isMissingData: false,
       seenRecords: expect.any(Object),

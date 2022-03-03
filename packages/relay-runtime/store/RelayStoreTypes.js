@@ -26,7 +26,6 @@ import type {
   UploadableMap,
 } from '../network/RelayNetworkTypes';
 import type RelayObservable from '../network/RelayObservable';
-import type {GraphQLTaggedNode} from '../query/GraphQLTag';
 import type {RequestIdentifier} from '../util/getRequestIdentifier';
 import type {
   NormalizationArgument,

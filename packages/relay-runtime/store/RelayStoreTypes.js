@@ -57,7 +57,7 @@ export type OperationTracker = RelayOperationTracker;
 
 export type MutationParameters = {|
   +response: {...},
-  +variables: interface {},
+  +variables: {...},
   +rawResponse?: {...},
 |};
 

@@ -243,12 +243,11 @@ function App(props: Props) {
 /**
  * MainContent.react.js
  */
-import type {AppQuery as AppQueryType} from 'AppQuery.graphql';
 
 // Fetches and renders the query, given the fetch options
 function MainContent(props) {
   const {refresh, queryOptions, variables} = props;
-  const data = useLazyLoadQuery<AppQueryType>(
+  const data = useLazyLoadQuery(
     graphql`
       query AppQuery($id: ID!) {
         user(id: $id) {

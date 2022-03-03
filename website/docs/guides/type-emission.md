@@ -76,10 +76,7 @@ const data = useLazyLoadQuery(
  *   readonly response: ExampleQuery$data
  * }
  */
-
-import { ExampleQuery } from "__generated__/ExampleQuery.graphql"
-
-const data = useLazyLoadQuery<ExampleQuery>(
+const data = useLazyLoadQuery(
   graphql`
     query ExampleQuery($artistID: ID!) {
       artist(id: $artistID) {
@@ -160,10 +157,8 @@ return props.artist && <div>{props.artist.name} is great!</div>
  * }
  */
 
-import { ExampleQuery } from "__generated__/ExampleQuery.graphql"
-
 // data is of type ExampleQuery$data
-const data = useLazyLoadQuery<ExampleQuery>(
+const data = useLazyLoadQuery(
   graphql`
     query ExampleQuery($artistID: ID!) {
       artist(id: $artistID) {
@@ -344,10 +339,9 @@ import { ExampleFragmentComponent } from "./ExampleFragmentComponent"
  *   readonly response: ExampleQuery$data
  * }
  */
-import { ExampleQuery } from "__generated__/ExampleQuery.graphql"
 
 // data is of type ExampleQuery$data
-const data = useLazyLoadQuery<ExampleQuery>(
+const data = useLazyLoadQuery(
   graphql`
     query ExampleQuery($artistID: ID!) {
       artist(id: $artistID) {

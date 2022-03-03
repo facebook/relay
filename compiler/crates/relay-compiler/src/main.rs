@@ -14,7 +14,6 @@ use relay_compiler::{
     config::{Config, SingleProjectConfigFile},
     FileSourceKind, LocalPersister, OperationPersister, PersistConfig, RemotePersister,
 };
-use relay_typegen::TypegenLanguage;
 use simplelog::{
     ColorChoice, ConfigBuilder as SimpleLogConfigBuilder, LevelFilter, TermLogger, TerminalMode,
 };
@@ -93,7 +92,6 @@ impl From<CliConfig> for SingleProjectConfigFile {
             schema: cli_config.schema.expect("schema is required."),
             artifact_directory: cli_config.artifact_directory,
             src: cli_config.src.unwrap_or_else(|| PathBuf::from("./")),
-            language: Some(TypegenLanguage::TypeScript),
             ..Default::default()
         }
     }

@@ -21,6 +21,7 @@ use crate::{LSPExtraDataProvider, LSPRuntimeError};
 use common::{Diagnostic as CompilerDiagnostic, PerfLogger, SourceLocationKey, Span};
 use crossbeam::channel::{SendError, Sender};
 use dashmap::{mapref::entry::Entry, DashMap};
+use docblock_syntax::parse_docblock;
 use extract_graphql::JavaScriptSourceFeature;
 use fnv::FnvBuildHasher;
 use graphql_ir::{
@@ -34,6 +35,7 @@ use log::debug;
 use lsp_server::Message;
 use lsp_types::{Diagnostic, DiagnosticTag, Range, TextDocumentPositionParams, Url};
 use relay_compiler::{config::Config, FileCategorizer};
+use relay_docblock::parse_docblock_ast;
 use relay_transforms::deprecated_fields_for_executable_definition;
 use schema::SDLSchema;
 use schema_documentation::{
@@ -211,12 +213,13 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             .get(&project_name)
             .ok_or(LSPRuntimeError::ExpectedError)?;
 
-        for feature in javascript_features.iter() {
+        for (index, feature) in javascript_features.iter().enumerate() {
+            let source_location_key = SourceLocationKey::embedded(&url.to_string(), index);
             match feature {
                 JavaScriptSourceFeature::GraphQL(graphql_source) => {
                     let result = parse_executable_with_error_recovery(
                         &graphql_source.text,
-                        SourceLocationKey::standalone(&url.to_string()),
+                        source_location_key,
                     );
 
                     diagnostics.extend(
@@ -262,8 +265,23 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                             .map(|diagnostic| convert_diagnostic(graphql_source, diagnostic)),
                     );
                 }
-                JavaScriptSourceFeature::Docblock(_) => {
-                    // TODO: Parse and report errors in docblocks
+                JavaScriptSourceFeature::Docblock(docblock_source) => {
+                    let text = &docblock_source.text;
+                    let result = parse_docblock(text, source_location_key)
+                        .and_then(|ast| parse_docblock_ast(&ast));
+
+                    if let Err(errors) = result {
+                        diagnostics.extend(errors.iter().map(|diagnostic| {
+                            convert_diagnostic(
+                                &GraphQLSource {
+                                    text: text.clone(),
+                                    line_index: docblock_source.line_index,
+                                    column_index: docblock_source.column_index,
+                                },
+                                diagnostic,
+                            )
+                        }));
+                    }
                 }
             }
         }

@@ -22,18 +22,19 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         .enumerate()
         .filter_map(|(i, source)| match source {
             JavaScriptSourceFeature::GraphQL(_) => None,
-            JavaScriptSourceFeature::Docblock(docblock_source) => Some((i, docblock_source)),
-        })
-        .map(|(i, source)| {
-            parse_docblock(
-                &source.text,
-                SourceLocationKey::Embedded {
-                    path: format!("/path/to/test/fixture/{}", fixture.file_name).intern(),
-                    index: i as u16,
-                },
-            )
-            .and_then(|ast| parse_docblock_ast(&ast))
-            .map_err(|diagnostics| diagnostics_to_sorted_string(&source.text, &diagnostics))
+            JavaScriptSourceFeature::Docblock(docblock_source) => Some(
+                parse_docblock(
+                    &docblock_source.text,
+                    SourceLocationKey::Embedded {
+                        path: format!("/path/to/test/fixture/{}", fixture.file_name).intern(),
+                        index: i as u16,
+                    },
+                )
+                .and_then(|ast| parse_docblock_ast(&ast))
+                .map_err(|diagnostics| {
+                    diagnostics_to_sorted_string(&docblock_source.text, &diagnostics)
+                }),
+            ),
         })
         .collect::<Result<Vec<_>, String>>()?;
 

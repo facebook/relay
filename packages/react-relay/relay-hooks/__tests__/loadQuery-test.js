@@ -27,7 +27,15 @@ const {
   getRequest,
   graphql,
 } = require('relay-runtime');
-const {createMockEnvironment} = require('relay-test-utils-internal');
+const {
+  createMockEnvironment,
+  disallowConsoleErrors,
+  disallowWarnings,
+  expectWarningWillFire,
+} = require('relay-test-utils-internal');
+
+disallowWarnings();
+disallowConsoleErrors();
 
 describe('loadQuery', () => {
   const q: GraphQLTaggedNode = graphql`
@@ -867,7 +875,6 @@ describe('loadQuery', () => {
     let LoadDuringRender;
 
     beforeEach(() => {
-      jest.mock('warning');
       Container = props => {
         useTrackLoadQueryInRender();
         return props.children;
@@ -882,9 +889,9 @@ describe('loadQuery', () => {
     });
 
     it('warns if called during render', () => {
-      const warning = require('warning');
-      // $FlowFixMe[prop-missing]
-      warning.mockClear();
+      expectWarningWillFire(
+        'Relay: `loadQuery` should not be called inside a React render function.',
+      );
 
       ReactTestRenderer.act(() => {
         ReactTestRenderer.create(
@@ -893,19 +900,12 @@ describe('loadQuery', () => {
           </Container>,
         );
       });
-      expect(warning).toHaveBeenCalledTimes(1);
-      // $FlowFixMe[prop-missing]
-      expect(warning.mock.calls[0][1]).toContain(
-        'should not be called inside a React render function',
-      );
-      // $FlowFixMe[prop-missing]
-      expect(warning.mock.calls[0][2]).toEqual('loadQuery');
     });
 
     it('uses provided name for warning', () => {
-      const warning = require('warning');
-      // $FlowFixMe[prop-missing]
-      warning.mockClear();
+      expectWarningWillFire(
+        'Relay: `refetch` should not be called inside a React render function.',
+      );
 
       ReactTestRenderer.act(() => {
         ReactTestRenderer.create(
@@ -914,13 +914,6 @@ describe('loadQuery', () => {
           </Container>,
         );
       });
-      expect(warning).toHaveBeenCalledTimes(1);
-      // $FlowFixMe[prop-missing]
-      expect(warning.mock.calls[0][1]).toContain(
-        'should not be called inside a React render function',
-      );
-      // $FlowFixMe[prop-missing]
-      expect(warning.mock.calls[0][2]).toEqual('refetch');
     });
   });
 });

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<562d9640eca03ba6e61a65d3ed6f5b3f>>
+ * @generated SignedSource<<d89b334b14ec5711c2522dac3da684cd>>
  */
 
 mod compile_relay_artifacts;
@@ -720,6 +720,13 @@ fn provided_variable_multiple_queries() {
 }
 
 #[test]
+fn provided_variable_nested_split_operation() {
+    let input = include_str!("compile_relay_artifacts/fixtures/provided-variable-nested-split-operation.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/provided-variable-nested-split-operation.expected");
+    test_fixture(transform_fixture, "provided-variable-nested-split-operation.graphql", "compile_relay_artifacts/fixtures/provided-variable-nested-split-operation.expected", input, expected);
+}
+
+#[test]
 fn provided_variable_no_inline_fragment() {
     let input = include_str!("compile_relay_artifacts/fixtures/provided-variable-no-inline-fragment.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/provided-variable-no-inline-fragment.expected");
@@ -738,6 +745,13 @@ fn provided_variable_reused_nested_linked_fragment() {
     let input = include_str!("compile_relay_artifacts/fixtures/provided-variable-reused-nested-linked-fragment.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/provided-variable-reused-nested-linked-fragment.expected");
     test_fixture(transform_fixture, "provided-variable-reused-nested-linked-fragment.graphql", "compile_relay_artifacts/fixtures/provided-variable-reused-nested-linked-fragment.expected", input, expected);
+}
+
+#[test]
+fn provided_variable_split_operation() {
+    let input = include_str!("compile_relay_artifacts/fixtures/provided-variable-split-operation.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/provided-variable-split-operation.expected");
+    test_fixture(transform_fixture, "provided-variable-split-operation.graphql", "compile_relay_artifacts/fixtures/provided-variable-split-operation.expected", input, expected);
 }
 
 #[test]

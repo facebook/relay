@@ -1,0 +1,35 @@
+query providedVariableSplitOperation_Query($id: ID!) {
+  node(id: $id) {
+    ...providedVariableSplitOperationFragment
+  }
+}
+
+fragment providedVariableSplitOperationFragment on User
+{
+  id
+  nameRenderer @match{
+    ...providedVariableSplitOperation_MarkdownUserNameRenderer_name
+      @module(name: "MarkdownUserNameRenderer.react")
+    ...providedVariableSplitOperation_PlainUserNameRenderer_name
+      @module(name: "MarkdownUserNameRenderer.react")
+  }
+}
+
+fragment providedVariableSplitOperation_MarkdownUserNameRenderer_name on MarkdownUserNameRenderer
+  @argumentDefinitions(
+    shouldIncludeData: {type: "Boolean!", provider: "shouldIncludeData_RelayProvider"}
+  )
+{
+  markdown @include(if: $shouldIncludeData)
+  data {
+    markup
+  }
+}
+
+fragment providedVariableSplitOperation_PlainUserNameRenderer_name on PlainUserNameRenderer
+{
+  plaintext
+  data {
+    text
+  }
+}

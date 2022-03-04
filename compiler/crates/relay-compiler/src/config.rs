@@ -287,6 +287,8 @@ impl Config {
                     filename_for_artifact: None,
                     skip_types_for_artifact: None,
                     rollout: config_file_project.rollout,
+                    relay_flow_enum_directive_rollout: config_file_project
+                        .relay_flow_enum_directive_rollout,
                     js_module_format: config_file_project.js_module_format,
                 };
                 Ok((project_name, project_config))
@@ -881,6 +883,9 @@ pub struct ConfigFileProject {
     /// pass, otherwise it should be a number between 0 and 100 as a percentage.
     #[serde(default)]
     pub rollout: Rollout,
+
+    #[serde(default)]
+    pub relay_flow_enum_directive_rollout: Rollout,
 
     #[serde(default)]
     pub js_module_format: JsModuleFormat,

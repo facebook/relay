@@ -149,6 +149,7 @@ pub struct ProjectConfig {
         Option<Box<dyn (Fn(SourceLocationKey, StringKey) -> String) + Send + Sync>>,
     pub skip_types_for_artifact: Option<Box<dyn (Fn(SourceLocationKey) -> bool) + Send + Sync>>,
     pub rollout: Rollout,
+    pub relay_flow_enum_directive_rollout: Rollout,
     pub js_module_format: JsModuleFormat,
 }
 
@@ -174,6 +175,7 @@ impl Default for ProjectConfig {
             filename_for_artifact: None,
             skip_types_for_artifact: None,
             rollout: Default::default(),
+            relay_flow_enum_directive_rollout: Default::default(),
             js_module_format: Default::default(),
         }
     }
@@ -201,6 +203,7 @@ impl Debug for ProjectConfig {
             filename_for_artifact,
             skip_types_for_artifact,
             rollout,
+            relay_flow_enum_directive_rollout: relay_flow_enum_rollout,
             js_module_format,
         } = self;
         f.debug_struct("ProjectConfig")
@@ -237,6 +240,7 @@ impl Debug for ProjectConfig {
                 },
             )
             .field("rollout", rollout)
+            .field("relay_flow_enum_rollout", relay_flow_enum_rollout)
             .field("js_module_format", js_module_format)
             .finish()
     }

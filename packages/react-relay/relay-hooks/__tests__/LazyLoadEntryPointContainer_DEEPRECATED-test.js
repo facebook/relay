@@ -31,6 +31,13 @@ const {
   getRequest,
   graphql,
 } = require('relay-runtime');
+const {
+  disallowConsoleErrors,
+  disallowWarnings,
+} = require('relay-test-utils-internal');
+
+disallowWarnings();
+disallowConsoleErrors();
 
 const query = getRequest(graphql`
   query LazyLoadEntryPointContainerDEEPRECATEDTestQuery($id: ID!) {
@@ -99,8 +106,6 @@ class FakeJSResource<T> {
 beforeEach(() => {
   PreloadableQueryRegistry.clear();
 
-  jest.spyOn(console, 'warn').mockImplementation(() => {});
-  jest.spyOn(console, 'error').mockImplementation(() => {});
   fetch = jest.fn((_query, _variables, _cacheConfig) =>
     Observable.create(sink => {
       dataSource = sink;

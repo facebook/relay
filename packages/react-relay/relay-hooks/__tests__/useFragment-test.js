@@ -27,6 +27,13 @@ const {
   graphql,
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
+const {
+  disallowConsoleErrors,
+  disallowWarnings,
+} = require('relay-test-utils-internal');
+
+disallowWarnings();
+disallowConsoleErrors();
 
 describe('useFragment', () => {
   let environment;
@@ -73,8 +80,6 @@ describe('useFragment', () => {
   }
 
   beforeEach(() => {
-    // Set up mocks
-    jest.resetModules();
     renderSpy = jest.fn();
 
     // Set up environment and base data

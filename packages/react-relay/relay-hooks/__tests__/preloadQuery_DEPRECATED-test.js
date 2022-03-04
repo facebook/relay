@@ -31,6 +31,14 @@ const {
   getActorIdentifier,
 } = require('relay-runtime/multi-actor-environment');
 
+const {
+  disallowConsoleErrors,
+  disallowWarnings,
+} = require('relay-test-utils-internal');
+
+disallowWarnings();
+disallowConsoleErrors();
+
 const query = getRequest(graphql`
   query preloadQueryDEPRECATEDTestQuery($id: ID!) {
     node(id: $id) {

@@ -22,7 +22,14 @@ const {
   getRequest,
   graphql,
 } = require('relay-runtime');
-const {createMockEnvironment} = require('relay-test-utils-internal');
+const {
+  createMockEnvironment,
+  disallowConsoleErrors,
+  disallowWarnings,
+} = require('relay-test-utils-internal');
+
+disallowWarnings();
+disallowConsoleErrors();
 
 const query = getRequest(graphql`
   query loadQueryStoreBehaviorTestQuery($id: ID!) {

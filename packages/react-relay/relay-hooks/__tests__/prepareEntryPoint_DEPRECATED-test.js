@@ -14,7 +14,14 @@
 'use strict';
 
 const prepareEntryPoint_DEPRECATED = require('../prepareEntryPoint_DEPRECATED');
-const {createMockEnvironment} = require('relay-test-utils-internal');
+const {
+  createMockEnvironment,
+  disallowConsoleErrors,
+  disallowWarnings,
+} = require('relay-test-utils-internal');
+
+disallowWarnings();
+disallowConsoleErrors();
 
 class FakeJSResource<T> {
   _resolve: (T => mixed) | null;

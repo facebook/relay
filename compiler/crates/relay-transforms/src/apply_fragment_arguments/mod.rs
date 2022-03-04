@@ -9,7 +9,7 @@ mod scope;
 
 use super::get_applied_fragment_name;
 use crate::{
-    match_::SplitOperationMetadata,
+    match_::{SplitOperationMetadata, DIRECTIVE_SPLIT_OPERATION},
     no_inline::{is_raw_response_type_enabled, NO_INLINE_DIRECTIVE_NAME, PARENT_DOCUMENTS_ARG},
     util::get_normalization_operation_name,
 };
@@ -136,29 +136,34 @@ impl Transformer for ApplyFragmentArgumentsTransform<'_, '_, '_> {
         self.scope = Scope::root_scope();
         self.provided_variables = Default::default();
         let transform_result = self.default_transform_operation(operation);
-        if self.provided_variables.is_empty() {
+        if self.provided_variables.is_empty()
+            || operation
+                .directives
+                .named(*DIRECTIVE_SPLIT_OPERATION)
+                .is_some()
+        {
+            // this transform does not add the SplitOperation directive, so this
+            //  should be equal to checking whether the result is a split operation
+            self.provided_variables.clear();
             transform_result
         } else {
+            let mut add_provided_variables = |new_operation: &mut OperationDefinition| {
+                new_operation.variable_definitions.append(
+                    &mut self
+                        .provided_variables
+                        .drain(..)
+                        .map(|(_, definition)| definition)
+                        .collect_vec(),
+                );
+            };
             match transform_result {
                 Transformed::Keep => {
                     let mut new_operation = operation.clone();
-                    new_operation.variable_definitions.append(
-                        &mut self
-                            .provided_variables
-                            .drain(..)
-                            .map(|(_, definition)| definition)
-                            .collect_vec(),
-                    );
+                    add_provided_variables(&mut new_operation);
                     Transformed::Replace(new_operation)
                 }
                 Transformed::Replace(mut new_operation) => {
-                    new_operation.variable_definitions.append(
-                        &mut self
-                            .provided_variables
-                            .drain(..)
-                            .map(|(_, definition)| definition)
-                            .collect_vec(),
-                    );
+                    add_provided_variables(&mut new_operation);
                     Transformed::Replace(new_operation)
                 }
                 Transformed::Delete => Transformed::Delete,

@@ -36,13 +36,6 @@ fragment providedVariableSplitOperation_PlainUserNameRenderer_name on PlainUserN
 }
 ==================================== OUTPUT ===================================
 {
-  "argumentDefinitions": [
-    {
-      "defaultValue": null,
-      "kind": "LocalArgument",
-      "name": "__relay_internal__pv__shouldIncludeData_RelayProvider"
-    }
-  ],
   "kind": "SplitOperation",
   "metadata": {},
   "name": "providedVariableSplitOperation_MarkdownUserNameRenderer_name$normalization",

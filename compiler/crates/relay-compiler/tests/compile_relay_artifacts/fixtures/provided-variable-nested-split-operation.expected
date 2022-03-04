@@ -63,18 +63,6 @@ fragment providedVariableNestedSplitOperation_Plain2 on PlainUserNameRenderer
 }
 ==================================== OUTPUT ===================================
 {
-  "argumentDefinitions": [
-    {
-      "defaultValue": null,
-      "kind": "LocalArgument",
-      "name": "__relay_internal__pv__shouldIncludeMarkdown_RelayProvider"
-    },
-    {
-      "defaultValue": null,
-      "kind": "LocalArgument",
-      "name": "__relay_internal__pv__shouldIncludeData_RelayProvider"
-    }
-  ],
   "kind": "SplitOperation",
   "metadata": {},
   "name": "providedVariableNestedSplitOperation_Markdown1$normalization",
@@ -192,13 +180,6 @@ fragment providedVariableNestedSplitOperation_Plain2 on PlainUserNameRenderer
 }
 
 {
-  "argumentDefinitions": [
-    {
-      "defaultValue": null,
-      "kind": "LocalArgument",
-      "name": "__relay_internal__pv__shouldIncludeData_RelayProvider"
-    }
-  ],
   "kind": "SplitOperation",
   "metadata": {},
   "name": "providedVariableNestedSplitOperation_Markdown2$normalization",

@@ -69,10 +69,7 @@ impl<TSources: Sources> DiagnosticPrinter<TSources> {
     fn write_source<W: Write>(&self, writer: &mut W, location: Location) -> std::fmt::Result {
         let source_printer = SourcePrinter::default();
         if let Some(source) = self.sources.get(location.source_location()) {
-            let range =
-                location
-                    .span()
-                    .to_range(&source.text, source.line_index, source.column_index);
+            let range = source.to_span_range(location.span());
             writeln!(
                 writer,
                 "  {}{}",

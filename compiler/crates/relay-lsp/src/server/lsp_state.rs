@@ -328,11 +328,7 @@ pub fn convert_diagnostic(text_source: &TextSource, diagnostic: &CompilerDiagnos
         code: None,
         data: get_diagnostics_data(diagnostic),
         message: diagnostic.message().to_string(),
-        range: diagnostic.location().span().to_range(
-            &text_source.text,
-            text_source.line_index,
-            text_source.column_index,
-        ),
+        range: text_source.to_span_range(diagnostic.location().span()),
         related_information: None,
         severity: Some(diagnostic.severity()),
         tags: if tags.is_empty() { None } else { Some(tags) },

@@ -8,6 +8,7 @@
 use common::{
     Diagnostic, FeatureFlags, NoopPerfLogger,
     SourceLocationKey::{self, Generated},
+    TextSource,
 };
 
 use graphql_ir::Program;
@@ -336,7 +337,8 @@ fn map_diagnostics(diagnostics: Vec<Diagnostic>, source: &InputType<'_>) -> Play
     let wasm_diagnostics = diagnostics
         .iter()
         .map(|diagnostic| {
-            let range = diagnostic.location().span().to_range(source.source(), 0, 0);
+            let range = TextSource::from_whole_document(source.source())
+                .to_span_range(diagnostic.location().span());
             WasmDiagnostic {
                 message: diagnostic.print_without_source(),
                 line_start: range.start.line,

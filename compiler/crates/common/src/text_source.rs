@@ -8,6 +8,8 @@
 use lsp_types::{Position, Range};
 use serde::{Deserialize, Serialize};
 
+use crate::Span;
+
 /// Represents GraphQL text extracted from a source file
 /// The GraphQL text is potentially in some subrange of
 /// the file, like a JS file.
@@ -65,5 +67,96 @@ impl TextSource {
         }
         let end_position = Position::new(line as u32, character as u32);
         Range::new(start_position, end_position)
+    }
+
+    pub fn to_span_range(&self, span: &Span) -> lsp_types::Range {
+        let start = span.start as usize;
+        let end = span.end as usize;
+        // Zero-indexed line offset in the document
+        let mut line = self.line_index;
+        // Zero-indexed character offset on the line
+        let mut character = self.column_index;
+        let mut start_position = lsp_types::Position::default();
+        let mut end_position = lsp_types::Position::default();
+        let mut chars = self.text.chars().enumerate().peekable();
+
+        while let Some((index, chr)) = chars.next() {
+            if index == start {
+                start_position = lsp_types::Position::new(line as u32, character as u32);
+            }
+            if index == end {
+                end_position = lsp_types::Position::new(line as u32, character as u32);
+                break;
+            }
+
+            let is_newline = match chr {
+                // Line terminators: https://www.ecma-international.org/ecma-262/#sec-line-terminators
+                '\u{000A}' | '\u{000D}' | '\u{2028}' | '\u{2029}' => {
+                    // <CLRF>
+                    !matches!((chr, chars.peek()), ('\u{000D}', Some((_, '\u{000D}'))))
+                }
+                _ => false,
+            };
+
+            if is_newline {
+                // New line, increment the line offset and reset the
+                // character offset.
+                line += 1;
+                character = 0;
+            } else {
+                character += 1;
+            }
+        }
+        lsp_types::Range::new(start_position, end_position)
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::TextSource;
+    use crate::Span;
+
+    #[test]
+    fn to_range_test() {
+        let span = Span::new(0, 5);
+        let text_source = TextSource::new("source", 0, 0);
+        let range = text_source.to_span_range(&span);
+        assert_eq!(range.start, lsp_types::Position::new(0, 0));
+        assert_eq!(range.end, lsp_types::Position::new(0, 5));
+    }
+
+    #[test]
+    fn to_range_multi_line_test() {
+        // this range contains all characters of `fn foo ...`
+        let span = Span::new(1, 23);
+        let text_source = TextSource::new(
+            r#"
+fn foo() {
+    error
+}
+        "#,
+            0,
+            0,
+        );
+        let range = text_source.to_span_range(&span);
+        assert_eq!(range.start, lsp_types::Position::new(1, 0));
+        assert_eq!(range.end, lsp_types::Position::new(3, 1));
+    }
+
+    #[test]
+    fn to_range_multi_line_test_2() {
+        let span = Span::new(16, 21);
+        let text_source = TextSource::new(
+            r#"
+fn foo() {
+    error
+}
+        "#,
+            0,
+            0,
+        );
+        let range = text_source.to_span_range(&span);
+        assert_eq!(range.start, lsp_types::Position::new(2, 4));
+        assert_eq!(range.end, lsp_types::Position::new(2, 9));
     }
 }

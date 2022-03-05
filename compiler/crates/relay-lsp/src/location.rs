@@ -7,7 +7,7 @@
 
 use std::path::{Path, PathBuf};
 
-use common::{Location, SourceLocationKey};
+use common::{Location, SourceLocationKey, TextSource};
 use lsp_types::Url;
 
 use crate::lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult};
@@ -25,7 +25,9 @@ pub fn transform_relay_location_to_lsp_location(
             let file_contents = get_file_contents(&abspath)?;
 
             let uri = get_uri(&abspath)?;
-            let range = location.span().to_range(&file_contents, 0, 0);
+
+            let range =
+                TextSource::from_whole_document(file_contents).to_span_range(location.span());
             Ok(lsp_types::Location { uri, range })
         }
         SourceLocationKey::Embedded { path, index } => {
@@ -47,12 +49,7 @@ pub fn transform_relay_location_to_lsp_location(
                 })?;
 
             let text_source = embedded_source.text_source();
-            let range = location.span().to_range(
-                &text_source.text,
-                text_source.line_index,
-                text_source.column_index,
-            );
-
+            let range = text_source.to_span_range(location.span());
             Ok(lsp_types::Location { uri, range })
         }
         _ => Err(LSPRuntimeError::UnexpectedError(

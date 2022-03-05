@@ -13,14 +13,20 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     Ok(features
         .into_iter()
         .map(|feature| match feature {
-            JavaScriptSourceFeature::Docblock(s) => format!(
-                "docblock - line: {}, column: {}, text: <{}>",
-                s.line_index, s.column_index, s.text
-            ),
-            JavaScriptSourceFeature::GraphQL(s) => format!(
-                "graphql - line: {}, column: {}, text: <{}>",
-                s.line_index, s.column_index, s.text
-            ),
+            JavaScriptSourceFeature::Docblock(docblock_source) => {
+                let s = docblock_source.text_source();
+                format!(
+                    "docblock - line: {}, column: {}, text: <{}>",
+                    s.line_index, s.column_index, s.text
+                )
+            }
+            JavaScriptSourceFeature::GraphQL(graphql_source) => {
+                let s = graphql_source.text_source();
+                format!(
+                    "graphql - line: {}, column: {}, text: <{}>",
+                    s.line_index, s.column_index, s.text
+                )
+            }
         })
         .collect::<Vec<_>>()
         .join("\n"))

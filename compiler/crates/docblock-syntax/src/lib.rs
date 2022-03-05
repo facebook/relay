@@ -11,25 +11,31 @@ mod errors;
 use std::{iter::Peekable, str::Chars};
 
 pub use ast::{DocblockAST, DocblockField, DocblockSection};
-use common::{Diagnostic, DiagnosticsResult, Location, SourceLocationKey, Span, WithLocation};
+use common::{
+    Diagnostic, DiagnosticsResult, Location, SourceLocationKey, Span, TextSource, WithLocation,
+};
 use errors::SyntaxError;
 use intern::string_key::{Intern, StringKey};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct DocblockSource {
-    pub text: String,
-    pub line_index: usize,
-    pub column_index: usize,
-}
+pub struct DocblockSource(TextSource);
 
 impl DocblockSource {
     pub fn new(text: impl Into<String>, line_index: usize, column_index: usize) -> Self {
-        Self {
+        Self(TextSource {
             text: text.into(),
             line_index,
             column_index,
-        }
+        })
+    }
+
+    pub fn text_source(&self) -> &TextSource {
+        &self.0
+    }
+
+    pub fn to_text_source(self) -> TextSource {
+        self.0
     }
 }
 

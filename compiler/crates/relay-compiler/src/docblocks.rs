@@ -35,7 +35,10 @@ fn parse_source(
     let source_location =
         SourceLocationKey::embedded(file_path.to_str().unwrap(), docblock_source.index);
 
-    let ast = parse_docblock(&docblock_source.docblock_source.text, source_location)?;
+    let ast = parse_docblock(
+        &docblock_source.docblock_source.text_source().text,
+        source_location,
+    )?;
 
     let maybe_ir = parse_docblock_ast(&ast)?;
     maybe_ir

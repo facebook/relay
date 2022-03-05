@@ -13,6 +13,7 @@ path = "tests/extract_test.rs"
 [dependencies]
 docblock-syntax = { path = "../docblock-syntax" }
 graphql-syntax = { path = "../graphql-syntax" }
+common = { path = "../common" }
 
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }

@@ -7,8 +7,7 @@
 
 use crate::SourcePrinter;
 use colored::*;
-use common::{Diagnostic, Location, SourceLocationKey};
-use graphql_syntax::GraphQLSource;
+use common::{Diagnostic, Location, SourceLocationKey, TextSource};
 use std::fmt::Write;
 
 pub struct DiagnosticPrinter<T: Sources> {
@@ -93,14 +92,14 @@ impl<TSources: Sources> DiagnosticPrinter<TSources> {
 }
 
 pub trait Sources {
-    fn get(&self, source_location: SourceLocationKey) -> Option<GraphQLSource>;
+    fn get(&self, source_location: SourceLocationKey) -> Option<TextSource>;
 }
 
 impl<F> Sources for F
 where
-    F: Fn(SourceLocationKey) -> Option<GraphQLSource>,
+    F: Fn(SourceLocationKey) -> Option<TextSource>,
 {
-    fn get(&self, source_location: SourceLocationKey) -> Option<GraphQLSource> {
+    fn get(&self, source_location: SourceLocationKey) -> Option<TextSource> {
         self(source_location)
     }
 }

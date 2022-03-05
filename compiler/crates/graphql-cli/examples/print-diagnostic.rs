@@ -5,9 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{Diagnostic, Location, SourceLocationKey, Span};
+use common::{Diagnostic, Location, SourceLocationKey, Span, TextSource};
 use graphql_cli::DiagnosticPrinter;
-use graphql_syntax::GraphQLSource;
 
 const EXAMPLE: &str = "fragment Example on User {
   photo(size: 40) {
@@ -17,7 +16,7 @@ const EXAMPLE: &str = "fragment Example on User {
 
 fn main() {
     let printer =
-        DiagnosticPrinter::new(|_| Some(GraphQLSource::from_whole_document(EXAMPLE.to_string())));
+        DiagnosticPrinter::new(|_| Some(TextSource::from_whole_document(EXAMPLE.to_string())));
 
     let span_photo = Span::new(29, 34);
     let span_type = Span::new(20, 24);

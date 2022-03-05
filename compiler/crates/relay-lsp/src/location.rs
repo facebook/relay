@@ -46,11 +46,11 @@ pub fn transform_relay_location_to_lsp_location(
                     ))
                 })?;
 
-            let graphql_source = embedded_source.as_graphql_source();
+            let text_source = embedded_source.text_source();
             let range = location.span().to_range(
-                &graphql_source.text,
-                graphql_source.line_index,
-                graphql_source.column_index,
+                &text_source.text,
+                text_source.line_index,
+                text_source.column_index,
             );
 
             Ok(lsp_types::Location { uri, range })

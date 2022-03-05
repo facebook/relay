@@ -96,11 +96,11 @@ pub fn source_for_location(
         }
         SourceLocationKey::Standalone { path } => {
             let absolute_path = root_dir.join(path.lookup());
-            Some(JavaScriptSourceFeature::GraphQL(GraphQLSource {
-                text: source_reader.read_file_to_string(&absolute_path).ok()?,
-                line_index: 0,
-                column_index: 0,
-            }))
+            Some(JavaScriptSourceFeature::GraphQL(GraphQLSource::new(
+                source_reader.read_file_to_string(&absolute_path).ok()?,
+                0,
+                0,
+            )))
         }
         SourceLocationKey::Generated => None,
     }

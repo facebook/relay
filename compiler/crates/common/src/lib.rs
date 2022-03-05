@@ -18,6 +18,7 @@ mod perf_logger;
 mod rollout;
 mod span;
 pub mod sync;
+mod text_source;
 
 pub use console_logger::{print_time, ConsoleLogEvent, ConsoleLogger};
 pub use diagnostic::{
@@ -31,3 +32,4 @@ pub use named_item::{Named, NamedItem};
 pub use perf_logger::{NoopPerfLogger, NoopPerfLoggerEvent, PerfLogEvent, PerfLogger};
 pub use rollout::Rollout;
 pub use span::Span;
+pub use text_source::TextSource;

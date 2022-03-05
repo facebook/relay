@@ -19,7 +19,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
 
     let stringify = |i: usize, source: &DocblockSource| -> DiagnosticsResult<String> {
         let ast = parse_docblock(
-            &source.text,
+            &source.text_source().text,
             SourceLocationKey::Embedded {
                 path: format!("/path/to/test/fixture/{}", fixture.file_name).intern(),
                 index: i as u16,
@@ -38,8 +38,9 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
             JavaScriptSourceFeature::Docblock(docblock_source) => Some((i, docblock_source)),
         })
         .map(|(i, source)| {
-            stringify(i, source)
-                .map_err(|diagnostics| diagnostics_to_sorted_string(&source.text, &diagnostics))
+            stringify(i, source).map_err(|diagnostics| {
+                diagnostics_to_sorted_string(&source.text_source().text, &diagnostics)
+            })
         })
         .collect::<Result<Vec<_>, String>>()?;
 

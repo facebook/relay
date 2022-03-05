@@ -9,6 +9,7 @@
 #![deny(rust_2018_idioms)]
 #![deny(clippy::all)]
 
+use common::TextSource;
 use docblock_syntax::DocblockSource;
 use graphql_syntax::GraphQLSource;
 use std::iter::Peekable;
@@ -20,14 +21,17 @@ pub enum JavaScriptSourceFeature {
 }
 
 impl JavaScriptSourceFeature {
-    pub fn as_graphql_source(self) -> GraphQLSource {
+    pub fn text_source(&self) -> &TextSource {
         match self {
-            JavaScriptSourceFeature::GraphQL(source) => source,
-            JavaScriptSourceFeature::Docblock(source) => GraphQLSource {
-                text: source.text,
-                line_index: source.line_index,
-                column_index: source.column_index,
-            },
+            JavaScriptSourceFeature::GraphQL(graphql_source) => graphql_source.text_source(),
+            JavaScriptSourceFeature::Docblock(docblock_source) => docblock_source.text_source(),
+        }
+    }
+
+    pub fn to_text_source(self) -> TextSource {
+        match self {
+            JavaScriptSourceFeature::GraphQL(graphql_source) => graphql_source.to_text_source(),
+            JavaScriptSourceFeature::Docblock(docblock_source) => docblock_source.to_text_source(),
         }
     }
 }

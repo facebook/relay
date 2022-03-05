@@ -182,7 +182,7 @@ impl DiagnosticReporter {
             return;
         };
 
-        let diagnostic = convert_diagnostic(&source.as_graphql_source(), diagnostic);
+        let diagnostic = convert_diagnostic(source.text_source(), diagnostic);
         self.add_diagnostic(url, diagnostic);
     }
 

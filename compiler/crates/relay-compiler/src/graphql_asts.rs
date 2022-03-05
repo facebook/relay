@@ -68,7 +68,10 @@ impl GraphQLAsts {
             {
                 let source_location =
                     SourceLocationKey::embedded(&file_name.to_string_lossy(), *index);
-                match graphql_syntax::parse_executable(&graphql_source.text, source_location) {
+                match graphql_syntax::parse_executable(
+                    &graphql_source.text_source().text,
+                    source_location,
+                ) {
                     Ok(document) => {
                         for def in &document.definitions {
                             if let Some(name) = def.name() {
@@ -97,9 +100,10 @@ impl GraphQLAsts {
                     // TODO: parse name instead of the whole graphql text
                     let source_location =
                         SourceLocationKey::embedded(&file_name.to_string_lossy(), *index);
-                    if let Ok(document) =
-                        graphql_syntax::parse_executable(&graphql_source.text, source_location)
-                    {
+                    if let Ok(document) = graphql_syntax::parse_executable(
+                        &graphql_source.text_source().text,
+                        source_location,
+                    ) {
                         for def in document.definitions {
                             let name = def.name();
                             if let Some(def_name) = name {
@@ -130,7 +134,10 @@ impl GraphQLAsts {
             {
                 let source_location =
                     SourceLocationKey::embedded(&file_name.to_string_lossy(), *index);
-                match graphql_syntax::parse_executable(&graphql_source.text, source_location) {
+                match graphql_syntax::parse_executable(
+                    &graphql_source.text_source().text,
+                    source_location,
+                ) {
                     Ok(document) => {
                         definitions_for_file.extend(document.definitions);
                     }

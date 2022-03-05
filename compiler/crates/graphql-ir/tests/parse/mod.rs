@@ -5,12 +5,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::SourceLocationKey;
+use common::{SourceLocationKey, TextSource};
 use fixture_tests::Fixture;
 use fnv::FnvHashMap;
 use graphql_cli::DiagnosticPrinter;
 use graphql_ir::build;
-use graphql_syntax::{parse_executable_with_features, GraphQLSource, ParserFeatures};
+use graphql_syntax::{parse_executable_with_features, ParserFeatures};
 use relay_test_schema::TEST_SCHEMA;
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
@@ -29,9 +29,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
                 .into_iter()
                 .map(|error| {
                     let printer = DiagnosticPrinter::new(|_| {
-                        Some(GraphQLSource::from_whole_document(
-                            fixture.content.to_string(),
-                        ))
+                        Some(TextSource::from_whole_document(fixture.content.to_string()))
                     });
                     printer.diagnostic_to_string(&error)
                 })

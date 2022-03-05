@@ -18,7 +18,7 @@ use crate::{
     ContentConsumerType,
 };
 use crate::{LSPExtraDataProvider, LSPRuntimeError};
-use common::{Diagnostic as CompilerDiagnostic, PerfLogger, SourceLocationKey, Span};
+use common::{Diagnostic as CompilerDiagnostic, PerfLogger, SourceLocationKey, Span, TextSource};
 use crossbeam::channel::{SendError, Sender};
 use dashmap::{mapref::entry::Entry, DashMap};
 use docblock_syntax::parse_docblock;
@@ -28,7 +28,7 @@ use graphql_ir::{
     build_ir_with_extra_features, BuilderOptions, FragmentVariablesSemantic, Program, RelayMode,
 };
 use graphql_syntax::{
-    parse_executable_with_error_recovery, ExecutableDefinition, ExecutableDocument, GraphQLSource,
+    parse_executable_with_error_recovery, ExecutableDefinition, ExecutableDocument,
 };
 use intern::string_key::{Intern, StringKey};
 use log::debug;
@@ -218,16 +218,13 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             match feature {
                 JavaScriptSourceFeature::GraphQL(graphql_source) => {
                     let result = parse_executable_with_error_recovery(
-                        &graphql_source.text,
+                        &graphql_source.text_source().text,
                         source_location_key,
                     );
 
-                    diagnostics.extend(
-                        result
-                            .errors
-                            .iter()
-                            .map(|diagnostic| convert_diagnostic(graphql_source, diagnostic)),
-                    );
+                    diagnostics.extend(result.errors.iter().map(|diagnostic| {
+                        convert_diagnostic(graphql_source.text_source(), diagnostic)
+                    }));
 
                     let compiler_diagnostics = match build_ir_with_extra_features(
                         &schema,
@@ -259,28 +256,22 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                         Err(errors) => errors,
                     };
 
-                    diagnostics.extend(
-                        compiler_diagnostics
-                            .iter()
-                            .map(|diagnostic| convert_diagnostic(graphql_source, diagnostic)),
-                    );
+                    diagnostics.extend(compiler_diagnostics.iter().map(|diagnostic| {
+                        convert_diagnostic(graphql_source.text_source(), diagnostic)
+                    }));
                 }
                 JavaScriptSourceFeature::Docblock(docblock_source) => {
-                    let text = &docblock_source.text;
+                    let text_source = docblock_source.text_source();
+                    let text = &text_source.text;
                     let result = parse_docblock(text, source_location_key)
                         .and_then(|ast| parse_docblock_ast(&ast));
 
                     if let Err(errors) = result {
-                        diagnostics.extend(errors.iter().map(|diagnostic| {
-                            convert_diagnostic(
-                                &GraphQLSource {
-                                    text: text.clone(),
-                                    line_index: docblock_source.line_index,
-                                    column_index: docblock_source.column_index,
-                                },
-                                diagnostic,
-                            )
-                        }));
+                        diagnostics.extend(
+                            errors
+                                .iter()
+                                .map(|diagnostic| convert_diagnostic(text_source, diagnostic)),
+                        );
                     }
                 }
             }
@@ -330,10 +321,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
     }
 }
 
-pub fn convert_diagnostic(
-    graphql_source: &GraphQLSource,
-    diagnostic: &CompilerDiagnostic,
-) -> Diagnostic {
+pub fn convert_diagnostic(text_source: &TextSource, diagnostic: &CompilerDiagnostic) -> Diagnostic {
     let tags: Vec<DiagnosticTag> = diagnostic.tags();
 
     Diagnostic {
@@ -341,9 +329,9 @@ pub fn convert_diagnostic(
         data: get_diagnostics_data(diagnostic),
         message: diagnostic.message().to_string(),
         range: diagnostic.location().span().to_range(
-            &graphql_source.text,
-            graphql_source.line_index,
-            graphql_source.column_index,
+            &text_source.text,
+            text_source.line_index,
+            text_source.column_index,
         ),
         related_information: None,
         severity: Some(diagnostic.severity()),

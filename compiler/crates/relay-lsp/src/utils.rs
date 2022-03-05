@@ -8,11 +8,11 @@
 use std::path::PathBuf;
 
 use crate::lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult};
-use common::{SourceLocationKey, Span};
+use common::{SourceLocationKey, Span, TextSource};
 use dashmap::DashMap;
 use extract_graphql::JavaScriptSourceFeature;
 use graphql_syntax::{
-    parse_executable_with_error_recovery, ExecutableDefinition, ExecutableDocument, GraphQLSource,
+    parse_executable_with_error_recovery, ExecutableDefinition, ExecutableDocument,
 };
 use intern::string_key::StringKey;
 use log::debug;
@@ -37,7 +37,7 @@ pub fn extract_executable_definitions_from_text_document(
         })
         .map(|graphql_source| {
             let document = parse_executable_with_error_recovery(
-                &graphql_source.text,
+                &graphql_source.text_source().text,
                 SourceLocationKey::standalone(&text_document_uri.to_string()),
             )
             .item;
@@ -103,7 +103,7 @@ pub fn extract_executable_document_from_text(
         .iter()
         .find_map(|source_feature| {
             if let JavaScriptSourceFeature::GraphQL(graphql_source) = source_feature {
-                let range = graphql_source.to_range();
+                let range = graphql_source.text_source().to_range();
                 if position >= range.start && position <= range.end {
                     Some(graphql_source)
                 } else {
@@ -116,7 +116,7 @@ pub fn extract_executable_document_from_text(
         .ok_or(LSPRuntimeError::ExpectedError)?;
 
     let document = parse_executable_with_error_recovery(
-        &graphql_source.text,
+        &graphql_source.text_source().text,
         SourceLocationKey::standalone(&uri.to_string()),
     )
     .item;
@@ -125,8 +125,8 @@ pub fn extract_executable_document_from_text(
     // to this GraphQL document, as the `Span`s in the document are relative.
     debug!("Successfully parsed the definitions for a target GraphQL source");
     // Map the position to a zero-length span, relative to this GraphQL source.
-    let position_span =
-        position_to_span(&position, graphql_source, index_offset).ok_or_else(|| {
+    let position_span = position_to_span(&position, graphql_source.text_source(), index_offset)
+        .ok_or_else(|| {
             LSPRuntimeError::UnexpectedError("Failed to map positions to spans".to_string())
         })?;
 
@@ -141,11 +141,7 @@ pub fn extract_executable_document_from_text(
 
 /// Maps the LSP `Position` type back to a relative span, so we can find out which syntax node(s)
 /// this request came from
-fn position_to_span(
-    position: &Position,
-    source: &GraphQLSource,
-    index_offset: usize,
-) -> Option<Span> {
+fn position_to_span(position: &Position, source: &TextSource, index_offset: usize) -> Option<Span> {
     position_to_offset(position, index_offset, source.line_index, &source.text)
         .map(|offset| Span::new(offset, offset))
 }

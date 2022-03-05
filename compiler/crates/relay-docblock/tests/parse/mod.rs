@@ -24,7 +24,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
             JavaScriptSourceFeature::GraphQL(_) => None,
             JavaScriptSourceFeature::Docblock(docblock_source) => Some(
                 parse_docblock(
-                    &docblock_source.text,
+                    &docblock_source.text_source().text,
                     SourceLocationKey::Embedded {
                         path: format!("/path/to/test/fixture/{}", fixture.file_name).intern(),
                         index: i as u16,
@@ -32,7 +32,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
                 )
                 .and_then(|ast| parse_docblock_ast(&ast))
                 .map_err(|diagnostics| {
-                    diagnostics_to_sorted_string(&docblock_source.text, &diagnostics)
+                    diagnostics_to_sorted_string(&docblock_source.text_source().text, &diagnostics)
                 }),
             ),
         })

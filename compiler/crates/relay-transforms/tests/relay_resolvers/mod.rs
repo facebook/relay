@@ -5,11 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{Diagnostic, SourceLocationKey};
+use common::{Diagnostic, SourceLocationKey, TextSource};
 use fixture_tests::Fixture;
 use graphql_cli::DiagnosticPrinter;
 use graphql_ir::{build, Program};
-use graphql_syntax::{parse_executable, GraphQLSource};
+use graphql_syntax::parse_executable;
 use graphql_text_printer::{print_fragment, print_operation, PrinterOptions};
 use relay_test_schema::get_test_schema_with_located_extensions;
 use relay_transforms::{find_resolver_dependencies, relay_resolvers, DependencyMap};
@@ -83,7 +83,7 @@ pub fn diagnostics_to_sorted_string(
 ) -> String {
     let printer = DiagnosticPrinter::new(|source_location| match source_location {
         SourceLocationKey::Embedded { index, .. } => {
-            Some(GraphQLSource::from_whole_document(match index {
+            Some(TextSource::from_whole_document(match index {
                 0 => source,
                 1 => extensions,
                 _ => panic!("Expected index to be 0 or 1"),

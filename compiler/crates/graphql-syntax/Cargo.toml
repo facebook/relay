@@ -14,7 +14,6 @@ path = "tests/print_test.rs"
 common = { path = "../common" }
 intern = { path = "../intern" }
 logos = "0.11"
-lsp-types = "0.89.0"
 serde = { version = "1.0.126", features = ["derive", "rc"] }
 thiserror = "1.0.29"
 

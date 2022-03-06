@@ -188,6 +188,12 @@ module.exports = {
         infoLink: 'https://www.atlassian.com/',
         pinned: false,
       },
+      {
+        caption: 'Croct',
+        image: '/img/logos/croct.png',
+        infoLink: 'https://croct.com/',
+        pinned: false,
+      },
     ],
   },
   onBrokenLinks: 'throw',

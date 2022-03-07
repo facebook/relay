@@ -50,7 +50,7 @@ const RelayStoreReactFlightUtils = require('../RelayStoreReactFlightUtils');
 const RelayStoreSubscriptions = require('../RelayStoreSubscriptions');
 const RelayStoreUtils = require('../RelayStoreUtils');
 const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
-const {RecordResolverCache} = require('../ResolverCache');
+const {ExternalStateResolverCache} = require('./ExternalStateResolverCache');
 const invariant = require('invariant');
 
 // HACK
@@ -145,7 +145,7 @@ class ExternalStateResolverStore implements Store {
     this._releaseBuffer = [];
     this._roots = new Map();
     this._shouldScheduleGC = false;
-    this._resolverCache = new RecordResolverCache(() =>
+    this._resolverCache = new ExternalStateResolverCache(() =>
       this._getMutableRecordSource(),
     );
     this._storeSubscriptions = new RelayStoreSubscriptions(

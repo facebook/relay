@@ -23,7 +23,7 @@
     "relay-runtime": "13.1.1"
   },
   "peerDependencies": {
-    "react": "^16.9.0 || ^17"
+    "react": "^16.9.0 || ^17 || ^18"
   },
   "directories": {
     "": "./"

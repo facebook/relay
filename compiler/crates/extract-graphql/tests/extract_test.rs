@@ -81,3 +81,17 @@ fn template_literal() {
     let expected = include_str!("extract/fixtures/template_literal.expected");
     test_fixture(transform_fixture, "template_literal.js", "extract/fixtures/template_literal.expected", input, expected);
 }
+
+#[test]
+fn template_literal_ts() {
+    let input = include_str!("extract/fixtures/template_literal.ts");
+    let expected = include_str!("extract/fixtures/template_literal_ts.expected");
+    test_fixture(transform_fixture, "template_literal.ts", "extract/fixtures/template_literal_ts.expected", input, expected);
+}
+
+#[test]
+fn template_literal_ts_space() {
+    let input = include_str!("extract/fixtures/template_literal_space.ts");
+    let expected = include_str!("extract/fixtures/template_literal_ts_space.expected");
+    test_fixture(transform_fixture, "template_literal_space.ts", "extract/fixtures/template_literal_ts_space.expected", input, expected);
+}

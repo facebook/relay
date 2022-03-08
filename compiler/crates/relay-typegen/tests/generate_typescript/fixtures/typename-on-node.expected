@@ -6,20 +6,22 @@
 %%%
 fragment TypenameOnNode on Node {
   __typename
+  id
   ... on User {
-    id
+    firstName
   }
 }
 ==================================== OUTPUT ===================================
 import { FragmentRefs } from "relay-runtime";
-export type TypenameOnNode$data = {
+export type TypenameOnNode$data = ({
   readonly __typename: "User";
-  readonly id: string;
-  readonly " $fragmentType": "TypenameOnNode";
+  readonly firstName: string | null;
 } | {
   // This will never be '%other', but we need some
   // value in case none of the concrete values match.
   readonly __typename: "%other";
+}) & {
+  readonly id: string;
   readonly " $fragmentType": "TypenameOnNode";
 };
 export type TypenameOnNode$key = {

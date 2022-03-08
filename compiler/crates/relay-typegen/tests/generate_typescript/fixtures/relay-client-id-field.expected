@@ -41,9 +41,9 @@ export type RelayClientIDFieldQuery$data = {
     readonly __typename: string;
     readonly id: string;
   } | null;
-  readonly node: {
+  readonly node: ({
     readonly __typename: "Comment";
-    readonly commentBody: {
+    readonly commentBody: ({
       readonly __typename: "PlainCommentBody";
       readonly __id: string;
       readonly text: {
@@ -53,12 +53,12 @@ export type RelayClientIDFieldQuery$data = {
       } | null;
     } | {
       readonly __typename: "MarkdownCommentBody";
+    }) & {
       readonly __id: string;
     } | null;
-    readonly __id: string;
-    readonly id: string;
   } | {
     readonly __typename: "Feedback" | "Page" | "PhotoStory" | "Story" | "User";
+  }) & {
     readonly __id: string;
     readonly id: string;
   } | null;

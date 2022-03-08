@@ -98,13 +98,13 @@ export type OtherFragment$key = {
 };
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
-export type PageFragment$data = {
+export type PageFragment$data = ({
   readonly __typename: "Page";
-  readonly " $fragmentType": "PageFragment";
 } | {
   // This will never be '%other', but we need some
   // value in case none of the concrete values match.
   readonly __typename: "%other";
+}) & {
   readonly " $fragmentType": "PageFragment";
 };
 export type PageFragment$key = {
@@ -113,13 +113,13 @@ export type PageFragment$key = {
 };
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
-export type PictureFragment$data = {
+export type PictureFragment$data = ({
   readonly __typename: "Image";
-  readonly " $fragmentType": "PictureFragment";
 } | {
   // This will never be '%other', but we need some
   // value in case none of the concrete values match.
   readonly __typename: "%other";
+}) & {
   readonly " $fragmentType": "PictureFragment";
 };
 export type PictureFragment$key = {
@@ -128,13 +128,13 @@ export type PictureFragment$key = {
 };
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
-export type UserFrag1$data = {
+export type UserFrag1$data = ({
   readonly __typename: "User";
-  readonly " $fragmentType": "UserFrag1";
 } | {
   // This will never be '%other', but we need some
   // value in case none of the concrete values match.
   readonly __typename: "%other";
+}) & {
   readonly " $fragmentType": "UserFrag1";
 };
 export type UserFrag1$key = {
@@ -143,13 +143,13 @@ export type UserFrag1$key = {
 };
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
-export type UserFrag2$data = {
+export type UserFrag2$data = ({
   readonly __typename: "User";
-  readonly " $fragmentType": "UserFrag2";
 } | {
   // This will never be '%other', but we need some
   // value in case none of the concrete values match.
   readonly __typename: "%other";
+}) & {
   readonly " $fragmentType": "UserFrag2";
 };
 export type UserFrag2$key = {

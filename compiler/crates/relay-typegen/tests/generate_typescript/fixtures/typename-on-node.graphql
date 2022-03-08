@@ -5,7 +5,8 @@
 %%%
 fragment TypenameOnNode on Node {
   __typename
+  id
   ... on User {
-    id
+    firstName
   }
 }

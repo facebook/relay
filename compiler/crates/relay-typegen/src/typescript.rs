@@ -114,6 +114,10 @@ impl Writer for TypeScriptPrinter {
     ) -> FmtResult {
         Ok(())
     }
+
+    fn supports_exact_objects(&self) -> bool {
+        false
+    }
 }
 
 impl TypeScriptPrinter {

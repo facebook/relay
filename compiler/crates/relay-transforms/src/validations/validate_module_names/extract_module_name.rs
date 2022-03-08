@@ -30,7 +30,7 @@ pub fn extract_module_name(path: &str) -> Option<String> {
 
 fn get_final_non_index_js_segment(path: &Path) -> Option<&str> {
     let file_stem = path.file_stem()?.to_str();
-    if file_stem == Some("index") {
+    if file_stem.map_or(false, |f| f == "index" || f.starts_with("index.")) {
         let mut iter = path.iter();
         iter.next_back()?;
         iter.next_back().and_then(|os_str| os_str.to_str())
@@ -146,6 +146,10 @@ mod tests {
             Some("button".to_string())
         );
         assert_eq!(
+            extract_module_name("/path/button/index.react.js"),
+            Some("button".to_string())
+        );
+        assert_eq!(
             extract_module_name("/path/button/index.jsx"),
             Some("button".to_string())
         );
@@ -160,6 +164,14 @@ mod tests {
         assert_eq!(
             extract_module_name("/path/non-numeric-end-.js"),
             Some("nonNumericEnd".to_string())
+        );
+        assert_eq!(
+            extract_module_name("/path/__tests__/index.test.js"),
+            Some("Tests".to_string())
+        );
+        assert_eq!(
+            extract_module_name("/path/button/indexButton.js"),
+            Some("indexButton".to_string())
         );
     }
 

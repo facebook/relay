@@ -8,6 +8,7 @@
 use async_trait::async_trait;
 use persist_query::{persist, PersistError};
 use relay_config::RemotePersistConfig;
+use std::iter::empty;
 use tokio::sync::Semaphore;
 
 use crate::OperationPersister;
@@ -31,11 +32,11 @@ impl OperationPersister for RemotePersister {
         let url = &self.config.url;
         if let Some(semaphore) = &self.semaphore {
             let permit = (*semaphore).acquire().await.unwrap();
-            let result = persist(&artifact_text, url, params).await;
+            let result = persist(&artifact_text, url, params, empty()).await;
             drop(permit);
             result
         } else {
-            persist(&artifact_text, url, params).await
+            persist(&artifact_text, url, params, empty()).await
         }
     }
 }

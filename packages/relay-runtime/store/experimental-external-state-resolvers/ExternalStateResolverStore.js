@@ -53,6 +53,11 @@ const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
 const {ExternalStateResolverCache} = require('./ExternalStateResolverCache');
 const invariant = require('invariant');
 
+export type ExternalState<T> = {|
+  read(): T,
+  subscribe(cb: () => void): () => void,
+|};
+
 // HACK
 // The type of Store is defined using an opaque type that only RelayModernStore
 // can create. For now, we just lie via any/FlowFixMe and pretend we really have
@@ -145,8 +150,9 @@ class ExternalStateResolverStore implements Store {
     this._releaseBuffer = [];
     this._roots = new Map();
     this._shouldScheduleGC = false;
-    this._resolverCache = new ExternalStateResolverCache(() =>
-      this._getMutableRecordSource(),
+    this._resolverCache = new ExternalStateResolverCache(
+      () => this._getMutableRecordSource(),
+      this,
     );
     this._storeSubscriptions = new RelayStoreSubscriptions(
       options?.log,

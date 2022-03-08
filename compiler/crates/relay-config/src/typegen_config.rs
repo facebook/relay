@@ -7,12 +7,11 @@
 
 use common::Rollout;
 use fnv::FnvBuildHasher;
-use indexmap::{IndexMap, IndexSet};
+use indexmap::IndexMap;
 use intern::string_key::StringKey;
 use serde::{Deserialize, Serialize};
 
 type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
-type FnvIndexSet<T> = IndexSet<T, FnvBuildHasher>;
 
 #[derive(Debug, Copy, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(deny_unknown_fields, rename_all = "lowercase")]
@@ -43,14 +42,6 @@ pub struct TypegenConfig {
     pub enum_module_suffix: Option<String>,
 
     /// # For Flow type generation
-    /// Generate enum files using Flow Enums instead of string unions for the
-    /// given GraphQL enum names.
-    /// Enums with names that start with lowercase are invalid Flow Enum values
-    /// and always generate legacy enums.
-    #[serde(default)]
-    pub flow_enums: FnvIndexSet<StringKey>,
-
-    /// # For Flow type generation
     /// When set, generated input types will have the listed fields optional
     /// even if the schema defines them as required.
     #[serde(default)]
@@ -61,6 +52,14 @@ pub struct TypegenConfig {
     /// version 3.8. This will prevent warnings from `importsNotUsedAsValues`.
     #[serde(default)]
     pub use_import_type_syntax: bool,
+
+    /// # For Typescript type generation
+    /// If `useNativeEnums` is enabled, and the typegen language is "typescript",
+    /// this option sets whether enums are generated as `const enums` or not.
+    /// On paper, const enums are better, but depending on the compilation
+    /// configuration, they may require additional setup.
+    #[serde(default)]
+    pub use_typescript_const_enums: bool,
 
     /// A map from GraphQL scalar types to a custom JS type, example:
     /// { "Url": "String" }
@@ -75,6 +74,10 @@ pub struct TypegenConfig {
     /// Work in progress new Flow type definitions
     #[serde(default)]
     pub flow_typegen: FlowTypegenConfig,
+
+    /// Use native Typescript/Flow enums when possible, instead of a string union.
+    #[serde(default)]
+    pub use_native_enums: bool,
 
     /// This option enables emitting es modules artifacts.
     #[serde(default)]

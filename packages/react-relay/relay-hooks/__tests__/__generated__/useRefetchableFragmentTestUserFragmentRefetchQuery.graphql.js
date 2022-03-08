@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<01351d8392c9c8bab604401f4471d084>>
+ * @generated SignedSource<<1f77482303cc32a6c2f868309bcc633c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,8 +19,8 @@ import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 type useRefetchableFragmentTestUserFragment$fragmentType = any;
 export type useRefetchableFragmentTestUserFragmentRefetchQuery$variables = {|
-  scale?: ?number,
   id: string,
+  scale?: ?number,
 |};
 export type useRefetchableFragmentTestUserFragmentRefetchQuery$data = {|
   +node: ?{|
@@ -28,8 +28,8 @@ export type useRefetchableFragmentTestUserFragmentRefetchQuery$data = {|
   |},
 |};
 export type useRefetchableFragmentTestUserFragmentRefetchQuery = {|
-  variables: useRefetchableFragmentTestUserFragmentRefetchQuery$variables,
   response: useRefetchableFragmentTestUserFragmentRefetchQuery$data,
+  variables: useRefetchableFragmentTestUserFragmentRefetchQuery$variables,
 |};
 */
 

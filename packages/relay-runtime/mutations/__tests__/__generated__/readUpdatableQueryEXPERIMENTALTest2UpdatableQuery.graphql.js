@@ -26,8 +26,8 @@ export type readUpdatableQueryEXPERIMENTALTest2UpdatableQuery$data = {|
   set node(value: null | void): void,
 |};
 export type readUpdatableQueryEXPERIMENTALTest2UpdatableQuery = {|
-  variables: readUpdatableQueryEXPERIMENTALTest2UpdatableQuery$variables,
   response: readUpdatableQueryEXPERIMENTALTest2UpdatableQuery$data,
+  variables: readUpdatableQueryEXPERIMENTALTest2UpdatableQuery$variables,
 |};
 */
 

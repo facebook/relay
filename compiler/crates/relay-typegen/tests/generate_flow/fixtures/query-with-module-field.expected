@@ -31,24 +31,24 @@ export type Test_userRenderer = {|
 |};
 export type Test$rawResponse = {|
   +node: ?({|
-    +__typename: "User",
-    +id: string,
-    +plainUserRenderer: ?({|
-      +__module_operation_Test_user: ?any,
-      +__module_component_Test_user: ?any,
-      ...Test_userRenderer,
-    |} | Local3DPayload<"Test_user", {|
-      ...Test_userRenderer,
-    |}>),
-  |} | {|
     +__typename: string,
     +id: string,
+  |} | {|
+    +__typename: "User",
+    +id: string,
+    +plainUserRenderer: ?(Local3DPayload<"Test_user", {|
+      ...Test_userRenderer,
+    |}> | {|
+      +__module_component_Test_user: ?any,
+      +__module_operation_Test_user: ?any,
+      ...Test_userRenderer,
+    |}),
   |}),
 |};
 export type Test = {|
-  variables: Test$variables,
-  response: Test$data,
   rawResponse: Test$rawResponse,
+  response: Test$data,
+  variables: Test$variables,
 |};
 -------------------------------------------------------------------------------
 import type { Test_userRenderer$fragmentType } from "Test_userRenderer.graphql";

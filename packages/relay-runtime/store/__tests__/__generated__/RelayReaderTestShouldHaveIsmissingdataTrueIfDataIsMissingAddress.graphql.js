@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<d885e2799856bc8feeb0225dddb37a1a>>
+ * @generated SignedSource<<2cb7a68dbd4c6ad3b4449cae917a5c01>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,10 +19,10 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingAddress$fragmentType: FragmentType;
 export type RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingAddress$data = {|
-  +id: string,
   +address: ?{|
     +city: ?string,
   |},
+  +id: string,
   +$fragmentType: RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingAddress$fragmentType,
 |};
 export type RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingAddress$key = {

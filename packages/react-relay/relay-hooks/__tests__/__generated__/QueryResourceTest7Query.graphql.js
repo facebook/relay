@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a001cd9c4d5e36c8b47d362534d55661>>
+ * @generated SignedSource<<b733151e774df7a1359748aaea156f0c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -27,8 +27,8 @@ export type QueryResourceTest7Query$data = {|
   |},
 |};
 export type QueryResourceTest7Query = {|
-  variables: QueryResourceTest7Query$variables,
   response: QueryResourceTest7Query$data,
+  variables: QueryResourceTest7Query$variables,
 |};
 */
 

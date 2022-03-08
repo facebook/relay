@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<35c8cf526fb81dd691764e518845be31>>
+ * @generated SignedSource<<f066c19676fef121b5283f2301264ff0>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,12 +23,12 @@ export type RelayModernEnvironmentExecuteWithNestedStreamTestFeedFragment$data =
     +edges: ?$ReadOnlyArray<?{|
       +cursor: ?string,
       +node: ?{|
-        +id: string,
         +feedback: ?{|
           +actors: ?$ReadOnlyArray<?{|
             +name: ?string,
           |}>,
         |},
+        +id: string,
       |},
     |}>,
   |},

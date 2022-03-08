@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<e08c45936039bf16a3beec989904a94a>>
+ * @generated SignedSource<<fed42ed5f5737c3bb435d42bcab1634a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,15 +24,15 @@ export type withProvidedVariablesTest3Query$data = {|
   |},
 |};
 export type withProvidedVariablesTest3Query = {|
-  variables: withProvidedVariablesTest3Query$variables,
   response: withProvidedVariablesTest3Query$data,
+  variables: withProvidedVariablesTest3Query$variables,
 |};
 type ProvidedVariablesType = {|
-  +__relay_internal__pv__provideNumberOfFriends: {|
-    +get: () => number,
-  |},
   +__relay_internal__pv__provideIncludeUserNames: {|
     +get: () => boolean,
+  |},
+  +__relay_internal__pv__provideNumberOfFriends: {|
+    +get: () => number,
   |},
 |};
 */

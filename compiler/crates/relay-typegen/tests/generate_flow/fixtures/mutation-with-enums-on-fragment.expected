@@ -31,8 +31,8 @@ import type { FriendFragment$fragmentType } from "FriendFragment.graphql";
 export type TestEnums = "mark" | "zuck" | "%future added value";
 export type CommentCreateInput = {|
   clientMutationId?: ?string,
-  feedbackId?: ?string,
   feedback?: ?CommentfeedbackFeedback,
+  feedbackId?: ?string,
 |};
 export type CommentfeedbackFeedback = {|
   comment?: ?FeedbackcommentComment,
@@ -41,8 +41,8 @@ export type FeedbackcommentComment = {|
   feedback?: ?CommentfeedbackFeedback,
 |};
 export type CommentCreateMutation$variables = {|
-  input: CommentCreateInput,
   first?: ?number,
+  input: CommentCreateInput,
   orderBy?: ?$ReadOnlyArray<string>,
 |};
 export type CommentCreateMutation$data = {|
@@ -51,8 +51,8 @@ export type CommentCreateMutation$data = {|
       +friends: ?{|
         +edges: ?$ReadOnlyArray<?{|
           +node: ?{|
-            +id: string,
             +__typename: string,
+            +id: string,
             +$fragmentSpreads: FriendFragment$fragmentType,
           |},
         |}>,
@@ -66,10 +66,10 @@ export type CommentCreateMutation$rawResponse = {|
       +friends: ?{|
         +edges: ?$ReadOnlyArray<?{|
           +node: ?{|
-            +id: string,
             +__typename: "User",
-            +name: ?string,
+            +id: string,
             +lastName: ?string,
+            +name: ?string,
             +profilePicture2: ?{|
               +test_enums: ?TestEnums,
             |},
@@ -81,17 +81,17 @@ export type CommentCreateMutation$rawResponse = {|
   |},
 |};
 export type CommentCreateMutation = {|
-  variables: CommentCreateMutation$variables,
-  response: CommentCreateMutation$data,
   rawResponse: CommentCreateMutation$rawResponse,
+  response: CommentCreateMutation$data,
+  variables: CommentCreateMutation$variables,
 |};
 -------------------------------------------------------------------------------
 export type TestEnums = "mark" | "zuck" | "%future added value";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type FriendFragment$fragmentType: FragmentType;
 export type FriendFragment$data = {|
-  +name: ?string,
   +lastName: ?string,
+  +name: ?string,
   +profilePicture2: ?{|
     +test_enums: ?TestEnums,
   |},

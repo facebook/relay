@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<c9fd6f08ac6c68ac77c2ac8b2b32207f>>
+ * @generated SignedSource<<2ed9fd75f2614e648b3ab2ee3747633f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,11 +21,26 @@ type RelayMockPayloadGeneratorTest23Fragment$fragmentType = any;
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayMockPayloadGeneratorTest22Fragment$fragmentType: FragmentType;
 export type RelayMockPayloadGeneratorTest22Fragment$data = {|
-  +id: string,
-  +name: ?string,
-  +myActor: ?{|
-    +id: string,
-    +name: ?string,
+  +actor: ?{|
+    +feedback?: ?{|
+      +comments: ?{|
+        +edges: ?$ReadOnlyArray<?{|
+          +node: ?{|
+            +$fragmentSpreads: RelayMockPayloadGeneratorTest23Fragment$fragmentType,
+          |},
+        |}>,
+      |},
+    |},
+    +id?: string,
+    +name?: ?string,
+    +pageName?: ?string,
+    +profilePicture?: ?{|
+      +height: ?number,
+      +uri: ?string,
+      +width: ?number,
+    |},
+    +userName?: ?string,
+    +username: ?string,
   |},
   +customName: ?string,
   +friends: ?{|
@@ -40,32 +55,17 @@ export type RelayMockPayloadGeneratorTest22Fragment$data = {|
       +hasNextPage: ?boolean,
     |},
   |},
-  +profile_picture: ?{|
-    +uri: ?string,
+  +id: string,
+  +myActor: ?{|
+    +id: string,
+    +name: ?string,
   |},
+  +name: ?string,
   +profilePicture?: ?{|
     +uri: ?string,
   |},
-  +actor: ?{|
-    +username: ?string,
-    +id?: string,
-    +userName?: ?string,
-    +name?: ?string,
-    +profilePicture?: ?{|
-      +uri: ?string,
-      +width: ?number,
-      +height: ?number,
-    |},
-    +feedback?: ?{|
-      +comments: ?{|
-        +edges: ?$ReadOnlyArray<?{|
-          +node: ?{|
-            +$fragmentSpreads: RelayMockPayloadGeneratorTest23Fragment$fragmentType,
-          |},
-        |}>,
-      |},
-    |},
-    +pageName?: ?string,
+  +profile_picture: ?{|
+    +uri: ?string,
   |},
   +$fragmentSpreads: RelayMockPayloadGeneratorTest21Fragment$fragmentType,
   +$fragmentType: RelayMockPayloadGeneratorTest22Fragment$fragmentType,

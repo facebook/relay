@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<dc216758778cecb20552534775e1066d>>
+ * @generated SignedSource<<3ad036581104fd74f043d59c62424c2e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -27,8 +27,8 @@ export type RelayModernEnvironmentExecuteMutationTestCommentQuery$data = {|
   |},
 |};
 export type RelayModernEnvironmentExecuteMutationTestCommentQuery = {|
-  variables: RelayModernEnvironmentExecuteMutationTestCommentQuery$variables,
   response: RelayModernEnvironmentExecuteMutationTestCommentQuery$data,
+  variables: RelayModernEnvironmentExecuteMutationTestCommentQuery$variables,
 |};
 */
 

@@ -23,8 +23,8 @@ export type relayResolver_Query$data = {|
   |},
 |};
 export type relayResolver_Query = {|
-  variables: relayResolver_Query$variables,
   response: relayResolver_Query$data,
+  variables: relayResolver_Query$variables,
 |};
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";

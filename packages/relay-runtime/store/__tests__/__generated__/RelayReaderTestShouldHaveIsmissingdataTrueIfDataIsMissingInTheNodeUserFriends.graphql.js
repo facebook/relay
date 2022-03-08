@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<17c4a933f8469ab962b04062e4919341>>
+ * @generated SignedSource<<322fe3c366356efa3e91b20d3a52b01c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,7 +19,6 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingInTheNodeUserFriends$fragmentType: FragmentType;
 export type RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingInTheNodeUserFriends$data = {|
-  +id: string,
   +friends: ?{|
     +edges: ?$ReadOnlyArray<?{|
       +cursor: ?string,
@@ -29,6 +28,7 @@ export type RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingInTheNodeUs
       |},
     |}>,
   |},
+  +id: string,
   +$fragmentType: RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingInTheNodeUserFriends$fragmentType,
 |};
 export type RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingInTheNodeUserFriends$key = {

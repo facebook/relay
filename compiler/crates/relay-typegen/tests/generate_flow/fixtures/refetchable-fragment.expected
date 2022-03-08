@@ -18,18 +18,18 @@ export type RefetchableFragmentQuery$data = {|
   |},
 |};
 export type RefetchableFragmentQuery = {|
-  variables: RefetchableFragmentQuery$variables,
   response: RefetchableFragmentQuery$data,
+  variables: RefetchableFragmentQuery$variables,
 |};
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RefetchableFragment$fragmentType: FragmentType;
 import type { RefetchableFragmentQuery$variables } from "RefetchableFragmentQuery.graphql";
 export type RefetchableFragment$data = {|
-  +id: string,
   +fragAndField: ?{|
     +uri: ?string,
   |},
+  +id: string,
   +$fragmentType: RefetchableFragment$fragmentType,
 |};
 export type RefetchableFragment$key = {

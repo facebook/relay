@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<8e4ed3a285173c5b34f15e5807dab8a8>>
+ * @generated SignedSource<<4d468675c808c98701022cdaf815ebb6>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,13 +19,13 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentConditionalSelectionsTestQueryConditionalFragment$fragmentType: FragmentType;
 export type RelayModernEnvironmentConditionalSelectionsTestQueryConditionalFragment$data = {|
+  +me?: ?{|
+    +name: ?string,
+  |},
   +viewer?: ?{|
     +actor: ?{|
       +name: ?string,
     |},
-  |},
-  +me?: ?{|
-    +name: ?string,
   |},
   +$fragmentType: RelayModernEnvironmentConditionalSelectionsTestQueryConditionalFragment$fragmentType,
 |};

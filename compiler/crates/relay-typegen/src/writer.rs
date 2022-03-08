@@ -6,11 +6,18 @@
  */
 
 use intern::string_key::StringKey;
-use std::fmt::{Result as FmtResult, Write};
+use std::{
+    fmt::{Result as FmtResult, Write},
+    ops::{Deref, DerefMut},
+};
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub enum AST {
-    Union(Vec<AST>),
+    Union(AstList),
+    // Intersection variant added in preparation for better support for abstract types.
+    // See https://github.com/facebook/relay/pull/3280
+    #[allow(dead_code)]
+    Intersection(AstList),
     ReadOnlyArray(Box<AST>),
     Nullable(Box<AST>),
     NonNullable(Box<AST>),
@@ -22,8 +29,8 @@ pub enum AST {
     /// Prints as `"%other" with a comment explaining open enums.
     OtherTypename,
     Local3DPayload(StringKey, Box<AST>),
-    ExactObject(Vec<Prop>),
-    InexactObject(Vec<Prop>),
+    ExactObject(ExactObject),
+    InexactObject(InexactObject),
     Number,
     Boolean,
     Callable(Box<AST>),
@@ -34,14 +41,115 @@ pub enum AST {
     ActorChangePoint(Box<AST>),
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+pub struct AstList(Vec<AST>);
+
+impl Deref for AstList {
+    type Target = Vec<AST>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl DerefMut for AstList {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
+    }
+}
+
+impl AstList {
+    pub fn new(mut members: Vec<AST>, should_sort: bool) -> Self {
+        if should_sort {
+            members.sort();
+        }
+
+        Self(members)
+    }
+
+    #[cfg(test)]
+    pub fn sorted(members: Vec<AST>) -> Self {
+        Self::new(members, true)
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+pub struct ExactObject(Vec<Prop>);
+
+impl Deref for ExactObject {
+    type Target = Vec<Prop>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl DerefMut for ExactObject {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
+    }
+}
+
+impl ExactObject {
+    pub fn new(mut props: Vec<Prop>, should_sort_props: bool) -> Self {
+        if should_sort_props {
+            sort_props(&mut props);
+        }
+        Self(props)
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+pub struct InexactObject(Vec<Prop>);
+
+impl Deref for InexactObject {
+    type Target = Vec<Prop>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl DerefMut for InexactObject {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
+    }
+}
+
+impl InexactObject {
+    pub fn new(mut props: Vec<Prop>, should_sort_props: bool) -> Self {
+        if should_sort_props {
+            sort_props(&mut props);
+        }
+        Self(props)
+    }
+}
+
+fn sort_props(props: &mut Vec<Prop>) {
+    // Put regular key-value props first, followed by getter/setter pairs,
+    // followed by spreads, with $fragmentSpreads and $fragmentType props last.
+    props.sort_by_cached_key(|prop| match prop {
+        Prop::KeyValuePair(kvp) => (
+            if kvp.key == *crate::KEY_FRAGMENT_SPREADS || kvp.key == *crate::KEY_FRAGMENT_TYPE {
+                PropSortOrder::FragmentSpread
+            } else {
+                PropSortOrder::KeyValuePair
+            },
+            kvp.key,
+        ),
+        Prop::GetterSetterPair(pair) => (PropSortOrder::GetterSetterPair, pair.key),
+        Prop::Spread(spread) => (PropSortOrder::ObjectSpread, spread.value),
+    });
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Prop {
     KeyValuePair(KeyValuePairProp),
     Spread(SpreadProp),
     GetterSetterPair(GetterSetterPairProp),
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct KeyValuePairProp {
     pub key: StringKey,
     pub value: AST,
@@ -49,12 +157,12 @@ pub struct KeyValuePairProp {
     pub optional: bool,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct SpreadProp {
     pub value: StringKey,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct GetterSetterPairProp {
     pub key: StringKey,
     pub getter_return_value: AST,
@@ -87,4 +195,12 @@ pub trait Writer: Write {
     ) -> FmtResult;
 
     fn write_any_type_definition(&mut self, name: &str) -> FmtResult;
+}
+
+#[derive(PartialEq, Eq, PartialOrd, Ord)]
+enum PropSortOrder {
+    KeyValuePair = 0,
+    GetterSetterPair = 1,
+    ObjectSpread = 2,
+    FragmentSpread = 3,
 }

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<12683fe2d622be1dfc1d61d1131da847>>
+ * @generated SignedSource<<fb8f4cfc749c87cc8a5b9ba801b53807>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -32,8 +32,8 @@ export type RelayModernEnvironmentExecuteWithOverlappingModuleTestActorQuery$dat
   |},
 |};
 export type RelayModernEnvironmentExecuteWithOverlappingModuleTestActorQuery = {|
-  variables: RelayModernEnvironmentExecuteWithOverlappingModuleTestActorQuery$variables,
   response: RelayModernEnvironmentExecuteWithOverlappingModuleTestActorQuery$data,
+  variables: RelayModernEnvironmentExecuteWithOverlappingModuleTestActorQuery$variables,
 |};
 */
 

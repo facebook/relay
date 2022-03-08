@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<eeb9b34ab120f194020e09b36994d1d4>>
+ * @generated SignedSource<<ca3192c9b626c2f42c28e43482e23dce>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,10 +17,10 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 export type ConnectionHandlerTestConnectionQuery$variables = {|
-  id: string,
+  after?: ?string,
   before?: ?string,
   count?: ?number,
-  after?: ?string,
+  id: string,
   orderby?: ?$ReadOnlyArray<?string>,
 |};
 export type ConnectionHandlerTestConnectionQuery$data = {|
@@ -43,8 +43,8 @@ export type ConnectionHandlerTestConnectionQuery$data = {|
   |},
 |};
 export type ConnectionHandlerTestConnectionQuery = {|
-  variables: ConnectionHandlerTestConnectionQuery$variables,
   response: ConnectionHandlerTestConnectionQuery$data,
+  variables: ConnectionHandlerTestConnectionQuery$variables,
 |};
 */
 

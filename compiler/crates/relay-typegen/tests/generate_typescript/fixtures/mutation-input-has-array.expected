@@ -30,7 +30,7 @@ export type InputHasArray$rawResponse = {
   } | null;
 };
 export type InputHasArray = {
-  variables: InputHasArray$variables;
-  response: InputHasArray$data;
   rawResponse: InputHasArray$rawResponse;
+  response: InputHasArray$data;
+  variables: InputHasArray$variables;
 };

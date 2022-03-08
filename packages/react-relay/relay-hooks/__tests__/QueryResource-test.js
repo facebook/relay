@@ -23,7 +23,6 @@ const {
   Store,
   __internal: {fetchQuery},
   createOperationDescriptor,
-  getRequest,
   graphql,
 } = require('relay-runtime');
 const {
@@ -59,7 +58,7 @@ describe('QueryResource', () => {
     store = new Store(new RecordSource(), {gcReleaseBufferSize: 0});
     environment = createMockEnvironment({store});
     QueryResource = getQueryResourceForEnvironment(environment);
-    gqlQuery = getRequest(graphql`
+    gqlQuery = graphql`
       query QueryResourceTest1Query($id: ID!) {
         node(id: $id) {
           ... on User {
@@ -67,8 +66,8 @@ describe('QueryResource', () => {
           }
         }
       }
-    `);
-    gqlQueryMissingData = getRequest(graphql`
+    `;
+    gqlQueryMissingData = graphql`
       query QueryResourceTest2Query($id: ID!) {
         node(id: $id) {
           ... on User {
@@ -77,7 +76,7 @@ describe('QueryResource', () => {
           }
         }
       }
-    `);
+    `;
 
     query = createOperationDescriptor(gqlQuery, variables, {force: true});
     queryMissingData = createOperationDescriptor(
@@ -86,7 +85,7 @@ describe('QueryResource', () => {
       {force: true},
     );
 
-    gqlLiveQueryMissingData = getRequest(graphql`
+    gqlLiveQueryMissingData = graphql`
       query QueryResourceTest10Query($id: ID!)
       @live_query(polling_interval: 10000) {
         node(id: $id) {
@@ -96,7 +95,7 @@ describe('QueryResource', () => {
           }
         }
       }
-    `);
+    `;
     liveQueryMissingData = createOperationDescriptor(
       gqlLiveQueryMissingData,
       variables,
@@ -413,14 +412,14 @@ describe('QueryResource', () => {
               }
             `;
 
-            const UserQuery = getRequest(graphql`
+            const UserQuery = graphql`
               query QueryResourceTest3Query($id: ID!) {
                 node(id: $id) {
                   __typename
                   ...QueryResourceTest1Fragment
                 }
               }
-            `);
+            `;
             const queryWithFragments = createOperationDescriptor(
               UserQuery,
               variables,
@@ -471,14 +470,14 @@ describe('QueryResource', () => {
                 username
               }
             `;
-            const UserQuery = getRequest(graphql`
+            const UserQuery = graphql`
               query QueryResourceTest4Query($id: ID!) {
                 node(id: $id) {
                   __typename
                   ...QueryResourceTest2Fragment
                 }
               }
-            `);
+            `;
             const queryWithFragments = createOperationDescriptor(
               UserQuery,
               variables,
@@ -527,14 +526,14 @@ describe('QueryResource', () => {
                 id
               }
             `;
-            const UserQuery = getRequest(graphql`
+            const UserQuery = graphql`
               query QueryResourceTest5Query($id: ID!) {
                 node(id: $id) {
                   __typename
                   ...QueryResourceTest3Fragment
                 }
               }
-            `);
+            `;
             const queryWithFragments = createOperationDescriptor(
               UserQuery,
               variables,
@@ -883,14 +882,14 @@ describe('QueryResource', () => {
                 id
               }
             `;
-            const UserQuery = getRequest(graphql`
+            const UserQuery = graphql`
               query QueryResourceTest6Query($id: ID!) {
                 node(id: $id) {
                   __typename
                   ...QueryResourceTest4Fragment
                 }
               }
-            `);
+            `;
             const queryWithFragments = createOperationDescriptor(
               UserQuery,
               variables,
@@ -941,14 +940,14 @@ describe('QueryResource', () => {
                 username
               }
             `;
-            const UserQuery = getRequest(graphql`
+            const UserQuery = graphql`
               query QueryResourceTest7Query($id: ID!) {
                 node(id: $id) {
                   __typename
                   ...QueryResourceTest5Fragment
                 }
               }
-            `);
+            `;
             const queryWithFragments = createOperationDescriptor(
               UserQuery,
               variables,
@@ -996,7 +995,7 @@ describe('QueryResource', () => {
                 username
               }
             `;
-            const UserQuery = getRequest(graphql`
+            const UserQuery = graphql`
               query QueryResourceTest8Query($id: ID!) {
                 node(id: $id) {
                   __typename
@@ -1004,7 +1003,7 @@ describe('QueryResource', () => {
                   ...QueryResourceTest6Fragment @defer
                 }
               }
-            `);
+            `;
             const queryWithFragments = createOperationDescriptor(
               UserQuery,
               variables,
@@ -2906,7 +2905,7 @@ describe('QueryResource, with an environment meant for SSR', () => {
       store: new Store(new RecordSource(), {gcReleaseBufferSize: 0}),
     });
     QueryResource = getQueryResourceForEnvironment(environment);
-    gqlQuery = getRequest(graphql`
+    gqlQuery = graphql`
       query QueryResourceTest9Query($id: ID!) {
         node(id: $id) {
           ... on User {
@@ -2914,7 +2913,7 @@ describe('QueryResource, with an environment meant for SSR', () => {
           }
         }
       }
-    `);
+    `;
     query = createOperationDescriptor(gqlQuery, variables, {force: true});
     environment.commitPayload(query, {
       node: {

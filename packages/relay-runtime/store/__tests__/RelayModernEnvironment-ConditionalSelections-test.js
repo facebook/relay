@@ -18,7 +18,7 @@ const {
   getActorIdentifier,
 } = require('../../multi-actor-environment');
 const RelayNetwork = require('../../network/RelayNetwork');
-const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
+const {getFragment, graphql} = require('../../query/GraphQLTag');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -46,13 +46,13 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
     describe(environmentType, () => {
       beforeEach(() => {
-        ConditionalQuery = getRequest(graphql`
+        ConditionalQuery = graphql`
           query RelayModernEnvironmentConditionalSelectionsTestConditionalQuery(
             $condition: Boolean!
           ) {
             ...RelayModernEnvironmentConditionalSelectionsTestQueryConditionalFragment
           }
-        `);
+        `;
         ConditionalFragment = getFragment(graphql`
           fragment RelayModernEnvironmentConditionalSelectionsTestQueryConditionalFragment on Query {
             ... @include(if: $condition) {
@@ -70,11 +70,11 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           }
         `);
         // A version of the same query/fragment where all selections are fetched unconditionally
-        Query = getRequest(graphql`
+        Query = graphql`
           query RelayModernEnvironmentConditionalSelectionsTestUnconditionalQuery {
             ...RelayModernEnvironmentConditionalSelectionsTestQueryUnconditionalFragment
           }
-        `);
+        `;
         Fragment = getFragment(graphql`
           fragment RelayModernEnvironmentConditionalSelectionsTestQueryUnconditionalFragment on Query {
             viewer {

@@ -18,10 +18,10 @@ import type {RelayMockEnvironment} from 'relay-test-utils/RelayModernMockEnviron
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const React = require('react');
 const ReactTestRenderer = require('react-test-renderer');
-const {getRequest, graphql} = require('relay-runtime');
+const {graphql} = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
 
-const CommentCreateSubscription = getRequest(graphql`
+const CommentCreateSubscription = graphql`
   subscription useSubscriptionTestCommentCreateSubscription(
     $input: CommentCreateSubscriptionInput
   ) {
@@ -36,7 +36,7 @@ const CommentCreateSubscription = getRequest(graphql`
       }
     }
   }
-`);
+`;
 describe('useSubscription', () => {
   const mockEnv = createMockEnvironment();
   const config = {

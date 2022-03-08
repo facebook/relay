@@ -17,7 +17,7 @@ import type {NormalizationRootNode} from '../../util/NormalizationNode';
 
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
+const {getFragment, graphql} = require('../../query/GraphQLTag');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -62,7 +62,7 @@ describe('execute() a query with @module', () => {
   let variables;
 
   beforeEach(() => {
-    query = getRequest(graphql`
+    query = graphql`
       query RelayModernEnvironmentExecuteWithModuleWithKeyTestUserQuery(
         $id: ID!
       ) {
@@ -80,7 +80,7 @@ describe('execute() a query with @module', () => {
           }
         }
       }
-    `);
+    `;
 
     graphql`
       fragment RelayModernEnvironmentExecuteWithModuleWithKeyTestPlainUserNameRenderer_name on PlainUserNameRenderer {

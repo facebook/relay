@@ -26,7 +26,6 @@ const {
   __internal,
   createOperationDescriptor,
   getFragment,
-  getRequest,
   graphql,
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
@@ -159,7 +158,7 @@ describe('useLazyLoadQueryNode', () => {
       };
     });
 
-    gqlQuery = getRequest(graphql`
+    gqlQuery = graphql`
       query useLazyLoadQueryNodeTestUserQuery($id: ID) {
         node(id: $id) {
           id
@@ -167,7 +166,7 @@ describe('useLazyLoadQueryNode', () => {
           ...useLazyLoadQueryNodeTestUserFragment
         }
       }
-    `);
+    `;
     graphql`
       fragment useLazyLoadQueryNodeTestUserFragment on User {
         name
@@ -698,13 +697,13 @@ describe('useLazyLoadQueryNode', () => {
           name
         }
       `;
-      gqlQuery = getRequest(graphql`
+      gqlQuery = graphql`
         query useLazyLoadQueryNodeTest1Query($id: ID) {
           node(id: $id) {
             ...useLazyLoadQueryNodeTestDeferFragment @defer
           }
         }
-      `);
+      `;
       variables = {id: 'user:1234'};
       query = createOperationDescriptor(gqlQuery, variables);
     });
@@ -795,11 +794,11 @@ describe('useLazyLoadQueryNode', () => {
           }
         }
       `;
-      const gqlOnlyFragmentsQuery = getRequest(graphql`
+      const gqlOnlyFragmentsQuery = graphql`
         query useLazyLoadQueryNodeTestOnlyFragmentsQuery($id: ID) {
           ...useLazyLoadQueryNodeTestRootFragment
         }
-      `);
+      `;
       const onlyFragsQuery = createOperationDescriptor(
         gqlOnlyFragmentsQuery,
         variables,

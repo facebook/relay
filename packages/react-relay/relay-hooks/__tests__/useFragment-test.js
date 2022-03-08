@@ -23,7 +23,6 @@ const {
   ID_KEY,
   createOperationDescriptor,
   getFragment,
-  getRequest,
   graphql,
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
@@ -91,13 +90,13 @@ describe('useFragment', () => {
     `;
     singularVariables = {id: '1'};
     pluralVariables = {ids: ['1', '2']};
-    gqlSingularQuery = getRequest(graphql`
+    gqlSingularQuery = graphql`
       query useFragmentTestUserQuery($id: ID!) {
         node(id: $id) {
           ...useFragmentTestUserFragment
         }
       }
-    `);
+    `;
     gqlSingularFragment = getFragment(graphql`
       fragment useFragmentTestUserFragment on User {
         id
@@ -105,13 +104,13 @@ describe('useFragment', () => {
         ...useFragmentTestNestedUserFragment
       }
     `);
-    gqlPluralQuery = getRequest(graphql`
+    gqlPluralQuery = graphql`
       query useFragmentTestUsersQuery($ids: [ID!]!) {
         nodes(ids: $ids) {
           ...useFragmentTestUsersFragment
         }
       }
-    `);
+    `;
     gqlPluralFragment = getFragment(graphql`
       fragment useFragmentTestUsersFragment on User @relay(plural: true) {
         id

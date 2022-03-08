@@ -17,7 +17,7 @@ import type {NormalizationRootNode} from '../../util/NormalizationNode';
 
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
+const {getFragment, graphql} = require('../../query/GraphQLTag');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -55,7 +55,7 @@ describe('execute() a query with plural @match', () => {
   beforeEach(() => {
     jest.resetModules();
 
-    query = getRequest(graphql`
+    query = graphql`
       query RelayModernEnvironmentExecuteWithPluralMatchTestUserQuery(
         $id: ID!
       ) {
@@ -70,7 +70,7 @@ describe('execute() a query with plural @match', () => {
           }
         }
       }
-    `);
+    `;
 
     graphql`
       fragment RelayModernEnvironmentExecuteWithPluralMatchTestPlainUserNameRenderer_name on PlainUserNameRenderer {

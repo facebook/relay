@@ -27,7 +27,7 @@ const {createReaderSelector} = require('../RelayModernSelector');
 const RelayModernStore = require('../RelayModernStore');
 const RelayRecordSource = require('../RelayRecordSource');
 const {ROOT_ID} = require('../RelayStoreUtils');
-const {getRequest, graphql} = require('relay-runtime');
+const {graphql} = require('relay-runtime');
 const {disallowWarnings} = require('relay-test-utils-internal');
 
 disallowWarnings();
@@ -50,7 +50,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
     describe(environmentType, () => {
       beforeEach(() => {
-        query = getRequest(graphql`
+        query = graphql`
           query RelayModernEnvironmentExecuteWithObservableNetworkTestQuery(
             $fetchSize: Boolean!
           ) {
@@ -61,7 +61,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               }
             }
           }
-        `);
+        `;
         variables = {fetchSize: false};
         operation = createOperationDescriptor(query, {
           ...variables,

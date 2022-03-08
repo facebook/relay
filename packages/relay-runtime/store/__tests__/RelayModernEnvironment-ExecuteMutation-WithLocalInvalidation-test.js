@@ -19,7 +19,7 @@ const {
 } = require('../../multi-actor-environment');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
+const {getFragment, graphql} = require('../../query/GraphQLTag');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -55,7 +55,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
       beforeEach(() => {
         commentID = 'comment-id';
 
-        CreateCommentMutation = getRequest(graphql`
+        CreateCommentMutation = graphql`
           mutation RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCreateCommentMutation(
             $input: CommentCreateInput!
           ) {
@@ -68,7 +68,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               }
             }
           }
-        `);
+        `;
 
         CommentFragment = getFragment(graphql`
           fragment RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentFragment on Comment {
@@ -79,7 +79,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           }
         `);
 
-        CommentQuery = getRequest(graphql`
+        CommentQuery = graphql`
           query RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentQuery(
             $id: ID!
           ) {
@@ -88,7 +88,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               ...RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentFragment
             }
           }
-        `);
+        `;
         variables = {
           input: {
             clientMutationId: '0',

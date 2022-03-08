@@ -19,9 +19,7 @@ const {useEffect} = require('react');
 const ReactTestRenderer = require('react-test-renderer');
 const {
   Observable,
-  RelayFeatureFlags,
   createOperationDescriptor,
-  getRequest,
   graphql,
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
@@ -86,7 +84,7 @@ describe.skip('ReactRelayQueryRenderer-react-double-effects', () => {
       });
     });
 
-    gqlQuery = getRequest(graphql`
+    gqlQuery = graphql`
       query ReactRelayQueryRendererReactDoubleEffectsTestUserQuery($id: ID!) {
         node(id: $id) {
           id
@@ -95,7 +93,7 @@ describe.skip('ReactRelayQueryRenderer-react-double-effects', () => {
           }
         }
       }
-    `);
+    `;
 
     variables = {id: '1'};
     query = createOperationDescriptor(gqlQuery, variables, {force: true});

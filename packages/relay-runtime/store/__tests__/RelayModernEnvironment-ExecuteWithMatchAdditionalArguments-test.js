@@ -17,7 +17,7 @@ import type {NormalizationRootNode} from '../../util/NormalizationNode';
 
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
+const {getFragment, graphql} = require('../../query/GraphQLTag');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -63,7 +63,7 @@ describe('execute() a query with @match with additional arguments', () => {
   let variables;
 
   beforeEach(() => {
-    query = getRequest(graphql`
+    query = graphql`
       query RelayModernEnvironmentExecuteWithMatchAdditionalArgumentsTestUserQuery(
         $id: ID!
       ) {
@@ -78,7 +78,7 @@ describe('execute() a query with @match with additional arguments', () => {
           }
         }
       }
-    `);
+    `;
 
     graphql`
       fragment RelayModernEnvironmentExecuteWithMatchAdditionalArgumentsTestPlainUserNameRenderer_name on PlainUserNameRenderer {

@@ -15,7 +15,7 @@
 
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
+const {getFragment, graphql} = require('../../query/GraphQLTag');
 const {
   createOperationDescriptor,
 } = require('../../store/RelayModernOperationDescriptor');
@@ -49,7 +49,7 @@ describe('executeMutation()', () => {
   beforeEach(() => {
     commentID = 'comment-id';
 
-    CreateCommentMutation = getRequest(graphql`
+    CreateCommentMutation = graphql`
       mutation MultiActorEnvironmentExecuteMutationTestCreateCommentMutation(
         $input: CommentCreateInput!
       ) {
@@ -62,7 +62,7 @@ describe('executeMutation()', () => {
           }
         }
       }
-    `);
+    `;
 
     CommentFragment = getFragment(graphql`
       fragment MultiActorEnvironmentExecuteMutationTestCommentFragment on Comment {
@@ -73,7 +73,7 @@ describe('executeMutation()', () => {
       }
     `);
 
-    CreateCommentWithSpreadMutation = getRequest(graphql`
+    CreateCommentWithSpreadMutation = graphql`
       mutation MultiActorEnvironmentExecuteMutationTestCreateCommentWithSpreadMutation(
         $input: CommentCreateInput!
       ) {
@@ -83,16 +83,16 @@ describe('executeMutation()', () => {
           }
         }
       }
-    `);
+    `;
 
-    CommentQuery = getRequest(graphql`
+    CommentQuery = graphql`
       query MultiActorEnvironmentExecuteMutationTestCommentQuery($id: ID!) {
         node(id: $id) {
           id
           ...MultiActorEnvironmentExecuteMutationTestCommentFragment
         }
       }
-    `);
+    `;
 
     variables = {
       input: {

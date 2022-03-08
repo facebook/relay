@@ -25,7 +25,6 @@ const {
   Observable,
   PreloadableQueryRegistry,
   createOperationDescriptor,
-  getRequest,
   graphql,
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
@@ -37,13 +36,13 @@ const {
 disallowWarnings();
 disallowConsoleErrors();
 
-const query = getRequest(graphql`
+const query = graphql`
   query loadQuerySourceBehaviorTestQuery($id: ID!) {
     node(id: $id) {
       id
     }
   }
-`);
+`;
 
 const preloadableConcreteRequest = {
   kind: 'PreloadableConcreteRequest',

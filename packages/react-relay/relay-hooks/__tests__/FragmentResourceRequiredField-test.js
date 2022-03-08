@@ -16,7 +16,6 @@ const {
   __internal: {fetchQuery},
   createOperationDescriptor,
   getFragment,
-  getRequest,
   graphql,
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
@@ -48,14 +47,14 @@ beforeEach(() => {
   `);
 
   query = createOperationDescriptor(
-    getRequest(graphql`
+    graphql`
       query FragmentResourceRequiredFieldTestUserQuery($id: ID!) {
         node(id: $id) {
           __typename
           ...FragmentResourceRequiredFieldTestUserFragment
         }
       }
-    `),
+    `,
     {id: '4'},
   );
 });

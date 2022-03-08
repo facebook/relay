@@ -19,7 +19,7 @@ const {
 } = require('../../multi-actor-environment');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
+const {getFragment, graphql} = require('../../query/GraphQLTag');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -60,7 +60,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
       beforeEach(() => {
         commentID = 'comment-id';
 
-        CreateCommentMutation = getRequest(graphql`
+        CreateCommentMutation = graphql`
           mutation RelayModernEnvironmentExecuteMutationTestCreateCommentMutation(
             $input: CommentCreateInput!
           ) {
@@ -73,7 +73,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               }
             }
           }
-        `);
+        `;
 
         CommentFragment = getFragment(graphql`
           fragment RelayModernEnvironmentExecuteMutationTestCommentFragment on Comment {
@@ -84,7 +84,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           }
         `);
 
-        CreateCommentWithSpreadMutation = getRequest(graphql`
+        CreateCommentWithSpreadMutation = graphql`
           mutation RelayModernEnvironmentExecuteMutationTestCreateCommentWithSpreadMutation(
             $input: CommentCreateInput!
           ) {
@@ -94,9 +94,9 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               }
             }
           }
-        `);
+        `;
 
-        CommentQuery = getRequest(graphql`
+        CommentQuery = graphql`
           query RelayModernEnvironmentExecuteMutationTestCommentQuery(
             $id: ID!
           ) {
@@ -105,7 +105,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               ...RelayModernEnvironmentExecuteMutationTestCommentFragment
             }
           }
-        `);
+        `;
 
         variables = {
           input: {

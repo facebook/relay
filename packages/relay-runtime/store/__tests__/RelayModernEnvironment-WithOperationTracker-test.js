@@ -15,7 +15,7 @@
 
 import type {NormalizationRootNode} from '../../util/NormalizationNode';
 
-const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
+const {getFragment, graphql} = require('../../query/GraphQLTag');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
@@ -42,7 +42,7 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
   |};
 
   beforeEach(() => {
-    const Query1 = getRequest(graphql`
+    const Query1 = graphql`
       query RelayModernEnvironmentWithOperationTrackerTest1Query($id: ID)
       @relay_test_operation {
         node(id: $id) {
@@ -64,18 +64,18 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
           }
         }
       }
-    `);
+    `;
 
-    const Query2 = getRequest(graphql`
+    const Query2 = graphql`
       query RelayModernEnvironmentWithOperationTrackerTest2Query($id: ID)
       @relay_test_operation {
         node(id: $id) {
           id
         }
       }
-    `);
+    `;
 
-    const Mutation1 = getRequest(graphql`
+    const Mutation1 = graphql`
       mutation RelayModernEnvironmentWithOperationTrackerTest1Mutation(
         $input: CommentCreateInput
       ) @relay_test_operation {
@@ -94,7 +94,7 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
           }
         }
       }
-    `);
+    `;
 
     QueryOperation1 = createOperationDescriptor(Query1, {id: '1'});
     QueryOperation2 = createOperationDescriptor(Query2, {id: '2'});
@@ -369,14 +369,14 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
   describe('with @match', () => {
     it('should return a promise for affecting operations', () => {
       //const {Query, Mutation, FeedbackFragment} =
-      const Query = getRequest(graphql`
+      const Query = graphql`
         query RelayModernEnvironmentWithOperationTrackerTestQuery($id: ID)
         @relay_test_operation {
           node(id: $id) {
             ...RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment
           }
         }
-      `);
+      `;
 
       graphql`
         fragment RelayModernEnvironmentWithOperationTrackerTestPlainUserNameRenderer_name on PlainUserNameRenderer {
@@ -420,7 +420,7 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
         }
       `);
 
-      const Mutation = getRequest(graphql`
+      const Mutation = graphql`
         mutation RelayModernEnvironmentWithOperationTrackerTestMutation(
           $input: CommentCreateInput
         ) @relay_test_operation {
@@ -430,7 +430,7 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
             }
           }
         }
-      `);
+      `;
 
       QueryOperation1 = createOperationDescriptor(Query, {id: '1'});
       MutationOperation = createOperationDescriptor(Mutation, {id: '1'});

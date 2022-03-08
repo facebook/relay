@@ -21,7 +21,7 @@ import type {
 
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
+const {getFragment, graphql} = require('../../query/GraphQLTag');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -89,7 +89,7 @@ describe('execute() a query with @module if the module fragment is available syn
     });
 
     variables = {};
-    query = getRequest(graphql`
+    query = graphql`
       query RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestNonDeferredQuery {
         me {
           name
@@ -97,7 +97,7 @@ describe('execute() a query with @module if the module fragment is available syn
             @module(name: "User.react")
         }
       }
-    `);
+    `;
 
     operation = createOperationDescriptor(query, variables);
 
@@ -208,7 +208,7 @@ describe('execute() a query with @module in @defer if the deferred fragment and 
     });
 
     variables = {};
-    query = getRequest(graphql`
+    query = graphql`
       query RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestDeferredQuery {
         me {
           name
@@ -217,7 +217,7 @@ describe('execute() a query with @module in @defer if the deferred fragment and 
             @defer
         }
       }
-    `);
+    `;
 
     graphql`
       fragment RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestDeferred_deferred_user on User {
@@ -349,14 +349,14 @@ describe('execute() a query with nested @module fragments, where the inner @modu
     });
 
     variables = {};
-    query = getRequest(graphql`
+    query = graphql`
       query RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestNestedModuleQuery {
         me {
           ...RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestNestedModule_module_user
             @module(name: "User.react")
         }
       }
-    `);
+    `;
 
     graphql`
       fragment RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestNestedModule_module_user on User {

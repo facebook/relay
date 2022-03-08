@@ -17,7 +17,7 @@ import type {NormalizationRootNode} from '../../util/NormalizationNode';
 
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
+const {getFragment, graphql} = require('../../query/GraphQLTag');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -53,7 +53,7 @@ describe('execute() a query with @module on a field with a nullable concrete typ
   let variables;
 
   beforeEach(() => {
-    query = getRequest(graphql`
+    query = graphql`
       query RelayModernEnvironmentExecuteWithModuleOnConcreteFieldTestFeedbackQuery(
         $id: ID!
       ) {
@@ -66,7 +66,7 @@ describe('execute() a query with @module on a field with a nullable concrete typ
           }
         }
       }
-    `);
+    `;
 
     authorNormalizationFragment = require('./__generated__/RelayModernEnvironmentExecuteWithModuleOnConcreteFieldTestFeedbackAuthor_author$normalization.graphql');
     authorFragment = getFragment(graphql`

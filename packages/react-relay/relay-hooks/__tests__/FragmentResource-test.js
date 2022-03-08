@@ -18,7 +18,6 @@ const {
   __internal: {fetchQuery},
   createOperationDescriptor,
   getFragment,
-  getRequest,
   graphql,
 } = require('relay-runtime');
 
@@ -54,14 +53,14 @@ describe('FragmentResource', () => {
         name
       }
     `;
-    UserQuery = getRequest(graphql`
+    UserQuery = graphql`
       query FragmentResourceTest1Query($id: ID!) {
         node(id: $id) {
           __typename
           ...FragmentResourceTest1Fragment
         }
       }
-    `);
+    `;
 
     UserFragmentMissing = graphql`
       fragment FragmentResourceTest2Fragment on User {
@@ -70,14 +69,14 @@ describe('FragmentResource', () => {
         username
       }
     `;
-    UserQueryMissing = getRequest(graphql`
+    UserQueryMissing = graphql`
       query FragmentResourceTest2Query($id: ID!) {
         node(id: $id) {
           __typename
           ...FragmentResourceTest2Fragment
         }
       }
-    `);
+    `;
 
     UsersFragment = graphql`
       fragment FragmentResourceTest3Fragment on User @relay(plural: true) {
@@ -85,14 +84,14 @@ describe('FragmentResource', () => {
         name
       }
     `;
-    UsersQuery = getRequest(graphql`
+    UsersQuery = graphql`
       query FragmentResourceTest3Query($ids: [ID!]!) {
         nodes(ids: $ids) {
           __typename
           ...FragmentResourceTest3Fragment
         }
       }
-    `);
+    `;
 
     query = createOperationDescriptor(UserQuery, variables);
     queryMissingData = createOperationDescriptor(UserQueryMissing, variables);
@@ -220,11 +219,11 @@ describe('FragmentResource', () => {
           }
         }
       `;
-      UserQuery = getRequest(graphql`
+      UserQuery = graphql`
         query FragmentResourceTest4Query($id: ID!) {
           ...FragmentResourceTest4Fragment
         }
-      `);
+      `;
 
       const prevVars = {id: '4'};
       query = createOperationDescriptor(UserQuery, prevVars);
@@ -283,11 +282,11 @@ describe('FragmentResource', () => {
             }
           }
         `;
-        UserQuery = getRequest(graphql`
+        UserQuery = graphql`
           query FragmentResourceTest5Query($id: ID!) {
             ...FragmentResourceTest5Fragment @arguments(id: $id)
           }
-        `);
+        `;
         const prevVars = {id: '4'};
         query = createOperationDescriptor(UserQuery, prevVars);
         let result = FragmentResource.read(
@@ -342,7 +341,7 @@ describe('FragmentResource', () => {
             name
           }
         `;
-        UserQuery = getRequest(graphql`
+        UserQuery = graphql`
           query FragmentResourceTest6Query($id: ID!, $foo: Boolean!) {
             node(id: $id) {
               __typename
@@ -350,7 +349,7 @@ describe('FragmentResource', () => {
               ...FragmentResourceTest6Fragment
             }
           }
-        `);
+        `;
 
         const variablesWithFoo = {
           id: '4',

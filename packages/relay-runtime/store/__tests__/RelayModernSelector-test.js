@@ -15,7 +15,7 @@
 
 import type {OperationDescriptor} from '../RelayStoreTypes';
 
-const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
+const {getFragment, graphql} = require('../../query/GraphQLTag');
 const {
   createOperationDescriptor,
   createRequestDescriptor,
@@ -51,7 +51,7 @@ describe('RelayModernSelector', () => {
     jest.mock('warning');
 
     environment = createMockEnvironment();
-    UserQuery = getRequest(graphql`
+    UserQuery = graphql`
       query RelayModernSelectorTestUserQuery(
         $id: ID!
         $size: [Int]
@@ -62,7 +62,7 @@ describe('RelayModernSelector', () => {
           ...RelayModernSelectorTestUsersFragment
         }
       }
-    `);
+    `;
     UserFragment = getFragment(graphql`
       fragment RelayModernSelectorTestUserFragment on User {
         id

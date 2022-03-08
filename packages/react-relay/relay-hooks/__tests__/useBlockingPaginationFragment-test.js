@@ -28,7 +28,6 @@ const {
   __internal: {fetchQuery},
   createOperationDescriptor,
   getFragment,
-  getRequest,
   graphql,
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
@@ -186,7 +185,7 @@ describe('useBlockingPaginationFragment', () => {
         }
       }
     `);
-    gqlQuery = getRequest(graphql`
+    gqlQuery = graphql`
       query useBlockingPaginationFragmentTestUserQuery(
         $id: ID!
         $after: ID
@@ -201,8 +200,8 @@ describe('useBlockingPaginationFragment', () => {
             @arguments(isViewerFriendLocal: $isViewerFriend, orderby: $orderby)
         }
       }
-    `);
-    gqlQueryNestedFragment = getRequest(graphql`
+    `;
+    gqlQueryNestedFragment = graphql`
       query useBlockingPaginationFragmentTestUserQueryNestedFragmentQuery(
         $id: ID!
         $after: ID
@@ -222,9 +221,9 @@ describe('useBlockingPaginationFragment', () => {
           }
         }
       }
-    `);
+    `;
 
-    gqlQueryWithoutID = getRequest(graphql`
+    gqlQueryWithoutID = graphql`
       query useBlockingPaginationFragmentTestUserQueryWithoutIDQuery(
         $after: ID
         $first: Int
@@ -243,8 +242,8 @@ describe('useBlockingPaginationFragment', () => {
           }
         }
       }
-    `);
-    gqlQueryWithLiteralArgs = getRequest(graphql`
+    `;
+    gqlQueryWithLiteralArgs = graphql`
       query useBlockingPaginationFragmentTestUserQueryWithLiteralArgsQuery(
         $id: ID!
         $after: ID
@@ -257,8 +256,8 @@ describe('useBlockingPaginationFragment', () => {
             @arguments(isViewerFriendLocal: true, orderby: ["name"])
         }
       }
-    `);
-    gqlNodeQuery = getRequest(graphql`
+    `;
+    gqlNodeQuery = graphql`
       query useBlockingPaginationFragmentTestNodeQuery($id: ID!) {
         node(id: $id) {
           ... on User {
@@ -266,7 +265,7 @@ describe('useBlockingPaginationFragment', () => {
           }
         }
       }
-    `);
+    `;
 
     variablesWithoutID = {
       after: null,

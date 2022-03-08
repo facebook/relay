@@ -278,7 +278,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
         `,
       );
 
-      gqlQueryWithoutID = getRequest(graphql`
+      gqlQueryWithoutID = graphql`
         query useBlockingPaginationFragmentWithSuspenseTransitionTestUserQueryWithoutIDQuery(
           $after: ID
           $first: Int
@@ -297,7 +297,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
             }
           }
         }
-      `);
+      `;
 
       variablesWithoutID = {
         after: null,

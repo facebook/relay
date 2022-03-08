@@ -14,7 +14,7 @@
 'use strict';
 
 const RelayNetwork = require('../../network/RelayNetwork');
-const {getRequest, graphql} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -48,14 +48,14 @@ describe('subscribe()', () => {
   }
 
   beforeEach(() => {
-    ParentQuery = getRequest(graphql`
+    ParentQuery = graphql`
       query RelayModernEnvironmentSubscribeTestParentQuery {
         me {
           id
           name
         }
       }
-    `);
+    `;
     const source = RelayRecordSource.create();
     const store = new RelayModernStore(source);
     environment = new RelayModernEnvironment({

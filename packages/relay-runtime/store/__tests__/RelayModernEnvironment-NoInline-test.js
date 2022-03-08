@@ -17,7 +17,7 @@ const {
 } = require('../../multi-actor-environment');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
+const {getFragment, graphql} = require('../../query/GraphQLTag');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -30,7 +30,7 @@ const {disallowWarnings} = require('relay-test-utils-internal');
 
 disallowWarnings();
 
-const Query = getRequest(graphql`
+const Query = graphql`
   query RelayModernEnvironmentNoInlineTestQuery(
     $size: [Int]
     $preset: PhotoSize
@@ -39,7 +39,7 @@ const Query = getRequest(graphql`
       ...RelayModernEnvironmentNoInlineTest_noInline
     }
   }
-`);
+`;
 
 const NoInlineFragment = getFragment(graphql`
   fragment RelayModernEnvironmentNoInlineTest_noInline on Actor @no_inline {
@@ -303,7 +303,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
       describe('with arguments', () => {
         it('executes and reads back results with no-inline fragments on the same level', () => {
-          const QueryWithArgs = getRequest(graphql`
+          const QueryWithArgs = graphql`
             query RelayModernEnvironmentNoInlineTestWithArgsQuery(
               $size: [Int]
               $preset: PhotoSize
@@ -317,7 +317,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
                   @arguments(cond: false)
               }
             }
-          `);
+          `;
           const NoInlineFragmentWithArgs = getFragment(graphql`
             fragment RelayModernEnvironmentNoInlineTestWithArgs_noInline on Actor
             @no_inline
@@ -493,14 +493,14 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         });
 
         it('executes and reads back results with nested no-inline fragments', () => {
-          const QueryNested = getRequest(graphql`
+          const QueryNested = graphql`
             query RelayModernEnvironmentNoInlineTestNestedQuery(
               $global_cond: Boolean!
             ) {
               ...RelayModernEnvironmentNoInlineTest_nestedNoInlineParent
                 @arguments(cond: true)
             }
-          `);
+          `;
 
           const NoInlineFragmentNestedParent = getFragment(graphql`
             fragment RelayModernEnvironmentNoInlineTest_nestedNoInlineParent on Query
@@ -666,7 +666,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
       describe('with @stream and @defer', () => {
         it('executes and reads back results with stream', () => {
-          const QueryWithStream = getRequest(graphql`
+          const QueryWithStream = graphql`
             query RelayModernEnvironmentNoInlineTestStreamQuery(
               $cond: Boolean!
             ) {
@@ -675,7 +675,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
                   @arguments(cond: $cond)
               }
             }
-          `);
+          `;
           const NoInlineFragmentWithStream = getFragment(graphql`
             fragment RelayModernEnvironmentNoInlineTestStream_feedback on Feedback
             @no_inline
@@ -805,7 +805,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         });
 
         it('executes and reads back results with defer and stream', () => {
-          const QueryWithDeferredStream = getRequest(graphql`
+          const QueryWithDeferredStream = graphql`
             query RelayModernEnvironmentNoInlineTestDeferredStreamQuery(
               $cond: Boolean!
               $enableStream: Boolean
@@ -815,7 +815,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
                   @arguments(cond: $cond, enableStream: $enableStream)
               }
             }
-          `);
+          `;
           const NoInlineFragmentWithDeferredStreamParent = getFragment(graphql`
             fragment RelayModernEnvironmentNoInlineTestDeferredStreamParent on Viewer
             @argumentDefinitions(
@@ -1050,7 +1050,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         let operationLoader;
         let fragmentToReturn;
 
-        const QueryWithModule = getRequest(graphql`
+        const QueryWithModule = graphql`
           query RelayModernEnvironmentNoInlineTestModuleQuery($cond: Boolean!) {
             node(id: "1") {
               ... on User {
@@ -1062,7 +1062,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               }
             }
           }
-        `);
+        `;
         const NoInlineFragmentMarkdownUserNameRenderer = getFragment(graphql`
           fragment RelayModernEnvironmentNoInlineTestModuleMarkdownUserNameRenderer_name on MarkdownUserNameRenderer
           @argumentDefinitions(cond: {type: "Boolean!"}) {

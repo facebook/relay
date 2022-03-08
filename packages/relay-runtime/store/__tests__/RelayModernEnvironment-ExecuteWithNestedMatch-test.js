@@ -17,7 +17,7 @@ import type {NormalizationRootNode} from '../../util/NormalizationNode';
 
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
+const {getFragment, graphql} = require('../../query/GraphQLTag');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -67,7 +67,7 @@ describe('execute() a query with nested @match', () => {
     markdownRendererNormalizationFragment = require('./__generated__/RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name$normalization.graphql');
     plaintextRendererNormalizationFragment = require('./__generated__/RelayModernEnvironmentExecuteWithNestedMatchTestPlainUserNameRenderer_name$normalization.graphql');
 
-    query = getRequest(graphql`
+    query = graphql`
       query RelayModernEnvironmentExecuteWithNestedMatchTestUserQuery(
         $id: ID!
       ) {
@@ -80,7 +80,7 @@ describe('execute() a query with nested @match', () => {
           }
         }
       }
-    `);
+    `;
 
     markdownRendererFragment = getFragment(graphql`
       fragment RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name on MarkdownUserNameRenderer {

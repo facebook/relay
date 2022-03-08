@@ -20,7 +20,6 @@ const {
   RelayFeatureFlags,
   createOperationDescriptor,
   getFragment,
-  getRequest,
   graphql,
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
@@ -46,7 +45,7 @@ describe.skip('ReactRelayFragmentContainer-react-double-effects-test', () => {
 
     // Set up environment and base data
     environment = createMockEnvironment();
-    gqlQuery = getRequest(graphql`
+    gqlQuery = graphql`
       query ReactRelayRefetchContainerReactDoubleEffectsTestUserQuery(
         $id: ID!
       ) {
@@ -54,7 +53,7 @@ describe.skip('ReactRelayFragmentContainer-react-double-effects-test', () => {
           ...ReactRelayRefetchContainerReactDoubleEffectsTestUserFragment
         }
       }
-    `);
+    `;
     variables = {id: '1'};
     gqlFragment = getFragment(graphql`
       fragment ReactRelayRefetchContainerReactDoubleEffectsTestUserFragment on User {

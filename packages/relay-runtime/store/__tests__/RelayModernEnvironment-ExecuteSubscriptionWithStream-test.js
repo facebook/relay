@@ -19,7 +19,7 @@ import type {
 
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
+const {getFragment, graphql} = require('../../query/GraphQLTag');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -53,7 +53,7 @@ describe('executeSubscrption() with @stream', () => {
   let queryVariables;
 
   beforeEach(() => {
-    subscription = getRequest(graphql`
+    subscription = graphql`
       subscription RelayModernEnvironmentExecuteSubscriptionWithStreamTestCommentCreateSubscription(
         $input: CommentCreateSubscriptionInput!
       ) {
@@ -63,7 +63,7 @@ describe('executeSubscrption() with @stream', () => {
           }
         }
       }
-    `);
+    `;
 
     feedbackFragment = getFragment(graphql`
       fragment RelayModernEnvironmentExecuteSubscriptionWithStreamTestFeedbackFragment on Feedback {
@@ -74,7 +74,7 @@ describe('executeSubscrption() with @stream', () => {
       }
     `);
 
-    feedbackQuery = getRequest(graphql`
+    feedbackQuery = graphql`
       query RelayModernEnvironmentExecuteSubscriptionWithStreamTestFeedbackQuery(
         $id: ID!
       ) {
@@ -83,7 +83,7 @@ describe('executeSubscrption() with @stream', () => {
           ...RelayModernEnvironmentExecuteSubscriptionWithStreamTestFeedbackFragment
         }
       }
-    `);
+    `;
     variables = {
       input: {
         clientMutationId: '0',

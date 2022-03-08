@@ -29,7 +29,7 @@ const {
   __internal: {fetchQuery},
   createOperationDescriptor,
   getFragment,
-  getRequest,
+
   graphql,
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils-internal');
@@ -168,14 +168,14 @@ describe('useRefetchableFragmentNode', () => {
         ...useRefetchableFragmentNodeTestNestedUserFragment
       }
     `);
-    gqlQuery = getRequest(graphql`
+    gqlQuery = graphql`
       query useRefetchableFragmentNodeTestUserQuery($id: ID!, $scale: Float!) {
         node(id: $id) {
           ...useRefetchableFragmentNodeTestUserFragment
         }
       }
-    `);
-    gqlQueryNestedFragment = getRequest(graphql`
+    `;
+    gqlQueryNestedFragment = graphql`
       query useRefetchableFragmentNodeTestUserQueryNestedFragmentQuery(
         $id: ID!
         $scale: Float!
@@ -186,8 +186,8 @@ describe('useRefetchableFragmentNode', () => {
           }
         }
       }
-    `);
-    gqlQueryWithArgs = getRequest(graphql`
+    `;
+    gqlQueryWithArgs = graphql`
       query useRefetchableFragmentNodeTestUserQueryWithArgsQuery(
         $id: ID!
         $scale: Float!
@@ -197,8 +197,8 @@ describe('useRefetchableFragmentNode', () => {
             @arguments(scaleLocal: $scale)
         }
       }
-    `);
-    gqlQueryWithLiteralArgs = getRequest(graphql`
+    `;
+    gqlQueryWithLiteralArgs = graphql`
       query useRefetchableFragmentNodeTestUserQueryWithLiteralArgsQuery(
         $id: ID!
       ) {
@@ -207,7 +207,7 @@ describe('useRefetchableFragmentNode', () => {
             @arguments(scaleLocal: 16)
         }
       }
-    `);
+    `;
     variables = {id: '1', scale: 16};
     variablesNestedFragment = {id: '<feedbackid>', scale: 16};
     gqlRefetchQuery = require('./__generated__/useRefetchableFragmentNodeTestUserFragmentRefetchQuery.graphql');
@@ -3390,13 +3390,13 @@ describe('useRefetchableFragmentNode', () => {
           }
         `);
 
-        gqlQuery = getRequest(graphql`
+        gqlQuery = graphql`
           query useRefetchableFragmentNodeTest1Query($id: ID!) {
             nonNodeStory(id: $id) {
               ...useRefetchableFragmentNodeTest1Fragment
             }
           }
-        `);
+        `;
 
         variables = {id: 'a'};
         gqlRefetchQuery = require('./__generated__/useRefetchableFragmentNodeTest1FragmentRefetchQuery.graphql');
@@ -3655,7 +3655,7 @@ describe('useRefetchableFragmentNode', () => {
             ...useRefetchableFragmentNodeTest2Fragment
           }
         `);
-        gqlQuery = getRequest(graphql`
+        gqlQuery = graphql`
           query useRefetchableFragmentNodeTest2Query(
             $nodeID: ID!
             $scale: Float!
@@ -3664,7 +3664,7 @@ describe('useRefetchableFragmentNode', () => {
               ...useRefetchableFragmentNodeTest3Fragment
             }
           }
-        `);
+        `;
         gqlRefetchQuery = require('./__generated__/useRefetchableFragmentNodeTest3FragmentRefetchQuery.graphql');
 
         variables = {nodeID: '1', scale: 16};

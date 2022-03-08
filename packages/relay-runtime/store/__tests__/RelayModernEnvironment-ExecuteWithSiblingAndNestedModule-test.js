@@ -21,7 +21,7 @@ const {
 } = require('../../multi-actor-environment');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
+const {getFragment, graphql} = require('../../query/GraphQLTag');
 const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
@@ -79,7 +79,7 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
           markdownRendererNormalizationFragment = require('./__generated__/RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestMarkdownUserNameRenderer_name$normalization.graphql');
           plaintextRendererNormalizationFragment = require('./__generated__/RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestPlainUserNameRenderer_name$normalization.graphql');
 
-          query = getRequest(graphql`
+          query = graphql`
             query RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestUserQuery(
               $id: ID!
             ) {
@@ -102,7 +102,7 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
                 }
               }
             }
-          `);
+          `;
 
           markdownRendererFragment = getFragment(graphql`
             fragment RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestMarkdownUserNameRenderer_name on MarkdownUserNameRenderer {

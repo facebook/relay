@@ -19,7 +19,7 @@ const {
 } = require('../../multi-actor-environment');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const {getRequest, graphql} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -58,7 +58,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         beforeEach(() => {
           commentId = 'comment-id';
 
-          DeleteCommentMutation = getRequest(graphql`
+          DeleteCommentMutation = graphql`
             mutation RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestDeleteComment1Mutation(
               $input: CommentDeleteInput
             ) {
@@ -66,9 +66,9 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
                 deletedCommentId @deleteRecord
               }
             }
-          `);
+          `;
 
-          CommentQuery = getRequest(graphql`
+          CommentQuery = graphql`
             query RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestComment1Query(
               $id: ID!
             ) {
@@ -79,7 +79,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
                 }
               }
             }
-          `);
+          `;
           variables = {
             input: {
               clientMutationId: '0',
@@ -323,7 +323,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           secondCommentId = 'comment-id-2';
           commentIds = [firstCommentId, secondCommentId];
 
-          DeleteCommentsMutation = getRequest(graphql`
+          DeleteCommentsMutation = graphql`
             mutation RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestDeleteCommentsMutation(
               $input: CommentsDeleteInput
             ) {
@@ -331,9 +331,9 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
                 deletedCommentIds @deleteRecord
               }
             }
-          `);
+          `;
 
-          CommentQuery = getRequest(graphql`
+          CommentQuery = graphql`
             query RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestCommentQuery(
               $id: ID!
             ) {
@@ -344,7 +344,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
                 }
               }
             }
-          `);
+          `;
           variables = {
             input: {
               clientMutationId: '0',
@@ -651,7 +651,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         'client:<feedbackid>:__FeedbackFragment_comments_connection(orderby:"date")';
 
       beforeEach(() => {
-        query = getRequest(graphql`
+        query = graphql`
           query RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestFeedback2Query(
             $id: ID!
           ) {
@@ -672,9 +672,9 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               }
             }
           }
-        `);
+        `;
 
-        AppendCommentMutation = getRequest(graphql`
+        AppendCommentMutation = graphql`
           mutation RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestAppendComment2Mutation(
             $connections: [ID!]!
             $input: CommentCreateInput
@@ -688,9 +688,9 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               }
             }
           }
-        `);
+        `;
 
-        AppendCommentsMutation = getRequest(graphql`
+        AppendCommentsMutation = graphql`
           mutation RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestAppendComments3Mutation(
             $connections: [ID!]!
             $input: CommentsCreateInput
@@ -704,9 +704,9 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               }
             }
           }
-        `);
+        `;
 
-        PrependCommentMutation = getRequest(graphql`
+        PrependCommentMutation = graphql`
           mutation RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestPrependCommentMutation(
             $connections: [ID!]!
             $input: CommentCreateInput
@@ -720,9 +720,9 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               }
             }
           }
-        `);
+        `;
 
-        PrependCommentsMutation = getRequest(graphql`
+        PrependCommentsMutation = graphql`
           mutation RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestPrependComments2Mutation(
             $connections: [ID!]!
             $input: CommentsCreateInput
@@ -736,9 +736,9 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               }
             }
           }
-        `);
+        `;
 
-        DeleteCommentMutation = getRequest(graphql`
+        DeleteCommentMutation = graphql`
           mutation RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestDeleteCommentMutation(
             $connections: [ID!]!
             $input: CommentDeleteInput
@@ -747,9 +747,9 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               deletedCommentId @deleteEdge(connections: $connections)
             }
           }
-        `);
+        `;
 
-        DeleteCommentsMutation = getRequest(graphql`
+        DeleteCommentsMutation = graphql`
           mutation RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestDeleteCommentsEdgeMutation(
             $connections: [ID!]!
             $input: CommentsDeleteInput
@@ -758,7 +758,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               deletedCommentIds @deleteEdge(connections: $connections)
             }
           }
-        `);
+        `;
         const variables = {
           id: '<feedbackid>',
         };
@@ -1419,7 +1419,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         'client:<feedbackid>:__FeedbackFragment_comments_connection(orderby:"date")';
 
       beforeEach(() => {
-        query = getRequest(graphql`
+        query = graphql`
           query RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestFeedback3Query(
             $id: ID!
           ) {
@@ -1439,9 +1439,9 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               }
             }
           }
-        `);
+        `;
 
-        AppendCommentMutation = getRequest(graphql`
+        AppendCommentMutation = graphql`
           mutation RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestAppendCommentMutation(
             $connections: [ID!]!
             $edgeTypeName: String!
@@ -1457,9 +1457,9 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               }
             }
           }
-        `);
+        `;
 
-        AppendCommentWithLiteralEdgeMutation = getRequest(graphql`
+        AppendCommentWithLiteralEdgeMutation = graphql`
           mutation RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestAppendCommentWithLiteralEdgeMutation(
             $connections: [ID!]!
             $input: CommentCreateInput
@@ -1474,9 +1474,9 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               }
             }
           }
-        `);
+        `;
 
-        AppendCommentsMutation = getRequest(graphql`
+        AppendCommentsMutation = graphql`
           mutation RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestAppendCommentsMutation(
             $connections: [ID!]!
             $edgeTypeName: String!
@@ -1492,9 +1492,9 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               }
             }
           }
-        `);
+        `;
 
-        PrependCommentMutation = getRequest(graphql`
+        PrependCommentMutation = graphql`
           mutation RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestPrependComment3Mutation(
             $connections: [ID!]!
             $edgeTypeName: String!
@@ -1510,9 +1510,9 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               }
             }
           }
-        `);
+        `;
 
-        PrependCommentsMutation = getRequest(graphql`
+        PrependCommentsMutation = graphql`
           mutation RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestPrependCommentsMutation(
             $connections: [ID!]!
             $edgeTypeName: String!
@@ -1528,7 +1528,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               }
             }
           }
-        `);
+        `;
         const variables = {
           id: '<feedbackid>',
         };

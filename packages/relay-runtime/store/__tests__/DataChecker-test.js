@@ -3064,7 +3064,7 @@ describe('check()', () => {
 
   describe('ActorChange', () => {
     beforeEach(() => {
-      Query = getRequest(graphql`
+      Query = graphql`
         query DataCheckerTest10Query {
           viewer {
             newsFeed {
@@ -3076,7 +3076,7 @@ describe('check()', () => {
             }
           }
         }
-      `);
+      `;
       graphql`
         fragment DataCheckerTest20Fragment on FeedUnit {
           id

@@ -28,7 +28,6 @@ const {
   RecordSource,
   Store,
   createOperationDescriptor,
-  getRequest,
   graphql,
 } = require('relay-runtime');
 const {
@@ -39,7 +38,7 @@ const {
 disallowWarnings();
 disallowConsoleErrors();
 
-const query = getRequest(graphql`
+const query = graphql`
   query LazyLoadEntryPointContainerDEEPRECATEDTestQuery($id: ID!) {
     node(id: $id) {
       id
@@ -48,7 +47,7 @@ const query = getRequest(graphql`
       }
     }
   }
-`);
+`;
 
 // Only queries with an ID are preloadable
 // $FlowFixMe[cannot-write]

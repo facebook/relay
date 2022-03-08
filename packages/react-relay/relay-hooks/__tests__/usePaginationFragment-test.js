@@ -28,7 +28,6 @@ const {
   __internal: {fetchQuery},
   createOperationDescriptor,
   getFragment,
-  getRequest,
   graphql,
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
@@ -199,7 +198,7 @@ describe('usePaginationFragment', () => {
       }
     `;
 
-    gqlQuery = getRequest(graphql`
+    gqlQuery = graphql`
       query usePaginationFragmentTestUserQuery(
         $id: ID!
         $after: ID
@@ -214,8 +213,8 @@ describe('usePaginationFragment', () => {
             @arguments(isViewerFriendLocal: $isViewerFriend, orderby: $orderby)
         }
       }
-    `);
-    gqlQueryNestedFragment = getRequest(graphql`
+    `;
+    gqlQueryNestedFragment = graphql`
       query usePaginationFragmentTestUserQueryNestedFragmentQuery(
         $id: ID!
         $after: ID
@@ -235,8 +234,8 @@ describe('usePaginationFragment', () => {
           }
         }
       }
-    `);
-    gqlQueryWithoutID = getRequest(graphql`
+    `;
+    gqlQueryWithoutID = graphql`
       query usePaginationFragmentTestUserQueryWithoutIDQuery(
         $after: ID
         $first: Int
@@ -255,8 +254,8 @@ describe('usePaginationFragment', () => {
           }
         }
       }
-    `);
-    gqlQueryWithLiteralArgs = getRequest(graphql`
+    `;
+    gqlQueryWithLiteralArgs = graphql`
       query usePaginationFragmentTestUserQueryWithLiteralArgsQuery(
         $id: ID!
         $after: ID
@@ -269,8 +268,8 @@ describe('usePaginationFragment', () => {
             @arguments(isViewerFriendLocal: true, orderby: ["name"])
         }
       }
-    `);
-    gqlQueryWithStreaming = getRequest(graphql`
+    `;
+    gqlQueryWithStreaming = graphql`
       query usePaginationFragmentTestUserQueryWithStreamingQuery(
         $id: ID!
         $after: ID
@@ -285,7 +284,7 @@ describe('usePaginationFragment', () => {
             @arguments(isViewerFriendLocal: $isViewerFriend, orderby: $orderby)
         }
       }
-    `);
+    `;
     gqlFragment = getFragment(graphql`
       fragment usePaginationFragmentTestUserFragment on User
       @refetchable(
@@ -3965,13 +3964,13 @@ describe('usePaginationFragment', () => {
     describe('paginating @fetchable types', () => {
       beforeEach(() => {
         const fetchVariables = {id: 'a'};
-        gqlQuery = getRequest(graphql`
+        gqlQuery = graphql`
           query usePaginationFragmentTestStoryQuery($id: ID!) {
             nonNodeStory(id: $id) {
               ...usePaginationFragmentTestStoryFragment
             }
           }
-        `);
+        `;
 
         gqlFragment = getFragment(graphql`
           fragment usePaginationFragmentTestStoryFragment on NonNodeStory

@@ -23,7 +23,6 @@ const {
   RecordSource,
   Store,
   createOperationDescriptor,
-  getRequest,
   graphql,
 } = require('relay-runtime');
 const {
@@ -39,13 +38,13 @@ const {
 disallowWarnings();
 disallowConsoleErrors();
 
-const query = getRequest(graphql`
+const query = graphql`
   query preloadQueryDEPRECATEDTestQuery($id: ID!) {
     node(id: $id) {
       id
     }
   }
-`);
+`;
 
 // Only queries with an ID are preloadable
 // $FlowFixMe[cannot-write]
@@ -857,13 +856,13 @@ describe('Preload queries that use provided variables', () => {
       username @skip(if: $skipUsername)
     }
   `;
-  const queryWithProvidedVar = getRequest(graphql`
+  const queryWithProvidedVar = graphql`
     query preloadQueryDEPRECATEDTest_ProvidedVarQuery($id: ID!) {
       node(id: $id) {
         ...preloadQueryDEPRECATEDTest_ProvidedVarFragment
       }
     }
-  `);
+  `;
 
   const variables = {id: 4};
   const generatedVariables = {

@@ -12,7 +12,7 @@
 
 const RelayRecordSourceMutator = require('../../../mutations/RelayRecordSourceMutator');
 const RelayRecordSourceProxy = require('../../../mutations/RelayRecordSourceProxy');
-const {getRequest, graphql} = require('../../../query/GraphQLTag');
+const {graphql} = require('../../../query/GraphQLTag');
 const defaultGetDataID = require('../../../store/defaultGetDataID');
 const {
   createNormalizationSelector,
@@ -73,7 +73,7 @@ describe('ConnectionHandler', () => {
     mutator = new RelayRecordSourceMutator(baseSource, sinkSource);
     proxy = new RelayRecordSourceProxy(mutator, defaultGetDataID);
 
-    ConnectionQuery = getRequest(graphql`
+    ConnectionQuery = graphql`
       query ConnectionHandlerTestConnectionQuery(
         $id: ID!
         $before: ID
@@ -111,7 +111,7 @@ describe('ConnectionHandler', () => {
           }
         }
       }
-    `);
+    `;
   });
 
   describe('getConnectionID()', () => {

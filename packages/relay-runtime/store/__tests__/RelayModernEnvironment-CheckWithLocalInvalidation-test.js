@@ -24,7 +24,7 @@ const {
 } = require('../../multi-actor-environment');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const {getRequest, graphql} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -52,7 +52,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
     describe(environmentType, () => {
       beforeEach(() => {
-        ParentQuery = getRequest(graphql`
+        ParentQuery = graphql`
           query RelayModernEnvironmentCheckWithLocalInvalidationTest1ParentQuery(
             $size: [Int]!
           ) {
@@ -64,7 +64,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               }
             }
           }
-        `);
+        `;
         operation = createOperationDescriptor(ParentQuery, {size: 32});
 
         complete = jest.fn();
@@ -350,7 +350,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
       describe('when query has incremental payloads', () => {
         beforeEach(() => {
-          ParentQuery = getRequest(graphql`
+          ParentQuery = graphql`
             query RelayModernEnvironmentCheckWithLocalInvalidationTest2ParentQuery(
               $size: [Int]!
             ) {
@@ -361,7 +361,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
                   @defer(label: "UserFragment")
               }
             }
-          `);
+          `;
           graphql`
             fragment RelayModernEnvironmentCheckWithLocalInvalidationTestUserFragment on User {
               profilePicture(size: $size) {

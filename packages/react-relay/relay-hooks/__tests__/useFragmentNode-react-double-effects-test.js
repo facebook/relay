@@ -19,7 +19,6 @@ const ReactTestRenderer = require('react-test-renderer');
 const {
   createOperationDescriptor,
   getFragment,
-  getRequest,
   graphql,
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
@@ -43,13 +42,13 @@ describe.skip('useFragmentNode-react-double-effects-test', () => {
     // Set up environment and base data
     environment = createMockEnvironment();
 
-    gqlQuery = getRequest(graphql`
+    gqlQuery = graphql`
       query useFragmentNodeReactDoubleEffectsTestUserQuery($id: ID!) {
         node(id: $id) {
           ...useFragmentNodeReactDoubleEffectsTestUserFragment
         }
       }
-    `);
+    `;
     variables = {id: '1'};
     gqlFragment = getFragment(graphql`
       fragment useFragmentNodeReactDoubleEffectsTestUserFragment on User {

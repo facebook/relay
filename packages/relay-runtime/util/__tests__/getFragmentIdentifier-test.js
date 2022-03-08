@@ -12,7 +12,7 @@
 // flowlint ambiguous-object-type:error
 
 'use strict';
-const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
+const {getFragment, graphql} = require('../../query/GraphQLTag');
 const getFragmentIdentifier = require('../getFragmentIdentifier');
 const RelayFeatureFlags = require('../RelayFeatureFlags');
 const invariant = require('invariant');
@@ -76,21 +76,21 @@ describe('getFragmentIdentifier', () => {
         ...getFragmentIdentifierTestNestedUserFragment
       }
     `);
-    gqlPluralQuery = getRequest(graphql`
+    gqlPluralQuery = graphql`
       query getFragmentIdentifierTestUsersQuery($ids: [ID!]!, $scale: Float!) {
         nodes(ids: $ids) {
           ...getFragmentIdentifierTestUsersFragment
         }
       }
-    `);
-    gqlSingularQuery = getRequest(graphql`
+    `;
+    gqlSingularQuery = graphql`
       query getFragmentIdentifierTestUserQuery($id: ID!, $scale: Float!) {
         node(id: $id) {
           ...getFragmentIdentifierTestUserFragment
         }
       }
-    `);
-    gqlQueryWithArgs = getRequest(graphql`
+    `;
+    gqlQueryWithArgs = graphql`
       query getFragmentIdentifierTestUserQueryWithArgsQuery(
         $id: ID!
         $scale: Float!
@@ -100,7 +100,7 @@ describe('getFragmentIdentifier', () => {
             @arguments(scaleLocal: $scale)
         }
       }
-    `);
+    `;
     pluralVariables = {ids: ['1'], scale: 16};
     singularVariables = {id: '1', scale: 16};
 
@@ -261,23 +261,23 @@ describe('getFragmentIdentifier Optimized', () => {
       }
     `);
 
-    gqlPluralQuery = getRequest(graphql`
+    gqlPluralQuery = graphql`
       query getFragmentIdentifierTest1UsersQuery($ids: [ID!]!, $scale: Float!) {
         nodes(ids: $ids) {
           ...getFragmentIdentifierTest1UsersFragment
         }
       }
-    `);
+    `;
 
-    gqlSingularQuery = getRequest(graphql`
+    gqlSingularQuery = graphql`
       query getFragmentIdentifierTest1UserQuery($id: ID!, $scale: Float!) {
         node(id: $id) {
           ...getFragmentIdentifierTest1UserFragment
         }
       }
-    `);
+    `;
 
-    gqlQueryWithArgs = getRequest(graphql`
+    gqlQueryWithArgs = graphql`
       query getFragmentIdentifierTest1UserQueryWithArgsQuery(
         $id: ID!
         $scale: Float!
@@ -287,7 +287,7 @@ describe('getFragmentIdentifier Optimized', () => {
             @arguments(scaleLocal: $scale)
         }
       }
-    `);
+    `;
     pluralVariables = {ids: ['1'], scale: 16};
     singularVariables = {id: '1', scale: 16};
 

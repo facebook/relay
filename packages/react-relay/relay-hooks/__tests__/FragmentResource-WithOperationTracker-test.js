@@ -18,7 +18,6 @@ const {
   createOperationDescriptor,
   createReaderSelector,
   getFragment,
-  getRequest,
   graphql,
 } = require('relay-runtime');
 const RelayOperationTracker = require('relay-runtime/store/RelayOperationTracker');
@@ -52,14 +51,14 @@ describe('FragmentResource with Operation Tracker and Missing Data', () => {
       operationTracker,
       operationLoader,
     });
-    NodeQuery = getRequest(graphql`
+    NodeQuery = graphql`
       query FragmentResourceWithOperationTrackerTestNodeQuery($id: ID!) {
         node(id: $id) {
           ...FragmentResourceWithOperationTrackerTestUserFragment
         }
       }
-    `);
-    ViewerFriendsQuery = getRequest(graphql`
+    `;
+    ViewerFriendsQuery = graphql`
       query FragmentResourceWithOperationTrackerTestViewerFriendsQuery {
         viewer {
           actor {
@@ -73,8 +72,8 @@ describe('FragmentResource with Operation Tracker and Missing Data', () => {
           }
         }
       }
-    `);
-    FriendsPaginationQuery = getRequest(graphql`
+    `;
+    FriendsPaginationQuery = graphql`
       query FragmentResourceWithOperationTrackerTestFriendsPaginationQuery(
         $id: ID!
       ) {
@@ -90,7 +89,7 @@ describe('FragmentResource with Operation Tracker and Missing Data', () => {
           }
         }
       }
-    `);
+    `;
     PlainUserNameRenderer_name = getFragment(graphql`
       fragment FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name on PlainUserNameRenderer {
         plaintext

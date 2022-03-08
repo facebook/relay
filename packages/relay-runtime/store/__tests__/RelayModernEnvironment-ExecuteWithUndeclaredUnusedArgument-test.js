@@ -15,7 +15,7 @@
 
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
+const {getFragment, graphql} = require('../../query/GraphQLTag');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -41,7 +41,7 @@ describe('query with undeclared, unused fragment argument', () => {
   let subject;
 
   beforeEach(() => {
-    query = getRequest(graphql`
+    query = graphql`
       query RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestQueryWithUnusedFragmentArgumentDefinitionQuery(
         $id: ID!
       ) {
@@ -49,7 +49,7 @@ describe('query with undeclared, unused fragment argument', () => {
           ...RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfile
         }
       }
-    `);
+    `;
 
     fragment = getFragment(graphql`
       fragment RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfile on User {

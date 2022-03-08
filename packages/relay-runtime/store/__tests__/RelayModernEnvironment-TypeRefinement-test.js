@@ -15,7 +15,7 @@
 import type {OperationDescriptor} from 'relay-runtime/store/RelayStoreTypes';
 
 const RelayNetwork = require('../../network/RelayNetwork');
-const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
+const {getFragment, graphql} = require('../../query/GraphQLTag');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -46,7 +46,7 @@ describe('missing data detection', () => {
   let abstractOperation;
 
   beforeEach(() => {
-    ParentQuery = getRequest(graphql`
+    ParentQuery = graphql`
       query RelayModernEnvironmentTypeRefinementTestParentQuery {
         userOrPage(id: "abc") {
           ...RelayModernEnvironmentTypeRefinementTestConcreteUserFragment
@@ -55,27 +55,27 @@ describe('missing data detection', () => {
           ...RelayModernEnvironmentTypeRefinementTestAbstractInlineRefinementFragment
         }
       }
-    `);
+    `;
 
     // version of the query with only concrete refinements
-    ConcreteQuery = getRequest(graphql`
+    ConcreteQuery = graphql`
       query RelayModernEnvironmentTypeRefinementTestConcreteQuery {
         userOrPage(id: "abc") {
           ...RelayModernEnvironmentTypeRefinementTestConcreteUserFragment
           ...RelayModernEnvironmentTypeRefinementTestConcreteInlineRefinementFragment
         }
       }
-    `);
+    `;
 
     // version of the query with only abstract refinements
-    AbstractQuery = getRequest(graphql`
+    AbstractQuery = graphql`
       query RelayModernEnvironmentTypeRefinementTestAbstractQuery {
         userOrPage(id: "abc") {
           ...RelayModernEnvironmentTypeRefinementTestAbstractActorFragment
           ...RelayModernEnvironmentTypeRefinementTestAbstractInlineRefinementFragment
         }
       }
-    `);
+    `;
 
     // identical fragments except for User (concrete) / Actor (interface)
     ConcreteUserFragment = getFragment(graphql`
@@ -773,7 +773,7 @@ describe('missing data detection', () => {
     let NestedActorFragment;
 
     beforeEach(() => {
-      ParentQuery = getRequest(graphql`
+      ParentQuery = graphql`
         query RelayModernEnvironmentTypeRefinementTest1Query {
           viewer {
             actor {
@@ -781,7 +781,7 @@ describe('missing data detection', () => {
             }
           }
         }
-      `);
+      `;
       ActorFragment = getFragment(graphql`
         fragment RelayModernEnvironmentTypeRefinementTest1Fragment on Actor {
           id
@@ -946,13 +946,13 @@ describe('missing data detection', () => {
     let NestedEntityFragment;
 
     beforeEach(() => {
-      ParentQuery = getRequest(graphql`
+      ParentQuery = graphql`
         query RelayModernEnvironmentTypeRefinementTest2Query {
           userOrPage(id: "abc") {
             ...RelayModernEnvironmentTypeRefinementTest3Fragment
           }
         }
-      `);
+      `;
       PageFragment = getFragment(graphql`
         fragment RelayModernEnvironmentTypeRefinementTest3Fragment on Page {
           id
@@ -1150,13 +1150,13 @@ describe('missing data detection', () => {
     let NestedNamedFragment;
 
     beforeEach(() => {
-      ParentQuery = getRequest(graphql`
+      ParentQuery = graphql`
         query RelayModernEnvironmentTypeRefinementTest3Query {
           userOrPage(id: "abc") {
             ...RelayModernEnvironmentTypeRefinementTest5Fragment
           }
         }
-      `);
+      `;
       ActorFragment = getFragment(graphql`
         fragment RelayModernEnvironmentTypeRefinementTest5Fragment on Actor {
           id
@@ -1357,13 +1357,13 @@ describe('missing data detection', () => {
     let NestedNamedFragment;
 
     beforeEach(() => {
-      ParentQuery = getRequest(graphql`
+      ParentQuery = graphql`
         query RelayModernEnvironmentTypeRefinementTest4Query {
           userOrPage(id: "abc") {
             ...RelayModernEnvironmentTypeRefinementTest7Fragment
           }
         }
-      `);
+      `;
       UserFragment = getFragment(graphql`
         fragment RelayModernEnvironmentTypeRefinementTest7Fragment on User {
           ... on Actor {
@@ -1566,13 +1566,13 @@ describe('missing data detection', () => {
     let NestedUserFragment;
 
     beforeEach(() => {
-      ParentQuery = getRequest(graphql`
+      ParentQuery = graphql`
         query RelayModernEnvironmentTypeRefinementTest5Query {
           userOrPage(id: "abc") {
             ...RelayModernEnvironmentTypeRefinementTest9Fragment
           }
         }
-      `);
+      `;
       ActorFragment = getFragment(graphql`
         fragment RelayModernEnvironmentTypeRefinementTest9Fragment on Actor {
           id
@@ -1677,13 +1677,13 @@ describe('missing data detection', () => {
     let NestedUserFragment;
 
     beforeEach(() => {
-      ParentQuery = getRequest(graphql`
+      ParentQuery = graphql`
         query RelayModernEnvironmentTypeRefinementTest6Query {
           userOrPage(id: "abc") {
             ...RelayModernEnvironmentTypeRefinementTest11Fragment
           }
         }
-      `);
+      `;
       UserFragment = getFragment(graphql`
         fragment RelayModernEnvironmentTypeRefinementTest11Fragment on User {
           ... on Actor {

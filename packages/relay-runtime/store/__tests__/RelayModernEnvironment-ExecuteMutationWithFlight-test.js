@@ -19,7 +19,7 @@ const {
 } = require('../../multi-actor-environment');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const {getRequest, graphql} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -62,50 +62,47 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
         storyID = 'story-id';
 
-        RelayModernEnvironmentExecuteMutationWithFlightTest_UpdateStoryMutation =
-          getRequest(graphql`
-            mutation RelayModernEnvironmentExecuteMutationWithFlightTest_UpdateStoryMutation(
-              $input: StoryUpdateInput!
-              $count: Int!
-            ) {
-              storyUpdate(input: $input) {
-                story {
-                  id
-                  body {
-                    text
-                  }
-                  flightComponent(condition: true, count: $count, id: "x")
+        RelayModernEnvironmentExecuteMutationWithFlightTest_UpdateStoryMutation = graphql`
+          mutation RelayModernEnvironmentExecuteMutationWithFlightTest_UpdateStoryMutation(
+            $input: StoryUpdateInput!
+            $count: Int!
+          ) {
+            storyUpdate(input: $input) {
+              story {
+                id
+                body {
+                  text
                 }
+                flightComponent(condition: true, count: $count, id: "x")
               }
             }
-          `);
+          }
+        `;
 
-        RelayModernEnvironmentExecuteMutationWithFlightTest_FlightQuery =
-          getRequest(graphql`
-            query RelayModernEnvironmentExecuteMutationWithFlightTest_FlightQuery(
-              $id: ID!
-              $count: Int!
-            ) {
-              node(id: $id) {
-                ... on Story {
-                  flightComponent(condition: true, count: $count, id: "x")
-                }
+        RelayModernEnvironmentExecuteMutationWithFlightTest_FlightQuery = graphql`
+          query RelayModernEnvironmentExecuteMutationWithFlightTest_FlightQuery(
+            $id: ID!
+            $count: Int!
+          ) {
+            node(id: $id) {
+              ... on Story {
+                flightComponent(condition: true, count: $count, id: "x")
               }
             }
-          `);
+          }
+        `;
 
-        RelayModernEnvironmentExecuteMutationWithFlightTest_InnerQuery =
-          getRequest(graphql`
-            query RelayModernEnvironmentExecuteMutationWithFlightTest_InnerQuery(
-              $id: ID!
-            ) {
-              node(id: $id) {
-                ... on User {
-                  name
-                }
+        RelayModernEnvironmentExecuteMutationWithFlightTest_InnerQuery = graphql`
+          query RelayModernEnvironmentExecuteMutationWithFlightTest_InnerQuery(
+            $id: ID!
+          ) {
+            node(id: $id) {
+              ... on User {
+                name
               }
             }
-          `);
+          }
+        `;
         variables = {
           input: {
             clientMutationId: '0',

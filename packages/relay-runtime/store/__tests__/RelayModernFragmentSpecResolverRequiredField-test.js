@@ -14,7 +14,7 @@ const RelayModernFragmentSpecResolver = require('../RelayModernFragmentSpecResol
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
-const {getFragment, getRequest, graphql} = require('relay-runtime');
+const {getFragment, graphql} = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils-internal');
 
 describe('RelayModernFragmentSpecResolver', () => {
@@ -48,7 +48,7 @@ describe('RelayModernFragmentSpecResolver', () => {
         alternate_name @required(action: LOG)
       }
     `);
-    UserQuery = getRequest(graphql`
+    UserQuery = graphql`
       query RelayModernFragmentSpecResolverRequiredFieldTestUserQuery(
         $id: ID!
       ) {
@@ -56,7 +56,7 @@ describe('RelayModernFragmentSpecResolver', () => {
           ...RelayModernFragmentSpecResolverRequiredFieldTestUserFragment
         }
       }
-    `);
+    `;
     zuckOperation = createOperationDescriptor(UserQuery, {
       id: '4',
     });

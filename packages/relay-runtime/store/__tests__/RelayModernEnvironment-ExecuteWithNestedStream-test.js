@@ -24,7 +24,7 @@ import type {
 
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
+const {getFragment, graphql} = require('../../query/GraphQLTag');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -56,7 +56,7 @@ describe('execute() a query with nested @stream', () => {
   let variables;
 
   beforeEach(() => {
-    query = getRequest(graphql`
+    query = graphql`
       query RelayModernEnvironmentExecuteWithNestedStreamTestFeedQuery(
         $enableStream: Boolean!
       ) {
@@ -64,7 +64,7 @@ describe('execute() a query with nested @stream', () => {
           ...RelayModernEnvironmentExecuteWithNestedStreamTestFeedFragment
         }
       }
-    `);
+    `;
 
     feedFragment = getFragment(graphql`
       fragment RelayModernEnvironmentExecuteWithNestedStreamTestFeedFragment on Viewer {

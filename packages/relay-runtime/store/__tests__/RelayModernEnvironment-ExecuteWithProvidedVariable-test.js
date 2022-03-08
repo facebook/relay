@@ -18,7 +18,7 @@ import type {OperationDescriptor, Snapshot} from '../RelayStoreTypes';
 
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
+const {getFragment, graphql} = require('../../query/GraphQLTag');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -93,7 +93,7 @@ describe('query with fragments that use provided variables', () => {
   let queryUserArgManyFragments;
 
   beforeAll(() => {
-    queryUserArgSingleFragment = getRequest(graphql`
+    queryUserArgSingleFragment = graphql`
       query RelayModernEnvironmentExecuteWithProvidedVariableTest_UserArgSingleFragmentQuery(
         $id: ID!
       ) {
@@ -101,9 +101,9 @@ describe('query with fragments that use provided variables', () => {
           ...RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1
         }
       }
-    `);
+    `;
 
-    queryUserArgManyFragments = getRequest(graphql`
+    queryUserArgManyFragments = graphql`
       query RelayModernEnvironmentExecuteWithProvidedVariableTest_UserArgManyFragmentsQuery(
         $id: ID!
       ) {
@@ -113,7 +113,7 @@ describe('query with fragments that use provided variables', () => {
           ...RelayModernEnvironmentExecuteWithProvidedVariableTest_profile3
         }
       }
-    `);
+    `;
 
     fragment1 = getFragment(graphql`
       fragment RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1 on User

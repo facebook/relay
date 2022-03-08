@@ -18,7 +18,7 @@ const {
   getActorIdentifier,
 } = require('../../multi-actor-environment');
 const RelayNetwork = require('../../network/RelayNetwork');
-const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
+const {getFragment, graphql} = require('../../query/GraphQLTag');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -33,13 +33,13 @@ const {
 
 disallowWarnings();
 
-const ActorQuery = getRequest(graphql`
+const ActorQuery = graphql`
   query RelayModernEnvironmentCommitPayloadTestActorQuery {
     me {
       name
     }
   }
-`);
+`;
 
 describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
   'CommitPayload',
@@ -92,7 +92,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
       });
 
       it('does not fill missing fields from server updates with null when treatMissingFieldsAsNull is disabled (default)', () => {
-        const query = getRequest(graphql`
+        const query = graphql`
           query RelayModernEnvironmentCommitPayloadTest2ActorQuery {
             me {
               name
@@ -103,7 +103,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               }
             }
           }
-        `);
+        `;
         operation = createOperationDescriptor(query, {});
         const callback = jest.fn();
         const snapshot = environment.lookup(operation.fragment);
@@ -138,7 +138,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           treatMissingFieldsAsNull: true,
         });
 
-        const query = getRequest(graphql`
+        const query = graphql`
           query RelayModernEnvironmentCommitPayloadTest3ActorQuery {
             me {
               name
@@ -149,7 +149,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               }
             }
           }
-        `);
+        `;
         operation = createOperationDescriptor(query, {});
         const callback = jest.fn();
         const snapshot = environment.lookup(operation.fragment);
@@ -209,14 +209,14 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
       it('applies payload on @defer fragments', () => {
         const id = '4';
-        const query = getRequest(graphql`
+        const query = graphql`
           query RelayModernEnvironmentCommitPayloadTest4ActorQuery {
             me {
               name
               ...RelayModernEnvironmentCommitPayloadTest4UserFragment @defer
             }
           }
-        `);
+        `;
         const fragment = getFragment(graphql`
           fragment RelayModernEnvironmentCommitPayloadTest4UserFragment on User {
             username
@@ -267,7 +267,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
       it('applies payload on @defer fragments in a query with modules', () => {
         const id = '4';
-        const query = getRequest(graphql`
+        const query = graphql`
           query RelayModernEnvironmentCommitPayloadTest6ActorQuery {
             me {
               name
@@ -278,7 +278,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               ...RelayModernEnvironmentCommitPayloadTest6UserFragment @defer
             }
           }
-        `);
+        `;
         const nameFragmentNormalizationNode = require('./__generated__/RelayModernEnvironmentCommitPayloadTest6MarkdownUserNameRenderer_name$normalization.graphql');
         graphql`
           fragment RelayModernEnvironmentCommitPayloadTest6MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {

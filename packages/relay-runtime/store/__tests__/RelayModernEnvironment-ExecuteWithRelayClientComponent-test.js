@@ -15,7 +15,7 @@
 
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
+const {getFragment, graphql} = require('../../query/GraphQLTag');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -58,7 +58,7 @@ describe('execute() with @relay_client_component', () => {
         }
       }
     `);
-    Query = getRequest(graphql`
+    Query = graphql`
       query RelayModernEnvironmentExecuteWithRelayClientComponentTestQuery(
         $id: ID!
       ) {
@@ -67,7 +67,7 @@ describe('execute() with @relay_client_component', () => {
             @relay_client_component
         }
       }
-    `);
+    `;
 
     complete = jest.fn();
     error = jest.fn();

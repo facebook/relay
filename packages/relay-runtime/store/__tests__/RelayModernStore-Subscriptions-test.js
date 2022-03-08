@@ -13,7 +13,7 @@
 
 'use strict';
 
-const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
+const {getFragment, graphql} = require('../../query/GraphQLTag');
 const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const {
   createOperationDescriptor,
@@ -110,13 +110,13 @@ function cloneEventWithSets(event) {
             emailAddresses
           }
         `);
-        UserQuery = getRequest(graphql`
+        UserQuery = graphql`
           query RelayModernStoreSubscriptionsTest1Query($size: [Int]) {
             me {
               ...RelayModernStoreSubscriptionsTest1Fragment
             }
           }
-        `);
+        `;
       });
 
       it('calls subscribers whose data has changed since previous notify', () => {
@@ -157,13 +157,13 @@ function cloneEventWithSets(event) {
 
       it('calls subscribers and reads data with fragment owner if one is available in subscription snapshot', () => {
         // subscribe(), publish(), notify() -> subscriber called
-        UserQuery = getRequest(graphql`
+        UserQuery = graphql`
           query RelayModernStoreSubscriptionsTest2Query($size: [Int]!) {
             me {
               ...RelayModernStoreSubscriptionsTest2Fragment
             }
           }
-        `);
+        `;
         UserFragment = getFragment(graphql`
           fragment RelayModernStoreSubscriptionsTest2Fragment on User {
             name

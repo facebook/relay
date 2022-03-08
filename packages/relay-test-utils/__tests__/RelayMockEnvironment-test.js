@@ -18,13 +18,13 @@ const RelayEnvironmentProvider = require('../../react-relay/relay-hooks/RelayEnv
 const usePreloadedQuery = require('../../react-relay/relay-hooks/usePreloadedQuery');
 const React = require('react');
 const TestRenderer = require('react-test-renderer');
-const {getRequest, graphql} = require('relay-runtime');
+const {graphql} = require('relay-runtime');
 const {
   MockPayloadGenerator,
   createMockEnvironment,
 } = require('relay-test-utils');
 
-const query = getRequest(graphql`
+const query = graphql`
   query RelayMockEnvironmentTestQuery($id: ID!) {
     node(id: $id) {
       id
@@ -33,7 +33,7 @@ const query = getRequest(graphql`
       }
     }
   }
-`);
+`;
 
 describe('when using queuePendingOperation, queueOperationResolver and preloadQuery in tests', () => {
   let prefetched;

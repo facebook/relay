@@ -21,7 +21,7 @@ const {
 } = require('../../multi-actor-environment');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
+const {getFragment, graphql} = require('../../query/GraphQLTag');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -98,7 +98,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
     describe(environmentType, () => {
       beforeEach(() => {
-        query = getRequest(graphql`
+        query = graphql`
           query RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQuery(
             $id: ID!
           ) {
@@ -120,7 +120,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               }
             }
           }
-        `);
+        `;
 
         actorNormalizationFragment = require('./__generated__/RelayModernEnvironmentExecuteWithDeferWithinModuleTestActor_actor$normalization.graphql');
         graphql`

@@ -65,7 +65,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
-          toolchain: stable
+          toolchain: 1.58.0
           override: true
       - uses: actions-rs/cargo@v1
         with:
@@ -104,7 +104,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
-          toolchain: stable
+          toolchain: 1.58.0
           override: true
           target: ${{ matrix.target.target }}
       - uses: actions/setup-node@v2

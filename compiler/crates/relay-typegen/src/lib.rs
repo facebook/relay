@@ -611,6 +611,7 @@ impl<'a> TypeGenerator<'a> {
         let field_name = resolver_spread_metadata.field_name;
 
         let key = resolver_spread_metadata.field_alias.unwrap_or(field_name);
+        let live = resolver_spread_metadata.live;
 
         let local_resolver_name = to_camel_case(format!(
             "{}_{}_resolver",
@@ -630,7 +631,11 @@ impl<'a> TypeGenerator<'a> {
             .or_insert(local_resolver_name);
 
 
-        let inner_value = Box::new(AST::ReturnTypeOfFunctionWithName(local_resolver_name));
+        let mut inner_value = Box::new(AST::ReturnTypeOfFunctionWithName(local_resolver_name));
+
+        if live {
+            inner_value = Box::new(AST::ReturnTypeOfMethodCall(inner_value, intern!("read")));
+        }
 
         let value = if required {
             AST::NonNullable(inner_value)

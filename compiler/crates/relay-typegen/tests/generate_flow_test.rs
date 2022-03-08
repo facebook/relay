@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<e522c6b1344fad40a1cdce2a72292195>>
+ * @generated SignedSource<<65038e74a8aebfe9b343c5d859b8fce9>>
  */
 
 mod generate_flow;
@@ -227,6 +227,13 @@ fn relay_client_id_field() {
     let input = include_str!("generate_flow/fixtures/relay-client-id-field.graphql");
     let expected = include_str!("generate_flow/fixtures/relay-client-id-field.expected");
     test_fixture(transform_fixture, "relay-client-id-field.graphql", "generate_flow/fixtures/relay-client-id-field.expected", input, expected);
+}
+
+#[test]
+fn relay_live_resolver() {
+    let input = include_str!("generate_flow/fixtures/relay-live-resolver.graphql");
+    let expected = include_str!("generate_flow/fixtures/relay-live-resolver.expected");
+    test_fixture(transform_fixture, "relay-live-resolver.graphql", "generate_flow/fixtures/relay-live-resolver.expected", input, expected);
 }
 
 #[test]

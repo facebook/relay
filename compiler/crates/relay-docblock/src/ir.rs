@@ -8,7 +8,7 @@
 use crate::errors::ErrorMessagesWithData;
 use common::{Diagnostic, DiagnosticsResult, Location, Span, WithLocation};
 use graphql_syntax::{
-    ConstantArgument, ConstantDirective, ConstantValue, FieldDefinition, Identifier,
+    BooleanNode, ConstantArgument, ConstantDirective, ConstantValue, FieldDefinition, Identifier,
     InterfaceTypeExtension, List, NamedTypeAnnotation, ObjectTypeExtension, SchemaDocument,
     StringNode, Token, TokenKind, TypeAnnotation, TypeSystemDefinition,
 };
@@ -23,6 +23,7 @@ lazy_static! {
     static ref DEPRECATED_RESOLVER_DIRECTIVE_NAME: StringKey = "deprecated".intern();
     static ref FRAGMENT_KEY_ARGUMENT_NAME: StringKey = "fragment_name".intern();
     static ref IMPORT_PATH_AGUMENT_NAME: StringKey = "import_path".intern();
+    static ref LIVE_ARGUMENT_NAME: StringKey = "live".intern();
     static ref DEPRECATED_REASON_ARGUMENT_NAME: StringKey = "reason".intern();
 }
 
@@ -71,6 +72,7 @@ pub struct RelayResolverIr {
     pub edge_to: Option<WithLocation<StringKey>>,
     pub description: Option<WithLocation<StringKey>>,
     pub deprecated: Option<IrField>,
+    pub live: Option<IrField>,
     pub location: Location,
 }
 
@@ -241,17 +243,21 @@ impl RelayResolverIr {
     fn directive(&self) -> ConstantDirective {
         let span = self.location.span();
         let import_path = self.location.source_location().path().intern();
+        let mut arguments = vec![
+            string_argument(*FRAGMENT_KEY_ARGUMENT_NAME, self.root_fragment),
+            string_argument(
+                *IMPORT_PATH_AGUMENT_NAME,
+                WithLocation::new(self.location, import_path),
+            ),
+        ];
+        if let Some(live_field) = self.live {
+            arguments.push(true_argument(*LIVE_ARGUMENT_NAME, live_field.key_location))
+        }
         ConstantDirective {
             span: span.clone(),
             at: dummy_token(span),
             name: string_key_as_identifier(*RELAY_RESOLVER_DIRECTIVE_NAME),
-            arguments: Some(List::generated(vec![
-                string_argument(*FRAGMENT_KEY_ARGUMENT_NAME, self.root_fragment),
-                string_argument(
-                    *IMPORT_PATH_AGUMENT_NAME,
-                    WithLocation::new(self.location, import_path),
-                ),
-            ])),
+            arguments: Some(List::generated(arguments)),
         }
     }
 }
@@ -265,6 +271,19 @@ fn string_argument(name: StringKey, value: WithLocation<StringKey>) -> ConstantA
         value: ConstantValue::String(StringNode {
             token: dummy_token(span),
             value: value.item,
+        }),
+    }
+}
+
+fn true_argument(name: StringKey, location: Location) -> ConstantArgument {
+    let span = location.span();
+    ConstantArgument {
+        span: span.clone(),
+        name: string_key_as_identifier(name),
+        colon: dummy_token(span),
+        value: ConstantValue::Boolean(BooleanNode {
+            token: dummy_token(span),
+            value: true,
         }),
     }
 }

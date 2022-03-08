@@ -722,6 +722,12 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
 
         let path = relay_resolver_spread_metadata.field_path;
 
+        let kind = if relay_resolver_spread_metadata.live {
+            CODEGEN_CONSTANTS.relay_live_resolver
+        } else {
+            CODEGEN_CONSTANTS.relay_resolver
+        };
+
         // TODO(T86853359): Support non-haste environments when generating Relay Resolver RederAST
         let haste_import_name = Path::new(&module.to_string())
             .file_stem()
@@ -732,7 +738,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         Primitive::Key(self.object(object! {
             :build_alias(field_alias, field_name),
             fragment: fragment_primitive,
-            kind: Primitive::String(CODEGEN_CONSTANTS.relay_resolver),
+            kind: Primitive::String(kind),
             name: Primitive::String(field_name),
             resolver_module: Primitive::JSModuleDependency(haste_import_name),
             path: Primitive::String(path),

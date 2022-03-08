@@ -28,6 +28,7 @@ lazy_static! {
     pub static ref ON_INTERFACE_FIELD: StringKey = "onInterface".intern();
     static ref EDGE_TO_FIELD: StringKey = "edgeTo".intern();
     static ref DEPRECATED_FIELD: StringKey = "deprecated".intern();
+    static ref LIVE_FIELD: StringKey = "live".intern();
     static ref ROOT_FRAGMENT_FIELD: StringKey = "rootFragment".intern();
     static ref EMPTY_STRING: StringKey = "".intern();
 }
@@ -66,6 +67,7 @@ impl RelayResolverParser {
                 *ROOT_FRAGMENT_FIELD,
                 *EDGE_TO_FIELD,
                 *DEPRECATED_FIELD,
+                *LIVE_FIELD,
             ],
         }
     }
@@ -103,6 +105,7 @@ impl RelayResolverParser {
         let on = self.assert_on(ast.location);
 
         let deprecated = self.fields.get(&DEPRECATED_FIELD).copied();
+        let live = self.fields.get(&LIVE_FIELD).copied();
 
         Ok(RelayResolverIr {
             field_name: field_name?,
@@ -115,6 +118,7 @@ impl RelayResolverParser {
             description: self.description,
             location: ast.location,
             deprecated,
+            live,
         })
     }
 

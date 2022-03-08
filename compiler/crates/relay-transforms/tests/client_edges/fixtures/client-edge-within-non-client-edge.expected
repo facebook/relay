@@ -31,6 +31,7 @@ fragment Foo_user on User {
       #     field_name: "best_friend",
       #     field_alias: None,
       #     field_path: "nearest_neighbor.best_friend",
+      #     live: false,
       # }
        @waterfall
       best_friend @waterfall {

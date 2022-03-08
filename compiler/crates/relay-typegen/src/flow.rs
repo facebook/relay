@@ -57,6 +57,9 @@ impl Writer for FlowPrinter {
             AST::ReturnTypeOfFunctionWithName(function_name) => {
                 self.write_return_type_of_function_with_name(*function_name)
             }
+            AST::ReturnTypeOfMethodCall(object, method_name) => {
+                self.write_return_type_of_method_call(object, *method_name)
+            }
             AST::ActorChangePoint(selections) => self.write_actor_change_point(selections),
         }
     }
@@ -295,6 +298,16 @@ impl FlowPrinter {
             "$Call<<R>((...empty[]) => R) => R, typeof {}>",
             function_name
         )
+    }
+
+    fn write_return_type_of_method_call(
+        &mut self,
+        object: &AST,
+        method_name: StringKey,
+    ) -> FmtResult {
+        write!(&mut self.result, "$Call<")?;
+        self.write(object)?;
+        write!(&mut self.result, "[\"{}\"]>", method_name)
     }
 
     fn write_actor_change_point(&mut self, selections: &AST) -> FmtResult {

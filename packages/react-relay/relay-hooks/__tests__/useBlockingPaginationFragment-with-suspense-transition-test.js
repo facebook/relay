@@ -253,29 +253,27 @@ describe('useBlockingPaginationFragment with useTransition', () => {
         }
       `;
 
-      gqlQuery = getRequest(
-        graphql`
-          query useBlockingPaginationFragmentWithSuspenseTransitionTestUserQuery(
-            $id: ID!
-            $after: ID
-            $first: Int
-            $before: ID
-            $last: Int
-            $orderby: [String]
-            $isViewerFriend: Boolean
-          ) {
-            node(id: $id) {
-              actor {
-                ...useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment
-                  @arguments(
-                    isViewerFriendLocal: $isViewerFriend
-                    orderby: $orderby
-                  )
-              }
+      gqlQuery = graphql`
+        query useBlockingPaginationFragmentWithSuspenseTransitionTestUserQuery(
+          $id: ID!
+          $after: ID
+          $first: Int
+          $before: ID
+          $last: Int
+          $orderby: [String]
+          $isViewerFriend: Boolean
+        ) {
+          node(id: $id) {
+            actor {
+              ...useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment
+                @arguments(
+                  isViewerFriendLocal: $isViewerFriend
+                  orderby: $orderby
+                )
             }
           }
-        `,
-      );
+        }
+      `;
 
       gqlQueryWithoutID = graphql`
         query useBlockingPaginationFragmentWithSuspenseTransitionTestUserQueryWithoutIDQuery(

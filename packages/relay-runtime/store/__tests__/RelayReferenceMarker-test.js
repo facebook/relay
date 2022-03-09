@@ -13,7 +13,7 @@
 
 'use strict';
 
-const {getRequest, graphql} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
 const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const {createNormalizationSelector} = require('../RelayModernSelector');
 const RelayRecordSource = require('../RelayRecordSource');
@@ -1411,8 +1411,8 @@ describe('RelayReferenceMarker', () => {
         }
       `;
       operationLoader = {
-        get: jest.fn(() => getRequest(InnerQuery)),
-        load: jest.fn(() => Promise.resolve(getRequest(InnerQuery))),
+        get: jest.fn(() => InnerQuery),
+        load: jest.fn(() => Promise.resolve(InnerQuery)),
       };
     });
     afterEach(() => {

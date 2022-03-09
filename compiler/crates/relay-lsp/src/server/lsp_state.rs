@@ -21,6 +21,7 @@ use crate::{LSPExtraDataProvider, LSPRuntimeError};
 use common::{Diagnostic as CompilerDiagnostic, PerfLogger, SourceLocationKey, Span};
 use crossbeam::channel::{SendError, Sender};
 use dashmap::{mapref::entry::Entry, DashMap};
+use extract_graphql::JavaScriptSourceFeature;
 use fnv::FnvBuildHasher;
 use graphql_ir::{
     build_ir_with_extra_features, BuilderOptions, FragmentVariablesSemantic, Program, RelayMode,
@@ -184,8 +185,16 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         lsp_state
     }
 
-    fn insert_synced_sources(&self, url: &Url, sources: Vec<GraphQLSource>) {
-        self.synced_graphql_documents.insert(url.clone(), sources);
+    fn insert_synced_sources(&self, url: &Url, sources: Vec<JavaScriptSourceFeature>) {
+        let graphql_sources = sources
+            .into_iter()
+            .filter_map(|js_feature| match js_feature {
+                JavaScriptSourceFeature::GraphQL(graphql_source) => Some(graphql_source),
+                JavaScriptSourceFeature::Docblock(_) => None,
+            })
+            .collect::<Vec<_>>();
+        self.synced_graphql_documents
+            .insert(url.clone(), graphql_sources);
     }
 
     fn validate_synced_sources(&self, url: &Url) -> LSPRuntimeResult<()> {
@@ -282,7 +291,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
     fn process_synced_sources(
         &self,
         uri: &Url,
-        sources: Vec<GraphQLSource>,
+        sources: Vec<JavaScriptSourceFeature>,
     ) -> LSPRuntimeResult<()> {
         let project_name = self.extract_project_name_from_url(uri)?;
 
@@ -448,11 +457,11 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         }
 
         // First we check to see if this document has any GraphQL documents.
-        let graphql_sources = extract_graphql::extract(text).graphql_sources;
-        if graphql_sources.is_empty() {
+        let embedded_sources = extract_graphql::extract(text);
+        if embedded_sources.is_empty() {
             Ok(())
         } else {
-            self.process_synced_sources(uri, graphql_sources)
+            self.process_synced_sources(uri, embedded_sources)
         }
     }
 
@@ -462,12 +471,12 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         }
 
         // First we check to see if this document has any GraphQL documents.
-        let graphql_sources = extract_graphql::extract(full_text).graphql_sources;
-        if graphql_sources.is_empty() {
+        let embedded_sources = extract_graphql::extract(full_text);
+        if embedded_sources.is_empty() {
             self.remove_synced_sources(uri);
             Ok(())
         } else {
-            self.process_synced_sources(uri, graphql_sources)
+            self.process_synced_sources(uri, embedded_sources)
         }
     }
 

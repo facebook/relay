@@ -18,7 +18,10 @@ import type {
   ReaderPaginationFragment,
   ReaderRefetchableFragment,
 } from '../util/ReaderNode';
-import type {ConcreteRequest} from '../util/RelayConcreteNode';
+import type {
+  ConcreteRequest,
+  ConcreteUpdatableQuery,
+} from '../util/RelayConcreteNode';
 
 const RelayConcreteNode = require('../util/RelayConcreteNode');
 const invariant = require('invariant');
@@ -29,9 +32,14 @@ export type GraphQLTaggedNode =
   | ReaderFragment
   | ReaderInlineDataFragment
   | ConcreteRequest
+  | ConcreteUpdatableQuery
   | {
       // This is this case when we `require()` a generated ES6 module
-      default: ReaderFragment | ReaderInlineDataFragment | ConcreteRequest,
+      default:
+        | ReaderFragment
+        | ReaderInlineDataFragment
+        | ConcreteRequest
+        | ConcreteUpdatableQuery,
       ...
     };
 
@@ -51,7 +59,11 @@ function graphql(strings: Array<string>): any {
 
 function getNode(
   taggedNode: GraphQLTaggedNode,
-): ReaderFragment | ReaderInlineDataFragment | ConcreteRequest {
+):
+  | ReaderFragment
+  | ReaderInlineDataFragment
+  | ConcreteRequest
+  | ConcreteUpdatableQuery {
   let node = taggedNode;
   if (typeof node === 'function') {
     node = (node(): ReaderFragment | ConcreteRequest);
@@ -82,6 +94,15 @@ function isRequest(node: GraphQLTaggedNode): boolean {
     typeof request === 'object' &&
     request !== null &&
     request.kind === RelayConcreteNode.REQUEST
+  );
+}
+
+function isUpdatableQuery(node: GraphQLTaggedNode): boolean {
+  const updatableQuery = getNode(node);
+  return (
+    typeof updatableQuery === 'object' &&
+    updatableQuery !== null &&
+    updatableQuery.kind === RelayConcreteNode.UPDATABLE_QUERY
   );
 }
 
@@ -142,6 +163,18 @@ function getRequest(taggedNode: GraphQLTaggedNode): ConcreteRequest {
   return (request: any);
 }
 
+function getUpdatableQuery(
+  taggedNode: GraphQLTaggedNode,
+): ConcreteUpdatableQuery {
+  const updatableQuery = getNode(taggedNode);
+  invariant(
+    isUpdatableQuery(updatableQuery),
+    'GraphQLTag: Expected a request, got `%s`.',
+    JSON.stringify(updatableQuery),
+  );
+  return (updatableQuery: any);
+}
+
 function getInlineDataFragment(
   taggedNode: GraphQLTaggedNode,
 ): ReaderInlineDataFragment {
@@ -160,9 +193,11 @@ module.exports = {
   getPaginationFragment,
   getRefetchableFragment,
   getRequest,
+  getUpdatableQuery,
   getInlineDataFragment,
   graphql,
   isFragment,
   isRequest,
+  isUpdatableQuery,
   isInlineDataFragment,
 };

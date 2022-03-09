@@ -7,7 +7,8 @@
 
 use common::{DiagnosticDisplay, WithDiagnosticData};
 use graphql_syntax::OperationKind;
-use intern::string_key::{Intern, StringKey};
+use intern::string_key::StringKey;
+use schema::suggestion_list::did_you_mean;
 use schema::{Type, TypeReference};
 use thiserror::Error;
 
@@ -16,9 +17,6 @@ use thiserror::Error;
 pub enum ValidationMessage {
     #[error("Duplicate definitions for '{0}'")]
     DuplicateDefinition(StringKey),
-
-    #[error("Undefined fragment '{0}'")]
-    UndefinedFragment(StringKey),
 
     #[error("Expected an object, interface, or union, found '{0:?}'")]
     ExpectedCompositeType(Type),
@@ -92,6 +90,11 @@ pub enum ValidationMessage {
 
     #[error("Expected '@argumentDefinitions' directive to be used on fragment definitions only.")]
     ExpectedArgumentDefinitionsDirectiveOnFragmentDefinition(),
+
+    #[error(
+        "Expected the `directives` argument to `@argumentDefinition` to be a list of literal strings in the form `directives: [\"@example\"]`."
+    )]
+    ArgumentDefinitionsDirectivesNotStringListLiteral,
 
     #[error("Non-nullable variable '{variable_name}' has a default value.")]
     NonNullableVariableHasDefaultValue { variable_name: StringKey },
@@ -441,13 +444,20 @@ pub enum ValidationMessageWithData {
         field_name: StringKey,
         type_name: StringKey,
     },
+
+    #[error("Undefined fragment '{fragment_name}'.{suggestions}", suggestions = did_you_mean(suggestions))]
+    UndefinedFragment {
+        fragment_name: StringKey,
+        suggestions: Vec<StringKey>,
+    },
 }
 
 impl WithDiagnosticData for ValidationMessageWithData {
     fn get_data(&self) -> Vec<Box<dyn DiagnosticDisplay>> {
         match self {
             ValidationMessageWithData::UnknownType { suggestions, .. }
-            | ValidationMessageWithData::UnknownField { suggestions, .. } => suggestions
+            | ValidationMessageWithData::UnknownField { suggestions, .. }
+            | ValidationMessageWithData::UndefinedFragment { suggestions, .. } => suggestions
                 .iter()
                 .map(|suggestion| into_box(*suggestion))
                 .collect::<_>(),
@@ -460,32 +470,4 @@ impl WithDiagnosticData for ValidationMessageWithData {
 
 fn into_box(item: StringKey) -> Box<dyn DiagnosticDisplay> {
     Box::new(item)
-}
-
-/// Given [ A, B, C ] return ' Did you mean A, B, or C?'.
-fn did_you_mean(suggestions: &[StringKey]) -> String {
-    if suggestions.is_empty() {
-        return "".to_string();
-    }
-
-    let suggestions_string = match suggestions.len() {
-        1 => format!("`{}`", suggestions[0].lookup()),
-        2 => format!("`{}` or `{}`", suggestions[0], suggestions[1]),
-        _ => {
-            let mut suggestions = suggestions.to_vec();
-            let last_option = suggestions.pop();
-
-            format!(
-                "{}, or `{}`",
-                suggestions
-                    .iter()
-                    .map(|suggestion| format!("`{}`", suggestion.lookup()))
-                    .collect::<Vec<String>>()
-                    .join(", "),
-                last_option.unwrap_or_else(|| "".intern())
-            )
-        }
-    };
-
-    format!(" Did you mean {}?", suggestions_string)
 }

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<e3d321d070ddb90a27e22d2855c4444d>>
+ * @generated SignedSource<<116b71df7382fd2f1988f0994dfd6561>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,8 +17,8 @@
 /*::
 import type { ConcreteRequest, Mutation } from 'relay-runtime';
 export type LocationInput = {|
-  longitude?: ?number,
   latitude?: ?number,
+  longitude?: ?number,
 |};
 export type RelayModernEnvironmentViewerTest_SetLocationMutation$variables = {|
   input: LocationInput,
@@ -36,8 +36,8 @@ export type RelayModernEnvironmentViewerTest_SetLocationMutation$data = {|
   |},
 |};
 export type RelayModernEnvironmentViewerTest_SetLocationMutation = {|
-  variables: RelayModernEnvironmentViewerTest_SetLocationMutation$variables,
   response: RelayModernEnvironmentViewerTest_SetLocationMutation$data,
+  variables: RelayModernEnvironmentViewerTest_SetLocationMutation$variables,
 |};
 */
 

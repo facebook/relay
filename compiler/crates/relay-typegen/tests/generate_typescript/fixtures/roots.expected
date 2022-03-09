@@ -34,14 +34,14 @@ export type ExampleQuery$data = {
   } | null;
 };
 export type ExampleQuery = {
-  variables: ExampleQuery$variables;
   response: ExampleQuery$data;
+  variables: ExampleQuery$variables;
 };
 -------------------------------------------------------------------------------
 export type CommentCreateInput = {
   clientMutationId?: string | null;
-  feedbackId?: string | null;
   feedback?: CommentfeedbackFeedback | null;
+  feedbackId?: string | null;
 };
 export type CommentfeedbackFeedback = {
   comment?: FeedbackcommentComment | null;
@@ -60,8 +60,8 @@ export type TestMutation$data = {
   } | null;
 };
 export type TestMutation = {
-  variables: TestMutation$variables;
   response: TestMutation$data;
+  variables: TestMutation$variables;
 };
 -------------------------------------------------------------------------------
 export type FeedbackLikeInput = {
@@ -79,8 +79,8 @@ export type TestSubscription$data = {
   } | null;
 };
 export type TestSubscription = {
-  variables: TestSubscription$variables;
   response: TestSubscription$data;
+  variables: TestSubscription$variables;
 };
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";

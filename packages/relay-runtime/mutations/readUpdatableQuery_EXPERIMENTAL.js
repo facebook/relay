@@ -16,27 +16,29 @@
 import type {GraphQLTaggedNode} from '../query/GraphQLTag';
 import type {RecordProxy, RecordSourceProxy} from '../store/RelayStoreTypes';
 import type {ReaderLinkedField, ReaderSelection} from '../util/ReaderNode';
-import type {OperationType} from '../util/RelayRuntimeTypes';
+import type {
+  UpdatableQuery,
+  UpdatableQueryType,
+} from '../util/RelayRuntimeTypes';
 
-const {getRequest} = require('../query/GraphQLTag');
+const {getUpdatableQuery} = require('../query/GraphQLTag');
 const {getArgumentValues} = require('../store/RelayStoreUtils');
 
 const nonUpdatableKeys = ['id', '__id', '__typename', 'js'];
 
-function readUpdatableQuery_EXPERIMENTAL<TQuery: OperationType>(
-  query: GraphQLTaggedNode,
+function readUpdatableQuery_EXPERIMENTAL<TQuery: UpdatableQueryType>(
+  query: UpdatableQuery<TQuery['variables'], TQuery['response']>,
   variables: TQuery['variables'],
   proxy: RecordSourceProxy,
 ): TQuery['response'] {
-  // TODO assert that the concrete request is an updatable query
-  const request = getRequest(query);
+  const updatableQuery = getUpdatableQuery(query);
 
   const updatableProxy = {};
   updateProxyFromSelections(
     updatableProxy,
     proxy.getRoot(),
     variables,
-    request.fragment.selections,
+    updatableQuery.fragment.selections,
     proxy,
   );
   if (__DEV__) {
@@ -45,7 +47,7 @@ function readUpdatableQuery_EXPERIMENTAL<TQuery: OperationType>(
   return updatableProxy;
 }
 
-function updateProxyFromSelections<TQuery: OperationType>(
+function updateProxyFromSelections<TQuery: UpdatableQueryType>(
   mutableUpdatableProxy: TQuery['response'],
   recordProxy: RecordProxy,
   queryVariables: TQuery['variables'],
@@ -161,7 +163,7 @@ function updateProxyFromSelections<TQuery: OperationType>(
   }
 }
 
-function createSetterForPluralLinkedField<TQuery: OperationType>(
+function createSetterForPluralLinkedField<TQuery: UpdatableQueryType>(
   selection: ReaderLinkedField,
   queryVariables: TQuery['variables'],
   recordProxy: RecordProxy,
@@ -204,7 +206,7 @@ function createSetterForPluralLinkedField<TQuery: OperationType>(
   };
 }
 
-function createSetterForSingularLinkedField<TQuery: OperationType>(
+function createSetterForSingularLinkedField<TQuery: UpdatableQueryType>(
   selection: ReaderLinkedField,
   queryVariables: TQuery['variables'],
   recordProxy: RecordProxy,
@@ -236,7 +238,7 @@ function createSetterForSingularLinkedField<TQuery: OperationType>(
   };
 }
 
-function createGetterForPluralLinkedField<TQuery: OperationType>(
+function createGetterForPluralLinkedField<TQuery: UpdatableQueryType>(
   selection: ReaderLinkedField,
   queryVariables: TQuery['variables'],
   recordProxy: RecordProxy,
@@ -278,7 +280,7 @@ function createGetterForPluralLinkedField<TQuery: OperationType>(
   };
 }
 
-function createGetterForSingularLinkedField<TQuery: OperationType>(
+function createGetterForSingularLinkedField<TQuery: UpdatableQueryType>(
   selection: ReaderLinkedField,
   queryVariables: TQuery['variables'],
   recordProxy: RecordProxy,

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<1a9500572616b55c3a0d0c41fbf35ac2>>
+ * @generated SignedSource<<0d0b2382b0cd6be5889856b4d7079e74>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,29 +19,29 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayMockPayloadGeneratorTest3Fragment$fragmentType: FragmentType;
 export type RelayMockPayloadGeneratorTest3Fragment$data = {|
-  +id: string,
-  +name: ?string,
-  +customId: string,
-  +profile_picture?: ?{|
-    +uri: ?string,
-  |},
-  +birthdate?: ?{|
-    +year: ?number,
-    +month?: ?number,
-  |},
-  +author: ?{|
-    +authorID: string,
-    +objectType: string,
-    +username: ?string,
-    +name?: ?string,
-  |},
   +allPhones: ?$ReadOnlyArray<?{|
     +phoneNumber: ?{|
       +displayNumber: ?string,
     |},
   |}>,
-  +emailAddresses: ?$ReadOnlyArray<?string>,
+  +author: ?{|
+    +authorID: string,
+    +name?: ?string,
+    +objectType: string,
+    +username: ?string,
+  |},
   +backgroundImage: ?{|
+    +uri: ?string,
+  |},
+  +birthdate?: ?{|
+    +month?: ?number,
+    +year: ?number,
+  |},
+  +customId: string,
+  +emailAddresses: ?$ReadOnlyArray<?string>,
+  +id: string,
+  +name: ?string,
+  +profile_picture?: ?{|
     +uri: ?string,
   |},
   +$fragmentType: RelayMockPayloadGeneratorTest3Fragment$fragmentType,

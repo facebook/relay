@@ -10,12 +10,13 @@ use crate::config::Config;
 use crate::errors::{Error, Result};
 use crate::file_source::{
     categorize_files, extract_javascript_features_from_file, read_file_to_string, Clock, File,
-    FileGroup, FileSourceResult, SourceControlUpdateStatus,
+    FileGroup, FileSourceResult, LocatedDocblockSource, LocatedGraphQLSource,
+    LocatedJavascriptSourceFeatures, SourceControlUpdateStatus,
 };
+use bincode::Options;
 use common::{PerfLogEvent, PerfLogger, SourceLocationKey};
 use dashmap::DashSet;
 use fnv::{FnvBuildHasher, FnvHashMap, FnvHashSet};
-use graphql_syntax::GraphQLSource;
 use intern::string_key::StringKey;
 use rayon::prelude::*;
 use relay_config::SchemaConfig;
@@ -24,7 +25,7 @@ use schema::SDLSchema;
 use schema_diff::{definitions::SchemaChange, detect_changes};
 use serde::{Deserialize, Serialize};
 use std::{
-    fmt,
+    env, fmt,
     fs::File as FsFile,
     hash::Hash,
     io::{BufReader, BufWriter},
@@ -32,82 +33,86 @@ use std::{
     path::PathBuf,
     sync::{Arc, RwLock},
 };
+use std::{slice, vec};
 use zstd::stream::{read::Decoder as ZstdDecoder, write::Encoder as ZstdEncoder};
 
 /// Name of a compiler project.
 pub type ProjectName = StringKey;
 
-/// Name of a source set; a source set corresponds to a set fo files
-/// that can be shared by multiple compiler projects
-pub type SourceSetName = StringKey;
-
 /// Set of project names.
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub enum ProjectSet {
-    ProjectName(ProjectName),
-    ProjectNames(Vec<ProjectName>),
-}
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
+#[serde(from = "DeserializableProjectSet")]
+pub struct ProjectSet(Vec<ProjectName>);
+
 impl ProjectSet {
+    pub fn new(names: Vec<ProjectName>) -> Self {
+        if names.is_empty() {
+            panic!("Expected project set to have at least one project.")
+        }
+        ProjectSet(names)
+    }
+    pub fn of(name: ProjectName) -> Self {
+        ProjectSet(vec![name])
+    }
     /// Inserts a new project name into this set.
     pub fn insert(&mut self, project_name: ProjectName) {
-        match self {
-            ProjectSet::ProjectName(existing_name) => {
-                assert!(*existing_name != project_name);
-                *self = ProjectSet::ProjectNames(vec![*existing_name, project_name]);
-            }
-            ProjectSet::ProjectNames(existing_names) => {
-                assert!(!existing_names.contains(&project_name));
-                existing_names.push(project_name);
-            }
-        }
+        let existing_names = &mut self.0;
+        assert!(!existing_names.contains(&project_name));
+        existing_names.push(project_name);
+    }
+
+    pub fn iter(&self) -> slice::Iter<'_, StringKey> {
+        self.0.iter()
+    }
+
+    pub fn has_multiple_projects(&self) -> bool {
+        self.0.len() > 1
+    }
+
+    pub fn first(&self) -> Option<&ProjectName> {
+        self.0.first()
     }
 }
 
 impl IntoIterator for ProjectSet {
     type Item = ProjectName;
-    type IntoIter = std::vec::IntoIter<Self::Item>;
+    type IntoIter = vec::IntoIter<StringKey>;
 
     fn into_iter(self) -> Self::IntoIter {
-        match self {
-            ProjectSet::ProjectName(name) => vec![name].into_iter(),
-            ProjectSet::ProjectNames(names) => names.into_iter(),
-        }
+        self.0.into_iter()
     }
 }
 
-/// Represents the name of the source set, or list of source sets
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
-#[serde(untagged)]
-pub enum SourceSet {
-    SourceSetName(SourceSetName),
-    SourceSetNames(Vec<SourceSetName>),
-}
-
-impl IntoIterator for SourceSet {
-    type Item = SourceSetName;
-    type IntoIter = std::vec::IntoIter<Self::Item>;
-
-    fn into_iter(self) -> Self::IntoIter {
-        match self {
-            SourceSet::SourceSetName(name) => vec![name].into_iter(),
-            SourceSet::SourceSetNames(names) => names.into_iter(),
-        }
-    }
-}
-
-impl fmt::Display for SourceSet {
+impl fmt::Display for ProjectSet {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            SourceSet::SourceSetName(name) => write!(f, "{}", name),
-            SourceSet::SourceSetNames(names) => write!(
-                f,
-                "{}",
-                names
-                    .iter()
-                    .map(|name| name.to_string())
-                    .collect::<Vec<String>>()
-                    .join(",")
-            ),
+        let names = self
+            .0
+            .iter()
+            .map(|name| name.to_string())
+            .collect::<Vec<String>>()
+            .join(",");
+
+        write!(f, "{}", names)
+    }
+}
+
+// Serde has the built in ability for deserializing enums that might be in
+// different shapes. In this case a `Vec<StringKey>` or `StringKey`. However, we
+// want our actual `ProjectSet` object to be modeled as a single Vec internally.
+// So, we provide this enum to use sede's polymorphic deserialization and then
+// tell `ProjectSet` to deserialize via this enum using `From`.
+#[derive(Deserialize, Debug)]
+#[serde(untagged)]
+pub enum DeserializableProjectSet {
+    ProjectName(ProjectName),
+    ProjectNames(Vec<ProjectName>),
+}
+
+impl From<DeserializableProjectSet> for ProjectSet {
+    fn from(legacy: DeserializableProjectSet) -> Self {
+        match legacy {
+            DeserializableProjectSet::ProjectName(name) => ProjectSet::of(name),
+            DeserializableProjectSet::ProjectNames(names) => ProjectSet::new(names),
         }
     }
 }
@@ -116,7 +121,13 @@ pub trait Source {
     fn is_empty(&self) -> bool;
 }
 
-impl Source for Vec<GraphQLSource> {
+impl Source for Vec<LocatedGraphQLSource> {
+    fn is_empty(&self) -> bool {
+        self.is_empty()
+    }
+}
+
+impl Source for Vec<LocatedDocblockSource> {
     fn is_empty(&self) -> bool {
         self.is_empty()
     }
@@ -153,29 +164,7 @@ impl<V: Source> IncrementalSources<V> {
             }
         }
     }
-}
-
-impl<V: Source> Default for IncrementalSources<V> {
-    fn default() -> Self {
-        IncrementalSources {
-            pending: FnvHashMap::default(),
-            processed: FnvHashMap::default(),
-        }
-    }
-}
-
-type GraphQLSourceSet = IncrementalSourceSet<Vec<GraphQLSource>>;
-pub type GraphQLSources = IncrementalSources<Vec<GraphQLSource>>;
-pub type SchemaSources = IncrementalSources<String>;
-
-impl Source for String {
-    fn is_empty(&self) -> bool {
-        self.is_empty()
-    }
-}
-
-impl SchemaSources {
-    fn get_all(&self) -> Vec<(&PathBuf, &String)> {
+    pub fn get_all(&self) -> Vec<(&PathBuf, &V)> {
         let mut sources: Vec<_>;
         if self.pending.is_empty() {
             sources = self.processed.iter().collect();
@@ -190,6 +179,30 @@ impl SchemaSources {
         sources.sort_by_key(|file_content| file_content.0);
         sources
     }
+}
+
+impl<V: Source> Default for IncrementalSources<V> {
+    fn default() -> Self {
+        IncrementalSources {
+            pending: FnvHashMap::default(),
+            processed: FnvHashMap::default(),
+        }
+    }
+}
+
+type GraphQLSourceSet = IncrementalSourceSet<Vec<LocatedGraphQLSource>>;
+type DocblockSourceSet = IncrementalSourceSet<Vec<LocatedDocblockSource>>;
+pub type GraphQLSources = IncrementalSources<Vec<LocatedGraphQLSource>>;
+pub type SchemaSources = IncrementalSources<String>;
+pub type DocblockSources = IncrementalSources<Vec<LocatedDocblockSource>>;
+
+impl Source for String {
+    fn is_empty(&self) -> bool {
+        self.is_empty()
+    }
+}
+
+impl SchemaSources {
     pub fn get_sources(&self) -> Vec<&String> {
         let sources = self.get_all();
         sources.iter().map(|file_content| file_content.1).collect()
@@ -226,9 +239,10 @@ pub enum ArtifactMapKind {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct CompilerState {
-    pub graphql_sources: FnvHashMap<SourceSetName, GraphQLSources>,
+    pub graphql_sources: FnvHashMap<ProjectName, GraphQLSources>,
     pub schemas: FnvHashMap<ProjectName, SchemaSources>,
     pub extensions: FnvHashMap<ProjectName, SchemaSources>,
+    pub docblocks: FnvHashMap<ProjectName, DocblockSources>,
     pub artifacts: FnvHashMap<ProjectName, Arc<ArtifactMapKind>>,
     // TODO: How can I can I make this just an ImplicitDependencyMap? Currently I can't move the hashmap out of the Arc wrapper around the dirty version.
     pub implicit_dependencies: Arc<RwLock<DependencyMap>>,
@@ -263,6 +277,7 @@ impl CompilerState {
             artifacts: Default::default(),
             implicit_dependencies: Default::default(),
             extensions: Default::default(),
+            docblocks: Default::default(),
             schemas: Default::default(),
             clock: file_source_changes.clock(),
             saved_state_version: config.saved_state_version.clone(),
@@ -275,31 +290,18 @@ impl CompilerState {
 
         for (category, files) in categorized {
             match category {
-                FileGroup::Source { source_set } => {
-                    let log_event = perf_logger.create_event("categorize");
-                    log_event.string("source_set_name", source_set.to_string());
-                    let extract_timer = log_event.start("extract_graphql_strings_from_file_time");
-                    let sources: GraphQLSourceSet = files
-                        .par_iter()
-                        .filter(|file| file.exists)
-                        .filter_map(|file| {
-                            match extract_javascript_features_from_file(file_source_changes, file) {
-                                Ok(source_features)
-                                    if source_features.graphql_sources.is_empty() =>
-                                {
-                                    None
-                                }
-                                Ok(source_features) => {
-                                    Some(Ok((file.name.clone(), source_features.graphql_sources)))
-                                }
-                                Err(err) => Some(Err(err)),
-                            }
-                        })
-                        .collect::<Result<_>>()?;
-                    log_event.stop(extract_timer);
-                    log_event.complete();
-                    for source_set_name in source_set {
-                        result.set_pending_source_set(source_set_name, sources.clone());
+                FileGroup::Source { project_set } => {
+                    let (graphql_sources, docblock_sources) = extract_sources(
+                        &project_set,
+                        files,
+                        file_source_changes,
+                        false,
+                        perf_logger,
+                    )?;
+
+                    for project_name in project_set {
+                        result.set_pending_source_set(project_name, graphql_sources.clone());
+                        result.set_pending_docblock_set(project_name, docblock_sources.clone());
                     }
                 }
                 FileGroup::Schema { project_set } => {
@@ -349,6 +351,10 @@ impl CompilerState {
                 .extensions
                 .get(&project_name)
                 .map_or(false, |sources| !sources.pending.is_empty())
+            || self
+                .docblocks
+                .get(&project_name)
+                .map_or(false, |sources| !sources.pending.is_empty())
     }
 
     pub fn has_processed_changes(&self) -> bool {
@@ -361,6 +367,10 @@ impl CompilerState {
                 .any(|sources| !sources.processed.is_empty())
             || self
                 .extensions
+                .values()
+                .any(|sources| !sources.processed.is_empty())
+            || self
+                .docblocks
                 .values()
                 .any(|sources| !sources.processed.is_empty())
     }
@@ -395,9 +405,13 @@ impl CompilerState {
 
     /// This method will detect any schema changes in the pending sources (for LSP Server, to invalidate schema cache)
     pub fn has_schema_changes(&self) -> bool {
-        self.extensions
+        self.docblocks
             .values()
             .any(|sources| !sources.pending.is_empty())
+            || self
+                .extensions
+                .values()
+                .any(|sources| !sources.pending.is_empty())
             || self
                 .schemas
                 .iter()
@@ -412,6 +426,11 @@ impl CompilerState {
     ) -> bool {
         if let Some(extension) = self.extensions.get(&project_name) {
             if !extension.pending.is_empty() {
+                return true;
+            }
+        }
+        if let Some(docblocks) = self.docblocks.get(&project_name) {
+            if !docblocks.pending.is_empty() {
                 return true;
             }
         }
@@ -442,37 +461,28 @@ impl CompilerState {
 
             for (category, files) in categorized {
                 match category {
-                    FileGroup::Source { source_set } => {
+                    FileGroup::Source { project_set } => {
                         // TODO: possible optimization to only set this if the
                         // extracted sources actually differ.
                         has_changed = true;
 
-                        let log_event = perf_logger.create_event("categorize");
-                        log_event.string("source_set_name", source_set.to_string());
-                        let extract_timer =
-                            log_event.start("extract_graphql_strings_from_file_time");
-                        let sources: GraphQLSourceSet = files
-                            .par_iter()
-                            .map(|file| {
-                                let javascript_features = if file.exists {
-                                    extract_javascript_features_from_file(
-                                        &file_source_changes,
-                                        file,
-                                    )?
-                                    .graphql_sources
-                                } else {
-                                    Vec::new()
-                                };
-                                Ok((file.name.clone(), javascript_features))
-                            })
-                            .collect::<Result<_>>()?;
-                        log_event.stop(extract_timer);
+                        let (graphql_sources, docblock_sources) = extract_sources(
+                            &project_set,
+                            files,
+                            &file_source_changes,
+                            true,
+                            perf_logger,
+                        )?;
 
-                        for source_set_name in source_set {
+                        for project_name in project_set {
                             self.graphql_sources
-                                .entry(source_set_name)
+                                .entry(project_name)
                                 .or_default()
-                                .merge_pending_sources(sources.clone());
+                                .merge_pending_sources(graphql_sources.clone());
+                            self.docblocks
+                                .entry(project_name)
+                                .or_default()
+                                .merge_pending_sources(docblock_sources.clone());
                         }
                     }
                     FileGroup::Schema { project_set } => {
@@ -519,6 +529,9 @@ impl CompilerState {
         for sources in self.extensions.values_mut() {
             sources.commit_pending_sources();
         }
+        for sources in self.docblocks.values_mut() {
+            sources.commit_pending_sources();
+        }
         self.implicit_dependencies = mem::take(&mut self.pending_implicit_dependencies);
         self.dirty_artifact_paths.clear();
     }
@@ -531,6 +544,9 @@ impl CompilerState {
             sources.commit_pending_sources();
         }
         if let Some(sources) = self.extensions.get_mut(project_name) {
+            sources.commit_pending_sources();
+        }
+        if let Some(sources) = self.docblocks.get_mut(project_name) {
             sources.commit_pending_sources();
         }
     }
@@ -604,26 +620,49 @@ impl CompilerState {
             ZstdDecoder::<BufReader<FsFile>>::recommended_output_size(),
             reader,
         );
-        bincode::deserialize_from(reader).map_err(|err| Error::DeserializationError {
-            file: path.clone(),
-            source: err,
-        })
+
+        let memory_limit: u64 = env::var("RELAY_SAVED_STATE_MEMORY_LIMIT")
+            .map(|limit| {
+                limit.parse::<u64>().expect(
+                    "Expected RELAY_SAVED_STATE_MEMORY_LIMIT environment variable to be a number.",
+                )
+            })
+            .unwrap_or_else(|_| 10_u64.pow(10) /* 10GB */);
+
+        bincode::DefaultOptions::new()
+            .with_fixint_encoding()
+            .allow_trailing_bytes()
+            .with_limit(memory_limit)
+            .deserialize_from(reader)
+            .map_err(|err| Error::DeserializationError {
+                file: path.clone(),
+                source: err,
+            })
     }
 
     pub fn has_pending_file_source_changes(&self) -> bool {
         !self.pending_file_source_changes.read().unwrap().is_empty()
     }
 
-    fn set_pending_source_set(
-        &mut self,
-        source_set_name: SourceSetName,
-        source_set: GraphQLSourceSet,
-    ) {
+    fn set_pending_source_set(&mut self, project_name: ProjectName, source_set: GraphQLSourceSet) {
         let pending_entry = &mut self
             .graphql_sources
-            .entry(source_set_name)
+            .entry(project_name)
             .or_default()
             .pending;
+        if pending_entry.is_empty() {
+            *pending_entry = source_set;
+        } else {
+            pending_entry.extend(source_set);
+        }
+    }
+
+    fn set_pending_docblock_set(
+        &mut self,
+        project_name: ProjectName,
+        source_set: DocblockSourceSet,
+    ) {
+        let pending_entry = &mut self.docblocks.entry(project_name).or_default().pending;
         if pending_entry.is_empty() {
             *pending_entry = source_set;
         } else {
@@ -664,6 +703,47 @@ impl CompilerState {
     pub fn should_cancel_current_build(&self) -> bool {
         self.is_source_control_update_in_progress() || self.has_pending_file_source_changes()
     }
+}
+
+fn extract_sources(
+    project_set: &ProjectSet,
+    files: Vec<File>,
+    file_source_changes: &FileSourceResult,
+    preserve_empty: bool,
+    perf_logger: &impl PerfLogger,
+) -> Result<(GraphQLSourceSet, DocblockSourceSet)> {
+    let log_event = perf_logger.create_event("categorize");
+    log_event.string("source_set_name", project_set.to_string());
+    let extract_timer = log_event.start("extract_graphql_strings_from_file_time");
+
+    let source_features = files
+        .par_iter()
+        .map(|file| {
+            if file.exists {
+                match extract_javascript_features_from_file(file_source_changes, file) {
+                    Ok(features) => Ok((file, features)),
+                    Err(err) => Err(err),
+                }
+            } else {
+                Ok((file, LocatedJavascriptSourceFeatures::default()))
+            }
+        })
+        .collect::<Result<Vec<_>>>()?;
+
+    log_event.stop(extract_timer);
+
+    let mut graphql_sources: GraphQLSourceSet = FnvHashMap::default();
+    let mut docblock_sources: DocblockSourceSet = FnvHashMap::default();
+    for (file, features) in source_features {
+        if preserve_empty || !features.graphql_sources.is_empty() {
+            graphql_sources.insert(file.name.clone(), features.graphql_sources);
+        }
+        if preserve_empty || !features.docblock_sources.is_empty() {
+            docblock_sources.insert(file.name.clone(), features.docblock_sources);
+        }
+    }
+
+    Ok((graphql_sources, docblock_sources))
 }
 
 /// A module to serialize a watchman Clock value via JSON.

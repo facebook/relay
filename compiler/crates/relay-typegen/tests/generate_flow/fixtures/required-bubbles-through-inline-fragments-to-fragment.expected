@@ -15,11 +15,11 @@ fragment Foo on Node {
 import type { FragmentType } from "relay-runtime";
 declare export opaque type Foo$fragmentType: FragmentType;
 export type Foo$data = ?({|
-  +__typename: "User",
-  +name: string,
+  +__typename: "Comment" | "Feedback" | "Page" | "PhotoStory" | "Story",
   +$fragmentType: Foo$fragmentType,
 |} | {|
-  +__typename: "Comment" | "Feedback" | "Page" | "PhotoStory" | "Story",
+  +__typename: "User",
+  +name: string,
   +$fragmentType: Foo$fragmentType,
 |});
 export type Foo$key = {

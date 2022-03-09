@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<042ceae9cc76d97407cf91e6ce872530>>
+ * @generated SignedSource<<09c7362acfd63e27b5f08053786924d7>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -27,8 +27,8 @@ export type useRefetchableFragmentNodeWithSuspenseTransitionTestUserQuery$data =
   |},
 |};
 export type useRefetchableFragmentNodeWithSuspenseTransitionTestUserQuery = {|
-  variables: useRefetchableFragmentNodeWithSuspenseTransitionTestUserQuery$variables,
   response: useRefetchableFragmentNodeWithSuspenseTransitionTestUserQuery$data,
+  variables: useRefetchableFragmentNodeWithSuspenseTransitionTestUserQuery$variables,
 |};
 */
 

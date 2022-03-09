@@ -17,12 +17,12 @@ graphql`query MyQuery {
     }
 }`;
 ==================================== OUTPUT ===================================
+docblock - line: 7, column: 2, text: <*
+ * This is a ....
+ * @RelayResolver
+>
 graphql - line: 12, column: 8, text: <query MyQuery {
     me: {
         id
     }
 }>
-docblock - line: 7, column: 2, text: <*
- * This is a ....
- * @RelayResolver
->

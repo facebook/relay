@@ -6,7 +6,7 @@
  */
 
 use crate::config::ProjectConfig;
-use crate::{compiler_state::SourceSetName, graphql_asts::GraphQLAsts};
+use crate::{compiler_state::ProjectName, graphql_asts::GraphQLAsts};
 use common::Diagnostic;
 use dependency_analyzer::{get_reachable_ast, get_reachable_ir, ReachableAst};
 use fnv::FnvHashMap;
@@ -46,7 +46,7 @@ pub fn build_ir(
     project_config: &ProjectConfig,
     implicit_dependencies: &DependencyMap,
     schema: &SDLSchema,
-    graphql_asts: &FnvHashMap<SourceSetName, GraphQLAsts>,
+    graphql_asts: &FnvHashMap<ProjectName, GraphQLAsts>,
     is_incremental_build: bool,
 ) -> Result<BuildIRResult, Vec<Diagnostic>> {
     let project_asts = graphql_asts

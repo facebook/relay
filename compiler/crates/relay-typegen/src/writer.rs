@@ -6,12 +6,14 @@
  */
 
 use intern::string_key::StringKey;
-use std::fmt::{Result as FmtResult, Write};
+use std::{
+    fmt::{Result as FmtResult, Write},
+    ops::{Deref, DerefMut},
+};
 
-#[derive(Debug, Clone, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub enum AST {
-    Union(Vec<AST>),
-    Intersection(Vec<AST>),
+    Union(AstList),
     ReadOnlyArray(Box<AST>),
     Nullable(Box<AST>),
     NonNullable(Box<AST>),
@@ -23,8 +25,8 @@ pub enum AST {
     /// Prints as `"%other" with a comment explaining open enums.
     OtherTypename,
     Local3DPayload(StringKey, Box<AST>),
-    ExactObject(Vec<Prop>),
-    InexactObject(Vec<Prop>),
+    ExactObject(ExactObject),
+    InexactObject(InexactObject),
     Number,
     Boolean,
     Callable(Box<AST>),
@@ -47,7 +49,7 @@ impl AST {
         }
     }
 
-    pub fn merge_with(&mut self, other: Self) {
+    pub fn merge_with(&mut self, other: Self, should_sort_typegen_items: bool) {
         if *self == other {
             return;
         }
@@ -62,38 +64,50 @@ impl AST {
             }
             AST::ReadOnlyArray(a) => {
                 if let AST::ReadOnlyArray(b) = other {
-                    a.merge_with(*b);
+                    a.merge_with(*b, should_sort_typegen_items);
                 } else {
-                    *self = AST::Union(vec![self.clone(), other]);
+                    *self = AST::Union(AstList::new(
+                        vec![self.clone(), other],
+                        should_sort_typegen_items,
+                    ));
                 }
             }
             AST::Nullable(a) => {
                 if let AST::Nullable(b) = other {
-                    a.merge_with(*b);
+                    a.merge_with(*b, should_sort_typegen_items);
                 } else {
-                    *self = AST::Union(vec![self.clone(), other]);
+                    *self = AST::Union(AstList::new(
+                        vec![self.clone(), other],
+                        should_sort_typegen_items,
+                    ));
                 }
             }
             AST::ExactObject(a) => {
                 if let AST::ExactObject(b) = other {
-                    for prop in b {
+                    for prop in b.0 {
                         if !a.contains(&prop) {
                             a.push(prop);
                         }
                     }
                 } else {
-                    *self = AST::Union(vec![self.clone(), other]);
+                    *self = AST::Union(AstList::new(
+                        vec![self.clone(), other],
+                        should_sort_typegen_items,
+                    ));
                 }
             }
             AST::InexactObject(a) => {
                 if let AST::InexactObject(b) = other {
-                    for prop in b {
+                    for prop in b.0 {
                         if !a.contains(&prop) {
                             a.push(prop);
                         }
                     }
                 } else {
-                    *self = AST::Union(vec![self.clone(), other]);
+                    *self = AST::Union(AstList::new(
+                        vec![self.clone(), other],
+                        should_sort_typegen_items,
+                    ));
                 }
             }
             AST::FragmentReference(a) => {
@@ -104,20 +118,127 @@ impl AST {
                         }
                     }
                 } else {
-                    *self = AST::Union(vec![self.clone(), other]);
+                    *self = AST::Union(AstList::new(
+                        vec![self.clone(), other],
+                        should_sort_typegen_items,
+                    ));
                 }
             }
 
             // Everything else should just be a union, since we don't have a way to
             // structurally merge them.
             _ => {
-                *self = AST::Union(vec![self.clone(), other]);
+                *self = AST::Union(AstList::new(
+                    vec![self.clone(), other],
+                    should_sort_typegen_items,
+                ));
             }
         }
     }
 }
 
-#[derive(Debug, Clone, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, Hash, Ord, PartialEq, PartialOrd)]
+pub struct AstList(Vec<AST>);
+
+impl Deref for AstList {
+    type Target = Vec<AST>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl DerefMut for AstList {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
+    }
+}
+
+impl AstList {
+    pub fn new(mut members: Vec<AST>, should_sort: bool) -> Self {
+        if should_sort {
+            members.sort();
+        }
+
+        Self(members)
+    }
+
+    #[cfg(test)]
+    pub fn sorted(members: Vec<AST>) -> Self {
+        Self::new(members, true)
+    }
+}
+
+#[derive(Debug, Clone, Hash, PartialEq, Eq, PartialOrd, Ord)]
+pub struct ExactObject(Vec<Prop>);
+
+impl Deref for ExactObject {
+    type Target = Vec<Prop>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl DerefMut for ExactObject {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
+    }
+}
+
+impl ExactObject {
+    pub fn new(mut props: Vec<Prop>, should_sort_props: bool) -> Self {
+        if should_sort_props {
+            sort_props(&mut props);
+        }
+        Self(props)
+    }
+}
+
+#[derive(Debug, Clone, Hash, PartialEq, Eq, PartialOrd, Ord)]
+pub struct InexactObject(Vec<Prop>);
+
+impl Deref for InexactObject {
+    type Target = Vec<Prop>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl DerefMut for InexactObject {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
+    }
+}
+
+impl InexactObject {
+    pub fn new(mut props: Vec<Prop>, should_sort_props: bool) -> Self {
+        if should_sort_props {
+            sort_props(&mut props);
+        }
+        Self(props)
+    }
+}
+
+fn sort_props(props: &mut Vec<Prop>) {
+    // Put regular key-value props first, followed by getter/setter pairs,
+    // followed by spreads, with $fragmentSpreads and $fragmentType props last.
+    props.sort_by_cached_key(|prop| match prop {
+        Prop::KeyValuePair(kvp) => (
+            if kvp.key == *crate::KEY_FRAGMENT_SPREADS || kvp.key == *crate::KEY_FRAGMENT_TYPE {
+                PropSortOrder::FragmentSpread
+            } else {
+                PropSortOrder::KeyValuePair
+            },
+            kvp.key,
+        ),
+        Prop::GetterSetterPair(pair) => (PropSortOrder::GetterSetterPair, pair.key),
+        Prop::Spread(spread) => (PropSortOrder::ObjectSpread, spread.value),
+    });
+}
+
+#[derive(Debug, Clone, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Prop {
     KeyValuePair(KeyValuePairProp),
     Spread(SpreadProp),
@@ -133,7 +254,7 @@ impl Prop {
     }
 }
 
-#[derive(Debug, Clone, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub struct KeyValuePairProp {
     pub key: StringKey,
     pub value: AST,
@@ -141,12 +262,12 @@ pub struct KeyValuePairProp {
     pub optional: bool,
 }
 
-#[derive(Debug, Clone, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub struct SpreadProp {
     pub value: StringKey,
 }
 
-#[derive(Debug, Clone, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub struct GetterSetterPairProp {
     pub key: StringKey,
     pub getter_return_value: AST,
@@ -155,10 +276,6 @@ pub struct GetterSetterPairProp {
 
 pub trait Writer: Write {
     fn into_string(self: Box<Self>) -> String;
-
-    fn supports_exact_objects(&self) -> bool {
-        true
-    }
 
     fn get_runtime_fragment_import(&self) -> &'static str;
 
@@ -183,4 +300,12 @@ pub trait Writer: Write {
     ) -> FmtResult;
 
     fn write_any_type_definition(&mut self, name: &str) -> FmtResult;
+}
+
+#[derive(PartialEq, Eq, PartialOrd, Ord)]
+enum PropSortOrder {
+    KeyValuePair = 0,
+    GetterSetterPair = 1,
+    ObjectSpread = 2,
+    FragmentSpread = 3,
 }

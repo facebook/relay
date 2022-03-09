@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<100eac303d863aef24dedc354342de28>>
+ * @generated SignedSource<<c50af6a512ba3fa0978b688c4d548051>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -29,8 +29,8 @@ export type commitMutationTest4Query$data = {|
   |},
 |};
 export type commitMutationTest4Query = {|
-  variables: commitMutationTest4Query$variables,
   response: commitMutationTest4Query$data,
+  variables: commitMutationTest4Query$variables,
 |};
 */
 

@@ -1,0 +1,57 @@
+==================================== INPUT ====================================
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+/**
+ * @RelayResolver
+ * 
+ * @onType User
+ * @fieldName favorite_page
+ * @edgeTo Page
+ * @rootFragment myRootFragment
+ * 
+ * The user's favorite page! They probably clicked something in the UI 
+ * to tell us that it was their favorite page and then we put that in a
+ * database or something. Then we got that info out again and put it out
+ * again. Anyway, I'm rambling now. Its a page that the user likes. A lot.
+ */
+==================================== OUTPUT ===================================
+RelayResolver(
+    RelayResolverIr {
+        field_name: WithLocation {
+            location: /path/to/test/fixture/relay-resolver.js:54:67,
+            item: "favorite_page",
+        },
+        on: Type(
+            PopulatedIrField {
+                key_location: /path/to/test/fixture/relay-resolver.js:28:34,
+                value: WithLocation {
+                    location: /path/to/test/fixture/relay-resolver.js:35:39,
+                    item: "User",
+                },
+            },
+        ),
+        root_fragment: WithLocation {
+            location: /path/to/test/fixture/relay-resolver.js:101:115,
+            item: "myRootFragment",
+        },
+        edge_to: Some(
+            WithLocation {
+                location: /path/to/test/fixture/relay-resolver.js:79:83,
+                item: "Page",
+            },
+        ),
+        description: Some(
+            WithLocation {
+                location: /path/to/test/fixture/relay-resolver.js:119:411,
+                item: "\nThe user's favorite page! They probably clicked something in the UI \nto tell us that it was their favorite page and then we put that in a\ndatabase or something. Then we got that info out again and put it out\nagain. Anyway, I'm rambling now. Its a page that the user likes. A lot.",
+            },
+        ),
+        deprecated: None,
+        location: /path/to/test/fixture/relay-resolver.js:0:413,
+    },
+)

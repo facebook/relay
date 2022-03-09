@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::compiler_state::{ProjectName, ProjectSet, SourceSet};
+use crate::compiler_state::{ProjectName, ProjectSet};
 
 #[derive(Debug, PartialEq, Eq, Hash)]
 pub enum FileGroup {
@@ -19,7 +19,7 @@ pub enum FileGroup {
         project_set: ProjectSet,
     },
     Source {
-        source_set: SourceSet,
+        project_set: ProjectSet,
     },
     /// Files, that are located in the generated directory, but not created
     /// by relay compiler (utility files: .gitkeep, README, etc.) and should

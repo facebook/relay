@@ -1,0 +1,9 @@
+# expected-to-throw
+
+fragment InvalidArgumentDirectives on User
+@argumentDefinitions(
+  # should have @
+  invalid_syntax: { type: "ID", directives: ["live_query"] }
+) {
+  __typename
+}

@@ -41,29 +41,29 @@ export type RelayClientIDFieldQuery$data = {
     readonly __typename: string;
     readonly id: string;
   } | null;
-  readonly node: ({
+  readonly node: {
+    readonly __id: string;
+    readonly __typename: "Feedback" | "Page" | "PhotoStory" | "Story" | "User";
+    readonly id: string;
+  } | {
+    readonly __id: string;
     readonly __typename: "Comment";
-    readonly commentBody: ({
-      readonly __typename: "PlainCommentBody";
+    readonly commentBody: {
       readonly __id: string;
+      readonly __typename: "MarkdownCommentBody";
+    } | {
+      readonly __id: string;
+      readonly __typename: "PlainCommentBody";
       readonly text: {
         readonly __id: string;
         readonly __typename: string;
         readonly text: string | null;
       } | null;
-    } | {
-      readonly __typename: "MarkdownCommentBody";
-    }) & {
-      readonly __id: string;
     } | null;
-  } | {
-    readonly __typename: "Feedback" | "Page" | "PhotoStory" | "Story" | "User";
-  }) & {
-    readonly __id: string;
     readonly id: string;
   } | null;
 };
 export type RelayClientIDFieldQuery = {
-  variables: RelayClientIDFieldQuery$variables;
   response: RelayClientIDFieldQuery$data;
+  variables: RelayClientIDFieldQuery$variables;
 };

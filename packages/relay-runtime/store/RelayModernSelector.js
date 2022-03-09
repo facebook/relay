@@ -402,14 +402,7 @@ function getVariablesFromPluralFragment(
   return variables;
 }
 
-/**
- * @public
- *
- * Determine if two selectors are equal (represent the same selection). Note
- * that this function returns `false` when the two queries/fragments are
- * different objects, even if they select the same fields.
- */
-function areEqualSelectors(
+function areEqualSingularSelectors(
   thisSelector: SingularReaderSelector,
   thatSelector: SingularReaderSelector,
 ): boolean {
@@ -419,6 +412,37 @@ function areEqualSelectors(
     thisSelector.node === thatSelector.node &&
     areEqual(thisSelector.variables, thatSelector.variables)
   );
+}
+
+/**
+ * @public
+ *
+ * Determine if two selectors are equal (represent the same selection). Note
+ * that this function returns `false` when the two queries/fragments are
+ * different objects, even if they select the same fields.
+ */
+function areEqualSelectors(
+  a: ?(SingularReaderSelector | PluralReaderSelector),
+  b: ?(SingularReaderSelector | PluralReaderSelector),
+): boolean {
+  if (
+    a?.kind === 'SingularReaderSelector' &&
+    b?.kind === 'SingularReaderSelector'
+  ) {
+    return areEqualSingularSelectors(a, b);
+  } else if (
+    a?.kind === 'PluralReaderSelector' &&
+    b?.kind === 'PluralReaderSelector'
+  ) {
+    return (
+      a.selectors.length === b.selectors.length &&
+      a.selectors.every((s, i) => areEqualSingularSelectors(s, b.selectors[i]))
+    );
+  } else if (a == null && b == null) {
+    return true;
+  } else {
+    return false;
+  }
 }
 
 function createReaderSelector(

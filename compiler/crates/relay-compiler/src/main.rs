@@ -15,7 +15,9 @@ use relay_compiler::{
     FileSourceKind, LocalPersister, OperationPersister, PersistConfig, RemotePersister,
 };
 use relay_typegen::TypegenLanguage;
-use simplelog::{ColorChoice, ConfigBuilder, LevelFilter, TermLogger, TerminalMode};
+use simplelog::{
+    ColorChoice, ConfigBuilder as SimpleLogConfigBuilder, LevelFilter, TermLogger, TerminalMode,
+};
 use std::{
     env::{self, current_dir},
     path::PathBuf,
@@ -53,7 +55,7 @@ struct Opt {
 
     /// Looks for pending changes and exits with non-zero code instead of
     /// writing to disk
-    #[structopt(long)]
+    #[clap(long)]
     validate: bool,
 }
 
@@ -108,14 +110,20 @@ async fn main() {
         OutputKind::Verbose => LevelFilter::Info,
     };
 
-    let config = ConfigBuilder::new()
+    let log_config = SimpleLogConfigBuilder::new()
         .set_time_level(LevelFilter::Off)
         .set_target_level(LevelFilter::Off)
         .set_location_level(LevelFilter::Off)
         .set_thread_level(LevelFilter::Off)
         .build();
 
-    TermLogger::init(log_level, config, TerminalMode::Mixed, ColorChoice::Auto).unwrap();
+    TermLogger::init(
+        log_level,
+        log_config,
+        TerminalMode::Mixed,
+        ColorChoice::Auto,
+    )
+    .unwrap();
 
     let config_result = if let Some(config_path) = opt.config {
         Config::load(config_path)

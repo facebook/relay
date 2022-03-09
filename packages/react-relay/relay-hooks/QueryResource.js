@@ -497,10 +497,9 @@ class QueryResourceImpl {
             // To complete this task we need to have a way of precisely tracking suspendable points
             warning(
               false,
-              'QueryResource: An incremental payload for query `%` returned an error: `%`:`%`.',
+              'QueryResource: An incremental payload for query `%s` returned an error: `%s`.',
               operation.fragment.node.name,
-              error.message,
-              error.stack,
+              String(error.message),
             );
           }
           resolveNetworkPromise();

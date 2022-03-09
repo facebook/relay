@@ -14,7 +14,7 @@ use crate::constants::CODEGEN_CONSTANTS;
 use crate::indentation::print_indentation;
 use crate::top_level_statements::{TopLevelStatement, TopLevelStatements};
 use crate::utils::escape;
-use crate::JsModuleFormat;
+use crate::{object, CodegenBuilder, CodegenVariant, JsModuleFormat};
 
 use graphql_ir::{FragmentDefinition, OperationDefinition};
 use relay_config::ProjectConfig;
@@ -114,6 +114,28 @@ impl<'p> Printer<'p> {
         let key = build_provided_variables(schema, &mut self.builder, operation)?;
         let printer = JSONPrinter::new(&self.builder, self.project_config, top_level_statements);
         Some(printer.print(key, self.dedupe))
+    }
+
+    pub fn print_updatable_query(
+        &mut self,
+        schema: &SDLSchema,
+        fragment: &FragmentDefinition,
+    ) -> String {
+        let mut fragment_builder =
+            CodegenBuilder::new(schema, CodegenVariant::Reader, &mut self.builder);
+        let fragment = Primitive::Key(fragment_builder.build_fragment(fragment, true));
+        let key = self.builder.intern(Ast::Object(object! {
+            fragment: fragment,
+            kind: Primitive::String(CODEGEN_CONSTANTS.updatable_query),
+        }));
+
+        let mut top_level_statements = Default::default();
+        let printer = JSONPrinter::new(
+            &self.builder,
+            self.project_config,
+            &mut top_level_statements,
+        );
+        printer.print(key, self.dedupe)
     }
 
     pub fn print_request(

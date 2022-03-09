@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<39d75786626164ab2e31c525f479d085>>
+ * @generated SignedSource<<42f970a83867aca3aef59aa8413d86b9>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -33,8 +33,8 @@ export type RelayReaderTestReadsHandleFieldsForQueryRootFragmentsUserFriendsQuer
   |},
 |};
 export type RelayReaderTestReadsHandleFieldsForQueryRootFragmentsUserFriendsQuery = {|
-  variables: RelayReaderTestReadsHandleFieldsForQueryRootFragmentsUserFriendsQuery$variables,
   response: RelayReaderTestReadsHandleFieldsForQueryRootFragmentsUserFriendsQuery$data,
+  variables: RelayReaderTestReadsHandleFieldsForQueryRootFragmentsUserFriendsQuery$variables,
 |};
 */
 

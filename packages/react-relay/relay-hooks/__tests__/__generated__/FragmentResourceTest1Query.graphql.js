@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<f6738b5e58354fa56b94e1326f715b2b>>
+ * @generated SignedSource<<5b722031c71cadebb7bc1c4848d125a1>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -27,8 +27,8 @@ export type FragmentResourceTest1Query$data = {|
   |},
 |};
 export type FragmentResourceTest1Query = {|
-  variables: FragmentResourceTest1Query$variables,
   response: FragmentResourceTest1Query$data,
+  variables: FragmentResourceTest1Query$variables,
 |};
 */
 

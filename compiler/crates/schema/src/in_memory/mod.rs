@@ -939,6 +939,36 @@ impl InMemorySchema {
         });
     }
 
+    /// Add additional object extensions to the schema after its initial
+    /// creation.
+    pub fn add_object_type_extension(
+        &mut self,
+        object_extension: ObjectTypeExtension,
+        location_key: SourceLocationKey,
+        is_extension: bool,
+    ) -> DiagnosticsResult<()> {
+        self.add_definition(
+            &TypeSystemDefinition::ObjectTypeExtension(object_extension),
+            &location_key,
+            is_extension,
+        )
+    }
+
+    /// Add additional interface extensions to the schema after its initial
+    /// creation.
+    pub fn add_interface_type_extension(
+        &mut self,
+        interface_extension: InterfaceTypeExtension,
+        location_key: SourceLocationKey,
+        is_extension: bool,
+    ) -> DiagnosticsResult<()> {
+        self.add_definition(
+            &TypeSystemDefinition::InterfaceTypeExtension(interface_extension),
+            &location_key,
+            is_extension,
+        )
+    }
+
     fn add_definition(
         &mut self,
         definition: &TypeSystemDefinition,

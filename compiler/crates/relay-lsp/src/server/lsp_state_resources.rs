@@ -15,10 +15,14 @@ use intern::string_key::StringKey;
 use log::debug;
 use rayon::iter::ParallelIterator;
 use relay_compiler::{
-    build_raw_program, build_schema, compiler_state::CompilerState, compiler_state::SourceSetName,
-    config::ProjectConfig, errors::BuildProjectError, errors::Error, transform_program,
-    validate_program, BuildProjectFailure, FileSource, FileSourceResult, FileSourceSubscription,
-    FileSourceSubscriptionNextChange, GraphQLAsts, SourceControlUpdateStatus,
+    build_raw_program, build_schema,
+    compiler_state::{CompilerState, ProjectName},
+    config::ProjectConfig,
+    errors::BuildProjectError,
+    errors::Error,
+    transform_program, validate_program, BuildProjectFailure, FileSource, FileSourceResult,
+    FileSourceSubscription, FileSourceSubscriptionNextChange, GraphQLAsts,
+    SourceControlUpdateStatus,
 };
 use schema::SDLSchema;
 use schema_documentation::SchemaDocumentation;
@@ -269,7 +273,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         &self,
         project_config: &ProjectConfig,
         compiler_state: &CompilerState,
-        graphql_asts: &FnvHashMap<SourceSetName, GraphQLAsts>,
+        graphql_asts: &FnvHashMap<ProjectName, GraphQLAsts>,
     ) -> Result<StringKey, BuildProjectFailure> {
         self.lsp_state
             .project_status
@@ -333,7 +337,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         &self,
         project_config: &ProjectConfig,
         compiler_state: &CompilerState,
-        graphql_asts: &FnvHashMap<SourceSetName, GraphQLAsts>,
+        graphql_asts: &FnvHashMap<ProjectName, GraphQLAsts>,
         schema: Arc<SDLSchema>,
         log_event: &impl PerfLogEvent,
     ) -> Result<(), BuildProjectFailure> {

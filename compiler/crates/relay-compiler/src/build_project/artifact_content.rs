@@ -34,6 +34,11 @@ pub enum ArtifactContent {
         text: String,
         id_and_text_hash: Option<QueryID>,
     },
+    UpdatableQuery {
+        reader_operation: Arc<OperationDefinition>,
+        typegen_operation: Arc<OperationDefinition>,
+        source_hash: String,
+    },
     Fragment {
         reader_fragment: Arc<FragmentDefinition>,
         typegen_fragment: Arc<FragmentDefinition>,
@@ -81,6 +86,21 @@ impl ArtifactContent {
                 source_hash.into(),
                 text,
                 id_and_text_hash,
+                skip_types,
+            )
+            .unwrap(),
+            ArtifactContent::UpdatableQuery {
+                reader_operation,
+                typegen_operation,
+                source_hash,
+            } => generate_updatable_query(
+                config,
+                project_config,
+                printer,
+                schema,
+                reader_operation,
+                typegen_operation,
+                source_hash.into(),
                 skip_types,
             )
             .unwrap(),
@@ -157,6 +177,111 @@ fn write_react_flight_client_annotation(
     }
     writeln!(content)?;
     Ok(())
+}
+
+#[allow(clippy::too_many_arguments)]
+fn generate_updatable_query(
+    config: &Config,
+    project_config: &ProjectConfig,
+    printer: &mut Printer<'_>,
+    schema: &SDLSchema,
+    reader_operation: &OperationDefinition,
+    typegen_operation: &OperationDefinition,
+    source_hash: String,
+    skip_types: bool,
+) -> Result<Vec<u8>, FmtError> {
+    let operation_fragment = FragmentDefinition {
+        name: reader_operation.name,
+        variable_definitions: reader_operation.variable_definitions.clone(),
+        selections: reader_operation.selections.clone(),
+        used_global_variables: Default::default(),
+        directives: reader_operation.directives.clone(),
+        type_condition: reader_operation.type_,
+    };
+    let mut content = get_content_start(config)?;
+    writeln!(content, " * {}", SIGNING_TOKEN)?;
+
+    if project_config.typegen_config.language == TypegenLanguage::Flow {
+        writeln!(content, " * @flow")?;
+    }
+    writeln!(
+        content,
+        " * @lightSyntaxTransform
+ * @nogrep"
+    )?;
+    if let Some(codegen_command) = &config.codegen_command {
+        writeln!(content, " * @codegen-command: {}", codegen_command)?;
+    }
+    writeln!(content, " */\n")?;
+
+    write_disable_lint_header(&project_config.typegen_config.language, &mut content)?;
+    if project_config.typegen_config.language == TypegenLanguage::Flow {
+        writeln!(content, "'use strict';\n")?;
+    }
+
+    let generated_types = ArtifactGeneratedTypes {
+        imported_types: "UpdatableQuery, ConcreteUpdatableQuery",
+        ast_type: "ConcreteUpdatableQuery",
+        exported_type: Some(format!(
+            "UpdatableQuery<\n  {name}$variables,\n  {name}$data,\n>",
+            name = reader_operation.name.item
+        )),
+    };
+
+    if project_config.typegen_config.language == TypegenLanguage::Flow {
+        writeln!(content, "/*::")?;
+    }
+
+    write_import_type_from(
+        &project_config.typegen_config.language,
+        &mut content,
+        generated_types.imported_types,
+        "relay-runtime",
+    )?;
+
+    if !skip_types {
+        write!(
+            content,
+            "{}",
+            generate_operation_type_exports_section(
+                typegen_operation,
+                reader_operation,
+                schema,
+                project_config,
+            )
+        )?;
+    }
+
+    match project_config.typegen_config.language {
+        TypegenLanguage::Flow => writeln!(content, "*/\n")?,
+        TypegenLanguage::TypeScript => writeln!(content)?,
+    }
+
+    let request = printer.print_updatable_query(schema, &operation_fragment);
+
+    write_variable_value_with_type(
+        &project_config.typegen_config.language,
+        &mut content,
+        "node",
+        generated_types.ast_type,
+        &request,
+    )?;
+
+    write_source_hash(
+        config,
+        &project_config.typegen_config.language,
+        &mut content,
+        &source_hash,
+    )?;
+
+    write_export_generated_node(
+        &project_config.typegen_config,
+        &mut content,
+        "node",
+        generated_types.exported_type,
+    )?;
+
+    Ok(sign_file(&content).into_bytes())
 }
 
 #[allow(clippy::too_many_arguments)]

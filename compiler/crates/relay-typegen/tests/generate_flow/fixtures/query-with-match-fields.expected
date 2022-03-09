@@ -46,45 +46,45 @@ export type MarkdownUserNameRenderer_name = {|
 |};
 export type Test$rawResponse = {|
   +node: ?({|
-    +__typename: "User",
-    +id: string,
-    +nameRenderer: ?({|
-      +__typename: "PlainUserNameRenderer",
-      +__module_operation_NameRendererFragment: ?any,
-      +__module_component_NameRendererFragment: ?any,
-      ...PlainUserNameRenderer_name,
-    |} | Local3DPayload<"NameRendererFragment", {|
-      +__typename: "PlainUserNameRenderer",
-      ...PlainUserNameRenderer_name,
-    |}> | {|
-      +__typename: "MarkdownUserNameRenderer",
-      +__module_operation_NameRendererFragment: ?any,
-      +__module_component_NameRendererFragment: ?any,
-      ...MarkdownUserNameRenderer_name,
-    |} | Local3DPayload<"NameRendererFragment", {|
-      +__typename: "MarkdownUserNameRenderer",
-      ...MarkdownUserNameRenderer_name,
-    |}> | {|
-      +__typename: string,
-    |}),
-  |} | {|
     +__typename: string,
     +id: string,
+  |} | {|
+    +__typename: "User",
+    +id: string,
+    +nameRenderer: ?(Local3DPayload<"NameRendererFragment", {|
+      +__typename: "MarkdownUserNameRenderer",
+      ...MarkdownUserNameRenderer_name,
+    |}> | Local3DPayload<"NameRendererFragment", {|
+      +__typename: "PlainUserNameRenderer",
+      ...PlainUserNameRenderer_name,
+    |}> | {|
+      +__module_component_NameRendererFragment: ?any,
+      +__module_operation_NameRendererFragment: ?any,
+      +__typename: "MarkdownUserNameRenderer",
+      ...MarkdownUserNameRenderer_name,
+    |} | {|
+      +__module_component_NameRendererFragment: ?any,
+      +__module_operation_NameRendererFragment: ?any,
+      +__typename: "PlainUserNameRenderer",
+      ...PlainUserNameRenderer_name,
+    |} | {|
+      +__typename: string,
+    |}),
   |}),
 |};
 export type Test = {|
-  variables: Test$variables,
-  response: Test$data,
   rawResponse: Test$rawResponse,
+  response: Test$data,
+  variables: Test$variables,
 |};
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";
 declare export opaque type MarkdownUserNameRenderer_name$fragmentType: FragmentType;
 export type MarkdownUserNameRenderer_name$data = {|
-  +markdown: ?string,
   +data: ?{|
     +markup: ?string,
   |},
+  +markdown: ?string,
   +$fragmentType: MarkdownUserNameRenderer_name$fragmentType,
 |};
 export type MarkdownUserNameRenderer_name$key = {
@@ -102,7 +102,7 @@ export type NameRendererFragment$data = {|
   +nameRenderer: ?{|
     +__fragmentPropName?: ?string,
     +__module_component?: ?string,
-    +$fragmentSpreads: PlainUserNameRenderer_name$fragmentType & MarkdownUserNameRenderer_name$fragmentType,
+    +$fragmentSpreads: MarkdownUserNameRenderer_name$fragmentType & PlainUserNameRenderer_name$fragmentType,
   |},
   +$fragmentType: NameRendererFragment$fragmentType,
 |};
@@ -115,10 +115,10 @@ export type NameRendererFragment$key = {
 import type { FragmentType } from "relay-runtime";
 declare export opaque type PlainUserNameRenderer_name$fragmentType: FragmentType;
 export type PlainUserNameRenderer_name$data = {|
-  +plaintext: ?string,
   +data: ?{|
     +text: ?string,
   |},
+  +plaintext: ?string,
   +$fragmentType: PlainUserNameRenderer_name$fragmentType,
 |};
 export type PlainUserNameRenderer_name$key = {

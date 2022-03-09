@@ -26,6 +26,7 @@ fragment Foo_user on User {
   #     import_path: "PopStarNameResolver",
   #     field_name: "pop_star_name",
   #     field_alias: None,
+  #     field_path: "pop_star_name",
   # }
    @required(action: THROW)
 }

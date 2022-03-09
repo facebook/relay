@@ -221,7 +221,8 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
                         red_to_green.clear_error_and_log(self.perf_logger.as_ref());
                     }
                     incremental_build_event.stop(incremental_build_time);
-                    info!("Waiting for changes...");
+                    info!("Compilation completed.");
+                    info!("Watching for new changes...");
                 } else {
                     debug!("No new changes detected.");
                     incremental_build_event.stop(incremental_build_time);

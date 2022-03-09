@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<ae479b304910b1a423e8ce115e3e8c27>>
+ * @generated SignedSource<<a497799d5105dc3766c301f44e6fe12a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,8 +18,8 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 type FragmentResourceTest6Fragment$fragmentType = any;
 export type FragmentResourceTest6Query$variables = {|
-  id: string,
   foo: boolean,
+  id: string,
 |};
 export type FragmentResourceTest6Query$data = {|
   +node: ?{|
@@ -29,8 +29,8 @@ export type FragmentResourceTest6Query$data = {|
   |},
 |};
 export type FragmentResourceTest6Query = {|
-  variables: FragmentResourceTest6Query$variables,
   response: FragmentResourceTest6Query$data,
+  variables: FragmentResourceTest6Query$variables,
 |};
 */
 

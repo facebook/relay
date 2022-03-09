@@ -1,0 +1,30 @@
+==================================== INPUT ====================================
+# expected-to-throw
+
+# Close to the incorrect name, on the same type
+fragment OneUndefinedFragment on User {
+  __typename
+}
+
+# Close to the incorrect name, on a compatible type
+fragment SomeUnrefinedFragment on Actor {
+  __typename
+}
+
+# Very close to the incorrect name (just one letter
+# off), on an _incompatible_ type
+fragment SoneUndefinedFragment on Comment {
+  __typename
+}
+
+fragment Foo on User {
+  ...SomeUndefinedFragment
+}
+==================================== ERROR ====================================
+✖︎ Undefined fragment 'SomeUndefinedFragment'. Did you mean `SomeUnrefinedFragment` or `OneUndefinedFragment`?
+
+  undefined-fragment-but-close.invalid.graphql:20:6
+   19 │ fragment Foo on User {
+   20 │   ...SomeUndefinedFragment
+      │      ^^^^^^^^^^^^^^^^^^^^^
+   21 │ }

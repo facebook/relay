@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<e1f4f3243431c305e1fe29992c49b3a0>>
+ * @generated SignedSource<<1f30867a9a0057d34fbc46478c6255c5>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -28,8 +28,8 @@ export type useEntryPointLoaderReactDoubleEffectsTestUserQuery$data = {|
   |},
 |};
 export type useEntryPointLoaderReactDoubleEffectsTestUserQuery = {|
-  variables: useEntryPointLoaderReactDoubleEffectsTestUserQuery$variables,
   response: useEntryPointLoaderReactDoubleEffectsTestUserQuery$data,
+  variables: useEntryPointLoaderReactDoubleEffectsTestUserQuery$variables,
 |};
 */
 

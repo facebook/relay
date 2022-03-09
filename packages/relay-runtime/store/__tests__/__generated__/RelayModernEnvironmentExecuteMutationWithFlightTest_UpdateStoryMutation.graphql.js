@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<1ea2dfdccf059b0c76f777a90b0b3277>>
+ * @generated SignedSource<<d5a649350d65577470329fd0dfff7c0c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,31 +19,31 @@
 /*::
 import type { ConcreteRequest, Mutation } from 'relay-runtime';
 export type StoryUpdateInput = {|
-  clientMutationId?: ?string,
   body?: ?InputText,
+  clientMutationId?: ?string,
 |};
 export type InputText = {|
-  text?: ?string,
   ranges?: ?$ReadOnlyArray<?string>,
+  text?: ?string,
 |};
 export type RelayModernEnvironmentExecuteMutationWithFlightTest_UpdateStoryMutation$variables = {|
-  input: StoryUpdateInput,
   count: number,
+  input: StoryUpdateInput,
 |};
 export type RelayModernEnvironmentExecuteMutationWithFlightTest_UpdateStoryMutation$data = {|
   +storyUpdate: ?{|
     +story: ?{|
-      +id: string,
       +body: ?{|
         +text: ?string,
       |},
       +flightComponent: ?any,
+      +id: string,
     |},
   |},
 |};
 export type RelayModernEnvironmentExecuteMutationWithFlightTest_UpdateStoryMutation = {|
-  variables: RelayModernEnvironmentExecuteMutationWithFlightTest_UpdateStoryMutation$variables,
   response: RelayModernEnvironmentExecuteMutationWithFlightTest_UpdateStoryMutation$data,
+  variables: RelayModernEnvironmentExecuteMutationWithFlightTest_UpdateStoryMutation$variables,
 |};
 */
 

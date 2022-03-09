@@ -34,8 +34,8 @@ fragment FeedbackFragment on Feedback {
 import type { FriendFragment$fragmentType } from "FriendFragment.graphql";
 export type CommentCreateInput = {|
   clientMutationId?: ?string,
-  feedbackId?: ?string,
   feedback?: ?CommentfeedbackFeedback,
+  feedbackId?: ?string,
 |};
 export type CommentfeedbackFeedback = {|
   comment?: ?FeedbackcommentComment,
@@ -44,8 +44,8 @@ export type FeedbackcommentComment = {|
   feedback?: ?CommentfeedbackFeedback,
 |};
 export type CommentCreateMutation$variables = {|
-  input: CommentCreateInput,
   first?: ?number,
+  input: CommentCreateInput,
   orderBy?: ?$ReadOnlyArray<string>,
 |};
 export type CommentCreateMutation$data = {|
@@ -68,13 +68,13 @@ export type CommentCreateMutation$rawResponse = {|
       +friends: ?{|
         +edges: ?$ReadOnlyArray<?{|
           +node: ?{|
-            +lastName: ?string,
-            +name: ?string,
             +feedback: ?{|
               +id: string,
               +name: ?string,
             |},
             +id: string,
+            +lastName: ?string,
+            +name: ?string,
           |},
         |}>,
       |},
@@ -83,9 +83,9 @@ export type CommentCreateMutation$rawResponse = {|
   |},
 |};
 export type CommentCreateMutation = {|
-  variables: CommentCreateMutation$variables,
-  response: CommentCreateMutation$data,
   rawResponse: CommentCreateMutation$rawResponse,
+  response: CommentCreateMutation$data,
+  variables: CommentCreateMutation$variables,
 |};
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";
@@ -105,11 +105,11 @@ import type { FeedbackFragment$fragmentType } from "FeedbackFragment.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type FriendFragment$fragmentType: FragmentType;
 export type FriendFragment$data = {|
-  +name: ?string,
-  +lastName: ?string,
   +feedback: ?{|
     +$fragmentSpreads: FeedbackFragment$fragmentType,
   |},
+  +lastName: ?string,
+  +name: ?string,
   +$fragmentType: FriendFragment$fragmentType,
 |};
 export type FriendFragment$key = {

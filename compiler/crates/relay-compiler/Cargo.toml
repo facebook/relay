@@ -21,11 +21,12 @@ path = "tests/compile_relay_artifacts_with_custom_id_test.rs"
 [dependencies]
 async-trait = "0.1.52"
 bincode = "1.3.3"
-clap = { version = "3.0.9", features = ["derive", "regex", "unicode", "wrap_help"] }
+clap = { version = "3.1.2", features = ["derive", "regex", "unicode", "wrap_help"] }
 common = { path = "../common" }
 common-path = "1.0.0"
 dashmap = { version = "4.0.2", features = ["rayon", "serde"] }
 dependency-analyzer = { path = "../dependency-analyzer" }
+docblock-syntax = { path = "../docblock-syntax" }
 errors = { path = "../errors" }
 extract-graphql = { path = "../extract-graphql" }
 fnv = "1.0"
@@ -48,6 +49,7 @@ rayon = "1.2"
 regex = "1.5.4"
 relay-codegen = { path = "../relay-codegen" }
 relay-config = { path = "../relay-config" }
+relay-docblock = { path = "../relay-docblock" }
 relay-schema = { path = "../relay-schema" }
 relay-transforms = { path = "../relay-transforms" }
 relay-typegen = { path = "../relay-typegen" }

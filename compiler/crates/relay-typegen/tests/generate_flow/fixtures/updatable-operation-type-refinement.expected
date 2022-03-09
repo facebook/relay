@@ -35,6 +35,6 @@ export type UpdatableQuery$data = {|
   set maybeNodeInterface(value: null | void): void,
 |};
 export type UpdatableQuery = {|
-  variables: UpdatableQuery$variables,
   response: UpdatableQuery$data,
+  variables: UpdatableQuery$variables,
 |};

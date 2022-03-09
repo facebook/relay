@@ -96,6 +96,12 @@ pub struct TypegenConfig {
     /// This option enables emitting es modules artifacts.
     #[serde(default)]
     pub eager_es_modules: bool,
+
+    /// This option controls which emitted files have sorted fields, fragment names,
+    /// and union members. It also controls whether unions with more than one element
+    /// are written with surrounding parentheses.
+    #[serde(default)]
+    pub sort_typegen_items: SortTypegenItemsConfig,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Copy)]
@@ -165,10 +171,23 @@ impl Default for TypegenConfig {
             require_custom_scalar_types: false,
             flow_typegen: FlowTypegenConfig::default(),
             eager_es_modules: false,
+            sort_typegen_items: SortTypegenItemsConfig::default(),
         }
     }
 }
 
 fn default_future_proofness() -> bool {
     true
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, Default)]
+pub struct SortTypegenItemsConfig {
+    #[serde(default)]
+    pub rollout: Rollout,
+}
+
+impl SortTypegenItemsConfig {
+    pub fn should_sort(&self, rollout_key: StringKey) -> bool {
+        self.rollout.check(rollout_key.lookup())
+    }
 }

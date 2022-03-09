@@ -596,7 +596,7 @@ class FragmentResourceImpl {
 
   checkMissedUpdates(
     fragmentResult: FragmentResult,
-  ): [boolean, SingularOrPluralSnapshot | null] {
+  ): [boolean /* were updates missed? */, SingularOrPluralSnapshot | null] {
     const environment = this._environment;
     const renderedSnapshot = fragmentResult.snapshot;
     if (!renderedSnapshot) {

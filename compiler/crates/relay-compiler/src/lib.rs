@@ -14,6 +14,7 @@ pub mod build_project;
 pub mod compiler;
 pub mod compiler_state;
 pub mod config;
+mod docblocks;
 pub mod errors;
 mod file_source;
 mod graphql_asts;

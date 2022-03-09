@@ -50,7 +50,8 @@ extend type User {
                 },
                 "kind": "RelayResolver",
                 "name": "pop_star_name",
-                "resolverModule": require('PopStarNameResolver')
+                "resolverModule": require('PopStarNameResolver'),
+                "path": "node.pop_star_name_alias"
               }
             ],
             "type": "User",

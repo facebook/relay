@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<9d2083906f925356081c79f6debaf43f>>
+ * @generated SignedSource<<7c02f5a61c27f1b2d1e5acf8c4cd807b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,8 +24,8 @@ export type fetchQueryTest4Query$data = {|
   |},
 |};
 export type fetchQueryTest4Query = {|
-  variables: fetchQueryTest4Query$variables,
   response: fetchQueryTest4Query$data,
+  variables: fetchQueryTest4Query$variables,
 |};
 */
 

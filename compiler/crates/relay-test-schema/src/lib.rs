@@ -34,12 +34,16 @@ pub fn get_test_schema() -> Arc<SDLSchema> {
 }
 
 pub fn get_test_schema_with_extensions(extensions_sdl: &str) -> Arc<SDLSchema> {
+    get_test_schema_with_located_extensions(extensions_sdl, SourceLocationKey::generated())
+}
+
+pub fn get_test_schema_with_located_extensions(
+    extensions_sdl: &str,
+    source_location: SourceLocationKey,
+) -> Arc<SDLSchema> {
     Arc::new(
-        build_schema_with_extensions(
-            &[TEST_SCHEMA_DATA],
-            &[(extensions_sdl, SourceLocationKey::generated())],
-        )
-        .expect("Expected test schema (and extensions) to be valid"),
+        build_schema_with_extensions(&[TEST_SCHEMA_DATA], &[(extensions_sdl, source_location)])
+            .expect("Expected test schema (and extensions) to be valid"),
     )
 }
 

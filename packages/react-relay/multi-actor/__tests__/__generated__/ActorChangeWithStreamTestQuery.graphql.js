@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<98a78e8672ff7ed10edff8339e0e14ad>>
+ * @generated SignedSource<<61bd86870349ef51f6e85584c9175975>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -32,8 +32,8 @@ export type ActorChangeWithStreamTestQuery$data = {|
   |},
 |};
 export type ActorChangeWithStreamTestQuery = {|
-  variables: ActorChangeWithStreamTestQuery$variables,
   response: ActorChangeWithStreamTestQuery$data,
+  variables: ActorChangeWithStreamTestQuery$variables,
 |};
 */
 

@@ -28,31 +28,31 @@ export type UpdatableQuery$variables = {||};
 export type UpdatableQuery$data = {|
   get me(): ?{|
     get actor(): ?({|
-      +__typename: "User",
-    |} | {|
       +__typename: "Page",
+    |} | {|
+      +__typename: "User",
     |} | {|
       // This will never be '%other', but we need some
       // value in case none of the concrete values match.
       +__typename: "%other",
     |}),
     set actor(value: ?({
-      +$fragmentSpreads: Assignable_user$fragmentType,
-      +__typename: "User",
       +__id: string,
+      +__typename: "Page",
+      +$fragmentSpreads: Assignable_page$fragmentType,
       ...
     } | {
-      +$fragmentSpreads: Assignable_page$fragmentType,
-      +__typename: "Page",
       +__id: string,
+      +__typename: "User",
+      +$fragmentSpreads: Assignable_user$fragmentType,
       ...
     })): void,
   |},
   set me(value: null | void): void,
 |};
 export type UpdatableQuery = {|
-  variables: UpdatableQuery$variables,
   response: UpdatableQuery$data,
+  variables: UpdatableQuery$variables,
 |};
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";

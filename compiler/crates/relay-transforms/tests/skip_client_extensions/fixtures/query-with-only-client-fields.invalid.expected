@@ -1,0 +1,18 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query MyQuery {
+  foo
+}
+
+# %extensions%
+extend type Query {
+  foo: String
+}
+==================================== ERROR ====================================
+✖︎ After transforms, the operation `MyQuery` that would be sent to the server is empty. Relay is not setup to handle such queries. This is likely due to only querying for client extension fields or `@skip`/`@include` directives with constant values that remove all selections.
+
+  query-with-only-client-fields.invalid.graphql:2:7
+    1 │ # expected-to-throw
+    2 │ query MyQuery {
+      │       ^^^^^^^
+    3 │   foo

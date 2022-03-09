@@ -53,6 +53,7 @@ const Guides = fbContent({
     'guides/testing-relay-components',
     'guides/testing-relay-with-preloaded-queries',
     'guides/required-directive',
+    'guides/relay-resolvers',
     // TODO(T84797602) release incremental data delivery externally
     // 'guides/incremental-data-delivery',
     // TODO release these in OSS

@@ -17,6 +17,7 @@ mod flatbuffer;
 mod graphql_schema;
 mod in_memory;
 mod schema;
+pub mod suggestion_list;
 
 pub use crate::schema::SDLSchema;
 use common::{DiagnosticsResult, SourceLocationKey};

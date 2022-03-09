@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<5b2e9568da97133beea80a478a77b8f3>>
+ * @generated SignedSource<<8bb392bb67fc79e459a508c99f108081>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,8 +18,8 @@
 import type { ConcreteRequest, Mutation } from 'relay-runtime';
 export type CommentCreateInput = {|
   clientMutationId?: ?string,
-  feedbackId?: ?string,
   feedback?: ?CommentfeedbackFeedback,
+  feedbackId?: ?string,
 |};
 export type CommentfeedbackFeedback = {|
   comment?: ?FeedbackcommentComment,
@@ -39,16 +39,16 @@ export type RelayModernEnvironmentWithOperationTrackerTest1Mutation$data = {|
       |},
     |},
     +feedback: ?{|
-      +id: string,
       +body: ?{|
         +text: ?string,
       |},
+      +id: string,
     |},
   |},
 |};
 export type RelayModernEnvironmentWithOperationTrackerTest1Mutation = {|
-  variables: RelayModernEnvironmentWithOperationTrackerTest1Mutation$variables,
   response: RelayModernEnvironmentWithOperationTrackerTest1Mutation$data,
+  variables: RelayModernEnvironmentWithOperationTrackerTest1Mutation$variables,
 |};
 */
 

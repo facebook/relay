@@ -97,6 +97,7 @@ const RelayConcreteNode = {
   LOCAL_ARGUMENT: 'LocalArgument',
   MODULE_IMPORT: 'ModuleImport',
   RELAY_RESOLVER: 'RelayResolver',
+  RELAY_LIVE_RESOLVER: 'RelayLiveResolver',
   REQUIRED_FIELD: 'RequiredField',
   OBJECT_VALUE: 'ObjectValue',
   OPERATION: 'Operation',

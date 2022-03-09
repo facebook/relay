@@ -111,7 +111,8 @@ export type ReaderClientExtension = {|
 export type ReaderField =
   | ReaderScalarField
   | ReaderLinkedField
-  | ReaderRelayResolver;
+  | ReaderRelayResolver
+  | ReaderRelayLiveResolver;
 
 export type ReaderRootArgument = {|
   +kind: 'RootArgument',
@@ -221,6 +222,20 @@ export type ReaderRequiredField = {|
 
 export type ReaderRelayResolver = {|
   +kind: 'RelayResolver',
+  +alias: ?string,
+  +name: string,
+  +fragment: ReaderFragmentSpread,
+  +path: string,
+  +resolverModule: (rootKey: {
+    +$data?: any, // flowlint-line unclear-type:off
+    +$fragmentSpreads: any, // flowlint-line unclear-type:off
+    +$fragmentRefs: any, // flowlint-line unclear-type:off
+    ...
+  }) => mixed,
+|};
+
+export type ReaderRelayLiveResolver = {|
+  +kind: 'RelayLiveResolver',
   +alias: ?string,
   +name: string,
   +fragment: ReaderFragmentSpread,

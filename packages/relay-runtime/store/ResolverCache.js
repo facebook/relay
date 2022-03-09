@@ -12,7 +12,10 @@
 
 'use strict';
 
-import type {ReaderRelayResolver} from '../util/ReaderNode';
+import type {
+  ReaderRelayLiveResolver,
+  ReaderRelayResolver,
+} from '../util/ReaderNode';
 import type {DataID, Variables} from '../util/RelayRuntimeTypes';
 import type {
   MissingRequiredFields,
@@ -23,6 +26,7 @@ import type {
 } from './RelayStoreTypes';
 
 const recycleNodesInto = require('../util/recycleNodesInto');
+const {RELAY_LIVE_RESOLVER} = require('../util/RelayConcreteNode');
 const {generateClientID} = require('./ClientID');
 const RelayModernRecord = require('./RelayModernRecord');
 const {
@@ -34,6 +38,7 @@ const {
   RELAY_RESOLVER_VALUE_KEY,
   getStorageKey,
 } = require('./RelayStoreUtils');
+const invariant = require('invariant');
 const warning = require('warning');
 
 type ResolverID = string;
@@ -51,7 +56,7 @@ type EvaluationResult<T> = {|
 export interface ResolverCache {
   readFromCacheOrEvaluate<T>(
     record: Record,
-    field: ReaderRelayResolver,
+    field: ReaderRelayResolver | ReaderRelayLiveResolver,
     variables: Variables,
     evaluate: () => EvaluationResult<T>,
     getDataForResolverFragment: (SingularReaderSelector) => mixed,
@@ -72,7 +77,7 @@ const emptySet: $ReadOnlySet<any> = new Set();
 class NoopResolverCache implements ResolverCache {
   readFromCacheOrEvaluate<T>(
     record: Record,
-    field: ReaderRelayResolver,
+    field: ReaderRelayResolver | ReaderRelayLiveResolver,
     variables: Variables,
     evaluate: () => EvaluationResult<T>,
     getDataForResolverFragment: SingularReaderSelector => mixed,
@@ -82,6 +87,10 @@ class NoopResolverCache implements ResolverCache {
     RelayResolverErrors,
     ?MissingRequiredFields,
   ] {
+    invariant(
+      field.kind !== RELAY_LIVE_RESOLVER,
+      'This store does not support Live Resolvers',
+    );
     const {resolverResult, missingRequiredFields, errors} = evaluate();
     return [resolverResult, undefined, errors, missingRequiredFields];
   }
@@ -115,7 +124,7 @@ class RecordResolverCache implements ResolverCache {
 
   readFromCacheOrEvaluate<T>(
     record: Record,
-    field: ReaderRelayResolver,
+    field: ReaderRelayResolver | ReaderRelayLiveResolver,
     variables: Variables,
     evaluate: () => EvaluationResult<T>,
     getDataForResolverFragment: SingularReaderSelector => mixed,

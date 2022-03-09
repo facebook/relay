@@ -119,7 +119,6 @@ impl TypeScriptPrinter {
             AST::Identifier(identifier) => write!(&mut self.result, "{}", identifier),
             AST::RawType(raw) => write!(&mut self.result, "{}", raw),
             AST::Union(members) => self.write_union(members, wrapping_required),
-            AST::Intersection(members) => self.write_intersection(members, wrapping_required),
             AST::ReadOnlyArray(of_type) => self.write_read_only_array(of_type),
             AST::Nullable(of_type) => self.write_nullable(of_type, wrapping_required),
             AST::NonNullable(of_type) => self.write_non_nullable(of_type),
@@ -163,25 +162,6 @@ impl TypeScriptPrinter {
             self.write(member)?;
         }
         if members.len() > 1 && self.should_wrap_unions_in_parentheses && wrapping_required {
-            write!(&mut self.result, ")")?;
-        }
-        Ok(())
-    }
-
-    fn write_intersection(&mut self, members: &[AST], wrapping_required: bool) -> FmtResult {
-        if members.len() > 1 && wrapping_required {
-            write!(&mut self.result, "(")?;
-        }
-        let mut first = true;
-        for member in members {
-            if first {
-                first = false;
-            } else {
-                write!(&mut self.result, " & ")?;
-            }
-            self.write(member)?;
-        }
-        if members.len() > 1 && wrapping_required {
             write!(&mut self.result, ")")?;
         }
         Ok(())
@@ -374,81 +354,6 @@ mod tests {
     }
 
     #[test]
-    fn intersections() {
-        assert_eq!(
-            print_type(&AST::Intersection(AstList::new(
-                vec![
-                    AST::ExactObject(ExactObject::new(
-                        vec![Prop::KeyValuePair(KeyValuePairProp {
-                            key: "first".intern(),
-                            optional: false,
-                            read_only: false,
-                            value: AST::String
-                        })],
-                        true
-                    )),
-                    AST::ExactObject(ExactObject::new(
-                        vec![Prop::KeyValuePair(KeyValuePairProp {
-                            key: "second".intern(),
-                            optional: false,
-                            read_only: false,
-                            value: AST::Number
-                        })],
-                        true
-                    )),
-                ],
-                true
-            ))),
-            r"({
-  first: string;
-} & {
-  second: number;
-})"
-        );
-
-        assert_eq!(
-            print_type(&AST::Intersection(AstList::sorted(vec![
-                AST::Union(AstList::sorted(vec![
-                    AST::ExactObject(ExactObject::new(
-                        vec![Prop::KeyValuePair(KeyValuePairProp {
-                            key: "first".intern(),
-                            optional: false,
-                            read_only: false,
-                            value: AST::String
-                        })],
-                        true
-                    )),
-                    AST::ExactObject(ExactObject::new(
-                        vec![Prop::KeyValuePair(KeyValuePairProp {
-                            key: "second".intern(),
-                            optional: false,
-                            read_only: false,
-                            value: AST::Number
-                        })],
-                        true
-                    )),
-                ],)),
-                AST::ExactObject(ExactObject::new(
-                    vec![Prop::KeyValuePair(KeyValuePairProp {
-                        key: "third".intern(),
-                        optional: false,
-                        read_only: false,
-                        value: AST::Number
-                    })],
-                    true
-                )),
-            ]),)),
-            r"(({
-  first: string;
-} | {
-  second: number;
-}) & {
-  third: number;
-})"
-        );
-    }
-
-    #[test]
     fn wrapping() {
         assert_eq!(
             print_type(&AST::ExactObject(ExactObject::new(
@@ -456,7 +361,7 @@ mod tests {
                     key: "key".intern(),
                     optional: false,
                     read_only: false,
-                    value: AST::Intersection(AstList::sorted(vec![
+                    value: AST::Union(AstList::sorted(vec![
                         AST::Union(AstList::sorted(vec![AST::String, AST::Number])),
                         AST::Boolean
                     ]))
@@ -464,7 +369,7 @@ mod tests {
                 true
             ))),
             r"{
-  key: (string | number) & boolean;
+  key: (string | number) | boolean;
 }"
             .to_string()
         );

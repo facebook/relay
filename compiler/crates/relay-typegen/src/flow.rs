@@ -129,7 +129,6 @@ impl FlowPrinter {
             AST::Identifier(identifier) => write!(&mut self.result, "{}", identifier),
             AST::RawType(raw) => write!(&mut self.result, "{}", raw),
             AST::Union(members) => self.write_union(members, wrapping_required),
-            AST::Intersection(members) => self.write_intersection(members, wrapping_required),
             AST::ReadOnlyArray(of_type) => self.write_read_only_array(of_type),
             AST::Nullable(of_type) => self.write_nullable(of_type),
             AST::NonNullable(of_type) => self.write_non_nullable(of_type),
@@ -175,25 +174,6 @@ impl FlowPrinter {
             self.write(member)?;
         }
         if members.len() > 1 && self.should_wrap_unions_in_parentheses && wrapping_required {
-            write!(&mut self.result, ")")?;
-        }
-        Ok(())
-    }
-
-    fn write_intersection(&mut self, members: &[AST], wrapping_required: bool) -> FmtResult {
-        if members.len() > 1 && wrapping_required {
-            write!(&mut self.result, "(")?;
-        }
-        let mut first = true;
-        for member in members {
-            if first {
-                first = false;
-            } else {
-                write!(&mut self.result, " & ")?;
-            }
-            self.write(member)?;
-        }
-        if members.len() > 1 && wrapping_required {
             write!(&mut self.result, ")")?;
         }
         Ok(())
@@ -396,7 +376,7 @@ mod tests {
                     key: "key".intern(),
                     optional: false,
                     read_only: false,
-                    value: AST::Intersection(AstList::sorted(vec![
+                    value: AST::Union(AstList::sorted(vec![
                         AST::Union(AstList::sorted(vec![AST::String, AST::Number])),
                         AST::Boolean
                     ]))
@@ -404,7 +384,7 @@ mod tests {
                 true
             ))),
             r"{|
-  key: (string | number) & boolean,
+  key: (string | number) | boolean,
 |}"
             .to_string()
         );

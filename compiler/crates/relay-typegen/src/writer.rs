@@ -14,10 +14,6 @@ use std::{
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub enum AST {
     Union(AstList),
-    // Intersection variant added in preparation for better support for abstract types.
-    // See https://github.com/facebook/relay/pull/3280
-    #[allow(dead_code)]
-    Intersection(AstList),
     ReadOnlyArray(Box<AST>),
     Nullable(Box<AST>),
     NonNullable(Box<AST>),

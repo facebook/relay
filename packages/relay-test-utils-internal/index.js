@@ -12,7 +12,12 @@
 
 'use strict';
 
-const {disallowConsoleErrors} = require('./consoleError');
+const {
+  disallowConsoleErrors,
+  expectConsoleError,
+  expectConsoleErrorsMany,
+  expectConsoleErrorWillFire,
+} = require('./consoleError');
 const describeWithFeatureFlags = require('./describeWithFeatureFlags');
 const {
   FIXTURE_TAG,
@@ -53,6 +58,9 @@ module.exports = {
   describeWithFeatureFlags,
   disallowConsoleErrors,
   disallowWarnings,
+  expectConsoleError,
+  expectConsoleErrorsMany,
+  expectConsoleErrorWillFire,
   expectToWarn,
   expectToWarnMany,
   expectWarningWillFire,

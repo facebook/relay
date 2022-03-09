@@ -25,7 +25,6 @@ const {
   ID_KEY,
   Observable,
   createOperationDescriptor,
-  getFragment,
   graphql,
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
@@ -215,7 +214,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
         }
       `;
       gqlRefetchQuery = require('./__generated__/useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragmentRefetchQuery.graphql');
-      gqlFragment = getFragment(graphql`
+      gqlFragment = graphql`
         fragment useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragment on User
         @refetchable(
           queryName: "useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragmentRefetchQuery"
@@ -227,7 +226,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
           }
           ...useRefetchableFragmentNodeWithSuspenseTransitionTestNestedUserFragment
         }
-      `);
+      `;
 
       query = createOperationDescriptor(gqlQuery, variables);
       refetchQuery = createOperationDescriptor(gqlRefetchQuery, variables);

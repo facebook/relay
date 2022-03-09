@@ -27,15 +27,13 @@ const {
   PreloadableQueryRegistry,
   RecordSource,
   Store,
-  getFragment,
-
   graphql,
 } = require('relay-runtime');
 const {disallowWarnings, expectToWarn} = require('relay-test-utils-internal');
 
 disallowWarnings();
 
-const fragmentPV = getFragment(graphql`
+const fragmentPV = graphql`
   fragment usePreloadedQueryProvidedVariablesTest_Fragment on User
   @argumentDefinitions(
     includeName: {type: "Boolean!", provider: "../RelayProvider_returnsTrue"}
@@ -51,7 +49,7 @@ const fragmentPV = getFragment(graphql`
     lastName @skip(if: $skipLastName)
     username @skip(if: $skipUsername)
   }
-`);
+`;
 
 const queryPV = graphql`
   query usePreloadedQueryProvidedVariablesTest_Query($id: ID!) {

@@ -15,7 +15,7 @@
 
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const {getFragment, graphql} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
 const {
   createOperationDescriptor,
 } = require('../../store/RelayModernOperationDescriptor');
@@ -64,14 +64,14 @@ describe('executeMutation()', () => {
       }
     `;
 
-    CommentFragment = getFragment(graphql`
+    CommentFragment = graphql`
       fragment MultiActorEnvironmentExecuteMutationTestCommentFragment on Comment {
         id
         body {
           text
         }
       }
-    `);
+    `;
 
     CreateCommentWithSpreadMutation = graphql`
       mutation MultiActorEnvironmentExecuteMutationTestCreateCommentWithSpreadMutation(

@@ -19,7 +19,7 @@ const {
 } = require('../../multi-actor-environment');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const {getFragment, graphql} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -71,14 +71,14 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         `;
 
         ClientNormalizationFragment = require('./__generated__/RelayModernEnvironmentExecuteWithFlightAndClientFragmentTest_clientFragment$normalization.graphql');
-        ClientFragment = getFragment(graphql`
+        ClientFragment = graphql`
           fragment RelayModernEnvironmentExecuteWithFlightAndClientFragmentTest_clientFragment on Story {
             name
             body {
               text
             }
           }
-        `);
+        `;
         // Query that indirectly executed as a result of selecting the
         // `flightComponent` field.
         graphql`

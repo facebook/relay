@@ -14,7 +14,7 @@ const RelayModernFragmentSpecResolver = require('../RelayModernFragmentSpecResol
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
-const {getFragment, graphql} = require('relay-runtime');
+const {graphql} = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
 
 const dev = __DEV__;
@@ -43,12 +43,12 @@ describe('RelayModernFragmentSpecResolver', () => {
     environment = createMockEnvironment({
       // We intentionally omit `requriedFieldLogger` here.
     });
-    UserFragment = getFragment(graphql`
+    UserFragment = graphql`
       fragment RelayModernFragmentSpecResolverRequiredFieldNoLoggerTestUserFragment on User {
         id
         alternate_name @required(action: LOG)
       }
-    `);
+    `;
     UserQuery = graphql`
       query RelayModernFragmentSpecResolverRequiredFieldNoLoggerTestUserQuery(
         $id: ID!

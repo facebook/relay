@@ -20,7 +20,7 @@ import type {
 
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const {getFragment, graphql} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -54,7 +54,7 @@ describe('execute() a query with @stream and @required', () => {
       }
     `;
 
-    fragment = getFragment(graphql`
+    fragment = graphql`
       fragment RelayModernEnvironmentExecuteWithStreamAndRequiredTestFeedbackFragment on Feedback {
         id
         actors
@@ -63,7 +63,7 @@ describe('execute() a query with @stream and @required', () => {
           name
         }
       }
-    `);
+    `;
     const variables = {id: '1', enableStream: true};
 
     const complete = jest.fn();

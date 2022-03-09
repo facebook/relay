@@ -19,7 +19,6 @@ const ReactTestRenderer = require('react-test-renderer');
 const {
   RelayFeatureFlags,
   createOperationDescriptor,
-  getFragment,
   graphql,
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
@@ -55,13 +54,13 @@ describe.skip('ReactRelayFragmentContainer-react-double-effects-test', () => {
       }
     `;
     variables = {id: '1'};
-    gqlFragment = getFragment(graphql`
+    gqlFragment = graphql`
       fragment ReactRelayRefetchContainerReactDoubleEffectsTestUserFragment on User {
         # eslint-disable-next-line relay/unused-fields
         id
         name
       }
-    `);
+    `;
     query = createOperationDescriptor(gqlQuery, variables);
     environment.commitPayload(query, {
       node: {

@@ -19,7 +19,7 @@ const {
 } = require('../../multi-actor-environment');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const {getFragment, graphql} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
 const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
@@ -77,7 +77,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             }
           }
         `;
-        fragment = getFragment(graphql`
+        fragment = graphql`
           fragment RelayModernEnvironmentDynamicConnectionKeyTestFeedbackFragment on Feedback
           @argumentDefinitions(
             count: {type: "Int", defaultValue: 2}
@@ -97,7 +97,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               }
             }
           }
-        `);
+        `;
         const variables = {
           id: '<feedbackid>',
           commentsKey: '<comments>',

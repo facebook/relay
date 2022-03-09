@@ -18,7 +18,7 @@ const {
   getActorIdentifier,
 } = require('../../multi-actor-environment');
 const RelayNetwork = require('../../network/RelayNetwork');
-const {getFragment, graphql} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -50,12 +50,12 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             }
           }
         `;
-        UserFragment = getFragment(graphql`
+        UserFragment = graphql`
           fragment RelayModernEnvironmentCommitUpdateTestUserFragment on User {
             id
             name
           }
-        `);
+        `;
 
         source = RelayRecordSource.create();
         store = new RelayModernStore(source);

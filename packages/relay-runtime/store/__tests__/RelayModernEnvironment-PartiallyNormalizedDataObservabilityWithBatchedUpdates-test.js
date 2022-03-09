@@ -21,7 +21,7 @@ import type {
 
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const {getFragment, graphql} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -37,14 +37,14 @@ const {disallowWarnings} = require('relay-test-utils-internal');
 
 disallowWarnings();
 
-const observationFragment = getFragment(graphql`
+const observationFragment = graphql`
   fragment RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTest_observation_query on Query {
     me {
       name
       lastName
     }
   }
-`);
+`;
 
 describe('execute() a query with @module if the module fragment is available synchronously', () => {
   let environment;

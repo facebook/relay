@@ -21,7 +21,7 @@ const {
 } = require('../../multi-actor-environment');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const {getFragment, graphql} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -101,7 +101,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           }
         `;
 
-        markdownRendererFragment = getFragment(graphql`
+        markdownRendererFragment = graphql`
           fragment RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
             __typename
             markdown
@@ -109,9 +109,9 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               markup @__clientField(handle: "markup_handler")
             }
           }
-        `);
+        `;
 
-        commentFragment = getFragment(graphql`
+        commentFragment = graphql`
           fragment RelayModernEnvironmentExecuteMutationWithMatchTestCommentFragment on Comment {
             id
             actor {
@@ -124,7 +124,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               }
             }
           }
-        `);
+        `;
 
         commentQuery = graphql`
           query RelayModernEnvironmentExecuteMutationWithMatchTestCommentQuery(

@@ -10,7 +10,7 @@
 
 'use strict';
 
-const {getFragment, graphql} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
 const RelayModernFragmentSpecResolver = require('../RelayModernFragmentSpecResolver');
 const {
   createOperationDescriptor,
@@ -80,7 +80,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
         username
       }
     `;
-    UserFragment = getFragment(graphql`
+    UserFragment = graphql`
       fragment RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserFragment on User {
         id
         name
@@ -89,7 +89,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
         }
         ...RelayModernFragmentSpecResolverWithFragmentOwnershipTestNestedUserFragment
       }
-    `);
+    `;
     UserQuery = graphql`
       query RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserQuery(
         $id: ID!
@@ -102,7 +102,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
         }
       }
     `;
-    UsersFragment = getFragment(graphql`
+    UsersFragment = graphql`
       fragment RelayModernFragmentSpecResolverWithFragmentOwnershipTestUsersFragment on User
       @relay(plural: true) {
         id
@@ -112,7 +112,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
         }
         ...RelayModernFragmentSpecResolverWithFragmentOwnershipTestNestedUserFragment
       }
-    `);
+    `;
 
     zuckOperation = createOperationDescriptor(UserQuery, {
       fetchSize: false,

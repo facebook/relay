@@ -13,7 +13,7 @@
 
 'use strict';
 
-const {getFragment, graphql} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
 const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const {
   createOperationDescriptor,
@@ -101,7 +101,7 @@ function cloneEventWithSets(event) {
           },
           gcReleaseBufferSize: 0,
         });
-        UserFragment = getFragment(graphql`
+        UserFragment = graphql`
           fragment RelayModernStoreSubscriptionsTest1Fragment on User {
             name
             profilePicture(size: $size) {
@@ -109,7 +109,7 @@ function cloneEventWithSets(event) {
             }
             emailAddresses
           }
-        `);
+        `;
         UserQuery = graphql`
           query RelayModernStoreSubscriptionsTest1Query($size: [Int]) {
             me {
@@ -164,7 +164,7 @@ function cloneEventWithSets(event) {
             }
           }
         `;
-        UserFragment = getFragment(graphql`
+        UserFragment = graphql`
           fragment RelayModernStoreSubscriptionsTest2Fragment on User {
             name
             profilePicture(size: $size) {
@@ -172,7 +172,7 @@ function cloneEventWithSets(event) {
             }
             emailAddresses
           }
-        `);
+        `;
 
         const owner = createOperationDescriptor(UserQuery, {size: 32});
         const selector = createReaderSelector(

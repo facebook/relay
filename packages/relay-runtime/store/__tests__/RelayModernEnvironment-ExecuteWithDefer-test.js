@@ -28,7 +28,7 @@ const {
 } = require('../../multi-actor-environment');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const {getFragment, graphql} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -70,12 +70,12 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             }
           }
         `;
-        fragment = getFragment(graphql`
+        fragment = graphql`
           fragment RelayModernEnvironmentExecuteWithDeferTestUserFragment on User {
             id
             name @__clientField(handle: "name_handler")
           }
-        `);
+        `;
         variables = {id: '1'};
         operation = createOperationDescriptor(query, variables);
         selector = createReaderSelector(fragment, '1', {}, operation.request);

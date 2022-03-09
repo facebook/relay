@@ -44,7 +44,7 @@ describe('getFragmentIdentifier', () => {
         username
       }
     `;
-    gqlSingularFragment = getFragment(graphql`
+    gqlSingularFragment = graphql`
       fragment getFragmentIdentifierTestUserFragment on User {
         id
         name
@@ -53,8 +53,8 @@ describe('getFragmentIdentifier', () => {
         }
         ...getFragmentIdentifierTestNestedUserFragment
       }
-    `);
-    gqlFragmentWithArgs = getFragment(graphql`
+    `;
+    gqlFragmentWithArgs = graphql`
       fragment getFragmentIdentifierTestUserFragmentWithArgs on User
       @argumentDefinitions(scaleLocal: {type: "Float!"}) {
         id
@@ -64,8 +64,8 @@ describe('getFragmentIdentifier', () => {
         }
         ...getFragmentIdentifierTestNestedUserFragment
       }
-    `);
-    gqlPluralFragment = getFragment(graphql`
+    `;
+    gqlPluralFragment = graphql`
       fragment getFragmentIdentifierTestUsersFragment on User
       @relay(plural: true) {
         id
@@ -75,7 +75,7 @@ describe('getFragmentIdentifier', () => {
         }
         ...getFragmentIdentifierTestNestedUserFragment
       }
-    `);
+    `;
     gqlPluralQuery = graphql`
       query getFragmentIdentifierTestUsersQuery($ids: [ID!]!, $scale: Float!) {
         nodes(ids: $ids) {
@@ -227,7 +227,7 @@ describe('getFragmentIdentifier Optimized', () => {
       }
     `;
 
-    gqlSingularFragment = getFragment(graphql`
+    gqlSingularFragment = graphql`
       fragment getFragmentIdentifierTest1UserFragment on User {
         id
         name
@@ -236,9 +236,9 @@ describe('getFragmentIdentifier Optimized', () => {
         }
         ...getFragmentIdentifierTest1NestedUserFragment
       }
-    `);
+    `;
 
-    gqlFragmentWithArgs = getFragment(graphql`
+    gqlFragmentWithArgs = graphql`
       fragment getFragmentIdentifierTest1UserFragmentWithArgs on User
       @argumentDefinitions(scaleLocal: {type: "Float!"}) {
         id
@@ -248,8 +248,8 @@ describe('getFragmentIdentifier Optimized', () => {
         }
         ...getFragmentIdentifierTest1NestedUserFragment
       }
-    `);
-    gqlPluralFragment = getFragment(graphql`
+    `;
+    gqlPluralFragment = graphql`
       fragment getFragmentIdentifierTest1UsersFragment on User
       @relay(plural: true) {
         id
@@ -259,7 +259,7 @@ describe('getFragmentIdentifier Optimized', () => {
         }
         ...getFragmentIdentifierTest1NestedUserFragment
       }
-    `);
+    `;
 
     gqlPluralQuery = graphql`
       query getFragmentIdentifierTest1UsersQuery($ids: [ID!]!, $scale: Float!) {

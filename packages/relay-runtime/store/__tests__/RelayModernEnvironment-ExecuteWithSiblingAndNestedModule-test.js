@@ -21,7 +21,7 @@ const {
 } = require('../../multi-actor-environment');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const {getFragment, graphql} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
 const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
@@ -104,7 +104,7 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
             }
           `;
 
-          markdownRendererFragment = getFragment(graphql`
+          markdownRendererFragment = graphql`
             fragment RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestMarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
               __typename
               markdown
@@ -116,9 +116,9 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
                 }
               }
             }
-          `);
+          `;
 
-          plaintextRendererFragment = getFragment(graphql`
+          plaintextRendererFragment = graphql`
             fragment RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestPlainUserNameRenderer_name on PlainUserNameRenderer {
               data {
                 text
@@ -127,7 +127,7 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
                 name
               }
             }
-          `);
+          `;
           variables = {id: '1'};
           operation = createOperationDescriptor(query, variables);
 

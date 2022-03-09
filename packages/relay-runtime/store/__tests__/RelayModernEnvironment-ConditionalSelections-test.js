@@ -18,7 +18,7 @@ const {
   getActorIdentifier,
 } = require('../../multi-actor-environment');
 const RelayNetwork = require('../../network/RelayNetwork');
-const {getFragment, graphql} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -53,7 +53,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             ...RelayModernEnvironmentConditionalSelectionsTestQueryConditionalFragment
           }
         `;
-        ConditionalFragment = getFragment(graphql`
+        ConditionalFragment = graphql`
           fragment RelayModernEnvironmentConditionalSelectionsTestQueryConditionalFragment on Query {
             ... @include(if: $condition) {
               viewer {
@@ -68,14 +68,14 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               }
             }
           }
-        `);
+        `;
         // A version of the same query/fragment where all selections are fetched unconditionally
         Query = graphql`
           query RelayModernEnvironmentConditionalSelectionsTestUnconditionalQuery {
             ...RelayModernEnvironmentConditionalSelectionsTestQueryUnconditionalFragment
           }
         `;
-        Fragment = getFragment(graphql`
+        Fragment = graphql`
           fragment RelayModernEnvironmentConditionalSelectionsTestQueryUnconditionalFragment on Query {
             viewer {
               actor {
@@ -86,7 +86,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               name
             }
           }
-        `);
+        `;
 
         const source = RelayRecordSource.create();
         const store = new RelayModernStore(source, {

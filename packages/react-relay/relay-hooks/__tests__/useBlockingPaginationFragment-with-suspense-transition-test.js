@@ -26,7 +26,6 @@ const {
   FRAGMENTS_KEY,
   ID_KEY,
   createOperationDescriptor,
-  getFragment,
   getRequest,
   graphql,
 } = require('relay-runtime');
@@ -224,7 +223,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
         }
       `;
 
-      gqlFragment = getFragment(graphql`
+      gqlFragment = graphql`
         fragment useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment on User
         @refetchable(
           queryName: "useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragmentPaginationQuery"
@@ -252,7 +251,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
             }
           }
         }
-      `);
+      `;
 
       gqlQuery = getRequest(
         graphql`

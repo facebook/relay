@@ -29,7 +29,7 @@ const {
 } = require('../../multi-actor-environment');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const {getFragment, graphql} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -76,7 +76,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           }
         `;
 
-        feedFragment = getFragment(graphql`
+        feedFragment = graphql`
           fragment RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedFragment on Viewer {
             newsFeed(first: 10, after: $after)
               @connection(key: "RelayModernEnvironment_newsFeed") {
@@ -105,7 +105,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               }
             }
           }
-        `);
+        `;
         variables = {enableStream: true, after: null};
         operation = createOperationDescriptor(query, variables);
         selector = createReaderSelector(

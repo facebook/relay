@@ -15,7 +15,7 @@
 
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const {getFragment, graphql} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -46,14 +46,14 @@ describe('executeMutation() with global invalidation', () => {
   beforeEach(() => {
     commentID = 'comment-id';
 
-    CommentFragment = getFragment(graphql`
+    CommentFragment = graphql`
       fragment RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCommentFragment on Comment {
         id
         body {
           text
         }
       }
-    `);
+    `;
 
     variables = {
       input: {

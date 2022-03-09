@@ -18,7 +18,7 @@ import type {OperationDescriptor, Snapshot} from '../RelayStoreTypes';
 
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const {getFragment, graphql} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -115,7 +115,7 @@ describe('query with fragments that use provided variables', () => {
       }
     `;
 
-    fragment1 = getFragment(graphql`
+    fragment1 = graphql`
       fragment RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1 on User
       @argumentDefinitions(
         includeName: {
@@ -134,9 +134,9 @@ describe('query with fragments that use provided variables', () => {
           uri
         }
       }
-    `);
+    `;
 
-    fragment2 = getFragment(graphql`
+    fragment2 = graphql`
       fragment RelayModernEnvironmentExecuteWithProvidedVariableTest_profile2 on User
       @argumentDefinitions(
         includeName: {
@@ -152,9 +152,9 @@ describe('query with fragments that use provided variables', () => {
         name @include(if: $includeName)
         alternate_name @include(if: $includeAlternateName)
       }
-    `);
+    `;
 
-    fragment3 = getFragment(graphql`
+    fragment3 = graphql`
       fragment RelayModernEnvironmentExecuteWithProvidedVariableTest_profile3 on User
       @argumentDefinitions(
         profilePictureScale: {
@@ -166,7 +166,7 @@ describe('query with fragments that use provided variables', () => {
           uri
         }
       }
-    `);
+    `;
   });
 
   it('reads the right results from a query with one fragment spread', () => {

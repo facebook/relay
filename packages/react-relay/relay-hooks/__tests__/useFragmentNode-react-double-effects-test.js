@@ -16,11 +16,7 @@ const useFragmentNode = require('../useFragmentNode');
 const React = require('react');
 const {useEffect} = require('react');
 const ReactTestRenderer = require('react-test-renderer');
-const {
-  createOperationDescriptor,
-  getFragment,
-  graphql,
-} = require('relay-runtime');
+const {createOperationDescriptor, graphql} = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
 const warning = require('warning');
 
@@ -50,12 +46,12 @@ describe.skip('useFragmentNode-react-double-effects-test', () => {
       }
     `;
     variables = {id: '1'};
-    gqlFragment = getFragment(graphql`
+    gqlFragment = graphql`
       fragment useFragmentNodeReactDoubleEffectsTestUserFragment on User {
         id
         name
       }
-    `);
+    `;
     query = createOperationDescriptor(gqlQuery, variables);
     environment.commitPayload(query, {
       node: {

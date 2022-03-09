@@ -15,7 +15,7 @@
 
 import type {NormalizationRootNode} from '../../util/NormalizationNode';
 
-const {getFragment, graphql} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
@@ -395,7 +395,7 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
         }
       `;
 
-      const FeedbackFragment = getFragment(graphql`
+      const FeedbackFragment = graphql`
         fragment RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment on Feedback {
           id
           body {
@@ -418,7 +418,7 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
             }
           }
         }
-      `);
+      `;
 
       const Mutation = graphql`
         mutation RelayModernEnvironmentWithOperationTrackerTestMutation(

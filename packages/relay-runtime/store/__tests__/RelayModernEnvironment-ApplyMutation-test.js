@@ -18,7 +18,7 @@ const {
   getActorIdentifier,
 } = require('../../multi-actor-environment');
 const RelayNetwork = require('../../network/RelayNetwork');
-const {getFragment, graphql} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -65,14 +65,14 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           }
         `;
 
-        CommentFragment = getFragment(graphql`
+        CommentFragment = graphql`
           fragment RelayModernEnvironmentApplyMutationTestFragment on Comment {
             id
             body {
               text
             }
           }
-        `);
+        `;
 
         CreateCommentWithSpreadMutation = graphql`
           mutation RelayModernEnvironmentApplyMutationTest1Mutation(

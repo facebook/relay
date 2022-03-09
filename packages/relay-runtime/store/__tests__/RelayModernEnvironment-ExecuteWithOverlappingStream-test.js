@@ -24,7 +24,7 @@ import type {
 
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const {getFragment, graphql} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -68,7 +68,7 @@ describe('execute() a query with multiple @stream selections on the same record'
         }
       }
     `;
-    fragment = getFragment(graphql`
+    fragment = graphql`
       fragment RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackFragment on Feedback {
         id
         actors
@@ -79,8 +79,8 @@ describe('execute() a query with multiple @stream selections on the same record'
         ...RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment
           @defer(label: "viewedBy", if: $enableStream)
       }
-    `);
-    deferFragment = getFragment(graphql`
+    `;
+    deferFragment = graphql`
       fragment RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment on Feedback {
         viewedBy
           @stream(label: "viewedBy", if: $enableStream, initial_count: 0)
@@ -88,7 +88,7 @@ describe('execute() a query with multiple @stream selections on the same record'
           name @__clientField(handle: "name_handler")
         }
       }
-    `);
+    `;
     variables = {id: '1', enableStream: true};
     operation = createOperationDescriptor(query, variables);
     selector = createReaderSelector(fragment, '1', {}, operation.request);

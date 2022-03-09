@@ -38,13 +38,13 @@ beforeEach(() => {
   });
   FragmentResource = getFragmentResourceForEnvironment(environment);
 
-  UserFragment = getFragment(graphql`
+  UserFragment = graphql`
     fragment FragmentResourceRequiredFieldTestUserFragment on User {
       id
       name @required(action: THROW)
       alternate_name @required(action: LOG)
     }
-  `);
+  `;
 
   query = createOperationDescriptor(
     graphql`

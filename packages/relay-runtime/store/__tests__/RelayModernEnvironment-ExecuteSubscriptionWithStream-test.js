@@ -19,7 +19,7 @@ import type {
 
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const {getFragment, graphql} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -65,14 +65,14 @@ describe('executeSubscrption() with @stream', () => {
       }
     `;
 
-    feedbackFragment = getFragment(graphql`
+    feedbackFragment = graphql`
       fragment RelayModernEnvironmentExecuteSubscriptionWithStreamTestFeedbackFragment on Feedback {
         id
         actors @stream(label: "actors", initial_count: 0) {
           name @__clientField(handle: "name_handler")
         }
       }
-    `);
+    `;
 
     feedbackQuery = graphql`
       query RelayModernEnvironmentExecuteSubscriptionWithStreamTestFeedbackQuery(

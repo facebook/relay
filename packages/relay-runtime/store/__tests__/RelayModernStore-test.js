@@ -15,7 +15,7 @@
 
 import type {Disposable} from '../../util/RelayRuntimeTypes';
 
-const {getFragment, graphql} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
 const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const {
   createOperationDescriptor,
@@ -220,14 +220,14 @@ function cloneEventWithSets(event) {
         };
         source = getRecordSourceImplementation(data);
         store = new RelayModernStore(source, {gcReleaseBufferSize: 0});
-        UserFragment = getFragment(graphql`
+        UserFragment = graphql`
           fragment RelayModernStoreTest2Fragment on User {
             name
             profilePicture(size: $size) {
               uri
             }
           }
-        `);
+        `;
         UserQuery = graphql`
           query RelayModernStoreTest2Query($size: [Int]) {
             me {
@@ -271,7 +271,7 @@ function cloneEventWithSets(event) {
           }
         `;
 
-        UserFragment = getFragment(graphql`
+        UserFragment = graphql`
           fragment RelayModernStoreTest3Fragment on User {
             name
             profilePicture(size: $size) {
@@ -279,7 +279,7 @@ function cloneEventWithSets(event) {
             }
             ...RelayModernStoreTest4Fragment
           }
-        `);
+        `;
         graphql`
           fragment RelayModernStoreTest4Fragment on User {
             username
@@ -411,7 +411,7 @@ function cloneEventWithSets(event) {
           },
           gcReleaseBufferSize: 0,
         });
-        UserFragment = getFragment(graphql`
+        UserFragment = graphql`
           fragment RelayModernStoreTest5Fragment on User {
             name
             profilePicture(size: $size) {
@@ -419,7 +419,7 @@ function cloneEventWithSets(event) {
             }
             emailAddresses
           }
-        `);
+        `;
 
         UserQuery = graphql`
           query RelayModernStoreTest4Query($size: [Int]) {
@@ -475,7 +475,7 @@ function cloneEventWithSets(event) {
             }
           }
         `;
-        UserFragment = getFragment(graphql`
+        UserFragment = graphql`
           fragment RelayModernStoreTest6Fragment on User {
             name
             profilePicture(size: $size) {
@@ -483,7 +483,7 @@ function cloneEventWithSets(event) {
             }
             emailAddresses
           }
-        `);
+        `;
         const owner = createOperationDescriptor(UserQuery, {size: 32});
         const selector = createReaderSelector(
           UserFragment,

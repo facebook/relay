@@ -19,7 +19,7 @@ import type {RecordSourceSelectorProxy} from '../../store/RelayStoreTypes';
 const ConnectionHandler = require('../../handlers/connection/ConnectionHandler');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const {getFragment, graphql} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
 const RelayModernEnvironment = require('../../store/RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -1153,14 +1153,14 @@ describe('commitMutation()', () => {
   let variables;
 
   beforeEach(() => {
-    fragment = getFragment(graphql`
+    fragment = graphql`
       fragment commitMutationTest2Fragment on Comment {
         id
         body {
           text
         }
       }
-    `);
+    `;
     mutation = graphql`
       mutation commitMutationTest6Mutation($input: CommentCreateInput!) {
         commentCreate(input: $input) {
@@ -1473,14 +1473,14 @@ describe('commitMutation() cacheConfig', () => {
   let variables;
 
   beforeEach(() => {
-    fragment = getFragment(graphql`
+    fragment = graphql`
       fragment commitMutationTest1Fragment on Comment {
         id
         body {
           text
         }
       }
-    `);
+    `;
 
     mutation = graphql`
       mutation commitMutationTest7Mutation($input: CommentCreateInput!) {

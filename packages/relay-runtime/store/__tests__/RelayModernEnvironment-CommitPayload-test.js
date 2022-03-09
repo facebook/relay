@@ -18,7 +18,7 @@ const {
   getActorIdentifier,
 } = require('../../multi-actor-environment');
 const RelayNetwork = require('../../network/RelayNetwork');
-const {getFragment, graphql} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -217,11 +217,11 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             }
           }
         `;
-        const fragment = getFragment(graphql`
+        const fragment = graphql`
           fragment RelayModernEnvironmentCommitPayloadTest4UserFragment on User {
             username
           }
-        `);
+        `;
         operation = createOperationDescriptor(query, {});
 
         const selector = createReaderSelector(
@@ -286,11 +286,11 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             markdown
           }
         `;
-        const userFragment = getFragment(graphql`
+        const userFragment = graphql`
           fragment RelayModernEnvironmentCommitPayloadTest6UserFragment on User {
             username
           }
-        `);
+        `;
 
         environment = new RelayModernEnvironment({
           network: RelayNetwork.create(jest.fn()),

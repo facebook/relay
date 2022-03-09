@@ -27,7 +27,6 @@ const {
   ID_KEY,
   __internal: {fetchQuery},
   createOperationDescriptor,
-  getFragment,
   graphql,
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
@@ -150,7 +149,7 @@ describe('useBlockingPaginationFragment', () => {
         username
       }
     `;
-    gqlFragment = getFragment(graphql`
+    gqlFragment = graphql`
       fragment useBlockingPaginationFragmentTestUserFragment on User
       @refetchable(
         queryName: "useBlockingPaginationFragmentTestUserFragmentPaginationQuery"
@@ -184,7 +183,7 @@ describe('useBlockingPaginationFragment', () => {
           }
         }
       }
-    `);
+    `;
     gqlQuery = graphql`
       query useBlockingPaginationFragmentTestUserQuery(
         $id: ID!
@@ -534,11 +533,11 @@ describe('useBlockingPaginationFragment', () => {
     it('should throw error if fragment is missing @refetchable directive', () => {
       jest.spyOn(console, 'error').mockImplementationOnce(() => {});
 
-      const UserFragment = getFragment(graphql`
+      const UserFragment = graphql`
         fragment useBlockingPaginationFragmentTest3Fragment on User {
           id
         }
-      `);
+      `;
       const renderer = renderFragment({fragment: UserFragment});
       expect(
         renderer
@@ -552,14 +551,14 @@ describe('useBlockingPaginationFragment', () => {
     it('should throw error if fragment is missing @connection directive', () => {
       jest.spyOn(console, 'error').mockImplementationOnce(() => {});
 
-      const UserFragment = getFragment(graphql`
+      const UserFragment = graphql`
         fragment useBlockingPaginationFragmentTest4Fragment on User
         @refetchable(
           queryName: "useBlockingPaginationFragmentTest4FragmentRefetchQuery"
         ) {
           id
         }
-      `);
+      `;
 
       const renderer = renderFragment({fragment: UserFragment});
       expect(

@@ -15,7 +15,7 @@
 
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const {getFragment, graphql} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -50,14 +50,14 @@ describe('execute() with @relay_client_component', () => {
   let store;
 
   beforeEach(() => {
-    ClientFragment = getFragment(graphql`
+    ClientFragment = graphql`
       fragment RelayModernEnvironmentExecuteWithRelayClientComponentTest_clientFragment on Story {
         name
         body {
           text
         }
       }
-    `);
+    `;
     Query = graphql`
       query RelayModernEnvironmentExecuteWithRelayClientComponentTestQuery(
         $id: ID!

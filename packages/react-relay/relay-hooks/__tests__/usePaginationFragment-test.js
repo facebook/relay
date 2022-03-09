@@ -27,7 +27,6 @@ const {
   ID_KEY,
   __internal: {fetchQuery},
   createOperationDescriptor,
-  getFragment,
   graphql,
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
@@ -285,7 +284,7 @@ describe('usePaginationFragment', () => {
         }
       }
     `;
-    gqlFragment = getFragment(graphql`
+    gqlFragment = graphql`
       fragment usePaginationFragmentTestUserFragment on User
       @refetchable(
         queryName: "usePaginationFragmentTestUserFragmentPaginationQuery"
@@ -319,8 +318,8 @@ describe('usePaginationFragment', () => {
           }
         }
       }
-    `);
-    gqlFragmentWithStreaming = getFragment(graphql`
+    `;
+    gqlFragmentWithStreaming = graphql`
       fragment usePaginationFragmentTestUserFragmentWithStreaming on User
       @refetchable(
         queryName: "usePaginationFragmentTestUserFragmentStreamingPaginationQuery"
@@ -355,7 +354,7 @@ describe('usePaginationFragment', () => {
           }
         }
       }
-    `);
+    `;
     gqlPaginationQuery = require('./__generated__/usePaginationFragmentTestUserFragmentPaginationQuery.graphql');
 
     query = createOperationDescriptor(gqlQuery, variables);
@@ -574,12 +573,12 @@ describe('usePaginationFragment', () => {
     it('should throw error if fragment is plural', () => {
       jest.spyOn(console, 'error').mockImplementationOnce(() => {});
 
-      const UserFragment = getFragment(graphql`
+      const UserFragment = graphql`
         fragment usePaginationFragmentTest1Fragment on User
         @relay(plural: true) {
           id
         }
-      `);
+      `;
       const renderer = renderFragment({fragment: UserFragment});
       expect(
         renderer
@@ -591,11 +590,11 @@ describe('usePaginationFragment', () => {
     it('should throw error if fragment is missing @refetchable directive', () => {
       jest.spyOn(console, 'error').mockImplementationOnce(() => {});
 
-      const UserFragment = getFragment(graphql`
+      const UserFragment = graphql`
         fragment usePaginationFragmentTest2Fragment on User {
           id
         }
-      `);
+      `;
       const renderer = renderFragment({fragment: UserFragment});
       expect(
         renderer
@@ -609,14 +608,14 @@ describe('usePaginationFragment', () => {
     it('should throw error if fragment is missing @connection directive', () => {
       jest.spyOn(console, 'error').mockImplementationOnce(() => {});
 
-      const UserFragment = getFragment(graphql`
+      const UserFragment = graphql`
         fragment usePaginationFragmentTest3Fragment on User
         @refetchable(
           queryName: "usePaginationFragmentTest3FragmentRefetchQuery"
         ) {
           id
         }
-      `);
+      `;
       const renderer = renderFragment({fragment: UserFragment});
       expect(
         renderer
@@ -3972,7 +3971,7 @@ describe('usePaginationFragment', () => {
           }
         `;
 
-        gqlFragment = getFragment(graphql`
+        gqlFragment = graphql`
           fragment usePaginationFragmentTestStoryFragment on NonNodeStory
           @argumentDefinitions(
             count: {type: "Int", defaultValue: 10}
@@ -3990,7 +3989,7 @@ describe('usePaginationFragment', () => {
               }
             }
           }
-        `);
+        `;
         gqlPaginationQuery = require('./__generated__/usePaginationFragmentTestStoryFragmentRefetchQuery.graphql');
 
         query = createOperationDescriptor(gqlQuery, fetchVariables);

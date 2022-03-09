@@ -23,7 +23,7 @@ const {
 } = require('../../multi-actor-environment');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const {getFragment, graphql} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -73,14 +73,14 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             }
           }
         `;
-        commentFragment = getFragment(graphql`
+        commentFragment = graphql`
           fragment RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentFragment on Comment {
             id
             actor {
               name @__clientField(handle: "name_handler")
             }
           }
-        `);
+        `;
         commentQuery = graphql`
           query RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentQuery(
             $id: ID!

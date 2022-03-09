@@ -25,7 +25,6 @@ const {
   Store,
   __internal: {fetchQuery},
   createOperationDescriptor,
-  getFragment,
   graphql,
 } = require('relay-runtime');
 
@@ -59,12 +58,12 @@ beforeEach(() => {
       }
     }
   `;
-  fragment = getFragment(graphql`
+  fragment = graphql`
     fragment useIsParentQueryActiveTestUserFragment on User {
       id
       name
     }
-  `);
+  `;
   operation = createOperationDescriptor(query, {id: '4'});
 
   environment.commitPayload(operation, {

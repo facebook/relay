@@ -15,7 +15,7 @@
 
 import type {OperationDescriptor} from '../RelayStoreTypes';
 
-const {getFragment, graphql} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
 const {
   createOperationDescriptor,
   createRequestDescriptor,
@@ -63,7 +63,7 @@ describe('RelayModernSelector', () => {
         }
       }
     `;
-    UserFragment = getFragment(graphql`
+    UserFragment = graphql`
       fragment RelayModernSelectorTestUserFragment on User {
         id
         name
@@ -71,8 +71,8 @@ describe('RelayModernSelector', () => {
           uri
         }
       }
-    `);
-    UsersFragment = getFragment(graphql`
+    `;
+    UsersFragment = graphql`
       fragment RelayModernSelectorTestUsersFragment on User
       @relay(plural: true) {
         id
@@ -81,7 +81,7 @@ describe('RelayModernSelector', () => {
           uri
         }
       }
-    `);
+    `;
     const dataID = ROOT_ID;
     variables = {id: '4', size: null, cond: false};
     operationVariables = variables;

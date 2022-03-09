@@ -28,8 +28,6 @@ const {
   Observable,
   __internal: {fetchQuery},
   createOperationDescriptor,
-  getFragment,
-
   graphql,
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils-internal');
@@ -141,7 +139,7 @@ describe('useRefetchableFragmentNode', () => {
         username
       }
     `;
-    gqlFragmentWithArgs = getFragment(graphql`
+    gqlFragmentWithArgs = graphql`
       fragment useRefetchableFragmentNodeTestUserFragmentWithArgs on User
       @refetchable(
         queryName: "useRefetchableFragmentNodeTestUserFragmentWithArgsRefetchQuery"
@@ -154,8 +152,8 @@ describe('useRefetchableFragmentNode', () => {
         }
         ...useRefetchableFragmentNodeTestNestedUserFragment
       }
-    `);
-    gqlFragment = getFragment(graphql`
+    `;
+    gqlFragment = graphql`
       fragment useRefetchableFragmentNodeTestUserFragment on User
       @refetchable(
         queryName: "useRefetchableFragmentNodeTestUserFragmentRefetchQuery"
@@ -167,7 +165,7 @@ describe('useRefetchableFragmentNode', () => {
         }
         ...useRefetchableFragmentNodeTestNestedUserFragment
       }
-    `);
+    `;
     gqlQuery = graphql`
       query useRefetchableFragmentNodeTestUserQuery($id: ID!, $scale: Float!) {
         node(id: $id) {
@@ -358,12 +356,12 @@ describe('useRefetchableFragmentNode', () => {
     it('should throw error if fragment is plural', () => {
       jest.spyOn(console, 'error').mockImplementationOnce(() => {});
 
-      const UserFragment = getFragment(graphql`
+      const UserFragment = graphql`
         fragment useRefetchableFragmentNodeTest4Fragment on User
         @relay(plural: true) {
           id
         }
-      `);
+      `;
       const renderer = renderFragment({fragment: UserFragment});
       expect(
         renderer
@@ -375,11 +373,11 @@ describe('useRefetchableFragmentNode', () => {
     it('should throw error if fragment is missing @refetchable directive', () => {
       jest.spyOn(console, 'error').mockImplementationOnce(() => {});
 
-      const UserFragment = getFragment(graphql`
+      const UserFragment = graphql`
         fragment useRefetchableFragmentNodeTest5Fragment on User {
           id
         }
-      `);
+      `;
       const renderer = renderFragment({fragment: UserFragment});
       expect(
         renderer
@@ -3379,7 +3377,7 @@ describe('useRefetchableFragmentNode', () => {
 
     describe('refetching @fetchable types', () => {
       beforeEach(() => {
-        gqlFragment = getFragment(graphql`
+        gqlFragment = graphql`
           fragment useRefetchableFragmentNodeTest1Fragment on NonNodeStory
           @refetchable(
             queryName: "useRefetchableFragmentNodeTest1FragmentRefetchQuery"
@@ -3388,7 +3386,7 @@ describe('useRefetchableFragmentNode', () => {
               name
             }
           }
-        `);
+        `;
 
         gqlQuery = graphql`
           query useRefetchableFragmentNodeTest1Query($id: ID!) {
@@ -3642,7 +3640,7 @@ describe('useRefetchableFragmentNode', () => {
             username
           }
         `;
-        gqlFragment = getFragment(graphql`
+        gqlFragment = graphql`
           fragment useRefetchableFragmentNodeTest3Fragment on User
           @refetchable(
             queryName: "useRefetchableFragmentNodeTest3FragmentRefetchQuery"
@@ -3654,7 +3652,7 @@ describe('useRefetchableFragmentNode', () => {
             }
             ...useRefetchableFragmentNodeTest2Fragment
           }
-        `);
+        `;
         gqlQuery = graphql`
           query useRefetchableFragmentNodeTest2Query(
             $nodeID: ID!

@@ -1595,6 +1595,8 @@ dependencies = [
  "relay-test-schema",
  "relay-transforms",
  "schema",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]
@@ -1779,9 +1781,9 @@ dependencies = [
 
 [[package]]
 name = "serde_json"
-version = "1.0.64"
+version = "1.0.68"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "799e97dc9fdae36a5c8b8f2cae9ce2ee9fdce2058c57a93e6099d919fd982f79"
+checksum = "0f690853975602e1bfe1ccbf50504d67174e3bcf340f23b5ea9992e0587a52d8"
 dependencies = [
  "itoa",
  "ryu",

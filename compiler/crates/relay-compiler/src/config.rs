@@ -468,7 +468,11 @@ impl fmt::Debug for Config {
         } = self;
 
         fn option_fn_to_string<T>(option: &Option<T>) -> &'static str {
-            if option.is_some() { "Some(Fn)" } else { "None" }
+            if option.is_some() {
+                "Some(Fn)"
+            } else {
+                "None"
+            }
         }
 
         f.debug_struct("Config")
@@ -747,8 +751,8 @@ impl SingleProjectConfigFile {
                 language: self.language.unwrap_or(TypegenLanguage::TypeScript),
                 custom_scalar_types: self.custom_scalars.clone(),
                 eager_es_modules: self.eager_es_modules,
+                future_proof_enums: !self.no_future_proof_enums,
                 flow_typegen: FlowTypegenConfig {
-                    no_future_proof_enums: self.no_future_proof_enums,
                     phase: self.typegen_phase,
                     ..Default::default()
                 },

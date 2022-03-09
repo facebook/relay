@@ -27,7 +27,7 @@ impl Default for TypegenLanguage {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, Default)]
+#[derive(Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
 pub struct TypegenConfig {
     /// The desired output language, "flow" or "typescript".
@@ -62,6 +62,23 @@ pub struct TypegenConfig {
     #[serde(default)]
     pub use_import_type_syntax: bool,
 
+    /// This option controls whether or not a catch-all entry is added to enum type definitions
+    /// for values that may be added in the future. Enabling this means you will have to update
+    /// your application whenever the GraphQL server schema adds new enum values to prevent it
+    /// from breaking.
+    #[serde(default = "default_future_proofness")]
+    pub future_proof_enums: bool,
+
+    /// Whether to future proof union and interface types by including "%other" as a possible type.
+    #[serde(default = "default_future_proofness")]
+    pub future_proof_abstract_types: bool,
+
+    /// For which types (unions or interfaces) to not write out all possible type names if future
+    /// proof abstract types is set to false. Especially useful for interfaces or unions that may
+    /// have a lot of concrete types, such as Node.
+    #[serde(default)]
+    pub exclude_from_typename_unions: Vec<StringKey>,
+
     /// A map from GraphQL scalar types to a custom JS type, example:
     /// { "Url": "String" }
     #[serde(default)]
@@ -84,13 +101,6 @@ pub struct TypegenConfig {
 #[derive(Debug, Serialize, Deserialize, Clone, Copy)]
 #[serde(deny_unknown_fields, tag = "phase")]
 pub struct FlowTypegenConfig {
-    /// This option controls whether or not a catch-all entry is added to enum type definitions
-    /// for values that may be added in the future. Enabling this means you will have to update
-    /// your application whenever the GraphQL server schema adds new enum values to prevent it
-    /// from breaking.
-    #[serde(default)]
-    pub no_future_proof_enums: bool,
-
     pub phase: FlowTypegenPhase,
     #[serde(default)]
     pub rollout: Rollout,
@@ -99,7 +109,6 @@ pub struct FlowTypegenConfig {
 impl Default for FlowTypegenConfig {
     fn default() -> Self {
         Self {
-            no_future_proof_enums: false,
             phase: FlowTypegenPhase::Final,
             rollout: Rollout::default(),
         }
@@ -138,4 +147,28 @@ impl FlowTypegenPhase {
             Compat => Compat,
         }
     }
+}
+
+// Custom impl for Default to set future proofness to true when using Default::default().
+impl Default for TypegenConfig {
+    fn default() -> Self {
+        Self {
+            language: TypegenLanguage::default(),
+            enum_module_suffix: None,
+            optional_input_fields: vec![],
+            use_import_type_syntax: false,
+            future_proof_abstract_types: default_future_proofness(),
+            future_proof_enums: default_future_proofness(),
+            exclude_from_typename_unions: vec![],
+            custom_scalar_types: FnvIndexMap::default(),
+            flow_enums: FnvIndexSet::default(),
+            require_custom_scalar_types: false,
+            flow_typegen: FlowTypegenConfig::default(),
+            eager_es_modules: false,
+        }
+    }
+}
+
+fn default_future_proofness() -> bool {
+    true
 }

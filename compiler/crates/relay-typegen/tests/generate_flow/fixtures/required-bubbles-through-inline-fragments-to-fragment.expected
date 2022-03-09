@@ -1,4 +1,8 @@
 ==================================== INPUT ====================================
+{
+  "futureProofAbstractTypes": false
+}
+%%%
 fragment Foo on Node {
   __typename
   ... on User {
@@ -15,9 +19,7 @@ export type Foo$data = ?({|
   +name: string,
   +$fragmentType: Foo$fragmentType,
 |} | {|
-  // This will never be '%other', but we need some
-  // value in case none of the concrete values match.
-  +__typename: "%other",
+  +__typename: "Comment" | "Feedback" | "Page" | "PhotoStory" | "Story",
   +$fragmentType: Foo$fragmentType,
 |});
 export type Foo$key = {

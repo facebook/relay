@@ -87,7 +87,7 @@ export type FragmentSpread$data = {|
     +uri: ?string,
     +$fragmentSpreads: PictureFragment$fragmentType,
   |},
-  +$fragmentSpreads: OtherFragment$fragmentType & UserFrag1$fragmentType & UserFrag2$fragmentType,
+  +$fragmentSpreads: UserFrag1$fragmentType & UserFrag2$fragmentType & OtherFragment$fragmentType,
   +$fragmentType: FragmentSpread$fragmentType,
 |};
 export type FragmentSpread$key = {

@@ -1,4 +1,8 @@
 ==================================== INPUT ====================================
+{
+  "futureProofAbstractTypes": false
+}
+%%%
 query RelayClientIDFieldQuery($id: ID!) {
   __id # ok on query type
   me {
@@ -37,19 +41,26 @@ export type RelayClientIDFieldQuery$data = {
     readonly __typename: string;
     readonly id: string;
   } | null;
-  readonly node: {
-    readonly __id: string;
-    readonly __typename: string;
-    readonly id: string;
-    readonly commentBody?: {
+  readonly node: ({
+    readonly __typename: "Comment";
+    readonly commentBody: ({
+      readonly __typename: "PlainCommentBody";
       readonly __id: string;
-      readonly __typename: string;
-      readonly text?: {
+      readonly text: {
         readonly __id: string;
         readonly __typename: string;
         readonly text: string | null;
       } | null;
+    } | {
+      readonly __typename: "MarkdownCommentBody";
+    }) & {
+      readonly __id: string;
     } | null;
+  } | {
+    readonly __typename: "Feedback" | "Page" | "PhotoStory" | "Story" | "User";
+  }) & {
+    readonly __id: string;
+    readonly id: string;
   } | null;
 };
 export type RelayClientIDFieldQuery = {

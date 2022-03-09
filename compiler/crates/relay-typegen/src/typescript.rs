@@ -45,6 +45,7 @@ impl Writer for TypeScriptPrinter {
             AST::Identifier(identifier) => write!(&mut self.result, "{}", identifier),
             AST::RawType(raw) => write!(&mut self.result, "{}", raw),
             AST::Union(members) => self.write_union(members),
+            AST::Intersection(members) => self.write_intersection(members),
             AST::ReadOnlyArray(of_type) => self.write_read_only_array(of_type),
             AST::Nullable(of_type) => self.write_nullable(of_type),
             AST::NonNullable(of_type) => self.write_non_nullable(of_type),
@@ -116,6 +117,10 @@ impl Writer for TypeScriptPrinter {
     ) -> FmtResult {
         Ok(())
     }
+
+    fn supports_exact_objects(&self) -> bool {
+        false
+    }
 }
 
 impl TypeScriptPrinter {
@@ -139,6 +144,21 @@ impl TypeScriptPrinter {
         write!(&mut self.result, r#""%other""#)
     }
 
+    fn write_and_wrap_union(&mut self, ast: &AST) -> FmtResult {
+        match ast {
+            AST::Union(members) if members.len() > 1 => {
+                write!(&mut self.result, "(")?;
+                self.write_union(members)?;
+                write!(&mut self.result, ")")?;
+            }
+            _ => {
+                self.write(ast)?;
+            }
+        }
+
+        Ok(())
+    }
+
     fn write_union(&mut self, members: &[AST]) -> FmtResult {
         let mut first = true;
         for member in members {
@@ -148,6 +168,20 @@ impl TypeScriptPrinter {
                 write!(&mut self.result, " | ")?;
             }
             self.write(member)?;
+        }
+        Ok(())
+    }
+
+    fn write_intersection(&mut self, members: &[AST]) -> FmtResult {
+        let mut first = true;
+        for member in members {
+            if first {
+                first = false;
+            } else {
+                write!(&mut self.result, " & ")?;
+            }
+
+            self.write_and_wrap_union(member)?;
         }
         Ok(())
     }
@@ -200,7 +234,7 @@ impl TypeScriptPrinter {
                 Prop::Spread(_) => continue,
                 Prop::KeyValuePair(key_value_pair) => {
                     self.write_indentation()?;
-                    if let AST::OtherTypename = key_value_pair.value {
+                    if key_value_pair.value.contains_other_typename() {
                         writeln!(
                             &mut self.result,
                             "// This will never be '%other', but we need some"
@@ -339,6 +373,63 @@ mod tests {
             ])))),
             "string | number | null"
         )
+    }
+
+    #[test]
+    fn intersections() {
+        assert_eq!(
+            print_type(&AST::Intersection(vec![
+                AST::ExactObject(vec![Prop::KeyValuePair(KeyValuePairProp {
+                    key: "first".intern(),
+                    optional: false,
+                    read_only: false,
+                    value: AST::String
+                })]),
+                AST::ExactObject(vec![Prop::KeyValuePair(KeyValuePairProp {
+                    key: "second".intern(),
+                    optional: false,
+                    read_only: false,
+                    value: AST::Number
+                })]),
+            ])),
+            r"{
+  first: string;
+} & {
+  second: number;
+}"
+        );
+
+        assert_eq!(
+            print_type(&AST::Intersection(vec![
+                AST::Union(vec![
+                    AST::ExactObject(vec![Prop::KeyValuePair(KeyValuePairProp {
+                        key: "first".intern(),
+                        optional: false,
+                        read_only: false,
+                        value: AST::String
+                    })]),
+                    AST::ExactObject(vec![Prop::KeyValuePair(KeyValuePairProp {
+                        key: "second".intern(),
+                        optional: false,
+                        read_only: false,
+                        value: AST::Number
+                    })]),
+                ]),
+                AST::ExactObject(vec![Prop::KeyValuePair(KeyValuePairProp {
+                    key: "third".intern(),
+                    optional: false,
+                    read_only: false,
+                    value: AST::Number
+                })]),
+            ],)),
+            r"({
+  first: string;
+} | {
+  second: number;
+}) & {
+  third: number;
+}"
+        );
     }
 
     #[test]

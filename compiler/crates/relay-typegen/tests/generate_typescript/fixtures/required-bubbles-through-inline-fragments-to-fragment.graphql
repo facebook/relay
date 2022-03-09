@@ -1,3 +1,7 @@
+{
+  "futureProofAbstractTypes": false
+}
+%%%
 fragment Foo on Node {
   __typename
   ... on User {

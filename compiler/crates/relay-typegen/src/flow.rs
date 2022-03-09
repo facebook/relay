@@ -42,6 +42,7 @@ impl Writer for FlowPrinter {
             AST::Identifier(identifier) => write!(&mut self.result, "{}", identifier),
             AST::RawType(raw) => write!(&mut self.result, "{}", raw),
             AST::Union(members) => self.write_union(members),
+            AST::Intersection(members) => self.write_intersection(members),
             AST::ReadOnlyArray(of_type) => self.write_read_only_array(of_type),
             AST::Nullable(of_type) => self.write_nullable(of_type),
             AST::NonNullable(of_type) => self.write_non_nullable(of_type),
@@ -167,6 +168,19 @@ impl FlowPrinter {
         Ok(())
     }
 
+    fn write_intersection(&mut self, members: &[AST]) -> FmtResult {
+        let mut first = true;
+        for member in members {
+            if first {
+                first = false;
+            } else {
+                write!(&mut self.result, " & ")?;
+            }
+            self.write(member)?;
+        }
+        Ok(())
+    }
+
     fn write_fragment_references(&mut self, fragments: &[StringKey]) -> FmtResult {
         let mut first = true;
         for fragment in fragments {
@@ -195,7 +209,7 @@ impl FlowPrinter {
     fn write_nullable(&mut self, of_type: &AST) -> FmtResult {
         write!(&mut self.result, "?")?;
         match of_type {
-            AST::Union(members) if members.len() > 1 => {
+            AST::Union(members) | AST::Intersection(members) if members.len() > 1 => {
                 write!(&mut self.result, "(")?;
                 self.write(of_type)?;
                 write!(&mut self.result, ")")?;
@@ -230,7 +244,7 @@ impl FlowPrinter {
                     continue;
                 }
                 Prop::KeyValuePair(key_value_pair) => {
-                    if let AST::OtherTypename = key_value_pair.value {
+                    if key_value_pair.value.contains_other_typename() {
                         writeln!(
                             &mut self.result,
                             "// This will never be '%other', but we need some"

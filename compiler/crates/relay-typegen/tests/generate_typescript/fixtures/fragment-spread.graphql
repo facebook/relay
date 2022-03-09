@@ -14,7 +14,7 @@ fragment FragmentSpread on Node {
   }
 }
 
-fragment ConcreateTypes on Viewer {
+fragment ConcreteTypes on Viewer {
   actor {
     __typename
     ... on Page {

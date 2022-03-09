@@ -1,4 +1,8 @@
 ==================================== INPUT ====================================
+{
+  "futureProofAbstractTypes": false
+}
+%%%
 fragment TypenameInside on Actor {
   ... on User {
     __typename
@@ -90,11 +94,6 @@ export type TypenameAlias$data = {|
   +_typeAlias: "Page",
   +username: ?string,
   +$fragmentType: TypenameAlias$fragmentType,
-|} | {|
-  // This will never be '%other', but we need some
-  // value in case none of the concrete values match.
-  +_typeAlias: "%other",
-  +$fragmentType: TypenameAlias$fragmentType,
 |};
 export type TypenameAlias$key = {
   +$data?: TypenameAlias$data,
@@ -114,14 +113,6 @@ export type TypenameAliases$data = {|
   +_typeAlias2: "Page",
   +username: ?string,
   +$fragmentType: TypenameAliases$fragmentType,
-|} | {|
-  // This will never be '%other', but we need some
-  // value in case none of the concrete values match.
-  +_typeAlias1: "%other",
-  // This will never be '%other', but we need some
-  // value in case none of the concrete values match.
-  +_typeAlias2: "%other",
-  +$fragmentType: TypenameAliases$fragmentType,
 |};
 export type TypenameAliases$key = {
   +$data?: TypenameAliases$data,
@@ -138,11 +129,6 @@ export type TypenameInside$data = {|
 |} | {|
   +__typename: "Page",
   +username: ?string,
-  +$fragmentType: TypenameInside$fragmentType,
-|} | {|
-  // This will never be '%other', but we need some
-  // value in case none of the concrete values match.
-  +__typename: "%other",
   +$fragmentType: TypenameInside$fragmentType,
 |};
 export type TypenameInside$key = {
@@ -161,11 +147,6 @@ export type TypenameOutside$data = {|
   +__typename: "Page",
   +username: ?string,
   +$fragmentType: TypenameOutside$fragmentType,
-|} | {|
-  // This will never be '%other', but we need some
-  // value in case none of the concrete values match.
-  +__typename: "%other",
-  +$fragmentType: TypenameOutside$fragmentType,
 |};
 export type TypenameOutside$key = {
   +$data?: TypenameOutside$data,
@@ -176,14 +157,22 @@ export type TypenameOutside$key = {
 import type { FragmentType } from "relay-runtime";
 declare export opaque type TypenameOutsideWithAbstractType$fragmentType: FragmentType;
 export type TypenameOutsideWithAbstractType$data = {|
-  +__typename: string,
+  +__typename: "User",
+  +firstName: ?string,
+  +address: ?{|
+    +street: ?string,
+    +city: ?string,
+    +country: ?string,
+  |},
+  +username?: ?string,
+  +$fragmentType: TypenameOutsideWithAbstractType$fragmentType,
+|} | {|
+  +__typename: "Comment" | "Feedback" | "Page" | "PhotoStory" | "Story",
   +username?: ?string,
   +address?: ?{|
     +city: ?string,
     +country: ?string,
-    +street?: ?string,
   |},
-  +firstName?: ?string,
   +$fragmentType: TypenameOutsideWithAbstractType$fragmentType,
 |};
 export type TypenameOutsideWithAbstractType$key = {
@@ -195,10 +184,14 @@ export type TypenameOutsideWithAbstractType$key = {
 import type { FragmentType } from "relay-runtime";
 declare export opaque type TypenameWithCommonSelections$fragmentType: FragmentType;
 export type TypenameWithCommonSelections$data = {|
-  +__typename: string,
+  +__typename: "User",
+  +firstName: ?string,
   +name: ?string,
-  +firstName?: ?string,
-  +username?: ?string,
+  +$fragmentType: TypenameWithCommonSelections$fragmentType,
+|} | {|
+  +__typename: "Page",
+  +username: ?string,
+  +name: ?string,
   +$fragmentType: TypenameWithCommonSelections$fragmentType,
 |};
 export type TypenameWithCommonSelections$key = {
@@ -210,8 +203,14 @@ export type TypenameWithCommonSelections$key = {
 import type { FragmentType } from "relay-runtime";
 declare export opaque type TypenameWithoutSpreads$fragmentType: FragmentType;
 export type TypenameWithoutSpreads$data = {|
-  +firstName: ?string,
   +__typename: "User",
+  +firstName: ?string,
+  +$fragmentType: TypenameWithoutSpreads$fragmentType,
+|} | {|
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  +__typename: "%other",
+  +firstName: ?string,
   +$fragmentType: TypenameWithoutSpreads$fragmentType,
 |};
 export type TypenameWithoutSpreads$key = {

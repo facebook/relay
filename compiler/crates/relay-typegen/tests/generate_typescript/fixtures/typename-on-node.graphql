@@ -1,0 +1,12 @@
+{
+  "futureProofAbstractTypes": false,
+  "excludeFromTypenameUnions": ["Node"]
+}
+%%%
+fragment TypenameOnNode on Node {
+  __typename
+  id
+  ... on User {
+    firstName
+  }
+}

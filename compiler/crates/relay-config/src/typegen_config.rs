@@ -7,12 +7,11 @@
 
 use common::Rollout;
 use fnv::FnvBuildHasher;
-use indexmap::{IndexMap, IndexSet};
+use indexmap::IndexMap;
 use intern::string_key::StringKey;
 use serde::{Deserialize, Serialize};
 
 type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
-type FnvIndexSet<T> = IndexSet<T, FnvBuildHasher>;
 
 #[derive(Debug, Copy, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(deny_unknown_fields, rename_all = "lowercase")]
@@ -41,14 +40,6 @@ pub struct TypegenConfig {
     /// Note: an empty string is allowed and different from not setting the
     /// value, in the example above it would just import from "Foo".
     pub enum_module_suffix: Option<String>,
-
-    /// # For Flow type generation
-    /// Generate enum files using Flow Enums instead of string unions for the
-    /// given GraphQL enum names.
-    /// Enums with names that start with lowercase are invalid Flow Enum values
-    /// and always generate legacy enums.
-    #[serde(default)]
-    pub flow_enums: FnvIndexSet<StringKey>,
 
     /// # For Flow type generation
     /// When set, generated input types will have the listed fields optional

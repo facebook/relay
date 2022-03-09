@@ -33,7 +33,7 @@ describe('lookup()', () => {
   let operation;
 
   beforeEach(() => {
-    ParentQuery = getRequest(graphql`
+    ParentQuery = graphql`
       query RelayModernEnvironmentLookupTestParentQuery {
         me {
           id
@@ -41,7 +41,7 @@ describe('lookup()', () => {
           ...RelayModernEnvironmentLookupTestChildFragment
         }
       }
-    `);
+    `;
     graphql`
       fragment RelayModernEnvironmentLookupTestChildFragment on User {
         id
@@ -105,7 +105,7 @@ describe('lookup()', () => {
   });
 
   it('reads __id fields', () => {
-    const TestQuery = getRequest(graphql`
+    const TestQuery = graphql`
       query RelayModernEnvironmentLookupTestQuery($id: ID!) {
         __id # ok on query type
         me {
@@ -133,7 +133,7 @@ describe('lookup()', () => {
           }
         }
       }
-    `);
+    `;
     operation = createOperationDescriptor(TestQuery, {id: 'comment:1'});
     environment.commitPayload(operation, {
       me: {

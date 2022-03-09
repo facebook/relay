@@ -14,7 +14,7 @@
 'use strict';
 
 const RelayNetwork = require('../../network/RelayNetwork');
-const {getRequest, graphql} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -42,7 +42,7 @@ describe('execute() with Promise network', () => {
   let variables;
 
   beforeEach(() => {
-    query = getRequest(graphql`
+    query = graphql`
       query RelayModernEnvironmentExecuteWithPromiseNetworkTestActorQuery(
         $fetchSize: Boolean!
       ) {
@@ -53,7 +53,7 @@ describe('execute() with Promise network', () => {
           }
         }
       }
-    `);
+    `;
     variables = {fetchSize: false};
     operation = createOperationDescriptor(query, {
       ...variables,

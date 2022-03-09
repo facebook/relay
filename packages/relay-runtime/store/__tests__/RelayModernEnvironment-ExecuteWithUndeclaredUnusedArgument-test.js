@@ -15,7 +15,7 @@
 
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -41,7 +41,7 @@ describe('query with undeclared, unused fragment argument', () => {
   let subject;
 
   beforeEach(() => {
-    query = getRequest(graphql`
+    query = graphql`
       query RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestQueryWithUnusedFragmentArgumentDefinitionQuery(
         $id: ID!
       ) {
@@ -49,25 +49,25 @@ describe('query with undeclared, unused fragment argument', () => {
           ...RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfile
         }
       }
-    `);
+    `;
 
-    fragment = getFragment(graphql`
+    fragment = graphql`
       fragment RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfile on User {
         id
         name
         ...RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfilePhotoWrapper
           @arguments(size: $size)
       }
-    `);
+    `;
 
-    innerFragment = getFragment(graphql`
+    innerFragment = graphql`
       fragment RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfilePhotoWrapper on User
       @argumentDefinitions(size: {type: "Int"}) {
         __typename
         ...RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfilePhoto
           @uncheckedArguments_DEPRECATED(size: $size)
       }
-    `);
+    `;
 
     graphql`
       fragment RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfilePhoto on User {

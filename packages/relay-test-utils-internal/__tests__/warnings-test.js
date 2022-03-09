@@ -31,7 +31,7 @@ describe('warnings', () => {
   });
   it('throws when disallow warnings is called twice', () => {
     expect(disallowWarnings).toThrowError(
-      '`disallowWarnings` should be called at most once',
+      'disallowWarnings should be called only once',
     );
   });
   it('throws when unexpected warning is fired', () => {
@@ -56,7 +56,7 @@ describe('warnings', () => {
 
   it('warns on unfired contextual warning', () => {
     expect(() => expectToWarn(expected_message1, () => {})).toThrowError(
-      'Expected callback to warn: ' + expected_message1,
+      'Expected warning in callback: ' + expected_message1,
     );
   });
 
@@ -96,6 +96,6 @@ describe('warnings', () => {
           warning(false, expected_message2);
         },
       );
-    }).toThrowError('Expected callback to warn: ' + expected_message3);
+    }).toThrowError('Expected warning in callback: ' + expected_message3);
   });
 });

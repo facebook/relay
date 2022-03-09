@@ -23,18 +23,17 @@ const {
   Network,
   Observable,
   PreloadableQueryRegistry,
-  getRequest,
   graphql,
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
 
-const query = getRequest(graphql`
+const query = graphql`
   query useQueryLoaderMultipleCallsTestQuery($id: ID!) {
     node(id: $id) {
       id
     }
   }
-`);
+`;
 
 const preloadableConcreteRequest = {
   kind: 'PreloadableConcreteRequest',

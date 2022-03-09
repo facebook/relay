@@ -17,7 +17,7 @@ import type {NormalizationRootNode} from '../../util/NormalizationNode';
 
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -62,7 +62,7 @@ describe('execute() a query with @module', () => {
   let variables;
 
   beforeEach(() => {
-    query = getRequest(graphql`
+    query = graphql`
       query RelayModernEnvironmentExecuteWithModuleWithKeyTestUserQuery(
         $id: ID!
       ) {
@@ -80,7 +80,7 @@ describe('execute() a query with @module', () => {
           }
         }
       }
-    `);
+    `;
 
     graphql`
       fragment RelayModernEnvironmentExecuteWithModuleWithKeyTestPlainUserNameRenderer_name on PlainUserNameRenderer {
@@ -92,7 +92,7 @@ describe('execute() a query with @module', () => {
     `;
 
     markdownRendererNormalizationFragment = require('./__generated__/RelayModernEnvironmentExecuteWithModuleWithKeyTestMarkdownUserNameRenderer_name$normalization.graphql');
-    markdownRendererFragment = getFragment(graphql`
+    markdownRendererFragment = graphql`
       fragment RelayModernEnvironmentExecuteWithModuleWithKeyTestMarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
         __typename
         markdown
@@ -100,7 +100,7 @@ describe('execute() a query with @module', () => {
           markup @__clientField(handle: "markup_handler")
         }
       }
-    `);
+    `;
     variables = {id: '1'};
     operation = createOperationDescriptor(query, variables);
 

@@ -15,7 +15,7 @@
 
 import type {Disposable} from '../../util/RelayRuntimeTypes';
 
-const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
 const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const {
   createOperationDescriptor,
@@ -121,13 +121,13 @@ function cloneEventWithSets(event) {
         initialData = simpleClone(data);
         source = getRecordSourceImplementation(data);
         store = new RelayModernStore(source, {gcReleaseBufferSize: 0});
-        UserQuery = getRequest(graphql`
+        UserQuery = graphql`
           query RelayModernStoreTest1Query($id: ID!, $size: [Int]) {
             node(id: $id) {
               ...RelayModernStoreTest1Fragment
             }
           }
-        `);
+        `;
         graphql`
           fragment RelayModernStoreTest1Fragment on User {
             name
@@ -156,11 +156,11 @@ function cloneEventWithSets(event) {
       });
 
       it('only collects unreferenced data', () => {
-        const JoeQuery = getRequest(graphql`
+        const JoeQuery = graphql`
           query RelayModernStoreTestJoeQuery($id: ID!) {
             ...RelayModernStoreTestJoeFragment @arguments(id: $id)
           }
-        `);
+        `;
         graphql`
           fragment RelayModernStoreTestJoeFragment on Query
           @argumentDefinitions(id: {type: "ID"}) {
@@ -220,21 +220,21 @@ function cloneEventWithSets(event) {
         };
         source = getRecordSourceImplementation(data);
         store = new RelayModernStore(source, {gcReleaseBufferSize: 0});
-        UserFragment = getFragment(graphql`
+        UserFragment = graphql`
           fragment RelayModernStoreTest2Fragment on User {
             name
             profilePicture(size: $size) {
               uri
             }
           }
-        `);
-        UserQuery = getRequest(graphql`
+        `;
+        UserQuery = graphql`
           query RelayModernStoreTest2Query($size: [Int]) {
             me {
               ...RelayModernStoreTest2Fragment
             }
           }
-        `);
+        `;
       });
 
       it('returns selector data', () => {
@@ -263,15 +263,15 @@ function cloneEventWithSets(event) {
       });
 
       it('includes fragment owner in selector data when owner is provided', () => {
-        UserQuery = getRequest(graphql`
+        UserQuery = graphql`
           query RelayModernStoreTest3Query($size: [Int]) {
             me {
               ...RelayModernStoreTest3Fragment
             }
           }
-        `);
+        `;
 
-        UserFragment = getFragment(graphql`
+        UserFragment = graphql`
           fragment RelayModernStoreTest3Fragment on User {
             name
             profilePicture(size: $size) {
@@ -279,7 +279,7 @@ function cloneEventWithSets(event) {
             }
             ...RelayModernStoreTest4Fragment
           }
-        `);
+        `;
         graphql`
           fragment RelayModernStoreTest4Fragment on User {
             username
@@ -411,7 +411,7 @@ function cloneEventWithSets(event) {
           },
           gcReleaseBufferSize: 0,
         });
-        UserFragment = getFragment(graphql`
+        UserFragment = graphql`
           fragment RelayModernStoreTest5Fragment on User {
             name
             profilePicture(size: $size) {
@@ -419,15 +419,15 @@ function cloneEventWithSets(event) {
             }
             emailAddresses
           }
-        `);
+        `;
 
-        UserQuery = getRequest(graphql`
+        UserQuery = graphql`
           query RelayModernStoreTest4Query($size: [Int]) {
             me {
               ...RelayModernStoreTest5Fragment
             }
           }
-        `);
+        `;
       });
 
       it('calls subscribers whose data has changed since previous notify', () => {
@@ -468,14 +468,14 @@ function cloneEventWithSets(event) {
 
       it('calls subscribers and reads data with fragment owner if one is available in subscription snapshot', () => {
         // subscribe(), publish(), notify() -> subscriber called
-        UserQuery = getRequest(graphql`
+        UserQuery = graphql`
           query RelayModernStoreTest5Query($size: [Int]) {
             me {
               ...RelayModernStoreTest6Fragment
             }
           }
-        `);
-        UserFragment = getFragment(graphql`
+        `;
+        UserFragment = graphql`
           fragment RelayModernStoreTest6Fragment on User {
             name
             profilePicture(size: $size) {
@@ -483,7 +483,7 @@ function cloneEventWithSets(event) {
             }
             emailAddresses
           }
-        `);
+        `;
         const owner = createOperationDescriptor(UserQuery, {size: 32});
         const selector = createReaderSelector(
           UserFragment,
@@ -1102,13 +1102,13 @@ function cloneEventWithSets(event) {
         };
         source = getRecordSourceImplementation(data);
         store = new RelayModernStore(source, {gcReleaseBufferSize: 0});
-        UserQuery = getRequest(graphql`
+        UserQuery = graphql`
           query RelayModernStoreTest6Query($id: ID!, $size: [Int]) {
             node(id: $id) {
               ...RelayModernStoreTest7Fragment
             }
           }
-        `);
+        `;
         graphql`
           fragment RelayModernStoreTest7Fragment on User {
             name
@@ -1990,13 +1990,13 @@ function cloneEventWithSets(event) {
           gcReleaseBufferSize: 1,
           queryCacheExpirationTime: QUERY_CACHE_EXPIRATION_TIME,
         });
-        UserQuery = getRequest(graphql`
+        UserQuery = graphql`
           query RelayModernStoreTest7Query($id: ID!, $size: [Int]) {
             node(id: $id) {
               ...RelayModernStoreTest8Fragment
             }
           }
-        `);
+        `;
         graphql`
           fragment RelayModernStoreTest8Fragment on User {
             name
@@ -2246,13 +2246,13 @@ function cloneEventWithSets(event) {
       let store;
       let schedulerQueue;
 
-      const NodeQuery = getRequest(graphql`
+      const NodeQuery = graphql`
         query RelayModernStoreTest8Query($id: ID!) {
           node(id: $id) {
             __typename
           }
         }
-      `);
+      `;
 
       function runNextScheduledJob() {
         const job = schedulerQueue.shift();
@@ -2430,13 +2430,13 @@ function cloneEventWithSets(event) {
         initialData = simpleClone(data);
         source = getRecordSourceImplementation(data);
         store = new RelayModernStore(source, {gcReleaseBufferSize: 0});
-        UserQuery = getRequest(graphql`
+        UserQuery = graphql`
           query RelayModernStoreTest9Query($id: ID!, $size: [Int]) {
             node(id: $id) {
               ...RelayModernStoreTest9Fragment
             }
           }
-        `);
+        `;
         graphql`
           fragment RelayModernStoreTest9Fragment on User {
             name

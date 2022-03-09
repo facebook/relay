@@ -31,6 +31,7 @@ pub enum AST {
     FragmentReference(Vec<StringKey>),
     FragmentReferenceType(StringKey),
     ReturnTypeOfFunctionWithName(StringKey),
+    ReturnTypeOfMethodCall(Box<AST>, StringKey),
     ActorChangePoint(Box<AST>),
 }
 

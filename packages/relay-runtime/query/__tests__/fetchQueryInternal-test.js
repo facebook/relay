@@ -21,11 +21,7 @@ const {
   getObservableForActiveRequest,
   getPromiseForActiveRequest,
 } = require('../fetchQueryInternal');
-const {
-  createOperationDescriptor,
-  getRequest,
-  graphql,
-} = require('relay-runtime');
+const {createOperationDescriptor, graphql} = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
 
 let response;
@@ -35,13 +31,13 @@ let environment;
 
 beforeEach(() => {
   environment = createMockEnvironment();
-  gqlQuery = getRequest(graphql`
+  gqlQuery = graphql`
     query fetchQueryInternalTest1Query($id: ID!) {
       node(id: $id) {
         id
       }
     }
-  `);
+  `;
   query = createOperationDescriptor(gqlQuery, {id: '4'});
   response = {
     data: {
@@ -698,7 +694,7 @@ describe('getPromiseForActiveRequest', () => {
         get: jest.fn(),
       };
       environment = createMockEnvironment({operationLoader});
-      gqlQuery = getRequest(graphql`
+      gqlQuery = graphql`
         query fetchQueryInternalTest2Query($id: ID!) {
           node(id: $id) {
             ... on User {
@@ -712,7 +708,7 @@ describe('getPromiseForActiveRequest', () => {
             }
           }
         }
-      `);
+      `;
       graphql`
         fragment fetchQueryInternalTestPlainFragment_name on PlainUserNameRenderer {
           plaintext
@@ -1009,7 +1005,7 @@ describe('getObservableForActiveRequest', () => {
         get: jest.fn(),
       };
       environment = createMockEnvironment({operationLoader});
-      gqlQuery = getRequest(graphql`
+      gqlQuery = graphql`
         query fetchQueryInternalTest3Query($id: ID!) {
           node(id: $id) {
             ... on User {
@@ -1023,7 +1019,7 @@ describe('getObservableForActiveRequest', () => {
             }
           }
         }
-      `);
+      `;
 
       graphql`
         fragment fetchQueryInternalTestPlain1Fragment_name on PlainUserNameRenderer {

@@ -15,7 +15,7 @@
 
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const {getRequest, graphql} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
 const RelayModernEnvironment = require('../../store/RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -37,7 +37,7 @@ describe('requestSubscription-test', () => {
     const firstCommentId = 'comment-1';
     const firstCommentBody = 'first comment';
     const secondCommentId = 'comment-2';
-    const FeedbackCommentQuery = getRequest(graphql`
+    const FeedbackCommentQuery = graphql`
       query requestSubscriptionTestFeedbackCommentQuery($id: ID) {
         node(id: $id) {
           ... on Feedback {
@@ -55,7 +55,7 @@ describe('requestSubscription-test', () => {
           }
         }
       }
-    `);
+    `;
     const payload = {
       node: {
         __typename: 'Feedback',
@@ -90,7 +90,7 @@ describe('requestSubscription-test', () => {
     );
     environment.commitPayload(operationDescriptor, payload);
 
-    const CommentCreateSubscription = getRequest(graphql`
+    const CommentCreateSubscription = graphql`
       subscription requestSubscriptionTestCommentCreateSubscription(
         $input: CommentCreateSubscriptionInput
       ) {
@@ -105,7 +105,7 @@ describe('requestSubscription-test', () => {
           }
         }
       }
-    `);
+    `;
 
     const configs = [
       {
@@ -209,7 +209,7 @@ describe('requestSubscription-test', () => {
     };
 
     beforeEach(() => {
-      CommentCreateSubscription = getRequest(graphql`
+      CommentCreateSubscription = graphql`
         subscription requestSubscriptionTest1CommentCreateSubscription(
           $input: CommentCreateSubscriptionInput
         ) {
@@ -224,7 +224,7 @@ describe('requestSubscription-test', () => {
             }
           }
         }
-      `);
+      `;
 
       cacheMetadata = undefined;
       const fetch = jest.fn((_query, _variables, _cacheConfig) => {
@@ -262,7 +262,7 @@ describe('requestSubscription-test', () => {
   });
 
   it('does not overwrite existing data', () => {
-    const ConfigsQuery = getRequest(graphql`
+    const ConfigsQuery = graphql`
       query requestSubscriptionTestConfigsQuery {
         viewer {
           configs {
@@ -274,7 +274,7 @@ describe('requestSubscription-test', () => {
           }
         }
       }
-    `);
+    `;
 
     graphql`
       fragment requestSubscriptionTestExtraFragment on Config {
@@ -282,7 +282,7 @@ describe('requestSubscription-test', () => {
       }
     `;
 
-    const ConfigCreateSubscription = getRequest(graphql`
+    const ConfigCreateSubscription = graphql`
       subscription requestSubscriptionTestConfigCreateSubscription {
         configCreateSubscribe {
           config {
@@ -291,7 +291,7 @@ describe('requestSubscription-test', () => {
           }
         }
       }
-    `);
+    `;
 
     const operationDescriptor = createOperationDescriptor(ConfigsQuery, {});
     const environment = createMockEnvironment();
@@ -423,7 +423,7 @@ describe('requestSubscription-test', () => {
 
   it('reads the data using the correct rootID in onNext when resources are resolved synchronously', () => {
     const normalization = require('./__generated__/requestSubscriptionTestPlainUserNameRenderer_name$normalization.graphql');
-    const subscription = getRequest(graphql`
+    const subscription = graphql`
       subscription requestSubscriptionTestSubscription(
         $input: CommentCreateSubscriptionInput!
       ) {
@@ -439,7 +439,7 @@ describe('requestSubscription-test', () => {
           }
         }
       }
-    `);
+    `;
 
     graphql`
       fragment requestSubscriptionTestPlainUserNameRenderer_name on PlainUserNameRenderer {

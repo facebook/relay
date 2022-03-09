@@ -24,7 +24,7 @@ import type {
 
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -56,7 +56,7 @@ describe('execute() a query with nested @stream', () => {
   let variables;
 
   beforeEach(() => {
-    query = getRequest(graphql`
+    query = graphql`
       query RelayModernEnvironmentExecuteWithNestedStreamTestFeedQuery(
         $enableStream: Boolean!
       ) {
@@ -64,9 +64,9 @@ describe('execute() a query with nested @stream', () => {
           ...RelayModernEnvironmentExecuteWithNestedStreamTestFeedFragment
         }
       }
-    `);
+    `;
 
-    feedFragment = getFragment(graphql`
+    feedFragment = graphql`
       fragment RelayModernEnvironmentExecuteWithNestedStreamTestFeedFragment on Viewer {
         newsFeed(first: 10) {
           edges
@@ -88,14 +88,14 @@ describe('execute() a query with nested @stream', () => {
           }
         }
       }
-    `);
+    `;
 
-    actorFragment = getFragment(graphql`
+    actorFragment = graphql`
       fragment RelayModernEnvironmentExecuteWithNestedStreamTestActorFragment on User {
         # keep in sync with above
         name @__clientField(handle: "name_handler")
       }
-    `);
+    `;
     variables = {enableStream: true};
     operation = createOperationDescriptor(query, variables);
     selector = createReaderSelector(

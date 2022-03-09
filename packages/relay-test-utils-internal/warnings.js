@@ -11,11 +11,25 @@
 
 'use strict';
 
-/* global jest, afterEach */
+/* global jest */
 
-let installed = false;
-const expectedWarnings: Array<string> = [];
-const contextualExpectedWarning: Array<string> = [];
+const {createConsoleInterceptionSystem} = require('./consoleErrorsAndWarnings');
+
+const warningsSystem = createConsoleInterceptionSystem(
+  'warning',
+  'expectToWarn',
+  impl => {
+    jest.mock('warning', () =>
+      jest.fn((condition, format, ...args) => {
+        if (!condition) {
+          let argIndex = 0;
+          const message = format.replace(/%s/g, () => String(args[argIndex++]));
+          impl(message);
+        }
+      }),
+    );
+  },
+);
 
 /**
  * Mocks the `warning` module to turn warnings into errors. Any expected
@@ -25,44 +39,7 @@ const contextualExpectedWarning: Array<string> = [];
  *       use `jest.resetModules()` or manually mock `warning`.
  */
 function disallowWarnings(): void {
-  if (installed) {
-    throw new Error('`disallowWarnings` should be called at most once');
-  }
-  installed = true;
-  jest.mock('warning', () => {
-    return jest.fn((condition, format, ...args) => {
-      if (!condition) {
-        let argIndex = 0;
-        const message = format.replace(/%s/g, () => String(args[argIndex++]));
-        const index = expectedWarnings.indexOf(message);
-
-        if (
-          contextualExpectedWarning.length > 0 &&
-          contextualExpectedWarning[0] === message
-        ) {
-          contextualExpectedWarning.shift();
-        } else if (index >= 0) {
-          expectedWarnings.splice(index, 1);
-        } else {
-          // log to console in case the error gets swallowed somewhere
-          console.error('Unexpected Warning: ' + message);
-          throw new Error('Warning: ' + message);
-        }
-      }
-    });
-  });
-  afterEach(() => {
-    contextualExpectedWarning.length = 0;
-    if (expectedWarnings.length > 0) {
-      const error = new Error(
-        'Some expected warnings where not triggered:\n\n' +
-          Array.from(expectedWarnings, message => ` * ${message}`).join('\n') +
-          '\n',
-      );
-      expectedWarnings.length = 0;
-      throw error;
-    }
-  });
+  warningsSystem.disallowMessages();
 }
 
 /**
@@ -70,19 +47,14 @@ function disallowWarnings(): void {
  * current test, the test will fail.
  */
 function expectWarningWillFire(message: string): void {
-  if (!installed) {
-    throw new Error(
-      '`disallowWarnings` needs to be called before `expectWarningWillFire`',
-    );
-  }
-  expectedWarnings.push(message);
+  warningsSystem.expectMessageWillFire(message);
 }
 
 /**
  * Expect the callback `fn` to trigger the warning message and otherwise fail.
  */
 function expectToWarn<T>(message: string, fn: () => T): T {
-  return expectToWarnMany([message], fn);
+  return warningsSystem.expectMessage(message, fn);
 }
 
 /**
@@ -90,17 +62,7 @@ function expectToWarn<T>(message: string, fn: () => T): T {
  * or otherwise fail.
  */
 function expectToWarnMany<T>(messages: Array<string>, fn: () => T): T {
-  if (contextualExpectedWarning.length > 0) {
-    throw new Error('Cannot nest `expectToWarn()` calls.');
-  }
-  contextualExpectedWarning.push(...messages);
-  const result = fn();
-  if (contextualExpectedWarning.length > 0) {
-    const notFired = contextualExpectedWarning.toString();
-    contextualExpectedWarning.length = 0;
-    throw new Error(`Expected callback to warn: ${notFired}`);
-  }
-  return result;
+  return warningsSystem.expectMessageMany(messages, fn);
 }
 
 module.exports = {

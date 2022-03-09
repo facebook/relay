@@ -12,7 +12,10 @@
 
 'use strict';
 
-import type {ReaderRelayResolver} from '../../util/ReaderNode';
+import type {
+  ReaderRelayLiveResolver,
+  ReaderRelayResolver,
+} from '../../util/ReaderNode';
 import type {DataID, Variables} from '../../util/RelayRuntimeTypes';
 import type {
   MissingRequiredFields,
@@ -99,7 +102,7 @@ class ExternalStateResolverCache implements ResolverCache {
 
   readFromCacheOrEvaluate<T>(
     record: Record,
-    field: ReaderRelayResolver,
+    field: ReaderRelayResolver | ReaderRelayLiveResolver,
     variables: Variables,
     evaluate: () => EvaluationResult<T>,
     getDataForResolverFragment: SingularReaderSelector => mixed,

@@ -22,6 +22,7 @@ import type {
   ReaderLinkedField,
   ReaderModuleImport,
   ReaderNode,
+  ReaderRelayLiveResolver,
   ReaderRelayResolver,
   ReaderRequiredField,
   ReaderScalarField,
@@ -55,6 +56,7 @@ const {
   INLINE_FRAGMENT,
   LINKED_FIELD,
   MODULE_IMPORT,
+  RELAY_LIVE_RESOLVER,
   RELAY_RESOLVER,
   REQUIRED_FIELD,
   SCALAR_FIELD,
@@ -395,6 +397,13 @@ class RelayReader {
           }
           break;
         }
+        case RELAY_LIVE_RESOLVER: {
+          if (!RelayFeatureFlags.ENABLE_RELAY_RESOLVERS) {
+            throw new Error('Relay Resolver fields are not yet supported.');
+          }
+          this._readResolverField(selection, record, data);
+          break;
+        }
         case RELAY_RESOLVER: {
           if (!RelayFeatureFlags.ENABLE_RELAY_RESOLVERS) {
             throw new Error('Relay Resolver fields are not yet supported.');
@@ -500,6 +509,11 @@ class RelayReader {
           throw new Error('Relay Resolver fields are not yet supported.');
         }
         return this._readResolverField(selection.field, record, data);
+      case RELAY_LIVE_RESOLVER:
+        if (!RelayFeatureFlags.ENABLE_RELAY_RESOLVERS) {
+          throw new Error('Relay Resolver fields are not yet supported.');
+        }
+        return this._readResolverField(selection.field, record, data);
       default:
         (selection.field.kind: empty);
         invariant(
@@ -511,7 +525,7 @@ class RelayReader {
   }
 
   _readResolverField(
-    field: ReaderRelayResolver,
+    field: ReaderRelayResolver | ReaderRelayLiveResolver,
     record: Record,
     data: SelectorData,
   ): mixed {

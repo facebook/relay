@@ -26,7 +26,6 @@ const {
   PreloadableQueryRegistry,
   RecordSource,
   Store,
-  getRequest,
   graphql,
 } = require('relay-runtime');
 const {
@@ -36,7 +35,7 @@ const {
 
 disallowWarnings();
 
-const query = getRequest(graphql`
+const query = graphql`
   query EntryPointContainerTestQuery($id: ID!) {
     node(id: $id) {
       id
@@ -45,7 +44,7 @@ const query = getRequest(graphql`
       }
     }
   }
-`);
+`;
 const params = {
   kind: 'PreloadableConcreteRequest',
   params: query.params,

@@ -18,7 +18,7 @@ const {
   getActorIdentifier,
 } = require('../../multi-actor-environment');
 const RelayNetwork = require('../../network/RelayNetwork');
-const {getRequest, graphql} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -29,7 +29,7 @@ const {disallowWarnings} = require('relay-test-utils-internal');
 
 disallowWarnings();
 
-const ParentQuery = getRequest(graphql`
+const ParentQuery = graphql`
   query RelayModernEnvironmentCheckTestParentQuery($size: [Int]!) {
     me {
       id
@@ -39,7 +39,7 @@ const ParentQuery = getRequest(graphql`
       }
     }
   }
-`);
+`;
 
 describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
   'check()',
@@ -126,7 +126,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
       describe('ActorChange in MultiActorEnvironment', () => {
         let Query;
         beforeEach(() => {
-          Query = getRequest(graphql`
+          Query = graphql`
             query RelayModernEnvironmentCheckTestQuery {
               viewer {
                 newsFeed {
@@ -138,7 +138,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
                 }
               }
             }
-          `);
+          `;
           graphql`
             fragment RelayModernEnvironmentCheckTestFragment on FeedUnit {
               id

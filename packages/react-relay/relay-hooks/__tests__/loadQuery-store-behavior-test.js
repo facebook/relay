@@ -19,7 +19,6 @@ const {
   Observable,
   PreloadableQueryRegistry,
   createOperationDescriptor,
-  getRequest,
   graphql,
 } = require('relay-runtime');
 const {
@@ -31,14 +30,14 @@ const {
 disallowWarnings();
 disallowConsoleErrors();
 
-const query = getRequest(graphql`
+const query = graphql`
   query loadQueryStoreBehaviorTestQuery($id: ID!) {
     node(id: $id) {
       name
       id
     }
   }
-`);
+`;
 
 // Only queries with an ID are preloadable
 const ID = '12345';

@@ -27,7 +27,7 @@ const ReactTestRenderer = require('react-test-renderer');
 const {
   Observable,
   createOperationDescriptor,
-  getRequest,
+
   graphql,
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
@@ -107,7 +107,7 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
       });
     });
 
-    gqlQuery = getRequest(graphql`
+    gqlQuery = graphql`
       query usePreloadedQueryReactDoubleEffectsTestQuery($id: ID) {
         node(id: $id) {
           id
@@ -115,8 +115,8 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
           ...usePreloadedQueryReactDoubleEffectsTestFragment
         }
       }
-    `);
-    gqlQueryWithDefer = getRequest(graphql`
+    `;
+    gqlQueryWithDefer = graphql`
       query usePreloadedQueryReactDoubleEffectsTestDeferQuery($id: ID) {
         node(id: $id) {
           id
@@ -124,7 +124,7 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
           ...usePreloadedQueryReactDoubleEffectsTestFragment @defer
         }
       }
-    `);
+    `;
     const gqlFragment: usePreloadedQueryReactDoubleEffectsTestFragment = graphql`
       fragment usePreloadedQueryReactDoubleEffectsTestFragment on User {
         firstName

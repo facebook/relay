@@ -14,13 +14,13 @@
 const getRelayHandleKey = require('../../util/getRelayHandleKey');
 const {LINKED_FIELD, LINKED_HANDLE} = require('../../util/RelayConcreteNode');
 const cloneRelayHandleSourceField = require('../cloneRelayHandleSourceField');
-const {getRequest, graphql} = require('relay-runtime');
+const {graphql} = require('relay-runtime');
 
 describe('cloneRelayHandleSourceField()', () => {
   let selections;
 
   beforeEach(() => {
-    const TestQuery = getRequest(graphql`
+    const TestQuery = graphql`
       query cloneRelayHandleSourceFieldTestTestQuery {
         me {
           address @__clientField(handle: "test") {
@@ -28,7 +28,7 @@ describe('cloneRelayHandleSourceField()', () => {
           }
         }
       }
-    `);
+    `;
     // Get the selections on `me`.
     // $FlowFixMe[incompatible-use]
     // $FlowFixMe[prop-missing]

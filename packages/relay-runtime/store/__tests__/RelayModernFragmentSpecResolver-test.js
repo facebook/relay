@@ -15,7 +15,7 @@ const RelayModernFragmentSpecResolver = require('../RelayModernFragmentSpecResol
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
-const {getRequest, graphql} = require('relay-runtime');
+const {graphql} = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils-internal');
 
 describe('RelayModernFragmentSpecResolver', () => {
@@ -75,7 +75,7 @@ describe('RelayModernFragmentSpecResolver', () => {
       }
     `;
 
-    UserQuery = getRequest(graphql`
+    UserQuery = graphql`
       query RelayModernFragmentSpecResolverTestQuery(
         $id: ID!
         $size: [Int]
@@ -86,7 +86,7 @@ describe('RelayModernFragmentSpecResolver', () => {
           ...RelayModernFragmentSpecResolverTestQueryUsersFragment
         }
       }
-    `);
+    `;
 
     zuckOperation = createOperationDescriptor(UserQuery, {
       fetchSize: false,
@@ -866,7 +866,7 @@ describe('RelayModernFragmentSpecResolver', () => {
       beforeEach(() => {
         jest.mock('warning');
 
-        AffectingQuery = getRequest(graphql`
+        AffectingQuery = graphql`
           query RelayModernFragmentSpecResolverTestAffectingQuery(
             $id: ID!
             $size: [Int]
@@ -877,7 +877,7 @@ describe('RelayModernFragmentSpecResolver', () => {
               ...RelayModernFragmentSpecResolverTestQueryUsersFragment
             }
           }
-        `);
+        `;
         const affectingQueryOperation = createOperationDescriptor(
           AffectingQuery,
           {

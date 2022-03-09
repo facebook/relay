@@ -27,13 +27,12 @@ const {
   PreloadableQueryRegistry,
   RecordSource,
   Store,
-  getRequest,
   graphql,
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
 const warning = require('warning');
 
-const query = getRequest(graphql`
+const query = graphql`
   query usePreloadedQueryTestQuery($id: ID!) {
     node(id: $id) {
       id
@@ -42,7 +41,7 @@ const query = getRequest(graphql`
       }
     }
   }
-`);
+`;
 
 // Only queries with an ID are preloadable
 const ID = '12345';

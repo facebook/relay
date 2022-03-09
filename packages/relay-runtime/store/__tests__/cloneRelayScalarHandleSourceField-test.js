@@ -14,13 +14,13 @@
 const getRelayHandleKey = require('../../util/getRelayHandleKey');
 const {SCALAR_FIELD, SCALAR_HANDLE} = require('../../util/RelayConcreteNode');
 const cloneRelayScalarHandleSourceField = require('../cloneRelayScalarHandleSourceField');
-const {getRequest, graphql} = require('relay-runtime');
+const {graphql} = require('relay-runtime');
 
 describe('cloneRelayScalarHandleSourceField()', () => {
   let selections;
 
   beforeEach(() => {
-    const TestQuery = getRequest(graphql`
+    const TestQuery = graphql`
       query cloneRelayScalarHandleSourceFieldTestQuery {
         me {
           address {
@@ -28,7 +28,7 @@ describe('cloneRelayScalarHandleSourceField()', () => {
           }
         }
       }
-    `);
+    `;
     // Get the selections on `me.addresss`.
     // $FlowFixMe
     selections = TestQuery.operation.selections[0].selections[0].selections;

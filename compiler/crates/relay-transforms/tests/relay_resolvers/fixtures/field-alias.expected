@@ -29,6 +29,7 @@ fragment Foo_user on User {
   #         "poppy",
   #     ),
   #     field_path: "poppy",
+  #     live: false,
   # }
   
 }

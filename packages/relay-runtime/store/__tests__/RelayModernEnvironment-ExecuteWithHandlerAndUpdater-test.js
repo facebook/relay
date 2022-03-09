@@ -19,7 +19,7 @@ import type {
 
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const {getRequest, graphql} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -47,13 +47,13 @@ describe('execute() with handler and updater', () => {
   let subject;
 
   beforeEach(() => {
-    query = getRequest(graphql`
+    query = graphql`
       query RelayModernEnvironmentExecuteWithHandlerAndUpdaterTestActorQuery {
         me {
           name @__clientField(handle: "name_handler")
         }
       }
-    `);
+    `;
     operation = createOperationDescriptor(query, {});
 
     complete = jest.fn();

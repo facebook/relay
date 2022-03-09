@@ -59,6 +59,9 @@ impl Writer for TypeScriptPrinter {
                 self.write_return_type_of_function_with_name(*function_name)
             }
             AST::ActorChangePoint(_) => panic!("Not supported yet"),
+            AST::ReturnTypeOfMethodCall(object, method_name) => {
+                self.write_return_type_of_method_call(object, *method_name)
+            }
         }
     }
 
@@ -264,6 +267,16 @@ impl TypeScriptPrinter {
 
     fn write_return_type_of_function_with_name(&mut self, function_name: StringKey) -> FmtResult {
         write!(&mut self.result, "ReturnType<typeof {}>", function_name)
+    }
+
+    fn write_return_type_of_method_call(
+        &mut self,
+        object: &AST,
+        method_name: StringKey,
+    ) -> FmtResult {
+        write!(&mut self.result, "ReturnType<")?;
+        self.write(object)?;
+        write!(&mut self.result, "[\"{}\"]>", method_name)
     }
 
     fn write_callable(&mut self, return_type: &AST) -> FmtResult {

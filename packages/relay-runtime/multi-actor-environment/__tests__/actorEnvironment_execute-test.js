@@ -14,11 +14,7 @@
 const {create} = require('../../network/RelayNetwork');
 const {getDefaultActorIdentifier} = require('../ActorIdentifier');
 const MultiActorEnvironment = require('../MultiActorEnvironment');
-const {
-  createOperationDescriptor,
-  getRequest,
-  graphql,
-} = require('relay-runtime');
+const {createOperationDescriptor, graphql} = require('relay-runtime');
 
 jest.mock('../ActorIdentifier', () => {
   return {
@@ -39,7 +35,7 @@ test('send a network request with actor specific params', () => {
   const actorEnvironment = multiActorEnvironment.forActor(actorIdentifier);
 
   const operation = createOperationDescriptor(
-    getRequest(graphql`
+    graphql`
       query actorEnvironmentExecuteTestQuery($id: ID!) {
         node(id: $id) {
           ... on User {
@@ -47,7 +43,7 @@ test('send a network request with actor specific params', () => {
           }
         }
       }
-    `),
+    `,
     {id: 'my_id'},
   );
 

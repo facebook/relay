@@ -2549,14 +2549,14 @@ describe('RelayResponseNormalizer', () => {
       }
     `;
 
-    const queryPV = getRequest(graphql`
+    const queryPV = graphql`
       query RelayResponseNormalizerTest_pvQuery($id: ID!) {
         node(id: $id) {
           id
           ...RelayResponseNormalizerTest_pvFragment
         }
       }
-    `);
+    `;
 
     const payload = {
       node: {

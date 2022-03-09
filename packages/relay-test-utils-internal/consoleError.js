@@ -11,32 +11,55 @@
 
 'use strict';
 
-/* global jest, afterEach */
+/* global jest */
 
-let installed = false;
+const {createConsoleInterceptionSystem} = require('./consoleErrorsAndWarnings');
+
+const consoleErrorsSystem = createConsoleInterceptionSystem(
+  'error',
+  'expectConsoleError',
+  impl => {
+    jest.spyOn(console, 'error').mockImplementation(impl);
+  },
+);
 
 /**
- * Similar to disallowWarnings.
- * This method mocks the console.error and throws in the error is printed in the console.
+ * Mocks console.error so that errors printed to the console are instead thrown.
+ * Any expected errors need to be explicitly expected with `expectConsoleErrorWillFire(message)`.
+ *
+ * NOTE: This should be called on top of a test file. The test should NOT
+ *       use `jest.resetModules()` or manually mock `console`.
  */
 function disallowConsoleErrors(): void {
-  if (installed) {
-    throw new Error('`disallowConsoleErrors` should be called at most once');
-  }
-  installed = true;
-  let errors = [];
-  jest.spyOn(console, 'error').mockImplementation(message => {
-    errors.push(`Unexpected \`console.error\`:\n${message}.`);
-  });
-  afterEach(() => {
-    if (errors.length > 0) {
-      const message = errors.join('\n');
-      errors = [];
-      throw new Error(message);
-    }
-  });
+  consoleErrorsSystem.disallowMessages();
+}
+
+/**
+ * Expect an error with the given message. If the message isn't fired in the
+ * current test, the test will fail.
+ */
+function expectConsoleErrorWillFire(message: string): void {
+  consoleErrorsSystem.expectMessageWillFire(message);
+}
+
+/**
+ * Expect the callback `fn` to print an error with the message, and otherwise fail.
+ */
+function expectConsoleError<T>(message: string, fn: () => T): T {
+  return consoleErrorsSystem.expectMessage(message, fn);
+}
+
+/**
+ * Expect the callback `fn` to trigger all console errors (in sequence),
+ * and otherwise fail.
+ */
+function expectConsoleErrorsMany<T>(messages: Array<string>, fn: () => T): T {
+  return consoleErrorsSystem.expectMessageMany(messages, fn);
 }
 
 module.exports = {
   disallowConsoleErrors,
+  expectConsoleErrorWillFire,
+  expectConsoleError,
+  expectConsoleErrorsMany,
 };

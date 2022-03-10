@@ -310,7 +310,10 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         match self.lsp_state.schemas.entry(project_config.name) {
             Entry::Vacant(e) => {
                 let schema = build_schema(compiler_state, project_config).map_err(|errors| {
-                    BuildProjectFailure::Error(BuildProjectError::ValidationErrors { errors })
+                    BuildProjectFailure::Error(BuildProjectError::ValidationErrors {
+                        errors,
+                        project_name: project_config.name,
+                    })
                 })?;
                 e.insert(Arc::clone(&schema));
                 Ok(schema)
@@ -324,6 +327,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                             debug!("build error");
                             BuildProjectFailure::Error(BuildProjectError::ValidationErrors {
                                 errors,
+                                project_name: project_config.name,
                             })
                         })?;
                     e.insert(Arc::clone(&schema));

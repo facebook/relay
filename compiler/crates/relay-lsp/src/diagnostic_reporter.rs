@@ -188,12 +188,12 @@ impl DiagnosticReporter {
 
     fn print_project_error(&self, error: &BuildProjectError) {
         match error {
-            BuildProjectError::ValidationErrors { errors } => {
+            BuildProjectError::ValidationErrors { errors, .. } => {
                 for diagnostic in errors {
                     self.report_diagnostic(diagnostic);
                 }
             }
-            BuildProjectError::PersistErrors { errors } => {
+            BuildProjectError::PersistErrors { errors, .. } => {
                 for error in errors {
                     self.print_generic_error(format!("{}", error));
                 }

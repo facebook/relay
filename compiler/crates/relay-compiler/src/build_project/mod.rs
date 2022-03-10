@@ -88,7 +88,10 @@ pub fn build_raw_program(
             graphql_asts,
             is_incremental_build,
         )
-        .map_err(|errors| BuildProjectError::ValidationErrors { errors })
+        .map_err(|errors| BuildProjectError::ValidationErrors {
+            errors,
+            project_name: project_config.name,
+        })
     })?;
 
     // Turn the IR into a base Program.
@@ -107,8 +110,13 @@ pub fn validate_program(
 ) -> Result<(), BuildProjectError> {
     let timer = log_event.start("validate_time");
     log_event.number("validate_documents_count", program.document_count());
-    let result = validate(program, project_config, &config.additional_validations)
-        .map_err(|errors| BuildProjectError::ValidationErrors { errors });
+    let result =
+        validate(program, project_config, &config.additional_validations).map_err(|errors| {
+            BuildProjectError::ValidationErrors {
+                errors,
+                project_name: project_config.name,
+            }
+        });
 
     log_event.stop(timer);
 
@@ -133,7 +141,12 @@ pub fn transform_program(
         Some(print_stats),
         custom_transforms_config,
     )
-    .map_err(|errors| BuildProjectFailure::Error(BuildProjectError::ValidationErrors { errors }));
+    .map_err(|errors| {
+        BuildProjectFailure::Error(BuildProjectError::ValidationErrors {
+            errors,
+            project_name: project_config.name,
+        })
+    });
 
     log_event.stop(timer);
 
@@ -221,7 +234,10 @@ pub fn build_project(
             build_schema(compiler_state, project_config)
         })
         .map_err(|errors| {
-            BuildProjectFailure::Error(BuildProjectError::ValidationErrors { errors })
+            BuildProjectFailure::Error(BuildProjectError::ValidationErrors {
+                errors,
+                project_name: project_config.name,
+            })
         })?;
 
     if compiler_state.should_cancel_current_build() {

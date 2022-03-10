@@ -28,6 +28,7 @@ import type {ResolverCache} from '../ResolverCache';
 import type {ExternalState} from './ExternalStateResolverStore';
 
 const recycleNodesInto = require('../../util/recycleNodesInto');
+const {RELAY_LIVE_RESOLVER} = require('../../util/RelayConcreteNode');
 const {generateClientID} = require('../ClientID');
 const RelayModernRecord = require('../RelayModernRecord');
 const RelayRecordSource = require('../RelayRecordSource');
@@ -41,6 +42,7 @@ const {
   getStorageKey,
 } = require('../RelayStoreUtils');
 const ExternalStateResolverStore = require('./ExternalStateResolverStore');
+const invariant = require('invariant');
 const warning = require('warning');
 
 // When this experiment gets promoted to stable, these keys will move into
@@ -129,14 +131,16 @@ class ExternalStateResolverCache implements ResolverCache {
 
       const evaluationResult = evaluate();
 
-      // In the future we we know from the Reader AST node if we are trying to
-      // read a Relay Resolver field or not. For the purpose of this hack, we
-      // will just check if it quacks like a duck.
-      const externalState = isExternalStateValue(
-        evaluationResult.resolverResult,
-      );
-
-      if (externalState != null) {
+      if (field.kind === RELAY_LIVE_RESOLVER) {
+        if (__DEV__) {
+          invariant(
+            isExternalStateValue(evaluationResult.resolverResult),
+            'Expected a @live Relay Resolver to return a value that implements ExternalState.',
+          );
+        }
+        const externalState: ExternalState<mixed> =
+          // $FlowFixMe[incompatible-type] - casting mixed
+          evaluationResult.resolverResult;
         this._setExternalStateValue(linkedRecord, linkedID, externalState);
       } else {
         RelayModernRecord.setValue(
@@ -183,40 +187,34 @@ class ExternalStateResolverCache implements ResolverCache {
           resolverID,
         );
       }
-    } else {
+    } else if (
+      field.kind === RELAY_LIVE_RESOLVER &&
+      RelayModernRecord.getValue(linkedRecord, RELAY_EXTERNAL_STATE_DIRTY)
+    ) {
       // If this is an External State Resolver, we might have a cache hit (the
       // fragment data hasn't changed since we last evaluated the resolver),
       // but it might still be "dirty" (the external state changed and we need
       // to call `.read()` again).
-      //
-      // This is currently a bit implicit for now since we rely on the fact that
-      // only External State Resolvers can have `RELAY_EXTERNAL_STATE_DIRTY`
-      // set. However, in the future, we will have a distinct Reader AST node
-      // for External State Resolvers, so we won't have to be so implicit.
-      if (
-        RelayModernRecord.getValue(linkedRecord, RELAY_EXTERNAL_STATE_DIRTY)
-      ) {
-        linkedID = linkedID ?? generateClientID(recordID, storageKey);
-        linkedRecord = RelayModernRecord.clone(linkedRecord);
-        // $FlowFixMe[incompatible-type] - casting mixed
-        const externalState: ExternalState<mixed> = RelayModernRecord.getValue(
-          linkedRecord,
-          RELAY_EXTERNAL_STATE_VALUE,
-        );
-        // Set the new value for this and future reads.
-        RelayModernRecord.setValue(
-          linkedRecord,
-          RELAY_RESOLVER_VALUE_KEY,
-          externalState.read(),
-        );
-        // Mark the resolver as clean again.
-        RelayModernRecord.setValue(
-          linkedRecord,
-          RELAY_EXTERNAL_STATE_DIRTY,
-          false,
-        );
-        recordSource.set(linkedID, linkedRecord);
-      }
+      linkedID = linkedID ?? generateClientID(recordID, storageKey);
+      linkedRecord = RelayModernRecord.clone(linkedRecord);
+      // $FlowFixMe[incompatible-type] - casting mixed
+      const externalState: ExternalState<mixed> = RelayModernRecord.getValue(
+        linkedRecord,
+        RELAY_EXTERNAL_STATE_VALUE,
+      );
+      // Set the new value for this and future reads.
+      RelayModernRecord.setValue(
+        linkedRecord,
+        RELAY_RESOLVER_VALUE_KEY,
+        externalState.read(),
+      );
+      // Mark the resolver as clean again.
+      RelayModernRecord.setValue(
+        linkedRecord,
+        RELAY_EXTERNAL_STATE_DIRTY,
+        false,
+      );
+      recordSource.set(linkedID, linkedRecord);
     }
 
     // $FlowFixMe[incompatible-type] - will always be empty
@@ -395,16 +393,12 @@ class ExternalStateResolverCache implements ResolverCache {
 // In the real implementaiton, we will probably have a special Reader AST node to tell us when
 // a value is external state
 // $FlowFixMe
-function isExternalStateValue(v: Object): ?ExternalState {
-  if (
+function isExternalStateValue(v: Object): boolean {
+  return (
     v != null &&
     typeof v.read === 'function' &&
     typeof v.subscribe === 'function'
-  ) {
-    return v;
-  } else {
-    return null;
-  }
+  );
 }
 
 module.exports = {

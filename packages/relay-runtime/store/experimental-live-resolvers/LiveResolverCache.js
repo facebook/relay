@@ -25,7 +25,7 @@ import type {
   SingularReaderSelector,
 } from '../RelayStoreTypes';
 import type {ResolverCache} from '../ResolverCache';
-import type {ExternalState} from './ExternalStateResolverStore';
+import type {LiveState} from './LiveResolverStore';
 
 const recycleNodesInto = require('../../util/recycleNodesInto');
 const {RELAY_LIVE_RESOLVER} = require('../../util/RelayConcreteNode');
@@ -41,20 +41,20 @@ const {
   RELAY_RESOLVER_VALUE_KEY,
   getStorageKey,
 } = require('../RelayStoreUtils');
-const ExternalStateResolverStore = require('./ExternalStateResolverStore');
+const LiveResolverStore = require('./LiveResolverStore');
 const invariant = require('invariant');
 const warning = require('warning');
 
 // When this experiment gets promoted to stable, these keys will move into
 // `RelayStoreUtils`.
-const RELAY_RESOLVER_EXTERNAL_STATE_SUBSCRIPTION_KEY =
-  '__resolverExternalStateSubscription';
-const RELAY_EXTERNAL_STATE_VALUE = '__resolverExternalStateValue';
-const RELAY_EXTERNAL_STATE_DIRTY = '__resolverExternalStateDirty';
+const RELAY_RESOLVER_LIVE_STATE_SUBSCRIPTION_KEY =
+  '__resolverLieStateSubscription';
+const RELAY_RESOLVER_LIVE_STATE_VALUE = '__resolverLiveStateValue';
+const RELAY_RESOLVER_LIVE_STATE_DIRTY = '__resolverLiveStateDirty';
 
 /**
  * An experimental fork of store/ResolverCache.js intended to let us experiment
- * with External State Resolvers.
+ * with Live Resolvers.
  */
 
 type ResolverID = string;
@@ -85,16 +85,16 @@ function addDependencyEdge(
   set.add(to);
 }
 
-class ExternalStateResolverCache implements ResolverCache {
+class LiveResolverCache implements ResolverCache {
   _resolverIDToRecordIDs: Map<ResolverID, Set<DataID>>;
   _recordIDToResolverIDs: Map<DataID, Set<ResolverID>>;
 
   _getRecordSource: () => MutableRecordSource;
-  _store: ExternalStateResolverStore;
+  _store: LiveResolverStore;
 
   constructor(
     getRecordSource: () => MutableRecordSource,
-    store: ExternalStateResolverStore,
+    store: LiveResolverStore,
   ) {
     this._resolverIDToRecordIDs = new Map();
     this._recordIDToResolverIDs = new Map();
@@ -134,14 +134,14 @@ class ExternalStateResolverCache implements ResolverCache {
       if (field.kind === RELAY_LIVE_RESOLVER) {
         if (__DEV__) {
           invariant(
-            isExternalStateValue(evaluationResult.resolverResult),
-            'Expected a @live Relay Resolver to return a value that implements ExternalState.',
+            isLiveStateValue(evaluationResult.resolverResult),
+            'Expected a @live Relay Resolver to return a value that implements LiveState.',
           );
         }
-        const externalState: ExternalState<mixed> =
+        const liveState: LiveState<mixed> =
           // $FlowFixMe[incompatible-type] - casting mixed
           evaluationResult.resolverResult;
-        this._setExternalStateValue(linkedRecord, linkedID, externalState);
+        this._setLiveStateValue(linkedRecord, linkedID, liveState);
       } else {
         RelayModernRecord.setValue(
           linkedRecord,
@@ -189,29 +189,29 @@ class ExternalStateResolverCache implements ResolverCache {
       }
     } else if (
       field.kind === RELAY_LIVE_RESOLVER &&
-      RelayModernRecord.getValue(linkedRecord, RELAY_EXTERNAL_STATE_DIRTY)
+      RelayModernRecord.getValue(linkedRecord, RELAY_RESOLVER_LIVE_STATE_DIRTY)
     ) {
-      // If this is an External State Resolver, we might have a cache hit (the
+      // If this is an Live Resolver, we might have a cache hit (the
       // fragment data hasn't changed since we last evaluated the resolver),
-      // but it might still be "dirty" (the external state changed and we need
+      // but it might still be "dirty" (the live state changed and we need
       // to call `.read()` again).
       linkedID = linkedID ?? generateClientID(recordID, storageKey);
       linkedRecord = RelayModernRecord.clone(linkedRecord);
       // $FlowFixMe[incompatible-type] - casting mixed
-      const externalState: ExternalState<mixed> = RelayModernRecord.getValue(
+      const liveState: LiveState<mixed> = RelayModernRecord.getValue(
         linkedRecord,
-        RELAY_EXTERNAL_STATE_VALUE,
+        RELAY_RESOLVER_LIVE_STATE_VALUE,
       );
       // Set the new value for this and future reads.
       RelayModernRecord.setValue(
         linkedRecord,
         RELAY_RESOLVER_VALUE_KEY,
-        externalState.read(),
+        liveState.read(),
       );
       // Mark the resolver as clean again.
       RelayModernRecord.setValue(
         linkedRecord,
-        RELAY_EXTERNAL_STATE_DIRTY,
+        RELAY_RESOLVER_LIVE_STATE_DIRTY,
         false,
       );
       recordSource.set(linkedID, linkedRecord);
@@ -229,18 +229,18 @@ class ExternalStateResolverCache implements ResolverCache {
     return [answer, linkedID, errors, missingRequiredFields];
   }
 
-  // Register a new External State object in the store, subscribing to future
+  // Register a new Live State object in the store, subscribing to future
   // updates.
-  _setExternalStateValue(
+  _setLiveStateValue(
     linkedRecord: Record,
     linkedID: DataID,
-    externalState: ExternalState<mixed>,
+    liveState: LiveState<mixed>,
   ) {
     // If there's an existing subscription, unsubscribe.
     // $FlowFixMe[incompatible-type] - casting mixed
     const previousUnsubscribe: () => void = RelayModernRecord.getValue(
       linkedRecord,
-      RELAY_RESOLVER_EXTERNAL_STATE_SUBSCRIPTION_KEY,
+      RELAY_RESOLVER_LIVE_STATE_SUBSCRIPTION_KEY,
     );
 
     if (previousUnsubscribe != null) {
@@ -248,40 +248,41 @@ class ExternalStateResolverCache implements ResolverCache {
     }
 
     // Subscribe to future values
-    const handler = this._makeExternalStateHandler(linkedID, externalState);
-    const unsubscribe = externalState.subscribe(handler);
+    const handler = this._makeLiveStateHandler(linkedID);
+    const unsubscribe = liveState.subscribe(handler);
 
-    // Store the external state value for future re-reads.
+    // Store the live state value for future re-reads.
     RelayModernRecord.setValue(
       linkedRecord,
-      RELAY_EXTERNAL_STATE_VALUE,
-      externalState,
+      RELAY_RESOLVER_LIVE_STATE_VALUE,
+      liveState,
     );
 
     // Store the current value, for this read, and future cached reads.
     RelayModernRecord.setValue(
       linkedRecord,
       RELAY_RESOLVER_VALUE_KEY,
-      externalState.read(),
+      liveState.read(),
     );
 
     // Mark the field as clean.
-    RelayModernRecord.setValue(linkedRecord, RELAY_EXTERNAL_STATE_DIRTY, false);
+    RelayModernRecord.setValue(
+      linkedRecord,
+      RELAY_RESOLVER_LIVE_STATE_DIRTY,
+      false,
+    );
 
     // Store our our unsubscribe function for future cleanup.
     RelayModernRecord.setValue(
       linkedRecord,
-      RELAY_RESOLVER_EXTERNAL_STATE_SUBSCRIPTION_KEY,
+      RELAY_RESOLVER_LIVE_STATE_SUBSCRIPTION_KEY,
       unsubscribe,
     );
   }
 
-  // Create a callback to handle notifications from the external source that the
+  // Create a callback to handle notifications from the live source that the
   // value may have changed.
-  _makeExternalStateHandler(
-    linkedID: DataID,
-    externalState: ExternalState<mixed>,
-  ): () => void {
+  _makeLiveStateHandler(linkedID: DataID): () => void {
     return () => {
       const currentSource = this._getRecordSource();
       const currentRecord = currentSource.get(linkedID);
@@ -298,8 +299,12 @@ class ExternalStateResolverCache implements ResolverCache {
       const nextRecord = RelayModernRecord.clone(currentRecord);
 
       // Mark the field as dirty. The next time it's read, we will call
-      // `ExternalState.read()`.
-      RelayModernRecord.setValue(nextRecord, RELAY_EXTERNAL_STATE_DIRTY, true);
+      // `LiveState.read()`.
+      RelayModernRecord.setValue(
+        nextRecord,
+        RELAY_RESOLVER_LIVE_STATE_DIRTY,
+        true,
+      );
 
       nextSource.set(linkedID, nextRecord);
       this._store.publish(nextSource);
@@ -390,10 +395,9 @@ class ExternalStateResolverCache implements ResolverCache {
   }
 }
 
-// In the real implementaiton, we will probably have a special Reader AST node to tell us when
-// a value is external state
+// Validate that a value is live state
 // $FlowFixMe
-function isExternalStateValue(v: Object): boolean {
+function isLiveStateValue(v: Object): boolean {
   return (
     v != null &&
     typeof v.read === 'function' &&
@@ -402,5 +406,5 @@ function isExternalStateValue(v: Object): boolean {
 }
 
 module.exports = {
-  ExternalStateResolverCache,
+  LiveResolverCache,
 };

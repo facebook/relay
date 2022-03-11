@@ -132,12 +132,12 @@ export type TypenameAliases$key = {
 import type { FragmentType } from "relay-runtime";
 declare export opaque type TypenameInside$fragmentType: FragmentType;
 export type TypenameInside$data = {|
-  +__typename: "User",
-  +firstName: ?string,
-  +$fragmentType: TypenameInside$fragmentType,
-|} | {|
   +__typename: "Page",
   +username: ?string,
+  +$fragmentType: TypenameInside$fragmentType,
+|} | {|
+  +__typename: "User",
+  +firstName: ?string,
   +$fragmentType: TypenameInside$fragmentType,
 |} | {|
   // This will never be '%other', but we need some
@@ -154,12 +154,12 @@ export type TypenameInside$key = {
 import type { FragmentType } from "relay-runtime";
 declare export opaque type TypenameOutside$fragmentType: FragmentType;
 export type TypenameOutside$data = {|
-  +__typename: "User",
-  +firstName: ?string,
-  +$fragmentType: TypenameOutside$fragmentType,
-|} | {|
   +__typename: "Page",
   +username: ?string,
+  +$fragmentType: TypenameOutside$fragmentType,
+|} | {|
+  +__typename: "User",
+  +firstName: ?string,
   +$fragmentType: TypenameOutside$fragmentType,
 |} | {|
   // This will never be '%other', but we need some

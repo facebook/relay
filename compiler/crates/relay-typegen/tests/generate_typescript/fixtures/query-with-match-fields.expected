@@ -53,19 +53,19 @@ export type Test$rawResponse = {
   readonly node: {
     readonly __typename: "User";
     readonly id: string;
-    readonly nameRenderer: {
-      readonly __typename: "PlainUserNameRenderer";
-      readonly __module_component_NameRendererFragment: any | null;
-      readonly __module_operation_NameRendererFragment: any | null;
-    } | Local3DPayload<"NameRendererFragment", {
+    readonly nameRenderer: Local3DPayload<"NameRendererFragment", {
+      readonly __typename: "MarkdownUserNameRenderer";
+    }> | Local3DPayload<"NameRendererFragment", {
       readonly __typename: "PlainUserNameRenderer";
     }> | {
       readonly __typename: "MarkdownUserNameRenderer";
       readonly __module_component_NameRendererFragment: any | null;
       readonly __module_operation_NameRendererFragment: any | null;
-    } | Local3DPayload<"NameRendererFragment", {
-      readonly __typename: "MarkdownUserNameRenderer";
-    }> | {
+    } | {
+      readonly __typename: "PlainUserNameRenderer";
+      readonly __module_component_NameRendererFragment: any | null;
+      readonly __module_operation_NameRendererFragment: any | null;
+    } | {
       readonly __typename: string;
     } | null;
   } | {
@@ -98,7 +98,7 @@ export type NameRendererFragment$data = {
   readonly nameRenderer: {
     readonly __fragmentPropName?: string | null;
     readonly __module_component?: string | null;
-    readonly " $fragmentSpreads": FragmentRefs<"PlainUserNameRenderer_name" | "MarkdownUserNameRenderer_name">;
+    readonly " $fragmentSpreads": FragmentRefs<"MarkdownUserNameRenderer_name" | "PlainUserNameRenderer_name">;
   } | null;
   readonly " $fragmentType": "NameRendererFragment";
 };

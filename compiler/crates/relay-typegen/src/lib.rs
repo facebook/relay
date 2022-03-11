@@ -40,8 +40,8 @@ use schema::{EnumID, SDLSchema, ScalarID, Schema, Type, TypeReference};
 use std::{fmt::Result as FmtResult, hash::Hash, path::Path};
 use typescript::TypeScriptPrinter;
 use writer::{
-    ExactObject, GetterSetterPairProp, InexactObject, KeyValuePairProp, Prop, SpreadProp, Writer,
-    AST,
+    ExactObject, GetterSetterPairProp, InexactObject, KeyValuePairProp, Prop, SortedASTList,
+    SortedStringKeyList, SpreadProp, Writer, AST,
 };
 
 static REACT_RELAY_MULTI_ACTOR: &str = "react-relay/multi-actor";
@@ -222,7 +222,10 @@ impl<'a> TypeGenerator<'a> {
             runtime_imports: RuntimeImports::default(),
             writer: match &typegen_config.language {
                 TypegenLanguage::Flow => Box::new(FlowPrinter::new(flow_typegen_phase)),
-                TypegenLanguage::TypeScript => Box::new(TypeScriptPrinter::new(typegen_config)),
+                TypegenLanguage::TypeScript => Box::new(TypeScriptPrinter::new(
+                    typegen_config,
+                    should_sort_typegen_items,
+                )),
             },
             has_actor_change: false,
             flow_typegen_phase,
@@ -472,7 +475,10 @@ impl<'a> TypeGenerator<'a> {
             key: *KEY_FRAGMENT_SPREADS,
             optional: false,
             read_only: true,
-            value: AST::FragmentReference(vec![fragment_name]),
+            value: AST::FragmentReference(SortedStringKeyList::new(
+                vec![fragment_name],
+                self.should_sort_typegen_items,
+            )),
         });
         let is_plural_fragment = is_plural(fragment_definition);
         let mut ref_type = AST::InexactObject(InexactObject::new(
@@ -896,16 +902,19 @@ impl<'a> TypeGenerator<'a> {
             let mut typename_aliases = IndexSet::new();
             for (concrete_type, selections) in by_concrete_type {
                 types.push(
-                    group_refs(base_fields.values().cloned().chain(selections))
-                        .map(|selection| {
-                            if selection.is_typename() {
-                                typename_aliases.insert(selection.get_field_name_or_alias().expect(
+                    group_refs(
+                        base_fields.values().cloned().chain(selections),
+                        self.should_sort_typegen_items,
+                    )
+                    .map(|selection| {
+                        if selection.is_typename() {
+                            typename_aliases.insert(selection.get_field_name_or_alias().expect(
                                 "Just checked this exists by checking that the field is typename",
                             ));
-                            }
-                            self.make_prop(selection, unmasked, Some(concrete_type))
-                        })
-                        .collect(),
+                        }
+                        self.make_prop(selection, unmasked, Some(concrete_type))
+                    })
+                    .collect(),
                 );
             }
 
@@ -940,39 +949,42 @@ impl<'a> TypeGenerator<'a> {
                     true,
                 );
             }
-            let selection_map_values = group_refs(hashmap_into_values(selection_map))
-                .map(|sel| {
-                    if let TypeSelection::ScalarField(ref scalar_field) = sel {
-                        if sel.is_typename() {
-                            if let Some(type_condition) = scalar_field.concrete_type {
-                                let mut scalar_field = scalar_field.clone();
-                                scalar_field.conditional = false;
-                                return self.make_prop(
-                                    TypeSelection::ScalarField(scalar_field),
-                                    unmasked,
-                                    Some(type_condition),
-                                );
-                            }
-                        }
-                    } else if let TypeSelection::LinkedField(ref linked_field) = sel {
-                        if let Some(concrete_type) = linked_field.concrete_type {
-                            let mut linked_field = linked_field.clone();
-                            linked_field.concrete_type = None;
+            let selection_map_values = group_refs(
+                hashmap_into_values(selection_map),
+                self.should_sort_typegen_items,
+            )
+            .map(|sel| {
+                if let TypeSelection::ScalarField(ref scalar_field) = sel {
+                    if sel.is_typename() {
+                        if let Some(type_condition) = scalar_field.concrete_type {
+                            let mut scalar_field = scalar_field.clone();
+                            scalar_field.conditional = false;
                             return self.make_prop(
-                                TypeSelection::LinkedField(linked_field),
+                                TypeSelection::ScalarField(scalar_field),
                                 unmasked,
-                                Some(concrete_type),
+                                Some(type_condition),
                             );
                         }
                     }
+                } else if let TypeSelection::LinkedField(ref linked_field) = sel {
+                    if let Some(concrete_type) = linked_field.concrete_type {
+                        let mut linked_field = linked_field.clone();
+                        linked_field.concrete_type = None;
+                        return self.make_prop(
+                            TypeSelection::LinkedField(linked_field),
+                            unmasked,
+                            Some(concrete_type),
+                        );
+                    }
+                }
 
-                    self.make_prop(sel, unmasked, None)
-                })
-                .collect();
+                self.make_prop(sel, unmasked, None)
+            })
+            .collect();
             types.push(selection_map_values);
         }
 
-        AST::Union(
+        AST::Union(SortedASTList::new(
             types
                 .into_iter()
                 .map(|mut props: Vec<Prop>| {
@@ -994,7 +1006,8 @@ impl<'a> TypeGenerator<'a> {
                     }
                 })
                 .collect(),
-        )
+            self.should_sort_typegen_items,
+        ))
     }
 
     fn raw_response_selections_to_babel(
@@ -1063,7 +1076,7 @@ impl<'a> TypeGenerator<'a> {
             self.append_local_3d_payload(&mut types, &base_fields, concrete_type);
         }
 
-        AST::Union(types)
+        AST::Union(SortedASTList::new(types, self.should_sort_typegen_items))
     }
 
     fn append_local_3d_payload(
@@ -1133,6 +1146,7 @@ impl<'a> TypeGenerator<'a> {
                         }
                     } else {
                         let setter_parameter = AST::Union(
+                            	SortedASTList::new(
                                 just_fragments
                                     .iter()
                                     .map(|fragment_spread| {
@@ -1171,7 +1185,7 @@ impl<'a> TypeGenerator<'a> {
                                         ], self.should_sort_typegen_items))
                                     })
                                     .collect(),
-                            );
+                            self.should_sort_typegen_items));
                         if linked_field.node_type.is_list() {
                             AST::ReadOnlyArray(Box::new(setter_parameter))
                         } else {
@@ -1487,8 +1501,10 @@ impl<'a> TypeGenerator<'a> {
                     members.push(AST::StringLiteral(*FUTURE_ENUM_VALUE));
                 }
 
-                self.writer
-                    .write_export_type(enum_type.name.lookup(), &AST::Union(members))?;
+                self.writer.write_export_type(
+                    enum_type.name.lookup(),
+                    &AST::Union(SortedASTList::new(members, self.should_sort_typegen_items)),
+                )?;
             }
         }
         Ok(())
@@ -1743,13 +1759,16 @@ impl<'a> TypeGenerator<'a> {
             ],
             self.should_sort_typegen_items,
         ));
-        let return_type = AST::Union(vec![
-            AST::InexactObject(InexactObject::new(
-                vec![id_prop, fragment_spread_prop, return_value_discriminator],
-                self.should_sort_typegen_items,
-            )),
-            AST::RawType(intern!("false")),
-        ]);
+        let return_type = AST::Union(SortedASTList::new(
+            vec![
+                AST::InexactObject(InexactObject::new(
+                    vec![id_prop, fragment_spread_prop, return_value_discriminator],
+                    self.should_sort_typegen_items,
+                )),
+                AST::RawType(intern!("false")),
+            ],
+            self.should_sort_typegen_items,
+        ));
 
         let (open_comment, close_comment) = match self.typegen_config.language {
             TypegenLanguage::Flow => ("/*", "*/"),
@@ -1832,13 +1851,16 @@ impl<'a> TypeGenerator<'a> {
             ],
             self.should_sort_typegen_items,
         ));
-        let return_type = AST::Union(vec![
-            AST::InexactObject(InexactObject::new(
-                vec![id_prop, fragment_spread_prop, return_value_discriminator],
-                self.should_sort_typegen_items,
-            )),
-            AST::RawType(intern!("false")),
-        ]);
+        let return_type = AST::Union(SortedASTList::new(
+            vec![
+                AST::InexactObject(InexactObject::new(
+                    vec![id_prop, fragment_spread_prop, return_value_discriminator],
+                    self.should_sort_typegen_items,
+                )),
+                AST::RawType(intern!("false")),
+            ],
+            self.should_sort_typegen_items,
+        ));
 
         let (open_comment, close_comment) = match self.typegen_config.language {
             TypegenLanguage::Flow => ("/*", "*/"),
@@ -2149,7 +2171,10 @@ fn selections_to_map(
 
 // TODO: T85950736 Fix these clippy errors
 #[allow(clippy::while_let_on_iterator, clippy::useless_conversion)]
-fn group_refs(props: impl Iterator<Item = TypeSelection>) -> impl Iterator<Item = TypeSelection> {
+fn group_refs(
+    props: impl Iterator<Item = TypeSelection>,
+    should_sort_typegen_items: bool,
+) -> impl Iterator<Item = TypeSelection> {
     let mut fragment_spreads = None;
     let mut props = props.into_iter();
     std::iter::from_fn(move || {
@@ -2169,7 +2194,10 @@ fn group_refs(props: impl Iterator<Item = TypeSelection>) -> impl Iterator<Item 
         if let Some(refs) = fragment_spreads.take() {
             return Some(TypeSelection::ScalarField(TypeSelectionScalarField {
                 field_name_or_alias: *KEY_FRAGMENT_SPREADS,
-                value: AST::FragmentReference(refs),
+                value: AST::FragmentReference(SortedStringKeyList::new(
+                    refs,
+                    should_sort_typegen_items,
+                )),
                 special_field: None,
                 conditional: false,
                 concrete_type: None,

@@ -16,7 +16,7 @@ use crate::{KEY_FRAGMENT_SPREADS, KEY_FRAGMENT_TYPE, KEY_TYPENAME};
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub enum AST {
-    Union(Vec<AST>),
+    Union(SortedASTList),
     ReadOnlyArray(Box<AST>),
     Nullable(Box<AST>),
     NonNullable(Box<AST>),
@@ -34,7 +34,7 @@ pub enum AST {
     Boolean,
     Callable(Box<AST>),
     Any,
-    FragmentReference(Vec<StringKey>),
+    FragmentReference(SortedStringKeyList),
     FragmentReferenceType(StringKey),
     ReturnTypeOfFunctionWithName(StringKey),
     ReturnTypeOfMethodCall(Box<AST>, StringKey),
@@ -42,6 +42,27 @@ pub enum AST {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+pub struct SortedASTList(Vec<AST>);
+
+impl Deref for SortedASTList {
+    type Target = Vec<AST>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl SortedASTList {
+    pub fn new(mut members: Vec<AST>, should_sort: bool) -> Self {
+        if should_sort {
+            members.sort();
+        }
+
+        Self(members)
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ExactObject(Vec<Prop>);
 
 impl Deref for ExactObject {
@@ -59,9 +80,55 @@ impl ExactObject {
         }
         Self(props)
     }
+
+    /// Return the object's literal typename, if it is found. Typenames cannot be
+    /// modified at runtime, so they will never be stored in getter/setters.
+    pub fn typename_literal(&self) -> Option<StringKey> {
+        self.0.iter().find_map(|p| match p {
+            Prop::KeyValuePair(kvp) => {
+                if kvp.key == *KEY_TYPENAME {
+                    match kvp.value {
+                        AST::StringLiteral(s) => Some(s),
+                        _ => None,
+                    }
+                } else {
+                    None
+                }
+            }
+            _ => None,
+        })
+    }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+impl PartialOrd for ExactObject {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+/// Sort as follows:
+/// - An object containing a typename field that is a string literal comes
+///   before an object without a typename field that is a string literal
+/// - If both objects contain string literal typenames, compare those first
+///   and only compare objects if the items are tied
+/// - If neither object contains a string literal typename, default to the
+///   default order for the inner object
+impl Ord for ExactObject {
+    fn cmp(&self, other: &Self) -> Ordering {
+        match (self.typename_literal(), other.typename_literal()) {
+            (None, None) => self.0.cmp(&other.0),
+            (None, Some(_)) => Ordering::Greater,
+            (Some(_), None) => Ordering::Less,
+            (Some(s1), Some(s2)) => match s1.cmp(&s2) {
+                Ordering::Less => Ordering::Less,
+                Ordering::Equal => self.0.cmp(&other.0),
+                Ordering::Greater => Ordering::Greater,
+            },
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct InexactObject(Vec<Prop>);
 
 impl Deref for InexactObject {
@@ -76,6 +143,74 @@ impl InexactObject {
     pub fn new(mut props: Vec<Prop>, should_sort_props: bool) -> Self {
         if should_sort_props {
             props.sort();
+        }
+        Self(props)
+    }
+
+    /// Return the object's literal typename, if it is found. Typenames cannot be
+    /// modified at runtime, so they will never be stored in getter/setters.
+    pub fn typename_literal(&self) -> Option<StringKey> {
+        self.0.iter().find_map(|p| match p {
+            Prop::KeyValuePair(kvp) => {
+                if kvp.key == *KEY_TYPENAME {
+                    match kvp.value {
+                        AST::StringLiteral(s) => Some(s),
+                        _ => None,
+                    }
+                } else {
+                    None
+                }
+            }
+            _ => None,
+        })
+    }
+}
+
+/// Sort as follows:
+/// - An object containing a typename field that is a string literal comes
+///   before an object without a typename field that is a string literal
+/// - If both objects contain string literal typenames, compare those first
+///   and only compare objects if the items are tied
+/// - If neither object contains a string literal typename, default to the
+///   default order.
+impl Ord for InexactObject {
+    fn cmp(&self, other: &Self) -> Ordering {
+        match (self.typename_literal(), other.typename_literal()) {
+            (None, None) => self.cmp(other),
+            (None, Some(_)) => Ordering::Greater,
+            (Some(_), None) => Ordering::Less,
+            (Some(s1), Some(s2)) => match s1.cmp(&s2) {
+                Ordering::Less => Ordering::Less,
+                Ordering::Equal => self.cmp(other),
+                Ordering::Greater => Ordering::Greater,
+            },
+        }
+    }
+}
+
+impl PartialOrd for InexactObject {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+pub struct SortedStringKeyList(Vec<StringKey>);
+
+impl Deref for SortedStringKeyList {
+    type Target = Vec<StringKey>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl SortedStringKeyList {
+    pub fn new(mut props: Vec<StringKey>, should_sort_props: bool) -> Self {
+        if should_sort_props {
+            // We can sort unstably, because we don't care that StringKey's are re-ordered.
+            // Unlike sorting stably, sorting unstably doesn't allocated extra memory.
+            props.sort_unstable()
         }
         Self(props)
     }

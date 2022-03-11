@@ -13,7 +13,7 @@ fragment ScalarField on User {
   }
 }
 ==================================== OUTPUT ===================================
-export type PersonalityTraits = "CHEERFUL" | "DERISIVE" | "HELPFUL" | "SNARKY" | "%future added value";
+export type PersonalityTraits = "%future added value" | "CHEERFUL" | "DERISIVE" | "HELPFUL" | "SNARKY";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type ScalarField$fragmentType: FragmentType;
 export type ScalarField$data = {|

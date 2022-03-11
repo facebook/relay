@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<02df9c7f00b16325827dcce32559c305>>
+ * @generated SignedSource<<edc58aeeaae515c514e145183054b16c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,7 +21,7 @@ type RelayModernEnvironmentTypeRefinementTestConcreteUserFragment$fragmentType =
 export type RelayModernEnvironmentTypeRefinementTestConcreteQuery$variables = {||};
 export type RelayModernEnvironmentTypeRefinementTestConcreteQuery$data = {|
   +userOrPage: ?{|
-    +$fragmentSpreads: RelayModernEnvironmentTypeRefinementTestConcreteUserFragment$fragmentType & RelayModernEnvironmentTypeRefinementTestConcreteInlineRefinementFragment$fragmentType,
+    +$fragmentSpreads: RelayModernEnvironmentTypeRefinementTestConcreteInlineRefinementFragment$fragmentType & RelayModernEnvironmentTypeRefinementTestConcreteUserFragment$fragmentType,
   |},
 |};
 export type RelayModernEnvironmentTypeRefinementTestConcreteQuery = {|

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b0660be64228cdc602a67d147b2ceac4>>
+ * @generated SignedSource<<a323d95378156f5690142b938c8946ad>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,11 +24,11 @@ module.exports.validate = function validate(value/*: {
   +__isreadUpdatableQueryEXPERIMENTALTest_node?: string,
   +$fragmentSpreads: readUpdatableQueryEXPERIMENTALTest_node$fragmentType,
   ...
-}*/)/*: {
+}*/)/*: false | {
   +__id: string,
   +__isreadUpdatableQueryEXPERIMENTALTest_node: string,
   +$fragmentSpreads: readUpdatableQueryEXPERIMENTALTest_node$fragmentType,
   ...
-} | false*/ {
+}*/ {
   return value.__isreadUpdatableQueryEXPERIMENTALTest_node != null ? (value/*: any*/) : false;
 };

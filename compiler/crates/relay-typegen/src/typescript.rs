@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::writer::{Prop, Writer, AST};
+use crate::writer::{Prop, SortedASTList, SortedStringKeyList, Writer, AST};
 use crate::TypegenConfig;
 use crate::{KEY_DATA, KEY_FRAGMENT_SPREADS, KEY_FRAGMENT_TYPE};
 use intern::string_key::{Intern, StringKey};
@@ -16,6 +16,7 @@ pub struct TypeScriptPrinter {
     result: String,
     use_import_type_syntax: bool,
     indentation: usize,
+    should_sort_typegen_items: bool,
 }
 
 impl Write for TypeScriptPrinter {
@@ -119,11 +120,12 @@ impl Writer for TypeScriptPrinter {
 }
 
 impl TypeScriptPrinter {
-    pub fn new(config: &TypegenConfig) -> Self {
+    pub fn new(config: &TypegenConfig, should_sort_typegen_items: bool) -> Self {
         Self {
             result: String::new(),
             indentation: 0,
             use_import_type_syntax: config.use_import_type_syntax,
+            should_sort_typegen_items,
         }
     }
 
@@ -250,14 +252,15 @@ impl TypeScriptPrinter {
         Ok(())
     }
 
-    fn write_fragment_references(&mut self, fragments: &[StringKey]) -> FmtResult {
+    fn write_fragment_references(&mut self, fragments: &SortedStringKeyList) -> FmtResult {
         write!(&mut self.result, "FragmentRefs<")?;
-        self.write(&AST::Union(
+        self.write(&AST::Union(SortedASTList::new(
             fragments
                 .iter()
                 .map(|key| AST::StringLiteral(*key))
                 .collect(),
-        ))?;
+            self.should_sort_typegen_items,
+        )))?;
         write!(&mut self.result, ">")
     }
 
@@ -287,7 +290,7 @@ impl TypeScriptPrinter {
 
 #[cfg(test)]
 mod tests {
-    use crate::writer::{ExactObject, InexactObject, KeyValuePairProp};
+    use crate::writer::{ExactObject, InexactObject, KeyValuePairProp, SortedASTList};
 
     use super::*;
     use intern::string_key::Intern;
@@ -297,7 +300,7 @@ mod tests {
     }
 
     fn print_type_with_config(ast: &AST, config: &TypegenConfig) -> String {
-        let mut printer = Box::new(TypeScriptPrinter::new(config));
+        let mut printer = Box::new(TypeScriptPrinter::new(config, true));
         printer.write(ast).unwrap();
         printer.into_string()
     }
@@ -312,7 +315,10 @@ mod tests {
     #[test]
     fn union_type() {
         assert_eq!(
-            print_type(&AST::Union(vec![AST::String, AST::Number])),
+            print_type(&AST::Union(SortedASTList::new(
+                vec![AST::String, AST::Number],
+                true
+            ))),
             "string | number".to_string()
         );
     }
@@ -333,10 +339,10 @@ mod tests {
         );
 
         assert_eq!(
-            print_type(&AST::Nullable(Box::new(AST::Union(vec![
-                AST::String,
-                AST::Number,
-            ])))),
+            print_type(&AST::Nullable(Box::new(AST::Union(SortedASTList::new(
+                vec![AST::String, AST::Number,],
+                true
+            ))))),
             "string | number | null"
         )
     }
@@ -508,21 +514,24 @@ mod tests {
 
     #[test]
     fn import_type() {
-        let mut printer = Box::new(TypeScriptPrinter::new(&TypegenConfig::default()));
+        let mut printer = Box::new(TypeScriptPrinter::new(&TypegenConfig::default(), true));
         printer.write_import_type(&["A", "B"], "module").unwrap();
         assert_eq!(printer.into_string(), "import { A, B } from \"module\";\n");
 
-        let mut printer = Box::new(TypeScriptPrinter::new(&TypegenConfig {
-            use_import_type_syntax: true,
-            ..Default::default()
-        }));
+        let mut printer = Box::new(TypeScriptPrinter::new(
+            &TypegenConfig {
+                use_import_type_syntax: true,
+                ..Default::default()
+            },
+            true,
+        ));
         printer.write_import_type(&["C"], "./foo").unwrap();
         assert_eq!(printer.into_string(), "import type { C } from \"./foo\";\n");
     }
 
     #[test]
     fn import_module() {
-        let mut printer = Box::new(TypeScriptPrinter::new(&TypegenConfig::default()));
+        let mut printer = Box::new(TypeScriptPrinter::new(&TypegenConfig::default(), true));
         printer.write_import_module_default("A", "module").unwrap();
         assert_eq!(printer.into_string(), "import A from \"module\";\n");
     }

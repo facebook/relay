@@ -28,7 +28,7 @@ fragment FriendFragment on User {
 }
 ==================================== OUTPUT ===================================
 import { FragmentRefs } from "relay-runtime";
-export type TestEnums = "mark" | "zuck" | "%future added value";
+export type TestEnums = "%future added value" | "mark" | "zuck";
 export type CommentCreateInput = {
   clientMutationId?: string | null;
   feedback?: CommentfeedbackFeedback | null;
@@ -86,7 +86,7 @@ export type CommentCreateMutation = {
   variables: CommentCreateMutation$variables;
 };
 -------------------------------------------------------------------------------
-export type TestEnums = "mark" | "zuck" | "%future added value";
+export type TestEnums = "%future added value" | "mark" | "zuck";
 import { FragmentRefs } from "relay-runtime";
 export type FriendFragment$data = {
   readonly lastName: string | null;

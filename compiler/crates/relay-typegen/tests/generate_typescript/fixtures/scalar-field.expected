@@ -13,7 +13,7 @@ fragment ScalarField on User {
   }
 }
 ==================================== OUTPUT ===================================
-export type PersonalityTraits = "CHEERFUL" | "DERISIVE" | "HELPFUL" | "SNARKY" | "%future added value";
+export type PersonalityTraits = "%future added value" | "CHEERFUL" | "DERISIVE" | "HELPFUL" | "SNARKY";
 import { FragmentRefs } from "relay-runtime";
 export type ScalarField$data = {
   readonly aliasedLinkedField: {

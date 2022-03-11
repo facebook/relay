@@ -127,12 +127,12 @@ export type TypenameAliases$key = {
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
 export type TypenameInside$data = {
-  readonly __typename: "User";
-  readonly firstName: string | null;
-  readonly " $fragmentType": "TypenameInside";
-} | {
   readonly __typename: "Page";
   readonly username: string | null;
+  readonly " $fragmentType": "TypenameInside";
+} | {
+  readonly __typename: "User";
+  readonly firstName: string | null;
   readonly " $fragmentType": "TypenameInside";
 } | {
   // This will never be '%other', but we need some
@@ -147,12 +147,12 @@ export type TypenameInside$key = {
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
 export type TypenameOutside$data = {
-  readonly __typename: "User";
-  readonly firstName: string | null;
-  readonly " $fragmentType": "TypenameOutside";
-} | {
   readonly __typename: "Page";
   readonly username: string | null;
+  readonly " $fragmentType": "TypenameOutside";
+} | {
+  readonly __typename: "User";
+  readonly firstName: string | null;
   readonly " $fragmentType": "TypenameOutside";
 } | {
   // This will never be '%other', but we need some

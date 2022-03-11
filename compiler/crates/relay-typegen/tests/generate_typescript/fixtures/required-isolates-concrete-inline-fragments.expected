@@ -43,14 +43,14 @@ export type Bar$key = {
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
 export type Foo$data = {
-  readonly __typename: "User";
-  readonly name: string;
-  readonly " $fragmentType": "Foo";
-} | {
   readonly __typename: "Comment";
   readonly body: {
     readonly text: string | null;
   } | null;
+  readonly " $fragmentType": "Foo";
+} | {
+  readonly __typename: "User";
+  readonly name: string;
   readonly " $fragmentType": "Foo";
 } | {
   // This will never be '%other', but we need some

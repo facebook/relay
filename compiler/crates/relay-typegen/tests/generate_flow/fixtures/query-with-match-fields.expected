@@ -48,12 +48,10 @@ export type Test$rawResponse = {|
   +node: ?({|
     +__typename: "User",
     +id: string,
-    +nameRenderer: ?({|
-      +__typename: "PlainUserNameRenderer",
-      +__module_component_NameRendererFragment: ?any,
-      +__module_operation_NameRendererFragment: ?any,
-      ...PlainUserNameRenderer_name,
-    |} | Local3DPayload<"NameRendererFragment", {|
+    +nameRenderer: ?(Local3DPayload<"NameRendererFragment", {|
+      +__typename: "MarkdownUserNameRenderer",
+      ...MarkdownUserNameRenderer_name,
+    |}> | Local3DPayload<"NameRendererFragment", {|
       +__typename: "PlainUserNameRenderer",
       ...PlainUserNameRenderer_name,
     |}> | {|
@@ -61,10 +59,12 @@ export type Test$rawResponse = {|
       +__module_component_NameRendererFragment: ?any,
       +__module_operation_NameRendererFragment: ?any,
       ...MarkdownUserNameRenderer_name,
-    |} | Local3DPayload<"NameRendererFragment", {|
-      +__typename: "MarkdownUserNameRenderer",
-      ...MarkdownUserNameRenderer_name,
-    |}> | {|
+    |} | {|
+      +__typename: "PlainUserNameRenderer",
+      +__module_component_NameRendererFragment: ?any,
+      +__module_operation_NameRendererFragment: ?any,
+      ...PlainUserNameRenderer_name,
+    |} | {|
       +__typename: string,
     |}),
   |} | {|
@@ -102,7 +102,7 @@ export type NameRendererFragment$data = {|
   +nameRenderer: ?{|
     +__fragmentPropName?: ?string,
     +__module_component?: ?string,
-    +$fragmentSpreads: PlainUserNameRenderer_name$fragmentType & MarkdownUserNameRenderer_name$fragmentType,
+    +$fragmentSpreads: MarkdownUserNameRenderer_name$fragmentType & PlainUserNameRenderer_name$fragmentType,
   |},
   +$fragmentType: NameRendererFragment$fragmentType,
 |};

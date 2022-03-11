@@ -50,7 +50,7 @@ impl Writer for FlowPrinter {
             AST::Local3DPayload(document_name, selections) => {
                 self.write_local_3d_payload(*document_name, selections)
             }
-            AST::FragmentReference(fragments) => self.write_fragment_references(fragments),
+            AST::FragmentReference(fragments) => self.write_fragment_references(&***fragments),
             AST::FragmentReferenceType(fragment) => {
                 write!(&mut self.result, "{}$fragmentType", fragment)
             }
@@ -325,7 +325,7 @@ impl FlowPrinter {
 
 #[cfg(test)]
 mod tests {
-    use crate::writer::{ExactObject, InexactObject, KeyValuePairProp};
+    use crate::writer::{ExactObject, InexactObject, KeyValuePairProp, SortedASTList};
 
     use super::*;
     use intern::string_key::Intern;
@@ -346,7 +346,10 @@ mod tests {
     #[test]
     fn union_type() {
         assert_eq!(
-            print_type(&AST::Union(vec![AST::String, AST::Number])),
+            print_type(&AST::Union(SortedASTList::new(
+                vec![AST::String, AST::Number],
+                true
+            ))),
             "string | number".to_string()
         );
     }
@@ -367,10 +370,10 @@ mod tests {
         );
 
         assert_eq!(
-            print_type(&AST::Nullable(Box::new(AST::Union(vec![
-                AST::String,
-                AST::Number,
-            ])))),
+            print_type(&AST::Nullable(Box::new(AST::Union(SortedASTList::new(
+                vec![AST::String, AST::Number,],
+                true
+            ))))),
             "?(string | number)"
         )
     }

@@ -46,14 +46,14 @@ export type Bar$key = {
 import type { FragmentType } from "relay-runtime";
 declare export opaque type Foo$fragmentType: FragmentType;
 export type Foo$data = ?({|
-  +__typename: "User",
-  +name: string,
-  +$fragmentType: Foo$fragmentType,
-|} | {|
   +__typename: "Comment",
   +body: ?{|
     +text: ?string,
   |},
+  +$fragmentType: Foo$fragmentType,
+|} | {|
+  +__typename: "User",
+  +name: string,
   +$fragmentType: Foo$fragmentType,
 |} | {|
   // This will never be '%other', but we need some

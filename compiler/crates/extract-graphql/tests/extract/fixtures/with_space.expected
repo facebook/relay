@@ -7,27 +7,47 @@
  */
 
 graphql `
-    fragment Foo on User {
+    fragment Foo1 on User {
         __typename
     }
 `
 
 graphql    `
-    fragment Foo on User {
+    fragment Foo2 on User {
         __typename
     }
 `
 
 graphql
 `
-    fragment Foo on User {
+    fragment Foo3 on User {
         __typename
     }
 `
 
 graphql	`
-    fragment Foo on User {
+    fragment Foo4 on User {
         __typename
     }
 `
 ==================================== OUTPUT ===================================
+graphql - line: 7, column: 9, text: <
+    fragment Foo1 on User {
+        __typename
+    }
+>
+graphql - line: 13, column: 12, text: <
+    fragment Foo2 on User {
+        __typename
+    }
+>
+graphql - line: 20, column: 1, text: <
+    fragment Foo3 on User {
+        __typename
+    }
+>
+graphql - line: 26, column: 9, text: <
+    fragment Foo4 on User {
+        __typename
+    }
+>

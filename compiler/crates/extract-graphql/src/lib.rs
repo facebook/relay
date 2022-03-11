@@ -94,11 +94,30 @@ pub fn extract(input: &str) -> Vec<JavaScriptSourceFeature> {
     'code: while let Some((i, c)) = it.next() {
         match c {
             'g' => {
-                for expected in ['r', 'a', 'p', 'h', 'q', 'l', '`'] {
+                for expected in ['r', 'a', 'p', 'h', 'q', 'l'] {
                     if let Some((_, c)) = it.next() {
                         if c != expected {
                             consume_identifier(&mut it);
                             continue 'code;
+                        }
+                    }
+                }
+
+                let mut whitespace_num: usize = 0;
+
+                loop {
+                    if let Some((_, c)) = it.next() {
+                        match c {
+                            '`' => {
+                                break;
+                            }
+                            ' ' | '\n' | '\r' | '\t' => {
+                                whitespace_num += 1;
+                            }
+                            _ => {
+                                consume_identifier(&mut it);
+                                continue 'code;
+                            }
                         }
                     }
                 }
@@ -110,7 +129,7 @@ pub fn extract(input: &str) -> Vec<JavaScriptSourceFeature> {
                     match c {
                         '`' => {
                             let end = i;
-                            let text = &input[start + 8..end];
+                            let text = &input[start + (8 + whitespace_num)..end];
                             res.push(JavaScriptSourceFeature::GraphQL(GraphQLSource::new(
                                 text,
                                 line_index,

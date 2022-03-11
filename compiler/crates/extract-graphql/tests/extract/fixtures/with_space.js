@@ -6,26 +6,26 @@
  */
 
 graphql `
-    fragment Foo on User {
+    fragment Foo1 on User {
         __typename
     }
 `
 
 graphql    `
-    fragment Foo on User {
+    fragment Foo2 on User {
         __typename
     }
 `
 
 graphql
 `
-    fragment Foo on User {
+    fragment Foo3 on User {
         __typename
     }
 `
 
 graphql	`
-    fragment Foo on User {
+    fragment Foo4 on User {
         __typename
     }
 `

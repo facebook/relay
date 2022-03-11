@@ -82,7 +82,6 @@ pub fn build_request_params(operation: &OperationDefinition) -> RequestParameter
     RequestParameters {
         name: operation.name.item,
         operation_kind: operation.kind,
-        metadata: Default::default(),
         id: &None,
         text: None,
     }
@@ -1280,7 +1279,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
     fn build_request_parameters(
         &mut self,
         operation: &OperationDefinition,
-        mut request_parameters: RequestParameters<'_>,
+        request_parameters: RequestParameters<'_>,
         top_level_statements: &TopLevelStatements,
     ) -> AstKey {
         let mut metadata_items: Vec<ObjectEntry> = operation
@@ -1312,15 +1311,6 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         let connection_metadata = extract_connection_metadata_from_directive(&operation.directives);
         if let Some(connection_metadata) = connection_metadata {
             metadata_items.push(self.build_connection_metadata(connection_metadata))
-        }
-
-        // add request parameters metadata
-        let metadata_values: Vec<(String, String)> = request_parameters.metadata.drain().collect();
-        for (key, value) in metadata_values {
-            metadata_items.push(ObjectEntry {
-                key: key.intern(),
-                value: Primitive::RawString(value),
-            });
         }
 
         // sort metadata keys

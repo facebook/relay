@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use fnv::{FnvBuildHasher, FnvHashMap};
+use fnv::FnvBuildHasher;
 use graphql_syntax::FloatValue;
 use graphql_syntax::OperationKind;
 use indexmap::IndexSet;
@@ -135,7 +135,6 @@ pub enum QueryID {
 
 pub struct RequestParameters<'a> {
     pub id: &'a Option<QueryID>,
-    pub metadata: FnvHashMap<String, String>,
     pub name: StringKey,
     pub operation_kind: OperationKind,
     pub text: Option<String>,

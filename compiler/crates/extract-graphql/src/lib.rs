@@ -87,7 +87,7 @@ impl<'a> Iterator for CharReader<'a> {
 // This should work for Flow or TypeScript alike.
 pub fn extract(input: &str) -> Vec<JavaScriptSourceFeature> {
     let mut res = Vec::new();
-    if !input.contains("graphql`") && !input.contains("@RelayResolver") {
+    if !input.contains("graphql") && !input.contains("@RelayResolver") {
         return res;
     }
     let mut it = CharReader::new(input);

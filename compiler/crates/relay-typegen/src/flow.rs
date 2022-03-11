@@ -34,7 +34,7 @@ impl Writer for FlowPrinter {
         match ast {
             AST::Any => write!(&mut self.result, "any"),
             AST::String => write!(&mut self.result, "string"),
-            AST::StringLiteral(literal) => self.write_string_literal(*literal),
+            AST::StringLiteral(literal) => self.write_string_literal(**literal),
             AST::OtherTypename => self.write_other_string(),
             AST::Number => write!(&mut self.result, "number"),
             AST::Boolean => write!(&mut self.result, "boolean"),

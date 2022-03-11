@@ -41,7 +41,7 @@ use std::{fmt::Result as FmtResult, hash::Hash, path::Path};
 use typescript::TypeScriptPrinter;
 use writer::{
     ExactObject, GetterSetterPairProp, InexactObject, KeyValuePairProp, Prop, SortedASTList,
-    SortedStringKeyList, SpreadProp, Writer, AST,
+    SortedStringKeyList, SpreadProp, StringLiteral, Writer, AST,
 };
 
 static REACT_RELAY_MULTI_ACTOR: &str = "react-relay/multi-actor";
@@ -1155,7 +1155,7 @@ impl<'a> TypeGenerator<'a> {
                                             .expect("Fragment spreads in updatable queries should have TypeConditionInfo");
                                         let (key, value) = match type_condition_info {
                                             TypeConditionInfo::Abstract => (format!("__is{}", fragment_spread.fragment_name).intern(), AST::String),
-                                            TypeConditionInfo::Concrete { concrete_type } => ("__typename".intern(), AST::StringLiteral(concrete_type)),
+                                            TypeConditionInfo::Concrete { concrete_type } => ("__typename".intern(), AST::StringLiteral(StringLiteral(concrete_type))),
                                         };
                                         let fragment_spread_or_concrete_type_marker = Prop::KeyValuePair(KeyValuePairProp {
                                             key,
@@ -1220,7 +1220,9 @@ impl<'a> TypeGenerator<'a> {
                     if let Some(concrete_type) = concrete_type {
                         Prop::KeyValuePair(KeyValuePairProp {
                             key: scalar_field.field_name_or_alias,
-                            value: AST::StringLiteral(self.schema.get_type_name(concrete_type)),
+                            value: AST::StringLiteral(StringLiteral(
+                                self.schema.get_type_name(concrete_type),
+                            )),
                             optional,
                             read_only: true,
                         })
@@ -1287,7 +1289,9 @@ impl<'a> TypeGenerator<'a> {
                     if let Some(concrete_type) = concrete_type {
                         Prop::KeyValuePair(KeyValuePairProp {
                             key: scalar_field.field_name_or_alias,
-                            value: AST::StringLiteral(self.schema.get_type_name(concrete_type)),
+                            value: AST::StringLiteral(StringLiteral(
+                                self.schema.get_type_name(concrete_type),
+                            )),
                             read_only: true,
                             optional,
                         })
@@ -1494,11 +1498,11 @@ impl<'a> TypeGenerator<'a> {
                 let mut members: Vec<AST> = enum_type
                     .values
                     .iter()
-                    .map(|enum_value| AST::StringLiteral(enum_value.value))
+                    .map(|enum_value| AST::StringLiteral(StringLiteral(enum_value.value)))
                     .collect();
 
                 if !self.typegen_config.flow_typegen.no_future_proof_enums {
-                    members.push(AST::StringLiteral(*FUTURE_ENUM_VALUE));
+                    members.push(AST::StringLiteral(StringLiteral(*FUTURE_ENUM_VALUE)));
                 }
 
                 self.writer.write_export_type(
@@ -1838,7 +1842,7 @@ impl<'a> TypeGenerator<'a> {
         });
         let return_value_discriminator = Prop::KeyValuePair(KeyValuePairProp {
             key: *KEY_TYPENAME,
-            value: AST::StringLiteral(concrete_typename),
+            value: AST::StringLiteral(StringLiteral(concrete_typename)),
             read_only: true,
             optional: false,
         });

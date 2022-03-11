@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::writer::{Prop, SortedASTList, SortedStringKeyList, Writer, AST};
+use crate::writer::{Prop, SortedASTList, SortedStringKeyList, StringLiteral, Writer, AST};
 use crate::TypegenConfig;
 use crate::{KEY_DATA, KEY_FRAGMENT_SPREADS, KEY_FRAGMENT_TYPE};
 use intern::string_key::{Intern, StringKey};
@@ -38,7 +38,7 @@ impl Writer for TypeScriptPrinter {
         match ast {
             AST::Any => write!(&mut self.result, "any"),
             AST::String => write!(&mut self.result, "string"),
-            AST::StringLiteral(literal) => self.write_string_literal(*literal),
+            AST::StringLiteral(literal) => self.write_string_literal(**literal),
             AST::OtherTypename => self.write_other_string(),
             AST::Number => write!(&mut self.result, "number"),
             AST::Boolean => write!(&mut self.result, "boolean"),
@@ -257,7 +257,7 @@ impl TypeScriptPrinter {
         self.write(&AST::Union(SortedASTList::new(
             fragments
                 .iter()
-                .map(|key| AST::StringLiteral(*key))
+                .map(|key| AST::StringLiteral(StringLiteral(*key)))
                 .collect(),
             self.should_sort_typegen_items,
         )))?;
@@ -265,7 +265,7 @@ impl TypeScriptPrinter {
     }
 
     fn write_fragment_references_type(&mut self, fragment: StringKey) -> FmtResult {
-        self.write(&AST::StringLiteral(fragment))
+        self.write(&AST::StringLiteral(StringLiteral(fragment)))
     }
 
     fn write_return_type_of_function_with_name(&mut self, function_name: StringKey) -> FmtResult {

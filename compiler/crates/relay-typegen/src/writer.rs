@@ -12,7 +12,7 @@ use std::{
     ops::Deref,
 };
 
-use crate::{KEY_FRAGMENT_SPREADS, KEY_FRAGMENT_TYPE, KEY_TYPENAME};
+use crate::{FUTURE_ENUM_VALUE, KEY_FRAGMENT_SPREADS, KEY_FRAGMENT_TYPE, KEY_TYPENAME};
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub enum AST {
@@ -24,7 +24,7 @@ pub enum AST {
     /// Printed as is, should be valid Flow code.
     RawType(StringKey),
     String,
-    StringLiteral(StringKey),
+    StringLiteral(StringLiteral),
     /// Prints as `"%other" with a comment explaining open enums.
     OtherTypename,
     Local3DPayload(StringKey, Box<AST>),
@@ -83,7 +83,7 @@ impl ExactObject {
 
     /// Return the object's literal typename, if it is found. Typenames cannot be
     /// modified at runtime, so they will never be stored in getter/setters.
-    pub fn typename_literal(&self) -> Option<StringKey> {
+    pub fn typename_literal(&self) -> Option<StringLiteral> {
         self.0.iter().find_map(|p| match p {
             Prop::KeyValuePair(kvp) => {
                 if kvp.key == *KEY_TYPENAME {
@@ -149,7 +149,7 @@ impl InexactObject {
 
     /// Return the object's literal typename, if it is found. Typenames cannot be
     /// modified at runtime, so they will never be stored in getter/setters.
-    pub fn typename_literal(&self) -> Option<StringKey> {
+    pub fn typename_literal(&self) -> Option<StringLiteral> {
         self.0.iter().find_map(|p| match p {
             Prop::KeyValuePair(kvp) => {
                 if kvp.key == *KEY_TYPENAME {
@@ -283,6 +283,44 @@ pub struct GetterSetterPairProp {
     pub setter_parameter: AST,
 }
 
+/// A newtype wrapper around StringKey that sorts StringKey's in
+/// the following fashion:
+/// - '%future added value' goes last
+/// - Otherwise, alphabetically according to the string value
+///
+/// StringKey, by default, will sort alphabetically.
+///
+/// This exception is to preserve the "natural" order of enums, which
+/// are Union's containining StringLiteral's, i.e. we want
+/// "%future added value" to follow the variants.
+#[derive(Debug, Clone, Copy, Eq, PartialEq)]
+pub struct StringLiteral(pub StringKey);
+
+impl Deref for StringLiteral {
+    type Target = StringKey;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl Ord for StringLiteral {
+    fn cmp(&self, other: &Self) -> Ordering {
+        match (self.0 == *FUTURE_ENUM_VALUE, other.0 == *FUTURE_ENUM_VALUE) {
+            (true, true) => Ordering::Equal,
+            (true, false) => Ordering::Greater,
+            (false, true) => Ordering::Less,
+            (false, false) => self.lookup().cmp(other.lookup()),
+        }
+    }
+}
+
+impl PartialOrd for StringLiteral {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
 pub trait Writer: Write {
     fn into_string(self: Box<Self>) -> String;
 
@@ -309,4 +347,50 @@ pub trait Writer: Write {
     ) -> FmtResult;
 
     fn write_any_type_definition(&mut self, name: &str) -> FmtResult;
+}
+
+#[cfg(test)]
+mod tests {
+    use graphql_ir::reexport::Intern;
+
+    use crate::FUTURE_ENUM_VALUE;
+
+    use super::StringLiteral;
+
+    #[test]
+    fn ast_string_key_sort() {
+        let mut keys = vec![
+            StringLiteral(*FUTURE_ENUM_VALUE),
+            StringLiteral("B".intern()),
+            StringLiteral("A".intern()),
+        ];
+        keys.sort();
+        assert_eq!(
+            keys,
+            vec![
+                StringLiteral("A".intern()),
+                StringLiteral("B".intern()),
+                StringLiteral(*FUTURE_ENUM_VALUE),
+            ]
+        )
+    }
+
+    #[test]
+    fn ast_string_key_sort_duplicated_intern() {
+        let future_enum_value = FUTURE_ENUM_VALUE.lookup().intern();
+        let mut keys = vec![
+            StringLiteral("B".intern()),
+            StringLiteral(future_enum_value),
+            StringLiteral("A".intern()),
+        ];
+        keys.sort();
+        assert_eq!(
+            keys,
+            vec![
+                StringLiteral("A".intern()),
+                StringLiteral("B".intern()),
+                StringLiteral(*FUTURE_ENUM_VALUE),
+            ]
+        )
+    }
 }

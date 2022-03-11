@@ -287,7 +287,7 @@ impl TypeScriptPrinter {
 
 #[cfg(test)]
 mod tests {
-    use crate::writer::KeyValuePairProp;
+    use crate::writer::{self, KeyValuePairProp};
 
     use super::*;
     use intern::string_key::Intern;
@@ -343,24 +343,27 @@ mod tests {
 
     #[test]
     fn exact_object() {
-        assert_eq!(print_type(&AST::ExactObject(Vec::new())), r"{}".to_string());
+        assert_eq!(
+            print_type(&AST::ExactObject(writer::ExactObject::new(Vec::new()))),
+            r"{}".to_string()
+        );
 
         assert_eq!(
-            print_type(&AST::ExactObject(vec![Prop::KeyValuePair(
-                KeyValuePairProp {
+            print_type(&AST::ExactObject(writer::ExactObject::new(vec![
+                Prop::KeyValuePair(KeyValuePairProp {
                     key: "single".intern(),
                     optional: false,
                     read_only: false,
                     value: AST::String,
-                }
-            )])),
+                })
+            ]))),
             r"{
   single: string;
 }"
             .to_string()
         );
         assert_eq!(
-            print_type(&AST::ExactObject(vec![
+            print_type(&AST::ExactObject(writer::ExactObject::new(vec![
                 Prop::KeyValuePair(KeyValuePairProp {
                     key: "foo".intern(),
                     optional: true,
@@ -373,7 +376,7 @@ mod tests {
                     read_only: true,
                     value: AST::Number,
                 }),
-            ])),
+            ]))),
             r"{
   foo?: string;
   readonly bar: number;
@@ -385,12 +388,12 @@ mod tests {
     #[test]
     fn nested_object() {
         assert_eq!(
-            print_type(&AST::ExactObject(vec![
+            print_type(&AST::ExactObject(writer::ExactObject::new(vec![
                 Prop::KeyValuePair(KeyValuePairProp {
                     key: "foo".intern(),
                     optional: true,
                     read_only: false,
-                    value: AST::ExactObject(vec![
+                    value: AST::ExactObject(writer::ExactObject::new(vec![
                         Prop::KeyValuePair(KeyValuePairProp {
                             key: "nested_foo".intern(),
                             optional: true,
@@ -403,7 +406,7 @@ mod tests {
                             read_only: true,
                             value: AST::Number,
                         }),
-                    ]),
+                    ])),
                 }),
                 Prop::KeyValuePair(KeyValuePairProp {
                     key: "bar".intern(),
@@ -411,7 +414,7 @@ mod tests {
                     read_only: true,
                     value: AST::Number,
                 }),
-            ])),
+            ]))),
             r"{
   foo?: {
     nested_foo?: string;
@@ -426,19 +429,19 @@ mod tests {
     #[test]
     fn inexact_object() {
         assert_eq!(
-            print_type(&AST::InexactObject(Vec::new())),
+            print_type(&AST::InexactObject(writer::InexactObject::new(Vec::new()))),
             "{}".to_string()
         );
 
         assert_eq!(
-            print_type(&AST::InexactObject(vec![Prop::KeyValuePair(
-                KeyValuePairProp {
+            print_type(&AST::InexactObject(writer::InexactObject::new(vec![
+                Prop::KeyValuePair(KeyValuePairProp {
                     key: "single".intern(),
                     optional: false,
                     read_only: false,
                     value: AST::String,
-                }
-            ),])),
+                }),
+            ]))),
             r"{
   single: string;
 }"
@@ -446,7 +449,7 @@ mod tests {
         );
 
         assert_eq!(
-            print_type(&AST::InexactObject(vec![
+            print_type(&AST::InexactObject(writer::InexactObject::new(vec![
                 Prop::KeyValuePair(KeyValuePairProp {
                     key: "foo".intern(),
                     optional: false,
@@ -459,7 +462,7 @@ mod tests {
                     read_only: true,
                     value: AST::Number,
                 })
-            ])),
+            ]))),
             r"{
   foo: string;
   readonly bar?: number;
@@ -471,14 +474,14 @@ mod tests {
     #[test]
     fn other_comment() {
         assert_eq!(
-            print_type(&AST::ExactObject(vec![Prop::KeyValuePair(
-                KeyValuePairProp {
+            print_type(&AST::ExactObject(writer::ExactObject::new(vec![
+                Prop::KeyValuePair(KeyValuePairProp {
                     key: "with_comment".intern(),
                     optional: false,
                     read_only: false,
                     value: AST::OtherTypename,
-                }
-            ),])),
+                }),
+            ]))),
             r#"{
   // This will never be '%other', but we need some
   // value in case none of the concrete values match.

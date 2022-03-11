@@ -6,7 +6,10 @@
  */
 
 use intern::string_key::StringKey;
-use std::fmt::{Result as FmtResult, Write};
+use std::{
+    fmt::{Result as FmtResult, Write},
+    ops::Deref,
+};
 
 #[derive(Debug, Clone)]
 pub enum AST {
@@ -22,8 +25,8 @@ pub enum AST {
     /// Prints as `"%other" with a comment explaining open enums.
     OtherTypename,
     Local3DPayload(StringKey, Box<AST>),
-    ExactObject(Vec<Prop>),
-    InexactObject(Vec<Prop>),
+    ExactObject(ExactObject),
+    InexactObject(InexactObject),
     Number,
     Boolean,
     Callable(Box<AST>),
@@ -33,6 +36,40 @@ pub enum AST {
     ReturnTypeOfFunctionWithName(StringKey),
     ReturnTypeOfMethodCall(Box<AST>, StringKey),
     ActorChangePoint(Box<AST>),
+}
+
+#[derive(Debug, Clone)]
+pub struct ExactObject(Vec<Prop>);
+
+impl Deref for ExactObject {
+    type Target = Vec<Prop>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl ExactObject {
+    pub fn new(props: Vec<Prop>) -> Self {
+        Self(props)
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct InexactObject(Vec<Prop>);
+
+impl Deref for InexactObject {
+    type Target = Vec<Prop>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl InexactObject {
+    pub fn new(props: Vec<Prop>) -> Self {
+        Self(props)
+    }
 }
 
 #[derive(Debug, Clone)]

@@ -13,14 +13,12 @@ mod flow;
 mod typescript;
 mod writer;
 
-use crate::flow::FlowPrinter;
-use crate::typescript::TypeScriptPrinter;
-use crate::writer::{GetterSetterPairProp, KeyValuePairProp, SpreadProp, Writer};
 use ::intern::{
     intern,
     string_key::{Intern, StringKey},
 };
 use common::NamedItem;
+use flow::FlowPrinter;
 use fnv::FnvHashSet;
 use graphql_ir::{
     Condition, Directive, FragmentDefinition, FragmentSpread, InlineFragment, LinkedField,
@@ -39,9 +37,12 @@ use relay_transforms::{
     RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN, UPDATABLE_DIRECTIVE,
 };
 use schema::{EnumID, SDLSchema, ScalarID, Schema, Type, TypeReference};
-use std::hash::Hash;
-use std::{fmt::Result as FmtResult, path::Path};
-use writer::{Prop, AST};
+use std::{fmt::Result as FmtResult, hash::Hash, path::Path};
+use typescript::TypeScriptPrinter;
+use writer::{
+    ExactObject, GetterSetterPairProp, InexactObject, KeyValuePairProp, Prop, SpreadProp, Writer,
+    AST,
+};
 
 static REACT_RELAY_MULTI_ACTOR: &str = "react-relay/multi-actor";
 static RELAY_RUNTIME: &str = "relay-runtime";
@@ -394,7 +395,7 @@ impl<'a> TypeGenerator<'a> {
         };
         self.writer.write_export_type(
             typegen_operation.name.item.lookup(),
-            &AST::ExactObject(operation_types),
+            &AST::ExactObject(ExactObject::new(operation_types)),
         )?;
 
         self.generate_provided_variables_type(normalization_operation)?;
@@ -468,10 +469,10 @@ impl<'a> TypeGenerator<'a> {
             value: AST::FragmentReference(vec![fragment_name]),
         });
         let is_plural_fragment = is_plural(fragment_definition);
-        let mut ref_type = AST::InexactObject(vec![
+        let mut ref_type = AST::InexactObject(InexactObject::new(vec![
             ref_type_data_property,
             ref_type_fragment_spreads_property,
-        ]);
+        ]));
         if is_plural_fragment {
             ref_type = AST::ReadOnlyArray(Box::new(ref_type));
         }
@@ -980,9 +981,9 @@ impl<'a> TypeGenerator<'a> {
                         }));
                     }
                     if unmasked {
-                        AST::InexactObject(props)
+                        AST::InexactObject(InexactObject::new(props))
                     } else {
-                        AST::ExactObject(props)
+                        AST::ExactObject(ExactObject::new(props))
                     }
                 })
                 .collect(),
@@ -1011,7 +1012,7 @@ impl<'a> TypeGenerator<'a> {
         if base_fields.is_empty() && by_concrete_type.is_empty() {
             // base fields and per-type fields are all empty: this can only occur bc the only selection was a
             // @no_inline fragment. in this case, emit a single, empty ExactObject since nothing was selected
-            return AST::ExactObject(Default::default());
+            return AST::ExactObject(ExactObject::new(Default::default()));
         }
 
         let mut types: Vec<AST> = Vec::new();
@@ -1026,7 +1027,7 @@ impl<'a> TypeGenerator<'a> {
                     false,
                 );
                 let merged_selections: Vec<_> = hashmap_into_values(base_fields_map).collect();
-                types.push(AST::ExactObject(
+                types.push(AST::ExactObject(ExactObject::new(
                     merged_selections
                         .iter()
                         .cloned()
@@ -1034,19 +1035,19 @@ impl<'a> TypeGenerator<'a> {
                             self.raw_response_make_prop(selection, Some(concrete_type))
                         })
                         .collect(),
-                ));
+                )));
                 self.append_local_3d_payload(&mut types, &merged_selections, Some(concrete_type));
             }
         }
 
         if !base_fields.is_empty() {
-            types.push(AST::ExactObject(
+            types.push(AST::ExactObject(ExactObject::new(
                 base_fields
                     .iter()
                     .cloned()
                     .map(|selection| self.raw_response_make_prop(selection, concrete_type))
                     .collect(),
-            ));
+            )));
             self.append_local_3d_payload(&mut types, &base_fields, concrete_type);
         }
 
@@ -1070,13 +1071,13 @@ impl<'a> TypeGenerator<'a> {
 
             types.push(AST::Local3DPayload(
                 module_import.document_name,
-                Box::new(AST::ExactObject(
+                Box::new(AST::ExactObject(ExactObject::new(
                     type_selections
                         .iter()
                         .filter(|sel| !sel.is_js_field())
                         .map(|sel| self.raw_response_make_prop(sel.clone(), concrete_type))
                         .collect(),
-                )),
+                ))),
             ));
         }
     }
@@ -1150,11 +1151,11 @@ impl<'a> TypeGenerator<'a> {
                                             optional: false,
                                         });
 
-                                        AST::InexactObject(vec![
+                                        AST::InexactObject(InexactObject::new(vec![
                                             assignable_fragment_spread_ref,
                                             fragment_spread_or_concrete_type_marker,
                                             client_id_field,
-                                        ])
+                                        ]))
                                     })
                                     .collect(),
                             );
@@ -1499,19 +1500,21 @@ impl<'a> TypeGenerator<'a> {
                     key: def.name.item,
                     read_only: true,
                     optional: false,
-                    value: AST::ExactObject(vec![provider_module]),
+                    value: AST::ExactObject(ExactObject::new(vec![provider_module])),
                 }))
             })
             .collect_vec();
         if !fields.is_empty() {
-            self.writer
-                .write_local_type(PROVIDED_VARIABLE_TYPE, &AST::ExactObject(fields))?;
+            self.writer.write_local_type(
+                PROVIDED_VARIABLE_TYPE,
+                &AST::ExactObject(ExactObject::new(fields)),
+            )?;
         }
         Ok(())
     }
 
     fn generate_input_variables_type(&mut self, node: &OperationDefinition) -> AST {
-        AST::ExactObject(
+        AST::ExactObject(ExactObject::new(
             node.variable_definitions
                 .iter()
                 .map(|var_def| {
@@ -1523,7 +1526,7 @@ impl<'a> TypeGenerator<'a> {
                     })
                 })
                 .collect(),
-        )
+        ))
     }
 
     fn write_input_object_types(&mut self) -> FmtResult {
@@ -1563,22 +1566,24 @@ impl<'a> TypeGenerator<'a> {
                         self.generated_input_object_types
                             .insert(input_object.name, GeneratedInputObject::Pending);
 
-                        let props = input_object
-                            .fields
-                            .iter()
-                            .map(|field| {
-                                Prop::KeyValuePair(KeyValuePairProp {
-                                    key: field.name,
-                                    read_only: false,
-                                    optional: !field.type_.is_non_null()
-                                        || self
-                                            .typegen_config
-                                            .optional_input_fields
-                                            .contains(&field.name),
-                                    value: self.transform_input_type(&field.type_),
+                        let props = ExactObject::new(
+                            input_object
+                                .fields
+                                .iter()
+                                .map(|field| {
+                                    Prop::KeyValuePair(KeyValuePairProp {
+                                        key: field.name,
+                                        read_only: false,
+                                        optional: !field.type_.is_non_null()
+                                            || self
+                                                .typegen_config
+                                                .optional_input_fields
+                                                .contains(&field.name),
+                                        value: self.transform_input_type(&field.type_),
+                                    })
                                 })
-                            })
-                            .collect();
+                                .collect(),
+                        );
                         self.generated_input_object_types.insert(
                             input_object.name,
                             GeneratedInputObject::Resolved(AST::ExactObject(props)),
@@ -1712,17 +1717,17 @@ impl<'a> TypeGenerator<'a> {
             optional: false,
         });
 
-        let parameter_type = AST::InexactObject(vec![
+        let parameter_type = AST::InexactObject(InexactObject::new(vec![
             id_prop.clone(),
             fragment_spread_prop.clone(),
             parameter_discriminator,
-        ]);
+        ]));
         let return_type = AST::Union(vec![
-            AST::InexactObject(vec![
+            AST::InexactObject(InexactObject::new(vec![
                 id_prop,
                 fragment_spread_prop,
                 return_value_discriminator,
-            ]),
+            ])),
             AST::RawType(intern!("false")),
         ]);
 
@@ -1799,17 +1804,17 @@ impl<'a> TypeGenerator<'a> {
             optional: false,
         });
 
-        let parameter_type = AST::InexactObject(vec![
+        let parameter_type = AST::InexactObject(InexactObject::new(vec![
             id_prop.clone(),
             fragment_spread_prop.clone(),
             parameter_discriminator,
-        ]);
+        ]));
         let return_type = AST::Union(vec![
-            AST::InexactObject(vec![
+            AST::InexactObject(InexactObject::new(vec![
                 id_prop,
                 fragment_spread_prop,
                 return_value_discriminator,
-            ]),
+            ])),
             AST::RawType(intern!("false")),
         ]);
 

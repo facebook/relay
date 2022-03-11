@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<5ccfcc005ceaa42d0ddc4162369a78dd>>
+ * @generated SignedSource<<f4b0a2977ead8eec8aef6ed9eb918982>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -28,17 +28,17 @@ export type requestSubscriptionTestCommentCreateSubscription$data = {|
   +commentCreateSubscribe: ?{|
     +feedbackCommentEdge: ?{|
       +node: ?{|
-        +id: string,
         +body: ?{|
           +text: ?string,
         |},
+        +id: string,
       |},
     |},
   |},
 |};
 export type requestSubscriptionTestCommentCreateSubscription = {|
-  variables: requestSubscriptionTestCommentCreateSubscription$variables,
   response: requestSubscriptionTestCommentCreateSubscription$data,
+  variables: requestSubscriptionTestCommentCreateSubscription$variables,
 |};
 */
 

@@ -30,8 +30,8 @@ fragment InlineFragmentWithOverlappingFields on Actor {
 import type { InlineFragmentWithOverlappingFields$fragmentType } from "InlineFragmentWithOverlappingFields.graphql";
 export type CommentCreateInput = {|
   clientMutationId?: ?string,
-  feedbackId?: ?string,
   feedback?: ?CommentfeedbackFeedback,
+  feedbackId?: ?string,
 |};
 export type CommentfeedbackFeedback = {|
   comment?: ?FeedbackcommentComment,
@@ -57,22 +57,22 @@ export type TestMutation$rawResponse = {|
       +actor: ?({|
         +__typename: "User",
         +__isActor: "User",
-        +id: string,
         +hometown: ?{|
           +id: string,
           +name: ?string,
         |},
+        +id: string,
       |} | {|
         +__typename: "Page",
         +__isActor: "Page",
-        +id: string,
-        +name: ?string,
         +hometown: ?{|
           +id: string,
           +message: ?{|
             +text: ?string,
           |},
         |},
+        +id: string,
+        +name: ?string,
       |} | {|
         +__typename: string,
         +__isActor: string,
@@ -82,9 +82,9 @@ export type TestMutation$rawResponse = {|
   |},
 |};
 export type TestMutation = {|
-  variables: TestMutation$variables,
-  response: TestMutation$data,
   rawResponse: TestMutation$rawResponse,
+  response: TestMutation$data,
+  variables: TestMutation$variables,
 |};
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";
@@ -92,10 +92,10 @@ declare export opaque type InlineFragmentWithOverlappingFields$fragmentType: Fra
 export type InlineFragmentWithOverlappingFields$data = {|
   +hometown?: ?{|
     +id: string,
-    +name: ?string,
     +message?: ?{|
       +text: ?string,
     |},
+    +name: ?string,
   |},
   +name?: ?string,
   +$fragmentType: InlineFragmentWithOverlappingFields$fragmentType,

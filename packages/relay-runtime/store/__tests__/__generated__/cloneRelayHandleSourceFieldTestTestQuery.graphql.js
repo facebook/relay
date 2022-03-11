@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<2c0b5c86cefe7a84f4d5938567898916>>
+ * @generated SignedSource<<ee70384c438286f7a1f1675ae22ea1d3>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -25,8 +25,8 @@ export type cloneRelayHandleSourceFieldTestTestQuery$data = {|
   |},
 |};
 export type cloneRelayHandleSourceFieldTestTestQuery = {|
-  variables: cloneRelayHandleSourceFieldTestTestQuery$variables,
   response: cloneRelayHandleSourceFieldTestTestQuery$data,
+  variables: cloneRelayHandleSourceFieldTestTestQuery$variables,
 |};
 */
 

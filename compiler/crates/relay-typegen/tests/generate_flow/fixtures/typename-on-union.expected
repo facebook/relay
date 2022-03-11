@@ -177,13 +177,13 @@ import type { FragmentType } from "relay-runtime";
 declare export opaque type TypenameOutsideWithAbstractType$fragmentType: FragmentType;
 export type TypenameOutsideWithAbstractType$data = {|
   +__typename: string,
-  +username?: ?string,
   +address?: ?{|
     +city: ?string,
     +country: ?string,
     +street?: ?string,
   |},
   +firstName?: ?string,
+  +username?: ?string,
   +$fragmentType: TypenameOutsideWithAbstractType$fragmentType,
 |};
 export type TypenameOutsideWithAbstractType$key = {
@@ -196,8 +196,8 @@ import type { FragmentType } from "relay-runtime";
 declare export opaque type TypenameWithCommonSelections$fragmentType: FragmentType;
 export type TypenameWithCommonSelections$data = {|
   +__typename: string,
-  +name: ?string,
   +firstName?: ?string,
+  +name: ?string,
   +username?: ?string,
   +$fragmentType: TypenameWithCommonSelections$fragmentType,
 |};
@@ -210,8 +210,8 @@ export type TypenameWithCommonSelections$key = {
 import type { FragmentType } from "relay-runtime";
 declare export opaque type TypenameWithoutSpreads$fragmentType: FragmentType;
 export type TypenameWithoutSpreads$data = {|
-  +firstName: ?string,
   +__typename: "User",
+  +firstName: ?string,
   +$fragmentType: TypenameWithoutSpreads$fragmentType,
 |};
 export type TypenameWithoutSpreads$key = {

@@ -43,8 +43,8 @@ export type queryOnlyProvidedVar_MultiFragment$data = {|
   |},
 |};
 export type queryOnlyProvidedVar_MultiFragment = {|
-  variables: queryOnlyProvidedVar_MultiFragment$variables,
   response: queryOnlyProvidedVar_MultiFragment$data,
+  variables: queryOnlyProvidedVar_MultiFragment$variables,
 |};
 type ProvidedVariablesType = {|
   +__relay_internal__pv__includeNameProvider: {|
@@ -63,8 +63,8 @@ export type queryOnlyProvidedVar_OneFragment$data = {|
   |},
 |};
 export type queryOnlyProvidedVar_OneFragment = {|
-  variables: queryOnlyProvidedVar_OneFragment$variables,
   response: queryOnlyProvidedVar_OneFragment$data,
+  variables: queryOnlyProvidedVar_OneFragment$variables,
 |};
 type ProvidedVariablesType = {|
   +__relay_internal__pv__includeNameProvider: {|

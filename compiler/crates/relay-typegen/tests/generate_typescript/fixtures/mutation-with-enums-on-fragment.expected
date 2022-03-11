@@ -31,8 +31,8 @@ import { FragmentRefs } from "relay-runtime";
 export type TestEnums = "mark" | "zuck" | "%future added value";
 export type CommentCreateInput = {
   clientMutationId?: string | null;
-  feedbackId?: string | null;
   feedback?: CommentfeedbackFeedback | null;
+  feedbackId?: string | null;
 };
 export type CommentfeedbackFeedback = {
   comment?: FeedbackcommentComment | null;
@@ -41,8 +41,8 @@ export type FeedbackcommentComment = {
   feedback?: CommentfeedbackFeedback | null;
 };
 export type CommentCreateMutation$variables = {
-  input: CommentCreateInput;
   first?: number | null;
+  input: CommentCreateInput;
   orderBy?: ReadonlyArray<string> | null;
 };
 export type CommentCreateMutation$data = {
@@ -51,8 +51,8 @@ export type CommentCreateMutation$data = {
       readonly friends: {
         readonly edges: ReadonlyArray<{
           readonly node: {
-            readonly id: string;
             readonly __typename: string;
+            readonly id: string;
             readonly " $fragmentSpreads": FragmentRefs<"FriendFragment">;
           } | null;
         } | null> | null;
@@ -66,10 +66,10 @@ export type CommentCreateMutation$rawResponse = {
       readonly friends: {
         readonly edges: ReadonlyArray<{
           readonly node: {
-            readonly id: string;
             readonly __typename: "User";
-            readonly name: string | null;
+            readonly id: string;
             readonly lastName: string | null;
+            readonly name: string | null;
             readonly profilePicture2: {
               readonly test_enums: TestEnums | null;
             } | null;
@@ -81,16 +81,16 @@ export type CommentCreateMutation$rawResponse = {
   } | null;
 };
 export type CommentCreateMutation = {
-  variables: CommentCreateMutation$variables;
-  response: CommentCreateMutation$data;
   rawResponse: CommentCreateMutation$rawResponse;
+  response: CommentCreateMutation$data;
+  variables: CommentCreateMutation$variables;
 };
 -------------------------------------------------------------------------------
 export type TestEnums = "mark" | "zuck" | "%future added value";
 import { FragmentRefs } from "relay-runtime";
 export type FriendFragment$data = {
-  readonly name: string | null;
   readonly lastName: string | null;
+  readonly name: string | null;
   readonly profilePicture2: {
     readonly test_enums: TestEnums | null;
   } | null;

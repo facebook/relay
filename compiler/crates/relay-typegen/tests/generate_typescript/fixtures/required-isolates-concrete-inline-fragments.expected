@@ -30,10 +30,10 @@ fragment Foo on Node {
 ==================================== OUTPUT ===================================
 import { FragmentRefs } from "relay-runtime";
 export type Bar$data = {
-  readonly name?: string;
   readonly body?: {
     readonly text: string | null;
   } | null;
+  readonly name?: string;
   readonly " $fragmentType": "Bar";
 } | null;
 export type Bar$key = {

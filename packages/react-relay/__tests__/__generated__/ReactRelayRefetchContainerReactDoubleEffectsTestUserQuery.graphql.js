@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b270c0543119797733c686aafbdc382e>>
+ * @generated SignedSource<<ebcd5649910b2c7c22a5e59b3d7b4bec>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -26,8 +26,8 @@ export type ReactRelayRefetchContainerReactDoubleEffectsTestUserQuery$data = {|
   |},
 |};
 export type ReactRelayRefetchContainerReactDoubleEffectsTestUserQuery = {|
-  variables: ReactRelayRefetchContainerReactDoubleEffectsTestUserQuery$variables,
   response: ReactRelayRefetchContainerReactDoubleEffectsTestUserQuery$data,
+  variables: ReactRelayRefetchContainerReactDoubleEffectsTestUserQuery$variables,
 |};
 */
 

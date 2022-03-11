@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<6905645a65399c0f3da574d400e7c7f2>>
+ * @generated SignedSource<<ce7becf8a0ea2c713cc77342cb1d66dc>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,15 +19,15 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type ActorChangeWithStreamTestFragment$fragmentType: FragmentType;
 export type ActorChangeWithStreamTestFragment$data = {|
-  +id: string,
-  +message: ?{|
-    +text: ?string,
-  |},
   +feedback: ?{|
-    +id: string,
     +actors: ?$ReadOnlyArray<?{|
       +name: ?string,
     |}>,
+    +id: string,
+  |},
+  +id: string,
+  +message: ?{|
+    +text: ?string,
   |},
   +$fragmentType: ActorChangeWithStreamTestFragment$fragmentType,
 |};

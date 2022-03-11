@@ -168,13 +168,13 @@ export type TypenameOutside$key = {
 import { FragmentRefs } from "relay-runtime";
 export type TypenameOutsideWithAbstractType$data = {
   readonly __typename: string;
-  readonly username?: string | null;
   readonly address?: {
     readonly city: string | null;
     readonly country: string | null;
     readonly street?: string | null;
   } | null;
   readonly firstName?: string | null;
+  readonly username?: string | null;
   readonly " $fragmentType": "TypenameOutsideWithAbstractType";
 };
 export type TypenameOutsideWithAbstractType$key = {
@@ -185,8 +185,8 @@ export type TypenameOutsideWithAbstractType$key = {
 import { FragmentRefs } from "relay-runtime";
 export type TypenameWithCommonSelections$data = {
   readonly __typename: string;
-  readonly name: string | null;
   readonly firstName?: string | null;
+  readonly name: string | null;
   readonly username?: string | null;
   readonly " $fragmentType": "TypenameWithCommonSelections";
 };
@@ -197,8 +197,8 @@ export type TypenameWithCommonSelections$key = {
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
 export type TypenameWithoutSpreads$data = {
-  readonly firstName: string | null;
   readonly __typename: "User";
+  readonly firstName: string | null;
   readonly " $fragmentType": "TypenameWithoutSpreads";
 };
 export type TypenameWithoutSpreads$key = {

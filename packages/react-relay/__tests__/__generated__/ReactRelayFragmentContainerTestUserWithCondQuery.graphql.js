@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<17e9de45ed875074b0d517f733e8af8e>>
+ * @generated SignedSource<<cb649018e39170edf8abdcc30fee9052>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,8 +18,8 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 type ReactRelayFragmentContainerTestUserFragment$fragmentType = any;
 export type ReactRelayFragmentContainerTestUserWithCondQuery$variables = {|
-  id: string,
   condGlobal: boolean,
+  id: string,
 |};
 export type ReactRelayFragmentContainerTestUserWithCondQuery$data = {|
   +node: ?{|
@@ -27,8 +27,8 @@ export type ReactRelayFragmentContainerTestUserWithCondQuery$data = {|
   |},
 |};
 export type ReactRelayFragmentContainerTestUserWithCondQuery = {|
-  variables: ReactRelayFragmentContainerTestUserWithCondQuery$variables,
   response: ReactRelayFragmentContainerTestUserWithCondQuery$data,
+  variables: ReactRelayFragmentContainerTestUserWithCondQuery$variables,
 |};
 */
 

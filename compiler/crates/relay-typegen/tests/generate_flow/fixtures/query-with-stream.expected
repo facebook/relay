@@ -21,7 +21,6 @@ query TestStream @raw_response_type {
 export type TestStream$variables = {||};
 export type TestStream$data = {|
   +node: ?{|
-    +name?: ?string,
     +friends?: ?{|
       +edges: ?$ReadOnlyArray<?{|
         +node: ?{|
@@ -29,33 +28,34 @@ export type TestStream$data = {|
         |},
       |}>,
     |},
+    +name?: ?string,
   |},
 |};
 export type TestStream$rawResponse = {|
   +node: ?({|
     +__typename: "User",
-    +id: string,
-    +name: ?string,
     +friends: ?{|
       +edges: ?$ReadOnlyArray<?{|
-        +node: ?{|
-          +id: string,
-          +__typename: "User",
-        |},
         +cursor: ?string,
+        +node: ?{|
+          +__typename: "User",
+          +id: string,
+        |},
       |}>,
       +pageInfo: ?{|
         +endCursor: ?string,
         +hasNextPage: ?CustomBoolean,
       |},
     |},
+    +id: string,
+    +name: ?string,
   |} | {|
     +__typename: string,
     +id: string,
   |}),
 |};
 export type TestStream = {|
-  variables: TestStream$variables,
-  response: TestStream$data,
   rawResponse: TestStream$rawResponse,
+  response: TestStream$data,
+  variables: TestStream$variables,
 |};

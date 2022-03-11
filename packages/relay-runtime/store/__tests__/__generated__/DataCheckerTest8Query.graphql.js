@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<0e1bd25d79bcfdb09a5485f5287ec4fd>>
+ * @generated SignedSource<<796febb6bba71223b8f9398fc1ba9ff4>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -25,8 +25,8 @@ export type DataCheckerTest8Query$data = {|
   |},
 |};
 export type DataCheckerTest8Query = {|
-  variables: DataCheckerTest8Query$variables,
   response: DataCheckerTest8Query$data,
+  variables: DataCheckerTest8Query$variables,
 |};
 */
 

@@ -29,8 +29,8 @@ import type { noInlineFragment_address$normalization } from "noInlineFragment_ad
 import type { noInlineFragment_user$normalization } from "noInlineFragment_user$normalization.graphql";
 export type noInlineFragmentQuery$variables = {|
   global?: ?number,
-  shadowed_global?: ?number,
   global_from_parent?: ?number,
+  shadowed_global?: ?number,
 |};
 export type noInlineFragmentQuery$data = {|
   +me: ?{|
@@ -42,17 +42,17 @@ export type noInlineFragmentQuery$data = {|
 |};
 export type noInlineFragmentQuery$rawResponse = {|
   +me: ?{|
-    ...noInlineFragment_user$normalization,
     +address: ?{|
       ...noInlineFragment_address$normalization,
     |},
     +id: string,
+    ...noInlineFragment_user$normalization,
   |},
 |};
 export type noInlineFragmentQuery = {|
-  variables: noInlineFragmentQuery$variables,
-  response: noInlineFragmentQuery$data,
   rawResponse: noInlineFragmentQuery$rawResponse,
+  response: noInlineFragmentQuery$data,
+  variables: noInlineFragmentQuery$variables,
 |};
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";

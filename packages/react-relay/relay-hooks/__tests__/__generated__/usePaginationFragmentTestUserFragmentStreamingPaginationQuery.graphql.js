@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<33d40615ec7a0122e6432899ce4e81ac>>
+ * @generated SignedSource<<e91ff186171f8f9785907ea170a7a85c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,11 +22,11 @@ export type usePaginationFragmentTestUserFragmentStreamingPaginationQuery$variab
   after?: ?string,
   before?: ?string,
   first?: ?number,
+  id: string,
   isViewerFriendLocal?: ?boolean,
   last?: ?number,
   orderby?: ?$ReadOnlyArray<?string>,
   scale?: ?number,
-  id: string,
 |};
 export type usePaginationFragmentTestUserFragmentStreamingPaginationQuery$data = {|
   +node: ?{|
@@ -34,8 +34,8 @@ export type usePaginationFragmentTestUserFragmentStreamingPaginationQuery$data =
   |},
 |};
 export type usePaginationFragmentTestUserFragmentStreamingPaginationQuery = {|
-  variables: usePaginationFragmentTestUserFragmentStreamingPaginationQuery$variables,
   response: usePaginationFragmentTestUserFragmentStreamingPaginationQuery$data,
+  variables: usePaginationFragmentTestUserFragmentStreamingPaginationQuery$variables,
 |};
 */
 

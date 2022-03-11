@@ -24,10 +24,10 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 ==================================== OUTPUT ===================================
 import { FragmentRefs } from "relay-runtime";
 export type MarkdownUserNameRenderer_name$data = {
-  readonly markdown: string | null;
   readonly data: {
     readonly markup: string | null;
   } | null;
+  readonly markdown: string | null;
   readonly " $fragmentType": "MarkdownUserNameRenderer_name";
 };
 export type MarkdownUserNameRenderer_name$key = {
@@ -52,10 +52,10 @@ export type NameRendererFragment$key = {
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
 export type PlainUserNameRenderer_name$data = {
-  readonly plaintext: string | null;
   readonly data: {
     readonly text: string | null;
   } | null;
+  readonly plaintext: string | null;
   readonly " $fragmentType": "PlainUserNameRenderer_name";
 };
 export type PlainUserNameRenderer_name$key = {

@@ -15,9 +15,9 @@ export type LinkedField$data = {|
   +global_id: string,
   +name: ?string,
   +profilePicture: ?{|
+    +height: ?number,
     +uri: ?string,
     +width: ?number,
-    +height: ?number,
   |},
   +$fragmentType: LinkedField$fragmentType,
 |};

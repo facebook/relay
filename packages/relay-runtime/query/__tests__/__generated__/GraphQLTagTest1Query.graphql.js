@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<c74a3c8bee013280d7c70d5c9cfa8d8a>>
+ * @generated SignedSource<<58bcabb8b8355f721232b53790308cb7>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,8 +23,8 @@ export type GraphQLTagTest1Query$data = {|
   |},
 |};
 export type GraphQLTagTest1Query = {|
-  variables: GraphQLTagTest1Query$variables,
   response: GraphQLTagTest1Query$data,
+  variables: GraphQLTagTest1Query$variables,
 |};
 */
 

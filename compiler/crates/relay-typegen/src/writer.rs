@@ -7,11 +7,14 @@
 
 use intern::string_key::StringKey;
 use std::{
+    cmp::Ordering,
     fmt::{Result as FmtResult, Write},
     ops::Deref,
 };
 
-#[derive(Debug, Clone)]
+use crate::{KEY_FRAGMENT_SPREADS, KEY_FRAGMENT_TYPE, KEY_TYPENAME};
+
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub enum AST {
     Union(Vec<AST>),
     ReadOnlyArray(Box<AST>),
@@ -38,7 +41,7 @@ pub enum AST {
     ActorChangePoint(Box<AST>),
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct ExactObject(Vec<Prop>);
 
 impl Deref for ExactObject {
@@ -50,12 +53,15 @@ impl Deref for ExactObject {
 }
 
 impl ExactObject {
-    pub fn new(props: Vec<Prop>) -> Self {
+    pub fn new(mut props: Vec<Prop>, should_sort_props: bool) -> Self {
+        if should_sort_props {
+            props.sort();
+        }
         Self(props)
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct InexactObject(Vec<Prop>);
 
 impl Deref for InexactObject {
@@ -67,19 +73,22 @@ impl Deref for InexactObject {
 }
 
 impl InexactObject {
-    pub fn new(props: Vec<Prop>) -> Self {
+    pub fn new(mut props: Vec<Prop>, should_sort_props: bool) -> Self {
+        if should_sort_props {
+            props.sort();
+        }
         Self(props)
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Eq, PartialEq)]
 pub enum Prop {
     KeyValuePair(KeyValuePairProp),
     Spread(SpreadProp),
     GetterSetterPair(GetterSetterPairProp),
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct KeyValuePairProp {
     pub key: StringKey,
     pub value: AST,
@@ -87,12 +96,52 @@ pub struct KeyValuePairProp {
     pub optional: bool,
 }
 
-#[derive(Debug, Clone)]
+impl Ord for Prop {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.get_sort_order_key().cmp(&other.get_sort_order_key())
+    }
+}
+
+impl PartialOrd for Prop {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl Prop {
+    fn get_sort_order_key(&self) -> (PropSortOrder, StringKey) {
+        match self {
+            Prop::KeyValuePair(kvp) => (
+                if kvp.key == *KEY_TYPENAME {
+                    PropSortOrder::Typename
+                } else if kvp.key == *KEY_FRAGMENT_SPREADS || kvp.key == *KEY_FRAGMENT_TYPE {
+                    PropSortOrder::FragmentSpread
+                } else {
+                    PropSortOrder::KeyValuePair
+                },
+                kvp.key,
+            ),
+            Prop::GetterSetterPair(pair) => (PropSortOrder::GetterSetterPair, pair.key),
+            Prop::Spread(spread) => (PropSortOrder::ObjectSpread, spread.value),
+        }
+    }
+}
+
+#[derive(PartialEq, Eq, PartialOrd, Ord, Copy, Clone)]
+enum PropSortOrder {
+    Typename,
+    KeyValuePair,
+    GetterSetterPair,
+    ObjectSpread,
+    FragmentSpread,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct SpreadProp {
     pub value: StringKey,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct GetterSetterPairProp {
     pub key: StringKey,
     pub getter_return_value: AST,

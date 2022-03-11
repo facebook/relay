@@ -50,16 +50,16 @@ export type Test$rawResponse = {|
     +id: string,
     +nameRenderer: ?({|
       +__typename: "PlainUserNameRenderer",
-      +__module_operation_NameRendererFragment: ?any,
       +__module_component_NameRendererFragment: ?any,
+      +__module_operation_NameRendererFragment: ?any,
       ...PlainUserNameRenderer_name,
     |} | Local3DPayload<"NameRendererFragment", {|
       +__typename: "PlainUserNameRenderer",
       ...PlainUserNameRenderer_name,
     |}> | {|
       +__typename: "MarkdownUserNameRenderer",
-      +__module_operation_NameRendererFragment: ?any,
       +__module_component_NameRendererFragment: ?any,
+      +__module_operation_NameRendererFragment: ?any,
       ...MarkdownUserNameRenderer_name,
     |} | Local3DPayload<"NameRendererFragment", {|
       +__typename: "MarkdownUserNameRenderer",
@@ -73,18 +73,18 @@ export type Test$rawResponse = {|
   |}),
 |};
 export type Test = {|
-  variables: Test$variables,
-  response: Test$data,
   rawResponse: Test$rawResponse,
+  response: Test$data,
+  variables: Test$variables,
 |};
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";
 declare export opaque type MarkdownUserNameRenderer_name$fragmentType: FragmentType;
 export type MarkdownUserNameRenderer_name$data = {|
-  +markdown: ?string,
   +data: ?{|
     +markup: ?string,
   |},
+  +markdown: ?string,
   +$fragmentType: MarkdownUserNameRenderer_name$fragmentType,
 |};
 export type MarkdownUserNameRenderer_name$key = {
@@ -115,10 +115,10 @@ export type NameRendererFragment$key = {
 import type { FragmentType } from "relay-runtime";
 declare export opaque type PlainUserNameRenderer_name$fragmentType: FragmentType;
 export type PlainUserNameRenderer_name$data = {|
-  +plaintext: ?string,
   +data: ?{|
     +text: ?string,
   |},
+  +plaintext: ?string,
   +$fragmentType: PlainUserNameRenderer_name$fragmentType,
 |};
 export type PlainUserNameRenderer_name$key = {

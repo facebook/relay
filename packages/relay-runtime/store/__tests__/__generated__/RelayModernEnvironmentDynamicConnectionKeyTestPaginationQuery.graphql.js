@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<19385543da476ab60b14739fb488b673>>
+ * @generated SignedSource<<349a985444f68f9a171d82d49a12858d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,10 +18,10 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 type RelayModernEnvironmentDynamicConnectionKeyTestFeedbackFragment$fragmentType = any;
 export type RelayModernEnvironmentDynamicConnectionKeyTestPaginationQuery$variables = {|
-  id: string,
   commentsKey?: ?string,
   count: number,
   cursor: string,
+  id: string,
 |};
 export type RelayModernEnvironmentDynamicConnectionKeyTestPaginationQuery$data = {|
   +node: ?{|
@@ -29,8 +29,8 @@ export type RelayModernEnvironmentDynamicConnectionKeyTestPaginationQuery$data =
   |},
 |};
 export type RelayModernEnvironmentDynamicConnectionKeyTestPaginationQuery = {|
-  variables: RelayModernEnvironmentDynamicConnectionKeyTestPaginationQuery$variables,
   response: RelayModernEnvironmentDynamicConnectionKeyTestPaginationQuery$data,
+  variables: RelayModernEnvironmentDynamicConnectionKeyTestPaginationQuery$variables,
 |};
 */
 

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<bfc86bafa68ec72c6dbfed1a980eb4e2>>
+ * @generated SignedSource<<ac04e79c6868296efd7980e1abce8833>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,8 +24,8 @@ export type ReactRelayTestMockerTestFragContainerTestQuery$data = {|
   |},
 |};
 export type ReactRelayTestMockerTestFragContainerTestQuery = {|
-  variables: ReactRelayTestMockerTestFragContainerTestQuery$variables,
   response: ReactRelayTestMockerTestFragContainerTestQuery$data,
+  variables: ReactRelayTestMockerTestFragContainerTestQuery$variables,
 |};
 */
 

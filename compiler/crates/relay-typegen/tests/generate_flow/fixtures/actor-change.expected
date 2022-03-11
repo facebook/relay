@@ -19,9 +19,9 @@ declare export opaque type ActorFragment$fragmentType: FragmentType;
 export type ActorFragment$data = {|
   +name: ?string,
   +profilePicture: ?{|
+    +height: ?number,
     +uri: ?string,
     +width: ?number,
-    +height: ?number,
   |},
   +$fragmentType: ActorFragment$fragmentType,
 |};

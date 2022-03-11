@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<f24382c68d74ad632e196909622e4810>>
+ * @generated SignedSource<<fafd313aa31330fd9201bb29d0092a17>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,8 +24,8 @@ export type RelayMockPayloadGeneratorTest16Query$data = {|
   |}>,
 |};
 export type RelayMockPayloadGeneratorTest16Query = {|
-  variables: RelayMockPayloadGeneratorTest16Query$variables,
   response: RelayMockPayloadGeneratorTest16Query$data,
+  variables: RelayMockPayloadGeneratorTest16Query$variables,
 |};
 */
 

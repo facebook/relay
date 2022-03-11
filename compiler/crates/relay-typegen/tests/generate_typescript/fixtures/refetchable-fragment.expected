@@ -17,16 +17,16 @@ export type RefetchableFragmentQuery$data = {
   } | null;
 };
 export type RefetchableFragmentQuery = {
-  variables: RefetchableFragmentQuery$variables;
   response: RefetchableFragmentQuery$data;
+  variables: RefetchableFragmentQuery$variables;
 };
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
 export type RefetchableFragment$data = {
-  readonly id: string;
   readonly fragAndField: {
     readonly uri: string | null;
   } | null;
+  readonly id: string;
   readonly " $fragmentType": "RefetchableFragment";
 };
 export type RefetchableFragment$key = {

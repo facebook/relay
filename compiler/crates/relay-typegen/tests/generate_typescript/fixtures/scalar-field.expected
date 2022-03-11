@@ -16,17 +16,17 @@ fragment ScalarField on User {
 export type PersonalityTraits = "CHEERFUL" | "DERISIVE" | "HELPFUL" | "SNARKY" | "%future added value";
 import { FragmentRefs } from "relay-runtime";
 export type ScalarField$data = {
-  readonly id: string;
-  readonly name: string | null;
-  readonly websites: ReadonlyArray<string | null> | null;
-  readonly traits: ReadonlyArray<PersonalityTraits | null> | null;
   readonly aliasedLinkedField: {
     readonly aliasedField: number | null;
   } | null;
+  readonly id: string;
+  readonly name: string | null;
   readonly screennames: ReadonlyArray<{
     readonly name: string | null;
     readonly service: string | null;
   } | null> | null;
+  readonly traits: ReadonlyArray<PersonalityTraits | null> | null;
+  readonly websites: ReadonlyArray<string | null> | null;
   readonly " $fragmentType": "ScalarField";
 };
 export type ScalarField$key = {

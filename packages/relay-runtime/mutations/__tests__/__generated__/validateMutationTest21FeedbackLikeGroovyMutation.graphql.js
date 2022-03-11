@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<0a0ad05cab7a7a6f6201d7da293fda3c>>
+ * @generated SignedSource<<863fa8fac9e49a075f11474b5fdab17d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -36,8 +36,8 @@ export type validateMutationTest21FeedbackLikeGroovyMutation$data = {|
   |},
 |};
 export type validateMutationTest21FeedbackLikeGroovyMutation = {|
-  variables: validateMutationTest21FeedbackLikeGroovyMutation$variables,
   response: validateMutationTest21FeedbackLikeGroovyMutation$data,
+  variables: validateMutationTest21FeedbackLikeGroovyMutation$variables,
 |};
 */
 

@@ -13,16 +13,16 @@ query UpdatableQuery @updatable {
 export type UpdatableQuery$variables = {||};
 export type UpdatableQuery$data = {|
   get me(): ?{|
-    +id: string,
-    +aliased_id: string,
     +__typename: string,
-    +aliased_typename: string,
     +__id: string,
     +aliased_double_under_id: string,
+    +aliased_id: string,
+    +aliased_typename: string,
+    +id: string,
   |},
   set me(value: null | void): void,
 |};
 export type UpdatableQuery = {|
-  variables: UpdatableQuery$variables,
   response: UpdatableQuery$data,
+  variables: UpdatableQuery$variables,
 |};

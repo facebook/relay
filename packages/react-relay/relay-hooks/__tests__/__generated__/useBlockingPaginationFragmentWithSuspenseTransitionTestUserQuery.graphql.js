@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<f30faa8fc809591c6199f9f3421186d8>>
+ * @generated SignedSource<<49bbc9c3bc35cbc3747c93a599b4a686>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,13 +18,13 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 type useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment$fragmentType = any;
 export type useBlockingPaginationFragmentWithSuspenseTransitionTestUserQuery$variables = {|
-  id: string,
   after?: ?string,
-  first?: ?number,
   before?: ?string,
+  first?: ?number,
+  id: string,
+  isViewerFriend?: ?boolean,
   last?: ?number,
   orderby?: ?$ReadOnlyArray<?string>,
-  isViewerFriend?: ?boolean,
 |};
 export type useBlockingPaginationFragmentWithSuspenseTransitionTestUserQuery$data = {|
   +node: ?{|
@@ -34,8 +34,8 @@ export type useBlockingPaginationFragmentWithSuspenseTransitionTestUserQuery$dat
   |},
 |};
 export type useBlockingPaginationFragmentWithSuspenseTransitionTestUserQuery = {|
-  variables: useBlockingPaginationFragmentWithSuspenseTransitionTestUserQuery$variables,
   response: useBlockingPaginationFragmentWithSuspenseTransitionTestUserQuery$data,
+  variables: useBlockingPaginationFragmentWithSuspenseTransitionTestUserQuery$variables,
 |};
 */
 

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<819b6dd001cac20835a7c75f8f253a05>>
+ * @generated SignedSource<<a3d7083e29d3e4902d47be347065623f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,21 +19,21 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserProfile$fragmentType: FragmentType;
 export type RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserProfile$data = {|
-  +id: string,
-  +friends: ?{|
-    +client_friends_connection_field: ?string,
+  +best_friends: ?{|
     +edges: ?$ReadOnlyArray<?{|
+      +client_friend_edge_field: ?string,
       +cursor: ?string,
       +node: ?{|
+        +client_actor_field?: ?string,
         +id: string,
-        +firstName: ?string,
-        +client_foo: ?{|
-          +client_name: ?string,
+        +profilePicture?: ?{|
+          +height: ?number,
+          +uri: ?string,
+          +width: ?number,
         |},
       |},
     |}>,
   |},
-  +nickname: ?string,
   +client_actor_field: ?string,
   +client_foo: ?{|
     +client_name: ?string,
@@ -41,21 +41,21 @@ export type RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientField
       +uri: ?string,
     |},
   |},
-  +best_friends: ?{|
+  +friends: ?{|
+    +client_friends_connection_field: ?string,
     +edges: ?$ReadOnlyArray<?{|
-      +client_friend_edge_field: ?string,
       +cursor: ?string,
       +node: ?{|
-        +id: string,
-        +client_actor_field?: ?string,
-        +profilePicture?: ?{|
-          +uri: ?string,
-          +height: ?number,
-          +width: ?number,
+        +client_foo: ?{|
+          +client_name: ?string,
         |},
+        +firstName: ?string,
+        +id: string,
       |},
     |}>,
   |},
+  +id: string,
+  +nickname: ?string,
   +$fragmentType: RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserProfile$fragmentType,
 |};
 export type RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserProfile$key = {

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<d405753496889b4fd01a43c68bd33134>>
+ * @generated SignedSource<<4a177341bf99148758b7340ec9d00c51>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,10 +21,10 @@ declare export opaque type RelayModernEnvironmentExecuteWithProvidedVariableTest
 export type RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1$data = {|
   +id: string,
   +name?: ?string,
-  +username?: ?string,
   +profilePicture: ?{|
     +uri: ?string,
   |},
+  +username?: ?string,
   +$fragmentType: RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1$fragmentType,
 |};
 export type RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1$key = {

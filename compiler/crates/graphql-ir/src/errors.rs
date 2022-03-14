@@ -30,9 +30,6 @@ pub enum ValidationMessage {
         type_name: StringKey,
     },
 
-    #[error("Unknown argument '{0}'")]
-    UnknownArgument(StringKey),
-
     #[error("Unknown directive '{0}'")]
     UnknownDirective(StringKey),
 
@@ -450,12 +447,19 @@ pub enum ValidationMessageWithData {
         fragment_name: StringKey,
         suggestions: Vec<StringKey>,
     },
+
+    #[error("Unknown argument '{argument_name}'.{suggestions}", suggestions = did_you_mean(suggestions))]
+    UnknownArgument {
+        argument_name: StringKey,
+        suggestions: Vec<StringKey>,
+    },
 }
 
 impl WithDiagnosticData for ValidationMessageWithData {
     fn get_data(&self) -> Vec<Box<dyn DiagnosticDisplay>> {
         match self {
-            ValidationMessageWithData::UnknownType { suggestions, .. }
+            ValidationMessageWithData::UnknownArgument { suggestions, .. }
+            | ValidationMessageWithData::UnknownType { suggestions, .. }
             | ValidationMessageWithData::UnknownField { suggestions, .. }
             | ValidationMessageWithData::UndefinedFragment { suggestions, .. } => suggestions
                 .iter()

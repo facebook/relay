@@ -653,8 +653,21 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
                         ValidationLevel::Loose,
                     )?)
                 } else {
-                    Err(vec![Diagnostic::error(
-                        ValidationMessage::UnknownArgument(arg.name.value),
+                    let possible_argument_names = signature
+                        .variable_definitions
+                        .iter()
+                        .map(|arg_def| arg_def.name.item)
+                        .collect::<Vec<_>>();
+                    let suggestions = suggestion_list::suggestion_list(
+                        arg.name.value,
+                        &possible_argument_names,
+                        5,
+                    );
+                    Err(vec![Diagnostic::error_with_data(
+                        ValidationMessageWithData::UnknownArgument {
+                            argument_name: arg.name.value,
+                            suggestions,
+                        },
                         self.location.with_span(arg.span),
                     )])
                 }
@@ -1112,28 +1125,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
         argument_definitions: &ArgumentDefinitions,
         is_non_nullable_field_required: impl Fn(&StringKey) -> bool,
     ) -> DiagnosticsResult<Vec<Argument>> {
-        // check for missing required (non-nullable) arguments
-        let missing_arg_names = argument_definitions
-            .iter()
-            .filter(|arg_def| arg_def.type_.is_non_null())
-            .filter(|arg_def| arg_def.default_value.is_none())
-            .filter(|required_arg_def| {
-                arguments
-                    .iter()
-                    .flat_map(|args| &args.items)
-                    .all(|arg| arg.name.value != required_arg_def.name)
-            })
-            .map(|missing_arg| missing_arg.name)
-            .filter(is_non_nullable_field_required)
-            .collect::<Vec<_>>();
-        if !missing_arg_names.is_empty() {
-            return Err(vec![Diagnostic::error(
-                ValidationMessage::MissingRequiredArguments { missing_arg_names },
-                self.location.with_span(span),
-            )]);
-        }
-
-        if let Some(arguments) = arguments {
+        let ir_arguments = if let Some(arguments) = arguments {
             // check for duplicate arguments
             for (i, arg) in arguments.items.iter().enumerate() {
                 for other_arg in arguments.items.iter().skip(i + 1) {
@@ -1161,16 +1153,54 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
                             &argument_definition.type_,
                             ValidationLevel::Strict,
                         ),
-                        None => Err(vec![Diagnostic::error(
-                            ValidationMessage::UnknownArgument(argument.name.value),
-                            self.location.with_span(argument.name.span),
-                        )]),
+                        None => {
+                            let possible_argument_names = argument_definitions
+                                .iter()
+                                .map(|arg_def| arg_def.name)
+                                .collect::<Vec<_>>();
+                            let suggestions = suggestion_list::suggestion_list(
+                                argument.name.value,
+                                &possible_argument_names,
+                                5,
+                            );
+                            Err(vec![Diagnostic::error_with_data(
+                                ValidationMessageWithData::UnknownArgument {
+                                    argument_name: argument.name.value,
+                                    suggestions,
+                                },
+                                self.location.with_span(argument.name.span),
+                            )])
+                        }
                     },
                 )
                 .collect()
         } else {
             Ok(vec![])
+        }?;
+
+        // Check for missing required (non-nullable) arguments we do this after
+        // checking for invalid/duplicate because invalid/duplicte might be fixable.
+        let missing_arg_names = argument_definitions
+            .iter()
+            .filter(|arg_def| arg_def.type_.is_non_null())
+            .filter(|arg_def| arg_def.default_value.is_none())
+            .filter(|required_arg_def| {
+                arguments
+                    .iter()
+                    .flat_map(|args| &args.items)
+                    .all(|arg| arg.name.value != required_arg_def.name)
+            })
+            .map(|missing_arg| missing_arg.name)
+            .filter(is_non_nullable_field_required)
+            .collect::<Vec<_>>();
+        if !missing_arg_names.is_empty() {
+            return Err(vec![Diagnostic::error(
+                ValidationMessage::MissingRequiredArguments { missing_arg_names },
+                self.location.with_span(span),
+            )]);
         }
+
+        Ok(ir_arguments)
     }
 
     fn build_directives<'a>(

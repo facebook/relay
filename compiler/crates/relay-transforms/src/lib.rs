@@ -34,6 +34,7 @@ mod inline_data_fragment;
 mod inline_fragments;
 mod mask;
 mod match_;
+mod metadata_directive;
 mod murmurhash;
 mod no_inline;
 mod node_identifier;
@@ -62,14 +63,11 @@ mod util;
 mod validate_operation_variables;
 mod validations;
 
-use intern::string_key::{Intern, StringKey};
+use intern::string_key::StringKey;
 use intern::BuildIdHasher;
-use lazy_static::lazy_static;
 use std::collections::{HashMap, HashSet};
 
-lazy_static! {
-    pub static ref INTERNAL_METADATA_DIRECTIVE: StringKey = "__metadata".intern();
-}
+pub use metadata_directive::{create_metadata_directive, INTERNAL_METADATA_DIRECTIVE};
 
 /// Name of an executable operation
 type OperationName = StringKey;

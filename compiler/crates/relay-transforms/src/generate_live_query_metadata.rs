@@ -5,11 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::INTERNAL_METADATA_DIRECTIVE;
+use crate::create_metadata_directive;
 use common::{Diagnostic, DiagnosticsResult, NamedItem, WithLocation};
 use graphql_ir::{
-    Argument, ConstantArgument, ConstantValue, Directive, OperationDefinition, Program,
-    Transformed, Transformer, Value,
+    ConstantArgument, ConstantValue, OperationDefinition, Program, Transformed, Transformer, Value,
 };
 use graphql_syntax::OperationKind;
 use intern::string_key::{Intern, StringKey};
@@ -86,34 +85,15 @@ impl Transformer for GenerateLiveQueryMetadata {
                                 return Transformed::Keep;
                             }
                         };
-                        next_directives.push(Directive {
-                            name: WithLocation::new(
-                                operation.name.location,
-                                *INTERNAL_METADATA_DIRECTIVE,
-                            ),
-                            arguments: vec![Argument {
-                                name: WithLocation::new(
-                                    operation.name.location,
-                                    *LIVE_METADATA_KEY,
-                                ),
-                                value: WithLocation::new(
-                                    operation.name.location,
-                                    Value::Constant(ConstantValue::Object(vec![
-                                        ConstantArgument {
-                                            name: WithLocation::new(
-                                                operation.name.location,
-                                                *POLLING_INTERVAL_ARG,
-                                            ),
-                                            value: WithLocation::new(
-                                                operation.name.location,
-                                                ConstantValue::Int(poll_interval_value),
-                                            ),
-                                        },
-                                    ])),
-                                ),
-                            }],
-                            data: None,
-                        });
+                        next_directives.push(create_metadata_directive(
+                            *LIVE_METADATA_KEY,
+                            ConstantValue::Object(vec![ConstantArgument {
+                                name: WithLocation::generated(*POLLING_INTERVAL_ARG),
+                                value: WithLocation::generated(ConstantValue::Int(
+                                    poll_interval_value,
+                                )),
+                            }]),
+                        ));
                     } else if let Some(config_id) = config_id {
                         let config_id_value = match config_id.value.item.get_string_literal() {
                             Some(value) => value,
@@ -127,34 +107,15 @@ impl Transformer for GenerateLiveQueryMetadata {
                                 return Transformed::Keep;
                             }
                         };
-                        next_directives.push(Directive {
-                            name: WithLocation::new(
-                                operation.name.location,
-                                *INTERNAL_METADATA_DIRECTIVE,
-                            ),
-                            arguments: vec![Argument {
-                                name: WithLocation::new(
-                                    operation.name.location,
-                                    *LIVE_METADATA_KEY,
-                                ),
-                                value: WithLocation::new(
-                                    operation.name.location,
-                                    Value::Constant(ConstantValue::Object(vec![
-                                        ConstantArgument {
-                                            name: WithLocation::new(
-                                                operation.name.location,
-                                                *CONFIG_ID_ARG,
-                                            ),
-                                            value: WithLocation::new(
-                                                operation.name.location,
-                                                ConstantValue::String(config_id_value),
-                                            ),
-                                        },
-                                    ])),
-                                ),
-                            }],
-                            data: None,
-                        });
+                        next_directives.push(create_metadata_directive(
+                            *LIVE_METADATA_KEY,
+                            ConstantValue::Object(vec![ConstantArgument {
+                                name: WithLocation::generated(*CONFIG_ID_ARG),
+                                value: WithLocation::generated(ConstantValue::String(
+                                    config_id_value,
+                                )),
+                            }]),
+                        ));
                     }
 
                     Transformed::Replace(OperationDefinition {

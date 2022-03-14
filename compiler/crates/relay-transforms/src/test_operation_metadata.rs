@@ -5,11 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::{ValidationMessage, DIRECTIVE_SPLIT_OPERATION, INTERNAL_METADATA_DIRECTIVE};
+use crate::{create_metadata_directive, ValidationMessage, DIRECTIVE_SPLIT_OPERATION};
 use common::{Diagnostic, DiagnosticsResult, NamedItem, WithLocation};
 use graphql_ir::{
-    Argument, ConstantArgument, ConstantValue, Directive, Field as IrField, FragmentDefinition,
-    OperationDefinition, Program, Selection, Transformed, Transformer, Value,
+    ConstantArgument, ConstantValue, Field as IrField, FragmentDefinition, OperationDefinition,
+    Program, Selection, Transformed, Transformer,
 };
 use indexmap::IndexMap;
 use intern::string_key::{Intern, StringKey};
@@ -90,28 +90,13 @@ impl<'a> Transformer for GenerateTestOperationMetadata<'a> {
             for directive in &operation.directives {
                 // replace @relay_test_operation with @__metadata
                 if directive.name.item == *TEST_OPERATION_DIRECTIVE {
-                    next_directives.push(Directive {
-                        name: WithLocation::new(
-                            operation.name.location,
-                            *INTERNAL_METADATA_DIRECTIVE,
-                        ),
-                        arguments: vec![Argument {
-                            name: WithLocation::new(
-                                operation.name.location,
-                                *TEST_OPERATION_METADATA_KEY,
-                            ),
-                            value: WithLocation::new(
-                                operation.name.location,
-                                Value::Constant(ConstantValue::Object(From::from(
-                                    RelayTestOperationMetadata::new(
-                                        self.program,
-                                        &operation.selections,
-                                    ),
-                                ))),
-                            ),
-                        }],
-                        data: None,
-                    });
+                    next_directives.push(create_metadata_directive(
+                        *TEST_OPERATION_METADATA_KEY,
+                        ConstantValue::Object(From::from(RelayTestOperationMetadata::new(
+                            self.program,
+                            &operation.selections,
+                        ))),
+                    ));
                 } else {
                     next_directives.push(directive.clone());
                 }

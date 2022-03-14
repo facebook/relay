@@ -27,6 +27,13 @@ const {
   createOperationDescriptor,
   graphql,
 } = require('relay-runtime');
+const {
+  disallowConsoleErrors,
+  disallowWarnings,
+} = require('relay-test-utils-internal');
+
+disallowConsoleErrors();
+disallowWarnings();
 
 let dataSource;
 let environment;
@@ -37,8 +44,6 @@ let operation;
 let query;
 
 beforeEach(() => {
-  jest.spyOn(console, 'warn').mockImplementation(() => {});
-  jest.spyOn(console, 'error').mockImplementation(() => {});
   const source = new RecordSource();
   const store = new Store(source);
   fetch = jest.fn((_query, _variables, _cacheConfig) =>
@@ -320,6 +325,17 @@ it('updates the component when a pending owner fetch errors', () => {
 });
 
 it('updates the component when a pending owner fetch with multiple payloads completes ', () => {
+  query = graphql`
+    query useIsParentQueryActiveTestUserDeferQuery($id: ID!) {
+      node(id: $id) {
+        ...useIsParentQueryActiveTestUserFragment @defer
+      }
+    }
+  `;
+  operation = createOperationDescriptor(query, {id: '4'});
+  const snapshot = environment.lookup(operation.fragment);
+  fragmentRef = (snapshot.data?.node: $FlowFixMe);
+
   fetchQuery(environment, operation).subscribe({});
   expect(fetch).toBeCalledTimes(1);
   const states = [];
@@ -355,7 +371,8 @@ it('updates the component when a pending owner fetch with multiple payloads comp
         __typename: 'User',
         name: 'Mark',
       },
-      label: 'UserQuery$defer$UserFragment',
+      label:
+        'useIsParentQueryActiveTestUserDeferQuery$defer$useIsParentQueryActiveTestUserFragment',
       path: ['node'],
     });
     dataSource.complete();

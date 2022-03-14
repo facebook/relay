@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<333db7fb8ec41dc94fc973240e801564>>
+ * @generated SignedSource<<06e2ba18415c8f8979f481ebacc20a02>>
  */
 
 mod compile_relay_artifacts;
@@ -731,6 +731,13 @@ fn provided_variable_no_inline_fragment() {
     let input = include_str!("compile_relay_artifacts/fixtures/provided-variable-no-inline-fragment.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/provided-variable-no-inline-fragment.expected");
     test_fixture(transform_fixture, "provided-variable-no-inline-fragment.graphql", "compile_relay_artifacts/fixtures/provided-variable-no-inline-fragment.expected", input, expected);
+}
+
+#[test]
+fn provided_variable_passed_in_argument_invalid() {
+    let input = include_str!("compile_relay_artifacts/fixtures/provided-variable-passed-in-argument-invalid.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/provided-variable-passed-in-argument-invalid.expected");
+    test_fixture(transform_fixture, "provided-variable-passed-in-argument-invalid.graphql", "compile_relay_artifacts/fixtures/provided-variable-passed-in-argument-invalid.expected", input, expected);
 }
 
 #[test]

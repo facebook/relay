@@ -259,7 +259,7 @@ mod tests {
         let mut v = Vec::new();
         v.extend(abc);
         let lv = SmallBytes::from(v);
-        let mut w = Vec::new();
+        let mut w: Vec<u8> = Vec::new();
         w.extend(abc);
         assert_eq!(&*lv, &w[..]);
         assert_eq!(&*lv, abc);

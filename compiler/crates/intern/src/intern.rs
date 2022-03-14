@@ -11,18 +11,13 @@ use crate::{
     sharded_set::ShardedSet,
 };
 use once_cell::sync::OnceCell;
-use serde::{
-    de::{self, Error, VariantAccess},
-    Deserialize, Deserializer, Serialize, Serializer,
-};
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::{
-    any::type_name,
     borrow::Borrow,
     cell::RefCell,
     collections::HashMap,
     fmt::{self, Debug},
     hash::{Hash, Hasher},
-    marker::PhantomData,
     num::NonZeroU32,
     sync::atomic::{AtomicU32, Ordering},
     u32,
@@ -424,6 +419,31 @@ impl Drop for DeGuard {
     }
 }
 
+/// Wrap an object in WithIntern to set the necessary context to
+/// serialize the interned objects it contains.
+#[derive(Debug)]
+pub struct WithIntern<T>(pub T);
+
+impl<T> WithIntern<T> {
+    pub fn strip<E>(t: Result<Self, E>) -> Result<T, E> {
+        t.map(|WithIntern(r)| r)
+    }
+}
+
+impl<T: Serialize> Serialize for WithIntern<T> {
+    fn serialize<S: Serializer>(&self, s: S) -> Result<S::Ok, S::Error> {
+        let _guard = SerGuard::default();
+        self.0.serialize(s)
+    }
+}
+
+impl<'de, T: Deserialize<'de>> Deserialize<'de> for WithIntern<T> {
+    fn deserialize<D: Deserializer<'de>>(d: D) -> Result<Self, D::Error> {
+        let _guard = DeGuard::default();
+        Ok(WithIntern(T::deserialize(d)?))
+    }
+}
+
 /// `InternId`s do serdes via `InternSerdes`.
 #[derive(Debug)]
 #[repr(transparent)]
@@ -433,6 +453,12 @@ impl<Id: InternId> From<Id> for InternSerdes<Id> {
     fn from(id: Id) -> Self {
         InternSerdes(id)
     }
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+enum InternEnum<T> {
+    Value(T),
+    Id(u32),
 }
 
 impl<Id> Serialize for InternSerdes<Id>
@@ -451,10 +477,11 @@ where
             drop(tls);
 
             if let Some(ser_id) = opt_ser_id {
-                s.serialize_newtype_variant(type_name::<Id>(), 1, "Id", &ser_id)
+                let ie: InternEnum<&Id::Intern> = InternEnum::Id(ser_id);
+                ie.serialize(s)
             } else {
-                let res =
-                    s.serialize_newtype_variant(type_name::<Id>(), 0, "Value", self.0.get())?;
+                let ie: InternEnum<&Id::Intern> = InternEnum::Value(self.0.get());
+                let res = ie.serialize(s)?;
 
                 let mut tls = cell.borrow_mut();
                 let state = tls.for_id_mut::<Id>();
@@ -485,50 +512,23 @@ where
     AsInterned<Id>: Borrow<Id::Lookup>,
 {
     fn deserialize<D: Deserializer<'de>>(d: D) -> Result<Self, D::Error> {
-        struct InternIdVisitor<'de, Id>(PhantomData<&'de Id>);
-
-        impl<'de, Id> de::Visitor<'de> for InternIdVisitor<'de, Id>
-        where
-            Id: InternId,
-            Id::Intern: Deserialize<'de>,
-            AsInterned<Id>: Borrow<Id::Lookup>,
-        {
-            type Value = InternSerdes<Id>;
-
-            fn expecting(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-                f.write_str(type_name::<Id>())
+        let ie: InternEnum<Id::Intern> = InternEnum::deserialize(d)?;
+        match ie {
+            InternEnum::Value(w) => {
+                let id: Id = Id::intern(w);
+                let r: Ref<usize> = unsafe { id.unwrap().rebrand() };
+                debug_assert_eq!(r.index(), id.unwrap().index());
+                INDEX_TO_REF.with(|itr| itr.borrow_mut().for_id_mut::<Id>().push(r));
+                Ok(InternSerdes(id))
             }
-
-            fn visit_enum<A>(self, data: A) -> Result<Self::Value, A::Error>
-            where
-                A: de::EnumAccess<'de>,
-            {
-                match data.variant()? {
-                    (0, v) => {
-                        let w: Id::Intern = v.newtype_variant()?;
-                        let id: Id = Id::intern(w);
-                        let r: Ref<usize> = unsafe { id.unwrap().rebrand() };
-                        debug_assert_eq!(r.index(), id.unwrap().index());
-                        INDEX_TO_REF.with(|itr| itr.borrow_mut().for_id_mut::<Id>().push(r));
-                        Ok(InternSerdes(id))
-                    }
-                    (1, v) => {
-                        let i: u32 = v.newtype_variant()?;
-                        let r: Ref<usize> = INDEX_TO_REF
-                            .with(|itr| itr.borrow_mut().for_id_mut::<Id>()[i as usize]);
-                        let id: Id = Id::wrap(unsafe { r.rebrand() });
-                        debug_assert_eq!(r.index(), id.unwrap().index());
-                        Ok(InternSerdes(id))
-                    }
-                    _ => Err(A::Error::invalid_value(de::Unexpected::Enum, &self)),
-                }
+            InternEnum::Id(i) => {
+                let r: Ref<usize> =
+                    INDEX_TO_REF.with(|itr| itr.borrow_mut().for_id_mut::<Id>()[i as usize]);
+                let id: Id = Id::wrap(unsafe { r.rebrand() });
+                debug_assert_eq!(r.index(), id.unwrap().index());
+                Ok(InternSerdes(id))
             }
         }
-        d.deserialize_enum(
-            type_name::<Id>(),
-            &["Value", "Id"],
-            InternIdVisitor::<'de, Id>(PhantomData),
-        )
     }
 }
 
@@ -791,5 +791,51 @@ mod tests {
         assert_eq!(i1.get().v, 1);
         assert_ne!(i1, i3);
         assert_eq!(i3.v, -57); // Uses Deref
+    }
+
+    #[test]
+    fn test_bincode_works_with_serialize_into() {
+        let m1 = CrateType { v: 1 };
+        let m2 = CrateType { v: -57 };
+        let i1 = CrateId::intern(m1);
+        let i2 = CrateId::intern(m2);
+        let val = (i1, i2, i1);
+        let mut serialized: Vec<u8> = vec![];
+        {
+            let _guard = SerGuard::default();
+            bincode::serialize_into(&mut serialized, &val).unwrap()
+        }
+        let deserialized: (CrateId, CrateId, CrateId) = {
+            let _guard = DeGuard::default();
+            bincode::deserialize(&serialized).unwrap()
+        };
+        assert_eq!(deserialized, val);
+    }
+
+    #[test]
+    fn round_trip_bincode() {
+        let m1 = CrateType { v: 1 };
+        let m2 = CrateType { v: -57 };
+        let i1 = CrateId::intern(m1);
+        let i2 = CrateId::intern(m2);
+        let val = (i1, i2, i1);
+        let serialized: Vec<u8> = { bincode::serialize(&WithIntern(&val)).unwrap() };
+        let deserialized: (CrateId, CrateId, CrateId) =
+            { WithIntern::strip(bincode::deserialize(&serialized)).unwrap() };
+        assert_eq!(deserialized, val);
+    }
+
+    #[test]
+    fn round_trip_json() {
+        use serde_json;
+        let m1 = CrateType { v: 1 };
+        let m2 = CrateType { v: -57 };
+        let i1 = CrateId::intern(m1);
+        let i2 = CrateId::intern(m2);
+        let val = (i1, i2, i1);
+        let serialized: String = { serde_json::to_string_pretty(&WithIntern(&val)).unwrap() };
+        let deserialized: (CrateId, CrateId, CrateId) =
+            { WithIntern::strip(serde_json::from_str(&serialized)).unwrap() };
+        assert_eq!(deserialized, val);
     }
 }

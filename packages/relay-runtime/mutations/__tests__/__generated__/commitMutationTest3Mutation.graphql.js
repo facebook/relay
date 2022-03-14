@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<ce2121ab26fecc131e40a64f435aad3e>>
+ * @generated SignedSource<<8f215bb0569d95b19d33ba67109fef92>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,7 +17,6 @@
 /*::
 import type { ConcreteRequest, Mutation } from 'relay-runtime';
 export type UnfriendInput = {|
-  clientMutationId?: ?string,
   friendId?: ?string,
 |};
 export type commitMutationTest3Mutation$variables = {|

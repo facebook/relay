@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a2b3fa230d6ef41fe16f46058f2582ad>>
+ * @generated SignedSource<<20cf7d18c48149a0ffdecd1f6d07035c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,7 +18,6 @@
 import type { ConcreteRequest, Mutation } from 'relay-runtime';
 type MultiActorEnvironmentExecuteMutationTestCommentFragment$fragmentType = any;
 export type CommentCreateInput = {|
-  clientMutationId?: ?string,
   feedback?: ?CommentfeedbackFeedback,
   feedbackId?: ?string,
 |};

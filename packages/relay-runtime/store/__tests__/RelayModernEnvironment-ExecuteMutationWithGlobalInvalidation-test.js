@@ -57,7 +57,6 @@ describe('executeMutation() with global invalidation', () => {
 
     variables = {
       input: {
-        clientMutationId: '0',
         feedbackId: '1',
       },
     };

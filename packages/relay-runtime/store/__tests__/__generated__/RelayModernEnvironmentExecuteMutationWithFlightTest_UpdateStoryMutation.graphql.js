@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<d5a649350d65577470329fd0dfff7c0c>>
+ * @generated SignedSource<<ad298d0e5ff879f294dedf8771d65605>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,7 +20,6 @@
 import type { ConcreteRequest, Mutation } from 'relay-runtime';
 export type StoryUpdateInput = {|
   body?: ?InputText,
-  clientMutationId?: ?string,
 |};
 export type InputText = {|
   ranges?: ?$ReadOnlyArray<?string>,

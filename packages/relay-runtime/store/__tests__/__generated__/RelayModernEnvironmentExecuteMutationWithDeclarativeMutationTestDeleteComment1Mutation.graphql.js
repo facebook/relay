@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<f2df8deaf1dfb8fc6a3aa226bbfbf480>>
+ * @generated SignedSource<<8048711b7a008e99ea3cdcfb7df23670>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,7 +17,6 @@
 /*::
 import type { ConcreteRequest, Mutation } from 'relay-runtime';
 export type CommentDeleteInput = {|
-  clientMutationId?: ?string,
   commentId?: ?string,
 |};
 export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestDeleteComment1Mutation$variables = {|

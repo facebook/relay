@@ -129,7 +129,6 @@ describe('requestSubscription-test', () => {
       variables: {
         feedbackId,
         text: secondCommentBody,
-        clientSubscriptionId: '0',
       },
     });
 
@@ -205,7 +204,6 @@ describe('requestSubscription-test', () => {
     const variables = {
       feedbackId,
       text: secondCommentBody,
-      clientSubscriptionId: '0',
     };
 
     beforeEach(() => {

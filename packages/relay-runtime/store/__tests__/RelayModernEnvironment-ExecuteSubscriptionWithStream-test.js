@@ -86,7 +86,6 @@ describe('executeSubscrption() with @stream', () => {
     `;
     variables = {
       input: {
-        clientMutationId: '0',
         feedbackId: feedbackID,
       },
     };

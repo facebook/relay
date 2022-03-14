@@ -105,7 +105,6 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         `;
         variables = {
           input: {
-            clientMutationId: '0',
             body: {
               text: 'Hello world!',
             },

@@ -1496,7 +1496,6 @@ describe('commitMutation() cacheConfig', () => {
     `;
     variables = {
       input: {
-        clientMutationId: '0',
         feedbackId: '1',
       },
     };

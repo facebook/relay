@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<3f7890ce464690e747dcb7b0f9720f3c>>
+ * @generated SignedSource<<1941a230d5d8573fb26074791efe487a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,7 +17,6 @@
 /*::
 import type { ConcreteRequest, Mutation } from 'relay-runtime';
 export type CommentsCreateInput = {|
-  clientMutationId?: ?string,
   feedback?: ?$ReadOnlyArray<?CommentfeedbackFeedback>,
   feedbackId?: ?string,
 |};

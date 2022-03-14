@@ -82,7 +82,6 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           `;
           variables = {
             input: {
-              clientMutationId: '0',
               commentId,
             },
           };
@@ -347,7 +346,6 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           `;
           variables = {
             input: {
-              clientMutationId: '0',
               commentIds,
             },
           };

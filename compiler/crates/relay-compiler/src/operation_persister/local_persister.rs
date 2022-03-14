@@ -10,6 +10,7 @@ use dashmap::DashMap;
 use persist_query::PersistError;
 use relay_config::LocalPersistConfig;
 use sha1::{Digest, Sha1};
+use std::collections::BTreeMap;
 
 use crate::OperationPersister;
 
@@ -53,7 +54,13 @@ impl OperationPersister for LocalPersister {
     }
 
     fn finalize(&self) -> Result<(), PersistError> {
-        let content = serde_json::to_string_pretty(&self.query_map)?;
+        let ordered: BTreeMap<_, _> = self
+            .query_map
+            .iter()
+            .map(|x| (x.key().clone(), x.value().clone()))
+            .collect();
+
+        let content = serde_json::to_string_pretty(&ordered)?;
         std::fs::write(&self.config.file, content)?;
 
         Ok(())

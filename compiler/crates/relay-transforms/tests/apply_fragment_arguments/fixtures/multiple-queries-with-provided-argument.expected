@@ -22,6 +22,7 @@ query TestQuery1(
   $__relay_internal__pv__fooGKProvider: Boolean! @__ProvidedVariableMetadata
   # ProvidedVariableMetadata {
   #     module_name: "fooGKProvider",
+  #     original_variable_name: "foo_gk",
   # }
   
 ) {
@@ -36,6 +37,7 @@ query TestQuery2(
   $__relay_internal__pv__fooGKProvider: Boolean! @__ProvidedVariableMetadata
   # ProvidedVariableMetadata {
   #     module_name: "fooGKProvider",
+  #     original_variable_name: "foo_gk",
   # }
   
 ) {

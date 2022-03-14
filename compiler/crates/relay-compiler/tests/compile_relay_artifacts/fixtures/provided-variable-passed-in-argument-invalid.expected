@@ -1,4 +1,5 @@
 ==================================== INPUT ====================================
+#expected-to-throw
 fragment providedVariablePassedInArgumentInvalid_fragment on User
   @argumentDefinitions(var: {type: "Boolean!", provider: "var_RelayProvider"}
 ) {
@@ -10,140 +11,19 @@ query providedVariablePassedInArgumentInvalid_Query {
     ...providedVariablePassedInArgumentInvalid_fragment @arguments(var: false)
   }
 }
-==================================== OUTPUT ===================================
-{
-  "fragment": {
-    "argumentDefinitions": [],
-    "kind": "Fragment",
-    "metadata": null,
-    "name": "providedVariablePassedInArgumentInvalid_Query",
-    "selections": [
-      {
-        "alias": null,
-        "args": null,
-        "concreteType": "User",
-        "kind": "LinkedField",
-        "name": "me",
-        "plural": false,
-        "selections": [
-          {
-            "args": [
-              {
-                "kind": "Literal",
-                "name": "var",
-                "value": false
-              }
-            ],
-            "kind": "FragmentSpread",
-            "name": "providedVariablePassedInArgumentInvalid_fragment"
-          }
-        ],
-        "storageKey": null
-      }
-    ],
-    "type": "Query",
-    "abstractKey": null
-  },
-  "kind": "Request",
-  "operation": {
-    "argumentDefinitions": [
-      {
-        "defaultValue": null,
-        "kind": "LocalArgument",
-        "name": "__relay_internal__pv__var_RelayProvider"
-      }
-    ],
-    "kind": "Operation",
-    "name": "providedVariablePassedInArgumentInvalid_Query",
-    "selections": [
-      {
-        "alias": null,
-        "args": null,
-        "concreteType": "User",
-        "kind": "LinkedField",
-        "name": "me",
-        "plural": false,
-        "selections": [
-          {
-            "condition": "__relay_internal__pv__var_RelayProvider",
-            "kind": "Condition",
-            "passingValue": true,
-            "selections": [
-              {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "name",
-                "storageKey": null
-              }
-            ]
-          },
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "id",
-            "storageKey": null
-          }
-        ],
-        "storageKey": null
-      }
-    ]
-  },
-  "params": {
-    "id": null,
-    "metadata": {},
-    "name": "providedVariablePassedInArgumentInvalid_Query",
-    "operationKind": "query",
-    "text": null,
-    "providedVariables": {
-      "__relay_internal__pv__var_RelayProvider": require('var_RelayProvider')
-    }
-  }
-}
+==================================== ERROR ====================================
+✖︎ Passing a value to 'var' (a provided variable) through @arguments is not supported.
 
-QUERY:
+  provided-variable-passed-in-argument-invalid.graphql:10:68
+    9 │   me {
+   10 │     ...providedVariablePassedInArgumentInvalid_fragment @arguments(var: false)
+      │                                                                    ^^^
+   11 │   }
 
-query providedVariablePassedInArgumentInvalid_Query(
-  $__relay_internal__pv__var_RelayProvider: Boolean!
-) {
-  me {
-    ...providedVariablePassedInArgumentInvalid_fragment_1yUFpt
-    id
-  }
-}
+  ℹ︎ Provided variable defined here
 
-fragment providedVariablePassedInArgumentInvalid_fragment_1yUFpt on User {
-  name @include(if: $__relay_internal__pv__var_RelayProvider)
-}
-
-
-{
-  "argumentDefinitions": [
-    {
-      "kind": "RootArgument",
-      "name": "__relay_internal__pv__var_RelayProvider"
-    }
-  ],
-  "kind": "Fragment",
-  "metadata": null,
-  "name": "providedVariablePassedInArgumentInvalid_fragment",
-  "selections": [
-    {
-      "condition": "__relay_internal__pv__var_RelayProvider",
-      "kind": "Condition",
-      "passingValue": true,
-      "selections": [
-        {
-          "alias": null,
-          "args": null,
-          "kind": "ScalarField",
-          "name": "name",
-          "storageKey": null
-        }
-      ]
-    }
-  ],
-  "type": "User",
-  "abstractKey": null
-}
+  provided-variable-passed-in-argument-invalid.graphql:3:24
+    2 │ fragment providedVariablePassedInArgumentInvalid_fragment on User
+    3 │   @argumentDefinitions(var: {type: "Boolean!", provider: "var_RelayProvider"}
+      │                        ^^^
+    4 │ ) {

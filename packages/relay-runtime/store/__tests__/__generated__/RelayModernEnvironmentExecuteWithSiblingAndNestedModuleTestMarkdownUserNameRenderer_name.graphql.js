@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<dbbdceede9e6a470a57eb9fb9a81b9e4>>
+ * @generated SignedSource<<8026a955aceb0e656b39328f0d65eea0>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,16 +22,16 @@ type RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestPlainUserNameRen
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestMarkdownUserNameRenderer_name$fragmentType: FragmentType;
 export type RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestMarkdownUserNameRenderer_name$data = {|
+  +__typename: "MarkdownUserNameRenderer",
   +markdown: ?string,
   +user: ?{|
-    +name: ?string,
     +innerRenderer: ?{|
       +__fragmentPropName?: ?string,
       +__module_component?: ?string,
       +$fragmentSpreads: RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestPlainUserNameRenderer_name$fragmentType,
     |},
+    +name: ?string,
   |},
-  +__typename: "MarkdownUserNameRenderer",
   +$fragmentType: RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestMarkdownUserNameRenderer_name$fragmentType,
 |};
 export type RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestMarkdownUserNameRenderer_name$key = {

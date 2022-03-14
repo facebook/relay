@@ -39,16 +39,14 @@ export type UnionTypeTest$data = {
   } | null;
 };
 export type UnionTypeTest = {
-  variables: UnionTypeTest$variables;
   response: UnionTypeTest$data;
+  variables: UnionTypeTest$variables;
 };
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
 export type LinkedField$data = {
-  readonly profilePicture: {
-    readonly uri: string | null;
-    readonly width: number | null;
-    readonly height: number | null;
+  readonly actor: {
+    readonly id: string;
   } | null;
   readonly hometown: {
     readonly id: string;
@@ -56,8 +54,10 @@ export type LinkedField$data = {
       readonly uri: string | null;
     } | null;
   } | null;
-  readonly actor: {
-    readonly id: string;
+  readonly profilePicture: {
+    readonly height: number | null;
+    readonly uri: string | null;
+    readonly width: number | null;
   } | null;
   readonly " $fragmentType": "LinkedField";
 };

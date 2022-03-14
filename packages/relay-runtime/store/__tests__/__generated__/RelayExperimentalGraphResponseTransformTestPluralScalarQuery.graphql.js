@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<98673c7043730e4b03f5368e92866db7>>
+ * @generated SignedSource<<b100e4f2164dfa66b9d34bb6b73ba40d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,8 +23,8 @@ export type RelayExperimentalGraphResponseTransformTestPluralScalarQuery$data = 
   |},
 |};
 export type RelayExperimentalGraphResponseTransformTestPluralScalarQuery = {|
-  variables: RelayExperimentalGraphResponseTransformTestPluralScalarQuery$variables,
   response: RelayExperimentalGraphResponseTransformTestPluralScalarQuery$data,
+  variables: RelayExperimentalGraphResponseTransformTestPluralScalarQuery$variables,
 |};
 */
 

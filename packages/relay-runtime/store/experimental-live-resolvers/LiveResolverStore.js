@@ -50,10 +50,10 @@ const RelayStoreReactFlightUtils = require('../RelayStoreReactFlightUtils');
 const RelayStoreSubscriptions = require('../RelayStoreSubscriptions');
 const RelayStoreUtils = require('../RelayStoreUtils');
 const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
-const {ExternalStateResolverCache} = require('./ExternalStateResolverCache');
+const {LiveResolverCache} = require('./LiveResolverCache');
 const invariant = require('invariant');
 
-export type ExternalState<T> = {|
+export type LiveState<T> = {|
   read(): T,
   subscribe(cb: () => void): () => void,
 |};
@@ -79,7 +79,7 @@ const DEFAULT_RELEASE_BUFFER_SIZE = 10;
  *
  * Experimental fork of RelayModernStore
  */
-class ExternalStateResolverStore implements Store {
+class LiveResolverStore implements Store {
   _currentWriteEpoch: number;
   _gcHoldCounter: number;
   _gcReleaseBufferSize: number;
@@ -150,7 +150,7 @@ class ExternalStateResolverStore implements Store {
     this._releaseBuffer = [];
     this._roots = new Map();
     this._shouldScheduleGC = false;
-    this._resolverCache = new ExternalStateResolverCache(
+    this._resolverCache = new LiveResolverCache(
       () => this._getMutableRecordSource(),
       this,
     );
@@ -448,7 +448,7 @@ class ExternalStateResolverStore implements Store {
   }
 
   toJSON(): mixed {
-    return 'ExternalStateResolverStore()';
+    return 'LiveResolverStore()';
   }
 
   getEpoch(): number {
@@ -543,7 +543,7 @@ class ExternalStateResolverStore implements Store {
   snapshot(): void {
     invariant(
       this._optimisticSource == null,
-      'ExternalStateResolverStore: Unexpected call to snapshot() while a previous ' +
+      'LiveResolverStore: Unexpected call to snapshot() while a previous ' +
         'snapshot exists.',
     );
     const log = this.__log;
@@ -565,7 +565,7 @@ class ExternalStateResolverStore implements Store {
   restore(): void {
     invariant(
       this._optimisticSource != null,
-      'ExternalStateResolverStore: Unexpected call to restore(), expected a snapshot ' +
+      'LiveResolverStore: Unexpected call to restore(), expected a snapshot ' +
         'to exist (make sure to call snapshot()).',
     );
     const log = this.__log;
@@ -819,4 +819,4 @@ function getAvailabilityStatus(
   return {status: 'available', fetchTime: operationFetchTime ?? null};
 }
 
-module.exports = ExternalStateResolverStore;
+module.exports = LiveResolverStore;

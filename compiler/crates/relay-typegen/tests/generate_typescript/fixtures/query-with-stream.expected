@@ -21,7 +21,6 @@ query TestStream @raw_response_type {
 export type TestStream$variables = {};
 export type TestStream$data = {
   readonly node: {
-    readonly name?: string | null;
     readonly friends?: {
       readonly edges: ReadonlyArray<{
         readonly node: {
@@ -29,33 +28,34 @@ export type TestStream$data = {
         } | null;
       } | null> | null;
     } | null;
+    readonly name?: string | null;
   } | null;
 };
 export type TestStream$rawResponse = {
   readonly node: {
     readonly __typename: "User";
-    readonly id: string;
-    readonly name: string | null;
     readonly friends: {
       readonly edges: ReadonlyArray<{
-        readonly node: {
-          readonly id: string;
-          readonly __typename: "User";
-        } | null;
         readonly cursor: string | null;
+        readonly node: {
+          readonly __typename: "User";
+          readonly id: string;
+        } | null;
       } | null> | null;
       readonly pageInfo: {
         readonly endCursor: string | null;
         readonly hasNextPage: boolean | null;
       } | null;
     } | null;
+    readonly id: string;
+    readonly name: string | null;
   } | {
     readonly __typename: string;
     readonly id: string;
   } | null;
 };
 export type TestStream = {
-  variables: TestStream$variables;
-  response: TestStream$data;
   rawResponse: TestStream$rawResponse;
+  response: TestStream$data;
+  variables: TestStream$variables;
 };

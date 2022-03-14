@@ -14,15 +14,15 @@ export type UpdatableQuery$variables = {||};
 export type UpdatableQuery$data = {|
   get viewer(): ?{||},
   set viewer(value: ?{
-    +$fragmentSpreads: Assignable_viewer$fragmentType,
     +__typename: "Viewer",
     +__id: string,
+    +$fragmentSpreads: Assignable_viewer$fragmentType,
     ...
   }): void,
 |};
 export type UpdatableQuery = {|
-  variables: UpdatableQuery$variables,
   response: UpdatableQuery$data,
+  variables: UpdatableQuery$variables,
 |};
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";

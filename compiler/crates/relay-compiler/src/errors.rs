@@ -238,7 +238,10 @@ pub enum BuildProjectError {
             .collect::<Vec<_>>()
             .join("")
     )]
-    ValidationErrors { errors: Vec<Diagnostic> },
+    ValidationErrors {
+        errors: Vec<Diagnostic>,
+        project_name: ProjectName,
+    },
 
     #[error("Persisting operation(s) failed:{0}",
         errors
@@ -247,7 +250,10 @@ pub enum BuildProjectError {
             .collect::<Vec<_>>()
             .join("")
     )]
-    PersistErrors { errors: Vec<PersistError> },
+    PersistErrors {
+        errors: Vec<PersistError>,
+        project_name: ProjectName,
+    },
 
     #[error("Failed to write file `{file}`: {source}")]
     WriteFileError { file: PathBuf, source: io::Error },

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<0b888ff6f3615cf2ae10264d9f6c6b2f>>
+ * @generated SignedSource<<035b406d219665764d03c3e513056178>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,8 +19,8 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 export type RelayReaderTestFeatureEnableReactFlightComponentFieldFlightQuery$variables = {|
-  id: string,
   count: number,
+  id: string,
 |};
 export type RelayReaderTestFeatureEnableReactFlightComponentFieldFlightQuery$data = {|
   +node: ?{|
@@ -28,8 +28,8 @@ export type RelayReaderTestFeatureEnableReactFlightComponentFieldFlightQuery$dat
   |},
 |};
 export type RelayReaderTestFeatureEnableReactFlightComponentFieldFlightQuery = {|
-  variables: RelayReaderTestFeatureEnableReactFlightComponentFieldFlightQuery$variables,
   response: RelayReaderTestFeatureEnableReactFlightComponentFieldFlightQuery$data,
+  variables: RelayReaderTestFeatureEnableReactFlightComponentFieldFlightQuery$variables,
 |};
 */
 

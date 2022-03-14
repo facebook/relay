@@ -28,22 +28,22 @@ export type UpdatableQuery$data = {|
       name: ?string,
     |},
     set actor(value: ?({
-      +$fragmentSpreads: Assignable_page$fragmentType,
       +__typename: "Page",
       +__id: string,
+      +$fragmentSpreads: Assignable_page$fragmentType,
       ...
     } | {
-      +$fragmentSpreads: Assignable_node$fragmentType,
-      +__isAssignable_node: string,
       +__id: string,
+      +__isAssignable_node: string,
+      +$fragmentSpreads: Assignable_node$fragmentType,
       ...
     })): void,
   |},
   set me(value: null | void): void,
 |};
 export type UpdatableQuery = {|
-  variables: UpdatableQuery$variables,
   response: UpdatableQuery$data,
+  variables: UpdatableQuery$variables,
 |};
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";

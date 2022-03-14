@@ -18,8 +18,8 @@ fragment FriendFragment on User {
 ==================================== OUTPUT ===================================
 import type { FriendFragment$fragmentType } from "FriendFragment.graphql";
 export type ExampleQuery$variables = {|
-  id: string,
   condition: CustomBoolean,
+  id: string,
 |};
 export type ExampleQuery$data = {|
   +node: ?{|
@@ -29,33 +29,33 @@ export type ExampleQuery$data = {|
 export type ExampleQuery$rawResponse = {|
   +node: ?({|
     +__typename: "User",
-    +id: string,
-    +name: ?string,
-    +lastName: ?string,
     +feedback: ?{|
       +id: string,
       +name: ?string,
     |},
+    +id: string,
+    +lastName: ?string,
+    +name: ?string,
   |} | {|
     +__typename: string,
     +id: string,
   |}),
 |};
 export type ExampleQuery = {|
-  variables: ExampleQuery$variables,
-  response: ExampleQuery$data,
   rawResponse: ExampleQuery$rawResponse,
+  response: ExampleQuery$data,
+  variables: ExampleQuery$variables,
 |};
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";
 declare export opaque type FriendFragment$fragmentType: FragmentType;
 export type FriendFragment$data = {|
-  +name?: ?string,
-  +lastName?: ?string,
   +feedback?: ?{|
     +id: string,
     +name: ?string,
   |},
+  +lastName?: ?string,
+  +name?: ?string,
   +$fragmentType: FriendFragment$fragmentType,
 |};
 export type FriendFragment$key = {

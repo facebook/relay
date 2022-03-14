@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a21843c6cf79b606ad323d1545236cf6>>
+ * @generated SignedSource<<69036b4325de6c366810f6d777c9bbb9>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -26,8 +26,8 @@ export type useIsParentQueryActiveTestUserQuery$data = {|
   |},
 |};
 export type useIsParentQueryActiveTestUserQuery = {|
-  variables: useIsParentQueryActiveTestUserQuery$variables,
   response: useIsParentQueryActiveTestUserQuery$data,
+  variables: useIsParentQueryActiveTestUserQuery$variables,
 |};
 */
 

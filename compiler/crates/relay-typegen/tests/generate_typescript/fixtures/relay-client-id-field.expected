@@ -33,26 +33,26 @@ export type RelayClientIDFieldQuery$variables = {
 export type RelayClientIDFieldQuery$data = {
   readonly __id: string;
   readonly me: {
-    readonly __id: string;
     readonly __typename: string;
+    readonly __id: string;
     readonly id: string;
   } | null;
   readonly node: {
-    readonly __id: string;
     readonly __typename: string;
-    readonly id: string;
+    readonly __id: string;
     readonly commentBody?: {
-      readonly __id: string;
       readonly __typename: string;
+      readonly __id: string;
       readonly text?: {
-        readonly __id: string;
         readonly __typename: string;
+        readonly __id: string;
         readonly text: string | null;
       } | null;
     } | null;
+    readonly id: string;
   } | null;
 };
 export type RelayClientIDFieldQuery = {
-  variables: RelayClientIDFieldQuery$variables;
   response: RelayClientIDFieldQuery$data;
+  variables: RelayClientIDFieldQuery$variables;
 };

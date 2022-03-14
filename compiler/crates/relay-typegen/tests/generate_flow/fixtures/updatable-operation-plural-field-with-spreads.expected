@@ -14,15 +14,15 @@ export type UpdatableQuery$variables = {||};
 export type UpdatableQuery$data = {|
   get nodes(): ?$ReadOnlyArray<?{||}>,
   set nodes(value: $ReadOnlyArray<{
-    +$fragmentSpreads: Updatable_user$fragmentType,
     +__typename: "User",
     +__id: string,
+    +$fragmentSpreads: Updatable_user$fragmentType,
     ...
   }>): void,
 |};
 export type UpdatableQuery = {|
-  variables: UpdatableQuery$variables,
   response: UpdatableQuery$data,
+  variables: UpdatableQuery$variables,
 |};
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b6695b0db7b05f93f9094cca8e7fea43>>
+ * @generated SignedSource<<cb40cc41a75df4b2499f583303fca44d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,22 +23,22 @@ export type ActorChangeTestQuery$data = {|
   +viewer: ?{|
     +newsFeed: ?{|
       +edges: ?$ReadOnlyArray<?{|
+        +actor_node: ?ActorChangePoint<{|
+          +actor_key: string,
+          +$fragmentSpreads: ActorChangeTestFeedUnitFragment$fragmentType,
+        |}>,
         +node: ?{|
           +actor: ?{|
             +name: ?string,
           |},
         |},
-        +actor_node: ?ActorChangePoint<{|
-          +actor_key: string,
-          +$fragmentSpreads: ActorChangeTestFeedUnitFragment$fragmentType,
-        |}>,
       |}>,
     |},
   |},
 |};
 export type ActorChangeTestQuery = {|
-  variables: ActorChangeTestQuery$variables,
   response: ActorChangeTestQuery$data,
+  variables: ActorChangeTestQuery$variables,
 |};
 */
 

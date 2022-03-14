@@ -79,12 +79,12 @@ import type { UserFrag2$fragmentType } from "UserFrag2.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type FragmentSpread$fragmentType: FragmentType;
 export type FragmentSpread$data = {|
-  +id: string,
-  +justFrag: ?{|
-    +$fragmentSpreads: PictureFragment$fragmentType,
-  |},
   +fragAndField: ?{|
     +uri: ?string,
+    +$fragmentSpreads: PictureFragment$fragmentType,
+  |},
+  +id: string,
+  +justFrag: ?{|
     +$fragmentSpreads: PictureFragment$fragmentType,
   |},
   +$fragmentSpreads: OtherFragment$fragmentType & UserFrag1$fragmentType & UserFrag2$fragmentType,

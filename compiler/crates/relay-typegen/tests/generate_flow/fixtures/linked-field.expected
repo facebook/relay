@@ -39,17 +39,15 @@ export type UnionTypeTest$data = {|
   |}),
 |};
 export type UnionTypeTest = {|
-  variables: UnionTypeTest$variables,
   response: UnionTypeTest$data,
+  variables: UnionTypeTest$variables,
 |};
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";
 declare export opaque type LinkedField$fragmentType: FragmentType;
 export type LinkedField$data = {|
-  +profilePicture: ?{|
-    +uri: ?string,
-    +width: ?number,
-    +height: ?number,
+  +actor: ?{|
+    +id: string,
   |},
   +hometown: ?{|
     +id: string,
@@ -57,8 +55,10 @@ export type LinkedField$data = {|
       +uri: ?string,
     |},
   |},
-  +actor: ?{|
-    +id: string,
+  +profilePicture: ?{|
+    +height: ?number,
+    +uri: ?string,
+    +width: ?number,
   |},
   +$fragmentType: LinkedField$fragmentType,
 |};

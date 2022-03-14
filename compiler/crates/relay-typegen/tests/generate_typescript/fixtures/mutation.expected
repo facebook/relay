@@ -17,8 +17,8 @@ mutation CommentCreateMutation(
 ==================================== OUTPUT ===================================
 export type CommentCreateInput = {
   clientMutationId?: string | null;
-  feedbackId?: string | null;
   feedback?: CommentfeedbackFeedback | null;
+  feedbackId?: string | null;
 };
 export type CommentfeedbackFeedback = {
   comment?: FeedbackcommentComment | null;
@@ -27,22 +27,22 @@ export type FeedbackcommentComment = {
   feedback?: CommentfeedbackFeedback | null;
 };
 export type CommentCreateMutation$variables = {
-  input: CommentCreateInput;
   first?: number | null;
+  input: CommentCreateInput;
   orderBy?: ReadonlyArray<string> | null;
 };
 export type CommentCreateMutation$data = {
   readonly commentCreate: {
     readonly comment: {
-      readonly id: string;
-      readonly name: string | null;
       readonly friends: {
         readonly count: number | null;
       } | null;
+      readonly id: string;
+      readonly name: string | null;
     } | null;
   } | null;
 };
 export type CommentCreateMutation = {
-  variables: CommentCreateMutation$variables;
   response: CommentCreateMutation$data;
+  variables: CommentCreateMutation$variables;
 };

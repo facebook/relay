@@ -89,27 +89,22 @@
 //! # Using InternId serde support
 //!
 //! `InternId`s defined with a `serdes` clause as shown above support
-//! de-duplication of common ids during serialization.  This can be especially
-//! useful for interned strings, but is applicable to any intern type whose
-//! target is serializable.  Because this deduplication is stateful but the
-//! serde api is stateless, you'll need to create a thread-local capability
-//! token each time you use deduplicating serialization:
+//! de-duplication of common ids during serialization.  This can be
+//! especially useful for interned strings, but is applicable to any
+//! intern type whose target is serializable.  Because this
+//! deduplication is stateful but the serde api is stateless, you'll
+//! need to wrap the entire data structure you serialize in
+//! `WithIntern` during serialization and deserialization:
 //! ```
 //! # use bincode::Result;
+//! # use crate::intern::WithIntern;
 //! # type MyId = crate::intern::string::StringId;
 //! pub fn serialize(v: &[MyId]) -> Result<Vec<u8>> {
-//!     let mut result = Vec::new();
-//!     let g = intern::SerGuard::default();  // Create serialization context
-//!     bincode::serialize_into(&mut result, v)?;
-//!     drop(g); // Clean up and reset serialization context
-//!     Ok(result)
+//!     bincode::serialize(&WithIntern(v))
 //! }
 //!
 //! pub fn deserialize(encoded: &[u8]) -> Result<Vec<MyId>> {
-//!     let g = intern::DeGuard::default();  // Create deserialization context
-//!     let result = bincode::deserialize(encoded)?;
-//!     drop(g); // Clean up and reset deserialization context
-//!     Ok(result)
+//!     WithIntern::strip(bincode::deserialize(encoded))
 //! }
 //! ```
 //! Note in particular that dropping a context resets sharing; if you create
@@ -130,4 +125,4 @@ pub use crate::atomic_arena::Zero;
 #[doc(inline)]
 pub use crate::idhasher::{BuildIdHasher, IdHasher};
 #[doc(inline)]
-pub use crate::intern::{AsInterned, DeGuard, InternId, InternSerdes, SerGuard};
+pub use crate::intern::{AsInterned, DeGuard, InternId, InternSerdes, SerGuard, WithIntern};

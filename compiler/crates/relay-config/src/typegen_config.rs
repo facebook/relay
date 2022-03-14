@@ -7,12 +7,11 @@
 
 use common::Rollout;
 use fnv::FnvBuildHasher;
-use indexmap::{IndexMap, IndexSet};
+use indexmap::IndexMap;
 use intern::string_key::StringKey;
 use serde::{Deserialize, Serialize};
 
 type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
-type FnvIndexSet<T> = IndexSet<T, FnvBuildHasher>;
 
 #[derive(Debug, Copy, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(deny_unknown_fields, rename_all = "lowercase")]
@@ -43,14 +42,6 @@ pub struct TypegenConfig {
     pub enum_module_suffix: Option<String>,
 
     /// # For Flow type generation
-    /// Generate enum files using Flow Enums instead of string unions for the
-    /// given GraphQL enum names.
-    /// Enums with names that start with lowercase are invalid Flow Enum values
-    /// and always generate legacy enums.
-    #[serde(default)]
-    pub flow_enums: FnvIndexSet<StringKey>,
-
-    /// # For Flow type generation
     /// When set, generated input types will have the listed fields optional
     /// even if the schema defines them as required.
     #[serde(default)]
@@ -79,6 +70,12 @@ pub struct TypegenConfig {
     /// This option enables emitting es modules artifacts.
     #[serde(default)]
     pub eager_es_modules: bool,
+
+    /// This option controls which emitted files have sorted fields, fragment names,
+    /// and union members. It also controls whether unions with more than one element
+    /// are written with surrounding parentheses.
+    #[serde(default)]
+    pub sort_typegen_items: SortTypegenItemsConfig,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Copy)]
@@ -137,5 +134,17 @@ impl FlowTypegenPhase {
             Final => Compat,
             Compat => Compat,
         }
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, Default)]
+pub struct SortTypegenItemsConfig {
+    #[serde(default)]
+    pub rollout: Rollout,
+}
+
+impl SortTypegenItemsConfig {
+    pub fn should_sort(&self, rollout_key: StringKey) -> bool {
+        self.rollout.check(rollout_key.lookup())
     }
 }

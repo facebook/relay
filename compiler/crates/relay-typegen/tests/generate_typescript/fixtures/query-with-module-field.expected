@@ -26,27 +26,27 @@ export type Test$data = {
 };
 export type Test_userRenderer = {
   readonly user: {
-    readonly username: string | null;
     readonly id: string;
+    readonly username: string | null;
   } | null;
 };
 export type Test$rawResponse = {
   readonly node: {
     readonly __typename: "User";
     readonly id: string;
-    readonly plainUserRenderer: {
-      readonly __module_operation_Test_user: any | null;
+    readonly plainUserRenderer: Local3DPayload<"Test_user", {}> | {
       readonly __module_component_Test_user: any | null;
-    } | Local3DPayload<"Test_user", {}> | null;
+      readonly __module_operation_Test_user: any | null;
+    } | null;
   } | {
     readonly __typename: string;
     readonly id: string;
   } | null;
 };
 export type Test = {
-  variables: Test$variables;
-  response: Test$data;
   rawResponse: Test$rawResponse;
+  response: Test$data;
+  variables: Test$variables;
 };
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<73816cff036b0b1149b9db01caf4079d>>
+ * @generated SignedSource<<f78de0f9e31a54e6fc09d7a2af7767f9>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,9 +19,9 @@ import type { ConcreteRequest, Query } from 'relay-runtime';
 type RelayModernFragmentSpecResolverTestQueryUserFragment$fragmentType = any;
 type RelayModernFragmentSpecResolverTestQueryUsersFragment$fragmentType = any;
 export type RelayModernFragmentSpecResolverTestQuery$variables = {|
+  fetchSize: boolean,
   id: string,
   size?: ?$ReadOnlyArray<?number>,
-  fetchSize: boolean,
 |};
 export type RelayModernFragmentSpecResolverTestQuery$data = {|
   +node: ?{|
@@ -29,8 +29,8 @@ export type RelayModernFragmentSpecResolverTestQuery$data = {|
   |},
 |};
 export type RelayModernFragmentSpecResolverTestQuery = {|
-  variables: RelayModernFragmentSpecResolverTestQuery$variables,
   response: RelayModernFragmentSpecResolverTestQuery$data,
+  variables: RelayModernFragmentSpecResolverTestQuery$variables,
 |};
 */
 

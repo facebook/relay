@@ -68,10 +68,10 @@ import type { FragmentType } from "relay-runtime";
 declare export opaque type InlineFragment$fragmentType: FragmentType;
 export type InlineFragment$data = {|
   +id: string,
-  +name?: ?string,
   +message?: ?{|
     +text: ?string,
   |},
+  +name?: ?string,
   +$fragmentType: InlineFragment$fragmentType,
 |};
 export type InlineFragment$key = {
@@ -99,12 +99,12 @@ declare export opaque type InlineFragmentKitchenSink$fragmentType: FragmentType;
 export type InlineFragmentKitchenSink$data = {|
   +actor: ?{|
     +id: string,
+    +name?: ?string,
     +profilePicture: ?{|
+      +height?: ?number,
       +uri: ?string,
       +width?: ?number,
-      +height?: ?number,
     |},
-    +name?: ?string,
     +$fragmentSpreads: SomeFragment$fragmentType,
   |},
   +$fragmentType: InlineFragmentKitchenSink$fragmentType,
@@ -120,10 +120,10 @@ declare export opaque type InlineFragmentWithOverlappingFields$fragmentType: Fra
 export type InlineFragmentWithOverlappingFields$data = {|
   +hometown?: ?{|
     +id: string,
-    +name: ?string,
     +message?: ?{|
       +text: ?string,
     |},
+    +name: ?string,
   |},
   +name?: ?string,
   +$fragmentType: InlineFragmentWithOverlappingFields$fragmentType,

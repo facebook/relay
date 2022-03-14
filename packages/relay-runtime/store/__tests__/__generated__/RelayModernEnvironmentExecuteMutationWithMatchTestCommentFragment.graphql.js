@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<8386b5d6b9a42a625d24cd86c543c375>>
+ * @generated SignedSource<<64ebd52754e68e75e0b2354309e8fccc>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,15 +23,15 @@ type RelayModernEnvironmentExecuteMutationWithMatchTestPlainUserNameRenderer_nam
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentExecuteMutationWithMatchTestCommentFragment$fragmentType: FragmentType;
 export type RelayModernEnvironmentExecuteMutationWithMatchTestCommentFragment$data = {|
-  +id: string,
   +actor: ?{|
     +name: ?string,
     +nameRenderer: ?{|
       +__fragmentPropName?: ?string,
       +__module_component?: ?string,
-      +$fragmentSpreads: RelayModernEnvironmentExecuteMutationWithMatchTestPlainUserNameRenderer_name$fragmentType & RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name$fragmentType,
+      +$fragmentSpreads: RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name$fragmentType & RelayModernEnvironmentExecuteMutationWithMatchTestPlainUserNameRenderer_name$fragmentType,
     |},
   |},
+  +id: string,
   +$fragmentType: RelayModernEnvironmentExecuteMutationWithMatchTestCommentFragment$fragmentType,
 |};
 export type RelayModernEnvironmentExecuteMutationWithMatchTestCommentFragment$key = {

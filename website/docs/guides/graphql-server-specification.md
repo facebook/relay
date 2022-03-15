@@ -193,7 +193,7 @@ Let's take the rebels, and ask for their first ship:
 ```graphql
 query RebelsShipsQuery {
   rebels {
-    name,
+    name
     ships(first: 1) {
       edges {
         node {
@@ -229,7 +229,7 @@ That used the `first` argument to `ships` to slice the result set down to the fi
 ```
 query MoreRebelShipsQuery {
   rebels {
-    name,
+    name
     ships(first: 2) {
       edges {
         cursor
@@ -275,10 +275,10 @@ Notice that the cursor is a base64 string. That's the pattern from earlier: the 
 
 query EndOfRebelShipsQuery {
   rebels {
-    name,
+    name
     ships(first: 3 after: "YXJyYXljb25uZWN0aW9uOjE=") {
       edges {
-        cursor,
+        cursor
         node {
           name
         }
@@ -327,10 +327,10 @@ Sweet! Let's keep going and get the next four!
 ```graphql
 query RebelsQuery {
   rebels {
-    name,
+    name
     ships(first: 4 after: "YXJyYXljb25uZWN0aW9uOjQ=") {
       edges {
-        cursor,
+        cursor
         node {
           name
         }
@@ -358,7 +358,7 @@ Hm. There were no more ships; guess there were only five in the system for the r
 ```graphql
 query EndOfRebelShipsQuery {
   rebels {
-    name,
+    name
     originalShips: ships(first: 2) {
       edges {
         node {

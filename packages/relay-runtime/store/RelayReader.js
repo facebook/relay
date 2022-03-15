@@ -15,6 +15,7 @@
 import type {
   ReaderActorChange,
   ReaderClientEdge,
+  ReaderClientEdgeToServerObject,
   ReaderFlightField,
   ReaderFragment,
   ReaderFragmentSpread,
@@ -47,6 +48,8 @@ import type {ResolverCache} from './ResolverCache';
 const {
   ACTOR_CHANGE,
   CLIENT_EDGE,
+  CLIENT_EDGE_TO_CLIENT_OBJECT,
+  CLIENT_EDGE_TO_SERVER_OBJECT,
   CLIENT_EXTENSION,
   CONDITION,
   DEFER,
@@ -471,7 +474,12 @@ class RelayReader {
         case ACTOR_CHANGE:
           this._readActorChange(selection, record, data);
           break;
+        case CLIENT_EDGE_TO_CLIENT_OBJECT:
+          throw new Error(
+            'Client edges to client objects are not yet supported.',
+          );
         case CLIENT_EDGE:
+        case CLIENT_EDGE_TO_SERVER_OBJECT:
           if (RelayFeatureFlags.ENABLE_CLIENT_EDGES) {
             this._readClientEdge(selection, record, data);
           } else {
@@ -644,7 +652,7 @@ class RelayReader {
   }
 
   _readClientEdge(
-    field: ReaderClientEdge,
+    field: ReaderClientEdgeToServerObject | ReaderClientEdge,
     record: Record,
     data: SelectorData,
   ): void {

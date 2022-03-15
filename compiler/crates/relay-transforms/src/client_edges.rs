@@ -34,10 +34,14 @@ lazy_static! {
     pub static ref CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME: StringKey = "waterfall".intern();
 }
 
+pub enum EdgeType {
+    Server { query_name: StringKey },
+}
+
 pub struct ClientEdgeMetadata<'a> {
     pub backing_field: &'a Selection,
     pub selections: &'a Selection,
-    pub query_name: StringKey,
+    pub edge_type: EdgeType,
 }
 
 // Client edges consists of two parts:
@@ -69,7 +73,7 @@ impl<'a> ClientEdgeMetadata<'a> {
                     .expect("queryName is a string literal");
 
                 ClientEdgeMetadata {
-                    query_name,
+                    edge_type: EdgeType::Server { query_name },
                     backing_field: fragment
                         .selections
                         .get(0)

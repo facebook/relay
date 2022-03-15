@@ -24,7 +24,7 @@ use relay_transforms::{
     extract_connection_metadata_from_directive, extract_handle_field_directives,
     extract_values_from_handle_field_directive, generate_abstract_type_refinement_key,
     remove_directive, ClientEdgeMetadata, ConnectionConstants, ConnectionMetadata, DeferDirective,
-    InlineDirectiveMetadata, ModuleMetadata, RefetchableMetadata, RelayDirective,
+    EdgeType, InlineDirectiveMetadata, ModuleMetadata, RefetchableMetadata, RelayDirective,
     RelayResolverSpreadMetadata, RequiredMetadataDirective, StreamDirective,
     CLIENT_EXTENSION_DIRECTIVE_NAME, DEFER_STREAM_CONSTANTS, DIRECTIVE_SPLIT_OPERATION,
     INLINE_DIRECTIVE_NAME, INTERNAL_METADATA_DIRECTIVE, NO_INLINE_DIRECTIVE_NAME,
@@ -892,12 +892,14 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             _ => panic!("Expected Client Edge selections to be a LinkedField"),
         };
 
-        Primitive::Key(self.object(object! {
-            kind: Primitive::String(CODEGEN_CONSTANTS.client_edge),
-            operation: Primitive::GraphQLModuleDependency(client_edge_metadata.query_name),
-            client_edge_backing_field_key: backing_field,
-            client_edge_selections_key: selections_item,
-        }))
+        match client_edge_metadata.edge_type {
+            EdgeType::Server { query_name } => Primitive::Key(self.object(object! {
+                kind: Primitive::String(CODEGEN_CONSTANTS.client_edge),
+                operation: Primitive::GraphQLModuleDependency(query_name),
+                client_edge_backing_field_key: backing_field,
+                client_edge_selections_key: selections_item,
+            })),
+        }
     }
 
     fn build_inline_fragment(&mut self, inline_frag: &InlineFragment) -> Primitive {

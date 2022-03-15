@@ -19,7 +19,7 @@ fragment TestFragment on User {
                     alias: None,
                     definition: WithLocation {
                         location: simple-fragment.graphql:34:36,
-                        item: FieldID(466),
+                        item: FieldID(456),
                     },
                     arguments: [],
                     directives: [],

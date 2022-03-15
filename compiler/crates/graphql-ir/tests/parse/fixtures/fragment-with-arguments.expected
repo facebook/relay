@@ -94,7 +94,7 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
                     alias: None,
                     definition: WithLocation {
                         location: fragment-with-arguments.graphql:131:145,
-                        item: FieldID(480),
+                        item: FieldID(470),
                     },
                     arguments: [
                         Argument {
@@ -126,7 +126,7 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
                             alias: None,
                             definition: WithLocation {
                                 location: fragment-with-arguments.graphql:172:175,
-                                item: FieldID(185),
+                                item: FieldID(176),
                             },
                             arguments: [],
                             directives: [],
@@ -142,7 +142,7 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
                     ),
                     definition: WithLocation {
                         location: fragment-with-arguments.graphql:198:212,
-                        item: FieldID(480),
+                        item: FieldID(470),
                     },
                     arguments: [
                         Argument {
@@ -174,7 +174,7 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
                             alias: None,
                             definition: WithLocation {
                                 location: fragment-with-arguments.graphql:232:235,
-                                item: FieldID(185),
+                                item: FieldID(176),
                             },
                             arguments: [],
                             directives: [],
@@ -253,7 +253,7 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
                     alias: None,
                     definition: WithLocation {
                         location: fragment-with-arguments.graphql:347:349,
-                        item: FieldID(466),
+                        item: FieldID(456),
                     },
                     arguments: [],
                     directives: [],

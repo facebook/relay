@@ -8,7 +8,7 @@ mutation CommentCreateMutation($input: CommentCreateInput!) {
 }
 ==================================== OUTPUT ===================================
 export type CommentCreateInput = {
-  clientMutationId?: string | null;
+  client_mutation_id: string;
   feedback?: CommentfeedbackFeedback | null;
   feedbackId?: string | null;
 };

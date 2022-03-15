@@ -1,13 +1,13 @@
 ==================================== INPUT ====================================
 subscription SubscriptionWithValidNameSubscription {
     feedbackLikeSubscribe(input: null) {
-        clientMutationId
+        __typename
     }
 }
 
 subscription SubscriptionWithValidNameSecondSubscription {
     feedbackLikeSubscribe(input: null) {
-        clientMutationId
+        __typename
     }
 }
 ==================================== OUTPUT ===================================

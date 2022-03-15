@@ -10,7 +10,7 @@ query clientFieldsOnRoots_FooQuery($id: ID!) {
 mutation clientFieldsOnRoots_FooMutation($input: UnfriendInput) {
   client_root_field
   unfriend(input: $input) {
-    clientMutationId
+    __typename
   }
 }
 
@@ -67,7 +67,7 @@ extend type Mutation {
             "alias": null,
             "args": null,
             "kind": "ScalarField",
-            "name": "clientMutationId",
+            "name": "__typename",
             "storageKey": null
           }
         ],
@@ -119,7 +119,7 @@ extend type Mutation {
             "alias": null,
             "args": null,
             "kind": "ScalarField",
-            "name": "clientMutationId",
+            "name": "__typename",
             "storageKey": null
           }
         ],
@@ -154,7 +154,7 @@ mutation clientFieldsOnRoots_FooMutation(
   $input: UnfriendInput
 ) {
   unfriend(input: $input) {
-    clientMutationId
+    __typename
   }
 }
 

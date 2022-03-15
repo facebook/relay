@@ -1,7 +1,7 @@
 ==================================== INPUT ====================================
 mutation MutationWithInvalidSuffixQuery {
     commentCreate(input: null) {
-        clientMutationId
+        __typename
     }
 }
 ==================================== OUTPUT ===================================

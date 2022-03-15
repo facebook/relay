@@ -8,7 +8,6 @@ mutation InputHasArray($input: UpdateAllSeenStateInput) @raw_response_type {
 }
 ==================================== OUTPUT ===================================
 export type UpdateAllSeenStateInput = {
-  clientMutationId?: string | null;
   storyIds?: ReadonlyArray<string | null> | null;
 };
 export type InputHasArray$variables = {

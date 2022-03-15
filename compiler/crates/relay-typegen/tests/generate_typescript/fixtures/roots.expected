@@ -39,7 +39,7 @@ export type ExampleQuery = {
 };
 -------------------------------------------------------------------------------
 export type CommentCreateInput = {
-  clientMutationId?: string | null;
+  client_mutation_id: string;
   feedback?: CommentfeedbackFeedback | null;
   feedbackId?: string | null;
 };
@@ -65,7 +65,6 @@ export type TestMutation = {
 };
 -------------------------------------------------------------------------------
 export type FeedbackLikeInput = {
-  clientMutationId?: string | null;
   feedbackId?: string | null;
 };
 export type TestSubscription$variables = {

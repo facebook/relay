@@ -30,7 +30,7 @@ fragment FriendFragment on User {
 import type { FriendFragment$fragmentType } from "FriendFragment.graphql";
 export type TestEnums = "mark" | "zuck" | "%future added value";
 export type CommentCreateInput = {|
-  clientMutationId?: ?string,
+  client_mutation_id: string,
   feedback?: ?CommentfeedbackFeedback,
   feedbackId?: ?string,
 |};

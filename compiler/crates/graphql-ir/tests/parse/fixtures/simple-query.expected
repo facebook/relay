@@ -70,7 +70,7 @@ query TestQuery($id: ID!) {
                             alias: None,
                             definition: WithLocation {
                                 location: simple-query.graphql:55:57,
-                                item: FieldID(220),
+                                item: FieldID(211),
                             },
                             arguments: [],
                             directives: [],

@@ -76,7 +76,7 @@ extend type User {
   "name": "Foo_user",
   "selections": [
     {
-      "kind": "ClientEdge",
+      "kind": "ClientEdgeToServerObject",
       "operation": require('ClientEdgeQuery_Foo_user_best_friend.graphql'),
       "backingField": {
         "alias": null,

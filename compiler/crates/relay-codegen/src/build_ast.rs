@@ -894,8 +894,13 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
 
         match client_edge_metadata.edge_type {
             EdgeType::Server { query_name } => Primitive::Key(self.object(object! {
-                kind: Primitive::String(CODEGEN_CONSTANTS.client_edge),
+                kind: Primitive::String(CODEGEN_CONSTANTS.client_edge_to_server_object),
                 operation: Primitive::GraphQLModuleDependency(query_name),
+                client_edge_backing_field_key: backing_field,
+                client_edge_selections_key: selections_item,
+            })),
+            EdgeType::Client => Primitive::Key(self.object(object! {
+                kind: Primitive::String(CODEGEN_CONSTANTS.client_edge_to_client_object),
                 client_edge_backing_field_key: backing_field,
                 client_edge_selections_key: selections_item,
             })),

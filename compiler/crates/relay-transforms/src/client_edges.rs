@@ -36,6 +36,7 @@ lazy_static! {
 
 pub enum EdgeType {
     Server { query_name: StringKey },
+    Client,
 }
 
 pub struct ClientEdgeMetadata<'a> {
@@ -63,17 +64,20 @@ impl<'a> ClientEdgeMetadata<'a> {
             .directives
             .named(*CLIENT_EDGE_METADATA_KEY)
             .map(|directive| {
-                let query_name = directive
-                    .arguments
-                    .named(*QUERY_NAME_ARG)
-                    .expect("Client Edge metadata should have a query name")
-                    .value
-                    .item
-                    .get_string_literal()
-                    .expect("queryName is a string literal");
+                let query_name = directive.arguments.named(*QUERY_NAME_ARG).map(|arg| {
+                    arg.value
+                        .item
+                        .get_string_literal()
+                        .expect("queryName is a string literal")
+                });
+
+                let edge_type = match query_name {
+                    Some(query_name) => EdgeType::Server { query_name },
+                    None => EdgeType::Client,
+                };
 
                 ClientEdgeMetadata {
-                    edge_type: EdgeType::Server { query_name },
+                    edge_type,
                     backing_field: fragment
                         .selections
                         .get(0)
@@ -219,7 +223,8 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
     }
 
     fn transform_linked_field_impl(&mut self, field: &LinkedField) -> Transformed<Selection> {
-        let field_type = self.program.schema.field(field.definition.item);
+        let schema = &self.program.schema;
+        let field_type = schema.field(field.definition.item);
         // Eventually we will want to enable client edges on non-resolver client
         // schema extensions, but we'll start with limiting them to resolvers.
         if !field_type.is_extension
@@ -245,7 +250,7 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
             .named(*CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME)
             .is_none()
         {
-            let field_definition = self.program.schema.field(field.definition().item);
+            let field_definition = schema.field(field.definition().item);
             self.errors.push(Diagnostic::error_with_data(
                 ValidationMessageWithData::RelayResolversMissingWaterfall {
                     field_name: field_definition.name.item,
@@ -258,13 +263,23 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
             .transform_selections(&field.selections)
             .replace_or_else(|| field.selections.clone());
 
-        let client_edge_query_name = self.generate_query_name();
+        let mut arguments = Vec::new();
 
-        self.generate_client_edge_query(
-            client_edge_query_name,
-            field_type.type_.inner(),
-            new_selections.clone(),
-        );
+        if !schema.is_extension_type(field_type.type_.inner()) {
+            let client_edge_query_name = self.generate_query_name();
+
+            self.generate_client_edge_query(
+                client_edge_query_name,
+                field_type.type_.inner(),
+                new_selections.clone(),
+            );
+            arguments.push(Argument {
+                name: WithLocation::generated(*QUERY_NAME_ARG),
+                value: WithLocation::generated(Value::Constant(ConstantValue::String(
+                    client_edge_query_name,
+                ))),
+            })
+        }
 
         let transformed_field = Arc::new(LinkedField {
             selections: new_selections,
@@ -275,12 +290,7 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
             type_condition: None,
             directives: vec![Directive {
                 name: WithLocation::generated(*CLIENT_EDGE_METADATA_KEY),
-                arguments: vec![Argument {
-                    name: WithLocation::generated(*QUERY_NAME_ARG),
-                    value: WithLocation::generated(Value::Constant(ConstantValue::String(
-                        client_edge_query_name,
-                    ))),
-                }],
+                arguments,
                 data: None,
             }],
             selections: vec![

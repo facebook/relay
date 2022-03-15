@@ -5,7 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::refetchable_fragment::{RefetchableFragment, REFETCHABLE_NAME};
+use crate::{
+    refetchable_fragment::{RefetchableFragment, REFETCHABLE_NAME},
+    ValidationMessage,
+};
 use graphql_syntax::OperationKind;
 use intern::string_key::{Intern, StringKey, StringKeyMap};
 use lazy_static::lazy_static;
@@ -265,7 +268,16 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
 
         let mut arguments = Vec::new();
 
-        if !schema.is_extension_type(field_type.type_.inner()) {
+        let edge_to_type = field_type.type_.inner();
+
+        if schema.is_extension_type(edge_to_type) {
+            if edge_to_type.is_interface() {
+                self.errors.push(Diagnostic::error(
+                    ValidationMessage::ClientEdgeToClientInterface,
+                    field.alias_or_name_location(),
+                ));
+            }
+        } else {
             let client_edge_query_name = self.generate_query_name();
 
             self.generate_client_edge_query(

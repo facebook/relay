@@ -170,6 +170,11 @@ pub enum ValidationMessage {
         "Each field on a given type can have only a single @module directive, but here there is more than one (perhaps within different spreads). To fix it, put each @module directive into its own aliased copy of the field with different aliases."
     )]
     ConflictingModuleSelections,
+
+    #[error(
+        "Client Edges that reference client-defined interface types are not currently supported in Relay."
+    )]
+    ClientEdgeToClientInterface,
 }
 
 #[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]

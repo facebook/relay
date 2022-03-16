@@ -5,9 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use super::CLIENT_EDGE_METADATA_KEY;
-use crate::util::PointerAddress;
-use common::{NamedItem, WithLocation};
+use crate::{client_edges::ClientEdgeMetadataDirective, util::PointerAddress};
+use common::WithLocation;
 use fnv::FnvHashMap;
 use graphql_ir::{
     Directive, InlineFragment, LinkedField, Program, ScalarField, Selection, Transformed,
@@ -140,11 +139,7 @@ impl Transformer for ClientExtensionsTransform<'_> {
         //
         // Client edges are all explicitly handled for each artifact type, so we
         // don't need to handle them specifically as client schema extensions.
-        if fragment
-            .directives
-            .named(*CLIENT_EDGE_METADATA_KEY)
-            .is_some()
-        {
+        if ClientEdgeMetadataDirective::find(&fragment.directives).is_some() {
             return Transformed::Keep;
         }
         if let Some(type_condition) = fragment.type_condition {

@@ -23,14 +23,14 @@ use md5::{Digest, Md5};
 use relay_transforms::{
     extract_connection_metadata_from_directive, extract_handle_field_directives,
     extract_values_from_handle_field_directive, generate_abstract_type_refinement_key,
-    remove_directive, ClientEdgeMetadata, ConnectionConstants, ConnectionMetadata, DeferDirective,
-    EdgeType, InlineDirectiveMetadata, ModuleMetadata, RefetchableMetadata, RelayDirective,
-    RelayResolverSpreadMetadata, RequiredMetadataDirective, StreamDirective,
-    CLIENT_EXTENSION_DIRECTIVE_NAME, DEFER_STREAM_CONSTANTS, DIRECTIVE_SPLIT_OPERATION,
-    INLINE_DIRECTIVE_NAME, INTERNAL_METADATA_DIRECTIVE, NO_INLINE_DIRECTIVE_NAME,
-    REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY, RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN,
-    RELAY_CLIENT_COMPONENT_MODULE_ID_ARGUMENT_NAME, RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME,
-    TYPE_DISCRIMINATOR_DIRECTIVE_NAME,
+    remove_directive, ClientEdgeMetadata, ClientEdgeMetadataDirective, ConnectionConstants,
+    ConnectionMetadata, DeferDirective, InlineDirectiveMetadata, ModuleMetadata,
+    RefetchableMetadata, RelayDirective, RelayResolverSpreadMetadata, RequiredMetadataDirective,
+    StreamDirective, CLIENT_EXTENSION_DIRECTIVE_NAME, DEFER_STREAM_CONSTANTS,
+    DIRECTIVE_SPLIT_OPERATION, INLINE_DIRECTIVE_NAME, INTERNAL_METADATA_DIRECTIVE,
+    NO_INLINE_DIRECTIVE_NAME, REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY,
+    RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN, RELAY_CLIENT_COMPONENT_MODULE_ID_ARGUMENT_NAME,
+    RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME, TYPE_DISCRIMINATOR_DIRECTIVE_NAME,
 };
 use schema::{SDLSchema, Schema};
 
@@ -892,19 +892,23 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             _ => panic!("Expected Client Edge selections to be a LinkedField"),
         };
 
-        match client_edge_metadata.edge_type {
-            EdgeType::Server { query_name } => Primitive::Key(self.object(object! {
-                kind: Primitive::String(CODEGEN_CONSTANTS.client_edge_to_server_object),
-                operation: Primitive::GraphQLModuleDependency(query_name),
-                client_edge_backing_field_key: backing_field,
-                client_edge_selections_key: selections_item,
-            })),
-            EdgeType::Client { type_name } => Primitive::Key(self.object(object! {
-                kind: Primitive::String(CODEGEN_CONSTANTS.client_edge_to_client_object),
-                concrete_type: Primitive::String(type_name),
-                client_edge_backing_field_key: backing_field,
-                client_edge_selections_key: selections_item,
-            })),
+        match client_edge_metadata.metadata_directive {
+            ClientEdgeMetadataDirective::ServerObject { query_name } => {
+                Primitive::Key(self.object(object! {
+                    kind: Primitive::String(CODEGEN_CONSTANTS.client_edge_to_server_object),
+                    operation: Primitive::GraphQLModuleDependency(query_name),
+                    client_edge_backing_field_key: backing_field,
+                    client_edge_selections_key: selections_item,
+                }))
+            }
+            ClientEdgeMetadataDirective::ClientObject { type_name } => {
+                Primitive::Key(self.object(object! {
+                    kind: Primitive::String(CODEGEN_CONSTANTS.client_edge_to_client_object),
+                    concrete_type: Primitive::String(type_name),
+                    client_edge_backing_field_key: backing_field,
+                    client_edge_selections_key: selections_item,
+                }))
+            }
         }
     }
 

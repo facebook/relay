@@ -22,7 +22,11 @@ fragment BestFriendResolverFragment_name on User {
 }
 
 fragment Foo_user on User {
-  ... @__clientEdge(queryName: "ClientEdgeQuery_Foo_user_best_friend") {
+  ... @__ClientEdgeMetadataDirective
+  # ServerObject {
+  #     query_name: "ClientEdgeQuery_Foo_user_best_friend",
+  # }
+   {
     ...BestFriendResolverFragment_name @__RelayResolverSpreadMetadata
     # RelayResolverSpreadMetadata {
     #     field_parent_type: "User",
@@ -34,7 +38,11 @@ fragment Foo_user on User {
     # }
      @waterfall
     best_friend @waterfall {
-      ... @__clientEdge(queryName: "ClientEdgeQuery_Foo_user_best_friend__best_friend") {
+      ... @__ClientEdgeMetadataDirective
+      # ServerObject {
+      #     query_name: "ClientEdgeQuery_Foo_user_best_friend__best_friend",
+      # }
+       {
         ...BestFriendResolverFragment_name @__RelayResolverSpreadMetadata
         # RelayResolverSpreadMetadata {
         #     field_parent_type: "User",
@@ -64,7 +72,11 @@ fragment RefetchableClientEdgeQuery_Foo_user_best_friend on User @__clientEdgeGe
 #     ),
 # }
  {
-  ... @__clientEdge(queryName: "ClientEdgeQuery_Foo_user_best_friend__best_friend") {
+  ... @__ClientEdgeMetadataDirective
+  # ServerObject {
+  #     query_name: "ClientEdgeQuery_Foo_user_best_friend__best_friend",
+  # }
+   {
     ...BestFriendResolverFragment_name @__RelayResolverSpreadMetadata
     # RelayResolverSpreadMetadata {
     #     field_parent_type: "User",

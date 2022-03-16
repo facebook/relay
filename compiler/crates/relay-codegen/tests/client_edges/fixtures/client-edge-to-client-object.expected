@@ -45,6 +45,7 @@ extend type User {
   "selections": [
     {
       "kind": "ClientEdgeToClientObject",
+      "concreteType": "ClientOnlyType",
       "backingField": {
         "alias": null,
         "fragment": {

@@ -899,8 +899,9 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                 client_edge_backing_field_key: backing_field,
                 client_edge_selections_key: selections_item,
             })),
-            EdgeType::Client => Primitive::Key(self.object(object! {
+            EdgeType::Client { type_name } => Primitive::Key(self.object(object! {
                 kind: Primitive::String(CODEGEN_CONSTANTS.client_edge_to_client_object),
+                concrete_type: Primitive::String(type_name),
                 client_edge_backing_field_key: backing_field,
                 client_edge_selections_key: selections_item,
             })),

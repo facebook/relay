@@ -24,7 +24,7 @@ fragment BestFriendResolverFragment_name on User {
 }
 
 fragment Foo_user on User {
-  ... @__clientEdge {
+  ... @__clientEdge(typeName: "ClientOnlyType") {
     ...BestFriendResolverFragment_name @__RelayResolverSpreadMetadata
     # RelayResolverSpreadMetadata {
     #     field_parent_type: "User",

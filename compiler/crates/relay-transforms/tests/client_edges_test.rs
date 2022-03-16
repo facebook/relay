@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<29c361a87c7765eb988394b85979ad9b>>
+ * @generated SignedSource<<0189f034a7e22371db99a51761b30132>>
  */
 
 mod client_edges;
@@ -45,6 +45,13 @@ fn client_edge_to_client_object() {
     let input = include_str!("client_edges/fixtures/client-edge-to-client-object.graphql");
     let expected = include_str!("client_edges/fixtures/client-edge-to-client-object.expected");
     test_fixture(transform_fixture, "client-edge-to-client-object.graphql", "client_edges/fixtures/client-edge-to-client-object.expected", input, expected);
+}
+
+#[test]
+fn client_edge_to_client_union_invalid() {
+    let input = include_str!("client_edges/fixtures/client-edge-to-client-union.invalid.graphql");
+    let expected = include_str!("client_edges/fixtures/client-edge-to-client-union.invalid.expected");
+    test_fixture(transform_fixture, "client-edge-to-client-union.invalid.graphql", "client_edges/fixtures/client-edge-to-client-union.invalid.expected", input, expected);
 }
 
 #[test]
